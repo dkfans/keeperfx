@@ -123,6 +123,15 @@ enum DebugFlags {
     DFlg_unk02              =  0x02,
 };
 
+enum GameKinds {
+    GKind_Unknown0 = 0,
+    GKind_Unknown1,
+    GKind_NetworkGame,
+    GKind_Unknown3,
+    GKind_Unknown4,
+    GKind_KeeperGame,
+};
+
 struct TbLoadFiles;
 struct RoomFlag;
 struct Number;
@@ -423,18 +432,16 @@ char numfield_15;
 char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
-    struct Column columns[COLUMNS_COUNT];
+    struct Column columns_data[COLUMNS_COUNT];
 struct UnkStruc5 struc_D8C7[512];
 struct ObjectConfig objects_config[239];
 char field_117DA[14];
     struct ManfctrConfig traps_config[TRAP_TYPES_COUNT];
     struct ManfctrConfig doors_config[DOOR_TYPES_COUNT];
     struct SpellConfig spells_config[30];
-    struct Thing *things_lookup[THINGS_COUNT];
-    struct Thing *things_end;
+    struct Things things;
     struct Persons persons;
-    struct Column *columns_lookup[COLUMNS_COUNT];
-    struct Column *columns_end;
+    struct Columns columns;
     unsigned short slabset_num;
     struct SlabSet slabset[SLABSET_COUNT];
     unsigned short slabobjs_num;
@@ -579,7 +586,7 @@ unsigned char field_14EA3A[8];
 unsigned short field_14EA44;
 unsigned short field_14EA46;
     unsigned short food_generation_speed;
-char flagfield_14EA4A;
+char kind;
 char field_14EA4B;
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_COUNT];
     unsigned long default_max_crtrs_gen_entrance;

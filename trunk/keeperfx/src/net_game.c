@@ -156,7 +156,7 @@ short setup_select_player_number(void)
 void setup_count_players(void)
 {
   int i;
-  if (game.flagfield_14EA4A == 2)
+  if (game.kind == GKind_NetworkGame)
   {
     game.field_14E495 = 1;
   } else
