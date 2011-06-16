@@ -136,28 +136,28 @@ long i_can_allocate_free_control_structure(void)
 
 struct CreatureControl *allocate_free_control_structure(void)
 {
-  struct CreatureControl *cctrl;
-  long i;
-  for (i=1; i < CREATURES_COUNT; i++)
-  {
-    cctrl = game.persons.cctrl_lookup[i];
-    if (!creature_control_invalid(cctrl))
+    struct CreatureControl *cctrl;
+    long i;
+    for (i=1; i < CREATURES_COUNT; i++)
     {
-        if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
-        {
-            LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
-            cctrl->flgfield_1 |= CCFlg_Exists;
-            cctrl->index = i;
-            return cctrl;
-        }
+      cctrl = game.persons.cctrl_lookup[i];
+      if (!creature_control_invalid(cctrl))
+      {
+          if ((cctrl->flgfield_1 & CCFlg_Exists) == 0)
+          {
+              LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+              cctrl->flgfield_1 |= CCFlg_Exists;
+              cctrl->index = i;
+              return cctrl;
+          }
+      }
     }
-  }
-  return NULL;
+    return NULL;
 }
 
 void delete_control_structure(struct CreatureControl *cctrl)
 {
-  LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
+    LbMemorySet(cctrl, 0, sizeof(struct CreatureControl));
 }
 
 void delete_all_control_structures(void)
@@ -236,139 +236,139 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
 
 void clear_creature_instance(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->instance_id = CrInst_NULL;
-  cctrl->field_D4 = 0;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->instance_id = CrInst_NULL;
+    cctrl->field_D4 = 0;
 }
 
 TbBool disband_creatures_group(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  struct Thing *ntng;
-  struct Thing *ctng;
-  long k;
-  cctrl = creature_control_get_from_thing(thing);
-  if ((cctrl->field_7A & 0xFFF) == 0)
+    struct CreatureControl *cctrl;
+    struct Thing *ntng;
+    struct Thing *ctng;
+    long k;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->field_7A & 0xFFF) == 0)
+      return true;
+    // Find the last creature in group
+    ctng = thing;
+    k = 0;
+    while (cctrl->next_in_group > 0)
+    {
+        ctng = thing_get(cctrl->next_in_group);
+        cctrl = creature_control_get_from_thing(ctng);
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures group");
+          break;
+        }
+    }
+    // Disband the group, removing creatures from end
+    k = 0;
+    while (ctng != NULL)
+    {
+        cctrl = creature_control_get_from_thing(ctng);
+        ntng = thing_get(cctrl->prev_in_group);
+        if (!thing_is_invalid(ntng))
+        {
+          remove_creature_from_group(ctng);
+          ctng = ntng;
+        } else
+        {
+          ctng = NULL;
+        }
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures group");
+          return false;
+        }
+    }
     return true;
-  // Find the last creature in group
-  ctng = thing;
-  k = 0;
-  while (cctrl->next_in_group > 0)
-  {
-    ctng = thing_get(cctrl->next_in_group);
-    cctrl = creature_control_get_from_thing(ctng);
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures group");
-      break;
-    }
-  }
-  // Disband the group, removing creatures from end
-  k = 0;
-  while (ctng != NULL)
-  {
-    cctrl = creature_control_get_from_thing(ctng);
-    ntng = thing_get(cctrl->prev_in_group);
-    if (!thing_is_invalid(ntng))
-    {
-      remove_creature_from_group(ctng);
-      ctng = ntng;
-    } else
-    {
-      ctng = NULL;
-    }
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures group");
-      return false;
-    }
-  }
-  return true;
 }
 
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
 {
-  unsigned int cmodel;
-  cmodel = thing->model;
-  if ((cmodel < 1) || (cmodel >= CREATURE_TYPES_COUNT))
-  {
-    ERRORLOG("Trying to get sound for undefined creature type");
-    return NULL;
-  }
-  switch (snd_idx)
-  {
+    unsigned int cmodel;
+    cmodel = thing->model;
+    if ((cmodel < 1) || (cmodel >= CREATURE_TYPES_COUNT))
+    {
+        ERRORLOG("Trying to get sound for undefined creature type");
+        return NULL;
+    }
+    switch (snd_idx)
+    {
     case CrSnd_SlappedOuch:
-      return &creature_sounds[cmodel].snd05;
+        return &creature_sounds[cmodel].snd05;
     case 2:
-      return &creature_sounds[cmodel].snd02;
+        return &creature_sounds[cmodel].snd02;
     case 3:
-      return &creature_sounds[cmodel].snd03;
+        return &creature_sounds[cmodel].snd03;
     case CrSnd_PrisonMoan:
-      return &creature_sounds[cmodel].snd04;
+        return &creature_sounds[cmodel].snd04;
     case CrSnd_HandPick:
-      return &creature_sounds[cmodel].snd07;
+        return &creature_sounds[cmodel].snd07;
     case 6:
-      return &creature_sounds[cmodel].snd08;
+        return &creature_sounds[cmodel].snd08;
     case 7:
-      return &creature_sounds[cmodel].snd09;
+        return &creature_sounds[cmodel].snd09;
     case 8:
-      return &creature_sounds[cmodel].snd10;
+        return &creature_sounds[cmodel].snd10;
     case 9:
-      return &creature_sounds[cmodel].snd06;
+        return &creature_sounds[cmodel].snd06;
     case 10:
-      return &creature_sounds[cmodel].snd01;
+        return &creature_sounds[cmodel].snd01;
     case 11:
-      return &creature_sounds[cmodel].snd11;
+        return &creature_sounds[cmodel].snd11;
     default:
-      return NULL;
-  }
+        return NULL;
+    }
 }
 
 TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
 {
-  struct CreatureSound *crsound;
-  long i;
-  crsound = get_creature_sound(thing, snd_idx);
-  if (crsound == NULL)
+    struct CreatureSound *crsound;
+    long i;
+    crsound = get_creature_sound(thing, snd_idx);
+    if (crsound == NULL)
+      return false;
+    for (i=0; i < crsound->count; i++)
+    {
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
+          return true;
+    }
     return false;
-  for (i=0; i < crsound->count; i++)
-  {
-    if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
-      return true;
-  }
-  return false;
 }
 
 void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
 {
-  struct CreatureSound *crsound;
-  long i;
-  SYNCDBG(8,"Starting");
-  if (playing_creature_sound(thing, snd_idx))
-    return;
-  crsound = get_creature_sound(thing, snd_idx);
-  if (crsound == NULL)
-  {
-    //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
-    return;
-  }
-  i = UNSYNC_RANDOM(crsound->count);
-  //SYNCLOG("Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
-  if ( a4 )
-    thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, 256);
-  else
-    thing_play_sample(thing, crsound->index+i, 100, 0, 3, 0, a3, 256);
+    struct CreatureSound *crsound;
+    long i;
+    SYNCDBG(8,"Starting");
+    if (playing_creature_sound(thing, snd_idx))
+      return;
+    crsound = get_creature_sound(thing, snd_idx);
+    if (crsound == NULL)
+    {
+      //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
+      return;
+    }
+    i = UNSYNC_RANDOM(crsound->count);
+    //SYNCLOG("Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
+    if ( a4 )
+      thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, 256);
+    else
+      thing_play_sample(thing, crsound->index+i, 100, 0, 3, 0, a3, 256);
 }
 
 void reset_creature_eye_lens(struct Thing *thing)
 {
-  if (is_my_player_number(thing->owner))
-  {
-    setup_eye_lens(0);
-  }
+    if (is_my_player_number(thing->owner))
+    {
+        setup_eye_lens(0);
+    }
 }
 
 TbBool creature_can_gain_experience(struct Thing *thing)

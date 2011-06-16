@@ -154,7 +154,7 @@ void clear_players(void)
     bad_player.id_number = PLAYERS_COUNT;
     game.hero_player_num = hero_player_number;
     game.field_14E495 = 0;
-    game.kind = GKind_NetworkGame;
+    game.game_kind = GKind_NetworkGame;
 }
 
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx)

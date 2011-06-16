@@ -96,7 +96,7 @@ long get_combat_distance(struct Thing *thing, struct Thing *enemy)
 {
     long dist,avgc;
     dist = get_2d_box_distance(&thing->mappos, &enemy->mappos);
-    avgc = (enemy->field_56 + thing->field_56) / 2;
+    avgc = (enemy->sizexy + thing->sizexy) / 2;
     if (dist < avgc)
         return 0;
     return dist - avgc;

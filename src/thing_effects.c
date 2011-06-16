@@ -447,7 +447,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->field_2 = 0;
     thing->parent_thing_idx = thing->index;
     thing->owner = owner;
-    thing->field_56 = 1;
+    thing->sizexy = 1;
     thing->field_58 = 1;
     thing->field_5A = 1;
     thing->field_5C = 1;

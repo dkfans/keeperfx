@@ -1805,7 +1805,12 @@ void init_creature_level(struct Thing *thing, long nlev)
     thing->health = cctrl->max_health;
 }
 
-long get_creature_speed(struct Thing *thing)
+/** Retrieves speed of a creature.
+ *
+ * @param thing
+ * @return
+ */
+long get_creature_speed(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     long speed;
@@ -1988,7 +1993,7 @@ struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long 
   return _DK_get_creature_near_for_controlling(a1, a2, a3);
 }
 
-struct Thing *get_group_leader(struct Thing *thing)
+struct Thing *get_group_leader(const struct Thing *thing)
 {
   struct CreatureControl *cctrl;
   struct Thing *leader;
@@ -1997,14 +2002,14 @@ struct Thing *get_group_leader(struct Thing *thing)
   return leader;
 }
 
-TbBool creature_is_group_member(struct Thing *thing)
+TbBool creature_is_group_member(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     return ((cctrl->field_7A & 0xFFF) > 0);
 }
 
-TbBool creature_is_group_leader(struct Thing *thing)
+TbBool creature_is_group_leader(const struct Thing *thing)
 {
     struct Thing *leader;
     //return _DK_creature_is_group_leader(thing);
@@ -2208,7 +2213,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
-    crtng->field_56 = crstat->size_xy;
+    crtng->sizexy = crstat->size_xy;
     crtng->field_58 = crstat->size_yz;
     crtng->field_5A = crstat->thing_size_xy;
     crtng->field_5C = crstat->thing_size_yz;

@@ -256,7 +256,7 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     objconf = &game.objects_config[model];
     objdat = get_objects_data_for_thing(thing);
-    thing->field_56 = objdat->field_9;
+    thing->sizexy = objdat->field_9;
     thing->field_58 = objdat->field_B;
     thing->field_5A = objdat->field_9;
     thing->field_5C = objdat->field_B;
@@ -580,7 +580,7 @@ long object_update_dungeon_heart(struct Thing *thing)
       k = ((thing->health << 8) / game.objects_config[5].health) << 7;
       i = (saturate_set_signed(k,32) >> 8) + 128;
       thing->field_46 = i * (long)objects_data[5].field_D >> 8;
-      thing->field_56 = i * (long)objects_data[5].field_9 >> 8;
+      thing->sizexy = i * (long)objects_data[5].field_9 >> 8;
     } else
     if (thing->owner != game.neutral_player_num)
     {
