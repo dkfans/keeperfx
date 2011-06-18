@@ -4,21 +4,42 @@ Dungeon Keeper Fan Expansion
 KeeperFX is an extensive mod for Dungeon Keeper.
 
 It is written by fans and not supported by original developer.
-It contains some of original Dungeon Keeper data, but many files
+It requires some of original Dungeon Keeper data, but many files
 are also modified or remade.
 
 Installation of KeeperFX CCP:
 
-KeeperFX CCP contains all the files necessary to play the game.
-Decompress it anywhere, and it's ready to run. If you wish
-to change language, edit "keeperfx.cfg" and set its shortcut
-in the 'LANGUAGE=' line. Run "keeperfx.exe" to start the game.
-If something doesn't work, see the 'troubleshooting' section.
+Note that you need original Dungeon Keeper CD (or CD image)
+to perform complete installation.
+
+To install KeeperFX CCP, you have to unpack the archive to
+your desired target location, and then run "launcher.exe".
+The Launcher utility will allow you to select source folder
+from which original DK files will be taken. To select the
+folder and start copying files, press "Install" button.
+
+If you wish to change language, edit "keeperfx.cfg" and set
+its shortcut in the 'LANGUAGE=' line.
+
+Press the correct button inside Launcher to start the game.
+For information about running the game executable directly,
+see 'running KeeperFX' section. If something doesn't work,
+see the 'troubleshooting' section.
 
 Please note that there are two types of releases: complete
 version and patch. You need a complete version to play the game;
 a patch is only an additional feature, which you can use by
 overwriting some files from complete version with new ones.
+
+Supported DK releases:
+
+Here you can find a list of releases which you can use to get
+files required by KeeperFX:
+- Dungeon Keeper, english release
+- Dungeon Keeper, multilingual release
+- Dungeon Keeper Gold, english release
+- Dungeon Keeper Gold, multilingual release
+- Dungeon Keeper from GOG.com
 
 Available languages:
 
@@ -368,6 +389,18 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.40
+  Prepared game launcher with installation function
+  Updated some internal mechanisms, ie. columns finding
+  Made small revolution in the zooming system
+  Rewritten the green/red cube (map volume box) drawing
+  Fixed engine window center to be on screen center
+  Introduced new config file - creature states config
+  Improved room efficiency calculation
+  Rewritten a few more routines related to workshop
+  Fixed the sound emitter cleanup code
+  Rewritten revealing map due to torture
+  
 Version: 0.39a
   Updated compound eye effect for high resolution
   Fixed the problem with Dungeon Heart background sound
