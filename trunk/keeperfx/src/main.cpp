@@ -3224,57 +3224,57 @@ void zoom_from_map(void)
 
 void setup_engine_window(long x, long y, long width, long height)
 {
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting for size (%ld,%ld) at (%ld,%ld)",width,height,x,y);
-  player=get_my_player();
-  if (game.numfield_C & 0x20)
-  {
-    if (x > MyScreenWidth)
-      x = MyScreenWidth;
-    if (x < status_panel_width)
-      x = status_panel_width;
-  } else
-  {
-    if (x > MyScreenWidth)
-      x = MyScreenWidth;
-    if (x < 0)
-      x = 0;
-  }
-  if (y > MyScreenHeight)
-    y = MyScreenHeight;
-  if (y < 0)
-    y = 0;
-  if (x+width > MyScreenWidth)
-    width = MyScreenWidth-x;
-  if (width < 0)
-    width = 0;
-  if (y+height > MyScreenHeight)
-    height = MyScreenHeight-y;
-  if (height < 0)
-    height = 0;
-  player->engine_window_x = x;
-  player->engine_window_y = y;
-  player->engine_window_width = width;
-  player->engine_window_height = height;
+    struct PlayerInfo *player;
+    SYNCDBG(6,"Starting for size (%ld,%ld) at (%ld,%ld)",width,height,x,y);
+    player=get_my_player();
+    if (game.numfield_C & 0x20)
+    {
+      if (x > MyScreenWidth)
+        x = MyScreenWidth;
+      if (x < status_panel_width)
+        x = status_panel_width;
+    } else
+    {
+      if (x > MyScreenWidth)
+        x = MyScreenWidth;
+      if (x < 0)
+        x = 0;
+    }
+    if (y > MyScreenHeight)
+      y = MyScreenHeight;
+    if (y < 0)
+      y = 0;
+    if (x+width > MyScreenWidth)
+      width = MyScreenWidth-x;
+    if (width < 0)
+      width = 0;
+    if (y+height > MyScreenHeight)
+      height = MyScreenHeight-y;
+    if (height < 0)
+      height = 0;
+    player->engine_window_x = x;
+    player->engine_window_y = y;
+    player->engine_window_width = width;
+    player->engine_window_height = height;
 }
 
 void store_engine_window(TbGraphicsWindow *ewnd,int divider)
 {
-  struct PlayerInfo *player;
-  player=get_my_player();
-  if (divider <= 1)
-  {
-    ewnd->x = player->engine_window_x;
-    ewnd->y = player->engine_window_y;
-    ewnd->width = player->engine_window_width;
-    ewnd->height = player->engine_window_height;
-  } else
-  {
-    ewnd->x = player->engine_window_x/divider;
-    ewnd->y = player->engine_window_y/divider;
-    ewnd->width = player->engine_window_width/divider;
-    ewnd->height = player->engine_window_height/divider;
-  }
+    struct PlayerInfo *player;
+    player=get_my_player();
+    if (divider <= 1)
+    {
+        ewnd->x = player->engine_window_x;
+        ewnd->y = player->engine_window_y;
+        ewnd->width = player->engine_window_width;
+        ewnd->height = player->engine_window_height;
+    } else
+    {
+        ewnd->x = player->engine_window_x/divider;
+        ewnd->y = player->engine_window_y/divider;
+        ewnd->width = player->engine_window_width/divider;
+        ewnd->height = player->engine_window_height/divider;
+    }
 }
 
 void load_engine_window(TbGraphicsWindow *ewnd)
@@ -7038,6 +7038,7 @@ void update_blocks_pointed(void)
     long hvdiv_x,hvdiv_y;
     long k;
     int i;
+    SYNCDBG(19,"Starting");
     if ((!vert_offset[1]) && (!hori_offset[1]))
     {
         block_pointed_at_x = 0;
@@ -7052,7 +7053,9 @@ void update_blocks_pointed(void)
         vert_ptr_x = (long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
         hori_ptr_x = (long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
         hvdiv_x = (long)(hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11;
+        if (hvdiv_x == 0) hvdiv_x = 1;
         hvdiv_y = (long)(vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11;
+        if (hvdiv_y == 0) hvdiv_y = 1;
         for (i=0; i < 8; i++)
         {
           k = (vert_ptr_x - (vert_ptr_y >> 1)) / hvdiv_x;
@@ -7063,12 +7066,13 @@ void update_blocks_pointed(void)
           y = k >> 2;
           if ((x >= 0) && (x < map_subtiles_x) && (y >= 0) && (y < map_subtiles_y))
           {
-            update_block_pointed(i,x,x_frac,y,y_frac);
+              update_block_pointed(i,x,x_frac,y,y_frac);
           }
           hori_ptr_y -= hori_hdelta_y;
           vert_ptr_y -= vert_hdelta_y;
         }
     }
+    SYNCDBG(19,"Finished");
 }
 
 void engine(struct Camera *cam)
