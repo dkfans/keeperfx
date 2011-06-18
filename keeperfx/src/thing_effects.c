@@ -794,42 +794,42 @@ void effect_generate_effect_elements(const struct Thing *thing)
           }
           break;
     case 4:
-          if (thing->model != 48)
+        if (thing->model != 48)
             break;
-          i = effnfo->start_health / 2;
-          if (thing->health == effnfo->start_health)
-          {
+        i = effnfo->start_health / 2;
+        if (thing->health == effnfo->start_health)
+        {
             memset(temp_pal, 63, PALETTE_SIZE);
-          } else
-          if (thing->health > i)
-          {
-            LbPaletteFade(temp_pal, i, Lb_PALETTE_FADE_OPEN);
-          } else
-          if (thing->health == i)
-          {
-            LbPaletteStopOpenFade();
-            LbPaletteSet(temp_pal);
-          } else
-          if (thing->health > 0)
-          {
+        } else
+        if (thing->health > i)
+        {
+          LbPaletteFade(temp_pal, i, Lb_PALETTE_FADE_OPEN);
+        } else
+        if (thing->health == i)
+        {
+          LbPaletteStopOpenFade();
+          LbPaletteSet(temp_pal);
+        } else
+        if (thing->health > 0)
+        {
             LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
-          } else
-          {
+        } else
+        {
             player = get_my_player();
             PaletteSetPlayerPalette(player, _DK_palette);
             LbPaletteStopOpenFade();
-          }
-          break;
+        }
+        break;
     default:
-          ERRORLOG("Unknown Effect Generation Type %d",(int)effnfo->generation_type);
-          break;
+        ERRORLOG("Unknown Effect Generation Type %d",(int)effnfo->generation_type);
+        break;
     }
 }
 
 long process_effect_generator(struct Thing *thing)
 {
-  SYNCDBG(18,"Starting");
-  return _DK_process_effect_generator(thing);
+    SYNCDBG(18,"Starting");
+    return _DK_process_effect_generator(thing);
 }
 
 struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, unsigned char owner)
