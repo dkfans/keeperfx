@@ -321,8 +321,14 @@ struct M33 { // sizeof = 48
 };
 
 struct EngineCol {
-    //TODO figure out the EngineCol struct
+    struct EngineCoord cors[16];
+};
+
+struct SideOri {
     unsigned char field_0;
+    unsigned char field_1;
+    unsigned char field_2;
+    unsigned char field_3;
 };
 
 struct MapVolumeBox { // sizeof = 24
@@ -478,6 +484,8 @@ DLLIMPORT extern long _DK_floor_height[256];
 #define floor_height _DK_floor_height
 DLLIMPORT extern long _DK_lintel_top_height[256];
 #define lintel_top_height _DK_lintel_top_height
+DLLIMPORT extern long _DK_lintel_bottom_height[256];
+#define lintel_bottom_height _DK_lintel_bottom_height
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /******************************************************************************/

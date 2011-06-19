@@ -117,7 +117,6 @@
  0003:0024740C       load_game_scroll_offset
  0003:00020670       frontend_menu_state
  0003:00247B50       time_last_played_demo
- 0001:0001C280       fronttorture_update
  0003:00247B44       continue_game_option_available
  0003:00020678       frontend_button_info
  0003:00273BAC       lbInkey
@@ -194,6 +193,7 @@
  0003:00031C70       pointer_x
  0003:000317C0       floor_to_ceiling_map
  0003:00031180       floor_height
+ 0003:00030D48       lintel_bottom_height
  0003:000409C0       lintel_top_height
  0003:0003F944       block_pointed_at_x
  0003:0003F948       block_pointed_at_y
@@ -734,6 +734,8 @@
  0001:000A7850       process_sound_heap
  0001:000463D0       setup_engine_window
  0001:0001E590       redraw_display
+ 0001:0001C280       fronttorture_update
+ 0001:000171D0       do_map_who
  0001:000001F0       cumulative_screen_shot
  0001:00034720       set_game_key
  0001:0000B050       frontnet_start_input
