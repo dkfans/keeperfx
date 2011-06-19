@@ -192,6 +192,9 @@
  0003:00030D20       top_pointed_at_frac_y
  0003:00031C6C       pointer_y
  0003:00031C70       pointer_x
+ 0003:000317C0       floor_to_ceiling_map
+ 0003:00031180       floor_height
+ 0003:000409C0       lintel_top_height
  0003:0003F944       block_pointed_at_x
  0003:0003F948       block_pointed_at_y
  0003:0003F998       pointed_at_frac_x
@@ -1166,6 +1169,8 @@
  0001:00026E30       do_a_plane_of_engine_columns_perspective
  0001:000292F0       do_a_plane_of_engine_columns_isometric
  0001:0002A6D0       do_a_plane_of_engine_columns_cluedo
+ 0001:00027400       do_a_trig_gourad_tr
+ 0001:00028380       do_a_trig_gourad_bl
  0001:0002B550       find_gamut
  0001:0002BEB0       fiddle_gamut
  0001:0002C640       display_drawlist
