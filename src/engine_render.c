@@ -557,7 +557,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     struct UnkStruc5 *texturing;
     unsigned short *cubenum_ptr;
     long i;
-    //_DK_do_a_plane_of_engine_columns_perspective(a1, a2, a3, a4);
+    //_DK_do_a_plane_of_engine_columns_perspective(stl_x, stl_y, plane_start, plane_end); return;
     if ((stl_y <= 0) || (stl_y >= 255))
         return;
     clip_start = plane_start;
@@ -671,9 +671,10 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
 
             ecpos =  lintel_bottom_height[solidmsk_center];
             textr_idx = texturing->field_8[1];
-            do_a_trig_gourad_tr(&fecol[0].cors[ecpos], &becol[1].cors[ecpos], &becol[1].cors[ecpos], textr_idx, -1);
+            do_a_trig_gourad_tr(&fecol[0].cors[ecpos], &fecol[1].cors[ecpos], &becol[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&becol[1].cors[ecpos], &becol[0].cors[ecpos], &fecol[0].cors[ecpos], textr_idx, -1);
         }
+
         // Draw the ceiling on top of the columns
         ecpos = 8;
         {

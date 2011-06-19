@@ -309,7 +309,7 @@ TbBool load_game(long slot_num)
 {
     //return _DK_load_game(slot_num);
     char *fname;
-    TbFileHandle handle;
+    TbFileHandle fh;
     long file_len;
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -321,14 +321,14 @@ TbBool load_game(long slot_num)
     fname = prepare_file_fmtpath(FGrp_Save,saved_game_filename,slot_num);
     if (!wait_for_cd_to_be_available())
       return false;
-    handle = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
-    if (handle == -1)
+    fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
+    if (fh == -1)
     {
       WARNMSG("Cannot open saved game file \"%s\".",fname);
       save_catalogue_slot_disable(slot_num);
       return false;
     }
-    file_len = LbFileLengthHandle(handle);
+    file_len = LbFileLengthHandle(fh);
 /*  if (is_primitive_save_version(file_len))
     {
         if (LbFileRead(handle, buf, sizeof(buf)) != sizeof(buf))
@@ -359,15 +359,15 @@ TbBool load_game(long slot_num)
         return true;
     }*/
     centry = &save_game_catalogue[slot_num];
-    LbFileSeek(handle, 0, Lb_FILE_SEEK_BEGINNING);
-    if (load_game_chunks(handle,centry) != GLoad_SavedGame)
+    LbFileSeek(fh, 0, Lb_FILE_SEEK_BEGINNING);
+    if (load_game_chunks(fh,centry) != GLoad_SavedGame)
     {
-        LbFileClose(handle);
+        LbFileClose(fh);
         WARNMSG("Couldn't correctly load saved game \"%s\".",fname);
         init_lookups();
         return false;
     }
-    LbFileClose(handle);
+    LbFileClose(fh);
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     reinit_level_after_load();
     output_message(SMsg_GameLoaded, 0, true);
