@@ -72,13 +72,28 @@ DLLIMPORT void _DK_create_map_volume_box(long pos_x, long pos_z, long start_y);
 DLLIMPORT void _DK_frame_wibble_generate(void);
 DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long start_y, long end_y, long a5, long a6, long a7, long a8);
 DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short start_y, short end_y, unsigned char a5, long a6);
-DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5);
-DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5);
+DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long a5);
+DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long a5);
+DLLIMPORT void _DK_do_map_who(short stl_x);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
  0x80, 0x100,  0x80,  0x80, 0x100, 0x100, 0x138,  0x80,  0x80, 0x138,  0x80,  0x80, 0x100,  0x80, 0x80, 0x100,
 };
+struct SideOri sideoris[] = {
+    { 0,  1,  2,  3},
+    { 0,  0,  3,  2},
+    { 1,128,  2,  1},
+    { 0,  3,128,  2},
+    { 3,  0,  1,  0},
+    { 3,  2,  1,  0},
+    {128, 3,  0,  1},
+    { 2,  0,  1,  2},
+    { 3,  0,  0,  1},
+    { 0,  3,  2,128},
+};
+
+
 long const x_offs[] =  { 0, 1, 1, 0};
 long const y_offs[] =  { 0, 0, 1, 1};
 long const x_step1[] = { 0,-1, 0, 1};
@@ -521,9 +536,155 @@ void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struc
     _DK_do_a_trig_gourad_bl(ep1, ep2, ep3, a4, a5);
 }
 
-void do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4)
+void do_map_who(short a1)
 {
-    _DK_do_a_plane_of_engine_columns_perspective(a1, a2, a3, a4);
+    _DK_do_map_who(a1);
+}
+
+void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
+{
+    struct EngineCol *becol;
+    struct EngineCol *fecol;
+    struct Column *blank_colmn;
+    struct Column *colmn;
+    struct Map *mapblk;
+    struct Map *sib_mapblk;
+    struct Column *sib_colmn;
+    unsigned short solidmsk_center,solidmsk_top,solidmsk_bottom,solidmsk_left,solidmsk_right;
+    unsigned short textr_idx,height_bit;
+    long fepos,bepos,ecpos;
+    long clip_start,clip_end;
+    struct UnkStruc5 *texturing;
+    unsigned short *cubenum_ptr;
+    long i;
+    //_DK_do_a_plane_of_engine_columns_perspective(a1, a2, a3, a4);
+    if ((stl_y <= 0) || (stl_y >= 255))
+        return;
+    clip_start = plane_start;
+    if (stl_x + plane_start < 1)
+        clip_start = 1 - stl_x;
+    clip_end = plane_end;
+    if (stl_x + plane_end > 255)
+        clip_end = 255 - stl_x;
+    becol = &back_ec[clip_start + 31];
+    fecol = &front_ec[clip_start + 31];
+    blank_colmn = get_column(game.field_149E77);
+    mapblk = get_map_block_at_pos(clip_start + stl_x + (stl_y << 8));
+    for (i = clip_end-clip_start; i > 0; i--)
+    {
+        colmn = blank_colmn;
+        if (map_block_revealed_bit(mapblk, player_bit) )
+        {
+            if ( mapblk->data & 0x3FF800 )
+                do_map_who((mapblk->data >> 11) & 0x7FF);
+            colmn = get_map_column(mapblk);
+        }
+        // Retrieve solidmasks for surrounding area
+        solidmsk_center = colmn->solidmask;
+        solidmsk_top = blank_colmn->solidmask;
+        solidmsk_right = blank_colmn->solidmask;
+        solidmsk_bottom = blank_colmn->solidmask;
+        solidmsk_left = blank_colmn->solidmask;
+        sib_mapblk = &mapblk[-256];
+        if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
+            sib_colmn = get_map_column(sib_mapblk);
+            solidmsk_top = sib_colmn->solidmask;
+        }
+        sib_mapblk = &mapblk[256];
+        if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
+            sib_colmn = get_map_column(sib_mapblk);
+            solidmsk_bottom = sib_colmn->solidmask;
+        }
+        sib_mapblk = &mapblk[-1];
+        if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
+            sib_colmn = get_map_column(sib_mapblk);
+            solidmsk_left = sib_colmn->solidmask;
+        }
+        sib_mapblk = &mapblk[1];
+        if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
+            sib_colmn = get_map_column(sib_mapblk);
+            solidmsk_right = sib_colmn->solidmask;
+        }
+        bepos = 0;
+        fepos = 0;
+        cubenum_ptr = &colmn->cubes[0];
+        height_bit = 1;
+        while (height_bit <= solidmsk_center)
+        {
+            texturing = &game.struc_D8C7[*cubenum_ptr];
+            if ((solidmsk_center & height_bit) != 0)
+            {
+              if ((solidmsk_top & height_bit) == 0)
+              {
+                  textr_idx = texturing->texture_0[sideoris[0].field_0];
+                  do_a_trig_gourad_tr(&becol[1].cors[bepos+1], &becol[0].cors[bepos+1], &becol[0].cors[bepos],   textr_idx, normal_shade_back);
+                  do_a_trig_gourad_bl(&becol[0].cors[bepos],   &becol[1].cors[bepos],   &becol[1].cors[bepos+1], textr_idx, normal_shade_back);
+              }
+              if ((solidmsk_bottom & height_bit) == 0)
+              {
+                  textr_idx = texturing->texture_0[sideoris[0].field_2];
+                  do_a_trig_gourad_tr(&fecol[0].cors[fepos+1], &fecol[1].cors[fepos+1], &fecol[1].cors[fepos],   textr_idx, normal_shade_front);
+                  do_a_trig_gourad_bl(&fecol[1].cors[fepos],   &fecol[0].cors[fepos],   &fecol[0].cors[fepos+1], textr_idx, normal_shade_front);
+              }
+              if ((solidmsk_left & height_bit) == 0)
+              {
+                  textr_idx = texturing->texture_0[sideoris[0].field_3];
+                  do_a_trig_gourad_tr(&becol[0].cors[bepos+1], &fecol[0].cors[fepos+1], &fecol[0].cors[fepos],   textr_idx, normal_shade_left);
+                  do_a_trig_gourad_bl(&fecol[0].cors[fepos],   &becol[0].cors[bepos],   &becol[0].cors[bepos+1], textr_idx, normal_shade_left);
+              }
+              if ((solidmsk_right & height_bit) == 0)
+              {
+                  textr_idx = texturing->texture_0[sideoris[0].field_1];
+                  do_a_trig_gourad_tr(&fecol[1].cors[fepos+1], &becol[1].cors[bepos+1], &becol[1].cors[bepos],   textr_idx, normal_shade_right);
+                  do_a_trig_gourad_bl(&becol[1].cors[bepos],   &fecol[1].cors[fepos],   &fecol[1].cors[fepos+1], textr_idx, normal_shade_right);
+              }
+            }
+            bepos++; fepos++;
+            cubenum_ptr++;
+            height_bit = height_bit << 1;
+        }
+
+        ecpos = floor_height[solidmsk_center];
+        if (ecpos > 0)
+        {
+            cubenum_ptr = &colmn->cubes[ecpos-1];
+            texturing = &game.struc_D8C7[*cubenum_ptr];
+            textr_idx = texturing->field_8[0];
+            do_a_trig_gourad_tr(&becol[0].cors[ecpos], &becol[1].cors[ecpos], &fecol[1].cors[ecpos], textr_idx, -1);
+            do_a_trig_gourad_bl(&fecol[1].cors[ecpos], &fecol[0].cors[ecpos], &becol[0].cors[ecpos], textr_idx, -1);
+        } else
+        {
+            ecpos = 0;
+            textr_idx = colmn->baseblock;
+            do_a_trig_gourad_tr(&becol[0].cors[ecpos], &becol[1].cors[ecpos], &fecol[1].cors[ecpos], textr_idx, -1);
+            do_a_trig_gourad_bl(&fecol[1].cors[ecpos], &fecol[0].cors[ecpos], &becol[0].cors[ecpos], textr_idx, -1);
+        }
+
+        ecpos = lintel_top_height[solidmsk_center];
+        if (ecpos > 0)
+        {
+            cubenum_ptr = &colmn->cubes[ecpos-1];
+            texturing = &game.struc_D8C7[*cubenum_ptr];
+            textr_idx = texturing->field_8[0];
+            do_a_trig_gourad_tr(&becol[0].cors[ecpos], &becol[1].cors[ecpos], &fecol[1].cors[ecpos], textr_idx, -1);
+            do_a_trig_gourad_bl(&fecol[1].cors[ecpos], &fecol[0].cors[ecpos], &becol[0].cors[ecpos], textr_idx, -1);
+
+            ecpos =  lintel_bottom_height[solidmsk_center];
+            textr_idx = texturing->field_8[1];
+            do_a_trig_gourad_tr(&fecol[0].cors[ecpos], &becol[1].cors[ecpos], &becol[1].cors[ecpos], textr_idx, -1);
+            do_a_trig_gourad_bl(&becol[1].cors[ecpos], &becol[0].cors[ecpos], &fecol[0].cors[ecpos], textr_idx, -1);
+        }
+        // Draw the ceiling on top of the columns
+        ecpos = 8;
+        {
+            textr_idx = floor_to_ceiling_map[colmn->baseblock];
+            do_a_trig_gourad_tr(&fecol[0].cors[ecpos], &fecol[1].cors[ecpos], &becol[1].cors[ecpos], textr_idx, -1);
+            do_a_trig_gourad_bl(&becol[1].cors[ecpos], &becol[0].cors[ecpos], &fecol[0].cors[ecpos], textr_idx, -1);
+        }
+        becol++;
+        fecol++;
+        mapblk++;
+    }
 }
 
 void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4)
@@ -533,7 +694,6 @@ void do_a_plane_of_engine_columns_cluedo(long a1, long a2, long a3, long a4)
 
 void do_a_plane_of_engine_columns_isometric(long xcell, long ycell, long a3, long a4)
 {
-    //TODO: This is where first and last columns are cut off from rendering
     _DK_do_a_plane_of_engine_columns_isometric(xcell, ycell, a3, a4);
 }
 

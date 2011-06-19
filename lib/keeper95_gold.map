@@ -202,6 +202,7 @@
  0001:00016A30       script_process_new_tunneller_party
  0001:00016AA0       get_condition_value
  0001:00017160       setup_rotate_stuff
+ 0001:000171D0       do_map_who
  0001:00017620       draw_jonty_mapwho
  0001:00017B20       draw_iso_only_fastview_mapwho
  0001:00017B40       draw_fastview_mapwho
@@ -1570,6 +1571,7 @@
  0003:00030D38       view_alt
  0003:00030D3C       fade_way_out
  0003:00030D40       view_width_over_2
+ 0003:00030D48       lintel_bottom_height
  0003:00031148       camera_matrix
  0003:00031178       map_roll
  0003:0003117C       normal_shade_back

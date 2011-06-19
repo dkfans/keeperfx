@@ -6894,7 +6894,7 @@ void redraw_isometric_view(void)
       store_engine_window(&ewnd,1);
       setup_engine_window(ewnd.x, ewnd.y, ewnd.width >> 1, ewnd.height >> 1);
     }
-    engine(&player->cameras[0]);
+    engine(player,&player->cameras[0]);
     if ((game.flags_font & FFlg_unk08) != 0)
     {
       load_engine_window(&ewnd);
@@ -7072,17 +7072,15 @@ void update_blocks_pointed(void)
     SYNCDBG(19,"Finished");
 }
 
-void engine(struct Camera *cam)
+void engine(struct PlayerInfo *player, struct Camera *cam)
 {
     TbGraphicsWindow grwnd;
     TbGraphicsWindow ewnd;
     unsigned short flg_mem;
-    struct PlayerInfo *player;
 
     SYNCDBG(9,"Starting");
     //_DK_engine(cam); return;
 
-    player = get_my_player();
     flg_mem = lbDisplay.DrawFlags;
     update_engine_settings(player);
     mx = cam->mappos.x.val;
@@ -7100,6 +7098,7 @@ void engine(struct Camera *cam)
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
     setup_vecs(lbDisplay.GraphicsWindowPtr, 0, lbDisplay.GraphicsScreenWidth,
         ewnd.width, ewnd.height);
+    camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
     draw_view(cam, 0);
     lbDisplay.DrawFlags = flg_mem;
     thing_being_displayed = 0;
