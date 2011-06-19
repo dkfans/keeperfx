@@ -1011,7 +1011,7 @@ void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsign
 void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char owner, unsigned char a5);
 void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
 void update_explored_flags_for_power_sight(struct PlayerInfo *player);
-void engine(struct Camera *cam);
+void engine(struct PlayerInfo *player, struct Camera *cam);
 void smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 void DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite);
