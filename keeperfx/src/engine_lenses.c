@@ -77,12 +77,117 @@ void perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt)
 
 void rotpers_parallel(struct EngineCoord *epos, struct M33 *matx)
 {
-  _DK_rotpers_parallel(epos, matx);
+    long sx,sy,sz;
+    long tx,ty,tz;
+    long long val;
+    long zoom;
+    //_DK_rotpers_parallel(epos, matx);
+    zoom = camera_zoom / pixel_size;
+    sx = epos->y;
+    sy = epos->x;
+    sz = epos->z;
+    val = sz * matx->r0[2] + (sx + matx->r0[0]) * (sy + matx->r0[1]) - matx->r0[3] - (sy * sx);
+    tx = (val >> 14);
+    val = sz * matx->r1[2] + (sy + matx->r1[1]) * (sx + matx->r1[0]) - matx->r1[3] - (sy * sx);
+    ty = (val >> 14);
+    val = sz * matx->r2[2] + (sy + matx->r2[1]) * (sx + matx->r2[0]) - matx->r2[3] - (sy * sx);
+    tz = (val >> 14);
+    tx += object_origin.x;
+    ty += object_origin.y;
+    tz += object_origin.z;
+    epos->x = tx;
+    epos->y = ty;
+    epos->z = tz;
+    tx = view_width_over_2 + ((tx * zoom) >> 16);
+    ty = view_height_over_2 - ((ty * zoom) >> 16);
+    tz = (tz + (cells_away << 8)) / 2;
+    if (tz < 32) {
+        tz = 0;
+    } else
+    if (tz >= 11232) {
+        tz = 11232;
+    }
+    epos->field_0 = tx;
+    epos->field_4 = ty;
+    epos->z = tz;
+    if (tx < 0) {
+        epos->field_8 |= 0x08;
+    } else
+    if (tx >= vec_window_width) {
+        epos->field_8 |= 0x10;
+    }
+    if (ty < 0) {
+        epos->field_8 |= 0x20;
+    } else
+    if (ty >= vec_window_height) {
+        epos->field_8 |= 0x40;
+    }
 }
 
 void rotpers_standard(struct EngineCoord *epos, struct M33 *matx)
 {
-  _DK_rotpers_standard(epos, matx);
+    long sx,sy,sz;
+    long tx,ty,tz;
+    long long val,mval;
+    long zoom;
+    //_DK_rotpers_standard(epos, matx);
+    zoom = camera_zoom / pixel_size;
+    sx = epos->y;
+    sy = epos->x;
+    sz = epos->z;
+    mval = sy * epos->x;
+    val = sz * matx->r0[2] + (sy + matx->r0[0]) * (sx + matx->r0[1]) - matx->r0[3] - mval;
+    tx = (val >> 14);
+    val = sz * matx->r1[2] + (sy + matx->r1[0]) * (sx + matx->r1[1]) - matx->r1[3] - mval;
+    ty = (val >> 14);
+    val = sz * matx->r2[2] + (sy + matx->r2[0]) * (sx + matx->r2[1]) - matx->r2[3] - mval;
+    tz = (val >> 14);
+    tx += object_origin.x;
+    ty += object_origin.y;
+    tz += object_origin.z;
+    epos->x = tx;
+    epos->y = ty;
+    epos->z = tz;
+    epos->field_C = tz;
+    if (tz > fade_max) {
+      epos->field_8 |= 0x80;
+    }
+    if (tz < 32)
+    {
+        epos->field_8 |= 0x0100;
+        tx = view_width_over_2 + tx;
+        ty = view_height_over_2 - ty;
+        epos->field_8 |= 0x01;
+        epos->field_8 |= 0x02;
+    } else
+    {
+        sx = tx * (lens << 16) / tz >> 16;
+        sy = ty * (lens << 16) / tz >> 16;
+        tx = view_width_over_2 + sx;
+        ty = view_height_over_2 - sy;
+        if (tz < split_1) {
+          epos->field_8 |= 0x01;
+          if (tz < split_2) {
+              epos->field_8 |= 0x02;
+          }
+        }
+    }
+    epos->field_0 = tx;
+    epos->field_4 = ty;
+    epos->z = tz;
+    if (tx < 0) {
+        epos->field_8 |= 0x08;
+    } else
+    if (tx >= vec_window_width) {
+        epos->field_8 |= 0x10;
+    }
+    if (ty < 0) {
+        epos->field_8 |= 0x20;
+    } else
+    if (ty >= vec_window_height) {
+        epos->field_8 |= 0x40;
+    }
+    epos->field_8 |= 0x04;
 }
 
 void rotpers_circular(struct EngineCoord *epos, struct M33 *matx)
