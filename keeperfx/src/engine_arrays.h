@@ -33,6 +33,16 @@ extern "C" {
 #pragma pack(1)
 #endif
 
+struct WibbleTable {
+  long field_0;
+  long field_4;
+  long field_8;
+  long field_C;
+  long field_10;
+  long field_14;
+  long field_18;
+  long field_1C;
+};
 
 #ifdef __cplusplus
 #pragma pack()
@@ -41,7 +51,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT long _DK_randomisors[512];
 #define randomisors _DK_randomisors
-
+DLLIMPORT struct WibbleTable _DK_wibble_table[128];
+#define wibble_table _DK_wibble_table
 /******************************************************************************/
 unsigned long convert_td_iso(unsigned long n);
 
