@@ -72,6 +72,8 @@ DLLIMPORT void _DK_create_map_volume_box(long pos_x, long pos_z, long start_y);
 DLLIMPORT void _DK_frame_wibble_generate(void);
 DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long start_y, long end_y, long a5, long a6, long a7, long a8);
 DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short start_y, short end_y, unsigned char a5, long a6);
+DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5);
+DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -221,6 +223,11 @@ void update_engine_settings(struct PlayerInfo *player)
     else
       temp_cluedo_mode = settings.video_cluedo_mode;
     thing_pointed_at = NULL;
+}
+
+void poly_pool_end_reserve(int nitems)
+{
+    poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BasicUnk13)-1)];
 }
 
 TbBool is_free_space_in_poly_pool(int nitems)
@@ -487,20 +494,31 @@ void create_map_volume_box(long x, long y, long z)
         map_volume_box.field_F = i;
     }
 
+    // Draw top rectangle
     create_line_const_yz(box_ye, box_zs, box_xs, box_xe);
-    create_line_const_yz(box_ys, box_ze, box_xs, box_xe);
-    create_line_const_yz(box_ye, box_ze, box_xs, box_xe);
     create_line_const_yz(box_ys, box_zs, box_xs, box_xe);
-
     create_line_const_xz(box_xs, box_zs, box_ys, box_ye);
     create_line_const_xz(box_xe, box_zs, box_ys, box_ye);
-    create_line_const_xz(box_xs, box_ze, box_ys, box_ye);
-    create_line_const_xz(box_xe, box_ze, box_ys, box_ye);
-
+    // Vertical lines which connect the rectangles
     create_line_const_xy(box_xs, box_ys, box_zs, box_ze);
     create_line_const_xy(box_xe, box_ys, box_zs, box_ze);
     create_line_const_xy(box_xe, box_ye, box_zs, box_ze);
     create_line_const_xy(box_xs, box_ye, box_zs, box_ze);
+    // Bottom rectangle
+    create_line_const_yz(box_ye, box_ze, box_xs, box_xe);
+    create_line_const_yz(box_ys, box_ze, box_xs, box_xe);
+    create_line_const_xz(box_xs, box_ze, box_ys, box_ye);
+    create_line_const_xz(box_xe, box_ze, box_ys, box_ye);
+}
+
+void do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
+{
+    _DK_do_a_trig_gourad_tr(ep1, ep2, ep3, a4, a5);
+}
+
+void do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short a4, long a5)
+{
+    _DK_do_a_trig_gourad_bl(ep1, ep2, ep3, a4, a5);
 }
 
 void do_a_plane_of_engine_columns_perspective(long a1, long a2, long a3, long a4)
@@ -1589,6 +1607,33 @@ void display_drawlist(void)
       WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
 }
 
+void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
+{
+    apos = aposc;
+    bpos = bposc;
+    back_ec = &ecs1[0];
+    front_ec = &ecs2[0];
+    if (lens_mode != 0)
+    {
+        fill_in_points_perspective(xcell, ycell, mm);
+    } else
+    if (settings.video_cluedo_mode)
+    {
+        fill_in_points_cluedo(xcell, ycell, mm);
+    } else
+    {
+        fill_in_points_isometric(xcell, ycell, mm);
+    }
+}
+
+/**
+ * Draws single plane of engine columns.
+ * TODO: rewrite sub-routines to get rid of the ceiling problem (related to cam->zoom).
+ * @param aposc
+ * @param bposc
+ * @param xcell
+ * @param ycell
+ */
 void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
 {
     struct EngineCol *ec;
@@ -1628,29 +1673,22 @@ void draw_plane_of_engine_columns(long aposc, long bposc, long xcell, long ycell
     }
 }
 
+/**
+ * Draws rectangular area of engine columns.
+ * @param aposc
+ * @param bposc
+ * @param xcell
+ * @param ycell
+ */
 void draw_view_map_plane(long aposc, long bposc, long xcell, long ycell)
 {
     struct MinMax *mm;
     long i;
-    apos = aposc;
-    bpos = bposc;
-    back_ec = &ecs1[0];
-    front_ec = &ecs2[0];
     i = 31-cells_away;
     if (i < 0)
         i = 0;
     mm = &minmaxs[i];
-    if (lens_mode != 0)
-    {
-        fill_in_points_perspective(xcell, ycell, mm);
-    } else
-    if (settings.video_cluedo_mode)
-    {
-        fill_in_points_cluedo(xcell, ycell, mm);
-    } else
-    {
-        fill_in_points_isometric(xcell, ycell, mm);
-    }
+    prepare_draw_plane_of_engine_columns(aposc, bposc, xcell, ycell, mm);
     for (i = 2*cells_away-1; i > 0; i--)
     {
         ycell++;
@@ -1674,6 +1712,11 @@ void draw_view(struct Camera *cam, unsigned char a2)
     getpoly = poly_pool;
     LbMemorySet(buckets, 0, sizeof(buckets));
     LbMemorySet(poly_pool, 0, sizeof(poly_pool));
+    if (map_volume_box.visible) {
+        poly_pool_end_reserve(14);
+    } else {
+        poly_pool_end_reserve(4);
+    }
     i = lens_mode;
     if ((i < 0) || (i >= PERS_ROUTINES_COUNT))
         i = 0;
@@ -1713,8 +1756,10 @@ void draw_view(struct Camera *cam, unsigned char a2)
     find_gamut();
     fiddle_gamut(xcell, ycell + (cells_away+1));
     draw_view_map_plane(aposc, bposc, xcell, ycell);
-    if (map_volume_box.visible)
+    if (map_volume_box.visible) {
+        poly_pool_end_reserve(0);
         create_map_volume_box(x, y, z);
+    }
     cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     display_drawlist();
     map_volume_box.visible = 0;

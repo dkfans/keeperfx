@@ -276,6 +276,8 @@
  0001:000269C0       rotpers_circular
  0001:00026B80       rotpers_fisheye
  0001:00026E30       do_a_plane_of_engine_columns_perspective
+ 0001:00027400       do_a_trig_gourad_tr
+ 0001:00028380       do_a_trig_gourad_bl
  0001:000292F0       do_a_plane_of_engine_columns_isometric
  0001:0002A6D0       do_a_plane_of_engine_columns_cluedo
  0001:0002B550       find_gamut
@@ -1571,6 +1573,7 @@
  0003:00031148       camera_matrix
  0003:00031178       map_roll
  0003:0003117C       normal_shade_back
+ 0003:00031180       floor_height
  0003:00031580       fade_max
  0003:00031584       rotpers
  0003:00031588       map_tilt
@@ -1583,6 +1586,7 @@
  0003:000317A8       normal_shade_left
  0003:000317AC       x_init_off
  0003:000317B0       high_offset
+ 0003:000317C0       floor_to_ceiling_map
  0003:00031C60       mx
  0003:00031C64       my
  0003:00031C68       mz
@@ -1608,6 +1612,7 @@
  0003:0003F998       pointed_at_frac_x
  0003:0003F99C       pointed_at_frac_y
  0003:000409A0       back_ec
+ 0003:000409C0       lintel_top_height
  0003:00040DC0       hori_offset
  0003:00040DCC       my_mouse_y
  0003:00040DD0       my_mouse_x
