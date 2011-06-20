@@ -282,6 +282,7 @@
  0001:000292F0       do_a_plane_of_engine_columns_isometric
  0001:0002A6D0       do_a_plane_of_engine_columns_cluedo
  0001:0002B550       find_gamut
+ 0001:0002B8A0       fiddle_half_gamut
  0001:0002BEB0       fiddle_gamut
  0001:0002C640       display_drawlist
  0001:000317E0       fill_in_points_perspective
@@ -1145,6 +1146,7 @@
  0001:000C9460       load_game
  0001:000C9A40       convert_old_column_file
  0001:000CA040       load_map_slab_file
+ 0001:000CA130       load_ceiling_table
  0001:000CA6D0       setup_person_move_to_position
  0001:000CAB80       move_creature
  0001:000CAF40       move_shot
@@ -1613,6 +1615,7 @@
  0003:0003F980       map_volume_box
  0003:0003F998       pointed_at_frac_x
  0003:0003F99C       pointed_at_frac_y
+ 0003:0003F9A0       wibble_table
  0003:000409A0       back_ec
  0003:000409C0       lintel_top_height
  0003:00040DC0       hori_offset

@@ -162,7 +162,7 @@ void clear_columns(void)
   }
   game.field_149E6E = -1;
   game.field_149E7C = 24;
-  game.field_149E77 = 0;
+  game.unrevealed_column_idx = 0;
   for (i=0; i < 18; i++)
   {
     game.field_14A818[i] = 0;
@@ -198,7 +198,7 @@ void init_whole_blocks(void)
     // Update its parameters
     colmn->bitfileds |= 0x01;
     game.field_149E7C = 24;
-    game.field_149E77 = i;
+    game.unrevealed_column_idx = i;
 }
 
 void init_top_texture_to_cube_table(void)

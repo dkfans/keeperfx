@@ -30,6 +30,7 @@ extern "C" {
 // Camera constants; max zoom is when everything is large
 #define CAMERA_ZOOM_MIN     4100
 #define CAMERA_ZOOM_MAX    12000
+#define MINMAX_LENGTH         64
 
 /******************************************************************************/
 #pragma pack(1)
@@ -66,7 +67,7 @@ DLLIMPORT extern struct M33 _DK_camera_matrix;
 #define camera_matrix _DK_camera_matrix
 DLLIMPORT extern struct EngineCoord _DK_object_origin;
 #define object_origin _DK_object_origin
-DLLIMPORT extern struct MinMax _DK_minmaxs[];
+DLLIMPORT extern struct MinMax _DK_minmaxs[MINMAX_LENGTH];
 #define minmaxs _DK_minmaxs
 
 #pragma pack()

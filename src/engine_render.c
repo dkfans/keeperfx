@@ -75,6 +75,7 @@ DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short start_
 DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long a5);
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long a5);
 DLLIMPORT void _DK_do_map_who(short stl_x);
+DLLIMPORT void _DK_fiddle_half_gamut(long y, long pos_y, long floor_x, long floor_y);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -116,6 +117,26 @@ unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 unsigned long render_problems;
 long render_prob_kind;
 /******************************************************************************/
+void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
+{
+    long long ofs_x,ofs_y;
+    long long sor_h,sor_v,der_h,der_v;
+    if ( (vert_offset[1] == 0) && (hori_offset[1] == 0) )
+    {
+        *floor_x = 0;
+        *floor_y = 0;
+        return;
+    }
+    ofs_x = x - x_init_off;
+    ofs_y = y - y_init_off;
+    sor_v = ((vert_offset[1] * ofs_x) >> 1) - ((vert_offset[0] * ofs_y) >> 1);
+    der_v = hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1];
+    sor_h = ((hori_offset[1] * ofs_x) >> 1) - ((hori_offset[0] * ofs_y) >> 1);
+    der_h = vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1];
+    *floor_y = ((sor_v) / (der_v>>11)) >> 2;
+    *floor_x = ((sor_h) / (der_h>>11)) >> 2;
+}
+
 long compute_cells_away(void)
 {
     long half_width,half_height;
@@ -126,32 +147,12 @@ long compute_cells_away(void)
     player = get_my_player();
     half_width = (player->engine_window_width >> 1);
     half_height = (player->engine_window_height >> 1);
-    if ((vert_offset[1]) || (hori_offset[1]))
-    {
-        xcell = ((half_width<<1) + (half_width>>4))/pixel_size - player->engine_window_x/pixel_size - x_init_off;
-        ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - player->engine_window_y/pixel_size - y_init_off;
-        ymax = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
-           / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
-        xmax = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
-           / ((vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11) >> 2;
-    } else
-    {
-        ymax = 0;
-        xmax = 0;
-    }
-    if ((vert_offset[1]) || (hori_offset[1]))
-    {
-        xcell = half_width / pixel_size - player->engine_window_x/pixel_size - x_init_off;
-        ycell = half_height / pixel_size - player->engine_window_y/pixel_size - y_init_off;
-        ymin = (((vert_offset[1] * xcell) >> 1) - ((vert_offset[0] * ycell) >> 1))
-            / ((hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11) >> 2;
-        xmin = (((hori_offset[1] * xcell) >> 1) - ((hori_offset[0] * ycell) >> 1))
-           / ((vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11) >> 2;
-    } else
-    {
-        ymin = 0;
-        xmin = 0;
-    }
+    xcell = ((half_width<<1) + (half_width>>4))/pixel_size - player->engine_window_x/pixel_size;
+    ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - player->engine_window_y/pixel_size;
+    get_floor_pointed_at(xcell, ycell, &xmax, &ymax);
+    xcell = (half_width)/pixel_size - player->engine_window_x/pixel_size;
+    ycell = (half_height)/pixel_size - player->engine_window_y/pixel_size;
+    get_floor_pointed_at(xcell, ycell, &xmin, &ymin);
     xcell = abs(ymax - ymin);
     ycell = abs(xmax - xmin);
     if (ycell >= xcell)
@@ -369,9 +370,252 @@ void find_gamut(void)
     _DK_find_gamut();
 }
 
-void fiddle_gamut(long a1, long a2)
+void fiddle_half_gamut(long a1, long a2, long a3, long a4)
 {
-    _DK_fiddle_gamut(a1, a2);
+    _DK_fiddle_half_gamut(a1, a2, a3, a4);
+}
+
+void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long ewheight, long ewzoom)
+{
+    long len_01,len_02,len_13,len_23;
+    long tmp_x,tmp_y;
+    long i;
+    get_floor_pointed_at(ewwidth + ewzoom, -ewzoom, &floor_y[2], &floor_x[2]);
+    get_floor_pointed_at(ewwidth + ewzoom, ewheight + ewzoom, &floor_y[1], &floor_x[1]);
+    get_floor_pointed_at(-ewzoom, ewheight + ewzoom, &floor_y[0], &floor_x[0]);
+    get_floor_pointed_at(-ewzoom, -ewzoom, &floor_y[3], &floor_x[3]);
+    // Get the value with lowest X coord into [0]
+    for (i=1; i < 4; i++)
+    {
+        tmp_x = floor_y[i];
+        if (floor_y[0] > tmp_x)
+        {
+          tmp_y = floor_x[i];
+          floor_x[i] = floor_x[0];
+          floor_x[0] = tmp_y;
+          floor_y[i] = floor_y[0];
+          floor_y[0] = tmp_x;
+        }
+    }
+    // Get the value with highest X coord into [3]
+    for (i=0; i < 3; i++)
+    {
+        tmp_x = floor_y[i];
+        if (floor_y[3] < tmp_x)
+        {
+          tmp_y = floor_x[i];
+          floor_x[i] = floor_x[3];
+          floor_x[3] = tmp_y;
+          floor_y[i] = floor_y[3];
+          floor_y[3] = tmp_x;
+        }
+    }
+    // Between values with medicore X, place the lowest Y first
+    if (floor_x[1] > floor_x[2])
+    {
+        tmp_y = floor_x[1];
+        tmp_x = floor_y[1];
+        floor_x[1] = floor_x[2];
+        floor_x[2] = tmp_y;
+        floor_y[1] = floor_y[2];
+        floor_y[2] = tmp_x;
+    }
+
+    // Lengths of X vectors
+    len_01 = abs(floor_y[1] - floor_y[0]);
+    len_13 = abs(floor_y[3] - floor_y[1]);
+    len_02 = abs(floor_y[2] - floor_y[0]);
+    len_23 = abs(floor_y[3] - floor_y[2]);
+    // Update points according to Y coordinate
+    if ( (floor_x[1] > floor_x[0]) && (len_01 < len_13) )
+    {
+        tmp_y = floor_x[1];
+        floor_y[1] = floor_y[0];
+        floor_x[1] = floor_x[0];
+        floor_x[0] = tmp_y;
+    }
+    if ( (floor_x[1] > floor_x[3]) && (len_13 < len_01) )
+    {
+        tmp_y = floor_x[1];
+        floor_y[1] = floor_y[3];
+        floor_x[1] = floor_x[3];
+        floor_x[3] = tmp_y;
+    }
+    if ( (floor_x[2] < floor_x[0]) && (len_02 < len_23) )
+    {
+        tmp_y = floor_x[2];
+        floor_y[2] = floor_y[0];
+        floor_x[2] = floor_x[0];
+        floor_x[0] = tmp_y;
+    }
+    if ( (floor_x[2] < floor_x[3]) && (len_23 < len_02) )
+    {
+        tmp_y = floor_x[2];
+        floor_x[2] = floor_x[3];
+        floor_x[3] = tmp_y;
+        floor_y[2] = floor_y[3];
+    }
+}
+
+void fiddle_gamut_set_base(long *floor_x, long *floor_y, long pos_x, long pos_y)
+{
+    floor_x[0] -= pos_x;
+    floor_x[1] -= pos_x;
+    floor_y[0] += 32 - pos_y;
+    floor_x[2] -= pos_x;
+    floor_y[1] += 32 - pos_y;
+    floor_y[2] += 32 - pos_y;
+    floor_x[3] -= pos_x;
+    floor_y[3] += 32 - pos_y;
+}
+
+void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y)
+{
+    struct MinMax *mm;
+    long mlimit,bormul,bormuh,borinc;
+    short bordec;
+    long midx;
+    midx = 0;
+    mlimit = floor_y[0];
+    if (mlimit > MINMAX_LENGTH-1)
+      mlimit = MINMAX_LENGTH-1;
+    for (; midx < mlimit; midx++)
+    {
+        mm = &minmaxs[midx];
+        mm->min = 0;
+        mm->max = 0;
+    }
+    if (floor_y[1] <= floor_y[0])
+        borinc = floor_x[0];
+    else
+        borinc = ((floor_x[1] - floor_x[0]) << 16) / (floor_y[1] - floor_y[0]);
+
+    bormul = (floor_x[0] << 16);
+    if (floor_y[0] < 0)
+        bormul -= floor_y[0] * borinc;
+
+    mlimit = floor_y[1];
+    if (mlimit > MINMAX_LENGTH-1)
+      mlimit = MINMAX_LENGTH-1;
+    for (; midx < mlimit; midx++)
+    {
+        mm = &minmaxs[midx];
+        bordec = (bormul >> 16);
+        if (bordec < -30)
+            mm->min = -30;
+        else
+            mm->min = bordec;
+        bormul += borinc;
+    }
+
+    bormul = floor_x[1] << 16;
+    if (floor_y[1] < floor_y[3])
+      borinc = ((floor_x[3] - floor_x[1]) << 16) / (floor_y[3] - floor_y[1]);
+
+    mlimit = floor_y[3];
+    if (mlimit > MINMAX_LENGTH-1)
+      mlimit = MINMAX_LENGTH-1;
+    if (midx < 0) {
+        bormul -= midx * borinc;
+        midx = 0;
+    }
+
+    for (; midx < mlimit; midx++)
+    {
+        mm = &minmaxs[midx];
+        bordec = (bormul >> 16);
+        if (bordec < -30)
+            mm->min = -30;
+        else
+            mm->min = bordec;
+        bormul += borinc;
+    }
+    midx = floor_y[0];
+    if (floor_y[2] > floor_y[0])
+        borinc = ((floor_x[2] - floor_x[0]) << 16) / (floor_y[2] - floor_y[0]);
+    mlimit = floor_y[2];
+    if (mlimit > MINMAX_LENGTH-1)
+        mlimit = MINMAX_LENGTH-1;
+    bormuh = (floor_x[0] << 16);
+    if (midx < 0) {
+        bormuh -= floor_y[0] * borinc;
+        midx = 0;
+    }
+
+    for (; midx < mlimit; midx++)
+    {
+        mm = &minmaxs[midx];
+        bordec = (bormuh >> 16) + 1;
+        if (bordec > 31)
+            mm->max = 31;
+        else
+            mm->max = bordec;
+        bormuh += borinc;
+    }
+
+    bormul = floor_x[2] << 16;
+    if (floor_y[2] < floor_y[3])
+      borinc = ((floor_x[3] - floor_x[2]) << 16) / (floor_y[3] - floor_y[2]);
+    mlimit = floor_y[3];
+    if (mlimit > MINMAX_LENGTH-1)
+      mlimit = MINMAX_LENGTH-1;
+    if ( midx < 0 ) {
+        bormul -= midx * borinc;
+        midx = 0;
+    }
+
+    for (; midx < mlimit; midx++)
+    {
+        mm = &minmaxs[midx];
+        bordec = (bormul >> 16) + 1;
+        if (bordec > 31)
+            mm->max = 31;
+        else
+            mm->max = bordec;
+        bormul += borinc;
+    }
+    for (; midx <= MINMAX_LENGTH-1; midx++)
+    {
+        mm = &minmaxs[midx];
+        mm->min = 0;
+        mm->max = 0;
+    }
+}
+
+void fiddle_gamut_set_mm_maxes(long *floor_x, long *floor_y)
+{
+}
+
+/** Prepares limits for tiles to be rendered.
+ *
+ * @param a1
+ * @param a2
+ */
+void fiddle_gamut(long pos_x, long pos_y)
+{
+    struct PlayerInfo *player;
+    long ewwidth,ewheight,ewzoom;
+    long floor_x[4];
+    long floor_y[4];
+    //_DK_fiddle_gamut(a1, a2); return;
+    player = get_my_player();
+    switch (player->view_mode)
+    {
+    case PVM_CreatureView:
+        fiddle_half_gamut(pos_x, pos_y, 1, cells_away);
+        fiddle_half_gamut(pos_x, pos_y, -1, cells_away + 2);
+        break;
+    case PVM_IsometricView:
+        // Retrieve coordinates on limiting map points
+        ewwidth = player->engine_window_width / pixel_size;
+        ewheight = player->engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
+        ewzoom = (768 * player->acamera->zoom / pixel_size) >> 17;
+        fiddle_gamut_find_limits(floor_x, floor_y, ewwidth, ewheight, ewzoom);
+        // Place the area at proper base coords
+        fiddle_gamut_set_base(floor_x, floor_y, pos_x, pos_y);
+        fiddle_gamut_set_minmaxes(floor_x, floor_y);
+        break;
+    }
 }
 
 void create_line_element(long a1, long a2, long a3, long a4, long bckt_idx, TbPixel color)
@@ -552,11 +796,12 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     struct Column *sib_colmn;
     unsigned short solidmsk_center,solidmsk_top,solidmsk_bottom,solidmsk_left,solidmsk_right;
     unsigned short textr_idx,height_bit;
+    unsigned long center_block_idx;
     long fepos,bepos,ecpos;
     long clip_start,clip_end;
     struct UnkStruc5 *texturing;
     unsigned short *cubenum_ptr;
-    long i;
+    long i,n;
     //_DK_do_a_plane_of_engine_columns_perspective(stl_x, stl_y, plane_start, plane_end); return;
     if ((stl_y <= 0) || (stl_y >= 255))
         return;
@@ -568,15 +813,17 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         clip_end = 255 - stl_x;
     becol = &back_ec[clip_start + 31];
     fecol = &front_ec[clip_start + 31];
-    blank_colmn = get_column(game.field_149E77);
-    mapblk = get_map_block_at_pos(clip_start + stl_x + (stl_y << 8));
+    blank_colmn = get_column(game.unrevealed_column_idx);
+    center_block_idx = clip_start + stl_x + (stl_y << 8);
     for (i = clip_end-clip_start; i > 0; i--)
     {
+        mapblk = get_map_block_at_pos(center_block_idx);
         colmn = blank_colmn;
         if (map_block_revealed_bit(mapblk, player_bit) )
         {
-            if ( mapblk->data & 0x3FF800 )
-                do_map_who((mapblk->data >> 11) & 0x7FF);
+            n = get_mapwho_thing_index(mapblk);
+            if (n != 0)
+                do_map_who(n);
             colmn = get_map_column(mapblk);
         }
         // Retrieve solidmasks for surrounding area
@@ -585,22 +832,22 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         solidmsk_right = blank_colmn->solidmask;
         solidmsk_bottom = blank_colmn->solidmask;
         solidmsk_left = blank_colmn->solidmask;
-        sib_mapblk = &mapblk[-256];
+        sib_mapblk = get_map_block_at_pos(center_block_idx-256);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_top = sib_colmn->solidmask;
         }
-        sib_mapblk = &mapblk[256];
+        sib_mapblk = get_map_block_at_pos(center_block_idx+256);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_bottom = sib_colmn->solidmask;
         }
-        sib_mapblk = &mapblk[-1];
+        sib_mapblk = get_map_block_at_pos(center_block_idx-1);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_left = sib_colmn->solidmask;
         }
-        sib_mapblk = &mapblk[1];
+        sib_mapblk = get_map_block_at_pos(center_block_idx+1);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_right = sib_colmn->solidmask;
@@ -659,7 +906,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             do_a_trig_gourad_tr(&becol[0].cors[ecpos], &becol[1].cors[ecpos], &fecol[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fecol[1].cors[ecpos], &fecol[0].cors[ecpos], &becol[0].cors[ecpos], textr_idx, -1);
         }
-
+        // For tiles which have solid columns at top, draw them
         ecpos = lintel_top_height[solidmsk_center];
         if (ecpos > 0)
         {
@@ -674,8 +921,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             do_a_trig_gourad_tr(&fecol[0].cors[ecpos], &fecol[1].cors[ecpos], &becol[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&becol[1].cors[ecpos], &becol[0].cors[ecpos], &fecol[0].cors[ecpos], textr_idx, -1);
         }
-
-        // Draw the ceiling on top of the columns
+        // Draw the universal ceiling on top of the columns
         ecpos = 8;
         {
             textr_idx = floor_to_ceiling_map[colmn->baseblock];
@@ -684,7 +930,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         }
         becol++;
         fecol++;
-        mapblk++;
+        center_block_idx++;
     }
 }
 
@@ -2363,7 +2609,7 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
     if (map_block_revealed_bit(map, player_bit))
       i = get_mapblk_column_index(map);
     else
-      i = game.field_149E77;
+      i = game.unrevealed_column_idx;
     col = get_column(i);
     mapblk = get_map_block_at(stl_x, stl_y);
 
