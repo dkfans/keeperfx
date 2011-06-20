@@ -199,6 +199,7 @@
  0003:0003F948       block_pointed_at_y
  0003:0003F998       pointed_at_frac_x
  0003:0003F99C       pointed_at_frac_y
+ 0003:0003F9A0       wibble_table
  0003:000AB4D4       winfont
  0003:0002F9F8       net_modem_data
  0003:0002FB08       net_serial_data
@@ -1095,6 +1096,7 @@
  0001:0005D110       init_columns
  0001:0005D9E0       init_top_texture_to_cube_table
  0001:000CA040       load_map_slab_file
+ 0001:000CA130       load_ceiling_table
  0001:000B7820       set_room_capacity
  0001:00047620       ceiling_init
 
@@ -1175,6 +1177,7 @@
  0001:00028380       do_a_trig_gourad_bl
  0001:0002B550       find_gamut
  0001:0002BEB0       fiddle_gamut
+ 0001:0002B8A0       fiddle_half_gamut
  0001:0002C640       display_drawlist
  0001:000317E0       fill_in_points_perspective
  0001:00031BA0       fill_in_points_isometric

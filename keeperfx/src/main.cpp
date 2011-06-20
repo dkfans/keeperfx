@@ -2281,138 +2281,6 @@ TbBool setup_heaps(void)
   return true;
 }
 
-void fill_floor_heights_table(void)
-{
-    long top_height,btm_height;
-    long shade_back;
-    unsigned long flag_bit;
-    long i,n;
-    for (n=0; n < 256; n++)
-    {
-        i = 0;
-        flag_bit = 1;
-        btm_height = i;
-        top_height = i;
-        for (; i < 8; i++)
-        {
-            if ((flag_bit & n) == 0)
-              break;
-            flag_bit = (flag_bit << 1);
-        }
-        shade_back = i;
-        for (; i < 8; i++)
-        {
-            if ((flag_bit & n) != 0)
-              break;
-            flag_bit = (flag_bit << 1);
-        }
-        if (i < 8)
-        {
-            btm_height = i;
-            for (; i < 8; i++)
-            {
-                if ((flag_bit & n) == 0)
-                  break;
-                flag_bit = (flag_bit << 1);
-            }
-            top_height = i;
-        }
-        lintel_bottom_height[n] = btm_height;
-        lintel_top_height[n] = top_height;
-        floor_height[n] = shade_back;
-    }
-}
-
-void generate_wibble_table(void)
-{
-    struct WibbleTable *wibl;
-    struct WibbleTable *qwibl;
-    unsigned long seed;
-    int i,n;
-
-
-    // Clear the whole wibble table
-    for (n=0; n < 4; n++)
-    {
-        wibl = &wibble_table[32*n];
-        for (i=0; i < 32; i++)
-        {
-            LbMemorySet(wibl, 0, sizeof(struct WibbleTable));
-            wibl++;
-        }
-    }
-
-    seed = 0;
-    for (i=0; i < 32; i++)
-    {
-        wibl = &wibble_table[i+32];
-        n = (LB_RANDOM(65447,&seed) % 127);
-        wibl->field_0 = n - 63;
-        n = (LB_RANDOM(65447,&seed) % 127);
-        wibl->field_4 = (n - 63) / 3;
-        n = (LB_RANDOM(65447,&seed) % 127);
-        wibl->field_8 = n - 63;
-        qwibl = &wibble_table[i+64];
-        n = (LB_RANDOM(65447,&seed) % 2047);
-        wibl->field_C = n - 1023;
-        n = (LB_RANDOM(65447,&seed) % 127);
-        qwibl->field_0 = n - 63;
-        n = (LB_RANDOM(65447,&seed) % 127);
-        qwibl->field_8 = n - 63;
-    }
-}
-
-TbBool load_ceiling_table(void)
-{
-    char *fname;
-    TbFileHandle fh;
-    unsigned short *value_array;
-    char nchr;
-    char numstr[8];
-    TbBool do_next;
-    long i,n;
-    //_DK_load_ceiling_table(); return true;
-    // Prepare filename and open the file
-    wait_for_cd_to_be_available();
-    fname = prepare_file_path(FGrp_StdData,"ceiling.txt");
-    fh = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (fh == -1) {
-        return false;
-    }
-
-    value_array = &floor_to_ceiling_map[0];
-    n = 0;
-    do_next = 1;
-    while (do_next == 1)
-    {
-        {
-            do_next = LbFileRead(fh, &nchr, 1);
-            if (do_next != 1)
-                break;
-            if ( (nchr == 10) || (nchr == 44) || (nchr == 32) || (nchr == 9) || (nchr == 13) )
-                continue;
-        }
-        memset(numstr, 0, sizeof(numstr));
-        for (i=0; i < sizeof(numstr); i++)
-        {
-            numstr[i] = nchr;
-            do_next = LbFileRead(fh, &nchr, 1);
-            if (do_next != 1)
-                break;
-            if ( (nchr == 10) || (nchr == 44) || (nchr == 32) || (nchr == 9) || (nchr == 13) )
-                break;
-        }
-        value_array[n] = atol(numstr);
-        n++;
-        if (n >= sizeof(floor_to_ceiling_map)/sizeof(floor_to_ceiling_map[0]))
-        {
-            do_next = 0;
-        }
-    }
-    LbFileClose(fh);
-    return true;
-}
-
 void engine_init(void)
 {
     //_DK_engine_init(); return;
@@ -7119,7 +6987,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
         if (visible)
           k = map->data & 0x7FF;
         else
-          k = game.field_149E77;
+          k = game.unrevealed_column_idx;
         colmn = get_column(k);
         mask = colmn->solidmask;
         if ((temp_cluedo_mode) && (mask != 0))
@@ -7127,7 +6995,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           if (visible)
             k = map->data & 0x7FF;
           else
-            k = game.field_149E77;
+            k = game.unrevealed_column_idx;
           colmn = get_column(k);
           if (colmn->solidmask >= 8)
           {
