@@ -475,7 +475,7 @@ char field_149E05;
     struct StructureList thing_lists[13];
     int field_149E6E; // signed
 char field_149E72[5];
-unsigned int field_149E77;
+    unsigned int unrevealed_column_idx;
 unsigned char field_149E7B;
 unsigned int field_149E7C;
     unsigned char packet_save_enable;

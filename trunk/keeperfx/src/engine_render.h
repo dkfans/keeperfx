@@ -478,14 +478,6 @@ DLLIMPORT extern struct EngineCol *_DK_front_ec;
 #define front_ec _DK_front_ec
 DLLIMPORT extern struct EngineCol *_DK_back_ec;
 #define back_ec _DK_back_ec
-DLLIMPORT extern unsigned short _DK_floor_to_ceiling_map[592];
-#define floor_to_ceiling_map _DK_floor_to_ceiling_map
-DLLIMPORT extern long _DK_floor_height[256];
-#define floor_height _DK_floor_height
-DLLIMPORT extern long _DK_lintel_top_height[256];
-#define lintel_top_height _DK_lintel_top_height
-DLLIMPORT extern long _DK_lintel_bottom_height[256];
-#define lintel_bottom_height _DK_lintel_bottom_height
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /******************************************************************************/
