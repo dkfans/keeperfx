@@ -258,13 +258,23 @@ long get_camera_zoom(struct Camera *cam)
     }
 }
 
+/** Scales camera zoom for current screen resolution.
+ *
+ * @param zoom_lvl Unscaled zoom level.
+ * @return Zoom level scaled with use of current units_per_pixel value.
+ */
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
 {
-    unsigned long amp,sizer,square;
-    sizer = pixel_size*(long)units_per_pixel;
-    amp = ((zoom_lvl*sizer) >> 4);
-    square = LbSqrL(sizer);
-    return  (amp >> 1) + ((amp*square) >> 3);
+    unsigned long size_wide,size_narr;
+    size_narr = ((pixel_size*units_per_pixel_min)<<7)/10;
+    size_wide = (pixel_size*units_per_pixel) << 3;
+    // Currently, the side menu isn't scaled. We have to take that into account. Side menu takes approx 0.22 of the screen.
+    // Note that this is temporary - it would be better to scale the side menu. Not to mention making larger rendering arrays.
+    if (units_per_pixel+units_per_pixel_min > 35) // this means resolution over 800x600
+        size_wide += size_wide>>3;
+    if (units_per_pixel+units_per_pixel_min > 55) // this means resolution over 1200x1024
+        size_wide += size_wide>>4;
+    return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
 }
 /******************************************************************************/
 #ifdef __cplusplus
