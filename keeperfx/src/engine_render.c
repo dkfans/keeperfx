@@ -426,7 +426,7 @@ void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long e
     len_13 = abs(floor_y[3] - floor_y[1]);
     len_02 = abs(floor_y[2] - floor_y[0]);
     len_23 = abs(floor_y[3] - floor_y[2]);
-    // Update points according to Y coordinate
+    // Update points according to both coordinates
     if ( (floor_x[1] > floor_x[0]) && (len_01 < len_13) )
     {
         tmp_y = floor_x[1];
@@ -469,7 +469,7 @@ void fiddle_gamut_set_base(long *floor_x, long *floor_y, long pos_x, long pos_y)
     floor_y[3] += 32 - pos_y;
 }
 
-void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y)
+void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_tiles)
 {
     struct MinMax *mm;
     long mlimit,bormul,bormuh,borinc;
@@ -501,8 +501,8 @@ void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y)
     {
         mm = &minmaxs[midx];
         bordec = (bormul >> 16);
-        if (bordec < -30)
-            mm->min = -30;
+        if (bordec < -max_tiles)
+            mm->min = -max_tiles;
         else
             mm->min = bordec;
         bormul += borinc;
@@ -524,8 +524,8 @@ void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y)
     {
         mm = &minmaxs[midx];
         bordec = (bormul >> 16);
-        if (bordec < -30)
-            mm->min = -30;
+        if (bordec < -max_tiles)
+            mm->min = -max_tiles;
         else
             mm->min = bordec;
         bormul += borinc;
@@ -546,8 +546,8 @@ void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y)
     {
         mm = &minmaxs[midx];
         bordec = (bormuh >> 16) + 1;
-        if (bordec > 31)
-            mm->max = 31;
+        if (bordec > max_tiles)
+            mm->max = max_tiles;
         else
             mm->max = bordec;
         bormuh += borinc;
@@ -568,8 +568,8 @@ void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y)
     {
         mm = &minmaxs[midx];
         bordec = (bormul >> 16) + 1;
-        if (bordec > 31)
-            mm->max = 31;
+        if (bordec > max_tiles)
+            mm->max = max_tiles;
         else
             mm->max = bordec;
         bormul += borinc;
@@ -582,14 +582,10 @@ void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y)
     }
 }
 
-void fiddle_gamut_set_mm_maxes(long *floor_x, long *floor_y)
-{
-}
-
 /** Prepares limits for tiles to be rendered.
  *
- * @param a1
- * @param a2
+ * @param pos_x
+ * @param pos_y
  */
 void fiddle_gamut(long pos_x, long pos_y)
 {
@@ -609,11 +605,11 @@ void fiddle_gamut(long pos_x, long pos_y)
         // Retrieve coordinates on limiting map points
         ewwidth = player->engine_window_width / pixel_size;
         ewheight = player->engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
-        ewzoom = (768 * player->acamera->zoom / pixel_size) >> 17;
+        ewzoom = (768 * (camera_zoom/pixel_size)) >> 17;
         fiddle_gamut_find_limits(floor_x, floor_y, ewwidth, ewheight, ewzoom);
         // Place the area at proper base coords
         fiddle_gamut_set_base(floor_x, floor_y, pos_x, pos_y);
-        fiddle_gamut_set_minmaxes(floor_x, floor_y);
+        fiddle_gamut_set_minmaxes(floor_x, floor_y, 30);
         break;
     }
 }
