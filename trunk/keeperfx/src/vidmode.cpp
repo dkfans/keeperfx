@@ -74,6 +74,7 @@ TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_320_200_8;
 TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 
 //struct IPOINT_2D units_per_pixel;
+unsigned short units_per_pixel_min;
 /******************************************************************************/
 struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
@@ -759,6 +760,7 @@ TbBool update_screen_mode_data(long width, long height)
   MyScreenHeight = height * (long)pixel_size;
   pixels_per_block = 16 * (long)pixel_size;
   units_per_pixel = (width>height?width:height)/40;// originally was 16 for hires, 8 for lores
+  units_per_pixel_min = (width>height?height:width)/40;// originally 10 for hires
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
   else
