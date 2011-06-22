@@ -307,41 +307,41 @@ long map_block_creature_filter_of_model_training_and_owned_by(const struct Thing
  */
 TbBigChecksum update_things_in_list(struct StructureList *list)
 {
-  struct Thing *thing;
-  unsigned long k;
-  TbBigChecksum sum;
-  int i;
-  SYNCDBG(18,"Starting");
-  sum = 0;
-  k = 0;
-  i = list->index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    unsigned long k;
+    TbBigChecksum sum;
+    int i;
+    SYNCDBG(18,"Starting");
+    sum = 0;
+    k = 0;
+    i = list->index;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      i = thing->next_of_class;
+      if ((thing->field_0 & 0x40) == 0)
+      {
+          if ((thing->field_0 & 0x10) != 0) {
+              update_thing_animation(thing);
+          } else {
+              update_thing(thing);
+          }
+      }
+      sum += get_thing_checksum(thing);
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
     }
-    i = thing->next_of_class;
-    if ((thing->field_0 & 0x40) == 0)
-    {
-        if ((thing->field_0 & 0x10) != 0) {
-            update_thing_animation(thing);
-        } else {
-            update_thing(thing);
-        }
-    }
-    sum += get_thing_checksum(thing);
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  SYNCDBG(19,"Finished, %d items, checksum %06lX",(int)k,(unsigned long)sum);
-  return sum;
+    SYNCDBG(19,"Finished, %d items, checksum %06lX",(int)k,(unsigned long)sum);
+    return sum;
 }
 
 /**
