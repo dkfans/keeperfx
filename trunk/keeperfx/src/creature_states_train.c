@@ -47,7 +47,7 @@ DLLIMPORT short _DK_training(struct Thing *thing);
 DLLIMPORT long _DK_creature_can_be_trained(struct Thing *thing);
 DLLIMPORT long _DK_player_can_afford_to_train_creature(struct Thing *thing);
 DLLIMPORT void _DK_process_creature_in_training_room(struct Thing *thing, struct Room *room);
-DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long a3);
+DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long restart);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -106,34 +106,38 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
     k = 0;
     while (i != 0)
     {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-          ERRORLOG("Jump to invalid creature %ld detected",i);
-        break;
-      }
-      i = cctrl->next_in_room;
-      // Per creature code
-      if (thing != partnertng)
-      {
-        if (cctrl->word_9F == 0)
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_exists(cctrl))
         {
-          return thing;
+            ERRORLOG("Jump to invalid creature %ld detected",i);
+            break;
         }
-      }
-      // Per creature code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
+        i = cctrl->next_in_room;
+        // Per creature code
+        if (thing->index != partnertng->index)
+        {
+            if ( (get_creature_state_besides_move(thing) == CrSt_Training) && (cctrl->training.partner_idx == 0) )
+            {
+                if (subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num) == room) {
+                    return thing;
+                } else {
+                    WARNLOG("The %s pretends to be in room but it's not.",thing_model_name(thing));
+                }
+            }
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
     }
     return INVALID_THING;
 }
 
-void setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long a3)
+void setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long restart)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -144,40 +148,41 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     //_DK_setup_move_to_new_training_position(thing, room, a3);
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-    if ( a3 )
-      cctrl->byte_9E = 50;
+    if ( restart )
+      cctrl->training.search_timeout = 50;
     // Try partner training
     if ((crstat->partner_training > 0) && (ACTION_RANDOM(100) < crstat->partner_training))
     {
         prtng = get_creature_in_training_room_which_could_accept_partner(room, thing);
         if (!thing_is_invalid(prtng))
         {
-            prctrl = creature_control_get_from_thing(thing);
-            prctrl->byte_9A = CrTrMd_PartnerTraining;
-            prctrl->byte_9B = 75;
-            prctrl->word_9F = thing->index;
-            prctrl->long_A1 = thing->field_9;
-            cctrl->byte_9A = CrTrMd_PartnerTraining;
-            cctrl->byte_9B = 75;
-            cctrl->word_9F = prtng->index;
-            cctrl->long_A1 = prtng->field_9;
+            SYNCDBG(7,"The %s found %s as training partner.",thing_model_name(thing),thing_model_name(prtng));
+            prctrl = creature_control_get_from_thing(prtng);
+            prctrl->training.mode = CrTrMd_PartnerTraining;
+            prctrl->training.train_timeout = 75;
+            prctrl->training.partner_idx = thing->index;
+            prctrl->training.partner_field9 = thing->field_9;
+            cctrl->training.mode = CrTrMd_PartnerTraining;
+            cctrl->training.train_timeout = 75;
+            cctrl->training.partner_idx = prtng->index;
+            cctrl->training.partner_field9 = prtng->field_9;
             return;
       }
     }
     // No partner - train at some random position
-    cctrl->byte_9A = CrTrMd_Value1;
+    cctrl->training.mode = CrTrMd_Value1;
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
-      cctrl->moveto_pos.x.stl.num = pos.x.stl.num;
-      cctrl->moveto_pos.x.stl.pos = 128;
-      cctrl->moveto_pos.y.stl.num = pos.y.stl.num;
-      cctrl->moveto_pos.y.stl.pos = 128;
-      cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
-      if (thing_in_wall_at(thing, &cctrl->moveto_pos))
-      {
-          ERRORLOG("Illegal setup to wall at (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
-          set_start_state(thing);
-      }
+        cctrl->moveto_pos.x.stl.num = pos.x.stl.num;
+        cctrl->moveto_pos.x.stl.pos = 128;
+        cctrl->moveto_pos.y.stl.num = pos.y.stl.num;
+        cctrl->moveto_pos.y.stl.pos = 128;
+        cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
+        if (thing_in_wall_at(thing, &cctrl->moveto_pos))
+        {
+            ERRORLOG("Illegal setup to wall at (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+            set_start_state(thing);
+        }
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
@@ -231,7 +236,7 @@ void setup_training_search_for_post(struct Thing *thing)
     if (thing_is_invalid(traintng))
     {
         SYNCDBG(6,"Room no longer have training post, moving somewhere else.");
-        setup_move_to_new_training_position(thing, room, 1);
+        setup_move_to_new_training_position(thing, room, true);
     } else
     {
         i = get_subtile_number(traintng->mappos.x.stl.num,traintng->mappos.y.stl.num);
@@ -256,21 +261,21 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     long speed,dist;
     long i;
     cctrl = creature_control_get_from_thing(thing);
-    SYNCDBG(18,"Starting mode %d",(int)cctrl->byte_9A);
+    SYNCDBG(18,"Starting %s mode %d",thing_model_name(thing),(int)cctrl->training.mode);
     //_DK_process_creature_in_training_room(thing, room); return;
     cctrl->field_4A = 0;
-    switch (cctrl->byte_9A)
+    switch (cctrl->training.mode)
     {
     case CrTrMd_Value1:
         if (cctrl->instance_id != CrInst_NULL)
             break;
-        if (cctrl->byte_9E <= 1)
+        if (cctrl->training.search_timeout <= 1)
         {
             setup_training_search_for_post(thing);
-            cctrl->byte_9E = 50;
+            cctrl->training.search_timeout = 50;
             break;
         }
-        cctrl->byte_9E--;
+        cctrl->training.search_timeout--;
         speed = get_creature_speed(thing);
         i = creature_move_to(thing, &cctrl->moveto_pos, speed, 0, 0);
         if (i == 1)
@@ -279,11 +284,11 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             traintng = get_object_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, 31, thing->owner);
             if (thing_is_invalid(traintng))
             {
-                setup_move_to_new_training_position(thing, room, 0);
+                setup_move_to_new_training_position(thing, room, false);
                 break;
             }
-            cctrl->byte_9A = CrTrMd_Value2;
-            cctrl->byte_9E = 50;
+            cctrl->training.mode = CrTrMd_Value2;
+            cctrl->training.search_timeout = 50;
         } else
         if (i == -1)
         {
@@ -312,8 +317,8 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             }
             if (!thing_is_invalid(traintng))
             {
-                cctrl->byte_9C = 3 * map_to_slab[thing->mappos.x.stl.num] + 1;
-                cctrl->byte_9D = 3 * map_to_slab[thing->mappos.y.stl.num] + 1;
+                cctrl->training.pole_stl_x = 3 * map_to_slab[thing->mappos.x.stl.num] + 1;
+                cctrl->training.pole_stl_y = 3 * map_to_slab[thing->mappos.y.stl.num] + 1;
                 cctrl->moveto_pos.x.stl.num = stl_x;
                 cctrl->moveto_pos.y.stl.num = stl_y;
                 cctrl->moveto_pos.x.stl.pos = 128;
@@ -324,11 +329,11 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
                   ERRORLOG("Illegal setup to (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
                   set_start_state(thing);
                 }
-                cctrl->byte_9A = CrTrMd_Value3;
+                cctrl->training.mode = CrTrMd_Value3;
                 break;
             }
         }
-        if (cctrl->byte_9A == CrTrMd_Value2)
+        if (cctrl->training.mode == CrTrMd_Value2)
           setup_move_to_new_training_position(thing, room, 1);
         break;
     case CrTrMd_Value3:
@@ -342,7 +347,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
                 setup_move_to_new_training_position(thing, room, 1);
                 break;
             }
-            cctrl->byte_9A = CrTrMd_Value4;
+            cctrl->training.mode = CrTrMd_Value4;
         } else
         if (i == -1)
         {
@@ -351,38 +356,41 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         }
         break;
     case CrTrMd_Value4:
-        pos.x.val = ((long)cctrl->byte_9C << 8) + 128;
-        pos.y.val = ((long)cctrl->byte_9D << 8) + 128;
+        pos.x.val = ((long)cctrl->training.pole_stl_x << 8) + 128;
+        pos.y.val = ((long)cctrl->training.pole_stl_y << 8) + 128;
         if (creature_turn_to_face(thing, &pos) < 56)
         {
-          cctrl->byte_9A = CrTrMd_Value5;
-          cctrl->byte_9B = 75;
+          cctrl->training.mode = CrTrMd_Value5;
+          cctrl->training.train_timeout = 75;
         }
         break;
     case CrTrMd_PartnerTraining:
-        if (cctrl->word_9F == 0)
+        if (cctrl->training.partner_idx == 0)
         {
-            setup_move_to_new_training_position(thing, room, 0);
+            setup_move_to_new_training_position(thing, room, false);
             return;
         }
-        crtng = thing_get(cctrl->word_9F);
-        if ((crtng->field_9 != cctrl->long_A1) || ((crtng->field_0 & 0x01) == 0))
+        crtng = thing_get(cctrl->training.partner_idx);
+        if (!thing_exists(crtng) || (get_creature_state_besides_move(crtng) != CrSt_Training) || (crtng->field_9 != cctrl->training.partner_field9))
         {
-            setup_move_to_new_training_position(thing, room, 0);
+            SYNCDBG(8,"The %s cannot start partner training - creature to train with is gone.",thing_model_name(thing));
+            setup_move_to_new_training_position(thing, room, false);
             return;
         }
         cctrl2 = creature_control_get_from_thing(crtng);
-        if (cctrl2->word_9F != thing->index)
+        if (cctrl2->training.partner_idx != thing->index)
         {
-            cctrl->word_9F = 0;
-            setup_move_to_new_training_position(thing, room, 0);
+            WARNLOG("The %s cannot start partner training - %s changed the partner.",thing_model_name(thing),thing_model_name(crtng));
+            cctrl->training.partner_idx = 0;
+            setup_move_to_new_training_position(thing, room, false);
             break;
         }
         if (subtile_room_get(crtng->mappos.x.stl.num, crtng->mappos.y.stl.num) != room)
         {
-            cctrl->word_9F = 0;
-            cctrl2->word_9F = 0;
-            setup_move_to_new_training_position(thing, room, 0);
+            SYNCDBG(8,"The %s cannot start partner training - partner has left the room.",thing_model_name(thing));
+            cctrl->training.partner_idx = 0;
+            cctrl2->training.partner_idx = 0;
+            setup_move_to_new_training_position(thing, room, false);
             break;
         }
         crstat = creature_stats_get_from_thing(thing);
@@ -391,19 +399,19 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         {
             if (creature_move_to(thing, &crtng->mappos, get_creature_speed(thing), 0, 0) == -1)
             {
-              ERRORLOG("Cannot navigate to training partner");
-              setup_move_to_new_training_position(thing, room, 0);
-              cctrl->word_9F = 0;
+              WARNLOG("The %s cannot navigate to training partner",thing_model_name(thing));
+              setup_move_to_new_training_position(thing, room, false);
+              cctrl->training.partner_idx = 0;
             }
         } else
         if (dist >= 156)
         {
             if (creature_turn_to_face(thing, &crtng->mappos) < 56)
             {
-              cctrl->byte_9B--;
-              if (cctrl->byte_9B > 0)
+              cctrl->training.train_timeout--;
+              if (cctrl->training.train_timeout > 0)
               {
-                if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->byte_9B % 8) == 0))
+                if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->training.train_timeout % 8) == 0))
                 {
                     set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
                 }
@@ -411,11 +419,11 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
               {
                 if (cctrl->instance_id == CrInst_NULL)
                 {
-                    setup_move_to_new_training_position(thing, room, 0);
-                    cctrl->word_9F = 0;
+                    setup_move_to_new_training_position(thing, room, false);
+                    cctrl->training.partner_idx = 0;
                 } else
                 {
-                    cctrl->byte_9B = 1;
+                    cctrl->training.train_timeout = 1;
                 }
                 cctrl->exp_points += (room->efficiency * crstat->training_value);
               }
@@ -427,22 +435,23 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         break;
     case CrTrMd_Value5:
     default:
-        cctrl->byte_9B--;
-        if (cctrl->byte_9B > 0)
+        if (cctrl->training.train_timeout > 0)
         {
-          if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->byte_9B % 8) == 0))
-          {
-              set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
-          }
+            cctrl->training.train_timeout--;
+            if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->training.train_timeout % 8) == 0))
+            {
+                set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
+            }
         } else
         {
-          if (cctrl->instance_id == CrInst_NULL)
-          {
-              setup_move_to_new_training_position(thing, room, 1);
-          } else
-          {
-              cctrl->byte_9B = 1;
-          }
+            if (cctrl->instance_id == CrInst_NULL)
+            {
+                setup_move_to_new_training_position(thing, room, true);
+                cctrl->training.train_timeout = 0;
+            } else
+            {
+                cctrl->training.train_timeout = 1;
+            }
         }
         break;
     }
