@@ -239,6 +239,16 @@ unsigned char field_88;
     short word_A3;
     unsigned char byte_A5_cp3;
     };
+  struct {
+    unsigned char mode;
+    unsigned char train_timeout;
+    unsigned char pole_stl_x;
+    unsigned char pole_stl_y;
+    unsigned char search_timeout;
+    short partner_idx;
+    long partner_field9;
+    unsigned char byte_A5x;
+    } training;
   };
   union {
   struct {
