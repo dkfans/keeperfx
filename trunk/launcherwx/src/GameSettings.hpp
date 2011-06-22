@@ -18,16 +18,26 @@
 /******************************************************************************/
 #ifndef GAMESETTINGS_HPP_
 #define GAMESETTINGS_HPP_
+#include <wx/wx.h>
+#include <wx/fileconf.h>
 
 #include <string>
 #include <vector>
 
-class GameSettings
+class GameSettings : public wxDialog
 {
+
+    wxFileConfig * conf;
 public:
-    GameSettings();
+    GameSettings(wxFrame *parent);
     virtual ~GameSettings();
+
+    // event handlers
+    void OnClose(wxCloseEvent& event);
+
 private:
+    // any class wishing to process wxWidgets events must use this macro
+    DECLARE_EVENT_TABLE()
 };
 
 

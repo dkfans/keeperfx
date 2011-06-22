@@ -57,8 +57,8 @@ WXWIDGETS_CXXFLAGS = $(__DEBUGINFO) $(__OPTIMIZEFLAG_2) $(__THREADSFLAG) \
 	-DNOPCH $(__RTTIFLAG_5) $(__EXCEPTIONSFLAG_6) \
 	-Wno-ctor-dtor-privacy $(CPPFLAGS)
 CXXFLAGS = -c $(WXWIDGETS_CXXFLAGS) $(DEPFLAGS)
+CFLAGS = -c $(DEPFLAGS)
 LDFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
-CFLAGS = -c $(DEPFLAGS) 
 
 # Conditionally set variables
 

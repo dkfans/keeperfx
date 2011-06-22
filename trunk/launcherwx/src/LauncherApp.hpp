@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef LauncherApp_HPP
-#define LauncherApp_HPP
+#ifndef LAUNCHERAPP_HPP_
+#define LAUNCHERAPP_HPP_
 #include <wx/wx.h>
 #include "wxImageFrame.hpp"
 

@@ -115,6 +115,7 @@ bool LauncherApp::OnInit()
 LauncherFrame::LauncherFrame(const wxString& title)
        : wxImageFrame(NULL, wxID_ANY, title, wxT("launchermn.jpg"), wxBITMAP_TYPE_JPEG)
 {
+    wxBeginBusyCursor();
     // set the frame icon
     SetIcon(wxICON(sample));
 
@@ -158,6 +159,7 @@ LauncherFrame::LauncherFrame(const wxString& title)
     fxWorkDir = wxGetCwd();
 
     flCheck = new FilelistChecker();
+    wxEndBusyCursor();
 }
 
 LauncherFrame::~LauncherFrame()
@@ -286,11 +288,9 @@ std::wstring LauncherFrame::getSystemStartCommand(void)
 
 void LauncherFrame::onSettings(wxCommandEvent& WXUNUSED(event))
 {
-    //TODO: make showing GameSettings frame which can load, modify and save the file
-    wxString cmd;
-    cmd = getSystemStartCommand();
-    cmd += L" notepad.exe keeperfx.cfg";
-    system(cmd.char_str());
+    GameSettings dialog(this);
+    dialog.ShowModal();
+    recheckBasicFiles();
 }
 
 void LauncherFrame::onOptions(wxCommandEvent& WXUNUSED(event))
