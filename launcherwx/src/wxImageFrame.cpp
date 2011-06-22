@@ -26,8 +26,8 @@ EVT_SIZE(wxImageFrame::OnSize)
 END_EVENT_TABLE()
 
 
-wxImageFrame::wxImageFrame(wxWindow* parent, wxWindowID id, const wxString& title, wxString file, wxBitmapType format) :
-wxFrame(parent, id, title, wxDefaultPosition, wxSize (480, 360), wxCLIP_CHILDREN)
+wxImageFrame::wxImageFrame(wxWindow* parent, wxWindowID id, const wxString& title, wxString file, wxBitmapType format)
+    : wxFrame(parent, id, title, wxDefaultPosition, wxSize (480, 360), wxCLIP_CHILDREN)
 {
     // load the file... ideally add a check to see if loading was successful
     image.LoadFile(file, format);
