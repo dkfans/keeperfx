@@ -383,7 +383,7 @@ TbBool load_game(long slot_num)
     PaletteSetPlayerPalette(player, _DK_palette);
     reinitialise_eye_lens(game.numfield_1B);
     // Update the lights system state
-    light_export_system_state(&gameadd.lightst);
+    light_import_system_state(&gameadd.lightst);
     // Victory state
     if (player->victory_state != VicS_Undecided)
     {

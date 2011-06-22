@@ -348,7 +348,42 @@ long get_damage_of_melee_shot(struct Thing *shotng, struct Thing *target)
 
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
 {
-    _DK_create_relevant_effect_for_shot_hitting_thing(shotng, target); return;
+    struct CreatureControl *cctrl;
+    struct Thing *efftng;
+    //_DK_create_relevant_effect_for_shot_hitting_thing(shotng, target); return;
+    efftng = INVALID_THING;
+    if (target->class_id == TCls_Creature)
+    {
+        switch (shotng->model)
+        {
+        case 1:
+        case 2:
+        case 4:
+            efftng = create_effect(&shotng->mappos, 1, shotng->owner);
+            break;
+        case 5:
+            efftng = create_effect(&shotng->mappos, 13, shotng->owner);
+            if ( !thing_is_invalid(efftng) ) {
+                efftng->byte_16 = 2;
+            }
+            break;
+        case 6:
+        case 9:
+            efftng = create_effect(&shotng->mappos, 8, shotng->owner);
+            break;
+        case 14:
+        case 21:
+        case 22:
+            cctrl = creature_control_get_from_thing(target);
+            if ((cctrl->affected_by_spells & 0x02) != 0) {
+                efftng = create_effect(&shotng->mappos, 22, shotng->owner);
+            } else
+            if (creature_model_bleeds(target->model)) {
+                efftng = create_effect(&shotng->mappos, 6, shotng->owner);
+            }
+            break;
+        }
+    }
 }
 
 long check_hit_when_attacking_door(struct Thing *thing)
@@ -578,7 +613,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     if (shotst->old->field_22 != 0)
     {
         play_creature_sound(target, 1, 1, 0);
-        thing_play_sample(target, shotst->old->field_22, 0x64u, 0, 3, 0, 2, 256);
+        thing_play_sample(target, shotst->old->field_22, 100, 0, 3, 0, 2, 256);
     }
     if (shotng->word_14 != 0)
     {
@@ -652,7 +687,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
 long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
     //return _DK_shot_hit_shootable_thing_at(shotng, target, pos);
-    if (thing_is_invalid(target))
+    if (!thing_exists(target))
         return 0;
     if (target->class_id == TCls_Object) {
         return shot_hit_object_at(shotng, target, pos);
