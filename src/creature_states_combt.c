@@ -85,7 +85,9 @@ long jonty_creature_can_see_thing_including_lava_check(struct Thing * creature, 
 
 long creature_can_see_combat_path(struct Thing * creature, struct Thing * enemy, long dist)
 {
-    if (game.creature_stats[creature->model].visual_range << 8 >= dist) {
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creature);
+    if ((crstat->visual_range << 8) >= dist) {
         return jonty_creature_can_see_thing_including_lava_check(creature, enemy);
     }
 
