@@ -1282,10 +1282,10 @@ unsigned char external_set_thing_state(struct Thing *thing, long state)
     //return _DK_external_set_thing_state(thing, state);
     if ( !can_change_from_state_to(thing, thing->active_state, state) )
     {
-        ERRORDBG(4,"State change %d to %d for %s not allowed",(int)thing->active_state, (int)state, thing_model_name(thing));
+        ERRORDBG(4,"State change %s to %s for %s not allowed",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing));
         return 0;
     }
-    SYNCDBG(9,"State change %d to %d for %s index %d",(int)thing->active_state, (int)state, thing_model_name(thing),(int)thing->index);
+    SYNCDBG(9,"State change %s to %s for %s index %d",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing),(int)thing->index);
     stati = get_thing_active_state_info(thing);
     if (stati->state_type == CrStTyp_Value6)
         stati = get_thing_continue_state_info(thing);
@@ -1304,7 +1304,7 @@ unsigned char external_set_thing_state(struct Thing *thing, long state)
     cctrl->field_302 = 0;
     if ((cctrl->flgfield_1 & 0x20) != 0)
     {
-        ERRORLOG("External change state %d to %d, but %s in room list even after cleanup",(int)thing->active_state, (int)state, thing_model_name(thing));
+        ERRORLOG("External change state %s to %s, but %s in room list even after cleanup",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing));
         remove_creature_from_work_room(thing);
     }
     return 1;
@@ -7903,14 +7903,12 @@ short thing_create_thing(struct InitThing *itng)
       break;
   case TCls_Creature:
       thing = create_creature(&itng->mappos, itng->model, itng->owner);
-      if (!thing_is_invalid(thing))
-      {
-        init_creature_level(thing, itng->params[1]);
-      } else
+      if (thing_is_invalid(thing))
       {
           ERRORLOG("Couldn't create creature model %d", (int)itng->model);
           return false;
       }
+      init_creature_level(thing, itng->params[1]);
       break;
   case TCls_EffectGen:
       thing = create_effect_generator(&itng->mappos, itng->model, itng->range, itng->owner, itng->index);

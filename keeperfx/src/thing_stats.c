@@ -27,6 +27,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
+#include "config_crtrstates.h"
 #include "player_data.h"
 #include "config_magic.hpp"
 #include "vidfade.h"
@@ -101,6 +102,11 @@ const char *thing_model_name(const struct Thing *thing)
         break;
     }
     return name_buffer;
+}
+
+const char *creatrtng_actstate_name(const struct Thing *thing)
+{
+    return creature_state_code_name(thing->active_state);
 }
 
 TbBool things_stats_debug_dump(void)

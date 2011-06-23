@@ -34,6 +34,7 @@
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "config_lenses.h"
+#include "config_crtrstates.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
@@ -1010,7 +1011,7 @@ long process_creature_state(struct Thing *thing)
     // Enable this to know which function hangs on update_creature.
     //TODO: rewrite state subfunctions so they won't hang
     //if (game.play_gameturn > 119800)
-    SYNCDBG(18,"Executing state %d for %s index %d.",(int)thing->active_state,thing_model_name(thing),(int)thing->index);
+    SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
     stati = get_thing_active_state_info(thing);
     if (stati->ofsfield_0 == NULL)
         return false;
@@ -3092,32 +3093,32 @@ long get_creature_thing_score(struct Thing *thing)
 
 long update_creature_levels(struct Thing *thing)
 {
-    SYNCDBG(18,"Starting");
     struct CreatureStats *crstat;
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     struct Thing *newtng;
+    SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->field_AD & 0x40) == 0)
-      return 0;
+        return 0;
     cctrl->field_AD &= ~0x40;
     remove_creature_score_from_owner(thing);
     // If a creature is not on highest level, just update the level
     if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
     {
-      set_creature_level(thing, cctrl->explevel+1);
-      return 1;
+        set_creature_level(thing, cctrl->explevel+1);
+        return 1;
     }
     // If it is highest level, maybe we should transform the creature?
     crstat = creature_stats_get_from_thing(thing);
     if (crstat->grow_up == 0)
-      return 0;
+        return 0;
     // Transforming
     newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
-    if (newtng == NULL)
+    if (thing_is_invalid(newtng))
     {
-      ERRORLOG("Could not create creature to transform to");
-      return 0;
+        ERRORLOG("Could not create creature to transform %s to",thing_model_name(thing));
+        return 0;
     }
     set_creature_level(newtng, crstat->grow_up_level-1);
     update_creature_health_to_max(newtng);
@@ -3128,13 +3129,13 @@ long update_creature_levels(struct Thing *thing)
     // Switch control if this creature is possessed
     if (is_thing_passenger_controlled(thing))
     {
-      leave_creature_as_controller(player, thing);
-      control_creature_as_controller(player, newtng);
+        leave_creature_as_controller(player, thing);
+        control_creature_as_controller(player, newtng);
     }
     if (thing->index == player->controlled_thing_idx)
     {
-      player->controlled_thing_idx = newtng->index;
-      player->field_31 = newtng->field_9;
+        player->controlled_thing_idx = newtng->index;
+        player->field_31 = newtng->field_9;
     }
     kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
     return -1;
