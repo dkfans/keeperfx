@@ -20,6 +20,7 @@
  0001:0003AAC0       setup_screen_mode_minimal
  0001:0003D2C0       startup_saved_packet_game
  0001:0003CDB0       startup_network_game
+ 0001:0003CB30       load_keepersprite_if_needed
  0001:000AEF30       frontend_load_data
  0001:000C9460       load_game
  0001:00050E70       process_3d_sounds
@@ -51,6 +52,8 @@
  0001:00036B90       get_global_inputs
  0001:000FD5D0       copy_to_screen
  0005:00011C10       LbSpriteDraw
+ 0005:0000EF10       DrawAlphaSpriteUsingScalingData
+ 0005:0000F688       SetAlphaScalingData
  0005:0000F9B0       LbSpriteDrawUsingScalingData
  0005:000118E8       LbSpriteSetScalingData
  0005:000001F0       draw_gpoly
@@ -195,6 +198,7 @@
  0003:00031180       floor_height
  0003:00030D48       lintel_bottom_height
  0003:000409C0       lintel_top_height
+ 0003:00049E70       keepsprite
  0003:0003F944       block_pointed_at_x
  0003:0003F948       block_pointed_at_y
  0003:0003F998       pointed_at_frac_x
@@ -376,6 +380,8 @@
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights
+ 0003:00053B64       global_scaler
+ 0003:00053B68       water_source_cutoff
  0003:002473D0       message_queue
  0003:0000F620       trap_stats
  0003:00014950       script_line_number

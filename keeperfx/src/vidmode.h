@@ -61,6 +61,7 @@ extern struct TbSprite *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFiles map_flag_load_files[];
 extern unsigned short units_per_pixel_min;
+extern long base_mouse_sensitivity;
 /******************************************************************************/
 TbScreenMode switch_to_next_video_mode(void);
 void set_game_vidmode(unsigned short i,unsigned short nmode);

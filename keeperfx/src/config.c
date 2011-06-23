@@ -602,11 +602,12 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i > 0) && (i <= 1000))
-              LbMouseChangeMoveRatio(i*256/100, i*256/100);
-          else
+          if ((i > 0) && (i <= 1000)) {
+              base_mouse_sensitivity = i*256/100;
+          } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
+          }
           break;
       case 0: // comment
           break;
