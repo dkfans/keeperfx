@@ -42,15 +42,15 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
-DLLIMPORT void _DK_draw_clipped_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char a5);
+DLLIMPORT void _DK_draw_clipped_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char scale);
 DLLIMPORT void _DK_draw_engine_number(struct Number *num);
 DLLIMPORT void _DK_draw_engine_room_flagpole(struct RoomFlag *rflg);
 DLLIMPORT void _DK_draw_status_sprites(long pos_x, long pos_z, struct Thing *thing, long end_y);
 DLLIMPORT void _DK_draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
 DLLIMPORT void _DK_draw_engine_room_flag_top(struct RoomFlag *rflg);
-DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char a5);
+DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char scale);
 DLLIMPORT void _DK_draw_map_who(struct RotoSpr *spr);
-DLLIMPORT void _DK_draw_element(struct Map *map, long pos_z, long start_y, long end_y, long a5, long a6, long a7, unsigned char a8, long *a9);
+DLLIMPORT void _DK_draw_element(struct Map *map, long pos_z, long start_y, long end_y, long scale, long a6, long a7, unsigned char a8, long *a9);
 DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
 DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short pos_x, short pos_z, unsigned char start_y, unsigned char *end_y);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
@@ -70,12 +70,13 @@ DLLIMPORT void _DK_find_gamut(void);
 DLLIMPORT void _DK_fiddle_gamut(long pos_x, long pos_z);
 DLLIMPORT void _DK_create_map_volume_box(long pos_x, long pos_z, long start_y);
 DLLIMPORT void _DK_frame_wibble_generate(void);
-DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long start_y, long end_y, long a5, long a6, long a7, long a8);
-DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short start_y, short end_y, unsigned char a5, long a6);
-DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long a5);
-DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long a5);
+DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long start_y, long end_y, long scale, long a6, long a7, long a8);
+DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short start_y, short end_y, unsigned char scale, long a6);
+DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
+DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_map_who(short stl_x);
 DLLIMPORT void _DK_fiddle_half_gamut(long y, long pos_y, long floor_x, long floor_y);
+DLLIMPORT long _DK_load_keepersprite_if_needed(unsigned short kspr_idx);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -116,6 +117,7 @@ unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 //unsigned char temp_cluedo_mode;
 unsigned long render_problems;
 long render_prob_kind;
+long sp_x,sp_y,sp_dx,sp_dy;
 /******************************************************************************/
 void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
 {
@@ -2736,6 +2738,198 @@ unsigned short get_thing_shade(struct Thing *thing)
     }
     return shval;
 }
+
+void lock_keepersprite(unsigned short kspr_idx)
+{
+}
+
+void unlock_keepersprite(unsigned short kspr_idx)
+{
+}
+
+long load_keepersprite_if_needed(unsigned short kspr_idx)
+{
+    return _DK_load_keepersprite_if_needed(kspr_idx);
+}
+
+long heap_manage_keepersprite(unsigned short kspr_idx)
+{
+    long result;
+    lock_keepersprite(kspr_idx);
+    result = load_keepersprite_if_needed(kspr_idx);
+    unlock_keepersprite(kspr_idx);
+    return result;
+}
+
+void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
+{
+    struct TbSprite sprite;
+    long cut_w,cut_h;
+    struct KeeperSprite **kspr_list;
+    cut_w = w;
+    cut_h = h - water_source_cutoff;
+    if (cut_h <= 0)
+        return;
+    kspr_list = keepsprite[kspr_idx];
+    sprite.SWidth = cut_w;
+    sprite.SHeight = cut_h;
+    sprite.Data = (unsigned char *)(*kspr_list);
+    if ( EngineSpriteDrawUsingAlpha )
+      DrawAlphaSpriteUsingScalingData(x, y, &sprite);
+    else
+      LbSpriteDrawUsingScalingData(x, y, &sprite);
+}
+
+void set_thing_pointed_at(struct Thing *thing)
+{
+  if (thing_pointed_at == NULL)
+    thing_pointed_at = thing;
+}
+
+void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
+{
+    long x,y;
+    long src_dy,src_dx;
+    src_dy = (long)kspr->field_7;
+    src_dx = (long)kspr->field_6;
+    x = src_dx - (long)kspr->field_A - (long)kspr->field_4;
+    y = kspr->field_B;
+    if ( EngineSpriteDrawUsingAlpha )
+    {
+        sp_x = kspos_x;
+        sp_y = kspos_y;
+        sp_dy = (src_dy * scale) >> 5;
+        sp_dx = (src_dx * scale) >> 5;
+        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    } else
+    {
+        sp_x = kspos_x;
+        sp_y = kspos_y;
+        sp_dy = (src_dy * scale) >> 5;
+        sp_dx = (src_dx * scale) >> 5;
+        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    }
+    if ( thing_being_displayed_is_creature )
+    {
+      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
+      {
+          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
+          {
+              set_thing_pointed_at(thing_being_displayed);
+          }
+      }
+    }
+    draw_keepersprite(x, y, kspr->field_4, kspr->field_5, kspr_idx);
+}
+
+void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
+{
+    long x,y;
+    long src_dy,src_dx;
+    src_dy = (long)kspr->field_7;
+    src_dx = (long)kspr->field_6;
+    x = kspr->field_A;
+    y = kspr->field_B;
+    if ( EngineSpriteDrawUsingAlpha )
+    {
+        sp_x = kspos_x;
+        sp_y = kspos_y;
+        sp_dy = (src_dy * scale) >> 5;
+        sp_dx = (src_dx * scale) >> 5;
+        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    } else
+    {
+        sp_x = kspos_x;
+        sp_y = kspos_y;
+        sp_dy = (src_dy * scale) >> 5;
+        sp_dx = (src_dx * scale) >> 5;
+        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    }
+    if ( thing_being_displayed_is_creature )
+    {
+      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
+      {
+          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
+          {
+              set_thing_pointed_at(thing_being_displayed);
+          }
+      }
+    }
+    draw_keepersprite(x, y, kspr->field_4, kspr->field_5, kspr_idx);
+}
+
+void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
+{
+    long x,y;
+    long src_dy,src_dx;
+    src_dy = (long)kspr->field_5;
+    src_dx = (long)kspr->field_4;
+    x = (long)kspr->field_6 - (long)kspr->field_A - src_dx;
+    y = kspr->field_B;
+    if ( EngineSpriteDrawUsingAlpha )
+    {
+        sp_x = kspos_x + ((scale * x) >> 5);
+        sp_y = kspos_y + ((scale * y) >> 5);
+        sp_dy = (src_dy * scale) >> 5;
+        sp_dx = (src_dx * scale) >> 5;
+        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    } else
+    {
+        sp_x = kspos_x + ((scale * x) >> 5);
+        sp_y = kspos_y + ((scale * y) >> 5);
+        sp_dy = (src_dy * scale) >> 5;
+        sp_dx = (src_dx * scale) >> 5;
+        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    }
+    if ( thing_being_displayed_is_creature )
+    {
+      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
+      {
+          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
+          {
+              set_thing_pointed_at(thing_being_displayed);
+          }
+      }
+    }
+    draw_keepersprite(0, 0, kspr->field_4, kspr->field_5, kspr_idx);
+}
+
+void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
+{
+    long x,y;
+    long src_dy,src_dx;
+    src_dy = (long)kspr->field_5;
+    src_dx = (long)kspr->field_4;
+    x = kspr->field_A;
+    y = kspr->field_B;
+    if ( EngineSpriteDrawUsingAlpha )
+    {
+        sp_x = kspos_x + ((scale * x) >> 5);
+        sp_y = kspos_y + ((scale * y) >> 5);
+        sp_dy = (src_dy * scale) >> 5;
+        sp_dx = (src_dx * scale) >> 5;
+        SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    } else
+    {
+        sp_x = kspos_x + ((scale * x) >> 5);
+        sp_y = kspos_y + ((scale * y) >> 5);
+        sp_dy = (src_dy * scale) >> 5;
+        sp_dx = (src_dx * scale) >> 5;
+        LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
+    }
+    if ( thing_being_displayed_is_creature )
+    {
+      if ( (pointer_x >= x) && (pointer_x <= sp_dx + x) )
+      {
+          if ( (pointer_y >= y) && (pointer_y <= sp_dy + y) )
+          {
+              set_thing_pointed_at(thing_being_displayed);
+          }
+      }
+    }
+    draw_keepersprite(0, 0, kspr->field_4, kspr->field_5, kspr_idx);
+}
+
 
 void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6)
 {

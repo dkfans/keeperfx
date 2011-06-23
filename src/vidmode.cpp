@@ -75,6 +75,7 @@ TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
+long base_mouse_sensitivity = 256;
 /******************************************************************************/
 struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
@@ -766,6 +767,7 @@ TbBool update_screen_mode_data(long width, long height)
   else
     LbSpriteSetupAll(setup_sprites);
   LbMouseSetup(NULL);
+  LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
   LbTextSetWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);

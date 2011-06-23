@@ -323,6 +323,7 @@
  0001:0003C4F0       frontstats_draw_scrolling_stats
  0001:0003C9D0       setup_heap_manager
  0001:0003CAF0       reset_heap_manager
+ 0001:0003CB30       load_keepersprite_if_needed
  0001:0003CDB0       startup_network_game
  0001:0003D2C0       startup_saved_packet_game
  0001:0003D970       set_packet_action
@@ -1628,6 +1629,7 @@
  0003:00040DE4       old_my
  0003:00040DE8       frontstats_timer
  0003:00040DF0       frontstats_data
+ 0003:00049E70       keepsprite
  0003:00052D68       packet_left_button_double_clicked
  0003:00052D80       packet_left_button_click_space_count
  0003:00052DB0       Receiver
@@ -1639,6 +1641,8 @@
  0003:00053B48       ScanBuffer
  0003:00053B58       ScrCenterX
  0003:00053B5C       ScrCenterY
+ 0003:00053B64       global_scaler
+ 0003:00053B68       water_source_cutoff
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights
@@ -1881,6 +1885,8 @@
  0003:002753D8       maximumPlayers
  0005:000001F0       draw_gpoly
  0005:00007AE0       trig
+ 0005:0000EF10       DrawAlphaSpriteUsingScalingData
+ 0005:0000F688       SetAlphaScalingData
  0005:0000F9B0       LbSpriteDrawUsingScalingData
  0005:000118E8       LbSpriteSetScalingData
  0005:00011C10       LbSpriteDraw

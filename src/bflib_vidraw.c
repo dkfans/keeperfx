@@ -49,7 +49,9 @@ DLLIMPORT int _DK_LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *map);
 DLLIMPORT int _DK_LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
 DLLIMPORT int _DK_LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite);
+DLLIMPORT int _DK_DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite);
 DLLIMPORT void _DK_LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
+DLLIMPORT void _DK_SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6);
 /******************************************************************************/
 /*
 bool sprscale_enlarge;
@@ -1794,6 +1796,16 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
   return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+}
+
+TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite)
+{
+  return _DK_DrawAlphaSpriteUsingScalingData(posx, posy, sprite);
+}
+
+void SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6)
+{
+    _DK_SetAlphaScalingData(a1, a2, a3, a4, a5, a6);
 }
 
 TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height)

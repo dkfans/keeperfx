@@ -144,10 +144,10 @@ void unset_players_packet_control(struct PlayerInfo *player, unsigned long flag)
 
 void set_players_packet_position(struct PlayerInfo *player, long x, long y)
 {
-  struct Packet *pckt;
-  pckt = get_packet_direct(player->packet_num);
-  pckt->pos_x = x;
-  pckt->pos_y = y;
+    struct Packet *pckt;
+    pckt = get_packet_direct(player->packet_num);
+    pckt->pos_x = x;
+    pckt->pos_y = y;
 }
 
 /**
@@ -157,13 +157,13 @@ void set_players_packet_position(struct PlayerInfo *player, long x, long y)
  */
 struct Packet *get_packet(long plyr_idx)
 {
-  struct PlayerInfo *player;
-  player = get_player(plyr_idx);
-  if (player_invalid(player))
-    return INVALID_PACKET;
-  if (player->packet_num >= PACKETS_COUNT)
-    return INVALID_PACKET;
-  return &game.packets[player->packet_num];
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    if (player_invalid(player))
+        return INVALID_PACKET;
+    if (player->packet_num >= PACKETS_COUNT)
+        return INVALID_PACKET;
+    return &game.packets[player->packet_num];
 }
 
 /**
@@ -173,30 +173,31 @@ struct Packet *get_packet(long plyr_idx)
  */
 struct Packet *get_packet_direct(long pckt_idx)
 {
-  if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
-    return INVALID_PACKET;
-  return &game.packets[pckt_idx];
+    if ((pckt_idx < 0) || (pckt_idx >= PACKETS_COUNT))
+        return INVALID_PACKET;
+    return &game.packets[pckt_idx];
 }
 
 void clear_packets(void)
 {
-  int i;
-  for (i=0; i < PACKETS_COUNT; i++)
-    memset(&game.packets[i], 0, sizeof(struct Packet));
+    int i;
+    for (i=0; i < PACKETS_COUNT; i++) {
+        memset(&game.packets[i], 0, sizeof(struct Packet));
+    }
 }
 
 short set_packet_pause_toggle(void)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  player = get_my_player();
-  if (player_invalid(player))
-      return false;
-  if (player->packet_num >= PACKETS_COUNT)
-      return false;
-  pckt = get_packet_direct(player->packet_num);
-  set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
-  return true;
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    player = get_my_player();
+    if (player_invalid(player))
+        return false;
+    if (player->packet_num >= PACKETS_COUNT)
+        return false;
+    pckt = get_packet_direct(player->packet_num);
+    set_packet_action(pckt, PckA_TogglePause, 0, 0, 0, 0);
+    return true;
 }
 
 TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
@@ -207,8 +208,8 @@ TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
     if (((player->field_0 & 0x40) == 0) && (player->acamera != NULL))
     {
         mappos = &(player->acamera->mappos);
-        sum += player->field_4B1 + player->instance_num
-                   + mappos->x.val + mappos->z.val + mappos->y.val;
+        sum += (TbBigChecksum)player->field_4B1 + (TbBigChecksum)player->instance_num;
+        sum += (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
     }
     return sum;
 }
