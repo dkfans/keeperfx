@@ -77,8 +77,8 @@ struct KeeperSprite { // sizeof = 16
   unsigned char field_9;
   unsigned char field_A;
   unsigned char field_B;
-  unsigned char field_C[2];
-  unsigned char field_E[2];
+  short field_C;
+  short field_E;
 };
 
 /******************************************************************************/
@@ -91,8 +91,12 @@ struct KeeperSprite { // sizeof = 16
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
 
+unsigned long keepersprite_index(unsigned short n);
+struct KeeperSprite * keepersprite_array(unsigned short n);
 unsigned char keepersprite_frames(unsigned short n);
 unsigned char keepersprite_rotable(unsigned short n);
+unsigned char previous_keeper_frame(unsigned short n, unsigned char c);
+void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
 long get_lifespan_of_animation(long ani, long frameskip);
 unsigned long get_creature_anim(struct Thing *thing, unsigned short frame);
 unsigned long get_creature_breed_graphics(long breed, unsigned short frame);
