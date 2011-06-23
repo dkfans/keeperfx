@@ -359,16 +359,18 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     pos.y.val = get_subtile_center_pos(stl_y);
     pos.z.val = get_floor_height_at(&pos) + (dnheart->field_58 >> 1);
     thing = create_creature(&pos, get_players_special_digger_breed(plyr_idx), plyr_idx);
-    if (!thing_is_invalid(thing))
+    if (thing_is_invalid(thing))
     {
-        thing->acceleration.x.val += ACTION_RANDOM(161) - 80;
-        thing->acceleration.y.val += ACTION_RANDOM(161) - 80;
-        thing->acceleration.z.val += 160;
-        thing->field_1 |= 0x04;
-        thing->field_52 = 0;
-        initialise_thing_state(thing, CrSt_ImpBirth);
-        play_creature_sound(thing, 3, 2, 0);
+        ERRORLOG("There was place to create new creature, but creation failed");
+        return Lb_SUCCESS;
     }
+    thing->acceleration.x.val += ACTION_RANDOM(161) - 80;
+    thing->acceleration.y.val += ACTION_RANDOM(161) - 80;
+    thing->acceleration.z.val += 160;
+    thing->field_1 |= 0x04;
+    thing->field_52 = 0;
+    initialise_thing_state(thing, CrSt_ImpBirth);
+    play_creature_sound(thing, 3, 2, 0);
     return Lb_SUCCESS;
 }
 
