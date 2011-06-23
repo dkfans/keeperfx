@@ -1641,6 +1641,7 @@
  0003:00053B48       ScanBuffer
  0003:00053B58       ScrCenterX
  0003:00053B5C       ScrCenterY
+ 0003:00053B60       water_y_offset
  0003:00053B64       global_scaler
  0003:00053B68       water_source_cutoff
  0003:00053B80       optimised_lights

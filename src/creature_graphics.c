@@ -179,9 +179,107 @@ unsigned char keepersprite_rotable(unsigned short n)
   return creature_table[i].field_8;
 }
 
+unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
+{
+    unsigned long i;
+    if (n >= CREATURE_FRAMELIST_LENGTH)
+    {
+        ERRORLOG("Frame %d out of range",(int)n);
+        n = 0;
+    }
+    i = creature_list[n];
+    if (c > 0)
+        return c - 1;
+    return creature_table[i].field_9 - 1;
+}
+
+unsigned char next_keeper_frame(unsigned short n, unsigned char c)
+{
+    unsigned long i;
+    if (n >= CREATURE_FRAMELIST_LENGTH)
+    {
+        ERRORLOG("Frame %d out of range",(int)n);
+        n = 0;
+    }
+    i = creature_list[n];
+    return creature_table[i].field_9;
+}
+
+struct KeeperSprite * keepersprite_array(unsigned short n)
+{
+    unsigned long i;
+    if (n >= CREATURE_FRAMELIST_LENGTH)
+    {
+        ERRORLOG("Frame %d out of range",(int)n);
+        n = 0;
+    }
+    i = creature_list[n];
+    return &creature_table[i];
+}
+
+unsigned long keepersprite_index(unsigned short n)
+{
+  if (n >= CREATURE_FRAMELIST_LENGTH)
+  {
+      ERRORLOG("Frame %d out of range",(int)n);
+      n = 0;
+  }
+  return creature_list[n];
+}
+
 long get_lifespan_of_animation(long ani, long frameskip)
 {
     return (keepersprite_frames(ani) << 8) / frameskip;
+}
+
+void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h)
+{
+    struct KeeperSprite *kspr;
+    TbBool val_in_range;
+    kspr = &creature_table[creature_list[kspr_frame]];
+    if ( ((a2 & 0x7FF) <= 1151) || ((a2 & 0x7FF) >= 1919) )
+        val_in_range = 0;
+    else
+        val_in_range = 1;
+    if ( val_in_range )
+      lbDisplay.DrawFlags |= 0x0001;
+    else
+      lbDisplay.DrawFlags &= ~0x0001;
+    if (kspr->field_8 == 0)
+    {
+        kspr += a3;
+        *orig_w = kspr->field_6;
+        *orig_h = kspr->field_7;
+        if ( val_in_range )
+        {
+          *unsc_w = *orig_w - (long)kspr->field_4 - (long)kspr->field_A;
+          *unsc_h = kspr->field_B;
+        }
+        else
+        {
+          *unsc_w = kspr->field_A;
+          *unsc_h = kspr->field_B;
+        }
+    } else
+    if (kspr->field_8 == 2)
+    {
+        kspr += a3 + abs(4 - (((a2 + 128) & 0x7FF) >> 8)) * kspr->field_9;
+        *orig_w = kspr->field_4;
+        *orig_h = kspr->field_5;
+        if ( val_in_range )
+        {
+          *unsc_w = (long)kspr->field_6 - (long)kspr->field_A - *orig_w;
+          *unsc_h = kspr->field_B;
+        }
+        else
+        {
+          *unsc_w = kspr->field_A;
+          *unsc_h = kspr->field_B;
+        }
+    }
+    *unsc_w += kspr->field_C;
+    *unsc_h += kspr->field_E;
+
 }
 
 unsigned long get_creature_breed_graphics(long breed, unsigned short seq_idx)

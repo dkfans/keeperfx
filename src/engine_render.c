@@ -2930,11 +2930,99 @@ void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *k
     draw_keepersprite(0, 0, kspr->field_4, kspr->field_5, kspr_idx);
 }
 
-
-void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long a6)
+void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long scale)
 {
-    //SYNCDBG(7,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)a3,(int)a4,(int)a5,(int)a6);
-    _DK_process_keeper_sprite(x, y, a3, a4, a5, a6);
+    struct KeeperSprite *creature_sprites;
+    struct PlayerInfo *player;
+    struct CreatureControl *cctrl;
+    struct KeeperSprite *kspr;
+    long kspr_idx,draw_idx;
+    short dim_ow,dim_oh,dim_th,dim_tw;
+    long scaled_x,scaled_y;
+    TbBool val_in_range;
+    long long lltemp;
+    long sprite_delta,cutoff;
+    //SYNCDBG(7,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)a3,(int)a4,(int)a5,(int)scale);
+    //_DK_process_keeper_sprite(x, y, a3, a4, a5, scale);
+    player = get_my_player();
+
+    if ( ((a4 & 0x7FF) <= 1151) || ((a4 & 0x7FF) >= 1919) )
+        val_in_range = 0;
+    else
+        val_in_range = 1;
+    if ( val_in_range )
+      lbDisplay.DrawFlags |= 0x0001;
+    else
+      lbDisplay.DrawFlags &= ~0x0001;
+    lltemp = 4 - (((a4 + 128) & 0x7FF) >> 8);
+    sprite_delta = abs(lltemp);
+    kspr_idx = keepersprite_index(a3);
+    global_scaler = scale;
+    creature_sprites = keepersprite_array(a3);
+    scaled_x = (scale * creature_sprites->field_C >> 5) + x;
+    scaled_y = (scale * creature_sprites->field_E >> 5) + y;
+    if (thing_is_invalid(thing_being_displayed))
+    {
+        water_y_offset = 0;
+        water_source_cutoff = 0;
+    } else
+    if ( (thing_being_displayed->field_25 & 7) == 0)
+    {
+        water_y_offset = 0;
+        water_source_cutoff = 0;
+    } else
+    {
+        cutoff = 6;
+        if ( (thing_being_displayed->field_25 & 4) != 0 )
+        {
+            get_keepsprite_unscaled_dimensions(thing_being_displayed->field_44, thing_being_displayed->field_52, thing_being_displayed->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+            cctrl = creature_control_get_from_thing(thing_being_displayed);
+            lltemp = dim_oh * (48 - (long)&cctrl->word_9A);
+            cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
+        }
+        if (player->view_mode == 1)
+        {
+            water_source_cutoff = cutoff;
+            water_y_offset = (2 * scale * cutoff) >> 5;
+        } else
+        {
+            water_source_cutoff = 2 * cutoff;
+            water_y_offset = (scale * cutoff) >> 5;
+        }
+    }
+    scaled_y += water_y_offset;
+    if (creature_sprites->field_8 == 0)
+    {
+        if ( heap_manage_keepersprite(kspr_idx) )
+        {
+            kspr = &creature_sprites[a5];
+            draw_idx = a5 + kspr_idx;
+            if ( val_in_range )
+            {
+                draw_single_keepersprite_omni_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
+            } else
+            {
+                draw_single_keepersprite_omni(scaled_x, scaled_y, kspr, draw_idx, scale);
+            }
+        }
+    } else
+    if (creature_sprites->field_8 == 2)
+    {
+        if ( heap_manage_keepersprite(kspr_idx) )
+        {
+            kspr = &creature_sprites[a5 + sprite_delta * creature_sprites->field_9];
+            draw_idx = a5 + sprite_delta * kspr->field_9 + kspr_idx;
+            if ( val_in_range )
+            {
+                draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
+            } else
+            {
+                draw_single_keepersprite(scaled_x, scaled_y, kspr, draw_idx, scale);
+            }
+        }
+    }
+
+
 }
 
 void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale)
