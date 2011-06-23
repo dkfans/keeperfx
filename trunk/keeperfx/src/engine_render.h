@@ -478,6 +478,12 @@ DLLIMPORT extern struct EngineCol *_DK_front_ec;
 #define front_ec _DK_front_ec
 DLLIMPORT extern struct EngineCol *_DK_back_ec;
 #define back_ec _DK_back_ec
+DLLIMPORT long _DK_global_scaler;
+#define global_scaler _DK_global_scaler
+DLLIMPORT struct KeeperSprite **_DK_keepsprite[9149];
+#define keepsprite _DK_keepsprite
+DLLIMPORT long _DK_water_source_cutoff;
+#define water_source_cutoff _DK_water_source_cutoff
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /******************************************************************************/
