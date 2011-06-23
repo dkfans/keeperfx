@@ -73,12 +73,14 @@ TbBool create_vampire_in_room(struct Room *room)
     struct Dungeon *dungeon;
     struct Thing *thing;
     struct Coord3d pos;
+    long crmodel;
     pos.x.val = 0;
     pos.y.val = 0;
     pos.z.val = 0;
-    thing = create_creature(&pos, 25, room->owner);
+    crmodel = get_room_create_creature_model(room->kind);
+    thing = create_creature(&pos, crmodel, room->owner);
     if (thing_is_invalid(thing)) {
-        ERRORLOG("Could not create creature");
+        ERRORLOG("Could not create creature model %ld",crmodel);
         return false;
     }
     if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)) {

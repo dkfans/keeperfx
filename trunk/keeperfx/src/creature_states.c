@@ -26,6 +26,7 @@
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
+#include "config_crtrstates.h"
 #include "thing_stats.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
@@ -2000,7 +2001,7 @@ TbBool initialise_thing_state(struct Thing *thing, long nState)
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("Creature no %d has invalid control",(int)thing->index);
+        ERRORLOG("The %s index %d has invalid control",thing_model_name(thing),(int)thing->index);
         return false;
     }
     cctrl->field_80 = 0;
@@ -2101,7 +2102,7 @@ short set_start_state(struct Thing *thing)
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     long i;
-    SYNCDBG(8,"Starting for %s index %d, owner %d, last state %d",thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)thing->active_state);
+    SYNCDBG(8,"Starting for %s index %d, owner %d, last state %s",thing_model_name(thing),(int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state));
 //    return _DK_set_start_state(thing);
     if ((thing->field_0 & 0x20) != 0)
     {

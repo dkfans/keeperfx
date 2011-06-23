@@ -7,8 +7,8 @@
  *     Support of configuration files for specific creatures.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     25 May 2009 - 04 Jul 2009
+ * @author   KeeperFX Team
+ * @date     25 May 2009 - 23 Jun 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ extern "C" {
 extern const char creature_states_file[];
 /******************************************************************************/
 TbBool load_creaturestates_config(const char *conf_fname,unsigned short flags);
+const char *creature_state_code_name(long crstate);
 /******************************************************************************/
 #ifdef __cplusplus
 }

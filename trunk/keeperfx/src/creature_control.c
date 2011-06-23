@@ -187,7 +187,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     //return _DK_create_and_control_creature_as_controller(player, a2, pos);
     thing = create_creature(pos, breed, player->id_number);
     if (thing_is_invalid(thing))
-      return NULL;
+      return INVALID_THING;
     dungeon = get_dungeon(thing->owner);
     dungeon->num_active_creatrs--;
     dungeon->owned_creatures_of_model[thing->model]--;
