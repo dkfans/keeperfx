@@ -42,12 +42,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_at_training_room(struct Thing *thing);
-DLLIMPORT short _DK_training(struct Thing *thing);
-DLLIMPORT long _DK_creature_can_be_trained(struct Thing *thing);
-DLLIMPORT long _DK_player_can_afford_to_train_creature(struct Thing *thing);
-DLLIMPORT void _DK_process_creature_in_training_room(struct Thing *thing, struct Room *room);
-DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *thing, struct Room *room, unsigned long restart);
+DLLIMPORT short _DK_at_training_room(struct Thing *creatng);
+DLLIMPORT short _DK_training(struct Thing *creatng);
+DLLIMPORT long _DK_creature_can_be_trained(struct Thing *creatng);
+DLLIMPORT long _DK_player_can_afford_to_train_creature(struct Thing *creatng);
+DLLIMPORT void _DK_process_creature_in_training_room(struct Thing *creatng, struct Room *room);
+DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *creatng, struct Room *room, unsigned long restart);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -80,20 +80,47 @@ TbBool player_can_afford_to_train_creature(struct Thing *thing)
     return (dungeon->total_money_owned >= crstat->training_cost);
 }
 
-void setup_training_move(struct Thing *thing, SubtlCodedCoords stl_num)
+void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
 {
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->moveto_pos.x.stl.num = stl_num_decode_x(stl_num);
-    cctrl->moveto_pos.x.stl.pos = 128;
-    cctrl->moveto_pos.y.stl.num = stl_num_decode_y(stl_num);
-    cctrl->moveto_pos.y.stl.pos = 128;
-    cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
-    if (thing_in_wall_at(thing, &cctrl->moveto_pos))
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->moveto_pos.x.val = subtile_coord_center(stl_num_decode_x(stl_num));
+    cctrl->moveto_pos.y.val = subtile_coord_center(stl_num_decode_y(stl_num));
+    cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
+    if (thing_in_wall_at(creatng, &cctrl->moveto_pos))
     {
-        ERRORLOG("Illegal setup to (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
-        set_start_state(thing);
+        ERRORLOG("Illegal setup to wall at (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+        set_start_state(creatng);
     }
+}
+
+void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)
+{
+    SubtlCodedCoords near_stl_num;
+    long dist_x,dist_y;
+    long stl_x,stl_y;
+    stl_x = stl_num_decode_x(stl_num);
+    stl_y = stl_num_decode_y(stl_num);
+    // Select a subtile closer to current position
+    dist_x = stl_x - (long)creatng->mappos.x.stl.num;
+    dist_y = stl_y - (long)creatng->mappos.y.stl.num;
+    if (abs(dist_x) > abs(dist_y))
+    {
+        if (dist_x > 0) {
+            stl_x -= 1;
+        } else {
+            stl_x += 1;
+        }
+    } else
+    {
+        if (dist_y > 0) {
+            stl_y -= 1;
+        } else {
+            stl_y += 1;
+        }
+    }
+    near_stl_num = get_subtile_number(stl_x,stl_y);
+    setup_training_move(creatng, near_stl_num);
 }
 
 struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Room *room, struct Thing *partnertng)
@@ -115,7 +142,7 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (thing->index != partnertng->index)
+        if (thing != partnertng)
         {
             if ( (get_creature_state_besides_move(thing) == CrSt_Training) && (cctrl->training.partner_idx == 0) )
             {
@@ -144,7 +171,8 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     struct Thing *prtng;
     struct CreatureControl *prctrl;
     struct Coord3d pos;
-    SYNCDBG(8,"Starting");
+    long i;
+    SYNCDBG(8,"Starting for %s",thing_model_name(thing));
     //_DK_setup_move_to_new_training_position(thing, room, a3);
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
@@ -170,38 +198,43 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
       }
     }
     // No partner - train at some random position
-    cctrl->training.mode = CrTrMd_Value1;
+    cctrl->training.mode = CrTrMd_SearchForTrainPost;
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
-        cctrl->moveto_pos.x.stl.num = pos.x.stl.num;
-        cctrl->moveto_pos.x.stl.pos = 128;
-        cctrl->moveto_pos.y.stl.num = pos.y.stl.num;
-        cctrl->moveto_pos.y.stl.pos = 128;
-        cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
-        if (thing_in_wall_at(thing, &cctrl->moveto_pos))
-        {
-            ERRORLOG("Illegal setup to wall at (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
-            set_start_state(thing);
-        }
+        SYNCDBG(8,"Going to train at (%d,%d)",(int)pos.x.stl.num,(int)pos.y.stl.num);
+        i = get_subtile_number(pos.x.stl.num,pos.y.stl.num);
+        setup_training_move(thing, i);
+    } else {
+        SYNCDBG(8,"No new position found, staying at (%d,%d)",(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.x.stl.num);
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-      set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
+        set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
     }
-    SYNCDBG(8,"End");
 }
 
-void setup_training_search_for_post(struct Thing *thing)
+/**
+ *  Finds a random training post near to the current position of given creature.
+ *  Used when finding a training post seems to be taking too long; in that case, creature should start training with a nearest post.
+ *  Note that this routine does not always select the nearest post - it is enough if it's 3 subtiles away.
+ *
+ * @param creatng The creature who wish to train with training post.
+ */
+void setup_training_search_for_post(struct Thing *creatng)
 {
     struct Room *room;
     struct Thing *traintng;
+    struct Thing *thing;
     long start_slab;
+    long min_distance,dist;
     long slb_x,slb_y;
     long i,k;
-    room = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
     // Let's start from a random slab
     slb_x = -1;
     slb_y = -1;
+    min_distance = LONG_MAX;
+    traintng = INVALID_THING;
     start_slab = ACTION_RANDOM(room->slabs_count);
     k = start_slab;
     i = room->slabs_list;
@@ -215,7 +248,7 @@ void setup_training_search_for_post(struct Thing *thing)
         k--;
     }
     // Got random starting slab, now sweep room slabs from it
-    traintng = INVALID_THING;
+    thing = INVALID_THING;
     k = room->slabs_count;
     i = get_slab_number(slb_x,slb_y);
     while (k > 0)
@@ -225,23 +258,48 @@ void setup_training_search_for_post(struct Thing *thing)
         i = get_next_slab_number_in_room(i);
         if (i == 0)
           i = room->slabs_list;
-        // Per room tile code - find a training post
-        traintng = get_object_at_subtile_of_model_and_owned_by(3*slb_x+1, 3*slb_y+1, 31, thing->owner);
-        if (!thing_is_invalid(traintng))
-            break;
+        // Per room tile code - find a nearest training post
+        thing = get_object_at_subtile_of_model_and_owned_by(3*slb_x+1, 3*slb_y+1, 31, creatng->owner);
+        if (!thing_is_invalid(thing))
+        {
+            dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+            if (dist < min_distance) {
+                traintng = thing;
+                min_distance = dist;
+                if (min_distance < (3<<8))
+                    break;
+            }
+        }
         // Per room tile code ends
         k--;
     }
     // Got trainer (or not...), now do the correct action
-    if (thing_is_invalid(traintng))
+    if (thing_is_invalid(thing))
     {
         SYNCDBG(6,"Room no longer have training post, moving somewhere else.");
-        setup_move_to_new_training_position(thing, room, true);
+        setup_move_to_new_training_position(creatng, room, true);
     } else
     {
-        i = get_subtile_number(traintng->mappos.x.stl.num,traintng->mappos.y.stl.num);
-        setup_training_move(thing, i);
+        i = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+        setup_training_move_near(creatng, i);
     }
+}
+
+struct Thing *find_training_post_just_next_to_creature(struct Thing *creatng)
+{
+    long i;
+    struct Thing *traintng;
+    traintng = INVALID_THING;
+    for (i=0; i < 4; i++)
+    {
+        long stl_x,stl_y;
+        stl_x = creatng->mappos.x.stl.num + (long)small_around[i].delta_x;
+        stl_y = creatng->mappos.y.stl.num + (long)small_around[i].delta_y;
+        traintng = get_object_at_subtile_of_model_and_owned_by(stl_x, stl_y, 31, creatng->owner);
+        if (!thing_is_invalid(traintng))
+            break;
+    }
+    return traintng;
 }
 
 void process_creature_in_training_room(struct Thing *thing, struct Room *room)
@@ -261,42 +319,48 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
     long speed,dist;
     long i;
     cctrl = creature_control_get_from_thing(thing);
-    SYNCDBG(18,"Starting %s mode %d",thing_model_name(thing),(int)cctrl->training.mode);
+    SYNCDBG(8,"Starting %s mode %d",thing_model_name(thing),(int)cctrl->training.mode);
     //_DK_process_creature_in_training_room(thing, room); return;
     cctrl->field_4A = 0;
     switch (cctrl->training.mode)
     {
-    case CrTrMd_Value1:
+    case CrTrMd_SearchForTrainPost:
+        // While we're in an instance, just wait
         if (cctrl->instance_id != CrInst_NULL)
             break;
-        if (cctrl->training.search_timeout <= 1)
+        // On timeout, search for nearby training posts to start training ASAP
+        if (cctrl->training.search_timeout < 1)
         {
+            SYNCDBG(6,"Search timeout - selecting post nearest to (%d,%d)",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
             setup_training_search_for_post(thing);
-            cctrl->training.search_timeout = 50;
+            cctrl->training.search_timeout = 100;
             break;
         }
+        // Do a moving step
         cctrl->training.search_timeout--;
         speed = get_creature_speed(thing);
         i = creature_move_to(thing, &cctrl->moveto_pos, speed, 0, 0);
         if (i == 1)
         {
-            // Find a training post
-            traintng = get_object_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, 31, thing->owner);
+            // Move target is reached - find a training post which is supposed to be around here
+            traintng = find_training_post_just_next_to_creature(thing);
             if (thing_is_invalid(traintng))
             {
+                SYNCDBG(6,"Reached (%d,%d) but there's no training post there",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
                 setup_move_to_new_training_position(thing, room, false);
                 break;
             }
-            cctrl->training.mode = CrTrMd_Value2;
+            // Found - go to next mode
+            cctrl->training.mode = CrTrMd_SelectPositionNearTrainPost;
             cctrl->training.search_timeout = 50;
         } else
         if (i == -1)
         {
-            ERRORLOG("Cannot get where we're going in the training room.");
+            ERRORLOG("Cannot get to (%d,%d) in the training room",(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
             set_start_state(thing);
         }
         break;
-    case CrTrMd_Value2:
+    case CrTrMd_SelectPositionNearTrainPost:
         for (i=0; i < 4; i++)
         {
             long slb_x,slb_y;
@@ -310,6 +374,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             stl_x = 3*slb_x + (long)corners[i].delta_x;
             stl_y = 3*slb_y + (long)corners[i].delta_y;
             traintng = INVALID_THING;
+            // Check if any other creature is using that post; allow only unused posts
             crtng = get_creature_of_model_training_at_subtile_and_owned_by(stl_x, stl_y, -1, thing->owner, thing->index);
             if (thing_is_invalid(crtng))
             {
@@ -326,28 +391,30 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
                 cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
                 if (thing_in_wall_at(thing, &cctrl->moveto_pos))
                 {
-                  ERRORLOG("Illegal setup to (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
-                  set_start_state(thing);
+                    ERRORLOG("Illegal setup to (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+                    break;
                 }
-                cctrl->training.mode = CrTrMd_Value3;
+                cctrl->training.mode = CrTrMd_MoveToTrainPost;
                 break;
             }
         }
-        if (cctrl->training.mode == CrTrMd_Value2)
+        if (cctrl->training.mode == CrTrMd_SelectPositionNearTrainPost)
           setup_move_to_new_training_position(thing, room, 1);
         break;
-    case CrTrMd_Value3:
+    case CrTrMd_MoveToTrainPost:
         speed = get_creature_speed(thing);
         i = creature_move_to(thing, &cctrl->moveto_pos, speed, 0, 0);
         if (i == 1)
         {
+            // If there's already someone training at that position, go somewhere else
             crtng = get_creature_of_model_training_at_subtile_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, -1, thing->owner, thing->index);
             if (!thing_is_invalid(crtng))
             {
                 setup_move_to_new_training_position(thing, room, 1);
                 break;
             }
-            cctrl->training.mode = CrTrMd_Value4;
+            // Otherwise, train at this position
+            cctrl->training.mode = CrTrMd_TurnToTrainPost;
         } else
         if (i == -1)
         {
@@ -355,12 +422,12 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             set_start_state(thing);
         }
         break;
-    case CrTrMd_Value4:
+    case CrTrMd_TurnToTrainPost:
         pos.x.val = ((long)cctrl->training.pole_stl_x << 8) + 128;
         pos.y.val = ((long)cctrl->training.pole_stl_y << 8) + 128;
         if (creature_turn_to_face(thing, &pos) < 56)
         {
-          cctrl->training.mode = CrTrMd_Value5;
+          cctrl->training.mode = CrTrMd_DoTrainWithTrainPost;
           cctrl->training.train_timeout = 75;
         }
         break;
@@ -380,7 +447,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         cctrl2 = creature_control_get_from_thing(crtng);
         if (cctrl2->training.partner_idx != thing->index)
         {
-            WARNLOG("The %s cannot start partner training - %s changed the partner.",thing_model_name(thing),thing_model_name(crtng));
+            SYNCDBG(6,"The %s cannot start partner training - %s changed the partner.",thing_model_name(thing),thing_model_name(crtng));
             cctrl->training.partner_idx = 0;
             setup_move_to_new_training_position(thing, room, false);
             break;
@@ -433,10 +500,11 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             creature_retreat_from_combat(thing, crtng, 33, 0);
         }
         break;
-    case CrTrMd_Value5:
+    case CrTrMd_DoTrainWithTrainPost:
     default:
         if (cctrl->training.train_timeout > 0)
         {
+            // While training timeout is positive, continue initiating the train instances
             cctrl->training.train_timeout--;
             if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->training.train_timeout % 8) == 0))
             {
@@ -444,13 +512,14 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             }
         } else
         {
-            if (cctrl->instance_id == CrInst_NULL)
+            // Wait for the instance to end, then select new move position
+            if (cctrl->instance_id != CrInst_NULL)
             {
-                setup_move_to_new_training_position(thing, room, true);
                 cctrl->training.train_timeout = 0;
             } else
             {
-                cctrl->training.train_timeout = 1;
+                cctrl->training.train_timeout = 0;
+                setup_move_to_new_training_position(thing, room, true);
             }
         }
         break;

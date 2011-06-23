@@ -190,11 +190,11 @@ enum CreatureStates {
 
 enum CreatureTrainingModes {
     CrTrMd_Unused = 0,
-    CrTrMd_Value1,
-    CrTrMd_Value2,
-    CrTrMd_Value3,
-    CrTrMd_Value4,
-    CrTrMd_Value5,
+    CrTrMd_SearchForTrainPost,
+    CrTrMd_SelectPositionNearTrainPost,
+    CrTrMd_MoveToTrainPost,
+    CrTrMd_TurnToTrainPost,
+    CrTrMd_DoTrainWithTrainPost,
     CrTrMd_PartnerTraining,
 };
 

@@ -484,6 +484,8 @@ DLLIMPORT struct KeeperSprite **_DK_keepsprite[9149];
 #define keepsprite _DK_keepsprite
 DLLIMPORT long _DK_water_source_cutoff;
 #define water_source_cutoff _DK_water_source_cutoff
+DLLIMPORT long _DK_water_y_offset;
+#define water_y_offset _DK_water_y_offset
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /******************************************************************************/

@@ -381,6 +381,7 @@
  0003:00053B84       do_lights
  0003:00053B88       total_lights
  0003:00053B64       global_scaler
+ 0003:00053B60       water_y_offset
  0003:00053B68       water_source_cutoff
  0003:002473D0       message_queue
  0003:0000F620       trap_stats
