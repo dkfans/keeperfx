@@ -105,6 +105,13 @@ wxString resolutions_ingame_init[] = {
 //    _T("2560x1600x32"),
 };
 
+wxString resolutions_failsafe_init[] = {
+    _T("320x200x8"),
+    _T("640x480x8"),
+    _T("320x200x32"),
+    _T("640x480x32"),
+};
+
 std::vector<wxString> resolutions_ingame(resolutions_ingame_init, resolutions_ingame_init+sizeof(resolutions_ingame_init)/sizeof(resolutions_ingame_init[0]));
 
 BEGIN_EVENT_TABLE(GameSettings, wxDialog)
@@ -136,13 +143,60 @@ GameSettings::GameSettings(wxFrame *parent)
     resIngameBoxSizer->Add(resIngamePanel, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
     topsizer->Add(resIngameBoxSizer, 1, wxEXPAND);
 
-    wxRadioBox * langRadio = new wxRadioBox( this, wxID_ANY, wxT("Language"), wxPoint(10,132), wxDefaultSize,
-        WXSIZEOF(supported_languages_text), supported_languages_text, 4, wxRA_SPECIFY_COLS );
+    wxPanel *resOtherPanel = new wxPanel(this, wxID_ANY);
+    wxBoxSizer *resOtherPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+    {
+        wxStaticBox *resMenuBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Menu resolution") );
+        wxStaticBoxSizer* resMenuBoxSizer = new wxStaticBoxSizer(resMenuBox, wxVERTICAL);
+        {
+            wxComboBox * resMenuCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_failsafe_init[0], wxDefaultPosition, wxDefaultSize,
+                WXSIZEOF(resolutions_failsafe_init), resolutions_failsafe_init, wxCB_DROPDOWN|wxCB_READONLY);
+            resMenuBoxSizer->Add(resMenuCombo, 1, wxEXPAND);
+        }
+        resOtherPanelSizer->Add(resMenuBoxSizer, 1, wxALIGN_CENTER);
+
+        wxStaticBox *resMovieBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Movies resolution") );
+        wxStaticBoxSizer* resMovieBoxSizer = new wxStaticBoxSizer(resMovieBox, wxVERTICAL);
+        {
+            wxComboBox * resMovieCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_failsafe_init[0], wxDefaultPosition, wxDefaultSize,
+                WXSIZEOF(resolutions_failsafe_init), resolutions_failsafe_init, wxCB_DROPDOWN|wxCB_READONLY);
+            resMovieBoxSizer->Add(resMovieCombo, 1, wxEXPAND);
+        }
+        resOtherPanelSizer->Add(resMovieBoxSizer, 1, wxALIGN_CENTER);
+
+        wxStaticBox *resFailBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Failure resolution") );
+        wxStaticBoxSizer* resFailBoxSizer = new wxStaticBoxSizer(resFailBox, wxVERTICAL);
+        {
+            wxComboBox * resFailCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_failsafe_init[0], wxDefaultPosition, wxDefaultSize,
+                WXSIZEOF(resolutions_failsafe_init), resolutions_failsafe_init, wxCB_DROPDOWN|wxCB_READONLY);
+            resFailBoxSizer->Add(resFailCombo, 1, wxEXPAND);
+        }
+        resOtherPanelSizer->Add(resFailBoxSizer, 1, wxALIGN_CENTER);
+    }
+    resOtherPanel->SetSizer(resOtherPanelSizer);
+    topsizer->Add(resOtherPanel, 0, wxEXPAND);
+
+    wxRadioBox * langRadio = new wxRadioBox( this, wxID_ANY, wxT("Language"), wxDefaultPosition, wxDefaultSize,
+        WXSIZEOF(supported_languages_text), supported_languages_text, 4, wxRA_SPECIFY_COLS);
     topsizer->Add(langRadio, 1, wxEXPAND);
 
-    wxRadioBox * scrshotRadio = new wxRadioBox( this, wxID_ANY, wxT("Screenshots"), wxPoint(10,170), wxDefaultSize,
+    wxRadioBox * scrshotRadio = new wxRadioBox( this, wxID_ANY, wxT("Screenshots"), wxDefaultPosition, wxDefaultSize,
         WXSIZEOF(supported_scrshotfmt_text), supported_scrshotfmt_text, 2, wxRA_SPECIFY_COLS );
-    topsizer->Add(scrshotRadio, 1, wxEXPAND);
+    topsizer->Add(scrshotRadio, 0, wxEXPAND);
+
+    wxPanel *dlgBottomPanel = new wxPanel(this, wxID_ANY);
+    wxBoxSizer *dlgBottomPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+    {
+        dlgBottomPanelSizer->AddStretchSpacer(1);
+        wxButton *saveBtn = new wxButton(dlgBottomPanel, wxID_OK, _T("&Save") );
+        dlgBottomPanelSizer->Add(saveBtn, 0, wxEXPAND);
+        dlgBottomPanelSizer->AddStretchSpacer(1);
+        wxButton *exitBtn = new wxButton(dlgBottomPanel, wxID_OK, _T("&Cancel") );
+        dlgBottomPanelSizer->Add(exitBtn, 0, wxEXPAND);
+        dlgBottomPanelSizer->AddStretchSpacer(1);
+    }
+    dlgBottomPanel->SetSizer(dlgBottomPanelSizer);
+    topsizer->Add(dlgBottomPanel, 0, wxEXPAND);
 
     // Open the Configfile
     conf = new wxFileConfig(wxEmptyString, wxEmptyString, wxT("keeperfx.cfg"),
