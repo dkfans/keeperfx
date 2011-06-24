@@ -3802,6 +3802,7 @@ void reinit_level_after_load(void)
     player->field_7 = 0;
     init_lookups();
     init_navigation();
+    reinit_packets_after_load();
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {

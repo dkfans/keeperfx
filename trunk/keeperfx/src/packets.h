@@ -243,6 +243,7 @@ void load_packets_for_turn(long nturn);
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
+TbBool reinit_packets_after_load(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
