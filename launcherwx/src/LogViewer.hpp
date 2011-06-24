@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Utility routines.
 /******************************************************************************/
-/** @file GameSettings.hpp
- *     Header file for GameSettings.cpp.
+/** @file LogViewer.hpp
+ *     Header file for LogViewer.cpp.
  * @par Purpose:
- *     A frame which allows changing game settings file.
+ *     A frame which allows browsing large text files.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
- * @date     10 Jun 2011 - 12 Jun 2011
+ * @date     10 Jun 2011 - 24 Jun 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,31 +16,20 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef GAMESETTINGS_HPP_
-#define GAMESETTINGS_HPP_
-#include <wx/wx.h>
-#include <wx/fileconf.h>
+#ifndef LOGVIEWER_HPP_
+#define LOGVIEWER_HPP_
 
 #include <string>
 #include <vector>
 
-class GameSettings : public wxDialog
+class LogViewer
 {
-    wxBoxSizer * topsizer;
-
-    wxFileConfig * conf;
 public:
-    GameSettings(wxFrame *parent);
-    virtual ~GameSettings();
-
-    // event handlers
-    void OnClose(wxCloseEvent& event);
-
+    LogViewer();
+    virtual ~LogViewer();
 private:
-    // any class wishing to process wxWidgets events must use this macro
-    DECLARE_EVENT_TABLE()
 };
 
 
 /******************************************************************************/
-#endif /* GAMESETTINGS_HPP_ */
+#endif /* LOGVIEWER_HPP_ */
