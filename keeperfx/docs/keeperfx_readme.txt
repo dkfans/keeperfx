@@ -40,6 +40,12 @@ files required by KeeperFX:
 - Dungeon Keeper Gold, english release
 - Dungeon Keeper Gold, multilingual release
 - Dungeon Keeper from GOG.com
+Please note that KeeperFX needs the original CD, or mounted
+CD image. The files installed on disk by original DK setup
+are not enough. Also, you must select the "keeper" folder from
+the CD content list. Selecting root folder of your CD, or
+selecting installation folder on disk, won't be enough.
+
 
 Available languages:
 

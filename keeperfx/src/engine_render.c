@@ -95,7 +95,6 @@ struct SideOri sideoris[] = {
     { 0,  3,  2,128},
 };
 
-
 long const x_offs[] =  { 0, 1, 1, 0};
 long const y_offs[] =  { 0, 0, 1, 1};
 long const x_step1[] = { 0,-1, 0, 1};
@@ -118,25 +117,32 @@ unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 unsigned long render_problems;
 long render_prob_kind;
 long sp_x,sp_y,sp_dx,sp_dy;
+
+#include "gui_topmsg.h"
 /******************************************************************************/
 void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
 {
     long long ofs_x,ofs_y;
-    long long sor_h,sor_v,der_h,der_v;
+    long long sor_hp,sor_hn,sor_vp,sor_vn;
+    long long der_hp,der_hn,der_vp,der_vn;
     if ( (vert_offset[1] == 0) && (hori_offset[1] == 0) )
     {
         *floor_x = 0;
         *floor_y = 0;
         return;
     }
-    ofs_x = x - x_init_off;
-    ofs_y = y - y_init_off;
-    sor_v = ((vert_offset[1] * ofs_x) >> 1) - ((vert_offset[0] * ofs_y) >> 1);
-    der_v = hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1];
-    sor_h = ((hori_offset[1] * ofs_x) >> 1) - ((hori_offset[0] * ofs_y) >> 1);
-    der_h = vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1];
-    *floor_y = ((sor_v) / (der_v>>11)) >> 2;
-    *floor_x = ((sor_h) / (der_h>>11)) >> 2;
+    ofs_x = (long long)x - (long long)x_init_off;
+    ofs_y = (long long)y - (long long)y_init_off;
+    sor_vp = (((long long)vert_offset[1] * ofs_x) / 2LL);
+    sor_vn = (((long long)vert_offset[0] * ofs_y) / 2LL);
+    der_vp = ((long long)hori_offset[0] * (long long)vert_offset[1]) / 8LL;
+    der_vn = ((long long)vert_offset[0] * (long long)hori_offset[1]) / 8LL;
+    sor_hp = (((long long)hori_offset[1] * ofs_x) / 2LL);
+    sor_hn = (((long long)hori_offset[0] * ofs_y) / 2LL);
+    der_hp = ((long long)vert_offset[0] * (long long)hori_offset[1]) / 8LL;
+    der_hn = ((long long)hori_offset[0] * (long long)vert_offset[1]) / 8LL;
+    *floor_y = ((sor_vp-sor_vn) / ((der_vp-der_vn)>>8)) >> 2;
+    *floor_x = ((sor_hp-sor_hn) / ((der_hp-der_hn)>>8)) >> 2;
 }
 
 long compute_cells_away(void)
@@ -257,7 +263,7 @@ void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
 {
     long factor_w,factor_h;
     long inp_x,inp_y,inp_z;
-    long out_x,out_y;
+    long long out_x,out_y;
     //_DK_rotpers_parallel_3(epos, matx);
     inp_x = epos->x;
     inp_y = epos->y;
@@ -267,27 +273,27 @@ void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
     out_y = (inp_z * matx->r1[2] + (inp_y + matx->r1[0]) * (inp_x + matx->r1[1]) - matx->r1[3] - inp_x * inp_y) >> 14;
     epos->y = out_y;
     epos->z = (inp_z * matx->r2[2] + (inp_y + matx->r2[0]) * (inp_x + matx->r2[1]) - matx->r2[3] - inp_x * inp_y) >> 14;
-    factor_w = view_width_over_2 + (zoom * out_x >> 16);
+    factor_w = (long)view_width_over_2 + (zoom * out_x >> 16);
     epos->field_0 = factor_w;
-    factor_h = view_height_over_2 - (zoom * out_y >> 16);
+    factor_h = (long)view_height_over_2 - (zoom * out_y >> 16);
     epos->field_4 = factor_h;
     if (factor_w < 0)
     {
-        epos->field_8 |= 0x0008u;
+        epos->field_8 |= 0x0008;
     } else
     if (vec_window_width <= factor_w)
     {
-        epos->field_8 |= 0x0010u;
+        epos->field_8 |= 0x0010;
     }
     if (factor_h < 0)
     {
-        epos->field_8 |= 0x0020u;
+        epos->field_8 |= 0x0020;
     } else
     if (factor_h >= vec_window_height)
     {
-        epos->field_8 |= 0x0040u;
+        epos->field_8 |= 0x0040;
     }
-    epos->field_8 |= 0x0400u;
+    epos->field_8 |= 0x0400;
 }
 
 void rotate_base_axis(struct M33 *matx, short a2, unsigned char a3)
@@ -334,8 +340,11 @@ void do_perspective_rotation(long x, long y, long z)
     struct PlayerInfo *player;
     struct EngineCoord epos;
     long zoom;
+    long engine_w,engine_h;
     player = get_my_player();
     zoom = camera_zoom / pixel_size;
+    engine_w = player->engine_window_width/pixel_size;
+    engine_h = player->engine_window_height/pixel_size;
     epos.x = -x;
     epos.y = 0;
     epos.z = y;
@@ -347,22 +356,22 @@ void do_perspective_rotation(long x, long y, long z)
     epos.y = 0;
     epos.z = 0;
     rotpers_parallel_3(&epos, &camera_matrix, zoom);
-    hori_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
-    hori_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
+    hori_offset[0] = epos.field_0 - (engine_w >> 1);
+    hori_offset[1] = epos.field_4 - (engine_h >> 1);
     hori_offset[2] = epos.z;
     epos.x = 0;
     epos.y = 0;
     epos.z = -65536;
     rotpers_parallel_3(&epos, &camera_matrix, zoom);
-    vert_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
-    vert_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
+    vert_offset[0] = epos.field_0 - (engine_w >> 1);
+    vert_offset[1] = epos.field_4 - (engine_h >> 1);
     vert_offset[2] = epos.z;
     epos.x = 0;
     epos.y = 65536;
     epos.z = 0;
     rotpers_parallel_3(&epos, &camera_matrix, zoom);
-    high_offset[0] = epos.field_0 - ((player->engine_window_width/pixel_size) >> 1);
-    high_offset[1] = epos.field_4 - ((player->engine_window_height/pixel_size) >> 1);
+    high_offset[0] = epos.field_0 - (engine_w >> 1);
+    high_offset[1] = epos.field_4 - (engine_h >> 1);
     high_offset[2] = epos.z;
 }
 
@@ -380,7 +389,7 @@ void fiddle_half_gamut(long a1, long a2, long a3, long a4)
 void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long ewheight, long ewzoom)
 {
     long len_01,len_02,len_13,len_23;
-    long tmp_x,tmp_y;
+    long tmp_y,tmp_x;
     long i;
     get_floor_pointed_at(ewwidth + ewzoom, -ewzoom, &floor_y[2], &floor_x[2]);
     get_floor_pointed_at(ewwidth + ewzoom, ewheight + ewzoom, &floor_y[1], &floor_x[1]);
@@ -389,38 +398,38 @@ void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long e
     // Get the value with lowest X coord into [0]
     for (i=1; i < 4; i++)
     {
-        tmp_x = floor_y[i];
-        if (floor_y[0] > tmp_x)
+        tmp_y = floor_y[i];
+        if (floor_y[0] > tmp_y)
         {
-          tmp_y = floor_x[i];
+          tmp_x = floor_x[i];
           floor_x[i] = floor_x[0];
-          floor_x[0] = tmp_y;
+          floor_x[0] = tmp_x;
           floor_y[i] = floor_y[0];
-          floor_y[0] = tmp_x;
+          floor_y[0] = tmp_y;
         }
     }
     // Get the value with highest X coord into [3]
     for (i=0; i < 3; i++)
     {
-        tmp_x = floor_y[i];
-        if (floor_y[3] < tmp_x)
+        tmp_y = floor_y[i];
+        if (floor_y[3] < tmp_y)
         {
-          tmp_y = floor_x[i];
+          tmp_x = floor_x[i];
           floor_x[i] = floor_x[3];
-          floor_x[3] = tmp_y;
+          floor_x[3] = tmp_x;
           floor_y[i] = floor_y[3];
-          floor_y[3] = tmp_x;
+          floor_y[3] = tmp_y;
         }
     }
     // Between values with medicore X, place the lowest Y first
     if (floor_x[1] > floor_x[2])
     {
-        tmp_y = floor_x[1];
-        tmp_x = floor_y[1];
+        tmp_x = floor_x[1];
+        tmp_y = floor_y[1];
         floor_x[1] = floor_x[2];
-        floor_x[2] = tmp_y;
+        floor_x[2] = tmp_x;
         floor_y[1] = floor_y[2];
-        floor_y[2] = tmp_x;
+        floor_y[2] = tmp_y;
     }
 
     // Lengths of X vectors
@@ -431,30 +440,30 @@ void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth, long e
     // Update points according to both coordinates
     if ( (floor_x[1] > floor_x[0]) && (len_01 < len_13) )
     {
-        tmp_y = floor_x[1];
+        tmp_x = floor_x[1];
         floor_y[1] = floor_y[0];
         floor_x[1] = floor_x[0];
-        floor_x[0] = tmp_y;
+        floor_x[0] = tmp_x;
     }
     if ( (floor_x[1] > floor_x[3]) && (len_13 < len_01) )
     {
-        tmp_y = floor_x[1];
+        tmp_x = floor_x[1];
         floor_y[1] = floor_y[3];
         floor_x[1] = floor_x[3];
-        floor_x[3] = tmp_y;
+        floor_x[3] = tmp_x;
     }
     if ( (floor_x[2] < floor_x[0]) && (len_02 < len_23) )
     {
-        tmp_y = floor_x[2];
+        tmp_x = floor_x[2];
         floor_y[2] = floor_y[0];
         floor_x[2] = floor_x[0];
-        floor_x[0] = tmp_y;
+        floor_x[0] = tmp_x;
     }
     if ( (floor_x[2] < floor_x[3]) && (len_23 < len_02) )
     {
-        tmp_y = floor_x[2];
+        tmp_x = floor_x[2];
         floor_x[2] = floor_x[3];
-        floor_x[3] = tmp_y;
+        floor_x[3] = tmp_x;
         floor_y[2] = floor_y[3];
     }
 }
@@ -2033,7 +2042,7 @@ void prepare_draw_plane_of_engine_columns(long aposc, long bposc, long xcell, lo
 
 /**
  * Draws single plane of engine columns.
- * TODO: rewrite sub-routines to get rid of the ceiling problem (related to cam->zoom).
+ *
  * @param aposc
  * @param bposc
  * @param xcell
@@ -2766,6 +2775,7 @@ void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     struct TbSprite sprite;
     long cut_w,cut_h;
     struct KeeperSprite **kspr_list;
+    SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%ld,%ld)",kspr_idx,x,y,w,h);
     cut_w = w;
     cut_h = h - water_source_cutoff;
     if (cut_h <= 0)
@@ -2942,7 +2952,7 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
     TbBool val_in_range;
     long long lltemp;
     long sprite_delta,cutoff;
-    //SYNCDBG(7,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)a3,(int)a4,(int)a5,(int)scale);
+    SYNCDBG(17,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)a3,(int)a4,(int)a5,(int)scale);
     //_DK_process_keeper_sprite(x, y, a3, a4, a5, scale);
     player = get_my_player();
 
@@ -2959,8 +2969,8 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
     kspr_idx = keepersprite_index(a3);
     global_scaler = scale;
     creature_sprites = keepersprite_array(a3);
-    scaled_x = (scale * creature_sprites->field_C >> 5) + x;
-    scaled_y = (scale * creature_sprites->field_E >> 5) + y;
+    scaled_x = ((scale * (long)creature_sprites->field_C) >> 5) + x;
+    scaled_y = ((scale * (long)creature_sprites->field_E) >> 5) + y;
     if (thing_is_invalid(thing_being_displayed))
     {
         water_y_offset = 0;
@@ -2973,7 +2983,7 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
     } else
     {
         cutoff = 6;
-        if ( (thing_being_displayed->field_25 & 4) != 0 )
+        if ( (thing_being_displayed->field_25 & 0x04) != 0 )
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->field_44, thing_being_displayed->field_52, thing_being_displayed->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
