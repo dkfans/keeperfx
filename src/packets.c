@@ -1385,6 +1385,15 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       return sum;
 }
 
+TbBool reinit_packets_after_load(void)
+{
+    game.packet_save_enable = false;
+    game.packet_load_enable = false;
+    game.packet_save_fp = -1;
+    game.packet_fopened = 0;
+    return true;
+}
+
 TbBool open_new_packet_file_for_save(void)
 {
     struct PlayerInfo *player;
