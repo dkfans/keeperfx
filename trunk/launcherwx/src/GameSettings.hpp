@@ -28,6 +28,14 @@ class GameSettings : public wxDialog
 {
     wxBoxSizer * topsizer;
     std::vector<wxCheckBox *> resIngameChkbxs;
+    std::vector<wxTextCtrl *> resIngameTxtCtrl;
+    wxRadioBox * langRadio;
+    wxRadioBox * scrshotRadio;
+    wxTextCtrl *mouseSensitvTxtCtrl;
+    wxCheckBox *censorChkBx;
+    wxComboBox * resFailCombo;
+    wxComboBox * resMovieCombo;
+    wxComboBox * resMenuCombo;
 
     wxFileConfig * conf;
 public:
@@ -37,6 +45,8 @@ public:
     // event handlers
     void OnClose(wxCloseEvent& event);
 
+    void readConfiguration();
+    void writeConfiguration();
 private:
     // any class wishing to process wxWidgets events must use this macro
     DECLARE_EVENT_TABLE()

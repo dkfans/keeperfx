@@ -28,15 +28,16 @@
 #include <wx/filefn.h>
 #include <wx/confbase.h>
 #include <wx/fileconf.h>
+#include <wx/tokenzr.h>
 
-const char *supported_boolean_code[] = {
-    "OFF",
-    "ON",
+wxString supported_boolean_code[] = {
+    _T("OFF"),
+    _T("ON"),
 };
 
-const char *supported_scrshotfmt_code[] = {
-    "BMP",
-    "HSI",
+wxString supported_scrshotfmt_code[] = {
+    _T("BMP"),
+    _T("HSI"),
 };
 
 wxString supported_scrshotfmt_text[] = {
@@ -44,25 +45,25 @@ wxString supported_scrshotfmt_text[] = {
     _T("HSI 'mhwanh' (RAW)"),
 };
 
-const char *supported_languages_code[] = {
-    "ENG",
-    "FRE",
-    "GER",
-    "ITA",
-    "SPA",
-    "SWE",
-    "POL",
-    "DUT",
-    "HUN",
-    "AUS",
-    "DAN",
-    "NOR",
-    "CES",
-    "MAG",
-    "RUS",
-    "JAP",
-    "CHI",
-    "CHT",
+wxString supported_languages_code[] = {
+    _T("ENG"),
+    _T("FRE"),
+    _T("GER"),
+    _T("ITA"),
+    _T("SPA"),
+    _T("SWE"),
+    _T("POL"),
+    _T("DUT"),
+    _T("HUN"),
+    _T("AUS"),
+    _T("DAN"),
+    _T("NOR"),
+    _T("CES"),
+    _T("MAG"),
+    _T("RUS"),
+    _T("JAP"),
+    _T("CHI"),
+    _T("CHT"),
 };
 
 wxString supported_languages_text[] = {
@@ -97,8 +98,8 @@ wxString tooltips_eng[] = {
     _T("Enabling censorship will make only evil creatures to have blood, and will restrict death effect with exploding flesh. Originally, this was enabled in german language version."),
     _T("Increasing sensitivity will speed up the mouse in the game. This may also make the mouse less accurate, so be careful! Default value is 100; you can increase or decrease it at your will, but sometimes it may be better to change this setting in your OS."),
     _T("Captured screens can be saved in \"scrshots\" folder by pressing Shift+C during the game or inside menu. The HSI format isn't very popular nowadays, so you probably want to select BMP, as most graphics tools can open it."),
-    _T(""),
-    _T(""),
+    _T("Write changes to \"keeperfx.cfg\" file."),
+    _T("Abandon changes and close the window."),
 };
 
 wxString resolutions_ingame_init[] = {
@@ -146,7 +147,18 @@ wxString resolutions_failsafe_init[] = {
     _T("1024x768x32"),
 };
 
-std::vector<wxString> resolutions_ingame(resolutions_ingame_init, resolutions_ingame_init+sizeof(resolutions_ingame_init)/sizeof(resolutions_ingame_init[0]));
+int optionIndexInArray(const wxString * arr, size_t arr_len, const wxString &option)
+{
+    size_t i;
+    for (i=0; i < arr_len; i++)
+    {
+        if (option.CmpNoCase(arr[i]) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 
 BEGIN_EVENT_TABLE(GameSettings, wxDialog)
     EVT_CLOSE(GameSettings::OnClose)
@@ -189,6 +201,7 @@ GameSettings::GameSettings(wxFrame *parent)
                 wxTextCtrl *txtCtrl = new wxTextCtrl(resIngameCustPanel, wxID_ANY, resolutions_ingame_init[i], wxDefaultPosition, wxDefaultSize);
                 txtCtrl->SetToolTip(tooltips_eng[2]);
                 resIngameCustPanelSizer->Add(txtCtrl, 1, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+                resIngameTxtCtrl.push_back(txtCtrl);
             }
             resIngameCustPanel->SetSizer(resIngameCustPanelSizer);
             resIngameSizer->Add(resIngameCustPanel, 1, wxEXPAND);
@@ -206,7 +219,7 @@ GameSettings::GameSettings(wxFrame *parent)
         resMenuBox->SetToolTip(tooltips_eng[4]);
         wxStaticBoxSizer* resMenuBoxSizer = new wxStaticBoxSizer(resMenuBox, wxVERTICAL);
         {
-            wxComboBox * resMenuCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_menu_init[0], wxDefaultPosition, wxDefaultSize,
+            resMenuCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_menu_init[0], wxDefaultPosition, wxDefaultSize,
                 WXSIZEOF(resolutions_menu_init), resolutions_menu_init, wxCB_DROPDOWN);
             resMenuCombo->SetToolTip(tooltips_eng[4]);
             resMenuBoxSizer->Add(resMenuCombo, 1, wxEXPAND);
@@ -217,7 +230,7 @@ GameSettings::GameSettings(wxFrame *parent)
         resMovieBox->SetToolTip(tooltips_eng[3]);
         wxStaticBoxSizer* resMovieBoxSizer = new wxStaticBoxSizer(resMovieBox, wxHORIZONTAL);
         {
-            wxComboBox * resMovieCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_movies_init[0], wxDefaultPosition, wxDefaultSize,
+            resMovieCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_movies_init[0], wxDefaultPosition, wxDefaultSize,
                 WXSIZEOF(resolutions_movies_init), resolutions_movies_init, wxCB_DROPDOWN);
             resMovieCombo->SetToolTip(tooltips_eng[3]);
             resMovieBoxSizer->Add(resMovieCombo, 1, wxEXPAND);
@@ -228,7 +241,7 @@ GameSettings::GameSettings(wxFrame *parent)
         resFailBox->SetToolTip(tooltips_eng[5]);
         wxStaticBoxSizer* resFailBoxSizer = new wxStaticBoxSizer(resFailBox, wxVERTICAL);
         {
-            wxComboBox * resFailCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_failsafe_init[0], wxDefaultPosition, wxDefaultSize,
+            resFailCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_failsafe_init[0], wxDefaultPosition, wxDefaultSize,
                 WXSIZEOF(resolutions_failsafe_init), resolutions_failsafe_init, wxCB_DROPDOWN);
             resFailCombo->SetToolTip(tooltips_eng[5]);
             resFailBoxSizer->Add(resFailCombo, 1, wxEXPAND);
@@ -238,7 +251,7 @@ GameSettings::GameSettings(wxFrame *parent)
     resOtherPanel->SetSizer(resOtherPanelSizer);
     topsizer->Add(resOtherPanel, 0, wxEXPAND);
 
-    wxRadioBox * langRadio = new wxRadioBox( this, wxID_ANY, wxT("Language"), wxDefaultPosition, wxDefaultSize,
+    langRadio = new wxRadioBox( this, wxID_ANY, wxT("Language"), wxDefaultPosition, wxDefaultSize,
         WXSIZEOF(supported_languages_text), supported_languages_text, 5, wxRA_SPECIFY_COLS);
     langRadio->SetToolTip(tooltips_eng[6]);
     topsizer->Add(langRadio, 0, wxEXPAND);
@@ -247,11 +260,10 @@ GameSettings::GameSettings(wxFrame *parent)
     wxStaticBoxSizer* otherSettingsSizer = new wxStaticBoxSizer( otherSettingsBox, wxVERTICAL );
     {
         {
-            wxCheckBox *check;
-            check = new wxCheckBox(this, wxID_ANY, wxT("Censorship (limit amount of blood and flesh)"));
-            check->SetToolTip(tooltips_eng[7]);
-            check->SetValue(false);
-            otherSettingsSizer->Add(check, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            censorChkBx = new wxCheckBox(this, wxID_ANY, wxT("Censorship (limit amount of blood and flesh)"));
+            censorChkBx->SetToolTip(tooltips_eng[7]);
+            censorChkBx->SetValue(false);
+            otherSettingsSizer->Add(censorChkBx, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
         }
         {
             wxPanel *mouseSensitivityPanel = new wxPanel(this, wxID_ANY);
@@ -261,9 +273,9 @@ GameSettings::GameSettings(wxFrame *parent)
                 statTxt->SetToolTip(tooltips_eng[8]);
                 mouseSensitivityPanelSizer->Add(statTxt, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
                 mouseSensitivityPanelSizer->AddSpacer(16);
-                wxTextCtrl *txtCtrl = new wxTextCtrl(mouseSensitivityPanel, wxID_ANY, wxT("100"), wxDefaultPosition, wxSize(64, -1));
-                txtCtrl->SetToolTip(tooltips_eng[8]);
-                mouseSensitivityPanelSizer->Add(txtCtrl, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+                mouseSensitvTxtCtrl = new wxTextCtrl(mouseSensitivityPanel, wxID_ANY, wxT("100"), wxDefaultPosition, wxSize(64, -1));
+                mouseSensitvTxtCtrl->SetToolTip(tooltips_eng[8]);
+                mouseSensitivityPanelSizer->Add(mouseSensitvTxtCtrl, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
             }
             mouseSensitivityPanel->SetSizer(mouseSensitivityPanelSizer);
             otherSettingsSizer->Add(mouseSensitivityPanel, 1, wxEXPAND);
@@ -272,7 +284,7 @@ GameSettings::GameSettings(wxFrame *parent)
     }
     topsizer->Add(otherSettingsSizer, 0, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
 
-    wxRadioBox * scrshotRadio = new wxRadioBox( this, wxID_ANY, wxT("Screenshots"), wxDefaultPosition, wxDefaultSize,
+    scrshotRadio = new wxRadioBox( this, wxID_ANY, wxT("Screenshots"), wxDefaultPosition, wxDefaultSize,
         WXSIZEOF(supported_scrshotfmt_text), supported_scrshotfmt_text, 2, wxRA_SPECIFY_COLS );
     scrshotRadio->SetToolTip(tooltips_eng[9]);
     topsizer->Add(scrshotRadio, 0, wxEXPAND);
@@ -282,35 +294,21 @@ GameSettings::GameSettings(wxFrame *parent)
     {
         dlgBottomPanelSizer->AddStretchSpacer(1);
         wxButton *saveBtn = new wxButton(dlgBottomPanel, wxID_OK, _T("&Save") );
+        saveBtn->SetToolTip(tooltips_eng[10]);
         dlgBottomPanelSizer->Add(saveBtn, 0, wxEXPAND);
         dlgBottomPanelSizer->AddStretchSpacer(1);
         wxButton *exitBtn = new wxButton(dlgBottomPanel, wxID_OK, _T("&Cancel") );
+        exitBtn->SetToolTip(tooltips_eng[11]);
         dlgBottomPanelSizer->Add(exitBtn, 0, wxEXPAND);
         dlgBottomPanelSizer->AddStretchSpacer(1);
     }
     dlgBottomPanel->SetSizer(dlgBottomPanelSizer);
     topsizer->Add(dlgBottomPanel, 0, wxEXPAND);
 
-    // Open the Configfile
-    conf = new wxFileConfig(wxEmptyString, wxEmptyString, wxT("keeperfx.cfg"),
-        wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
-
-    wxString value;
-    value = conf->Read(wxT("INSTALL_PATH"), wxT("./"));
-    value = conf->Read(wxT("INSTALL_TYPE"), wxT("MAX"));
-    value = conf->Read(wxT("LANGUAGE"), wxT("ENG"));
-    value = conf->Read(wxT("KEYBOARD"), wxT("101"));
-    value = conf->Read(wxT("SCREENSHOT"), wxT("BMP"));
-    value = conf->Read(wxT("FRONTEND_RES"), wxT("640x480x32 640x480x32 640x480x32"));
-    value = conf->Read(wxT("INGAME_RES"), wxT("640x480x32 1024x768x32"));
-//    value = conf->Read(wxT("POINTER_SENSITIVITY"), 100);
-    value = conf->Read(wxT("CENSORSHIP"), wxT("OFF"));
-
-
-    //TODO: make showing GameSettings frame which can load, modify and save the file
-
     SetSizer(topsizer);
     Centre(wxBOTH);
+
+    readConfiguration();
 }
 
 GameSettings::~GameSettings()
@@ -329,6 +327,96 @@ void GameSettings::OnClose(wxCloseEvent& event)
     event.Skip();
 }
 
+void GameSettings::readConfiguration()
+{
+    wxString value;
+    int index;
+    // Open the Configfile
+    conf = new wxFileConfig(wxEmptyString, wxEmptyString, wxT("keeperfx.cfg"),
+        wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
+
+    //value = conf->Read(wxT("INSTALL_PATH"), wxT("./"));
+    //value = conf->Read(wxT("INSTALL_TYPE"), wxT("MAX"));
+
+    value = conf->Read(wxT("LANGUAGE"), supported_languages_code[0]);
+    index = optionIndexInArray(supported_languages_code, WXSIZEOF(supported_languages_code), value);
+    langRadio->SetSelection((index>=0)?index:0);
+
+    //value = conf->Read(wxT("KEYBOARD"), wxT("101"));
+
+    value = conf->Read(wxT("SCREENSHOT"), supported_scrshotfmt_code[0]);
+    index = optionIndexInArray(supported_scrshotfmt_code, WXSIZEOF(supported_scrshotfmt_code), value);
+    scrshotRadio->SetSelection((index>=0)?index:0);
+
+    value = conf->Read(wxT("FRONTEND_RES"), wxT("640x480x32 640x480x32 640x480x32"));
+    {
+        wxStringTokenizer tokenz(value, wxT(" \t\r\n"));
+        index = 0;
+        while ( tokenz.HasMoreTokens() )
+        {
+            wxString param = tokenz.GetNextToken();
+            switch (index)
+            {
+            case 0:
+                resFailCombo->SetValue(param);
+                break;
+            case 1:
+                resMovieCombo->SetValue(param);
+                break;
+            case 2:
+                resMenuCombo->SetValue(param);
+                break;
+            }
+            index++;
+        }
+    }
+
+    value = conf->Read(wxT("INGAME_RES"), wxT("640x480x32 1024x768x32"));
+    {
+        std::vector<wxCheckBox *>::iterator chkIter;
+        for (chkIter=resIngameChkbxs.begin(); chkIter < resIngameChkbxs.end(); chkIter++)
+        {
+            (*chkIter)->SetValue(false);
+        }
+        wxStringTokenizer tokenz(value, wxT(" \t\r\n"));
+        while ( tokenz.HasMoreTokens() )
+        {
+            wxString param = tokenz.GetNextToken();
+            index = optionIndexInArray(resolutions_ingame_init, WXSIZEOF(resolutions_ingame_init)-3, param);
+            if (index >= 0)
+            {
+                // Found the index in constant values - check it
+                resIngameChkbxs[index]->SetValue(true);
+            } else
+            {
+                // Index not found in constant values - update custom res.
+                size_t i;
+                for (i=0; i < 3; i++)
+                {
+                    index = WXSIZEOF(resolutions_ingame_init)+i-3;
+                    if (resIngameChkbxs[index]->GetValue())
+                        continue;
+                    resIngameTxtCtrl[i]->SetValue(param);
+                    resIngameChkbxs[index]->SetValue(true);
+                    break;
+                }
+            }
+        }
+    }
+
+    index = conf->Read(wxT("POINTER_SENSITIVITY"), 100);
+    value = wxString::Format(wxT("%d"), (int)index);
+    mouseSensitvTxtCtrl->SetValue(value);
+
+    value = conf->Read(wxT("CENSORSHIP"), supported_boolean_code[0]);
+    index = optionIndexInArray(supported_boolean_code, WXSIZEOF(supported_boolean_code), value);
+    censorChkBx->SetValue((index>=0)?index:0);
+}
+
+void GameSettings::writeConfiguration()
+{
+
+}
 
 
 /******************************************************************************/
