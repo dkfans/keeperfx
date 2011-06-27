@@ -27,6 +27,7 @@
 class GameSettings : public wxDialog
 {
     wxBoxSizer * topsizer;
+    std::vector<wxCheckBox *> resIngameChkbxs;
 
     wxFileConfig * conf;
 public:
