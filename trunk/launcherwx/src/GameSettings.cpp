@@ -86,6 +86,21 @@ wxString supported_languages_text[] = {
     _T("傳統的中國")
 };
 
+wxString tooltips_eng[] = {
+    _T(""),
+    _T("Select up to four resolutions. Note that original resolutions are 320x200 and 640x400; select 640x480x32 for best gaming experience. Switch between selected resolutions by pressing Alt+R during the game."),//1
+    _T("Here you can type your own resolution. Use \"WIDTHxHEIGHTxCOLOUR\" scheme. Replace last \"x\" with \"w\" for windowed mode. You can select max. 4 resolutions."),//2
+    _T("Screen resolution at which movies (ie. intro) will be played. Original is 320x200, and any higher resolution will make movie window smaller. Still, 640x480x32 is recommended, for compatibility."),
+    _T("Screen resolution at which game menu is displayed. Original is 640x480 and it is recommended to select 640x480x32. Larger resolutions will make the menu smaller at center of the screen."),
+    _T("Resolution used in case of screen setup failure. If the game cannot enter one of the selected resolutions (ie. in-game resolution), it will try to fall back into this resolution. 640x480x32 is recommended."),
+    _T("Here you can select your language translation. This will affect the in-game messages, but also speeches during the game. Note that some campaigns may not support your language; in this case default one will be used."),
+    _T("Enabling censorship will make only evil creatures to have blood, and will restrict death effect with exploding flesh. Originally, this was enabled in german language version."),
+    _T("Increasing sensitivity will speed up the mouse in the game. This may also make the mouse less accurate, so be careful! Default value is 100; you can increase or decrease it at your will, but sometimes it may be better to change this setting in your OS."),
+    _T("Captured screens can be saved in \"scrshots\" folder by pressing Shift+C during the game or inside menu. The HSI format isn't very popular nowadays, so you probably want to select BMP, as most graphics tools can open it."),
+    _T(""),
+    _T(""),
+};
+
 wxString resolutions_ingame_init[] = {
     _T("320x200x8"),
     _T("640x400x8"),
@@ -99,10 +114,28 @@ wxString resolutions_ingame_init[] = {
     _T("1280x1024x32"),
     _T("1440x900x32"),
     _T("1600x900x32"),
+    _T("1600x1200x32"),
     _T("1680x1050x32"),
     _T("1920x1080x32"),
-//    _T("2560x1440x32"),
-//    _T("2560x1600x32"),
+    _T("1920x1200x32"),
+    _T("2560x1440x32"),
+    _T("2560x1600x32"),
+};
+
+wxString resolutions_movies_init[] = {
+    _T("320x200x8"),
+    _T("640x480x8"),
+    _T("320x200x32"),
+    _T("640x480x32"),
+    _T("1024x768x32"),
+};
+
+wxString resolutions_menu_init[] = {
+    _T("640x480x8"),
+    _T("640x480x32"),
+    _T("1024x768x32"),
+    _T("1280x800x32"),
+    _T("1280x960x32"),
 };
 
 wxString resolutions_failsafe_init[] = {
@@ -110,6 +143,7 @@ wxString resolutions_failsafe_init[] = {
     _T("640x480x8"),
     _T("320x200x32"),
     _T("640x480x32"),
+    _T("1024x768x32"),
 };
 
 std::vector<wxString> resolutions_ingame(resolutions_ingame_init, resolutions_ingame_init+sizeof(resolutions_ingame_init)/sizeof(resolutions_ingame_init[0]));
@@ -119,23 +153,45 @@ BEGIN_EVENT_TABLE(GameSettings, wxDialog)
 END_EVENT_TABLE()
 
 GameSettings::GameSettings(wxFrame *parent)
-    : wxDialog (parent, -1, wxT("Settings editor"), wxDefaultPosition, wxSize(400, 464))
+    : wxDialog (parent, -1, wxT("Settings editor"), wxDefaultPosition, wxSize(460, 464))
 
 {
     topsizer = new wxBoxSizer( wxVERTICAL );
 
     wxStaticBox *resIngameBox = new wxStaticBox( this, wxID_ANY, wxT("In-game resolutions") );
+    resIngameBox->SetToolTip(tooltips_eng[1]);
     wxStaticBoxSizer* resIngameBoxSizer = new wxStaticBoxSizer( resIngameBox, wxHORIZONTAL );
     wxPanel *resIngamePanel = new wxPanel(resIngameBox, wxID_ANY);
     {
+        resIngamePanel->SetToolTip(tooltips_eng[1]);
         wxGridSizer *resIngameSizer = new wxGridSizer(0, 3, 2, 2);
-        std::vector<wxString>::iterator strIter;
-        for(strIter = resolutions_ingame.begin(); strIter != resolutions_ingame.end(); strIter++)
+        size_t i;
+        for(i=0; i < WXSIZEOF(resolutions_ingame_init)-3; i++)
         {
             wxCheckBox *check;
-            check = new wxCheckBox(resIngamePanel, wxID_ANY, *strIter);
+            check = new wxCheckBox(resIngamePanel, wxID_ANY, resolutions_ingame_init[i]);
+            check->SetToolTip(tooltips_eng[1]);
             check->SetValue(false);
             resIngameSizer->Add(check, 1, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            resIngameChkbxs.push_back(check);
+        }
+        for(; i < WXSIZEOF(resolutions_ingame_init); i++)
+        {
+            wxPanel *resIngameCustPanel = new wxPanel(resIngamePanel, wxID_ANY);
+            wxBoxSizer *resIngameCustPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+            {
+                wxCheckBox *check;
+                check = new wxCheckBox(resIngameCustPanel, wxID_ANY, _T("cust:"));
+                check->SetToolTip(tooltips_eng[2]);
+                check->SetValue(false);
+                resIngameCustPanelSizer->Add(check, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+                resIngameChkbxs.push_back(check);
+                wxTextCtrl *txtCtrl = new wxTextCtrl(resIngameCustPanel, wxID_ANY, resolutions_ingame_init[i], wxDefaultPosition, wxDefaultSize);
+                txtCtrl->SetToolTip(tooltips_eng[2]);
+                resIngameCustPanelSizer->Add(txtCtrl, 1, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            resIngameCustPanel->SetSizer(resIngameCustPanelSizer);
+            resIngameSizer->Add(resIngameCustPanel, 1, wxEXPAND);
         }
         resIngamePanel->SetSizer(resIngameSizer);
         resIngameSizer->SetMinSize(386, 64);
@@ -147,28 +203,34 @@ GameSettings::GameSettings(wxFrame *parent)
     wxBoxSizer *resOtherPanelSizer = new wxBoxSizer( wxHORIZONTAL );
     {
         wxStaticBox *resMenuBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Menu resolution") );
+        resMenuBox->SetToolTip(tooltips_eng[4]);
         wxStaticBoxSizer* resMenuBoxSizer = new wxStaticBoxSizer(resMenuBox, wxVERTICAL);
         {
-            wxComboBox * resMenuCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_failsafe_init[0], wxDefaultPosition, wxDefaultSize,
-                WXSIZEOF(resolutions_failsafe_init), resolutions_failsafe_init, wxCB_DROPDOWN|wxCB_READONLY);
+            wxComboBox * resMenuCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_menu_init[0], wxDefaultPosition, wxDefaultSize,
+                WXSIZEOF(resolutions_menu_init), resolutions_menu_init, wxCB_DROPDOWN);
+            resMenuCombo->SetToolTip(tooltips_eng[4]);
             resMenuBoxSizer->Add(resMenuCombo, 1, wxEXPAND);
         }
         resOtherPanelSizer->Add(resMenuBoxSizer, 1, wxALIGN_CENTER);
 
         wxStaticBox *resMovieBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Movies resolution") );
-        wxStaticBoxSizer* resMovieBoxSizer = new wxStaticBoxSizer(resMovieBox, wxVERTICAL);
+        resMovieBox->SetToolTip(tooltips_eng[3]);
+        wxStaticBoxSizer* resMovieBoxSizer = new wxStaticBoxSizer(resMovieBox, wxHORIZONTAL);
         {
-            wxComboBox * resMovieCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_failsafe_init[0], wxDefaultPosition, wxDefaultSize,
-                WXSIZEOF(resolutions_failsafe_init), resolutions_failsafe_init, wxCB_DROPDOWN|wxCB_READONLY);
+            wxComboBox * resMovieCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_movies_init[0], wxDefaultPosition, wxDefaultSize,
+                WXSIZEOF(resolutions_movies_init), resolutions_movies_init, wxCB_DROPDOWN);
+            resMovieCombo->SetToolTip(tooltips_eng[3]);
             resMovieBoxSizer->Add(resMovieCombo, 1, wxEXPAND);
         }
         resOtherPanelSizer->Add(resMovieBoxSizer, 1, wxALIGN_CENTER);
 
         wxStaticBox *resFailBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Failure resolution") );
+        resFailBox->SetToolTip(tooltips_eng[5]);
         wxStaticBoxSizer* resFailBoxSizer = new wxStaticBoxSizer(resFailBox, wxVERTICAL);
         {
             wxComboBox * resFailCombo = new wxComboBox(resOtherPanel, wxID_ANY, resolutions_failsafe_init[0], wxDefaultPosition, wxDefaultSize,
-                WXSIZEOF(resolutions_failsafe_init), resolutions_failsafe_init, wxCB_DROPDOWN|wxCB_READONLY);
+                WXSIZEOF(resolutions_failsafe_init), resolutions_failsafe_init, wxCB_DROPDOWN);
+            resFailCombo->SetToolTip(tooltips_eng[5]);
             resFailBoxSizer->Add(resFailCombo, 1, wxEXPAND);
         }
         resOtherPanelSizer->Add(resFailBoxSizer, 1, wxALIGN_CENTER);
@@ -177,11 +239,42 @@ GameSettings::GameSettings(wxFrame *parent)
     topsizer->Add(resOtherPanel, 0, wxEXPAND);
 
     wxRadioBox * langRadio = new wxRadioBox( this, wxID_ANY, wxT("Language"), wxDefaultPosition, wxDefaultSize,
-        WXSIZEOF(supported_languages_text), supported_languages_text, 4, wxRA_SPECIFY_COLS);
-    topsizer->Add(langRadio, 1, wxEXPAND);
+        WXSIZEOF(supported_languages_text), supported_languages_text, 5, wxRA_SPECIFY_COLS);
+    langRadio->SetToolTip(tooltips_eng[6]);
+    topsizer->Add(langRadio, 0, wxEXPAND);
+
+    wxStaticBox *otherSettingsBox = new wxStaticBox( this, wxID_ANY, wxT("Other settings") );
+    wxStaticBoxSizer* otherSettingsSizer = new wxStaticBoxSizer( otherSettingsBox, wxVERTICAL );
+    {
+        {
+            wxCheckBox *check;
+            check = new wxCheckBox(this, wxID_ANY, wxT("Censorship (limit amount of blood and flesh)"));
+            check->SetToolTip(tooltips_eng[7]);
+            check->SetValue(false);
+            otherSettingsSizer->Add(check, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+        }
+        {
+            wxPanel *mouseSensitivityPanel = new wxPanel(this, wxID_ANY);
+            wxBoxSizer *mouseSensitivityPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+            {
+                wxStaticText *statTxt = new wxStaticText(mouseSensitivityPanel, wxID_ANY, wxT("Mouse sensitivity"));
+                statTxt->SetToolTip(tooltips_eng[8]);
+                mouseSensitivityPanelSizer->Add(statTxt, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+                mouseSensitivityPanelSizer->AddSpacer(16);
+                wxTextCtrl *txtCtrl = new wxTextCtrl(mouseSensitivityPanel, wxID_ANY, wxT("100"), wxDefaultPosition, wxSize(64, -1));
+                txtCtrl->SetToolTip(tooltips_eng[8]);
+                mouseSensitivityPanelSizer->Add(txtCtrl, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            mouseSensitivityPanel->SetSizer(mouseSensitivityPanelSizer);
+            otherSettingsSizer->Add(mouseSensitivityPanel, 1, wxEXPAND);
+        }
+        otherSettingsSizer->SetMinSize(386, 64);
+    }
+    topsizer->Add(otherSettingsSizer, 0, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
 
     wxRadioBox * scrshotRadio = new wxRadioBox( this, wxID_ANY, wxT("Screenshots"), wxDefaultPosition, wxDefaultSize,
         WXSIZEOF(supported_scrshotfmt_text), supported_scrshotfmt_text, 2, wxRA_SPECIFY_COLS );
+    scrshotRadio->SetToolTip(tooltips_eng[9]);
     topsizer->Add(scrshotRadio, 0, wxEXPAND);
 
     wxPanel *dlgBottomPanel = new wxPanel(this, wxID_ANY);
