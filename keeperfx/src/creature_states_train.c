@@ -501,7 +501,6 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         }
         break;
     case CrTrMd_DoTrainWithTrainPost:
-    default:
         if (cctrl->training.train_timeout > 0)
         {
             // While training timeout is positive, continue initiating the train instances
@@ -522,6 +521,11 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
                 setup_move_to_new_training_position(thing, room, true);
             }
         }
+        break;
+    default:
+        WARNLOG("Invalid %s training mode %d; reset",thing_model_name(thing),(int)cctrl->training.mode);
+        cctrl->training.mode = CrTrMd_SearchForTrainPost;
+        cctrl->training.search_timeout = 0;
         break;
     }
     SYNCDBG(18,"End");

@@ -17,11 +17,11 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
-CPP  = g++
-CC   = gcc
-WINDRES = windres
-DLLTOOL = dlltool
-EXETODLL = peresec/bin/peresec.exe
+CPP  = $(CROSS_COMPILE)g++
+CC   = $(CROSS_COMPILE)gcc
+WINDRES = $(CROSS_COMPILE)windres
+DLLTOOL = $(CROSS_COMPILE)dlltool
+EXETODLL = peresec/bin/peresec
 RM = rm -f
 MV = mv -f
 ECHO = @echo

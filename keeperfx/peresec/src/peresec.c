@@ -224,7 +224,7 @@ int find_dupename(struct export_entry *exp[],unsigned int exp_size)
 {
    int i;
    for (i = 0 ; i < exp_size-1 ; i++)
-       if(stricmp(exp[i]->dstname, exp[i+1]->dstname) == 0)
+       if(strcasecmp(exp[i]->dstname, exp[i+1]->dstname) == 0)
        {
          return i;
        }
@@ -1234,7 +1234,7 @@ long get_section_index(const char *sec_name, struct PEInfo *pe)
     long idx;
     for (idx=0; idx <= pe->sections_num; idx++)
     {
-        if (stricmp(pe->sections[idx]->name,sec_name) == 0)
+        if (strcasecmp(pe->sections[idx]->name,sec_name) == 0)
         { return idx; }
     }
     return -1;

@@ -17,12 +17,17 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
+OS = $(shell uname -s)
+ifneq (,$(findstring MINGW,$(OS)))
+RES  = obj/peresec_stdres.res
+else
+RES  = 
+endif
 CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
-BIN  = bin/peresec.exe
-RES  = obj/peresec_stdres.res
+BIN  = bin/peresec
 LIBS =
 OBJS = \
 obj/peresec.o \

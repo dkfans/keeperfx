@@ -22,7 +22,8 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <windows.h>
+#include <stdarg.h>
+#include <windef.h>
 #include <winbase.h>
 
 #include "bflib_basics.h"

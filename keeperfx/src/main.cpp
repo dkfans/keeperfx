@@ -8627,8 +8627,8 @@ void game_loop(void)
     // get_my_dungeon() can't be used here because players are not initialized yet
     dungeon = get_dungeon(my_player_number);
     starttime = LbTimerClock();
-    dungeon->lvstats.start_time = timeGetTime();//starttime;
-    dungeon->lvstats.end_time = timeGetTime();//starttime;
+    dungeon->lvstats.start_time = starttime;
+    dungeon->lvstats.end_time = starttime;
     LbScreenClear(0);
     LbScreenSwap();
     keeper_gameplay_loop();

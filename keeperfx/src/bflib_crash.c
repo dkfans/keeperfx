@@ -19,7 +19,10 @@
 /******************************************************************************/
 #include "bflib_crash.h"
 #include <signal.h>
-#include <windows.h>
+#include <stdarg.h>
+#include <windef.h>
+#include <winbase.h>
+#include <winver.h>
 #include <excpt.h>
 #include <imagehlp.h>
 #include <psapi.h>
