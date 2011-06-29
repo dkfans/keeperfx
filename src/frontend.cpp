@@ -21,7 +21,6 @@
 #include <string.h>
 #include "bflib_basics.h"
 #include "globals.h"
-#include <windows.h>
 
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
@@ -1113,7 +1112,7 @@ void frontstats_initialise(void)
     struct Dungeon *dungeon;
     //_DK_frontstats_initialise();
     dungeon = get_my_dungeon();
-    dungeon->lvstats.end_time = timeGetTime();
+    dungeon->lvstats.end_time = LbTimerClock();
     dungeon->lvstats.num_creatures = dungeon->num_active_creatrs;
     dungeon->lvstats.imps_deployed = dungeon->num_active_diggers;
     dungeon->lvstats.battles_won = dungeon->battles_won;

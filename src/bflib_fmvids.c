@@ -21,6 +21,9 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
+#include <windef.h>
+#include <winbase.h>
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -29,7 +32,7 @@
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_fileio.h"
-#include <windows.h>
+//#include <windows.h>
 
 #ifdef __cplusplus
 extern "C" {

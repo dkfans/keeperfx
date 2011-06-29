@@ -23,7 +23,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
-#include <windows.h>
 
 #include "bflib_basics.h"
 #include "globals.h"

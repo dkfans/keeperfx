@@ -25,7 +25,6 @@
 #include "bflib_basics.h"
 #include "bflib_mouse.h"
 #include "bflib_sprite.h"
-#include <windows.h>
 
 #include "keeperfx.hpp"
 /******************************************************************************/
