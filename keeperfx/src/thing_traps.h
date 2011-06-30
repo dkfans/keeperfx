@@ -28,9 +28,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
@@ -56,10 +54,7 @@ unsigned char field_28[8];
 unsigned char field_30[6];
 };
 
-
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
 #define trap_data _DK_trap_data

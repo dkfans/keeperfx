@@ -28,9 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 // Data structures
 
@@ -50,9 +48,7 @@ struct SampleInfo { // sizeof = 29
   unsigned char field_1C;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 // Exported variables
 

@@ -218,7 +218,7 @@ CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DB
 # dependencies tracking
 -include obj/*.d
 
-.PHONY: all all-before all-after debug docs docsdox clean clean-custom
+.PHONY: all all-before all-after debug docs docsdox clean clean-custom package
 
 all: all-before $(BIN) all-after
 
@@ -235,10 +235,62 @@ clean: clean-custom
 	$(MAKE) clean -C peresec
 	-$(ECHO) ' '
 
+package:
+	7z a keeperfx-$(VERSION).7z -x".svn" "$(BIN)"
+	
+
 $(BIN) $(DBGBIN): $(GENSRC) $(OBJS) $(LIBS)
 	-$(ECHO) 'Building target: $@'
 	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LDFLAGS)
 	-$(ECHO) 'Finished building target: $@'
+	-$(ECHO) ' '
+
+obj/front_network.o: src/front_network.c
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/frontmenu_net.o: src/frontmenu_net.c
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/frontmenu_options.o: src/frontmenu_options.c
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/frontmenu_saves.o: src/frontmenu_saves.c
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/frontmenu_ingame_tabs.o: src/frontmenu_ingame_tabs.c
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/frontmenu_ingame_evnt.o: src/frontmenu_ingame_evnt.c
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/frontmenu_ingame_opts.o: src/frontmenu_ingame_opts.c
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/front_torture.o: src/front_torture.c
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
 obj/%.o: src/%.cpp
@@ -247,36 +299,9 @@ obj/%.o: src/%.cpp
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/bflib_render_trig.o: src/bflib_render_trig.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/bflib_render_gpoly.o: src/bflib_render_gpoly.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/bflib_render_gtblock.o: src/bflib_render_gtblock.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/bflib_render.o: src/bflib_render.c
-	-$(ECHO) 'Building file: $<'
-	$(CC) $(INCS) -c -fmessage-length=0 $(DEPFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
 obj/%.o: src/%.c
 	-$(ECHO) 'Building file: $<'
-# In order to make the keeperfx.dll work, we must compile .c files
-# which use variables from the library with c++ compiler. Not sure why..
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-#	$(CC) $(CFLAGS) -o"$@" "$<"
+	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 

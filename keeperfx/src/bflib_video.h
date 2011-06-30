@@ -32,9 +32,7 @@ extern "C" {
 #define PALETTE_COLORS 256
 #define PALETTE_SIZE (3*PALETTE_COLORS)
 
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 /** Pixel definition - represents value of one point on the graphics screen. */
 typedef unsigned char TbPixel;
@@ -212,9 +210,8 @@ typedef struct DisplayStructEx TbDisplayStructEx;
 struct SSurface;
 typedef struct SSurface TSurface;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
+/******************************************************************************/
 
 DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
 #define lbDisplay _DK_lbDisplay

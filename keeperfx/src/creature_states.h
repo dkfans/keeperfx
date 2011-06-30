@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "dungeon_data.h"
 
 /** Count of creature states, originally 147. */
 #define CREATURE_STATES_COUNT CrSt_ListEnd
@@ -30,9 +31,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 struct Room;
@@ -242,9 +241,7 @@ struct StateInfo { // sizeof = 41
   unsigned char field_28;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT struct StateInfo _DK_states[];
 //#define states _DK_states

@@ -177,9 +177,8 @@ enum TbPacketControl {
 
 #define INVALID_PACKET (&bad_packet)
 
-#ifdef __cplusplus
+/******************************************************************************/
 #pragma pack(1)
-#endif
 
 struct PlayerInfo;
 struct CatalogueEntry;
@@ -205,10 +204,7 @@ unsigned int field_8;
     TbChecksum chksum;
     };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
 /******************************************************************************/
 /******************************************************************************/
 struct Packet *get_packet_direct(long pckt_idx);

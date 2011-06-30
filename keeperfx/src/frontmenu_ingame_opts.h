@@ -25,23 +25,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct GuiMenu;
 struct GuiButton;
 
+#pragma pack()
+/******************************************************************************/
 extern struct GuiMenu options_menu;
 extern struct GuiMenu instance_menu;
 extern struct GuiMenu quit_menu;
 extern struct GuiMenu error_box;
 extern struct GuiMenu autopilot_menu;
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-/******************************************************************************/
 
 /******************************************************************************/
 #ifdef __cplusplus

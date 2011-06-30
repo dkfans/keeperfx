@@ -139,7 +139,6 @@
  0003:0002FB28       net_service_index_selected
  0003:000207B8       fade_palette_in
  0003:002473F8       frontend_mouse_over_button
- 0003:00247C60       high_score_table
  0003:000207C0       frontstory_load_files
  0003:0001EB98       netmap_flag_load_files
  0003:00247F44       fe_high_score_table_from_main_menu

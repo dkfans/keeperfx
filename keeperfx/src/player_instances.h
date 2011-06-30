@@ -88,9 +88,7 @@ enum PlayerStates {
 };
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 struct PlayerInfo;
@@ -109,9 +107,7 @@ struct PlayerInstanceInfo { // sizeof = 44
   long field_28;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct PlayerInstanceInfo player_instance_info[];
 /******************************************************************************/

@@ -27,9 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct TbSprite;
 struct TbPoint;
@@ -115,9 +113,7 @@ struct DevInput {
         unsigned char Init[16];
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern volatile TbBool lbMouseAutoReset;
 /******************************************************************************/

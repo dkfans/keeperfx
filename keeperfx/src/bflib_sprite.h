@@ -26,9 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct TbSprite {
         unsigned char *Data;
@@ -42,18 +40,13 @@ struct TbSetupSprite {
         unsigned long *Data;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
+/******************************************************************************/
 /*
 extern struct TbSetupSprite setup_sprites[];
 extern char mouse_pointer_sprite;
 extern char lang_selection;
 */
-
-/******************************************************************************/
-
 /******************************************************************************/
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 int LbSpriteClearAll(struct TbSetupSprite t_setup[]);

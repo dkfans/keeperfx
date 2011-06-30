@@ -27,10 +27,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
 /** Enums for thing->field_0 bit fields. */
 enum ThingFlags0 {
     TF_Exists     = 0x01,
@@ -43,6 +39,9 @@ enum ThingAllocFlags {
     TAF_FreeEffectIfNoSlots = 0x01,
     TAF_LogFailures         = 0x80,
 };
+
+/******************************************************************************/
+#pragma pack(1)
 
 struct Room;
 
@@ -154,9 +153,7 @@ unsigned short field_60;
 
 #define INVALID_THING (game.things.lookup[0])
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 #define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)
 struct Thing *allocate_free_thing_structure_f(unsigned char a1, const char *func_name);

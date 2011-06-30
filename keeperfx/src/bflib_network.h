@@ -31,9 +31,7 @@ extern "C" {
 
 #define CLIENT_TABLE_LEN 32
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 // New Declarations Here ======================================================
 
@@ -252,9 +250,7 @@ long field_C;
     char *str_answr;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT extern int _DK_network_initialized;
 #define network_initialized _DK_network_initialized

@@ -27,15 +27,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 short at_guard_post_room(struct Thing *thing);
 short guarding(struct Thing *thing);

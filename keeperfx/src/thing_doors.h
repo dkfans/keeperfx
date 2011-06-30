@@ -27,9 +27,7 @@ extern "C" {
 /******************************************************************************/
 #define DOOR_TYPES_COUNT        5
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
@@ -39,13 +37,10 @@ struct DoorStats { // sizeof = 8
   unsigned short field_6;
 };
 
+#pragma pack()
 /******************************************************************************/
 DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
 #define door_stats _DK_door_stats
-/******************************************************************************/
-#ifdef __cplusplus
-#pragma pack()
-#endif
 /******************************************************************************/
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 void lock_door(struct Thing *thing);

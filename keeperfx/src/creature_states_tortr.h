@@ -27,15 +27,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 short at_kinky_torture_room(struct Thing *thing);
 short kinky_torturing(struct Thing *thing);

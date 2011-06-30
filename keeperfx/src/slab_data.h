@@ -70,9 +70,7 @@ enum SlabTypes {
 };
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct PlayerInfo;
 typedef unsigned char SlabType;
@@ -94,15 +92,12 @@ struct SlabObj { // sizeof = 13
   unsigned short field_B;
 };
 
+#pragma pack()
+/******************************************************************************/
 #define INVALID_SLABMAP_BLOCK (&bad_slabmap_block)
 extern const short around_slab[];
 #define SMALL_AROUND_SLAB_LENGTH 4
 extern const short small_around_slab[];
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-
 /******************************************************************************/
 SlabCodedCoords get_slab_number(MapSlabCoord slb_x, MapSlabCoord slb_y);
 long slb_num_decode_x(SlabCodedCoords slb_num);

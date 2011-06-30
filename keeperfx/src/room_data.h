@@ -53,15 +53,16 @@ enum RoomKinds {
     RoK_GUARDPOST           =  16,
     RoK_UNKN17              =  17,
 };
-/******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
 
 #define ROOM_EFFICIENCY_MAX 256
 #define ROOM_SELL_REVENUE_PERCENT  50
+/******************************************************************************/
+#pragma pack(1)
 
+struct Thing;
+struct Coord3d;
 struct Room;
+struct Dungeon;
 typedef unsigned char RoomKind;
 
 typedef void (*Room_Update_Func)(struct Room *);
@@ -124,9 +125,7 @@ struct RoomData {
 #define INVALID_ROOM (&game.rooms[0])
 #define INVALID_ROOM_DATA (&room_data[0])
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT extern struct RoomData _DK_room_data[];
 //#define room_data _DK_room_data

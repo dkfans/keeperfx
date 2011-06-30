@@ -52,9 +52,7 @@ extern "C" {
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 struct PlayerInfo;
@@ -456,9 +454,8 @@ struct CreatureSounds {
     struct CreatureSound snd10;
     struct CreatureSound snd11;
 };
-#ifdef __cplusplus
+
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct CreatureSounds creature_sounds[];
 /******************************************************************************/

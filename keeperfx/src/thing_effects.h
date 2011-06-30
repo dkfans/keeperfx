@@ -27,10 +27,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
 enum ThingEffectKind {
     TngEff_None = 0,
     TngEff_Unknown01,
@@ -104,6 +100,9 @@ enum ThingEffectKind {
     TngEff_Unknown69,
 };
 
+/******************************************************************************/
+#pragma pack(1)
+
 struct EffectElementStats { // sizeof = 79
   unsigned char field_0;
   unsigned char field_1;
@@ -154,9 +153,7 @@ struct EffectElementStats { // sizeof = 79
   unsigned char field_4E;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 struct Thing *create_effect(const struct Coord3d *pos, unsigned short a2, unsigned char a3);
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);

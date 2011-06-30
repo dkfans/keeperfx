@@ -78,16 +78,12 @@ typedef long MenuID;
 typedef long MenuNumber;
 #define MENU_INVALID_ID -1
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct GuiMenu;
 struct GuiButton;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT struct GuiMenu _DK_main_menu;
 DLLIMPORT struct GuiMenu _DK_room_menu;

@@ -28,16 +28,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct PlayerInfo;
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5);

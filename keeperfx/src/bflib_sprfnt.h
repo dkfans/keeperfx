@@ -27,9 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct TbSprite;
 struct TbSetupSprite;
@@ -80,9 +78,7 @@ struct AsianFontWindow {
   unsigned char *buf_ptr;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT extern const struct TbSprite *_DK_lbFontPtr;
 #define lbFontPtr _DK_lbFontPtr

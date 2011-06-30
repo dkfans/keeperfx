@@ -31,10 +31,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
-/******************************************************************************/
+
 struct StructureList;
 
 enum ShadowCacheFlags {
@@ -90,6 +88,7 @@ struct LightSystemState {
     long out_of_date_stat_lights;
 };
 
+#pragma pack()
 /******************************************************************************/
 DLLIMPORT long _DK_light_bitmask[32];
 #define light_bitmask _DK_light_bitmask
@@ -107,10 +106,6 @@ DLLIMPORT long _DK_light_updated_stat_lights;
 #define light_updated_stat_lights _DK_light_updated_stat_lights
 DLLIMPORT long _DK_light_out_of_date_stat_lights;
 #define light_out_of_date_stat_lights _DK_light_out_of_date_stat_lights
-/******************************************************************************/
-#ifdef __cplusplus
-#pragma pack()
-#endif
 /******************************************************************************/
 void clear_light_system(void);
 void clear_stat_light_map(void);

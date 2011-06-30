@@ -36,10 +36,6 @@ extern "C" {
 
 #define INVALID_PLAYER (&bad_player)
 
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
 enum PlayerViewModes {
     PVM_EmptyView = 0,
     PVM_CreatureView,
@@ -60,6 +56,9 @@ enum PlayerViewType {
     PVT_MapFadeIn, // 5
     PVT_MapFadeOut,
 };
+
+/******************************************************************************/
+#pragma pack(1)
 
 struct Wander // sizeof = 424
 {
@@ -153,9 +152,7 @@ char field_462;
     long field_4EB;
     };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT extern unsigned char _DK_my_player_number;
 #define my_player_number _DK_my_player_number

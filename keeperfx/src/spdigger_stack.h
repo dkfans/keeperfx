@@ -26,13 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
-struct Dungeon;
-struct Thing;
-
 enum SpecialDiggerTask {
     DigTsk_None = 0,
     DigTsk_ImproveDungeon,
@@ -47,9 +40,13 @@ enum SpecialDiggerTask {
     DigTsk_PicksUpGoldPile, // 10
 };
 
-#ifdef __cplusplus
+/******************************************************************************/
+#pragma pack(1)
+
+struct Dungeon;
+struct Thing;
+
 #pragma pack()
-#endif
 /******************************************************************************/
 TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *dungeon);
 long add_undug_to_imp_stack(struct Dungeon *dungeon, long num);

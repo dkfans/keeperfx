@@ -29,18 +29,14 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct RegionT { // sizeof = 3
   unsigned short field_0;
   unsigned char field_2;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct RegionT bad_region;
 #define INVALID_REGION &bad_region;

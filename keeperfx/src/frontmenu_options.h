@@ -25,18 +25,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define GAMMA_LEVELS_COUNT      5
-
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
+
+#define GAMMA_LEVELS_COUNT      5
 
 struct GuiMenu;
 struct GuiButton;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct GuiMenu frontend_define_keys_menu;
 extern struct GuiMenu frontend_option_menu;

@@ -27,14 +27,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void resync_game(void);
 short perform_checksum_verification(void);

@@ -27,9 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct EngineCoord;
 struct M33;
@@ -64,10 +62,7 @@ struct Camera {
     short field_28;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
 /******************************************************************************/
 
 extern long camera_zoom;

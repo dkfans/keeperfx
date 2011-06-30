@@ -30,9 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct WibbleTable {
   long field_0;
@@ -45,10 +43,7 @@ struct WibbleTable {
   long field_1C;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
 /******************************************************************************/
 DLLIMPORT long _DK_randomisors[512];
 #define randomisors _DK_randomisors

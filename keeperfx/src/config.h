@@ -30,11 +30,6 @@ extern "C" {
 struct CreditsItem;
 struct GameCampaign;
 /******************************************************************************/
-DLLIMPORT extern struct InstallInfo _DK_install_info;
-#define install_info _DK_install_info
-DLLIMPORT extern char _DK_keeper_runtime_directory[152];
-#define keeper_runtime_directory _DK_keeper_runtime_directory
-/******************************************************************************/
 #define SINGLEPLAYER_FINISHED        -1
 #define SINGLEPLAYER_NOTSTARTED       0
 #define LEVELNUMBER_ERROR            -2
@@ -102,24 +97,22 @@ enum TbLevelLocation {
 };
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct CommandWord {
-  char text[COMMAND_WORD_LEN];
+    char text[COMMAND_WORD_LEN];
 };
 
 struct NamedCommand {
-  const char *name;
-  int num;
-  };
+    const char *name;
+    int num;
+};
 
 struct InstallInfo {
   char inst_path[150];
   int lang_id;
-int field_9A;
-  };
+  int field_9A;
+};
 
 struct NetLevelDesc { // sizeof = 14
   unsigned char lvnum;
@@ -129,9 +122,7 @@ struct NetLevelDesc { // sizeof = 14
   char *text;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern unsigned long features_enabled;
 extern short is_full_moon;
@@ -143,12 +134,14 @@ extern const struct NamedCommand lang_type[];
 /******************************************************************************/
 DLLIMPORT extern float _DK_phase_of_moon;
 #define phase_of_moon _DK_phase_of_moon
-//DLLIMPORT extern struct HighScore _DK_high_score_table[VISIBLE_HIGH_SCORES_COUNT];
-//#define high_score_table _DK_high_score_table
 DLLIMPORT extern long _DK_net_number_of_levels;
 #define net_number_of_levels _DK_net_number_of_levels
 DLLIMPORT extern struct NetLevelDesc _DK_net_level_desc[100];
 #define net_level_desc _DK_net_level_desc
+DLLIMPORT extern struct InstallInfo _DK_install_info;
+#define install_info _DK_install_info
+DLLIMPORT extern char _DK_keeper_runtime_directory[152];
+#define keeper_runtime_directory _DK_keeper_runtime_directory
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);

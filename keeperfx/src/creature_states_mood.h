@@ -27,15 +27,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 short creature_moan(struct Thing *thing);
 short creature_roar(struct Thing *thing);

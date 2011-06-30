@@ -27,15 +27,12 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
+struct Dungeon;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 short at_research_room(struct Thing *thing);
 long process_research_function(struct Thing *thing);

@@ -27,6 +27,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#pragma pack(1)
+
+struct GuiButton;
+struct GuiMenu;
 struct GuiBox;
 struct GuiBoxOption;
 
@@ -47,15 +51,6 @@ union GuiVariant {
       long *lptr;
       char *str;
 };
-
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
-struct GuiButton;
-struct GuiMenu;
-struct GuiBox;
-struct GuiBoxOption;
 
 typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
 typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);
@@ -191,10 +186,7 @@ struct EventTypeInfo { //sizeof=0x10
 
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
 /******************************************************************************/
 extern char *gui_strings[STRINGS_MAX+1];
 extern char *gui_strings_data;

@@ -27,9 +27,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct PlayerInfo;
 struct Thing;
@@ -40,7 +38,8 @@ long field_4;
 long field_8;
 };
 
-
+#pragma pack()
+/******************************************************************************/
 DLLIMPORT long _DK_transfer_creature_scroll_offset;
 #define transfer_creature_scroll_offset _DK_transfer_creature_scroll_offset
 DLLIMPORT long _DK_resurrect_creature_scroll_offset;
@@ -49,10 +48,6 @@ DLLIMPORT unsigned short _DK_dungeon_special_selected;
 #define dungeon_special_selected _DK_dungeon_special_selected
 DLLIMPORT struct SpecialDesc _DK_special_desc[8];
 #define special_desc _DK_special_desc
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
 /******************************************************************************/
 void multiply_creatures(struct PlayerInfo *player);
 void increase_level(struct PlayerInfo *player);

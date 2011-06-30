@@ -29,16 +29,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
 #define THING_CLASSES_COUNT    14
 #define THINGS_COUNT         2048
-
-struct PlayerInfo;
-struct Thing;
-struct CompoundFilterParam;
 
 enum ThingClassIndex {
     TCls_Empty        =  0,
@@ -72,6 +64,12 @@ enum ThingListIndex {
     TngList_unk11        = 11,
     TngList_unk12        = 12,
 };
+/******************************************************************************/
+#pragma pack(1)
+
+struct PlayerInfo;
+struct Thing;
+struct CompoundFilterParam;
 
 typedef long FilterParam;
 typedef struct CompoundFilterParam * MaxFilterParam;
@@ -107,9 +105,7 @@ struct Things {
 };
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern Thing_Class_Func class_functions[];
 extern unsigned long thing_create_errors;

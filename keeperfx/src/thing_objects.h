@@ -28,9 +28,9 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
+#define OBJECT_TYPES_COUNT  135
+/******************************************************************************/
 #pragma pack(1)
-#endif
 
 struct Objects {
     unsigned char field_0;
@@ -52,11 +52,7 @@ struct Objects {
     unsigned char field_15;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
-#define OBJECT_TYPES_COUNT  135
 /******************************************************************************/
 extern Thing_Class_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];

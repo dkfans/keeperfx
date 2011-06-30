@@ -95,9 +95,7 @@ struct SmackSumTag {
   unsigned long HighestExtraUsed;  // Highest extra memory actually used
 };
 
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct AnimFLIHeader { // sizeof=0x80
     unsigned long dsize;
@@ -155,10 +153,7 @@ char field_3C4[12];
 
 typedef void (*SmackDrawCallback)(unsigned char *frame_data, long width, long height);
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
 /******************************************************************************/
 // Exported variables
 

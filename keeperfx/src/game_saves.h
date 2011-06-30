@@ -58,9 +58,7 @@ enum GameLoadStatus {
     GLoad_PacketContinue,
 };
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Game;
 
@@ -84,9 +82,7 @@ struct FileChunkHeader {
     unsigned long ver;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 //DLLIMPORT extern struct CatalogueEntry _DK_save_game_catalogue[SAVE_SLOTS_COUNT];
 //#define save_game_catalogue _DK_save_game_catalogue

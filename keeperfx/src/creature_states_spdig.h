@@ -27,15 +27,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 short imp_arrives_at_convert_dungeon(struct Thing *thing);
 short imp_arrives_at_dig_or_mine(struct Thing *thing);

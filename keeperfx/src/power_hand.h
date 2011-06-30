@@ -28,15 +28,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void add_creature_to_sacrifice_list(long owner, long model, long explevel);
 void place_thing_in_limbo(struct Thing *thing);

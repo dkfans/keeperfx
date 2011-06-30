@@ -81,9 +81,7 @@ enum CreatureTypesLoadFlags {
 };
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
@@ -111,9 +109,7 @@ struct Creatures { // sizeof = 16
   unsigned char field_F;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 
 struct CreatureConfig {

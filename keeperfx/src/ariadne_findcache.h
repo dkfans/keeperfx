@@ -27,14 +27,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 long triangle_find_cache_get(long pos_x, long pos_y);
 void triangle_find_cache_put(long pos_x, long pos_y, long ntri);

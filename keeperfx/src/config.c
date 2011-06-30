@@ -381,6 +381,10 @@ const char *get_language_lwrstr(int lang_id)
   static char lang_str[4];
   const char *src;
   src = get_conf_parameter_text(lang_type,lang_id);
+#if (BFDEBUG_LEVEL > 0)
+  if (strlen(src) != 3)
+      WARNLOG("Bad text code for language index %d",(int)lang_id);
+#endif
   strncpy(lang_str, src, 4);
   lang_str[3] = '\0';
   strlwr(lang_str);

@@ -27,19 +27,16 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
+struct Room;
 
 typedef void (*CombatState)(struct Thing *);
 
 extern const CombatState combat_state[];
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 short cleanup_combat(struct Thing *thing);
 short cleanup_door_combat(struct Thing *thing);

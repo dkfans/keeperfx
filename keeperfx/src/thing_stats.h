@@ -22,22 +22,17 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define CREATURE_MAX_LEVEL     10
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /******************************************************************************/
-#ifdef __cplusplus
+#define CREATURE_MAX_LEVEL     10
+/******************************************************************************/
 #pragma pack(1)
-#endif
 
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern const char *blood_types[];
 /******************************************************************************/

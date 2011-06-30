@@ -27,9 +27,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 enum CreatureHeroTasks {
     CHeroTsk_Default         = 0,
@@ -43,9 +41,7 @@ enum CreatureHeroTasks {
 
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 short good_attack_room(struct Thing *thing);
 short good_back_at_start(struct Thing *thing);

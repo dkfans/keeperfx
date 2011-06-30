@@ -40,6 +40,7 @@ extern "C" {
 // After that much milliseconds in main menu, demo is started
 #define MNU_DEMO_IDLE_TIME 30000
 /******************************************************************************/
+#pragma pack(1)
 
 enum DemoItem_Kind {
     DIK_PlaySmkVideo,
@@ -80,11 +81,6 @@ enum FrontendMenuState {
   FeSt_FONT_TEST          = 255,
 };
 
-
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
 struct GuiMenu;
 struct GuiButton;
 
@@ -104,9 +100,7 @@ struct NetMessage { // sizeof = 0x41
   char text[NET_MESSAGE_LEN];
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT struct GuiButtonInit _DK_event_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_options_menu_buttons[];

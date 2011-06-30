@@ -30,9 +30,7 @@ extern "C" {
 #define SOUNDS_MAX_COUNT  16
 #define SOUND_EMITTERS_MAX 128
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct HeapMgrHeader;
 struct HeapMgrHandle;
@@ -98,6 +96,7 @@ struct SampleTable { // sizeof = 16
   struct HeapMgrHandle *hmhandle;
 };
 
+#pragma pack()
 /******************************************************************************/
 // Exported variables
 DLLIMPORT extern int _DK_SoundDisabled;
@@ -136,11 +135,6 @@ DLLIMPORT S3D_LineOfSight_Func _DK_LineOfSightFunction;
 #define LineOfSightFunction _DK_LineOfSightFunction
 DLLIMPORT long _DK_deadzone_radius;
 #define deadzone_radius _DK_deadzone_radius
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-
 /******************************************************************************/
 // Exported functions
 long S3DSetSoundReceiverPosition(int pos_x, int pos_y, int pos_z);

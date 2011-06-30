@@ -228,6 +228,7 @@
  0001:0009BAE0       gui_quit_game
  0001:0009BA80       gui_video_gamma_correction
  0001:000968E0       gui_area_stat_button
+ 0003:00247C60       high_score_table
  0001:000ADE10       frontend_high_score_table_input
  0001:00008A50       frontnet_draw_services_scroll_tab
  0001:000AD310       frontend_draw_text

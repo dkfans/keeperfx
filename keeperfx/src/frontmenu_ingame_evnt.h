@@ -25,22 +25,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct GuiMenu;
 struct GuiButton;
 
-extern struct GuiMenu text_info_menu;
-extern struct GuiMenu battle_menu;
-
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT struct GuiButtonInit _DK_text_info_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_battle_buttons[];
+/******************************************************************************/
+extern struct GuiMenu text_info_menu;
+extern struct GuiMenu battle_menu;
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn);
 void gui_kill_event(struct GuiButton *gbtn);
