@@ -28,11 +28,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PERS_ROUTINES_COUNT    4
-
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
+
+#define PERS_ROUTINES_COUNT    4
 
 struct XYZ;
 struct PolyPoint;
@@ -48,10 +46,7 @@ struct XYZ { // sizeof = 12
     long z;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
 /******************************************************************************/
 extern Perspect_Func perspective_routines[];
 extern RotPers_Func rotpers_routines[];

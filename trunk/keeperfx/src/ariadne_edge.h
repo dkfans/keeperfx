@@ -28,18 +28,14 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct EdgePoint { //sizeof = 8
     long field_0;
     long field_4;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT long _DK_ix_EdgePoints;
 #define ix_EdgePoints _DK_ix_EdgePoints

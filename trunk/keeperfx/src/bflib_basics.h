@@ -59,9 +59,7 @@ enum TbErrorCode {
 };
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 typedef unsigned long ulong;
 typedef unsigned int uint;
@@ -118,9 +116,7 @@ struct TbNetworkCallbackData;
 typedef int TbError;
 typedef int TbResult;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern const char *log_file_name;
 // High level functions - DK specific

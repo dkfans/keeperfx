@@ -27,9 +27,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 enum ErrorStatisticEntries {
     ESE_NoFreeThings = 0,
@@ -49,9 +47,7 @@ struct ErrorStatistics {
     const char *msg;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void erstats_clear(void);
 long erstat_inc(int stat_num);

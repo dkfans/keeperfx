@@ -20,6 +20,7 @@
 #define DK_MAP_EVENTS_H
 
 #include "globals.h"
+#include "bflib_guibtns.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,17 +30,17 @@ extern "C" {
 #define EVENT_KIND_COUNT       27
 #define EVENTS_COUNT          100
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
+
+struct Event;
+struct Dungeon;
+struct PlayerInfo;
+
+#pragma pack()
 /******************************************************************************/
 extern struct EventTypeInfo event_button_info[28];
 /******************************************************************************/
 DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
-/******************************************************************************/
-#ifdef __cplusplus
-#pragma pack()
-#endif
 /******************************************************************************/
 long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
 void event_initialise_all(void);

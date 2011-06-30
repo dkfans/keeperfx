@@ -32,16 +32,12 @@ extern "C" {
 #define MANUFACTURED_ITEMS_LIMIT 199
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Room;
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);
 TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *boxtng);

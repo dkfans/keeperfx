@@ -29,18 +29,14 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Point { // sizeof = 4
   short x;
   short y;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT struct Point _DK_Points[POINTS_COUNT];
 #define Points _DK_Points

@@ -36,14 +36,10 @@ enum TrapDoorLoadFlags {
 };
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 struct DoorConfigStats {
     char code_name[COMMAND_WORD_LEN];

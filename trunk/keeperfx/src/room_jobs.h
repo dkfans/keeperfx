@@ -26,22 +26,18 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
+#pragma pack(1)
+
 struct Thing;
 struct Room;
-/******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
 
+#pragma pack()
+/******************************************************************************/
 TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room);
 TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room);
 TbBool remove_creature_from_specific_room(struct Thing *crtng, struct Room *room);
 TbBool remove_creature_from_work_room(struct Thing *thing);
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-/******************************************************************************/
 
 /******************************************************************************/
 #ifdef __cplusplus

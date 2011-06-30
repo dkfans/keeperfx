@@ -26,14 +26,12 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
+struct GuiBox;
+struct GuiBoxOption;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void gui_draw_all_boxes(void);
 short gui_box_is_not_valid(struct GuiBox *gbox);

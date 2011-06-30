@@ -23,18 +23,11 @@
 #include "globals.h"
 #include "room_workshop.h"
 
-#define HIT_TYPES_COUNT 9
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /******************************************************************************/
-#ifdef __cplusplus
-#pragma pack(1)
-#endif
-
-struct Thing;
+#define HIT_TYPES_COUNT 9
 
 enum ShotModels {
     ShM_Null = 0,
@@ -69,9 +62,13 @@ enum ShotModels {
     ShM_TrapLightning, // 29
 };
 
-#ifdef __cplusplus
+/******************************************************************************/
+#pragma pack(1)
+
+struct Thing;
+struct Coord3d;
+
 #pragma pack()
-#endif
 /******************************************************************************/
 /******************************************************************************/
 struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);

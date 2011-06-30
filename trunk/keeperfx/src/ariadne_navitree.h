@@ -32,14 +32,10 @@ extern "C" {
 #define DELAUNAY_COUNT 1000
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 TbBool naviheap_empty(void);
 void naviheap_init(void);

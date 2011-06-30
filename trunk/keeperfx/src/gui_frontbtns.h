@@ -27,14 +27,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void gui_clear_buttons_not_over_mouse(int gmbtn_idx);
 TbBool gui_button_release_inputs(int gmbtn_idx);

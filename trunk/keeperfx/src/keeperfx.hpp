@@ -22,6 +22,8 @@
 #include "globals.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
+#include "bflib_filelst.h"
+#include "bflib_sprite.h"
 #include "packets.h"
 #include "thing_data.h"
 #include "thing_list.h"
@@ -137,9 +139,7 @@ struct RoomFlag;
 struct Number;
 struct JontySpr;
 
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 // Windows-standard structure
 /*struct _GUID {
@@ -672,9 +672,7 @@ int numfield_15181D;
     int manufactr_tooltip;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 
 #ifdef __cplusplus
 extern "C" {

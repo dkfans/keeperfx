@@ -27,14 +27,10 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT int _DK_parchment_loaded;
 #define parchment_loaded _DK_parchment_loaded

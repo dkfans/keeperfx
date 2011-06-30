@@ -29,9 +29,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Point;
 
@@ -43,9 +41,7 @@ struct Triangle { // sizeof = 16
   unsigned short field_E;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT struct Triangle _DK_Triangles[TRIANLGLES_COUNT];
 #define Triangles _DK_Triangles

@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "bflib_filelst.h"
+#include "bflib_sprite.h"
 #include "thing_list.h"
 
 #ifdef __cplusplus
@@ -32,9 +34,7 @@ extern "C" {
 #define DEAD_CREATURES_MAX_COUNT 64
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 
@@ -48,10 +48,7 @@ struct CreatureStorage {
   unsigned char explevel;
 };
 
-
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
 #define swipe_load_file _DK_swipe_load_file

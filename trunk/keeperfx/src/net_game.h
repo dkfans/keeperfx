@@ -32,15 +32,11 @@ extern "C" {
 #define PACKETS_COUNT           5
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct TbNetworkSessionNameEntry;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT struct TbNetworkPlayerInfo _DK_net_player_info[NET_PLAYERS_COUNT];
 #define net_player_info _DK_net_player_info

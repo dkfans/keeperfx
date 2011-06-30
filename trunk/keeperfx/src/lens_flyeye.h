@@ -25,9 +25,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 #define CSCAN_STRIPS 26
 
@@ -42,9 +40,7 @@ DLLIMPORT struct CScan *_DK_ScanBuffer;
 //#define ScanBuffer _DK_ScanBuffer
 extern struct CScan *ScanBuffer;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void flyeye_blitsec(unsigned char *srcbuf, long srcpitch, unsigned char *dstbuf, long dstpitch, long start_h, long end_h);
 void flyeye_setup(long width, long height);

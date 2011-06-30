@@ -145,9 +145,8 @@ enum MapLocationTypes {
     MLoc_THING                         =  7,
 };
 
-#ifdef __cplusplus
+/******************************************************************************/
 #pragma pack(1)
-#endif
 
 struct Condition;
 struct Party;
@@ -165,6 +164,7 @@ struct ScriptLine {
   char tp[COMMANDDESC_ARGS_COUNT][MAX_TEXT_LENGTH];
 };
 
+#pragma pack()
 /******************************************************************************/
 DLLIMPORT short _DK_script_current_condition;
 #define script_current_condition _DK_script_current_condition
@@ -184,9 +184,6 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 //DLLIMPORT struct NamedCommand _DK_door_desc[5];
 //DLLIMPORT struct NamedCommand _DK_trap_desc[8];
 //DLLIMPORT struct NamedCommand _DK_hero_objective_desc[];
-#ifdef __cplusplus
-#pragma pack()
-#endif
 /******************************************************************************/
 extern const struct CommandDesc command_desc[];
 /******************************************************************************/

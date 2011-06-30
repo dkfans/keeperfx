@@ -29,9 +29,7 @@ extern "C" {
 #define COLUMNS_COUNT        2048
 #define COLUMN_STACK_HEIGHT     8
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Map;
 
@@ -50,9 +48,7 @@ struct Columns {
 };
 
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 #define INVALID_COLUMN game.columns.lookup[0]
 /******************************************************************************/

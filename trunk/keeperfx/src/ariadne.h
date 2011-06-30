@@ -32,9 +32,9 @@ extern "C" {
 #define ARID_WAYPOINTS_COUNT 10
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
+
+struct Thing;
 
 typedef unsigned char AriadneReturn;
 
@@ -111,9 +111,7 @@ struct WayPoints { // sizeof = 1040
   long field_10[256];
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT unsigned long *_DK_EdgeFit;
 #define EdgeFit _DK_EdgeFit

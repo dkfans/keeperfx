@@ -22,6 +22,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_sprite.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,9 +31,7 @@ extern "C" {
 /******************************************************************************/
 #define FRONTMAP_ZOOM_LENGTH 240
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct TbSprite;
 
@@ -66,9 +65,7 @@ struct ScreenPacket { // sizeof = 12
   unsigned char field_B;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 DLLIMPORT extern TbClockMSec _DK_play_desc_speech_time;
 #define play_desc_speech_time _DK_play_desc_speech_time

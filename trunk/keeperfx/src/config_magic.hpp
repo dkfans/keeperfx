@@ -130,9 +130,7 @@ struct MagicConfig {
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
 };
 
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 typedef unsigned char (*Expand_Check_Func)(void);
 
@@ -238,10 +236,7 @@ struct SpellData {
       unsigned char flag_1A;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
 /******************************************************************************/
 DLLIMPORT struct ShotStats _DK_shot_stats[30];
 #define shot_stats _DK_shot_stats

@@ -66,7 +66,7 @@ int map_tiles_y = 85;
 long navigation_map_size_x = 256;
 long navigation_map_size_y = 256;
 
-unsigned char *IanMap = (unsigned char *)&game.navigation_map;
+unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
 /**

@@ -57,9 +57,7 @@ enum DungeonResearchCategory {
     RsCat_Creature    = 3,
 };
 
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct DiggerStack { // sizeof = 4
       unsigned short field_0;
@@ -329,9 +327,7 @@ unsigned char field_14BC[6];
     unsigned short selected_creatures_of_gui_job[3];
     };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
 /******************************************************************************/

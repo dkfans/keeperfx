@@ -29,9 +29,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Dungeon;
 
@@ -40,9 +38,7 @@ struct MapTask { // sizeof = 3
   unsigned short field_1;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct MapTask bad_map_task;
 #define INVALID_MAP_TASK (&bad_map_task)

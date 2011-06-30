@@ -29,9 +29,7 @@ extern "C" {
 #define NUM_DRAWITEMS 238
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 typedef void __fastcall FlicFunc(void);
 
@@ -145,9 +143,7 @@ struct PurpleDrawItem {
         unsigned short Flags;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 /*
 extern struct PurpleDrawItem *purple_draw_list;

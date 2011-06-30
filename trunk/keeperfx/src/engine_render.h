@@ -27,9 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 #define BUCKETS_COUNT 704
 
@@ -343,10 +341,7 @@ struct MapVolumeBox { // sizeof = 24
   unsigned char field_17;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
-
 /******************************************************************************/
 DLLIMPORT unsigned char *_DK_getpoly;
 #define getpoly _DK_getpoly

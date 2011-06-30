@@ -143,9 +143,7 @@ extern "C" {
   #define AIDBG(dblv,format,args...)
 #endif
 
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 typedef long PlayerNumber;
 typedef unsigned char ThingClass;
@@ -236,9 +234,7 @@ typedef unsigned long SubtlCodedCoords;
 typedef unsigned long SlabCodedCoords;
 typedef unsigned char PlayerFlags;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 
 struct IPOINT_2D {
     int x;

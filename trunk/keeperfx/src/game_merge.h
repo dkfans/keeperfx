@@ -51,9 +51,9 @@ enum GameGUIFlags {
     GGUI_CountdownTimer  = 0x0002,
 };
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
+
+struct PlayerInfo;
 
 /**
  * Defines additional elements, which are not stored in main 'Game' struct.
@@ -65,10 +65,7 @@ struct GameAdd {
     struct LightSystemState lightst;
 };
 
-
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct GameAdd gameadd;
 /******************************************************************************/

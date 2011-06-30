@@ -55,9 +55,9 @@ enum CreatureGraphicsInstances {
     CGI_GFX21       = 21,
 };
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
+
+struct Thing;
 
 struct CreaturePickedUpOffset // sizeof = 8
 {
@@ -85,9 +85,7 @@ struct KeeperSprite { // sizeof = 16
 //extern unsigned short creature_graphics[][22];
 /******************************************************************************/
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
 

@@ -27,9 +27,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 #define MESSAGE_QUEUE_COUNT     4
 
@@ -175,9 +173,7 @@ struct MessageQueueEntry { // sizeof = 9
      long delay;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 TbBool output_message(long msg_idx, long delay, TbBool queue);
 TbBool message_already_in_queue(long msg_idx);

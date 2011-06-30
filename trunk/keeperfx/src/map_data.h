@@ -27,9 +27,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Map {
       unsigned char flags;
@@ -38,9 +36,7 @@ struct Map {
 
 #define INVALID_MAP_BLOCK (&bad_map_block)
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern const long map_to_slab[];

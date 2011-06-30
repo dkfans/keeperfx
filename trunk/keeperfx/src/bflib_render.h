@@ -28,9 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 #define POLY_SCANS_COUNT 576
 
@@ -88,10 +86,8 @@ struct GtBlock { // sizeof = 48
   unsigned long field_28;
   unsigned long field_2C;
 };
-#ifdef __cplusplus
-#pragma pack()
-#endif
 
+#pragma pack()
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_vec_mode;
 //#define vec_mode _DK_vec_mode

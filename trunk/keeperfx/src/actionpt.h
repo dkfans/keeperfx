@@ -29,9 +29,7 @@ extern "C" {
 #define ACTN_POINTS_COUNT     32
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct InitActionPoint { // sizeof = 8
     struct Coord2d mappos;
@@ -47,9 +45,7 @@ struct ActionPoint { // sizeof = 0xA
     unsigned char activated;
 };
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num);
 struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt);

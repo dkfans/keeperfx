@@ -27,15 +27,12 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
+struct Map;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
 
