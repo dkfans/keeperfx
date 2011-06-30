@@ -331,11 +331,55 @@ $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS) hvlog-before
 	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
-obj/std/bflib_render_gtblock.o obj/hvlog/bflib_render_gtblock.o: src/bflib_render_gtblock.c
-	@echo 'Building file: $<'
-	$(CC) $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(DBGFLAGS) $(INCFLAGS) -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
+# Some C files have to be compiled as C++, because their language is not clear
+
+obj/std/front_network.o obj/hvlog/front_network.o: src/front_network.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/front_torture.o obj/hvlog/front_torture.o: src/front_torture.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/frontmenu_ingame_evnt.o obj/hvlog/frontmenu_ingame_evnt.o: src/frontmenu_ingame_evnt.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/frontmenu_ingame_opts.o obj/hvlog/frontmenu_ingame_opts.o: src/frontmenu_ingame_opts.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/frontmenu_ingame_tabs.o obj/hvlog/frontmenu_ingame_tabs.o: src/frontmenu_ingame_tabs.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/frontmenu_net.o obj/hvlog/frontmenu_net.o: src/frontmenu_net.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/frontmenu_options.o obj/hvlog/frontmenu_options.o: src/frontmenu_options.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+obj/std/frontmenu_saves.o obj/hvlog/frontmenu_saves.o: src/frontmenu_saves.c $(GENSRC)
+	-$(ECHO) 'Building file: $<'
+	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
 
 obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
 	-$(ECHO) 'Building file: $<'
@@ -345,10 +389,7 @@ obj/std/%.o obj/hvlog/%.o: src/%.cpp $(GENSRC)
 
 obj/std/%.o obj/hvlog/%.o: src/%.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
-# In order to make the keeperfx.dll work, we must compile .c files
-# which use variables from the library with c++ compiler. Not sure why..
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-#	$(CC) $(CFLAGS) -o"$@" "$<"
+	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
