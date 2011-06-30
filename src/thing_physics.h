@@ -28,18 +28,12 @@ extern "C" {
 /******************************************************************************/
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 struct Dungeon;
 
-/******************************************************************************/
-/******************************************************************************/
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);

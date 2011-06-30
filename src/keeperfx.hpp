@@ -22,6 +22,8 @@
 #include "globals.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
+#include "bflib_filelst.h"
+#include "bflib_sprite.h"
 #include "packets.h"
 #include "thing_data.h"
 #include "thing_list.h"
@@ -43,6 +45,10 @@
 #include "config_magic.hpp"
 #include "net_game.h"
 #include "sounds.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define LEGAL_WIDTH  640
 #define LEGAL_HEIGHT 480
@@ -84,10 +90,6 @@
 #define SCRIPT_VALUES_COUNT   64
 // Strings length
 #define CAMPAIGN_FNAME_LEN    64
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 enum PlayerVictoryState {
     VicS_Undecided          =  0,
@@ -132,7 +134,6 @@ enum GameKinds {
     GKind_KeeperGame,
 };
 
-/******************************************************************************/
 #pragma pack(1)
 
 struct TbLoadFiles;
@@ -819,12 +820,6 @@ DLLIMPORT unsigned char _DK_zoom_to_heart_palette[768];
 #define zoom_to_heart_palette _DK_zoom_to_heart_palette
 DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define spiral_step _DK_spiral_step
-DLLIMPORT struct InitEffect _DK_effect_info[];
-#define effect_info _DK_effect_info
-DLLIMPORT unsigned char _DK_temp_pal[768];
-#define temp_pal _DK_temp_pal
-DLLIMPORT unsigned char *_DK_lightning_palette;
-#define lightning_palette _DK_lightning_palette
 DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
 #define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
 DLLIMPORT long _DK_sound_heap_size;
@@ -837,10 +832,15 @@ DLLIMPORT unsigned char *_DK_heap;
 #define heap _DK_heap
 DLLIMPORT long _DK_key_to_string[256];
 #define key_to_string _DK_key_to_string
+DLLIMPORT struct InitEffect _DK_effect_info[];
+#define effect_info _DK_effect_info
+DLLIMPORT unsigned char _DK_temp_pal[768];
+#define temp_pal _DK_temp_pal
+DLLIMPORT unsigned char *_DK_lightning_palette;
+#define lightning_palette _DK_lightning_palette
 
 #pragma pack()
 /******************************************************************************/
-
 // Variables inside the main module
 extern TbClockMSec last_loop_time;
 extern short default_loc_player;
@@ -851,7 +851,6 @@ extern unsigned short const player_state_to_spell[];
 extern struct RoomInfo room_info[];
 extern const struct Around around[];
 extern struct StartupParameters start_params;
-
 //Functions - exported by the DLL
 
 DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);

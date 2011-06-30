@@ -26,6 +26,9 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
+#pragma pack(1)
+
 enum ErrorStatisticEntries {
     ESE_NoFreeThings = 0,
     ESE_NoFreeCreatrs,
@@ -37,9 +40,6 @@ enum ErrorStatisticEntries {
     ESE_BadRouteTree,
     ESE_CantReadPackets,
 };
-
-/******************************************************************************/
-#pragma pack(1)
 
 struct ErrorStatistics {
     unsigned long n;

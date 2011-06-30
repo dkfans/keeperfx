@@ -28,6 +28,7 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
 #define THING_CLASSES_COUNT    14
 #define THINGS_COUNT         2048
 
@@ -63,7 +64,6 @@ enum ThingListIndex {
     TngList_unk11        = 11,
     TngList_unk12        = 12,
 };
-
 /******************************************************************************/
 #pragma pack(1)
 
@@ -103,6 +103,7 @@ struct Things {
     struct Thing *lookup[THINGS_COUNT];
     struct Thing *end;
 };
+
 
 #pragma pack()
 /******************************************************************************/

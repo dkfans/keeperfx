@@ -36,15 +36,6 @@ extern "C" {
 #define COMPUTER_CHECKS_TYPES_COUNT  51
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 
-/******************************************************************************/
-#pragma pack(1)
-
-struct Computer2;
-struct ComputerProcess;
-struct ComputerCheck;
-struct ComputerEvent;
-struct Event;
-
 enum ComputerTaskTypes {
     CTT_None = 0,
     CTT_DigRoomPassage,
@@ -104,6 +95,17 @@ enum GameActionTypes {
     GA_Unk27,
     GA_Unk28,
 };
+
+/******************************************************************************/
+#pragma pack(1)
+
+struct Computer2;
+struct ComputerProcess;
+struct ComputerCheck;
+struct ComputerEvent;
+struct Event;
+struct Thing;
+struct ComputerTask;
 
 typedef unsigned char ComputerType;
 typedef char ComputerName[LINEMSG_SIZE];

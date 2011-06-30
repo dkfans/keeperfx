@@ -25,14 +25,15 @@
 #include "globals.h"
 
 #include "bflib_video.h"
+#include "bflib_filelst.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
 #pragma pack(1)
 
-/******************************************************************************/
 struct TbColorTables {
   unsigned char fade_tables[64*256];
   unsigned char ghost[256*256];

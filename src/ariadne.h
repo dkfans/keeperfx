@@ -34,6 +34,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Thing;
+
 typedef unsigned char AriadneReturn;
 
 enum AriadneReturnValues {

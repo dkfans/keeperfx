@@ -26,8 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#pragma pack(1)
-
     /** PC Keyboard scan codes.
      *  These are used as internal key codes in the Bullfrog engine. */
     enum KeyCodes {
@@ -182,6 +180,9 @@ extern "C" {
         KMod_ALT         = 0x40,
     };
 #define KMod_DONTCARE -1
+
+/******************************************************************************/
+#pragma pack(1)
 
 typedef unsigned char TbKeyCode;
 typedef short TbKeyMods;

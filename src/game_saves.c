@@ -596,7 +596,7 @@ short continue_game_available(void)
 short load_continue_game(void)
 {
   unsigned char buf[14];
-  unsigned char bonus[12];
+  unsigned char bonus[20];
   char cmpgn_fname[CAMPAIGN_FNAME_LEN];
   long lvnum;
   long i;
@@ -621,9 +621,9 @@ short load_continue_game(void)
     return false;
   }
   set_continue_level_number(lvnum);
-  LbMemorySet(bonus,0,12);
+  LbMemorySet(bonus,0,sizeof(bonus));
   i = (char *)&game.bonuses_found[0] - (char *)&game;
-  read_continue_game_part(bonus,i,10);
+  read_continue_game_part(bonus,i,16);
 /*  game.load_restart_level = ((struct Game *)buf)->load_restart_level;
   game.version_major = ((struct Game *)buf)->version_major;
   game.version_minor = ((struct Game *)buf)->version_minor;*/

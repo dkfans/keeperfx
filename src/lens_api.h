@@ -27,6 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #pragma pack(1)
+
 /******************************************************************************/
 DLLIMPORT unsigned long *_DK_eye_lens_memory;
 #define eye_lens_memory _DK_eye_lens_memory

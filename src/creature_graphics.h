@@ -57,6 +57,8 @@ enum CreatureGraphicsInstances {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Thing;
+
 struct CreaturePickedUpOffset // sizeof = 8
 {
   short delta_x;
@@ -79,9 +81,11 @@ struct KeeperSprite { // sizeof = 16
   short field_E;
 };
 
-#pragma pack()
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];
+/******************************************************************************/
+
+#pragma pack()
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing);
 

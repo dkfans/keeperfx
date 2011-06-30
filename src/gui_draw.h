@@ -66,6 +66,7 @@ DLLIMPORT extern unsigned char *_DK_frontend_background;
 extern char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
+
 void draw_bar64k(long pos_x, long pos_y, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, long width);
 void draw_slab64k(long pos_x, long pos_y, long width, long height);

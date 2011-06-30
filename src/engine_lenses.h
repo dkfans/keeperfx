@@ -28,10 +28,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PERS_ROUTINES_COUNT    4
-
-/******************************************************************************/
 #pragma pack(1)
+
+#define PERS_ROUTINES_COUNT    4
 
 struct XYZ;
 struct PolyPoint;

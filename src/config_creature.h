@@ -83,6 +83,12 @@ enum CreatureTypesLoadFlags {
 
 struct Thing;
 
+struct CreatureData {
+      unsigned char flags;
+      short field_1;
+      short namestr_idx;
+};
+
 struct Creatures { // sizeof = 16
   unsigned short evil_start_state;
   unsigned short good_start_state;
@@ -112,12 +118,6 @@ struct CreatureModelConfig {
     unsigned short model_flags;
 };
 
-struct CreatureData {
-      unsigned char flags;
-      short field_1;
-      short namestr_idx;
-};
-
 struct CreatureConfig {
     long model_count;
     struct CreatureModelConfig model[CREATURE_TYPES_MAX];
@@ -137,8 +137,6 @@ struct CreatureConfig {
 };
 
 /******************************************************************************/
-extern struct CreatureData creature_data[];
-//extern struct Creatures creatures[];
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];
 extern const struct NamedCommand angerjob_desc[];
@@ -147,6 +145,9 @@ extern const struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern const struct NamedCommand creature_graphics_desc[];
 extern struct CreatureConfig crtr_conf;
+/******************************************************************************/
+extern struct CreatureData creature_data[];
+//extern struct Creatures creatures[];
 /******************************************************************************/
 struct CreatureStats *creature_stats_get(long crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);

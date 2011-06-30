@@ -28,18 +28,12 @@ extern "C" {
 /******************************************************************************/
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Thing;
 struct Dungeon;
 
-/******************************************************************************/
-/******************************************************************************/
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 TbBool corpse_is_rottable(const struct Thing *thing);
 TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing);

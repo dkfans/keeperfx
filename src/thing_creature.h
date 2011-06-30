@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "bflib_filelst.h"
+#include "bflib_sprite.h"
 #include "thing_list.h"
 
 #ifdef __cplusplus
@@ -31,20 +33,21 @@ extern "C" {
 #define CREATURE_TYPES_COUNT  32
 #define DEAD_CREATURES_MAX_COUNT 64
 
-enum ThingPickFlags {
-    TPF_PickableCheck    = 0x01,
-    TPF_ReverseOrder     = 0x02,
-};
-
 /******************************************************************************/
 #pragma pack(1)
 
 struct Thing;
 
+enum ThingPickFlags {
+    TPF_PickableCheck    = 0x01,
+    TPF_ReverseOrder     = 0x02,
+};
+
 struct CreatureStorage {
   unsigned char model;
   unsigned char explevel;
 };
+
 /******************************************************************************/
 DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
 #define swipe_load_file _DK_swipe_load_file

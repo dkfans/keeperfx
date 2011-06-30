@@ -338,6 +338,7 @@ long navigation_rule_normal(long treeA, long treeB)
 long init_navigation(void)
 {
     //TODO PATHFINDING rewritten code has been disabled because it has errors (2/4)
+    IanMap = (unsigned char *)&game.navigation_map;
     return _DK_init_navigation();
     init_navigation_map();
     triangulate_map(IanMap);

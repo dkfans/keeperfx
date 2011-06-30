@@ -20,6 +20,7 @@
 #define DK_MAP_EVENTS_H
 
 #include "globals.h"
+#include "bflib_guibtns.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,9 +32,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Event;
+struct Dungeon;
+struct PlayerInfo;
+
 /******************************************************************************/
 DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
-/******************************************************************************/
+
 #pragma pack()
 /******************************************************************************/
 extern struct EventTypeInfo event_button_info[28];

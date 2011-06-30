@@ -27,8 +27,8 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
 #define OBJECT_TYPES_COUNT  135
-
 /******************************************************************************/
 #pragma pack(1)
 
@@ -52,7 +52,6 @@ struct Objects {
     unsigned char field_15;
 };
 
-#define OBJECT_TYPES_COUNT  135
 /******************************************************************************/
 DLLIMPORT extern struct Objects _DK_objects[OBJECT_TYPES_COUNT];
 #define objects_data _DK_objects

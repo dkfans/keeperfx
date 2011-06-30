@@ -26,6 +26,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+/******************************************************************************/
+#pragma pack(1)
+
+struct TbSprite;
+struct TbPoint;
 
 enum TbMouseAction {
     MActn_NONE = 0,
@@ -39,12 +44,6 @@ enum TbMouseAction {
     MActn_WHEELMOVEUP,
     MActn_WHEELMOVEDOWN,
 };
-
-/******************************************************************************/
-#pragma pack(1)
-
-struct TbSprite;
-struct TbPoint;
 
 struct mouse_buffer {
         long Valid;//bool

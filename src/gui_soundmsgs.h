@@ -26,6 +26,9 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
+#pragma pack(1)
+
 #define MESSAGE_QUEUE_COUNT     4
 
 #define MESSAGE_DELAY_ROOM_NEED 500
@@ -155,9 +158,6 @@ enum TbSpeechMessages {
 };
 #define SMsg_FunnyMessages      SMsg_FullOfPies  // Starts a list of 10 funny quotes
 #define SMsg_EnemyHarassments  110  // Starts a list of harassments
-
-/******************************************************************************/
-#pragma pack(1)
 
 typedef unsigned long Phrase;
 

@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
 enum ThingEffectKind {
     TngEff_None = 0,
     TngEff_Unknown01,

@@ -26,11 +26,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define BUCKETS_COUNT 704
-
 /******************************************************************************/
 #pragma pack(1)
+
+#define BUCKETS_COUNT 704
 
 enum QKinds {
     QK_PolyTriangle = 0,

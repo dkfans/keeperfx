@@ -29,6 +29,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct GuiButton;
+struct GuiMenu;
 struct GuiBox;
 struct GuiBoxOption;
 
@@ -49,12 +51,6 @@ union GuiVariant {
       long *lptr;
       char *str;
 };
-
-
-struct GuiButton;
-struct GuiMenu;
-struct GuiBox;
-struct GuiBoxOption;
 
 typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
 typedef long (*Gf_OptnBox_3Callback)(struct GuiBox *, struct GuiBoxOption *, long *);

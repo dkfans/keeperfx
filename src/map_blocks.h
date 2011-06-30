@@ -30,6 +30,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
+struct Map;
 
 #pragma pack()
 /******************************************************************************/

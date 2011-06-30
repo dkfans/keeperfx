@@ -31,10 +31,6 @@ extern "C" {
 #define SAVE_TEXTNAME_LEN        15
 #define PLAYER_NAME_LENGTH       64
 
-enum CatalogueEntryFlags {
-    CEF_InUse       = 0x0001,
-};
-
 enum SaveGameChunks {
      SGC_InfoBlock    = 0x4F464E49, //"INFO"
      SGC_GameOrig     = 0x53444C4F, //"OLDS"
@@ -65,6 +61,10 @@ enum GameLoadStatus {
 #pragma pack(1)
 
 struct Game;
+
+enum CatalogueEntryFlags {
+    CEF_InUse       = 0x0001,
+};
 
 struct CatalogueEntry {
     unsigned short flags;

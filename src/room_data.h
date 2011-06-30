@@ -53,13 +53,16 @@ enum RoomKinds {
     RoK_GUARDPOST           =  16,
     RoK_UNKN17              =  17,
 };
-/******************************************************************************/
-#pragma pack(1)
 
 #define ROOM_EFFICIENCY_MAX 256
 #define ROOM_SELL_REVENUE_PERCENT  50
+/******************************************************************************/
+#pragma pack(1)
 
+struct Thing;
+struct Coord3d;
 struct Room;
+struct Dungeon;
 typedef unsigned char RoomKind;
 
 typedef void (*Room_Update_Func)(struct Room *);

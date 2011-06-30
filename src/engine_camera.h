@@ -26,18 +26,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// Camera constants; max zoom is when everything is large
-#define CAMERA_ZOOM_MIN     4100
-#define CAMERA_ZOOM_MAX    12000
-#define MINMAX_LENGTH         64
-
 /******************************************************************************/
 #pragma pack(1)
 
 struct EngineCoord;
 struct M33;
 struct EngineCol;
+
+// Camera constants; max zoom is when everything is large
+#define CAMERA_ZOOM_MIN     4100
+#define CAMERA_ZOOM_MAX    12000
+#define MINMAX_LENGTH         64
 
 struct MinMax { // sizeof = 8
     long min;
@@ -63,6 +62,7 @@ struct Camera {
     short field_28;
 };
 
+/******************************************************************************/
 DLLIMPORT extern struct M33 _DK_camera_matrix;
 #define camera_matrix _DK_camera_matrix
 DLLIMPORT extern struct EngineCoord _DK_object_origin;
@@ -72,6 +72,7 @@ DLLIMPORT extern struct MinMax _DK_minmaxs[MINMAX_LENGTH];
 
 #pragma pack()
 /******************************************************************************/
+
 extern long camera_zoom;
 /******************************************************************************/
 long get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);

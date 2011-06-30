@@ -150,7 +150,6 @@ enum MapLocationTypes {
 
 struct Condition;
 struct Party;
-
 typedef unsigned long TbMapLocation;
 
 struct CommandDesc { // sizeof = 14 // originally was 13

@@ -26,9 +26,6 @@
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 /******************************************************************************/
 DLLIMPORT void _DK_draw_gpoly(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/
@@ -5049,6 +5046,3 @@ locret69b:\n \
     }
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

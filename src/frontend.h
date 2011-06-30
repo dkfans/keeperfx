@@ -40,6 +40,7 @@ extern "C" {
 // After that much milliseconds in main menu, demo is started
 #define MNU_DEMO_IDLE_TIME 30000
 /******************************************************************************/
+#pragma pack(1)
 
 enum DemoItem_Kind {
     DIK_PlaySmkVideo,
@@ -79,9 +80,6 @@ enum FrontendMenuState {
   // Special testing states
   FeSt_FONT_TEST          = 255,
 };
-
-/******************************************************************************/
-#pragma pack(1)
 
 struct GuiMenu;
 struct GuiButton;

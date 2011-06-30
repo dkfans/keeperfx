@@ -22,13 +22,18 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#define LIGHT_MAX_RANGE        30
+#define LIGHTS_COUNT          400
+#define MINIMUM_LIGHTNESS    8192
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define LIGHT_MAX_RANGE        30
-#define LIGHTS_COUNT          400
-#define MINIMUM_LIGHTNESS    8192
+/******************************************************************************/
+#pragma pack(1)
+
+struct StructureList;
 
 enum ShadowCacheFlags {
     ShCF_Allocated = 0x01,
@@ -38,11 +43,6 @@ enum LightFlags {
     LgtF_Allocated    = 0x01,
     LgtF_Dynamic      = 0x04,
 };
-
-/******************************************************************************/
-#pragma pack(1)
-
-struct StructureList;
 
 struct Light { // sizeof = 46
   unsigned char flags;

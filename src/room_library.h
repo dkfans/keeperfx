@@ -27,16 +27,12 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct Room;
 struct Thing;
 
-#ifdef __cplusplus
 #pragma pack()
-#endif
 /******************************************************************************/
 TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner);
 

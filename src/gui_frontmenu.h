@@ -22,12 +22,12 @@
 #include "globals.h"
 #include "bflib_guibtns.h"
 
+#define ACTIVE_MENUS_COUNT           8
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-
-#define ACTIVE_MENUS_COUNT           8
 
 enum GUI_Menus {
   GMnu_MAIN               =  1,

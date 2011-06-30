@@ -26,8 +26,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#pragma pack(1)
-
 enum TbFileMode {
         Lb_FILE_MODE_NEW       = 0,
         Lb_FILE_MODE_OLD       = 1,
@@ -41,6 +39,7 @@ enum TbFileSeekMode {
 };
 
 /******************************************************************************/
+#pragma pack(1)
 
 struct TbDriveInfo {
         unsigned long TotalClusters;

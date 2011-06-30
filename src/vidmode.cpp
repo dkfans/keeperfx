@@ -960,8 +960,6 @@ TbScreenMode switch_to_next_video_mode(void)
 }
 
 #if (BFDEBUG_LEVEL > 0)
-// Code for font testing screen (debug version only)
-
 TbBool load_testfont_fonts(void)
 {
   if ( LbDataLoadAll(testfont_load_files) )

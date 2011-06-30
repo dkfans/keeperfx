@@ -21,11 +21,13 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/******************************************************************************/
 enum CreatureInstances {
     CrInst_NULL = 0,
     CrInst_SWING_WEAPON_SWORD,
@@ -77,8 +79,9 @@ enum CreatureInstances {
     CrInst_RELAXING,
 };
 
-/******************************************************************************/
 #pragma pack(1)
+
+struct Thing;
 
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 

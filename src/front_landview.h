@@ -22,6 +22,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_sprite.h"
 
 #ifdef __cplusplus
 extern "C" {

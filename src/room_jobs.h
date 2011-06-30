@@ -38,6 +38,7 @@ TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room);
 TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room);
 TbBool remove_creature_from_specific_room(struct Thing *crtng, struct Room *room);
 TbBool remove_creature_from_work_room(struct Thing *thing);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

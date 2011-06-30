@@ -47,6 +47,7 @@ struct Columns {
     struct Column *end;
 };
 
+
 #pragma pack()
 /******************************************************************************/
 #define INVALID_COLUMN game.columns.lookup[0]

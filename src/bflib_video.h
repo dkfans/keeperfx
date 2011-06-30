@@ -212,6 +212,7 @@ struct SSurface;
 typedef struct SSurface TSurface;
 
 /******************************************************************************/
+
 DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
 #define lbDisplay _DK_lbDisplay
 DLLIMPORT extern unsigned short _DK_MyScreenWidth;

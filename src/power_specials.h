@@ -38,7 +38,7 @@ long field_4;
 long field_8;
 };
 
-
+/******************************************************************************/
 DLLIMPORT long _DK_transfer_creature_scroll_offset;
 #define transfer_creature_scroll_offset _DK_transfer_creature_scroll_offset
 DLLIMPORT long _DK_resurrect_creature_scroll_offset;

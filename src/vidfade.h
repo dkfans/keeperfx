@@ -34,6 +34,7 @@ struct Thing;
 struct TbColorTables;
 struct PlayerInfo;
 
+/******************************************************************************/
 DLLIMPORT extern unsigned char _DK_fade_palette_in;
 #define fade_palette_in _DK_fade_palette_in
 DLLIMPORT extern unsigned char _DK_frontend_palette[768];

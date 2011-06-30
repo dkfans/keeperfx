@@ -24,11 +24,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define CSCAN_STRIPS 26
-
 /******************************************************************************/
 #pragma pack(1)
+
+#define CSCAN_STRIPS 26
 
 struct CScan {
   long strips_num;

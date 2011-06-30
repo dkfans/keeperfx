@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_guibtns.h"
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {

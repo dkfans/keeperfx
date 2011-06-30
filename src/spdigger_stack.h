@@ -25,7 +25,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+/******************************************************************************/
 enum SpecialDiggerTask {
     DigTsk_None = 0,
     DigTsk_ImproveDungeon,

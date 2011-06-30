@@ -35,6 +35,7 @@ extern "C" {
 struct HeapMgrHeader;
 struct HeapMgrHandle;
 
+
 struct SampleInfo { // sizeof = 29
     long field_0;
   unsigned char field_4[4];

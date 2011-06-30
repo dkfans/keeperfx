@@ -25,9 +25,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#ifdef __cplusplus
 #pragma pack(1)
-#endif
 
 struct GuiMenu;
 struct GuiButton;
@@ -38,14 +36,9 @@ struct GuiButton;
 #define BID_TRAP_TAB      4
 #define BID_CREATR_TAB    5
 
-
+/******************************************************************************/
 DLLIMPORT long _DK_activity_list[24];
 #define activity_list _DK_activity_list
-
-#ifdef __cplusplus
-#pragma pack()
-#endif
-/******************************************************************************/
 DLLIMPORT struct GuiButtonInit _DK_main_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_room_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_spell_menu_buttons[];
@@ -56,6 +49,8 @@ DLLIMPORT struct GuiButtonInit _DK_query_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons1[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons2[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons3[];
+
+#pragma pack()
 /******************************************************************************/
 extern struct GuiMenu main_menu;
 extern struct GuiMenu room_menu;

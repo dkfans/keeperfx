@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "dungeon_data.h"
 
 /** Count of creature states, originally 147. */
 #define CREATURE_STATES_COUNT CrSt_ListEnd
@@ -190,12 +191,6 @@ enum CreatureTrainingModes {
     CrTrMd_PartnerTraining,
 };
 
-/******************************************************************************/
-#pragma pack(1)
-
-struct Thing;
-struct Room;
-
 enum CreatureStateTypes {
     CrStTyp_Value0 = 0,
     CrStTyp_Value1,
@@ -205,6 +200,12 @@ enum CreatureStateTypes {
     CrStTyp_Value5,
     CrStTyp_Value6,
 };
+
+/******************************************************************************/
+#pragma pack(1)
+
+struct Thing;
+struct Room;
 
 typedef short (*CreatureStateFunc1)(struct Thing *);
 typedef char (*CreatureStateFunc2)(struct Thing *);

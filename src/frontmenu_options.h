@@ -25,10 +25,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define GAMMA_LEVELS_COUNT      5
-
-/******************************************************************************/
 #pragma pack(1)
+
+#define GAMMA_LEVELS_COUNT      5
 
 struct GuiMenu;
 struct GuiButton;

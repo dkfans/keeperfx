@@ -26,7 +26,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+/******************************************************************************/
 enum SmackerPlayFlags {
     SMK_NoStopOnUserInput  = 0x02,
     SMK_PixelDoubleLine    = 0x04,
@@ -34,8 +34,6 @@ enum SmackerPlayFlags {
     SMK_WriteStatusFile    = 0x40,
     SMK_PixelDoubleWidth   = 0x80,
 };
-
-typedef void (*SmackDrawCallback)(unsigned char *frame_data, long width, long height);
 
 /******************************************************************************/
 #pragma pack(1)
@@ -153,6 +151,8 @@ long field_324;
     struct AnimFLIChunk subchunk;
 char field_3C4[12];
 };
+
+typedef void (*SmackDrawCallback)(unsigned char *frame_data, long width, long height);
 
 /******************************************************************************/
 // Exported variables

@@ -29,6 +29,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+/******************************************************************************/
 DLLIMPORT extern unsigned long _DK_key_modifiers;
 #define key_modifiers _DK_key_modifiers
 DLLIMPORT extern int _DK_defining_a_key;
@@ -87,7 +88,6 @@ DLLIMPORT extern long _DK_right_button_clicked_x;
 #define right_button_clicked_x _DK_right_button_clicked_x
 DLLIMPORT extern char _DK_left_button_held;
 #define left_button_held _DK_left_button_held
-/******************************************************************************/
 
 #pragma pack()
 /******************************************************************************/

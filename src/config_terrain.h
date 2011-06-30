@@ -34,6 +34,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct SlabMap;
+
 struct SlabAttr {
     unsigned short tooltip_idx;
     short field_2;

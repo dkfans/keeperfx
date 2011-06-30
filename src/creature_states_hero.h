@@ -26,6 +26,9 @@
 extern "C" {
 #endif
 
+/******************************************************************************/
+#pragma pack(1)
+
 enum CreatureHeroTasks {
     CHeroTsk_Default         = 0,
     CHeroTsk_AttackRooms     = 1,
@@ -35,9 +38,6 @@ enum CreatureHeroTasks {
     CHeroTsk_StealSpells     = 5,
     CHeroTsk_DefendParty     = 6,
 };
-
-/******************************************************************************/
-#pragma pack(1)
 
 struct Thing;
 
