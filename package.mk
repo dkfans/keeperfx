@@ -58,6 +58,21 @@ pkg-copydat: pkg-before
 
 pkg-campaigns: pkg-before $(CAMPAIGN_CFGS)
 
+# special block for Original Campaign - it is copied elswhere
+pkg/campgns/keeporig.cfg: campgns/keeporig.cfg
+	@$(MKDIR) $(@D)
+#	 Copy folder with campaign name (w/o extension), if it exists
+	$(if $(wildcard $(<:%.cfg=%)),$(MKDIR) pkg/levels)
+	$(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* pkg/levels/)
+#	 Copy folder with campaign name and _crtr ending, if it exists
+	$(if $(wildcard $(<:%.cfg=%_crtr)),$(MKDIR) $(@:%.cfg=%_crtr))
+	$(if $(wildcard $(<:%.cfg=%_crtr)),-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/)
+#	 Copy folder with campaign name and _lnd ending, if it exists
+	$(if $(wildcard $(<:%.cfg=%_lnd)),$(MKDIR) pkg/ldata)
+	$(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt pkg/ldata/)
+#	 Copy the actual campaign file
+	$(CP) $< $@
+
 pkg/campgns/%.cfg: campgns/%.cfg
 	@$(MKDIR) $(@D)
 #	 Copy folder with campaign name (w/o extension), if it exists
