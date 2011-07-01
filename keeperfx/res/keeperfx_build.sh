@@ -61,7 +61,7 @@ function keeperfxbuild {
 
     # Build
     echo "Building KeeperFX debug"
-    make --directory=$DIR debug CROSS_COMPILE=i586-mingw32msvc-
+    make --directory=$DIR heavylog CROSS_COMPILE=i586-mingw32msvc-
     # Error?
     if [ "$?" -ne 0 ]; then
         echo "Build error."

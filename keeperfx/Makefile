@@ -24,14 +24,16 @@ DLLTOOL = $(CROSS_COMPILE)dlltool
 EXETODLL = peresec/bin/peresec
 RM = rm -f
 MV = mv -f
+CP = cp -f
+MKDIR = mkdir -p
 ECHO = @echo
 DOXYTOOL = doxygen
-BIN    = bin/keeperfx.exe
-DBGBIN = bin/keeperfx_dbg.exe
-GENSRC = obj/ver_defs.h
-RES    = obj/keeperfx_stdres.res
-LIBS   = lib/libkeeperfx.a
-OBJS   = \
+BIN      = bin/keeperfx.exe
+HVLOGBIN = bin/keeperfx_hvlog.exe
+GENSRC   = obj/ver_defs.h
+RES      = obj/keeperfx_stdres.res
+LIBS     = lib/libkeeperfx.a
+OBJS     = \
 obj/main.o \
 obj/bflib_base_tcp.o \
 obj/bflib_client_tcp.o \
@@ -191,8 +193,26 @@ obj/vidmode.o \
 obj/vidfade.o \
 obj/KeeperSpeechImp.o \
 $(RES)
+CAMPAIGNS  = \
+pkg/campgns/ancntkpr.cfg \
+pkg/campgns/burdnimp.cfg \
+pkg/campgns/dzjr06lv.cfg \
+pkg/campgns/dzjr10lv.cfg \
+pkg/campgns/dzjr25lv.cfg \
+pkg/campgns/evilkeep.cfg \
+pkg/campgns/grkreign.cfg \
+pkg/campgns/jdkmaps8.cfg \
+pkg/campgns/kdklvpck.cfg \
+pkg/campgns/keeporig.cfg \
+pkg/campgns/lqizgood.cfg \
+pkg/campgns/lrdvexer.cfg \
+pkg/campgns/ncastles.cfg \
+pkg/campgns/postanck.cfg \
+pkg/campgns/questfth.cfg \
+pkg/campgns/twinkprs.cfg
+STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
+HVLOGOBJS   = $(subst obj/,obj/hvlog/,$(OBJS))
 
-LINKOBJ  = $(OBJS)
 # load program version
 include version.mk
 VER_STRING = $(VER_MAJOR).$(VER_MINOR).$(VER_RELEASE).$(VER_BUILD)
@@ -206,100 +226,138 @@ DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # code optimization flags
 OPTFLAGS = -march=pentium -O3
 # linker flags
-LDFLAGS = -static-libgcc -static-libstdc++ -Wl,-Map,"$(@:%.exe=%.map)" -Wl,--enable-auto-import
-# debugging flags
-DBGFLAGS = -DBFDEBUG_LEVEL=0 
+LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,-Map,"$(@:%.exe=%.map)" -Wl,--enable-auto-import
+# debugging and logging flags
+DBGFLAGS = 
+STLOGFLAGS = -DBFDEBUG_LEVEL=0 
+HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
 WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 
 # dependencies tracking
--include obj/*.d
+-include obj/std/*.d
+-include obj/hvlog/*.d
 
-.PHONY: all all-before all-after debug docs docsdox clean clean-custom package
+.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-custom package
 
-all: all-before $(BIN) all-after
+all: standard heavylog package
 
-debug: DBGFLAGS = -DBFDEBUG_LEVEL=10
-debug: all-before $(DBGBIN) all-after
+standard: CXXFLAGS += $(STLOGFLAGS)
+standard: CFLAGS += $(STLOGFLAGS)
+standard: std-before $(BIN) std-after
+
+heavylog: CXXFLAGS += $(HVLOGFLAGS)
+heavylog: CFLAGS += $(HVLOGFLAGS)
+heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 docs: docsdox
+
+std-before:
+	$(MKDIR) obj/std
+
+hvlog-before:
+	$(MKDIR) obj/hvlog
 
 docsdox: docs/doxygen.conf
 	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
 
 clean: clean-custom
-	-$(RM) $(OBJS) $(BIN) $(DBGBIN) $(LIBS) $(GENSRC)
+	-$(RM) $(STDOBJS) $(BIN) $(HVLOGOBJS) $(HVLOGBIN) $(LIBS) $(GENSRC)
 	$(MAKE) clean -C peresec
 	-$(ECHO) ' '
 
-package:
-	7z a keeperfx-$(VERSION).7z -x".svn" "$(BIN)"
-	
+package: $(CAMPAIGNS) 
+	$(CP) bin/* pkg/
+	$(MKDIR) pkg/creatrs
+	$(CP) config/creatrs/*.cfg pkg/creatrs/
+	$(MKDIR) pkg/fxdata
+	$(CP) config/fxdata/*.cfg pkg/fxdata/
+	$(MKDIR) pkg/ldata
+	$(CP) config/ldata/*.txt pkg/ldata/
+	cd pkg; \
+	7z a "keeperfx-$(subst .,_,$(VER_STRING)).7z" "*" -x!*/.svn -x!*.7z
 
-$(BIN) $(DBGBIN): $(GENSRC) $(OBJS) $(LIBS)
+pkg/campgns/%.cfg: campgns/%.cfg
+	$(MKDIR) $(@:%.cfg=%)
+	$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/
+	$(MKDIR) $(@:%.cfg=%_crtr)
+	-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/
+	$(MKDIR) $(@:%.cfg=%_lnd)
+	-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/
+	$(CP) $< $@
+
+$(BIN): $(GENSRC) $(STDOBJS) $(LIBS)
 	-$(ECHO) 'Building target: $@'
-	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LDFLAGS)
+	$(CPP) -o "$@" $(STDOBJS) $(LDFLAGS)
 	-$(ECHO) 'Finished building target: $@'
 	-$(ECHO) ' '
 
-obj/front_network.o: src/front_network.c
+$(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS)
+	-$(ECHO) 'Building target: $@'
+	$(CPP) -o "$@" $(HVLOGOBJS) $(LDFLAGS)
+	-$(ECHO) 'Finished building target: $@'
+	-$(ECHO) ' '
+
+# Some C files have to be compiled in c++ compiler, usually due to c++ initialization
+obj/std/front_network.o obj/hvlog/front_network.o: src/front_network.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/frontmenu_net.o: src/frontmenu_net.c
+obj/std/frontmenu_net.o obj/hvlog/frontmenu_net.o: src/frontmenu_net.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/frontmenu_options.o: src/frontmenu_options.c
+obj/std/frontmenu_options.o obj/hvlog/frontmenu_options.o: src/frontmenu_options.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/frontmenu_saves.o: src/frontmenu_saves.c
+obj/std/frontmenu_saves.o obj/hvlog/frontmenu_saves.o: src/frontmenu_saves.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/frontmenu_ingame_tabs.o: src/frontmenu_ingame_tabs.c
+obj/std/frontmenu_ingame_tabs.o obj/hvlog/frontmenu_ingame_tabs.o: src/frontmenu_ingame_tabs.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/frontmenu_ingame_evnt.o: src/frontmenu_ingame_evnt.c
+obj/std/frontmenu_ingame_evnt.o obj/hvlog/frontmenu_ingame_evnt.o: src/frontmenu_ingame_evnt.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/frontmenu_ingame_opts.o: src/frontmenu_ingame_opts.c
+obj/std/frontmenu_ingame_opts.o obj/hvlog/frontmenu_ingame_opts.o: src/frontmenu_ingame_opts.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/front_torture.o: src/front_torture.c
+obj/std/front_torture.o obj/hvlog/front_torture.o: src/front_torture.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/%.o: src/%.cpp
+obj/std/%.o obj/hvlog/%.o: src/%.cpp
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
-obj/%.o: src/%.c
+obj/std/%.o obj/hvlog/%.o: src/%.c
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'
@@ -330,7 +388,7 @@ bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
 
-obj/%.res: res/%.rc
+obj/std/%.res obj/hvlog/%.res: res/%.rc
 	-$(ECHO) 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
 	-$(ECHO) 'Finished building: $<'
