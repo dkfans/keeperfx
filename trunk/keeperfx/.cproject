@@ -25,7 +25,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="standard|debug" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="debug|standard" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -121,18 +121,18 @@
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
 			<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 				<buildTargets>
-					<target name="release" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+					<target name="standard" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildArguments/>
-						<buildTarget>all</buildTarget>
+						<buildTarget>standard</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
 					</target>
-					<target name="debug" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+					<target name="heavylog" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildArguments/>
-						<buildTarget>debug</buildTarget>
+						<buildTarget>heavylog</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
@@ -148,6 +148,13 @@
 					<target name="docs" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildTarget>docs</buildTarget>
+						<stopOnError>true</stopOnError>
+						<useDefaultCommand>true</useDefaultCommand>
+						<runAllBuilders>true</runAllBuilders>
+					</target>
+					<target name="package" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+						<buildCommand>mingw32-make</buildCommand>
+						<buildTarget>package</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
@@ -177,7 +184,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="standard|debug" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="debug|standard" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -273,18 +280,18 @@
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
 			<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 				<buildTargets>
-					<target name="release" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+					<target name="standard" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildArguments/>
-						<buildTarget>all</buildTarget>
+						<buildTarget>standard</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
 					</target>
-					<target name="debug" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+					<target name="heavylog" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildArguments/>
-						<buildTarget>debug</buildTarget>
+						<buildTarget>heavylog</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
@@ -300,6 +307,13 @@
 					<target name="docs" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildTarget>docs</buildTarget>
+						<stopOnError>true</stopOnError>
+						<useDefaultCommand>true</useDefaultCommand>
+						<runAllBuilders>true</runAllBuilders>
+					</target>
+					<target name="package" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+						<buildCommand>mingw32-make</buildCommand>
+						<buildTarget>package</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
