@@ -267,10 +267,12 @@ docsdox: docs/doxygen.conf
 
 clean: clean-custom
 	-$(RM) $(STDOBJS) $(BIN) $(HVLOGOBJS) $(HVLOGBIN) $(LIBS) $(GENSRC)
+	-$(RM) -R pkg/*
 	$(MAKE) clean -C peresec
 	-$(ECHO) ' '
 
-package: $(CAMPAIGNS) 
+package: $(CAMPAIGNS)
+	-$(RM) "pkg/keeperfx-$(subst .,_,$(VER_STRING)).7z"
 	$(CP) bin/* pkg/
 	$(MKDIR) pkg/creatrs
 	$(CP) config/creatrs/*.cfg pkg/creatrs/
@@ -279,7 +281,7 @@ package: $(CAMPAIGNS)
 	$(MKDIR) pkg/ldata
 	$(CP) config/ldata/*.txt pkg/ldata/
 	cd pkg; \
-	7z a "keeperfx-$(subst .,_,$(VER_STRING)).7z" "*" -x!*/.svn -x!*.7z
+	7z a "keeperfx-$(subst .,_,$(VER_STRING)).7z" "*" -x!*/.svn -x!.svn -x!*.7z
 
 pkg/campgns/%.cfg: campgns/%.cfg
 	$(MKDIR) $(@:%.cfg=%)
