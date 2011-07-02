@@ -9,7 +9,7 @@
 #  @par Comment:
 #      None.
 #  @author   Tomasz Lis
-#  @date     25 Jan 2009 - 19 Jan 2010
+#  @date     25 Jan 2009 - 02 Jul 2011
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -223,12 +223,18 @@ CXXINCS =  -I"directx/include" -I"sdl/include"
 
 # flags to generate dependency files
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" 
-# code optimization flags
-OPTFLAGS = -march=pentium -O3
+# code optimization and debugging flags
+DEBUG ?= 0
+ifeq (DEBUG, 1)
+  OPTFLAGS = -march=pentium -O0
+  DBGFLAGS = -g -DDEBUG
+else
+  OPTFLAGS = -march=pentium -O3
+  DBGFLAGS = 
+endif
 # linker flags
 LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,-Map,"$(@:%.exe=%.map)" -Wl,--enable-auto-import
-# debugging and logging flags
-DBGFLAGS = 
+# logging level flags
 STLOGFLAGS = -DBFDEBUG_LEVEL=0 
 HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
@@ -270,9 +276,8 @@ clean: clean-custom
 	-$(RM) -R pkg/*
 	$(MAKE) clean -C peresec
 	-$(ECHO) ' '
-
 package: $(CAMPAIGNS)
-	-$(RM) "pkg/keeperfx-$(subst .,_,$(VER_STRING)).7z"
+	-$(RM) "pkg/keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z"
 	$(CP) bin/* pkg/
 	$(MKDIR) pkg/creatrs
 	$(CP) config/creatrs/*.cfg pkg/creatrs/
@@ -281,7 +286,7 @@ package: $(CAMPAIGNS)
 	$(MKDIR) pkg/ldata
 	$(CP) config/ldata/*.txt pkg/ldata/
 	cd pkg; \
-	7z a "keeperfx-$(subst .,_,$(VER_STRING)).7z" "*" -x!*/.svn -x!.svn -x!*.7z
+	7z a "keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z" "*" -x!*/.svn -x!.svn -x!*.7z
 
 pkg/campgns/%.cfg: campgns/%.cfg
 	$(MKDIR) $(@:%.cfg=%)

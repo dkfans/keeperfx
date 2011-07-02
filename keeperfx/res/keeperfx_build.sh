@@ -60,11 +60,22 @@ function keeperfxbuild {
         $DIR/version.mk
 
     # Build
-    echo "Building KeeperFX debug"
-    make --directory=$DIR heavylog CROSS_COMPILE=i586-mingw32msvc-
-    # Error?
+    echo "Building KeeperFX standard"
+    make --directory=$DIR standard CROSS_COMPILE=i586-mingw32msvc-
     if [ "$?" -ne 0 ]; then
-        echo "Build error."
+        echo "Build 'standard' error."
+        return
+    fi
+    echo "Building KeeperFX heavylog"
+    make --directory=$DIR heavylog CROSS_COMPILE=i586-mingw32msvc-
+    if [ "$?" -ne 0 ]; then
+        echo "Build 'heavylog' error."
+        return
+    fi
+    echo "Building KeeperFX package"
+    make --directory=$DIR package CROSS_COMPILE=i586-mingw32msvc-
+    if [ "$?" -ne 0 ]; then
+        echo "Build 'package' error."
         return
     fi
 }

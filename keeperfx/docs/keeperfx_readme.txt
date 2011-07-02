@@ -75,13 +75,13 @@ Most stable modes are 640x400 and 640x480. Higher resolutions
 Running KeeperFX:
 
 To start the game, run "keeperfx.exe". If you want to report
-any errors you encounter, you may run "keeperfx_dbg.exe"
-instead. This will run a "debug version", which writes a lot of
-information into "keeperfx.log". In case of the game hanging
+any errors you encounter, you may run "keeperfx_hvlog.exe"
+instead. This will run a "heavylog version", which writes a lot
+of information into "keeperfx.log". In case of the game hanging
 on suddenly disappearing, you may send a last few lines of the
 generated LOG to the author with your description of the bug.
 
-Note that "keeperfx_dbg.exe" requires a lot more CPU than
+Note that "keeperfx_hvlog.exe" requires a lot more CPU than
 standard version, and may be slow even on new computers.
 Also, the generated LOG file may be very large, and after
 a few hours of play it will have several hundreds megabytes.
@@ -192,7 +192,7 @@ A: Check if there's a language file in 'FXDATA' folder for the
 Q: The game starts up to main menu, but when I try to load a level,
    it exits back to desktop.
 A: There may be many reasons for that. Try checking your LOG file.
-   Also, try adding keeperfx.exe and keeperfx_dbg.exe to DEP list
+   Also, try adding keeperfx.exe and keeperfx_hvlog.exe to DEP list
    in Windows - that's the solution to most common problem.
    DEP is a Data Execution prevention mechanism; search the net
    for details about it.
@@ -226,13 +226,13 @@ A: The game has a limit for amount of 'things' - these 'things' are
     Creatures have additional limit - even if there are still free
     'thing' slots, they are limited to 255.
 
-Q: What's the difference between 'keeperfx.exe' and 'keeperfx_dbg.exe'?
-A: These files are identical except of one thing: 'keeperfx_dbg.exe'
+Q: What's the difference between 'keeperfx.exe' and 'keeperfx_hvlog.exe'?
+A: These files are identical except of one thing: 'keeperfx_hvlog.exe'
     writes A LOT of messages into 'keeperfx.log', allowing to trace
     any bugs and problems during the game. Because of the amount of data
-    being written, the debug version, 'keeperfx_dbg.exe', is a few times
-    slower than standard version, 'keeperfx.exe'. If you're not planning
-    to report any bugs, you should use 'keeperfx.exe'.
+    being written, the heavylog version, 'keeperfx_hvlog.exe', is a few
+    times slower than standard version, 'keeperfx.exe'. If you're
+    not planning to report any bugs, you should use 'keeperfx.exe'.
 
 Q: I've found a cheat menu, but it doesn't work!
 A: The three cheat menus are only partially functional.
@@ -394,6 +394,10 @@ New and modified level script commands:
   and never changes during the gameplay.
 
 Changelog:
+
+Version: 0.40a
+  Renamed 'debug version' to 'heavylog version'
+  Allowed making 'debug' version which is really with debug info
 
 Version: 0.40
   Prepared game launcher with installation function
