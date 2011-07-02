@@ -248,7 +248,7 @@ LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 -include obj/std/*.d
 -include obj/hvlog/*.d
 
-.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-custom package
+.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-package package
 
 all: standard heavylog package
 
@@ -271,11 +271,24 @@ hvlog-before:
 docsdox: docs/doxygen.conf
 	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
 
-clean: clean-custom
-	-$(RM) $(STDOBJS) $(BIN) $(HVLOGOBJS) $(HVLOGBIN) $(LIBS) $(GENSRC)
-	-$(RM) -R pkg/*
+clean: clean-build clean-package
+
+clean-build:
+	-$(RM) $(STDOBJS) $(BIN)
+	-$(RM) $(HVLOGOBJS) $(HVLOGBIN)
+	-$(RM) $(LIBS) $(GENSRC)
+	-$(RM) bin/keeperfx*
 	$(MAKE) clean -C peresec
 	-$(ECHO) ' '
+
+clean-package:
+	-$(RM) -R pkg/campgns
+	-$(RM) -R pkg/creatrs
+	-$(RM) -R pkg/fxdata
+	-$(RM) -R pkg/ldata
+	-$(RM) pkg/keeperfx*
+	-$(ECHO) ' '
+
 package: $(CAMPAIGNS)
 	-$(RM) "pkg/keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z"
 	$(CP) bin/* pkg/
