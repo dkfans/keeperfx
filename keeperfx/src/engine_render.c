@@ -30,6 +30,7 @@
 #include "engine_lenses.h"
 #include "engine_camera.h"
 #include "engine_arrays.h"
+#include "engine_redraw.h"
 #include "creature_graphics.h"
 #include "kjm_input.h"
 #include "front_simple.h"

@@ -10,12 +10,13 @@ WORKDIR=/home/tomasz/nightly/keeperfx
 RESEASEDIR=/home/tomasz/nightly/releases
 REPO_TRUNK=https://keeperfx.googlecode.com/svn/trunk/keeperfx/
 RUN_DATE=$(date -u '+%Y.%m.%d %T')
+CROSS_COMPILE_TOOLCHAIN=i586-mingw32msvc-
 
 # Clean products of previous build
 function keeperfxclean {
     if [ -d "$WORKDIR" ]; then
         echo "Cleaning previous build"
-        make --directory=$WORKDIR clean CROSS_COMPILE=i586-mingw32msvc-
+        make --directory=$WORKDIR clean CROSS_COMPILE=${CROSS_COMPILE_TOOLCHAIN}
         echo "Cleaning finished"
     fi
 }
@@ -74,13 +75,13 @@ function keeperfxbuild {
 
     # Build
     echo "Building KeeperFX standard"
-    make --directory=$WORKDIR standard CROSS_COMPILE=i586-mingw32msvc-
+    make --directory=$WORKDIR standard CROSS_COMPILE=${CROSS_COMPILE_TOOLCHAIN}
     if [ "$?" -ne 0 ]; then
         echo "Build 'standard' error."
         return
     fi
     echo "Building KeeperFX heavylog"
-    make --directory=$WORKDIR heavylog CROSS_COMPILE=i586-mingw32msvc-
+    make --directory=$WORKDIR heavylog CROSS_COMPILE=${CROSS_COMPILE_TOOLCHAIN}
     if [ "$?" -ne 0 ]; then
         echo "Build 'heavylog' error."
         return
@@ -89,7 +90,7 @@ function keeperfxbuild {
 
 function keeperfxpublish {
     echo "Creating archive"
-    make --directory=$WORKDIR package CROSS_COMPILE=i586-mingw32msvc-
+    make --directory=$WORKDIR package CROSS_COMPILE=${CROSS_COMPILE_TOOLCHAIN}
     if [ "$?" -ne 0 ]; then
         echo "Build 'package' error."
         return
