@@ -77,7 +77,6 @@ extern "C" {
 #define PLAYER_INSTANCES_COUNT 19
 #define PLAYER_STATES_COUNT    32
 #define ZOOM_KEY_ROOMS_COUNT   14
-#define SMALL_MAP_RADIUS       58
 #define BLOOD_TYPES_COUNT       7
 #define AROUND_TILES_COUNT      9
 // Static textures
@@ -687,8 +686,11 @@ extern unsigned short const player_state_to_spell[];
 extern struct RoomInfo room_info[];
 extern const struct Around around[];
 extern struct StartupParameters start_params;
-//Functions - exported by the DLL
+extern struct KeycodeString eastegg_feckoff_codes;
+extern struct KeycodeString eastegg_jlw_codes;
+extern struct KeycodeString eastegg_skeksis_codes;
 
+//Functions - exported by the DLL
 DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
 DLLIMPORT void _DK_set_cpu_mode(int mode);
 DLLIMPORT int _DK_setup_heaps(void);
@@ -801,8 +803,6 @@ DLLIMPORT struct Room *_DK_start_rooms;
 #define start_rooms _DK_start_rooms
 DLLIMPORT struct Room *_DK_end_rooms;
 #define end_rooms _DK_end_rooms
-DLLIMPORT unsigned char _DK_smooth_on;
-#define smooth_on _DK_smooth_on
 DLLIMPORT struct BigSprite _DK_status_panel;
 #define status_panel _DK_status_panel
 DLLIMPORT char _DK_top_of_breed_list;
@@ -937,9 +937,6 @@ TbBool bonus_timer_enabled(void);
 
 short toggle_computer_player(int idx);
 short save_settings(void);
-void setup_engine_window(long x1, long y1, long x2, long y2);
-void store_engine_window(TbGraphicsWindow *ewnd,int divider);
-void load_engine_window(TbGraphicsWindow *ewnd);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_engine_view(struct PlayerInfo *player, long val);
 unsigned char find_first_battle_of_mine(unsigned char idx);
@@ -1008,19 +1005,15 @@ TbBool swap_creature(long ncrt_id, long crtr_id);
 void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char owner, unsigned char a5);
 void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
-void update_explored_flags_for_power_sight(struct PlayerInfo *player);
 void engine(struct PlayerInfo *player, struct Camera *cam);
-void smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 void DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite);
 void draw_gold_total(unsigned char a1, long scr_x, long scr_y, long long value);
 void pannel_map_draw(long x, long y, long zoom);
 void draw_overlay_things(long zoom);
-void draw_overlay_compass(long a1, long a2);
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short okind, unsigned short x, unsigned short y);
-TbBool mouse_is_over_small_map(long x, long y);
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);
 void set_level_objective(char *msg_text);

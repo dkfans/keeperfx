@@ -105,6 +105,7 @@ obj/engine_render.o \
 obj/engine_camera.o \
 obj/engine_lenses.o \
 obj/engine_arrays.o \
+obj/engine_redraw.o \
 obj/front_landview.o \
 obj/frontmenu_net.o \
 obj/frontmenu_options.o \

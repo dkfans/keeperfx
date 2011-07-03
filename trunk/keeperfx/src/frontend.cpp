@@ -49,6 +49,7 @@
 #include "front_input.h"
 #include "game_saves.h"
 #include "engine_render.h"
+#include "engine_redraw.h"
 #include "front_landview.h"
 #include "front_credits.h"
 #include "front_torture.h"
