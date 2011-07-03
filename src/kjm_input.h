@@ -16,7 +16,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef DK_KJMINPUT_H
 #define DK_KJMINPUT_H
 
@@ -26,6 +25,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+/******************************************************************************/
+#define SMALL_MAP_RADIUS       58
 /******************************************************************************/
 #pragma pack(1)
 
@@ -104,6 +105,8 @@ unsigned short key_to_ascii(long key, long kmodif);
 void clear_key_pressed(long key);
 void update_key_modifiers(void);
 void define_key_input(void);
+
+TbBool mouse_is_over_small_map(long x, long y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

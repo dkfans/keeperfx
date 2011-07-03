@@ -47,6 +47,7 @@
 #include "gui_topmsg.h"
 #include "power_hand.h"
 #include "thing_traps.h"
+#include "kjm_input.h"
 
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"

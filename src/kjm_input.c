@@ -24,6 +24,7 @@
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
+#include "bflib_math.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,6 +34,7 @@ extern "C" {
 DLLIMPORT  int _DK_set_game_key(long key_id, unsigned char key, int shift_state, int ctrl_state);
 DLLIMPORT void _DK_update_mouse(void);
 DLLIMPORT long _DK_GetMouseY(void);
+DLLIMPORT char _DK_mouse_is_over_small_map(int, int);
 /******************************************************************************/
 
 /******************************************************************************/
@@ -240,6 +242,22 @@ void define_key_input(void)
   }
 }
 
+/**
+ * Returns if the mouse is over "small map" - the circular minimap area on top left.
+ * @param x Small map circle start X coordinate.
+ * @param y Small map circle start Y coordinate.
+ * @return
+ */
+TbBool mouse_is_over_small_map(long x, long y)
+{
+    long cmx,cmy;
+    long px,py;
+    cmx = GetMouseX();
+    cmy = GetMouseY();
+    px = (cmx-(x+SMALL_MAP_RADIUS));
+    py = (cmy-(y+SMALL_MAP_RADIUS));
+    return (LbSqrL(px*px + py*py) < SMALL_MAP_RADIUS);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

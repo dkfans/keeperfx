@@ -129,6 +129,7 @@ obj/dungeon_data.o \
 obj/engine_arrays.o \
 obj/engine_camera.o \
 obj/engine_lenses.o \
+obj/engine_redraw.o \
 obj/engine_render.o \
 obj/front_credits.o \
 obj/front_input.o \
