@@ -7,7 +7,8 @@
 #      Allows to invoke "make all" or similar commands to compile all
 #      source code files and link them into executable file.
 #  @par Comment:
-#      None.
+#      Please note that the make must be run from 'sh'; starting if from
+#      Windows 'cmd.exe' won't work.
 #  @author   Tomasz Lis
 #  @date     25 Jan 2009 - 02 Jul 2011
 #  @par  Copying and copyrights:
@@ -212,7 +213,7 @@ pkg/campgns/postanck.cfg \
 pkg/campgns/questfth.cfg \
 pkg/campgns/twinkprs.cfg
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
-HVLOGOBJS   = $(subst obj/,obj/hvlog/,$(OBJS))
+HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 
 # load program version
 include version.mk
@@ -251,7 +252,7 @@ LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 
 .PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-package package
 
-all: standard heavylog package
+all: standard
 
 standard: CXXFLAGS += $(STLOGFLAGS)
 standard: CFLAGS += $(STLOGFLAGS)
@@ -303,12 +304,18 @@ package: $(CAMPAIGNS)
 	7z a "keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z" "*" -x!*/.svn -x!.svn -x!*.7z
 
 pkg/campgns/%.cfg: campgns/%.cfg
+ifeq "$(wildcard $(@:%.cfg=%))" ""
 	$(MKDIR) $(@:%.cfg=%)
-	$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/
+	-$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/
+endif
+ifeq "$(wildcard $(@:%.cfg=%_crtr))" ""
 	$(MKDIR) $(@:%.cfg=%_crtr)
 	-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/
+endif
+ifeq "$(wildcard $(@:%.cfg=%_lnd))" ""
 	$(MKDIR) $(@:%.cfg=%_lnd)
 	-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/
+endif
 	$(CP) $< $@
 
 $(BIN): $(GENSRC) $(STDOBJS) $(LIBS)

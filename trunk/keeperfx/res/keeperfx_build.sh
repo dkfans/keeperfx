@@ -1,9 +1,26 @@
 #!/bin/bash
-
-#
-# Script for building KeeperFX packages from an SVN checkout.
-#
-#
+#******************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+#******************************************************************************
+#   @file keeperfx_build.sh
+#      A shell script for preparing nightly builds of KeeperFX.
+#  @par Purpose:
+#      Makes SVN checkout and prepares release of KeeperFX. If invoked every
+#      night, gives a nightly build system with releases accessible through
+#      HTML server.
+#  @par Comment:
+#      Usage with 'cron' - to load the job:
+#        crontab keeperfx_build.cron
+#      To remove the job:
+#        crontab -r
+#  @author   Tomasz Lis
+#  @date     01 Jul 2011 - 04 Jul 2011
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#******************************************************************************
 
 REV="$1"
 WORKDIR=/home/tomasz/nightly/keeperfx
