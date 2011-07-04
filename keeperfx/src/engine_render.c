@@ -78,6 +78,7 @@ DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoo
 DLLIMPORT void _DK_do_map_who(short stl_x);
 DLLIMPORT void _DK_fiddle_half_gamut(long y, long pos_y, long floor_x, long floor_y);
 DLLIMPORT long _DK_load_keepersprite_if_needed(unsigned short kspr_idx);
+DLLIMPORT void _DK_draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -2774,7 +2775,11 @@ void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     struct TbSprite sprite;
     long cut_w,cut_h;
     struct KeeperSprite **kspr_list;
-    SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%ld,%ld)",kspr_idx,x,y,w,h);
+    if ((kspr_idx < 0) || (kspr_idx >= KEEPSPRITE_LENGTH)) {
+        WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
+        return;
+    }
+    SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
     cut_w = w;
     cut_h = h - water_source_cutoff;
     if (cut_h <= 0)
@@ -2783,16 +2788,19 @@ void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     sprite.SWidth = cut_w;
     sprite.SHeight = cut_h;
     sprite.Data = (unsigned char *)(*kspr_list);
-    if ( EngineSpriteDrawUsingAlpha )
-      DrawAlphaSpriteUsingScalingData(x, y, &sprite);
-    else
-      LbSpriteDrawUsingScalingData(x, y, &sprite);
+    if ( EngineSpriteDrawUsingAlpha ) {
+        DrawAlphaSpriteUsingScalingData(x, y, &sprite);
+    } else {
+        LbSpriteDrawUsingScalingData(x, y, &sprite);
+    }
+    SYNCDBG(18,"Finished");
 }
 
 void set_thing_pointed_at(struct Thing *thing)
 {
-  if (thing_pointed_at == NULL)
-    thing_pointed_at = thing;
+    if (thing_pointed_at == NULL) {
+        thing_pointed_at = thing;
+    }
 }
 
 void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -2871,6 +2879,8 @@ void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSpr
 {
     long x,y;
     long src_dy,src_dx;
+    SYNCDBG(18,"Starting");
+    //_DK_draw_single_keepersprite_xflip(kspos_x, kspos_y, kspr, kspr_idx, scale); return;
     src_dy = (long)kspr->field_5;
     src_dx = (long)kspr->field_4;
     x = (long)kspr->field_6 - (long)kspr->field_A - src_dx;
@@ -2901,12 +2911,14 @@ void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSpr
       }
     }
     draw_keepersprite(0, 0, kspr->field_4, kspr->field_5, kspr_idx);
+    SYNCDBG(18,"Finished");
 }
 
 void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
 {
     long x,y;
     long src_dy,src_dx;
+    SYNCDBG(18,"Starting");
     src_dy = (long)kspr->field_5;
     src_dx = (long)kspr->field_4;
     x = kspr->field_A;
@@ -2928,18 +2940,19 @@ void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *k
     }
     if ( thing_being_displayed_is_creature )
     {
-      if ( (pointer_x >= x) && (pointer_x <= sp_dx + x) )
-      {
-          if ( (pointer_y >= y) && (pointer_y <= sp_dy + y) )
-          {
-              set_thing_pointed_at(thing_being_displayed);
-          }
-      }
+        if ( (pointer_x >= x) && (pointer_x <= sp_dx + x) )
+        {
+            if ( (pointer_y >= y) && (pointer_y <= sp_dy + y) )
+            {
+                set_thing_pointed_at(thing_being_displayed);
+            }
+        }
     }
     draw_keepersprite(0, 0, kspr->field_4, kspr->field_5, kspr_idx);
+    SYNCDBG(18,"Finished");
 }
 
-void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsigned char a5, long scale)
+void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_frame, unsigned char sprgroup, long scale)
 {
     struct KeeperSprite *creature_sprites;
     struct PlayerInfo *player;
@@ -2948,28 +2961,30 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
     long kspr_idx,draw_idx;
     short dim_ow,dim_oh,dim_th,dim_tw;
     long scaled_x,scaled_y;
-    TbBool val_in_range;
+    TbBool needs_xflip;
     long long lltemp;
-    long sprite_delta,cutoff;
-    SYNCDBG(17,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)a3,(int)a4,(int)a5,(int)scale);
-    //_DK_process_keeper_sprite(x, y, a3, a4, a5, scale);
+    long sprite_group,sprite_delta,cutoff;
+    SYNCDBG(7,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)kspr_base,(int)kspr_frame,(int)sprgroup,(int)scale);
+    //_DK_process_keeper_sprite(x, y, a3, a4, sprgroup, scale); return;
     player = get_my_player();
 
-    if ( ((a4 & 0x7FF) <= 1151) || ((a4 & 0x7FF) >= 1919) )
-        val_in_range = 0;
+    if ( ((kspr_frame & 0x7FF) <= 1151) || ((kspr_frame & 0x7FF) >= 1919) )
+        needs_xflip = 0;
     else
-        val_in_range = 1;
-    if ( val_in_range )
+        needs_xflip = 1;
+    if ( needs_xflip )
       lbDisplay.DrawFlags |= 0x0001;
     else
       lbDisplay.DrawFlags &= ~0x0001;
-    lltemp = 4 - (((a4 + 128) & 0x7FF) >> 8);
+    sprite_group = sprgroup;
+    lltemp = 4 - ((((long)kspr_frame + 128) & 0x7FF) >> 8);
     sprite_delta = abs(lltemp);
-    kspr_idx = keepersprite_index(a3);
+    kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
-    creature_sprites = keepersprite_array(a3);
-    scaled_x = ((scale * (long)creature_sprites->field_C) >> 5) + x;
-    scaled_y = ((scale * (long)creature_sprites->field_E) >> 5) + y;
+    creature_sprites = keepersprite_array(kspr_base);
+    scaled_x = ((scale * (long)creature_sprites->field_C) >> 5) + (long)x;
+    scaled_y = ((scale * (long)creature_sprites->field_E) >> 5) + (long)y;
+    SYNCDBG(7,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
     if (thing_is_invalid(thing_being_displayed))
     {
         water_y_offset = 0;
@@ -2986,7 +3001,7 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->field_44, thing_being_displayed->field_52, thing_being_displayed->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
-            lltemp = dim_oh * (48 - (long)&cctrl->word_9A);
+            lltemp = dim_oh * (48 - (long)cctrl->word_9A);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
         if (player->view_mode == 1)
@@ -3004,9 +3019,9 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
     {
         if ( heap_manage_keepersprite(kspr_idx) )
         {
-            kspr = &creature_sprites[a5];
-            draw_idx = a5 + kspr_idx;
-            if ( val_in_range )
+            kspr = &creature_sprites[sprite_group];
+            draw_idx = sprite_group + kspr_idx;
+            if ( needs_xflip )
             {
                 draw_single_keepersprite_omni_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
             } else
@@ -3019,9 +3034,9 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
     {
         if ( heap_manage_keepersprite(kspr_idx) )
         {
-            kspr = &creature_sprites[a5 + sprite_delta * creature_sprites->field_9];
-            draw_idx = a5 + sprite_delta * kspr->field_9 + kspr_idx;
-            if ( val_in_range )
+            kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->field_9];
+            draw_idx = sprite_group + sprite_delta * (long)kspr->field_9 + kspr_idx;
+            if ( needs_xflip )
             {
                 draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
             } else
@@ -3030,8 +3045,6 @@ void process_keeper_sprite(short x, short y, unsigned short a3, short a4, unsign
             }
         }
     }
-
-
 }
 
 void process_keeper_speedup_sprite(struct JontySpr *jspr, long angle, long scale)
@@ -3169,12 +3182,12 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     switch (thing->field_4F & 0x30)
     {
     case 0x10:
-        lbDisplay.DrawFlags |= 0x0008u;
-        lbDisplay.DrawFlags &= ~0x0800u;
+        lbDisplay.DrawFlags |= 0x0008;
+        lbDisplay.DrawFlags &= ~0x0800;
         break;
     case 0x20:
-        lbDisplay.DrawFlags |= 0x0004u;
-        lbDisplay.DrawFlags &= ~0x0800u;
+        lbDisplay.DrawFlags |= 0x0004;
+        lbDisplay.DrawFlags &= ~0x0800;
         break;
     case 0x30:
         EngineSpriteDrawUsingAlpha = 1;
@@ -3189,13 +3202,13 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         {
           if (player->acamera->field_6 == 2)
           {
-              lbDisplay.DrawFlags |= 0x0800u;
+              lbDisplay.DrawFlags |= 0x0800;
               lbSpriteReMapPtr = white_pal;
           }
         } else
         if ((thing->field_4F & 0x80) != 0)
         {
-            lbDisplay.DrawFlags |= 0x0800u;
+            lbDisplay.DrawFlags |= 0x0800;
             lbSpriteReMapPtr = red_pal;
             thing->field_4F &= ~0x80u;
         }

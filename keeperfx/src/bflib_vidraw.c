@@ -1795,12 +1795,14 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
 
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
-  return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+    SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
+    return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+    SYNCDBG(18,"Finished");
 }
 
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
-  return _DK_DrawAlphaSpriteUsingScalingData(posx, posy, sprite);
+    return _DK_DrawAlphaSpriteUsingScalingData(posx, posy, sprite);
 }
 
 void SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6)
