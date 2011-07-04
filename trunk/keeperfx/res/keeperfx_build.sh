@@ -22,12 +22,13 @@
 #      (at your option) any later version.
 #******************************************************************************
 
-REV="$1"
 WORKDIR=/home/tomasz/nightly/keeperfx
 RESEASEDIR=/home/tomasz/nightly/releases
 REPO_TRUNK=https://keeperfx.googlecode.com/svn/trunk/keeperfx/
-RUN_DATE=$(date -u '+%Y.%m.%d %T')
 CROSS_COMPILE_TOOLCHAIN=i586-mingw32msvc-
+
+REV="$1"
+RUN_DATE=$(date -u '+%Y.%m.%d %T')
 
 # Clean products of previous build
 function keeperfxclean {

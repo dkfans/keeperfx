@@ -30,6 +30,7 @@ extern "C" {
 #pragma pack(1)
 
 #define BUCKETS_COUNT 704
+#define KEEPSPRITE_LENGTH 9149
 
 enum QKinds {
     QK_PolyTriangle = 0,
@@ -475,7 +476,7 @@ DLLIMPORT extern struct EngineCol *_DK_back_ec;
 #define back_ec _DK_back_ec
 DLLIMPORT long _DK_global_scaler;
 #define global_scaler _DK_global_scaler
-DLLIMPORT struct KeeperSprite **_DK_keepsprite[9149];
+DLLIMPORT struct KeeperSprite **_DK_keepsprite[KEEPSPRITE_LENGTH];
 #define keepsprite _DK_keepsprite
 DLLIMPORT long _DK_water_source_cutoff;
 #define water_source_cutoff _DK_water_source_cutoff

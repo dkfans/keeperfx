@@ -175,6 +175,12 @@ DLLIMPORT unsigned char *_DK_dither_end;
 #define dither_end _DK_dither_end
 DLLIMPORT unsigned char *_DK_lbSpriteReMapPtr;
 #define lbSpriteReMapPtr _DK_lbSpriteReMapPtr
+DLLIMPORT long _DK_scale_up;
+#define scale_up _DK_scale_up
+DLLIMPORT long _DK_xsteps_array[512];
+#define xsteps_array _DK_xsteps_array
+DLLIMPORT long _DK_ysteps_array[624];
+#define ysteps_array _DK_ysteps_array
 /******************************************************************************/
 //Routines to be moved into bflib_vipurp
 /*

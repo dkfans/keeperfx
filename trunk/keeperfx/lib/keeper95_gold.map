@@ -1092,6 +1092,7 @@
  0001:00078330       battle_initialise
  0001:000A82E0       init_messages
  0001:000A2840       creature_remove_lair_from_room
+ 0001:00054680       draw_single_keepersprite_xflip
  0001:00057D20       update_creatures_not_in_list
  0001:0005ABC0       update_cave_in
  0001:000B2FC0       get_thing_checksum
