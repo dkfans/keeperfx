@@ -2,4 +2,4 @@
 #   @file keeperfx_build.cron
 #      A 'cron' job to checkout and recompile KeeperFX every night.
 #******************************************************************************
-42 3 * * * /home/tomasz/nightly/keeperfx_build.sh 2>&1 > /home/tomasz/nightly/releases/last_log.txt
+42 3 * * * ~/nightly/keeperfx_build.sh 2>&1 > ~/public_html/keeper/nightly/last_log.txt
