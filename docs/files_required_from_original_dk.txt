@@ -16,9 +16,11 @@ It is also confirmed that the following products
 - The Deeper Dungeons addon
 - Ripped versions available on the Internet
 
-I have no information yet about files included
- in GOG version,
+Files included in GOG version:
  http://www.gog.com/en/gamecard/dungeon_keeper
+can be used, but only those inside CD image file
+shipped with that version. The CD image has to be
+extracted or mounted to use these files.
 
 List of required files will follow:
 

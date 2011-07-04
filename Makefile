@@ -7,7 +7,8 @@
 #      Allows to invoke "make all" or similar commands to compile all
 #      source code files and link them into executable file.
 #  @par Comment:
-#      None.
+#      Please note that the make must be run from 'sh'; starting if from
+#      Windows 'cmd.exe' won't work.
 #  @author   Tomasz Lis
 #  @date     25 Jan 2009 - 02 Jul 2011
 #  @par  Copying and copyrights:
