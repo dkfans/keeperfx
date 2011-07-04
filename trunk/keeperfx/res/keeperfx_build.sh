@@ -22,10 +22,12 @@
 #      (at your option) any later version.
 #******************************************************************************
 
-WORKDIR=/home/tomasz/nightly/keeperfx
-RESEASEDIR=/home/tomasz/nightly/releases
 REPO_TRUNK=https://keeperfx.googlecode.com/svn/trunk/keeperfx/
-CROSS_COMPILE_TOOLCHAIN=i586-mingw32msvc-
+# Set values of env. variables to default if they're not set
+HOMEDIR=${HOMEDIR:=~}
+WORKDIR=${WORKDIR:=${HOMEDIR}/nightly/keeperfx}
+RESEASEDIR=${RESEASEDIR:=${HOMEDIR}/public_html/keeper/nightly}
+CROSS_COMPILE_TOOLCHAIN=${CROSS_COMPILE_TOOLCHAIN:=i586-mingw32msvc-}
 
 REV="$1"
 RUN_DATE=$(date -u '+%Y.%m.%d %T')
@@ -36,7 +38,9 @@ function keeperfxclean {
         echo "Cleaning previous build"
         make --directory=$WORKDIR clean CROSS_COMPILE=${CROSS_COMPILE_TOOLCHAIN}
         echo "Cleaning finished"
+        return 0
     fi
+    return 1
 }
 
 # Updates local KeeperFX sources
@@ -53,12 +57,12 @@ function keeperfxcheckout {
             if [ $? != 0 ]; then
                 echo "${SVNLOG}"
                 echo "Problem with svn update"
-                return $?
+                return 1
             fi
             svn revert -R "$WORKDIR"
             if [ $? != 0 ]; then
                 echo "Problem with svn revert"
-                return $?
+                return 1
             fi
     else
             if [ -z "${REV}" -o 0"${REV}" -lt 1 ]; then
@@ -71,19 +75,31 @@ function keeperfxcheckout {
             if [ $? != 0 ]; then
                 echo "$SVNLOG"
                 echo "Problem with svn checkout"
-                return $?
+                return 1
             fi
     fi
     echo "$SVNLOG"
     REV=`echo "$SVNLOG" | grep -i revision | sed -e 's/[^0-9]\\+//g'`
     echo "SVN Revision ${REV}"
+    return 0
+}
+
+function keeperfxcancel {
+    PKGFILES="${RESEASEDIR}/keeperfx*_${REV}-patch.7z"
+    NOTEXISTS=1; for FILE in ${PKGFILES}; do test -f "${FILE}"; NOTEXISTS=$?; break; done
+    if [ ! $NOTEXISTS -eq 0 ] ; then
+        echo "No package like '${PKGFILES}', proceeding with build."
+        return 0
+    fi
+    echo "Package of r${REV} already exists."
+    return 1
 }
 
 # Builds the KeeperFX package
 function keeperfxbuild {
     if [ ! -d "$WORKDIR" ]; then
         echo "There's no code to build"
-        return
+        return 1
     fi
 
     echo "Update build version to r${REV}"
@@ -96,14 +112,15 @@ function keeperfxbuild {
     make --directory=$WORKDIR standard CROSS_COMPILE=${CROSS_COMPILE_TOOLCHAIN}
     if [ "$?" -ne 0 ]; then
         echo "Build 'standard' error."
-        return
+        return 1
     fi
     echo "Building KeeperFX heavylog"
     make --directory=$WORKDIR heavylog CROSS_COMPILE=${CROSS_COMPILE_TOOLCHAIN}
     if [ "$?" -ne 0 ]; then
         echo "Build 'heavylog' error."
-        return
+        return 1
     fi
+    return 0
 }
 
 function keeperfxpublish {
@@ -111,7 +128,7 @@ function keeperfxpublish {
     make --directory=$WORKDIR package CROSS_COMPILE=${CROSS_COMPILE_TOOLCHAIN}
     if [ "$?" -ne 0 ]; then
         echo "Build 'package' error."
-        return
+        return 1
     fi
     echo "Searching for archives"
     PKGFILES="${WORKDIR}/pkg/*.7z"
@@ -120,29 +137,47 @@ function keeperfxpublish {
         PKGCOPY="${RESEASEDIR}/${PKGFILE##*/}"
         echo "Publishing '$PKGFILE' as '$PKGCOPY'"
         # Copy package to website
-        cp "$PKGFILE" "${PKGCOPY}"
+        cp -n "$PKGFILE" "${PKGCOPY}"
         if [ "$?" -ne 0 ]; then
             echo "Package copy error; it might already exist."
-            return
+            return 1
         fi
         if [ ! -f "$PKGCOPY" ]; then
             echo "Package copy not found even tho no 'cp' error."
-            return
+            return 1
         fi
         # update website packages list
         if [ ! -f "${RESEASEDIR}/list.txt" ]; then
-            touch "${RESEASEDIR}/list.txt"
+            echo "" > "${RESEASEDIR}/list.txt"
         fi
         # Add new line to list file
         sed "1i${REV} ${RUN_DATE} ${PKGFILE##*/}" "${RESEASEDIR}/list.txt" > "${RESEASEDIR}/list_new.txt"
         # Remove lines over 16
         sed -n -e '1,16p' "${RESEASEDIR}/list_new.txt" > "${RESEASEDIR}/list.txt"
     done
+    return 0
 }
 
 # Actually build the packages.
 echo "Starting KeeperFX build on ${RUN_DATE}"
     keeperfxclean
     keeperfxcheckout
+    if [ "$?" -ne 0 ]; then
+        echo "Automatic build failed to checkout repository!"
+        exit 2
+    fi
+    keeperfxcancel
+    if [ "$?" -ne 0 ]; then
+        echo "Automatic build cancelled."
+        exit 0
+    fi
     keeperfxbuild
+    if [ "$?" -ne 0 ]; then
+        echo "Automatic build failed to make executables!"
+        exit 3
+    fi
     keeperfxpublish
+    if [ "$?" -ne 0 ]; then
+        echo "Automatic build failed to publish package!"
+        exit 4
+    fi

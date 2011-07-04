@@ -297,6 +297,7 @@ clean-package:
 package: $(CAMPAIGNS)
 	-$(RM) "pkg/keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z"
 	$(CP) bin/* pkg/
+	$(CP) docs/keeperfx_readme.txt pkg/
 	$(MKDIR) pkg/creatrs
 	$(CP) config/creatrs/*.cfg pkg/creatrs/
 	$(MKDIR) pkg/fxdata
