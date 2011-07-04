@@ -9,6 +9,9 @@
 #  @par Comment:
 #      Please note that the make must be run from 'sh'; starting if from
 #      Windows 'cmd.exe' won't work.
+#      You need mingw32 and coreutils to do the build.
+#      To prepare a release package, run:
+#        make standard && make heavylog && make package
 #  @author   Tomasz Lis
 #  @date     25 Jan 2009 - 02 Jul 2011
 #  @par  Copying and copyrights:

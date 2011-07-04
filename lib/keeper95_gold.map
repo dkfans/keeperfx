@@ -446,6 +446,7 @@
  0001:00053750       tunneller_doing_nothing
  0001:000539E0       good_setup_loot_treasure_room
  0001:00053E70       process_keeper_sprite
+ 0001:00054680       draw_single_keepersprite_xflip
  0001:00054890       draw_keepsprite_unscaled_in_buffer
  0001:00054E00       creature_doing_nothing
  0001:00055660       creature_cannot_find_anything_to_do
