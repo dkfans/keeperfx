@@ -40,7 +40,7 @@ CXXINCS =
 # flags to generate dependency files
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" 
 # code optimization flags
-OPTFLAGS = -march=pentium -O3
+OPTFLAGS = -O3
 # compiler warning generation flags
 WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter
 # disabled warnings: -Wextra -Wtype-limits
