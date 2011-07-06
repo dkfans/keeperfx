@@ -24,10 +24,10 @@
 
 REPO_TRUNK=https://keeperfx.googlecode.com/svn/trunk/keeperfx/
 # Set values of env. variables to default if they're not set
-HOMEDIR=${HOMEDIR:=~}
-WORKDIR=${WORKDIR:=${HOMEDIR}/nightly/keeperfx}
-RESEASEDIR=${RESEASEDIR:=${HOMEDIR}/public_html/keeper/nightly}
-CROSS_COMPILE_TOOLCHAIN=${CROSS_COMPILE_TOOLCHAIN:=i586-mingw32msvc-}
+HOMEDIR=${HOMEDIR:-~}
+WORKDIR=${WORKDIR:-${HOMEDIR}/nightly/keeperfx}
+RESEASEDIR=${RESEASEDIR:-${HOMEDIR}/public_html/keeper/nightly}
+CROSS_COMPILE_TOOLCHAIN=${CROSS_COMPILE_TOOLCHAIN:-i586-mingw32msvc-}
 
 REV="$1"
 RUN_DATE=$(date -u '+%Y.%m.%d %T')
