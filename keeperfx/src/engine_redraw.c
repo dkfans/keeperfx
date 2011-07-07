@@ -382,6 +382,8 @@ void redraw_isometric_view(void)
     //_DK_redraw_isometric_view(); return;
 
     player = get_my_player();
+    if (player->acamera == NULL)
+        return;
     memcpy(&pos,&player->acamera->mappos,sizeof(struct Coord3d));
     memset(&ewnd,0,sizeof(TbGraphicsWindow));
     if (player->field_45F != 1)

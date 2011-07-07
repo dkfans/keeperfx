@@ -6456,7 +6456,8 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
 
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
-  _DK_remove_explored_flags_for_power_sight(player);
+    SYNCDBG(9,"Starting");
+    _DK_remove_explored_flags_for_power_sight(player);
 }
 
 void DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite)
