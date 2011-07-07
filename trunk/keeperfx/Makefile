@@ -29,8 +29,8 @@ EXETODLL = peresec/bin/peresec
 RM = rm -f
 MV = mv -f
 CP = cp -f
-MKDIR = mkdir -p
-ECHO = @echo
+MKDIR    = mkdir -p
+ECHO     = @echo
 DOXYTOOL = doxygen
 BIN      = bin/keeperfx.exe
 HVLOGBIN = bin/keeperfx_hvlog.exe
@@ -298,6 +298,7 @@ package: $(CAMPAIGNS)
 	-$(RM) "pkg/keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z"
 	$(CP) bin/* pkg/
 	$(CP) docs/keeperfx_readme.txt pkg/
+	$(CP) config/keeperfx.cfg pkg/
 	$(MKDIR) pkg/creatrs
 	$(CP) config/creatrs/*.cfg pkg/creatrs/
 	$(MKDIR) pkg/fxdata
@@ -308,18 +309,17 @@ package: $(CAMPAIGNS)
 	7z a "keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z" "*" -x!*/.svn -x!.svn -x!*.7z
 
 pkg/campgns/%.cfg: campgns/%.cfg
-ifeq "$(wildcard $(@:%.cfg=%))" ""
-	$(MKDIR) $(@:%.cfg=%)
-	-$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/
-endif
-ifeq "$(wildcard $(@:%.cfg=%_crtr))" ""
-	$(MKDIR) $(@:%.cfg=%_crtr)
-	-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/
-endif
-ifeq "$(wildcard $(@:%.cfg=%_lnd))" ""
-	$(MKDIR) $(@:%.cfg=%_lnd)
-	-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/
-endif
+	@$(MKDIR) $(@D)
+#	 Copy folder with campaign name (w/o extension), if it exists
+	$(if $(wildcard $(<:%.cfg=%)),$(MKDIR) $(@:%.cfg=%))
+	$(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/)
+#	 Copy folder with campaign name and _crtr ending, if it exists
+	$(if $(wildcard $(<:%.cfg=%_crtr)),$(MKDIR) $(@:%.cfg=%_crtr))
+	$(if $(wildcard $(<:%.cfg=%_crtr)),-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/)
+#	 Copy folder with campaign name and _lnd ending, if it exists
+	$(if $(wildcard $(<:%.cfg=%_lnd)),$(MKDIR) $(@:%.cfg=%_lnd))
+	$(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/)
+#	 Copy the actual campaign file
 	$(CP) $< $@
 
 $(BIN): $(GENSRC) $(STDOBJS) $(LIBS)
