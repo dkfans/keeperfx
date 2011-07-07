@@ -2964,7 +2964,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     TbBool needs_xflip;
     long long lltemp;
     long sprite_group,sprite_delta,cutoff;
-    SYNCDBG(7,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)kspr_base,(int)kspr_frame,(int)sprgroup,(int)scale);
+    SYNCDBG(17,"At (%d,%d) opts %d %d %d %d",(int)x,(int)y,(int)kspr_base,(int)kspr_frame,(int)sprgroup,(int)scale);
     //_DK_process_keeper_sprite(x, y, a3, a4, sprgroup, scale); return;
     player = get_my_player();
 
@@ -2984,7 +2984,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     creature_sprites = keepersprite_array(kspr_base);
     scaled_x = ((scale * (long)creature_sprites->field_C) >> 5) + (long)x;
     scaled_y = ((scale * (long)creature_sprites->field_E) >> 5) + (long)y;
-    SYNCDBG(7,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
+    SYNCDBG(17,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
     if (thing_is_invalid(thing_being_displayed))
     {
         water_y_offset = 0;

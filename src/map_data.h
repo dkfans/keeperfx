@@ -62,6 +62,7 @@ void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long 
 TbBool map_block_invalid(const struct Map *map);
 void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx);
 TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);
+void reveal_map_block(struct Map *map, long plyr_idx);
 TbBool map_block_revealed(const struct Map *map, long plyr_idx);
 TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit);
 TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y);

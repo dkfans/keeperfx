@@ -1827,6 +1827,7 @@
  0003:00247100       map_flag_data
  0003:00247108       end_map_flag_data
  0003:0024710C       net_level_hilighted
+ 0003:00247110       backup_explored
  0003:002473B4       sample_table2
  0003:002473B8       samples_in_bank2
  0003:002473BC       sample_table

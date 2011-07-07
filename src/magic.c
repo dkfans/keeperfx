@@ -592,7 +592,7 @@ long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long 
         thing->health = 2;
         dungeon->field_5DA = splevel;
         dungeon->field_5D8 = thing->index;
-        memset(&dungeon->field_5DD, 0, sizeof(struct UnknSOEStruct));
+        memset(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
         thing->field_4F |= 0x01;
         thing_play_sample(thing, 51, 100, -1, 3, 0, 3, 256);
     }
