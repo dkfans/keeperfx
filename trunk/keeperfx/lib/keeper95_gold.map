@@ -115,6 +115,7 @@
  0003:0024781C       old_mouse_over_button
  0003:00247770       save_game_catalogue
  0003:00247B40       number_of_saved_games
+ 0003:00247110       backup_explored
  0003:00028350       lbUseSdk
  0003:00247428       frontend_palette
  0003:0024740C       load_game_scroll_offset

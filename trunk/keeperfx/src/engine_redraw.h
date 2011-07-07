@@ -36,6 +36,8 @@ struct PlayerInfo;
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_smooth_on;
 #define smooth_on _DK_smooth_on
+DLLIMPORT unsigned char _DK_backup_explored[26][26];
+#define backup_explored _DK_backup_explored
 /******************************************************************************/
 void setup_engine_window(long x1, long y1, long x2, long y2);
 void store_engine_window(TbGraphicsWindow *ewnd,int divider);
