@@ -39,6 +39,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "vidmode.h"
 #include "config.h"
+#include "config_terrain.h"
 #include "game_merge.h"
 
 #include "keeperfx.hpp"
@@ -163,8 +164,178 @@ void message_draw(void)
 
 void update_explored_flags_for_power_sight(struct PlayerInfo *player)
 {
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    long stl_x,stl_y;
+    long soe_x,soe_y;
+    long boundstl_x,boundstl_y;
+    long slb_x,slb_y;
+    long i,delta;
     SYNCDBG(9,"Starting");
-    _DK_update_explored_flags_for_power_sight(player);
+    //_DK_update_explored_flags_for_power_sight(player);
+    dungeon = get_players_dungeon(player);
+    memset(backup_explored, 0, sizeof(backup_explored));
+    if (dungeon->field_5D8 == 0) {
+        return;
+    }
+    thing = thing_get(dungeon->field_5D8);
+
+    // Fill the backup_explored array
+    stl_y = (long)thing->mappos.y.stl.num - 13;
+    for (soe_y=0; soe_y < 26; soe_y++,stl_y++)
+    {
+        stl_x = (long)thing->mappos.x.stl.num - 13;
+        for (soe_x=0; soe_x < 26; soe_x++,stl_x++)
+        {
+            if (dungeon->soe_explored_flags[soe_y][soe_x])
+            {
+                struct Map *mapblk;
+                mapblk = get_map_block_at(stl_x, stl_y);
+                if (!map_block_invalid(mapblk))
+                {
+                    if (map_block_revealed(mapblk, player->id_number))
+                        backup_explored[soe_y][soe_x] |= 0x01;
+                    if ((mapblk->flags & 0x04) != 0)
+                        backup_explored[soe_y][soe_x] |= 0x02;
+                    if ((mapblk->flags & 0x80) != 0)
+                        backup_explored[soe_y][soe_x] |= 0x04;
+                }
+            }
+        }
+    }
+
+
+    int ndelta;
+    unsigned char *expl_flags_ptr;
+
+
+
+    stl_y = (long)thing->mappos.y.stl.num - 13;
+    for (soe_y=0; soe_y < 26; soe_y++,stl_y++)
+    {
+        if ( (stl_y >= 0) && (stl_y <= 255) )
+        {
+            stl_x = (long)thing->mappos.x.stl.num - 13;
+            for (soe_x=0; soe_x <= 13; soe_x++,stl_x++)
+            {
+                if (dungeon->soe_explored_flags[soe_y][soe_x])
+                {
+                    delta = 0;
+                    soe_x++;
+                    for (i=1; soe_x < 26; soe_x++,i++)
+                    {
+                      if ( dungeon->soe_explored_flags[soe_y][soe_x] )
+                        delta = i;
+                    }
+                    boundstl_x = stl_x + delta;
+                    if (stl_x < 0)
+                    {
+                        stl_x = 0;
+                    } else
+                    if (stl_x > 254)
+                    {
+                        stl_x = 254;
+                    }
+                    if (boundstl_x < 0)
+                    {
+                        boundstl_x = 0;
+                    } else
+                    if (boundstl_x > 254)
+                    {
+                        boundstl_x = 254;
+                    }
+                    if (boundstl_x >= stl_x)
+                    {
+                        delta = boundstl_x - stl_x + 1;
+                        slb_y = map_to_slab[stl_y];
+                        for (i=0; i < delta; i++)
+                        {
+                            struct Map *mapblk;
+                            struct SlabMap *slb;
+                            struct SlabAttr *slbattr;
+                            mapblk = get_map_block_at(stl_x+i, stl_y);
+                            reveal_map_block(mapblk, player->id_number);
+                            slb_x = map_to_slab[stl_x+i];
+                            slb = get_slabmap_block(slb_x, slb_y);
+                            slbattr = get_slab_attrs(slb);
+                            if ( !slbattr->field_14 )
+                                mapblk->flags &= 0x7Bu;
+                            mapblk++;
+                        }
+                        stl_x += delta;
+                    }
+                }
+            }
+        }
+    }
+
+    stl_x = (long)thing->mappos.x.stl.num - 13;
+    for (soe_x=0; soe_x < 26; soe_x++,stl_x++)
+    {
+        if ( (stl_x >= 0) && (stl_x <= 255) )
+        {
+            stl_y = (long)thing->mappos.y.stl.num - 13;
+            for (soe_y=0; soe_y <= 13; soe_y++,stl_y++)
+            {
+                if (dungeon->soe_explored_flags[soe_y][soe_x])
+                {
+                    delta = 0;
+                    i = 1;
+                    soe_y++;
+                    expl_flags_ptr = &dungeon->soe_explored_flags[soe_y][soe_x];
+                    ndelta = 26 - soe_y;
+                    if (ndelta > 0)
+                    {
+                      soe_y = 26;
+                      while (ndelta > 0)
+                      {
+                        if ( *expl_flags_ptr )
+                          delta = i;
+                        expl_flags_ptr += 26;
+                        ++i;
+                        --ndelta;
+                      }
+                    }
+                    boundstl_y = stl_y + delta;
+                    if (boundstl_y < 0)
+                    {
+                        boundstl_y = 0;
+                    } else
+                    if (boundstl_y > 254)
+                    {
+                        boundstl_y = 254;
+                    }
+                    if (stl_y < 0)
+                    {
+                        stl_y = 0;
+                    } else
+                    if (stl_y > 254)
+                    {
+                        stl_y = 254;
+                    }
+                    if (stl_y <= boundstl_y)
+                    {
+                      delta = boundstl_y - stl_y + 1;
+                      slb_x = map_to_slab[stl_x];
+                      for (i=0; i < delta; i++)
+                      {
+                          struct Map *mapblk;
+                          slb_y = map_to_slab[stl_y+i];
+                          mapblk = get_map_block_at(stl_x, stl_y+i);
+                          reveal_map_block(mapblk, player->id_number);
+                          struct SlabMap *slb;
+                          struct SlabAttr *slbattr;
+                          slb = get_slabmap_block(slb_x, slb_y);
+                          slbattr = get_slab_attrs(slb);
+                          if ( !slbattr->field_14 )
+                              mapblk->flags &= 0x7Bu;
+                      }
+                      stl_y += delta;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void redraw_creature_view(void)
