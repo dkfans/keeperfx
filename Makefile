@@ -33,6 +33,7 @@ WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
+PNG2ICO  = png2ico
 RM       = rm -f
 MV       = mv -f
 CP       = cp -f
@@ -385,10 +386,19 @@ obj/std/%.o obj/hvlog/%.o: src/%.c $(GENSRC)
 	-$(ECHO) 'Finished building: $<'
 	-$(ECHO) ' '
 
+# Windows resources compilation
+# Should depend on res/keeperfx_icon.ico, but currently we've assuming ICO files are alredy made 
 obj/std/%.res obj/hvlog/%.res: res/%.rc $(GENSRC)
 	-$(ECHO) 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff 
 	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+# Creation of Windows icon files from PNG files
+res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png
+	-$(ECHO) 'Building icon: $@'
+	$(PNG2ICO) "$@" --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
+	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 obj/ver_defs.h: version.mk Makefile
