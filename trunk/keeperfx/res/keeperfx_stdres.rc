@@ -21,7 +21,7 @@
 #include <windows.h> // include for version info constants
 #include "../src/version.h" // define values for version info
 
-A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "keeperfx.ico"
+A ICON "keeperfx_icon.ico"
 
 // Create version info block, using defines from the header file
 1 VERSIONINFO

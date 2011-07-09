@@ -41,6 +41,7 @@ extern "C" {
 #define KEEPER_SPELLS_COUNT    20
 #define TURN_TIMERS_COUNT       8
 #define SCRIPT_FLAGS_COUNT      8
+#define MAX_SOE_RADIUS         13
 
 #define INVALID_DUNGEON (&bad_dungeon)
 
@@ -205,11 +206,11 @@ struct Dungeon {
     short field_5A4[15];
     unsigned char room_slabs_count[ROOM_TYPES_COUNT+1];
     int field_5D4;
-    short field_5D8;
+    short keeper_sight_thing_idx;
     unsigned char field_5DA;
     unsigned char sight_casted_stl_x;
     unsigned char sight_casted_stl_y;
-    unsigned char soe_explored_flags[26][26];
+    unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];
     unsigned char field_881;
     unsigned char field_882;
     unsigned char field_883;

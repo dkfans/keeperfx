@@ -32,6 +32,7 @@ CP = cp -f
 MKDIR    = mkdir -p
 ECHO     = @echo
 DOXYTOOL = doxygen
+PNG2ICO  = png2ico
 BIN      = bin/keeperfx.exe
 HVLOGBIN = bin/keeperfx_hvlog.exe
 GENSRC   = obj/ver_defs.h
@@ -253,6 +254,9 @@ LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 -include obj/std/*.d
 -include obj/hvlog/*.d
 
+# mark icons as precious, because even tho we can re-create them, it requires having "png2ico" tool
+.PRECIOUS: res/%.ico
+# name virtual targets
 .PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-package package
 
 all: standard
@@ -420,9 +424,18 @@ bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
 
+# Windows resources compilation
+# Should depend on res/keeperfx_icon.ico, but currently we've assuming ICO files are alredy made 
 obj/std/%.res obj/hvlog/%.res: res/%.rc
 	-$(ECHO) 'Building resource: $<'
 	$(WINDRES) -i "$<" --input-format=rc -o "$@" -O coff
 	-$(ECHO) 'Finished building: $<'
+	-$(ECHO) ' '
+
+# Creation of Windows icon files from PNG files
+res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png
+	-$(ECHO) 'Building icon: $@'
+	$(PNG2ICO) "$@" --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
+	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 #******************************************************************************
