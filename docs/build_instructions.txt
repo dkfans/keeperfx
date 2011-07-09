@@ -1,0 +1,57 @@
+Build instructions for KeeperFX
+------------------------------
+TOC
+1. Downloading the code repository
+2. Compiling under Windows
+3. Cross-compiling on Linux host
+
+1. Downloading the code repository
+
+You may use any SVN client application to download KeeperFX code.
+Just connect to the repository and "checkout" the "trunk/keeperfx"
+folder, or the whole "trunk" if you're also interested in tools
+which are being developed with KeeperFX.
+
+Note that the ".SVN" folders created by SVN client will not affect
+the build, so you don't need to delete them.
+
+2. To compile the game on Windows host, you need the following programs:
+
+- MinGW32, Minimalist GNU for Windows
+  http://sourceforge.net/projects/mingw/files/
+
+- Coreutils, GNU Utilities pack for Windows
+  http://sourceforge.net/projects/gnuwin32/files/coreutils/
+
+- 7Zip, file archiver with a high compression ratio
+  http://www.7-zip.org/download.html
+  This one is only needed for making release package
+
+The SDL library build is uploaded on KeeperFX repository, so you don't
+need to compile SDL library on your own.
+
+After all the tools are installed in locations referenced by "PATH"
+environment variable, you have to run "sh". Then go to the folder where
+keeperfx repository is (with "cd" command) and run the correct "make" commands.
+Use "mingw32-make standard" to compile the standard version of KeeperFX
+executable. This is the version you usually play.
+Use "mingw32-make heavylog" to compile the verbose logging version of
+KeeperFX executable. This version creates huge LOG files which are useful
+for finding bugs.
+Use "mingw32-make package" to compress the previously compiled executables
+and configuration files for KeeperFX into a compressed patch package, ready
+to be released. Note that using the "package" build target without compiling
+"standard" or "heavylog" version will result in a package without executable
+files, which isn't very useful.
+
+3. Cross-compiling on Linux host
+
+It is possible to cross-compile KeeperFX for Windows using Linux as host.
+Make copy of the "res/keeperfx_build.sh" file somewhere outside of the KeeperFX
+project folder. Then edit the file and change variables at its beginning to match
+your system. Then you can recompile the game by just running that script.
+
+Note that you need mingw32 cross-compiler for Linux to do the compilation.
+Some Linux distributions allow to easily install the mingw32 cross compiler from
+their repositories, other may require to manually compile mingw32. Recompiling
+mingw32 isn't trivial, but you may learn a thing or two in the process.
