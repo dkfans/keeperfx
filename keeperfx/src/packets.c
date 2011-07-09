@@ -2058,10 +2058,10 @@ TbBool process_players_global_packet_action(long plyr_idx)
       switch (pckt->field_6)
       {
       case 5:
-          if (dungeon->field_5D8)
+          if (dungeon->keeper_sight_thing_idx)
           {
             struct Thing *thing;
-            thing = thing_get(dungeon->field_5D8);
+            thing = thing_get(dungeon->keeper_sight_thing_idx);
             player->field_E4 = thing->mappos.x.val;
             player->field_E6 = thing->mappos.y.val;
             set_player_instance(player, 16, 0);

@@ -162,30 +162,17 @@ void message_draw(void)
   }
 }
 
-void update_explored_flags_for_power_sight(struct PlayerInfo *player)
+void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
 {
     struct Dungeon *dungeon;
-    struct Thing *thing;
     long stl_x,stl_y;
     long soe_x,soe_y;
-    long boundstl_x,boundstl_y;
-    long slb_x,slb_y;
-    long i,delta;
-    SYNCDBG(9,"Starting");
-    //_DK_update_explored_flags_for_power_sight(player);
     dungeon = get_players_dungeon(player);
-    memset(backup_explored, 0, sizeof(backup_explored));
-    if (dungeon->field_5D8 == 0) {
-        return;
-    }
-    thing = thing_get(dungeon->field_5D8);
-
-    // Fill the backup_explored array
-    stl_y = (long)thing->mappos.y.stl.num - 13;
-    for (soe_y=0; soe_y < 26; soe_y++,stl_y++)
+    stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
+    for (soe_y=0; soe_y < 2*MAX_SOE_RADIUS; soe_y++,stl_y++)
     {
-        stl_x = (long)thing->mappos.x.stl.num - 13;
-        for (soe_x=0; soe_x < 26; soe_x++,stl_x++)
+        stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
+        for (soe_x=0; soe_x < 2*MAX_SOE_RADIUS; soe_x++,stl_x++)
         {
             if (dungeon->soe_explored_flags[soe_y][soe_x])
             {
@@ -203,46 +190,52 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
             }
         }
     }
+}
 
-
-    int ndelta;
-    unsigned char *expl_flags_ptr;
-
-
-
-    stl_y = (long)thing->mappos.y.stl.num - 13;
-    for (soe_y=0; soe_y < 26; soe_y++,stl_y++)
+void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
+{
+    struct Dungeon *dungeon;
+    long stl_x,stl_y;
+    long soe_x,soe_y;
+    long slb_x,slb_y;
+    long boundstl_x;
+    long delta;
+    long i;
+    dungeon = get_players_dungeon(player);
+    stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
+    for (soe_y=0; soe_y < 2*MAX_SOE_RADIUS; soe_y++,stl_y++)
     {
         if ( (stl_y >= 0) && (stl_y <= 255) )
         {
-            stl_x = (long)thing->mappos.x.stl.num - 13;
-            for (soe_x=0; soe_x <= 13; soe_x++,stl_x++)
+            stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
+            for (soe_x=0; soe_x <= MAX_SOE_RADIUS; soe_x++,stl_x++)
             {
                 if (dungeon->soe_explored_flags[soe_y][soe_x])
                 {
-                    delta = 0;
                     soe_x++;
-                    for (i=1; soe_x < 26; soe_x++,i++)
+                    // Find max value for delta
+                    delta = 0;
+                    for (i=1; soe_x < 2*MAX_SOE_RADIUS; soe_x++,i++)
                     {
-                      if ( dungeon->soe_explored_flags[soe_y][soe_x] )
-                        delta = i;
+                        if ( dungeon->soe_explored_flags[soe_y][soe_x] )
+                            delta = i;
                     }
                     boundstl_x = stl_x + delta;
                     if (stl_x < 0)
                     {
                         stl_x = 0;
                     } else
-                    if (stl_x > 254)
+                    if (stl_x > map_subtiles_x-1)
                     {
-                        stl_x = 254;
+                        stl_x = map_subtiles_x-1;
                     }
                     if (boundstl_x < 0)
                     {
                         boundstl_x = 0;
                     } else
-                    if (boundstl_x > 254)
+                    if (boundstl_x > map_subtiles_x-1)
                     {
-                        boundstl_x = 254;
+                        boundstl_x = map_subtiles_x-1;
                     }
                     if (boundstl_x >= stl_x)
                     {
@@ -268,50 +261,52 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
             }
         }
     }
+}
 
-    stl_x = (long)thing->mappos.x.stl.num - 13;
-    for (soe_x=0; soe_x < 26; soe_x++,stl_x++)
+void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
+{
+    struct Dungeon *dungeon;
+    long stl_x,stl_y;
+    long soe_x,soe_y;
+    long boundstl_y;
+    long slb_x,slb_y;
+    long delta;
+    long i;
+    dungeon = get_players_dungeon(player);
+    stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
+    for (soe_x=0; soe_x < 2*MAX_SOE_RADIUS; soe_x++,stl_x++)
     {
         if ( (stl_x >= 0) && (stl_x <= 255) )
         {
-            stl_y = (long)thing->mappos.y.stl.num - 13;
-            for (soe_y=0; soe_y <= 13; soe_y++,stl_y++)
+            stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
+            for (soe_y=0; soe_y <= MAX_SOE_RADIUS; soe_y++,stl_y++)
             {
                 if (dungeon->soe_explored_flags[soe_y][soe_x])
                 {
-                    delta = 0;
-                    i = 1;
                     soe_y++;
-                    expl_flags_ptr = &dungeon->soe_explored_flags[soe_y][soe_x];
-                    ndelta = 26 - soe_y;
-                    if (ndelta > 0)
+                    // Find max value for delta
+                    delta = 0;
+                    for (i=1; soe_y < 2*MAX_SOE_RADIUS; soe_y++,i++)
                     {
-                      soe_y = 26;
-                      while (ndelta > 0)
-                      {
-                        if ( *expl_flags_ptr )
-                          delta = i;
-                        expl_flags_ptr += 26;
-                        ++i;
-                        --ndelta;
-                      }
+                        if (dungeon->soe_explored_flags[soe_y][soe_x])
+                            delta = i;
                     }
                     boundstl_y = stl_y + delta;
                     if (boundstl_y < 0)
                     {
                         boundstl_y = 0;
                     } else
-                    if (boundstl_y > 254)
+                    if (boundstl_y > map_subtiles_y-1)
                     {
-                        boundstl_y = 254;
+                        boundstl_y = map_subtiles_y-1;
                     }
                     if (stl_y < 0)
                     {
                         stl_y = 0;
                     } else
-                    if (stl_y > 254)
+                    if (stl_y > map_subtiles_y-1)
                     {
-                        stl_y = 254;
+                        stl_y = map_subtiles_y-1;
                     }
                     if (stl_y <= boundstl_y)
                     {
@@ -336,6 +331,24 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
             }
         }
     }
+}
+
+void update_explored_flags_for_power_sight(struct PlayerInfo *player)
+{
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    SYNCDBG(9,"Starting");
+    //_DK_update_explored_flags_for_power_sight(player);
+    dungeon = get_players_dungeon(player);
+    memset(backup_explored, 0, sizeof(backup_explored));
+    if (dungeon->keeper_sight_thing_idx == 0)
+        return;
+    thing = thing_get(dungeon->keeper_sight_thing_idx);
+    // Fill the backup_explored array
+    store_backup_explored_flags_for_power_sight(player, &thing->mappos);
+    update_vertical_explored_flags_for_power_sight(player, &thing->mappos);
+    update_horizonal_explored_flags_for_power_sight(player, &thing->mappos);
+
 }
 
 void redraw_creature_view(void)

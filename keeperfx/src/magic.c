@@ -548,7 +548,7 @@ long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long 
     //return _DK_magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
     dungeon = get_dungeon(plyr_idx);
     magstat = &game.magic_stats[PwrK_SIGHT];
-    if ( dungeon->field_5D8 )
+    if ( dungeon->keeper_sight_thing_idx )
     {
         cdt = game.play_gameturn - dungeon->field_5D4;
         cdlimit = magstat->power[dungeon->field_5DA] >> 4;
@@ -566,7 +566,7 @@ long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long 
         } else {
             dungeon->field_5D4 = cgt;
         }
-        thing = thing_get(dungeon->field_5D8);
+        thing = thing_get(dungeon->keeper_sight_thing_idx);
         if (cgt < (long)thing->field_9)
         {
             dungeon->computer_enabled |= 0x04;
@@ -591,7 +591,7 @@ long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long 
         dungeon->field_5D4 = game.play_gameturn;
         thing->health = 2;
         dungeon->field_5DA = splevel;
-        dungeon->field_5D8 = thing->index;
+        dungeon->keeper_sight_thing_idx = thing->index;
         memset(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
         thing->field_4F |= 0x01;
         thing_play_sample(thing, 51, 100, -1, 3, 0, 3, 256);
@@ -713,7 +713,7 @@ void remove_spell_from_player(long spl_idx, long plyr_idx)
             dungeon->field_888 = 0;
         break;
     case 5:
-        if (dungeon->field_5D8)
+        if (dungeon->keeper_sight_thing_idx)
             turn_off_sight_of_evil(plyr_idx);
         break;
     case 6:

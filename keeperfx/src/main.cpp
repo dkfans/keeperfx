@@ -1238,7 +1238,7 @@ unsigned char sight_of_evil_expand_check(void)
     struct Dungeon *dungeon;
     player = get_my_player();
     dungeon = get_dungeon(player->id_number);
-    return (player->field_4D2 != 0) && (dungeon->field_5D8 == 0);
+    return (player->field_4D2 != 0) && (dungeon->keeper_sight_thing_idx == 0);
 }
 
 unsigned char call_to_arms_expand_check(void)
@@ -4629,11 +4629,11 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   dungeon->field_63 = 0;
   if (dungeon->field_884 != 0)
     turn_off_call_to_arms(player->id_number);
-  if (dungeon->field_5D8 > 0)
+  if (dungeon->keeper_sight_thing_idx > 0)
   {
-    thing = thing_get(dungeon->field_5D8);
+    thing = thing_get(dungeon->keeper_sight_thing_idx);
     delete_thing_structure(thing, 0);
-    dungeon->field_5D8 = 0;
+    dungeon->keeper_sight_thing_idx = 0;
   }
   if (is_my_player(player))
     gui_set_button_flashing(0, 0);
