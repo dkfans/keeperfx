@@ -479,9 +479,9 @@ long process_torture_function(struct Thing *thing)
       i = (4 * i) / 3;
     if (cctrl->field_21 != 0)
       i = (5 * i) / 4;
-    if ((i < crstat->torture_time) || (cctrl->word_A6 == 0))
+    if ( (i < crstat->torture_time) || (cctrl->word_A6 == 0) )
         return 0;
-    i = (long)game.play_gameturn - crstat->torture_time - cctrl->tortured.start_gameturn;
+    i = (long)game.play_gameturn - (long)crstat->torture_time - cctrl->tortured.start_gameturn;
     if (ACTION_RANDOM(100) >= (i/64 + 1))
         return 0;
     if (ACTION_RANDOM(3) == 0)
@@ -489,7 +489,7 @@ long process_torture_function(struct Thing *thing)
         convert_tortured_creature_owner(thing, room->owner);
         return 1;
     }
-    cctrl->tortured.start_gameturn = game.play_gameturn - crstat->torture_time / 2;
+    cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_time / 2;
     reveal_players_map_to_player(thing, room->owner);
     return 0;
 }

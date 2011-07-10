@@ -64,25 +64,25 @@ DLLIMPORT short _DK_creature_hero_entering(struct Thing *thing);
  */
 long good_find_enemy_dungeon(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  long i;
-  SYNCDBG(18,"Starting");
-  cctrl = creature_control_get_from_thing(thing);
-  if ((cctrl->byte_8C != 0) || (cctrl->byte_8B != 0))
-  {
-    cctrl->byte_8C = 0;
-    cctrl->byte_8B = 0;
-    for (i = 0; i < PLAYERS_COUNT; i++)
+    struct CreatureControl *cctrl;
+    long i;
+    SYNCDBG(18,"Starting");
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->byte_8C != 0) || (cctrl->byte_8B != 0))
     {
-      if ( creature_can_get_to_dungeon(thing, i) )
-      {
-          SYNCDBG(18,"Returning enemy player %ld",i);
-          return i;
-      }
+        cctrl->byte_8C = 0;
+        cctrl->byte_8B = 0;
+        for (i = 0; i < PLAYERS_COUNT; i++)
+        {
+          if ( creature_can_get_to_dungeon(thing, i) )
+          {
+              SYNCDBG(18,"Returning enemy player %ld",i);
+              return i;
+          }
+        }
     }
-  }
-  SYNCDBG(18,"No enemy found");
-  return -1;
+    SYNCDBG(18,"No enemy found");
+    return -1;
 }
 
 TbBool good_setup_wander_to_exit(struct Thing *thing)
@@ -581,7 +581,10 @@ short good_leave_through_exit_door(struct Thing *thing)
 
 short good_returns_to_start(struct Thing *thing)
 {
+    struct Dungeon *dungeon;
+    struct Thing *heartng;
     // Debug code to find incorrect states
+    SYNCDBG(7,"Starting");
     if (thing->owner != hero_player_number)
     {
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
@@ -589,7 +592,18 @@ short good_returns_to_start(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    return _DK_good_returns_to_start(thing);
+    //return _DK_good_returns_to_start(thing);
+    dungeon = get_dungeon(thing->owner);
+    heartng = INVALID_THING;
+    if (!dungeon_invalid(dungeon))
+        heartng = thing_get(dungeon->dnheart_idx);
+    //TODO CREATURE_AI Heroes don't usually have hearts; maybe they should also go back to hero gates?
+    if ( !setup_person_move_to_position(thing, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, 0) )
+    {
+        return 0;
+    }
+    thing->continue_state = CrSt_GoodBackAtStart;
+    return 1;
 }
 
 short good_wait_in_exit_door(struct Thing *thing)
@@ -634,7 +648,7 @@ short good_wait_in_exit_door(struct Thing *thing)
 
 short creature_hero_entering(struct Thing *thing)
 {
-  return _DK_creature_hero_entering(thing);
+    return _DK_creature_hero_entering(thing);
 }
 
 /******************************************************************************/
