@@ -133,7 +133,7 @@ enum CreatureStates {
     CrSt_CreatureScavengedDisappear,
     CrSt_CreatureScavengedReappear,
     CrSt_CreatureBeingSummoned,
-    CrSt_CreatureHeroEntering,
+    CrSt_CreatureHeroEntering, // State used for hero entering from ceiling
     CrSt_ImpArrivesAtReinforce,
     CrSt_ImpReinforces,
     CrSt_ArriveAtAlarm,

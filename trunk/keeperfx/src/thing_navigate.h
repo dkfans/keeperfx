@@ -54,6 +54,7 @@ short move_to_position(struct Thing *thing);
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_angle(struct Thing *thing, long a2);
+TbBool move_creature_to_nearest_valid_position(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

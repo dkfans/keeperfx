@@ -39,6 +39,7 @@
 #include "player_instances.h"
 #include "player_data.h"
 #include "thing_effects.h"
+#include "thing_navigate.h"
 #include "thing_stats.h"
 #include "creature_states.h"
 #include "creature_groups.h"
@@ -288,13 +289,13 @@ const struct NamedCommand tendency_desc[] = {
 
 /******************************************************************************/
 DLLIMPORT void _DK_command_if_available(char *plrname, char *varib_name, char *operatr, long value);
-DLLIMPORT void _DK_command_set_computer_globals(char *plrname, long a1, long a2, long a3, long a4, long a5, long a6);
-DLLIMPORT void _DK_command_set_computer_checks(char *plrname, char *chkname, long a1, long a2, long a3, long a4, long a5);
-DLLIMPORT void _DK_command_set_computer_events(char *plrname, char *evntname, long a1, long a2);
-DLLIMPORT void _DK_command_set_computer_process(char *plrname, char *procname, long a1, long a2, long a3, long a4, long a5);
-DLLIMPORT void _DK_command_display_objective(long msg_num, char *plrname, long a2, long a3);
+DLLIMPORT void _DK_command_set_computer_globals(char *plrname, long apt_idx, long tngclass, long tngmodel, long tngowner, long random_factor, long a6);
+DLLIMPORT void _DK_command_set_computer_checks(char *plrname, char *chkname, long apt_idx, long tngclass, long tngmodel, long tngowner, long random_factor);
+DLLIMPORT void _DK_command_set_computer_events(char *plrname, char *evntname, long apt_idx, long tngclass);
+DLLIMPORT void _DK_command_set_computer_process(char *plrname, char *procname, long apt_idx, long tngclass, long tngmodel, long tngowner, long random_factor);
+DLLIMPORT void _DK_command_display_objective(long msg_num, char *plrname, long tngclass, long tngmodel);
 DLLIMPORT void _DK_command_add_tunneller_party_to_level(char *plrname, char *prtname, char *apt_num, char *objectv, long target, char crtr_level, unsigned long carried_gold);
-DLLIMPORT long _DK_script_support_setup_player_as_computer_keeper(unsigned char plyridx, long a2);
+DLLIMPORT long _DK_script_support_setup_player_as_computer_keeper(unsigned char plyridx, long tngclass);
 DLLIMPORT void _DK_command_research(char *plrname, char *trg_type, char *trg_name, unsigned long val);
 DLLIMPORT void _DK_command_if_action_point(long apt_idx, char *plrname);
 DLLIMPORT void _DK_command_add_tunneller_to_level(char *plrname, char *dst_place, char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold);
@@ -307,17 +308,17 @@ DLLIMPORT struct CommandDesc *_DK_get_next_word(char **line, char *params, unsig
 DLLIMPORT long _DK_scan_line(char *line);
 DLLIMPORT short _DK_load_script(long lvl_num);
 DLLIMPORT void _DK_script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
-DLLIMPORT struct Thing *_DK_script_process_new_tunneller(unsigned char a1, long a2, unsigned char a3, long a4, unsigned char a5, unsigned long a6);
-DLLIMPORT struct Thing *_DK_script_process_new_party(struct Party *party, unsigned char a2, long a3, long a4);
-DLLIMPORT struct Thing *_DK_script_create_new_creature(unsigned char a1, long a2, long a3, long a4, long a5);
-DLLIMPORT long _DK_get_condition_value(char plyr_idx, unsigned char valtype, unsigned char a3);
-DLLIMPORT void _DK_script_process_new_tunneller_party(unsigned char a1, long a2, long a3, unsigned char a4, long a5, unsigned char a6, unsigned long a7);
-DLLIMPORT long _DK_script_support_create_thing_at_hero_door(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
-DLLIMPORT long _DK_script_support_create_thing_at_action_point(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
-DLLIMPORT long _DK_script_support_create_creature_at_dungeon_heart(unsigned char a1, unsigned char a2, unsigned char a3);
-DLLIMPORT long _DK_script_support_send_tunneller_to_action_point(struct Thing *thing, long a2);
-DLLIMPORT long _DK_script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char a2);
-DLLIMPORT long _DK_script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char a2);
+DLLIMPORT struct Thing *_DK_script_process_new_tunneller(unsigned char apt_idx, long tngclass, unsigned char tngmodel, long tngowner, unsigned char random_factor, unsigned long a6);
+DLLIMPORT struct Thing *_DK_script_process_new_party(struct Party *party, unsigned char tngclass, long tngmodel, long tngowner);
+DLLIMPORT struct Thing *_DK_script_create_new_creature(unsigned char apt_idx, long tngclass, long tngmodel, long tngowner, long random_factor);
+DLLIMPORT long _DK_get_condition_value(char plyr_idx, unsigned char valtype, unsigned char tngmodel);
+DLLIMPORT void _DK_script_process_new_tunneller_party(unsigned char apt_idx, long tngclass, long tngmodel, unsigned char tngowner, long random_factor, unsigned char a6, unsigned long a7);
+DLLIMPORT long _DK_script_support_create_thing_at_hero_door(long apt_idx, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char random_factor);
+DLLIMPORT long _DK_script_support_create_thing_at_action_point(long apt_idx, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char random_factor);
+DLLIMPORT long _DK_script_support_create_creature_at_dungeon_heart(unsigned char apt_idx, unsigned char tngclass, unsigned char tngmodel);
+DLLIMPORT long _DK_script_support_send_tunneller_to_action_point(struct Thing *thing, long tngclass);
+DLLIMPORT long _DK_script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char tngclass);
+DLLIMPORT long _DK_script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char tngclass);
 DLLIMPORT long _DK_script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
 /******************************************************************************/
 /**
@@ -2373,10 +2374,92 @@ long script_support_create_thing_at_hero_door(long a1, unsigned char a2, unsigne
   return _DK_script_support_create_thing_at_hero_door(a1, a2, a3, a4, a5);
 }
 
-long script_support_create_thing_at_action_point(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5)
+long script_support_create_thing_at_action_point(long apt_idx, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char random_factor)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_script_support_create_thing_at_action_point(a1, a2, a3, a4, a5);
+    SYNCDBG(7,"Starting");
+    //return _DK_script_support_create_thing_at_action_point(apt_idx, tngclass, tngmodel, tngowner, random_factor);
+    struct Thing *thing;
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Thing *heartng;
+    struct ActionPoint *apt;
+    long direction,delta_x,delta_y;
+    struct Coord3d pos;
+    struct InitLight ilght;
+
+    apt = action_point_get(apt_idx);
+    if (!action_point_exists(apt))
+    {
+        ERRORLOG("Attempt to create thing at nonexisting action point %d",(int)apt_idx);
+        return 0;
+    }
+
+    if ( (random_factor == 0) || (apt->range == 0) )
+    {
+        pos.x.val = apt->mappos.x.val;
+        pos.y.val = apt->mappos.y.val;
+    } else
+    {
+        direction = ACTION_RANDOM(2*LbFPMath_PI);
+        delta_x = (apt->range * LbSinL(direction) >> 8);
+        delta_y = (apt->range * LbCosL(direction) >> 8);
+        pos.x.val = apt->mappos.x.val + (delta_x >> 8);
+        pos.y.val = apt->mappos.y.val - (delta_y >> 8);
+    }
+
+    thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
+    if (thing_is_invalid(thing))
+    {
+        // Error is already logged
+        return 0;
+    }
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing)) {
+            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
+            delete_thing_structure(thing, 0);
+            return 0;
+        }
+    }
+
+    cctrl = creature_control_get_from_thing(thing);
+    dungeon = get_dungeon(game.hero_player_num);
+    heartng = thing_get(dungeon->dnheart_idx);
+    if ( thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, 1) )
+    {
+        cctrl->field_AE |= 0x01;
+    }
+    cctrl->pos_288.x.val = thing->mappos.x.val;
+    cctrl->pos_288.y.val = thing->mappos.y.val;
+    cctrl->pos_288.z.val = thing->mappos.z.val;
+    cctrl->pos_288.z.val = get_thing_height_at(thing, &thing->mappos);
+    cctrl->sbyte_89 = -1;
+
+    if (ACTION_RANDOM(4) == 0)
+    {
+        ilght.mappos.x.val = thing->mappos.x.val;
+        ilght.mappos.y.val = thing->mappos.y.val;
+        ilght.mappos.z.val = thing->mappos.z.val;
+        ilght.field_2 = 48;
+        ilght.field_3 = 5;
+        ilght.is_dynamic = 1;
+        ilght.field_0 = 2560;
+        thing->light_id = light_create_light(&ilght);
+        if (thing->light_id != 0) {
+            light_set_light_never_cache(thing->light_id);
+        } else {
+            ERRORLOG("Cannot allocate light to new hero");
+        }
+    }
+
+    if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
+    {
+        output_message(19, 0, 1);
+        output_message(118 + ACTION_RANDOM(8), 0, 1);
+    }
+    return thing->index;
 }
 
 long script_support_create_creature_at_dungeon_heart(unsigned char a1, unsigned char a2, unsigned char a3)
@@ -2411,91 +2494,91 @@ long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing)
 
 struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long breed, long location)
 {
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  long tng_idx;
-  long effect;
-  long i;
-  switch (get_map_location_type(location))
-  {
-  case MLoc_ACTIONPOINT:
-      i = get_map_location_longval(location);
-      tng_idx = script_support_create_thing_at_action_point(i, TCls_Creature, breed, plyr_idx, 1);
-      effect = 1;
-      break;
-  case MLoc_HEROGATE:
-      i = get_map_location_longval(location);
-      tng_idx = script_support_create_thing_at_hero_door(i, TCls_Creature, breed, plyr_idx, 1);
-      effect = 0;
-      break;
-  case MLoc_PLAYERSHEART:
-      i = get_map_location_longval(location);
-      tng_idx = script_support_create_creature_at_dungeon_heart(breed, plyr_idx, i);
-      effect = 0;
-      break;
-  case MLoc_NONE:
-  case MLoc_CREATUREBREED:
-  case MLoc_OBJECTKIND:
-  case MLoc_ROOMKIND:
-  case MLoc_THING:
-  default:
-      tng_idx = 0;
-      effect = 0;
-      break;
-  }
-  thing = thing_get(tng_idx);
-  if (thing_is_invalid(thing))
-  {
-    ERRORLOG("Couldn't create creature breed %d at location %ld",(int)breed,location);
-    return INVALID_THING;
-  }
-  cctrl = creature_control_get_from_thing(thing);
-  switch (effect)
-  {
-  case 1:
-      if (plyr_idx == game.hero_player_num)
-      {
-        thing->mappos.z.val = get_ceiling_height(&thing->mappos);
-        create_effect(&thing->mappos, TngEff_Unknown36, thing->owner);
-        initialise_thing_state(thing, CrSt_CreatureHeroEntering);
-        thing->field_4F |= 0x01;
-        cctrl->field_282 = 24;
-      }
-      break;
-  default:
-      break;
-  }
-  return thing;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    long tng_idx;
+    long effect;
+    long i;
+    switch (get_map_location_type(location))
+    {
+    case MLoc_ACTIONPOINT:
+        i = get_map_location_longval(location);
+        tng_idx = script_support_create_thing_at_action_point(i, TCls_Creature, breed, plyr_idx, 1);
+        effect = 1;
+        break;
+    case MLoc_HEROGATE:
+        i = get_map_location_longval(location);
+        tng_idx = script_support_create_thing_at_hero_door(i, TCls_Creature, breed, plyr_idx, 1);
+        effect = 0;
+        break;
+    case MLoc_PLAYERSHEART:
+        i = get_map_location_longval(location);
+        tng_idx = script_support_create_creature_at_dungeon_heart(breed, plyr_idx, i);
+        effect = 0;
+        break;
+    case MLoc_NONE:
+    case MLoc_CREATUREBREED:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    case MLoc_THING:
+    default:
+        tng_idx = 0;
+        effect = 0;
+        break;
+    }
+    thing = thing_get(tng_idx);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create creature breed %d at location %ld",(int)breed,location);
+        return INVALID_THING;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    switch (effect)
+    {
+    case 1:
+        if (plyr_idx == game.hero_player_num)
+        {
+            thing->mappos.z.val = get_ceiling_height(&thing->mappos);
+            create_effect(&thing->mappos, TngEff_Unknown36, thing->owner);
+            initialise_thing_state(thing, CrSt_CreatureHeroEntering);
+            thing->field_4F |= 0x01;
+            cctrl->field_282 = 24;
+        }
+        break;
+    default:
+        break;
+    }
+    return thing;
 }
 
 struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold)
 {
-  struct Thing *thing;
-  //return _DK_script_process_new_tunneller(plyr_idx, location, a3, a4, a5, a6);
-  thing = script_create_creature_at_location(plyr_idx, 8, location);
-  if (thing_is_invalid(thing))
-    return INVALID_THING;
-  thing->creature.gold_carried = carried_gold;
-  init_creature_level(thing, crtr_level);
-  switch (heading)
-  {
-  case 1:
-      script_support_send_tunneller_to_action_point(thing, target);
-      break;
-  case 2:
-      script_support_send_tunneller_to_dungeon(thing, target);
-      break;
-  case 3:
-      script_support_send_tunneller_to_dungeon_heart(thing, target);
-      break;
-  case 4:
-      script_support_send_tunneller_to_appropriate_dungeon(thing);
-      break;
-  default:
-      ERRORLOG("Invalid Heading objective");
-      break;
-  }
-  return thing;
+    struct Thing *thing;
+    //return _DK_script_process_new_tunneller(plyr_idx, location, a3, a4, a5, a6);
+    thing = script_create_creature_at_location(plyr_idx, 8, location);
+    if (thing_is_invalid(thing))
+        return INVALID_THING;
+    thing->creature.gold_carried = carried_gold;
+    init_creature_level(thing, crtr_level);
+    switch (heading)
+    {
+    case 1:
+        script_support_send_tunneller_to_action_point(thing, target);
+        break;
+    case 2:
+        script_support_send_tunneller_to_dungeon(thing, target);
+        break;
+    case 3:
+        script_support_send_tunneller_to_dungeon_heart(thing, target);
+        break;
+    case 4:
+        script_support_send_tunneller_to_appropriate_dungeon(thing);
+        break;
+    default:
+        ERRORLOG("Invalid Heading objective");
+        break;
+    }
+    return thing;
 }
 
 struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_idx, long location, long copies_num)

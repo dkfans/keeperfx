@@ -444,10 +444,10 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
             cctrl->affected_by_spells |= CCSpl_Freeze;
-            if ((thing->field_25 & 0x20) != 0)
+            if ((thing->movement_flags & TMvF_Flying) != 0)
             {
                 cctrl->field_AD |= 0x80;
-                thing->field_25 &= 0xDF;
+                thing->movement_flags &= ~TMvF_Flying;
             }
             creature_set_speed(thing, 0);
         }
@@ -560,7 +560,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
             cctrl->spell_flags |= CSF_Fly;
-            thing->field_25 |= 0x20;
+            thing->movement_flags |= TMvF_Flying;
         }
         break;
     case SplK_Sight:
@@ -971,7 +971,7 @@ long process_creature_state(struct Thing *thing)
       set_start_state(thing);
     }
     // Creatures that are not special diggers will pick up any nearby gold or food
-    if (((thing->field_25 & 0x20) == 0) && ((model_flags & MF_IsSpecDigger) == 0))
+    if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & MF_IsSpecDigger) == 0))
     {
         tgthing = find_interesting_object_laying_around_thing(thing);
         if (!thing_is_invalid(tgthing))
@@ -1747,7 +1747,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
       {
         thing_play_sample(shot, shotst->old->shot_sound, 100, 0, 3, 0, shotst->old->field_20, 256);
       }
-      set_flag_byte(&shot->field_25,0x10,flag1);
+      set_flag_byte(&shot->movement_flags,TMvF_Unknown10,flag1);
     }
 }
 
@@ -2223,7 +2223,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     crtng->field_22 = 0;
     crtng->field_23 = 32;
     crtng->field_24 = 8;
-    crtng->field_25 |= 0x08;
+    crtng->movement_flags |= TMvF_Unknown08;
     crtng->owner = owner;
     crtng->field_52 = 0;
     crtng->field_54 = 0;
@@ -2254,7 +2254,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     cctrl->pos_288.z.val = get_thing_height_at(crtng, pos);
     cctrl->field_1D2 = -1;
     if (crstat->flying)
-      crtng->field_25 |= 0x20;
+      crtng->movement_flags |= TMvF_Flying;
     set_creature_level(crtng, 0);
     crtng->health = cctrl->max_health;
     add_thing_to_its_class_list(crtng);
@@ -2865,7 +2865,7 @@ void place_bloody_footprint(struct Thing *thing)
     {
       if ( thing->field_0 & 0x20 )
       {
-        if ( thing->field_25 & 0x20 )
+        if ((thing->movement_flags & TMvF_Flying) != 0)
         {
           if (cctrl->move_speed != 0)
           {
@@ -2908,7 +2908,7 @@ void place_bloody_footprint(struct Thing *thing)
         cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
         cctrl->pos_BB.z.val = 0;
       }
-      if (((thing->field_25 & 0x20) != 0) && ((thing->field_0 & 0x20) == 0))
+      if (((thing->movement_flags & TMvF_Flying) != 0) && ((thing->field_0 & 0x20) == 0))
       {
         i = get_floor_height_under_thing_at(thing, &thing->mappos) - thing->mappos.z.val + 256;
         if (i > 0)
@@ -2939,7 +2939,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    if (((thing->field_0 & 0x20) == 0) && ((thing->field_25 & 0x02) != 0))
+    if (((thing->field_0 & 0x20) == 0) && ((thing->movement_flags & TMvF_Unknown02) != 0))
     {
       crstat = creature_stats_get_from_thing(thing);
       if (crstat->hurt_by_lava)
@@ -2967,7 +2967,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     struct SlabMap *slb;
     short nfoot;
     cctrl = creature_control_get_from_thing(thing);
-    if ((thing->field_25 & 0x01) != 0)
+    if ((thing->movement_flags & TMvF_Unknown01) != 0)
     {
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
@@ -2992,7 +2992,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
         slb = get_slabmap_block(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
         if (slb->kind == SlbT_PATH)
         {
-          thing->field_25 |= 0x80u;
+          thing->movement_flags |= TMvF_Unknown80;
           nfoot = get_foot_creature_has_down(thing);
           footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
         }
@@ -3007,9 +3007,9 @@ void process_landscape_affecting_creature(struct Thing *thing)
   int stl_idx;
   int i;
   SYNCDBG(18,"Starting");
-  set_flag_byte(&thing->field_25,0x01,false);
-  set_flag_byte(&thing->field_25,0x02,false);
-  set_flag_byte(&thing->field_25,0x80,false);
+  set_flag_byte(&thing->movement_flags,TMvF_Unknown01,false);
+  set_flag_byte(&thing->movement_flags,TMvF_Unknown02,false);
+  set_flag_byte(&thing->movement_flags,TMvF_Unknown80,false);
   cctrl = creature_control_get_from_thing(thing);
   if (creature_control_invalid(cctrl))
   {
@@ -3023,15 +3023,15 @@ void process_landscape_affecting_creature(struct Thing *thing)
   if (((navmap & 0xF) << 8) == thing->mappos.z.val)
   {
     i = get_top_cube_at_pos(stl_idx);
-    if ((i & 0xFFFFFFFE) == 40)
+    if ( (i == 40) || (i == 41) )
     {
       crstat = creature_stats_get_from_thing(thing);
       apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
-      thing->field_25 |= 0x02;
+      thing->movement_flags |= TMvF_Unknown02;
     } else
     if (i == 39)
     {
-      thing->field_25 |= 0x01;
+      thing->movement_flags |= TMvF_Unknown01;
     }
     process_creature_leave_footsteps(thing);
     process_creature_standing_on_corpses_at(thing, &thing->mappos);

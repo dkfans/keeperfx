@@ -171,7 +171,7 @@ short at_lair_to_sleep(struct Thing *thing)
     {
         internal_set_thing_state(thing, CrSt_CreatureSleep);
         cctrl->field_82 = 200;
-        thing->field_25 &= ~0x20;
+        thing->movement_flags &= ~TMvF_Flying;
     }
     process_lair_enemy(thing, room);
     return 1;

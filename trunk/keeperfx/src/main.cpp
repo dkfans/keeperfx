@@ -1197,13 +1197,13 @@ void give_shooter_drained_health(struct Thing *shooter, long health_delta)
 
 long get_foot_creature_has_down(struct Thing *thing)
 {
-  return _DK_get_foot_creature_has_down(thing);
+    return _DK_get_foot_creature_has_down(thing);
 }
 
 void process_disease(struct Thing *thing)
 {
-  SYNCDBG(18,"Starting");
-  _DK_process_disease(thing);
+    SYNCDBG(18,"Starting");
+    _DK_process_disease(thing);
 }
 
 void process_keeper_spell_effect(struct Thing *thing)
@@ -1217,15 +1217,15 @@ TbBool add_spell_to_player(long spl_idx, long plyr_idx)
     long i;
     if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
     {
-      ERRORLOG("Can't add incorrect spell %ld to player %ld",spl_idx, plyr_idx);
-      return false;
+        ERRORLOG("Can't add incorrect spell %ld to player %ld",spl_idx, plyr_idx);
+        return false;
     }
     dungeon = get_dungeon(plyr_idx);
     i = dungeon->magic_level[spl_idx];
     if (i >= 255)
     {
-      ERRORLOG("Spell %ld has bad magic_level=%ld for player %ld",spl_idx, i, plyr_idx);
-      return false;
+        ERRORLOG("Spell %ld has bad magic_level=%ld for player %ld",spl_idx, i, plyr_idx);
+        return false;
     }
     dungeon->magic_level[spl_idx] = i+1;
     dungeon->magic_resrchable[spl_idx] = 1;
@@ -1300,32 +1300,32 @@ unsigned char external_set_thing_state(struct Thing *thing, long state)
 
 long is_thing_passenger_controlled(struct Thing *thing)
 {
-  return _DK_is_thing_passenger_controlled(thing);
+    return _DK_is_thing_passenger_controlled(thing);
 }
 
 long process_creature_self_spell_casting(struct Thing *thing)
 {
-  return _DK_process_creature_self_spell_casting(thing);
+    return _DK_process_creature_self_spell_casting(thing);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
-  return _DK_lightning_is_close_to_player(player, pos);
+    return _DK_lightning_is_close_to_player(player, pos);
 }
 
 void affect_nearby_enemy_creatures_with_wind(struct Thing *thing)
 {
-  _DK_affect_nearby_enemy_creatures_with_wind(thing);
+    _DK_affect_nearby_enemy_creatures_with_wind(thing);
 }
 
 void god_lightning_choose_next_creature(struct Thing *thing)
 {
-  _DK_god_lightning_choose_next_creature(thing);
+    _DK_god_lightning_choose_next_creature(thing);
 }
 
 void draw_god_lightning(struct Thing *thing)
 {
-  _DK_draw_god_lightning(thing);
+    _DK_draw_god_lightning(thing);
 }
 
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
