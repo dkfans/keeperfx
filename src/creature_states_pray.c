@@ -134,7 +134,7 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, long expleve
   }
   init_creature_level(thing, explevel);
   internal_set_thing_state(thing, 95);
-  thing->field_25 |= 0x04;
+  thing->movement_flags |= TMvF_Unknown04;
   cctrl = creature_control_get_from_thing(thing);
   cctrl->word_9C = 48;
   return true;
@@ -392,9 +392,10 @@ short creature_being_sacrificed(struct Thing *thing)
   cctrl->word_9A--;
   if (cctrl->word_9A > 0)
   {
-    award = creature_turn_to_face_angle(thing, thing->field_52 + 256);
-    thing->field_25 &= 0xDFu;
-    return 0;
+      // No flying while being sacrificed
+      award = creature_turn_to_face_angle(thing, thing->field_52 + 256);
+      thing->movement_flags &= ~TMvF_Flying;
+      return 0;
   }
   slb = get_slabmap_for_subtile(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
   owner = slabmap_owner(slb);

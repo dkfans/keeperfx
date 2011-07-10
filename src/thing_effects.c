@@ -468,8 +468,8 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->field_20 = eestat->field_18;
     thing->field_23 = eestat->field_1A;
     thing->field_24 = eestat->field_1C;
-    thing->field_25 |= 0x08;
-    set_flag_byte(&thing->field_25,0x10,eestat->field_16);
+    thing->movement_flags |= TMvF_Unknown08;
+    set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->field_16);
     thing->field_9 = game.play_gameturn;
 
     if (eestat->numfield_3 > 0)
@@ -579,19 +579,19 @@ long update_effect_element(struct Thing *thing)
     }
     if (eestats->field_15)
     {
-        thing->field_25 &= ~0x01;
-        thing->field_25 &= ~0x02;
+        thing->movement_flags &= ~TMvF_Unknown01;
+        thing->movement_flags &= ~TMvF_Unknown02;
         if (thing_touching_floor(thing))
         {
             i = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             switch (i)
             {
             case 39:
-                thing->field_25 |= 0x01;
+                thing->movement_flags |= TMvF_Unknown01;
                 break;
             case 40:
             case 41:
-                thing->field_25 |= 0x02;
+                thing->movement_flags |= TMvF_Unknown02;
                 break;
             }
         }

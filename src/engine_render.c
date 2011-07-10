@@ -2990,14 +2990,14 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
-    if ( (thing_being_displayed->field_25 & 7) == 0)
+    if ( (thing_being_displayed->movement_flags & (TMvF_Unknown01|TMvF_Unknown02|TMvF_Unknown04)) == 0)
     {
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
     {
         cutoff = 6;
-        if ( (thing_being_displayed->field_25 & 0x04) != 0 )
+        if ( (thing_being_displayed->movement_flags & TMvF_Unknown04) != 0 )
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->field_44, thing_being_displayed->field_52, thing_being_displayed->field_48, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);

@@ -51,6 +51,7 @@ struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_nu
 struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt);
 struct ActionPoint *action_point_get(long apt_idx);
 struct ActionPoint *action_point_get_by_number(long apt_num);
+TbBool action_point_exists(const struct ActionPoint *apt);
 TbBool action_point_exists_idx(long apt_idx);
 TbBool action_point_exists_number(long apt_num);
 long action_point_number_to_index(long apt_num);

@@ -265,9 +265,9 @@ struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned 
     thing->field_23 = 204;
     thing->field_24 = 51;
     thing->field_22 = 0;
-    thing->field_25 |= 0x08;
+    thing->movement_flags |= TMvF_Unknown08;
 
-    set_flag_byte(&thing->field_25, 0x40, objconf->field_8);
+    set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->field_8);
     thing->owner = owner;
     thing->field_9 = game.play_gameturn;
 
@@ -673,13 +673,13 @@ long update_object(struct Thing *thing)
         }
     }
     SYNCDBG(18,"Updating position");
-    thing->field_25 &= ~0x01;
-    thing->field_25 &= ~0x02;
-    if ( ((thing->field_25 & 0x40) == 0) && thing_touching_floor(thing) )
+    thing->movement_flags &= ~TMvF_Unknown01;
+    thing->movement_flags &= ~TMvF_Unknown02;
+    if ( ((thing->movement_flags & TMvF_Unknown40) == 0) && thing_touching_floor(thing) )
     {
       if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num) )
       {
-        thing->field_25 |= 0x02;
+        thing->movement_flags |= TMvF_Unknown02;
         objdat = get_objects_data_for_thing(thing);
         if ( (objdat->field_12) && ((thing->field_1 & 0x01) == 0) && ((thing->field_0 & 0x80) == 0) )
         {
@@ -695,10 +695,10 @@ long update_object(struct Thing *thing)
       } else
       if (get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num) == 39)
       {
-        thing->field_25 |= 0x01;
+        thing->movement_flags |= TMvF_Unknown01;
       }
     }
-    if ((thing->field_25 & 0x40) != 0)
+    if ((thing->movement_flags & TMvF_Unknown40) != 0)
         return 1;
     return move_object(thing);
 }

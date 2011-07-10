@@ -648,7 +648,55 @@ short good_wait_in_exit_door(struct Thing *thing)
 
 short creature_hero_entering(struct Thing *thing)
 {
-    return _DK_creature_hero_entering(thing);
+    struct CreatureControl *cctrl;
+    struct StateInfo *stati;
+    CreatureStateFunc1 cleanup_cb;
+    //return _DK_creature_hero_entering(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->field_282 > 0)
+    {
+        cctrl->field_282--;
+        return 0;
+    }
+    if (cctrl->field_282 == 0)
+    {
+        thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->field_58 - 1;
+        cctrl->field_282--;
+        return 0;
+    }
+    if ( thing_touching_floor(thing) || ((thing->movement_flags & TMvF_Flying) != 0) )
+    {
+        if (thing->owner != game.neutral_player_num)
+        {
+            set_start_state(thing);
+            cctrl->field_282--;
+            return 0;
+        }
+        stati = get_thing_active_state_info(thing);
+        if (stati->state_type == 6)
+          stati = get_thing_continue_state_info(thing);
+        cleanup_cb = stati->cleanup_state;
+        if (cleanup_cb != NULL)
+        {
+            cleanup_cb(thing);
+            thing->field_1 |= 0x10;
+        } else
+        {
+          clear_creature_instance(thing);
+        }
+        thing->continue_state = 0;
+        thing->field_1 &= ~0x10;
+        thing->active_state = CrSt_CreatureDormant;
+        cctrl->field_80 = 0;
+        cctrl->field_302 = 0;
+        if ((cctrl->flgfield_1 & 0x20) != 0)
+        {
+            ERRORLOG("Initialise state, but thing in room list even after cleanup");
+            remove_creature_from_work_room(thing);
+        }
+    }
+    cctrl->field_282--;
+    return 0;
 }
 
 /******************************************************************************/
