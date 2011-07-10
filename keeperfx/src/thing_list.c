@@ -1191,31 +1191,31 @@ TbBool update_thing(struct Thing *thing)
     SYNCDBG(18,"Thing index %d, class %d",(int)thing->index,(int)thing->class_id);
     if (thing_is_invalid(thing))
         return false;
-    if ((thing->field_25 & 0x40) == 0)
+    if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
-      if ((thing->field_1 & 0x04) != 0)
-      {
-        thing->pos_2C.x.val += thing->acceleration.x.val;
-        thing->pos_2C.y.val += thing->acceleration.y.val;
-        thing->pos_2C.z.val += thing->acceleration.z.val;
-        thing->acceleration.x.val = 0;
-        thing->acceleration.y.val = 0;
-        thing->acceleration.z.val = 0;
-        set_flag_byte(&thing->field_1, 0x04, false);
-      }
-      thing->velocity.x.val = thing->pos_2C.x.val;
-      thing->velocity.y.val = thing->pos_2C.y.val;
-      thing->velocity.z.val = thing->pos_2C.z.val;
-      if ((thing->field_1 & 0x08) != 0)
-      {
-        thing->velocity.x.val += thing->pos_26.x.val;
-        thing->velocity.y.val += thing->pos_26.y.val;
-        thing->velocity.z.val += thing->pos_26.z.val;
-        thing->pos_26.x.val = 0;
-        thing->pos_26.y.val = 0;
-        thing->pos_26.z.val = 0;
-        set_flag_byte(&thing->field_1, 0x08, false);
-      }
+        if ((thing->field_1 & 0x04) != 0)
+        {
+          thing->pos_2C.x.val += thing->acceleration.x.val;
+          thing->pos_2C.y.val += thing->acceleration.y.val;
+          thing->pos_2C.z.val += thing->acceleration.z.val;
+          thing->acceleration.x.val = 0;
+          thing->acceleration.y.val = 0;
+          thing->acceleration.z.val = 0;
+          set_flag_byte(&thing->field_1, 0x04, false);
+        }
+        thing->velocity.x.val = thing->pos_2C.x.val;
+        thing->velocity.y.val = thing->pos_2C.y.val;
+        thing->velocity.z.val = thing->pos_2C.z.val;
+        if ((thing->field_1 & 0x08) != 0)
+        {
+          thing->velocity.x.val += thing->pos_26.x.val;
+          thing->velocity.y.val += thing->pos_26.y.val;
+          thing->velocity.z.val += thing->pos_26.z.val;
+          thing->pos_26.x.val = 0;
+          thing->pos_26.y.val = 0;
+          thing->pos_26.z.val = 0;
+          set_flag_byte(&thing->field_1, 0x08, false);
+        }
     }
     if (thing->class_id < sizeof(class_functions)/sizeof(class_functions[0]))
         classfunc = class_functions[thing->class_id];
@@ -1227,7 +1227,7 @@ TbBool update_thing(struct Thing *thing)
         return false;
     }
     SYNCDBG(18,"Class function end ok");
-    if ((thing->field_25 & 0x40) == 0)
+    if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
         if (thing->mappos.z.val > thing->field_60)
         {
@@ -1235,7 +1235,7 @@ TbBool update_thing(struct Thing *thing)
             thing->pos_2C.x.val = thing->pos_2C.x.val * (long)(256 - thing->field_24) / 256;
           if (thing->pos_2C.y.val != 0)
             thing->pos_2C.y.val = thing->pos_2C.y.val * (long)(256 - thing->field_24) / 256;
-          if ((thing->field_25 & 0x20) == 0)
+          if ((thing->movement_flags & TMvF_Flying) == 0)
           {
             thing->acceleration.z.val -= thing->field_20;
             thing->field_1 |= 0x04;
@@ -1247,7 +1247,7 @@ TbBool update_thing(struct Thing *thing)
           if (thing->pos_2C.y.val != 0)
             thing->pos_2C.y.val = thing->pos_2C.y.val * (long)(256 - thing->field_23) / 256;
           thing->mappos.z.val = thing->field_60;
-          if ((thing->field_25 & 0x08) != 0)
+          if ((thing->movement_flags & TMvF_Unknown08) != 0)
           {
             thing->pos_2C.z.val = 0;
           }

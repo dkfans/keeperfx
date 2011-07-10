@@ -102,6 +102,33 @@ unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, st
     return _DK_get_nearest_valid_position_for_creature_at(thing, pos);
 }
 
+TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
+{
+    struct Coord3d pos;
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val;
+    if (!get_nearest_valid_position_for_creature_at(thing, &pos))
+    {
+        return false;
+    }
+    if ( (thing->mappos.x.stl.num != pos.x.stl.num) || (thing->mappos.y.stl.num != pos.y.stl.num) )
+    {
+        remove_thing_from_mapwho(thing);
+        thing->mappos.x.val = pos.x.val;
+        thing->mappos.y.val = pos.y.val;
+        thing->mappos.z.val = pos.z.val;
+        place_thing_in_mapwho(thing);
+    } else
+    {
+        thing->mappos.x.val = pos.x.val;
+        thing->mappos.y.val = pos.y.val;
+        thing->mappos.z.val = pos.z.val;
+    }
+    thing->field_60 = get_thing_height_at(thing, thing_mappos);
+    return true;
+}
+
 void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py)
 {
     _DK_nearest_search(size, srcx, srcy, dstx, dsty, px, py);
@@ -109,11 +136,9 @@ void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long 
 
 void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, unsigned char a4)
 {
-    struct CreatureStats *crstat;
     long nav_sizexy;
     long px, py;
-    crstat = creature_stats_get_from_thing(thing);
-    nav_thing_can_travel_over_lava = (!crstat->hurt_by_lava) || ((thing->field_25 & 0x20) != 0);
+    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if ( a4 )
     {
         owner_player_navigating = -1;
@@ -221,7 +246,7 @@ TbBool creature_can_travel_over_lava(const struct Thing *thing)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    return (crstat->hurt_by_lava <= 0) || ((thing->field_25 & 0x20) != 0);
+    return (crstat->hurt_by_lava <= 0) || ((thing->movement_flags & TMvF_Flying) != 0);
 }
 
 TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool no_owner)

@@ -284,7 +284,7 @@ long update_dead_creature(struct Thing *thing)
     }
     i = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (cube_is_water(i)) {
-        thing->field_25 |= 0x01;
+        thing->movement_flags |= TMvF_Unknown01;
     }
     if ((thing->field_0 & 0x20) != 0)
     {
@@ -388,7 +388,7 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     thing->field_23 = 204;
     thing->field_24 = 51;
     thing->field_22 = 0;
-    thing->field_25 |= 0x08;
+    thing->movement_flags |= TMvF_Unknown08;
     thing->field_9 = game.play_gameturn;
     if (creatures[model].field_7)
       thing->field_4F |= 0x30;

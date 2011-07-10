@@ -87,6 +87,13 @@ TbBool action_point_is_invalid(const struct ActionPoint *apt)
   return (apt == &game.action_points[0]) || (apt == NULL);
 }
 
+TbBool action_point_exists(const struct ActionPoint *apt)
+{
+  if (action_point_is_invalid(apt))
+    return false;
+  return ((apt->flags & 0x01) != 0);
+}
+
 TbBool action_point_exists_idx(long apt_idx)
 {
   struct ActionPoint *apt;

@@ -40,6 +40,18 @@ enum ThingAllocFlags {
     TAF_LogFailures         = 0x80,
 };
 
+enum ThingMovementFlags {
+    TMvF_Default            = 0x00,
+    TMvF_Unknown01          = 0x01,
+    TMvF_Unknown02          = 0x02,
+    TMvF_Unknown04          = 0x04,
+    TMvF_Unknown08          = 0x08,
+    TMvF_Unknown10          = 0x10,
+    TMvF_Flying          = 0x20,
+    TMvF_Unknown40          = 0x40,
+    TMvF_Unknown80          = 0x80,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -118,7 +130,7 @@ unsigned char field_21;
 unsigned char field_22;
     unsigned char field_23;
     unsigned char field_24;
-unsigned char field_25;
+    unsigned char movement_flags;
     struct CoordDelta3d pos_26;
     struct CoordDelta3d pos_2C;
     struct CoordDelta3d acceleration;

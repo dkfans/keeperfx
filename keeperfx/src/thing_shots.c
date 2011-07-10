@@ -816,7 +816,7 @@ long move_shot(struct Thing *thing)
             return 0;
         }
     }
-    if ((thing->field_25 & 0x10) != 0)
+    if ((thing->movement_flags & TMvF_Unknown10) != 0)
     {
       if ( (shotst->old->field_48) && thing_in_wall_at(thing, &filpos) ) {
           if ( shot_hit_door_at(thing, &filpos) ) {
@@ -1025,7 +1025,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_21 = shotst->old->field_10;
     thing->field_23 = shotst->old->field_11;
     thing->field_24 = shotst->old->field_12;
-    thing->field_25 ^= (thing->field_25 ^ 8 * shotst->old->field_13) & 8;
+    thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->old->field_13) & TMvF_Unknown08;
     set_thing_draw(thing, shotst->old->numfield_0, 256, shotst->old->numfield_2, 0, 0, 2);
     thing->field_4F ^= (thing->field_4F ^ 0x02 * shotst->old->field_6) & 0x02;
     thing->field_4F ^= thing->field_4F ^ ((thing->field_4F ^ 0x10 * shotst->old->field_8) & 0x30);
