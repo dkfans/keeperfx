@@ -2368,10 +2368,105 @@ void script_process_lose_game(unsigned short plyr_idx)
   set_player_as_lost_level(player);
 }
 
-long script_support_create_thing_at_hero_door(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5)
+struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_script_support_create_thing_at_hero_door(a1, a2, a3, a4, a5);
+    struct Thing *thing;
+    struct CreatureControl *cctrl;
+    struct InitLight ilght;
+    long light_rand;
+    thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
+    if (thing_is_invalid(thing))
+    {
+        return INVALID_THING;
+    }
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing)) {
+            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
+            delete_thing_structure(thing, 0);
+            return 0;
+        }
+    }
+
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->pos_288.x.val = thing->mappos.x.val;
+    cctrl->pos_288.y.val = thing->mappos.y.val;
+    cctrl->pos_288.z.val = thing->mappos.z.val;
+    cctrl->pos_288.z.val = get_thing_height_at(thing, &thing->mappos);
+    cctrl->sbyte_89 = -1;
+
+    light_rand = ACTION_RANDOM(8);
+    if (light_rand < 2)
+    {
+        ilght.mappos.x.val = thing->mappos.x.val;
+        ilght.mappos.y.val = thing->mappos.y.val;
+        ilght.mappos.z.val = thing->mappos.z.val;
+        if (light_rand == 1)
+        {
+            ilght.field_2 = 48;
+            ilght.field_3 = 5;
+        } else
+        {
+            ilght.field_2 = 36;
+            ilght.field_3 = 1;
+        }
+        ilght.is_dynamic = 1;
+        ilght.field_0 = 2560;
+        thing->light_id = light_create_light(&ilght);
+        if (thing->light_id != 0) {
+            light_set_light_never_cache(thing->light_id);
+        } else {
+            ERRORLOG("Cannot allocate light to new hero");
+        }
+    }
+    return thing;
+}
+
+long script_support_create_thing_at_hero_door(long gate_num, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char random_factor)
+{
+    struct Thing *thing;
+    struct CreatureControl *cctrl;
+    struct Thing *gatetng;
+    struct Coord3d pos;
+    SYNCDBG(7,"Starting");
+    //return _DK_script_support_create_thing_at_hero_door(gate_num, tngclass, tngmodel, tngowner, random_factor);
+    if (gate_num <= 0)
+    {
+      ERRORLOG("Script error - invalid hero gate index %d",(int)gate_num);
+      return 0;
+    }
+    gatetng = find_hero_gate_of_number(gate_num);
+    if (thing_is_invalid(gatetng))
+    {
+      ERRORLOG("Script error - could not find hero gate index %d",(int)gate_num);
+      return 0;
+    }
+    //TODO CREATURES how to avoid fairies from being blocked at ceiling? Maybe give them larger acceleration?
+    pos.x.val = gatetng->mappos.x.val;
+    pos.y.val = gatetng->mappos.y.val;
+    pos.z.val = gatetng->mappos.z.val + 384;
+    thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
+    if (thing_is_invalid(thing))
+    {
+        // Error is already logged
+        return 0;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_AE |= 0x02;
+    cctrl->field_AD |= 0x20;
+    thing->acceleration.x.val += ACTION_RANDOM(193) - 96;
+    thing->acceleration.y.val += ACTION_RANDOM(193) - 96;
+    thing->acceleration.z.val += ACTION_RANDOM(96) + 80;
+    thing->field_1 |= 0x04;
+
+    if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
+    {
+        output_message(19, 0, 1);
+        output_message(118 + ACTION_RANDOM(8), 0, 1);
+    }
+    return thing->index;
 }
 
 long script_support_create_thing_at_action_point(long apt_idx, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char random_factor)
@@ -2380,12 +2475,11 @@ long script_support_create_thing_at_action_point(long apt_idx, unsigned char tng
     //return _DK_script_support_create_thing_at_action_point(apt_idx, tngclass, tngmodel, tngowner, random_factor);
     struct Thing *thing;
     struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    struct Thing *heartng;
     struct ActionPoint *apt;
     long direction,delta_x,delta_y;
     struct Coord3d pos;
-    struct InitLight ilght;
+    struct Dungeon *dungeon;
+    struct Thing *heartng;
 
     apt = action_point_get(apt_idx);
     if (!action_point_exists(apt))
@@ -2407,51 +2501,21 @@ long script_support_create_thing_at_action_point(long apt_idx, unsigned char tng
         pos.y.val = apt->mappos.y.val - (delta_y >> 8);
     }
 
-    thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
+    thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
     if (thing_is_invalid(thing))
     {
         // Error is already logged
         return 0;
     }
-    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    // Try to move thing out of the solid wall if it's inside one
-    if (thing_in_wall_at(thing, &thing->mappos))
-    {
-        if (!move_creature_to_nearest_valid_position(thing)) {
-            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
-            delete_thing_structure(thing, 0);
-            return 0;
-        }
-    }
 
     cctrl = creature_control_get_from_thing(thing);
-    dungeon = get_dungeon(game.hero_player_num);
-    heartng = thing_get(dungeon->dnheart_idx);
+    heartng = INVALID_THING;
+    dungeon = get_dungeon(thing->owner);
+    if (!dungeon_invalid(dungeon))
+        heartng = thing_get(dungeon->dnheart_idx);
     if ( thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, 1) )
     {
         cctrl->field_AE |= 0x01;
-    }
-    cctrl->pos_288.x.val = thing->mappos.x.val;
-    cctrl->pos_288.y.val = thing->mappos.y.val;
-    cctrl->pos_288.z.val = thing->mappos.z.val;
-    cctrl->pos_288.z.val = get_thing_height_at(thing, &thing->mappos);
-    cctrl->sbyte_89 = -1;
-
-    if (ACTION_RANDOM(4) == 0)
-    {
-        ilght.mappos.x.val = thing->mappos.x.val;
-        ilght.mappos.y.val = thing->mappos.y.val;
-        ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.field_2 = 48;
-        ilght.field_3 = 5;
-        ilght.is_dynamic = 1;
-        ilght.field_0 = 2560;
-        thing->light_id = light_create_light(&ilght);
-        if (thing->light_id != 0) {
-            light_set_light_never_cache(thing->light_id);
-        } else {
-            ERRORLOG("Cannot allocate light to new hero");
-        }
     }
 
     if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)

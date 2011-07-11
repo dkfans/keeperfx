@@ -125,7 +125,7 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
         thing->mappos.y.val = pos.y.val;
         thing->mappos.z.val = pos.z.val;
     }
-    thing->field_60 = get_thing_height_at(thing, thing_mappos);
+    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
     return true;
 }
 
