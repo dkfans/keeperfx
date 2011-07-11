@@ -9,8 +9,8 @@ are also modified or remade.
 
 Installation of KeeperFX CCP:
 
-Note that you need original Dungeon Keeper CD (or CD image)
-to perform complete installation.
+You need original Dungeon Keeper CD (or CD image) to perform
+complete installation.
 
 To install KeeperFX CCP, you have to unpack the archive to
 your desired target location, and then run "launcher.exe".
@@ -30,6 +30,8 @@ Please note that there are two types of releases: complete
 version and patch. You need a complete version to play the game;
 a patch is only an additional feature, which you can use by
 overwriting some files from complete version with new ones.
+Even with complete version, you still need original Dungeon
+Keeper CD to prepare the game for playing.
 
 Supported DK releases:
 
@@ -40,7 +42,7 @@ files required by KeeperFX:
 - Dungeon Keeper Gold, english release
 - Dungeon Keeper Gold, multilingual release
 - Dungeon Keeper from GOG.com (the CD image)
-Please note that KeeperFX needs the original CD, or mounted
+Remember that KeeperFX needs the original CD, or mounted
 CD image. The files installed on disk by original DK setup
 are not enough. Also, you must select the "keeper" folder from
 the CD content list. Selecting root folder of your CD, or
