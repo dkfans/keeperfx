@@ -2458,7 +2458,11 @@ long script_support_create_thing_at_hero_door(long gate_num, unsigned char tngcl
     cctrl->field_AD |= 0x20;
     thing->acceleration.x.val += ACTION_RANDOM(193) - 96;
     thing->acceleration.y.val += ACTION_RANDOM(193) - 96;
-    thing->acceleration.z.val += ACTION_RANDOM(96) + 80;
+    if ((thing->movement_flags & TMvF_Flying) != 0) {
+        thing->acceleration.z.val -= ACTION_RANDOM(32);
+    } else {
+        thing->acceleration.z.val += ACTION_RANDOM(96) + 80;
+    }
     thing->field_1 |= 0x04;
 
     if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)

@@ -5988,62 +5988,63 @@ long update_cave_in(struct Thing *thing)
 
 void update(void)
 {
-  struct PlayerInfo *player;
-  SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
-  if ((game.numfield_C & 0x01) == 0)
-    update_light_render_area();
-  process_packets();
-  if (quit_game || exit_keeper) {
-    return;
-  }
-  if (game.game_kind == GKind_Unknown1)
-  {
-    game.field_14EA4B = 0;
-    return;
-  }
+    struct PlayerInfo *player;
+    SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
-  if ((game.numfield_C & 0x01) == 0)
-  {
-    player = get_my_player();
-    if (player->field_3 & 0x08)
-    {
-      PaletteSetPlayerPalette(player, _DK_palette);
-      set_flag_byte(&player->field_3,0x08,false);
+    if ((game.numfield_C & 0x01) == 0)
+        update_light_render_area();
+    process_packets();
+    if (quit_game || exit_keeper) {
+        return;
     }
-    clear_active_dungeons_stats();
-    update_creature_pool_state();
-    if ((game.play_gameturn & 0x01) != 0)
-      update_animating_texture_maps();
-    update_things();
-    process_rooms();
-    process_dungeons();
-    update_research();
-    update_manufacturing();
-    event_process_events();
-    update_all_events();
-    process_level_script();
-    if ((game.numfield_D & 0x04) != 0)
-      process_computer_players2();
-    process_players();
-    process_action_points();
-    player = get_my_player();
-    if (player->view_mode == PVM_CreatureView)
-      update_flames_nearest_camera(player->acamera);
-    update_footsteps_nearest_camera(player->acamera);
-    PaletteFadePlayer(player);
-    process_armageddon();
-#if (BFDEBUG_LEVEL > 9)
-    lights_stats_debug_dump();
-    things_stats_debug_dump();
-    creature_stats_debug_dump();
-#endif
-  }
+    if (game.game_kind == GKind_Unknown1)
+    {
+        game.field_14EA4B = 0;
+        return;
+    }
 
-  message_update();
-  update_all_players_cameras();
-  update_player_sounds();
-  game.field_14EA4B = 0;
-  SYNCDBG(6,"Finished");
+    if ((game.numfield_C & 0x01) == 0)
+    {
+        player = get_my_player();
+        if (player->field_3 & 0x08)
+        {
+            PaletteSetPlayerPalette(player, _DK_palette);
+            set_flag_byte(&player->field_3,0x08,false);
+        }
+        clear_active_dungeons_stats();
+        update_creature_pool_state();
+        if ((game.play_gameturn & 0x01) != 0)
+            update_animating_texture_maps();
+        update_things();
+        process_rooms();
+        process_dungeons();
+        update_research();
+        update_manufacturing();
+        event_process_events();
+        update_all_events();
+        process_level_script();
+        if ((game.numfield_D & 0x04) != 0)
+            process_computer_players2();
+        process_players();
+        process_action_points();
+        player = get_my_player();
+        if (player->view_mode == PVM_CreatureView)
+            update_flames_nearest_camera(player->acamera);
+        update_footsteps_nearest_camera(player->acamera);
+        PaletteFadePlayer(player);
+        process_armageddon();
+#if (BFDEBUG_LEVEL > 9)
+        lights_stats_debug_dump();
+        things_stats_debug_dump();
+        creature_stats_debug_dump();
+#endif
+    }
+
+    message_update();
+    update_all_players_cameras();
+    update_player_sounds();
+    game.field_14EA4B = 0;
+    SYNCDBG(6,"Finished");
 }
 
 void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned char stl_x, unsigned char stl_y)
