@@ -745,6 +745,15 @@ loc_7880ED:            # 605\n \
 \n \
 loc_7880FA:\n \
     leal    _polyscans,%%edi\n \
+    # restrict 0x8C+var_78(%%esp) to 576 - size of polyscans[]\n \
+    cmpl   $0x240,0x8C+var_78(%%esp)\n \
+    jl     loc_788100_test2\n \
+    movl   $0x240,0x8C+var_78(%%esp)\n \
+loc_788100_test2:\n \
+    # restrict 0x8C+var_74(%%esp) to 576 minus the value of previous var\n \
+    cmpl   $0x240,0x8C+var_74(%%esp)\n \
+    jl     loc_788100\n \
+    movl   $0x240,0x8C+var_74(%%esp)\n \
 \n \
 loc_788100:            # 642\n \
     movl    %%eax,(%%edi)\n \
@@ -1528,8 +1537,17 @@ loc_788A45:            # F5D\n \
     movl    %%edi,0x8C+var_74(%%esp)\n \
 \n \
 loc_788A52:            # F1B\n \
-# trig_:loc_788A21 ...\n \
     leal    _polyscans,%%edi\n \
+    # restrict 0x8C+var_7C(%%esp) to 576 - size of polyscans[]\n \
+    cmpl   $0x240,0x8C+var_7C(%%esp)\n \
+    jl     loc_788A58_test2\n \
+    movl   $0x240,0x8C+var_7C(%%esp)\n \
+loc_788A58_test2:\n \
+    # restrict 0x8C+var_74(%%esp) to 576 minus the value of previous var\n \
+    cmpl   $0x240,0x8C+var_74(%%esp)\n \
+    jl     loc_788A58\n \
+    movl   $0x240,0x8C+var_74(%%esp)\n \
+    #subl   0x8C+var_7C(%%esp),0x8C+var_74(%%esp)\n \
 \n \
 loc_788A58:            # F9A\n \
     movl    %%eax,(%%edi)\n \
@@ -1541,7 +1559,7 @@ loc_788A58:            # F9A\n \
     movl    %%edx,0x0C(%%edi)\n \
     addl    0x8C+delta_d(%%esp),%%edx\n \
     addl    $0x14,%%edi\n \
-    decl   0x8C+var_7C(%%esp)\n \
+    decl    0x8C+var_7C(%%esp)\n \
     jnz     loc_788A58\n \
     movl    0x8C+var_70(%%esp),%%eax\n \
 \n \

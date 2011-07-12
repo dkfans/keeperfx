@@ -47,7 +47,7 @@ enum ThingMovementFlags {
     TMvF_Unknown04          = 0x04,
     TMvF_Unknown08          = 0x08,
     TMvF_Unknown10          = 0x10,
-    TMvF_Flying          = 0x20,
+    TMvF_Flying             = 0x20,
     TMvF_Unknown40          = 0x40,
     TMvF_Unknown80          = 0x80,
 };
