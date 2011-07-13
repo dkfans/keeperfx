@@ -80,30 +80,13 @@ struct TrigLocals {
 #pragma pack()
 /******************************************************************************/
 
-/** Triangle rendering function.
- *
- * @param point_a
- * @param point_b
- * @param point_c
- */
-void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
+int trig_reorder_input_points(struct PolyPoint **opt_a, struct PolyPoint **opt_b, struct PolyPoint **opt_c)
 {
-    struct TrigLocals lv;
-    long do_render;
-    long dummy;
-//    JUSTLOG("Pa(%ld,%ld,%ld)",point_a->field_8,point_a->field_C,point_a->field_10);
-//    JUSTLOG("Pb(%ld,%ld,%ld)",point_b->field_8,point_b->field_C,point_b->field_10);
-//    JUSTLOG("Pc(%ld,%ld,%ld)",point_c->field_8,point_c->field_C,point_c->field_10);
-    //_DK_trig(point_a, point_b, point_c); return;
-    LOC_poly_screen = poly_screen;
-    LOC_vec_map = vec_map;
-    LOC_vec_screen_width = vec_screen_width;
-    LOC_vec_window_width = vec_window_width;
-    LOC_vec_window_height = vec_window_height;
-/*
-    ordpt_a = point_a;
-    ordpt_b = point_b;
-    ordpt_c = point_c;
+    struct PolyPoint *ordpt_a = *opt_a;
+    struct PolyPoint *ordpt_b = *opt_b;
+    struct PolyPoint *ordpt_c = *opt_c;
+    long start_type;
+    /*
     if (ordpt_a->field_4 == ordpt_b->field_4)
     {
       if (ordpt_a->field_4 == ordpt_c->field_4)
@@ -237,7 +220,8 @@ START_FB:
     jl      loc_pre07\n \
     xchgl   %%ecx,%%esi\n \
     xchgl   %%ecx,%%edi\n \
-    jmp     ll_start\n \
+    movl    $1,%%eax\n \
+    jmp     do_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_pre01:            # 17\n \
@@ -252,13 +236,15 @@ loc_pre01:            # 17\n \
     jl      loc_pre02\n \
     xchgl   %%ecx,%%esi\n \
     xchgl   %%ecx,%%edi\n \
-    jmp     rl_start\n \
+    movl    $2,%%eax\n \
+    jmp     do_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_pre02:            # 3B\n \
     xchgl   %%edi,%%esi\n \
     xchgl   %%ecx,%%edi\n \
-    jmp     ll_start\n \
+    movl    $1,%%eax\n \
+    jmp     do_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_pre03:            # 1B\n \
@@ -268,7 +254,8 @@ loc_pre03:            # 1B\n \
     jle     pre_finished\n \
     xchgl   %%ecx,%%esi\n \
     xchgl   %%ecx,%%edi\n \
-    jmp     ft_start\n \
+    movl    $4,%%eax\n \
+    jmp     do_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_pre04:            # 15\n \
@@ -283,7 +270,8 @@ loc_pre04:            # 15\n \
     jle     pre_finished\n \
     xchgl   %%ecx,%%esi\n \
     xchgl   %%ecx,%%edi\n \
-    jmp     fb_start\n \
+    movl    $3,%%eax\n \
+    jmp     do_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_pre05:            # 67\n \
@@ -291,7 +279,8 @@ loc_pre05:            # 67\n \
     #C: if (ordpt_b->field_0 <= ordpt_a->field_0)\n \
     cmpl    (%%esi),%%eax\n \
     jle     pre_finished\n \
-    jmp     ft_start\n \
+    movl    $4,%%eax\n \
+    jmp     do_start\n \
 # ---------------------------------------------------------------------------\n \
 \n \
 loc_pre06:            # 9C\n \
@@ -299,15 +288,17 @@ loc_pre06:            # 9C\n \
     movl    (%%edi),%%eax\n \
     cmpl    (%%ecx),%%eax\n \
     jle     pre_finished\n \
-    jmp     fb_start\n \
+    movl    $3,%%eax\n \
+    jmp     do_start\n \
 \n \
 loc_pre07:            # 1D\n \
     #C: if (ordpt_b->field_4 == ordpt_c->field_4)\n \
     cmpl    %%edx,%%ebx\n \
     jz      loc_pre06\n \
     #C: if (ordpt_b->field_4 <= ordpt_c->field_4)\n \
-    jg      rl_start\n \
-    jmp     ll_start\n \
+    jg      loc_pre11\n \
+    movl    $1,%%eax\n \
+    jmp     do_start\n \
 \n \
 loc_pre08:            # 35\n \
     movl    (%%ecx),%%eax\n \
@@ -315,12 +306,15 @@ loc_pre08:            # 35\n \
     jle     pre_finished\n \
     xchgl    %%edi,%%esi\n \
     xchgl    %%ecx,%%edi\n \
-    jmp     ft_start\n \
+    movl    $4,%%eax\n \
+    jmp     do_start\n \
 \n \
 loc_pre09:            # 2D\n \
     xchgl    %%edi,%%esi\n \
     xchgl    %%ecx,%%edi\n \
-    jmp      rl_start\n \
+loc_pre11:\n \
+    movl    $2,%%eax\n \
+    jmp      do_start\n \
 \n \
 loc_pre10:            # 27\n \
     movl    (%%ecx),%%eax\n \
@@ -328,13 +322,76 @@ loc_pre10:            # 27\n \
     jle     pre_finished\n \
     xchgl    %%edi,%%esi\n \
     xchgl    %%ecx,%%edi\n \
-    jmp    fb_start\n \
+    movl    $3,%%eax\n \
+    jmp    do_start\n \
 pre_finished:\n \
-    jmp      skip_render\n \
+    jmp      skip_start\n \
 \
+do_start:\n \
+    jmp    phase0_finished\n \
+skip_start:\n \
+    movl    $0,%%eax\n \
+phase0_finished:\n \
+    popl    %%ebp\n \
+"
+         : "=S" (ordpt_a), "=D" (ordpt_b), "=c" (ordpt_c), "=a" (start_type)
+         : "0" (ordpt_a), "1" (ordpt_b), "2" (ordpt_c)
+         : "memory", "cc", "%ebx", "%edx");
+    *opt_a = ordpt_a;
+    *opt_b = ordpt_b;
+    *opt_c = ordpt_c;
+    return start_type;
+}
+
+/** Triangle rendering function.
+ *
+ * @param point_a
+ * @param point_b
+ * @param point_c
+ */
+void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
+{
+    struct PolyPoint *opt_a;
+    struct PolyPoint *opt_b;
+    struct PolyPoint *opt_c;
+    struct TrigLocals lv;
+    long do_render;
+    long start_type;
+    long dummy;
+//    JUSTLOG("Pa(%ld,%ld,%ld)",point_a->field_8,point_a->field_C,point_a->field_10);
+//    JUSTLOG("Pb(%ld,%ld,%ld)",point_b->field_8,point_b->field_C,point_b->field_10);
+//    JUSTLOG("Pc(%ld,%ld,%ld)",point_c->field_8,point_c->field_C,point_c->field_10);
+    //_DK_trig(point_a, point_b, point_c); return;
+    LOC_poly_screen = poly_screen;
+    LOC_vec_map = vec_map;
+    LOC_vec_screen_width = vec_screen_width;
+    LOC_vec_window_width = vec_window_width;
+    LOC_vec_window_height = vec_window_height;
+    opt_a = point_a;
+    opt_b = point_b;
+    opt_c = point_c;
+    start_type = trig_reorder_input_points(&opt_a, &opt_b, &opt_c);
+    switch (start_type)
+    {
+    default:
+        return;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+        break;
+    }
+
+asm volatile (" \
+    pushl   %%ebp\n \
+    jmpl    *start_modes(,%%eax,4)\n \
 \
-\
-\
+start_modes:\n \
+    .int    skip_render\n \
+    .int    ll_start\n \
+    .int    rl_start\n \
+    .int    fb_start\n \
+    .int    ft_start\n \
 # =============================== LL SWITCH =================================\n \
 \n \
 ll_start:\n \
@@ -442,7 +499,7 @@ ll_md05:            # DATA XREF: trig_+17B trig_+17F ...\n \
     subl    (%%esi),%%ebx\n \
     addl    %%eax,%%ebx\n \
     jl     ll_finished\n \
-    jz     loc_787D2E\n \
+    jz     ll_loc03\n \
     incl    %%ebx\n \
     movl    8(%%esi),%%eax\n \
     subl    8(%%ecx),%%eax\n \
@@ -472,7 +529,7 @@ ll_md05:            # DATA XREF: trig_+17B trig_+17F ...\n \
     idivl    %%ebx\n \
     movl    %%eax,0x30+%0\n \
 \n \
-loc_787D2E:            # 1FA\n \
+ll_loc03:            # 1FA\n \
     movl    8(%%ecx),%%eax\n \
     subl    8(%%esi),%%eax\n \
     cltd    \n \
@@ -495,14 +552,14 @@ loc_787D2E:            # 1FA\n \
     movl    0x0C(%%esi),%%edx\n \
     movl    0x10(%%esi),%%esi\n \
     cmpb   $0,6+%0\n \
-    jz     loc_787E8F\n \
+    jz     ll_loc23\n \
     movl    0x18+%0,%%edi\n \
     negl    %%edi\n \
     subl    %%edi,0x4C+%0\n \
     jle     ll_finished\n \
     movl    %%edi,0x24+%0\n \
     cmpl    0x58+%0,%%edi\n \
-    js     loc_787E27\n \
+    js     ll_loc05\n \
     movl    0x68+%0,%%edi\n \
     imull    0x58+%0,%%edi\n \
     addl    %%edi,%%eax\n \
@@ -535,17 +592,17 @@ loc_787D2E:            # 1FA\n \
     imull    0x24+%0,%%edi\n \
     addl    %%edi,%%esi\n \
     cmpb   $0,4+%0\n \
-    jz     loc_787E1C\n \
+    jz     ll_loc04\n \
     movl    _LOC_vec_window_height,%%edi\n \
     movl    %%edi,0x54+%0\n \
     movl    %%edi,0x4C+%0\n \
 \n \
-loc_787E1C:            # 32C\n \
+ll_loc04:            # 32C\n \
     leal    _polyscans,%%edi\n \
-    jmp     loc_787EF3\n \
+    jmp     ll_loc10\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787E27:            # 2AE\n \
+ll_loc05:            # 2AE\n \
     movl    0x24+%0,%%edi\n \
     subl    %%edi,0x58+%0\n \
     imull    0x68+%0,%%edi\n \
@@ -563,45 +620,45 @@ loc_787E27:            # 2AE\n \
     imull    0x24+%0,%%edi\n \
     addl    %%edi,%%esi\n \
     cmpb   $0,4+%0\n \
-    jz     loc_787EBE\n \
+    jz     ll_loc08\n \
     movl    _LOC_vec_window_height,%%edi\n \
     movl    %%edi,0x4C+%0\n \
     cmpb   $0,5+%0\n \
-    jz     loc_787E80\n \
+    jz     ll_loc06\n \
     movl    %%edi,0x58+%0\n \
-    jmp     loc_787E8D\n \
+    jmp     ll_loc07\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787E80:            # 398\n \
+ll_loc06:            # 398\n \
     subl    0x58+%0,%%edi\n \
     setle    5+%0\n \
     movl    %%edi,0x54+%0\n \
 \n \
-loc_787E8D:            # 39E\n \
-    jmp     loc_787EBE\n \
+ll_loc07:            # 39E\n \
+    jmp     ll_loc08\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787E8F:            # 290\n \
+ll_loc23:            # 290\n \
     cmpb   $0,4+%0\n \
-    jz     loc_787EBE\n \
+    jz     ll_loc08\n \
     movl    _LOC_vec_window_height,%%edi\n \
     subl    0x18+%0,%%edi\n \
     movl    %%edi,0x4C+%0\n \
     cmpb   $0,5+%0\n \
-    jz     loc_787EB1\n \
+    jz     ll_loc24\n \
     movl    %%edi,0x58+%0\n \
-    jmp     loc_787EBE\n \
+    jmp     ll_loc08\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787EB1:            # 3C9\n \
+ll_loc24:            # 3C9\n \
     subl    0x58+%0,%%edi\n \
     setle    5+%0\n \
     movl    %%edi,0x54+%0\n \
 \n \
-loc_787EBE:\n \
+ll_loc08:\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_787EC4:            # 40D\n \
+ll_loc09:            # 40D\n \
     movl    %%eax,(%%edi)\n \
     addl    0x68+%0,%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -614,16 +671,16 @@ loc_787EC4:            # 40D\n \
     addl    0x2C+%0,%%esi\n \
     addl    $0x14,%%edi\n \
     decl    0x58+%0\n \
-    jnz     loc_787EC4\n \
+    jnz     ll_loc09\n \
     movl    0x50+%0,%%ebx\n \
 \n \
-loc_787EF3:            # 342\n \
+ll_loc10:            # 342\n \
     cmpb   $0,5+%0\n \
-    jz     loc_787F08\n \
+    jz     ll_loc11\n \
     jmp    do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_787F08:            # 418 trig_+451\n \
+ll_loc11:            # 418 trig_+451\n \
     movl    %%eax,(%%edi)\n \
     addl    0x68+%0,%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -636,7 +693,7 @@ loc_787F08:            # 418 trig_+451\n \
     addl    0x2C+%0,%%esi\n \
     addl    $0x14,%%edi\n \
     decl    0x54+%0\n \
-    jnz     loc_787F08\n \
+    jnz     ll_loc11\n \
     jmp do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -654,7 +711,7 @@ ll_md02:            # DATA XREF: trig_+16F trig_+173 ...\n \
     subl    (%%esi),%%ebx\n \
     addl    %%eax,%%ebx\n \
     jl     ll_finished\n \
-    jz     loc_787FA1\n \
+    jz     ll_loc12\n \
     incl    %%ebx\n \
     movl    8(%%esi),%%eax\n \
     subl    8(%%ecx),%%eax\n \
@@ -675,7 +732,7 @@ ll_md02:            # DATA XREF: trig_+16F trig_+173 ...\n \
     idivl    %%ebx\n \
     movl    %%eax,0x3C+%0\n \
 \n \
-loc_787FA1:            # 488\n \
+ll_loc12:            # 488\n \
     movl    8(%%ecx),%%eax\n \
     subl    8(%%esi),%%eax\n \
     cltd    \n \
@@ -692,14 +749,14 @@ loc_787FA1:            # 488\n \
     movl    8(%%esi),%%ecx\n \
     movl    0x0C(%%esi),%%edx\n \
     cmpb   $0,6+%0\n \
-    jz     loc_7880CB\n \
+    jz     ll_loc17\n \
     movl    0x18+%0,%%edi\n \
     negl    %%edi\n \
     subl    %%edi,0x4C+%0\n \
     jle     ll_finished\n \
     movl    %%edi,0x24+%0\n \
     cmpl    0x58+%0,%%edi\n \
-    js     loc_78806E\n \
+    js     ll_loc14\n \
     movl    0x68+%0,%%edi\n \
     imull    0x58+%0,%%edi\n \
     addl    %%edi,%%eax\n \
@@ -726,17 +783,17 @@ loc_787FA1:            # 488\n \
     imull    0x24+%0,%%edi\n \
     addl    %%edi,%%edx\n \
     cmpb   $0,4+%0\n \
-    jz     loc_788063\n \
+    jz     ll_loc13\n \
     movl    _LOC_vec_window_height,%%edi\n \
     movl    %%edi,0x54+%0\n \
     movl    %%edi,0x4C+%0\n \
 \n \
-loc_788063:            # 573\n \
+ll_loc13:            # 573\n \
     leal    _polyscans,%%edi\n \
-    jmp     loc_788128\n \
+    jmp     ll_loc21\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78806E:            # 50F\n \
+ll_loc14:            # 50F\n \
     movl    0x24+%0,%%edi\n \
     subl    %%edi,0x58+%0\n \
     imull    0x68+%0,%%edi\n \
@@ -751,54 +808,54 @@ loc_78806E:            # 50F\n \
     imull    0x24+%0,%%edi\n \
     addl    %%edi,%%edx\n \
     cmpb   $0,4+%0\n \
-    jz     loc_7880FA\n \
+    jz     ll_loc19\n \
     movl    _LOC_vec_window_height,%%edi\n \
     movl    %%edi,0x4C+%0\n \
     cmpb   $0,5+%0\n \
-    jz     loc_7880BC\n \
+    jz     ll_loc15\n \
     movl    %%edi,0x58+%0\n \
-    jmp     loc_7880C9\n \
+    jmp     ll_loc16\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7880BC:            # 5D4\n \
+ll_loc15:            # 5D4\n \
     subl    0x58+%0,%%edi\n \
     setle    5+%0\n \
     movl    %%edi,0x54+%0\n \
 \n \
-loc_7880C9:            # 5DA\n \
-    jmp     loc_7880FA\n \
+ll_loc16:            # 5DA\n \
+    jmp     ll_loc19\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7880CB:            # 4F1\n \
+ll_loc17:            # 4F1\n \
     cmpb   $0,4+%0\n \
-    jz     loc_7880FA\n \
+    jz     ll_loc19\n \
     movl    _LOC_vec_window_height,%%edi\n \
     subl    0x18+%0,%%edi\n \
     movl    %%edi,0x4C+%0\n \
     cmpb   $0,5+%0\n \
-    jz     loc_7880ED\n \
+    jz     ll_loc18\n \
     movl    %%edi,0x58+%0\n \
-    jmp     loc_7880FA\n \
+    jmp     ll_loc19\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7880ED:            # 605\n \
+ll_loc18:            # 605\n \
     subl    0x58+%0,%%edi\n \
     setle    5+%0\n \
     movl    %%edi,0x54+%0\n \
 \n \
-loc_7880FA:\n \
+ll_loc19:\n \
     leal    _polyscans,%%edi\n \
     # restrict 0x58+%0 to 576 - size of polyscans[]\n \
     cmpl   $0x240,0x58+%0\n \
-    jl     loc_788100_test2\n \
+    jl     ll_loc20_test2\n \
     movl   $0x240,0x58+%0\n \
-loc_788100_test2:\n \
+ll_loc20_test2:\n \
     # restrict 0x54+%0 to 576 minus the value of previous var\n \
     cmpl   $0x240,0x54+%0\n \
-    jl     loc_788100\n \
+    jl     ll_loc20\n \
     movl   $0x240,0x54+%0\n \
 \n \
-loc_788100:            # 642\n \
+ll_loc20:            # 642\n \
     movl    %%eax,(%%edi)\n \
     addl    0x68+%0,%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -809,16 +866,16 @@ loc_788100:            # 642\n \
     addl    0x38+%0,%%edx\n \
     addl    $0x14,%%edi\n \
     decl    0x58+%0\n \
-    jnz     loc_788100\n \
+    jnz     ll_loc20\n \
     movl    0x50+%0,%%ebx\n \
 \n \
-loc_788128:            # 589\n \
+ll_loc21:            # 589\n \
     cmpb   $0,5+%0\n \
-    jz     loc_78813D\n \
+    jz     ll_loc22\n \
     jmp do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78813D:            # 64D trig_+67F\n \
+ll_loc22:            # 64D trig_+67F\n \
     movl    %%eax,(%%edi)\n \
     addl    0x68+%0,%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -829,7 +886,7 @@ loc_78813D:            # 64D trig_+67F\n \
     addl    0x38+%0,%%edx\n \
     addl    $0x14,%%edi\n \
     decl    0x54+%0\n \
-    jnz     loc_78813D\n \
+    jnz     ll_loc22\n \
     jmp do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -847,7 +904,7 @@ ll_md01:\n \
     subl    (%%esi),%%ebx\n \
     addl    %%eax,%%ebx\n \
     jl     ll_finished\n \
-    jz     loc_7881B4\n \
+    jz     ll_loc25\n \
     incl    %%ebx\n \
     movl    0x10(%%esi),%%eax\n \
     subl    0x10(%%ecx),%%eax\n \
@@ -859,7 +916,7 @@ ll_md01:\n \
     idivl    %%ebx\n \
     movl    %%eax,0x30+%0\n \
 \n \
-loc_7881B4:            # 6B6\n \
+ll_loc25:            # 6B6\n \
     movl    0x10(%%ecx),%%eax\n \
     subl    0x10(%%esi),%%eax\n \
     cltd    \n \
@@ -870,14 +927,14 @@ loc_7881B4:            # 6B6\n \
     movl    %%eax,%%ebx\n \
     movl    0x10(%%esi),%%esi\n \
     cmpb   $0,6+%0\n \
-    jz     loc_7882AB\n \
+    jz     ll_loc26\n \
     movl    0x18+%0,%%edi\n \
     negl    %%edi\n \
     subl    %%edi,0x4C+%0\n \
     jle     ll_finished\n \
     movl    %%edi,0x24+%0\n \
     cmpl    0x58+%0,%%edi\n \
-    js     loc_788259\n \
+    js     ll_loc36\n \
     movl    0x68+%0,%%edi\n \
     imull    0x58+%0,%%edi\n \
     addl    %%edi,%%eax\n \
@@ -898,19 +955,19 @@ loc_7881B4:            # 6B6\n \
     imull   0x24+%0,%%edi\n \
     addl    %%edi,%%esi\n \
     cmpb    $0,4+%0\n \
-    jz      loc_78824E\n \
+    jz      ll_loc37\n \
     movl    _LOC_vec_window_height,%%edi\n \
     movl    %%edi,0x54+%0\n \
     movl    %%edi,0x4C+%0\n \
 \n \
-loc_78824E:            # 75E\n \
+ll_loc37:            # 75E\n \
     leal    _polyscans,%%edi\n \
     cmpb    $0,5+%0\n \
-    jz      loc_788316\n \
+    jz      ll_loc30\n \
     jmp     do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788259:            # 710\n \
+ll_loc36:            # 710\n \
     movl    0x24+%0,%%edi\n \
     subl    %%edi,0x58+%0\n \
     imull    0x68+%0,%%edi\n \
@@ -922,45 +979,45 @@ loc_788259:            # 710\n \
     imull    0x24+%0,%%edi\n \
     addl    %%edi,%%esi\n \
     cmpb   $0,4+%0\n \
-    jz     loc_7882DA\n \
+    jz     ll_loc28\n \
     movl    _LOC_vec_window_height,%%edi\n \
     movl    %%edi,0x4C+%0\n \
     cmpb   $0,5+%0\n \
-    jz     loc_78829C\n \
+    jz     ll_loc38\n \
     movl    %%edi,0x58+%0\n \
-    jmp     loc_7882A9\n \
+    jmp     ll_loc39\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_78829C:            # 7B4\n \
+ll_loc38:            # 7B4\n \
     subl    0x58+%0,%%edi\n \
     setle    5+%0\n \
     movl    %%edi,0x54+%0\n \
 \n \
-loc_7882A9:            # 7BA\n \
-    jmp     loc_7882DA\n \
+ll_loc39:            # 7BA\n \
+    jmp     ll_loc28\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7882AB:            # 6F2\n \
+ll_loc26:            # 6F2\n \
     cmpb   $0,4+%0\n \
-    jz     loc_7882DA\n \
+    jz     ll_loc28\n \
     movl    _LOC_vec_window_height,%%edi\n \
     subl    0x18+%0,%%edi\n \
     movl    %%edi,0x4C+%0\n \
     cmpb   $0,5+%0\n \
-    jz     loc_7882CD\n \
+    jz     ll_loc27\n \
     movl    %%edi,0x58+%0\n \
-    jmp     loc_7882DA\n \
+    jmp     ll_loc28\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7882CD:            # 7E5\n \
+ll_loc27:            # 7E5\n \
     subl    0x58+%0,%%edi\n \
     setle    5+%0\n \
     movl    %%edi,0x54+%0\n \
 \n \
-loc_7882DA:\n \
+ll_loc28:\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_7882E0:            # 81B\n \
+ll_loc29:            # 81B\n \
     movl    %%eax,(%%edi)\n \
     addl    0x68+%0,%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -969,14 +1026,14 @@ loc_7882E0:            # 81B\n \
     addl    0x2C+%0,%%esi\n \
     addl    $0x14,%%edi\n \
     decl    0x58+%0\n \
-    jnz     loc_7882E0\n \
+    jnz     ll_loc29\n \
     movl    0x50+%0,%%ebx\n \
     cmpb   $0,5+%0\n \
-    jz     loc_788316\n \
+    jz     ll_loc30\n \
     jmp do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788316:            # 826 trig_+851\n \
+ll_loc30:            # 826 trig_+851\n \
     movl    %%eax,(%%edi)\n \
     addl    0x68+%0,%%eax\n \
     movl    %%ebx,4(%%edi)\n \
@@ -985,7 +1042,7 @@ loc_788316:            # 826 trig_+851\n \
     addl    0x2C+%0,%%esi\n \
     addl    $0x14,%%edi\n \
     decl   0x54+%0\n \
-    jnz     loc_788316\n \
+    jnz     ll_loc30\n \
     jmp do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
@@ -994,14 +1051,14 @@ ll_md00:            # DATA XREF: trig_:ll_jt trig_+19F ...\n \
     shll    $0x10,%%eax\n \
     movl    %%eax,%%ebx\n \
     cmpb   $0,6+%0\n \
-    jz     loc_788405\n \
+    jz     ll_loc31\n \
     movl    0x18+%0,%%edi\n \
     negl    %%edi\n \
     subl    %%edi,0x4C+%0\n \
     jle     ll_finished\n \
     movl    %%edi,0x24+%0\n \
     cmpl    0x58+%0,%%edi\n \
-    js     loc_7883BE\n \
+    js     ll_loc40\n \
     movl    0x68+%0,%%edi\n \
     imull    0x58+%0,%%edi\n \
     addl    %%edi,%%eax\n \
@@ -1016,19 +1073,19 @@ ll_md00:            # DATA XREF: trig_:ll_jt trig_+19F ...\n \
     imull    0x60+%0,%%edi\n \
     addl    %%edi,%%ebx\n \
     cmpb   $0,4+%0\n \
-    jz     loc_7883B3\n \
+    jz     ll_loc41\n \
     movl    _LOC_vec_window_height,%%edi\n \
     movl    %%edi,0x54+%0\n \
     movl    %%edi,0x4C+%0\n \
 \n \
-loc_7883B3:            # 8C3\n \
+ll_loc41:            # 8C3\n \
     leal    _polyscans,%%edi\n \
     cmpb   $0,5+%0\n \
-    jz     loc_788469\n \
+    jz     ll_loc35\n \
     jmp do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7883BE:            # 88B\n \
+ll_loc40:            # 88B\n \
     movl    0x24+%0,%%edi\n \
     subl    %%edi,0x58+%0\n \
     imull    0x68+%0,%%edi\n \
@@ -1037,73 +1094,73 @@ loc_7883BE:            # 88B\n \
     imull    0x24+%0,%%edi\n \
     addl    %%edi,%%ebx\n \
     cmpb   $0,4+%0\n \
-    jz     loc_788434\n \
+    jz     ll_loc33\n \
     movl    _LOC_vec_window_height,%%edi\n \
     movl    %%edi,0x4C+%0\n \
     cmpb   $0,5+%0\n \
-    jz     loc_7883F6\n \
+    jz     ll_loc42\n \
     movl    %%edi,0x58+%0\n \
-    jmp     loc_788403\n \
+    jmp     ll_loc43\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7883F6:            # 90E\n \
+ll_loc42:            # 90E\n \
     subl    0x58+%0,%%edi\n \
     setle    5+%0\n \
     movl    %%edi,0x54+%0\n \
 \n \
-loc_788403:            # 914\n \
-    jmp     loc_788434\n \
+ll_loc43:            # 914\n \
+    jmp     ll_loc33\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788405:            # 86D\n \
+ll_loc31:            # 86D\n \
     cmpb   $0,4+%0\n \
-    jz     loc_788434\n \
+    jz     ll_loc33\n \
     movl    _LOC_vec_window_height,%%edi\n \
     subl    0x18+%0,%%edi\n \
     movl    %%edi,0x4C+%0\n \
     cmpb   $0,5+%0\n \
-    jz     loc_788427\n \
+    jz     ll_loc32\n \
     movl    %%edi,0x58+%0\n \
-    jmp     loc_788434\n \
+    jmp     ll_loc33\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788427:            # 93F\n \
+ll_loc32:            # 93F\n \
     subl    0x58+%0,%%edi\n \
     setle    5+%0\n \
     movl    %%edi,0x54+%0\n \
 \n \
-loc_788434:\n \
+ll_loc33:\n \
     leal    _polyscans,%%edi\n \
 \n \
-loc_78843A:            # 96E\n \
+ll_loc34:            # 96E\n \
     movl    %%eax,(%%edi)\n \
     addl    0x68+%0,%%eax\n \
     movl    %%ebx,4(%%edi)\n \
     addl    0x64+%0,%%ebx\n \
     addl    $0x14,%%edi\n \
     decl   0x58+%0\n \
-    jnz     loc_78843A\n \
+    jnz     ll_loc34\n \
     movl    0x50+%0,%%ebx\n \
     cmpb   $0,5+%0\n \
-    jz     loc_788469\n \
+    jz     ll_loc35\n \
     jmp do_render\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_788469:            # 979 trig_+99D\n \
+ll_loc35:            # 979 trig_+99D\n \
     movl    %%eax,(%%edi)\n \
     addl    0x68+%0,%%eax\n \
     movl    %%ebx,4(%%edi)\n \
     addl    0x60+%0,%%ebx\n \
     addl    $0x14,%%edi\n \
     decl   0x54+%0\n \
-    jnz     loc_788469\n \
+    jnz     ll_loc35\n \
     jmp do_render\n \
 ll_finished:\n \
     jmp skip_render\n \
 \
 # =============================== RL SWITCH =================================\n \
 \n \
-rl_start:            # 41    trig_+9E\n \
+rl_start:\n \
     movl    4(%%esi),%%eax\n \
     movl    %%eax,0x18+%0\n \
     orl    %%eax,%%eax\n \
@@ -1903,7 +1960,7 @@ rl_finished:\n \
 \
 # =============================== FB SWITCH =================================\n \
 \n \
-fb_start:            # 77    trig_+95\n \
+fb_start:\n \
     movl    4(%%esi),%%eax\n \
     movl    %%eax,0x18+%0\n \
     orl    %%eax,%%eax\n \
@@ -2271,7 +2328,7 @@ fb_finished:\n \
 \
 # =============================== FT SWITCH =================================\n \
 \n \
-ft_start:            # 5A    trig_+86\n \
+ft_start:\n \
     movl    4(%%esi),%%eax\n \
     movl    %%eax,0x18+%0\n \
     orl    %%eax,%%eax\n \
@@ -2646,7 +2703,7 @@ phase1_finished:\n \
     popl    %%ebp\n \
 "
          : "=o" (lv), "=S" (dummy), "=D" (dummy), "=c" (dummy), "=a" (do_render)
-         : "1" (point_a), "2" (point_b), "3" (point_c)
+         : "1" (opt_a), "2" (opt_b), "3" (opt_c), "4" (start_type)
          : "memory", "cc", "%ebx", "%edx");
 
     if (!do_render)
