@@ -31,6 +31,28 @@ DLLIMPORT void _DK_trig(struct PolyPoint *point_a, struct PolyPoint *point_b, st
 /******************************************************************************/
 #pragma pack(1)
 
+enum RenderingVectorMode {
+    RendVec_mode00 = 0,
+    RendVec_mode01,
+    RendVec_mode02,
+    RendVec_mode03,
+    RendVec_mode04,
+    RendVec_mode05,
+    RendVec_mode06,
+    RendVec_mode07,
+    RendVec_mode08,
+    RendVec_mode09,
+    RendVec_mode10,
+    RendVec_mode11,
+    RendVec_mode12,
+    RendVec_mode13,
+    RendVec_mode14,
+    RendVec_mode15,
+    RendVec_mode16,
+    RendVec_mode17,
+    RendVec_mode18,
+};
+
 struct TrigLocals {
     unsigned long zero0;// dummy, to make no offset 0
     unsigned char var_24;// 4+
@@ -343,6 +365,26 @@ phase0_finished:\n \
     return start_type;
 }
 
+int trig_ll_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+{
+    return 1;
+}
+
+int trig_rl_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+{
+    return 1;
+}
+
+int trig_fb_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+{
+    return 1;
+}
+
+int trig_ft_start(struct TrigLocals *lv, const struct PolyPoint *opt_a, const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+{
+    return 1;
+}
+
 /** Triangle rendering function.
  *
  * @param point_a
@@ -373,2343 +415,2423 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
     start_type = trig_reorder_input_points(&opt_a, &opt_b, &opt_c);
     switch (start_type)
     {
+    case 1:
+        // =============================== LL SWITCH =================================
+        asm volatile (" \
+            pushl   %%ebp\n \
+            movl    4(%%esi),%%eax # PolyPoint.field_4\n \
+            movl    %%eax,0x18+%0\n \
+            orl     %%eax,%%eax\n \
+            jns     ll_loc02\n \
+            movl    _LOC_poly_screen,%%ebx\n \
+            movl    %%ebx,0x6C+%0\n \
+            movb    $1,6+%0\n \
+            jmp     ll_loc01\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc02:            # AD\n \
+            cmpl    _LOC_vec_window_height,%%eax\n \
+            jge     ll_skipped\n \
+            movl    %%eax,%%ebx\n \
+            imull   _LOC_vec_screen_width,%%ebx\n \
+            addl    _LOC_poly_screen,%%ebx\n \
+            movl    %%ebx,0x6C+%0\n \
+            movb    $0,6+%0\n \
+        \n \
+        ll_loc01:            # BD\n \
+            movl    4(%%ecx),%%ebx\n \
+            cmpl    _LOC_vec_window_height,%%ebx\n \
+            setnle    4+%0\n \
+            subl    %%eax,%%ebx\n \
+            movl    %%ebx,0x5C+%0\n \
+            movl    %%ebx,0x4C+%0\n \
+            movl    4(%%edi),%%ebx\n \
+            cmpl    _LOC_vec_window_height,%%ebx\n \
+            setnle    5+%0\n \
+            subl    %%eax,%%ebx\n \
+            movl    %%ebx,0x58+%0\n \
+            movl    (%%ecx),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x68+%0\n \
+            movl    (%%edi),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x58+%0\n \
+            cmpl    0x68+%0,%%eax\n \
+            jle     ll_skipped\n \
+            movl    %%eax,0x64+%0\n \
+            movl    4(%%ecx),%%ebx\n \
+            subl    4(%%edi),%%ebx\n \
+            movl    (%%ecx),%%eax\n \
+            subl    (%%edi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x60+%0\n \
+            movl    %%ebx,0x54+%0\n \
+            movl    (%%edi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,0x50+%0\n \
+            movzbl  _vec_mode,%%eax\n \
+            jmpl    *ll_jt(,%%eax,4)\n \
+        # ---------------------------------------------------------------------------\n \
+        ll_jt:\n \
+            .int    ll_md00\n \
+            .int    ll_md01\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md01\n \
+            .int    ll_md05\n \
+            .int    ll_md05\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md00\n \
+            .int    ll_md00\n \
+            .int    ll_md01\n \
+            .int    ll_md01\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md05\n \
+            .int    ll_md05\n \
+            .int    ll_md02\n \
+            .int    ll_md02\n \
+            .int    ll_md05\n \
+            .int    ll_md05\n \
+            .int    ll_md05\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_md05:            # DATA XREF: trig_+17B trig_+17F ...\n \
+            movl    0x58+%0,%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x10+%0\n \
+            movl    (%%esi),%%eax\n \
+            subl    (%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            sarl    $0x10,%%eax\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%esi),%%ebx\n \
+            addl    %%eax,%%ebx\n \
+            jl     ll_skipped\n \
+            jz     ll_loc03\n \
+            incl    %%ebx\n \
+            movl    8(%%esi),%%eax\n \
+            subl    8(%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    8(%%edi),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x48+%0\n \
+            movl    0x0C(%%esi),%%eax\n \
+            subl    0x0C(%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x3C+%0\n \
+            movl    0x10(%%esi),%%eax\n \
+            subl    0x10(%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x30+%0\n \
+        \n \
+        ll_loc03:            # 1FA\n \
+            movl    8(%%ecx),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x44+%0\n \
+            movl    0x0C(%%ecx),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x38+%0\n \
+            movl    0x10(%%ecx),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x2C+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    8(%%esi),%%ecx\n \
+            movl    0x0C(%%esi),%%edx\n \
+            movl    0x10(%%esi),%%esi\n \
+            cmpb   $0,6+%0\n \
+            jz     ll_loc23\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     ll_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            cmpl    0x58+%0,%%edi\n \
+            js     ll_loc05\n \
+            movl    0x68+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            movl    0x50+%0,%%ebx\n \
+            movl    0x24+%0,%%edi\n \
+            subl    0x58+%0,%%edi\n \
+            subl    %%edi,0x54+%0\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x24+%0,%%edi\n \
+            imull    0x60+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc04\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x54+%0\n \
+            movl    %%edi,0x4C+%0\n \
+        \n \
+        ll_loc04:            # 32C\n \
+            leal    _polyscans,%%edi\n \
+            jmp     ll_loc10\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc05:            # 2AE\n \
+            movl    0x24+%0,%%edi\n \
+            subl    %%edi,0x58+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc08\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc06\n \
+            movl    %%edi,0x58+%0\n \
+            jmp     ll_loc07\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc06:            # 398\n \
+            subl    0x58+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        ll_loc07:            # 39E\n \
+            jmp     ll_loc08\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc23:            # 290\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc08\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc24\n \
+            movl    %%edi,0x58+%0\n \
+            jmp     ll_loc08\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc24:            # 3C9\n \
+            subl    0x58+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        ll_loc08:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        ll_loc09:            # 40D\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl    0x58+%0\n \
+            jnz     ll_loc09\n \
+            movl    0x50+%0,%%ebx\n \
+        \n \
+        ll_loc10:            # 342\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc11\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc11:            # 418 trig_+451\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x60+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl    0x54+%0\n \
+            jnz     ll_loc11\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_md02:            # DATA XREF: trig_+16F trig_+173 ...\n \
+            movl    0x58+%0,%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x10+%0\n \
+            movl    (%%esi),%%eax\n \
+            subl    (%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            sarl    $0x10,%%eax\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%esi),%%ebx\n \
+            addl    %%eax,%%ebx\n \
+            jl     ll_skipped\n \
+            jz     ll_loc12\n \
+            incl    %%ebx\n \
+            movl    8(%%esi),%%eax\n \
+            subl    8(%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    8(%%edi),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x48+%0\n \
+            movl    0x0C(%%esi),%%eax\n \
+            subl    0x0C(%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x3C+%0\n \
+        \n \
+        ll_loc12:            # 488\n \
+            movl    8(%%ecx),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x44+%0\n \
+            movl    0x0C(%%ecx),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x38+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    8(%%esi),%%ecx\n \
+            movl    0x0C(%%esi),%%edx\n \
+            cmpb   $0,6+%0\n \
+            jz     ll_loc17\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     ll_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            cmpl    0x58+%0,%%edi\n \
+            js     ll_loc14\n \
+            movl    0x68+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x50+%0,%%ebx\n \
+            movl    0x24+%0,%%edi\n \
+            subl    0x58+%0,%%edi\n \
+            subl    %%edi,0x54+%0\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x24+%0,%%edi\n \
+            imull    0x60+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc13\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x54+%0\n \
+            movl    %%edi,0x4C+%0\n \
+        \n \
+        ll_loc13:            # 573\n \
+            leal    _polyscans,%%edi\n \
+            jmp     ll_loc21\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc14:            # 50F\n \
+            movl    0x24+%0,%%edi\n \
+            subl    %%edi,0x58+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc19\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc15\n \
+            movl    %%edi,0x58+%0\n \
+            jmp     ll_loc16\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc15:            # 5D4\n \
+            subl    0x58+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        ll_loc16:            # 5DA\n \
+            jmp     ll_loc19\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc17:            # 4F1\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc19\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc18\n \
+            movl    %%edi,0x58+%0\n \
+            jmp     ll_loc19\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc18:            # 605\n \
+            subl    0x58+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        ll_loc19:\n \
+            leal    _polyscans,%%edi\n \
+            # restrict 0x58+%0 to 576 - size of polyscans[]\n \
+            cmpl   $0x240,0x58+%0\n \
+            jl     ll_loc20_test2\n \
+            movl   $0x240,0x58+%0\n \
+        ll_loc20_test2:\n \
+            # restrict 0x54+%0 to 576 minus the value of previous var\n \
+            cmpl   $0x240,0x54+%0\n \
+            jl     ll_loc20\n \
+            movl   $0x240,0x54+%0\n \
+        \n \
+        ll_loc20:            # 642\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            addl    $0x14,%%edi\n \
+            decl    0x58+%0\n \
+            jnz     ll_loc20\n \
+            movl    0x50+%0,%%ebx\n \
+        \n \
+        ll_loc21:            # 589\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc22\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc22:            # 64D trig_+67F\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x60+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            addl    $0x14,%%edi\n \
+            decl    0x54+%0\n \
+            jnz     ll_loc22\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_md01:\n \
+            movl    0x58+%0,%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x10+%0\n \
+            movl    (%%esi),%%eax\n \
+            subl    (%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            sarl    $0x10,%%eax\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%esi),%%ebx\n \
+            addl    %%eax,%%ebx\n \
+            jl     ll_skipped\n \
+            jz     ll_loc25\n \
+            incl    %%ebx\n \
+            movl    0x10(%%esi),%%eax\n \
+            subl    0x10(%%ecx),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x30+%0\n \
+        \n \
+        ll_loc25:            # 6B6\n \
+            movl    0x10(%%ecx),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x2C+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    0x10(%%esi),%%esi\n \
+            cmpb   $0,6+%0\n \
+            jz     ll_loc26\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     ll_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            cmpl    0x58+%0,%%edi\n \
+            js     ll_loc36\n \
+            movl    0x68+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            movl    0x50+%0,%%ebx\n \
+            movl    0x24+%0,%%edi\n \
+            subl    0x58+%0,%%edi\n \
+            subl    %%edi,0x54+%0\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x24+%0,%%edi\n \
+            imull    0x60+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull   0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb    $0,4+%0\n \
+            jz      ll_loc37\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x54+%0\n \
+            movl    %%edi,0x4C+%0\n \
+        \n \
+        ll_loc37:            # 75E\n \
+            leal    _polyscans,%%edi\n \
+            cmpb    $0,5+%0\n \
+            jz      ll_loc30\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc36:            # 710\n \
+            movl    0x24+%0,%%edi\n \
+            subl    %%edi,0x58+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc28\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc38\n \
+            movl    %%edi,0x58+%0\n \
+            jmp     ll_loc39\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc38:            # 7B4\n \
+            subl    0x58+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        ll_loc39:            # 7BA\n \
+            jmp     ll_loc28\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc26:            # 6F2\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc28\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc27\n \
+            movl    %%edi,0x58+%0\n \
+            jmp     ll_loc28\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc27:            # 7E5\n \
+            subl    0x58+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        ll_loc28:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        ll_loc29:            # 81B\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl    0x58+%0\n \
+            jnz     ll_loc29\n \
+            movl    0x50+%0,%%ebx\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc30\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc30:            # 826 trig_+851\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x60+%0,%%ebx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x54+%0\n \
+            jnz     ll_loc30\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_md00:            # DATA XREF: trig_:ll_jt trig_+19F ...\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            cmpb   $0,6+%0\n \
+            jz     ll_loc31\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     ll_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            cmpl    0x58+%0,%%edi\n \
+            js     ll_loc40\n \
+            movl    0x68+%0,%%edi\n \
+            imull    0x58+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x50+%0,%%ebx\n \
+            movl    0x24+%0,%%edi\n \
+            subl    0x58+%0,%%edi\n \
+            subl    %%edi,0x54+%0\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x24+%0,%%edi\n \
+            imull    0x60+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc41\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x54+%0\n \
+            movl    %%edi,0x4C+%0\n \
+        \n \
+        ll_loc41:            # 8C3\n \
+            leal    _polyscans,%%edi\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc35\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc40:            # 88B\n \
+            movl    0x24+%0,%%edi\n \
+            subl    %%edi,0x58+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc33\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc42\n \
+            movl    %%edi,0x58+%0\n \
+            jmp     ll_loc43\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc42:            # 90E\n \
+            subl    0x58+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        ll_loc43:            # 914\n \
+            jmp     ll_loc33\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc31:            # 86D\n \
+            cmpb   $0,4+%0\n \
+            jz     ll_loc33\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc32\n \
+            movl    %%edi,0x58+%0\n \
+            jmp     ll_loc33\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc32:            # 93F\n \
+            subl    0x58+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        ll_loc33:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        ll_loc34:            # 96E\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x58+%0\n \
+            jnz     ll_loc34\n \
+            movl    0x50+%0,%%ebx\n \
+            cmpb   $0,5+%0\n \
+            jz     ll_loc35\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ll_loc35:            # 979 trig_+99D\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x60+%0,%%ebx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x54+%0\n \
+            jnz     ll_loc35\n \
+            movl    $1,%%eax\n \
+            jmp     ll_finished\n \
+        ll_skipped:\n \
+            movl    $0,%%eax\n \
+        ll_finished:\n \
+            popl    %%ebp\n \
+    "
+             : "=o" (lv), "=S" (dummy), "=D" (dummy), "=c" (dummy), "=a" (do_render)
+             : "1" (opt_a), "2" (opt_b), "3" (opt_c)
+             : "memory", "cc", "%ebx", "%edx");
+        if (!do_render)//trig_ll_start(&lv, opt_a, opt_b, opt_c))
+        {
+            return;
+        }
+        break;
+    case 2:
+        // =============================== RL SWITCH =================================
+        asm volatile (" \
+            pushl   %%ebp\n \
+            movl    4(%%esi),%%eax\n \
+            movl    %%eax,0x18+%0\n \
+            orl    %%eax,%%eax\n \
+            jns     rl_loc02\n \
+            movl    _LOC_poly_screen,%%ebx\n \
+            movl    %%ebx,0x6C+%0\n \
+            movb   $1,6+%0\n \
+            jmp     rl_loc01\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc02:            # 9BA\n \
+            cmpl    _LOC_vec_window_height,%%eax\n \
+            jge     rl_skipped\n \
+            movl    %%eax,%%ebx\n \
+            imull    _LOC_vec_screen_width,%%ebx\n \
+            addl    _LOC_poly_screen,%%ebx\n \
+            movl    %%ebx,0x6C+%0\n \
+            movb   $0,6+%0\n \
+        \n \
+        rl_loc01:            # 9CA\n \
+            movl    4(%%ecx),%%ebx\n \
+            cmpl    _LOC_vec_window_height,%%ebx\n \
+            setnle    5+%0\n \
+            subl    %%eax,%%ebx\n \
+            movl    %%ebx,0x5C+%0\n \
+            movl    4(%%edi),%%ebx\n \
+            cmpl    _LOC_vec_window_height,%%ebx\n \
+            setnle    4+%0\n \
+            subl    %%eax,%%ebx\n \
+            movl    %%ebx,0x58+%0\n \
+            movl    %%ebx,0x4C+%0\n \
+            movl    (%%ecx),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x68+%0\n \
+            movl    (%%edi),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x58+%0\n \
+            cmpl    0x68+%0,%%eax\n \
+            jle     rl_skipped\n \
+            movl    %%eax,0x64+%0\n \
+            movl    4(%%edi),%%ebx\n \
+            subl    4(%%ecx),%%ebx\n \
+            movl    (%%edi),%%eax\n \
+            subl    (%%ecx),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x60+%0\n \
+            movl    %%ebx,0x54+%0\n \
+            movl    (%%ecx),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,0x50+%0\n \
+            movzbl  _vec_mode,%%eax\n \
+            jmpl    *rl_jt(,%%eax,4)\n \
+        # ---------------------------------------------------------------------------\n \
+        rl_jt:            # DATA XREF: trig_+A6D\n \
+            .int    rl_md00\n \
+            .int    rl_md01\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md01\n \
+            .int    rl_md05\n \
+            .int    rl_md05\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md00\n \
+            .int    rl_md00\n \
+            .int    rl_md01\n \
+            .int    rl_md01\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md05\n \
+            .int    rl_md05\n \
+            .int    rl_md02\n \
+            .int    rl_md02\n \
+            .int    rl_md05\n \
+            .int    rl_md05\n \
+            .int    rl_md05\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_md05:            # DATA XREF: trig_:rl_jt\n \
+            movl    0x5C+%0,%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x58+%0\n \
+            movl    %%eax,0x10+%0\n \
+            movl    (%%edi),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            sarl    $0x10,%%eax\n \
+            movl    (%%esi),%%ebx\n \
+            subl    (%%ecx),%%ebx\n \
+            addl    %%eax,%%ebx\n \
+            jl     rl_skipped\n \
+            jz     rl_loc03\n \
+            incl    %%ebx\n \
+            movl    8(%%edi),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    8(%%esi),%%eax\n \
+            subl    8(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x48+%0\n \
+            movl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    0x0C(%%esi),%%eax\n \
+            subl    0x0C(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x3C+%0\n \
+            movl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    0x10(%%esi),%%eax\n \
+            subl    0x10(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+        \n \
+        rl_loc03:            # B07\n \
+            movl    %%eax,0x30+%0\n \
+            movl    8(%%ecx),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x44+%0\n \
+            movl    0x0C(%%ecx),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x38+%0\n \
+            movl    0x10(%%ecx),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x2C+%0\n \
+            movl    8(%%edi),%%eax\n \
+            subl    8(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl   0x54+%0\n \
+            movl    %%eax,0x40+%0\n \
+            movl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl   0x54+%0\n \
+            movl    %%eax,0x34+%0\n \
+            movl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl   0x54+%0\n \
+            movl    %%eax,0x28+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    8(%%esi),%%ecx\n \
+            movl    0x0C(%%esi),%%edx\n \
+            movl    0x10(%%esi),%%esi\n \
+            cmpb   $0,6+%0\n \
+            jz     rl_loc04\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     rl_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            cmpl    0x5C+%0,%%edi\n \
+            js     rl_loc34\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            movl    0x50+%0,%%eax\n \
+            movl    0x24+%0,%%edi\n \
+            subl    0x5C+%0,%%edi\n \
+            movl    %%edi,0x24+%0\n \
+            subl    %%edi,0x54+%0\n \
+            imull    0x60+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x40+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x34+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x28+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc37\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x54+%0\n \
+            movl    %%edi,0x4C+%0\n \
+        \n \
+        rl_loc37:            # C66\n \
+            leal    _polyscans,%%edi\n \
+            jmp     rl_loc38\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc34:            # BE8\n \
+            movl    0x24+%0,%%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc06\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc35\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     rl_loc36\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc35:            # CD2\n \
+            subl    0x5C+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        rl_loc36:            # CD8\n \
+            jmp     rl_loc06\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc04:            # BCA\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc06\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc05\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     rl_loc06\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc05:            # D03\n \
+            subl    0x5C+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        rl_loc06:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        rl_loc08:            # D47\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     rl_loc08\n \
+            movl    0x50+%0,%%eax\n \
+        \n \
+        rl_loc38:            # C7C\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc09\n \
+            movl    $1,%%eax\n \
+            jmp    rl_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc09:            # D52 trig_+D8B\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x60+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x40+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x34+%0,%%edx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x28+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x54+%0\n \
+            jnz     rl_loc09\n \
+            movl    $1,%%eax\n \
+            jmp    rl_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_md02:\n \
+            movl    0x5C+%0,%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x58+%0\n \
+            movl    %%eax,0x10+%0\n \
+            movl    (%%edi),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            sarl    $0x10,%%eax\n \
+            movl    (%%esi),%%ebx\n \
+            subl    (%%ecx),%%ebx\n \
+            addl    %%eax,%%ebx\n \
+            jl     rl_skipped\n \
+            jz     rl_loc10\n \
+            incl    %%ebx\n \
+            movl    8(%%edi),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    8(%%esi),%%eax\n \
+            subl    8(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x48+%0\n \
+            movl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    0x0C(%%esi),%%eax\n \
+            subl    0x0C(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x3C+%0\n \
+        \n \
+        rl_loc10:            # DC2\n \
+            movl    8(%%ecx),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x44+%0\n \
+            movl    0x0C(%%ecx),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x38+%0\n \
+            movl    8(%%edi),%%eax\n \
+            subl    8(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl   0x54+%0\n \
+            movl    %%eax,0x40+%0\n \
+            movl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl   0x54+%0\n \
+            movl    %%eax,0x34+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    8(%%esi),%%ecx\n \
+            movl    0x0C(%%esi),%%edx\n \
+            cmpb   $0,6+%0\n \
+            jz     rl_loc39\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     rl_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            cmpl    0x5C+%0,%%edi\n \
+            js     rl_loc12\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x50+%0,%%eax\n \
+            movl    0x24+%0,%%edi\n \
+            subl    0x5C+%0,%%edi\n \
+            movl    %%edi,0x24+%0\n \
+            subl    %%edi,0x54+%0\n \
+            imull    0x60+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x40+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x34+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc11\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x54+%0\n \
+            movl    %%edi,0x4C+%0\n \
+        \n \
+        rl_loc11:            # ECB\n \
+            leal    _polyscans,%%edi\n \
+            jmp     rl_loc13\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc12:            # E67\n \
+            movl    0x24+%0,%%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc41\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc45\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     rl_loc46\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc45:            # F2C\n \
+            subl    0x5C+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        rl_loc46:            # F32\n \
+            jmp     rl_loc41\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc39:            # E49\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc41\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc40\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     rl_loc41\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc40:            # F5D\n \
+            subl    0x5C+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        rl_loc41:            # F1B\n \
+            leal    _polyscans,%%edi\n \
+            # restrict 0x5C+%0 to 576 - size of polyscans[]\n \
+            cmpl   $0x240,0x5C+%0\n \
+            jl     rl_loc42_test2\n \
+            movl   $0x240,0x5C+%0\n \
+        rl_loc42_test2:\n \
+            # restrict 0x54+%0 to 576 minus the value of previous var\n \
+            cmpl   $0x240,0x54+%0\n \
+            jl     rl_loc42\n \
+            movl   $0x240,0x54+%0\n \
+            #subl   0x5C+%0,0x54+%0\n \
+        \n \
+        rl_loc42:            # F9A\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            addl    $0x14,%%edi\n \
+            decl    0x5C+%0\n \
+            jnz     rl_loc42\n \
+            movl    0x50+%0,%%eax\n \
+        \n \
+        rl_loc13:            # EE1\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc14\n \
+            movl    $1,%%eax\n \
+            jmp    rl_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc14:            # FA5 trig_+FD7\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x60+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x40+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x34+%0,%%edx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x54+%0\n \
+            jnz     rl_loc14\n \
+            movl    $1,%%eax\n \
+            jmp    rl_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_md01:            # DATA XREF: trig_:rl_jt\n \
+            movl    0x5C+%0,%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl   0x58+%0\n \
+            movl    %%eax,0x10+%0\n \
+            movl    (%%edi),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            sarl    $0x10,%%eax\n \
+            movl    (%%esi),%%ebx\n \
+            subl    (%%ecx),%%ebx\n \
+            addl    %%eax,%%ebx\n \
+            jl     rl_skipped\n \
+            jz     rl_loc15\n \
+            incl    %%ebx\n \
+            movl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            imull   0x10+%0\n \
+            shrdl    $0x10,%%edx,%%eax\n \
+            addl    0x10(%%esi),%%eax\n \
+            subl    0x10(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x30+%0\n \
+        \n \
+        rl_loc15:            # 100E\n \
+            movl    0x10(%%ecx),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x5C+%0\n \
+            movl    %%eax,0x2C+%0\n \
+            movl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl   0x54+%0\n \
+            movl    %%eax,0x28+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    0x10(%%esi),%%esi\n \
+            cmpb   $0,6+%0\n \
+            jz     rl_loc21\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     rl_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            cmpl    0x5C+%0,%%edi\n \
+            js     rl_loc16\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            movl    0x50+%0,%%eax\n \
+            movl    0x24+%0,%%edi\n \
+            subl    0x5C+%0,%%edi\n \
+            movl    %%edi,0x24+%0\n \
+            subl    %%edi,0x54+%0\n \
+            imull    0x60+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x28+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc43\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x54+%0\n \
+            movl    %%edi,0x4C+%0\n \
+        \n \
+        rl_loc43:            # 10C5\n \
+            leal    _polyscans,%%edi\n \
+            jmp     rl_loc44\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc16:            # 1077\n \
+            movl    0x24+%0,%%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc18\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc20\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     rl_loc17\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc20:            # 111B\n \
+            subl    0x5C+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        rl_loc17:            # 1121\n \
+            jmp     rl_loc18\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc21:            # 1059\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc18\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc19\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     rl_loc18\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc19:            # 114C\n \
+            subl    0x5C+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        rl_loc18:            # 110A\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        rl_loc22:            # 1182\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     rl_loc22\n \
+            movl    0x50+%0,%%eax\n \
+        \n \
+        rl_loc44:            # 10DB\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc23\n \
+            movl    $1,%%eax\n \
+            jmp    rl_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc23:            # 118D trig_+11B8\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x60+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x28+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x54+%0\n \
+            jnz     rl_loc23\n \
+            movl    $1,%%eax\n \
+            jmp    rl_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_md00:            # DATA XREF: trig_:rl_jt\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            cmpb   $0,6+%0\n \
+            jz     rl_loc31\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     rl_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            cmpl    0x5C+%0,%%edi\n \
+            js     rl_loc25\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x5C+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x50+%0,%%eax\n \
+            movl    0x24+%0,%%edi\n \
+            subl    0x5C+%0,%%edi\n \
+            movl    %%edi,0x24+%0\n \
+            subl    %%edi,0x54+%0\n \
+            imull    0x60+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc24\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x54+%0\n \
+            movl    %%edi,0x4C+%0\n \
+        \n \
+        rl_loc24:            # 122A\n \
+            leal    _polyscans,%%edi\n \
+            jmp     rl_loc29\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc25:            # 11F2\n \
+            movl    0x24+%0,%%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc33\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc26\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     rl_loc27\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc26:            # 1275\n \
+            subl    0x5C+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        rl_loc27:            # 127B\n \
+            jmp     rl_loc33\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc31:            # 11D4\n \
+            cmpb   $0,4+%0\n \
+            jz     rl_loc33\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc32\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     rl_loc33\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc32:            # 12A6\n \
+            subl    0x5C+%0,%%edi\n \
+            setle    5+%0\n \
+            movl    %%edi,0x54+%0\n \
+        \n \
+        rl_loc33:            # 1264\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        rl_loc28:            # 12D5\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     rl_loc28\n \
+            movl    0x50+%0,%%eax\n \
+        \n \
+        rl_loc29:            # 1240\n \
+            cmpb   $0,5+%0\n \
+            jz     rl_loc30\n \
+            movl    $1,%%eax\n \
+            jmp    rl_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        rl_loc30:\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x60+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x54+%0\n \
+            jnz     rl_loc30\n \
+            movl    $1,%%eax\n \
+            jmp    rl_finished\n \
+        rl_skipped:\n \
+            movl    $0,%%eax\n \
+        rl_finished:\n \
+            popl    %%ebp\n \
+    "
+             : "=o" (lv), "=S" (dummy), "=D" (dummy), "=c" (dummy), "=a" (do_render)
+             : "1" (opt_a), "2" (opt_b), "3" (opt_c)
+             : "memory", "cc", "%ebx", "%edx");
+        if (!do_render)//trig_rl_start(&lv, opt_a, opt_b, opt_c))
+        {
+            return;
+        }
+        break;
+    case 3:
+        // =============================== FB SWITCH =================================
+        asm volatile (" \
+            pushl   %%ebp\n \
+            movl    4(%%esi),%%eax\n \
+            movl    %%eax,0x18+%0\n \
+            orl    %%eax,%%eax\n \
+            jns     fb_loc02\n \
+            movl    _LOC_poly_screen,%%ebx\n \
+            movl    %%ebx,0x6C+%0\n \
+            movb   $1,6+%0\n \
+            jmp     fb_loc01\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_loc02:            # 132B\n \
+            cmpl    _LOC_vec_window_height,%%eax\n \
+            jge     fb_skipped\n \
+            movl    %%eax,%%ebx\n \
+            imull    _LOC_vec_screen_width,%%ebx\n \
+            addl    _LOC_poly_screen,%%ebx\n \
+            movl    %%ebx,0x6C+%0\n \
+            movb   $0,6+%0\n \
+        \n \
+        fb_loc01:            # 133B\n \
+            movl    4(%%ecx),%%ebx\n \
+            cmpl    _LOC_vec_window_height,%%ebx\n \
+            setnle    5+%0\n \
+            subl    %%eax,%%ebx\n \
+            movl    %%ebx,0x5C+%0\n \
+            movl    %%ebx,0x4C+%0\n \
+            movl    (%%ecx),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x68+%0\n \
+            movl    (%%edi),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x64+%0\n \
+            movzbl  _vec_mode,%%eax\n \
+            jmpl    *fb_jt(,%%eax,4)\n \
+        # ---------------------------------------------------------------------------\n \
+        fb_jt:            # DATA XREF: trig_+139B\n \
+            .int    fb_md00\n \
+            .int    fb_md01\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md01\n \
+            .int    fb_md05\n \
+            .int    fb_md05\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md00\n \
+            .int    fb_md00\n \
+            .int    fb_md01\n \
+            .int    fb_md01\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md05\n \
+            .int    fb_md05\n \
+            .int    fb_md02\n \
+            .int    fb_md02\n \
+            .int    fb_md05\n \
+            .int    fb_md05\n \
+            .int    fb_md05\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_md05:            # DATA XREF: trig_:fb_jt\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%ecx),%%ebx\n \
+            movl    8(%%edi),%%eax\n \
+            subl    8(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x48+%0\n \
+            movl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x3C+%0\n \
+            movl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x30+%0\n \
+            movl    8(%%ecx),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x44+%0\n \
+            movl    0x0C(%%ecx),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x38+%0\n \
+            movl    0x10(%%ecx),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x2C+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    8(%%esi),%%ecx\n \
+            movl    0x0C(%%esi),%%edx\n \
+            movl    0x10(%%esi),%%esi\n \
+            cmpb   $0,6+%0\n \
+            jz     fb_loc03\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     fb_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,5+%0\n \
+            jz     fb_loc04\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     fb_loc04\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_loc03:\n \
+            cmpb   $0,5+%0\n \
+            jz     fb_loc04\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+        \n \
+        fb_loc04:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        fb_loc05:\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     fb_loc05\n \
+            movl    $1,%%eax\n \
+            jmp    fb_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_md02:\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%ecx),%%ebx\n \
+            movl    8(%%edi),%%eax\n \
+            subl    8(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x48+%0\n \
+            movl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x3C+%0\n \
+            movl    8(%%ecx),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x44+%0\n \
+            movl    0x0C(%%ecx),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x38+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    8(%%esi),%%ecx\n \
+            movl    0x0C(%%esi),%%edx\n \
+            cmpb   $0,6+%0\n \
+            jz     fb_loc06\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     fb_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,5+%0\n \
+            jz     fb_loc07\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     fb_loc07\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_loc06:\n \
+            cmpb   $0,5+%0\n \
+            jz     fb_loc07\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+        \n \
+        fb_loc07:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        fb_loc08:            # 162A\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     fb_loc08\n \
+            movl    $1,%%eax\n \
+            jmp    fb_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_md01:            # DATA XREF: trig_:fb_jt\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%ecx),%%ebx\n \
+            movl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%ecx),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x30+%0\n \
+            movl    0x10(%%ecx),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x2C+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            movl    0x10(%%esi),%%esi\n \
+            cmpb   $0,6+%0\n \
+            jz     fb_loc09\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     fb_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,5+%0\n \
+            jz     fb_loc10\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     fb_loc10\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_loc09:            # 1669\n \
+            cmpb   $0,5+%0\n \
+            jz     fb_loc10\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+        \n \
+        fb_loc10:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        fb_loc11:            # 16F1\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     fb_loc11\n \
+            movl    $1,%%eax\n \
+            jmp    fb_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_md00:            # DATA XREF: trig_:fb_jt\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    %%eax,%%ebx\n \
+            cmpb   $0,6+%0\n \
+            jz     fb_loc13\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     fb_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            cmpb   $0,5+%0\n \
+            jz     fb_loc12\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     fb_loc12\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        fb_loc13:            # 170D\n \
+            cmpb   $0,5+%0\n \
+            jz     fb_loc12\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+        \n \
+        fb_loc12:            # 173E trig_+174E ...\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        fb_loc14:            # 1783\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     fb_loc14\n \
+            movl    $1,%%eax\n \
+            jmp    fb_finished\n \
+        fb_skipped:\n \
+            movl    $0,%%eax\n \
+        fb_finished:\n \
+            popl    %%ebp\n \
+    "
+             : "=o" (lv), "=S" (dummy), "=D" (dummy), "=c" (dummy), "=a" (do_render)
+             : "1" (opt_a), "2" (opt_b), "3" (opt_c)
+             : "memory", "cc", "%ebx", "%edx");
+        if (!do_render)//trig_fb_start(&lv, opt_a, opt_b, opt_c))
+        {
+            return;
+        }
+        break;
+    case 4:
+        // =============================== FT SWITCH =================================
+        asm volatile (" \
+            pushl   %%ebp\n \
+        \n \
+            movl    4(%%esi),%%eax\n \
+            movl    %%eax,0x18+%0\n \
+            orl    %%eax,%%eax\n \
+            jns     ft_loc02\n \
+            movl    _LOC_poly_screen,%%ebx\n \
+            movl    %%ebx,0x6C+%0\n \
+            movb   $1,6+%0\n \
+            jmp     ft_loc01\n \
+        \n \
+        ft_loc02:            # 17AA\n \
+            cmpl    _LOC_vec_window_height,%%eax\n \
+            jge     ft_skipped\n \
+            movl    %%eax,%%ebx\n \
+            imull    _LOC_vec_screen_width,%%ebx\n \
+            addl    _LOC_poly_screen,%%ebx\n \
+            movl    %%ebx,0x6C+%0\n \
+            movb   $0,6+%0\n \
+        \n \
+        ft_loc01:            # 17BA\n \
+            movl    4(%%ecx),%%ebx\n \
+            cmpl    _LOC_vec_window_height,%%ebx\n \
+            setnle    5+%0\n \
+            subl    %%eax,%%ebx\n \
+            movl    %%ebx,0x5C+%0\n \
+            movl    %%ebx,0x4C+%0\n \
+            movl    (%%ecx),%%eax\n \
+            subl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x68+%0\n \
+            movl    (%%ecx),%%eax\n \
+            subl    (%%edi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x64+%0\n \
+            movzbl  _vec_mode,%%eax\n \
+            jmpl    *ft_jt(,%%eax,4)\n \
+        # ---------------------------------------------------------------------------\n \
+        ft_jt:            # DATA XREF: trig_+181A\n \
+            .int    ft_md00\n \
+            .int    ft_md01\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md01\n \
+            .int    ft_md05\n \
+            .int    ft_md05\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md00\n \
+            .int    ft_md00\n \
+            .int    ft_md01\n \
+            .int    ft_md01\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md05\n \
+            .int    ft_md05\n \
+            .int    ft_md02\n \
+            .int    ft_md02\n \
+            .int    ft_md05\n \
+            .int    ft_md05\n \
+            .int    ft_md05\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ft_md05:            # DATA XREF: trig_+1835 trig_+1839 ...\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%esi),%%ebx\n \
+            movl    8(%%edi),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x48+%0\n \
+            movl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x3C+%0\n \
+            movl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x30+%0\n \
+            movl    8(%%ecx),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x44+%0\n \
+            movl    0x0C(%%ecx),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x38+%0\n \
+            movl    0x10(%%ecx),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x2C+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    (%%edi),%%ebx\n \
+            shll    $0x10,%%ebx\n \
+            movl    8(%%esi),%%ecx\n \
+            movl    0x0C(%%esi),%%edx\n \
+            movl    0x10(%%esi),%%esi\n \
+            cmpb   $0,6+%0\n \
+            jz     ft_loc03\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     ft_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,5+%0\n \
+            jz     ft_loc04\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     ft_loc04\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ft_loc03:            # 18FD\n \
+            cmpb   $0,5+%0\n \
+            jz     ft_loc04\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+        \n \
+        ft_loc04:            # 194F trig_+195F ...\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        ft_loc05:            # 19A9\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     ft_loc05\n \
+            movl    $1,%%eax\n \
+            jmp    ft_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ft_md02:\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%esi),%%ebx\n \
+            movl    8(%%edi),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x48+%0\n \
+            movl    0x0C(%%edi),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x3C+%0\n \
+            movl    8(%%ecx),%%eax\n \
+            subl    8(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x44+%0\n \
+            movl    0x0C(%%ecx),%%eax\n \
+            subl    0x0C(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x38+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    (%%edi),%%ebx\n \
+            shll    $0x10,%%ebx\n \
+            movl    8(%%esi),%%ecx\n \
+            movl    0x0C(%%esi),%%edx\n \
+            cmpb   $0,6+%0\n \
+            jz     ft_loc06\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     ft_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x44+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ecx\n \
+            movl    0x38+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%edx\n \
+            cmpb   $0,5+%0\n \
+            jz     ft_loc07\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     ft_loc07\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ft_loc06:\n \
+            cmpb   $0,5+%0\n \
+            jz     ft_loc07\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+        \n \
+        ft_loc07:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        ft_loc08:            # 1AA4\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%ecx,8(%%edi)\n \
+            addl    0x44+%0,%%ecx\n \
+            movl    %%edx,0x0C(%%edi)\n \
+            addl    0x38+%0,%%edx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     ft_loc08\n \
+            movl    $1,%%eax\n \
+            jmp    ft_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ft_md01:\n \
+            movl    (%%edi),%%ebx\n \
+            subl    (%%esi),%%ebx\n \
+            movl    0x10(%%edi),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl    %%ebx\n \
+            movl    %%eax,0x30+%0\n \
+            movl    0x10(%%ecx),%%eax\n \
+            subl    0x10(%%esi),%%eax\n \
+            cltd    \n \
+            idivl   0x4C+%0\n \
+            movl    %%eax,0x2C+%0\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    (%%edi),%%ebx\n \
+            shll    $0x10,%%ebx\n \
+            movl    0x10(%%esi),%%esi\n \
+            cmpb   $0,6+%0\n \
+            jz     ft_loc09\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     ft_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            movl    0x2C+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%esi\n \
+            cmpb   $0,5+%0\n \
+            jz     ft_loc10\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     ft_loc10\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ft_loc09:\n \
+            cmpb   $0,5+%0\n \
+            jz     ft_loc10\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+        \n \
+        ft_loc10:\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        ft_loc11:            # 1B6E\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            movl    %%esi,0x10(%%edi)\n \
+            addl    0x2C+%0,%%esi\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     ft_loc11\n \
+            movl    $1,%%eax\n \
+            jmp    ft_finished\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ft_md00:            # DATA XREF: trig_:ft_jt trig_+1859    ...\n \
+            movl    (%%esi),%%eax\n \
+            shll    $0x10,%%eax\n \
+            movl    (%%edi),%%ebx\n \
+            shll    $0x10,%%ebx\n \
+            cmpb   $0,6+%0\n \
+            jz     ft_loc12\n \
+            movl    0x18+%0,%%edi\n \
+            negl    %%edi\n \
+            subl    %%edi,0x5C+%0\n \
+            subl    %%edi,0x4C+%0\n \
+            jle     ft_skipped\n \
+            movl    %%edi,0x24+%0\n \
+            imull    0x68+%0,%%edi\n \
+            addl    %%edi,%%eax\n \
+            movl    0x64+%0,%%edi\n \
+            imull    0x24+%0,%%edi\n \
+            addl    %%edi,%%ebx\n \
+            cmpb   $0,5+%0\n \
+            jz     ft_loc13\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+            jmp     ft_loc13\n \
+        # ---------------------------------------------------------------------------\n \
+        \n \
+        ft_loc12:            # 1B8D\n \
+            cmpb   $0,5+%0\n \
+            jz     ft_loc13\n \
+            movl    _LOC_vec_window_height,%%edi\n \
+            subl    0x18+%0,%%edi\n \
+            movl    %%edi,0x4C+%0\n \
+            movl    %%edi,0x5C+%0\n \
+        \n \
+        ft_loc13:            # 1BBE trig_+1BCE ...\n \
+            leal    _polyscans,%%edi\n \
+        \n \
+        ft_loc14:            # 1C03\n \
+            movl    %%eax,(%%edi)\n \
+            addl    0x68+%0,%%eax\n \
+            movl    %%ebx,4(%%edi)\n \
+            addl    0x64+%0,%%ebx\n \
+            addl    $0x14,%%edi\n \
+            decl   0x5C+%0\n \
+            jnz     ft_loc14\n \
+            movl    $1,%%eax\n \
+            jmp    ft_finished\n \
+        ft_skipped:\n \
+            movl    $0,%%eax\n \
+        ft_finished:\n \
+            popl    %%ebp\n \
+    "
+             : "=o" (lv), "=S" (dummy), "=D" (dummy), "=c" (dummy), "=a" (do_render)
+             : "1" (opt_a), "2" (opt_b), "3" (opt_c)
+             : "memory", "cc", "%ebx", "%edx");
+        if (!do_render)//trig_ft_start(&lv, opt_a, opt_b, opt_c))
+        {
+            return;
+        }
+        break;
     default:
         return;
-    case 1:
-    case 2:
-    case 3:
-    case 4:
-        break;
     }
 
-asm volatile (" \
-    pushl   %%ebp\n \
-    jmpl    *start_modes(,%%eax,4)\n \
-\
-start_modes:\n \
-    .int    skip_render\n \
-    .int    ll_start\n \
-    .int    rl_start\n \
-    .int    fb_start\n \
-    .int    ft_start\n \
-# =============================== LL SWITCH =================================\n \
-\n \
-ll_start:\n \
-    movl    4(%%esi),%%eax # PolyPoint.field_4\n \
-    movl    %%eax,0x18+%0\n \
-    orl     %%eax,%%eax\n \
-    jns     ll_loc02\n \
-    movl    _LOC_poly_screen,%%ebx\n \
-    movl    %%ebx,0x6C+%0\n \
-    movb    $1,6+%0\n \
-    jmp     ll_loc01\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc02:            # AD\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jge     ll_finished\n \
-    movl    %%eax,%%ebx\n \
-    imull   _LOC_vec_screen_width,%%ebx\n \
-    addl    _LOC_poly_screen,%%ebx\n \
-    movl    %%ebx,0x6C+%0\n \
-    movb    $0,6+%0\n \
-\n \
-ll_loc01:            # BD\n \
-    movl    4(%%ecx),%%ebx\n \
-    cmpl    _LOC_vec_window_height,%%ebx\n \
-    setnle    4+%0\n \
-    subl    %%eax,%%ebx\n \
-    movl    %%ebx,0x5C+%0\n \
-    movl    %%ebx,0x4C+%0\n \
-    movl    4(%%edi),%%ebx\n \
-    cmpl    _LOC_vec_window_height,%%ebx\n \
-    setnle    5+%0\n \
-    subl    %%eax,%%ebx\n \
-    movl    %%ebx,0x58+%0\n \
-    movl    (%%ecx),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x68+%0\n \
-    movl    (%%edi),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x58+%0\n \
-    cmpl    0x68+%0,%%eax\n \
-    jle     ll_finished\n \
-    movl    %%eax,0x64+%0\n \
-    movl    4(%%ecx),%%ebx\n \
-    subl    4(%%edi),%%ebx\n \
-    movl    (%%ecx),%%eax\n \
-    subl    (%%edi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x60+%0\n \
-    movl    %%ebx,0x54+%0\n \
-    movl    (%%edi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,0x50+%0\n \
-    movzbl  _vec_mode,%%eax\n \
-    jmpl    *ll_jt(,%%eax,4)\n \
-# ---------------------------------------------------------------------------\n \
-ll_jt:\n \
-    .int    ll_md00\n \
-    .int    ll_md01\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md01\n \
-    .int    ll_md05\n \
-    .int    ll_md05\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md00\n \
-    .int    ll_md00\n \
-    .int    ll_md01\n \
-    .int    ll_md01\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md05\n \
-    .int    ll_md05\n \
-    .int    ll_md02\n \
-    .int    ll_md02\n \
-    .int    ll_md05\n \
-    .int    ll_md05\n \
-    .int    ll_md05\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_md05:            # DATA XREF: trig_+17B trig_+17F ...\n \
-    movl    0x58+%0,%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x10+%0\n \
-    movl    (%%esi),%%eax\n \
-    subl    (%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    sarl    $0x10,%%eax\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%esi),%%ebx\n \
-    addl    %%eax,%%ebx\n \
-    jl     ll_finished\n \
-    jz     ll_loc03\n \
-    incl    %%ebx\n \
-    movl    8(%%esi),%%eax\n \
-    subl    8(%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    8(%%edi),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x48+%0\n \
-    movl    0x0C(%%esi),%%eax\n \
-    subl    0x0C(%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x3C+%0\n \
-    movl    0x10(%%esi),%%eax\n \
-    subl    0x10(%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x30+%0\n \
-\n \
-ll_loc03:            # 1FA\n \
-    movl    8(%%ecx),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x44+%0\n \
-    movl    0x0C(%%ecx),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x38+%0\n \
-    movl    0x10(%%ecx),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x2C+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    8(%%esi),%%ecx\n \
-    movl    0x0C(%%esi),%%edx\n \
-    movl    0x10(%%esi),%%esi\n \
-    cmpb   $0,6+%0\n \
-    jz     ll_loc23\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     ll_finished\n \
-    movl    %%edi,0x24+%0\n \
-    cmpl    0x58+%0,%%edi\n \
-    js     ll_loc05\n \
-    movl    0x68+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    movl    0x50+%0,%%ebx\n \
-    movl    0x24+%0,%%edi\n \
-    subl    0x58+%0,%%edi\n \
-    subl    %%edi,0x54+%0\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x24+%0,%%edi\n \
-    imull    0x60+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc04\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x54+%0\n \
-    movl    %%edi,0x4C+%0\n \
-\n \
-ll_loc04:            # 32C\n \
-    leal    _polyscans,%%edi\n \
-    jmp     ll_loc10\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc05:            # 2AE\n \
-    movl    0x24+%0,%%edi\n \
-    subl    %%edi,0x58+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc08\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc06\n \
-    movl    %%edi,0x58+%0\n \
-    jmp     ll_loc07\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc06:            # 398\n \
-    subl    0x58+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-ll_loc07:            # 39E\n \
-    jmp     ll_loc08\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc23:            # 290\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc08\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc24\n \
-    movl    %%edi,0x58+%0\n \
-    jmp     ll_loc08\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc24:            # 3C9\n \
-    subl    0x58+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-ll_loc08:\n \
-    leal    _polyscans,%%edi\n \
-\n \
-ll_loc09:            # 40D\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl    0x58+%0\n \
-    jnz     ll_loc09\n \
-    movl    0x50+%0,%%ebx\n \
-\n \
-ll_loc10:            # 342\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc11\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc11:            # 418 trig_+451\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x60+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl    0x54+%0\n \
-    jnz     ll_loc11\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_md02:            # DATA XREF: trig_+16F trig_+173 ...\n \
-    movl    0x58+%0,%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x10+%0\n \
-    movl    (%%esi),%%eax\n \
-    subl    (%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    sarl    $0x10,%%eax\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%esi),%%ebx\n \
-    addl    %%eax,%%ebx\n \
-    jl     ll_finished\n \
-    jz     ll_loc12\n \
-    incl    %%ebx\n \
-    movl    8(%%esi),%%eax\n \
-    subl    8(%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    8(%%edi),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x48+%0\n \
-    movl    0x0C(%%esi),%%eax\n \
-    subl    0x0C(%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x3C+%0\n \
-\n \
-ll_loc12:            # 488\n \
-    movl    8(%%ecx),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x44+%0\n \
-    movl    0x0C(%%ecx),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x38+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    8(%%esi),%%ecx\n \
-    movl    0x0C(%%esi),%%edx\n \
-    cmpb   $0,6+%0\n \
-    jz     ll_loc17\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     ll_finished\n \
-    movl    %%edi,0x24+%0\n \
-    cmpl    0x58+%0,%%edi\n \
-    js     ll_loc14\n \
-    movl    0x68+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x50+%0,%%ebx\n \
-    movl    0x24+%0,%%edi\n \
-    subl    0x58+%0,%%edi\n \
-    subl    %%edi,0x54+%0\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x24+%0,%%edi\n \
-    imull    0x60+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc13\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x54+%0\n \
-    movl    %%edi,0x4C+%0\n \
-\n \
-ll_loc13:            # 573\n \
-    leal    _polyscans,%%edi\n \
-    jmp     ll_loc21\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc14:            # 50F\n \
-    movl    0x24+%0,%%edi\n \
-    subl    %%edi,0x58+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc19\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc15\n \
-    movl    %%edi,0x58+%0\n \
-    jmp     ll_loc16\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc15:            # 5D4\n \
-    subl    0x58+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-ll_loc16:            # 5DA\n \
-    jmp     ll_loc19\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc17:            # 4F1\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc19\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc18\n \
-    movl    %%edi,0x58+%0\n \
-    jmp     ll_loc19\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc18:            # 605\n \
-    subl    0x58+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-ll_loc19:\n \
-    leal    _polyscans,%%edi\n \
-    # restrict 0x58+%0 to 576 - size of polyscans[]\n \
-    cmpl   $0x240,0x58+%0\n \
-    jl     ll_loc20_test2\n \
-    movl   $0x240,0x58+%0\n \
-ll_loc20_test2:\n \
-    # restrict 0x54+%0 to 576 minus the value of previous var\n \
-    cmpl   $0x240,0x54+%0\n \
-    jl     ll_loc20\n \
-    movl   $0x240,0x54+%0\n \
-\n \
-ll_loc20:            # 642\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    addl    $0x14,%%edi\n \
-    decl    0x58+%0\n \
-    jnz     ll_loc20\n \
-    movl    0x50+%0,%%ebx\n \
-\n \
-ll_loc21:            # 589\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc22\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc22:            # 64D trig_+67F\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x60+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    addl    $0x14,%%edi\n \
-    decl    0x54+%0\n \
-    jnz     ll_loc22\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_md01:\n \
-    movl    0x58+%0,%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x10+%0\n \
-    movl    (%%esi),%%eax\n \
-    subl    (%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    sarl    $0x10,%%eax\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%esi),%%ebx\n \
-    addl    %%eax,%%ebx\n \
-    jl     ll_finished\n \
-    jz     ll_loc25\n \
-    incl    %%ebx\n \
-    movl    0x10(%%esi),%%eax\n \
-    subl    0x10(%%ecx),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x30+%0\n \
-\n \
-ll_loc25:            # 6B6\n \
-    movl    0x10(%%ecx),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x2C+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    0x10(%%esi),%%esi\n \
-    cmpb   $0,6+%0\n \
-    jz     ll_loc26\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     ll_finished\n \
-    movl    %%edi,0x24+%0\n \
-    cmpl    0x58+%0,%%edi\n \
-    js     ll_loc36\n \
-    movl    0x68+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    movl    0x50+%0,%%ebx\n \
-    movl    0x24+%0,%%edi\n \
-    subl    0x58+%0,%%edi\n \
-    subl    %%edi,0x54+%0\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x24+%0,%%edi\n \
-    imull    0x60+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull   0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb    $0,4+%0\n \
-    jz      ll_loc37\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x54+%0\n \
-    movl    %%edi,0x4C+%0\n \
-\n \
-ll_loc37:            # 75E\n \
-    leal    _polyscans,%%edi\n \
-    cmpb    $0,5+%0\n \
-    jz      ll_loc30\n \
-    jmp     do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc36:            # 710\n \
-    movl    0x24+%0,%%edi\n \
-    subl    %%edi,0x58+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc28\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc38\n \
-    movl    %%edi,0x58+%0\n \
-    jmp     ll_loc39\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc38:            # 7B4\n \
-    subl    0x58+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-ll_loc39:            # 7BA\n \
-    jmp     ll_loc28\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc26:            # 6F2\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc28\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc27\n \
-    movl    %%edi,0x58+%0\n \
-    jmp     ll_loc28\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc27:            # 7E5\n \
-    subl    0x58+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-ll_loc28:\n \
-    leal    _polyscans,%%edi\n \
-\n \
-ll_loc29:            # 81B\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl    0x58+%0\n \
-    jnz     ll_loc29\n \
-    movl    0x50+%0,%%ebx\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc30\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc30:            # 826 trig_+851\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x60+%0,%%ebx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x54+%0\n \
-    jnz     ll_loc30\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_md00:            # DATA XREF: trig_:ll_jt trig_+19F ...\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    cmpb   $0,6+%0\n \
-    jz     ll_loc31\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     ll_finished\n \
-    movl    %%edi,0x24+%0\n \
-    cmpl    0x58+%0,%%edi\n \
-    js     ll_loc40\n \
-    movl    0x68+%0,%%edi\n \
-    imull    0x58+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x50+%0,%%ebx\n \
-    movl    0x24+%0,%%edi\n \
-    subl    0x58+%0,%%edi\n \
-    subl    %%edi,0x54+%0\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x24+%0,%%edi\n \
-    imull    0x60+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc41\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x54+%0\n \
-    movl    %%edi,0x4C+%0\n \
-\n \
-ll_loc41:            # 8C3\n \
-    leal    _polyscans,%%edi\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc35\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc40:            # 88B\n \
-    movl    0x24+%0,%%edi\n \
-    subl    %%edi,0x58+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc33\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc42\n \
-    movl    %%edi,0x58+%0\n \
-    jmp     ll_loc43\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc42:            # 90E\n \
-    subl    0x58+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-ll_loc43:            # 914\n \
-    jmp     ll_loc33\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc31:            # 86D\n \
-    cmpb   $0,4+%0\n \
-    jz     ll_loc33\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc32\n \
-    movl    %%edi,0x58+%0\n \
-    jmp     ll_loc33\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc32:            # 93F\n \
-    subl    0x58+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-ll_loc33:\n \
-    leal    _polyscans,%%edi\n \
-\n \
-ll_loc34:            # 96E\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x58+%0\n \
-    jnz     ll_loc34\n \
-    movl    0x50+%0,%%ebx\n \
-    cmpb   $0,5+%0\n \
-    jz     ll_loc35\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ll_loc35:            # 979 trig_+99D\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x60+%0,%%ebx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x54+%0\n \
-    jnz     ll_loc35\n \
-    jmp do_render\n \
-ll_finished:\n \
-    jmp skip_render\n \
-\
-# =============================== RL SWITCH =================================\n \
-\n \
-rl_start:\n \
-    movl    4(%%esi),%%eax\n \
-    movl    %%eax,0x18+%0\n \
-    orl    %%eax,%%eax\n \
-    jns     rl_loc02\n \
-    movl    _LOC_poly_screen,%%ebx\n \
-    movl    %%ebx,0x6C+%0\n \
-    movb   $1,6+%0\n \
-    jmp     rl_loc01\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-rl_loc02:            # 9BA\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jge     rl_finished\n \
-    movl    %%eax,%%ebx\n \
-    imull    _LOC_vec_screen_width,%%ebx\n \
-    addl    _LOC_poly_screen,%%ebx\n \
-    movl    %%ebx,0x6C+%0\n \
-    movb   $0,6+%0\n \
-\n \
-rl_loc01:            # 9CA\n \
-    movl    4(%%ecx),%%ebx\n \
-    cmpl    _LOC_vec_window_height,%%ebx\n \
-    setnle    5+%0\n \
-    subl    %%eax,%%ebx\n \
-    movl    %%ebx,0x5C+%0\n \
-    movl    4(%%edi),%%ebx\n \
-    cmpl    _LOC_vec_window_height,%%ebx\n \
-    setnle    4+%0\n \
-    subl    %%eax,%%ebx\n \
-    movl    %%ebx,0x58+%0\n \
-    movl    %%ebx,0x4C+%0\n \
-    movl    (%%ecx),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x68+%0\n \
-    movl    (%%edi),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x58+%0\n \
-    cmpl    0x68+%0,%%eax\n \
-    jle     rl_finished\n \
-    movl    %%eax,0x64+%0\n \
-    movl    4(%%edi),%%ebx\n \
-    subl    4(%%ecx),%%ebx\n \
-    movl    (%%edi),%%eax\n \
-    subl    (%%ecx),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x60+%0\n \
-    movl    %%ebx,0x54+%0\n \
-    movl    (%%ecx),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,0x50+%0\n \
-    movzbl  _vec_mode,%%eax\n \
-    jmpl    *rl_jt(,%%eax,4)\n \
-# ---------------------------------------------------------------------------\n \
-rl_jt:            # DATA XREF: trig_+A6D\n \
-    .int    rl_md00\n \
-    .int    rl_md01\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md01\n \
-    .int    rl_md05\n \
-    .int    rl_md05\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md00\n \
-    .int    rl_md00\n \
-    .int    rl_md01\n \
-    .int    rl_md01\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md05\n \
-    .int    rl_md05\n \
-    .int    rl_md02\n \
-    .int    rl_md02\n \
-    .int    rl_md05\n \
-    .int    rl_md05\n \
-    .int    rl_md05\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-rl_md05:            # DATA XREF: trig_:rl_jt\n \
-    movl    0x5C+%0,%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x58+%0\n \
-    movl    %%eax,0x10+%0\n \
-    movl    (%%edi),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    sarl    $0x10,%%eax\n \
-    movl    (%%esi),%%ebx\n \
-    subl    (%%ecx),%%ebx\n \
-    addl    %%eax,%%ebx\n \
-    jl     rl_finished\n \
-    jz     loc_788637\n \
-    incl    %%ebx\n \
-    movl    8(%%edi),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    8(%%esi),%%eax\n \
-    subl    8(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x48+%0\n \
-    movl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    0x0C(%%esi),%%eax\n \
-    subl    0x0C(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x3C+%0\n \
-    movl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    0x10(%%esi),%%eax\n \
-    subl    0x10(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-\n \
-loc_788637:            # B07\n \
-    movl    %%eax,0x30+%0\n \
-    movl    8(%%ecx),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x44+%0\n \
-    movl    0x0C(%%ecx),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x38+%0\n \
-    movl    0x10(%%ecx),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x2C+%0\n \
-    movl    8(%%edi),%%eax\n \
-    subl    8(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl   0x54+%0\n \
-    movl    %%eax,0x40+%0\n \
-    movl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl   0x54+%0\n \
-    movl    %%eax,0x34+%0\n \
-    movl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl   0x54+%0\n \
-    movl    %%eax,0x28+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    8(%%esi),%%ecx\n \
-    movl    0x0C(%%esi),%%edx\n \
-    movl    0x10(%%esi),%%esi\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_7887C9\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     rl_finished\n \
-    movl    %%edi,0x24+%0\n \
-    cmpl    0x5C+%0,%%edi\n \
-    js     loc_788761\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    movl    0x50+%0,%%eax\n \
-    movl    0x24+%0,%%edi\n \
-    subl    0x5C+%0,%%edi\n \
-    movl    %%edi,0x24+%0\n \
-    subl    %%edi,0x54+%0\n \
-    imull    0x60+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x40+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x34+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x28+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788756\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x54+%0\n \
-    movl    %%edi,0x4C+%0\n \
-\n \
-loc_788756:            # C66\n \
-    leal    _polyscans,%%edi\n \
-    jmp     loc_78882D\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788761:            # BE8\n \
-    movl    0x24+%0,%%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_7887F8\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_7887BA\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_7887C7\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7887BA:            # CD2\n \
-    subl    0x5C+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-loc_7887C7:            # CD8\n \
-    jmp     loc_7887F8\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7887C9:            # BCA\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_7887F8\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_7887EB\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_7887F8\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7887EB:            # D03\n \
-    subl    0x5C+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-loc_7887F8:            # CC1\n \
-# trig_:loc_7887C7 ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_7887FE:            # D47\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_7887FE\n \
-    movl    0x50+%0,%%eax\n \
-\n \
-loc_78882D:            # C7C\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788842\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788842:            # D52 trig_+D8B\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x60+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x40+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x34+%0,%%edx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x28+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x54+%0\n \
-    jnz     loc_788842\n \
-    jmp do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-rl_md02:            # DATA XREF: trig_:rl_jt\n \
-    movl    0x5C+%0,%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x58+%0\n \
-    movl    %%eax,0x10+%0\n \
-    movl    (%%edi),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    sarl    $0x10,%%eax\n \
-    movl    (%%esi),%%ebx\n \
-    subl    (%%ecx),%%ebx\n \
-    addl    %%eax,%%ebx\n \
-    jl     rl_finished\n \
-    jz     loc_7888DB\n \
-    incl    %%ebx\n \
-    movl    8(%%edi),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    8(%%esi),%%eax\n \
-    subl    8(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x48+%0\n \
-    movl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    0x0C(%%esi),%%eax\n \
-    subl    0x0C(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x3C+%0\n \
-\n \
-loc_7888DB:            # DC2\n \
-    movl    8(%%ecx),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x44+%0\n \
-    movl    0x0C(%%ecx),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x38+%0\n \
-    movl    8(%%edi),%%eax\n \
-    subl    8(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl   0x54+%0\n \
-    movl    %%eax,0x40+%0\n \
-    movl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl   0x54+%0\n \
-    movl    %%eax,0x34+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    8(%%esi),%%ecx\n \
-    movl    0x0C(%%esi),%%edx\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_788A23\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     rl_finished\n \
-    movl    %%edi,0x24+%0\n \
-    cmpl    0x5C+%0,%%edi\n \
-    js     loc_7889C6\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x50+%0,%%eax\n \
-    movl    0x24+%0,%%edi\n \
-    subl    0x5C+%0,%%edi\n \
-    movl    %%edi,0x24+%0\n \
-    subl    %%edi,0x54+%0\n \
-    imull    0x60+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x40+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x34+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_7889BB\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x54+%0\n \
-    movl    %%edi,0x4C+%0\n \
-\n \
-loc_7889BB:            # ECB\n \
-    leal    _polyscans,%%edi\n \
-    jmp     loc_788A80\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7889C6:            # E67\n \
-    movl    0x24+%0,%%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788A52\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788A14\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_788A21\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788A14:            # F2C\n \
-    subl    0x5C+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-loc_788A21:            # F32\n \
-    jmp     loc_788A52\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788A23:            # E49\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788A52\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788A45\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_788A52\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788A45:            # F5D\n \
-    subl    0x5C+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-loc_788A52:            # F1B\n \
-    leal    _polyscans,%%edi\n \
-    # restrict 0x5C+%0 to 576 - size of polyscans[]\n \
-    cmpl   $0x240,0x5C+%0\n \
-    jl     loc_788A58_test2\n \
-    movl   $0x240,0x5C+%0\n \
-loc_788A58_test2:\n \
-    # restrict 0x54+%0 to 576 minus the value of previous var\n \
-    cmpl   $0x240,0x54+%0\n \
-    jl     loc_788A58\n \
-    movl   $0x240,0x54+%0\n \
-    #subl   0x5C+%0,0x54+%0\n \
-\n \
-loc_788A58:            # F9A\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    addl    $0x14,%%edi\n \
-    decl    0x5C+%0\n \
-    jnz     loc_788A58\n \
-    movl    0x50+%0,%%eax\n \
-\n \
-loc_788A80:            # EE1\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788A95\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788A95:            # FA5 trig_+FD7\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x60+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x40+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x34+%0,%%edx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x54+%0\n \
-    jnz     loc_788A95\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-rl_md01:            # DATA XREF: trig_:rl_jt\n \
-    movl    0x5C+%0,%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl   0x58+%0\n \
-    movl    %%eax,0x10+%0\n \
-    movl    (%%edi),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    sarl    $0x10,%%eax\n \
-    movl    (%%esi),%%ebx\n \
-    subl    (%%ecx),%%ebx\n \
-    addl    %%eax,%%ebx\n \
-    jl     rl_finished\n \
-    jz     loc_788B0C\n \
-    incl    %%ebx\n \
-    movl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    imull   0x10+%0\n \
-    shrdl    $0x10,%%edx,%%eax\n \
-    addl    0x10(%%esi),%%eax\n \
-    subl    0x10(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x30+%0\n \
-\n \
-loc_788B0C:            # 100E\n \
-    movl    0x10(%%ecx),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x5C+%0\n \
-    movl    %%eax,0x2C+%0\n \
-    movl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl   0x54+%0\n \
-    movl    %%eax,0x28+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    0x10(%%esi),%%esi\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_788C12\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     rl_finished\n \
-    movl    %%edi,0x24+%0\n \
-    cmpl    0x5C+%0,%%edi\n \
-    js     loc_788BC0\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    movl    0x50+%0,%%eax\n \
-    movl    0x24+%0,%%edi\n \
-    subl    0x5C+%0,%%edi\n \
-    movl    %%edi,0x24+%0\n \
-    subl    %%edi,0x54+%0\n \
-    imull    0x60+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x28+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788BB5\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x54+%0\n \
-    movl    %%edi,0x4C+%0\n \
-\n \
-loc_788BB5:            # 10C5\n \
-    leal    _polyscans,%%edi\n \
-    jmp     loc_788C68\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788BC0:            # 1077\n \
-    movl    0x24+%0,%%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788C41\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788C03\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_788C10\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788C03:            # 111B\n \
-    subl    0x5C+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-loc_788C10:            # 1121\n \
-    jmp     loc_788C41\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788C12:            # 1059\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788C41\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788C34\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_788C41\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788C34:            # 114C\n \
-    subl    0x5C+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-loc_788C41:            # 110A\n \
-# trig_:loc_788C10 ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_788C47:            # 1182\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_788C47\n \
-    movl    0x50+%0,%%eax\n \
-\n \
-loc_788C68:            # 10DB\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788C7D\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788C7D:            # 118D trig_+11B8\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x60+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x28+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x54+%0\n \
-    jnz     loc_788C7D\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-rl_md00:            # DATA XREF: trig_:rl_jt\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_788D6C\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     rl_finished\n \
-    movl    %%edi,0x24+%0\n \
-    cmpl    0x5C+%0,%%edi\n \
-    js     loc_788D25\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x5C+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x50+%0,%%eax\n \
-    movl    0x24+%0,%%edi\n \
-    subl    0x5C+%0,%%edi\n \
-    movl    %%edi,0x24+%0\n \
-    subl    %%edi,0x54+%0\n \
-    imull    0x60+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788D1A\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x54+%0\n \
-    movl    %%edi,0x4C+%0\n \
-\n \
-loc_788D1A:            # 122A\n \
-    leal    _polyscans,%%edi\n \
-    jmp     loc_788DBB\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788D25:            # 11F2\n \
-    movl    0x24+%0,%%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788D9B\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788D5D\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_788D6A\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788D5D:            # 1275\n \
-    subl    0x5C+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-loc_788D6A:            # 127B\n \
-    jmp     loc_788D9B\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788D6C:            # 11D4\n \
-    cmpb   $0,4+%0\n \
-    jz     loc_788D9B\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788D8E\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_788D9B\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788D8E:            # 12A6\n \
-    subl    0x5C+%0,%%edi\n \
-    setle    5+%0\n \
-    movl    %%edi,0x54+%0\n \
-\n \
-loc_788D9B:            # 1264\n \
-# trig_:loc_788D6A ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_788DA1:            # 12D5\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_788DA1\n \
-    movl    0x50+%0,%%eax\n \
-\n \
-loc_788DBB:            # 1240\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788DD0\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788DD0:            # 12E0 trig_+1304\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x60+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x54+%0\n \
-    jnz     loc_788DD0\n \
-    jmp    do_render\n \
-rl_finished:\n \
-    jmp   skip_render\n \
-\
-# =============================== FB SWITCH =================================\n \
-\n \
-fb_start:\n \
-    movl    4(%%esi),%%eax\n \
-    movl    %%eax,0x18+%0\n \
-    orl    %%eax,%%eax\n \
-    jns     fb_loc02\n \
-    movl    _LOC_poly_screen,%%ebx\n \
-    movl    %%ebx,0x6C+%0\n \
-    movb   $1,6+%0\n \
-    jmp     fb_loc01\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-fb_loc02:            # 132B\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jge     fb_finished\n \
-    movl    %%eax,%%ebx\n \
-    imull    _LOC_vec_screen_width,%%ebx\n \
-    addl    _LOC_poly_screen,%%ebx\n \
-    movl    %%ebx,0x6C+%0\n \
-    movb   $0,6+%0\n \
-\n \
-fb_loc01:            # 133B\n \
-    movl    4(%%ecx),%%ebx\n \
-    cmpl    _LOC_vec_window_height,%%ebx\n \
-    setnle    5+%0\n \
-    subl    %%eax,%%ebx\n \
-    movl    %%ebx,0x5C+%0\n \
-    movl    %%ebx,0x4C+%0\n \
-    movl    (%%ecx),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x68+%0\n \
-    movl    (%%edi),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x64+%0\n \
-    movzbl  _vec_mode,%%eax\n \
-    jmpl    *fb_jt(,%%eax,4)\n \
-# ---------------------------------------------------------------------------\n \
-fb_jt:            # DATA XREF: trig_+139B\n \
-    .int    fb_md00\n \
-    .int    fb_md01\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md01\n \
-    .int    fb_md05\n \
-    .int    fb_md05\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md00\n \
-    .int    fb_md00\n \
-    .int    fb_md01\n \
-    .int    fb_md01\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md05\n \
-    .int    fb_md05\n \
-    .int    fb_md02\n \
-    .int    fb_md02\n \
-    .int    fb_md05\n \
-    .int    fb_md05\n \
-    .int    fb_md05\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-fb_md05:            # DATA XREF: trig_:fb_jt\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%ecx),%%ebx\n \
-    movl    8(%%edi),%%eax\n \
-    subl    8(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x48+%0\n \
-    movl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x3C+%0\n \
-    movl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x30+%0\n \
-    movl    8(%%ecx),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x44+%0\n \
-    movl    0x0C(%%ecx),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x38+%0\n \
-    movl    0x10(%%ecx),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x2C+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    8(%%esi),%%ecx\n \
-    movl    0x0C(%%esi),%%edx\n \
-    movl    0x10(%%esi),%%esi\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_788FBF\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     fb_finished\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788FD8\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_788FD8\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_788FBF:            # 147B\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_788FD8\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-\n \
-loc_788FD8:            # 14CD trig_+14DD ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_788FDE:            # 1527\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_788FDE\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-fb_md02:            # DATA XREF: trig_:fb_jt\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%ecx),%%ebx\n \
-    movl    8(%%edi),%%eax\n \
-    subl    8(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x48+%0\n \
-    movl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x3C+%0\n \
-    movl    8(%%ecx),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x44+%0\n \
-    movl    0x0C(%%ecx),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x38+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    8(%%esi),%%ecx\n \
-    movl    0x0C(%%esi),%%edx\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_7890C9\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     fb_finished\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_7890E2\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_7890E2\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7890C9:            # 1585\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_7890E2\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-\n \
-loc_7890E2:            # 15D7 trig_+15E7 ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_7890E8:            # 162A\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_7890E8\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-fb_md01:            # DATA XREF: trig_:fb_jt\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%ecx),%%ebx\n \
-    movl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%ecx),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x30+%0\n \
-    movl    0x10(%%ecx),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x2C+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    movl    0x10(%%esi),%%esi\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_789197\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     fb_finished\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_7891B0\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_7891B0\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_789197:            # 1669\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_7891B0\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-\n \
-loc_7891B0:            # 16A5 trig_+16B5 ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_7891B6:            # 16F1\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_7891B6\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-fb_md00:            # DATA XREF: trig_:fb_jt\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    %%eax,%%ebx\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_789230\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     fb_finished\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_789249\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_789249\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_789230:            # 170D\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_789249\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-\n \
-loc_789249:            # 173E trig_+174E ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_78924F:            # 1783\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_78924F\n \
-    jmp    do_render\n \
-fb_finished:\n \
-    jmp   skip_render\n \
-\
-# =============================== FT SWITCH =================================\n \
-\n \
-ft_start:\n \
-    movl    4(%%esi),%%eax\n \
-    movl    %%eax,0x18+%0\n \
-    orl    %%eax,%%eax\n \
-    jns     ft_loc02\n \
-    movl    _LOC_poly_screen,%%ebx\n \
-    movl    %%ebx,0x6C+%0\n \
-    movb   $1,6+%0\n \
-    jmp     ft_loc01\n \
-\n \
-ft_loc02:            # 17AA\n \
-    cmpl    _LOC_vec_window_height,%%eax\n \
-    jge     ft_finished\n \
-    movl    %%eax,%%ebx\n \
-    imull    _LOC_vec_screen_width,%%ebx\n \
-    addl    _LOC_poly_screen,%%ebx\n \
-    movl    %%ebx,0x6C+%0\n \
-    movb   $0,6+%0\n \
-\n \
-ft_loc01:            # 17BA\n \
-    movl    4(%%ecx),%%ebx\n \
-    cmpl    _LOC_vec_window_height,%%ebx\n \
-    setnle    5+%0\n \
-    subl    %%eax,%%ebx\n \
-    movl    %%ebx,0x5C+%0\n \
-    movl    %%ebx,0x4C+%0\n \
-    movl    (%%ecx),%%eax\n \
-    subl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x68+%0\n \
-    movl    (%%ecx),%%eax\n \
-    subl    (%%edi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x64+%0\n \
-    movzbl  _vec_mode,%%eax\n \
-    jmpl    *ft_jt(,%%eax,4)\n \
-# ---------------------------------------------------------------------------\n \
-ft_jt:            # DATA XREF: trig_+181A\n \
-    .int    ft_md00\n \
-    .int    ft_md01\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md01\n \
-    .int    ft_md05\n \
-    .int    ft_md05\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md00\n \
-    .int    ft_md00\n \
-    .int    ft_md01\n \
-    .int    ft_md01\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md05\n \
-    .int    ft_md05\n \
-    .int    ft_md02\n \
-    .int    ft_md02\n \
-    .int    ft_md05\n \
-    .int    ft_md05\n \
-    .int    ft_md05\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ft_md05:            # DATA XREF: trig_+1835 trig_+1839 ...\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%esi),%%ebx\n \
-    movl    8(%%edi),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x48+%0\n \
-    movl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x3C+%0\n \
-    movl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x30+%0\n \
-    movl    8(%%ecx),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x44+%0\n \
-    movl    0x0C(%%ecx),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x38+%0\n \
-    movl    0x10(%%ecx),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x2C+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    (%%edi),%%ebx\n \
-    shll    $0x10,%%ebx\n \
-    movl    8(%%esi),%%ecx\n \
-    movl    0x0C(%%esi),%%edx\n \
-    movl    0x10(%%esi),%%esi\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_789441\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     ft_finished\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_78945A\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_78945A\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_789441:            # 18FD\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_78945A\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-\n \
-loc_78945A:            # 194F trig_+195F ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_789460:            # 19A9\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_789460\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ft_md02:            # DATA XREF: trig_+1829 trig_+182D ...\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%esi),%%ebx\n \
-    movl    8(%%edi),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x48+%0\n \
-    movl    0x0C(%%edi),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x3C+%0\n \
-    movl    8(%%ecx),%%eax\n \
-    subl    8(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x44+%0\n \
-    movl    0x0C(%%ecx),%%eax\n \
-    subl    0x0C(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x38+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    (%%edi),%%ebx\n \
-    shll    $0x10,%%ebx\n \
-    movl    8(%%esi),%%ecx\n \
-    movl    0x0C(%%esi),%%edx\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_789543\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     ft_finished\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x44+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ecx\n \
-    movl    0x38+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%edx\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_78955C\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_78955C\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_789543:            # 1A0A\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_78955C\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-\n \
-loc_78955C:            # 1A51 trig_+1A61 ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_789562:            # 1AA4\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%ecx,8(%%edi)\n \
-    addl    0x44+%0,%%ecx\n \
-    movl    %%edx,0x0C(%%edi)\n \
-    addl    0x38+%0,%%edx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_789562\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ft_md01:            # DATA XREF: trig_+1825 trig_+1831 ...\n \
-    movl    (%%edi),%%ebx\n \
-    subl    (%%esi),%%ebx\n \
-    movl    0x10(%%edi),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl    %%ebx\n \
-    movl    %%eax,0x30+%0\n \
-    movl    0x10(%%ecx),%%eax\n \
-    subl    0x10(%%esi),%%eax\n \
-    cltd    \n \
-    idivl   0x4C+%0\n \
-    movl    %%eax,0x2C+%0\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    (%%edi),%%ebx\n \
-    shll    $0x10,%%ebx\n \
-    movl    0x10(%%esi),%%esi\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_789614\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     ft_finished\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    movl    0x2C+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%esi\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_78962D\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_78962D\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_789614:            # 1AE6\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_78962D\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-\n \
-loc_78962D:            # 1B22 trig_+1B32 ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_789633:            # 1B6E\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    movl    %%esi,0x10(%%edi)\n \
-    addl    0x2C+%0,%%esi\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_789633\n \
-    jmp    do_render\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-ft_md00:            # DATA XREF: trig_:ft_jt trig_+1859    ...\n \
-    movl    (%%esi),%%eax\n \
-    shll    $0x10,%%eax\n \
-    movl    (%%edi),%%ebx\n \
-    shll    $0x10,%%ebx\n \
-    cmpb   $0,6+%0\n \
-    jz     loc_7896B0\n \
-    movl    0x18+%0,%%edi\n \
-    negl    %%edi\n \
-    subl    %%edi,0x5C+%0\n \
-    subl    %%edi,0x4C+%0\n \
-    jle     ft_finished\n \
-    movl    %%edi,0x24+%0\n \
-    imull    0x68+%0,%%edi\n \
-    addl    %%edi,%%eax\n \
-    movl    0x64+%0,%%edi\n \
-    imull    0x24+%0,%%edi\n \
-    addl    %%edi,%%ebx\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_7896C9\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-    jmp     loc_7896C9\n \
-# ---------------------------------------------------------------------------\n \
-\n \
-loc_7896B0:            # 1B8D\n \
-    cmpb   $0,5+%0\n \
-    jz     loc_7896C9\n \
-    movl    _LOC_vec_window_height,%%edi\n \
-    subl    0x18+%0,%%edi\n \
-    movl    %%edi,0x4C+%0\n \
-    movl    %%edi,0x5C+%0\n \
-\n \
-loc_7896C9:            # 1BBE trig_+1BCE ...\n \
-    leal    _polyscans,%%edi\n \
-\n \
-loc_7896CF:            # 1C03\n \
-    movl    %%eax,(%%edi)\n \
-    addl    0x68+%0,%%eax\n \
-    movl    %%ebx,4(%%edi)\n \
-    addl    0x64+%0,%%ebx\n \
-    addl    $0x14,%%edi\n \
-    decl   0x5C+%0\n \
-    jnz     loc_7896CF\n \
-    jmp     do_render\n \
-ft_finished:\n \
-    jmp    skip_render\n \
-\
-do_render:\n \
-    movl    $1,%%eax\n \
-    jmp    phase1_finished\n \
-skip_render:\n \
-    movl    $0,%%eax\n \
-phase1_finished:\n \
-    popl    %%ebp\n \
-"
-         : "=o" (lv), "=S" (dummy), "=D" (dummy), "=c" (dummy), "=a" (do_render)
-         : "1" (opt_a), "2" (opt_b), "3" (opt_c), "4" (start_type)
-         : "memory", "cc", "%ebx", "%edx");
-
-    if (!do_render)
-        return;
-
     // ================ RENDERING CODE =============================
+
+    /*switch (vec_mode)
+    {
+    case RendVec_mode00:
+        break;
+    case RendVec_mode01:
+        break;
+    case RendVec_mode02:
+        break;
+    case RendVec_mode03:
+        break;
+    case RendVec_mode04:
+        break;
+    case RendVec_mode05:
+        break;
+    case RendVec_mode06:
+        break;
+    case RendVec_mode07:
+        break;
+    case RendVec_mode08:
+        break;
+    case RendVec_mode09:
+        break;
+    case RendVec_mode10:
+        break;
+    case RendVec_mode11:
+        break;
+    case RendVec_mode12:
+        break;
+    case RendVec_mode13:
+        break;
+    case RendVec_mode14:
+        break;
+    case RendVec_mode15:
+        break;
+    case RendVec_mode16:
+        break;
+    case RendVec_mode17:
+        break;
+    case RendVec_mode18:
+        break;
+    }*/
 
 asm volatile (" \
 pushl   %%ebp\n \
@@ -2746,7 +2868,7 @@ render_table:\n \
     .int    render_md24\n \
     .int    render_md25\n \
     .int    render_md26\n \
-# ---------------------------------------------------------------------------\n \
+# ===========================================================================\n \
 \n \
 render_md00:\n \
     leal    _polyscans,%%esi\n \
@@ -2759,68 +2881,69 @@ render_md00:\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_78977C:            # 1CF0\n \
+render00_loc01:            # 1CF0\n \
     movw    2(%%esi),%%bx\n \
     movzwl  6(%%esi),%%ecx\n \
     addl    _LOC_vec_screen_width,%%edx\n \
     orw     %%bx,%%bx\n \
-    jns     loc_7897A6\n \
+    jns     render00_loc03\n \
     orw     %%cx,%%cx\n \
-    jle     loc_7897C9\n \
+    jle     render00_loc08\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
-    jle     loc_7897A2\n \
+    jle     render00_loc02\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_7897A2:            # 1CBA\n \
+render00_loc02:            # 1CBA\n \
     movl    %%edx,%%edi\n \
-    jmp     loc_7897BC\n \
+    jmp     render00_loc05\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_7897A6:            # 1CAD\n \
+render00_loc03:            # 1CAD\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
-    jle     loc_7897B4\n \
+    jle     render00_loc04\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_7897B4:            # 1CCC\n \
+render00_loc04:            # 1CCC\n \
     subw    %%bx,%%cx\n \
-    jle     loc_7897C9\n \
+    jle     render00_loc08\n \
     leal    (%%ebx,%%edx),%%edi\n \
 \n \
-loc_7897BC:            # 1CC4\n \
+render00_loc05:            # 1CC4\n \
     shrl    $1,%%ecx\n \
-    jnb     loc_7897C1\n \
+    jnb     render00_loc06\n \
     stosb    \n \
 \n \
-loc_7897C1:            # 1CDE\n \
+render00_loc06:            # 1CDE\n \
     shrl    $1,%%ecx\n \
-    jnb     loc_7897C7\n \
+    jnb     render00_loc07\n \
     stosw    \n \
 \n \
-loc_7897C7:            # 1CE3\n \
+render00_loc07:            # 1CE3\n \
     rep    stosl\n \
 \n \
-loc_7897C9:            # 1CB2 trig_+1CD7\n \
+render00_loc08:            # 1CB2 trig_+1CD7\n \
     addl    $0x14,%%esi\n \
     decl    0x4C+%0\n \
-    jnz     loc_78977C\n \
+    jnz     render00_loc01\n \
+    jmp     render_md01\n \
 \n \
-# ---------------------------------------------------------------------------\n \
+# ===========================================================================\n \
 \n \
 render_md01:\n \
     leal    _polyscans,%%esi\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_7897E1:            # 1EA8\n \
+render01_loc01:            # 1EA8\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x6C+%0,%%edi\n \
     addl    _LOC_vec_screen_width,%%edi\n \
     movl    %%edi,0x6C+%0\n \
     orw    %%ax,%%ax\n \
-    jns     loc_789833\n \
+    jns     render01_loc04\n \
     orw    %%cx,%%cx\n \
-    jle     loc_789981\n \
+    jle     render01_loc02\n \
     negw    %%ax\n \
     movzwl    %%ax,%%eax\n \
     imull    0x30+%0,%%eax\n \
@@ -2829,122 +2952,121 @@ loc_7897E1:            # 1EA8\n \
     addw    0x10(%%esi),%%bx\n \
     adcb    0x12(%%esi),%%ah\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
-    jle     loc_789829\n \
+    jle     render01_loc03\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789829:            # 1D41\n \
+render01_loc03:            # 1D41\n \
     movzwl    %%ax,%%eax\n \
     movb    _vec_colour,%%al\n \
-    jmp     loc_78985A\n \
+    jmp     render01_loc06\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789833:            # 1D18\n \
+render01_loc04:            # 1D18\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
-    jle     loc_789841\n \
+    jle     render01_loc05\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_789841:            # 1D59\n \
+render01_loc05:            # 1D59\n \
     subw    %%ax,%%cx\n \
-    jle     loc_789981\n \
+    jle     render01_loc02\n \
     addl    %%eax,%%edi\n \
     movzbl   _vec_colour,%%eax\n \
     movw    0x10(%%esi),%%bx\n \
     movb    0x12(%%esi),%%ah\n \
 \n \
-loc_78985A:            # 1D51 trig_+1E9C\n \
+render01_loc06:            # 1D51 trig_+1E9C\n \
     movb    %%ah,(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,1(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,2(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,3(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,4(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,5(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,6(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,7(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,8(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,9(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,0x0A(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,0x0B(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,0x0C(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,0x0D(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,0x0E(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     movb    %%ah,0x0F(%%edi)\n \
     addw    0x30+%0,%%bx\n \
     adcb    0x32+%0,%%ah\n \
     decw    %%cx\n \
-    jz     loc_789981\n \
+    jz     render01_loc02\n \
     addl    $0x10,%%edi\n \
-    jmp     loc_78985A\n \
+    jmp     render01_loc06\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789981:            # 1D1D trig_+1D64 ...\n \
+render01_loc02:\n \
     addl    $0x14,%%esi\n \
     decl   0x4C+%0\n \
-    jnz     loc_7897E1\n \
+    jnz     render01_loc01\n \
     jmp finished\n \
-# ---------------------------------------------------------------------------\n \
+# ===========================================================================\n \
 \n \
 render_md02:            # 2D92\n \
-# DATA XREF: trig_:_render_table\n \
     leal    _polyscans,%%esi\n \
     movl    0x3C+%0,%%eax\n \
     shll    $0x10,%%eax\n \
@@ -2953,14 +3075,14 @@ render_md02:            # 2D92\n \
     xorl    %%ebx,%%ebx\n \
     xorl    %%ecx,%%ecx\n \
 \n \
-loc_7899AA:            # 2144\n \
+render02_loc01:            # 2144\n \
     movw    2(%%esi),%%ax\n \
     movzwl   6(%%esi),%%ecx\n \
     movl    0x6C+%0,%%edi\n \
     addl    _LOC_vec_screen_width,%%edi\n \
     movl    %%edi,0x6C+%0\n \
     orw    %%ax,%%ax\n \
-    jns     loc_789A04\n \
+    jns     render02_loc03\n \
     orw    %%cx,%%cx\n \
     jle     loc_789C1D\n \
     negw    %%ax\n \
@@ -2976,15 +3098,15 @@ loc_7899AA:            # 2144\n \
     shrl    $8,%%eax\n \
     movb    %%ah,%%bl\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
-    jle     loc_7899FF\n \
+    jle     render02_loc02\n \
     movl    _LOC_vec_window_width,%%ecx\n \
 \n \
-loc_7899FF:            # 1F17\n \
+render02_loc02:\n \
     movzwl    %%ax,%%eax\n \
     jmp     loc_789A2C\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789A04:            # 1EE1\n \
+render02_loc03:\n \
     cmpl    _LOC_vec_window_width,%%ecx\n \
     jle     loc_789A12\n \
     movl    _LOC_vec_window_width,%%ecx\n \
@@ -3136,13 +3258,13 @@ loc_789A36:            # 2134\n \
     jmp     loc_789A36\n \
 # ---------------------------------------------------------------------------\n \
 \n \
-loc_789C19:            # 1F6E trig_+1F8D ...\n \
+loc_789C19:\n \
     movl    0x10+%0,%%esi\n \
 \n \
-loc_789C1D:            # 1EE6 trig_+1F35\n \
+loc_789C1D:\n \
     addl    $0x14,%%esi\n \
     decl   0x4C+%0\n \
-    jnz     loc_7899AA\n \
+    jnz     render02_loc01\n \
     jmp finished\n \
 # ---------------------------------------------------------------------------\n \
 \n \
