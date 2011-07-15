@@ -2443,7 +2443,6 @@ long script_support_create_thing_at_hero_door(long gate_num, unsigned char tngcl
       ERRORLOG("Script error - could not find hero gate index %d",(int)gate_num);
       return 0;
     }
-    //TODO CREATURES how to avoid fairies from being blocked at ceiling? Maybe give them larger acceleration?
     pos.x.val = gatetng->mappos.x.val;
     pos.y.val = gatetng->mappos.y.val;
     pos.z.val = gatetng->mappos.z.val + 384;

@@ -315,7 +315,13 @@ void gui_draw_tab(struct GuiButton *gbtn)
 
 void gui_area_new_null_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_new_null_button(gbtn);
+    struct TbSprite *spr;
+    long pos_x,pos_y;
+    //_DK_gui_area_new_null_button(gbtn);
+    pos_x = gbtn->scr_pos_x / (long)pixel_size;
+    pos_y = gbtn->scr_pos_y / (long)pixel_size;
+    spr = &gui_panel_sprites[gbtn->field_29];
+    LbSpriteDraw(pos_x, pos_y, spr);
 }
 
 void gui_area_new_no_anim_button(struct GuiButton *gbtn)
@@ -332,7 +338,26 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
 
 void gui_area_normal_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_normal_button(gbtn);
+    struct TbSprite *spr;
+    int spr_idx;
+    long pos_x,pos_y;
+    //_DK_gui_area_normal_button(gbtn);
+    spr_idx = gbtn->field_29;
+    if (gbtn->gbtype == 2)
+      ERRORLOG("Cycle button cannot have a normal button draw function!");
+    pos_x = gbtn->scr_pos_x / (long)pixel_size;
+    pos_y = gbtn->scr_pos_y / (long)pixel_size;
+    if ((gbtn->field_0 & 0x08) != 0)
+    {
+        if ( (gbtn->field_1 != 0) || (gbtn->field_2 != 0) )
+            spr_idx++;
+        spr = &button_sprite[spr_idx];
+        LbSpriteDraw(pos_x, pos_y, spr);
+    } else
+    {
+        spr = &button_sprite[spr_idx];
+        LbSpriteDrawRemap(pos_x, pos_y, spr, &pixmap.fade_tables[12*256]);
+    }
 }
 
 void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const char *text, unsigned int drw_flags)
@@ -398,19 +423,19 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
 
 void frontend_draw_large_menu_button(struct GuiButton *gbtn)
 {
-  unsigned long btninfo_idx;
-  char *text;
-  int idx;
-  btninfo_idx = (unsigned long)gbtn->content;
-  if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
-    idx = frontend_button_info[btninfo_idx].capstr_idx;
-  else
-    idx = -1;
-  if ((idx >= 0) && (idx < STRINGS_MAX))
-    text = gui_strings[idx];
-  else
-    text = NULL;
-  frontend_draw_button(gbtn, 1, text, 0x0100);
+    unsigned long btninfo_idx;
+    char *text;
+    int idx;
+    btninfo_idx = (unsigned long)gbtn->content;
+    if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
+      idx = frontend_button_info[btninfo_idx].capstr_idx;
+    else
+      idx = -1;
+    if ((idx >= 0) && (idx < STRINGS_MAX))
+      text = gui_strings[idx];
+    else
+      text = NULL;
+    frontend_draw_button(gbtn, 1, text, 0x0100);
 }
 
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
@@ -433,17 +458,161 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
 
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_scroll_box_tab(gbtn);
+    struct TbSprite *spr;
+    long pos_x,pos_y;
+    //_DK_frontnet_draw_scroll_box_tab(gbtn);
+    pos_x = gbtn->scr_pos_x;
+    pos_y = gbtn->scr_pos_y;
+    spr = &frontend_sprite[74];
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr = &frontend_sprite[75];
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr = &frontend_sprite[75];
+    LbSpriteDraw(pos_x, pos_y, spr);
+    pos_x += spr->SWidth;
+    spr = &frontend_sprite[76];
+    LbSpriteDraw(pos_x, pos_y, spr);
 }
 
 void frontend_draw_scroll_box(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_scroll_box(gbtn);
+    struct TbSprite *spr;
+    long pos_x,pos_y;
+    long height_lines,draw_endingspr;
+    long spr_idx,secspr_idx;
+    long i,delta;
+    //_DK_frontnet_draw_scroll_box(gbtn);
+    pos_y = gbtn->scr_pos_y;
+    switch ( (long)gbtn->content )
+    {
+      case 24:
+        height_lines = 2;
+        draw_endingspr = 1;
+        break;
+      case 25:
+        height_lines = 3;
+        draw_endingspr = 1;
+        break;
+      case 26:
+        height_lines = 7;
+        draw_endingspr = 1;
+        break;
+      case 89:
+        height_lines = 3;
+        draw_endingspr = 0;
+        break;
+      case 90:
+        height_lines = 4;
+        draw_endingspr = 0;
+        break;
+      case 91:
+        height_lines = 4;
+        draw_endingspr = 1;
+        break;
+      case 94:
+        height_lines = 10;
+        draw_endingspr = 1;
+        break;
+      default:
+        height_lines = 0;
+        draw_endingspr = 0;
+        break;
+    }
+    // Draw top border
+    spr = &frontend_sprite[25];
+    pos_x = gbtn->scr_pos_x;
+    for (i=0; i < 6; i++)
+    {
+        LbSpriteDraw(pos_x, pos_y, spr);
+        pos_x += spr->SWidth;
+        spr++;
+    }
+    if ( draw_endingspr )
+    {
+        spr = &frontend_sprite[31];
+        LbSpriteDraw(pos_x, pos_y - 1, spr);
+    }
+    // Draw inside
+    spr = &frontend_sprite[25];
+    pos_y += spr->SHeight;
+    for (; height_lines > 0; height_lines -= delta )
+    {
+      if ( height_lines < 3 )
+          spr_idx = 33;
+      else
+          spr_idx = 40;
+      spr = &frontend_sprite[spr_idx];
+      pos_x = gbtn->scr_pos_x;
+      for (i=0; i < 6; i++)
+      {
+          LbSpriteDraw(pos_x, pos_y, spr);
+          pos_x += spr->SWidth;
+          spr++;
+      }
+      if ( draw_endingspr )
+      {
+        if ( height_lines < 3 )
+            secspr_idx = 39;
+        else
+            secspr_idx = 46;
+        spr = &frontend_sprite[secspr_idx];
+        LbSpriteDraw(pos_x, pos_y, spr);
+      }
+      spr = &frontend_sprite[spr_idx];
+      pos_y += spr->SHeight;
+      if (height_lines < 3)
+          delta = 1;
+      else
+          delta = 3;
+    }
+    // Draw bottom border
+    spr = &frontend_sprite[47];
+    pos_x = gbtn->scr_pos_x;
+    for (i=0; i < 6; i++)
+    {
+        LbSpriteDraw(pos_x, pos_y, spr);
+        pos_x += spr->SWidth;
+        spr++;
+    }
+    if ( draw_endingspr )
+    {
+        spr = &frontend_sprite[53];
+        LbSpriteDraw(pos_x, pos_y, spr);
+    }
 }
 
 void frontend_draw_slider_button(struct GuiButton *gbtn)
 {
-  _DK_frontnet_draw_slider_button(gbtn);
+    long spr_idx,btn_id;
+    //_DK_frontnet_draw_slider_button(gbtn);
+    if ((gbtn->field_0 & 0x08) != 0)
+    {
+        btn_id = (long)gbtn->content;
+        if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
+        {
+            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
+                spr_idx = 32;
+            } else {
+                spr_idx = 54;
+            }
+        } else
+        {
+            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
+                spr_idx = 31;
+            } else {
+                spr_idx = 53;
+            }
+        }
+    } else
+    {
+      spr_idx = 0;
+    }
+    if (spr_idx > 0)
+    {
+        LbSpriteDraw(gbtn->scr_pos_x, gbtn->scr_pos_y, &frontend_sprite[spr_idx]);
+    }
 }
 
 void gui_area_null(struct GuiButton *gbtn)
