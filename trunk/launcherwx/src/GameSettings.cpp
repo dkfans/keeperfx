@@ -242,7 +242,7 @@ GameSettings::GameSettings(wxFrame *parent)
                 statTxt->SetToolTip(tooltips_eng[8]);
                 mouseSensitivityPanelSizer->Add(statTxt, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
                 mouseSensitivityPanelSizer->AddSpacer(16);
-                wxIntegerValidator<long> mouseSensitivityVal(&mouseSensitivity, wxNUM_VAL_THOUSANDS_SEPARATOR);
+                wxIntegerValidator<long> mouseSensitivityVal(NULL, wxNUM_VAL_THOUSANDS_SEPARATOR);
                 mouseSensitivityVal.SetRange(-10000,10000);
                 mouseSensitvTxtCtrl = new wxTextCtrl(mouseSensitivityPanel, wxID_ANY, wxT("100"), wxDefaultPosition, wxSize(64, -1), 0, mouseSensitivityVal);
                 mouseSensitvTxtCtrl->SetToolTip(tooltips_eng[8]);
@@ -303,17 +303,17 @@ void GameSettings::OnClose(wxCloseEvent& event)
             _T("Save KeeperFX configuration"), wxYES_NO | wxCANCEL | wxYES_DEFAULT | wxICON_QUESTION, this);
     switch (msgRet)
     {
-      case wxYES:      // Save, then destroy, quitting app
+      case wxYES:      // Save, then quit dialog
           writeConfiguration();
           wxLogMessage(wxT("Configuration saved."));
         break;
-      case wxNO:       // Don't save; just destroy, quitting app
+      case wxNO:       // Don't save; just quit dialog
           wxLogMessage(wxT("Changed discarded."));
         break;
-      case wxCANCEL:   // Do nothing - so don't quit app.
+      case wxCANCEL:   // Do nothing - so don't quit dialog
       default:
         if (event.CanVeto()) {
-            event.Veto();     // Notify the calling code that we didn't delete the frame.
+            event.Veto();     // Notify the calling code that we didn't agreed to quit
             return;
         }
         break;
@@ -345,14 +345,17 @@ void GameSettings::readConfiguration()
     conf = new wxFileConfig(wxEmptyString, wxEmptyString, wxT("keeperfx.cfg"),
         wxEmptyString, wxCONFIG_USE_LOCAL_FILE | wxCONFIG_USE_RELATIVE_PATH);
 
-    //value = conf->Read(wxT("INSTALL_PATH"), wxT("./"));
-    //value = conf->Read(wxT("INSTALL_TYPE"), wxT("MAX"));
+    // There's no point in editing these
+    value = conf->Read(wxT("INSTALL_PATH"), wxT("./"));
+    installPath = value;
+    value = conf->Read(wxT("INSTALL_TYPE"), wxT("MAX"));
+    installType = value;
+    value = conf->Read(wxT("KEYBOARD"), wxT("101"));
+    keybLayout = value;
 
     value = conf->Read(wxT("LANGUAGE"), supported_languages_code[0]);
     index = optionIndexInArray(supported_languages_code, WXSIZEOF(supported_languages_code), value);
     langRadio->SetSelection((index>=0)?index:0);
-
-    //value = conf->Read(wxT("KEYBOARD"), wxT("101"));
 
     value = conf->Read(wxT("SCREENSHOT"), supported_scrshotfmt_code[0]);
     index = optionIndexInArray(supported_scrshotfmt_code, WXSIZEOF(supported_scrshotfmt_code), value);
@@ -413,14 +416,25 @@ void GameSettings::readConfiguration()
 
 void GameSettings::writeConfiguration()
 {
+    wxString resolutions[5];
+    size_t res_num,i;
     wxString strValue;
+    conf->Write(wxT("INSTALL_PATH"), installPath);
+    conf->Write(wxT("INSTALL_TYPE"), installType);
+    conf->Write(wxT("KEYBOARD"), keybLayout);
     conf->Write(wxT("LANGUAGE"), supported_languages_code[langRadio->GetSelection()]);
     conf->Write(wxT("SCREENSHOT"), supported_scrshotfmt_code[scrshotRadio->GetSelection()]);
-    strValue = wxT("640x480x32 640x480x32 640x480x32");
+    strValue = wxString::Format(wxT("%s %s %s"), resFailCombo->GetValue(), resMovieCombo->GetValue(), resMenuCombo->GetValue());
     conf->Write(wxT("FRONTEND_RES"), strValue);
-    strValue = wxT("640x480x32 1024x768x32");
+    res_num = 5;
+    resIngameBox->GetSelected(resolutions, res_num);
+    strValue = resolutions[0];
+    for (i=1; i < res_num; i++) {
+        strValue.Append(" ");
+        strValue.Append(resolutions[i]);
+    }
     conf->Write(wxT("INGAME_RES"), strValue);
-    conf->Write(wxT("POINTER_SENSITIVITY"), mouseSensitivity);
+    conf->Write(wxT("POINTER_SENSITIVITY"), mouseSensitvTxtCtrl->GetValue());
     conf->Write(wxT("CENSORSHIP"), supported_boolean_code[censorChkBx->GetValue()]);
     //conf->Save(); -- saving is automatic when the object is destroyed
 }
