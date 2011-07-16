@@ -21,10 +21,8 @@
 #include <wx/wx.h>
 
 BEGIN_EVENT_TABLE(wxCheckRadioBox, wxStaticBox)
-// catch paint events
-//EVT_PAINT(wxCheckRadioBox::paintEvent)
-//Size event
-//EVT_SIZE(wxCheckRadioBox::OnSize)
+// catch checkbox events
+    EVT_CHECKBOX(eventID_Checkbox, wxCheckRadioBox::OnCheckButton)
 END_EVENT_TABLE()
 
 
@@ -36,6 +34,7 @@ wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
     : wxStaticBox(parent, id, label, pos, size, style, name)
 {
     select_limit = 1;
+    select_num = 0;
     rbValues.resize(values_num);
     rbPanel = new wxPanel(this, wxID_ANY);
     {
@@ -45,7 +44,7 @@ wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
         {
             wxCheckBox *check;
             rbValues[i] = values_arr[i];
-            check = new wxCheckBox(rbPanel, wxID_ANY, rbValues[i]);
+            check = new wxCheckBox(rbPanel, eventID_Checkbox, rbValues[i]);
             check->SetValue(false);
             rbPanelSizer->Add(check, 1, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
             rbCheckboxes.push_back(check);
@@ -57,7 +56,7 @@ wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
             {
                 wxCheckBox *check;
                 rbValues[i] = values_arr[i];
-                check = new wxCheckBox(resIngameCustPanel, wxID_ANY, _T("cust:"));
+                check = new wxCheckBox(resIngameCustPanel, eventID_Checkbox, _T("cust:"));
                 check->SetValue(false);
                 rbCustPanelSizer->Add(check, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
                 rbCheckboxes.push_back(check);
@@ -107,6 +106,33 @@ int wxCheckRadioBox::OptionIndexInCheckboxes(const wxString &option)
     return -1;
 }
 
+void wxCheckRadioBox::OnCheckButton(wxCommandEvent& event)
+{
+    if (event.IsChecked())
+    {
+        select_num++;
+        if (select_num >= select_limit) {
+            SetAllUncheckedEnabled(false);
+        }
+    } else {
+        select_num--;
+        if (select_num < select_limit) {
+            SetAllUncheckedEnabled(true);
+        }
+    }
+}
+
+void wxCheckRadioBox::SetAllUncheckedEnabled(bool nstate)
+{
+    size_t i;
+    for (i=0; i < rbCheckboxes.size(); i++)
+    {
+        if (!rbCheckboxes[i]->GetValue()) {
+            rbCheckboxes[i]->Enable(nstate);
+        }
+    }
+}
+
 void wxCheckRadioBox::SetSelected(size_t max_selected, const wxString *sel_options, size_t sel_options_num)
 {
     size_t i;
@@ -117,6 +143,7 @@ void wxCheckRadioBox::SetSelected(size_t max_selected, const wxString *sel_optio
         rbCheckboxes[i]->SetValue(false);
     }
     select_limit = max_selected;
+    select_num = 0;
     // Check those which were supplied in "options"
     size_t norm_num = rbCheckboxes.size() - rbTextCtrls.size();
     for (i=0; i < sel_options_num; i++)
@@ -139,6 +166,13 @@ void wxCheckRadioBox::SetSelected(size_t max_selected, const wxString *sel_optio
                 rbCheckboxes[index]->SetValue(true);
                 break;
             }
+        }
+    }
+    // Update number of selected boxes
+    for (i=0; i < rbCheckboxes.size(); i++)
+    {
+        if (rbCheckboxes[i]->GetValue()) {
+            select_num++;
         }
     }
 }

@@ -164,6 +164,9 @@ int optionIndexInArray(const wxString * arr, size_t arr_len, const wxString &opt
 
 BEGIN_EVENT_TABLE(GameSettings, wxDialog)
     EVT_CLOSE(GameSettings::OnClose)
+    EVT_SHOW(GameSettings::OnShow)
+    EVT_BUTTON(eventID_Save, GameSettings::OnSave)
+    EVT_BUTTON(eventID_Cancel, GameSettings::OnCancel)
 END_EVENT_TABLE()
 
 GameSettings::GameSettings(wxFrame *parent)
@@ -261,11 +264,11 @@ GameSettings::GameSettings(wxFrame *parent)
     wxBoxSizer *dlgBottomPanelSizer = new wxBoxSizer( wxHORIZONTAL );
     {
         dlgBottomPanelSizer->AddStretchSpacer(1);
-        wxButton *saveBtn = new wxButton(dlgBottomPanel, wxID_OK, _T("&Save") );
+        wxButton *saveBtn = new wxButton(dlgBottomPanel, eventID_Save, _T("&Save") );
         saveBtn->SetToolTip(tooltips_eng[10]);
         dlgBottomPanelSizer->Add(saveBtn, 0, wxEXPAND);
         dlgBottomPanelSizer->AddStretchSpacer(1);
-        wxButton *exitBtn = new wxButton(dlgBottomPanel, wxID_OK, _T("&Cancel") );
+        wxButton *exitBtn = new wxButton(dlgBottomPanel, eventID_Cancel, _T("&Cancel") );
         exitBtn->SetToolTip(tooltips_eng[11]);
         dlgBottomPanelSizer->Add(exitBtn, 0, wxEXPAND);
         dlgBottomPanelSizer->AddStretchSpacer(1);
@@ -276,7 +279,6 @@ GameSettings::GameSettings(wxFrame *parent)
     SetSizer(topsizer);
     Centre(wxBOTH);
 
-    readConfiguration();
 }
 
 GameSettings::~GameSettings()
@@ -285,14 +287,54 @@ GameSettings::~GameSettings()
     conf = NULL;
 }
 
+void GameSettings::OnShow(wxShowEvent& event)
+{
+    if (event.IsShown()) {
+        readConfiguration();
+        return;
+    }
+}
+
 void GameSettings::OnClose(wxCloseEvent& event)
 {
+    int msgRet;
+    msgRet = wxMessageBox(_T("You've made changes to the configuration options. Do you want to store these changes?\n")
+            _T("If you answer Yes, the previous configuration file will be replaced with the new settings you've selected."),
+            _T("Save KeeperFX configuration"), wxYES_NO | wxCANCEL | wxYES_DEFAULT | wxICON_QUESTION, this);
+    switch (msgRet)
+    {
+      case wxYES:      // Save, then destroy, quitting app
+          writeConfiguration();
+          wxLogMessage(wxT("Configuration saved."));
+        break;
+      case wxNO:       // Don't save; just destroy, quitting app
+          wxLogMessage(wxT("Changed discarded."));
+        break;
+      case wxCANCEL:   // Do nothing - so don't quit app.
+      default:
+        if (event.CanVeto()) {
+            event.Veto();     // Notify the calling code that we didn't delete the frame.
+            return;
+        }
+        break;
+    }
+
     GetParent()->Enable(true);
 
-     SetReturnCode(1);
-
-    while (wxIsBusy()) wxEndBusyCursor();
     event.Skip();
+    EndModal(1);
+}
+
+void GameSettings::OnSave(wxCommandEvent& WXUNUSED(event))
+{
+    // Generate OnClose event
+    Close();
+}
+
+void GameSettings::OnCancel(wxCommandEvent& WXUNUSED(event))
+{
+    // End without generating OnClose event
+    EndModal(0);
 }
 
 void GameSettings::readConfiguration()
@@ -371,8 +413,16 @@ void GameSettings::readConfiguration()
 
 void GameSettings::writeConfiguration()
 {
-
-    //conf->Save();
+    wxString strValue;
+    conf->Write(wxT("LANGUAGE"), supported_languages_code[langRadio->GetSelection()]);
+    conf->Write(wxT("SCREENSHOT"), supported_scrshotfmt_code[scrshotRadio->GetSelection()]);
+    strValue = wxT("640x480x32 640x480x32 640x480x32");
+    conf->Write(wxT("FRONTEND_RES"), strValue);
+    strValue = wxT("640x480x32 1024x768x32");
+    conf->Write(wxT("INGAME_RES"), strValue);
+    conf->Write(wxT("POINTER_SENSITIVITY"), mouseSensitivity);
+    conf->Write(wxT("CENSORSHIP"), supported_boolean_code[censorChkBx->GetValue()]);
+    //conf->Save(); -- saving is automatic when the object is destroyed
 }
 
 

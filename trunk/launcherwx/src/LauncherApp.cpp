@@ -290,6 +290,7 @@ void LauncherFrame::onSettings(wxCommandEvent& WXUNUSED(event))
 {
     GameSettings dialog(this);
     dialog.ShowModal();
+    dialog.Destroy();
     recheckBasicFiles();
 }
 
