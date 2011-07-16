@@ -28,6 +28,11 @@ class wxCheckRadioBox;
 
 class GameSettings : public wxDialog
 {
+    enum {
+        eventID_Save = wxID_HIGHEST+1,
+        eventID_Cancel,
+    };
+
     wxBoxSizer * topsizer;
     wxRadioBox * langRadio;
     wxRadioBox * scrshotRadio;
@@ -47,6 +52,9 @@ public:
 
     // event handlers
     void OnClose(wxCloseEvent& event);
+    void OnShow(wxShowEvent& event);
+    void OnSave(wxCommandEvent& event);
+    void OnCancel(wxCommandEvent& event);
 
     void readConfiguration();
     void writeConfiguration();

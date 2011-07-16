@@ -24,12 +24,16 @@
 
 class wxCheckRadioBox : public wxStaticBox
 {
+    enum {
+        eventID_Checkbox = wxID_HIGHEST+1,
+    };
 public:
     std::vector<wxCheckBox *> rbCheckboxes;
     std::vector<wxTextCtrl *> rbTextCtrls;
     std::vector<wxString> rbValues;
     wxPanel *rbPanel;
     long select_limit;
+    long select_num;
 public:
     wxCheckRadioBox(wxWindow *parent, wxWindowID id,
         const wxString& label,
@@ -47,7 +51,9 @@ public:
     DECLARE_EVENT_TABLE()
 
 private:
+    void SetAllUncheckedEnabled(bool nstate);
     int OptionIndexInCheckboxes(const wxString &option);
+    void OnCheckButton(wxCommandEvent& event);
 };
 
 #endif // WXCHECKRADIOBOX_HPP
