@@ -29,6 +29,8 @@
 #include <wx/confbase.h>
 #include <wx/fileconf.h>
 #include <wx/tokenzr.h>
+#include <wx/valnum.h>
+#include "wxCheckRadioBox.hpp"
 
 wxString supported_boolean_code[] = {
     _T("OFF"),
@@ -54,12 +56,12 @@ wxString supported_languages_code[] = {
     _T("SWE"),
     _T("POL"),
     _T("DUT"),
-    _T("HUN"),
-    _T("AUS"),
-    _T("DAN"),
-    _T("NOR"),
-    _T("CES"),
-    _T("MAG"),
+    //_T("HUN"),
+    //_T("AUS"),
+    //_T("DAN"),
+    //_T("NOR"),
+    //_T("CES"),
+    //_T("MAG"),
     _T("RUS"),
     _T("JAP"),
     _T("CHI"),
@@ -75,12 +77,12 @@ wxString supported_languages_text[] = {
     _T("Svenska"),
     _T("Polski"),
     _T("Nederlands"),
-    _T("Magyar"),
-    _T("AUS"),
-    _T("Dansk"),
-    _T("Norsk"),
-    _T("Česky"),
-    _T("Mag"),
+    //_T("Magyar"),
+    //_T("Aus"),
+    //_T("Dansk"),
+    //_T("Norsk"),
+    //_T("Česky"),
+    //_T("Mag"),
     _T("Русский"),
     _T("にほんご"),
     _T("简化中国"),
@@ -105,17 +107,17 @@ wxString tooltips_eng[] = {
 wxString resolutions_ingame_init[] = {
     _T("320x200x8"),
     _T("640x400x8"),
-    _T("640x480x8"),
+    //_T("640x480x8"),
     _T("320x200x32"),
     _T("640x400x32"),
     _T("640x480x32"),
     _T("1024x768x32"),
-    _T("1280x800x32"),
+    //_T("1280x800x32"),
     _T("1280x960x32"),
     _T("1280x1024x32"),
     _T("1440x900x32"),
     _T("1600x900x32"),
-    _T("1600x1200x32"),
+    //_T("1600x1200x32"),
     _T("1680x1050x32"),
     _T("1920x1080x32"),
     _T("1920x1200x32"),
@@ -165,51 +167,15 @@ BEGIN_EVENT_TABLE(GameSettings, wxDialog)
 END_EVENT_TABLE()
 
 GameSettings::GameSettings(wxFrame *parent)
-    : wxDialog (parent, -1, wxT("Settings editor"), wxDefaultPosition, wxSize(460, 464))
+    : wxDialog (parent, -1, wxT("Settings editor"), wxDefaultPosition, wxSize(460, 480))
 
 {
     topsizer = new wxBoxSizer( wxVERTICAL );
 
-    wxStaticBox *resIngameBox = new wxStaticBox( this, wxID_ANY, wxT("In-game resolutions") );
-    resIngameBox->SetToolTip(tooltips_eng[1]);
+    resIngameBox = new wxCheckRadioBox(this, wxID_ANY, wxT("In-game resolutions"), resolutions_ingame_init, WXSIZEOF(resolutions_ingame_init), 3 );
+    resIngameBox->SetToolTip(tooltips_eng[1],tooltips_eng[2]);
     wxStaticBoxSizer* resIngameBoxSizer = new wxStaticBoxSizer( resIngameBox, wxHORIZONTAL );
-    wxPanel *resIngamePanel = new wxPanel(resIngameBox, wxID_ANY);
-    {
-        resIngamePanel->SetToolTip(tooltips_eng[1]);
-        wxGridSizer *resIngameSizer = new wxGridSizer(0, 3, 2, 2);
-        size_t i;
-        for(i=0; i < WXSIZEOF(resolutions_ingame_init)-3; i++)
-        {
-            wxCheckBox *check;
-            check = new wxCheckBox(resIngamePanel, wxID_ANY, resolutions_ingame_init[i]);
-            check->SetToolTip(tooltips_eng[1]);
-            check->SetValue(false);
-            resIngameSizer->Add(check, 1, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
-            resIngameChkbxs.push_back(check);
-        }
-        for(; i < WXSIZEOF(resolutions_ingame_init); i++)
-        {
-            wxPanel *resIngameCustPanel = new wxPanel(resIngamePanel, wxID_ANY);
-            wxBoxSizer *resIngameCustPanelSizer = new wxBoxSizer( wxHORIZONTAL );
-            {
-                wxCheckBox *check;
-                check = new wxCheckBox(resIngameCustPanel, wxID_ANY, _T("cust:"));
-                check->SetToolTip(tooltips_eng[2]);
-                check->SetValue(false);
-                resIngameCustPanelSizer->Add(check, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
-                resIngameChkbxs.push_back(check);
-                wxTextCtrl *txtCtrl = new wxTextCtrl(resIngameCustPanel, wxID_ANY, resolutions_ingame_init[i], wxDefaultPosition, wxDefaultSize);
-                txtCtrl->SetToolTip(tooltips_eng[2]);
-                resIngameCustPanelSizer->Add(txtCtrl, 1, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
-                resIngameTxtCtrl.push_back(txtCtrl);
-            }
-            resIngameCustPanel->SetSizer(resIngameCustPanelSizer);
-            resIngameSizer->Add(resIngameCustPanel, 1, wxEXPAND);
-        }
-        resIngamePanel->SetSizer(resIngameSizer);
-        resIngameSizer->SetMinSize(386, 64);
-    }
-    resIngameBoxSizer->Add(resIngamePanel, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
+    resIngameBoxSizer->Add(resIngameBox->rbPanel, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
     topsizer->Add(resIngameBoxSizer, 1, wxEXPAND);
 
     wxPanel *resOtherPanel = new wxPanel(this, wxID_ANY);
@@ -251,8 +217,8 @@ GameSettings::GameSettings(wxFrame *parent)
     resOtherPanel->SetSizer(resOtherPanelSizer);
     topsizer->Add(resOtherPanel, 0, wxEXPAND);
 
-    langRadio = new wxRadioBox( this, wxID_ANY, wxT("Language"), wxDefaultPosition, wxDefaultSize,
-        WXSIZEOF(supported_languages_text), supported_languages_text, 5, wxRA_SPECIFY_COLS);
+    langRadio = new wxRadioBox( this, wxID_ANY, wxT("Language"), wxDefaultPosition, wxSize(-1, -1),
+        WXSIZEOF(supported_languages_text), supported_languages_text, 4, wxRA_SPECIFY_COLS);
     langRadio->SetToolTip(tooltips_eng[6]);
     topsizer->Add(langRadio, 0, wxEXPAND);
 
@@ -273,7 +239,9 @@ GameSettings::GameSettings(wxFrame *parent)
                 statTxt->SetToolTip(tooltips_eng[8]);
                 mouseSensitivityPanelSizer->Add(statTxt, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
                 mouseSensitivityPanelSizer->AddSpacer(16);
-                mouseSensitvTxtCtrl = new wxTextCtrl(mouseSensitivityPanel, wxID_ANY, wxT("100"), wxDefaultPosition, wxSize(64, -1));
+                wxIntegerValidator<long> mouseSensitivityVal(&mouseSensitivity, wxNUM_VAL_THOUSANDS_SEPARATOR);
+                mouseSensitivityVal.SetRange(-10000,10000);
+                mouseSensitvTxtCtrl = new wxTextCtrl(mouseSensitivityPanel, wxID_ANY, wxT("100"), wxDefaultPosition, wxSize(64, -1), 0, mouseSensitivityVal);
                 mouseSensitvTxtCtrl->SetToolTip(tooltips_eng[8]);
                 mouseSensitivityPanelSizer->Add(mouseSensitvTxtCtrl, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
             }
@@ -373,35 +341,23 @@ void GameSettings::readConfiguration()
 
     value = conf->Read(wxT("INGAME_RES"), wxT("640x480x32 1024x768x32"));
     {
-        std::vector<wxCheckBox *>::iterator chkIter;
-        for (chkIter=resIngameChkbxs.begin(); chkIter < resIngameChkbxs.end(); chkIter++)
-        {
-            (*chkIter)->SetValue(false);
-        }
+        wxString selected_resolutions[5];
+        size_t selected_num;
+        wxString disabled_resolution;
         wxStringTokenizer tokenz(value, wxT(" \t\r\n"));
-        while ( tokenz.HasMoreTokens() )
+        disabled_resolution = resFailCombo->GetValue();
+        selected_num=0;
+        while ( tokenz.HasMoreTokens() && (selected_num < 5) )
         {
             wxString param = tokenz.GetNextToken();
-            index = optionIndexInArray(resolutions_ingame_init, WXSIZEOF(resolutions_ingame_init)-3, param);
-            if (index >= 0)
+            if (param.CmpNoCase(disabled_resolution) != 0)
             {
-                // Found the index in constant values - check it
-                resIngameChkbxs[index]->SetValue(true);
-            } else
-            {
-                // Index not found in constant values - update custom res.
-                size_t i;
-                for (i=0; i < 3; i++)
-                {
-                    index = WXSIZEOF(resolutions_ingame_init)+i-3;
-                    if (resIngameChkbxs[index]->GetValue())
-                        continue;
-                    resIngameTxtCtrl[i]->SetValue(param);
-                    resIngameChkbxs[index]->SetValue(true);
-                    break;
-                }
+                selected_resolutions[selected_num] = param;
+                selected_num++;
             }
         }
+        resIngameBox->SetSelected(4, selected_resolutions, selected_num);
+
     }
 
     index = conf->Read(wxT("POINTER_SENSITIVITY"), 100);
@@ -416,6 +372,7 @@ void GameSettings::readConfiguration()
 void GameSettings::writeConfiguration()
 {
 
+    //conf->Save();
 }
 
 

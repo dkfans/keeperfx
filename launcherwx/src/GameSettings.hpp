@@ -24,11 +24,11 @@
 #include <string>
 #include <vector>
 
+class wxCheckRadioBox;
+
 class GameSettings : public wxDialog
 {
     wxBoxSizer * topsizer;
-    std::vector<wxCheckBox *> resIngameChkbxs;
-    std::vector<wxTextCtrl *> resIngameTxtCtrl;
     wxRadioBox * langRadio;
     wxRadioBox * scrshotRadio;
     wxTextCtrl *mouseSensitvTxtCtrl;
@@ -36,6 +36,9 @@ class GameSettings : public wxDialog
     wxComboBox * resFailCombo;
     wxComboBox * resMovieCombo;
     wxComboBox * resMenuCombo;
+    wxCheckRadioBox *resIngameBox;
+
+    long mouseSensitivity;
 
     wxFileConfig * conf;
 public:

@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef wxImageFrame_HPP
-#define wxImageFrame_HPP
+#ifndef WXIMAGEFRAME_HPP
+#define WXIMAGEFRAME_HPP
 #include <wx/wx.h>
 #include <wx/sizer.h>
 
@@ -38,4 +38,4 @@ public:
     DECLARE_EVENT_TABLE()
 };
 
-#endif // wxImageFrame_HPP
+#endif // WXIMAGEFRAME_HPP
