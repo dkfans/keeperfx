@@ -42,8 +42,9 @@ class GameSettings : public wxDialog
     wxComboBox * resMovieCombo;
     wxComboBox * resMenuCombo;
     wxCheckRadioBox *resIngameBox;
-
-    long mouseSensitivity;
+    wxString installPath;
+    wxString installType;
+    wxString keybLayout;
 
     wxFileConfig * conf;
 public:
