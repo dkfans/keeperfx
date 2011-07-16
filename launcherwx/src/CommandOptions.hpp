@@ -18,15 +18,28 @@
 /******************************************************************************/
 #ifndef COMMANDOPTIONS_HPP_
 #define COMMANDOPTIONS_HPP_
+#include <wx/wx.h>
 
 #include <string>
 #include <vector>
 
-class CommandOptions
+class CommandOptions : public wxDialog
 {
+    wxBoxSizer * topsizer;
+
 public:
-    CommandOptions();
+    CommandOptions(wxFrame *parent);
     virtual ~CommandOptions();
+
+    // event handlers
+    void OnClose(wxCloseEvent& event);
+    void OnShow(wxShowEvent& event);
+    void OnSave(wxCommandEvent& event);
+    void OnCancel(wxCommandEvent& event);
+
+private:
+    // any class wishing to process wxWidgets events must use this macro
+    DECLARE_EVENT_TABLE()
 private:
 };
 

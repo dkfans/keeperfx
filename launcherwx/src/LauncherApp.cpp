@@ -27,9 +27,7 @@
 //TODO: finish checking files integrity; make integrity check button
 //TODO: make launching the game
 //TODO: make view readme / view log buttons
-//TODO: make command options / settings dialogs
-//TODO: make the window movable with mouse
-//TODO: make writing configuration
+//TODO: make command options dialogs
 
 // ----------------------------------------------------------------------------
 // resources
@@ -98,9 +96,6 @@ bool LauncherApp::OnInit()
     // created initially)
     frame->Show(true);
 
-    cmdOpts = new CommandOptions();
-    settings = NULL;
-
     // success: wxApp::OnRun() will be called which will enter the main message
     // loop and the application will run. If we returned false here, the
     // application would exit immediately.
@@ -165,12 +160,14 @@ LauncherFrame::LauncherFrame(const wxString& title)
 LauncherFrame::~LauncherFrame()
 {
     delete wxLog::SetActiveTarget(logTarget);
+    cmdOpts->Destroy();
 }
 
 // event handlers
 
 void LauncherFrame::onShow(wxShowEvent& WXUNUSED(event))
 {
+    cmdOpts = new CommandOptions(this);
     recheckBasicFiles();
 }
 
@@ -296,9 +293,8 @@ void LauncherFrame::onSettings(wxCommandEvent& WXUNUSED(event))
 
 void LauncherFrame::onOptions(wxCommandEvent& WXUNUSED(event))
 {
-    //TODO: make showing CommandOptions frame
-    wxMessageBox(_T("Unfinished function."),
-                 _T("KeeperFX Launcher"), wxOK | wxICON_WARNING, this);
+    cmdOpts->ShowModal();
+    recheckBasicFiles();
 }
 
 void LauncherFrame::onRunGame(wxCommandEvent& WXUNUSED(event))

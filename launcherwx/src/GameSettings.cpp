@@ -414,6 +414,11 @@ void GameSettings::readConfiguration()
     censorChkBx->SetValue((index>=0)?index:0);
 }
 
+int GameSettings::verifyConfiguration()
+{
+    return 2;
+}
+
 void GameSettings::writeConfiguration()
 {
     wxString resolutions[5];
@@ -428,8 +433,8 @@ void GameSettings::writeConfiguration()
     conf->Write(wxT("FRONTEND_RES"), strValue);
     res_num = 5;
     resIngameBox->GetSelected(resolutions, res_num);
-    strValue = resolutions[0];
-    for (i=1; i < res_num; i++) {
+    strValue = resFailCombo->GetValue();
+    for (i=0; i < res_num; i++) {
         strValue.Append(" ");
         strValue.Append(resolutions[i]);
     }
