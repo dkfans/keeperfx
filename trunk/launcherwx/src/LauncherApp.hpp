@@ -36,8 +36,6 @@ class LauncherApp : public wxApp
 {
     wxImagePanel * drawPane;
     LauncherFrame * frame;
-    CommandOptions * cmdOpts;
-    GameSettings * settings;
 
 public:
     // override base class virtuals
@@ -68,6 +66,8 @@ class LauncherFrame : public wxImageFrame
     wxString fxWorkDir;
 
     FilelistChecker * flCheck;
+
+    CommandOptions * cmdOpts;
 
 public:
     // ctor(s)/dtor(s)

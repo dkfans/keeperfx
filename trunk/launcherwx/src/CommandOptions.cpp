@@ -25,11 +25,48 @@
 #include <wx/log.h>
 #include <wx/filefn.h>
 
-CommandOptions::CommandOptions()
+BEGIN_EVENT_TABLE(CommandOptions, wxDialog)
+    //EVT_CLOSE(CommandOptions::OnClose)
+    EVT_SHOW(CommandOptions::OnShow)
+END_EVENT_TABLE()
+
+CommandOptions::CommandOptions(wxFrame *parent)
+    : wxDialog (parent, -1, wxT("Command line options"), wxDefaultPosition, wxSize(460, 480))
+
 {
+    topsizer = new wxBoxSizer( wxVERTICAL );
+
+    wxPanel *dlgBottomPanel = new wxPanel(this, wxID_ANY);
+    wxBoxSizer *dlgBottomPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+    {
+        dlgBottomPanelSizer->AddStretchSpacer(1);
+        wxButton *saveBtn = new wxButton(dlgBottomPanel, wxID_OK, _T("&Store") );
+        //saveBtn->SetToolTip(tooltips_eng[10]);
+        dlgBottomPanelSizer->Add(saveBtn, 0, wxEXPAND);
+        dlgBottomPanelSizer->AddStretchSpacer(1);
+        wxButton *exitBtn = new wxButton(dlgBottomPanel, wxID_CANCEL, _T("&Cancel") );
+        //exitBtn->SetToolTip(tooltips_eng[11]);
+        dlgBottomPanelSizer->Add(exitBtn, 0, wxEXPAND);
+        dlgBottomPanelSizer->AddStretchSpacer(1);
+    }
+    dlgBottomPanel->SetSizer(dlgBottomPanelSizer);
+    topsizer->Add(dlgBottomPanel, 0, wxEXPAND);
+
+    SetSizer(topsizer);
+    Centre(wxBOTH);
 }
 
 CommandOptions::~CommandOptions()
 {
 }
+
+void CommandOptions::OnShow(wxShowEvent& event)
+{
+    if (event.IsShown()) {
+        //readOptions();
+        return;
+    }
+    //storeOptions()
+}
+
 /******************************************************************************/
