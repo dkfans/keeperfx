@@ -204,9 +204,7 @@
  0001:00017160       setup_rotate_stuff
  0001:000171D0       do_map_who
  0001:00017620       draw_jonty_mapwho
- 0001:00017B20       draw_iso_only_fastview_mapwho
  0001:00017B40       draw_fastview_mapwho
- 0001:00018020       draw_map_who
  0001:00018030       state_cleanup_in_temple
  0001:000180E0       process_temple_function
  0001:000181B0       at_temple
@@ -269,29 +267,23 @@
  0001:00025420       tag_cursor_blocks_thing_in_hand
  0001:00025570       draw_stripey_line
  0001:00025B00       draw_clipped_line
- 0001:00025B70       create_map_volume_box
  0001:00026320       engine_init
  0001:00026580       frame_wibble_generate
  0001:000266B0       rotpers_parallel
  0001:00026830       rotpers_standard
  0001:000269C0       rotpers_circular
  0001:00026B80       rotpers_fisheye
- 0001:00026E30       do_a_plane_of_engine_columns_perspective
  0001:00027400       do_a_trig_gourad_tr
  0001:00028380       do_a_trig_gourad_bl
  0001:000292F0       do_a_plane_of_engine_columns_isometric
  0001:0002A6D0       do_a_plane_of_engine_columns_cluedo
  0001:0002B550       find_gamut
  0001:0002B8A0       fiddle_half_gamut
- 0001:0002BEB0       fiddle_gamut
- 0001:0002C640       display_drawlist
  0001:000317E0       fill_in_points_perspective
  0001:00031BA0       fill_in_points_isometric
  0001:00032200       fill_in_points_cluedo
- 0001:00032860       rotpers_parallel_3
  0001:00032990       engine
  0001:00033590       draw_status_sprites
- 0001:00033C00       draw_engine_number
  0001:00033CF0       draw_engine_room_flagpole
  0001:00033E40       draw_engine_room_flag_top
  0001:00034130       wander_point_update
@@ -618,8 +610,6 @@
  0001:000727C0       move_check_near_dungeon_heart
  0001:000728C0       creature_present_to_dungeon_heart
  0001:00072920       creature_fired
- 0001:00072980       display_fast_drawlist
- 0001:000741E0       draw_element
  0001:00074C80       convert_world_coord_to_front_view_screen_coord
  0001:00074ED0       set_next_process
  0001:000750B0       computer_check_build_all_rooms

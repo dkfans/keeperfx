@@ -427,7 +427,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
       const char *actn;
       if (header == CREATE)
       {
-        fprintf(file, PROGRAM_NAME" ver "VER_STRING" (%s release)\n", (BFDEBUG_LEVEL>1)?"debug":"standard");
+        fprintf(file, PROGRAM_NAME" ver "VER_STRING" (%s release)\n", (BFDEBUG_LEVEL>7)?"heavylog":"standard");
         actn = "CREATED";
       } else
       {

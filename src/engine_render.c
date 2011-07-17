@@ -44,32 +44,22 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
 DLLIMPORT void _DK_draw_clipped_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char scale);
-DLLIMPORT void _DK_draw_engine_number(struct Number *num);
 DLLIMPORT void _DK_draw_engine_room_flagpole(struct RoomFlag *rflg);
 DLLIMPORT void _DK_draw_status_sprites(long pos_x, long pos_z, struct Thing *thing, long end_y);
-DLLIMPORT void _DK_draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
 DLLIMPORT void _DK_draw_engine_room_flag_top(struct RoomFlag *rflg);
 DLLIMPORT void _DK_draw_stripey_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char scale);
-DLLIMPORT void _DK_draw_map_who(struct RotoSpr *spr);
-DLLIMPORT void _DK_draw_element(struct Map *map, long pos_z, long start_y, long end_y, long scale, long a6, long a7, unsigned char a8, long *a9);
 DLLIMPORT void _DK_draw_jonty_mapwho(struct JontySpr *jspr);
 DLLIMPORT void _DK_draw_keepsprite_unscaled_in_buffer(unsigned short pos_x, short pos_z, unsigned char start_y, unsigned char *end_y);
 DLLIMPORT long _DK_convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z);
-DLLIMPORT void _DK_display_fast_drawlist(struct Camera *cam);
 DLLIMPORT void _DK_draw_frontview_engine(struct Camera *cam);
-DLLIMPORT void _DK_display_drawlist(void);
 DLLIMPORT void _DK_draw_view(struct Camera *cam, unsigned char pos_z);
-DLLIMPORT void _DK_do_a_plane_of_engine_columns_perspective(long pos_x, long pos_z, long start_y, long end_y);
 DLLIMPORT void _DK_do_a_plane_of_engine_columns_cluedo(long pos_x, long pos_z, long start_y, long end_y);
 DLLIMPORT void _DK_do_a_plane_of_engine_columns_isometric(long pos_x, long pos_z, long start_y, long end_y);
-DLLIMPORT void _DK_rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx);
 DLLIMPORT void _DK_rotate_base_axis(struct M33 *matx, short pos_z, unsigned char start_y);
 DLLIMPORT void _DK_fill_in_points_perspective(long pos_x, long pos_z, struct MinMax *mm);
 DLLIMPORT void _DK_fill_in_points_cluedo(long pos_x, long pos_z, struct MinMax *mm);
 DLLIMPORT void _DK_fill_in_points_isometric(long pos_x, long pos_z, struct MinMax *mm);
 DLLIMPORT void _DK_find_gamut(void);
-DLLIMPORT void _DK_fiddle_gamut(long pos_x, long pos_z);
-DLLIMPORT void _DK_create_map_volume_box(long pos_x, long pos_z, long start_y);
 DLLIMPORT void _DK_frame_wibble_generate(void);
 DLLIMPORT void _DK_setup_rotate_stuff(long pos_x, long pos_z, long start_y, long end_y, long scale, long a6, long a7, long a8);
 DLLIMPORT void _DK_process_keeper_sprite(short x, short y, unsigned short start_y, short end_y, unsigned char scale, long a6);
@@ -264,7 +254,6 @@ void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
     long factor_w,factor_h;
     long inp_x,inp_y,inp_z;
     long long out_x,out_y;
-    //_DK_rotpers_parallel_3(epos, matx);
     inp_x = epos->x;
     inp_y = epos->y;
     inp_z = epos->z;
@@ -604,7 +593,6 @@ void fiddle_gamut(long pos_x, long pos_y)
     long ewwidth,ewheight,ewzoom;
     long floor_x[4];
     long floor_y[4];
-    //_DK_fiddle_gamut(a1, a2); return;
     player = get_my_player();
     switch (player->view_mode)
     {
@@ -726,7 +714,6 @@ void create_map_volume_box(long x, long y, long z)
     long box_ys,box_ye;
     long box_zs,box_ze;
     long i;
-    //_DK_create_map_volume_box(x, y, z);return;
 
     box_xs = map_volume_box.field_3 - x;
     box_ys = y - map_volume_box.field_7;
@@ -809,7 +796,6 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     struct UnkStruc5 *texturing;
     unsigned short *cubenum_ptr;
     long i,n;
-    //_DK_do_a_plane_of_engine_columns_perspective(stl_x, stl_y, plane_start, plane_end); return;
     if ((stl_y <= 0) || (stl_y >= 255))
         return;
     clip_start = plane_start;
@@ -974,12 +960,12 @@ void draw_engine_number(struct Number *num)
     struct TbSprite *spr;
     long val,ndigits;
     long w,h,pos_x;
-    //_DK_draw_engine_number(num);
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
-    lbDisplay.DrawFlags &= 0xFFFEu;
-    w = button_sprite[71].SWidth;
-    h = button_sprite[71].SHeight;
+    lbDisplay.DrawFlags &= ~0x0001;
+    spr = &button_sprite[71];
+    w = spr->SWidth;
+    h = spr->SHeight;
     if ((player->acamera->field_6 == 2) || (player->acamera->field_6 == 5))
     {
         // Count digits to be displayed
@@ -1013,7 +999,6 @@ void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4)
 
 void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)
 {
-    //_DK_draw_iso_only_fastview_mapwho(cam, spr);
     if (cam->field_6 == 5)
       draw_fastview_mapwho(cam, spr);
 }
@@ -1049,7 +1034,6 @@ void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
 
 void draw_map_who(struct RotoSpr *spr)
 {
-    //_DK_draw_map_who(spr);
     // empty
 }
 
@@ -1839,7 +1823,6 @@ void display_drawlist(void)
     long bucket_num;
     struct PolyPoint point_a,point_b,point_c;
     SYNCDBG(9,"Starting");
-    //_DK_display_drawlist(); return;
     render_fade_tables = pixmap.fade_tables;
     render_ghost = pixmap.ghost;
     render_problems = 0;
@@ -2295,7 +2278,6 @@ void display_fast_drawlist(struct Camera *cam)
       struct Number *number;
       struct RoomFlag *roomFlg;
     } item;
-    //_DK_display_fast_drawlist(cam); return;
     render_fade_tables = pixmap.fade_tables;
     render_ghost = pixmap.ghost;
     render_problems = 0;
@@ -2574,7 +2556,6 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
     long tc; // top cube index
     long x,y;
     long i;
-  //_DK_draw_element(map, lightness, stl_x, stl_y, pos_x, pos_y, a7, a8, a9); return;
     myplyr = get_my_player();
     cube_itm = (a8 + 2) & 3;
     delta_y = (a7 << 7) / 256;

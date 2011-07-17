@@ -4,6 +4,7 @@ TOC
 1. Downloading the code repository
 2. Compiling under Windows
 3. Cross-compiling on Linux host
+4. Make command targets
 
 1. Downloading the code repository
 
@@ -55,3 +56,25 @@ Note that you need mingw32 cross-compiler for Linux to do the compilation.
 Some Linux distributions allow to easily install the mingw32 cross compiler from
 their repositories, other may require to manually compile mingw32. Recompiling
 mingw32 isn't trivial, but you may learn a thing or two in the process.
+
+4. Make command targets
+
+The following targets can be used for make:
+standard - build binaries for 'standard release' of KeeperFX
+heavylog - build binaries for 'heavylog release' of KeeperFX
+package - compress binaries and other files (scripts, config files)
+     into archive which can be released as a patch; requires 7-zip
+all - just an alias for 'standard'
+clean - removes files created during previous builds
+
+Additionally, you can add "DEBUG=1" to the command to build debug version of
+standard or heavylog executable, ie:
+ make heavylog DEBUG=1
+This will build the game with debug symbols, which can be use for tracing
+the program execution with a debugger, ie. GDB.
+
+To prepare a KeeperFX release, run the commands in the following order:
+ make clean
+ make standard
+ make heavylog
+ make package
