@@ -280,3 +280,13 @@
  0003:000EBEC8       vampire_palette
  0003:0000E6E0       door_names
  0001:000BF510       can_change_from_state_to
+ 0001:00032860       rotpers_parallel_3
+ 0001:0002BEB0       fiddle_gamut
+ 0001:00025B70       create_map_volume_box
+ 0001:00026E30       do_a_plane_of_engine_columns_perspective
+ 0001:00033C00       draw_engine_number
+ 0001:00017B20       draw_iso_only_fastview_mapwho
+ 0001:00018020       draw_map_who
+ 0001:0002C640       display_drawlist
+ 0001:00072980       display_fast_drawlist
+ 0001:000741E0       draw_element

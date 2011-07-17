@@ -231,7 +231,7 @@ CXXINCS =  -I"directx/include" -I"sdl/include"
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" 
 # code optimization and debugging flags
 DEBUG ?= 0
-ifeq (DEBUG, 1)
+ifeq ($(DEBUG), 1)
   OPTFLAGS = -march=pentium -O0
   DBGFLAGS = -g -DDEBUG
 else

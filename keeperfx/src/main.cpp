@@ -6448,6 +6448,7 @@ void update_blocks_pointed(void)
     long hori_hdelta_y,vert_hdelta_y;
     long hori_ptr_x,vert_ptr_x;
     long hvdiv_x,hvdiv_y;
+    long long lltmp;
     long k;
     int i;
     SYNCDBG(19,"Starting");
@@ -6464,9 +6465,11 @@ void update_blocks_pointed(void)
         vert_hdelta_y = (long)vert_offset[0] * ((long)high_offset[1] >> 8);
         vert_ptr_x = (long)(vert_offset[1] * (pointer_x - x_init_off)) >> 1;
         hori_ptr_x = (long)(hori_offset[1] * (pointer_x - x_init_off)) >> 1;
-        hvdiv_x = (long)(hori_offset[0] * vert_offset[1] - vert_offset[0] * hori_offset[1]) >> 11;
+        lltmp = hori_offset[0] * (long long)vert_offset[1] - vert_offset[0] * (long long)hori_offset[1];
+        hvdiv_x = (lltmp >> 11);
         if (hvdiv_x == 0) hvdiv_x = 1;
-        hvdiv_y = (long)(vert_offset[0] * hori_offset[1] - hori_offset[0] * vert_offset[1]) >> 11;
+        lltmp = vert_offset[0] * (long long)hori_offset[1] - hori_offset[0] * (long long)vert_offset[1];
+        hvdiv_y = (lltmp >> 11);
         if (hvdiv_y == 0) hvdiv_y = 1;
         for (i=0; i < 8; i++)
         {
