@@ -1178,21 +1178,16 @@
  0001:00023AA0       draw_swipe
  0001:00033590       draw_status_sprites
  0001:00076910       draw_texture
- 0001:00026E30       do_a_plane_of_engine_columns_perspective
  0001:000292F0       do_a_plane_of_engine_columns_isometric
  0001:0002A6D0       do_a_plane_of_engine_columns_cluedo
  0001:00027400       do_a_trig_gourad_tr
  0001:00028380       do_a_trig_gourad_bl
  0001:0002B550       find_gamut
- 0001:0002BEB0       fiddle_gamut
  0001:0002B8A0       fiddle_half_gamut
- 0001:0002C640       display_drawlist
  0001:000317E0       fill_in_points_perspective
  0001:00031BA0       fill_in_points_isometric
  0001:00032200       fill_in_points_cluedo
- 0001:00032860       rotpers_parallel_3
  0001:00017160       setup_rotate_stuff
- 0001:00025B70       create_map_volume_box
  0001:00026580       frame_wibble_generate
  0001:000019E0       rotate_base_axis
  0001:00052990       flyeye_setup
@@ -1206,7 +1201,6 @@
  0001:000C5600       get_nearest_thing_for_slap
  0001:000C5750       get_nearest_thing_for_hand_or_slap
  0001:00035F70       get_front_view_nonaction_inputs
- 0001:00033C00       draw_engine_number
  0001:00054890       draw_keepsprite_unscaled_in_buffer
  0001:00017620       draw_jonty_mapwho
  0001:000C9A40       convert_old_column_file
@@ -1444,8 +1438,6 @@
  0001:000C1E50       apply_damage_to_thing
  0001:000399A0       init_alpha_table
  0001:000DC3B0       LbPaletteFindColour
- 0001:00072980       display_fast_drawlist
- 0001:000741E0       draw_element
  0001:00074C80       convert_world_coord_to_front_view_screen_coord
  0001:000C0380       cause_creature_death
  0001:0008E500       remove_all_traces_of_combat
@@ -1714,8 +1706,6 @@
  0001:00025B00       draw_clipped_line
  0001:00033E40       draw_engine_room_flag_top
  0001:00033CF0       draw_engine_room_flagpole
- 0001:00017B20       draw_iso_only_fastview_mapwho
- 0001:00018020       draw_map_who
  0001:0001A7A0       set_room_playing_ambient_sound
  0001:0007F7A0       ariadne_initialise_creature_route
  0001:0006E050       path_init8_wide
