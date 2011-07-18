@@ -166,6 +166,7 @@ struct StartupParameters {
     unsigned char packet_load_enable;
     char packet_fname[150];
     unsigned char packet_checksum;
+    unsigned char force_ppro_poly;
 };
 
 struct GuiMessage { // sizeof = 0x45 (69)

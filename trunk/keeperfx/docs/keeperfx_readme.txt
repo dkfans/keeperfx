@@ -131,6 +131,15 @@ Command line options:
   Smoothes the 3D view using 1-pixel bilinear blur.
   This consumes more CPU, and the effect is merely visible,
   so blurring is disabled by default.
+-ppropoly <mode>
+  Allows to control "pentium pro polygon rendering". Default
+  value is 0, which means the game will detect if the CPU is
+  modern enough and enable advanced rendering based on that.
+  For processors below Pentium Pro (today such CPU would be
+  ancient) the game disables advanced polygon lightning
+  computing. Setting <mode> to 1 will make sure the advanced
+  rendering is always enabled, and setting it to 2 disables
+  Pentium Pro polygons regardless of the CPU.
 -altinput
   Uses alternate mouse input method. This changes the way of
   computing mouse position; with this option, position is not
