@@ -2834,10 +2834,25 @@ short setup_game(void)
   if ( result )
   {
       init_keeper();
-      if (cpu_info.feature_intl != 0)
+      switch (start_params.force_ppro_poly)
       {
-          if ( ((cpu_info.feature_intl>>8) & 0x0Fu) >= 0x06 )
-            gpoly_enable_pentium_pro(true);
+      case 1:
+          gpoly_enable_pentium_pro(true);
+          break;
+      case 2:
+          gpoly_enable_pentium_pro(false);
+          break;
+      default:
+          if (cpu_info.feature_intl == 0)
+          {
+              gpoly_enable_pentium_pro(false);
+          } else
+          if ( ((cpu_info.feature_intl>>8) & 0x0F) < 0x06 ) {
+              gpoly_enable_pentium_pro(false);
+          } else {
+              gpoly_enable_pentium_pro(true);
+          }
+          break;
       }
       set_gamma(settings.gamma_correction, 0);
       SetRedbookVolume(settings.redbook_volume);
@@ -3844,6 +3859,7 @@ TbBool set_default_startup_parameters(void)
     start_params.one_player = 1;
     set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
     set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
+    start_params.force_ppro_poly = 0;
     return true;
 }
 
@@ -8009,6 +8025,11 @@ short process_command_line(unsigned short argc, char *argv[])
         set_flag_byte(&start_params.numfield_C,0x02,true);
         level_num = atoi(pr2str);
         narg++;
+      } else
+      if ( strcasecmp(parstr,"ppropoly") == 0 )
+      {
+          start_params.force_ppro_poly = atoi(pr2str);
+          narg++;
       } else
       if ( strcasecmp(parstr,"altinput") == 0 )
       {

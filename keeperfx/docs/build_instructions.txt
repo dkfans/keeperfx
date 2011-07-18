@@ -45,17 +45,32 @@ to be released. Note that using the "package" build target without compiling
 "standard" or "heavylog" version will result in a package without executable
 files, which isn't very useful.
 
+Remember to run the 'make' command from 'sh', not from Windows 'cmd', as the
+Makefile will use shell-specific clauses incompatible with Windows, ie. 'if'
+statement or 'echo' command.
+
 3. Cross-compiling on Linux host
 
 It is possible to cross-compile KeeperFX for Windows using Linux as host.
 Make copy of the "res/keeperfx_build.sh" file somewhere outside of the KeeperFX
-project folder. Then edit the file and change variables at its beginning to match
-your system. Then you can recompile the game by just running that script.
+project folder. Edit the file and change variables at its beginning to match
+your system. Then you can checkout SVN and recompile the game by just running
+that script.
+
+Of course, you can also trigger the cross-compile by yourself. You do this like:
+ make standard CROSS_COMPILE=i586-mingw32msvc-
+where the value of "CROSS_COMPILE" should be a prefix (may also include path)
+of the cross-compiler toolchain you wish to use. 
 
 Note that you need mingw32 cross-compiler for Linux to do the compilation.
 Some Linux distributions allow to easily install the mingw32 cross compiler from
 their repositories, other may require to manually compile mingw32. Recompiling
-mingw32 isn't trivial, but you may learn a thing or two in the process.
+mingw32 isn't trivial, but you may learn a thing or two in the process. Please be
+sure to use 32-bit version of MinGW.
+
+If you'll make the script working, you can easily create your own "nightly builds"
+site, which will automatically build KeeperFX releases. Just use CRON to start the
+script every day, and it will automatically build and publish the package.
 
 4. Make command targets
 
