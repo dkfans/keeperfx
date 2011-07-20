@@ -198,7 +198,10 @@
  0003:00031180       floor_height
  0003:00030D48       lintel_bottom_height
  0003:000409C0       lintel_top_height
+ 0003:00040F78       heap_handle
+ 0003:00049E6C       hmhdr
  0003:00049E70       keepsprite
+ 0003:00011F50       file_handle
  0003:0003F944       block_pointed_at_x
  0003:0003F948       block_pointed_at_y
  0003:0003F998       pointed_at_frac_x
@@ -737,7 +740,8 @@
  0006:0000001C       gtblock_screen_addr
 
  0001:00065630       setup_eye_lens
- 0001:000DA9F0       @LbFileClose@4
+ 0001:000DA960       LbFileOpen
+ 0001:000DA9F0       LbFileClose
  0001:000DAE70       LbTextDraw
  0001:000A7850       process_sound_heap
  0001:000463D0       setup_engine_window

@@ -23,6 +23,7 @@
 #include "bflib_mouse.h"
 #include "bflib_vidsurface.h"
 #include "bflib_sprfnt.h"
+#include "bflib_inputctrl.h"
 #include <SDL/SDL.h>
 #include <SDL/SDL_syswm.h>
 
@@ -539,8 +540,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         if (msspr != NULL)
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
     }
-    SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
-    SDL_WM_GrabInput(lbAppActive ? SDL_GRAB_ON : SDL_GRAB_OFF);
+    LbInputRestate();
     lbScreenInitialised = true;
     LbScreenActivationUpdate();
     SYNCDBG(8,"Finished");

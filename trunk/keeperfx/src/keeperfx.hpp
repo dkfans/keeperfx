@@ -868,7 +868,6 @@ DLLIMPORT unsigned char _DK_temp_pal[768];
 #define temp_pal _DK_temp_pal
 DLLIMPORT unsigned char *_DK_lightning_palette;
 #define lightning_palette _DK_lightning_palette
-
 #ifdef __cplusplus
 }
 #endif
@@ -1034,7 +1033,7 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
 void update_god_lightning_ball(struct Thing *thing);
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
-void setup_heap_manager(void);
+TbBool setup_heap_manager(void);
 TbBool setup_heap_memory(void);
 void reset_heap_manager(void);
 void reset_heap_memory(void);
