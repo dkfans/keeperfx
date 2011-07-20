@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *spr);
+DLLIMPORT void _DK_draw_fastview_mapwho(struct Camera *cam, struct JontySpr *outbuf);
 DLLIMPORT void _DK_draw_clipped_line(long pos_x, long pos_z, long start_y, long end_y, unsigned char scale);
 DLLIMPORT void _DK_draw_engine_room_flagpole(struct RoomFlag *rflg);
 DLLIMPORT void _DK_draw_status_sprites(long pos_x, long pos_z, struct Thing *thing, long end_y);
@@ -67,8 +67,8 @@ DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoo
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_map_who(short stl_x);
 DLLIMPORT void _DK_fiddle_half_gamut(long y, long pos_y, long floor_x, long floor_y);
-DLLIMPORT long _DK_load_keepersprite_if_needed(unsigned short kspr_idx);
-DLLIMPORT void _DK_draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale);
+DLLIMPORT long _DK_load_keepersprite_if_needed(unsigned short kspr_n);
+DLLIMPORT void _DK_draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_n, long scale);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -2739,6 +2739,7 @@ void unlock_keepersprite(unsigned short kspr_idx)
 
 long load_keepersprite_if_needed(unsigned short kspr_idx)
 {
+    //TODO CREATURE_SPRITE required to rewrite creature sprites loading
     return _DK_load_keepersprite_if_needed(kspr_idx);
 }
 
@@ -3232,9 +3233,223 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
-void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4)
+/** Fills solid area of the sprite in target buffer with color 255.
+ *
+ * @param sprdata Sprite data.
+ * @param outbuf Output buffer to be filled.
+ * @param lines_max Max lines to be written into output buffer.
+ * @param scanln Length of scanline (length of line in output buffer).
+ */
+void sprite_to_sbuff(const unsigned char *sprdata, unsigned char *outbuf, int lines_max, int scanln)
 {
-    _DK_draw_keepsprite_unscaled_in_buffer(a1, a2, a3, a4);
+    unsigned char *out_lnstart;
+    unsigned char *out;
+    int cval;
+    const unsigned char *sprd;
+    int i;
+    sprd = sprdata;
+    out = outbuf;
+    out_lnstart = outbuf;
+    cval = 0;
+    while (lines_max > 0)
+    {
+      while ( 1 )
+      {
+          // Skip transparent area
+          while ( 1 )
+          {
+              cval = *(char *)sprd;
+              sprd++;
+              if (cval >= 0)
+                break;
+              cval = -cval;
+              out += cval;
+          }
+          if (cval == 0)
+            break;
+          sprd += cval;
+          // Fill area per-byte until we get 32bit-aligned position
+          while ((unsigned int)out & 3)
+          {
+              *out = 0xFF;
+              out++;
+              cval--;
+              if (cval <= 0)
+                  break;
+          }
+          // Now fill the area faster - by writing 32-bit values
+          for (i = (cval >> 2); i > 0; i--)
+          {
+              *(unsigned long *)out = 0xFFFFFFFF;
+              out += 4;
+          }
+          // Fill the last unaligned bytes
+          cval &= 3;
+          while (cval > 0)
+          {
+            *out = 0xFF;
+            out++;
+            cval--;
+          }
+      }
+      out_lnstart += scanln;
+      out = out_lnstart;
+      lines_max--;
+    }
+}
+
+/** Fills solid area of the sprite in target buffer with color 255, x-flipping the sprite.
+ *
+ * @param sprdata Sprite data.
+ * @param outbuf Output buffer to be filled.
+ * @param lines_max Max lines to be written into output buffer.
+ * @param scanln Length of scanline (length of line in output buffer).
+ */
+void sprite_to_sbuff_xflip(unsigned char *sprdata, unsigned char *outbuf, int lines_max, int scanln)
+{
+    unsigned char *out_lnstart;
+    unsigned char *out;
+    int cval;
+    const unsigned char *sprd;
+    int i;
+    sprd = sprdata;
+    out = outbuf;
+    out_lnstart = outbuf;
+    cval = 0;
+    while (lines_max > 0)
+    {
+      while ( 1 )
+      {
+          // Skip transparent area
+          while ( 1 )
+          {
+              cval = *(char *)sprd;
+              sprd++;
+              if (cval >= 0)
+                  break;
+              cval = -cval;
+              out -= cval;
+          }
+          if (cval == 0)
+            break;
+          sprd += cval;
+          out++;
+          // Fill area per-byte until we get 32bit-aligned position
+          while ((unsigned long)out & 3)
+          {
+              out--;
+              *out = 0xFF;
+              cval--;
+              if (cval <= 0)
+                  break;
+          }
+          // Now fill the area faster - by writing 32-bit values
+          for (i = (cval >> 2); i > 0; i--)
+          {
+              out -= 4;
+              *(unsigned long *)out = 0xFFFFFFFF;
+          }
+          out--;
+          // Fill the last unaligned bytes
+          cval &= 3;
+          while (cval > 0)
+          {
+              *out = 0xFF;
+              out--;
+              cval--;
+          }
+      }
+      out_lnstart += scanln;
+      out = out_lnstart;
+      lines_max--;
+    }
+}
+
+void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char a3, unsigned char *outbuf)
+{
+    struct KeeperSprite *kspr_arr;
+    unsigned long kspr_idx;
+    struct KeeperSprite *kspr;
+    unsigned int keepsprite_id;
+    unsigned char *tmpbuf;
+    int skip_w,skip_h;
+    int fill_w,fill_h;
+    TbBool flip_range;
+    short quarter;
+    int i;
+    //_DK_draw_keepsprite_unscaled_in_buffer(a1, a2, a3, a4);
+    if ( ((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919) )
+        flip_range = false;
+    else
+        flip_range = true;
+    i = ((angle + 128) & 0x7FF);
+    quarter = abs(4 - (i >> 8)); // i is restricted by "&" so (i>>8) is 0..7
+    kspr_idx = keepersprite_index(kspr_n);
+    kspr_arr = keepersprite_array(kspr_n);
+    if (kspr_arr->field_8 == 0)
+    {
+        if ( !load_keepersprite_if_needed(kspr_idx) )
+        {
+            return;
+        }
+        keepsprite_id = a3 + kspr_idx;
+        kspr = &kspr_arr[a3];
+        fill_w = kspr->field_6;
+        fill_h = kspr->field_7;
+        if ( flip_range )
+        {
+            tmpbuf = outbuf;
+            skip_w = kspr->field_6 - kspr->field_A;
+            skip_h = kspr->field_B;
+            for (i = fill_h; i > 0; i--)
+            {
+                memset(tmpbuf, 0, fill_w);
+                tmpbuf += 256;
+            }
+            sprite_to_sbuff_xflip((unsigned char *)*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
+        } else
+        {
+            tmpbuf = outbuf;
+            skip_w = kspr->field_A;
+            skip_h = kspr->field_B;
+            for (i = fill_h; i > 0; i--)
+            {
+                memset(tmpbuf, 0, fill_w);
+                tmpbuf += 256;
+            }
+            sprite_to_sbuff((unsigned char *)*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
+        }
+    } else
+    if (kspr_arr->field_8 == 2)
+    {
+        if ( !load_keepersprite_if_needed(kspr_idx) )
+        {
+            return;
+        }
+        kspr = &kspr_arr[a3 + quarter * kspr_arr->field_9];
+        fill_w = kspr->field_4;
+        fill_h = kspr->field_5;
+        keepsprite_id = a3 + quarter * kspr->field_9 + kspr_idx;
+        if ( flip_range )
+        {
+            tmpbuf = outbuf;
+            for (i = fill_h; i > 0; i--)
+            {
+                memset(tmpbuf, 0, fill_w);
+                tmpbuf += 256;
+            }
+            sprite_to_sbuff_xflip((unsigned char *)*keepsprite[keepsprite_id], &outbuf[kspr->field_4], kspr->field_5, 256);
+        } else
+        {
+            tmpbuf = outbuf;
+            for (i = fill_h; i > 0; i--)
+            {
+                memset(tmpbuf, 0, fill_w);
+                tmpbuf += 256;
+            }
+            sprite_to_sbuff((unsigned char *)*keepsprite[keepsprite_id], &outbuf[0], kspr->field_5, 256);
+        }
+    }
 }
 
 void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)

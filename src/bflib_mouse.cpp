@@ -166,6 +166,8 @@ TbResult LbMouseOnMove(struct TbPoint shift)
  */
 void MouseToScreen(struct TbPoint *pos)
 {
+  // Static variables for storing last mouse coordinated; needed
+  // because lbDisplay.MMouse? coords are scaled
   static long mx = 0;
   static long my = 0;
   struct TbRect clip;
@@ -189,10 +191,12 @@ void MouseToScreen(struct TbPoint *pos)
       }
   } else
   {
-      mx = lbDisplay.MMouseX;
-      my = lbDisplay.MMouseY;
+      orig.x = pos->x;
+      orig.y = pos->y;
       pos->x = ((pos->x - mx) * (long)lbDisplay.MouseMoveRatio)/256;
       pos->y = ((pos->y - my) * (long)lbDisplay.MouseMoveRatio)/256;
+      mx = orig.x;
+      my = orig.y;
   }
 }
 

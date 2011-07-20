@@ -1194,7 +1194,8 @@
  0001:000D9FC0       LbMemoryFree@4
  0001:000DA0C0       LbMemoryReset@0
  0001:000DA800       LbScreenFindVideoModes
- 0001:000DA9F0       @LbFileClose@4
+ 0001:000DA960       LbFileOpen
+ 0001:000DA9F0       LbFileClose
  0001:000DABB0       LbTextSetWindow
  0001:000DAD00       LbTextStringWidth
  0001:000DAE70       LbTextDraw
@@ -1292,6 +1293,7 @@
  0003:00011C60       scrolling_index
  0003:00011C64       scrolling_offset
  0003:00011CB0       scrolling_stats_data
+ 0003:00011F50       file_handle
  0003:00012630       MaxSoundDistance
  0003:000126B4       ScrWidth
  0003:000126B8       ScrHeight
@@ -1620,6 +1622,8 @@
  0003:00040DE4       old_my
  0003:00040DE8       frontstats_timer
  0003:00040DF0       frontstats_data
+ 0003:00040F78       heap_handle
+ 0003:00049E6C       hmhdr
  0003:00049E70       keepsprite
  0003:00052D68       packet_left_button_double_clicked
  0003:00052D80       packet_left_button_click_space_count

@@ -276,8 +276,7 @@ static void process_event(const SDL_Event *ev)
         if (ev->active.state & SDL_APPACTIVE) {
             lbAppActive = (ev->active.gain != 0);
             //SYNCDBG(10, "Active = %d",(int)lbAppActive);
-            SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
-            SDL_WM_GrabInput(lbAppActive ? SDL_GRAB_ON : SDL_GRAB_OFF);
+            LbInputRestate();
         }
         if ((lbAppActive) && (lbDisplay.Palette != NULL)) {
             // Below is the faster version of LbPaletteSet(lbDisplay.Palette);
@@ -314,6 +313,17 @@ TbBool LbWindowsControl(void)
         process_event(&ev);
     }
     return (lbUserQuit < 1);
+}
+
+TbResult LbInputRestate(void)
+{
+    SDL_ShowCursor(lbAppActive ? SDL_DISABLE : SDL_ENABLE);
+    if ( lbMouseAutoReset ) {
+        SDL_WM_GrabInput(lbAppActive ? SDL_GRAB_ON : SDL_GRAB_OFF);
+    } else {
+        SDL_WM_GrabInput(SDL_GRAB_OFF);
+    }
+    return Lb_SUCCESS;
 }
 
 TbBool LbIsActive(void)
