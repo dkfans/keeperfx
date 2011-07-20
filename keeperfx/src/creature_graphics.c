@@ -236,7 +236,9 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
 {
     struct KeeperSprite *kspr;
     TbBool val_in_range;
-    kspr = &creature_table[creature_list[kspr_frame]];
+    unsigned long i;
+    i = creature_list[kspr_frame];
+    kspr = &creature_table[i];
     if ( ((a2 & 0x7FF) <= 1151) || ((a2 & 0x7FF) >= 1919) )
         val_in_range = 0;
     else

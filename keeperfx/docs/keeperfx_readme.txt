@@ -248,6 +248,38 @@ A: These files are identical except of one thing: 'keeperfx_hvlog.exe'
 Q: I've found a cheat menu, but it doesn't work!
 A: The three cheat menus are only partially functional.
 
+Reporting a bug:
+
+If you've found a bug in the game, you may report it to KeeperFX developers.
+But you will have to to do some tests to gather as much information as
+possible about the problem.
+
+First, if the game crashed, try looking into 'keeperfx.log'. If there are
+error messages in it, it's possible that you haven't properly installed or
+configured KeeperFX. In this case, check the 'Troubleshooting' section for
+description of your problem. Note that running the game again will overwrite
+the LOG file, so if you want to keep it, you'll have to make a copy.
+
+Second step is to try reproducing the error, and generate more detailed log.
+Run 'keeperfx_hvlog.exe' and play the level again, doing similar things you did
+first time, to check if it crashes. If you can't reproduce the error, there is
+still a chance that the LOG file from first crash is enough to locate the
+problem - so post the copy you've made on issue tracker, with your description
+of the problem, and information that you couldn't reproduce it.
+
+If you was able to reproduce the error, then post detailed description of how
+to do it on the issue tracker. Remember to include LOG file created by
+'heavylog' version of KeeperFX. Note that the log file will be huge - you
+shouldn't attach it directly. Instead, you can compress it, or just paste
+a few (ie. 20) lines from its beginning and its end. Remember to include first
+and last line of the LOG - these are crucial, and doing it incorrectly would
+mislead the developers.
+If it is possible to reproduce the error by loading specific saved game and
+doing a few simple actions, then attach the saved game to your report. You can
+recognize file which contains specific saved game by number in filename, which
+is always equal po position of the saved game slot in 'load' menu.
+
+
 Config file details:
 
 FRONTEND_RES

@@ -402,7 +402,8 @@ DLLIMPORT void _DK_event_kill_all_players_events(long plyr_idx);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
 DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
-DLLIMPORT int __fastcall _DK_LbFileClose(TbFileHandle handle);
+DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
+DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
 DLLIMPORT void _DK_setup_engine_window(long, long, long, long);
 DLLIMPORT void _DK_cumulative_screen_shot(void);
 DLLIMPORT long _DK_anim_record_frame(unsigned char *screenbuf, unsigned char *palette);
@@ -502,10 +503,39 @@ long get_smaller_memory_amount(long amount)
   return 6;
 }
 
-void setup_heap_manager(void)
+TbBool setup_heap_manager(void)
 {
-  SYNCDBG(8,"Starting");
-  _DK_setup_heap_manager();
+    SYNCDBG(8,"Starting");
+    const char *fname;
+    long i;
+    //_DK_setup_heap_manager();
+    if (heap == NULL)
+    {
+        ERRORLOG("Graphics Heap not allocated");
+        return false;
+    }
+    i = heap_size / 512;
+    if (i >= KEEPSPRITE_LENGTH)
+      i = KEEPSPRITE_LENGTH-1;
+    hmhdr = heapmgr_init(heap, heap_size, i);
+    if (hmhdr == NULL)
+    {
+        ERRORLOG("Not enough memory to initialise heap.");
+        return false;
+    }
+    wait_for_cd_to_be_available();
+    fname = prepare_file_path(FGrp_StdData,"creature.jty");
+    //TODO CREATURE_SPRITE Use rewritten file handling when reading is rewritten
+    file_handle = _DK_LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if (file_handle == -1) {
+        ERRORLOG("Can not open 'creature.jty'");
+        return false;
+    }
+    for (i=0; i < KEEPSPRITE_LENGTH; i++)
+        keepsprite[i] = NULL;
+    for (i=0; i < KEEPSPRITE_LENGTH; i++)
+        heap_handle[i] = NULL;
+    return true;
 }
 
 /**
@@ -549,8 +579,19 @@ TbBool setup_heap_memory(void)
 
 void reset_heap_manager(void)
 {
-  SYNCDBG(8,"Starting");
-  _DK_reset_heap_manager();
+    long i;
+    SYNCDBG(8,"Starting");
+    //_DK_reset_heap_manager();
+    if (file_handle != -1)
+    {
+        //TODO CREATURE_SPRITE Use rewritten file handling when reading is rewritten
+        _DK_LbFileClose(file_handle);
+        file_handle = -1;
+    }
+    for (i=0; i < KEEPSPRITE_LENGTH; i++)
+        keepsprite[i] = NULL;
+    for (i=0; i < KEEPSPRITE_LENGTH; i++)
+        heap_handle[i] = NULL;
 }
 
 void reset_heap_memory(void)
@@ -8033,6 +8074,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"altinput") == 0 )
       {
+          SYNCLOG("Mouse auto reset disabled");
           lbMouseAutoReset = false;
       } else
       if ( strcasecmp(parstr,"vidriver") == 0 )

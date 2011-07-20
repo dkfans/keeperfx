@@ -476,12 +476,19 @@ DLLIMPORT extern struct EngineCol *_DK_back_ec;
 #define back_ec _DK_back_ec
 DLLIMPORT long _DK_global_scaler;
 #define global_scaler _DK_global_scaler
-DLLIMPORT struct KeeperSprite **_DK_keepsprite[KEEPSPRITE_LENGTH];
-#define keepsprite _DK_keepsprite
 DLLIMPORT long _DK_water_source_cutoff;
 #define water_source_cutoff _DK_water_source_cutoff
 DLLIMPORT long _DK_water_y_offset;
 #define water_y_offset _DK_water_y_offset
+
+DLLIMPORT struct KeeperSprite **_DK_keepsprite[KEEPSPRITE_LENGTH];
+#define keepsprite _DK_keepsprite
+DLLIMPORT struct HeapMgrHandle * _DK_heap_handle[KEEPSPRITE_LENGTH];
+#define heap_handle _DK_heap_handle
+DLLIMPORT struct HeapMgrHeader *_DK_hmhdr;
+#define hmhdr _DK_hmhdr
+DLLIMPORT TbFileHandle _DK_file_handle;
+#define file_handle _DK_file_handle
 /******************************************************************************/
 //extern unsigned char temp_cluedo_mode;
 /******************************************************************************/
