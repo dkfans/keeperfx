@@ -169,64 +169,65 @@ void find_nearest_rooms_for_ambient_sound(void)
     set_room_playing_ambient_sound(NULL, 0);
 }
 
-short update_3d_sound_receiver(struct PlayerInfo *player)
+TbBool update_3d_sound_receiver(struct PlayerInfo *player)
 {
-  struct Camera *cam;
-  cam = player->acamera;
-  if (cam == NULL)
-    return false;
-  S3DSetSoundReceiverPosition(cam->mappos.x.val,cam->mappos.y.val,cam->mappos.z.val);
-  S3DSetSoundReceiverOrientation(cam->orient_a,cam->orient_b,cam->orient_c);
-  return true;
+    struct Camera *cam;
+    SYNCDBG(7,"Starting");
+    cam = player->acamera;
+    if (cam == NULL)
+        return false;
+    S3DSetSoundReceiverPosition(cam->mappos.x.val,cam->mappos.y.val,cam->mappos.z.val);
+    S3DSetSoundReceiverOrientation(cam->orient_a,cam->orient_b,cam->orient_c);
+    return true;
 }
 
 void update_player_sounds(void)
 {
-  int k;
-  struct PlayerInfo *player;
-  SYNCDBG(7,"Starting");
-  if ((game.numfield_C & 0x01) == 0)
-  {
-    player = get_my_player();
-    process_messages();
-    if (!SoundDisabled)
+    int k;
+    struct PlayerInfo *player;
+    SYNCDBG(7,"Starting");
+    if ((game.numfield_C & 0x01) == 0)
     {
-      if ((game.flags_cd & MFlg_NoMusic) == 0)
-      {
-        if (game.audiotrack > 0)
-          PlayRedbookTrack(game.audiotrack);
-      }
-      update_3d_sound_receiver(player);
-    }
-    game.play_gameturn++;
-  }
-  find_nearest_rooms_for_ambient_sound();
-  process_3d_sounds();
-  k = (game.bonus_time-game.play_gameturn) / 2;
-  if (bonus_timer_enabled())
-  {
-    if ((game.bonus_time == game.play_gameturn) ||
-       ((game.bonus_time > game.play_gameturn) && (((k <= 100) && ((k % 10) == 0)) ||
-        ((k<=300) && ((k % 50) == 0)) || ((k % 250) == 0))) )
-      play_non_3d_sample(89);
-  }
-  // Rare message easter egg
-  if ((game.play_gameturn != 0) && ((game.play_gameturn % 20000) == 0))
-  {
-      if (ACTION_RANDOM(2000) == 0)
-      {
-        k = UNSYNC_RANDOM(10);
-        SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
-        if (k == 7)
+        player = get_my_player();
+        process_messages();
+        if (!SoundDisabled)
         {
-          output_message(SMsg_PantsTooTight, 0, true);
-        } else
-        {
-          output_message(SMsg_FunnyMessages+k, 0, true);
+            if ((game.flags_cd & MFlg_NoMusic) == 0)
+            {
+                if (game.audiotrack > 0)
+                  PlayRedbookTrack(game.audiotrack);
+            }
+            update_3d_sound_receiver(player);
         }
-      }
-  }
-  SYNCDBG(9,"Finished");
+        game.play_gameturn++;
+    }
+    find_nearest_rooms_for_ambient_sound();
+    process_3d_sounds();
+    k = (game.bonus_time-game.play_gameturn) / 2;
+    if (bonus_timer_enabled())
+    {
+      if ((game.bonus_time == game.play_gameturn) ||
+         ((game.bonus_time > game.play_gameturn) && (((k <= 100) && ((k % 10) == 0)) ||
+          ((k<=300) && ((k % 50) == 0)) || ((k % 250) == 0))) )
+        play_non_3d_sample(89);
+    }
+    // Rare message easter egg
+    if ((game.play_gameturn != 0) && ((game.play_gameturn % 20000) == 0))
+    {
+        if (ACTION_RANDOM(2000) == 0)
+        {
+          k = UNSYNC_RANDOM(10);
+          SYNCDBG(9,"Rare message condition met, selected %d",(int)k);
+          if (k == 7)
+          {
+            output_message(SMsg_PantsTooTight, 0, true);
+          } else
+          {
+            output_message(SMsg_FunnyMessages+k, 0, true);
+          }
+        }
+    }
+    SYNCDBG(9,"Finished");
 }
 
 void process_3d_sounds(void)
