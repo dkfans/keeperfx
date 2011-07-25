@@ -348,11 +348,60 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
     return false;
 }
 
+TbBool remove_message_from_queue(long queue_idx)
+{
+    struct MessageQueueEntry *mqprev;
+    struct MessageQueueEntry *mqentry;
+    long i;
+    SYNCDBG(7,"Starting");
+    i = queue_idx;
+    mqentry = &message_queue[i];
+    // If there's nothing to remove, don't bother trying
+    if (mqentry->state != 1)
+    {
+        return false;
+    }
+    for (i++; i < MESSAGE_QUEUE_COUNT; i++)
+    {
+        mqprev = mqentry;
+        mqentry = &message_queue[i];
+        mqprev->state = mqentry->state;
+        mqprev->msg_idx = mqentry->msg_idx;
+        mqprev->delay = mqentry->delay;
+    }
+    // Now clear the highest entry
+    {
+        mqentry->state = 0;
+        mqentry->msg_idx = 0;
+        mqentry->delay = 0;
+    }
+    return false;
+}
+
 void process_messages(void)
 {
-  SYNCDBG(17,"Starting");
-  _DK_process_messages();
-  SYNCDBG(19,"Finished");
+    unsigned long msg_idx;
+    long delay;
+    SYNCDBG(17,"Starting");
+    //_DK_process_messages();
+    // If already playing, just wait for next time
+    if (!speech_sample_playing())
+    {
+        SYNCDBG(17,"play on");
+        message_playing = 0;
+        // If no messages are in queue, don't play anything
+        if (message_queue_empty())
+        {
+            SYNCDBG(19,"Finished");
+            return;
+        }
+        // Otherwise remove next message from queue and try to play it
+        msg_idx = message_queue[0].msg_idx;
+        delay = message_queue[0].delay;
+        remove_message_from_queue(0);
+        output_message(msg_idx, delay, 1);
+    }
+    SYNCDBG(19,"Finished");
 }
 
 TbBool message_can_be_played(long msg_idx)
@@ -375,22 +424,27 @@ TbBool message_already_in_queue(long msg_idx)
   return false;
 }
 
+TbBool message_queue_empty(void)
+{
+    return (!message_queue[0].state);
+}
+
 TbBool add_message_to_queue(long msg_idx, long delay)
 {
-  struct MessageQueueEntry *mqentry;
-  long i;
-  for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
-  {
-    mqentry = &message_queue[i];
-    if (mqentry->state == 0)
+    struct MessageQueueEntry *mqentry;
+    long i;
+    for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
     {
-      mqentry->state = 1;
-      mqentry->msg_idx = msg_idx;
-      mqentry->delay = delay;
-      return true;
+        mqentry = &message_queue[i];
+        if (mqentry->state == 0)
+        {
+          mqentry->state = 1;
+          mqentry->msg_idx = msg_idx;
+          mqentry->delay = delay;
+          return true;
+        }
     }
-  }
-  return false;
+    return false;
 }
 
 /** Returns a random speech phrase for given message */

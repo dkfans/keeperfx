@@ -106,6 +106,7 @@ int __stdcall GetSoundInstalled(void)
 int __stdcall PlayRedbookTrack(int track)
 {
     HMODULE hModule;
+    SYNCDBG(18,"Starting");
     hModule=GetModuleHandle("WSND7R");
     FARPROC proc;
     proc=GetProcAddress(hModule,"_PlayRedbookTrack@4");

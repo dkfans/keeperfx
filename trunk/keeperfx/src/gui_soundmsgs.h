@@ -178,6 +178,7 @@ struct MessageQueueEntry { // sizeof = 9
 TbBool output_message(long msg_idx, long delay, TbBool queue);
 TbBool message_already_in_queue(long msg_idx);
 TbBool add_message_to_queue(long msg_idx, long delay);
+TbBool message_queue_empty(void);
 long get_phrase_for_message(long msg_idx);
 long get_phrase_sample(long phr_idx);
 TbBool message_can_be_played(long msg_idx);
