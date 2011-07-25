@@ -226,6 +226,7 @@ long S3DDestroySoundEmitter(long eidx)
 TbBool S3DEmitterIsAllocated(long eidx)
 {
     struct SoundEmitter *emit;
+    SYNCDBG(17,"Starting");
     emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
         return false;
@@ -289,7 +290,10 @@ TbBool S3DDestroySoundEmitterAndSamples(long eidx)
     struct SoundEmitter *emit;
     emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
+    {
+        ERRORLOG("Invalid emiter %ld",eidx);
         return false;
+    }
     stop_emitter_samples(emit);
     delete_sound_emitter(eidx);
     return true;
@@ -298,12 +302,19 @@ TbBool S3DDestroySoundEmitterAndSamples(long eidx)
 TbBool S3DEmitterIsPlayingAnySample(long eidx)
 {
     struct SoundEmitter *emit;
+    TbBool is_playing;
+    SYNCDBG(17,"Starting");
     if (MaxNoSounds <= 0)
         return false;
     emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
+    {
+        ERRORLOG("Invalid emiter %ld",eidx);
         return false;
-    return emitter_is_playing(emit);
+    }
+    is_playing = emitter_is_playing(emit);
+    SYNCDBG(17,"Emitter %ld %s playing",eidx,is_playing?"is":"not");
+    return is_playing;
 }
 
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func callback)
@@ -572,7 +583,9 @@ TbBool emitter_is_playing(struct SoundEmitter *emit)
     {
         sample = &SampleList[i];
         if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
+        {
             return true;
+        }
     }
     return false;
 }
@@ -1009,26 +1022,31 @@ TbBool process_sound_samples(void)
 long speech_sample_playing(void)
 {
     long sp_emiter;
-    if (SoundDisabled)
-        return false;
-    if (GetCurrentSoundMasterVolume() <= 0)
-        return false;
-    sp_emiter = SpeechEmitter;
-    if (sp_emiter != 0)
-    {
-        if (S3DEmitterIsAllocated(SpeechEmitter))
-        {
-          sp_emiter = SpeechEmitter;
-        } else
-        {
-          ERRORLOG("Speech Emitter has been deleted");
-          sp_emiter = 0;
-        }
-    }
-    SpeechEmitter = sp_emiter;
-    if (sp_emiter == 0)
-      return false;
-    return S3DEmitterIsPlayingAnySample(sp_emiter);
+    if (SoundDisabled) {
+         SYNCDBG(7,"Disabled");
+         return false;
+     }
+     if (GetCurrentSoundMasterVolume() <= 0) {
+         SYNCDBG(17,"Volume zero");
+         return false;
+     }
+     SYNCDBG(17,"Starting");
+     sp_emiter = SpeechEmitter;
+     if (sp_emiter != 0)
+     {
+         if (S3DEmitterIsAllocated(SpeechEmitter))
+         {
+           sp_emiter = SpeechEmitter;
+         } else
+         {
+           ERRORLOG("Speech Emitter has been deleted");
+           sp_emiter = 0;
+         }
+     }
+     SpeechEmitter = sp_emiter;
+     if (sp_emiter == 0)
+       return false;
+     return S3DEmitterIsPlayingAnySample(sp_emiter);
 }
 
 long play_speech_sample(long smpl_idx)
