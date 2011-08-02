@@ -684,190 +684,191 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
  */
 short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, long len)
 {
-  static const char config_textname[] = "Campaign config";
-  struct LevelInformation *lvinfo;
-  long pos;
-  int k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[32];
-  char word_buf[32];
-  SYNCDBG(18,"Starting for level %ld",lvnum);
-  lvinfo = get_or_create_level_info(lvnum, lvoptions);
-  if (lvinfo == NULL)
-  {
-    WARNMSG("Can't get LevelInformation item to store level %ld data from %s file.",
-        lvnum,config_textname);
-    return 0;
-  }
-  lvinfo->location = LvLc_Campaign;
-  sprintf(block_buf,"map%05lu",lvnum);
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
-  if (k < 0)
-  {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return 0;
-  }
+    static const char config_textname[] = "Campaign config";
+    struct LevelInformation *lvinfo;
+    long pos;
+    int k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[32];
+    char word_buf[32];
+    SYNCDBG(18,"Starting for level %ld",lvnum);
+    lvinfo = get_or_create_level_info(lvnum, lvoptions);
+    if (lvinfo == NULL)
+    {
+      WARNMSG("Can't get LevelInformation item to store level %ld data from %s file.",
+          lvnum,config_textname);
+      return 0;
+    }
+    lvinfo->location = LvLc_Campaign;
+    sprintf(block_buf,"map%05lu",lvnum);
+    pos = 0;
+    k = find_conf_block(buf,&pos,len,block_buf);
+    if (k < 0)
+    {
+      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return 0;
+    }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cmpgn_map_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,cmpgn_map_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // NAME_TEXT
-          if (get_conf_parameter_whole(buf,&pos,len,lvinfo->name,LINEMSG_SIZE) <= 0)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // NAME_ID
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
+    while (pos<len)
+    {
+        // Finding command number in this line
+        cmd_num = recognize_conf_command(buf,&pos,len,cmpgn_map_commands);
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        n = 0;
+        switch (cmd_num)
+        {
+        case 1: // NAME_TEXT
+            if (get_conf_parameter_whole(buf,&pos,len,lvinfo->name,LINEMSG_SIZE) <= 0)
             {
-              lvinfo->name_id = k;
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 2: // NAME_ID
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k > 0)
+              {
+                lvinfo->name_id = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 3: // ENSIGN_POS
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->ensign_x = k;
+                  n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->ensign_y = k;
+                  n++;
+                }
+            }
+            if (n < 2)
+            {
+                CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 4: // ENSIGN_ZOOM
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->ensign_zoom_x = k;
+                  n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->ensign_zoom_y = k;
+                  n++;
+                }
+            }
+            if (n < 2)
+            {
+                CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 5: // PLAYERS
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k > 0)
+              {
+                lvinfo->players = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // OPTIONS
+            while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_cmnds_options)) > 0)
+            {
+              switch (k)
+              {
+              case LvOp_Tutorial:
+                lvinfo->options |= k;
+                break;
+              }
               n++;
             }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // ENSIGN_POS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
+            break;
+        case 7: // SPEECH
+            if (get_conf_parameter_single(buf,&pos,len,lvinfo->speech_before,DISKPATH_SIZE) > 0)
             {
-              lvinfo->ensign_x = k;
               n++;
             }
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
+            if (get_conf_parameter_single(buf,&pos,len,lvinfo->speech_after,DISKPATH_SIZE) > 0)
             {
-              lvinfo->ensign_y = k;
               n++;
             }
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // ENSIGN_ZOOM
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
+            if (n < 2)
             {
-              lvinfo->ensign_zoom_x = k;
+                CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 8: // LAND_VIEW
+            if (get_conf_parameter_single(buf,&pos,len,lvinfo->land_view,DISKPATH_SIZE) > 0)
+            {
               n++;
             }
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
+            if (get_conf_parameter_single(buf,&pos,len,lvinfo->land_window,DISKPATH_SIZE) > 0)
             {
-              lvinfo->ensign_zoom_y = k;
               n++;
             }
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" coordinates in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // PLAYERS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if (k > 0)
+            if (n < 2)
             {
-              lvinfo->players = k;
-              n++;
+                CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" number in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // OPTIONS
-          while ((k = recognize_conf_parameter(buf,&pos,len,cmpgn_map_cmnds_options)) > 0)
-          {
-            switch (k)
-            {
-            case LvOp_Tutorial:
-              lvinfo->options |= k;
-              break;
-            }
-            n++;
-          }
-          break;
-      case 7: // SPEECH
-          if (get_conf_parameter_single(buf,&pos,len,lvinfo->speech_before,DISKPATH_SIZE) > 0)
-          {
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,lvinfo->speech_after,DISKPATH_SIZE) > 0)
-          {
-            n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // LAND_VIEW
-          if (get_conf_parameter_single(buf,&pos,len,lvinfo->land_view,DISKPATH_SIZE) > 0)
-          {
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,lvinfo->land_window,DISKPATH_SIZE) > 0)
-          {
-            n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" file names in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 10: // AUTHOR
-      case 11: // DESCRIPTION
-      case 12: // DATE
-          // As for now, ignore these
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
+            break;
+        case 10: // AUTHOR
+        case 11: // DESCRIPTION
+        case 12: // DATE
+            // As for now, ignore these
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
+            break;
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+    }
+    SYNCDBG(18,"Level %ld ensign (%d,%d) zoom (%d,%d)",lvnum,(int)lvinfo->ensign_x,(int)lvinfo->ensign_y,(int)lvinfo->ensign_zoom_x,(int)lvinfo->ensign_zoom_y);
 #undef COMMAND_TEXT
-  return 1;
+    return 1;
 }
 
 short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len)
