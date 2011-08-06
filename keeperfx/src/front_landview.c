@@ -52,6 +52,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
+struct NetMapPlayersState {
+    long tmp1;
+    LevelNumber lvnum;
+    TbBool is_selected;
+};
+
+/******************************************************************************/
 #define WINDOW_Y_SIZE 720
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
@@ -391,8 +398,8 @@ void draw_map_level_ensigns(void)
     spr = get_ensign_sprite_for_level(lvinfo,k);
     if (spr != NULL)
     {
-      x = lvinfo->ensign_x - map_info.scrshift_x - (spr->SWidth>>1);
-      y = lvinfo->ensign_y - map_info.scrshift_y -  spr->SHeight;
+      x = lvinfo->ensign_x - map_info.scrshift_x - (int)(spr->SWidth>>1);
+      y = lvinfo->ensign_y - map_info.scrshift_y -  (int)(spr->SHeight);
       LbSpriteDraw(x, y, spr);
     }
     lvinfo = get_prev_level_info(lvinfo);
@@ -477,8 +484,8 @@ TbBool frontmap_input_active_ensign(long curr_mx, long curr_my)
     if (lvinfo->state == LvSt_Visible)
       if (is_over_ensign(lvinfo, curr_mx, curr_my))
       {
-        mouse_over_lvnum = lvinfo->lvnum;
-        return true;
+          mouse_over_lvnum = lvinfo->lvnum;
+          return true;
       }
     lvinfo = get_next_level_info(lvinfo);
   }
@@ -977,7 +984,7 @@ void process_zoom_palette(void)
     }
 }
 
-TbBool update_zoom(void)
+TbBool frontmap_update_zoom(void)
 {
     SYNCDBG(8,"Starting");
     if (map_info.fade_step == 4)
@@ -1537,22 +1544,22 @@ long frontmap_update(void)
   SYNCDBG(8,"Starting");
   if ((mouse_over_lvnum > 0) && (playing_speech_lvnum != mouse_over_lvnum))
   {
-    play_desc_speech_time = 0;
-    play_description_speech(mouse_over_lvnum,1);
+      play_desc_speech_time = 0;
+      play_description_speech(mouse_over_lvnum,1);
   }
   if ((play_desc_speech_time != 0) && (LbTimerClock() > play_desc_speech_time))
   {
-    play_desc_speech_time = 0;
-    play_current_description_speech(1);
+      play_desc_speech_time = 0;
+      play_current_description_speech(1);
   }
   update_frontmap_ambient_sound();
 
   if (map_info.fading)
   {
-      if (update_zoom())
+      if (frontmap_update_zoom())
       {
-        SYNCDBG(8,"Zoom end");
-        return true;
+          SYNCDBG(8,"Zoom end");
+          return true;
       }
   }
   if (playing_good_descriptive_speech)
@@ -1569,42 +1576,11 @@ long frontmap_update(void)
   return 0;
 }
 
-TbBool frontnetmap_update(void)
+TbBool frontmap_exchange_screen_packet(void)
 {
-  struct ScreenPacket *nspck;
-  struct LevelInformation *lvinfo;
-  struct TbSprite *spr;
-  long i;
-  long tmp1,tmp2;
-  LevelNumber lvnum;
-  LevelNumber pckt_lvnum;
-  TbBool is_selected;
-  SYNCDBG(8,"Starting");
-//  return _DK_frontnetmap_update();
-  if (map_sound_fade > 0)
-  {
-    i = map_sound_fade * ((long)settings.redbook_volume) / 256;
-  } else
-  {
-    i = 0;
-  }
-  if ((game.flags_cd & 0x10) == 0)
-  {
-    SetRedbookVolume(i);
-  }
-
-  tmp1 = 0;
-  lvnum = SINGLEPLAYER_NOTSTARTED;
-  is_selected = false;
-  if (map_info.fading)
-  {
-    if (update_zoom())
-    {
-      SYNCDBG(8,"Zoom end");
-      return true;
-    }
-  } else
-  {
+    struct ScreenPacket *nspck;
+    struct LevelInformation *lvinfo;
+    struct TbSprite *spr;
     memset(net_screen_packet, 0, sizeof(net_screen_packet));
     nspck = &net_screen_packet[my_player_number];
     nspck->field_4 |= 0x01;
@@ -1618,122 +1594,175 @@ TbBool frontnetmap_update(void)
       nspck->field_B = net_map_limp_time;
       if (net_map_limp_time == 1)
       {
-        LbMouseSetPosition(
-          limp_hand_x + hand_limp_xoffset[0] - map_info.scrshift_x,
-          limp_hand_y + hand_limp_yoffset[0] - map_info.scrshift_y);
+          LbMouseSetPosition(
+            limp_hand_x + hand_limp_xoffset[0] - map_info.scrshift_x,
+            limp_hand_y + hand_limp_yoffset[0] - map_info.scrshift_y);
       }
     } else
     if (fe_net_level_selected > 0)
     {
-      spr = get_map_flag(1);
-      lvinfo = get_level_info(fe_net_level_selected);
-      if (lvinfo != NULL)
-      {
-        nspck->field_6 = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
-        nspck->field_8 = lvinfo->ensign_y - 48;
-      }
+        spr = get_map_flag(1);
+        lvinfo = get_level_info(fe_net_level_selected);
+        if (lvinfo != NULL)
+        {
+            nspck->field_6 = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
+            nspck->field_8 = lvinfo->ensign_y - 48;
+        }
     } else
     if (net_map_slap_frame > 0)
     {
-      nspck->field_6 = GetMouseX() + map_info.scrshift_x;
-      nspck->field_8 = GetMouseY() + map_info.scrshift_y;
-      if (net_map_slap_frame <= 16)
-      {
-        nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
-        nspck->field_A = net_map_slap_frame;
-        net_map_slap_frame++;
-      } else
-      {
-        net_map_slap_frame = 0;
-      }
+        nspck->field_6 = GetMouseX() + map_info.scrshift_x;
+        nspck->field_8 = GetMouseY() + map_info.scrshift_y;
+        if (net_map_slap_frame <= 16)
+        {
+          nspck->field_4 = (nspck->field_4 & 0x07) | 0x08;
+          nspck->field_A = net_map_slap_frame;
+          net_map_slap_frame++;
+        } else
+        {
+          net_map_slap_frame = 0;
+        }
     } else
     {
-      nspck->field_6 = GetMouseX() + map_info.scrshift_x;
-      nspck->field_8 = GetMouseY() + map_info.scrshift_y;
+        nspck->field_6 = GetMouseX() + map_info.scrshift_x;
+        nspck->field_8 = GetMouseY() + map_info.scrshift_y;
     }
     if (fe_network_active)
     {
       if ( LbNetwork_Exchange(nspck) )
-        ERRORLOG("LbNetwork_Exchange failed");
+      {
+          ERRORLOG("LbNetwork_Exchange failed");
+          return false;
+      }
     }
+    return true;
+}
+
+TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
+{
+    LevelNumber pckt_lvnum;
+    long i;
+    long tmp2;
     memset(scratch, 0, PALETTE_SIZE);
     tmp2 = -1;
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
-      nspck = &net_screen_packet[i];
-      if ((nspck->field_4 & 0x01) == 0)
-        continue;
-      if (nspck->field_A == -2)
-      {
-          if (fe_network_active)
-          {
-            if ( LbNetwork_EnableNewPlayers(1) )
-              ERRORLOG("Unable to enable new players joining exchange");
-            frontend_set_state(FeSt_NET_START);
-          } else
-          {
-            frontend_set_state(FeSt_MAIN_MENU);
-          }
-          return 0;
-      }
-      if ((nspck->field_A == SINGLEPLAYER_NOTSTARTED) || ((nspck->field_4 & 0xF8) == 8))
-      {
-          tmp1++;
-      } else
-      {
-          pckt_lvnum = (unsigned char)nspck->field_A;
-          scratch[pckt_lvnum]++;
-          if (scratch[pckt_lvnum] == tmp2)
-          {
-            is_selected = false;
-          } else
-          if (scratch[pckt_lvnum] > tmp2)
-          {
-            lvnum = pckt_lvnum;
-            tmp2 = scratch[lvnum];
-            is_selected = true;
-          }
-      }
-      if (((nspck->field_4 & 0xF8) == 0x08) && (nspck->field_A == 13))
-      {
-          if ( test_hand_slap_collides(i) )
-          {
-            net_map_limp_time = 12;
-            fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-            net_map_slap_frame = 0;
-            limp_hand_x = nspck->field_6;
-            limp_hand_y = nspck->field_8;
-            nspck->field_4 = (nspck->field_4 & 7) | 0x10;
-          }
-      }
+        struct ScreenPacket *nspck;
+        nspck = &net_screen_packet[i];
+        if ((nspck->field_4 & 0x01) == 0)
+          continue;
+        if (nspck->field_A == -2)
+        {
+            if (fe_network_active)
+            {
+              if ( LbNetwork_EnableNewPlayers(1) )
+                ERRORLOG("Unable to enable new players joining exchange");
+              frontend_set_state(FeSt_NET_START);
+            } else
+            {
+              frontend_set_state(FeSt_MAIN_MENU);
+            }
+            return false;
+        }
+        if ((nspck->field_A == SINGLEPLAYER_NOTSTARTED) || ((nspck->field_4 & 0xF8) == 8))
+        {
+            nmps->tmp1++;
+        } else
+        {
+            pckt_lvnum = (unsigned char)nspck->field_A;
+            scratch[pckt_lvnum]++;
+            if (scratch[pckt_lvnum] == tmp2)
+            {
+                nmps->is_selected = false;
+            } else
+            if (scratch[pckt_lvnum] > tmp2)
+            {
+                nmps->lvnum = pckt_lvnum;
+                tmp2 = scratch[pckt_lvnum];
+                nmps->is_selected = true;
+            }
+        }
+        if (((nspck->field_4 & 0xF8) == 0x08) && (nspck->field_A == 13))
+        {
+            if ( test_hand_slap_collides(i) )
+            {
+              net_map_limp_time = 12;
+              fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
+              net_map_slap_frame = 0;
+              limp_hand_x = nspck->field_6;
+              limp_hand_y = nspck->field_8;
+              nspck->field_4 = (nspck->field_4 & 7) | 0x10;
+            }
+        }
     }
-  }
-  if ((!tmp1) && (lvnum > 0) && (is_selected))
-  {
-    set_selected_level_number(lvnum);
-    sprintf(level_name, "%s %d", gui_strings[406], (int)lvnum);
-    map_info.fading = true;
-    map_info.fade_pos = 1;
-    map_info.fade_step = 4;
-    spr = get_map_flag(1);
-    lvinfo = get_level_info(lvnum);
-    if (lvinfo != NULL)
-    {
-      map_info.zoomspot_x = lvinfo->ensign_x + my_player_number * ((long)spr->SWidth);
-      map_info.zoomspot_y = lvinfo->ensign_y - 48;
-    }
-    map_info.state_trigger = 8 - ((unsigned int)fe_network_active < 1);
-    set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
-    map_info.field_1E = map_info.scrshift_x << 8;
-    map_info.field_22 = map_info.scrshift_y << 8;
-    if (!fe_network_active)
-      fe_computer_players = 1;
-  }
+    return true;
+}
 
-  if ((game.flags_cd & 0x10) == 0)
-    PlayRedbookTrack(2);
-  SYNCDBG(8,"Normal end");
-  return false;
+TbBool frontnetmap_update(void)
+{
+    struct NetMapPlayersState nmps;
+    struct LevelInformation *lvinfo;
+    struct TbSprite *spr;
+    long i;
+    SYNCDBG(8,"Starting");
+//  return _DK_frontnetmap_update();
+    if (map_sound_fade > 0)
+    {
+        i = map_sound_fade * ((long)settings.redbook_volume) / 256;
+    } else
+    {
+        i = 0;
+    }
+    if ((game.flags_cd & 0x10) == 0)
+    {
+        SetRedbookVolume(i);
+    }
+
+    nmps.tmp1 = 0;
+    nmps.lvnum = SINGLEPLAYER_NOTSTARTED;
+    nmps.is_selected = false;
+    if (map_info.fading)
+    {
+        if (frontmap_update_zoom())
+        {
+          SYNCDBG(8,"Zoom end");
+          return true;
+        }
+    } else
+    {
+        frontmap_exchange_screen_packet();
+        frontnetmap_update_players(&nmps);
+    }
+    if ((!nmps.tmp1) && (nmps.lvnum > 0) && (nmps.is_selected))
+    {
+        set_selected_level_number(nmps.lvnum);
+        sprintf(level_name, "%s %d", gui_strings[406], (int)nmps.lvnum);
+        map_info.fading = true;
+        map_info.fade_pos = 1;
+        map_info.fade_step = 4;
+        spr = get_map_flag(1);
+        lvinfo = get_level_info(nmps.lvnum);
+        if (lvinfo != NULL)
+        {
+            map_info.zoomspot_x = lvinfo->ensign_zoom_x;
+            map_info.zoomspot_y = lvinfo->ensign_zoom_y;
+        } else
+        {
+            map_info.zoomspot_x = (MAP_SCREEN_WIDTH>>1);
+            map_info.zoomspot_y = (MAP_SCREEN_HEIGHT>>1);
+        }
+        map_info.state_trigger = 8 - ((unsigned int)fe_network_active < 1);
+        set_map_info_visible_hotspot(map_info.zoomspot_x, map_info.zoomspot_y);
+        map_info.field_1E = map_info.scrshift_x << 8;
+        map_info.field_22 = map_info.scrshift_y << 8;
+        if (!fe_network_active)
+            fe_computer_players = 1;
+    }
+
+    if ((game.flags_cd & 0x10) == 0)
+        PlayRedbookTrack(2);
+    SYNCDBG(8,"Normal end");
+    return false;
 }
 
 

@@ -47,10 +47,10 @@ void do_sound_menu_click(void)
 
 void do_sound_button_click(struct GuiButton *gbtn)
 {
-  if ((gbtn->id_num >= 1) && (gbtn->id_num <= 5))
-      play_non_3d_sample(60);
-  else
-      play_non_3d_sample(61);
+    if ((gbtn->id_num >= 1) && (gbtn->id_num <= 5))
+        play_non_3d_sample(60);
+    else
+        play_non_3d_sample(61);
 }
 
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
@@ -60,22 +60,24 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
 
 void setup_input_field(struct GuiButton *gbtn)
 {
-  static const char *func_name="setup_input_field";
-  char text[INPUT_FIELD_LEN];
-  lbInkey = 0;
-  memset(backup_input_field, 0, INPUT_FIELD_LEN);
-  if (strlen((char *)gbtn->content) < INPUT_FIELD_LEN)
-  {
-    strcpy(backup_input_field, (char *)gbtn->content);
-  } else
-  {
-    error(func_name, 7873, "backup_input_field too small");
-    strncpy(backup_input_field, (char *)gbtn->content, INPUT_FIELD_LEN-1);
-    backup_input_field[INPUT_FIELD_LEN-1] = 0;
-  }
-  sprintf(text,gui_strings[358]); // UNUSED
-  if ( !strcmp(text, backup_input_field) )
-    *(long *)gbtn->content = 0;
+    char *content;
+    char text[INPUT_FIELD_LEN];
+    lbInkey = 0;
+    memset(backup_input_field, 0, INPUT_FIELD_LEN);
+    content = (char *)gbtn->content;
+    if (content == NULL)
+    {
+        ERRORLOG("Button has invalid content pointer");
+        return;
+    }
+    strncpy(backup_input_field, content, INPUT_FIELD_LEN-1);
+    backup_input_field[INPUT_FIELD_LEN-1] = '\0';
+    // Check if the text drawn is "UNUSED" in current language; if it is, ignore that string
+    snprintf(text,INPUT_FIELD_LEN-1,"%s",gui_strings[358]); // UNUSED
+    if (strcmp(text, backup_input_field) == 0)
+    {
+        *content = '\0';
+    }
 }
 
 /******************************************************************************/
