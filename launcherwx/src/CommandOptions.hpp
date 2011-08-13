@@ -23,9 +23,15 @@
 #include <string>
 #include <vector>
 
+class wxCheckRadioBox;
+
 class CommandOptions : public wxDialog
 {
     wxBoxSizer * topsizer;
+
+    wxTextCtrl *cmdLineCtrl;
+    wxRadioBox * execKindRadio;
+    wxCheckRadioBox * cmdFlagsBox;
 
 public:
     CommandOptions(wxFrame *parent);
