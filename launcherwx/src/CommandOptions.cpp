@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <wx/log.h>
 #include <wx/filefn.h>
+#include <wx/valnum.h>
 #include "wxCheckRadioBox.hpp"
 
 wxString options_exectype_code[] = {
@@ -52,7 +53,7 @@ wxString options_flags_text[] = {
     _T("Skip intro"),
     _T("No CD music"),
     _T("Disable sound"),
-    _T("No AWE32/64 Samples"),
+    _T("No AWE32/64 Banks"),
     _T("Easter Egg"),
     _T("Column convert"),
     _T("Light convert"),
@@ -107,6 +108,71 @@ CommandOptions::CommandOptions(wxFrame *parent)
     wxStaticBoxSizer* cmdFlagsBoxSizer = new wxStaticBoxSizer( cmdFlagsBox, wxHORIZONTAL );
     cmdFlagsBoxSizer->Add(cmdFlagsBox->rbPanel, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
     topsizer->Add(cmdFlagsBoxSizer, 1, wxEXPAND);
+
+    wxPanel *cmdOtherPanel = new wxPanel(this, wxID_ANY);
+    wxBoxSizer *cmdOtherPanelSizer = new wxBoxSizer( wxHORIZONTAL );
+    {
+        wxStaticBox *gameSpeedBox = new wxStaticBox( cmdOtherPanel, wxID_ANY, wxT("Game speed") );
+        wxStaticBoxSizer* gameSpeedSizer = new wxStaticBoxSizer( gameSpeedBox, wxVERTICAL );
+        {
+            {
+                gameSpeedChkBx = new wxCheckBox(gameSpeedBox, wxID_ANY, wxT("Set turns/sec."));
+                gameSpeedChkBx->SetToolTip(options_tooltips_eng[4]);
+                gameSpeedChkBx->SetValue(false);
+                gameSpeedSizer->Add(gameSpeedChkBx, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            {
+                wxIntegerValidator<long> gameSpeedVal(NULL, wxNUM_VAL_THOUSANDS_SEPARATOR);
+                gameSpeedVal.SetRange(1,10000);
+                gameSpeedTxtCtrl = new wxTextCtrl(gameSpeedBox, wxID_ANY, wxT("20"), wxDefaultPosition, wxSize(64, -1), 0, gameSpeedVal);
+                gameSpeedTxtCtrl->SetToolTip(options_tooltips_eng[5]);
+                gameSpeedSizer->Add(gameSpeedTxtCtrl, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL);
+            }
+        }
+        cmdOtherPanelSizer->Add(gameSpeedSizer, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
+
+        wxStaticBox *humanPlayerBox = new wxStaticBox( cmdOtherPanel, wxID_ANY, wxT("Controlled players") );
+        wxStaticBoxSizer* humanPlayerSizer = new wxStaticBoxSizer( humanPlayerBox, wxVERTICAL );
+        {
+            {
+                humanPlayerChkBx = new wxCheckBox(humanPlayerBox, wxID_ANY, wxT("Set human id"));
+                humanPlayerChkBx->SetToolTip(options_tooltips_eng[6]);
+                humanPlayerChkBx->SetValue(false);
+                humanPlayerSizer->Add(humanPlayerChkBx, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            {
+                wxIntegerValidator<long> humanPlayerVal(NULL, wxNUM_VAL_THOUSANDS_SEPARATOR);
+                humanPlayerVal.SetRange(0,5);
+                humanPlayerTxtCtrl = new wxTextCtrl(humanPlayerBox, wxID_ANY, wxT("0"), wxDefaultPosition, wxSize(64, -1), 0, humanPlayerVal);
+                humanPlayerTxtCtrl->SetToolTip(options_tooltips_eng[7]);
+                humanPlayerSizer->Add(humanPlayerTxtCtrl, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL);
+            }
+        }
+        cmdOtherPanelSizer->Add(humanPlayerSizer, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
+
+        wxStaticBox *vidDriverBox = new wxStaticBox( cmdOtherPanel, wxID_ANY, wxT("SDL Video driver") );
+        wxStaticBoxSizer* vidDriverSizer = new wxStaticBoxSizer( vidDriverBox, wxVERTICAL );
+        {
+            {
+                vidDriverChkBx = new wxCheckBox(vidDriverBox, wxID_ANY, wxT("Force driver"));
+                vidDriverChkBx->SetToolTip(options_tooltips_eng[8]);
+                vidDriverChkBx->SetValue(false);
+                vidDriverSizer->Add(vidDriverChkBx, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            {
+                wxIntegerValidator<long> vidDriverVal(NULL, wxNUM_VAL_THOUSANDS_SEPARATOR);
+                vidDriverVal.SetRange(0,5);
+                vidDriverTxtCtrl = new wxTextCtrl(vidDriverBox, wxID_ANY, wxT("directx"), wxDefaultPosition, wxSize(64, -1), 0, vidDriverVal);
+                vidDriverTxtCtrl->SetToolTip(options_tooltips_eng[9]);
+                vidDriverSizer->Add(vidDriverTxtCtrl, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL);
+            }
+        }
+        cmdOtherPanelSizer->Add(vidDriverSizer, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
+
+        cmdOtherPanelSizer->SetMinSize(460, 64);
+    }
+    cmdOtherPanel->SetSizer(cmdOtherPanelSizer);
+    topsizer->Add(cmdOtherPanel, 0, wxEXPAND);
 
     wxPanel *dlgBottomPanel = new wxPanel(this, wxID_ANY);
     wxBoxSizer *dlgBottomPanelSizer = new wxBoxSizer( wxHORIZONTAL );

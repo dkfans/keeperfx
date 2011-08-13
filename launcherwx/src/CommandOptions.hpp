@@ -32,6 +32,13 @@ class CommandOptions : public wxDialog
     wxTextCtrl *cmdLineCtrl;
     wxRadioBox * execKindRadio;
     wxCheckRadioBox * cmdFlagsBox;
+    wxCheckBox * gameSpeedChkBx;
+    wxTextCtrl * gameSpeedTxtCtrl;
+    wxCheckBox * humanPlayerChkBx;
+    wxTextCtrl * humanPlayerTxtCtrl;
+    wxCheckBox * vidDriverChkBx;
+    wxTextCtrl * vidDriverTxtCtrl;
+
 
 public:
     CommandOptions(wxFrame *parent);
