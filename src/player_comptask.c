@@ -381,7 +381,7 @@ long try_game_action(struct Computer2 *comp,char plyr_idx, unsigned short gactio
   long result;
   result = game_action(plyr_idx, gaction, a3, stl_x, stl_y, param1, param2);
   if (result > 0)
-    comp->field_10--;
+    comp->tasks_did--;
   SYNCDBG(19,"Returning %ld",result);
   return result;
 }
@@ -1454,7 +1454,7 @@ long process_tasks(struct Computer2 *comp)
           ERRORLOG("Jump to invalid computer task %ld detected",i);
           break;
         }
-        if (comp->field_10 <= 0)
+        if (comp->tasks_did <= 0)
             break;
         ctask = &game.computer_task[i];
         i = ctask->next_task;

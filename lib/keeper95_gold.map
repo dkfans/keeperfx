@@ -612,6 +612,7 @@
  0001:00072920       creature_fired
  0001:00074C80       convert_world_coord_to_front_view_screen_coord
  0001:00074ED0       set_next_process
+ 0001:00074F70       find_best_process
  0001:000750B0       computer_check_build_all_rooms
  0001:00075120       computer_check_any_room
  0001:00075210       computer_setup_any_room

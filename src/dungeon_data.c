@@ -152,7 +152,7 @@ void player_add_offmap_gold(long plyr_idx, long value)
 /** Returns if given player owns a room of given kind.
  *
  * @param plyr_idx
- * @param rkind
+ * @param rkind Room kind being checked.
  * @return
  */
 TbBool player_has_room(long plyr_idx, RoomKind rkind)
@@ -161,6 +161,19 @@ TbBool player_has_room(long plyr_idx, RoomKind rkind)
     if (plyr_idx == game.neutral_player_num)
         return false;
     dungeon = get_players_num_dungeon(plyr_idx);
+    return (dungeon->room_kind[rkind] > 0);
+}
+
+/** Returns if given dungeon contains a room of given kind.
+ *
+ * @param dungeon Target dungeon.
+ * @param rkind Room kind being checked.
+ * @return
+ */
+TbBool dungeon_has_room(struct Dungeon *dungeon, RoomKind rkind)
+{
+    if (dungeon_invalid(dungeon))
+        return false;
     return (dungeon->room_kind[rkind] > 0);
 }
 
