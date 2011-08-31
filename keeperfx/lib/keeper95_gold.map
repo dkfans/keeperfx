@@ -1803,6 +1803,7 @@
  0001:00088430       check_place_to_pickup_unconscious_body
  0001:00088530       check_place_to_pickup_spell
  0001:000883A0       check_place_to_reinforce
+ 0001:00074F70       find_best_process
  0001:0008D1B0       find_dig_from_task_list
  0001:000B6D80       find_nearest_room_for_thing_with_spare_item_capacity
  0001:000A9D00       setup_move_to_new_training_position

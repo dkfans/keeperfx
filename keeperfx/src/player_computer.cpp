@@ -94,6 +94,7 @@ DLLIMPORT void _DK_setup_a_computer_player(unsigned long a1, long a2);
 DLLIMPORT struct ComputerTask *_DK_computer_setup_build_room(struct Computer2 *comp, unsigned short a2, long a3, long a4, long a5);
 DLLIMPORT void _DK_process_computer_players2(void);
 DLLIMPORT long _DK_set_next_process(struct Computer2 *comp);
+DLLIMPORT struct ComputerProcess * _DK_find_best_process(struct Computer2 *comp);
 DLLIMPORT void _DK_computer_check_events(struct Computer2 *comp);
 DLLIMPORT long _DK_process_checks(struct Computer2 *comp);
 DLLIMPORT long _DK_process_tasks(struct Computer2 *comp);
@@ -112,7 +113,7 @@ DLLIMPORT long _DK_computer_check_dig_to_entrance(struct Computer2 *comp, struct
 DLLIMPORT long _DK_computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process);
 //#define computer_setup_dig_to_entrance _DK_computer_setup_dig_to_entrance
 DLLIMPORT long _DK_computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
-#define computer_check_dig_to_gold _DK_computer_check_dig_to_gold
+//#define computer_check_dig_to_gold _DK_computer_check_dig_to_gold
 DLLIMPORT long _DK_computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
 //#define computer_setup_dig_to_gold _DK_computer_setup_dig_to_gold
 DLLIMPORT long _DK_computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process);
@@ -227,8 +228,7 @@ long computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *proc
 long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process);
-//TODO: this function address is compared; rewrite the comparison!
-//long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
+long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *process);
@@ -239,7 +239,7 @@ long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *pro
 long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *process);
 
-/*TODOenable ComputerProcess structs when there are no references to those in DLL
+/*TODO enable ComputerProcess structs when there are no references to those in DLL
 struct ComputerProcess BuildAllRooms3x3 = {
   "BUILD ALL ROOM 3x3", 0, 3, 3, 0, -1, computer_check_build_all_rooms,
   computer_setup_any_room_continue, computer_process_task,
@@ -901,8 +901,6 @@ short parse_computer_player_process_blocks(char *buf,long len)
           k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
           if (k > 0)
           {
-            //TODO: hack to make it work, for now (don't set check_dig_to_gold)
-            if (k != 7)
               process->func_check = computer_process_func_list[k];
               n++;
           }
@@ -1569,7 +1567,9 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
 
 long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_setup_dig_to_gold(comp, process);
+    //TODO: rewrite, maybe update based on DD?
+    SYNCDBG(8,"Starting");
+    return _DK_computer_setup_dig_to_gold(comp, process);
 }
 
 long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerProcess *process)
@@ -1602,12 +1602,35 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
   return _DK_computer_check_dig_to_entrance(comp, process);
 }
 
-/*TODO enable when computer_check_dig_to_gold offset will not be used in DLL
+/**
+ * Check for gold digging.
+ * This function address is compared in computer_check_for_money(); but it is already rewritten.
+ */
 long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_check_dig_to_gold(comp, process);
+    //return _DK_computer_check_dig_to_gold(comp, process);
+    // If we have treasure room
+    if ( !dungeon_has_room(comp->dungeon, RoK_TREASURE) )
+    {
+        SYNCDBG(18,"Computer player model %d won't dig for gold - no treasure room.",(int)comp->model);
+        return 4;
+    }
+    // And we're lacking money
+    if ( process->field_8 <= get_computer_money_less_cost(comp) )
+    {
+        SYNCDBG(18,"Computer player model %d won't dig for gold - has over %d gold.",(int)comp->model,(int)process->field_8);
+        return 4;
+    }
+    // And we're not already digging for gold
+    if ( get_task_in_progress(comp, CTT_DigToGold) )
+    {
+        SYNCDBG(18,"Computer player model %d is already digging for gold.",(int)comp->model);
+        return 4;
+    }
+    // Then do dig for gold
+    SYNCDBG(8,"Computer player model %d is going to start digging for gold.",(int)comp->model);
+    return 1;
 }
-*/
 
 long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process)
 {
@@ -2193,9 +2216,53 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
   }
 }
 
+struct ComputerProcess * find_best_process(struct Computer2 *comp)
+{
+    return _DK_find_best_process(comp);
+}
+
 long set_next_process(struct Computer2 *comp)
 {
-  return _DK_set_next_process(comp);
+    struct ComputerProcess *cproc;
+    long chkres;
+    //return _DK_set_next_process(comp);
+    chkres = 0;
+    cproc = find_best_process(comp);
+    if (cproc != NULL)
+    {
+        SYNCDBG(8,"Checking \"%s\"",cproc->name);
+        chkres = cproc->func_check(comp, cproc);
+        if (chkres == 1)
+        {
+            comp->task_idx = (cproc - comp->processes); // This should give index of the process
+            SYNCDBG(8,"Setting up process %d",(int)comp->task_idx);
+            chkres = cproc->func_setup(comp, cproc);
+            if ( chkres == 1 )
+            {
+                cproc->field_30 = game.play_gameturn;
+                comp->field_0 = 3;
+            }
+        }
+        if (chkres == 4)
+        {
+            cproc->field_3C = game.play_gameturn;
+            cproc->field_38 = 0;
+        }
+        if (chkres == 0)
+        {
+            cproc->field_3C = 0;
+            cproc->field_38 = game.play_gameturn;
+        }
+    }
+    if (chkres != 1)
+    {
+        SYNCDBG(17,"No new process");
+        comp->task_idx = 0;
+    } else
+    {
+        SYNCDBG(7,"Undertaking new process");
+    }
+    return chkres;
 }
 
 void computer_check_events(struct Computer2 *comp)
@@ -2255,7 +2322,7 @@ TbBool process_checks(struct Computer2 *comp)
     for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
         ccheck = &comp->checks[i];
-        if (comp->field_10 <= 0)
+        if (comp->tasks_did <= 0)
             break;
         if ((ccheck->flags & 0x02) != 0)
             break;
@@ -2279,19 +2346,19 @@ TbBool process_processes_and_task(struct Computer2 *comp)
   Comp_Process_Func callback;
   int i;
   SYNCDBG(17,"Starting");
-  for (i=comp->field_10; i > 0; i--)
+  for (i=comp->tasks_did; i > 0; i--)
   {
-    if (comp->field_10 <= 0)
-      return false;
+    if (comp->tasks_did <= 0)
+        return false;
     if ((game.play_gameturn % comp->field_18) == 0)
-      process_tasks(comp);
+        process_tasks(comp);
     switch (comp->field_0)
     {
     case 1:
-        comp->field_8--;
-        if (comp->field_8 <= 0)
+        comp->gameturn_wait--;
+        if (comp->gameturn_wait <= 0)
         {
-          comp->field_8 = comp->field_4;
+          comp->gameturn_wait = comp->gameturn_delay;
           set_next_process(comp);
         }
         break;
@@ -2299,17 +2366,20 @@ TbBool process_processes_and_task(struct Computer2 *comp)
         set_next_process(comp);
         break;
     case 3:
-        if ((comp->field_14C4 > 0) && (comp->field_14C4 <= COMPUTER_PROCESSES_COUNT))
+        if ((comp->ongoing_process > 0) && (comp->ongoing_process <= COMPUTER_PROCESSES_COUNT))
         {
-          process = &comp->processes[comp->field_14C4];
+          process = &comp->processes[comp->ongoing_process];
           callback = process->func_task;
           if (callback != NULL)
             callback(comp,process);
         } else
         {
-          ERRORLOG("No Process %d for a computer player",(int)comp->field_14C4);
+          ERRORLOG("No Process %d for a computer player",(int)comp->ongoing_process);
           comp->field_0 = 1;
         }
+        break;
+    default:
+        ERRORLOG("Invalid task state %d",(int)comp->field_0);
         break;
     }
   }
@@ -2325,16 +2395,16 @@ void process_computer_player2(unsigned long plyr_idx)
       return;
   comp = &game.computer[plyr_idx];
   if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
-    comp->field_10 = 1;
+    comp->tasks_did = 1;
   else
-    comp->field_10 = 0;
-  if (comp->field_10 <= 0)
+    comp->tasks_did = 0;
+  if (comp->tasks_did <= 0)
     return;
   computer_check_events(comp);
   process_checks(comp);
   process_processes_and_task(comp);
-  if ((comp->field_10 < 0) || (comp->field_10 > 1))
-    ERRORLOG("Computer performed more than one task");
+  if ((comp->tasks_did < 0) || (comp->tasks_did > 1))
+    ERRORLOG("Computer performed %d tasks instead of up to one",(int)comp->tasks_did);
 }
 
 struct ComputerProcess *computer_player_find_process_by_func_setup(long plyr_idx,Comp_Process_Func func_setup)
@@ -2360,61 +2430,68 @@ TbBool computer_player_demands_gold_check(long plyr_idx)
   dig_process = computer_player_find_process_by_func_setup(plyr_idx,computer_setup_dig_to_gold);
   // If this computer player has no gold digging process
   if (dig_process == NULL)
-    return false;
+  {
+      SYNCDBG(18,"Player %d has no digging ability.",(int)plyr_idx);
+      return false;
+  }
   if ((dig_process->field_44 & 0x04) == 0)
-    return false;
+  {
+      SYNCDBG(18,"Player %d isn't interested in digging.",(int)plyr_idx);
+      return false;
+  }
+  SYNCDBG(8,"Player %d wants to start digging.",(int)plyr_idx);
   // If the computer player needs to dig for gold
   if (gameadd.turn_last_checked_for_gold+5000 < game.play_gameturn)
   {
-    set_flag_dword(&dig_process->field_44, 0x04, false);
-    return true;
+      set_flag_dword(&dig_process->field_44, 0x04, false);
+      return true;
   }
   return false;
 }
 
 void process_computer_players2(void)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  TbBool needs_gold_check;
-  int i;
-  //_DK_process_computer_players2();
-  needs_gold_check = false;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    TbBool needs_gold_check;
+    int i;
+    //_DK_process_computer_players2();
+    needs_gold_check = false;
 #ifdef PETTER_AI
-  SAI_run_shared();
+    SAI_run_shared();
 #endif
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (!player_exists(player))
-      continue;
-    dungeon = get_players_dungeon(player);
-    if (((player->field_0 & 0x40) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
+    for (i=0; i < PLAYERS_COUNT; i++)
     {
-      if (player->field_2C == 1)
-      {
-#ifdef PETTER_AI
-        SAI_run_for_player(i);
-#else
-        process_computer_player2(i);
-        if (computer_player_demands_gold_check(i))
+        player = get_player(i);
+        if (!player_exists(player))
+          continue;
+        dungeon = get_players_dungeon(player);
+        if (((player->field_0 & 0x40) != 0) || ((dungeon->computer_enabled & 0x01) != 0))
         {
-          needs_gold_check = true;
-        }
+          if (player->field_2C == 1)
+          {
+#ifdef PETTER_AI
+            SAI_run_for_player(i);
+#else
+            process_computer_player2(i);
+            if (computer_player_demands_gold_check(i))
+            {
+              needs_gold_check = true;
+            }
 #endif
-      }
+          }
+        }
     }
-  }
-  if (needs_gold_check)
-  {
-    SYNCDBG(0,"Computer players demand gold check.");
-    gameadd.turn_last_checked_for_gold = game.play_gameturn;
-    check_map_for_gold();
-  } else
-  if (gameadd.turn_last_checked_for_gold > game.play_gameturn)
-  {
-    gameadd.turn_last_checked_for_gold = 0;
-  }
+    if (needs_gold_check)
+    {
+      SYNCDBG(0,"Computer players demand gold check.");
+      gameadd.turn_last_checked_for_gold = game.play_gameturn;
+      check_map_for_gold();
+    } else
+    if (gameadd.turn_last_checked_for_gold > game.play_gameturn)
+    {
+      gameadd.turn_last_checked_for_gold = 0;
+    }
 }
 
 void setup_computer_players2(void)
