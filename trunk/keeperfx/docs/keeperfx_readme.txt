@@ -12,11 +12,22 @@ Installation of KeeperFX CCP:
 You need original Dungeon Keeper CD (or CD image) to perform
 complete installation.
 
+Please note that there are two types of releases: complete
+version and patch. You need a complete version to play the game;
+a patch is only an additional feature, which you can use by
+overwriting some files from complete version with new ones.
+Even with complete version, you still need original Dungeon
+Keeper CD to prepare the game for playing.
+
 To install KeeperFX CCP, you have to unpack the archive to
 your desired target location, and then run "launcher.exe".
 The Launcher utility will allow you to select source folder
 from which original DK files will be taken. To select the
 folder and start copying files, press "Install" button.
+
+You must select the "keeper" folder from the CD content list.
+Selecting root folder of your CD, or selecting installation
+folder on disk, won't be enough.
 
 If you wish to change language, edit "keeperfx.cfg" and set
 its shortcut in the 'LANGUAGE=' line.
@@ -26,14 +37,7 @@ For information about running the game executable directly,
 see 'running KeeperFX' section. If something doesn't work,
 see the 'troubleshooting' section.
 
-Please note that there are two types of releases: complete
-version and patch. You need a complete version to play the game;
-a patch is only an additional feature, which you can use by
-overwriting some files from complete version with new ones.
-Even with complete version, you still need original Dungeon
-Keeper CD to prepare the game for playing.
-
-Supported DK releases:
+Supported DK releases to install from:
 
 Here you can find a list of releases which you can use to get
 files required by KeeperFX:
@@ -47,7 +51,6 @@ CD image. The files installed on disk by original DK setup
 are not enough. Also, you must select the "keeper" folder from
 the CD content list. Selecting root folder of your CD, or
 selecting installation folder on disk, won't be enough.
-
 
 Available languages:
 
@@ -162,6 +165,18 @@ Command line options:
   may sometimes not work as intended.
 
 Troubleshooting:
+
+Q: When I click "Install" and select my CD-ROM where original DK
+    is, the game tells there are no required files.
+A: You need to select "KEEPER" folder on the CD-ROM, not the
+    whole CD.
+
+Q: When I click "Install", select "KEEPER" folder, then I click
+    that I want to copy files - the loader shows "Access denied"
+    error message.
+A: In that case, you have to run "loader.exe" with administrative
+    privileges. Another solution is to give all users write access
+    to the folder where KeeperFX is, and its sub-folders.
 
 Q: Colors are changed in menu or during gameplay,
     but no problem is mentioned in "keeperfx.log".
@@ -764,10 +779,6 @@ Version: 0.13
 
 Version: 0.11
   Managed to make the DLL working (at last!)
-
-Known problems:
-  Mouse stops when trying to use multiplayer
-  Movie encoding doesn't properly support high res
 
 Programming:
  Tomasz Lis aka Mefistotelis

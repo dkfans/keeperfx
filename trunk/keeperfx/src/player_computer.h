@@ -288,10 +288,10 @@ struct Comp2_UnkStr1 { // sizeof = 394
 
 struct Computer2 { // sizeof = 5322
   long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
+  unsigned long gameturn_delay;
+  unsigned long gameturn_wait;
   unsigned long field_C;
-  unsigned long field_10;
+  unsigned long tasks_did;
   unsigned long field_14;
   unsigned long field_18;
   unsigned long field_1C; // seems to be signed long
@@ -309,7 +309,7 @@ struct Computer2 { // sizeof = 5322
   struct Coord3d trap_locations[20];
   unsigned char field_13C4[60];
   unsigned char field_1400[196];
-  short field_14C4;
+  short ongoing_process;
   short task_idx;
   short field_14C8;
 };
