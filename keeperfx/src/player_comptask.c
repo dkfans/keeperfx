@@ -75,10 +75,9 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
-short tool_dig_to_pos2(struct Computer2 *, struct ComputerDig *, long, long);
 long add_to_trap_location(struct Computer2 *, struct Coord3d *);
 long find_next_gold(struct Computer2 *, struct ComputerTask *);
-long check_for_gold(long l1, long l2, long l3);
+long check_for_gold(long simulation, long digflags, long l3);
 int search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 /******************************************************************************/
 const struct TaskFunctions task_function[] = {
@@ -153,7 +152,7 @@ DLLIMPORT short _DK_game_action(char stl_x, unsigned short stl_y, unsigned short
 DLLIMPORT short _DK_tool_dig_to_pos2(struct Computer2 *, struct ComputerDig *, long, long);
 DLLIMPORT long _DK_add_to_trap_location(struct Computer2 *, struct Coord3d *);
 //DLLIMPORT long _DK_find_next_gold(struct Computer2 *, struct ComputerTask *);
-DLLIMPORT long _DK_check_for_gold(long l1, long l2, long l3);
+DLLIMPORT long _DK_check_for_gold(long simulation, long digflags, long l3);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 DLLIMPORT long _DK_dig_to_position(signed char stl_x, unsigned short stl_y, unsigned short plyr_idx, unsigned char a4, unsigned char a5);
 DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short stl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short a7);
@@ -723,7 +722,15 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
     return n & 3;
 }
 
-short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long l1, long l2)
+/**
+ * Tool function to do (or simulate) computer player digging.
+ * @param comp Computer player which is doing the task.
+ * @param cdig The ComputerDig structure to be changed. Should be dummy if simulating.
+ * @param simulation Indicates if we're simulating or doing the real thing.
+ * @param digflags These are not really flags, but should be change into flags when all calls to this func are rewritten. Use values from ToolDigFlags enum.
+ * @return
+ */
+short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags)
 {
     struct Dungeon *dungeon;
     struct SlabAttr *slbattr;
@@ -771,7 +778,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
             }
             if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
             {
-              if ( l2 != 2 )
+              if ((digflags & ToolDig_AllowLiquidWBridge) != 0)
                   break;
               if (computer_check_room_available(comp, RoK_BRIDGE) != 1)
                   break;
@@ -817,14 +824,14 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
             if ( (slbattr->field_14 == 0) || (slb->kind == SlbT_GEMS)
               || (((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
             {
-                if ( ((slbattr->field_6 & 0x01) == 0) || !l2 )
+                if ( ((slbattr->field_6 & 0x01) == 0) || (digflags == 0) )
                     break;
             }
-            if ( !l1 )
+            if ( !simulation )
             {
                 if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, gldstl_x, gldstl_y, 1, 1) <= 0)
                   break;
-              if ( l2 )
+              if (digflags != 0)
               {
                 if ((slbattr->field_6 & 0x01) != 0)
                   cdig->field_58++;
@@ -913,7 +920,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
                 }
             }
             i = get_subtile_number(slab_center_subtile(digstl_x),slab_center_subtile(digstl_y));
-            if ( (find_from_task_list(dungeon->owner, i) < 0) && (l1 == 0) )
+            if ( (find_from_task_list(dungeon->owner, i) < 0) && (!simulation) )
             {
                 if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
                     SYNCDBG(15,"Game action failed at subtile (%d,%d)",(int)digstl_x,(int)digstl_y);
@@ -940,7 +947,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, long 
             if ( ((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner) )
             {
                 i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
-                if ( (find_from_task_list(dungeon->owner, i) < 0) && (l1 == 0) )
+                if ( (find_from_task_list(dungeon->owner, i) < 0) && (simulation == 0) )
                 {
                     if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
                         return -2;

@@ -166,6 +166,7 @@ struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spa
 struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long *total_spare_cap);
 struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, signed char kind, unsigned char nav_no_owner, long spare);
 struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, signed char kind, unsigned char nav_no_owner);
+struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);
 
 void create_room_flag(struct Room *room);
 void delete_room_flag(struct Room *room);

@@ -36,6 +36,9 @@ extern "C" {
 #define COMPUTER_CHECKS_TYPES_COUNT  51
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 
+/** How strong should be the preference to dig glod from treasure room and not other rooms. Originally was 22 subtiles. */
+#define TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD 16
+
 enum ComputerTaskTypes {
     CTT_None = 0,
     CTT_DigRoomPassage,
@@ -94,6 +97,13 @@ enum GameActionTypes {
     GA_Unk26,
     GA_Unk27,
     GA_Unk28,
+};
+
+enum ToolDigFlags {
+    ToolDig_BasicOnly = 0x00,
+    ToolDig_AllowValuable = 0x01, /**< Allows to dig through valuable slabs. */
+    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them.
+                                            Also allows to dig through valuable slabs(which should be later changed)). */
 };
 
 /******************************************************************************/
@@ -243,9 +253,15 @@ struct ComputerTask { // sizeof = 148
     };
     long field_5C;
     long field_60;
-    unsigned char field_64[12];
-    long field_70;
-    unsigned char field_74[2];
+    struct Coord3d pos_64;
+    unsigned char field_6A[6];
+    union {
+    struct Coord3d pos_70;
+    struct {
+      long field_70;
+      unsigned char field_74[2];
+    };
+    };
     union {
     struct Coord3d pos_76;
     long long_76;
@@ -324,6 +340,7 @@ DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[14];
 struct ComputerProcessTypes *get_computer_process_type_template(long cpt_idx);
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process);
 void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
+void suspend_process(struct Computer2 *comp, struct ComputerProcess *process);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
@@ -346,6 +363,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     unsigned short stl_x, unsigned short stl_y, unsigned short param1, unsigned short param2);
 long try_game_action(struct Computer2 *comp, char a2, unsigned short a3, unsigned short a4,
  unsigned short a5, unsigned short a6, unsigned short a7, unsigned short a8);
+short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, long l2);
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);

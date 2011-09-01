@@ -914,6 +914,7 @@ TbBool all_dungeons_destroyed(struct PlayerInfo *win_player);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 void check_map_for_gold(void);
 struct GoldLookup *get_gold_lookup(long idx);
+long gold_lookup_index(const struct GoldLookup *gldlook);
 short init_animating_texture_maps(void);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);
