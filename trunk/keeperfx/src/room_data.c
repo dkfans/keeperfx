@@ -1435,6 +1435,61 @@ struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsi
     return NULL;
 }
 
+/**
+ * Searches for players room of given kind which center is closest to given position.
+ * Computes geometric distance - does not include any map obstacles in computations.
+ *
+ * @param plyr_idx Player of which room distance we want.
+ * @param rkind Room kind of which all rooms are to be checked.
+ * @param pos Position to be closest to.
+ * @param room_distance Output variable which returns the closest distance, in map coords.
+ * @return
+ */
+struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    struct Room *near_room;
+    long i;
+    unsigned long k;
+    long distance,near_distance;
+    long delta_x,delta_y;
+    dungeon = get_dungeon(plyr_idx);
+    near_distance = LONG_MAX;
+    near_room = INVALID_ROOM;
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        delta_x = (room->central_stl_x << 8) - (long)pos->x.val;
+        delta_y = (room->central_stl_y << 8) - (long)pos->y.val;
+        distance = LbDiagonalLength(abs(delta_x), abs(delta_y));
+        if (distance < near_distance)
+        {
+            near_room = room;
+            near_distance = distance;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    *room_distance = near_distance;
+    return near_room;
+}
+
+
 //TODO CREATURE_AI try to make sure the creature will do proper activity in the room.
 //TODO CREATURE_AI try to select lair far away from CTA and enemies
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind)

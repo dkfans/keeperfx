@@ -19,6 +19,8 @@
 /******************************************************************************/
 #include "player_computer.h"
 
+#include <limits.h>
+
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
@@ -157,6 +159,7 @@ DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
 DLLIMPORT long _DK_computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
 DLLIMPORT long _DK_check_call_to_arms(struct Computer2 *comp);
+DLLIMPORT long _DK_computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlook);
 
 DLLIMPORT long _DK_computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 DLLIMPORT long _DK_computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
@@ -1499,6 +1502,26 @@ void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process)
   }
 }
 
+long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *process)
+{
+    long i;
+    i = ((char *)process - (char *)&comp->processes[0]);
+    if ( (i < 0) || (i > COMPUTER_PROCESSES_COUNT*sizeof(struct ComputerProcess)) )
+        return 0;
+    return i / sizeof(struct ComputerProcess);
+}
+
+void suspend_process(struct Computer2 *comp, struct ComputerProcess *process)
+{
+    if (process != NULL)
+    {
+        process->field_44 &= ~0x20;
+        process->field_38 = 0;
+        process->field_3C = game.play_gameturn;
+        process->field_34 = game.play_gameturn;
+    }
+}
+
 void reset_process(struct Computer2 *comp, struct ComputerProcess *process)
 {
   if (process != NULL)
@@ -1562,14 +1585,299 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *pro
 
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_setup_dig_to_entrance(comp, process);
+    return _DK_computer_setup_dig_to_entrance(comp, process);
+}
+
+void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
+{
+    memset(cdig,0,sizeof(struct ComputerDig));
+    cdig->pos_gold.x.val = startpos.x.val;
+    cdig->pos_gold.y.val = startpos.y.val;
+    cdig->pos_gold.z.val = startpos.z.val;
+    cdig->pos_E.x.val = startpos.x.val;
+    cdig->pos_E.y.val = startpos.y.val;
+    cdig->pos_E.z.val = startpos.z.val;
+    cdig->pos_14.x.val = endpos.x.val;
+    cdig->pos_14.y.val = endpos.y.val;
+    cdig->pos_14.z.val = endpos.z.val;
+    cdig->distance = LONG_MAX;
+    cdig->field_2C = 1;
+    cdig->pos_20.x.val = 0;
+    cdig->pos_20.y.val = 0;
+    cdig->pos_20.z.val = 0;
+    cdig->field_54 = 0;
+}
+
+long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, const struct GoldLookup *gldlook, struct Room **nearroom)
+{
+    struct Room *room;
+    long rkind;
+    long distance,min_distance;
+    struct Coord3d gold_pos;
+    *nearroom = INVALID_ROOM;
+    gold_pos.x.val = 0;
+    gold_pos.y.val = 0;
+    gold_pos.z.val = 0;
+    gold_pos.x.stl.num = gldlook->x_stl_num;
+    gold_pos.y.stl.num = gldlook->y_stl_num;
+    min_distance = LONG_MAX;
+    distance = LONG_MAX;
+    for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
+        room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);
+        if (!room_is_invalid(room))
+        {
+            distance >>= 8; // Convert to subtiles
+            // Decrease the value by gold area radius
+            distance -= (gldlook->field_E >> 3);
+            // We can accept longer distances if digging directly to treasure room
+            if (room->kind == RoK_TREASURE)
+                distance -= TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD;
+            if (min_distance > distance)
+            {
+                *nearroom = room;
+                min_distance = distance;
+            }
+        }
+    }
+    return min_distance;
+}
+
+long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const struct GoldLookup *gldlook, struct ComputerTask ** near_task)
+{
+    struct Coord3d task_pos;
+    long i;
+    unsigned long k;
+    struct ComputerTask *ctask;
+    long distance,min_distance;
+    long delta_x,delta_y;
+    task_pos.x.val = 0;
+    task_pos.y.val = 0;
+    task_pos.z.val = 0;
+    task_pos.x.stl.num = gldlook->x_stl_num;
+    task_pos.y.stl.num = gldlook->y_stl_num;
+    min_distance = LONG_MAX;
+    i = comp->task_idx;
+    k = 0;
+    while (i != 0)
+    {
+        ctask = get_computer_task(i);
+        if (computer_task_invalid(ctask))
+        {
+            ERRORLOG("Jump to invalid task detected");
+            break;
+        }
+        i = ctask->next_task;
+        // Per-task code
+        if ( ((ctask->flags & 0x01) != 0) && ((ctask->flags & 0x02) != 0) )
+        {
+            delta_x = (long)ctask->pos_64.x.val - (long)task_pos.x.val;
+            delta_y = (long)ctask->pos_64.y.val - (long)task_pos.y.val;
+            distance = LbDiagonalLength(abs(delta_x), abs(delta_y));
+            distance >>= 8; // Convert to subtiles
+            distance -= (gldlook->field_E >> 3);
+            if (min_distance > distance)
+            {
+                *near_task = ctask;
+                min_distance = distance;
+            }
+        }
+        // Per-task code ends
+        k++;
+        if (k > COMPUTER_TASKS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping tasks list");
+            break;
+        }
+    }
+    return min_distance;
+}
+
+/**
+ * Finds nearest place to start digging gold from, and the target GoldLookup to be digged.
+ *
+ * @param comp Computer player which considers starting the digging.
+ * @param pos Resurns position to start digging from.
+ * @param gldlookref Returns reference to GoldLookup containing coords of the place to dig to.
+ * @return Lower or equal 0 on failure, positive if gold digging is ready to go.
+ */
+long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref)
+{
+    struct Dungeon *dungeon;
+    struct GoldLookup *gldlook;
+    struct GoldLookup *gldlooksel;
+    struct Coord3d locpos;
+    struct Coord3d *spos;
+    long dig_distance;
+    long lookups_checked;
+    long i;
+    //return _DK_computer_finds_nearest_room_to_gold(comp, pos, gldlookref);
+    dungeon = comp->dungeon;
+    gldlooksel = NULL;
+    *gldlookref = gldlooksel;
+    locpos.x.val = 0;
+    locpos.y.val = 0;
+    locpos.z.val = 0;
+    spos = &locpos;
+    lookups_checked = 0;
+    dig_distance = LONG_MAX;
+    for (i=0; i < GOLD_LOOKUP_COUNT; i++)
+    {
+        gldlook = &game.gold_lookup[i];
+        if ((gldlook->field_0 & 0x01) == 0)
+            continue;
+        if ((gldlook->plyrfield_1[dungeon->owner] & 0x03) != 0)
+            continue;
+        SYNCDBG(8,"Searching for place to reach (%d,%d)",(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
+        lookups_checked++;
+        struct Room *room = INVALID_ROOM;
+        long new_dist;
+        new_dist = computer_finds_nearest_room_to_gold_lookup(dungeon, gldlook, &room);
+        if (dig_distance > new_dist)
+        {
+            locpos.x.val = (room->central_stl_x << 8);
+            locpos.y.val = (room->central_stl_y << 8);
+            locpos.z.val = (1 << 8);
+            spos = &locpos;
+            dig_distance = new_dist;
+            gldlooksel = gldlook;
+            SYNCDBG(8,"Distance from room at (%d,%d) is %d",(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
+        }
+        struct ComputerTask *ctask = NULL;
+        new_dist = computer_finds_nearest_task_to_gold(comp, gldlook, &ctask);
+        if (dig_distance > new_dist)
+        {
+            spos = &ctask->pos_64;
+            dig_distance = new_dist;
+            gldlooksel = gldlook;
+            SYNCDBG(8,"Distance from task at (%d,%d) is %d",(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
+        }
+    }
+    if (gldlooksel == NULL)
+    {
+        SYNCDBG(8,"Checked %d lookups, but no gold to dig found",(int)lookups_checked);
+        if (lookups_checked == 0)
+        {
+            return -1;
+        } else
+        {
+            return 0;
+        }
+    }
+    SYNCDBG(8,"Best digging start to reach (%d,%d) is on subtile (%d,%d); distance is %d",(int)gldlooksel->x_stl_num,(int)gldlooksel->y_stl_num,(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
+    *gldlookref = gldlooksel;
+    pos->x.val = spos->x.val;
+    pos->y.val = spos->y.val;
+    pos->z.val = spos->z.val;
+    if (dig_distance < 1)
+        dig_distance = 1;
+    if (dig_distance > LONG_MAX)
+        dig_distance = LONG_MAX;
+    return dig_distance;
 }
 
 long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process)
 {
-    //TODO: rewrite, maybe update based on DD?
-    SYNCDBG(8,"Starting");
-    return _DK_computer_setup_dig_to_gold(comp, process);
+    struct GoldLookup *gldlook;
+    struct Dungeon *dungeon;
+    struct ComputerTask *ctask;
+    struct Coord3d startpos;
+    struct Coord3d endpos;
+    unsigned long dig_distance;
+    unsigned long max_distance;
+    struct Coord3d * posptr;
+    long digres;
+    SYNCDBG(18,"Starting");
+    //return _DK_computer_setup_dig_to_gold(comp, process);
+    dig_distance = 0;
+    dungeon = comp->dungeon;
+    gldlook = 0;
+    digres = computer_finds_nearest_room_to_gold(comp, &startpos, &gldlook);
+    if (digres == -1)
+    {
+        process->field_44 |= 0x04;
+        SYNCDBG(8,"Can't find nearest room to gold; will refresh gold map");
+        return 0;
+    }
+    if (digres <= 0)
+    {
+        SYNCDBG(8,"Finding gold to dig didn't worked out");
+        return 0;
+    }
+    max_distance = game.play_gameturn / process->field_C + process->field_14;
+    if (digres > max_distance)
+    {
+        SYNCDBG(8,"Gold is out of distance (%lu > %lu)",digres,max_distance);
+        return 4;
+    }
+    endpos.x.val = 0;
+    endpos.y.val = 0;
+    endpos.z.val = 0;
+    endpos.x.stl.num = 3 * (gldlook->x_stl_num / 3);
+    endpos.y.stl.num = 3 * (gldlook->y_stl_num / 3);
+    startpos.x.stl.pos = 0;
+    startpos.y.stl.pos = 0;
+    endpos.z.val = 0;
+    startpos.x.stl.num = 3 * (startpos.x.stl.num / 3);
+    startpos.y.stl.num = 3 * (startpos.y.stl.num / 3);
+    if ( comp->field_20 )
+    {
+        struct ComputerDig cdig;
+        // Setup the digging on dummy ComputerDig, just to compute distance
+        setup_dig_to(&cdig, startpos, endpos);
+        while ( 1 )
+        {
+            digres = tool_dig_to_pos2(comp, &cdig, true, 1);
+            if (digres != 0)
+              break;
+            dig_distance++;
+        }
+        if ( (digres != -1) && (digres != -5) )
+        {
+            SYNCDBG(8,"Dig evaluation didn't worked out, code %d",digres);
+            gldlook->plyrfield_1[dungeon->owner] |= 0x02;
+            return 0;
+        }
+        if (dig_distance > max_distance)
+        {
+            SYNCDBG(8,"Gold is out of evaluation distance (%lu > %lu)",digres,max_distance);
+            return 0;
+        }
+        SYNCDBG(8,"Dig evaluation distance %d, result %d",dig_distance,digres);
+    }
+    ctask = get_free_task(comp, 0);
+    if (ctask == NULL)
+    {
+        SYNCDBG(8,"No free task; won't dig");
+        return 4;
+    }
+    posptr = &ctask->pos_70;
+    posptr->x.val = startpos.x.val;
+    posptr->y.val = startpos.y.val;
+    posptr->z.val = startpos.z.val;
+    ctask->ttype = CTT_DigToGold;
+    ctask->pos_76.x.val = endpos.x.val;
+    ctask->pos_76.y.val = endpos.y.val;
+    ctask->pos_76.z.val = endpos.z.val;
+    ctask->long_86 = process->field_10;
+    ctask->flags |= 0x04;
+    posptr->x.stl.num = 3 * (posptr->x.stl.num / 3);
+    posptr->y.stl.num = 3 * (posptr->y.stl.num / 3);
+    ctask->field_8C = computer_process_index(comp, process);
+    ctask->word_80 = gold_lookup_index(gldlook);
+    gldlook->plyrfield_1[dungeon->owner] |= 0x01;
+    // Setup the digging
+    endpos.x.val = ctask->pos_76.x.val;
+    endpos.y.val = ctask->pos_76.y.val;
+    endpos.z.val = ctask->pos_76.z.val;
+    startpos.x.val = posptr->x.val;
+    startpos.y.val = posptr->y.val;
+    startpos.z.val = posptr->z.val;
+    setup_dig_to(&ctask->dig, startpos, endpos);
+    process->func_complete(comp, process);
+    suspend_process(comp, process);
+    comp->field_0 = 2;
+    return 2;
 }
 
 long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerProcess *process)
@@ -1665,9 +1973,10 @@ long computer_paused_task(struct Computer2 *comp, struct ComputerProcess *proces
 
 long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  process->field_34 = game.play_gameturn;
-  comp->field_0 = 2;
-  return 0;
+    SYNCDBG(8,"Completed process \"%s\"",process->name);
+    process->field_34 = game.play_gameturn;
+    comp->field_0 = 2;
+    return 0;
 }
 
 long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *process)
@@ -2223,41 +2532,41 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
 
 long set_next_process(struct Computer2 *comp)
 {
-    struct ComputerProcess *cproc;
+    struct ComputerProcess *process;
     long chkres;
     //return _DK_set_next_process(comp);
     chkres = 0;
-    cproc = find_best_process(comp);
-    if (cproc != NULL)
+    process = find_best_process(comp);
+    if (process != NULL)
     {
-        SYNCDBG(8,"Checking \"%s\"",cproc->name);
-        chkres = cproc->func_check(comp, cproc);
+        SYNCDBG(8,"Checking \"%s\"",process->name);
+        chkres = process->func_check(comp, process);
         if (chkres == 1)
         {
-            comp->task_idx = (cproc - comp->processes); // This should give index of the process
-            SYNCDBG(8,"Setting up process %d",(int)comp->task_idx);
-            chkres = cproc->func_setup(comp, cproc);
+            comp->ongoing_process = computer_process_index(comp, process); // This should give index of the process
+            SYNCDBG(8,"Setting up process %d",(int)comp->ongoing_process);
+            chkres = process->func_setup(comp, process);
             if ( chkres == 1 )
             {
-                cproc->field_30 = game.play_gameturn;
+                process->field_30 = game.play_gameturn;
                 comp->field_0 = 3;
             }
         }
         if (chkres == 4)
         {
-            cproc->field_3C = game.play_gameturn;
-            cproc->field_38 = 0;
+            process->field_3C = game.play_gameturn;
+            process->field_38 = 0;
         }
         if (chkres == 0)
         {
-            cproc->field_3C = 0;
-            cproc->field_38 = game.play_gameturn;
+            process->field_3C = 0;
+            process->field_38 = game.play_gameturn;
         }
     }
     if (chkres != 1)
     {
         SYNCDBG(17,"No new process");
-        comp->task_idx = 0;
+        comp->ongoing_process = 0;
     } else
     {
         SYNCDBG(7,"Undertaking new process");

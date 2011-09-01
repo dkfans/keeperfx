@@ -3482,6 +3482,16 @@ struct GoldLookup *get_gold_lookup(long idx)
     return &game.gold_lookup[idx];
 }
 
+long gold_lookup_index(const struct GoldLookup *gldlook)
+{
+    long i;
+    i = ((char *)gldlook - (char *)&game.gold_lookup[0]);
+    if ( (i < 0) || (i >= GOLD_LOOKUP_COUNT*sizeof(struct GoldLookup)) )
+        return 0;
+    return i / sizeof(struct GoldLookup);
+}
+
+
 /** Finds a gold vein with smaller amount of gold and gem slabs than given values.
  *  Gems slabs count has higher priority than gold slabs count.
  *
