@@ -391,6 +391,7 @@
  0001:0004AB30       can_cast_spell_on_creature
  0001:0004AE00       directly_cast_spell_on_thing
  0001:0004B310       computer_setup_build_room
+ 0001:0004BC60       computer_finds_nearest_room_to_gold
  0001:0004BF00       find_next_gold
  0001:0004BFB0       check_for_gold
  0001:0004C030       get_computer_money_less_cost
