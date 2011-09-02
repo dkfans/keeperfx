@@ -363,7 +363,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     unsigned short stl_x, unsigned short stl_y, unsigned short param1, unsigned short param2);
 long try_game_action(struct Computer2 *comp, char a2, unsigned short a3, unsigned short a4,
  unsigned short a5, unsigned short a6, unsigned short a7, unsigned short a8);
-short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, long l2);
+short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags);
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);
