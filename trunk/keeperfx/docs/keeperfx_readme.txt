@@ -23,14 +23,15 @@ To install KeeperFX CCP, you have to unpack the archive to
 your desired target location, and then run "launcher.exe".
 The Launcher utility will allow you to select source folder
 from which original DK files will be taken. To select the
-folder and start copying files, press "Install" button.
+"keeper" folder and start copying files, press "Install" button.
 
 You must select the "keeper" folder from the CD content list.
 Selecting root folder of your CD, or selecting installation
 folder on disk, won't be enough.
 
-If you wish to change language, edit "keeperfx.cfg" and set
-its shortcut in the 'LANGUAGE=' line.
+If you wish to change language, click "Settings" in the launcher
+and select it from list. Remember to save your changes. You may
+also edit "keeperfx.cfg" by hand, using text editor.
 
 Press the correct button inside Launcher to start the game.
 For information about running the game executable directly,
