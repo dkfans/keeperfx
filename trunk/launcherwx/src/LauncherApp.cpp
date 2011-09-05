@@ -223,7 +223,7 @@ void LauncherFrame::onMouseMove(wxMouseEvent& event)
 void LauncherFrame::onInstall(wxCommandEvent& WXUNUSED(event))
 {
     {
-        wxDirDialog dialog(this, _T("Select folder with original Dungeon Keeper files"), installSrcDir, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+        wxDirDialog dialog(this, _T("Select \"keeper\" folder with original Dungeon Keeper files"), installSrcDir, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
         if (dialog.ShowModal() != wxID_OK)
         {
             recheckBasicFiles();
@@ -234,9 +234,22 @@ void LauncherFrame::onInstall(wxCommandEvent& WXUNUSED(event))
     int msgRet;
     flCheck->clearResults();
     if (!flCheck->verifyList(installSrcDir.wchar_str(),additional_complete_check)) {
-        wxMessageBox(_T("The folder you've selected dosn't seem to contain files needed by KeeperFX.\n")
-            _T("Please select the proper folder, or try with another release or Dungeon Keeper."),
-            _T("Dungeon Keeper folder not correct"), wxOK | wxICON_WARNING, this);
+        int nfailed,n;
+        wxString msg =
+            _T("The folder you've selected dosn't seem to contain files needed by KeeperFX.\n")
+            _T("Please select the proper folder, or try with another release or Dungeon Keeper.\n")
+            _T("Note that you should select \"KEEPER\" folder from the CD; files installed on disk may not be enough.\n")
+            _T("\n")
+            _T("List of problematic files:\n");
+        nfailed = flCheck->getNumFailed();
+        for (n=0; n < nfailed; n++) {
+            msg += flCheck->getFailedFilename(n); msg += L"\n";
+            if (n > 4) {
+                msg += L"... (more files are on the list)\n";
+                break;
+            }
+        }
+        wxMessageBox(msg, _T("Dungeon Keeper folder not correct"), wxOK | wxICON_WARNING, this);
         recheckBasicFiles();
         return;
     }
