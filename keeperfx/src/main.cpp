@@ -309,7 +309,6 @@ DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
 DLLIMPORT long _DK_get_next_manufacture(struct Dungeon *dungeon);
 DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
-DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
@@ -1173,25 +1172,6 @@ void clear_creature_pool(void)
 void clear_slab_dig(long a1, long a2, char a3)
 {
   _DK_clear_slab_dig(a1, a2, a3);
-}
-
-void move_thing_in_map(struct Thing *thing, struct Coord3d *pos)
-{
-  SYNCDBG(18,"Starting");
-  if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
-  {
-    thing->mappos.x.val = pos->x.val;
-    thing->mappos.y.val = pos->y.val;
-    thing->mappos.z.val = pos->z.val;
-  } else
-  {
-    remove_thing_from_mapwho(thing);
-    thing->mappos.x.val = pos->x.val;
-    thing->mappos.y.val = pos->y.val;
-    thing->mappos.z.val = pos->z.val;
-    place_thing_in_mapwho(thing);
-  }
-  thing->field_60 = get_thing_height_at(thing, &thing->mappos);
 }
 
 long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)

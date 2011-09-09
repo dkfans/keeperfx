@@ -26,6 +26,7 @@
 #include "thing_list.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
+#include "thing_navigate.h"
 #include "config_terrain.h"
 #include "creature_control.h"
 #include "creature_states.h"
@@ -218,21 +219,12 @@ long move_dead_creature(struct Thing *thing)
               remove_relevant_forces_from_thing_after_slide(thing, &pos, i);
           }
         }
-        if ( (thing->mappos.x.stl.num != pos.x.stl.num) || (thing->mappos.y.stl.num != pos.y.stl.num) )
-        {
-            remove_thing_from_mapwho(thing);
-            thing->mappos.x.val = pos.x.val;
-            thing->mappos.y.val = pos.y.val;
-            thing->mappos.z.val = pos.z.val;
-            place_thing_in_mapwho(thing);
-        } else
-        {
-            thing->mappos.x.val = pos.x.val;
-            thing->mappos.y.val = pos.y.val;
-            thing->mappos.z.val = pos.z.val;
-        }
+        move_thing_in_map(thing, &pos);
+    } else
+    {
+        // Even if no velocity, update field_60
+        thing->field_60 = get_thing_height_at(thing, &thing->mappos);
     }
-    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
     return 1;
 }
 

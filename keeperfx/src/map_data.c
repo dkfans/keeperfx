@@ -258,31 +258,31 @@ TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
  * @param cor_z Input Z coordinate.
  * @return Gives true if values were in map coords range, false if they were corrected.
  */
-TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z)
+TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z, TbBool clip)
 {
     TbBool corrected = false;
     if (cor_x >= ((map_subtiles_x+2) << 8)) {
-        cor_x = ((map_subtiles_x+2) << 8)-1;
+        if (clip) cor_x = ((map_subtiles_x+2) << 8)-1;
         corrected = true;
     }
     if (cor_y >= ((map_subtiles_y+2) << 8)) {
-        cor_y = ((map_subtiles_y+2) << 8)-1;
+        if (clip) cor_y = ((map_subtiles_y+2) << 8)-1;
         corrected = true;
     }
     if (cor_z >= (17 << 8)) {
-        cor_z = (17 << 8)-1;
+        if (clip) cor_z = (17 << 8)-1;
         corrected = true;
     }
     if (cor_x < 0) {
-        cor_x = 0;
+        if (clip) cor_x = 0;
         corrected = true;
     }
     if (cor_y < 0) {
-        cor_y = 0;
+        if (clip) cor_y = 0;
         corrected = true;
     }
     if (cor_z < 0) {
-        cor_z = 0;
+        if (clip) cor_z = 0;
         corrected = true;
     }
     pos->x.val = cor_x;
@@ -330,7 +330,34 @@ TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *
     px = source->x.val + ((radius * LbSinL(angle)) >> 16);
     py = source->y.val - ((radius * LbCosL(angle)) >> 16);
     pz = source->z.val + z;
-    return set_coords_with_clip(pos, px, py, pz);
+    return set_coords_with_range_check(pos, px, py, pz, true);
+}
+
+TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, TbBool clip)
+{
+    long sx,sy,sz;
+    sx = velocity->x.val;
+    if (sx < -MOVE_VELOCITY_LIMIT) {
+        sx = -MOVE_VELOCITY_LIMIT;
+    } else
+    if (sx > MOVE_VELOCITY_LIMIT) {
+        sx = MOVE_VELOCITY_LIMIT;
+    }
+    sy = velocity->y.val;
+    if (sy < -MOVE_VELOCITY_LIMIT) {
+        sy = -MOVE_VELOCITY_LIMIT;
+    } else
+    if (sy > MOVE_VELOCITY_LIMIT) {
+        sy = MOVE_VELOCITY_LIMIT;
+    }
+    sz = velocity->z.val;
+    if (sz < -MOVE_VELOCITY_LIMIT) {
+        sz = -MOVE_VELOCITY_LIMIT;
+    } else
+    if (sz > MOVE_VELOCITY_LIMIT) {
+        sz = MOVE_VELOCITY_LIMIT;
+    }
+    return set_coords_with_range_check(pos, source->x.val+sx, source->y.val+sy, source->z.val+sz, clip);
 }
 
 /**

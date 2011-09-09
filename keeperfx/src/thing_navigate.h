@@ -50,12 +50,15 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short a3, long a4, long a5, unsigned char a6);
 long creature_move_to(struct Thing *thing, struct Coord3d *pos, short a3, unsigned char a4, unsigned char a5);
+void move_thing_in_map(struct Thing *thing, const struct Coord3d *pos);
 short move_to_position(struct Thing *thing);
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_angle(struct Thing *thing, long a2);
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing);
 long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos);
+long thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2);
+long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
 
 /******************************************************************************/
 #ifdef __cplusplus
