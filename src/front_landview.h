@@ -43,12 +43,12 @@ struct MapLevelInfo { // sizeof = 56
   long zoomspot_x;
   long zoomspot_y;
   long state_trigger;
-  long scrshift_x;
-  long scrshift_y;
+  long scrshift_x; /**< Shift X coordinate for top left corner of the visible land picture area. */
+  long scrshift_y; /**< Shift Y coordinate for top left corner of the visible land picture area. */
   long field_1E;
   long field_22;
-  long field_26;
-  long field_2A;
+  long velocity_x;
+  long velocity_y;
   long hotspot_x;
   long hotspot_y;
   unsigned char field_36;

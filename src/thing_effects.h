@@ -103,6 +103,24 @@ enum ThingEffectKind {
 /******************************************************************************/
 #pragma pack(1)
 
+struct EffectGeneratorStats { // sizeof = 57
+    long genation_delay_min;
+    long genation_delay_max;
+    long genation_amount;
+    long field_C;
+    unsigned char field_10;
+    long field_11;
+    long acc_x_min;
+    long acc_x_max;
+    long acc_y_min;
+    long acc_y_max;
+    long acc_z_min;
+    long acc_z_max;
+    long sound_sample_idx;
+    long sound_sample_rng;
+    long sound_sample_sec;
+};
+
 struct EffectElementStats { // sizeof = 79
   unsigned char field_0;
   unsigned char field_1;
