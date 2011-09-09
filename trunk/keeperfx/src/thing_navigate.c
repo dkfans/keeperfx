@@ -47,6 +47,9 @@ DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, lo
 DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char storage);
 DLLIMPORT short _DK_move_to_position(struct Thing *thing);
 DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2);
+DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -103,6 +106,25 @@ unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, st
     return _DK_get_nearest_valid_position_for_creature_at(thing, pos);
 }
 
+void move_thing_in_map(struct Thing *thing, const struct Coord3d *pos)
+{
+  SYNCDBG(18,"Starting");
+  if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
+  {
+    thing->mappos.x.val = pos->x.val;
+    thing->mappos.y.val = pos->y.val;
+    thing->mappos.z.val = pos->z.val;
+  } else
+  {
+    remove_thing_from_mapwho(thing);
+    thing->mappos.x.val = pos->x.val;
+    thing->mappos.y.val = pos->y.val;
+    thing->mappos.z.val = pos->z.val;
+    place_thing_in_mapwho(thing);
+  }
+  thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+}
+
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
 {
     struct Coord3d pos;
@@ -113,20 +135,7 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
     {
         return false;
     }
-    if ( (thing->mappos.x.stl.num != pos.x.stl.num) || (thing->mappos.y.stl.num != pos.y.stl.num) )
-    {
-        remove_thing_from_mapwho(thing);
-        thing->mappos.x.val = pos.x.val;
-        thing->mappos.y.val = pos.y.val;
-        thing->mappos.z.val = pos.z.val;
-        place_thing_in_mapwho(thing);
-    } else
-    {
-        thing->mappos.x.val = pos.x.val;
-        thing->mappos.y.val = pos.y.val;
-        thing->mappos.z.val = pos.z.val;
-    }
-    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    move_thing_in_map(thing, &pos);
     return true;
 }
 
@@ -465,4 +474,15 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
 {
     return _DK_get_next_gap_creature_can_fit_in_below_point(thing, pos);
 }
+
+long thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
+{
+    return _DK_thing_covers_same_blocks_in_two_positions(thing, pos1, pos2);
+}
+
+long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_get_thing_blocked_flags_at(thing, pos);
+}
+
 /******************************************************************************/

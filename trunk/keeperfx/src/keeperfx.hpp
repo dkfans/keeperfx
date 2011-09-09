@@ -1085,7 +1085,6 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short a2, unsig
 long take_money_from_dungeon(PlayerNumber plyr_idx, long amount, unsigned char a3);
 void update_thing_animation(struct Thing *thing);
 long update_cave_in(struct Thing *thing);
-void move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
 long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
 long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype);
 void initialise_map_collides(void);

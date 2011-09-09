@@ -1009,6 +1009,7 @@
  0001:0001E0F0       action_point_get_players_within
  0001:0005AA00       process_player_instances
  0001:0007A530       get_packet_save_checksum
+ 0001:0007A420       thing_covers_same_blocks_in_two_positions
  0001:00071090       resync_game
  0001:0003E9A0       process_players_creature_control_packet_control
  0001:0003F1C0       set_mouse_light
