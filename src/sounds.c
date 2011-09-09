@@ -30,6 +30,7 @@
 #include "engine_camera.h"
 #include "gui_soundmsgs.h"
 #include "thing_data.h"
+#include "thing_navigate.h"
 
 #include "keeperfx.hpp"
 

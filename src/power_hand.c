@@ -245,9 +245,9 @@ TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx)
 
 void place_thing_in_limbo(struct Thing *thing)
 {
-  remove_thing_from_mapwho(thing);
-  thing->field_4F |= 0x01;
-  thing->field_0 |= 0x10;
+    remove_thing_from_mapwho(thing);
+    thing->field_4F |= 0x01;
+    thing->field_0 |= 0x10;
 }
 
 void draw_power_hand(void)

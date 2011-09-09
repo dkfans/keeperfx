@@ -35,6 +35,7 @@ struct Map {
 };
 
 #define INVALID_MAP_BLOCK (&bad_map_block)
+#define MOVE_VELOCITY_LIMIT 256
 
 #pragma pack()
 /******************************************************************************/
@@ -81,6 +82,7 @@ TbBool set_coords_to_subtile_start(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_end(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);
 TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z);
+TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, TbBool clip);
 
 MapCoord get_subtile_center_pos(MapSubtlCoord stl_v);
 SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

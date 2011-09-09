@@ -25,6 +25,7 @@
 #include "thing_data.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
+#include "thing_navigate.h"
 #include "front_simple.h"
 #include "thing_stats.h"
 #include "config_creature.h"
@@ -49,7 +50,6 @@ DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thin
 DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
 DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
 DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *thing);
-DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *thing, long a2);
 /******************************************************************************/
 TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
@@ -142,11 +142,6 @@ void get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 struct Thing *get_shot_collided_with_same_type(struct Thing *thing, struct Coord3d *nxpos)
 {
     return _DK_get_shot_collided_with_same_type(thing, nxpos);
-}
-
-long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
-{
-    return _DK_get_thing_blocked_flags_at(thing, pos);
 }
 
 void process_dig_shot_hit_wall(struct Thing *thing, long a2)
@@ -805,46 +800,33 @@ long move_shot(struct Thing *thing)
 {
     //return _DK_move_shot(thing);
     struct ShotConfigStats *shotst;
-    struct Coord3d filpos;
+    struct Coord3d pos;
     SYNCDBG(18,"Starting for thing index %d, model %d",(int)thing->index,(int)thing->model);
 
-    get_thing_next_position(&filpos, thing);
+    get_thing_next_position(&pos, thing);
     shotst = get_shot_model_stats(thing->model);
     if ( !shotst->old->field_28 )
     {
-        if ( shot_hit_something_while_moving(thing, &filpos) ) {
+        if ( shot_hit_something_while_moving(thing, &pos) ) {
             return 0;
         }
     }
     if ((thing->movement_flags & TMvF_Unknown10) != 0)
     {
-      if ( (shotst->old->field_48) && thing_in_wall_at(thing, &filpos) ) {
-          if ( shot_hit_door_at(thing, &filpos) ) {
+      if ( (shotst->old->field_48) && thing_in_wall_at(thing, &pos) ) {
+          if ( shot_hit_door_at(thing, &pos) ) {
               return 0;
           }
       }
     } else
     {
-      if ( thing_in_wall_at(thing, &filpos) ) {
-          if ( shot_hit_wall_at(thing, &filpos) ) {
+      if ( thing_in_wall_at(thing, &pos) ) {
+          if ( shot_hit_wall_at(thing, &pos) ) {
               return 0;
           }
       }
     }
-    if ( (thing->mappos.x.stl.num != filpos.x.stl.num) || (thing->mappos.y.stl.num != filpos.y.stl.num) )
-    {
-        remove_thing_from_mapwho(thing);
-        thing->mappos.x.val = filpos.x.val;
-        thing->mappos.y.val = filpos.y.val;
-        thing->mappos.z.val = filpos.z.val;
-        place_thing_in_mapwho(thing);
-    } else
-    {
-        thing->mappos.x.val = filpos.x.val;
-        thing->mappos.y.val = filpos.y.val;
-        thing->mappos.z.val = filpos.z.val;
-    }
-    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    move_thing_in_map(thing, &pos);
     return 1;
 }
 

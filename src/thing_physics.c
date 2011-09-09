@@ -81,7 +81,7 @@ void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct C
     }
 }
 
-TbBool positions_equivalent(struct Coord3d *pos_a, struct Coord3d *pos_b)
+TbBool positions_equivalent(const struct Coord3d *pos_a, const struct Coord3d *pos_b)
 {
     if (pos_a->x.val != pos_b->x.val)
         return false;

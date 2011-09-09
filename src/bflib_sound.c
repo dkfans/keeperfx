@@ -1018,7 +1018,6 @@ TbBool process_sound_samples(void)
     return true;
 }
 
-
 long speech_sample_playing(void)
 {
     long sp_emiter;
