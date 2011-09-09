@@ -19,6 +19,7 @@
 #include "map_data.h"
 #include "globals.h"
 
+#include "bflib_math.h"
 #include "slab_data.h"
 #include "keeperfx.hpp"
 
@@ -249,28 +250,87 @@ TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
 }
 /******************************************************************************/
 
+/** Sets map coordinates to given values, clipping them to map dimensions.
+ *
+ * @param pos Position to be set.
+ * @param cor_x Input X coordinate.
+ * @param cor_y Input Y coordinate.
+ * @param cor_z Input Z coordinate.
+ * @return Gives true if values were in map coords range, false if they were corrected.
+ */
+TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z)
+{
+    TbBool corrected = false;
+    if (cor_x >= ((map_subtiles_x+2) << 8)) {
+        cor_x = ((map_subtiles_x+2) << 8)-1;
+        corrected = true;
+    }
+    if (cor_y >= ((map_subtiles_y+2) << 8)) {
+        cor_y = ((map_subtiles_y+2) << 8)-1;
+        corrected = true;
+    }
+    if (cor_z >= (17 << 8)) {
+        cor_z = (17 << 8)-1;
+        corrected = true;
+    }
+    if (cor_x < 0) {
+        cor_x = 0;
+        corrected = true;
+    }
+    if (cor_y < 0) {
+        cor_y = 0;
+        corrected = true;
+    }
+    if (cor_z < 0) {
+        cor_z = 0;
+        corrected = true;
+    }
+    pos->x.val = cor_x;
+    pos->y.val = cor_y;
+    pos->z.val = cor_z;
+    return !corrected;
+}
+
 TbBool set_coords_to_subtile_center(struct Coord3d *pos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z)
 {
-  if (stl_x > map_subtiles_x+1) stl_x = map_subtiles_x+1;
-  if (stl_y > map_subtiles_y+1) stl_y = map_subtiles_y+1;
-  if (stl_z > 16) stl_z = 16;
-  if (stl_x < 0)  stl_x = 0;
-  if (stl_y < 0) stl_y = 0;
-  if (stl_z < 0) stl_z = 0;
-  pos->x.val = (stl_x<<8) + 128;
-  pos->y.val = (stl_y<<8) + 128;
-  pos->z.val = (stl_z<<8) + 128;
-  return true;
+    if (stl_x > map_subtiles_x+1) stl_x = map_subtiles_x+1;
+    if (stl_y > map_subtiles_y+1) stl_y = map_subtiles_y+1;
+    if (stl_z > 16) stl_z = 16;
+    if (stl_x < 0)  stl_x = 0;
+    if (stl_y < 0) stl_y = 0;
+    if (stl_z < 0) stl_z = 0;
+    pos->x.val = (stl_x<<8) + 128;
+    pos->y.val = (stl_y<<8) + 128;
+    pos->z.val = (stl_z<<8) + 128;
+    return true;
 }
 
 TbBool set_coords_to_slab_center(struct Coord3d *pos, MapSubtlCoord slb_x, MapSubtlCoord slb_y)
 {
-  return set_coords_to_subtile_center(pos, slb_x*3+1,slb_y*3+1, 1);
+    return set_coords_to_subtile_center(pos, slb_x*3+1,slb_y*3+1, 1);
 }
 
 MapCoord get_subtile_center_pos(MapSubtlCoord stl_v)
 {
     return (stl_v<<8) + 128;
+}
+
+/**
+ * Sets coordinates to cylindric XY shift of given source position.
+ *
+ * @param pos
+ * @param source
+ * @param radius
+ * @param angle
+ * @return
+ */
+TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z)
+{
+    long px,py,pz;
+    px = source->x.val + ((radius * LbSinL(angle)) >> 16);
+    py = source->y.val - ((radius * LbCosL(angle)) >> 16);
+    pz = source->z.val + z;
+    return set_coords_with_clip(pos, px, py, pz);
 }
 
 /**

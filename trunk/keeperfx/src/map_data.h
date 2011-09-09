@@ -73,12 +73,15 @@ long get_mapblk_column_index(const struct Map *map);
 void set_mapblk_column_index(struct Map *map, long column_idx);
 long get_subtile_lightness(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
+TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z);
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_coords_invalid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool set_coords_to_subtile_center(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_start(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_end(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);
+TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z);
+
 MapCoord get_subtile_center_pos(MapSubtlCoord stl_v);
 SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y);

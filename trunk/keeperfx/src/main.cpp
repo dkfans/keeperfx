@@ -1741,7 +1741,7 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
       {
         if (player->acamera == NULL)
           continue;
-        if (get_2d_box_distance(&player->acamera->mappos, pos) <= 6144)
+        if (get_2d_box_distance(&player->acamera->mappos, pos) <= (24 << 8))
           return true;
       }
     }

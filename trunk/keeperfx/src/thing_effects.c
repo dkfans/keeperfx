@@ -24,6 +24,7 @@
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
+#include "thing_navigate.h"
 #include "front_simple.h"
 #include "creature_graphics.h"
 #include "gui_topmsg.h"
@@ -48,8 +49,18 @@ DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *thing, long 
 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
+//extern struct EffectGeneratorStats _DK_effect_generator_stats[6];
 //#define effect_element_stats _DK_effect_element_stats
 /******************************************************************************/
+struct EffectGeneratorStats effect_generator_stats[] = {
+    { 0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0},
+    {10, 20,  1, 30, 1,  0,-40, 40,-40, 40, 80,150,147,  3, 0},
+    {10, 20,  1, 31, 0, -1,  0,  0,  0,  0,  0,  0,  0,  0, 0},
+    { 0,  0,  5, 33, 0, -1,  0,  0,  0,  0,  0,  0,  0,  0, 0},
+    { 0,  2,  1, 37, 0,256,-15, 15,-15, 15,  0,  0,  0,  0, 0},
+    { 2,  5,  1, 37, 0,  0,-15, 15,-15, 15,  0,  0,  0,  0, 0}
+};
+
 struct EffectElementStats effect_element_stats[] = {
    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0, 0, 0,
@@ -772,9 +783,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
               n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
               mag = effnfo->start_health - thing->health;
               arg = (mag << 7) + k/effnfo->field_B;
-              pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
-              pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
-              pos.z.val = thing->mappos.z.val;
+              set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
               elemtng = create_effect_element(&pos, n, thing->owner);
               k += 2048;
           }
@@ -786,9 +795,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
               n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
               mag = thing->health;
               arg = (mag << 7) + k/effnfo->field_B;
-              pos.x.val = thing->mappos.x.val + ((16*mag*LbSinL(arg)) >> 16);
-              pos.y.val = thing->mappos.y.val - ((16*mag*LbCosL(arg)) >> 16);
-              pos.z.val = thing->mappos.z.val;
+              set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
               elemtng = create_effect_element(&pos, n, thing->owner);
               k += 2048;
           }
@@ -828,8 +835,86 @@ void effect_generate_effect_elements(const struct Thing *thing)
 
 long process_effect_generator(struct Thing *thing)
 {
+    struct EffectGeneratorStats *egenstat;
+    struct Thing *efftng;
+    struct Coord3d pos;
+    long deviation_angle,deviation_mag;
+    long i,k;
     SYNCDBG(18,"Starting");
-    return _DK_process_effect_generator(thing);
+    //return _DK_process_effect_generator(thing);
+    if (thing->health > 0)
+        thing->health--;
+    if (thing->health == 0)
+    {
+        delete_thing_structure(thing, 0);
+        return 0;
+    }
+    if ( !any_player_close_enough_to_see(&thing->mappos) )
+    {
+        SYNCDBG(18,"No player sees %s at (%d,%d,%d)",thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)thing->mappos.z.stl.num);
+        return 1;
+    }
+    if (thing->long_15 > 0)
+        thing->long_15--;
+    if (thing->long_15 > 0)
+    {
+        return 1;
+    }
+    egenstat = &effect_generator_stats[thing->model];
+    for (i=0; i < egenstat->genation_amount; i++)
+    {
+        deviation_angle = ACTION_RANDOM(0x800);
+        deviation_mag = ACTION_RANDOM(thing->word_13 + 1);
+        set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
+        SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
+        efftng = create_effect_element(&pos, egenstat->field_C, thing->owner);
+        if (thing_is_invalid(efftng))
+            break;
+        efftng->sizexy = 20;
+        efftng->field_58 = 20;
+        if (egenstat->field_10)
+        {
+            k = egenstat->field_11;
+        } else
+        if (egenstat->field_11 == -1)
+        {
+            efftng->mappos.z.val = (8 << 8);
+            k = get_next_gap_creature_can_fit_in_below_point(efftng, &efftng->mappos);
+        } else
+        {
+            k = egenstat->field_11 + get_thing_height_at(efftng, &efftng->mappos);
+        }
+        efftng->mappos.z.val = k;
+        if ( thing_in_wall_at(efftng, &efftng->mappos) )
+        {
+            SYNCDBG(18,"The %s created effect %d/%d in wall, removing",thing_model_name(thing),(int)i,(int)egenstat->genation_amount);
+            delete_thing_structure(efftng, 0);
+        } else
+        {
+            SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->genation_amount,(int)efftng->index);
+            long acc_x,acc_y,acc_z;
+            struct Thing *sectng;
+            acc_x = egenstat->acc_x_min + ACTION_RANDOM(egenstat->acc_x_max - egenstat->acc_x_min + 1);
+            acc_y = egenstat->acc_y_min + ACTION_RANDOM(egenstat->acc_y_max - egenstat->acc_y_min + 1);
+            acc_z = egenstat->acc_z_min + ACTION_RANDOM(egenstat->acc_z_max - egenstat->acc_z_min + 1);
+            efftng->acceleration.x.val += acc_x;
+            efftng->acceleration.y.val += acc_y;
+            efftng->acceleration.z.val += acc_z;
+            efftng->field_1 |= 0x04;
+            if (egenstat->sound_sample_idx > 0)
+            {
+                sectng = create_effect(&efftng->mappos, 49, thing->owner);
+                if (!thing_is_invalid(sectng)) {
+                    thing_play_sample(sectng, egenstat->sound_sample_idx + ACTION_RANDOM(egenstat->sound_sample_rng), 100, 0, 3, 0, 2, 256);
+                }
+            }
+            if (egenstat->sound_sample_sec > 0) {
+                thing_play_sample(efftng, egenstat->sound_sample_sec, 100, 0, 3, 0, 2, 256);
+            }
+        }
+    }
+    thing->long_15 = egenstat->genation_delay_min + ACTION_RANDOM(egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
+    return 1;
 }
 
 struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, unsigned char owner)
