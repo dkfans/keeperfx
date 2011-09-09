@@ -55,6 +55,7 @@ long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_angle(struct Thing *thing, long a2);
 TbBool move_creature_to_nearest_valid_position(struct Thing *thing);
+long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos);
 
 /******************************************************************************/
 #ifdef __cplusplus

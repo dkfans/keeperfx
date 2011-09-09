@@ -262,15 +262,15 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
 {
   long i;
   if (lvnum <= 0)
-    return NULL;
+      return NULL;
   if (campgn->lvinfos == NULL)
-    return NULL;
+      return NULL;
   for (i=0; i < campgn->lvinfos_count; i++)
   {
-    if (campgn->lvinfos[i].lvnum == lvnum)
-    {
-      return &campgn->lvinfos[i];
-    }
+      if (campgn->lvinfos[i].lvnum == lvnum)
+      {
+          return &campgn->lvinfos[i];
+      }
   }
   return NULL;
 }

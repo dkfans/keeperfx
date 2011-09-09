@@ -46,6 +46,7 @@ DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Th
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
 DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char storage);
 DLLIMPORT short _DK_move_to_position(struct Thing *thing);
+DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -458,5 +459,10 @@ short move_to_position(struct Thing *thing)
         }
     }
     return state_result;
+}
+
+long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_get_next_gap_creature_can_fit_in_below_point(thing, pos);
 }
 /******************************************************************************/

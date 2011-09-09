@@ -987,6 +987,7 @@
  0001:000B45F0       process_rooms
  0001:000A80C0       process_messages
  0001:0005D4D0       find_nearest_rooms_for_ambient_sound
+ 0001:0005DB00       get_next_gap_creature_can_fit_in_below_point
  0001:0006EF80       process_computer_players2
  0001:00065E50       event_process_events
  0001:00066100       update_all_events

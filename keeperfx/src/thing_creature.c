@@ -463,28 +463,23 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->spell_flags |= CSF_Armour;
             for (k=0; k < 3; k++)
             {
-              pos.x.val = thing->mappos.x.val;
-              pos.y.val = thing->mappos.y.val;
-              pos.z.val = thing->mappos.z.val;
-              pos.x.val += (32 * LbSinL(n) >> 16);
-              pos.y.val -= (32 * LbCosL(n) >> 16);
-              pos.z.val += k * (long)(thing->field_58 >> 1);
-              ntng = create_object(&pos, 51, thing->owner, -1);
-              if (!thing_is_invalid(ntng))
-              {
-                  cctrl->field_2B3[k] = ntng->index;
-                  ntng->health = magstat->power[spell_lev] + 1;
-                  ntng->word_13 = thing->index;
-                  ntng->byte_15 = k;
-                  ntng->field_52 = thing->field_52;
-                  ntng->field_54 = thing->field_54;
-                  angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
-                  ntng->acceleration.x.val += cvect.x;
-                  ntng->acceleration.y.val += cvect.y;
-                  ntng->acceleration.z.val += cvect.z;
-                  ntng->field_1 |= 0x04;
-              }
-              n += ANGLE_TRIGL_PERIOD/3;
+                set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->field_58 >> 1) );
+                ntng = create_object(&pos, 51, thing->owner, -1);
+                if (!thing_is_invalid(ntng))
+                {
+                    cctrl->field_2B3[k] = ntng->index;
+                    ntng->health = magstat->power[spell_lev] + 1;
+                    ntng->word_13 = thing->index;
+                    ntng->byte_15 = k;
+                    ntng->field_52 = thing->field_52;
+                    ntng->field_54 = thing->field_54;
+                    angles_to_vector(ntng->field_52, ntng->field_54, 32, &cvect);
+                    ntng->acceleration.x.val += cvect.x;
+                    ntng->acceleration.y.val += cvect.y;
+                    ntng->acceleration.z.val += cvect.z;
+                    ntng->field_1 |= 0x04;
+                }
+                n += ANGLE_TRIGL_PERIOD/3;
             }
         }
         break;
