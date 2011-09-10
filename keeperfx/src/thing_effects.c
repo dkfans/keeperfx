@@ -1017,6 +1017,7 @@ TbBool destroy_effect_generator(struct Thing *thing)
   }
   if (thing->snd_emitter_id != 0)
   {
+      // In case of effect, don't stop any sound samples which are still playing
       S3DDestroySoundEmitter(thing->snd_emitter_id);
       thing->snd_emitter_id = 0;
   }
