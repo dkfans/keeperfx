@@ -68,6 +68,7 @@ long get_emitter_id(struct SoundEmitter *emit);
 long get_sample_id(struct S3DSample *sample);
 void kick_out_sample(short smpl_id);
 TbBool emitter_is_playing(struct SoundEmitter *emit);
+TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit);
 /******************************************************************************/
 // Functions
 
@@ -211,13 +212,38 @@ void S3DSetSoundReceiverSensitivity(unsigned short nsensivity)
     Receiver.sensivity = nsensivity;
 }
 
+/**
+ * Destroys sound emitter, without stopping samples which are being played.
+ * @param eidx Sound emitter id.
+ * @return True if emitter was destroyed, false if it already was.
+ */
 long S3DDestroySoundEmitter(long eidx)
 {
     struct SoundEmitter *emit;
     //return _DK_S3DDestroySoundEmitter(eidx);
     emit = S3DGetSoundEmitter(eidx);
-    if (S3DSoundEmitterInvalid(emit))
+    if (S3DSoundEmitterInvalid(emit)) {
+        ERRORLOG("Invalid emitter %ld",eidx);
         return false;
+    }
+    remove_active_samples_from_emitter(emit);
+    delete_sound_emitter(eidx);
+    return true;
+}
+
+/**
+ * Destroys sound emitter, stopping all samples which are being played.
+ * @param eidx Sound emitter id.
+ * @return True if emitter was destroyed, false if it already was.
+ */
+TbBool S3DDestroySoundEmitterAndSamples(long eidx)
+{
+    struct SoundEmitter *emit;
+    emit = S3DGetSoundEmitter(eidx);
+    if (S3DSoundEmitterInvalid(emit)) {
+        ERRORLOG("Invalid emitter %ld",eidx);
+        return false;
+    }
     stop_emitter_samples(emit);
     delete_sound_emitter(eidx);
     return true;
@@ -283,20 +309,6 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6,
         return eidx;
     delete_sound_emitter(eidx);
     return 0;
-}
-
-TbBool S3DDestroySoundEmitterAndSamples(long eidx)
-{
-    struct SoundEmitter *emit;
-    emit = S3DGetSoundEmitter(eidx);
-    if (S3DSoundEmitterInvalid(emit))
-    {
-        ERRORLOG("Invalid emiter %ld",eidx);
-        return false;
-    }
-    stop_emitter_samples(emit);
-    delete_sound_emitter(eidx);
-    return true;
 }
 
 TbBool S3DEmitterIsPlayingAnySample(long eidx)
