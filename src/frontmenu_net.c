@@ -654,62 +654,59 @@ void frontnet_draw_messages_scroll_tab(struct GuiButton *gbtn)
   _DK_frontnet_draw_messages_scroll_tab(gbtn);
 }
 
+void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, const char *text)
+{
+    struct TbSprite * sprite;
+    int draw_x;
+    int i;
+    unsigned char height;
+    sprite = &frontend_sprite[55];
+    draw_x = gbtn->scr_pos_x;
+    for (i = 6; i > 0; --i)
+    {
+      LbSpriteDraw(draw_x, gbtn->scr_pos_y, sprite);
+      draw_x += sprite->SWidth;
+      ++sprite;
+    }
+
+    if (text != NULL)
+    {
+      lbDisplay.DrawFlags = 0;
+      lbFontPtr = frontend_font[font_idx];
+      height = LbTextHeight(text);
+      LbTextSetWindow(gbtn->scr_pos_x + 13, gbtn->scr_pos_y, gbtn->width - 26, height);
+      LbTextDraw(0, 0, text);
+    }
+}
+
 void frontnet_draw_current_message(struct GuiButton *gbtn)
 {
-  //_DK_frontnet_draw_current_message(gbtn);
+    static TbClockMSec last_time = 0;
+    static TbBool print_with_cursor = 1;
 
-  struct TbSprite * sprite;
-  int draw_x;
-  int i;
-  unsigned char height;
-  const char * format_string;
-  char * text_to_print;
-  int button_info_font_index;
-  char text[2048];
+    struct PlayerInfo *player;
+    int button_info_font_index;
+    char text[2048];
+    //_DK_frontnet_draw_current_message(gbtn);
 
-  static int last_time = 0;
-  static unsigned print_with_underscore = 1; //might in fact be a global, see original function, either way doesn't matter too much
+    // Blink cursor - switch state every 100ms
+    if (LbTimerClock() >= last_time + 100)
+    {
+        print_with_cursor = !print_with_cursor;
+        last_time = LbTimerClock();
+    }
 
-  if ( LbTimerClock() >= last_time + 100 )
-  {
-    //weird code (why print with underscore after a certain time?)
-    print_with_underscore = print_with_underscore < 1;
-    last_time = LbTimerClock();
-  }
+    // Get player
+    player = get_my_player();
+    if (player_invalid(player)) {
+        return;
+    }
 
-  if ( print_with_underscore )
-  {
-    text_to_print = game.players[my_player_number].strfield_463;
-    format_string = "%s_";
-  }
-  else
-  {
-    text_to_print = game.players[my_player_number].strfield_463;
-    format_string = "%s";
-  }
-
-  snprintf(text, sizeof(text), format_string, text_to_print);
-  sprite = &frontend_sprite[55];
-  draw_x = gbtn->scr_pos_x;
-  button_info_font_index = frontend_button_info[(unsigned) gbtn->content].font_index;
-  for (i = 6; i > 0; --i)
-  {
-    LbSpriteDraw(draw_x, gbtn->scr_pos_y, sprite);
-    draw_x += sprite->SWidth;
-    ++sprite;
-  }
-
-  if ( text ) //hmm why?
-  {
-    lbDisplay.DrawFlags = 0;
-    lbFontPtr = frontend_font[button_info_font_index];
-    if ( frontend_font[button_info_font_index] )
-      height = frontend_font[button_info_font_index][1].SHeight;
-    else
-      height = 0;
-    LbTextSetWindow(gbtn->scr_pos_x + 13, gbtn->scr_pos_y, gbtn->width - 26, height);
-    LbTextDraw(0, 0, text);
-  }
+    // Prepare text buffer and font
+    snprintf(text, sizeof(text), "%s%s", player->strfield_463, print_with_cursor?"_":"");
+    button_info_font_index = frontend_button_info[(unsigned) gbtn->content].font_index;
+    // And draw the message
+    frontnet_draw_scroll_selection_box(gbtn, button_info_font_index, text);
 }
 
 void frontnet_draw_messages(struct GuiButton *gbtn)
