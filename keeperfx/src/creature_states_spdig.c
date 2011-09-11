@@ -38,6 +38,7 @@
 #include "room_library.h"
 #include "spdigger_stack.h"
 #include "gui_topmsg.h"
+#include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
 
@@ -456,7 +457,58 @@ short imp_birth(struct Thing *thing)
 
 short imp_converts_dungeon(struct Thing *thing)
 {
-  return _DK_imp_converts_dungeon(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    MapSubtlCoord stl_x,stl_y;
+    MapSlabCoord slb_x,slb_y;
+    //return _DK_imp_converts_dungeon(thing);
+    stl_x = thing->mappos.x.stl.num;
+    stl_y = thing->mappos.y.stl.num;
+    cctrl = creature_control_get_from_thing(thing);
+    slb_x = map_to_slab[stl_x];
+    slb_y = map_to_slab[stl_y];
+    if ( (stl_x - cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - cctrl->moveto_pos.y.stl.num >= 1) )
+    {
+        clear_creature_instance(thing);
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 0;
+    }
+    if ( check_place_to_convert_excluding(thing, slb_x, slb_y) )
+    {
+      if (cctrl->instance_id == 0)
+      {
+          struct SlabMap *slb;
+          struct SlabAttr *slbattr;
+          slb = get_slabmap_block(slb_x, slb_y);
+          slbattr = get_slab_attrs(slb);
+          set_creature_instance(thing, CrInst_DESTROY_AREA, 0, 0, 0);
+          if (slbattr->field_F == 4)
+          {
+            room = room_get(slb->room_index);
+            if (!room_is_invalid(room))
+            {
+                MapCoord rstl_x,rstl_y;
+                rstl_x = subtile_coord_center(room->central_stl_x);
+                rstl_y = subtile_coord_center(room->central_stl_y);
+                event_create_event_or_update_nearby_existing_event(rstl_x, rstl_y, 19, room->owner, 0);
+                if (is_my_player_number(room->owner) ) {
+                  output_message(SMsg_EnemyDestroyRooms, 400, 1);
+                }
+            }
+          }
+      }
+      return 1;
+    }
+    if ( !check_place_to_pretty_excluding(thing, slb_x, slb_y) )
+    {
+        clear_creature_instance(thing);
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 0;
+    }
+    if (cctrl->instance_id != CrInst_PRETTY_PATH) {
+        set_creature_instance(thing, CrInst_PRETTY_PATH, 0, 0, 0);
+    }
+    return 1;
 }
 
 TbBool too_much_gold_lies_around_thing(struct Thing *thing)

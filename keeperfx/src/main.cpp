@@ -1169,9 +1169,16 @@ void clear_creature_pool(void)
     game.pool.is_empty = true;
 }
 
-void clear_slab_dig(long a1, long a2, char a3)
+/**
+ * Clears digging operations for given player on given map slab.
+ *
+ * @param slb_x Slab X coord.
+ * @param slb_y Slab Y coord.
+ * @param plyr_idx Player index whose dig tag shall be cleared.
+ */
+void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
 {
-  _DK_clear_slab_dig(a1, a2, a3);
+  _DK_clear_slab_dig(slb_x, slb_y, plyr_idx);
 }
 
 long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)

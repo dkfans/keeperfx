@@ -73,6 +73,8 @@ long update_trap(struct Thing *thing);
 void init_traps(void);
 int get_trap_data_index(int wrkshop_class, int wrkshop_kind);
 
+long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

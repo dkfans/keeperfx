@@ -25,7 +25,9 @@
 #include "thing_list.h"
 #include "thing_creature.h"
 #include "thing_effects.h"
+#include "thing_traps.h"
 #include "creature_control.h"
+#include "room_data.h"
 #include "map_blocks.h"
 #include "config_magic.hpp"
 #include "gui_soundmsgs.h"
@@ -38,14 +40,36 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_process_creature_instance(struct Thing *thing);
+DLLIMPORT long _DK_instf_attack_room_slab(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_creature_cast_spell(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_creature_fire_shot(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_damage_wall(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_destroy(struct Thing *thing, long *param);
 DLLIMPORT long _DK_instf_dig(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_eat(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_fart(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_first_person_do_imp_task(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_pretty_path(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_reinforce(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_tortured(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_tunnel(struct Thing *thing, long *param);
 
 DLLIMPORT struct InstanceInfo _DK_instance_info[48];
 #define instance_info _DK_instance_info
 /******************************************************************************/
-long instf_creature_fire_shot(struct Thing *thing, long *param);
+long instf_attack_room_slab(struct Thing *thing, long *param);
 long instf_creature_cast_spell(struct Thing *thing, long *param);
+long instf_creature_fire_shot(struct Thing *thing, long *param);
+long instf_damage_wall(struct Thing *thing, long *param);
+long instf_destroy(struct Thing *thing, long *param);
 long instf_dig(struct Thing *thing, long *param);
+long instf_eat(struct Thing *thing, long *param);
+long instf_fart(struct Thing *thing, long *param);
+long instf_first_person_do_imp_task(struct Thing *thing, long *param);
+long instf_pretty_path(struct Thing *thing, long *param);
+long instf_reinforce(struct Thing *thing, long *param);
+long instf_tortured(struct Thing *thing, long *param);
+long instf_tunnel(struct Thing *thing, long *param);
 
 const struct NamedCommand creature_instances_func_type[] = {
   {"attack_room_slab",         1},
@@ -71,7 +95,7 @@ Creature_Instf_Func creature_instances_func_list[] = {
   instf_creature_cast_spell,
   instf_creature_fire_shot,
   NULL,//instf_damage_wall,
-  NULL,//instf_destroy,
+  instf_destroy,
   instf_dig,
   NULL,//instf_eat,
   NULL,//instf_fart,
@@ -288,6 +312,62 @@ long instf_dig(struct Thing *thing, long *param)
     thing_play_sample(thing, 72 + UNSYNC_RANDOM(3), 100, 0, 3, 0, 4, 256);
     return 1;
 }
+
+long instf_destroy(struct Thing *thing, long *param)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    struct SlabMap *slb;
+    MapSlabCoord slb_x,slb_y;
+    long prev_owner;
+
+    slb_x = map_to_slab[thing->mappos.x.stl.num];
+    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    dungeon = get_dungeon(thing->owner);
+    slb = get_slabmap_block(slb_x, slb_y);
+    room = room_get(slb->room_index);
+    prev_owner = slabmap_owner(slb);
+
+    if ( !room_is_invalid(room) && (prev_owner != thing->owner) )
+    {
+      if (room->field_C > 1)
+      {
+          room->field_C--;
+          return 0;
+      }
+      clear_dig_on_room_slabs(room, thing->owner);
+      if (room->owner == game.neutral_player_num)
+      {
+          claim_room(room, thing);
+      } else
+      {
+          MapCoord ccor_x,ccor_y;
+          ccor_x = subtile_coord_center(room->central_stl_x);
+          ccor_y = subtile_coord_center(room->central_stl_y);
+          event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, 22, room->owner, 0);
+          claim_enemy_room(room, thing);
+      }
+      thing_play_sample(thing, 76, 100, 0, 3, 0, 2, 256);
+      create_effects_on_room_slabs(room, imp_spangle_effects[thing->owner], 0, thing->owner);
+      return 0;
+    }
+    if (slb->field_4 > 1)
+    {
+        slb->field_4--;
+        return 0;
+    }
+    if (prev_owner != game.neutral_player_num) {
+        struct Dungeon *prev_dungeon;
+        prev_dungeon = get_dungeon(prev_owner);
+        prev_dungeon->lvstats.territory_lost++;
+    }
+    decrease_dungeon_area(prev_owner, 1);
+    neutralise_enemy_block(thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
+    remove_traps_around_subtile(3*slb_x+1, 3*slb_y+1, NULL);
+    dungeon->lvstats.territory_destroyed++;
+    return 1;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
