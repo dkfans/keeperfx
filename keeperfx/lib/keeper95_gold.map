@@ -1820,6 +1820,15 @@
  0001:000B1760       dig_out_block
  0001:000C2F60       check_map_explored
  0001:0000E380       instf_dig
+ 0001:0000E760       instf_pretty_path
+ 0001:0000E880       instf_fart
+ 0001:0000E910       instf_tunnel
+ 0001:0000EC80       instf_eat
+ 0001:0000ECC0       instf_tortured
+ 0001:0000ECD0       instf_attack_room_slab
+ 0001:0000EE30       instf_damage_wall
+ 0001:0000EF40       instf_first_person_do_imp_task
+ 0001:00010830       instf_reinforce
  0001:000C2E60       set_slab_explored_flags
  0001:000B1600       untag_blocks_for_digging_in_area
  0001:0008B8C0       create_gold_rubble_for_dug_block
