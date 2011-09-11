@@ -1048,6 +1048,8 @@
  0001:000BB440       count_lair_occupants
  0001:000BB560       reset_creatures_rooms
  0001:000BBA70       go_to_my_next_room_of_type
+ 0001:000BBCB0       claim_room
+ 0001:000BC230       claim_enemy_room
  0001:000BCDB0       create_room_flag
  0001:000BCF00       get_room_thing_is_on
  0001:000BD240       player_has_room_of_type

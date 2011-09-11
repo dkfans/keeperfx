@@ -39,6 +39,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_delete_room_structure(struct Room *room);
 DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
+DLLIMPORT long _DK_claim_room(struct Room *room,struct Thing *claimtng);
+DLLIMPORT long _DK_claim_enemy_room(struct Room *room,struct Thing *claimtng);
 /******************************************************************************/
 void count_slabs(struct Room *room);
 void count_gold_slabs_with_efficiency(struct Room *room);
@@ -1099,33 +1101,97 @@ void init_room_sparks(struct Room *room)
     long slb_x,slb_y;
     unsigned long k;
     long i;
-    if (room->kind != RoK_DUNGHEART)
+    if (room->kind == RoK_DUNGHEART) {
+        return;
+    }
+    k = 0;
+    i = room->slabs_list;
+    while (i != 0)
     {
-        k = 0;
-        i = room->slabs_list;
-        while (i != 0)
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        slb = get_slabmap_block(slb_x, slb_y);
+        sibslb = get_slabmap_block(slb_x, slb_y-1);
+        if (sibslb->room_index != slb->room_index)
         {
-            slb_x = slb_num_decode_x(i);
-            slb_y = slb_num_decode_y(i);
-            i = get_next_slab_number_in_room(i);
-            // Per room tile code
-            slb = get_slabmap_block(slb_x, slb_y);
-            sibslb = get_slabmap_block(slb_x, slb_y-1);
-            if (sibslb->room_index != slb->room_index)
-            {
-                room->field_43 = 1;
-                room->field_44 = 0;
-                room->field_41 = i;
-            }
-            // Per room tile code ends
-            k++;
-            if (k > room->slabs_count)
-            {
-                ERRORLOG("Room slabs list length exceeded when sweeping");
-                break;
-            }
+            room->field_43 = 1;
+            room->field_44 = 0;
+            room->field_41 = i;
+        }
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
         }
     }
+}
+
+TbBool create_effects_on_room_slabs(struct Room *room, long effkind, long effrange, long effowner)
+{
+    long slb_x,slb_y;
+    unsigned long k;
+    long i;
+    k = 0;
+    i = room->slabs_list;
+    while (i != 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        struct Coord3d pos;
+        long effect_kind;
+        pos.x.val = subtile_coord_center(3*slb_x+1);
+        pos.y.val = subtile_coord_center(3*slb_y+1);
+        pos.z.val = subtile_coord_center(1);
+        effect_kind = effkind;
+        if (effrange > 0)
+            effect_kind += ACTION_RANDOM(effrange);
+        create_effect(&pos, effect_kind, effowner);
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    return true;
+}
+
+/**
+ * Clears digging operations for given player on slabs making up given room.
+ *
+ * @param room The room whose slabs are to be affected.
+ * @param plyr_idx Player index whose dig tag shall be cleared.
+ */
+TbBool clear_dig_on_room_slabs(struct Room *room, long plyr_idx)
+{
+    long slb_x,slb_y;
+    unsigned long k;
+    long i;
+    k = 0;
+    i = room->slabs_list;
+    while (i != 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        clear_slab_dig(slb_x, slb_y, plyr_idx);
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    return true;
 }
 
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
@@ -1760,6 +1826,16 @@ TbBool add_item_to_room_capacity(struct Room *room)
     room->used_capacity++;
     room->capacity_used_for_storage++;
     return true;
+}
+
+long claim_room(struct Room *room,struct Thing *claimtng)
+{
+    return _DK_claim_room(room,claimtng);
+}
+
+long claim_enemy_room(struct Room *room,struct Thing *claimtng)
+{
+    return _DK_claim_enemy_room(room,claimtng);
 }
 
 /******************************************************************************/
