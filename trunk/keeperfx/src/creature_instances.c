@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     11 Mar 2010 - 12 May 2010
+ * @date     11 Mar 2010 - 11 Sep 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 #include "creature_control.h"
 #include "room_data.h"
 #include "map_blocks.h"
+#include "spdigger_stack.h"
 #include "config_magic.hpp"
 #include "gui_soundmsgs.h"
 #include "sounds.h"
@@ -91,19 +92,19 @@ const struct NamedCommand creature_instances_func_type[] = {
 
 Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
-  NULL,//instf_attack_room_slab,
+  instf_attack_room_slab,
   instf_creature_cast_spell,
   instf_creature_fire_shot,
-  NULL,//instf_damage_wall,
+  instf_damage_wall,
   instf_destroy,
   instf_dig,
-  NULL,//instf_eat,
-  NULL,//instf_fart,
-  NULL,//instf_first_person_do_imp_task,
-  NULL,//instf_pretty_path, //[10]
-  NULL,//instf_reinforce,
-  NULL,//instf_tortured,
-  NULL,//instf_tunnel,
+  instf_eat,
+  instf_fart,
+  instf_first_person_do_imp_task,
+  instf_pretty_path, //[10]
+  instf_reinforce,
+  instf_tortured,
+  instf_tunnel,
   NULL,
   NULL,
 };
@@ -366,6 +367,64 @@ long instf_destroy(struct Thing *thing, long *param)
     remove_traps_around_subtile(3*slb_x+1, 3*slb_y+1, NULL);
     dungeon->lvstats.territory_destroyed++;
     return 1;
+}
+
+long instf_attack_room_slab(struct Thing *thing, long *param)
+{
+    return _DK_instf_attack_room_slab(thing, param);
+}
+
+long instf_damage_wall(struct Thing *thing, long *param)
+{
+    return _DK_instf_damage_wall(thing, param);
+}
+
+long instf_eat(struct Thing *thing, long *param)
+{
+    return _DK_instf_eat(thing, param);
+}
+
+long instf_fart(struct Thing *thing, long *param)
+{
+    return _DK_instf_fart(thing, param);
+}
+
+long instf_first_person_do_imp_task(struct Thing *thing, long *param)
+{
+    MapSlabCoord slb_x,slb_y;
+    long locparam;
+    //return _DK_instf_first_person_do_imp_task(thing, param);
+    slb_x = map_to_slab[thing->mappos.x.stl.num];
+    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    if ( check_place_to_pretty_excluding(thing, slb_x, slb_y) )
+    {
+        instf_pretty_path(thing, NULL);
+    } else
+    {
+        locparam = 23;
+        instf_creature_fire_shot(thing, &locparam);
+    }
+    return 1;
+}
+
+long instf_pretty_path(struct Thing *thing, long *param)
+{
+    return _DK_instf_pretty_path(thing, param);
+}
+
+long instf_reinforce(struct Thing *thing, long *param)
+{
+    return _DK_instf_reinforce(thing, param);
+}
+
+long instf_tortured(struct Thing *thing, long *param)
+{
+    return 1;
+}
+
+long instf_tunnel(struct Thing *thing, long *param)
+{
+    return _DK_instf_tunnel(thing, param);
 }
 
 /******************************************************************************/
