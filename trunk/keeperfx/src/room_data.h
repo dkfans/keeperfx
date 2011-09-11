@@ -192,6 +192,10 @@ void free_room_structure(struct Room *room);
 void reset_creatures_rooms(struct Room *room);
 TbBool remove_item_from_room_capacity(struct Room *room);
 TbBool add_item_to_room_capacity(struct Room *room);
+long claim_enemy_room(struct Room *room,struct Thing *claimtng);
+long claim_room(struct Room *room,struct Thing *claimtng);
+TbBool create_effects_on_room_slabs(struct Room *room, long effkind, long effrange, long effowner);
+TbBool clear_dig_on_room_slabs(struct Room *room, long plyr_idx);
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);

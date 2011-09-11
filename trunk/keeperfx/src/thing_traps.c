@@ -127,6 +127,38 @@ int get_trap_data_index(int wrkshop_class, int wrkshop_index)
     return -1;
 }
 
+/**
+ * Removes traps on the sibtile and all sibling subtiles.
+ *
+ * @param stl_x Central subtile X coordinate.
+ * @param stl_y Central subtile Y coordinate.
+ * @param sell_value Value to be added to treasury if selling traps; if not selling but just removing, should be null.
+ * @return Amount of traps removed.
+ */
+long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
+{
+    long i,k;
+    long total;
+    total = 0;
+    for (k=0; k < AROUND_TILES_COUNT; k++)
+    {
+        struct Thing *thing;
+        thing = get_trap_for_position(stl_x+around[k].delta_x, stl_y+around[k].delta_y);
+        if (!thing_is_invalid(thing))
+        {
+            if (sell_value != NULL) {
+                i = game.traps_config[thing->model].selling_value;
+                if (thing->trap.num_shots == 0) {
+                    remove_workshop_object_from_player(thing->owner, trap_to_object[thing->model%TRAP_TYPES_COUNT]);
+                }
+                (*sell_value) += i;
+            }
+            destroy_trap(thing);
+            total++;
+        }
+    }
+    return total;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

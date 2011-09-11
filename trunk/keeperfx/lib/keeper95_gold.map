@@ -1258,6 +1258,8 @@
  0001:000107D0       pinstfe_fade_from_map
  0001:000C1480       leave_creature_as_controller
  0001:000BBA70       go_to_my_next_room_of_type
+ 0001:000BBCB0       claim_room
+ 0001:000BC230       claim_enemy_room
  0001:000A1870       step_battles_forward
  0001:000A1840       active_battle_exists
  0001:000C41E0       find_next_annoyed_creature
