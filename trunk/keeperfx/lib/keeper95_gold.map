@@ -1097,6 +1097,7 @@
  0001:0005B9D0       remove_thing_from_list
  0001:000658D0       event_initialise_all
  0001:00078330       battle_initialise
+ 0001:00078350       battle_add
  0001:000A82E0       init_messages
  0001:000A2840       creature_remove_lair_from_room
  0001:00054680       draw_single_keepersprite_xflip
@@ -1343,6 +1344,8 @@
  0001:00070CA0       process_person_moods_and_needs
  0001:0008F460       creature_available_for_combat_this_turn
  0001:0008DF40       creature_look_for_combat
+ 0001:0008F2E0       creature_has_ranged_weapon
+ 0001:0008DE70       add_ranged_attacker
  0001:000C5230       get_enemy_dungeon_heart_creature_can_see
  0001:00076350       set_creature_object_combat
  0001:000777A0       get_door_for_position

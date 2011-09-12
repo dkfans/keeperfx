@@ -32,6 +32,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
 
@@ -58,12 +59,16 @@ DLLIMPORT long _DK_check_for_valid_combat(struct Thing *thing, struct Thing *enm
 DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp);
 DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long a4);
 DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long a4);
-DLLIMPORT long _DK_creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long enemy, long a4, long a5);
+DLLIMPORT long _DK_creature_can_have_combat_with_creature(const struct Thing *fighter1, const struct Thing *fighter2, long enemy, long a4, long a5);
 DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long dist);
 DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long enemy);
 DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long enemy);
 DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long enemy);
 DLLIMPORT long _DK_jonty_creature_can_see_thing_including_lava_check(struct Thing * creature, struct Thing * thing);
+DLLIMPORT long _DK_add_ranged_attacker(struct Thing *fighter, struct Thing *victim);
+DLLIMPORT long _DK_add_melee_attacker(struct Thing *fighter, struct Thing *victim);
+DLLIMPORT long _DK_creature_has_ranged_weapon(struct Thing *thing);
+DLLIMPORT void _DK_battle_add(struct Thing *fighter, struct Thing *victim);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -94,7 +99,7 @@ long creature_can_see_combat_path(struct Thing * creature, struct Thing * enemy,
     return 0;
 }
 
-long get_combat_distance(struct Thing *thing, struct Thing *enemy)
+long get_combat_distance(const struct Thing *thing, const struct Thing *enemy)
 {
     long dist,avgc;
     dist = get_2d_box_distance(&thing->mappos, &enemy->mappos);
@@ -142,14 +147,180 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enemy)
     return false;
 }
 
-long creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5)
+long creature_can_have_combat_with_creature(const struct Thing *fighter1, const struct Thing *fighter2, long a2, long a4, long a5)
 {
     return _DK_creature_can_have_combat_with_creature(fighter1, fighter2, a2, a4, a5);
 }
 
+void battle_add(struct Thing *fighter, struct Thing *victim)
+{
+    // TODO may hang; rewrite
+    //SYNCLOG("A");
+    _DK_battle_add(fighter, victim);
+    //SYNCLOG("B");
+}
+
+long add_ranged_attacker(struct Thing *fighter, struct Thing *victim)
+{
+    struct CreatureControl *figctrl;
+    struct CreatureControl *vicctrl;
+    //return _DK_add_ranged_attacker(fighter, victim);
+    figctrl = creature_control_get_from_thing(fighter);
+    vicctrl = creature_control_get_from_thing(victim);
+    if (figctrl->field_3)
+    {
+        ERRORLOG("Creature in combat already - adding ranged");
+        return false;
+    }
+    if (vicctrl->field_1C < 4)
+    {
+        figctrl->field_3 |= 0x02;
+        figctrl->word_A2 = victim->index;
+        figctrl->long_9E = victim->field_9;
+        long oppn_idx;
+        for (oppn_idx = 0; oppn_idx < 4; oppn_idx++)
+        {
+            if (vicctrl->field_13[oppn_idx] == 0)
+                break;
+        }
+        if (oppn_idx >= 4)
+        {
+            ERRORLOG("I Cannot Add A Ranged Attacker - NOT POSSIBLE");
+            return false;
+        }
+        vicctrl->field_1C++;
+        vicctrl->field_13[oppn_idx] = fighter->index;
+        battle_add(fighter, victim);
+        return true;
+    }
+    return false;
+}
+
+long add_melee_attacker(struct Thing *fighter, struct Thing *victim)
+{
+    struct CreatureControl *figctrl;
+    struct CreatureControl *vicctrl;
+    figctrl = creature_control_get_from_thing(fighter);
+    vicctrl = creature_control_get_from_thing(victim);
+    if (figctrl->field_3)
+    {
+        ERRORLOG("Creature in combat already - adding melee");
+        return false;
+    }
+    if (vicctrl->field_1B < 4)
+    {
+        figctrl->field_3 |= 0x01;
+        figctrl->word_A2 = victim->index;
+        figctrl->long_9E = victim->field_9;
+        long oppn_idx;
+        for (oppn_idx = 0; oppn_idx < 4; oppn_idx++)
+        {
+            if (vicctrl->field_B[oppn_idx] == 0)
+                break;
+        }
+        if (oppn_idx >= 4)
+        {
+            ERRORLOG("I Cannot Add A Melee Attacker - NOT POSSIBLE");
+            return false;
+        }
+        vicctrl->field_1B++;
+        vicctrl->field_B[oppn_idx] = fighter->index;
+        battle_add(fighter, victim);
+        return true;
+    }
+    return false;
+}
+
+TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *victim)
+{
+    struct CreatureControl *figctrl;
+    figctrl = creature_control_get_from_thing(fighter);
+    if (figctrl->field_3) {
+        WARNLOG("Creature in combat already - waiting");
+    }
+    figctrl->field_3 |= 0x04;
+    figctrl->word_A2 = victim->index;
+    figctrl->long_9E = victim->field_9;
+    battle_add(fighter, victim);
+    return true;
+}
+
+long creature_has_ranged_weapon(struct Thing *thing)
+{
+    return _DK_creature_has_ranged_weapon(thing);
+}
+
 void set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3)
 {
-    _DK_set_creature_combat_state(fighter1, fighter2, a3);
+    struct CreatureControl *fig1ctrl;
+    struct CreatureControl *fig2ctrl;
+    struct CreatureStats *crstat;
+    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fighter1),thing_model_name(fighter2));
+    //_DK_set_creature_combat_state(fighter1, fighter2, a3);
+    fig1ctrl = creature_control_get_from_thing(fighter1);
+    fig2ctrl = creature_control_get_from_thing(fighter2);
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(fighter1->owner);
+        if (!dungeon_invalid(dungeon)) {
+            dungeon->field_14A9++;
+        }
+    }
+    fig1ctrl->byte_A7 = a3;
+    if ((fig2ctrl->field_3 & 0x03) == 0)
+    {
+      if (is_my_player_number(fighter1->owner))
+      {
+          if (is_my_player_number(fighter2->owner)) {
+              output_message(20, 400, 1);
+          } else {
+              output_message(14, 400, 1);
+          }
+      } else
+      {
+          if (is_my_player_number(fighter2->owner)) {
+            output_message(13, 400, 1);
+          }
+      }
+    }
+    if (a3 == 2)
+    {
+      if ( add_ranged_attacker(fighter1, fighter2) )
+      {
+          play_creature_sound(fighter1, 11, 3, 0);
+          fig1ctrl->byte_A6 = 2;
+      } else
+      {
+          add_waiting_attacker(fighter1, fighter2);
+          fig1ctrl->byte_A6 = 1;
+      }
+      return;
+    }
+    crstat = creature_stats_get_from_thing(fighter1);
+    if ( (crstat->attack_preference == 2) && creature_has_ranged_weapon(fighter1) )
+    {
+        if ( add_ranged_attacker(fighter1, fighter2) )
+        {
+            play_creature_sound(fighter1, 11, 3, 0);
+            fig1ctrl->byte_A6 = 2;
+            return;
+        }
+    }
+    SYNCLOG("C");
+    if ( add_melee_attacker(fighter1, fighter2) )
+    {
+        play_creature_sound(fighter1, 11, 3, 0);
+        fig1ctrl->byte_A6 = 3;
+    }
+    if ( creature_has_ranged_weapon(fighter1) && add_ranged_attacker(fighter1, fighter2) )
+    {
+        play_creature_sound(fighter1, 11, 3, 0);
+        fig1ctrl->byte_A6 = 2;
+    } else
+    {
+        add_waiting_attacker(fighter1, fighter2);
+        fig1ctrl->byte_A6 = 1;
+    }
 }
 
 long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3)
@@ -158,16 +329,16 @@ long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *f
     cctrl = creature_control_get_from_thing(fighter1);
     if (cctrl->field_3 != 0)
     {
-        ERRORLOG("Creature in combat already - adding till death");
-        return false;
+        WARNLOG("Creature in combat already - adding till death");
     }
     if (external_set_thing_state(fighter1, CrSt_CreatureInCombat))
     {
         set_creature_combat_state(fighter1, fighter2, a3);
         cctrl->field_AA = 0;
         cctrl->field_A9 = 1;
+        return true;
     }
-    return true;
+    return false;
 }
 
 long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng)
