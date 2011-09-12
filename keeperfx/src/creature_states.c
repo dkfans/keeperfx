@@ -58,6 +58,7 @@
 #include "creature_states_guard.h"
 #include "creature_states_pray.h"
 #include "creature_states_tresr.h"
+#include "creature_states_combt.h"
 
 #include "keeperfx.hpp"
 
@@ -68,137 +69,137 @@ extern "C" {
 #define CREATURE_GUI_STATES_COUNT 3
 /* Please note that functions returning 'short' are not ment to return true/false only! */
 /******************************************************************************/
-DLLIMPORT short _DK_already_at_call_to_arms(struct Thing *thing);
-DLLIMPORT short _DK_arrive_at_alarm(struct Thing *thing);
-DLLIMPORT short _DK_arrive_at_call_to_arms(struct Thing *thing);
-DLLIMPORT short _DK_at_barrack_room(struct Thing *thing);
-DLLIMPORT short _DK_barracking(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_hold_audience(struct Thing *thing);
-DLLIMPORT short _DK_creature_being_dropped(struct Thing *thing);
-DLLIMPORT short _DK_creature_cannot_find_anything_to_do(struct Thing *thing);
-DLLIMPORT short _DK_creature_change_from_chicken(struct Thing *thing);
-DLLIMPORT short _DK_creature_change_to_chicken(struct Thing *thing);
-DLLIMPORT short _DK_creature_doing_nothing(struct Thing *thing);
-DLLIMPORT short _DK_creature_dormant(struct Thing *thing);
-DLLIMPORT short _DK_creature_escaping_death(struct Thing *thing);
-DLLIMPORT short _DK_creature_evacuate_room(struct Thing *thing);
-DLLIMPORT short _DK_creature_explore_dungeon(struct Thing *thing);
-DLLIMPORT short _DK_creature_fired(struct Thing *thing);
-DLLIMPORT short _DK_creature_follow_leader(struct Thing *thing);
-DLLIMPORT short _DK_creature_in_hold_audience(struct Thing *thing);
-DLLIMPORT short _DK_creature_kill_creatures(struct Thing *thing);
-DLLIMPORT short _DK_creature_leaves(struct Thing *thing);
-DLLIMPORT short _DK_creature_leaves_or_dies(struct Thing *thing);
-DLLIMPORT short _DK_creature_leaving_dungeon(struct Thing *thing);
-DLLIMPORT short _DK_creature_persuade(struct Thing *thing);
-DLLIMPORT short _DK_creature_present_to_dungeon_heart(struct Thing *thing);
-DLLIMPORT short _DK_creature_pretend_chicken_move(struct Thing *thing);
-DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *thing);
-DLLIMPORT short _DK_creature_search_for_gold_to_steal_in_room(struct Thing *thing);
-DLLIMPORT short _DK_creature_set_work_room_based_on_position(struct Thing *thing);
-DLLIMPORT short _DK_creature_slap_cowers(struct Thing *thing);
-DLLIMPORT short _DK_creature_steal_gold(struct Thing *thing);
-DLLIMPORT short _DK_creature_take_salary(struct Thing *thing);
-DLLIMPORT short _DK_creature_unconscious(struct Thing *thing);
-DLLIMPORT short _DK_creature_vandalise_rooms(struct Thing *thing);
-DLLIMPORT short _DK_creature_wait_at_treasure_room_door(struct Thing *thing);
-DLLIMPORT short _DK_creature_wants_a_home(struct Thing *thing);
-DLLIMPORT short _DK_creature_wants_salary(struct Thing *thing);
-DLLIMPORT short _DK_move_backwards_to_position(struct Thing *thing);
-DLLIMPORT long _DK_move_check_attack_any_door(struct Thing *thing);
-DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *thing);
-DLLIMPORT long _DK_move_check_kill_creatures(struct Thing *thing);
-DLLIMPORT long _DK_move_check_near_dungeon_heart(struct Thing *thing);
-DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *thing);
-DLLIMPORT long _DK_move_check_persuade(struct Thing *thing);
-DLLIMPORT long _DK_move_check_wait_at_door_for_wage(struct Thing *thing);
-DLLIMPORT short _DK_move_to_position(struct Thing *thing);
-DLLIMPORT char _DK_new_slab_tunneller_check_for_breaches(struct Thing *thing);
-DLLIMPORT short _DK_patrol_here(struct Thing *thing);
-DLLIMPORT short _DK_patrolling(struct Thing *thing);
-DLLIMPORT short _DK_person_sulk_at_lair(struct Thing *thing);
-DLLIMPORT short _DK_person_sulk_head_for_lair(struct Thing *thing);
-DLLIMPORT short _DK_person_sulking(struct Thing *thing);
-DLLIMPORT short _DK_seek_the_enemy(struct Thing *thing);
-DLLIMPORT short _DK_state_cleanup_dragging_body(struct Thing *thing);
-DLLIMPORT short _DK_state_cleanup_dragging_object(struct Thing *thing);
-DLLIMPORT short _DK_state_cleanup_in_room(struct Thing *thing);
-DLLIMPORT short _DK_state_cleanup_unable_to_fight(struct Thing *thing);
-DLLIMPORT short _DK_state_cleanup_unconscious(struct Thing *thing);
-DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *thing);
-DLLIMPORT short _DK_tunnelling(struct Thing *thing);
-DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
-DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *thing, long a1, long a2);
-DLLIMPORT void _DK_create_effect_around_thing(struct Thing *thing, long eff_kind);
-DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
+DLLIMPORT short _DK_already_at_call_to_arms(struct Thing *creatng);
+DLLIMPORT short _DK_arrive_at_alarm(struct Thing *creatng);
+DLLIMPORT short _DK_arrive_at_call_to_arms(struct Thing *creatng);
+DLLIMPORT short _DK_at_barrack_room(struct Thing *creatng);
+DLLIMPORT short _DK_barracking(struct Thing *creatng);
+DLLIMPORT short _DK_cleanup_hold_audience(struct Thing *creatng);
+DLLIMPORT short _DK_creature_being_dropped(struct Thing *creatng);
+DLLIMPORT short _DK_creature_cannot_find_anything_to_do(struct Thing *creatng);
+DLLIMPORT short _DK_creature_change_from_chicken(struct Thing *creatng);
+DLLIMPORT short _DK_creature_change_to_chicken(struct Thing *creatng);
+DLLIMPORT short _DK_creature_doing_nothing(struct Thing *creatng);
+DLLIMPORT short _DK_creature_dormant(struct Thing *creatng);
+DLLIMPORT short _DK_creature_escaping_death(struct Thing *creatng);
+DLLIMPORT short _DK_creature_evacuate_room(struct Thing *creatng);
+DLLIMPORT short _DK_creature_explore_dungeon(struct Thing *creatng);
+DLLIMPORT short _DK_creature_fired(struct Thing *creatng);
+DLLIMPORT short _DK_creature_follow_leader(struct Thing *creatng);
+DLLIMPORT short _DK_creature_in_hold_audience(struct Thing *creatng);
+DLLIMPORT short _DK_creature_kill_creatures(struct Thing *creatng);
+DLLIMPORT short _DK_creature_leaves(struct Thing *creatng);
+DLLIMPORT short _DK_creature_leaves_or_dies(struct Thing *creatng);
+DLLIMPORT short _DK_creature_leaving_dungeon(struct Thing *creatng);
+DLLIMPORT short _DK_creature_persuade(struct Thing *creatng);
+DLLIMPORT short _DK_creature_present_to_dungeon_heart(struct Thing *creatng);
+DLLIMPORT short _DK_creature_pretend_chicken_move(struct Thing *creatng);
+DLLIMPORT short _DK_creature_pretend_chicken_setup_move(struct Thing *creatng);
+DLLIMPORT short _DK_creature_search_for_gold_to_steal_in_room(struct Thing *creatng);
+DLLIMPORT short _DK_creature_set_work_room_based_on_position(struct Thing *creatng);
+DLLIMPORT short _DK_creature_slap_cowers(struct Thing *creatng);
+DLLIMPORT short _DK_creature_steal_gold(struct Thing *creatng);
+DLLIMPORT short _DK_creature_take_salary(struct Thing *creatng);
+DLLIMPORT short _DK_creature_unconscious(struct Thing *creatng);
+DLLIMPORT short _DK_creature_vandalise_rooms(struct Thing *creatng);
+DLLIMPORT short _DK_creature_wait_at_treasure_room_door(struct Thing *creatng);
+DLLIMPORT short _DK_creature_wants_a_home(struct Thing *creatng);
+DLLIMPORT short _DK_creature_wants_salary(struct Thing *creatng);
+DLLIMPORT short _DK_move_backwards_to_position(struct Thing *creatng);
+DLLIMPORT long _DK_move_check_attack_any_door(struct Thing *creatng);
+DLLIMPORT long _DK_move_check_can_damage_wall(struct Thing *creatng);
+DLLIMPORT long _DK_move_check_kill_creatures(struct Thing *creatng);
+DLLIMPORT long _DK_move_check_near_dungeon_heart(struct Thing *creatng);
+DLLIMPORT long _DK_move_check_on_head_for_room(struct Thing *creatng);
+DLLIMPORT long _DK_move_check_persuade(struct Thing *creatng);
+DLLIMPORT long _DK_move_check_wait_at_door_for_wage(struct Thing *creatng);
+DLLIMPORT short _DK_move_to_position(struct Thing *creatng);
+DLLIMPORT char _DK_new_slab_tunneller_check_for_breaches(struct Thing *creatng);
+DLLIMPORT short _DK_patrol_here(struct Thing *creatng);
+DLLIMPORT short _DK_patrolling(struct Thing *creatng);
+DLLIMPORT short _DK_person_sulk_at_lair(struct Thing *creatng);
+DLLIMPORT short _DK_person_sulk_head_for_lair(struct Thing *creatng);
+DLLIMPORT short _DK_person_sulking(struct Thing *creatng);
+DLLIMPORT short _DK_seek_the_enemy(struct Thing *creatng);
+DLLIMPORT short _DK_state_cleanup_dragging_body(struct Thing *creatng);
+DLLIMPORT short _DK_state_cleanup_dragging_object(struct Thing *creatng);
+DLLIMPORT short _DK_state_cleanup_in_room(struct Thing *creatng);
+DLLIMPORT short _DK_state_cleanup_unable_to_fight(struct Thing *creatng);
+DLLIMPORT short _DK_state_cleanup_unconscious(struct Thing *creatng);
+DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *creatng);
+DLLIMPORT short _DK_tunnelling(struct Thing *creatng);
+DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *creatng, struct Room *room, unsigned char a3);
+DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *creatng, long a1, long a2);
+DLLIMPORT void _DK_create_effect_around_thing(struct Thing *creatng, long eff_kind);
+DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *creatng, long delta);
 DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
-DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
-DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *thing, long a2);
-DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *thing);
-DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
-DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
-DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *creatng, char owner, char a3, char a4, unsigned char a5);
+DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *creatng, long a2);
+DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *creatng);
+DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
+DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, struct Room *room);
+DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *creatng);
+DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
 /******************************************************************************/
-short already_at_call_to_arms(struct Thing *thing);
+short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *thing);
 short arrive_at_call_to_arms(struct Thing *thing);
 short at_barrack_room(struct Thing *thing);
-short barracking(struct Thing *thing);
-short cleanup_hold_audience(struct Thing *thing);
-short creature_being_dropped(struct Thing *thing);
-short creature_cannot_find_anything_to_do(struct Thing *thing);
-short creature_change_from_chicken(struct Thing *thing);
-short creature_change_to_chicken(struct Thing *thing);
-short creature_doing_nothing(struct Thing *thing);
-short creature_dormant(struct Thing *thing);
-short creature_escaping_death(struct Thing *thing);
-short creature_evacuate_room(struct Thing *thing);
-short creature_explore_dungeon(struct Thing *thing);
-short creature_fired(struct Thing *thing);
-short creature_follow_leader(struct Thing *thing);
-short creature_in_hold_audience(struct Thing *thing);
-short creature_kill_creatures(struct Thing *thing);
-short creature_leaves(struct Thing *thing);
-short creature_leaves_or_dies(struct Thing *thing);
-short creature_leaving_dungeon(struct Thing *thing);
-short creature_persuade(struct Thing *thing);
-short creature_present_to_dungeon_heart(struct Thing *thing);
-short creature_pretend_chicken_move(struct Thing *thing);
-short creature_pretend_chicken_setup_move(struct Thing *thing);
+short barracking(struct Thing *creatng);
+short cleanup_hold_audience(struct Thing *creatng);
+short creature_being_dropped(struct Thing *creatng);
+short creature_cannot_find_anything_to_do(struct Thing *creatng);
+short creature_change_from_chicken(struct Thing *creatng);
+short creature_change_to_chicken(struct Thing *creatng);
+short creature_doing_nothing(struct Thing *creatng);
+short creature_dormant(struct Thing *creatng);
+short creature_escaping_death(struct Thing *creatng);
+short creature_evacuate_room(struct Thing *creatng);
+short creature_explore_dungeon(struct Thing *creatng);
+short creature_fired(struct Thing *creatng);
+short creature_follow_leader(struct Thing *creatng);
+short creature_in_hold_audience(struct Thing *creatng);
+short creature_kill_creatures(struct Thing *creatng);
+short creature_leaves(struct Thing *creatng);
+short creature_leaves_or_dies(struct Thing *creatng);
+short creature_leaving_dungeon(struct Thing *creatng);
+short creature_persuade(struct Thing *creatng);
+short creature_present_to_dungeon_heart(struct Thing *creatng);
+short creature_pretend_chicken_move(struct Thing *creatng);
+short creature_pretend_chicken_setup_move(struct Thing *creatng);
 short creature_search_for_gold_to_steal_in_room(struct Thing *thing);
-short creature_set_work_room_based_on_position(struct Thing *thing);
-short creature_slap_cowers(struct Thing *thing);
+short creature_set_work_room_based_on_position(struct Thing *creatng);
+short creature_slap_cowers(struct Thing *creatng);
 short creature_steal_gold(struct Thing *thing);
-short creature_take_salary(struct Thing *thing);
-short creature_unconscious(struct Thing *thing);
-short creature_vandalise_rooms(struct Thing *thing);
-short creature_wait_at_treasure_room_door(struct Thing *thing);
-short creature_wants_a_home(struct Thing *thing);
-short creature_wants_salary(struct Thing *thing);
+short creature_take_salary(struct Thing *creatng);
+short creature_unconscious(struct Thing *creatng);
+short creature_vandalise_rooms(struct Thing *creatng);
+short creature_wait_at_treasure_room_door(struct Thing *creatng);
+short creature_wants_a_home(struct Thing *creatng);
+short creature_wants_salary(struct Thing *creatng);
 short move_backwards_to_position(struct Thing *thing);
-long move_check_attack_any_door(struct Thing *thing);
-long move_check_can_damage_wall(struct Thing *thing);
-long move_check_kill_creatures(struct Thing *thing);
-long move_check_near_dungeon_heart(struct Thing *thing);
-long move_check_on_head_for_room(struct Thing *thing);
-long move_check_persuade(struct Thing *thing);
-long move_check_wait_at_door_for_wage(struct Thing *thing);
-short move_to_position(struct Thing *thing);
-char new_slab_tunneller_check_for_breaches(struct Thing *thing);
-short patrol_here(struct Thing *thing);
-short patrolling(struct Thing *thing);
-short person_sulk_at_lair(struct Thing *thing);
-short person_sulk_head_for_lair(struct Thing *thing);
-short person_sulking(struct Thing *thing);
+long move_check_attack_any_door(struct Thing *creatng);
+long move_check_can_damage_wall(struct Thing *creatng);
+long move_check_kill_creatures(struct Thing *creatng);
+long move_check_near_dungeon_heart(struct Thing *creatng);
+long move_check_on_head_for_room(struct Thing *creatng);
+long move_check_persuade(struct Thing *creatng);
+long move_check_wait_at_door_for_wage(struct Thing *creatng);
+short move_to_position(struct Thing *creatng);
+char new_slab_tunneller_check_for_breaches(struct Thing *creatng);
+short patrol_here(struct Thing *creatng);
+short patrolling(struct Thing *creatng);
+short person_sulk_at_lair(struct Thing *creatng);
+short person_sulk_head_for_lair(struct Thing *creatng);
+short person_sulking(struct Thing *creatng);
 short seek_the_enemy(struct Thing *thing);
-short state_cleanup_dragging_body(struct Thing *thing);
-short state_cleanup_dragging_object(struct Thing *thing);
-short state_cleanup_in_room(struct Thing *thing);
-short state_cleanup_unable_to_fight(struct Thing *thing);
-short state_cleanup_unconscious(struct Thing *thing);
-short tunneller_doing_nothing(struct Thing *thing);
-short tunnelling(struct Thing *thing);
+short state_cleanup_dragging_body(struct Thing *creatng);
+short state_cleanup_dragging_object(struct Thing *creatng);
+short state_cleanup_in_room(struct Thing *creatng);
+short state_cleanup_unable_to_fight(struct Thing *creatng);
+short state_cleanup_unconscious(struct Thing *creatng);
+short tunneller_doing_nothing(struct Thing *creatng);
+short tunnelling(struct Thing *creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *thing);
 short creature_pick_up_spell_to_steal(struct Thing *thing);
 
@@ -795,10 +796,10 @@ TbBool creature_state_is_unset(const struct Thing *thing)
     return false;
 }
 
-short already_at_call_to_arms(struct Thing *thing)
+short already_at_call_to_arms(struct Thing *creatng)
 {
     //return _DK_already_at_call_to_arms(thing);
-    internal_set_thing_state(thing, CrSt_ArriveAtCallToArms);
+    internal_set_thing_state(creatng, CrSt_ArriveAtCallToArms);
     return 1;
 }
 
@@ -1013,17 +1014,17 @@ SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, l
     return 0;
 }
 
-short barracking(struct Thing *thing)
+short barracking(struct Thing *creatng)
 {
-  return _DK_barracking(thing);
+  return _DK_barracking(creatng);
 }
 
-short cleanup_hold_audience(struct Thing *thing)
+short cleanup_hold_audience(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     //return _DK_cleanup_hold_audience(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
     return 0;
 }
 
@@ -1037,9 +1038,9 @@ short cleanup_seek_the_enemy(struct Thing *thing)
     return 1;
 }
 
-short creature_being_dropped(struct Thing *thing)
+short creature_being_dropped(struct Thing *creatng)
 {
-  return _DK_creature_being_dropped(thing);
+  return _DK_creature_being_dropped(creatng);
 }
 
 void anger_set_creature_anger(struct Thing *thing, long annoy_lv, long reason)
@@ -1078,24 +1079,24 @@ TbBool anger_make_creature_angry(struct Thing *thing, long reason)
   return true;
 }
 
-short creature_cannot_find_anything_to_do(struct Thing *thing)
+short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
-  return _DK_creature_cannot_find_anything_to_do(thing);
+  return _DK_creature_cannot_find_anything_to_do(creatng);
 }
 
-short creature_change_from_chicken(struct Thing *thing)
+short creature_change_from_chicken(struct Thing *creatng)
 {
-  return _DK_creature_change_from_chicken(thing);
+  return _DK_creature_change_from_chicken(creatng);
 }
 
-short creature_change_to_chicken(struct Thing *thing)
+short creature_change_to_chicken(struct Thing *creatng)
 {
-  return _DK_creature_change_to_chicken(thing);
+  return _DK_creature_change_to_chicken(creatng);
 }
 
-short creature_doing_nothing(struct Thing *thing)
+short creature_doing_nothing(struct Thing *creatng)
 {
-  return _DK_creature_doing_nothing(thing);
+  return _DK_creature_doing_nothing(creatng);
 }
 
 void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
@@ -1211,70 +1212,70 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     return false;
 }
 
-short creature_dormant(struct Thing *thing)
+short creature_dormant(struct Thing *creatng)
 {
     //return _DK_creature_dormant(thing);
-    if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+    if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
     {
-      thing->continue_state = CrSt_CreatureDormant;
+      creatng->continue_state = CrSt_CreatureDormant;
       return 1;
     }
     return 0;
 }
 
-short creature_escaping_death(struct Thing *thing)
+short creature_escaping_death(struct Thing *creatng)
 {
-  return _DK_creature_escaping_death(thing);
+  return _DK_creature_escaping_death(creatng);
 }
 
-short creature_evacuate_room(struct Thing *thing)
+short creature_evacuate_room(struct Thing *creatng)
 {
-  return _DK_creature_evacuate_room(thing);
+  return _DK_creature_evacuate_room(creatng);
 }
 
-short creature_explore_dungeon(struct Thing *thing)
+short creature_explore_dungeon(struct Thing *creatng)
 {
-  return _DK_creature_explore_dungeon(thing);
+  return _DK_creature_explore_dungeon(creatng);
 }
 
-short creature_fired(struct Thing *thing)
+short creature_fired(struct Thing *creatng)
 {
-  return _DK_creature_fired(thing);
+  return _DK_creature_fired(creatng);
 }
 
-short creature_follow_leader(struct Thing *thing)
+short creature_follow_leader(struct Thing *creatng)
 {
-  return _DK_creature_follow_leader(thing);
+  return _DK_creature_follow_leader(creatng);
 }
 
-short creature_in_hold_audience(struct Thing *thing)
+short creature_in_hold_audience(struct Thing *creatng)
 {
-  return _DK_creature_in_hold_audience(thing);
+  return _DK_creature_in_hold_audience(creatng);
 }
 
-short creature_kill_creatures(struct Thing *thing)
+short creature_kill_creatures(struct Thing *creatng)
 {
-  return _DK_creature_kill_creatures(thing);
+  return _DK_creature_kill_creatures(creatng);
 }
 
-short creature_leaves(struct Thing *thing)
+short creature_leaves(struct Thing *creatng)
 {
-  return _DK_creature_leaves(thing);
+  return _DK_creature_leaves(creatng);
 }
 
-short creature_leaves_or_dies(struct Thing *thing)
+short creature_leaves_or_dies(struct Thing *creatng)
 {
-  return _DK_creature_leaves_or_dies(thing);
+  return _DK_creature_leaves_or_dies(creatng);
 }
 
-short creature_leaving_dungeon(struct Thing *thing)
+short creature_leaving_dungeon(struct Thing *creatng)
 {
-  return _DK_creature_leaving_dungeon(thing);
+  return _DK_creature_leaving_dungeon(creatng);
 }
 
-short creature_persuade(struct Thing *thing)
+short creature_persuade(struct Thing *creatng)
 {
-  return _DK_creature_persuade(thing);
+  return _DK_creature_persuade(creatng);
 }
 
 void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
@@ -1295,19 +1296,19 @@ unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struc
     return _DK_find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos);
 }
 
-short creature_present_to_dungeon_heart(struct Thing *thing)
+short creature_present_to_dungeon_heart(struct Thing *creatng)
 {
-  return _DK_creature_present_to_dungeon_heart(thing);
+  return _DK_creature_present_to_dungeon_heart(creatng);
 }
 
-short creature_pretend_chicken_move(struct Thing *thing)
+short creature_pretend_chicken_move(struct Thing *creatng)
 {
-  return _DK_creature_pretend_chicken_move(thing);
+  return _DK_creature_pretend_chicken_move(creatng);
 }
 
-short creature_pretend_chicken_setup_move(struct Thing *thing)
+short creature_pretend_chicken_setup_move(struct Thing *creatng)
 {
-  return _DK_creature_pretend_chicken_setup_move(thing);
+  return _DK_creature_pretend_chicken_setup_move(creatng);
 }
 
 struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct Room *room)
@@ -1427,15 +1428,15 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *thing)
     return 1;
 }
 
-short creature_set_work_room_based_on_position(struct Thing *thing)
+short creature_set_work_room_based_on_position(struct Thing *creatng)
 {
     //return _DK_creature_set_work_room_based_on_position(thing);
     return 1;
 }
 
-short creature_slap_cowers(struct Thing *thing)
+short creature_slap_cowers(struct Thing *creatng)
 {
-  return _DK_creature_slap_cowers(thing);
+  return _DK_creature_slap_cowers(creatng);
 }
 
 short creature_steal_gold(struct Thing *thing)
@@ -1512,34 +1513,34 @@ short creature_pick_up_spell_to_steal(struct Thing *thing)
 */
 }
 
-short creature_take_salary(struct Thing *thing)
+short creature_take_salary(struct Thing *creatng)
 {
-  return _DK_creature_take_salary(thing);
+  return _DK_creature_take_salary(creatng);
 }
 
-short creature_unconscious(struct Thing *thing)
+short creature_unconscious(struct Thing *creatng)
 {
-  return _DK_creature_unconscious(thing);
+  return _DK_creature_unconscious(creatng);
 }
 
-short creature_vandalise_rooms(struct Thing *thing)
+short creature_vandalise_rooms(struct Thing *creatng)
 {
-  return _DK_creature_vandalise_rooms(thing);
+  return _DK_creature_vandalise_rooms(creatng);
 }
 
-short creature_wait_at_treasure_room_door(struct Thing *thing)
+short creature_wait_at_treasure_room_door(struct Thing *creatng)
 {
-  return _DK_creature_wait_at_treasure_room_door(thing);
+  return _DK_creature_wait_at_treasure_room_door(creatng);
 }
 
-short creature_wants_a_home(struct Thing *thing)
+short creature_wants_a_home(struct Thing *creatng)
 {
-  return _DK_creature_wants_a_home(thing);
+  return _DK_creature_wants_a_home(creatng);
 }
 
-short creature_wants_salary(struct Thing *thing)
+short creature_wants_salary(struct Thing *creatng)
 {
-  return _DK_creature_wants_salary(thing);
+  return _DK_creature_wants_salary(creatng);
 }
 
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
@@ -1595,69 +1596,135 @@ short move_backwards_to_position(struct Thing *thing)
     return 0;
 }
 
-long move_check_attack_any_door(struct Thing *thing)
+long move_check_attack_any_door(struct Thing *creatng)
 {
-  return _DK_move_check_attack_any_door(thing);
+  return _DK_move_check_attack_any_door(creatng);
 }
 
-long move_check_can_damage_wall(struct Thing *thing)
+long move_check_can_damage_wall(struct Thing *creatng)
 {
-  return _DK_move_check_can_damage_wall(thing);
+  return _DK_move_check_can_damage_wall(creatng);
 }
 
-long move_check_kill_creatures(struct Thing *thing)
+long creature_can_have_combat_with_creature_on_slab(const struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
 {
-  return _DK_move_check_kill_creatures(thing);
+    struct Map *map;
+    long endstl_x,endstl_y;
+    long stl_x,stl_y;
+    long dist;
+    endstl_x = 3*slb_x+3;
+    endstl_y = 3*slb_y+3;
+    for (stl_y = 3*slb_y; stl_y < endstl_y; stl_y++)
+    {
+        for (stl_x = 3*slb_x; stl_x < endstl_x; stl_x++)
+        {
+            struct Thing *thing;
+            long can_combat;
+            long i;
+            unsigned long k;
+            map = get_map_block_at(stl_x,stl_y);
+            k = 0;
+            i = get_mapwho_thing_index(map);
+            while (i != 0)
+            {
+                thing = thing_get(i);
+                if (thing_is_invalid(thing))
+                {
+                    ERRORLOG("Jump to invalid thing detected");
+                    break;
+                }
+                i = thing->field_2;
+                // Per thing code start
+                if ( thing_is_creature(thing) && (thing != creatng) )
+                {
+                    if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+                    {
+                        dist = get_combat_distance(creatng, thing);
+                        can_combat = creature_can_have_combat_with_creature(creatng, thing, dist, 0, 0);
+                        if (can_combat > 0) {
+                            (*enemytng) = thing;
+                            return can_combat;
+                        }
+                    }
+                }
+                // Per thing code end
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break;
+                }
+            }
+        }
+    }
+    (*enemytng) = INVALID_THING;
+    return 0;
 }
 
-long move_check_near_dungeon_heart(struct Thing *thing)
+long move_check_kill_creatures(struct Thing *creatng)
 {
-  return _DK_move_check_near_dungeon_heart(thing);
+    struct Thing * enemytng;
+    MapSlabCoord slb_x,slb_y;
+    long can_combat;
+    //return _DK_move_check_kill_creatures(thing);
+    slb_x = creatng->mappos.x.stl.num/3;
+    slb_y = creatng->mappos.y.stl.num/3;
+    can_combat = creature_can_have_combat_with_creature_on_slab(creatng, slb_x, slb_y, &enemytng);
+    if (can_combat > 0) {
+        set_creature_in_combat_to_the_death(creatng, enemytng, can_combat);
+        return 1;
+    }
+    return 0;
 }
 
-long move_check_on_head_for_room(struct Thing *thing)
+long move_check_near_dungeon_heart(struct Thing *creatng)
 {
-  return _DK_move_check_on_head_for_room(thing);
+  return _DK_move_check_near_dungeon_heart(creatng);
 }
 
-long move_check_persuade(struct Thing *thing)
+long move_check_on_head_for_room(struct Thing *creatng)
 {
-  return _DK_move_check_persuade(thing);
+  return _DK_move_check_on_head_for_room(creatng);
 }
 
-long move_check_wait_at_door_for_wage(struct Thing *thing)
+long move_check_persuade(struct Thing *creatng)
 {
-  return _DK_move_check_wait_at_door_for_wage(thing);
+  return _DK_move_check_persuade(creatng);
 }
 
-char new_slab_tunneller_check_for_breaches(struct Thing *thing)
+long move_check_wait_at_door_for_wage(struct Thing *creatng)
 {
-  return _DK_new_slab_tunneller_check_for_breaches(thing);
+  return _DK_move_check_wait_at_door_for_wage(creatng);
 }
 
-short patrol_here(struct Thing *thing)
+char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
 {
-  return _DK_patrol_here(thing);
+  return _DK_new_slab_tunneller_check_for_breaches(creatng);
 }
 
-short patrolling(struct Thing *thing)
+short patrol_here(struct Thing *creatng)
 {
-  return _DK_patrolling(thing);
+  return _DK_patrol_here(creatng);
 }
 
-short person_sulk_at_lair(struct Thing *thing)
+short patrolling(struct Thing *creatng)
 {
-  return _DK_person_sulk_at_lair(thing);
+  return _DK_patrolling(creatng);
 }
 
-short person_sulk_head_for_lair(struct Thing *thing)
+short person_sulk_at_lair(struct Thing *creatng)
 {
-  return _DK_person_sulk_head_for_lair(thing);
+  return _DK_person_sulk_at_lair(creatng);
 }
 
-short person_sulking(struct Thing *thing)
+short person_sulk_head_for_lair(struct Thing *creatng)
 {
-  return _DK_person_sulking(thing);
+  return _DK_person_sulk_head_for_lair(creatng);
+}
+
+short person_sulking(struct Thing *creatng)
+{
+  return _DK_person_sulking(creatng);
 }
 
 long room_still_valid_as_type_for_thing(struct Room *room, long rkind, struct Thing *thing)
@@ -1896,33 +1963,33 @@ short seek_the_enemy(struct Thing *thing)
     return 1;
 }
 
-short state_cleanup_dragging_body(struct Thing *thing)
+short state_cleanup_dragging_body(struct Thing *creatng)
 {
-  return _DK_state_cleanup_dragging_body(thing);
+  return _DK_state_cleanup_dragging_body(creatng);
 }
 
-short state_cleanup_dragging_object(struct Thing *thing)
+short state_cleanup_dragging_object(struct Thing *creatng)
 {
-  return _DK_state_cleanup_dragging_object(thing);
+  return _DK_state_cleanup_dragging_object(creatng);
 }
 
-short state_cleanup_in_room(struct Thing *thing)
+short state_cleanup_in_room(struct Thing *creatng)
 {
-  return _DK_state_cleanup_in_room(thing);
+  return _DK_state_cleanup_in_room(creatng);
 }
 
-short state_cleanup_unable_to_fight(struct Thing *thing)
+short state_cleanup_unable_to_fight(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     //return _DK_state_cleanup_unable_to_fight(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
     return 1;
 }
 
-short state_cleanup_unconscious(struct Thing *thing)
+short state_cleanup_unconscious(struct Thing *creatng)
 {
-  return _DK_state_cleanup_unconscious(thing);
+  return _DK_state_cleanup_unconscious(creatng);
 }
 
 long process_work_speed_on_work_value(struct Thing *thing, long base_val)
@@ -1968,14 +2035,14 @@ TbBool check_experience_upgrade(struct Thing *thing)
     return true;
 }
 
-short tunneller_doing_nothing(struct Thing *thing)
+short tunneller_doing_nothing(struct Thing *creatng)
 {
-  return _DK_tunneller_doing_nothing(thing);
+  return _DK_tunneller_doing_nothing(creatng);
 }
 
-short tunnelling(struct Thing *thing)
+short tunnelling(struct Thing *creatng)
 {
-  return _DK_tunnelling(thing);
+  return _DK_tunnelling(creatng);
 }
 /******************************************************************************/
 TbBool internal_set_thing_state(struct Thing *thing, long nState)
