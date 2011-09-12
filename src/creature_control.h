@@ -101,7 +101,10 @@ struct CreatureControl {
     unsigned char field_4;
     long field_5;
     short field_9;
-char field_B[18];
+    short field_B[4];
+    short field_13[4];
+    unsigned char field_1B;
+    unsigned char field_1C;
     unsigned short field_1D;
     unsigned short players_next_creature_idx;
 unsigned short field_21;

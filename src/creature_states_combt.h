@@ -52,10 +52,11 @@ void creature_in_melee_combat(struct Thing *thing);
 short creature_attack_rooms(struct Thing *thing);
 short creature_damage_walls(struct Thing *thing);
 short creature_attempt_to_damage_walls(struct Thing *thing);
+long creature_can_have_combat_with_creature(const struct Thing *fighter1, const struct Thing *fighter2, long a2, long a4, long a5);
 
 long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, long a3, long a4);
 long creature_can_see_combat_path(struct Thing * a, struct Thing * b, long c);
-long get_combat_distance(struct Thing *thing, struct Thing *enemy);
+long get_combat_distance(const struct Thing *thing, const struct Thing *enemy);
 long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3);
 long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng);
 void creature_in_combat_wait(struct Thing *thing);

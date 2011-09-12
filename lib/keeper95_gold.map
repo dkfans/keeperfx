@@ -661,6 +661,7 @@
  0001:00078000       init_lens
  0001:000782E0       draw_lens
  0001:00078330       battle_initialise
+ 0001:00078350       battle_add
  0001:000788F0       find_first_battle_of_mine
  0001:00078ED0       battle_move_player_towards_battle
  0001:00079140       GetMouseY
@@ -759,10 +760,12 @@
  0001:0008D110       remove_from_task_list
  0001:0008D1B0       find_dig_from_task_list
  0001:0008DB70       set_creature_combat_state
+ 0001:0008DE70       add_ranged_attacker
  0001:0008DF40       creature_look_for_combat
  0001:0008E500       remove_all_traces_of_combat
  0001:0008E760       get_best_ranged_offensive_weapon
  0001:0008E970       get_best_melee_offensive_weapon
+ 0001:0008F2E0       creature_has_ranged_weapon
  0001:0008F460       creature_available_for_combat_this_turn
  0001:0008F850       creature_can_have_combat_with_creature
  0001:0008FAF0       check_for_valid_combat
