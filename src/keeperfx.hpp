@@ -251,8 +251,8 @@ struct UnkStruc6 { // sizeof = 8
   unsigned long field_4;
 };
 
-struct UnkStruc7 { // sizeof = 17
-  unsigned long field_0;
+struct CreatureBattle { // sizeof = 17
+  unsigned long fighters_num;
   unsigned char field_4[9];
   unsigned short field_D;
   unsigned short field_F;
@@ -632,7 +632,7 @@ long field_15038E;
     unsigned long temple_scavenge_protection_time;
 char numfield_1503A2;
     unsigned char bodies_for_vampire;
-    struct UnkStruc7 field_1503A4[48];
+    struct CreatureBattle battles[48];
 unsigned char field_1506D4;
     long music_track_index;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];

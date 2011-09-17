@@ -552,6 +552,7 @@
  0001:000658D0       event_initialise_all
  0001:00065910       event_create_event
  0001:00065B70       event_create_event_or_update_nearby_existing_event
+ 0001:00065C40       event_create_event_or_update_old_event
  0001:00065CE0       event_kill_all_players_events
  0001:00065DC0       event_delete_event
  0001:00065E50       event_process_events
@@ -662,8 +663,11 @@
  0001:000782E0       draw_lens
  0001:00078330       battle_initialise
  0001:00078350       battle_add
+ 0001:00078610       insert_thing_in_battle_list
+ 0001:000786C0       remove_thing_from_battle_list
  0001:000788F0       find_first_battle_of_mine
  0001:00078ED0       battle_move_player_towards_battle
+ 0001:00079060       cleanup_battle
  0001:00079140       GetMouseY
  0001:000791A0       can_drop_thing_here
  0001:00079340       get_2d_distance
