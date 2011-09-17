@@ -1635,6 +1635,10 @@
  0001:00005B40       light_set_light_intensity
  0001:00005C30       light_get_light_intensity
  0001:00065CE0       event_kill_all_players_events
+ 0001:00065C40       event_create_event_or_update_old_event
+ 0001:00078610       insert_thing_in_battle_list
+ 0001:000786C0       remove_thing_from_battle_list
+ 0001:00079060       cleanup_battle
  0001:000D2BD0       check_out_imp_last_did
  0001:000D1BB0       check_out_unprettied_spiral
  0001:00088100       check_place_to_pretty_excluding

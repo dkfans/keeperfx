@@ -253,7 +253,7 @@ unsigned char field_88;
   };
   union {
   struct {
-      unsigned char byte_A6;
+      unsigned char combat_state_id;
       unsigned char byte_A7;
     };
   struct {
@@ -329,7 +329,9 @@ unsigned short field_2C5;
 unsigned char field_2CB[32];
     long field_2EB;
     unsigned long field_2EF;
-unsigned char field_2F3[5];
+    short battle_prev_creatr;
+    short battle_next_creatr;
+    unsigned char battle_id;
     unsigned char field_2F8;
     unsigned char field_2F9;
     unsigned long field_2FA;

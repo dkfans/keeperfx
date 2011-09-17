@@ -266,7 +266,8 @@ long get_creature_state_besides_move(const struct Thing *thing);
 long get_creature_state_besides_drag(const struct Thing *thing);
 long get_creature_state_type(const struct Thing *thing);
 long get_creature_gui_job(const struct Thing *thing);
-short set_start_state(struct Thing *thing);
+short set_start_state_f(struct Thing *thing,const char *func_name);
+#define set_start_state(thing) set_start_state_f(thing,__func__)
 
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);

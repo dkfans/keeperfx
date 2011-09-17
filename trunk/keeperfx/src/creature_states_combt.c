@@ -69,6 +69,10 @@ DLLIMPORT long _DK_add_ranged_attacker(struct Thing *fighter, struct Thing *vict
 DLLIMPORT long _DK_add_melee_attacker(struct Thing *fighter, struct Thing *victim);
 DLLIMPORT long _DK_creature_has_ranged_weapon(struct Thing *thing);
 DLLIMPORT void _DK_battle_add(struct Thing *fighter, struct Thing *victim);
+DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsigned char a3, unsigned char a4, long a5);
+DLLIMPORT void _DK_remove_thing_from_battle_list(struct Thing *thing);
+DLLIMPORT void _DK_insert_thing_in_battle_list(struct Thing *thing, unsigned short a2);
+DLLIMPORT void _DK_cleanup_battle(unsigned short a1);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -152,12 +156,231 @@ long creature_can_have_combat_with_creature(const struct Thing *fighter1, const 
     return _DK_creature_can_have_combat_with_creature(fighter1, fighter2, a2, a4, a5);
 }
 
+long event_create_event_or_update_old_event(long a1, long a2, unsigned char a3, unsigned char a4, long a5)
+{
+    return _DK_event_create_event_or_update_old_event(a1, a2, a3, a4, a5);
+}
+
+void remove_thing_from_battle_list(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    unsigned short partner_id;
+    struct CreatureBattle *battle;
+    SYNCDBG(9,"Starting for %s",thing_model_name(thing));
+    //_DK_remove_thing_from_battle_list(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if ( !thing_is_creature(thing) || creature_control_invalid(cctrl) ) {
+      ERRORLOG("Creature has been removed due to death");
+    }
+    battle = &game.battles[cctrl->battle_id];
+    // Change next index in prev creature
+    partner_id = cctrl->battle_prev_creatr;
+    if (cctrl->battle_next_creatr > 0) {
+        struct Thing *attctng;
+        struct CreatureControl *attcctrl;
+        attctng = thing_get(cctrl->battle_next_creatr);
+        attcctrl = creature_control_get_from_thing(attctng);
+        if ( creature_control_invalid(attcctrl) ) {
+            ERRORLOG("Invalid next creature in battle, index %d",(int)cctrl->battle_next_creatr);
+        } else {
+            attcctrl->battle_prev_creatr = partner_id;
+        }
+    } else {
+        battle->field_D = partner_id;
+    }
+    // Change prev index in next creature
+    partner_id = cctrl->battle_next_creatr;
+    if (cctrl->battle_prev_creatr > 0) {
+        struct Thing *attctng;
+        struct CreatureControl *attcctrl;
+        attctng = thing_get(cctrl->battle_prev_creatr);
+        attcctrl = creature_control_get_from_thing(attctng);
+        if ( creature_control_invalid(attcctrl) ) {
+            ERRORLOG("Invalid previous creature in battle, index %d",(int)cctrl->battle_prev_creatr);
+        } else {
+            attcctrl->battle_next_creatr = partner_id;
+        }
+    } else {
+        battle->field_F = partner_id;
+    }
+    cctrl->battle_id = 0;
+    cctrl->battle_prev_creatr = 0;
+    cctrl->battle_next_creatr = 0;
+    if (battle->fighters_num > 0) {
+        battle->fighters_num--;
+    } else {
+        ERRORLOG("Removing creature from battle, but counter is 0");
+    }
+    SYNCDBG(19,"Finished");
+}
+
+void insert_thing_in_battle_list(struct Thing *thing, unsigned short a2)
+{
+    _DK_insert_thing_in_battle_list(thing, a2);
+}
+
+void cleanup_battle(unsigned short a1)
+{
+    _DK_cleanup_battle(a1);
+}
+
+void update_battle_events(unsigned short battle_id)
+{
+    struct CreatureBattle *battle;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned short owner_flags;
+    MapSubtlCoord pos_x,pos_y;
+    unsigned long k;
+    int i;
+    owner_flags = 0;
+    k = 0;
+    battle = &game.battles[battle_id];
+    i = battle->field_D;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->battle_prev_creatr;
+        // Per thing code starts
+        owner_flags |= (1 << thing->owner);
+        pos_x = thing->mappos.x.stl.pos;
+        pos_y = thing->mappos.y.stl.pos;
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        if (i == hero_player_number)
+            continue;
+        if ( (1 << i) & owner_flags ) {
+            event_create_event_or_update_old_event(pos_x, pos_y, 2, i, 0);
+        }
+    }
+}
+
+long battle_any_of_things_in_specific_battle(struct CreatureBattle *battle, struct Thing *tng1, struct Thing *tng2)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *batltng;
+    struct Thing *attcktng;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = battle->field_D;
+    while (i != 0)
+    {
+        batltng = thing_get(i);
+        cctrl = creature_control_get_from_thing(batltng);
+        if (creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Invalid control of thing in battle, index %d.",(int)i);
+            break;
+        }
+        i = cctrl->battle_prev_creatr;
+        // Per battle creature code
+        if ( cctrl->field_3 )
+        {
+            attcktng = thing_get(cctrl->word_A2);
+            if ( !thing_is_invalid(attcktng) )
+            {
+                if ( (attcktng == tng1) || (attcktng == tng2) )
+                {
+                    if (cctrl->battle_id >= 0) {
+                        return cctrl->battle_id;
+                    }
+                }
+            }
+        }
+        // Per battle creature code ends
+        k++;
+        if ( k >= 200 ) {
+            ERRORLOG("Infinite loop in battle add");
+            break;
+        }
+    }
+    return 0;
+}
+
+unsigned short find_battle_for_thing(struct Thing *fighter, struct Thing *victim)
+{
+    struct CreatureBattle *battle;
+    unsigned short battle_id;
+    long i,n;
+    battle_id = 0;
+    for (i = 1; i < 32; i++) // Why only 32? there seem to be 48 battles?
+    {
+        battle = &game.battles[i];
+        if (battle->fighters_num != 0)
+        {
+            n = battle_any_of_things_in_specific_battle(battle, fighter, victim);
+            if (n > 0) {
+                battle_id = i;
+                break;
+            }
+        }
+        if (battle_id <= 0)
+          battle_id = i;
+    }
+    if (battle_id <= 0) {
+        ERRORLOG("No free battle structures");
+    }
+    return battle_id;
+}
+
 void battle_add(struct Thing *fighter, struct Thing *victim)
 {
-    // TODO may hang; rewrite
-    //SYNCLOG("A");
-    _DK_battle_add(fighter, victim);
-    //SYNCLOG("B");
+    struct CreatureControl *figctrl;
+    unsigned short battle_id;
+    SYNCDBG(9,"Starting");
+    //_DK_battle_add(fighter, victim);
+    if (thing_is_invalid(victim))
+    {
+        ERRORLOG("Attempt to create battle with invalid target creature!");
+    }
+    figctrl = creature_control_get_from_thing(fighter);
+    if (figctrl->battle_id != 0)
+    {
+        remove_thing_from_battle_list(fighter);
+    }
+    battle_id = 0;
+    if (figctrl->battle_id != 0)
+    {
+        struct CreatureControl *vicctrl;
+        vicctrl = creature_control_get_from_thing(victim);
+
+        if (creature_control_invalid(vicctrl)) {
+            ERRORLOG("Invalid victim creature control");
+            return;
+        } else
+        if (vicctrl->battle_id > 0)
+        {
+            battle_id = vicctrl->battle_id;
+        } else
+        {
+            battle_id = find_battle_for_thing(fighter, victim);
+            if (battle_id <= 0) {
+                ERRORLOG("No free battle structures");
+                return;
+            }
+        }
+        insert_thing_in_battle_list(fighter, battle_id);
+        if (vicctrl->battle_id <= 0)
+          insert_thing_in_battle_list(victim, battle_id);
+        update_battle_events(battle_id);
+    }
+    cleanup_battle(battle_id);
+    SYNCDBG(12,"Finished");
 }
 
 long add_ranged_attacker(struct Thing *fighter, struct Thing *victim)
@@ -288,11 +511,11 @@ void set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, l
       if ( add_ranged_attacker(fighter1, fighter2) )
       {
           play_creature_sound(fighter1, 11, 3, 0);
-          fig1ctrl->byte_A6 = 2;
+          fig1ctrl->combat_state_id = 2;
       } else
       {
           add_waiting_attacker(fighter1, fighter2);
-          fig1ctrl->byte_A6 = 1;
+          fig1ctrl->combat_state_id = 1;
       }
       return;
     }
@@ -302,7 +525,7 @@ void set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, l
         if ( add_ranged_attacker(fighter1, fighter2) )
         {
             play_creature_sound(fighter1, 11, 3, 0);
-            fig1ctrl->byte_A6 = 2;
+            fig1ctrl->combat_state_id = 2;
             return;
         }
     }
@@ -310,16 +533,16 @@ void set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, l
     if ( add_melee_attacker(fighter1, fighter2) )
     {
         play_creature_sound(fighter1, 11, 3, 0);
-        fig1ctrl->byte_A6 = 3;
+        fig1ctrl->combat_state_id = 3;
     }
     if ( creature_has_ranged_weapon(fighter1) && add_ranged_attacker(fighter1, fighter2) )
     {
         play_creature_sound(fighter1, 11, 3, 0);
-        fig1ctrl->byte_A6 = 2;
+        fig1ctrl->combat_state_id = 2;
     } else
     {
         add_waiting_attacker(fighter1, fighter2);
-        fig1ctrl->byte_A6 = 1;
+        fig1ctrl->combat_state_id = 1;
     }
 }
 
@@ -436,7 +659,7 @@ long combat_enemy_exists(struct Thing *thing, struct Thing *enemy)
     struct CreatureControl *cctrl;
     struct CreatureControl *enmcctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if (((enemy->field_0 & 0x01) == 0) || (cctrl->long_9E != enemy->field_9))
+    if ( (!thing_exists(enemy)) || (cctrl->long_9E != enemy->field_9) )
     {
         SYNCDBG(8,"Enemy creature doesn't exist");
         return 0;
@@ -613,13 +836,14 @@ short creature_in_combat(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     CombatState combat_func;
+    SYNCDBG(9,"Starting for %s",thing_model_name(thing));
     //return _DK_creature_in_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->word_A2);
     if (!combat_enemy_exists(thing, enmtng))
     {
-      set_start_state(thing);
-      return 0;
+        set_start_state(thing);
+        return 0;
     }
     if (creature_too_scared_for_combat(thing, enmtng))
     {
@@ -631,8 +855,8 @@ short creature_in_combat(struct Thing *thing)
         cctrl->field_28E = game.play_gameturn;
         return 0;
     }
-    if (cctrl->byte_A6 < sizeof(combat_state)/sizeof(combat_state[0]))
-        combat_func = combat_state[cctrl->byte_A6];
+    if (cctrl->combat_state_id < sizeof(combat_state)/sizeof(combat_state[0]))
+        combat_func = combat_state[cctrl->combat_state_id];
     else
         combat_func = NULL;
     if (combat_func != NULL)
@@ -640,7 +864,7 @@ short creature_in_combat(struct Thing *thing)
         combat_func(thing);
         return 1;
     }
-    ERRORLOG("No valid fight state %d in thing no %d",(int)cctrl->byte_A6,(int)thing->index);
+    ERRORLOG("No valid fight state %d in thing no %d",(int)cctrl->combat_state_id,(int)thing->index);
     set_start_state(thing);
     return 0;
 }

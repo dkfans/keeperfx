@@ -2164,12 +2164,12 @@ TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_
     return false;
 }
 
-short set_start_state(struct Thing *thing)
+short set_start_state_f(struct Thing *thing,const char *func_name)
 {
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     long i;
-    SYNCDBG(8,"Starting for %s index %d, owner %d, last state %s",thing_model_name(thing),(int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state));
+    SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s",func_name,thing_model_name(thing),(int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state));
 //    return _DK_set_start_state(thing);
     if ((thing->field_0 & 0x20) != 0)
     {
