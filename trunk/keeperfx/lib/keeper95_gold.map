@@ -1453,6 +1453,8 @@
  0001:00074C80       convert_world_coord_to_front_view_screen_coord
  0001:000C0380       cause_creature_death
  0001:0008E500       remove_all_traces_of_combat
+ 0001:0008ECF0       check_for_better_combat
+ 0001:0008E280       check_for_possible_combat
  0001:00055EA0       already_at_call_to_arms
  0001:00055EC0       arrive_at_alarm
  0001:00055D50       arrive_at_call_to_arms
@@ -1781,6 +1783,7 @@
  0001:0008E970       get_best_melee_offensive_weapon
  0001:000CC690       ranged_combat_move
  0001:000CC8D0       melee_combat_move
+ 0001:000CCAA0       waiting_combat_move
  0001:0004CA10       fake_place_thing_in_power_hand
  0001:0004CB50       fake_dump_held_creatures_on_map
  0001:0004F4A0       find_creature_to_be_placed_in_room

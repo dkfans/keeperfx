@@ -73,6 +73,8 @@ DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsi
 DLLIMPORT void _DK_remove_thing_from_battle_list(struct Thing *thing);
 DLLIMPORT void _DK_insert_thing_in_battle_list(struct Thing *thing, unsigned short a2);
 DLLIMPORT void _DK_cleanup_battle(unsigned short a1);
+DLLIMPORT long _DK_check_for_better_combat(struct Thing *thing);
+DLLIMPORT long _DK_waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, long a2);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -529,7 +531,6 @@ void set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, l
             return;
         }
     }
-    SYNCLOG("C");
     if ( add_melee_attacker(fighter1, fighter2) )
     {
         play_creature_sound(fighter1, 11, 3, 0);
@@ -754,13 +755,26 @@ TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy)
     return true;
 }
 
+long check_for_better_combat(struct Thing *thing)
+{
+    return _DK_check_for_better_combat(thing);
+}
+
+long waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, long a2)
+{
+    return _DK_waiting_combat_move(fighter, enemy, a1, a2);
+}
+
 void creature_in_combat_wait(struct Thing *thing)
 {
+    //TODO rewrite - may hang
+    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
     _DK_creature_in_combat_wait(thing);
 }
 
 void creature_in_ranged_combat(struct Thing *thing)
 {
+    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     long dist, cmbtyp, weapon;
@@ -797,6 +811,7 @@ void creature_in_ranged_combat(struct Thing *thing)
 
 void creature_in_melee_combat(struct Thing *thing)
 {
+    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     long dist, cmbtyp, weapon;

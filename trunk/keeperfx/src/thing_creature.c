@@ -33,6 +33,7 @@
 #include "creature_states_combt.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
+#include "creature_battle.h"
 #include "config_lenses.h"
 #include "config_crtrstates.h"
 #include "thing_stats.h"
@@ -143,6 +144,7 @@ DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *thing);
 DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
 DLLIMPORT long _DK_update_creature(struct Thing *thing);
+DLLIMPORT long _DK_check_for_possible_combat(struct Thing *crtng, struct Thing **battltng);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -314,11 +316,59 @@ long creature_available_for_combat_this_turn(struct Thing *thing)
   return _DK_creature_available_for_combat_this_turn(thing);
 }
 
+long check_for_possible_combat(struct Thing *crtng, struct Thing **battltng)
+{
+    return _DK_check_for_possible_combat(crtng, battltng);
+}
+
 long creature_look_for_combat(struct Thing *thing)
 {
+    struct Thing *enmtng;
+    struct CreatureControl *cctrl;
+    long possible_combat;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    //TODO may hang; rewrite
-    return _DK_creature_look_for_combat(thing);
+    //return _DK_creature_look_for_combat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    possible_combat = check_for_possible_combat(thing, &enmtng);
+    if (possible_combat <= 0)
+    {
+        if ( (cctrl->field_1B == 0) && (cctrl->field_1C == 0) ) {
+            return 0;
+        }
+        if ( !external_set_thing_state(thing, 87) ) {
+            return 0;
+        }
+        setup_combat_flee_position(thing);
+        cctrl->field_28E = game.play_gameturn;
+        return 1;
+    }
+
+    if (cctrl->field_3 != 0)
+    {
+        if (get_combat_state_for_combat(thing, enmtng, possible_combat) == 1) {
+          return 0;
+        }
+    }
+
+
+    if ( !creature_too_scared_for_combat(thing, enmtng) )
+    {
+        set_creature_in_combat(thing, enmtng, possible_combat);
+        return 1;
+    }
+
+    if ( ((cctrl->spell_flags & 0x20) != 0) && (cctrl->field_AF <= 0) )
+    {
+      if ( (cctrl->field_1B == 0) && (cctrl->field_1C == 0) ) {
+          return 0;
+      }
+    }
+    if ( !external_set_thing_state(thing, 87) ) {
+        return 0;
+    }
+    setup_combat_flee_position(thing);
+    cctrl->field_28E = game.play_gameturn;
+    return 1;
 }
 
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
