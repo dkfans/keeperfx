@@ -183,7 +183,8 @@ void remove_thing_from_battle_list(struct Thing *thing)
         attctng = thing_get(cctrl->battle_next_creatr);
         attcctrl = creature_control_get_from_thing(attctng);
         if ( creature_control_invalid(attcctrl) ) {
-            ERRORLOG("Invalid next creature in battle, index %d",(int)cctrl->battle_next_creatr);
+            ERRORLOG("Invalid next in battle, %s index %d",thing_model_name(attctng),(int)cctrl->battle_next_creatr);
+            battle->field_D = partner_id;
         } else {
             attcctrl->battle_prev_creatr = partner_id;
         }
@@ -198,7 +199,8 @@ void remove_thing_from_battle_list(struct Thing *thing)
         attctng = thing_get(cctrl->battle_prev_creatr);
         attcctrl = creature_control_get_from_thing(attctng);
         if ( creature_control_invalid(attcctrl) ) {
-            ERRORLOG("Invalid previous creature in battle, index %d",(int)cctrl->battle_prev_creatr);
+            ERRORLOG("Invalid previous in battle, %s index %d",thing_model_name(attctng),(int)cctrl->battle_prev_creatr);
+            battle->field_F = partner_id;
         } else {
             attcctrl->battle_next_creatr = partner_id;
         }
@@ -394,7 +396,7 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *victim)
     vicctrl = creature_control_get_from_thing(victim);
     if (figctrl->field_3)
     {
-        ERRORLOG("Creature in combat already - adding ranged");
+        SYNCLOG("The %s in combat already - adding ranged",thing_model_name(fighter));
         return false;
     }
     if (vicctrl->field_1C < 4)
@@ -429,7 +431,7 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *victim)
     vicctrl = creature_control_get_from_thing(victim);
     if (figctrl->field_3)
     {
-        ERRORLOG("Creature in combat already - adding melee");
+        ERRORLOG("The %s in combat already - adding melee",thing_model_name(fighter));
         return false;
     }
     if (vicctrl->field_1B < 4)
@@ -461,7 +463,7 @@ TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *victim)
     struct CreatureControl *figctrl;
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->field_3) {
-        WARNLOG("Creature in combat already - waiting");
+        SYNCLOG("The %s in combat already - waiting",thing_model_name(fighter));
     }
     figctrl->field_3 |= 0x04;
     figctrl->word_A2 = victim->index;
@@ -757,6 +759,7 @@ TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy)
 
 long check_for_better_combat(struct Thing *thing)
 {
+    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
     return _DK_check_for_better_combat(thing);
 }
 
@@ -767,9 +770,41 @@ long waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, lo
 
 void creature_in_combat_wait(struct Thing *thing)
 {
-    //TODO rewrite - may hang
+    struct Thing *enemy;
+    struct CreatureControl *cctrl;
+    long dist;
     SYNCDBG(19,"Starting for %s",thing_model_name(thing));
-    _DK_creature_in_combat_wait(thing);
+    //_DK_creature_in_combat_wait(thing);
+    if ( check_for_better_combat(thing) ) {
+        return;
+    }
+    // For creatures which are not special diggers, check to attack dungeon heart once every 7 turns
+    if ( (((game.play_gameturn+thing->index) & 7) == 0) && ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0) )
+    {
+        struct Thing *heartng;
+        heartng = get_enemy_dungeon_heart_creature_can_see(thing);
+        if (!thing_is_invalid(heartng))
+        {
+            if ( set_creature_object_combat(thing, heartng) ) {
+                return;
+            }
+        }
+    }
+    // Check if we're best combat partner for the enemy
+    long combat_valid;
+    cctrl = creature_control_get_from_thing(thing);
+    enemy = thing_get(cctrl->word_A2);
+    if ( !creature_is_most_suitable_for_combat(thing, enemy) ) {
+        set_start_state(thing);
+        return;
+    }
+    combat_valid = check_for_valid_combat(thing, enemy);
+    if ( !combat_type_is_choice_of_creature(thing, combat_valid) ) {
+        set_start_state(thing);
+        return;
+    }
+    dist = get_combat_distance(thing, enemy);
+    waiting_combat_move(thing, enemy, dist, 49);
 }
 
 void creature_in_ranged_combat(struct Thing *thing)
