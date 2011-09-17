@@ -23,6 +23,7 @@
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_battle.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -223,90 +224,6 @@ void convert_tortured_creature_owner(struct Thing *thing, long new_owner)
     dungeon = get_dungeon(new_owner);
     if (!dungeon_invalid(dungeon))
         dungeon->lvstats.creatures_converted++;
-}
-
-long get_flee_position(struct Thing *thing, struct Coord3d *pos)
-{
-    struct Dungeon *dungeon;
-    struct PlayerInfo *player;
-    struct CreatureControl *cctrl;
-    struct Thing *lairtng;
-    struct Thing *heartng;
-    struct Thing *gatetng;
-
-    cctrl = creature_control_get_from_thing(thing);
-    // Heroes should flee to their gate
-    if (thing->owner == game.hero_player_num)
-    {
-        gatetng = find_hero_door_hero_can_navigate_to(thing);
-        if ( !thing_is_invalid(gatetng) )
-        {
-            pos->x.val = gatetng->mappos.x.val;
-            pos->y.val = gatetng->mappos.y.val;
-            pos->z.val = gatetng->mappos.z.val;
-            return 1;
-        }
-    } else
-    // Neutral creatures don't have flee place
-    if (thing->owner == game.neutral_player_num)
-    {
-        if ( (pos->x.val != 0) || (pos->y.val != 0) )
-        {
-            return 1;
-        }
-        return 0;
-    }
-    // Same with creatures without dungeon - try using last place
-    dungeon = get_dungeon(thing->owner);
-    if ( dungeon_invalid(dungeon) )
-    {
-        if ( (pos->x.val != 0) || (pos->y.val != 0) )
-        {
-            return 1;
-        }
-        return 0;
-    }
-    // Other creatures can flee to heart or their lair
-    if (cctrl->lairtng_idx > 0)
-    {
-        lairtng = thing_get(cctrl->lairtng_idx);
-        pos->x.val = lairtng->mappos.x.val;
-        pos->y.val = lairtng->mappos.y.val;
-        pos->z.val = lairtng->mappos.z.val;
-    } else
-    if (dungeon->dnheart_idx > 0)
-    {
-        heartng = thing_get(dungeon->dnheart_idx);
-        pos->x.val = heartng->mappos.x.val;
-        pos->y.val = heartng->mappos.y.val;
-        pos->z.val = heartng->mappos.z.val;
-    } else
-    {
-        player = get_player(thing->owner);
-        if ( ((player->field_0 & 0x01) != 0) && (player->field_2C == 1) && (player->victory_state != 2) )
-        {
-            ERRORLOG("The %s has no dungeon heart or lair to flee to",thing_model_name(thing));
-            return 0;
-        }
-        pos->x.val = thing->mappos.x.val;
-        pos->y.val = thing->mappos.y.val;
-        pos->z.val = thing->mappos.z.val;
-    }
-    return 1;
-}
-
-void setup_combat_flee_position(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    if ( !get_flee_position(thing, &cctrl->pos_288) )
-    {
-      ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
-      cctrl->pos_288.x.val = thing->mappos.x.val;
-      cctrl->pos_288.y.val = thing->mappos.y.val;
-      cctrl->pos_288.z.val = thing->mappos.z.val;
-    }
-
 }
 
 long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
