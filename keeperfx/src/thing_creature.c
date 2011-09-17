@@ -316,7 +316,9 @@ long creature_available_for_combat_this_turn(struct Thing *thing)
 
 long creature_look_for_combat(struct Thing *thing)
 {
-  return _DK_creature_look_for_combat(thing);
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    //TODO may hang; rewrite
+    return _DK_creature_look_for_combat(thing);
 }
 
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
@@ -919,21 +921,23 @@ long process_creature_state(struct Thing *thing)
     unsigned long model_flags;
     long x,y;
     long k;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     //return _DK_process_creature_state(thing);
     cctrl = creature_control_get_from_thing(thing);
     model_flags = get_creature_model_flags(thing);
+
     process_person_moods_and_needs(thing);
     if (creature_available_for_combat_this_turn(thing))
     {
         if (!creature_look_for_combat(thing))
         {
-          if ((!cctrl->field_3) && ((model_flags & MF_IsSpecDigger) == 0))
-          {
-            tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
-            if (!thing_is_invalid(tgthing))
-              set_creature_object_combat(thing, tgthing);
-          }
+            if ((!cctrl->field_3) && ((model_flags & MF_IsSpecDigger) == 0))
+            {
+              tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
+              if (!thing_is_invalid(tgthing)) {
+                  set_creature_object_combat(thing, tgthing);
+              }
+            }
         }
     }
     if ((cctrl->field_3 & 0x10) == 0)
@@ -965,6 +969,7 @@ long process_creature_state(struct Thing *thing)
       ERRORLOG("The %s has illegal state[1], T=%d, S=%d, TCS=%d, reset", thing_model_name(thing), (int)thing->index, (int)thing->active_state, (int)thing->continue_state);
       set_start_state(thing);
     }
+
     // Creatures that are not special diggers will pick up any nearby gold or food
     if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & MF_IsSpecDigger) == 0))
     {
@@ -1009,8 +1014,9 @@ long process_creature_state(struct Thing *thing)
     //if (game.play_gameturn > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
     stati = get_thing_active_state_info(thing);
-    if (stati->ofsfield_0 == NULL)
+    if (stati->ofsfield_0 == NULL) {
         return false;
+    }
     k = stati->ofsfield_0(thing);
     SYNCDBG(18,"Finished");
     if (k != -1)
@@ -3143,7 +3149,7 @@ long update_creature(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *tngp;
     struct Map *map;
-    SYNCDBG(18,"Thing index %d",(int)thing->index);
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
     {
@@ -3210,11 +3216,11 @@ long update_creature(struct Thing *thing)
         {
           if (cctrl->field_302 > 0)
           {
-            cctrl->field_302--;
+              cctrl->field_302--;
           } else
           if (process_creature_state(thing))
           {
-            return 0;
+              return 0;
           }
         }
     }
