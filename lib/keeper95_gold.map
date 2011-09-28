@@ -763,11 +763,14 @@
  0001:0008CE70       check_out_uncrowded_reinforce_position
  0001:0008D110       remove_from_task_list
  0001:0008D1B0       find_dig_from_task_list
+ 0001:0008D810       remove_ranged_attacker
+ 0001:0008D910       remove_waiting_attacker
  0001:0008DB70       set_creature_combat_state
  0001:0008DE70       add_ranged_attacker
  0001:0008DF40       creature_look_for_combat
  0001:0008E280       check_for_possible_combat
  0001:0008E500       remove_all_traces_of_combat
+ 0001:0008E660       remove_melee_attacker
  0001:0008E760       get_best_ranged_offensive_weapon
  0001:0008E970       get_best_melee_offensive_weapon
  0001:0008ECF0       check_for_better_combat
