@@ -1,0 +1,36 @@
+REM ********************************************
+REM
+REM             Script for Level 222
+REM
+REM ********************************************
+
+
+IF(PLAYER0,GAME_TURN > 20)
+    QUICK_OBJECTIVE(1,"Enemy Shogun is about here you. must seek out him and ravage to perform the recommendation of his own master.",PLAYER0)
+ENDIF
+
+
+START_MONEY(PLAYER0,10000)
+
+
+	REM Room_Availability
+
+		ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+		
+
+	REM Spells
+		
+		MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+		MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+		MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+		MAGIC_AVAILABLE(PLAYER1,POWER_SIGHT,1,1)
+
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    WIN_GAME
+    QUICK_OBJECTIVE(2,"The excellent work the man of the shadow! Now we can begin the following exercise.",PLAYER0)
+ENDIF

@@ -75,6 +75,9 @@ DLLIMPORT void _DK_insert_thing_in_battle_list(struct Thing *thing, unsigned sho
 DLLIMPORT void _DK_cleanup_battle(unsigned short a1);
 DLLIMPORT long _DK_check_for_better_combat(struct Thing *thing);
 DLLIMPORT long _DK_waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, long a2);
+DLLIMPORT void _DK_remove_melee_attacker(struct Thing *fighter, struct Thing *victim);
+DLLIMPORT void _DK_remove_ranged_attacker(struct Thing *fighter, struct Thing *victim);
+DLLIMPORT void _DK_remove_waiting_attacker(struct Thing *fighter);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -412,7 +415,7 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *victim)
         }
         if (oppn_idx >= 4)
         {
-            ERRORLOG("I Cannot Add A Ranged Attacker - NOT POSSIBLE");
+            ERRORLOG("I Cannot Add A Ranged Attacker - not possible");
             return false;
         }
         vicctrl->field_1C++;
@@ -755,6 +758,49 @@ TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy)
         return false;
     }
     return true;
+}
+
+void remove_melee_attacker(struct Thing *fighter, struct Thing *victim)
+{
+    _DK_remove_melee_attacker(fighter,victim);
+}
+
+void remove_ranged_attacker(struct Thing *fighter, struct Thing *victim)
+{
+    _DK_remove_ranged_attacker(fighter,victim);
+}
+
+void remove_waiting_attacker(struct Thing *fighter)
+{
+    _DK_remove_waiting_attacker(fighter);
+}
+
+void remove_attacker(struct Thing *fighter, struct Thing *victim)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(fighter);
+    if ( (cctrl->field_3 & 0x01) != 0 )
+    {
+        remove_melee_attacker(fighter, victim);
+    } else
+    if ( (cctrl->field_3 & 0x02) != 0 )
+    {
+        remove_ranged_attacker(fighter, victim);
+    } else
+    if ( (cctrl->field_3 & 0x04) != 0 )
+    {
+        remove_waiting_attacker(fighter);
+    }
+}
+
+void change_current_combat(struct Thing *fighter, struct Thing *victim, long possible_combat)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *oldvictm;
+    cctrl = creature_control_get_from_thing(fighter);
+    oldvictm = thing_get(cctrl->word_A2);
+    remove_attacker(fighter, oldvictm);
+    set_creature_combat_state(fighter, victim, possible_combat);
 }
 
 long check_for_better_combat(struct Thing *thing)

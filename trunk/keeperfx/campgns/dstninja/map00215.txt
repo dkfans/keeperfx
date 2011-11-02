@@ -1,0 +1,16 @@
+REM ********************************************
+REM
+REM             Script for Level 215
+REM
+REM ********************************************
+
+
+IF(PLAYER0,GAME_TURN > 20)
+    QUICK_OBJECTIVE(1,"Enemy Shogun, hinders to us, by  him not come back to the province Iga kill him!",PLAYER0)
+ENDIF
+
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    WIN_GAME
+    QUICK_OBJECTIVE(2,"At last we ravaged enemy Shoguna, now we can safely pass to the province Iga and visit our clan. The perfect  work, the man of the shadow!",PLAYER0)
+ENDIF

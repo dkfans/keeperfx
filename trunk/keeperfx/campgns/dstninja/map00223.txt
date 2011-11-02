@@ -1,0 +1,30 @@
+REM ********************************************
+REM
+REM             Script for Level 223
+REM
+REM ********************************************
+
+
+
+START_MONEY(PLAYER0,40000)
+
+IF(PLAYER0,GAME_TURN > 20)
+    QUICK_OBJECTIVE(1,"And the public meeting we reached to the emperor, he hides in its own of castle. We must find him and to kill in so Japan again will bloom with the flower of the cherry tree.",PLAYER0)
+ENDIF
+
+
+REM Room_Availability
+
+		ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+		ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+		ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,0)
+		ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    WIN_GAME
+    QUICK_OBJECTIVE(2,"It succeeded to us, I did not believe from  you are to this clever. Congratulations of the completion of the campaign The Destyny of  Ninja! Behind soon will appear the new part!",PLAYER0)
+ENDIF
