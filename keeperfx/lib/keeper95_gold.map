@@ -1346,6 +1346,9 @@
  0001:0008DF40       creature_look_for_combat
  0001:0008F2E0       creature_has_ranged_weapon
  0001:0008DE70       add_ranged_attacker
+ 0001:0008D810       remove_ranged_attacker
+ 0001:0008D910       remove_waiting_attacker
+ 0001:0008E660       remove_melee_attacker
  0001:000C5230       get_enemy_dungeon_heart_creature_can_see
  0001:00076350       set_creature_object_combat
  0001:000777A0       get_door_for_position
