@@ -203,6 +203,7 @@ $(RES)
 CAMPAIGNS  = \
 pkg/campgns/ancntkpr.cfg \
 pkg/campgns/burdnimp.cfg \
+pkg/campgns/dstninja.cfg \
 pkg/campgns/dzjr06lv.cfg \
 pkg/campgns/dzjr10lv.cfg \
 pkg/campgns/dzjr25lv.cfg \
