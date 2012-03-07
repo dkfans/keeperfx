@@ -246,6 +246,7 @@ LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 
 CAMPAIGNS  = \
 ancntkpr \
+dstninja \
 burdnimp \
 dzjr06lv \
 dzjr10lv \
