@@ -169,6 +169,7 @@ void LauncherFrame::onShow(wxShowEvent& WXUNUSED(event))
 {
     cmdOpts = new CommandOptions(this);
     recheckBasicFiles();
+    cmdOpts->readOptions();
 }
 
 void LauncherFrame::onQuit(wxCommandEvent& WXUNUSED(event))
@@ -312,10 +313,10 @@ void LauncherFrame::onOptions(wxCommandEvent& WXUNUSED(event))
 
 void LauncherFrame::onRunGame(wxCommandEvent& WXUNUSED(event))
 {
-    //TODO: make getting command line from CommandOptions frame
     wxString cmd;
     cmd = getSystemStartCommand();
-    cmd += L" keeperfx.exe";
+    cmd += L" ";
+    cmd += cmdOpts->getCommandLine();
     system(cmd.char_str());
 }
 

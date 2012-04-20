@@ -28,7 +28,7 @@ END_EVENT_TABLE()
 
 wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
     const wxString& label,
-    const wxString *values_arr, size_t values_num, size_t custom_num,
+    const wxString *values_arr, const wxString *val_labels_arr, size_t values_num, size_t custom_num,
     const wxPoint& pos, const wxSize& size,
     long style, const wxString& name)
     : wxStaticBox(parent, id, label, pos, size, style, name)
@@ -36,6 +36,7 @@ wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
     select_limit = 1;
     select_num = 0;
     rbValues.resize(values_num);
+    rbValLabels.resize(values_num);
     rbPanel = new wxPanel(this, wxID_ANY);
     {
         wxGridSizer *rbPanelSizer = new wxGridSizer(0, 3, 2, 2);
@@ -44,7 +45,8 @@ wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
         {
             wxCheckBox *check;
             rbValues[i] = values_arr[i];
-            check = new wxCheckBox(rbPanel, eventID_Checkbox, rbValues[i]);
+            rbValLabels[i] = val_labels_arr[i];
+            check = new wxCheckBox(rbPanel, eventID_Checkbox, rbValLabels[i]);
             check->SetValue(false);
             rbPanelSizer->Add(check, 1, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
             rbCheckboxes.push_back(check);
@@ -56,6 +58,7 @@ wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
             {
                 wxCheckBox *check;
                 rbValues[i] = values_arr[i];
+                rbValLabels[i] = val_labels_arr[i];
                 check = new wxCheckBox(resIngameCustPanel, eventID_Checkbox, _T("cust:"));
                 check->SetValue(false);
                 rbCustPanelSizer->Add(check, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
