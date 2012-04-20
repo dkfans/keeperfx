@@ -103,7 +103,7 @@ CommandOptions::CommandOptions(wxFrame *parent)
     execKindRadio->SetToolTip(options_tooltips_eng[2]);
     topsizer->Add(execKindRadio, 0, wxEXPAND);
 
-    cmdFlagsBox = new wxCheckRadioBox(this, wxID_ANY, wxT("Flags"), options_flags_text, WXSIZEOF(options_flags_text), 0 );
+    cmdFlagsBox = new wxCheckRadioBox(this, wxID_ANY, wxT("Flags"), options_flags_code, options_flags_text, WXSIZEOF(options_flags_text), 0 );
     cmdFlagsBox->SetToolTip(options_tooltips_eng[3],options_tooltips_eng[3]);
     wxStaticBoxSizer* cmdFlagsBoxSizer = new wxStaticBoxSizer( cmdFlagsBox, wxHORIZONTAL );
     cmdFlagsBoxSizer->Add(cmdFlagsBox->rbPanel, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
@@ -194,8 +194,40 @@ CommandOptions::CommandOptions(wxFrame *parent)
     Centre(wxBOTH);
 }
 
-CommandOptions::~CommandOptions()
+CommandOptions::~CommandOptions(void)
 {
+}
+
+void CommandOptions::readOptions(void)
+{
+    int exec_index;
+    wxString selected_flags[WXSIZEOF(options_flags_text)+1];
+    size_t sel_flags_num;
+    //TODO
+    exec_index = 0;
+    sel_flags_num = 0;
+    execKindRadio->SetSelection((exec_index>=0)?exec_index:0);
+    cmdFlagsBox->SetSelected(WXSIZEOF(options_flags_text)+1, selected_flags, sel_flags_num);
+}
+
+void CommandOptions::storeOptions(void)
+{
+    //TODO
+}
+
+std::wstring CommandOptions::getCommandLine(void)
+{
+    wxString selected_flags[WXSIZEOF(options_flags_text)+1];
+    size_t sel_flags_num,i;
+    std::wstring cmd = L"";
+    cmd += options_exectype_code[execKindRadio->GetSelection()];
+    sel_flags_num = WXSIZEOF(options_flags_text)+1;
+    cmdFlagsBox->GetSelected(selected_flags, sel_flags_num);
+    for (i=0; i < sel_flags_num; i++) {
+        cmd += L" ";
+        cmd += selected_flags[i];
+    }
+    return cmd;
 }
 
 void CommandOptions::OnShow(wxShowEvent& event)
@@ -204,7 +236,7 @@ void CommandOptions::OnShow(wxShowEvent& event)
         //readOptions();
         return;
     }
-    //storeOptions()
+    storeOptions();
 }
 
 /******************************************************************************/

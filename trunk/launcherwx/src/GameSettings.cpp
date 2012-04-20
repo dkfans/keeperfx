@@ -175,7 +175,7 @@ GameSettings::GameSettings(wxFrame *parent)
 {
     topsizer = new wxBoxSizer( wxVERTICAL );
 
-    resIngameBox = new wxCheckRadioBox(this, wxID_ANY, wxT("In-game resolutions"), resolutions_ingame_init, WXSIZEOF(resolutions_ingame_init), 3 );
+    resIngameBox = new wxCheckRadioBox(this, wxID_ANY, wxT("In-game resolutions"), resolutions_ingame_init, resolutions_ingame_init, WXSIZEOF(resolutions_ingame_init), 3 );
     resIngameBox->SetToolTip(tooltips_eng[1],tooltips_eng[2]);
     wxStaticBoxSizer* resIngameBoxSizer = new wxStaticBoxSizer( resIngameBox, wxHORIZONTAL );
     resIngameBoxSizer->Add(resIngameBox->rbPanel, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
@@ -421,7 +421,8 @@ int GameSettings::verifyConfiguration()
 
 void GameSettings::writeConfiguration()
 {
-    wxString resolutions[5];
+#define MAX_RESOLUTIONS 5
+    wxString resolutions[MAX_RESOLUTIONS];
     size_t res_num,i;
     wxString strValue;
     conf->Write(wxT("INSTALL_PATH"), installPath);
@@ -431,7 +432,7 @@ void GameSettings::writeConfiguration()
     conf->Write(wxT("SCREENSHOT"), supported_scrshotfmt_code[scrshotRadio->GetSelection()]);
     strValue = wxString::Format(wxT("%s %s %s"), resFailCombo->GetValue(), resMovieCombo->GetValue(), resMenuCombo->GetValue());
     conf->Write(wxT("FRONTEND_RES"), strValue);
-    res_num = 5;
+    res_num = MAX_RESOLUTIONS;
     resIngameBox->GetSelected(resolutions, res_num);
     strValue = resFailCombo->GetValue();
     for (i=0; i < res_num; i++) {
@@ -442,6 +443,7 @@ void GameSettings::writeConfiguration()
     conf->Write(wxT("POINTER_SENSITIVITY"), mouseSensitvTxtCtrl->GetValue());
     conf->Write(wxT("CENSORSHIP"), supported_boolean_code[censorChkBx->GetValue()]);
     //conf->Save(); -- saving is automatic when the object is destroyed
+#undef MAX_RESOLUTIONS
 }
 
 

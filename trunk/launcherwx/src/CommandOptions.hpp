@@ -50,6 +50,9 @@ public:
     void OnSave(wxCommandEvent& event);
     void OnCancel(wxCommandEvent& event);
 
+    void readOptions(void);
+    void storeOptions(void);
+    std::wstring getCommandLine(void);
 private:
     // any class wishing to process wxWidgets events must use this macro
     DECLARE_EVENT_TABLE()

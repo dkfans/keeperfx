@@ -30,6 +30,7 @@ class wxCheckRadioBox : public wxStaticBox
 public:
     std::vector<wxCheckBox *> rbCheckboxes;
     std::vector<wxTextCtrl *> rbTextCtrls;
+    std::vector<wxString> rbValLabels;
     std::vector<wxString> rbValues;
     wxPanel *rbPanel;
     long select_limit;
@@ -37,7 +38,7 @@ public:
 public:
     wxCheckRadioBox(wxWindow *parent, wxWindowID id,
         const wxString& label,
-        const wxString *values_arr, size_t values_num, size_t custom_num = 0,
+        const wxString *values_arr, const wxString *val_labels_arr, size_t values_num, size_t custom_num = 0,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = 0,
