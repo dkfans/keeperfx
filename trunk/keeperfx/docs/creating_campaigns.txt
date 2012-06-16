@@ -1,0 +1,137 @@
+How to prepare a new campaign for KeeperFX
+------------------------------
+TOC
+1. Introduction
+2. Creating levels
+3. Creating land view
+4. Creating mentor description
+5. Preparing campaign configuration file
+
+1. Introduction
+
+TODO
+
+2. Creating levels
+
+TODO
+
+3. Creating land view
+
+The land view is the place where you're selecting the level to play. The land view consists of:
+a) a background picture over which you can move the view
+b) an ensign which represents the next level to play (actually, ther may be many ensigns visible at once)
+c) a frame picture which indicates that you're looking on the world from a distant tower of some kind
+
+Also, a mentor voice which describes the next level can be hard in the land view
+ screen. Preparation of the mentor audio files will be explained later. For now,
+ we will focus on the graphics files needed to make custom background for the screen.
+
+3.1. Drawing or selecting pictures
+
+What you need to start is a series of land view pictures showing the "progress
+ of evil" after beating every level.
+To be exact, you need:
+a) Land view picture at start of the campaign (whole green; this is used in
+ special cases, ie. multiplayer screen)
+b) Land view picture to be shown before every level (the place where ensign
+ will be placed may be marked somehow, ie. be brighter)
+c) Land view picture at end of the campaign (whole red; shown when the whole
+ campaign is beaten)
+
+The a) picture can be identical to the first picture of b) series, but you may
+ also make it a bit different - ie. a bit lighter.
+
+It is up to you what will be on these pictures. Usually, the picures are showing
+ the same landscape - first picture shows a green, happy island, and the last
+ one shows red, dead island flowing with lava. But if you have another idea for
+ your campaign - you can use any theme you want.
+
+While selecting photos or drawing your pictures, make notice of their resolution
+ - the images in KeeperFX need to have size 1280x960 pixels. Also, make sure
+ the important part of the picture isn't very close to its border - otherwise,
+ the area you wanted to be visible may prove to be covered by a frame tower picture.
+
+3.2. Retrieving bitmaps from original DK campaign
+
+Currently, KeeperFX supports only 8-bit colour (256 colors) in land view pictures.
+ But it won't be enough to just convert your image into 8-bit colour space. This
+ is because KeeperFX also needs the resulting colors to match colors used in tower
+ frame, ensign pictures and even mouse cursor.
+
+That is why it's recommended to use one of colour palettes from original DK
+ campaign. The fastest way is to just open one of original bitmaps and
+ copy-paste the new image over original bitmap.
+
+You will need the following tools:
+a) DKTools 0.9.5 - a pack of utilities for Dungeon Keeper
+
+The files with land view pictures are located in "ldata" folder inside KeeperFX.
+ Every picture consists of two files - a RAW file which stores the actual bitmap,
+ and the PAL file which defines colors used by that file. The files we need:
+ "dkmap??.raw" and "dkmap??.pal". Now, the RAW files are compressed using RNC
+ - you have to extract them, and then convert to BMP format. Or there's even
+ simpler way - use DKTools. Just remember to get it in version 0.9.5 - the new
+ one doesn't seem to provide functionality of converting RAWs to BMPs.
+
+Use the RAW tab of DKTools - select source file, destination folder and press
+ "Extraction". Do this for all the files ("dkmap00.raw" to "dkmap21.raw").
+
+3.3. Preparing pictures in correct color space
+
+Now it's time to explain exactly how can you make your pictures compatible with
+ KeeperFX colors.
+
+You will need the following tools:
+a) Adobe Photoshop - or other graphics program which can write RAW/PAL files
+
+So, we have two sets of pictures - the ones you wish to have as your land view,
+ and the ones extracted from original campaign of Dungeon Keeper. First, make
+ sure that your pictures have correct resolution - they have to be 1280x960
+ pixels. Strech them or crop them if neccessery.
+
+Now open first of your pictures, select the whole image area and copy it into
+ clipboard. Next open a BMP file from original campaign, and paste your image
+ over it. You will notice that colors have changed - this is because colors
+ in your image have been replaced with neares colors from the original campaign
+ picture palette. If the result looks very bad, try another one of the original
+ campaign bitmaps - you need to find the one which will make your picture
+ look a bit better. You'll never find a perfect match, just select the one
+ that fits best.
+
+When you'll find the best match, just write the image to BMP format. You will
+ also need a corresponding PAL file for that bitmap - it's easier to copy the
+ PAL file from original DK campaign than to create it from BMP. Copy your PAL
+ file to the same name as the BMP you've saved and move to next bitmap.
+
+Why you can't make your picture use your colors, and not the one from original
+ campaign? Well, that would be just much more complicated to do. If you're
+ a programmer or binary hacker, you may be able to do that, but it's not trivial
+ and is definitely out of scope of this guide.
+
+3.4. Writing pictures into RAW/PAL format
+
+Now you should have a set of BMP files with your land view pictures. It is just
+ a matter of converting the BMP into a format which is understood by the game.
+
+Bitmap data needs to be written into RAW format (without header), and colour
+ palette needs to be in PAL format (also, simple 24 bits-per-color PAL) file.
+
+Actually, if you've copied PAL file from original DK campaign, you don't need
+ to change it - just use the one you have.
+
+To write RAW file in Adobe Photoshop, use "Save as" dialog and selact
+ "Photoshop RAW" as target format.
+
+Every of the resulting RAW files should have size of exactly 1228800 bytes - if it's
+ smaller, that means you've got bad resolution. If it's bigger - it's either bad
+ resolution or bad color space.
+
+Every of the resulting PAL files should have 768 bytes.
+
+4. Creating mentor description
+
+TODO
+
+5. Preparing campaign configuration file
+
+TODO
