@@ -410,7 +410,7 @@ void draw_power_hand(void)
     }
     i = thing->field_2;
     // Begin per-loop code
-    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) && (thing->field_7 != 67))
+    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) && (thing->field_7 != 67))
     {
       if (can_thing_be_picked_up_by_player(thing, plyr_idx) || thing_slappable(thing, plyr_idx))
       {
@@ -439,7 +439,7 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord x, MapC
 long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
-    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0)
+    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
         && (thing->active_state != CrSt_CreatureUnconscious))
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx) || thing_slappable(thing, param->plyr_idx))

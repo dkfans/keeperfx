@@ -31,7 +31,20 @@ extern "C" {
 enum ThingFlags0 {
     TF_Exists     = 0x01,
     TF_IsInMapWho = 0x02,
+    TF_Unkn04     = 0x04,
     TF_Unkn08     = 0x08,
+    TF_Unkn10     = 0x10,
+    TF_Unkn20     = 0x20,
+    TF_Unkn40     = 0x40,
+    TF_Unkn80     = 0x80,
+};
+
+/** Enums for thing->field_1 bit fields. */
+enum ThingFlags1 {
+    TF1_Unkn01     = 0x01,
+    TF1_Unkn02     = 0x02,
+    TF1_Unkn04     = 0x04,
+    TF1_Unkn08     = 0x08,
 };
 
 enum ThingAllocFlags {
@@ -82,6 +95,10 @@ struct Thing {
         long gold_carried;
         short word_17a;
       } creature;
+      struct {
+        long gold_stored;
+        short word_17b;
+      } object;
       struct {
         unsigned char num_shots;
         unsigned char byte_14a;

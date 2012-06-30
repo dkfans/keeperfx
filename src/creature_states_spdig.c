@@ -146,6 +146,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
     unsigned long k;
     //return _DK_check_out_object_for_trap(digger, traptng);
     cctrl = creature_control_get_from_thing(digger);
+    // We're supposed to be in our own workshop; fail if we're not
     room = get_room_thing_is_on(digger);
     if (room_is_invalid(room)) {
         return 0;
@@ -167,7 +168,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
         if (thing->model == find_model)
         {
             slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            if ( ((slb->field_5 & 0x07) == find_owner) && ((thing->field_1 & 0x01) == 0) )
+            if ( ((slb->field_5 & 0x07) == find_owner) && ((thing->field_1 & TF1_Unkn01) == 0) )
             {
                 if ( !imp_will_soon_be_getting_object(find_owner, thing) )
                 {
@@ -322,7 +323,7 @@ long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
         // Per-thing code
         if ( thing_is_trap_box(thing) )
         {
-          if ( ((thing->field_1 & 0x01) == 0) && (get_room_thing_is_on(thing) == room) )
+          if ( ((thing->field_1 & TF1_Unkn01) == 0) && (get_room_thing_is_on(thing) == room) )
           {
               traptng = check_for_empty_trap_for_imp(digger, box_thing_to_door_or_trap(thing));
               if (thing_is_invalid(traptng))
@@ -536,7 +537,7 @@ short imp_digs_mines(struct Thing *thing)
     // Check if we've arrived at the destination
     delta_x = abs(thing->mappos.x.stl.num - cctrl->moveto_pos.x.stl.num);
     delta_y = abs(thing->mappos.y.stl.num - cctrl->moveto_pos.y.stl.num);
-    if ((mtask->field_1 != cctrl->word_8F) || (delta_x >= 1) || (delta_y >= 1))
+    if ((mtask->field_1 != cctrl->word_8F) || (delta_x > 0) || (delta_y > 0))
     {
       clear_creature_instance(thing);
       internal_set_thing_state(thing, CrSt_ImpLastDidJob);
@@ -623,27 +624,128 @@ short imp_doing_nothing(struct Thing *thing)
     return 1;
 }
 
+struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, long value)
+{
+    struct Thing *thing;
+    long hoard_size_holds,hoard_size;
+    //return _DK_create_gold_hoarde(room, pos, value);
+    hoard_size_holds = 9 * game.pot_of_gold_holds / 5;
+    if ((value <= 0) || (room->slabs_count < 1)) {
+        ERRORLOG("Attempt to create a gold hoard with %ld gold", value);
+        return INVALID_THING;
+    }
+    if ( value > hoard_size_holds * room->total_capacity / room->slabs_count )
+        value = hoard_size_holds * room->total_capacity / room->slabs_count;
+    thing = create_gold_hoard_object(pos, room->owner, value);
+    if (!thing_is_invalid(thing))
+    {
+        struct Dungeon *dungeon;
+        room->capacity_used_for_storage += thing->object.gold_stored;
+        dungeon = get_dungeon(room->owner);
+        if (!dungeon_invalid(dungeon))
+            dungeon->total_money_owned += thing->object.gold_stored;
+        hoard_size = thing->object.gold_stored / hoard_size_holds;
+        if (hoard_size > 4)
+            hoard_size = 4;
+        room->used_capacity += hoard_size;
+    }
+    return thing;
+}
+
 short imp_drops_gold(struct Thing *thing)
 {
-  return _DK_imp_drops_gold(thing);
+    struct Room *room;
+    struct Thing *gldtng;
+    //return _DK_imp_drops_gold(thing);
+    if (thing->long_13 == 0)
+    {
+        set_start_state(thing);
+        return 1;
+    }
+    room = get_room_thing_is_on(thing);
+    if ( room_is_invalid(room) || (room->owner != thing->owner) || (room->kind != RoK_TREASURE) )
+    {
+        WARNLOG("Tried to drop gold in treasure room, but room no longer valid");
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 1;
+    }
+    MapSubtlCoord center_stl_x,center_stl_y;
+    center_stl_x = 3 * map_to_slab[thing->mappos.x.stl.num] + 1;
+    center_stl_y = 3 * map_to_slab[thing->mappos.y.stl.num] + 1;
+    struct Room *curoom;
+    curoom = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    if (!room_exists(curoom) || (curoom->index != room->index) )
+    {
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 1;
+    }
+    gldtng = find_gold_hoard_at(center_stl_x, center_stl_y);
+    if (!thing_is_invalid(gldtng))
+    {
+        thing->long_13 -= add_gold_to_hoarde(gldtng, room, thing->long_13);
+    } else
+    {
+        struct Coord3d pos;
+        pos.x.val = get_subtile_center_pos(center_stl_x);
+        pos.y.val = get_subtile_center_pos(center_stl_y);
+        pos.z.val = thing->mappos.z.val;
+        gldtng = create_gold_hoarde(room, &pos, thing->long_13);
+        if (!thing_is_invalid(gldtng))
+            thing->long_13 -= gldtng->long_13;
+    }
+    thing_play_sample(thing, UNSYNC_RANDOM(3) + 32, 100, 0, 3, 0, 2, 256);
+    if ( (thing->long_13 == 0) || (room->used_capacity >= room->total_capacity) ) {
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 1;
+    }
+    if (!setup_head_for_empty_treasure_space(thing, room)) {
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 1;
+    }
+    thing->continue_state = 7;
+    return 1;
 }
 
 short imp_improves_dungeon(struct Thing *thing)
 {
-  return _DK_imp_improves_dungeon(thing);
+    struct CreatureControl *cctrl;
+    long delta_x,delta_y;
+    long slb_x,slb_y;
+    SYNCDBG(19,"Starting");
+    // return _DK_imp_digs_mines(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    // Check if we've arrived at the destination
+    delta_x = abs(thing->mappos.x.stl.num - cctrl->moveto_pos.x.stl.num);
+    delta_y = abs(thing->mappos.y.stl.num - cctrl->moveto_pos.y.stl.num);
+    //return _DK_imp_improves_dungeon(thing);
+    if ( (delta_x > 0) || (delta_y > 0) )
+    {
+        clear_creature_instance(thing);
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 0;
+    }
+    slb_x = map_to_slab[thing->mappos.x.stl.num];
+    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    if (!check_place_to_pretty_excluding(thing, slb_x, slb_y))
+    {
+        clear_creature_instance(thing);
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+        return 0;
+    }
+    if (cctrl->instance_id == 0)
+      set_creature_instance(thing, 31, 0, 0, 0);
+    return 1;
 }
 
 short imp_last_did_job(struct Thing *thing)
 {
     //return _DK_imp_last_did_job(thing);
-    if (check_out_imp_last_did(thing))
-    {
-        return 1;
-    } else
+    if (!check_out_imp_last_did(thing))
     {
         set_start_state(thing);
         return 0;
     }
+    return 1;
 }
 
 short imp_picks_up_gold_pile(struct Thing *thing)
@@ -680,7 +782,7 @@ short creature_picks_up_spell_object(struct Thing *thing)
     //return _DK_creature_picks_up_spell_object(thing);
     cctrl = creature_control_get_from_thing(thing);
     spelltng = thing_get(cctrl->field_72);
-    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & 0x01) != 0)
+    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
     {
         set_start_state(thing);
@@ -719,7 +821,7 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cratetng = thing_get(cctrl->field_72);
     // Check if everything is right
-    if ( thing_is_invalid(cratetng) || ((cratetng->field_1 & 0x01) != 0)
+    if ( thing_is_invalid(cratetng) || ((cratetng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512) )
     {
         set_start_state(thing);
@@ -766,11 +868,17 @@ short creature_picks_up_trap_object(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( ((cratetng->field_1 & 0x01) != 0)
-      || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512)
+    if ( ((cratetng->field_1 & TF1_Unkn01) != 0)
       || (traptng->class_id != TCls_Trap) || (box_thing_to_door_or_trap(cratetng) != traptng->model))
     {
         WARNLOG("Cannot use %s index %d to refill %s index %d",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
+        cctrl->field_70 = 0;
+        set_start_state(thing);
+        return 0;
+    }
+    if (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512)
+    {
+        WARNLOG("The %s index %d was supposed to be near %s index %d for pickup, but it's too far",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(thing),(int)thing->index);
         cctrl->field_70 = 0;
         set_start_state(thing);
         return 0;
@@ -814,6 +922,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     // Check if crate is ok
     if ( !thing_exists(cratetng) )
     {
+        ERRORLOG("The %s index %d tried to drop crate, but it's gone",thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return 0;
     }
@@ -821,10 +930,10 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if ( room_is_invalid(room) )
     {
+        WARNLOG("Tried to drop %s index %d in workshop, but room no longer valid",thing_model_name(cratetng),(int)cratetng->index);
         set_start_state(thing);
         return 0;
     }
-
     if ( (room->kind != RoK_WORKSHOP) || (room->owner != thing->owner)
         || (room->used_capacity >= room->total_capacity) )
     {

@@ -448,7 +448,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, 256, 0);
         } else
-        if ((cctrl->field_6E != 0) && (thing_get(cctrl->field_6E)->field_1 & 0x01))
+        if ((cctrl->field_6E != 0) && (thing_get(cctrl->field_6E)->field_1 & TF1_Unkn01))
         {
             i = (((long)cctrl->field_9) << 8) / (crstat->walking_anim_speed+1);
             update_creature_anim(thing, i, 2);

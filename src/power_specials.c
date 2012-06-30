@@ -316,7 +316,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
   kill_creature(tng2, 0, 0, 1, 0, 0);
   create_special_used_effect(&tng1->mappos, plyr_idx);
   remove_events_thing_is_attached_to(tng1);
-  if ((tng1->field_1 & 0x01) || (tng1->field_0 & 0x80))
+  if ((tng1->field_1 & TF1_Unkn01) || (tng1->field_0 & 0x80))
   {
     k = 0;
     i = dungeon->digger_list_start;

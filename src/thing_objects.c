@@ -204,6 +204,8 @@ unsigned char object_to_door_or_trap[] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
+unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
+
 /******************************************************************************/
 DLLIMPORT long _DK_move_object(struct Thing *thing);
 DLLIMPORT long _DK_update_object(struct Thing *thing);
@@ -226,7 +228,7 @@ DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
 /******************************************************************************/
-struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
+struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
     struct Objects *objdat;
     struct ObjectConfig *objconf;
@@ -681,7 +683,7 @@ long update_object(struct Thing *thing)
       {
         thing->movement_flags |= TMvF_Unknown02;
         objdat = get_objects_data_for_thing(thing);
-        if ( (objdat->field_12) && ((thing->field_1 & 0x01) == 0) && ((thing->field_0 & 0x80) == 0) )
+        if ( (objdat->field_12) && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->field_0 & 0x80) == 0) )
         {
               if (thing->model == 10)
               {
@@ -713,7 +715,34 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)
     thing = create_object(&pos, 6, plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
-    thing->creature.gold_carried = game.pot_of_gold_holds;
+    thing->object.gold_stored = game.pot_of_gold_holds;
+    return thing;
+}
+
+/**
+ * Creates a gold hoard object.
+ * Note that this function does not create a fully operable object - gold hoard requires room
+ * association to be fully functional. This is just a utility sub-function.
+ * @param pos Position where the hoard is to be created.
+ * @param plyr_idx Player who will own the hoard.
+ * @param value The amount of gold to be stored inside the hoard.
+ * @return Hoard object thing, which still require to be associated to room.
+ */
+struct Thing *create_gold_hoard_object(const struct Coord3d *pos, long plyr_idx, long value)
+{
+    struct Thing *thing;
+    long hoard_size_holds,hoard_size,hoard_store;
+    hoard_size_holds = 9 * game.pot_of_gold_holds / 5;
+    hoard_size = value / hoard_size_holds;
+    if (hoard_size >= sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]))
+        hoard_size = sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0])-1;
+    thing = create_object(&pos, gold_hoard_objects[hoard_size], plyr_idx, -1);
+    if (thing_is_invalid(thing))
+        return INVALID_THING;
+    hoard_store = 9 * game.pot_of_gold_holds;
+    if (hoard_store >= value)
+        hoard_store = value;
+    thing->long_13 = hoard_store;
     return thing;
 }
 
@@ -722,7 +751,7 @@ long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount
     return _DK_remove_gold_from_hoarde(thing, room, amount);
 }
 
-TbBool thing_is_gold_hoarde(struct Thing *thing)
+TbBool thing_is_gold_hoard(struct Thing *thing)
 {
     if (thing->class_id == TCls_Object)
     {
@@ -731,7 +760,7 @@ TbBool thing_is_gold_hoarde(struct Thing *thing)
     return false;
 }
 
-struct Thing *find_gold_hoarde_at(unsigned short stl_x, unsigned short stl_y)
+struct Thing *find_gold_hoard_at(unsigned short stl_x, unsigned short stl_y)
 {
     struct Thing *thing;
     struct Map *mapblk;
@@ -750,7 +779,7 @@ struct Thing *find_gold_hoarde_at(unsigned short stl_x, unsigned short stl_y)
       }
       i = thing->field_2;
       // Per-thing block
-      if (thing_is_gold_hoarde(thing))
+      if (thing_is_gold_hoard(thing))
           return thing;
       // Per-thing block ends
       k++;

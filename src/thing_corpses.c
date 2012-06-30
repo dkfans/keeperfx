@@ -284,7 +284,7 @@ long update_dead_creature(struct Thing *thing)
         return 1;
     }
     if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
-      && ((thing->field_1 & 0x01) == 0) && ((thing->field_0 & 0x80) == 0) )
+      && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->field_0 & 0x80) == 0) )
     {
         delete_thing_structure(thing, 0);
         return 0;
