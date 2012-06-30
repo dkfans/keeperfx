@@ -747,7 +747,7 @@ long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long 
         i = thing->next_of_class;
         // Per-thing code
         cctrl = creature_control_get_from_thing(thing);
-        if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+        if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
         {
             if (thing->owner != immune_plyr_idx)
             {
@@ -1340,7 +1340,7 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, long stl_x, long 
     // Per thing processing block
     if ((thing->class_id == TCls_Creature) && (thing != excltng))
     {
-        if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) )
+        if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
         {
             if ((thing->active_state == CrSt_ImpDigsMines1) || (thing->active_state == CrSt_ImpDigsMines2))
             {

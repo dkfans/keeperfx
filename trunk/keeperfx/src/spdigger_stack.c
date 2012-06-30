@@ -461,7 +461,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        if ( ((thing->field_1 & 0x01) == 0) && (thing->active_state == 2) && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
+        if ( ((thing->field_1 & TF1_Unkn01) == 0) && (thing->active_state == 2) && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
         {
             if (room_is_invalid(room))
             {
@@ -565,7 +565,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
       break;
     if ( thing_is_door_or_trap_box(thing) )
     {
-      if ((thing->field_1 & 0x01) == 0)
+      if ((thing->field_1 & TF1_Unkn01) == 0)
       {
         if ((thing->owner == dungeon->owner) || (thing->owner == game.neutral_player_num))
         {

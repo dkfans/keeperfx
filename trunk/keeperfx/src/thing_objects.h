@@ -67,7 +67,7 @@ DLLIMPORT extern unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
 #define workshop_object_class _DK_workshop_object_class
 DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 /******************************************************************************/
-struct Thing *create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
+struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
 unsigned int get_workshop_object_class_for_thing(const struct Thing *thing);
@@ -90,15 +90,16 @@ TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_mature_food(const struct Thing *thing);
 TbBool object_is_gold(const struct Thing *thing);
 TbBool object_is_gold_pile(const struct Thing *thing);
-TbBool thing_is_gold_hoarde(struct Thing *thing);
+TbBool thing_is_gold_hoard(struct Thing *thing);
 long thing_is_spellbook(struct Thing *thing);
 
 long update_object(struct Thing *thing);
 
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx);
-
+struct Thing *create_gold_hoard_object(const struct Coord3d *pos, long plyr_idx, long value);
+struct Thing *find_gold_hoard_at(unsigned short stl_x, unsigned short stl_y);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
-struct Thing *find_gold_hoarde_at(unsigned short stl_x, unsigned short stl_y);
+
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
