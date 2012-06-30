@@ -41,35 +41,132 @@ long get_highest_experience_level_in_group(struct Thing *thing)
   return _DK_get_highest_experience_level_in_group(thing);
 }
 
-long add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
+long get_no_creatures_in_group(const struct Thing *grptng)
 {
-  return _DK_add_creature_to_group(crthing, grthing);
+    struct CreatureControl *cctrl;
+    struct Thing *ctng;
+    long i;
+    unsigned long k;
+    cctrl = creature_control_get_from_thing(grptng);
+    i = cctrl->group_leader & TngGroup_LeaderIndex;
+    if (i == 0) {
+        // No group - just one creature
+        return 1;
+    }
+    k = 0;
+    while (i > 0)
+    {
+        ctng = thing_get(i);
+        cctrl = creature_control_get_from_thing(ctng);
+        if (creature_control_invalid(cctrl))
+            break;
+        i = cctrl->next_in_group;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    return k;
+}
+
+struct Thing *get_last_creature_in_group(const struct Thing *grptng)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *ctng;
+    long i;
+    unsigned long k;
+    cctrl = creature_control_get_from_thing(grptng);
+    i = cctrl->group_leader & TngGroup_LeaderIndex;
+    if (i == 0) {
+        // No group - just one creature
+        return NULL;
+    }
+    k = 0;
+    while (i > 0)
+    {
+        ctng = thing_get(i);
+        cctrl = creature_control_get_from_thing(ctng);
+        if (creature_control_invalid(cctrl))
+            break;
+        i = cctrl->next_in_group;
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            break;
+        }
+    }
+    return ctng;
+}
+
+TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
+{
+    struct Thing *pvthing;
+    //return _DK_add_creature_to_group(crthing, grthing);
+    pvthing = get_last_creature_in_group(grthing);
+    if ((grthing == crthing) || (grthing->owner != crthing->owner)) {
+        return false;
+    }
+    struct CreatureControl *crctrl;
+    long i;
+    crctrl = creature_control_get_from_thing(crthing);
+    i = crctrl->group_leader & TngGroup_LeaderIndex;
+    if (i != 0) {
+        remove_creature_from_group(crthing);
+    }
+    if (thing_exists(pvthing))
+    {
+        // If we already have a group, place the new creature at end
+        struct CreatureControl *pvctrl;
+        crctrl = creature_control_get_from_thing(crthing);
+        crctrl->prev_in_group = pvthing->index;
+        pvctrl = creature_control_get_from_thing(pvthing);
+        pvctrl->next_in_group = crthing->index;
+        crctrl->group_leader ^= (crctrl->group_leader ^ pvctrl->group_leader) & TngGroup_LeaderIndex;
+        crctrl->next_in_group = 0;
+    } else
+    {
+        // If there's no group, create new one made of both creatures
+        struct CreatureControl *grctrl;
+        crctrl = creature_control_get_from_thing(crthing);
+        crctrl->prev_in_group = grthing->index;
+        grctrl = creature_control_get_from_thing(grthing);
+        grctrl->next_in_group = crthing->index;
+        crctrl->group_leader ^= (crctrl->group_leader ^ grthing->index) & TngGroup_LeaderIndex;
+        grctrl->group_leader ^= (grctrl->group_leader ^ grthing->index) & TngGroup_LeaderIndex;
+        crctrl->next_in_group = 0;
+        crctrl->group_leader &= TngGroup_LeaderIndex;
+    }
+    crthing->field_0 |= 0x0040;
+    return true;
 }
 
 struct Party *get_party_of_name(const char *prtname)
 {
-  struct Party *party;
-  int i;
-  for (i=0; i < game.script.creature_partys_num; i++)
-  {
-    party = &game.script.creature_partys[i];
-    if (stricmp(party->prtname, prtname) == 0)
-      return party;
-  }
-  return NULL;
+    struct Party *party;
+    int i;
+    for (i = 0; i < game.script.creature_partys_num; i++)
+    {
+        party = &game.script.creature_partys[i];
+        if (strcasecmp(party->prtname, prtname) == 0)
+            return party;
+    }
+    return NULL;
 }
 
 int get_party_index_of_name(const char *prtname)
 {
-  struct Party *party;
-  int i;
-  for (i=0; i < game.script.creature_partys_num; i++)
-  {
-    party = &game.script.creature_partys[i];
-    if (stricmp(party->prtname, prtname) == 0)
-      return i;
-  }
-  return -1;
+    struct Party *party;
+    int i;
+    for (i = 0; i < game.script.creature_partys_num; i++)
+    {
+        party = &game.script.creature_partys[i];
+        if (strcasecmp(party->prtname, prtname) == 0)
+            return i;
+    }
+    return -1;
 }
 
 TbBool create_party(char *prtname)

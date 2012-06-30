@@ -129,7 +129,7 @@ unsigned char field_67;
     unsigned short field_74;
     unsigned short next_in_group;
     unsigned short prev_in_group;
-    unsigned short field_7A;
+    unsigned short group_leader;
     short last_work_room_id;
     short work_room_id;
     short field_80;

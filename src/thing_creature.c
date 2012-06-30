@@ -2051,7 +2051,7 @@ struct Thing *get_group_leader(const struct Thing *thing)
   struct CreatureControl *cctrl;
   struct Thing *leader;
   cctrl = creature_control_get_from_thing(thing);
-  leader = thing_get(cctrl->field_7A & 0xFFF);
+  leader = thing_get(cctrl->group_leader & TngGroup_LeaderIndex);
   return leader;
 }
 
@@ -2059,7 +2059,7 @@ TbBool creature_is_group_member(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    return ((cctrl->field_7A & 0xFFF) > 0);
+    return ((cctrl->group_leader & TngGroup_LeaderIndex) > 0);
 }
 
 TbBool creature_is_group_leader(const struct Thing *thing)
@@ -2192,13 +2192,13 @@ void change_creature_owner(struct Thing *thing, long nowner)
     struct Dungeon *dungeon;
     struct Room *room;
     //_DK_change_creature_owner(thing, nowner);
-    cctrl = creature_control_get_from_thing(thing);
     if (thing->light_id != 0) {
         light_delete_light(thing->light_id);
         thing->light_id = 0;
     }
-    if ((cctrl->field_7A & 0xFFF) != 0)
+    if (creature_is_group_member(thing))
         remove_creature_from_group(thing);
+    cctrl = creature_control_get_from_thing(thing);
     if (cctrl->lairtng_idx != 0)
     {
         room = room_get(cctrl->lair_room_id);
@@ -3305,7 +3305,7 @@ long update_creature(struct Thing *thing)
     if (thing->word_17 > 0)
         thing->word_17--;
 
-    if (cctrl->field_7A & 0x0FFF)
+    if (creature_is_group_member(thing))
     {
         if ( creature_is_group_leader(thing) )
           leader_find_positions_for_followers(thing);

@@ -134,104 +134,103 @@ TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf)
 
 long creature_instance_is_available(struct Thing *thing, long inum)
 {
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-    return 0;
-  return cctrl->instances[inum];
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+        return 0;
+    return cctrl->instances[inum];
 }
 
 void process_creature_instance(struct Thing *thing)
 {
   struct CreatureControl *cctrl;
-  struct InstanceInfo *inst_inf;
-  cctrl = creature_control_get_from_thing(thing);
-  //_DK_process_creature_instance(thing);
-  if (cctrl->instance_id != CrInst_NULL)
-  {
-    cctrl->field_D4++;
-    if (cctrl->field_D6 == cctrl->field_D4)
+    struct InstanceInfo *inst_inf;
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->instance_id != CrInst_NULL)
     {
-        inst_inf = creature_instance_info_get(cctrl->instance_id);
-        if (inst_inf->func_cb != NULL)
+        cctrl->field_D4++;
+        if (cctrl->field_D6 == cctrl->field_D4)
         {
-            inst_inf->func_cb(thing, &inst_inf->field_22);
+            inst_inf = creature_instance_info_get(cctrl->instance_id);
+            if (inst_inf->func_cb != NULL)
+            {
+                inst_inf->func_cb(thing, &inst_inf->field_22);
+            }
         }
-    }
-    if (cctrl->field_D8 == cctrl->field_D4)
-    {
-      if ( cctrl->field_D3 )
-      {
-        cctrl->field_D4--;
+        if (cctrl->field_D8 == cctrl->field_D4)
+        {
+            if (cctrl->field_D3)
+            {
+                cctrl->field_D4--;
+                cctrl->field_D3 = 0;
+                return;
+            }
+            cctrl->field_DE[cctrl->instance_id] = game.play_gameturn;
+            cctrl->instance_id = CrInst_NULL;
+        }
         cctrl->field_D3 = 0;
-        return;
-      }
-      cctrl->field_DE[cctrl->instance_id] = game.play_gameturn;
-      cctrl->instance_id = CrInst_NULL;
     }
-    cctrl->field_D3 = 0;
-  }
 }
 
 long instf_creature_fire_shot(struct Thing *thing, long *param)
 {
-  struct CreatureControl *cctrl;
-  struct Thing *target;
-  int i;
-  cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->field_DA <= 0)
-  {
-    if ((thing->field_0 & 0x20) == 0)
-      i = 4;
+    struct CreatureControl *cctrl;
+    struct Thing *target;
+    int i;
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->field_DA <= 0)
+    {
+        if ((thing->field_0 & 0x20) == 0)
+            i = 4;
+        else
+            i = 1;
+    }
+    else if ((thing->field_0 & 0x20) != 0)
+    {
+        target = thing_get(cctrl->field_DA);
+        if (target->class_id == TCls_Object)
+            i = 1;
+        else
+            i = 2;
+    }
     else
-      i = 1;
-  } else
-  if ((thing->field_0 & 0x20) != 0)
-  {
-    target = thing_get(cctrl->field_DA);
-    if (target->class_id == TCls_Object)
-      i = 1;
+    {
+        target = thing_get(cctrl->field_DA);
+        if (target->class_id == TCls_Object)
+            i = 1;
+        else if (target->owner == thing->owner)
+            i = 2;
+        else
+            i = 4;
+    }
+    if (cctrl->field_DA > 0)
+        target = thing_get(cctrl->field_DA);
     else
-      i = 2;
-  } else
-  {
-    target = thing_get(cctrl->field_DA);
-    if (target->class_id == TCls_Object)
-      i = 1;
-    else
-    if (target->owner == thing->owner)
-      i = 2;
-    else
-      i = 4;
-  }
-  if (cctrl->field_DA > 0)
-    target = thing_get(cctrl->field_DA);
-  else
-    target = NULL;
-  creature_fire_shot(thing, target, *param, 1, i);
-  return 0;
+        target = NULL;
+    creature_fire_shot(thing, target, *param, 1, i);
+    return 0;
 }
 
 long instf_creature_cast_spell(struct Thing *thing, long *param)
 {
-  struct CreatureControl *cctrl;
-  struct Thing *trthing;
-  struct SpellInfo *magicinf;
-  long mgc_idx;
-  cctrl = creature_control_get_from_thing(thing);
-  mgc_idx = *param;
-  magicinf = get_magic_info(mgc_idx);
-  if (magicinf->field_0)
-  {
-    trthing = thing_get(cctrl->field_DA);
-    if (!thing_is_invalid(trthing))
+    struct CreatureControl *cctrl;
+    struct Thing *trthing;
+    struct SpellInfo *magicinf;
+    long mgc_idx;
+    cctrl = creature_control_get_from_thing(thing);
+    mgc_idx = *param;
+    magicinf = get_magic_info(mgc_idx);
+    if (magicinf->field_0)
     {
-      creature_cast_spell_at_thing(thing, trthing, mgc_idx, 1);
-      return 0;
+        trthing = thing_get(cctrl->field_DA);
+        if (!thing_is_invalid(trthing))
+        {
+            creature_cast_spell_at_thing(thing, trthing, mgc_idx, 1);
+            return 0;
+        }
     }
-  }
-  creature_cast_spell(thing, mgc_idx, 1, cctrl->target_x, cctrl->target_y);
-  return 0;
+    creature_cast_spell(thing, mgc_idx, 1, cctrl->target_x, cctrl->target_y);
+    return 0;
 }
 
 long instf_dig(struct Thing *thing, long *param)
