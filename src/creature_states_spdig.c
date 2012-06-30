@@ -168,7 +168,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
         if (thing->model == find_model)
         {
             slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            if ( ((slb->field_5 & 0x07) == find_owner) && ((thing->field_1 & TF1_Unkn01) == 0) )
+            if ( (slabmap_owner(slb) == find_owner) && ((thing->field_1 & TF1_Unkn01) == 0) )
             {
                 if ( !imp_will_soon_be_getting_object(find_owner, thing) )
                 {
