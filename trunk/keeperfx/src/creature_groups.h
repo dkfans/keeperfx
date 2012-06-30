@@ -43,7 +43,9 @@ struct Thing;
 /******************************************************************************/
 int get_party_index_of_name(const char *prtname);
 long get_highest_experience_level_in_group(struct Thing *thing);
-long add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
+long get_no_creatures_in_group(const struct Thing *grptng);
+struct Thing *get_last_creature_in_group(const struct Thing *grptng);
+TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
 TbBool create_party(char *prtname);
 TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
 /******************************************************************************/

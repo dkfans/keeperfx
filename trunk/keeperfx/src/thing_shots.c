@@ -386,36 +386,6 @@ long check_hit_when_attacking_door(struct Thing *thing)
     return _DK_check_hit_when_attacking_door(thing);
 }
 
-long get_no_creatures_in_group(struct Thing *grptng)
-{
-    struct CreatureControl *cctrl;
-    struct Thing *ctng;
-    long i;
-    unsigned long k;
-    cctrl = creature_control_get_from_thing(grptng);
-    i = cctrl->field_7A & 0xFFF;
-    if (i == 0) {
-        // No group - just one creature
-        return 1;
-    }
-    k = 0;
-    while (i > 0)
-    {
-        ctng = thing_get(i);
-        cctrl = creature_control_get_from_thing(ctng);
-        if (creature_control_invalid(cctrl))
-            break;
-        i = cctrl->next_in_group;
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures group");
-            break;
-        }
-    }
-    return k;
-}
-
 TbBool shot_kill_creature(struct Thing *shotng, struct Thing *target)
 {
     struct CreatureControl *cctrl;
