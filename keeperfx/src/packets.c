@@ -1106,8 +1106,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
               player->controlled_thing_idx = thing->index;
               initialise_thing_state(thing, CrSt_ManualControl);
               cctrl = creature_control_get_from_thing(thing);
-              i = cctrl->field_7A;// & 0xFFF;
-              if (i > 0)
+              if (creature_is_group_member(thing))
                 make_group_member_leader(thing);
             }
           }

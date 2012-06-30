@@ -249,8 +249,8 @@ TbBool disband_creatures_group(struct Thing *thing)
     struct Thing *ctng;
     long k;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->field_7A & 0xFFF) == 0)
-      return true;
+    if (!creature_is_group_member(thing))
+        return true;
     // Find the last creature in group
     ctng = thing;
     k = 0;
