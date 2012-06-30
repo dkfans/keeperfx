@@ -966,7 +966,6 @@ long update_dungeon_scores(void);
 long update_dungeon_generation_speeds(void);
 void calculate_dungeon_area_scores(void);
 short send_creature_to_room(struct Thing *thing, struct Room *room);
-struct Room *get_room_thing_is_on(struct Thing *thing);
 void init_creature_state(struct Thing *thing);
 void gui_set_button_flashing(long btn_idx, long gameturns);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);

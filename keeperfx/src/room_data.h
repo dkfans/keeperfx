@@ -157,6 +157,7 @@ void set_room_capacity(struct Room *room, long capac);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_player_rooms_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
+struct Room *get_room_thing_is_on(const struct Thing *thing);
 void reinitialise_treaure_rooms(void);
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);

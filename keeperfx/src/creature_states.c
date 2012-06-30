@@ -1332,7 +1332,7 @@ struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct 
         slb_x = slb_num_decode_x(i);
         slb_y = slb_num_decode_y(i);
         // Per room tile code
-        tmptng = find_gold_hoarde_at(3*slb_x+1, 3*slb_y+1);
+        tmptng = find_gold_hoard_at(3*slb_x+1, 3*slb_y+1);
         if (!thing_is_invalid(tmptng))
         {
             if (creature_can_navigate_to_with_storage(thing, &tmptng->mappos, 0))
@@ -1454,7 +1454,7 @@ short creature_steal_gold(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    hrdtng = find_gold_hoarde_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    hrdtng = find_gold_hoard_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (thing_is_invalid(hrdtng))
     {
         WARNLOG("Cannot steal gold - no gold hoard at (%d,%d)",(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
@@ -1484,7 +1484,7 @@ short creature_pick_up_spell_to_steal(struct Thing *thing)
     struct Coord3d pos;
     cctrl = creature_control_get_from_thing(thing);
     spelltng = thing_get(cctrl->field_72);
-    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & 0x01) != 0)
+    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
     {
         set_start_state(thing);
@@ -1794,7 +1794,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
         if (tng2 != tng1)
         {
             if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
-            && ((tng2->field_0 & 0x10) == 0) && ((tng2->field_1 & 0x02) == 0))
+            && ((tng2->field_0 & 0x10) == 0) && ((tng2->field_1 & TF1_Unkn02) == 0))
             {
                 crstat1 = creature_stats_get_from_thing(tng1);
                 if ((cctrl2->spell_flags & 0x20) == 0)

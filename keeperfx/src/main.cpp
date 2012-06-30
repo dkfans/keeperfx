@@ -328,7 +328,6 @@ DLLIMPORT void _DK_update_god_lightning_ball(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
 DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
 DLLIMPORT short _DK_send_creature_to_room(struct Thing *thing, struct Room *room);
-DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
 DLLIMPORT long _DK_load_stats_files(void);
 DLLIMPORT void _DK_check_and_auto_fix_stats(void);
 DLLIMPORT long _DK_update_dungeon_scores(void);
@@ -680,11 +679,6 @@ short send_creature_to_room(struct Thing *thing, struct Room *room)
     return _DK_send_creature_to_room(thing, room);
 }
 
-struct Room *get_room_thing_is_on(struct Thing *thing)
-{
-    return _DK_get_room_thing_is_on(thing);
-}
-
 void destroy_food(struct Thing *thing)
 {
     struct Room *room;
@@ -713,7 +707,7 @@ void destroy_food(struct Thing *thing)
         if (thing->word_13 == -1)
         {
           room = get_room_thing_is_on(thing);
-          if (room != NULL)
+          if (!room_is_invalid(room))
           {
             if ((room->kind == RoK_GARDEN) && (room->owner == thing->owner))
             {
@@ -5718,7 +5712,7 @@ void update_all_events(void)
     if (!thing_is_invalid(thing))
     {
       event = &game.event[i];
-      if ((thing->class_id == TCls_Creature) && ((thing->field_0 & 0x10) || (thing->field_1 & 0x02)))
+      if ((thing->class_id == TCls_Creature) && ((thing->field_0 & 0x10) || (thing->field_1 & TF1_Unkn02)))
       {
         event->mappos_x = 0;
         event->mappos_y = 0;
@@ -6250,7 +6244,7 @@ struct Thing *get_workshop_box_thing(long owner, long model)
         // Per-thing code
         if ( ((thing->field_0 & 0x01) != 0) && (thing->model == model) && (thing->owner == owner) )
         {
-            if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) )
+            if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
                 return thing;
         }
         // Per-thing code ends
@@ -7168,7 +7162,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
   if (thing_model_is_gold_hoarde(thing->model))
   {
     room = get_room_thing_is_on(thing);
-    if (room == NULL)
+    if (room_is_invalid(room))
     {
         delete_thing_structure(thing, 0);
         return false;

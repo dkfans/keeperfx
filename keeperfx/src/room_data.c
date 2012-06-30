@@ -41,6 +41,7 @@ DLLIMPORT void _DK_delete_room_structure(struct Room *room);
 DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
 DLLIMPORT long _DK_claim_room(struct Room *room,struct Thing *claimtng);
 DLLIMPORT long _DK_claim_enemy_room(struct Room *room,struct Thing *claimtng);
+DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
 /******************************************************************************/
 void count_slabs(struct Room *room);
 void count_gold_slabs_with_efficiency(struct Room *room);
@@ -1092,6 +1093,12 @@ TbBool update_room_contents(struct Room *room)
     rdata->offfield_B(room);
   }
   return true;
+}
+
+struct Room *get_room_thing_is_on(const struct Thing *thing)
+{
+    //return _DK_get_room_thing_is_on(thing);
+    return subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
 void init_room_sparks(struct Room *room)
