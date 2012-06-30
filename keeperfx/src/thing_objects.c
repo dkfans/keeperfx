@@ -736,7 +736,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, long plyr_idx,
     hoard_size = value / hoard_size_holds;
     if (hoard_size >= sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0]))
         hoard_size = sizeof(gold_hoard_objects)/sizeof(gold_hoard_objects[0])-1;
-    thing = create_object(&pos, gold_hoard_objects[hoard_size], plyr_idx, -1);
+    thing = create_object(pos, gold_hoard_objects[hoard_size], plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
     hoard_store = 9 * game.pot_of_gold_holds;
