@@ -164,6 +164,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
 
 /**
  * Returns thing of given array index.
+ * @param tng_idx
  * @return Returns thing, or invalid thing pointer if not found.
  */
 struct Thing *thing_get(long tng_idx)
