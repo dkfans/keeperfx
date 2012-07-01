@@ -335,7 +335,7 @@ long creature_look_for_combat(struct Thing *thing)
         if ( (cctrl->field_1B == 0) && (cctrl->field_1C == 0) ) {
             return 0;
         }
-        if ( !external_set_thing_state(thing, 87) ) {
+        if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
             return 0;
         }
         setup_combat_flee_position(thing);
@@ -363,7 +363,7 @@ long creature_look_for_combat(struct Thing *thing)
           return 0;
       }
     }
-    if ( !external_set_thing_state(thing, 87) ) {
+    if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
         return 0;
     }
     setup_combat_flee_position(thing);
