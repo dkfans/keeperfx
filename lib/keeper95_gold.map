@@ -347,6 +347,7 @@
  0001:00044120       object_update_object_scale
  0001:000443A0       object_update_power_sight
  0001:00044770       object_update_power_lightning
+ 0001:000448B0       take_from_gold_pile
  0001:00044A20       thing_is_spellbook
  0001:00044AB0       get_spellbook_at_position
  0001:00044C00       get_crate_at_position
