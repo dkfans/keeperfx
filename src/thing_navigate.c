@@ -167,7 +167,7 @@ void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *
     nav_thing_can_travel_over_lava = 0;
 }
 
-TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4)
+TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4)
 {
     struct CreatureControl *cctrl;
     struct Coord3d pos;

@@ -1095,6 +1095,11 @@ TbBool update_room_contents(struct Room *room)
   return true;
 }
 
+TbBool thing_is_on_own_room_tile(const struct Thing *thing)
+{
+    return subtile_is_player_room(thing->owner, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+}
+
 struct Room *get_room_thing_is_on(const struct Thing *thing)
 {
     //return _DK_get_room_thing_is_on(thing);
@@ -1826,6 +1831,7 @@ TbBool remove_item_from_room_capacity(struct Room *room)
 
 TbBool add_item_to_room_capacity(struct Room *room)
 {
+    //TODO ROOMS think if we really want to compare it with used_capacity and not capacity_used_for_storage
     if (room->used_capacity >= room->total_capacity)
     {
         return false;

@@ -426,6 +426,25 @@ TbBool update_creature_health_to_max(struct Thing *thing)
   return true;
 }
 
+void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long max_health,new_health;
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    new_health = thing->health;
+    if ((max_health != new_health) && (amount > 0))
+    {
+        new_health += amount;
+        if (new_health >= max_health)
+            new_health = max_health;
+        thing->word_17 = 8;
+        thing->health = new_health;
+    }
+}
+
 void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
 {
     struct PlayerInfo *player;

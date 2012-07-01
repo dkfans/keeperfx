@@ -184,6 +184,7 @@ obj/player_instances.o \
 obj/power_hand.o \
 obj/power_specials.o \
 obj/room_data.o \
+obj/room_graveyard.o \
 obj/room_jobs.o \
 obj/room_library.o \
 obj/room_workshop.o \

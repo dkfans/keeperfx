@@ -69,7 +69,7 @@ long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3);
 long check_out_imp_has_money_for_treasure_room(struct Thing *thing);
 long check_out_available_imp_tasks(struct Thing *thing);
 long check_out_imp_tokes(struct Thing *thing);
-long check_place_to_dig_and_get_position(struct Thing *thing, unsigned long stl_num, long *retstl_x, long *retstl_y);
+long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y);
 long check_place_to_reinforce(struct Thing *thing, long a2, long a3);
 long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short a2, long *a3, long *a4);
 /******************************************************************************/

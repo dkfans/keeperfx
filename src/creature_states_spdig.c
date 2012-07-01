@@ -36,6 +36,7 @@
 #include "room_jobs.h"
 #include "room_workshop.h"
 #include "room_library.h"
+#include "room_graveyard.h"
 #include "spdigger_stack.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -175,7 +176,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
                     if ( setup_person_move_to_position(digger, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
                     {
                         digger->continue_state = CrSt_CreaturePicksUpTrapObject;
-                        cctrl->field_72 = thing->index;
+                        cctrl->pickup_object_id = thing->index;
                         cctrl->field_70 = traptng->index;
                         return 1;
                     }
@@ -332,7 +333,7 @@ long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
                     && setup_person_move_to_position(digger, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
                   {
                       digger->continue_state = CrSt_CreaturePicksUpTrapObject;
-                      cctrl->field_72 = thing->index;
+                      cctrl->pickup_object_id = thing->index;
                       cctrl->field_70 = traptng->index;
                       return 1;
                   }
@@ -410,9 +411,39 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
     return 1;
 }
 
+TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *thing, SubtlCodedCoords stl_num)
+{
+    long pos_x,pos_y;
+    if (!check_place_to_dig_and_get_position(thing, stl_num, &pos_x, &pos_y))
+        return false;
+    if (!setup_person_move_to_position(thing, pos_x, pos_y, 0))
+        return false;
+    thing->continue_state = CrSt_ImpArrivesAtDigOrMine1;
+    return true;
+}
+
 short imp_arrives_at_dig_or_mine(struct Thing *thing)
 {
-  return _DK_imp_arrives_at_dig_or_mine(thing);
+    struct CreatureControl *cctrl;
+    SYNCDBG(19,"Starting");
+    //return _DK_imp_arrives_at_dig_or_mine(thing);
+    if ( imp_already_digging_at_excluding(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num) )
+    {
+        cctrl = creature_control_get_from_thing(thing);
+
+        if ( !move_imp_to_uncrowded_dig_mine_access_point(thing, cctrl->word_8F) )
+        {
+            internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+            return 1;
+        }
+    } else
+    {
+        if (thing->active_state == CrSt_ImpArrivesAtDigOrMine1)
+            internal_set_thing_state(thing, CrSt_ImpDigsMines1);
+        else
+            internal_set_thing_state(thing, CrSt_ImpDigsMines2);
+    }
+    return 1;
 }
 
 short imp_arrives_at_improve_dungeon(struct Thing *thing)
@@ -702,7 +733,7 @@ short imp_drops_gold(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 1;
     }
-    thing->continue_state = 7;
+    thing->continue_state = CrSt_ImpDropsGold;
     return 1;
 }
 
@@ -733,7 +764,7 @@ short imp_improves_dungeon(struct Thing *thing)
         return 0;
     }
     if (cctrl->instance_id == 0)
-      set_creature_instance(thing, 31, 0, 0, 0);
+      set_creature_instance(thing, CrInst_PRETTY_PATH, 0, 0, 0);
     return 1;
 }
 
@@ -760,36 +791,180 @@ short imp_reinforces(struct Thing *thing)
 
 short imp_toking(struct Thing *thing)
 {
-  return _DK_imp_toking(thing);
+    struct CreatureControl *cctrl;
+    //return _DK_imp_toking(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->field_282 > 0)
+    {
+        cctrl->field_282--;
+    } else
+    {
+        if (cctrl->instance_id == 0) {
+          internal_set_thing_state(thing, thing->continue_state);
+          return 1;
+        }
+    }
+    if (cctrl->field_282 > 0)
+    {
+        if (cctrl->instance_id == 0)
+        {
+            if ( ACTION_RANDOM(8) )
+                set_creature_instance(thing, CrInst_RELAXING, 0, 0, 0);
+            else
+                set_creature_instance(thing, CrInst_TOKING, 0, 0, 0);
+        }
+    }
+    apply_health_to_thing_and_display_health(thing, 10); //TODO CONFIG Would be nice to have toking heal as config parameter
+    return 1;
+}
+
+/**
+ * For a creature dragging a thing, this function searches for another room
+ * where the thing could be placed.
+ * @param thing The creature dragging another thing.
+ * @return Gives true if the setup to the new room has succeeded.
+ */
+TbBool creature_drop_thing_to_another_room(struct Thing *thing, struct Room *skiproom, signed char rkind)
+{
+    struct Room *ownroom;
+    struct CreatureControl *cctrl;
+    struct Coord3d pos;
+    cctrl = creature_control_get_from_thing(thing);
+    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, rkind, 0, 1);
+    if ( room_is_invalid(ownroom) || (ownroom->index == skiproom->index) )
+    {
+        WARNLOG("Couldn't find a new %s for object dragged by %s owned by %d",room_code_name(rkind),thing_model_name(thing),(int)thing->owner);
+        return false;
+    }
+    if (!find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
+    {
+        WARNLOG("Couldn't find a new destination in %s for object dragged by %s owned by %d",room_code_name(rkind),thing_model_name(thing),(int)thing->owner);
+        return false;
+    }
+    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        SYNCDBG(8,"Cannot move %s to %s at subtile (%d,%d)",thing_model_name(thing),room_code_name(rkind),(int)pos.x.stl.num,(int)pos.y.stl.num);
+        return false;
+    }
+    return true;
+}
+
+TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing)
+{
+    struct Thing *picktng;
+    struct CreatureControl *cctrl, *dragctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    dragctrl = creature_control_get_from_thing(dragtng);
+    // Check if we're already dragging
+    picktng = thing_get(cctrl->field_6E);
+    if (!thing_is_invalid(picktng)) {
+        ERRORLOG("Thing is already dragging something");
+        return false;
+    }
+    picktng = thing_get(dragctrl->field_6E);
+    if (!thing_is_invalid(picktng)) {
+        ERRORLOG("Thing is already dragged by something");
+        return false;
+    }
+    // Set the new dragging
+    cctrl->field_6E = dragtng->index;
+    dragtng->field_1 |= 0x01;
+    dragctrl->field_6E = thing->index;
+    return false;
 }
 
 short creature_pick_up_unconscious_body(struct Thing *thing)
 {
-  return _DK_creature_pick_up_unconscious_body(thing);
+    struct Room *ownroom;
+    struct CreatureControl *cctrl;
+    struct Thing *picktng;
+    struct Coord3d pos;
+    SYNCDBG(9,"Starting");
+    //return _DK_creature_pick_up_unconscious_body(thing);
+    // Check if the player has means to do such kind of action
+     if ( !player_has_room(thing->owner, RoK_PRISON) || !player_creature_tends_to(thing->owner, CrTend_Imprison) )
+     {
+         SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_code_name(RoK_PRISON));
+         set_start_state(thing);
+         return 0;
+     }
+    cctrl = creature_control_get_from_thing(thing);
+    picktng = thing_get(cctrl->pickup_creature_id);
+    if ( thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || ((picktng->field_1 & 0x01) != 0)
+      || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
+    {
+        SYNCDBG(8,"The %s to be picked up isn't in correct place or state",thing_model_name(picktng));
+        set_start_state(thing);
+        return 0;
+    }
+    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1);
+    if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room(thing, ownroom, &pos) )
+    {
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
+        set_start_state(thing);
+        return 0;
+    }
+    if (!setup_person_move_backwards_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        SYNCDBG(8,"Cannot drag %s to (%d,%d)",thing_model_name(picktng),(int)pos.x.stl.num,(int)pos.y.stl.num);
+        set_start_state(thing);
+        return 0;
+    }
+    set_creature_being_dragged_by(picktng, thing);
+    thing->continue_state = CrSt_CreatureDropBodyInPrison;
+    return 1;
 }
 
 short creature_picks_up_corpse(struct Thing *thing)
 {
-  return _DK_creature_picks_up_corpse(thing);
+    struct Room *ownroom;
+    struct CreatureControl *cctrl;
+    struct Thing *picktng;
+    struct Coord3d pos;
+    //return _DK_creature_picks_up_corpse(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    picktng = thing_get(cctrl->pickup_object_id);
+    if ( thing_is_invalid(picktng) || ((picktng->field_0 & 0x80) != 0)
+      || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1);
+    if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
+    {
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
+        set_start_state(thing);
+        return 0;
+    }
+    creature_drag_object(thing, picktng);
+    if (!setup_person_move_backwards_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
+        set_start_state(thing);
+        return 0;
+    }
+    thing->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
+    return 1;
 }
 
 short creature_picks_up_spell_object(struct Thing *thing)
 {
     struct Room *enmroom, *ownroom;
     struct CreatureControl *cctrl;
-    struct Thing *spelltng;
+    struct Thing *picktng;
     struct Coord3d pos;
     //return _DK_creature_picks_up_spell_object(thing);
     cctrl = creature_control_get_from_thing(thing);
-    spelltng = thing_get(cctrl->field_72);
-    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & TF1_Unkn01) != 0)
-      || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
+    picktng = thing_get(cctrl->pickup_object_id);
+    if ( thing_is_invalid(picktng) || ((picktng->field_1 & TF1_Unkn01) != 0)
+      || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(thing);
         return 0;
     }
-    enmroom = subtile_room_get(spelltng->mappos.x.stl.num,spelltng->mappos.y.stl.num);
-    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 3, 0, 1);
+    enmroom = subtile_room_get(picktng->mappos.x.stl.num,picktng->mappos.y.stl.num);
+    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_LIBRARY, 0, 1);
     if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
     {
         WARNLOG("Player %d can't pick spell - doesn't have proper library to store it",(int)thing->owner);
@@ -799,12 +974,14 @@ short creature_picks_up_spell_object(struct Thing *thing)
     // Check if we're stealing the spell from a library
     if (!room_is_invalid(enmroom))
     {
-        remove_spell_from_library(enmroom, spelltng, thing->owner);
+        remove_spell_from_library(enmroom, picktng, thing->owner);
     }
-    creature_drag_object(thing, spelltng);
+    creature_drag_object(thing, picktng);
     if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
     {
         SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
+        set_start_state(thing);
+        return 0;
     }
     thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
     return 1;
@@ -819,7 +996,7 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
     //return _DK_creature_picks_up_trap_for_workshop(thing);
     // Get the crate thing
     cctrl = creature_control_get_from_thing(thing);
-    cratetng = thing_get(cctrl->field_72);
+    cratetng = thing_get(cctrl->pickup_object_id);
     // Check if everything is right
     if ( thing_is_invalid(cratetng) || ((cratetng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512) )
@@ -828,7 +1005,7 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
         return 0;
     }
     // Find room to drag the crate to
-    dstroom = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, 8, 0);
+    dstroom = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, 0);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
     {
         set_start_state(thing);
@@ -858,7 +1035,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
     struct Thing *traptng;
     //return _DK_creature_picks_up_trap_object(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cratetng = thing_get(cctrl->field_72);
+    cratetng = thing_get(cctrl->pickup_object_id);
     room = get_room_thing_is_on(cratetng);
     traptng = thing_get(cctrl->field_70);
     if ( !thing_exists(cratetng) || !thing_exists(traptng) )
@@ -908,7 +1085,50 @@ short creature_picks_up_trap_object(struct Thing *thing)
 
 short creature_drops_corpse_in_graveyard(struct Thing *thing)
 {
-  return _DK_creature_drops_corpse_in_graveyard(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    struct Thing *corpse;
+    //return _DK_creature_drops_corpse_in_graveyard(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    corpse = thing_get(cctrl->field_6E);
+    // Check if corpse is ok
+    if ( !thing_exists(corpse) )
+    {
+        ERRORLOG("The %s index %d tried to drop a corpse, but it's gone",thing_model_name(thing),(int)thing->index);
+        set_start_state(thing);
+        return 0;
+    }
+    // Check if we're on correct room
+    room = get_room_thing_is_on(thing);
+    if ( room_is_invalid(room) )
+    {
+        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(corpse),(int)corpse->index,room_code_name(RoK_GRAVEYARD));
+        if (creature_drop_thing_to_another_room(thing, room, RoK_GRAVEYARD)) {
+            thing->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
+            return 1;
+        }
+        set_start_state(thing);
+        return 0;
+    }
+
+    if ( (room->kind != RoK_GRAVEYARD) || (room->owner != thing->owner)
+        || (room->used_capacity >= room->total_capacity) )
+    {
+        WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(corpse),(int)corpse->index,room_code_name(RoK_GRAVEYARD));
+        if (creature_drop_thing_to_another_room(thing, room, RoK_GRAVEYARD)) {
+            thing->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
+            return 1;
+        }
+        set_start_state(thing);
+        return 0;
+    }
+    // Do the dropping
+    creature_drop_dragged_object(thing, corpse);
+    corpse->owner = thing->owner;
+    add_body_to_graveyard(corpse, room);
+    // The action of moving object is now finished
+    set_start_state(thing);
+    return 1;
 }
 
 short creature_drops_crate_in_workshop(struct Thing *thing)
@@ -930,13 +1150,22 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in workshop, but room no longer valid",thing_model_name(cratetng),(int)cratetng->index);
+        SYNCDBG(7,"Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
+        if (creature_drop_thing_to_another_room(thing, room, RoK_WORKSHOP)) {
+            thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
+            return 1;
+        }
         set_start_state(thing);
         return 0;
     }
     if ( (room->kind != RoK_WORKSHOP) || (room->owner != thing->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
+        SYNCDBG(7,"Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
+        if (creature_drop_thing_to_another_room(thing, room, RoK_WORKSHOP)) {
+            thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
+            return 1;
+        }
         set_start_state(thing);
         return 0;
     }
@@ -946,13 +1175,66 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
         add_workshop_item(room->owner, get_workshop_object_class_for_thing(cratetng),
             box_thing_to_door_or_trap(cratetng));
     }
+    // The action of moving object is now finished
     set_start_state(thing);
     return 1;
 }
 
+/**
+ * Drops a previously picked up spell into a library.
+ * @param thing The creature dragging a spell.
+ * @return Gives true if the action shall continue, false if it's finished.
+ */
 short creature_drops_spell_object_in_library(struct Thing *thing)
 {
-  return _DK_creature_drops_spell_object_in_library(thing);
+    struct Thing *spelltng;
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_creature_drops_spell_object_in_library(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    spelltng = thing_get(cctrl->field_6E);
+    // Check if spell is ok
+    if ( !thing_exists(spelltng) )
+    {
+        ERRORLOG("The %s index %d tried to drop a spell, but it's gone",thing_model_name(thing),(int)thing->index);
+        set_start_state(thing);
+        return 0;
+    }
+    // Check if we're on correct room
+    room = get_room_thing_is_on(thing);
+    if ( room_is_invalid(room) )
+    {
+        WARNLOG("Tried to drop %s index %d in library, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index);
+        if (creature_drop_thing_to_another_room(thing, room, RoK_LIBRARY)) {
+            thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
+            return 1;
+        }
+        set_start_state(thing);
+        return 0;
+    }
+    if ( (room->kind != RoK_LIBRARY) || (room->owner != thing->owner)
+        || (room->used_capacity >= room->total_capacity) )
+    {
+        WARNLOG("Tried to drop %s index %d in library, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index);
+        if (creature_drop_thing_to_another_room(thing, room, RoK_LIBRARY)) {
+            thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
+            return 1;
+        }
+        set_start_state(thing);
+        return 0;
+    }
+    // Do the dropping
+    creature_drop_dragged_object(thing, spelltng);
+    spelltng->owner = thing->owner;
+    if (thing_is_spellbook(spelltng))
+    {
+        if (add_item_to_room_capacity(room)) {
+            add_spell_to_player(object_to_magic[spelltng->model], thing->owner);
+        }
+    }
+    // The action of moving object is now finished
+    set_start_state(thing);
+    return 1;
 }
 
 short creature_arms_trap(struct Thing *thing)
@@ -990,6 +1272,7 @@ short creature_arms_trap(struct Thing *thing)
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
     delete_thing_structure(cratetng, 0);
+    // The action of moving object is now finished
     set_start_state(thing);
     return 1;
 }

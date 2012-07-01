@@ -1419,7 +1419,7 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    cctrl->field_72 = spltng->index;
+    cctrl->pickup_object_id = spltng->index;
     if (!setup_person_move_to_position(thing, spltng->mappos.x.stl.num, spltng->mappos.y.stl.num, 0))
     {
         SYNCDBG(8,"Cannot move to spell at (%d,%d)",(int)spltng->mappos.x.stl.num, (int)spltng->mappos.y.stl.num);
@@ -1483,7 +1483,7 @@ short creature_pick_up_spell_to_steal(struct Thing *thing)
     struct Thing *spelltng;
     struct Coord3d pos;
     cctrl = creature_control_get_from_thing(thing);
-    spelltng = thing_get(cctrl->field_72);
+    spelltng = thing_get(cctrl->pickup_object_id);
     if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
     {

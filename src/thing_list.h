@@ -168,7 +168,7 @@ long thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
-TbBool imp_already_digging_at_excluding(struct Thing *excltng, long stl_x, long stl_y);
+TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y);
 struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y);
 TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel);

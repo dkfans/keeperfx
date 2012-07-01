@@ -39,7 +39,7 @@ DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
 
 #pragma pack()
 /******************************************************************************/
-TbBool setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4);
+TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4);
 TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, unsigned char a4);
 TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4);
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a4);

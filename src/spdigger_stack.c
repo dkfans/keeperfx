@@ -612,7 +612,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short 
     return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
 }
 
-long check_place_to_dig_and_get_position(struct Thing *thing, unsigned long stl_num, long *retstl_x, long *retstl_y)
+long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
 {
     struct SlabMap *place_slb;
     struct Coord3d pos;
@@ -1062,7 +1062,7 @@ long check_out_imp_stack(struct Thing *thing)
                 return -1;
             }
             thing->continue_state = CrSt_CreaturePickUpUnconsciousBody;
-            cctrl->field_74 = sectng->index;
+            cctrl->pickup_creature_id = sectng->index;
             return 1;
 
         case DigTsk_PickUpCorpse:
@@ -1097,7 +1097,7 @@ long check_out_imp_stack(struct Thing *thing)
                 return -1;
             }
             thing->continue_state = CrSt_CreaturePicksUpCorpse;
-            cctrl->field_72 = sectng->index;
+            cctrl->pickup_object_id = sectng->index;
             return 1;
 
         case DigTsk_PicksUpSpellBook:
@@ -1147,7 +1147,7 @@ long check_out_imp_stack(struct Thing *thing)
                 WARNLOG("Strange pickup (model %d) - no event",(int)sectng->model);
             }
             thing->continue_state = CrSt_CreaturePicksUpSpellObject;
-            cctrl->field_72 = sectng->index;
+            cctrl->pickup_object_id = sectng->index;
             return 1;
 
         case DigTsk_PicksUpTrapBox:
@@ -1178,7 +1178,7 @@ long check_out_imp_stack(struct Thing *thing)
               return -1;
             }
             thing->continue_state = CrSt_CreaturePicksUpTrapObject;
-            cctrl->field_72 = sectng->index;
+            cctrl->pickup_object_id = sectng->index;
             cctrl->field_70 = trdtng->index;
             return 1;
 
@@ -1231,7 +1231,7 @@ long check_out_imp_stack(struct Thing *thing)
                 WARNLOG("Strange pickup (class %d) - no event",(int)i);
             }
             thing->continue_state = CrSt_CreaturePicksUpTrapForWorkshop;
-            cctrl->field_72 = sectng->index;
+            cctrl->pickup_object_id = sectng->index;
             return 1;
 
         case DigTsk_DigOrMine:

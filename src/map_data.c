@@ -541,6 +541,26 @@ TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return ((navmap & 0x10) != 0);
 }
 
+/**
+ * Returns if given subtile contains room belonging to given player.
+ * @param plyr_idx The player the tile shall belong to.
+ * @param stl_x The subtile X coordinate.
+ * @param stl_y The subtile Y coordinate.
+ * @return Gives true if the tile contains any room belnging to given player, false otherwise.
+ */
+TbBool subtile_is_player_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *map;
+    struct SlabMap *slb;
+    map = get_map_block_at(stl_x,stl_y);
+    if (map_block_invalid(map) || ((map->flags & 0x02) == 0))
+        return false;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_owner(slb) != plyr_idx)
+        return false;
+    return true;
+}
+
 TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map *map;

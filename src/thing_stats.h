@@ -59,6 +59,7 @@ long compute_value_8bpercentage(long base_val, short npercent);
 long calculate_correct_creature_maxspeed(const struct Thing *thing);
 
 TbBool update_creature_health_to_max(struct Thing *thing);
+void apply_health_to_thing_and_display_health(struct Thing *thing, long amount);
 void apply_damage_to_thing(struct Thing *thing, long a2, char a3);
 /******************************************************************************/
 #ifdef __cplusplus
