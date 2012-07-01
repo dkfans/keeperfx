@@ -86,6 +86,7 @@ DLLIMPORT long _DK_imp_will_soon_be_arming_trap(struct Thing *digger);
 DLLIMPORT long _DK_check_out_object_for_trap(struct Thing *traptng, struct Thing *digger);
 DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp(struct Thing *traptng, long a2);
 DLLIMPORT long _DK_imp_will_soon_be_getting_object(long a2, struct Thing *digger);
+DLLIMPORT long _DK_take_from_gold_pile(unsigned short stl_x, unsigned short stl_y, long limit);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -779,9 +780,27 @@ short imp_last_did_job(struct Thing *thing)
     return 1;
 }
 
+long take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long limit)
+{
+    return _DK_take_from_gold_pile(stl_x, stl_y, limit);
+}
+
 short imp_picks_up_gold_pile(struct Thing *thing)
 {
-  return _DK_imp_picks_up_gold_pile(thing);
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    long gold_taken;
+    SYNCDBG(19,"Starting");
+    //return _DK_imp_picks_up_gold_pile(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    if (crstat->gold_hold > thing->creature.gold_carried)
+    {
+        gold_taken = take_from_gold_pile(thing->mappos.x.stl.num, thing->mappos.y.stl.num, crstat->gold_hold - thing->creature.gold_carried);
+        thing->creature.gold_carried += gold_taken;
+    }
+    internal_set_thing_state(thing, 8);
+    return 0;
 }
 
 short imp_reinforces(struct Thing *thing)
