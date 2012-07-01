@@ -519,8 +519,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     lbDisplay.PhysicalScreenHeight = mdinfo->Height;
     lbDisplay.ScreenMode = mode;
     lbDisplay.PhysicalScreen = NULL;
-    // The graphics screen size will be later updated to screen pitch by LbScreenLock()
-    lbDisplay.GraphicsScreenWidth = mdinfo->Width;
+    // The graphics screen size should be really taken after screen is locked, but it seem just getting in now will work too
+    lbDisplay.GraphicsScreenWidth = lbDrawSurface->pitch;
     lbDisplay.GraphicsScreenHeight = mdinfo->Height;
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;

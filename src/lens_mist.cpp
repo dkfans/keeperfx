@@ -87,68 +87,68 @@ void CMistFade::animate(void)
   this->field_F += this->field_1B;
 }
 
-void CMistFade::mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height)
+void CMistFade::mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height)
 {
-  unsigned char *src;
-  unsigned char *dst;
-  unsigned long p2,c2,p1,c1;
-  unsigned long lens_div;
-  long i,k,n;
-  long w,h;
+    unsigned char *src;
+    unsigned char *dst;
+    unsigned long p2,c2,p1,c1;
+    unsigned long lens_div;
+    long i,k,n;
+    long w,h;
 
-  if ((lens_data == NULL) || (fade_data == NULL))
-  {
-    ERRORLOG("Can't draw Mist as it's not initialized!");
-    return;
-  }
-  src = srcbuf;
-  dst = dstbuf;
-  p2 = this->field_C;
-  c2 = this->field_D;
-  p1 = this->field_E;
-  c1 = this->field_F;
-  lens_div = width/(2*lens_dim);
-  if (lens_div < 1) lens_div = 1;
-  for (h=height; h > 0; h--)
-  {
-    for (w=width; w > 0; w--)
+    if ((lens_data == NULL) || (fade_data == NULL))
     {
-//JUSTLOG("POS %d,%d Px %d,%d",w,h,p1,p2);
-      i = lens_data[(c1 * lens_dim) + p1];
-      k = lens_data[(c2 * lens_dim) + p2];
-      n = (k + i) >> 3;
-      if (n > 32)
-        n = 32;
-      else
-      if (n < 0)
-        n = 0;
-      *dst = this->fade_data[(n << 8) + *src];
-      src++;
-      dst++;
-      if ((w%lens_div) == 0)
-      {
-          c1--;
-          c1 %= lens_dim;
-          p2++;
-          p2 %= lens_dim;
-      }
+        ERRORLOG("Can't draw Mist as it's not initialized!");
+        return;
     }
-    // Move buffers to end of this line
-    dst += (dstwidth-width);
-    src += (srcwidth-width);
-    // Update other counters
-    if ((h%lens_div) == 0)
+    src = srcbuf;
+    dst = dstbuf;
+    p2 = this->field_C;
+    c2 = this->field_D;
+    p1 = this->field_E;
+    c1 = this->field_F;
+    lens_div = width/(2*lens_dim);
+    if (lens_div < 1) lens_div = 1;
+    for (h=height; h > 0; h--)
     {
-        c1 += width;
-        c1 %= lens_dim;
-        p2 -= width;
-        p2 %= lens_dim;
-        c2++;
-        c2 %= lens_dim;
-        p1--;
-        p1 %= lens_dim;
+        for (w=width; w > 0; w--)
+        {
+            //JUSTLOG("POS %d,%d Px %d,%d",w,h,p1,p2);
+            i = lens_data[(c1 * lens_dim) + p1];
+            k = lens_data[(c2 * lens_dim) + p2];
+            n = (k + i) >> 3;
+            if (n > 32)
+              n = 32;
+            else
+            if (n < 0)
+              n = 0;
+            *dst = this->fade_data[(n << 8) + *src];
+            src++;
+            dst++;
+            if ((w%lens_div) == 0)
+            {
+                c1--;
+                c1 %= lens_dim;
+                p2++;
+                p2 %= lens_dim;
+            }
+        }
+        // Move buffers to end of this line
+        dst += (dstpitch-width);
+        src += (srcpitch-width);
+        // Update other counters
+        if ((h%lens_div) == 0)
+        {
+            c1 += width;
+            c1 %= lens_dim;
+            p2 -= width;
+            p2 %= lens_dim;
+            c2++;
+            c2 %= lens_dim;
+            p1--;
+            p1 %= lens_dim;
+        }
     }
-  }
 }
 
 CMistFade::CMistFade(void)
@@ -160,7 +160,7 @@ CMistFade::~CMistFade(void)
 {
 }
 
-TbBool draw_mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, long srcwidth, long width, long height)
+TbBool draw_mist(unsigned char *dstbuf, long dstpitch, unsigned char *srcbuf, long srcpitch, long width, long height)
 {
     SYNCDBG(8,"Starting");
     if (mist == NULL)
@@ -168,7 +168,7 @@ TbBool draw_mist(unsigned char *dstbuf, long dstwidth, unsigned char *srcbuf, lo
         WARNLOG("Tried to use uninitialized mist!");
         return false;
     }
-    mist->mist(dstbuf, dstwidth, srcbuf, srcwidth, width, height);
+    mist->mist(dstbuf, dstpitch, srcbuf, srcpitch, width, height);
     mist->animate();
     return true;
 }

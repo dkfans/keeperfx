@@ -799,7 +799,7 @@ short imp_picks_up_gold_pile(struct Thing *thing)
         gold_taken = take_from_gold_pile(thing->mappos.x.stl.num, thing->mappos.y.stl.num, crstat->gold_hold - thing->creature.gold_carried);
         thing->creature.gold_carried += gold_taken;
     }
-    internal_set_thing_state(thing, 8);
+    internal_set_thing_state(thing, CrSt_ImpLastDidJob);
     return 0;
 }
 

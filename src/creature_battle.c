@@ -100,7 +100,7 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
     } else
     {
         player = get_player(thing->owner);
-        if ( ((player->field_0 & 0x01) != 0) && (player->field_2C == 1) && (player->victory_state != 2) )
+        if ( ((player->field_0 & 0x01) != 0) && (player->field_2C == 1) && (player->victory_state != VicS_LostLevel) )
         {
             ERRORLOG("The %s has no dungeon heart or lair to flee to",thing_model_name(thing));
             return 0;
@@ -174,7 +174,7 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long pos
         ERRORLOG("Creature in combat already - state %s", creature_state_code_name(crstate));
         return;
     }
-    if ( external_set_thing_state(fighter, 49) )
+    if ( external_set_thing_state(fighter, CrSt_CreatureInCombat) )
     {
         cctrl->field_AA = 0;
         cctrl->field_A9 = 0;
