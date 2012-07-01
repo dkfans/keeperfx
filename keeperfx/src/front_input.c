@@ -1538,7 +1538,7 @@ static void get_dungeon_speech_inputs(void)
         }
         break;
     case KS_VIEW_INFO:
-        set_menu_mode(BID_INFO_TAB); //TODO: not working for some reason, debug
+        set_menu_mode(BID_INFO_TAB); //TODO SPEECH not working for some reason, debug
         break;
     case KS_VIEW_ROOMS:
         set_menu_mode(BID_ROOM_TAB);

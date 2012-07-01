@@ -5241,14 +5241,16 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 {
     ThingModel crkind;
     long lair_space;
+    struct CreatureStats *crstat;
 
     SYNCDBG(9,"Starting");
 
     crkind = calculate_creature_to_generate_for_dungeon(dungeon);
+    crstat = creature_stats_get(crkind);
 
     if (crkind > 0) {
         lair_space = calculate_free_lair_space(dungeon);
-        if ((long)game.creature_stats[crkind].pay > dungeon->total_money_owned)
+        if ((long)crstat->pay > dungeon->total_money_owned)
         {
             if (is_my_player_number(dungeon->owner)) {
                 output_message(SMsg_GoldLow, MESSAGE_DELAY_TREASURY, true);

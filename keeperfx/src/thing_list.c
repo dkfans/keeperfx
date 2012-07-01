@@ -1317,7 +1317,14 @@ long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing)
   return _DK_thing_is_shootable_by_any_player_excluding_objects(thing);
 }
 
-TbBool imp_already_digging_at_excluding(struct Thing *excltng, long stl_x, long stl_y)
+/**
+ * Returns if there's a creature digging at given map coordinates.
+ * @param excltng The thing to exclude from search (to be ignored even if it's digging there).
+ * @param stl_x Dig site X coordinate.
+ * @param stl_y Dig site Y coordinate.
+ * @return
+ */
+TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   const struct Map *mapblk;
   struct Thing *thing;
