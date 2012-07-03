@@ -1,7 +1,7 @@
 REM ********************************************
-REM
-REM             Script for Level 9
-REM
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 9
+REM  Version 1.00
 REM ********************************************
 
 SET_TIMER(PLAYER0,TIMER0)

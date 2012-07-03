@@ -1,9 +1,8 @@
 REM ********************************************
-REM
-REM Script for Level 207
-REM
+REM  Grinics' KReign campaign for KeeperFX
+REM  Script for Level 207
+REM  Version 1.00
 REM ********************************************
-
 
 REM Briefing
 

@@ -1,4 +1,10 @@
-REM SAVE THE HEROES RELEASE VERSION 2 (13.7.98)
+REM ********************************************
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 6, Save the Heroes
+REM  Version 2.00
+REM  Created 1998-07-13 by P.Simbierowicz & D.Kay
+REM  Updated 2012-07-02 by Mefistotelis
+REM ********************************************
 
 SET_GENERATE_SPEED(400)
 

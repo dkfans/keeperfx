@@ -1,4 +1,8 @@
-REM Blistering Furnace
+REM ********************************************
+REM  Burdened Imps' Level Pack for KeeperFX
+REM  Script for Level 222, Blistering Furnace
+REM  Version 1.00
+REM ********************************************
 
 REM Basic stuff
 

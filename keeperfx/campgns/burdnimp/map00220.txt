@@ -1,4 +1,8 @@
-REM Moonshadow Keep
+REM ********************************************
+REM  Burdened Imps' Level Pack for KeeperFX
+REM  Script for Level 220, Moonshadow Keep
+REM  Version 1.00
+REM ********************************************
 
 REM Basic stuff
 

@@ -1,7 +1,7 @@
 REM ********************************************
-REM
-REM             Script for Level 100
-REM
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 100 (Secret 1)
+REM  Version 1.00
 REM ********************************************
 
 COMPUTER_PLAYER(PLAYER1,0)
