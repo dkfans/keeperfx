@@ -1,4 +1,8 @@
-REM Amberstone Hills
+REM ********************************************
+REM  Burdened Imps' Level Pack for KeeperFX
+REM  Script for Level 226, Amberstone Hills
+REM  Version 1.00
+REM ********************************************
 
 SET_GENERATE_SPEED(500)
 MAX_CREATURES(PLAYER0,5)

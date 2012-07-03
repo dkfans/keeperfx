@@ -1,7 +1,7 @@
 REM ********************************************
-REM
-REM             Script for Level 105
-REM
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 105 (Secret 6)
+REM  Version 1.00
 REM ********************************************
 
 DISPLAY_OBJECTIVE(21,PLAYER0)

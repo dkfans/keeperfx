@@ -1,7 +1,7 @@
 REM ********************************************
-REM
-REM             Script for Level 102
-REM
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 102 (Secret 3)
+REM  Version 1.00
 REM ********************************************
 
 IF(PLAYER0,IMP < 1)

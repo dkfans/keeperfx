@@ -1,7 +1,7 @@
 REM ********************************************
-REM
-REM             Script for Level 13
-REM
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 13
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(400)

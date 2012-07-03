@@ -1,9 +1,8 @@
 REM ********************************************
-REM
-REM             Script for Level 219
-REM
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 219
+REM  Version 1.00
 REM ********************************************
-
 
 START_MONEY(PLAYER0,20000)
 

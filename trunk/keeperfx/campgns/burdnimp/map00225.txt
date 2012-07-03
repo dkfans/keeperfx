@@ -1,4 +1,8 @@
-REM Waterspring River
+REM ********************************************
+REM  Burdened Imps' Level Pack for KeeperFX
+REM  Script for Level 225, Waterspring River
+REM  Version 1.00
+REM ********************************************
 
 SET_GENERATE_SPEED(500)
 MAX_CREATURES(PLAYER0,30)
