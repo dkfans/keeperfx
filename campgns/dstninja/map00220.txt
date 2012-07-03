@@ -1,19 +1,14 @@
 REM ********************************************
-REM
-REM             Script for Level 220
-REM
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 220
+REM  Version 1.00
 REM ********************************************
 
-
 START_MONEY(PLAYER0,20000)
-
-
 
 IF(PLAYER0,GAME_TURN > 20)
     QUICK_OBJECTIVE(1,"Ninja, enemy Shogun is about here. He is very a bad hat, we should put to death him from the surface of the  the ground!",PLAYER0)
 ENDIF
-
-
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
     WIN_GAME

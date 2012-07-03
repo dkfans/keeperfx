@@ -1,7 +1,7 @@
 REM ********************************************
-REM
-REM             Script for Level 15
-REM
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 15
+REM  Version 1.00
 REM ********************************************
 
 ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)

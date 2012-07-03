@@ -1,4 +1,8 @@
-REM Winterfrost Run
+REM ********************************************
+REM  Burdened Imps' Level Pack for KeeperFX
+REM  Script for Level 221, Winterfrost Run
+REM  Version 1.00
+REM ********************************************
 
 REM Basic stuff
 

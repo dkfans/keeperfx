@@ -1,4 +1,8 @@
-REM Dreamweave Caverns
+REM ********************************************
+REM  Burdened Imps' Level Pack for KeeperFX
+REM  Script for Level 227, Dreamweave Caverns
+REM  Version 1.00
+REM ********************************************
 
 SET_GENERATE_SPEED(400)
 MAX_CREATURES(PLAYER0,20)

@@ -1,4 +1,8 @@
-REM Raven's Claw
+REM ********************************************
+REM  Burdened Imps' Level Pack for KeeperFX
+REM  Script for Level 223, Raven's Claw
+REM  Version 1.00
+REM ********************************************
 
 REM Basic stuff
 

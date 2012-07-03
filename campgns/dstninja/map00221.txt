@@ -1,19 +1,14 @@
 REM ********************************************
-REM
-REM             Script for Level 221
-REM
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 221
+REM  Version 1.00
 REM ********************************************
-
-
 
 IF(PLAYER0,GAME_TURN > 20)
     QUICK_OBJECTIVE(1,"Seek Ninja, our enemy in these heavily accessible rocky regions, surely somewhere here he hides.",PLAYER0)
 ENDIF
 
-
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
     WIN_GAME
     QUICK_OBJECTIVE(2,"Perfectly, you are a perfect warrior of the shadow. Even in this region you were in a position to find and to ravage the enemy ruler!",PLAYER0)
 ENDIF
-
-
