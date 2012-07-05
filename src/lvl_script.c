@@ -1773,14 +1773,21 @@ void command_set_creature_fear(char *crtr_name, long val)
   command_add_value(Cmd_SET_CREATURE_FEAR, 0, crtr_id, val, 0);
 }
 
-void command_ally_players(char *plr1name, char *plr2name)
+/**
+ * Enables or disables an alliance between two players.
+ *
+ * @param plr1name First player text name.
+ * @param plr2name Second player text name.
+ * @param ally Controls whether the alliance is being created or being broken.
+ */
+void command_ally_players(char *plr1name, char *plr2name, TbBool ally)
 {
   long plr1_id,plr2_id;
   if (!get_player_id(plr1name, &plr1_id))
     return;
   if (!get_player_id(plr2name, &plr2_id))
     return;
-  command_add_value(Cmd_ALLY_PLAYERS, 0, plr1_id, plr2_id, 0);
+  command_add_value(Cmd_ALLY_PLAYERS, 0, plr1_id, plr2_id, ally);
 }
 
 void command_quick_objective(int idx, char *msgtext, char *where, long x, long y)
@@ -1940,7 +1947,7 @@ void command_kill_creature(char *plrname, char *crtr_name, char *criteria, int c
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
-  //TODO: SCRIPT finish killing code!
+  //TODO SCRIPT: finish killing code!
 }
 
 long script_scan_line(char *line,TbBool preloaded)
@@ -2149,7 +2156,7 @@ long script_scan_line(char *line,TbBool preloaded)
       command_set_computer_process(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
       break;
   case Cmd_ALLY_PLAYERS:
-      command_ally_players(scline->tp[0], scline->tp[1]);
+      command_ally_players(scline->tp[0], scline->tp[1], true);
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
       command_dead_creatures_return_to_pool(scline->np[0]);
@@ -3240,8 +3247,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       crstat->fear = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_ALLY_PLAYERS:
-      toggle_ally_with_player(val2, val3);
-      toggle_ally_with_player(val3, val2);
+      set_ally_with_player(val2, val3, val4);
+      set_ally_with_player(val3, val2, val4);
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
       set_flag_byte(&game.flags_cd, MFlg_DeadBackToPool, val2);

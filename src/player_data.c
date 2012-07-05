@@ -159,8 +159,23 @@ void clear_players(void)
 
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
 {
-  struct PlayerInfo *player;
-  player = get_player(plyridx);
-  player->allied_players ^= (1 << allyidx);
+    struct PlayerInfo *player;
+    player = get_player(plyridx);
+    player->allied_players ^= (1 << allyidx);
+}
+
+TbBool set_ally_with_player(long plyridx, long ally_idx, TbBool state)
+{
+    struct PlayerInfo *player;
+    player = get_player(plyridx);
+    if (!player_exists(player))
+        return false;
+    if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
+        return false;
+    if (state)
+        player->allied_players |= (1 << ally_idx);
+    else
+        player->allied_players &= ~(1 << ally_idx);
+    return true;
 }
 /******************************************************************************/
