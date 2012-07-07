@@ -9,11 +9,38 @@ TOC
 
 1. Introduction
 
-TODO
+KeeperFX allows you not only adding your own custom-made levels, but also merging the levels into
+ a campaign and configuring levels to be played in certain order for the campaign.
+ 
+A campaign consists of the following elements:
+a) Levels to be played
+b) Land view images
+c) Mentor description voices
+d) Campaign configuration file
+e) Custom configuration files (optional)
+
+You will have to prepare all of these items to make a campaign. You could also use land view images
+ from another campaign, or skip the mentor voices - but without these elements, your campaign
+ may lose on playability.
+
+This guide will try to show you how to create all the elements of KeeperFX campaign. 
 
 2. Creating levels
 
-TODO
+You can create levels in any of the editors:
+a) Official DK Level Editor
+b) ADiKtEd - Another DK Level Editor
+c) UnDED - A simple editor, not recommended
+
+Then, you have to prepare scripts for the levels. Scripts are TXT files which store instructions
+ regarding the behavior of the level and its players. Search for "Dungeon Keeper Script Commands
+ Reference" - this document will be very helpful for creating the script.
+
+There are also some helper tools for creating scripts - visit keeper.lubie.org for details.
+
+Remember to playtest every level to make sure it is balanced, isn't too hard and it is possible
+ to win. You don't need a campaign to play a single level - just put it into "levels" folder,
+ and start it from "Free play levels" menu inside KeeperFX. 
 
 3. Creating land view
 
@@ -87,12 +114,12 @@ a) Adobe Photoshop - or other graphics program which can write RAW/PAL files
 So, we have two sets of pictures - the ones you wish to have as your land view,
  and the ones extracted from original campaign of Dungeon Keeper. First, make
  sure that your pictures have correct resolution - they have to be 1280x960
- pixels. Strech them or crop them if neccessery.
+ pixels. Strech them or crop them if necessary.
 
 Now open first of your pictures, select the whole image area and copy it into
  clipboard. Next open a BMP file from original campaign, and paste your image
  over it. You will notice that colors have changed - this is because colors
- in your image have been replaced with neares colors from the original campaign
+ in your image have been replaced with nearest colors from the original campaign
  picture palette. If the result looks very bad, try another one of the original
  campaign bitmaps - you need to find the one which will make your picture
  look a bit better. You'll never find a perfect match, just select the one
@@ -130,8 +157,37 @@ Every of the resulting PAL files should have 768 bytes.
 
 4. Creating mentor description
 
+Mentor description of a level consists of two parts: the one played before you start
+ the level, so-called "good" description, and the one after the level is beaten,
+ praising the victory - called "evil" description. 
+
+4.1. Writing a script
+
+First, you will need to write a script - a simple text file would be enough. Just
+ write what the mentor should say for every level. It may be related to the story,
+ or may be more generic - it's up to you. Writing it down will make it easier to
+ record the voice, but also will allow other people to translate your script to
+ other languages and prepare translated version of the campaign (if they will want
+ to do that for some reason - it happens sometimes). Just remember to publish your
+ script somewhere within the campaign.
+
+4.2. Recording
+
+You may use any recording software and hardware you want. You don't need a studio,
+ or an evil voice - the style of the recording is up to you. Just make sure it isn't
+ hard to understand the words. If you never used any voice recording software, try
+ Audacity - it's a very good tool, and it's open-source.
+
+4.3. Converting to DK format
+
 TODO
 
 5. Preparing campaign configuration file
 
+Now as we have all the required files, we need to bind them together with a campaign
+ configuration file. The configuration file does not physically bind all the files
+ into one, but it contains locations and names of all the other files used in the
+ campaign. Creating the configuration file will make our new campaign appear in the
+ "New game" menu.
+ 
 TODO
