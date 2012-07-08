@@ -498,7 +498,7 @@ void update_creature_graphic_tint(struct Thing *thing)
     {
         tint_thing(thing, colours[4][4][15], 1);
     } else
-    if (((cctrl->field_3 & 0x01) == 0) && ((cctrl->field_3 & 0x02) == 0))
+    if (((cctrl->combat_flags & CmbtF_Melee) == 0) && ((cctrl->combat_flags & CmbtF_Ranged) == 0))
     {
         untint_thing(thing);
     } else
