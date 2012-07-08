@@ -41,6 +41,44 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+/**
+ * Returns CreatureBattle of given index.
+ */
+struct CreatureBattle *creature_battle_get(long battle_idx)
+{
+    if ((battle_idx < 1) || (battle_idx >= BATTLES_COUNT))
+        return INVALID_CRTR_BATTLE;
+    return &game.battles[battle_idx];
+}
+
+/**
+ * Returns CreatureBattle assigned to given thing.
+ * Thing must be a creature.
+ */
+struct CreatureBattle *creature_battle_get_from_thing(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    if (!thing_is_creature(thing)) {
+        return INVALID_CRTR_BATTLE;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl)) {
+        return INVALID_CRTR_BATTLE;
+    }
+  if ((cctrl->battle_id < 1) || (cctrl->battle_id >= BATTLES_COUNT)) {
+    return INVALID_CRTR_BATTLE;
+  }
+  return &game.battles[cctrl->battle_id];
+}
+
+/**
+ * Returns if given CreatureBattle pointer is incorrect.
+ */
+TbBool creature_battle_invalid(const struct CreatureBattle *battle)
+{
+  return (battle <= &game.battles[0]) || (battle == NULL);
+}
+
 long get_flee_position(struct Thing *thing, struct Coord3d *pos)
 {
     struct Dungeon *dungeon;

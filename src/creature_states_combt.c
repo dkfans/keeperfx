@@ -23,6 +23,7 @@
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_battle.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -177,7 +178,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     if ( !thing_is_creature(thing) || creature_control_invalid(cctrl) ) {
       ERRORLOG("Creature has been removed due to death");
     }
-    battle = &game.battles[cctrl->battle_id];
+    battle = creature_battle_get(cctrl->battle_id);
     // Change next index in prev creature
     partner_id = cctrl->battle_prev_creatr;
     if (cctrl->battle_next_creatr > 0) {
@@ -242,7 +243,7 @@ void update_battle_events(unsigned short battle_id)
     int i;
     owner_flags = 0;
     k = 0;
-    battle = &game.battles[battle_id];
+    battle = creature_battle_get(battle_id);
     i = battle->first_creatr;
     while (i != 0)
     {
@@ -325,9 +326,9 @@ unsigned short find_battle_for_thing(struct Thing *fighter, struct Thing *victim
     unsigned short battle_id;
     long i,n;
     battle_id = 0;
-    for (i = 1; i < 32; i++) // Why only 32? there seem to be 48 battles?
+    for (i = 1; i < BATTLES_COUNT; i++) // Originally was 32, but I'm pretty sure there's 48 battles
     {
-        battle = &game.battles[i];
+        battle = creature_battle_get(i);
         if (battle->fighters_num != 0)
         {
             n = battle_any_of_things_in_specific_battle(battle, fighter, victim);
