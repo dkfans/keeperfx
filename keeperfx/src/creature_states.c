@@ -1789,7 +1789,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
 
     tmptng = thing_get(cctrl1->word_A2);
     if  ( (cctrl1->field_AD & 0x10) || (cctrl2->field_AD & 0x10)
-        || ((cctrl1->field_3) && (tmptng == tng2)) )
+        || ((cctrl1->combat_flags) && (tmptng == tng2)) )
     {
         if (tng2 != tng1)
         {

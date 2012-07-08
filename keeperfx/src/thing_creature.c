@@ -332,7 +332,7 @@ long creature_look_for_combat(struct Thing *thing)
     possible_combat = check_for_possible_combat(thing, &enmtng);
     if (possible_combat <= 0)
     {
-        if ( (cctrl->field_1B == 0) && (cctrl->field_1C == 0) ) {
+        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
             return 0;
         }
         if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
@@ -343,7 +343,7 @@ long creature_look_for_combat(struct Thing *thing)
         return 1;
     }
 
-    if (cctrl->field_3 != 0)
+    if (cctrl->combat_flags != 0)
     {
         if (get_combat_state_for_combat(thing, enmtng, possible_combat) == 1) {
           return 0;
@@ -359,7 +359,7 @@ long creature_look_for_combat(struct Thing *thing)
 
     if ( ((cctrl->spell_flags & 0x20) != 0) && (cctrl->field_AF <= 0) )
     {
-      if ( (cctrl->field_1B == 0) && (cctrl->field_1C == 0) ) {
+      if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
           return 0;
       }
     }
@@ -981,7 +981,7 @@ long process_creature_state(struct Thing *thing)
     {
         if (!creature_look_for_combat(thing))
         {
-            if ((!cctrl->field_3) && ((model_flags & MF_IsSpecDigger) == 0))
+            if ((!cctrl->combat_flags) && ((model_flags & MF_IsSpecDigger) == 0))
             {
               tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
               if (!thing_is_invalid(tgthing)) {
@@ -990,7 +990,7 @@ long process_creature_state(struct Thing *thing)
             }
         }
     }
-    if ((cctrl->field_3 & 0x10) == 0)
+    if ((cctrl->combat_flags & CmbtF_Unknown10) == 0)
     {
         if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
         {
@@ -2767,7 +2767,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     // If the creature require healing, then drop it to lair
     i = compute_creature_max_health(crstat->health,cctrl->explevel);
     k = compute_value_8bpercentage(i,crstat->heal_threshold);
-    if (cctrl->field_3)
+    if (cctrl->combat_flags)
     {
         if (thing->health >= k)
             return -1;

@@ -254,7 +254,7 @@ struct UnkStruc6 { // sizeof = 8
 struct CreatureBattle { // sizeof = 17
   unsigned long fighters_num;
   unsigned char field_4[9];
-  unsigned short field_D;
+  unsigned short first_creatr;
   unsigned short field_F;
 };
 
