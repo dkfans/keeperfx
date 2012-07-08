@@ -26,13 +26,28 @@
 extern "C" {
 #endif
 
+/** Max amount of battles supported on any map. */
+#define BATTLES_COUNT       48
 /******************************************************************************/
 #pragma pack(1)
 
 struct Thing;
 
+struct CreatureBattle { // sizeof = 17
+  unsigned long fighters_num;
+  unsigned char field_4[9];
+  unsigned short first_creatr;
+  unsigned short field_F;
+};
+
 #pragma pack()
 /******************************************************************************/
+#define INVALID_CRTR_BATTLE (&game.battles[0])
+
+struct CreatureBattle *creature_battle_get(long battle_idx);
+struct CreatureBattle *creature_battle_get_from_thing(const struct Thing *thing);
+TbBool creature_battle_invalid(const struct CreatureBattle *battle);
+
 void setup_combat_flee_position(struct Thing *thing);
 void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
 long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
