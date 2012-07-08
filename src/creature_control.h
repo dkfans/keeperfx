@@ -49,6 +49,10 @@ extern "C" {
 /** Percentage of creature parameter increase for every experience level.
  *  Used for all parameters that have no separate definition. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
+/** Number of possible melee combat opponents. */
+#define COMBAT_MELEE_OPPONENTS_LIMIT       4
+/** Number of possible range combat opponents. */
+#define COMBAT_RANGED_OPPONENTS_LIMIT      4
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -85,6 +89,17 @@ enum CreatureControlSpells {
     CCSpl_Unknown80     = 0x80,
 };
 
+enum CreatureCombatFlags {
+    CmbtF_Melee         = 0x01,
+    CmbtF_Ranged        = 0x02,
+    CmbtF_Waiting       = 0x04,
+    CmbtF_Unknown08     = 0x08,
+    CmbtF_Unknown10     = 0x10,
+    CmbtF_Unknown20     = 0x20,
+    CmbtF_Unknown40     = 0x40,
+    CmbtF_Unknown80     = 0x80,
+};
+
 struct CastedSpellData {
     unsigned char spkind;
     short field_1;
@@ -97,14 +112,14 @@ struct CreatureControl {
     unsigned char index;
     unsigned char flgfield_1;
     unsigned char field_2;
-    unsigned char field_3;
+    unsigned char combat_flags;
     unsigned char field_4;
     long field_5;
     short field_9;
-    short field_B[4];
-    short field_13[4];
-    unsigned char field_1B;
-    unsigned char field_1C;
+    short opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
+    short opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
+    unsigned char opponents_melee_count;
+    unsigned char opponents_ranged_count;
     unsigned short field_1D;
     unsigned short players_next_creature_idx;
 unsigned short field_21;

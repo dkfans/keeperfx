@@ -136,7 +136,7 @@ long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, lon
     enmctrl = creature_control_get_from_thing(enemy);
     if (possible_combat == 2)
     {
-        if (enmctrl->field_1C < 4) {
+        if (enmctrl->opponents_ranged_count < 4) {
             return 2;
         }
         return 1;
@@ -144,17 +144,17 @@ long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, lon
     crstat = creature_stats_get_from_thing(fighter);
     if (crstat->attack_preference == 2)
     {
-        if ( creature_has_ranged_weapon(fighter) && (enmctrl->field_1C < 4) ) {
+        if ( creature_has_ranged_weapon(fighter) && (enmctrl->opponents_ranged_count < 4) ) {
             return 2;
         }
     }
-    if (enmctrl->field_1B < 4) {
+    if (enmctrl->opponents_melee_count < 4) {
         return 3;
     }
     if ( !creature_has_ranged_weapon(fighter) ) {
       return 1;
     }
-    if ( (enmctrl->field_1C < 4) ) {
+    if ( (enmctrl->opponents_ranged_count < 4) ) {
         return 2;
     }
     return 1;
@@ -168,7 +168,7 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long pos
         ERRORLOG("Invalid creature control");
         return;
     }
-    if ( (cctrl->field_3 != 0) && ((cctrl->field_3 & 0x18) == 0) )
+    if ( (cctrl->combat_flags != 0) && ((cctrl->combat_flags & 0x18) == 0) )
     {
         long crstate = get_creature_state_besides_move(fighter);
         ERRORLOG("Creature in combat already - state %s", creature_state_code_name(crstate));
