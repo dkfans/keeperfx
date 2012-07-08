@@ -34,6 +34,7 @@
 #include "game_saves.h"
 #include "thing_creature.h"
 #include "creature_control.h"
+#include "creature_battle.h"
 #include "player_data.h"
 #include "slab_data.h"
 #include "light_data.h"
@@ -249,13 +250,6 @@ struct UnkStruc6 { // sizeof = 8
   unsigned char field_2;
   unsigned char field_3;
   unsigned long field_4;
-};
-
-struct CreatureBattle { // sizeof = 17
-  unsigned long fighters_num;
-  unsigned char field_4[9];
-  unsigned short first_creatr;
-  unsigned short field_F;
 };
 
 struct ShadowCache { // sizeof = 129
@@ -632,7 +626,7 @@ long field_15038E;
     unsigned long temple_scavenge_protection_time;
 char numfield_1503A2;
     unsigned char bodies_for_vampire;
-    struct CreatureBattle battles[48];
+    struct CreatureBattle battles[BATTLES_COUNT];
 unsigned char field_1506D4;
     long music_track_index;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
