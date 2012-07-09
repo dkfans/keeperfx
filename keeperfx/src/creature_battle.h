@@ -37,7 +37,7 @@ struct CreatureBattle { // sizeof = 17
   unsigned long fighters_num;
   unsigned char field_4[9];
   unsigned short first_creatr;
-  unsigned short field_F;
+  unsigned short last_creatr;
 };
 
 #pragma pack()
