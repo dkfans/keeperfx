@@ -60,7 +60,7 @@ struct PlayerInfo;
  */
 struct GameAdd {
     unsigned long turn_last_checked_for_gold;
-    //!!!! unsigned long flee_zone_radius;
+    unsigned long flee_zone_radius;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
