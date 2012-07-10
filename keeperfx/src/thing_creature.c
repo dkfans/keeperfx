@@ -100,7 +100,6 @@ struct Creatures creatures_NEW[] = {
 DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, long a3);
 DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *thing, long a2);
 DLLIMPORT void _DK_change_creature_owner(struct Thing *thing , char nowner);
-DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *thing, unsigned char a2);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
 DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long no_effects);
@@ -114,7 +113,6 @@ DLLIMPORT long _DK_remove_creature_from_group(struct Thing *thing);
 DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
 DLLIMPORT void _DK_anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
 DLLIMPORT long _DK_creature_available_for_combat_this_turn(struct Thing *thing);
-DLLIMPORT long _DK_creature_look_for_combat(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
 DLLIMPORT long _DK_set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 DLLIMPORT void _DK_set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
@@ -144,7 +142,6 @@ DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *thing);
 DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
 DLLIMPORT long _DK_update_creature(struct Thing *thing);
-DLLIMPORT long _DK_check_for_possible_combat(struct Thing *crtng, struct Thing **battltng);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -314,61 +311,6 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
 long creature_available_for_combat_this_turn(struct Thing *thing)
 {
   return _DK_creature_available_for_combat_this_turn(thing);
-}
-
-long check_for_possible_combat(struct Thing *crtng, struct Thing **battltng)
-{
-    return _DK_check_for_possible_combat(crtng, battltng);
-}
-
-long creature_look_for_combat(struct Thing *thing)
-{
-    struct Thing *enmtng;
-    struct CreatureControl *cctrl;
-    long possible_combat;
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    //return _DK_creature_look_for_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    possible_combat = check_for_possible_combat(thing, &enmtng);
-    if (possible_combat <= 0)
-    {
-        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
-            return 0;
-        }
-        if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
-            return 0;
-        }
-        setup_combat_flee_position(thing);
-        cctrl->field_28E = game.play_gameturn;
-        return 1;
-    }
-
-    if (cctrl->combat_flags != 0)
-    {
-        if (get_combat_state_for_combat(thing, enmtng, possible_combat) == 1) {
-          return 0;
-        }
-    }
-
-
-    if ( !creature_too_scared_for_combat(thing, enmtng) )
-    {
-        set_creature_in_combat(thing, enmtng, possible_combat);
-        return 1;
-    }
-
-    if ( ((cctrl->spell_flags & 0x20) != 0) && (cctrl->field_AF <= 0) )
-    {
-      if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
-          return 0;
-      }
-    }
-    if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
-        return 0;
-    }
-    setup_combat_flee_position(thing);
-    cctrl->field_28E = game.play_gameturn;
-    return 1;
 }
 
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
@@ -1441,11 +1383,6 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
             add_creature_to_pool(crmodel, 1, 1);
         creature_death_as_nature_intended(thing);
     }
-}
-
-long remove_all_traces_of_combat(struct Thing *thing)
-{
-  return _DK_remove_all_traces_of_combat(thing);
 }
 
 void prepare_to_controlled_creature_death(struct Thing *thing)

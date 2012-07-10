@@ -83,7 +83,8 @@ const struct NamedCommand rules_creatures_commands[] = {
   {"FIGHTMAXLOVE",               4},
   {"BODYREMAINSFOR",             5},
   {"FIGHTHATEKILLVALUE",         6},
-  {"GAMETURNSINFLEE",            7},
+  {"FLEEZONERADIUS",             7},
+  {"GAMETURNSINFLEE",            8},
   {NULL,                         0},
   };
 
@@ -744,7 +745,20 @@ TbBool parse_rules_creatures_blocks(char *buf,long len,const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 7: // GAMETURNSINFLEE
+      case 7: // FLEEZONERADIUS
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            //!!!!!!! gameadd.flee_zone_radius = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 8: // GAMETURNSINFLEE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);

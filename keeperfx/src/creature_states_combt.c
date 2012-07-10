@@ -75,10 +75,17 @@ DLLIMPORT void _DK_remove_thing_from_battle_list(struct Thing *thing);
 DLLIMPORT void _DK_insert_thing_in_battle_list(struct Thing *thing, unsigned short a2);
 DLLIMPORT void _DK_cleanup_battle(unsigned short a1);
 DLLIMPORT long _DK_check_for_better_combat(struct Thing *thing);
+DLLIMPORT long _DK_check_for_possible_combat(struct Thing *crtng, struct Thing **battltng);
+DLLIMPORT long _DK_creature_look_for_combat(struct Thing *thing);
 DLLIMPORT long _DK_waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, long a2);
 DLLIMPORT void _DK_remove_melee_attacker(struct Thing *fighter, struct Thing *victim);
 DLLIMPORT void _DK_remove_ranged_attacker(struct Thing *fighter, struct Thing *victim);
 DLLIMPORT void _DK_remove_waiting_attacker(struct Thing *fighter);
+DLLIMPORT void _DK_battle_remove(struct Thing *fighter);
+DLLIMPORT long _DK_creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *victim, long combat_kind);
+DLLIMPORT long _DK_change_creature_with_existing_attacker(struct Thing *fighter, struct Thing *victim, long combat_kind);
+DLLIMPORT void _DK_cleanup_battle_leftovers(struct Thing *thing);
+DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -176,7 +183,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     //_DK_remove_thing_from_battle_list(thing); return;
     cctrl = creature_control_get_from_thing(thing);
     if ( !thing_is_creature(thing) || creature_control_invalid(cctrl) ) {
-      ERRORLOG("Creature has been removed due to death");
+      ERRORLOG("Creature should have been already removed due to death");
     }
     battle = creature_battle_get(cctrl->battle_id);
     // Change next index in prev creature
@@ -188,7 +195,8 @@ void remove_thing_from_battle_list(struct Thing *thing)
         attctng = thing_get(cctrl->battle_next_creatr);
         attcctrl = creature_control_get_from_thing(attctng);
         if ( creature_control_invalid(attcctrl) ) {
-            ERRORLOG("Invalid next in battle, %s index %d",thing_model_name(attctng),(int)cctrl->battle_next_creatr);
+            WARNLOG("Invalid next in battle, %s index %d",thing_model_name(attctng),(int)cctrl->battle_next_creatr);
+            // Truncate the list of creatures in battle
             battle->first_creatr = partner_id;
         } else {
             attcctrl->battle_prev_creatr = partner_id;
@@ -205,7 +213,8 @@ void remove_thing_from_battle_list(struct Thing *thing)
         attctng = thing_get(cctrl->battle_prev_creatr);
         attcctrl = creature_control_get_from_thing(attctng);
         if ( creature_control_invalid(attcctrl) ) {
-            ERRORLOG("Invalid previous in battle, %s index %d",thing_model_name(attctng),(int)cctrl->battle_prev_creatr);
+            WARNLOG("Invalid previous in battle, %s index %d",thing_model_name(attctng),(int)cctrl->battle_prev_creatr);
+            // Truncate the list of creatures in battle
             battle->last_creatr = partner_id;
         } else {
             attcctrl->battle_next_creatr = partner_id;
@@ -223,6 +232,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
         battle->fighters_num = 0;
         battle->first_creatr = 0;
         battle->last_creatr = 0;
+        return;
     }
     if (battle->fighters_num > 0) {
         battle->fighters_num--;
@@ -309,7 +319,7 @@ long battle_any_of_things_in_specific_battle(struct CreatureBattle *battle, stru
         // Per battle creature code
         if ( cctrl->combat_flags )
         {
-            attcktng = thing_get(cctrl->word_A2);
+            attcktng = thing_get(cctrl->battle_victim_idx);
             if ( !thing_is_invalid(attcktng) )
             {
                 if ( (attcktng == tng1) || (attcktng == tng2) )
@@ -379,7 +389,7 @@ TbBool battle_add(struct Thing *fighter, struct Thing *victim)
     struct CreatureControl *vicctrl;
     vicctrl = creature_control_get_from_thing(victim);
     if (creature_control_invalid(vicctrl)) {
-        ERRORLOG("Invalid victim %s index %s control",thing_model_name(victim),(int)victim->index);
+        ERRORLOG("Invalid victim %s index %d control",thing_model_name(victim),(int)victim->index);
         return false;
     }
     // Find a new battle to fight in, or use the one victim is already in
@@ -404,6 +414,19 @@ TbBool battle_add(struct Thing *fighter, struct Thing *victim)
     return true;
 }
 
+void battle_remove(struct Thing *fighter)
+{
+    SYNCDBG(9,"Starting");
+    _DK_battle_remove(fighter);
+}
+
+TbBool has_ranged_combat_attackers(struct Thing *victim)
+{
+    struct CreatureControl *vicctrl;
+    vicctrl = creature_control_get_from_thing(victim);
+    return (vicctrl->opponents_ranged_count > 0);
+}
+
 TbBool can_add_ranged_combat_attacker(struct Thing *victim)
 {
     struct CreatureControl *vicctrl;
@@ -416,6 +439,15 @@ TbBool add_ranged_combat_attacker(struct Thing *victim, unsigned short fighter_i
     struct CreatureControl *vicctrl;
     long oppn_idx;
     vicctrl = creature_control_get_from_thing(victim);
+    // Check if the fighter is already in opponents list
+    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        if (vicctrl->opponents_ranged[oppn_idx] == fighter_idx) {
+            WARNLOG("Fighter %s index %d already in opponents list",thing_model_name(victim),(int)victim->index);
+            return true;
+        }
+    }
+    // Find empty opponent slot
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
         if (vicctrl->opponents_ranged[oppn_idx] == 0)
@@ -423,6 +455,7 @@ TbBool add_ranged_combat_attacker(struct Thing *victim, unsigned short fighter_i
     }
     if (oppn_idx >= COMBAT_RANGED_OPPONENTS_LIMIT)
         return false;
+    // Add the opponent
     vicctrl->opponents_ranged_count++;
     vicctrl->opponents_ranged[oppn_idx] = fighter_idx;
     return true;
@@ -445,6 +478,71 @@ TbBool remove_ranged_combat_attacker(struct Thing *victim, unsigned short fighte
     return true;
 }
 
+TbBool remove_ranged_attacker(struct Thing *fighter, struct Thing *victim)
+{
+    struct CreatureControl *figctrl;
+    //_DK_remove_ranged_attacker(fighter,victim); return;
+    figctrl = creature_control_get_from_thing(fighter);
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(fighter->owner);
+        if ( !dungeon_invalid(dungeon) && (dungeon->fights_num > 0) ) {
+            dungeon->fights_num--;
+        } else {
+            WARNLOG("Fight count incorrect while removing attacker %s index %d",thing_model_name(fighter),(int)fighter->index);
+        }
+    }
+    struct CreatureControl *vicctrl;
+    vicctrl = creature_control_get_from_thing(victim);
+    if (creature_control_invalid(vicctrl)) {
+        ERRORLOG("Invalid victim %s index %d control",thing_model_name(victim),(int)victim->index);
+        return false;
+    }
+    if (has_ranged_combat_attackers(victim))
+    {
+        if (!remove_ranged_combat_attacker(victim, fighter->index)) {
+            ERRORLOG("Cannot remove attacker - not in %s index %d opponents",thing_model_name(victim),(int)victim->index);
+        }
+    } else {
+        WARNLOG("Cannot remove attacker - the %s index %d has no opponents",thing_model_name(victim),(int)victim->index);
+    }
+    figctrl->combat_flags &= ~CmbtF_Ranged;
+    figctrl->battle_victim_idx = 0;
+    figctrl->long_9E = 0;
+    figctrl->fight_til_death = 0;
+
+    battle_remove(fighter);
+    return true;
+}
+
+long remove_all_ranged_combat_attackers(struct Thing *victim)
+{
+    struct CreatureControl *vicctrl;
+    struct Thing *fighter;
+    long oppn_idx,num;
+    long fighter_idx;
+    num = 0;
+    vicctrl = creature_control_get_from_thing(victim);
+    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        fighter_idx = vicctrl->opponents_ranged[oppn_idx];
+        if (fighter_idx > 0) {
+            fighter = thing_get(fighter_idx);
+            if (remove_ranged_attacker(fighter, victim))
+                num++;
+        }
+    }
+    vicctrl->opponents_ranged_count = 0;
+    return num;
+}
+
+TbBool has_melee_combat_attackers(struct Thing *victim)
+{
+    struct CreatureControl *vicctrl;
+    vicctrl = creature_control_get_from_thing(victim);
+    return (vicctrl->opponents_melee_count > 0);
+}
+
 TbBool can_add_melee_combat_attacker(struct Thing *victim)
 {
     struct CreatureControl *vicctrl;
@@ -457,6 +555,15 @@ TbBool add_melee_combat_attacker(struct Thing *victim, unsigned short fighter_id
     struct CreatureControl *vicctrl;
     long oppn_idx;
     vicctrl = creature_control_get_from_thing(victim);
+    // Check if the fighter is already in opponents list
+    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        if (vicctrl->opponents_melee[oppn_idx] == fighter_idx) {
+            WARNLOG("Fighter %s index %d already in opponents list",thing_model_name(victim),(int)victim->index);
+            return true;
+        }
+    }
+    // Find empty opponent slot
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
         if (vicctrl->opponents_melee[oppn_idx] == 0)
@@ -464,6 +571,7 @@ TbBool add_melee_combat_attacker(struct Thing *victim, unsigned short fighter_id
     }
     if (oppn_idx >= COMBAT_MELEE_OPPONENTS_LIMIT)
         return false;
+    // Add the opponent
     vicctrl->opponents_melee_count++;
     vicctrl->opponents_melee[oppn_idx] = fighter_idx;
     return true;
@@ -486,9 +594,68 @@ TbBool remove_melee_combat_attacker(struct Thing *victim, unsigned short fighter
     return true;
 }
 
+TbBool remove_melee_attacker(struct Thing *fighter, struct Thing *victim)
+{
+    struct CreatureControl *figctrl;
+    //_DK_remove_melee_attacker(fighter,victim); return;
+    figctrl = creature_control_get_from_thing(fighter);
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(fighter->owner);
+        if ( !dungeon_invalid(dungeon) && (dungeon->fights_num > 0) ) {
+            dungeon->fights_num--;
+        } else {
+            WARNLOG("Fight count incorrect while removing attacker %s index %d",thing_model_name(fighter),(int)fighter->index);
+        }
+    }
+    struct CreatureControl *vicctrl;
+    vicctrl = creature_control_get_from_thing(victim);
+    if (creature_control_invalid(vicctrl)) {
+        ERRORLOG("Invalid victim %s index %d control",thing_model_name(victim),(int)victim->index);
+        return false;
+    }
+    if (has_melee_combat_attackers(victim))
+    {
+        if (!remove_melee_combat_attacker(victim, fighter->index)) {
+            ERRORLOG("Cannot remove attacker - not in %s index %d opponents",thing_model_name(victim),(int)victim->index);
+        }
+    } else {
+        WARNLOG("Cannot remove attacker - the %s index %d has no opponents",thing_model_name(victim),(int)victim->index);
+    }
+    figctrl->combat_flags &= ~CmbtF_Melee;
+    figctrl->battle_victim_idx = 0;
+    figctrl->long_9E = 0;
+    figctrl->fight_til_death = 0;
+
+    battle_remove(fighter);
+    return true;
+}
+
+long remove_all_melee_combat_attackers(struct Thing *victim)
+{
+    struct CreatureControl *vicctrl;
+    struct Thing *fighter;
+    long oppn_idx,num;
+    long fighter_idx;
+    num = 0;
+    vicctrl = creature_control_get_from_thing(victim);
+    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        fighter_idx = vicctrl->opponents_melee[oppn_idx];
+        if (fighter_idx > 0) {
+            fighter = thing_get(fighter_idx);
+            if (remove_melee_attacker(fighter, victim))
+                num++;
+        }
+    }
+    vicctrl->opponents_melee_count = 0;
+    return num;
+}
+
 long add_ranged_attacker(struct Thing *fighter, struct Thing *victim)
 {
     struct CreatureControl *figctrl;
+    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(victim));
     //return _DK_add_ranged_attacker(fighter, victim);
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags)
@@ -497,14 +664,15 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *victim)
             SYNCDBG(8,"The %s in ranged combat already - no action",thing_model_name(fighter));
             return false;
         }
-        SYNCDBG(8,"The %s in combat already - adding ranged",thing_model_name(fighter));
+        SYNCDBG(8,"The %s index %d in combat already - adding ranged",thing_model_name(fighter),(int)fighter->index);
+        return true; // We're not going to add anything
     }
     if (!can_add_ranged_combat_attacker(victim)) {
         SYNCLOG("Cannot Add A Ranged Attacker - opponents limit reached");
         return false;
     }
     figctrl->combat_flags |= CmbtF_Ranged;
-    figctrl->word_A2 = victim->index;
+    figctrl->battle_victim_idx = victim->index;
     figctrl->long_9E = victim->field_9;
     if (!add_ranged_combat_attacker(victim, fighter->index)) {
         ERRORLOG("Cannot add a ranged attacker, but there was free space - internal error");
@@ -520,6 +688,7 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *victim)
 long add_melee_attacker(struct Thing *fighter, struct Thing *victim)
 {
     struct CreatureControl *figctrl;
+    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(victim));
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags)
     {
@@ -527,14 +696,15 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *victim)
             SYNCDBG(8,"The %s in melee combat already - no action",thing_model_name(fighter));
             return false;
         }
-        SYNCDBG(8,"The %s in combat already - adding melee",thing_model_name(fighter));
+        SYNCDBG(8,"The %s index %d in combat already - adding melee",thing_model_name(fighter),(int)fighter->index);
+        return true; // We're not going to add anything
     }
     if (!can_add_ranged_combat_attacker(victim)) {
         SYNCLOG("Cannot Add A Melee Attacker - opponents limit reached");
         return false;
     }
     figctrl->combat_flags |= CmbtF_Melee;
-    figctrl->word_A2 = victim->index;
+    figctrl->battle_victim_idx = victim->index;
     figctrl->long_9E = victim->field_9;
     if (!add_melee_combat_attacker(victim, fighter->index)) {
         ERRORLOG("Cannot add a melee attacker, but there was free space - internal error");
@@ -550,12 +720,13 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *victim)
 TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *victim)
 {
     struct CreatureControl *figctrl;
+    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(victim));
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags) {
-        SYNCLOG("The %s in combat already - waiting",thing_model_name(fighter));
+        SYNCLOG("The %s index %d in combat already - waiting",thing_model_name(fighter),(int)fighter->index);
     }
     figctrl->combat_flags |= 0x04;
-    figctrl->word_A2 = victim->index;
+    figctrl->battle_victim_idx = victim->index;
     figctrl->long_9E = victim->field_9;
     if (!battle_add(fighter, victim)) {
         return false;
@@ -581,7 +752,7 @@ void set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, l
         struct Dungeon *dungeon;
         dungeon = get_players_num_dungeon(fighter1->owner);
         if (!dungeon_invalid(dungeon)) {
-            dungeon->field_14A9++;
+            dungeon->fights_num++;
         }
     }
     fig1ctrl->byte_A7 = a3;
@@ -646,13 +817,13 @@ long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *f
     cctrl = creature_control_get_from_thing(fighter1);
     if (cctrl->combat_flags != 0)
     {
-        WARNLOG("Creature in combat already - adding till death");
+        WARNLOG("The %s index %d in combat already - adding till death",thing_model_name(fighter1),(int)fighter1->index);
     }
     if (external_set_thing_state(fighter1, CrSt_CreatureInCombat))
     {
         set_creature_combat_state(fighter1, fighter2, a3);
         cctrl->field_AA = 0;
-        cctrl->field_A9 = 1;
+        cctrl->fight_til_death = 1;
         return true;
     }
     return false;
@@ -723,7 +894,7 @@ short cleanup_door_combat(struct Thing *thing)
     //return _DK_cleanup_door_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->combat_flags &= ~0x10;
-    cctrl->word_A2 = 0;
+    cctrl->battle_victim_idx = 0;
     return 1;
 
 }
@@ -734,7 +905,7 @@ short cleanup_object_combat(struct Thing *thing)
     //return _DK_cleanup_object_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->combat_flags &= ~0x08;
-    cctrl->word_A2 = 0;
+    cctrl->battle_victim_idx = 0;
     return 1;
 }
 
@@ -812,7 +983,7 @@ TbBool creature_scared(struct Thing *thing, struct Thing *enemy)
         return false;
     }
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->field_A9)
+    if (cctrl->fight_til_death)
     {
         return false;
     }
@@ -822,16 +993,16 @@ TbBool creature_scared(struct Thing *thing, struct Thing *enemy)
 TbBool creature_in_flee_zone(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    long dist;
+    unsigned long dist;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("Creature no %d has invalid control",(int)thing->index);
+        ERRORLOG("Creature index %d has invalid control",(int)thing->index);
         return false;
     }
     dist = get_2d_box_distance(&thing->mappos, &cctrl->pos_288);
-    //TODO CREATURE_AI put flee_zone_radius into config file
     return (dist < 1536);
+    //!!!!!!!! return (dist < gameadd.flee_zone_radius);
 }
 
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy)
@@ -848,16 +1019,6 @@ TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy)
     return true;
 }
 
-void remove_melee_attacker(struct Thing *fighter, struct Thing *victim)
-{
-    _DK_remove_melee_attacker(fighter,victim);
-}
-
-void remove_ranged_attacker(struct Thing *fighter, struct Thing *victim)
-{
-    _DK_remove_ranged_attacker(fighter,victim);
-}
-
 void remove_waiting_attacker(struct Thing *fighter)
 {
     _DK_remove_waiting_attacker(fighter);
@@ -865,36 +1026,103 @@ void remove_waiting_attacker(struct Thing *fighter)
 
 void remove_attacker(struct Thing *fighter, struct Thing *victim)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(fighter);
-    if ( (cctrl->combat_flags & CmbtF_Melee) != 0 )
+    struct CreatureControl *figctrl;
+    figctrl = creature_control_get_from_thing(fighter);
+    if ( (figctrl->combat_flags & CmbtF_Melee) != 0 )
     {
         remove_melee_attacker(fighter, victim);
     } else
-    if ( (cctrl->combat_flags & CmbtF_Ranged) != 0 )
+    if ( (figctrl->combat_flags & CmbtF_Ranged) != 0 )
     {
         remove_ranged_attacker(fighter, victim);
     } else
-    if ( (cctrl->combat_flags & CmbtF_Waiting) != 0 )
+    if ( (figctrl->combat_flags & CmbtF_Waiting) != 0 )
     {
         remove_waiting_attacker(fighter);
     }
 }
 
-void change_current_combat(struct Thing *fighter, struct Thing *victim, long possible_combat)
+void cleanup_battle_leftovers(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
+    //_DK_cleanup_battle_leftovers(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->battle_id > 0)
+        battle_remove(thing);
+}
+
+long remove_all_traces_of_combat(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *victim;
+    //return _DK_remove_all_traces_of_combat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if ( (cctrl->combat_flags != 0) && (cctrl->battle_victim_idx > 0) )
+    {
+        victim = thing_get(cctrl->battle_victim_idx);
+        remove_attacker(thing, victim);
+    }
+    remove_all_ranged_combat_attackers(thing);
+    remove_all_melee_combat_attackers(thing);
+    cleanup_battle_leftovers(thing);
+    return 1;
+}
+
+void change_current_combat(struct Thing *fighter, struct Thing *victim, long possible_combat)
+{
+    struct CreatureControl *figctrl;
     struct Thing *oldvictm;
-    cctrl = creature_control_get_from_thing(fighter);
-    oldvictm = thing_get(cctrl->word_A2);
+    figctrl = creature_control_get_from_thing(fighter);
+    oldvictm = thing_get(figctrl->battle_victim_idx);
     remove_attacker(fighter, oldvictm);
     set_creature_combat_state(fighter, victim, possible_combat);
 }
 
-long check_for_better_combat(struct Thing *thing)
+long creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *victim, long combat_kind)
 {
-    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
-    return _DK_check_for_better_combat(thing);
+    return _DK_creature_has_spare_slot_for_combat(fighter, victim, combat_kind);
+}
+
+long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing *victim, long combat_kind)
+{
+    return _DK_change_creature_with_existing_attacker(fighter, victim, combat_kind);
+}
+
+long check_for_possible_combat(struct Thing *crtng, struct Thing **battltng)
+{
+    return _DK_check_for_possible_combat(crtng, battltng);
+}
+
+long check_for_better_combat(struct Thing *fighter)
+{
+    struct CreatureControl *figctrl;
+    struct Thing *victim;
+    long combat_kind;
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(fighter),(int)fighter->index);
+    //return _DK_check_for_better_combat(fighter);
+    figctrl = creature_control_get_from_thing(fighter);
+    // Allow the switch only once per 8 turns
+    if ((game.play_gameturn + fighter->index) & 7)
+        return 0;
+    combat_kind = check_for_possible_combat(fighter, &victim);
+    if (combat_kind == 0)
+        return 1;
+    if ( (figctrl->battle_victim_idx != victim->index) || !combat_type_is_choice_of_creature(fighter, combat_kind) )
+    {
+        change_current_combat(fighter, victim, combat_kind);
+    } else
+    {
+        if (figctrl->combat_state_id != 1)
+            return 0;
+        if ( !creature_has_spare_slot_for_combat(fighter, victim, combat_kind) )
+        {
+            if ( !change_creature_with_existing_attacker(fighter, victim, combat_kind) )
+                return 0;
+            return 1;
+        }
+        change_current_combat(fighter, victim, combat_kind);
+    }
+    return 1;
 }
 
 long waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, long a2)
@@ -912,7 +1140,7 @@ void creature_in_combat_wait(struct Thing *thing)
     if ( check_for_better_combat(thing) ) {
         return;
     }
-    // For creatures which are not special diggers, check to attack dungeon heart once every 7 turns
+    // For creatures which are not special diggers, check to attack dungeon heart once every 8 turns
     if ( (((game.play_gameturn+thing->index) & 7) == 0) && ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0) )
     {
         struct Thing *heartng;
@@ -927,7 +1155,7 @@ void creature_in_combat_wait(struct Thing *thing)
     // Check if we're best combat partner for the enemy
     long combat_valid;
     cctrl = creature_control_get_from_thing(thing);
-    enemy = thing_get(cctrl->word_A2);
+    enemy = thing_get(cctrl->battle_victim_idx);
     if ( !creature_is_most_suitable_for_combat(thing, enemy) ) {
         set_start_state(thing);
         return;
@@ -949,7 +1177,7 @@ void creature_in_ranged_combat(struct Thing *thing)
     long dist, cmbtyp, weapon;
     //_DK_creature_in_ranged_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
-    enmtng = thing_get(cctrl->word_A2);
+    enmtng = thing_get(cctrl->battle_victim_idx);
     if (!creature_is_most_suitable_for_combat(thing, enmtng))
     {
         set_start_state(thing);
@@ -986,7 +1214,7 @@ void creature_in_melee_combat(struct Thing *thing)
     long dist, cmbtyp, weapon;
     //_DK_creature_in_melee_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
-    enmtng = thing_get(cctrl->word_A2);
+    enmtng = thing_get(cctrl->battle_victim_idx);
     if (!creature_is_most_suitable_for_combat(thing, enmtng))
     {
         set_start_state(thing);
@@ -1023,7 +1251,7 @@ short creature_in_combat(struct Thing *thing)
     SYNCDBG(9,"Starting for %s",thing_model_name(thing));
     //return _DK_creature_in_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
-    enmtng = thing_get(cctrl->word_A2);
+    enmtng = thing_get(cctrl->battle_victim_idx);
     if (!combat_enemy_exists(thing, enmtng))
     {
         set_start_state(thing);
@@ -1033,7 +1261,7 @@ short creature_in_combat(struct Thing *thing)
     {
         if (!external_set_thing_state(thing, CrSt_CreatureCombatFlee))
         {
-            ERRORLOG("Cannot get thing no %d, %s, into flee",(int)thing->index,thing_model_name(thing));
+            ERRORLOG("Cannot get %s index %d into flee",thing_model_name(thing),(int)thing->index);
             return 0;
         }
         cctrl->field_28E = game.play_gameturn;
@@ -1048,7 +1276,7 @@ short creature_in_combat(struct Thing *thing)
         combat_func(thing);
         return 1;
     }
-    ERRORLOG("No valid fight state %d in thing no %d",(int)cctrl->combat_state_id,(int)thing->index);
+    ERRORLOG("No valid fight state %d in %s index %d",(int)cctrl->combat_state_id,thing_model_name(thing),(int)thing->index);
     set_start_state(thing);
     return 0;
 }
@@ -1056,6 +1284,56 @@ short creature_in_combat(struct Thing *thing)
 short creature_object_combat(struct Thing *thing)
 {
     return _DK_creature_object_combat(thing);
+}
+
+long creature_look_for_combat(struct Thing *thing)
+{
+    struct Thing *enmtng;
+    struct CreatureControl *cctrl;
+    long combat_kind;
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    //return _DK_creature_look_for_combat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    combat_kind = check_for_possible_combat(thing, &enmtng);
+    if (combat_kind <= 0)
+    {
+        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
+            return 0;
+        }
+        if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
+            return 0;
+        }
+        setup_combat_flee_position(thing);
+        cctrl->field_28E = game.play_gameturn;
+        return 1;
+    }
+
+    if (cctrl->combat_flags != 0)
+    {
+        if (get_combat_state_for_combat(thing, enmtng, combat_kind) == 1) {
+          return 0;
+        }
+    }
+
+
+    if ( !creature_too_scared_for_combat(thing, enmtng) )
+    {
+        set_creature_in_combat(thing, enmtng, combat_kind);
+        return 1;
+    }
+
+    if ( ((cctrl->spell_flags & 0x20) != 0) && (cctrl->field_AF <= 0) )
+    {
+      if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
+          return 0;
+      }
+    }
+    if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
+        return 0;
+    }
+    setup_combat_flee_position(thing);
+    cctrl->field_28E = game.play_gameturn;
+    return 1;
 }
 
 long creature_retreat_from_combat(struct Thing *thing1, struct Thing *thing2, long a3, long a4)

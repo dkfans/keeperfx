@@ -215,7 +215,7 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long pos
     if ( external_set_thing_state(fighter, CrSt_CreatureInCombat) )
     {
         cctrl->field_AA = 0;
-        cctrl->field_A9 = 0;
+        cctrl->fight_til_death = 0;
         set_creature_combat_state(fighter, enemy, possible_combat);
         setup_combat_flee_position(fighter);
     }
