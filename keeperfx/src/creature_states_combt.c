@@ -1001,8 +1001,7 @@ TbBool creature_in_flee_zone(struct Thing *thing)
         return false;
     }
     dist = get_2d_box_distance(&thing->mappos, &cctrl->pos_288);
-    return (dist < 1536);
-    //!!!!!!!! return (dist < gameadd.flee_zone_radius);
+    return (dist < gameadd.flee_zone_radius);
 }
 
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy)

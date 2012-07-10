@@ -749,7 +749,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len,const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            //!!!!!!! gameadd.flee_zone_radius = k;
+            gameadd.flee_zone_radius = k;
             n++;
           }
           if (n < 1)
