@@ -29,6 +29,7 @@
 #include "thing_effects.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "player_instances.h"
 #include "kjm_input.h"

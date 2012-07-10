@@ -666,8 +666,10 @@
  0001:00078350       battle_add
  0001:00078610       insert_thing_in_battle_list
  0001:000786C0       remove_thing_from_battle_list
+ 0001:000787D0       battle_remove
  0001:000788F0       find_first_battle_of_mine
  0001:00078ED0       battle_move_player_towards_battle
+ 0001:00078F30       cleanup_battle_leftovers
  0001:00079060       cleanup_battle
  0001:00079140       GetMouseY
  0001:000791A0       can_drop_thing_here
@@ -775,12 +777,14 @@
  0001:0008E760       get_best_ranged_offensive_weapon
  0001:0008E970       get_best_melee_offensive_weapon
  0001:0008ECF0       check_for_better_combat
+ 0001:0008EFB0       change_creature_with_existing_attacker
  0001:0008F2E0       creature_has_ranged_weapon
  0001:0008F460       creature_available_for_combat_this_turn
  0001:0008F850       creature_can_have_combat_with_creature
  0001:0008FAF0       check_for_valid_combat
  0001:0008FB60       combat_type_is_choice_of_creature
  0001:0008FC40       creature_is_most_suitable_for_combat
+ 0001:0008FCF0       creature_has_spare_slot_for_combat
  0001:0008FF20       creature_has_other_attackers
  0001:00090120       creature_fire_shot
  0001:000907E0       shot_hit_shootable_thing_at

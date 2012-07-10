@@ -225,7 +225,7 @@ unsigned char field_88;
     short word_9C;
     short word_9E;
     short word_A0;
-    short word_A2;
+    short battle_victim_idx;
     short word_A4;
     };
   struct {
@@ -256,7 +256,7 @@ unsigned char field_88;
     unsigned char byte_A5_cp3;
     };
   struct {
-    unsigned char mode;
+    unsigned char mode;// offset 9A
     unsigned char train_timeout;
     unsigned char pole_stl_x;
     unsigned char pole_stl_y;
@@ -276,7 +276,7 @@ unsigned char field_88;
     };
   };
     unsigned char field_A8;
-    unsigned char field_A9;
+    unsigned char fight_til_death;
     unsigned char field_AA;
     unsigned char affected_by_spells;
     unsigned char spell_flags;
