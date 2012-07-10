@@ -68,7 +68,6 @@ void free_swipe_graphic(void);
 void load_swipe_graphic_for_creature(struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 long creature_available_for_combat_this_turn(struct Thing *thing);
-long creature_look_for_combat(struct Thing *thing);
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
 long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
@@ -103,7 +102,6 @@ TbBool creature_is_group_leader(const struct Thing *thing);
 struct Thing *get_group_leader(const struct Thing *thing);
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
-long remove_all_traces_of_combat(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxFilterParam param, long maximizer);
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
