@@ -233,7 +233,7 @@ long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
     struct Thing *heartng;
     SlabCodedCoords slb_num;
     struct SlabMap *slb;
-    int heartstl_x,heartstl_y;
+    int revealstl_x,revealstl_y;
     MapSubtlCoord slb_x, slb_y;
     unsigned char *ownership_map;
     struct USPOINT_2D *revealed_pts;
@@ -245,15 +245,14 @@ long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
     if (dungeon->dnheart_idx > 0)
     {
         heartng = thing_get(dungeon->dnheart_idx);
-        heartstl_x = heartng->mappos.x.stl.num;
-        heartstl_y = heartng->mappos.y.stl.num;
+        revealstl_x = heartng->mappos.x.stl.num;
+        revealstl_y = heartng->mappos.y.stl.num;
     } else
     {
-
         setup_combat_flee_position(thing);
         cctrl = creature_control_get_from_thing(thing);
-        heartstl_x = cctrl->pos_288.x.stl.num;
-        heartstl_y = cctrl->pos_288.y.stl.num;
+        revealstl_x = cctrl->flee_pos.x.stl.num;
+        revealstl_y = cctrl->flee_pos.y.stl.num;
     }
     reveal_success = 0;
 
@@ -274,8 +273,8 @@ long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
     pts_count = 0;
     pt_idx = 0;
 
-    slb_x = map_to_slab[heartstl_x];
-    slb_y = map_to_slab[heartstl_y];
+    slb_x = map_to_slab[revealstl_x];
+    slb_y = map_to_slab[revealstl_y];
     slb_num = get_slab_number(slb_x, slb_y);
     ownership_map[slb_num] |= 0x02;
     do
