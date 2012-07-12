@@ -747,11 +747,11 @@ long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long 
         i = thing->next_of_class;
         // Per-thing code
         cctrl = creature_control_get_from_thing(thing);
-        if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
+        if (((thing->field_0 & TF_Unkn10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
         {
             if (thing->owner != immune_plyr_idx)
             {
-              if ((cctrl->spell_flags & 0x04) == 0)
+              if ((cctrl->spell_flags & CSF_Armour) == 0)
               {
                   dist = get_2d_box_distance(&thing->mappos, pos);
                   damage = get_radially_decaying_value(max_damage, range/2, range/2, dist);

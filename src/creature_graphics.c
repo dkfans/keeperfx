@@ -372,7 +372,7 @@ void update_creature_graphic_field_4F(struct Thing *thing)
         thing->field_4F |= 0x10;
         thing->field_4F |= 0x20;
     } else
-    if (((cctrl->spell_flags & 0x20) != 0) && (cctrl->field_AF <= 0))
+    if (((cctrl->spell_flags & CSF_Conceal) != 0) && (cctrl->field_AF <= 0))
     {
       if (is_my_player_number(thing->owner))
       {

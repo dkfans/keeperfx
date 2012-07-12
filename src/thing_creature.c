@@ -1842,12 +1842,12 @@ void get_creature_instance_times(struct Thing *thing, long inst_idx, long *ritim
         itime = inst_inf->time;
         aitime = inst_inf->action_time;
     }
-    if ((cctrl->spell_flags & 0x01) != 0)
+    if ((cctrl->spell_flags & CSF_Slow) != 0)
     {
         aitime *= 2;
         itime *= 2;
     }
-    if ((cctrl->spell_flags & 0x02) != 0)
+    if ((cctrl->spell_flags & CSF_Speed) != 0)
     {
         aitime /= 2;
         itime /= 2;

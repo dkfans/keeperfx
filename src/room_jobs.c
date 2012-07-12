@@ -47,9 +47,9 @@ TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room)
         light_delete_light(crtng->light_id);
         crtng->light_id = 0;
     }
-    if ((cctrl->spell_flags & 0x02) != 0)
+    if ((cctrl->spell_flags & CSF_Speed) != 0)
         terminate_thing_spell_effect(crtng, 11);
-    if ((cctrl->spell_flags & 0x20) != 0)
+    if ((cctrl->spell_flags & CSF_Conceal) != 0)
         terminate_thing_spell_effect(crtng, 9);
     dungeon = get_dungeon(room->owner);
     dungeon->lvstats.creatures_tortured++;
