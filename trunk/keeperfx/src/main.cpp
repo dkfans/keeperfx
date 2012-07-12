@@ -271,7 +271,6 @@ DLLIMPORT long _DK_remove_food_from_food_room_if_possible(struct Thing *thing);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_door_for_position(long pos_x, long pos_y);
 DLLIMPORT long _DK_process_obey_leader(struct Thing *thing);
-DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long state);
 DLLIMPORT long _DK_is_thing_passenger_controlled(struct Thing *thing);
 DLLIMPORT void _DK_setup_3d(void);
 DLLIMPORT void _DK_setup_stuff(void);
@@ -1282,42 +1281,6 @@ unsigned char general_expand_check(void)
 void leader_find_positions_for_followers(struct Thing *thing)
 {
   _DK_leader_find_positions_for_followers(thing);
-}
-
-unsigned char external_set_thing_state(struct Thing *thing, long state)
-{
-    struct CreatureControl *cctrl;
-    struct StateInfo *stati;
-    CreatureStateFunc1 callback;
-    //return _DK_external_set_thing_state(thing, state);
-    if ( !can_change_from_state_to(thing, thing->active_state, state) )
-    {
-        ERRORDBG(4,"State change %s to %s for %s not allowed",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing));
-        return 0;
-    }
-    SYNCDBG(9,"State change %s to %s for %s index %d",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing),(int)thing->index);
-    stati = get_thing_active_state_info(thing);
-    if (stati->state_type == CrStTyp_Value6)
-        stati = get_thing_continue_state_info(thing);
-    callback = stati->cleanup_state;
-    if (callback != NULL) {
-        callback(thing);
-        thing->field_1 |= 0x10;
-    } else {
-      clear_creature_instance(thing);
-    }
-    thing->active_state = state;
-    thing->field_1 &= ~0x10;
-    thing->continue_state = 0;
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_80 = 0;
-    cctrl->field_302 = 0;
-    if ((cctrl->flgfield_1 & 0x20) != 0)
-    {
-        ERRORLOG("External change state %s to %s, but %s in room list even after cleanup",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing));
-        remove_creature_from_work_room(thing);
-    }
-    return 1;
 }
 
 long is_thing_passenger_controlled(struct Thing *thing)
@@ -4460,7 +4423,7 @@ void level_lost_go_first_person(long plyr_idx)
   struct Dungeon *dungeon;
   struct Thing *thing;
   long spectator_breed;
-  SYNCDBG(6,"Starting for player %ld\n",plyr_idx);
+  SYNCDBG(6,"Starting for player %ld",plyr_idx);
   //_DK_level_lost_go_first_person(plridx);
   player = get_player(plyr_idx);
   dungeon = get_dungeon(player->id_number);

@@ -430,6 +430,7 @@ char numfield_1A;
     struct UnkStruc5 struc_D8C7[512];
     struct ObjectConfig objects_config[239];
 char field_117DA[14];
+    // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
     struct ManfctrConfig traps_config[TRAP_TYPES_COUNT];
     struct ManfctrConfig doors_config[DOOR_TYPES_COUNT];
     struct SpellConfig spells_config[30];
@@ -877,7 +878,6 @@ void outro(void);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);
-unsigned char external_set_thing_state(struct Thing *thing, long state);
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
 long is_thing_passenger_controlled(struct Thing *thing);
 void remove_events_thing_is_attached_to(struct Thing *thing);

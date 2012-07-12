@@ -207,6 +207,7 @@ enum CreatureStateTypes {
     CrStTyp_Value6,
 };
 
+typedef unsigned short CrtrStateId;
 typedef short (*CreatureStateFunc1)(struct Thing *);
 typedef char (*CreatureStateFunc2)(struct Thing *);
 typedef long (*CreatureStateFunc3)(struct Thing *);
@@ -252,13 +253,14 @@ DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
 /******************************************************************************/
 TbBool creature_model_bleeds(unsigned long crmodel);
-TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_state);
-TbBool internal_set_thing_state(struct Thing *thing, long nState);
-TbBool initialise_thing_state(struct Thing *thing, long nState);
+TbBool can_change_from_state_to(struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state);
+TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState);
+TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state);
+TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState);
 TbBool cleanup_current_thing_state(struct Thing *thing);
 struct StateInfo *get_thing_active_state_info(struct Thing *thing);
 struct StateInfo *get_thing_continue_state_info(struct Thing *thing);
-struct StateInfo *get_thing_state_info_num(long state_id);
+struct StateInfo *get_thing_state_info_num(CrtrStateId state_id);
 struct StateInfo *get_creature_state_with_task_completion(struct Thing *thing);
 TbBool state_info_invalid(struct StateInfo *stati);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
@@ -279,7 +281,7 @@ long process_work_speed_on_work_value(struct Thing *thing, long base_val);
 unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
-long slab_by_players_land(long plyr_idx, long slb_x, long slb_y);
+long slab_by_players_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool process_creature_hunger(struct Thing *thing);
 long room_still_valid_as_type_for_thing(struct Room *room, long rkind, struct Thing *thing);
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
