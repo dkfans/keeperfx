@@ -107,7 +107,8 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     combat_factor = find_fellow_creature_to_fight_in_room(thing,room,crstat->lair_enemy,&enemytng);
     if (combat_factor < 1)
         return 0;
-    set_creature_in_combat_to_the_death(thing, enemytng, combat_factor);
+    if (!set_creature_in_combat_to_the_death(thing, enemytng, combat_factor))
+        return 0;
     return 1;
 }
 
