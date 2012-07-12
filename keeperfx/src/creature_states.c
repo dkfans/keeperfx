@@ -1728,7 +1728,7 @@ short person_sulking(struct Thing *creatng)
   return _DK_person_sulking(creatng);
 }
 
-long room_still_valid_as_type_for_thing(struct Room *room, long rkind, struct Thing *thing)
+long room_still_valid_as_type_for_thing(struct Room *room, RoomKind rkind, struct Thing *thing)
 {
   return ((room->field_0 & 0x01) != 0) && (room->kind == rkind);
 }
@@ -1798,13 +1798,13 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
             && ((tng2->field_0 & 0x10) == 0) && ((tng2->field_1 & TF1_Unkn02) == 0))
             {
                 crstat1 = creature_stats_get_from_thing(tng1);
-                if ((cctrl2->spell_flags & 0x20) == 0)
+                if ((cctrl2->spell_flags & CSF_Conceal) == 0)
                     return true;
                 if (cctrl2->field_AF > 0)
                     return true;
                 if (crstat1->can_see_invisible)
                     return true;
-                if ((cctrl1->spell_flags & 0x40) != 0)
+                if ((cctrl1->spell_flags & CSF_Sight) != 0)
                     return true;
             }
         }
