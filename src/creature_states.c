@@ -140,6 +140,7 @@ DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoidin
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, struct Room *room);
 DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *creatng);
 DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
+DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long state);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *thing);
@@ -528,16 +529,16 @@ struct StateInfo *get_thing_active_state_info(struct Thing *thing)
 
 struct StateInfo *get_thing_continue_state_info(struct Thing *thing)
 {
-  if (thing->continue_state >= CREATURE_STATES_COUNT)
-    return &states[0];
-  return &states[thing->continue_state];
+    if (thing->continue_state >= CREATURE_STATES_COUNT)
+        return &states[0];
+    return &states[thing->continue_state];
 }
 
-struct StateInfo *get_thing_state_info_num(long state_id)
+struct StateInfo *get_thing_state_info_num(CrtrStateId state_id)
 {
-  if ((state_id < 0) || (state_id >= CREATURE_STATES_COUNT))
-    return &states[0];
-  return &states[state_id];
+    if ((state_id < 0) || (state_id >= CREATURE_STATES_COUNT))
+        return &states[0];
+    return &states[state_id];
 }
 
 long get_creature_state_besides_move(const struct Thing *thing)
@@ -1742,7 +1743,7 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, long delta
   _DK_remove_health_from_thing_and_display_health(thing, delta);
 }
 
-long slab_by_players_land(long plyr_idx, long slb_x, long slb_y)
+long slab_by_players_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
   return _DK_slab_by_players_land(plyr_idx, slb_x, slb_y);
 }
@@ -2045,7 +2046,7 @@ short tunnelling(struct Thing *creatng)
   return _DK_tunnelling(creatng);
 }
 /******************************************************************************/
-TbBool internal_set_thing_state(struct Thing *thing, long nState)
+TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
 {
   struct CreatureControl *cctrl;
   thing->active_state = nState;
@@ -2057,7 +2058,7 @@ TbBool internal_set_thing_state(struct Thing *thing, long nState)
   return true;
 }
 
-TbBool initialise_thing_state(struct Thing *thing, long nState)
+TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState)
 {
     struct CreatureControl *cctrl;
     //return _DK_initialise_thing_state(thing, nState);
@@ -2096,7 +2097,7 @@ TbBool cleanup_current_thing_state(struct Thing *thing)
     return true;
 }
 
-TbBool can_change_from_state_to(struct Thing *thing, long curr_state, long next_state)
+TbBool can_change_from_state_to(struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state)
 {
     struct StateInfo *next_stati;
     struct StateInfo *curr_stati;
@@ -2208,4 +2209,41 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     initialise_thing_state(thing, i);
     return thing->active_state;
 }
+
+TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state)
+{
+    struct CreatureControl *cctrl;
+    struct StateInfo *stati;
+    CreatureStateFunc1 callback;
+    //return _DK_external_set_thing_state(thing, state);
+    if ( !can_change_from_state_to(thing, thing->active_state, state) )
+    {
+        ERRORDBG(4,"State change %s to %s for %s not allowed",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing));
+        return false;
+    }
+    SYNCDBG(9,"State change %s to %s for %s index %d",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing),(int)thing->index);
+    stati = get_thing_active_state_info(thing);
+    if (stati->state_type == CrStTyp_Value6)
+        stati = get_thing_continue_state_info(thing);
+    callback = stati->cleanup_state;
+    if (callback != NULL) {
+        callback(thing);
+        thing->field_1 |= 0x10;
+    } else {
+        clear_creature_instance(thing);
+    }
+    thing->active_state = state;
+    thing->field_1 &= ~0x10;
+    thing->continue_state = 0;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_80 = 0;
+    cctrl->field_302 = 0;
+    if ((cctrl->flgfield_1 & 0x20) != 0)
+    {
+        ERRORLOG("External change state %s to %s, but %s in room list even after cleanup",creature_state_code_name(thing->active_state), creature_state_code_name(state), thing_model_name(thing));
+        remove_creature_from_work_room(thing);
+    }
+    return true;
+}
+
 /******************************************************************************/

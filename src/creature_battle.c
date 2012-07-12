@@ -207,19 +207,24 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long com
         ERRORLOG("Invalid creature control");
         return;
     }
-    if ( (cctrl->combat_flags != 0) && ((cctrl->combat_flags & 0x18) == 0) )
+    if ( (cctrl->combat_flags != 0) && ((cctrl->combat_flags & (0x08|0x10)) == 0) )
     {
         long crstate = get_creature_state_besides_move(fighter);
         ERRORLOG("Creature in combat already - state %s", creature_state_code_name(crstate));
         return;
     }
-    if ( external_set_thing_state(fighter, CrSt_CreatureInCombat) )
-    {
-        cctrl->field_AA = 0;
-        cctrl->fight_til_death = 0;
-        set_creature_combat_state(fighter, enemy, combat_kind);
-        setup_combat_flee_position(fighter);
+    if ( !external_set_thing_state(fighter, CrSt_CreatureInCombat) ) {
+        ERRORLOG("Failed to change state");
+        return;
     }
+    cctrl->field_AA = 0;
+    cctrl->fight_til_death = 0;
+    if ( !set_creature_combat_state(fighter, enemy, combat_kind) ) {
+        WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+        set_start_state(fighter);
+        return;
+    }
+    setup_combat_flee_position(fighter);
 }
 
 /******************************************************************************/

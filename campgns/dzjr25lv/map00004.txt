@@ -1,6 +1,6 @@
 REM ***** PLAY Level 4 *****
 
-REM          GOLD!!!
+REM          GOLD!
 
 SET_GENERATE_SPEED(400)
 
