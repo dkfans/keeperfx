@@ -679,10 +679,18 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *enemy)
     figctrl->long_9E = enemy->field_9;
     if (!add_ranged_combat_attacker(enemy, fighter->index)) {
         ERRORLOG("Cannot add a ranged attacker, but there was free space - internal error");
+        figctrl->combat_flags &= ~CmbtF_Ranged;
+        figctrl->battle_enemy_idx = 0;
+        figctrl->long_9E = 0;
+        figctrl->fight_til_death = 0;
         return false;
     }
     if (!battle_add(fighter, enemy)) {
         remove_ranged_combat_attacker(enemy, fighter->index);
+        figctrl->combat_flags &= ~CmbtF_Ranged;
+        figctrl->battle_enemy_idx = 0;
+        figctrl->long_9E = 0;
+        figctrl->fight_til_death = 0;
         return false;
     }
     return true;
@@ -711,10 +719,18 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
     figctrl->long_9E = enemy->field_9;
     if (!add_melee_combat_attacker(enemy, fighter->index)) {
         ERRORLOG("Cannot add a melee attacker, but there was free space - internal error");
+        figctrl->combat_flags &= ~CmbtF_Melee;
+        figctrl->battle_enemy_idx = 0;
+        figctrl->long_9E = 0;
+        figctrl->fight_til_death = 0;
         return false;
     }
     if (!battle_add(fighter, enemy)) {
         remove_melee_combat_attacker(enemy, fighter->index);
+        figctrl->combat_flags &= ~CmbtF_Melee;
+        figctrl->battle_enemy_idx = 0;
+        figctrl->long_9E = 0;
+        figctrl->fight_til_death = 0;
         return false;
     }
     return true;
@@ -734,6 +750,10 @@ TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *enemy)
     if (!battle_add(fighter, enemy)) {
         //TODO COMBAT write the function to remove the waiting attacker (might be dummy)
         //remove_waiting_combat_attacker(enemy, fighter->index);
+        figctrl->combat_flags &= ~CmbtF_Waiting;
+        figctrl->battle_enemy_idx = 0;
+        figctrl->long_9E = 0;
+        figctrl->fight_til_death = 0;
         return false;
     }
     return true;
@@ -750,7 +770,7 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, lon
     struct CreatureControl *enmctrl;
     struct CreatureStats *crstat;
     SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
-    //_DK_set_creature_combat_state(fighter, enemy, combat_kind); return;
+    //_DK_set_creature_combat_state(fighter, enemy, combat_kind); return true;
     figctrl = creature_control_get_from_thing(fighter);
     enmctrl = creature_control_get_from_thing(enemy);
     {
@@ -845,8 +865,8 @@ long set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *en
     if (!set_creature_combat_state(fighter, enemy, combat_kind))
     {
         WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
-        //TODO BATTLE check if we can safely do this
-        //return false;
+        set_start_state(fighter);
+        return false;
     }
     cctrl->field_AA = 0;
     cctrl->fight_til_death = 1;
@@ -1103,7 +1123,11 @@ void change_current_combat(struct Thing *fighter, struct Thing *enemy, long comb
     }
     oldenemy = thing_get(figctrl->battle_enemy_idx);
     remove_attacker(fighter, oldenemy);
-    set_creature_combat_state(fighter, enemy, combat_kind);
+    if ( !set_creature_combat_state(fighter, enemy, combat_kind) ) {
+        WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+        set_start_state(fighter);
+        return;
+    }
 }
 
 long creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *enemy, long combat_kind)
