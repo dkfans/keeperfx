@@ -2236,10 +2236,10 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
       cctrl->sbyte_89 = -1;
       cctrl->byte_8C = 1;
     }
-    cctrl->pos_288.x.val = crtng->mappos.x.val;
-    cctrl->pos_288.y.val = crtng->mappos.y.val;
-    cctrl->pos_288.z.val = crtng->mappos.z.val;
-    cctrl->pos_288.z.val = get_thing_height_at(crtng, pos);
+    cctrl->flee_pos.x.val = crtng->mappos.x.val;
+    cctrl->flee_pos.y.val = crtng->mappos.y.val;
+    cctrl->flee_pos.z.val = crtng->mappos.z.val;
+    cctrl->flee_pos.z.val = get_thing_height_at(crtng, pos);
     cctrl->field_1D2 = -1;
     if (crstat->flying)
       crtng->movement_flags |= TMvF_Flying;

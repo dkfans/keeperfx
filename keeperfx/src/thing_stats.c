@@ -77,31 +77,40 @@ const char *thing_class_code_name(long class_id)
     return thing_classes[class_id];
 }
 
+/**
+ * Gives name of a thing model.
+ * @note This function cannot be called more than once in a parameter to something
+ *  - it has only one static buffer.
+ * @param thing The thing which model is to be described.
+ * @return The model name string, static buffer.
+ */
 const char *thing_model_name(const struct Thing *thing)
 {
-    static char name_buffer[32];
+    static char name_buffer[2][32];
+    static int bid = 0;
+    bid = (bid+1)%2;
     switch (thing->class_id)
     {
     case TCls_Creature:
-        snprintf(name_buffer,sizeof(name_buffer),"creature %s",creature_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"creature %s",creature_code_name(thing->model));
         break;
     case TCls_DeadCreature:
-        snprintf(name_buffer,sizeof(name_buffer),"dead %s",creature_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"dead %s",creature_code_name(thing->model));
         break;
     case TCls_Trap:
-        snprintf(name_buffer,sizeof(name_buffer),"%s trap",trap_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s trap",trap_code_name(thing->model));
         break;
     case TCls_Door:
-        snprintf(name_buffer,sizeof(name_buffer),"%s door",door_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s door",door_code_name(thing->model));
         break;
     case TCls_Shot:
-        snprintf(name_buffer,sizeof(name_buffer),"%s shot",shot_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s shot",shot_code_name(thing->model));
         break;
     default:
-        snprintf(name_buffer,sizeof(name_buffer),"%s model %d",thing_class_code_name(thing->class_id),(int)thing->model);
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s model %d",thing_class_code_name(thing->class_id),(int)thing->model);
         break;
     }
-    return name_buffer;
+    return name_buffer[bid];
 }
 
 const char *creatrtng_actstate_name(const struct Thing *thing)

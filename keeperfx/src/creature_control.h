@@ -225,7 +225,7 @@ unsigned char field_88;
     short word_9C;
     short word_9E;
     short word_A0;
-    short battle_victim_idx;
+    short battle_enemy_idx;
     short word_A4;
     };
   struct {
@@ -324,7 +324,7 @@ unsigned char field_27F;
 unsigned char field_284[2];
     unsigned char field_286;
     unsigned char field_287;
-    struct Coord3d pos_288;
+    struct Coord3d flee_pos;
     long field_28E;
 unsigned char field_292[12];
 unsigned char field_29E[12];

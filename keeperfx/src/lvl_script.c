@@ -2398,10 +2398,10 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
     }
 
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->pos_288.x.val = thing->mappos.x.val;
-    cctrl->pos_288.y.val = thing->mappos.y.val;
-    cctrl->pos_288.z.val = thing->mappos.z.val;
-    cctrl->pos_288.z.val = get_thing_height_at(thing, &thing->mappos);
+    cctrl->flee_pos.x.val = thing->mappos.x.val;
+    cctrl->flee_pos.y.val = thing->mappos.y.val;
+    cctrl->flee_pos.z.val = thing->mappos.z.val;
+    cctrl->flee_pos.z.val = get_thing_height_at(thing, &thing->mappos);
     cctrl->sbyte_89 = -1;
 
     light_rand = ACTION_RANDOM(8);

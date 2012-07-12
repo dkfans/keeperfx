@@ -158,12 +158,12 @@ void setup_combat_flee_position(struct Thing *thing)
         ERRORLOG("Invalid creature control");
         return;
     }
-    if ( !get_flee_position(thing, &cctrl->pos_288) )
+    if ( !get_flee_position(thing, &cctrl->flee_pos) )
     {
         ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
-        cctrl->pos_288.x.val = thing->mappos.x.val;
-        cctrl->pos_288.y.val = thing->mappos.y.val;
-        cctrl->pos_288.z.val = thing->mappos.z.val;
+        cctrl->flee_pos.x.val = thing->mappos.x.val;
+        cctrl->flee_pos.y.val = thing->mappos.y.val;
+        cctrl->flee_pos.z.val = thing->mappos.z.val;
     }
 }
 
@@ -198,9 +198,10 @@ long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, lon
     return 1;
 }
 
-void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat)
+void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long combat_kind)
 {
     struct CreatureControl *cctrl;
+    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
     cctrl = creature_control_get_from_thing(fighter);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Invalid creature control");
@@ -216,7 +217,7 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long pos
     {
         cctrl->field_AA = 0;
         cctrl->fight_til_death = 0;
-        set_creature_combat_state(fighter, enemy, possible_combat);
+        set_creature_combat_state(fighter, enemy, combat_kind);
         setup_combat_flee_position(fighter);
     }
 }
