@@ -112,12 +112,12 @@ short creature_arrived_at_prison(struct Thing *thing)
     }
     cctrl->field_82 = game.play_gameturn;
     cctrl->flgfield_1 |= 0x02;
-    internal_set_thing_state(thing, 41);
-    if ((cctrl->spell_flags & 0x02) != 0) {
+    internal_set_thing_state(thing, CrSt_CreatureInPrison);
+    if ((cctrl->spell_flags & CSF_Speed) != 0) {
       terminate_thing_spell_effect(thing, 11);
     }
-    if ((cctrl->spell_flags & 0x20) != 0) {
-        terminate_thing_spell_effect(thing, 9);
+    if ((cctrl->spell_flags & CSF_Conceal) != 0) {
+        terminate_thing_spell_effect(thing, SplK_Invisibility);
     }
     if (thing->light_id != 0) {
         light_delete_light(thing->light_id);
@@ -144,64 +144,64 @@ long setup_prison_move(struct Thing *thing, struct Room *room)
 
 long process_prison_visuals(struct Thing *thing, struct Room *room)
 {
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->instance_id != CrInst_NULL)
-    return Lb_OK;
-  if (game.play_gameturn-cctrl->field_82 > 200)
-  {
-    if (game.play_gameturn-cctrl->field_82 < 250)
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->instance_id != CrInst_NULL)
+        return Lb_OK;
+    if (game.play_gameturn - cctrl->field_82 > 200)
     {
-      set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
-      if (game.play_gameturn-cctrl->long_9A > 32)
-      {
-        play_creature_sound(thing, CrSnd_PrisonMoan, 2, 0);
-        cctrl->long_9A = game.play_gameturn;
-      }
-      return Lb_SUCCESS;
+        if (game.play_gameturn - cctrl->field_82 < 250)
+        {
+            set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
+            if (game.play_gameturn - cctrl->long_9A > 32)
+            {
+                play_creature_sound(thing, CrSnd_PrisonMoan, 2, 0);
+                cctrl->long_9A = game.play_gameturn;
+            }
+            return Lb_SUCCESS;
+        }
+        cctrl->field_82 = game.play_gameturn;
     }
-    cctrl->field_82 = game.play_gameturn;
-  }
-  if ( setup_prison_move(thing, room) )
-  {
-    thing->continue_state = CrSt_CreatureInPrison;
-    return Lb_SUCCESS;
-  }
-  return Lb_OK;
+    if (setup_prison_move(thing, room))
+    {
+        thing->continue_state = CrSt_CreatureInPrison;
+        return Lb_SUCCESS;
+    }
+    return Lb_OK;
 }
 
 short creature_in_prison(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  struct Room *room;
-  TbResult ret;
-  //return _DK_creature_in_prison(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  room = get_room_thing_is_on(thing);
-  if (room_is_invalid(room))
-  {
-      set_start_state(thing);
-      return Lb_OK;
-  }
-  if ( (room->kind != RoK_PRISON) || (cctrl->work_room_id != room->index) )
-  {
-      set_start_state(thing);
-      return Lb_OK;
-  }
-  if (room->total_capacity < room->used_capacity)
-  {
-    if (is_my_player_number(room->owner))
-      output_message(SMsg_PrisonTooSmall, 0, true);
-    set_start_state(thing);
-    return Lb_OK;
-  }
-  ret = process_prison_function(thing);
-  if (ret == Lb_OK)
-    process_prison_visuals(thing,room);
-  return ret;
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    TbResult ret;
+    //return _DK_creature_in_prison(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    room = get_room_thing_is_on(thing);
+    if (room_is_invalid(room))
+    {
+        set_start_state(thing);
+        return Lb_OK;
+    }
+    if ((room->kind != RoK_PRISON) || (cctrl->work_room_id != room->index))
+    {
+        set_start_state(thing);
+        return Lb_OK;
+    }
+    if (room->total_capacity < room->used_capacity)
+    {
+        if (is_my_player_number(room->owner))
+            output_message(SMsg_PrisonTooSmall, 0, true);
+        set_start_state(thing);
+        return Lb_OK;
+    }
+    ret = process_prison_function(thing);
+    if (ret == Lb_OK)
+        process_prison_visuals(thing, room);
+    return ret;
 }
 
-void prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
+TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 {
   struct Dungeon *dungeon;
   struct CreatureStats *crstat;
@@ -214,8 +214,8 @@ void prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
   crthing = create_creature(&thing->mappos, crmodel, room->owner);
   if (thing_is_invalid(crthing))
   {
-      ERRORLOG("Couldn't create creature model %ld in prison", crmodel);
-      return;
+      ERRORLOG("Couldn't create creature %s in prison", creature_code_name(crmodel));
+      return false;
   }
   init_creature_level(crthing, cctrl->explevel);
   set_start_state(crthing);
@@ -225,6 +225,7 @@ void prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
   dungeon = get_dungeon(room->owner);
   if (!dungeon_invalid(dungeon))
       dungeon->lvstats.skeletons_raised++;
+  return true;
 }
 
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
@@ -235,7 +236,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
     return false;
   if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
     return false;
-  if (is_my_player_number(thing->owner))
+  if (is_my_player_number(room->owner))
     output_message(SMsg_PrisonMadeSkeleton, 0, true);
   prison_convert_creature_to_skeleton(room,thing);
   return true;
@@ -253,7 +254,7 @@ long process_prison_function(struct Thing *thing)
   //return _DK_process_prison_function(thing);
   cctrl = creature_control_get_from_thing(thing);
   room = room_get(cctrl->work_room_id);
-  if ( !room_still_valid_as_type_for_thing(room, 4, thing) )
+  if ( !room_still_valid_as_type_for_thing(room, RoK_PRISON, thing) )
   {
     set_start_state(thing);
     return 1;
