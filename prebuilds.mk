@@ -1,15 +1,19 @@
 # Tools and libraries to be used on the host system, not on target
 ifneq (,$(findstring Windows,$(OS)))
   PERESEC_DOWNLOAD=https://github.com/dkfans/peresec/releases/download/1.1.0/peresec-1_1_0_16-devel-win.zip
+  PNG2ICO_DOWNLOAD=https://github.com/dkfans/png2ico/releases/download/2003-01-14/png2ico-win-2003-01-14.zip
 else
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
   PERESEC_DOWNLOAD=https://github.com/dkfans/peresec/releases/download/1.1.0/peresec-1_1_0_16-devel-lin.tar.gz
+  PNG2ICO_DOWNLOAD=https://github.com/dkfans/png2ico/releases/download/2003-01-14/png2ico-lin-2003-01-14.tar.gz
 else
   PERESEC_DOWNLOAD=no_prebuild_available_for_your_os
+  PNG2ICO_DOWNLOAD=no_prebuild_available_for_your_os
 endif
 endif
 PERESEC_PACKAGE=$(notdir $(PERESEC_DOWNLOAD))
+PNG2ICO_PACKAGE=$(notdir $(PNG2ICO_DOWNLOAD))
 
 # Tools and libraries to be used for the target system
 # Currently, the target is always windows-mingw32

@@ -19,12 +19,13 @@
 #******************************************************************************
 
 .PHONY: clean-peresec deep-clean-peresec
+.PHONY: clean-png2ico deep-clean-png2ico
 
-tools: $(EXETODLL)
+tools: $(EXETODLL) $(PNG2ICO)
 
-clean-tools: clean-peresec
+clean-tools: clean-peresec clean-png2ico
 
-deep-clean-tools: deep-clean-peresec
+deep-clean-tools: deep-clean-peresec deep-clean-png2ico
 
 ifneq (,$(wildcard tools/peresec/src/peresec.c)) 
 
@@ -90,5 +91,72 @@ deep-clean-peresec:
 else
 
 $(error Cannot find peresec tool source nor prebuild. Use git submodules to get source.)
+
+endif
+
+ifneq (,$(wildcard tools/png2ico/png2ico.cpp)) 
+
+# If we have source code of this tool, compile it
+$(PNG2ICO): tools/png2ico/png2ico.cpp
+	make -C tools/png2ico
+
+clean-png2ico:
+	make -C tools/png2ico clean
+
+else ifneq (,$(findstring .tar.gz,$(PNG2ICO_PACKAGE)))
+
+# If we have tar gzip prebuild, download and extract it
+$(PNG2ICO): tools/png2ico/$(PNG2ICO_PACKAGE)
+	-$(ECHO) 'Extracting package: $<'
+	$(MKDIR) "$(@D)"
+	cd "$(@D)"; \
+	tar -zxmUf "../../$<"
+	-$(ECHO) 'Finished extracting: $<'
+	-$(ECHO) ' '
+
+tools/png2ico/$(PNG2ICO_PACKAGE):
+	-$(ECHO) 'Downloading package: $@'
+	$(MKDIR) "$(@D)"
+	curl -L -o "$@.dl" "$(PNG2ICO_DOWNLOAD)"
+	tar -tzf "$@.dl" >/dev/null
+	$(MV) "$@.dl" "$@"
+	-$(ECHO) 'Finished downloading: $@'
+	-$(ECHO) ' '
+
+clean-png2ico:
+	-$(RM) $(PNG2ICO) tools/png2ico/README tools/png2ico/VERSION tools/png2ico/LICENSE tools/png2ico/doc/png2ico.txt
+
+deep-clean-png2ico:
+	-$(RM) tools/png2ico/$(PNG2ICO_PACKAGE)
+
+else ifneq (,$(findstring .zip,$(PNG2ICO_PACKAGE)))
+
+# If we have zip prebuild, download and extract it
+$(PNG2ICO): tools/png2ico/$(PNG2ICO_PACKAGE)
+	-$(ECHO) 'Extracting package: $<'
+	$(MKDIR) "$(@D)"
+	cd "$(@D)"; \
+	unzip -DD -qo "../../$<"
+	-$(ECHO) 'Finished extracting: $<'
+	-$(ECHO) ' '
+
+tools/png2ico/$(PNG2ICO_PACKAGE):
+	-$(ECHO) 'Downloading package: $@'
+	$(MKDIR) "$(@D)"
+	curl -L -o "$@.dl" "$(PNG2ICO_DOWNLOAD)"
+	unzip -qt "$@.dl"
+	$(MV) "$@.dl" "$@"
+	-$(ECHO) 'Finished downloading: $@'
+	-$(ECHO) ' '
+
+clean-png2ico:
+	-$(RM) $(PNG2ICO) tools/png2ico/README tools/png2ico/VERSION tools/png2ico/LICENSE tools/png2ico/doc/png2ico.txt
+
+deep-clean-png2ico:
+	-$(RM) tools/png2ico/$(PNG2ICO_PACKAGE)
+
+else
+
+$(error Cannot find png2ico tool source nor prebuild. Get package or source manually.)
 
 endif
