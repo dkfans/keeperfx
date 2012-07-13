@@ -297,7 +297,14 @@ void update_battle_events(unsigned short battle_id)
     }
 }
 
-long battle_any_of_things_in_specific_battle(const struct CreatureBattle *battle, const struct Thing *tng1, const struct Thing *tng2)
+/**
+ * Checks if any of two things fights as enemy in given battle.
+ * @param battle The battle to be checked.
+ * @param tng1 First thing to be checked.
+ * @param tng2 Second thing to be checked.
+ * @return Gives true if any of things is fighting in given battle.
+ */
+TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *battle, const struct Thing *tng1, const struct Thing *tng2)
 {
     struct CreatureControl *cctrl;
     struct Thing *batltng;
@@ -322,43 +329,46 @@ long battle_any_of_things_in_specific_battle(const struct CreatureBattle *battle
             attcktng = thing_get(cctrl->battle_enemy_idx);
             if ( !thing_is_invalid(attcktng) )
             {
-                if ( (attcktng == tng1) || (attcktng == tng2) )
+                if ( (attcktng->index == tng1->index) || (attcktng->index == tng2->index) )
                 {
                     if (cctrl->battle_id >= 0) {
-                        return cctrl->battle_id;
+                        return true;
                     }
                 }
             }
         }
         // Per battle creature code ends
         k++;
-        if ( k >= 200 ) {
+        if (k >= CREATURES_COUNT) {
             ERRORLOG("Infinite loop in battle add");
             break;
         }
     }
-    return 0;
+    return false;
 }
 
 unsigned short find_battle_for_thing(const struct Thing *fighter, const struct Thing *enemy)
 {
     struct CreatureBattle *battle;
     unsigned short battle_id;
-    long i,n;
+    long i;
     battle_id = 0;
     for (i = 1; i < BATTLES_COUNT; i++) // Originally was 32, but I'm pretty sure there's 48 battles
     {
         battle = creature_battle_get(i);
+        // If the battle exists, check who is fighting
         if (battle->fighters_num != 0)
         {
-            n = battle_any_of_things_in_specific_battle(battle, fighter, enemy);
-            if (n > 0) {
+            if (battle_any_of_things_in_specific_battle(battle, fighter, enemy)) {
                 battle_id = i;
                 break;
             }
+        } else
+        // If the battle is empty, remember its index - we might want first empty battle
+        {
+            if (battle_id <= 0)
+              battle_id = i;
         }
-        if (battle_id <= 0)
-          battle_id = i;
     }
     if (battle_id <= 0) {
         ERRORLOG("No free battle structures");
