@@ -1343,8 +1343,6 @@
  0001:00015F90       script_process_value
  0001:00090120       creature_fire_shot
  0001:00011C80       creature_cast_spell
- 0001:0008FCF0       creature_has_spare_slot_for_combat
- 0001:0008EFB0       change_creature_with_existing_attacker
  0001:00070CA0       process_person_moods_and_needs
  0001:0008F460       creature_available_for_combat_this_turn
  0001:0008DF40       creature_look_for_combat
@@ -1784,6 +1782,10 @@
  0001:000B3170       creature_in_ranged_combat
  0001:000B3230       creature_in_melee_combat
  0001:000B32F0       creature_in_combat_wait
+ 0001:0008D360       check_for_possible_combat_with_attacker
+ 0001:0008D270       get_combat_score
+ 0001:0008FCF0       creature_has_spare_slot_for_combat
+ 0001:0008EFB0       change_creature_with_existing_attacker
  0001:0008FAF0       check_for_valid_combat
  0001:0008FB60       combat_type_is_choice_of_creature
  0001:0008FC40       creature_is_most_suitable_for_combat

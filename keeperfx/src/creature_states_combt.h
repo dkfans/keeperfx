@@ -32,6 +32,9 @@ extern "C" {
 struct Thing;
 struct Room;
 
+/** How often to check for possible battles, in game turns */
+#define BATTLE_CHECK_INTERVAL 8
+
 typedef void (*CombatState)(struct Thing *);
 
 extern const CombatState combat_state[];

@@ -100,6 +100,12 @@ enum CreatureCombatFlags {
     CmbtF_Unknown80     = 0x80,
 };
 
+enum CreatureCombatStates {
+    CmbtSt_Waiting      = 1,
+    CmbtSt_Ranged       = 2,
+    CmbtSt_Melee        = 3,
+};
+
 struct CastedSpellData {
     unsigned char spkind;
     short field_1;
