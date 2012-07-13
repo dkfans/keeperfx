@@ -1287,6 +1287,33 @@ long check_for_possible_combat(struct Thing *crtng, struct Thing **battltng)
     return _DK_check_for_possible_combat(crtng, battltng);
 }
 
+/**
+ * Switches fight partner to the one suggested by creature_is_most_suitable_for_combat().
+ * @param thing The creature to be switched.
+ * @return True on success.
+ * @see creature_is_most_suitable_for_combat()
+ */
+TbBool creature_change_to_most_suitable_combat(struct Thing *figtng)
+{
+    struct Thing *enmtng;
+    unsigned long other_score;
+    long combat_kind;
+    //set_start_state(thing); return true; -- this is how originally such situation was handled
+    // Compute highest possible score from battles
+    other_score = 0;
+    enmtng = INVALID_THING;
+    combat_kind = check_for_possible_combat_with_attacker(figtng, &enmtng, &other_score);
+    if (thing_is_invalid(enmtng))
+        return false;
+    struct CreatureControl *figctrl;
+    figctrl = creature_control_get_from_thing(figtng);
+    if (figctrl->battle_enemy_idx == enmtng->index)
+        return false;
+    if (!change_current_combat(figtng, enmtng, combat_kind))
+        return false;
+    return true;
+}
+
 long check_for_better_combat(struct Thing *figtng)
 {
     struct CreatureControl *figctrl;
@@ -1304,7 +1331,8 @@ long check_for_better_combat(struct Thing *figtng)
         return 1;
     // If we're here, that means there is a better combat
     //TODO The condition here seems strange; we need to figure out what's its purpose
-    if ( (figctrl->battle_enemy_idx != enmtng->index) || !combat_type_is_choice_of_creature(figtng, combat_kind) )
+    //if ( (figctrl->battle_enemy_idx != enmtng->index) || !combat_type_is_choice_of_creature(figtng, combat_kind) )
+    if ( (figctrl->battle_enemy_idx == enmtng->index) && combat_type_is_choice_of_creature(figtng, combat_kind) )
     {
         // we want to fight with the same enemy, but to use combat type preferred by creature
         // this is so good that we won't even do any additional tests - let's just do it!
@@ -1314,6 +1342,7 @@ long check_for_better_combat(struct Thing *figtng)
     }
     if (figctrl->combat_state_id != CmbtSt_Waiting) {
         // it's not a waiting but real fight - don't change anything
+        // (note that this condition makes battles very stable - creatures are unlikely to change enemies)
         return 0;
     }
     // Check if there's place for new combat, add or replace a slot
@@ -1362,7 +1391,7 @@ void creature_in_combat_wait(struct Thing *thing)
     enmtng = thing_get(cctrl->battle_enemy_idx);
     if ( !creature_is_most_suitable_for_combat(thing, enmtng) ) {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
-        set_start_state(thing);//!!!!!!!!!!
+        creature_change_to_most_suitable_combat(thing);
         return;
     }
     combat_valid = check_for_valid_combat(thing, enmtng);
@@ -1386,7 +1415,7 @@ void creature_in_ranged_combat(struct Thing *thing)
     if (!creature_is_most_suitable_for_combat(thing, enmtng))
     {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
-        set_start_state(thing);
+        creature_change_to_most_suitable_combat(thing);
         return;
     }
     cmbtyp = check_for_valid_combat(thing, enmtng);
@@ -1424,7 +1453,7 @@ void creature_in_melee_combat(struct Thing *thing)
     if (!creature_is_most_suitable_for_combat(thing, enmtng))
     {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
-        set_start_state(thing);
+        creature_change_to_most_suitable_combat(thing);
         return;
     }
     cmbtyp = check_for_valid_combat(thing, enmtng);
