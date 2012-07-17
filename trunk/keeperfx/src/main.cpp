@@ -62,6 +62,8 @@
 #include "engine_arrays.h"
 #include "engine_redraw.h"
 #include "front_landview.h"
+#include "front_lvlstats.h"
+#include "front_easter.h"
 #include "thing_stats.h"
 #include "thing_creature.h"
 #include "thing_corpses.h"
@@ -103,91 +105,7 @@ char cmndline[CMDLN_MAXLEN+1];
 unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 
-struct KeyToStringInit key_to_string_init[] = {
-  {KC_A,  -65},
-  {KC_B,  -66},
-  {KC_C,  -67},
-  {KC_D,  -68},
-  {KC_E,  -69},
-  {KC_F,  -70},
-  {KC_G,  -71},
-  {KC_H,  -72},
-  {KC_I,  -73},
-  {KC_J,  -74},
-  {KC_K,  -75},
-  {KC_L,  -76},
-  {KC_M,  -77},
-  {KC_N,  -78},
-  {KC_O,  -79},
-  {KC_P,  -80},
-  {KC_Q,  -81},
-  {KC_R,  -82},
-  {KC_S,  -83},
-  {KC_T,  -84},
-  {KC_U,  -85},
-  {KC_V,  -86},
-  {KC_W,  -87},
-  {KC_X,  -88},
-  {KC_Y,  -89},
-  {KC_Z,  -90},
-  {KC_F1,  515},
-  {KC_F2,  516},
-  {KC_F3,  517},
-  {KC_F4,  518},
-  {KC_F5,  519},
-  {KC_F6,  520},
-  {KC_F7,  521},
-  {KC_F8,  522},
-  {KC_F9,  523},
-  {KC_F10, 524},
-  {KC_F11, 525},
-  {KC_F12, 526},
-  {KC_CAPITAL, 490},
-  {KC_LSHIFT,  483},
-  {KC_RSHIFT,  484},
-  {KC_LCONTROL, 481},
-  {KC_RCONTROL, 482},
-  {KC_RETURN,  488},
-  {KC_BACK,    491},
-  {KC_INSERT,  492},
-  {KC_DELETE,  493},
-  {KC_HOME,    494},
-  {KC_END,     495},
-  {KC_PGUP,    496},
-  {KC_PGDOWN,  497},
-  {KC_NUMLOCK, 498},
-  {KC_DIVIDE,  499},
-  {KC_MULTIPLY, 500},
-  {KC_NUMPADENTER, 503},
-  {KC_DECIMAL, 504},
-  {KC_NUMPAD0, 514},
-  {KC_NUMPAD1, 505},
-  {KC_NUMPAD2, 506},
-  {KC_NUMPAD3, 507},
-  {KC_NUMPAD4, 508},
-  {KC_NUMPAD5, 509},
-  {KC_NUMPAD6, 510},
-  {KC_NUMPAD7, 511},
-  {KC_NUMPAD8, 512},
-  {KC_NUMPAD9, 513},
-  {KC_UP,     527},
-  {KC_DOWN,   528},
-  {KC_LEFT,   529},
-  {KC_RIGHT,  530},
-  {  0,     0},
-};
-
 long const scavenge_effect_element[] = {60, 61, 62, 63, 64, 64,};
-
-struct KeycodeString eastegg_feckoff_codes = {
-    {KC_F,KC_E,KC_C,KC_K,KC_O,KC_F,KC_F,KC_UNASSIGNED}, 7,
-};
-struct KeycodeString eastegg_jlw_codes = {
-    {KC_J,KC_L,KC_W,KC_UNASSIGNED}, 3,
-};
-struct KeycodeString eastegg_skeksis_codes = {
-    {KC_S,KC_K,KC_E,KC_K,KC_S,KC_I,KC_S,KC_UNASSIGNED}, 7,
-};
 
 const char *sound_fname = "sound.dat";
 const char *speech_fname = "speech.dat";
@@ -2100,21 +2018,6 @@ void init_colours(void)
   _DK_init_colours();
 }
 
-/**
- * Fills the array of keyboard key names.
- */
-void init_key_to_strings(void)
-{
-    struct KeyToStringInit *ktsi;
-    long k;
-    memset(key_to_string, 0, sizeof(key_to_string));
-    for (ktsi = &key_to_string_init[0]; ktsi->chr != 0; ktsi++)
-    {
-      k = ktsi->chr;
-      key_to_string[k] = ktsi->str_idx;
-    }
-}
-
 TbBool setup_heaps(void)
 {
   TbBool low_memory;
@@ -2862,64 +2765,6 @@ short setup_game(void)
   }
 
   return result;
-}
-
-unsigned short input_eastegg_keycodes(unsigned char *counter,short allow,struct KeycodeString const *codes)
-{
-    TbKeyCode currkey;
-    unsigned short result;
-    if (!allow)
-    {
-      (*counter) = 0;
-      return 0;
-    }
-    result = 0;
-    if ((*counter) < codes->length)
-    {
-      currkey = codes->keys[(*counter)];
-      if (lbKeyOn[currkey])
-      {
-        (*counter)++;
-        result = 1;
-        if ((*counter) > 2)
-        {
-          clear_key_pressed(currkey);
-          result = 2;
-        }
-      }
-    }
-    if ((*counter) == codes->length)
-    {
-      if (result > 0)
-        result = 3;
-      else
-        result = 4;
-    }
-    return result;
-}
-
-void input_eastegg(void)
-{
-    short allow;
-    unsigned short state;
-    // Maintain the FECKOFF cheat
-    allow = (lbKeyOn[KC_LSHIFT] != 0);
-    state = input_eastegg_keycodes(&game.eastegg01_cntr,allow,&eastegg_feckoff_codes);
-    if ((state == 2) || (state == 3))
-      play_non_3d_sample(60);
-    // Maintain the JLW cheat
-    if ((game.flags_font & FFlg_AlexCheat) != 0)
-    {
-      allow = (lbKeyOn[KC_LSHIFT]) && (lbKeyOn[KC_RSHIFT]);
-      state = input_eastegg_keycodes(&game.eastegg02_cntr,allow,&eastegg_jlw_codes);
-      if ((state == 1) || (state == 2)  || (state == 3))
-        play_non_3d_sample(159);
-    }
-    // Maintain the SKEKSIS cheat
-    allow = (lbKeyOn[KC_LSHIFT] != 0);
-    state = input_eastegg_keycodes(&eastegg_skeksis_cntr,allow,&eastegg_skeksis_codes);
-    if (state == 3)
-      output_message(SMsg_PantsTooTight, 0, true);
 }
 
 void init_messages(void)

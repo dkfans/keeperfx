@@ -148,6 +148,7 @@ extern "C" {
 typedef long PlayerNumber;
 typedef unsigned char ThingClass;
 typedef unsigned char ThingModel;
+typedef unsigned short CrtrStateId;
 
 
 struct Coord2d {

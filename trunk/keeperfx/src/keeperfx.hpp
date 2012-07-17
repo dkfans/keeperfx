@@ -149,11 +149,6 @@ struct JontySpr;
      unsigned char Data4[8];
 };*/
 
-struct KeycodeString {
-    TbKeyCode keys[LINEMSG_SIZE];
-    long length;
-};
-
 struct StartupParameters {
     LevelNumber selected_level_number;
     unsigned char no_intro;
@@ -280,11 +275,6 @@ struct ManfctrConfig { // sizeof=0x14
   int shots;
   int shots_delay;
   long selling_value;
-};
-
-struct KeyToStringInit { // sizeof = 5
-  unsigned char chr;
-  long str_idx;
 };
 
 struct Event { // sizeof=0x15
@@ -682,15 +672,11 @@ extern unsigned short const player_state_to_spell[];
 extern struct RoomInfo room_info[];
 extern const struct Around around[];
 extern struct StartupParameters start_params;
-extern struct KeycodeString eastegg_feckoff_codes;
-extern struct KeycodeString eastegg_jlw_codes;
-extern struct KeycodeString eastegg_skeksis_codes;
 
 //Functions - exported by the DLL
 DLLIMPORT int __stdcall _DK_LbErrorLogSetup(char *directory, char *filename, unsigned char flag);
 DLLIMPORT void _DK_set_cpu_mode(int mode);
 DLLIMPORT int _DK_setup_heaps(void);
-DLLIMPORT void _DK_input_eastegg(void);
 DLLIMPORT void _DK_update(void);
 DLLIMPORT void _DK_wait_at_frontend(void);
 DLLIMPORT void _DK_delete_all_structures(void);
@@ -727,8 +713,6 @@ DLLIMPORT extern struct TbLoadFiles _DK_frontstory_load_files[4];
 #define frontstory_load_files _DK_frontstory_load_files
 DLLIMPORT extern struct TbLoadFiles _DK_netmap_flag_load_files[7];
 #define netmap_flag_load_files _DK_netmap_flag_load_files
-DLLIMPORT extern int _DK_fe_high_score_table_from_main_menu;
-#define fe_high_score_table_from_main_menu _DK_fe_high_score_table_from_main_menu
 DLLIMPORT extern long _DK_define_key_scroll_offset;
 #define define_key_scroll_offset _DK_define_key_scroll_offset
 DLLIMPORT extern struct TbSetupSprite _DK_frontstory_setup_sprites[2];
@@ -759,8 +743,6 @@ DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 #define door_to_object _DK_door_to_object
 DLLIMPORT extern unsigned short _DK_specials_text[10];
 #define specials_text _DK_specials_text
-DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
-#define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
 DLLIMPORT extern long _DK_pointer_x;
 #define pointer_x _DK_pointer_x
 DLLIMPORT extern long _DK_pointer_y;
@@ -855,8 +837,6 @@ DLLIMPORT long _DK_heap_size;
 #define heap_size _DK_heap_size
 DLLIMPORT unsigned char *_DK_heap;
 #define heap _DK_heap
-DLLIMPORT long _DK_key_to_string[256];
-#define key_to_string _DK_key_to_string
 DLLIMPORT struct InitEffect _DK_effect_info[];
 #define effect_info _DK_effect_info
 DLLIMPORT unsigned char _DK_temp_pal[768];
