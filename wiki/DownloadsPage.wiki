@@ -1,0 +1,11 @@
+#summary One-sentence summary of this page.
+
+= Where to download KeeperFX =
+
+See <a href="http://keeper.lubie.org/html/dk_keeperfx_dwnld.php">KeeperFX download page</a> on DK Maps & Tools database.
+
+What you can find there:
+  * Full version of the game
+  * Nightly builds, in form of patches
+
+Note that you need original Dungeon Keeper CD to install KeeperFX.
