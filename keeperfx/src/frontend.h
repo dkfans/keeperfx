@@ -69,11 +69,15 @@ enum FrontendMenuState {
   FeSt_LEVEL_STATS        = 17,
   FeSt_HIGH_SCORES        = 18,
   FeSt_TORTURE            = 19,
+  FeSt_UNKNOWN20          = 20,
   FeSt_OUTRO              = 21,
+  FeSt_UNKNOWN22          = 22,
+  FeSt_UNKNOWN23          = 23,
   FeSt_NETLAND_VIEW       = 24,
   FeSt_PACKET_DEMO        = 25,
   FeSt_FEDEFINE_KEYS      = 26,
   FeSt_FEOPTIONS          = 27,
+  FeSt_UNKNOWN28          = 28,
   FeSt_STORY_BIRTHDAY     = 29,
   FeSt_LEVEL_SELECT       = 30,
   FeSt_CAMPAIGN_SELECT    = 31,
@@ -87,12 +91,6 @@ struct GuiButton;
 struct DemoItem { //sizeof = 5
     unsigned char numfield_0;
     const char *fname;
-};
-
-struct StatsData { // sizeof = 12
-  unsigned long field_0;
-  void *field_4;
-  void *field_8;
 };
 
 struct NetMessage { // sizeof = 0x41
@@ -125,7 +123,6 @@ DLLIMPORT struct GuiButtonInit _DK_frontend_net_start_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_frontend_net_modem_buttons[37];
 DLLIMPORT struct GuiButtonInit _DK_frontend_net_serial_buttons[22];
 DLLIMPORT struct GuiButtonInit _DK_frontend_statistics_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_high_score_score_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_autopilot_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_frontend_define_keys_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_frontend_option_buttons[];
@@ -190,12 +187,6 @@ DLLIMPORT extern int _DK_frontend_menu_state;
 #define frontend_menu_state _DK_frontend_menu_state
 DLLIMPORT extern int _DK_load_game_scroll_offset;
 #define load_game_scroll_offset _DK_load_game_scroll_offset
-DLLIMPORT extern long _DK_high_score_entry_input_active;
-#define high_score_entry_input_active _DK_high_score_entry_input_active
-DLLIMPORT extern long _DK_high_score_entry_index;
-#define high_score_entry_index _DK_high_score_entry_index
-DLLIMPORT extern char _DK_high_score_entry[64];
-#define high_score_entry _DK_high_score_entry
 DLLIMPORT unsigned char _DK_video_gamma_correction;
 #define video_gamma_correction _DK_video_gamma_correction
 
@@ -254,12 +245,6 @@ DLLIMPORT extern struct TbSprite *_DK_end_port_sprites;
 DLLIMPORT extern unsigned long _DK_port_sprite_data;
 #define port_sprite_data _DK_port_sprite_data
 
-DLLIMPORT extern struct StatsData _DK_scrolling_stats_data[];
-#define scrolling_stats_data _DK_scrolling_stats_data
-DLLIMPORT extern struct LevelStats _DK_frontstats_data;
-#define frontstats_data _DK_frontstats_data
-DLLIMPORT extern TbClockMSec _DK_frontstats_timer;
-#define frontstats_timer _DK_frontstats_timer
 DLLIMPORT extern unsigned long _DK_playing_bad_descriptive_speech;
 #define playing_bad_descriptive_speech _DK_playing_bad_descriptive_speech
 DLLIMPORT extern unsigned long _DK_playing_good_descriptive_speech;
@@ -323,17 +308,10 @@ void frontend_continue_game_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn);
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn);
-void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn);
 void maintain_loadsave(struct GuiButton *gbtn);
 void gui_quit_game(struct GuiButton *gbtn);
 void gui_area_slider(struct GuiButton *gbtn);
 void frontend_draw_icon(struct GuiButton *gbtn);
-void frontstats_draw_main_stats(struct GuiButton *gbtn);
-void frontstats_draw_scrolling_stats(struct GuiButton *gbtn);
-void frontstats_leave(struct GuiButton *gbtn);
-void frontend_draw_high_score_table(struct GuiButton *gbtn);
-void frontend_quit_high_score_table(struct GuiButton *gbtn);
-void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn);
 void frontend_draw_error_text_box(struct GuiButton *gbtn);
 void frontend_maintain_error_text_box(struct GuiButton *gbtn);
 short is_toggleable_menu(short mnu_idx);
@@ -357,9 +335,6 @@ void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn);
 int frontend_load_data(void);
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long a2, long a3, long a4);
 TbBool frontend_should_all_players_quit(void);
-void frontstats_set_timer(void);
-TbBool frontend_high_score_table_input(void);
-void frontstats_update(void);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
 void frontend_draw_text(struct GuiButton *gbtn);
 void frontend_change_state(struct GuiButton *gbtn);
@@ -415,7 +390,6 @@ void reinit_all_menus(void);
 void gui_set_autopilot(struct GuiButton *gbtn);
 
 int frontend_set_state(long nstate);
-void frontstats_initialise(void);
 int get_startup_menu_state(void);
 void frontend_input(void);
 void frontend_update(short *finish_menu);
