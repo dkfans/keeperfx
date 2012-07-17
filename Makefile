@@ -138,8 +138,11 @@ obj/engine_lenses.o \
 obj/engine_redraw.o \
 obj/engine_render.o \
 obj/front_credits.o \
+obj/front_easter.o \
+obj/front_highscore.o \
 obj/front_input.o \
 obj/front_landview.o \
+obj/front_lvlstats.o \
 obj/front_network.o \
 obj/front_simple.o \
 obj/front_torture.o \

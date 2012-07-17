@@ -207,7 +207,6 @@ enum CreatureStateTypes {
 struct Thing;
 struct Room;
 
-typedef unsigned short CrtrStateId;
 typedef short (*CreatureStateFunc1)(struct Thing *);
 typedef char (*CreatureStateFunc2)(struct Thing *);
 typedef long (*CreatureStateFunc3)(struct Thing *);

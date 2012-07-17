@@ -35,6 +35,7 @@
 #include "gui_tooltips.h"
 #include "power_hand.h"
 #include "engine_render.h"
+#include "front_easter.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
 #include "vidmode.h"
@@ -381,117 +382,6 @@ void redraw_creature_view(void)
     message_draw();
     gui_draw_all_boxes();
     draw_tooltip();
-}
-
-/**
- * Strange name to hide easter eggs ;). Displays easter egg messages on screen.
- */
-void draw_sound_stuff(void)
-{
-  char *text;
-  static long px[2]={0,0},py[2]={0,0};
-  static long vx[2]={0,0},vy[2]={0,0};
-  long i,k;
-  SYNCDBG(5,"Starting");
-  LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-  if (eastegg_skeksis_cntr >= eastegg_skeksis_codes.length)
-  {
-      unsigned char pos;
-      eastegg_skeksis_cntr++;
-      LbTextSetFont(winfont);
-      text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
-      lbDisplay.DrawFlags = 0x40;
-      for (i=0; i<30; i+=2)
-      {
-        pos = game.play_gameturn - i;
-        lbDisplay.DrawColour = pos;
-        LbTextDraw((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
-          (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, text);
-      }
-      set_flag_word(&lbDisplay.DrawFlags,0x0040,false);
-      pos=game.play_gameturn;
-      LbTextDraw((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
-        (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, text);
-      if (eastegg_skeksis_cntr >= 255)
-        eastegg_skeksis_cntr = 0;
-  }
-  //_DK_draw_sound_stuff();
-
-  if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
-  {
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= 0xFFBFu;
-    LbTextSetFont(winfont);
-    i = 0;
-    text = buf_sprintf("Simon says Hi to everyone he knows...");
-    px[i] += vx[i];
-    if (px[i] < 0)
-    {
-      px[i] = 0;
-      vx[i] = -vx[i];
-    }
-    py[i] += vy[i];
-    if (py[i] < 0)
-    {
-      py[i] = 0;
-      vy[i] = -vy[i];
-    }
-    k = pixel_size*LbTextStringWidth(text);
-    if (px[i]+k  >= MyScreenWidth)
-    {
-      vx[i] = -vx[i];
-      px[i] = MyScreenWidth-k-1;
-    }
-    k = pixel_size*LbTextStringHeight(text);
-    if (py[i]+k >= MyScreenHeight)
-    {
-      vy[i] = -vy[i];
-      py[i] = MyScreenHeight-k-1;
-    }
-    if (LbScreenIsLocked())
-    {
-      LbTextDraw(px[i]/pixel_size, py[i]/pixel_size, text);
-    }
-    play_non_3d_sample_no_overlap(90);
-  }
-  if ((game.flags_font & FFlg_AlexCheat) == 0)
-    return;
-
-  if (game.eastegg02_cntr >= eastegg_jlw_codes.length)
-  {
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= 0xFFBFu;
-    LbTextSetFont(winfont);
-    i = 1;
-    text = buf_sprintf("Alex, hopefully lying on a beach with Jo, says Hi");
-    px[i] += vx[i];
-    if (px[i] < 0)
-    {
-      px[i] = 0;
-      vx[i] = -vx[i];
-    }
-    py[i] += vy[i];
-    if (py[i] < 0)
-    {
-      py[i] = 0;
-      vy[i] = -vy[i];
-    }
-    k = pixel_size * LbTextStringWidth(text);
-    if (px[i]+k >= MyScreenWidth)
-    {
-      vx[i] = -vx[i];
-      px[i] = MyScreenWidth-k-1;
-    }
-    k = pixel_size * LbTextStringHeight(text);
-    if (py[i]+k >= MyScreenHeight)
-    {
-      vy[i] = -vy[i];
-      py[i] = MyScreenHeight-k-1;
-    }
-    if (LbScreenIsLocked())
-      LbTextDraw(px[i]/pixel_size, py[i]/pixel_size, text);
-    play_non_3d_sample_no_overlap(90);
-  }
 }
 
 void smooth_screen_area(unsigned char *scrbuf, long x, long y, long w, long h, long scanln)

@@ -30,6 +30,8 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_landview.h"
+#include "front_highscore.h"
+#include "front_lvlstats.h"
 #include "lens_api.h"
 #include "gui_soundmsgs.h"
 
