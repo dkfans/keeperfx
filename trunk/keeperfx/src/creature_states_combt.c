@@ -60,16 +60,16 @@ DLLIMPORT long _DK_check_for_valid_combat(struct Thing *thing, struct Thing *enm
 DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp);
 DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long a4);
 DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long a4);
-DLLIMPORT long _DK_creature_can_have_combat_with_creature(const struct Thing *fighter, const struct Thing *enemy, long a2, long a4, long a5);
-DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, long dist);
-DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long enemy);
-DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long enemy);
-DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long enemy);
-DLLIMPORT long _DK_jonty_creature_can_see_thing_including_lava_check(struct Thing * creature, struct Thing * thing);
-DLLIMPORT long _DK_add_ranged_attacker(struct Thing *fighter, struct Thing *enemy);
-DLLIMPORT long _DK_add_melee_attacker(struct Thing *fighter, struct Thing *enemy);
+DLLIMPORT long _DK_creature_can_have_combat_with_creature(const struct Thing *fighter, const struct Thing *enmtng, long a2, long a4, long a5);
+DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fighter, struct Thing *enmtng, long dist);
+DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long enmtng);
+DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long enmtng);
+DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long enmtng);
+DLLIMPORT long _DK_jonty_creature_can_see_thing_including_lava_check(struct Thing * creatng, struct Thing * thing);
+DLLIMPORT long _DK_add_ranged_attacker(struct Thing *fighter, struct Thing *enmtng);
+DLLIMPORT long _DK_add_melee_attacker(struct Thing *fighter, struct Thing *enmtng);
 DLLIMPORT long _DK_creature_has_ranged_weapon(struct Thing *thing);
-DLLIMPORT void _DK_battle_add(struct Thing *fighter, struct Thing *enemy);
+DLLIMPORT void _DK_battle_add(struct Thing *fighter, struct Thing *enmtng);
 DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsigned char combat_kind, unsigned char a4, long a5);
 DLLIMPORT void _DK_remove_thing_from_battle_list(struct Thing *thing);
 DLLIMPORT void _DK_insert_thing_in_battle_list(struct Thing *thing, unsigned short a2);
@@ -77,17 +77,20 @@ DLLIMPORT void _DK_cleanup_battle(unsigned short a1);
 DLLIMPORT long _DK_check_for_better_combat(struct Thing *thing);
 DLLIMPORT long _DK_check_for_possible_combat(struct Thing *crtng, struct Thing **battltng);
 DLLIMPORT long _DK_creature_look_for_combat(struct Thing *thing);
-DLLIMPORT long _DK_waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, long a2);
-DLLIMPORT void _DK_remove_melee_attacker(struct Thing *fighter, struct Thing *enemy);
-DLLIMPORT void _DK_remove_ranged_attacker(struct Thing *fighter, struct Thing *enemy);
+DLLIMPORT long _DK_waiting_combat_move(struct Thing *fighter, struct Thing *enmtng, long a1, long a2);
+DLLIMPORT void _DK_remove_melee_attacker(struct Thing *fighter, struct Thing *enmtng);
+DLLIMPORT void _DK_remove_ranged_attacker(struct Thing *fighter, struct Thing *enmtng);
 DLLIMPORT void _DK_remove_waiting_attacker(struct Thing *fighter);
 DLLIMPORT void _DK_battle_remove(struct Thing *fighter);
-DLLIMPORT long _DK_creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *enemy, long combat_kind);
-DLLIMPORT long _DK_change_creature_with_existing_attacker(struct Thing *fighter, struct Thing *enemy, long combat_kind);
+DLLIMPORT long _DK_creature_has_spare_slot_for_combat(struct Thing *fighter, struct Thing *enmtng, long combat_kind);
+DLLIMPORT long _DK_change_creature_with_existing_attacker(struct Thing *fighter, struct Thing *enmtng, long combat_kind);
 DLLIMPORT void _DK_cleanup_battle_leftovers(struct Thing *thing);
 DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
 DLLIMPORT long _DK_get_combat_score(const struct Thing *figtng, const struct Thing *outenmtng, long outscore, long a4);
 DLLIMPORT long _DK_check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, unsigned long *outscore);
+DLLIMPORT long _DK_line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng);
+DLLIMPORT long _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng);
+DLLIMPORT long _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *frpos, const struct Coord3d *topos, long plyr_idx);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -102,17 +105,80 @@ const CombatState combat_state[] = {
 #endif
 /******************************************************************************/
 
-long jonty_creature_can_see_thing_including_lava_check(struct Thing * creature, struct Thing * thing)
+long line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng)
 {
-    return _DK_jonty_creature_can_see_thing_including_lava_check(creature, thing);
+    return _DK_line_of_sight_3d_ignoring_specific_door(frpos, topos, doortng);
 }
 
-long creature_can_see_combat_path(struct Thing * creature, struct Thing * enemy, long dist)
+long jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng)
+{
+    return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(frpos, topos, doortng);
+}
+
+long jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *frpos, const struct Coord3d *topos, long plyr_idx)
+{
+    return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(frpos, topos, plyr_idx);
+}
+
+long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
+{
+    const struct Coord3d *srcpos;
+    struct Coord3d pos1;
+    struct Coord3d pos2;
+    long result;
+    //return _DK_jonty_creature_can_see_thing_including_lava_check(creatng, thing);
+    srcpos = &creatng->mappos;
+    pos1.x.val = srcpos->x.val;
+    pos1.y.val = srcpos->y.val;
+    pos1.z.val = srcpos->z.val;
+    pos2.x.val = thing->mappos.x.val;
+    pos2.y.val = thing->mappos.y.val;
+    pos2.z.val = thing->mappos.z.val;
+    pos1.z.val += game.creature_stats[creatng->model].eye_height;
+    if (thing->class_id == 9)
+    {
+      if ( !creature_can_travel_over_lava(creatng) && !lava_at_position(srcpos) )
+      {
+        result = jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing);
+        if ( result <= 0 )
+        {
+          pos2.z.val += thing->field_58;
+          result = jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing);
+        }
+        return result;
+      }
+      if ( line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing) )
+        return 1;
+      pos2.z.val += thing->field_58;
+      if ( line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing) )
+        return 1;
+      return 0;
+    }
+    if ( creature_can_travel_over_lava(creatng) || lava_at_position(srcpos) )
+    {
+      if ( line_of_sight_3d(&pos1, &pos2) )
+        return 1;
+      pos2.z.val += thing->field_58;
+      if ( line_of_sight_3d(&pos1, &pos2) )
+        return 1;
+      return 0;
+    }
+    result = jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner);
+    if (result <= 0)
+    {
+        pos2.z.val += thing->field_58;
+        result = jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner);
+    }
+    return result;
+
+}
+
+long creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist)
 {
     struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creature);
+    crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->visual_range << 8) >= dist) {
-        return jonty_creature_can_see_thing_including_lava_check(creature, enemy);
+        return jonty_creature_can_see_thing_including_lava_check(creatng, enmtng);
     }
 
     return 0;

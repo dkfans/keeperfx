@@ -24,6 +24,7 @@
 #include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -41,9 +42,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_at_research_room(struct Thing *thing);
-DLLIMPORT long _DK_process_research_function(struct Thing *thing);
-DLLIMPORT short _DK_researching(struct Thing *thing);
+DLLIMPORT short _DK_at_research_room(struct Thing *creatng);
+DLLIMPORT long _DK_process_research_function(struct Thing *creatng);
+DLLIMPORT short _DK_researching(struct Thing *creatng);
 DLLIMPORT void _DK_force_complete_current_research(long plyr_idx);
 DLLIMPORT long _DK_get_next_research_item(struct Dungeon *dungeon);
 /******************************************************************************/
@@ -212,9 +213,292 @@ TbBool force_complete_current_research(long plyr_idx)
     return false;
 }
 
+/**
+ * Returns if the given job is creature's primary or secondary job.
+ * @param thing
+ * @param job_kind
+ * @return
+ */
+long creature_has_job(struct Thing *thing, unsigned short job_kind)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    return (crstat->job_primary & job_kind) || (job_kind & crstat->job_secondary);
+}
+
+long get_best_quick_range_instance_to_use(struct Thing *thing)
+{
+    if (creature_instance_is_available(thing, 5)
+        && creature_instance_has_reset(thing, 5))
+    {
+        return 5;
+    } else
+    if (creature_instance_is_available(thing, 4)
+        && creature_instance_has_reset(thing, 4))
+    {
+        return 4;
+    } else
+    if (creature_instance_is_available(thing, 19)
+        && creature_instance_has_reset(thing, 19))
+    {
+        return 19;
+    } else
+    if (creature_instance_is_available(thing, 16)
+        && creature_instance_has_reset(thing, 16))
+    {
+        return 20;
+    } else
+    if (creature_instance_is_available(thing, 9)
+        && creature_instance_has_reset(thing, 9))
+    {
+        return 9;
+    } else
+    if (creature_instance_is_available(thing, 27)
+        && creature_instance_has_reset(thing, 27))
+    {
+        return 27;
+    } else
+    if (creature_instance_is_available(thing, 26)
+        && creature_instance_has_reset(thing, 26))
+    {
+        return 26;
+    } else
+    if (creature_instance_is_available(thing, 12)
+        && creature_instance_has_reset(thing, 12))
+    {
+        return 12;
+    } else
+    if (creature_instance_is_available(thing, 5))
+    {
+        return -5;
+    } else
+    if (creature_instance_is_available(thing, 4))
+    {
+        return -4;
+    } else
+    if (creature_instance_is_available(thing, 19))
+    {
+        return -19;
+    } else
+    if (creature_instance_is_available(thing, 20))
+    {
+        return -20;
+    } else
+    if (creature_instance_is_available(thing, 9))
+    {
+        return -9;
+    } else
+    if (creature_instance_is_available(thing, 27))
+    {
+        return -27;
+    } else
+    if (creature_instance_is_available(thing, 26)) {
+        return -26;
+    } else
+    if (creature_instance_is_available(thing, 12)) {
+        return -12;
+    } else
+    {
+        return 0;
+    }
+}
+
+/**
+ * Finds a creature passing by a subtile and having job different than given one, which has direct combat sight for given creature.
+ * If such creature is not found, the function returns false and gives closest creature passing by a subtile and having job different than given one.
+ * @param creatng The creature which should have combat sight of the target.
+ * @param job_kind The job target should'n be performing.
+ * @param slb_x Subtile on which target creature is searched, X coord.
+ * @param slb_y Subtile on which target creature is searched, Y coord.
+ * @param found_dist Distance to the target creature found.
+ * @param found_thing The target creature found, either closest one or one with combat sight.
+ * @return True if a target with combat sight was found. False if closest creature was found, or no creature met the conditions.
+ * @note If no creature met the conditions, output variables are not initialized. Therefore, they should be initialized before calling this function.
+ */
+TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct Thing *creatng, long job_kind, MapSubtlCoord slb_x, MapSubtlCoord slb_y, unsigned long *found_dist, struct Thing **found_thing)
+{
+    struct Map *map;
+    long endstl_x,endstl_y;
+    long stl_x,stl_y;
+    long dist;
+    endstl_x = 3*slb_x+3;
+    endstl_y = 3*slb_y+3;
+    for (stl_y = 3*slb_y; stl_y < endstl_y; stl_y++)
+    {
+        for (stl_x = 3*slb_x; stl_x < endstl_x; stl_x++)
+        {
+            struct Thing *thing;
+            long i;
+            unsigned long k;
+            map = get_map_block_at(stl_x,stl_y);
+            k = 0;
+            i = get_mapwho_thing_index(map);
+            while (i != 0)
+            {
+                thing = thing_get(i);
+                if (thing_is_invalid(thing))
+                {
+                    ERRORLOG("Jump to invalid thing detected");
+                    break;
+                }
+                i = thing->field_2;
+                // Per thing code start
+                if ( thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind) )
+                {
+                    dist = get_combat_distance(creatng, thing);
+                    // If we have combat sight - we want that target, don't search anymore
+                    if ( creature_can_see_combat_path(creatng, thing, dist) > 0 )
+                    {
+                        *found_dist = dist;
+                        *found_thing = thing;
+                        return true;
+                    }
+                    // No combat sight - but maybe it's at least closer than previous one
+                    if ( *found_dist > dist )
+                    {
+                        *found_dist = dist;
+                        *found_thing = thing;
+                    }
+                }
+                // Per thing code end
+                k++;
+                if (k > THINGS_COUNT)
+                {
+                    ERRORLOG("Infinite loop detected when sweeping things list");
+                    break;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Finds a creature passing by a room and having job different than given one, which has direct combat sight for given creature.
+ * If such creature is not found, the function returns false and gives closest creature passing by a room and having job different than given one.
+ * @param creatng The creature which should have combat sight of the target.
+ * @param job_kind The job target should'n be performing.
+ * @param room The room on which target creature is searched.
+ * @param found_dist Distance to the target creature found.
+ * @param found_thing The target creature found, either closest one or one with combat sight.
+ * @return True if a target with combat sight was found. False if closest creature was found, or no creature met the conditions.
+ * @note If no creature met the conditions, output variables are not initialized. Therefore, they should be initialized before calling this function.
+ */
+TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct Thing *creatng, long job_kind, const struct Room *room, unsigned long *found_dist, struct Thing **found_thing)
+{
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSubtlCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        // Per-slab code
+        if (find_combat_target_passing_by_slab_but_having_unrelated_job(creatng, job_kind, slb_x, slb_y, found_dist, found_thing)) {
+            return true;
+        }
+        // Per-slab code ends
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+    // If found a creature, but it's not on sight
+    return false;
+}
+
+/**
+ * Processes job stress of a researcher.
+ * Creatures which aren't performing their primary jobs can be affected by job stress.
+ * Job stress causes them to attack other creatures walking through the same room
+ * which aren't performing the same job (ie. are just passing by).
+ * @param creatng The thing being affected by job stress.
+ * @param room The room where target creature should be searched for.
+ * @return
+ */
+TbBool process_research_stress(struct Thing *creatng, struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    if ( (crstat->job_stress <= 0) || (cctrl->instance_id != 0) ) {
+        return false;
+    }
+    if (((game.play_gameturn + creatng->index) % crstat->job_stress) == 0) {
+        return false;
+    }
+    if (crstat->job_primary != Job_RESEARCH) {
+        return false;
+    }
+    long inst_use;
+    inst_use = get_best_quick_range_instance_to_use(creatng);
+    if (inst_use <= 0) {
+        return false;
+    }
+    // Find a target
+    unsigned long combt_dist;
+    struct Thing *combt_thing;
+    combt_dist = LONG_MAX;
+    combt_thing = INVALID_THING;
+    if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, Job_RESEARCH, room, &combt_dist, &combt_thing))
+    {
+        struct CreatureControl *combctrl;
+        set_creature_instance(creatng, inst_use, 0, combt_thing->index, 0);
+        external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
+        combctrl = creature_control_get_from_thing(combt_thing);
+        combctrl->word_9A = room->index;
+        anger_apply_anger_to_creature(creatng, crstat->annoy_job_stress, 4, 1);
+        return true;
+    }
+    if (thing_is_invalid(combt_thing)) {
+        return false;
+    }
+    if ( !setup_person_move_to_position(creatng, combt_thing->mappos.x.stl.num, combt_thing->mappos.y.stl.num, 0) ) {
+        return false;
+    }
+    creatng->continue_state = CrSt_Researching;
+    cctrl->field_82 = 0;
+    cctrl->byte_9A = 3;
+    return true;
+}
+
 long process_research_function(struct Thing *thing)
 {
-  return _DK_process_research_function(thing);
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Room *room;
+    //return _DK_process_research_function(thing);
+    dungeon = get_dungeon(thing->owner);
+    if (dungeon_invalid(dungeon)) {
+        set_start_state(thing);
+        return 1;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    if ( (crstat->research_value <= 0) || (dungeon->field_F78 < 0) ) {
+        set_start_state(thing);
+        return 1;
+    }
+    room = room_get(cctrl->work_room_id);
+    if ( !room_still_valid_as_type_for_thing(room, RoK_LIBRARY, thing) ) {
+      set_start_state(thing);
+      return 1;
+    }
+    long work_value;
+    work_value = compute_creature_work_value(crstat->research_value<<8,room->efficiency,cctrl->explevel);
+    work_value = process_work_speed_on_work_value(thing, work_value);
+    SYNCDBG(19,"The %s index %d produced %ld research points",thing_model_name(thing),(int)thing->index,work_value);
+    dungeon->total_research_points += work_value;
+    dungeon->field_1193 += work_value;
+    process_research_stress(thing, room);
+    return 0;
 }
 
 short researching(struct Thing *thing)

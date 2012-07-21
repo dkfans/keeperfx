@@ -1704,6 +1704,9 @@
  0001:00079340       get_2d_distance
  0001:0005D1F0       get_angle_xy_to
  0001:00079560       line_of_sight_3d
+ 0001:000799C0       line_of_sight_3d_ignoring_specific_door
+ 0001:0007A580       jonty_line_of_sight_3d_including_lava_check_ignoring_own_door
+ 0001:0007AD60       jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door
  0001:0008A6C0       draw_lightning
  0001:0008AAD0       draw_flame_breath
  0001:0005D230       get_angle_yz_to
