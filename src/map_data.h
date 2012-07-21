@@ -95,6 +95,7 @@ MapSubtlCoord slab_starting_subtile(MapSubtlCoord stl_v);
 MapSubtlCoord slab_ending_subtile(MapSubtlCoord stl_v);
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool lava_at_position(const struct Coord3d *pos);
 TbBool subtile_is_player_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 

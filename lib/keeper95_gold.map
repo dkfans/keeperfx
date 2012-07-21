@@ -675,9 +675,12 @@
  0001:000791A0       can_drop_thing_here
  0001:00079340       get_2d_distance
  0001:00079560       line_of_sight_3d
+ 0001:000799C0       line_of_sight_3d_ignoring_specific_door
  0001:00079F30       project_point_to_wall_on_angle
  0001:0007A420       thing_covers_same_blocks_in_two_positions
  0001:0007A530       get_packet_save_checksum
+ 0001:0007A580       jonty_line_of_sight_3d_including_lava_check_ignoring_own_door
+ 0001:0007AD60       jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door
  0001:0007B6C0       update_navigation_triangulation
  0001:0007B7F0       init_navigation
  0001:0007B860       creature_follow_route_to_using_gates

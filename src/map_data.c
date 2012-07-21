@@ -541,6 +541,13 @@ TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return ((navmap & 0x10) != 0);
 }
 
+TbBool lava_at_position(const struct Coord3d *pos)
+{
+    unsigned long navmap;
+    navmap = get_navigation_map(pos->x.stl.num, pos->y.stl.num);
+    return ((navmap & 0x10) != 0);
+}
+
 /**
  * Returns if given subtile contains room belonging to given player.
  * @param plyr_idx The player the tile shall belong to.

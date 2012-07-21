@@ -45,6 +45,7 @@ long compute_creature_max_pay(long base_pay,unsigned short crlevel);
 long compute_creature_max_health(long base_health,unsigned short crlevel);
 long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel);
 long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
+long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel);
 long compute_creature_max_sparameter(long base_param,unsigned short crlevel);
 long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
 long compute_creature_max_defense(long base_param,unsigned short crlevel);

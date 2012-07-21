@@ -314,6 +314,28 @@ long compute_creature_attack_range(long base_param,long luck,unsigned short crle
   return saturate_set_signed(max_param, 16);
 }
 
+/**
+ * Computes work value, taking creature level into account.
+ * The job value is an efficiency of doing a job by a creature.
+ * @param base_param Base value of the parameter.
+ * @param efficiency Room efficiency, scaled 0..255.
+ * @param crlevel Creature level.
+ */
+long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel)
+{
+  long max_param;
+  if (base_param < -100000)
+      base_param = -100000;
+  if (base_param > 100000)
+      base_param = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+      crlevel = CREATURE_MAX_LEVEL-1;
+  if (efficiency > 1024)
+      efficiency = 1024;
+  max_param = base_param + (CREATURE_JOB_VALUE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+  return (max_param * efficiency)/256;
+}
+
 long compute_controlled_speed_increase(long prev_speed, long speed_limit)
 {
     long speed;

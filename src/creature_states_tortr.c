@@ -157,7 +157,7 @@ short kinky_torturing(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ((room->kind != RoK_TORTURE) || (cctrl->work_room_id != room->index))
+    if (!room_still_valid_as_type_for_thing(room, RoK_TORTURE, thing) || (cctrl->work_room_id != room->index))
     {
         WARNLOG("Room %s index %d is not the one %s worked in",room_code_name(room->kind),(int)room->index,thing_model_name(thing));
         set_start_state(thing);

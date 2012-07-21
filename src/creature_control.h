@@ -38,6 +38,8 @@ extern "C" {
 #define CREATURE_DAMAGE_INCREASE_ON_EXP    20
 /** Percentage of spell range/area of effect increase for every experience level. */
 #define CREATURE_RANGE_INCREASE_ON_EXP     6
+/** Percentage of creature job value increase for every experience level. */
+#define CREATURE_JOB_VALUE_INCREASE_ON_EXP 35
 /** Percentage of creature health increase for every experience level. */
 #define CREATURE_HEALTH_INCREASE_ON_EXP    35
 /** Percentage of creature strength increase for every experience level. */
