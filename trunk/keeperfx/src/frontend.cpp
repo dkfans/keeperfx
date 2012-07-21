@@ -765,9 +765,106 @@ short game_is_busy_doing_gui(void)
   return false;
 }
 
-char get_button_area_input(struct GuiButton *gbtn, int a2)
+char get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
-  return _DK_get_button_area_input(gbtn, a2);
+    char *str;
+    int key,outchar;
+    unsigned int slen;
+    char vischar[8];
+    //return _DK_get_button_area_input(gbtn, a2);
+    strcpy(vischar," ");
+    str = (char *)gbtn->content;
+    slen = strlen(str) - 1;
+    key = lbInkey;
+    if ((lbInkey & 0x80) != 0) {
+        lbKeyOn[lbInkey] = 0;
+        lbInkey = 0;
+        return 0;
+    }
+    if ( (modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]) )
+    {
+        if ( (lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT) ) {
+            lbInkey = 0;
+            return 0;
+        }
+        outchar = lbInkeyToAsciiShift[key];
+    } else
+    {
+        outchar = lbInkeyToAscii[key];
+    }
+    vischar[0] = outchar;
+    if (key == KC_RETURN)
+    {
+        if ( (gbtn->field_2D < 0) || (str[0] != '\0') || (modifiers == -3) )
+        {
+            gbtn->field_1 = 0;
+            (gbtn->click_event)(gbtn);
+            input_button = 0;
+            if ((gbtn->field_0 & 2) != 0)
+            {
+                struct GuiMenu *gmnu;
+                gmnu = get_active_menu(gbtn->gmenu_idx);
+                gmnu->visible = 3;
+                remove_from_menu_stack(gmnu->ident);
+            }
+        }
+    } else
+    if (key == KC_ESCAPE)
+    {
+        strcpy(str, backup_input_field);
+        input_button = 0;
+    } else
+    if (key == KC_BACK)
+    {
+        str[slen-1] = 0;
+        str[slen] = 0;
+    } else
+    if (strlen(str)-1 < abs(gbtn->field_2D)-1)
+    {
+        if (modifiers == -1)
+        {
+            if (!isprint(vischar[0])) {
+                lbKeyOn[key] = 0;
+                lbInkey = '\0';
+                return 1;
+            }
+        } else
+        {
+            if (!isalnum(vischar[0]) && (vischar[0] != ' ')) {
+                lbKeyOn[key] = 0;
+                lbInkey = '\0';
+                return 1;
+            }
+        }
+        char *visptr;
+        char *vistart;
+        int viscntr;
+        signed int vislen;
+        visptr = vischar;
+        viscntr = -1;
+        while (*visptr != 0)
+        {
+            if ( !viscntr )
+                break;
+            visptr++;
+            viscntr--;
+        }
+        vislen = ~viscntr;
+        vistart = &visptr[-vislen];
+        viscntr = -1;
+        visptr = str;
+        while (*visptr != 0)
+        {
+            if ( !viscntr )
+                break;
+            visptr++;
+            viscntr--;
+        }
+        memcpy(visptr - 1, vistart, vislen);
+    }
+    lbKeyOn[key] = 0;
+    lbInkey = '\0';
+    return 1;
 }
 
 int frontend_font_char_width(int fnt_idx,char c)
