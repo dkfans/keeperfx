@@ -765,32 +765,25 @@ short game_is_busy_doing_gui(void)
   return false;
 }
 
-char get_button_area_input(struct GuiButton *gbtn, int modifiers)
+TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
 {
     char *str;
     int key,outchar;
-    unsigned int slen;
-    char vischar[8];
+    TbLocChar vischar[4];
     //return _DK_get_button_area_input(gbtn, a2);
     strcpy(vischar," ");
     str = (char *)gbtn->content;
-    slen = strlen(str) - 1;
     key = lbInkey;
-    if ((lbInkey & 0x80) != 0) {
-        lbKeyOn[lbInkey] = 0;
-        lbInkey = 0;
-        return 0;
-    }
     if ( (modifiers == -1) && (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT]) )
     {
         if ( (lbInkey == KC_LSHIFT) || (lbInkey == KC_RSHIFT) ) {
-            lbInkey = 0;
-            return 0;
+            lbInkey = KC_UNASSIGNED;
+            return false;
         }
-        outchar = lbInkeyToAsciiShift[key];
+        outchar = key_to_ascii(lbInkey, KMod_SHIFT);
     } else
     {
-        outchar = lbInkeyToAscii[key];
+        outchar = key_to_ascii(lbInkey, KMod_NONE);
     }
     vischar[0] = outchar;
     if (key == KC_RETURN)
@@ -800,7 +793,7 @@ char get_button_area_input(struct GuiButton *gbtn, int modifiers)
             gbtn->field_1 = 0;
             (gbtn->click_event)(gbtn);
             input_button = 0;
-            if ((gbtn->field_0 & 2) != 0)
+            if ((gbtn->field_0 & 0x02) != 0)
             {
                 struct GuiMenu *gmnu;
                 gmnu = get_active_menu(gbtn->gmenu_idx);
@@ -810,61 +803,58 @@ char get_button_area_input(struct GuiButton *gbtn, int modifiers)
         }
     } else
     if (key == KC_ESCAPE)
-    {
-        strcpy(str, backup_input_field);
+    { // Stop the input, revert the string to what it was before
+        strncpy(str, backup_input_field, gbtn->field_2D);
         input_button = 0;
+        input_field_pos = 0;
     } else
     if (key == KC_BACK)
-    {
-        str[slen-1] = 0;
-        str[slen] = 0;
+    { // Delete the last char
+        if (input_field_pos > 0) {
+            input_field_pos--;
+            LbLocTextStringDelete(str, input_field_pos, 1);
+        }
     } else
-    if (strlen(str)-1 < abs(gbtn->field_2D)-1)
+    if ((key == KC_HOME) || (key == KC_PGUP))
+    { // move to first char
+        input_field_pos = 0;
+    } else
+    if ((key == KC_END) || (key == KC_PGDOWN))
+    { // move to last char
+        input_field_pos = LbLocTextStringLength(str);
+    } else
+    if (key == KC_LEFT)
+    { // move one char left
+        if (input_field_pos > 0)
+            input_field_pos--;
+    } else
+    if (key == KC_RIGHT)
+    { // move one char left
+        if (input_field_pos < LbLocTextStringLength(str))
+            input_field_pos++;
+    } else
+    if (LbLocTextStringSize(str) < abs(gbtn->field_2D))
     {
+        // Check if we have printable character
         if (modifiers == -1)
         {
             if (!isprint(vischar[0])) {
-                lbKeyOn[key] = 0;
-                lbInkey = '\0';
-                return 1;
+                clear_key_pressed(key);
+                return false;
             }
         } else
         {
             if (!isalnum(vischar[0]) && (vischar[0] != ' ')) {
-                lbKeyOn[key] = 0;
-                lbInkey = '\0';
-                return 1;
+                clear_key_pressed(key);
+                return false;
             }
         }
-        char *visptr;
-        char *vistart;
-        int viscntr;
-        signed int vislen;
-        visptr = vischar;
-        viscntr = -1;
-        while (*visptr != 0)
-        {
-            if ( !viscntr )
-                break;
-            visptr++;
-            viscntr--;
+        if (LbLocTextStringInsert(str, vischar, input_field_pos, gbtn->field_2D) != NULL) {
+            input_field_pos++;
         }
-        vislen = ~viscntr;
-        vistart = &visptr[-vislen];
-        viscntr = -1;
-        visptr = str;
-        while (*visptr != 0)
-        {
-            if ( !viscntr )
-                break;
-            visptr++;
-            viscntr--;
-        }
-        memcpy(visptr - 1, vistart, vislen);
     }
-    lbKeyOn[key] = 0;
-    lbInkey = '\0';
-    return 1;
+    clear_key_pressed(key);
+    return true;
 }
 
 int frontend_font_char_width(int fnt_idx,char c)
@@ -1570,16 +1560,16 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       }
       *s = 0;
       break;
-  case 2:
+  case Lb_CYCLEBTN:
       i = *(unsigned char *)gbtn->content;
       i++;
       if (gbtn->field_2D < i)
-        i = 0;
+          i = 0;
       *(unsigned char *)gbtn->content = i;
       if ((*s!=0) && (callback!=NULL))
       {
-        do_sound_button_click(gbtn);
-        callback(gbtn);
+          do_sound_button_click(gbtn);
+          callback(gbtn);
       }
       *s = 0;
       break;
@@ -1587,7 +1577,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       if ( (char *)gbtn - (char *)s == -2 )
         return;
       break;
-  case 5:
+  case Lb_EDITBTN:
       input_button = gbtn;
       setup_input_field(input_button);
       break;

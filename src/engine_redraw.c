@@ -822,7 +822,7 @@ void redraw_display(void)
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->field_0 & 0x04) != 0)
     {
-        text = buf_sprintf( ">%s_", player->strfield_463);
+        text = buf_sprintf( ">%s_", player->mp_message_text);
         LbTextDraw(148/pixel_size, 8/pixel_size, text);
     }
     if ( draw_spell_cost )
