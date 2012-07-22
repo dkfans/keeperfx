@@ -132,21 +132,28 @@ void draw_button_string(struct GuiButton *gbtn, char *text)
     static unsigned char cursor_type = 0;
     //_DK_draw_button_string(gbtn, text);
     flgmem = lbDisplay.DrawFlags;
-    if ((gbtn->gbtype == 5) && (gbtn == input_button))
+    long cursor_pos = -1;
+    if ((gbtn->gbtype == Lb_EDITBTN) && (gbtn == input_button))
     {
-        const char *cursor_str;
         cursor_type++;
-        if ((cursor_type & 0x02) != 0)
-          cursor_str = " ";
-        else
-          cursor_str = "_";
-        LbStringConcat(text,cursor_str,TEXT_BUFFER_LENGTH);
+        if ((cursor_type & 0x02) == 0)
+          cursor_pos = input_field_pos;
+        LbLocTextStringConcat(text, " ", TEXT_BUFFER_LENGTH);
+        lbDisplay.DrawColour = LbTextGetFontFaceColor();
     }
     LbTextSetJustifyWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size);
     LbTextSetClipWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
         gbtn->width/pixel_size, gbtn->height/pixel_size);
-    lbDisplay.DrawFlags = 0x0100;
-    LbTextDraw(4/pixel_size, ((gbtn->height - text_string_height(text))/2 - 4)/pixel_size, text);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    if (cursor_pos >= 0) {
+        // Mind the order, 'cause inserting makes positions shift
+        LbLocTextStringInsert(text, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
+        LbLocTextStringInsert(text, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
+    }
+    unsigned long w,h;
+    w = 4;
+    h = ((gbtn->height - text_string_height(text))/2 - 4);
+    LbTextDraw(w/pixel_size, h/pixel_size, text);
     LbTextSetJustifyWindow(0/pixel_size, 0/pixel_size, 640/pixel_size);
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);

@@ -24,6 +24,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_string.h"
 #include "bflib_sound.h"
 #include "bflib_keybrd.h"
 
@@ -37,6 +38,7 @@ DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned ch
 // Global variables
 char *gui_strings_data;
 char *gui_strings[STRINGS_MAX+1];
+TbCharCount input_field_pos;
 /******************************************************************************/
 // Functions
 
@@ -73,11 +75,12 @@ void setup_input_field(struct GuiButton *gbtn)
     strncpy(backup_input_field, content, INPUT_FIELD_LEN-1);
     backup_input_field[INPUT_FIELD_LEN-1] = '\0';
     // Check if the text drawn is "UNUSED" in current language; if it is, ignore that string
-    snprintf(text,INPUT_FIELD_LEN-1,"%s",gui_strings[358]); // UNUSED
+    snprintf(text,INPUT_FIELD_LEN-1,"%s",gui_strings[358]); // string says "UNUSED"
     if (strcmp(text, backup_input_field) == 0)
     {
         *content = '\0';
     }
+    input_field_pos = LbLocTextStringLength(content);
 }
 
 /******************************************************************************/

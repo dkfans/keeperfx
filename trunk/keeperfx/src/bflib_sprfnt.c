@@ -34,6 +34,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define DOUBLE_UNDERLINE_BOUND 10
+
 struct AsianFont dbcJapFonts[] = {
   {"font12j.fon", 0, 215136, 0x2284, 0, 12, 0x0C00, 24, 1, 6, 12, 12, 12, 0, 1, 1, 1, 1},
   {"font16j.fon", 0, 286848, 0x2284, 0, 16, 0x1000, 32, 1, 8, 16, 16, 16, 0, 1, 1, 4, 2},
@@ -408,20 +410,28 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
       if (chr == ' ')
       {
         w = len;
-        if ((lbDisplay.DrawFlags & 0x0400) != 0)
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
           h = dbc_char_height(' ');
-          LbDrawHVLine(x, y+h, x + w, y+h, lbDisplay.DrawColour);
+          LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+          if (h > DOUBLE_UNDERLINE_BOUND) {
+              h--;
+              LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+          }
         }
         x += w;
       } else
       if (chr == '\t')
       {
         w = len*(long)lbSpacesPerTab;
-        if ((lbDisplay.DrawFlags & 0x0400) != 0)
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
           h = dbc_char_height(' ');
-          LbDrawHVLine(x, y+h, x + w, y+h, lbDisplay.DrawColour);
+          LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+          if (h > DOUBLE_UNDERLINE_BOUND) {
+              h--;
+              LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+          }
         }
         x += w;
       } else
@@ -444,7 +454,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
           lbDisplay.DrawFlags ^= 0x0002;
           break;
         case 11:
-          lbDisplay.DrawFlags ^= 0x0400;
+          lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
           break;
         case 12:
           lbDisplay.DrawFlags ^= 0x0040;
@@ -469,8 +479,12 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
             else
               colour = lbDisplay.DrawColour;
             dbc_draw_font_sprite_text(&awind, &adraw, x, y, colour, -1, dbc_colour1);
-            if ((lbDisplay.DrawFlags & 0x0400) != 0)
+            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0) {
               LbDrawHVLine(x, y + adraw.field_8, x + adraw.field_C + adraw.bits_width, y + adraw.field_8, lbDisplay.DrawColour);
+              if (adraw.field_8 > DOUBLE_UNDERLINE_BOUND) {
+                  LbDrawHVLine(x, y + adraw.field_8-1, x + adraw.field_C + adraw.bits_width, y + adraw.field_8-1, lbDisplay.DrawColour);
+              }
+            }
             x += adraw.field_C + adraw.bits_width;
             if (x >= awind.width)
               return;
@@ -480,6 +494,14 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
   }
 }
 
+/**
+ * Puts simple text sprites on screen.
+ * @param sbuf
+ * @param ebuf
+ * @param x
+ * @param y
+ * @param len
+ */
 void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, long y, long len)
 {
   const char *c;
@@ -499,29 +521,41 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
           LbSpriteDrawOneColour(x, y, spr, lbDisplay.DrawColour);
         else
           LbSpriteDraw(x, y, spr);
-        if ((lbDisplay.DrawFlags & 0x0400) != 0)
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
           h = LbTextLineHeight();
           LbDrawHVLine(x, y+h, x+spr->SWidth, y+h, lbDisplay.DrawColour);
+          if (h > DOUBLE_UNDERLINE_BOUND) {
+              h--;
+              LbDrawHVLine(x, y+h, x+spr->SWidth, y+h, lbDisplay.DrawColour);
+          }
         }
         x += spr->SWidth;
       }
     } else
     if (chr == ' ')
     {
-      if ((lbDisplay.DrawFlags & 0x0400) != 0)
+      if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
       {
         h = LbTextLineHeight();
         LbDrawHVLine(x, y+h, x+len, y+h, lbDisplay.DrawColour);
+        if (h > DOUBLE_UNDERLINE_BOUND) {
+            h--;
+            LbDrawHVLine(x, y+h, x+len, y+h, lbDisplay.DrawColour);
+        }
       }
       x += len;
     } else
     if (chr == '\t')
     {
-      if ((lbDisplay.DrawFlags & 0x0400) != 0)
+      if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
       {
         h = LbTextLineHeight();
         LbDrawHVLine(x, y+h, x+len*(long)lbSpacesPerTab, y+h, lbDisplay.DrawColour);
+        if (h > DOUBLE_UNDERLINE_BOUND) {
+            h--;
+            LbDrawHVLine(x, y+h, x+len*(long)lbSpacesPerTab, y+h, lbDisplay.DrawColour);
+        }
       }
       x += len*(long)lbSpacesPerTab;
     } else
@@ -529,22 +563,22 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
       switch (chr)
       {
         case 1:
-          lbDisplay.DrawFlags ^= 0x0004;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
           break;
         case 2:
-          lbDisplay.DrawFlags ^= 0x0008;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
           break;
         case 3:
           lbDisplay.DrawFlags ^= 0x0010;
           break;
         case 4:
-          lbDisplay.DrawFlags ^= 0x0001;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_ONECOLOUR;
           break;
         case 5:
           lbDisplay.DrawFlags ^= 0x0002;
           break;
         case 11:
-          lbDisplay.DrawFlags ^= 0x0400;
+          lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
           break;
         case 12:
           lbDisplay.DrawFlags ^= 0x0040;
@@ -642,6 +676,13 @@ long text_string_height(const char *text)
   return nlines * (long)pixel_size * LbTextLineHeight();
 }
 
+/**
+ * Draws a string in the current text window.
+ * @param posx Position of the text, X coord.
+ * @param posy Position of the text, Y coord.
+ * @param text The text to be drawn.
+ * @return
+ */
 TbBool LbTextDraw(int posx, int posy, const char *text)
 {
   TbGraphicsWindow grwnd;
@@ -763,16 +804,16 @@ TbBool LbTextDraw(int posx, int posy, const char *text)
         switch (*ebuf)
         {
         case 6:
-          lbDisplay.DrawFlags ^= 0x0020;
+          lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_LEFT;
           break;
         case 7:
-          lbDisplay.DrawFlags ^= 0x0080;
+          lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_RIGHT;
           break;
         case 8:
-          lbDisplay.DrawFlags ^= 0x0100;
+          lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_CENTER;
           break;
         case 9:
-          lbDisplay.DrawFlags ^= 0x0200;
+          lbDisplay.DrawFlags ^= Lb_TEXT_HALIGN_JUSTIFY;
           break;
         }
       } else
@@ -870,144 +911,202 @@ TbBool change_dbcfont(int nfont)
 
 TbBool LbTextSetFont(const struct TbSprite *font)
 {
-  TbBool result;
-  lbFontPtr = font;
-  result = true;
-  if (dbc_initialized)
-  {
-    result = false;
+    TbBool result;
+    lbFontPtr = font;
+    result = true;
+    if (dbc_initialized)
+    {
+      result = false;
+      dbc_colour0 = LbTextGetFontFaceColor();
+      dbc_colour1 = LbTextGetFontBackColor();
+      if (font == frontend_font[0])
+      {
+        result = change_dbcfont(2);
+      } else
+      if (font == frontend_font[1])
+      {
+        if (lbDisplay.PhysicalScreenWidth < 512)
+          result = change_dbcfont(0);
+        else
+          result = change_dbcfont(1);
+      } else
+      if (font == frontend_font[2])
+      {
+        if (lbDisplay.PhysicalScreenWidth < 512)
+          result = change_dbcfont(0);
+        else
+          result = change_dbcfont(1);
+      } else
+      if (font == frontend_font[3])
+      {
+        if (lbDisplay.PhysicalScreenWidth < 512)
+          result = change_dbcfont(0);
+        else
+          result = change_dbcfont(1);
+      } else
+      if (font == winfont)
+      {
+        if (lbDisplay.PhysicalScreenWidth < 512)
+          result = change_dbcfont(0);
+        else
+          result = change_dbcfont(1);
+      } else
+      if (font == font_sprites)
+      {
+        if (lbDisplay.PhysicalScreenWidth < 512)
+          result = change_dbcfont(0);
+        else
+          result = change_dbcfont(1);
+      } else
+      if (font == frontstory_font)
+      {
+        if (lbDisplay.PhysicalScreenWidth < 512)
+          result = change_dbcfont(0);
+        else
+          result = change_dbcfont(1);
+      } else
+      {
+        if (lbDisplay.PhysicalScreenWidth < 512)
+          result = change_dbcfont(0);
+        else
+          result = change_dbcfont(1);
+      }
+    }
+    return result;
+}
+
+unsigned char LbTextGetFontFaceColor(void)
+{
+    const struct TbSprite *font;
+    font = lbFontPtr;
     if (font == frontend_font[0])
     {
-      dbc_colour0 = 238;
-      dbc_colour1 = 1;
-      result = change_dbcfont(2);
+      return 238;
     } else
     if (font == frontend_font[1])
     {
-      dbc_colour0 = 243;
-      dbc_colour1 = 1;
-      if (lbDisplay.PhysicalScreenWidth < 512)
-        result = change_dbcfont(0);
-      else
-        result = change_dbcfont(1);
+      return 243;
     } else
     if (font == frontend_font[2])
     {
-      dbc_colour0 = 248;
-      dbc_colour1 = 1;
-      if (lbDisplay.PhysicalScreenWidth < 512)
-        result = change_dbcfont(0);
-      else
-        result = change_dbcfont(1);
+      return 248;
     } else
     if (font == frontend_font[3])
     {
-      dbc_colour0 = 119;
-      dbc_colour1 = 1;
-      if (lbDisplay.PhysicalScreenWidth < 512)
-        result = change_dbcfont(0);
-      else
-        result = change_dbcfont(1);
+      return 119;
     } else
     if (font == winfont)
     {
-      dbc_colour0 = 70;
-      dbc_colour1 = 1;
-      if (lbDisplay.PhysicalScreenWidth < 512)
-        result = change_dbcfont(0);
-      else
-        result = change_dbcfont(1);
+      return 70;
     } else
     if (font == font_sprites)
     {
-      dbc_colour0 = 1;
-      dbc_colour1 = 0;
-      if (lbDisplay.PhysicalScreenWidth < 512)
-        result = change_dbcfont(0);
-      else
-        result = change_dbcfont(1);
+      return 1;
     } else
     if (font == frontstory_font)
     {
-      dbc_colour0 = 237;
-      dbc_colour1 = 232;
-      if (lbDisplay.PhysicalScreenWidth < 512)
-        result = change_dbcfont(0);
-      else
-        result = change_dbcfont(1);
+      return 237;
     } else
     {
-      dbc_colour0 = 70;
-      dbc_colour1 = 1;
-      if (lbDisplay.PhysicalScreenWidth < 512)
-        result = change_dbcfont(0);
-      else
-        result = change_dbcfont(1);
+      return 70;
     }
-  }
-  return result;
 }
 
+unsigned char LbTextGetFontBackColor(void)
+{
+    const struct TbSprite *font;
+    font = lbFontPtr;
+    if (font == font_sprites)
+    {
+      return 0;
+    } else
+    if (font == frontstory_font)
+    {
+        return 232;
+    } else
+    {
+        return 1;
+    }
+}
+
+/**
+ * Returns length of part of a text if drawn on screen.
+ * @param text The text to be probed.
+ * @param part Amount of characters to be probed.
+ * @return Width of the text image, in pixels.
+ */
+int LbTextStringPartWidth(const char *text, int part)
+{
+    const char *ebuf;
+    long chr;
+    int len;
+    int max_len;
+    if (lbFontPtr == NULL)
+        return 0;
+    max_len = 0;
+    len = 0;
+    for (ebuf=text; *ebuf != '\0'; ebuf++)
+    {
+        if (part <= 0) break;
+        part--;
+        chr = (unsigned char)*ebuf;
+        if (is_wide_charcode(chr))
+        {
+          ebuf++;
+          if (*ebuf == '\0') break;
+          chr = (chr<<8) + (unsigned char)*ebuf;
+        }
+        if (chr > 31)
+        {
+          len += LbTextCharWidth(chr);
+        } else
+        if (chr == '\r')
+        {
+          if (len > max_len)
+            max_len = len;
+            len = 0;
+        } else
+        if (chr == '\t')
+        {
+          len += lbSpacesPerTab*LbTextCharWidth(' ');
+        } else
+        if ((chr == 6) || (chr == 7) || (chr == 8) || (chr == 9) || (chr == 14))
+        {
+          ebuf++;
+          if (*ebuf == '\0')
+            break;
+        }
+    }
+    if (len > max_len)
+        max_len = len;
+    return max_len;
+}
+
+/**
+ * Returns length of given text if drawn on screen.
+ * @param text The text to be probed.
+ * @return Width of the text image, in pixels.
+ */
 int LbTextStringWidth(const char *text)
 {
-  const char *ebuf;
-  long chr;
-  int len;
-  int max_len;
-  //return _DK_LbTextStringWidth(str);
-  if (lbFontPtr == NULL)
-    return 0;
-  max_len = 0;
-  len = 0;
-  for (ebuf=text; *ebuf != '\0'; ebuf++)
-  {
-      chr = (unsigned char)*ebuf;
-      if (is_wide_charcode(chr))
-      {
-        ebuf++;
-        if (*ebuf == '\0') break;
-        chr = (chr<<8) + (unsigned char)*ebuf;
-      }
-      if (chr > 31)
-      {
-        len += LbTextCharWidth(chr);
-      } else
-      if (chr == '\r')
-      {
-        if (len > max_len)
-          max_len = len;
-          len = 0;
-      } else
-      if (chr == '\t')
-      {
-        len += lbSpacesPerTab*LbTextCharWidth(' ');
-      } else
-      if ((chr == 6) || (chr == 7) || (chr == 8) || (chr == 9) || (chr == 14))
-      {
-        ebuf++;
-        if (*ebuf == '\0')
-          break;
-      }
-  }
-  if (len > max_len)
-    max_len = len;
-  return max_len;
+    //return _DK_LbTextStringWidth(str);
+    return LbTextStringPartWidth(text, LONG_MAX);
 }
 
 int LbTextStringHeight(const char *str)
 {
-  //return _DK_LbTextStringHeight(str);
-  int i,h,lines;
-  lines=1;
-  if ((lbFontPtr==NULL) || (str==NULL))
-    return 0;
-  for (i=0;i<MAX_TEXT_LENGTH;i++)
-  {
-    if (str[i]=='\0') break;
-    if (str[i]=='\r') lines++;
-  }
-  h = LbTextLineHeight();
-  return h*lines;
+    //return _DK_LbTextStringHeight(str);
+    int i,h,lines;
+    lines=1;
+    if ((lbFontPtr == NULL) || (str == NULL))
+        return 0;
+    for (i=0;i<MAX_TEXT_LENGTH;i++)
+    {
+        if (str[i]=='\0') break;
+        if (str[i]=='\r') lines++;
+    }
+    h = LbTextLineHeight();
+    return h*lines;
 }
 
 int LbTextNumberDraw(int pos_x, int pos_y, long number, unsigned short fdflags)

@@ -158,8 +158,8 @@ short get_players_message_inputs(void)
       clear_key_pressed(KC_RETURN);
       return true;
   }
-  lbFontPtr = winfont;
-  msg_width = pixel_size * LbTextStringWidth(player->strfield_463);
+  LbTextSetFont(winfont);
+  msg_width = pixel_size * LbTextStringWidth(player->mp_message_text);
   if ( (is_key_pressed(KC_BACK,KMod_DONTCARE)) || (msg_width < 450) )
   {
       set_players_packet_action(player,PckA_PlyrMsgChar,lbInkey,key_modifiers,0,0);

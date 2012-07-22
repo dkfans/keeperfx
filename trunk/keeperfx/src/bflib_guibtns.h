@@ -23,6 +23,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "bflib_string.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -44,6 +46,7 @@ enum TbButtonType {
         Lb_CYCLEBTN  =  2,
         Lb_RADIOBTN  =  3,
         Lb_SLIDER    =  4,
+        Lb_EDITBTN   =  5,
 };
 
 union GuiVariant {
@@ -190,6 +193,7 @@ struct EventTypeInfo { //sizeof=0x10
 /******************************************************************************/
 extern char *gui_strings[STRINGS_MAX+1];
 extern char *gui_strings_data;
+extern TbCharCount input_field_pos;
 /******************************************************************************/
 // Exported variables
 DLLIMPORT extern struct GuiButton *_DK_input_button;

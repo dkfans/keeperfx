@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "bflib_keybrd.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -105,8 +107,8 @@ short is_mouse_pressed_lrbutton(void);
 void clear_mouse_pressed_lrbutton(void);
 void update_mouse(void);
 
-short is_key_pressed(long key, long kmodif);
-unsigned short key_to_ascii(long key, long kmodif);
+short is_key_pressed(TbKeyCode key, TbKeyMods kmodif);
+unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif);
 void clear_key_pressed(long key);
 void update_key_modifiers(void);
 void define_key_input(void);

@@ -33,7 +33,7 @@ extern "C" {
 DLLIMPORT long _DK_key_to_string[256];
 #define key_to_string _DK_key_to_string
 /******************************************************************************/
-DLLIMPORT  int _DK_set_game_key(long key_id, unsigned char key, int shift_state, int ctrl_state);
+DLLIMPORT  long _DK_set_game_key(long key_id, unsigned char key, long shift_state, long ctrl_state);
 DLLIMPORT void _DK_update_mouse(void);
 DLLIMPORT long _DK_GetMouseY(void);
 DLLIMPORT char _DK_mouse_is_over_small_map(int, int);
@@ -247,8 +247,10 @@ void update_mouse(void)
 
 /**
  * Checks if a specific key is pressed.
+ * @param key Code of the key to check.
+ * @param kmodif Key modifier flags required.
  */
-short is_key_pressed(long key, long kmodif)
+short is_key_pressed(TbKeyCode key, TbKeyMods kmodif)
 {
   if ((kmodif == KMod_DONTCARE) || (kmodif == key_modifiers))
     return lbKeyOn[key];
@@ -257,8 +259,11 @@ short is_key_pressed(long key, long kmodif)
 
 /**
  * Converts keyboard key code into ASCII character.
+ * @param key Code of the key being pressed.
+ * @param kmodif Key modifier flags.
+ * @note Key modifier can't be KMod_DONTCARE in this function.
  */
-unsigned short key_to_ascii(long key, long kmodif)
+unsigned short key_to_ascii(TbKeyCode key, TbKeyMods kmodif)
 {
   if ((key<0) || (key>=128))
     return 0;
@@ -294,16 +299,21 @@ void update_key_modifiers(void)
   key_modifiers = key_mods;
 }
 
+long set_game_key(long key_id, unsigned char key, long shift_state, long ctrl_state)
+{
+    return _DK_set_game_key(key_id, key, shift_state, ctrl_state);
+}
+
 void define_key_input(void)
 {
   TbBool shift_state;
   TbBool ctrl_state;
-  if (lbInkey == 1)
+  if (lbInkey == KC_ESCAPE)
   {
     defining_a_key = 0;
-    lbInkey = 0;
+    lbInkey = KC_UNASSIGNED;
   } else
-  if (lbInkey != 0)
+  if (lbInkey != KC_UNASSIGNED)
   {
     ctrl_state = 0;
     if ( lbKeyOn[KC_LCONTROL] || (lbKeyOn[KC_RCONTROL]) )
@@ -311,9 +321,9 @@ void define_key_input(void)
     shift_state = 0;
     if ( lbKeyOn[KC_LSHIFT] || (lbKeyOn[KC_RSHIFT]) )
       shift_state = 1;
-    if ( _DK_set_game_key(defining_a_key_id, lbInkey, shift_state, ctrl_state) )
+    if ( set_game_key(defining_a_key_id, lbInkey, shift_state, ctrl_state) )
       defining_a_key = 0;
-    lbInkey = 0;
+    lbInkey = KC_UNASSIGNED;
   }
 }
 

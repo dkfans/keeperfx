@@ -115,6 +115,7 @@ struct TbLog {
 struct TbNetworkCallbackData;
 typedef int TbError;
 typedef int TbResult;
+typedef size_t TbSize;
 
 #pragma pack()
 /******************************************************************************/

@@ -49,6 +49,7 @@ obj/bflib_datetm.o \
 obj/bflib_basics.o \
 obj/bflib_pom.o \
 obj/bflib_keybrd.o \
+obj/bflib_string.o \
 obj/bflib_inputctrl.o \
 obj/bflib_server_tcp.o \
 obj/bflib_vidsurface.o \

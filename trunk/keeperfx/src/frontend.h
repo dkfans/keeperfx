@@ -298,7 +298,7 @@ extern unsigned char *testfont_palette[3];
 void create_error_box(unsigned short msg_idx);
 short check_if_mouse_is_over_button(struct GuiButton *gbtn);
 void gui_area_text(struct GuiButton *gbtn);
-char get_button_area_input(struct GuiButton *gbtn, int a2);
+TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
 void maintain_loadsave(struct GuiButton *gbtn);
 void gui_video_cluedo_maintain(struct GuiButton *gbtn);
 void maintain_zoom_to_event(struct GuiButton *gbtn);

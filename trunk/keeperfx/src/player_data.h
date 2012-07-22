@@ -36,6 +36,8 @@ extern "C" {
 
 #define INVALID_PLAYER (&bad_player)
 
+#define PLAYER_MP_MESSAGE_LEN  64
+
 enum PlayerViewModes {
     PVM_EmptyView = 0,
     PVM_CreatureView,
@@ -122,7 +124,7 @@ char field_457[8];
 char field_45F;
 short field_460;
 char field_462;
-    char strfield_463[64];
+    char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char field_4A4;
     char chosen_trap_kind;

@@ -179,7 +179,7 @@ void draw_sound_stuff(void)
       eastegg_skeksis_cntr++;
       LbTextSetFont(winfont);
       text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
-      lbDisplay.DrawFlags = 0x40;
+      lbDisplay.DrawFlags = 0x0040;
       for (i=0; i<30; i+=2)
       {
         pos = game.play_gameturn - i;
@@ -199,7 +199,7 @@ void draw_sound_stuff(void)
   if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= 0xFFBFu;
+    lbDisplay.DrawFlags &= ~0x0040;
     LbTextSetFont(winfont);
     i = 0;
     text = buf_sprintf("Simon says Hi to everyone he knows...");
