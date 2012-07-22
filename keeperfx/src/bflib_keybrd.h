@@ -26,9 +26,10 @@
 extern "C" {
 #endif
 /******************************************************************************/
-    /** PC Keyboard scan codes.
-     *  These are used as internal key codes in the Bullfrog engine. */
-    enum KeyCodes {
+/** PC Keyboard scan codes.
+ *  These are used as internal key codes in the Bullfrog engine.
+ */
+enum KeyCodes {
         KC_UNASSIGNED  = 0x00,
         KC_ESCAPE      = 0x01,
         KC_1           = 0x02,
@@ -165,20 +166,20 @@ extern "C" {
         KC_POWER       = 0xDE,    // System Power
         KC_SLEEP       = 0xDF,    // System Sleep
         KC_WAKE        = 0xE3,    // System Wake
-    };
+};
 
-    enum KeyAction {
+enum KeyAction {
         KActn_NONE = 0,
         KActn_KEYDOWN,
         KActn_KEYUP,
-    };
+};
 
-    enum KeyModifiers {
+enum KeyModifiers {
         KMod_NONE        = 0x00,
         KMod_SHIFT       = 0x10,
         KMod_CONTROL     = 0x20,
         KMod_ALT         = 0x40,
-    };
+};
 #define KMod_DONTCARE -1
 
 typedef unsigned char TbKeyCode;

@@ -703,7 +703,7 @@ void frontnet_draw_current_message(struct GuiButton *gbtn)
     }
 
     // Prepare text buffer and font
-    snprintf(text, sizeof(text), "%s%s", player->strfield_463, print_with_cursor?"_":"");
+    snprintf(text, sizeof(text), "%s%s", player->mp_message_text, print_with_cursor?"_":"");
     button_info_font_index = frontend_button_info[(unsigned) gbtn->content].font_index;
     // And draw the message
     frontnet_draw_scroll_selection_box(gbtn, button_info_font_index, text);

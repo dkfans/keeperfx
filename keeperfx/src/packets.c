@@ -1646,32 +1646,52 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     set_mouse_light(player);
 }
 
-void process_players_message_character(struct PlayerInfo *player)
+/**
+ * Modifies a message string according to a key pressed.
+ * @param message The message buffer.
+ * @param maxlen Max length of the string (message buffer size - 1).
+ * @param key The key which will affect the message.
+ * @param kmodif Modifier keys pressed with the key.
+ * @return Gives true if the message was modified by that key, false if it stayed without change.
+ * @note We shouldn't use regional settings in this function, otherwise players playing different language
+ * versions may get different messages from each other.
+ */
+TbBool message_text_key_add(char * message, long maxlen, TbKeyCode key, TbKeyMods kmodif)
 {
-  struct Packet *pcktd;
-  char chr;
-  int chpos;
-  pcktd = get_packet(player->id_number);
-  if (pcktd->field_6 > 0)
-  {
-    chr = key_to_ascii(pcktd->field_6, pcktd->field_8);
-    chpos = strlen(player->strfield_463);
-    if (pcktd->field_6 == KC_BACK)
+    char chr;
+    int chpos;
+    chr = key_to_ascii(key, kmodif);
+    chpos = strlen(message);
+    if (key == KC_BACK)
     {
-      if (chpos>0)
-        player->strfield_463[chpos-1] = '\0';
+      if (chpos>0) {
+          message[chpos-1] = '\0';
+          return true;
+      }
     } else
     if (((chr >= 'a') && (chr <= 'z')) ||
         ((chr >= 'A') && (chr <= 'Z')) ||
-        ((chr >= '0') && (chr <= '9')) || (chr == ' ')  || (chr == '!') ||
-        (chr == '.'))
+        ((chr >= '0') && (chr <= '9')) ||
+        (chr == ' ')  || (chr == '!') || (chr == ':') || (chr == ';') ||
+        (chr == '(') || (chr == ')') || (chr == '.'))
     {
-      if (chpos < 63)
-      {
-        player->strfield_463[chpos] = toupper(chr);
-        player->strfield_463[chpos+1] = '\0';
-      }
+        if (chpos < maxlen)
+        {
+            message[chpos] = chr;
+            message[chpos+1] = '\0';
+            return true;
+        }
     }
+    return false;
+}
+
+void process_players_message_character(struct PlayerInfo *player)
+{
+  struct Packet *pcktd;
+  pcktd = get_packet(player->id_number);
+  if (pcktd->field_6 > 0)
+  {
+      message_text_key_add(player->mp_message_text, PLAYER_MP_MESSAGE_LEN, pcktd->field_6, pcktd->field_8);
   }
 }
 
@@ -1834,9 +1854,9 @@ TbBool process_players_global_packet_action(long plyr_idx)
       return 0;
   case PckA_PlyrMsgEnd:
       player->field_0 &= 0xFBu;
-      if (player->strfield_463[0] != '\0')
+      if (player->mp_message_text[0] != '\0')
         message_add(player->id_number);
-      memset(player->strfield_463, 0, 64);
+      memset(player->mp_message_text, 0, 64);
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))
@@ -2704,39 +2724,39 @@ void process_frontend_packets(void)
         fe_computer_players = nspckt->field_A;
         break;
       case 8:
-        k = strlen(player->strfield_463);
+        k = strlen(player->mp_message_text);
         if (nspckt->field_A == KC_BACK)
         {
           if (k > 0)
           {
             k--;
-            player->strfield_463[k] = '\0';
+            player->mp_message_text[k] = '\0';
           }
         } else
         if (nspckt->field_A == KC_RETURN)
         {
           if (k > 0)
           {
-            add_message(i, player->strfield_463);
+            add_message(i, player->mp_message_text);
             k = 0;
-            player->strfield_463[k] = '\0';
+            player->mp_message_text[k] = '\0';
           }
         } else
         {
           c = key_to_ascii(nspckt->field_A, nspckt->field_B);
           if ((c != 0) && (frontend_font_char_width(1,c) > 1) && (k < 62))
           {
-            player->strfield_463[k] = c;
+            player->mp_message_text[k] = c;
             k++;
-            player->strfield_463[k] = '\0';
+            player->mp_message_text[k] = '\0';
           }
         }
-        if (frontend_font_string_width(1,player->strfield_463) >= 420)
+        if (frontend_font_string_width(1,player->mp_message_text) >= 420)
         {
           if (k > 0)
           {
             k--;
-            player->strfield_463[k] = '\0';
+            player->mp_message_text[k] = '\0';
           }
         }
         break;
