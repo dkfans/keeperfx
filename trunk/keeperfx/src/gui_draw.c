@@ -140,11 +140,12 @@ void draw_button_string(struct GuiButton *gbtn, char *text)
           cursor_pos = input_field_pos;
         LbLocTextStringConcat(text, " ", TEXT_BUFFER_LENGTH);
         lbDisplay.DrawColour = LbTextGetFontFaceColor();
+        lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
     }
     LbTextSetJustifyWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size, gbtn->width/pixel_size);
     LbTextSetClipWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
         gbtn->width/pixel_size, gbtn->height/pixel_size);
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER | Lb_TEXT_UNDERLNSHADOW;
     if (cursor_pos >= 0) {
         // Mind the order, 'cause inserting makes positions shift
         LbLocTextStringInsert(text, "\x0B", cursor_pos+1, TEXT_BUFFER_LENGTH);
