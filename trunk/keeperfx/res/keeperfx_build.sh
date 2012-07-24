@@ -49,17 +49,17 @@ function keeperfxcheckout {
     if [ -d "$WORKDIR" ]; then
             if [ -z "${REV}" -o 0"${REV}" -lt 1 ]; then
                 echo "Updating svn checkout"
-                SVNLOG=`svn update "$WORKDIR"`
+                SVNLOG=`svn update --accept theirs-full "$WORKDIR"`
             else
                 echo "Updating svn checkout to r${REV}"
-                SVNLOG=`svn update -r "${REV}" "$WORKDIR"`
+                SVNLOG=`svn update --accept theirs-full -r "${REV}" "$WORKDIR"`
             fi
             if [ $? != 0 ]; then
                 echo "${SVNLOG}"
                 echo "Problem with svn update"
                 return 1
             fi
-            svn revert -R "$WORKDIR"
+            svn revert --non-interactive -R "$WORKDIR"
             if [ $? != 0 ]; then
                 echo "Problem with svn revert"
                 return 1
@@ -67,10 +67,10 @@ function keeperfxcheckout {
     else
             if [ -z "${REV}" -o 0"${REV}" -lt 1 ]; then
                 echo "Checking out svn to $WORKDIR"
-                SVNLOG=`svn checkout $REPO_TRUNK "$WORKDIR"`
+                SVNLOG=`svn checkout --non-interactive $REPO_TRUNK "$WORKDIR"`
             else
                 echo "Checking out svn r${REV} to $WORKDIR"
-                SVNLOG=`svn checkout -r "$REV" $REPO_TRUNK "$WORKDIR"`
+                SVNLOG=`svn checkout --non-interactive -r "$REV" $REPO_TRUNK "$WORKDIR"`
             fi
             if [ $? != 0 ]; then
                 echo "$SVNLOG"
