@@ -893,7 +893,7 @@ void redraw_display(void)
       LbTextDraw(0/pixel_size, 0/pixel_size, text);
       LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
     }
-    draw_sound_stuff();
+    draw_eastegg();
   //show_onscreen_msg(8, "Physical(%d,%d) Graphics(%d,%d) Lens(%d,%d)", (int)lbDisplay.PhysicalScreenWidth, (int)lbDisplay.PhysicalScreenHeight, (int)lbDisplay.GraphicsScreenWidth, (int)lbDisplay.GraphicsScreenHeight, (int)eye_lens_width, (int)eye_lens_height);
     SYNCDBG(7,"Finished");
 }

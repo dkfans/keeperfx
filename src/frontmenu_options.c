@@ -23,6 +23,7 @@
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
+#include "bflib_sndlib.h"
 #include "player_data.h"
 #include "gui_draw.h"
 #include "gui_frontbtns.h"
@@ -202,7 +203,16 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
 
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
-  _DK_gui_set_sound_volume(gbtn);
+    //_DK_gui_set_sound_volume(gbtn);
+    if (gbtn->id_num == 75)
+    {
+      if (settings.sound_volume != sound_level)
+          do_sound_menu_click();
+    }
+    settings.sound_volume = sound_level;
+    save_settings();
+    SetSoundMasterVolume(settings.sound_volume);
+    SetMusicMasterVolume(settings.sound_volume);
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)

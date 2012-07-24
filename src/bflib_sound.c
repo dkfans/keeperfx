@@ -282,19 +282,19 @@ TbBool S3DMoveSoundEmitterTo(long eidx, long x, long y, long z)
     return true;
 }
 
-TbBool S3DAddSampleToEmitterPri(long eidx, long a2, long a3, long a4, long a5, long a6, char a7, long a8, long a9)
+TbBool S3DAddSampleToEmitterPri(long eidx, long smptbl_idx, long bank_idx, long a4, long loudness, long a6, char a7, long a8, long a9)
 {
     struct SoundEmitter *emit;
-    //return _DK_S3DAddSampleToEmitterPri(emidx, a2, a3, a4, a5, a6, a7, a8, a9);
+    //return _DK_S3DAddSampleToEmitterPri(emidx, smptbl_idx, bank_idx, a4, loudness, a6, a7, a8, a9);
     emit = S3DGetSoundEmitter(eidx);
-    return start_emitter_playing(emit, a2, a3, a4, a5, a6, a7, a8, a9) != 0;
+    return start_emitter_playing(emit, smptbl_idx, bank_idx, a4, loudness, a6, a7, a8, a9) != 0;
 }
 
-long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6, long a7, long a8, long a9, long a10)
+long S3DCreateSoundEmitterPri(long x, long y, long z, long smptbl_idx, long bank_idx, long a6, long loudness, long a8, long a9, long a10)
 {
     struct SoundEmitter *emit;
     long eidx;
-    //return _DK_S3DCreateSoundEmitterPri(x, y, z, a4, a5, a6, a7, a8, a9, a10);
+    //return _DK_S3DCreateSoundEmitterPri(x, y, z, smptbl_idx, bank_idx, a6, loudness, a8, a9, a10);
     eidx = allocate_free_sound_emitter();
     emit = S3DGetSoundEmitter(eidx);
     if (S3DSoundEmitterInvalid(emit))
@@ -305,7 +305,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6,
     emit->field_1 = a9;
     emit->curr_pitch = 100;
     emit->target_pitch = 100;
-    if (start_emitter_playing(emit, a4, a5, a6, a7, a8, 3, a9, a10))
+    if (start_emitter_playing(emit, smptbl_idx, bank_idx, a6, loudness, a8, 3, a9, a10))
         return eidx;
     delete_sound_emitter(eidx);
     return 0;
@@ -903,6 +903,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
       return NULL;
     }
     // TODO SOUND use rewritten version when sound routines are rewritten
+    // TODO SOUND Rewrite functions which use S3DAddSampleToEmitterPri() and S3DCreateSoundEmitterPri() (there are lots of them)
     return _DK_play_sample_using_heap(a1, smpl_idx, a3, a4, a5, a6, a7, bank_id);
 
     if (bank_id > 0)

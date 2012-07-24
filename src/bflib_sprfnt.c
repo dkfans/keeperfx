@@ -384,114 +384,129 @@ LABEL_21:
 
 void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y, long len)
 {
-  const char *c;
-  unsigned long chr;
-  long w,h;
-  struct AsianFontWindow awind;
-  TbBool needs_draw;
-  awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
-  awind.width = lbDisplay.GraphicsWindowWidth;
-  awind.height = lbDisplay.GraphicsWindowHeight;
-  awind.scanline = lbDisplay.PhysicalScreenWidth;
-  needs_draw = false;
-  for (c=sbuf; c < ebuf; c++)
-  {
-      chr = (unsigned char)(*c);
-      if (is_wide_charcode(chr))
-      {
-        c++;
-        chr = (chr << 8) | (unsigned char)(*c);
-        needs_draw = true;
-      } else
-      if (chr > 32)
-      {
-        needs_draw = true;
-      } else
-      if (chr == ' ')
-      {
-        w = len;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+    const char *c;
+    unsigned long chr;
+    long w,h;
+    struct AsianFontWindow awind;
+    TbBool needs_draw;
+    awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
+    awind.width = lbDisplay.GraphicsWindowWidth;
+    awind.height = lbDisplay.GraphicsWindowHeight;
+    awind.scanline = lbDisplay.PhysicalScreenWidth;
+    needs_draw = false;
+    for (c=sbuf; c < ebuf; c++)
+    {
+        chr = (unsigned char)(*c);
+        if (is_wide_charcode(chr))
         {
-          h = dbc_char_height(' ');
-          LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-          if (h > DOUBLE_UNDERLINE_BOUND) {
-              h--;
-              LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-          }
-        }
-        x += w;
-      } else
-      if (chr == '\t')
-      {
-        w = len*(long)lbSpacesPerTab;
-        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-        {
-          h = dbc_char_height(' ');
-          LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-          if (h > DOUBLE_UNDERLINE_BOUND) {
-              h--;
-              LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-          }
-        }
-        x += w;
-      } else
-      {
-        switch (chr)
-        {
-        case 1:
-          lbDisplay.DrawFlags ^= 0x0004;
-          break;
-        case 2:
-          lbDisplay.DrawFlags ^= 0x0008;
-          break;
-        case 3:
-          lbDisplay.DrawFlags ^= 0x0010;
-          break;
-        case 4:
-          lbDisplay.DrawFlags ^= 0x0001;
-          break;
-        case 5:
-          lbDisplay.DrawFlags ^= 0x0002;
-          break;
-        case 11:
-          lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
-          break;
-        case 12:
-          lbDisplay.DrawFlags ^= 0x0040;
-          break;
-        case 14:
           c++;
-          lbDisplay.DrawColour = (unsigned char)(*c);
-          break;
-        default:
-          break;
-        }
-      }
-      if (needs_draw)
-      {
-          SYNCDBG(19,"Got needs_draw");
-          struct AsianDraw adraw;
-          unsigned long colour;
-          if (dbc_get_sprite_for_char(&adraw, chr) == 0)
+          chr = (chr << 8) | (unsigned char)(*c);
+          needs_draw = true;
+        } else
+        if (chr > 32)
+        {
+          needs_draw = true;
+        } else
+        if (chr == ' ')
+        {
+          w = len;
+          if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
           {
-            if ((lbDisplay.DrawFlags & 0x0040) == 0)
-              colour = dbc_colour0;
-            else
-              colour = lbDisplay.DrawColour;
-            dbc_draw_font_sprite_text(&awind, &adraw, x, y, colour, -1, dbc_colour1);
-            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0) {
-              LbDrawHVLine(x, y + adraw.field_8, x + adraw.field_C + adraw.bits_width, y + adraw.field_8, lbDisplay.DrawColour);
-              if (adraw.field_8 > DOUBLE_UNDERLINE_BOUND) {
-                  LbDrawHVLine(x, y + adraw.field_8-1, x + adraw.field_C + adraw.bits_width, y + adraw.field_8-1, lbDisplay.DrawColour);
+              h = dbc_char_height(' ');
+              if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
+                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
+                  h--;
               }
-            }
-            x += adraw.field_C + adraw.bits_width;
-            if (x >= awind.width)
-              return;
+              LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+              if (h > DOUBLE_UNDERLINE_BOUND) {
+                  h--;
+                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+              }
           }
-          needs_draw = 0;
-      }
-  }
+          x += w;
+        } else
+        if (chr == '\t')
+        {
+          w = len*(long)lbSpacesPerTab;
+          if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+          {
+              h = dbc_char_height(' ');
+              if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
+                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
+                  h--;
+              }
+              LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+              if (h > DOUBLE_UNDERLINE_BOUND) {
+                  h--;
+                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+              }
+          }
+          x += w;
+        } else
+        {
+          switch (chr)
+          {
+          case 1:
+            lbDisplay.DrawFlags ^= 0x0004;
+            break;
+          case 2:
+            lbDisplay.DrawFlags ^= 0x0008;
+            break;
+          case 3:
+            lbDisplay.DrawFlags ^= 0x0010;
+            break;
+          case 4:
+            lbDisplay.DrawFlags ^= 0x0001;
+            break;
+          case 5:
+            lbDisplay.DrawFlags ^= 0x0002;
+            break;
+          case 11:
+            lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
+            break;
+          case 12:
+            lbDisplay.DrawFlags ^= 0x0040;
+            break;
+          case 14:
+            c++;
+            lbDisplay.DrawColour = (unsigned char)(*c);
+            break;
+          default:
+            break;
+          }
+        }
+        if (needs_draw)
+        {
+            SYNCDBG(19,"Got needs_draw");
+            struct AsianDraw adraw;
+            unsigned long colour;
+            if (dbc_get_sprite_for_char(&adraw, chr) == 0)
+            {
+              if ((lbDisplay.DrawFlags & 0x0040) == 0)
+                colour = dbc_colour0;
+              else
+                colour = lbDisplay.DrawColour;
+              dbc_draw_font_sprite_text(&awind, &adraw, x, y, colour, -1, dbc_colour1);
+              w = adraw.field_C + adraw.bits_width;
+              if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0) {
+                  h = adraw.field_8;
+                  if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
+                      LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
+                      h--;
+                  }
+                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+                  if (h > DOUBLE_UNDERLINE_BOUND) {
+                      h--;
+                      LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+                  }
+              }
+              x += w;
+              if (x >= awind.width)
+                return;
+            }
+            needs_draw = 0;
+        }
+    }
 }
 
 /**
@@ -507,7 +522,7 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
   const char *c;
   const struct TbSprite *spr;
   unsigned char chr;
-  long h;
+  long w,h;
 //  _DK_put_down_sprites(sbuf, ebuf, x, y, len);
   for (c=sbuf; c < ebuf; c++)
   {
@@ -521,43 +536,58 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
           LbSpriteDrawOneColour(x, y, spr, lbDisplay.DrawColour);
         else
           LbSpriteDraw(x, y, spr);
+        w = spr->SWidth;
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
-          h = LbTextLineHeight();
-          LbDrawHVLine(x, y+h, x+spr->SWidth, y+h, lbDisplay.DrawColour);
-          if (h > DOUBLE_UNDERLINE_BOUND) {
-              h--;
-              LbDrawHVLine(x, y+h, x+spr->SWidth, y+h, lbDisplay.DrawColour);
-          }
+            h = LbTextLineHeight();
+            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
+                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
+                h--;
+            }
+            LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+            if (h > DOUBLE_UNDERLINE_BOUND) {
+                h--;
+                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+            }
         }
-        x += spr->SWidth;
+        x += w;
       }
     } else
     if (chr == ' ')
     {
-      if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-      {
-        h = LbTextLineHeight();
-        LbDrawHVLine(x, y+h, x+len, y+h, lbDisplay.DrawColour);
-        if (h > DOUBLE_UNDERLINE_BOUND) {
-            h--;
-            LbDrawHVLine(x, y+h, x+len, y+h, lbDisplay.DrawColour);
+        w = len;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            h = LbTextLineHeight();
+            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
+                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
+                h--;
+            }
+            LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+            if (h > DOUBLE_UNDERLINE_BOUND) {
+                h--;
+                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+            }
         }
-      }
-      x += len;
+        x += w;
     } else
     if (chr == '\t')
     {
-      if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
-      {
-        h = LbTextLineHeight();
-        LbDrawHVLine(x, y+h, x+len*(long)lbSpacesPerTab, y+h, lbDisplay.DrawColour);
-        if (h > DOUBLE_UNDERLINE_BOUND) {
-            h--;
-            LbDrawHVLine(x, y+h, x+len*(long)lbSpacesPerTab, y+h, lbDisplay.DrawColour);
+        w = len*(long)lbSpacesPerTab;
+        if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
+        {
+            h = LbTextLineHeight();
+            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
+                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
+                h--;
+            }
+            LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+            if (h > DOUBLE_UNDERLINE_BOUND) {
+                h--;
+                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
+            }
         }
-      }
-      x += len*(long)lbSpacesPerTab;
+        x += w;
     } else
     {
       switch (chr)
@@ -596,84 +626,84 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
 
 void put_down_sprites(const char *sbuf, const char *ebuf, long x, long y, long len)
 {
-  if ((dbc_initialized) && (dbc_enabled))
-  {
-    put_down_dbctext_sprites(sbuf, ebuf, x, y, len);
-  } else
-  {
-    put_down_simpletext_sprites(sbuf, ebuf, x, y, len);
-  }
+    if ((dbc_initialized) && (dbc_enabled))
+    {
+        put_down_dbctext_sprites(sbuf, ebuf, x, y, len);
+    } else
+    {
+        put_down_simpletext_sprites(sbuf, ebuf, x, y, len);
+    }
 }
 
 long text_string_height(const char *text)
 {
-  long nlines;
-  long lnwidth,lnwidth_clip;
-  long w;
-  const char *pchr;
-  long chr;
-  nlines = 0;
-  //return _DK_text_string_height(text);
-  if (lbFontPtr == NULL)
-    return 0;
-  lnwidth_clip = lbTextJustifyWindow.x - lbTextClipWindow.x;
-  lnwidth = lnwidth_clip;
-  for (pchr=text; *pchr != '\0'; pchr++)
-  {
-    chr = (unsigned char)(*pchr);
-    if (is_wide_charcode(chr))
+    long nlines;
+    long lnwidth,lnwidth_clip;
+    long w;
+    const char *pchr;
+    long chr;
+    nlines = 0;
+    //return _DK_text_string_height(text);
+    if (lbFontPtr == NULL)
+      return 0;
+    lnwidth_clip = lbTextJustifyWindow.x - lbTextClipWindow.x;
+    lnwidth = lnwidth_clip;
+    for (pchr=text; *pchr != '\0'; pchr++)
     {
-      pchr++;
-      if (*pchr == '\0') break;
-      chr = (chr<<8) + (unsigned char)*pchr;
-    }
-    if (chr > 32)
-    {
-      w = LbTextCharWidth(chr);
-      lnwidth += w;
-    } else
-    if (chr == ' ')
-    {
-      if (lnwidth > 0)
+      chr = (unsigned char)(*pchr);
+      if (is_wide_charcode(chr))
       {
-        w = LbTextCharWidth(' ');
-        if (lnwidth+w+LbTextWordWidth(pchr+1)-lnwidth_clip > lbTextJustifyWindow.width)
-        {
-          lnwidth = lnwidth_clip;
-          nlines++;
-        } else
-        {
-          lnwidth += w;
-        }
-      }
-    } else
-    switch (chr)
-    {
-    case '\r':
-        lnwidth = lnwidth_clip;
-        nlines++;
-        if (pchr[1] == '\n') pchr++;
-        break;
-    case '\n':
-        lnwidth = lnwidth_clip;
-        nlines++;
-        break;
-    case '\t':
-        w = LbTextCharWidth(' ');
-        lnwidth += lbSpacesPerTab * w;
-        if (lnwidth+LbTextWordWidth(pchr+1)-lnwidth_clip > lbTextJustifyWindow.width)
-        {
-          lnwidth = lnwidth_clip;
-          nlines++;
-        }
-        break;
-    case 14:
         pchr++;
-        break;
+        if (*pchr == '\0') break;
+        chr = (chr<<8) + (unsigned char)*pchr;
+      }
+      if (chr > 32)
+      {
+        w = LbTextCharWidth(chr);
+        lnwidth += w;
+      } else
+      if (chr == ' ')
+      {
+        if (lnwidth > 0)
+        {
+          w = LbTextCharWidth(' ');
+          if (lnwidth+w+LbTextWordWidth(pchr+1)-lnwidth_clip > lbTextJustifyWindow.width)
+          {
+            lnwidth = lnwidth_clip;
+            nlines++;
+          } else
+          {
+            lnwidth += w;
+          }
+        }
+      } else
+      switch (chr)
+      {
+      case '\r':
+          lnwidth = lnwidth_clip;
+          nlines++;
+          if (pchr[1] == '\n') pchr++;
+          break;
+      case '\n':
+          lnwidth = lnwidth_clip;
+          nlines++;
+          break;
+      case '\t':
+          w = LbTextCharWidth(' ');
+          lnwidth += lbSpacesPerTab * w;
+          if (lnwidth+LbTextWordWidth(pchr+1)-lnwidth_clip > lbTextJustifyWindow.width)
+          {
+            lnwidth = lnwidth_clip;
+            nlines++;
+          }
+          break;
+      case 14:
+          pchr++;
+          break;
+      }
     }
-  }
-  nlines++;
-  return nlines * (long)pixel_size * LbTextLineHeight();
+    nlines++;
+    return nlines * (long)pixel_size * LbTextLineHeight();
 }
 
 /**

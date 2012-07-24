@@ -44,7 +44,7 @@ TbCharCount input_field_pos;
 
 void do_sound_menu_click(void)
 {
-  play_non_3d_sample(61);
+    play_non_3d_sample_no_overlap(61);
 }
 
 void do_sound_button_click(struct GuiButton *gbtn)

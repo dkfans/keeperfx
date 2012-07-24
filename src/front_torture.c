@@ -99,7 +99,6 @@ struct TbSetupSprite setup_torture_sprites[] = {
 /******************************************************************************/
 DLLIMPORT void _DK_fronttorture_update(void);
 DLLIMPORT void _DK_fronttorture_draw(void);
-DLLIMPORT void _DK_fronttorture_input(void);
 DLLIMPORT void _DK_fronttorture_unload(void);
 DLLIMPORT void _DK_fronttorture_load(void);
 /******************************************************************************/

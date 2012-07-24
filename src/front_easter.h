@@ -39,7 +39,7 @@ struct KeycodeString {
 /******************************************************************************/
 void frontbirthday_draw(void);
 void input_eastegg(void);
-void draw_sound_stuff(void);
+void draw_eastegg(void);
 const char *get_team_birthday(void);
 /******************************************************************************/
 #ifdef __cplusplus
