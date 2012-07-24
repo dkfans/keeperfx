@@ -86,6 +86,7 @@ enum TbDrawFlags {
     Lb_TEXT_HALIGN_CENTER  = 0x0100,
     Lb_TEXT_HALIGN_JUSTIFY = 0x0200,
     Lb_TEXT_UNDERLINE      = 0x0400,
+    Lb_TEXT_UNDERLNSHADOW  = 0x0800,
 };
 
 enum TbVideoModeFlags {
@@ -205,6 +206,8 @@ struct DisplayStructEx {
     short WhellPosition;
     ushort WhellMoveUp;
     ushort WhellMoveDown;
+    /** Colour index used for drawing shadow. */
+    uchar ShadowColour;
 };
 typedef struct DisplayStructEx TbDisplayStructEx;
 
@@ -249,6 +252,7 @@ extern unsigned short lbVesaPage;
 */
 extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
+extern volatile TbDisplayStructEx lbDisplayEx;
 extern unsigned char lbPalette[PALETTE_SIZE];
 /******************************************************************************/
 TbResult LbScreenHardwareConfig(const char *driver, short engine_bpp);

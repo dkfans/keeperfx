@@ -1013,7 +1013,7 @@ void choose_special_spell(int kind, int tooltip_id)
 
     if (dungeon->total_money_owned >= magstat->cost[0]) {
         pwrdata = get_power_data(kind);
-        play_non_3d_sample(pwrdata->field_11); // Play the spell speech
+        play_non_3d_sample_no_overlap(pwrdata->field_11); // Play the spell speech
         switch (kind)
         {
         case PwrK_ARMAGEDDON:
@@ -2190,18 +2190,18 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
 
 void frontend_level_select(struct GuiButton *gbtn)
 {
-  long i;
-  long lvnum;
-  i = (long)gbtn->content + select_level_scroll_offset - 45;
-  lvnum = 0;
-  if (i < campaign.freeplay_levels_count)
-    lvnum = campaign.freeplay_levels[i];
-  if (lvnum > 0)
-  {
-    game.selected_level_number = lvnum;
-    game.flags_font |= FFlg_unk80;
-    frontend_set_state(7);
-  }
+    long i;
+    long lvnum;
+    i = (long)gbtn->content + select_level_scroll_offset - 45;
+    lvnum = 0;
+    if (i < campaign.freeplay_levels_count)
+      lvnum = campaign.freeplay_levels[i];
+    if (lvnum > 0)
+    {
+        game.selected_level_number = lvnum;
+        game.flags_font |= FFlg_unk80;
+        frontend_set_state(FeSt_UNKNOWN07);
+    }
 }
 
 void frontend_level_list_unload(void)

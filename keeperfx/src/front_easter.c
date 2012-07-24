@@ -163,9 +163,9 @@ void input_eastegg(void)
 }
 
 /**
- * Strange name to hide easter eggs ;). Displays easter egg messages on screen.
+ * Displays easter egg messages on screen.
  */
-void draw_sound_stuff(void)
+void draw_eastegg(void)
 {
   char *text;
   static long px[2]={0,0},py[2]={0,0};
