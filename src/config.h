@@ -95,6 +95,27 @@ enum TbLevelLocation {
     LvLc_Campaign  =  1,
     LvLc_Custom    =  2,
 };
+enum TbLanguage {
+    Lang_Unset    =  0,
+    Lang_English,
+    Lang_French,
+    Lang_German,
+    Lang_Italian,
+    Lang_Spanish,
+    Lang_Swedish,
+    Lang_Polish,
+    Lang_Dutch,
+    Lang_Hungarian,
+    Lang_Austr,
+    Lang_Danish,
+    Lang_Norwegian,
+    Lang_Ces,
+    Lang_Mag,
+    Lang_Russian,
+    Lang_Japanese,
+    Lang_ChineseInt,
+    Lang_ChineseTra,
+};
 
 /******************************************************************************/
 #pragma pack(1)

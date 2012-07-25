@@ -456,7 +456,7 @@ inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x, long y
         }
     }
     SYNCDBG(19,"Drawing sprite of size (%d,%d)",(int)spd->Ht,(int)spd->Wd);
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
     {
         spd->r += spd->Wd - 1;
         spd->mirror = true;
@@ -1091,7 +1091,7 @@ TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr)
     if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0)
         return LbSpriteDrawTranspr(spd.sp,spd.Wd,spd.Ht,spd.r,spd.nextRowDelta,spd.startShift,spd.mirror);
     else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         return LbSpriteDrawSolid(spd.sp,spd.Wd,spd.Ht,spd.r,spd.nextRowDelta,spd.startShift,spd.mirror);
     else
         return LbSpriteDrawFastCpy(spd.sp,spd.Wd,spd.Ht,spd.r,spd.nextRowDelta,spd.startShift,spd.mirror);
@@ -1380,7 +1380,7 @@ int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *
     if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0)
         return LbSpriteDrawTrRemap(spd.sp,spd.Wd,spd.Ht,spd.r,map,spd.nextRowDelta,spd.startShift,spd.mirror);
     else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         return LbSpriteDrawSlRemap(spd.sp,spd.Wd,spd.Ht,spd.r,map,spd.nextRowDelta,spd.startShift,spd.mirror);
     else
         return LbSpriteDrawFCRemap(spd.sp,spd.Wd,spd.Ht,spd.r,map,spd.nextRowDelta,spd.startShift,spd.mirror);
@@ -1669,7 +1669,7 @@ TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const
     if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0)
         return LbSpriteDrawTrOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
     else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         return LbSpriteDrawSlOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
     else
         return LbSpriteDrawFCOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);

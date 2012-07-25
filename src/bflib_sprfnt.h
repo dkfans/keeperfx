@@ -42,7 +42,7 @@ struct AsianFont {
   const char *fname;
   unsigned char *data;
   unsigned long data_length;
-  unsigned long field_C;
+  unsigned long chars_count;
   unsigned long ndata_shift;
   unsigned long ndata_scanline;
   unsigned long sdata_shift;
@@ -60,7 +60,7 @@ struct AsianFont {
 };
 
 struct AsianDraw {
-  unsigned long field_0;
+  unsigned long draw_char;
   unsigned long bits_width;
   unsigned long field_8;
   unsigned long field_C;

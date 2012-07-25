@@ -42,25 +42,25 @@ extern "C" {
 const char keeper_config_file[]="keeperfx.cfg";
 
 const struct NamedCommand lang_type[] = {
-  {"ENG", 1},
-  {"FRE", 2},
-  {"GER", 3},
-  {"ITA", 4},
-  {"SPA", 5},
-  {"SWE", 6},
-  {"POL", 7},
-  {"DUT", 8},
-  {"HUN", 9},
-  {"AUS", 10},
-  {"DAN", 11},
-  {"NOR", 12},
-  {"CES", 13},
-  {"MAG", 14},
-  {"RUS", 15},
-  {"JAP", 16},
-  {"CHI", 17}, // Simplified Chinese
-  {"CHT", 18}, // Traditional Chinese
-  {NULL,  0},
+  {"ENG", Lang_English},
+  {"FRE", Lang_French},
+  {"GER", Lang_German},
+  {"ITA", Lang_Italian},
+  {"SPA", Lang_Spanish},
+  {"SWE", Lang_Swedish},
+  {"POL", Lang_Polish},
+  {"DUT", Lang_Dutch},
+  {"HUN", Lang_Hungarian},
+  {"AUS", Lang_Austr},
+  {"DAN", Lang_Danish},
+  {"NOR", Lang_Norwegian},
+  {"CES", Lang_Ces},
+  {"MAG", Lang_Mag},
+  {"RUS", Lang_Russian},
+  {"JAP", Lang_Japanese},
+  {"CHI", Lang_ChineseInt}, // Simplified Chinese
+  {"CHT", Lang_ChineseTra}, // Traditional Chinese
+  {NULL,  Lang_Unset},
   };
 
 const struct NamedCommand scrshot_type[] = {
