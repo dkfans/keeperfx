@@ -7965,18 +7965,19 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
   retval = setup_game();
   if (retval)
   {
-    if ((install_info.lang_id == 16) || (install_info.lang_id == 17) ||
-        (install_info.lang_id == 18))
+    if ((install_info.lang_id == Lang_Japanese) ||
+        (install_info.lang_id == Lang_ChineseInt) ||
+        (install_info.lang_id == Lang_ChineseTra))
     {
       switch (install_info.lang_id)
       {
-      case 16:
+      case Lang_Japanese:
           dbc_set_language(1);
           break;
-      case 17:
+      case Lang_ChineseInt:
           dbc_set_language(2);
           break;
-      case 18:
+      case Lang_ChineseTra:
           dbc_set_language(3);
           break;
       }
