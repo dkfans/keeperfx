@@ -90,83 +90,113 @@ TbBool is_wide_charcode(unsigned long chr)
   return false;
 }
 
+/**
+ * Draws an underline below the character.
+ * @param pos_x
+ * @param pos_y
+ * @param width
+ * @param height
+ */
+void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, uchar draw_colr, uchar shadow_colr)
+{
+    long w,h;
+    h = height;
+    w = width;
+    // Draw shadow
+    if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
+        LbDrawHVLine(pos_x+2, pos_y+h, pos_x+w+2, pos_y+h, shadow_colr);
+        h--;
+        if (height > DOUBLE_UNDERLINE_BOUND) {
+            LbDrawHVLine(pos_x+2, pos_y+h, pos_x+w+2, pos_y+h, shadow_colr);
+            h--;
+        }
+    }
+    // Draw underline
+    LbDrawHVLine(pos_x, pos_y+h, pos_x+w, pos_y+h, draw_colr);
+    h--;
+    if (height > DOUBLE_UNDERLINE_BOUND) {
+        LbDrawHVLine(pos_x, pos_y+h, pos_x+w, pos_y+h, draw_colr);
+        h--;
+    }
+}
+
 unsigned short dbc_char_to_font_char(unsigned long chr)
 {
-  unsigned char i,k;
-  unsigned short n;
-  unsigned short font_char;
-  switch (dbc_language)
-  {
-  default:
-  case 1:
-      i = ((chr)&0xFF);
-      if (i >= 128)
-        i-=32;
-      else
-        i-=31;
-      k = ((chr>>8)&0xFF) - 129;
-      if (k >= 31)
-        k -= 64;
-      k *= 2;
-      if (i >= 127)
-      {
-        k++;
-        i -= 94;
-      }
-      n = ((k + 33) << 8) + i - (33<<8) - 33;
-      font_char = 94 * ((n >> 8)&0xFF) + ((n)&0xFF);
-      break;
-  case 2:
-  case 3:
-      i = ((chr)&0xFF);
-      k = ((chr>>8)&0xFF);
-      font_char = 94 * (short)k + i - 15295;
-      break;
-  }
-  SYNCDBG(19,"Char %04X converted to %d",(int)chr,(int)font_char);
-  return font_char;
+    unsigned char i,k;
+    unsigned short n;
+    unsigned short font_char;
+    switch (dbc_language)
+    {
+    default:
+    case 1://Japanese
+        i = ((chr)&0xFF);
+        if (i >= 128)
+          i-=32;
+        else
+          i-=31;
+        k = ((chr>>8)&0xFF) - 129;
+        if (k >= 31)
+          k -= 64;
+        k *= 2;
+        if (i >= 127)
+        {
+          k++;
+          i -= 94;
+        }
+        n = ((k + 33) << 8) + i - (33<<8) - 33;
+        font_char = 94 * ((n >> 8)&0xFF) + ((n)&0xFF);
+        break;
+    case 2://Chinese - int. and traditional
+    case 3:
+        i = ((chr)&0xFF);
+        k = ((chr>>8)&0xFF);
+        font_char = 94 * (short)k + i - 15295;
+        break;
+    }
+    SYNCDBG(19,"Char %04X converted to %d",(int)chr,(int)font_char);
+    return font_char;
 }
 
 int dbc_get_sprite_for_char(struct AsianDraw *adraw, unsigned long chr)
 {
-  long c,i;
-  SYNCDBG(19,"Starting");
-  if (active_dbcfont->data == 0)
-    return 5;
-  if (adraw == NULL)
-    return 4;
-  if (chr >= 0xFF)
-  {
-    c = dbc_char_to_font_char(chr);
-    if ((c < 0) || (c >= active_dbcfont->field_C))
-      return 6;
-    adraw->field_0 = chr;
-    adraw->bits_width = active_dbcfont->bits_width;
-    adraw->field_8 = active_dbcfont->field_30;
-    i = active_dbcfont->field_3C;
-    adraw->field_C = i;
-    adraw->field_10 = active_dbcfont->field_40;
-    adraw->field_14 = active_dbcfont->field_44;
-    i = c * active_dbcfont->sdata_scanline + active_dbcfont->sdata_shift;
-    adraw->sprite_data = active_dbcfont->data + i;
-    return 0;
-  } else
-  {
-    adraw->field_0 = chr;
-    c = chr;
-    adraw->bits_width = active_dbcfont->field_24;
-    adraw->field_8 = active_dbcfont->field_28;
-    if ((c < 0xA0) || (c > 0xDF))
-      i = active_dbcfont->field_34;
-    else
-      i = active_dbcfont->field_38;
-    adraw->field_C = i;
-    adraw->field_10 = active_dbcfont->field_40;
-    adraw->field_14 = active_dbcfont->field_44;
-    i = c * active_dbcfont->ndata_scanline + active_dbcfont->ndata_shift;
-    adraw->sprite_data = active_dbcfont->data + i;
-    return 0;
-  }
+    long c,i;
+    SYNCDBG(19,"Starting");
+    if (active_dbcfont->data == 0)
+        return 5;
+    if (adraw == NULL)
+        return 4;
+    if (chr >= 0xFF)
+    {
+        c = dbc_char_to_font_char(chr);
+        if ((c < 0) || (c >= active_dbcfont->chars_count))
+          return 6;
+        adraw->draw_char = chr;
+        adraw->bits_width = active_dbcfont->bits_width;
+        adraw->field_8 = active_dbcfont->field_30;
+        i = active_dbcfont->field_3C;
+        adraw->field_C = i;
+        adraw->field_10 = active_dbcfont->field_40;
+        adraw->field_14 = active_dbcfont->field_44;
+        i = c * active_dbcfont->sdata_scanline + active_dbcfont->sdata_shift;
+        adraw->sprite_data = active_dbcfont->data + i;
+        return 0;
+    } else
+    {
+        adraw->draw_char = chr;
+        c = chr;
+        adraw->bits_width = active_dbcfont->field_24;
+        adraw->field_8 = active_dbcfont->field_28;
+        if ((c < 0xA0) || (c > 0xDF))
+          i = active_dbcfont->field_34;
+        else
+          i = active_dbcfont->field_38;
+        adraw->field_C = i;
+        adraw->field_10 = active_dbcfont->field_40;
+        adraw->field_14 = active_dbcfont->field_44;
+        i = c * active_dbcfont->ndata_scanline + active_dbcfont->ndata_shift;
+        adraw->sprite_data = active_dbcfont->data + i;
+        return 0;
+    }
 }
 
 long dbc_char_height(unsigned long chr)
@@ -274,112 +304,112 @@ struct AsianFont *dbc_fonts_list(void)
 int dbc_draw_font_sprite_text(struct AsianFontWindow *awind, struct AsianDraw *adraw,
       long pos_x, long pos_y, short colr1, short colr2, short colr3)
 {
-  long scr_x,scr_y;
-  unsigned char *dst_buf;
-  long width,height;
-  long x,y;
-  SYNCDBG(19,"Starting");
-  if ((adraw == NULL) || (awind == NULL))
-    return 4;
-  if ((adraw->sprite_data == NULL) || (awind->buf_ptr == NULL))
-    return 4;
-  if (colr3 >= 0)
-  {
-    x = 0;
-    y = 0;
-    scr_y = adraw->field_10 + pos_y + 1;
-    scr_x = pos_x + 1;
-    width = adraw->bits_width;
-    height = adraw->field_8;
-    if (scr_x < 0)
+    long scr_x,scr_y;
+    unsigned char *dst_buf;
+    long width,height;
+    long x,y;
+    SYNCDBG(19,"Starting");
+    if ((adraw == NULL) || (awind == NULL))
+      return 4;
+    if ((adraw->sprite_data == NULL) || (awind->buf_ptr == NULL))
+      return 4;
+    if (colr3 >= 0)
     {
-      width += scr_x;
-      if (width <= 0)
-        goto LABEL_21;
-      x = -scr_x;
-      scr_x = 0;
-    } else
-    if (scr_x+adraw->bits_width > awind->width)
-    {
-      if (scr_x >= awind->width)
-        goto LABEL_21;
-      width = awind->width - scr_x;
-    }
-    if (scr_y < 0)
-    {
-      height += scr_y;
-      if (height > 0)
+      x = 0;
+      y = 0;
+      scr_y = adraw->field_10 + pos_y + 1;
+      scr_x = pos_x + 1;
+      width = adraw->bits_width;
+      height = adraw->field_8;
+      if (scr_x < 0)
       {
+        width += scr_x;
+        if (width <= 0)
+          goto LABEL_21;
+        x = -scr_x;
+        scr_x = 0;
+      } else
+      if (scr_x+adraw->bits_width > awind->width)
+      {
+        if (scr_x >= awind->width)
+          goto LABEL_21;
+        width = awind->width - scr_x;
+      }
+      if (scr_y < 0)
+      {
+        height += scr_y;
+        if (height > 0)
+        {
+          y = -scr_y;
+          scr_y = 0;
+          if ((width != 0) && (height != 0))
+          {
+            dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
+            dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr3, -1);
+          }
+        }
+      } else
+      if (height+scr_y > awind->height)
+      {
+        if (scr_y < awind->height)
+        {
+          height = awind->height - scr_y;
+          if ((width != 0) && (height != 0))
+          {
+            dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
+            dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr3, -1);
+          }
+        }
+      }
+    }
+LABEL_21:
+    if ((colr1 >= 0) || (colr2 >= 0))
+    {
+      y = 0;
+      x = 0;
+      width = adraw->bits_width;
+      height = adraw->field_8;
+      scr_y = pos_y + adraw->field_10;
+      scr_x = pos_x;
+      if (pos_x >= 0)
+      {
+        if ( adraw->bits_width + pos_x > awind->width )
+        {
+          if (pos_x >= awind->width)
+            return 0;
+          width = awind->width - pos_x;
+        }
+      } else
+      {
+        width += pos_x;
+        if (width <= 0)
+          return 0;
+        scr_x = 0;
+        x = -pos_x;
+      }
+      if (scr_y >= 0)
+      {
+        if (height + scr_y > awind->height)
+        {
+          if (scr_y >= awind->height)
+            return 0;
+          height = awind->height - scr_y;
+        }
+      } else
+      {
+        height += scr_y;
+        if (height <= 0)
+          return 0;
         y = -scr_y;
         scr_y = 0;
-        if ((width != 0) && (height != 0))
-        {
-          dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
-          dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr3, -1);
-        }
       }
-    } else
-    if (height+scr_y > awind->height)
-    {
-      if (scr_y < awind->height)
+      if ((width != 0) && (height != 0))
       {
-        height = awind->height - scr_y;
-        if ((width != 0) && (height != 0))
-        {
-          dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
-          dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr3, -1);
-        }
+        dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
+        dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr1, colr2);
       }
     }
-  }
-LABEL_21:
-  if ((colr1 >= 0) || (colr2 >= 0))
-  {
-    y = 0;
-    x = 0;
-    width = adraw->bits_width;
-    height = adraw->field_8;
-    scr_y = pos_y + adraw->field_10;
-    scr_x = pos_x;
-    if (pos_x >= 0)
-    {
-      if ( adraw->bits_width + pos_x > awind->width )
-      {
-        if (pos_x >= awind->width)
-          return 0;
-        width = awind->width - pos_x;
-      }
-    } else
-    {
-      width += pos_x;
-      if (width <= 0)
-        return 0;
-      scr_x = 0;
-      x = -pos_x;
-    }
-    if (scr_y >= 0)
-    {
-      if (height + scr_y > awind->height)
-      {
-        if (scr_y >= awind->height)
-          return 0;
-        height = awind->height - scr_y;
-      }
-    } else
-    {
-      height += scr_y;
-      if (height <= 0)
-        return 0;
-      y = -scr_y;
-      scr_y = 0;
-    }
-    if ((width != 0) && (height != 0))
-    {
-      dst_buf = &awind->buf_ptr[awind->scanline * scr_y + scr_x];
-      dbc_draw_font_sprite(dst_buf, awind->scanline, adraw->sprite_data, adraw->bits_width, x, y, width, height, colr1, colr2);
-    }
-  }
-  return 0;
+    return 0;
 }
 
 void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y, long len)
@@ -392,7 +422,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
     awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
     awind.width = lbDisplay.GraphicsWindowWidth;
     awind.height = lbDisplay.GraphicsWindowHeight;
-    awind.scanline = lbDisplay.PhysicalScreenWidth;
+    awind.scanline = lbDisplay.GraphicsScreenWidth;
     needs_draw = false;
     for (c=sbuf; c < ebuf; c++)
     {
@@ -413,15 +443,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
           if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
           {
               h = dbc_char_height(' ');
-              if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
-                  h--;
-              }
-              LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-              if (h > DOUBLE_UNDERLINE_BOUND) {
-                  h--;
-                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-              }
+              LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
           }
           x += w;
         } else
@@ -431,15 +453,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
           if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
           {
               h = dbc_char_height(' ');
-              if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
-                  h--;
-              }
-              LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-              if (h > DOUBLE_UNDERLINE_BOUND) {
-                  h--;
-                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-              }
+              LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
           }
           x += w;
         } else
@@ -447,25 +461,25 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
           switch (chr)
           {
           case 1:
-            lbDisplay.DrawFlags ^= 0x0004;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
             break;
           case 2:
-            lbDisplay.DrawFlags ^= 0x0008;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
             break;
           case 3:
-            lbDisplay.DrawFlags ^= 0x0010;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
             break;
           case 4:
-            lbDisplay.DrawFlags ^= 0x0001;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_ONECOLOUR1;
             break;
           case 5:
-            lbDisplay.DrawFlags ^= 0x0002;
+            lbDisplay.DrawFlags ^= Lb_SPRITE_ONECOLOUR2;
             break;
           case 11:
             lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
             break;
           case 12:
-            lbDisplay.DrawFlags ^= 0x0040;
+            lbDisplay.DrawFlags ^= Lb_TEXT_UNKNOWN0040;
             break;
           case 14:
             c++;
@@ -482,7 +496,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
             unsigned long colour;
             if (dbc_get_sprite_for_char(&adraw, chr) == 0)
             {
-              if ((lbDisplay.DrawFlags & 0x0040) == 0)
+              if ((lbDisplay.DrawFlags & Lb_TEXT_UNKNOWN0040) == 0)
                 colour = dbc_colour0;
               else
                 colour = lbDisplay.DrawColour;
@@ -490,15 +504,7 @@ void put_down_dbctext_sprites(const char *sbuf, const char *ebuf, long x, long y
               w = adraw.field_C + adraw.bits_width;
               if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0) {
                   h = adraw.field_8;
-                  if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-                      LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
-                      h--;
-                  }
-                  LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-                  if (h > DOUBLE_UNDERLINE_BOUND) {
-                      h--;
-                      LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-                  }
+                  LbDrawCharUnderline(x,y,w,h,colour,lbDisplayEx.ShadowColour);
               }
               x += w;
               if (x >= awind.width)
@@ -540,15 +546,7 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight();
-            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
-                h--;
-            }
-            LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-            if (h > DOUBLE_UNDERLINE_BOUND) {
-                h--;
-                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-            }
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
         }
         x += w;
       }
@@ -559,15 +557,7 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight();
-            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
-                h--;
-            }
-            LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-            if (h > DOUBLE_UNDERLINE_BOUND) {
-                h--;
-                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-            }
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
         }
         x += w;
     } else
@@ -577,15 +567,7 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLINE) != 0)
         {
             h = LbTextLineHeight();
-            if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplayEx.ShadowColour);
-                h--;
-            }
-            LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-            if (h > DOUBLE_UNDERLINE_BOUND) {
-                h--;
-                LbDrawHVLine(x, y+h, x+w, y+h, lbDisplay.DrawColour);
-            }
+            LbDrawCharUnderline(x,y,w,h,lbDisplay.DrawColour,lbDisplayEx.ShadowColour);
         }
         x += w;
     } else
@@ -602,7 +584,7 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
           lbDisplay.DrawFlags ^= 0x0010;
           break;
         case 4:
-          lbDisplay.DrawFlags ^= Lb_SPRITE_ONECOLOUR;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_ONECOLOUR1;
           break;
         case 5:
           lbDisplay.DrawFlags ^= 0x0002;
@@ -1027,7 +1009,7 @@ unsigned char LbTextGetFontFaceColor(void)
     } else
     if (font == winfont)
     {
-      return 70;
+      return 73;
     } else
     if (font == font_sprites)
     {

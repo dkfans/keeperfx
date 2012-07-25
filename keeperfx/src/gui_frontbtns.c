@@ -435,7 +435,7 @@ void frontend_draw_large_menu_button(struct GuiButton *gbtn)
       text = gui_strings[idx];
     else
       text = NULL;
-    frontend_draw_button(gbtn, 1, text, 0x0100);
+    frontend_draw_button(gbtn, 1, text, Lb_TEXT_HALIGN_CENTER);
 }
 
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
@@ -453,7 +453,7 @@ void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
     text = gui_strings[idx];
   else
     text = NULL;
-  frontend_draw_button(gbtn, 2, text, 0x0100);
+  frontend_draw_button(gbtn, 2, text, Lb_TEXT_HALIGN_CENTER);
 }
 
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
