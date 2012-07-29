@@ -70,7 +70,7 @@ TbBool thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
-  if (((thing->field_0 & 0x01) == 0) || (thing->field_9 != player->field_440))
+  if (((thing->alloc_flags & TAlF_Exists) == 0) || (thing->field_9 != player->field_440))
     return false;
   // All creatures can be picked
   if (thing->class_id == TCls_Creature)
@@ -248,7 +248,7 @@ void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
     thing->field_4F |= 0x01;
-    thing->field_0 |= 0x10;
+    thing->alloc_flags |= TAlF_IsInLimbo;
 }
 
 void draw_power_hand(void)
@@ -440,7 +440,7 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord x, MapC
 long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
-    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
         && (thing->active_state != CrSt_CreatureUnconscious))
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx) || thing_slappable(thing, param->plyr_idx))

@@ -992,7 +992,7 @@ SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, l
             MapSubtlCoord stl_x,stl_y;
             stl_num += around_map[m];
             mapblk = get_map_block_at_pos(stl_num);
-            if ( ((mapblk->flags & 0x02) != 0) && ((mapblk->flags & 0x10) != 0) )
+            if ( ((mapblk->flags & MapFlg_Unkn02) != 0) && ((mapblk->flags & MapFlg_Unkn10) != 0) )
                 break;
             stl_x = stl_num_decode_x(stl_num);
             stl_y = stl_num_decode_y(stl_num);
@@ -1113,7 +1113,7 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
         ERRORLOG("The %s isn't dragging %s",thing_model_name(crtng),thing_model_name(dragtng));
     }
     cctrl->field_6E = 0;
-    dragtng->field_0 &= ~0x80;
+    dragtng->alloc_flags &= ~TAlF_IsDragged;
     dragtng->field_1 &= ~0x01;
     move_thing_in_map(dragtng, &crtng->mappos);
     if (dragtng->light_id != 0) {
@@ -1284,7 +1284,7 @@ void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_6E = dragtng->index;
-    dragtng->field_0 |= 0x80;
+    dragtng->alloc_flags |= TAlF_IsDragged;
     dragtng->field_1 |= 0x01;
     dragtng->owner = game.neutral_player_num;
     if (dragtng->light_id != 0) {
@@ -1795,7 +1795,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
         if (tng2 != tng1)
         {
             if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
-            && ((tng2->field_0 & 0x10) == 0) && ((tng2->field_1 & TF1_Unkn02) == 0))
+            && ((tng2->alloc_flags & TAlF_IsInLimbo) == 0) && ((tng2->field_1 & TF1_Unkn02) == 0))
             {
                 crstat1 = creature_stats_get_from_thing(tng1);
                 if ((cctrl2->spell_flags & CSF_Conceal) == 0)
@@ -1820,7 +1820,7 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
     if (cctrl->word_9A != 0)
     {
         enemytng = thing_get(cctrl->word_9A);
-        if (((enemytng->field_0 & 0x01) == 0) || (cctrl->long_9C != enemytng->field_9))
+        if (((enemytng->alloc_flags & TAlF_Exists) == 0) || (cctrl->long_9C != enemytng->field_9))
         {
           enemytng = NULL;
           cctrl->long_9C = 0;
@@ -2172,7 +2172,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     long i;
     SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s",func_name,thing_model_name(thing),(int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state));
 //    return _DK_set_start_state(thing);
-    if ((thing->field_0 & 0x20) != 0)
+    if ((thing->alloc_flags & 0x20) != 0)
     {
       cleanup_current_thing_state(thing);
       initialise_thing_state(thing, CrSt_ManualControl);

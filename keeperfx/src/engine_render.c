@@ -2608,7 +2608,7 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
       if ((col->baseblock != 0) && (col->cubes[0] == 0))
       {
           *a9 = pos_y;
-          if ((mapblk->flags & 0x04) != 0)
+          if ((mapblk->flags & MapFlg_Unkn04) != 0)
           {
               add_textruredquad_to_polypool(pos_x, pos_y, col->baseblock, a7, 0,
                   2097152, 0, bckt_idx);
@@ -2644,12 +2644,12 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
       if (*a9 > i)
       {
         *a9 = i;
-        if ((mapblk->flags & 0x80) != 0)
+        if ((mapblk->flags & MapFlg_Unkn80) != 0)
         {
           add_textruredquad_to_polypool(pos_x, i, unkstrcp->field_8[0], a7, a8,
               2097152, 1, bckt_idx);
         } else
-        if ((mapblk->flags & 0x04) != 0)
+        if ((mapblk->flags & MapFlg_Unkn04) != 0)
         {
           add_textruredquad_to_polypool(pos_x, i, unkstrcp->field_8[0], a7, a8,
               2097152, 0, bckt_idx);

@@ -591,7 +591,7 @@ long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short 
             {
                 stl_num = get_subtile_number(stl_x + 3*delta_x, stl_y + 3*delta_y);
                 mapblk = get_map_block_at_pos(stl_num);
-                if ( ((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == plyr_idx) ) {
+                if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == plyr_idx) ) {
                     return stl_num;
                 }
             }
@@ -689,7 +689,7 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
-    return ((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != plyr_idx);
+    return ((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != plyr_idx);
 }
 
 /** Retrieves index for small_around[] array which leads to the area closer to given destination.
@@ -822,7 +822,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             mapblk = get_map_block_at(gldstl_x, gldstl_y);
             slbattr = get_slab_attrs(slb);
             if ( (slbattr->field_14 == 0) || (slb->kind == SlbT_GEMS)
-              || (((mapblk->flags & 0x20) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
+              || (((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
             {
                 if ( ((slbattr->field_6 & 0x01) == 0) || (digflags == 0) )
                     break;
@@ -914,7 +914,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             if ( (slbattr->field_14 != 0) && (slb->kind != SlbT_GEMS) )
             {
                 mapblk = get_map_block_at(digstl_x, digstl_y);
-                if ( ((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner) ) {
+                if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner) ) {
                     SYNCDBG(15,"Cannot go through subtile (%d,%d)",(int)digstl_x,(int)digstl_y);
                     return -2;
                 }
@@ -944,7 +944,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
         if ( (slbattr->field_14 != 0) && (slb->kind != SlbT_GEMS) )
         {
             mapblk = get_map_block_at(digstl_x, digstl_y);
-            if ( ((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner) )
+            if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner) )
             {
                 i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
                 if ( (find_from_task_list(dungeon->owner, i) < 0) && (simulation == 0) )

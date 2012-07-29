@@ -180,12 +180,12 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->field_DA <= 0)
     {
-        if ((thing->field_0 & 0x20) == 0)
+        if ((thing->alloc_flags & TAlF_IsControlled) == 0)
             i = 4;
         else
             i = 1;
     }
-    else if ((thing->field_0 & 0x20) != 0)
+    else if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         target = thing_get(cctrl->field_DA);
         if (target->class_id == TCls_Object)

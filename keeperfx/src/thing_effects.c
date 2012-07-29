@@ -401,7 +401,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     long i,n;
     //return _DK_create_effect_element(pos, eelmodel, owner);
 
-    if (!i_can_allocate_free_thing_structure(TAF_Default)) {
+    if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
         return INVALID_THING;
     }
     if (!any_player_close_enough_to_see(pos)) {
@@ -409,7 +409,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     }
     eestat = &effect_element_stats[eelmodel];
     memset(&ilght, 0, sizeof(struct InitLight));
-    thing = allocate_free_thing_structure(TAF_Default);
+    thing = allocate_free_thing_structure(FTAF_Default);
     if (thing->index == 0) {
         ERRORDBG(8,"Should be able to allocate effect element %d for player %d, but failed.",(int)eelmodel,(int)owner);
         return INVALID_THING;

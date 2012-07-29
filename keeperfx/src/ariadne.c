@@ -973,7 +973,7 @@ long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long 
             for (stl_y = start_y; stl_y <= end_y; stl_y++)
             {
                 mapblk = get_map_block_at(stl_x, stl_y);
-                if ((mapblk->flags & 0x40) != 0)
+                if ((mapblk->flags & MapFlg_Unkn40) != 0)
                     return 1;
             }
         }
@@ -988,7 +988,7 @@ long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long 
             for (stl_x = start_x; stl_x <= end_x; stl_x++)
             {
                 mapblk = get_map_block_at(stl_x, stl_y);
-                if ((mapblk->flags & 0x40) != 0)
+                if ((mapblk->flags & MapFlg_Unkn40) != 0)
                     return 1;
             }
         }
@@ -2205,11 +2205,11 @@ long get_navigation_colour(long stl_x, long stl_y)
     struct Map *mapblk;
     //return _DK_get_navigation_colour(stl_x, stl_y);
     mapblk = get_map_block_at(stl_x, stl_y);
-    if ((mapblk->flags & 0x40) != 0)
+    if ((mapblk->flags & MapFlg_Unkn40) != 0)
     {
         return get_navigation_colour_for_door(stl_x, stl_y);
     }
-    if ((mapblk->flags & 0x10) != 0)
+    if ((mapblk->flags & MapFlg_Unkn10) != 0)
     {
         return 0x0F;
     }

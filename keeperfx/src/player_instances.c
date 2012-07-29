@@ -292,7 +292,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_hand_whip(player, n);
 
   thing = thing_get(player->field_43E);
-  if (((thing->field_0 & 0x01) == 0) || (thing->field_9 != player->field_440) || (!thing_slappable(thing, player->id_number)))
+  if (((thing->alloc_flags & TAlF_Exists) == 0) || (thing->field_9 != player->field_440) || (!thing_slappable(thing, player->id_number)))
   {
     player->field_440 = 0;
     player->field_43E = 0;
@@ -1001,8 +1001,8 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     clear_selected_creature(player);
     player->field_31 = 0;
     set_player_mode(player, 1);
-    thing->field_0 &= 0xDF;
-    thing->field_4F &= 0xFE;
+    thing->alloc_flags &= ~TAlF_IsControlled;
+    thing->field_4F &= ~0x01;
     player->field_0 &= 0xF7;
     set_engine_view(player, player->field_4B5);
     i = player->acamera->orient_a;

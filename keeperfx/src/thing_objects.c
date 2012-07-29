@@ -237,13 +237,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     long i,k;
     //thing = _DK_create_object(pos, model, owner, a4);
 
-    if (!i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate object %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -598,7 +598,7 @@ long object_update_dungeon_heart(struct Thing *thing)
     }
     process_dungeon_destroy(thing);
     SYNCDBG(18,"Beat update");
-    if ((thing->field_0 & 0x01) == 0)
+    if ((thing->alloc_flags & TAlF_Exists) == 0)
       return 0;
     if ( thing->byte_13 )
       thing->byte_13--;
@@ -683,7 +683,7 @@ long update_object(struct Thing *thing)
       {
         thing->movement_flags |= TMvF_Unknown02;
         objdat = get_objects_data_for_thing(thing);
-        if ( (objdat->field_12) && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->field_0 & 0x80) == 0) )
+        if ( (objdat->field_12) && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
         {
               if (thing->model == 10)
               {
