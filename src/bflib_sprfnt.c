@@ -34,7 +34,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DOUBLE_UNDERLINE_BOUND 10
+#define DOUBLE_UNDERLINE_BOUND 16
 
 struct AsianFont dbcJapFonts[] = {
   {"font12j.fon", 0, 215136, 0x2284, 0, 12, 0x0C00, 24, 1, 6, 12, 12, 12, 0, 1, 1, 1, 1},
@@ -70,6 +70,7 @@ DLLIMPORT long _DK_text_string_height(const char *text);
 /******************************************************************************/
 
 /** Returns if the given char starts a wide charcode.
+ * @param chr
  */
 TbBool is_wide_charcode(unsigned long chr)
 {
@@ -96,6 +97,8 @@ TbBool is_wide_charcode(unsigned long chr)
  * @param pos_y
  * @param width
  * @param height
+ * @param draw_colr
+ * @param shadow_colr
  */
 void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, uchar draw_colr, uchar shadow_colr)
 {
@@ -104,10 +107,14 @@ void LbDrawCharUnderline(long pos_x, long pos_y, long width, long height, uchar 
     w = width;
     // Draw shadow
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0) {
-        LbDrawHVLine(pos_x+2, pos_y+h, pos_x+w+2, pos_y+h, shadow_colr);
+        long shadow_x;
+        shadow_x = pos_x+1;
+        if (height > 2*DOUBLE_UNDERLINE_BOUND)
+            shadow_x++;
+        LbDrawHVLine(shadow_x, pos_y+h, shadow_x+w, pos_y+h, shadow_colr);
         h--;
         if (height > DOUBLE_UNDERLINE_BOUND) {
-            LbDrawHVLine(pos_x+2, pos_y+h, pos_x+w+2, pos_y+h, shadow_colr);
+            LbDrawHVLine(shadow_x, pos_y+h, shadow_x+w, pos_y+h, shadow_colr);
             h--;
         }
     }
@@ -229,48 +236,48 @@ int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned cha
       unsigned short src_bitwidth, short start_x, short start_y, short width, short height,
       short colr1, short colr2)
 {
-  unsigned short src_scanline;
-  unsigned char *src;
-  unsigned char *dst;
-  short colour;
-  short skip_count;
-  unsigned short src_val;
-  int x,y;
-  SYNCDBG(19,"Starting at %d,%d size %d,%d",(int)start_x, (int)start_y, (int)width, (int)height);
-  // Computing width in bytes from the number of bits
-  src_scanline = src_bitwidth >> 3;
-  if ((src_bitwidth & 7) != 0)
-    src_scanline++;
-  if (start_y != 0)
-    src_buf += src_scanline * (long)start_y;
-  src_val = 0;
-  for (y=height; y > 1; y--)
-  {
-    src = src_buf;
-    dst = dst_buf;
-    skip_count = start_x;
-    for (x=0; x < start_x+width; x++)
+    unsigned short src_scanline;
+    unsigned char *src;
+    unsigned char *dst;
+    short colour;
+    short skip_count;
+    unsigned short src_val;
+    int x,y;
+    SYNCDBG(19,"Starting at %d,%d size %d,%d",(int)start_x, (int)start_y, (int)width, (int)height);
+    // Computing width in bytes from the number of bits
+    src_scanline = src_bitwidth >> 3;
+    if ((src_bitwidth & 7) != 0)
+        src_scanline++;
+    if (start_y != 0)
+        src_buf += src_scanline * (long)start_y;
+    src_val = 0;
+    for (y=height; y > 1; y--)
     {
-      if ((x & 7) == 0)
-        src_val = *src++;
-      src_val <<= 1;
-      if ((src_val & 0x100) != 0)
-        colour = colr1;
-      else
-        colour = colr2;
-      if (skip_count > 0)
-      {
-        skip_count--;
-        continue;
-      }
-      if ((colour & 0xFF00) == 0)
-        *dst = colour;
-      dst++;
+        src = src_buf;
+        dst = dst_buf;
+        skip_count = start_x;
+        for (x=0; x < start_x+width; x++)
+        {
+          if ((x & 7) == 0)
+            src_val = *src++;
+          src_val <<= 1;
+          if ((src_val & 0x100) != 0)
+            colour = colr1;
+          else
+            colour = colr2;
+          if (skip_count > 0)
+          {
+            skip_count--;
+            continue;
+          }
+          if ((colour & 0xFF00) == 0)
+            *dst = colour;
+          dst++;
+        }
+        src_buf += src_scanline;
+        dst_buf += dst_scanline;
     }
-    src_buf += src_scanline;
-    dst_buf += dst_scanline;
-  }
-  return 0;
+    return 0;
 }
 
 int dbc_fonts_count(void)

@@ -200,7 +200,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     player->controlled_thing_idx = thing->index;
     player->field_31 = thing->field_9;
     player->field_4B5 = cam->field_6;
-    thing->field_0 |= 0x20;
+    thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= 0x01;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_2 |= 0x02;

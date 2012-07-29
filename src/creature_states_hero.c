@@ -200,7 +200,7 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
+        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
         {
             if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) ) {
                 victims_count++;
@@ -239,7 +239,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
+        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
         {
             if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
             {

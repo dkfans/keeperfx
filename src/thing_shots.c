@@ -953,14 +953,14 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     struct ShotConfigStats *shotst;
     struct InitLight ilght;
     struct Thing *thing;
-    if ( !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots) )
+    if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     shotst = get_shot_model_stats(model);
-    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate shot %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);

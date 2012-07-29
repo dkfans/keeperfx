@@ -139,13 +139,13 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
   switch (spl_id)
   {
   default:
-      if ((mapblk->flags & 0x10) == 0)
+      if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
         can_cast = true;
       }
       break;
   case 2:
-      if ((mapblk->flags & 0x10) == 0)
+      if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
         if (slabmap_owner(slb) == plyr_idx)
         {
@@ -157,7 +157,7 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
       can_cast = true;
       break;
   case 6:
-      if ((mapblk->flags & 0x10) == 0)
+      if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
         if (map_block_revealed(mapblk, plyr_idx) || (a5 == 1))
         {
@@ -166,7 +166,7 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
       }
       break;
   case 7:
-      if ((mapblk->flags & 0x10) == 0)
+      if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
         if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
         {
@@ -175,7 +175,7 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
       }
       break;
   case 10:
-      if ((mapblk->flags & 0x10) == 0)
+      if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
         if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
         {
@@ -197,9 +197,9 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
   case 16:
       if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
       {
-        if ((mapblk->flags & 0x10) != 0)
+        if ((mapblk->flags & MapFlg_Unkn10) != 0)
         {
-          if ((mapblk->flags & (0x40|0x02|0x01)) == 0)
+          if ((mapblk->flags & (MapFlg_Unkn40|MapFlg_Unkn02|MapFlg_Unkn01)) == 0)
           {
             if (slb->kind != SlbT_ROCK)
               can_cast = true;
@@ -343,7 +343,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     //return _DK_magic_use_power_imp(plyr_idx, x, y);
     if (!can_cast_spell_at_xy(plyr_idx, PwrK_MKDIGGER, stl_x, stl_y, 0)
      || !i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
+     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
       if (is_my_player_number(plyr_idx))
           play_non_3d_sample(119);

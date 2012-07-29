@@ -29,6 +29,17 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+enum MapFlags {
+    MapFlg_Unkn01     = 0x01,
+    MapFlg_Unkn02     = 0x02,
+    MapFlg_Unkn04     = 0x04,
+    MapFlg_Unkn08     = 0x08,
+    MapFlg_Unkn10     = 0x10,
+    MapFlg_Unkn20     = 0x20,
+    MapFlg_Unkn40     = 0x40,
+    MapFlg_Unkn80     = 0x80,
+};
+
 struct Map {
       unsigned char flags;
       unsigned long data;

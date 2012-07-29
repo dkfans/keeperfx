@@ -200,7 +200,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
   player->field_31 = thing->field_9;
   if (cam != NULL)
     player->field_4B5 = cam->field_6;
-  thing->field_0 |= 0x20u;
+  thing->alloc_flags |= TAlF_IsControlled;
   thing->field_4F |= 0x01;
   set_start_state(thing);
   set_player_mode(player, 2);
@@ -751,7 +751,7 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
 {
   const struct SpellInfo *spinfo;
   long i;
-  if ((caster->field_0 & 0x20) != 0)
+  if ((caster->alloc_flags & TAlF_IsControlled) != 0)
   {
     if (target->class_id == TCls_Object)
       i = 1;
@@ -800,7 +800,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
   // Check if the spell can be fired as a shot
   if (spinfo->field_1)
   {
-    if ((caster->field_0 & 0x20) != 0)
+    if ((caster->alloc_flags & TAlF_IsControlled) != 0)
       i = 1;
     else
       i = 4;
@@ -893,7 +893,7 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
         mapblk = get_map_block_at(stl_x,stl_y);
         if (!map_block_invalid(mapblk))
         {
-            if ((mapblk->flags & 0x10) == 0)
+            if ((mapblk->flags & MapFlg_Unkn10) == 0)
             {
                 thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
                 if (!thing_is_invalid(thing))
@@ -1488,7 +1488,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
     if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-        if ((no_effects) && ((thing->field_0 & 0x20) != 0)) {
+        if ((no_effects) && ((thing->alloc_flags & TAlF_IsControlled) != 0)) {
             prepare_to_controlled_creature_death(thing);
         }
         cause_creature_death(thing, no_effects);
@@ -1535,7 +1535,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     }
     if (no_effects)
     {
-        if ((thing->field_0 & 0x20) != 0) {
+        if ((thing->alloc_flags & TAlF_IsControlled) != 0) {
             prepare_to_controlled_creature_death(thing);
         }
         cause_creature_death(thing, no_effects);
@@ -1833,7 +1833,7 @@ void get_creature_instance_times(struct Thing *thing, long inst_idx, long *ritim
     long itime,aitime;
     cctrl = creature_control_get_from_thing(thing);
     inst_inf = creature_instance_info_get(inst_idx);
-    if ((thing->field_0 & 0x20) != 0)
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         itime = inst_inf->fp_time;
         aitime = inst_inf->fp_action_time;
@@ -2032,7 +2032,7 @@ void remove_first_creature(struct Thing *thing)
     struct Thing *sectng;
     //_DK_remove_first_creature(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if ((thing->field_0 & 0x08) == 0)
+    if ((thing->alloc_flags & TAlF_Unkn08) == 0)
     {
         ERRORLOG("Thing %d is not in Peter list",(int)thing->index);
         return;
@@ -2092,7 +2092,7 @@ void remove_first_creature(struct Thing *thing)
     }
     cctrl->field_1D = 0;
     cctrl->players_next_creature_idx = 0;
-    thing->field_0 &= ~0x08u;
+    thing->alloc_flags &= ~TAlF_Unkn08;
 }
 
 TbBool thing_is_creature(const struct Thing *thing)
@@ -2146,7 +2146,7 @@ void change_creature_owner(struct Thing *thing, long nowner)
             cctrl->lairtng_idx = 0;
         }
     }
-    if ((thing->field_0 & 0x08) != 0)
+    if ((thing->alloc_flags & TAlF_Unkn08) != 0)
       remove_first_creature(thing);
     if (thing->owner != game.neutral_player_num)
     {
@@ -2177,7 +2177,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
     struct Thing *crtng;
     long i;
     crstat = creature_stats_get(model);
-    if (!i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create breed %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -2189,7 +2189,7 @@ struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigne
         erstat_inc(ESE_NoFreeCreatrs);
         return INVALID_THING;
     }
-    crtng = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (crtng->index == 0) {
         ERRORDBG(3,"Should be able to allocate creature %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -2299,7 +2299,7 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
@@ -2329,7 +2329,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
@@ -2359,7 +2359,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
@@ -2389,7 +2389,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
@@ -2416,7 +2416,7 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1)) // job_idx
       && (thing->active_state != CrSt_CreatureUnconscious) )
     {
@@ -2446,7 +2446,7 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && (thing->active_state != CrSt_CreatureUnconscious) )
     {
@@ -2561,8 +2561,8 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
       thing = thing_get(i);
       if (!thing_is_invalid(thing))
       {
-        if ( ((thing->field_0 & 0x01) != 0) && (thing->class_id == TCls_Creature)
-          && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+        if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->class_id == TCls_Creature)
+          && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
           && (thing->active_state != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner) )
         {
           dungeon->selected_creatures_of_model[breed_idx] = 0;
@@ -2580,8 +2580,8 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
       thing = thing_get(i);
       if (!thing_is_invalid(thing))
       {
-        if ( ((thing->field_0 & 0x01) != 0) && (thing->class_id == TCls_Creature)
-          && ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+        if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->class_id == TCls_Creature)
+          && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
           && (thing->active_state != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner)
           && (get_creature_gui_job(thing) == job_idx) )
         {
@@ -2851,7 +2851,7 @@ void place_bloody_footprint(struct Thing *thing)
       set_flag_byte(&cctrl->field_2,0x01,false);
     } else
     {
-      if ( thing->field_0 & 0x20 )
+      if ( thing->alloc_flags & 0x20 )
       {
         if ((thing->movement_flags & TMvF_Flying) != 0)
         {
@@ -2896,7 +2896,7 @@ void place_bloody_footprint(struct Thing *thing)
         cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
         cctrl->pos_BB.z.val = 0;
       }
-      if (((thing->movement_flags & TMvF_Flying) != 0) && ((thing->field_0 & 0x20) == 0))
+      if (((thing->movement_flags & TMvF_Flying) != 0) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
       {
         i = get_floor_height_under_thing_at(thing, &thing->mappos) - thing->mappos.z.val + 256;
         if (i > 0)
@@ -2927,7 +2927,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    if (((thing->field_0 & 0x20) == 0) && ((thing->movement_flags & TMvF_Unknown02) != 0))
+    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_Unknown02) != 0))
     {
       crstat = creature_stats_get_from_thing(thing);
       if (crstat->hurt_by_lava)
@@ -3138,7 +3138,7 @@ long update_creature(struct Thing *thing)
     struct Map *map;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & 0x40) != 0))
+    if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & MapFlg_Unkn40) != 0))
     {
         SYNCDBG(8,"Killing unconscious %s index %d on toxic map black.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
@@ -3173,7 +3173,7 @@ long update_creature(struct Thing *thing)
     if (cctrl->field_302 == 0)
         process_creature_instance(thing);
     update_creature_count(thing);
-    if ((thing->field_0 & 0x20) != 0)
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         if (cctrl->affected_by_spells == 0)
         {
@@ -3219,7 +3219,7 @@ long update_creature(struct Thing *thing)
         thing->velocity.z.val += cctrl->pos_BB.z.val;
     }
     move_creature(thing);
-    if ((thing->field_0 & 0x20) != 0)
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         if ((cctrl->flgfield_1 & CCFlg_Unknown40) == 0)
           cctrl->move_speed /= 2;

@@ -943,7 +943,7 @@ short creature_picks_up_corpse(struct Thing *thing)
     //return _DK_creature_picks_up_corpse(thing);
     cctrl = creature_control_get_from_thing(thing);
     picktng = thing_get(cctrl->pickup_object_id);
-    if ( thing_is_invalid(picktng) || ((picktng->field_0 & 0x80) != 0)
+    if ( thing_is_invalid(picktng) || ((picktng->alloc_flags & TAlF_IsDragged) != 0)
       || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(thing);

@@ -1174,7 +1174,7 @@ short load_map_slab_file(unsigned long lv_num)
 short load_map_flag_file(unsigned long lv_num)
 {
     SYNCDBG(5,"Starting");
-    struct Map *map;
+    struct Map *mapblk;
     unsigned long stl_x,stl_y;
     unsigned char *buf;
     unsigned long i;
@@ -1188,8 +1188,8 @@ short load_map_flag_file(unsigned long lv_num)
     {
         for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
         {
-            map = get_map_block_at(stl_x,stl_y);
-            map->flags = buf[i];
+            mapblk = get_map_block_at(stl_x,stl_y);
+            mapblk->flags = buf[i];
             i += 2;
         }
     }

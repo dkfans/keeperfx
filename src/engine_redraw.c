@@ -183,9 +183,9 @@ void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, stru
                 {
                     if (map_block_revealed(mapblk, player->id_number))
                         backup_explored[soe_y][soe_x] |= 0x01;
-                    if ((mapblk->flags & 0x04) != 0)
+                    if ((mapblk->flags & MapFlg_Unkn04) != 0)
                         backup_explored[soe_y][soe_x] |= 0x02;
-                    if ((mapblk->flags & 0x80) != 0)
+                    if ((mapblk->flags & MapFlg_Unkn80) != 0)
                         backup_explored[soe_y][soe_x] |= 0x04;
                 }
             }
@@ -253,7 +253,7 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
                             slb = get_slabmap_block(slb_x, slb_y);
                             slbattr = get_slab_attrs(slb);
                             if ( !slbattr->field_14 )
-                                mapblk->flags &= 0x7Bu;
+                                mapblk->flags &= ~(MapFlg_Unkn80|MapFlg_Unkn04);
                             mapblk++;
                         }
                         stl_x += delta;
@@ -324,7 +324,7 @@ void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, 
                           slb = get_slabmap_block(slb_x, slb_y);
                           slbattr = get_slab_attrs(slb);
                           if ( !slbattr->field_14 )
-                              mapblk->flags &= 0x7Bu;
+                              mapblk->flags &= ~(MapFlg_Unkn80|MapFlg_Unkn04);
                       }
                       stl_y += delta;
                     }

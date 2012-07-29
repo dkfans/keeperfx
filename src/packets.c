@@ -1347,7 +1347,13 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         stop_creatures_around_hand(plyr_idx, stl_x, stl_y);
     }
     return ret;
-  }
+}
+
+TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
+{
+    return (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
+         + (ulong)tng->field_52 + (ulong)tng->owner;
+}
 
   TbBigChecksum get_packet_save_checksum(void)
   {
@@ -1359,12 +1365,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
       for (tng_idx=0; tng_idx < THINGS_COUNT; tng_idx++)
       {
           tng = thing_get(tng_idx);
-          if ((tng->field_0 & 0x01) != 0)
+          if ((tng->alloc_flags & TAlF_Exists) != 0)
           {
               if (tng->class_id != TCls_AmbientSnd)
               {
-                  sum += (ulong)tng->mappos.x.val + (ulong)tng->mappos.y.val + (ulong)tng->mappos.z.val
-                       + (ulong)tng->field_52 + (ulong)tng->owner;
+                  sum += get_thing_simple_checksum(tng);
               }
           }
       }

@@ -124,7 +124,7 @@ void find_nearest_rooms_for_ambient_sound(void)
     struct Room *room;
     struct MapOffset *sstep;
     struct SlabMap *slb;
-    struct Map *map;
+    struct Map *mapblk;
     struct Coord3d pos;
     long slb_x,slb_y;
     long stl_x,stl_y;
@@ -147,11 +147,11 @@ void find_nearest_rooms_for_ambient_sound(void)
         sstep = &spiral_step[i];
         stl_x = 3 * (slb_x + sstep->h);
         stl_y = 3 * (slb_y + sstep->v);
-        map = get_map_block_at(stl_x, stl_y);
+        mapblk = get_map_block_at(stl_x, stl_y);
         slb = get_slabmap_for_subtile(stl_x,stl_y);
-        if (map_block_invalid(map) || slabmap_block_invalid(slb))
+        if (map_block_invalid(mapblk) || slabmap_block_invalid(slb))
             continue;
-        if (((map->flags & 0x02) != 0) && (player->id_number == slabmap_owner(slb)))
+        if (((mapblk->flags & MapFlg_Unkn02) != 0) && (player->id_number == slabmap_owner(slb)))
         {
             room = room_get(slb->room_index);
             if (room_is_invalid(room))

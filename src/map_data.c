@@ -235,7 +235,7 @@ TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
 {
     const struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    if ((mapblk->flags & 0x10) == 0)
+    if ((mapblk->flags & MapFlg_Unkn10) == 0)
     {
         /* This is original condition that was in this function.
          * I'm not sure what the author ment, but it's obviously wrong.
@@ -557,10 +557,10 @@ TbBool lava_at_position(const struct Coord3d *pos)
  */
 TbBool subtile_is_player_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Map *map;
+    struct Map *mapblk;
     struct SlabMap *slb;
-    map = get_map_block_at(stl_x,stl_y);
-    if (map_block_invalid(map) || ((map->flags & 0x02) == 0))
+    mapblk = get_map_block_at(stl_x,stl_y);
+    if (map_block_invalid(mapblk) || ((mapblk->flags & MapFlg_Unkn02) == 0))
         return false;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
@@ -570,10 +570,10 @@ TbBool subtile_is_player_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord 
 
 TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Map *map;
+    struct Map *mapblk;
     struct SlabMap *slb;
-    map = get_map_block_at(stl_x,stl_y);
-    if (map_block_invalid(map) || ((map->flags & 0x02) == 0))
+    mapblk = get_map_block_at(stl_x,stl_y);
+    if (map_block_invalid(mapblk) || ((mapblk->flags & MapFlg_Unkn02) == 0))
         return false;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)

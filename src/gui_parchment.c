@@ -138,26 +138,26 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
   struct Thing *thing;
   struct SlabMap *slb;
   struct Room *room;
-  struct Map *map;
+  struct Map *mapblk;
   long owner;
   TbPixel pixval;
-  map = get_map_block_at(stl_x, stl_y);
+  mapblk = get_map_block_at(stl_x, stl_y);
   slb = get_slabmap_for_subtile(stl_x,stl_y);
   owner = slabmap_owner(slb);
-  if ((((map->flags & 0x04) != 0) || ((map->flags & 0x80) != 0))
+  if ((((mapblk->flags & MapFlg_Unkn04) != 0) || ((mapblk->flags & MapFlg_Unkn80) != 0))
       && ((game.play_gameturn & 4) != 0))
   {
     pixval = pixmap.ghost[background + 0x1A00];
   } else
-  if ((map->flags & 0x01) != 0)
+  if ((mapblk->flags & MapFlg_Unkn01) != 0)
   {
     pixval = pixmap.ghost[background + 0x8C00];
   } else
-  if (!map_block_revealed(map,plyr_idx))
+  if (!map_block_revealed(mapblk,plyr_idx))
   {
     pixval = background;
   } else
-  if ((map->flags & 0x02) != 0) // Room slab
+  if ((mapblk->flags & MapFlg_Unkn02) != 0) // Room slab
   {
     room = subtile_room_get(stl_x, stl_y);
     if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
@@ -177,11 +177,11 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
     {
       pixval = 0;
     } else
-    if ((map->flags & 0x20) != 0)
+    if ((mapblk->flags & MapFlg_Unkn20) != 0)
     {
       pixval = pixmap.ghost[background + 0x1000];
     } else
-    if ((map->flags & 0x40) != 0) // Door slab
+    if ((mapblk->flags & MapFlg_Unkn40) != 0) // Door slab
     {
       thing = get_door_for_position(stl_x, stl_y);
       if (thing_is_invalid(thing))
@@ -200,7 +200,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
         pixval = 60;
       }
     } else
-    if ((map->flags & 0x10) == 0)
+    if ((mapblk->flags & MapFlg_Unkn10) == 0)
     {
       if (slb->kind == SlbT_LAVA)
       {
@@ -326,7 +326,7 @@ void draw_overhead_things(long x, long y)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
+        if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
         {
             TbPixel col1,col2;
             col1 = 31;
@@ -405,7 +405,7 @@ void draw_overhead_things(long x, long y)
             }
             i = thing->next_of_class;
             // Per-thing code
-            if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
+            if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
             {
                 if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, player->id_number))
                 {
@@ -438,7 +438,7 @@ void draw_overhead_things(long x, long y)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
+        if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
         {
             if (player->id_number == thing->owner)
             {
@@ -533,7 +533,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
       break;
     }
     i = thing->field_2;
-    if (((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
+    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
     {
       spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);
       spos_y = ((subtile_size * ((long)thing->mappos.y.stl.pos)) >> 8);

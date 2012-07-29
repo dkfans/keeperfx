@@ -174,7 +174,7 @@ struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y);
 TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel);
 
 TbBool update_thing(struct Thing *thing);
-TbBigChecksum get_thing_checksum(struct Thing *thing);
+TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
 
 TbBool thing_slappable(const struct Thing *thing, long plyr_idx);

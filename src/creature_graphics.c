@@ -363,7 +363,7 @@ void update_creature_graphic_field_4F(struct Thing *thing)
     thing->field_4F &= ~0x20;
     thing->field_4F &= ~0x40;
     // Now set only those that should be
-    if (((thing->field_0 & 0x20) != 0) && is_my_player_number(thing->owner))
+    if (((thing->alloc_flags & TAlF_IsControlled) != 0) && is_my_player_number(thing->owner))
     {
         thing->field_4F |= 0x01;
     } else
