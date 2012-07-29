@@ -1513,13 +1513,13 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     struct MagicStats *magstat;
     struct Dungeon *dungeon;
     struct Thing *thing;
-    if ( !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots) )
+    if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate cave in %d for player %d, but failed.",(int)cimodel,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -2798,13 +2798,13 @@ void maintain_my_battle_list(void)
 struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, unsigned short owner)
 {
     struct Thing *thing;
-    if ( !i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots) )
+    if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
         ERRORDBG(3,"Cannot create ambient sound %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate ambient sound %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -5319,7 +5319,7 @@ void remove_thing_from_mapwho(struct Thing *thing)
   struct Thing *mwtng;
   SYNCDBG(18,"Starting");
   //_DK_remove_thing_from_mapwho(thing);
-  if ((thing->field_0 & TF_IsInMapWho) == 0)
+  if ((thing->alloc_flags & TAlF_IsInMapWho) == 0)
     return;
   if (thing->field_4 > 0)
   {
@@ -5337,7 +5337,7 @@ void remove_thing_from_mapwho(struct Thing *thing)
   }
   thing->field_2 = 0;
   thing->field_4 = 0;
-  thing->field_0 &= ~TF_IsInMapWho;
+  thing->alloc_flags &= ~TAlF_IsInMapWho;
 }
 
 void place_thing_in_mapwho(struct Thing *thing)
@@ -5522,7 +5522,7 @@ void update_all_events(void)
     if (!thing_is_invalid(thing))
     {
       event = &game.event[i];
-      if ((thing->class_id == TCls_Creature) && ((thing->field_0 & 0x10) || (thing->field_1 & TF1_Unkn02)))
+      if ((thing->class_id == TCls_Creature) && ((thing->alloc_flags & TAlF_IsInLimbo) || (thing->field_1 & TF1_Unkn02)))
       {
         event->mappos_x = 0;
         event->mappos_y = 0;
@@ -6052,9 +6052,9 @@ struct Thing *get_workshop_box_thing(long owner, long model)
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if ( ((thing->field_0 & 0x01) != 0) && (thing->model == model) && (thing->owner == owner) )
+        if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->model == model) && (thing->owner == owner) )
         {
-            if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
+            if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
                 return thing;
         }
         // Per-thing code ends
@@ -6265,7 +6265,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           colmn = get_column(k);
           if (colmn->solidmask >= 8)
           {
-            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & 0x02) == 0)) )
+            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & MapFlg_Unkn02) == 0)) )
               mask &= 3;
           }
         }

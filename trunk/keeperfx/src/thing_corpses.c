@@ -235,7 +235,7 @@ long update_dead_creature(struct Thing *thing)
     long i;
     SYNCDBG(18,"Starting");
     return _DK_update_dead_creature(thing);
-    if ((thing->field_0 & 0x80) == 0)
+    if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
       if (thing->active_state == 1)
       {
@@ -278,19 +278,19 @@ long update_dead_creature(struct Thing *thing)
     if (cube_is_water(i)) {
         thing->movement_flags |= TMvF_Unknown01;
     }
-    if ((thing->field_0 & 0x20) != 0)
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         move_dead_creature(thing);
         return 1;
     }
     if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
-      && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->field_0 & 0x80) == 0) )
+      && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
     {
         delete_thing_structure(thing, 0);
         return 0;
     }
     mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((mapblk->flags & 0x40) == 0)
+    if ((mapblk->flags & MapFlg_Unkn40) == 0)
     {
         move_dead_creature(thing);
         return 1;
@@ -351,13 +351,13 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     struct Thing *thing;
     unsigned long k;
     //return _DK_create_dead_creature(pos, model, a1, owner, explevel);
-    if (!i_can_allocate_free_thing_structure(TAF_FreeEffectIfNoSlots))
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create dead creature model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing = allocate_free_thing_structure(TAF_FreeEffectIfNoSlots);
+    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
         ERRORDBG(3,"Should be able to allocate dead creature %d for player %d, but failed.",(int)model,(int)owner);
         erstat_inc(ESE_NoFreeThings);
@@ -419,7 +419,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
 
     //return _DK_destroy_creature_and_create_corpse(thing, a1);
     crmodel = thing->model;
-    memf1 = ((thing->field_0 & 0x20) != 0);
+    memf1 = ((thing->alloc_flags & TAlF_IsControlled) != 0);
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val;
@@ -436,7 +436,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
         ERRORLOG("Could not create dead thing.");
         return INVALID_THING;
     }
-    set_flag_byte(&deadtng->field_0, 0x20, memf1);
+    set_flag_byte(&deadtng->alloc_flags, TAlF_IsControlled, memf1);
     if (owner != game.neutral_player_num)
     {
         // Update thing index inside player struct

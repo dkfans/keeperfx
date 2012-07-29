@@ -288,12 +288,12 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
   long i,k;
   dungeon = get_players_num_dungeon(plyr_idx);
   // Check if 'things' are correct
-  if ((tng1->field_0 & 0x01) == 0)
+  if ((tng1->alloc_flags & TAlF_Exists) == 0)
     return;
   if ((tng1->class_id != TCls_Object) || (tng1->model != 88))
     return;
 
-  if ((tng2->field_0 & 0x01) == 0)
+  if ((tng2->alloc_flags & TAlF_Exists) == 0)
     return;
   if ((tng2->class_id != TCls_Creature) || (tng2->owner != plyr_idx))
     return;
@@ -316,7 +316,7 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
   kill_creature(tng2, 0, 0, 1, 0, 0);
   create_special_used_effect(&tng1->mappos, plyr_idx);
   remove_events_thing_is_attached_to(tng1);
-  if ((tng1->field_1 & TF1_Unkn01) || (tng1->field_0 & 0x80))
+  if ((tng1->field_1 & TF1_Unkn01) || (tng1->alloc_flags & TAlF_IsDragged))
   {
     k = 0;
     i = dungeon->digger_list_start;

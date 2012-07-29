@@ -47,7 +47,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     // If there is no free thing, try to free an effect
     if (i >= THINGS_COUNT-1)
     {
-        if ((allocflags & TAF_FreeEffectIfNoSlots) != 0)
+        if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
         {
             thing = thing_get(game.thing_lists[TngList_EffectElems].index);
             if (!thing_is_invalid(thing))
@@ -82,7 +82,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
         ERRORMSG("%s: Got invalid thing slot instead of free one!",func_name);
         return INVALID_THING;
     }
-    thing->field_0 |= TF_Exists;
+    thing->alloc_flags |= TAlF_Exists;
     thing->index = game.free_things[i];
     game.free_things[game.free_things_start_index] = 0;
     game.free_things_start_index++;
@@ -96,13 +96,13 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     if (game.free_things_start_index < THINGS_COUNT-1)
         return true;
     // Check if there are effect slots that could be freed
-    if ((allocflags & TAF_FreeEffectIfNoSlots) != 0)
+    if ((allocflags & FTAF_FreeEffectIfNoSlots) != 0)
     {
         if (game.thing_lists[TngList_EffectElems].index > 0)
             return true;
     }
     // Couldn't find free slot - fail
-    if ((allocflags & TAF_LogFailures) != 0)
+    if ((allocflags & FTAF_LogFailures) != 0)
     {
         ERRORLOG("Cannot allocate thing structure.");
         things_stats_debug_dump();
@@ -121,7 +121,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     struct Room *room;
     //_DK_delete_thing_structure(thing, a2); return;
     cctrl = creature_control_get_from_thing(thing);
-    if ((thing->field_0 & TF_Unkn08) != 0) {
+    if ((thing->alloc_flags & TAlF_Unkn08) != 0) {
         remove_first_creature(thing);
     }
     if (!a2)
@@ -201,7 +201,7 @@ TbBool thing_exists(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return false;
-    if ((thing->field_0 & TF_Exists) == 0)
+    if ((thing->alloc_flags & TAlF_Exists) == 0)
         return false;
 #if (BFDEBUG_LEVEL > 0)
     if (thing->index != (thing-thing_get(0)))
@@ -219,7 +219,7 @@ TbBool thing_touching_floor(const struct Thing *thing)
 
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
 {
-    if ((thing->field_0 & 0x20) == 0)
+    if ((thing->alloc_flags & TAlF_IsControlled) == 0)
         return INVALID_PLAYER;
     return get_player(thing->owner);
 }

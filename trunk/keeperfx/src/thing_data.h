@@ -28,15 +28,15 @@ extern "C" {
 
 /******************************************************************************/
 /** Enums for thing->field_0 bit fields. */
-enum ThingFlags0 {
-    TF_Exists     = 0x01,
-    TF_IsInMapWho = 0x02,
-    TF_Unkn04     = 0x04,
-    TF_Unkn08     = 0x08,
-    TF_Unkn10     = 0x10,
-    TF_Unkn20     = 0x20,
-    TF_Unkn40     = 0x40,
-    TF_Unkn80     = 0x80,
+enum ThingAllocFlags {
+    TAlF_Exists        = 0x01,
+    TAlF_IsInMapWho    = 0x02,
+    TAlF_IsInStrucList = 0x04,
+    TAlF_Unkn08        = 0x08,
+    TAlF_IsInLimbo     = 0x10,
+    TAlF_IsControlled  = 0x20,
+    TAlF_IsInGroup     = 0x40,
+    TAlF_IsDragged     = 0x80,
 };
 
 /** Enums for thing->field_1 bit fields. */
@@ -47,10 +47,10 @@ enum ThingFlags1 {
     TF1_Unkn08     = 0x08,
 };
 
-enum ThingAllocFlags {
-    TAF_Default             = 0x00,
-    TAF_FreeEffectIfNoSlots = 0x01,
-    TAF_LogFailures         = 0x80,
+enum FreeThingAllocFlags {
+    FTAF_Default             = 0x00,
+    FTAF_FreeEffectIfNoSlots = 0x01,
+    FTAF_LogFailures         = 0x80,
 };
 
 enum ThingMovementFlags {
@@ -81,7 +81,7 @@ struct InitThing { // sizeof=0x15
 };
 
 struct Thing {
-    unsigned char field_0;
+    unsigned char alloc_flags;
     unsigned char field_1;
     unsigned short field_2;
     unsigned short field_4;
@@ -176,8 +176,7 @@ unsigned short field_60;
     short ccontrol_idx;
     unsigned char snd_emitter_id;
     short next_of_class;
-    unsigned char field_69;
-    unsigned char field_6A;
+    short prev_of_class;
 };
 
 #define INVALID_THING (game.things.lookup[0])

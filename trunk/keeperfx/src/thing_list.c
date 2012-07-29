@@ -87,7 +87,50 @@ void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 
 void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
 {
-    _DK_remove_thing_from_list(thing, slist);
+    struct Thing *sibtng;
+    //_DK_remove_thing_from_list(thing, slist);
+    if ((thing->alloc_flags & TAlF_IsInStrucList) == 0)
+        return;
+    if (thing->index == slist->index)
+    {
+      slist->index = thing->next_of_class;
+      if (thing->next_of_class > 0)
+      {
+          sibtng = thing_get(thing->next_of_class);
+          if (!thing_is_invalid(sibtng))
+          {
+              sibtng->prev_of_class = 0;
+          }
+      }
+      thing->next_of_class = 0;
+      thing->prev_of_class = 0;
+    } else
+    {
+      if (thing->prev_of_class > 0)
+      {
+          sibtng = thing_get(thing->prev_of_class);
+          if (!thing_is_invalid(sibtng))
+          {
+              sibtng->next_of_class = thing->next_of_class;
+          }
+      }
+      if (thing->next_of_class > 0)
+      {
+          sibtng = thing_get(thing->next_of_class);
+          if (!thing_is_invalid(sibtng))
+          {
+              sibtng->prev_of_class = thing->prev_of_class;
+          }
+      }
+      thing->prev_of_class = 0;
+      thing->next_of_class = 0;
+    }
+    thing->alloc_flags &= ~TAlF_IsInStrucList;
+    if (slist->count <= 0) {
+      ERRORLOG("List has < 0 structures");
+      return;
+    }
+    slist->count--;
 }
 
 struct StructureList *get_list_for_thing_class(long class_id)
@@ -324,9 +367,9 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
         break;
       }
       i = thing->next_of_class;
-      if ((thing->field_0 & 0x40) == 0)
+      if ((thing->alloc_flags & TAlF_IsInGroup) == 0)
       {
-          if ((thing->field_0 & 0x10) != 0) {
+          if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
               update_thing_animation(thing);
           } else {
               update_thing(thing);
@@ -430,9 +473,9 @@ unsigned long update_creatures_not_in_list(void)
       ERRORLOG("Some THING has been deleted during the processing of another thing");
       break;
     }
-    if ((thing->field_0 & 0x40) != 0)
+    if ((thing->alloc_flags & TAlF_IsInGroup) != 0)
     {
-      if ((thing->field_0 & 0x10) != 0)
+      if ((thing->alloc_flags & TAlF_IsInLimbo) != 0)
         update_thing_animation(thing);
       else
         update_thing(thing);
@@ -747,7 +790,7 @@ long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long 
         i = thing->next_of_class;
         // Per-thing code
         cctrl = creature_control_get_from_thing(thing);
-        if (((thing->field_0 & TF_Unkn10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
+        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
         {
             if (thing->owner != immune_plyr_idx)
             {
@@ -1173,7 +1216,7 @@ void stop_all_things_playing_samples(void)
   for (i=0; i < THINGS_COUNT; i++)
   {
     thing = thing_get(i);
-    if ((thing->field_0 & 0x01) != 0)
+    if ((thing->alloc_flags & TAlF_Exists) != 0)
     {
       if (thing->snd_emitter_id)
       {
@@ -1273,10 +1316,26 @@ TbBool update_thing(struct Thing *thing)
     return true;
 }
 
-TbBigChecksum get_thing_checksum(struct Thing *thing)
+TbBigChecksum get_thing_checksum(const struct Thing *thing)
 {
-  SYNCDBG(18,"Starting");
-  return _DK_get_thing_checksum(thing);
+    TbBigChecksum csum;
+    SYNCDBG(18,"Starting");
+    //return _DK_get_thing_checksum(thing);
+    if (!thing_exists(thing))
+        return 0;
+    csum = (ulong)thing->class_id +
+        (ulong)thing->mappos.z.val +
+        (ulong)thing->mappos.x.val +
+        (ulong)thing->mappos.y.val +
+        (ulong)thing->health + (ulong)thing->model + (ulong)thing->owner;
+    if (thing->class_id == 5)
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        csum += (ulong)cctrl->field_D4 + (ulong)cctrl->instance_id
+            + (ulong)thing->field_49 + (ulong)thing->field_48;
+    }
+    return csum * thing->index;
 }
 
 short update_thing_sound(struct Thing *thing)
@@ -1347,7 +1406,7 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl
     // Per thing processing block
     if ((thing->class_id == TCls_Creature) && (thing != excltng))
     {
-        if ( ((thing->field_0 & 0x10) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
+        if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
         {
             if ((thing->active_state == CrSt_ImpDigsMines1) || (thing->active_state == CrSt_ImpDigsMines2))
             {

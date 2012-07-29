@@ -139,7 +139,7 @@ TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing)
         crctrl->next_in_group = 0;
         crctrl->group_leader &= TngGroup_LeaderIndex;
     }
-    crthing->field_0 |= 0x0040;
+    crthing->alloc_flags |= TAlF_IsInGroup;
     return true;
 }
 
