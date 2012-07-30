@@ -151,7 +151,7 @@ void find_nearest_rooms_for_ambient_sound(void)
         slb = get_slabmap_for_subtile(stl_x,stl_y);
         if (map_block_invalid(mapblk) || slabmap_block_invalid(slb))
             continue;
-        if (((mapblk->flags & MapFlg_Unkn02) != 0) && (player->id_number == slabmap_owner(slb)))
+        if (((mapblk->flags & MapFlg_IsRoom) != 0) && (player->id_number == slabmap_owner(slb)))
         {
             room = room_get(slb->room_index);
             if (room_is_invalid(room))

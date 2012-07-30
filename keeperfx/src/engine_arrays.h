@@ -59,7 +59,7 @@ DLLIMPORT extern long _DK_lintel_bottom_height[256];
 /******************************************************************************/
 extern unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
 /******************************************************************************/
-unsigned long convert_td_iso(unsigned long n);
+long convert_td_iso(unsigned long n);
 
 void init_iso_3d_conversion_tables(void);
 void setup_3d(void);

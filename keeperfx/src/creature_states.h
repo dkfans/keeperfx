@@ -309,6 +309,7 @@ TbBool remove_creature_from_work_room(struct Thing *thing);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool anger_is_creature_livid(const struct Thing *thing);
 TbBool anger_is_creature_angry(const struct Thing *thing);
+void anger_set_creature_anger(struct Thing *thing, long annoy_lv, long reason);
 /******************************************************************************/
 #ifdef __cplusplus
 }

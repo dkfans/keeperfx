@@ -5315,29 +5315,29 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
 
 void remove_thing_from_mapwho(struct Thing *thing)
 {
-  struct Map *map;
-  struct Thing *mwtng;
-  SYNCDBG(18,"Starting");
-  //_DK_remove_thing_from_mapwho(thing);
-  if ((thing->alloc_flags & TAlF_IsInMapWho) == 0)
-    return;
-  if (thing->field_4 > 0)
-  {
-    mwtng = thing_get(thing->field_4);
-    mwtng->field_2 = thing->field_2;
-  } else
-  {
-    map = get_map_block_at(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-    set_mapwho_thing_index(map, thing->field_2);
-  }
-  if (thing->field_2 > 0)
-  {
-    mwtng = thing_get(thing->field_2);
-    mwtng->field_4 = thing->field_4;
-  }
-  thing->field_2 = 0;
-  thing->field_4 = 0;
-  thing->alloc_flags &= ~TAlF_IsInMapWho;
+    struct Map *map;
+    struct Thing *mwtng;
+    SYNCDBG(18,"Starting");
+    //_DK_remove_thing_from_mapwho(thing);
+    if ((thing->alloc_flags & TAlF_IsInMapWho) == 0)
+        return;
+    if (thing->field_4 > 0)
+    {
+        mwtng = thing_get(thing->field_4);
+        mwtng->field_2 = thing->field_2;
+    } else
+    {
+        map = get_map_block_at(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+        set_mapwho_thing_index(map, thing->field_2);
+    }
+    if (thing->field_2 > 0)
+    {
+        mwtng = thing_get(thing->field_2);
+        mwtng->field_4 = thing->field_4;
+    }
+    thing->field_2 = 0;
+    thing->field_4 = 0;
+    thing->alloc_flags &= ~TAlF_IsInMapWho;
 }
 
 void place_thing_in_mapwho(struct Thing *thing)
@@ -6265,7 +6265,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           colmn = get_column(k);
           if (colmn->solidmask >= 8)
           {
-            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & MapFlg_Unkn02) == 0)) )
+            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & MapFlg_IsRoom) == 0)) )
               mask &= 3;
           }
         }
