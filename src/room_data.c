@@ -1206,6 +1206,22 @@ TbBool clear_dig_on_room_slabs(struct Room *room, long plyr_idx)
     return true;
 }
 
+TbBool room_has_enough_free_capacity_for_creature(const struct Room *room, const struct Thing *creatng)
+{
+    if (room->kind == RoK_LAIR)
+    {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(creatng);
+        if (room->used_capacity + crstat->lair_size <= room->total_capacity)
+            return true;
+    } else
+    {
+        if (room->used_capacity + 1 <= room->total_capacity)
+            return true;
+    }
+    return false;
+}
+
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     return _DK_find_random_valid_position_for_thing_in_room(thing, room, pos);

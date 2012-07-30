@@ -3138,7 +3138,7 @@ long update_creature(struct Thing *thing)
     struct Map *map;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & MapFlg_Unkn40) != 0))
+    if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & MapFlg_IsDoor) != 0))
     {
         SYNCDBG(8,"Killing unconscious %s index %d on toxic map black.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 1, 0, 1);

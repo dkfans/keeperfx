@@ -157,7 +157,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
   {
     pixval = background;
   } else
-  if ((mapblk->flags & MapFlg_Unkn02) != 0) // Room slab
+  if ((mapblk->flags & MapFlg_IsRoom) != 0) // Room slab
   {
     room = subtile_room_get(stl_x, stl_y);
     if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
@@ -181,7 +181,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
     {
       pixval = pixmap.ghost[background + 0x1000];
     } else
-    if ((mapblk->flags & MapFlg_Unkn40) != 0) // Door slab
+    if ((mapblk->flags & MapFlg_IsDoor) != 0) // Door slab
     {
       thing = get_door_for_position(stl_x, stl_y);
       if (thing_is_invalid(thing))

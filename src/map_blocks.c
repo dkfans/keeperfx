@@ -56,9 +56,45 @@ void create_gold_rubble_for_dug_block(long x, long y, unsigned char a3, unsigned
     _DK_create_gold_rubble_for_dug_block(x, y, a3, a4);
 }
 
-long untag_blocks_for_digging_in_area(long slb_x, long slb_y, long plyr_idx)
+long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    return _DK_untag_blocks_for_digging_in_area(slb_x, slb_y, plyr_idx);
+    struct Map *mapblk;
+    MapSubtlCoord x, y;
+    long num_untagged;
+    long task_idx;
+    long i;
+    //return _DK_untag_blocks_for_digging_in_area(slb_x, slb_y, plyr_idx);
+    x = 3 * (stl_x/3);
+    y = 3 * (stl_y/3);
+    if ( (x < 0) || (x >= map_subtiles_x) || (y < 0) || (y >= map_subtiles_y) ) {
+        ERRORLOG("Attempt to tag area outside of map");
+        return 0;
+    }
+    i = get_subtile_number(x+1,y+1);
+    task_idx = find_from_task_list(plyr_idx, i);
+    if (task_idx != -1) {
+        remove_from_task_list(plyr_idx, task_idx);
+    }
+    num_untagged = 0;
+    if (is_my_player_number(plyr_idx))
+    {
+        long dx,dy;
+        for (dy=0; dy < 3; dy++)
+        {
+            for (dx=0; dx < 3; dx++)
+            {
+                mapblk = get_map_block_at(x+dx, y+dy);
+                if (map_block_invalid(mapblk))
+                    continue;
+                if ( mapblk->flags & (MapFlg_Unkn80|MapFlg_Unkn04) )
+                  num_untagged++;
+                mapblk->flags &= ~MapFlg_Unkn80;
+                mapblk->flags &= ~MapFlg_Unkn04;
+            }
+        }
+    }
+    pannel_map_update(x, y, 3, 3);
+    return num_untagged;
 }
 
 void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoord slb_y)

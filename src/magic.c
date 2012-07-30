@@ -199,7 +199,7 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
       {
         if ((mapblk->flags & MapFlg_Unkn10) != 0)
         {
-          if ((mapblk->flags & (MapFlg_Unkn40|MapFlg_Unkn02|MapFlg_Unkn01)) == 0)
+          if ((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom|MapFlg_Unkn01)) == 0)
           {
             if (slb->kind != SlbT_ROCK)
               can_cast = true;

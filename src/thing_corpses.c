@@ -290,7 +290,7 @@ long update_dead_creature(struct Thing *thing)
         return 0;
     }
     mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((mapblk->flags & MapFlg_Unkn40) == 0)
+    if ((mapblk->flags & MapFlg_IsDoor) == 0)
     {
         move_dead_creature(thing);
         return 1;
