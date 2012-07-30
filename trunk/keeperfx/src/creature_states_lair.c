@@ -33,6 +33,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "engine_arrays.h"
 
 #include "keeperfx.hpp"
 
@@ -40,14 +41,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_at_lair_to_sleep(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_sleep(struct Thing *thing);
-DLLIMPORT short _DK_creature_going_home_to_sleep(struct Thing *thing);
-DLLIMPORT short _DK_creature_sleep(struct Thing *thing);
-DLLIMPORT short _DK_creature_at_changed_lair(struct Thing *thing);
-DLLIMPORT short _DK_creature_at_new_lair(struct Thing *thing);
-DLLIMPORT short _DK_creature_change_lair(struct Thing *thing);
-DLLIMPORT short _DK_creature_choose_room_for_lair_site(struct Thing *thing);
+DLLIMPORT short _DK_at_lair_to_sleep(struct Thing *creatng);
+DLLIMPORT short _DK_cleanup_sleep(struct Thing *creatng);
+DLLIMPORT short _DK_creature_going_home_to_sleep(struct Thing *creatng);
+DLLIMPORT short _DK_creature_sleep(struct Thing *creatng);
+DLLIMPORT short _DK_creature_at_changed_lair(struct Thing *creatng);
+DLLIMPORT short _DK_creature_at_new_lair(struct Thing *creatng);
+DLLIMPORT short _DK_creature_change_lair(struct Thing *creatng);
+DLLIMPORT short _DK_creature_choose_room_for_lair_site(struct Thing *creatng);
+DLLIMPORT long _DK_creature_add_lair_to_room(struct Thing *creatng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -112,9 +114,85 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     return 1;
 }
 
-short creature_at_changed_lair(struct Thing *thing)
+long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
 {
-  return _DK_creature_at_changed_lair(thing);
+    struct Thing *lairtng;
+    if (!room_has_enough_free_capacity_for_creature(room, creatng))
+        return 0;
+    //return _DK_creature_add_lair_to_room(thing, room);
+    // Make sure we don't already have a lair on that position
+    lairtng = find_creature_lair_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
+    if (!thing_is_invalid(lairtng))
+        return 0;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    crstat = creature_stats_get_from_thing(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    room->field_17[creatng->model]++;
+    room->used_capacity += crstat->lair_size;
+    if ((cctrl->lair_room_id > 0) && (cctrl->lairtng_idx > 0))
+    {
+        struct Room *room;
+        room = room_get(cctrl->lair_room_id);
+        creature_remove_lair_from_room(creatng, room);
+    }
+    cctrl->lair_room_id = room->index;
+    // Create the lair thing
+    struct CreatureData *crdata;
+    struct Coord3d pos;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
+    crdata = creature_data_get_from_thing(creatng);
+    lairtng = create_object(&pos, crdata->field_1, creatng->owner, -1);
+    if (thing_is_invalid(lairtng))
+    {
+        ERRORLOG("Could not create lair totem");
+        remove_thing_from_mapwho(creatng);
+        place_thing_in_mapwho(creatng);
+        return 1; // Return that so we won't try to redo the action over and over
+    }
+    lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
+    // Associate creature with the lair
+    cctrl->lairtng_idx = lairtng->index;
+    lairtng->word_13 = creatng->index;
+    lairtng->word_15 = 1;
+    // Lair size depends on creature level
+    lairtng->word_17 = 300 * cctrl->explevel / 20 + 300;
+    lairtng->field_52 = ACTION_RANDOM(0x800);
+    struct Objects *objdat;
+    unsigned long i;
+    objdat = get_objects_data_for_thing(lairtng);
+    i = convert_td_iso(objdat->field_5);
+    set_thing_draw(lairtng, i, objdat->field_7, lairtng->word_15, 0, -1, objdat->field_11);
+    thing_play_sample(creatng, 158, 100, 0, 3u, 1u, 2, 256);
+    create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
+    anger_set_creature_anger(creatng, 0, 3);
+    remove_thing_from_mapwho(creatng);
+    place_thing_in_mapwho(creatng);
+    return 1;
+}
+
+short creature_at_changed_lair(struct Thing *creatng)
+{
+    struct Room *room;
+    //return _DK_creature_at_changed_lair(thing);
+    if (!thing_is_on_own_room_tile(creatng)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    room = get_room_thing_is_on(creatng);
+    if (room_is_invalid(room) || (room->kind != RoK_LAIR)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!creature_add_lair_to_room(creatng, room)) {
+        internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
+        return 0;
+    }
+    // All done - finish the state
+    set_start_state(creatng);
+    return 0;
 }
 
 short creature_at_new_lair(struct Thing *thing)

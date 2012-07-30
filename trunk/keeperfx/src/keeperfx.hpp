@@ -1012,7 +1012,6 @@ TbBool setup_heap_memory(void);
 void reset_heap_manager(void);
 void reset_heap_memory(void);
 TbBool load_settings(void);
-unsigned long convert_td_iso(unsigned long n);
 void reset_player_mode(struct PlayerInfo *player, unsigned short nmode);
 void init_keeper_map_exploration(struct PlayerInfo *player);
 void init_player_cameras(struct PlayerInfo *player);

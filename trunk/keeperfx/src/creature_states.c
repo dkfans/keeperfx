@@ -992,7 +992,7 @@ SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, l
             MapSubtlCoord stl_x,stl_y;
             stl_num += around_map[m];
             mapblk = get_map_block_at_pos(stl_num);
-            if ( ((mapblk->flags & MapFlg_Unkn02) != 0) && ((mapblk->flags & MapFlg_Unkn10) != 0) )
+            if ( ((mapblk->flags & MapFlg_IsRoom) != 0) && ((mapblk->flags & MapFlg_Unkn10) != 0) )
                 break;
             stl_x = stl_num_decode_x(stl_num);
             stl_y = stl_num_decode_y(stl_num);

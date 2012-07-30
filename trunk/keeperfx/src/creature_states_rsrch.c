@@ -303,6 +303,54 @@ long get_best_quick_range_instance_to_use(struct Thing *thing)
     }
 }
 
+TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const struct Thing *creatng, long job_kind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long *found_dist, struct Thing **found_thing)
+{
+    struct Thing *thing;
+    struct Map *mapblk;
+    long i;
+    unsigned long k;
+    long dist;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->field_2;
+        // Per thing code start
+        if ( thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind) )
+        {
+            dist = get_combat_distance(creatng, thing);
+            // If we have combat sight - we want that target, don't search anymore
+            if ( creature_can_see_combat_path(creatng, thing, dist) > 0 )
+            {
+                *found_dist = dist;
+                *found_thing = thing;
+                return true;
+            }
+            // No combat sight - but maybe it's at least closer than previous one
+            if ( *found_dist > dist )
+            {
+                *found_dist = dist;
+                *found_thing = thing;
+            }
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return false;
+}
+
 /**
  * Finds a creature passing by a subtile and having job different than given one, which has direct combat sight for given creature.
  * If such creature is not found, the function returns false and gives closest creature passing by a subtile and having job different than given one.
@@ -315,61 +363,21 @@ long get_best_quick_range_instance_to_use(struct Thing *thing)
  * @return True if a target with combat sight was found. False if closest creature was found, or no creature met the conditions.
  * @note If no creature met the conditions, output variables are not initialized. Therefore, they should be initialized before calling this function.
  */
-TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct Thing *creatng, long job_kind, MapSubtlCoord slb_x, MapSubtlCoord slb_y, unsigned long *found_dist, struct Thing **found_thing)
+TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct Thing *creatng, long job_kind, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned long *found_dist, struct Thing **found_thing)
 {
-    struct Map *map;
-    long endstl_x,endstl_y;
-    long stl_x,stl_y;
-    long dist;
+    MapSubtlCoord endstl_x,endstl_y;
+    MapSubtlCoord stl_x,stl_y;
     endstl_x = 3*slb_x+3;
     endstl_y = 3*slb_y+3;
     for (stl_y = 3*slb_y; stl_y < endstl_y; stl_y++)
     {
         for (stl_x = 3*slb_x; stl_x < endstl_x; stl_x++)
         {
-            struct Thing *thing;
-            long i;
-            unsigned long k;
-            map = get_map_block_at(stl_x,stl_y);
-            k = 0;
-            i = get_mapwho_thing_index(map);
-            while (i != 0)
-            {
-                thing = thing_get(i);
-                if (thing_is_invalid(thing))
-                {
-                    ERRORLOG("Jump to invalid thing detected");
-                    break;
-                }
-                i = thing->field_2;
-                // Per thing code start
-                if ( thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind) )
-                {
-                    dist = get_combat_distance(creatng, thing);
-                    // If we have combat sight - we want that target, don't search anymore
-                    if ( creature_can_see_combat_path(creatng, thing, dist) > 0 )
-                    {
-                        *found_dist = dist;
-                        *found_thing = thing;
-                        return true;
-                    }
-                    // No combat sight - but maybe it's at least closer than previous one
-                    if ( *found_dist > dist )
-                    {
-                        *found_dist = dist;
-                        *found_thing = thing;
-                    }
-                }
-                // Per thing code end
-                k++;
-                if (k > THINGS_COUNT)
-                {
-                    ERRORLOG("Infinite loop detected when sweeping things list");
-                    break;
-                }
-            }
+            if (find_combat_target_passing_by_subtile_but_having_unrelated_job(creatng, job_kind, stl_x, stl_y, found_dist, found_thing))
+                return true;
         }
     }
+    // If found a creature, but it's not on sight
     return false;
 }
 

@@ -90,15 +90,21 @@ struct Room {
     union {
     /** For rooms which can store things, amount of storage space used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
-    long capacity_used_for_storage;
+    struct {
+      long capacity_used_for_storage;
+      unsigned char field_1B[28];
+    };
     /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
      *  Rooms which have such list are entrances (only?). */
     struct {
       short prev_of_kind;
       short next_of_kind;
+      unsigned char field_1Bx[28];
+    };
+    struct {
+      unsigned char field_17[32];
     };
     };
-    unsigned char field_1B[28];
     unsigned short slabs_list;
     unsigned short field_39;
     unsigned short slabs_count;
@@ -194,6 +200,7 @@ void free_room_structure(struct Room *room);
 void reset_creatures_rooms(struct Room *room);
 TbBool remove_item_from_room_capacity(struct Room *room);
 TbBool add_item_to_room_capacity(struct Room *room);
+TbBool room_has_enough_free_capacity_for_creature(const struct Room *room, const struct Thing *creatng);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
 TbBool create_effects_on_room_slabs(struct Room *room, long effkind, long effrange, long effowner);

@@ -647,34 +647,77 @@ void init_all_creature_states(void)
  */
 struct Thing *find_hero_gate_of_number(long num)
 {
-  struct Thing *thing;
-  unsigned long k;
-  long i;
-  i = game.thing_lists[TngList_Objects].index;
-  k = 0;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    i = game.thing_lists[TngList_Objects].index;
+    k = 0;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+      thing = thing_get(i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORLOG("Jump to invalid thing detected");
+        break;
+      }
+      i = thing->next_of_class;
+      // Per-thing code
+      if ((thing->model == 49) && (thing->byte_13 == num))
+      {
+        return thing;
+      }
+      // Per-thing code ends
+      k++;
+      if (k > THINGS_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping things list");
+        break;
+      }
     }
-    i = thing->next_of_class;
-    // Per-thing code
-    if ((thing->model == 49) && (thing->byte_13 == num))
+    return INVALID_THING;
+}
+
+/**
+ * Returns a creature lair from given subtile.
+ */
+struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long creature_model)
+{
+    struct Map *mapblk;
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    i = get_mapwho_thing_index(mapblk);
+    k = 0;
+    while (i != 0)
     {
-      return thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->field_2;
+        // Per-thing code
+        if (thing->class_id == TCls_Object)
+        {
+            struct Objects *objdat;
+            objdat = get_objects_data_for_thing(thing);
+            if (objdat->field_13 > 0)
+            {
+                if ((creature_model <= 0) || (objdat->field_13 == creature_model))
+                    return thing;
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    // Per-thing code ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  return INVALID_THING;
+    return INVALID_THING;
 }
 
 struct Thing *find_nearest_enemy_creature(struct Thing *crtng)

@@ -164,6 +164,8 @@ void update_things(void);
 struct Thing *find_hero_gate_of_number(long num);
 long get_free_hero_gate_number(void);
 
+struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long creature_model);
+
 long thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
