@@ -26,6 +26,7 @@
 #include "map_data.h"
 #include "map_columns.h"
 #include "gui_topmsg.h"
+#include "engine_arrays.h"
 #include "sounds.h"
 
 #include "keeperfx.hpp"

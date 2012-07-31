@@ -37,6 +37,7 @@
 #include "magic.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
+#include "engine_arrays.h"
 #include "sounds.h"
 
 #include "keeperfx.hpp"

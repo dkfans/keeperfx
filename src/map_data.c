@@ -138,9 +138,9 @@ void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long 
 
 long get_ceiling_height(const struct Coord3d *pos)
 {
-  long i;
-  i = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
-  return ((game.map[i].data & 0xF000000u) >> 24) << 8;
+    long i;
+    i = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
+    return ((game.map[i].data & 0xF000000u) >> 24) << 8;
 }
 
 long get_mapwho_thing_index(const struct Map *map)
@@ -176,6 +176,29 @@ void set_mapblk_column_index(struct Map *map, long column_idx)
   }
   // Clear previous and set new
   map->data ^= (map->data ^ ((unsigned long)column_idx)) & 0x7FF;
+}
+
+/**
+ * Returns amount of filled subtiles (height of a column) in map block.
+ * @param map Map block to be checked.
+ * @return Amount of filled subtiles.
+ */
+long get_mapblk_filled_subtiles(const struct Map *map)
+{
+    return ((map->data & 0xF000000u) >> 24);
+}
+
+/**
+ * Sets amount of filled subtiles (height of a column) in map block.
+ * @param map Map block to be updated.
+ * @param height The new height.
+ */
+void set_mapblk_filled_subtiles(struct Map *map, long height)
+{
+    if (height <  0) height = 0;
+    if (height > 15) height = 15;
+    map->data &= ~(0xF000000);
+    map->data |= (height << 24) & 0xF000000;
 }
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)

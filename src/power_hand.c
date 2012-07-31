@@ -37,6 +37,7 @@
 #include "frontend.h"
 #include "gui_draw.h"
 #include "engine_render.h"
+#include "engine_arrays.h"
 #include "sounds.h"
 
 #include "keeperfx.hpp"

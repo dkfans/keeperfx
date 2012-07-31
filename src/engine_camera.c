@@ -29,6 +29,7 @@
 #include "engine_lenses.h"
 #include "engine_render.h"
 #include "vidmode.h"
+#include "map_blocks.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,11 +38,11 @@ extern "C" {
 DLLIMPORT long _DK_get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 DLLIMPORT long _DK_get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 DLLIMPORT long _DK_get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
-DLLIMPORT void _DK_project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
+DLLIMPORT void _DK_project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps);
 DLLIMPORT void _DK_angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect);
-DLLIMPORT void _DK_view_zoom_camera_in(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_view_zoom_camera_in(struct Camera *cam, long a2, long angle_xy);
 DLLIMPORT void _DK_set_camera_zoom(struct Camera *cam, long val);
-DLLIMPORT void _DK_view_zoom_camera_out(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_view_zoom_camera_out(struct Camera *cam, long a2, long angle_xy);
 DLLIMPORT long _DK_get_camera_zoom(struct Camera *camera);
 /******************************************************************************/
 long camera_zoom;
@@ -91,12 +92,16 @@ void angles_to_vector(short angle_xy, short angle_yz, long dist, struct Componen
 
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-  return _DK_get_angle_xy_to(pos1, pos2);
+    //return _DK_get_angle_xy_to(pos1, pos2);
+    return LbArcTanAngle(pos2->x.val - pos1->x.val, pos2->y.val - pos1->y.val) % ANGLE_TRIGL_PERIOD;
 }
 
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-  return _DK_get_angle_yz_to(pos1, pos2);
+    //return _DK_get_angle_yz_to(pos1, pos2);
+    long dist;
+    dist = get_2d_distance(pos1, pos2);
+    return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) % ANGLE_TRIGL_PERIOD;
 }
 
 long get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -108,9 +113,30 @@ long get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
     return LbDiagonalLength(abs(dist_x), abs(dist_y));
 }
 
-void project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6)
+void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long angle_xy, long angle_z, long distance, long num_steps)
 {
-  _DK_project_point_to_wall_on_angle(pos1, pos2, a3, a4, a5, a6);
+    long dx,dy,dz;
+    long n;
+    struct Coord3d pos;
+    //_DK_project_point_to_wall_on_angle(pos1, pos2, a3, a4, a5, a6);
+    dx =  (distance * LbSinL(angle_xy) >> 16);
+    dy = -(distance * LbCosL(angle_xy) >> 8) >> 8;
+    dz =  (distance * LbSinL(angle_z) >> 16);
+    pos.x.val = pos1->x.val;
+    pos.y.val = pos1->y.val;
+    pos.z.val = pos1->z.val;
+    // Do num_steps until a solid wall is reached
+    for (n=num_steps; n > 0; n--)
+    {
+        if (point_in_map_is_solid(&pos))
+            break;
+        pos.x.val += dx;
+        pos.y.val += dy;
+        pos.z.val += dz;
+    }
+    pos2->x.val = pos.x.val;
+    pos2->y.val = pos.y.val;
+    pos2->z.val = pos.z.val;
 }
 
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min)
