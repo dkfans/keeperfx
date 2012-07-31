@@ -42,6 +42,8 @@ void dig_out_block(long a1, long a2, long a3);
 void check_map_explored(struct Thing *thing, long a2, long a3);
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 TbBool set_slab_explored(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+void get_floor_and_ceiling_heights_at(const struct Coord3d *pos, unsigned long *heights);
+TbBool point_in_map_is_solid(const struct Coord3d *pos);
 
 long element_top_face_texture(struct Map *map);
 /******************************************************************************/

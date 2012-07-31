@@ -80,7 +80,7 @@ void angles_to_vector(short theta, short phi, long dist, struct ComponentVector 
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
-void project_point_to_wall_on_angle(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
+void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4, long a5, long a6);
 
 void view_zoom_camera_in(struct Camera *cam, long limit_max, long limit_min);
 void set_camera_zoom(struct Camera *cam, long val);
