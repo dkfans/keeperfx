@@ -26,6 +26,7 @@
 #include "creature_instances.h"
 #include "creature_states.h"
 #include "engine_lenses.h"
+#include "engine_arrays.h"
 #include "gui_draw.h"
 
 #include "keeperfx.hpp"

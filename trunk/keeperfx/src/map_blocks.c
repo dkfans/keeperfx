@@ -164,6 +164,56 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     }
 }
 
+void get_floor_and_ceiling_heights_at(const struct Coord3d *pos, unsigned long *heights)
+{
+    struct Column *col;
+    struct Map *mapblk;
+    long i;
+    unsigned long height,k;
+    heights[0] = 0;
+    heights[1] = 15;
+    mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+    i = get_mapblk_column_index(mapblk);
+    col = get_column(i);
+    if (col->bitfileds & 0xF0)
+        heights[0] = col->bitfileds >> 4;
+    k = col->bitfileds & 0xE;
+    if (k)
+    {
+        height = 8 - (k >> 1);
+        if (height >= 15)
+            height = 15;
+        heights[1] = height;
+    } else
+    {
+        height = get_mapblk_filled_subtiles(mapblk);
+        if (height >= 15)
+            height = 15;
+        heights[1] = height;
+    }
+}
+
+TbBool point_in_map_is_solid(const struct Coord3d *pos)
+{
+    struct Map *mapblk;
+    struct Column *col;
+    unsigned long heights[2];
+    unsigned long check_h;
+    col = get_column_at(pos->x.stl.num, pos->y.stl.num);
+    check_h = pos->z.stl.num;
+    if (col->bitfileds & 0xE)
+    {
+        get_floor_and_ceiling_heights_at(pos, heights);
+    } else
+    {
+        mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+        heights[0] = col->bitfileds >> 4;
+        heights[1] = get_mapblk_filled_subtiles(mapblk);
+    }
+    if ((heights[1] <= check_h) || (heights[0] > check_h))
+        return 1;
+    return 0;
+}
 
 void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
