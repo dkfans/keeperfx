@@ -1730,7 +1730,9 @@ short person_sulking(struct Thing *creatng)
 
 long room_still_valid_as_type_for_thing(struct Room *room, RoomKind rkind, struct Thing *thing)
 {
-  return ((room->field_0 & 0x01) != 0) && (room->kind == rkind);
+    if (!room_exists(room))
+        return false;
+    return (room->kind == rkind);
 }
 
 void create_effect_around_thing(struct Thing *thing, long eff_kind)

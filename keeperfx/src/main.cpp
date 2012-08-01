@@ -999,56 +999,6 @@ void init_spiral_steps(void)
   }
 }
 
-void init_creature_scores(void)
-{
-  struct CreatureStats *crstat;
-  long i,k;
-  long score,max_score;
-  max_score = 0;
-  for (i=0; i < CREATURE_TYPES_COUNT; i++)
-  {
-    crstat = creature_stats_get(i);
-    score = compute_creature_max_health(crstat->health,CREATURE_MAX_LEVEL-1)
-        + compute_creature_max_defense(crstat->defense,CREATURE_MAX_LEVEL-1)
-        + compute_creature_max_dexterity(crstat->dexterity,CREATURE_MAX_LEVEL-1)
-        + compute_creature_max_armour(crstat->armour,CREATURE_MAX_LEVEL-1)
-        + compute_creature_max_strength(crstat->strength,CREATURE_MAX_LEVEL-1);
-    if ((score <= 0) && (i != 0) && (i != CREATURE_TYPES_COUNT-1))
-    {
-      ERRORLOG("Couldn't get creature %ld score value", i);
-      continue;
-    }
-    if (score > max_score)
-    {
-      max_score = score;
-    }
-  }
-  if (max_score <= 0)
-  {
-    ERRORLOG("Creatures have no score");
-    return;
-  }
-  for (i=0; i < CREATURE_TYPES_COUNT; i++)
-  {
-    crstat = creature_stats_get(i);
-    for (k=0; k < CREATURE_MAX_LEVEL; k++)
-    {
-      score = compute_creature_max_health(crstat->health,k)
-          + compute_creature_max_defense(crstat->defense,k)
-          + compute_creature_max_dexterity(crstat->dexterity,k)
-          + compute_creature_max_armour(crstat->armour,k)
-          + compute_creature_max_strength(crstat->strength,k);
-      score = saturate_set_unsigned(200*score / max_score, 8);
-      if ((score <= 0) && (i != 0) && (i != 31))
-      {
-        //WARNMSG("Couldn't get creature %d score for lev %d", i, k);
-        score = 1;
-      }
-      game.creature_scores[i].value[k] = score;
-    }
-  }
-}
-
 void init_creature_state(struct Thing *thing)
 {
     struct Room *room;

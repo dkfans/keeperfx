@@ -38,6 +38,13 @@ extern "C" {
 DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *thing);
 
 /******************************************************************************/
+struct Room *get_room_creature_works_in(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    return room_get(cctrl->work_room_id);
+}
+
 TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room)
 {
     struct CreatureControl *cctrl;

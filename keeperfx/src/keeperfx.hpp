@@ -1061,7 +1061,6 @@ long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
 long slabs_count_near(long tx,long ty,long rad,unsigned short slbtype);
 void initialise_map_collides(void);
 void initialise_map_health(void);
-void init_creature_scores(void);
 void setup_3d(void);
 void setup_stuff(void);
 long ceiling_init(unsigned long a1, unsigned long a2);
