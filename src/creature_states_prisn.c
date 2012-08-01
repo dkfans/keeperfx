@@ -56,32 +56,32 @@ DLLIMPORT long _DK_setup_prison_move(struct Thing *thing, struct Room *room);
 /******************************************************************************/
 TbBool jailbreak_possible(struct Room *room, long plyr_idx)
 {
-  unsigned long i;
-  unsigned long k;
-  struct SlabMap *slb;
-  if ( (room->owner == plyr_idx) || (!room->slabs_list) )
+    unsigned long i;
+    unsigned long k;
+    struct SlabMap *slb;
+    if ( (room->owner == plyr_idx) || (!room->slabs_list) )
+      return false;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+      slb = get_slabmap_direct(i);
+      if (slabmap_block_invalid(slb))
+      {
+        ERRORLOG("Jump to invalid room slab detected");
+        break;
+      }
+      if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
+        return true;
+      i = get_next_slab_number_in_room(i);
+      k++;
+      if (k > map_tiles_x*map_tiles_y)
+      {
+        ERRORLOG("Infinite loop detected when sweeping room slabs");
+        break;
+      }
+    }
     return false;
-  k = 0;
-  i = room->slabs_list;
-  while (i > 0)
-  {
-    slb = get_slabmap_direct(i);
-    if (slabmap_block_invalid(slb))
-    {
-      ERRORLOG("Jump to invalid room slab detected");
-      break;
-    }
-    if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
-      return true;
-    i = get_next_slab_number_in_room(i);
-    k++;
-    if (k > map_tiles_x*map_tiles_y)
-    {
-      ERRORLOG("Infinite loop detected when sweeping room slabs");
-      break;
-    }
-  }
-  return false;
 }
 
 short cleanup_prison(struct Thing *thing)
@@ -249,11 +249,9 @@ long process_prison_food(struct Thing *thing, struct Room *room)
 
 long process_prison_function(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
   struct Room *room;
   //return _DK_process_prison_function(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  room = room_get(cctrl->work_room_id);
+  room = get_room_creature_works_in(thing);
   if ( !room_still_valid_as_type_for_thing(room, RoK_PRISON, thing) )
   {
     set_start_state(thing);
@@ -262,6 +260,8 @@ long process_prison_function(struct Thing *thing)
   process_creature_hunger(thing);
   if ( process_prisoner_skelification(thing,room) )
     return -1;
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(thing);
   if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(thing, room) )
     return 1;
   // Rest of the actions are done only once per 64 turns

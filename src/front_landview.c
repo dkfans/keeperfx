@@ -946,7 +946,7 @@ TbBool frontnetmap_load(void)
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
-    lbFontPtr = map_font;
+    LbTextSetFont(map_font);
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     map_sound_fade = 256;
     lbDisplay.DrawFlags = 0;

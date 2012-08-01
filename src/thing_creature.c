@@ -45,6 +45,7 @@
 #include "thing_physics.h"
 #include "lens_api.h"
 #include "light_data.h"
+#include "room_jobs.h"
 #include "gui_topmsg.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -719,32 +720,32 @@ void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell
 
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  long i;
-  crstat = creature_stats_get_from_thing(crthing);
-  cctrl = creature_control_get_from_thing(crthing);
-  if (obthing->creature.gold_carried <= 0)
-  {
-    ERRORLOG("GoldPile had no gold so was deleted.");
-    delete_thing_structure(obthing, 0);
-    return false;
-  }
-  if (crthing->creature.gold_carried < crstat->gold_hold)
-  {
-    if (obthing->creature.gold_carried+crthing->creature.gold_carried > crstat->gold_hold)
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long i;
+    crstat = creature_stats_get_from_thing(crthing);
+    cctrl = creature_control_get_from_thing(crthing);
+    if (obthing->creature.gold_carried <= 0)
     {
-      i = crstat->gold_hold-crthing->creature.gold_carried;
-      crthing->creature.gold_carried += i;
-      obthing->creature.gold_carried -= i;
-    } else
-    {
-      crthing->creature.gold_carried += obthing->creature.gold_carried;
+      ERRORLOG("GoldPile had no gold so was deleted.");
       delete_thing_structure(obthing, 0);
+      return false;
     }
-  }
-  anger_apply_anger_to_creature(crthing, crstat->annoy_got_wage, 1, 1);
-  return true;
+    if (crthing->creature.gold_carried < crstat->gold_hold)
+    {
+      if (obthing->creature.gold_carried+crthing->creature.gold_carried > crstat->gold_hold)
+      {
+        i = crstat->gold_hold-crthing->creature.gold_carried;
+        crthing->creature.gold_carried += i;
+        obthing->creature.gold_carried -= i;
+      } else
+      {
+        crthing->creature.gold_carried += obthing->creature.gold_carried;
+        delete_thing_structure(obthing, 0);
+      }
+    }
+    anger_apply_anger_to_creature(crthing, crstat->annoy_got_wage, 1, 1);
+    return true;
 }
 
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long spl_idx, long a4)
@@ -792,7 +793,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
     ERRORLOG("Invalid creature tried to cast spell %ld",spl_idx);
     return;
   }
-  if (spl_idx == 10) // Teleport
+  if (spl_idx == SplK_Teleport)
   {
     cctrl->teleport_x = trg_x;
     cctrl->teleport_y = trg_y;
@@ -3062,6 +3063,47 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
     return true;
 }
 
+void init_creature_scores(void)
+{
+    long i,k;
+    long score,max_score;
+    // compute maximum score
+    max_score = 0;
+    for (i=0; i < CREATURE_TYPES_COUNT; i++)
+    {
+        score = compute_creature_kind_score(i,CREATURE_MAX_LEVEL-1);
+        if ((score <= 0) && (i != 0) && (i != CREATURE_TYPES_COUNT-1))
+        {
+          ERRORLOG("Couldn't get creature %ld score value", i);
+          continue;
+        }
+        if (score > max_score)
+        {
+          max_score = score;
+        }
+    }
+    if (max_score <= 0)
+    {
+        ERRORLOG("Creatures have no score");
+        return;
+    }
+    // now compute scores for experience levels
+    for (i=0; i < CREATURE_TYPES_COUNT; i++)
+    {
+        for (k=0; k < CREATURE_MAX_LEVEL; k++)
+        {
+          score = compute_creature_kind_score(i,k);
+          score = saturate_set_unsigned(200*score / max_score, 8);
+          if ((score <= 0) && (i != 0) && (i != 31))
+          {
+            //WARNMSG("Couldn't get creature %d score for lev %d", i, k);
+            score = 1;
+          }
+          game.creature_scores[i].value[k] = score;
+        }
+    }
+}
+
 long get_creature_thing_score(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -3272,14 +3314,12 @@ long update_creature(struct Thing *thing)
 
 TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)
 {
-    struct CreatureControl *cctrl;
     struct Room *room;
     if (thing->owner != plyr_idx)
     {
       if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
       {
-        cctrl = creature_control_get_from_thing(thing);
-        room = room_get(cctrl->work_room_id);
+        room = get_room_creature_works_in(thing);
         return (room->owner == plyr_idx);
       }
       return false;
@@ -3288,8 +3328,7 @@ TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)
       return 0;
     if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
     {
-      cctrl = creature_control_get_from_thing(thing);
-      room = room_get(cctrl->work_room_id);
+        room = get_room_creature_works_in(thing);
       return (room->owner == plyr_idx);
     }
     return true;

@@ -49,7 +49,7 @@ void frontcredits_draw(void)
   lbDisplay.DrawFlags = 0x0100;
   LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
   fontid = 1;
-  lbFontPtr = frontend_font[fontid];
+  LbTextSetFont(frontend_font[fontid]);
   h = credits_offset;
   did_draw = h > 0;
   for (i = 0; campaign.credits[i].kind != CIK_None; i++)
@@ -60,7 +60,7 @@ void frontcredits_draw(void)
     if (credit->font != fontid)
     {
       fontid = credit->font;
-      lbFontPtr = frontend_font[fontid];
+      LbTextSetFont(frontend_font[fontid]);
     }
     if (h > -LbTextLineHeight())
     {

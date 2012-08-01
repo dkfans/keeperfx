@@ -479,7 +479,6 @@ TbBool process_research_stress(struct Thing *creatng, struct Room *room)
 long process_research_function(struct Thing *thing)
 {
     struct Dungeon *dungeon;
-    struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     struct Room *room;
     //return _DK_process_research_function(thing);
@@ -488,18 +487,19 @@ long process_research_function(struct Thing *thing)
         set_start_state(thing);
         return 1;
     }
-    cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     if ( (crstat->research_value <= 0) || (dungeon->field_F78 < 0) ) {
         set_start_state(thing);
         return 1;
     }
-    room = room_get(cctrl->work_room_id);
+    room = get_room_creature_works_in(thing);
     if ( !room_still_valid_as_type_for_thing(room, RoK_LIBRARY, thing) ) {
-      set_start_state(thing);
-      return 1;
+        set_start_state(thing);
+        return 1;
     }
     long work_value;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
     work_value = compute_creature_work_value(crstat->research_value<<8,room->efficiency,cctrl->explevel);
     work_value = process_work_speed_on_work_value(thing, work_value);
     SYNCDBG(19,"The %s index %d produced %ld research points",thing_model_name(thing),(int)thing->index,work_value);

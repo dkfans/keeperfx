@@ -2049,7 +2049,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
       }
       i = cctrl->next_in_room;
       // Per creature code
-      if (!thing_affected_by_spell(thing, 11))
+      if (!thing_affected_by_spell(thing, SplK_Speed))
       {
           if (thing->active_state == CrSt_MoveToPosition)
               n = thing->continue_state;

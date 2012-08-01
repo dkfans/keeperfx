@@ -39,6 +39,7 @@
 #include "config_creature.h"
 #include "config_magic.hpp"
 #include "gui_soundmsgs.h"
+#include "room_jobs.h"
 #include "sounds.h"
 
 #include "keeperfx.hpp"
@@ -50,32 +51,47 @@ extern "C" {
 const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
 
 /******************************************************************************/
-DLLIMPORT void _DK_magic_use_power_chicken(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT short _DK_magic_use_power_imp(unsigned short a1, unsigned short a2, unsigned short a3);
-DLLIMPORT void _DK_magic_use_power_heal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_conceal(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_armour(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_speed(unsigned char a1, struct Thing *thing, long a3, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_lightning(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT long _DK_magic_use_power_sight(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4);
-DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5);
-DLLIMPORT short _DK_magic_use_power_hand(unsigned short a1, unsigned short a2, unsigned short a3, unsigned short a4);
-DLLIMPORT short _DK_magic_use_power_slap(unsigned short a1, unsigned short a2, unsigned short a3);
+DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long spl_id, long a4);
+DLLIMPORT short _DK_magic_use_power_imp(unsigned short plyr_idx, unsigned short a2, unsigned short spl_id);
+DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
+DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long spl_id, long a4);
+DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long spl_id, long a4);
+DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long spl_id, long a4);
+DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long spl_id, long a4, long a5);
+DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short spl_id, unsigned short a4);
+DLLIMPORT short _DK_magic_use_power_slap(unsigned short plyr_idx, unsigned short a2, unsigned short spl_id);
 DLLIMPORT short _DK_magic_use_power_obey(unsigned short plridx);
 DLLIMPORT long _DK_magic_use_power_armageddon(unsigned char val);
 DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
 
 DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
-DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char a1, unsigned char a2, unsigned char a3, unsigned char a4, long a5);
-DLLIMPORT long _DK_can_cast_spell_on_creature(long a1, struct Thing *thing, long a3);
+DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char spl_id, unsigned char a4, long a5);
+DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long spl_id);
 /******************************************************************************/
-long can_cast_spell_on_creature(long a1, struct Thing *thing, long a3)
+long can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long spl_id)
 {
-  return _DK_can_cast_spell_on_creature(a1, thing, a3);
+    //return _DK_can_cast_spell_on_creature(a1, thing, a3);
+    // Cannot disease own creatures
+    if (spl_id == PwrK_DISEASE)
+    {
+        if (thing->owner == plyr_idx)
+          return false;
+    }
+    // Cannot cast spell on creatures kept in enemy prison or tortured by enemy
+    if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing)) {
+        struct Room *room;
+        room = get_room_creature_works_in(thing);
+        if (room->owner != plyr_idx)
+            return false;
+    }
+    // Allow all other casts
+    return true;
 }
 
 void update_power_sight_explored(struct PlayerInfo *player)
@@ -144,7 +160,7 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
         can_cast = true;
       }
       break;
-  case 2:
+  case PwrK_MKDIGGER:
       if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
         if (slabmap_owner(slb) == plyr_idx)
@@ -153,10 +169,10 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
         }
       }
       break;
-  case 5:
+  case PwrK_SIGHT:
       can_cast = true;
       break;
-  case 6:
+  case PwrK_CALL2ARMS:
       if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
         if (map_block_revealed(mapblk, plyr_idx) || (a5 == 1))
@@ -165,7 +181,7 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
         }
       }
       break;
-  case 7:
+  case PwrK_CAVEIN:
       if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
         if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
@@ -174,27 +190,27 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
         }
       }
       break;
-  case 10:
+  case PwrK_LIGHTNING:
       if ((mapblk->flags & MapFlg_Unkn10) == 0)
       {
-        if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
-        {
-          player = get_player(plyr_idx);
-          if (player->field_4E3+20 < game.play_gameturn)
+          if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
           {
-            can_cast = true;
+              player = get_player(plyr_idx);
+              if (player->field_4E3+20 < game.play_gameturn)
+              {
+                can_cast = true;
+              }
           }
-        }
       }
       break;
-  case 14:
-  case 15:
+  case PwrK_DISEASE:
+  case PwrK_CHICKEN:
       if (slabmap_owner(slb) == plyr_idx)
       {
         can_cast = true;
       }
       break;
-  case 16:
+  case PwrK_DESTRWALLS:
       if (power_sight_explored(stl_x, stl_y, plyr_idx) || map_block_revealed(mapblk, plyr_idx))
       {
         if ((mapblk->flags & MapFlg_Unkn10) != 0)
@@ -217,6 +233,7 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel)
     struct MagicStats *magstat;
     long price;
     long i;
+    unsigned long k;
     if ((spkind < 0) || (spkind >= POWER_TYPES_COUNT))
         return false;
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
@@ -226,9 +243,11 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel)
     magstat = &game.magic_stats[spkind];
     switch (spkind)
     {
-    case 2: // Special price algorithm for "create imp" spell
+    case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
-        i = dungeon->num_active_diggers - dungeon->creature_sacrifice[23] + 1;
+        // Reduce price by count of sacrificed diggers
+        k = get_players_special_digger_breed(plyr_idx);
+        i = dungeon->num_active_diggers - dungeon->creature_sacrifice[k] + 1;
         if (i < 1)
           i = 1;
         price = magstat->cost[splevel]*i/2;
@@ -387,13 +406,11 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
         return Lb_OK;
     }
     // If we can't afford the spell, fail
-    if (!pay_for_spell(plyr_idx, 8, splevel))
-    {
+    if (!pay_for_spell(plyr_idx, PwrK_HEALCRTR, splevel))
         return Lb_FAIL;
-    }
     // Apply spell effect
     thing_play_sample(thing, 37, 100, 0, 3, 0, 2, 256);
-    apply_spell_effect_to_thing(thing, 7, splevel);
+    apply_spell_effect_to_thing(thing, SplK_Heal, splevel);
     return Lb_SUCCESS;
 }
 
@@ -401,13 +418,13 @@ TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, Map
 {
     //_DK_magic_use_power_conceal(a1, thing, a3, a4, a5);
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, 9))
+    if (thing_affected_by_spell(thing, SplK_Invisibility))
         return Lb_OK;
     // If we can't afford the spell, fail
-    if (!pay_for_spell(plyr_idx, 13, splevel))
+    if (!pay_for_spell(plyr_idx, PwrK_CONCEAL, splevel))
         return Lb_FAIL;
     thing_play_sample(thing, 154, 100, 0, 3, 0, 2, 256);
-    apply_spell_effect_to_thing(thing, 9, splevel);
+    apply_spell_effect_to_thing(thing, SplK_Invisibility, splevel);
     return Lb_SUCCESS;
 }
 
@@ -415,15 +432,15 @@ TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapS
 {
     //_DK_magic_use_power_armour(plyr_idx, thing, a3, a4, splevel);
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, 4))
+    if (thing_affected_by_spell(thing, SplK_Armour))
         return Lb_OK;
     // If we can't afford the spell, fail
-    if (!pay_for_spell(plyr_idx, 12, splevel))
+    if (!pay_for_spell(plyr_idx, PwrK_PROTECT, splevel))
     {
         return Lb_FAIL;
     }
     thing_play_sample(thing, 153, 100, 0, 3, 0, 2, 256);
-    apply_spell_effect_to_thing(thing, 4, splevel);
+    apply_spell_effect_to_thing(thing, SplK_Armour, splevel);
     return Lb_SUCCESS;
 }
 
@@ -452,16 +469,16 @@ long thing_affected_by_spell(struct Thing *thing, long spkind)
 TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_speed(plyr_idx, thing, a3, a4, splevel);
-    if (thing_affected_by_spell(thing, 11))
+    if (thing_affected_by_spell(thing, SplK_Speed))
     {
         return Lb_OK;
     }
-    if (!pay_for_spell(plyr_idx, 11, splevel))
+    if (!pay_for_spell(plyr_idx, PwrK_SPEEDCRTR, splevel))
     {
         return Lb_FAIL;
     }
     thing_play_sample(thing, 38, 100, 0, 3, 0, 2, 256);
-    apply_spell_effect_to_thing(thing, 11, splevel);
+    apply_spell_effect_to_thing(thing, SplK_Speed, splevel);
     return Lb_SUCCESS;
 }
 
@@ -657,11 +674,11 @@ short magic_use_power_slap_thing(unsigned short plyr_idx, struct Thing *thing)
 
 int get_spell_overcharge_level(struct PlayerInfo *player)
 {
-  int i;
-  i = (player->field_4D2 >> 2);
-  if (i > SPELL_MAX_LEVEL)
-    return SPELL_MAX_LEVEL;
-  return i;
+    int i;
+    i = (player->field_4D2 >> 2);
+    if (i > SPELL_MAX_LEVEL)
+        return SPELL_MAX_LEVEL;
+    return i;
 }
 
 TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
@@ -708,15 +725,15 @@ void remove_spell_from_player(long spl_idx, long plyr_idx)
     dungeon->magic_level[spl_idx]--;
     switch ( spl_idx )
     {
-    case 3:
+    case PwrK_OBEY:
         if (dungeon->field_888)
             dungeon->field_888 = 0;
         break;
-    case 5:
+    case PwrK_SIGHT:
         if (dungeon->keeper_sight_thing_idx)
             turn_off_sight_of_evil(plyr_idx);
         break;
-    case 6:
+    case PwrK_CALL2ARMS:
         if (dungeon->field_884)
             turn_off_call_to_arms(plyr_idx);
         break;

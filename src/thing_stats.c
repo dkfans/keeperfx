@@ -183,6 +183,17 @@ TbBool things_stats_debug_dump(void)
     return false;
 }
 
+long compute_creature_kind_score(long crkind,unsigned short crlevel)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get(crkind);
+    return compute_creature_max_health(crstat->health,crlevel)
+        + compute_creature_max_defense(crstat->defense,crlevel)
+        + compute_creature_max_dexterity(crstat->dexterity,crlevel)
+        + compute_creature_max_armour(crstat->armour,crlevel)
+        + compute_creature_max_strength(crstat->strength,crlevel);
+}
+
 /**
  * Computes max health of a creature on given level.
  */

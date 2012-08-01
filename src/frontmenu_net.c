@@ -672,7 +672,7 @@ void frontnet_draw_scroll_selection_box(struct GuiButton *gbtn, long font_idx, c
     if (text != NULL)
     {
       lbDisplay.DrawFlags = 0;
-      lbFontPtr = frontend_font[font_idx];
+      LbTextSetFont(frontend_font[font_idx]);
       height = LbTextHeight(text);
       LbTextSetWindow(gbtn->scr_pos_x + 13, gbtn->scr_pos_y, gbtn->width - 26, height);
       LbTextDraw(0, 0, text);
@@ -713,9 +713,8 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
 {
   //_DK_frontnet_draw_messages(gbtn);
 
-  struct TbSprite *font;
   int y;
-  int font_index;
+  int font_idx;
   struct NetMessage *message_ptr;
   int num_active;
   unsigned char font_height;
@@ -726,16 +725,14 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
 
   y = 0;
   scroll_offset = net_message_scroll_offset;
-  font_index = frontend_button_info[(unsigned) gbtn->content].font_index;
+  font_idx = frontend_button_info[(unsigned) gbtn->content].font_index;
   lbDisplay.DrawFlags = 0;
-  font = frontend_font[font_index];
-  lbFontPtr = frontend_font[font_index];
+  LbTextSetFont(frontend_font[font_idx]);
   if ( gbtn->height )
   {
     message_ptr = &net_message[net_message_scroll_offset];
     do
     {
-      *(short *) font = scroll_offset; //check this, seems weird
       if ( scroll_offset >= net_number_of_messages )
         break;
       num_active = 0;
@@ -746,9 +743,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
       }
 
       player_sprite = &frontend_sprite[num_active + 21];
-      font_height = 0;
-      if ( lbFontPtr )
-        font_height = lbFontPtr[1].SHeight;
+      font_height = LbTextLineHeight();
 
       height_diff = font_height - player_sprite->SHeight;
       LbSpriteDraw(gbtn->scr_pos_x, y + gbtn->scr_pos_y + (((unsigned)height_diff - (unsigned) (height_diff >> 32)) >> 1), player_sprite);

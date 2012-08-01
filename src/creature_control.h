@@ -375,7 +375,7 @@ struct CreatureStats { // sizeof = 230
   unsigned char strength;
   unsigned char armour;
   unsigned char dexterity;
-  unsigned char fear;
+  unsigned char fear_wounded;
   unsigned char defense;
   unsigned char luck;
   unsigned char recovery;

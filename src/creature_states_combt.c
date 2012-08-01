@@ -122,11 +122,13 @@ long jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct 
 
 long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
 {
+    struct CreatureStats *crstat;
     const struct Coord3d *srcpos;
     struct Coord3d pos1;
     struct Coord3d pos2;
     long result;
     //return _DK_jonty_creature_can_see_thing_including_lava_check(creatng, thing);
+    crstat = creature_stats_get_from_thing(creatng);
     srcpos = &creatng->mappos;
     pos1.x.val = srcpos->x.val;
     pos1.y.val = srcpos->y.val;
@@ -134,7 +136,7 @@ long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creat
     pos2.x.val = thing->mappos.x.val;
     pos2.y.val = thing->mappos.y.val;
     pos2.z.val = thing->mappos.z.val;
-    pos1.z.val += game.creature_stats[creatng->model].eye_height;
+    pos1.z.val += crstat->eye_height;
     if (thing->class_id == 9)
     {
       if ( !creature_can_travel_over_lava(creatng) && !lava_at_position(srcpos) )
@@ -202,25 +204,25 @@ long creature_has_other_attackers(struct Thing *thing, long a2)
 TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
 {
     struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    long maxhealth;
     crstat = creature_stats_get_from_thing(thing);
     // Creature with fear 255 are scared of everything other that their own model
-    if (crstat->fear == 255)
+    if (crstat->fear_wounded == 255)
     {
         if (enmtng->model != thing->model)
-          return true;
+            return true;
         if (creature_has_other_attackers(thing, thing->model))
-          return true;
+            return true;
         return false;
     }
-    // With "Flee" tendency on, then creatures are scared if their health
-    // drops lower than  fear/256 percentage of base health
+    // With "Flee" tendency on, creatures are scared if their health
+    // drops lower than  fear_wounded/256 percentage of base health
     if (player_creature_tends_to(thing->owner,CrTend_Flee))
     {
+        long maxhealth;
+        struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
-        if ((crstat->fear * maxhealth) / 256 >= thing->health)
+        if (thing->health <= (crstat->fear_wounded * maxhealth) / 256)
         {
             if (thing->owner != game.neutral_player_num)
             {
@@ -229,6 +231,19 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
             }
         }
     }
+    // If the enemy is way stronger, a creature may be scared anyway
+    /* TODO CREATURE_AI When possible, add the config property to allow this kind of fear
+    long enmstrength,ownstrength;
+    enmstrength = calculate_melee_damage(enmtng) * enmtng->health;
+    ownstrength = calculate_melee_damage(thing) * thing->health;
+    if (enmstrength > (crstat->fear_stronger * ownstrength) / 100)
+    {
+        if (thing->owner != game.neutral_player_num)
+        {
+            SYNCDBG(8,"Creature is scared due to enemy strength");
+            return true;
+        }
+    }*/
     return false;
 }
 

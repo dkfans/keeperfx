@@ -358,19 +358,19 @@ long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
 
 long process_torture_function(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     struct Room *room;
     long i;
     //return _DK_process_torture_function(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    room = room_get(cctrl->work_room_id);
-    if ( !room_still_valid_as_type_for_thing(room,5,thing) )
+    room = get_room_creature_works_in(thing);
+    if ( !room_still_valid_as_type_for_thing(room,RoK_TORTURE,thing) )
     {
         set_start_state(thing);
         return 1;
     }
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
     anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, 4, 1);
     if ((long)game.play_gameturn >= cctrl->field_82 + game.turns_per_torture_health_loss)
     {

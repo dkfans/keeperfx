@@ -3244,7 +3244,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
-      crstat->fear = saturate_set_unsigned(val3, 8);
+      crstat->fear_wounded = saturate_set_unsigned(val3, 8);
       break;
   case Cmd_ALLY_PLAYERS:
       set_ally_with_player(val2, val3, val4);

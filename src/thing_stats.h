@@ -41,6 +41,7 @@ const char *thing_class_code_name(long class_id);
 const char *creatrtng_actstate_name(const struct Thing *thing);
 TbBool things_stats_debug_dump(void);
 /******************************************************************************/
+long compute_creature_kind_score(long crkind,unsigned short crlevel);
 long compute_creature_max_pay(long base_pay,unsigned short crlevel);
 long compute_creature_max_health(long base_health,unsigned short crlevel);
 long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel);
