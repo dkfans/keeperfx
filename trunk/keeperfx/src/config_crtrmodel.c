@@ -202,7 +202,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->strength = 0;
       crstat->armour = 0;
       crstat->dexterity = 0;
-      crstat->fear = 32;
+      crstat->fear_wounded = 32;
       crstat->defense = 0;
       crstat->luck = 0;
       crstat->recovery = 1;
@@ -337,7 +337,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->fear = k;
+            crstat->fear_wounded = k;
             n++;
           }
           if (n < 1)
