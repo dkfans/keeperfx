@@ -170,11 +170,11 @@ struct NamedCommand instance_desc[INSTANCE_TYPES_MAX];
 /**
  * Returns CreatureStats of given creature model.
  */
-struct CreatureStats *creature_stats_get(long crstat_idx)
+struct CreatureStats *creature_stats_get(ThingModel crstat_idx)
 {
   if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_COUNT))
-    return &game.creature_stats[0];
-  return &game.creature_stats[crstat_idx];
+    return &gameadd.creature_stats[0];
+  return &gameadd.creature_stats[crstat_idx];
 }
 
 /**
@@ -184,8 +184,8 @@ struct CreatureStats *creature_stats_get(long crstat_idx)
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
 {
   if ((thing->model < 1) || (thing->model >= CREATURE_TYPES_COUNT))
-    return &game.creature_stats[0];
-  return &game.creature_stats[thing->model];
+    return &gameadd.creature_stats[0];
+  return &gameadd.creature_stats[thing->model];
 }
 
 /**
@@ -193,13 +193,99 @@ struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
  */
 TbBool creature_stats_invalid(const struct CreatureStats *crstat)
 {
-  return (crstat <= &game.creature_stats[0]) || (crstat == NULL);
+  return (crstat <= &gameadd.creature_stats[0]) || (crstat == NULL);
+}
+
+/**
+ * Informs the module that creature stats for given creature model were changed.
+ * To be removed as soon as it's no longer needed!
+ */
+void creature_stats_updated(ThingModel crstat_idx)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get(crstat_idx);
+    // Update old stats by copying part of the new stats memory
+    // Note that CreatureStats may only change at end for this hack to work!
+    memcpy(&game.creature_stats_OLD[crstat_idx],crstat,sizeof(struct CreatureStatsOLD));
+}
+
+void check_and_auto_fix_stats(void)
+{
+    struct CreatureStats *crstat;
+    long model;
+    long i,n;
+    SYNCDBG(8,"Starting");
+    //_DK_check_and_auto_fix_stats();
+    for (model=0; model < CREATURE_TYPES_COUNT; model++)
+    {
+        crstat = creature_stats_get(model);
+        if ( (crstat->lair_size <= 0) && (crstat->heal_requirement != 0) )
+        {
+            ERRORLOG("Creature model %d No LairSize But Heal Requirment - Fixing", (int)model);
+            crstat->heal_threshold = 0;
+            crstat->heal_requirement = 0;
+        }
+        if (crstat->heal_requirement > crstat->heal_threshold)
+        {
+            ERRORLOG("Creature model %d Heal Requirment > Heal Threshold - Fixing", (int)model);
+            crstat->heal_threshold = crstat->heal_requirement;
+        }
+        if ( (crstat->hunger_rate != 0) && (crstat->hunger_fill == 0) )
+        {
+            ERRORLOG("Creature model %d HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model);
+            crstat->hunger_fill = 1;
+        }
+        if ( (crstat->sleep_exp_slab != 0) && (crstat->sleep_experience == 0) )
+        {
+            ERRORLOG("Creature model %d SleepSlab & SleepExperience = 0 - Fixing", (int)model);
+            crstat->sleep_exp_slab = 0;
+        }
+        if (crstat->grow_up > 30)
+        {
+            ERRORLOG("Creature model %d Invalid GrowUp - Fixing", (int)model);
+            crstat->grow_up = 0;
+        }
+        if (crstat->grow_up > 0)
+        {
+          if ( (crstat->grow_up_level < 1) || (crstat->grow_up_level > 10) )
+          {
+              ERRORLOG("Creature model %d GrowUp & GrowUpLevel invalid - Fixing", (int)model);
+              crstat->grow_up_level = 1;
+          }
+        }
+        if (crstat->rebirth > 10)
+        {
+            ERRORLOG("Creature model %d Rebirth Invalid - Fixing", (int)model);
+            crstat->rebirth = 0;
+        }
+        for (i=0; i < 10; i++)
+        {
+            n = crstat->instance_level[i];
+            if (n != 0)
+            {
+                if ( (n < 1) || (n > 10) )
+                {
+                    ERRORLOG("Creature model %d Instance Level For Slot %d Invalid - Fixing", (int)model, (int)(i+1));
+                    crstat->instance_level[i] = 1;
+                }
+            } else
+            {
+                if ( (n >= 1) && (n <= 10) )
+                {
+                    ERRORLOG("Creature model %d Instance Level For Not Used Spell %d - Fixing", (int)model, (int)(i+1));
+                    crstat->instance_level[i] = 0;
+                }
+            }
+        }
+        creature_stats_updated(model);
+    }
+    SYNCDBG(9,"Finished");
 }
 
 /**
  * Returns CreatureData of given creature model.
  */
-struct CreatureData *creature_data_get(long crstat_idx)
+struct CreatureData *creature_data_get(ThingModel crstat_idx)
 {
   if ((crstat_idx < 1) || (crstat_idx >= CREATURE_TYPES_COUNT))
     return &creature_data[0];
@@ -220,7 +306,7 @@ struct CreatureData *creature_data_get_from_thing(const struct Thing *thing)
 /**
  * Returns Code Name (name to use in script file) of given creature model.
  */
-const char *creature_code_name(long crmodel)
+const char *creature_code_name(ThingModel crmodel)
 {
     const char *name;
     name = get_conf_parameter_text(creature_desc,crmodel);

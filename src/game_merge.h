@@ -25,6 +25,8 @@
 
 #include "config_crtrmodel.h"
 #include "config_rules.h"
+#include "thing_creature.h"
+#include "creature_control.h"
 #include "light_data.h"
 
 #ifdef __cplusplus
@@ -59,6 +61,7 @@ struct PlayerInfo;
  * Defines additional elements, which are not stored in main 'Game' struct.
  */
 struct GameAdd {
+    struct CreatureStats creature_stats[CREATURE_TYPES_COUNT];
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];

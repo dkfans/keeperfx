@@ -46,27 +46,28 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"STRENGTH",         5},
   {"ARMOUR",           6},
   {"DEXTERITY",        7},
-  {"FEAR",             8},
-  {"DEFENCE",          9},
-  {"LUCK",            10},
-  {"RECOVERY",        11},
-  {"HUNGERRATE",      12},
-  {"HUNGERFILL",      13},
-  {"LAIRSIZE",        14},
-  {"HURTBYLAVA",      15},
-  {"BASESPEED",       16},
-  {"GOLDHOLD",        17},
-  {"SIZE",            18},
-  {"ATTACKPREFERENCE",19},
-  {"PAY",             20},
-  {"HEROVSKEEPERCOST",21},
-  {"SLAPSTOKILL",     22},
-  {"CREATURELOYALTY", 23},
-  {"LOYALTYLEVEL",    24},
-  {"DAMAGETOBOULDER", 25},
-  {"THINGSIZE",       26},
-  {"PROPERTIES",      27},
-  {"NAMETEXTID",      28},
+  {"FEAR_WOUNDED",     8},
+  {"FEAR_STRONGER",    9},
+  {"DEFENCE",         10},
+  {"LUCK",            11},
+  {"RECOVERY",        12},
+  {"HUNGERRATE",      13},
+  {"HUNGERFILL",      14},
+  {"LAIRSIZE",        15},
+  {"HURTBYLAVA",      16},
+  {"BASESPEED",       17},
+  {"GOLDHOLD",        18},
+  {"SIZE",            19},
+  {"ATTACKPREFERENCE",20},
+  {"PAY",             21},
+  {"HEROVSKEEPERCOST",22},
+  {"SLAPSTOKILL",     23},
+  {"CREATURELOYALTY", 24},
+  {"LOYALTYLEVEL",    25},
+  {"DAMAGETOBOULDER", 26},
+  {"THINGSIZE",       27},
+  {"PROPERTIES",      28},
+  {"NAMETEXTID",      29},
   {NULL,               0},
   };
 
@@ -203,6 +204,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->armour = 0;
       crstat->dexterity = 0;
       crstat->fear_wounded = 32;
+      crstat->fear_stronger = 512;
       crstat->defense = 0;
       crstat->luck = 0;
       crstat->recovery = 1;
@@ -333,7 +335,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 8: // FEAR
+      case 8: // FEAR_WOUNDED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -346,7 +348,20 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 9: // DEFENCE
+      case 9: // FEAR_STRONGER
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->fear_stronger = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 10: // DEFENCE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -359,7 +374,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 10: // LUCK
+      case 11: // LUCK
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -372,7 +387,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 11: // RECOVERY
+      case 12: // RECOVERY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -385,7 +400,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 12: // HUNGERRATE
+      case 13: // HUNGERRATE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -398,7 +413,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 13: // HUNGERFILL
+      case 14: // HUNGERFILL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -411,7 +426,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 14: // LAIRSIZE
+      case 15: // LAIRSIZE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -424,7 +439,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 15: // HURTBYLAVA
+      case 16: // HURTBYLAVA
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -437,7 +452,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 16: // BASESPEED
+      case 17: // BASESPEED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -450,7 +465,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 17: // GOLDHOLD
+      case 18: // GOLDHOLD
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -463,7 +478,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 18: // SIZE
+      case 19: // SIZE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -482,7 +497,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 19: // ATTACKPREFERENCE
+      case 20: // ATTACKPREFERENCE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(attackpref_desc, word_buf);
@@ -498,7 +513,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 20: // PAY
+      case 21: // PAY
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -511,7 +526,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 21: // HEROVSKEEPERCOST
+      case 22: // HEROVSKEEPERCOST
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -524,7 +539,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 22: // SLAPSTOKILL
+      case 23: // SLAPSTOKILL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -537,13 +552,13 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 23: // CREATURELOYALTY
+      case 24: // CREATURELOYALTY
           // Unused
           break;
-      case 24: // LOYALTYLEVEL
+      case 25: // LOYALTYLEVEL
           // Unused
           break;
-      case 25: // DAMAGETOBOULDER
+      case 26: // DAMAGETOBOULDER
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -556,7 +571,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 26: // THINGSIZE
+      case 27: // THINGSIZE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -575,7 +590,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 27: // PROPERTIES
+      case 28: // PROPERTIES
           crstat->bleeds = false;
           crstat->affected_by_wind = true;
           crstat->immune_to_gas = false;
@@ -665,7 +680,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
             }
           }
           break;
-      case 28: // NAMETEXTID
+      case 29: // NAMETEXTID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -2026,8 +2041,9 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *fname,unsigned
       if (!result)
           WARNMSG("Parsing %s file \"%s.cfg\" sprites blocks failed.",config_textname,fname);
     }
-
-    //Freeing and exiting
+    // Mark the fact that stats were updated
+    creature_stats_updated(crtr_model);
+    // Freeing and exiting
     LbMemoryFree(buf);
     return result;
 }

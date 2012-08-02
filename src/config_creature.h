@@ -149,12 +149,14 @@ extern struct CreatureConfig crtr_conf;
 extern struct CreatureData creature_data[];
 //extern struct Creatures creatures[];
 /******************************************************************************/
-struct CreatureStats *creature_stats_get(long crstat_idx);
+struct CreatureStats *creature_stats_get(ThingModel crstat_idx);
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing);
-struct CreatureData *creature_data_get(long crstat_idx);
+struct CreatureData *creature_data_get(ThingModel crstat_idx);
 struct CreatureData *creature_data_get_from_thing(const struct Thing *thing);
 TbBool creature_stats_invalid(const struct CreatureStats *crstat);
-const char *creature_code_name(long crmodel);
+void creature_stats_updated(ThingModel crstat_idx);
+void check_and_auto_fix_stats(void);
+const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 /******************************************************************************/
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);

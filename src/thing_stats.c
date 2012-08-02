@@ -183,7 +183,7 @@ TbBool things_stats_debug_dump(void)
     return false;
 }
 
-long compute_creature_kind_score(long crkind,unsigned short crlevel)
+long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get(crkind);

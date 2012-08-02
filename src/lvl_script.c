@@ -93,7 +93,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_STRENGTH",        "AN      ", Cmd_SET_CREATURE_STRENGTH},
   {"SET_CREATURE_HEALTH",          "AN      ", Cmd_SET_CREATURE_HEALTH},
   {"SET_CREATURE_ARMOUR",          "AN      ", Cmd_SET_CREATURE_ARMOUR},
-  {"SET_CREATURE_FEAR",            "AN      ", Cmd_SET_CREATURE_FEAR},
+  {"SET_CREATURE_FEAR",            "AN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
   {"IF_AVAILABLE",                 "AAAN    ", Cmd_IF_AVAILABLE},
   {"SET_COMPUTER_GLOBALS",         "ANNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
   {"SET_COMPUTER_CHECKS",          "AANNNNN ", Cmd_SET_COMPUTER_CHECKS},
@@ -158,7 +158,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"SET_CREATURE_STRENGTH",        "AN      ", Cmd_SET_CREATURE_STRENGTH},
   {"SET_CREATURE_HEALTH",          "AN      ", Cmd_SET_CREATURE_HEALTH},
   {"SET_CREATURE_ARMOUR",          "AN      ", Cmd_SET_CREATURE_ARMOUR},
-  {"SET_CREATURE_FEAR",            "AN      ", Cmd_SET_CREATURE_FEAR},
+  {"SET_CREATURE_FEAR",            "AN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
   {"IF_AVAILABLE",                 "AAAN    ", Cmd_IF_AVAILABLE},
   {"SET_COMPUTER_GLOBALS",         "ANNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
   {"SET_COMPUTER_CHECKS",          "AANNNNN ", Cmd_SET_COMPUTER_CHECKS},
@@ -1770,7 +1770,7 @@ void command_set_creature_fear(char *crtr_name, long val)
     SCRPTERRLOG("Invalid '%s' fear value, %d", crtr_name, val);
     return;
   }
-  command_add_value(Cmd_SET_CREATURE_FEAR, 0, crtr_id, val, 0);
+  command_add_value(Cmd_SET_CREATURE_FEAR_WOUNDED, 0, crtr_id, val, 0);
 }
 
 /**
@@ -2134,7 +2134,7 @@ long script_scan_line(char *line,TbBool preloaded)
   case Cmd_SET_CREATURE_ARMOUR:
       command_set_creature_armour(scline->tp[0], scline->np[1]);
       break;
-  case Cmd_SET_CREATURE_FEAR:
+  case Cmd_SET_CREATURE_FEAR_WOUNDED:
       command_set_creature_fear(scline->tp[0], scline->np[1]);
       break;
   case Cmd_DISPLAY_OBJECTIVE_WITH_POS:
@@ -3227,24 +3227,35 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       if (creature_stats_invalid(crstat))
           break;
       crstat->health = saturate_set_signed(val3, 16);
+      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_STRENGTH:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->strength = saturate_set_unsigned(val3, 8);
+      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->armour = saturate_set_unsigned(val3, 8);
+      creature_stats_updated(val2);
       break;
-  case Cmd_SET_CREATURE_FEAR:
+  case Cmd_SET_CREATURE_FEAR_WOUNDED:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_wounded = saturate_set_unsigned(val3, 8);
+      creature_stats_updated(val2);
+      break;
+  case Cmd_SET_CREATURE_FEAR_STRONGER:
+      crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
+      crstat->fear_stronger = saturate_set_unsigned(val3, 16);
+      creature_stats_updated(val2);
       break;
   case Cmd_ALLY_PLAYERS:
       set_ally_with_player(val2, val3, val4);
