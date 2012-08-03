@@ -60,7 +60,7 @@ DLLIMPORT extern struct TbSetupSprite _DK_swipe_setup_sprites[];
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;
 /******************************************************************************/
-struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigned short owner);
+struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 TbBool creature_increase_level(struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
@@ -114,6 +114,7 @@ void init_creature_scores(void);
 long get_creature_thing_score(struct Thing *thing);
 TbBool add_creature_score_to_owner(struct Thing *thing);
 TbBool remove_creature_score_from_owner(struct Thing *thing);
+long calculate_melee_damage(struct Thing *thing);
 
 long update_creature_levels(struct Thing *thing);
 long update_creature(struct Thing *thing);

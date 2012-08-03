@@ -46,8 +46,8 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"STRENGTH",         5},
   {"ARMOUR",           6},
   {"DEXTERITY",        7},
-  {"FEAR_WOUNDED",     8},
-  {"FEAR_STRONGER",    9},
+  {"FEARWOUNDED",      8},
+  {"FEARSTRONGER",     9},
   {"DEFENCE",         10},
   {"LUCK",            11},
   {"RECOVERY",        12},
@@ -68,6 +68,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"THINGSIZE",       27},
   {"PROPERTIES",      28},
   {"NAMETEXTID",      29},
+  {"FEARNOFLEEFACTOR",30},
   {NULL,               0},
   };
 
@@ -203,8 +204,9 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->strength = 0;
       crstat->armour = 0;
       crstat->dexterity = 0;
-      crstat->fear_wounded = 32;
-      crstat->fear_stronger = 512;
+      crstat->fear_wounded = 15;
+      crstat->fear_stronger = 800;
+      crstat->fear_noflee_factor = 20;
       crstat->defense = 0;
       crstat->luck = 0;
       crstat->recovery = 1;
@@ -335,7 +337,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 8: // FEAR_WOUNDED
+      case 8: // FEARWOUNDED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -348,7 +350,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 9: // FEAR_STRONGER
+      case 9: // FEARSTRONGER
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -689,6 +691,19 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               crconf->namestr_idx = k;
               n++;
             }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 30: // FEARNOFLEEFACTOR
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            crstat->fear_noflee_factor = k;
+            n++;
           }
           if (n < 1)
           {
