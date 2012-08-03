@@ -2170,7 +2170,7 @@ void change_creature_owner(struct Thing *thing, long nowner)
 
 }
 
-struct Thing *create_creature(struct Coord3d *pos, unsigned short model, unsigned short owner)
+struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;

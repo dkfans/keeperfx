@@ -554,6 +554,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short damage_to_boulder;
     // New fields go there; don't change earlier fields.
     unsigned short fear_stronger;
+    unsigned short fear_noflee_factor;
 };
 
 

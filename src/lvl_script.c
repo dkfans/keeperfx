@@ -93,7 +93,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_CREATURE_STRENGTH",        "AN      ", Cmd_SET_CREATURE_STRENGTH},
   {"SET_CREATURE_HEALTH",          "AN      ", Cmd_SET_CREATURE_HEALTH},
   {"SET_CREATURE_ARMOUR",          "AN      ", Cmd_SET_CREATURE_ARMOUR},
-  {"SET_CREATURE_FEAR",            "AN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
+  {"SET_CREATURE_FEAR_WOUNDED",    "AN      ", Cmd_SET_CREATURE_FEAR_WOUNDED},
+  {"SET_CREATURE_FEAR_STRONGER",   "AN      ", Cmd_SET_CREATURE_FEAR_STRONGER},
   {"IF_AVAILABLE",                 "AAAN    ", Cmd_IF_AVAILABLE},
   {"SET_COMPUTER_GLOBALS",         "ANNNNNN ", Cmd_SET_COMPUTER_GLOBALS},
   {"SET_COMPUTER_CHECKS",          "AANNNNN ", Cmd_SET_COMPUTER_CHECKS},
@@ -3247,7 +3248,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
-      crstat->fear_wounded = saturate_set_unsigned(val3, 8);
+      if (level_file_version > 0)
+          crstat->fear_wounded = saturate_set_unsigned(val3, 8);
+      else
+          crstat->fear_wounded = saturate_set_unsigned(101*val3/255, 8); // old fear was scaled 0..255
       creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEAR_STRONGER:

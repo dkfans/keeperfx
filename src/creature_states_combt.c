@@ -206,7 +206,7 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     // Creature with fear 255 are scared of everything other that their own model
-    if (crstat->fear_wounded == 255)
+    if (crstat->fear_wounded == 101)
     {
         if (enmtng->model != thing->model)
             return true;
@@ -214,36 +214,39 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
             return true;
         return false;
     }
-    // With "Flee" tendency on, creatures are scared if their health
-    // drops lower than  fear_wounded/256 percentage of base health
-    if (player_creature_tends_to(thing->owner,CrTend_Flee))
+    // Neutral creatures are not easily scared, as they shouldn't have enemies
+    if (thing->owner == game.neutral_player_num)
+        return false;
+    // Creatures are scared if their health drops lower than
+    // fear_wounded percent of base health
+    long maxhealth,fear;
+    if (player_creature_tends_to(thing->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
+        fear = crstat->fear_wounded;
+    } else {
+        fear = (long)crstat->fear_wounded / crstat->fear_noflee_factor;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+    if (thing->health <= (fear * (long long)maxhealth) / 100)
     {
-        long maxhealth;
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
-        if (thing->health <= (crstat->fear_wounded * maxhealth) / 256)
-        {
-            if (thing->owner != game.neutral_player_num)
-            {
-                SYNCDBG(8,"Creature is scared due to tendencies");
-                return true;
-            }
-        }
+        SYNCDBG(8,"The %s is scared due to low health (%ld/%ld)",thing_model_name(thing),(long)thing->health,maxhealth);
+        return true;
     }
     // If the enemy is way stronger, a creature may be scared anyway
-    /* TODO CREATURE_AI When possible, add the config property to allow this kind of fear
-    long enmstrength,ownstrength;
+    long long enmstrength,ownstrength;
+    if (player_creature_tends_to(thing->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
+        fear = crstat->fear_stronger;
+    } else {
+        fear = (long)crstat->fear_stronger * crstat->fear_noflee_factor;
+    }
     enmstrength = calculate_melee_damage(enmtng) * enmtng->health;
     ownstrength = calculate_melee_damage(thing) * thing->health;
-    if (enmstrength > (crstat->fear_stronger * ownstrength) / 100)
+    if (enmstrength >= (fear * ownstrength) / 100)
     {
-        if (thing->owner != game.neutral_player_num)
-        {
-            SYNCDBG(8,"Creature is scared due to enemy strength");
-            return true;
-        }
-    }*/
+        SYNCDBG(8,"The %s is scared due to enemy %s strength (%ld vs. %ld)",thing_model_name(thing),thing_model_name(enmtng),(long)ownstrength,(long)enmstrength);
+        return true;
+    }
     return false;
 }
 
