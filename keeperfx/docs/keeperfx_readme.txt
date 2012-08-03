@@ -415,6 +415,17 @@ New and modified level script commands:
   creatures. Example: SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
   Note that a player must have prison when IMPRISON command
   is trigered; otherwise it won't make any change.
+ SET_CREATURE_FEAR_WOUNDED
+  Replacements for SET_CREATURE_FEAR. The value taken by this
+  function is a percentage (0..100) and defines health drop
+  required for the creature to escape from combat. A special
+  value of 101 makes creature avoid any combat other than with
+  one creature of the same kind.
+  Example: SET_CREATURE_FEAR_WOUNDED(IMP,50)
+ SET_CREATURE_FEAR_STRONGER
+  Allows to define how many times stronger the enemy has to be
+  for our creature to escape from combat. The value is in %.
+  Example: SET_CREATURE_FEAR_STRONGER(AVATAR,200)
  REVEAL_MAP_RECT
   Reveals rectangular map area for given player. Requires
   coordinates of area center point, and rectangle dimensions.
