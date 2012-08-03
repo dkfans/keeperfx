@@ -206,7 +206,7 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     // Creature with fear 255 are scared of everything other that their own model
-    if (crstat->fear_wounded == 101)
+    if (crstat->fear_wounded >= 101)
     {
         if (enmtng->model != thing->model)
             return true;
