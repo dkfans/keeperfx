@@ -500,8 +500,10 @@ unsigned short field_14AB3F;
     unsigned short free_things_start_index;
     unsigned long play_gameturn;
     unsigned long pckt_gameturn;
+    /** Synchronized random seed. used for game actions, as it's always identical for clients of network game. */
     unsigned long action_rand_seed;
-    unsigned long unsync_rand_seed; // primary random seed; shouldn't affect game actions
+    /** Unsynchronized random seed. Shouldn't affect game actions, because it's local - other clients have different value. */
+    unsigned long unsync_rand_seed;
 short field_14BB52;
 unsigned char field_14BB54;
 int field_14BB55;
@@ -512,7 +514,7 @@ short field_14BB65[592];
     unsigned char small_map_state;
     struct Coord3d pos_14C006;
     struct Packet packets[PACKETS_COUNT];
-    struct CreatureStats creature_stats[CREATURE_TYPES_COUNT];
+    struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
     struct RoomStats room_stats[ROOM_TYPES_COUNT];
     struct MagicStats magic_stats[POWER_TYPES_COUNT];
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
@@ -935,7 +937,6 @@ void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 TbBool load_stats_files(void);
-void check_and_auto_fix_stats(void);
 long update_dungeon_scores(void);
 long update_dungeon_generation_speeds(void);
 void calculate_dungeon_area_scores(void);

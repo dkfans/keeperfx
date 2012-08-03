@@ -138,7 +138,7 @@ struct Thing {
       };
     };
     unsigned char field_19;
-    unsigned char model;
+    ThingModel model;
     unsigned short index;
     short parent_thing_idx;
     unsigned char class_id;

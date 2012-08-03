@@ -68,7 +68,7 @@ enum TbScriptCommands {
     Cmd_SET_CREATURE_STRENGTH          = 62,
     Cmd_SET_CREATURE_HEALTH            = 61,
     Cmd_SET_CREATURE_ARMOUR            = 63,
-    Cmd_SET_CREATURE_FEAR              = 64,
+    Cmd_SET_CREATURE_FEAR_WOUNDED      = 64,
     Cmd_IF_AVAILABLE                   = 66,
     Cmd_SET_COMPUTER_GLOBALS           = 68,
     Cmd_SET_COMPUTER_CHECKS            = 69,
@@ -98,6 +98,7 @@ enum TbScriptCommands {
     Cmd_LEVEL_VERSION                  = 90,
     Cmd_RESEARCH_ORDER                 = 91,
     Cmd_KILL_CREATURE                  = 92,
+    Cmd_SET_CREATURE_FEAR_STRONGER     = 93,
 };
 
 enum ScriptVatiables {

@@ -465,7 +465,7 @@ TbBool person_will_do_job_for_room(const struct Thing *thing, const struct Room 
     return (get_job_for_room(room->kind) & crstat->jobs_not_do) == 0;
 }
 
-TbBool person_will_do_job_for_room_kind(const struct Thing *thing, long rkind)
+TbBool person_will_do_job_for_room_kind(const struct Thing *thing, RoomKind rkind)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
