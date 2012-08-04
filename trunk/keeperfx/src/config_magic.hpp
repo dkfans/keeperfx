@@ -34,7 +34,7 @@ extern "C" {
 #define MAGIC_TYPES_COUNT      30
 #define POWER_TYPES_COUNT      20
 
-enum SpellKind {
+enum SpellKinds {
     SplK_None = 0,
     SplK_Fireball,
     SplK_FireBomb,
@@ -66,17 +66,17 @@ enum SpellKind {
     SplK_TimeBomb,//[28]
 };
 
-enum CreatureSpellFlags {
-    CSF_Slow    = 0x01,
-    CSF_Speed   = 0x02,
-    CSF_Armour  = 0x04,
-    CSF_Rebound = 0x08,
-    CSF_Fly     = 0x10,
-    CSF_Conceal = 0x20,
-    CSF_Sight   = 0x40,
+enum CreatureSpellAffectedFlags {
+    CSAfF_Slow         = 0x01,
+    CSAfF_Speed        = 0x02,
+    CSAfF_Armour       = 0x04,
+    CSAfF_Rebound      = 0x08,
+    CSAfF_Fly          = 0x10,
+    CSAfF_Invisibility = 0x20,
+    CSAfF_Sight        = 0x40,
 };
 
-enum PowerKind {
+enum PowerKinds {
     PwrK_None = 0,
     PwrK_HAND,
     PwrK_MKDIGGER,
@@ -257,20 +257,21 @@ long get_power_description_strindex(int pwr_idx);
 TbBool power_data_is_invalid(const struct SpellData *pwrdata);
 TbBool spell_is_stupid(int sptype);
 long get_power_index_for_work_state(long work_state);
-struct SpellConfigStats *get_spell_model_stats(int spmodel);
-struct ShotConfigStats *get_shot_model_stats(int tngmodel);
-struct PowerConfigStats *get_power_model_stats(int pwmodel);
-const char *spell_code_name(int spmodel);
-const char *shot_code_name(int tngmodel);
-const char *power_code_name(int pwmodel);
+struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel);
+struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel);
+struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel);
+const char *spell_code_name(SpellKind spmodel);
+const char *shot_code_name(ThingModel tngmodel);
+const char *power_code_name(PowerKind pwmodel);
 int power_model_id(const char * code_name);
 /******************************************************************************/
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);
 TbBool make_all_powers_cost_free(void);
-TbBool make_all_powers_researchable(long plyr_idx);
-TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail);
-TbBool is_power_available(long plyr_idx, long spl_idx);
-TbBool make_available_all_researchable_powers(long plyr_idx);
+TbBool make_all_powers_researchable(PlayerNumber plyr_idx);
+TbBool set_power_available(PlayerNumber plyr_idx, SpellKind spl_idx, long resrch, long avail);
+TbBool is_power_available(PlayerNumber plyr_idx, SpellKind spl_idx);
+TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx);
+unsigned long spell_to_creature_affected_flag(SpellKind spkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

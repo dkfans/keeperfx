@@ -74,7 +74,7 @@ DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char spl_id, unsigned char a4, long a5);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long spl_id);
 /******************************************************************************/
-long can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long spl_id)
+long can_cast_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long spl_id)
 {
     //return _DK_can_cast_spell_on_creature(a1, thing, a3);
     // Cannot disease own creatures

@@ -149,6 +149,8 @@ typedef long PlayerNumber;
 typedef unsigned char ThingClass;
 typedef unsigned char ThingModel;
 typedef unsigned short CrtrStateId;
+typedef unsigned short SpellKind;
+typedef unsigned short PowerKind;
 
 
 struct Coord2d {

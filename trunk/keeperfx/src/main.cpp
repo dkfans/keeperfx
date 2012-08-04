@@ -195,7 +195,6 @@ DLLIMPORT void _DK_setup_stuff(void);
 DLLIMPORT void _DK_init_keeper(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
 DLLIMPORT void _DK_set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
-DLLIMPORT struct Thing *_DK_find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y);
 DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 DLLIMPORT long _DK_thing_in_wall_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
@@ -4742,7 +4741,7 @@ TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 TbBool generation_available_to_dungeon(struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
-    if (dungeon->room_kind[RoK_ENTRANCE] <= 0)
+    if (!dungeon_has_room(dungeon, RoK_ENTRANCE))
         return false;
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
@@ -4952,7 +4951,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 
             if (is_my_player_number(dungeon->owner))
             {
-                if (dungeon->room_kind[RoK_LAIR] > 0) {
+                if (dungeon_has_room(dungeon, RoK_LAIR)) {
                     output_message(SMsg_LairTooSmall, 500, true);
                 }
                 else {
@@ -4960,7 +4959,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
                 }
             }
 
-            if (dungeon->room_kind[RoK_LAIR] > 0) {
+            if (dungeon_has_room(dungeon, RoK_LAIR)) {
                 event_create_event_or_update_nearby_existing_event(0, 0, 17, dungeon->owner, 0);
             }
         }
@@ -5066,39 +5065,6 @@ void process_player_research(int plyr_idx)
 struct Room *player_has_room_of_type(long plyr_idx, long rkind)
 {
   return _DK_player_has_room_of_type(plyr_idx, rkind);
-}
-
-long count_slabs_of_room_type(long plyr_idx, long rkind)
-{
-    struct Dungeon *dungeon;
-    struct Room *room;
-    long nslabs;
-    long i;
-    unsigned long k;
-    nslabs = 0;
-    dungeon = get_dungeon(plyr_idx);
-    i = dungeon->room_kind[rkind];
-    k = 0;
-    while (i != 0)
-    {
-        room = room_get(i);
-        if (room_is_invalid(room))
-        {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        nslabs += room->slabs_count;
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
-        }
-    }
-    return nslabs;
 }
 
 TbBool set_manufacture_level(struct Dungeon *dungeon)

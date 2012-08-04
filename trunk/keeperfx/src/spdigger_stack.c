@@ -441,7 +441,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
     unsigned long k;
     int i;
     //return _DK_add_unclaimed_dead_bodies_to_imp_stack(dungeon, max_tasks);
-    if (dungeon->room_kind[RoK_GRAVEYARD] <= 0) {
+    if (!dungeon_has_room(dungeon, RoK_GRAVEYARD)) {
         SYNCDBG(8,"Dungeon %d has no graveyard",(int)dungeon->owner);
         return 1;
     }
@@ -547,7 +547,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
   SYNCDBG(18,"Starting");
   // Checking if the workshop exists
   room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_WORKSHOP);
-  if ( (dungeon->room_kind[RoK_WORKSHOP] <= 0) || room_is_invalid(room) )
+  if ( !dungeon_has_room(dungeon, RoK_WORKSHOP) || room_is_invalid(room) )
     return false;
   k = 0;
   i = game.thing_lists[2].index;
@@ -745,7 +745,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     }
     dungeon = get_dungeon(thing->owner);
     // Check why the treasure room search failed. Maybe we don't have treasure room?
-    if (dungeon->room_kind[RoK_TREASURE] == 0)
+    if (!dungeon_has_room(dungeon, RoK_TREASURE))
     {
         if (is_my_player_number(thing->owner))
             output_message(SMsg_RoomTreasrNeeded, 1000, true);
@@ -1068,7 +1068,7 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_PickUpCorpse:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (dungeon->room_kind[RoK_GRAVEYARD] == 0)
+            if (!dungeon_has_room(dungeon, RoK_GRAVEYARD))
               break;
             if ( find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1) )
             {
@@ -1103,7 +1103,7 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_PicksUpSpellBook:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (dungeon->room_kind[RoK_LIBRARY] == 0)
+            if (!dungeon_has_room(dungeon, RoK_LIBRARY))
                 break;
             if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, 0))
             {
@@ -1185,7 +1185,7 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_PicksUpTrapForWorkshop:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (dungeon->room_kind[RoK_WORKSHOP] == 0) {
+            if (!dungeon_has_room(dungeon, RoK_WORKSHOP)) {
               break;
             }
             if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, 0))

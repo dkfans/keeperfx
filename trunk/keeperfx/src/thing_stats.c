@@ -388,9 +388,9 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
   speed = crstat->base_speed;
   if (cctrl->field_21)
     speed *= 2;
-  if ((cctrl->spell_flags & CSF_Speed) != 0)
+  if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     speed *= 2;
-  if ((cctrl->spell_flags & CSF_Slow) != 0)
+  if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     speed /= 2;
   if (game.neutral_player_num != thing->owner)
   {
@@ -511,7 +511,7 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
         {
             // Compute armor value
             carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel);
-            if ((cctrl->spell_flags & CSF_Armour) != 0)
+            if ((cctrl->spell_flags & CSAfF_Armour) != 0)
                 carmor = (320 * carmor) / 256;
             // This limit makes armor absorb up to 80% of damage, never more
             if (carmor > 204)

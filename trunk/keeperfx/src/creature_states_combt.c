@@ -24,6 +24,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_battle.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -1639,7 +1640,7 @@ long creature_look_for_combat(struct Thing *thing)
         return 1;
     }
 
-    if ( ((cctrl->spell_flags & CSF_Conceal) != 0) && (cctrl->field_AF <= 0) )
+    if ( ((cctrl->spell_flags & CSAfF_Invisibility) != 0) && (cctrl->field_AF <= 0) )
     {
       if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
           return 0;
