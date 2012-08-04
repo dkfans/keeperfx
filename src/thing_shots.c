@@ -423,7 +423,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *target, stru
     {
       if (shotst->old->field_22 > 0)
       {
-          thing_play_sample(target, shotst->old->field_22, 0x64u, 0, 3, 0, 2, 256);
+          thing_play_sample(target, shotst->old->field_22, 100, 0, 3, 0, 2, 256);
           play_creature_sound(target, 1, 3, 0);
       }
       if (!thing_is_invalid(shooter)) {
@@ -530,7 +530,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     tgcctrl = creature_control_get_from_thing(target);
     if (!creature_control_invalid(tgcctrl))
     {
-        if ( ((tgcctrl->spell_flags & CSF_Rebound) != 0) && (shotst->old->field_29 == 0) )
+        if ( ((tgcctrl->spell_flags & CSAfF_Rebound) != 0) && (shotst->old->field_29 == 0) )
         {
             struct Thing *killertng;
             killertng = INVALID_THING;

@@ -26,6 +26,7 @@
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "creature_states_combt.h"
+#include "creature_instances.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
 #include "thing_objects.h"

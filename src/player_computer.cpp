@@ -2281,7 +2281,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     dungeon = comp->dungeon;
     if (dungeon->field_14B8 > dungeon->total_money_owned)
     {
-      if (dungeon->room_kind[RoK_WORKSHOP] != 0)
+      if (dungeon_has_room(dungeon, RoK_WORKSHOP))
       {
         if (get_task_in_progress(comp, CTT_SellTrapsAndDoors) == NULL)
         {

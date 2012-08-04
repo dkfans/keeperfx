@@ -62,7 +62,7 @@ short magic_use_power_obey(unsigned short plridx);
 
 int get_spell_overcharge_level(struct PlayerInfo *player);
 TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx);
-long can_cast_spell_on_creature(long a1, struct Thing *thing, long a3);
+long can_cast_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -1800,13 +1800,13 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
             && ((tng2->alloc_flags & TAlF_IsInLimbo) == 0) && ((tng2->field_1 & TF1_Unkn02) == 0))
             {
                 crstat1 = creature_stats_get_from_thing(tng1);
-                if ((cctrl2->spell_flags & CSF_Conceal) == 0)
+                if ((cctrl2->spell_flags & CSAfF_Invisibility) == 0)
                     return true;
                 if (cctrl2->field_AF > 0)
                     return true;
                 if (crstat1->can_see_invisible)
                     return true;
-                if ((cctrl1->spell_flags & CSF_Sight) != 0)
+                if ((cctrl1->spell_flags & CSAfF_Sight) != 0)
                     return true;
             }
         }
@@ -2002,7 +2002,7 @@ long process_work_speed_on_work_value(struct Thing *thing, long base_val)
     long val;
     cctrl = creature_control_get_from_thing(thing);
     val = base_val;
-    if ((cctrl->spell_flags & CSF_Speed) != 0)
+    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
         val = 2 * val;
     if (cctrl->field_21)
         val = 4 * val / 3;

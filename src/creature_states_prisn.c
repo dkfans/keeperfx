@@ -113,10 +113,10 @@ short creature_arrived_at_prison(struct Thing *thing)
     cctrl->field_82 = game.play_gameturn;
     cctrl->flgfield_1 |= 0x02;
     internal_set_thing_state(thing, CrSt_CreatureInPrison);
-    if ((cctrl->spell_flags & CSF_Speed) != 0) {
+    if ((cctrl->spell_flags & CSAfF_Speed) != 0) {
       terminate_thing_spell_effect(thing, SplK_Speed);
     }
-    if ((cctrl->spell_flags & CSF_Conceal) != 0) {
+    if ((cctrl->spell_flags & CSAfF_Invisibility) != 0) {
         terminate_thing_spell_effect(thing, SplK_Invisibility);
     }
     if (thing->light_id != 0) {

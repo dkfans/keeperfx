@@ -115,9 +115,9 @@ DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct 
 DLLIMPORT void _DK_anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
 DLLIMPORT long _DK_creature_available_for_combat_this_turn(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
-DLLIMPORT long _DK_set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
-DLLIMPORT void _DK_set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
-DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing);
+DLLIMPORT long _DK_set_creature_object_combat(struct Thing *creatng, struct Thing *goldtng);
+DLLIMPORT void _DK_set_creature_door_combat(struct Thing *creatng, struct Thing *goldtng);
+DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3);
 DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
@@ -411,7 +411,7 @@ long get_free_spell_slot(struct Thing *thing)
     return ci;
 }
 
-void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev)
+void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -451,7 +451,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
             n = 0;
-            cctrl->spell_flags |= CSF_Armour;
+            cctrl->spell_flags |= CSAfF_Armour;
             for (k=0; k < 3; k++)
             {
                 set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->field_58 >> 1) );
@@ -480,7 +480,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->spell_flags |= CSF_Rebound;
+            cctrl->spell_flags |= CSAfF_Rebound;
         }
         break;
     case SplK_Heal:
@@ -505,7 +505,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->casted_spells[i].spkind = spell_idx;
             magstat = &game.magic_stats[PwrK_CONCEAL];
             cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
-            cctrl->spell_flags |= CSF_Conceal;
+            cctrl->spell_flags |= CSAfF_Invisibility;
             cctrl->field_AF = 0;
         }
         break;
@@ -525,7 +525,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
             cctrl->casted_spells[i].spkind = spell_idx;
             magstat = &game.magic_stats[PwrK_SPEEDCRTR];
             cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
-            cctrl->spell_flags |= CSF_Speed;
+            cctrl->spell_flags |= CSAfF_Speed;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
         break;
@@ -535,7 +535,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->spell_flags |= CSF_Slow;
+            cctrl->spell_flags |= CSAfF_Slow;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
         break;
@@ -545,7 +545,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->spell_flags |= CSF_Fly;
+            cctrl->spell_flags |= CSAfF_Fly;
             thing->movement_flags |= TMvF_Flying;
         }
         break;
@@ -555,7 +555,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->spell_flags |= CSF_Sight;
+            cctrl->spell_flags |= CSAfF_Sight;
         }
         break;
     case SplK_Disease:
@@ -694,7 +694,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     }
 }
 
-void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev)
+void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
     struct CreatureControl *cctrl;
     long i;
@@ -714,7 +714,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell
     first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
 }
 
-void terminate_thing_spell_effect(struct Thing *thing, long spkind)
+void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
 {
     _DK_terminate_thing_spell_effect(thing, spkind);
 }
@@ -724,33 +724,33 @@ void process_thing_spell_effects(struct Thing *thing)
   _DK_process_thing_spell_effects(thing);
 }
 
-short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing)
+short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *goldtng)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
     long i;
-    crstat = creature_stats_get_from_thing(crthing);
-    cctrl = creature_control_get_from_thing(crthing);
-    if (obthing->creature.gold_carried <= 0)
+    crstat = creature_stats_get_from_thing(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    if (goldtng->creature.gold_carried <= 0)
     {
       ERRORLOG("GoldPile had no gold so was deleted.");
-      delete_thing_structure(obthing, 0);
+      delete_thing_structure(goldtng, 0);
       return false;
     }
-    if (crthing->creature.gold_carried < crstat->gold_hold)
+    if (creatng->creature.gold_carried < crstat->gold_hold)
     {
-      if (obthing->creature.gold_carried+crthing->creature.gold_carried > crstat->gold_hold)
+      if (goldtng->creature.gold_carried+creatng->creature.gold_carried > crstat->gold_hold)
       {
-        i = crstat->gold_hold-crthing->creature.gold_carried;
-        crthing->creature.gold_carried += i;
-        obthing->creature.gold_carried -= i;
+        i = crstat->gold_hold-creatng->creature.gold_carried;
+        creatng->creature.gold_carried += i;
+        goldtng->creature.gold_carried -= i;
       } else
       {
-        crthing->creature.gold_carried += obthing->creature.gold_carried;
-        delete_thing_structure(obthing, 0);
+        creatng->creature.gold_carried += goldtng->creature.gold_carried;
+        delete_thing_structure(goldtng, 0);
       }
     }
-    anger_apply_anger_to_creature(crthing, crstat->annoy_got_wage, 1, 1);
+    anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, 1, 1);
     return true;
 }
 
@@ -1422,9 +1422,9 @@ void delete_effects_attached_to_creature(struct Thing *crtng)
     if (creature_control_invalid(cctrl)) {
         return;
     }
-    if ((cctrl->spell_flags & CSF_Armour) != 0)
+    if ((cctrl->spell_flags & CSAfF_Armour) != 0)
     {
-        set_flag_byte(&cctrl->spell_flags, CSF_Armour, false);
+        set_flag_byte(&cctrl->spell_flags, CSAfF_Armour, false);
         for (i=0; i < 3; i++)
         {
             k = cctrl->field_2B3[i];
@@ -1849,12 +1849,12 @@ void get_creature_instance_times(struct Thing *thing, long inst_idx, long *ritim
         itime = inst_inf->time;
         aitime = inst_inf->action_time;
     }
-    if ((cctrl->spell_flags & CSF_Slow) != 0)
+    if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         aitime *= 2;
         itime *= 2;
     }
-    if ((cctrl->spell_flags & CSF_Speed) != 0)
+    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
     {
         aitime /= 2;
         itime /= 2;
@@ -2468,6 +2468,12 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
     return -1;
 }
 
+/**
+ * Returns highest level creature of given kind which is owned by my_player.
+ * @param breed_idx
+ * @param pick_check
+ * @return
+ */
 struct Thing *find_my_highest_level_creature_of_breed(long breed_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
@@ -2495,6 +2501,12 @@ struct Thing *find_my_highest_level_creature_of_breed(long breed_idx, TbBool pic
     return thing;
 }
 
+/**
+ * Returns lowest level creature of given kind which is owned by my_player.
+ * @param breed_idx
+ * @param pick_check
+ * @return
+ */
 struct Thing *find_my_lowest_level_creature_of_breed(long breed_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
@@ -2521,6 +2533,12 @@ struct Thing *find_my_lowest_level_creature_of_breed(long breed_idx, TbBool pick
     return thing;
 }
 
+/**
+ * Returns first creature of given kind which is doing given job and is owned by my_player.
+ * @param breed_idx
+ * @param pick_check
+ * @return
+ */
 struct Thing *find_my_first_creature_of_breed_and_gui_job(long breed_idx, long job_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
@@ -2686,7 +2704,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     crstat = creature_stats_get_from_thing(thing);
 
     // If the creature is too angry to help it, then let it go
-    if (dungeon->room_kind[RoK_ENTRANCE] > 0)
+    if (dungeon_has_room(dungeon, RoK_ENTRANCE))
     {
         if (creature_is_doing_dungeon_improvements(thing) || anger_is_creature_livid(thing))
         {
@@ -2718,7 +2736,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         // If already at lair, then don't do anything
         if (creature_is_doing_lair_activity(thing))
             return -1;
-        if (dungeon->room_kind[RoK_LAIR] > 0)
+        if (dungeon_has_room(dungeon, RoK_LAIR))
         {
             param->num2 = RoK_LAIR;
             return LONG_MAX;
@@ -2733,7 +2751,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         // don't force it to lair if it wants to eat or take salary
         if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
             return -1;
-        if (dungeon->room_kind[RoK_LAIR] > 0)
+        if (dungeon_has_room(dungeon, RoK_LAIR))
         {
             param->num2 = RoK_LAIR;
             return LONG_MAX;
@@ -2746,7 +2764,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         // If already at garden, then don't do anything
         if (creature_is_doing_garden_activity(thing))
             return -1;
-        if (dungeon->room_kind[RoK_GARDEN] > 0)
+        if (dungeon_has_room(dungeon, RoK_GARDEN))
         {
             param->num2 = RoK_GARDEN;
             return LONG_MAX;
@@ -2759,7 +2777,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         // If already taking salary, then don't do anything
         if (creature_is_taking_salary_activity(thing))
             return -1;
-        if (dungeon->room_kind[RoK_TREASURE] > 0)
+        if (dungeon_has_room(dungeon, RoK_TREASURE))
         {
             param->num2 = RoK_TREASURE;
             return LONG_MAX;

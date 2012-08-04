@@ -143,7 +143,7 @@ TbBool check_door_should_open(struct Thing *thing)
     {
         return false;
     }
-    openertng = get_creature_near_and_owned_by_or_allied_with(thing->mappos.x.val, thing->mappos.y.val, thing->owner);
+    openertng = get_creature_near_and_owned_by_or_allied_with(thing->mappos.x.val, thing->mappos.y.val, 5, thing->owner);
     if (thing_is_invalid(openertng))
     {
         return false;
