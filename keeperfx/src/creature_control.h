@@ -55,6 +55,8 @@ extern "C" {
 #define COMBAT_MELEE_OPPONENTS_LIMIT       4
 /** Number of possible range combat opponents. */
 #define COMBAT_RANGED_OPPONENTS_LIMIT      4
+/** Amount of instances. */
+#define CREATURE_INSTANCES_COUNT          48
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -315,7 +317,7 @@ unsigned char field_D3;
     unsigned char target_x;
     unsigned char target_y;
 long field_DE[48];
-    char instances[48];
+    char instances[CREATURE_INSTANCES_COUNT];
     unsigned short field_1CE;
   unsigned short field_1D0;
     char field_1D2;

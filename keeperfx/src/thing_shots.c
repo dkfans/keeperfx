@@ -599,7 +599,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
             cctrl->field_B1 = shotst->old->field_24;
         }
     }
-    if (shotst->old->field_25 != 0)
+    if (shotst->old->cast_spell_kind != 0)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(shooter);
@@ -608,7 +608,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
         } else {
             n = 0;
         }
-        apply_spell_effect_to_thing(target, shotst->old->field_25, n);
+        apply_spell_effect_to_thing(target, shotst->old->cast_spell_kind, n);
     }
     if (shotst->old->field_4B != 0)
     {

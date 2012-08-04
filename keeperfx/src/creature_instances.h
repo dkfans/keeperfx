@@ -113,6 +113,7 @@ struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *fu
 void process_creature_instance(struct Thing *thing);
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
 long creature_instance_is_available(struct Thing *thing, long inum);
+TbBool creature_has_ranged_weapon(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

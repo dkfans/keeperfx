@@ -141,9 +141,45 @@ long creature_instance_is_available(struct Thing *thing, long inum)
     return cctrl->instances[inum];
 }
 
+TbBool instance_is_ranged_weapon(long inum)
+{
+    switch (inum)
+    {
+      case 4:
+      case 5:
+      case 6:
+      case 9:
+      case 12:
+      case 17:
+      case 19:
+      case 20:
+      case 27:
+        return true;
+        break;
+    }
+    return false;
+}
+
+TbBool creature_has_ranged_weapon(const struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    long inum;
+    //return _DK_creature_has_ranged_weapon(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    for (inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    {
+        if (cctrl->instances[inum] > 0)
+        {
+            if (instance_is_ranged_weapon(inum))
+                return true;
+        }
+    }
+    return false;
+}
+
 void process_creature_instance(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
+    struct CreatureControl *cctrl;
     struct InstanceInfo *inst_inf;
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_NULL)

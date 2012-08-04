@@ -6531,11 +6531,6 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long a4, char a5
   }
 }
 
-struct Thing *find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y)
-{
-  return _DK_find_base_thing_on_mapwho(oclass, model, x, y);
-}
-
 void init_dungeons(void)
 {
   int i,k;
