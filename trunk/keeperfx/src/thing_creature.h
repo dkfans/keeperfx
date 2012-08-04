@@ -76,7 +76,6 @@ short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obth
 struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y);
 struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, FilterParam param);
 void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
-void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
 long move_creature(struct Thing *thing);
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
       unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious);
@@ -104,11 +103,14 @@ void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxFilterParam param, long maximizer);
 
+void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
+void terminate_thing_spell_effect(struct Thing *thing, long spkind);
+void process_thing_spell_effects(struct Thing *thing);
+
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
 void change_creature_owner(struct Thing *thing, long nowner);
 struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, TbBool pick_check);
 struct Thing *pick_up_creature_of_breed_and_gui_job(long breed_idx, long job_idx, long owner, unsigned char pick_flags);
-void terminate_thing_spell_effect(struct Thing *thing, long spkind);
 
 void init_creature_scores(void);
 long get_creature_thing_score(struct Thing *thing);

@@ -143,6 +143,7 @@ DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *thing);
 DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
 DLLIMPORT long _DK_update_creature(struct Thing *thing);
+DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *thing);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -368,11 +369,6 @@ void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing)
 void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3)
 {
   _DK_anger_apply_anger_to_creature(thing, anger, a2, a3);
-}
-
-void terminate_thing_spell_effect(struct Thing *thing, long spkind)
-{
-    _DK_terminate_thing_spell_effect(thing, spkind);
 }
 
 long get_free_spell_slot(struct Thing *thing)
@@ -716,6 +712,16 @@ void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell
         }
     }
     first_apply_spell_effect_to_thing(thing, spell_idx, spell_lev);
+}
+
+void terminate_thing_spell_effect(struct Thing *thing, long spkind)
+{
+    _DK_terminate_thing_spell_effect(thing, spkind);
+}
+
+void process_thing_spell_effects(struct Thing *thing)
+{
+  _DK_process_thing_spell_effects(thing);
 }
 
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing)

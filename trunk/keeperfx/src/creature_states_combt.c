@@ -233,15 +233,15 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
         SYNCDBG(8,"The %s is scared due to low health (%ld/%ld)",thing_model_name(thing),(long)thing->health,maxhealth);
         return true;
     }
-    // If the enemy is way stronger, a creature may be scared anyway
+    // If the enemy is way stronger, and there's no backup nearby, a creature may be scared anyway
     long long enmstrength,ownstrength;
     if (player_creature_tends_to(thing->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
         fear = crstat->fear_stronger;
     } else {
         fear = (long)crstat->fear_stronger * crstat->fear_noflee_factor;
     }
-    enmstrength = calculate_melee_damage(enmtng) * enmtng->health;
-    ownstrength = calculate_melee_damage(thing) * thing->health;
+    enmstrength = calculate_melee_damage(enmtng) * (long long)enmtng->health;
+    ownstrength = calculate_melee_damage(thing) * (long long)thing->health;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
         SYNCDBG(8,"The %s is scared due to enemy %s strength (%ld vs. %ld)",thing_model_name(thing),thing_model_name(enmtng),(long)ownstrength,(long)enmstrength);
@@ -853,11 +853,6 @@ TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *enemy)
         return false;
     }
     return true;
-}
-
-long creature_has_ranged_weapon(struct Thing *thing)
-{
-    return _DK_creature_has_ranged_weapon(thing);
 }
 
 TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, long combat_kind)

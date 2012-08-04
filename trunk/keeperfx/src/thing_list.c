@@ -641,6 +641,11 @@ void init_all_creature_states(void)
     }
 }
 
+struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel model, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+  return _DK_find_base_thing_on_mapwho(oclass, model, stl_x, stl_y);
+}
+
 /**
  * Returns hero gate thing of given gate number.
  * @return Returns hero gate object, or invalid thing pointer if not found.
@@ -680,7 +685,7 @@ struct Thing *find_hero_gate_of_number(long num)
 /**
  * Returns a creature lair from given subtile.
  */
-struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long creature_model)
+struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel)
 {
     struct Map *mapblk;
     struct Thing *thing;
@@ -705,7 +710,7 @@ struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord s
             objdat = get_objects_data_for_thing(thing);
             if (objdat->field_13 > 0)
             {
-                if ((creature_model <= 0) || (objdat->field_13 == creature_model))
+                if ((crmodel <= 0) || (objdat->field_13 == crmodel))
                     return thing;
             }
         }
@@ -764,7 +769,7 @@ struct Thing *find_nearest_enemy_creature(struct Thing *crtng)
   return neartng;
 }
 
-long creature_of_model_in_prison_or_tortured(int model)
+long creature_of_model_in_prison_or_tortured(ThingModel crmodel)
 {
   struct Thing *thing;
   long i,k;
@@ -780,7 +785,7 @@ long creature_of_model_in_prison_or_tortured(int model)
     }
     i = thing->next_of_class;
     // Thing list loop body
-    if (thing->model == model)
+    if ((crmodel <= 0) || (thing->model == crmodel))
     {
       if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
           return i;
@@ -876,14 +881,14 @@ long get_free_hero_gate_number(void)
  *
  * @return Count of players creatures.
  */
-long count_player_creatures_of_model(long plyr_idx, long model)
+long count_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    return count_player_list_creatures_of_model(dungeon->creatr_list_start, model);
+    return count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
 }
 
-long count_player_list_creatures_of_model(long thing_idx, long model)
+long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
@@ -904,7 +909,7 @@ long count_player_list_creatures_of_model(long thing_idx, long model)
       cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if ((thing->model == model) || (model == -1))
+      if ((crmodel <= 0) || (thing->model == crmodel))
         count++;
       // Per creature code ends
       k++;
@@ -917,7 +922,7 @@ long count_player_list_creatures_of_model(long thing_idx, long model)
     return count;
 }
 
-struct Thing *get_player_list_nth_creature_of_model(long thing_idx, long model, long crtr_idx)
+struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx)
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
@@ -938,7 +943,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, long model, 
       // Per creature code
       if (crtr_idx <= 0)
           return thing;
-      if ((thing->model == model) || (model == -1))
+      if ((crmodel <= 0) || (thing->model == crmodel))
           crtr_idx--;
       // Per creature code ends
       k++;
@@ -986,16 +991,16 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   return count;
 }
 
-struct Thing *get_random_players_creature_of_model(long plyr_idx, long model)
+struct Thing *get_random_players_creature_of_model(long plyr_idx, ThingModel crmodel)
 {
     struct Dungeon *dungeon;
     long total_count,crtr_idx;
     dungeon = get_players_num_dungeon(plyr_idx);
-    total_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, model);
+    total_count = count_player_list_creatures_of_model(dungeon->creatr_list_start, crmodel);
     if (total_count < 1)
         return INVALID_THING;
     crtr_idx = ACTION_RANDOM(total_count);
-    return get_player_list_nth_creature_of_model(dungeon->creatr_list_start, model, crtr_idx);
+    return get_player_list_nth_creature_of_model(dungeon->creatr_list_start, crmodel, crtr_idx);
 }
 
 /**
@@ -1073,14 +1078,14 @@ struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_
   long i,n;
   SYNCDBG(9,"Starting");
   // Count all creatures in list, so that we can know range for our random index
-  total_count = count_player_list_creatures_of_model(thing_idx, -1);
+  total_count = count_player_list_creatures_of_model(thing_idx, 0);
   retng = INVALID_THING;
   maximizer = 0;
   if (total_count < 1)
       return retng;
   k = 0;
   // Get random index of a thing in list
-  thing = get_player_list_nth_creature_of_model(thing_idx, -1, ACTION_RANDOM(total_count));
+  thing = get_player_list_nth_creature_of_model(thing_idx, 0, ACTION_RANDOM(total_count));
   i = thing->index;
   while (k < total_count)
   {
@@ -1468,7 +1473,7 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl
   return false;
 }
 
-struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y)
+struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   const struct Map *mapblk;
   struct Thing *thing;
@@ -1512,7 +1517,7 @@ struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y)
   return chosen_thing;
 }
 
-TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel)
+TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
   struct Dungeon *dungeon;
   struct CreatureControl *cctrl;
@@ -1550,7 +1555,7 @@ TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel)
   return true;
 }
 
-TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y)
+TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   const struct Map *mapblk;
   struct Thing *thing;
