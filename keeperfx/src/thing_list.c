@@ -78,7 +78,8 @@ DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
 DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *list);
 DLLIMPORT void _DK_remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
-DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long x, long y);
+DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
+DLLIMPORT struct Thing *_DK_find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y);
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 {
@@ -725,7 +726,7 @@ struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord s
     return INVALID_THING;
 }
 
-struct Thing *find_nearest_enemy_creature(struct Thing *crtng)
+struct Thing *find_nearest_enemy_creature(struct Thing *creatng)
 {
   struct Thing *thing;
   unsigned long k;
@@ -746,11 +747,11 @@ struct Thing *find_nearest_enemy_creature(struct Thing *crtng)
     }
     i = thing->next_of_class;
     // Per-thing code
-    if (players_are_enemies(crtng->owner, thing->owner))
+    if (players_are_enemies(creatng->owner, thing->owner))
     {
-      if (creature_will_attack_creature(crtng, thing))
+      if (creature_will_attack_creature(creatng, thing))
       {
-          dist = get_2d_box_distance(&crtng->mappos, &thing->mappos);
+          dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
           if (dist < neardist)
           {
               neartng = thing;
@@ -817,7 +818,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
     return false;
 }
 
-long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long range, long max_damage)
+long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
 {
     struct Thing *thing;
     struct CreatureControl *cctrl;
@@ -842,7 +843,7 @@ long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long 
         {
             if (thing->owner != immune_plyr_idx)
             {
-              if ((cctrl->spell_flags & CSF_Armour) == 0)
+              if ((cctrl->spell_flags & CSAfF_Armour) == 0)
               {
                   dist = get_2d_box_distance(&thing->mappos, pos);
                   damage = get_radially_decaying_value(max_damage, range/2, range/2, dist);
@@ -1004,54 +1005,101 @@ struct Thing *get_random_players_creature_of_model(long plyr_idx, ThingModel crm
 }
 
 /**
+ * Returns amount of filtered creatures from the players creature list starting from thing_idx.
+ * Only creatures for whom the filter function will return LONG_MAX, are counted.
+ * @return Gives the amount of things which matched the filter.
+ */
+long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    long count;
+    long maximizer;
+    unsigned long k;
+    long i,n;
+    SYNCDBG(9,"Starting");
+    count = 0;
+    maximizer = 0;
+    k = 0;
+    i = thing_idx;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        n = filter(thing, param, maximizer);
+        if (n >= maximizer)
+        {
+            maximizer = n;
+            if (maximizer == LONG_MAX)
+                count++;
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return count;
+}
+
+/**
  * Returns filtered creature from the players creature list starting from thing_idx.
  * The creature which will return highest nonnegative value from given filter function
  * will be returned.
  * If the filter function will return LONG_MAX, the current creature will be returned
  * immediately and no further things will be checked.
- * @return Returns thing, or invalid thing pointer if not found.
+ * @return Gives the thing, or invalid thing pointer if not found.
  */
 struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param)
 {
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  struct Thing *retng;
-  long maximizer;
-  unsigned long k;
-  long i,n;
-  SYNCDBG(9,"Starting");
-  retng = INVALID_THING;
-  maximizer = 0;
-  k = 0;
-  i = thing_idx;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    struct Thing *retng;
+    long maximizer;
+    unsigned long k;
+    long i,n;
+    SYNCDBG(9,"Starting");
+    retng = INVALID_THING;
+    maximizer = 0;
+    k = 0;
+    i = thing_idx;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
-    }
-    cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->players_next_creature_idx;
-    // Per creature code
-    n = filter(thing, param, maximizer);
-    if (n >= maximizer)
-    {
-        retng = thing;
-        maximizer = n;
-        if (maximizer == LONG_MAX)
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
             break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        n = filter(thing, param, maximizer);
+        if (n >= maximizer)
+        {
+            retng = thing;
+            maximizer = n;
+            if (maximizer == LONG_MAX)
+                break;
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    // Per creature code ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  return retng;
+    return retng;
 }
 
 /**
@@ -1064,7 +1112,7 @@ struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximiz
  * but at random index in the list starting at thing_idx. When list end is reached, the function
  * starts checking things of index lower than randomly selected starting index, so all things in list
  * are checked.
- * @return Returns thing, or invalid thing pointer if not found.
+ * @return Gives the thing, or invalid thing pointer if not found.
  * @see get_player_list_creature_with_filter()
  */
 struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param)
@@ -1125,7 +1173,7 @@ struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_
  * will be returned.
  * If the filter function will return LONG_MAX, the current creature will be returned
  * immediately and no further things will be checked.
- * @return Returns thing, or invalid thing pointer if not found.
+ * @return Gives the thing, or invalid thing pointer if not found.
  */
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer)
 {
@@ -1255,6 +1303,47 @@ struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y
       }
     }
     return retng;
+}
+
+/**
+ * Returns count of filtered creatures from subtiles around given coordinates.
+ * Uses "spiral" checking of surrounding subtiles, up to given number of subtiles.
+ * Amount of things for whom the filter function returns LONG_MAX, is returned.
+ * @return Gives count of things which matched the filter.
+ */
+long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxFilterParam param)
+{
+    struct MapOffset *sstep;
+    struct Thing *thing;
+    long count;
+    long maximizer;
+    struct Map *mapblk;
+    MapSubtlCoord sx,sy;
+    int around;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    count = 0;
+    maximizer = 0;
+    for (around=0; around < spiral_len; around++)
+    {
+      sstep = &spiral_step[around];
+      sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
+      sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
+      mapblk = get_map_block_at(sx, sy);
+      if (!map_block_invalid(mapblk))
+      {
+          i = get_mapwho_thing_index(mapblk);
+          n = maximizer;
+          thing = get_thing_on_map_block_with_filter(i, filter, param, &n);
+          if (!thing_is_invalid(thing) && (n >= maximizer))
+          {
+              maximizer = n;
+              if (maximizer == LONG_MAX)
+                  count++;
+          }
+      }
+    }
+    return count;
 }
 
 void stop_all_things_playing_samples(void)
@@ -1660,9 +1749,10 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, lon
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
  * @param plyr_idx Player whose creature or allied creature will be returned.
+ * @param distance_stl Max. distance, in subtiles. Will work properly only for odd numbers (1,3,5,7...).
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundFilterParam param;
@@ -1673,7 +1763,7 @@ struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapC
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
-    return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 32, filter, &param);
+    return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
 }
 
 // use this (or make similar one) instead of find_base_thing_on_mapwho_at_pos()
@@ -1787,9 +1877,9 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
     return get_thing_on_map_block_with_filter(i, filter, &param, &n);
 }
 
-struct Thing *get_nearest_object_at_position(MapSubtlCoord x, MapSubtlCoord y)
+struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  return _DK_get_nearest_object_at_position(x, y);
+  return _DK_get_nearest_object_at_position(stl_x, stl_y);
 }
 
 TbBool thing_slappable(const struct Thing *thing, long plyr_idx)

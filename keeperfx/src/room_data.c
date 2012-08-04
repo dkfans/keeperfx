@@ -318,6 +318,39 @@ long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind)
     return count;
 }
 
+long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    long nslabs;
+    long i;
+    unsigned long k;
+    nslabs = 0;
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        nslabs += room->slabs_count;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return nslabs;
+}
+
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind)
 {
     struct Dungeon * dungeon;
@@ -1181,7 +1214,7 @@ TbBool create_effects_on_room_slabs(struct Room *room, long effkind, long effran
  * @param room The room whose slabs are to be affected.
  * @param plyr_idx Player index whose dig tag shall be cleared.
  */
-TbBool clear_dig_on_room_slabs(struct Room *room, long plyr_idx)
+TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx)
 {
     long slb_x,slb_y;
     unsigned long k;

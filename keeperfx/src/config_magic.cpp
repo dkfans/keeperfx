@@ -196,21 +196,21 @@ TbBool spell_is_stupid(int sptype)
   return (pwrdata->field_0 <= 0);
 }
 
-struct SpellConfigStats *get_spell_model_stats(int spmodel)
+struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel)
 {
     if ((spmodel < 0) || (spmodel >= magic_conf.spell_types_count))
         return &magic_conf.spell_cfgstats[0];
     return &magic_conf.spell_cfgstats[spmodel];
 }
 
-struct ShotConfigStats *get_shot_model_stats(int tngmodel)
+struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel)
 {
     if ((tngmodel < 0) || (tngmodel >= magic_conf.shot_types_count))
         return &magic_conf.shot_cfgstats[0];
     return &magic_conf.shot_cfgstats[tngmodel];
 }
 
-struct PowerConfigStats *get_power_model_stats(int pwmodel)
+struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel)
 {
     if ((pwmodel < 0) || (pwmodel >= magic_conf.power_types_count))
         return &magic_conf.power_cfgstats[0];
@@ -757,7 +757,7 @@ TbBool load_magic_config(const char *conf_fname,unsigned short flags)
 /**
  * Returns Code Name (name to use in script file) of given spell model.
  */
-const char *spell_code_name(int spmodel)
+const char *spell_code_name(SpellKind spmodel)
 {
     const char *name;
     name = get_conf_parameter_text(spell_desc,spmodel);
@@ -769,7 +769,7 @@ const char *spell_code_name(int spmodel)
 /**
  * Returns Code Name (name to use in script file) of given shot model.
  */
-const char *shot_code_name(int tngmodel)
+const char *shot_code_name(ThingModel tngmodel)
 {
     const char *name;
     name = get_conf_parameter_text(shot_desc,tngmodel);
@@ -781,7 +781,7 @@ const char *shot_code_name(int tngmodel)
 /**
  * Returns Code Name (name to use in script file) of given keepers power model.
  */
-const char *power_code_name(int pwmodel)
+const char *power_code_name(PowerKind pwmodel)
 {
     const char *name;
     name = get_conf_parameter_text(power_desc,pwmodel);
@@ -811,6 +811,35 @@ int power_model_id(const char * code_name)
 }
 
 /**
+ * Returns a flag which is stored in a creature affected by given spell.
+ * @param spkind
+ * @return
+ */
+unsigned long spell_to_creature_affected_flag(SpellKind spkind)
+{
+    switch (spkind)
+    {
+    case SplK_Armour:
+        return CSAfF_Armour;
+    case SplK_Rebound:
+        return CSAfF_Rebound;
+    case SplK_Invisibility:
+        return CSAfF_Invisibility;
+    case SplK_Speed:
+        return CSAfF_Speed;
+    case SplK_Slow:
+        return CSAfF_Slow;
+    case SplK_Fly:
+        return CSAfF_Fly;
+    case SplK_Sight:
+        return CSAfF_Sight;
+    default:
+        break;
+    }
+    return 0;
+}
+
+/**
  * Zeroes all the costs for all spells.
  */
 TbBool make_all_powers_cost_free(void)
@@ -829,7 +858,7 @@ TbBool make_all_powers_cost_free(void)
 /**
  * Makes all keeper spells to be available to research.
  */
-TbBool make_all_powers_researchable(long plyr_idx)
+TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 {
   struct Dungeon *dungeon;
   long i;
@@ -844,7 +873,7 @@ TbBool make_all_powers_researchable(long plyr_idx)
 /**
  * Sets power availability state.
  */
-TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
+TbBool set_power_available(PlayerNumber plyr_idx, SpellKind spl_idx, long resrch, long avail)
 {
   struct Dungeon *dungeon;
   SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
@@ -869,7 +898,7 @@ TbBool set_power_available(long plyr_idx, long spl_idx, long resrch, long avail)
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if the player has enough money or map position is on correct spot.
  */
-TbBool is_power_available(long plyr_idx, long spl_idx)
+TbBool is_power_available(PlayerNumber plyr_idx, SpellKind spl_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -893,7 +922,7 @@ TbBool is_power_available(long plyr_idx, long spl_idx)
 /**
  * Makes all the powers, which are researchable, to be instantly available.
  */
-TbBool make_available_all_researchable_powers(long plyr_idx)
+TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
 {
   struct Dungeon *dungeon;
   TbBool ret;

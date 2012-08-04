@@ -103,8 +103,8 @@ void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxFilterParam param, long maximizer);
 
-void apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
-void terminate_thing_spell_effect(struct Thing *thing, long spkind);
+void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
+void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
 void process_thing_spell_effects(struct Thing *thing);
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
