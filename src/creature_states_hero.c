@@ -565,7 +565,7 @@ short good_leave_through_exit_door(struct Thing *thing)
         return false;
     }
     //return _DK_good_leave_through_exit_door(thing);
-    tmptng = find_base_thing_on_mapwho(1, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (thing_is_invalid(tmptng))
     {
         return 0;
@@ -625,7 +625,7 @@ short good_wait_in_exit_door(struct Thing *thing)
     cctrl->field_282--;
     if (cctrl->field_282 == 0)
     {
-        tmptng = find_base_thing_on_mapwho(1, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
         {
             if (cctrl->byte_8A == tmptng->field_9)

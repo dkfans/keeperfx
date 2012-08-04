@@ -56,7 +56,6 @@ short creature_attack_rooms(struct Thing *thing);
 short creature_damage_walls(struct Thing *thing);
 short creature_attempt_to_damage_walls(struct Thing *thing);
 long creature_can_have_combat_with_creature(const struct Thing *fighter1, const struct Thing *fighter2, long a2, long a4, long a5);
-long creature_has_ranged_weapon(struct Thing *thing);
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy);
 TbBool set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3);
 

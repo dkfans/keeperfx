@@ -40,11 +40,11 @@ const short door_names[] = {
 };
 */
 /******************************************************************************/
-DLLIMPORT void _DK_lock_door(struct Thing *thing);
+DLLIMPORT void _DK_lock_door(struct Thing *doortng);
 DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
-DLLIMPORT long _DK_destroy_door(struct Thing *thing);
-DLLIMPORT long _DK_process_door(struct Thing *thing);
-DLLIMPORT long _DK_check_door_should_open(struct Thing *thing);
+DLLIMPORT long _DK_destroy_door(struct Thing *doortng);
+DLLIMPORT long _DK_process_door(struct Thing *doortng);
+DLLIMPORT long _DK_check_door_should_open(struct Thing *doortng);
 /******************************************************************************/
 
 
@@ -57,7 +57,7 @@ struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char 
 TbBool remove_key_on_door(struct Thing *thing)
 {
   struct Thing *keytng;
-  keytng = find_base_thing_on_mapwho(1, 44, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+  keytng = find_base_thing_on_mapwho(TCls_Object, 44, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
   if (thing_is_invalid(keytng))
     return false;
   delete_thing_structure(keytng, 0);
@@ -87,23 +87,23 @@ void unlock_door(struct Thing *thing)
     WARNMSG("Cannot remove keyhole when unlocking door.");
 }
 
-void lock_door(struct Thing *thing)
+void lock_door(struct Thing *doortng)
 {
-  _DK_lock_door(thing);
-/*
-  int v3;
-  v3 = door_stats[0][thing->word_13.w0 + 2 * (unsigned int)thing->model].field_0;
-  thing->field_7 = 2;
-  *(short *)&thing->byte_13.f3 = 0;
-  thing->byte17_h = 1;
-  game.field_14EA4B = 1;
-  place_animating_slab_type_on_map(v3, 0, thing->mappos.x_stl_num, thing->mappos.y_stl_num, thing->owner);
-  update_navigation_triangulation(thing->mappos.x_stl_num-1,  thing->mappos.y_stl_num-1,
-    thing->mappos.x_stl_num-1+2,thing->mappos.y_stl_num-1+2);
-  pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, 3, 3);
-  if (!add_key_on_door(thing))
-    WARNMSG("Cannot create a keyhole when locking a door.");
-*/
+    struct DoorStats *dostat;
+    long stl_x,stl_y;
+    //_DK_lock_door(thing);
+    dostat = &door_stats[doortng->model][doortng->word_13];
+    stl_x = doortng->mappos.x.stl.num;
+    stl_y = doortng->mappos.y.stl.num;
+    doortng->active_state = 2;
+    doortng->word_16 = 0;
+    doortng->byte_18 = 1;
+    game.field_14EA4B = 1;
+    place_animating_slab_type_on_map(dostat->field_0, 0, stl_x, stl_y, doortng->owner);
+    update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
+    pannel_map_update(stl_x-1, stl_y-1, 3, 3);
+    if (!add_key_on_door(doortng))
+      WARNMSG("Cannot create a keyhole when locking a door.");
 }
 
 long destroy_door(struct Thing *thing)
@@ -182,11 +182,13 @@ long process_door_closed(struct Thing *thing)
 
 long process_door_opening(struct Thing *thing)
 {
+    struct DoorStats *dostat;
     int new_h,old_h,delta_h;
     int slbparam;
+    dostat = &door_stats[thing->model][thing->word_13];
     old_h = (thing->word_16 / 256);
-    delta_h = door_stats[thing->model][thing->word_13].field_6;
-    slbparam = door_stats[thing->model][thing->word_13].field_0;
+    delta_h = dostat->field_6;
+    slbparam = dostat->field_0;
     if (thing->word_16+delta_h < 768)
     {
         thing->word_16 += delta_h;
@@ -204,11 +206,13 @@ long process_door_opening(struct Thing *thing)
 
 long process_door_closing(struct Thing *thing)
 {
+    struct DoorStats *dostat;
     int new_h,old_h,delta_h;
     int slbparam;
     old_h = (thing->word_16 / 256);
-    delta_h = door_stats[thing->model][thing->word_13].field_6;
-    slbparam = door_stats[thing->model][thing->word_13].field_0;
+    dostat = &door_stats[thing->model][thing->word_13];
+    delta_h = dostat->field_6;
+    slbparam = dostat->field_0;
     if ( check_door_should_open(thing) )
     {
         thing->active_state = 3;

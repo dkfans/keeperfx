@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *thing);
+DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *creatng);
 
 /******************************************************************************/
 struct Room *get_room_creature_works_in(const struct Thing *thing)
@@ -45,27 +45,27 @@ struct Room *get_room_creature_works_in(const struct Thing *thing)
     return room_get(cctrl->work_room_id);
 }
 
-TbBool add_creature_to_torture_room(struct Thing *crtng, struct Room *room)
+TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *room)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
-    cctrl = creature_control_get_from_thing(crtng);
-    if (crtng->light_id != 0) {
-        light_delete_light(crtng->light_id);
-        crtng->light_id = 0;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (creatng->light_id != 0) {
+        light_delete_light(creatng->light_id);
+        creatng->light_id = 0;
     }
     if ((cctrl->spell_flags & CSF_Speed) != 0)
-        terminate_thing_spell_effect(crtng, 11);
+        terminate_thing_spell_effect(creatng, SplK_Speed);
     if ((cctrl->spell_flags & CSF_Conceal) != 0)
-        terminate_thing_spell_effect(crtng, 9);
+        terminate_thing_spell_effect(creatng, SplK_Invisibility);
     dungeon = get_dungeon(room->owner);
     dungeon->lvstats.creatures_tortured++;
-    if (dungeon->tortured_creatures[crtng->model] == 0)
+    if (dungeon->tortured_creatures[creatng->model] == 0)
     {
         // Torturing changes speed of creatures of that kind, so let's update
-        update_speed_of_player_creatures_of_model(room->owner, crtng->model);
+        update_speed_of_player_creatures_of_model(room->owner, creatng->model);
     }
-    dungeon->tortured_creatures[crtng->model]++;
+    dungeon->tortured_creatures[creatng->model]++;
     return true;
 }
 
@@ -112,12 +112,12 @@ TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room)
     return true;
 }
 
-TbBool remove_creature_from_specific_room(struct Thing *crtng, struct Room *room)
+TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *room)
 {
     struct CreatureControl *cctrl;
     struct Thing *sectng;
     struct CreatureControl *sectrl;
-    cctrl = creature_control_get_from_thing(crtng);
+    cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0)
     {
         ERRORLOG("Attempt to remove a creature from room, but it isn't in any");
@@ -134,7 +134,7 @@ TbBool remove_creature_from_specific_room(struct Thing *crtng, struct Room *room
         if (!creature_control_invalid(sectrl)) {
             sectrl->next_in_room = cctrl->next_in_room;
         } else {
-            ERRORLOG("Linked list of rooms has invalid previous element on thing %d",(int)crtng->index);
+            ERRORLOG("Linked list of rooms has invalid previous element on thing %d",(int)creatng->index);
         }
     } else {
         room->creatures_list = cctrl->next_in_room;
@@ -145,7 +145,7 @@ TbBool remove_creature_from_specific_room(struct Thing *crtng, struct Room *room
         if (!creature_control_invalid(sectrl)) {
             sectrl->prev_in_room = cctrl->prev_in_room;
         } else {
-            ERRORLOG("Linked list of rooms has invalid next element on thing %d",(int)crtng->index);
+            ERRORLOG("Linked list of rooms has invalid next element on thing %d",(int)creatng->index);
         }
     }
     cctrl->last_work_room_id = cctrl->work_room_id;
@@ -156,12 +156,12 @@ TbBool remove_creature_from_specific_room(struct Thing *crtng, struct Room *room
     return true;
 }
 
-TbBool remove_creature_from_work_room(struct Thing *thing)
+TbBool remove_creature_from_work_room(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
     //return _DK_remove_creature_from_work_room(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->flgfield_1 & CCFlg_IsInRoomList) == 0)
         return false;
     room = room_get(cctrl->work_room_id);
@@ -171,7 +171,7 @@ TbBool remove_creature_from_work_room(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return false;
     }
-    return remove_creature_from_specific_room(thing, room);
+    return remove_creature_from_specific_room(creatng, room);
 }
 /******************************************************************************/
 #ifdef __cplusplus

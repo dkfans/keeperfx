@@ -123,8 +123,8 @@ long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val
 struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
 struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
 // Final routines to select thing belonging to given player
-struct Thing *get_player_list_nth_creature_of_model(long thing_idx, long model, long crtr_idx);
-struct Thing *get_random_players_creature_of_model(long plyr_idx, long model);
+struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
+struct Thing *get_random_players_creature_of_model(long plyr_idx, ThingModel crmodel);
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer);
 struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param);
@@ -151,9 +151,9 @@ void setup_computer_players(void);
 void setup_zombie_players(void);
 void init_all_creature_states(void);
 
-long creature_of_model_in_prison(int model);
-long count_player_creatures_of_model(long plyr_idx, long model);
-long count_player_list_creatures_of_model(long thing_idx, long model);
+long creature_of_model_in_prison_or_tortured(ThingModel crmodel);
+long count_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
+long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
 long count_player_creatures_not_counting_to_total(long plyr_idx);
 TbBool lord_of_the_land_in_prison_or_tortured(void);
 struct Thing *find_nearest_enemy_creature(struct Thing *crtng);
@@ -161,19 +161,21 @@ long electricity_affecting_area(struct Coord3d *pos, long immune_plyr_idx, long 
 
 void update_things(void);
 
+struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel okind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+
 struct Thing *find_hero_gate_of_number(long num);
 long get_free_hero_gate_number(void);
 
-struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long creature_model);
+struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel);
 
 long thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
 long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
 TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-TbBool gold_pile_with_maximum_at_xy(long stl_x, long stl_y);
-struct Thing *smallest_gold_pile_at_xy(long stl_x, long stl_y);
-TbBool update_speed_of_player_creatures_of_model(long plyr_idx, long crmodel);
+TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
