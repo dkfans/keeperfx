@@ -37,6 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT unsigned char _DK_find_first_battle_of_mine(unsigned char idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -45,7 +46,7 @@ extern "C" {
 /**
  * Returns CreatureBattle of given index.
  */
-struct CreatureBattle *creature_battle_get(long battle_idx)
+struct CreatureBattle *creature_battle_get(BattleIndex battle_idx)
 {
     if ((battle_idx < 1) || (battle_idx >= BATTLES_COUNT))
         return INVALID_CRTR_BATTLE;
@@ -78,6 +79,51 @@ struct CreatureBattle *creature_battle_get_from_thing(const struct Thing *thing)
 TbBool creature_battle_invalid(const struct CreatureBattle *battle)
 {
   return (battle <= &game.battles[0]) || (battle == NULL);
+}
+
+TbBool has_melee_combat_attackers(struct Thing *victim)
+{
+    struct CreatureControl *vicctrl;
+    vicctrl = creature_control_get_from_thing(victim);
+    return (vicctrl->opponents_melee_count > 0);
+}
+
+TbBool can_add_melee_combat_attacker(struct Thing *victim)
+{
+    struct CreatureControl *vicctrl;
+    vicctrl = creature_control_get_from_thing(victim);
+    return (vicctrl->opponents_melee_count < COMBAT_MELEE_OPPONENTS_LIMIT);
+}
+
+TbBool has_ranged_combat_attackers(const struct Thing *victim)
+{
+    struct CreatureControl *vicctrl;
+    vicctrl = creature_control_get_from_thing(victim);
+    return (vicctrl->opponents_ranged_count > 0);
+}
+
+BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx)
+{
+    struct CreatureBattle *battle;
+    long i;
+    //return _DK_find_first_battle_of_mine(plyr_idx);
+    for (i = 1; i < BATTLES_COUNT; i++)
+    {
+        battle = creature_battle_get(i);
+        if (battle->fighters_num != 0)
+        {
+            if (battle_with_creature_of_player(plyr_idx, i))
+               return i;
+        }
+    }
+    return 0;
+}
+
+TbBool can_add_ranged_combat_attacker(const struct Thing *victim)
+{
+    struct CreatureControl *vicctrl;
+    vicctrl = creature_control_get_from_thing(victim);
+    return (vicctrl->opponents_ranged_count < COMBAT_RANGED_OPPONENTS_LIMIT);
 }
 
 long get_flee_position(struct Thing *thing, struct Coord3d *pos)
@@ -170,30 +216,28 @@ void setup_combat_flee_position(struct Thing *thing)
 
 long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat)
 {
-    struct CreatureControl *enmctrl;
     struct CreatureStats *crstat;
-    enmctrl = creature_control_get_from_thing(enemy);
     if (possible_combat == 2)
     {
-        if (enmctrl->opponents_ranged_count < 4) {
+        if (can_add_ranged_combat_attacker(enemy)) {
             return 2;
         }
         return 1;
     }
     crstat = creature_stats_get_from_thing(fighter);
-    if (crstat->attack_preference == 2)
+    if (crstat->attack_preference == PrefAttck_Ranged)
     {
-        if ( creature_has_ranged_weapon(fighter) && (enmctrl->opponents_ranged_count < 4) ) {
+        if ( creature_has_ranged_weapon(fighter) && can_add_ranged_combat_attacker(enemy) ) {
             return 2;
         }
     }
-    if (enmctrl->opponents_melee_count < 4) {
+    if (can_add_melee_combat_attacker(enemy)) {
         return 3;
     }
     if ( !creature_has_ranged_weapon(fighter) ) {
-      return 1;
+        return 1;
     }
-    if ( (enmctrl->opponents_ranged_count < 4) ) {
+    if (can_add_ranged_combat_attacker(enemy)) {
         return 2;
     }
     return 1;

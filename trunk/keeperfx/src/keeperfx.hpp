@@ -916,7 +916,6 @@ short toggle_computer_player(int idx);
 short save_settings(void);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_engine_view(struct PlayerInfo *player, long val);
-unsigned char find_first_battle_of_mine(unsigned char idx);
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y);
 short player_has_won(long plyr_idx);
 short player_has_lost(long plyr_idx);

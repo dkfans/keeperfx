@@ -29,12 +29,21 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+enum DoorStates {
+    DorSt_Unused = 0,
+    DorSt_Unknown01,
+    DorSt_Unknown02,
+    DorSt_Unknown03,
+    DorSt_Unknown04,
+    DorSt_Unknown05,
+};
+
 struct Thing;
 
 struct DoorStats { // sizeof = 8
-  unsigned short field_0;
-  long health;
-  unsigned short field_6;
+    unsigned short field_0;
+    long health;
+    unsigned short field_6;
 };
 
 #pragma pack()
