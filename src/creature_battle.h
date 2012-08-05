@@ -44,9 +44,16 @@ struct CreatureBattle { // sizeof = 17
 /******************************************************************************/
 #define INVALID_CRTR_BATTLE (&game.battles[0])
 
-struct CreatureBattle *creature_battle_get(long battle_idx);
+struct CreatureBattle *creature_battle_get(BattleIndex battle_idx);
 struct CreatureBattle *creature_battle_get_from_thing(const struct Thing *thing);
 TbBool creature_battle_invalid(const struct CreatureBattle *battle);
+
+BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx);
+
+TbBool has_melee_combat_attackers(struct Thing *victim);
+TbBool can_add_melee_combat_attacker(struct Thing *victim);
+TbBool has_ranged_combat_attackers(const struct Thing *victim);
+TbBool can_add_ranged_combat_attacker(const struct Thing *victim);
 
 void setup_combat_flee_position(struct Thing *thing);
 void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);

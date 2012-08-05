@@ -133,7 +133,7 @@ void slabmap_set_owner(struct SlabMap *slb, long owner)
 /**
  * Sets owner of a slab on given position.
  */
-void set_whole_slab_owner(long slb_x, long slb_y, long owner)
+void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long owner)
 {
     struct SlabMap *slb;
     long stl_x,stl_y;

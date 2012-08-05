@@ -1766,6 +1766,28 @@ struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapC
     return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
 }
 
+/** Counts creatures on all subtiles around given position, who belongs to given player or allied one.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose creatures and allied creatures count will be returned.
+ * @param distance_stl Max. distance, in subtiles. Will work properly only for odd numbers (1,3,5,7...).
+ * @return The count of matching creatures on given coordinate range.
+ */
+long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = map_block_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with;
+    param.class_id = TCls_Creature;
+    param.model_id = -1;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return count_things_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
+}
+
 // use this (or make similar one) instead of find_base_thing_on_mapwho_at_pos()
 struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
 {
