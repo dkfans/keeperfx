@@ -95,8 +95,8 @@ const struct NamedCommand creaturejob_desc[] = {
   };
 
 const struct NamedCommand attackpref_desc[] = {
-  {"MELEE",              1},
-  {"RANGED",             2},
+  {"MELEE",              PrefAttck_Melee},
+  {"RANGED",             PrefAttck_Ranged},
   {NULL,                 0},
   };
 

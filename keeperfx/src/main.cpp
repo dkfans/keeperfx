@@ -278,7 +278,6 @@ DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *play
 DLLIMPORT void _DK_DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite);
 DLLIMPORT void _DK_pannel_map_draw(long x, long y, long zoom);
 DLLIMPORT void _DK_draw_overlay_things(long zoom);
-DLLIMPORT unsigned char _DK_find_first_battle_of_mine(unsigned char idx);
 DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
 DLLIMPORT void _DK_reinit_level_after_load(void);
 DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
@@ -946,56 +945,56 @@ TbBool update_or_add_players_research_amount(long plyr_idx, long rtyp, long rkin
 
 void init_spiral_steps(void)
 {
-  struct MapOffset *sstep;
-  long x,y;
-  long i;
-  y = 0;
-  x = 0;
+    struct MapOffset *sstep;
+    long x,y;
+    long i;
+    y = 0;
+    x = 0;
     sstep = &spiral_step[0];
     sstep->h = y;
     sstep->v = x;
     sstep->both = (short)y + ((short)x << 8);
-  y = -1;
-  x = -1;
-  for (i=1; i < SPIRAL_STEPS_COUNT; i++)
-  {
-    sstep = &spiral_step[i];
-    sstep->h = y;
-    sstep->v = x;
-    sstep->both = (short)y + ((short)x << 8);
-    if ((y < 0) && (x-y == 1))
+    y = -1;
+    x = -1;
+    for (i=1; i < SPIRAL_STEPS_COUNT; i++)
     {
-      y--;
-      x -= 2;
-    } else
-    if (x == y)
-    {
-      if (y < 0)
-        y++;
-      else
-        y--;
-    } else
-    if (y+x == 0)
-    {
-      if (x >= 0)
-        x--;
-      else
-        x++;
-    } else
-    if (abs(x) >= abs(y))
-    {
-      if (x < 0)
-        y++;
-      else
-        y--;
-    } else
-    {
-      if (y >= 0)
-        x++;
-      else
-        x--;
+      sstep = &spiral_step[i];
+      sstep->h = y;
+      sstep->v = x;
+      sstep->both = (short)y + ((short)x << 8);
+      if ((y < 0) && (x-y == 1))
+      {
+          y--;
+          x -= 2;
+      } else
+      if (x == y)
+      {
+          if (y < 0)
+            y++;
+          else
+            y--;
+      } else
+      if (y+x == 0)
+      {
+          if (x >= 0)
+            x--;
+          else
+            x++;
+      } else
+      if (abs(x) >= abs(y))
+      {
+          if (x < 0)
+            y++;
+          else
+            y--;
+      } else
+      {
+          if (y >= 0)
+            x++;
+          else
+            x--;
+      }
     }
-  }
 }
 
 void init_creature_state(struct Thing *thing)
@@ -4131,11 +4130,6 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, long var)
 long set_autopilot_type(unsigned int plridx, long aptype)
 {
   return _DK_set_autopilot_type(plridx, aptype);
-}
-
-unsigned char find_first_battle_of_mine(unsigned char idx)
-{
-  return _DK_find_first_battle_of_mine(idx);
 }
 
 void level_lost_go_first_person(long plyr_idx)

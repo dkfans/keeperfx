@@ -151,6 +151,7 @@ typedef unsigned char ThingModel;
 typedef unsigned short CrtrStateId;
 typedef unsigned short SpellKind;
 typedef unsigned short PowerKind;
+typedef short BattleIndex;
 
 
 struct Coord2d {

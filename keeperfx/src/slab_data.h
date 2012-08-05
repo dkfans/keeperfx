@@ -113,7 +113,7 @@ struct SlabMap *get_slabmap_direct(SlabCodedCoords slab_num);
 TbBool slabmap_block_invalid(struct SlabMap *slb);
 long slabmap_owner(struct SlabMap *slb);
 void slabmap_set_owner(struct SlabMap *slb, long owner);
-void set_whole_slab_owner(long slb_x, long slb_y, long owner);
+void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long owner);
 unsigned long slabmap_wlb(struct SlabMap *slb);
 void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);
 long get_next_slab_number_in_room(long slab_num);

@@ -75,6 +75,12 @@ enum CreatureDeathKind {
     Death_IceExplode,
 };
 
+enum CreaturePreferredAttacks {
+    PrefAttck_Unset = 0,
+    PrefAttck_Melee,
+    PrefAttck_Ranged,
+};
+
 enum CreatureTypesLoadFlags {
     CTLd_Standard      =  0x00,
     CTLd_KindListOnly  =  0x01,

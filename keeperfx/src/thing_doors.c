@@ -95,7 +95,7 @@ void lock_door(struct Thing *doortng)
     dostat = &door_stats[doortng->model][doortng->word_13];
     stl_x = doortng->mappos.x.stl.num;
     stl_y = doortng->mappos.y.stl.num;
-    doortng->active_state = 2;
+    doortng->active_state = DorSt_Unknown02;
     doortng->word_16 = 0;
     doortng->byte_18 = 1;
     game.field_14EA4B = 1;
@@ -166,7 +166,7 @@ long process_door_open(struct Thing *thing)
         thing->byte_15--;
         return 0;
     }
-    thing->active_state = 4;
+    thing->active_state = DorSt_Unknown04;
     thing_play_sample(thing, 92, 100, 0, 3, 0, 2, 256);
     return 1;
 }
@@ -175,7 +175,7 @@ long process_door_closed(struct Thing *thing)
 {
     if ( !check_door_should_open(thing) )
       return 0;
-    thing->active_state = 3;
+    thing->active_state = DorSt_Unknown03;
     thing_play_sample(thing, 91, 100, 0, 3, 0, 2, 256);
     return 1;
 }
@@ -194,7 +194,7 @@ long process_door_opening(struct Thing *thing)
         thing->word_16 += delta_h;
     } else
     {
-        thing->active_state = 1;
+        thing->active_state = DorSt_Unknown01;
         thing->byte_15 = 10;
         thing->word_16 = 768;
     }
@@ -215,7 +215,7 @@ long process_door_closing(struct Thing *thing)
     slbparam = dostat->field_0;
     if ( check_door_should_open(thing) )
     {
-        thing->active_state = 3;
+        thing->active_state = DorSt_Unknown03;
         thing_play_sample(thing, 91, 100, 0, 3, 0, 2, 256);
     }
     if (thing->word_16 > delta_h)
@@ -223,7 +223,7 @@ long process_door_closing(struct Thing *thing)
         thing->word_16 -= delta_h;
     } else
     {
-        thing->active_state = 2;
+        thing->active_state = DorSt_Unknown02;
         thing->word_16 = 0;
     }
     new_h = (thing->word_16 / 256);
@@ -249,21 +249,21 @@ long process_door(struct Thing *thing)
     }
     switch ( thing->active_state )
     {
-    case 1:
+    case DorSt_Unknown01:
         process_door_open(thing);
         break;
-    case 2:
+    case DorSt_Unknown02:
         process_door_closed(thing);
         break;
-    case 3:
+    case DorSt_Unknown03:
         process_door_opening(thing);
         break;
-    case 4:
+    case DorSt_Unknown04:
         process_door_closing(thing);
         break;
     default:
         ERRORLOG("Invalid %s state %d",thing_model_name(thing),(int)thing->active_state);
-        thing->active_state = 4;
+        thing->active_state = DorSt_Unknown04;
         break;
     }
     return 1;
