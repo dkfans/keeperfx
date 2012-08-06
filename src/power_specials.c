@@ -294,7 +294,9 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     create_special_used_effect(&boxtng->mappos, owner);
     remove_events_thing_is_attached_to(boxtng);
     force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
-    remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, crlevel);
+    if ((gameadd.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
+        remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, crlevel);
+    }
     delete_thing_structure(boxtng, 0);
 }
 

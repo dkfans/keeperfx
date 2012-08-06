@@ -64,7 +64,14 @@ const struct NamedCommand rules_game_commands[] = {
   {"DUNGEONHEARTHEALTIME",      22},
   {"DUNGEONHEARTHEALHEALTH",    23},
   {"HERODOORWAITTIME",          24},
+  {"PRESERVECLASSICBUGS",       25},
   {NULL,                         0},
+  };
+
+const struct NamedCommand rules_game_classicbugs_commands[] = {
+  {"RESURRECT_FOREVER", 1},
+  {"OVERFLOW_8BIT",     2},
+  {NULL,                0},
   };
 
 const struct NamedCommand rules_computer_commands[] = {
@@ -526,6 +533,28 @@ TbBool parse_rules_game_blocks(char *buf,long len,const char *config_textname)
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 25: // PRESERVECLASSICBUGS
+          gameadd.classic_bugs_flags = ClscBug_None;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = get_id(rules_game_classicbugs_commands, word_buf);
+            switch (k)
+            {
+            case 1: // RESURRECT_FOREVER
+                gameadd.classic_bugs_flags |= ClscBug_ResurrectForever;
+                n++;
+                break;
+            case 2: // OVERFLOW_8BIT
+                gameadd.classic_bugs_flags |= ClscBug_Overflow8bitVal;
+                n++;
+                break;
+            default:
+              CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+              break;
+            }
           }
           break;
       case 0: // comment

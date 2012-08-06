@@ -32,6 +32,18 @@ struct GameAdd gameadd;
 /******************************************************************************/
 /******************************************************************************/
 /**
+ * Informs if we're going to emulate overflow for integer values with given amount of bits.
+ * @param nbits Amount of bits for which we want to know the overflow emulation state.
+ * @return Overflow emulation state.
+ */
+TbBool emulate_integer_overflow(unsigned short nbits)
+{
+    if (nbits == 8)
+        return (gameadd.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
+    return false;
+}
+
+/**
  * Returns the loaded level number.
  */
 LevelNumber get_loaded_level_number(void)
