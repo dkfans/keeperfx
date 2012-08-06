@@ -56,6 +56,7 @@ struct Objects {
 /******************************************************************************/
 extern Thing_Class_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];
+extern unsigned short specials_text[];
 /******************************************************************************/
 DLLIMPORT extern struct Objects _DK_objects[OBJECT_TYPES_COUNT];
 #define objects_data _DK_objects

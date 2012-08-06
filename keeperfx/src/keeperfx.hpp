@@ -743,8 +743,6 @@ DLLIMPORT extern unsigned char _DK_magic_to_object[24];
 #define magic_to_object _DK_magic_to_object
 DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 #define door_to_object _DK_door_to_object
-DLLIMPORT extern unsigned short _DK_specials_text[10];
-#define specials_text _DK_specials_text
 DLLIMPORT extern long _DK_pointer_x;
 #define pointer_x _DK_pointer_x
 DLLIMPORT extern long _DK_pointer_y;
