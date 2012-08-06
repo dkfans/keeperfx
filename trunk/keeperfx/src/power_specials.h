@@ -32,6 +32,19 @@ extern "C" {
 struct PlayerInfo;
 struct Thing;
 
+enum SpecialKinds {
+    SpcKind_Unset = 0,
+    SpcKind_RevealMap,
+    SpcKind_Resurrect,
+    SpcKind_TrnsfrCrtr,
+    SpcKind_StealHero,
+    SpcKind_MultplCrtr,
+    SpcKind_Unknown6,
+    SpcKind_Unknown7,
+    SpcKind_Unknown8,
+    SpcKind_Unknown9,
+};
+
 struct SpecialDesc {
 long field_0;
 long field_4;
@@ -55,7 +68,7 @@ unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 void make_safe(struct PlayerInfo *player);
 TbBool activate_bonus_level(struct PlayerInfo *player);
 void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
-void resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4);
+void resurrect_creature(struct Thing *thing, PlayerNumber owner, ThingModel model, unsigned char crlevel);
 void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing);
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing);

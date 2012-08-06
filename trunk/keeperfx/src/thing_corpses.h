@@ -33,12 +33,20 @@ extern "C" {
 struct Thing;
 struct Dungeon;
 
+enum DeadCreatureStates {
+    DCrSt_Unused = 0,
+    DCrSt_Unknown01,
+    DCrSt_Unknown02,
+};
+
 #pragma pack()
 /******************************************************************************/
 TbBool corpse_is_rottable(const struct Thing *thing);
-TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing);
+TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *thing);
+TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel);
+TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel);
 long update_dead_creature(struct Thing *thing);
-struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, unsigned short a1, unsigned short owner, long explevel);
+struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short a1, unsigned short owner, long explevel);
 struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1);
 /******************************************************************************/
 #ifdef __cplusplus
