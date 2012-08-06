@@ -36,6 +36,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+extern TbBool emulate_integer_overflow(unsigned short nbits);
+
 // Functions which were previously defined as Inline,
 // but redefined for compatibility with both Ansi-C and C++.
 
@@ -176,10 +178,12 @@ long saturate_set_signed(long long val,unsigned short nbits)
  */
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 {
-  unsigned long long max = (1 << (nbits)) - 1;
-  if (val >= max)
-    return max;
-  return val;
+    unsigned long long max = (1 << (nbits)) - 1;
+    if (emulate_integer_overflow(nbits))
+        return (val & max);
+    if (val >= max)
+        return max;
+    return val;
 }
 
 /******************************************************************************/
