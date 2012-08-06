@@ -30,6 +30,8 @@
 #include "game_saves.h"
 #include "game_merge.h"
 #include "slab_data.h"
+#include "spdigger_stack.h"
+#include "thing_corpses.h"
 #include "thing_objects.h"
 #include "frontend.h"
 #include "gui_frontmenu.h"
@@ -41,9 +43,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
-DLLIMPORT void _DK_resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4);
-DLLIMPORT void _DK_transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char a3);
+DLLIMPORT void _DK_activate_dungeon_special(struct Thing *boxtng, struct PlayerInfo *player);
+DLLIMPORT void _DK_resurrect_creature(struct Thing *boxtng, unsigned char a2, unsigned char crmodel, unsigned char crlevel);
+DLLIMPORT void _DK_transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char crmodel);
 DLLIMPORT void _DK_make_safe(struct PlayerInfo *player);
 DLLIMPORT unsigned long _DK_steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 
@@ -138,58 +140,58 @@ void multiply_creatures(struct PlayerInfo *player)
 
 void increase_level(struct PlayerInfo *player)
 {
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  dungeon = get_dungeon(player->id_number);
-  // Increase level of normal creatures
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    dungeon = get_dungeon(player->id_number);
+    // Increase level of normal creatures
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+          ERRORLOG("Jump to invalid creature detected");
+          break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        creature_increase_level(thing);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
     }
-    i = cctrl->players_next_creature_idx;
-    // Thing list loop body
-    creature_increase_level(thing);
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
+    // Increase level of special workers
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
     {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+          ERRORLOG("Jump to invalid creature detected");
+          break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        creature_increase_level(thing);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
     }
-  }
-  // Increase level of special workers
-  k = 0;
-  i = dungeon->digger_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->players_next_creature_idx;
-    // Thing list loop body
-    creature_increase_level(thing);
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
 }
 
 unsigned long steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
@@ -202,7 +204,7 @@ void make_safe(struct PlayerInfo *player)
   _DK_make_safe(player);
 }
 
-void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
+void activate_dungeon_special(struct Thing *boxtng, struct PlayerInfo *player)
 {
   SYNCDBG(6,"Starting");
   short used;
@@ -210,59 +212,59 @@ void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
   int spkindidx;
 
   // Gathering data which we'll need if the special is used and disposed.
-  memcpy(&pos,&thing->mappos,sizeof(struct Coord3d));
-  spkindidx = thing->model - 86;
+  memcpy(&pos,&boxtng->mappos,sizeof(struct Coord3d));
+  spkindidx = boxtng->model - 86;
   used = 0;
-  if (thing_exists(thing) && is_dungeon_special(thing))
+  if (thing_exists(boxtng) && is_dungeon_special(boxtng))
   {
-    switch (thing->model)
+    switch (boxtng->model)
     {
         case 86:
           reveal_whole_map(player);
-          remove_events_thing_is_attached_to(thing);
+          remove_events_thing_is_attached_to(boxtng);
           used = 1;
-          delete_thing_structure(thing, 0);
+          delete_thing_structure(boxtng, 0);
           break;
         case 87:
-          start_resurrect_creature(player, thing);
+          start_resurrect_creature(player, boxtng);
           break;
         case 88:
-          start_transfer_creature(player, thing);
+          start_transfer_creature(player, boxtng);
           break;
         case 89:
-          if (steal_hero(player, &thing->mappos))
+          if (steal_hero(player, &boxtng->mappos))
           {
-            remove_events_thing_is_attached_to(thing);
+            remove_events_thing_is_attached_to(boxtng);
             used = 1;
-            delete_thing_structure(thing, 0);
+            delete_thing_structure(boxtng, 0);
           }
           break;
         case 90:
           multiply_creatures(player);
-          remove_events_thing_is_attached_to(thing);
+          remove_events_thing_is_attached_to(boxtng);
           used = 1;
-          delete_thing_structure(thing, 0);
+          delete_thing_structure(boxtng, 0);
           break;
         case 91:
           increase_level(player);
-          remove_events_thing_is_attached_to(thing);
+          remove_events_thing_is_attached_to(boxtng);
           used = 1;
-          delete_thing_structure(thing, 0);
+          delete_thing_structure(boxtng, 0);
           break;
         case 92:
           make_safe(player);
-          remove_events_thing_is_attached_to(thing);
+          remove_events_thing_is_attached_to(boxtng);
           used = 1;
-          delete_thing_structure(thing, 0);
+          delete_thing_structure(boxtng, 0);
           break;
         case 93:
           activate_bonus_level(player);
-          remove_events_thing_is_attached_to(thing);
+          remove_events_thing_is_attached_to(boxtng);
           used = 1;
-          delete_thing_structure(thing, 0);
+          delete_thing_structure(boxtng, 0);
           break;
         default:
-          ERRORLOG("Invalid dungeon special (Model %d)", (int)thing->model);
+          ERRORLOG("Invalid dungeon special (Model %d)", (int)boxtng->model);
           break;
       }
       if ( used )
@@ -274,36 +276,51 @@ void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player)
   }
 }
 
-void resurrect_creature(struct Thing *thing, unsigned char a2, unsigned char a3, unsigned char a4)
+void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crmodel, unsigned char crlevel)
 {
-  _DK_resurrect_creature(thing, a2, a3, a4);
+    struct Thing *creatng;
+    //_DK_resurrect_creature(thing, owner, crmodel, crlevel);
+    if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_Resurrect) ) {
+        ERRORMSG("Invalid resurrect box object!");
+        return;
+    }
+    creatng = create_creature(&boxtng->mappos, crmodel, owner);
+    if (!thing_is_invalid(creatng))
+    {
+        init_creature_level(creatng, crlevel);
+        if (is_my_player_number(owner))
+          output_message(SMsg_CommonAcknowledge, 0, true);
+    }
+    create_special_used_effect(&boxtng->mappos, owner);
+    remove_events_thing_is_attached_to(boxtng);
+    force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
+    remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, crlevel);
+    delete_thing_structure(boxtng, 0);
 }
 
-void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char plyr_idx)
+void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char plyr_idx)
 {
   SYNCDBG(7,"Starting");
   struct Dungeon *dungeon;
   struct CreatureControl *cctrl;
-  struct Thing *thing;
-  long i,k;
+  long i;
+  if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr) ) {
+      ERRORMSG("Invalid transfer box object!");
+      return;
+  }
   dungeon = get_players_num_dungeon(plyr_idx);
   // Check if 'things' are correct
-  if ((tng1->alloc_flags & TAlF_Exists) == 0)
-    return;
-  if ((tng1->class_id != TCls_Object) || (tng1->model != 88))
-    return;
+  if (!thing_exists(transftng) || !thing_is_creature(transftng) || (transftng->owner != plyr_idx)) {
+      ERRORMSG("Invalid transfer creature thing!");
+      return;
+  }
 
-  if ((tng2->alloc_flags & TAlF_Exists) == 0)
-    return;
-  if ((tng2->class_id != TCls_Creature) || (tng2->owner != plyr_idx))
-    return;
-
-  cctrl = creature_control_get_from_thing(tng2);
-  set_transfered_creature(plyr_idx, tng2->model, cctrl->explevel);
+  cctrl = creature_control_get_from_thing(transftng);
+  set_transfered_creature(plyr_idx, transftng->model, cctrl->explevel);
   // Remove the creature from power hand
   for (i = 0; i < dungeon->field_63; i++)
   {
-    if (dungeon->things_in_hand[i] == tng2->index)
+    if (dungeon->things_in_hand[i] == transftng->index)
     {
       for ( ; i < dungeon->field_63-1; i++)
       {
@@ -313,36 +330,11 @@ void transfer_creature(struct Thing *tng1, struct Thing *tng2, unsigned char ply
       dungeon->things_in_hand[dungeon->field_63] = 0;
     }
   }
-  kill_creature(tng2, 0, 0, 1, 0, 0);
-  create_special_used_effect(&tng1->mappos, plyr_idx);
-  remove_events_thing_is_attached_to(tng1);
-  if ((tng1->field_1 & TF1_Unkn01) || (tng1->alloc_flags & TAlF_IsDragged))
-  {
-    k = 0;
-    i = dungeon->digger_list_start;
-    while (i > 0)
-    {
-      thing = thing_get(i);
-      if (thing_is_invalid(thing))
-        break;
-      cctrl = creature_control_get_from_thing(thing);
-      if (creature_control_invalid(cctrl))
-        break;
-      if (cctrl->field_6E == tng1->index)
-      {
-        set_start_state(thing);
-        break;
-      }
-      i = cctrl->players_next_creature_idx;
-      k++;
-      if (k > CREATURES_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping creatures list");
-        break;
-      }
-    }
-  }
-  delete_thing_structure(tng1, 0);
+  kill_creature(transftng, NULL, 0, 1, 0, 0);
+  create_special_used_effect(&boxtng->mappos, plyr_idx);
+  remove_events_thing_is_attached_to(boxtng);
+  force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
+  delete_thing_structure(boxtng, 0);
   if (is_my_player_number(plyr_idx))
     output_message(SMsg_CommonAcknowledge, 0, true);
 }

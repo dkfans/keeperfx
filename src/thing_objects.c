@@ -193,7 +193,7 @@ Thing_Class_Func object_update_functions[] = {
     NULL,
 };
 
-unsigned char object_to_door_or_trap[] = {
+ThingModel object_to_door_or_trap[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -206,6 +206,7 @@ unsigned char object_to_door_or_trap[] = {
 };
 
 unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
+unsigned short specials_text[] = {201, 420, 421, 422, 423, 424, 425, 426, 427, 0};
 
 /******************************************************************************/
 DLLIMPORT long _DK_move_object(struct Thing *thing);

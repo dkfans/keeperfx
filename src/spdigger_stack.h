@@ -72,6 +72,7 @@ long check_out_imp_tokes(struct Thing *thing);
 long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y);
 long check_place_to_reinforce(struct Thing *thing, long a2, long a3);
 long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short a2, long *a3, long *a4);
+void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

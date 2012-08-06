@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "bflib_memory.h"
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "thing_list.h"
@@ -302,51 +303,103 @@ long update_dead_creature(struct Thing *thing)
     }
 }
 
-TbBool update_dead_creatures_list(struct Dungeon *dungeon, struct Thing *thing)
+long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
 {
-  struct CreatureStorage *cstore;
-  struct CreatureControl *cctrl;
-  long i;
-  SYNCDBG(18,"Starting");
-  cctrl = creature_control_get_from_thing(thing);
-  if ((dungeon == NULL) || creature_control_invalid(cctrl))
-  {
-    WARNLOG("Invalid victim or dungeon");
-    return false;
-  }
-  // Check if the creature of same type is in list
-  i = dungeon->dead_creatures_count-1;
-  while (i >= 0)
-  {
-    cstore = &dungeon->dead_creatures[i];
-    if ((cstore->model == thing->model) && (cstore->explevel == cctrl->explevel))
+    struct CreatureStorage *cstore;
+    long i;
+    if (dungeon_invalid(dungeon))
+        return -1;
+    i = dungeon->dead_creatures_count-1;
+    while (i >= 0)
     {
-      // This creature is already in list
-      SYNCDBG(18,"Already in list");
-      return false;
+        cstore = &dungeon->dead_creatures[i];
+        if ((cstore->model == crmodel) && (cstore->explevel == crlevel))
+        {
+          return i;
+        }
+        i--;
     }
-    i--;
-  }
-  // Find a slot for the new creature
-  if (dungeon->dead_creatures_count < DEAD_CREATURES_MAX_COUNT)
-  {
-    i = dungeon->dead_creatures_count;
-    dungeon->dead_creatures_count++;
-  } else
-  {
-    i = dungeon->dead_creature_idx;
-    dungeon->dead_creature_idx++;
-    if (dungeon->dead_creature_idx >= DEAD_CREATURES_MAX_COUNT)
-      dungeon->dead_creature_idx = 0;
-  }
-  cstore = &dungeon->dead_creatures[i];
-  cstore->model = thing->model;
-  cstore->explevel = cctrl->explevel;
-  SYNCDBG(19,"Finished");
-  return true;
+    return -1;
 }
 
-struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, unsigned short a1, unsigned short owner, long explevel)
+TbBool add_item_to_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
+{
+    struct CreatureStorage *cstore;
+    long i;
+    SYNCDBG(18,"Starting");
+    if (dungeon_invalid(dungeon))
+    {
+        WARNLOG("Invalid dungeon");
+        return false;
+    }
+    // Check if the creature of same type is in list
+    i = find_item_in_dead_creature_list(dungeon, crmodel, crlevel);
+    if (i >= 0)
+    {
+        // This creature is already in list
+        SYNCDBG(18,"Already in list");
+        //TODO RESURRECT Introduce a counter of creatures in CreatureStorage.
+        return false;
+    }
+    // Find a slot for the new creature
+    if (dungeon->dead_creatures_count < DEAD_CREATURES_MAX_COUNT)
+    {
+        i = dungeon->dead_creatures_count;
+        dungeon->dead_creatures_count++;
+    } else
+    {
+        i = dungeon->dead_creature_idx;
+        dungeon->dead_creature_idx++;
+        if (dungeon->dead_creature_idx >= DEAD_CREATURES_MAX_COUNT)
+          dungeon->dead_creature_idx = 0;
+    }
+    cstore = &dungeon->dead_creatures[i];
+    cstore->model = crmodel;
+    cstore->explevel = crlevel;
+    SYNCDBG(19,"Finished");
+    return true;
+}
+
+TbBool remove_item_from_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
+{
+    struct CreatureStorage *cstore;
+    long i,rmpos;
+    SYNCDBG(18,"Starting");
+    if (dungeon_invalid(dungeon))
+    {
+        WARNLOG("Invalid dungeon");
+        return false;
+    }
+    rmpos = find_item_in_dead_creature_list(dungeon, crmodel, crlevel);
+    if (rmpos < 0)
+        return false;
+    for (i=rmpos; i < DEAD_CREATURES_MAX_COUNT-1; i++) {
+        LbMemoryCopy(&dungeon->dead_creatures[i], &dungeon->dead_creatures[i+1], sizeof(struct CreatureStorage));
+    }
+    cstore = &dungeon->dead_creatures[DEAD_CREATURES_MAX_COUNT-1];
+    cstore->model = 0;
+    cstore->explevel = 0;
+    if (dungeon->dead_creature_idx > 0)
+        dungeon->dead_creature_idx--;
+    if (dungeon->dead_creatures_count > 0)
+        dungeon->dead_creatures_count--;
+    SYNCDBG(19,"Finished");
+    return true;
+}
+
+TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        WARNLOG("Invalid victim creature control");
+        return false;
+    }
+    return add_item_to_dead_creature_list(dungeon, thing->model, cctrl->explevel);
+}
+
+struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, unsigned short a1, unsigned short owner, long explevel)
 {
     struct Thing *thing;
     unsigned long k;
@@ -389,12 +442,12 @@ struct Thing *create_dead_creature(struct Coord3d *pos, unsigned short model, un
     switch (a1)
     {
     case 2:
-        thing->active_state = CrSt_ImpArrivesAtDigOrMine1;
+        thing->active_state = DCrSt_Unknown02;
         k = get_creature_anim(thing, 17);
         set_thing_draw(thing, k, 256, 300, 0, 0, 2);
         break;
     default:
-        thing->active_state = CrSt_ImpDoingNothing;
+        thing->active_state = DCrSt_Unknown01;
         k = get_creature_anim(thing, 15);
         set_thing_draw(thing, k, 128, 300, 0, 0, 2);
         thing->health = 3 * get_lifespan_of_animation(thing->field_44, thing->field_3E);
