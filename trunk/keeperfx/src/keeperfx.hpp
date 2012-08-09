@@ -1060,14 +1060,12 @@ void setup_3d(void);
 void setup_stuff(void);
 long ceiling_init(unsigned long a1, unsigned long a2);
 void process_dungeon_destroy(struct Thing *thing);
-void apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
+void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, char a3);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_disease(struct Thing *thing);
 void process_keeper_spell_effect(struct Thing *thing);
 void leader_find_positions_for_followers(struct Thing *thing);
-void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
-      long range, long max_damage, unsigned char hit_type);
 long process_creature_self_spell_casting(struct Thing *thing);
 struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4);
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2);
@@ -1096,7 +1094,6 @@ void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
 void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
-long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
 
 #ifdef __cplusplus
 }

@@ -608,7 +608,10 @@ TbBool parse_rules_computer_blocks(char *buf,long len,const char *config_textnam
   // Default values
   if ((flags & CMLd_AcceptPartial) == 0)
   {
-      //TODO
+      game.wait_for_room_time = 800;
+      game.check_expand_time = 1000;
+      game.max_distance_to_dig = 96;
+      game.wait_after_room_area = 200;
   }
   // Find the block
   sprintf(block_buf,"computer");
@@ -711,7 +714,14 @@ TbBool parse_rules_creatures_blocks(char *buf,long len,const char *config_textna
   // Default values
   if ((flags & CMLd_AcceptPartial) == 0)
   {
-      //TODO
+      game.recovery_frequency = 10;
+      game.fight_max_hate = 200;
+      game.fight_borderline = 0;
+      game.fight_max_love = -100;
+      game.body_remains_for = 1000;
+      game.fight_hate_kill_value = -5;
+      gameadd.flee_zone_radius = 2048;
+      game.game_turns_in_flee = 200;
   }
   // Find the block
   sprintf(block_buf,"creatures");
@@ -863,7 +873,18 @@ TbBool parse_rules_magic_blocks(char *buf,long len,const char *config_textname,u
   // Default values
   if ((flags & CMLd_AcceptPartial) == 0)
   {
-      //TODO
+      game.hold_audience_time = 500;
+      game.armagedon_teleport_your_time_gap = 10;
+      game.armagedon_teleport_enemy_time_gap = 10;
+      game.armageddon.count_down = 500;
+      game.armageddon.duration = 4000;
+      game.disease_transfer_percentage = 15;
+      game.disease_lose_percentage_health = 8;
+      game.disease_lose_health_time = 400;
+      game.min_distance_for_teleport = 20;
+      game.collapse_dungeon_damage = 10;
+      game.turns_per_collapse_dngn_dmg = 4;
+      game.power_hand_gold_grab_amount = 100;
   }
   // Find the block
   sprintf(block_buf,"magic");
@@ -1029,7 +1050,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len,const char *config_textname,u
           }
           break;
       case 12: // DEFAULTSACRIFICESCOREFORHORNY
-          //Unused
+          //Unused - scores are computed automatically
           break;
       case 13: // POWERHANDGOLDGRABAMOUNT
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1070,7 +1091,16 @@ TbBool parse_rules_rooms_blocks(char *buf,long len,const char *config_textname,u
   // Default values
   if ((flags & CMLd_AcceptPartial) == 0)
   {
-      //TODO
+      game.scavenge_cost_frequency = 64;
+      game.temple_scavenge_protection_time = 1000;
+      game.train_cost_frequency = 64;
+      game.ghost_convert_chance = 10;
+      game.default_generate_speed = 500;
+      game.default_max_crtrs_gen_entrance = 200;
+      game.food_generation_speed = 2000;
+      game.prison_skeleton_chance = 100;
+      game.bodies_for_vampire = 6;
+      game.graveyard_convert_time = 300;
   }
   // Find the block
   sprintf(block_buf,"rooms");
@@ -1273,7 +1303,10 @@ TbBool parse_rules_workers_blocks(char *buf,long len,const char *config_textname
   // Default values
   if ((flags & CMLd_AcceptPartial) == 0)
   {
-      //TODO
+      game.hits_per_slab = 2;
+      game.default_imp_dig_damage = 1;
+      game.default_imp_dig_own_damage = 2;
+      game.per_imp_gold_dig_size = 30;
   }
   // Find the block
   sprintf(block_buf,"workers");
@@ -1542,11 +1575,6 @@ TbBool parse_rules_research_blocks(char *buf,long len,const char *config_textnam
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
-  // Default values
-  if ((flags & CMLd_AcceptPartial) == 0)
-  {
-      //TODO
-  }
   // Find the block
   sprintf(block_buf,"research");
   pos = 0;
@@ -1557,6 +1585,9 @@ TbBool parse_rules_research_blocks(char *buf,long len,const char *config_textnam
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       return false;
   }
+  // Clear research list if there's new one in this file
+  clear_research_for_all_players();
+  // Now we can start with analysis of commands
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_research_commands,cmd_num)
   while (pos<len)
   {

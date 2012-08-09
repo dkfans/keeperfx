@@ -27,8 +27,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define HIT_TYPES_COUNT 9
-
 enum ShotModels {
     ShM_Null = 0,
     ShM_Fireball,

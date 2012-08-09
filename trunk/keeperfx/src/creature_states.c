@@ -1114,7 +1114,7 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
     }
     cctrl->field_6E = 0;
     dragtng->alloc_flags &= ~TAlF_IsDragged;
-    dragtng->field_1 &= ~0x01;
+    dragtng->field_1 &= ~TF1_Unkn01;
     move_thing_in_map(dragtng, &crtng->mappos);
     if (dragtng->light_id != 0) {
         light_turn_light_on(dragtng->light_id);
@@ -1285,7 +1285,7 @@ void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_6E = dragtng->index;
     dragtng->alloc_flags |= TAlF_IsDragged;
-    dragtng->field_1 |= 0x01;
+    dragtng->field_1 |= TF1_Unkn01;
     dragtng->owner = game.neutral_player_num;
     if (dragtng->light_id != 0) {
       light_turn_light_off(dragtng->light_id);
@@ -1563,12 +1563,12 @@ void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
     thing->field_4F |= 0x01;
-    thing->field_1 |= 0x02;
+    thing->field_1 |= TF1_InCtrldLimbo;
 }
 
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 {
-    thing->field_1 &= ~0x02;
+    thing->field_1 &= ~TF1_InCtrldLimbo;
     thing->field_4F &= ~0x01;
     place_thing_in_mapwho(thing);
 }
@@ -1797,7 +1797,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
         if (tng2 != tng1)
         {
             if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
-            && ((tng2->alloc_flags & TAlF_IsInLimbo) == 0) && ((tng2->field_1 & TF1_Unkn02) == 0))
+            && ((tng2->alloc_flags & TAlF_IsInLimbo) == 0) && ((tng2->field_1 & TF1_InCtrldLimbo) == 0))
             {
                 crstat1 = creature_stats_get_from_thing(tng1);
                 if ((cctrl2->spell_flags & CSAfF_Invisibility) == 0)
@@ -2230,12 +2230,12 @@ TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state)
     callback = stati->cleanup_state;
     if (callback != NULL) {
         callback(thing);
-        thing->field_1 |= 0x10;
+        thing->field_1 |= TF1_Unkn10;
     } else {
         clear_creature_instance(thing);
     }
     thing->active_state = state;
-    thing->field_1 &= ~0x10;
+    thing->field_1 &= ~TF1_Unkn10;
     thing->continue_state = 0;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_80 = 0;

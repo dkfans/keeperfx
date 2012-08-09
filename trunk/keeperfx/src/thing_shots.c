@@ -96,7 +96,7 @@ TbBool detonate_shot(struct Thing *thing)
     case 11:
         create_effect(&thing->mappos, TngEff_Unknown50, thing->owner);
         create_effect(&thing->mappos,  TngEff_Unknown09, thing->owner);
-        explosion_affecting_area(shooter, &thing->mappos, 8, 256, thing->byte_16);
+        explosion_affecting_area(shooter, &thing->mappos, 8, 256, 256, thing->byte_16);
         break;
     case 15:
         create_effect_around_thing(thing, TngEff_Unknown26);
@@ -272,7 +272,7 @@ long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
     if ( shot_explodes )
     {
         if ( shotst->old->field_41 ) {
-            explosion_affecting_area(shooter, pos, shotst->old->field_41, shotst->old->field_43, shotst->old->field_4A);
+            explosion_affecting_area(shooter, pos, shotst->old->field_41, shotst->old->field_43, 256, shotst->old->field_4A);
         }
         delete_thing_structure(thing, 0);
         return 1;

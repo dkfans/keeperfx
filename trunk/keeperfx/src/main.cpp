@@ -154,7 +154,6 @@ DLLIMPORT int _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, un
 DLLIMPORT int _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
-DLLIMPORT void _DK_explosion_affecting_area(struct Thing *thing, const struct Coord3d *pos, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
 DLLIMPORT long _DK_load_cube_file(void);
@@ -364,26 +363,6 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 }
 #endif
 
-/**
- * Returns a value which decays around some epicenter, like blast damage.
- *
- * @param magnitude Magnitude in nearest whereabouts of the epicenter.
- * @param decay_start Distance aftew which the magnitude starts decaying.
- * @param decay_length Length of the decaying region.
- * @param distance Distance at which we want to compute the value.
- * @return Value at specified distane from epicenter.
- */
-long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
-{
-  if (distance >= decay_start+decay_length)
-    return 0;
-  else
-  if (distance >= decay_start)
-    return magnitude * (decay_length - (distance-decay_start)) / decay_length;
-  else
-    return magnitude;
-}
-
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3)
 {
   _DK_view_set_camera_y_inertia(cam, a2, a3);
@@ -516,21 +495,21 @@ void reset_heap_memory(void)
 
 void init_player_as_single_keeper(struct PlayerInfo *player)
 {
-  unsigned short idx;
-  struct InitLight ilght;
-  memset(&ilght, 0, sizeof(struct InitLight));
-  player->field_4CD = 0;
-  ilght.field_0 = 2560;
-  ilght.field_2 = 48;
-  ilght.field_3 = 5;
-  ilght.is_dynamic = 1;
-  idx = light_create_light(&ilght);
-  player->field_460 = idx;
-  if (idx != 0) {
-      light_set_light_never_cache(idx);
-  } else {
-      WARNLOG("Cannot allocate light to player %d.",(int)player->id_number);
-  }
+    unsigned short idx;
+    struct InitLight ilght;
+    memset(&ilght, 0, sizeof(struct InitLight));
+    player->field_4CD = 0;
+    ilght.field_0 = 2560;
+    ilght.field_2 = 48;
+    ilght.field_3 = 5;
+    ilght.is_dynamic = 1;
+    idx = light_create_light(&ilght);
+    player->field_460 = idx;
+    if (idx != 0) {
+        light_set_light_never_cache(idx);
+    } else {
+        WARNLOG("Cannot allocate light to player %d.",(int)player->id_number);
+    }
 }
 
 TbPixel get_player_path_colour(unsigned short owner)
@@ -570,23 +549,23 @@ void init_alpha_table(void)
 
 void setup_stuff(void)
 {
-  char *fname;
-  long i;
-  fname = prepare_file_path(FGrp_StdData,"tables.dat");
-  setup_block_mem();
-  if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
-  {
-    compute_fade_tables(&pixmap,_DK_palette,_DK_palette);
-    LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
-  }
-  lbDisplay.FadeTable = pixmap.fade_tables;
-  // Update black color
-  for (i=0; i < 8192; i++)
-  {
-    if (pixmap.fade_tables[i] == 0)
-      pixmap.fade_tables[i] = 144;
-  }
-  init_alpha_table();
+    char *fname;
+    long i;
+    fname = prepare_file_path(FGrp_StdData,"tables.dat");
+    setup_block_mem();
+    if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
+    {
+      compute_fade_tables(&pixmap,_DK_palette,_DK_palette);
+      LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
+    }
+    lbDisplay.FadeTable = pixmap.fade_tables;
+    // Update black color
+    for (i=0; i < 8192; i++)
+    {
+      if (pixmap.fade_tables[i] == 0)
+        pixmap.fade_tables[i] = 144;
+    }
+    init_alpha_table();
 }
 
 short send_creature_to_room(struct Thing *thing, struct Room *room)
@@ -1054,7 +1033,7 @@ long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
  * @param dmg
  * @param a3
  */
-void apply_damage_to_thing_and_display_health(struct Thing *thing, long dmg, char a3)
+void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, char a3)
 {
     //_DK_apply_damage_to_thing_and_display_health(thing, a1, a2);
     if (dmg > 0)
@@ -1290,170 +1269,6 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long
 void draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4)
 {
   _DK_draw_lightning(pos1, pos2, a3, a4);
-}
-
-/**
- * Determines if an explosion of given hit thing type and owner can affect given thing.
- * Explosions can affect a lot more things than shots. If only the thing isn't invalid,
- * it is by default affected by explosions.
- */
-TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, long explode_owner)
-{
-    if (thing_is_invalid(thing))
-    {
-        WARNLOG("Invalid thing tries to interact with explosion");
-        return false;
-    }
-    switch (hit_type)
-    {
-    case 1:
-        if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
-          return false;
-        return true;
-    case 2:
-        if (thing->class_id != TCls_Creature)
-            return false;
-        return true;
-    case 3:
-        if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
-            return false;
-        if (thing->owner == explode_owner)
-            return false;
-        return true;
-    case 4:
-        if (thing->class_id != TCls_Creature)
-            return false;
-        if (thing->owner == explode_owner)
-            return false;
-        return true;
-    case 7:
-        if (thing->class_id != TCls_Object)
-            return false;
-        if (!thing_is_dungeon_heart(thing))
-            return false;
-        return true;
-    case 8:
-        return true;
-    default:
-        WARNLOG("Illegal hit thing type %d for explosion",(int)hit_type);
-        return true;
-    }
-}
-
-void explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos, long max_dist, long max_damage, long owner)
-{
-    long move_dist,move_angle;
-    long distance,damage;
-    if ( line_of_sight_3d(pos, &tngdst->mappos) )
-    {
-      move_angle = get_angle_xy_to(pos, &tngdst->mappos);
-      distance = get_2d_distance(pos, &tngdst->mappos);
-      if ( distance < max_dist )
-      {
-        move_dist = ((max_dist - distance) << 8) / max_dist;
-        if (tngdst->class_id == TCls_Creature)
-        {
-            // damage = (max_dist - distance) * 300 * max_damage / 256 / max_dist + 1;
-            damage = get_radially_decaying_value(max_damage,max_dist/4,max_dist,distance)+1;
-            apply_damage_to_thing_and_display_health(tngdst, damage, owner);
-        }
-        // If the thing isn't dying, move it
-        if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
-        {
-            tngdst->acceleration.x.val +=   move_dist * LbSinL(move_angle) >> 16;
-            tngdst->acceleration.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
-            tngdst->field_1 |= 0x04;
-        } else
-        {
-            kill_creature(tngdst, tngsrc, -1, 0, 1, 0);
-        }
-      }
-    }
-}
-
-void explosion_affecting_mapblk(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos, long max_dist, long max_damage, unsigned char hit_type)
-{
-    struct Thing *thing;
-    long owner;
-    unsigned long k;
-    long i;
-    if (!thing_is_invalid(tngsrc))
-        owner = tngsrc->owner;
-    else
-        owner = -1;
-    k = 0;
-    i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            WARNLOG("Jump out of things array");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Should never happen - only existing thing shall be in list
-        if (!thing_exists(thing))
-        {
-            WARNLOG("Jump to nonexisting thing");
-            break;
-        }
-        // Per thing processing block
-        if (explosion_can_affect_thing(thing, hit_type, owner))
-        {
-            explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, owner);
-        }
-        // Per thing processing block ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-}
-
-void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
-      long range, long max_damage, unsigned char hit_type)
-{
-    const struct Map *mapblk;
-    long start_x,start_y;
-    long end_x,end_y;
-    long stl_x,stl_y;
-    long max_dist;
-    //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
-    if ((hit_type < 1) || (hit_type >= HIT_TYPES_COUNT))
-    {
-        ERRORLOG("The %s tries to affect area range %d with invalid hit type %d",thing_model_name(tngsrc),(int)range,(int)hit_type);
-        hit_type = 1;
-    }
-    max_dist = (range << 8);
-    if (pos->x.stl.num > range)
-      start_x = pos->x.stl.num - range;
-    else
-      start_x = 0;
-    if (pos->y.stl.num > range)
-      start_y = pos->y.stl.num - range;
-    else
-      start_y = 0;
-    end_x = range + pos->x.stl.num;
-    if (end_x >= map_subtiles_x)
-      end_x = map_subtiles_x;
-    end_y = range + pos->y.stl.num;
-    if (end_y > map_subtiles_y)
-      end_y = map_subtiles_y;
-#if (BFDEBUG_LEVEL > 0)
-    if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
-        create_price_effect(pos, my_player_number, max_damage);
-#endif
-    for (stl_y = start_y; stl_y <= end_y; stl_y++)
-    {
-        for (stl_x = start_x; stl_x <= end_x; stl_x++)
-        {
-            mapblk = get_map_block_at(stl_x, stl_y);
-            explosion_affecting_mapblk(tngsrc, mapblk, pos, max_dist, max_damage, hit_type);
-        }
-    }
 }
 
 struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
@@ -5360,7 +5175,7 @@ void update_all_events(void)
     if (!thing_is_invalid(thing))
     {
       event = &game.event[i];
-      if ((thing->class_id == TCls_Creature) && ((thing->alloc_flags & TAlF_IsInLimbo) || (thing->field_1 & TF1_Unkn02)))
+      if ((thing->class_id == TCls_Creature) && ((thing->alloc_flags & TAlF_IsInLimbo) || (thing->field_1 & TF1_InCtrldLimbo)))
       {
         event->mappos_x = 0;
         event->mappos_y = 0;
@@ -5892,7 +5707,7 @@ struct Thing *get_workshop_box_thing(long owner, long model)
         // Per-thing code
         if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->model == model) && (thing->owner == owner) )
         {
-            if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
+            if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
                 return thing;
         }
         // Per-thing code ends
@@ -7891,7 +7706,7 @@ int main(int argc, char *argv[])
 
   get_cmdln_args(bf_argc, bf_argv);
 
-//TODO: delete when won't be needed anymore
+//TODO DLL_CLEANUP delete when won't be needed anymore
   memcpy(_DK_menu_list,menu_list,40*sizeof(struct GuiMenu *));
   memcpy(_DK_player_instance_info,player_instance_info,17*sizeof(struct PlayerInstanceInfo));
   memcpy(_DK_states,states,145*sizeof(struct StateInfo));
