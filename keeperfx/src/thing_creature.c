@@ -785,61 +785,61 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
 
 void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x, long trg_y)
 {
-  const struct SpellInfo *spinfo;
-  struct CreatureControl *cctrl;
-  struct CreatureStats *crstat;
-  struct Thing *efthing;
-  long i,k;
-  //_DK_creature_cast_spell(caster, spl_idx, a3, trg_x, trg_y);
-  spinfo = get_magic_info(spl_idx);
-  cctrl = creature_control_get_from_thing(caster);
-  crstat = creature_stats_get_from_thing(caster);
-  if (creature_control_invalid(cctrl))
-  {
-    ERRORLOG("Invalid creature tried to cast spell %ld",spl_idx);
-    return;
-  }
-  if (spl_idx == SplK_Teleport)
-  {
-    cctrl->teleport_x = trg_x;
-    cctrl->teleport_y = trg_y;
-  }
-  // Check if the spell can be fired as a shot
-  if (spinfo->field_1)
-  {
-    if ((caster->alloc_flags & TAlF_IsControlled) != 0)
-      i = 1;
-    else
-      i = 4;
-    creature_fire_shot(caster, 0, spinfo->field_1, a3, i);
-  } else
-  // Check if the spell can be self-casted
-  if (spinfo->field_2)
-  {
-    i = (long)spinfo->field_6;
-    if (i > 0)
-      thing_play_sample(caster, i, 100, 0, 3, 0, 4, 256);
-    apply_spell_effect_to_thing(caster, spl_idx, cctrl->explevel);
-  }
-  // Check if the spell has an effect associated
-  if (spinfo->cast_effect != 0)
-  {
-    efthing = create_effect(&caster->mappos, spinfo->cast_effect, caster->owner);
-    if (!thing_is_invalid(efthing))
+    const struct SpellInfo *spinfo;
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Thing *efthing;
+    long i,k;
+    //_DK_creature_cast_spell(caster, spl_idx, a3, trg_x, trg_y);
+    spinfo = get_magic_info(spl_idx);
+    cctrl = creature_control_get_from_thing(caster);
+    crstat = creature_stats_get_from_thing(caster);
+    if (creature_control_invalid(cctrl))
     {
-      if (spinfo->cast_effect == 14)
-        efthing->byte_16 = 3;
+        ERRORLOG("Invalid creature tried to cast spell %ld",spl_idx);
+        return;
     }
-  }
-  // If the spell has area_range, then make area damage
-  if (spinfo->area_range > 0)
-  {
-    // This damage is computed directly, not selected from array, so it
-    // don't have to be limited as others... but let's limit it anyway
-    k = compute_creature_attack_range(spinfo->area_range, crstat->luck, cctrl->explevel);
-    i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, cctrl->explevel);
-    explosion_affecting_area(caster, &caster->mappos, k, i, spinfo->area_hit_type);
-  }
+    if (spl_idx == SplK_Teleport)
+    {
+        cctrl->teleport_x = trg_x;
+        cctrl->teleport_y = trg_y;
+    }
+    // Check if the spell can be fired as a shot
+    if (spinfo->field_1)
+    {
+        if ((caster->alloc_flags & TAlF_IsControlled) != 0)
+          i = 1;
+        else
+          i = 4;
+        creature_fire_shot(caster, 0, spinfo->field_1, a3, i);
+    } else
+    // Check if the spell can be self-casted
+    if (spinfo->field_2)
+    {
+        i = (long)spinfo->field_6;
+        if (i > 0)
+          thing_play_sample(caster, i, 100, 0, 3, 0, 4, 256);
+        apply_spell_effect_to_thing(caster, spl_idx, cctrl->explevel);
+    }
+    // Check if the spell has an effect associated
+    if (spinfo->cast_effect != 0)
+    {
+        efthing = create_effect(&caster->mappos, spinfo->cast_effect, caster->owner);
+        if (!thing_is_invalid(efthing))
+        {
+          if (spinfo->cast_effect == 14)
+            efthing->byte_16 = 3;
+        }
+    }
+    // If the spell has area_range, then make area damage
+    if (spinfo->area_range > 0)
+    {
+        // This damage is computed directly, not selected from array, so it
+        // don't have to be limited as others... but let's limit it anyway
+        k = compute_creature_attack_range(spinfo->area_range, crstat->luck, cctrl->explevel);
+        i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, cctrl->explevel);
+        explosion_affecting_area(caster, &caster->mappos, k, i, 256, spinfo->area_hit_type);
+    }
 }
 
 void update_creature_count(struct Thing *thing)
@@ -2341,7 +2341,7 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
@@ -2371,7 +2371,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
@@ -2401,7 +2401,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
@@ -2431,7 +2431,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
       if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
@@ -2458,7 +2458,7 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1)) // job_idx
       && (thing->active_state != CrSt_CreatureUnconscious) )
     {
@@ -2488,7 +2488,7 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
       && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && (thing->active_state != CrSt_CreatureUnconscious) )
     {
@@ -2647,7 +2647,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
       if (!thing_is_invalid(thing))
       {
         if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->class_id == TCls_Creature)
-          && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+          && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
           && (thing->active_state != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner) )
         {
           dungeon->selected_creatures_of_model[breed_idx] = 0;
@@ -2666,7 +2666,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
       if (!thing_is_invalid(thing))
       {
         if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->class_id == TCls_Creature)
-          && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0)
+          && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
           && (thing->active_state != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner)
           && (get_creature_gui_job(thing) == job_idx) )
         {

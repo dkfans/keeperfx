@@ -104,7 +104,7 @@ long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
     return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) % ANGLE_TRIGL_PERIOD;
 }
 
-long get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+MapCoord get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     long dist_x,dist_y;
     //return _DK_get_2d_distance(pos1, pos2);

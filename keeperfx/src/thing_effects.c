@@ -47,6 +47,7 @@ DLLIMPORT struct Thing *_DK_create_effect(const struct Coord3d *pos, unsigned sh
 DLLIMPORT long _DK_move_effect(struct Thing *thing);
 DLLIMPORT long _DK_move_effect_element(struct Thing *thing);
 DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *thing, long nmodel);
+DLLIMPORT void _DK_explosion_affecting_area(struct Thing *thing, const struct Coord3d *pos, long a3, long a4, unsigned char a5);
 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
@@ -995,7 +996,7 @@ long process_effect_generator(struct Thing *thing)
         } else
         if (egenstat->field_11 == -1)
         {
-            efftng->mappos.z.val = (8 << 8);
+            efftng->mappos.z.val = subtile_coord(8,0);
             k = get_next_gap_creature_can_fit_in_below_point(efftng, &efftng->mappos);
         } else
         {
@@ -1106,32 +1107,80 @@ TbBool destroy_effect_thing(struct Thing *thing)
 }
 
 /**
- * Computes damage the Word Of Power spell should make to given thing.
- * @param efftng The effect thing which represents the spell.
- * @param dsttng The target thing to be affected by the spell.
- * @return The damage points amount.
+ * Affects a thing with explosion effect.
+ *
+ * @param tngsrc The thing which caused the affect.
+ * @param tngdst The thing being affected by the effect.
+ * @param pos Position of the effect epicenter.
+ * @param max_dist Max distance at which creatures are affected, in map coordinates.
+ * @param max_damage Damage at epicenter of the explosion.
+ * @param blow_strength The strength of hitwave blowing creatures out of affected area.
+ * @param owner The owner of the explosion.
+ * @return Gives true if the target thing was affected by the spell, false otherwise.
+ * @note If the function returns true, the effect might have caused death of the target.
  */
-long get_word_of_power_damage(const struct Thing *efftng, const struct Thing *dsttng, long range)
+TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoord max_dist, HitPoints max_damage, long blow_strength, PlayerNumber owner)
 {
-    long distance;
-    distance = get_2d_box_distance(&dsttng->mappos, &efftng->mappos);
-    // TODO: SPELLS the damage and the distance should be in config files.
-    return get_radially_decaying_value(150,range/2,range/2,distance);
+    MapCoord distance;
+    TbBool affected;
+    affected = false;
+    if ( line_of_sight_3d(pos, &tngdst->mappos) )
+    {
+        distance = get_2d_distance(pos, &tngdst->mappos);
+        if ( distance < max_dist )
+        {
+            long move_dist,move_angle;
+            HitPoints damage;
+            move_angle = get_angle_xy_to(pos, &tngdst->mappos);
+            if (tngdst->class_id == TCls_Creature)
+            {
+                damage = get_radially_decaying_value(max_damage,max_dist/4,3*max_dist/4,distance)+1;
+                apply_damage_to_thing_and_display_health(tngdst, damage, owner);
+                affected = true;
+            }
+            // If the thing isn't dying, move it
+            if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
+            {
+                move_dist = ((max_dist - distance) * blow_strength) / max_dist;
+                if (move_dist > 0)
+                {
+                    tngdst->acceleration.x.val +=   move_dist * LbSinL(move_angle) >> 16;
+                    tngdst->acceleration.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
+                    tngdst->field_1 |= TF1_PushdByAccel;
+                    affected = true;
+                }
+            } else
+            {
+                kill_creature(tngdst, tngsrc, -1, 0, 1, 0);
+                affected = true;
+            }
+        }
+    }
+    return affected;
 }
 
 /**
  * Computes and applies damage the Word Of Power spell makes to things at given map block.
  * @param efftng The effect thing which represents the spell.
  * @param owntng The thing being source of the spell.
- * @param mapblk Map block on which are target are to be affected by the spell.
- * @param range Range of the spell on map, used to compute damage decaying with distance.
+ * @param mapblk Map block on which all targets are to be affected by the spell.
+ * @param max_dist Range of the spell on map, used to compute damage decaying with distance; in map coordinates.
+ * @param max_damage Damage at epicenter of the explosion.
+ * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  */
-void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntng, struct Map *mapblk, long range)
+long word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntng, struct Map *mapblk, MapCoord max_dist, HitPoints max_damage, long blow_strength)
 {
     struct Thing *thing;
-    long damage;
+    PlayerNumber owner;
+    long num_affected;
     long i;
     unsigned long k;
+    if (!thing_is_invalid(owntng))
+        owner = owntng->owner;
+    else
+        owner = -1;
+    num_affected = 0;
     k = 0;
     i = get_mapwho_thing_index(mapblk);
     while (i != 0)
@@ -1146,8 +1195,8 @@ void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
         if (effect_can_affect_thing(efftng, thing)
           || ((thing->class_id == TCls_Door) && (thing->owner != owntng->owner)))
         {
-            damage = get_word_of_power_damage(efftng, thing, range);
-            apply_damage_to_thing_and_display_health(thing, damage, owntng->owner);
+            if (explosion_affecting_thing(owntng, thing, &efftng->mappos, max_dist, max_damage, blow_strength, owner))
+                num_affected++;
         }
         k++;
         if (k > THINGS_COUNT)
@@ -1156,6 +1205,7 @@ void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
             break;
         }
     }
+    return num_affected;
 }
 
 /**
@@ -1163,20 +1213,25 @@ void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
  * @param efftng The thing which is WOP effect originator.
  * @param owntng The thing being affected by the spell.
  * @param pos Position where the WOP effect center is.
- * @param range Range of the WOP spell effect.
+ * @param max_dist Range of the WOP spell effect, in map coordinates.
  */
-void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos, long range)
+void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos, MapCoord max_dist)
 {
     struct Map *mapblk;
     long stl_xmin,stl_xmax;
     long stl_ymin,stl_ymax;
     long stl_x,stl_y;
+    HitPoints max_damage;
+    long blow_strength;
+    //TODO CONFIG Damage and blow of WOP shouldn't be hardcoded
+    max_damage = 150;
+    blow_strength = 0;
     if (efftng->field_9 != game.play_gameturn)
         return;
     {
         long stl_range;
         // Make sure the subtile is rounded up, unless the range is really close to lower value
-        stl_range = coord_subtile(range+240);
+        stl_range = coord_subtile(max_dist+240);
         // Position on subtile is not at its start, so add 1 to max values while ignoring the position
         stl_xmin = pos->x.stl.num - stl_range;
         stl_xmax = pos->x.stl.num + stl_range + 1;
@@ -1212,7 +1267,166 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         for (stl_x=stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             mapblk = get_map_block_at(stl_x, stl_y);
-            word_of_power_affecting_map_block(efftng, owntng, mapblk, range);
+            word_of_power_affecting_map_block(efftng, owntng, mapblk, max_dist, max_damage, blow_strength);
+        }
+    }
+}
+
+/**
+ * Determines if an explosion of given hit thing type and owner can affect given thing.
+ * Explosions can affect a lot more things than shots. If only the thing isn't invalid,
+ * it is by default affected by explosions.
+ */
+TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, long explode_owner)
+{
+    if (thing_is_invalid(thing))
+    {
+        WARNLOG("Invalid thing tries to interact with explosion");
+        return false;
+    }
+    switch (hit_type)
+    {
+    case 1:
+        if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
+          return false;
+        return true;
+    case 2:
+        if (thing->class_id != TCls_Creature)
+            return false;
+        return true;
+    case 3:
+        if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
+            return false;
+        if (thing->owner == explode_owner)
+            return false;
+        return true;
+    case 4:
+        if (thing->class_id != TCls_Creature)
+            return false;
+        if (thing->owner == explode_owner)
+            return false;
+        return true;
+    case 7:
+        if (thing->class_id != TCls_Object)
+            return false;
+        if (!thing_is_dungeon_heart(thing))
+            return false;
+        return true;
+    case 8:
+        return true;
+    default:
+        WARNLOG("Illegal hit thing type %d for explosion",(int)hit_type);
+        return true;
+    }
+}
+
+/**
+ * Affects things on a map blocks with explosion effect, if only they should be affected with given hit type.
+ *
+ * @param tngsrc The thing which caused the affect.
+ * @param mapblk Map blocks on which are creatures should be affected.
+ * @param pos Position of the effect epicenter.
+ * @param max_dist Max distance at which creatures are affected, in map coordinates.
+ * @param max_damage Damage at epicenter of the explosion.
+ * @param blow_strength The strength of hitwave blowing creatures out of affected area.
+ * @param hit_type Defines which thibgs are affected.
+ */
+long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
+    MapCoord max_dist, HitPoints max_damage, long blow_strength, unsigned char hit_type)
+{
+    struct Thing *thing;
+    PlayerNumber owner;
+    long num_affected;
+    unsigned long k;
+    long i;
+    if (!thing_is_invalid(tngsrc))
+        owner = tngsrc->owner;
+    else
+        owner = -1;
+    num_affected = 0;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Should never happen - only existing thing shall be in list
+        if (!thing_exists(thing))
+        {
+            WARNLOG("Jump to nonexisting thing");
+            break;
+        }
+        // Per thing processing block
+        if (explosion_can_affect_thing(thing, hit_type, owner))
+        {
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, owner))
+                num_affected++;
+        }
+        // Per thing processing block ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return num_affected;
+}
+
+/**
+ * Affects things on an area with explosion effect, if only they should be affected with given hit type.
+ *
+ * @param tngsrc The thing which caused the effect.
+ * @param pos Position of the effect epicenter.
+ * @param range Range of the effect, in subtiles.
+ * @param max_damage Damage at epicenter of the effect.
+ * @param blow_strength The strength of hitwave blowing creatures out of affected area.
+ * @param hit_type Defines which things are affected.
+ */
+void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
+    MapSubtlCoord range, HitPoints max_damage, long blow_strength, unsigned char hit_type)
+{
+    const struct Map *mapblk;
+    MapSubtlCoord start_x,start_y;
+    MapSubtlCoord end_x,end_y;
+    MapCoord max_dist;
+    //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
+    if ((hit_type < 1) || (hit_type >= HIT_TYPES_COUNT))
+    {
+        ERRORLOG("The %s tries to affect area range %d with invalid hit type %d",thing_model_name(tngsrc),(int)range,(int)hit_type);
+        hit_type = 1;
+    }
+    max_dist = (range << 8);
+    if (pos->x.stl.num > range)
+      start_x = pos->x.stl.num - range;
+    else
+      start_x = 0;
+    if (pos->y.stl.num > range)
+      start_y = pos->y.stl.num - range;
+    else
+      start_y = 0;
+    end_x = range + pos->x.stl.num;
+    if (end_x >= map_subtiles_x)
+      end_x = map_subtiles_x;
+    end_y = range + pos->y.stl.num;
+    if (end_y > map_subtiles_y)
+      end_y = map_subtiles_y;
+#if (BFDEBUG_LEVEL > 0)
+    if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
+        create_price_effect(pos, my_player_number, max_damage);
+#endif
+    MapSubtlCoord stl_x,stl_y;
+    for (stl_y = start_y; stl_y <= end_y; stl_y++)
+    {
+        for (stl_x = start_x; stl_x <= end_x; stl_x++)
+        {
+            mapblk = get_map_block_at(stl_x, stl_y);
+            explosion_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage, blow_strength, hit_type);
         }
     }
 }
