@@ -340,9 +340,6 @@ long check_out_unprettied_place(struct Thing *thing)
 long check_out_undug_place(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    struct MapTask* mtask;
-    SubtlCodedCoords task_pos;
-    long task_idx;
     long stl_x,stl_y;
     long mv_x,mv_y;
     long i,n;
@@ -354,6 +351,9 @@ long check_out_undug_place(struct Thing *thing)
     n = ACTION_RANDOM(4);
     for (i=0; i < 4; i++)
     {
+        struct MapTask* mtask;
+        SubtlCodedCoords task_pos;
+        long task_idx;
         task_pos = get_subtile_number(3*(map_to_slab[stl_x]+small_around[n].delta_x) + 1,
                                       3*(map_to_slab[stl_y]+small_around[n].delta_y) + 1);
         task_idx = find_dig_from_task_list(thing->owner, task_pos);
@@ -366,12 +366,12 @@ long check_out_undug_place(struct Thing *thing)
                 cctrl->word_91 = task_idx;
                 cctrl->word_8F = task_pos;
                 mtask = get_task_list_entry(thing->owner, cctrl->word_91);
-                if (mtask->field_0 == 2)
+                if (mtask->kind == SDDigTask_MineGold)
                 {
-                  thing->continue_state = CrSt_ImpArrivesAtDigOrMine2;
+                  thing->continue_state = CrSt_ImpArrivesAtMineGold;
                 } else
                 {
-                  thing->continue_state = CrSt_ImpArrivesAtDigOrMine1;
+                  thing->continue_state = CrSt_ImpArrivesAtDigDirt;
                 }
                 return 1;
             }
@@ -519,7 +519,7 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
   int i;
   SYNCDBG(18,"Starting");
   k = 0;
-  i = game.thing_lists[7].index;
+  i = game.thing_lists[TngList_Traps].index;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -563,7 +563,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
   if ( !dungeon_has_room(dungeon, RoK_WORKSHOP) || room_is_invalid(room) )
     return false;
   k = 0;
-  i = game.thing_lists[2].index;
+  i = game.thing_lists[TngList_Objects].index;
   while (i != 0)
   {
     thing = thing_get(i);
@@ -1265,12 +1265,12 @@ long check_out_imp_stack(struct Thing *thing)
             cctrl->word_8F = istack->field_0;
             cctrl->digger.last_did_job = 1;
             task = get_dungeon_task_list_entry(dungeon, i);
-            if (task->field_0 == 2)
+            if (task->kind == SDDigTask_MineGold)
             {
-              thing->continue_state = CrSt_ImpArrivesAtDigOrMine2;
+              thing->continue_state = CrSt_ImpArrivesAtMineGold;
             } else
             {
-              thing->continue_state = CrSt_ImpArrivesAtDigOrMine1;
+              thing->continue_state = CrSt_ImpArrivesAtDigDirt;
             }
             return 1;
 

@@ -56,6 +56,7 @@ enum TbFileGroups {
         FGrp_LandView,
         FGrp_CrtrData,
         FGrp_CmpgCrtrs,
+        FGrp_CmpgConfig,
 };
 
 enum TbFeature {

@@ -419,7 +419,7 @@ TbBool move_imp_to_uncrowded_dig_mine_access_point(struct Thing *thing, SubtlCod
         return false;
     if (!setup_person_move_to_position(thing, pos_x, pos_y, 0))
         return false;
-    thing->continue_state = CrSt_ImpArrivesAtDigOrMine1;
+    thing->continue_state = CrSt_ImpArrivesAtDigDirt;
     return true;
 }
 
@@ -439,10 +439,10 @@ short imp_arrives_at_dig_or_mine(struct Thing *thing)
         }
     } else
     {
-        if (thing->active_state == CrSt_ImpArrivesAtDigOrMine1)
-            internal_set_thing_state(thing, CrSt_ImpDigsMines1);
+        if (thing->active_state == CrSt_ImpArrivesAtDigDirt)
+            internal_set_thing_state(thing, CrSt_ImpDigsDirt);
         else
-            internal_set_thing_state(thing, CrSt_ImpDigsMines2);
+            internal_set_thing_state(thing, CrSt_ImpMinesGold);
     }
     return 1;
 }
@@ -592,7 +592,7 @@ short imp_digs_mines(struct Thing *thing)
       return 1;
     }
 
-    if (mtask->field_0 == 0)
+    if (mtask->kind == SDDigTask_None)
     {
         clear_creature_instance(thing);
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
@@ -604,7 +604,7 @@ short imp_digs_mines(struct Thing *thing)
         set_creature_instance(thing, CrInst_DIG, 0, 0, 0);
     }
 
-    if (mtask->field_0 == 2)
+    if (mtask->kind == SDDigTask_MineGold)
     {
         crstat = creature_stats_get_from_thing(thing);
         // If the creature holds more gold than its able

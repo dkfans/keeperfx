@@ -837,8 +837,6 @@ DLLIMPORT long _DK_heap_size;
 #define heap_size _DK_heap_size
 DLLIMPORT unsigned char *_DK_heap;
 #define heap _DK_heap
-DLLIMPORT struct InitEffect _DK_effect_info[];
-#define effect_info _DK_effect_info
 DLLIMPORT unsigned char _DK_temp_pal[768];
 #define temp_pal _DK_temp_pal
 DLLIMPORT unsigned char *_DK_lightning_palette;
