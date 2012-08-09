@@ -157,6 +157,7 @@ typedef unsigned short CrtrStateId;
 typedef unsigned short SpellKind;
 typedef unsigned short PowerKind;
 typedef short BattleIndex;
+typedef long HitPoints;
 
 
 struct Coord2d {

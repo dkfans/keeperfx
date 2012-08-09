@@ -200,7 +200,7 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
+        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
         {
             if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) ) {
                 victims_count++;
@@ -239,7 +239,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
+        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
         {
             if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
             {
@@ -679,13 +679,13 @@ short creature_hero_entering(struct Thing *thing)
         if (cleanup_cb != NULL)
         {
             cleanup_cb(thing);
-            thing->field_1 |= 0x10;
+            thing->field_1 |= TF1_Unkn10;
         } else
         {
           clear_creature_instance(thing);
         }
         thing->continue_state = 0;
-        thing->field_1 &= ~0x10;
+        thing->field_1 &= ~TF1_Unkn10;
         thing->active_state = CrSt_CreatureDormant;
         cctrl->field_80 = 0;
         cctrl->field_302 = 0;

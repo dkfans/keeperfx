@@ -64,6 +64,8 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing);
 long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb);
 long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb);
 
+long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
+
 TbBool update_creature_health_to_max(struct Thing *thing);
 void apply_health_to_thing_and_display_health(struct Thing *thing, long amount);
 void apply_damage_to_thing(struct Thing *thing, long a2, char a3);

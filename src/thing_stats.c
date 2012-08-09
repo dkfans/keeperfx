@@ -187,6 +187,26 @@ TbBool things_stats_debug_dump(void)
     return false;
 }
 
+/**
+ * Returns a value which decays around some epicenter, like blast damage.
+ *
+ * @param magnitude Magnitude in nearest whereabouts of the epicenter.
+ * @param decay_start Distance after which the magnitude starts decaying.
+ * @param decay_length Length of the decaying region.
+ * @param distance Distance at which we want to compute the value.
+ * @return Value at specified distane from epicenter.
+ */
+long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
+{
+  if (distance >= decay_start+decay_length)
+    return 0;
+  else
+  if (distance >= decay_start)
+    return magnitude * (decay_length - (distance-decay_start)) / decay_length;
+  else
+    return magnitude;
+}
+
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 {
     struct CreatureStats *crstat;

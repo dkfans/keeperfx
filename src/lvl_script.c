@@ -2470,7 +2470,7 @@ long script_support_create_thing_at_hero_door(long gate_num, unsigned char tngcl
     } else {
         thing->acceleration.z.val += ACTION_RANDOM(96) + 80;
     }
-    thing->field_1 |= 0x04;
+    thing->field_1 |= TF1_PushdByAccel;
 
     if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
     {

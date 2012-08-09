@@ -45,7 +45,8 @@ const struct NamedCommand cmpgn_common_commands[] = {
   {"LEVELS_LOCATION",    10},
   {"LAND_LOCATION",      11},
   {"CREATURES_LOCATION", 12},
-  {"CREDITS",            13},
+  {"CONFIGS_LOCATION",   13},
+  {"CREDITS",            14},
   {NULL,                  0},
   };
 
@@ -130,6 +131,7 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   memset(campgn->speech_location,0,DISKPATH_SIZE);
   memset(campgn->land_location,0,DISKPATH_SIZE);
   memset(campgn->creatures_location,0,DISKPATH_SIZE);
+  memset(campgn->configs_location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     campgn->single_levels[i] = 0;
@@ -556,7 +558,13 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
           break;
-      case 13: // CREDITS
+      case 13: // CONFIGS_LOCATION
+          i = get_conf_parameter_whole(buf,&pos,len,campgn->configs_location,DISKPATH_SIZE);
+          if (i <= 0)
+              CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+          break;
+      case 14: // CREDITS
           i = get_conf_parameter_whole(buf,&pos,len,campgn->credits_fname,DISKPATH_SIZE);
           if (i <= 0)
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s file.",
