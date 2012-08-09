@@ -26,6 +26,7 @@
 #include "thing_creature.h"
 #include "thing_effects.h"
 #include "thing_traps.h"
+#include "thing_stats.h"
 #include "creature_control.h"
 #include "room_data.h"
 #include "map_blocks.h"
@@ -285,41 +286,37 @@ long instf_dig(struct Thing *thing, long *param)
     {
       struct MapTask *task;
       task = get_dungeon_task_list_entry(dungeon,task_idx);
-      taskkind = task->field_0;
-      if (task->field_1 != cctrl->word_8F)
+      taskkind = task->kind;
+      if (task->field_1 != cctrl->word_8F) {
         return 0;
+      }
       stl_x = stl_num_decode_x(cctrl->word_8F);
       stl_y = stl_num_decode_y(cctrl->word_8F);
     }
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (slabmap_owner(slb) == thing->owner)
-        dig_damage = game.default_imp_dig_own_damage;
-    else
-        dig_damage = game.default_imp_dig_damage;
-    if (slb->field_4 > dig_damage)
+    if (slabmap_block_invalid(slb)) {
+        return 0;
+    }
+    dig_damage = calculate_damage_did_to_slab_with_single_hit(thing, slb);
+    if (slb->health > dig_damage)
     {
         if (slb->kind != SlbT_GEMS)
-          slb->field_4 -= dig_damage;
+          slb->health -= dig_damage;
         thing_play_sample(thing, 63 + UNSYNC_RANDOM(6), 100, 0, 3, 0, 2, 256);
         create_effect(&thing->mappos, TngEff_Unknown25, thing->owner);
-        if (taskkind == 2)
+        if (taskkind == SDDigTask_MineGold)
         {
-          gold = (dig_damage * (long)game.gold_per_gold_block) / game.block_health[1];
-          if (slb->kind == SlbT_GEMS)
-          {
-            gold /= 6;
-            if (gold <= 1)
-              gold = 1;
-          }
-          thing->creature.gold_carried += gold;
-          dungeon->lvstats.gold_mined += gold;
+            gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, thing->owner, cctrl->explevel, slb);
+            thing->creature.gold_carried += gold;
+            dungeon->lvstats.gold_mined += gold;
         }
         return 0;
     }
+    // slb->health <= dig_damage - we're going to destroy the slab
     remove_from_task_list(thing->owner, task_idx);
-    if (taskkind == 2)
+    if (taskkind == SDDigTask_MineGold)
     {
-        gold = (game.gold_per_gold_block * (long)slb->field_4) / game.block_health[1];
+        gold = calculate_gold_digged_out_of_slab_with_single_hit(slb->health, thing->owner, cctrl->explevel, slb);
         thing->creature.gold_carried += gold;
         dungeon->lvstats.gold_mined += gold;
         mine_out_block(stl_x, stl_y, thing->owner);
@@ -332,7 +329,7 @@ long instf_dig(struct Thing *thing, long *param)
                 output_message(SMsg_DugIntoNewArea, 0, true);
         }
     } else
-    if (taskkind == 1)
+    if (taskkind == SDDigTask_DigEarth)
     {
         dig_out_block(stl_x, stl_y, thing->owner);
         if (dig_has_revealed_area(stl_x, stl_y, thing->owner))
@@ -387,9 +384,9 @@ long instf_destroy(struct Thing *thing, long *param)
       create_effects_on_room_slabs(room, imp_spangle_effects[thing->owner], 0, thing->owner);
       return 0;
     }
-    if (slb->field_4 > 1)
+    if (slb->health > 1)
     {
-        slb->field_4--;
+        slb->health--;
         return 0;
     }
     if (prev_owner != game.neutral_player_num) {

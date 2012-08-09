@@ -34,7 +34,7 @@ extern "C" {
 struct Dungeon;
 
 struct MapTask { // sizeof = 3
-  unsigned char field_0;
+  unsigned char kind;
   unsigned short field_1;
 };
 

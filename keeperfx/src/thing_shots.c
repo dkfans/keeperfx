@@ -354,27 +354,27 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case 1:
         case 2:
         case 4:
-            efftng = create_effect(&shotng->mappos, 1, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Unknown01, shotng->owner);
             break;
         case 5:
-            efftng = create_effect(&shotng->mappos, 13, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Unknown13, shotng->owner);
             if ( !thing_is_invalid(efftng) ) {
                 efftng->byte_16 = 2;
             }
             break;
         case 6:
         case 9:
-            efftng = create_effect(&shotng->mappos, 8, shotng->owner);
+            efftng = create_effect(&shotng->mappos, TngEff_Unknown08, shotng->owner);
             break;
         case 14:
         case 21:
         case 22:
             cctrl = creature_control_get_from_thing(target);
             if ((cctrl->affected_by_spells & 0x02) != 0) {
-                efftng = create_effect(&shotng->mappos, 22, shotng->owner);
+                efftng = create_effect(&shotng->mappos, TngEff_Unknown22, shotng->owner);
             } else
             if (creature_model_bleeds(target->model)) {
-                efftng = create_effect(&shotng->mappos, 6, shotng->owner);
+                efftng = create_effect(&shotng->mappos, TngEff_Unknown06, shotng->owner);
             }
             break;
         }

@@ -40,6 +40,13 @@ enum SpecialDiggerTask {
     DigTsk_PicksUpGoldPile, // 10
 };
 
+enum SpecialDiggerDigTaskKinds {
+    SDDigTask_None = 0,
+    SDDigTask_DigEarth,
+    SDDigTask_MineGold,
+    SDDigTask_Unknown3,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

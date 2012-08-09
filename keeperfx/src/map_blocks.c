@@ -215,7 +215,13 @@ TbBool point_in_map_is_solid(const struct Coord3d *pos)
     return 0;
 }
 
-void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
+/**
+ * Destroys a tall gold slab, replacing it with neutral ground.
+ * @param stl_x Slab subtile digged out, X coordinate.
+ * @param stl_y Slab subtile digged out, Y coordinate.
+ * @param plyr_idx Index of the player who does the digging.
+ */
+void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     MapSlabCoord slb_x,slb_y;
     //_DK_mine_out_block(a1, a2, plyr_idx);
@@ -233,9 +239,16 @@ unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3)
     return _DK_dig_has_revealed_area(a1, a2, a3);
 }
 
-void dig_out_block(long a1, long a2, long a3)
+/**
+ * Destroys a tall dirt or wall slab, replacing it with neutral ground.
+ * @param stl_x Slab subtile digged out, X coordinate.
+ * @param stl_y Slab subtile digged out, Y coordinate.
+ * @param plyr_idx Index of the player who does the digging.
+ */
+void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    _DK_dig_out_block(a1, a2, a3);
+    //TODO Rewrite ASAP - this function causes random memory problems. May be similar to mine_out_block().
+    _DK_dig_out_block(stl_x, stl_y, plyr_idx);
 }
 
 void check_map_explored(struct Thing *thing, long a2, long a3)

@@ -779,7 +779,7 @@ struct Thing *find_gold_hoard_at(unsigned short stl_x, unsigned short stl_y)
         WARNLOG("Jump out of things array");
         break;
       }
-      i = thing->field_2;
+      i = thing->next_on_mapblk;
       // Per-thing block
       if (thing_is_gold_hoard(thing))
           return thing;

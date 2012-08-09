@@ -77,7 +77,7 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
     unsigned long k;
     int i;
     k = 0;
-    i = game.thing_lists[2].index;
+    i = game.thing_lists[TngList_Objects].index;
     while (i != 0)
     {
         thing = thing_get(i);

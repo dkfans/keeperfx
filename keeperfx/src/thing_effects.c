@@ -50,6 +50,8 @@ DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *thing, long 
 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
+//DLLIMPORT struct InitEffect _DK_effect_info[];
+//#define effect_info _DK_effect_info
 //extern struct EffectGeneratorStats _DK_effect_generator_stats[6];
 //#define effect_element_stats _DK_effect_element_stats
 /******************************************************************************/
@@ -61,6 +63,80 @@ struct EffectGeneratorStats effect_generator_stats[] = {
     { 0,  2,  1, 37, 0,256,-15, 15,-15, 15,  0,  0,  0,  0, 0},
     { 2,  5,  1, 37, 0,  0,-15, 15,-15, 15,  0,  0,  0,  0, 0}
 };
+
+struct InitEffect effect_info[] = {
+    { 0, 1,   0,   0,  0,    0,  0,   0,  0,  0,  0, 0, {0}, 0},
+    { 1, 1,  32,  32, -32,  32,  1,  47,  1,  1,  0, 1, { 512, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    { 5, 1,  32,  32, -64,  64,  5,  47,  1,  1,  0, 1, {1024, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  0, 1, {2048, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    {10, 1, 172, 172,-172, 172,  6,  47,  1,  1,  0, 1, {2560, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    {20, 1, 256, 256,-256, 256, 10,  47,  1,  1,  0, 1, {2560, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    { 1, 1,  32,  32, -96,  96,  2,   0, 84, 84,  0, 1, {0}, 1},
+    { 2, 1,  32,  32, -96,  96,  2,   0, 84, 84,  0, 1, {0}, 1},
+    { 2, 1,  64,  64, -96,  96,  4,   0, 84, 84,  0, 1, {0}, 1},
+    { 3, 1,  96,  96, -96,  96,  4,   0, 84, 84,  0, 1, {0}, 1},
+    { 4, 1,  96,  96, -96,  96,  5,   0, 84, 84,  0, 1, {0}, 1},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  1, 1, {0}, 1},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  1, 1, {0}, 1},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  1, 1, {0}, 1},
+    {10, 1, 100, 100,   1,   1, 20, 178, 10, 10,  4, 1, {2560, 52, 0, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    { 1, 1,   1,   1,   1,   1,  1,   0, 11, 11,  0, 1, {0}, 1},
+    {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  0, 1, {0}, 1},
+    {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  0, 1, {0}, 1},
+    {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  0, 1, {0}, 1},
+    { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  0, 1, {0}, 1},
+    { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  0, 1, {0}, 1},
+    { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  0, 1, {0}, 1},
+    { 1, 1,  32,  32, -96,  96,  1,   0, 24, 24,  0, 1, {0}, 1},
+    { 2, 1,  64,  64, -96,  96,  4,   0, 24, 24,  0, 1, {0}, 1},
+    { 3, 1, 128, 128, -96,  96,  4,   0, 24, 24,  0, 1, {0}, 1},
+    { 2, 1,  64,  64, -96,  96,  2,   0, 26, 26,  0, 1, {0}, 1},
+    { 2, 1,  64,  64, -96,  96,  1,   0, 27, 28,  0, 1, {0}, 1},
+    { 3, 1,  64,  64, -96,  96, 10,   0, 26, 28,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 75, 75,  0, 1, {0}, 1},
+    { 1, 1,   1,   1,   1,   1,  1,   0, 40, 40,  0, 1, {0}, 1},
+    {80, 2,   1,   1,   1,   1,  1,   0, 21, 21,  0, 0, {0}, 1},
+    { 8, 1,  64,  64, -64,  64,  1,   0, 47, 47,  0, 1, {0}, 1},
+    { 2, 1,  64,  64, -96,  96,  2,   0, 49, 49,  0, 1, {0}, 1},
+    { 2, 1,  64,  64, -96,  96,  1,   0, 49, 51,  0, 1, {0}, 1},
+    { 3, 1,  64,  64, -96,  96, 10,   0, 50, 51,  0, 1, {0}, 1},
+    { 8, 1,  16,  16, -16,  16,  1,   0, 29, 29,  0, 1, {0}, 0},
+    {32, 1,  32,  32, -32,  32,  2,   0, 26, 28,  0, 1, {0}, 0},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  2, 1, {0}, 1},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  2, 1, {0}, 1},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  2, 1, {0}, 1},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  3, 1, {0}, 0},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  3, 1, {0}, 0},
+    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  3, 1, {0}, 0},
+    {16, 1, 128, 128,-128, 128,  2,  47, 26, 32,  0, 1, {2560, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 0},
+    { 1, 1,  64,  64,-128, 128,  4,   0, 53, 53,  0, 1, {0}, 0},
+    {16, 1,  96,  96, -96,  96,  4,  47, 39, 39,  1, 1, {2560, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    { 5, 1,  64,  64, -64,  64,  4,  39, 75, 75,  0, 1, { 768, 20, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    {60, 3,   1,   1,   1,   1,  2,  54, 55, 58,  0, 1, {0}, 1},
+    {20, 4,   1,   1,   1,   1,  1,  47,  0,  0,  0, 1, {0}, 1},
+    {50, 4,   1,   1,   1,   1,  1,   0,  0,  0,  0, 0, {0}, 0},
+    {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  0, 1, {4096, 50, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    { 1, 1,   1,   1,   1,   1,  1, 112, 61, 61,  0, 1, {0}, 1},
+    { 5, 1, 128, 128,-128, 128,  5,  47,  1,  1,  0, 1, {2048, 45, 1, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    {96, 1, 256, 256,-256, 256,  1, 160, 63, 74,  0, 1, {0}, 0},
+    { 8, 1,  64,  64, -64,  64,  1, 159, 63, 66,  0, 1, {0}, 0},
+    { 8, 1,  64,  64, -64,  64,  1, 159, 67, 70,  0, 1, {0}, 0},
+    { 8, 1,  64,  64, -64,  64,  1, 159, 71, 74,  0, 1, {0}, 0},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 76, 76,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 77, 77,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 78, 78,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 54, 54,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 79, 79,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 80, 80,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 81, 81,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 82, 82,  0, 1, {0}, 1},
+    { 1, 1,  32,  32, 100, 100,  2,   0, 84, 84,  0, 1, {0}, 1},
+    { 1, 1,   1,   1,   1,   1,  2,   0, 85, 85,  0, 1, {0}, 1},
+    { 4, 1,  16,  16, -32,  64,  3,   0, 75, 78,  0, 1, {0}, 1},
+    {10, 1,  20, 150, -80,  80, 20,  36, 27, 29, 29, 1, {2560, 52, 0, 0, 0, 0, {{0},{0},{0}}, 0, 0, 0}, 1},
+    { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0, 0, {0}, 0},
+};
+
 
 struct EffectElementStats effect_element_stats[] = {
    // [0]
@@ -392,6 +468,16 @@ struct EffectElementStats effect_element_stats[] = {
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
 /******************************************************************************/
+struct InitEffect *get_effect_info(ThingModel effmodel)
+{
+    return &effect_info[effmodel];
+}
+
+struct InitEffect *get_effect_info_for_thing(const struct Thing *thing)
+{
+    return &effect_info[thing->model];
+}
+
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, unsigned short owner)
 {
     struct InitLight ilght;
@@ -418,7 +504,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->mappos.x.val = pos->x.val;
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = pos->z.val;
-    thing->field_2 = 0;
+    thing->next_on_mapblk = 0;
     thing->parent_thing_idx = thing->index;
     thing->owner = owner;
     thing->sizexy = 1;
@@ -934,7 +1020,7 @@ long process_effect_generator(struct Thing *thing)
             efftng->field_1 |= 0x04;
             if (egenstat->sound_sample_idx > 0)
             {
-                sectng = create_effect(&efftng->mappos, 49, thing->owner);
+                sectng = create_effect(&efftng->mappos, TngEff_Unknown49, thing->owner);
                 if (!thing_is_invalid(sectng)) {
                     thing_play_sample(sectng, egenstat->sound_sample_idx + ACTION_RANDOM(egenstat->sound_sample_rng), 100, 0, 3, 0, 2, 256);
                 }
@@ -948,7 +1034,7 @@ long process_effect_generator(struct Thing *thing)
     return 1;
 }
 
-struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, unsigned char owner)
+struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner)
 {
     struct Thing *thing;
     struct InitEffect *ieffect;
@@ -968,7 +1054,7 @@ struct Thing *create_effect(const struct Coord3d *pos, unsigned short effmodel, 
     thing->mappos.x.val = pos->x.val;
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = pos->z.val;
-    thing->field_2 = 0;
+    thing->next_on_mapblk = 0;
     thing->owner = owner;
     thing->parent_thing_idx = thing->index;
     thing->field_20 = 0;
@@ -1002,40 +1088,45 @@ void create_special_used_effect(const struct Coord3d *pos, long plyr_idx)
     create_effect(pos, TngEff_Unknown67, plyr_idx);
 }
 
-TbBool destroy_effect_generator(struct Thing *thing)
+TbBool destroy_effect_thing(struct Thing *thing)
 {
-  if (thing->model == 43)
-  {
-      place_slab_type_on_map(12, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner, 0);
-      do_slab_efficiency_alteration(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
-  }
-  if (thing->snd_emitter_id != 0)
-  {
-      // In case of effect, don't stop any sound samples which are still playing
-      S3DDestroySoundEmitter(thing->snd_emitter_id);
-      thing->snd_emitter_id = 0;
-  }
-  delete_thing_structure(thing, 0);
-  return true;
+    if (thing->model == 43)
+    {
+        place_slab_type_on_map(12, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner, 0);
+        do_slab_efficiency_alteration(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
+    }
+    if (thing->snd_emitter_id != 0)
+    {
+        // In case of effect, don't stop any sound samples which are still playing
+        S3DDestroySoundEmitter(thing->snd_emitter_id);
+        thing->snd_emitter_id = 0;
+    }
+    delete_thing_structure(thing, 0);
+    return true;
 }
 
 /**
  * Computes damage the Word Of Power spell should make to given thing.
- * @param efftng The thing being source of the spell.
+ * @param efftng The effect thing which represents the spell.
  * @param dsttng The target thing to be affected by the spell.
+ * @return The damage points amount.
  */
-long get_word_of_power_damage(const struct Thing *efftng, const struct Thing *dsttng)
+long get_word_of_power_damage(const struct Thing *efftng, const struct Thing *dsttng, long range)
 {
     long distance;
     distance = get_2d_box_distance(&dsttng->mappos, &efftng->mappos);
     // TODO: SPELLS the damage and the distance should be in config files.
-    return get_radially_decaying_value(150,640,640,distance);
+    return get_radially_decaying_value(150,range/2,range/2,distance);
 }
 
 /**
  * Computes and applies damage the Word Of Power spell makes to things at given map block.
+ * @param efftng The effect thing which represents the spell.
+ * @param owntng The thing being source of the spell.
+ * @param mapblk Map block on which are target are to be affected by the spell.
+ * @param range Range of the spell on map, used to compute damage decaying with distance.
  */
-void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntng, struct Map *mapblk)
+void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntng, struct Map *mapblk, long range)
 {
     struct Thing *thing;
     long damage;
@@ -1051,11 +1142,11 @@ void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
-        i = thing->field_2;
+        i = thing->next_on_mapblk;
         if (effect_can_affect_thing(efftng, thing)
           || ((thing->class_id == TCls_Door) && (thing->owner != owntng->owner)))
         {
-            damage = get_word_of_power_damage(efftng, thing);
+            damage = get_word_of_power_damage(efftng, thing, range);
             apply_damage_to_thing_and_display_health(thing, damage, owntng->owner);
         }
         k++;
@@ -1069,8 +1160,12 @@ void word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
 
 /**
  * Applies damage the Word Of Power spell makes to all things in the area surrounding given position.
+ * @param efftng The thing which is WOP effect originator.
+ * @param owntng The thing being affected by the spell.
+ * @param pos Position where the WOP effect center is.
+ * @param range Range of the WOP spell effect.
  */
-void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos)
+void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos, long range)
 {
     struct Map *mapblk;
     long stl_xmin,stl_xmax;
@@ -1078,10 +1173,16 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     long stl_x,stl_y;
     if (efftng->field_9 != game.play_gameturn)
         return;
-    stl_xmin = pos->x.stl.num - 5;
-    stl_xmax = pos->x.stl.num + 6;
-    stl_ymin = pos->y.stl.num - 5;
-    stl_ymax = pos->y.stl.num + 6;
+    {
+        long stl_range;
+        // Make sure the subtile is rounded up, unless the range is really close to lower value
+        stl_range = coord_subtile(range+240);
+        // Position on subtile is not at its start, so add 1 to max values while ignoring the position
+        stl_xmin = pos->x.stl.num - stl_range;
+        stl_xmax = pos->x.stl.num + stl_range + 1;
+        stl_ymin = pos->y.stl.num - stl_range;
+        stl_ymax = pos->y.stl.num + stl_range + 1;
+    }
     if (stl_xmin < 0) {
         stl_xmin = 0;
     } else
@@ -1111,14 +1212,14 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         for (stl_x=stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             mapblk = get_map_block_at(stl_x, stl_y);
-            word_of_power_affecting_map_block(efftng, owntng, mapblk);
+            word_of_power_affecting_map_block(efftng, owntng, mapblk, range);
         }
     }
 }
 
-void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long a3, long a4, unsigned char a5)
+void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long a3, long a4, unsigned char area_affect_type)
 {
-    _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, a5);
+    _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, area_affect_type);
 }
 
 long update_effect(struct Thing *thing)
@@ -1133,7 +1234,7 @@ long update_effect(struct Thing *thing)
         subtng = thing_get(thing->parent_thing_idx);
     }
     if (thing->health <= 0) {
-        destroy_effect_generator(thing);
+        destroy_effect_thing(thing);
         return 0;
     }
     update_effect_light_intensity(thing);
@@ -1150,7 +1251,7 @@ long update_effect(struct Thing *thing)
         poison_cloud_affecting_area(subtng, &thing->mappos, 1280, 60, effnfo->area_affect_type);
         break;
     case 4:
-        word_of_power_affecting_area(thing, subtng, &thing->mappos);
+        word_of_power_affecting_area(thing, subtng, &thing->mappos, 1280);
         break;
     }
     thing->health--;

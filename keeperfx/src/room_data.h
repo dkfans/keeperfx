@@ -204,7 +204,7 @@ TbBool room_has_enough_free_capacity_for_creature(const struct Room *room, const
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
-TbBool create_effects_on_room_slabs(struct Room *room, long effkind, long effrange, long effowner);
+TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner);
 TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);
 
 /* MOVE TO room_list.c/h */

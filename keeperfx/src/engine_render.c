@@ -3653,7 +3653,7 @@ void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
-        i = thing->field_2;
+        i = thing->next_on_mapblk;
         draw_frontview_thing_on_element(thing, map, cam);
         k++;
         if (k > THINGS_COUNT)

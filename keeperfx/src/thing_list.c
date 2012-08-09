@@ -94,47 +94,47 @@ void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)
         return;
     if (thing->index == slist->index)
     {
-      slist->index = thing->next_of_class;
-      if (thing->next_of_class > 0)
-      {
-          sibtng = thing_get(thing->next_of_class);
-          if (!thing_is_invalid(sibtng))
-          {
-              sibtng->prev_of_class = 0;
-          }
-      }
-      thing->next_of_class = 0;
-      thing->prev_of_class = 0;
+        slist->index = thing->next_of_class;
+        if (thing->next_of_class > 0)
+        {
+            sibtng = thing_get(thing->next_of_class);
+            if (!thing_is_invalid(sibtng))
+            {
+                sibtng->prev_of_class = 0;
+            }
+        }
+        thing->next_of_class = 0;
+        thing->prev_of_class = 0;
     } else
     {
-      if (thing->prev_of_class > 0)
-      {
-          sibtng = thing_get(thing->prev_of_class);
-          if (!thing_is_invalid(sibtng))
-          {
-              sibtng->next_of_class = thing->next_of_class;
-          }
-      }
-      if (thing->next_of_class > 0)
-      {
-          sibtng = thing_get(thing->next_of_class);
-          if (!thing_is_invalid(sibtng))
-          {
-              sibtng->prev_of_class = thing->prev_of_class;
-          }
-      }
-      thing->prev_of_class = 0;
-      thing->next_of_class = 0;
+        if (thing->prev_of_class > 0)
+        {
+            sibtng = thing_get(thing->prev_of_class);
+            if (!thing_is_invalid(sibtng))
+            {
+                sibtng->next_of_class = thing->next_of_class;
+            }
+        }
+        if (thing->next_of_class > 0)
+        {
+            sibtng = thing_get(thing->next_of_class);
+            if (!thing_is_invalid(sibtng))
+            {
+                sibtng->prev_of_class = thing->prev_of_class;
+            }
+        }
+        thing->prev_of_class = 0;
+        thing->next_of_class = 0;
     }
     thing->alloc_flags &= ~TAlF_IsInStrucList;
     if (slist->count <= 0) {
-      ERRORLOG("List has < 0 structures");
-      return;
+        ERRORLOG("List has < 0 structures");
+        return;
     }
     slist->count--;
 }
 
-struct StructureList *get_list_for_thing_class(long class_id)
+struct StructureList *get_list_for_thing_class(ThingClass class_id)
 {
     switch (class_id)
     {
@@ -173,8 +173,9 @@ void remove_thing_from_its_class_list(struct Thing *thing)
 {
     struct StructureList *slist;
     slist = get_list_for_thing_class(thing->class_id);
-    if (slist != NULL)
+    if (slist != NULL) {
         remove_thing_from_list(thing, slist);
+    }
 }
 
 /** Adds the given thing to a linked list which contains all things of the same class.
@@ -703,7 +704,7 @@ struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord s
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
-        i = thing->field_2;
+        i = thing->next_on_mapblk;
         // Per-thing code
         if (thing->class_id == TCls_Object)
         {
@@ -1193,7 +1194,7 @@ struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer
         ERRORLOG("Jump to invalid thing detected");
         break;
       }
-      i = thing->field_2;
+      i = thing->next_on_mapblk;
       // Begin per-loop code
       n = filter(thing, param, *maximizer);
       if (n >= *maximizer)
@@ -1539,13 +1540,13 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl
       WARNLOG("Jump out of things array");
       break;
     }
-    i = thing->field_2;
+    i = thing->next_on_mapblk;
     // Per thing processing block
     if ((thing->class_id == TCls_Creature) && (thing != excltng))
     {
         if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0) )
         {
-            if ((thing->active_state == CrSt_ImpDigsMines1) || (thing->active_state == CrSt_ImpDigsMines2))
+            if ((thing->active_state == CrSt_ImpDigsDirt) || (thing->active_state == CrSt_ImpMinesGold))
             {
                 return true;
             }
@@ -1585,7 +1586,7 @@ struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
       WARNLOG("Jump out of things array");
       break;
     }
-    i = thing->field_2;
+    i = thing->next_on_mapblk;
     // Per thing processing block
     if ((thing->class_id == TCls_Object) && (thing->model == 43))
     {
@@ -1663,7 +1664,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
       WARNLOG("Jump out of things array");
       break;
     }
-    i = thing->field_2;
+    i = thing->next_on_mapblk;
     // Per thing processing block
     if ((thing->class_id == TCls_Object) && (thing->model == 43))
     {

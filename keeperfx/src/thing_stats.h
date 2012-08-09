@@ -31,6 +31,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
+struct SlabMap;
 
 #pragma pack()
 /******************************************************************************/
@@ -59,6 +60,9 @@ long compute_controlled_speed_decrease(long prev_speed, long speed_limit);
 long compute_value_percentage(long base_val, short npercent);
 long compute_value_8bpercentage(long base_val, short npercent);
 long calculate_correct_creature_maxspeed(const struct Thing *thing);
+
+long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb);
+long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb);
 
 TbBool update_creature_health_to_max(struct Thing *thing);
 void apply_health_to_thing_and_display_health(struct Thing *thing, long amount);

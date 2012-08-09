@@ -81,7 +81,7 @@ long find_dig_from_task_list(long plyr_idx, long srch_tsk)
     for (i=0; i < max; i++)
     {
       task = &dungeon->task_list[i];
-      if ((task->field_1 == srch_tsk) && (task->field_0 != 3))
+      if ((task->field_1 == srch_tsk) && (task->kind != 3))
         return i;
     }
     return -1;
@@ -97,7 +97,7 @@ long find_next_dig_in_dungeon_task_list(struct Dungeon *dungeon, long last_dig)
     for (i=last_dig+1; i < max; i++)
     {
       task = &dungeon->task_list[i];
-      if ((task->field_0 != 0) && (task->field_0 != 3))
+      if ((task->kind != 0) && (task->kind != 3))
         return i;
     }
     return -1;
