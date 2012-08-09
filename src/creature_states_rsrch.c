@@ -321,7 +321,7 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
             ERRORLOG("Jump to invalid thing detected");
             break;
         }
-        i = thing->field_2;
+        i = thing->next_on_mapblk;
         // Per thing code start
         if ( thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind) )
         {

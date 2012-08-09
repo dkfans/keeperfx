@@ -220,7 +220,7 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
   init_creature_level(crthing, cctrl->explevel);
   set_start_state(crthing);
   if (creature_model_bleeds(thing->model))
-    create_effect_around_thing(thing, 10);
+    create_effect_around_thing(thing, TngEff_Unknown10);
   kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
   dungeon = get_dungeon(room->owner);
   if (!dungeon_invalid(dungeon))

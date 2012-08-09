@@ -79,7 +79,7 @@ struct SlabMap {
       SlabType kind;
       short next_in_room;
       unsigned char room_index;
-      unsigned char field_4;
+      unsigned char health;
       unsigned char field_5;
 };
 
@@ -110,14 +110,14 @@ TbBool slab_kind_is_animated(SlabType slbkind);
 struct SlabMap *get_slabmap_block(MapSlabCoord slab_x, MapSlabCoord slab_y);
 struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct SlabMap *get_slabmap_direct(SlabCodedCoords slab_num);
-TbBool slabmap_block_invalid(struct SlabMap *slb);
-long slabmap_owner(struct SlabMap *slb);
+TbBool slabmap_block_invalid(const struct SlabMap *slb);
+long slabmap_owner(const struct SlabMap *slb);
 void slabmap_set_owner(struct SlabMap *slb, long owner);
-void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long owner);
+void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner);
 unsigned long slabmap_wlb(struct SlabMap *slb);
 void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);
 long get_next_slab_number_in_room(long slab_num);
-long calculate_effeciency_score_for_room_slab(long slab_num, long plyr_idx);
+long calculate_effeciency_score_for_room_slab(long slab_num, PlayerNumber plyr_idx);
 TbBool slab_is_safe_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
 

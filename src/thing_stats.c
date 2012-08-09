@@ -123,7 +123,7 @@ TbBool things_stats_debug_dump(void)
     struct Thing * thing;
     int count[THING_CLASSES_COUNT];
     int realcnt[THING_CLASSES_COUNT];
-    int total,rltotal;
+    int total,rltotal,rldiffers;
     int i;
     for (i=0; i < THING_CLASSES_COUNT; i++) {
         count[i] = 0;
@@ -158,14 +158,18 @@ TbBool things_stats_debug_dump(void)
         );
     for (i=1; i < THINGS_COUNT; i++) {
         thing = thing_get(i);
-        if (thing_exists(thing))
+        if (thing_exists(thing)) {
             realcnt[thing->class_id]++;
+        }
     }
     rltotal = 0;
+    rldiffers = 0;
     for (i=0; i < THING_CLASSES_COUNT; i++) {
         rltotal += realcnt[i];
+        if (realcnt[i] != count[i])
+            rldiffers++;
     }
-    if (rltotal != total) {
+    if (rldiffers) {
         WARNMSG("Real: Creats%d, Objs%d, Bods%d, Trps%d, Drs%d, Shts%d, Effs%d, EffEls%d Othrs%d Total%d",
             realcnt[TCls_Creature],
             realcnt[TCls_Object],
@@ -568,6 +572,26 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
     }
 }
 
+long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb)
+{
+    long dig_damage;
+    if (slabmap_owner(slb) == diggertng->owner)
+        dig_damage = game.default_imp_dig_own_damage;
+    else
+        dig_damage = game.default_imp_dig_damage;
+    return dig_damage;
+}
+
+long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb)
+{
+    long gold;
+    gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[1];
+    if (slb->kind == SlbT_GEMS)
+      gold /= 6;
+    if (gold <= 1)
+      return 1;
+    return gold;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

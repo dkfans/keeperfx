@@ -69,7 +69,7 @@ short field_0;
 unsigned char field_2;
 unsigned char field_3;
 short field_4;
-unsigned char field_6[2];
+short field_6;
 short field_8;
     struct Coord3d mappos;
 unsigned char field_10;

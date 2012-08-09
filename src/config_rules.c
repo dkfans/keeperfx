@@ -245,7 +245,7 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
   return false;
 }
 
-TbBool parse_rules_game_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_game_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
   long pos;
   int k,n;
@@ -253,14 +253,39 @@ TbBool parse_rules_game_blocks(char *buf,long len,const char *config_textname)
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  if ((flags & CMLd_AcceptPartial) == 0)
+  {
+      game.gold_per_gold_block = 1000;
+      game.pot_of_gold_holds = 1000;
+      game.gold_pile_value = 500;
+      game.gold_pile_maximum = 2500;
+      game.food_life_out_of_hatchery = 100;
+      game.boulder_reduce_health_slap = 10;
+      game.boulder_reduce_health_wall = 10;
+      game.boulder_reduce_health_room = 10;
+      game.tile_strength = 40;
+      game.gold_tile_strength = 400;
+      game.minimum_gold = 100;
+      game.max_gold_lookup = 4000;
+      game.min_gold_to_record = 10;
+      game.pay_day_gap = 3600;
+      game.chest_gold_hold = 1000;
+      game.dungeon_heart_health = 100;
+      game.objects_config[5].health = 100;
+      game.dungeon_heart_heal_time = 10;
+      game.dungeon_heart_heal_health = 1;
+      game.hero_door_wait_time = 100;
+      gameadd.classic_bugs_flags = ClscBug_None;
+  }
   // Find the block
   sprintf(block_buf,"game");
   pos = 0;
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CMLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_game_commands,cmd_num)
   while (pos<len)
@@ -572,7 +597,7 @@ TbBool parse_rules_game_blocks(char *buf,long len,const char *config_textname)
   return true;
 }
 
-TbBool parse_rules_computer_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_computer_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
   long pos;
   int k,n;
@@ -580,14 +605,20 @@ TbBool parse_rules_computer_blocks(char *buf,long len,const char *config_textnam
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  // Default values
+  if ((flags & CMLd_AcceptPartial) == 0)
+  {
+      //TODO
+  }
   // Find the block
   sprintf(block_buf,"computer");
   pos = 0;
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CMLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_computer_commands,cmd_num)
   while (pos<len)
@@ -669,7 +700,7 @@ TbBool parse_rules_computer_blocks(char *buf,long len,const char *config_textnam
   return true;
 }
 
-TbBool parse_rules_creatures_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_creatures_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
   long pos;
   int k,n;
@@ -677,14 +708,20 @@ TbBool parse_rules_creatures_blocks(char *buf,long len,const char *config_textna
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  // Default values
+  if ((flags & CMLd_AcceptPartial) == 0)
+  {
+      //TODO
+  }
   // Find the block
   sprintf(block_buf,"creatures");
   pos = 0;
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CMLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_creatures_commands,cmd_num)
   while (pos<len)
@@ -815,7 +852,7 @@ TbBool parse_rules_creatures_blocks(char *buf,long len,const char *config_textna
   return true;
 }
 
-TbBool parse_rules_magic_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_magic_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
   long pos;
   int k,n;
@@ -823,14 +860,20 @@ TbBool parse_rules_magic_blocks(char *buf,long len,const char *config_textname)
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  // Default values
+  if ((flags & CMLd_AcceptPartial) == 0)
+  {
+      //TODO
+  }
   // Find the block
   sprintf(block_buf,"magic");
   pos = 0;
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CMLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_magic_commands,cmd_num)
   while (pos<len)
@@ -1016,7 +1059,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len,const char *config_textname)
   return true;
 }
 
-TbBool parse_rules_rooms_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_rooms_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
   long pos;
   int k,n;
@@ -1024,14 +1067,20 @@ TbBool parse_rules_rooms_blocks(char *buf,long len,const char *config_textname)
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  // Default values
+  if ((flags & CMLd_AcceptPartial) == 0)
+  {
+      //TODO
+  }
   // Find the block
   sprintf(block_buf,"rooms");
   pos = 0;
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CMLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_rooms_commands,cmd_num)
   while (pos<len)
@@ -1213,7 +1262,7 @@ TbBool parse_rules_rooms_blocks(char *buf,long len,const char *config_textname)
   return true;
 }
 
-TbBool parse_rules_workers_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_workers_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
   long pos;
   int k,n;
@@ -1221,14 +1270,20 @@ TbBool parse_rules_workers_blocks(char *buf,long len,const char *config_textname
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  // Default values
+  if ((flags & CMLd_AcceptPartial) == 0)
+  {
+      //TODO
+  }
   // Find the block
   sprintf(block_buf,"workers");
   pos = 0;
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CMLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_workers_commands,cmd_num)
   while (pos<len)
@@ -1319,7 +1374,7 @@ TbBool parse_rules_workers_blocks(char *buf,long len,const char *config_textname
   return true;
 }
 
-TbBool parse_rules_health_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_health_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
   long pos;
   int k,n;
@@ -1327,14 +1382,24 @@ TbBool parse_rules_health_blocks(char *buf,long len,const char *config_textname)
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  // Default values
+  if ((flags & CMLd_AcceptPartial) == 0)
+  {
+      game.hunger_health_loss = 1;
+      game.turns_per_hunger_health_loss = 100;
+      game.food_health_gain = 10;
+      game.torture_health_loss = 5;
+      game.turns_per_torture_health_loss = 100;
+  }
   // Find the block
   sprintf(block_buf,"health");
   pos = 0;
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CMLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_health_commands,cmd_num)
   while (pos<len)
@@ -1469,7 +1534,7 @@ long get_research_id(long item_type, char *trg_name, const char *func_name)
   return item_id;
 }
 
-TbBool parse_rules_research_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_research_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
   long pos;
   int i,k,l,n;
@@ -1477,14 +1542,20 @@ TbBool parse_rules_research_blocks(char *buf,long len,const char *config_textnam
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  // Default values
+  if ((flags & CMLd_AcceptPartial) == 0)
+  {
+      //TODO
+  }
   // Find the block
   sprintf(block_buf,"research");
   pos = 0;
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CMLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_research_commands,cmd_num)
   while (pos<len)
@@ -1539,272 +1610,307 @@ TbBool parse_rules_research_blocks(char *buf,long len,const char *config_textnam
   return true;
 }
 
-TbBool parse_rules_sacrifices_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_rules_sacrifices_blocks(char *buf,long len,const char *config_textname,unsigned short flags)
 {
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
-  struct SacrificeRecipe *sac;
-  // Clear previous data
-  clear_sacrifice_recipes();
-  // Find the block
-  sprintf(block_buf,"sacrifices");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
-  if (k < 0)
-  {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
-  }
+    long pos;
+    int i,k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
+    struct SacrificeRecipe *sac;
+    // Find the block
+    sprintf(block_buf,"sacrifices");
+    pos = 0;
+    k = find_conf_block(buf,&pos,len,block_buf);
+    if (k < 0)
+    {
+        if ((flags & CMLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
+    }
+    // If the block exists, clear previous data
+    clear_sacrifice_recipes();
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_sacrifices_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,rules_sacrifices_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // MKCREATURE
-      case 2: // MKGOODHERO
-          i = 0;
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = get_id(creature_desc, word_buf);
-          }
-          if (i <= 0)
-          {
-            CONFWRNLOG("Incorrect creature \"%s\" in [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
-            break;
-          }
-          sac = get_unused_sacrifice_recipe_slot();
-          if (sac <= &gameadd.sacrifice_recipes[0])
-          {
-            CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
-            break;
-          }
-          sac->action = cmd_num;
-          sac->param = i;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = get_id(creature_desc, word_buf);
-            if (i > 0)
+    while (pos<len)
+    {
+        // Finding command number in this line
+        cmd_num = recognize_conf_command(buf,&pos,len,rules_sacrifices_commands);
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        n = 0;
+        switch (cmd_num)
+        {
+        case 1: // MKCREATURE
+        case 2: // MKGOODHERO
+            i = 0;
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              if (add_sacrifice_victim(sac,i))
-              {
-                n++;
-              } else
-              {
-                CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
+              i = get_id(creature_desc, word_buf);
+            }
+            if (i <= 0)
+            {
+              CONFWRNLOG("Incorrect creature \"%s\" in [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
-                break;
+              break;
+            }
+            sac = get_unused_sacrifice_recipe_slot();
+            if (sac <= &gameadd.sacrifice_recipes[0])
+            {
+              CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+            }
+            sac->action = cmd_num;
+            sac->param = i;
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              i = get_id(creature_desc, word_buf);
+              if (i > 0)
+              {
+                if (add_sacrifice_victim(sac,i))
+                {
+                  n++;
+                } else
+                {
+                  CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
+                    word_buf,block_buf,config_textname);
+                  break;
+                }
               }
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
-            break;
-          }
-          n++; // delayed increase for first argument
-          break;
-      case 3: // NEGSPELLALL
-      case 4: // POSSPELLALL
-          i = 0;
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = get_id(spell_desc, word_buf);
-          }
-          if (i <= 0)
-          {
-            CONFWRNLOG("Incorrect creature spell \"%s\" in [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
-            break;
-          }
-          sac = get_unused_sacrifice_recipe_slot();
-          if (sac <= &gameadd.sacrifice_recipes[0])
-          {
-            CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
-            break;
-          }
-          sac->action = cmd_num;
-          sac->param = i;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = get_id(creature_desc, word_buf);
-            if (i > 0)
+            if (n < 1)
             {
-              if (add_sacrifice_victim(sac,i))
-              {
-                n++;
-              } else
-              {
-                CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
+              CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
-                break;
+              break;
+            }
+            n++; // delayed increase for first argument
+            break;
+        case 3: // NEGSPELLALL
+        case 4: // POSSPELLALL
+            i = 0;
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              i = get_id(spell_desc, word_buf);
+            }
+            if (i <= 0)
+            {
+              CONFWRNLOG("Incorrect creature spell \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+            }
+            sac = get_unused_sacrifice_recipe_slot();
+            if (sac <= &gameadd.sacrifice_recipes[0])
+            {
+              CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+            }
+            sac->action = cmd_num;
+            sac->param = i;
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              i = get_id(creature_desc, word_buf);
+              if (i > 0)
+              {
+                if (add_sacrifice_victim(sac,i))
+                {
+                  n++;
+                } else
+                {
+                  CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
+                    word_buf,block_buf,config_textname);
+                  break;
+                }
               }
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
-            break;
-          }
-          n++; // delayed increase for first argument
-          break;
-      case 5: // NEGUNIQFUNC
-      case 6: // POSUNIQFUNC
-          i = 0;
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = get_id(sacrifice_unique_desc, word_buf);
-          }
-          if (i <= 0)
-          {
-            CONFWRNLOG("Incorrect unique function \"%s\" in [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
-            break;
-          }
-          sac = get_unused_sacrifice_recipe_slot();
-          if (sac <= &gameadd.sacrifice_recipes[0])
-          {
-            CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
-            break;
-          }
-          sac->action = cmd_num;
-          sac->param = i;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            i = get_id(creature_desc, word_buf);
-            if (i > 0)
+            if (n < 1)
             {
-              if (add_sacrifice_victim(sac,i))
-              {
-                n++;
-              } else
-              {
-                CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
+              CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
-                break;
+              break;
+            }
+            n++; // delayed increase for first argument
+            break;
+        case 5: // NEGUNIQFUNC
+        case 6: // POSUNIQFUNC
+            i = 0;
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              i = get_id(sacrifice_unique_desc, word_buf);
+            }
+            if (i <= 0)
+            {
+              CONFWRNLOG("Incorrect unique function \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+            }
+            sac = get_unused_sacrifice_recipe_slot();
+            if (sac <= &gameadd.sacrifice_recipes[0])
+            {
+              CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+            }
+            sac->action = cmd_num;
+            sac->param = i;
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              i = get_id(creature_desc, word_buf);
+              if (i > 0)
+              {
+                if (add_sacrifice_victim(sac,i))
+                {
+                  n++;
+                } else
+                {
+                  CONFWRNLOG("Too many victims in \"%s\" from [%s] block of %s file.",
+                    word_buf,block_buf,config_textname);
+                  break;
+                }
               }
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
-                word_buf,block_buf,config_textname);
+            if (n < 1)
+            {
+              CONFWRNLOG("No victims in \"%s\" from [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+            }
+            n++; // delayed increase for first argument
             break;
-          }
-          n++; // delayed increase for first argument
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
+            break;
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+    }
 #undef COMMAND_TEXT
-  return true;
+    return true;
 }
 
-TbBool load_rules_config(const char *conf_fname,unsigned short flags)
+  TbBool load_rules_config_file(const char *textname,const char *fname,unsigned short flags)
+  {
+    char *buf;
+    long len;
+    TbBool result;
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    len = LbFileLengthRnc(fname);
+    if (len < 2)
+    {
+        if ((flags & CMLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+        return false;
+    }
+    if (len > 65536)
+    {
+        if ((flags & CMLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
+        return false;
+    }
+    buf = (char *)LbMemoryAlloc(len+256);
+    if (buf == NULL)
+      return false;
+    // Loading file data
+    len = LbFileLoadAt(fname, buf);
+    result = (len > 0);
+    if (result)
+    {
+        result = parse_rules_game_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+          WARNMSG("Parsing %s file \"%s\" game blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_rules_computer_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+          WARNMSG("Parsing %s file \"%s\" computer blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_rules_creatures_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" creatures blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_rules_magic_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" magic blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_rules_rooms_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" rooms blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_rules_workers_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" workers blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_rules_health_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" health blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_rules_research_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" research blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_rules_sacrifices_blocks(buf, len, textname, flags);
+        if ((flags & CMLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" sacrifices blocks failed.",textname,fname);
+    }
+    //Freeing and exiting
+    LbMemoryFree(buf);
+    return result;
+}
+
+TbBool load_rules_config(const char *base_fname,unsigned short flags)
 {
-  static const char config_textname[] = "Rules config";
-  char *fname;
-  char *buf;
-  long len;
-  TbBool result;
-  SYNCDBG(0,"Reading %s file \"%s\".",config_textname,conf_fname);
-  fname = prepare_file_path(FGrp_FxData,conf_fname);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    WARNMSG("Game %s file \"%s\" doesn't exist or is too small.",config_textname,conf_fname);
-    return false;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("Game %s file \"%s\" is too large.",config_textname,conf_fname);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  result = (len > 0);
-  if (result)
-  {
-    result = parse_rules_game_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" game blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_rules_computer_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" computer blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_rules_creatures_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" creatures blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_rules_magic_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" magic blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_rules_rooms_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" rooms blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_rules_workers_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" workers blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_rules_health_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" health blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_rules_research_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" research blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_rules_sacrifices_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" sacrifices blocks failed.",config_textname,conf_fname);
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  return result;
+    static const char config_global_textname[] = "global rules config";
+    static const char config_campgn_textname[] = "campaign rules config";
+    char *fname;
+    TbBool result;
+    fname = prepare_file_path(FGrp_FxData,base_fname);
+    result = load_rules_config_file(config_global_textname,fname,flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,base_fname);
+    if (fname[0] != '\0')
+    {
+        load_rules_config_file(config_campgn_textname,fname,flags|CMLd_AcceptPartial|CMLd_IgnoreErrors);
+    }
+    //Freeing and exiting
+    return result;
 }
 
 

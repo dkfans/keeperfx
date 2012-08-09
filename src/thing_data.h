@@ -83,8 +83,8 @@ struct InitThing { // sizeof=0x15
 struct Thing {
     unsigned char alloc_flags;
     unsigned char field_1;
-    unsigned short field_2;
-    unsigned short field_4;
+    unsigned short next_on_mapblk;
+    unsigned short prev_on_mapblk;
     unsigned char owner;
     unsigned char active_state;
     unsigned char continue_state;

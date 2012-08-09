@@ -82,7 +82,7 @@ void init_traps(void)
   struct Thing *thing;
   int i,k;
   k = 0;
-  i = game.thing_lists[7].index;
+  i = game.thing_lists[TngList_Traps].index;
   while (i != 0)
   {
     thing = thing_get(i);

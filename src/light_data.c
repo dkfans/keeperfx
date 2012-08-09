@@ -153,11 +153,11 @@ long light_create_light(struct InitLight *ilght)
         }
         light_total_dynamic_lights++;
         lgt->shadow_index = light_shadow_cache_index(shdc);
-        light_add_light_to_list(lgt, &game.thing_lists[12]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
     } else
     {
         light_total_stat_lights++;
-        light_add_light_to_list(lgt, &game.thing_lists[11]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
     }
     lgt->flags |= 0x02;
@@ -438,10 +438,10 @@ void light_turn_light_off(long idx)
     }
     lgt->flags &= ~0x02;
     if ((lgt->flags & LgtF_Dynamic) != 0) {
-        light_remove_light_from_list(lgt, &game.thing_lists[12]);
+        light_remove_light_from_list(lgt, &game.thing_lists[TngList_DynamLights]);
     } else {
         light_signal_stat_light_update_in_own_radius(lgt);
-        light_remove_light_from_list(lgt, &game.thing_lists[11]);
+        light_remove_light_from_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
     }
 }
@@ -465,11 +465,11 @@ void light_turn_light_on(long idx)
     lgt->flags |= 0x02;
     if ((lgt->flags & LgtF_Dynamic) != 0)
     {
-        light_add_light_to_list(lgt, &game.thing_lists[12]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
         lgt->flags |= 0x08;
     } else
     {
-        light_add_light_to_list(lgt, &game.thing_lists[11]);
+        light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
         lgt->flags |= 0x08;
     }
@@ -529,12 +529,12 @@ void light_delete_light(long idx)
     if ((lgt->flags & LgtF_Dynamic) != 0)
     {
         light_total_dynamic_lights--;
-        light_remove_light_from_list(lgt, &game.thing_lists[12]);
+        light_remove_light_from_list(lgt, &game.thing_lists[TngList_DynamLights]);
     } else
     {
         light_total_stat_lights--;
         light_signal_stat_light_update_in_own_radius(lgt);
-        light_remove_light_from_list(lgt, &game.thing_lists[11]);
+        light_remove_light_from_list(lgt, &game.thing_lists[TngList_StaticLights]);
     }
     light_free_light(lgt);
 }

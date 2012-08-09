@@ -1634,7 +1634,7 @@ long creature_can_have_combat_with_creature_on_slab(const struct Thing *creatng,
                     ERRORLOG("Jump to invalid thing detected");
                     break;
                 }
-                i = thing->field_2;
+                i = thing->next_on_mapblk;
                 // Per thing code start
                 if ( thing_is_creature(thing) && (thing != creatng) )
                 {

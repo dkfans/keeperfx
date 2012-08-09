@@ -701,7 +701,7 @@ void process_armageddon(void)
     player = get_player(game.field_15035E);
     dungeon = get_dungeon(player->id_number);
     thing = thing_get(dungeon->dnheart_idx);
-    if ((player->victory_state == VicS_LostLevel) || thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtDigOrMine2))
+    if ((player->victory_state == VicS_LostLevel) || thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtMineGold))
         game.field_150356 = 0;
   } else
   if (game.armageddon.count_down+game.field_150356 == game.play_gameturn)
@@ -1388,7 +1388,7 @@ void explosion_affecting_mapblk(struct Thing *tngsrc, const struct Map *mapblk, 
             WARNLOG("Jump out of things array");
             break;
         }
-        i = thing->field_2;
+        i = thing->next_on_mapblk;
         // Should never happen - only existing thing shall be in list
         if (!thing_exists(thing))
         {
@@ -1604,7 +1604,7 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
           WARNLOG("Jump out of things array");
           break;
         }
-        i = thing->field_2;
+        i = thing->next_on_mapblk;
         // Per thing code
         if (thing->class_id == TCls_Object)
         {
@@ -1652,7 +1652,7 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
             WARNLOG("Jump out of things array");
             break;
         }
-        i = thing->field_2;
+        i = thing->next_on_mapblk;
         // Per thing code
         if (thing->class_id == TCls_Object)
         {
@@ -4680,7 +4680,7 @@ void check_players_lost(void)
       {
           dungeon = get_players_dungeon(player);
           thing = thing_get(dungeon->dnheart_idx);
-          if ((thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtDigOrMine2)) && (player->victory_state == VicS_Undecided))
+          if ((thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtMineGold)) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -5156,22 +5156,22 @@ void remove_thing_from_mapwho(struct Thing *thing)
     //_DK_remove_thing_from_mapwho(thing);
     if ((thing->alloc_flags & TAlF_IsInMapWho) == 0)
         return;
-    if (thing->field_4 > 0)
+    if (thing->prev_on_mapblk > 0)
     {
-        mwtng = thing_get(thing->field_4);
-        mwtng->field_2 = thing->field_2;
+        mwtng = thing_get(thing->prev_on_mapblk);
+        mwtng->next_on_mapblk = thing->next_on_mapblk;
     } else
     {
         map = get_map_block_at(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-        set_mapwho_thing_index(map, thing->field_2);
+        set_mapwho_thing_index(map, thing->next_on_mapblk);
     }
-    if (thing->field_2 > 0)
+    if (thing->next_on_mapblk > 0)
     {
-        mwtng = thing_get(thing->field_2);
-        mwtng->field_4 = thing->field_4;
+        mwtng = thing_get(thing->next_on_mapblk);
+        mwtng->prev_on_mapblk = thing->prev_on_mapblk;
     }
-    thing->field_2 = 0;
-    thing->field_4 = 0;
+    thing->next_on_mapblk = 0;
+    thing->prev_on_mapblk = 0;
     thing->alloc_flags &= ~TAlF_IsInMapWho;
 }
 
@@ -5879,7 +5879,7 @@ struct Thing *get_workshop_box_thing(long owner, long model)
     struct Thing *thing;
     int i,k;
     k = 0;
-    i = game.thing_lists[2].index;
+    i = game.thing_lists[TngList_Objects].index;
     while (i > 0)
     {
         thing = thing_get(i);
@@ -6982,7 +6982,7 @@ void init_dungeon_owner(unsigned short owner)
     struct Thing *thing;
     int i,k;
     k = 0;
-    i = game.thing_lists[2].index;
+    i = game.thing_lists[TngList_Objects].index;
     while (i>0)
     {
         thing = thing_get(i);

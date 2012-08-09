@@ -1175,7 +1175,7 @@ void init_room_sparks(struct Room *room)
     }
 }
 
-TbBool create_effects_on_room_slabs(struct Room *room, long effkind, long effrange, long effowner)
+TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner)
 {
     long slb_x,slb_y;
     unsigned long k;

@@ -532,7 +532,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
       WARNLOG("Jump out of things array");
       break;
     }
-    i = thing->field_2;
+    i = thing->next_on_mapblk;
     if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_Unkn02) == 0))
     {
       spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);

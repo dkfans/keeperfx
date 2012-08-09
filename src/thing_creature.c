@@ -863,7 +863,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
       WARNLOG("Jump out of things array");
       break;
     }
-    i = thing->field_2;
+    i = thing->next_on_mapblk;
     if (thing->class_id == TCls_Object)
     {
       if ((thing->model == 43) && thing_touching_floor(thing))
@@ -1350,7 +1350,7 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
     cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
     throw_out_gold(thing);
-    remove_thing_from_field1D_in_list(&game.thing_lists[1],thing->index);
+    remove_thing_from_field1D_in_list(&game.thing_lists[TngList_Shots],thing->index);
 
     crmodel = thing->model;
     crstat = creature_stats_get_from_thing(thing);
@@ -3296,8 +3296,9 @@ long update_creature(struct Thing *thing)
         cctrl->field_B1--;
     if (cctrl->byte_8B == 0)
         cctrl->byte_8B = game.field_14EA4B;
-    if (cctrl->field_302 == 0)
+    if (cctrl->field_302 == 0) {
         process_creature_instance(thing);
+    }
     update_creature_count(thing);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {

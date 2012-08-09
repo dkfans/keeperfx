@@ -101,7 +101,7 @@ struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y
 /**
  * Returns if given SlabMap is not a part of the map.
  */
-TbBool slabmap_block_invalid(struct SlabMap *slb)
+TbBool slabmap_block_invalid(const struct SlabMap *slb)
 {
   if (slb == NULL)
     return true;
@@ -113,7 +113,7 @@ TbBool slabmap_block_invalid(struct SlabMap *slb)
 /**
  * Returns owner index of given SlabMap.
  */
-long slabmap_owner(struct SlabMap *slb)
+long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return 5;
@@ -133,7 +133,7 @@ void slabmap_set_owner(struct SlabMap *slb, long owner)
 /**
  * Sets owner of a slab on given position.
  */
-void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, long owner)
+void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 {
     struct SlabMap *slb;
     long stl_x,stl_y;
@@ -241,7 +241,7 @@ void clear_slabs(void)
     }
 }
 
-long calculate_effeciency_score_for_room_slab(long slab_num, long plyr_idx)
+long calculate_effeciency_score_for_room_slab(long slab_num, PlayerNumber plyr_idx)
 {
     return _DK_calculate_effeciency_score_for_room_slab(slab_num, plyr_idx);
 }
