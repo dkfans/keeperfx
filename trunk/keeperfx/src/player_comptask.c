@@ -217,7 +217,6 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
 short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     unsigned short stl_x, unsigned short stl_y, unsigned short param1, unsigned short param2)
 {
-    //TODO: may hang if out of things
     struct Dungeon *dungeon;
     MapSlabCoord slb_x,slb_y;
     struct Thing *thing;
@@ -230,8 +229,8 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon))
       return 0;
-    slb_x = map_to_slab[stl_x];
-    slb_y = map_to_slab[stl_y];
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
     switch (gaction)
     {
     case GA_Unk01:
@@ -675,7 +674,7 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     if ( (i < 1) || (slb->kind == SlbT_WATER) ) {
         return -1;
     }
-    stl_num = get_subtile_number(slab_center_subtile(stl_x),slab_center_subtile(stl_y));
+    stl_num = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return -1;
     }
@@ -919,7 +918,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
                     return -2;
                 }
             }
-            i = get_subtile_number(slab_center_subtile(digstl_x),slab_center_subtile(digstl_y));
+            i = get_subtile_number(stl_slab_center_subtile(digstl_x),stl_slab_center_subtile(digstl_y));
             if ( (find_from_task_list(dungeon->owner, i) < 0) && (!simulation) )
             {
                 if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= 0) {

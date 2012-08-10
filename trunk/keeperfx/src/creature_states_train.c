@@ -259,7 +259,7 @@ void setup_training_search_for_post(struct Thing *creatng)
         if (i == 0)
           i = room->slabs_list;
         // Per room tile code - find a nearest training post
-        thing = get_object_at_subtile_of_model_and_owned_by(3*slb_x+1, 3*slb_y+1, 31, creatng->owner);
+        thing = get_object_at_subtile_of_model_and_owned_by(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 31, creatng->owner);
         if (!thing_is_invalid(thing))
         {
             dist = get_2d_distance(&creatng->mappos, &thing->mappos);
@@ -366,24 +366,24 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             long slb_x,slb_y;
             long stl_x,stl_y;
             struct SlabMap *slb;
-            slb_x = map_to_slab[thing->mappos.x.stl.num] + (long)small_around[i].delta_x;
-            slb_y = map_to_slab[thing->mappos.y.stl.num] + (long)small_around[i].delta_y;
+            slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[i].delta_x;
+            slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[i].delta_y;
             slb = get_slabmap_block(slb_x,slb_y);
             if ((slb->kind != SlbT_TRAINING) || (slabmap_owner(slb) != thing->owner))
                 continue;
-            stl_x = 3*slb_x + (long)corners[i].delta_x;
-            stl_y = 3*slb_y + (long)corners[i].delta_y;
+            stl_x = slab_subtile(slb_x,corners[i].delta_x);
+            stl_y = slab_subtile(slb_y,corners[i].delta_y);
             traintng = INVALID_THING;
             // Check if any other creature is using that post; allow only unused posts
             crtng = get_creature_of_model_training_at_subtile_and_owned_by(stl_x, stl_y, -1, thing->owner, thing->index);
             if (thing_is_invalid(crtng))
             {
-                traintng = get_object_at_subtile_of_model_and_owned_by(3*slb_x+1, 3*slb_y+1, 31, thing->owner);
+                traintng = get_object_at_subtile_of_model_and_owned_by(slab_subtile_center(slb_x), slab_subtile_center(slb_y), 31, thing->owner);
             }
             if (!thing_is_invalid(traintng))
             {
-                cctrl->training.pole_stl_x = 3 * map_to_slab[thing->mappos.x.stl.num] + 1;
-                cctrl->training.pole_stl_y = 3 * map_to_slab[thing->mappos.y.stl.num] + 1;
+                cctrl->training.pole_stl_x = slab_subtile_center(subtile_slab_fast(thing->mappos.x.stl.num));
+                cctrl->training.pole_stl_y = slab_subtile_center(subtile_slab_fast(thing->mappos.y.stl.num));
                 cctrl->moveto_pos.x.stl.num = stl_x;
                 cctrl->moveto_pos.y.stl.num = stl_y;
                 cctrl->moveto_pos.x.stl.pos = 128;

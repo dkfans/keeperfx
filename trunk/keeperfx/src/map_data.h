@@ -62,6 +62,15 @@ extern long navigation_map_size_y;
 extern unsigned char *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
+/** Convert subtile to slab. */
+#define subtile_slab(stl) ((stl)/3)
+/** Convert subtile to slab, assuming the subtile is in correct range. */
+#define subtile_slab_fast(stl) ((int)map_to_slab[stl])
+/** Converts slab to a subtile. Second parameter selects a specific subtile. */
+#define slab_subtile(slb,subnum) ((slb)*3+(int)(subnum))
+/** Converts slab to its central subtile. */
+#define slab_subtile_center(slb) ((slb)*3+1)
+/******************************************************************************/
 #define coord_subtile(coord) ((coord)/256)
 #define subtile_coord(stl,spos) ((stl)*256+(spos))
 #define subtile_coord_center(stl) ((stl)*256+128)
@@ -103,9 +112,9 @@ SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y);
 MapSubtlCoord stl_num_decode_x(SubtlCodedCoords stl_num);
 MapSubtlCoord stl_num_decode_y(SubtlCodedCoords stl_num);
-MapSubtlCoord slab_center_subtile(MapSubtlCoord stl_v);
-MapSubtlCoord slab_starting_subtile(MapSubtlCoord stl_v);
-MapSubtlCoord slab_ending_subtile(MapSubtlCoord stl_v);
+MapSubtlCoord stl_slab_center_subtile(MapSubtlCoord stl_v);
+MapSubtlCoord stl_slab_starting_subtile(MapSubtlCoord stl_v);
+MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v);
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool lava_at_position(const struct Coord3d *pos);

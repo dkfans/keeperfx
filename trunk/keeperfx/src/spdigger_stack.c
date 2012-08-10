@@ -43,32 +43,32 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT long _DK_imp_stack_update(struct Thing *thing);
-DLLIMPORT long _DK_add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
-DLLIMPORT long _DK_add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long a2);
-DLLIMPORT long _DK_add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2);
+DLLIMPORT long _DK_add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long slb_x);
+DLLIMPORT long _DK_add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long slb_x);
+DLLIMPORT long _DK_add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long slb_x);
 DLLIMPORT void _DK_add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon);
 DLLIMPORT long _DK_add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon);
 DLLIMPORT long _DK_add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing);
 DLLIMPORT long _DK_check_out_imp_stack(struct Thing *thing);
-DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp_not_being_armed(struct Thing *thing, long a2);
-DLLIMPORT long _DK_imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3);
+DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp_not_being_armed(struct Thing *thing, long slb_x);
+DLLIMPORT long _DK_imp_will_soon_be_working_at_excluding(struct Thing *thing, long slb_x, long slb_y);
 DLLIMPORT long _DK_check_out_imp_last_did(struct Thing *thing);
-DLLIMPORT long _DK_check_place_to_convert_excluding(struct Thing *thing, long a2, long a3);
-DLLIMPORT long _DK_check_out_unconverted_spiral(struct Thing *thing, long a2);
-DLLIMPORT long _DK_check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3);
-DLLIMPORT long _DK_check_out_unprettied_spiral(struct Thing *thing, long a2);
+DLLIMPORT long _DK_check_place_to_convert_excluding(struct Thing *thing, long slb_x, long slb_y);
+DLLIMPORT long _DK_check_out_unconverted_spiral(struct Thing *thing, long slb_x);
+DLLIMPORT long _DK_check_place_to_pretty_excluding(struct Thing *thing, long slb_x, long slb_y);
+DLLIMPORT long _DK_check_out_unprettied_spiral(struct Thing *thing, long slb_x);
 DLLIMPORT long _DK_check_out_undug_place(struct Thing *thing);
 DLLIMPORT long _DK_check_out_undug_area(struct Thing *thing);
 DLLIMPORT long _DK_check_out_unprettied_or_unconverted_area(struct Thing *thing);
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *thing);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *thing);
-DLLIMPORT long _DK_check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short a2, long *a3, long *a4);
-DLLIMPORT long _DK_check_place_to_dig_and_get_position(struct Thing *thing, unsigned short a2, long *a3, long *a4);
+DLLIMPORT long _DK_check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short slb_x, long *slb_y, long *a4);
+DLLIMPORT long _DK_check_place_to_dig_and_get_position(struct Thing *thing, unsigned short slb_x, long *slb_y, long *a4);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_dead_body(struct Thing *thing, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_gold(struct Thing *thing, long stl_x, long stl_y);
-DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *thing, long a2, long a3);
-DLLIMPORT struct Thing *_DK_check_place_to_pickup_unconscious_body(struct Thing *thing, long a2, long a3);
-DLLIMPORT long _DK_check_place_to_reinforce(struct Thing *thing, long a2, long a3);
+DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *thing, long slb_x, long slb_y);
+DLLIMPORT struct Thing *_DK_check_place_to_pickup_unconscious_body(struct Thing *thing, long slb_x, long slb_y);
+DLLIMPORT long _DK_check_place_to_reinforce(struct Thing *thing, long slb_x, long slb_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_crate(struct Thing *thing, long stl_x, long stl_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
@@ -227,8 +227,8 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
     SYNCDBG(9,"Starting");
     //return _DK_check_out_unprettied_spiral(thing, nslabs);
 
-    slb_x = map_to_slab[thing->mappos.x.stl.num];
-    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     imax = 2;
     arndi = ACTION_RANDOM(4);
     for (slabi = 0; slabi < nslabs; slabi++)
@@ -271,10 +271,10 @@ long check_place_to_convert_excluding(struct Thing *thing, long a2, long a3)
   return _DK_check_place_to_convert_excluding(thing, a2, a3);
 }
 
-long check_place_to_pretty_excluding(struct Thing *thing, long a2, long a3)
+long check_place_to_pretty_excluding(struct Thing *thing, long slb_x, long slb_y)
 {
     SYNCDBG(19,"Starting");
-    return _DK_check_place_to_pretty_excluding(thing, a2, a3);
+    return _DK_check_place_to_pretty_excluding(thing, slb_x, slb_y);
 }
 
 long check_out_unreinforced_place(struct Thing *thing)
@@ -292,8 +292,8 @@ TbBool check_out_unconverted_place(struct Thing *thing)
     long stl_x,stl_y;
     long slb_x,slb_y;
     SYNCDBG(19,"Starting");
-    slb_x = map_to_slab[thing->mappos.x.stl.num];
-    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     stl_x = 3*slb_x + 1;
     stl_y = 3*slb_y + 1;
     if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
@@ -317,8 +317,8 @@ long check_out_unprettied_place(struct Thing *thing)
   long stl_x,stl_y;
   long slb_x,slb_y;
   SYNCDBG(19,"Starting");
-  slb_x = map_to_slab[thing->mappos.x.stl.num];
-  slb_y = map_to_slab[thing->mappos.y.stl.num];
+  slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+  slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
   stl_x = 3*slb_x + 1;
   stl_y = 3*slb_y + 1;
   if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
@@ -340,25 +340,27 @@ long check_out_unprettied_place(struct Thing *thing)
 long check_out_undug_place(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    long stl_x,stl_y;
-    long mv_x,mv_y;
+    MapSubtlCoord base_stl_x,base_stl_y;
     long i,n;
     SYNCDBG(19,"Starting");
     //return _DK_check_out_undug_place(thing);
     cctrl = creature_control_get_from_thing(thing);
-    stl_x = stl_num_decode_x(cctrl->word_8F);
-    stl_y = stl_num_decode_y(cctrl->word_8F);
+    base_stl_x = stl_num_decode_x(cctrl->word_8F);
+    base_stl_y = stl_num_decode_y(cctrl->word_8F);
     n = ACTION_RANDOM(4);
     for (i=0; i < 4; i++)
     {
         struct MapTask* mtask;
         SubtlCodedCoords task_pos;
+        MapSlabCoord slb_x,slb_y;
         long task_idx;
-        task_pos = get_subtile_number(3*(map_to_slab[stl_x]+small_around[n].delta_x) + 1,
-                                      3*(map_to_slab[stl_y]+small_around[n].delta_y) + 1);
+        slb_x = subtile_slab_fast(base_stl_x)+small_around[n].delta_x;
+        slb_y = subtile_slab_fast(base_stl_y)+small_around[n].delta_y;
+        task_pos = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         task_idx = find_dig_from_task_list(thing->owner, task_pos);
         if (task_idx != -1)
         {
+            long mv_x,mv_y;
             mv_x = 0; mv_y = 0;
             if (check_place_to_dig_and_get_position(thing, task_pos, &mv_x, &mv_y)
                 && setup_person_move_to_position(thing, mv_x, mv_y, 0))
@@ -405,7 +407,7 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
         stl_y = stl_num_decode_y(mtask->field_1);
         if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
         {
-          if ( block_has_diggable_side(dungeon->owner, map_to_slab[stl_x], map_to_slab[stl_y]) )
+          if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
           {
             add_to_imp_stack_using_pos(mtask->field_1, DigTsk_DigOrMine, dungeon);
             num--;
@@ -629,7 +631,7 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
 {
     struct SlabMap *place_slb;
     struct Coord3d pos;
-    long place_x,place_y;
+    MapSubtlCoord place_x,place_y;
     long distance_x,distance_y;
     long base_x,base_y;
     long stl_x,stl_y;
@@ -638,7 +640,7 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     //return _DK_check_place_to_dig_and_get_position(thing, stl_num, retstl_x, retstl_y);
     place_x = stl_num_decode_x(stl_num);
     place_y = stl_num_decode_y(stl_num);
-    if (!block_has_diggable_side(thing->owner, map_to_slab[place_x], map_to_slab[place_y]))
+    if (!block_has_diggable_side(thing->owner, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
         return 0;
     distance_x = place_x - thing->mappos.x.stl.num;
     distance_y = place_y - thing->mappos.y.stl.num;
@@ -972,7 +974,7 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_ImproveDungeon:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if ( !check_place_to_pretty_excluding(thing, map_to_slab[stl_x], map_to_slab[stl_y]) )
+            if ( !check_place_to_pretty_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
             {
                 istack->task_id = DigTsk_None;
                 break;
@@ -993,7 +995,7 @@ long check_out_imp_stack(struct Thing *thing)
         case DigTsk_ConvertDungeon:
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (!check_place_to_convert_excluding(thing, map_to_slab[stl_x], map_to_slab[stl_y]))
+            if (!check_place_to_convert_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
             {
                 istack->task_id = DigTsk_None;
                 break;
@@ -1021,7 +1023,7 @@ long check_out_imp_stack(struct Thing *thing)
             }
             stl_x = stl_num_decode_x(istack->field_0);
             stl_y = stl_num_decode_y(istack->field_0);
-            if (check_place_to_reinforce(thing, map_to_slab[stl_x], map_to_slab[stl_y]) <= 0)
+            if (check_place_to_reinforce(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) <= 0)
             {
                 istack->task_id = DigTsk_None;
                 break;

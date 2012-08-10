@@ -330,7 +330,7 @@ TbBool set_coords_to_subtile_center(struct Coord3d *pos, MapSubtlCoord stl_x, Ma
 
 TbBool set_coords_to_slab_center(struct Coord3d *pos, MapSubtlCoord slb_x, MapSubtlCoord slb_y)
 {
-    return set_coords_to_subtile_center(pos, slb_x*3+1,slb_y*3+1, 1);
+    return set_coords_to_subtile_center(pos, slab_subtile_center(slb_x),slab_subtile_center(slb_y), 1);
 }
 
 MapCoord get_subtile_center_pos(MapSubtlCoord stl_v)
@@ -422,25 +422,25 @@ SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y)
 /**
  * Returns subtile coordinate for central subtile on given slab.
  */
-MapSubtlCoord slab_center_subtile(MapSubtlCoord stl_v)
+MapSubtlCoord stl_slab_center_subtile(MapSubtlCoord stl_v)
 {
-  return map_to_slab[stl_v]*3+1;
+  return subtile_slab_fast(stl_v)*3+1;
 }
 
 /**
  * Returns subtile coordinate for starting subtile on given slab.
  */
-MapSubtlCoord slab_starting_subtile(MapSubtlCoord stl_v)
+MapSubtlCoord stl_slab_starting_subtile(MapSubtlCoord stl_v)
 {
-  return map_to_slab[stl_v]*3;
+  return subtile_slab_fast(stl_v)*3;
 }
 
 /**
  * Returns subtile coordinate for ending subtile on given slab.
  */
-MapSubtlCoord slab_ending_subtile(MapSubtlCoord stl_v)
+MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v)
 {
-  return map_to_slab[stl_v]*3+2;
+  return subtile_slab_fast(stl_v)*3+2;
 }
 
 long get_subtile_lightness(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -547,12 +547,12 @@ void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,Map
  */
 void reveal_map_area(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
 {
-  start_x = slab_starting_subtile(start_x);
-  start_y = slab_starting_subtile(start_y);
-  end_x = slab_ending_subtile(end_x)+1;
-  end_y = slab_ending_subtile(end_y)+1;
-  clear_dig_for_map_rect(plyr_idx,map_to_slab[start_x],map_to_slab[end_x],
-      map_to_slab[start_y],map_to_slab[end_y]);
+  start_x = stl_slab_starting_subtile(start_x);
+  start_y = stl_slab_starting_subtile(start_y);
+  end_x = stl_slab_ending_subtile(end_x)+1;
+  end_y = stl_slab_ending_subtile(end_y)+1;
+  clear_dig_for_map_rect(plyr_idx,subtile_slab_fast(start_x),subtile_slab_fast(end_x),
+      subtile_slab_fast(start_y),subtile_slab_fast(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
   pannel_map_update(start_x,start_y,end_x,end_y);
 }
@@ -611,8 +611,8 @@ void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long domn_
     struct SlabMap *slb;
     MapSlabCoord slb_x,slb_y;
     unsigned long  wlb;
-    slb_x = map_to_slab[stl_x];
-    slb_y = map_to_slab[stl_y];
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
     slb = get_slabmap_block(slb_x, slb_y);
     wlb = slabmap_wlb(slb);
     if (wlb == 1)

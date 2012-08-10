@@ -534,7 +534,7 @@ void gui_area_big_room_button(struct GuiButton *gbtn)
 
 /**
  * Sets a new chosen spell.
- * Fills packet with the spell disable action.
+ * Fills packet with the previous spell disable action.
  */
 void gui_choose_spell(struct GuiButton *gbtn)
 {

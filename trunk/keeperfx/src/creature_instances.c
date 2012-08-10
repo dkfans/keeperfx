@@ -354,8 +354,8 @@ long instf_destroy(struct Thing *thing, long *param)
     MapSlabCoord slb_x,slb_y;
     long prev_owner;
 
-    slb_x = map_to_slab[thing->mappos.x.stl.num];
-    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     dungeon = get_dungeon(thing->owner);
     slb = get_slabmap_block(slb_x, slb_y);
     room = room_get(slb->room_index);
@@ -396,7 +396,7 @@ long instf_destroy(struct Thing *thing, long *param)
     }
     decrease_dungeon_area(prev_owner, 1);
     neutralise_enemy_block(thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
-    remove_traps_around_subtile(3*slb_x+1, 3*slb_y+1, NULL);
+    remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     dungeon->lvstats.territory_destroyed++;
     return 1;
 }
@@ -426,8 +426,8 @@ long instf_first_person_do_imp_task(struct Thing *thing, long *param)
     MapSlabCoord slb_x,slb_y;
     long locparam;
     //return _DK_instf_first_person_do_imp_task(thing, param);
-    slb_x = map_to_slab[thing->mappos.x.stl.num];
-    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     if ( check_place_to_pretty_excluding(thing, slb_x, slb_y) )
     {
         instf_pretty_path(thing, NULL);

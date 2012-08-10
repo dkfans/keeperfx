@@ -183,7 +183,7 @@ DLLIMPORT void _DK_count_lair_occupants(struct Room *room);
 DLLIMPORT short _DK_room_grow_food(struct Room *room);
 DLLIMPORT void _DK_set_room_capacity(struct Room *room, long capac);
 DLLIMPORT void _DK_set_room_efficiency(struct Room *room);
-DLLIMPORT struct Room *_DK_link_adjacent_rooms_of_type(unsigned char owner, long x, long y, unsigned char rkind);
+DLLIMPORT struct Room *_DK_link_adjacent_rooms_of_type(unsigned char owner, long stl_x, long stl_y, unsigned char rkind);
 DLLIMPORT struct Room *_DK_create_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
 DLLIMPORT void _DK_create_room_flag(struct Room *room);
 DLLIMPORT struct Room *_DK_allocate_free_room_structure(void);
@@ -572,7 +572,7 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, Ro
     unsigned long k;
     // TODO: rework! may lead to hang on map borders
     //return _DK_link_adjacent_rooms_of_type(owner, x, y, rkind);
-    central_slbnum = get_slab_number(map_to_slab[x],map_to_slab[y]);
+    central_slbnum = get_slab_number(subtile_slab_fast(x),subtile_slab_fast(y));
     // Localize the room to be merged with other rooms
     linkroom = INVALID_ROOM;
     for (n = 0; n < 4; n++)
@@ -827,12 +827,17 @@ TbBool add_room_to_players_list(struct Room *room, long plyr_idx)
     return true;
 }
 
-struct Room *prepare_new_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
+struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct SlabMap *slb;
     struct Room *room;
-    long slb_x,slb_y;
+    MapSlabCoord slb_x,slb_y;
     long i;
+    if (!subtile_has_slab(stl_x, stl_y))
+    {
+        ERRORLOG("Attempt to create room on invalid coordinates.");
+        return NULL;
+    }
     if ( !i_can_allocate_free_room_structure() )
     {
         ERRORDBG(2,"Cannot allocate any more rooms.");
@@ -844,8 +849,8 @@ struct Room *prepare_new_room(unsigned char owner, unsigned char rkind, unsigned
     room->kind = rkind;
     add_room_to_global_list(room);
     add_room_to_players_list(room, owner);
-    slb_x = map_to_slab[x%(map_subtiles_x+1)];
-    slb_y = map_to_slab[y%(map_subtiles_y+1)];
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
     i = get_slab_number(slb_x, slb_y);
     room->slabs_list = i;
     room->field_39 = i;
@@ -854,16 +859,16 @@ struct Room *prepare_new_room(unsigned char owner, unsigned char rkind, unsigned
     return room;
 }
 
-struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y)
+struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Room *room;
     SYNCDBG(7,"Starting");
     // room = _DK_create_room(owner, rkind, x, y); return room;
     // Try linking the new room slab to existing room
-    room = link_adjacent_rooms_of_type(owner, x, y, rkind);
+    room = link_adjacent_rooms_of_type(owner, stl_x, stl_y, rkind);
     if (room_is_invalid(room))
     {
-        room = prepare_new_room(owner, rkind, x, y);
+        room = prepare_new_room(owner, rkind, stl_x, stl_y);
         if (room_is_invalid(room))
             return INVALID_ROOM;
         count_room_slabs(room);
@@ -1813,8 +1818,8 @@ struct Room *place_room(unsigned char owner, RoomKind rkind, unsigned short stl_
     game.field_14EA4B = 1;
     if (subtile_coords_invalid(stl_x, stl_y))
         return INVALID_ROOM;
-    slb_x = map_to_slab[stl_x];
-    slb_y = map_to_slab[stl_y];
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
     slb = get_slabmap_block(slb_x,slb_y);
     if (slb->room_index > 0)
     {
@@ -1829,8 +1834,8 @@ struct Room *place_room(unsigned char owner, RoomKind rkind, unsigned short stl_
     if (room_is_invalid(room))
         return INVALID_ROOM;
     // Make sure we have first subtile
-    stl_x = slab_starting_subtile(stl_x);
-    stl_y = slab_starting_subtile(stl_y);
+    stl_x = stl_slab_starting_subtile(stl_x);
+    stl_y = stl_slab_starting_subtile(stl_y);
     // Update slab type on map
     rdata = room_data_get_for_room(room);
     i = get_slab_number(slb_x, slb_y);
