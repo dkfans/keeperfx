@@ -1217,7 +1217,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   struct SlabAttr *slbattr;
   struct Thing *thing;
   unsigned long x,y;
-  unsigned int slab_x,slab_y;
+  unsigned int slb_x,slb_y;
   player = get_my_player();
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= player->engine_window_width/pixel_size)
@@ -1231,9 +1231,9 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     y = top_pointed_at_y;
   else
     y = map_subtiles_y;
-  slab_x = map_to_slab[x];
-  slab_y = map_to_slab[y];
-  slb = get_slabmap_block(slab_x, slab_y);
+  slb_x = subtile_slab_fast(x);
+  slb_y = subtile_slab_fast(y);
+  slb = get_slabmap_block(slb_x, slb_y);
   slbattr = get_slab_attrs(slb);
   if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number))
   {
@@ -1253,7 +1253,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if ((slab_x >= map_tiles_x) || (slab_y >= map_tiles_y))
+  if ((slb_x >= map_tiles_x) || (slb_y >= map_tiles_y))
   {
     *context = 0;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;

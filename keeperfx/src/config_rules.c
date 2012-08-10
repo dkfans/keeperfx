@@ -880,7 +880,7 @@ TbBool parse_rules_magic_blocks(char *buf,long len,const char *config_textname,u
       game.armageddon.duration = 4000;
       game.disease_transfer_percentage = 15;
       game.disease_lose_percentage_health = 8;
-      game.disease_lose_health_time = 400;
+      game.disease_lose_health_time = 200;
       game.min_distance_for_teleport = 20;
       game.collapse_dungeon_damage = 10;
       game.turns_per_collapse_dngn_dmg = 4;

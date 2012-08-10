@@ -1402,47 +1402,50 @@ unsigned short torch_flags_for_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
 {
-    struct Thing *thing;
-    struct Map *mapblk;
-    struct Coord3d pos;
+    long stl_num;
     long removed_num;
-    unsigned long k;
-    long i,n;
+    long n;
+    stl_num = get_subtile_number(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
     removed_num = 0;
     for (n=0; n < 9; n++)
     {
-      mapblk = get_map_block_at_pos(get_subtile_number(3*slb_x+1,3*slb_y+1)+around_map[n]);
-      k = 0;
-      i = get_mapwho_thing_index(mapblk);
-      while (i != 0)
-      {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
+        struct Thing *thing;
+        struct Map *mapblk;
+        struct Coord3d pos;
+        unsigned long k;
+        long i;
+        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        k = 0;
+        i = get_mapwho_thing_index(mapblk);
+        while (i != 0)
         {
-          WARNLOG("Jump out of things array");
-          break;
-        }
-        i = thing->next_on_mapblk;
-        // Per thing code
-        if (thing->class_id == TCls_Object)
-        {
-            if (rmeffect > 0)
-            {
-                set_coords_to_slab_center(&pos,slb_x,slb_y);
-                pos.z.val = get_floor_height_at(&pos);
-                create_effect(&pos, rmeffect, thing->owner);
-            }
-            delete_thing_structure(thing, 0);
-            removed_num++;
-        }
-        // Per thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
+          thing = thing_get(i);
+          if (thing_is_invalid(thing))
+          {
+            WARNLOG("Jump out of things array");
             break;
+          }
+          i = thing->next_on_mapblk;
+          // Per thing code
+          if (thing->class_id == TCls_Object)
+          {
+              if (rmeffect > 0)
+              {
+                  set_coords_to_slab_center(&pos,slb_x,slb_y);
+                  pos.z.val = get_floor_height_at(&pos);
+                  create_effect(&pos, rmeffect, thing->owner);
+              }
+              delete_thing_structure(thing, 0);
+              removed_num++;
+          }
+          // Per thing code ends
+          k++;
+          if (k > THINGS_COUNT)
+          {
+              ERRORLOG("Infinite loop detected when sweeping things list");
+              break;
+          }
         }
-      }
     }
     return removed_num;
 }
@@ -1514,8 +1517,8 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
         return;
     if ((stl_y < 0) || (stl_y > map_subtiles_y))
         return;
-    slb_x = map_to_slab[stl_x];
-    slb_y = map_to_slab[stl_y];
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
     if (slab_kind_is_animated(nslab))
     {
         ERRORLOG("Placing animating slab %d as standard slab",(int)nslab);
@@ -5257,7 +5260,7 @@ long wander_point_update(struct Wander *wandr)
           tile2 = 0;
           if (slb_num >= map_tiles_x*map_tiles_y)
             slb_num = 0;
-          tile1 = get_subtile_number(3*slb_num_decode_x(slb_num)+1, 3*slb_num_decode_y(slb_num)+1);
+          tile1 = get_subtile_number(slab_subtile_center(slb_num_decode_x(slb_num)), slab_subtile_center(slb_num_decode_y(slb_num)));
         }
     }
     wandr->field_8 = slb_num;
@@ -5806,22 +5809,22 @@ unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
  */
 short can_dig_here(long stl_x, long stl_y, long plyr_idx)
 {
-  struct SlabMap *slb;
-  struct SlabAttr *slbattr;
-  slb = get_slabmap_block(map_to_slab[stl_x],map_to_slab[stl_y]);
-  if (slabmap_block_invalid(slb))
+    struct SlabMap *slb;
+    struct SlabAttr *slbattr;
+    slb = get_slabmap_for_subtile(stl_x,stl_y);
+    if (slabmap_block_invalid(slb))
+      return false;
+    if (!subtile_revealed(stl_x, stl_y, plyr_idx))
+      return true;
+    if (slab_kind_is_nonmagic_door(slb->kind))
+    {
+        if (slabmap_owner(slb) == plyr_idx)
+          return false;
+    }
+    slbattr = get_slab_attrs(slb);
+    if ((slbattr->field_6 & 0x29) != 0)
+      return true;
     return false;
-  if (!subtile_revealed(stl_x, stl_y, plyr_idx))
-    return true;
-  if (slab_kind_is_nonmagic_door(slb->kind))
-  {
-      if (slabmap_owner(slb) == plyr_idx)
-        return false;
-  }
-  slbattr = get_slab_attrs(slb);
-  if ((slbattr->field_6 & 0x29) != 0)
-    return true;
-  return false;
 }
 
 long thing_in_wall_at(struct Thing *thing, struct Coord3d *pos)
@@ -6509,7 +6512,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
         slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per room tile code
-        nroom = create_room(room->owner, room->kind, 3*slb_x+1, 3*slb_y+1);
+        nroom = create_room(room->owner, room->kind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (room_is_invalid(nroom)) // In case of error, sell the whole thing
         {
             sell_room_slab_when_no_free_room_structures(room, slb_x, slb_y, gnd_slab);

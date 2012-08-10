@@ -1028,7 +1028,7 @@ void choose_special_spell(int kind, int tooltip_id)
 
 /**
  * Sets a new chosen spell.
- * Fills packet with the spell disable action.
+ * Fills packet with the previous spell disable action.
  */
 void choose_spell(int kind, int tooltip_id)
 {

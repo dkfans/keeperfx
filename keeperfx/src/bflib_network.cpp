@@ -373,14 +373,14 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 
     if (netstate.users[source].progress != USER_CONNECTED) {
         NETMSG("Peer was not in connected state");
-        //TODO: implement drop
+        //TODO NET: implement drop
         return;
     }
 
     if (netstate.password[0] != 0 && strncmp(ptr, netstate.password,
             sizeof(netstate.password)) != 0) {
         NETMSG("Peer chose wrong password");
-        //TODO: implement drop
+        //TODO NET: implement drop
         return;
     }
 
@@ -394,7 +394,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 
     LbStringCopy(netstate.users[source].name, ptr, sizeof(netstate.users[source].name));
     if (!isalnum(netstate.users[source].name[0])) {
-        //TODO: drop player for bad name
+        //TODO NET: drop player for bad name
         //also replace isalnum with something that considers foreign non-ASCII chars
         NETDBG(6, "Connected peer had bad name starting with %c",
             netstate.users[source].name[0]);
@@ -478,7 +478,7 @@ static void HandleClientFrame(NetUserId source, char * ptr, char * end)
     ptr += netstate.user_frame_size;
 
     if (ptr >= end) {
-        //TODO: handle bad frame
+        //TODO NET: handle bad frame
         NETMSG("Bad frame size from client %u", source);
         return;
     }
@@ -1227,7 +1227,7 @@ TbError LbNetwork_Exchange(void *buf)
         ConsumeServerFrame(); //most likely overwrites what is sent in SendClientFrame
     }
 
-    //TODO: deal with case where no new frame is available and game should be stalled
+    //TODO NET: deal with case where no new frame is available and game should be stalled
 
     netstate.sp->update(OnNewUser);
 

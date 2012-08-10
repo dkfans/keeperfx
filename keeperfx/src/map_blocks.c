@@ -23,18 +23,19 @@
 
 #include "slab_data.h"
 #include "room_data.h"
+#include "thing_effects.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_mine_out_block(long a1, long a2, long a3);
-DLLIMPORT unsigned char _DK_dig_has_revealed_area(long a1, long a2, unsigned char a3);
-DLLIMPORT void _DK_dig_out_block(long a1, long a2, long a3);
-DLLIMPORT void _DK_check_map_explored(struct Thing *thing, long a2, long a3);
-DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char a3, unsigned char a4);
-DLLIMPORT long _DK_untag_blocks_for_digging_in_area(long slb_x, long slb_y, signed char a3);
+DLLIMPORT void _DK_mine_out_block(long a1, long a2, long stl_height);
+DLLIMPORT unsigned char _DK_dig_has_revealed_area(long a1, long a2, unsigned char stl_height);
+DLLIMPORT void _DK_dig_out_block(long a1, long a2, long stl_height);
+DLLIMPORT void _DK_check_map_explored(struct Thing *thing, long a2, long stl_height);
+DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char stl_height, unsigned char a4);
+DLLIMPORT long _DK_untag_blocks_for_digging_in_area(long slb_x, long slb_y, signed char stl_height);
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
@@ -51,9 +52,24 @@ TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
   return false;
 }
 
-void create_gold_rubble_for_dug_block(long x, long y, unsigned char a3, unsigned char a4)
+void create_gold_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_height, PlayerNumber owner)
 {
-    _DK_create_gold_rubble_for_dug_block(x, y, a3, a4);
+    _DK_create_gold_rubble_for_dug_block(stl_x, stl_y, stl_height, owner);
+}
+
+void create_dirt_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_height, PlayerNumber owner)
+{
+    struct Coord3d pos;
+    MapCoord maxpos_z;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = subtile_coord_center(1);
+    maxpos_z = subtile_coord(stl_height,0);
+    while (pos.z.val < maxpos_z)
+    {
+        create_effect(&pos, 26, maxpos_z);
+        pos.z.val += subtile_coord(1,0);
+    }
 }
 
 long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -101,8 +117,8 @@ void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoo
 {
     struct PlayerInfo *player;
     struct Map *map;
-    long plyr_idx;
-    map = get_map_block_at(3*slb_x+1, 3*slb_y+1);
+    PlayerNumber plyr_idx;
+    map = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if ((plyr_idx == hero_player_number) || (plyr_idx == game.neutral_player_num))
@@ -140,6 +156,26 @@ TbBool set_slab_explored(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 void set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y)
 {
     _DK_set_slab_explored_flags(flag, slb_x, slb_y);
+}
+
+void replacce_map_slab_when_destroyed(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    SlabType nslab;
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    switch (slabmap_wlb(slb))
+    {
+    case 1:
+        nslab = SlbT_LAVA;
+        break;
+    case 2:
+        nslab = SlbT_WATER;
+        break;
+    default:
+        nslab = SlbT_PATH;
+        break;
+    }
+    place_slab_type_on_map(nslab, 3*slb_x, 3*slb_y, game.neutral_player_num, 0);
 }
 
 void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -225,18 +261,48 @@ void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_
 {
     MapSlabCoord slb_x,slb_y;
     //_DK_mine_out_block(a1, a2, plyr_idx);
-    slb_x = map_to_slab[stl_x];
-    slb_y = map_to_slab[stl_y];
+    if (!subtile_has_slab(stl_x, stl_y))
+    {
+        ERRORLOG("Attempt to mine on invalid coordinates.");
+        return;
+    }
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
     create_gold_rubble_for_dug_slab(slb_x, slb_y);
     all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
-    place_slab_type_on_map(10, 3*slb_x, 3*slb_y, game.neutral_player_num, 0);
+    replacce_map_slab_when_destroyed(slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
+    // Gold slabs are normally visible to all players,
+    // so sine we're destroying it - make it invisible
+    // TODO MAP Maybe it should be cleared only if sibling non-gold slab are invisible
     set_slab_explored_flags(1 << plyr_idx, slb_x, slb_y);
 }
 
 unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3)
 {
     return _DK_dig_has_revealed_area(a1, a2, a3);
+}
+
+void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Column *col;
+    MapSubtlCoord stl_x,stl_y;
+    long x,y,z;
+    stl_x = 3 * slb_x;
+    stl_y = 3 * slb_y;
+    col = get_column_at(stl_x, stl_y);
+    if (column_invalid(col))
+        z = 0;
+    else
+        z = (col->bitfileds >> 4) & 0x0F;
+    for (y = stl_y; y < stl_y+3; y++)
+    {
+        for (x = stl_x; x < stl_x+3; x++)
+        {
+            if (z > 0)
+                create_dirt_rubble_for_dug_block(x, y, z, game.neutral_player_num);
+        }
+    }
 }
 
 /**
@@ -247,8 +313,26 @@ unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3)
  */
 void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    //TODO Rewrite ASAP - this function causes random memory problems. May be similar to mine_out_block().
-    _DK_dig_out_block(stl_x, stl_y, plyr_idx);
+    MapSlabCoord slb_x,slb_y;
+    //_DK_dig_out_block(stl_x, stl_y, plyr_idx);
+    if (!subtile_has_slab(stl_x, stl_y))
+    {
+        ERRORLOG("Attempt to dig on invalid coordinates.");
+        return;
+    }
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
+    create_dirt_rubble_for_dug_slab(slb_x, slb_y);
+    all_players_untag_blocks_for_digging_in_area(slb_x, slb_y);
+    replacce_map_slab_when_destroyed(slb_x, slb_y);
+    do_slab_efficiency_alteration(slb_x, slb_y);
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(plyr_idx);
+        if (!dungeon_invalid(dungeon)) {
+            dungeon->lvstats.rock_dug_out++;
+        }
+    }
 }
 
 void check_map_explored(struct Thing *thing, long a2, long a3)

@@ -560,7 +560,7 @@ TbError ServiceProvider::Receive(unsigned long flags)
           }
 
           msgLen = dataLen + 4;
-          somePtr = LbMemoryAlloc(msgLen); //TODO: check that this is freed somewhere...
+          somePtr = LbMemoryAlloc(msgLen); //TODO NET: check that this is freed somewhere...
           ReadMessage(&playerId, somePtr, &msgLen);
           recvCallbacks->field_24(playerId, somePtr);
 

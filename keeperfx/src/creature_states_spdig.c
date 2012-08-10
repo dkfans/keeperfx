@@ -244,8 +244,8 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     n = reinforce_edges[3 * (stl_y % 3) + (stl_x % 3)];
     for (i=0; i < 4; i++)
     {
-        slb_x = map_to_slab[stl_x] + (long)small_around[n].delta_x;
-        slb_y = map_to_slab[stl_y] + (long)small_around[n].delta_y;
+        slb_x = subtile_slab_fast(stl_x) + (long)small_around[n].delta_x;
+        slb_y = subtile_slab_fast(stl_y) + (long)small_around[n].delta_y;
         if ( check_place_to_reinforce(thing, slb_x, slb_y) > 0 )
         {
             stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
@@ -401,8 +401,8 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
 {
     //return _DK_imp_arrives_at_convert_dungeon(thing);
     if (check_place_to_convert_excluding(thing,
-           map_to_slab[thing->mappos.x.stl.num],
-           map_to_slab[thing->mappos.y.stl.num]) )
+        subtile_slab_fast(thing->mappos.x.stl.num),
+        subtile_slab_fast(thing->mappos.y.stl.num)) )
     {
       internal_set_thing_state(thing, CrSt_ImpConvertsDungeon);
     } else
@@ -451,8 +451,8 @@ short imp_arrives_at_improve_dungeon(struct Thing *thing)
 {
   //return _DK_imp_arrives_at_improve_dungeon(thing);
   if ( check_place_to_pretty_excluding(thing,
-          map_to_slab[thing->mappos.x.stl.num],
-          map_to_slab[thing->mappos.y.stl.num]) )
+      subtile_slab_fast(thing->mappos.x.stl.num),
+      subtile_slab_fast(thing->mappos.y.stl.num)) )
   {
     internal_set_thing_state(thing, CrSt_ImpImprovesDungeon);
   } else
@@ -498,8 +498,8 @@ short imp_converts_dungeon(struct Thing *thing)
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
     cctrl = creature_control_get_from_thing(thing);
-    slb_x = map_to_slab[stl_x];
-    slb_y = map_to_slab[stl_y];
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
     if ( (stl_x - cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - cctrl->moveto_pos.y.stl.num >= 1) )
     {
         clear_creature_instance(thing);
@@ -702,8 +702,8 @@ short imp_drops_gold(struct Thing *thing)
         return 1;
     }
     MapSubtlCoord center_stl_x,center_stl_y;
-    center_stl_x = 3 * map_to_slab[thing->mappos.x.stl.num] + 1;
-    center_stl_y = 3 * map_to_slab[thing->mappos.y.stl.num] + 1;
+    center_stl_x = slab_subtile_center(subtile_slab_fast(thing->mappos.x.stl.num));
+    center_stl_y = slab_subtile_center(subtile_slab_fast(thing->mappos.y.stl.num));
     struct Room *curoom;
     curoom = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if (!room_exists(curoom) || (curoom->index != room->index) )
@@ -756,8 +756,8 @@ short imp_improves_dungeon(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    slb_x = map_to_slab[thing->mappos.x.stl.num];
-    slb_y = map_to_slab[thing->mappos.y.stl.num];
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     if (!check_place_to_pretty_excluding(thing, slb_x, slb_y))
     {
         clear_creature_instance(thing);

@@ -183,7 +183,7 @@ unsigned short i_can_allocate_free_room_structure(void);
 void delete_all_room_structures(void);
 void delete_room_structure(struct Room *room);
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, RoomKind rkind);
-struct Room *create_room(unsigned char owner, unsigned char rkind, unsigned short x, unsigned short y);
+struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short room_grow_food(struct Room *room);
 void update_room_efficiency(struct Room *room);
 long create_workshop_object_in_workshop_room(long a1, long a2, long a3);

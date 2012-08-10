@@ -273,14 +273,14 @@ long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
     pts_count = 0;
     pt_idx = 0;
 
-    slb_x = map_to_slab[revealstl_x];
-    slb_y = map_to_slab[revealstl_y];
+    slb_x = subtile_slab_fast(revealstl_x);
+    slb_y = subtile_slab_fast(revealstl_y);
     slb_num = get_slab_number(slb_x, slb_y);
     ownership_map[slb_num] |= 0x02;
     do
     {
         // Reveal given point
-        if ( !subtile_revealed(3*slb_x+1, 3*slb_y+1, benefit_plyr_idx) )
+        if ( !subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), benefit_plyr_idx) )
         {
             reveal_success = 1;
             clear_slab_dig(slb_x, slb_y, benefit_plyr_idx);
