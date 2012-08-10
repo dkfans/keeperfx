@@ -100,8 +100,8 @@ extern const short around_slab[];
 extern const short small_around_slab[];
 /******************************************************************************/
 SlabCodedCoords get_slab_number(MapSlabCoord slb_x, MapSlabCoord slb_y);
-long slb_num_decode_x(SlabCodedCoords slb_num);
-long slb_num_decode_y(SlabCodedCoords slb_num);
+MapSlabCoord slb_num_decode_x(SlabCodedCoords slb_num);
+MapSlabCoord slb_num_decode_y(SlabCodedCoords slb_num);
 
 TbBool slab_kind_is_door(SlabType slbkind);
 TbBool slab_kind_is_nonmagic_door(SlabType slbkind);
@@ -112,13 +112,13 @@ struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y
 struct SlabMap *get_slabmap_direct(SlabCodedCoords slab_num);
 TbBool slabmap_block_invalid(const struct SlabMap *slb);
 long slabmap_owner(const struct SlabMap *slb);
-void slabmap_set_owner(struct SlabMap *slb, long owner);
+void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner);
 void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner);
 unsigned long slabmap_wlb(struct SlabMap *slb);
 void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag);
-long get_next_slab_number_in_room(long slab_num);
-long calculate_effeciency_score_for_room_slab(long slab_num, PlayerNumber plyr_idx);
-TbBool slab_is_safe_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+long get_next_slab_number_in_room(SlabCodedCoords slab_num);
+long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNumber plyr_idx);
+TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 void clear_slabs(void);

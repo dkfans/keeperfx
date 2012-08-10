@@ -299,13 +299,13 @@ struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
   player = get_player(plyr_idx);
   dungeon = get_players_dungeon(player);
   rstat = room_stats_get_for_kind(rkind);
-  x = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_x];
-  y = ((player->field_4A4+1) / 2) + 3*map_to_slab[stl_y];
+  x = ((player->field_4A4+1) / 2) + 3*subtile_slab_fast(stl_x);
+  y = ((player->field_4A4+1) / 2) + 3*subtile_slab_fast(stl_y);
   room = player_build_room_at(x, y, plyr_idx, rkind);
   if (!room_is_invalid(room))
   {
     dungeon->camera_deviate_jump = 192;
-    set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+    set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
     create_price_effect(&pos, plyr_idx, rstat->cost);
   }
   return room;
@@ -380,7 +380,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     //TODO sell revenue percentage should be inside config files
     rstat = room_stats_get_for_room(room);
     revenue = compute_value_percentage(rstat->cost, ROOM_SELL_REVENUE_PERCENT);
-    delete_room_slab(map_to_slab[stl_x], map_to_slab[stl_y], 0);
+    delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), 0);
     if (room->owner != game.neutral_player_num)
     {
         dungeon = get_players_num_dungeon(room->owner);
@@ -391,7 +391,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         play_non_3d_sample(115);
     if (revenue != 0)
     {
-        set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
         create_price_effect(&pos, plyr_idx, revenue);
         player_add_offmap_gold(plyr_idx, revenue);
     }
@@ -405,8 +405,8 @@ TbBool player_sell_door_at_subtile(long plyr_idx, long stl_x, long stl_y)
     MapCoord x,y;
     struct Coord3d pos;
     long i;
-    x = 3*map_to_slab[stl_x];
-    y = 3*map_to_slab[stl_y];
+    x = 3*subtile_slab_fast(stl_x);
+    y = 3*subtile_slab_fast(stl_y);
     thing = get_door_for_position(x, y);
     if (thing_is_invalid(thing))
     {
@@ -420,7 +420,7 @@ TbBool player_sell_door_at_subtile(long plyr_idx, long stl_x, long stl_y)
         play_non_3d_sample(115);
     if (i != 0)
     {
-        set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
         create_price_effect(&pos, plyr_idx, i);
         player_add_offmap_gold(plyr_idx, i);
     }
@@ -434,22 +434,22 @@ TbBool player_sell_trap_at_subtile(long plyr_idx, long stl_x, long stl_y)
     MapSlabCoord slb_x,slb_y;
     struct Coord3d pos;
     long sell_value;
-    thing = get_trap_for_slab_position(map_to_slab[stl_x], map_to_slab[stl_y]);
+    thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
     if (thing_is_invalid(thing))
     {
         return false;
     }
     dungeon = get_players_num_dungeon(thing->owner);
-    slb_x = map_to_slab[stl_x];
-    slb_y = map_to_slab[stl_y];
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
     sell_value = 0;
-    remove_traps_around_subtile(3*slb_x+1, 3*slb_y+1, &sell_value);
+    remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     dungeon->camera_deviate_jump = 192;
     if (sell_value != 0)
     {
-        set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+        set_coords_to_slab_center(&pos,slb_x,slb_y);
         create_price_effect(&pos, plyr_idx, sell_value);
         player_add_offmap_gold(plyr_idx,sell_value);
     } else
@@ -673,8 +673,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
     stl_x = coord_subtile(x);
     stl_y = coord_subtile(y);
 
-    cx = slab_starting_subtile(stl_x);
-    cy = slab_starting_subtile(stl_y);
+    cx = stl_slab_starting_subtile(stl_x);
+    cy = stl_slab_starting_subtile(stl_y);
     if ((pckt->control_flags & PCtr_LBtnAnyAction) == 0)
       player->field_455 = 0;
     player->field_454 = (unsigned short)(pckt->field_10 & 0x1E) >> 1;
@@ -697,7 +697,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         switch (player->field_454)
         {
         case 1:
-          i = get_subtile_number(slab_center_subtile(player->field_4AB),slab_center_subtile(player->field_4AD));
+          i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
           set_flag_byte(&player->field_0, 0x20, find_from_task_list(plyr_idx,i) != -1);
           break;
         case 2:
@@ -715,7 +715,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         case 3:
           if (player->thing_under_hand == 0)
           {
-            i = get_subtile_number(slab_center_subtile(player->field_4AB),slab_center_subtile(player->field_4AD));
+            i = get_subtile_number(stl_slab_center_subtile(player->field_4AB),stl_slab_center_subtile(player->field_4AD));
             set_flag_byte(&player->field_0, 0x20, find_from_task_list(plyr_idx,i) != -1);
             player->field_3 |= 0x01;
           }
@@ -739,7 +739,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           player->field_455 = player->field_454;
           if (player->field_454 == 1)
           {
-            i = get_subtile_number(slab_center_subtile(stl_x),slab_center_subtile(stl_y));
+            i = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
             set_flag_byte(&player->field_0, 0x20, find_from_task_list(plyr_idx,i) != -1);
           }
         }
@@ -1140,7 +1140,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           }
           break;
         }
-        set_coords_to_slab_center(&pos,map_to_slab[stl_x],map_to_slab[stl_y]);
+        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
         player->field_4A4 = 1;
         i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y);
         if ((pckt->control_flags & PCtr_LBtnClick) == 0)
@@ -1164,7 +1164,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           unset_packet_control(pckt, PCtr_LBtnClick);
           break;
         }
-        delete_room_slabbed_objects(get_slab_number(map_to_slab[stl_x],map_to_slab[stl_y]));
+        delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
         thing = create_trap(&pos, player->chosen_trap_kind, plyr_idx);
         thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
         thing->byte_18 = 0;
@@ -1194,7 +1194,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
           if ((pckt->control_flags & PCtr_LBtnClick) != 0)
           {
-            k = get_slab_number(map_to_slab[stl_x], map_to_slab[stl_y]);
+            k = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
             delete_room_slabbed_objects(k);
             packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
           }

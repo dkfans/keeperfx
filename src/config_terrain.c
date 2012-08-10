@@ -74,7 +74,7 @@ struct SlabsConfig slab_conf;
 struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 
-//TODO identify all slab attributes and store them in config file
+//TODO CONFIG identify all slab attributes and store them in config file
 struct SlabAttr slab_attrs[] = {
   {324, 4, 0, 0x20|0x10, 0, 0, 0,  0, 1, 0, 0, 0, 0}, // [0] HARD
   {326, 4, 1, 0x10|0x01, 0, 0, 0,  0, 1, 0, 0, 1, 0},

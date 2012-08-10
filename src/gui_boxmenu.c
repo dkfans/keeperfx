@@ -595,7 +595,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
     {
       opt_num = opt_total;
 //      goptn->active = 0;
-//TODO: deactivate
+//TODO GUI: deactivate option
     }
     goptn++;
     opt_total++;
@@ -606,7 +606,7 @@ struct GuiBoxOption *gui_move_active_box_option(struct GuiBox *gbox, int val)
     goptn = &gbox->optn_list[opt_num];
     if (goptn->callback != NULL)
       goptn->callback(gbox, goptn, 1, &goptn->field_19);
-//TODO: activate
+//TODO GUI: activate option
     return goptn;
   }
   return NULL;

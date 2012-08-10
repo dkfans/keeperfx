@@ -3062,7 +3062,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     // Snow footprints
     if (game.texture_id == 2)
     {
-        slb = get_slabmap_block(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
+        slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (slb->kind == SlbT_PATH)
         {
           thing->movement_flags |= TMvF_Unknown80;

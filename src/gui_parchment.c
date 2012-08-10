@@ -384,9 +384,9 @@ void draw_overhead_things(long x, long y)
             struct MagicStats *magstat;
             lbDisplay.DrawFlags = 0x0010;
             magstat = &game.magic_stats[PwrK_CALL2ARMS];
-            k = (4 * ((i + game.play_gameturn) & 7) * map_to_slab[magstat->power[dungeon->field_883]]);
-            pos_x = x + (4 * map_to_slab[dungeon->field_881]);
-            pos_y = y + (4 * map_to_slab[dungeon->field_882]);
+            k = (4 * ((i + game.play_gameturn) & 7) * subtile_slab_fast(magstat->power[dungeon->field_883]));
+            pos_x = x + (4 * subtile_slab_fast(dungeon->field_881));
+            pos_y = y + (4 * subtile_slab_fast(dungeon->field_882));
             radius = (((k&7) + k) >> 3);
             LbDrawCircle(pos_x/pixel_size, pos_y/pixel_size, radius/pixel_size, player_room_colours[i]);
         }

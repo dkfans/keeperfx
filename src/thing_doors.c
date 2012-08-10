@@ -122,8 +122,8 @@ TbBool door_can_stand(struct Thing *thing)
     for (i = 0; i < 4; i++)
     {
         wall_flags *= 2;
-        slb_x = map_to_slab[thing->mappos.x.stl.num] + (int)small_around[i].delta_x;
-        slb_y = map_to_slab[thing->mappos.y.stl.num] + (int)small_around[i].delta_y;
+        slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (int)small_around[i].delta_x;
+        slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
         slb = get_slabmap_block(slb_x,slb_y);
         slbattr = get_slab_attrs(slb);
       if ((slbattr->field_F == 3) || (slb->kind == SlbT_ROCK) || (slb->kind == SlbT_EARTH) || (slb->kind == SlbT_TORCHDIRT)

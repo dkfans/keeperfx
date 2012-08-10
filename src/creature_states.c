@@ -838,9 +838,9 @@ struct Thing *check_for_door_to_fight(struct Thing *thing)
     for (n=0; n < 4; n++)
     {
         long slb_x,slb_y;
-        slb_x = map_to_slab[thing->mappos.x.stl.num] + (long)small_around[m].delta_x;
-        slb_y = map_to_slab[thing->mappos.y.stl.num] + (long)small_around[m].delta_y;
-        doortng = get_door_for_position(3*slb_x+1, 3*slb_y+1);
+        slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
+        slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
+        doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(doortng))
         {
           if (thing->owner != doortng->owner)
@@ -996,7 +996,7 @@ SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, l
                 break;
             stl_x = stl_num_decode_x(stl_num);
             stl_y = stl_num_decode_y(stl_num);
-            slb = get_slabmap_block(map_to_slab[stl_x],map_to_slab[stl_y]);
+            slb = get_slabmap_for_subtile(stl_x,stl_y);
             if (slabmap_owner(slb) != owner)
                 break;
             room = room_get(slb->room_index);
@@ -1140,7 +1140,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
 
-    slab_base = get_slab_number(map_to_slab[stl_x], map_to_slab[stl_y]);
+    slab_base = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
 
     start_stl = ACTION_RANDOM(9);
     m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
@@ -1192,8 +1192,8 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
         }
         m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
     }
-    base_x = 3 * map_to_slab[thing->mappos.x.stl.num];
-    base_y = 3 * map_to_slab[thing->mappos.y.stl.num];
+    base_x = 3 * subtile_slab_fast(thing->mappos.x.stl.num);
+    base_y = 3 * subtile_slab_fast(thing->mappos.y.stl.num);
     k = start_stl;
     for (i=0; i < 9; i++)
     {
@@ -1333,7 +1333,7 @@ struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct 
         slb_x = slb_num_decode_x(i);
         slb_y = slb_num_decode_y(i);
         // Per room tile code
-        tmptng = find_gold_hoard_at(3*slb_x+1, 3*slb_y+1);
+        tmptng = find_gold_hoard_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(tmptng))
         {
             if (creature_can_navigate_to_with_storage(thing, &tmptng->mappos, 0))

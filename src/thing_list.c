@@ -1868,7 +1868,7 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     param.plyr_idx = -1;
     slb_x = (stl_x/3);
     slb_y = (stl_y/3);
-    mapblk = get_map_block_at(3*slb_x+1, 3*slb_y+1);
+    mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     if (map_block_invalid(mapblk))
     {
         return INVALID_THING;

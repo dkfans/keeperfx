@@ -1094,7 +1094,7 @@ TbBool destroy_effect_thing(struct Thing *thing)
     if (thing->model == 43)
     {
         place_slab_type_on_map(12, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner, 0);
-        do_slab_efficiency_alteration(map_to_slab[thing->mappos.x.stl.num], map_to_slab[thing->mappos.y.stl.num]);
+        do_slab_efficiency_alteration(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num));
     }
     if (thing->snd_emitter_id != 0)
     {
