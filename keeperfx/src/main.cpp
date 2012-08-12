@@ -1287,7 +1287,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     }
     thing->class_id = TCls_CaveIn;
     thing->model = 0;
-    thing->parent_thing_idx = thing->index;
+    thing->parent_idx = thing->index;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->field_9 = game.play_gameturn;
@@ -2320,7 +2320,7 @@ struct Thing *create_ambient_sound(struct Coord3d *pos, unsigned short model, un
     }
     thing->class_id = TCls_AmbientSnd;
     thing->model = model;
-    thing->parent_thing_idx = thing->index;
+    thing->parent_idx = thing->index;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->field_4F |= 0x01;
@@ -6509,7 +6509,7 @@ long process_temple_special(struct Thing *thing)
 
 void do_creature_swap(long ncrt_id, long crtr_id)
 {
-//TODO: rewrite from DD
+//TODO SCRIPT rewrite from DD
   WARNMSG("Swaping creatures is only supported in Deeper Dungeons");
 }
 

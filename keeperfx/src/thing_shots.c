@@ -84,8 +84,8 @@ TbBool detonate_shot(struct Thing *thing)
     SYNCDBG(18,"Starting for model %d",(int)thing->model);
     shooter = INVALID_THING;
     myplyr = get_my_player();
-    if (thing->index != thing->parent_thing_idx)
-        shooter = thing_get(thing->parent_thing_idx);
+    if (thing->index != thing->parent_idx)
+        shooter = thing_get(thing->parent_idx);
     switch ( thing->model )
     {
     case 4:
@@ -187,8 +187,8 @@ long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
     shooter = INVALID_THING;
     shot_explodes = 0;
     shotst = get_shot_model_stats(thing->model);
-    if (thing->index != thing->parent_thing_idx) {
-        shooter = thing_get(thing->parent_thing_idx);
+    if (thing->index != thing->parent_idx) {
+        shooter = thing_get(thing->parent_idx);
     }
     blocked_flags = get_thing_blocked_flags_at(thing, pos);
     if ( shotst->old->field_49 ) {
@@ -395,11 +395,11 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *target)
     cctrl = creature_control_get_from_thing(target);
     target->health = -1;
     cctrl->shot_model = shotng->model;
-    if (shotng->parent_thing_idx == shotng->index) {
+    if (shotng->parent_idx == shotng->index) {
         kill_creature(target, INVALID_THING, shotng->owner, 0, 1, 0);
     } else {
         shotst = get_shot_model_stats(shotng->model);
-        kill_creature(target, thing_get(shotng->parent_thing_idx), shotng->owner, 0, 1, shotst->old->cannot_make_target_unconscious);
+        kill_creature(target, thing_get(shotng->parent_idx), shotng->owner, 0, 1, shotst->old->cannot_make_target_unconscious);
     }
     return true;
 }
@@ -416,8 +416,8 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *target, stru
     if (target->health < 0)
         return 0;
     shooter = INVALID_THING;
-    if (shotng->parent_thing_idx != shotng->index)
-        shooter = thing_get(shotng->parent_thing_idx);
+    if (shotng->parent_idx != shotng->index)
+        shooter = thing_get(shotng->parent_idx);
     tgcrstat = creature_stats_get_from_thing(target);
     tgcctrl = creature_control_get_from_thing(target);
     damage = get_damage_of_melee_shot(shotng, target);
@@ -493,10 +493,10 @@ void shot_kills_creature(struct Thing *shotng, struct Thing *target)
     target->health = -1;
     tgcctrl = creature_control_get_from_thing(target);
     tgcctrl->shot_model = shotng->model;
-    if (shotng->index == shotng->parent_thing_idx) {
+    if (shotng->index == shotng->parent_idx) {
         kill_creature(target, INVALID_THING, shotng->owner, 0, 1, 0);
     } else {
-        killertng = thing_get(shotng->parent_thing_idx);
+        killertng = thing_get(shotng->parent_idx);
         kill_creature(target, killertng, shotng->owner, 0, 1, shotst->old->cannot_make_target_unconscious);
     }
 }
@@ -513,8 +513,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     amp = shotng->field_20;
     shotst = get_shot_model_stats(shotng->model);
     shooter = INVALID_THING;
-    if (shotng->parent_thing_idx != shotng->index) {
-        shooter = thing_get(shotng->parent_thing_idx);
+    if (shotng->parent_idx != shotng->index) {
+        shooter = thing_get(shotng->parent_idx);
     }
     if (!thing_is_invalid(shooter))
     {
@@ -536,8 +536,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
         {
             struct Thing *killertng;
             killertng = INVALID_THING;
-            if (shotng->index != shotng->parent_thing_idx) {
-                killertng = thing_get(shotng->parent_thing_idx);
+            if (shotng->index != shotng->parent_idx) {
+                killertng = thing_get(shotng->parent_idx);
             }
             if ( !thing_is_invalid(killertng) )
             {
@@ -548,7 +548,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
                 pos2.z.val = crstat->eye_height + killertng->mappos.z.val;
                 clear_thing_acceleration(shotng);
                 set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
-                shotng->parent_thing_idx = target->parent_thing_idx;
+                shotng->parent_idx = target->parent_idx;
                 shotng->owner = target->owner;
             } else
             {
@@ -558,7 +558,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
                 set_thing_acceleration_angles(shotng, i, n);
                 if (target->class_id == TCls_Creature)
                 {
-                    shotng->parent_thing_idx = target->parent_thing_idx;
+                    shotng->parent_idx = target->parent_idx;
                 }
             }
             return 1;
@@ -849,7 +849,7 @@ long update_shot(struct Thing *thing)
               if (is_my_player_number(thing->owner))
               {
                   player = get_player(thing->owner);
-                  if ((thing->parent_thing_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_thing_idx))
+                  if ((thing->parent_idx != 0) && (myplyr->controlled_thing_idx == thing->parent_idx))
                   {
                       PaletteSetPlayerPalette(player, lightning_palette);
                       myplyr->field_3 |= 0x08;
@@ -973,7 +973,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->class_id = TCls_Shot;
     thing->model = model;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
-    thing->parent_thing_idx = thing->index;
+    thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->field_22 = shotst->old->field_D;
     thing->field_20 = shotst->old->field_F;

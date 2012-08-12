@@ -1991,7 +1991,6 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
         crstat = creature_stats_get(crtr_model);
         LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
     }
-//TODO Support CMLd_AcceptPartial in sub-functions!
     if (result)
     {
         result = parse_creaturemodel_attributes_blocks(crtr_model, buf, len, textname, flags);

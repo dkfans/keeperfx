@@ -507,7 +507,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->mappos.y.val = pos->y.val;
     thing->mappos.z.val = pos->z.val;
     thing->next_on_mapblk = 0;
-    thing->parent_thing_idx = thing->index;
+    thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->sizexy = 1;
     thing->field_58 = 1;
@@ -1068,7 +1068,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->mappos.z.val = pos->z.val;
     thing->next_on_mapblk = 0;
     thing->owner = owner;
-    thing->parent_thing_idx = thing->index;
+    thing->parent_idx = thing->index;
     thing->field_20 = 0;
     thing->field_23 = 0;
     thing->field_24 = 0;
@@ -1460,8 +1460,8 @@ long update_effect(struct Thing *thing)
     //return _DK_update_effect(thing);
     subtng = NULL;
     effnfo = &effect_info[thing->model];
-    if ( thing->parent_thing_idx ) {
-        subtng = thing_get(thing->parent_thing_idx);
+    if ( thing->parent_idx ) {
+        subtng = thing_get(thing->parent_idx);
         TRACE_THING(subtng);
     }
     if (thing->health <= 0) {
