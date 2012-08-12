@@ -703,6 +703,11 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
         spell_lev = SPELL_MAX_LEVEL;
     //_DK_apply_spell_effect_to_thing(thing, spell_idx, spell_lev); return;
     cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature tried to accept spell %ld",spell_idx);
+        return;
+    }
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         if (cctrl->casted_spells[i].spkind == spell_idx)
@@ -3263,10 +3268,11 @@ long update_creature(struct Thing *thing)
     struct Thing *tngp;
     struct Map *map;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    TRACE_THING(thing);
     map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
     if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & MapFlg_IsDoor) != 0))
     {
-        SYNCDBG(8,"Killing unconscious %s index %d on toxic map black.",thing_model_name(thing),(int)thing->index);
+        SYNCDBG(8,"Killing unconscious %s index %d on door block.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
         return 0;
     }

@@ -345,6 +345,7 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
     if (dungeon->keeper_sight_thing_idx == 0)
         return;
     thing = thing_get(dungeon->keeper_sight_thing_idx);
+    TRACE_THING(thing);
     // Fill the backup_explored array
     store_backup_explored_flags_for_power_sight(player, &thing->mappos);
     update_vertical_explored_flags_for_power_sight(player, &thing->mappos);
@@ -364,6 +365,7 @@ void redraw_creature_view(void)
       player->field_45F = 2;
     update_explored_flags_for_power_sight(player);
     thing = thing_get(player->controlled_thing_idx);
+    TRACE_THING(thing);
     if (!thing_is_invalid(thing))
       draw_creature_view(thing);
     if (smooth_on)
@@ -569,6 +571,7 @@ void process_pointer_graphic(void)
           if ((i > 0) && (pwrdata->flag_19))
           {
             thing = thing_get(battle_creature_over);
+            TRACE_THING(thing);
             draw_spell_cursor(player->work_state, battle_creature_over,
                 thing->mappos.x.stl.num, thing->mappos.y.stl.num);
           } else
@@ -597,6 +600,7 @@ void process_pointer_graphic(void)
               break;
           case 3:
               thing = thing_get(player->thing_under_hand);
+              TRACE_THING(thing);
               if ((!thing_is_invalid(thing)) && (player->field_4) && (dungeon->things_in_hand[0] != player->thing_under_hand)
                   && can_thing_be_possessed(thing, player->id_number))
               {

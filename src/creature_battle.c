@@ -172,6 +172,7 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
     if (cctrl->lairtng_idx > 0)
     {
         lairtng = thing_get(cctrl->lairtng_idx);
+        TRACE_THING(lairtng);
         pos->x.val = lairtng->mappos.x.val;
         pos->y.val = lairtng->mappos.y.val;
         pos->z.val = lairtng->mappos.z.val;
@@ -179,6 +180,7 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
     if (dungeon->dnheart_idx > 0)
     {
         heartng = thing_get(dungeon->dnheart_idx);
+        TRACE_THING(heartng);
         pos->x.val = heartng->mappos.x.val;
         pos->y.val = heartng->mappos.y.val;
         pos->z.val = heartng->mappos.z.val;

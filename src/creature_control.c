@@ -257,6 +257,7 @@ TbBool disband_creatures_group(struct Thing *thing)
     while (cctrl->next_in_group > 0)
     {
         ctng = thing_get(cctrl->next_in_group);
+        TRACE_THING(ctng);
         cctrl = creature_control_get_from_thing(ctng);
         k++;
         if (k > CREATURES_COUNT)
@@ -271,6 +272,7 @@ TbBool disband_creatures_group(struct Thing *thing)
     {
         cctrl = creature_control_get_from_thing(ctng);
         ntng = thing_get(cctrl->prev_in_group);
+        TRACE_THING(ntng);
         if (!thing_is_invalid(ntng))
         {
           remove_creature_from_group(ctng);

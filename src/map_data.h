@@ -67,9 +67,9 @@ extern long nav_map_initialised;
 /** Convert subtile to slab, assuming the subtile is in correct range. */
 #define subtile_slab_fast(stl) ((int)map_to_slab[stl])
 /** Converts slab to a subtile. Second parameter selects a specific subtile. */
-#define slab_subtile(slb,subnum) ((slb)*3+(int)(subnum))
+#define slab_subtile(slb,subnum) ((MapSubtlCoord)(slb)*3+(MapSubtlCoord)(subnum))
 /** Converts slab to its central subtile. */
-#define slab_subtile_center(slb) ((slb)*3+1)
+#define slab_subtile_center(slb) ((MapSubtlCoord)(slb)*3+(MapSubtlCoord)1)
 /******************************************************************************/
 #define coord_subtile(coord) ((coord)/256)
 #define subtile_coord(stl,spos) ((stl)*256+(spos))
@@ -82,7 +82,7 @@ unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
 TbBool map_block_invalid(const struct Map *map);
 void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx);
-TbBool subtile_revealed(long stl_x, long stl_y, long plyr_idx);
+TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 void reveal_map_block(struct Map *map, long plyr_idx);
 TbBool map_block_revealed(const struct Map *map, long plyr_idx);
 TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit);
@@ -95,7 +95,6 @@ void set_mapblk_column_index(struct Map *map, long column_idx);
 long get_mapblk_filled_subtiles(const struct Map *map);
 void set_mapblk_filled_subtiles(struct Map *map, long height);
 long get_subtile_lightness(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long domn_plyr_idx);
 
 TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z);
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

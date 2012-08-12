@@ -69,8 +69,10 @@ long creature_will_sleep(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *lairtng;
     long dist_x,dist_y;
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     lairtng = thing_get(cctrl->lairtng_idx);
+    TRACE_THING(lairtng);
     if (thing_is_invalid(lairtng))
         return false;
     dist_x = (long)thing->mappos.x.stl.num - (long)lairtng->mappos.x.stl.num;
@@ -215,9 +217,11 @@ short at_lair_to_sleep(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *lairtng;
     struct Room *room;
+    TRACE_THING(thing);
     //return _DK_at_lair_to_sleep(thing);
     cctrl = creature_control_get_from_thing(thing);
     lairtng = thing_get(cctrl->lairtng_idx);
+    TRACE_THING(lairtng);
     cctrl->field_80 = 0;
     if (thing_is_invalid(lairtng) || (cctrl->field_21 != 0))
     {

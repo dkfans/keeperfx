@@ -605,6 +605,7 @@
  0001:0006EF80       process_computer_players2
  0001:0006F070       process_computer_player2
  0001:0006F1A0       set_autopilot_type
+ 0001:0006F200       copy_block_with_cube_groups
  0001:0006F340       reveal_players_map_to_player
  0001:0006F7E0       at_torture_room
  0001:0006F8D0       process_torture_visuals
@@ -1019,6 +1020,7 @@
  0001:000B1720       update_blocks_in_area
  0001:000B1760       dig_out_block
  0001:000B1970       mine_out_block
+ 0001:000B1BE0       do_unprettying
  0001:000B1D10       imp_stack_update
  0001:000B20F0       add_pretty_and_convert_to_imp_stack
  0001:000B2950       add_unclaimed_unconscious_bodies_to_imp_stack
@@ -1081,6 +1083,7 @@
  0001:000BBA70       go_to_my_next_room_of_type
  0001:000BBCB0       claim_room
  0001:000BC230       claim_enemy_room
+ 0001:000BC890       change_room_map_element_ownership
  0001:000BCDB0       create_room_flag
  0001:000BCF00       get_room_thing_is_on
  0001:000BD240       player_has_room_of_type

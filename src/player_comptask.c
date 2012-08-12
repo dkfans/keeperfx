@@ -38,6 +38,7 @@
 #include "player_instances.h"
 
 #include "dungeon_data.h"
+#include "map_blocks.h"
 #include "slab_data.h"
 
 #include "keeperfx.hpp"
@@ -226,11 +227,17 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     struct Coord3d pos;
     SYNCDBG(9,"Starting action %d",(int)gaction);
     //return _DK_game_action(plyr_idx, gaction, a3, stl_x, stl_y, param1, param2);
+    if (subtile_has_slab(stl_x, stl_y)) {
+        slb_x = subtile_slab_fast(stl_x);
+        slb_y = subtile_slab_fast(stl_y);
+    } else {
+        slb_x = -1;
+        slb_y = -1;
+    }
     dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
       return 0;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
+    }
     switch (gaction)
     {
     case GA_Unk01:
@@ -297,12 +304,12 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER))
         {
-            place_slab_type_on_map(10, stl_x, stl_y, plyr_idx, 0);
+            place_slab_type_on_map(SlbT_PATH, stl_x, stl_y, plyr_idx, 0);
             do_slab_efficiency_alteration(slb_x, slb_y);
             i = 1;
         } else
         {
-            i = tag_blocks_for_digging_in_rectangle_around(3 * (stl_x / 3), 3 * (stl_y / 3), plyr_idx) > 0;
+            i = tag_blocks_for_digging_in_rectangle_around(3 * (slb_x), 3 * (slb_y), plyr_idx) > 0;
         }
         return i;
     case GA_Unk15:
@@ -318,9 +325,9 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         if (dungeon->trap_amount[param1] == 0)
             break;
         pos.x.stl.pos = 128;
-        pos.x.stl.num = 3 * (stl_x / 3) + 1;
+        pos.x.stl.num = 3 * (slb_x) + 1;
         pos.y.stl.pos = 128;
-        pos.y.stl.num = 3 * (stl_y / 3) + 1;
+        pos.y.stl.num = 3 * (slb_y) + 1;
         pos.z.val = 0;
         pos.z.val = get_floor_height_at(&pos);
         thing = create_trap(&pos, param1, plyr_idx);

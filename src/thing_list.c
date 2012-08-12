@@ -1370,6 +1370,7 @@ TbBool update_thing(struct Thing *thing)
     Thing_Class_Func classfunc;
     struct Coord3d pos;
     SYNCDBG(18,"Thing index %d, class %d",(int)thing->index,(int)thing->class_id);
+    TRACE_THING(thing);
     if (thing_is_invalid(thing))
         return false;
     if ((thing->movement_flags & TMvF_Unknown40) == 0)

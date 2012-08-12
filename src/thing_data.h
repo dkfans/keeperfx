@@ -182,6 +182,12 @@ unsigned short field_60;
 
 #define INVALID_THING (game.things.lookup[0])
 
+/** Macro used for debugging problems related to things.
+ * Should be executed in every function which changes a thing.
+ * Can be defined to any SYNCLOG routine, making complete trace of usage on a thing.
+ */
+#define TRACE_THING(thing)
+
 #pragma pack()
 /******************************************************************************/
 #define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)
@@ -190,8 +196,10 @@ short thing_create_thing(struct InitThing *itng);
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags);
 #define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);
+TbBool is_in_free_things_list(long tng_idx);
 
-struct Thing *thing_get(long tng_idx);
+#define thing_get(tng_idx) thing_get_f(tng_idx, __func__)
+struct Thing *thing_get_f(long tng_idx, const char *func_name);
 TbBool thing_exists_idx(long tng_idx);
 TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);

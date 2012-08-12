@@ -28,9 +28,11 @@
 #include "thing_traps.h"
 #include "thing_effects.h"
 #include "room_jobs.h"
+#include "map_blocks.h"
 #include "config_terrain.h"
 #include "creature_states.h"
 #include "gui_topmsg.h"
+#include "gui_soundmsgs.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -42,6 +44,9 @@ DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capa
 DLLIMPORT long _DK_claim_room(struct Room *room,struct Thing *claimtng);
 DLLIMPORT long _DK_claim_enemy_room(struct Room *room,struct Thing *claimtng);
 DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
+DLLIMPORT void _DK_do_unprettying(unsigned char a1, long plyr_idz, long a3);
+DLLIMPORT void _DK_change_room_map_element_ownership(struct Room *room, unsigned char plyr_idz);
+DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idz, unsigned char a3);
 /******************************************************************************/
 void count_slabs(struct Room *room);
 void count_gold_slabs_with_efficiency(struct Room *room);
@@ -184,24 +189,24 @@ DLLIMPORT short _DK_room_grow_food(struct Room *room);
 DLLIMPORT void _DK_set_room_capacity(struct Room *room, long capac);
 DLLIMPORT void _DK_set_room_efficiency(struct Room *room);
 DLLIMPORT struct Room *_DK_link_adjacent_rooms_of_type(unsigned char owner, long stl_x, long stl_y, unsigned char rkind);
-DLLIMPORT struct Room *_DK_create_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
+DLLIMPORT struct Room *_DK_create_room(unsigned char a1, unsigned char plyr_idz, unsigned short a3, unsigned short a4);
 DLLIMPORT void _DK_create_room_flag(struct Room *room);
 DLLIMPORT struct Room *_DK_allocate_free_room_structure(void);
 DLLIMPORT unsigned short _DK_i_can_allocate_free_room_structure(void);
-DLLIMPORT struct Room *_DK_find_room_with_spare_room_item_capacity(unsigned char a1, signed char a2);
-DLLIMPORT long _DK_create_workshop_object_in_workshop_room(long a1, long a2, long a3);
+DLLIMPORT struct Room *_DK_find_room_with_spare_room_item_capacity(unsigned char a1, signed char plyr_idz);
+DLLIMPORT long _DK_create_workshop_object_in_workshop_room(long a1, long plyr_idz, long a3);
 DLLIMPORT unsigned char _DK_find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 DLLIMPORT struct Room* _DK_find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing,
-    signed char a2, signed char a3, unsigned char a4, long a5);
-DLLIMPORT struct Room* _DK_find_room_with_spare_capacity(unsigned char a1, signed char a2, long a3);
-DLLIMPORT short _DK_delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3);
+    signed char plyr_idz, signed char a3, unsigned char a4, long a5);
+DLLIMPORT struct Room* _DK_find_room_with_spare_capacity(unsigned char a1, signed char plyr_idz, long a3);
+DLLIMPORT short _DK_delete_room_slab_when_no_free_room_structures(long a1, long plyr_idz, unsigned char a3);
 DLLIMPORT long _DK_calculate_room_efficiency(struct Room *room);
-DLLIMPORT void _DK_kill_room_slab_and_contents(unsigned char a1, unsigned char a2, unsigned char a3);
+DLLIMPORT void _DK_kill_room_slab_and_contents(unsigned char a1, unsigned char plyr_idz, unsigned char a3);
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
 DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
-DLLIMPORT void _DK_replace_room_slab(struct Room *room, long a2, long a3, unsigned char a4, unsigned char a5);
-DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char a2, unsigned short a3, unsigned short a4);
-DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);
+DLLIMPORT void _DK_replace_room_slab(struct Room *room, long plyr_idz, long a3, unsigned char a4, unsigned char a5);
+DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char plyr_idz, unsigned short a3, unsigned short a4);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char plyr_idz, char a3, unsigned char a4);
 DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber plyr_idx, int kind);
 /******************************************************************************/
 struct Room *room_get(long room_idx)
@@ -559,9 +564,69 @@ void delete_all_room_structures(void)
     }
 }
 
+/**
+ * Changes work room of all creatures working in specific room.
+ * Used for replacing room structures.
+ * @param wrkroom The room creatures are working in.
+ * @param newroom The new room for the creatures to work.
+ */
+void change_work_room_of_creatures_working_in_room(struct Room *wrkroom, struct Room *newroom)
+{
+    unsigned long k;
+    k = 0;
+    while (wrkroom->creatures_list != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(wrkroom->creatures_list);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid creature %d detected",(int)wrkroom->creatures_list);
+            break;
+        }
+        // Per creature code
+        remove_creature_from_specific_room(thing, wrkroom);
+        add_creature_to_work_room(thing, newroom);
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+}
+
+/**
+ * Changes job of all creatures working in specific room.
+ * @param wrkroom The room creatures are working in.
+ */
+void reset_job_of_creatures_working_in_room(struct Room *wrkroom)
+{
+    unsigned long k;
+    k = 0;
+    while (wrkroom->creatures_list != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(wrkroom->creatures_list);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid creature %d detected",(int)wrkroom->creatures_list);
+            break;
+        }
+        // Per creature code
+        set_start_state(thing);
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+}
+
 struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, RoomKind rkind)
 {
-    struct Thing *thing;
     SlabCodedCoords central_slbnum;
     struct SlabMap *slb;
     struct RoomData *rdata;
@@ -636,26 +701,7 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, Ro
                   {
                       rdata->ofsfield_3(linkroom);
                   }
-                  k = 0;
-                  while (room->creatures_list != 0)
-                  {
-                      thing = thing_get(room->creatures_list);
-                      if (thing_is_invalid(thing))
-                      {
-                          ERRORLOG("Jump to invalid creature %d detected",(int)room->creatures_list);
-                          break;
-                      }
-                      // Per creature code
-                      remove_creature_from_specific_room(thing, room);
-                      add_creature_to_work_room(thing, linkroom);
-                      // Per creature code ends
-                      k++;
-                      if (k > THINGS_COUNT)
-                      {
-                          ERRORLOG("Infinite loop detected when sweeping creatures list");
-                          break;
-                      }
-                  }
+                  change_work_room_of_creatures_working_in_room(room, linkroom);
                   delete_room_flag(room);
                   free_room_structure(room);
               }
@@ -824,6 +870,35 @@ TbBool add_room_to_players_list(struct Room *room, long plyr_idx)
     }
     dungeon->room_kind[room->kind] = room->index;
     dungeon->room_slabs_count[room->kind]++;
+    return true;
+}
+
+TbBool remove_room_from_players_list(struct Room *room, long plyr_idx)
+{
+    struct Dungeon *dungeon;
+    struct Room *nxroom;
+    struct Room *pvroom;
+    if (plyr_idx == game.neutral_player_num)
+        return false;
+    if (room->kind >= ROOM_TYPES_COUNT)
+    {
+        ERRORLOG("Room no %d has invalid kind",(int)room->index);
+        return false;
+    }
+    dungeon = get_dungeon(plyr_idx);
+    pvroom = room_get(room->prev_of_owner);
+    nxroom = room_get(room->next_of_owner);
+    if (!room_is_invalid(pvroom)) {
+        pvroom->next_of_owner = room->next_of_owner;
+    } else {
+        dungeon->room_kind[room->kind] = room->next_of_owner;
+    }
+    if (!room_is_invalid(nxroom)) {
+        nxroom->prev_of_owner = room->prev_of_owner;
+    }
+    room->next_of_owner = 0;
+    room->prev_of_owner = 0;
+    dungeon->room_slabs_count[room->kind]--;
     return true;
 }
 
@@ -1012,27 +1087,29 @@ void reinitialise_treaure_rooms(void)
 
 TbBool initialise_map_rooms(void)
 {
-  struct SlabMap *slb;
-  struct Room *room;
-  unsigned long x,y;
-  RoomKind rkind;
-  SYNCDBG(7,"Starting");
-  for (y=0; y < map_tiles_y; y++)
-    for (x=0; x < map_tiles_x; x++)
+    unsigned long slb_x,slb_y;
+    SYNCDBG(7,"Starting");
+    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
-      slb = get_slabmap_block(x, y);
-      rkind = slab_to_room_type(slb->kind);
-      if (rkind > 0)
-        room = create_room(slabmap_owner(slb), rkind, 3*x+1, 3*y+1);
-      else
-        room = NULL;
-      if (room != NULL)
-      {
-        set_room_efficiency(room);
-        set_room_capacity(room, 0);
-      }
+        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        {
+            struct SlabMap *slb;
+            struct Room *room;
+            RoomKind rkind;
+            slb = get_slabmap_block(slb_x, slb_y);
+            rkind = slab_to_room_type(slb->kind);
+            if (rkind > 0)
+              room = create_room(slabmap_owner(slb), rkind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+            else
+              room = INVALID_ROOM;
+            if (!room_is_invalid(room))
+            {
+              set_room_efficiency(room);
+              set_room_capacity(room, 0);
+            }
+        }
     }
-  return true;
+    return true;
 }
 
 short room_grow_food(struct Room *room)
@@ -1195,8 +1272,8 @@ TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long 
         // Per room tile code
         struct Coord3d pos;
         long effect_kind;
-        pos.x.val = subtile_coord_center(3*slb_x+1);
-        pos.y.val = subtile_coord_center(3*slb_y+1);
+        pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
+        pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
         pos.z.val = subtile_coord_center(1);
         effect_kind = effkind;
         if (effrange > 0)
@@ -1775,32 +1852,31 @@ void reset_creatures_rooms(struct Room *room)
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char a5)
 {
     struct SlabMap *slb;
-    unsigned short wlbflag;
     //_DK_replace_room_slab(room, slb_x, slb_y, owner, a5);
     if (room->kind == RoK_BRIDGE)
     {
         slb = get_slabmap_block(slb_x, slb_y);
-        wlbflag = slabmap_wlb(slb);
-        if (wlbflag == 0x01)
+        switch (slabmap_wlb(slb))
         {
-          place_slab_type_on_map(12, 3 * slb_x, 3 * slb_y, game.neutral_player_num, 0);
-        } else
-        if (wlbflag == 0x02)
-        {
-            place_slab_type_on_map(13, 3 * slb_x, 3 * slb_y, game.neutral_player_num, 0);
-        } else
-        {
+        case 1:
+            place_slab_type_on_map(SlbT_LAVA,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+            break;
+        case 2:
+            place_slab_type_on_map(SlbT_WATER, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+            break;
+        default:
             ERRORLOG("WLB flags seem damaged for slab (%ld,%ld).",(long)slb_x,(long)slb_y);
-            place_slab_type_on_map(13, 3 * slb_x, 3 * slb_y, game.neutral_player_num, 0);
+            place_slab_type_on_map(SlbT_PATH,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+            break;
         }
     } else
     {
         if ( a5 )
         {
-            place_slab_type_on_map(10, 3 * slb_x, 3 * slb_y, game.neutral_player_num, 0);
+            place_slab_type_on_map(SlbT_PATH, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
         } else
         {
-            place_slab_type_on_map(11, 3 * slb_x, 3 * slb_y, owner, 0);
+            place_slab_type_on_map(SlbT_CLAIMED, slab_subtile(slb_x,0), slab_subtile(slb_y,0), owner, 0);
             increase_dungeon_area(owner, 1);
         }
     }
@@ -1895,14 +1971,175 @@ TbBool add_item_to_room_capacity(struct Room *room)
     return true;
 }
 
+void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
+{
+    //TODO MEMORY This function makes thing leaks; rewrite!
+    _DK_change_room_map_element_ownership(room, plyr_idx);
+}
+
+void copy_block_with_cube_groups(short a1, unsigned char a2, unsigned char a3)
+{
+    _DK_copy_block_with_cube_groups(a1, a2, a3);
+}
+
+void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    // Prepare start and end subtiles
+    MapSubtlCoord start_stl_x,start_stl_y;
+    MapSubtlCoord end_stl_x,end_stl_y;
+    start_stl_x = slab_subtile(slb_x,0);
+    start_stl_y = slab_subtile(slb_y,0);
+    end_stl_x = slab_subtile(slb_x,3);
+    end_stl_y = slab_subtile(slb_y,3);
+    // Do the loop
+    MapSubtlCoord stl_x,stl_y;
+    for (stl_y=start_stl_y; stl_y < end_stl_y; stl_y++)
+    {
+        for (stl_x=start_stl_x; stl_x < end_stl_x; stl_x++)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x,stl_y);
+            if (!map_block_invalid(mapblk))
+            {
+                copy_block_with_cube_groups(-get_mapblk_column_index(mapblk), stl_x, stl_y);
+            }
+        }
+    }
+}
+
+void redraw_room_map_elements(struct Room *room)
+{
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSlabCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per-slab code start
+        redraw_slab_map_elements(slb_x, slb_y);
+        // Per-slab code end
+        k++;
+        if (k > map_tiles_x*map_tiles_y)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+}
+
+void do_unprettying(unsigned char a1, long a2, long a3)
+{
+    _DK_do_unprettying(a1, a2, a3);
+}
+
+void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
+{
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSlabCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per-slab code start
+        do_unprettying(plyr_idx, slb_x, slb_y);
+        // Per-slab code end
+        k++;
+        if (k > map_tiles_x*map_tiles_y)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+}
+
+void do_room_integration(struct Room *room)
+{
+    struct RoomData *rdata;
+    update_room_efficiency(room);
+    rdata = room_data_get_for_room(room);
+    room->field_C = (long)game.hits_per_slab * (long)room->slabs_count;
+    if (rdata->ofsfield_3 != NULL)
+        rdata->ofsfield_3(room);
+    if (rdata->ofsfield_7 != NULL)
+        rdata->ofsfield_7(room);
+    if (rdata->offfield_B != NULL)
+        rdata->offfield_B(room);
+    init_room_sparks(room);
+}
+
+void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, PlayerNumber newowner)
+{
+    if (room->kind == RoK_ENTRANCE)
+    {
+        if (is_my_player_number(oldowner)) {
+            output_message(38, 0, 1);
+        } else
+        if (is_my_player_number(newowner))
+        {
+            output_message(37, 0, 1);
+        }
+    } else
+    if (is_my_player_number(newowner))
+    {
+        if (oldowner == game.neutral_player_num) {
+            output_message(18, 0, 1);
+        } else {
+            output_message(17, 0, 1);
+        }
+    }
+}
+
 long claim_room(struct Room *room,struct Thing *claimtng)
 {
-    return _DK_claim_room(room,claimtng);
+    PlayerNumber oldowner;
+    //return _DK_claim_room(room,claimtng);
+    oldowner = room->owner;
+    if ((oldowner != game.neutral_player_num) || (claimtng->owner == game.neutral_player_num))
+    {
+        return 0;
+    }
+    room->owner = claimtng->owner;
+    room->field_C = room->slabs_count * game.hits_per_slab;
+    add_room_to_players_list(room, claimtng->owner);
+    change_room_map_element_ownership(room, claimtng->owner);
+    redraw_room_map_elements(room);
+    do_room_unprettying(room, claimtng->owner);
+    event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 15, claimtng->owner, room->kind);
+    do_room_integration(room);
+    thing_play_sample(claimtng, 116, 100, 0, 3, 0, 4, 256);
+    output_room_takeover_message(room, oldowner, claimtng->owner);
+    return 1;
 }
 
 long claim_enemy_room(struct Room *room,struct Thing *claimtng)
 {
-    return _DK_claim_enemy_room(room,claimtng);
+    PlayerNumber oldowner;
+    //return _DK_claim_enemy_room(room,claimtng);
+    oldowner = room->owner;
+    if ((oldowner == claimtng->owner) || (claimtng->owner == game.neutral_player_num))
+    {
+        return 0;
+    }
+    reset_job_of_creatures_working_in_room(room);
+    remove_room_from_players_list(room,oldowner);
+    room->owner = claimtng->owner;
+    room->field_C = (long)game.hits_per_slab * (long)room->slabs_count;
+    add_room_to_players_list(room, claimtng->owner);
+    change_room_map_element_ownership(room, claimtng->owner);
+    redraw_room_map_elements(room);
+    do_room_unprettying(room, claimtng->owner);
+    event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 15, claimtng->owner, room->kind);
+    do_room_integration(room);
+    output_room_takeover_message(room, oldowner, claimtng->owner);
+    return 1;
 }
 
 /******************************************************************************/

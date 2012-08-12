@@ -235,7 +235,8 @@ long update_dead_creature(struct Thing *thing)
     struct Map *mapblk;
     long i;
     SYNCDBG(18,"Starting");
-    return _DK_update_dead_creature(thing);
+    TRACE_THING(thing);
+    return _DK_update_dead_creature(thing); //TODO Why is rewritten code inactive?
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
       if (thing->active_state == 1)

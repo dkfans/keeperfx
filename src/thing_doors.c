@@ -235,6 +235,7 @@ long process_door_closing(struct Thing *thing)
 long process_door(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
+    TRACE_THING(thing);
     //return _DK_process_door(thing);
     if ( !door_can_stand(thing) || (thing->health < 0) )
     {

@@ -163,6 +163,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
     while (i > 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
             break;
         i = thing->next_of_class;
@@ -205,6 +206,7 @@ long check_out_empty_traps(struct Thing *digger, long range)
     while (i > 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
           break;
         i = thing->next_of_class;
@@ -276,6 +278,7 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *digger, long tngmodel)
     while (i > 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
             break;
         i = thing->next_of_class;
@@ -319,6 +322,7 @@ long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
     while (i > 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
           break;
         i = thing->next_of_class;
@@ -876,11 +880,13 @@ TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing)
     dragctrl = creature_control_get_from_thing(dragtng);
     // Check if we're already dragging
     picktng = thing_get(cctrl->field_6E);
+    TRACE_THING(picktng);
     if (!thing_is_invalid(picktng)) {
         ERRORLOG("Thing is already dragging something");
         return false;
     }
     picktng = thing_get(dragctrl->field_6E);
+    TRACE_THING(picktng);
     if (!thing_is_invalid(picktng)) {
         ERRORLOG("Thing is already dragged by something");
         return false;
@@ -909,6 +915,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
      }
     cctrl = creature_control_get_from_thing(thing);
     picktng = thing_get(cctrl->pickup_creature_id);
+    TRACE_THING(picktng);
     if ( thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || ((picktng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
     {
@@ -940,9 +947,11 @@ short creature_picks_up_corpse(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *picktng;
     struct Coord3d pos;
+    TRACE_THING(thing);
     //return _DK_creature_picks_up_corpse(thing);
     cctrl = creature_control_get_from_thing(thing);
     picktng = thing_get(cctrl->pickup_object_id);
+    TRACE_THING(picktng);
     if ( thing_is_invalid(picktng) || ((picktng->alloc_flags & TAlF_IsDragged) != 0)
       || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
     {
@@ -973,9 +982,11 @@ short creature_picks_up_spell_object(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *picktng;
     struct Coord3d pos;
+    TRACE_THING(thing);
     //return _DK_creature_picks_up_spell_object(thing);
     cctrl = creature_control_get_from_thing(thing);
     picktng = thing_get(cctrl->pickup_object_id);
+    TRACE_THING(picktng);
     if ( thing_is_invalid(picktng) || ((picktng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
     {
@@ -1012,10 +1023,12 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
     struct Thing *cratetng;
     struct Room *dstroom;
     struct Coord3d pos;
+    TRACE_THING(thing);
     //return _DK_creature_picks_up_trap_for_workshop(thing);
     // Get the crate thing
     cctrl = creature_control_get_from_thing(thing);
     cratetng = thing_get(cctrl->pickup_object_id);
+    TRACE_THING(cratetng);
     // Check if everything is right
     if ( thing_is_invalid(cratetng) || ((cratetng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512) )
@@ -1052,11 +1065,14 @@ short creature_picks_up_trap_object(struct Thing *thing)
     struct Room *room;
     struct Thing *cratetng;
     struct Thing *traptng;
+    TRACE_THING(thing);
     //return _DK_creature_picks_up_trap_object(thing);
     cctrl = creature_control_get_from_thing(thing);
     cratetng = thing_get(cctrl->pickup_object_id);
+    TRACE_THING(cratetng);
     room = get_room_thing_is_on(cratetng);
     traptng = thing_get(cctrl->field_70);
+    TRACE_THING(traptng);
     if ( !thing_exists(cratetng) || !thing_exists(traptng) )
     {
         WARNLOG("The %s index %d or %s index %d no longer exists",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
@@ -1107,9 +1123,11 @@ short creature_drops_corpse_in_graveyard(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Room *room;
     struct Thing *corpse;
+    TRACE_THING(thing);
     //return _DK_creature_drops_corpse_in_graveyard(thing);
     cctrl = creature_control_get_from_thing(thing);
     corpse = thing_get(cctrl->field_6E);
+    TRACE_THING(corpse);
     // Check if corpse is ok
     if ( !thing_exists(corpse) )
     {
@@ -1155,9 +1173,11 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     struct Thing *cratetng;
     struct CreatureControl *cctrl;
     struct Room *room;
+    TRACE_THING(thing);
     //return _DK_creature_drops_crate_in_workshop(thing);
     cctrl = creature_control_get_from_thing(thing);
     cratetng = thing_get(cctrl->field_6E);
+    TRACE_THING(cratetng);
     // Check if crate is ok
     if ( !thing_exists(cratetng) )
     {
@@ -1209,9 +1229,11 @@ short creature_drops_spell_object_in_library(struct Thing *thing)
     struct Thing *spelltng;
     struct CreatureControl *cctrl;
     struct Room *room;
+    TRACE_THING(thing);
     //return _DK_creature_drops_spell_object_in_library(thing);
     cctrl = creature_control_get_from_thing(thing);
     spelltng = thing_get(cctrl->field_6E);
+    TRACE_THING(spelltng);
     // Check if spell is ok
     if ( !thing_exists(spelltng) )
     {
@@ -1263,6 +1285,7 @@ short creature_arms_trap(struct Thing *thing)
     struct Thing *traptng;
     struct Thing *postng;
     struct Thing *cratetng;
+    TRACE_THING(thing);
     //return _DK_creature_arms_trap(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl)) {
@@ -1271,7 +1294,9 @@ short creature_arms_trap(struct Thing *thing)
     }
     dungeon = get_dungeon(thing->owner);
     cratetng = thing_get(cctrl->field_6E);
+    TRACE_THING(cratetng);
     traptng = thing_get(cctrl->field_70);
+    TRACE_THING(traptng);
     if ( !thing_exists(cratetng) || !thing_exists(traptng) )
     {
         set_start_state(thing);

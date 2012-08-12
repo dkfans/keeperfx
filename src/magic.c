@@ -417,6 +417,11 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
 TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_conceal(a1, thing, a3, a4, a5);
+    if (!thing_is_creature(thing))
+    {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
     // If this spell is already casted at that creature, do nothing
     if (thing_affected_by_spell(thing, SplK_Invisibility))
         return Lb_OK;
@@ -431,6 +436,11 @@ TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, Map
 TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_armour(plyr_idx, thing, a3, a4, splevel);
+    if (!thing_is_creature(thing))
+    {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
     // If this spell is already casted at that creature, do nothing
     if (thing_affected_by_spell(thing, SplK_Armour))
         return Lb_OK;
@@ -469,6 +479,11 @@ long thing_affected_by_spell(struct Thing *thing, long spkind)
 TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_speed(plyr_idx, thing, a3, a4, splevel);
+    if (!thing_is_creature(thing))
+    {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
     if (thing_affected_by_spell(thing, SplK_Speed))
     {
         return Lb_OK;

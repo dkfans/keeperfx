@@ -203,8 +203,8 @@ TbBool check_out_unprettied_spot(struct Thing *thing, long slb_x, long slb_y)
     {
       if (check_place_to_pretty_excluding(thing, slb_x, slb_y))
       {
-          stl_x = 3*slb_x+1;
-          stl_y = 3*slb_y+1;
+          stl_x = slab_subtile_center(slb_x);
+          stl_y = slab_subtile_center(slb_y);
           if (!imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
           {
               if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
@@ -294,8 +294,8 @@ TbBool check_out_unconverted_place(struct Thing *thing)
     SYNCDBG(19,"Starting");
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
-    stl_x = 3*slb_x + 1;
-    stl_y = 3*slb_y + 1;
+    stl_x = slab_subtile_center(slb_x);
+    stl_y = slab_subtile_center(slb_y);
     if ( check_place_to_convert_excluding(thing, slb_x, slb_y)
       && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
     {
@@ -319,8 +319,8 @@ long check_out_unprettied_place(struct Thing *thing)
   SYNCDBG(19,"Starting");
   slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
   slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
-  stl_x = 3*slb_x + 1;
-  stl_y = 3*slb_y + 1;
+  stl_x = slab_subtile_center(slb_x);
+  stl_y = slab_subtile_center(slb_y);
   if ( check_place_to_pretty_excluding(thing, slb_x, slb_y)
     && !imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y) )
   {

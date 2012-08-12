@@ -74,7 +74,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     thing = thing_get(game.free_things[i]);
 #if (BFDEBUG_LEVEL > 0)
     if (thing_exists(thing)) {
-        ERRORMSG("%s: Found existing thing %d in free things list!",func_name,(int)i);
+        ERRORMSG("%s: Found existing thing %d in free things list at pos %d!",func_name,(int)game.free_things[i],(int)i);
     }
 #endif
     LbMemorySet(thing, 0, sizeof(struct Thing));
@@ -86,6 +86,7 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     thing->index = game.free_things[i];
     game.free_things[game.free_things_start_index] = 0;
     game.free_things_start_index++;
+    TRACE_THING(thing);
     return thing;
 }
 
@@ -110,6 +111,22 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     return false;
 }
 
+/**
+ * Returns if a thing of given index is in free things list.
+ * @param tng_idx Index of the thing to be checked.
+ * @return
+ */
+TbBool is_in_free_things_list(long tng_idx)
+{
+    int i;
+    for (i=game.free_things_start_index; i < THINGS_COUNT-1; i++)
+    {
+        if (game.free_things[i] == tng_idx)
+            return true;
+    }
+    return false;
+}
+
 unsigned char creature_remove_lair_from_room(struct Thing *thing, struct Room *room)
 {
     return _DK_creature_remove_lair_from_room(thing, room);
@@ -120,6 +137,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     struct CreatureControl *cctrl;
     struct Room *room;
     //_DK_delete_thing_structure(thing, a2); return;
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if ((thing->alloc_flags & TAlF_Unkn08) != 0) {
         remove_first_creature(thing);
@@ -167,13 +185,13 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
  * @param tng_idx
  * @return Returns thing, or invalid thing pointer if not found.
  */
-struct Thing *thing_get(long tng_idx)
+struct Thing *thing_get_f(long tng_idx, const char *func_name)
 {
     if ((tng_idx > 0) && (tng_idx < THINGS_COUNT)) {
         return game.things.lookup[tng_idx];
     }
     if ((tng_idx < -1) || (tng_idx >= THINGS_COUNT)) {
-        ERRORLOG("Request of invalid thing (no %ld) intercepted",tng_idx);
+        ERRORMSG("%s: Request of invalid thing (no %ld) intercepted",func_name,tng_idx);
     }
     return INVALID_THING;
 }

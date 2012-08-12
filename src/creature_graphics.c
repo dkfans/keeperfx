@@ -393,6 +393,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     struct InstanceInfo *inst_inf;
     long i;
 
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
 

@@ -57,6 +57,7 @@ long get_no_creatures_in_group(const struct Thing *grptng)
     while (i > 0)
     {
         ctng = thing_get(i);
+        TRACE_THING(ctng);
         cctrl = creature_control_get_from_thing(ctng);
         if (creature_control_invalid(cctrl))
             break;
@@ -87,6 +88,7 @@ struct Thing *get_last_creature_in_group(const struct Thing *grptng)
     while (i > 0)
     {
         ctng = thing_get(i);
+        TRACE_THING(ctng);
         cctrl = creature_control_get_from_thing(ctng);
         if (creature_control_invalid(cctrl))
             break;

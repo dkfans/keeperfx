@@ -518,10 +518,6 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_
       continue;
     }
     inst_inf = creature_instance_info_get(i);
-/* debug code - remove pending
-    JUSTLOG("[%s]",block_buf);
-    JUSTLOG("Graphics = %s",get_conf_parameter_text(creature_graphics_desc,inst_inf->graphics_idx+1));
-*/
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
     while (pos<len)
     {
