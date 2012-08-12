@@ -1934,3 +1934,6 @@
  0001:0004C630       search_spiral
  0001:00051890       dig_to_position
  0001:00051A10       get_hug_side
+ 0001:000BC890       change_room_map_element_ownership
+ 0001:0006F200       copy_block_with_cube_groups
+ 0001:000B1BE0       do_unprettying

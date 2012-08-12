@@ -192,6 +192,7 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
         {
@@ -231,6 +232,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         cctrl = creature_control_get_from_thing(thing);
         if (creature_control_invalid(cctrl))
         {
@@ -340,7 +342,7 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *thing, long dngn_idx)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    struct Thing *heartng;
+    TRACE_THING(thing);
     dungeon = get_dungeon(dngn_idx);
     if (dungeon_invalid(dungeon) || (thing->owner == dngn_idx))
     {
@@ -353,8 +355,12 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *thing, long dngn_idx)
         WARNLOG("The %s tried to wander to inactive player (%d) heart", thing_model_name(thing), (int)dngn_idx);
         return false;
     }
-    heartng = thing_get(dungeon->dnheart_idx);
-    set_creature_object_combat(thing, heartng);
+    {
+        struct Thing *heartng;
+        heartng = thing_get(dungeon->dnheart_idx);
+        TRACE_THING(heartng);
+        set_creature_object_combat(thing, heartng);
+    }
     return true;
 }
 
@@ -597,6 +603,7 @@ short good_returns_to_start(struct Thing *thing)
     heartng = INVALID_THING;
     if (!dungeon_invalid(dungeon))
         heartng = thing_get(dungeon->dnheart_idx);
+    TRACE_THING(heartng);
     //TODO CREATURE_AI Heroes don't usually have hearts; maybe they should also go back to hero gates?
     if ( !setup_person_move_to_position(thing, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, 0) )
     {
@@ -637,6 +644,7 @@ short good_wait_in_exit_door(struct Thing *thing)
         }
         thing->creature.gold_carried = 0;
         tmptng = thing_get(cctrl->field_6E);
+        TRACE_THING(tmptng);
         if (!thing_is_invalid(tmptng))
         {
             delete_thing_structure(tmptng, 0);
@@ -651,6 +659,7 @@ short creature_hero_entering(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct StateInfo *stati;
     CreatureStateFunc1 cleanup_cb;
+    TRACE_THING(thing);
     //return _DK_creature_hero_entering(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->field_282 > 0)

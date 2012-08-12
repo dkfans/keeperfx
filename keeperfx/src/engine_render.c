@@ -3648,6 +3648,7 @@ void draw_frontview_things_on_element(struct Map *map, struct Camera *cam)
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");

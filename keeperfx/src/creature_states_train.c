@@ -129,11 +129,13 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
     struct Thing *thing;
     unsigned long k;
     long i;
+    TRACE_THING(partnertng);
     i = room->creatures_list;
     k = 0;
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_exists(cctrl))
         {
@@ -438,6 +440,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             return;
         }
         crtng = thing_get(cctrl->training.partner_idx);
+        TRACE_THING(crtng);
         if (!thing_exists(crtng) || (get_creature_state_besides_move(crtng) != CrSt_Training) || (crtng->field_9 != cctrl->training.partner_field9))
         {
             SYNCDBG(8,"The %s cannot start partner training - creature to train with is gone.",thing_model_name(thing));

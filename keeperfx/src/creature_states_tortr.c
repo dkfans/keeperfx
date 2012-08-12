@@ -239,12 +239,14 @@ long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
     struct USPOINT_2D *revealed_pts;
     unsigned int pt_idx,pts_count,pts_to_reveal;
     TbBool reveal_success;
+    TRACE_THING(thing);
     //return _DK_reveal_players_map_to_player(thing, a2);
     dungeon = get_dungeon(thing->owner);
 
     if (dungeon->dnheart_idx > 0)
     {
         heartng = thing_get(dungeon->dnheart_idx);
+        TRACE_THING(heartng);
         revealstl_x = heartng->mappos.x.stl.num;
         revealstl_y = heartng->mappos.y.stl.num;
     } else

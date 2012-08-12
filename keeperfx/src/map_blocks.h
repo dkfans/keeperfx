@@ -36,12 +36,14 @@ struct Map;
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
 
+void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5);
 void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3);
 void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
+void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber domn_plyr_idx);
 void check_map_explored(struct Thing *thing, long a2, long a3);
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
-TbBool set_slab_explored(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
+TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void get_floor_and_ceiling_heights_at(const struct Coord3d *pos, unsigned long *heights);
 TbBool point_in_map_is_solid(const struct Coord3d *pos);
 

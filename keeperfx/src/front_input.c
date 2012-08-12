@@ -621,6 +621,7 @@ TbBool get_level_lost_inputs(void)
       break;
     case PVT_CreatureContrl:
       thing = thing_get(player->controlled_thing_idx);
+      TRACE_THING(thing);
       if (thing->class_id == TCls_Creature)
       {
         struct CreatureControl *cctrl;
@@ -776,6 +777,7 @@ short get_creature_passenger_action_inputs(void)
   }
   struct Thing *thing;
   thing = thing_get(player->controlled_thing_idx);
+  TRACE_THING(thing);
   if ((player->field_31 != thing->field_9) || ((thing->alloc_flags & TAlF_Exists)==0) )
   {
     set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
@@ -817,6 +819,7 @@ short get_creature_control_action_inputs(void)
     {
       struct Thing *thing;
       thing = thing_get(player->controlled_thing_idx);
+      TRACE_THING(thing);
       if ( (player->field_31 != thing->field_9) || ((thing->alloc_flags & TAlF_Exists) == 0)
          || (thing->active_state == CrSt_CreatureUnconscious) )
         make_packet = true;
@@ -856,6 +859,7 @@ short get_creature_control_action_inputs(void)
       struct CreatureStats *crstat;
       struct Thing *thing;
       thing = thing_get(player->controlled_thing_idx);
+      TRACE_THING(thing);
       crstat = creature_stats_get_from_thing(thing);
       instnce = crstat->instance_spell[idx];
       if ( creature_instance_is_available(thing,instnce) )
@@ -1398,6 +1402,7 @@ void get_creature_control_nonaction_inputs(void)
   x = GetMouseX();
   y = GetMouseY();
   thing = thing_get(player->controlled_thing_idx);
+  TRACE_THING(thing);
   pckt->pos_x = 127;
   pckt->pos_y = 127;
   if ((player->field_0 & 0x08) != 0)
@@ -1604,6 +1609,7 @@ short get_inputs(void)
         struct Thing *thing;
         struct CreatureControl *cctrl;
         thing = thing_get(player->controlled_thing_idx);
+        TRACE_THING(thing);
         if (!thing_is_creature(thing))
         {
           get_level_lost_inputs();

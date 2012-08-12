@@ -1483,8 +1483,10 @@ short creature_pick_up_spell_to_steal(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *spelltng;
     struct Coord3d pos;
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     spelltng = thing_get(cctrl->pickup_object_id);
+    TRACE_THING(spelltng);
     if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & TF1_Unkn01) != 0)
       || (get_2d_box_distance(&thing->mappos, &spelltng->mappos) >= 512))
     {
@@ -1610,14 +1612,14 @@ long move_check_can_damage_wall(struct Thing *creatng)
 long creature_can_have_combat_with_creature_on_slab(const struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
 {
     struct Map *map;
-    long endstl_x,endstl_y;
-    long stl_x,stl_y;
+    MapSubtlCoord endstl_x,endstl_y;
+    MapSubtlCoord stl_x,stl_y;
     long dist;
-    endstl_x = 3*slb_x+3;
-    endstl_y = 3*slb_y+3;
-    for (stl_y = 3*slb_y; stl_y < endstl_y; stl_y++)
+    endstl_x = slab_subtile(slb_x+1,0);
+    endstl_y = slab_subtile(slb_y+1,0);
+    for (stl_y = slab_subtile(slb_y,0); stl_y < endstl_y; stl_y++)
     {
-        for (stl_x = 3*slb_x; stl_x < endstl_x; stl_x++)
+        for (stl_x = slab_subtile(slb_x,0); stl_x < endstl_x; stl_x++)
         {
             struct Thing *thing;
             long can_combat;
@@ -1629,6 +1631,7 @@ long creature_can_have_combat_with_creature_on_slab(const struct Thing *creatng,
             while (i != 0)
             {
                 thing = thing_get(i);
+                TRACE_THING(thing);
                 if (thing_is_invalid(thing))
                 {
                     ERRORLOG("Jump to invalid thing detected");
@@ -1791,6 +1794,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
     }
 
     tmptng = thing_get(cctrl1->battle_enemy_idx);
+    TRACE_THING(tmptng);
     if  ( (cctrl1->field_AD & 0x10) || (cctrl2->field_AD & 0x10)
         || ((cctrl1->combat_flags) && (tmptng == tng2)) )
     {
@@ -1818,10 +1822,12 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Thing *enemytng;
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->word_9A != 0)
     {
         enemytng = thing_get(cctrl->word_9A);
+        TRACE_THING(enemytng);
         if (((enemytng->alloc_flags & TAlF_Exists) == 0) || (cctrl->long_9C != enemytng->field_9))
         {
           enemytng = NULL;

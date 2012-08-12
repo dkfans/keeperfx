@@ -28,6 +28,7 @@
 #include "thing_navigate.h"
 #include "front_simple.h"
 #include "map_data.h"
+#include "map_blocks.h"
 #include "creature_graphics.h"
 #include "gui_topmsg.h"
 #include "keeperfx.hpp"
@@ -605,6 +606,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
           effmodel = effstat->field_2A;
           if (effmodel > 0) {
               efftng = create_effect(prev_pos, effmodel, thing->owner);
+              TRACE_THING(efftng);
           }
           sample_id = effstat->field_2C;
           if (sample_id > 0) {
@@ -618,6 +620,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
             effmodel = effstat->field_31;
             if (effmodel > 0) {
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
+                TRACE_THING(efftng);
             }
             sample_id = effstat->field_33;
             if (sample_id > 0) {
@@ -630,6 +633,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
             effmodel = effstat->field_23;
             if (effmodel > 0) {
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
+                TRACE_THING(efftng);
             }
             sample_id = effstat->field_25;
             if (sample_id > 0) {
@@ -679,6 +683,7 @@ long update_effect_element(struct Thing *thing)
     long prop_factor,prop_val;
     long i;
     SYNCDBG(18,"Starting");
+    TRACE_THING(thing);
     //return _DK_update_effect_element(thing);
     if (thing->model < sizeof(effect_element_stats)/sizeof(effect_element_stats[0])) {
         eestats = &effect_element_stats[thing->model];
@@ -876,6 +881,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
                   continue;
               n = effnfo->kind_min + ACTION_RANDOM(effnfo->kind_max - effnfo->kind_min + 1);
               elemtng = create_effect_element(&thing->mappos, n, thing->owner);
+              TRACE_THING(elemtng);
               if (thing_is_invalid(elemtng))
                 break;
               arg = ACTION_RANDOM(0x800);
@@ -903,6 +909,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
               arg = (mag << 7) + k/effnfo->field_B;
               set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
               elemtng = create_effect_element(&pos, n, thing->owner);
+              TRACE_THING(elemtng);
               k += 2048;
           }
           break;
@@ -915,6 +922,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
               arg = (mag << 7) + k/effnfo->field_B;
               set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
               elemtng = create_effect_element(&pos, n, thing->owner);
+              TRACE_THING(elemtng);
               k += 2048;
           }
           break;
@@ -954,11 +962,12 @@ void effect_generate_effect_elements(const struct Thing *thing)
 long process_effect_generator(struct Thing *thing)
 {
     struct EffectGeneratorStats *egenstat;
-    struct Thing *efftng;
+    struct Thing *elemtng;
     struct Coord3d pos;
     long deviation_angle,deviation_mag;
     long i,k;
     SYNCDBG(18,"Starting");
+    TRACE_THING(thing);
     //return _DK_process_effect_generator(thing);
     if (thing->health > 0)
         thing->health--;
@@ -985,49 +994,51 @@ long process_effect_generator(struct Thing *thing)
         deviation_mag = ACTION_RANDOM(thing->word_13 + 1);
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
-        efftng = create_effect_element(&pos, egenstat->field_C, thing->owner);
-        if (thing_is_invalid(efftng))
+        elemtng = create_effect_element(&pos, egenstat->field_C, thing->owner);
+        TRACE_THING(elemtng);
+        if (thing_is_invalid(elemtng))
             break;
-        efftng->sizexy = 20;
-        efftng->field_58 = 20;
+        elemtng->sizexy = 20;
+        elemtng->field_58 = 20;
         if (egenstat->field_10)
         {
             k = egenstat->field_11;
         } else
         if (egenstat->field_11 == -1)
         {
-            efftng->mappos.z.val = subtile_coord(8,0);
-            k = get_next_gap_creature_can_fit_in_below_point(efftng, &efftng->mappos);
+            elemtng->mappos.z.val = subtile_coord(8,0);
+            k = get_next_gap_creature_can_fit_in_below_point(elemtng, &elemtng->mappos);
         } else
         {
-            k = egenstat->field_11 + get_thing_height_at(efftng, &efftng->mappos);
+            k = egenstat->field_11 + get_thing_height_at(elemtng, &elemtng->mappos);
         }
-        efftng->mappos.z.val = k;
-        if ( thing_in_wall_at(efftng, &efftng->mappos) )
+        elemtng->mappos.z.val = k;
+        if ( thing_in_wall_at(elemtng, &elemtng->mappos) )
         {
             SYNCDBG(18,"The %s created effect %d/%d in wall, removing",thing_model_name(thing),(int)i,(int)egenstat->genation_amount);
-            delete_thing_structure(efftng, 0);
+            delete_thing_structure(elemtng, 0);
         } else
         {
-            SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->genation_amount,(int)efftng->index);
+            SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->genation_amount,(int)elemtng->index);
             long acc_x,acc_y,acc_z;
             struct Thing *sectng;
             acc_x = egenstat->acc_x_min + ACTION_RANDOM(egenstat->acc_x_max - egenstat->acc_x_min + 1);
             acc_y = egenstat->acc_y_min + ACTION_RANDOM(egenstat->acc_y_max - egenstat->acc_y_min + 1);
             acc_z = egenstat->acc_z_min + ACTION_RANDOM(egenstat->acc_z_max - egenstat->acc_z_min + 1);
-            efftng->acceleration.x.val += acc_x;
-            efftng->acceleration.y.val += acc_y;
-            efftng->acceleration.z.val += acc_z;
-            efftng->field_1 |= 0x04;
+            elemtng->acceleration.x.val += acc_x;
+            elemtng->acceleration.y.val += acc_y;
+            elemtng->acceleration.z.val += acc_z;
+            elemtng->field_1 |= 0x04;
             if (egenstat->sound_sample_idx > 0)
             {
-                sectng = create_effect(&efftng->mappos, TngEff_Unknown49, thing->owner);
+                sectng = create_effect(&elemtng->mappos, TngEff_Unknown49, thing->owner);
+                TRACE_THING(sectng);
                 if (!thing_is_invalid(sectng)) {
                     thing_play_sample(sectng, egenstat->sound_sample_idx + ACTION_RANDOM(egenstat->sound_sample_rng), 100, 0, 3, 0, 2, 256);
                 }
             }
             if (egenstat->sound_sample_sec > 0) {
-                thing_play_sample(efftng, egenstat->sound_sample_sec, 100, 0, 3, 0, 2, 256);
+                thing_play_sample(elemtng, egenstat->sound_sample_sec, 100, 0, 3, 0, 2, 256);
             }
         }
     }
@@ -1086,14 +1097,16 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
 
 void create_special_used_effect(const struct Coord3d *pos, long plyr_idx)
 {
-    create_effect(pos, TngEff_Unknown67, plyr_idx);
+    struct Thing *efftng;
+    efftng = create_effect(pos, TngEff_Unknown67, plyr_idx);
+    TRACE_THING(efftng);
 }
 
 TbBool destroy_effect_thing(struct Thing *thing)
 {
     if (thing->model == 43)
     {
-        place_slab_type_on_map(12, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner, 0);
+        place_slab_type_on_map(SlbT_LAVA, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner, 0);
         do_slab_efficiency_alteration(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num));
     }
     if (thing->snd_emitter_id != 0)
@@ -1186,6 +1199,7 @@ long word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -1349,6 +1363,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -1441,11 +1456,13 @@ long update_effect(struct Thing *thing)
     struct InitEffect *effnfo;
     struct Thing *subtng;
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    TRACE_THING(thing);
     //return _DK_update_effect(thing);
     subtng = NULL;
     effnfo = &effect_info[thing->model];
     if ( thing->parent_thing_idx ) {
         subtng = thing_get(thing->parent_thing_idx);
+        TRACE_THING(subtng);
     }
     if (thing->health <= 0) {
         destroy_effect_thing(thing);
@@ -1474,12 +1491,13 @@ long update_effect(struct Thing *thing)
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)
 {
-    struct Thing *thing;
-    thing = create_effect_element(pos, TngEff_Unknown41, plyr_idx);
-    if (!thing_is_invalid(thing)) {
-        thing->creature.gold_carried = price;
+    struct Thing *elemtng;
+    elemtng = create_effect_element(pos, TngEff_Unknown41, plyr_idx);
+    TRACE_THING(elemtng);
+    if (!thing_is_invalid(elemtng)) {
+        elemtng->creature.gold_carried = price;
     }
-    return thing;
+    return elemtng;
 }
 
 /******************************************************************************/

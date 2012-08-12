@@ -206,6 +206,7 @@ long claim_enemy_room(struct Room *room,struct Thing *claimtng);
 long claim_room(struct Room *room,struct Thing *claimtng);
 TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner);
 TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);
+void do_room_integration(struct Room *room);
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);
