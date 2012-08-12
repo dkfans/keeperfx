@@ -419,7 +419,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     }
     thing->class_id = 4;
     thing->model = model;
-    thing->parent_thing_idx = thing->index;
+    thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->byte_13 = explevel;
     thing->mappos.x.val = pos->x.val;

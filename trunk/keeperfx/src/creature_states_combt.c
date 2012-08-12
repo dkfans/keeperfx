@@ -998,14 +998,14 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, lon
       if (is_my_player_number(fighter->owner))
       {
           if (is_my_player_number(enemy->owner)) {
-              output_message(20, 400, 1);
+              output_message(SMsg_FingthingFriends, 400, 1);
           } else {
-              output_message(14, 400, 1);
+              output_message(SMsg_CreatureAttacking, 400, 1);
           }
       } else
       {
           if (is_my_player_number(enemy->owner)) {
-            output_message(13, 400, 1);
+            output_message(SMsg_CreatureDefending, 400, 1);
           }
       }
     }
@@ -1537,7 +1537,7 @@ long check_for_better_combat(struct Thing *figtng)
     if (combat_kind == 0)
         return 1;
     // If we're here, that means there is a better combat
-    //TODO The condition here seems strange; we need to figure out what's its purpose
+    //TODO CREATURE_AI The condition here seems strange; we need to figure out what's its purpose
     //if ( (figctrl->battle_enemy_idx != enmtng->index) || !combat_type_is_choice_of_creature(figtng, combat_kind) )
     if ( (figctrl->battle_enemy_idx == enmtng->index) && combat_type_is_choice_of_creature(figtng, combat_kind) )
     {

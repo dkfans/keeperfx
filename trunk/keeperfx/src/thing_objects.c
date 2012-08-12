@@ -205,6 +205,7 @@ ThingModel object_to_door_or_trap[] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
+unsigned short player_unknown1_objects[] = {115, 116, 117, 118, 0, 119};
 unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
 unsigned short specials_text[] = {201, 420, 421, 422, 423, 424, 425, 426, 427, 0};
 
@@ -254,9 +255,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->class_id = TCls_Object;
     thing->model = model;
     if (parent_idx == -1)
-      thing->parent_thing_idx = -1;
+      thing->parent_idx = -1;
     else
-      thing->parent_thing_idx = parent_idx;
+      thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     objconf = &game.objects_config[model];
     objdat = get_objects_data_for_thing(thing);
@@ -445,6 +446,12 @@ TbBool thing_is_mature_food(const struct Thing *thing)
     return (thing->class_id == TCls_Object) && (thing->model == 10);
 }
 
+TbBool thing_is_spellbook(const struct Thing *thing)
+{
+    //return _DK_thing_is_spellbook(thing);
+    return (book_thing_to_magic(thing) > 0);
+}
+
 TbBool object_is_mature_food(const struct Thing *thing)
 {
   return (thing->model == 10);
@@ -469,6 +476,21 @@ TbBool object_is_gold(const struct Thing *thing)
   }
 }
 
+TbBool object_is_gold_hoard(const struct Thing *thing)
+{
+  switch (thing->model)
+  {
+    case 52:
+    case 53:
+    case 54:
+    case 55:
+    case 56:
+        return true;
+    default:
+        return false;
+  }
+}
+
 TbBool object_is_gold_pile(const struct Thing *thing)
 {
   //return _DK_object_is_gold_pile(thing);
@@ -482,11 +504,6 @@ TbBool object_is_gold_pile(const struct Thing *thing)
     default:
         return false;
   }
-}
-
-long thing_is_spellbook(struct Thing *thing)
-{
-  return _DK_thing_is_spellbook(thing);
 }
 
 struct Thing *get_spellbook_at_position(long x, long y)
@@ -754,13 +771,19 @@ long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount
     return _DK_remove_gold_from_hoarde(thing, room, amount);
 }
 
-TbBool thing_is_gold_hoard(struct Thing *thing)
+/**
+ * Returns if given thing is a hoard of gold.
+ * @note originally was thing_is_gold_hoarde().
+ * @param thing
+ * @return
+ */
+TbBool thing_is_gold_hoard(const struct Thing *thing)
 {
-    if (thing->class_id == TCls_Object)
-    {
-        return (thing->model == 52) || (thing->model == 53) || (thing->model == 54) || (thing->model == 55) || (thing->model == 56);
-    }
-    return false;
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Object)
+      return false;
+    return object_is_gold_hoard(thing);
 }
 
 struct Thing *find_gold_hoard_at(unsigned short stl_x, unsigned short stl_y)

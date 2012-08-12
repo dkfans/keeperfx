@@ -154,7 +154,7 @@ long gf_change_player_state(struct GuiBox *gbox, struct GuiBoxOption *goptn, uns
 
 long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *tag)
 {
-  //TODO: we should use packets! This way is unacceptable!
+  //TODO PACKET we should use packets! This way is unacceptable!
   struct PlayerInfo *player;
   player = get_my_player();
   if (tag[0])
