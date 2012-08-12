@@ -287,6 +287,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
         struct Thing *attctng;
         struct CreatureControl *attcctrl;
         attctng = thing_get(cctrl->battle_next_creatr);
+        TRACE_THING(attctng);
         attcctrl = creature_control_get_from_thing(attctng);
         if ( creature_control_invalid(attcctrl) ) {
             WARNLOG("Invalid next in battle, %s index %d",thing_model_name(attctng),(int)cctrl->battle_next_creatr);
@@ -305,6 +306,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
         struct Thing *attctng;
         struct CreatureControl *attcctrl;
         attctng = thing_get(cctrl->battle_prev_creatr);
+        TRACE_THING(attctng);
         attcctrl = creature_control_get_from_thing(attctng);
         if ( creature_control_invalid(attcctrl) ) {
             WARNLOG("Invalid previous in battle, %s index %d",thing_model_name(attctng),(int)cctrl->battle_prev_creatr);
@@ -358,6 +360,7 @@ long count_creatures_really_in_combat(BattleIndex battle_id)
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
           ERRORLOG("Jump to invalid thing detected");
@@ -397,6 +400,7 @@ void cleanup_battle(BattleIndex battle_id)
         while (battle->first_creatr)
         {
             thing = thing_get(battle->first_creatr);
+            TRACE_THING(thing);
             remove_thing_from_battle_list(thing);
             k++;
             if (k > CREATURES_COUNT)
@@ -424,6 +428,7 @@ void update_battle_events(BattleIndex battle_id)
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
           ERRORLOG("Jump to invalid thing detected");
@@ -466,6 +471,7 @@ TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
           ERRORLOG("Jump to invalid thing detected");
@@ -506,6 +512,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
     while (i != 0)
     {
         batltng = thing_get(i);
+        TRACE_THING(batltng);
         cctrl = creature_control_get_from_thing(batltng);
         if (creature_control_invalid(cctrl))
         {
@@ -517,6 +524,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         if ( cctrl->combat_flags )
         {
             attcktng = thing_get(cctrl->battle_enemy_idx);
+            TRACE_THING(attcktng);
             if ( !thing_is_invalid(attcktng) )
             {
                 if ( (attcktng->index == tng1->index) || (attcktng->index == tng2->index) )
@@ -751,6 +759,7 @@ long remove_all_ranged_combat_attackers(struct Thing *victim)
         fighter_idx = vicctrl->opponents_ranged[oppn_idx];
         if (fighter_idx > 0) {
             fighter = thing_get(fighter_idx);
+            TRACE_THING(fighter);
             if (remove_ranged_attacker(fighter, victim))
                 num++;
         }
@@ -853,6 +862,7 @@ long remove_all_melee_combat_attackers(struct Thing *enemy)
         fighter_idx = enmctrl->opponents_melee[oppn_idx];
         if (fighter_idx > 0) {
             fighter = thing_get(fighter_idx);
+            TRACE_THING(fighter);
             if (remove_melee_attacker(fighter, enemy))
                 num++;
         }
@@ -1089,6 +1099,7 @@ long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *r
     while (i != 0)
     {
       thing = thing_get(i);
+      TRACE_THING(thing);
       cctrl = creature_control_get_from_thing(thing);
       if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
       {
@@ -1225,6 +1236,7 @@ long check_for_possible_combat_with_attacker(const struct Thing *figtng, struct 
                 thing = thing_get(thing_idx);
             else
                 thing = INVALID_THING;
+            TRACE_THING(thing);
             if (thing_is_invalid(thing))
                 continue;
             // When counting distance, take size of creatures into account
@@ -1263,6 +1275,7 @@ long check_for_possible_combat_with_attacker(const struct Thing *figtng, struct 
                 thing = thing_get(thing_idx);
             else
                 thing = INVALID_THING;
+            TRACE_THING(thing);
             if (thing_is_invalid(thing))
                 continue;
             // When counting distance, take size of creatures into account
@@ -1427,12 +1440,14 @@ void cleanup_battle_leftovers(struct Thing *thing)
 long remove_all_traces_of_combat(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    struct Thing *enemy;
+    TRACE_THING(thing);
     //return _DK_remove_all_traces_of_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     if ( (cctrl->combat_flags != 0) && (cctrl->battle_enemy_idx > 0) )
     {
+        struct Thing *enemy;
         enemy = thing_get(cctrl->battle_enemy_idx);
+        TRACE_THING(enemy);
         remove_attacker(thing, enemy);
     }
     remove_all_ranged_combat_attackers(thing);
@@ -1446,12 +1461,15 @@ TbBool change_current_combat(struct Thing *fighter, struct Thing *enemy, long co
     struct CreatureControl *figctrl;
     struct Thing *oldenemy;
     SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    TRACE_THING(fighter);
+    TRACE_THING(enemy);
     figctrl = creature_control_get_from_thing(fighter);
     if (creature_control_invalid(figctrl)) {
         ERRORLOG("Invalid fighter creature control");
         return false;
     }
     oldenemy = thing_get(figctrl->battle_enemy_idx);
+    TRACE_THING(oldenemy);
     remove_attacker(fighter, oldenemy);
     if ( !set_creature_combat_state(fighter, enemy, combat_kind) ) {
         WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
@@ -1578,6 +1596,7 @@ void creature_in_combat_wait(struct Thing *thing)
     long combat_valid;
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
+    TRACE_THING(enmtng);
     if ( !creature_is_most_suitable_for_combat(thing, enmtng) ) {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
         creature_change_to_most_suitable_combat(thing);
@@ -1601,6 +1620,7 @@ void creature_in_ranged_combat(struct Thing *thing)
     //_DK_creature_in_ranged_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
+    TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(thing, enmtng))
     {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
@@ -1639,6 +1659,7 @@ void creature_in_melee_combat(struct Thing *thing)
     //_DK_creature_in_melee_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
+    TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(thing, enmtng))
     {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
@@ -1680,6 +1701,7 @@ short creature_in_combat(struct Thing *thing)
     //return _DK_creature_in_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
+    TRACE_THING(enmtng);
     if (!combat_enemy_exists(thing, enmtng))
     {
         set_start_state(thing);

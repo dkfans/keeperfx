@@ -649,6 +649,7 @@ long update_object(struct Thing *thing)
     Thing_State_Func stcallback;
     struct Objects *objdat;
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    TRACE_THING(thing);
     //return _DK_update_object(thing);
 
     upcallback = NULL;

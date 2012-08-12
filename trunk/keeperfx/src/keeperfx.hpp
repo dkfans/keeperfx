@@ -973,7 +973,6 @@ void clear_rooms(void);
 void clear_computer(void);
 TbBool swap_creature(long ncrt_id, long crtr_id);
 void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
-void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char owner, unsigned char a5);
 void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
 void engine(struct PlayerInfo *player, struct Camera *cam);
 void remove_explored_flags_for_power_sight(struct PlayerInfo *player);

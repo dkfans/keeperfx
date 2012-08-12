@@ -45,7 +45,7 @@ DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
 long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
 void event_initialise_all(void);
 long event_move_player_towards_event(struct PlayerInfo *player, long var);
-struct Event *event_create_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
+struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
 struct Event *event_allocate_free_event_structure(void);
 void event_initialise_event(struct Event *event, long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
 void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon);

@@ -212,7 +212,7 @@ void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
   map->data |= (i & 0x0F) << 28;
 }
 
-TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
+TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
   unsigned short plyr_bit;
   struct Map *map;
@@ -605,30 +605,6 @@ TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
         return false;
     return true;
 }
-
-void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long domn_plyr_idx)
-{
-    struct SlabMap *slb;
-    MapSlabCoord slb_x,slb_y;
-    unsigned long  wlb;
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
-    slb = get_slabmap_block(slb_x, slb_y);
-    wlb = slabmap_wlb(slb);
-    if (wlb == 1)
-    {
-        place_slab_type_on_map(12, 3*slb_x, 3*slb_y, game.neutral_player_num, 0);
-    } else
-    if (wlb == 2)
-    {
-        place_slab_type_on_map(13, 3*slb_x, 3*slb_y, game.neutral_player_num, 0);
-    } else
-    {
-        place_slab_type_on_map(10, 3*slb_x, 3*slb_y, game.neutral_player_num, 1);
-    }
-    do_slab_efficiency_alteration(slb_x, slb_y);
-}
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

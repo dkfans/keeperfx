@@ -136,6 +136,7 @@ TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf)
 long creature_instance_is_available(struct Thing *thing, long inum)
 {
     struct CreatureControl *cctrl;
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
         return 0;
@@ -165,6 +166,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     long inum;
+    TRACE_THING(creatng);
     //return _DK_creature_has_ranged_weapon(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     for (inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
@@ -182,6 +184,7 @@ void process_creature_instance(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct InstanceInfo *inst_inf;
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_NULL)
     {
@@ -214,6 +217,7 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
     struct CreatureControl *cctrl;
     struct Thing *target;
     int i;
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->field_DA <= 0)
     {
@@ -225,6 +229,7 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
     else if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         target = thing_get(cctrl->field_DA);
+        TRACE_THING(target);
         if (target->class_id == TCls_Object)
             i = 1;
         else
@@ -233,6 +238,7 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
     else
     {
         target = thing_get(cctrl->field_DA);
+        TRACE_THING(target);
         if (target->class_id == TCls_Object)
             i = 1;
         else if (target->owner == thing->owner)
@@ -241,9 +247,13 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
             i = 4;
     }
     if (cctrl->field_DA > 0)
+    {
         target = thing_get(cctrl->field_DA);
-    else
+        TRACE_THING(target);
+    } else
+    {
         target = NULL;
+    }
     creature_fire_shot(thing, target, *param, 1, i);
     return 0;
 }
@@ -254,6 +264,7 @@ long instf_creature_cast_spell(struct Thing *thing, long *param)
     struct Thing *trthing;
     struct SpellInfo *magicinf;
     long mgc_idx;
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     mgc_idx = *param;
     magicinf = get_magic_info(mgc_idx);
@@ -279,6 +290,7 @@ long instf_dig(struct Thing *thing, long *param)
     long task_idx,taskkind;
     long dig_damage,gold;
     SYNCDBG(16,"Starting");
+    TRACE_THING(thing);
     //return _DK_instf_dig(thing, param);
     cctrl = creature_control_get_from_thing(thing);
     dungeon = get_dungeon(thing->owner);
@@ -354,6 +366,7 @@ long instf_destroy(struct Thing *thing, long *param)
     MapSlabCoord slb_x,slb_y;
     long prev_owner;
 
+    TRACE_THING(thing);
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     dungeon = get_dungeon(thing->owner);
@@ -363,26 +376,26 @@ long instf_destroy(struct Thing *thing, long *param)
 
     if ( !room_is_invalid(room) && (prev_owner != thing->owner) )
     {
-      if (room->field_C > 1)
-      {
-          room->field_C--;
-          return 0;
-      }
-      clear_dig_on_room_slabs(room, thing->owner);
-      if (room->owner == game.neutral_player_num)
-      {
-          claim_room(room, thing);
-      } else
-      {
-          MapCoord ccor_x,ccor_y;
-          ccor_x = subtile_coord_center(room->central_stl_x);
-          ccor_y = subtile_coord_center(room->central_stl_y);
-          event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, 22, room->owner, 0);
-          claim_enemy_room(room, thing);
-      }
-      thing_play_sample(thing, 76, 100, 0, 3, 0, 2, 256);
-      create_effects_on_room_slabs(room, imp_spangle_effects[thing->owner], 0, thing->owner);
-      return 0;
+        if (room->field_C > 1)
+        {
+            room->field_C--;
+            return 0;
+        }
+        clear_dig_on_room_slabs(room, thing->owner);
+        if (room->owner == game.neutral_player_num)
+        {
+            claim_room(room, thing);
+        } else
+        {
+            MapCoord ccor_x,ccor_y;
+            ccor_x = subtile_coord_center(room->central_stl_x);
+            ccor_y = subtile_coord_center(room->central_stl_y);
+            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, 22, room->owner, 0);
+            claim_enemy_room(room, thing);
+        }
+        thing_play_sample(thing, 76, 100, 0, 3, 0, 2, 256);
+        create_effects_on_room_slabs(room, imp_spangle_effects[thing->owner], 0, thing->owner);
+        return 0;
     }
     if (slb->health > 1)
     {
@@ -403,21 +416,25 @@ long instf_destroy(struct Thing *thing, long *param)
 
 long instf_attack_room_slab(struct Thing *thing, long *param)
 {
+    TRACE_THING(thing);
     return _DK_instf_attack_room_slab(thing, param);
 }
 
 long instf_damage_wall(struct Thing *thing, long *param)
 {
+    TRACE_THING(thing);
     return _DK_instf_damage_wall(thing, param);
 }
 
 long instf_eat(struct Thing *thing, long *param)
 {
+    TRACE_THING(thing);
     return _DK_instf_eat(thing, param);
 }
 
 long instf_fart(struct Thing *thing, long *param)
 {
+    TRACE_THING(thing);
     return _DK_instf_fart(thing, param);
 }
 
@@ -425,6 +442,7 @@ long instf_first_person_do_imp_task(struct Thing *thing, long *param)
 {
     MapSlabCoord slb_x,slb_y;
     long locparam;
+    TRACE_THING(thing);
     //return _DK_instf_first_person_do_imp_task(thing, param);
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
@@ -441,21 +459,25 @@ long instf_first_person_do_imp_task(struct Thing *thing, long *param)
 
 long instf_pretty_path(struct Thing *thing, long *param)
 {
+    TRACE_THING(thing);
     return _DK_instf_pretty_path(thing, param);
 }
 
 long instf_reinforce(struct Thing *thing, long *param)
 {
+    TRACE_THING(thing);
     return _DK_instf_reinforce(thing, param);
 }
 
 long instf_tortured(struct Thing *thing, long *param)
 {
+    TRACE_THING(thing);
     return 1;
 }
 
 long instf_tunnel(struct Thing *thing, long *param)
 {
+    TRACE_THING(thing);
     return _DK_instf_tunnel(thing, param);
 }
 

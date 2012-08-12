@@ -316,6 +316,7 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
     while (i != 0)
     {
         thing = thing_get(i);
+        TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");

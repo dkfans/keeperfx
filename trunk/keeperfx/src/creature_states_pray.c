@@ -155,6 +155,7 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
   while (i != 0)
   {
     thing = thing_get(i);
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
     {

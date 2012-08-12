@@ -231,6 +231,7 @@ struct AroundLByte {
   signed short delta_y;
 };
 
+typedef unsigned char SlabType;
 typedef long LevelNumber;
 typedef long MapCoord;
 typedef long MapSubtlCoord;

@@ -156,6 +156,7 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
     efftng = INVALID_THING;
     if (eff_kind > 0) {
         efftng = create_effect(effpos, eff_kind, effowner);
+        TRACE_THING(efftng);
     }
     if (snd_idx > 0)
     {
@@ -379,6 +380,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
             break;
         }
     }
+    TRACE_THING(efftng);
 }
 
 long check_hit_when_attacking_door(struct Thing *thing)
@@ -813,6 +815,7 @@ long update_shot(struct Thing *thing)
     long i;
     TbBool hit;
     SYNCDBG(18,"Starting for index %d, model %d",(int)thing->index,(int)thing->model);
+    TRACE_THING(thing);
     //return _DK_update_shot(thing);
     hit = false;
     shotst = get_shot_model_stats(thing->model);
