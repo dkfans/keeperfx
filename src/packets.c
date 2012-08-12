@@ -377,7 +377,7 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
         ERRORLOG("No room to delete at subtile (%d,%d)",(int)stl_x,(int)stl_y);
         return false;
     }
-    //TODO sell revenue percentage should be inside config files
+    //TODO CONFIG sell revenue percentage should be inside config files
     rstat = room_stats_get_for_room(room);
     revenue = compute_value_percentage(rstat->cost, ROOM_SELL_REVENUE_PERCENT);
     delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), 0);

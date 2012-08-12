@@ -185,7 +185,7 @@ struct GuiButtonInit frontend_error_box_buttons[] = {
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 
-struct GuiButtonInit frontend_add_session_buttons[] = {//TODO: prepare add session screen
+struct GuiButtonInit frontend_add_session_buttons[] = {//TODO GUI prepare add session screen
   { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,   0, 999,   0,450, 92, frontend_draw_error_text_box,      0, 201,  0,{(long)gui_message_text},0, 0, frontend_maintain_error_text_box},
   {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };

@@ -728,7 +728,7 @@ TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
   return (i < SPELL_MAX_LEVEL);
 }
 
-void remove_spell_from_player(long spl_idx, long plyr_idx)
+void remove_spell_from_player(long spl_idx, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);

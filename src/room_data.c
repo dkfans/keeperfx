@@ -33,6 +33,7 @@
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
+#include "magic.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -40,7 +41,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_delete_room_structure(struct Room *room);
-DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
+DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char newowner, signed char rkind, unsigned char a4);
 DLLIMPORT long _DK_claim_room(struct Room *room,struct Thing *claimtng);
 DLLIMPORT long _DK_claim_enemy_room(struct Room *room,struct Thing *claimtng);
 DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
@@ -207,7 +208,7 @@ DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
 DLLIMPORT void _DK_replace_room_slab(struct Room *room, long plyr_idz, long a3, unsigned char a4, unsigned char a5);
 DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char plyr_idz, unsigned short a3, unsigned short a4);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char plyr_idz, char a3, unsigned char a4);
-DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber plyr_idx, int kind);
+DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int kind);
 /******************************************************************************/
 struct Room *room_get(long room_idx)
 {
@@ -1971,10 +1972,185 @@ TbBool add_item_to_room_capacity(struct Room *room)
     return true;
 }
 
+void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
+{
+    PlayerNumber oldowner;
+    if ( (room->kind == RoK_GUARDPOST) && ((thing->model == 115) || (thing->model == 116) || (thing->model == 117) || (thing->model == 118) || (thing->model == 119)))
+    {
+        create_object(&thing->mappos, player_unknown1_objects[newowner], newowner, parent_idx);
+        delete_thing_structure(thing, 0);
+        return;
+    }
+    if (thing->parent_idx != -1)
+    {
+        if (parent_idx == thing->parent_idx) {
+            thing->owner = newowner;
+        }
+        return;
+    }
+    if ((room->kind == RoK_LIBRARY) && thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+    {
+        oldowner = thing->owner;
+        thing->owner = newowner;
+        if (oldowner != game.neutral_player_num) {
+            remove_spell_from_player(book_thing_to_magic(thing), oldowner);
+        }
+        if (newowner != game.neutral_player_num) {
+            add_spell_to_player(book_thing_to_magic(thing), newowner);
+        }
+        return;
+    }
+    if ((room->kind == RoK_WORKSHOP) && thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_Unkn01) == 0) )
+    {
+        oldowner = thing->owner;
+        thing->owner = newowner;
+        remove_workshop_item(oldowner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing));
+        add_workshop_item(newowner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing));
+        return;
+    }
+    if ((room->kind == RoK_TREASURE) && thing_is_gold_hoard(thing))
+    {
+        oldowner = thing->owner;
+        struct Dungeon *dungeon;
+        {
+            dungeon = get_dungeon(newowner);
+            dungeon->total_money_owned += thing->long_13;
+        }
+        if (oldowner != game.neutral_player_num)
+        {
+            dungeon = get_dungeon(oldowner);
+            dungeon->total_money_owned -= thing->long_13;
+        }
+        thing->owner = newowner;
+        return;
+    }
+    struct Objects *objdat;
+    objdat = get_objects_data_for_thing(thing);
+    if ((room->kind == RoK_LAIR) && objdat->field_13 )
+    {
+        if (thing->word_13)
+        {
+            struct Thing *tmptng;
+            struct CreatureControl *cctrl;
+            tmptng = thing_get(thing->word_13);
+            cctrl = creature_control_get_from_thing(tmptng);
+            if (cctrl->lairtng_idx == thing->index) {
+                creature_remove_lair_from_room(tmptng, room);
+            } else {
+                ERRORLOG("Lair thinks it belongs to a creature, but the creature disagrees.");
+            }
+        } else
+        {
+            ERRORLOG("This lair has no owner!!!");
+        }
+        return;
+    }
+    switch ( objdat->field_14 )
+    {
+      case 0:
+      case 1:
+      case 3:
+        thing->owner = newowner;
+        break;
+      case 2:
+        if (thing->model == 10) {
+            destroy_food(thing);
+        } else {
+            delete_thing_structure(thing, 0);
+        }
+        break;
+    }
+}
+
+TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    struct Thing *thing;
+    struct Map *mapblk;
+    long i;
+    unsigned long k;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing->class_id == TCls_Object)
+        {
+            change_ownership_or_delete_object_thing_in_room(room, thing, i, plyr_idx);
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return true;
+}
+
 void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
 {
-    //TODO MEMORY This function makes thing leaks; rewrite!
-    _DK_change_room_map_element_ownership(room, plyr_idx);
+    struct Dungeon *dungeon;
+    //_DK_change_room_map_element_ownership(room, plyr_idx);
+    dungeon = get_dungeon(plyr_idx);
+    {
+        struct SlabMap *slb;
+        PlayerNumber owner;
+        slb = get_slabmap_direct(room->slabs_list);
+        owner = slabmap_owner(slb);
+        if (owner != game.neutral_player_num) {
+            decrease_room_area(owner, room->slabs_count);
+        }
+        increase_room_area(dungeon->owner, room->slabs_count);
+    }
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSlabCoord slb_x,slb_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_direct(i);
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per-slab code
+        MapSubtlCoord start_stl_x,start_stl_y;
+        MapSubtlCoord end_stl_x,end_stl_y;
+        set_slab_explored(plyr_idx, slb_x, slb_y);
+        slabmap_set_owner(slb, plyr_idx);
+        start_stl_x = slab_subtile(slb_x,0);
+        start_stl_y = slab_subtile(slb_y,0);
+        end_stl_x = slab_subtile(slb_x+1,0);
+        end_stl_y = slab_subtile(slb_y+1,0);
+        // Do the loop
+        MapSubtlCoord stl_x,stl_y;
+        for (stl_y=start_stl_y; stl_y < end_stl_y; stl_y++)
+        {
+            for (stl_x=start_stl_x; stl_x < end_stl_x; stl_x++)
+            {
+                change_room_subtile_things_ownership(room, stl_x, stl_y, plyr_idx);
+            }
+        }
+        pannel_map_update(stl_x, stl_y, 3, 3);
+        // Per-slab code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
 }
 
 void copy_block_with_cube_groups(short a1, unsigned char a2, unsigned char a3)
@@ -2080,19 +2256,19 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
     if (room->kind == RoK_ENTRANCE)
     {
         if (is_my_player_number(oldowner)) {
-            output_message(38, 0, 1);
+            output_message(SMsg_EntranceLost, 0, 1);
         } else
         if (is_my_player_number(newowner))
         {
-            output_message(37, 0, 1);
+            output_message(SMsg_EntranceClaimed, 0, 1);
         }
     } else
     if (is_my_player_number(newowner))
     {
         if (oldowner == game.neutral_player_num) {
-            output_message(18, 0, 1);
+            output_message(SMsg_NewRoomTakenOver, 0, 1);
         } else {
-            output_message(17, 0, 1);
+            output_message(SMsg_EnemyRoomTakeOver, 0, 1);
         }
     }
 }

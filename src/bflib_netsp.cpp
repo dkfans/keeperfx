@@ -814,7 +814,7 @@ TbError ServiceProvider::CheckForDeletedHost(const void *enc_buf)
   }
   if (!got)
     return Lb_OK;
-/*TODO
+/*
   got = 0;
   for (i=0; i < players_count; i++)
   {

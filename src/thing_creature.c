@@ -1331,9 +1331,9 @@ unsigned long remove_thing_from_field1D_in_list(struct StructureList *list,long 
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (thing->parent_thing_idx == remove_idx)
+        if (thing->parent_idx == remove_idx)
         {
-            thing->parent_thing_idx = thing->index;
+            thing->parent_idx = thing->index;
             n++;
         }
         // Per-thing code ends
@@ -1674,7 +1674,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
           draw_lightning(&pos1, &pos2, 96, 60);
         shot->health = shotst->old->health;
         shot->word_14 = shotst->old->damage;
-        shot->parent_thing_idx = firing->index;
+        shot->parent_idx = firing->index;
         break;
     case 7:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
@@ -1685,7 +1685,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shot->health = shotst->old->health;
         shot->word_14 = shotst->old->damage;
-        shot->parent_thing_idx = firing->index;
+        shot->parent_idx = firing->index;
         break;
     case 13:
         for (i=0; i < 32; i++)
@@ -1704,7 +1704,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
             shot->field_1 |= 0x04;
             shot->word_14 = damage;
             shot->health = shotst->old->health;
-            shot->parent_thing_idx = firing->index;
+            shot->parent_idx = firing->index;
         }
         break;
     default:
@@ -1720,7 +1720,7 @@ void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned sho
         shot->field_1 |= 0x04;
         shot->word_14 = damage;
         shot->health = shotst->old->health;
-        shot->parent_thing_idx = firing->index;
+        shot->parent_idx = firing->index;
         shot->word_17 = target_idx;
         shot->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
         break;
@@ -2211,7 +2211,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->ccontrol_idx = cctrl->index;
     crtng->class_id = 5;
     crtng->model = model;
-    crtng->parent_thing_idx = crtng->index;
+    crtng->parent_idx = crtng->index;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;

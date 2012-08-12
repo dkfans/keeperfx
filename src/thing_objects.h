@@ -68,6 +68,7 @@ DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 extern Thing_Class_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];
 extern unsigned short specials_text[];
+extern unsigned short player_unknown1_objects[];
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
@@ -92,8 +93,8 @@ TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_mature_food(const struct Thing *thing);
 TbBool object_is_gold(const struct Thing *thing);
 TbBool object_is_gold_pile(const struct Thing *thing);
-TbBool thing_is_gold_hoard(struct Thing *thing);
-long thing_is_spellbook(struct Thing *thing);
+TbBool thing_is_gold_hoard(const struct Thing *thing);
+TbBool thing_is_spellbook(const struct Thing *thing);
 
 long update_object(struct Thing *thing);
 
