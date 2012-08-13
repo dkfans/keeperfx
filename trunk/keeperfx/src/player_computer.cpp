@@ -31,6 +31,7 @@
 #include "config.h"
 #include "creature_states.h"
 #include "magic.h"
+#include "thing_traps.h"
 #include "keeperfx.hpp"
 #include "skirmish_ai.h"
 
@@ -2058,7 +2059,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
           stati = get_thing_state_info_num(n);
           if (stati->state_type == 1)
           {
-              if (try_game_action(comp, dungeon->owner, GA_Unk21, 8, 0, 0, thing->index, 0) > 0)
+              if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, 8, 0, 0, thing->index, 0) > 0)
               {
                   return thing;
               }
@@ -2170,10 +2171,109 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     return _DK_computer_check_neutral_places(comp, check);
 }
 
+long computer_choose_best_trap_kind_to_place(struct Dungeon *dungeon, long kind_auto, long kind_preselect)
+{
+    long kinds_multiple,kinds_single;
+    long i;
+    kinds_multiple = 0;
+    for (i=1; i < TRAP_TYPES_COUNT; i++)
+    {
+        if (dungeon->trap_buildable[i])
+        {
+            if (dungeon->trap_amount[i] > 1) {
+              kinds_multiple++;
+            }
+        }
+    }
+    kinds_single = 0;
+    for (i=1; i < TRAP_TYPES_COUNT; i++)
+    {
+        if (dungeon->trap_buildable[i])
+        {
+            if (dungeon->trap_amount[i] > 0) {
+                kinds_single++;
+            } else
+            if (kinds_multiple <= 0) {
+                if ((kind_auto == 0) || (kind_preselect == i))
+                  return 0;
+            }
+        }
+    }
+    if (kinds_single <= 0)
+      return 0;
+    i = kind_preselect;
+    if (i == 0)
+    {
+        long kind_random;
+        kind_random = ACTION_RANDOM(kinds_single) + 1;
+        for (i=1; i < TRAP_TYPES_COUNT; i++)
+        {
+            if (dungeon->trap_buildable[i] > 0)
+            {
+                if (dungeon->trap_amount[i] > 0)
+                {
+                    kind_random--;
+                    if (kind_random <= 0)
+                      break;
+                }
+            }
+        }
+    }
+    return i;
+}
+
 long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct Dungeon *dungeon;
+    long i;
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_place_trap(comp, check);
+    //return _DK_computer_check_for_place_trap(comp, check);
+    dungeon = comp->dungeon;
+    long kind_chosen;
+    kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param2, check->param3);
+    if (kind_chosen <= 0)
+        return 4;
+    //TODO COMPUTER_AI Maybe we should prefer corridors when placing traps?
+    for (i=0; i < COMPUTER_TRAP_LOC_COUNT; i++)
+    {
+        struct Coord3d *location;
+        location = &comp->trap_locations[i];
+        // Check if the entry has coords stored
+        if ((location->x.val <= 0) && (location->y.val <= 0))
+            continue;
+        MapSlabCoord slb_x,slb_y;
+        slb_x = subtile_slab_fast(location->x.stl.num);
+        slb_y = subtile_slab_fast(location->y.stl.num);
+        struct SlabMap *slb;
+        slb = get_slabmap_block(slb_x,slb_y);
+        if (slabmap_block_invalid(slb))
+            continue;
+        if ((slabmap_owner(slb) == dungeon->owner) && (slb->kind == SlbT_CLAIMED))
+        { // If it's our owned claimed ground, give it a try
+            long ret;
+            struct Thing *thing;
+            thing = get_trap_for_slab_position(slb_x, slb_y);
+            // Only allow to place trap at position where there's no traps already
+            if (thing_is_invalid(thing)) {
+                ret = try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0, slb_x, slb_y, kind_chosen, 0);
+            } else {
+                ret = -1;
+            }
+            location->x.val = 0;
+            location->y.val = 0;
+            if (ret > 0)
+              return 1;
+        } else
+        if (slb->kind != SlbT_PATH)
+        { // If it would be a path, we could wait for someone to claim it; but if it's not..
+            if (find_from_task_list(dungeon->owner, get_slab_number(slb_x,slb_y)) < 0)
+            { // If we have no intention of doing a task there - remove it from list
+                location->x.val = 0;
+                location->y.val = 0;
+            }
+        }
+    }
+    return 4;
 }
 
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)

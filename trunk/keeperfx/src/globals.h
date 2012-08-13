@@ -149,7 +149,9 @@ typedef long PlayerNumber;
 typedef unsigned char ThingClass;
 typedef unsigned char ThingModel;
 typedef unsigned short CrtrStateId;
+/** Type which stores SplK_* values. */
 typedef unsigned short SpellKind;
+/** Type which stores PwrK_* values. */
 typedef unsigned short PowerKind;
 typedef short BattleIndex;
 typedef long HitPoints;

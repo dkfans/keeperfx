@@ -873,7 +873,7 @@ TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 /**
  * Sets power availability state.
  */
-TbBool set_power_available(PlayerNumber plyr_idx, SpellKind spl_idx, long resrch, long avail)
+TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch, long avail)
 {
   struct Dungeon *dungeon;
   SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
@@ -898,7 +898,7 @@ TbBool set_power_available(PlayerNumber plyr_idx, SpellKind spl_idx, long resrch
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if the player has enough money or map position is on correct spot.
  */
-TbBool is_power_available(PlayerNumber plyr_idx, SpellKind spl_idx)
+TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);

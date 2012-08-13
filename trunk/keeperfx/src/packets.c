@@ -655,6 +655,72 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
     return true;
 }
 
+TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Packet *pckt;
+    MapSubtlCoord stl_x,stl_y;
+    MapCoord x,y;
+    long i;
+    player = get_player(plyr_idx);
+    dungeon = get_players_dungeon(player);
+    pckt = get_packet_direct(player->packet_num);
+    x = ((unsigned short)pckt->pos_x);
+    y = ((unsigned short)pckt->pos_y);
+    stl_x = coord_subtile(x);
+    stl_y = coord_subtile(y);
+
+    if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
+    {
+        if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+        {
+          player->field_4AF = 0;
+          unset_packet_control(pckt, PCtr_LBtnRelease);
+        }
+        return false;
+    }
+    struct Coord3d pos;
+    struct Thing *thing;
+    set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+    player->field_4A4 = 1;
+    i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y);
+    if ((pckt->control_flags & PCtr_LBtnClick) == 0)
+    {
+      if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
+      {
+        player->field_4AF = 0;
+        unset_packet_control(pckt, PCtr_LBtnRelease);
+      }
+      return false;
+    }
+    if (dungeon->trap_amount[player->chosen_trap_kind%TRAP_TYPES_COUNT] <= 0)
+    {
+      unset_packet_control(pckt, PCtr_LBtnClick);
+      return false;
+    }
+    if (i == 0)
+    {
+      if (is_my_player(player))
+        play_non_3d_sample(119);
+      unset_packet_control(pckt, PCtr_LBtnClick);
+      return false;
+    }
+    delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
+    thing = create_trap(&pos, player->chosen_trap_kind, plyr_idx);
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    thing->byte_18 = 0;
+    if (remove_workshop_item(plyr_idx, TCls_Trap, player->chosen_trap_kind))
+      dungeon->lvstats.traps_used++;
+    dungeon->camera_deviate_jump = 192;
+    if (is_my_player(player))
+    {
+      play_non_3d_sample(117);
+    }
+    unset_packet_control(pckt, PCtr_LBtnClick);
+    return true;
+}
+
 TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 {
     struct PlayerInfo *player;
@@ -881,7 +947,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     struct Thing *thing;
     MapSubtlCoord stl_x,stl_y;
     short val172;
-    struct Coord3d pos;
     TbBool ret;
     MapCoord x,y;
     long i,k;
@@ -1131,51 +1196,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_PlaceTrap:
-        if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
-        {
-          if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
-          {
-            player->field_4AF = 0;
-            unset_packet_control(pckt, PCtr_LBtnRelease);
-          }
-          break;
-        }
-        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
-        player->field_4A4 = 1;
-        i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y);
-        if ((pckt->control_flags & PCtr_LBtnClick) == 0)
-        {
-          if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->field_4AF != 0))
-          {
-            player->field_4AF = 0;
-            unset_packet_control(pckt, PCtr_LBtnRelease);
-          }
-          break;
-        }
-        if (dungeon->trap_amount[player->chosen_trap_kind%TRAP_TYPES_COUNT] <= 0)
-        {
-          unset_packet_control(pckt, PCtr_LBtnClick);
-          break;
-        }
-        if (i == 0)
-        {
-          if (is_my_player(player))
-            play_non_3d_sample(119);
-          unset_packet_control(pckt, PCtr_LBtnClick);
-          break;
-        }
-        delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
-        thing = create_trap(&pos, player->chosen_trap_kind, plyr_idx);
-        thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-        thing->byte_18 = 0;
-        if (remove_workshop_item(plyr_idx, TCls_Trap, player->chosen_trap_kind))
-          dungeon->lvstats.traps_used++;
-        dungeon->camera_deviate_jump = 192;
-        if (is_my_player(player))
-        {
-          play_non_3d_sample(117);
-        }
-        unset_packet_control(pckt, PCtr_LBtnClick);
+        process_dungeon_control_packet_dungeon_place_trap(plyr_idx);
         break;
     case PSt_Lightning:
         player->thing_under_hand = 0;
@@ -1189,24 +1210,24 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_PlaceDoor:
         if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
         {
-          player->field_4A4 = 1;
-          // Make the frame around active slab
-          i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
-          if ((pckt->control_flags & PCtr_LBtnClick) != 0)
-          {
-            k = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-            delete_room_slabbed_objects(k);
-            packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
-          }
-          unset_packet_control(pckt, PCtr_LBtnClick);
+            player->field_4A4 = 1;
+            // Make the frame around active slab
+            i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
+            if ((pckt->control_flags & PCtr_LBtnClick) != 0)
+            {
+              k = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+              delete_room_slabbed_objects(k);
+              packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
+            }
+            unset_packet_control(pckt, PCtr_LBtnClick);
         }
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          if (player->field_4AF != 0)
-          {
-            player->field_4AF = 0;
-            unset_packet_control(pckt, PCtr_LBtnRelease);
-          }
+            if (player->field_4AF != 0)
+            {
+              player->field_4AF = 0;
+              unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
         }
         break;
     case PSt_SpeedUp:
