@@ -50,7 +50,7 @@ struct MapTask *get_task_list_entry(long plyr_idx, long task_idx)
     return &dungeon->task_list[task_idx];
 }
 
-long find_from_task_list(long plyr_idx, long srch_tsk)
+long find_from_task_list(PlayerNumber plyr_idx, SlabCodedCoords srch_tsk)
 {
   struct Dungeon *dungeon;
   struct MapTask *task;
@@ -68,7 +68,7 @@ long find_from_task_list(long plyr_idx, long srch_tsk)
   return -1;
 }
 
-long find_dig_from_task_list(long plyr_idx, long srch_tsk)
+long find_dig_from_task_list(PlayerNumber plyr_idx, SlabCodedCoords srch_tsk)
 {
     //return _DK_find_dig_from_task_list(a1, a2);
     struct Dungeon *dungeon;

@@ -1307,46 +1307,6 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     return thing;
 }
 
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4)
-{
-    struct Thing *thing;
-    //return _DK_create_thing(pos, tngclass, model, owner, a4);
-    thing = INVALID_THING;
-    switch (tngclass)
-    {
-    case TCls_Object:
-        thing = create_object(pos, model, owner, a4);
-        break;
-    case TCls_Shot:
-        thing = create_shot(pos, model, owner);
-        break;
-    case TCls_EffectElem:
-        thing = create_effect_element(pos, model, owner);
-        break;
-    case TCls_DeadCreature:
-        thing = create_dead_creature(pos, model, 1, owner, 0);
-        break;
-    case TCls_Creature:
-        thing = create_creature(pos, model, owner);
-        break;
-    case TCls_Effect:
-        thing = create_effect(pos, model, owner);
-        break;
-    case TCls_Trap:
-        thing = create_trap(pos, model, owner);
-        break;
-    case TCls_AmbientSnd:
-        thing = create_ambient_sound(pos, model, owner);
-        break;
-    case TCls_CaveIn:
-        thing = create_cave_in(pos, model, owner);
-        break;
-    default:
-        break;
-    }
-    return thing;
-}
-
 unsigned long setup_move_off_lava(struct Thing *thing)
 {
   return _DK_setup_move_off_lava(thing);
@@ -3389,8 +3349,8 @@ void reset_script_timers_and_flags(void)
     for (i=0; i < DUNGEONS_COUNT; i++)
     {
       dungeon = get_dungeon(i);
-      dungeon->magic_resrchable[18] = 1;
-      dungeon->magic_level[18] = 1;
+      dungeon->magic_resrchable[PwrK_POSSESS] = 1;
+      dungeon->magic_level[PwrK_POSSESS] = 1;
       for (k=0; k<TURN_TIMERS_COUNT; k++)
       {
         memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -6367,88 +6327,128 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
   return true;
 }
 
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4)
+{
+    struct Thing *thing;
+    //return _DK_create_thing(pos, tngclass, model, owner, a4);
+    thing = INVALID_THING;
+    switch (tngclass)
+    {
+    case TCls_Object:
+        thing = create_object(pos, model, owner, a4);
+        break;
+    case TCls_Shot:
+        thing = create_shot(pos, model, owner);
+        break;
+    case TCls_EffectElem:
+        thing = create_effect_element(pos, model, owner);
+        break;
+    case TCls_DeadCreature:
+        thing = create_dead_creature(pos, model, 1, owner, 0);
+        break;
+    case TCls_Creature:
+        thing = create_creature(pos, model, owner);
+        break;
+    case TCls_Effect:
+        thing = create_effect(pos, model, owner);
+        break;
+    case TCls_Trap:
+        thing = create_trap(pos, model, owner);
+        break;
+    case TCls_AmbientSnd:
+        thing = create_ambient_sound(pos, model, owner);
+        break;
+    case TCls_CaveIn:
+        thing = create_cave_in(pos, model, owner);
+        break;
+    default:
+        break;
+    }
+    return thing;
+}
+
 short thing_create_thing(struct InitThing *itng)
 {
-  struct Thing *thing;
-  if (itng->owner == 7)
-  {
-    ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.hero_player_num);
-    itng->owner = game.hero_player_num;
-  } else
-  if (itng->owner == 8)
-  {
-    ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.neutral_player_num);
-    itng->owner = game.neutral_player_num;
-  }
-  if (itng->owner > 5)
-  {
-    ERRORLOG("Invalid owning player %d, thing discarded", (int)itng->owner);
-    return false;
-  }
-  switch (itng->oclass)
-  {
-  case TCls_Object:
-      thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
-      if (!thing_is_invalid(thing))
-      {
-          if (itng->model == 49)
-              thing->byte_13 = itng->params[1];
-          check_and_asimilate_thing_by_room(thing);
-          // make sure we don't have invalid pointer
-          thing = INVALID_THING;
-      } else
-      {
-          ERRORLOG("Couldn't create object model %d", (int)itng->model);
-          return false;
-      }
-      break;
-  case TCls_Creature:
-      thing = create_creature(&itng->mappos, itng->model, itng->owner);
-      if (thing_is_invalid(thing))
-      {
-          ERRORLOG("Couldn't create creature model %d", (int)itng->model);
-          return false;
-      }
-      init_creature_level(thing, itng->params[1]);
-      break;
-  case TCls_EffectGen:
-      thing = create_effect_generator(&itng->mappos, itng->model, itng->range, itng->owner, itng->index);
-      if (thing_is_invalid(thing))
-      {
-          ERRORLOG("Couldn't create effect generator model %d", (int)itng->model);
-          return false;
-      }
-      break;
-  case TCls_Trap:
-      thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
-      if (thing_is_invalid(thing))
-      {
-          ERRORLOG("Couldn't create trap model %d", (int)itng->model);
-          return false;
-      }
-      break;
-  case TCls_Door:
-      thing = create_door(&itng->mappos, itng->model, itng->params[0], itng->owner, itng->params[1]);
-      if (thing_is_invalid(thing))
-      {
-          ERRORLOG("Couldn't create door model %d", (int)itng->model);
-          return false;
-      }
-      break;
-  case 10:
-  case 11:
-      thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
-      if (thing_is_invalid(thing))
-      {
-          ERRORLOG("Couldn't create thing class %d model %d", (int)itng->oclass, (int)itng->model);
-          return false;
-      }
-      break;
-  default:
-      ERRORLOG("Invalid class %d, thing discarded", (int)itng->oclass);
-      return false;
-  }
-  return true;
+    struct Thing *thing;
+    if (itng->owner == 7)
+    {
+        ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.hero_player_num);
+        itng->owner = game.hero_player_num;
+    } else
+    if (itng->owner == 8)
+    {
+        ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.neutral_player_num);
+        itng->owner = game.neutral_player_num;
+    }
+    if (itng->owner > 5)
+    {
+        ERRORLOG("Invalid owning player %d, thing discarded", (int)itng->owner);
+        return false;
+    }
+    switch (itng->oclass)
+    {
+    case TCls_Object:
+        thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
+        if (!thing_is_invalid(thing))
+        {
+            if (itng->model == 49)
+                thing->byte_13 = itng->params[1];
+            check_and_asimilate_thing_by_room(thing);
+            // make sure we don't have invalid pointer
+            thing = INVALID_THING;
+        } else
+        {
+            ERRORLOG("Couldn't create object model %d", (int)itng->model);
+            return false;
+        }
+        break;
+    case TCls_Creature:
+        thing = create_creature(&itng->mappos, itng->model, itng->owner);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create creature model %d", (int)itng->model);
+            return false;
+        }
+        init_creature_level(thing, itng->params[1]);
+        break;
+    case TCls_EffectGen:
+        thing = create_effect_generator(&itng->mappos, itng->model, itng->range, itng->owner, itng->index);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create effect generator model %d", (int)itng->model);
+            return false;
+        }
+        break;
+    case TCls_Trap:
+        thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create trap model %d", (int)itng->model);
+            return false;
+        }
+        break;
+    case TCls_Door:
+        thing = create_door(&itng->mappos, itng->model, itng->params[0], itng->owner, itng->params[1]);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create door model %d", (int)itng->model);
+            return false;
+        }
+        break;
+    case 10:
+    case 11:
+        thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create thing class %d model %d", (int)itng->oclass, (int)itng->model);
+            return false;
+        }
+        break;
+    default:
+        ERRORLOG("Invalid class %d, thing discarded", (int)itng->oclass);
+        return false;
+    }
+    return true;
 }
 
 void initialise_map_collides(void)
