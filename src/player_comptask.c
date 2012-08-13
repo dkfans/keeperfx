@@ -242,7 +242,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     {
     case GA_Unk01:
         break;
-    case GA_Unk02:
+    case GA_UsePwrHandPick:
         if (dungeon->magic_level[PwrK_HAND] == 0)
           break;
         thing = thing_get(param1);
@@ -250,50 +250,50 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         if (i < 0)
           return -1;
         return 1;
-    case GA_Unk03:
+    case GA_UsePwrHandDrop:
         if (dungeon->magic_level[PwrK_HAND] == 0)
           break;
         i = dump_held_things_on_map(plyr_idx, stl_x, stl_y, 0);
         if (i < 0)
           return -1;
         return 1;
-    case GA_Unk04:
+    case GA_UseMkDigger:
         if (dungeon->magic_level[PwrK_MKDIGGER] == 0)
           break;
         i = magic_use_power_imp(plyr_idx, stl_x, stl_y);
         return 1;
-    case GA_Unk05:
+    case GA_UseSlap:
         if (dungeon->magic_level[PwrK_SLAP] == 0)
           break;
         i = magic_use_power_slap(plyr_idx, stl_x, stl_y);
         return i;
-    case GA_Unk06:
+    case GA_UsePwrSight:
         if (dungeon->magic_level[PwrK_SIGHT] == 0)
           break;
         i = magic_use_power_sight(plyr_idx, stl_x, stl_y, a3);
         return i;
-    case GA_Unk07:
+    case GA_UsePwrObey:
         if (dungeon->magic_level[PwrK_OBEY] == 0)
           break;
         i = magic_use_power_obey(plyr_idx);
         return 1;
-    case GA_Unk08:
+    case GA_UsePwrHealCrtr:
         if (dungeon->magic_level[PwrK_HEALCRTR] == 0)
           break;
         thing = thing_get(param1);
         magic_use_power_heal(plyr_idx, thing, thing->mappos.x.stl.num,thing->mappos.y.stl.num, a3);
         return 1;
-    case GA_Unk09:
+    case GA_UsePwrCall2Arms:
         if (dungeon->magic_level[PwrK_CALL2ARMS] == 0)
           break;
         i = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, a3, 1);
         return i;
-    case GA_Unk10:
+    case GA_UsePwrCaveIn:
         if (dungeon->magic_level[PwrK_CAVEIN] == 0)
           break;
         magic_use_power_cave_in(plyr_idx, stl_x, stl_y, a3);
         return 1;
-    case GA_Unk11:
+    case GA_StopPwrCall2Arms:
         turn_off_call_to_arms(plyr_idx);
         return 1;
     case GA_Unk12:
@@ -309,7 +309,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
             i = 1;
         } else
         {
-            i = tag_blocks_for_digging_in_rectangle_around(3 * (slb_x), 3 * (slb_y), plyr_idx) > 0;
+            i = tag_blocks_for_digging_in_rectangle_around(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx) > 0;
         }
         return i;
     case GA_Unk15:
@@ -318,16 +318,16 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         if (room_is_invalid(room))
           break;
         return room->index;
-    case GA_Unk17:
+    case GA_SetTendencies:
         dungeon->creature_tendencies = param1;
         return 1;
-    case GA_Unk18:
+    case GA_PlaceTrap:
         if (dungeon->trap_amount[param1] == 0)
             break;
         pos.x.stl.pos = 128;
-        pos.x.stl.num = 3 * (slb_x) + 1;
+        pos.x.stl.num = slab_subtile_center(slb_x);
         pos.y.stl.pos = 128;
-        pos.y.stl.num = 3 * (slb_y) + 1;
+        pos.y.stl.num = slab_subtile_center(slb_y);
         pos.z.val = 0;
         pos.z.val = get_floor_height_at(&pos);
         thing = create_trap(&pos, param1, plyr_idx);
@@ -337,38 +337,38 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(117);
         return 1;
-    case GA_Unk19:
+    case GA_PlaceDoor:
         k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y);
         i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
         return i;
-    case GA_Unk20:
+    case GA_UsePwrLightning:
         magic_use_power_lightning(plyr_idx, stl_x, stl_y, a3);
         return 1;
-    case GA_Unk21:
+    case GA_UsePwrSpeedUp:
         thing = thing_get(param1);
         magic_use_power_speed(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case GA_Unk22:
+    case GA_UsePwrArmour:
         thing = thing_get(param1);
         magic_use_power_armour(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case GA_Unk23:
+    case GA_UsePwrConceal:
         thing = thing_get(param1);
         magic_use_power_conceal(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case GA_Unk24:
+    case GA_UsePwrHoldAudnc:
         magic_use_power_hold_audience(plyr_idx);
         break;
-    case GA_Unk25:
+    case GA_UsePwrDisease:
         thing = thing_get(param1);
         magic_use_power_disease(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case GA_Unk26:
+    case GA_UsePwrChicken:
         thing = thing_get(param1);
         magic_use_power_chicken(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
         return 1;
-    case GA_Unk28:
-        if (dungeon->magic_level[4] == 0)
+    case GA_UsePwrSlap:
+        if (dungeon->magic_level[PwrK_SLAP] == 0)
           break;
         thing = thing_get(param1);
         i = magic_use_power_slap_thing(plyr_idx, thing);
@@ -980,7 +980,7 @@ long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
     long i;
     SYNCDBG(6,"Starting");
     //return _DK_add_to_trap_location(comp, coord);
-    for (i=0; i < 20; i++)
+    for (i=0; i < COMPUTER_TRAP_LOC_COUNT; i++)
     {
         location = &comp->trap_locations[i];
         if ( (location->x.val == 0) && (location->y.val == 0) ) {

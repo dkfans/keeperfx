@@ -32,6 +32,7 @@ extern "C" {
 #define COMPUTER_CHECKS_COUNT        15
 #define COMPUTER_EVENTS_COUNT        12
 #define COMPUTER_PROCESS_LISTS_COUNT 14
+#define COMPUTER_TRAP_LOC_COUNT      20
 
 #define COMPUTER_CHECKS_TYPES_COUNT  51
 #define COMPUTER_EVENTS_TYPES_COUNT  31
@@ -70,33 +71,33 @@ enum TrapDoorSellingCategory {
 enum GameActionTypes {
     GA_None = 0,
     GA_Unk01,
-    GA_Unk02,
-    GA_Unk03,
-    GA_Unk04,
-    GA_Unk05,
-    GA_Unk06,
-    GA_Unk07,
-    GA_Unk08,
-    GA_Unk09,
-    GA_Unk10,
-    GA_Unk11,
+    GA_UsePwrHandPick,
+    GA_UsePwrHandDrop,
+    GA_UseMkDigger,
+    GA_UseSlap,
+    GA_UsePwrSight,
+    GA_UsePwrObey,
+    GA_UsePwrHealCrtr,
+    GA_UsePwrCall2Arms,
+    GA_UsePwrCaveIn,
+    GA_StopPwrCall2Arms,
     GA_Unk12,
     GA_Unk13,
     GA_Unk14,
     GA_Unk15,
     GA_Unk16,
-    GA_Unk17,
-    GA_Unk18,
-    GA_Unk19,
-    GA_Unk20,
-    GA_Unk21,
-    GA_Unk22,
-    GA_Unk23,
-    GA_Unk24,
-    GA_Unk25,
-    GA_Unk26,
+    GA_SetTendencies,
+    GA_PlaceTrap,
+    GA_PlaceDoor,
+    GA_UsePwrLightning,
+    GA_UsePwrSpeedUp,
+    GA_UsePwrArmour,
+    GA_UsePwrConceal,
+    GA_UsePwrHoldAudnc,
+    GA_UsePwrDisease,
+    GA_UsePwrChicken,
     GA_Unk27,
-    GA_Unk28,
+    GA_UsePwrSlap,
 };
 
 enum ToolDigFlags {
@@ -322,7 +323,7 @@ struct Computer2 { // sizeof = 5322
   struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
   struct Comp2_UnkStr1 unkarr_A10[5];
   unsigned char field_11C2[394];
-  struct Coord3d trap_locations[20];
+  struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   unsigned char field_13C4[60];
   unsigned char field_1400[196];
   short ongoing_process;
