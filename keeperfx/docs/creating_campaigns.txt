@@ -46,10 +46,10 @@ Remember to playtest every level to make sure it is balanced, isn't too hard and
 
 The land view is the place where you're selecting the level to play. The land view consists of:
 a) a background picture over which you can move the view
-b) an ensign which represents the next level to play (actually, ther may be many ensigns visible at once)
+b) an ensign which represents the next level to play (actually, there may be many ensigns visible at once)
 c) a frame picture which indicates that you're looking on the world from a distant tower of some kind
 
-Also, a mentor voice which describes the next level can be hard in the land view
+Also, a mentor voice which describes the next level can be heard in the land view
  screen. Preparation of the mentor audio files will be explained later. For now,
  we will focus on the graphics files needed to make custom background for the screen.
 
@@ -68,7 +68,7 @@ c) Land view picture at end of the campaign (whole red; shown when the whole
 The a) picture can be identical to the first picture of b) series, but you may
  also make it a bit different - ie. a bit lighter.
 
-It is up to you what will be on these pictures. Usually, the picures are showing
+It is up to you what will be on these pictures. Usually, the pictures are showing
  the same landscape - first picture shows a green, happy island, and the last
  one shows red, dead island flowing with lava. But if you have another idea for
  your campaign - you can use any theme you want.

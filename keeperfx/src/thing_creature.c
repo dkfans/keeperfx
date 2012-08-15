@@ -162,7 +162,7 @@ TbBool thing_can_be_controlled_as_passenger(struct Thing *thing)
     return true;
   if (thing->class_id == TCls_DeadCreature)
     return true;
-  if ((thing->class_id == TCls_Object) && (thing->model == 10))
+  if ((thing->class_id == TCls_Object) && object_is_mature_food(thing))
     return true;
   return false;
 }
@@ -873,7 +873,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
     {
       if ((thing->model == 43) && thing_touching_floor(thing))
         return thing;
-      if (thing->model == 10)
+      if (object_is_mature_food(thing))
       {
         room = get_room_thing_is_on(thing);
         if (room_is_invalid(room))
@@ -3017,7 +3017,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_Unknown02) != 0))
+    if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0))
     {
       crstat = creature_stats_get_from_thing(thing);
       if (crstat->hurt_by_lava)
@@ -3045,7 +3045,7 @@ void process_creature_leave_footsteps(struct Thing *thing)
     struct SlabMap *slb;
     short nfoot;
     cctrl = creature_control_get_from_thing(thing);
-    if ((thing->movement_flags & TMvF_Unknown01) != 0)
+    if ((thing->movement_flags & TMvF_IsOnWater) != 0)
     {
         nfoot = get_foot_creature_has_down(thing);
         if (nfoot)
@@ -3085,8 +3085,8 @@ void process_landscape_affecting_creature(struct Thing *thing)
   int stl_idx;
   int i;
   SYNCDBG(18,"Starting");
-  set_flag_byte(&thing->movement_flags,TMvF_Unknown01,false);
-  set_flag_byte(&thing->movement_flags,TMvF_Unknown02,false);
+  set_flag_byte(&thing->movement_flags,TMvF_IsOnWater,false);
+  set_flag_byte(&thing->movement_flags,TMvF_IsOnLava,false);
   set_flag_byte(&thing->movement_flags,TMvF_Unknown80,false);
   cctrl = creature_control_get_from_thing(thing);
   if (creature_control_invalid(cctrl))
@@ -3105,11 +3105,11 @@ void process_landscape_affecting_creature(struct Thing *thing)
     {
       crstat = creature_stats_get_from_thing(thing);
       apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
-      thing->movement_flags |= TMvF_Unknown02;
+      thing->movement_flags |= TMvF_IsOnLava;
     } else
     if (i == 39)
     {
-      thing->movement_flags |= TMvF_Unknown01;
+      thing->movement_flags |= TMvF_IsOnWater;
     }
     process_creature_leave_footsteps(thing);
     process_creature_standing_on_corpses_at(thing, &thing->mappos);
@@ -3261,7 +3261,7 @@ long update_creature_levels(struct Thing *thing)
     return -1;
 }
 
-long update_creature(struct Thing *thing)
+TngUpdateRet update_creature(struct Thing *thing)
 {
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
@@ -3274,19 +3274,19 @@ long update_creature(struct Thing *thing)
     {
         SYNCDBG(8,"Killing unconscious %s index %d on door block.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
-        return 0;
+        return TUFRet_Deleted;
     }
     if (thing->health < 0)
     {
         kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
-        return 0;
+        return TUFRet_Deleted;
     }
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
-        return 0;
+        return TUFRet_Deleted;
     }
     if (game.field_150356 != 0)
     {
@@ -3340,7 +3340,7 @@ long update_creature(struct Thing *thing)
           } else
           if (process_creature_state(thing))
           {
-              return 0;
+              return TUFRet_Deleted;
           }
         }
     }
@@ -3389,7 +3389,7 @@ long update_creature(struct Thing *thing)
     }
     if (update_creature_levels(thing) == -1)
     {
-        return 0;
+        return TUFRet_Deleted;
     }
     process_creature_self_spell_casting(thing);
     cctrl->pos_BB.x.val = 0;
@@ -3400,7 +3400,7 @@ long update_creature(struct Thing *thing)
     set_flag_byte(&cctrl->field_AD,0x04,false);
     process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");
-    return 1;
+    return TUFRet_Modified;
 }
 
 TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx)

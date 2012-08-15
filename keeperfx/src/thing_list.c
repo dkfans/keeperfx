@@ -29,6 +29,7 @@
 #include "thing_effects.h"
 #include "thing_traps.h"
 #include "thing_shots.h"
+#include "thing_corpses.h"
 #include "thing_stats.h"
 #include "thing_creature.h"
 #include "config_creature.h"
@@ -1405,7 +1406,7 @@ TbBool update_thing(struct Thing *thing)
         classfunc = NULL;
     if (classfunc == NULL)
         return false;
-    if (classfunc(thing) < 0) {
+    if (classfunc(thing) == TUFRet_Deleted) {
         return false;
     }
     SYNCDBG(18,"Class function end ok");

@@ -64,6 +64,13 @@ enum ThingListIndex {
     TngList_StaticLights = 11,
     TngList_DynamLights  = 12,
 };
+
+enum ThingUpdateFuncReturns {
+    TUFRet_Deleted       = -1, /**< Returned if the thing being updated no longer exists. */
+    TUFRet_Unchanged     =  0, /**< Returned if no change was made to the thing data. */
+    TUFRet_Modified      =  1, /**< Returned if the thing was updated and possibly some variables have changed inside. */
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -74,8 +81,10 @@ struct CompoundFilterParam;
 typedef long FilterParam;
 typedef struct CompoundFilterParam * MaxFilterParam;
 
+/** Definition of a callback type used for updating thing which is in specific state. */
 typedef long (*Thing_State_Func)(struct Thing *);
-typedef long (*Thing_Class_Func)(struct Thing *);
+/** Definition of a callback type used for updating thing of specific class or model. */
+typedef TngUpdateRet (*Thing_Class_Func)(struct Thing *);
 typedef long (*Thing_Filter)(const struct Thing *, FilterParam);
 typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxFilterParam, long);
 typedef long (*Thing_Collide_Func)(struct Thing *, struct Thing *, long, long);

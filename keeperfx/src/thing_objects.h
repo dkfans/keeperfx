@@ -54,7 +54,7 @@ struct Objects {
 
 #pragma pack()
 /******************************************************************************/
-extern Thing_Class_Func object_state_functions[];
+extern Thing_State_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];
 extern unsigned short specials_text[];
 extern unsigned short player_unknown1_objects[];
@@ -70,6 +70,9 @@ DLLIMPORT extern unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
 DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
+void destroy_object(struct Thing *thing);
+TngUpdateRet update_object(struct Thing *thing);
+
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
 unsigned int get_workshop_object_class_for_thing(const struct Thing *thing);
@@ -94,8 +97,6 @@ TbBool object_is_gold(const struct Thing *thing);
 TbBool object_is_gold_pile(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
-
-long update_object(struct Thing *thing);
 
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx);
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, long plyr_idx, long value);
