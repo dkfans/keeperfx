@@ -550,6 +550,8 @@ unsigned short find_battle_for_thing(const struct Thing *fighter, const struct T
     struct CreatureBattle *battle;
     unsigned short battle_id;
     long i;
+    TRACE_THING(fighter);
+    TRACE_THING(enmtng);
     battle_id = 0;
     for (i = 1; i < BATTLES_COUNT; i++) // Originally was 32, but I'm pretty sure there's 48 battles
     {
@@ -583,6 +585,8 @@ TbBool battle_add(struct Thing *fighter, struct Thing *enmtng)
         return false;
     }
     SYNCDBG(9,"Starting for %s index %d and %s index %d",thing_model_name(fighter),(int)fighter->index,thing_model_name(enmtng),(int)enmtng->index);
+    TRACE_THING(fighter);
+    TRACE_THING(enmtng);
     //_DK_battle_add(fighter, enmtng); return true;
     { // Remove fighter from previous battle
         struct CreatureControl *figctrl;
@@ -630,6 +634,7 @@ TbBool battle_add(struct Thing *fighter, struct Thing *enmtng)
 TbBool battle_remove(struct Thing *fighter)
 {
     SYNCDBG(9,"Starting for %s index %d",thing_model_name(fighter),(int)fighter->index);
+    TRACE_THING(fighter);
     //_DK_battle_remove(fighter); return true;
     {
         struct CreatureControl *figctrl;
@@ -667,6 +672,7 @@ TbBool add_ranged_combat_attacker(struct Thing *enmtng, unsigned short fighter_i
 {
     struct CreatureControl *enmctrl;
     long oppn_idx;
+    TRACE_THING(enmtng);
     enmctrl = creature_control_get_from_thing(enmtng);
     // Check if the fighter is already in opponents list
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
@@ -695,6 +701,7 @@ TbBool remove_ranged_combat_attacker(struct Thing *enmtng, unsigned short fighte
 {
     struct CreatureControl *enmctrl;
     long oppn_idx;
+    TRACE_THING(enmtng);
     enmctrl = creature_control_get_from_thing(enmtng);
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
     {
@@ -712,6 +719,8 @@ TbBool remove_ranged_combat_attacker(struct Thing *enmtng, unsigned short fighte
 TbBool remove_ranged_attacker(struct Thing *fighter, struct Thing *enmtng)
 {
     struct CreatureControl *figctrl;
+    TRACE_THING(fighter);
+    TRACE_THING(enmtng);
     //_DK_remove_ranged_attacker(fighter,enmtng); return;
     figctrl = creature_control_get_from_thing(fighter);
     {
@@ -752,6 +761,7 @@ long remove_all_ranged_combat_attackers(struct Thing *victim)
     struct Thing *fighter;
     long oppn_idx,num;
     long fighter_idx;
+    TRACE_THING(victim);
     num = 0;
     vicctrl = creature_control_get_from_thing(victim);
     for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
@@ -772,6 +782,7 @@ TbBool add_melee_combat_attacker(struct Thing *enmtng, unsigned short fighter_id
 {
     struct CreatureControl *enmctrl;
     long oppn_idx;
+    TRACE_THING(enmtng);
     enmctrl = creature_control_get_from_thing(enmtng);
     // Check if the fighter is already in opponents list
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
@@ -799,6 +810,7 @@ TbBool remove_melee_combat_attacker(struct Thing *enmtng, unsigned short fighter
 {
     struct CreatureControl *enmctrl;
     long oppn_idx;
+    TRACE_THING(enmtng);
     enmctrl = creature_control_get_from_thing(enmtng);
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
     {
@@ -816,6 +828,8 @@ TbBool remove_melee_attacker(struct Thing *fighter, struct Thing *enmtng)
 {
     struct CreatureControl *figctrl;
     //_DK_remove_melee_attacker(fighter,enmtng); return;
+    TRACE_THING(fighter);
+    TRACE_THING(enmtng);
     figctrl = creature_control_get_from_thing(fighter);
     {
         struct Dungeon *dungeon;
@@ -855,6 +869,7 @@ long remove_all_melee_combat_attackers(struct Thing *enemy)
     struct Thing *fighter;
     long oppn_idx,num;
     long fighter_idx;
+    TRACE_THING(enemy);
     num = 0;
     enmctrl = creature_control_get_from_thing(enemy);
     for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
@@ -875,6 +890,8 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *enemy)
 {
     struct CreatureControl *figctrl;
     SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    TRACE_THING(fighter);
+    TRACE_THING(enemy);
     //return _DK_add_ranged_attacker(fighter, enemy);
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags)
@@ -916,6 +933,8 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
 {
     struct CreatureControl *figctrl;
     SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
+    TRACE_THING(fighter);
+    TRACE_THING(enemy);
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags)
     {
@@ -1698,6 +1717,7 @@ short creature_in_combat(struct Thing *thing)
     struct Thing *enmtng;
     CombatState combat_func;
     SYNCDBG(9,"Starting for %s",thing_model_name(thing));
+    TRACE_THING(thing);
     //return _DK_creature_in_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
@@ -1742,6 +1762,7 @@ long creature_look_for_combat(struct Thing *thing)
     struct CreatureControl *cctrl;
     long combat_kind;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    TRACE_THING(thing);
     //return _DK_creature_look_for_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     combat_kind = check_for_possible_combat(thing, &enmtng);
@@ -1791,6 +1812,8 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
     struct Coord3d pos;
     long dist_x,dist_y;
     long i;
+    TRACE_THING(figtng);
+    TRACE_THING(enmtng);
 
     figctrl = creature_control_get_from_thing(figtng);
     dist_x = enmtng->mappos.x.val - figtng->mappos.x.val;

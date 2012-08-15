@@ -605,6 +605,21 @@ TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
         return false;
     return true;
 }
+
+/**
+ * Returns if given map subtile is part of a door slab.
+ * @param stl_x
+ * @param stl_y
+ * @return
+ */
+TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk) || ((mapblk->flags & MapFlg_IsDoor) == 0))
+        return false;
+    return true;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

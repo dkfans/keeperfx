@@ -155,6 +155,8 @@ typedef unsigned short SpellKind;
 typedef unsigned short PowerKind;
 typedef short BattleIndex;
 typedef long HitPoints;
+/** Type which stores TUFRet_* values. */
+typedef short TngUpdateRet;
 
 
 struct Coord2d {

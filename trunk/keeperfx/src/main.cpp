@@ -570,52 +570,10 @@ short send_creature_to_room(struct Thing *thing, struct Room *room)
     return _DK_send_creature_to_room(thing, room);
 }
 
-void destroy_food(struct Thing *thing)
-{
-    struct Room *room;
-    struct Dungeon *dungeon;
-    struct Thing *efftng;
-    struct Coord3d pos;
-    long plyr_idx,i;
-    SYNCDBG(8,"Starting");
-    plyr_idx = thing->owner;
-    dungeon = get_dungeon(plyr_idx);
-    if (game.neutral_player_num != plyr_idx) {
-        dungeon->lvstats.chickens_wasted++;
-    }
-    efftng = create_effect(&thing->mappos, TngEff_Unknown49, plyr_idx);
-    if (!thing_is_invalid(efftng)) {
-        i = UNSYNC_RANDOM(3);
-        thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, 256);
-    }
-    pos.x.val = thing->mappos.x.val;
-    pos.y.val = thing->mappos.y.val;
-    pos.z.val = thing->mappos.z.val + 256;
-    create_effect(&thing->mappos, TngEff_Unknown51, plyr_idx);
-    create_effect(&pos, TngEff_Unknown07, plyr_idx);
-    if (thing->owner != game.neutral_player_num)
-    {
-        if (thing->word_13 == -1)
-        {
-          room = get_room_thing_is_on(thing);
-          if (!room_is_invalid(room))
-          {
-            if ((room->kind == RoK_GARDEN) && (room->owner == thing->owner))
-            {
-                if (room->used_capacity > 0)
-                  room->used_capacity--;
-                thing->word_13 = game.food_life_out_of_hatchery;
-            }
-          }
-        }
-    }
-    delete_thing_structure(thing, 0);
-}
-
 TbBool slap_object(struct Thing *thing)
 {
   if (object_is_mature_food(thing)) {
-      destroy_food(thing);
+      destroy_object(thing);
       return true;
   }
   return false;

@@ -120,7 +120,7 @@ TbBool remove_creature_score_from_owner(struct Thing *thing);
 long calculate_melee_damage(struct Thing *thing);
 
 long update_creature_levels(struct Thing *thing);
-long update_creature(struct Thing *thing);
+TngUpdateRet update_creature(struct Thing *thing);
 TbBool creature_stats_debug_dump(void);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);

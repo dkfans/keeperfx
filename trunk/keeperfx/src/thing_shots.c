@@ -171,7 +171,16 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
     return efftng;
 }
 
-long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
+/**
+ * Processes hitting a wall by given shot.
+ *
+ * @param thing The thing to be moved into wall.
+ * @param pos Next position of the thing.
+ * @return Gives true if the shot hit a wall wand was destroyed.
+ *     If the shot wasn't detonated, then the function returns false.
+ * @note This function may delete the thing given in parameter.
+ */
+TbBool shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
 {
     struct ShotConfigStats *shotst;
     struct Thing *shooter;
@@ -216,14 +225,14 @@ long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
               apply_damage_to_thing(doortng, i, -1);
             }
         } else
-        if (cube_id == 39)
+        if (cube_is_water(cube_id))
         {
             efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_37, shotst->old->field_39, 1);
             if ( shotst->old->field_3B ) {
                 shot_explodes = 1;
             }
         } else
-        if ( (cube_id == 40) || (cube_id == 41) )
+        if (cube_is_lava(cube_id))
         {
             efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_3C, shotst->old->field_3E, 1);
             if ( shotst->old->field_40 ) {
@@ -276,7 +285,7 @@ long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
             explosion_affecting_area(shooter, pos, shotst->old->field_41, shotst->old->field_43, 256, shotst->old->field_4A);
         }
         delete_thing_structure(thing, 0);
-        return 1;
+        return true;
     }
     if (shotst->old->field_D <= 0)
     {
@@ -285,9 +294,18 @@ long shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
     {
         bounce_thing_off_wall_at(thing, pos, blocked_flags);
     }
-    return 0;
+    return false;
 }
 
+/**
+ * Processes hitting a door by given shot.
+ *
+ * @param thing The thing to be moved.
+ * @param pos Next position of the thing.
+ * @return Gives true if the shot hit a door and was destroyed.
+ *     If the shot wasn't detonated, then the function returns false.
+ * @note This function may delete the thing given in parameter.
+ */
 long shot_hit_door_at(struct Thing *thing, struct Coord3d *pos)
 {
     return _DK_shot_hit_door_at(thing, pos);
@@ -695,6 +713,15 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, 
     return _DK_get_thing_collided_with_at_satisfying_filter(thing, pos, filter, a4, a5);
 }
 
+/**
+ * Processes hitting another thing.
+ *
+ * @param thing The thing to be moved.
+ * @param pos Next position of the thing.
+ * @return Gives true if the shot hit something and was destroyed.
+ *     If the shot wasn't detonated, then the function returns false.
+ * @note This function may delete the thing given in parameter.
+ */
 TbBool shot_hit_something_while_moving(struct Thing *thing, struct Coord3d *nxpos)
 {
     struct ShotConfigStats *shotst;
@@ -768,7 +795,7 @@ TbBool shot_hit_something_while_moving(struct Thing *thing, struct Coord3d *nxpo
     return false;
 }
 
-long move_shot(struct Thing *thing)
+TngUpdateRet move_shot(struct Thing *thing)
 {
     //return _DK_move_shot(thing);
     struct ShotConfigStats *shotst;
@@ -780,29 +807,29 @@ long move_shot(struct Thing *thing)
     if ( !shotst->old->field_28 )
     {
         if ( shot_hit_something_while_moving(thing, &pos) ) {
-            return 0;
+            return TUFRet_Deleted;
         }
     }
     if ((thing->movement_flags & TMvF_Unknown10) != 0)
     {
       if ( (shotst->old->field_48) && thing_in_wall_at(thing, &pos) ) {
           if ( shot_hit_door_at(thing, &pos) ) {
-              return 0;
+              return TUFRet_Deleted;
           }
       }
     } else
     {
       if ( thing_in_wall_at(thing, &pos) ) {
           if ( shot_hit_wall_at(thing, &pos) ) {
-              return 0;
+              return TUFRet_Deleted;
           }
       }
     }
     move_thing_in_map(thing, &pos);
-    return 1;
+    return TUFRet_Modified;
 }
 
-long update_shot(struct Thing *thing)
+TngUpdateRet update_shot(struct Thing *thing)
 {
     struct ShotConfigStats *shotst;
     struct PlayerInfo *myplyr;
@@ -942,11 +969,11 @@ long update_shot(struct Thing *thing)
     }
     if (!thing_exists(thing)) {
         WARNLOG("Thing disappeared during update");
-        return 0;
+        return TUFRet_Deleted;
     }
     if (hit) {
         detonate_shot(thing);
-        return 0;
+        return TUFRet_Deleted;
     }
     return move_shot(thing);
 }

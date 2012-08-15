@@ -68,7 +68,7 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
 }
 
-long update_trap(struct Thing *thing)
+TngUpdateRet update_trap(struct Thing *thing)
 {
   SYNCDBG(18,"Starting");
   TRACE_THING(thing);

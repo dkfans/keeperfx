@@ -943,7 +943,6 @@ TbBool create_random_evil_creature(long x, long y, PlayerNumber owner, long max_
 TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_lv);
 TbBool create_hero_special_worker(long x, long y, PlayerNumber owner);
 
-void destroy_food(struct Thing *thing);
 unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);
 unsigned char step_battles_forward(unsigned char a1);
@@ -1086,8 +1085,6 @@ short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, l
 
 TbPixel get_player_path_colour(unsigned short owner);
 long get_scavenge_effect_element(unsigned short owner);
-
-long update_dead_creature(struct Thing *thing);
 
 void startup_network_game(TbBool local);
 void startup_saved_packet_game(void);
