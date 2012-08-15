@@ -2972,7 +2972,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
-    if ( (thing_being_displayed->movement_flags & (TMvF_Unknown01|TMvF_Unknown02|TMvF_Unknown04)) == 0)
+    if ( (thing_being_displayed->movement_flags & (TMvF_IsOnWater|TMvF_IsOnLava|TMvF_Unknown04)) == 0)
     {
         water_y_offset = 0;
         water_source_cutoff = 0;

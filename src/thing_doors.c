@@ -232,7 +232,7 @@ long process_door_closing(struct Thing *thing)
     return 1;
 }
 
-long process_door(struct Thing *thing)
+TngUpdateRet process_door(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
@@ -241,7 +241,7 @@ long process_door(struct Thing *thing)
     {
         thing->health = -1;
         destroy_door(thing);
-        return 0;
+        return TUFRet_Deleted;
     }
     if ((thing->word_13 > 1) || (thing->word_13 < 0))
     {
@@ -267,7 +267,7 @@ long process_door(struct Thing *thing)
         thing->active_state = DorSt_Unknown04;
         break;
     }
-    return 1;
+    return TUFRet_Modified;
 }
 
 /******************************************************************************/

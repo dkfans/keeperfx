@@ -21,8 +21,10 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
 #include "bflib_sound.h"
 #include "thing_stats.h"
+#include "thing_effects.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "gui_topmsg.h"
@@ -38,15 +40,15 @@ extern "C" {
 long food_moves(struct Thing *thing);
 long food_grows(struct Thing *thing);
 long object_being_dropped(struct Thing *thing);
-long object_update_dungeon_heart(struct Thing *thing);
-long object_update_call_to_arms(struct Thing *thing);
-long object_update_armour(struct Thing *thing);
-long object_update_object_scale(struct Thing *thing);
-long object_update_armour2(struct Thing *thing);
-long object_update_power_sight(struct Thing *thing);
-long object_update_power_lightning(struct Thing *thing);
+TngUpdateRet object_update_dungeon_heart(struct Thing *thing);
+TngUpdateRet object_update_call_to_arms(struct Thing *thing);
+TngUpdateRet object_update_armour(struct Thing *thing);
+TngUpdateRet object_update_object_scale(struct Thing *thing);
+TngUpdateRet object_update_armour2(struct Thing *thing);
+TngUpdateRet object_update_power_sight(struct Thing *thing);
+TngUpdateRet object_update_power_lightning(struct Thing *thing);
 
-Thing_Class_Func object_state_functions[] = {
+Thing_State_Func object_state_functions[] = {
     NULL,
     food_moves,
     food_grows,
@@ -344,6 +346,60 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     return thing;
 }
 
+void destroy_food(struct Thing *thing)
+{
+    struct Room *room;
+    struct Dungeon *dungeon;
+    struct Thing *efftng;
+    struct Coord3d pos;
+    PlayerNumber plyr_idx;
+    long i;
+    SYNCDBG(8,"Starting");
+    plyr_idx = thing->owner;
+    dungeon = get_dungeon(plyr_idx);
+    if (game.neutral_player_num != plyr_idx) {
+        dungeon->lvstats.chickens_wasted++;
+    }
+    efftng = create_effect(&thing->mappos, TngEff_Unknown49, plyr_idx);
+    if (!thing_is_invalid(efftng)) {
+        i = UNSYNC_RANDOM(3);
+        thing_play_sample(efftng, 112+i, 100, 0, 3, 0, 2, 256);
+    }
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val + 256;
+    create_effect(&thing->mappos, TngEff_Unknown51, plyr_idx);
+    create_effect(&pos, TngEff_Unknown07, plyr_idx);
+    if (thing->owner != game.neutral_player_num)
+    {
+        if (thing->word_13 == -1)
+        {
+          room = get_room_thing_is_on(thing);
+          if (!room_is_invalid(room))
+          {
+            if ((room->kind == RoK_GARDEN) && (room->owner == thing->owner))
+            {
+                if (room->used_capacity > 0)
+                  room->used_capacity--;
+                thing->word_13 = game.food_life_out_of_hatchery;
+            }
+          }
+        }
+    }
+    delete_thing_structure(thing, 0);
+}
+
+void destroy_object(struct Thing *thing)
+{
+    if (object_is_mature_food(thing))
+    {
+        destroy_food(thing);
+    } else
+    {
+        delete_thing_structure(thing, 0);
+    }
+}
+
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
   unsigned int tmodel;
@@ -577,7 +633,7 @@ void update_dungeon_heart_beat(struct Thing *thing)
     }
 }
 
-long object_update_dungeon_heart(struct Thing *thing)
+TngUpdateRet object_update_dungeon_heart(struct Thing *thing)
 {
     struct Dungeon *dungeon;
     long i;
@@ -622,35 +678,35 @@ long object_update_dungeon_heart(struct Thing *thing)
     if ( thing->byte_13 )
       thing->byte_13--;
     update_dungeon_heart_beat(thing);
-    return 1;
+    return TUFRet_Modified;
 }
 
-long object_update_call_to_arms(struct Thing *thing)
+TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 {
     return _DK_object_update_call_to_arms(thing);
 }
 
-long object_update_armour(struct Thing *thing)
+TngUpdateRet object_update_armour(struct Thing *thing)
 {
     return _DK_object_update_armour(thing);
 }
 
-long object_update_object_scale(struct Thing *thing)
+TngUpdateRet object_update_object_scale(struct Thing *thing)
 {
     return _DK_object_update_object_scale(thing);
 }
 
-long object_update_armour2(struct Thing *thing)
+TngUpdateRet object_update_armour2(struct Thing *thing)
 {
     return _DK_object_update_armour2(thing);
 }
 
-long object_update_power_sight(struct Thing *thing)
+TngUpdateRet object_update_power_sight(struct Thing *thing)
 {
     return _DK_object_update_power_sight(thing);
 }
 
-long object_update_power_lightning(struct Thing *thing)
+TngUpdateRet object_update_power_lightning(struct Thing *thing)
 {
     return _DK_object_update_power_lightning(thing);
 }
@@ -660,9 +716,9 @@ long move_object(struct Thing *thing)
     return _DK_move_object(thing);
 }
 
-long update_object(struct Thing *thing)
+TngUpdateRet update_object(struct Thing *thing)
 {
-    Thing_State_Func upcallback;
+    Thing_Class_Func upcallback;
     Thing_State_Func stcallback;
     struct Objects *objdat;
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
@@ -678,7 +734,7 @@ long update_object(struct Thing *thing)
     if (upcallback != NULL)
     {
         if (upcallback(thing) <= 0) {
-            return -1;
+            return TUFRet_Deleted;
         }
     }
     stcallback = NULL;
@@ -691,37 +747,31 @@ long update_object(struct Thing *thing)
     {
         SYNCDBG(18,"Updating state");
         if (stcallback(thing) <= 0) {
-            return -1;
+            return TUFRet_Deleted;
         }
     }
     SYNCDBG(18,"Updating position");
-    thing->movement_flags &= ~TMvF_Unknown01;
-    thing->movement_flags &= ~TMvF_Unknown02;
+    thing->movement_flags &= ~TMvF_IsOnWater;
+    thing->movement_flags &= ~TMvF_IsOnLava;
     if ( ((thing->movement_flags & TMvF_Unknown40) == 0) && thing_touching_floor(thing) )
     {
-      if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num) )
+      if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
       {
-        thing->movement_flags |= TMvF_Unknown02;
+        thing->movement_flags |= TMvF_IsOnLava;
         objdat = get_objects_data_for_thing(thing);
         if ( (objdat->field_12) && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
         {
-              if (thing->model == 10)
-              {
-                  destroy_food(thing);
-              } else
-              {
-                  delete_thing_structure(thing, 0);
-              }
-              return -1;
+            destroy_object(thing);
+            return TUFRet_Deleted;
         }
       } else
-      if (get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num) == 39)
+      if (subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
       {
-        thing->movement_flags |= TMvF_Unknown01;
+        thing->movement_flags |= TMvF_IsOnWater;
       }
     }
     if ((thing->movement_flags & TMvF_Unknown40) != 0)
-        return 1;
+        return TUFRet_Modified;
     return move_object(thing);
 }
 

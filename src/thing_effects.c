@@ -675,7 +675,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     return _DK_change_effect_element_into_another(thing,nmodel);
 }
 
-long update_effect_element(struct Thing *thing)
+TngUpdateRet update_effect_element(struct Thing *thing)
 {
     struct EffectElementStats *eestats;
     long health;
@@ -702,7 +702,7 @@ long update_effect_element(struct Thing *thing)
         {
             delete_thing_structure(thing, 0);
         }
-        return 0;
+        return TUFRet_Deleted;
     }
     thing->health = health-1;
     // Set dynamic properties of the effect
@@ -713,20 +713,16 @@ long update_effect_element(struct Thing *thing)
     }
     if (eestats->field_15)
     {
-        thing->movement_flags &= ~TMvF_Unknown01;
-        thing->movement_flags &= ~TMvF_Unknown02;
+        thing->movement_flags &= ~TMvF_IsOnWater;
+        thing->movement_flags &= ~TMvF_IsOnLava;
         if (thing_touching_floor(thing))
         {
             i = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            switch (i)
-            {
-            case 39:
-                thing->movement_flags |= TMvF_Unknown01;
-                break;
-            case 40:
-            case 41:
-                thing->movement_flags |= TMvF_Unknown02;
-                break;
+            if (cube_is_water(i)) {
+                thing->movement_flags |= TMvF_IsOnWater;
+            } else
+            if (cube_is_lava(i)) {
+                thing->movement_flags |= TMvF_IsOnLava;
             }
         }
     }
@@ -793,7 +789,7 @@ long update_effect_element(struct Thing *thing)
     }
 
     if (eestats->field_2 != 1)
-      return 1;
+      return TUFRet_Modified;
     abs_x = abs(thing->pos_2C.x.val);
     abs_y = abs(thing->pos_2C.y.val);
     prop_factor = LbDiagonalLength(abs_x, abs_y);
@@ -806,7 +802,7 @@ long update_effect_element(struct Thing *thing)
     thing->field_3E = 0;
     thing->field_40 = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");
-    return 1;
+    return TUFRet_Modified;
 }
 
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4)
@@ -959,7 +955,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     }
 }
 
-long process_effect_generator(struct Thing *thing)
+TngUpdateRet process_effect_generator(struct Thing *thing)
 {
     struct EffectGeneratorStats *egenstat;
     struct Thing *elemtng;
@@ -974,18 +970,18 @@ long process_effect_generator(struct Thing *thing)
     if (thing->health == 0)
     {
         delete_thing_structure(thing, 0);
-        return 0;
+        return TUFRet_Deleted;
     }
     if ( !any_player_close_enough_to_see(&thing->mappos) )
     {
         SYNCDBG(18,"No player sees %s at (%d,%d,%d)",thing_model_name(thing),(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)thing->mappos.z.stl.num);
-        return 1;
+        return TUFRet_Modified;
     }
     if (thing->long_15 > 0)
         thing->long_15--;
     if (thing->long_15 > 0)
     {
-        return 1;
+        return TUFRet_Modified;
     }
     egenstat = &effect_generator_stats[thing->model];
     for (i=0; i < egenstat->genation_amount; i++)
@@ -1043,7 +1039,7 @@ long process_effect_generator(struct Thing *thing)
         }
     }
     thing->long_15 = egenstat->genation_delay_min + ACTION_RANDOM(egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
-    return 1;
+    return TUFRet_Modified;
 }
 
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner)
@@ -1451,7 +1447,7 @@ void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long
     _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, area_affect_type);
 }
 
-long update_effect(struct Thing *thing)
+TngUpdateRet update_effect(struct Thing *thing)
 {
     struct InitEffect *effnfo;
     struct Thing *subtng;
@@ -1466,7 +1462,7 @@ long update_effect(struct Thing *thing)
     }
     if (thing->health <= 0) {
         destroy_effect_thing(thing);
-        return 0;
+        return TUFRet_Deleted;
     }
     update_effect_light_intensity(thing);
     // Effect generators can be used to generate effect elements

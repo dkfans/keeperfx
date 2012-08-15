@@ -2053,11 +2053,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         thing->owner = newowner;
         break;
       case 2:
-        if (thing->model == 10) {
-            destroy_food(thing);
-        } else {
-            delete_thing_structure(thing, 0);
-        }
+        destroy_object(thing);
         break;
     }
 }

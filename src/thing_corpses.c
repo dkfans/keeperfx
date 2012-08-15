@@ -229,79 +229,74 @@ long move_dead_creature(struct Thing *thing)
     return 1;
 }
 
-long update_dead_creature(struct Thing *thing)
+TngUpdateRet update_dead_creature(struct Thing *thing)
 {
     struct Coord3d pos;
-    struct Map *mapblk;
     long i;
     SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    return _DK_update_dead_creature(thing); //TODO Why is rewritten code inactive?
+    //return _DK_update_dead_creature(thing);
     if ((thing->alloc_flags & TAlF_IsDragged) == 0)
     {
-      if (thing->active_state == 1)
-      {
-        pos.x.val = thing->mappos.x.val;
-        pos.y.val = thing->mappos.y.val;
-        pos.z.val = thing->mappos.z.val;
-        pos.z.val += 3 * (int)thing->field_58 / 4;
-        if (creature_model_bleeds(thing->model)) {
-            create_effect(&pos, TngEff_Unknown65, thing->owner);
+        if (thing->active_state == DCrSt_Unknown01)
+        {
+            pos.x.val = thing->mappos.x.val;
+            pos.y.val = thing->mappos.y.val;
+            pos.z.val = thing->mappos.z.val;
+            pos.z.val += 3 * (int)thing->field_58 / 4;
+            if (creature_model_bleeds(thing->model)) {
+                create_effect(&pos, TngEff_Unknown65, thing->owner);
+            }
+            if (thing->health > 0)
+                thing->health--;
+            if (thing->health <= 0) {
+                thing->active_state = DCrSt_Unknown02;
+                i = get_creature_anim(thing, 16);
+                set_thing_draw(thing, i, 64, -1, 1, 0, 2);
+            }
+        } else
+        if ( corpse_is_rottable(thing) )
+        {
+            if (thing->byte_14 != 0)
+            {
+                if (thing->health > 0)
+                    thing->health--;
+                if (thing->health <= 0) {
+                    remove_body_from_graveyard(thing);
+                    delete_thing_structure(thing, 0);
+                    return TUFRet_Deleted;
+                }
+            } else
+            {
+                if (game.play_gameturn - thing->field_9 > game.body_remains_for) {
+                    delete_thing_structure(thing, 0);
+                    return TUFRet_Deleted;
+                }
+            }
         }
-        if (thing->health > 0)
-            thing->health--;
-        if (thing->health <= 0) {
-          thing->active_state = 2;
-          i = get_creature_anim(thing, 16);
-          set_thing_draw(thing, i, 64, -1, 1, 0, 2);
-        }
-      } else
-      if ( corpse_is_rottable(thing) )
-      {
-          if (thing->byte_14 != 0)
-          {
-              if (thing->health > 0)
-                  thing->health--;
-              if (thing->health <= 0) {
-                  remove_body_from_graveyard(thing);
-                  delete_thing_structure(thing, 0);
-                  return 0;
-              }
-          } else
-          {
-              if (game.play_gameturn - thing->field_9 > game.body_remains_for) {
-                  delete_thing_structure(thing, 0);
-                  return 0;
-              }
-          }
-      }
     }
-    i = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if (cube_is_water(i)) {
-        thing->movement_flags |= TMvF_Unknown01;
+    if (subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        thing->movement_flags |= TMvF_IsOnWater;
     }
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
         move_dead_creature(thing);
-        return 1;
+        return TUFRet_Modified;
     }
     if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
       && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
     {
         delete_thing_structure(thing, 0);
-        return 0;
+        return TUFRet_Deleted;
     }
-    mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((mapblk->flags & MapFlg_IsDoor) == 0)
-    {
-        move_dead_creature(thing);
-        return 1;
-    } else
+    if (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         delete_thing_structure(thing, 0);
         create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->byte_13);
-        return 0;
+        return TUFRet_Deleted;
     }
+    move_dead_creature(thing);
+    return TUFRet_Modified;
 }
 
 long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
