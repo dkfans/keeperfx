@@ -145,7 +145,7 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
  *
  * @param thing The thing to be moved into wall.
  * @param pos Next position of the thing.
- * @return Gives true if the shot hit a wall wand was destroyed.
+ * @return Gives true if the shot hit a wall and was destroyed.
  *     If the shot wasn't detonated, then the function returns false.
  * @note This function may delete the thing given in parameter.
  */
