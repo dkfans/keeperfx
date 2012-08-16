@@ -32,6 +32,7 @@ DLLIMPORT struct Thing *_DK_create_trap(struct Coord3d *pos, unsigned short a1, 
 DLLIMPORT struct Thing *_DK_get_trap_for_position(long pos_x, long pos_y);
 DLLIMPORT struct Thing *_DK_get_trap_for_slab_position(long slb_x, long slb_y);
 DLLIMPORT long _DK_update_trap(struct Thing *thing);
+DLLIMPORT void _DK_update_trap_trigger(struct Thing *thing);
 
 /******************************************************************************/
 TbBool destroy_trap(struct Thing *thing)
@@ -68,11 +69,32 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
 }
 
+void update_trap_trigger(struct Thing *thing)
+{
+    _DK_update_trap_trigger(thing); return;
+}
+
 TngUpdateRet update_trap(struct Thing *thing)
 {
   SYNCDBG(18,"Starting");
   TRACE_THING(thing);
-  return _DK_update_trap(thing);
+  //return _DK_update_trap(thing);
+  if (thing->health < 0)
+  {
+      delete_thing_structure(thing, 0);
+      return TUFRet_Deleted;
+  }
+  if (trap_is_active(thing))
+  {
+      update_trap_trigger(thing);
+  }
+  if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
+    && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
+  {
+      delete_thing_structure(thing, 0);
+      return TUFRet_Deleted;
+  }
+  return TUFRet_Modified;
 }
 
 struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2)
