@@ -56,6 +56,7 @@ public:
 private:
     int verifyItem(const wchar_t *folder, const struct CheckItem &cItem);
     static bool fileExists(const wchar_t * filename, bool acceptFolders, bool acceptSpecial);
+    static void pathReplaceAll(std::wstring* str, const std::wstring& from, const std::wstring& to);
     int ntotal;
     int nfailed;
     std::vector<std::wstring> failedFiles;
