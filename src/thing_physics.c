@@ -26,6 +26,7 @@
 #include "thing_stats.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "map_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,6 +114,18 @@ void creature_set_speed(struct Thing *thing, long speed)
 long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 {
     return _DK_creature_cannot_move_directly_to(thing, pos);
+}
+
+/** Retrieves planned next position for given thing, without collision detection.
+ *  Just adds thing velocity to current position and does some clipping. Nothing fancy.
+ * @param pos The position to be set.
+ * @param thing Source thing which position and valocity is used.
+ * @return Gives true if values were in map coords range, false if they were
+ *  outside map area and had to be corrected.
+ */
+TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
+{
+    return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, true);
 }
 
 /******************************************************************************/

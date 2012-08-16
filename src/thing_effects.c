@@ -646,14 +646,14 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
     remove_relevant_forces_from_thing_after_slide(thing, next_pos, blocked_flags);
 }
 
-long move_effect_element(struct Thing *thing)
+TngUpdateRet move_effect_element(struct Thing *thing)
 {
     struct Coord3d pos;
     SYNCDBG(18,"Starting");
     //return _DK_move_effect_element(thing);
-    set_coords_add_velocity(&pos, &thing->mappos, &thing->velocity, false);
+    get_thing_next_position(&pos, thing);
     if ( positions_equivalent(&thing->mappos, &pos) ) {
-        return 1;
+        return TUFRet_Unchanged;
     }
     if ((thing->movement_flags & 0x10) == 0)
     {
@@ -666,7 +666,7 @@ long move_effect_element(struct Thing *thing)
        }
     }
     move_thing_in_map(thing, &pos);
-    return 1;
+    return TUFRet_Modified;
 }
 
 void change_effect_element_into_another(struct Thing *thing, long nmodel)

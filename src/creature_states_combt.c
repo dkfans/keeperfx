@@ -945,7 +945,7 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
         SYNCDBG(8,"The %s index %d in combat already - adding melee",thing_model_name(fighter),(int)fighter->index);
         return false; // We're not going to add anything
     }
-    if (!can_add_ranged_combat_attacker(enemy)) {
+    if (!can_add_melee_combat_attacker(enemy)) {
         SYNCLOG("Cannot add a melee attacker to %s index %d - opponents limit reached",thing_model_name(fighter),(int)fighter->index);
         return false;
     }

@@ -108,37 +108,6 @@ TbBool detonate_shot(struct Thing *thing)
     return true;
 }
 
-/** Retrieves planned next position for given thing, without collision detection.
- *  Just adds thing velocity to current position. Nothing fancy.
- * @param pos
- * @param thing
- */
-void get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
-{
-    long delta_x,delta_y,delta_z;
-    pos->x.val = thing->mappos.x.val;
-    pos->y.val = thing->mappos.y.val;
-    pos->z.val = thing->mappos.z.val;
-    delta_z = thing->velocity.z.val;
-    delta_x = thing->velocity.x.val;
-    delta_y = thing->velocity.y.val;
-    if (delta_x > 256)
-      delta_x = 256;
-    if (delta_x < -256)
-      delta_x = -256;
-    if (delta_y > 256)
-        delta_y = 256;
-    if (delta_y < -256)
-      delta_y = -256;
-    if (delta_z > 256)
-        delta_z = 256;
-    if (delta_z < -256)
-        delta_z = -256;
-    pos->x.val += delta_x;
-    pos->y.val += delta_y;
-    pos->z.val += delta_z;
-}
-
 struct Thing *get_shot_collided_with_same_type(struct Thing *thing, struct Coord3d *nxpos)
 {
     return _DK_get_shot_collided_with_same_type(thing, nxpos);

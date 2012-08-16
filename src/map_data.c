@@ -279,33 +279,33 @@ TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
  * @param cor_x Input X coordinate.
  * @param cor_y Input Y coordinate.
  * @param cor_z Input Z coordinate.
- * @return Gives true if values were in map coords range, false if they were corrected.
+ * @return Gives true if values were in map coords range, false if they were (or supposed to be) corrected.
  */
 TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z, TbBool clip)
 {
     TbBool corrected = false;
-    if (cor_x >= ((map_subtiles_x+2) << 8)) {
-        if (clip) cor_x = ((map_subtiles_x+2) << 8)-1;
+    if (cor_x > subtile_coord(map_subtiles_x,255)) {
+        if (clip) cor_x = subtile_coord(map_subtiles_x,255);
         corrected = true;
     }
-    if (cor_y >= ((map_subtiles_y+2) << 8)) {
-        if (clip) cor_y = ((map_subtiles_y+2) << 8)-1;
+    if (cor_y > subtile_coord(map_subtiles_y,255)) {
+        if (clip) cor_y = subtile_coord(map_subtiles_y,255);
         corrected = true;
     }
-    if (cor_z >= (17 << 8)) {
-        if (clip) cor_z = (17 << 8)-1;
+    if (cor_z >= subtile_coord(map_subtiles_z,255)) {
+        if (clip) cor_z = subtile_coord(map_subtiles_z,255);
         corrected = true;
     }
-    if (cor_x < 0) {
-        if (clip) cor_x = 0;
+    if (cor_x < subtile_coord(0,0)) {
+        if (clip) cor_x = subtile_coord(0,0);
         corrected = true;
     }
-    if (cor_y < 0) {
-        if (clip) cor_y = 0;
+    if (cor_y < subtile_coord(0,0)) {
+        if (clip) cor_y = subtile_coord(0,0);
         corrected = true;
     }
-    if (cor_z < 0) {
-        if (clip) cor_z = 0;
+    if (cor_z < subtile_coord(0,0)) {
+        if (clip) cor_z = subtile_coord(0,0);
         corrected = true;
     }
     pos->x.val = cor_x;
@@ -358,7 +358,8 @@ TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *
 
 TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, TbBool clip)
 {
-    long sx,sy,sz;
+    MapCoord sx,sy,sz;
+    // Get limited velocity
     sx = velocity->x.val;
     if (sx < -MOVE_VELOCITY_LIMIT) {
         sx = -MOVE_VELOCITY_LIMIT;
@@ -380,6 +381,7 @@ TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source
     if (sz > MOVE_VELOCITY_LIMIT) {
         sz = MOVE_VELOCITY_LIMIT;
     }
+    // Get limited coords
     return set_coords_with_range_check(pos, source->x.val+sx, source->y.val+sy, source->z.val+sz, clip);
 }
 
