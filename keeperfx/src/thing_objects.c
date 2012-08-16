@@ -716,15 +716,19 @@ TngUpdateRet object_update_power_lightning(struct Thing *thing)
 TngUpdateRet move_object(struct Thing *thing)
 {
     struct Coord3d pos;
+    TbBool move_allowed;
+    SYNCDBG(18,"Starting");
+    TRACE_THING(thing);
     //return _DK_move_object(thing);
-    get_thing_next_position(&pos, thing);
-    if ( !positions_equivalent(&thing->mappos, &pos) ) {
-        if ( thing_in_wall_at(thing, &pos) )
+    move_allowed = get_thing_next_position(&pos, thing);
+    if ( !positions_equivalent(&thing->mappos, &pos) )
+    {
+        if ((!move_allowed) || thing_in_wall_at(thing, &pos))
         {
-            long i;
-            i = get_thing_blocked_flags_at(thing, &pos);
-            slide_thing_against_wall_at(thing, &pos, i);
-            remove_relevant_forces_from_thing_after_slide(thing, &pos, i);
+            long blocked_flags;
+            blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+            slide_thing_against_wall_at(thing, &pos, blocked_flags);
+            remove_relevant_forces_from_thing_after_slide(thing, &pos, blocked_flags);
             if (thing->model == 6)
               thing_play_sample(thing, 79, 100, 0, 3, 0, 1, 256);
         }
