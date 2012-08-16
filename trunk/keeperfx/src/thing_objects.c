@@ -25,6 +25,8 @@
 #include "bflib_sound.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
+#include "thing_navigate.h"
+#include "thing_physics.h"
 #include "map_data.h"
 #include "map_columns.h"
 #include "gui_topmsg.h"
@@ -711,9 +713,25 @@ TngUpdateRet object_update_power_lightning(struct Thing *thing)
     return _DK_object_update_power_lightning(thing);
 }
 
-long move_object(struct Thing *thing)
+TngUpdateRet move_object(struct Thing *thing)
 {
-    return _DK_move_object(thing);
+    struct Coord3d pos;
+    //return _DK_move_object(thing);
+    get_thing_next_position(&pos, thing);
+    if ( !positions_equivalent(&thing->mappos, &pos) ) {
+        if ( thing_in_wall_at(thing, &pos) )
+        {
+            long i;
+            i = get_thing_blocked_flags_at(thing, &pos);
+            slide_thing_against_wall_at(thing, &pos, i);
+            remove_relevant_forces_from_thing_after_slide(thing, &pos, i);
+            if (thing->model == 6)
+              thing_play_sample(thing, 79, 100, 0, 3, 0, 1, 256);
+        }
+        move_thing_in_map(thing, &pos);
+    }
+    thing->field_60 = get_thing_height_at(thing, &thing->mappos);
+    return TUFRet_Modified;
 }
 
 TngUpdateRet update_object(struct Thing *thing)
