@@ -383,10 +383,19 @@ bool FilelistChecker::copyFilesList(const wchar_t *dstFolder, const struct Check
 
 bool FilelistChecker::copyFile(const wchar_t *dstFolder, const struct CheckItem &dstItem, const wchar_t *srcFolder, const struct CheckItem &srcItem)
 {
+    std::wstring tmpName;
     std::wstring dstFullName;
     std::wstring srcFullName;
-    dstFullName = dstFolder; dstFullName += L"/"; dstFullName += dstItem.filename;
-    srcFullName = srcFolder; srcFullName += L"/"; srcFullName += srcItem.filename;
+    tmpName = L"/"; tmpName += dstItem.filename;
+#ifdef __WIN32__
+    pathReplaceAll(&tmpName, L"/", L"\\");
+#endif
+    dstFullName = dstFolder; dstFullName += tmpName;
+    tmpName = L"/"; tmpName += srcItem.filename;
+#ifdef __WIN32__
+    pathReplaceAll(&tmpName, L"/", L"\\");
+#endif
+    srcFullName = srcFolder; srcFullName += tmpName;
     try {
         if (!wxCopyFile(srcFullName, dstFullName, true))
             return false;
@@ -396,6 +405,21 @@ bool FilelistChecker::copyFile(const wchar_t *dstFolder, const struct CheckItem 
         return false;
     }
     return true;
+}
+
+/** Replace all instances of given substring with another substring.
+ *
+ * @param str The string to be modified.
+ * @param from The string to be replaced.
+ * @param to The new string to be replaced.
+ */
+void FilelistChecker::pathReplaceAll(std::wstring* str, const std::wstring& from, const std::wstring& to)
+{
+    std::wstring::size_type pos(0);
+    while ((pos = str->find(from, pos)) != std::wstring::npos) {
+        str->replace(pos, from.size(), to);
+        pos += to.size();
+    }
 }
 
 void FilelistChecker::clearResults(void)
