@@ -40,6 +40,13 @@ enum MapFlags {
     MapFlg_Unkn80     = 0x80,
 };
 
+enum MapCoordClipFlags {
+    MapCoord_None     = 0x00,
+    MapCoord_ClipX    = 0x01,
+    MapCoord_ClipY    = 0x02,
+    MapCoord_ClipZ    = 0x04,
+};
+
 struct Map {
       unsigned char flags;
       unsigned long data;
@@ -104,7 +111,7 @@ TbBool set_coords_to_subtile_start(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_subtile_end(struct Coord3d *pos, long x, long y, long z);
 TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);
 TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z);
-TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, TbBool clip);
+TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, unsigned short flags);
 
 MapCoord get_subtile_center_pos(MapSubtlCoord stl_v);
 SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

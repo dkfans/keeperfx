@@ -281,31 +281,31 @@ TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
  * @param cor_z Input Z coordinate.
  * @return Gives true if values were in map coords range, false if they were (or supposed to be) corrected.
  */
-TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z, TbBool clip)
+TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z, unsigned short flags)
 {
     TbBool corrected = false;
     if (cor_x > subtile_coord(map_subtiles_x,255)) {
-        if (clip) cor_x = subtile_coord(map_subtiles_x,255);
+        if (flags & MapCoord_ClipX) cor_x = subtile_coord(map_subtiles_x,255);
         corrected = true;
     }
     if (cor_y > subtile_coord(map_subtiles_y,255)) {
-        if (clip) cor_y = subtile_coord(map_subtiles_y,255);
+        if (flags & MapCoord_ClipY) cor_y = subtile_coord(map_subtiles_y,255);
         corrected = true;
     }
     if (cor_z >= subtile_coord(map_subtiles_z,255)) {
-        if (clip) cor_z = subtile_coord(map_subtiles_z,255);
+        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(map_subtiles_z,255);
         corrected = true;
     }
     if (cor_x < subtile_coord(0,0)) {
-        if (clip) cor_x = subtile_coord(0,0);
+        if (flags & MapCoord_ClipX) cor_x = subtile_coord(0,0);
         corrected = true;
     }
     if (cor_y < subtile_coord(0,0)) {
-        if (clip) cor_y = subtile_coord(0,0);
+        if (flags & MapCoord_ClipY) cor_y = subtile_coord(0,0);
         corrected = true;
     }
     if (cor_z < subtile_coord(0,0)) {
-        if (clip) cor_z = subtile_coord(0,0);
+        if (flags & MapCoord_ClipZ) cor_z = subtile_coord(0,0);
         corrected = true;
     }
     pos->x.val = cor_x;
@@ -353,10 +353,10 @@ TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *
     px = source->x.val + ((radius * LbSinL(angle)) >> 16);
     py = source->y.val - ((radius * LbCosL(angle)) >> 16);
     pz = source->z.val + z;
-    return set_coords_with_range_check(pos, px, py, pz, true);
+    return set_coords_with_range_check(pos, px, py, pz, MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ);
 }
 
-TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, TbBool clip)
+TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, unsigned short flags)
 {
     MapCoord sx,sy,sz;
     // Get limited velocity
@@ -382,7 +382,7 @@ TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source
         sz = MOVE_VELOCITY_LIMIT;
     }
     // Get limited coords
-    return set_coords_with_range_check(pos, source->x.val+sx, source->y.val+sy, source->z.val+sz, clip);
+    return set_coords_with_range_check(pos, source->x.val+sx, source->y.val+sy, source->z.val+sz, flags);
 }
 
 /**
