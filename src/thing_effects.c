@@ -601,7 +601,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
         struct Thing *efftng;
         efftng = thing;
         cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num);
-        if (cube_id == 39)
+        if (cube_is_water(cube_id))
         {
           effmodel = effstat->field_2A;
           if (effmodel > 0) {
@@ -615,7 +615,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
           if ( effstat->field_30 )
               thing->health = 0;
         } else
-        if ( (cube_id == 40) || (cube_id == 41) )
+        if (cube_is_lava(cube_id))
         {
             effmodel = effstat->field_31;
             if (effmodel > 0) {
@@ -649,21 +649,27 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
 TngUpdateRet move_effect_element(struct Thing *thing)
 {
     struct Coord3d pos;
+    TbBool move_allowed;
     SYNCDBG(18,"Starting");
+    TRACE_THING(thing);
     //return _DK_move_effect_element(thing);
-    get_thing_next_position(&pos, thing);
+    move_allowed = get_thing_next_position(&pos, thing);
     if ( positions_equivalent(&thing->mappos, &pos) ) {
         return TUFRet_Unchanged;
     }
     if ((thing->movement_flags & 0x10) == 0)
     {
-       if ( !thing_covers_same_blocks_in_two_positions(thing, &thing->mappos, &pos) )
-       {
-           if ( thing_in_wall_at(thing, &pos) )
-           {
-               move_effect_blocked(thing, &thing->mappos, &pos);
-           }
-       }
+        if (!move_allowed)
+        {
+            move_effect_blocked(thing, &thing->mappos, &pos);
+        } else
+        if ( !thing_covers_same_blocks_in_two_positions(thing, &thing->mappos, &pos) )
+        {
+            if ( thing_in_wall_at(thing, &pos) )
+            {
+                move_effect_blocked(thing, &thing->mappos, &pos);
+            }
+        }
     }
     move_thing_in_map(thing, &pos);
     return TUFRet_Modified;

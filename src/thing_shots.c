@@ -769,9 +769,11 @@ TngUpdateRet move_shot(struct Thing *thing)
     //return _DK_move_shot(thing);
     struct ShotConfigStats *shotst;
     struct Coord3d pos;
+    TbBool move_allowed;
     SYNCDBG(18,"Starting for thing index %d, model %d",(int)thing->index,(int)thing->model);
+    TRACE_THING(thing);
 
-    get_thing_next_position(&pos, thing);
+    move_allowed = get_thing_next_position(&pos, thing);
     shotst = get_shot_model_stats(thing->model);
     if ( !shotst->old->field_28 )
     {
@@ -788,7 +790,7 @@ TngUpdateRet move_shot(struct Thing *thing)
       }
     } else
     {
-      if ( thing_in_wall_at(thing, &pos) ) {
+      if ((!move_allowed) || thing_in_wall_at(thing, &pos)) {
           if ( shot_hit_wall_at(thing, &pos) ) {
               return TUFRet_Deleted;
           }

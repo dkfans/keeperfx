@@ -3101,13 +3101,13 @@ void process_landscape_affecting_creature(struct Thing *thing)
   if (((navmap & 0xF) << 8) == thing->mappos.z.val)
   {
     i = get_top_cube_at_pos(stl_idx);
-    if ( (i == 40) || (i == 41) )
+    if (cube_is_lava(i))
     {
       crstat = creature_stats_get_from_thing(thing);
       apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
       thing->movement_flags |= TMvF_IsOnLava;
     } else
-    if (i == 39)
+    if (cube_is_water(i))
     {
       thing->movement_flags |= TMvF_IsOnWater;
     }
