@@ -1135,6 +1135,7 @@
  0001:00059780       update_effect_element
  0001:00059A70       update_dead_creature
  0001:00059CC0       update_trap
+ 0001:0000BC00       update_trap_trigger
  0001:0008B950       process_effect_generator
  0001:000770F0       process_door
  0001:00089CB0       update_effect
