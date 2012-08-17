@@ -916,7 +916,7 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
     return INVALID_THING;
 }
 
-long process_creature_state(struct Thing *thing)
+TngUpdateRet process_creature_state(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -970,8 +970,8 @@ long process_creature_state(struct Thing *thing)
     }
     if ((thing->active_state < 1) || (thing->active_state >= CREATURE_STATES_COUNT))
     {
-      ERRORLOG("The %s has illegal state[1], T=%d, S=%d, TCS=%d, reset", thing_model_name(thing), (int)thing->index, (int)thing->active_state, (int)thing->continue_state);
-      set_start_state(thing);
+        ERRORLOG("The %s has illegal state[1], T=%d, S=%d, TCS=%d, reset", thing_model_name(thing), (int)thing->index, (int)thing->active_state, (int)thing->continue_state);
+        set_start_state(thing);
     }
 
     // Creatures that are not special diggers will pick up any nearby gold or food
@@ -1005,7 +1005,7 @@ long process_creature_state(struct Thing *thing)
               }
               anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
             } else
-            if (tgthing->model == 10)
+            if (object_is_mature_food(tgthing))
             {
                 if (!is_thing_passenger_controlled(tgthing)) {
                   food_eaten_by_creature(tgthing, thing);
@@ -1014,18 +1014,19 @@ long process_creature_state(struct Thing *thing)
         }
     }
     // Enable this to know which function hangs on update_creature.
-    //TODO: rewrite state subfunctions so they won't hang
+    //TODO CREATURE_AI rewrite state subfunctions so they won't hang
     //if (game.play_gameturn > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
     stati = get_thing_active_state_info(thing);
-    if (stati->ofsfield_0 == NULL) {
-        return false;
+    if (stati->ofsfield_0 != NULL) {
+        k = stati->ofsfield_0(thing);
+        if (k == CrStRet_Deleted) {
+            SYNCDBG(18,"Finished with creature deleted");
+            return TUFRet_Deleted;
+        }
     }
-    k = stati->ofsfield_0(thing);
     SYNCDBG(18,"Finished");
-    if (k != -1)
-        return false;
-    return true;
+    return TUFRet_Modified;
 }
 
 /**
@@ -3266,11 +3267,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     struct Thing *tngp;
-    struct Map *map;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
-    map = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if ((thing->active_state == CrSt_CreatureUnconscious) && ((map->flags & MapFlg_IsDoor) != 0))
+    if ((thing->active_state == CrSt_CreatureUnconscious) && subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         SYNCDBG(8,"Killing unconscious %s index %d on door block.",thing_model_name(thing),(int)thing->index);
         kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
@@ -3310,14 +3309,15 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if (cctrl->affected_by_spells == 0)
         {
-          if (cctrl->field_302 != 0)
-          {
-              cctrl->field_302--;
-          } else
-          if (process_creature_state(thing))
-          {
-              ERRORLOG("A state return type for a human controlled creature?");
-          }
+            if (cctrl->field_302 != 0)
+            {
+                cctrl->field_302--;
+            } else
+            if (process_creature_state(thing) == TUFRet_Deleted)
+            {
+                ERRORLOG("Human controlled creature has been deleted by state routine.");
+                return TUFRet_Deleted;
+            }
         }
         cctrl = creature_control_get_from_thing(thing);
         player = get_player(thing->owner);
@@ -3334,14 +3334,14 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if (cctrl->affected_by_spells == 0)
         {
-          if (cctrl->field_302 > 0)
-          {
-              cctrl->field_302--;
-          } else
-          if (process_creature_state(thing))
-          {
-              return TUFRet_Deleted;
-          }
+            if (cctrl->field_302 > 0)
+            {
+                cctrl->field_302--;
+            } else
+            if (process_creature_state(thing) == TUFRet_Deleted)
+            {
+                return TUFRet_Deleted;
+            }
         }
     }
 

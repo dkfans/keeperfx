@@ -47,7 +47,7 @@ const char creature_states_file[]="crstates.cfg";
 /******************************************************************************/
 struct NamedCommand creatrstate_desc[CREATURE_STATES_MAX];
 /******************************************************************************/
-TbBool parse_creaturestates_common_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     long pos;
     int k,n;
@@ -56,14 +56,18 @@ TbBool parse_creaturestates_common_blocks(char *buf,long len,const char *config_
     char block_buf[COMMAND_WORD_LEN];
     char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
-
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        //TODO CONFIG We will need to make some cleaning here
+    }
     // Find the block
     sprintf(block_buf,"common");
     pos = 0;
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-        WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        if ((flags & CnfLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
         return false;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatstate_common_commands,cmd_num)
@@ -112,31 +116,34 @@ TbBool parse_creaturestates_common_blocks(char *buf,long len,const char *config_
     return true;
 }
 
-TbBool parse_creaturestates_state_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     long pos;
     int i,k,n;
     int cmd_num;
     // Block name and parameter word store variables
     char block_buf[COMMAND_WORD_LEN];
-    int arr_size;
     // Initialize the array
-    arr_size = sizeof(crtr_conf.state_names)/sizeof(crtr_conf.state_names[0]);
-    for (i=0; i < arr_size; i++)
+    int arr_size;
+    if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        LbMemorySet(crtr_conf.state_names[i].text, 0, COMMAND_WORD_LEN);
-        if (i < crtr_conf.states_count)
+        arr_size = sizeof(crtr_conf.state_names)/sizeof(crtr_conf.state_names[0]);
+        for (i=0; i < arr_size; i++)
         {
-            creatrstate_desc[i].name = crtr_conf.state_names[i].text;
-            creatrstate_desc[i].num = i;
-        } else
-        {
-            creatrstate_desc[i].name = NULL;
-            creatrstate_desc[i].num = 0;
+            LbMemorySet(crtr_conf.state_names[i].text, 0, COMMAND_WORD_LEN);
+            if (i < crtr_conf.states_count)
+            {
+                creatrstate_desc[i].name = crtr_conf.state_names[i].text;
+                creatrstate_desc[i].num = i;
+            } else
+            {
+                creatrstate_desc[i].name = NULL;
+                creatrstate_desc[i].num = 0;
+            }
         }
     }
-    arr_size = crtr_conf.states_count;
     // Load the file blocks
+    arr_size = crtr_conf.states_count;
     for (i=0; i < arr_size; i++)
     {
       sprintf(block_buf,"state%d",i);
@@ -144,8 +151,11 @@ TbBool parse_creaturestates_state_blocks(char *buf,long len,const char *config_t
       k = find_conf_block(buf,&pos,len,block_buf);
       if (k < 0)
       {
-        WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        continue;
+          if ((flags & CnfLd_AcceptPartial) == 0) {
+              WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+              return false;
+          }
+          continue;
       }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creatstate_state_commands,cmd_num)
       while (pos<len)
@@ -154,6 +164,12 @@ TbBool parse_creaturestates_state_blocks(char *buf,long len,const char *config_t
         cmd_num = recognize_conf_command(buf,&pos,len,creatstate_state_commands);
         // Now store the config item in correct place
         if (cmd_num == -3) break; // if next block starts
+        if ((flags & CnfLd_ListOnly) != 0) {
+            // In "List only" mode, accept only name command
+            if (cmd_num > 1) {
+                cmd_num = 0;
+            }
+        }
         n = 0;
         switch (cmd_num)
         {
@@ -182,46 +198,67 @@ TbBool parse_creaturestates_state_blocks(char *buf,long len,const char *config_t
     return true;
 }
 
-TbBool load_creaturestates_config(const char *conf_fname,unsigned short flags)
+TbBool load_creaturestates_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    static const char config_textname[] = "Creature States config";
-    char *fname;
     char *buf;
     long len;
     TbBool result;
-    SYNCDBG(0,"Reading %s file \"%s\".",config_textname,conf_fname);
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
+    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     len = LbFileLengthRnc(fname);
-    if (len < 2)
+    if (len < MIN_CONFIG_FILE_SIZE)
     {
-      WARNMSG("Game %s file \"%s\" doesn't exist or is too small.",config_textname,conf_fname);
-      return false;
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+        return false;
     }
-    if (len > 65536)
+    if (len > MAX_CONFIG_FILE_SIZE)
     {
-      WARNMSG("Game %s file \"%s\" is too large.",config_textname,conf_fname);
-      return false;
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
+        return false;
     }
     buf = (char *)LbMemoryAlloc(len+256);
     if (buf == NULL)
-      return false;
+        return false;
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     result = (len > 0);
+    // Parse blocks of the config file
     if (result)
     {
-      result = parse_creaturestates_common_blocks(buf, len, config_textname);
-      if (!result)
-        WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
+        result = parse_creaturestates_common_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturestates_state_blocks(buf, len, config_textname);
+        result = parse_creaturestates_state_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
         if (!result)
-          WARNMSG("Parsing %s file \"%s\" state blocks failed.",config_textname,conf_fname);
+          WARNMSG("Parsing %s file \"%s\" state blocks failed.",textname,fname);
     }
     //Freeing and exiting
     LbMemoryFree(buf);
+    return result;
+}
+
+TbBool load_creaturestates_config(const char *conf_fname, unsigned short flags)
+{
+    static const char config_global_textname[] = "global creature states config";
+    static const char config_campgn_textname[] = "campaign creature states config";
+    char *fname;
+    TbBool result;
+    fname = prepare_file_path(FGrp_FxData,conf_fname);
+    result = load_creaturestates_config_file(config_global_textname,fname,flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_creaturestates_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    //Freeing and exiting
     return result;
 }
 

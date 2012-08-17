@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_rules.h
- *     Header file for config_rules.c.
+/** @file config_objects.h
+ *     Header file for config_objects.c.
  * @par Purpose:
- *     Various game configuration options support.
+ *     Object things configuration loading functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     25 May 2009 - 31 Jul 2009
+ * @date     11 Jun 2012 - 16 Aug 2012
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,59 +16,44 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CFGRULES_H
-#define DK_CFGRULES_H
+#ifndef DK_CFGOBJECTS_H
+#define DK_CFGOBJECTS_H
 
 #include "globals.h"
 #include "bflib_basics.h"
 
 #include "config.h"
 
-#define MAX_SACRIFICE_VICTIMS 6
-#define MAX_SACRIFICE_RECIPES 60
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-enum SacrificeAction {
-    SacA_None = 0,
-    SacA_MkCreature,
-    SacA_MkGoodHero,
-    SacA_NegSpellAll,
-    SacA_PosSpellAll,
-    SacA_NegUniqFunc,
-    SacA_PosUniqFunc,
+
+#define OBJECT_ITEMS_MAX 256
+
+/******************************************************************************/
+#pragma pack(1)
+
+
+#pragma pack()
+/******************************************************************************/
+struct ObjectConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    long name_stridx;
 };
 
-enum UniqueFunctions {
-    UnqF_None = 0,
-    UnqF_MkAllAngry,
-    UnqF_ComplResrch,
-    UnqF_ComplManufc,
-    UnqF_KillChickns,
-    UnqF_CheaperImp,
-};
-
-enum SacrificeReturn {
-    SacR_AngryWarn    = -1,
-    SacR_DontCare     =  0,
-    SacR_Pleased      =  1,
-    SacR_Awarded      =  2,
-    SacR_Punished     =  3,
-};
-
-struct SacrificeRecipe {
-    long victims[MAX_SACRIFICE_VICTIMS];
-    long action;
-    long param;
+struct ObjectsConfig {
+    long object_types_count;
+    struct ObjectConfigStats object_cfgstats[OBJECT_ITEMS_MAX];
 };
 /******************************************************************************/
-extern const char keeper_rules_file[];
-extern const struct NamedCommand research_desc[];
+extern const char keeper_objects_file[];
+extern struct NamedCommand object_desc[OBJECT_ITEMS_MAX];
 /******************************************************************************/
-long get_research_id(long item_type, char *trg_name, const char *func_name);
-TbBool load_rules_config(const char *conf_fname, unsigned short flags);
+TbBool load_objects_config(const char *conf_fname,unsigned short flags);
+struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);
+const char *object_code_name(ThingModel tngmodel);
+ThingModel object_model_id(const char * code_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }

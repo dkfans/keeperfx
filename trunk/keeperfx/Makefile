@@ -154,6 +154,7 @@ obj/front_credits.o \
 obj/front_torture.o \
 obj/config_terrain.o \
 obj/config_trapdoor.o \
+obj/config_objects.o \
 obj/config_rules.o \
 obj/config_lenses.o \
 obj/config_creature.o \

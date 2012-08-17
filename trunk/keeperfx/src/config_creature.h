@@ -81,11 +81,6 @@ enum CreaturePreferredAttacks {
     PrefAttck_Ranged,
 };
 
-enum CreatureTypesLoadFlags {
-    CTLd_Standard      =  0x00,
-    CTLd_KindListOnly  =  0x01,
-};
-
 /******************************************************************************/
 #pragma pack(1)
 

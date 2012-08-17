@@ -31,10 +31,6 @@ extern "C" {
 
 #define TRAPDOOR_ITEMS_MAX 256
 
-enum TrapDoorLoadFlags {
-    TDLd_Standard      =  0x00,
-};
-
 /******************************************************************************/
 #pragma pack(1)
 
