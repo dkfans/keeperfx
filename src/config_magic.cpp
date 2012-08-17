@@ -217,104 +217,106 @@ struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel)
     return &magic_conf.power_cfgstats[pwmodel];
 }
 
-TbBool parse_magic_common_blocks(char *buf,long len)
+TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  static const char config_textname[] = "Magic config";
-  long pos;
-  int k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
-  // Initialize block data
-  magic_conf.spell_types_count = 1;
-  magic_conf.shot_types_count = 1;
-  magic_conf.power_types_count = 1;
-  // Find the block
-  sprintf(block_buf,"common");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
-  if (k < 0)
-  {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
-  }
+    long pos;
+    int k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
+    // Initialize block data
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        magic_conf.spell_types_count = 1;
+        magic_conf.shot_types_count = 1;
+        magic_conf.power_types_count = 1;
+    }
+    // Find the block
+    sprintf(block_buf,"common");
+    pos = 0;
+    k = find_conf_block(buf,&pos,len,block_buf);
+    if (k < 0)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
+    }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_common_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,magic_common_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // SPELLSCOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
+    while (pos<len)
+    {
+        // Finding command number in this line
+        cmd_num = recognize_conf_command(buf,&pos,len,magic_common_commands);
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        n = 0;
+        switch (cmd_num)
+        {
+        case 1: // SPELLSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              magic_conf.spell_types_count = k;
-              n++;
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
+              {
+                magic_conf.spell_types_count = k;
+                n++;
+              }
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // SHOTSCOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
+            if (n < 1)
             {
-              magic_conf.shot_types_count = k;
-              n++;
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // POWERCOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
+            break;
+        case 2: // SHOTSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              magic_conf.power_types_count = k;
-              n++;
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
+              {
+                magic_conf.shot_types_count = k;
+                n++;
+              }
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 3: // POWERCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
+              {
+                magic_conf.power_types_count = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
+            break;
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+    }
 #undef COMMAND_TEXT
-  return true;
+    return true;
 }
 
-TbBool parse_magic_spell_blocks(char *buf,long len)
+TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  static const char config_textname[] = "Magic config";
   struct SpellConfigStats *spellst;
   struct SpellConfig *splconf;
   struct SpellInfo *magicinf;
@@ -325,32 +327,37 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
-  int arr_size = sizeof(magic_conf.spell_cfgstats)/sizeof(magic_conf.spell_cfgstats[0]);
-  for (i=0; i < arr_size; i++)
+  int arr_size;
+  if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      spellst = get_spell_model_stats(i);
-      LbMemorySet(spellst->code_name, 0, COMMAND_WORD_LEN);
-      if (i < magic_conf.spell_types_count)
+      arr_size = sizeof(magic_conf.spell_cfgstats)/sizeof(magic_conf.spell_cfgstats[0]);
+      for (i=0; i < arr_size; i++)
       {
-        spell_desc[i].name = spellst->code_name;
-        spell_desc[i].num = i;
-      } else
+          spellst = get_spell_model_stats(i);
+          LbMemorySet(spellst->code_name, 0, COMMAND_WORD_LEN);
+          if (i < magic_conf.spell_types_count)
+          {
+            spell_desc[i].name = spellst->code_name;
+            spell_desc[i].num = i;
+          } else
+          {
+            spell_desc[i].name = NULL;
+            spell_desc[i].num = 0;
+          }
+      }
+      arr_size = magic_conf.spell_types_count;
+      for (i=0; i < arr_size; i++)
       {
-        spell_desc[i].name = NULL;
-        spell_desc[i].num = 0;
+          splconf = &game.spells_config[i];
+          splconf->duration = 0;
+          magicinf = get_magic_info(i);
+          magicinf->area_hit_type = 0;
+          magicinf->area_range = 0;
+          magicinf->area_damage = 0;
       }
   }
-  arr_size = magic_conf.spell_types_count;
-  for (i=0; i < arr_size; i++)
-  {
-      splconf = &game.spells_config[i];
-      splconf->duration = 0;
-      magicinf = get_magic_info(i);
-      magicinf->area_hit_type = 0;
-      magicinf->area_range = 0;
-      magicinf->area_damage = 0;
-  }
   // Load the file
+  arr_size = magic_conf.spell_types_count;
   for (i=0; i < arr_size; i++)
   {
     sprintf(block_buf,"spell%d",i);
@@ -358,8 +365,11 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
+        if ((flags & CnfLd_AcceptPartial) == 0) {
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            return false;
+        }
+        continue;
     }
     splconf = &game.spells_config[i];
     magicinf = get_magic_info(i);
@@ -371,6 +381,12 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
       cmd_num = recognize_conf_command(buf,&pos,len,magic_spell_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
+      if ((flags & CnfLd_ListOnly) != 0) {
+          // In "List only" mode, accept only name command
+          if (cmd_num > 1) {
+              cmd_num = 0;
+          }
+      }
       n = 0;
       switch (cmd_num)
       {
@@ -437,9 +453,8 @@ TbBool parse_magic_spell_blocks(char *buf,long len)
   return true;
 }
 
-TbBool parse_magic_shot_blocks(char *buf,long len)
+TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  static const char config_textname[] = "Magic config";
   struct ShotConfigStats *shotst;
   long pos;
   int i,k,n;
@@ -448,25 +463,29 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
-  int arr_size = sizeof(magic_conf.shot_cfgstats)/sizeof(magic_conf.shot_cfgstats[0]);
-  for (i=0; i < arr_size; i++)
+  int arr_size;
+  if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      shotst = get_shot_model_stats(i);
-      LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
-      shotst->model_flags = 0;
-      shotst->old = &shot_stats[i];
-      if (i < magic_conf.shot_types_count)
+      arr_size = sizeof(magic_conf.shot_cfgstats)/sizeof(magic_conf.shot_cfgstats[0]);
+      for (i=0; i < arr_size; i++)
       {
-        shot_desc[i].name = shotst->code_name;
-        shot_desc[i].num = i;
-      } else
-      {
-        shot_desc[i].name = NULL;
-        shot_desc[i].num = 0;
+          shotst = get_shot_model_stats(i);
+          LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+          shotst->model_flags = 0;
+          shotst->old = &shot_stats[i];
+          if (i < magic_conf.shot_types_count)
+          {
+            shot_desc[i].name = shotst->code_name;
+            shot_desc[i].num = i;
+          } else
+          {
+            shot_desc[i].name = NULL;
+            shot_desc[i].num = 0;
+          }
       }
   }
-  arr_size = magic_conf.shot_types_count;
   // Load the file
+  arr_size = magic_conf.shot_types_count;
   for (i=0; i < arr_size; i++)
   {
     sprintf(block_buf,"shot%d",i);
@@ -474,8 +493,11 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
+        if ((flags & CnfLd_AcceptPartial) == 0) {
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            return false;
+        }
+        continue;
     }
     shotst = get_shot_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
@@ -485,6 +507,12 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
       cmd_num = recognize_conf_command(buf,&pos,len,magic_shot_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
+      if ((flags & CnfLd_ListOnly) != 0) {
+          // In "List only" mode, accept only name command
+          if (cmd_num > 1) {
+              cmd_num = 0;
+          }
+      }
       n = 0;
       switch (cmd_num)
       {
@@ -574,9 +602,8 @@ TbBool parse_magic_shot_blocks(char *buf,long len)
   return true;
 }
 
-TbBool parse_magic_power_blocks(char *buf,long len)
+TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  static const char config_textname[] = "Magic config";
   struct PowerConfigStats *powerst;
   struct MagicStats *magstat;
   long pos;
@@ -586,19 +613,23 @@ TbBool parse_magic_power_blocks(char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
-  int arr_size = sizeof(magic_conf.power_cfgstats)/sizeof(magic_conf.power_cfgstats[0]);
-  for (i=0; i < arr_size; i++)
+  int arr_size;
+  if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      powerst = get_power_model_stats(i);
-      LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
-      if (i < magic_conf.power_types_count)
+      arr_size = sizeof(magic_conf.power_cfgstats)/sizeof(magic_conf.power_cfgstats[0]);
+      for (i=0; i < arr_size; i++)
       {
-        power_desc[i].name = powerst->code_name;
-        power_desc[i].num = i;
-      } else
-      {
-        power_desc[i].name = NULL;
-        power_desc[i].num = 0;
+          powerst = get_power_model_stats(i);
+          LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+          if (i < magic_conf.power_types_count)
+          {
+            power_desc[i].name = powerst->code_name;
+            power_desc[i].num = i;
+          } else
+          {
+            power_desc[i].name = NULL;
+            power_desc[i].num = 0;
+          }
       }
   }
   arr_size = magic_conf.power_types_count;
@@ -610,8 +641,11 @@ TbBool parse_magic_power_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
+        if ((flags & CnfLd_AcceptPartial) == 0) {
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            return false;
+        }
+        continue;
     }
     magstat = &game.magic_stats[i];
     powerst = get_power_model_stats(i);
@@ -622,6 +656,12 @@ TbBool parse_magic_power_blocks(char *buf,long len)
       cmd_num = recognize_conf_command(buf,&pos,len,magic_power_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
+      if ((flags & CnfLd_ListOnly) != 0) {
+          // In "List only" mode, accept only name command
+          if (cmd_num > 1) {
+              cmd_num = 0;
+          }
+      }
       n = 0;
       switch (cmd_num)
       {
@@ -700,58 +740,84 @@ TbBool parse_magic_power_blocks(char *buf,long len)
   return true;
 }
 
-TbBool load_magic_config(const char *conf_fname,unsigned short flags)
+TbBool load_magic_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-  char *fname;
-  char *buf;
-  long len;
-  TbBool result;
-  SYNCDBG(0,"Reading Magic config file \"%s\".",conf_fname);
-  fname = prepare_file_path(FGrp_FxData,conf_fname);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    WARNMSG("Magic config file \"%s\" doesn't exist or is too small.",conf_fname);
-    return false;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("Magic config file \"%s\" is too large.",conf_fname);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  result = (len > 0);
-  if (result)
-  {
-    result = parse_magic_common_blocks(buf, len);
-    if (!result)
-      WARNMSG("Parsing Magic file \"%s\" common blocks failed.",conf_fname);
-  }
-  if (result)
-  {
-    result = parse_magic_spell_blocks(buf, len);
-    if (!result)
-      WARNMSG("Parsing Magic file \"%s\" spell blocks failed.",conf_fname);
-  }
-  if (result)
-  {
-    result = parse_magic_shot_blocks(buf, len);
-    if (!result)
-      WARNMSG("Parsing Magic file \"%s\" shot blocks failed.",conf_fname);
-  }
-  if (result)
-  {
-    result = parse_magic_power_blocks(buf, len);
-    if (!result)
-      WARNMSG("Parsing Magic file \"%s\" power blocks failed.",conf_fname);
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  return result;
+    char *buf;
+    long len;
+    TbBool result;
+    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    len = LbFileLengthRnc(fname);
+    if (len < MIN_CONFIG_FILE_SIZE)
+    {
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+        return false;
+    }
+    if (len > MAX_CONFIG_FILE_SIZE)
+    {
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
+        return false;
+    }
+    buf = (char *)LbMemoryAlloc(len+256);
+    if (buf == NULL)
+        return false;
+    // Loading file data
+    len = LbFileLoadAt(fname, buf);
+    result = (len > 0);
+    // Parse blocks of the config file
+    if (result)
+    {
+        result = parse_magic_common_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_magic_spell_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" spell blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_magic_shot_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" shot blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+      result = parse_magic_power_blocks(buf, len, textname, flags);
+      if ((flags & CnfLd_AcceptPartial) != 0)
+          result = true;
+      if (!result)
+          WARNMSG("Parsing %s file \"%s\" power blocks failed.",textname,fname);
+    }
+    //Freeing and exiting
+    LbMemoryFree(buf);
+    return result;
+}
+
+TbBool load_magic_config(const char *conf_fname, unsigned short flags)
+{
+    static const char config_global_textname[] = "global magic config";
+    static const char config_campgn_textname[] = "campaign magic config";
+    char *fname;
+    TbBool result;
+    fname = prepare_file_path(FGrp_FxData,conf_fname);
+    result = load_magic_config_file(config_global_textname,fname,flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_magic_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    //Freeing and exiting
+    return result;
 }
 
 /**

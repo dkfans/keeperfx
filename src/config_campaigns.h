@@ -39,13 +39,6 @@ extern "C" {
 #define CAMPAIGNS_LIST_GROW_DELTA     8
 #define CAMPAIGN_CREDITS_COUNT      360
 
-enum CampaignLoadFlags {
-    CpLd_Standard      =  0x00,
-    CpLd_ListOnly      =  0x01,
-    CpLd_AcceptPartial =  0x02,
-    CpLd_IgnoreErrors  =  0x04,
-};
-
 enum CreditsItemKind {
     CIK_None,
     CIK_EmptyLine,

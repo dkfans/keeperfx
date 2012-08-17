@@ -90,7 +90,8 @@ TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
 TbBool make_available_all_researchable_rooms(long plyr_idx);
 TbBool make_all_rooms_researchable(long plyr_idx);
 TbBool is_room_available(long plyr_idx, long room_idx);
-long get_room_create_creature_model(long room_idx);
+ThingModel get_room_create_creature_model(RoomKind room_kind);
+TbBool enemies_may_work_in_room(RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

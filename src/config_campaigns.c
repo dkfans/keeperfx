@@ -369,8 +369,8 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return 0;
+      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return 0;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cmpgn_common_commands,cmd_num)
   while (pos<len)
@@ -604,8 +604,8 @@ short parse_campaign_strings_blocks(struct GameCampaign *campgn,char *buf,long l
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return 0;
+      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return 0;
   }
   n = 0;
   while (pos<len)
@@ -648,8 +648,8 @@ short parse_campaign_speech_blocks(struct GameCampaign *campgn,char *buf,long le
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return 0;
+      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return 0;
   }
   n = 0;
   while (pos<len)
@@ -714,8 +714,8 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return 0;
+        WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return 0;
     }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cmpgn_map_commands,cmd_num)
     while (pos<len)
@@ -935,7 +935,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
   clear_campaign(campgn);
   LbStringCopy(campgn->fname,cmpgn_fname,DISKPATH_SIZE);
   LbStringCopy(campgn->name,cmpgn_fname,DISKPATH_SIZE);
-  SYNCDBG(0,"%s campaign file \"%s\".",((flags & CpLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
+  SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
   fname = prepare_file_path(FGrp_Campgn,cmpgn_fname);
   len = LbFileLengthRnc(fname);
   if (len < 2)
@@ -960,19 +960,19 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
     if (!result)
       WARNMSG("Parsing campaign file \"%s\" common blocks failed.",cmpgn_fname);
   }
-  if ((result) && ((flags & CpLd_ListOnly) == 0))
+  if ((result) && ((flags & CnfLd_ListOnly) == 0))
   {
     result = parse_campaign_strings_blocks(campgn, buf, len);
     if (!result)
       WARNMSG("Parsing campaign file \"%s\" strings block failed.",cmpgn_fname);
   }
-  if ((result) && ((flags & CpLd_ListOnly) == 0))
+  if ((result) && ((flags & CnfLd_ListOnly) == 0))
   {
     result = parse_campaign_speech_blocks(campgn, buf, len);
     if (!result)
       WARNMSG("Parsing campaign file \"%s\" speech block failed.",cmpgn_fname);
   }
-  if ((result) && ((flags & CpLd_ListOnly) == 0))
+  if ((result) && ((flags & CnfLd_ListOnly) == 0))
   {
     result = parse_campaign_map_blocks(campgn, buf, len);
     if (!result)
@@ -980,7 +980,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
   }
   //Freeing and exiting
   LbMemoryFree(buf);
-  if ((flags & CpLd_ListOnly) == 0)
+  if ((flags & CnfLd_ListOnly) == 0)
   {
     setup_campaign_strings_data(campgn);
     setup_campaign_credits_data(campgn);
@@ -992,23 +992,23 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 
 TbBool change_campaign(const char *cmpgn_fname)
 {
-  TbBool result;
-  if ((campaign.fname[0] != '\0') && (strcasecmp(campaign.fname,cmpgn_fname) == 0))
-    return true;
-  free_campaign(&campaign);
-  if ((cmpgn_fname != NULL) && (cmpgn_fname[0] != '\0'))
-    result = load_campaign(cmpgn_fname,&campaign,CpLd_Standard);
-  else
-    result = load_campaign(keeper_campaign_file,&campaign,CpLd_Standard);
-  load_or_create_high_score_table();
-  return result;
+    TbBool result;
+    if ((campaign.fname[0] != '\0') && (strcasecmp(campaign.fname,cmpgn_fname) == 0))
+        return true;
+    free_campaign(&campaign);
+    if ((cmpgn_fname != NULL) && (cmpgn_fname[0] != '\0'))
+        result = load_campaign(cmpgn_fname,&campaign,CnfLd_Standard);
+    else
+        result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard);
+    load_or_create_high_score_table();
+    return result;
 }
 
 TbBool is_campaign_loaded(void)
 {
-  if (campaign.fname[0]=='\0')
-    return false;
-  return (campaign.single_levels_count > 0) || (campaign.multi_levels_count > 0);
+    if (campaign.fname[0]=='\0')
+        return false;
+    return (campaign.single_levels_count > 0) || (campaign.multi_levels_count > 0);
 }
 
 /**
@@ -1016,22 +1016,22 @@ TbBool is_campaign_loaded(void)
  */
 TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries)
 {
-  long i;
-  if (clist->items != NULL)
-    LbMemoryFree(clist->items);
-  clist->items = (struct GameCampaign *)LbMemoryAlloc(num_entries*sizeof(struct GameCampaign));
-  if (clist->items == NULL)
-  {
-    WARNMSG("Can't allocate memory for GameCampaigns list.");
-    clist->items_count = 0;
+    long i;
+    if (clist->items != NULL)
+        LbMemoryFree(clist->items);
+    clist->items = (struct GameCampaign *)LbMemoryAlloc(num_entries*sizeof(struct GameCampaign));
+    if (clist->items == NULL)
+    {
+        WARNMSG("Can't allocate memory for GameCampaigns list.");
+        clist->items_count = 0;
+        clist->items_num = 0;
+        return false;
+    }
+    clist->items_count = num_entries;
     clist->items_num = 0;
-    return false;
-  }
-  clist->items_count = num_entries;
-  clist->items_num = 0;
-  for (i=0; i < num_entries; i++)
-    clear_campaign(&clist->items[i]);
-  return true;
+    for (i=0; i < num_entries; i++)
+        clear_campaign(&clist->items[i]);
+    return true;
 }
 
 /**
@@ -1039,24 +1039,24 @@ TbBool init_campaigns_list_entries(struct CampaignsList *clist, long num_entries
  */
 TbBool grow_campaigns_list_entries(struct CampaignsList *clist, long add_entries)
 {
-  long num_entries;
-  long i;
-  i = clist->items_count;
-  num_entries = clist->items_count+add_entries;
-  clist->items = (struct GameCampaign *)LbMemoryGrow(clist->items, num_entries*sizeof(struct GameCampaign));
-  if (clist->items == NULL)
-  {
-    WARNMSG("Can't enlarge memory for GameCampaigns list.");
-    clist->items_count = 0;
-    return false;
-  }
-  clist->items_count = num_entries;
-  while (i < num_entries)
-  {
-    clear_campaign(&clist->items[i]);
-    i++;
-  }
-  return true;
+    long num_entries;
+    long i;
+    i = clist->items_count;
+    num_entries = clist->items_count+add_entries;
+    clist->items = (struct GameCampaign *)LbMemoryGrow(clist->items, num_entries*sizeof(struct GameCampaign));
+    if (clist->items == NULL)
+    {
+        WARNMSG("Can't enlarge memory for GameCampaigns list.");
+        clist->items_count = 0;
+        return false;
+    }
+    clist->items_count = num_entries;
+    while (i < num_entries)
+    {
+        clear_campaign(&clist->items[i]);
+        i++;
+    }
+    return true;
 }
 
 /**
@@ -1073,18 +1073,18 @@ TbBool free_campaigns_list_entries(struct CampaignsList *clist)
 
 TbBool load_campaign_to_list(const char *cmpgn_fname,struct CampaignsList *clist)
 {
-  struct GameCampaign *campgn;
-  if (clist->items_num >= clist->items_count)
-    grow_campaigns_list_entries(clist, CAMPAIGNS_LIST_GROW_DELTA);
-  if (clist->items_num >= clist->items_count)
+    struct GameCampaign *campgn;
+    if (clist->items_num >= clist->items_count)
+      grow_campaigns_list_entries(clist, CAMPAIGNS_LIST_GROW_DELTA);
+    if (clist->items_num >= clist->items_count)
+      return false;
+    campgn = &clist->items[clist->items_num];
+    if (load_campaign(cmpgn_fname,campgn,CnfLd_ListOnly))
+    {
+      clist->items_num++;
+      return true;
+    }
     return false;
-  campgn = &clist->items[clist->items_num];
-  if (load_campaign(cmpgn_fname,campgn,CpLd_ListOnly))
-  {
-    clist->items_num++;
-    return true;
-  }
-  return false;
 }
 
 TbBool swap_campaigns_in_list(struct CampaignsList *clist, int idx1, int idx2)
@@ -1150,26 +1150,26 @@ void sort_campaigns(struct CampaignsList *clist,const char *fname_first)
  */
 TbBool load_campaigns_list(void)
 {
-  struct TbFileFind fileinfo;
-  int rc;
-  char *fname;
-  long cnum_all,cnum_ok;
-  init_campaigns_list_entries(&campaigns_list, CAMPAIGNS_LIST_GROW_DELTA);
-  fname = prepare_file_path(FGrp_Campgn,"*.cfg");
-  rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
-  cnum_all = 0;
-  cnum_ok = 0;
-  while (rc != -1)
-  {
-    if (load_campaign_to_list(fileinfo.Filename,&campaigns_list))
-      cnum_ok++;
-    rc = LbFileFindNext(&fileinfo);
-    cnum_all++;
-  }
-  LbFileFindEnd(&fileinfo);
-  SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
-  sort_campaigns(&campaigns_list,keeper_campaign_file);
-  return (campaigns_list.items_num > 0);
+    struct TbFileFind fileinfo;
+    int rc;
+    char *fname;
+    long cnum_all,cnum_ok;
+    init_campaigns_list_entries(&campaigns_list, CAMPAIGNS_LIST_GROW_DELTA);
+    fname = prepare_file_path(FGrp_Campgn,"*.cfg");
+    rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
+    cnum_all = 0;
+    cnum_ok = 0;
+    while (rc != -1)
+    {
+      if (load_campaign_to_list(fileinfo.Filename,&campaigns_list))
+        cnum_ok++;
+      rc = LbFileFindNext(&fileinfo);
+      cnum_all++;
+    }
+    LbFileFindEnd(&fileinfo);
+    SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
+    sort_campaigns(&campaigns_list,keeper_campaign_file);
+    return (campaigns_list.items_num > 0);
 }
 
 /******************************************************************************/

@@ -366,6 +366,7 @@ long process_torture_function(struct Thing *thing)
     room = get_room_creature_works_in(thing);
     if ( !room_still_valid_as_type_for_thing(room,RoK_TORTURE,thing) )
     {
+        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
         set_start_state(thing);
         return 1;
     }

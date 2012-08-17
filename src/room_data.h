@@ -63,7 +63,6 @@ struct Thing;
 struct Coord3d;
 struct Room;
 struct Dungeon;
-typedef unsigned char RoomKind;
 
 typedef void (*Room_Update_Func)(struct Room *);
 

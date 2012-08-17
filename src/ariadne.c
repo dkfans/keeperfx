@@ -954,7 +954,6 @@ long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
 long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long blk_flags)
 {
     long radius;
-    struct Map *mapblk;
     long start_x,end_x,start_y,end_y;
     long stl_x,stl_y;
 
@@ -972,8 +971,7 @@ long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long 
         {
             for (stl_y = start_y; stl_y <= end_y; stl_y++)
             {
-                mapblk = get_map_block_at(stl_x, stl_y);
-                if ((mapblk->flags & MapFlg_IsDoor) != 0)
+                if (subtile_is_door(stl_x, stl_y))
                     return 1;
             }
         }
@@ -987,8 +985,7 @@ long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long 
         {
             for (stl_x = start_x; stl_x <= end_x; stl_x++)
             {
-                mapblk = get_map_block_at(stl_x, stl_y);
-                if ((mapblk->flags & MapFlg_IsDoor) != 0)
+                if (subtile_is_door(stl_x, stl_y))
                     return 1;
             }
         }

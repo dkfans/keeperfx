@@ -334,7 +334,7 @@ long creature_model_id(const char * name)
     return -1;
 }
 
-TbBool parse_creaturetypes_common_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   long pos;
   int i,k,n;
@@ -362,8 +362,9 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len,const char *config_t
   k = find_conf_block(buf,&pos,len,block_buf);
   if (k < 0)
   {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
+      if ((flags & CnfLd_AcceptPartial) == 0)
+          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+      return false;
   }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_common_commands,cmd_num)
   while (pos<len)
@@ -480,7 +481,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf,long len,const char *config_t
   return true;
 }
 
-TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct InstanceInfo *inst_inf;
   long pos;
@@ -514,8 +515,11 @@ TbBool parse_creaturetype_instance_blocks(char *buf,long len,const char *config_
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
+        if ((flags & CnfLd_AcceptPartial) == 0) {
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            return false;
+        }
+        continue;
     }
     inst_inf = creature_instance_info_get(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
@@ -680,7 +684,7 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
     char *buf;
     long len;
     TbBool result;
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CTLd_KindListOnly) == 0)?"Reading":"Parsing",config_textname,conf_fname);
+    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",config_textname,conf_fname);
     fname = prepare_file_path(FGrp_FxData,conf_fname);
     len = LbFileLengthRnc(fname);
     if (len < 2)
@@ -701,13 +705,13 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
     result = (len > 0);
     if (result)
     {
-        result = parse_creaturetypes_common_blocks(buf, len, config_textname);
+        result = parse_creaturetypes_common_blocks(buf, len, config_textname, flags);
         if (!result)
           WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
     }
-    if ((result) && ((flags & CTLd_KindListOnly) == 0))
+    if ((result) && ((flags & CnfLd_ListOnly) == 0))
     {
-        result = parse_creaturetype_instance_blocks(buf, len, config_textname);
+        result = parse_creaturetype_instance_blocks(buf, len, config_textname, flags);
         if (!result)
           WARNMSG("Parsing %s file \"%s\" instance blocks failed.",config_textname,conf_fname);
     }

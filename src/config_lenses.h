@@ -31,10 +31,6 @@ extern "C" {
 /******************************************************************************/
 #define LENS_ITEMS_MAX 32
 
-enum LensLoadFlags {
-    LnLd_Standard      =  0x00,
-};
-
 enum LensConfigFlags {
     LCF_HasMist     = 0x01,
     LCF_HasDisplace = 0x02,

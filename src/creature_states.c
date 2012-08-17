@@ -1731,11 +1731,21 @@ short person_sulking(struct Thing *creatng)
   return _DK_person_sulking(creatng);
 }
 
-long room_still_valid_as_type_for_thing(struct Room *room, RoomKind rkind, struct Thing *thing)
+/**
+ * Returns if the room is a valid place for a thing.
+ * Used to check if creatures are working in correct rooms.
+ * @param room
+ * @param rkind
+ * @param thing
+ * @return
+ */
+TbBool room_still_valid_as_type_for_thing(struct Room *room, RoomKind rkind, struct Thing *thing)
 {
     if (!room_exists(room))
         return false;
-    return (room->kind == rkind);
+    if (room->kind != rkind)
+        return false;
+    return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
 }
 
 void create_effect_around_thing(struct Thing *thing, long eff_kind)

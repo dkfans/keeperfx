@@ -485,6 +485,7 @@ long process_research_function(struct Thing *thing)
     //return _DK_process_research_function(thing);
     dungeon = get_dungeon(thing->owner);
     if (dungeon_invalid(dungeon)) {
+        SYNCDBG(9,"The %s index %d cannot work as player %d has no dungeon",thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
         return 1;
     }
@@ -495,6 +496,7 @@ long process_research_function(struct Thing *thing)
     }
     room = get_room_creature_works_in(thing);
     if ( !room_still_valid_as_type_for_thing(room, RoK_LIBRARY, thing) ) {
+        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
         set_start_state(thing);
         return 1;
     }
@@ -548,9 +550,9 @@ short researching(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( (room->kind != RoK_LIBRARY) || (room->owner != thing->owner) )
+    if (!room_still_valid_as_type_for_thing(room, RoK_LIBRARY, thing))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
+        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;

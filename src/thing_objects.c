@@ -534,6 +534,12 @@ TbBool object_is_gold(const struct Thing *thing)
   }
 }
 
+/**
+ * Returns if given thing is a gold hoard.
+ * Gold hoards may only exist in treasure rooms.
+ * @param thing
+ * @return
+ */
 TbBool object_is_gold_hoard(const struct Thing *thing)
 {
   switch (thing->model)
@@ -555,7 +561,7 @@ TbBool object_is_gold_pile(const struct Thing *thing)
   switch (thing->model)
   {
     case 3:
-    case 6:
+    case 6: // Pot of gold
     case 43:
     case 128:
         return true;
