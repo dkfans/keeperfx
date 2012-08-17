@@ -60,70 +60,72 @@ struct LensConfig *get_lens_config(long lens_idx)
     return &lenses_conf.lenses[lens_idx];
 }
 
-TbBool parse_lenses_common_blocks(char *buf,long len)
+TbBool parse_lenses_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  static const char config_textname[] = "Lenses config";
-  long pos;
-  int k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
-  // Initialize block data
-  lenses_conf.lenses_count = 1;
-  // Find the block
-  sprintf(block_buf,"common");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
-  if (k < 0)
-  {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
-  }
+    long pos;
+    int k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
+    // Initialize block data
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        lenses_conf.lenses_count = 1;
+    }
+    // Find the block
+    sprintf(block_buf,"common");
+    pos = 0;
+    k = find_conf_block(buf,&pos,len,block_buf);
+    if (k < 0)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
+    }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(lenses_common_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,lenses_common_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // EYELENSESCOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k <= LENS_ITEMS_MAX))
+    while (pos<len)
+    {
+        // Finding command number in this line
+        cmd_num = recognize_conf_command(buf,&pos,len,lenses_common_commands);
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        n = 0;
+        switch (cmd_num)
+        {
+        case 1: // EYELENSESCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              lenses_conf.lenses_count = k;
-              n++;
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= LENS_ITEMS_MAX))
+              {
+                lenses_conf.lenses_count = k;
+                n++;
+              }
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
+            break;
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+    }
 #undef COMMAND_TEXT
-  return true;
+    return true;
 }
 
-TbBool parse_lenses_data_blocks(char *buf,long len)
+TbBool parse_lenses_data_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  static const char config_textname[] = "Lenses config";
   long pos;
   int i,k,n;
   int cmd_num;
@@ -133,31 +135,35 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the array
-  int arr_size = sizeof(lenses_conf.lenses)/sizeof(lenses_conf.lenses[0]);
-  for (i=0; i < arr_size; i++)
+  int arr_size;
+  if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      lenscfg = &lenses_conf.lenses[i];
-      LbMemorySet(lenscfg->code_name, 0, COMMAND_WORD_LEN);
-      LbMemorySet(lenscfg->mist_file, 0, DISKPATH_SIZE);
-      lenscfg->mist_lightness = 0;
-      lenscfg->mist_ghost = 0;
-      lenscfg->displace_kind = 0;
-      lenscfg->displace_magnitude = 0;
-      lenscfg->displace_period = 1;
-      LbMemorySet(lenscfg->palette, 0, PALETTE_SIZE*sizeof(TbPixel));
-      lenscfg->flags = 0;
-      if (i < lenses_conf.lenses_count)
+      arr_size = sizeof(lenses_conf.lenses)/sizeof(lenses_conf.lenses[0]);
+      for (i=0; i < arr_size; i++)
       {
-          lenses_desc[i].name = lenscfg->code_name;
-          lenses_desc[i].num = i;
-      } else
-      {
-          lenses_desc[i].name = NULL;
-          lenses_desc[i].num = 0;
+          lenscfg = &lenses_conf.lenses[i];
+          LbMemorySet(lenscfg->code_name, 0, COMMAND_WORD_LEN);
+          LbMemorySet(lenscfg->mist_file, 0, DISKPATH_SIZE);
+          lenscfg->mist_lightness = 0;
+          lenscfg->mist_ghost = 0;
+          lenscfg->displace_kind = 0;
+          lenscfg->displace_magnitude = 0;
+          lenscfg->displace_period = 1;
+          LbMemorySet(lenscfg->palette, 0, PALETTE_SIZE*sizeof(TbPixel));
+          lenscfg->flags = 0;
+          if (i < lenses_conf.lenses_count)
+          {
+              lenses_desc[i].name = lenscfg->code_name;
+              lenses_desc[i].num = i;
+          } else
+          {
+              lenses_desc[i].name = NULL;
+              lenses_desc[i].num = 0;
+          }
       }
   }
-  arr_size = lenses_conf.lenses_count;
   // Load the file
+  arr_size = lenses_conf.lenses_count;
   for (i=0; i < arr_size; i++)
   {
     sprintf(block_buf,"lens%d",i);
@@ -165,8 +171,11 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
+        if ((flags & CnfLd_AcceptPartial) == 0) {
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            return false;
+        }
+        continue;
     }
     lenscfg = &lenses_conf.lenses[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(lenses_data_commands,cmd_num)
@@ -176,6 +185,12 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
       cmd_num = recognize_conf_command(buf,&pos,len,lenses_data_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
+      if ((flags & CnfLd_ListOnly) != 0) {
+          // In "List only" mode, accept only name command
+          if (cmd_num > 1) {
+              cmd_num = 0;
+          }
+      }
       n = 0;
       switch (cmd_num)
       {
@@ -291,46 +306,68 @@ TbBool parse_lenses_data_blocks(char *buf,long len)
   return true;
 }
 
-TbBool load_lenses_config(const char *conf_fname,unsigned short flags)
+TbBool load_lenses_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-  char *fname;
-  char *buf;
-  long len;
-  TbBool result;
-  SYNCDBG(0,"Reading Lenses config file \"%s\".",conf_fname);
-  fname = prepare_file_path(FGrp_FxData,conf_fname);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    WARNMSG("Lenses config file \"%s\" doesn't exist or is too small.",conf_fname);
-    return false;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("Lenses config file \"%s\" is too large.",conf_fname);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  result = (len > 0);
-  if (result)
-  {
-    result = parse_lenses_common_blocks(buf, len);
-    if (!result)
-      WARNMSG("Parsing Lenses file \"%s\" common blocks failed.",conf_fname);
-  }
-  if (result)
-  {
-    result = parse_lenses_data_blocks(buf, len);
-    if (!result)
-      WARNMSG("Parsing Lenses file \"%s\" data blocks failed.",conf_fname);
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  return result;
+    char *buf;
+    long len;
+    TbBool result;
+    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    len = LbFileLengthRnc(fname);
+    if (len < MIN_CONFIG_FILE_SIZE)
+    {
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+        return false;
+    }
+    if (len > MAX_CONFIG_FILE_SIZE)
+    {
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
+        return false;
+    }
+    buf = (char *)LbMemoryAlloc(len+256);
+    if (buf == NULL)
+        return false;
+    // Loading file data
+    len = LbFileLoadAt(fname, buf);
+    result = (len > 0);
+    // Parse blocks of the config file
+    if (result)
+    {
+        result = parse_lenses_common_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing Lenses file \"%s\" common blocks failed.",fname);
+    }
+    if (result)
+    {
+        result = parse_lenses_data_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing Lenses file \"%s\" data blocks failed.",fname);
+    }
+    //Freeing and exiting
+    LbMemoryFree(buf);
+    return result;
+}
+
+TbBool load_lenses_config(const char *conf_fname, unsigned short flags)
+{
+    static const char config_global_textname[] = "global eye lenses config";
+    static const char config_campgn_textname[] = "campaign eye lenses config";
+    char *fname;
+    TbBool result;
+    fname = prepare_file_path(FGrp_FxData,conf_fname);
+    result = load_lenses_config_file(config_global_textname,fname,flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_lenses_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    //Freeing and exiting
+    return result;
 }
 
 

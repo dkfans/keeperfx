@@ -45,6 +45,7 @@
 #include "config_campaigns.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
+#include "config_objects.h"
 #include "config_rules.h"
 #include "config_lenses.h"
 #include "config_magic.hpp"
@@ -2574,19 +2575,21 @@ TbBool load_stats_files(void)
     TbBool result;
     result = true;
     clear_research_for_all_players();
-    if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_KindListOnly))
+    if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_ListOnly))
       result = false;
-    if (!load_terrain_config(keeper_terrain_file,0))
+    if (!load_terrain_config(keeper_terrain_file,CnfLd_Standard))
       result = false;
-    if (!load_trapdoor_config(keeper_trapdoor_file,TDLd_Standard))
+    if (!load_objects_config(keeper_objects_file,CnfLd_Standard))
       result = false;
-    if (!load_lenses_config(keeper_lenses_file,LnLd_Standard))
+    if (!load_trapdoor_config(keeper_trapdoor_file,CnfLd_Standard))
       result = false;
-    if (!load_magic_config(keeper_magic_file,0))
+    if (!load_lenses_config(keeper_lenses_file,CnfLd_Standard))
       result = false;
-    if (!load_creaturetypes_config(keeper_creaturetp_file,CTLd_Standard))
+    if (!load_magic_config(keeper_magic_file,CnfLd_Standard))
       result = false;
-    if (!load_creaturestates_config(creature_states_file,0))
+    if (!load_creaturetypes_config(keeper_creaturetp_file,CnfLd_Standard))
+      result = false;
+    if (!load_creaturestates_config(creature_states_file,CnfLd_Standard))
       result = false;
     // note that rules file requires definitions of magic and creature types
     if (!load_rules_config(keeper_rules_file,0))

@@ -81,84 +81,88 @@ struct DoorConfigStats *get_door_model_stats(int tngmodel)
     return &trapdoor_conf.door_cfgstats[tngmodel];
 }
 
-TbBool parse_trapdoor_common_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_trapdoor_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  long pos;
-  int k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
-  // Initialize block data
-  trapdoor_conf.trap_types_count = 1;
-  trapdoor_conf.door_types_count = 1;
-  // Find the block
-  sprintf(block_buf,"common");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
-  if (k < 0)
-  {
-    WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-    return false;
-  }
+    long pos;
+    int k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
+    // Initialize block data
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        trapdoor_conf.trap_types_count = 1;
+        trapdoor_conf.door_types_count = 1;
+    }
+    // Find the block
+    sprintf(block_buf,"common");
+    pos = 0;
+    k = find_conf_block(buf,&pos,len,block_buf);
+    if (k < 0)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
+    }
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(trapdoor_common_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,trapdoor_common_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // TRAPSCOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k <= TRAPDOOR_ITEMS_MAX))
+    while (pos<len)
+    {
+        // Finding command number in this line
+        cmd_num = recognize_conf_command(buf,&pos,len,trapdoor_common_commands);
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        n = 0;
+        switch (cmd_num)
+        {
+        case 1: // TRAPSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              trapdoor_conf.trap_types_count = k;
-              n++;
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= TRAPDOOR_ITEMS_MAX))
+              {
+                trapdoor_conf.trap_types_count = k;
+                n++;
+              }
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // DOORSCOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            if ((k > 0) && (k <= TRAPDOOR_ITEMS_MAX))
+            if (n < 1)
             {
-              trapdoor_conf.door_types_count = k;
-              n++;
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
+            break;
+        case 2: // DOORSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= TRAPDOOR_ITEMS_MAX))
+              {
+                trapdoor_conf.door_types_count = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
+            break;
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+    }
 #undef COMMAND_TEXT
-  return true;
+    return true;
 }
 
-TbBool parse_trapdoor_trap_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct ManfctrConfig *mconf;
   struct TrapConfigStats *trapst;
@@ -169,34 +173,39 @@ TbBool parse_trapdoor_trap_blocks(char *buf,long len,const char *config_textname
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the traps array
-  int arr_size = sizeof(trapdoor_conf.trap_cfgstats)/sizeof(trapdoor_conf.trap_cfgstats[0]);
-  for (i=0; i < arr_size; i++)
+  int arr_size;
+  if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      trapst = &trapdoor_conf.trap_cfgstats[i];
-      LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
-      trapst->name_stridx = 201;
-      trapst->tooltip_stridx = 201;
-      if (i < trapdoor_conf.trap_types_count)
+      arr_size = sizeof(trapdoor_conf.trap_cfgstats)/sizeof(trapdoor_conf.trap_cfgstats[0]);
+      for (i=0; i < arr_size; i++)
       {
-          trap_desc[i].name = trapst->code_name;
-          trap_desc[i].num = i;
-      } else
+          trapst = &trapdoor_conf.trap_cfgstats[i];
+          LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+          trapst->name_stridx = 201;
+          trapst->tooltip_stridx = 201;
+          if (i < trapdoor_conf.trap_types_count)
+          {
+              trap_desc[i].name = trapst->code_name;
+              trap_desc[i].num = i;
+          } else
+          {
+              trap_desc[i].name = NULL;
+              trap_desc[i].num = 0;
+          }
+      }
+      arr_size = trapdoor_conf.trap_types_count;
+      for (i=0; i < arr_size; i++)
       {
-          trap_desc[i].name = NULL;
-          trap_desc[i].num = 0;
+          mconf = &game.traps_config[i];
+          mconf->manufct_level = 0;
+          mconf->manufct_required = 0;
+          mconf->shots = 0;
+          mconf->shots_delay = 0;
+          mconf->selling_value = 0;
       }
   }
+  // Parse every numbered block within range
   arr_size = trapdoor_conf.trap_types_count;
-  for (i=0; i < arr_size; i++)
-  {
-    mconf = &game.traps_config[i];
-    mconf->manufct_level = 0;
-    mconf->manufct_required = 0;
-    mconf->shots = 0;
-    mconf->shots_delay = 0;
-    mconf->selling_value = 0;
-  }
-  // Load the file
   for (i=0; i < arr_size; i++)
   {
     sprintf(block_buf,"trap%d",i);
@@ -204,8 +213,11 @@ TbBool parse_trapdoor_trap_blocks(char *buf,long len,const char *config_textname
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
+        if ((flags & CnfLd_AcceptPartial) == 0) {
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            return false;
+        }
+        continue;
     }
     mconf = &game.traps_config[i];
     trapst = &trapdoor_conf.trap_cfgstats[i];
@@ -216,6 +228,12 @@ TbBool parse_trapdoor_trap_blocks(char *buf,long len,const char *config_textname
       cmd_num = recognize_conf_command(buf,&pos,len,trapdoor_trap_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
+      if ((flags & CnfLd_ListOnly) != 0) {
+          // In "List only" mode, accept only name command
+          if (cmd_num > 1) {
+              cmd_num = 0;
+          }
+      }
       n = 0;
       switch (cmd_num)
       {
@@ -340,7 +358,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf,long len,const char *config_textname
   return true;
 }
 
-TbBool parse_trapdoor_door_blocks(char *buf,long len,const char *config_textname)
+TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct ManfctrConfig *mconf;
   struct DoorConfigStats *doorst;
@@ -352,24 +370,27 @@ TbBool parse_trapdoor_door_blocks(char *buf,long len,const char *config_textname
   char word_buf[COMMAND_WORD_LEN];
   // Initialize the doors array
   int arr_size;
-  arr_size = sizeof(trapdoor_conf.door_cfgstats)/sizeof(trapdoor_conf.door_cfgstats[0]);
-  for (i=0; i < arr_size; i++)
+  if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      doorst = &trapdoor_conf.door_cfgstats[i];
-      LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
-      doorst->name_stridx = 201;
-      if (i < trapdoor_conf.door_types_count)
+      arr_size = sizeof(trapdoor_conf.door_cfgstats)/sizeof(trapdoor_conf.door_cfgstats[0]);
+      for (i=0; i < arr_size; i++)
       {
-          door_desc[i].name = doorst->code_name;
-          door_desc[i].num = i;
-      } else
-      {
-          door_desc[i].name = NULL;
-          door_desc[i].num = 0;
+          doorst = &trapdoor_conf.door_cfgstats[i];
+          LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
+          doorst->name_stridx = 201;
+          if (i < trapdoor_conf.door_types_count)
+          {
+              door_desc[i].name = doorst->code_name;
+              door_desc[i].num = i;
+          } else
+          {
+              door_desc[i].name = NULL;
+              door_desc[i].num = 0;
+          }
       }
   }
+  // Parse every numbered block within range
   arr_size = trapdoor_conf.door_types_count;
-  // Load the file
   for (i=1; i < arr_size; i++)
   {
     sprintf(block_buf,"door%d",i);
@@ -377,8 +398,11 @@ TbBool parse_trapdoor_door_blocks(char *buf,long len,const char *config_textname
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
     {
-      WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      continue;
+        if ((flags & CnfLd_AcceptPartial) == 0) {
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            return false;
+        }
+        continue;
     }
     mconf = &game.doors_config[i];
     doorst = &trapdoor_conf.door_cfgstats[i];
@@ -389,6 +413,12 @@ TbBool parse_trapdoor_door_blocks(char *buf,long len,const char *config_textname
       cmd_num = recognize_conf_command(buf,&pos,len,trapdoor_door_commands);
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
+      if ((flags & CnfLd_ListOnly) != 0) {
+          // In "List only" mode, accept only name command
+          if (cmd_num > 1) {
+              cmd_num = 0;
+          }
+      }
       n = 0;
       switch (cmd_num)
       {
@@ -486,53 +516,76 @@ TbBool parse_trapdoor_door_blocks(char *buf,long len,const char *config_textname
   return true;
 }
 
-TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags)
+TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-  static const char config_textname[] = "Traps and doors config";
-  char *fname;
-  char *buf;
-  long len;
-  TbBool result;
-  SYNCDBG(0,"Reading %s file \"%s\".",config_textname,conf_fname);
-  fname = prepare_file_path(FGrp_FxData,conf_fname);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,conf_fname);
-    return false;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("%s file \"%s\" is too large.",config_textname,conf_fname);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  result = (len > 0);
-  if (result)
-  {
-    result = parse_trapdoor_common_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_trapdoor_trap_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" trap blocks failed.",config_textname,conf_fname);
-  }
-  if (result)
-  {
-    result = parse_trapdoor_door_blocks(buf, len, config_textname);
-    if (!result)
-      WARNMSG("Parsing %s file \"%s\" door blocks failed.",config_textname,conf_fname);
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  return result;
+    char *buf;
+    long len;
+    TbBool result;
+    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    len = LbFileLengthRnc(fname);
+    if (len < MIN_CONFIG_FILE_SIZE)
+    {
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+        return false;
+    }
+    if (len > MAX_CONFIG_FILE_SIZE)
+    {
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
+        return false;
+    }
+    buf = (char *)LbMemoryAlloc(len+256);
+    if (buf == NULL)
+        return false;
+    // Loading file data
+    len = LbFileLoadAt(fname, buf);
+    result = (len > 0);
+    // Parse blocks of the config file
+    if (result)
+    {
+        result = parse_trapdoor_common_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_trapdoor_trap_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" trap blocks failed.",textname,fname);
+    }
+    if (result)
+    {
+        result = parse_trapdoor_door_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+            WARNMSG("Parsing %s file \"%s\" door blocks failed.",textname,fname);
+    }
+    //Freeing and exiting
+    LbMemoryFree(buf);
+    return result;
+}
+
+TbBool load_trapdoor_config(const char *conf_fname, unsigned short flags)
+{
+    static const char config_global_textname[] = "global traps and doors config";
+    static const char config_campgn_textname[] = "campaign traps and doors config";
+    char *fname;
+    TbBool result;
+    fname = prepare_file_path(FGrp_FxData,conf_fname);
+    result = load_trapdoor_config_file(config_global_textname,fname,flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_trapdoor_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    //Freeing and exiting
+    return result;
 }
 
 /**
@@ -570,7 +623,7 @@ int door_model_id(const char * code_name)
     int i;
 
     for (i = 0; i < trapdoor_conf.door_types_count; ++i) {
-        if (strncmp(trapdoor_conf.door_cfgstats[i].code_name, code_name,
+        if (strncasecmp(trapdoor_conf.door_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
@@ -590,7 +643,7 @@ int trap_model_id(const char * code_name)
     int i;
 
     for (i = 0; i < trapdoor_conf.trap_types_count; ++i) {
-        if (strncmp(trapdoor_conf.trap_cfgstats[i].code_name, code_name,
+        if (strncasecmp(trapdoor_conf.trap_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }

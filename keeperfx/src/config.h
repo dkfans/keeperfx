@@ -34,6 +34,9 @@ struct GameCampaign;
 #define SINGLEPLAYER_NOTSTARTED       0
 #define LEVELNUMBER_ERROR            -2
 
+#define MIN_CONFIG_FILE_SIZE          4
+#define MAX_CONFIG_FILE_SIZE      65535
+
 #define MAP_SCREEN_WIDTH           1280
 #define MAP_SCREEN_HEIGHT           960
 
@@ -96,6 +99,7 @@ enum TbLevelLocation {
     LvLc_Campaign  =  1,
     LvLc_Custom    =  2,
 };
+
 enum TbLanguage {
     Lang_Unset    =  0,
     Lang_English,
@@ -117,6 +121,15 @@ enum TbLanguage {
     Lang_ChineseInt,
     Lang_ChineseTra,
 };
+
+enum TbConfigLoadFlags {
+    CnfLd_Standard      =  0x00, /**< Standard load, no special behavior. */
+    CnfLd_ListOnly      =  0x01, /**< Load only list of items and their names, don't parse actual options (when applicable). */
+    CnfLd_AcceptPartial =  0x02, /**< Accept partial files (with only some options set), and don't clear previous configuration. */
+    CnfLd_IgnoreErrors  =  0x04, /**< Do not log error message on failures (still, return with error). */
+};
+
+/******************************************************************************/
 
 /******************************************************************************/
 #pragma pack(1)

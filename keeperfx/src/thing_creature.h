@@ -80,7 +80,7 @@ long move_creature(struct Thing *thing);
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
       unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious);
 void update_creature_count(struct Thing *thing);
-long process_creature_state(struct Thing *thing);
+TngUpdateRet process_creature_state(struct Thing *thing);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
