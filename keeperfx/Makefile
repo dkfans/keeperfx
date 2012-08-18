@@ -434,7 +434,7 @@ bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
 
-$(BMPTORAWLV): tools/landvico/src/landvico.c tools/landvico/Makefile
+$(BMPTORAWLV): tools/landvico/src/landvico.cpp tools/landvico/Makefile
 	$(MAKE) -C tools/landvico
 
 # Windows resources compilation
