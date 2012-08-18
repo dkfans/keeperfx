@@ -730,7 +730,7 @@ unsigned short get_creature_model_flags(const struct Thing *thing)
 /**
  * Sets creature availability state.
  */
-TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail, long force_avail)
+TbBool set_creature_available(PlayerNumber plyr_idx, long crtr_model, long can_be_avail, long force_avail)
 {
     struct Dungeon *dungeon;
     // note that we can't get_players_num_dungeon() because players
@@ -745,9 +745,9 @@ TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail,
     return true;
 }
 
-long get_players_special_digger_breed(long plyr_idx)
+ThingModel get_players_special_digger_breed(PlayerNumber plyr_idx)
 {
-    long breed;
+    ThingModel breed;
     if (plyr_idx == hero_player_number)
     {
         breed = crtr_conf.special_digger_good;
@@ -768,9 +768,9 @@ long get_players_special_digger_breed(long plyr_idx)
     return breed;
 }
 
-long get_players_spectator_breed(long plyr_idx)
+ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
 {
-    long breed;
+    ThingModel breed;
     breed = crtr_conf.spectator_breed;
     if (breed == 0)
     {
@@ -779,6 +779,56 @@ long get_players_spectator_breed(long plyr_idx)
     }
     return breed;
 }
+
+RoomKind creature_job_to_room(unsigned short job_flags)
+{
+    if ((job_flags & Job_RESEARCH) != 0)
+        return RoK_LIBRARY;
+    if ((job_flags & Job_TRAIN) != 0)
+        return RoK_TRAINING;
+    if ((job_flags & Job_MANUFACTURE) != 0)
+        return RoK_WORKSHOP;
+    if ((job_flags & Job_SCAVENGE) != 0)
+        return RoK_SCAVENGER;
+    if ((job_flags & Job_KINKY_TORTURE) != 0)
+        return RoK_TORTURE;
+    if ((job_flags & Job_GUARD) != 0)
+        return RoK_GUARDPOST;
+    if ((job_flags & Job_BARRACK) != 0)
+        return RoK_BARRACKS;
+    if ((job_flags & Job_TEMPLE) != 0)
+        return RoK_TEMPLE;
+    if ((job_flags & Job_FREEZE_PRISONERS) != 0)
+        return RoK_PRISON;
+    return RoK_NONE;
+}
+
+unsigned short get_creature_job_causing_stress(long job_flags, RoomKind rkind)
+{
+    switch (rkind)
+    {
+    case RoK_LIBRARY:
+        return (job_flags & Job_RESEARCH);
+    case RoK_TRAINING:
+        return (job_flags & Job_TRAIN);
+    case RoK_WORKSHOP:
+        return (job_flags & Job_MANUFACTURE);
+    case RoK_SCAVENGER:
+        return (job_flags & Job_SCAVENGE);
+    case RoK_TORTURE:
+        return (job_flags & Job_KINKY_TORTURE);
+    case RoK_GUARDPOST:
+        return (job_flags & Job_GUARD);
+    case RoK_BARRACKS:
+        return (job_flags & Job_BARRACK);
+    case RoK_TEMPLE:
+        return (job_flags & Job_TEMPLE);
+    case RoK_PRISON:
+        return (job_flags & Job_FREEZE_PRISONERS);
+    }
+    return Job_NULL;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -422,18 +422,21 @@ TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct 
 }
 
 /**
- * Processes job stress of a researcher.
- * Creatures which aren't performing their primary jobs can be affected by job stress.
- * Job stress causes them to attack other creatures walking through the same room
- * which aren't performing the same job (ie. are just passing by).
+ * Processes job stress.
+ * Creatures which aren't performing their primary jobs can be attacked by creatures
+ * affected by job stress.
+ * Job stress causes creature working in room to attack other creatures walking
+ * through the same room which aren't performing the same job (ie. are just passing by),
+ * or other workers in that room who does not have the job as primary job.
  * @param creatng The thing being affected by job stress.
  * @param room The room where target creature should be searched for.
  * @return
  */
-TbBool process_research_stress(struct Thing *creatng, struct Room *room)
+TbBool process_job_stress(struct Thing *creatng, struct Room *room)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
+    unsigned short stressful_job;
     cctrl = creature_control_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
     if ( (crstat->job_stress <= 0) || (cctrl->instance_id != 0) ) {
@@ -442,7 +445,8 @@ TbBool process_research_stress(struct Thing *creatng, struct Room *room)
     if (((game.play_gameturn + creatng->index) % crstat->job_stress) == 0) {
         return false;
     }
-    if (crstat->job_primary != Job_RESEARCH) {
+    stressful_job = get_creature_job_causing_stress(crstat->job_primary,room->kind);
+    if (stressful_job == Job_NULL) {
         return false;
     }
     long inst_use;
@@ -455,7 +459,7 @@ TbBool process_research_stress(struct Thing *creatng, struct Room *room)
     struct Thing *combt_thing;
     combt_dist = LONG_MAX;
     combt_thing = INVALID_THING;
-    if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, Job_RESEARCH, room, &combt_dist, &combt_thing))
+    if (find_combat_target_passing_by_room_but_having_unrelated_job(creatng, stressful_job, room, &combt_dist, &combt_thing))
     {
         struct CreatureControl *combctrl;
         set_creature_instance(creatng, inst_use, 0, combt_thing->index, 0);
@@ -508,7 +512,7 @@ long process_research_function(struct Thing *thing)
     SYNCDBG(19,"The %s index %d produced %ld research points",thing_model_name(thing),(int)thing->index,work_value);
     dungeon->total_research_points += work_value;
     dungeon->field_1193 += work_value;
-    process_research_stress(thing, room);
+    process_job_stress(thing, room);
     return 0;
 }
 
