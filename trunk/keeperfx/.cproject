@@ -123,6 +123,7 @@
 				<buildTargets>
 					<target name="standard" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
+						<buildArguments/>
 						<buildTarget>standard</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
@@ -130,7 +131,6 @@
 					</target>
 					<target name="heavylog" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
 						<buildTarget>heavylog DEBUG=1</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
@@ -138,6 +138,7 @@
 					</target>
 					<target name="clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
+						<buildArguments/>
 						<buildTarget>clean</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
@@ -145,7 +146,6 @@
 					</target>
 					<target name="docs" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
 						<buildTarget>docs</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
@@ -153,8 +153,15 @@
 					</target>
 					<target name="package" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
 						<buildTarget>package</buildTarget>
+						<stopOnError>true</stopOnError>
+						<useDefaultCommand>true</useDefaultCommand>
+						<runAllBuilders>true</runAllBuilders>
+					</target>
+					<target name="tools/landvico/bin/landvico" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+						<buildCommand>mingw32-make</buildCommand>
+						<buildArguments/>
+						<buildTarget>tools/landvico/bin/landvico</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
@@ -282,6 +289,7 @@
 				<buildTargets>
 					<target name="standard" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
+						<buildArguments/>
 						<buildTarget>standard</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
@@ -289,7 +297,6 @@
 					</target>
 					<target name="heavylog" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
 						<buildTarget>heavylog DEBUG=1</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
@@ -297,6 +304,7 @@
 					</target>
 					<target name="clean" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
+						<buildArguments/>
 						<buildTarget>clean</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
@@ -304,7 +312,6 @@
 					</target>
 					<target name="docs" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
 						<buildTarget>docs</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
@@ -312,8 +319,15 @@
 					</target>
 					<target name="package" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
 						<buildTarget>package</buildTarget>
+						<stopOnError>true</stopOnError>
+						<useDefaultCommand>true</useDefaultCommand>
+						<runAllBuilders>true</runAllBuilders>
+					</target>
+					<target name="tools/landvico/bin/landvico" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+						<buildCommand>mingw32-make</buildCommand>
+						<buildArguments/>
+						<buildTarget>tools/landvico/bin/landvico</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>

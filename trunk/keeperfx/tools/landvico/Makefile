@@ -34,7 +34,7 @@ obj/landvico.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
-LINKLIB = 
+LINKLIB = -lpng -lz -lm
 INCS = 
 CXXINCS = 
 # flags to generate dependency files
