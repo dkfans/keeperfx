@@ -441,41 +441,18 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, long r
     }
 }
 
-long get_job_for_room(long rkind)
-{
-    switch (rkind)
-    {
-    case RoK_LIBRARY:
-        return Job_RESEARCH;
-    case RoK_TRAINING:
-        return Job_TRAIN;
-    case RoK_WORKSHOP:
-        return Job_MANUFACTURE;
-    case RoK_SCAVENGER:
-        return Job_SCAVENGE;
-    case RoK_TEMPLE:
-        return Job_TEMPLE;
-    case RoK_GUARDPOST:
-        return Job_GUARD;
-//    case RoK_TORTURE: -- no 'bad jobs' should be listed here
-//        return Job_KINKY_TORTURE;
-    default:
-        return Job_NULL;
-    }
-}
-
 TbBool person_will_do_job_for_room(const struct Thing *thing, const struct Room *room)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    return (get_job_for_room(room->kind) & crstat->jobs_not_do) == 0;
+    return (get_job_for_room(room->kind, true) & crstat->jobs_not_do) == 0;
 }
 
 TbBool person_will_do_job_for_room_kind(const struct Thing *thing, RoomKind rkind)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    return (get_job_for_room(rkind) & crstat->jobs_not_do) == 0;
+    return (get_job_for_room(rkind, true) & crstat->jobs_not_do) == 0;
 }
 
 struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing)
