@@ -90,6 +90,22 @@ struct CreatureModelConfig {
     unsigned short model_flags;
 };
 
+struct CreatureStateConfig {
+    char name[COMMAND_WORD_LEN];
+};
+
+struct CreatureInstanceConfig {
+    char name[COMMAND_WORD_LEN];
+};
+
+struct CreatureJobConfig {
+    char name[COMMAND_WORD_LEN];
+};
+
+struct CreatureAngerJobConfig {
+    char name[COMMAND_WORD_LEN];
+};
+
 struct CreatureData {
       unsigned char flags;
       short field_1;
@@ -117,13 +133,13 @@ struct CreatureConfig {
     long model_count;
     struct CreatureModelConfig model[CREATURE_TYPES_MAX];
     long states_count;
-    struct CommandWord state_names[CREATURE_STATES_MAX];
-    long instance_count;
-    struct CommandWord instance_names[INSTANCE_TYPES_MAX];
-    long job_count;
-    struct CommandWord job_names[INSTANCE_TYPES_MAX];
-    long angerjob_count;
-    struct CommandWord angerjob_names[INSTANCE_TYPES_MAX];
+    struct CreatureStateConfig states[CREATURE_STATES_MAX];
+    long instances_count;
+    struct CreatureInstanceConfig instances[INSTANCE_TYPES_MAX];
+    long jobs_count;
+    struct CreatureJobConfig jobs[INSTANCE_TYPES_MAX];
+    long angerjobs_count;
+    struct CreatureAngerJobConfig angerjobs[INSTANCE_TYPES_MAX];
     long attackpref_count;
     struct CommandWord attackpref_names[INSTANCE_TYPES_MAX];
     ThingModel special_digger_good;
@@ -134,9 +150,9 @@ struct CreatureConfig {
 /******************************************************************************/
 extern const char keeper_creaturetp_file[];
 extern struct NamedCommand creature_desc[];
-extern const struct NamedCommand angerjob_desc[];
-extern const struct NamedCommand creaturejob_desc[];
-extern const struct NamedCommand attackpref_desc[];
+extern struct NamedCommand angerjob_desc[];
+extern struct NamedCommand creaturejob_desc[];
+extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern const struct NamedCommand creature_graphics_desc[];
 extern struct CreatureConfig crtr_conf;
@@ -166,8 +182,9 @@ TbBool set_creature_available(PlayerNumber plyr_idx, long crtr_model, long can_b
 ThingModel get_players_special_digger_breed(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_breed(PlayerNumber plyr_idx);
 /******************************************************************************/
-RoomKind creature_job_to_room(unsigned short job_flags);
-unsigned short get_creature_job_causing_stress(long job_flags, RoomKind rkind);
+RoomKind get_room_for_job(unsigned long job_flags);
+unsigned long get_creature_job_causing_stress(long job_flags, RoomKind rkind);
+unsigned long get_job_for_room(RoomKind rkind, TbBool only_dropable);
 /******************************************************************************/
 #ifdef __cplusplus
 }

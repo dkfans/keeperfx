@@ -127,13 +127,13 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(crtr_conf.state_names)/sizeof(crtr_conf.state_names[0]);
+        arr_size = sizeof(crtr_conf.states)/sizeof(crtr_conf.states[0]);
         for (i=0; i < arr_size; i++)
         {
-            LbMemorySet(crtr_conf.state_names[i].text, 0, COMMAND_WORD_LEN);
+            LbMemorySet(crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
             if (i < crtr_conf.states_count)
             {
-                creatrstate_desc[i].name = crtr_conf.state_names[i].text;
+                creatrstate_desc[i].name = crtr_conf.states[i].name;
                 creatrstate_desc[i].num = i;
             } else
             {
@@ -174,7 +174,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
         switch (cmd_num)
         {
         case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,crtr_conf.state_names[i].text,COMMAND_WORD_LEN) <= 0)
+            if (get_conf_parameter_single(buf,&pos,len,crtr_conf.states[i].name,COMMAND_WORD_LEN) <= 0)
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);

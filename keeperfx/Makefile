@@ -26,6 +26,7 @@ CC   = $(CROSS_COMPILE)gcc
 WINDRES = $(CROSS_COMPILE)windres
 DLLTOOL = $(CROSS_COMPILE)dlltool
 EXETODLL = peresec/bin/peresec
+BMPTORAWLV = tools/landvico/bin/landvico
 RM = rm -f
 MV = mv -f
 CP = cp -f
@@ -296,6 +297,7 @@ clean-build:
 	-$(RM) $(LIBS) $(GENSRC)
 	-$(RM) bin/keeperfx*
 	$(MAKE) clean -C peresec
+	$(MAKE) clean -C tools/landvico
 	-$(ECHO) ' '
 
 clean-package:
@@ -431,6 +433,9 @@ bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
+
+$(BMPTORAWLV): tools/landvico/src/landvico.c tools/landvico/Makefile
+	$(MAKE) -C tools/landvico
 
 # Windows resources compilation
 # Should depend on res/keeperfx_icon.ico, but currently we've assuming ICO files are alredy made 
