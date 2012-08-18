@@ -126,9 +126,9 @@ struct CreatureConfig {
     struct CommandWord angerjob_names[INSTANCE_TYPES_MAX];
     long attackpref_count;
     struct CommandWord attackpref_names[INSTANCE_TYPES_MAX];
-    long special_digger_good;
-    long special_digger_evil;
-    long spectator_breed;
+    ThingModel special_digger_good;
+    ThingModel special_digger_evil;
+    ThingModel spectator_breed;
 };
 
 /******************************************************************************/
@@ -162,9 +162,12 @@ long creature_model_id(const char * name);
 TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
 unsigned short get_creature_model_flags(const struct Thing *thing);
-TbBool set_creature_available(long plyr_idx, long crtr_model, long can_be_avail, long force_avail);
-long get_players_special_digger_breed(long plyr_idx);
-long get_players_spectator_breed(long plyr_idx);
+TbBool set_creature_available(PlayerNumber plyr_idx, long crtr_model, long can_be_avail, long force_avail);
+ThingModel get_players_special_digger_breed(PlayerNumber plyr_idx);
+ThingModel get_players_spectator_breed(PlayerNumber plyr_idx);
+/******************************************************************************/
+RoomKind creature_job_to_room(unsigned short job_flags);
+unsigned short get_creature_job_causing_stress(long job_flags, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }
