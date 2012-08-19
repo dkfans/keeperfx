@@ -341,7 +341,7 @@ void draw_power_hand(void)
     {
     case TCls_Creature:
         cctrl = creature_control_get_from_thing(picktng);
-        if ((cctrl->field_AD & 0x02) == 0)
+        if ((cctrl->spell_flags & 0x0200) == 0)
         {
             pickoffs = get_creature_picked_up_offset(picktng);
             x = GetMouseX() + pickoffs->delta_x;

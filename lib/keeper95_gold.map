@@ -224,6 +224,7 @@
  0001:00018E30       creature_being_sacrificed
  0001:00019000       cleanup_sacrifice
  0001:00019040       creature_being_summoned
+ 0001:00019140       person_get_somewhere_adjacent_in_temple
  0001:00019800       anger_apply_anger_to_creature
  0001:0001A110       anger_set_creature_anger
  0001:0001A2B0       anger_set_creature_anger_all_types
@@ -1181,6 +1182,7 @@
  0001:000CA040       load_map_slab_file
  0001:000CA130       load_ceiling_table
  0001:000CA6D0       setup_person_move_to_position
+ 0001:000CA790       setup_person_move_to_coord
  0001:000CAB80       move_creature
  0001:000CAF40       move_shot
  0001:000CB220       move_object

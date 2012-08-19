@@ -704,90 +704,13 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
 
 void compressed_window_draw(void)
 {
-  unsigned char *src;
-  unsigned char *src_end;
-  unsigned char *dst;
-  long xshift,yshift;
-  int wcopy;
-  int wdata;
-  int wskip;
-  long w,h;
-  SYNCDBG(18,"Starting");
-
-  src_end = &map_window[map_window_len];
-  xshift = map_info.scrshift_x / 2;
-  yshift = map_info.scrshift_y / 2;
-  for (h=0; h < lbDisplay.PhysicalScreenHeight; h++)
-  {
-    dst = &lbDisplay.WScreen[lbDisplay.GraphicsScreenWidth * h];
-    src = &map_window[window_y_offset[yshift + h]];
-    w = 0;
-    while (w < xshift)
-    {
-      wdata = *(unsigned long *)src;
-      src += 4;
-      wcopy = wdata + w - xshift;
-      if (wcopy >= 0)
-      {
-        // Draw non-transparent area
-        if (wcopy > lbDisplay.GraphicsScreenWidth)
-          wcopy = lbDisplay.GraphicsScreenWidth;
-        if (wcopy < 0)
-          wcopy = 0;
-        if (wcopy != 0)
-        {
-          memcpy(dst, src - w + xshift, wcopy);
-          dst += wcopy;
-        }
-        src += wdata;
-        w += wdata;
-        // Skip the transparent area
-        wskip = *(unsigned long *)src;
-        src += 4;
-        dst += wskip;
-        w += wskip;
-      } else
-      {
-        // Skip non-transparent area
-        src += wdata;
-        w += wdata;
-        // Skip the transparent area
-        wskip = *(unsigned long *)src;
-        src += 4;
-        w += wskip;
-        if (w > xshift)
-          dst += w-xshift;
-      }
-    }
-    while (w < lbDisplay.GraphicsScreenWidth + xshift)
-    {
-      wdata = *(unsigned long *)src;
-      src += 4;
-      if (lbDisplay.GraphicsScreenWidth + xshift >= wdata + w)
-      {
-        wcopy = wdata;
-      } else
-      {
-        wcopy = lbDisplay.GraphicsScreenWidth + xshift - w;
-        if (wcopy > lbDisplay.GraphicsScreenWidth)
-          wcopy = lbDisplay.GraphicsScreenWidth;
-        if (wcopy < 0)
-          wcopy = 0;
-      }
-      if (src+wcopy > src_end) {
-          return;
-      }
-      memcpy(dst, src, wcopy);
-      src += wdata;
-      dst += wdata;
-      w += wdata;
-      // Transparent bytes count
-      wskip = *((unsigned long *)src);
-      src += 4;
-      dst += wskip;
-      w += wskip;
-    }
-  }
+    long xshift,yshift;
+    SYNCDBG(18,"Starting");
+    xshift = map_info.scrshift_x / 2;
+    yshift = map_info.scrshift_y / 2;
+    LbHugeSpriteDraw(map_window, window_y_offset, map_window_len,
+        lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.PhysicalScreenHeight,
+        xshift, yshift);
 }
 
 void unload_map_and_window(void)
