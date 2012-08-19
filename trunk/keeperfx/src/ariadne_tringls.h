@@ -4,7 +4,7 @@
 /** @file ariadne_tringls.h
  *     Header file for ariadne_tringls.c.
  * @par Purpose:
- *     Triangles array for Ariande system support.
+ *     Triangles array for Ariadne system support.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
