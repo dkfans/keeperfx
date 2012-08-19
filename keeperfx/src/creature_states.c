@@ -1805,7 +1805,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
 
     tmptng = thing_get(cctrl1->battle_enemy_idx);
     TRACE_THING(tmptng);
-    if  ( (cctrl1->field_AD & 0x10) || (cctrl2->field_AD & 0x10)
+    if  ( (cctrl1->spell_flags & 0x1000) || (cctrl2->spell_flags & 0x1000)
         || ((cctrl1->combat_flags) && (tmptng == tng2)) )
     {
         if (tng2 != tng1)
@@ -2049,7 +2049,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        cctrl->field_AD |= 0x40;
+        cctrl->spell_flags |= 0x4000;
     }
     return true;
 }
@@ -2217,7 +2217,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         return thing->active_state;
     }
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->field_AD & 0x02) != 0)
+    if ((cctrl->spell_flags & CSAfF_Chicken) != 0)
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);

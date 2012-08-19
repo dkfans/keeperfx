@@ -21,6 +21,7 @@
 
 #include "bflib_math.h"
 #include "creature_states.h"
+#include "creature_instances.h"
 #include "creature_states_rsrch.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -55,6 +56,8 @@ DLLIMPORT long _DK_make_all_players_creatures_angry(long plyr_idx);
 DLLIMPORT long _DK_force_complete_current_manufacturing(long plyr_idx);
 DLLIMPORT void _DK_apply_spell_effect_to_players_creatures(long a1, long a2, long a3);
 DLLIMPORT void _DK_kill_all_players_chickens(long plyr_idx);
+DLLIMPORT long _DK_person_get_somewhere_adjacent_in_temple(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+DLLIMPORT short _DK_setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -69,6 +72,53 @@ TbBool creature_is_doing_temple_activity(const struct Thing *thing)
     if ((i == CrSt_AtTemple) || (i == CrSt_PrayingInTemple))
         return true;
     return false;
+}
+
+long person_get_somewhere_adjacent_in_temple(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+{
+    return _DK_person_get_somewhere_adjacent_in_temple(thing, room, pos);
+}
+
+short setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a3)
+{
+    return _DK_setup_person_move_to_coord(thing, pos, a3);
+}
+
+TbBool setup_temple_move(struct Thing *thing, struct Room *room)
+{
+    struct Coord3d pos;
+    if ( !person_get_somewhere_adjacent_in_temple(thing, room, &pos) )
+    {
+        return false;
+    }
+    if (!setup_person_move_to_coord(thing, &pos, 0)) {
+        ERRORLOG("Cannot move in temple.");
+        return false;
+    }
+    thing->continue_state = CrSt_PrayingInTemple;
+    return true;
+}
+
+long process_temple_visuals(struct Thing *thing, struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    long turns_in_temple;
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->instance_id == 0)
+        return 0;
+    turns_in_temple = cctrl->field_82;
+    if (turns_in_temple <= 120)
+    {
+        setup_temple_move(thing, room);
+    } else
+    if (turns_in_temple - 120 >= 50)
+    {
+        cctrl->field_82 = 0;
+    } else
+    {
+        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+    }
+    return 1;
 }
 
 short at_temple(struct Thing *thing)
@@ -108,12 +158,61 @@ short at_temple(struct Thing *thing)
 
 short praying_in_temple(struct Thing *thing)
 {
-  return _DK_praying_in_temple(thing);
+    struct Room *room;
+    struct CreatureControl *cctrl;
+    //return _DK_praying_in_temple(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    room = get_room_thing_is_on(thing);
+    if ( !room_still_valid_as_type_for_thing(room, RoK_TEMPLE, thing) || (cctrl->work_room_id != room->index) )
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 0;
+    }
+    if (process_temple_function(thing) == 0)
+        process_temple_visuals(thing, room);
+    return 1;
+
+}
+
+long process_temple_cure(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->spell_flags & CSAfF_Disease) != 0)
+        terminate_thing_spell_effect(thing, SplK_Disease);
+    if ((cctrl->spell_flags & CSAfF_Chicken) != 0)
+        terminate_thing_spell_effect(thing, SplK_Chicken);
+    cctrl->field_3D = game.play_gameturn;
+    return 1;
 }
 
 long process_temple_function(struct Thing *thing)
 {
-  return _DK_process_temple_function(thing);
+    struct Room *room;
+    //return _DK_process_temple_function(thing);
+    room = get_room_thing_is_on(thing);
+    if ( !room_still_valid_as_type_for_thing(room, RoK_TEMPLE, thing) )
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return 1;
+    }
+    { // Modify anger
+        long anger_change;
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        anger_change = process_work_speed_on_work_value(thing, crstat->annoy_in_temple);
+        anger_apply_anger_to_creature(thing, anger_change, 4, 1);
+    }
+    // Terminate spells
+    process_temple_cure(thing);
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        cctrl->field_82++;
+    }
+    return 0;
 }
 
 short state_cleanup_in_temple(struct Thing *thing)
@@ -123,68 +222,68 @@ short state_cleanup_in_temple(struct Thing *thing)
 
 TbBool summon_creature(long model, struct Coord3d *pos, long owner, long explevel)
 {
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
-  thing = create_creature(pos, model, owner);
-  if (thing_is_invalid(thing))
-  {
-    ERRORLOG("Could not create creature");
-    return false;
-  }
-  init_creature_level(thing, explevel);
-  internal_set_thing_state(thing, 95);
-  thing->movement_flags |= TMvF_Unknown04;
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->word_9C = 48;
-  return true;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    SYNCDBG(4,"Creating model %ld for player %ld",model,owner);
+    thing = create_creature(pos, model, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Could not create creature");
+        return false;
+    }
+    init_creature_level(thing, explevel);
+    internal_set_thing_state(thing, 95);
+    thing->movement_flags |= TMvF_Unknown04;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->word_9C = 48;
+    return true;
 }
 
 TbBool make_all_players_creatures_angry(long plyr_idx)
 {
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(8,"Starting");
-  //return _DK_make_all_players_creatures_angry(plyr_idx);
-  dungeon = get_players_num_dungeon(plyr_idx);
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    TRACE_THING(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    //return _DK_make_all_players_creatures_angry(plyr_idx);
+    dungeon = get_players_num_dungeon(plyr_idx);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        anger_make_creature_angry(thing, 4);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
     }
-    i = cctrl->players_next_creature_idx;
-    // Thing list loop body
-    anger_make_creature_angry(thing, 4);
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
-  SYNCDBG(19,"Finished");
-  return true;
+    SYNCDBG(19,"Finished");
+    return true;
 }
 
 long force_complete_current_manufacturing(long plyr_idx)
 {
-  return _DK_force_complete_current_manufacturing(plyr_idx);
+    return _DK_force_complete_current_manufacturing(plyr_idx);
 }
 
 void apply_spell_effect_to_players_creatures(long plyr_idx, long spl_idx, long overchrg)
 {
-  _DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
+    _DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
 }
 
 void kill_all_players_chickens(long plyr_idx)
@@ -224,7 +323,7 @@ long create_sacrifice_unique_award(struct Coord3d *pos, long plyr_idx, long sacf
       // No processing needed - just don't clear the amount of sacrificed imps.
       return SacR_Pleased;
   default:
-      ERRORLOG("Unsupported unique secrifice award!");
+      ERRORLOG("Unsupported unique sacrifice award!");
       return SacR_AngryWarn;
   }
 }

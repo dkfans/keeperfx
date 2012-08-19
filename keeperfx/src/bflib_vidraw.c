@@ -1843,6 +1843,106 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
     vec_window_width = width;
 }
 
+/** Draws a huge sprite, used ie. as frame in land view.
+ *  What differs huge sprite from standard one is the index of y line starts, which
+ *  speeds up finding a specific line to be drawn.
+ * @param sp Sprite data.
+ * @param sp_y_offset Index of line starts in the sprite data.
+ * @param sp_len Length of the sprite data.
+ * @param r Destination buffer.
+ * @param r_row_delta Row interline in the destination buffer.
+ * @param r_height Height of the destination buffer.
+ * @param xshift Shift of the drawing, X coord.
+ * @param yshift Shift of the drawing, Y coord.
+ * @return
+ */
+TbResult LbHugeSpriteDraw(const unsigned char *sp, long * sp_y_offset, long sp_len,
+    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift)
+{
+    const unsigned char *src;
+    const unsigned char *sp_end;
+    unsigned char *dst;
+    int wcopy;
+    int wdata;
+    int wskip;
+    long w,h;
+    SYNCDBG(18,"Starting");
+
+    sp_end = &sp[sp_len];
+    for (h=0; h < r_height; h++)
+    {
+        dst = &r[r_row_delta * h];
+        src = &sp[sp_y_offset[yshift + h]];
+        w = 0;
+        while (w < xshift)
+        {
+            wdata = *(unsigned long *)src;
+            src += 4;
+            wcopy = wdata + w - xshift;
+            if (wcopy >= 0)
+            {
+                // Draw non-transparent area
+                if (wcopy > r_row_delta)
+                    wcopy = r_row_delta;
+                if (wcopy < 0)
+                    wcopy = 0;
+                if (wcopy != 0)
+                {
+                    memcpy(dst, src - w + xshift, wcopy);
+                    dst += wcopy;
+                }
+                src += wdata;
+                w += wdata;
+                // Skip the transparent area
+                wskip = *(unsigned long *)src;
+                src += 4;
+                dst += wskip;
+                w += wskip;
+            } else
+            {
+                // Skip non-transparent area
+                src += wdata;
+                w += wdata;
+                // Skip the transparent area
+                wskip = *(unsigned long *)src;
+                src += 4;
+                w += wskip;
+                if (w > xshift)
+                    dst += w-xshift;
+            }
+        }
+        while (w < r_row_delta + xshift)
+        {
+            wdata = *(unsigned long *)src;
+            src += 4;
+            if (r_row_delta + xshift >= wdata + w)
+            {
+                wcopy = wdata;
+            } else
+            {
+                wcopy = r_row_delta + xshift - w;
+                if (wcopy > r_row_delta)
+                    wcopy = r_row_delta;
+                if (wcopy < 0)
+                    wcopy = 0;
+            }
+            if (src+wcopy > sp_end) {
+                return Lb_SUCCESS;
+            }
+            memcpy(dst, src, wcopy);
+            src += wdata;
+            dst += wdata;
+            w += wdata;
+            // Transparent bytes count
+            wskip = *((unsigned long *)src);
+            src += 4;
+            dst += wskip;
+            w += wskip;
+        }
+    }
+    return Lb_SUCCESS;
+}
+
 void LbDrawPixel(long x, long y, TbPixel colour)
 {
     lbDisplay.GraphicsWindowPtr[x + lbDisplay.GraphicsScreenWidth * y] = colour;
