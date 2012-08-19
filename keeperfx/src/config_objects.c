@@ -40,6 +40,21 @@ const struct NamedCommand objects_common_commands[] = {
 
 const struct NamedCommand objects_object_commands[] = {
   {"NAME",            1},
+  {"GERNE",           2},
+  {NULL,              0},
+  };
+
+const struct NamedCommand objects_gernes_desc[] = {
+  {"NONE",            0},
+  {"DECORATION",      1},
+  {"FURNITURE",       2},
+  {"VALUABLE",        3},
+  {"SPELLBOOK",       4},
+  {"WORKSHOPBOX",     5},
+  {"FOOD",            6},
+  {"POWER",           7},
+  {"LAIR",            8},
+  {"EFFECT",          9},
   {NULL,              0},
   };
 
@@ -120,87 +135,102 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
 
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  struct ObjectConfigStats *objst;
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  // Initialize the objects array
-  int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      arr_size = sizeof(object_conf.object_cfgstats)/sizeof(object_conf.object_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
-      {
-          objst = &object_conf.object_cfgstats[i];
-          LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
-          objst->name_stridx = 201;
-          if (i < object_conf.object_types_count)
-          {
-              object_desc[i].name = objst->code_name;
-              object_desc[i].num = i;
-          } else
-          {
-              object_desc[i].name = NULL;
-              object_desc[i].num = 0;
-          }
-      }
-  }
-  // Load the file
-  arr_size = object_conf.object_types_count;
-  for (i=0; i < arr_size; i++)
-  {
-    sprintf(block_buf,"object%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
+    struct ObjectConfigStats *objst;
+    long pos;
+    int i,k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
+    // Initialize the objects array
+    int arr_size;
+    if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        if ((flags & CnfLd_AcceptPartial) == 0) {
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-            return false;
+        arr_size = sizeof(object_conf.object_cfgstats)/sizeof(object_conf.object_cfgstats[0]);
+        for (i=0; i < arr_size; i++)
+        {
+            objst = &object_conf.object_cfgstats[i];
+            LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+            objst->name_stridx = 201;
+            objst->gerne = 0;
+            if (i < object_conf.object_types_count)
+            {
+                object_desc[i].name = objst->code_name;
+                object_desc[i].num = i;
+            } else
+            {
+                object_desc[i].name = NULL;
+                object_desc[i].num = 0;
+            }
         }
-        continue;
     }
-    objst = &object_conf.object_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
-    while (pos<len)
+    // Load the file
+    arr_size = object_conf.object_types_count;
+    for (i=0; i < arr_size; i++)
     {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,objects_object_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
-          }
-      }
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,objst->code_name,COMMAND_WORD_LEN) <= 0)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            break;
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
+        sprintf(block_buf,"object%d",i);
+        pos = 0;
+        k = find_conf_block(buf,&pos,len,block_buf);
+        if (k < 0)
+        {
+            if ((flags & CnfLd_AcceptPartial) == 0) {
+                WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+                return false;
+            }
+            continue;
+        }
+        objst = &object_conf.object_cfgstats[i];
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
+        while (pos<len)
+        {
+            // Finding command number in this line
+            cmd_num = recognize_conf_command(buf,&pos,len,objects_object_commands);
+            // Now store the config item in correct place
+            if (cmd_num == -3) break; // if next block starts
+            if ((flags & CnfLd_ListOnly) != 0) {
+                // In "List only" mode, accept only name command
+                if (cmd_num > 1) {
+                    cmd_num = 0;
+                }
+            }
+            n = 0;
+            switch (cmd_num)
+            {
+            case 1: // NAME
+                if (get_conf_parameter_single(buf,&pos,len,objst->code_name,COMMAND_WORD_LEN) <= 0)
+                {
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    break;
+                }
+                break;
+            case 2: // GERNE
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    n = get_id(objects_gernes_desc, word_buf);
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect object gerne \"%s\" in [%s] block of %s file.",
+                        word_buf,block_buf,config_textname);
+                    break;
+                }
+                objst->gerne = n;
+                break;
+            case 0: // comment
+                break;
+            case -1: // end of buffer
+                break;
+            default:
+                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                    cmd_num,block_buf,config_textname);
+                break;
+            }
+            skip_conf_to_next_line(buf,&pos,len);
+        }
 #undef COMMAND_TEXT
-  }
-  return true;
+    }
+    return true;
 }
 
 TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags)

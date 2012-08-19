@@ -45,7 +45,11 @@ const struct NamedCommand magic_common_commands[] = {
 const struct NamedCommand magic_spell_commands[] = {
   {"NAME",            1},
   {"DURATION",        2},
-  {"AREADAMAGE",      3},
+  {"SELFCASTED",      3},
+  {"CASTATTHING",     4},
+  {"SHOTMODEL",       5},
+  {"EFFECTMODEL",     6},
+  {"AREADAMAGE",      7},
   {NULL,              0},
   };
 
@@ -73,36 +77,36 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   };
 
 struct SpellInfo spell_info[] = {
-  {0,  0, 0,  0,  0,  0, 0,    0, 0}, // [0] NULL
-  {1,  1, 0,  0,  5,  0, 0,    0, 0}, // [1] FIREBALL
-  {1,  2, 0,  0,  6,  0, 0,    0, 0},
-  {1,  3, 0,  0,  7,  0, 0,    0, 0},
-  {0,  0, 1,  0,  8, 37, 0,    0, 0},
-  {1,  4, 0,  0,  9,  0, 0,    0, 0}, // [5] LIGHTNING
-  {0,  0, 1,  0, 10, 37, 0,    0, 0},
-  {0,  0, 1,  0, 11, 37, 0,    0, 0},
-  {1,  5, 0,  0, 12,  0, 0,    0, 0},
-  {0,  0, 1,  0, 13, 37, 0,    0, 0},
-  {0,  0, 1,  0, 14,  0, 0,    0, 0}, // [10] TELEPORT
-  {0,  0, 1,  0, 15, 38, 0,    0, 0},
-  {1, 10, 0,  0, 16,  0, 0,    0, 0},
-  {1, 12, 0,  0, 17,  0, 0,    0, 0},
-  {0,  0, 1,  0, 18,  0, 0,    0, 0},
-  {1,  9, 0,  0, 19,  0, 0,    0, 0}, // [15] MISSILE
-  {1,  6, 0,  0, 20,  0, 0,    0, 0},
-  {1,  7, 0,  0, 21,  0, 0,    0, 0},
-  {0,  8, 0,  0, 22,  0, 0,    0, 0},
-  {0,  0, 1,  0, 23,  0, 0,    0, 0},
-  {0,  0, 1,  0, 24, 37, 0,    0, 0}, // [20] FLY
-  {0,  0, 1,  0, 25, 37, 0,    0, 0},
-  {0, 11, 0,  0, 26,  0, 0,    0, 0},
-  {1, 13, 0,  0, 27,  0, 0,    0, 0}, // [23] HAILSTORM
-  {0,  0, 0, 14, 28,  0, 8, 4000, 4}, // [24] WORD_OF_POWER
-  {0,  0, 0,  0,  0,  0, 0,    0, 0},
-  {1, 26, 0,  0, 41,  0, 0,    0, 0},
-  {1, 27, 0,  0, 42,  0, 0,    0, 0},
-  {1, 28, 0,  0, 43,  0, 0,    0, 0},
-  {1, 25, 0,  0, 40,  0, 0,    0, 0},
+  {0,  0, 0,  0,  0,  0, 0,    0, 0,   0}, // [0] NULL
+  {1,  1, 0,  0,  5,  0, 0,    0, 0,   0}, // [1] FIREBALL
+  {1,  2, 0,  0,  6,  0, 0,    0, 0,   0},
+  {1,  3, 0,  0,  7,  0, 0,    0, 0,   0},
+  {0,  0, 1,  0,  8, 37, 0,    0, 0,   0},
+  {1,  4, 0,  0,  9,  0, 0,    0, 0,   0}, // [5] LIGHTNING
+  {0,  0, 1,  0, 10, 37, 0,    0, 0,   0},
+  {0,  0, 1,  0, 11, 37, 0,    0, 0,   0},
+  {1,  5, 0,  0, 12,  0, 0,    0, 0,   0},
+  {0,  0, 1,  0, 13, 37, 0,    0, 0,   0},
+  {0,  0, 1,  0, 14,  0, 0,    0, 0,   0}, // [10] TELEPORT
+  {0,  0, 1,  0, 15, 38, 0,    0, 0,   0},
+  {1, 10, 0,  0, 16,  0, 0,    0, 0,   0},
+  {1, 12, 0,  0, 17,  0, 0,    0, 0,   0},
+  {0,  0, 1,  0, 18,  0, 0,    0, 0,   0},
+  {1,  9, 0,  0, 19,  0, 0,    0, 0,   0}, // [15] MISSILE
+  {1,  6, 0,  0, 20,  0, 0,    0, 0,   0},
+  {1,  7, 0,  0, 21,  0, 0,    0, 0,   0},
+  {0,  8, 0,  0, 22,  0, 0,    0, 0,   0},
+  {0,  0, 1,  0, 23,  0, 0,    0, 0,   0},
+  {0,  0, 1,  0, 24, 37, 0,    0, 0,   0}, // [20] FLY
+  {0,  0, 1,  0, 25, 37, 0,    0, 0,   0},
+  {0, 11, 0,  0, 26,  0, 0,    0, 0,   0},
+  {1, 13, 0,  0, 27,  0, 0,    0, 0,   0}, // [23] HAILSTORM
+  {0,  0, 0, 14, 28,  0, 8, 4000, 4, 256}, // [24] WORD_OF_POWER
+  {0,  0, 0,  0,  0,  0, 0,    0, 0,   0},
+  {1, 26, 0,  0, 41,  0, 0,    0, 0,   0},
+  {1, 27, 0,  0, 42,  0, 0,    0, 0,   0},
+  {1, 28, 0,  0, 43,  0, 0,    0, 0,   0},
+  {1, 25, 0,  0, 40,  0, 0,    0, 0,   0},
 };
 
 struct SpellData spell_data[] = {
@@ -354,6 +358,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           magicinf->area_hit_type = 0;
           magicinf->area_range = 0;
           magicinf->area_damage = 0;
+          magicinf->caster_affected = 0;
+          magicinf->caster_affect_sound = 0;
       }
   }
   // Load the file
@@ -393,48 +399,119 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,spellst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            break;
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              break;
           }
           n++;
           break;
       case 2: // DURATION
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            splconf->duration = k;
-            n++;
+              k = atoi(word_buf);
+              splconf->duration = k;
+              n++;
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 3: // AREADAMAGE
+      case 3: // SELFCASTED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            magicinf->area_hit_type = k;
-            n++;
+              k = atoi(word_buf);
+              magicinf->caster_affected = k;
+              n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            magicinf->area_range = k;
-            n++;
+              k = atoi(word_buf);
+              magicinf->caster_affect_sound = k;
+              n++;
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 4: // CASTATTHING
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              magicinf->cast_at_thing = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 5: // SHOTMODEL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(shot_desc, word_buf);
+              if (k >= 0) {
+                  magicinf->shot_model = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+          }
+          break;
+      case 6: // EFFECTMODEL
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              //TODO CONFIG Enable when effects will have names.
+              k = -1;//get_id(effect_desc, word_buf);
+              if (k >= 0) {
+                  magicinf->cast_effect_model = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect effect model \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+          }
+          break;
+      case 7: // AREADAMAGE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              magicinf->area_hit_type = k;
+              n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            magicinf->area_damage = k;
-            n++;
+              k = atoi(word_buf);
+              magicinf->area_range = k;
+              n++;
           }
-          if (n < 3)
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              k = atoi(word_buf);
+              magicinf->area_damage = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              magicinf->area_blow = k;
+              n++;
+          }
+          if (n < 4)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment

@@ -211,16 +211,31 @@ struct MagicStats {  // sizeof=0x4C
   long power[MAGIC_OVERCHARGE_LEVELS];
 };
 
-struct SpellInfo { // sizeof = 17
-  unsigned char field_0;
-  unsigned char field_1;
-  unsigned char field_2;
-  unsigned char cast_effect;
+/**
+ * Spell information structure.
+ * Stores configuration of spells.
+ * It no longer matches the similar struct from DK - fields were added at end.
+ */
+struct SpellInfo {
+  /** Informs if the spell can be targeted on a thing. */
+  unsigned char cast_at_thing;
+  /** Shot model to be fired while casting. */
+  unsigned char shot_model;
+  /** Informs if caster is affected by the spell. */
+  unsigned char caster_affected;
+  /** Effect model created while casting. */
+  unsigned char cast_effect_model;
   unsigned short field_4;
-  unsigned short field_6;
+  /** If caster is affected by the spell, indicates sound sample to be played. */
+  unsigned short caster_affect_sound;
+  /** Range of area damage, if the spell causes area damage. */
   unsigned long area_range;
+  /** Amount of area damage points inflicted, if the spell causes area damage. */
   long area_damage;
+  /** Hit type used for area damage, controls which things are affected. */
   unsigned char area_hit_type;
+  /** Strength of the blow which pushes creatures on explosion. */
+  long area_blow;
 };
 
 struct SpellData {
