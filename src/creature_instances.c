@@ -262,13 +262,13 @@ long instf_creature_cast_spell(struct Thing *thing, long *param)
 {
     struct CreatureControl *cctrl;
     struct Thing *trthing;
-    struct SpellInfo *magicinf;
+    struct SpellInfo *spinfo;
     long mgc_idx;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     mgc_idx = *param;
-    magicinf = get_magic_info(mgc_idx);
-    if (magicinf->field_0)
+    spinfo = get_magic_info(mgc_idx);
+    if (spinfo->cast_at_thing)
     {
         trthing = thing_get(cctrl->field_DA);
         if (!thing_is_invalid(trthing))

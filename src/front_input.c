@@ -866,7 +866,7 @@ short get_creature_control_action_inputs(void)
       {
         if ( numkey == num_avail )
         {
-          set_players_packet_action(player, PckA_Unknown039, instnce,0,0,0);
+          set_players_packet_action(player, PckA_CtrlCrtrSetInstnc, instnce,0,0,0);
           break;
         }
         num_avail++;

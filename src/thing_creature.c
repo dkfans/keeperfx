@@ -785,7 +785,7 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
     ERRORLOG("Thing owned by player %d tried to cast invalid spell %ld",(int)caster->owner,spl_idx);
     return;
   }
-  creature_fire_shot(caster, target, spinfo->field_1, a4, i);
+  creature_fire_shot(caster, target, spinfo->shot_model, a4, i);
 }
 
 void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x, long trg_y)
@@ -810,29 +810,29 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
         cctrl->teleport_y = trg_y;
     }
     // Check if the spell can be fired as a shot
-    if (spinfo->field_1)
+    if (spinfo->shot_model)
     {
         if ((caster->alloc_flags & TAlF_IsControlled) != 0)
           i = 1;
         else
           i = 4;
-        creature_fire_shot(caster, 0, spinfo->field_1, a3, i);
+        creature_fire_shot(caster, NULL, spinfo->shot_model, a3, i);
     } else
     // Check if the spell can be self-casted
-    if (spinfo->field_2)
+    if (spinfo->caster_affected)
     {
-        i = (long)spinfo->field_6;
+        i = (long)spinfo->caster_affect_sound;
         if (i > 0)
           thing_play_sample(caster, i, 100, 0, 3, 0, 4, 256);
         apply_spell_effect_to_thing(caster, spl_idx, cctrl->explevel);
     }
     // Check if the spell has an effect associated
-    if (spinfo->cast_effect != 0)
+    if (spinfo->cast_effect_model != 0)
     {
-        efthing = create_effect(&caster->mappos, spinfo->cast_effect, caster->owner);
+        efthing = create_effect(&caster->mappos, spinfo->cast_effect_model, caster->owner);
         if (!thing_is_invalid(efthing))
         {
-          if (spinfo->cast_effect == 14)
+          if (spinfo->cast_effect_model == 14)
             efthing->byte_16 = 3;
         }
     }
@@ -843,7 +843,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
         // don't have to be limited as others... but let's limit it anyway
         k = compute_creature_attack_range(spinfo->area_range, crstat->luck, cctrl->explevel);
         i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, cctrl->explevel);
-        explosion_affecting_area(caster, &caster->mappos, k, i, 256, spinfo->area_hit_type);
+        explosion_affecting_area(caster, &caster->mappos, k, i, spinfo->area_blow, spinfo->area_hit_type);
     }
 }
 
