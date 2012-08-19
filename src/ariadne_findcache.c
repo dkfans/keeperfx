@@ -55,7 +55,7 @@ long triangle_find_cache_get(long pos_x, long pos_y)
     ntri = triangle_brute_find8_near(pos_x, pos_y);
     if ((ntri < 0) || (ntri > ix_Triangles))
     {
-        ERRORLOG("overflow");
+        ERRORLOG("triangles count overflow");
         ntri = -1;
     }
     find_cache[cache_y][cache_x] = ntri;

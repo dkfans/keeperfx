@@ -4,7 +4,7 @@
 /** @file ariadne_regions.h
  *     Header file for ariadne_regions.c.
  * @par Purpose:
- *     Regions array for Ariande system support functions.
+ *     Regions array for Ariadne system support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -32,7 +32,7 @@ extern "C" {
 #pragma pack(1)
 
 struct RegionT { // sizeof = 3
-  unsigned short field_0;
+  unsigned short num_triangles;
   unsigned char field_2;
 };
 

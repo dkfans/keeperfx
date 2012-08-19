@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file ariadne_tringls.c
- *     Triangles array for Ariande system support functions.
+ *     Triangles array for Ariadne system support functions.
  * @par Purpose:
  *     Functions to manage list of Triangles.
  * @par Comment:
