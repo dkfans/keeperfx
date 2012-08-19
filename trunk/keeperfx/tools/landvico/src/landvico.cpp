@@ -76,32 +76,12 @@ const int transparency_threshold=196;
 const int color_reduce_warning_threshold=512; //maximum quadratic euclidean distance in RGB color space that a palette color may have to a source color assigned to it before a warning is issued
 const unsigned int slow_reduction_warn_threshold=262144; //number of colors in source image times number of colors in target image that triggers the warning that the reduction may take a while
 
-void writeWord(FILE* f, int word)
-{
-  char data[2];
-  data[0]=(word&255);
-  data[1]=(word>>8)&255;
-  if (fwrite(data,2,1,f)!=1) {perror("Write error"); exit(1);}
-}
-
-void writeDWord(FILE* f, unsigned int dword)
-{
-  char data[4];
-  data[0]=(dword&255);
-  data[1]=(dword>>8)&255;
-  data[2]=(dword>>16)&255;
-  data[3]=(dword>>24)&255;
-  if (fwrite(data,4,1,f)!=1) {perror("Write error"); exit(1);}
-}
-
 void writeByte(FILE* f, int byte)
 {
   char data[1];
   data[0]=(byte&255);
   if (fwrite(data,1,1,f)!=1) {perror("Write error"); exit(1);}
 }
-
-
 
 struct png_data
 {
@@ -148,258 +128,258 @@ bool checkTransparent3(png_bytep, png_data&)
 //color_reduce_warning_threshold
 bool convert_rgb_to_indexed(png_data& img, bool hasAlpha)
 {
-  int maxColors=img.requested_colors;
+    int maxColors=img.requested_colors;
 
-  size_t palSize=sizeof(png_color)*256; //must reserve space for 256 entries here because write loop in main() expects it
-  img.palette=(png_colorp)malloc(palSize);
-  memset(img.palette,0,palSize); //must initialize whole palette because write loop in main() expects it
-  img.num_palette=0;
+    size_t palSize = sizeof(png_color)*256; //must reserve space for 256 entries here because write loop expects it
+    img.palette = (png_colorp)malloc(palSize);
+    memset(img.palette,0,palSize); //must initialize whole palette
+    img.num_palette = 0;
 
-  checkTransparent_t checkTrans=checkTransparent1;
-  int bytesPerPixel=4;
-  if (!hasAlpha)
-  {
-    bytesPerPixel=3;
-    checkTrans=checkTransparent3;
-  }
-
-  //first pass: gather all colors, make sure
-  //alpha channel (if present) contains only 0 and 255
-  //if an alpha channel is present, set all transparent pixels to RGBA (0,0,0,0)
-  //transparent pixels will already be mapped to palette entry 0, non-transparent
-  //pixels will not get a mapping yet (-1)
-  hash_map<unsigned int,signed int> mapQuadToPalEntry;
-  png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
-
-  for (int y=img.height-1; y>=0; --y)
-  {
-    png_bytep pixel=row_pointers[y];
-    for (unsigned i=0; i<img.width; ++i)
+    checkTransparent_t checkTrans=checkTransparent1;
+    int bytesPerPixel=4;
+    if (!hasAlpha)
     {
-      unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
-      bool trans=(*checkTrans)(pixel,img);
-
-      if (hasAlpha)
-      {
-        if (trans)
-        {
-          pixel[0]=0;
-          pixel[1]=0;
-          pixel[2]=0;
-          pixel[3]=0;
-          quad=0;
-        }
-        else pixel[3]=255;
-
-        quad+=(pixel[3]<<24);
-      }
-      else if (!trans) quad+=(255<<24);
-
-      if (trans)
-        mapQuadToPalEntry[quad]=0;
-      else
-        mapQuadToPalEntry[quad]=-1;
-
-      pixel+=bytesPerPixel;
+        bytesPerPixel=3;
+        checkTrans=checkTransparent3;
     }
-  }
 
-  //always allocate entry 0 to black and entry 1 to white because
-  //sometimes AND mask is interpreted as color index
-  img.num_palette=2;
-  img.palette[0].red=0;
-  img.palette[0].green=0;
-  img.palette[0].blue=0;
-  img.palette[1].red=255;
-  img.palette[1].green=255;
-  img.palette[1].blue=255;
+    //first pass: gather all colors, make sure
+    //alpha channel (if present) contains only 0 and 255
+    //if an alpha channel is present, set all transparent pixels to RGBA (0,0,0,0)
+    //transparent pixels will already be mapped to palette entry 0, non-transparent
+    //pixels will not get a mapping yet (-1)
+    hash_map<unsigned int,signed int> mapQuadToPalEntry;
+    png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
 
-  mapQuadToPalEntry[255<<24]=0; //map (non-transparent) black to entry 0
-  mapQuadToPalEntry[255+(255<<8)+(255<<16)+(255<<24)]=1; //map (non-transparent) white to entry 1
+    for (int y=img.height-1; y>=0; --y)
+    {
+        png_bytep pixel=row_pointers[y];
+        for (unsigned i=0; i<img.width; ++i)
+        {
+            unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
+            bool trans=(*checkTrans)(pixel,img);
 
-  if (mapQuadToPalEntry.size()*img.requested_colors>slow_reduction_warn_threshold)
-  {
-    fprintf(stdout,"Please be patient. My color reduction algorithm is really slow.\n");
-  }
+            if (hasAlpha)
+            {
+                if (trans)
+                {
+                    pixel[0]=0;
+                    pixel[1]=0;
+                    pixel[2]=0;
+                    pixel[3]=0;
+                    quad=0;
+                }
+                else pixel[3]=255;
 
-  //Now fill up the palette with colors from the image by repeatedly picking the
-  //color most different from the previously picked colors and adding this to the
-  //palette. This is done to make sure that in case there are more image colors than
-  //palette entries, palette entries are not wasted on similar colors.
-  while(img.num_palette<maxColors)
-  {
-    unsigned int mostDifferentQuad=0;
-    int mdqMinDist=-1; //smallest distance to an entry in the palette for mostDifferentQuad
-    int mdqDistSum=-1; //sum over all distances to palette entries for mostDifferentQuad
+                quad+=(pixel[3]<<24);
+            }
+            else if (!trans) quad+=(255<<24);
+
+            if (trans)
+                mapQuadToPalEntry[quad]=0;
+            else
+                mapQuadToPalEntry[quad]=-1;
+
+            pixel+=bytesPerPixel;
+        }
+    }
+
+    //always allocate entry 0 to black and entry 1 to white because
+    //sometimes AND mask is interpreted as color index
+    img.num_palette=2;
+    img.palette[0].red=0;
+    img.palette[0].green=0;
+    img.palette[0].blue=0;
+    img.palette[1].red=255;
+    img.palette[1].green=255;
+    img.palette[1].blue=255;
+
+    mapQuadToPalEntry[255<<24]=0; //map (non-transparent) black to entry 0
+    mapQuadToPalEntry[255+(255<<8)+(255<<16)+(255<<24)]=1; //map (non-transparent) white to entry 1
+
+    if (mapQuadToPalEntry.size()*img.requested_colors>slow_reduction_warn_threshold)
+    {
+        fprintf(stdout,"Please be patient. My color reduction algorithm is really slow.\n");
+    }
+
+    //Now fill up the palette with colors from the image by repeatedly picking the
+    //color most different from the previously picked colors and adding this to the
+    //palette. This is done to make sure that in case there are more image colors than
+    //palette entries, palette entries are not wasted on similar colors.
+    while(img.num_palette < maxColors)
+    {
+        unsigned int mostDifferentQuad=0;
+        int mdqMinDist=-1; //smallest distance to an entry in the palette for mostDifferentQuad
+        int mdqDistSum=-1; //sum over all distances to palette entries for mostDifferentQuad
+        hash_map<unsigned int,signed int>::iterator stop=mapQuadToPalEntry.end();
+        hash_map<unsigned int,signed int>::iterator iter=mapQuadToPalEntry.begin();
+        while(iter!=stop)
+        {
+            hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
+            if (mapping.second<0)
+            {
+                unsigned int quad=mapping.first;
+                int red=quad&255;  //must be signed
+                int green=(quad>>8)&255;
+                int blue=(quad>>16)&255;
+                int distSum=0;
+                int minDist=INT_MAX;
+                for (int i=0; i<img.num_palette; ++i)
+                {
+                    int dist=(red-img.palette[i].red);
+                    dist*=dist;
+                    int temp=(green-img.palette[i].green);
+                    dist+=temp*temp;
+                    temp=(blue-img.palette[i].blue);
+                    dist+=temp*temp;
+                    if (dist<minDist) minDist=dist;
+                    distSum+=dist;
+                }
+
+                if (minDist>mdqMinDist || (minDist==mdqMinDist && distSum>mdqDistSum))
+                {
+                    mostDifferentQuad=quad;
+                    mdqMinDist=minDist;
+                    mdqDistSum=distSum;
+                }
+            }
+        }
+
+        if (mdqMinDist>0) //if we have found a most different quad, add it to the palette
+        {                  //and map it to the new palette entry
+            int palentry=img.num_palette;
+            img.palette[palentry].red=mostDifferentQuad&255;
+            img.palette[palentry].green=(mostDifferentQuad>>8)&255;
+            img.palette[palentry].blue=(mostDifferentQuad>>16)&255;
+            mapQuadToPalEntry[mostDifferentQuad]=palentry;
+            ++img.num_palette;
+        }
+        else break; //otherwise (i.e. all quads are mapped) the palette is finished
+    }
+
+    //Now map all yet unmapped colors to the most appropriate palette entry
     hash_map<unsigned int,signed int>::iterator stop=mapQuadToPalEntry.end();
     hash_map<unsigned int,signed int>::iterator iter=mapQuadToPalEntry.begin();
     while(iter!=stop)
     {
-      hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
-      if (mapping.second<0)
-      {
-        unsigned int quad=mapping.first;
-        int red=quad&255;  //must be signed
-        int green=(quad>>8)&255;
-        int blue=(quad>>16)&255;
-        int distSum=0;
-        int minDist=INT_MAX;
-        for (int i=0; i<img.num_palette; ++i)
+        hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
+        if (mapping.second<0)
         {
-          int dist=(red-img.palette[i].red);
-          dist*=dist;
-          int temp=(green-img.palette[i].green);
-          dist+=temp*temp;
-          temp=(blue-img.palette[i].blue);
-          dist+=temp*temp;
-          if (dist<minDist) minDist=dist;
-          distSum+=dist;
-        }
+            unsigned int quad=mapping.first;
+            int red=quad&255;  //must be signed
+            int green=(quad>>8)&255;
+            int blue=(quad>>16)&255;
+            int minDist=INT_MAX;
+            int bestIndex=0;
+            for (int i=0; i<img.num_palette; ++i)
+            {
+                int dist=(red-img.palette[i].red);
+                dist*=dist;
+                int temp=(green-img.palette[i].green);
+                dist+=temp*temp;
+                temp=(blue-img.palette[i].blue);
+                dist+=temp*temp;
+                if (dist<minDist) { minDist=dist; bestIndex=i; }
+            }
 
-        if (minDist>mdqMinDist || (minDist==mdqMinDist && distSum>mdqDistSum))
-        {
-          mostDifferentQuad=quad;
-          mdqMinDist=minDist;
-          mdqDistSum=distSum;
+            mapping.second=bestIndex;
         }
-      }
     }
 
-    if (mdqMinDist>0) //if we have found a most different quad, add it to the palette
-    {                  //and map it to the new palette entry
-      int palentry=img.num_palette;
-      img.palette[palentry].red=mostDifferentQuad&255;
-      img.palette[palentry].green=(mostDifferentQuad>>8)&255;
-      img.palette[palentry].blue=(mostDifferentQuad>>16)&255;
-      mapQuadToPalEntry[mostDifferentQuad]=palentry;
-      ++img.num_palette;
-    }
-    else break; //otherwise (i.e. all quads are mapped) the palette is finished
-  }
-
-  //Now map all yet unmapped colors to the most appropriate palette entry
-  hash_map<unsigned int,signed int>::iterator stop=mapQuadToPalEntry.end();
-  hash_map<unsigned int,signed int>::iterator iter=mapQuadToPalEntry.begin();
-  while(iter!=stop)
-  {
-    hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
-    if (mapping.second<0)
+    //Adjust all palette entries (except for 0 and 1) to be the mean of all
+    //colors mapped to it
+    for (int i=2; i<img.num_palette; ++i)
     {
-      unsigned int quad=mapping.first;
-      int red=quad&255;  //must be signed
-      int green=(quad>>8)&255;
-      int blue=(quad>>16)&255;
-      int minDist=INT_MAX;
-      int bestIndex=0;
-      for (int i=0; i<img.num_palette; ++i)
-      {
-        int dist=(red-img.palette[i].red);
-        dist*=dist;
-        int temp=(green-img.palette[i].green);
-        dist+=temp*temp;
-        temp=(blue-img.palette[i].blue);
-        dist+=temp*temp;
-        if (dist<minDist) { minDist=dist; bestIndex=i; }
-      }
+        int red=0;
+        int green=0;
+        int blue=0;
+        int numMappings=0;
+        hash_map<unsigned int,signed int>::iterator stop=mapQuadToPalEntry.end();
+        hash_map<unsigned int,signed int>::iterator iter=mapQuadToPalEntry.begin();
+        while(iter!=stop)
+        {
+            hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
+            if (mapping.second==i)
+            {
+                unsigned int quad=mapping.first;
+                red+=quad&255;
+                green+=(quad>>8)&255;
+                blue+=(quad>>16)&255;
+                ++numMappings;
+            }
+        }
 
-      mapping.second=bestIndex;
+        if (numMappings>0)
+        {
+            img.palette[i].red=(red+red+numMappings)/(numMappings+numMappings);
+            img.palette[i].green=(green+green+numMappings)/(numMappings+numMappings);
+            img.palette[i].blue=(blue+blue+numMappings)/(numMappings+numMappings);
+        }
     }
-  }
 
-  //Adjust all palette entries (except for 0 and 1) to be the mean of all
-  //colors mapped to it
-  for (int i=2; i<img.num_palette; ++i)
-  {
-    int red=0;
-    int green=0;
-    int blue=0;
-    int numMappings=0;
-    hash_map<unsigned int,signed int>::iterator stop=mapQuadToPalEntry.end();
-    hash_map<unsigned int,signed int>::iterator iter=mapQuadToPalEntry.begin();
+    //Now determine if a non-transparent source color got mapped to a target color that
+    //has a distance that exceeds the threshold
+    bool tooManyColors=false;
+    stop=mapQuadToPalEntry.end();
+    iter=mapQuadToPalEntry.begin();
     while(iter!=stop)
     {
-      hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
-      if (mapping.second==i)
-      {
+        hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
         unsigned int quad=mapping.first;
-        red+=quad&255;
-        green+=(quad>>8)&255;
-        blue+=(quad>>16)&255;
-        ++numMappings;
-      }
+        if ((quad>>24)!=0) //if color is not transparent
+        {
+            int red=quad&255;
+            int green=(quad>>8)&255;
+            int blue=(quad>>16)&255;
+            int i=mapping.second;
+            int dist=(red-img.palette[i].red);
+            dist*=dist;
+            int temp=(green-img.palette[i].green);
+            dist+=temp*temp;
+            temp=(blue-img.palette[i].blue);
+            dist+=temp*temp;
+            if (dist>color_reduce_warning_threshold) tooManyColors=true;
+        }
     }
 
-    if (numMappings>0)
+
+    int transLineLen=andMaskLineLen(img);
+    int transLinePad=transLineLen - ((img.width+7)/8);
+    img.transMap=(png_bytepp)malloc(img.height*sizeof(png_bytep));
+
+    //second pass: convert RGB to palette entries
+    for (int y=img.height-1; y>=0; --y)
     {
-      img.palette[i].red=(red+red+numMappings)/(numMappings+numMappings);
-      img.palette[i].green=(green+green+numMappings)/(numMappings+numMappings);
-      img.palette[i].blue=(blue+blue+numMappings)/(numMappings+numMappings);
-    }
-  }
+        png_bytep row=row_pointers[y];
+        png_bytep pixel=row;
+        int count8=0;
+        int transbyte=0;
+        png_bytep transPtr=img.transMap[y]=(png_bytep)malloc(transLineLen);
 
-  //Now determine if a non-transparent source color got mapped to a target color that
-  //has a distance that exceeds the threshold
-  bool tooManyColors=false;
-  stop=mapQuadToPalEntry.end();
-  iter=mapQuadToPalEntry.begin();
-  while(iter!=stop)
-  {
-    hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
-    unsigned int quad=mapping.first;
-    if ((quad>>24)!=0) //if color is not transparent
-    {
-      int red=quad&255;
-      int green=(quad>>8)&255;
-      int blue=(quad>>16)&255;
-      int i=mapping.second;
-      int dist=(red-img.palette[i].red);
-      dist*=dist;
-      int temp=(green-img.palette[i].green);
-      dist+=temp*temp;
-      temp=(blue-img.palette[i].blue);
-      dist+=temp*temp;
-      if (dist>color_reduce_warning_threshold) tooManyColors=true;
-    }
-  }
+        for (unsigned i=0; i<img.width; ++i)
+        {
+            bool trans=((*checkTrans)(pixel,img));
+            unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
+            if (!trans) quad+=(255<<24); //NOTE: alpha channel has already been set to 255 for non-transparent pixels, so this is correct even for images with alpha channel
 
+            if (trans) ++transbyte;
+            if (++count8==8)
+            {
+                *transPtr++ = transbyte;
+                count8=0;
+                transbyte=0;
+            }
+            transbyte+=transbyte; //shift left 1
 
-  int transLineLen=andMaskLineLen(img);
-  int transLinePad=transLineLen - ((img.width+7)/8);
-  img.transMap=(png_bytepp)malloc(img.height*sizeof(png_bytep));
+            int palentry=mapQuadToPalEntry[quad];
+            row[i]=palentry;
+            pixel+=bytesPerPixel;
+        }
 
-  //second pass: convert RGB to palette entries
-  for (int y=img.height-1; y>=0; --y)
-  {
-    png_bytep row=row_pointers[y];
-    png_bytep pixel=row;
-    int count8=0;
-    int transbyte=0;
-    png_bytep transPtr=img.transMap[y]=(png_bytep)malloc(transLineLen);
-
-    for (unsigned i=0; i<img.width; ++i)
-    {
-      bool trans=((*checkTrans)(pixel,img));
-      unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
-      if (!trans) quad+=(255<<24); //NOTE: alpha channel has already been set to 255 for non-transparent pixels, so this is correct even for images with alpha channel
-
-      if (trans) ++transbyte;
-      if (++count8==8)
-      {
-        *transPtr++ = transbyte;
-        count8=0;
-        transbyte=0;
-      }
-      transbyte+=transbyte; //shift left 1
-
-      int palentry=mapQuadToPalEntry[quad];
-      row[i]=palentry;
-      pixel+=bytesPerPixel;
+        for(int i=0; i<transLinePad; ++i) *transPtr++ = 0;
     }
 
-    for(int i=0; i<transLinePad; ++i) *transPtr++ = 0;
-  }
-
-  return tooManyColors;
+    return tooManyColors;
 }
 
 //packs a line of width pixels (1 byte per pixel) in row, with 8/nbits pixels packed
@@ -697,9 +677,9 @@ short save_raw_pal_files(png_data * img, const char *fname_raw, const char *fnam
         for (i = 0; i < img->requested_colors; i++)
         {
           char col[3];
-          col[2]=img->palette[i].red;
-          col[1]=img->palette[i].green;
-          col[0]=img->palette[i].blue;
+          col[2] = (img->palette[i].red >> 2);
+          col[1] = (img->palette[i].green >> 2);
+          col[0] = (img->palette[i].blue >> 2);
           if (fwrite(col,3,1,palfile) != 1) {
               perror("Write error");
               return ERR_FILE_WRITE;
@@ -719,7 +699,7 @@ short save_raw_pal_files(png_data * img, const char *fname_raw, const char *fnam
         for (y = img->height-1; y >= 0; y--)
         {
             png_bytep row=row_pointers[y];
-            int newLength=pack(row,img->width,img->col_bits);
+            int newLength = pack(row,img->width,img->col_bits);
             if (fwrite(row,newLength,1,rawfile)!=1) {perror("Write error"); exit(1);}
             for(int i=0; i<xorMaskLineLen(*img)-newLength; ++i) writeByte(rawfile,0);
         }

@@ -760,6 +760,7 @@ ThingModel get_room_create_creature_model(RoomKind room_kind)
 TbBool enemies_may_work_in_room(RoomKind rkind)
 {
     //TODO CONFIG Place this in room config data
+    // Note that sacrificing a creature or putting it on portal shouldn't be treated as giving it work
     return (rkind == RoK_PRISON) || (rkind == RoK_TORTURE);
 }
 /******************************************************************************/

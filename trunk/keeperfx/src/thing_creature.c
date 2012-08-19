@@ -437,7 +437,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             cctrl->affected_by_spells |= CCSpl_Freeze;
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
-                cctrl->field_AD |= 0x80;
+                cctrl->spell_flags |= 0x8000;
                 thing->movement_flags &= ~TMvF_Flying;
             }
             creature_set_speed(thing, 0);
@@ -566,7 +566,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
           magstat = &game.magic_stats[PwrK_DISEASE];
           cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
           n = 0;
-          cctrl->field_AD |= 0x01;
+          cctrl->spell_flags |= 0x0100;
           cctrl->field_B6 = thing->owner;
           cctrl->field_2EB = game.play_gameturn;
           for (k=0; k < 3; k++)
@@ -602,7 +602,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         {
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
             cctrl->field_282 = 10;
-            cctrl->field_AD |= 0x02;
+            cctrl->spell_flags |= 0x0200;
             cctrl->casted_spells[i].spkind = spell_idx;
             magstat = &game.magic_stats[PwrK_CHICKEN];
             cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
@@ -1430,7 +1430,7 @@ void delete_effects_attached_to_creature(struct Thing *crtng)
     }
     if ((cctrl->spell_flags & CSAfF_Armour) != 0)
     {
-        set_flag_byte(&cctrl->spell_flags, CSAfF_Armour, false);
+        cctrl->spell_flags &= ~CSAfF_Armour;
         for (i=0; i < 3; i++)
         {
             k = cctrl->field_2B3[i];
@@ -1442,9 +1442,9 @@ void delete_effects_attached_to_creature(struct Thing *crtng)
             }
         }
     }
-    if ((cctrl->field_AD & 0x01) != 0)
+    if ((cctrl->spell_flags & 0x0100) != 0)
     {
-        cctrl->field_AD &= 0xFE;
+        cctrl->spell_flags &= ~0x0100;
         for (i=0; i < 3; i++)
         {
             k = cctrl->field_2B9[i];
@@ -1774,7 +1774,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
   cctrl->explevel = nlvl;
   max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
   cctrl->max_health = max_health;
-  if ((cctrl->field_AD & 0x02) != 0)
+  if ((cctrl->spell_flags & 0x0200) != 0)
     thing->field_46 = 300;
   else
     thing->field_46 = saturate_set_signed( 300 + (300*(unsigned long)(cctrl->explevel)) / 20, 16);
@@ -2287,7 +2287,7 @@ TbBool creature_increase_level(struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
     {
-      cctrl->field_AD |= 0x40;
+      cctrl->spell_flags |= 0x4000;
       return true;
     }
   }
@@ -2838,7 +2838,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If creature wants salary, let it go get the gold
-    if ( cctrl->field_3D[11] )
+    if ( cctrl->field_41[7] )
     {
         // If already taking salary, then don't do anything
         if (creature_is_taking_salary_activity(thing))
@@ -3220,9 +3220,9 @@ long update_creature_levels(struct Thing *thing)
     struct Thing *newtng;
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->field_AD & 0x40) == 0)
+    if ((cctrl->spell_flags & 0x4000) == 0)
         return 0;
-    cctrl->field_AD &= ~0x40;
+    cctrl->spell_flags &= ~0x4000;
     remove_creature_score_from_owner(thing);
     // If a creature is not on highest level, just update the level
     if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
@@ -3397,7 +3397,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->pos_BB.z.val = 0;
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown40,false);
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown80,false);
-    set_flag_byte(&cctrl->field_AD,0x04,false);
+    cctrl->spell_flags &= ~0x0400;
     process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;

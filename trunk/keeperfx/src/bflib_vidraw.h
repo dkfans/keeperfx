@@ -217,6 +217,9 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite);
 void SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6);
+
+TbResult LbHugeSpriteDraw(const unsigned char *sp, long * sp_y_offset, long sp_len,
+    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift);
 /*
 int __fastcall LbDrawBoxCoords(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour);
 void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour);

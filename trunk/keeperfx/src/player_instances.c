@@ -215,21 +215,21 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   {
   case TCls_Creature:
       if (!external_set_thing_state(dsttng, CrSt_InPowerHand))
-        return 0;
+          return 0;
       cctrl = creature_control_get_from_thing(dsttng);
-      if (cctrl->field_AD & 0x02)
-        i = convert_td_iso(122);
+      if (cctrl->spell_flags & 0x0200)
+          i = convert_td_iso(122);
       else
-        i = get_creature_anim(dsttng, 9);
+          i = get_creature_anim(dsttng, 9);
       set_thing_draw(dsttng, i, 256, -1, -1, 0, 2);
       break;
   case TCls_Object:
       dsttng = process_object_being_picked_up(dsttng, grabtng->owner);
       if (thing_is_invalid(dsttng))
       {
-        player->field_440 = 0;
-        player->field_43E = 0;
-        return 0;
+          player->field_440 = 0;
+          player->field_43E = 0;
+          return 0;
       }
       break;
   }

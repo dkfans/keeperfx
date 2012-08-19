@@ -1938,3 +1938,5 @@
  0001:000BC890       change_room_map_element_ownership
  0001:0006F200       copy_block_with_cube_groups
  0001:000B1BE0       do_unprettying
+ 0001:00019140       person_get_somewhere_adjacent_in_temple
+ 0001:000CA790       setup_person_move_to_coord
