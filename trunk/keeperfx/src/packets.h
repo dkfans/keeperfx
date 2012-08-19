@@ -66,7 +66,7 @@ enum TbPacketAction {
         PckA_SetPlyrState,
         PckA_Unknown037,
         PckA_Unknown038,
-        PckA_Unknown039,
+        PckA_CtrlCrtrSetInstnc,
         PckA_Unknown040,//40
         PckA_HoldAudience,
         PckA_Unknown042,

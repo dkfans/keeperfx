@@ -39,6 +39,7 @@ extern "C" {
 /******************************************************************************/
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
+    long gerne;
     long name_stridx;
 };
 
