@@ -337,9 +337,8 @@ long navigation_rule_normal(long treeA, long treeB)
 
 long init_navigation(void)
 {
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/4)
     IanMap = (unsigned char *)&game.navigation_map;
-    return _DK_init_navigation();
+    //return _DK_init_navigation();
     init_navigation_map();
     triangulate_map(IanMap);
     nav_rulesA2B = navigation_rule_normal;
@@ -351,8 +350,7 @@ long update_navigation_triangulation(long start_x, long start_y, long end_x, lon
 {
     long sx,sy,ex,ey;
     long x,y;
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (3/4)
-    return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
+    //return _DK_update_navigation_triangulation(start_x, start_y, end_x, end_y);
     if (!nav_map_initialised)
         init_navigation_map();
     // Prepare parameter bounds
@@ -591,7 +589,8 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     long nskipped;
     long i,k,n;
     NAVIDBG(19,"Starting");
-    //return _DK_triangle_route_do_fwd(ttriA, ttriB, route, routecost);
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/4)
+    return _DK_triangle_route_do_fwd(ttriA, ttriB, route, routecost);
     tags_init();
     if ((ix_Border < 0) || (ix_Border >= BORDER_LENGTH))
     {
@@ -673,7 +672,8 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     long nskipped;
     long i,k,n;
     NAVIDBG(19,"Starting");
-    //return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/4)
+    return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
     tags_init();
     if ((ix_Border < 0) || (ix_Border >= BORDER_LENGTH))
     {
@@ -754,16 +754,16 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     long par_fwd,par_bak;
     long tx,ty;
     long i;
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/4)
-    // We need to make testing system for routing, then re-enable rewritten code
+    // We need to make testing system for routing, then fix the rewritten code
     // and compare results with the original code.
-    return _DK_ma_triangle_route(ttriA, ttriB, routecost);
+    //return _DK_ma_triangle_route(ttriA, ttriB, routecost);
 
     // Forward route
     NAVIDBG(19,"Making forward route");
     len_fwd = triangle_route_do_fwd(ttriA, ttriB, route_fwd, routecost);
     if (len_fwd == -1)
     {
+        NAVIDBG(19,"No forward route");
         return -1;
     }
     route_to_path(tree_Ax8, tree_Ay8, tree_Bx8, tree_By8, route_fwd, len_fwd, &fwd_path, &par_fwd);
@@ -778,6 +778,7 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     len_bak = triangle_route_do_bak(ttriB, ttriA, route_bak, routecost);
     if (len_bak == -1)
     {
+        NAVIDBG(19,"No backward route");
         return -1;
     }
     route_to_path(tree_Ax8, tree_Ay8, tree_Bx8, tree_By8, route_bak, len_bak, &bak_path, &par_bak);
@@ -789,7 +790,7 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     tree_By8 = ty;
     // Select a route
     NAVIDBG(19,"Selecting route");
-    if (par_fwd < par_bak) //TODO PATHFINDING originally the condition was different - verify
+    if (par_fwd < par_fwd) // //TODO PATHFINDING maybe condition should be (par_fwd < par_bak) ?
     {
         for (i=0; i <= sizeof(tree_route)/sizeof(tree_route[0]); i++)
         {
@@ -811,7 +812,7 @@ void edgelen_init(void)
     _DK_edgelen_init();
 }
 
-TbBool ariadne_creature_reached_position(struct Thing *thing, struct Coord3d *pos)
+TbBool ariadne_creature_reached_position(const struct Thing *thing, const struct Coord3d *pos)
 {
     if (thing->mappos.x.val != pos->x.val)
         return false;
@@ -1242,7 +1243,7 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
     return ariadne_initialise_creature_route(thing, &pos, arid->field_26, arid->field_1E);
 }
 
-TbBool ariadne_creature_reached_waypoint(struct Thing *thing, struct Ariadne *arid)
+TbBool ariadne_creature_reached_waypoint(const struct Thing *thing, const struct Ariadne *arid)
 {
     return ariadne_creature_reached_position(thing, &arid->current_waypoint_pos);
 }
@@ -1308,10 +1309,10 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
 {
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
-    long result;
-    long i;
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (4/4)
-    return _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
+    AriadneReturn result;
+    AriadneReturn aret;
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (3/4)
+    result = _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5); return result;
 
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
@@ -1320,22 +1321,22 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
      || (finalpos->y.val != arid->endpos.y.val)
      || (arid->field_26 != a4))
     {
-        i = ariadne_initialise_creature_route(thing, finalpos, a4, a5);
-        if (i != AridRet_OK)
-            return 2;
+        aret = ariadne_initialise_creature_route(thing, finalpos, a4, a5);
+        if (aret != AridRet_OK)
+            return AridRet_Val2;
         arid->field_26 = a4;
         if (arid->field_22)
         {
-          nextpos->x.val = arid->pos_12.x.val;
-          nextpos->y.val = arid->pos_12.y.val;
-          nextpos->z.val = arid->pos_12.z.val;
-          return 0;
+            nextpos->x.val = arid->pos_12.x.val;
+            nextpos->y.val = arid->pos_12.y.val;
+            nextpos->z.val = arid->pos_12.z.val;
+            return AridRet_OK;
         }
     }
     if (ariadne_creature_reached_waypoint(thing,arid))
     {
-        i = ariadne_creature_get_next_waypoint(thing,arid);
-        if (i == AridRet_Val1)
+        aret = ariadne_creature_get_next_waypoint(thing,arid);
+        if (aret == AridRet_Val1)
         {
             arid->endpos.x.val = 0;
             arid->endpos.y.val = 0;
@@ -1343,15 +1344,18 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             nextpos->x.val = thing->mappos.x.val;
             nextpos->y.val = thing->mappos.y.val;
             nextpos->z.val = thing->mappos.z.val;
-            return 1;
+            return AridRet_Val1;
         } else
-        if (i == AridRet_OK)
+        if (aret == AridRet_OK)
         {
             ariadne_init_movement_to_current_waypoint(thing, arid);
         } else
         {
-            if (ariadne_initialise_creature_route(thing, finalpos, a4, a5) != AridRet_OK)
+            aret = ariadne_initialise_creature_route(thing, finalpos, a4, a5);
+            if (aret != AridRet_OK)
+            {
               return AridRet_Val3;
+            }
         }
     }
     switch (arid->field_21)
@@ -2303,35 +2307,37 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     {
         one_tile = 0;
         not_whole_map = 0;
-        end_x = 256;
         start_x = 0;
+        end_x = 256;
         start_y = 0;
         end_y = 256;
     }
     triangulation_init();
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (4/4)
+    _DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
     if ( not_whole_map )
     {
-      r &= border_clip_horizontal(imap, start_x, end_x, start_y, 0);
-      r &= border_clip_horizontal(imap, start_x, end_x, end_y, -1);
-      r &= border_clip_vertical(imap, start_x, -1, start_y, end_y);
-      r &= border_clip_vertical(imap, end_x, 0, start_y, end_y);
-      r &= border_lock(start_x, start_y, end_x, end_y);
-      if ( !one_tile )
-        border_internal_points_delete(start_x, start_y, end_x, end_y);
+        r &= border_clip_horizontal(imap, start_x, end_x, start_y, 0);
+        r &= border_clip_horizontal(imap, start_x, end_x, end_y, -1);
+        r &= border_clip_vertical(imap, start_x, -1, start_y, end_y);
+        r &= border_clip_vertical(imap, end_x, 0, start_y, end_y);
+        r &= border_lock(start_x, start_y, end_x, end_y);
+        if ( !one_tile )
+            border_internal_points_delete(start_x, start_y, end_x, end_y);
     } else
     {
-      triangulation_initxy(-256, -256, 512, 512);
-      tri_set_rectangle(start_x, start_y, end_x, end_y, 0);
+        triangulation_initxy(-256, -256, 512, 512);
+        tri_set_rectangle(start_x, start_y, end_x, end_y, 0);
     }
     colour = -1;
     if ( one_tile )
     {
         colour = imap[navmap_tile_number(start_x,start_y)];
     } else
-    if ((not_whole_map) && (end_x - start_x <= 3) && (end_y - start_y <= 3))
-    {
-        colour = uniform_area_colour(imap, start_x, start_y, end_x, end_y);
-    }
+        if ((not_whole_map) && (end_x - start_x <= 3) && (end_y - start_y <= 3))
+        {
+            colour = uniform_area_colour(imap, start_x, start_y, end_x, end_y);
+        }
 
     if (colour == -1)
     {
@@ -2346,11 +2352,11 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
         }
         while ( fringe_get_rectangle(&rect_sx, &rect_sy, &rect_ex, &rect_ey, &ccolour) )
         {
-          if ((ccolour) || (not_whole_map))
-          {
-              tri_set_rectangle(rect_sx, rect_sy, rect_ex, rect_ey, ccolour);
-              delaunay_seeded(rect_sx, rect_sy, rect_ex, rect_ey);
-          }
+            if ((ccolour) || (not_whole_map))
+            {
+                tri_set_rectangle(rect_sx, rect_sy, rect_ex, rect_ey, ccolour);
+                delaunay_seeded(rect_sx, rect_sy, rect_ex, rect_ey);
+            }
         }
     } else
     {
@@ -2358,7 +2364,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     }
     delaunay_seeded(start_x, start_y, end_x, end_y);
     if ( not_whole_map )
-      border_unlock(start_x, start_y, end_x, end_y);
+        border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();
     return r;
 }

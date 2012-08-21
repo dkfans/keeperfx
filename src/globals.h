@@ -252,6 +252,7 @@ typedef short MapSlabCoord;
 typedef unsigned long SubtlCodedCoords;
 typedef unsigned long SlabCodedCoords;
 typedef unsigned char PlayerFlags;
+typedef short MoveSpeed;
 
 #pragma pack()
 
