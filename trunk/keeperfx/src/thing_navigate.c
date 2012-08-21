@@ -329,7 +329,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long a2)
     return _DK_creature_turn_to_face_angle(thing, a2);
 }
 
-long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short speed, long a4, long a5, unsigned char backward)
+long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, long a5, TbBool backward)
 {
     struct CreatureControl *cctrl;
     struct Coord3d nextpos;
@@ -391,9 +391,9 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, shor
     return 0;
 }
 
-long creature_move_to(struct Thing *thing, struct Coord3d *pos, short speed, unsigned char a4, unsigned char a5)
+long creature_move_to(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, unsigned char a4, TbBool backward)
 {
-    return creature_move_to_using_gates(thing, pos, speed, -2, a4, a5);
+    return creature_move_to_using_gates(thing, pos, speed, -2, a4, backward);
 }
 
 TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, long walk_speed)
