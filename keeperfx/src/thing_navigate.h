@@ -48,8 +48,8 @@ TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d
 TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
 
-long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short a3, long a4, long a5, unsigned char a6);
-long creature_move_to(struct Thing *thing, struct Coord3d *pos, short a3, unsigned char a4, unsigned char a5);
+long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, long a5, TbBool backward);
+long creature_move_to(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, unsigned char a4, TbBool backward);
 void move_thing_in_map(struct Thing *thing, const struct Coord3d *pos);
 short move_to_position(struct Thing *thing);
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
