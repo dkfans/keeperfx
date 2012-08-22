@@ -239,6 +239,11 @@ void update_engine_settings(struct PlayerInfo *player)
     thing_pointed_at = NULL;
 }
 
+/**
+ * Sets the reserved amount of poly pool entries.
+ * Entries which are reserved won't be filled by standard rendering items, even if the queue is full.
+ * @param nitems
+ */
 void poly_pool_end_reserve(int nitems)
 {
     poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BasicUnk13)-1)];

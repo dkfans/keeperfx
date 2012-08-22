@@ -57,7 +57,6 @@ DLLIMPORT long _DK_force_complete_current_manufacturing(long plyr_idx);
 DLLIMPORT void _DK_apply_spell_effect_to_players_creatures(long a1, long a2, long a3);
 DLLIMPORT void _DK_kill_all_players_chickens(long plyr_idx);
 DLLIMPORT long _DK_person_get_somewhere_adjacent_in_temple(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-DLLIMPORT short _DK_setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -79,11 +78,6 @@ long person_get_somewhere_adjacent_in_temple(struct Thing *thing, struct Room *r
     return _DK_person_get_somewhere_adjacent_in_temple(thing, room, pos);
 }
 
-short setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a3)
-{
-    return _DK_setup_person_move_to_coord(thing, pos, a3);
-}
-
 TbBool setup_temple_move(struct Thing *thing, struct Room *room)
 {
     struct Coord3d pos;
@@ -92,7 +86,7 @@ TbBool setup_temple_move(struct Thing *thing, struct Room *room)
         return false;
     }
     if (!setup_person_move_to_coord(thing, &pos, 0)) {
-        ERRORLOG("Cannot move in temple.");
+        ERRORLOG("Cannot move %s in %s room", thing_model_name(thing),room_code_name(room->kind));
         return false;
     }
     thing->continue_state = CrSt_PrayingInTemple;

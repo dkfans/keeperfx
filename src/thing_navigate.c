@@ -50,6 +50,7 @@ DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *th
 DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2);
 DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT short _DK_setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -62,6 +63,28 @@ TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d
     ret = ariadne_initialise_creature_route(crtng, pos, get_creature_speed(crtng), storage);
     SYNCDBG(18,"Ariadne returned %d",(int)ret);
     return (ret == AridRet_OK);
+}
+
+short setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a3)
+{
+    struct CreatureControl *cctrl;
+    struct Coord3d locpos;
+    //return _DK_setup_person_move_to_coord(thing, pos, a3);
+    cctrl = creature_control_get_from_thing(thing);
+    locpos.x.val = subtile_coord_center(pos->x.stl.num);
+    locpos.y.val = subtile_coord_center(pos->y.stl.num);
+    locpos.z.val = thing->mappos.z.val;
+    locpos.z.val = get_thing_height_at(thing, &locpos);
+    if ( thing_in_wall_at(thing, &locpos) || !creature_can_navigate_to_with_storage(thing, &locpos, a3) )
+    {
+        return 0;
+    }
+    cctrl->field_88 = a3;
+    internal_set_thing_state(thing, CrSt_MoveToPosition);
+    cctrl->moveto_pos.x.val = locpos.x.val;
+    cctrl->moveto_pos.y.val = locpos.y.val;
+    cctrl->moveto_pos.z.val = locpos.z.val;
+    return 1;
 }
 
 /**
@@ -88,7 +111,7 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if ((thing->model == 49) && creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0))
+        if (object_is_hero_gate(thing) && creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0))
             return thing;
         // Per thing code ends
         k++;
@@ -350,7 +373,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         i = (thing->field_52 + LbFPMath_PI);
         thing->field_52 = i & LbFPMath_AngleMask;
     }
-    if ((follow_result == AridRet_Val3) || (follow_result == AridRet_Val2))
+    if ((follow_result == AridRet_PartOK) || (follow_result == AridRet_Val2))
     {
         creature_set_speed(thing, 0);
         return -1;
