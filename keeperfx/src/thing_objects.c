@@ -510,6 +510,11 @@ TbBool thing_is_spellbook(const struct Thing *thing)
     return (book_thing_to_magic(thing) > 0);
 }
 
+TbBool object_is_hero_gate(const struct Thing *thing)
+{
+  return (thing->model == 49);
+}
+
 TbBool object_is_mature_food(const struct Thing *thing)
 {
   return (thing->model == 10);

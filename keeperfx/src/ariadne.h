@@ -42,13 +42,16 @@ enum AriadneReturnValues {
     AridRet_OK    = 0,
     AridRet_Val1,
     AridRet_Val2,
-    AridRet_Val3,
+    AridRet_PartOK,
 };
 
 struct Ariadne { // sizeof = 102
+    /** Position where the journey stated. */
     struct Coord3d startpos;
+    /** Final position where we're heading. */
     struct Coord3d endpos;
-  struct Coord3d current_waypoint_pos;
+    /** Position of the last reached waypoint. */
+    struct Coord3d current_waypoint_pos;
   struct Coord3d pos_12;
   unsigned char field_18[6];
   unsigned char field_1E;
@@ -58,9 +61,13 @@ struct Ariadne { // sizeof = 102
   unsigned char field_23;
   unsigned char field_24[2];
   unsigned short field_26;
+    /** Index of the current waypoint in list of nearest waypoints stored. */
     unsigned char current_waypoint;
+    /** List of nearest waypoints in the way towards destination, stored in an array. */
     struct Coord2d waypoints[ARID_WAYPOINTS_COUNT];
+    /** Amount of nearest waypoints stored in the array. */
     unsigned char stored_waypoints; // offs = 0x51
+    /** Total amount of waypoints planned on the way towards endpos. */
     unsigned char total_waypoints;
   struct Coord3d pos_53;
   struct Coord3d pos_59;
@@ -178,8 +185,8 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
 long thing_nav_block_sizexy(const struct Thing *thing);
 void path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
 long get_navigation_colour(long stl_x, long stl_y);
-TbBool border_clip_horizontal(unsigned char *imap, long a1, long a2, long a3, long a4);
-TbBool border_clip_vertical(unsigned char *imap, long a1, long a2, long a3, long a4);
+TbBool border_clip_horizontal(const unsigned char *imap, long a1, long a2, long a3, long a4);
+TbBool border_clip_vertical(const unsigned char *imap, long a1, long a2, long a3, long a4);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
 #define edge_unlock_record_and_regions(fin_x, fin_y, bgn_x, bgn_y) edge_unlock_record_and_regions_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
