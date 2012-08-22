@@ -113,9 +113,16 @@ struct RegionT *get_region(long reg_id)
     return &Regions[reg_id];
 }
 
+/**
+ * Returns whether two regions represented by tree triangles are connected.
+ * @param tree_reg1
+ * @param tree_reg2
+ * @return
+ */
 TbBool regions_connected(long tree_reg1, long tree_reg2)
 {
     long reg_id1,reg_id2;
+    unsigned long intersect;
     //return _DK_regions_connected(tree_reg1, tree_reg2);
     if ((tree_reg1 < 0) || (tree_reg1 >= TRIANLGLES_COUNT))
         return false;
@@ -131,7 +138,8 @@ TbBool regions_connected(long tree_reg1, long tree_reg2)
     if (Regions[reg_id2].field_2 == 1)
         return (reg_id2 == reg_id1);
     region_alloc(tree_reg1);
-    return ((Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E) & 0xFFC0) == 0;
+    intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
+    return ((intersect & 0xFFC0) == 0);
 }
 
 void region_set_f(long ntri, unsigned long nreg, const char *func_name)

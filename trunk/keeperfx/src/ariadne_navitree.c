@@ -49,6 +49,7 @@ DLLIMPORT long _DK_delaunay_stack[DELAUNAY_COUNT];
 #define delaunay_stack _DK_delaunay_stack
 /******************************************************************************/
 DLLIMPORT void _DK_heap_down(long heapid);
+DLLIMPORT long _DK_delaunay_seeded(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
 /******************************************************************************/
 void nodes_classify(void)
 {
@@ -427,7 +428,8 @@ long delaunay_seeded(long a1, long a2, long a3, long a4)
     long tri_idx,cor_idx;
     long tri_id2,cor_id2;
     long count;
-    //return _DK_delaunay_seeded(a1, a2, a3, a4);
+    //TODO PATHFINDING triangulate_area sub-function
+    return _DK_delaunay_seeded(a1, a2, a3, a4);
     tags_init();
     delaunay_init();
     delaunay_stack_point(a1, a2);
