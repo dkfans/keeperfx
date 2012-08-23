@@ -117,7 +117,7 @@ long link_find(long ntri, long val)
     }
     for (i=0; i < 3; i++)
     {
-        if (Triangles[ntri].field_6[i] == val)
+        if (Triangles[ntri].tags[i] == val)
         {
             return i;
         }
@@ -128,7 +128,7 @@ long link_find(long ntri, long val)
 TbBool outer_locked(long ntri, long ncor)
 {
     long shft,n;
-    n = Triangles[ntri].field_6[ncor];
+    n = Triangles[ntri].tags[ncor];
     shft = link_find(n, ntri);
     if (shft < 0)
     {
@@ -149,7 +149,7 @@ long point_loop(long pt_tri, long pt_cor)
     k = 0;
     do
     {
-      n = Triangles[ntri].field_6[ncor];
+      n = Triangles[ntri].tags[ncor];
       i = link_find(n, ntri);
       if (i < 0)
           return -1;
@@ -176,7 +176,7 @@ long reduce_point(long *pt_tri, long *pt_cor)
     first_tri = *pt_tri;
     do
     {
-        ctri = Triangles[ntri].field_6[ncor];
+        ctri = Triangles[ntri].tags[ncor];
         if (ctri < 0)
             return -1;
         if (!edge_rotateAC(ntri, ncor))

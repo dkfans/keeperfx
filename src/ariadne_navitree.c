@@ -94,6 +94,11 @@ long naviheap_get(long heapid)
     return Heap[heapid];
 }
 
+/**
+ * Returns tree item value for given heap position.
+ * @param heapid
+ * @return
+ */
 long naviheap_item_tree_val(long heapid)
 {
     long tree_id;
@@ -130,7 +135,8 @@ void heap_down(long heapid)
     while (hpos <= hend)
     {
         hnew = (hpos << 1);
-        if (naviheap_item_tree_val(hnew) < naviheap_item_tree_val(hnew+1))
+        /* Select the cone with smaller tree value */
+        if (naviheap_item_tree_val(hnew+1) < naviheap_item_tree_val(hnew))
             hnew++;
         tree_ids = Heap[hnew];
         if (tree_val[tree_ids] > tval_idb)
@@ -205,8 +211,36 @@ void tree_init(void)
   long i;
   for (i=0; i < TREEVALS_COUNT; i++)
   {
-      tree_val[i] = -2147483647;
+      tree_val[i] = -LONG_MAX;
   }
+}
+
+/** Computes the cost for route through the current tree.
+ *
+ * @param tag_start_id Starting tag ID to place in the route.
+ * @param tag_end_id Ending tag ID to place in the route.
+ * @return Returns cost of the route.
+ */
+long compute_tree_move_cost(long tag_start_id, long tag_end_id)
+{
+    long ipt,itag;
+    long long rcost;
+    rcost = 0;
+    itag = tag_start_id;
+    ipt = 0;
+    while (itag != tag_end_id)
+    {
+        rcost += tree_val[itag];
+        ipt++;
+        if (ipt >= TREEITEMS_COUNT)
+            return LONG_MAX;
+        itag = tree_dad[itag];
+    }
+    if (rcost >= LONG_MAX)
+        return LONG_MAX;
+    if (rcost <= LONG_MIN)
+        return LONG_MIN;
+    return rcost;
 }
 
 /** Copies the current tree into given route.
@@ -215,7 +249,7 @@ void tree_init(void)
  * @param tag_end_id Ending tag ID to place in the route.
  * @param route_pts Route array.
  * @param route_len Length of the given route array.
- * @return Returns amount of points filled.
+ * @return Returns index of the last point filled.
  *     If route_len is too small, points up to route_len are filled and -1 is returned.
  */
 long copy_tree_to_route(long tag_start_id, long tag_end_id, long *route_pts, long route_len)
@@ -352,7 +386,7 @@ void delaunay_stack_point(long pt_x, long pt_y)
     delaunay_add_triangle(tri_idx);
     for (cor_idx=0; cor_idx < 3; cor_idx++)
     {
-        tri_id2 = Triangles[tri_idx].field_6[cor_idx];
+        tri_id2 = Triangles[tri_idx].tags[cor_idx];
         if (tri_id2 != -1)
         {
             delaunay_add_triangle(tri_id2);
@@ -364,7 +398,7 @@ void delaunay_stack_point(long pt_x, long pt_y)
       cor_idx = dst_cor_idx;
       do
       {
-        tri_id2 = Triangles[tri_idx].field_6[cor_idx];
+        tri_id2 = Triangles[tri_idx].tags[cor_idx];
         if (tri_id2 == -1)
           break;
         i = link_find(tri_id2, tri_idx);
@@ -388,7 +422,7 @@ long optimise_heuristic(long tri_id1, long tri_id2)
     long Ax,Ay,Bx,By,Cx,Cy,Dx,Dy;
 
     tri1 = get_triangle(tri_id1);
-    tri_id3 = tri1->field_6[tri_id2];
+    tri_id3 = tri1->tags[tri_id2];
     if (tri_id3 == -1)
         return 0;
     tri3 = get_triangle(tri_id3);
@@ -454,7 +488,7 @@ long delaunay_seeded(long a1, long a2, long a3, long a4)
             }
             for (cor_id2=0; cor_id2 < 3; cor_id2++)
             {
-                tri_id2 = Triangles[tri_idx].field_6[cor_id2];
+                tri_id2 = Triangles[tri_idx].tags[cor_id2];
                 if (tri_id2 == -1)
                     continue;
                 delaunay_add_triangle(tri_id2);
