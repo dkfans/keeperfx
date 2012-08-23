@@ -541,7 +541,7 @@ TbBool triangulation_border_tag(void)
 long dest_node(long a1, long a2)
 {
     long n;
-    n = Triangles[a1].field_6[a2];
+    n = Triangles[a1].tags[a2];
     if (n < 0)
         return -1;
     if (!nav_rulesA2B(get_triangle_tree_alt(a1), get_triangle_tree_alt(n)))
@@ -597,7 +597,6 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     long nskipped;
     long i,k,n;
     NAVIDBG(19,"Starting");
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/4)
     //return _DK_triangle_route_do_fwd(ttriA, ttriB, route, routecost);
     tags_init();
     if ((ix_Border < 0) || (ix_Border >= BORDER_LENGTH))
@@ -632,7 +631,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
             n = 0;
             for (i = 0; i < 3; i++)
             {
-              k = tri->field_6[i];
+              k = tri->tags[i];
               if (!is_current_tag(k))
               {
                 if ( fits_thro(ttriH1, n) )
@@ -679,6 +678,7 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
  * @param route Output array of size TRIANLGLES_COUNT where route is copied.
  * @param routecost Output integer where the tree route cost is returned.
  * @return Amount of points copied into the route array, or -1 on routing failure.
+ * @note This function should differ from triangle_route_do_bak() in only one line
  */
 long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
 {
@@ -688,7 +688,6 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     long nskipped;
     long i,k,n;
     NAVIDBG(19,"Starting");
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/4)
     //return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
     tags_init();
     if ((ix_Border < 0) || (ix_Border >= BORDER_LENGTH))
@@ -723,7 +722,7 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
             n = 0;
             for (i = 0; i < 3; i++)
             {
-              k = tri->field_6[i];
+              k = tri->tags[i];
               if (!is_current_tag(k))
               {
                 if ( fits_thro(ttriH1, n) )
@@ -1339,7 +1338,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     struct Ariadne *arid;
     AriadneReturn result;
     AriadneReturn aret;
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (3/4)
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/2)
     result = _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5); return result;
 
     cctrl = creature_control_get_from_thing(thing);
@@ -1618,15 +1617,15 @@ TbBool edge_split(long ntri, long ncor, long pt_x, long pt_y)
         return false;
     point_set(pt_idx, pt_x, pt_y);
     // Find second ntri and ncor
-    ntr2 = Triangles[ntri].field_6[ncor];
+    ntr2 = Triangles[ntri].tags[ncor];
     ncr2 = link_find(ntr2, ntri);
     if (ncr2 < 0)
         return false;
     // Do the splitting
     tri_sp1 = tri_split2(ntri, ncor, pt_x, pt_y, pt_idx);
     tri_sp2 = tri_split2(ntr2, ncr2, pt_x, pt_y, pt_idx);
-    Triangles[ntr2].field_6[ncr2] = tri_sp1;
-    Triangles[ntri].field_6[ncor] = tri_sp2;
+    Triangles[ntr2].tags[ncr2] = tri_sp1;
+    Triangles[ntri].tags[ncor] = tri_sp2;
     return true;
 }
 
@@ -1713,10 +1712,10 @@ void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, l
     do
     {
         tri = get_triangle(tri_id1);
-        tri_id2 = tri->field_6[cor_id1];
+        tri_id2 = tri->tags[cor_id1];
         i = link_find(tri_id2,tri_id1);
         cor_id2 = MOD3[i+2];
-        tri_id1 = tri->field_6[cor_id1];
+        tri_id1 = tri->tags[cor_id1];
         cor_id1 = MOD3[i+1];
         pt = get_triangle_point(tri_id2, cor_id2);
         cx = pt->x;
@@ -1725,7 +1724,7 @@ void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, l
             break;
 
         tri = get_triangle(tri_id2);
-        tri_id3 = tri->field_6[cor_id1];
+        tri_id3 = tri->tags[cor_id1];
         cor_id3 = link_find(tri_id3,tri_id2);
         pt1 = get_triangle_point(tri_id3, cor_id3);
         pt2 = get_triangle_point(tri_id4, MOD3[cor_id4+1]);
@@ -1779,7 +1778,7 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
         if ((pt->x == sx) && (pt->y == sy))
             break;
         tri = get_triangle(tri_id1);
-        tri_id3 = tri->field_6[cor_id1];
+        tri_id3 = tri->tags[cor_id1];
         cor_id3 = link_find(tri_id3,tri_id1);
         pt = get_triangle_point(tri_id3, cor_id3);
         tmpX = pt->x;
@@ -1890,7 +1889,7 @@ TbBool point_redundant(long tri_idx, long cor_idx)
     cor_first = cor_idx;
     while ( 1 )
     {
-        tri_secnd = Triangles[tri_first].field_6[cor_first];
+        tri_secnd = Triangles[tri_first].tags[cor_first];
         if ((tri_secnd < 0) || (tri_secnd >= TRIANLGLES_COUNT))
             break;
         if (get_triangle_tree_alt(tri_secnd) != get_triangle_tree_alt(tri_idx))
@@ -1943,7 +1942,7 @@ long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, l
             }
         }
         tri = get_triangle(tri_idx);
-        tri_id2 = tri->field_6[cor_idx];
+        tri_id2 = tri->tags[cor_idx];
         if (tri_id2 == -1)
           break;
         i = link_find(tri_id2, tri_idx);
@@ -2008,7 +2007,7 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
         return;
     }
 
-    ntri = Triangles[edge_tri].field_6[edge_cor];
+    ntri = Triangles[edge_tri].tags[edge_cor];
     ncor = link_find(ntri, edge_tri);
     if (ncor < 0)
     {
@@ -2030,7 +2029,7 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
         {
             if (!delete_point(ntri, MOD3[ncor+2]))
                 break;
-            ntri = Triangles[edge_tri].field_6[edge_cor];
+            ntri = Triangles[edge_tri].tags[edge_cor];
             ncor = link_find(ntri, edge_tri);
             if (ncor < 0)
             {
@@ -2048,7 +2047,7 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
                 // Message will be displayed in big loop, so not here
                 break;
             }
-            n = Triangles[ntri].field_6[ncor];
+            n = Triangles[ntri].tags[ncor];
             i = link_find(n, ntri);
             if (i < 0)
             {
@@ -2061,7 +2060,7 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
             k++;
         }
         k++;
-        if (Triangles[ntri].field_6[ncor] == edge_tri)
+        if (Triangles[ntri].tags[ncor] == edge_tri)
             break;
     }
 }
@@ -2162,7 +2161,7 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
             tri = get_triangle(tri_idx);
             for (i=0; i < 3; i++)
             {
-                k = tri->field_6[i];
+                k = tri->tags[i];
                 if (k == -1)
                 {
                     *border_a = tri_idx;
@@ -2180,7 +2179,7 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
             tri = get_triangle(tri_idx);
             for (i=0; i < 3; i++)
             {
-                k = tri->field_6[i];
+                k = tri->tags[i];
                 if (k == -1)
                 {
                     *border_a = tri_idx;
@@ -2297,7 +2296,7 @@ void triangulation_border_init(void)
       tri_b = MOD3[tri_b+1];
       while ( 1 )
       {
-          i = Triangles[tri_a].field_6[tri_b];
+          i = Triangles[tri_a].tags[tri_b];
           n = link_find(i, tri_a);
           if (n < 0)
               break;
@@ -2320,7 +2319,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     r = true;
     LastTriangulatedMap = imap;
     NAVIDBG(9,"F=%ld Area %03ld,%03ld %03ld,%03ld T=%04ld",game.play_gameturn,start_x,start_y,end_x,end_y,count_Triangles);
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (4/4)
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/2)
     _DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)
