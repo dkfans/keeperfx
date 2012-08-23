@@ -98,17 +98,17 @@ long triangle_find8(long pt_x, long pt_y)
       switch ( eqA + 2 * (eqB + 2 * eqC) )
       {
       case 1:
-          ntri = Triangles[ntri].field_6[0];
+          ntri = Triangles[ntri].tags[0];
           break;
       case 2:
-          ntri = Triangles[ntri].field_6[1];
+          ntri = Triangles[ntri].tags[1];
           break;
       case 3:
           ncor = 1;
           pointed_at8(pt_x, pt_y, &ntri, &ncor);
           break;
       case 4:
-          ntri = Triangles[ntri].field_6[2];
+          ntri = Triangles[ntri].tags[2];
           break;
       case 5:
           ncor = 0;
