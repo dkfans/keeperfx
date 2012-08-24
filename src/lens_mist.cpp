@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file lens_mist.cpp
- *     Mist lense effect functions.
+ *     Mist lens effect functions.
  * @par Purpose:
  *     Functions to apply Mist lens effect to the image.
  *     Mist is a effect of bitmap image moving over original 3D view.
