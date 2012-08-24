@@ -93,26 +93,29 @@ TbBool setup_temple_move(struct Thing *thing, struct Room *room)
     return true;
 }
 
-long process_temple_visuals(struct Thing *thing, struct Room *room)
+CrStateRet process_temple_visuals(struct Thing *thing, struct Room *room)
 {
     struct CreatureControl *cctrl;
     long turns_in_temple;
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->instance_id == 0)
-        return 0;
+    if (cctrl->instance_id != 0)
+        return CrStRet_Unchanged;
     turns_in_temple = cctrl->field_82;
     if (turns_in_temple <= 120)
     {
+        // Walk for 120 turns
         setup_temple_move(thing, room);
     } else
-    if (turns_in_temple - 120 >= 50)
+    if (turns_in_temple < 120 + 50)
     {
-        cctrl->field_82 = 0;
+        // Then celebrate for 50 tuns
+        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
     } else
     {
-        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        // Then start feom the beginning
+        cctrl->field_82 = 0;
     }
-    return 1;
+    return CrStRet_Modified;
 }
 
 short at_temple(struct Thing *thing)

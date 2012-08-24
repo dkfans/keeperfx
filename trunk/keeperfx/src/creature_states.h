@@ -291,7 +291,8 @@ SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, l
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 long slab_by_players_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool process_creature_hunger(struct Thing *thing);
-TbBool room_still_valid_as_type_for_thing(struct Room *room, RoomKind rkind, struct Thing *thing);
+TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
+TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
