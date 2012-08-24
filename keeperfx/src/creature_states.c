@@ -1732,14 +1732,31 @@ short person_sulking(struct Thing *creatng)
 }
 
 /**
- * Returns if the room is a valid place for a thing.
- * Used to check if creatures are working in correct rooms.
- * @param room
- * @param rkind
- * @param thing
- * @return
+ * Returns if the room is a valid place for a thing which hasn't yet started working in it.
+ * Used to check if creatures can start working in specific rooms.
+ * @param room The work room to be checked.
+ * @param rkind Room kind required for work.
+ * @param thing The thing which seeks for work room.
+ * @return True if the room can be used, false otherwise.
  */
-TbBool room_still_valid_as_type_for_thing(struct Room *room, RoomKind rkind, struct Thing *thing)
+TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing)
+{
+    if (!room_exists(room))
+        return false;
+    if (room->kind != rkind)
+        return false;
+    return ((room->owner == thing->owner) || enemies_may_work_in_room(room->kind));
+}
+
+/**
+ * Returns if the room is a valid place for a thing for thing which is already working in that room.
+ * Used to check if creatures are working in correct rooms.
+ * @param room The work room to be checked.
+ * @param rkind Room kind required for work.
+ * @param thing The thing which is working in the room.
+ * @return True if the room can still be used, false otherwise.
+ */
+TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing)
 {
     if (!room_exists(room))
         return false;
