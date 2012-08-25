@@ -58,19 +58,14 @@ short at_scavenger_room(struct Thing *thing)
     struct Dungeon *dungeon;
     struct Room *room;
     //return _DK_at_scavenger_room(thing);
-    cctrl = creature_control_get_from_thing(thing);
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_SCAVENGER) || (room->owner != thing->owner))
+    if (!room_initially_valid_as_type_for_thing(room, RoK_SCAVENGER, thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }
+    cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     dungeon = get_dungeon(thing->owner);
     if (crstat->scavenger_cost >= dungeon->total_money_owned)

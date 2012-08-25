@@ -888,7 +888,7 @@ long check_out_imp_last_did(struct Thing *thing)
         if ( setup_random_head_for_room(thing, room, 0) )
         {
           thing->continue_state = CrSt_AtTrainingRoom;
-          cctrl->field_80 = room->index;
+          cctrl->target_room_id = room->index;
           return true;
         }
       }

@@ -187,6 +187,7 @@ obj/creature_states_combt.o \
 obj/creature_states_guard.o \
 obj/creature_states_pray.o \
 obj/creature_states_tresr.o \
+obj/creature_states_barck.o \
 obj/creature_states.o \
 obj/thing_objects.o \
 obj/thing_physics.o \

@@ -542,7 +542,7 @@ short at_training_room(struct Thing *thing)
     struct Room *room;
     //return _DK_at_training_room(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_80 = 0;
+    cctrl->target_room_id = 0;
     if ( !creature_can_be_trained(thing) )
     {
         set_start_state(thing);
@@ -558,12 +558,7 @@ short at_training_room(struct Thing *thing)
         return 0;
     }
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_TRAINING) || (room->owner != thing->owner))
+    if (!room_initially_valid_as_type_for_thing(room, RoK_TRAINING, thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);

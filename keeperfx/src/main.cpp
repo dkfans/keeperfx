@@ -724,17 +724,17 @@ TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
 
 short make_group_member_leader(struct Thing *leadtng)
 {
-  struct Thing *prvtng;
-  prvtng = get_group_leader(leadtng);
-  if (thing_is_invalid(prvtng))
+    struct Thing *prvtng;
+    prvtng = get_group_leader(leadtng);
+    if (thing_is_invalid(prvtng))
+        return false;
+    if (prvtng != leadtng)
+    {
+        remove_creature_from_group(leadtng);
+        add_creature_to_group_as_leader(leadtng, prvtng);
+        return true;
+    }
     return false;
-  if (prvtng != leadtng)
-  {
-    remove_creature_from_group(leadtng);
-    add_creature_to_group_as_leader(leadtng, prvtng);
-    return true;
-  }
-  return false;
 }
 
 void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)

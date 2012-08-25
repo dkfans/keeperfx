@@ -90,6 +90,8 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"NEVER_CHICKENS",   16},
   {"IMMUNE_TO_BOULDER",17},
   {"NO_CORPSE_ROTTING",18},
+  {"NO_ENMHEART_ATTCK",19},
+  {"TREMBLING_FAT",    20},
   {NULL,                0},
   };
 
@@ -673,6 +675,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 18: // NO_CORPSE_ROTTING
                 crconf->model_flags |= MF_NoCorpseRotting;
+                n++;
+                break;
+            case 19: // NO_ENMHEART_ATTCK
+                crconf->model_flags |= MF_NoEnmHeartAttack;
+                n++;
+                break;
+            case 20: // TREMBLING_FAT
+                crconf->model_flags |= MF_TremblingFat;
                 n++;
                 break;
             default:

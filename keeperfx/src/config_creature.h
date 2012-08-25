@@ -45,6 +45,8 @@ enum CreatureModelFlags {
     MF_NeverChickens    = 0x0040, // Cannot be affected by Chicken (for Avatar)
     MF_ImmuneToBoulder  = 0x0080, // Boulder traps are destroyed at the moment they touch the creature
     MF_NoCorpseRotting  = 0x0100, // Corpse cannot rot in graveyard
+    MF_NoEnmHeartAttack = 0x0200, // Creature will not attack enemy heart on sight
+    MF_TremblingFat     = 0x0400, // Creature causes ground to tremble when dropped
 };
 
 enum CreatureJobFlags {

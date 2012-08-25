@@ -146,7 +146,9 @@ unsigned char field_41[9];
 unsigned char field_4E[24];
     unsigned char field_66;
 unsigned char field_67;
+    /** Lair room index, that is the room which holds creature's lair object. */
     unsigned short lair_room_id;
+    /** Lair object thing index. */
     unsigned short lairtng_idx;
     short field_6C;
     short field_6E;
@@ -155,10 +157,12 @@ unsigned char field_67;
     unsigned short pickup_creature_id;
     unsigned short next_in_group;
     unsigned short prev_in_group;
-    unsigned short group_leader;
+    unsigned short group_leader;// offset 7A
     short last_work_room_id;
+    /** Work room index, used when creature is working in a room. */
     short work_room_id;
-    short field_80;
+    /** Target room index, used when creature is moving to a room or is attacking a room. */
+    short target_room_id;
     long field_82;
 unsigned char field_86[2];
 unsigned char field_88;
@@ -290,7 +294,7 @@ unsigned char field_88;
     unsigned char fight_til_death;
     unsigned char field_AA;
     unsigned char affected_by_spells;
-    unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short
+    unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
 unsigned char field_AE;
     short field_AF;
     unsigned char field_B1;
@@ -342,7 +346,7 @@ unsigned char field_29E[12];
     unsigned short prev_in_room;//field_2AC
 short field_2AE;
     unsigned char field_2B0;
-unsigned char field_2B1[2];
+short field_2B1;
 unsigned short field_2B3[3];
 unsigned short field_2B9[3];
 

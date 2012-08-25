@@ -261,7 +261,7 @@ DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
 /******************************************************************************/
 TbBool creature_model_bleeds(unsigned long crmodel);
-TbBool can_change_from_state_to(struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state);
+TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state);
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState);
 TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state);
 TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState);
@@ -314,6 +314,7 @@ TbBool creature_is_doing_temple_activity(const struct Thing *thing);
 TbBool creature_is_training(const struct Thing *thing);
 TbBool creature_is_scavengering(const struct Thing *thing);
 TbBool creature_is_escaping_death(const struct Thing *thing);
+TbBool creature_is_kept_in_custody(const struct Thing *thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool remove_creature_from_work_room(struct Thing *thing);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
