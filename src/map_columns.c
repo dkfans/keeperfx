@@ -216,6 +216,11 @@ TbBool cube_is_lava(long cube_id)
     return (cube_id == 40) || (cube_id == 41);
 }
 
+TbBool cube_is_sacrificial(long cube_id)
+{
+    return (cube_id >= 294) && (cube_id <= 302);
+}
+
 /**
  * Returns if given subtile has water cube on its top.
  * @param stl_x Subtile X coordinate.
@@ -240,6 +245,19 @@ TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long i;
     i = get_top_cube_at(stl_x, stl_y);
     return cube_is_lava(i);
+}
+
+/**
+ * Returns if given subtile has sacrificial (temple) cube on its top.
+ * @param stl_x Subtile X coordinate.
+ * @param stl_y Subtile Y coordinate.
+ * @return True if the top cube is sacrificial; false otherwise.
+ */
+TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    long i;
+    i = get_top_cube_at(stl_x, stl_y);
+    return cube_is_sacrificial(i);
 }
 
 /******************************************************************************/

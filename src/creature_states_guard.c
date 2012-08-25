@@ -52,7 +52,7 @@ short at_guard_post_room(struct Thing *thing)
     struct Room *room;
     //return _DK_at_guard_post_room(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_80 = 0;
+    cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
     if (room_is_invalid(room))
     {

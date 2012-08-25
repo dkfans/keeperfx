@@ -1182,7 +1182,6 @@
  0001:000CA040       load_map_slab_file
  0001:000CA130       load_ceiling_table
  0001:000CA6D0       setup_person_move_to_position
- 0001:000CA790       setup_person_move_to_coord
  0001:000CAB80       move_creature
  0001:000CAF40       move_shot
  0001:000CB220       move_object

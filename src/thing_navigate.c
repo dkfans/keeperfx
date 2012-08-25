@@ -50,7 +50,6 @@ DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *th
 DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2);
 DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT short _DK_setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -65,26 +64,139 @@ TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d
     return (ret == AridRet_OK);
 }
 
-short setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a3)
+void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py)
+{
+    _DK_nearest_search(size, srcx, srcy, dstx, dsty, px, py);
+}
+
+unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_get_nearest_valid_position_for_creature_at(thing, pos);
+}
+
+void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, unsigned char a4)
+{
+    long nav_sizexy;
+    long px, py;
+    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    if ( a4 )
+    {
+        owner_player_navigating = -1;
+    } else
+    {
+        owner_player_navigating = thing->owner;
+    }
+    nav_sizexy = thing_nav_block_sizexy(thing) - 1;
+    nearest_search(nav_sizexy, thing->mappos.x.val, thing->mappos.y.val,
+      pos1->x.val, pos1->y.val, &px, &py);
+    pos2->x.val = px;
+    pos2->y.val = py;
+    pos2->z.val = get_thing_height_at(thing, pos2);
+    if (thing_in_wall_at(thing, pos2))
+        get_nearest_valid_position_for_creature_at(thing, pos2);
+    nav_thing_can_travel_over_lava = 0;
+}
+
+TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage)
 {
     struct CreatureControl *cctrl;
     struct Coord3d locpos;
-    //return _DK_setup_person_move_to_coord(thing, pos, a3);
-    cctrl = creature_control_get_from_thing(thing);
-    locpos.x.val = subtile_coord_center(pos->x.stl.num);
-    locpos.y.val = subtile_coord_center(pos->y.stl.num);
+    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
+    //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, a4);
+    locpos.x.val = subtile_coord_center(stl_x);
+    locpos.y.val = subtile_coord_center(stl_y);
     locpos.z.val = thing->mappos.z.val;
     locpos.z.val = get_thing_height_at(thing, &locpos);
-    if ( thing_in_wall_at(thing, &locpos) || !creature_can_navigate_to_with_storage(thing, &locpos, a3) )
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
     {
-        return 0;
+        WARNLOG("Tried to move invalid creature to (%d,%d)",(int)stl_x,(int)stl_y);
+        return false;
     }
-    cctrl->field_88 = a3;
+    if (thing_in_wall_at(thing, &locpos))
+    {
+        SYNCDBG(16,"The %s would be trapped in wall at (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        return false;
+    }
+    if (!creature_can_navigate_to_with_storage(thing, &locpos, storage))
+    {
+        SYNCDBG(19,"The %s cannot reach subtile (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        return false;
+    }
+    cctrl->field_88 = storage;
     internal_set_thing_state(thing, CrSt_MoveToPosition);
     cctrl->moveto_pos.x.val = locpos.x.val;
     cctrl->moveto_pos.y.val = locpos.y.val;
     cctrl->moveto_pos.z.val = locpos.z.val;
-    return 1;
+    SYNCDBG(19,"Done");
+    return true;
+}
+
+TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage)
+{
+    struct CreatureControl *cctrl;
+    struct Coord3d trgpos;
+    struct Coord3d navpos;
+    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
+    trgpos.x.val = subtile_coord_center(stl_x);
+    trgpos.y.val = subtile_coord_center(stl_y);
+    trgpos.z.val = thing->mappos.z.val;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        WARNLOG("Tried to move invalid creature to (%d,%d)",(int)stl_x,(int)stl_y);
+        return false;
+    }
+    get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, storage);
+    if (!creature_can_navigate_to_with_storage(thing, &navpos, storage))
+    {
+        SYNCDBG(19,"The %s cannot reach subtile (%ld,%ld)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        return false;
+    }
+    cctrl->field_88 = storage;
+    internal_set_thing_state(thing, CrSt_MoveToPosition);
+    cctrl->moveto_pos.x.val = navpos.x.val;
+    cctrl->moveto_pos.y.val = navpos.y.val;
+    cctrl->moveto_pos.z.val = navpos.z.val;
+    return true;
+}
+
+TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage)
+{
+    struct CreatureControl *cctrl;
+    struct Coord3d locpos;
+    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
+    cctrl = creature_control_get_from_thing(thing);
+    locpos.x.val = subtile_coord_center(stl_x);
+    locpos.y.val = subtile_coord_center(stl_y);
+    locpos.z.val = 0;
+    locpos.z.val = get_thing_height_at(thing, &locpos);
+    if (thing_in_wall_at(thing, &locpos))
+    {
+        SYNCDBG(16,"The %s would be trapped in wall at (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        return false;
+    }
+    if (!creature_can_navigate_to_with_storage(thing, &locpos, storage))
+    {
+        SYNCDBG(19,"The %s cannot reach subtile (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        return false;
+    }
+    cctrl->field_88 = storage;
+    internal_set_thing_state(thing, CrSt_MoveBackwardsToPosition);
+    cctrl->moveto_pos.x.val = locpos.x.val;
+    cctrl->moveto_pos.y.val = locpos.y.val;
+    cctrl->moveto_pos.z.val = locpos.z.val;
+    return true;
+}
+
+TbBool setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage)
+{
+    return setup_person_move_to_position(thing, pos->x.stl.num, pos->y.stl.num, storage);
+}
+
+TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage)
+{
+    return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, storage);
 }
 
 /**
@@ -124,11 +236,6 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
     return NULL;
 }
 
-unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos)
-{
-    return _DK_get_nearest_valid_position_for_creature_at(thing, pos);
-}
-
 void move_thing_in_map(struct Thing *thing, const struct Coord3d *pos)
 {
     SYNCDBG(18,"Starting");
@@ -160,119 +267,6 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
     }
     move_thing_in_map(thing, &pos);
     return true;
-}
-
-void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py)
-{
-    _DK_nearest_search(size, srcx, srcy, dstx, dsty, px, py);
-}
-
-void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, unsigned char a4)
-{
-    long nav_sizexy;
-    long px, py;
-    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
-    if ( a4 )
-    {
-        owner_player_navigating = -1;
-    } else
-    {
-        owner_player_navigating = thing->owner;
-    }
-    nav_sizexy = thing_nav_block_sizexy(thing) - 1;
-    nearest_search(nav_sizexy, thing->mappos.x.val, thing->mappos.y.val,
-      pos1->x.val, pos1->y.val, &px, &py);
-    pos2->x.val = px;
-    pos2->y.val = py;
-    pos2->z.val = get_thing_height_at(thing, pos2);
-    if (thing_in_wall_at(thing, pos2))
-        get_nearest_valid_position_for_creature_at(thing, pos2);
-    nav_thing_can_travel_over_lava = 0;
-}
-
-TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4)
-{
-    struct CreatureControl *cctrl;
-    struct Coord3d pos;
-    SYNCDBG(18,"Starting");
-    //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, a4);
-    pos.x.stl.num = stl_x;
-    pos.x.stl.pos = 128;
-    pos.y.stl.num = stl_y;
-    pos.y.stl.pos = 128;
-    pos.z.val = get_thing_height_at(thing, &pos);
-    if (thing_in_wall_at(thing, &pos))
-    {
-        SYNCDBG(16,"The %s would be trapped in wall at (%ld,%ld)",thing_model_name(thing),stl_x,stl_y);
-        return false;
-    }
-    if (!creature_can_navigate_to_with_storage(thing, &pos, a4))
-    {
-        SYNCDBG(19,"The %s cannot reach subtile (%ld,%ld)",thing_model_name(thing),stl_x,stl_y);
-        return false;
-    }
-    cctrl = creature_control_get_from_thing(thing);
-    if (creature_control_invalid(cctrl))
-    {
-        WARNLOG("Tried to move invalid creature to (%ld,%ld)",stl_x,stl_y);
-        return false;
-    }
-    cctrl->field_88 = a4;
-    internal_set_thing_state(thing, CrSt_MoveToPosition);
-    memcpy(&cctrl->moveto_pos,&pos,sizeof(struct Coord3d));
-    SYNCDBG(19,"Done");
-    return true;
-}
-
-TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, unsigned char a4)
-{
-    struct CreatureControl *cctrl;
-    struct Coord3d trgpos;
-    struct Coord3d navpos;
-
-    cctrl = creature_control_get_from_thing(thing);
-    trgpos.x.stl.num = x;
-    trgpos.y.stl.num = y;
-    trgpos.x.stl.pos = 128;
-    trgpos.y.stl.pos = 128;
-    get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, a4);
-    if (!creature_can_navigate_to_with_storage(thing, &navpos, a4))
-    {
-        return false;
-    }
-    cctrl->field_88 = a4;
-    internal_set_thing_state(thing, CrSt_MoveToPosition);
-    cctrl->moveto_pos.x.val = navpos.x.val;
-    cctrl->moveto_pos.y.val = navpos.y.val;
-    cctrl->moveto_pos.z.val = navpos.z.val;
-    return true;
-}
-
-TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char storage)
-{
-    struct CreatureControl *cctrl;
-    struct Coord3d pos;
-    SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
-    cctrl = creature_control_get_from_thing(thing);
-    pos.x.val = subtile_coord_center(stl_x);
-    pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = 0;
-    pos.z.val = get_thing_height_at(thing, &pos);
-    if (thing_in_wall_at(thing, &pos) || !creature_can_navigate_to_with_storage(thing, &pos, storage))
-    {
-      return false;
-    }
-    cctrl->field_88 = storage;
-    internal_set_thing_state(thing, CrSt_MoveBackwardsToPosition);
-    cctrl->moveto_pos.x.val = pos.x.val;
-    cctrl->moveto_pos.y.val = pos.y.val;
-    cctrl->moveto_pos.z.val = pos.z.val;
-    return true;
-}
-
-TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a4)
-{
-    return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, a4);
 }
 
 TbBool creature_can_travel_over_lava(const struct Thing *thing)

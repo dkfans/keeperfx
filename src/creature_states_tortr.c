@@ -67,14 +67,9 @@ short at_kinky_torture_room(struct Thing *thing)
     struct Room *room;
     //return _DK_at_kinky_torture_room(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_80 = 0;
+    cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_TORTURE) || (room->owner != thing->owner))
+    if (!room_initially_valid_as_type_for_thing(room, RoK_TORTURE, thing) || (room->owner != thing->owner))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
@@ -89,9 +84,9 @@ short at_kinky_torture_room(struct Thing *thing)
     cctrl->word_A6 = 0;
     cctrl->field_82 = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
-    cctrl->long_9E = game.play_gameturn;
+    cctrl->tortured.long_9Ex = game.play_gameturn;
     cctrl->field_A8 = 1;
-    cctrl->long_A2 = game.play_gameturn;
+    cctrl->tortured.long_A2x = game.play_gameturn;
     internal_set_thing_state(thing, CrSt_KinkyTorturing);
     return 1;
 }
@@ -107,10 +102,11 @@ short at_torture_room(struct Thing *thing)
     struct Room *room;
     //return _DK_at_torture_room(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_80 = 0;
+    cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (room->kind != RoK_TORTURE))
+    if (!room_initially_valid_as_type_for_thing(room, RoK_TORTURE, thing))
     {
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
         return 0;
     }

@@ -60,7 +60,9 @@ TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy);
 TbBool set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3);
 TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_id);
 
-long creature_look_for_combat(struct Thing *thing);
+TbBool creature_will_do_combat(const struct Thing *thing);
+TbBool creature_look_for_combat(struct Thing *thing);
+TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
 long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4);
 long creature_can_see_combat_path(const struct Thing * a, const struct Thing * b, long c);
 long get_combat_distance(const struct Thing *thing, const struct Thing *enemy);

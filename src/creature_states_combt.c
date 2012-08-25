@@ -187,6 +187,21 @@ long creature_can_see_combat_path(const struct Thing *creatng, const struct Thin
     return 0;
 }
 
+
+TbBool creature_will_do_combat(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->spell_flags & 0x0200) != 0)
+        return false;
+    // Neutral creatures won't fight
+    if (thing->owner == game.neutral_player_num)
+        return false;
+    if ((cctrl->flgfield_1 & 0x02) != 0)
+        return false;
+    return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
+}
+
 long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
 {
     long dist,avgc;
@@ -1599,16 +1614,11 @@ void creature_in_combat_wait(struct Thing *thing)
     if ( check_for_better_combat(thing) ) {
         return;
     }
-    // For creatures which are not special diggers, check to attack dungeon heart once every 8 turns
-    if ( (((game.play_gameturn+thing->index) & 7) == 0) && ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0) )
+    // Check to attack dungeon heart once every 8 turns
+    if (((game.play_gameturn+thing->index) & 7) == 0)
     {
-        struct Thing *heartng;
-        heartng = get_enemy_dungeon_heart_creature_can_see(thing);
-        if (!thing_is_invalid(heartng))
-        {
-            if ( set_creature_object_combat(thing, heartng) ) {
-                return;
-            }
+        if (creature_look_for_enemy_heart_combat(thing)) {
+            return;
         }
     }
     // Check if we're best combat partner for the enemy
@@ -1756,7 +1766,7 @@ short creature_object_combat(struct Thing *thing)
     return _DK_creature_object_combat(thing);
 }
 
-long creature_look_for_combat(struct Thing *thing)
+TbBool creature_look_for_combat(struct Thing *thing)
 {
     struct Thing *enmtng;
     struct CreatureControl *cctrl;
@@ -1769,10 +1779,10 @@ long creature_look_for_combat(struct Thing *thing)
     if (combat_kind <= 0)
     {
         if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
-            return 0;
+            return false;
         }
         if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
-            return 0;
+            return false;
         }
         setup_combat_flee_position(thing);
         cctrl->field_28E = game.play_gameturn;
@@ -1782,28 +1792,42 @@ long creature_look_for_combat(struct Thing *thing)
     if (cctrl->combat_flags != 0)
     {
         if (get_combat_state_for_combat(thing, enmtng, combat_kind) == 1) {
-          return 0;
+          return false;
         }
     }
 
     if ( !creature_too_scared_for_combat(thing, enmtng) )
     {
         set_creature_in_combat(thing, enmtng, combat_kind);
-        return 1;
+        return true;
     }
 
     if ( ((cctrl->spell_flags & CSAfF_Invisibility) != 0) && (cctrl->field_AF <= 0) )
     {
       if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
-          return 0;
+          return false;
       }
     }
     if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
-        return 0;
+        return false;
     }
     setup_combat_flee_position(thing);
     cctrl->field_28E = game.play_gameturn;
-    return 1;
+    return true;
+}
+
+TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
+{
+    struct Thing *heartng;
+    if ((get_creature_model_flags(thing) & MF_NoEnmHeartAttack) != 0) {
+        return false;
+    }
+    heartng = get_enemy_dungeon_heart_creature_can_see(thing);
+    if (thing_is_invalid(heartng)) {
+        return false;
+    }
+    set_creature_object_combat(thing, heartng);
+    return true;
 }
 
 long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4)

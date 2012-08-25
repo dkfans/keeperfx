@@ -933,15 +933,10 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     process_person_moods_and_needs(thing);
     if (creature_available_for_combat_this_turn(thing))
     {
-        if (!creature_look_for_combat(thing))
-        {
-            if ((!cctrl->combat_flags) && ((model_flags & MF_IsSpecDigger) == 0))
-            {
-              tgthing = get_enemy_dungeon_heart_creature_can_see(thing);
-              if (!thing_is_invalid(tgthing)) {
-                  set_creature_object_combat(thing, tgthing);
-              }
-            }
+        TbBool fighting;
+        fighting = creature_look_for_combat(thing);
+        if (!fighting) {
+            fighting = creature_look_for_enemy_heart_combat(thing);
         }
     }
     if ((cctrl->combat_flags & CmbtF_Unknown10) == 0)
@@ -3029,10 +3024,11 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
               cctrl->field_2FE = game.play_gameturn;
               if ( cleanup_current_thing_state(thing) )
               {
-                if ( setup_move_off_lava(thing) )
+                if ( setup_move_off_lava(thing) ) {
                     thing->continue_state = CrSt_CreatureEscapingDeath;
-                else
+                } else {
                     set_start_state(thing);
+                }
               }
           }
       }
