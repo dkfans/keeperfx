@@ -59,6 +59,7 @@
 #include "creature_states_guard.h"
 #include "creature_states_pray.h"
 #include "creature_states_tresr.h"
+#include "creature_states_barck.h"
 #include "creature_states_combt.h"
 
 #include "keeperfx.hpp"
@@ -73,8 +74,6 @@ extern "C" {
 DLLIMPORT short _DK_already_at_call_to_arms(struct Thing *creatng);
 DLLIMPORT short _DK_arrive_at_alarm(struct Thing *creatng);
 DLLIMPORT short _DK_arrive_at_call_to_arms(struct Thing *creatng);
-DLLIMPORT short _DK_at_barrack_room(struct Thing *creatng);
-DLLIMPORT short _DK_barracking(struct Thing *creatng);
 DLLIMPORT short _DK_cleanup_hold_audience(struct Thing *creatng);
 DLLIMPORT short _DK_creature_being_dropped(struct Thing *creatng);
 DLLIMPORT short _DK_creature_cannot_find_anything_to_do(struct Thing *creatng);
@@ -146,8 +145,6 @@ DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long s
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *thing);
 short arrive_at_call_to_arms(struct Thing *thing);
-short at_barrack_room(struct Thing *thing);
-short barracking(struct Thing *creatng);
 short cleanup_hold_audience(struct Thing *creatng);
 short creature_being_dropped(struct Thing *creatng);
 short creature_cannot_find_anything_to_do(struct Thing *creatng);
@@ -950,37 +947,6 @@ short arrive_at_call_to_arms(struct Thing *thing)
     return 1;
 }
 
-short at_barrack_room(struct Thing *thing)
-{
-    struct Room *room;
-    struct CreatureControl *cctrl;
-    //return _DK_at_barrack_room(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->target_room_id = 0;
-    room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_BARRACKS) || (room->owner != thing->owner))
-    {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    if (!add_creature_to_work_room(thing, room))
-    {
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    internal_set_thing_state(thing, CrSt_Barracking);
-    return 1;
-}
-
 long person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     return _DK_person_get_somewhere_adjacent_in_room(thing, room, pos);
@@ -1034,11 +1000,6 @@ SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, l
           m = (m + 1) % AROUND_MAP_LENGTH;
     }
     return 0;
-}
-
-short barracking(struct Thing *creatng)
-{
-  return _DK_barracking(creatng);
 }
 
 short cleanup_hold_audience(struct Thing *creatng)
