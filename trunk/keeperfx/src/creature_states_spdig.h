@@ -56,6 +56,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *thing);
 short creature_drops_crate_in_workshop(struct Thing *thing);
 short creature_drops_spell_object_in_library(struct Thing *thing);
 short creature_arms_trap(struct Thing *thing);
+long check_out_available_imp_drop_tasks(struct Thing *digger);
 /******************************************************************************/
 #ifdef __cplusplus
 }

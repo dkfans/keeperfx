@@ -179,12 +179,15 @@ short creature_at_changed_lair(struct Thing *creatng)
 {
     struct Room *room;
     //return _DK_creature_at_changed_lair(thing);
-    if (!thing_is_on_own_room_tile(creatng)) {
+    if (!thing_is_on_own_room_tile(creatng))
+    {
         set_start_state(creatng);
         return 0;
     }
     room = get_room_thing_is_on(creatng);
-    if (room_is_invalid(room) || (room->kind != RoK_LAIR)) {
+    if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, creatng))
+    {
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
         set_start_state(creatng);
         return 0;
     }
@@ -222,7 +225,7 @@ short at_lair_to_sleep(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);
-    cctrl->field_80 = 0;
+    cctrl->target_room_id = 0;
     if (thing_is_invalid(lairtng) || (cctrl->field_21 != 0))
     {
         set_start_state(thing);

@@ -38,10 +38,12 @@ DLLIMPORT long _DK_owner_player_navigating;
 DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
 #define nav_thing_can_travel_over_lava _DK_nav_thing_can_travel_over_lava
 /******************************************************************************/
-TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4);
-TbBool setup_person_move_close_to_position(struct Thing *thing, long x, long y, unsigned char a4);
-TbBool setup_person_move_backwards_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char a4);
-TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char a4);
+TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage);
+TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage);
+TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage);
+TbBool setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage);
+TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage);
+
 TbBool creature_can_travel_over_lava(const struct Thing *thing);
 TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool no_owner);
 TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage);
