@@ -2340,15 +2340,16 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
     nmaxim = cctrl->explevel+1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
-      && (thing->class_id == param->class_id)
-      && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
-      && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
+        && (thing->class_id == param->class_id)
+        && ((param->model_id == -1) || (thing->model == param->model_id))
+        && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+        && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
+        && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
-      if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
-      {
-        return nmaxim;
-      }
+        if (can_thing_be_picked_up_by_player(thing, param->plyr_idx))
+        {
+            return nmaxim;
+        }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -2370,15 +2371,16 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
     // New 'maximizer' value. Should be at least 1; maximum is, in this case, CREATURE_MAX_LEVEL.
     nmaxim = cctrl->explevel+1;
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
-      && (thing->class_id == param->class_id)
-      && ((param->model_id == -1) || (thing->model == param->model_id))
-      && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
-      && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
+        && (thing->class_id == param->class_id)
+        && ((param->model_id == -1) || (thing->model == param->model_id))
+        && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
+        && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
+        && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
-      if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
-      {
-        return nmaxim;
-      }
+        if (can_thing_be_picked_up2_by_player(thing, param->plyr_idx))
+        {
+            return nmaxim;
+        }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -2402,6 +2404,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
+      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
@@ -2432,6 +2435,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
+      && ((param->num1 == -1) || (get_creature_gui_job(thing) == param->num1))
       && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
       && (thing->active_state != CrSt_CreatureUnconscious) && (nmaxim > maximizer) )
     {
@@ -2531,8 +2535,8 @@ struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const 
 
 /**
  * Returns highest level creature of given kind which is owned by my_player.
- * @param breed_idx
- * @param pick_check
+ * @param breed_idx The creature kind index, or -1 if all special diggers are to be accepted.
+ * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
 struct Thing *find_my_highest_level_creature_of_breed(long breed_idx, TbBool pick_check)
@@ -2545,6 +2549,7 @@ struct Thing *find_my_highest_level_creature_of_breed(long breed_idx, TbBool pic
     param.plyr_idx = my_player_number;
     param.class_id = TCls_Creature;
     param.model_id = breed_idx;
+    param.num1 = -1;
     if (pick_check)
     {
         filter = player_list_creature_filter_most_experienced_and_pickable1;
@@ -2564,8 +2569,8 @@ struct Thing *find_my_highest_level_creature_of_breed(long breed_idx, TbBool pic
 
 /**
  * Returns lowest level creature of given kind which is owned by my_player.
- * @param breed_idx
- * @param pick_check
+ * @param breed_idx The creature kind index, or -1 if all special diggers are to be accepted.
+ * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
 struct Thing *find_my_lowest_level_creature_of_breed(long breed_idx, TbBool pick_check)
@@ -2576,7 +2581,9 @@ struct Thing *find_my_lowest_level_creature_of_breed(long breed_idx, TbBool pick
     struct Thing *thing;
     dungeon = get_players_num_dungeon(my_player_number);
     param.plyr_idx = my_player_number;
-    param.num1 = breed_idx;
+    param.class_id = TCls_Creature;
+    param.model_id = breed_idx;
+    param.num1 = -1;
     if (pick_check)
     {
         filter = player_list_creature_filter_least_experienced_and_pickable1;
@@ -2639,47 +2646,56 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
     long i;
     SYNCDBG(5,"Searching for breed %ld, GUI job %ld",breed_idx,job_idx);
     //return _DK_find_my_next_creature_of_breed_and_job(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
-    thing = NULL;
+    thing = INVALID_THING;
     dungeon = get_my_dungeon();
+    /* Check if we should start the search with a creature after last one, not from start of the list */
     if (breed_idx != -1)
     {
-      i = dungeon->selected_creatures_of_model[breed_idx];
-      thing = thing_get(i);
-      if (!thing_is_invalid(thing))
-      {
-        if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->class_id == TCls_Creature)
-          && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
-          && (thing->active_state != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner) )
+        i = dungeon->selected_creatures_of_model[breed_idx];
+        thing = thing_get(i);
+        // If the index is invalid, don't try to use it
+        if (!thing_exists(thing) || !thing_is_creature(thing) || !is_my_player_number(thing->owner))
         {
-          dungeon->selected_creatures_of_model[breed_idx] = 0;
-          thing = NULL;
+            dungeon->selected_creatures_of_model[breed_idx] = 0;
+            thing = INVALID_THING;
         } else
+        // If it's correct but the creature is not in hand or unconscious, then reset selection
+        if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
+            && (thing->active_state != CrSt_CreatureUnconscious) )
         {
-          cctrl = creature_control_get_from_thing(thing);
-          thing = thing_get(cctrl->players_next_creature_idx);
-        }
-      }
-    } else
-    if (job_idx != -1)
-    {
-      i = dungeon->selected_creatures_of_gui_job[job_idx];
-      thing = thing_get(i);
-      if (!thing_is_invalid(thing))
-      {
-        if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->class_id == TCls_Creature)
-          && ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
-          && (thing->active_state != CrSt_CreatureUnconscious) && is_my_player_number(thing->owner)
-          && (get_creature_gui_job(thing) == job_idx) )
+            dungeon->selected_creatures_of_model[breed_idx] = 0;
+            thing = INVALID_THING;
+        } else
+        // Finally, if everything seem right, allow next creature to be checked first
         {
             cctrl = creature_control_get_from_thing(thing);
             thing = thing_get(cctrl->players_next_creature_idx);
-        } else
+        }
+    } else
+    if (job_idx != -1)
+    {
+        i = dungeon->selected_creatures_of_gui_job[job_idx];
+        thing = thing_get(i);
+        // If the index is invalid, don't try to use it
+        if (!thing_exists(thing) || !thing_is_creature(thing) ||  !is_my_player_number(thing->owner))
         {
             dungeon->selected_creatures_of_gui_job[job_idx] = 0;
-            thing = NULL;
+            thing = INVALID_THING;
+        } else
+        // If it's correct but the creature is not in hand or unconscious, then reset selection
+        if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
+            && (thing->active_state != CrSt_CreatureUnconscious) )
+        {
+            dungeon->selected_creatures_of_gui_job[job_idx] = 0;
+            thing = INVALID_THING;
+        } else
+        // Finally, if everything seem right, allow next creature to be checked first
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            thing = thing_get(cctrl->players_next_creature_idx);
         }
-      }
     }
+    /* Use special routines for filtering by breed */
     if ((breed_idx != -1) && (job_idx == -1))
     {
         if ((pick_flags & TPF_ReverseOrder) != 0)
@@ -2690,6 +2706,7 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
             thing = find_my_highest_level_creature_of_breed(breed_idx, (pick_flags & TPF_PickableCheck) != 0);
         }
     } else
+    /* If filtering by job, use the index of previous creature */
     if (!thing_is_invalid(thing))
     {
         param.plyr_idx = my_player_number;
@@ -2705,18 +2722,23 @@ struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long jo
         }
         thing = get_player_list_creature_with_filter(thing->index, filter, &param);
     }
+    /* If nothing found yet, use an algorithm which returns a first match */
+    //TODO GUI maybe it should return highest/lowest level creature, too?
     if (thing_is_invalid(thing))
     {
         thing = find_my_first_creature_of_breed_and_gui_job(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
     }
+    /* If no matches were found, then there are simply no matching creatures */
     if (thing_is_invalid(thing))
     {
-        return NULL;
+        return INVALID_THING;
     }
+    /* Some basic debugging */
     if ((breed_idx != -1) && (thing->model != breed_idx))
     {
         ERRORLOG("Searched for breed %ld, but found %d.",breed_idx,(int)thing->model);
     }
+    /* Remember the creature we've found */
     dungeon->selected_creatures_of_model[thing->model] = thing->index;
     dungeon->selected_creatures_of_gui_job[get_creature_gui_job(thing)] = thing->index;
     return thing;
@@ -2820,7 +2842,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If creature is hungry, place it at garden
-    if ((crstat->hunger_rate != 0) && (cctrl->field_39 > crstat->hunger_rate))
+    if ((crstat->hunger_rate != 0) && (cctrl->hunger_level > crstat->hunger_rate))
     {
         // If already at garden, then don't do anything
         if (creature_is_doing_garden_activity(thing))

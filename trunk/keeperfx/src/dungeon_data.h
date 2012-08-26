@@ -42,6 +42,7 @@ extern "C" {
 #define TURN_TIMERS_COUNT       8
 #define SCRIPT_FLAGS_COUNT      8
 #define MAX_SOE_RADIUS         13
+#define CREATURE_GUI_JOBS_COUNT 3
 
 #define INVALID_DUNGEON (&bad_dungeon)
 
@@ -320,8 +321,10 @@ unsigned char field_14B2[2];
 int field_14B4;
 int field_14B8;
 unsigned char field_14BC[6];
+    /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_COUNT];
-    unsigned short selected_creatures_of_gui_job[3];
+    /** Index of last creature picked up of given GUI Job. */
+    unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     };
 
 #pragma pack()
