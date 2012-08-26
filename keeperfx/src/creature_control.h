@@ -139,11 +139,16 @@ unsigned short field_21;
 unsigned char field_2C;
     struct Coord3d moveto_pos;
 unsigned char field_33[6];
-    long field_39;
+    long hunger_level;
     long field_3D;
 unsigned char field_41[9];
     long field_4A;
-unsigned char field_4E[24];
+unsigned char field_4E[8];
+   /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
+    * When the highest value is above CreatureStats->annoy_level, the creature becomes angry/enraged,
+    * depending on how high the highest value is.
+    */
+    long annoyance_level[4];
     unsigned char field_66;
 unsigned char field_67;
     /** Lair room index, that is the room which holds creature's lair object. */
