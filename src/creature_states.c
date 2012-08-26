@@ -1921,8 +1921,8 @@ TbBool process_creature_hunger(struct Thing *thing)
   crstat = creature_stats_get_from_thing(thing);
   if ( (crstat->hunger_rate == 0) || ((cctrl->affected_by_spells & CCSpl_Freeze) != 0) )
     return false;
-  cctrl->field_39++;
-  if (cctrl->field_39 <= crstat->hunger_rate)
+  cctrl->hunger_level++;
+  if (cctrl->hunger_level <= crstat->hunger_rate)
     return false;
   if ((game.play_gameturn % game.turns_per_hunger_health_loss) == 0)
     remove_health_from_thing_and_display_health(thing, game.hunger_health_loss);
