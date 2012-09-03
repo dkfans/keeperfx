@@ -2619,10 +2619,231 @@ TbBool load_stats_files(void)
     return result;
 }
 
-
-long update_dungeon_scores(void)
+/**
+ * Compute points related to room slabs and entrances.
+ * @param num_entrances
+ * @param rooms_area
+ * @param entrance_gen
+ * @return
+ */
+unsigned long compute_dungeon_rooms_attraction_score(long num_entrances, long rooms_area, long entrance_gen)
 {
-  return _DK_update_dungeon_scores();
+    if (num_entrances > 27) // That would be approx. 3 entrances
+        num_entrances = 27;
+    if (rooms_area > 128) // more than 5 rooms of size 5x5
+        rooms_area = 128;
+    if (entrance_gen >= 10)
+        entrance_gen = 10;
+    return 100 * entrance_gen + 100 * rooms_area + 400 * num_entrances;
+}
+
+/**
+ * Computes efficiency of destroying and taking over enemy creatures.
+ * @param battles_won
+ * @param battles_lost
+ * @param scavenge_gain
+ * @param scavenge_lost
+ * @return
+ */
+unsigned long compute_dungeon_creature_tactics_score(long battles_won, long battles_lost, long scavenge_gain, long scavenge_lost)
+{
+    long battle_total,battle_efficiency,scavenge_efficiency;
+    battle_efficiency = battles_won - battles_lost;
+    if (battle_efficiency < 0)
+        battle_efficiency = 0;
+    if (battle_efficiency > 40)
+        battle_efficiency = 40;
+    battle_total = battles_won + battles_lost;
+    if (battle_total < 0)
+        battle_total = 0;
+    if (battle_total > 80)
+        battle_total = 80;
+    scavenge_efficiency = scavenge_gain - scavenge_lost;
+    if (scavenge_efficiency < 0)
+        scavenge_efficiency = 0;
+    if (scavenge_efficiency > 40)
+        scavenge_efficiency = 40;
+    return 25 * scavenge_efficiency + 25 * battle_efficiency + 2 * battle_total;
+}
+
+/**
+ * Compute point related to acquired territory.
+ * @param room_types
+ * @param total_area
+ * @return
+ */
+unsigned long compute_dungeon_rooms_variety_score(long room_types, long total_area)
+{
+    if (room_types < 0)
+        room_types = 0;
+    if (room_types > ROOM_TYPES_COUNT)
+        room_types = ROOM_TYPES_COUNT;
+    if (total_area < 0)
+        total_area = 0;
+    if (total_area >= 512)
+        total_area = 512;
+    return 3 * total_area + 25 * room_types;
+}
+
+unsigned long compute_dungeon_train_research_manufctr_wealth_score(long total_train, long total_research, long total_manufctr, long total_wealth)
+{
+    long pt_total_train, pt_total_research, pt_total_manufctr, pt_total_wealth;
+    pt_total_train = total_train / 256;
+    if (pt_total_train < 0)
+        pt_total_train = 0;
+    if (pt_total_train >= 96000)
+        pt_total_train = 96000;
+    pt_total_research = total_research / 256;
+    if (pt_total_research < 0)
+        pt_total_research = 0;
+    if (pt_total_research >= 96000)
+        pt_total_research = 96000;
+    pt_total_manufctr = total_manufctr / 256;
+    if (pt_total_manufctr < 0)
+        pt_total_manufctr = 0;
+    if (pt_total_manufctr >= 96000)
+        pt_total_manufctr = 96000;
+    pt_total_wealth = total_wealth;
+    if (pt_total_wealth < 0)
+        pt_total_wealth = 0;
+    if (pt_total_wealth >= 30000)
+        pt_total_wealth = 30000;
+    return pt_total_train / 2 + pt_total_research / 2 + pt_total_manufctr / 2 + 3 * pt_total_wealth;
+}
+
+unsigned long compute_dungeon_creature_amount_score(long total_creatrs)
+{
+    if (total_creatrs < 0)
+        total_creatrs = 0;
+    if (total_creatrs > 160)
+        total_creatrs = 160;
+    return 512 * total_creatrs;
+}
+
+unsigned long compute_dungeon_creature_mood_score(long survived_creatrs, long annoyed_creatrs)
+{
+    if (survived_creatrs <= 0)
+        return 0;
+    if (survived_creatrs > 160)
+        survived_creatrs = 160;
+    if (annoyed_creatrs < 0)
+        annoyed_creatrs = 0;
+    if (annoyed_creatrs > 160)
+        annoyed_creatrs = 160;
+    // Don't allow more angry creatures than total creatures
+    if (survived_creatrs < annoyed_creatrs)
+        survived_creatrs = annoyed_creatrs;
+    return (annoyed_creatrs << 8) / survived_creatrs;
+}
+
+/**
+ * Updates gameplay score for a dungeon belonging to given player.
+ * @return
+ */
+TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
+{
+    struct Dungeon *dungeon;
+    int i,k;
+    dungeon = get_players_dungeon(player);
+    unsigned long manage_efficiency,max_manage_efficiency;
+    manage_efficiency = 0;
+    max_manage_efficiency = 0;
+    {
+        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_slabs_count[RoK_ENTRANCE],
+            dungeon->field_949, dungeon->field_1485);
+        max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(LONG_MAX, LONG_MAX, LONG_MAX);
+    }
+    {
+        manage_efficiency += 40 * compute_dungeon_creature_tactics_score(dungeon->battles_won, dungeon->battles_lost,
+            dungeon->creatures_scavenge_gain, dungeon->creatures_scavenge_lost);
+        max_manage_efficiency += 40 * compute_dungeon_creature_tactics_score(LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
+    }
+    {
+        // Compute amount of different types of rooms built
+        unsigned long room_types;
+        room_types = 0;
+        for (i=0; i < ROOM_TYPES_COUNT; i++)
+        {
+            if (dungeon->room_slabs_count[i] > 0)
+                room_types++;
+        }
+        manage_efficiency += 40 * compute_dungeon_rooms_variety_score(room_types, dungeon->total_area);
+        max_manage_efficiency += 40 * compute_dungeon_rooms_variety_score(ROOM_TYPES_COUNT, LONG_MAX);
+    }
+    {
+        manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(dungeon->total_experience_creatures_gained,
+            dungeon->total_research_points, dungeon->field_1181, dungeon->total_money_owned);
+        max_manage_efficiency += compute_dungeon_train_research_manufctr_wealth_score(LONG_MAX, LONG_MAX, LONG_MAX, LONG_MAX);
+    }
+    unsigned long creatures_efficiency, creatures_mood;
+    unsigned long max_creatures_efficiency, max_creatures_mood;
+    {
+        creatures_efficiency = compute_dungeon_creature_amount_score(dungeon->num_active_creatrs);
+        max_creatures_efficiency = compute_dungeon_creature_amount_score(LONG_MAX);
+        creatures_mood = compute_dungeon_creature_mood_score(dungeon->num_active_creatrs,dungeon->creatures_annoyed);
+        max_creatures_mood = compute_dungeon_creature_mood_score(LONG_MAX,LONG_MAX);
+    }
+    { // Compute total score for this turn
+        i = manage_efficiency + creatures_efficiency;
+        k = max_manage_efficiency + max_creatures_efficiency;
+        dungeon->field_AE9[1] = 1000 * i / k;
+    }
+    { // Compute managing efficiency score
+        i = manage_efficiency - creatures_efficiency;
+        k = max_manage_efficiency - max_creatures_efficiency;
+        if (i < 0)
+            i = 0;
+        long raw_score;
+        raw_score = 1000 * i / k;
+        // Angry creatures may degrade the score by up to 50%
+        raw_score = raw_score / 2 + raw_score * (max_creatures_mood - creatures_mood) / (2*max_creatures_mood);
+        dungeon->field_AE9[0] = raw_score;
+    }
+    {
+        unsigned long gameplay_score;
+        gameplay_score = dungeon->field_AE9[1];
+        if (gameplay_score <= 1) {
+            WARNLOG("Total score for turn is too low!");
+            gameplay_score = 1;
+        }
+        dungeon->field_AE9[1] = gameplay_score;
+    }
+    {
+        unsigned long gameplay_score;
+        gameplay_score = dungeon->field_AE9[0];
+        if (gameplay_score <= 1) {
+            WARNLOG("Managing score for turn is too low!");
+            gameplay_score = 1;
+        }
+        dungeon->field_AE9[0] = gameplay_score;
+    }
+    { // Check to update max score
+        unsigned long gameplay_score;
+        gameplay_score = dungeon->field_AE9[1];
+        if (dungeon->max_gameplay_score < gameplay_score)
+            dungeon->max_gameplay_score = gameplay_score;
+    }
+    return true;
+}
+
+long update_dungeons_scores(void)
+{
+    struct PlayerInfo *player;
+    int i,k;
+    //return _DK_update_dungeon_scores();
+    k = 0;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (!player_exists(player))
+            continue;
+        if (player->field_2C == 1)
+        {
+            update_dungeon_scores_for_player(player);
+            k++;
+        }
+    }
+    return k;
 }
 
 long update_dungeon_generation_speeds(void)
@@ -3848,17 +4069,18 @@ short player_has_lost(long plyr_idx)
 
 long compute_player_final_score(struct PlayerInfo *player,long gameplay_score)
 {
-  struct PlayerInfo *myplyr;
-  long i;
-  myplyr = get_my_player();
-  if (((game.system_flags & GSF_NetworkActive) != 0)
-      || !is_singleplayer_level(game.loaded_level_number))
-    i = 2 * gameplay_score;
-  else
-    i = gameplay_score + 10 * gameplay_score * array_index_for_singleplayer_level(game.loaded_level_number) / 100;
-  if (player_has_lost(player->id_number))
-    i /= 2;
-  return i;
+    struct PlayerInfo *myplyr;
+    long i;
+    myplyr = get_my_player();
+    if (((game.system_flags & GSF_NetworkActive) != 0)
+      || !is_singleplayer_level(game.loaded_level_number)) {
+        i = 2 * gameplay_score;
+    } else {
+        i = gameplay_score + 10 * gameplay_score * array_index_for_singleplayer_level(game.loaded_level_number) / 100;
+    }
+    if (player_has_lost(player->id_number))
+        i /= 2;
+    return i;
 }
 
 void set_player_as_won_level(struct PlayerInfo *player)
@@ -3874,7 +4096,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   player->victory_state = VicS_WonLevel;
   dungeon = get_dungeon(player->id_number);
   // Computing player score
-  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE9[2]);
+  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
   if ((game.system_flags & GSF_NetworkActive) == 0)
     player->field_4EB = game.play_gameturn + 300;
@@ -3903,7 +4125,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
   player->victory_state = VicS_LostLevel;
   dungeon = get_dungeon(player->id_number);
   // Computing player score
-  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->field_AE9[2]);
+  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   if (is_my_player(player))
   {
     output_message(SMsg_LevelFailed, 0, true);
@@ -4464,7 +4686,7 @@ void process_entrance_generation(void)
     if (generation_due_in_game())
     {
         if (game.field_150356 == 0) {
-            update_dungeon_scores();
+            update_dungeons_scores();
             update_dungeon_generation_speeds();
             game.entrance_last_generate_turn = game.play_gameturn;
         }
@@ -6753,7 +6975,7 @@ void post_init_level(void)
     load_script(get_loaded_level_number());
     init_dungeons_research();
     create_transferred_creature_on_level();
-    update_dungeon_scores();
+    update_dungeons_scores();
     update_dungeon_generation_speeds();
     init_traps();
     init_all_creature_states();
