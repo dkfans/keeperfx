@@ -125,7 +125,7 @@ short creature_scavenged_disappear(struct Thing *thing)
         move_thing_in_map(thing, &pos);
         anger_set_creature_anger_all_types(thing, 0);
         dungeon = get_dungeon(cctrl->byte_9B);
-        dungeon->creatures_scavenged++;
+        dungeon->creatures_scavenge_gain++;
         if (is_my_player_number(thing->owner))
           output_message(SMsg_MinionScanvenged, 0, true);
         cctrl->byte_9C = thing->owner;

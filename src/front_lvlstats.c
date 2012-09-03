@@ -293,8 +293,8 @@ void frontstats_initialise(void)
     dungeon->lvstats.rooms_destroyed = dungeon->rooms_destroyed;
     dungeon->lvstats.dungeon_area = dungeon->total_area;
     dungeon->lvstats.ideas_researched = (dungeon->total_research_points >> 8);
-    dungeon->lvstats.creatures_scavenged = dungeon->creatures_scavenged;
-    dungeon->lvstats.creatures_summoned = dungeon->creatures_summoned;
+    dungeon->lvstats.creatures_scavenged = dungeon->creatures_scavenge_gain;
+    dungeon->lvstats.creatures_summoned = dungeon->creatures_scavenge_lost;
     dungeon->lvstats.spells_stolen = dungeon->spells_stolen;
     dungeon->lvstats.gold_pots_stolen = dungeon->gold_pots_stolen;
     dungeon->lvstats.average_room_efficiency  = calculate_efficiency(my_player_number);

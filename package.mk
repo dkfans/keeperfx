@@ -64,6 +64,9 @@ pkg/campgns/keeporig.cfg: campgns/keeporig.cfg
 #	 Copy folder with campaign name (w/o extension), if it exists
 	$(if $(wildcard $(<:%.cfg=%)),$(MKDIR) pkg/levels)
 	$(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* pkg/levels/)
+#	 Copy folder with campaign name and _cfgs ending, if it exists
+	$(if $(wildcard $(<:%.cfg=%_cfgs)),$(MKDIR) $(@:%.cfg=%_cfgs))
+	$(if $(wildcard $(<:%.cfg=%_cfgs)),-$(CP) $(<:%.cfg=%_cfgs)/*.cfg $(@:%.cfg=%_cfgs)/)
 #	 Copy folder with campaign name and _crtr ending, if it exists
 	$(if $(wildcard $(<:%.cfg=%_crtr)),$(MKDIR) $(@:%.cfg=%_crtr))
 	$(if $(wildcard $(<:%.cfg=%_crtr)),-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/)

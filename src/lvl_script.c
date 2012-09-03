@@ -2847,10 +2847,10 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       return dungeon->doors_destroyed;
   case SVar_CREATURES_SCAVENGED_LOST:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->creatures_summoned;
+      return dungeon->creatures_scavenge_lost;
   case SVar_CREATURES_SCAVENGED_GAINED:
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->creatures_scavenged;
+      return dungeon->creatures_scavenge_gain;
   case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
       dungeon = get_dungeon(plyr_idx);
       return dungeon->magic_level[validx%KEEPER_SPELLS_COUNT];
