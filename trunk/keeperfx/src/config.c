@@ -1593,11 +1593,11 @@ int array_index_for_freeplay_level(LevelNumber fp_lvnum)
  */
 LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum)
 {
-  int i;
-  i = array_index_for_singleplayer_level(sp_lvnum);
-  if (i >= 0)
-    return campaign.bonus_levels[i];
-  return 0;
+    int i;
+    i = array_index_for_singleplayer_level(sp_lvnum);
+    if (i >= 0)
+        return campaign.bonus_levels[i];
+    return 0;
 }
 
 /**
@@ -1606,10 +1606,10 @@ LevelNumber bonus_level_for_singleplayer_level(LevelNumber sp_lvnum)
  */
 LevelNumber first_singleplayer_level(void)
 {
-  long lvnum = campaign.single_levels[0];
-  if (lvnum > 0)
-    return lvnum;
-  return SINGLEPLAYER_NOTSTARTED;
+    long lvnum = campaign.single_levels[0];
+    if (lvnum > 0)
+        return lvnum;
+    return SINGLEPLAYER_NOTSTARTED;
 }
 
 /**

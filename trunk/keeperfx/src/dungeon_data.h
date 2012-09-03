@@ -235,8 +235,8 @@ struct Dungeon {
     int doors_destroyed;
     short field_949;
     short field_94B[32];
-    short creatures_scavenged;
-    short creatures_summoned;
+    short creatures_scavenge_gain;
+    short creatures_scavenge_lost;
     short field_98F[96];
     int creature_max_level[CREATURE_TYPES_COUNT];
     unsigned short creatures_annoyed;
@@ -249,7 +249,8 @@ struct Dungeon {
     int last_entrance_generation_gameturn;
     int turns_between_entrance_generation;
     int field_AE5;
-    int field_AE9[3];
+    int field_AE9[2];
+    unsigned long max_gameplay_score;
     short field_AF5;
     short field_AF7;
     int total_money_owned;
