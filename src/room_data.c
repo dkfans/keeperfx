@@ -1972,15 +1972,100 @@ TbBool add_item_to_room_capacity(struct Room *room)
     return true;
 }
 
+/**
+ * Changes ownership of object thing in a room while it's being claimed.
+ * @param room The room being claimed.
+ * @param thing The thing to be checked, and possibly changed.
+ * @param parent_idx The new thing parent. Parent for objects is a slab number. Not all objects have the parent set.
+ * @param newowner
+ */
 void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
 {
     PlayerNumber oldowner;
-    if ( (room->kind == RoK_GUARDPOST) && ((thing->model == 115) || (thing->model == 116) || (thing->model == 117) || (thing->model == 118) || (thing->model == 119)))
+    struct Objects *objdat;
+    objdat = get_objects_data_for_thing(thing);
+    // Handle specific things in rooms for which we have a special re-creation code
+    switch (room->kind)
     {
-        create_object(&thing->mappos, player_unknown1_objects[newowner], newowner, parent_idx);
-        delete_thing_structure(thing, 0);
-        return;
+    case RoK_GUARDPOST:
+        // Guard post owns only flag
+        if (object_is_guard_flag(thing))
+        {
+            create_guard_flag_object(&thing->mappos, newowner, parent_idx);
+            delete_thing_structure(thing, 0);
+            return;
+        }
+        break;
+    case RoK_LIBRARY:
+        // Library owns books and candles
+        if (thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+        {
+            oldowner = thing->owner;
+            thing->owner = newowner;
+            if (oldowner != game.neutral_player_num) {
+                remove_spell_from_player(book_thing_to_magic(thing), oldowner);
+            }
+            if (newowner != game.neutral_player_num) {
+                add_spell_to_player(book_thing_to_magic(thing), newowner);
+            }
+            return;
+        }
+        break;
+    case RoK_WORKSHOP:
+        // Workshop owns trap boxes, machines and anvils
+        if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_Unkn01) == 0) )
+        {
+            oldowner = thing->owner;
+            thing->owner = newowner;
+            remove_workshop_item(oldowner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing));
+            add_workshop_item(newowner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing));
+            return;
+        }
+        break;
+    case RoK_TREASURE:
+        if (thing_is_gold_hoard(thing))
+        {
+            oldowner = thing->owner;
+            struct Dungeon *dungeon;
+            {
+                dungeon = get_dungeon(newowner);
+                dungeon->total_money_owned += thing->long_13;
+            }
+            if (oldowner != game.neutral_player_num)
+            {
+                dungeon = get_dungeon(oldowner);
+                dungeon->total_money_owned -= thing->long_13;
+            }
+            thing->owner = newowner;
+            return;
+        }
+        break;
+    case RoK_LAIR:
+        // Lair - owns creature lairs
+        if (objdat->related_creatr_model)
+        {
+            if (thing->word_13)
+            {
+                struct Thing *tmptng;
+                struct CreatureControl *cctrl;
+                tmptng = thing_get(thing->word_13);
+                cctrl = creature_control_get_from_thing(tmptng);
+                if (cctrl->lairtng_idx == thing->index) {
+                    creature_remove_lair_from_room(tmptng, room);
+                } else {
+                    ERRORLOG("Lair thinks it belongs to a creature, but the creature disagrees.");
+                }
+            } else
+            {
+                ERRORLOG("This lair has no owner!!!");
+            }
+            return;
+        }
+        break;
+    default:
+        break;
     }
+    // If an object has parent slab, then it should change owner with that slab
     if (thing->parent_idx != -1)
     {
         if (parent_idx == thing->parent_idx) {
@@ -1988,63 +2073,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         }
         return;
     }
-    if ((room->kind == RoK_LIBRARY) && thing_is_spellbook(thing) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
-    {
-        oldowner = thing->owner;
-        thing->owner = newowner;
-        if (oldowner != game.neutral_player_num) {
-            remove_spell_from_player(book_thing_to_magic(thing), oldowner);
-        }
-        if (newowner != game.neutral_player_num) {
-            add_spell_to_player(book_thing_to_magic(thing), newowner);
-        }
-        return;
-    }
-    if ((room->kind == RoK_WORKSHOP) && thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_Unkn01) == 0) )
-    {
-        oldowner = thing->owner;
-        thing->owner = newowner;
-        remove_workshop_item(oldowner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing));
-        add_workshop_item(newowner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing));
-        return;
-    }
-    if ((room->kind == RoK_TREASURE) && thing_is_gold_hoard(thing))
-    {
-        oldowner = thing->owner;
-        struct Dungeon *dungeon;
-        {
-            dungeon = get_dungeon(newowner);
-            dungeon->total_money_owned += thing->long_13;
-        }
-        if (oldowner != game.neutral_player_num)
-        {
-            dungeon = get_dungeon(oldowner);
-            dungeon->total_money_owned -= thing->long_13;
-        }
-        thing->owner = newowner;
-        return;
-    }
-    struct Objects *objdat;
-    objdat = get_objects_data_for_thing(thing);
-    if ((room->kind == RoK_LAIR) && objdat->field_13 )
-    {
-        if (thing->word_13)
-        {
-            struct Thing *tmptng;
-            struct CreatureControl *cctrl;
-            tmptng = thing_get(thing->word_13);
-            cctrl = creature_control_get_from_thing(tmptng);
-            if (cctrl->lairtng_idx == thing->index) {
-                creature_remove_lair_from_room(tmptng, room);
-            } else {
-                ERRORLOG("Lair thinks it belongs to a creature, but the creature disagrees.");
-            }
-        } else
-        {
-            ERRORLOG("This lair has no owner!!!");
-        }
-        return;
-    }
+    // Otherwise, changing owner depends on what the object represents
     switch ( objdat->field_14 )
     {
       case 0:
@@ -2058,13 +2087,23 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
     }
 }
 
+/**
+ * Changes ownership of things on a room subtile while it's being claimed.
+ * @param room The room being claimed.
+ * @param stl_x The subtile to be affected, X coord.
+ * @param stl_y The subtile to be affected, Y coord.
+ * @param plyr_idx The player which is claiming the room subtile.
+ * @return True on success, false otherwise.
+ */
 TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct Thing *thing;
     struct Map *mapblk;
+    long parent_idx;
     long i;
     unsigned long k;
     mapblk = get_map_block_at(stl_x,stl_y);
+    parent_idx = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
     k = 0;
     i = get_mapwho_thing_index(mapblk);
     while (i != 0)
@@ -2080,7 +2119,7 @@ TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl
         // Per thing code start
         if (thing->class_id == TCls_Object)
         {
-            change_ownership_or_delete_object_thing_in_room(room, thing, i, plyr_idx);
+            change_ownership_or_delete_object_thing_in_room(room, thing, parent_idx, plyr_idx);
         }
         // Per thing code end
         k++;
@@ -2093,6 +2132,11 @@ TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl
     return true;
 }
 
+/**
+ * Changes ownership of things in a room while it's being claimed.
+ * @param room The room to be affected.
+ * @param plyr_idx The new owner.
+ */
 void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
@@ -2269,6 +2313,12 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
     }
 }
 
+/**
+ * Function used for claiming unowned room by a creature.
+ * @param room The room to be claimed.
+ * @param claimtng The creature which claimed it.
+ * @return
+ */
 long claim_room(struct Room *room,struct Thing *claimtng)
 {
     PlayerNumber oldowner;
@@ -2291,6 +2341,12 @@ long claim_room(struct Room *room,struct Thing *claimtng)
     return 1;
 }
 
+/**
+ * Function used for claiming room owned by another keeper by a creature.
+ * @param room The room to be claimed.
+ * @param claimtng The creature which claimed it.
+ * @return
+ */
 long claim_enemy_room(struct Room *room,struct Thing *claimtng)
 {
     PlayerNumber oldowner;

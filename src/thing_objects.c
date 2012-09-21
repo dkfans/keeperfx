@@ -209,7 +209,12 @@ ThingModel object_to_door_or_trap[] = {
     0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-unsigned short player_unknown1_objects[] = {115, 116, 117, 118, 0, 119};
+/** Guard flag objects model per player index. Originally named guard_post_objects.
+ */
+unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
+/** Dungeon Heart flame objects model per player index.
+ */
+unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
 unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
 unsigned short specials_text[] = {201, 420, 421, 422, 423, 424, 425, 426, 427, 0};
 
@@ -575,6 +580,26 @@ TbBool object_is_gold_pile(const struct Thing *thing)
   }
 }
 
+/**
+ * Returns if given thing is a guardpost flag.
+ * @param thing
+ * @return
+ */
+TbBool object_is_guard_flag(const struct Thing *thing)
+{
+  switch (thing->model)
+  {
+    case 115:
+    case 116:
+    case 117:
+    case 118:
+    case 119:
+        return true;
+    default:
+        return false;
+  }
+}
+
 struct Thing *get_spellbook_at_position(long x, long y)
 {
   return _DK_get_spellbook_at_position(x, y);
@@ -806,6 +831,30 @@ TngUpdateRet update_object(struct Thing *thing)
     if ((thing->movement_flags & TMvF_Unknown40) != 0)
         return TUFRet_Modified;
     return move_object(thing);
+}
+
+/**
+ * Creates a guard post flag object.
+ * @param pos Position where the guard post flag is to be created.
+ * @param plyr_idx Player who will own the flag.
+ * @param parent_idx Slab number associated with the flag.
+ * @return Guard flag object thing.
+ */
+struct Thing *create_guard_flag_object(const struct Coord3d *pos, long plyr_idx, long parent_idx)
+{
+    struct Thing *thing;
+    ThingModel grdflag_kind;
+    if (plyr_idx >= sizeof(player_guardflag_objects)/sizeof(player_guardflag_objects[0]))
+        grdflag_kind = player_guardflag_objects[NEUTRAL_PLAYER];
+    else
+        grdflag_kind = player_guardflag_objects[plyr_idx];
+    if (grdflag_kind <= 0)
+        return INVALID_THING;
+    // Guard posts have slab number set as parent
+    thing = create_object(pos, grdflag_kind, plyr_idx, parent_idx);
+    if (thing_is_invalid(thing))
+        return INVALID_THING;
+    return thing;
 }
 
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)

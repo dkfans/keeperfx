@@ -141,6 +141,10 @@ struct Thing {
     unsigned char field_19;
     unsigned char model;
     unsigned short index;
+    /** Parent index. The parent may either be a thing, or a slab index.
+     * What it means depends on thing class, ie. it's thing index for shots
+     *  and slab number for objects.
+     */
     short parent_idx;
     unsigned char class_id;
     unsigned char field_20;

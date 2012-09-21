@@ -711,9 +711,9 @@ struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord s
         {
             struct Objects *objdat;
             objdat = get_objects_data_for_thing(thing);
-            if (objdat->field_13 > 0)
+            if (objdat->related_creatr_model > 0)
             {
-                if ((crmodel <= 0) || (objdat->field_13 == crmodel))
+                if ((crmodel <= 0) || (objdat->related_creatr_model == crmodel))
                     return thing;
             }
         }

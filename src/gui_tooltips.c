@@ -203,12 +203,12 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       return true;
     }
     objdat = get_objects_data_for_thing(thing);
-    if (objdat->field_13)
+    if (objdat->related_creatr_model)
     {
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
-        crdata = creature_data_get(objdat->field_13);
+        crdata = creature_data_get(objdat->related_creatr_model);
         set_gui_tooltip_box_fmt(5,"%s %s", gui_strings[crdata->namestr_idx%STRINGS_MAX], gui_strings[609]); // (creature) Lair
       } else
       {
