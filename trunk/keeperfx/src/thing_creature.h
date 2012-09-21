@@ -82,7 +82,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3);
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char a2, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 void set_creature_level(struct Thing *thing, long nlvl);

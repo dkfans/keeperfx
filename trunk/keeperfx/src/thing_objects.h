@@ -47,7 +47,8 @@ struct Objects {
     unsigned char field_10;
     unsigned char field_11;
     unsigned char field_12;
-    unsigned char field_13;
+    /** Creature model related to the object, ie for lairs - which creature lair it is. */
+    unsigned char related_creatr_model;
     unsigned char field_14;
     unsigned char field_15;
 };
@@ -57,7 +58,7 @@ struct Objects {
 extern Thing_State_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];
 extern unsigned short specials_text[];
-extern unsigned short player_unknown1_objects[];
+extern unsigned short player_guardflag_objects[];
 /******************************************************************************/
 DLLIMPORT extern struct Objects _DK_objects[OBJECT_TYPES_COUNT];
 #define objects_data _DK_objects
@@ -96,9 +97,11 @@ TbBool object_is_hero_gate(const struct Thing *thing);
 TbBool object_is_mature_food(const struct Thing *thing);
 TbBool object_is_gold(const struct Thing *thing);
 TbBool object_is_gold_pile(const struct Thing *thing);
+TbBool object_is_guard_flag(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
 
+struct Thing *create_guard_flag_object(const struct Coord3d *pos, long plyr_idx, long parent_idx);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx);
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, long plyr_idx, long value);
 struct Thing *find_gold_hoard_at(unsigned short stl_x, unsigned short stl_y);

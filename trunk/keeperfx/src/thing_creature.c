@@ -1304,11 +1304,12 @@ void creature_death_as_nature_intended(struct Thing *thing)
 }
 
 /**
- * Removes given index in things from given StructureList.
- * Returns amount of items updated.
+ * Removes given parent index in things from given StructureList.
+ * Works only for things for whom parent is a thing (which are shots).
+ * @return Gives amount of items updated.
  * TODO figure out what this index is, then rename and move this function.
  */
-unsigned long remove_thing_from_field1D_in_list(struct StructureList *list,long remove_idx)
+unsigned long remove_parent_thing_from_things_in_list(struct StructureList *list,long remove_idx)
 {
     struct Thing *thing;
     unsigned long n;
@@ -1351,7 +1352,7 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
     cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
     throw_out_gold(thing);
-    remove_thing_from_field1D_in_list(&game.thing_lists[TngList_Shots],thing->index);
+    remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
 
     crmodel = thing->model;
     crstat = creature_stats_get_from_thing(thing);
@@ -1579,7 +1580,7 @@ long calculate_melee_damage(struct Thing *thing)
 /**
  * Calculates damage made by a creature using specific shot type.
  */
-long calculate_shot_damage(struct Thing *thing,long shot_model)
+long calculate_shot_damage(struct Thing *thing, ThingModel shot_model)
 {
   struct CreatureControl *cctrl;
   struct CreatureStats *crstat;
@@ -1590,7 +1591,7 @@ long calculate_shot_damage(struct Thing *thing,long shot_model)
   return compute_creature_attack_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
 }
 
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short shot_model, char a2, unsigned char hit_type)
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char a2, unsigned char hit_type)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -2150,7 +2151,7 @@ void change_creature_owner(struct Thing *thing, long nowner)
         if (!room_is_invalid(room)) {
             creature_remove_lair_from_room(thing, room);
         } else {
-            ERRORDBG(8,"The %s index %d has lair %d in nonexisting room.",thing_model_name(thing),(int)thing->index,(int)cctrl->lairtng_idx);
+            ERRORDBG(8,"The %s index %d has lair %d in non-existing room.",thing_model_name(thing),(int)thing->index,(int)cctrl->lairtng_idx);
             cctrl->lairtng_idx = 0;
         }
     }
