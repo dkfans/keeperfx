@@ -31,6 +31,19 @@ extern "C" {
 
 #define OBJECT_ITEMS_MAX 256
 
+enum ObjectCategoryIndex {
+    OCtg_Unknown = 0,
+    OCtg_Decoration, //< Object has no strong function
+    OCtg_Furniture,  //< Object is crucial part of a room
+    OCtg_Valuable,   //< Object is gold in some form
+    OCtg_Spellbook,  //< Object is a spellbook
+    OCtg_WrkshpBox,  //< Object is a manufactured box for workshop
+    OCtg_Food,       //< Object is food for creatures
+    OCtg_Power,      //< Object is a keeper power effect, ie. hand of evil or keeper spell
+    OCtg_Lair,       //< Object is a creature lair
+    OCtg_Effect,     //< Object is some kind of effect which has influence on things or on terrain
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

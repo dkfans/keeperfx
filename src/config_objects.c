@@ -25,6 +25,7 @@
 #include "bflib_dernc.h"
 
 #include "config.h"
+#include "config_creature.h"
 #include "thing_objects.h"
 
 #ifdef __cplusplus
@@ -41,20 +42,21 @@ const struct NamedCommand objects_common_commands[] = {
 const struct NamedCommand objects_object_commands[] = {
   {"NAME",            1},
   {"GERNE",           2},
+  {"RELATEDCREATURE", 3},
   {NULL,              0},
   };
 
 const struct NamedCommand objects_gernes_desc[] = {
-  {"NONE",            0},
-  {"DECORATION",      1},
-  {"FURNITURE",       2},
-  {"VALUABLE",        3},
-  {"SPELLBOOK",       4},
-  {"WORKSHOPBOX",     5},
-  {"FOOD",            6},
-  {"POWER",           7},
-  {"LAIR",            8},
-  {"EFFECT",          9},
+  {"NONE",            OCtg_Unknown},
+  {"DECORATION",      OCtg_Decoration},
+  {"FURNITURE",       OCtg_Furniture},
+  {"VALUABLE",        OCtg_Valuable},
+  {"SPELLBOOK",       OCtg_Spellbook},
+  {"WORKSHOPBOX",     OCtg_WrkshpBox},
+  {"FOOD",            OCtg_Food},
+  {"POWER",           OCtg_Power},
+  {"LAIR",            OCtg_Lair},
+  {"EFFECT",          OCtg_Effect},
   {NULL,              0},
   };
 
@@ -136,6 +138,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
 TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     struct ObjectConfigStats *objst;
+    struct Objects *objdat;
     long pos;
     int i,k,n;
     int cmd_num;
@@ -180,6 +183,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             continue;
         }
         objst = &object_conf.object_cfgstats[i];
+        objdat = get_objects_data(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
@@ -216,6 +220,19 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     break;
                 }
                 objst->gerne = n;
+                break;
+            case 3: // RELATEDCREATURE
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    n = get_id(creature_desc, word_buf);
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Incorrect related creature \"%s\" in [%s] block of %s file.",
+                        word_buf,block_buf,config_textname);
+                    break;
+                }
+                objdat->related_creatr_model = n;
                 break;
             case 0: // comment
                 break;
