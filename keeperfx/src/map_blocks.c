@@ -631,6 +631,12 @@ long element_top_face_texture(struct Map *map)
 }
 
 /*
+void place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short a5, unsigned char a6)
+{
+
+}
+
+
 char point_in_map_is_solid_including_lava_check_ignoring_door(struct Coord3d *pos, struct Thing *thing)
 {
 
