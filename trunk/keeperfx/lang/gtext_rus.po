@@ -2799,8 +2799,8 @@ msgid "Additional Level Design"
 msgstr "Добавочный Дизайн Уровней"
 
 #: guitext:577
-msgctxt "Credits"
 #: guitext:863
+msgctxt "Credits"
 msgid "Additional Thanks"
 msgstr "Дополнительные Спасиббы"
 

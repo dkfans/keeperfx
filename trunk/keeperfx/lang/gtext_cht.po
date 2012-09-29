@@ -2799,8 +2799,8 @@ msgid "Additional Level Design"
 msgstr "其它关卡设计"
 
 #: guitext:577
-msgctxt "Credits"
 #: guitext:863
+msgctxt "Credits"
 msgid "Additional Thanks"
 msgstr "其它感谢"
 
