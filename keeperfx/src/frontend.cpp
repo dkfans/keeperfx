@@ -141,16 +141,16 @@ int select_level_scroll_offset = 0;
 int number_of_freeplay_levels = 0;
 
 struct GuiButtonInit frontend_main_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  26, 999,  26,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {1},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,   3, 999,  92, 999,  92,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {2},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button,0,999, 138, 999, 138,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {8},            0, 0, frontend_continue_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184, 999, 184,371, 46, frontend_draw_large_menu_button,0,201, 0,     {106},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230, 999, 230,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {3},            0, 0, frontend_main_menu_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,  4, 999, 276, 999, 276,371, 46, frontend_draw_large_menu_button,0,201,0,    {4},            0, 0, frontend_main_menu_netservice_maintain },
-  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322, 999, 322,371, 46, frontend_draw_large_menu_button,   0, 201,  0,      {97},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,   18, 999, 368, 999, 368,371, 46, frontend_draw_large_menu_button,0,201,0,{104},            0, 0, frontend_main_menu_highscores_maintain },
-  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    9, 999, 414, 999, 414,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {5},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
+  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  26, 999,  26, 371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {1},            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_start_new_game,NULL,frontend_over_button,     3, 999,  92, 999,  92, 371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {2},            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_load_continue_game,NULL,frontend_over_button, 0, 999, 138, 999, 138, 371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {8},            0, 0, frontend_continue_game_maintain },
+  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL,frontend_over_button,30,999,184,999,184,371, 46, frontend_draw_large_menu_button,   0, 201,  0,     {106},            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,    2, 999, 230,   999, 230, 371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {3},            0, 0, frontend_main_menu_load_game_maintain },
+  { 0,  0, 0, 0, 0, frontend_netservice_change_state,NULL, frontend_over_button,4,999,276,999,276,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {4},            0, 0, frontend_main_menu_netservice_maintain },
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,   27, 999, 322,   999, 322, 371, 46, frontend_draw_large_menu_button,   0, 201,  0,      {97},            0, 0, NULL },
+  { 0,  0, 0, 0, 0, frontend_ldcampaign_change_state,NULL, frontend_over_button,18,999,368,999,368,371,46, frontend_draw_large_menu_button,   0, 201,  0,     {104},            0, 0, frontend_main_menu_highscores_maintain },
+  { 0,  0, 0, 0, 0, frontend_change_state,NULL, frontend_over_button,      9, 999, 414, 999, 414, 371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {5},            0, 0, NULL },
+  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,   0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
 };
 /*
 struct GuiButtonInit frontend_main_menu_buttons[] = {
