@@ -588,19 +588,19 @@ void put_down_simpletext_sprites(const char *sbuf, const char *ebuf, long x, lon
           lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR8;
           break;
         case 3:
-          lbDisplay.DrawFlags ^= 0x0010;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
           break;
         case 4:
           lbDisplay.DrawFlags ^= Lb_SPRITE_ONECOLOUR1;
           break;
         case 5:
-          lbDisplay.DrawFlags ^= 0x0002;
+          lbDisplay.DrawFlags ^= Lb_SPRITE_ONECOLOUR2;
           break;
         case 11:
           lbDisplay.DrawFlags ^= Lb_TEXT_UNDERLINE;
           break;
         case 12:
-          lbDisplay.DrawFlags ^= 0x0040;
+          lbDisplay.DrawFlags ^= Lb_TEXT_UNKNOWN0040;
           break;
         case 14:
           c++;
