@@ -2,13 +2,13 @@
 ifneq (,$(findstring Windows,$(OS)))
   PERESEC_DOWNLOAD=https://github.com/dkfans/peresec/releases/download/1.1.0/peresec-1_1_0_16-devel-win.zip
   PNGTOICO_DOWNLOAD=https://github.com/dkfans/png2ico/releases/download/2003-01-14/png2ico-win-2003-01-14.zip
-  POTONGDAT_DOWNLOAD=no_prebuild_available_for_your_os
+  POTONGDAT_DOWNLOAD=https://github.com/dkfans/po2ngdat/releases/download/v1.0.2/po2ngdat-1_0_2_28-devel-win.zip
 else
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
   PERESEC_DOWNLOAD=https://github.com/dkfans/peresec/releases/download/1.1.0/peresec-1_1_0_16-devel-lin.tar.gz
   PNGTOICO_DOWNLOAD=https://github.com/dkfans/png2ico/releases/download/2003-01-14/png2ico-lin-2003-01-14.tar.gz
-  POTONGDAT_DOWNLOAD=no_prebuild_available_for_your_os
+  POTONGDAT_DOWNLOAD=https://github.com/dkfans/po2ngdat/releases/download/v1.0.2/po2ngdat-1_0_2_28-devel-lin.tar.gz
 else
   PERESEC_DOWNLOAD=no_prebuild_available_for_your_os
   PNGTOICO_DOWNLOAD=no_prebuild_available_for_your_os
