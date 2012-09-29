@@ -21,12 +21,15 @@ msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.40\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2012-09-02 03:42+0200\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team [code.google.com]\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: French\n"
+"X-Poedit-Country: FRANCE\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
 #: guitext:0
 msgctxt "In-game message"
@@ -924,11 +927,6 @@ msgstr "Finalement, vous n'avez plus le moindre ennemi. Vous pouvez piller et sa
 msgctxt "Unused"
 msgid "Moo"
 msgstr "MEUH..."
-
-#: guitext:201
-msgctxt "Default text"
-msgid ""
-msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -4611,8 +4609,3 @@ msgstr "Campaigns"
 msgctxt "Menu interface item"
 msgid "Add computer"
 msgstr "Add computer"
-
-#: guitext:945
-msgctxt "Unused"
-msgid ""
-msgstr ""
