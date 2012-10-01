@@ -50,18 +50,18 @@ pofile_catalog_reader_ty * pofile_catalog_reader_alloc(void)
     size_t i;
 
     pop->domain = MESSAGE_DOMAIN_DEFAULT;
-    pop->comment_dot = NULL;
     pop->comment_previd = NULL;
     pop->comment_del = NULL;
-    pop->comment = NULL;
-    pop->filepos_count = 0;
-    pop->filepos = NULL;
+    pop->nmsg.comment_dot = NULL;
+    pop->nmsg.comment = NULL;
+    pop->nmsg.filepos_count = 0;
+    pop->nmsg.filepos = NULL;
     for (i = 0; i < NFORMATS; i++)
-      pop->is_format[i] = undecided;
-    pop->is_fuzzy = false;
-    pop->range.min = -1;
-    pop->range.max = -1;
-    pop->do_wrap = undecided;
+      pop->nmsg.is_format[i] = undecided;
+    pop->nmsg.is_fuzzy = false;
+    pop->nmsg.range.min = -1;
+    pop->nmsg.range.max = -1;
+    pop->nmsg.do_wrap = undecided;
 
     return pop;
 }
@@ -78,27 +78,27 @@ pofile_copy_comment_state (pofile_catalog_reader_ty *this, message_ty *mp)
   size_t j, i;
 
     {
-      if (this->comment != NULL)
-        for (j = 0; j < this->comment->nitems; ++j)
-          message_comment_append (mp, this->comment->item[j]);
-      if (this->comment_dot != NULL)
-        for (j = 0; j < this->comment_dot->nitems; ++j)
-          message_comment_dot_append (mp, this->comment_dot->item[j]);
+      if (this->nmsg.comment != NULL)
+        for (j = 0; j < this->nmsg.comment->nitems; ++j)
+          message_comment_append (mp, this->nmsg.comment->item[j]);
+      if (this->nmsg.comment_dot != NULL)
+        for (j = 0; j < this->nmsg.comment_dot->nitems; ++j)
+          message_comment_dot_append (mp, this->nmsg.comment_dot->item[j]);
     }
     {
-      for (j = 0; j < this->filepos_count; ++j)
+      for (j = 0; j < this->nmsg.filepos_count; ++j)
         {
           lex_pos_ty *pp;
 
-          pp = &this->filepos[j];
+          pp = &this->nmsg.filepos[j];
           message_comment_filepos (mp, pp->file_name, pp->line_number);
         }
     }
-  mp->is_fuzzy = this->is_fuzzy;
+  mp->is_fuzzy = this->nmsg.is_fuzzy;
   for (i = 0; i < NFORMATS; i++)
-    mp->is_format[i] = this->is_format[i];
-  mp->range = this->range;
-  mp->do_wrap = this->do_wrap;
+    mp->is_format[i] = this->nmsg.is_format[i];
+  mp->range = this->nmsg.range;
+  mp->do_wrap = this->nmsg.do_wrap;
 }
 
 static void
@@ -107,15 +107,15 @@ pofile_reset_comment_state (pofile_catalog_reader_ty *this)
   size_t j, i;
 
     {
-      if (this->comment != NULL)
+      if (this->nmsg.comment != NULL)
         {
-          string_list_free (this->comment);
-          this->comment = NULL;
+          string_list_free (this->nmsg.comment);
+          this->nmsg.comment = NULL;
         }
-      if (this->comment_dot != NULL)
+      if (this->nmsg.comment_dot != NULL)
         {
-          string_list_free (this->comment_dot);
-          this->comment_dot = NULL;
+          string_list_free (this->nmsg.comment_dot);
+          this->nmsg.comment_dot = NULL;
         }
       if (this->comment_previd != NULL)
         {
@@ -129,29 +129,37 @@ pofile_reset_comment_state (pofile_catalog_reader_ty *this)
         }
     }
     {
-      for (j = 0; j < this->filepos_count; ++j)
-        free (this->filepos[j].file_name);
-      if (this->filepos != NULL)
-        free (this->filepos);
-      this->filepos_count = 0;
-      this->filepos = NULL;
+      for (j = 0; j < this->nmsg.filepos_count; ++j)
+        free (this->nmsg.filepos[j].file_name);
+      if (this->nmsg.filepos != NULL)
+        free (this->nmsg.filepos);
+      this->nmsg.filepos_count = 0;
+      this->nmsg.filepos = NULL;
     }
-  this->is_fuzzy = false;
+  this->nmsg.is_fuzzy = false;
   for (i = 0; i < NFORMATS; i++)
-    this->is_format[i] = undecided;
-  this->range.min = -1;
-  this->range.max = -1;
-  this->do_wrap = undecided;
+    this->nmsg.is_format[i] = undecided;
+  this->nmsg.range.min = -1;
+  this->nmsg.range.max = -1;
+  this->nmsg.do_wrap = undecided;
+
+  this->nmsg.msgctxt = NULL;
+  this->nmsg.msgid = NULL;
+  this->nmsg.msgid_plural = NULL;
+  this->nmsg.prev_msgctxt = NULL;
+  this->nmsg.prev_msgid = NULL;
+  this->nmsg.prev_msgid_plural = NULL;
+  this->nmsg.obsolete = 0;
 }
 
 void
 pofile_add_message (pofile_catalog_reader_ty *this,
                      char *msgctxt,
                      char *msgid,
-                     lex_pos_ty *msgid_pos,
+                     const lex_pos_ty *msgid_pos,
                      char *msgid_plural,
                      char *msgstr, size_t msgstr_len,
-                     lex_pos_ty *msgstr_pos,
+                     const lex_pos_ty *msgstr_pos,
                      char *prev_msgctxt,
                      char *prev_msgid,
                      char *prev_msgid_plural,
@@ -211,6 +219,19 @@ pofile_add_message (pofile_catalog_reader_ty *this,
 
       message_list_append (this->mlp, mp);
     }
+}
+
+/* Process ['msgctxt'/]'msgid'/'msgstr' pair from .po file.  */
+void
+pofile_directive_message (pofile_catalog_reader_ty *this, const lex_pos_ty * curfpos)
+{
+  pofile_add_message (this, this->nmsg.msgctxt, this->nmsg.msgid, curfpos, this->nmsg.msgid_plural,
+      this->nmsg.msgstr, this->nmsg.msgstr_len, curfpos,
+      this->nmsg.prev_msgctxt, this->nmsg.prev_msgid, this->nmsg.prev_msgid_plural,
+      this->nmsg.is_fuzzy, this->nmsg.obsolete);
+
+  /* Prepare for next message.  */
+  pofile_reset_comment_state (this);
 }
 
 /* Parse a special comment and put the result in *fuzzyp, formatp, *rangep,
@@ -368,14 +389,14 @@ po_parse_comment_special (const char *s,
 }
 
 void
-pofile_flags (pofile_catalog_reader_ty *this, const char *s)
+pofile_flags (message_ty *this, const char *s)
 {
     po_parse_comment_special (s, &this->is_fuzzy, this->is_format, &this->range,
                               &this->do_wrap);
 }
 
 void
-pofile_comment_dot (pofile_catalog_reader_ty *this, const char *s)
+pofile_comment_dot (message_ty *this, const char *s)
 {
     if (this->comment_dot == NULL)
       this->comment_dot = string_list_alloc ();
@@ -383,7 +404,7 @@ pofile_comment_dot (pofile_catalog_reader_ty *this, const char *s)
 }
 
 void
-pofile_comment_filepos (pofile_catalog_reader_ty *this,
+pofile_comment_filepos (message_ty *this,
                          const char *name, size_t line)
 {
     size_t nbytes;
@@ -413,12 +434,27 @@ pofile_comment_del (pofile_catalog_reader_ty *this, const char *s)
 }
 
 void
-pofile_comment_ord (pofile_catalog_reader_ty *this, const char *s)
+pofile_comment_ord (message_ty *this, const char *s)
 {
     if (this->comment == NULL)
       this->comment = string_list_alloc ();
     string_list_append (this->comment, s);
 }
+
+/* Process 'domain' directive from .po file.  */
+void
+pofile_directive_domain (pofile_catalog_reader_ty *this, const char *name)
+{
+    this->domain = strdup(name);
+    this->mlp = message_list_alloc(true);
+    this->kw = COMMENT;
+
+  /* If there are accumulated comments, throw them away, they are
+     probably part of the file header, or about the domain directive,
+     and will be unrelated to the next message.  */
+    pofile_reset_comment_state (this);
+}
+
 
 
 short pofile_catalog_reader_parse_line(pofile_catalog_reader_ty *pop, const char *line, const lex_pos_ty * curfpos)
@@ -426,10 +462,19 @@ short pofile_catalog_reader_parse_line(pofile_catalog_reader_ty *pop, const char
     const char * lptr;
     char * eptr;
     char valbuf[MAX_MESSAGE_SIZE+1];
+    bool has_string;
 
+    has_string = false;
+    printf("Parsing line %d of file '%s'.\n",curfpos->line_number,curfpos->file_name);
     lptr = line;
 
     while (isspace(*lptr)) lptr++;
+
+    if ((pop->kw == MSGSTR) && (strncmp(lptr,"\"",1) != 0))
+    {
+        pofile_directive_message(pop,curfpos);
+        pop->kw = COMMENT;
+    }
 
     if (strncmp(lptr,"#,",2) == 0)
     { // flags
@@ -441,20 +486,20 @@ short pofile_catalog_reader_parse_line(pofile_catalog_reader_ty *pop, const char
         while (isspace(*eptr) && (eptr >= valbuf)) { *eptr='\0'; eptr--; }
         // Add to catalog
         if (*valbuf != '\0') {
-            pofile_flags(pop, valbuf);
+            pofile_flags(&pop->nmsg, valbuf);
         }
     } else
     if (strncmp(lptr,"#.",2) == 0)
     { // auto comments
         lptr += 2;
-        while (isspace(*lptr)) lptr++;
+        if (isspace(*lptr)) lptr++;
         strcpy(valbuf,lptr);
         // Trim the end of the comment
         eptr = valbuf + strlen(valbuf)-1;
         while (isspace(*eptr) && (eptr >= valbuf)) { *eptr='\0'; eptr--; }
         // Add to catalog
         if (*valbuf != '\0') {
-            pofile_comment_dot(pop, valbuf);
+            pofile_comment_dot(&pop->nmsg, valbuf);
         }
     } else
     if (strncmp(lptr,"#:",2) == 0)
@@ -473,7 +518,7 @@ short pofile_catalog_reader_parse_line(pofile_catalog_reader_ty *pop, const char
         }
         // Add to catalog
         if (*valbuf != '\0') {
-            pofile_comment_filepos(pop, valbuf, num);
+            pofile_comment_filepos(&pop->nmsg, valbuf, num);
         }
     } else
     if (strncmp(lptr,"#|",2) == 0)
@@ -505,35 +550,44 @@ short pofile_catalog_reader_parse_line(pofile_catalog_reader_ty *pop, const char
     if (strncmp(lptr,"#",1) == 0)
     { // ordinary comment
         lptr += 2;
-        while (isspace(*lptr)) lptr++;
+        if (isspace(*lptr)) lptr++;
         strcpy(valbuf,lptr);
         // Trim the end of the comment
         eptr = valbuf + strlen(valbuf)-1;
         while (isspace(*eptr) && (eptr >= valbuf)) { *eptr='\0'; eptr--; }
         // Add to catalog
         if (*valbuf != '\0') {
-            pofile_comment_ord(pop, valbuf);
+            pofile_comment_ord(&pop->nmsg, valbuf);
         }
     } else
     if (strncmp(lptr,"msgctxt ",8) == 0)
     { // Message context description
-
+        pop->kw = MSGCTXT;
+        has_string = true;
     } else
     if (strncmp(lptr,"msgid ",6) == 0)
     { // message id (original language text)
-
+        pop->kw = MSGID;
+        has_string = true;
     } else
     if (strncmp(lptr,"msgid_plural ",13) == 0)
     { // plural
-        return ERR_BAD_FORMAT; // not supported
+        pop->kw = MSGID_PLURAL;
+        has_string = true;
     } else
     if (strncmp(lptr,"msgstr ",7) == 0)
     { // msgstr - translation
-
+        pop->kw = MSGSTR;
+        has_string = true;
     } else
     if (strncmp(lptr,"msgstr[",7) == 0)
     { // msgstr[i] - plural translation
-        return ERR_BAD_FORMAT; // not supported
+        pop->kw = MSGSTR;
+        has_string = true;
+    } else
+    if (strncmp(lptr,"\"",1) == 0)
+    { // continuation of string
+        has_string = true;
     } else
     {
         // Allow empty lines
@@ -542,6 +596,45 @@ short pofile_catalog_reader_parse_line(pofile_catalog_reader_ty *pop, const char
         //TODO better error message would be nice
         printf("Unrecognized line\n");
         return ERR_BAD_FORMAT;
+    }
+    if (has_string)
+    {
+        lptr += 2;
+        while (isspace(*lptr)) lptr++;
+        if (*lptr == '"') lptr++;
+        strcpy(valbuf,lptr);
+        // Trim the end of the comment
+        eptr = valbuf + strlen(valbuf)-1;
+        while (isspace(*eptr) && (eptr >= valbuf)) { *eptr='\0'; eptr--; }
+        if ((*eptr == '"') && (eptr >= valbuf)) { *eptr='\0'; eptr--; }
+        // Add to catalog
+        if (*valbuf != '\0') {
+            switch (pop->kw) {
+            case MSGCTXT:
+                pop->nmsg.msgctxt = strdup(valbuf);
+                break;
+            case MSGID:
+                pop->nmsg.msgid = strdup(valbuf);
+                break;
+            case MSGID_PLURAL:
+                return ERR_BAD_FORMAT; // not supported
+                break;
+            case MSGSTR:
+                pop->nmsg.msgstr = strdup(valbuf);
+                break;
+            case PREV_MSGCTXT:
+                pop->nmsg.prev_msgctxt = strdup(valbuf);
+                break;
+            case PREV_MSGID:
+                pop->nmsg.prev_msgid = strdup(valbuf);
+                break;
+            case PREV_MSGID_PLURAL:
+                return ERR_BAD_FORMAT; // not supported
+                break;
+            default:
+                break;
+            }
+        }
     }
     return ERR_OK;
 }
@@ -552,7 +645,8 @@ short pofile_catalog_reader_parse(pofile_catalog_reader_ty *pop, FILE *fp, const
     lex_pos_ty curfpos;
     char iline[MAX_MESSAGE_SIZE+1];
     curfpos.file_name = (char *)filename;
-    curfpos.line_number = 0;
+    curfpos.line_number = 1;
+    pofile_directive_domain (pop, "KeeperFX");
     while(fgets(iline, MAX_MESSAGE_SIZE, fp) != NULL)
     {
         iline[MAX_MESSAGE_SIZE]='\0';

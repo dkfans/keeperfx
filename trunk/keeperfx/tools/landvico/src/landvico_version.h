@@ -28,6 +28,7 @@
 /* Program name, copyrights and file names */
 #define PROGRAM_NAME      "LandViCo"
 #define PROGRAM_FULL_NAME "Land View files converter for KeeperFX"
+#define PROGRAM_AUTHORS   "Tomasz Lis"
 #define COMPANY_NAME      "Community based"
 #define INTERNAL_NAME     "landvico"
 #define LEGAL_COPYRIGHT   "GNU General Public License"

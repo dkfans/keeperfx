@@ -562,7 +562,7 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
 short show_head(void)
 {
     printf("\n%s (%s) %s\n",PROGRAM_FULL_NAME,PROGRAM_NAME,VER_STRING);
-    printf("  Created by Tomasz Lis; %s\n",LEGAL_COPYRIGHT);
+    printf("  Created by %s; %s\n",PROGRAM_AUTHORS,LEGAL_COPYRIGHT);
     printf("----------------------------------------\n");
     return ERR_OK;
 }
