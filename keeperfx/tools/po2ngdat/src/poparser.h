@@ -24,6 +24,19 @@ enum {
     ERR_BAD_FORMAT  = -7, // input data format is invalid
 };
 
+typedef enum po_keyword po_keyword;
+enum po_keyword {
+  COMMENT,
+  PREV_MSGCTXT,
+  PREV_MSGID,
+  PREV_MSGID_PLURAL,
+  PREV_STRING,
+  MSGCTXT,
+  MSGID,
+  MSGID_PLURAL,
+  MSGSTR,
+};
+
 typedef struct pofile_catalog_reader_ty pofile_catalog_reader_ty;
 struct pofile_catalog_reader_ty
 {
@@ -37,19 +50,13 @@ struct pofile_catalog_reader_ty
     message_list_ty *mlp;
 
     /* Accumulate comments for next message directive.  */
-    string_list_ty *comment_dot;
     string_list_ty *comment_previd;
     string_list_ty *comment_del;
-    string_list_ty *comment;
-    /* Accumulate filepos comments for the next message directive.  */
-    size_t filepos_count;
-    lex_pos_ty *filepos;
 
-    /* Flags transported in special comments.  */
-    bool is_fuzzy;
-    enum is_format is_format[NFORMATS];
-    struct argument_range range;
-    enum is_wrap do_wrap;
+    /** Next message directive portions */
+    message_ty nmsg;
+    po_keyword kw;
+
 };
 
 FILE * open_catalog_file (const char *input_name);
