@@ -28,6 +28,7 @@
 /* Program name, copyrights and file names */
 #define PROGRAM_NAME      "Po2ngDat"
 #define PROGRAM_FULL_NAME "PO to engine DAT files converter for KeeperFX"
+#define PROGRAM_AUTHORS   "Tomasz Lis"
 #define COMPANY_NAME      "Community based"
 #define INTERNAL_NAME     "po2ngdat"
 #define LEGAL_COPYRIGHT   "GNU General Public License"

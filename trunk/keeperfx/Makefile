@@ -27,6 +27,7 @@ WINDRES = $(CROSS_COMPILE)windres
 DLLTOOL = $(CROSS_COMPILE)dlltool
 EXETODLL = peresec/bin/peresec
 BMPTORAWLV = tools/landvico/bin/landvico
+POTONGDAT = tools/po2ngdat/bin/po2ngdat
 RM = rm -f
 MV = mv -f
 CP = cp -f
@@ -440,6 +441,9 @@ $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 
 $(BMPTORAWLV): tools/landvico/src/landvico.cpp tools/landvico/Makefile
 	$(MAKE) -C tools/landvico
+
+$(POTONGDAT): tools/po2ngdat/src/po2ngdat.c tools/po2ngdat/Makefile
+	$(MAKE) -C tools/po2ngdat
 
 # Windows resources compilation
 # Should depend on res/keeperfx_icon.ico, but currently we've assuming ICO files are alredy made 

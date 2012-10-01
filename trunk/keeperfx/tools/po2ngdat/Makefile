@@ -31,6 +31,11 @@ BIN  = bin/po2ngdat
 LIBS =
 OBJS = \
 obj/po2ngdat.o \
+obj/obstack.o \
+obj/hash.o \
+obj/str-list.o \
+obj/message.o \
+obj/poparser.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)
