@@ -34,227 +34,227 @@ msgstr ""
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
-msgstr "ZWYCIĘSTWO! KRAINA JEST TWOJA. NACIŚNIJ SPACJĘ, BY PRZEJŚĆ DO NASTĘPNEGO KRÓLESTWA."
+msgstr "Zwycięstwo! Kraina jest twoja. Naciśnij spację, by przejść do następnego królestwa."
 
 #: guitext:1
 msgctxt "In-game message"
 msgid "This is a message. Right click to delete it."
-msgstr "TO JEST KOMUNIKAT. KLIKNIJ PRAWYM PRZYCISKIEM MYSZY (PPM), ABY GO ZLIKWIDOWAĆ."
+msgstr "To jest komunikat. Kliknij prawym przyciskiem myszy (PPM), aby go zlikwidować."
 
 #: guitext:2
 msgctxt "In-game message"
 msgid "The first thing a Keeper needs is somewhere to keep gold, when it's been mined out of the rock by his imps. To create a Treasure Room, select the Treasure Room icon from the Rooms Panel and fill the empty area to the west with Treasure Room tiles."
-msgstr "GOSPODARZ POWINIEN PO PIERWSZE POSTARAĆ SIĘ O MIEJSCE DO PRZECHOWYWANIA ZŁOTA, KTÓRE CHOCHLIKI BĘDĄ WYDOBYWAĆ. ABY ZBUDOWAĆ SKARBIEC, KLIKNIJ NA IKONIE SKARBCA NA PULPICIE POMIESZCZEŃ I WYPEŁNIJ PUSTY OBSZAR NA ZACHODZIE SEGMENTAMI SKARBCA."
+msgstr "Gospodarz powinien po pierwsze postarać się o miejsce do przechowywania złota, które Chochliki będą wydobywać. Aby zbudować skarbiec, kliknij na ikonie skarbca na pulpicie pomieszczeń i wypełnij pusty obszar na zachodzie segmentami skarbca."
 
 #: guitext:3
 msgctxt "In-game message"
 msgid "Use the cursor keys to see other areas of the underworld. Rotate and zoom the view with the right ctrl key and cursor keys."
-msgstr "UŻYJ KLAWISZY STRZAŁEK, ABY OBEJRZEĆ INNE OBSZARY PODZIEMIA. MOŻESZ TAKŻE OBRACAĆ I PRZYBLIŻAĆ WIDOK, PRZYTRZYMUJĄC PRAWY <CTRL> I NACISKAJĄC ODPOWIEDNIE KLAWISZE STRZAŁEK. "
+msgstr "Użyj klawiszy strzałek, aby obejrzeć inne obszary podziemia. Możesz także obracać i przybliżać widok, przytrzymując prawy <ctrl> i naciskając odpowiednie klawisze strzałek."
 
 #: guitext:4
 msgctxt "In-game message"
 msgid "Expertly done. Press the right mouse button to turn the pointer back into the Hand of Evil. Mine out the gold to the east by tagging the area with the left mouse button. Your Imps will dig out the gold and carry it back to your Treasure Room."
-msgstr "SPRAWNIE, SPRAWNIE. NACIŚNIJ PPM, ABY PRZEKSZTAŁCIĆ KURSOR Z POWROTEM W RĘKĘ ZŁA. WYKOP ZŁOTO WIDOCZNE NA WSCHODZIE, ZAZNACZAJĄC OBSZAR LEWYM PRZYCISKIEM MYSZY (LPM). CHOCHLIKI WYDOBĘDĄ ZŁOTO I ZANIOSĄ JE DO TWEGO SKARBCA."
+msgstr "Sprawnie, sprawnie. Naciśnij PPM, aby przekształcić kursor z powrotem w Rękę Zła. Wykop złoto widoczne na wschodzie, zaznaczając obszar lewym przyciskiem myszy (LPM). Chochliki wydobędą złoto i zaniosą je do twego skarbca."
 
 #: guitext:5
 msgctxt "In-game message"
 msgid "If you want to make your creatures work harder, slap them by right clicking the Hand of Evil on them. Slapping will harm your creatures."
-msgstr "JEŚLI CHCESZ ZMUSIĆ SWOJE STWORY DO CIĘŻSZEJ PRACY, DAJ IM KLAPSA RĘKĄ ZŁA, KLIKAJĄC NA NICH PPM. NIE POPADAJ W PRZESADĘ, PONIEWAŻ KLAPSY SZKODZĄ STWOROM."
+msgstr "Jeśli chcesz zmusić swoje stwory do cięższej pracy, daj im klapsa Ręką Zła, klikając na nich PPM. Nie popadaj w przesadę, ponieważ klapsy szkodzą stworom."
 
 #: guitext:6
 msgctxt "In-game message"
 msgid "Use the left mouse button to pluck your creatures from the dungeon. Use the right mouse button to drop them over a room or tile belonging to your dungeon. Creatures perform the task most relevant to the situation they're dropped into."
-msgstr "MOŻESZ PODNOSIĆ SWOJE STWORY, KLIKAJĄC NA NICH LPM. KLIKNIĘCIE PPM POWODUJE UMIESZCZENIE STWORA W POMIESZCZENIU LUB SEGMENCIE NALEŻĄCYM DO TWEGO LOCHU. PRZENIESIONE STWORY WYKONUJĄ PRACĘ NAJBARDZIEJ ODPOWIEDNIĄ DO MIEJSCA, W KTÓRYM SIĘ ZNALAZŁY."
+msgstr "Możesz podnosić swoje stwory, klikając na nich LPM. Kliknięcie PPM powoduje umieszczenie stwora w pomieszczeniu lub segmencie należącym do twego lochu. Przeniesione stwory wykonują pracę najbardziej odpowiednią do miejsca, w którym się znalazły."
 
 #: guitext:7
 msgctxt "In-game message"
 msgid "Greedily done, Keeper. Now, you need to turn some of your dungeon into a Lair. Lairs are where creatures rest and recover. The area your imps just mined out would be an ideal spot for some creatures to lurk. Select the Lair icon from the Rooms Panel."
-msgstr "JESTEŚ ZACHŁANNY, STRAŻNIKU. TERAZ ZMIEŃ CZĘŚĆ LOCHU W LEGOWISKA - MIEJSCA REGENERACJI SIŁ I ODPOCZYNKU STWORÓW. OBSZAR, Z KTÓREGO CHOCHLIKI WYDOBYŁY ZŁOTO, BĘDZIE ZNAKOMITYM MIEJSCEM PRZYCZAJENIA SIĘ KILKU STWORÓW. UŻYJ IKONY LEGOWISKA Z PULPITU POMIESZCZEŃ."
+msgstr "Jesteś zachłanny, strażniku. Teraz zmień część lochu w Legowiska - miejsca regeneracji sił i odpoczynku stworów. Obszar, z którego chochliki wydobyły złoto, będzie znakomitym miejscem przyczajenia się kilku stworów. Użyj ikony Legowiska z Pulpitu Pomieszczeń."
 
 #: guitext:8
 msgctxt "In-game message"
 msgid "Dig a tunnel that connects to the Portal to the north. Portals appear on the map as flashing squares, until they are claimed. Creatures only use Portals claimed by a Keeper. Your imps claim a Portal as soon as it connects to your dungeon."
-msgstr "WYKOP TUNEL, KTÓRY POPROWADZI DO WEJŚCIA NA PÓŁNOCY. WOLNE WEJŚCIA WIDOCZNE SĄ NA MAPIE JAKO PULSUJĄCE KWADRATY. STWORY KORZYSTAJĄ TYLKO Z WEJŚĆ NALEŻĄCYCH DO JAKIEGOŚ GOSPODARZA. CHOCHLIKI OZNACZĄ WEJŚCIE JAKO TWOJE, GDY TYLKO POŁĄCZĄ JE Z TWOIM LOCHEM."
+msgstr "Wykop tunel, który poprowadzi do Wejścia na północy. Wolne Wejścia widoczne są na mapie jako pulsujące kwadraty. Stwory korzystają tylko z Wejść należących do jakiegoś gospodarza. Chochliki oznaczą wejście jako twoje, gdy tylko połączą je z twoim lochem."
 
 #: guitext:9
 msgctxt "In-game message"
 msgid "You should build a Treasure Room first. Select the Treasure Room icon from the Rooms Panel and left click on the tiles in the area to the west of your Dungeon Heart."
-msgstr "NAJPIERW POWINIENEŚ WYBUDOWAĆ SKARBIEC. KLIKNIJ NA IKONIE SKARBCA NA PULPICIE POMIESZCZEŃ, A NASTĘPNIE KLIKNIJ LPM NA SEGMENTACH W OBSZARZE NA ZACHÓD OD SERCA LABIRYNTU."
+msgstr "Najpierw powinieneś wybudować Skarbiec. Kliknij na ikonie Skarbca na Pulpicie Pomieszczeń, a następnie kliknij LPM na segmentach w obszarze na zachód od Serca Labiryntu."
 
 #: guitext:10
 msgctxt "In-game message"
 msgid "Pick up creatures by left clicking on them. Drop them by right clicking over a room or tile belonging to your dungeon. Creatures perform tasks relevant to the situation they're dropped into."
-msgstr "MOŻESZ PODNOSIĆ STWORY PRZEBYWAJĄCE W LOCHU, KLIKAJĄC NA NICH LPM. KLIKNIĘCIE PPM UMIEŚCI STWORA W KOMNACIE LUB SEGMENCIE NALEŻĄCYM DO TWOJEGO LOCHU. PRZENIESIONE STWORY ZAJMĄ SIĘ PRACĄ NAJODPOWIEDNIEJSZĄ DO MIEJSCA, W KTÓRYM SIĘ ZNALAZŁY."
+msgstr "Możesz podnosić stwory przebywające w lochu, klikając na nich LPM. Kliknięcie PPM umieści stwora w komnacie lub segmencie należącym do twojego lochu. Przeniesione stwory zajmą się pracą najodpowiedniejszą do miejsca, w którym się znalazły."
 
 #: guitext:11
 msgctxt "In-game message"
 msgid "If you want your creatures to work harder, slap them with a right click of the hand. Your creatures take damage from each slap they receive."
-msgstr "JEŚLI CHCESZ ZMUSIĆ SWOJE STWORY DO CIĘŻSZEJ PRACY, DAJ IM KLAPSA RĘKĄ ZŁA, KLIKAJĄC NA NICH PPM. KAŻDY KLAPS POWODUJE U STWORA PEWIEN USZCZERBEK NA ZDROWIU."
+msgstr "Jeśli chcesz zmusić swoje stwory do cięższej pracy, daj im klapsa Ręką Zła, klikając na nich PPM. Każdy klaps powoduje u stwora pewien uszczerbek na zdrowiu."
 
 #: guitext:12
 msgctxt "In-game message"
 msgid "You have not yet built a Treasure Room. Until you build this room, you will be unable to pay any creatures. Only imps give their loyalty freely. No other creatures will serve you unpaid."
-msgstr "NIE ZBUDOWAŁEŚ JESZCZE SKARBCA. JEŚLI TEGO NIE ZROBISZ, NIE BĘDZIESZ W STANIE PŁACIĆ SWYM STWOROM, A TYLKO LOJALNOŚĆ CHOCHLIKÓW JEST BEZPŁATNA. ŻADEN INNY STWÓR NIE BĘDZIE SŁUŻYŁ CI ZA DARMO."
+msgstr "Nie zbudowałeś jeszcze Skarbca. Jeśli tego nie zrobisz, nie będziesz w stanie płacić swym stworom, a tylko lojalność Chochlików jest bezpłatna. Żaden inny stwór nie będzie służył ci za darmo."
 
 #: guitext:13
 msgctxt "In-game message"
 msgid "Your first minion has arrived. It's a giant Fly. It can spit corrosive vomit at your enemies and its wings grant the hideous insect the speed to intercept the most nimble trespassers."
-msgstr "PRZYBYŁ TWÓJ PIERWSZY SŁUGA. TO WIELKA MUCHA. MOŻE ONA PLUĆ NA WROGÓW ŻRĄCYM SOKIEM ŻOŁĄDKOWYM. SKRZYDŁA ZAPEWNIAJĄ TEMU OHYDNEMU OWADOWI SZYBKOŚĆ UMOŻLIWIAJĄCĄ DOGONIENIE NAJZWINNIEJSZYCH INTRUZÓW."
+msgstr "Przybył twój pierwszy sługa. To wielka Mucha. Może ona pluć na wrogów żrącym sokiem żołądkowym. Skrzydła zapewniają temu ohydnemu owadowi szybkość umożliwiającą dogonienie najzwinniejszych intruzów."
 
 #: guitext:14
 msgctxt "In-game message"
 msgid "A Beetle has scuttled into your realm. It's tough enough to absorb a lot of damage. Like most creatures, Beetles require food. Dig out a new area, select the Hatchery icon and create your Hatchery. Tasty snacks will soon emerge from its enchanted soil."
-msgstr "DO TWEGO KRÓLESTWA PRZYTURLAŁ SIĘ ŻUK, STWÓR O SPOREJ WYTRZYMAŁOŚCI. PODOBNIE JAK WIĘKSZOŚĆ STWORÓW, ŻUKI WYMAGAJĄ ŻYWNOŚCI. WYKOP NOWY OBSZAR, KLIKNIJ NA IKONIE KURNIKA I ZBUDUJ ŹRÓDŁO JADŁA. Z ZAKLĘTEJ ZIEMI WNET WYŁONIĄ SIĘ SMACZNE KĄSKI."
+msgstr "Do twego królestwa przyturlał się Żuk, stwór o sporej wytrzymałości. Podobnie jak większość stworów, Żuki wymagają żywności. Wykop nowy obszar, kliknij na ikonie Kurnika i zbuduj źródło jadła. Z zaklętej ziemi wnet wyłonią się smaczne kąski."
 
 #: guitext:15
 msgctxt "In-game message"
 msgid "Imps fortify your walls to prevent intruders tunnelling in. If you want to create more imps, go to the Research Panel, select the Imp icon and left click anywhere in your dungeon. Each Imp you create costs more than the previous one."
-msgstr "CHOCHLIKI WZMACNIAJĄ ŚCIANY, ABY POWIERZCHNIACY NIE MOGLI SIĘ PRZEZ NIE PRZEKOPAĆ. JEŚLI POTRZEBA ICH WIĘCEJ, KLIKNIJ NA IKONIE CHOCHLIKA NA PULPICIE BADAŃ, A NASTĘPNIE LPM W DOWOLNYM PUNKCIE SWEGO LOCHU. KAŻDY NOWY CHOCHLIK KOSZTUJE WIĘCEJ NIŻ POPRZEDNI."
+msgstr "Chochliki wzmacniają ściany, aby powierzchniacy nie mogli się przez nie przekopać. Jeśli potrzeba ich więcej, kliknij na ikonie Chochlika na Pulpicie Badań, a następnie LPM w dowolnym punkcie swego lochu. Każdy nowy Chochlik kosztuje więcej niż poprzedni."
 
 #: guitext:16
 msgctxt "In-game message"
 msgid "Why not have a handful of creatures ready to drop on top of intruders? To pick up creatures quickly, left click on them from within the Creatures Panel. You can only drop creatures within the confines of your own dungeon."
-msgstr "MOŻE WARTO TRZYMAĆ W POGOTOWIU GRUPKĘ STWORÓW, BY  POSZCZUĆ NIMI INTRUZÓW? MOŻESZ SZYBKO UAKTYWNIAĆ STWORY, KLIKAJĄC LPM NA ICH IKONACH NA PULPICIE STWORÓW. PAMIĘTAJ, ŻE MOŻESZ UMIESZCZAĆ STWORY JEDYNIE NA OBSZARZE WŁASNEGO LOCHU."
+msgstr "Może warto trzymać w pogotowiu grupkę stworów, by poszczuć nimi intruzów? Możesz szybko podnosić stwory, klikając LPM na ich ikonach na Pulpicie Stworów. Pamiętaj, że możesz umieszczać stwory jedynie na obszarze własnego lochu."
 
 #: guitext:17
 msgctxt "In-game message"
 msgid "Intruders approach. They seek gaps in your fortifications, in order to gain entry to your dungeon. A white trail on the map indicates their progress. Click the icon at the top of the Control Panel to see a bigger map."
-msgstr "NADCHODZĄ INTRUZI. POSZUKUJĄ LUKI W TWOICH UMOCNIENIACH, BY WEDRZEĆ SIĘ DO TWEGO LOCHU. BIAŁY ŚLAD NA MAPIE UKAZUJE ICH POSTĘPY. KLIKNIJ NA IKONIE U GÓRY PULPITU STEROWNICZEGO, ABY OBEJRZEĆ WIĘKSZĄ MAPĘ."
+msgstr "Nadchodzą intruzi. Poszukują luki w twoich umocnieniach, by wedrzeć się do twego lochu. Biały ślad na mapie ukazuje ich postępy. Kliknij na ikonie u góry Pulpitu Sterowniczego, aby obejrzeć większą mapę."
 
 #: guitext:18
 msgctxt "In-game message"
 msgid "Savour your first victory while you can. You have attracted the wrath of the Lord of this realm. His party will soon be here."
-msgstr "CIESZ SIĘ SWYM PIERWSZYM ZWYCIĘSTWEM... PÓKI MOŻESZ. ŚCIĄGNĄŁEŚ NA SIEBIE GNIEW WŁADCY TEJ KRAINY. JEGO HUFCE WNET SIĘ TU ZJAWIĄ."
+msgstr "Ciesz się swym pierwszym zwycięstwem... póki możesz. Ściągnąłeś na siebie gniew Władcy tej krainy. Jego hufce wnet się tu zjawią."
 
 #: guitext:19
 msgctxt "In-game message"
 msgid "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
-msgstr "OTO PRZYBYŁ WŁADCA KRAINY. CZUJĘ JEGO STRACH. POKONAJ GO, A KRÓLESTWO BĘDZIE TWOJE."
+msgstr "Oto przybył Władca Krainy. Czuję jego strach. Pokonaj go, a królestwo będzie twoje."
 
 #: guitext:20
 msgctxt "In-game message"
 msgid "Your work here is done. Now there is no-one to prevent you from obliterating this nauseating realm and expanding your empire into a neighbouring land. Nice."
-msgstr "TWOJE DZIEŁO ZOSTAŁO ZAKOŃCZONE. JUŻ NIKT NIE PRZESZKODZI CI W UNICESTWIENIU TEGO CUKIERKOWATEGO KRÓLESTWA I W ROZSZERZENIU SWEGO PANOWANIA NA SĄSIEDNI KRAJ. TO MIŁE."
+msgstr "Twoje dzieło zostało zakończone. Już nikt nie przeszkodzi ci w unicestwieniu tego cukierkowatego królestwa i w rozszerzeniu swego panowania na sąsiedni kraj. To miłe."
 
 #: guitext:21
 msgctxt "In-game message"
 msgid "You require more Imps. Use the Create Imp spell to conjure them into your domain. Remember, each Imp you create is more expensive than the last."
-msgstr "POTRZEBA CI WIĘCEJ CHOCHLIKÓW. SKORZYSTAJ Z ZAKLĘCIA TWORZENIA CHOCHLIKA, ABY SPROWADZIĆ ICH DO SWYCH WŁOŚCI. PAMIĘTAJ JEDNAK, ŻE KAŻDY KOLEJNY CHOCHLIK KOSZTUJE WIĘCEJ OD POPRZEDNIEGO."
+msgstr "Potrzeba ci więcej Chochlików. Skorzystaj z zaklęcia Tworzenia Chochlika, aby sprowadzić ich do swych włości. Pamiętaj jednak, że każdy kolejny Chochlik kosztuje więcej od poprzedniego."
 
 #: guitext:22
 msgctxt "In-game message"
 msgid "When Imps have no other orders, they run around reinforcing your dungeon.  Fortified walls keep out intruders. Rooms with reinforced walls make your creatures feel more at home and heroes more terrified."
-msgstr "GDY CHOCHLIKI NIE MAJĄ INNYCH ROZKAZÓW, PRZEBIEGAJĄ TWÓJ LOCH, WZMACNIAJĄC JEGO ŚCIANY. UMOCNIONE ŚCIANY BRONIĄ DOSTĘPU INTRUZOM ORAZ SPRAWIAJĄ, ŻE STWORY CZUJĄ SIĘ W POMIESZCZENIACH BARDZIEJ SWOJSKO, A BOHATEROWIE MAJĄ  WIĘKSZEGO STRACHA."
+msgstr "Gdy Chochliki nie mają innych rozkazów, przebiegają twój loch, wzmacniając jego ściany. Umocnione ściany bronią dostępu intruzom oraz sprawiają, że stwory czują się w pomieszczeniach bardziej swojsko, a bohaterowie mają większego stracha."
 
 #: guitext:23
 msgctxt "In-game message"
 msgid "Possess creatures by choosing the Possess spell from the Research Panel and left-clicking on the creature you want to control. Right-click to leave the creature again."
-msgstr "OPĘTUJ STWORY Z WYKORZYSTANIEM ZAKLĘCIA OPĘTANIA Z PULPITU BADAŃ. UAKTYWNIJ ZAKLĘCIE I KLIKNIJ LPM NA STWORZE, KTÓREGO CHCESZ KONTROLOWAĆ. KLIKNIĘCIE PPM ZWALNIA OPĘTANEGO."
+msgstr "Opętuj stwory z wykorzystaniem zaklęcia Opętania z Pulpitu Badań. Uaktywnij zaklęcie i kliknij LPM na stworze, którego chcesz kontrolować. Kliknięcie PPM zwalnia opętanego."
 
 #: guitext:24
 msgctxt "In-game message"
 msgid "Remember the lessons you learned in Brana Hauk. You must build a Treasure Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms in squares of at least nine tiles to increase the efficiency of the room."
-msgstr "PAMIĘTAJ LEKCJE, JAKIE OTRZYMAŁEŚ ZDOBYWAJĄC WYRZYNOWO. MUSISZ ZBUDOWAĆ SKARBIEC, LEGOWISKO I KURNIK, POWINIENEŚ TEŻ PRZEJĄĆ JAKIEŚ WEJŚCIE. BUDUJ POMIESZCZENIA O ROZMIARACH CO NAJMNIEJ DZIEWIĘCIU SEGMENTÓW, ABY PODNIEŚĆ ICH WYDAJNOŚĆ."
+msgstr "Pamiętaj lekcje, jakie otrzymałeś zdobywając Wyrzynowo. Musisz zbudować Skarbiec, Legowisko i Kurnik, powinieneś też przejąć jakieś Wejście. Buduj pomieszczenia o rozmiarach co najmniej dziewięciu segmentów, aby podnieść ich wydajność."
 
 #: guitext:25
 msgctxt "In-game message"
 msgid "You will need to make your creatures stronger. In a Training Room, your creatures can hone their fighting skills, gain new abilities and learn more powerful spells."
-msgstr "POWINIENEŚ WZMOCNIĆ KONDYCJĘ SWOICH STWORÓW. SALA TRENINGOWA POZWOLI IM SZLIFOWAĆ SZTUKĘ WALKI, UZYSKIWAĆ NOWE UMIEJĘTNOŚCI I UCZYĆ SIĘ POTĘŻNIEJSZYCH ZAKLĘĆ."
+msgstr "Powinieneś wzmocnić kondycję swoich stworów. Sala Treningowa pozwoli im szlifować sztukę walki, uzyskiwać nowe umiejętności i uczyć się potężniejszych zaklęć."
 
 #: guitext:26
 msgctxt "In-game message"
 msgid "Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the walls of your dungeon. This increases the efficiency of rooms and repels would-be invaders."
-msgstr "REALIZACJA TWEGO PLANU PRZEBIEGA GŁADKO. DAJ CHOCHLIKOM CZAS NA WZMOCNIENIE ŚCIAN LOCHU. ZWIĘKSZY TO WYDAJNOŚĆ POMIESZCZEŃ I BĘDZIE PRZESZKODĄ DLA POTENCJALNYCH NATRĘTÓW."
+msgstr "Realizacja twego planu przebiega gładko. Daj Chochlikom czas na wzmocnienie ścian lochu. Zwiększy to wydajność pomieszczeń i będzie przeszkodą dla potencjalnych natrętów."
 
 #: guitext:27
 msgctxt "In-game message"
 msgid "The Training Room attracts ever more ferocious creatures, such as Demon Spawn. Build it and they will come."
-msgstr "SALA TRENINGOWE PRZYCIĄGA JESZCZE DZIKSZE STWORY, JAK NA PRZYKŁAD PĄCZKUJĄCE DEMONY. ZBUDUJ JĄ, A ZACZNĄ SIĘ ZJAWIAĆ."
+msgstr "Sala Treningowa przyciąga jeszcze dziksze stwory, jak na przykład Pączkujące Demony. Zbuduj ją, a zaczną się zjawiać."
 
 #: guitext:28
 msgctxt "In-game message"
 msgid "To train creatures, drop them in the Training Room. The number that occasionally appears above a creature's head indicates how much gold it has cost for that creature to train."
-msgstr "ABY SZKOLIĆ STWORY, PRZENOŚ JE DO SALI TRENINGOWEJ. LICZBA WYŚWIETLANA NAD GŁOWĄ STWORA INFORMUJE, JAKI BĘDZIE KOSZT SZKOLENIA."
+msgstr "Aby szkolić stwory, przenoś je do Sali Treningowej. Liczba wyskakująca nad głową stwora informuje, jaki koszt ponosisz szkoląc go."
 
 #: guitext:29
 msgctxt "In-game message"
 msgid "You can train creatures more rapidly by slapping them as they work out in the Training Room."
-msgstr "MOŻESZ PRZYSPIESZAĆ SZKOLENIE ISTOT, ROZDAJĄC KLAPSY W TRAKCIE ZAJĘĆ W SALI TRENINGOWEJ."
+msgstr "Możesz przyspieszać szkolenie istot, rozdając klapsy w trakcie zajęć w Sali Treningowej."
 
 #: guitext:30
 msgctxt "In-game message"
 msgid "Heroes are already on their way. Make sure your creatures are well trained and ready for the attack. The heroes you will face in this realm are tougher than those you met beneath Brana Hauk."
-msgstr "BOHATEROWIE SĄ JUŻ W DRODZE. UPEWNIJ SIĘ, ŻE TWOJE STWORY SĄ DOBRZE WYSZKOLONE I GOTOWE NA ODPARCIE ATAKU. BOHATEROWIE, KTÓRYCH NAPOTKASZ W TYM KRÓLESTWIE, SĄ POTĘŻNIEJSI OD WYRŻNIĘTYCH W WYRZYNOWIE."
+msgstr "Bohaterowie są już w drodze. Upewnij się, że twoje stwory są dobrze wyszkolone i gotowe na odparcie ataku. Bohaterowie, których napotkasz w tym królestwie, są potężniejsi od wyrżniętych w Wyrzynowie."
 
 #: guitext:31
 msgctxt "In-game message"
 msgid "Harder the heroes may have been but they were obviously no match for your forces."
-msgstr "MOŻE I BYLI POTĘŻNIEJSI CI BOHATEROWIE, NIE STANOWILI JEDNAK WYZWANIA DLA TWYCH SIŁ."
+msgstr "Może i byli potężniejsi ci bohaterowie, nie stanowili jednak wyzwania dla twych sił."
 
 #: guitext:32
 msgctxt "In-game message"
 msgid "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
-msgstr "BOHATEROWIE SĄ JUŻ W DRODZE. UPEWNIJ SIĘ, ŻE TWOJE STWORY SĄ DOBRZE WYSZKOLONE I GOTOWE NA ODPARCIE ATAKU."
+msgstr "Bohaterowie są już w drodze. Upewnij się, że twoje stwory są dobrze wyszkolone i gotowe na odparcie ataku."
 
 #: guitext:33
 msgctxt "In-game message"
 msgid "Congratulations. You have conquered the enemy hordes."
-msgstr "GRATULACJE. POKONAŁEŚ HORDY NIEPRZYJACIELA."
+msgstr "Gratulacje. Pokonałeś hordy nieprzyjaciela."
 
 #: guitext:34
 msgctxt "In-game message"
 msgid "Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training Room. Make sure they're all big enough. Cramped conditions do nothing for the morale of your minions."
-msgstr "ZBUDUJ LOCH ZAOPATRZONY W SKARBIEC, LEGOWISKO, KURNIK I SALĘ TRENINGOWĄ. ZADBAJ, BY POMIESZCZENIA BYŁY ODPOWIEDNIO DUŻE. CIASNOTA NIE MA NAJLEPSZEGO WPŁYWU NA MORALE TWYCH SŁUG."
+msgstr "Zbuduj loch zaopatrzony w Skarbiec, Legowisko, Kurnik i Salę Treningową. Zadbaj, by pomieszczenia były odpowiednio duże. Ciasnota nie ma najlepszego wpływu na morale twych sług."
 
 #: guitext:35
 msgctxt "In-game message"
 msgid "The time has come to build a Library. Libraries are where new devices, room designs and magic spells are researched. Make a Library at least as big as the other rooms. Researchers like quiet too, so try to build your Library off the side of a corridor."
-msgstr "NADSZEDŁ CZAS BUDOWY BIBLIOTEKI. JEST TO MIEJSCE PROJEKTOWANIA NOWYCH URZĄDZEŃ, KOMANT I ZAKLĘĆ. ZBUDUJ BIBLIOTEKĘ CO NAJMNIEJ TAK DUŻĄ, JAK INNE POMIESZCZENIA. UCZENI LUBIĄ SPOKÓJ, UMIEŚĆ ZATEM BIBLIOTEKĘ Z DALA OD RUCHLIWYCH KORYTARZY."
+msgstr "Nadszedł czas budowy Biblioteki. Jest to miejsce projektowania nowych urządzeń, schematów komant i zaklęć. Zbuduj Bibliotekę co najmniej tak dużą, jak inne pomieszczenia. Uczeni lubią spokój, umieść zatem Bibliotekę z dala od ruchliwych korytarzy."
 
 #: guitext:36
 msgctxt "In-game message"
 msgid "Your new Library will attract creatures like Warlocks, who are interested in researching magic and dungeon designs. These evil mages are real bookworms, as well as being magically proficient themselves."
-msgstr "TWOJA NOWA BIBLIOTEKA ZWABI TAKIE ISTOTY, JAK CZARNOKSIĘŻNICY, KTÓRZY SĄ ZAINTERESOWANI BADANIEM MAGII I PROJEKTOWANIEM PODZIEMI. CI ŹLI MAGOWIE TO PRAWDZIWE MOLE KSIĄŻKOWE, BIEGLE WŁADAJĄ TEŻ CZARAMI."
+msgstr "Twoja nowa Biblioteka zwabi takie istoty, jak Czarnoksiężnicy, którzy są zainteresowani badaniem magii i projektowaniem podziemi. Ci źli magowie to prawdziwe mole książkowe, biegle władają też czarami."
 
 #: guitext:37
 msgctxt "In-game message"
 msgid "That's a fine collection of parchments and tomes you've assembled. Most creatures can engage in research but Warlocks make the best and keenest researchers. Stupid Trolls have trouble holding books the right way up and sometimes even chew the pages."
-msgstr "ZGROMADZIŁEŚ NIEZŁĄ KOLEKCJĘ ZWOJÓW I KSIĄG. DO BADAŃ MOŻNA ZAANGAŻOWAĆ WIĘKSZOŚĆ STWORÓW, ALE NAJLEPSZE EFEKTY OSIĄGAJĄ CZARNOKSIĘŻNICY. GŁUPIE TROLLE NIERZADKO TRZYMAJĄ KSIĄŻKI DO GÓRY NOGAMI, A NAWET ZDARZA IM SIĘ ZJEŚĆ STRONĘ CZY DWIE."
+msgstr "Zgromadziłeś niezłą kolekcję zwojów i ksiąg. Do badań można zaangażować większość stworów, ale najlepsze efekty osiągają Czarnoksiężnicy. Głupie Trolle nierzadko trzymają książki do góry nogami, a nawet zdarza im się zjeść stronę czy dwie."
 
 #: guitext:38
 msgctxt "In-game message"
 msgid "The scent of arcane knowledge has lured a greedy Warlock into your dungeon. Don't forget to train your Warlocks occasionally. Their spell casting abilities make them fine long range fighters."
-msgstr "WOŃ TAJEMNEJ WIEDZY ZWABIŁA DO TWEGO PODZIEMIA CHCIWEGO CZARNOKSIĘŻNIKA. NIE ZAPOMINAJ, ŻE CZARNOKSIĘŻNIKÓW TRZEBA OD CZASU DO CZASU SZKOLIĆ. DZIĘKI UMIEJĘTNOŚCI RZUCANIA CZARÓW SĄ ZNAKOMICI W WALCE NA ODLEGŁOŚĆ."
+msgstr "Woń tajemnej wiedzy zwabiła do twego podziemia chciwego Czarnoksiężnika. Nie zapominaj, że Czarnoksiężników trzeba od czasu do czasu szkolić. Dzięki umiejętności rzucania czarów są znakomici w walce na odległość."
 
 #: guitext:39
 msgctxt "In-game message"
 msgid "The first wave of attackers lie hacked to pieces on the floor and give your domain that lived in feeling but it surely won't be long before their kin launch another assault."
-msgstr "PIERWSZA FALA NAPASTNIKÓW LEŻY POSIEKANA NA PLASTERKI I DAJE ROZKOSZNE POCZUCIE WŁADZY. ALE Z PEWNOŚCIĄ NIE UPŁYNIE DUŻO CZASU, NIM ICH SZEF WYŚLE NASTĘPNY ODDZIAŁ."
+msgstr "Pierwsza fala napastników leży posiekana na plasterki i daje rozkoszne poczucie władzy. Ale z pewnością nie upłynie dużo czasu, nim ich szef wyśle następny oddział."
 
 #: guitext:40
 msgctxt "In-game message"
 msgid "You meet with success yet again, Keeper. All those corpses will keep your Hatchery's topsoil fertile. They also serve as warnings to other foolhardy adventurers, of course."
-msgstr "I ZNÓW ODNIOSŁEŚ SUKCES, GOSPODARZU. WSZYSTKIE TE ZWŁOKI UŻYŹNIĄ GLEBĘ W TWOIM KURNIKU. POSŁUŻĄ TAKŻE JAKO PRZESTROGA DLA INNYCH UPARTYCH I NATRĘTNYCH POSZUKIWACZY SZCZĘŚCIA."
+msgstr "I znów odniosłeś sukces, gospodarzu. Wszystkie te zwłoki użyźnią glebę w twoim Kurniku. Posłużą także jako przestroga dla innych upartych i natrętnych poszukiwaczy szczęścia."
 
 #: guitext:41
 msgctxt "In-game message"
 msgid "All is quiet again. Use this time to ready yourself for the next attacks. The enemy is only regrouping. It is not yet defeated."
-msgstr "ZNÓW JEST SPOKOJNIE. WYKORZYSTAJ TEN MOMENT NA PRZYGOTOWANIA PRZED NASTĘPNYMI ATAKAMI. WRÓG JEDYNIE SIĘ PRZEGRUPOWUJE. JESZCZE NIE ZOSTAŁ POKONANY."
+msgstr "Znów jest spokojnie. Wykorzystaj ten moment na przygotowania przed następnymi atakami. Wróg jedynie się przegrupowuje. Jeszcze nie został pokonany."
 
 #: guitext:42
 msgctxt "In-game message"
 msgid "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
-msgstr "CZY TEN CHOCHLIK GRA W NOGĘ ODRĄBANĄ GŁOWĄ? BĄDŹ CZUJNY, STRAŻNIKU."
+msgstr "Czy ten Chochlik gra w nogę odrąbaną głową? Bądź czujny, strażniku."
 
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
-msgstr "NADESZŁA ODPOWIEDNIA PORA NA SZKOLENIE CZARNOKSIĘŻNIKA."
+msgstr "Nadeszła odpowiednia pora na szkolenie Czarnoksiężnika."
 
 #: guitext:44
 msgctxt "In-game message"
 msgid "Already your research bears fruit. The Speed Creature spell has been perfected. Cast it on a creature and observe the dramatic increase in its speed. The effect wears off after a while."
-msgstr "TWOJE BADANIA PRZYNOSZĄ OWOCE. WYNALEZIONO ZAKLĘCIE O NAZWIE PRZYSPIESZACZ. RZUĆ JE NA JAKIEGOŚ STWORA I OBSERWUJ TO WSPANIAŁE PRZYSPIESZENIE. EFEKT CZARU MIJA PO JAKIMŚ CZASIE."
+msgstr "Twoje badania przynoszą owoce. Wynaleziono zaklęcie o nazwie Przyspieszacz. Rzuć je na jakiegoś stwora i obserwuj to wspaniałe przyspieszenie. Efekt czaru mija po jakimś czasie."
 
 #: guitext:45
 msgctxt "In-game message"
@@ -419,7 +419,7 @@ msgstr "ODSZUKAJ TEGO, KTÓRY JEST TWOIM RYWALEM W TYM REJONIE PODZIEMIA. OBJAŚ
 #: guitext:77
 msgctxt "In-game message"
 msgid "You have researched the power of Invisibility. Cast it on a creature to hide it from enemy eyes."
-msgstr "OPANOWAŁEŚ POTĘGĘ NIEWIDZIALNOŚCI. RZUĆ TO ZAKLĘCIE, ABY UKRYĆ  STWORA PRZED WŚCIBSKIM SPOJRZENIEM WROGA."
+msgstr "OPANOWAŁEŚ POTĘGĘ NIEWIDZIALNOŚCI. RZUĆ TO ZAKLĘCIE, ABY UKRYĆ STWORA PRZED WŚCIBSKIM SPOJRZENIEM WROGA."
 
 #: guitext:78
 msgctxt "In-game message"
@@ -449,7 +449,7 @@ msgstr "CÓŻ, NA DOLE WSZYSTKO GOTOWE. PORA PRZEDSTAWIĆ SIĘ POWIERZCHNIAKOM I
 #: guitext:83
 msgctxt "In-game message"
 msgid "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll fail, because everything makes a Horned Reaper angry but at least try to make sure that everything near it is an enemy creature when it finally goes ballistic."
-msgstr "STRZEŻ SIĘ, PRZYZWAŁEŚ ROGATEGO ROZPRUWACZA. POSTARAJ SIĘ  NIE DENERWOWAĆ GO. TO SIĘ CO PRAWDA NIE UDA, GDYŻ ROGACZA DENERWUJE WŁAŚCIWIE WSZYSTKO. DOŁÓŻ PRZYNAJMNIEJ STARAŃ, ABY WTEDY, GDY WYJDZIE Z SIEBIE, W POBLIŻU ZNAJDOWAŁY SIĘ JEDYNIE SIŁY WROGA."
+msgstr "STRZEŻ SIĘ, PRZYZWAŁEŚ ROGATEGO ROZPRUWACZA. POSTARAJ SIĘ NIE DENERWOWAĆ GO. TO SIĘ CO PRAWDA NIE UDA, GDYŻ ROGACZA DENERWUJE WŁAŚCIWIE WSZYSTKO. DOŁÓŻ PRZYNAJMNIEJ STARAŃ, ABY WTEDY, GDY WYJDZIE Z SIEBIE, W POBLIŻU ZNAJDOWAŁY SIĘ JEDYNIE SIŁY WROGA."
 
 #: guitext:84
 msgctxt "In-game message"
@@ -1593,7 +1593,7 @@ msgstr "POZIOM UKOŃCZONY - NACIŚNIJ ESCAPE, ABY PRZEJŚĆ DALEJ "
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "POZIOM PRZEGRANY  - NACIŚNIJ ESCAPE, ABY ZACZĄĆ OD NOWA "
+msgstr "POZIOM PRZEGRANY - NACIŚNIJ ESCAPE, ABY ZACZĄĆ OD NOWA "
 
 #: guitext:336
 msgctxt "On-screen message"
@@ -3017,7 +3017,7 @@ msgstr "Serce labiryntu: Ośrodek życia Twego podziemia. [11.2]"
 #: guitext:621
 msgctxt "Room description"
 msgid "Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. RMB zoom. [17.8]"
-msgstr "Warsztat: Umieść tu swoje stwory, aby produkowały drzwi i pułapki.  LPM uaktywnia. PPM przybliża. [17.8]"
+msgstr "Warsztat: Umieść tu swoje stwory, aby produkowały drzwi i pułapki. LPM uaktywnia. PPM przybliża. [17.8]"
 
 #: guitext:622
 msgctxt "Room description"
@@ -3027,12 +3027,12 @@ msgstr "Cmentarzysko: Tutaj gniją różnorodne zwłoki. LPM uaktywnia. PPM przy
 #: guitext:623
 msgctxt "Room description"
 msgid "Barracks: Group creatures by placing them into the room. LMB select. RMB zoom. [17.9]"
-msgstr "Koszary: Formuj oddziały, umieszczając stwory w tym pomieszczeniu.  LPM uaktywnia. PPM przybliża. [17.9]"
+msgstr "Koszary: Formuj oddziały, umieszczając stwory w tym pomieszczeniu. LPM uaktywnia. PPM przybliża. [17.9]"
 
 #: guitext:624
 msgctxt "Room description"
 msgid "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. RMB zoom. [17.3]"
-msgstr "Kurnik: Tutaj stwory posilają się bezbronnymi, pożywnymi kurczakami.  LPM uaktywnia. PPM przybliża. [17.3]"
+msgstr "Kurnik: Tutaj stwory posilają się bezbronnymi, pożywnymi kurczakami. LPM uaktywnia. PPM przybliża. [17.3]"
 
 #: guitext:625
 msgctxt "Room description"
@@ -3182,7 +3182,7 @@ msgstr "Przymus: Zmusza wszystkie Twoje stwory do natychmiastowego wykonania Two
 #: guitext:654
 msgctxt "Keeper spell description"
 msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "Przyspieszacz potwora: Zwiększa szybkość działania Twoich stworów. LPM uaktywnia.  [18.4]"
+msgstr "Przyspieszacz potwora: Zwiększa szybkość działania Twoich stworów. LPM uaktywnia. [18.4]"
 
 #: guitext:655
 msgctxt "Keeper spell description"
@@ -3547,7 +3547,7 @@ msgstr "Zapisz grę: Powoduje zapisanie bieżącej gry na dysku. [3.2.1]"
 #: guitext:727
 msgctxt "In-game interface description"
 msgid "Quit Game: Quit back to the Level Map. [3.2.5]"
-msgstr "Wyjście  z gry: Powoduje powrót do mapy poziomów. [3.2.5]"
+msgstr "Wyjście z gry: Powoduje powrót do mapy poziomów. [3.2.5]"
 
 #: guitext:728
 msgctxt "In-game interface description"
