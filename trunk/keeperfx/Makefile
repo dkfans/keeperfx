@@ -442,7 +442,7 @@ $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 $(BMPTORAWLV): tools/landvico/src/landvico.cpp tools/landvico/Makefile
 	$(MAKE) -C tools/landvico
 
-$(POTONGDAT): tools/po2ngdat/src/po2ngdat.c tools/po2ngdat/Makefile
+$(POTONGDAT): tools/po2ngdat/src/po2ngdat.cpp tools/po2ngdat/Makefile
 	$(MAKE) -C tools/po2ngdat
 
 # Windows resources compilation
