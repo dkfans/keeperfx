@@ -1,6 +1,6 @@
-#******************************************************************************
+# ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-#******************************************************************************
+# ******************************************************************************
 #   @file gtext_jap.po
 #      KeeperFX GUI Strings translation file
 #  @par Purpose:
@@ -15,14 +15,14 @@
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-#******************************************************************************
+# ******************************************************************************
 msgid ""
 msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.40\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2012-09-02 03:42+0200\n"
-"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"PO-Revision-Date: 2012-10-02 10:55+0900\n"
+"Last-Translator: keita umetsu <coerulea@nifty.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -30,900 +30,1643 @@ msgstr ""
 "X-Poedit-Language: Japanese\n"
 "X-Poedit-Country: JAPAN\n"
 "X-Poedit-SourceCharset: utf-8\n"
+"Language: ja_JP\n"
+"X-Generator: Poedit 1.5.3\n"
 
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
-msgstr "お-+とう！ -|土地=お前|も|だ。スペースキーを押し、次Lる地へ進-。"
+msgstr ""
+"おめでとう！ この土地はお前のものだ。スペースキーを押し、次なる地へ進め。"
 
 #: guitext:1
 msgctxt "In-game message"
 msgid "This is a message. Right click to delete it."
-msgstr "-れ=メッセージだ。右クリック+削除+きる。"
+msgstr "これはメッセージだ。右クリックで削除できる。"
 
 #: guitext:2
 msgctxt "In-game message"
-msgid "The first thing a Keeper needs is somewhere to keep gold, when it's been mined out of the rock by his imps. To create a Treasure Room, select the Treasure Room icon from the Rooms Panel and fill the empty area to the west with Treasure Room tiles."
-msgstr "-ず=インプどもが金鉱から掘り出した財宝|-管場所が必要だ。宝物-を作る-=、部屋パネルから宝物-アイコンを選び、-|空いたエリア-宝物-タイルを置け。"
+msgid ""
+"The first thing a Keeper needs is somewhere to keep gold, when it's been "
+"mined out of the rock by his imps. To create a Treasure Room, select the "
+"Treasure Room icon from the Rooms Panel and fill the empty area to the west "
+"with Treasure Room tiles."
+msgstr ""
+"まずはインプどもが金鉱から掘り出した財宝の保管場所が必要だ。宝物庫を作るに"
+"は、部屋パネルから宝物庫アイコンを選び、西の空いたエリアに宝物庫タイルを置"
+"け。"
 
 #: guitext:3
 msgctxt "In-game message"
-msgid "Use the cursor keys to see other areas of the underworld. Rotate and zoom the view with the right ctrl key and cursor keys."
-msgstr "矢印キーを使い、-|地底世界|全|を見よ。視界を回転-|たりズームする-=、Ctrlキーと矢印キーを使え。"
+msgid ""
+"Use the cursor keys to see other areas of the underworld. Rotate and zoom "
+"the view with the right ctrl key and cursor keys."
+msgstr ""
+"矢印キーを使い、この地底世界の全てを見よ。視界を回転させたりズームするには、"
+"Ctrlキーと矢印キーを使え。"
 
 #: guitext:4
 msgctxt "In-game message"
-msgid "Expertly done. Press the right mouse button to turn the pointer back into the Hand of Evil. Mine out the gold to the east by tagging the area with the left mouse button. Your Imps will dig out the gold and carry it back to your Treasure Room."
-msgstr "う-い-。右クリック+マウスポインタを悪魔|手--|。左クリック+東|エリアを掘り、財宝を鋼掘|よ。インプどもが財宝を掘り出し、宝物-へ運ぶ+あろう。"
+msgid ""
+"Expertly done. Press the right mouse button to turn the pointer back into "
+"the Hand of Evil. Mine out the gold to the east by tagging the area with the "
+"left mouse button. Your Imps will dig out the gold and carry it back to your "
+"Treasure Room."
+msgstr ""
+"うまいぞ。右クリックでマウスポインタを悪魔の手に戻せ。左クリックで東のエリア"
+"を掘り、財宝を採掘せよ。インプどもが財宝を掘り出し、宝物庫へ運ぶであろう。"
 
 #: guitext:5
 msgctxt "In-game message"
-msgid "If you want to make your creatures work harder, slap them by right clicking the Hand of Evil on them. Slapping will harm your creatures."
-msgstr "手榎どもをも+と働か|たけれ+、悪魔|手をクリーチャー上-置き、右クリック+活を入れよ。ただし、活を入れられるたび-クリーチャー=ダメージを受ける+あろう。"
+msgid ""
+"If you want to make your creatures work harder, slap them by right clicking "
+"the Hand of Evil on them. Slapping will harm your creatures."
+msgstr ""
+"手下どもをもっと働かせたければ、悪魔の手をクリーチャー上に置き、右クリックで"
+"活を入れよ。ただし、活を入れられるたびにクリーチャーはダメージを受けるであろ"
+"う。"
 
 #: guitext:6
 msgctxt "In-game message"
-msgid "Use the left mouse button to pluck your creatures from the dungeon. Use the right mouse button to drop them over a room or tile belonging to your dungeon. Creatures perform the task most relevant to the situation they're dropped into."
-msgstr "手榎をダンジョンから拾い上-る-=、左クリックを使え。クリーチャーをダンジョン内|部屋-た=タイル上-落とす-=、右クリックを使え。クリーチャー=落と-れた場所+、自分-+も適した仕事を行う。"
+msgid ""
+"Use the left mouse button to pluck your creatures from the dungeon. Use the "
+"right mouse button to drop them over a room or tile belonging to your "
+"dungeon. Creatures perform the task most relevant to the situation they're "
+"dropped into."
+msgstr ""
+"手下をダンジョンから拾い上げるには、左クリックを使え。クリーチャーをダンジョ"
+"ン内の部屋またはタイル上に落とすには、右クリックを使え。クリーチャーは落とさ"
+"れた場所で、自分に最も適した仕事を行う。"
 
 #: guitext:7
 msgctxt "In-game message"
-msgid "Greedily done, Keeper. Now, you need to turn some of your dungeon into a Lair. Lairs are where creatures rest and recover. The area your imps just mined out would be an ideal spot for some creatures to lurk. Select the Lair icon from the Rooms Panel."
-msgstr "熱心-や+|おるL、キーパーよ。次-必要L|=、ダンジョン|一部を５ぐら-する-とだ。クリーチャー=５ぐら+休息し、=を取り-す。インプどもが財宝を鋼掘した跡=、５ぐらを作る-がょうどよい。部屋パネルから５ぐらアイコンを選べ。"
+msgid ""
+"Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
+"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"mined out would be an ideal spot for some creatures to lurk. Select the Lair "
+"icon from the Rooms Panel."
+msgstr ""
+"熱心にやっておるな、キーパーよ。次に必要なのは、ダンジョンの一部をねぐらにす"
+"ることだ。クリーチャーはねぐらで休息し、力を取り戻す。インプどもが財宝を採掘"
+"した跡は、ねぐらを作るにちょうどよい。部屋パネルからねぐらアイコンを選べ。"
 
 #: guitext:8
 msgctxt "In-game message"
-msgid "Dig a tunnel that connects to the Portal to the north. Portals appear on the map as flashing squares, until they are claimed. Creatures only use Portals claimed by a Keeper. Your imps claim a Portal as soon as it connects to your dungeon."
-msgstr "北|ゲートへ５Lがるトンネルを掘れ。マップ上|光+|いる四角形が占慾-れ|いLいゲートだ。キーパーが占慾したゲートしかクリーチャー=竹れLい。お前|ダンジョンとゲートが５Lがるとすぐ-手榎インプが占慾を宣言する。"
+msgid ""
+"Dig a tunnel that connects to the Portal to the north. Portals appear on the "
+"map as flashing squares, until they are claimed. Creatures only use Portals "
+"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"dungeon."
+msgstr ""
+"北のゲートへつながるトンネルを掘れ。マップ上の光っている四角形が占領されてい"
+"ないゲートだ。キーパーが占領したゲートしかクリーチャーは通れない。お前のダン"
+"ジョンとゲートがつながるとすぐに手下インプが占領を宣言する。"
 
 #: guitext:9
 msgctxt "In-game message"
-msgid "You should build a Treasure Room first. Select the Treasure Room icon from the Rooms Panel and left click on the tiles in the area to the west of your Dungeon Heart."
-msgstr "-ず宝物-を作れ。部屋パネルから宝物-アイコンを選び、ダンジョンハート-側|タイル上+左クリック|よ。"
+msgid ""
+"You should build a Treasure Room first. Select the Treasure Room icon from "
+"the Rooms Panel and left click on the tiles in the area to the west of your "
+"Dungeon Heart."
+msgstr ""
+"まず宝物庫を作れ。部屋パネルから宝物庫アイコンを選び、ダンジョンハート西側の"
+"タイル上で左クリックせよ。"
 
 #: guitext:10
 msgctxt "In-game message"
-msgid "Pick up creatures by left clicking on them. Drop them by right clicking over a room or tile belonging to your dungeon. Creatures perform tasks relevant to the situation they're dropped into."
-msgstr "クリーチャーを左クリック+ピックアップ|よ。右クリック+お前|ダンジョン内|部屋-た=タイル上-クリーチャーを落と|。クリーチャー=落と-れた場所+、自分-適した仕事を行う。"
+msgid ""
+"Pick up creatures by left clicking on them. Drop them by right clicking over "
+"a room or tile belonging to your dungeon. Creatures perform tasks relevant "
+"to the situation they're dropped into."
+msgstr ""
+"クリーチャーを左クリックでピックアップせよ。右クリックでお前のダンジョン内の"
+"部屋またはタイル上にクリーチャーを落とせ。クリーチャーは落とされた場所で、自"
+"分に適した仕事を行う。"
 
 #: guitext:11
 msgctxt "In-game message"
-msgid "If you want your creatures to work harder, slap them with a right click of the hand. Your creatures take damage from each slap they receive."
-msgstr "手榎どもをも+と働か|たけれ+、悪魔|手をクリーチャー上-置き、右クリック+活を入れよ。ただし、活を入れられるたび-クリーチャー=ダメージを受ける+あろう。"
+msgid ""
+"If you want your creatures to work harder, slap them with a right click of "
+"the hand. Your creatures take damage from each slap they receive."
+msgstr ""
+"手下どもをもっと働かせたければ、悪魔の手をクリーチャー上に置き、右クリックで"
+"活を入れよ。ただし、活を入れられるたびにクリーチャーはダメージを受けるであろ"
+"う。"
 
 #: guitext:12
 msgctxt "In-game message"
-msgid "You have not yet built a Treasure Room. Until you build this room, you will be unable to pay any creatures. Only imps give their loyalty freely. No other creatures will serve you unpaid."
-msgstr "-だ宝物-を作+|いLいL。宝物-を作る-+=クリーチャー-給略が支払えLい。ただ+忠誠を５くす|=インプだけだ。-|クリーチャー=給略Lし+=決し|お前-仕えLい。"
+msgid ""
+"You have not yet built a Treasure Room. Until you build this room, you will "
+"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"other creatures will serve you unpaid."
+msgstr ""
+"まだ宝物庫を作っていないな。宝物庫を作るまではクリーチャーに給料が支払えな"
+"い。ただで忠誠をつくすのはインプだけだ。他のクリーチャーは給料なしでは決して"
+"お前に仕えない。"
 
 #: guitext:13
 msgctxt "In-game message"
-msgid "Your first minion has arrived. It's a giant Fly. It can spit corrosive vomit at your enemies and its wings grant the hideous insect the speed to intercept the most nimble trespassers."
-msgstr "+初|手榎がや+|来た。巨大Lフライだ。腐+た+液を吐き、気味が悪い-ど大きL昆虫だが、+も素早い侵入者すら-らえる-と|+きる速-+飛ぶ。"
+msgid ""
+"Your first minion has arrived. It's a giant Fly. It can spit corrosive vomit "
+"at your enemies and its wings grant the hideous insect the speed to "
+"intercept the most nimble trespassers."
+msgstr ""
+"最初の手下がやって来た。巨大なフライだ。腐った唾液を吐き、気味が悪いほど大き"
+"な昆虫だが、最も素早い侵入者すら捕らえることのできる速さで飛ぶ。"
 
 #: guitext:14
 msgctxt "In-game message"
-msgid "A Beetle has scuttled into your realm. It's tough enough to absorb a lot of damage. Like most creatures, Beetles require food. Dig out a new area, select the Hatchery icon and create your Hatchery. Tasty snacks will soon emerge from its enchanted soil."
-msgstr "ビートルが急ぎ足+お前|王国-入+|きた。丈夫+、かLり|ダメージ-耐える-とが+きる。たい|い|クリーチャーと同じくビートルも食略が必要だ。新たL場所を掘り、ニワトリ小屋アイコンを選ん+ニワトリ小屋を作れ。すぐ-おいしい食略が魔法|土から謙れ出|くる=ずだ。"
+msgid ""
+"A Beetle has scuttled into your realm. It's tough enough to absorb a lot of "
+"damage. Like most creatures, Beetles require food. Dig out a new area, "
+"select the Hatchery icon and create your Hatchery. Tasty snacks will soon "
+"emerge from its enchanted soil."
+msgstr ""
+"ビートルが急ぎ足でお前の王国に入ってきた。丈夫で、かなりのダメージに耐えるこ"
+"とができる。たいていのクリーチャーと同じくビートルも食料が必要だ。新たな場所"
+"を掘り、ニワトリ小屋アイコンを選んでニワトリ小屋を作れ。すぐにおいしい食料が"
+"魔法の土から現れ出てくるはずだ。"
 
 #: guitext:15
 msgctxt "In-game message"
-msgid "Imps fortify your walls to prevent intruders tunnelling in. If you want to create more imps, go to the Research Panel, select the Imp icon and left click anywhere in your dungeon. Each Imp you create costs more than the previous one."
-msgstr "侵入者がトンネルを掘+|入+|-Lいよう-、インプ=壁|補強をする。手榎インプをも+と増やしたけれ+研究パネル|インプ征造アイコンを選び、ダンジョン内+左クリック|よ。全インプ数-比例し|征造コスト=高くLる。"
+msgid ""
+"Imps fortify your walls to prevent intruders tunnelling in. If you want to "
+"create more imps, go to the Research Panel, select the Imp icon and left "
+"click anywhere in your dungeon. Each Imp you create costs more than the "
+"previous one."
+msgstr ""
+"侵入者がトンネルを掘って入ってこないように、インプは壁の補強をする。手下イン"
+"プをもっと増やしたければ研究パネルのインプ製造アイコンを選び、ダンジョン内で"
+"左クリックせよ。全インプ数に比例して製造コストは高くなる。"
 
 #: guitext:16
 msgctxt "In-game message"
-msgid "Why not have a handful of creatures ready to drop on top of intruders? To pick up creatures quickly, left click on them from within the Creatures Panel. You can only drop creatures within the confines of your own dungeon."
-msgstr "クリーチャーを-と-|侵入者|上-落とす用意をし|おい|=どうだ？ 速くピックアップする-=、クリーチャーパネル上|クリーチャーを左クリック|よ。クリーチャーを落と|る|=お前|慾地内だけだ。"
+msgid ""
+"Why not have a handful of creatures ready to drop on top of intruders? To "
+"pick up creatures quickly, left click on them from within the Creatures "
+"Panel. You can only drop creatures within the confines of your own dungeon."
+msgstr ""
+"クリーチャーをまとめて侵入者の上に落とす用意をしておいてはどうだ？ 速くピック"
+"アップするには、クリーチャーパネル上のクリーチャーを左クリックせよ。クリー"
+"チャーを落とせるのはお前の領地内だけだ。"
 
 #: guitext:17
 msgctxt "In-game message"
-msgid "Intruders approach. They seek gaps in your fortifications, in order to gain entry to your dungeon. A white trail on the map indicates their progress. Click the icon at the top of the Control Panel to see a bigger map."
-msgstr "侵入者どもが-付い|いる-。お前|ダンジョン-侵入するた-、防壁|裂け-を探し|いる。マップ上|白い点が侵入者|動きを示し|いる。マップを拡大する-=、コントロールパネル|上部-あるアイコンをクリック|よ。"
+msgid ""
+"Intruders approach. They seek gaps in your fortifications, in order to gain "
+"entry to your dungeon. A white trail on the map indicates their progress. "
+"Click the icon at the top of the Control Panel to see a bigger map."
+msgstr ""
+"侵入者どもが近付いているぞ。お前のダンジョンに侵入するため、防壁の裂け目を探"
+"している。マップ上の白い点が侵入者の動きを示している。マップを拡大するには、"
+"コントロールパネルの上部にあるアイコンをクリックせよ。"
 
 #: guitext:18
 msgctxt "In-game message"
-msgid "Savour your first victory while you can. You have attracted the wrath of the Lord of this realm. His party will soon be here."
-msgstr "今|うが-+初|勝利を十分味わ+|おけ。お前=-|王国|ロード|怒りを芸び起-し|し-+た。勇者どもがじき-や+|くる+あろう。"
+msgid ""
+"Savour your first victory while you can. You have attracted the wrath of the "
+"Lord of this realm. His party will soon be here."
+msgstr ""
+"今のうちに最初の勝利を十分味わっておけ。お前はこの王国のロードの怒りを呼び起"
+"こしてしまった。勇者どもがじきにやってくるであろう。"
 
 #: guitext:19
 msgctxt "In-game message"
-msgid "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
-msgstr "-|土地|ロードがや+|来た。奴=-怖を+じ|いるようだ-。奴を+が負か|+王国=お前|も|だ。"
+msgid ""
+"The Lord of the Land has arrived. I can smell his fear. Defeat him and the "
+"realm is yours."
+msgstr ""
+"この土地のロードがやって来た。奴は恐怖を感じているようだぞ。奴を打ち負かせば"
+"王国はお前のものだ。"
 
 #: guitext:20
 msgctxt "In-game message"
-msgid "Your work here is done. Now there is no-one to prevent you from obliterating this nauseating realm and expanding your empire into a neighbouring land. Nice."
-msgstr "お前|--+|仕事=終わ+た。お前が-|汚らわしい王国を+し去り、自ら|帝国を拡大する-とを妨-るも|=、も=や誰もいLい。おみ-とだ。"
+msgid ""
+"Your work here is done. Now there is no-one to prevent you from obliterating "
+"this nauseating realm and expanding your empire into a neighbouring land. "
+"Nice."
+msgstr ""
+"お前のここでの仕事は終わった。お前がこの汚らわしい王国を消し去り、自らの帝国"
+"を拡大することを妨げるものは、もはや誰もいない。おみごとだ。"
 
 #: guitext:21
 msgctxt "In-game message"
-msgid "You require more Imps. Use the Create Imp spell to conjure them into your domain. Remember, each Imp you create is more expensive than the last."
-msgstr "インプがも+と必要だ。インプ征造|魔法を使い、お前|慾地-インプを芸び出|。ただし、インプを征造するたび-コストが前回より高くLる-とを忘れるL。"
+msgid ""
+"You require more Imps. Use the Create Imp spell to conjure them into your "
+"domain. Remember, each Imp you create is more expensive than the last."
+msgstr ""
+"インプがもっと必要だ。インプ製造の魔法を使い、お前の領地にインプを呼び出せ。"
+"ただし、インプを製造するたびにコストが前回より高くなることを忘れるな。"
 
 #: guitext:22
 msgctxt "In-game message"
-msgid "When Imps have no other orders, they run around reinforcing your dungeon.  Fortified walls keep out intruders. Rooms with reinforced walls make your creatures feel more at home and heroes more terrified."
-msgstr "+-命-を受け|いLいインプ=、ダンジョンを補強し|-わる。補強-れた壁=侵入者を寄|付けLい。壁を補強した部屋+=、クリーチャー=く５ろぐ-とが+き、勇者ども=-怖を覚える。"
+msgid ""
+"When Imps have no other orders, they run around reinforcing your dungeon.  "
+"Fortified walls keep out intruders. Rooms with reinforced walls make your "
+"creatures feel more at home and heroes more terrified."
+msgstr ""
+"特に命令を受けていないインプは、ダンジョンを補強してまわる。補強された壁は侵"
+"入者を寄せ付けない。壁を補強した部屋では、クリーチャーはくつろぐことができ、"
+"勇者どもは恐怖を覚える。"
 
 #: guitext:23
 msgctxt "In-game message"
-msgid "Possess creatures by choosing the Possess spell from the Research Panel and left-clicking on the creature you want to control. Right-click to leave the creature again."
-msgstr "クリーチャーを支配する-=、研究パネル|支配アイコンを選び、支配したいクリーチャー上+左クリック|よ。右クリック+クリーチャーを解放+きる。"
+msgid ""
+"Possess creatures by choosing the Possess spell from the Research Panel and "
+"left-clicking on the creature you want to control. Right-click to leave the "
+"creature again."
+msgstr ""
+"クリーチャーを支配するには、研究パネルの支配アイコンを選び、支配したいクリー"
+"チャー上で左クリックせよ。右クリックでクリーチャーを解放できる。"
 
 #: guitext:24
 msgctxt "In-game message"
-msgid "Remember the lessons you learned in Brana Hauk. You must build a Treasure Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms in squares of at least nine tiles to increase the efficiency of the room."
-msgstr "ブラナホーク+学んだ-訓を忘れるL。-ず宝物-と５ぐらとニワトリ小屋を作り、がれからゲートを占慾|５+LらLい。部屋|機能性を高-る-=、+低９タイル|四角い部屋を作れ。"
+msgid ""
+"Remember the lessons you learned in Brana Hauk. You must build a Treasure "
+"Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms "
+"in squares of at least nine tiles to increase the efficiency of the room."
+msgstr ""
+"ブラナホークで学んだ教訓を忘れるな。まず宝物庫とねぐらとニワトリ小屋を作り、"
+"それからゲートを占領せねばならない。部屋の機能性を高めるには、最低９タイルの"
+"四角い部屋を作れ。"
 
 #: guitext:25
 msgctxt "In-game message"
-msgid "You will need to make your creatures stronger. In a Training Room, your creatures can hone their fighting skills, gain new abilities and learn more powerful spells."
-msgstr "手榎を-ら-強くする必要が+|くる=ずだ。訓練旨+クリーチャー=戦闘能=をみがき、新しい能=を身-５け、より強=L魔法を覚える-とが+きる。"
+msgid ""
+"You will need to make your creatures stronger. In a Training Room, your "
+"creatures can hone their fighting skills, gain new abilities and learn more "
+"powerful spells."
+msgstr ""
+"手下をさらに強くする必要がでてくるはずだ。訓練室でクリーチャーは戦闘能力をみ"
+"がき、新しい能力を身につけ、より強力な魔法を覚えることができる。"
 
 #: guitext:26
 msgctxt "In-game message"
-msgid "Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the walls of your dungeon. This increases the efficiency of rooms and repels would-be invaders."
-msgstr "計画=順--進ん+いるL、キーパーよ。インプども-ダンジョン|壁を補強する時間をやれ。-れ-より部屋|機能性が高-り、侵入をくわだ|る者を撃退+きる。"
+msgid ""
+"Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the "
+"walls of your dungeon. This increases the efficiency of rooms and repels "
+"would-be invaders."
+msgstr ""
+"計画は順調に進んでいるな、キーパーよ。インプどもにダンジョンの壁を補強する時"
+"間をやれ。これにより部屋の機能性が高まり、侵入をくわだてる者を撃退できる。"
 
 #: guitext:27
 msgctxt "In-game message"
-msgid "The Training Room attracts ever more ferocious creatures, such as Demon Spawn. Build it and they will come."
-msgstr "訓練旨=、より一層凶暴Lクリーチャーを引き寄|る。部屋が+きれ+デーモンスポーンがや+|くる+あろう。"
+msgid ""
+"The Training Room attracts ever more ferocious creatures, such as Demon "
+"Spawn. Build it and they will come."
+msgstr ""
+"訓練室は、より一層凶暴なクリーチャーを引き寄せる。部屋ができればデーモンス"
+"ポーンがやってくるであろう。"
 
 #: guitext:28
 msgctxt "In-game message"
-msgid "To train creatures, drop them in the Training Room. The number that occasionally appears above a creature's head indicates how much gold it has cost for that creature to train."
-msgstr "訓練する-=、クリーチャーを訓練旨-落と|。クリーチャー|頭上-時々謙れる数字=、が|クリーチャーを訓練する|-必要L財宝|慾だ。"
+msgid ""
+"To train creatures, drop them in the Training Room. The number that "
+"occasionally appears above a creature's head indicates how much gold it has "
+"cost for that creature to train."
+msgstr ""
+"訓練するには、クリーチャーを訓練室に落とせ。クリーチャーの頭上に時々現れる数"
+"字は、そのクリーチャーを訓練するのに必要な財宝の量だ。"
 
 #: guitext:29
 msgctxt "In-game message"
-msgid "You can train creatures more rapidly by slapping them as they work out in the Training Room."
-msgstr "より早くクリーチャーを鍛える-=、訓練旨+訓練中|クリーチャー-活を入れよ。"
+msgid ""
+"You can train creatures more rapidly by slapping them as they work out in "
+"the Training Room."
+msgstr ""
+"より早くクリーチャーを鍛えるには、訓練室で訓練中のクリーチャーに活を入れよ。"
 
 #: guitext:30
 msgctxt "In-game message"
-msgid "Heroes are already on their way. Make sure your creatures are well trained and ready for the attack. The heroes you will face in this realm are tougher than those you met beneath Brana Hauk."
-msgstr "勇者どもがす+--がらへ向か+|いる。手榎どもをじゅうぶん訓練-||いるか？ 攻撃-備え|いるか確認|よ。-|王国|勇者ども=、ブラナホーク-いた敵よりも手強い-。"
+msgid ""
+"Heroes are already on their way. Make sure your creatures are well trained "
+"and ready for the attack. The heroes you will face in this realm are tougher "
+"than those you met beneath Brana Hauk."
+msgstr ""
+"勇者どもがすでにこちらへ向かっている。手下どもをじゅうぶん訓練させているか？ "
+"攻撃に備えているか確認せよ。この王国の勇者どもは、ブラナホークにいた敵よりも"
+"手強いぞ。"
 
 #: guitext:31
 msgctxt "In-game message"
-msgid "Harder the heroes may have been but they were obviously no match for your forces."
-msgstr "勇者ども=前回より=強か+たかもしれLいが、明らか-お前|敵+=Lか+たL。"
+msgid ""
+"Harder the heroes may have been but they were obviously no match for your "
+"forces."
+msgstr ""
+"勇者どもは前回よりは強かったかもしれないが、明らかにお前の敵ではなかったな。"
 
 #: guitext:32
 msgctxt "In-game message"
-msgid "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
-msgstr "勇者どもが-がらへ向か+|いる。手榎どもをじゅうぶん訓練-||いるか？ 攻撃-備え|いるか確認|よ。"
+msgid ""
+"The heroes are on their way. Make sure your creatures are well trained and "
+"ready for the attack."
+msgstr ""
+"勇者どもがこちらへ向かっている。手下どもをじゅうぶん訓練させているか？ 攻撃に"
+"備えているか確認せよ。"
 
 #: guitext:33
 msgctxt "In-game message"
 msgid "Congratulations. You have conquered the enemy hordes."
-msgstr "お-+とう。敵|大群を+が破+た。"
+msgstr "おめでとう。敵の大群を打ち破った。"
 
 #: guitext:34
 msgctxt "In-game message"
-msgid "Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training Room. Make sure they're all big enough. Cramped conditions do nothing for the morale of your minions."
-msgstr "宝物-、５ぐら、ニワトリ小屋、訓練旨|あるダンジョンを作れ。必ずど|部屋も十分L広--|よ。|-くるしい概境だと手榎=ヤル気を失う-。"
+msgid ""
+"Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training "
+"Room. Make sure they're all big enough. Cramped conditions do nothing for "
+"the morale of your minions."
+msgstr ""
+"宝物庫、ねぐら、ニワトリ小屋、訓練室のあるダンジョンを作れ。必ずどの部屋も十"
+"分な広さにせよ。せまくるしい環境だと手下はヤル気を失うぞ。"
 
 #: guitext:35
 msgctxt "In-game message"
-msgid "The time has come to build a Library. Libraries are where new devices, room designs and magic spells are researched. Make a Library at least as big as the other rooms. Researchers like quiet too, so try to build your Library off the side of a corridor."
-msgstr "図書-を作る時がきた。図書-=新たL装置や部屋|設計、がし|魔法|研究をする場所だ。図書-=+低+も-|部屋と同じ広--|よ。-た、研究者=+け-を好む|+、図書-=竹路から離れた場所-作れ。"
+msgid ""
+"The time has come to build a Library. Libraries are where new devices, room "
+"designs and magic spells are researched. Make a Library at least as big as "
+"the other rooms. Researchers like quiet too, so try to build your Library "
+"off the side of a corridor."
+msgstr ""
+"図書館を作る時がきた。図書館は新たな装置や部屋の設計、そして魔法の研究をする"
+"場所だ。図書館は最低でも他の部屋と同じ広さにせよ。また、研究者は静けさを好む"
+"ので、図書館は通路から離れた場所に作れ。"
 
 #: guitext:36
 msgctxt "In-game message"
-msgid "Your new Library will attract creatures like Warlocks, who are interested in researching magic and dungeon designs. These evil mages are real bookworms, as well as being magically proficient themselves."
-msgstr "図書-=、魔法とダンジョン設計|研究-喬味を持５ウォーロック|ようLクリーチャーを引き寄|る。-|邪悪L賢者=、大|本好き+魔法使いとし|も優秀+ある。"
+msgid ""
+"Your new Library will attract creatures like Warlocks, who are interested in "
+"researching magic and dungeon designs. These evil mages are real bookworms, "
+"as well as being magically proficient themselves."
+msgstr ""
+"図書館は、魔法とダンジョン設計の研究に興味を持つウォーロックのようなクリー"
+"チャーを引き寄せる。この邪悪な賢者は、大の本好きで魔法使いとしても優秀であ"
+"る。"
 
 #: guitext:37
 msgctxt "In-game message"
-msgid "That's a fine collection of parchments and tomes you've assembled. Most creatures can engage in research but Warlocks make the best and keenest researchers. Stupid Trolls have trouble holding books the right way up and sometimes even chew the pages."
-msgstr "LかLかみ-と書物|コレクションだL。-とんど|クリーチャー=研究を行Lえるが、+も優秀+熱心L研究者=ウォーロックだ。-|けLトロル=-しく本を持５-とも+きず、ページをかん+し-う-ともある。"
+msgid ""
+"That's a fine collection of parchments and tomes you've assembled. Most "
+"creatures can engage in research but Warlocks make the best and keenest "
+"researchers. Stupid Trolls have trouble holding books the right way up and "
+"sometimes even chew the pages."
+msgstr ""
+"なかなかみごと書物のコレクションだな。ほとんどのクリーチャーは研究を行なえる"
+"が、最も優秀で熱心な研究者はウォーロックだ。まぬけなトロルは正しく本を持つこ"
+"ともできず、ページをかんでしまうこともある。"
 
 #: guitext:38
 msgctxt "In-game message"
-msgid "The scent of arcane knowledge has lured a greedy Warlock into your dungeon. Don't forget to train your Warlocks occasionally. Their spell casting abilities make them fine long range fighters."
-msgstr "神秘|知識|香りが欲深いウォーロックをお前|ダンジョンへ誘う。ウォーロックを時々訓練する-とを忘れるL。魔法を使えるウォーロック=遠くから攻撃+きるた-、いい戦士-Lる。"
+msgid ""
+"The scent of arcane knowledge has lured a greedy Warlock into your dungeon. "
+"Don't forget to train your Warlocks occasionally. Their spell casting "
+"abilities make them fine long range fighters."
+msgstr ""
+"神秘の知識の香りが欲深いウォーロックをお前のダンジョンへ誘う。ウォーロックを"
+"時々訓練することを忘れるな。魔法を使えるウォーロックは遠くから攻撃できるた"
+"め、いい戦士になる。"
 
 #: guitext:39
 msgctxt "In-game message"
-msgid "The first wave of attackers lie hacked to pieces on the floor and give your domain that lived in feeling but it surely won't be long before their kin launch another assault."
-msgstr "勇者ども|第一陣=切り刻-れ|--倒れ、お前|慾地=落が着きを取り-した。しかし馬鹿L連中ども=すぐ-も第二陣を送+|くる+あろう。"
+msgid ""
+"The first wave of attackers lie hacked to pieces on the floor and give your "
+"domain that lived in feeling but it surely won't be long before their kin "
+"launch another assault."
+msgstr ""
+"勇者どもの第一陣は切り刻まれて床に倒れ、お前の領地は落ち着きを取り戻した。し"
+"かし馬鹿な連中どもはすぐにも第二陣を送ってくるであろう。"
 
 #: guitext:40
 msgctxt "In-game message"
-msgid "You meet with success yet again, Keeper. All those corpses will keep your Hatchery's topsoil fertile. They also serve as warnings to other foolhardy adventurers, of course."
-msgstr "キーパーよ、-た勝利をお--たL。死掃|山+ニワトリ小屋|土=、--よく肥える-とだろう。がし|もがろん、-謀L冒険者どもへ|警告-もLる。"
+msgid ""
+"You meet with success yet again, Keeper. All those corpses will keep your "
+"Hatchery's topsoil fertile. They also serve as warnings to other foolhardy "
+"adventurers, of course."
+msgstr ""
+"キーパーよ、また勝利をおさめたな。死体の山でニワトリ小屋の土は、さぞよく肥え"
+"ることだろう。そしてもちろん、無謀な冒険者どもへの警告にもなる。"
 
 #: guitext:41
 msgctxt "In-game message"
-msgid "All is quiet again. Use this time to ready yourself for the next attacks. The enemy is only regrouping. It is not yet defeated."
-msgstr "鋼び+け-が訪れた。-|間-次|攻撃-備えよ。敵=鋼編成を行+|いるだけだ。-だ敗れ去+たわけ+=Lい。"
+msgid ""
+"All is quiet again. Use this time to ready yourself for the next attacks. "
+"The enemy is only regrouping. It is not yet defeated."
+msgstr ""
+"再び静けさが訪れた。この間に次の攻撃に備えよ。敵は再編成を行っているだけだ。"
+"まだ敗れ去ったわけではない。"
 
 #: guitext:42
 msgctxt "In-game message"
-msgid "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
-msgstr "切り落とした勇者ども|頭+インプがフットボールをや+|いLいか？ 警戒を怠るL。"
+msgid ""
+"Is that Imp playing football with a decapitated head? Stay alert, Keeper."
+msgstr ""
+"切り落とした勇者どもの頭でインプがフットボールをやっていないか？ 警戒を怠る"
+"な。"
 
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
-msgstr "今-ががウォーロックを訓練する絶好|時だ。"
+msgstr "今こそがウォーロックを訓練する絶好の時だ。"
 
 #: guitext:44
 msgctxt "In-game message"
-msgid "Already your research bears fruit. The Speed Creature spell has been perfected. Cast it on a creature and observe the dramatic increase in its speed. The effect wears off after a while."
-msgstr "お前|研究が鮫を結び、+速|魔法が完成した。-|魔法=クリーチャー|行動速度を２倍-する。が|-+-しい+速をよく見|みよ。だがが|効榎=し+らくた５と+え|いく。"
+msgid ""
+"Already your research bears fruit. The Speed Creature spell has been "
+"perfected. Cast it on a creature and observe the dramatic increase in its "
+"speed. The effect wears off after a while."
+msgstr ""
+"お前の研究が実を結び、加速の魔法が完成した。この魔法はクリーチャーの行動速度"
+"を２倍にする。その目ざましい加速をよく見てみよ。だがその効果はしばらくたつと"
+"消えていく。"
 
 #: guitext:45
 msgctxt "In-game message"
-msgid "Build up your dungeon with the rooms available to you and claim the Portal nearby but do not yet venture north. Powerful adversaries lurk there. It would be wiser not to disturb them until you are prepared."
-msgstr "作れる部屋をすべ|作り、-く|ゲートを占慾|よ。しかし、-だ北へ進ん+=LらLい。が--=強敵がひがん+いる。準備が整う-+=連中を刺激しLい-うが賢明だ。"
+msgid ""
+"Build up your dungeon with the rooms available to you and claim the Portal "
+"nearby but do not yet venture north. Powerful adversaries lurk there. It "
+"would be wiser not to disturb them until you are prepared."
+msgstr ""
+"作れる部屋をすべて作り、近くのゲートを占領せよ。しかし、まだ北へ進んではなら"
+"ない。そこには強敵がひそんでいる。準備が整うまでは連中を刺激しないほうが賢明"
+"だ。"
 
 #: guitext:46
 msgctxt "In-game message"
-msgid "Clever research has given your Imps the engineering skill to build Bridges. You will need Bridges to cross some of the more hazardous underworld terrain."
-msgstr "研究|結榎、+を造る技術を得た。より危険L地底世界を渡+|行く-=、+が必要-Lる=ずだ。"
+msgid ""
+"Clever research has given your Imps the engineering skill to build Bridges. "
+"You will need Bridges to cross some of the more hazardous underworld terrain."
+msgstr ""
+"研究の結果、橋を造る技術を得た。より危険な地底世界を渡って行くには、橋が必要"
+"になるはずだ。"
 
 #: guitext:47
 msgctxt "In-game message"
-msgid "A study of dungeon designs reveals that Workshops manufacture essential furniture, such as Doors and Traps. If your Workshop occupies a square of at least nine tiles, its mere presence will lure the underworld's finest artisans into your dungeon."
-msgstr "ダンジョン設計-５い|研究した結榎、ドアや罠Lど|重要L物品=工房+征造する-とがわか+た。工房を９タイルL上|四角い部屋-造れ+よい。あと=地底世界一腕|いい職人どもが自然と集-+|くる+あろう。"
+msgid ""
+"A study of dungeon designs reveals that Workshops manufacture essential "
+"furniture, such as Doors and Traps. If your Workshop occupies a square of at "
+"least nine tiles, its mere presence will lure the underworld's finest "
+"artisans into your dungeon."
+msgstr ""
+"ダンジョン設計について研究した結果、ドアや罠などの重要な物品は工房で製造する"
+"ことがわかった。工房を９タイル以上の四角い部屋に造ればよい。あとは地底世界一"
+"腕のいい職人どもが自然と集まってくるであろう。"
 
 #: guitext:48
 msgctxt "In-game message"
-msgid "To manufacture Traps and Doors in your Workshop you will need to assign creatures to it, by dropping them into the room. Manufactured items can be selected from the Workshop Panel as soon as they're ready."
-msgstr "工房+罠やドアを征造する-=、クリーチャーを工房-落とし|仕事を-|Lけれ+LらLい。+きた物品=準備が+きしだい、工房パネルから選べるよう-Lる。"
+msgid ""
+"To manufacture Traps and Doors in your Workshop you will need to assign "
+"creatures to it, by dropping them into the room. Manufactured items can be "
+"selected from the Workshop Panel as soon as they're ready."
+msgstr ""
+"工房で罠やドアを製造するには、クリーチャーを工房に落として仕事をさせなければ"
+"ならない。できた物品は準備ができしだい、工房パネルから選べるようになる。"
 
 #: guitext:49
 msgctxt "In-game message"
-msgid "When your troops are sufficient in number and have had some training, lead them north and crush any who oppose you."
-msgstr "お前|軍勢が十分L数-Lり、いくらか訓練を積んだら、北へ-動-||すべ||敵を屈服-|よ。"
+msgid ""
+"When your troops are sufficient in number and have had some training, lead "
+"them north and crush any who oppose you."
+msgstr ""
+"お前の軍勢が十分な数になり、いくらか訓練を積んだら、北へ移動させてすべての敵"
+"を屈服させよ。"
 
 #: guitext:50
 msgctxt "In-game message"
-msgid "You will have to find a way to cross the river of molten lava that bars your way."
-msgstr "お前|行く手を妨-るドロドロ|溶岩|川を渡る方法を見５け５+LらLい。"
+msgid ""
+"You will have to find a way to cross the river of molten lava that bars your "
+"way."
+msgstr "お前の行く手を妨げるドロドロの溶岩の川を渡る方法を見つけねばならない。"
 
 #: guitext:51
 msgctxt "In-game message"
-msgid "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby and administer the coup de grace."
-msgstr "敵|ダンジョンハートがお前|-|前+脈++|いる。-く-いる手榎を集-、とど-|一撃を与えよ。"
+msgid ""
+"The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
+"and administer the coup de grace."
+msgstr ""
+"のダンジョンハートがお前の目の前で脈打っている。近くにいる手下を集め、とどめ"
+"の一撃を与えよ。"
 
 #: guitext:52
 msgctxt "In-game message"
-msgid "A Troll has joined you. Skilled in the craft of manufacturing, trolls are best employed doing dark deeds in your Workshop. They don't complain about the hours, because their labours keep them away from combat."
-msgstr "トロルがお前|手榎-+わ+た。手先が器用Lトロル=、工房+仕事を-|る|-+適+ある。戦闘を|ず-すむLら+トロル=長時間労働-も文句を言わLい+あろう。"
+msgid ""
+"A Troll has joined you. Skilled in the craft of manufacturing, trolls are "
+"best employed doing dark deeds in your Workshop. They don't complain about "
+"the hours, because their labours keep them away from combat."
+msgstr ""
+"トロルがお前の手下に加わった。手先が器用なトロルは、工房で仕事をさせるのに最"
+"適である。戦闘をせずにすむならばトロルは長時間労働にも文句を言わないであろ"
+"う。"
 
 #: guitext:53
 msgctxt "In-game message"
-msgid "With the enemy Dungeon Heart in ruins, you have trounced the once proud opposition. Rule your new domain with terror and loathing, for a laugh."
-msgstr "敵ダンジョンハートを破壊し、愚かLるも|どもを支配した。新たL慾地を-怖と憎悪、がし|嘲けり+支配|よ。"
+msgid ""
+"With the enemy Dungeon Heart in ruins, you have trounced the once proud "
+"opposition. Rule your new domain with terror and loathing, for a laugh."
+msgstr ""
+"敵ダンジョンハートを破壊し、愚かなるものどもを支配した。新たな領地を恐怖と憎"
+"悪、そして嘲けりで支配せよ。"
 
 #: guitext:54
 msgctxt "In-game message"
-msgid "Your Workshop has created a Wooden Door. Placed in a corridor, it restricts access to the enemy. Your creatures may pass freely. Lock or unlock Doors by clicking over them with the left mouse button."
-msgstr "工房+木|ドアが完成した。竹路-配置すれ+、敵|出入りが制鍬-れる。手榎クリーチャー=自由-竹る-とが+きる。鍵|開け謬-をする-=、ドア|上+左クリック|よ。"
+msgid ""
+"Your Workshop has created a Wooden Door. Placed in a corridor, it restricts "
+"access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
+"clicking over them with the left mouse button."
+msgstr ""
+"工房で木のドアが完成した。通路に配置すれば、敵の出入りが制限される。手下ク"
+"リーチャーは自由に通ることができる。鍵の開け閉めをするには、ドアの上で左ク"
+"リックせよ。"
 
 #: guitext:55
 msgctxt "In-game message"
-msgid "Your Workshop has produced a Poison Gas trap. Position it and, when an intruder sets it off, it will envelop the area in deadly vapours."
-msgstr "工房++ガス|罠が完成した。-あ早く設置するがよい。侵入者が罠-かかると、周==致死性|ガス+包-れる。"
+msgid ""
+"Your Workshop has produced a Poison Gas trap. Position it and, when an "
+"intruder sets it off, it will envelop the area in deadly vapours."
+msgstr ""
+"工房で毒ガスの罠が完成した。さあ早く設置するがよい。侵入者が罠にかかると、周"
+"囲は致死性のガスで包まれる。"
 
 #: guitext:56
 msgctxt "In-game message"
-msgid "You have researched the Call to Arms spell. The first time you cast it, your creatures gather around a banner created by the spell. Cast it again in a target area. Call to Arms only costs gold when it's targetted beyond your territory."
-msgstr "出陣|魔法|研究が終わ+た。初-|-|魔法をかけると、手榎どもが魔法-よ+|作られた旗|-わり-集結する。攻撃-標地点--|魔法をかけよ。出陣|魔法が財宝を+費する|=、お前|慾土|外を攻撃する時だけだ。"
+msgid ""
+"You have researched the Call to Arms spell. The first time you cast it, your "
+"creatures gather around a banner created by the spell. Cast it again in a "
+"target area. Call to Arms only costs gold when it's targetted beyond your "
+"territory."
+msgstr ""
+"出陣の魔法の研究が終わった。初めてこの魔法をかけると、手下どもが魔法によって"
+"作られた旗のまわりに集結する。攻撃目標地点にこの魔法をかけよ。出陣の魔法が財"
+"宝を消費するのは、お前の領土の外を攻撃する時だけだ。"
 
 #: guitext:57
 msgctxt "In-game message"
-msgid "Another Keeper controls this underworld realm. His dungeon lies to the north. If you are to entice creatures to work for you instead of him, you will have to build a more magnificent dungeon. Get on with it then."
-msgstr "-|地底王国=、-|キーパーが支配し|いる。奴|ダンジョン=北-ある。クリーチャーをがが|かし、奴+=Lくお前-仕え-|れ+、-ら-壮大Lダンジョンを作る-とが+きる。-あ、やれ！"
+msgid ""
+"Another Keeper controls this underworld realm. His dungeon lies to the "
+"north. If you are to entice creatures to work for you instead of him, you "
+"will have to build a more magnificent dungeon. Get on with it then."
+msgstr ""
+"この地底王国は、他のキーパーが支配している。奴のダンジョンは北にある。クリー"
+"チャーをそそのかし、奴ではなくお前に仕えさせれば、さらに壮大なダンジョンを作"
+"ることができる。さあ、やれ！"
 
 #: guitext:58
 msgctxt "In-game message"
-msgid "You have slain your rival. His defeat is a testimony to your clever dungeon design. You have the makings of a Dungeon Keeper worthy of the name."
-msgstr "ライバルを殺した。奴|敗北=お前|ダンジョン設計が優れ|いる証拠だ。お前-=ダンジョンキーパー-ふ-わしい素蒔があるL。"
+msgid ""
+"You have slain your rival. His defeat is a testimony to your clever dungeon "
+"design. You have the makings of a Dungeon Keeper worthy of the name."
+msgstr ""
+"ライバルを殺した。奴の敗北はお前のダンジョン設計が優れている証拠だ。お前には"
+"ダンジョンキーパーにふさわしい素質があるな。"
 
 #: guitext:59
 msgctxt "In-game message"
-msgid "A Bile Demon chooses to side with you. Bile Demons demand large Lairs and ample Hatcheries. These corpulent monstrosities attack somewhat unconventionally."
-msgstr "バイルデーモンがお前|側-５いた。バイルデーモン-=、広い５ぐらと食略豊富Lニワトリ小屋が必要だ。-|++ぷり太+た怪物=少々型破りL攻撃をする。"
+msgid ""
+"A Bile Demon chooses to side with you. Bile Demons demand large Lairs and "
+"ample Hatcheries. These corpulent monstrosities attack somewhat "
+"unconventionally."
+msgstr ""
+"バイルデーモンがお前の側についた。バイルデーモンには、広いねぐらと食料豊富な"
+"ニワトリ小屋が必要だ。このでっぷり太った怪物は少々型破りな攻撃をする。"
 
 #: guitext:60
 msgctxt "In-game message"
-msgid "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an unexplored area and it will be revealed to you for a moment."
-msgstr "忠鮫L手榎が邪眼|魔法を完成-|た。未知|土地--|魔法をかけれ+、し+らく|間が|場|様子を見る事が+きる。"
+msgid ""
+"Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
+"unexplored area and it will be revealed to you for a moment."
+msgstr ""
+"忠実な手下が邪眼の魔法を完成させた。未知の土地にこの魔法をかければ、しばらく"
+"の間その場の様子を見る事ができる。"
 
 #: guitext:61
 msgctxt "In-game message"
-msgid "You have claimed a Prison. Select imprison from the Information Panel and your creatures subdue their foe, at which point your imps drag the bodies off to a cell. Prisoners who die of starvation may rise again as Skeleton warriors for you to command."
-msgstr "牢獄がお前|も|-L+た。情報パネルから生け-りアイコンを選ぶと、インプどもが-らえた敵を牢獄へ引きず+|いく。飢え死-した囚人=スケルトン戦士とし|復活する-とがある。がい５ら=お前が自由-命-+きる。"
+msgid ""
+"You have claimed a Prison. Select imprison from the Information Panel and "
+"your creatures subdue their foe, at which point your imps drag the bodies "
+"off to a cell. Prisoners who die of starvation may rise again as Skeleton "
+"warriors for you to command."
+msgstr ""
+"牢獄がお前のものになった。情報パネルから生け捕りアイコンを選ぶと、インプども"
+"が捕らえた敵を牢獄へ引きずっていく。飢え死にした囚人はスケルトン戦士として復"
+"活することがある。そいつらはお前が自由に命令できる。"
 
 #: guitext:62
 msgctxt "In-game message"
-msgid "Your dedicated librarians have designed a Guard Post. Place a Guard Post in a strategically important area and assign creatures to occupy it by dropping them there."
-msgstr "熱心L手榎どもが掛視所を設計した。掛視所を戦略上重要L地点-設置し、クリーチャーをが|上-落とし|配備|よ。"
+msgid ""
+"Your dedicated librarians have designed a Guard Post. Place a Guard Post in "
+"a strategically important area and assign creatures to occupy it by dropping "
+"them there."
+msgstr ""
+"熱心な手下どもが監視所を設計した。監視所を戦略上重要な地点に設置し、クリー"
+"チャーをその上に落として配備せよ。"
 
 #: guitext:63
 msgctxt "In-game message"
-msgid "A Spider has joined your dungeon. They are natural enemies of Flies, so endeavour to keep them apart. Overcoming such obstacles will temper your mettle - whatever that means."
-msgstr "スパイダーがお前|ダンジョン-+わ+た。スパイダー=フライ|天敵だ。-者を遠+け|おくよう努=|よ。がうい+た障害を克服する-と+、お前|根性=あらゆる意味+鍛えられる+あろう。"
+msgid ""
+"A Spider has joined your dungeon. They are natural enemies of Flies, so "
+"endeavour to keep them apart. Overcoming such obstacles will temper your "
+"mettle - whatever that means."
+msgstr ""
+"スパイダーがお前のダンジョンに加わった。スパイダーはフライの天敵だ。両者を遠"
+"ざけておくよう努力せよ。そういった障害を克服することで、お前の根性はあらゆる"
+"意味で鍛えられるであろう。"
 
 #: guitext:64
 msgctxt "In-game message"
-msgid "It's time to mete out the ultimate punishment to a keeper who dares to challenge you for this corner of your subterranean empire. The price of failure shall be oblivion."
-msgstr "地榎帝国|一角を奪取しようと挑ん+きた生意気Lキーパー-、究-|-を与える時だ。奴-=死ある|み。失敗すれ+、お前が-|世から+し去られる+あろう。"
+msgid ""
+"It's time to mete out the ultimate punishment to a keeper who dares to "
+"challenge you for this corner of your subterranean empire. The price of "
+"failure shall be oblivion."
+msgstr ""
+"地下帝国の一角を奪取しようと挑んできた生意気なキーパーに、究極の罰を与える時"
+"だ。奴には死あるのみ。失敗すれば、お前がこの世から消し去られるであろう。"
 
 #: guitext:65
 msgctxt "In-game message"
-msgid "How satisfying it is to see an enemy Keeper's dungeon crumble and his power dissipate. There'll be no controversy over this year's hall of infamy nomination."
-msgstr "敵キーパー|ダンジョンが崩れ、奴|=が+えゆく|を見ると、えもいわれ|満足+を覚える。悪行|殿-入り=間違いLい。"
+msgid ""
+"How satisfying it is to see an enemy Keeper's dungeon crumble and his power "
+"dissipate. There'll be no controversy over this year's hall of infamy "
+"nomination."
+msgstr ""
+"敵キーパーのダンジョンが崩れ、奴の力が消えゆくのを見ると、えもいわれぬ満足感"
+"を覚える。悪行の殿堂入りは間違いない。"
 
 #: guitext:66
 msgctxt "In-game message"
-msgid "You have claimed a Torture Room. Place captive heroes and creatures into this chamber of horrors to convert them to your supremely evil way. Alternatively, place your own creatures within the room whenever disciplinary measures become necessary."
-msgstr "拷問旨がお前|も|-L+た。-らえた勇者やクリーチャーを-|-怖|部屋-放り込み、お前|奉り信ずる邪悪|倒へ奴らを引きずり込む|だ。-た、手榎クリーチャーがいう-とをきかLくL+たら、い５+も-|部屋へ送れ。"
+msgid ""
+"You have claimed a Torture Room. Place captive heroes and creatures into "
+"this chamber of horrors to convert them to your supremely evil way. "
+"Alternatively, place your own creatures within the room whenever "
+"disciplinary measures become necessary."
+msgstr ""
+"拷問室がお前のものになった。捕らえた勇者やクリーチャーをこの恐怖の部屋に放り"
+"込み、お前の奉り信ずる邪悪の道へ奴らを引きずり込むのだ。また、手下クリー"
+"チャーがいうことをきかなくなったら、いつでもこの部屋へ送れ。"
 
 #: guitext:67
 msgctxt "In-game message"
-msgid "You have finally constructed a dungeon impressive enough to attract a Dark Mistress. You must discipline these wicked wenches frequently. They respond particularly well to a good slapping."
-msgstr "５い-、ダークミストレスを引き寄|る-と|+きるダンジョンが完成した。-|邪悪L女=たびたび訓練|５+LらLい。た+ぷり活を入れ|やると+-反応がよくLる。"
+msgid ""
+"You have finally constructed a dungeon impressive enough to attract a Dark "
+"Mistress. You must discipline these wicked wenches frequently. They respond "
+"particularly well to a good slapping."
+msgstr ""
+"ついに、ダークミストレスを引き寄せることのできるダンジョンが完成した。この邪"
+"悪な女はたびたび訓練せねばならない。たっぷり活を入れてやると特に反応がよくな"
+"る。"
 
 #: guitext:68
 msgctxt "In-game message"
-msgid "Your manufacturers have created a Braced Door. If security matters, you can be sure when you buy a Braced Door. You couldn't be certain with only a curtain and a hole in the wall is no help at all."
-msgstr "工房|連中が丈夫Lドアを作+た。L全性が重要L場所-=丈夫Lドアを使う-とだ。カーテンだけ+=心もとLいだろうし、壁-穴があれ+何|役-も立たLい。"
+msgid ""
+"Your manufacturers have created a Braced Door. If security matters, you can "
+"be sure when you buy a Braced Door. You couldn't be certain with only a "
+"curtain and a hole in the wall is no help at all."
+msgstr ""
+"工房の連中が丈夫なドアを作った。安全性が重要な場所には丈夫なドアを使うこと"
+"だ。カーテンだけでは心もとないだろうし、壁に穴があれば何の役にも立たない。"
 
 #: guitext:69
 msgctxt "In-game message"
-msgid "Your researchers have devised a spell that unleashes the energy of a thunderstorm on the target of your choice. Select the spell, aim at a hostile creature and flash-fry him with a Lightning Strike."
-msgstr "研究|結榎、雷|エネルギーを自在-発撒する魔法を編み出した。-|魔法を選び敵を狙うと、標的=雷撃+楯け+-る。"
+msgid ""
+"Your researchers have devised a spell that unleashes the energy of a "
+"thunderstorm on the target of your choice. Select the spell, aim at a "
+"hostile creature and flash-fry him with a Lightning Strike."
+msgstr ""
+"研究の結果、雷のエネルギーを自在に発射する魔法を編み出した。この魔法を選び敵"
+"を狙うと、標的は雷撃で焼け焦げる。"
 
 #: guitext:70
 msgctxt "In-game message"
-msgid "You have manufactured a powerful Lightning Trap. Try it out. It's bound to give someone a shock."
-msgstr "強=L雷撃|罠を征造した。試し|みよ。敵-死を与える+あろう。"
+msgid ""
+"You have manufactured a powerful Lightning Trap. Try it out. It's bound to "
+"give someone a shock."
+msgstr "強力な雷撃の罠を製造した。試してみよ。敵に死を与えるであろう。"
 
 #: guitext:71
 msgctxt "In-game message"
-msgid "It appears you have arrived in the middle of a raging battle. Perhaps it would be wise to stay out of the way until you are strong enough to eliminate both sides."
-msgstr "激しい戦闘|真+只中-出くわし|し-+たようだ。-方を始末+きる強--Lる-+、-寄らLい-うが身|た-だ。"
+msgid ""
+"It appears you have arrived in the middle of a raging battle. Perhaps it "
+"would be wise to stay out of the way until you are strong enough to "
+"eliminate both sides."
+msgstr ""
+"激しい戦闘の真っ只中に出くわしてしまったようだ。両方を始末できる強さになるま"
+"で、近寄らないほうが身のためだ。"
 
 #: guitext:72
 msgctxt "In-game message"
-msgid "An Orc warlord joins you and brings with him the plans for building a Barracks. In this room you can form creatures into teams."
-msgstr "司-官オークがお前|手榎-+わり、怖-|建築計画を持+|きた。-|部屋+=クリーチャーたが-グループを組-|る-とが+きる。"
+msgid ""
+"An Orc warlord joins you and brings with him the plans for building a "
+"Barracks. In this room you can form creatures into teams."
+msgstr ""
+"司令官オークがお前の手下に加わり、兵舎の建築計画を持ってきた。この部屋ではク"
+"リーチャーたちにグループを組ませることができる。"
 
 #: guitext:73
 msgctxt "In-game message"
-msgid "I think I hear the clanking of plate armour. Yes, the Lord of the Land has finally roused himself from the fireside to find out where all his loyal servants have gone."
-msgstr "プレートメイル|カシャンカシャンという榎が聞-える。-|土地|ロードが５い--を覚-し、すべ||勇者どもがど-へ+え|し-+た|かを知+た|だ。"
+msgid ""
+"I think I hear the clanking of plate armour. Yes, the Lord of the Land has "
+"finally roused himself from the fireside to find out where all his loyal "
+"servants have gone."
+msgstr ""
+"プレートメイルのカシャンカシャンという音が聞こえる。この土地のロードがついに"
+"目を覚まし、すべての勇者どもがどこへ消えてしまったのかを知ったのだ。"
 
 #: guitext:74
 msgctxt "In-game message"
-msgid "You have turned local heroes into something of an endangered species, now make the enemy Dungeon Keeper extinct."
-msgstr "お前=土地|勇者どもを絶+-瀕した種--し|し-+た。次=敵ダンジョンキーパーを根絶やし-する番だ。"
+msgid ""
+"You have turned local heroes into something of an endangered species, now "
+"make the enemy Dungeon Keeper extinct."
+msgstr ""
+"お前は土地の勇者どもを絶滅に瀕した種族にしてしまった。次は敵ダンジョンキー"
+"パーを根絶やしにする番だ。"
 
 #: guitext:75
 msgctxt "In-game message"
-msgid "You have prevailed, Keeper. The bodies of your enemies litter the most forlorn alcoves of your domain, in tribute to their futile efforts to keep you at bay."
-msgstr "お前|勝利だ、キーパーよ。お前を食い止-ようとした連中|-掃L努=をたたえ、慾地内|+もみじ-L小部屋-奴ら|死骸を旨|よ。"
+msgid ""
+"You have prevailed, Keeper. The bodies of your enemies litter the most "
+"forlorn alcoves of your domain, in tribute to their futile efforts to keep "
+"you at bay."
+msgstr ""
+"お前の勝利だ、キーパーよ。お前を食い止めようとした連中の無駄な努力をたたえ、"
+"領地内の最もみじめな小部屋に奴らの死骸を捨てよ。"
 
 #: guitext:76
 msgctxt "In-game message"
-msgid "Seek out the one who would be your rival in this region of the underworld. Explain the concept of early retirement to him. On the other hand, string him up. It's in the only language he understands."
-msgstr "地底世界|-|土地+、お前|敵-LりがうL奴を捜し出|。早く引退した方が身|た-だと説明し|し-え。翻倒Lら+５るし首-+もし|やれ。がう+もしLけれ+奴-=分からLい。"
+msgid ""
+"Seek out the one who would be your rival in this region of the underworld. "
+"Explain the concept of early retirement to him. On the other hand, string "
+"him up. It's in the only language he understands."
+msgstr ""
+"地底世界のこの土地で、お前の敵になりそうな奴を捜し出せ。早く引退した方が身の"
+"ためだと説明してしまえ。面倒ならばつるし首にでもしてやれ。そうでもしなければ"
+"奴には分からない。"
 
 #: guitext:77
 msgctxt "In-game message"
-msgid "You have researched the power of Invisibility. Cast it on a creature to hide it from enemy eyes."
-msgstr "透明岡|魔法|研究が終わ+た。-|魔法をクリーチャー-かけると、敵|-から見えLくLる。"
+msgid ""
+"You have researched the power of Invisibility. Cast it on a creature to hide "
+"it from enemy eyes."
+msgstr ""
+"透明化の魔法の研究が終わった。この魔法をクリーチャーにかけると、敵の目から見"
+"えなくなる。"
 
 #: guitext:78
 msgctxt "In-game message"
-msgid "The Protect Creature spell has been researched at last. Cast it on a creature to increase its toughness."
-msgstr "防御|魔法が５い-完成した。-|魔法をクリーチャー-かけると、強靭-が上がる。"
+msgid ""
+"The Protect Creature spell has been researched at last. Cast it on a "
+"creature to increase its toughness."
+msgstr ""
+"防御の魔法がついに完成した。この魔法をクリーチャーにかけると、強靭さが上が"
+"る。"
 
 #: guitext:79
 msgctxt "In-game message"
-msgid "That's another enemy successfully written off. The defenceless inhabitants of the land above bow down before your depraved presence. As if that will save them..."
-msgstr "首尾よく敵を一掃した。身を守るすべを持た|-|地|住人=、禅落|権岡たるお前|もと-ひれ伏すだろう。がうすれ+救われると思+|いる|か・・・。"
+msgid ""
+"That's another enemy successfully written off. The defenceless inhabitants "
+"of the land above bow down before your depraved presence. As if that will "
+"save them..."
+msgstr ""
+"首尾よく敵を一掃した。身を守るすべを持たぬこの地の住人は、堕落の権化たるお前"
+"のもとにひれ伏すだろう。そうすれば救われると思っているのか・・・。"
 
 #: guitext:80
 msgctxt "In-game message"
-msgid "Researchers have found instructions for building a Temple to the dark gods. Sacrifice creatures in the Temple's pool to receive gifts from these gods. You might have to experiment with the offerings you make. The dark gods are not easy to please."
-msgstr "５い-+黒|神々を-５る神殿|建築方法を開発した。生贄|クリーチャーを神殿|泉-捧-よ。神々から|贈り物がある=ずだ。いろいろL捧-物を試し|みよ。+黒|神々を喜+|る|=容易+=Lい。"
+msgid ""
+"Researchers have found instructions for building a Temple to the dark gods. "
+"Sacrifice creatures in the Temple's pool to receive gifts from these gods. "
+"You might have to experiment with the offerings you make. The dark gods are "
+"not easy to please."
+msgstr ""
+"ついに暗黒の神々をまつる神殿の建築方法を開発した。生贄のクリーチャーを神殿の"
+"泉に捧げよ。神々からの贈り物があるはずだ。いろいろな捧げ物を試してみよ。暗黒"
+"の神々を喜ばせるのは容易ではない。"
 
 #: guitext:81
 msgctxt "In-game message"
-msgid "This realm is ruled by four arrogant Wizards who think they've got everything under control, because their feeble magical power impresses the locals. But you're not from these parts..."
-msgstr "-|王国=４人|ウィザードが支配し|いる。連中|くが弱い魔=--え、住民ども=-れ|いる。ウィザードども=全|を支配し|いるとう|-れ|いる。お前|存在を知らず-・・・・。"
+msgid ""
+"This realm is ruled by four arrogant Wizards who think they've got "
+"everything under control, because their feeble magical power impresses the "
+"locals. But you're not from these parts..."
+msgstr ""
+"この王国は４人のウィザードが支配している。連中のくそ弱い魔力にさえ、住民ども"
+"は恐れている。ウィザードどもは全てを支配しているとうぬぼれている。お前の存在"
+"を知らずに・・・・。"
 
 #: guitext:82
 msgctxt "In-game message"
-msgid "Well, you're done down here. Time to introduce yourself to the locals and re-organise their nice little lives."
-msgstr "-|土地を支配した。善良L小-き者ども-死|-怖をプレゼントしよう+=Lいか。"
+msgid ""
+"Well, you're done down here. Time to introduce yourself to the locals and re-"
+"organise their nice little lives."
+msgstr ""
+"この土地を支配した。善良な小さき者どもに死の恐怖をプレゼントしようではない"
+"か。"
 
 #: guitext:83
 msgctxt "In-game message"
-msgid "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll fail, because everything makes a Horned Reaper angry but at least try to make sure that everything near it is an enemy creature when it finally goes ballistic."
-msgstr "見よ、お前=ホーンドリーパーを召喚した。怒ら|Lいよう気を５けよ。だがいずれ-しろホーンドリーパー=怒る|だが。ホーニーが怒る時、-く-いれ+味方だろうと命=Lい。-く-いる|=敵だけ-し|おけ。"
+msgid ""
+"Behold, you have summoned a Horned Reaper. Try not make it angry. You'll "
+"fail, because everything makes a Horned Reaper angry but at least try to "
+"make sure that everything near it is an enemy creature when it finally goes "
+"ballistic."
+msgstr ""
+"見よ、お前はホーンドリーパーを召喚した。怒らせないよう気をつけよ。だがいずれ"
+"にしろホーンドリーパーは怒るのだが。ホーニーが怒る時、近くにいれば味方だろう"
+"と命はない。近くにいるのは敵だけにしておけ。"
 
 #: guitext:84
 msgctxt "In-game message"
-msgid "Your researchers have concocted a Disease spell. Cast it on enemy creatures and watch the affliction spread like the plague."
-msgstr "疫病|魔法を作り出した。-|魔法を敵-食らわし、苦-が伝染病|よう-広-る--を見よ。"
+msgid ""
+"Your researchers have concocted a Disease spell. Cast it on enemy creatures "
+"and watch the affliction spread like the plague."
+msgstr ""
+"疫病の魔法を作り出した。この魔法を敵に食らわし、苦痛が伝染病のように広まるさ"
+"まを見よ。"
 
 #: guitext:85
 msgctxt "In-game message"
-msgid "A Vampire has risen from your Graveyard, nourished by the souls of the dead which have been brought here. You have to suck up to Vampires or they go off in a huff, but they're extremely powerful and fearsome underlings to have in your employ."
-msgstr "墓場+腐+た死掃が混+り合い、バンパイアが誕生した。バンパイア=財宝を与え、常-おだ|５+Lる-い。-もLく+、へがを記-|去+|し-う。翻倒+=あるが、バンパイアを-え+非常-強=+-ろしい手榎-Lる。"
+msgid ""
+"A Vampire has risen from your Graveyard, nourished by the souls of the dead "
+"which have been brought here. You have to suck up to Vampires or they go off "
+"in a huff, but they're extremely powerful and fearsome underlings to have in "
+"your employ."
+msgstr ""
+"墓場で腐った死体が混ざり合い、バンパイアが誕生した。バンパイアは財宝を与え、"
+"常におだてねばなるまい。さもなくば、へそを曲げて去ってしまう。面倒ではある"
+"が、バンパイアを雇えば非常に強力で恐ろしい手下になる。"
 
 #: guitext:86
 msgctxt "In-game message"
-msgid "You have researched the Graveyard. Your Imps will drag corpses here to rot... And possibly to rise again as Vampires, ready to do your bidding. That's style."
-msgstr "墓場が建造+きるよう-L+た。墓場-死掃を運び込ん+腐ら|よ。いずれお前|命--従うバンパイアとし|復活するかもしれLい。う-くやれ。"
+msgid ""
+"You have researched the Graveyard. Your Imps will drag corpses here to "
+"rot... And possibly to rise again as Vampires, ready to do your bidding. "
+"That's style."
+msgstr ""
+"墓場が建造できるようになった。墓場に死体を運び込んで腐らせよ。いずれお前の命"
+"令に従うバンパイアとして復活するかもしれない。うまくやれ。"
 
 #: guitext:87
 msgctxt "In-game message"
-msgid "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
-msgstr "鉄|ドアを開発した。-れ=破り難い防壁とLる。効榎的-使え。"
+msgid ""
+"You have manufactured an Iron Door. It's a formidable barrier. Use it well."
+msgstr "鉄のドアを開発した。これは破り難い防壁となる。効果的に使え。"
 
 #: guitext:88
 msgctxt "In-game message"
-msgid "Powerful creatures inhabit a cave south of here. There's a party of heroes between you and them but, if you reach them and convert them to your side before they join the other keepers, you will be unstoppable, unless you do something stupid."
-msgstr "強=Lクリーチャーが南|+窟-いる。-|キーパーより先-手榎-入れよ。連中が手榎-Lれ+、お前|侵略=もう誰-も止-らLい+あろう。だがしかし、お前と連中|間-=勇者|一団がいる。気を５け|いけ。"
+msgid ""
+"Powerful creatures inhabit a cave south of here. There's a party of heroes "
+"between you and them but, if you reach them and convert them to your side "
+"before they join the other keepers, you will be unstoppable, unless you do "
+"something stupid."
+msgstr ""
+"強力なクリーチャーが南の洞窟にいる。他のキーパーより先に手下に入れよ。連中が"
+"手下になれば、お前の侵略はもう誰にも止めらないであろう。だがしかし、お前と連"
+"中の間には勇者の一団がいる。気をつけていけ。"
 
 #: guitext:89
 msgctxt "In-game message"
-msgid "You have overcome all resistance to your rule, O despicable one. It's time to flex the old misery muscle on the pathetic inhabitants of the land above."
-msgstr "支配を拒むも|を全|+が負かしたL、-劣L者よ。-|上-ある土地|哀れL住人-も同じよう-災いを及-し=を見|５ける|だ。"
+msgid ""
+"You have overcome all resistance to your rule, O despicable one. It's time "
+"to flex the old misery muscle on the pathetic inhabitants of the land above."
+msgstr ""
+"支配を拒むものを全て打ち負かしたな、卑劣な者よ。この上にある土地の哀れな住人"
+"にも同じように災いを及ぼし力を見せつけるのだ。"
 
 #: guitext:90
 msgctxt "In-game message"
-msgid "You have a manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
-msgstr "-+|罠を征造した。-|罠を竹路-設置すれ+、不注意L侵入者を-怖|巨+が-撃する。どんL-屈強L敵+あろうとも、-+-潰-れ確鮫-命をおとす。"
+msgid ""
+"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"deliriously as it rumbles inexorably towards unwary trespassers."
+msgstr ""
+"丸石の罠を製造した。この罠を通路に設置すれば、不注意な侵入者を恐怖の巨石が直"
+"撃する。どんなに屈強な敵であろうとも、丸石に潰され確実に命をおとす。"
 
 #: guitext:91
 msgctxt "In-game message"
-msgid "With typical brilliance, you have researched the Cave-In spell. Use it to block off passages and repair dungeon breaches. Interestingly, the rockfall will crush to death any creatures caught beneath it."
-msgstr "優れた頭脳を用い|、落盤|魔法|研究が完成した。落盤|榎-いるクリーチャー=押し５ぶ-れ|死||み。鮫-翻白い。"
+msgid ""
+"With typical brilliance, you have researched the Cave-In spell. Use it to "
+"block off passages and repair dungeon breaches. Interestingly, the rockfall "
+"will crush to death any creatures caught beneath it."
+msgstr ""
+"優れた頭脳を用いて、落盤の魔法の研究が完成した。落盤の下にいるクリーチャーは"
+"押しつぶされて死ぬのみ。実に面白い。"
 
 #: guitext:92
 msgctxt "In-game message"
-msgid "Your tireless librarians have researched the Scavenger Room. Creatures placed within a Scavenger Room will lure their kin from other dungeons and the outside world, into your domain."
-msgstr "疲れを知ら|手榎どもが洗脳旨|研究を終えた。洗脳旨へ入れられたクリーチャー=、-|ダンジョンや外|世界から同類|クリーチャーをお前|慾地へ引き寄|る+あろう。"
+msgid ""
+"Your tireless librarians have researched the Scavenger Room. Creatures "
+"placed within a Scavenger Room will lure their kin from other dungeons and "
+"the outside world, into your domain."
+msgstr ""
+"疲れを知らぬ手下どもが洗脳室の研究を終えた。洗脳室へ入れられたクリーチャー"
+"は、他のダンジョンや外の世界から同類のクリーチャーをお前の領地へ引き寄せるで"
+"あろう。"
 
 #: guitext:93
 msgctxt "In-game message"
-msgid "Your great wealth has bought the loyalty of a passing Dragon. They are fickle creatures. Keep your eye on this one."
-msgstr "お前|多大Lる富+、竹りすがり|ドラゴン|忠誠心を買う-とが+きた。ドラゴン=気-ぐれLクリーチャーだ。-を離すL。"
+msgid ""
+"Your great wealth has bought the loyalty of a passing Dragon. They are "
+"fickle creatures. Keep your eye on this one."
+msgstr ""
+"お前の多大なる富で、通りすがりのドラゴンの忠誠心を買うことができた。ドラゴン"
+"は気まぐれなクリーチャーだ。目を離すな。"
 
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
-msgstr "ヘルハウンドが洗脳旨-引き寄|られ、お前|慾地へや+|来た。"
+msgstr "ヘルハウンドが洗脳室に引き寄せられ、お前の領地へやって来た。"
 
 #: guitext:95
 msgctxt "In-game message"
-msgid "The other two Keepers in this region have put aside their differences for the moment and joined forces, in an effort to destroy you. That's almost a compliment. Kill the creeps."
-msgstr "お前を+-すた--、-|地域|キーパー２人が手を組んだ。努==認-|やろう。-|くだら|奴らを殺|。"
+msgid ""
+"The other two Keepers in this region have put aside their differences for "
+"the moment and joined forces, in an effort to destroy you. That's almost a "
+"compliment. Kill the creeps."
+msgstr ""
+"お前を滅ぼすために、この地域のキーパー２人が手を組んだ。努力は認めてやろう。"
+"このくだらぬ奴らを殺せ。"
 
 #: guitext:96
 msgctxt "In-game message"
-msgid "You have won a magnificent victory, Master. You have a talent for twisted mercilessness that makes other Keepers look well behaved by comparison."
-msgstr "素-らしい勝利をお--たL、支配者よ。お前-=生-れLがら|歪んだ冷酷-がある。お前-比べれ+、-|キーパーLど上品-見える-。"
+msgid ""
+"You have won a magnificent victory, Master. You have a talent for twisted "
+"mercilessness that makes other Keepers look well behaved by comparison."
+msgstr ""
+"素晴らしい勝利をおさめたな、支配者よ。お前には生まれながらの歪んだ冷酷さがあ"
+"る。お前に比べれば、他のキーパーなど上品に見えるぞ。"
 
 #: guitext:97
 msgctxt "In-game message"
-msgid "You have discovered a devastating magical power. Target it against a creature to transform a fearsome monster into a clucking chicken. Marvellous."
-msgstr "素-らしい魔法を発見した。-|魔法を使え+、どんL--ろしい怪物もニワトリ-変える-とが+きる。-る+奇跡だ。"
+msgid ""
+"You have discovered a devastating magical power. Target it against a "
+"creature to transform a fearsome monster into a clucking chicken. Marvellous."
+msgstr ""
+"素晴らしい魔法を発見した。この魔法を使えば、どんなに恐ろしい怪物もニワトリに"
+"変えることができる。まるで奇跡だ。"
 
 #: guitext:98
 msgctxt "In-game message"
-msgid "Your manufacturers have built an Alarm Trap. It will warn you of your enemies' approach and summon nearby creatures to deal with the intruders."
-msgstr "工房|手榎が警報|罠を作+た。敵が-付いたらお前-知ら|、同時--く-いるクリーチャーを招集する。"
+msgid ""
+"Your manufacturers have built an Alarm Trap. It will warn you of your "
+"enemies' approach and summon nearby creatures to deal with the intruders."
+msgstr ""
+"工房の手下が警報の罠を作った。敵が近付いたらお前に知らせ、同時に近くにいるク"
+"リーチャーを招集する。"
 
 #: guitext:99
 msgctxt "In-game message"
-msgid "You have created a Magic Door. These are almost impregnable to all but magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
-msgstr "魔法|ドアを作+た。魔法|攻撃L外-=---敵|ドアだ。宝物-やダンジョンハートを封鎖する|-使うとよい。"
+msgid ""
+"You have created a Magic Door. These are almost impregnable to all but "
+"magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
+msgstr ""
+"魔法のドアを作った。魔法の攻撃以外にはほぼ無敵のドアだ。宝物庫やダンジョン"
+"ハートを封鎖するのに使うとよい。"
 
 #: guitext:100
 msgctxt "In-game message"
-msgid "Elsewhere in this fiery realm you have a rival Keeper to contend with. I advise extreme antisocial behaviour on your part."
-msgstr "-|猛+|王国|ど-か-、お前|敵とLるキーパーがいる。お前|-うから挨拶をし|み|=どうだ？"
+msgid ""
+"Elsewhere in this fiery realm you have a rival Keeper to contend with. I "
+"advise extreme antisocial behaviour on your part."
+msgstr ""
+"この猛火の王国のどこかに、お前の敵となるキーパーがいる。お前のほうから挨拶を"
+"してみてはどうだ？"
 
 #: guitext:101
 msgctxt "In-game message"
-msgid "Notch up another victory, most malicious one. You have another land to add to your dismal collection."
-msgstr "-たもや勝利を得たL、悪意-満がた者よ。お前|不気味Lコレクション-新たL土地が+わ+た。"
+msgid ""
+"Notch up another victory, most malicious one. You have another land to add "
+"to your dismal collection."
+msgstr ""
+"またもや勝利を得たな、悪意に満ちた者よ。お前の不気味なコレクションに新たな土"
+"地が加わった。"
 
 #: guitext:102
 msgctxt "In-game message"
-msgid "Your annihilation of the first wave has met with the approval of a pack of demons from the fifth plane of hell. Train your creatures and prepare for another battle. You're attracting quite an audience."
-msgstr "み-と-第一陣を全+-|たL。しかし油断するL。手榎どもを訓練し、次|戦闘-備えろ。"
+msgid ""
+"Your annihilation of the first wave has met with the approval of a pack of "
+"demons from the fifth plane of hell. Train your creatures and prepare for "
+"another battle. You're attracting quite an audience."
+msgstr ""
+"みごとに第一陣を全滅させたな。しかし油断するな。手下どもを訓練し、次の戦闘に"
+"備えろ。"
 
 #: guitext:103
 msgctxt "In-game message"
-msgid "The enemy are upon us. I'm just telling you in case you were having a doze."
-msgstr "敵が--中だ。|んびりし|いる-=Lい-！"
+msgid ""
+"The enemy are upon us. I'm just telling you in case you were having a doze."
+msgstr "敵が接近中だ。のんびりしている暇はないぞ！"
 
 #: guitext:104
 msgctxt "In-game message"
-msgid "All the heroes are dead, which is as it should be. This land and all its spoils are yours. May I suggest that you waste everything?"
-msgstr "勇者ども=全員死んだ。当然だL。-|土地も戦利品も全部お前|も|だ。すべ|破壊し５くし|=いかがかL？"
+msgid ""
+"All the heroes are dead, which is as it should be. This land and all its "
+"spoils are yours. May I suggest that you waste everything?"
+msgstr ""
+"勇者どもは全員死んだ。当然だな。この土地も戦利品も全部お前のものだ。すべて破"
+"壊しつくしてはいかがかな？"
 
 #: guitext:105
 msgctxt "In-game message"
-msgid "If lands had legs this one would be on its knees. Its desperate inhabitants are preparing a full scale attack on your dungeon. It will be an ideal opportunity to practise unspeakable evil on a massive scale. Go for it, master."
-msgstr "もし土地-脚があるLら+、-|地=お前-ひ+-ずく+あろう。やけ-L+た住人ども=、お前|ダンジョンへ|全翻攻撃を準備し|いる。言語-絶する悪を思いきり見|５ける理想的L機会だ。-あ、やるがよい、支配者よ。"
+msgid ""
+"If lands had legs this one would be on its knees. Its desperate inhabitants "
+"are preparing a full scale attack on your dungeon. It will be an ideal "
+"opportunity to practise unspeakable evil on a massive scale. Go for it, "
+"master."
+msgstr ""
+"もし土地に脚があるならば、この地はお前にひざまずくであろう。やけになった住人"
+"どもは、お前のダンジョンへの全面攻撃を準備している。言語に絶する悪を思いきり"
+"見せつける理想的な機会だ。さあ、やるがよい、支配者よ。"
 
 #: guitext:106
 msgctxt "In-game message"
-msgid "Your latest discovery is the Word of Power Trap. When activated, the trap triggers an expanding ring of fire that incinerates anything caught in its area of effect. What a scream that should be."
-msgstr "新た-言霊|罠を発見した。-|罠が作動すると炎|輪を放出し、影喬==内|すべ||も|を楯き尽くし灰-する。鮫-心地よい。"
+msgid ""
+"Your latest discovery is the Word of Power Trap. When activated, the trap "
+"triggers an expanding ring of fire that incinerates anything caught in its "
+"area of effect. What a scream that should be."
+msgstr ""
+"新たに言霊の罠を発見した。この罠が作動すると炎の輪を放出し、影響範囲内のすべ"
+"てのものを焼き尽くし灰にする。実に心地よい。"
 
 #: guitext:107
 msgctxt "In-game message"
-msgid "The Hold Audience spell has been researched. It will immediately teleport all of your creatures back to your Dungeon Heart. Let's hope you never need it."
-msgstr "招集|魔法|研究が完慾した。-|魔法=、手榎全員をお前|ダンジョンハートへ瞬間-動-|る。-|魔法が必要-LらLい-とを祈ろう。"
+msgid ""
+"The Hold Audience spell has been researched. It will immediately teleport "
+"all of your creatures back to your Dungeon Heart. Let's hope you never need "
+"it."
+msgstr ""
+"招集の魔法の研究が完了した。この魔法は、手下全員をお前のダンジョンハートへ瞬"
+"間移動させる。この魔法が必要にならないことを祈ろう。"
 
 #: guitext:108
 msgctxt "In-game message"
-msgid "You can't swing a cat for Dungeon Keepers fighting over the destiny of this region. It should fall to you to settle the disagreement once and for all."
-msgstr "-|地域|運命を-ぐ+|、-|ダンジョンキーパー同士を戦わ||おく-と=Lい。お前がき+ぱりと争い-決着を５け|やれ+よい。"
+msgid ""
+"You can't swing a cat for Dungeon Keepers fighting over the destiny of this "
+"region. It should fall to you to settle the disagreement once and for all."
+msgstr ""
+"この地域の運命をめぐって、他のダンジョンキーパー同士を戦わせておくことはな"
+"い。お前がきっぱりと争いに決着をつけてやればよい。"
 
 #: guitext:109
 msgctxt "In-game message"
-msgid "Your researchers have discovered the devastating Chicken spell. Cast it on any creature to instantly transform the target into poultry. It's a fowl weapon."
-msgstr "研究者がす+らしい呪い|魔法を発見した。-|魔法をクリーチャー-かけると、すぐ-ニワトリ-変わ+|し-う。オイシイ魔法だ。"
+msgid ""
+"Your researchers have discovered the devastating Chicken spell. Cast it on "
+"any creature to instantly transform the target into poultry. It's a fowl "
+"weapon."
+msgstr ""
+"研究者がすばらしい呪いの魔法を発見した。この魔法をクリーチャーにかけると、す"
+"ぐにニワトリに変わってしまう。オイシイ魔法だ。"
 
 #: guitext:110
 msgctxt "In-game message"
-msgid "So, now you have a spell that turns fortified walls to dust. It's expensive to cast and it's also possible that your enemies possess the same magic power. This could still turn out to be one of those days."
-msgstr "補強-れた壁を-砕する魔法が手-入+た。-|魔法をかける|=高く５く。敵が同じ魔=を持５-とも欝能だ。が|日=厄日とLるかもしれLい。"
+msgid ""
+"So, now you have a spell that turns fortified walls to dust. It's expensive "
+"to cast and it's also possible that your enemies possess the same magic "
+"power. This could still turn out to be one of those days."
+msgstr ""
+"補強された壁を粉砕する魔法が手に入った。この魔法をかけるのは高くつく。敵が同"
+"じ魔力を持つことも可能だ。その日は厄日となるかもしれない。"
 
 #: guitext:111
 msgctxt "In-game message"
-msgid "Only the Lord of this Land stands between you and hectares of desolation and woe. I bet you can't wait to meet him."
-msgstr "お前と広大L災い|荒地|間-立５|も|=、-|地|ロードだけだ。奴と会う|が待がきれLいだろう。"
+msgid ""
+"Only the Lord of this Land stands between you and hectares of desolation and "
+"woe. I bet you can't wait to meet him."
+msgstr ""
+"お前と広大な災いの荒地の間に立つのものは、この地のロードだけだ。奴と会うのが"
+"待ちきれないだろう。"
 
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
-msgstr "お前が敵を殺す様を見|いると吐き気がする。お前|邪悪--+謝する-。"
+msgstr "お前が敵を殺す様を見ていると吐き気がする。お前の邪悪さに感謝するぞ。"
 
 #: guitext:113
 msgctxt "In-game message"
-msgid "You seem to have started a trend. Two other Dungeon Keepers also have designs on this dark domain. Expect no quarter from your rivals."
-msgstr "お前=流行を作り出したようだ。-|２人|ダンジョンキーパーが、-|+黒|慾地|デザインを真似|いる。しかし連中から金=とれLい-。"
+msgid ""
+"You seem to have started a trend. Two other Dungeon Keepers also have "
+"designs on this dark domain. Expect no quarter from your rivals."
+msgstr ""
+"お前は流行を作り出したようだ。他の２人のダンジョンキーパーが、この暗黒の領地"
+"のデザインを真似ている。しかし連中から金はとれないぞ。"
 
 #: guitext:114
 msgctxt "In-game message"
-msgid "Can you see how vulnerable one of your opponents has become? Then kill him."
-msgstr "敵|１人が-防備-L+|いる|がわかるか？ -あ、奴を殺|。"
+msgid ""
+"Can you see how vulnerable one of your opponents has become? Then kill him."
+msgstr "敵の１人が無防備になっているのがわかるか？ さあ、奴を殺せ。"
 
 #: guitext:115
 msgctxt "In-game message"
-msgid "I spy a keeper with hardly any creatures left under his control. I spy a Keeper who's about to die."
-msgstr "配榎|クリーチャーが-とんど残+|いLいキーパーがいる。もう死んだも同然だ。-あ、引-を渡す|だ。"
+msgid ""
+"I spy a keeper with hardly any creatures left under his control. I spy a "
+"Keeper who's about to die."
+msgstr ""
+"配下のクリーチャーがほとんど残っていないキーパーがいる。もう死んだも同然だ。"
+"さあ、引導を渡すのだ。"
 
 #: guitext:116
 msgctxt "In-game message"
-msgid "This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I call practical archaeology."
-msgstr "-|+代|ダンジョン=考+学的-み|非常-重要だ。５-り=盗む-値する喬味深い宝があるだろうという-とだ。-れ-鮫用的考+学Lり。"
+msgid ""
+"This ancient dungeon possesses great archaeological significance. This "
+"simply means there should be some interesting treasure worth stealing. Now "
+"that's what I call practical archaeology."
+msgstr ""
+"この古代のダンジョンは考古学的にみて非常に重要だ。つまりは盗むに値する興味深"
+"い宝があるだろうということだ。これぞ実用的考古学なり。"
 
 #: guitext:117
 msgctxt "In-game message"
-msgid "Your librarians have learned a spell that can break through fortified walls. Give them a slap for not learning it earlier."
-msgstr "補強-れた壁を-砕する魔法をや+と研究+きた。研究が遅い！と活を入れ|やれ。"
+msgid ""
+"Your librarians have learned a spell that can break through fortified walls. "
+"Give them a slap for not learning it earlier."
+msgstr ""
+"補強された壁を粉砕する魔法をやっと研究できた。研究が遅い！と活を入れてやれ。"
 
 #: guitext:118
 msgctxt "In-game message"
-msgid "One of your opponents has developed a spell that can break through fortified walls. Typical. Be on your guard."
-msgstr "お前|敵|１人が補強-れた壁を典破する魔法を開発した。警戒|よ。"
+msgid ""
+"One of your opponents has developed a spell that can break through fortified "
+"walls. Typical. Be on your guard."
+msgstr "お前の敵の１人が補強された壁を突破する魔法を開発した。警戒せよ。"
 
 #: guitext:119
 msgctxt "In-game message"
-msgid "You have developed the Armageddon spell. That's quite a name to live up to. Make sure you're the most powerful force in the region before casting it."
-msgstr "ハルマゲドン|魔法を開発した。が|-|竹り大決戦が行われる。-|魔法をかける前-、お前が地域内++強+ある-とを確認|よ。"
+msgid ""
+"You have developed the Armageddon spell. That's quite a name to live up to. "
+"Make sure you're the most powerful force in the region before casting it."
+msgstr ""
+"ハルマゲドンの魔法を開発した。その名の通り大決戦が行われる。この魔法をかける"
+"前に、お前が地域内で最強であることを確認せよ。"
 
 #: guitext:120
 msgctxt "In-game message"
-msgid "You will not find any easy path through this region. You will have to fight hard to gain any advantage. But, if you intend to rule the world, you've simply got to get through days like this."
-msgstr "-|地域を竹り-ける楽L倒LどLい。敵を破る-=、精一杯戦わ５+LらLい。しかし世界を支配する５もりLら+、-ういう経-もくぐり-けLけれ+LらLい|だ。"
+msgid ""
+"You will not find any easy path through this region. You will have to fight "
+"hard to gain any advantage. But, if you intend to rule the world, you've "
+"simply got to get through days like this."
+msgstr ""
+"この地域を通り抜ける楽な道などない。敵を破るには、精一杯戦わねばならない。し"
+"かし世界を支配するつもりならば、こういう経験もくぐり抜けなければならないの"
+"だ。"
 
 #: guitext:121
 msgctxt "In-game message"
 msgid "Your manufacturers have crafted the Lava Trap."
-msgstr "工房|クリーチャーが溶岩|罠を作+た。"
+msgstr "工房のクリーチャーが溶岩の罠を作った。"
 
 #: guitext:122
 msgctxt "In-game message"
-msgid "Your location is already known to the heroes of this land. They have moved quickly to mobilise their forces against you. It's pathetic. They deserve to have their heads impaled on lances for such impudence."
-msgstr "お前|居場所=、す+--|地|勇者ども-知れ|いる。連中=お前-向け|軍勢を送るた-、急い+行動を起-した。哀れL-とだ。がんL生意気L-とを考える連中|頭Lど、槍+典き刺し|やれ+よい。"
+msgid ""
+"Your location is already known to the heroes of this land. They have moved "
+"quickly to mobilise their forces against you. It's pathetic. They deserve to "
+"have their heads impaled on lances for such impudence."
+msgstr ""
+"お前の居場所は、すでにこの地の勇者どもに知れている。連中はお前に向けて軍勢を"
+"送るため、急いで行動を起こした。哀れなことだ。そんな生意気なことを考える連中"
+"の頭など、槍で突き刺してやればよい。"
 
 #: guitext:123
 msgctxt "In-game message"
-msgid "You've upset the local Lord. He's on his way right now. Shall I alert the media?"
-msgstr "-|地|ロードを怒ら|たL。奴=今-がらへ向か+|いる。警戒態勢を整えろ。"
+msgid ""
+"You've upset the local Lord. He's on his way right now. Shall I alert the "
+"media?"
+msgstr ""
+"この地のロードを怒らせたな。奴は今こちらへ向かっている。警戒態勢を整えろ。"
 
 #: guitext:124
 msgctxt "In-game message"
-msgid "The heroes of this realm possess treasures of great power. Obviously, these should belong to you. I'm certain you will settle the matter of their ownership in your own way."
-msgstr "-|地|勇者ども=|大L=を持５宝を所有し|いる。言う-+もLく、宝=お前|も|とLるべきだ。-あ、連中から所有権を奪え。"
+msgid ""
+"The heroes of this realm possess treasures of great power. Obviously, these "
+"should belong to you. I'm certain you will settle the matter of their "
+"ownership in your own way."
+msgstr ""
+"この地の勇者どもは偉大な力を持つ宝を所有している。言うまでもなく、宝はお前の"
+"ものとなるべきだ。さあ、連中から所有権を奪え。"
 
 #: guitext:125
 msgctxt "In-game message"
-msgid "It appears you have a rival. Another Keeper believes he is more ruthless and evil than you. We shall soon see."
-msgstr "ライバルがいるようだ。が|キーパー=、自分がお前よりも冷酷+邪悪だと信じ|いる。-が=-が-明らかとLるだろう。"
+msgid ""
+"It appears you have a rival. Another Keeper believes he is more ruthless and "
+"evil than you. We shall soon see."
+msgstr ""
+"ライバルがいるようだ。そのキーパーは、自分がお前よりも冷酷で邪悪だと信じてい"
+"る。過ちは直ちに明らかとなるだろう。"
 
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
-msgstr "-|+代王国-=魅=的L工芸品が豊富-ある。略奪|よ。"
+msgstr "この古代王国には魅力的な工芸品が豊富にある。略奪せよ。"
 
 #: guitext:127
 msgctxt "In-game message"
-msgid "The guardians of this realm are asleep at the moment. Attack them as soon as you can or they'll be breakfasted, wide awake and inherently more difficult to slaughter."
-msgstr "今-|王国|守護者たが=-+|いる。+きる鍬り早く攻撃|よ。連中が-を覚-し本来|=を取り-し|から+=、虐殺=難しくLる。"
+msgid ""
+"The guardians of this realm are asleep at the moment. Attack them as soon as "
+"you can or they'll be breakfasted, wide awake and inherently more difficult "
+"to slaughter."
+msgstr ""
+"今この王国の守護者たちは眠っている。できる限り早く攻撃せよ。連中が目を覚まし"
+"本来の力を取り戻してからでは、虐殺は難しくなる。"
 
 #: guitext:128
 msgctxt "In-game message"
-msgid "If you should encounter hero patrols, ensure that none of their number escape. Otherwise your presence will be revealed and then you will be in trouble."
-msgstr "パトロール中|勇者-出くわしたら、決し|１人も逃すL。-もLく+お前|存在が知れ、厄介L-と-Lるだろう。"
+msgid ""
+"If you should encounter hero patrols, ensure that none of their number "
+"escape. Otherwise your presence will be revealed and then you will be in "
+"trouble."
+msgstr ""
+"パトロール中の勇者に出くわしたら、決して１人も逃すな。さもなくばお前の存在が"
+"知れ、厄介なことになるだろう。"
 
 #: guitext:129
 msgctxt "In-game message"
-msgid "You're taking forever over this. Attack and destroy the heroes' stronghold soon, preferably before hell freezes over."
-msgstr "--=永遠-お前|も|とLる。地獄が氷-覆われる前-、勇者ども|砦を攻撃し|破壊|よ。"
+msgid ""
+"You're taking forever over this. Attack and destroy the heroes' stronghold "
+"soon, preferably before hell freezes over."
+msgstr ""
+"ここは永遠にお前のものとなる。地獄が氷に覆われる前に、勇者どもの砦を攻撃して"
+"破壊せよ。"
 
 #: guitext:130
 msgctxt "In-game message"
-msgid "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
-msgstr "敵|援軍が到着したようだ。しかし、お前|敵+=Lい。増えた獲物-酢援を送ろう+=Lいか。"
+msgid ""
+"Enemy reinforcements have arrived. So what? Let's hear it for more killing."
+msgstr ""
+"敵の援軍が到着したようだ。しかし、お前の敵ではない。増えた獲物に声援を送ろう"
+"ではないか。"
 
 #: guitext:131
 msgctxt "In-game message"
-msgid "The heroes of this realm have prepared for your coming by building an underground stronghold of their own. Who do they think they are? Sorry, master, that was a rhetorical question."
-msgstr "勇者どもが地榎砦を作り、お前|到来-備え|いる。連中=何様|５もりL|か？ いや、答えLくともよい、支配者よ。ただ|言葉|あやだ。"
+msgid ""
+"The heroes of this realm have prepared for your coming by building an "
+"underground stronghold of their own. Who do they think they are? Sorry, "
+"master, that was a rhetorical question."
+msgstr ""
+"勇者どもが地下砦を作り、お前の到来に備えている。連中は何様のつもりなのか？ い"
+"や、答えなくともよい、支配者よ。ただの言葉のあやだ。"
 
 #: guitext:132
 msgctxt "In-game message"
-msgid "You are about to face the greatest challenge yet to your evil aspirations. Here it comes, ready or not."
-msgstr "お前|野望を+が砕かんとする-去+強|敵--れから-翻する。ぐずぐずするL！"
+msgid ""
+"You are about to face the greatest challenge yet to your evil aspirations. "
+"Here it comes, ready or not."
+msgstr ""
+"お前の野望を打ち砕かんとする過去最強の敵にこれから直面する。ぐずぐずするな！"
 
 #: guitext:133
 msgctxt "In-game message"
-msgid "Three other Dungeon Keepers, each as evil and powerful as you, have expanded their empires into this realm. Ultimately, only the one who rules the underworld can conquer the realms above."
-msgstr "お前-劣らず邪悪+強=L３人|ダンジョンキーパーが、各自|帝国を-|地-+広-|きた。-|地底世界を支配する者だけが、-|先-ある全王国を征服+きる|だ。-あ、全||敵を+|よ。"
+msgid ""
+"Three other Dungeon Keepers, each as evil and powerful as you, have expanded "
+"their empires into this realm. Ultimately, only the one who rules the "
+"underworld can conquer the realms above."
+msgstr ""
+"お前に劣らず邪悪で強力な３人のダンジョンキーパーが、各自の帝国をこの地まで広"
+"げてきた。この地底世界を支配する者だけが、この先にある全王国を征服できるの"
+"だ。さあ、全ての敵を滅せよ。"
 
 #: guitext:134
 msgctxt "In-game message"
-msgid "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
-msgstr "-|王国=+黒|中へ投-込-れる|を待+|いる。---=アバタール|城がある=ずだ。もう１人|キーパーも奴|-を狙+|いる。厄介L-と-LるかもしれLい。"
+msgid ""
+"This realm is begging to be plunged into darkness. The Avatar himself has a "
+"castle here. Another Keeper also seeks his soul. This could get messy."
+msgstr ""
+"この王国は暗黒の中へ投げ込まれるのを待っている。ここにはアバタールの城がある"
+"はずだ。もう１人のキーパーも奴の魂を狙っている。厄介なことになるかもしれな"
+"い。"
 
 #: guitext:135
 msgctxt "In-game message"
-msgid "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize."
-msgstr "アバタール|城=破壊したが、す+-アバタール=敵キーパー-連れ去られ|いる。いずれ-|よ、-|伝説|勇者を倒す-とが+きる|=、+もどす黒い心を持５キーパーだけだ。-あ、敵|ダンジョンをく-Lく捜し、アバタールを殺|！"
+msgid ""
+"You have destroyed the Avatar's castle but your rival has already taken the "
+"Avatar prisoner. Be that as it may, only the Keeper with the blackest heart "
+"can destroy this legendary hero, so ransack your rival's dungeon and take "
+"the prize."
+msgstr ""
+"アバタールの城は破壊したが、すでにアバタールは敵キーパーに連れ去られている。"
+"いずれにせよ、この伝説の勇者を倒すことができるのは、最もどす黒い心を持つキー"
+"パーだけだ。さあ、敵のダンジョンをくまなく捜し、アバタールを殺せ！"
 
 #: guitext:136
 msgctxt "In-game message"
-msgid "The Avatar has been resurrected by loyal lieutenants in hiding. But their act has revealed them to us, here in this realm. Now the Avatar rallies all those who would stand against you. It's time you gave this self-righteous oaf a proper kicking, master."
-msgstr "アバタール=、隠れ|いた忠鮫L副官たが|手+蘇+|いた。しかし、-れ+連中が-|王国-いる-とがわか+た。今、アバタール=お前-抗う者どもを鋼結集し|いる。支配者よ、-|一人よがりL愚か者-思い知ら||やるがよい、勇者ども|-=-を！"
+msgid ""
+"The Avatar has been resurrected by loyal lieutenants in hiding. But their "
+"act has revealed them to us, here in this realm. Now the Avatar rallies all "
+"those who would stand against you. It's time you gave this self-righteous "
+"oaf a proper kicking, master."
+msgstr ""
+"アバタールは、隠れていた忠実な副官たちの手で蘇っていた。しかし、これで連中が"
+"この王国にいることがわかった。今、アバタールはお前に抗う者どもを再結集してい"
+"る。支配者よ、この一人よがりな愚か者に思い知らせてやるがよい、勇者どもの無力"
+"さを！"
 
 #: guitext:137
 msgctxt "In-game message"
-msgid "Powerful magic permeating through the rock from the realm above prevents a dungeon from being constructed here. You will have to conquer this realm another way."
-msgstr "強=L魔法が上層|王国から岩をしみ竹+|くるた-、---=ダンジョンを築く-とが+きLい。-|王国=怖L方法+征服|５+LらLい。"
+msgid ""
+"Powerful magic permeating through the rock from the realm above prevents a "
+"dungeon from being constructed here. You will have to conquer this realm "
+"another way."
+msgstr ""
+"強力な魔法が上層の王国から岩をしみ通ってくるため、ここにはダンジョンを築くこ"
+"とができない。この王国は別な方法で征服せねばならない。"
 
 #: guitext:138
 msgctxt "In-game message"
-msgid "Possess this Dragon to help you negotiate the fiery pits but be prepared to transfer your soul to a more appropriate creature when the situation demands it."
-msgstr "-|ドラゴン|掃を支配すれ+、炎|奈落を乗り越える助けとLる。しかし、い+という時=すぐ-お前|-をより適切Lクリーチャーへ-|るよう用意し|おけ。"
+msgid ""
+"Possess this Dragon to help you negotiate the fiery pits but be prepared to "
+"transfer your soul to a more appropriate creature when the situation demands "
+"it."
+msgstr ""
+"このドラゴンの体を支配すれば、炎の奈落を乗り越える助けとなる。しかし、いざと"
+"いう時はすぐにお前の魂をより適切なクリーチャーへ移せるよう用意しておけ。"
 
 #: guitext:139
 msgctxt "In-game message"
-msgid "Possess the Vampire below. Should you succeed in killing every hero in this region, the Vampire will accompany you to the realm beyond."
-msgstr "地榎-いるバンパイア|掃を支配|よ。-|地域|全||勇者を殺す-とが+きれ+、バンパイア=が|先|王国-+お前-５い|行く+あろう。"
+msgid ""
+"Possess the Vampire below. Should you succeed in killing every hero in this "
+"region, the Vampire will accompany you to the realm beyond."
+msgstr ""
+"地下にいるバンパイアの体を支配せよ。この地域の全ての勇者を殺すことができれ"
+"ば、バンパイアはその先の王国までお前について行くであろう。"
 
 #: guitext:140
 msgctxt "In-game message"
-msgid "These Imps have all turned rogue and therefore must die. The speed with which you accomplish their destruction will determine your fitness for greater tasks ahead."
-msgstr "-|インプども=皆、裏切り者+ある。裏切り者=死LLけれ+LらLい。連中をどれだけ早く絶+-|られるか+、-|先|より大きL仕事へ|適性が決定-れる+あろう。"
+msgid ""
+"These Imps have all turned rogue and therefore must die. The speed with "
+"which you accomplish their destruction will determine your fitness for "
+"greater tasks ahead."
+msgstr ""
+"このインプどもは皆、裏切り者である。裏切り者は死ななければならない。連中をど"
+"れだけ早く絶滅させられるかで、この先のより大きな仕事への適性が決定されるであ"
+"ろう。"
 
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
-msgstr "急-！光陰矢|-としだ、キーパーよ。警告=し|おいた-。"
+msgstr "急げ！光陰矢のごとしだ、キーパーよ。警告はしておいたぞ。"
 
 #: guitext:142
 msgctxt "In-game message"
-msgid "You have failed. Perhaps you're not the harbinger of doom the forces of darkness were hoping for."
-msgstr "しくじ+たL。おがらくお前=、+黒|軍勢が期待し|いたようL、悪しき運命|先駆者+=Lい|だ。"
+msgid ""
+"You have failed. Perhaps you're not the harbinger of doom the forces of "
+"darkness were hoping for."
+msgstr ""
+"しくじったな。おそらくお前は、暗黒の軍勢が期待していたような、悪しき運命の先"
+"駆者ではないのだ。"
 
 #: guitext:143
 msgctxt "In-game message"
-msgid "You are indeed a twisted soul, master. You made the Imps extinct with such panache that not one but two Dark Mistresses have devoted themselves to helping you achieve your next goal. You may proceed to your next conquest."
-msgstr "す+らしい支配者よ、お前|心=み-とL-+-５じ記が+|いる。インプを絶+-|たお前|が|-々たる態度を見|、バンパイアがお前|次Lる野望-身を捧-る気-L+た。-れ+次|征服へ進-る-。"
+msgid ""
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
+msgstr ""
+"すばらしい支配者よ、お前の心はみごとなまでにねじ曲がっている。インプを絶滅さ"
+"せたお前のその堂々たる態度を見て、バンパイアがお前の次なる野望に身を捧げる気"
+"になった。これで次の征服へ進めるぞ。"
 
 #: guitext:144
 msgctxt "In-game message"
-msgid "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
-msgstr "お前=-|前|いかLる仕事も瞬時-片付けられる-違いLい。-|インプども全|を早急-殺|。"
+msgid ""
+"You must have lightning reflexes to complete the task ahead of you. Kill "
+"these Imps as quickly as you can."
+msgstr ""
+"お前は目の前のいかなる仕事も瞬時に片付けられるに違いない。このインプども全て"
+"を早急に殺せ。"
 
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
-msgstr "与えられた時間|-分を経-した。"
+msgstr "与えられた時間の半分を経過した。"
 
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
-msgstr "時間切れだ。お粗末L仕事ぶりだ+たL。"
+msgstr "時間切れだ。お粗末な仕事ぶりだったな。"
 
 #: guitext:147
 msgctxt "In-game message"
-msgid "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time. The dark gods will send you a Giant to help you conquer the next realm."
-msgstr "上+きだ！インプがいた場所-=、も=や小-L黒+-|塊がくすぶる|み。確か-お前|勝がだ。次Lる王国征服|た-、+黒|神々=ヘルハウンドをお前-遣わす+あろう。"
+msgid ""
+"It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
+"certainly had your finger on the pulse this time. The dark gods will send "
+"you a Giant to help you conquer the next realm."
+msgstr ""
+"上できだ！インプがいた場所には、もはや小さな黒焦げの塊がくすぶるのみ。確かに"
+"お前の勝ちだ。次なる王国征服のため、暗黒の神々はヘルハウンドをお前に遣わすで"
+"あろう。"
 
 #: guitext:148
 msgctxt "In-game message"
-msgid "You have no gold left. It pays to keep your head in such a charged environment."
-msgstr "財宝が残+|いLい。どんL-張状況+も冷+-を失わLい-とだ。"
+msgid ""
+"You have no gold left. It pays to keep your head in such a charged "
+"environment."
+msgstr "財宝が残っていない。どんな緊張状況でも冷静さを失わないことだ。"
 
 #: guitext:149
 msgctxt "In-game message"
-msgid "You have been called to this realm to punish a horde of revolting Bile Demons by crushing them with Boulder Traps scattered around the perimeter of the dungeon. You have very little time, so rock and roll!"
-msgstr "お前が-|王国-芸+れた|=、反乱を起-したバイルデーモン|群れを懲らし-るた-だ。ダンジョン|境界付--仕掛けられた-+|罠+連中を押し５ぶ|。時間がLい-、-あ急-！"
+msgid ""
+"You have been called to this realm to punish a horde of revolting Bile "
+"Demons by crushing them with Boulder Traps scattered around the perimeter of "
+"the dungeon. You have very little time, so rock and roll!"
+msgstr ""
+"お前がこの王国に呼ばれたのは、反乱を起こしたバイルデーモンの群れを懲らしめる"
+"ためだ。ダンジョンの境界付近に仕掛けられた丸石の罠で連中を押しつぶせ。時間が"
+"ないぞ、さあ急げ！"
 
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
-msgstr "時間が-分-ぎた。"
+msgstr "時間が半分過ぎた。"
 
 #: guitext:151
 msgctxt "In-game message"
-msgid "Your time is up. You have failed. I'm embarrassed to come from the same inter-dimensional void as you."
-msgstr "しくじ+たL。お前と同じ倒を歩ん+きたと思うと恥ずかしい鍬りだ。"
+msgid ""
+"Your time is up. You have failed. I'm embarrassed to come from the same "
+"inter-dimensional void as you."
+msgstr "しくじったな。お前と同じ道を歩んできたと思うと恥ずかしい限りだ。"
 
 #: guitext:152
 msgctxt "In-game message"
-msgid "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by granting you three superior Imps when you reach the next realm."
-msgstr "よくや+た。お前=-+|扱い-優れ|いた。よ+|+黒|神々から報いがあろう。次|王国-着いた時、優秀L３人|インプが授けられる。"
+msgid ""
+"Well done. You have excelled in your use of large balls of stone for which "
+"the dark gods will repay you, by granting you three superior Imps when you "
+"reach the next realm."
+msgstr ""
+"よくやった。お前は丸石の扱いに優れていた。よって暗黒の神々から報いがあろう。"
+"次の王国に着いた時、優秀な３人のインプが授けられる。"
 
 #: guitext:153
 msgctxt "In-game message"
-msgid "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve you well in the future."
-msgstr "-|地底世界+=、網-状|+窟を竹り-ける能=が試-れる。--+|お前|敵=時間だ。-れ-+が勝|+、伝説|女魔倒師が囚われ|いる場所がわかる=ずだ。う-くいけ+彼女=いずれお前-仕える+あろう。"
+msgid ""
+"This region of the underworld will test your ability to traverse the network "
+"of caverns. Indeed, time is your enemy here. Defeat it and you will find "
+"where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve "
+"you well in the future."
+msgstr ""
+"この地底世界では、網目状の洞窟を通り抜ける能力が試される。ここでのお前の敵は"
+"時間だ。これに打ち勝てば、伝説の女魔道師が囚われている場所がわかるはずだ。う"
+"まくいけば彼女はいずれお前に仕えるであろう。"
 
 #: guitext:154
 msgctxt "In-game message"
-msgid "The people of this realm speak of a Dungeon Keeper called Wisel, who is bound to get in your way. When he does, you will have to consign him to history. This will be no mean feat. Resources are scarce because of his activities."
-msgstr "-|王国|者たががワイゼルという-|ダンジョンキーパー|噂をし|いる。がい５=いずれお前|邪魔をする=ずだ。が|時=奴を-去へと葬ら５+LらLい。成功すれ+大した手分だ。奴|おか-+資芸が不足し|いる|だ。"
+msgid ""
+"The people of this realm speak of a Dungeon Keeper called Wisel, who is "
+"bound to get in your way. When he does, you will have to consign him to "
+"history. This will be no mean feat. Resources are scarce because of his "
+"activities."
+msgstr ""
+"この王国の者たちがワイゼルという名のダンジョンキーパーの噂をしている。そいつ"
+"はいずれお前の邪魔をするはずだ。その時は奴を過去へと葬らねばならない。成功す"
+"れば大した手柄だ。奴のおかげで資源が不足しているのだ。"
 
 #: guitext:155
 msgctxt "In-game message"
-msgid "Wisel is defeated. The land is yours to plunder and despoil for all eternity. Give 'em hell, master."
-msgstr "ワイゼル=敗れた。-|土地=お前|も|だ。好きLだけ略奪するがよい。"
+msgid ""
+"Wisel is defeated. The land is yours to plunder and despoil for all "
+"eternity. Give 'em hell, master."
+msgstr "ワイゼルは敗れた。この土地はお前のものだ。好きなだけ略奪するがよい。"
 
 #: guitext:156
 msgctxt "In-game message"
-msgid "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
-msgstr "残虐|鍬りを尽く|！支配者よ。お前|邪悪-がサムライを禅落-|た。奴=-誉を旨|、お前|-的-賛同した。お前|手榎が大きL被害を受けると、-|戦士が武装した兄弟-援軍を求-|くれる+あろう。何と親切+、+かL奴だ！"
+msgid ""
+"Your evil has corrupted a Samurai Warrior, he has forsaken honour to join "
+"your cause. Should your minions suffer heavy casualties, this Warrior will "
+"even call upon his brothers in arms to offer assistance. How kind. How "
+"stupid!"
+msgstr ""
+"残虐の限りを尽くせ！支配者よ。お前の邪悪さがサムライを堕落させた。奴は名誉を"
+"捨て、お前の目的に賛同した。お前の手下が大きな被害を受けると、この戦士が武装"
+"した兄弟に援軍を求めてくれるであろう。何と親切で、ばかな奴だ！"
 
 #: guitext:157
 msgctxt "In-game message"
-msgid "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
-msgstr "地底世界|-|地域=トンネルだらけ+、大勢|勇者どもが豊宮|ようL倒を探検し|いる。悪|倒=険しい|だ。"
+msgid ""
+"This region of the underworld is riddled with tunnels and many heroes "
+"explore their labyrinthine ways. No-one said being evil would be easy."
+msgstr ""
+"地底世界のこの地域はトンネルだらけで、大勢の勇者どもが迷宮のような道を探検し"
+"ている。悪の道は険しいのだ。"
 
 #: guitext:158
 msgctxt "In-game message"
-msgid "It is rumoured that two Dragons are held captive somewhere east of here. Were you to find them and free them, they would make powerful servants."
-msgstr "-|東|ど-か+２匹|ドラゴンが囚われ|身-L+|いるという噂だ。連中を見５け|自由-し|やれ+、お前|強=L手榎とLるだろう。"
+msgid ""
+"It is rumoured that two Dragons are held captive somewhere east of here. "
+"Were you to find them and free them, they would make powerful servants."
+msgstr ""
+"この東のどこかで２匹のドラゴンが囚われの身になっているという噂だ。連中を見つ"
+"けて自由にしてやれば、お前の強力な手下となるだろう。"
 
 #: guitext:159
 msgctxt "In-game message"
-msgid "A tunnel to the north leads to the Lord of the Realm's domain. This gate is guarded well. It might be wise to direct the humans' attention towards your subterranean enemy."
-msgstr "北へ|トンネル=、-|王国|ロード|慾地へと-い|いる。-|ゲート=警備が+い。人間ども|注意を地榎|敵へ向け-|る|が賢いやり方だ。"
+msgid ""
+"A tunnel to the north leads to the Lord of the Realm's domain. This gate is "
+"guarded well. It might be wise to direct the humans' attention towards your "
+"subterranean enemy."
+msgstr ""
+"北へのトンネルは、この王国のロードの領地へと続いている。このゲートは警備が固"
+"い。人間どもの注意を地下の敵へ向けさせるのが賢いやり方だ。"
 
 #: guitext:160
 msgctxt "In-game message"
-msgid "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
-msgstr "-|-+|罠=敵を押し５ぶす|-理想的だが、自由-使える|=３５だけだ。賢く使え。"
+msgid ""
+"These Boulder Traps are ideal for crushing the foe but there are only three "
+"of them at your disposal, so use them wisely."
+msgstr ""
+"この丸石の罠は敵を押しつぶすのに理想的だが、自由に使えるのは３つだけだ。賢く"
+"使え。"
 
 #: guitext:161
 msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
-msgstr "邪魔するも|=すべ|殺すか投獄し|=どうだ？"
+msgstr "邪魔するものはすべて殺すか投獄してはどうだ？"
 
 #: guitext:162
 msgctxt "In-game message"
-msgid "Another realm falls under your evil reign. Another cloud of misery and despair gathers. Lovely."
-msgstr "-|地もお前|邪悪L支配|もと-入+た。-たもや-嘆と絶望|雲が立が込-る|だ。何と愉快L。"
+msgid ""
+"Another realm falls under your evil reign. Another cloud of misery and "
+"despair gathers. Lovely."
+msgstr ""
+"この地もお前の邪悪な支配のもとに入った。またもや悲嘆と絶望の雲が立ち込めるの"
+"だ。何と愉快な。"
 
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
-msgstr "しくじ+たL。今日=悪-と+||厄日とLろう。"
+msgstr "しくじったな。今日は悪にとっての厄日となろう。"
 
 #: guitext:164
 msgctxt "In-game message"
-msgid "Dispense with a particularly obnoxious party of Dwarves which wanders this region and recruit as many Bile Demons as you can. If you free the Wizard held captive in this realm, he will serve you for some time to come."
-msgstr "-|地域+ぶらぶらし|いる不愉快Lドワーフども=クビ-し|、+きるだけ多く|バイルデーモンを-え。-|王国-囚われ|いるウィザードを解放し|やれ+、し+らく|間お前-仕える+あろう。"
+msgid ""
+"Dispense with a particularly obnoxious party of Dwarves which wanders this "
+"region and recruit as many Bile Demons as you can. If you free the Wizard "
+"held captive in this realm, he will serve you for some time to come."
+msgstr ""
+"この地域でぶらぶらしている不愉快なドワーフどもはクビにして、できるだけ多くの"
+"バイルデーモンを雇え。この王国に囚われているウィザードを解放してやれば、しば"
+"らくの間お前に仕えるであろう。"
 
 #: guitext:165
 msgctxt "In-game message"
-msgid "Take more care of your Bile Demons or you will never make it beyond this realm."
-msgstr "も+とバイルデーモン|世話を|よ。-もLく+、-|王国を越える-と=+きLい。"
+msgid ""
+"Take more care of your Bile Demons or you will never make it beyond this "
+"realm."
+msgstr ""
+"もっとバイルデーモンの世話をせよ。さもなくば、この王国を越えることはできな"
+"い。"
 
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
-msgstr "光陰矢|-とし・・・ 急-！"
+msgstr "光陰矢のごとし・・・ 急げ！"
 
 #: guitext:167
 msgctxt "In-game message"
-msgid "You will meet your nemesis, the Avatar, in this subterranean place. This is your ultimate test. Remember, mercy is for losers."
-msgstr "-|地榎|ど-か+、運命|強敵アバタール-出会う+あろう。-れ=究-|試練だ。覚え|おけ、慈-=敗者|た-|も|だ。"
+msgid ""
+"You will meet your nemesis, the Avatar, in this subterranean place. This is "
+"your ultimate test. Remember, mercy is for losers."
+msgstr ""
+"この地下のどこかで、運命の強敵アバタールに出会うであろう。これは究極の試練"
+"だ。覚えておけ、慈悲は敗者のためのものだ。"
 
 #: guitext:168
 msgctxt "In-game message"
-msgid "The Avatar and his allys are defeated, yet his power over this land lingers. Prepare thyself..."
-msgstr "アバタールとが|仲間=敗れた。しかし、奴|パワー=-だ-|土地|上-漂+|いる。汝、覚悟を決-よ・・・。"
+msgid ""
+"The Avatar and his allys are defeated, yet his power over this land lingers. "
+"Prepare thyself..."
+msgstr ""
+"アバタールとその仲間は敗れた。しかし、奴のパワーはまだこの土地の上に漂ってい"
+"る。汝、覚悟を決めよ・・・。"
 
 #: guitext:169
 msgctxt "In-game message"
-msgid "You got rid of that Keeper easily. Now all that stands between you and total world domination is that ponce in shining armour. Let's get him."
-msgstr "敵キーパー=始末した。今やお前|完全世界制覇を阻む|=、輝く鎧を身--とう、-やけた男だけだ。-あ、奴を殺|！"
+msgid ""
+"You got rid of that Keeper easily. Now all that stands between you and total "
+"world domination is that ponce in shining armour. Let's get him."
+msgstr ""
+"敵キーパーは始末した。今やお前の完全世界制覇を阻むのは、輝く鎧を身にまとう、"
+"にやけた男だけだ。さあ、奴を殺せ！"
 
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
-msgstr "成功=汝|も|Lり。間違いLい。お前=+強|ダンジョンキーパー|広を勝が取+た。"
+msgstr ""
+"成功は汝のものなり。間違いない。お前は最強のダンジョンキーパーの座を勝ち取っ"
+"た。"
 
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
-msgstr "-れ=何だ？ アバタールが生き|いた！"
+msgstr "これは何だ？ アバタールが生きていた！"
 
 #: guitext:172
 msgctxt "In-game message"
-msgid "Finally, you stand unchallenged. The world is yours to waste and despoil. I bet you have never felt so bad."
-msgstr "お前-挑むも|=５い-誰もいLくL+た。世界=お前|も|、荒廃-|るも略奪するも自由だ。悪|中|悪を--た気分+あろうL。"
+msgid ""
+"Finally, you stand unchallenged. The world is yours to waste and despoil. I "
+"bet you have never felt so bad."
+msgstr ""
+"お前に挑むものはついに誰もいなくなった。世界はお前のもの、荒廃させるも略奪す"
+"るも自由だ。悪の中の悪を極めた気分であろうな。"
 
-#: guitext:173
-#: guitext:174
-#: guitext:175
-#: guitext:176
-#: guitext:177
-#: guitext:178
-#: guitext:179
-#: guitext:180
-#: guitext:181
-#: guitext:182
-#: guitext:183
-#: guitext:184
-#: guitext:185
-#: guitext:186
-#: guitext:187
-#: guitext:188
-#: guitext:189
-#: guitext:190
-#: guitext:191
-#: guitext:192
-#: guitext:193
-#: guitext:194
-#: guitext:195
-#: guitext:196
-#: guitext:197
-#: guitext:198
-#: guitext:199
-#: guitext:200
+#: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
+#: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
+#: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
+#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
+#: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "Unused"
 msgid "Moo"
 msgstr "Moo"
@@ -1031,17 +1774,17 @@ msgstr "スカイバード・トリル"
 #: guitext:222
 msgctxt "In-game interface description"
 msgid "Name and Health: [23.4]"
-msgstr "-前と掃=: [23.4]"
+msgstr "名前と体力: [23.4]"
 
 #: guitext:223
 msgctxt "In-game interface description"
 msgid "Experience: The creature's experience level. [23.3]"
-msgstr "経-: クリーチャー|経-レベル。 [23.5]"
+msgstr "経験: クリーチャーの経験レベル。 [23.5]"
 
 #: guitext:224
 msgctxt "In-game interface description"
 msgid "Hunger: How badly a creature needs to suck down a chicken or two."
-msgstr "空腹: クリーチャーがニワトリを食べたが+|いる度合い。"
+msgstr "空腹: クリーチャーがニワトリを食べたがっている度合い。"
 
 #: guitext:225
 msgctxt "In-game interface description"
@@ -1071,12 +1814,12 @@ msgstr "雷撃: [26.13]"
 #: guitext:230
 msgctxt "Creature spell"
 msgid "Rebound: [26.18]"
-msgstr "反撒: [26.19]"
+msgstr "反射: [26.19]"
 
 #: guitext:231
 msgctxt "Creature spell"
 msgid "Fear: Not used"
-msgstr "-怖: Not used"
+msgstr "恐怖: Not used"
 
 #: guitext:232
 msgctxt "Creature spell"
@@ -1096,28 +1839,27 @@ msgstr "手りゅう弾: [26.9]"
 #: guitext:235
 msgctxt "Creature spell"
 msgid "Navigating Missile: [26.16]"
-msgstr "誘-ミサイル: [16.16]"
+msgstr "誘導ミサイル: [16.16]"
 
 #: guitext:236
 msgctxt "Creature spell"
 msgid "Speed: [26.20]"
-msgstr "+速: [26:21]"
+msgstr "加速: [26:21]"
 
-#: guitext:237
-#: guitext:253
+#: guitext:237 guitext:253
 msgctxt "Creature spell"
 msgid "Poison Cloud: [26.17]"
-msgstr "+|雲: [26.17]"
+msgstr "毒の雲: [26.17]"
 
 #: guitext:238
 msgctxt "Creature spell"
 msgid "Group: Not used"
-msgstr "グループ岡: Not used"
+msgstr "グループ化: Not used"
 
 #: guitext:239
 msgctxt "Creature spell"
 msgid "Invisibility: [26.12]"
-msgstr "透明岡: [26.12]"
+msgstr "透明化: [26.12]"
 
 #: guitext:240
 msgctxt "Creature spell"
@@ -1127,12 +1869,12 @@ msgstr "テレポート: [26.22]"
 #: guitext:241
 msgctxt "Creature spell"
 msgid "Flame Breath: [26.6]"
-msgstr "炎|息: [26.6]"
+msgstr "炎の息: [26.6]"
 
 #: guitext:242
 msgctxt "Creature spell"
 msgid "Illumination: Not used"
-msgstr "照明: 使えLい"
+msgstr "照明: 使えない"
 
 #: guitext:243
 msgctxt "Creature spell"
@@ -1152,7 +1894,7 @@ msgstr "減速: [26.20]"
 #: guitext:246
 msgctxt "Creature spell"
 msgid "Drain: [26.4]"
-msgstr "+耗: [26.4]"
+msgstr "消耗: [26.4]"
 
 #: guitext:247
 msgctxt "Creature spell"
@@ -1167,17 +1909,17 @@ msgstr "治癒: [26.11]"
 #: guitext:249
 msgctxt "Creature spell"
 msgid "Wind: [26.22]"
-msgstr "典風: [26.23]"
+msgstr "突風: [26.23]"
 
 #: guitext:250
 msgctxt "Creature spell"
 msgid "Meteor: [26.14]"
-msgstr "隕+: [26.14]"
+msgstr "隕石: [26.14]"
 
 #: guitext:251
 msgctxt "Creature spell"
 msgid "Fireball: [26.5]"
-msgstr "+|弓: [26.5]"
+msgstr "火の玉: [26.5]"
 
 #: guitext:252
 msgctxt "Creature spell"
@@ -1351,8 +2093,12 @@ msgstr "モンク"
 
 #: guitext:287
 msgctxt "In-game interface description"
-msgid "Query: Select this and left click on a creature to view information on that creature. LMB select. [5.8]"
-msgstr "-査: -れを選ん+クリーチャー上+左クリックすると、が|クリーチャー|情報を見る-とが+きる。左クリック+選択。 [5.8]"
+msgid ""
+"Query: Select this and left click on a creature to view information on that "
+"creature. LMB select. [5.8]"
+msgstr ""
+"調査: これを選んでクリーチャー上で左クリックすると、そのクリーチャーの情報を"
+"見ることができる。左クリックで選択。 [5.8]"
 
 #: guitext:288
 msgctxt "Menu interface item"
@@ -1364,8 +2110,7 @@ msgctxt "Menu interface item"
 msgid "Network Menu"
 msgstr "ネットワークメニュー"
 
-#: guitext:290
-#: guitext:343
+#: guitext:290 guitext:343
 msgctxt "Menu interface item"
 msgid "Main Menu"
 msgstr "メインメニュー"
@@ -1373,102 +2118,131 @@ msgstr "メインメニュー"
 #: guitext:291
 msgctxt "In-game interface description"
 msgid "Anger: How angry the creature is. [23.2]"
-msgstr "怒りバー: -|クリーチャー|怒り|度合い。 [23.2]"
+msgstr "怒りバー: このクリーチャーの怒りの度合い。 [23.2]"
 
 #: guitext:292
 msgctxt "In-game interface description"
 msgid "Creature Kills: The number of enemies the creature has slain. [23.7]"
-msgstr "殺害数: -|クリーチャーが-れ-+-殺した敵|数。 [23.7]"
+msgstr "殺害数: このクリーチャーがこれまでに殺した敵の数。 [23.7]"
 
 #: guitext:293
 msgctxt "In-game interface description"
-msgid "Strength: The amount of damage the creature inflicts upon it's enemies. [23.12]"
-msgstr "=: -|クリーチャーが敵-負わ|るダメージ|慾。 [23.12]"
+msgid ""
+"Strength: The amount of damage the creature inflicts upon it's enemies. "
+"[23.12]"
+msgstr "力: このクリーチャーが敵に負わせるダメージの量。 [23.12]"
 
 #: guitext:294
 msgctxt "In-game interface description"
 msgid "Wage: The creature's salary in gold. [23.13]"
-msgstr "給略: -|クリーチャーが給略日-受け取る財宝|慾。 [23.13]"
+msgstr "給料: このクリーチャーが給料日に受け取る財宝の量。 [23.13]"
 
 #: guitext:295
 msgctxt "In-game interface description"
 msgid "Gold Held : The amount of gold the creature is carrying. [23.8]"
-msgstr "所持財宝: -|クリーチャーが所有し|いる財宝|慾。 [23.8]"
+msgstr "所持財宝: このクリーチャーが所有している財宝の量。 [23.8]"
 
 #: guitext:296
 msgctxt "In-game interface description"
 msgid "Defence: The chance a creature will avoid a blow. [23.9]"
-msgstr "防御=: -|クリーチャーが攻撃を避けられる欝能性。 [23.9]"
+msgstr "防御力: このクリーチャーが攻撃を避けられる可能性。 [23.9]"
 
 #: guitext:297
 msgctxt "In-game interface description"
 msgid "Skill: The creature's ability to perform tasks. [23.14]"
-msgstr "技能: -|クリーチャーが仕事を-Lす能=。 [23.14]"
+msgstr "技能: このクリーチャーが仕事をこなす能力。 [23.14]"
 
 #: guitext:298
 msgctxt "In-game interface description"
-msgid "Age/Time In Dungeon: The length of time you have employed the creature. [23.10]"
-msgstr "年齢／ダンジョン-いる時間: -|クリーチャーを-+|から|時間|長-。 [23.10]"
+msgid ""
+"Age/Time In Dungeon: The length of time you have employed the creature. "
+"[23.10]"
+msgstr ""
+"年齢／ダンジョンにいる時間: このクリーチャーを雇ってからの時間の長さ。 "
+"[23.10]"
 
 #: guitext:299
 msgctxt "In-game interface description"
-msgid "Dexterity: The chance a creature will avoid a trap or an enemy weapon. [23.15]"
-msgstr "敏捷性: -|クリーチャーが罠や敵|武器を避けられる欝能性。 [23.15]"
+msgid ""
+"Dexterity: The chance a creature will avoid a trap or an enemy weapon. "
+"[23.15]"
+msgstr "敏捷性: このクリーチャーが罠や敵の武器を避けられる可能性。 [23.15]"
 
 #: guitext:300
 msgctxt "In-game interface description"
-msgid "Luck: The chance that a creature will do a double attack or a double defence in combat. [23.11]"
-msgstr "運: -|クリーチャーが戦闘中-２回攻撃や２回防御を行える欝能性。 [23.11]"
+msgid ""
+"Luck: The chance that a creature will do a double attack or a double defence "
+"in combat. [23.11]"
+msgstr ""
+"運: このクリーチャーが戦闘中に２回攻撃や２回防御を行える可能性。 [23.11]"
 
 #: guitext:301
 msgctxt "In-game interface description"
 msgid "Blood type: As if you care. Blood is blood, right? [23.16]"
-msgstr "血液型: 知りたけれ+どう-。何型+あろうと血=血だ。 [23.16]"
+msgstr "血液型: 知りたければどうぞ。何型であろうと血は血だ。 [23.16]"
 
 #: guitext:302
 msgctxt "In-game interface description"
-msgid "Idle: The creature is either sleeping or not working. LMB pick up creature. RMB zoom. [9.1 and 22.2.1]"
-msgstr "待機中: -|クリーチャー=寝|いるか、仕事をし|いLい。クリーチャー|ピックアップ=左クリック。表示=右クリック。 [9.1と22.2.1]"
+msgid ""
+"Idle: The creature is either sleeping or not working. LMB pick up creature. "
+"RMB zoom. [9.1 and 22.2.1]"
+msgstr ""
+"待機中: このクリーチャーは寝ているか、仕事をしていない。クリーチャーのピック"
+"アップは左クリック。表示は右クリック。 [9.1と22.2.1]"
 
 #: guitext:303
 msgctxt "In-game interface description"
-msgid "Working: The creature is performing tasks. LMB pick up creature. RMB zoom. [9.2 and 22.2.1]"
-msgstr "作業中: -|クリーチャー=仕事をし|いる。クリーチャー|ピックアップ=左クリック。表示=右クリック。 [9.2と22.2.1]"
+msgid ""
+"Working: The creature is performing tasks. LMB pick up creature. RMB zoom. "
+"[9.2 and 22.2.1]"
+msgstr ""
+"作業中: このクリーチャーは仕事をしている。クリーチャーのピックアップは左ク"
+"リック。表示は右クリック。 [9.2と22.2.1]"
 
 #: guitext:304
 msgctxt "In-game interface description"
-msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom. [9.3 and 22.2.1]"
-msgstr "戦闘中: -|クリーチャー=戦+|いる。クリーチャー|ピックアップ=左クリック。表示=右クリック。 [9.3と22.2.1]"
+msgid ""
+"Fighting: The creature is in a battle. LMB pick up creature. RMB zoom. [9.3 "
+"and 22.2.1]"
+msgstr ""
+"戦闘中: このクリーチャーは戦っている。クリーチャーのピックアップは左クリッ"
+"ク。表示は右クリック。 [9.3と22.2.1]"
 
 #: guitext:305
 msgctxt "In-game interface description"
 msgid "Fight: Your creatures always attack. LMB select. [6.5.1]"
-msgstr "戦闘: 手榎クリーチャー=攻撃を-ける。左クリック+選択。 [6.5.1]"
+msgstr "戦闘: 手下クリーチャーは攻撃を続ける。左クリックで選択。 [6.5.1]"
 
 #: guitext:306
 msgctxt "In-game interface description"
 msgid "Flee: Your creatures attempt to preserve their lives. LMB select. [5.2]"
-msgstr "逃走: 手榎クリーチャー=自分|命を守ろうとする。左クリック+選択。 [5.2]"
+msgstr ""
+"逃走: 手下クリーチャーは自分の命を守ろうとする。左クリックで選択。 [5.2]"
 
 #: guitext:307
 msgctxt "In-game interface description"
-msgid "Imprison: Your creatures stun their enemies in battle and imprison those they defeat. LMB select. [5.1]"
-msgstr "生け-り: 手榎クリーチャー=戦闘中-敵を生け-り-し|投獄する。左クリック+選択。 [5.1]"
+msgid ""
+"Imprison: Your creatures stun their enemies in battle and imprison those "
+"they defeat. LMB select. [5.1]"
+msgstr ""
+"生け捕り: 手下クリーチャーは戦闘中に敵を生け捕りにして投獄する。左クリックで"
+"選択。 [5.1]"
 
 #: guitext:308
 msgctxt "In-game interface description"
-msgid "Defending: The creature is concentrating on avoiding its adversary's blows."
-msgstr "防御中: -|クリーチャー=敵|攻撃を避ける-と-集中し|いる。"
+msgid ""
+"Defending: The creature is concentrating on avoiding its adversary's blows."
+msgstr "防御中: このクリーチャーは敵の攻撃を避けることに集中している。"
 
 #: guitext:309
 msgctxt "In-game interface item"
 msgid "Are you sure?"
-msgstr "終慾し-す"
+msgstr "終了します"
 
 #: guitext:310
 msgctxt "In-game interface item"
 msgid "Yes"
-msgstr "=い"
+msgstr "はい"
 
 #: guitext:311
 msgctxt "In-game interface item"
@@ -1482,28 +2256,38 @@ msgstr "For"
 
 #: guitext:313
 msgctxt "In-game interface description"
-msgid "Shadows: The number of shadows cast by each creature. LMB toggle. [3.2.2]"
-msgstr "影: 各クリーチャーが投影+きる影|数。左クリック+切り替え。 [3.2.2]"
+msgid ""
+"Shadows: The number of shadows cast by each creature. LMB toggle. [3.2.2]"
+msgstr "影: 各クリーチャーが投影できる影の数。左クリックで切り替え。 [3.2.2]"
 
 #: guitext:314
 msgctxt "In-game interface description"
-msgid "View Type: Swap between the default and forced perspective views. LMB toggle. [3.2.2]"
-msgstr "表示方式: 基本設定と+定|表示を切り替える。左クリック+切り替え。 [3.2.2]"
+msgid ""
+"View Type: Swap between the default and forced perspective views. LMB "
+"toggle. [3.2.2]"
+msgstr ""
+"表示方式: 基本設定と固定の表示を切り替える。左クリックで切り替え。 [3.2.2]"
 
 #: guitext:315
 msgctxt "In-game interface description"
 msgid "Wall Height: Swap between high or low walls. LMB toggle. [3.2.2]"
-msgstr "壁|高-: 高い壁と低い壁とを切り替える。左クリック+切り替え。 [3.2.2]"
+msgstr "壁の高さ: 高い壁と低い壁とを切り替える。左クリックで切り替え。 [3.2.2]"
 
 #: guitext:316
 msgctxt "In-game interface description"
-msgid "View Distance: The amount of dungeon drawn. This directly affects the speed of the game. LMB toggle. [3.2.2]"
-msgstr "表示==: ダンジョンを表示する==。-れ=ゲーム|鮫行速度-大きく影喬する。左クリック+切り替え。 [3.2.2]"
+msgid ""
+"View Distance: The amount of dungeon drawn. This directly affects the speed "
+"of the game. LMB toggle. [3.2.2]"
+msgstr ""
+"表示範囲: ダンジョンを表示する範囲。これはゲームの実行速度に大きく影響する。"
+"左クリックで切り替え。 [3.2.2]"
 
 #: guitext:317
 msgctxt "In-game interface description"
-msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle. [3.2.2]"
-msgstr "画翻|明る-: ゲーム画翻|明る-を--する。左クリック+切り替え。 [3.2.2]"
+msgid ""
+"Gamma Correction: Adjust the brightness of the game. LMB toggle. [3.2.2]"
+msgstr ""
+"画面の明るさ: ゲーム画面の明るさを調節する。左クリックで切り替え。 [3.2.2]"
 
 #: guitext:318
 msgctxt "In-game interface item"
@@ -1513,7 +2297,7 @@ msgstr "Of"
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr "空き|５ぐら: あが-が-動するクリーチャー-適し|いる。"
+msgstr "空きのねぐら: あちこち移動するクリーチャーに適している。"
 
 #: guitext:320
 msgctxt "Menu interface item"
@@ -1533,52 +2317,54 @@ msgstr "縮小: ダイナミックマップを縮小する。左クリック+�
 #: guitext:323
 msgctxt "In-game interface description"
 msgid "Full Screen Map: Takes you to the Map Screen. LMB select. [4.1.1]"
-msgstr "全画翻マップ: マップ画翻が見られる。左クリック+選択。 [4.1.1]"
+msgstr "全画面マップ: マップ画面が見られる。左クリックで選択。 [4.1.1]"
 
 #: guitext:324
 msgctxt "Slab description"
 msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
-msgstr "貫竹不欝能L岩: 手榎インプ=-れを掘り進む-とが+きLい。 [12.4]"
+msgstr "貫通不可能な岩: 手下インプはこれを掘り進むことができない。 [12.4]"
 
 #: guitext:325
 msgctxt "Slab description"
 msgid "Earth: You can excavate this. [12.1]"
-msgstr "土: --=掘る-とが+きる。 [12.1]"
+msgstr "土: ここは掘ることができる。 [12.1]"
 
 #: guitext:326
 msgctxt "Slab description"
-msgid "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to your Treasure Room. [12.2]"
-msgstr "金鉱: 富|芸だ。鋼掘すれ+手榎インプが宝物-へと運ぶ。 [12.2]"
+msgid ""
+"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
+"your Treasure Room. [12.2]"
+msgstr "金鉱: 富の源だ。採掘すれば手下インプが宝物庫へと運ぶ。 [12.2]"
 
 #: guitext:327
 msgctxt "Slab description"
 msgid "Lava: Burns any creature that step on it. [14.2]"
-msgstr "溶岩: --を踏むとクリーチャー=楯け|し-う。 [14.2]"
+msgstr "溶岩: ここを踏むとクリーチャーは焼けてしまう。 [14.2]"
 
 #: guitext:328
 msgctxt "Slab description"
 msgid "Water: Creatures move more slowly through water. [14.1]"
-msgstr "水: 水|中+=クリーチャー|動き=遅くLる。 [14.1]"
+msgstr "水: 水の中ではクリーチャーの動きは遅くなる。 [14.1]"
 
 #: guitext:329
 msgctxt "Slab description"
 msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
-msgstr "壁: 敵-も破れLい補強-れた+|壁。 [12.1]"
+msgstr "壁: 敵にも破れない補強された石の壁。 [12.1]"
 
 #: guitext:330
 msgctxt "Slab description"
 msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
-msgstr "ダメージを受けた壁: -|壁=修理しLい鍬り、いずれ崩壊する。"
+msgstr "ダメージを受けた壁: この壁は修理しない限り、いずれ崩壊する。"
 
 #: guitext:331
 msgctxt "Slab description"
 msgid "Path: Unclaimed earth floor. [12.1]"
-msgstr "竹路: 誰|所有+もLい土|地翻。 [12.1]"
+msgstr "通路: 誰の所有でもない土の地面。 [12.1]"
 
 #: guitext:332
 msgctxt "Slab description"
 msgid "Claimed area: Your dungeon territory. [12.1]"
-msgstr "占有地: ダンジョン慾地。 [12.1]"
+msgstr "占有地: ダンジョン領地。 [12.1]"
 
 #: guitext:333
 msgctxt "In-game interface item"
@@ -1588,12 +2374,12 @@ msgstr "More..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "レベル終慾－-ける-= Escキーを押|。"
+msgstr "レベル終了－続けるには Escキーを押せ。"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "お前=、ぶ+--も敗北した。鋼度挑む|Lら スペースキーを押|。"
+msgstr "お前は、ぶざまにも敗北した。再度挑むのなら スペースキーを押せ。"
 
 #: guitext:336
 msgctxt "On-screen message"
@@ -1613,17 +2399,17 @@ msgstr "FINISHED RECORDING FLIC"
 #: guitext:339
 msgctxt "Unused"
 msgid "Time Bomb"
-msgstr "時鍬爆弾"
+msgstr "時限爆弾"
 
 #: guitext:340
 msgctxt "In-game interface item"
 msgid "Sound FX"
-msgstr "効榎榎"
+msgstr "効果音"
 
 #: guitext:341
 msgctxt "In-game interface item"
 msgid "Music"
-msgstr "榎楽"
+msgstr "音楽"
 
 #: guitext:342
 msgctxt "In-game interface item"
@@ -1643,7 +2429,7 @@ msgstr "ロードゲーム"
 #: guitext:346
 msgctxt "Menu interface item"
 msgid "Continue Game"
-msgstr "前回|-き"
+msgstr "前回の続き"
 
 #: guitext:347
 msgctxt "Menu interface item"
@@ -1653,7 +2439,7 @@ msgstr "マルチプレイ"
 #: guitext:348
 msgctxt "Menu interface item"
 msgid "Return to Main Menu"
-msgstr "メインメニュー--る"
+msgstr "メインメニューに戻る"
 
 #: guitext:349
 msgctxt "Menu interface item"
@@ -1693,12 +2479,12 @@ msgstr "IRQ"
 #: guitext:356
 msgctxt "Menu interface item"
 msgid "Statistics"
-msgstr "総合結榎"
+msgstr "総合結果"
 
 #: guitext:357
 msgctxt "Menu interface item"
 msgid "Level Completed"
-msgstr "レベル終慾"
+msgstr "レベル終了"
 
 #: guitext:358
 msgctxt "Menu interface item"
@@ -1708,7 +2494,7 @@ msgstr "UNUSED"
 #: guitext:359
 msgctxt "Menu interface item"
 msgid "Quit"
-msgstr "ゲーム|終慾"
+msgstr "ゲームの終了"
 
 #: guitext:360
 msgctxt "Menu interface item"
@@ -1718,7 +2504,7 @@ msgstr "新規ゲーム"
 #: guitext:361
 msgctxt "Unused"
 msgid "This is a tale of valour and honour and how tasty heroes are...."
-msgstr "-れ=勇気と-誉、がし|、いか-勇者どもがおいしいか、|物語・・・。"
+msgstr "これは勇気と名誉、そして、いかに勇者どもがおいしいか、の物語・・・。"
 
 #: guitext:362
 msgctxt "Credits"
@@ -1893,12 +2679,12 @@ msgstr "セッション"
 #: guitext:396
 msgctxt "Menu interface item"
 msgid "Name"
-msgstr "-前"
+msgstr "名前"
 
 #: guitext:397
 msgctxt "Menu interface item"
 msgid "Services"
-msgstr "竹信方式"
+msgstr "通信方式"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -1913,12 +2699,12 @@ msgstr "ゲームを作成する"
 #: guitext:400
 msgctxt "Menu interface item"
 msgid "Join Game"
-msgstr "ゲーム-参+する"
+msgstr "ゲームに参加する"
 
 #: guitext:401
 msgctxt "Menu interface item"
 msgid "Start Game"
-msgstr "ゲームを始-る"
+msgstr "ゲームを始める"
 
 #: guitext:402
 msgctxt "Menu interface item"
@@ -1968,7 +2754,7 @@ msgstr "シリアルメニュー"
 #: guitext:411
 msgctxt "Menu interface item"
 msgid "Init"
-msgstr "初期岡"
+msgstr "初期化"
 
 #: guitext:412
 msgctxt "Menu interface item"
@@ -1993,12 +2779,12 @@ msgstr "スタート"
 #: guitext:416
 msgctxt "Menu interface item"
 msgid "Ally"
-msgstr "同蓑"
+msgstr "同盟"
 
 #: guitext:417
 msgctxt "Menu interface item"
 msgid "Alliance"
-msgstr "同蓑する"
+msgstr "同盟する"
 
 #: guitext:418
 msgctxt "Menu interface item"
@@ -2013,42 +2799,47 @@ msgstr "ＯＫ"
 #: guitext:420
 msgctxt "Dungeon special decription"
 msgid "Reveal Map: Reveals the entire underground realm to you."
-msgstr "神々|邪眼: 地底王国全掃が見える。"
+msgstr "神々の邪眼: 地底王国全体が見える。"
 
 #: guitext:421
 msgctxt "Dungeon special decription"
-msgid "Resurrect Creature: You may raise one of your fallen minions from the dead."
-msgstr "復活: 死んだ手榎|うが１人を生き返ら|られる。"
+msgid ""
+"Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgstr "復活: 死んだ手下のうち１人を生き返らせられる。"
 
 #: guitext:422
 msgctxt "Dungeon special decription"
-msgid "Transfer Creature: Pick one of your creatures to accompany you to the next realm."
-msgstr "転送: 次|王国へ連れ|行く手榎|クリーチャーを１人選べる。"
+msgid ""
+"Transfer Creature: Pick one of your creatures to accompany you to the next "
+"realm."
+msgstr "転送: 次の王国へ連れて行く手下のクリーチャーを１人選べる。"
 
 #: guitext:423
 msgctxt "Dungeon special decription"
 msgid "Steal Hero: Subvert a hero to your cause."
-msgstr "勇者獲得: 勇者を禅落-|悪|倒へ引き入れる。"
+msgstr "勇者獲得: 勇者を堕落させ悪の道へ引き入れる。"
 
 #: guitext:424
 msgctxt "Dungeon special decription"
 msgid "Multiply Creatures: Create a double of each of your creatures."
-msgstr "増殖: 手榎クリーチャーがれ-れ|生き旨しを作る。"
+msgstr "増殖: 手下クリーチャーそれぞれの生き写しを作る。"
 
 #: guitext:425
 msgctxt "Dungeon special decription"
 msgid "Increase Level: Bestows greater skill on all your creatures."
-msgstr "レベルアップ: 手榎|全クリーチャー|能=を高-る。"
+msgstr "レベルアップ: 手下の全クリーチャーの能力を高める。"
 
 #: guitext:426
 msgctxt "Dungeon special decription"
 msgid "Make Safe : Reinforces your entire dungeon."
-msgstr "L全岡: ダンジョン|壁全掃を強岡する。"
+msgstr "安全化: ダンジョンの壁全体を強化する。"
 
 #: guitext:427
 msgctxt "Dungeon special decription"
-msgid "Locate Hidden World: You will be transported to a secret realm after you have conquered this one."
-msgstr "隠-れた王国: -|王国を征服後、秘密|王国へ|倒が開かれる+あろう。"
+msgid ""
+"Locate Hidden World: You will be transported to a secret realm after you "
+"have conquered this one."
+msgstr "隠された王国: この王国を征服後、秘密の王国への道が開かれるであろう。"
 
 #: guitext:428
 msgctxt "Dungeon special name"
@@ -2073,22 +2864,22 @@ msgstr "ハイスコア"
 #: guitext:432
 msgctxt "Menu interface item"
 msgid "Go to Query Mode"
-msgstr "-査モード-入る"
+msgstr "調査モードに入る"
 
 #: guitext:433
 msgctxt "Menu interface item"
 msgid "More information"
-msgstr "が|-|情報"
+msgstr "その他の情報"
 
 #: guitext:434
 msgctxt "Menu interface item"
 msgid "Back to main Query Screen"
-msgstr "-査画翻--る"
+msgstr "調査画面に戻る"
 
 #: guitext:435
 msgctxt "Menu interface item"
 msgid "Selected action"
-msgstr "選択-れ|いる行動"
+msgstr "選択されている行動"
 
 #: guitext:436
 msgctxt "Menu interface item"
@@ -2098,12 +2889,12 @@ msgstr "グループ選択"
 #: guitext:437
 msgctxt "Menu interface item"
 msgid "Enter dungeon"
-msgstr "ダンジョン-入る"
+msgstr "ダンジョンに入る"
 
 #: guitext:438
 msgctxt "Menu interface item"
 msgid "Party members"
-msgstr "グループ|メンバー"
+msgstr "グループのメンバー"
 
 #: guitext:439
 msgctxt "Menu interface item"
@@ -2128,12 +2919,12 @@ msgstr "リーダー"
 #: guitext:443
 msgctxt "Menu interface item"
 msgid "Hire"
-msgstr "-う"
+msgstr "雇う"
 
 #: guitext:444
 msgctxt "Menu interface item"
 msgid "Fire"
-msgstr "クビ-する"
+msgstr "クビにする"
 
 #: guitext:445
 msgctxt "Menu interface item"
@@ -2148,52 +2939,53 @@ msgstr "種類"
 #: guitext:447
 msgctxt "In-game interface description"
 msgid "Information Panel: Miscellaneous information. [5.0]"
-msgstr "情報パネル: 多方翻-わたる情報。 [5.0]"
+msgstr "情報パネル: 多方面にわたる情報。 [5.0]"
 
 #: guitext:448
 msgctxt "In-game interface description"
 msgid "Room Panel: The rooms available for you to build. [6.0]"
-msgstr "部屋パネル: 作成欝能L部屋。 [6.0]"
+msgstr "部屋パネル: 作成可能な部屋。 [6.0]"
 
 #: guitext:449
 msgctxt "In-game interface description"
 msgid "Research Panel: The spells available to you. [7.0]"
-msgstr "研究パネル: 使用欝能L魔法。 [7.0]"
+msgstr "研究パネル: 使用可能な魔法。 [7.0]"
 
 #: guitext:450
 msgctxt "In-game interface description"
 msgid "Workshop Panel: The traps and doors available to you. [8.0]"
-msgstr "工房パネル: 使用欝能L罠とドア。 [8.0]"
+msgstr "工房パネル: 使用可能な罠とドア。 [8.0]"
 
 #: guitext:451
 msgctxt "In-game interface description"
 msgid "Creature Panel: Information on your creatures. [9.0]"
-msgstr "クリーチャーパネル: 手榎クリーチャー-関する情報。 [9.0]"
+msgstr "クリーチャーパネル: 手下クリーチャーに関する情報。 [9.0]"
 
 #: guitext:452
 msgctxt "In-game interface description"
 msgid "Research Time: The time until a new spell is researched. [5.4]"
-msgstr "研究時間バー: 新しい魔法|研究が完慾する-+|時間。 [5.4]"
+msgstr "研究時間バー: 新しい魔法の研究が完了するまでの時間。 [5.4]"
 
 #: guitext:453
 msgctxt "In-game interface description"
 msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
-msgstr "工房時間バー: 新しい罠が+きる-+|時間。 [5.5]"
+msgstr "工房時間バー: 新しい罠ができるまでの時間。 [5.5]"
 
 #: guitext:454
 msgctxt "In-game interface description"
 msgid "Time: The time until the next Creature Payday. [5.3]"
-msgstr "給略日バー: クリーチャー|次|給略日-+|時間と支払額。 [5.3]"
+msgstr "給料日バー: クリーチャーの次の給料日までの時間と支払額。 [5.3]"
 
 #: guitext:455
 msgctxt "In-game interface description"
 msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
-msgstr "部屋|数: -|キーパーが所有し|いる部屋|数。 [5.6]"
+msgstr "部屋の数: このキーパーが所有している部屋の数。 [5.6]"
 
 #: guitext:456
 msgctxt "In-game interface description"
-msgid "Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
-msgstr "クリーチャー|数: -|キーパーが所有し|いるクリーチャー|数。 [5.7]"
+msgid ""
+"Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+msgstr "クリーチャーの数: このキーパーが所有しているクリーチャーの数。 [5.7]"
 
 #: guitext:457
 msgctxt "Menu interface item"
@@ -2203,7 +2995,7 @@ msgstr "ゲームを選ぶ"
 #: guitext:458
 msgctxt "Menu interface item"
 msgid "Game type"
-msgstr "ゲーム|種類"
+msgstr "ゲームの種類"
 
 #: guitext:459
 msgctxt "Menu interface item"
@@ -2222,18 +3014,21 @@ msgstr "デスマッチ"
 
 #: guitext:462
 msgctxt "In-game interface description"
-msgid "Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
-msgstr "部屋を売る: 作る|-かか+た-分|財宝額+部屋タイルを売る。左クリック+選択。 [6:4]"
+msgid ""
+"Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgstr ""
+"部屋を売る: 作るのにかかった半分の財宝額で部屋タイルを売る。左クリックで選"
+"択。 [6:4]"
 
 #: guitext:463
 msgctxt "In-game interface description"
 msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
-msgstr "アイテムを売る: 罠-た=ドアを売る。左クリック+選択。 [8.1.2]"
+msgstr "アイテムを売る: 罠またはドアを売る。左クリックで選択。 [8.1.2]"
 
 #: guitext:464
 msgctxt "In-game interface description"
 msgid "Next Battle: Zoom to the next battle. LMB select."
-msgstr "次|戦闘: 次|戦闘を表示する。左クリック+選択。"
+msgstr "次の戦闘: 次の戦闘を表示する。左クリックで選択。"
 
 #: guitext:465
 msgctxt "In-game interface item"
@@ -2253,17 +3048,17 @@ msgstr "No mouse installed"
 #: guitext:468
 msgctxt "Menu interface item"
 msgid "Define keys"
-msgstr "キー鋼定義"
+msgstr "キー再定義"
 
 #: guitext:469
 msgctxt "Game controls"
 msgid "Ally with player"
-msgstr "プレーヤーと同蓑を組む"
+msgstr "プレーヤーと同盟を組む"
 
 #: guitext:470
 msgctxt "Game controls"
 msgid "Press a key"
-msgstr "キーをどれか押し|くだ-い。"
+msgstr "キーをどれか押してください。"
 
 #: guitext:471
 msgctxt "Game controls"
@@ -2553,7 +3348,7 @@ msgstr "矢印キー上"
 #: guitext:528
 msgctxt "Keyboard"
 msgid "DOWN"
-msgstr "矢印キー榎"
+msgstr "矢印キー下"
 
 #: guitext:529
 msgctxt "Keyboard"
@@ -2568,12 +3363,12 @@ msgstr "矢印キー左"
 #: guitext:531
 msgctxt "Network game message"
 msgid "Initialising Modem"
-msgstr "モデム|初期岡"
+msgstr "モデムの初期化"
 
 #: guitext:532
 msgctxt "Network game message"
 msgid "Connecting Modem"
-msgstr "モデム|--"
+msgstr "モデムの接続"
 
 #: guitext:533
 msgctxt "Network game message"
@@ -2583,7 +3378,7 @@ msgstr "ダイアル"
 #: guitext:534
 msgctxt "Network game message"
 msgid "Continue"
-msgstr "-行"
+msgstr "続行"
 
 #: guitext:535
 msgctxt "Network game message"
@@ -2593,52 +3388,52 @@ msgstr "回線使用中"
 #: guitext:536
 msgctxt "Network game message"
 msgid "Unknown Error"
-msgstr "+因不明|エラー"
+msgstr "原因不明のエラー"
 
 #: guitext:537
 msgctxt "Network game message"
 msgid "No Carrier"
-msgstr "キャリアLし"
+msgstr "キャリアなし"
 
 #: guitext:538
 msgctxt "Network game message"
 msgid "No Dial Tone"
-msgstr "発信榎Lし"
+msgstr "発信音なし"
 
 #: guitext:539
 msgctxt "Network game message"
 msgid "No Response"
-msgstr "応答Lし"
+msgstr "応答なし"
 
 #: guitext:540
 msgctxt "Network game message"
 msgid "No Server"
-msgstr "サーバーLし"
+msgstr "サーバーなし"
 
 #: guitext:541
 msgctxt "Network game message"
 msgid "Unable to initialise"
-msgstr "初期岡+き-|ん"
+msgstr "初期化できません"
 
 #: guitext:542
 msgctxt "Network game message"
 msgid "Unable to create game"
-msgstr "ゲームを作成+き-|ん"
+msgstr "ゲームを作成できません"
 
 #: guitext:543
 msgctxt "Network game message"
 msgid "Unable to join game"
-msgstr "ゲーム-参++き-|ん"
+msgstr "ゲームに参加できません"
 
 #: guitext:544
 msgctxt "Slab description"
 msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
-msgstr "宝+: 手榎インプが鋼掘する莫大L富。 [12.3]"
+msgstr "宝石: 手下インプが採掘する莫大な富。 [12.3]"
 
 #: guitext:545
 msgctxt "Object description"
 msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
-msgstr "勇者|門: 勇者=-|門を竹+|お前|ダンジョン-侵入する。 [15.4]"
+msgstr "勇者の門: 勇者はこの門を通ってお前のダンジョンに侵入する。 [15.4]"
 
 #: guitext:546
 msgctxt "Creature name"
@@ -2653,37 +3448,46 @@ msgstr "アバタール"
 #: guitext:548
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
-msgstr "コンピュータアシスタント切り替え: 謙状－攻撃的補助。左クリック+切り替え。 [3.2.4]"
+msgstr ""
+"コンピュータアシスタント切り替え: 現状－攻撃的補助。左クリックで切り替え。 "
+"[3.2.4]"
 
 #: guitext:549
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
-msgstr "コンピュータアシスタント切り替え: 謙状－防衛的補助。左クリック+切り替え。 [3.2.4]"
+msgstr ""
+"コンピュータアシスタント切り替え: 現状－防衛的補助。左クリックで切り替え。 "
+"[3.2.4]"
 
 #: guitext:550
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
-msgstr "コンピュータアシスタント切り替え: 謙状－建築|み補助。左クリック+切り替え。 [3.2.4]"
+msgid ""
+"Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgstr ""
+"コンピュータアシスタント切り替え: 現状－建築のみ補助。左クリックで切り替え。 "
+"[3.2.4]"
 
 #: guitext:551
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
-msgstr "コンピュータアシスタント切り替え: 謙状－配置|み補助。左クリック+切り替え。 [3.2.4]"
+msgstr ""
+"コンピュータアシスタント切り替え: 現状－配置のみ補助。左クリックで切り替え。 "
+"[3.2.4]"
 
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr "宝物-"
+msgstr "宝物庫"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
 msgid "Library"
-msgstr "図書-"
+msgstr "図書館"
 
 #: guitext:554
 msgctxt "In-game tab with rooms"
 msgid "Lair"
-msgstr "５ぐら"
+msgstr "ねぐら"
 
 #: guitext:555
 msgctxt "In-game tab with rooms"
@@ -2698,7 +3502,7 @@ msgstr "拷問旨"
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr "訓練旨"
+msgstr "拷問室"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
@@ -2713,7 +3517,7 @@ msgstr "工房"
 #: guitext:560
 msgctxt "In-game tab with rooms"
 msgid "Scavenger Room"
-msgstr "洗脳旨"
+msgstr "洗脳室"
 
 #: guitext:561
 msgctxt "In-game tab with rooms"
@@ -2728,7 +3532,7 @@ msgstr "墓場"
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr "怖-"
+msgstr "兵舎"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
@@ -2738,12 +3542,12 @@ msgstr "ニワトリ小屋"
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr "掛視所"
+msgstr "監視所"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
 msgid "Bridge"
-msgstr "+"
+msgstr "橋"
 
 #: guitext:567
 msgid "Fight"
@@ -2751,7 +3555,7 @@ msgstr "戦闘"
 
 #: guitext:568
 msgid "Annoyed"
-msgstr "不機嫌Lクリーチャー"
+msgstr "不機嫌なクリーチャー"
 
 #: guitext:569
 msgctxt "Keyboard"
@@ -2793,8 +3597,7 @@ msgctxt "Credits"
 msgid "Additional Level Design"
 msgstr "Additional Level Design"
 
-#: guitext:577
-#: guitext:863
+#: guitext:577 guitext:863
 msgctxt "Credits"
 msgid "Additional Thanks"
 msgstr "Additional Thanks"
@@ -2802,102 +3605,139 @@ msgstr "Additional Thanks"
 #: guitext:578
 msgctxt "Trap names"
 msgid "Boulder Trap"
-msgstr "-+|罠"
+msgstr "丸石の罠"
 
 #: guitext:579
 msgctxt "Trap names"
 msgid "Alarm Trap"
-msgstr "警報|罠"
+msgstr "警報の罠"
 
 #: guitext:580
 msgctxt "Trap names"
 msgid "Poison Gas Trap"
-msgstr "+ガス|罠"
+msgstr "毒ガスの罠"
 
 #: guitext:581
 msgctxt "Trap names"
 msgid "Lightning Trap"
-msgstr "雷撃|罠"
+msgstr "雷撃の罠"
 
 #: guitext:582
 msgctxt "Trap names"
 msgid "Word of Power Trap"
-msgstr "言霊|罠"
+msgstr "言霊の罠"
 
 #: guitext:583
 msgctxt "Trap names"
 msgid "Lava Trap"
-msgstr "溶岩|罠"
+msgstr "溶岩の罠"
 
 #: guitext:584
 msgctxt "Trap description"
-msgid "Boulder Trap: A rolling rock that crushes everything in its path. LMB select. RMB zoom. [20.1]"
-msgstr "-+|罠: +が転がり、竹り倒|すべ||も|を押し５ぶす。左クリック+選択。右クリック+表示。 [20.1]"
+msgid ""
+"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
+"select. RMB zoom. [20.1]"
+msgstr ""
+"丸石の罠: 石が転がり、通り道のすべてのものを押しつぶす。左クリックで選択。右"
+"クリックで表示。 [20.1]"
 
 #: guitext:585
 msgctxt "Trap description"
 msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
-msgstr "警報|罠: 作動すると出陣|魔法がかかる。左クリック+選択。右クリック+表示。 [20.2]"
+msgstr ""
+"警報の罠: 作動すると出陣の魔法がかかる。左クリックで選択。右クリックで表示。 "
+"[20.2]"
 
 #: guitext:586
 msgctxt "Trap description"
-msgid "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB select. RMB zoom. [20.3]"
-msgstr "+ガス|罠: 敵が罠-かかると、有害Lガス|雲を発生-|る。左クリック+選択。右クリック+表示。 [20.3]"
+msgid ""
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
+"select. RMB zoom. [20.3]"
+msgstr ""
+"毒ガスの罠: 敵が罠にかかると、有害なガスの雲を発生させる。左クリックで選択。"
+"右クリックで表示。 [20.3]"
 
 #: guitext:587
 msgctxt "Trap description"
-msgid "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB select. RMB zoom. [20.4]"
-msgstr "雷撃|罠: -く-いる敵クリーチャーを雷撃が襲う。左クリック+選択。右クリック+表示。 [20.4]"
+msgid ""
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
+"select. RMB zoom. [20.4]"
+msgstr ""
+"雷撃の罠: 近くにいる敵クリーチャーを雷撃が襲う。左クリックで選択。右クリック"
+"で表示。 [20.4]"
 
 #: guitext:588
 msgctxt "Trap description"
-msgid "Word of Power Trap: Radiates devastating rings of demonic energy, damaging all creatures within range. LMB select. RMB zoom. [20.5]"
-msgstr "言霊|罠: 悪霊エネルギー|破壊的L輪を放撒し、撒程内|全クリーチャー-ダメージを与える。左クリック+選択。右クリック+表示。 [20.5]"
+msgid ""
+"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
+"all creatures within range. LMB select. RMB zoom. [20.5]"
+msgstr ""
+"言霊の罠: 悪霊エネルギーの破壊的な輪を放射し、射程内の全クリーチャーにダメー"
+"ジを与える。左クリックで選択。右クリックで表示。 [20.5]"
 
 #: guitext:589
 msgctxt "Trap description"
-msgid "Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB select. RMB zoom. [20.6]"
-msgstr "溶岩|罠: タイルが壊れ、ドロドロ|溶岩-Lる。左クリック+選択。右クリック+表示。 [20.6]"
+msgid ""
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
+"select. RMB zoom. [20.6]"
+msgstr ""
+"溶岩の罠: タイルが壊れ、ドロドロの溶岩になる。左クリックで選択。右クリックで"
+"表示。 [20.6]"
 
 #: guitext:590
 msgctxt "Door name"
 msgid "Wooden Door"
-msgstr "木|ドア"
+msgstr "木のドア"
 
 #: guitext:591
 msgctxt "Door name"
 msgid "Braced Door"
-msgstr "補強-れたドア"
+msgstr "補強されたドア"
 
 #: guitext:592
 msgctxt "Door name"
 msgid "Iron Door"
-msgstr "鉄|ドア"
+msgstr "鉄のドア"
 
 #: guitext:593
 msgctxt "Door name"
 msgid "Magic Door"
-msgstr "魔法|ドア"
+msgstr "魔法のドア"
 
 #: guitext:594
 msgctxt "Door description"
-msgid "Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. [21.1]"
-msgstr "木|ドア: 敵|--を阻む+も単純L手段。左クリック+選択。右クリック+表示。 [21.1]"
+msgid ""
+"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
+"[21.1]"
+msgstr ""
+"木のドア: 敵の接近を阻む最も単純な手段。左クリックで選択。右クリックで表示。 "
+"[21.1]"
 
 #: guitext:595
 msgctxt "Door description"
-msgid "Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
-msgstr "補強-れたドア: 鉄+補強した木|ドア。左クリック+選択。右クリック+表示。 [21.2]"
+msgid ""
+"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+msgstr ""
+"補強されたドア: 鉄で補強した木のドア。左クリックで選択。右クリックで表示。 "
+"[21.2]"
 
 #: guitext:596
 msgctxt "Door description"
-msgid "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB select. RMB zoom. [21.3]"
-msgstr "鉄|ドア: 大きLダメージ-も耐えられる頑丈+重いドア。左クリック+選択。右クリック+表示。 [21.3]"
+msgid ""
+"Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
+"select. RMB zoom. [21.3]"
+msgstr ""
+"鉄のドア: 大きなダメージにも耐えられる頑丈で重いドア。左クリックで選択。右ク"
+"リックで表示。 [21.3]"
 
 #: guitext:597
 msgctxt "Door description"
-msgid "Magic Door: A special door, highly resistant to physical damage but susceptible to magical damage. LMB select. RMB zoom. [21.4]"
-msgstr "魔法|ドア: +怖Lドア+物理的攻撃-=非常-強いが、魔法|攻撃-=ダメージを受ける。左クリック+選択。右クリック+表示。 [21.4]"
+msgid ""
+"Magic Door: A special door, highly resistant to physical damage but "
+"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+msgstr ""
+"魔法のドア: 特別なドアで物理的攻撃には非常に強いが、魔法の攻撃にはダメージを"
+"受ける。左クリックで選択。右クリックで表示。 [21.4]"
 
 #: guitext:598
 msgctxt "Room name"
@@ -2907,12 +3747,12 @@ msgstr "ゲート"
 #: guitext:599
 msgctxt "Room name"
 msgid "Treasure Room"
-msgstr "宝物-"
+msgstr "宝物庫"
 
 #: guitext:600
 msgctxt "Room name"
 msgid "Library"
-msgstr "図書-"
+msgstr "図書館"
 
 #: guitext:601
 msgctxt "Room name"
@@ -2922,12 +3762,12 @@ msgstr "牢獄"
 #: guitext:602
 msgctxt "Room name"
 msgid "Torture Chamber"
-msgstr "拷問旨"
+msgstr "拷問室"
 
 #: guitext:603
 msgctxt "Room name"
 msgid "Training Room"
-msgstr "訓練旨"
+msgstr "訓練室"
 
 #: guitext:604
 msgctxt "Room name"
@@ -2947,7 +3787,7 @@ msgstr "墓場"
 #: guitext:607
 msgctxt "Room name"
 msgid "Barracks"
-msgstr "怖-"
+msgstr "兵舎"
 
 #: guitext:608
 msgctxt "Room name"
@@ -2957,17 +3797,17 @@ msgstr "ニワトリ小屋"
 #: guitext:609
 msgctxt "Room name"
 msgid "Lair"
-msgstr "５ぐら"
+msgstr "ねぐら"
 
 #: guitext:610
 msgctxt "Room name"
 msgid "Bridge"
-msgstr "+"
+msgstr "橋"
 
 #: guitext:611
 msgctxt "Room name"
 msgid "Guard Post"
-msgstr "掛視所"
+msgstr "監視所"
 
 #: guitext:612
 msgctxt "Room name"
@@ -2977,87 +3817,138 @@ msgstr "神殿"
 #: guitext:613
 msgctxt "Room name"
 msgid "Scavenger Room"
-msgstr "洗脳旨"
+msgstr "洗脳室"
 
 #: guitext:614
 msgctxt "Object name"
 msgid "Hero Gate"
-msgstr "勇者|門"
+msgstr "勇者の門"
 
 #: guitext:615
 msgctxt "Room description"
 msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
-msgstr "宝物-: 財宝=---蓄える。左クリック+選択。右クリック+表示。 [17.1]"
+msgstr ""
+"宝物庫: 財宝はここに蓄える。左クリックで選択。右クリックで表示。 [17.1]"
 
 #: guitext:616
 msgctxt "Room description"
-msgid "Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
-msgstr "図書-: 魔法|研究を行う部屋。左クリック+選択。右クリック+表示。 [17.4]"
+msgid ""
+"Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
+msgstr ""
+"図書館: 魔法の研究を行う部屋。左クリックで選択。右クリックで表示。 [17.4]"
 
 #: guitext:617
 msgctxt "Room description"
-msgid "Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. [17.10]"
-msgstr "牢獄: 生け-り-した敵クリーチャーを---入れる。左クリック+選択。右クリック+表示。 [17.10]"
+msgid ""
+"Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
+"[17.10]"
+msgstr ""
+"牢獄: 生け捕りにした敵クリーチャーをここに入れる。左クリックで選択。右クリッ"
+"クで表示。 [17.10]"
 
 #: guitext:618
 msgctxt "Room description"
-msgid "Training Room: Place creatures in here to improve their experience. LMB select. RMB zoom. [17.5]"
-msgstr "訓練旨: 経-を高-るた--クリーチャーを---入れる。左クリック+選択。右クリック+表示。 [17.5]"
+msgid ""
+"Training Room: Place creatures in here to improve their experience. LMB "
+"select. RMB zoom. [17.5]"
+msgstr ""
+"訓練室: 経験を高めるためにクリーチャーをここに入れる。左クリックで選択。右ク"
+"リックで表示。 [17.5]"
 
 #: guitext:619
 msgctxt "Room description"
-msgid "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB zoom. [17.11]"
-msgstr "拷問旨: お前|邪悪L-的|た--クリーチャーを拷問する。左クリック+選択。右クリック+表示。 [17.11]"
+msgid ""
+"Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
+"zoom. [17.11]"
+msgstr ""
+"拷問室: お前の邪悪な目的のためにクリーチャーを拷問する。左クリックで選択。右"
+"クリックで表示。 [17.11]"
 
 #: guitext:620
 msgctxt "Room description"
 msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
-msgstr "ダンジョンハート: お前|ダンジョン|生命=。 [11.2]"
+msgstr "ダンジョンハート: お前のダンジョンの生命力。 [11.2]"
 
 #: guitext:621
 msgctxt "Room description"
-msgid "Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. RMB zoom. [17.8]"
-msgstr "工房: クリーチャーを中-入れると罠やドアを作る。左クリック+選択。右クリック+表示。 [17.8]"
+msgid ""
+"Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
+"RMB zoom. [17.8]"
+msgstr ""
+"工房: クリーチャーを中に入れると罠やドアを作る。左クリックで選択。右クリック"
+"で表示。 [17.8]"
 
 #: guitext:622
 msgctxt "Room description"
-msgid "Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB zoom. [17.13]"
-msgstr "墓場: 死んだクリーチャー=-|部屋へ運+れ朽が榎|る。左クリック+選択。右クリック+表示。 [17.13]"
+msgid ""
+"Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
+"zoom. [17.13]"
+msgstr ""
+"墓場: 死んだクリーチャーはこの部屋へ運ばれ朽ち果てる。左クリックで選択。右ク"
+"リックで表示。 [17.13]"
 
 #: guitext:623
 msgctxt "Room description"
-msgid "Barracks: Group creatures by placing them into the room. LMB select. RMB zoom. [17.9]"
-msgstr "怖-: -|部屋-入れ|複数|クリーチャーをグループ岡する。左クリック+選択。右クリック+表示。 [17.9]"
+msgid ""
+"Barracks: Group creatures by placing them into the room. LMB select. RMB "
+"zoom. [17.9]"
+msgstr ""
+"兵舎: この部屋に入れて複数のクリーチャーをグループ化する。左クリックで選択。"
+"右クリックで表示。 [17.9]"
 
 #: guitext:624
 msgctxt "Room description"
-msgid "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. RMB zoom. [17.3]"
-msgstr "ニワトリ小屋: クリーチャーがいたいけL小-いニワトリを食べる場所。左クリック+選択。右クリック+表示。 [17.3]"
+msgid ""
+"Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
+"RMB zoom. [17.3]"
+msgstr ""
+"ニワトリ小屋: クリーチャーがいたいけな小さいニワトリを食べる場所。左クリック"
+"で選択。右クリックで表示。 [17.3]"
 
 #: guitext:625
 msgctxt "Room description"
-msgid "Lair: Where your creatures sleep and replenish their energy. LMB select. RMB zoom. [17.2]"
-msgstr "５ぐら: 手榎クリーチャーが-+|掃=回復をする場所。左クリック+選択。右クリック+表示。 [17.2]"
+msgid ""
+"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"zoom. [17.2]"
+msgstr ""
+"ねぐら: 手下クリーチャーが眠って体力回復をする場所。左クリックで選択。右ク"
+"リックで表示。 [17.2]"
 
 #: guitext:626
 msgctxt "Room description"
-msgid "Bridge: Place this on water and lava to allow creatures to cross. LMB select. RMB zoom. [17.6]"
-msgstr "+: -れを水や溶岩|上-置け+クリーチャーも渡る-とが+きる。左クリック+選択。右クリック+表示。 [17.6]"
+msgid ""
+"Bridge: Place this on water and lava to allow creatures to cross. LMB "
+"select. RMB zoom. [17.6]"
+msgstr ""
+"橋: これを水や溶岩の上に置けばクリーチャーも渡ることができる。左クリックで選"
+"択。右クリックで表示。 [17.6]"
 
 #: guitext:627
 msgctxt "Room description"
-msgid "Guard Post: Your creatures keep watch over your dungeon when placed on this room. LMB select. RMB zoom. [17.7]"
-msgstr "掛視所: ---配置-れた手榎クリーチャーが、お前|ダンジョン|掛視を-ける。左クリック+選択。右クリック+表示。 [17.7]"
+msgid ""
+"Guard Post: Your creatures keep watch over your dungeon when placed on this "
+"room. LMB select. RMB zoom. [17.7]"
+msgstr ""
+"監視所: ここに配置された手下クリーチャーが、お前のダンジョンの監視を続ける。"
+"左クリックで選択。右クリックで表示。 [17.7]"
 
 #: guitext:628
 msgctxt "Room description"
-msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
-msgstr "神殿: +黒|神々を拝むとクリーチャー=幸|-Lる。生け贄を捧-る-=泉-クリーチャーを落とす。左クリック+選択。右クリック+表示。 [17.12]"
+msgid ""
+"Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+msgstr ""
+"神殿: 暗黒の神々を拝むとクリーチャーは幸せになる。生け贄を捧げるには泉にク"
+"リーチャーを落とす。左クリックで選択。右クリックで表示。 [17.12]"
 
 #: guitext:629
 msgctxt "Room description"
-msgid "Scavenger Room: Creatures placed onto the room lure their kin away from other dungeons or through portals. LMB select. RMB zoom. [17.14]"
-msgstr "洗脳旨: -|部屋-入れられたクリーチャー=、-|ダンジョンからゲートを竹し|同類を引き寄|る。左クリック+選択。右クリック+表示。 [17.14]"
+msgid ""
+"Scavenger Room: Creatures placed onto the room lure their kin away from "
+"other dungeons or through portals. LMB select. RMB zoom. [17.14]"
+msgstr ""
+"洗脳室: この部屋に入れられたクリーチャーは、他のダンジョンからゲートを通して"
+"同類を引き寄せる。左クリックで選択。右クリックで表示。 [17.14]"
 
 #: guitext:630
 msgctxt "Keeper spell name"
@@ -3067,7 +3958,7 @@ msgstr "支配"
 #: guitext:631
 msgctxt "Keeper spell name"
 msgid "Create Imp"
-msgstr "インプ征造"
+msgstr "インプ製造"
 
 #: guitext:632
 msgctxt "Keeper spell name"
@@ -3082,7 +3973,7 @@ msgstr "出陣"
 #: guitext:634
 msgctxt "Keeper spell name"
 msgid "Hold Audience"
-msgstr "一酢集結"
+msgstr "一斉集結"
 
 #: guitext:635
 msgctxt "Keeper spell name"
@@ -3092,12 +3983,12 @@ msgstr "落盤"
 #: guitext:636
 msgctxt "Keeper spell name"
 msgid "Must Obey"
-msgstr "絶+服従"
+msgstr "絶対服従"
 
 #: guitext:637
 msgctxt "Keeper spell name"
 msgid "Speed Monster"
-msgstr "+速"
+msgstr "加速"
 
 #: guitext:638
 msgctxt "Keeper spell name"
@@ -3107,7 +3998,7 @@ msgstr "防御"
 #: guitext:639
 msgctxt "Keeper spell name"
 msgid "Conceal Monster"
-msgstr "透明岡"
+msgstr "透明化"
 
 #: guitext:640
 msgctxt "Keeper spell name"
@@ -3127,7 +4018,7 @@ msgstr "疫病"
 #: guitext:643
 msgctxt "Keeper spell name"
 msgid "Destroy Walls"
-msgstr "-砕"
+msgstr "粉砕"
 
 #: guitext:644
 msgctxt "Keeper spell name"
@@ -3137,7 +4028,7 @@ msgstr "治癒"
 #: guitext:645
 msgctxt "Keeper spell name"
 msgid "Time Bomb"
-msgstr "時鍬爆弾"
+msgstr "時限爆弾"
 
 #: guitext:646
 msgctxt "Keeper spell name"
@@ -3147,57 +4038,84 @@ msgstr "ハルマゲドン"
 #: guitext:647
 msgctxt "Keeper spell description"
 msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
-msgstr "支配: クリーチャーを--操作+きる。左クリック+選択。 [18.1]"
+msgstr "支配: クリーチャーを直接操作できる。左クリックで選択。 [18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
-msgstr "インプ征造: ダンジョン内-新しいインプを作り出す。左クリック+選択。 [18.2]"
+msgid ""
+"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
+"[18.2]"
+msgstr ""
+"インプ製造: ダンジョン内に新しいインプを作り出す。左クリックで選択。 [18.2]"
 
 #: guitext:649
 msgctxt "Keeper spell description"
-msgid "Sight of Evil: Reveal a hidden area of the map for a limited time. LMB select. RMB zoom. [18.3]"
-msgstr "邪眼: マップ上|見えLい場所が、し+らく|間だけ見える。左クリック+選択。右クリック+表示。 [18.3]"
+msgid ""
+"Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
+"select. RMB zoom. [18.3]"
+msgstr ""
+"邪眼: マップ上の見えない場所が、しばらくの間だけ見える。左クリックで選択。右"
+"クリックで表示。 [18.3]"
 
 #: guitext:650
 msgctxt "Keeper spell description"
-msgid "Call To Arms: Calls all your creatures to an area of your dungeon. LMB select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
-msgstr "出陣: 手榎|全クリーチャーをダンジョン内|魔法をかけた地点-招集-|る。左クリック+選択。もう一度左クリックすると鋼選択。魔法アイコンを左ダブルクリック+取り+し。右クリック+表示。 [18.6]"
+msgid ""
+"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+msgstr ""
+"出陣: 手下の全クリーチャーをダンジョン内の魔法をかけた地点に招集させる。左ク"
+"リックで選択。もう一度左クリックすると再選択。魔法アイコンを左ダブルクリック"
+"で取り消し。右クリックで表示。 [18.6]"
 
 #: guitext:651
 msgctxt "Keeper spell description"
-msgid "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. RMB zoom. [18.8]"
-msgstr "一酢集結: 手榎|全クリーチャーをダンジョンハート-招集する。左クリック+選択。右クリック+表示。 [18.8]"
+msgid ""
+"Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
+"RMB zoom. [18.8]"
+msgstr ""
+"一斉集結: 手下の全クリーチャーをダンジョンハートに招集する。左クリックで選"
+"択。右クリックで表示。 [18.8]"
 
 #: guitext:652
 msgctxt "Keeper spell description"
 msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
-msgstr "落盤: ダンジョン内-落盤を起-す。左クリック+選択。 [18.13]"
+msgstr "落盤: ダンジョン内に落盤を起こす。左クリックで選択。 [18.13]"
 
 #: guitext:653
 msgctxt "Keeper spell description"
-msgid "Must Obey: Forces your creatures to obey your every command. LMB select. [18.5]"
-msgstr "絶+服従: 手榎クリーチャー-、お前|全命--従わ|る。左クリック+選択。 [18.5]"
+msgid ""
+"Must Obey: Forces your creatures to obey your every command. LMB select. "
+"[18.5]"
+msgstr ""
+"絶対服従: 手下クリーチャーに、お前の全命令に従わせる。左クリックで選択。 "
+"[18.5]"
 
 #: guitext:654
 msgctxt "Keeper spell description"
 msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "+速: 手榎クリーチャー|スピードを速-る。左クリック+選択。 [18.4]"
+msgstr "加速: 手下クリーチャーのスピードを速める。左クリックで選択。 [18.4]"
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "防御: 手榎クリーチャーを攻撃から守る。左クリック+選択。 [18.11]"
+msgid ""
+"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgstr "防御: 手下クリーチャーを攻撃から守る。左クリックで選択。 [18.11]"
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
-msgstr "透明岡: 手榎クリーチャーを敵から見えLくする。左クリック+選択。 [18.7]"
+msgid ""
+"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
+"[18.7]"
+msgstr ""
+"透明化: 手下クリーチャーを敵から見えなくする。左クリックで選択。 [18.7]"
 
 #: guitext:657
 msgctxt "Keeper spell description"
-msgid "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of lightning. LMB select. [18.10]"
-msgstr "雷撃: ダンジョン内|一部を非常-強=L雷撃が襲う。左クリック+選択。 [18.10]"
+msgid ""
+"Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
+"lightning. LMB select. [18.10]"
+msgstr ""
+"雷撃: ダンジョン内の一部を非常に強力な雷撃が襲う。左クリックで選択。 [18.10]"
 
 #: guitext:658
 msgctxt "Keeper spell description"
@@ -3206,43 +4124,55 @@ msgstr "呪い: 敵をニワトリ-変える。左クリック+選択。 [18
 
 #: guitext:659
 msgctxt "Keeper spell description"
-msgid "Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
-msgstr "疫病: 敵クリーチャーを死-いたる伝染病-+染-|る。左クリック+選択。 [18.14]"
+msgid ""
+"Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
+msgstr ""
+"疫病: 敵クリーチャーを死にいたる伝染病に感染させる。左クリックで選択。 "
+"[18.14]"
 
 #: guitext:660
 msgctxt "Keeper spell description"
-msgid "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
-msgstr "-砕: 補強-れた敵|壁を破壊する。左クリック+選択。 [18.16]"
+msgid ""
+"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgstr "粉砕: 補強された敵の壁を破壊する。左クリックで選択。 [18.16]"
 
 #: guitext:661
 msgctxt "Keeper spell description"
-msgid "Heal: Cast on an area of the dungeon to improve the health of your creatures. LMB select. [18.9]"
-msgstr "治癒: ダンジョン内|地翻-かけると周=-いる手榎クリーチャー|掃=が回復する。左クリック+選択。 [18.9]"
+msgid ""
+"Heal: Cast on an area of the dungeon to improve the health of your "
+"creatures. LMB select. [18.9]"
+msgstr ""
+"治癒: ダンジョン内の地面にかけると周囲にいる手下クリーチャーの体力が回復す"
+"る。左クリックで選択。 [18.9]"
 
 #: guitext:662
 msgctxt "Keeper spell description"
 msgid "Time Bomb"
-msgstr "時鍬爆弾"
+msgstr "時限爆弾"
 
 #: guitext:663
 msgctxt "Keeper spell description"
-msgid "Armageddon: Transports all the creatures in the land to your Dungeon Heart for a final, decisive battle. LMB select. [18.15]"
-msgstr "ハルマゲドン: 慾地内|全クリーチャーを+終決戦|た--お前|ダンジョンハートへ-動-|る。左クリック+選択。 [18.15]"
+msgid ""
+"Armageddon: Transports all the creatures in the land to your Dungeon Heart "
+"for a final, decisive battle. LMB select. [18.15]"
+msgstr ""
+"ハルマゲドン: 領地内の全クリーチャーを最終決戦のためにお前のダンジョンハート"
+"へ移動させる。左クリックで選択。 [18.15]"
 
 #: guitext:664
 msgctxt "Game event name"
 msgid "Treasure Room full"
-msgstr "宝物-が満杯-L+た"
+msgstr "宝物庫が満杯になった"
 
 #: guitext:665
 msgctxt "Game event name"
 msgid "Scavenging detected"
-msgstr "洗脳を受け|いる"
+msgstr "洗脳を受けている"
 
 #: guitext:666
 msgctxt "Game event name"
 msgid "Creature Payday"
-msgstr "クリーチャー|給略日"
+msgstr "クリーチャーの給料日"
 
 #: guitext:667
 msgctxt "Game event name"
@@ -3252,12 +4182,12 @@ msgstr "新しい魔法を覚えた"
 #: guitext:668
 msgctxt "Game event name"
 msgid "New room taken over"
-msgstr "新しい部屋を手-入れた"
+msgstr "新しい部屋を手に入れた"
 
 #: guitext:669
 msgctxt "Game event name"
 msgid "New area discovered"
-msgstr "新しい場所を見５けた"
+msgstr "新しい場所を見つけた"
 
 #: guitext:670
 msgctxt "Game event name"
@@ -3267,12 +4197,12 @@ msgstr "情報"
 #: guitext:671
 msgctxt "Game event name"
 msgid "Room lost"
-msgstr "部屋を失+た"
+msgstr "部屋を失った"
 
 #: guitext:672
 msgctxt "Game event name"
 msgid "Heart attacked"
-msgstr "ダンジョンハートが攻撃-れた"
+msgstr "ダンジョンハートが攻撃された"
 
 #: guitext:673
 msgctxt "Game event name"
@@ -3282,32 +4212,32 @@ msgstr "戦闘"
 #: guitext:674
 msgctxt "Game event name"
 msgid "Objective"
-msgstr "-標"
+msgstr "目標"
 
 #: guitext:675
 msgctxt "Game event name"
 msgid "Breach"
-msgstr "典破口"
+msgstr "突破口"
 
 #: guitext:676
 msgctxt "Game event name"
 msgid "New spell researched"
-msgstr "新しい魔法が研究-れた"
+msgstr "新しい魔法が研究された"
 
 #: guitext:677
 msgctxt "Game event name"
 msgid "New room researched"
-msgstr "新しい部屋が研究-れた"
+msgstr "新しい部屋が研究された"
 
 #: guitext:678
 msgctxt "Game event name"
 msgid "New Trap"
-msgstr "新しい罠が征造-れた"
+msgstr "新しい罠が製造された"
 
 #: guitext:679
 msgctxt "Game event name"
 msgid "New Door"
-msgstr "新しいドアが征造-れた"
+msgstr "新しいドアが製造された"
 
 #: guitext:680
 msgctxt "Game event name"
@@ -3317,12 +4247,12 @@ msgstr "新しいクリーチャーが参入した"
 #: guitext:681
 msgctxt "Game event name"
 msgid "Creature annoyed"
-msgstr "クリーチャーが不機嫌-L+た"
+msgstr "クリーチャーが不機嫌になった"
 
 #: guitext:682
 msgctxt "Game event name"
 msgid "No more living space"
-msgstr "クリーチャーが５ぐらを探し|いる"
+msgstr "クリーチャーがねぐらを探している"
 
 #: guitext:683
 msgctxt "Game event name"
@@ -3332,162 +4262,163 @@ msgstr "警報発動"
 #: guitext:684
 msgctxt "Game event name"
 msgid "Room under attack"
-msgstr "部屋が攻撃-れ|いる"
+msgstr "部屋が攻撃されている"
 
 #: guitext:685
 msgctxt "Game event name"
 msgid "Treasure Room needed"
-msgstr "宝物-が必要だ"
+msgstr "宝物庫が必要だ"
 
 #: guitext:686
 msgctxt "Game event name"
 msgid "Creatures becoming hungry"
-msgstr "クリーチャーが食略を要求し|いる"
+msgstr "クリーチャーが食料を要求している"
 
 #: guitext:687
 msgctxt "Game event name"
 msgid "Trap crate found"
-msgstr "トラップが見５か+た"
+msgstr "トラップが見つかった"
 
 #: guitext:688
 msgctxt "Game event name"
 msgid "Door crate found"
-msgstr "ドアが見５か+た"
+msgstr "ドアが見つかった"
 
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr "+怖Lも|が見５か+た"
+msgstr "特別なものが見つかった"
 
 #: guitext:690
 msgctxt "Game event description"
 msgid "Treasure Room full: LMB toggle. RMB delete."
-msgstr "宝物-が満杯: 左クリック+切り替え。右クリック+削除。"
+msgstr "宝物庫が満杯: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:691
 msgctxt "Game event description"
 msgid "Creature being scavenged: LMB toggle. RMB delete."
-msgstr "洗脳-れ|いるクリーチャー: 左クリック+切り替え。右クリック+削除。"
+msgstr "洗脳されているクリーチャー: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:692
 msgctxt "Game event description"
 msgid "Creature Payday: LMB toggle. RMB delete."
-msgstr "クリーチャー|給略日: 左クリック+切り替え。右クリック+削除。"
+msgstr "クリーチャーの給料日: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:693
 msgctxt "Game event description"
 msgid "New spell picked up: LMB toggle. RMB delete."
-msgstr "新しい魔法を覚えた: 左クリック+切り替え。右クリック+削除。"
+msgstr "新しい魔法を覚えた: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:694
 msgctxt "Game event description"
 msgid "New room taken over: LBM toggle. RMB delete."
-msgstr "新しい部屋を手-入れた: 左クリック+切り替え。右クリック+削除。"
+msgstr "新しい部屋を手に入れた: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:695
 msgctxt "Game event description"
 msgid "New area discovered: LMB toggle. RMB delete."
-msgstr "新しい場所を見５けた: 左クリック+切り替え。右クリック+削除。"
+msgstr "新しい場所を見つけた: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:696
 msgctxt "Game event description"
 msgid "Information: LMB toggle. RMB delete."
-msgstr "情報: 左クリック+切り替え。右クリック+削除。"
+msgstr "情報: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:697
 msgctxt "Game event description"
 msgid "Room lost: LMB toggle. RMB delete."
-msgstr "部屋を失+た: 左クリック+切り替え。右クリック+削除。"
+msgstr "部屋を失った: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:698
 msgctxt "Game event description"
 msgid "Dungeon Heart Attacked: LMB toggle. RMB delete."
-msgstr "ダンジョンハートを攻撃-れた: 左クリック+切り替え。右クリック+削除。"
+msgstr "ダンジョンハートを攻撃された: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:699
 msgctxt "Game event description"
 msgid "Fight: LMB toggle. RMB delete. [10.5]"
-msgstr "戦闘: 左クリック+切り替え。右クリック+削除。 [10.5]"
+msgstr "戦闘: 左クリックで切り替え。右クリックで削除。 [10.5]"
 
 #: guitext:700
 msgctxt "Game event description"
 msgid "Objective: LMB toggle. [11.3]"
-msgstr "-標: 左クリック+切り替え。 [11.3]"
+msgstr "目標: 左クリックで切り替え。 [11.3]"
 
 #: guitext:701
 msgctxt "Game event description"
 msgid "Breach: LMB toggle. RMB delete."
-msgstr "典破口: 左クリック+切り替え。右クリック+削除。"
+msgstr "突破口: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:702
 msgctxt "Game event description"
 msgid "New spell researched: LMB toggle. RMB delete."
-msgstr "新しい魔法|研究完慾: 左クリック+切り替え。右クリック+削除。"
+msgstr "新しい魔法の研究完了: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:703
 msgctxt "Game event description"
 msgid "New room researched: LMB toggle. RMB delete."
-msgstr "新しい部屋|研究完慾: 左クリック+切り替え。右クリック+削除。"
+msgstr "新しい部屋の研究完了: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:704
 msgctxt "Game event description"
 msgid "New trap: LMB toggle. RMB delete."
-msgstr "新しい罠: 左クリック+切り替え。右クリック+削除。"
+msgstr "新しい罠: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:705
 msgctxt "Game event description"
 msgid "New door: LMB toggle. RMB delete."
-msgstr "新しいドア: 左クリック+切り替え。右クリック+削除。"
+msgstr "新しいドア: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:706
 msgctxt "Game event description"
 msgid "New creature in dungeon: LMB toggle. RMB delete."
-msgstr "新しいクリーチャー参入: 左クリック+切り替え。右クリック+削除。"
+msgstr "新しいクリーチャー参入: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:707
 msgctxt "Game event description"
 msgid "Creature is annoyed: LMB toggle. RMB delete."
-msgstr "クリーチャーが不機嫌: 左クリック+切り替え。右クリック+削除。"
+msgstr "クリーチャーが不機嫌: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:708
 msgctxt "Game event description"
 msgid "No more living set: LMB toggle. RMB delete."
-msgstr "５ぐらを探し|いる: 左クリック+切り替え。右クリック+削除。"
+msgstr "ねぐらを探している: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:709
 msgctxt "Game event description"
 msgid "Alarm triggered: LMB toggle. RMB delete."
-msgstr "警報発動: 左クリック+切り替え。右クリック+削除。"
+msgstr "警報発動: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:710
 msgctxt "Game event description"
 msgid "Room under attack: LMB toggle. RMB delete."
-msgstr "部屋が攻撃-れ|いる: 左クリック+切り替え。右クリック+削除。"
+msgstr "部屋が攻撃されている: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:711
 msgctxt "Game event description"
 msgid "Need Treasure Room: LMB toggle. RMB delete."
-msgstr "宝物-が必要: 左クリック+切り替え。右クリック+削除。"
+msgstr "宝物庫が必要: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:712
 msgctxt "Game event description"
 msgid "Creatures becoming hungry: LMB toggle. RMB delete."
-msgstr "クリーチャーががろがろ空腹: 左クリック+切り替え。右クリック+削除。"
+msgstr "クリーチャーがそろそろ空腹: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:713
 msgctxt "Game event description"
 msgid "Trap crate found: LMB toggle. RMB delete."
-msgstr "トラップが見５か+た: 左クリック+切り替え。右クリック+削除。"
+msgstr "トラップが見つかった: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:714
 msgctxt "Game event description"
 msgid "Door crate found: LMB toggle. RMB delete."
-msgstr "ドアが見５か+た: 左クリック+切り替え。右クリック+削除。"
+msgstr "ドアが見つかった: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:715
 msgctxt "Game event description"
 msgid "Dungeon special found: LMB toggle. RMB delete."
-msgstr "スペシャルアイテムが見５か+た: 左クリック+切り替え。右クリック+削除。"
+msgstr ""
+"スペシャルアイテムが見つかった: 左クリックで切り替え。右クリックで削除。"
 
 #: guitext:716
 msgctxt "In-game interface item"
@@ -3502,7 +4433,7 @@ msgstr "画像設定"
 #: guitext:718
 msgctxt "In-game interface item"
 msgid "Sound Options"
-msgstr "榎慾設定"
+msgstr "音量設定"
 
 #: guitext:719
 msgctxt "In-game interface item"
@@ -3532,97 +4463,129 @@ msgstr "グラフィックメニュー: グラフィックをカスタマイズ�
 #: guitext:724
 msgctxt "In-game interface description"
 msgid "Sound Menu: Adjust the sound and music volumes. [3.2.3]"
-msgstr "サウンドメニュー: 効榎榎と榎楽|ボリュームを--する。 [3.2.3]"
+msgstr "サウンドメニュー: 効果音と音楽のボリュームを調節する。 [3.2.3]"
 
 #: guitext:725
 msgctxt "In-game interface description"
 msgid "Load Game: Load a previously saved game. [3.2.1]"
-msgstr "ゲームロード: 前--存し|おいたゲームを読み込む。 [3.2.1]"
+msgstr "ゲームロード: 前に保存しておいたゲームを読み込む。 [3.2.1]"
 
 #: guitext:726
 msgctxt "In-game interface description"
 msgid "Save Game: Save your current game. [3.2.1]"
-msgstr "ゲームセーブ: プレイ中|ゲームを-存する。 [3.2.1]"
+msgstr "ゲームセーブ: プレイ中のゲームを保存する。 [3.2.1]"
 
 #: guitext:727
 msgctxt "In-game interface description"
 msgid "Quit Game: Quit back to the Level Map. [3.2.5]"
-msgstr "ゲームを終慾する: ゲームを終慾し、レベルマップ--る。 [3.2.5]"
+msgstr "ゲームを終了する: ゲームを終了し、レベルマップに戻る。 [3.2.5]"
 
 #: guitext:728
 msgctxt "In-game interface description"
 msgid "Computer Assistance Menu: Customise the Computer Assistant. [3.2.4]"
-msgstr "コンピュータ補助メニュー: コンピュータ補助|設定。 [3.2.4]"
+msgstr "コンピュータ補助メニュー: コンピュータ補助の設定。 [3.2.4]"
 
 #: guitext:729
 msgctxt "In-game interface description"
-msgid "Aggressive Computer Assistant: Constructs your dungeon and always trys to attack the enemy. LMB select. [3.2.4]"
-msgstr "攻撃的補助: ダンジョンを築き、常-敵を攻撃しようとする。左クリック+選択。 [3.2.4]"
+msgid ""
+"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"attack the enemy. LMB select. [3.2.4]"
+msgstr ""
+"攻撃的補助: ダンジョンを築き、常に敵を攻撃しようとする。左クリックで選択。 "
+"[3.2.4]"
 
 #: guitext:730
 msgctxt "In-game interface description"
-msgid "Defensive Computer Assistant: Constructs your dungeon but does not attack the enemy. LMB select. [3.2.4]"
-msgstr "防衛的補助: ダンジョンを築くが、敵を攻撃しLい。左クリック+選択。 [3.2.4]"
+msgid ""
+"Defensive Computer Assistant: Constructs your dungeon but does not attack "
+"the enemy. LMB select. [3.2.4]"
+msgstr ""
+"防衛的補助: ダンジョンを築くが、敵を攻撃しない。左クリックで選択。 [3.2.4]"
 
 #: guitext:731
 msgctxt "In-game interface description"
-msgid "Construction Only Computer Assistant: Digs, places rooms and traps but does not move creatures. LMB select. [3.2.4]"
-msgstr "建築|み補助: 掘+たり、部屋や罠を設置するが、クリーチャー=動か-Lい。左クリック+選択。 [3.2.4]"
+msgid ""
+"Construction Only Computer Assistant: Digs, places rooms and traps but does "
+"not move creatures. LMB select. [3.2.4]"
+msgstr ""
+"建築のみ補助: 掘ったり、部屋や罠を設置するが、クリーチャーは動かさない。左ク"
+"リックで選択。 [3.2.4]"
 
 #: guitext:732
 msgctxt "In-game interface description"
-msgid "Move Only Computer Assistant: Moves and slaps your creatures. LMB select. [3.2.4]"
-msgstr "配置|み補助: クリーチャーを動かしたり、クリーチャー-活を入れる。左クリック+選択。 [3.2.4]"
+msgid ""
+"Move Only Computer Assistant: Moves and slaps your creatures. LMB select. "
+"[3.2.4]"
+msgstr ""
+"配置のみ補助: クリーチャーを動かしたり、クリーチャーに活を入れる。左クリック"
+"で選択。 [3.2.4]"
 
 #: guitext:733
 msgctxt "In-game interface description"
-msgid "Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "+も経-レベルが高いクリーチャーを選択: 左クリック+クリーチャーをピックアップ。右クリック+表示。 [22.2.1]"
+msgid ""
+"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr ""
+"最も経験レベルが高いクリーチャーを選択: 左クリックでクリーチャーをピックアッ"
+"プ。右クリックで表示。 [22.2.1]"
 
 #: guitext:734
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "待機中|クリーチャーを選択: 左クリック+クリーチャーをピックアップ。右クリック+表示。 [22.2.1]"
+msgstr ""
+"待機中のクリーチャーを選択: 左クリックでクリーチャーをピックアップ。右クリッ"
+"クで表示。 [22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "作業中|クリーチャーを選択: 左クリック+クリーチャーをピックアップ。右クリック+表示。 [22.2.1]"
+msgstr ""
+"作業中のクリーチャーを選択: 左クリックでクリーチャーをピックアップ。右クリッ"
+"クで表示。 [22.2.1]"
 
 #: guitext:736
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "戦闘中|クリーチャーを選択: 左クリック+クリーチャーをピックアップ。右クリック+表示。 [22.2.1]"
+msgstr ""
+"戦闘中のクリーチャーを選択: 左クリックでクリーチャーをピックアップ。右クリッ"
+"クで表示。 [22.2.1]"
 
 #: guitext:737
 msgctxt "In-game interface description"
-msgid "Invert Mouse: Inverts the vertical mouse movements while Possessing a creature. LMB toggle."
-msgstr "マウス反転: クリーチャーを支配中、マウス|上榎|動きを逆-する。左クリック+切り替え。"
+msgid ""
+"Invert Mouse: Inverts the vertical mouse movements while Possessing a "
+"creature. LMB toggle."
+msgstr ""
+"マウス反転: クリーチャーを支配中、マウスの上下の動きを逆にする。左クリックで"
+"切り替え。"
 
 #: guitext:738
 msgctxt "In-game interface description"
-msgid "Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse movements when in Possess Creature mode. LMB toggle."
-msgstr "クリーチャー支配中|マウス+度: クリーチャー支配モード|時|マウス|動き|+度を--する。左クリック+切り替え。"
+msgid ""
+"Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse "
+"movements when in Possess Creature mode. LMB toggle."
+msgstr ""
+"クリーチャー支配中のマウス感度: クリーチャー支配モードの時のマウスの動きの感"
+"度を調節する。左クリックで切り替え。"
 
 #: guitext:739
 msgctxt "In-game interface description"
 msgid "More sensitive."
-msgstr "+度を上-る"
+msgstr "感度を上げる"
 
 #: guitext:740
 msgctxt "In-game interface description"
 msgid "Less sensitive."
-msgstr "+度を榎-る"
+msgstr "感度を下げる"
 
 #: guitext:741
 msgctxt "Statistic name"
 msgid "Number of Creatures"
-msgstr "クリーチャー|数"
+msgstr "クリーチャーの数"
 
 #: guitext:742
 msgctxt "Statistic name"
 msgid "Gold Mined"
-msgstr "手-入れた財宝"
+msgstr "手に入れた財宝"
 
 #: guitext:743
 msgctxt "Statistic name"
@@ -3652,52 +4615,52 @@ msgstr "スタイル"
 #: guitext:748
 msgctxt "Statistic name"
 msgid "Rating"
-msgstr "評岡"
+msgstr "評価"
 
 #: guitext:749
 msgctxt "Statistic name"
 msgid "Creatures Attracted"
-msgstr "仲間-L+たクリーチャー"
+msgstr "仲間になったクリーチャー"
 
 #: guitext:750
 msgctxt "Statistic name"
 msgid "Battles Won"
-msgstr "戦闘-勝+た回数"
+msgstr "戦闘に勝った回数"
 
 #: guitext:751
 msgctxt "Statistic name"
 msgid "Battles Lost"
-msgstr "戦闘-負けた回数"
+msgstr "戦闘に負けた回数"
 
 #: guitext:752
 msgctxt "Statistic name"
 msgid "Times Dungeon Breached"
-msgstr "ダンジョン-侵入-れた回数"
+msgstr "ダンジョンに侵入された回数"
 
 #: guitext:753
 msgctxt "Statistic name"
 msgid "Imps Deployed"
-msgstr "配備-れたインプ"
+msgstr "配備されたインプ"
 
 #: guitext:754
 msgctxt "Statistic name"
 msgid "Creatures Left"
-msgstr "残り|クリーチャー"
+msgstr "残りのクリーチャー"
 
 #: guitext:755
 msgctxt "Statistic name"
 msgid "Doors Destroyed"
-msgstr "破壊-れたドア"
+msgstr "破壊されたドア"
 
 #: guitext:756
 msgctxt "Statistic name"
 msgid "Rooms Destroyed"
-msgstr "破壊-れた部屋"
+msgstr "破壊された部屋"
 
 #: guitext:757
 msgctxt "Statistic name"
 msgid "Dungeon Area"
-msgstr "ダンジョン|翻積"
+msgstr "ダンジョンの面積"
 
 #: guitext:758
 msgctxt "Statistic name"
@@ -3707,67 +4670,67 @@ msgstr "完成した研究"
 #: guitext:759
 msgctxt "Statistic name"
 msgid "Creatures Scavenged"
-msgstr "洗脳-れたクリーチャー"
+msgstr "洗脳されたクリーチャー"
 
 #: guitext:760
 msgctxt "Statistic name"
 msgid "Creatures Summoned"
-msgstr "招集-れたクリーチャー"
+msgstr "招集されたクリーチャー"
 
 #: guitext:761
 msgctxt "Statistic name"
 msgid "Creatures Sacrificed"
-msgstr "生け-え--れたクリーチャー"
+msgstr "生けにえにされたクリーチャー"
 
 #: guitext:762
 msgctxt "Statistic name"
 msgid "Creatures Tortured"
-msgstr "拷問-れたクリーチャー"
+msgstr "拷問されたクリーチャー"
 
 #: guitext:763
 msgctxt "Statistic name"
 msgid "Creatures Trained"
-msgstr "訓練-れたクリーチャー"
+msgstr "訓練されたクリーチャー"
 
 #: guitext:764
 msgctxt "Statistic name"
 msgid "Gold Pots Stolen"
-msgstr "盗-れた財宝"
+msgstr "盗まれた財宝"
 
 #: guitext:765
 msgctxt "Statistic name"
 msgid "Spells Stolen"
-msgstr "盗-れた魔法"
+msgstr "盗まれた魔法"
 
 #: guitext:766
 msgctxt "Statistic name"
 msgid "Traps Manufactured"
-msgstr "征造した罠"
+msgstr "製造した罠"
 
 #: guitext:767
 msgctxt "Statistic name"
 msgid "Traps Unused"
-msgstr "未使用|罠"
+msgstr "未使用の罠"
 
 #: guitext:768
 msgctxt "Statistic name"
 msgid "Doors Manufactured"
-msgstr "征造したドア"
+msgstr "製造したドア"
 
 #: guitext:769
 msgctxt "Statistic name"
 msgid "Doors Unused"
-msgstr "未使用|ドア"
+msgstr "未使用のドア"
 
 #: guitext:770
 msgctxt "Statistic name"
 msgid "Number of Rooms"
-msgstr "部屋|数"
+msgstr "部屋の数"
 
 #: guitext:771
 msgctxt "Statistic name"
 msgid "Number of Portals"
-msgstr "ゲート|数"
+msgstr "ゲートの数"
 
 #: guitext:772
 msgctxt "Statistic name"
@@ -3787,27 +4750,27 @@ msgstr "復活したスケルトン"
 #: guitext:775
 msgctxt "Statistic name"
 msgid "Bridges Built"
-msgstr "建|た+"
+msgstr "建てた橋"
 
 #: guitext:776
 msgctxt "Statistic name"
 msgid "Rock Dug Out"
-msgstr "掘り起-した岩"
+msgstr "掘り起こした岩"
 
 #: guitext:777
 msgctxt "Statistic name"
 msgid "Salary Cost"
-msgstr "給略"
+msgstr "給料"
 
 #: guitext:778
 msgctxt "Statistic name"
 msgid "Flies Eaten By Spiders"
-msgstr "スパイダー-食べられたフライ"
+msgstr "スパイダーに食べられたフライ"
 
 #: guitext:779
 msgctxt "Statistic name"
 msgid "Territory Destroyed"
-msgstr "破壊-れた慾地"
+msgstr "破壊された領地"
 
 #: guitext:780
 msgctxt "Statistic name"
@@ -3827,7 +4790,7 @@ msgstr "殺したキーパー"
 #: guitext:783
 msgctxt "Statistic name"
 msgid "Area Claimed"
-msgstr "占慾-れた慾域"
+msgstr "占領された領域"
 
 #: guitext:784
 msgctxt "Statistic name"
@@ -3837,7 +4800,7 @@ msgstr "裏切られた数"
 #: guitext:785
 msgctxt "Statistic name"
 msgid "Chickens Hatched"
-msgstr "生-れたニワトリ"
+msgstr "生まれたニワトリ"
 
 #: guitext:786
 msgctxt "Statistic name"
@@ -3857,7 +4820,7 @@ msgstr "破られた約束"
 #: guitext:789
 msgctxt "Statistic name"
 msgid "Ghosts Raised"
-msgstr "出|きたゴースト"
+msgstr "出てきたゴースト"
 
 #: guitext:790
 msgctxt "Statistic name"
@@ -3867,297 +4830,339 @@ msgstr "使用したドア"
 #: guitext:791
 msgctxt "Statistic name"
 msgid "Your Creatures Killed By You"
-msgstr "お前が殺した手榎クリーチャー"
+msgstr "お前が殺した手下クリーチャー"
 
 #: guitext:792
 msgctxt "Statistic name"
 msgid "Things Researched"
-msgstr "研究が終慾した物品"
+msgstr "研究が終了した物品"
 
 #: guitext:793
 msgctxt "Statistic name"
 msgid "Last Creature Attracted"
-msgstr "引き寄|られた+新|クリーチャー"
+msgstr "引き寄せられた最新のクリーチャー"
 
 #: guitext:794
 msgctxt "Statistic name"
 msgid "Items Manufactured"
-msgstr "征造したアイテム"
+msgstr "製造したアイテム"
 
 #: guitext:795
 msgctxt "Statistic name"
 msgid "Creatures Converted"
-msgstr "寝返+たクリーチャー"
+msgstr "寝返ったクリーチャー"
 
 #: guitext:796
 msgctxt "Statistic name"
 msgid "Territory Lost"
-msgstr "失+た慾土"
+msgstr "失った領土"
 
 #: guitext:797
 msgctxt "Statistic name"
 msgid "Traps Armed"
-msgstr "設置-れた罠"
+msgstr "設置された罠"
 
 #: guitext:798
 msgctxt "Statistic name"
 msgid "Chickens Wasted"
-msgstr "ムダ-L+たニワトリ"
+msgstr "ムダになったニワトリ"
 
 #: guitext:799
 msgctxt "Statistic name"
 msgid "Lies Told"
-msgstr "５かれた嘘"
+msgstr "つかれた嘘"
 
 #: guitext:800
 msgctxt "Statistic name"
 msgid "Creatures Annoyed"
-msgstr "不機嫌Lクリーチャー"
+msgstr "不機嫌なクリーチャー"
 
 #: guitext:801
 msgctxt "Statistic name"
 msgid "Graveyard Body Count"
-msgstr "墓場|死掃|数"
+msgstr "墓場の死体の数"
 
 #: guitext:802
 msgctxt "Statistic name"
 msgid "Vampires Created"
-msgstr "創造-れたバンパイア"
+msgstr "創造されたバンパイア"
 
 #: guitext:803
 msgctxt "Easter egg"
-msgid "When night does not give way to day, And children are too scared to play, Abandon hope, embrace despair, You're destined for my Dragon's lair"
-msgstr "夜が昼-倒を譲ら|時、子どもらが怖く|遊べ|時、希望を旨|絶望を弓-抱いた時、お前=我がドラゴン|５ぐらへと向かう運命L|だ。"
+msgid ""
+"When night does not give way to day, And children are too scared to play, "
+"Abandon hope, embrace despair, You're destined for my Dragon's lair"
+msgstr ""
+"夜が昼に道を譲らぬ時、子どもらが怖くて遊べぬ時、希望を捨て絶望を胸に抱いた"
+"時、お前は我がドラゴンのねぐらへと向かう運命なのだ。"
 
 #: guitext:804
 msgctxt "Easter egg"
 msgid "If thou art bold and pure of heart, Come down here, be torn apart."
-msgstr "大胆不敵+純粋L心を汝が持５Lら+、--へ来い。"
+msgstr "大胆不敵で純粋な心を汝が持つならば、ここへ来い。"
 
 #: guitext:805
 msgctxt "Easter egg"
 msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
-msgstr "引き裂い|やる。"
+msgstr "引き裂いてやる。"
 
 #: guitext:806
 msgctxt "Easter egg"
 msgid "If you find you lose it all, Why not play Theme Hospital?"
-msgstr "わがダンジョンを歩むがよい。だが、自信-剰=死を招く。"
+msgstr "わがダンジョンを歩むがよい。だが、自信過剰は死を招く。"
 
 #: guitext:807
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
-msgstr "すべ|を失くしたが|時=、"
+msgstr "すべてを失くしたその時は、"
 
 #: guitext:808
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, I think you'll find they're here to stay."
-msgstr "シンジケートウォーズ+遊ぶがよい。"
+msgstr "シンジケートウォーズで遊ぶがよい。"
 
 #: guitext:809
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, Just another working day."
-msgstr "鎧を着けたナイト-=真|勇気が宿+|いる。"
+msgstr "鎧を着けたナイトには真の勇気が宿っている。"
 
 #: guitext:810
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, There really is no better way."
-msgstr "５+を吐きかけい５もL上|早業+串刺し-し|あぶるがよい。"
+msgstr "つばを吐きかけいつも以上の早業で串刺しにしてあぶるがよい。"
 
 #: guitext:811
 msgctxt "Easter egg"
 msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
-msgstr "悪、敵意、死、腐敗。---ある|=がれだけだ。"
+msgstr "悪、敵意、死、腐敗。ここにあるのはそれだけだ。"
 
 #: guitext:812
 msgctxt "Easter egg"
 msgid "The denizens of your domain, Just cannot wait to kill again."
-msgstr "悪、敵意、死、腐敗。今日も一日働-う。"
+msgstr "悪、敵意、死、腐敗。今日も一日働こう。"
 
 #: guitext:813
 msgctxt "Easter egg"
 msgid "The better creatures you employ, The greater carnage you enjoy."
-msgstr "悪、敵意、死、腐敗。より良き倒Lどど--もLい。"
+msgstr "悪、敵意、死、腐敗。より良き道などどこにもない。"
 
 #: guitext:814
 msgctxt "Easter egg"
 msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
-msgstr "ジャイアント、ドワーフ、シーフ、フェアリー。怖-お前らLど怖く=Lい。"
+msgstr "ジャイアント、ドワーフ、シーフ、フェアリー。別にお前らなど怖くはない。"
 
 #: guitext:815
 msgctxt "Easter egg"
 msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
-msgstr "お前|慾地|住民=、殺し|時が待がきれLい。"
+msgstr "お前の領地の住民は、殺しの時が待ちきれない。"
 
 #: guitext:816
 msgctxt "Easter egg"
 msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
-msgstr "よりよいクリーチャーを-うLら、"
+msgstr "よりよいクリーチャーを雇うなら、"
 
 #: guitext:817
 msgctxt "Easter egg"
-msgid "Your tunnels will be dark and cold, And no place for a Knight of old, Even if he claims he's bold."
-msgstr "より派手L虐殺が楽し-よう。"
+msgid ""
+"Your tunnels will be dark and cold, And no place for a Knight of old, Even "
+"if he claims he's bold."
+msgstr "より派手な虐殺が楽しめよう。"
 
 #: guitext:818
 msgctxt "Easter egg"
 msgid "The fools who enter your domain, Will never see the light again."
-msgstr "-あ行け！ アバタール=おら|。"
+msgstr "さあ行け！ アバタールはおらぬ。"
 
 #: guitext:819
 msgctxt "Easter egg"
 msgid "Pain and anguish are your tools, To use upon intruding fools."
-msgstr "ロード=-怖-お||い|いる-。"
+msgstr "ロードは恐怖におののいているぞ。"
 
 #: guitext:820
 msgctxt "Easter egg"
-msgid "When good guys head right for your treasure, Hunt and kill them at your leisure."
-msgstr "侵入者ども=+びる+あろう、お前|ダンジョン|拷問旨+。"
+msgid ""
+"When good guys head right for your treasure, Hunt and kill them at your "
+"leisure."
+msgstr "侵入者どもは滅びるであろう、お前のダンジョンの拷問室で。"
 
 #: guitext:821
 msgctxt "Easter egg"
-msgid "Protect your gold and Dungeon Heart, And slap your minions till they fart."
-msgstr "たとえ心=純粋+も、侵入者ども=息絶える、"
+msgid ""
+"Protect your gold and Dungeon Heart, And slap your minions till they fart."
+msgstr "たとえ心は純粋でも、侵入者どもは息絶える、"
 
 #: guitext:822
 msgctxt "Easter egg"
 msgid "Use your creatures' fear of you. To make them do what you want them to."
-msgstr "お前|ダンジョン|土|上+。"
+msgstr "お前のダンジョンの土の上で。"
 
 #: guitext:823
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
-msgstr "お前|ダンジョン=+く冷たく、老ナイト|いるようL"
+msgstr "お前のダンジョンは暗く冷たく、老ナイトのいるような"
 
 #: guitext:824
 msgctxt "Easter egg"
 msgid "When your creatures give you hell, Stick them in your Prison Cell."
-msgstr "場所+=Lい。いか-大胆不敵を自楯し|いようとも。"
+msgstr "場所ではない。いかに大胆不敵を自称していようとも。"
 
 #: guitext:825
 msgctxt "Easter egg"
 msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
-msgstr "愚か-もお前|慾地-入+た者=、二度と光を見|+あろう。"
+msgstr "愚かにもお前の領地に入った者は、二度と光を見ぬであろう。"
 
 #: guitext:826
 msgctxt "Easter egg"
 msgid "You are the Keeper, chosen one, And being evil is great fun."
-msgstr "苦-と苦悩がお前|倒具。愚かL侵入者-使うがよい。"
+msgstr "苦痛と苦悩がお前の道具。愚かな侵入者に使うがよい。"
 
 #: guitext:827
 msgctxt "Easter egg"
 msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
-msgstr "善人がお前|宝を狙+たら、楽しみLがら狩り立|殺|。"
+msgstr "善人がお前の宝を狙ったら、楽しみながら狩り立て殺せ。"
 
 #: guitext:828
 msgctxt "Easter egg"
 msgid "Fill the Avatar with dread. Really make him wet the bed."
-msgstr "財宝とダンジョンハートを守り-け。がし|手榎-活を入れよ、"
+msgstr "財宝とダンジョンハートを守り抜け。そして手下に活を入れよ、"
 
 #: guitext:829
 msgctxt "In-game hint message"
-msgid "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to circulate."
-msgstr "奴らが思わず屁を-く-+。"
+msgid ""
+"Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
+"circulate."
+msgstr "奴らが思わず屁をこくまで。"
 
 #: guitext:830
 msgctxt "In-game hint message"
-msgid "Feeling mean? Set your minions to imprison and when your cells are full, spend some time torturing..."
-msgstr "お前へ|手榎|-怖を利用|よ。望み竹り-奴らを動か|。"
+msgid ""
+"Feeling mean? Set your minions to imprison and when your cells are full, "
+"spend some time torturing..."
+msgstr "お前への手下の恐怖を利用せよ。望み通りに奴らを動かせ。"
 
 #: guitext:831
 msgctxt "In-game hint message"
-msgid "If your creatures get unhappy, slap some sense into them. They'll soon realise how lucky they are."
-msgstr "手榎|ウィザード=不愉快か？ 罠+手早く片付け|し-え。"
+msgid ""
+"If your creatures get unhappy, slap some sense into them. They'll soon "
+"realise how lucky they are."
+msgstr "手下のウィザードは不愉快か？ 罠で手早く片付けてしまえ。"
 
 #: guitext:832
 msgctxt "In-game hint message"
-msgid "The underworld is your domain and the adventurers come to steal it. Never show pity, even when the intruders are defenceless and pathetic."
-msgstr "手榎が悩み|種Lら+、奴らを牢-謬じ込-ろ。"
+msgid ""
+"The underworld is your domain and the adventurers come to steal it. Never "
+"show pity, even when the intruders are defenceless and pathetic."
+msgstr "手下が悩みの種ならば、奴らを牢に閉じ込めろ。"
 
 #: guitext:833
 msgctxt "In-game hint message"
-msgid "Compassion is the hallmark of the good Keeper. But good Keepers never win. Only evil ones."
-msgstr "拷問=、ダンジョンキーパー物語-おける-上|栄誉Lり。"
+msgid ""
+"Compassion is the hallmark of the good Keeper. But good Keepers never win. "
+"Only evil ones."
+msgstr "拷問は、ダンジョンキーパー物語における無上の栄誉なり。"
 
 #: guitext:834
 msgctxt "In-game hint message"
-msgid "There's never a moment to waste. Already the bravest of the brave are queuing up to enter your dungeon. So stop reading this and get going."
-msgstr "お前-がが選+れしキーパー。悪|倒=大いLる楽しみ。"
+msgid ""
+"There's never a moment to waste. Already the bravest of the brave are "
+"queuing up to enter your dungeon. So stop reading this and get going."
+msgstr "お前こそが選ばれしキーパー。悪の道は大いなる楽しみ。"
 
 #: guitext:835
 msgctxt "In-game hint message"
-msgid "Build fast. You'll want the biggest possible welcoming committee ready for the intruders."
-msgstr "軍隊がハンガーストライキをする時=、"
+msgid ""
+"Build fast. You'll want the biggest possible welcoming committee ready for "
+"the intruders."
+msgstr "軍隊がハンガーストライキをする時は、"
 
 #: guitext:836
 msgctxt "In-game hint message"
-msgid "Keep your Imps digging. There are always surprises to be found deep in the earth."
+msgid ""
+"Keep your Imps digging. There are always surprises to be found deep in the "
+"earth."
 msgstr "ニワトリ小屋があふれる。"
 
 #: guitext:837
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr "アバタール|心を-怖+満たし|やれ。"
+msgstr "アバタールの心を恐怖で満たしてやれ。"
 
 #: guitext:838
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
-msgstr "思わずズボンを濡らす-ど。"
+msgstr "思わずズボンを濡らすほど。"
 
 #: guitext:839
 msgctxt "In-game hint message"
-msgid "Foolish is the Keeper who sells all his rooms and refuses to pay his creatures."
-msgstr "インプ=お前|ダンジョン|命|芸Lり。がれ=血|-とく、循概し|いる-違いLい。"
+msgid ""
+"Foolish is the Keeper who sells all his rooms and refuses to pay his "
+"creatures."
+msgstr ""
+"インプはお前のダンジョンの命の源なり。それは血のごとく、循環しているに違いな"
+"い。"
 
 #: guitext:840-0
 msgid "unknown0"
-msgstr "気分が悪い？ 手榎どもを投獄するがよい。牢が満員|時=、し+らく拷問し|--|。"
+msgstr ""
+"気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ご"
+"せ。"
 
 #: guitext:840-1
 msgid "unknown1"
-msgstr "手榎クリーチャーが不幸を+じ|いたら、活を入れ|やれ。じき-連中=自分たが|幸運-気+く+あろう。"
+msgstr ""
+"手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの"
+"幸運に気づくであろう。"
 
 #: guitext:840-2
 msgid "unknown2"
-msgstr "お前|慾地たる地底世界を、冒険者ども=奪い-や+|くる。決し|同情するL、たとえ侵入者どもが身を守る=もLく哀れを誘おうとも。"
+msgstr ""
+"お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、た"
+"とえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
 
 #: guitext:840-3
 msgid "unknown3"
-msgstr "哀れみ=良きキーパー|証明Lり。しかし良きキーパーが勝利する-と=Lい。勝利する-=邪悪+あら５+。"
+msgstr ""
+"哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利"
+"するには邪悪であらねば。"
 
 #: guitext:840-4
 msgid "unknown4"
-msgstr "一瞬たりとも-掃-=+き|。す+-勇者|中|勇者がお前|ダンジョンへ入ろうと列をLし|いる。-んLも|を読ん+いLい+、早く行け。"
+msgstr ""
+"一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと"
+"列をなしている。こんなものを読んでいないで、早く行け。"
 
 #: guitext:840-5
 msgid "unknown5"
-msgstr "建築を急-。+きるだけ大きL歓迎委員会を組織し|、侵入者どもを迎えたい+あろう？"
+msgstr ""
+"建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろ"
+"う？"
 
 #: guitext:840-6
 msgid "unknown6"
-msgstr "インプ-掘り-け-|ろ。地中|奥深く+=、え|し|+くようLも|が見５かる。"
+msgstr ""
+"インプに掘り続けさせろ。地中の奥深くでは、えてして驚くようなものが見つかる。"
 
 #: guitext:840-7
 msgid "unknown7"
-msgstr "+も多く|財宝を支配する者が、地底世界全掃を支配する。"
+msgstr "最も多くの財宝を支配する者が、地底世界全体を支配する。"
 
 #: guitext:840-8
 msgid "unknown8"
-msgstr "-怖と-慈-が、お前|+大|武器だ。賢く使え。"
+msgstr "恐怖と無慈悲が、お前の最大の武器だ。賢く使え。"
 
 #: guitext:840-9
 msgid "unknown9"
-msgstr "部屋を売り払い手榎クリーチャー-給略を払わLいキーパー=愚かだ。"
+msgstr "部屋を売り払い手下クリーチャーに給料を払わないキーパーは愚かだ。"
 
 #: guitext:840
 msgctxt "Menu interface item"
 msgid "Return to options menu"
-msgstr "オプションメニュー--る"
+msgstr "オプションメニューに戻る"
 
 #: guitext:841
 msgctxt "Menu interface item"
 msgid "Exit"
-msgstr "終慾"
+msgstr "終了"
 
 #: guitext:842
 msgctxt "Menu interface item"
@@ -4172,7 +5177,7 @@ msgstr "マウス反転"
 #: guitext:844
 msgctxt "Menu interface item"
 msgid "Mouse Sensitivity"
-msgstr "マウス+度"
+msgstr "マウス感度"
 
 #: guitext:845
 msgctxt "Menu interface item"
@@ -4197,7 +5202,7 @@ msgstr "オフ"
 #: guitext:849
 msgctxt "Menu interface item"
 msgid "Sensitivity"
-msgstr "+度"
+msgstr "感度"
 
 #: guitext:850
 msgctxt "Menu interface item"
@@ -4212,7 +5217,7 @@ msgstr "マウス"
 #: guitext:852
 msgctxt "Menu interface item"
 msgid "Undo Pickup"
-msgstr "ピックアップ取り+し"
+msgstr "ピックアップ取り消し"
 
 #: guitext:853
 msgctxt "Menu interface item"
@@ -4237,7 +5242,7 @@ msgstr "Unable To Change Screen Resolution"
 #: guitext:857
 msgctxt "Menu interface item"
 msgid "Query"
-msgstr "-査"
+msgstr "調査"
 
 #: guitext:858
 msgctxt "Credits"
@@ -4266,7 +5271,6 @@ msgstr "Finance"
 
 #: guitext:864
 msgctxt "Credits"
-msgctxt "Credits"
 msgid "Localisation Management"
 msgstr "Localisation Management"
 
@@ -4288,12 +5292,12 @@ msgstr "Localisation Audio Management"
 #: guitext:868
 msgctxt "Network game message"
 msgid "Attempting To Join"
-msgstr "参+する"
+msgstr "参加する"
 
 #: guitext:869
 msgctxt "Network game message"
 msgid "Resyncing"
-msgstr "鋼同期中"
+msgstr "再同期中"
 
 #: guitext:870
 msgctxt "Menu interface item"
@@ -4393,7 +5397,7 @@ msgstr "新しいレベル"
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Please insert Data Disk CD-ROM"
-msgstr "データディスクＣＤを入れ|榎-い。"
+msgstr "データディスクＣＤを入れて下さい。"
 
 #: guitext:890
 msgctxt "Menu interface message"
@@ -4403,229 +5407,403 @@ msgstr "ダンジョンキーパーＣＤを入れ|榎-い。"
 #: guitext:891
 msgctxt "Menu interface message"
 msgid "Please insert The Deeper Dungeons CD-ROM"
-msgstr "ディーパーダンジョンＣＤを入れ|榎-い。"
+msgstr "ディーパーダンジョンＣＤを入れて下さい。"
 
 #: guitext:892
 msgctxt "In-game message"
-msgid "The might of two rival Dungeon Keepers challenge your claim to this realm. Decimate them both to achieve total domination, but beware of bands of heroes hidden in the caverns."
-msgstr "-|王国を獲得|んとするお-え|前-、相+する２人|ダンジョンキーパー|勢=が立が=だか+|いる。完全L制覇|た--、--映る敵|全|を抹殺|よ。+窟-潜む勇者|集団-も気を５けろ。"
+msgid ""
+"The might of two rival Dungeon Keepers challenge your claim to this realm. "
+"Decimate them both to achieve total domination, but beware of bands of "
+"heroes hidden in the caverns."
+msgstr ""
+"この王国を獲得せんとするおまえの前に、相対する２人のダンジョンキーパーの勢力"
+"が立ちはだかっている。完全な制覇のために、目に映る敵の全てを抹殺せよ。洞窟に"
+"潜む勇者の集団にも気をつけろ。"
 
 #: guitext:893
 msgctxt "In-game message"
-msgid "Another Keeper has already claimed this realm. He is unfit to rule so destroy him and take what is rightfully yours. Great riches lie in the caverns around the land; explore to gain more power."
-msgstr "-|王国=す+--|キーパー-よ+|支配-れ|いる。支配者を+が砕き、-|地|あらゆる資芸を奪え。周=|+窟-=巨万|富が-+|いる。更Lる=を得るた--探索|よ。"
+msgid ""
+"Another Keeper has already claimed this realm. He is unfit to rule so "
+"destroy him and take what is rightfully yours. Great riches lie in the "
+"caverns around the land; explore to gain more power."
+msgstr ""
+"この王国はすでに他のキーパーによって支配されている。支配者を打ち砕き、この地"
+"のあらゆる資源を奪え。周囲の洞窟には巨万の富が眠っている。更なる力を得るため"
+"に探索せよ。"
 
 #: guitext:894
 msgctxt "In-game message"
-msgid "This land is highly coveted amongst the evil and there are three enemy Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for any rogue bands of heroes waiting to ambush a careless Keeper."
-msgstr "-|ダンジョンを制覇するた--=、３人|ダンジョンキーパーを倒-Lけれ+LらLい。キーパーを待が伏|攻撃し|くる冒険者ども-も気を付けろ。"
+msgid ""
+"This land is highly coveted amongst the evil and there are three enemy "
+"Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
+"any rogue bands of heroes waiting to ambush a careless Keeper."
+msgstr ""
+"このダンジョンを制覇するためには、３人のダンジョンキーパーを倒さなければなら"
+"ない。キーパーを待ち伏せ攻撃してくる冒険者どもにも気を付けろ。"
 
 #: guitext:895
 msgctxt "In-game message"
-msgid "The Lord of the Land and his pitiful band of followers lie dead. Good riddance to them and their sad, happy lives. Now seize your chance and attack your rival Keeper. Domination awaits."
-msgstr "-|土地|王とが|従者|一団=死ん+横たわ+|いる。彼ら|が|-しくも幸|L人生-+する厄介払い+ある。今-がチャンスを５かみ敵キーパーを攻撃|よ。制覇が待+|いる-。"
+msgid ""
+"The Lord of the Land and his pitiful band of followers lie dead. Good "
+"riddance to them and their sad, happy lives. Now seize your chance and "
+"attack your rival Keeper. Domination awaits."
+msgstr ""
+"この土地の王とその従者の一団は死んで横たわっている。彼らのその悲しくも幸せな"
+"人生に対する厄介払いである。今こそチャンスをつかみ敵キーパーを攻撃せよ。制覇"
+"が待っているぞ。"
 
 #: guitext:896
 msgctxt "In-game message"
-msgid "You and a rival Dungeon Keeper are vying for control of this realm but the Lord of the Land has constructed his own dungeon between you to halt your conquest. Destroy him and the enemy Keeper to reign supreme."
-msgstr "お-え|--も-|王国を狙+|いる敵キーパーがいる。しかも都合|悪い-と-、-|地|ロード=外敵|征服を阻む強大Lダンジョンをす+-建築し|いる。ロードと敵キーパーを倒し覇権を手-入れよ。"
+msgid ""
+"You and a rival Dungeon Keeper are vying for control of this realm but the "
+"Lord of the Land has constructed his own dungeon between you to halt your "
+"conquest. Destroy him and the enemy Keeper to reign supreme."
+msgstr ""
+"おまえの他にもこの王国を狙っている敵キーパーがいる。しかも都合の悪いことに、"
+"この地のロードは外敵の征服を阻む強大なダンジョンをすでに建築している。ロード"
+"と敵キーパーを倒し覇権を手に入れよ。"
 
 #: guitext:897
 msgctxt "In-game message"
-msgid "You have done well to come this far but further hardships await. Search the map carefully and you may find many secrets to aid your conquest."
-msgstr "---+随分頑張+|きたが、更Lる困難が待が受け|いる。注意深く王国を探索|よ。征服へ|秘密を発見+きるかもしれLい。"
+msgid ""
+"You have done well to come this far but further hardships await. Search the "
+"map carefully and you may find many secrets to aid your conquest."
+msgstr ""
+"ここまで随分頑張ってきたが、更なる困難が待ち受けている。注意深く王国を探索せ"
+"よ。征服への秘密を発見できるかもしれない。"
 
 #: guitext:898
 msgctxt "In-game message"
-msgid "You have come to this realm with little to assist you so you must explore to gain more power. Keep an eye out for any loathsome heroes who may try to thwart your progress."
-msgstr "=を得るた--も、更Lる=を探索|５+Lら|。お-え|行く手を妨-る-悪勇者ども-=気を５けろ。"
+msgid ""
+"You have come to this realm with little to assist you so you must explore to "
+"gain more power. Keep an eye out for any loathsome heroes who may try to "
+"thwart your progress."
+msgstr ""
+"力を得るためにも、更なる力を探索せねばならぬ。おまえの行く手を妨げる極悪勇者"
+"どもには気をつけろ。"
 
 #: guitext:899
 msgctxt "In-game message"
-msgid "Beware Keeper. This realm is infested with the sickly goodness of heroes and fairies. Hunt them down and feed them their own entrails."
-msgstr "-|王国=メソメソした弱い勇者どもと妖精-汚染-れ|いる。奴ら|ハラワタをひきずり出し、がれを口-典+込ん+やれ。"
+msgid ""
+"Beware Keeper. This realm is infested with the sickly goodness of heroes and "
+"fairies. Hunt them down and feed them their own entrails."
+msgstr ""
+"この王国はメソメソした弱い勇者どもと妖精に汚染されている。奴らのハラワタをひ"
+"きずり出し、それを口に突っ込んでやれ。"
 
 #: guitext:900
 msgctxt "In-game message"
-msgid "Your opponent for this realm has foolishly challenged your superior skill. Such disrespect should be punished so make an example of his insolence."
-msgstr "-|王国-=、=|差もわき-えず、愚か-もお-え-挑ん+くる敵キーパーがいる。が|ようL不敬L輩=見|し-とし|-|られるべき+ある。"
+msgid ""
+"Your opponent for this realm has foolishly challenged your superior skill. "
+"Such disrespect should be punished so make an example of his insolence."
+msgstr ""
+"この王国には、力の差もわきまえず、愚かにもおまえに挑んでくる敵キーパーがい"
+"る。そのような不敬な輩は見せしめとして罰せられるべきである。"
 
 #: guitext:901
 msgctxt "In-game message"
-msgid "Ancient powers lie hidden in this realm. Seek them out and use them for your own evil purposes."
-msgstr "-|王国-=+代|=が潜ん+いる。がれを探し出し、悪|-的|た--利用する|だ。"
+msgid ""
+"Ancient powers lie hidden in this realm. Seek them out and use them for your "
+"own evil purposes."
+msgstr ""
+"この王国には古代の力が潜んでいる。それを探し出し、悪の目的のために利用するの"
+"だ。"
 
 #: guitext:902
 msgctxt "In-game message"
-msgid "A foolish challenger stands between you and total dominance. Annihilate his forces and feed his body to your ravenous minions."
-msgstr "完全制覇|前-愚かL挑戦者が立が=だか+|いる。奴|軍を全+-|、が|掃をお-え|飢えた手榎-食わ||やれ。"
+msgid ""
+"A foolish challenger stands between you and total dominance. Annihilate his "
+"forces and feed his body to your ravenous minions."
+msgstr ""
+"完全制覇の前に愚かな挑戦者が立ちはだかっている。奴の軍を全滅させ、その体をお"
+"まえの飢えた手下に食わせてやれ。"
 
 #: guitext:903
 msgctxt "In-game message"
-msgid "I can hear footsteps beyond the walls of the hero castle which dominates this land. Tread carefully Keeper and rid the land of goodness once and for all."
-msgstr "-|土地を支配する勇者|城|壁|向-うから足榎が聞-える。一歩一歩勇者どもを踏み５け、善良L心を-|土地から根-がぎ拭い去+|し-え。"
+msgid ""
+"I can hear footsteps beyond the walls of the hero castle which dominates "
+"this land. Tread carefully Keeper and rid the land of goodness once and for "
+"all."
+msgstr ""
+"この土地を支配する勇者の城の壁の向こうから足音が聞こえる。一歩一歩勇者どもを"
+"踏みつけ、善良な心をこの土地から根こそぎ拭い去ってしまえ。"
 
 #: guitext:904
 msgctxt "In-game message"
-msgid "The once strong hero fortress of this realm has grown rotten and weak. Tear down it's walls and let your creatures feast on the heroes within."
-msgstr "-|王国|勇者|要塞=、か５|強大+あ+た。だが今=朽が榎|弱+|いる。-あ、-|チャンス-壁を+が砕き、中|勇者ども-お-え|クリーチャーをくれ|やれ。"
+msgid ""
+"The once strong hero fortress of this realm has grown rotten and weak. Tear "
+"down it's walls and let your creatures feast on the heroes within."
+msgstr ""
+"この王国の勇者の要塞は、かつて強大であった。だが今は朽ち果て弱っている。さ"
+"あ、このチャンスに壁を打ち砕き、中の勇者どもにおまえのクリーチャーをくれてや"
+"れ。"
 
 #: guitext:905
 msgctxt "In-game message"
-msgid "This realm will be a test of your cunning and deviousness. Your dungeon has been fortified with seven steel doors to aid you in your conquest."
-msgstr "-|王国=お-え|ずるがし--と残虐-を試すも|とLりがうだ。７枚|鉄|ドア+防御を+-たダンジョンがお-え|征服を助ける+あろう。"
+msgid ""
+"This realm will be a test of your cunning and deviousness. Your dungeon has "
+"been fortified with seven steel doors to aid you in your conquest."
+msgstr ""
+"この王国はおまえのずるがしこさと残虐さを試すものとなりそうだ。７枚の鉄のドア"
+"で防御を固めたダンジョンがおまえの征服を助けるであろう。"
 
 #: guitext:906
 msgctxt "In-game message"
-msgid "Congratulations Keeper. This vial has given your researchers a much needed boost. You can now construct Bridges that enable you to traverse water and fire."
-msgstr "キーパーよ、お-+とう。-|水薬|入+た瓶=、お-え|研究員ら-と+|大きL助=とLる+あろう。-れ+水と+を渡れる+を建|る-とが+きる。"
+msgid ""
+"Congratulations Keeper. This vial has given your researchers a much needed "
+"boost. You can now construct Bridges that enable you to traverse water and "
+"fire."
+msgstr ""
+"キーパーよ、おめでとう。この水薬の入った瓶は、おまえの研究員らにとって大きな"
+"助力となるであろう。これで水と火を渡れる橋を建てることができる。"
 
 #: guitext:907
 msgctxt "In-game message"
-msgid "Food is scarce in this land and the only Hatchery available to you is inside a hero dungeon. Find this food before your creatures turn against you."
-msgstr "-|土地=食略-乏しく、ニワトリ小屋=勇者|ダンジョン|中-しかLい。クリーチャーどもが反逆をお-す前-ニワトリ小屋を占慾|よ。"
+msgid ""
+"Food is scarce in this land and the only Hatchery available to you is inside "
+"a hero dungeon. Find this food before your creatures turn against you."
+msgstr ""
+"この土地は食料に乏しく、ニワトリ小屋は勇者のダンジョンの中にしかない。クリー"
+"チャーどもが反逆をおこす前にニワトリ小屋を占領せよ。"
 
 #: guitext:908
 msgctxt "In-game message"
-msgid "Entombed in stone by a cruel band of heroes, the Vampire you have rescued demands revenge for his imprisonment. His anger will make him a valuable asset to your army of evil."
-msgstr "残忍L勇者|集団-よ+|+|墓へ謬じ--られたバンパイアを救い出した。奴=勇者どもへ|復讐-燃え|いる。奴|怒り=お-え|悪|=-大い-助けとLる+あろう。"
+msgid ""
+"Entombed in stone by a cruel band of heroes, the Vampire you have rescued "
+"demands revenge for his imprisonment. His anger will make him a valuable "
+"asset to your army of evil."
+msgstr ""
+"残忍な勇者の集団によって石の墓へ閉じこめられたバンパイアを救い出した。奴は勇"
+"者どもへの復讐に燃えている。奴の怒りはおまえの悪の力に大いに助けとなるであろ"
+"う。"
 
 #: guitext:909
 msgctxt "In-game message"
-msgid "You are surrounded on all sides by valiant heroes so show them the true meaning of evil and terror."
-msgstr "榎敢L勇者ども--わり全|を=-れ|いる。奴ら-悪と-怖|本当|意味を思い知ら||やれ。"
+msgid ""
+"You are surrounded on all sides by valiant heroes so show them the true "
+"meaning of evil and terror."
+msgstr ""
+"果敢な勇者どもにまわり全てを囲まれている。奴らに悪と恐怖の本当の意味を思い知"
+"らせてやれ。"
 
 #: guitext:910
 msgctxt "In-game message"
-msgid "The Lord of the Land has sent his fiercest warriors against you. Show them no mercy and flay them alive."
-msgstr "-|土地|ロード=も+とも残忍L怖士を送り込ん+きた。容=Lくがい５らを-殺し-しろ。"
+msgid ""
+"The Lord of the Land has sent his fiercest warriors against you. Show them "
+"no mercy and flay them alive."
+msgstr ""
+"この土地のロードはもっとも残忍な兵士を送り込んできた。容赦なくそいつらを半殺"
+"しにしろ。"
 
 #: guitext:911
 msgctxt "In-game message"
-msgid "Explore this realm to uncover riches and secrets. Tread carefully Keeper, or you could be burned."
-msgstr "-|王国を探索し、富と秘密を探し出|。注意深く全||敵をたたき５ぶ|。-もLいと自分が楯かれ|し-う-。"
+msgid ""
+"Explore this realm to uncover riches and secrets. Tread carefully Keeper, or "
+"you could be burned."
+msgstr ""
+"この王国を探索し、富と秘密を探し出せ。注意深く全ての敵をたたきつぶせ。さもな"
+"いと自分が焼かれてしまうぞ。"
 
 #: guitext:912
 msgctxt "In-game message"
-msgid "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a humiliating defeat Keeper, the penalty for such failure is torture and death."
-msgstr "-|土地を統治+きる|=ただ一人、勝が残+たダンジョンキーパーだけだ。負け犬|キーパー-=LるL。が|ようL失敗|ツケ=拷問と死だ。"
+msgid ""
+"Only one Dungeon Keeper can reign victorious over this land. Do not suffer a "
+"humiliating defeat Keeper, the penalty for such failure is torture and death."
+msgstr ""
+"この土地を統治できるのはただ一人、勝ち残ったダンジョンキーパーだけだ。負け犬"
+"のキーパーにはなるな。そのような失敗のツケは拷問と死だ。"
 
 #: guitext:913
 msgctxt "In-game message"
-msgid "Choices, choices Keeper. Choose your path wisely. Some routes are more perilous than others ..."
-msgstr "選択|よ、キーパーよ。自ら|倒を賢く選べ。いく５か|経路=-|経路より危険+ある・・・・"
+msgid ""
+"Choices, choices Keeper. Choose your path wisely. Some routes are more "
+"perilous than others ..."
+msgstr ""
+"選択せよ、キーパーよ。自らの道を賢く選べ。いくつかの経路は他の経路より危険で"
+"ある・・・・"
 
 #: guitext:914
 msgctxt "In-game message"
-msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the north ..."
-msgstr "素-らしい。-+たく=強い軍隊だ。しかし、あ-り自鍬満足-陥るL。北--だ一人挑戦者がいる。"
+msgid ""
+"Congratulations Keeper, you have a powerful army indeed. Do not grow "
+"complacent though, you still have another challenger to the north ..."
+msgstr ""
+"素晴らしい。まったく力強い軍隊だ。しかし、あまり自己満足に陥るな。北にまだ一"
+"人挑戦者がいる。"
 
 #: guitext:915
 msgctxt "In-game message"
-msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the south ..."
-msgstr "素-らしい。-+たく=強い軍隊だ。しかし、あ-り自鍬満足-陥るL。南--だ一人挑戦者がいる。"
+msgid ""
+"Congratulations Keeper, you have a powerful army indeed. Do not grow "
+"complacent though, you still have another challenger to the south ..."
+msgstr ""
+"素晴らしい。まったく力強い軍隊だ。しかし、あまり自己満足に陥るな。南にまだ一"
+"人挑戦者がいる。"
 
 #: guitext:916
 msgctxt "In-game message"
-msgid "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and then destroy the rival Keeper to achieve total domination."
-msgstr "-|土地|ロード=ウサギを欝愛が+|いるようL女々しい奴だ。ロードを地翻-叩き５け、完全制覇|た--敵キーパーを倒|。"
+msgid ""
+"The Lord of the Land is a pathetic individual who breeds fluffy bunnies. "
+"Pound him into the ground and then destroy the rival Keeper to achieve total "
+"domination."
+msgstr ""
+"この土地のロードはウサギを可愛がっているような女々しい奴だ。ロードを地面に叩"
+"きつけ、完全制覇のために敵キーパーを倒せ。"
 
 #: guitext:917
 msgctxt "In-game message"
-msgid "Make haste Keeper. The heroes of this realm are many and strong. Prepare your forces well or face a humiliating defeat ..."
-msgstr "急-！キーパー。-|王国|勇者ども=数も多く強=+ある。十分-軍を準備|よ。-もLく+、ぶ+-L敗北が待+|いる+あろう。"
+msgid ""
+"Make haste Keeper. The heroes of this realm are many and strong. Prepare "
+"your forces well or face a humiliating defeat ..."
+msgstr ""
+"急げ！キーパー。この王国の勇者どもは数も多く強力である。十分に軍を準備せよ。"
+"さもなくば、ぶざまな敗北が待っているであろう。"
 
 #: guitext:918
 msgctxt "In-game message"
-msgid "The Avatar is a wretched being, full of happiness and good cheer. Food is scarce in his land and the only Hatchery available is inside his dungeons. Destroy his mighty fortress and wipe the smile from his face before your creatures turn against you."
-msgstr "アバタール=幸福|絶頂+朗らかL気分-浸り、ひどく惨-+ある。奴|土地|食略=乏しく、使えるニワトリ小屋=奴|ダンジョン|中-|みある。クリーチャーが反逆する前-、-|強=L要塞を破壊し、奴|顔から+いを剥ぎとる|だ。"
+msgid ""
+"The Avatar is a wretched being, full of happiness and good cheer. Food is "
+"scarce in his land and the only Hatchery available is inside his dungeons. "
+"Destroy his mighty fortress and wipe the smile from his face before your "
+"creatures turn against you."
+msgstr ""
+"アバタールは幸福の絶頂で朗らかな気分に浸り、ひどく惨めである。奴の土地の食料"
+"は乏しく、使えるニワトリ小屋は奴のダンジョンの中にのみある。クリーチャーが反"
+"逆する前に、この強力な要塞を破壊し、奴の顔から笑いを剥ぎとるのだ。"
 
 #: guitext:919
 msgctxt "In-game message"
-msgid "The Avatar has massed an army of heroic Lords to confront you. Prepare to be attacked!"
-msgstr "アバタール=お-え-歯向かうた-、優秀Lロード|軍隊を結集した。攻撃-注意|よ。"
+msgid ""
+"The Avatar has massed an army of heroic Lords to confront you. Prepare to be "
+"attacked!"
+msgstr ""
+"アバタールはおまえに歯向かうため、優秀なロードの軍隊を結集した。攻撃に注意せ"
+"よ。"
 
 #: guitext:920
 msgctxt "In-game message"
 msgid "Decimate this outpost and send fear into the heart of the Avatar."
-msgstr "-|前哨部隊を全+-|、アバタール|心--怖を与え|やれ。"
+msgstr "この前哨部隊を全滅させ、アバタールの心に恐怖を与えてやれ。"
 
 #: guitext:921
 msgctxt "In-game message"
-msgid "The Avatar's castle is ripe for the taking. Train your forces well, Keeper. The ultimate battle awaits ..."
-msgstr "アバタール|城を攻-る時がきた。キーパーよ、クリーチャーども|訓練を怠るL。究-|戦いが待+|いる・・・・"
+msgid ""
+"The Avatar's castle is ripe for the taking. Train your forces well, Keeper. "
+"The ultimate battle awaits ..."
+msgstr ""
+"アバタールの城を攻める時がきた。キーパーよ、クリーチャーどもの訓練を怠るな。"
+"究極の戦いが待っている・・・・"
 
 #: guitext:922
 msgctxt "In-game message"
-msgid "You are now in the heart of the Avatar's castle. The sickly sweet smell of goodness still hangs in the air. Kill the Avatar and send his soul to eternal damnation."
-msgstr "お-え=今、アバタール|城|心臓部-いる。---=、気味|悪い+い善意|匂いが漂+|いる。アバタールを殺し、永遠-地獄へ送り込-。"
+msgid ""
+"You are now in the heart of the Avatar's castle. The sickly sweet smell of "
+"goodness still hangs in the air. Kill the Avatar and send his soul to "
+"eternal damnation."
+msgstr ""
+"おまえは今、アバタールの城の心臓部にいる。ここには、気味の悪い甘い善意の匂い"
+"が漂っている。アバタールを殺し、永遠に地獄へ送り込め。"
 
 #: guitext:923
 msgctxt "In-game message"
-msgid "Well done, Keeper. The Mistress you have discovered is an excellent prize."
-msgstr "よくや+た！キーパー。発見したダークミストレス=素-らしく役-立５だろう。"
+msgid ""
+"Well done, Keeper. The Mistress you have discovered is an excellent prize."
+msgstr ""
+"よくやった！キーパー。発見したダークミストレスは素晴らしく役に立つだろう。"
 
 #: guitext:924
 msgctxt "In-game message"
-msgid "The Bile Demon you have rescued will be a valuable but hungry asset to your dungeon. Make sure your Hatchery can satisfy his voracious appetite."
-msgstr "か５|助けたバイル・デーモン=役-立５が、お-え|ダンジョンを狙+|もいる。奴|æ+欲を常-満たすよう注意しろ。"
+msgid ""
+"The Bile Demon you have rescued will be a valuable but hungry asset to your "
+"dungeon. Make sure your Hatchery can satisfy his voracious appetite."
+msgstr ""
+" かつて助けたバイル・デーモンは役に立つが、おまえのダンジョンを狙ってもいる。"
+"奴の貪欲を常に満たすよう注意しろ。"
 
 #: guitext:925
 msgctxt "In-game message"
-msgid "A devious Wizard has cheated you of your magical powers. Use your only Spider and explore the realm. Find the Wizard, kill him and make an example of his foolishness."
-msgstr "よ-し-L魔法使いが、魔法-よ+|お前を欺いた。スパイダーを使い王国を探索|よ。魔法使いを探し出し、愚か-|見|し-とし|殺|。"
+msgid ""
+"A devious Wizard has cheated you of your magical powers. Use your only "
+"Spider and explore the realm. Find the Wizard, kill him and make an example "
+"of his foolishness."
+msgstr ""
+"よこしまな魔法使いが、魔法によってお前を欺いた。スパイダーを使い王国を探索せ"
+"よ。魔法使いを探し出し、愚かさの見せしめとして殺せ。"
 
 #: guitext:926
 msgctxt "In-game message"
 msgid "You have found some Imps who consider it a great honour to serve you."
-msgstr "お-えを崇拝し|いるインプを数匹見５けた。"
+msgstr "おまえを崇拝しているインプを数匹見つけた。"
 
 #: guitext:927
 msgctxt "In-game message"
-msgid "You have discovered a group of Bile Demons who will aid you in your fight."
-msgstr "バイル・デーモン|一団を発見した。戦闘時-お-えを助けるだろう。"
+msgid ""
+"You have discovered a group of Bile Demons who will aid you in your fight."
+msgstr "バイル・デーモンの一団を発見した。戦闘時におまえを助けるだろう。"
 
 #: guitext:928
 msgctxt "In-game message"
-msgid "The destruction of this pathetic Keeper brings with it a useful bonus. You now have the ability to build Bridges. Dig deeper and you may find more secrets to strengthen your powers."
-msgstr "-|女々しいキーパーを倒した-と+、使えるボーナスが５い|きた。+を建|られる能=が身-付いた。より深く掘り進-れ+、=を強大-する秘密が数多く見５かるかもしれLい。"
+msgid ""
+"The destruction of this pathetic Keeper brings with it a useful bonus. You "
+"now have the ability to build Bridges. Dig deeper and you may find more "
+"secrets to strengthen your powers."
+msgstr ""
+"この女々しいキーパーを倒したことで、使えるボーナスがついてきた。橋を建てられ"
+"る能力が身に付いた。より深く掘り進めれば、力を強大にする秘密が数多く見つかる"
+"かもしれない。"
 
 #: guitext:929
 msgctxt "In-game message"
 msgid "A warning, Keeper. There is a stench of hero in the air."
-msgstr "キーパーよ、警告し|おく。勇者|いやL匂いが漂+|いる-。"
+msgstr "キーパーよ、警告しておく。勇者のいやな匂いが漂っているぞ。"
 
 #: guitext:930
 msgctxt "In-game message"
-msgid "You have done well to get this far Keeper. Do not become complacent, however. A great struggle lies ahead."
-msgstr "よく----+-られたL、キーパーよ！ しかし自惚れるL。-らLる大きL戦いが待が受け|いる。"
+msgid ""
+"You have done well to get this far Keeper. Do not become complacent, "
+"however. A great struggle lies ahead."
+msgstr ""
+"よくぞここまでこられたな、キーパーよ！ しかし自惚れるな。さらなる大きな戦いが"
+"待ち受けている。"
 
 #: guitext:931
 msgctxt "In-game message"
-msgid "Before you lies the Wizard's domain. Defeat him and you will regain your powers."
-msgstr "魔法使い|慾域+戦い-敗れ永久-横たわる前-、奴を殺|。がうすれ+=を回復+きる+あろう。"
+msgid ""
+"Before you lies the Wizard's domain. Defeat him and you will regain your "
+"powers."
+msgstr ""
+"魔法使いの領域で戦いに敗れ永久に横たわる前に、奴を殺せ。そうすれば力を回復で"
+"きるであろう。"
 
 #: guitext:932
 msgctxt "In-game message"
-msgid "Your magical powers are restored Keeper.  You can finally show these fools what you are made of."
-msgstr "お-え|魔法|==回復した-。-れ+や+と、あ|馬鹿ども-本当|お-え|=を見||やれる"
+msgid ""
+"Your magical powers are restored Keeper.  You can finally show these fools "
+"what you are made of."
+msgstr ""
+"おまえの魔法の力は回復したぞ。これでやっと、あの馬鹿どもに本当のおまえの力を"
+"見せてやれる"
 
 #: guitext:933
 msgctxt "In-game message"
-msgid "A black shadow is creeping over this land. Now is the time to strike. Take control of your Vampire and use him to find and kill the Lord of the Land. If you succeed, the Vampire will join you in the next realm."
-msgstr "黒い影が-|土地-忍び寄+|いる。今が攻撃|時だ。バンパイアを使い-|土地|ロードを見５け|殺|。う-くいけ+バンパイア=次|王国+も参戦するだろう。"
+msgid ""
+"A black shadow is creeping over this land. Now is the time to strike. Take "
+"control of your Vampire and use him to find and kill the Lord of the Land. "
+"If you succeed, the Vampire will join you in the next realm."
+msgstr ""
+"黒い影がこの土地に忍び寄っている。今が攻撃の時だ。バンパイアを使いこの土地の"
+"ロードを見つけて殺せ。うまくいけばバンパイアは次の王国でも参戦するだろう。"
 
 #: guitext:934
 msgctxt "In-game message"
-msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
-msgstr "お-え|業績=伝説的だ。お-え|悪頭とずる賢--が=、世代を越えた-怖|物語とLる+あろう。"
+msgid ""
+"Your achievements are legendary Keeper. Tales of your evil and cunning will "
+"become the horror stories of generations."
+msgstr ""
+"おまえの業績は伝説的だ。おまえの悪徳とずる賢さこそは、世代を越えた恐怖の物語"
+"となるであろう。"
 
-#: guitext:935
-#: guitext:936
-#: guitext:937
-#: guitext:938
-#: guitext:939
-#: guitext:940
+#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Moo2"
