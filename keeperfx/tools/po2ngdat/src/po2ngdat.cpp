@@ -25,7 +25,19 @@
 
 #include "po2ngdat_version.h"
 
-#include "poparser.h"
+//#include "poparser.h"
+#include "catalog.hpp"
+
+enum {
+    ERR_OK          =  0,
+    ERR_CANT_OPEN   = -1, // fopen problem
+    ERR_BAD_FILE    = -2, // incorrect file format
+    ERR_NO_MEMORY   = -3, // malloc error
+    ERR_FILE_READ   = -4, // fget/fread/fseek error
+    ERR_FILE_WRITE  = -5, // fput/fwrite error
+    ERR_LIMIT_EXCEED= -6, // static limit exceeded
+    ERR_BAD_FORMAT  = -7, // input data format is invalid
+};
 
 int verbose = 0;
 
@@ -208,7 +220,7 @@ short show_usage(char *fname)
  * @param input_syntax
  * @return
  */
-short read_catalog_po_file(const char *filename)
+/*short read_catalog_po_file(const char *filename)
 {
   FILE *fp = open_catalog_file(filename);
   pofile_catalog_reader_ty *pop;
@@ -223,7 +235,7 @@ short read_catalog_po_file(const char *filename)
   if (fp != stdin)
     fclose (fp);
   return ERR_OK;
-}
+}*/
 
 int main(int argc, char* argv[])
 {
@@ -238,8 +250,12 @@ int main(int argc, char* argv[])
     if (verbose)
         show_head();
 
-    read_catalog_po_file(opts.fname_inp);
+    //read_catalog_po_file(opts.fname_inp);
     //TODO
+    class Catalog * catalog = new Catalog();
+    catalog->Load(opts.fname_inp, 0);
+
+    delete catalog;
 
     free_prog_options(&opts);
     return 0;
