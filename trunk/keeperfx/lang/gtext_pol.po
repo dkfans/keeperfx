@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.40\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2012-09-02 03:42+0200\n"
+"PO-Revision-Date: 2012-10-04 00:03+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
@@ -259,87 +259,87 @@ msgstr "Twoje badania przynoszą owoce. Wynaleziono zaklęcie o nazwie Przyspies
 #: guitext:45
 msgctxt "In-game message"
 msgid "Build up your dungeon with the rooms available to you and claim the Portal nearby but do not yet venture north. Powerful adversaries lurk there. It would be wiser not to disturb them until you are prepared."
-msgstr "ZBUDUJ SWÓJ LOCH, ZAOPATRZ GO W DOSTĘPNE POMIESZCZENIA I PRZEJMIJ POBLISKIE WEJŚCIE, ALE NIE ZAPUSZCZAJ SIĘ JESZCZE NA PÓŁNOC. KRYJĄ SIĘ TAM POTĘŻNI PRZECIWNICY. NAJLEPIEJ NIE PRZESZKADZAĆ IM, DOPÓKI NIE BĘDZIESZ GOTÓW DO STARCIA."
+msgstr "Zbuduj swój loch, zaopatrz go w dostępne pomieszczenia i przejmij pobliskie Wejście, ale nie zapuszczaj się jeszcze na północ. Kryją się tam potężni przeciwnicy. Najlepiej nie przeszkadzać im, dopóki nie będziesz gotów do starcia."
 
 #: guitext:46
 msgctxt "In-game message"
 msgid "Clever research has given your Imps the engineering skill to build Bridges. You will need Bridges to cross some of the more hazardous underworld terrain."
-msgstr "BADANIA NAD INTELIGENCJĄ DAŁY TWYM CHOCHLIKOM INŻYNIERSKĄ UMIEJĘTNOŚĆ BUDOWY MOSTÓW. MOSTY PRZYDADZĄ SIĘ, GDY TRZEBA SIĘ BĘDZIE ZAPUŚCIĆ W ZDRADLIWE REJONY PODZIEMIA."
+msgstr "Badania nad inteligencją dały twym Chochlikom inżynierską umiejętność budowy Mostów. Mosty przydadzą się, gdy trzeba się będzie zapuścić w zdradliwe rejony podziemia."
 
 #: guitext:47
 msgctxt "In-game message"
 msgid "A study of dungeon designs reveals that Workshops manufacture essential furniture, such as Doors and Traps. If your Workshop occupies a square of at least nine tiles, its mere presence will lure the underworld's finest artisans into your dungeon."
-msgstr "BADANIA NAD STRUKTURĄ LOCHU WYKAZUJĄ, ŻE TO WARSZTATY WYTWARZAJĄ UMEBLOWANIE, TAKIE JAK DRZWI I PUŁAPKI. JEŚLI WARSZTAT MA ROZMIAR PRZYNAJMNIEJ 9 SEGMENTÓW, SAMA JEGO OBECNOŚĆ ZWABI DO LOCHU NAJLEPSZYCH RZEMIEŚLNIKÓW PODZIEMIA."
+msgstr "Badania nad strukturą lochu wykazują, że to Warsztaty wytwarzają umeblowanie, takie jak Drzwi i Pułapki. Jeśli Warsztat ma rozmiar przynajmniej 9 segmentów, sama jego obecność zwabi do lochu najlepszych rzemieślników podziemia."
 
 #: guitext:48
 msgctxt "In-game message"
 msgid "To manufacture Traps and Doors in your Workshop you will need to assign creatures to it, by dropping them into the room. Manufactured items can be selected from the Workshop Panel as soon as they're ready."
-msgstr "ABY PRODUKOWAĆ W WARSZTACIE PUŁAPKI I DRZWI, MUSISZ UMIEŚĆ W NIM ODPOWIEDNIE STWORY. WYTWORZONE PRZEDMIOTY BĘDĄ DOSTĘPNE NA PULPICIE WARSZTATU, GDY TYLKO ZOSTANĄ UKOŃCZONE."
+msgstr "Aby produkować w Warsztacie Pułapki i Drzwi, musisz umieść w nim odpowiednie stwory. Wytworzone przedmioty będą dostępne na Pulpicie Warsztatu, gdy tylko zostaną ukończone."
 
 #: guitext:49
 msgctxt "In-game message"
 msgid "When your troops are sufficient in number and have had some training, lead them north and crush any who oppose you."
-msgstr "GDY BĘDZIESZ POSIADAŁ ODPOWIEDNIĄ LICZBĘ DOBRZE WYSZKOLONEGO PERSONELU, POPROWADŹ GO NA PÓŁNOC I ZGNIEĆ KAŻDEGO, KTO STANIE CI NA DRODZE."
+msgstr "Gdy będziesz posiadał odpowiednią liczbę dobrze wyszkolonego personelu, poprowadź go na północ i zgnieć każdego, kto stanie ci na drodze."
 
 #: guitext:50
 msgctxt "In-game message"
 msgid "You will have to find a way to cross the river of molten lava that bars your way."
-msgstr "BĘDZIESZ MUSIAŁ ZNALEŹĆ SPOSÓB PRZEBYCIA RZEKI PŁYNNEJ MAGMY, KTÓRA ZAGRADZA CI DROGĘ."
+msgstr "Będziesz musiał znaleźć sposób przebycia rzeki płynnej magmy, która zagradza ci drogę."
 
 #: guitext:51
 msgctxt "In-game message"
 msgid "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby and administer the coup de grace."
-msgstr "PRZED TOBĄ PULSUJE SERCE NIEPRZYJACIELSKIEGO LABIRYNTU. UMIEŚĆ PRZY NIM SWE SŁUGI I ZADAJ OSTATECZNY CIOS."
+msgstr "Przed tobą pulsuje Serce nieprzyjacielskiego labiryntu. Umieść przy nim swe sługi i zadaj ostateczny cios."
 
 #: guitext:52
 msgctxt "In-game message"
 msgid "A Troll has joined you. Skilled in the craft of manufacturing, trolls are best employed doing dark deeds in your Workshop. They don't complain about the hours, because their labours keep them away from combat."
-msgstr "PRZYŁĄCZYŁ SIĘ DO CIEBIE TROLL. TROLLE, ZDOLNYCH RZEMIEŚLNIKÓW, NAJLEPIEJ ZATRUDNIĆ PRZY MROCZNYCH MACHINACJACH W WARSZTACIE. TROLLE NIE NARZEKAJĄ NA NADGODZINY, PONIEWAŻ UMOŻLIWIAJĄ IM TRZYMANIE SIĘ Z DALA OD WALKI."
+msgstr "Przyłączył się do ciebie Troll. Trolle, zdolnych rzemieślników, najlepiej zatrudnić przy mrocznych machinacjach w warsztacie. Trolle nie narzekają na nadgodziny, ponieważ umożliwiają im trzymanie się z dala od walki."
 
 #: guitext:53
 msgctxt "In-game message"
 msgid "With the enemy Dungeon Heart in ruins, you have trounced the once proud opposition. Rule your new domain with terror and loathing, for a laugh."
-msgstr "ZMIENIAJĄC SERCE WROGIEGO LABIRYNTU W ZGLISZCZA, UKARAŁEŚ NIEGDYŚ TAK DUMNYCH PRZECIWNIKÓW. WŁADAJ SWĄ NOWĄ KRAINĄ, SZERZĄC POSTRACH I LAMENT, TAK DLA ZABAWY."
+msgstr "Zmieniając Serce wrogiego labiryntu w zgliszcza, ukarałeś niegdyś tak dumnych przeciwników. Władaj swą nową krainą, szerząc postrach i lament, tak dla zabawy."
 
 #: guitext:54
 msgctxt "In-game message"
 msgid "Your Workshop has created a Wooden Door. Placed in a corridor, it restricts access to the enemy. Your creatures may pass freely. Lock or unlock Doors by clicking over them with the left mouse button."
-msgstr "W TWOIM WARSZTACIE SKONSTRUOWANO DREWNIANE DRZWI. GDY ZOSTANĄ UMIESZCZONE W KORYTARZU, BĘDĄ STANOWIĆ PRZESZKODĘ DLA WROGA. TWOJE STWORY BĘDĄ PRZECHODZIĆ SWOBODNIE. DRZWI MOGĄ BYĆ ZAMYKANE NA KLUCZ LUB OTWIERANE, PRZEZ KLIKNIĘCIE LPM."
+msgstr "W twoim Warsztacie skonstruowano Drewniane Drzwi. Gdy zostaną umieszczone w korytarzu, będą stanowić przeszkodę dla wroga. Twoje stwory będą przechodzić swobodnie. Drzwi mogą być zamykane na klucz lub otwierane, przez kliknięcie LPM."
 
 #: guitext:55
 msgctxt "In-game message"
 msgid "Your Workshop has produced a Poison Gas trap. Position it and, when an intruder sets it off, it will envelop the area in deadly vapours."
-msgstr "W TWOIM WARSZTACIE SKONSTRUOWANO PUŁAPKĘ GAZOWĄ. UMIEŚĆ JĄ W LOCHU. GDY JAKIŚ INTRUZ JĄ URUCHOMI, OKOLICĘ POKRYJĄ ŚMIERCIONOŚNE OPARY."
+msgstr "W twoim Warsztacie skonstruowano Pułapkę Gazową. Umieść ją w lochu. Gdy jakiś intruz ją uruchomi, okolicę pokryją śmiercionośne opary."
 
 #: guitext:56
 msgctxt "In-game message"
 msgid "You have researched the Call to Arms spell. The first time you cast it, your creatures gather around a banner created by the spell. Cast it again in a target area. Call to Arms only costs gold when it's targetted beyond your territory."
-msgstr "WYNALAZŁEŚ ZAKLĘCIE DO BRONI. GDY RZUCISZ JE PIERWSZY RAZ, TWOJE STWORY ZGROMADZĄ SIĘ PRZY SZTANDARZE ZAKLĘCIA. WTEDY RZUĆ JE PO RAZ DRUGI W PUNKCIE DOCELOWYM. RZUCANIE TEGO ZAKLĘCIA JEST PŁATNE TYLKO WTEDY, GDY CEL LEŻY POZA TWOIM TERYTORIUM."
+msgstr "Wynalazłeś zaklęcie Do Broni. Gdy rzucisz je pierwszy raz, twoje stwory zgromadzą się przy sztandarze zaklęcia. Wtedy rzuć je po raz drugi w punkcie docelowym. Rzucanie tego zaklęcia jest płatne tylko wtedy, gdy cel leży poza twoim terytorium."
 
 #: guitext:57
 msgctxt "In-game message"
 msgid "Another Keeper controls this underworld realm. His dungeon lies to the north. If you are to entice creatures to work for you instead of him, you will have to build a more magnificent dungeon. Get on with it then."
-msgstr "INNY STRAŻNIK WŁADA TYM PODZIEMNYM KRÓLESTWEM. JEGO LOCH LEŻY NA PÓŁNOCY. JEŚLI CHCESZ SPRAWIĆ, BY STWORY PRACOWAŁY DLA CIEBIE, ZAMIAST DLA NIEGO, MUSISZ WYBUDOWAĆ WSPANIALSZY LOCH. ZATEM DO DZIEŁA."
+msgstr "Inny strażnik włada tym podziemnym królestwem. Jego loch leży na północy. Jeśli chcesz sprawić, by stwory pracowały dla ciebie, zamiast dla niego, musisz wybudować wspanialszy loch. Zatem do dzieła."
 
 #: guitext:58
 msgctxt "In-game message"
 msgid "You have slain your rival. His defeat is a testimony to your clever dungeon design. You have the makings of a Dungeon Keeper worthy of the name."
-msgstr "WYKOŃCZYŁEŚ SWEGO RYWALA. JEGO PORAŻKA JEST HOŁDEM DLA TWYCH UMIEJĘTNOŚCI ROZBUDOWY LOCHU. JESTEŚ ZAISTE GODNY MIANA GOSPODARZA PODZIEMIA."
+msgstr "Wykończyłeś swego rywala. Jego porażka jest hołdem dla twych umiejętności rozbudowy lochu. Jesteś zaiste godny miana gospodarza podziemia."
 
 #: guitext:59
 msgctxt "In-game message"
 msgid "A Bile Demon chooses to side with you. Bile Demons demand large Lairs and ample Hatcheries. These corpulent monstrosities attack somewhat unconventionally."
-msgstr "DEMON ŻÓŁCIOWY OPOWIADA SIĘ PO TWOJEJ STRONIE. DEMONY ŻÓŁCIOWE WYMAGAJĄ DUŻEGO LEGOWISKA I WYDAJNYCH KURNIKÓW. TE TĘGIE POTWORNOŚCI ATAKUJĄ W SPOSÓB COKOLWIEK NIEKONWENCJONALNY."
+msgstr "Demon Żółciowy opowiada się po twojej stronie. Demony Żółciowe wymagają dużego Legowiska i wydajnych Kurników. Te tęgie potworności atakują w sposób cokolwiek niekonwencjonalny."
 
 #: guitext:60
 msgctxt "In-game message"
 msgid "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an unexplored area and it will be revealed to you for a moment."
-msgstr "TWOI WIERNI BADACZE WYNALEŹLI ZAKLĘCIE OKO ZŁA. RZUĆ JE NA NIEZNANY OBSZAR PODZIEMIA, A BĘDZIESZ GO MÓGŁ NA CHWILĘ ZOBACZYĆ."
+msgstr "Twoi wierni badacze wynaleźli zaklęcie Oko Zła. Rzuć je na nieznany obszar podziemia, a będziesz go mógł na chwilę zobaczyć."
 
 #: guitext:61
 msgctxt "In-game message"
 msgid "You have claimed a Prison. Select imprison from the Information Panel and your creatures subdue their foe, at which point your imps drag the bodies off to a cell. Prisoners who die of starvation may rise again as Skeleton warriors for you to command."
-msgstr "PRZEJĄŁEŚ WIĘZIENIE. SKORZYSTAJ Z OPCJI POJMANIA NA PULPICIE INFORMACYJNYM, A TWOJE STWORY BĘDĄ OGŁUSZAĆ NIEPRZYJACIÓŁ, BY CHOCHLIKI MOGŁY POWLEC ICH DO CEL. Z WIĘŹNIÓW, KTÓRZY UMRĄ Z GŁODU, MOGĄ POWSTAĆ SZKIELETORY, ZASILAJĄCE TWE SZEREGI."
+msgstr "Przejąłeś Więzienie. Skorzystaj z opcji pojmania na Pulpicie Informacyjnym, a twoje stwory będą ogłuszać nieprzyjaciół, by Chochliki mogły powlec ich do cel. Z więźniów, którzy umrą z głodu, mogą powstać Szkieletory, zasilające twe szeregi."
 
 #: guitext:62
 msgctxt "In-game message"
@@ -4225,12 +4225,11 @@ msgid "Finance"
 msgstr "FINANSE"
 
 #: guitext:864
-msgid "Localisation Management"
 msgctxt "Credits"
+msgid "Localisation Management"
 msgstr "KIEROWNICTWO WERSJI JĘZYKOWYCH"
 
 #: guitext:865
-msgctxt "Credits"
 msgctxt "Credits"
 msgid "Language Test Supervisor"
 msgstr "KIEROWNIK TESTÓW JĘZYKOWYCH"
@@ -4609,3 +4608,4 @@ msgstr "Kampanie"
 msgctxt "Menu interface item"
 msgid "Add computer"
 msgstr "Dodaj komputer"
+
