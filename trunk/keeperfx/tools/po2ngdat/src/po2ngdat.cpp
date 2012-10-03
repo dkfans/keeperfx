@@ -17,8 +17,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
 #include <stdbool.h>
 #include <string.h>
 #include <getopt.h>
@@ -27,6 +28,7 @@
 
 //#include "poparser.h"
 #include "catalog.hpp"
+#include "kfxenc.hpp"
 
 enum {
     ERR_OK          =  0,
@@ -45,18 +47,21 @@ int verbose = 0;
 struct ProgramOptions {
     char *fname_inp;
     char *fname_out;
+    char *fname_enc;
 };
 
 void clear_prog_options(struct ProgramOptions *opts)
 {
     opts->fname_inp = NULL;
     opts->fname_out = NULL;
+    opts->fname_enc = NULL;
 }
 
 void free_prog_options(struct ProgramOptions *opts)
 {
     free(opts->fname_inp);
     free(opts->fname_out);
+    free(opts->fname_enc);
 }
 
 char *file_name_change_extension(const char *fname_inp,const char *ext)
@@ -190,6 +195,10 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
     {
         opts->fname_out = file_name_change_extension(opts->fname_inp,"dat");
     }
+    if (opts->fname_enc == NULL)
+    {
+        opts->fname_enc = strdup("char_encoding_tbl_eu.txt");
+    }
     return true;
 }
 
@@ -214,28 +223,20 @@ short show_usage(char *fname)
     return ERR_OK;
 }
 
-/** Read .po file and store translation pairs.
- *
- * @param filename The name of file to read.
- * @param input_syntax
- * @return
- */
-/*short read_catalog_po_file(const char *filename)
+bool write_dat(const std::string& out_file, const std::vector<std::string> &data)
 {
-  FILE *fp = open_catalog_file(filename);
-  pofile_catalog_reader_ty *pop;
+    std::fstream f;
 
-  pop = pofile_catalog_reader_alloc();
-  pop->mdlp = NULL;
-  pop->mlp = NULL;
+    f.open(out_file.c_str(), std::fstream::out|std::fstream::binary);
 
-  pofile_catalog_reader_parse(pop, fp, filename);
-  pofile_catalog_reader_free(pop);
+    for (std::vector<std::string>::const_iterator it = data.begin(); it != data.end(); ++it)
+    {
+        f << *it << '\0';
+    }
 
-  if (fp != stdin)
-    fclose (fp);
-  return ERR_OK;
-}*/
+    f.close();
+    return true;
+}
 
 int main(int argc, char* argv[])
 {
@@ -250,13 +251,39 @@ int main(int argc, char* argv[])
     if (verbose)
         show_head();
 
-    //read_catalog_po_file(opts.fname_inp);
-    //TODO
+    // Read PO file
+    printf("Loading input file \"%s\"\n", opts.fname_inp);
     class Catalog * catalog = new Catalog();
     catalog->Load(opts.fname_inp, 0);
-
+    std::vector<std::wstring> * translations;
+    // Find translation lines
+    printf("Retrieve sorted list of translations\n");
+    translations = catalog->ToTranslationsVectorByRef(L"guitext",10000);
     delete catalog;
-
+    // Show warnings for missing translations
+    size_t i = 0;
+    for (std::vector<std::wstring>::iterator it = translations->begin(); it != translations->end(); ++it)
+    {
+        if (((*it).length() <= 0) && (i != 201))
+            printf("Warning: No reference to line %ld\n",(long)i);
+        i++;
+    }
+    // Read character encoding
+    printf("Loading encoding array \"%s\"\n", opts.fname_enc);
+    UnicodeConvert * kfx_convert = new UnicodeConvert();
+    kfx_convert->Load(opts.fname_enc, 0);
+    // Convert strings to local encoding
+    printf("Encoding translations\n");
+    std::vector<std::string> * encoded = new std::vector<std::string>();
+    for (std::vector<std::wstring>::iterator it = translations->begin(); it != translations->end(); ++it)
+    {
+        encoded->push_back(kfx_convert->EncodeU16String(*it));
+    }
+    delete kfx_convert;
+    delete translations;
+    printf("Writing output file \"%s\"\n",opts.fname_out);
+    write_dat(opts.fname_out, *encoded);
+    delete encoded;
     free_prog_options(&opts);
     return 0;
 }
