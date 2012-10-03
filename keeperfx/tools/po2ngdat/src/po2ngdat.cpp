@@ -1,7 +1,7 @@
 /******************************************************************************/
 // PO translation to engine DAT files converter for KeeperFX
 /******************************************************************************/
-/** @file po2ngdat.c
+/** @file po2ngdat.cpp
  *     Program code file.
  * @par Purpose:
  *     Contains code to read UTF .PO translation files, convert texts
@@ -147,12 +147,13 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
         static struct option long_options[] = {
             {"verbose", no_argument,       0, 'v'},
             {"output",  required_argument, 0, 'o'},
+            {"encfile", required_argument, 0, 'e'},
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vo:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vo:e:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -172,6 +173,9 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
             break;
         case 'o':
             opts->fname_out = strdup(optarg);
+            break;
+        case 'e':
+            opts->fname_enc = strdup(optarg);
             break;
         case '?':
                // unrecognized option
@@ -220,6 +224,7 @@ short show_usage(char *fname)
     printf("where <filename> should be the input PO file, and [options] are:\n");
     printf("    -v,--verbose             Verbose console output mode\n");
     printf("    -o<file>,--output<file>  Output DAT file name\n");
+    printf("    -e<file>,--encfile<file> Encoding table input file name\n");
     return ERR_OK;
 }
 
@@ -233,6 +238,7 @@ bool write_dat(const std::string& out_file, const std::vector<std::string> &data
     {
         f << *it << '\0';
     }
+    f << '\0';
 
     f.close();
     return true;
