@@ -226,8 +226,10 @@ void Catalog::HeaderData::FromString(const std::wstring& str)
         size_t pos = ln.find(':');
         if (pos == std::wstring::npos)
         {
-            std::string lln(ln.begin(), ln.end());
-            poLogError("Malformed header: '%s'", lln.c_str());
+            if (ln.length() > 0) { // Allow empty lines
+                std::string lln(ln.begin(), ln.end());
+                poLogError("Malformed header: '%s'", lln.c_str());
+            }
         }
         else
         {
@@ -250,7 +252,7 @@ void Catalog::HeaderData::FromString(const std::wstring& str)
             {
                 std::string lKey(en.Key.begin(), en.Key.end());
                 std::string lValue(en.Value.begin(), en.Value.end());
-                poLogTrace("poedit.header %s='%s'", lKey.c_str(), lValue.c_str());
+                //poLogTrace("poedit.header %s='%s'", lKey.c_str(), lValue.c_str());
             }
         }
     }
@@ -733,7 +735,7 @@ bool CatalogParser::Parse()
             line = ReadTextLine(m_textFile);
         }
     }
-    poLogTrace("Did %ld lines", (long)CurrentTextLine);
+    poLogTrace("Parsed %ld lines from input file", (long)CurrentTextLine);
 
     return true;
 }
@@ -828,7 +830,7 @@ bool LoadParser::OnEntry(const std::wstring& msgid,
         // gettext header:
         m_catalog->m_header.FromString(mtranslations[0]);
         m_catalog->m_header.Comment = comment;
-        poLogTrace("Entry - header");
+        //poLogTrace("Entry - header");
     }
     else
     {
@@ -848,10 +850,10 @@ bool LoadParser::OnEntry(const std::wstring& msgid,
             d.AddAutoComments(autocomments[i]);
         d.SetOldMsgid(msgid_old);
         m_catalog->AddItem(d);
-        {
+        /*{
             std::string lmsgid(msgid.begin(), msgid.end());
             poLogTrace("Entry - msgid \"%s\"",lmsgid.c_str());
-        }
+        }*/
     }
     return true;
 }
@@ -978,6 +980,17 @@ CatalogItem *Catalog::FindItemByLine(int lineno)
     return last;
 }
 
+CatalogItem *Catalog::FindItemByReference(const std::wstring& ref)
+{
+    for ( CatalogItemArray::iterator i = m_items.begin();
+          i != m_items.end(); ++i )
+    {
+        if ( i->HasReference(ref) )
+            return &(*i);
+    }
+    return NULL;
+}
+
 void Catalog::Clear()
 {
     m_items.clear();
@@ -1009,6 +1022,35 @@ int Catalog::SetBookmark(int id, Bookmark bookmark)
     return result;
 }
 
+std::vector<std::wstring> * Catalog::ToTranslationsVectorByRef(const std::wstring& refname, size_t max_size)
+{
+    std::vector<std::wstring> * translations = new std::vector<std::wstring>();
+    size_t i;
+    for (i=0; i < max_size; i++)
+    {
+        std::wstringstream ref;
+        ref << refname << ":" << i;
+        CatalogItem * ci = FindItemByReference(ref.str());
+        if (ci == NULL) {
+            translations->push_back(L"");
+            continue;
+        }
+        std::wstring trans = ci->GetTranslation();
+        if (trans.length() < 1) {
+            trans = ci->GetString();
+        }
+        translations->push_back(trans);
+    }
+    // Remove empty strings at end
+    for (std::vector<std::wstring>::reverse_iterator it = translations->rbegin(); it != translations->rend(); ++it)
+    {
+        if ((*it).length() > 0)
+            break;
+        i--;
+    }
+    translations->erase(translations->begin()+i,translations->end());
+    return translations;
+}
 
 // misc file-saving helpers
 namespace
@@ -1098,7 +1140,7 @@ std::istreamType GetDesiredCRLFFormat(const std::wstring& po_file)
 }*/
 
 
-/** Adds \n characters as neccesary for good-looking output
+/** Adds \n characters as necessary for good-looking output
  */
 std::wstring FormatStringForFile(const std::wstring& text)
 {
@@ -1371,3 +1413,25 @@ std::vector<std::wstring> CatalogItem::GetReferences() const
     return refs;
 }
 
+bool CatalogItem::HasReference(const std::wstring &ref) const
+{
+    for ( std::vector<std::wstring>::const_iterator i = m_references.begin(); i != m_references.end(); ++i )
+    {
+        std::wstring line = *i;
+        StripTextStart(line);
+        StripTextTrail(line);
+        while (!line.empty())
+        {
+            size_t i = 0;
+            while (i < line.length() && line[i] != ':') { i++; }
+            while (i < line.length() && !isspace(line[i])) { i++; }
+
+            if (ref.compare(line.substr(0,i)) == 0)
+                return true;
+            line = line.substr(i);
+            StripTextStart(line);
+            StripTextTrail(line);
+        }
+    }
+    return false;
+}

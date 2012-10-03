@@ -31,6 +31,7 @@ BIN  = bin/po2ngdat
 LIBS =
 OBJS = \
 obj/catalog.o \
+obj/kfxenc.o \
 obj/po2ngdat.o \
 $(RES)
 

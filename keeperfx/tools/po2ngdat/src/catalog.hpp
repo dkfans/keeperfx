@@ -132,6 +132,10 @@ class CatalogItem
         /// parsed into individual references
         std::vector<std::wstring> GetReferences() const;
 
+        /// Returns array of all occurrences of this string in source code,
+        /// parsed into individual references
+        bool HasReference(const std::wstring &ref) const;
+
         /// Returns comment added by the translator to this entry
         const std::wstring& GetComment() const { return m_comment; }
 
@@ -498,10 +502,13 @@ class Catalog
             Note that \a po_file refers to .po file, .mo file will have same
             name & location as .po file except for different extension.
          */
-        bool Save(const std::wstring& po_file, bool save_mo, int& validation_errors);
+        bool Save(const std::string& po_file, bool save_mo, int& validation_errors);
 
         /// Exports the catalog to HTML format
         bool ExportToHTML(const std::wstring& filename);
+
+        /// Converts the translations to vector
+        std::vector<std::wstring> * ToTranslationsVectorByRef(const std::wstring& refname, size_t max_size);
 
         /** Updates the catalog from sources.
             \see SourceDigger, Parser, UpdateFromPOT.
@@ -576,6 +583,9 @@ class Catalog
         /// Finds item by line number
         CatalogItem *FindItemByLine(int lineno);
 
+        /// Finds item by line number
+        CatalogItem *FindItemByReference(const std::wstring& ref);
+
         /// Sets the given item to have the given bookmark and returns the index
         /// of the item that previously had this bookmark (or -1)
         int SetBookmark(int id, Bookmark bookmark);
@@ -592,8 +602,8 @@ class Catalog
         int Validate();
 
     protected:
-        int DoValidate(const std::wstring& po_file);
-        bool DoSaveOnly(const std::wstring& po_file);
+        int DoValidate(const std::string& po_file);
+        bool DoSaveOnly(const std::string& po_file);
 
 
     private:
