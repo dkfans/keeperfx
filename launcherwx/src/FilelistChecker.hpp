@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+#include <wx/file.h>
 
 enum CheckItemFlags {
     CIF_Default = 0x00,
@@ -41,6 +42,8 @@ struct CheckItem {
     unsigned char md5sum[16];
 };
 
+class wxFile;
+
 class FilelistChecker
 {
 public:
@@ -56,6 +59,7 @@ public:
 private:
     int verifyItem(const wchar_t *folder, const struct CheckItem &cItem);
     static bool fileExists(const wchar_t * filename, bool acceptFolders, bool acceptSpecial);
+    static bool doCopyFile(wxFile& fileIn, const wxStructStat& fbuf, const wxString& filenameDst, bool overwrite);
     static void pathReplaceAll(std::wstring* str, const std::wstring& from, const std::wstring& to);
     int ntotal;
     int nfailed;
