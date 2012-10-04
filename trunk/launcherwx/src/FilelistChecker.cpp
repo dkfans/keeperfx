@@ -23,7 +23,6 @@
 #include <sys/stat.h>
 #include <stdexcept>
 #include <wx/log.h>
-#include <wx/filefn.h>
 
 /** Files for basic check which are supplied with KeeperFX. */
 const struct CheckItem supplied_basic_check[] = {
@@ -381,6 +380,49 @@ bool FilelistChecker::copyFilesList(const wchar_t *dstFolder, const struct Check
     return (nfailed == 0);
 }
 
+/** Copy file - internal helper.
+ *
+ * @param fileIn Already opened source file.
+ * @param fbuf
+ * @param filenameDst Destination file with path.
+ * @param overwrite
+ * @return
+ */
+bool FilelistChecker::doCopyFile(wxFile& fileIn, const wxStructStat& fbuf, const wxString& filenameDst, bool overwrite)
+{
+    // reset the umask as we want to create the file with exactly the same
+    // permissions as the original one
+    wxCHANGE_UMASK(0);
+
+    // create file2 with the same permissions than file1 and open it for
+    // writing
+
+    wxFile fileOut;
+    if ( !fileOut.Create(filenameDst, overwrite, fbuf.st_mode & 0777) )
+        return false;
+
+    // copy contents of file1 to file2
+    char buf[4096];
+    for ( ;; )
+    {
+        ssize_t count = fileIn.Read(buf, WXSIZEOF(buf));
+        if ( count == wxInvalidOffset )
+            return false;
+
+        // end of file?
+        if ( !count )
+            break;
+
+        if ( fileOut.Write(buf, count) < (size_t)count )
+            return false;
+    }
+
+    // we can expect fileIn to be closed successfully, but we should ensure
+    // that fileOut was closed as some write errors (disk full) might not be
+    // detected before doing this
+    return fileIn.Close() && fileOut.Close();
+}
+
 bool FilelistChecker::copyFile(const wchar_t *dstFolder, const struct CheckItem &dstItem, const wchar_t *srcFolder, const struct CheckItem &srcItem)
 {
     std::wstring tmpName;
@@ -397,7 +439,30 @@ bool FilelistChecker::copyFile(const wchar_t *dstFolder, const struct CheckItem 
 #endif
     srcFullName = srcFolder; srcFullName += tmpName;
     try {
-        if (!wxCopyFile(srcFullName, dstFullName, true))
+        wxStructStat fbuf;
+        // get permissions of srcFullName
+        if ( wxStat( srcFullName, &fbuf) != 0 )
+        {
+            // the file probably doesn't exist or we haven't the rights to read
+            // from it anyhow
+            wxLogSysError(wxT("Couldn't get permissions for source file \"%s\", check if it exists."), srcItem.filename);
+            return false;
+        }
+
+        // open srcFullName for reading
+        wxFile fileIn(srcFullName, wxFile::read);
+        if ( !fileIn.IsOpened() )
+            return false;
+
+        // remove dstFullName, if it exists. This is needed for creating
+        // dstFullName with the correct permissions in the next step
+        if ( wxFileExists(dstFullName)  && (!wxRemoveFile(dstFullName)))
+        {
+            wxLogSysError(wxT("Couldn't overwrite file \"%s\", it might be read-only."), dstItem.filename);
+            return false;
+        }
+
+        if (!doCopyFile(fileIn, fbuf, dstFullName, true))
             return false;
     }
     catch (std::exception &e) {
