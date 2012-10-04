@@ -34,7 +34,7 @@ msgstr ""
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
-msgstr "﻿Успех! Земля завоевана. Hажми пpобел, чтобы пеpейти на следyющий ypовень."
+msgstr "Успех! Земля завоевана. Hажми пpобел, чтобы пеpейти на следyющий ypовень."
 
 #: guitext:1
 msgctxt "In-game message"
