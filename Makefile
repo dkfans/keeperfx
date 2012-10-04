@@ -437,3 +437,4 @@ include tool_png2ico.mk
 include tool_po2ngdat.mk
 
 include package.mk
+include lang.mk

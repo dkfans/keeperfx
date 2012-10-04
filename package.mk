@@ -18,7 +18,7 @@
 #******************************************************************************
 CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
 
-.PHONY: pkg-before pkg-copydat pkg-campaigns
+.PHONY: pkg-before pkg-copydat pkg-campaigns pkg-languages
 
 package: pkg/keeperfx-$(subst .,_,$(VER_STRING))-$(PACKAGE_SUFFIX)-patch.7z
 
@@ -34,7 +34,7 @@ clean-package:
 
 deep-clean-package:
 
-pkg/%.7z: pkg-before pkg-copybin pkg-copydat pkg-campaigns
+pkg/%.7z: pkg-before pkg-copybin pkg-copydat pkg-campaigns pkg-languages
 	$(ECHO) 'Creating package: $@'
 	cd $(@D); \
 	7z a "$(@F)" "*" -x!*/.svn -x!.svn -x!.git -x!*.7z
