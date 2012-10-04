@@ -227,6 +227,19 @@ pkg/campgns/ncastles.cfg \
 pkg/campgns/postanck.cfg \
 pkg/campgns/questfth.cfg \
 pkg/campgns/twinkprs.cfg
+NGTEXTSRCS = \
+pkg/fxdata/gtext_chi.dat \
+pkg/fxdata/gtext_cht.dat \
+pkg/fxdata/gtext_dut.dat \
+pkg/fxdata/gtext_fre.dat \
+pkg/fxdata/gtext_ger.dat \
+pkg/fxdata/gtext_ita.dat \
+pkg/fxdata/gtext_jap.dat \
+pkg/fxdata/gtext_pol.dat \
+pkg/fxdata/gtext_rus.dat \
+pkg/fxdata/gtext_spa.dat \
+pkg/fxdata/gtext_swe.dat \
+pkg/fxdata/gtext_eng.dat
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 
@@ -310,7 +323,7 @@ clean-package:
 	-$(RM) pkg/keeperfx*
 	-$(ECHO) ' '
 
-package: $(CAMPAIGNS)
+package: $(CAMPAIGNS) $(NGTEXTSRCS)
 	-$(RM) "pkg/keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z"
 	$(CP) bin/* pkg/
 	$(CP) docs/keeperfx_readme.txt pkg/
@@ -457,6 +470,41 @@ obj/std/%.res obj/hvlog/%.res: res/%.rc
 res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08bpp.png res/%128-08bpp.png
 	-$(ECHO) 'Building icon: $@'
 	$(PNG2ICO) "$@" --colors 256 $(word 5,$^) $(word 4,$^) $(word 3,$^) --colors 16 $(word 2,$^) $(word 1,$^)
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+# Creation of engine language files from PO/POT files
+pkg/fxdata/gtext_jap.dat: lang/gtext_jap.po $(POTONGDAT)
+	-$(ECHO) 'Building language file: $@'
+	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_jp.txt" "$<"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+# Creation of engine language files from PO/POT files
+pkg/fxdata/gtext_rus.dat: lang/gtext_rus.po $(POTONGDAT)
+	-$(ECHO) 'Building language file: $@'
+	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_ru.txt" "$<"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/fxdata/gtext_chi.dat: lang/gtext_chi.po $(POTONGDAT)
+pkg/fxdata/gtext_cht.dat: lang/gtext_cht.po $(POTONGDAT)
+	-$(ECHO) 'Building language file: $@'
+	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_jp.txt" "$<"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+# Creation of engine language files from PO/POT files
+pkg/fxdata/%.dat: lang/%.po $(POTONGDAT)
+	-$(ECHO) 'Building language file: $@'
+	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_eu.txt" "$<"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+# Creation of engine language files from PO/POT files
+pkg/fxdata/%.dat: lang/%.pot $(POTONGDAT)
+	-$(ECHO) 'Building language file: $@'
+	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_eu.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 #******************************************************************************
