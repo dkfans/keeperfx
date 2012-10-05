@@ -1,0 +1,3262 @@
+#******************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+#******************************************************************************
+#   @file ancntkpr/text_fre.po
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+#******************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: KeeperFX CCP 0.40\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team [code.google.com]\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: guitext:0
+msgid "Success! The Ancients applaud! Press Space to proceed to the next realm."
+msgstr "Victoire! Les Anciens applaudissent! Appuyez sur la barre d'espacement pour passer au royaume suivant!"
+msgctxt "In-game message"
+
+#: guitext:1
+msgid "Welcome, Keeper, to the first of the Ancient Realms. The carpet is currently white, but will soon be soaked red with the blood of your enemies! This test is beneath you I'm sure."
+msgstr "Bienvenue Gardien, au premier des royaumes des Anciens! Le tapis est présentement blanc, mais deviendra bientôt trempé de rouge avec le sang de vos ennemis! Ce test est en-dessous de vous, j'en suis sûr!"
+msgctxt "In-game message"
+
+#: guitext:2
+msgid "You have earned the right to the ultimate challenge - L'Cyfre's Challenge."
+msgstr "Vous avez mérité le droit à l'ultime défi - Le Défi de L'Cyfre!"
+msgctxt "In-game message"
+
+#: guitext:3
+msgid "Some advice from Salaar; do not dig out from your Dungeon Heart until you have defeated the Knights who wait without."
+msgstr "Un conseil de Salaar: ne creusez pas hors de votre Coeur du Donjon jusqu'à ce que vous ayez défié les Chevaliers qui vous attendent."
+msgctxt "In-game message"
+
+#: guitext:4
+msgid "Make haste, Keeper! Your Workshop is one of the keys to this realm. To work!"
+msgstr "Plus vite, Gardien! Votre atelier est une des clés de ce royaume. Au travail!"
+msgctxt "In-game message"
+
+#: guitext:5
+msgid "A dismal start, Keeper! You will need to use all your powers to proceed; remember the Ancients are watching!"
+msgstr "Un départ lugubre, Gardien. Vous aurez besoin de toutes vos forces pour continuer. Souvenez-vous que les Anciens observent!"
+msgctxt "In-game message"
+
+#: guitext:6
+msgid "A good start, Keeper. If you continue in this vein, you must surely attract the attention of the Ancients!"
+msgstr "Un bon départ, Gardien! Si vous continuez avec cette veine, vous attirerez sûrement l'attention des Anciens!"
+msgctxt "In-game message"
+
+#: guitext:7
+msgid "Heroes were common at this time, but they bleed as easily! Your work is nearly complete Keeper."
+msgstr "Les héros étaient communs cette fois, mais ils saignent toujours aussi facilement! Votre travail est presque terminé, Gardien!"
+msgctxt "In-game message"
+
+#: guitext:8
+msgid "A strange land this, Keeper! The absence of portals will test your abilities to the full. Rooms cannot be researched here. You will learn to construct them by stealing from other Keepers."
+msgstr "Un étrange royaume ici, Gardien! L'absence de portails va tester vos habiletés au plus haut point. Les salles ne peuvent êtres recherchées ici. Vous apprendrez à les construire en les volant aux autres Gardiens."
+msgctxt "In-game message"
+
+#: guitext:9
+msgid "Another successful venture, Keeper! The next realm awaits."
+msgstr "Une autre victoire, Gardien! Le prochain royaume vous attend..."
+msgctxt "In-game message"
+
+#: guitext:10
+msgid "In this realm one of your enemies has captured a band of Avatars. Such a foe should be treated with respect!"
+msgstr "Dans ce royaume, un de vos ennemis a capturé une bande d'Avatars. Un tel adversaire devrait être traité avec respect!"
+msgctxt "In-game message"
+
+#: guitext:11
+msgid "T'Kaan's mistress has been exiled to this realm. Great skill be required to conquer this land."
+msgstr "La Maîtresse de T'Kaan a été exilée dans ce royaume. Une très grande habileté est requise pour conquérir ce royaume."
+msgctxt "In-game message"
+
+#: guitext:12
+msgid "Proceed with great caution. Dig slowly and you will avoid defeat. You must leave your dungeon without allowing access to it. Are you capable, Keeper?"
+msgstr "Procédez avec grande prudence! Creusez lentement et vous éviterez la défaite! Vous devez quitter votre Donjon sans en y permettre l'accès. En êtes-vous capable, Gardien?"
+msgctxt "In-game message"
+
+#: guitext:13
+msgid "One heart destroyed, Keeper. You must now prepare for an attack on the lair to the south, but beware; I smell heroes!"
+msgstr "Un Coeur de détruit, Gardien! Vous devez maintenant vous préparer pour une attaque sur l'Antre au Sud, mais prenez garde: je sens des héros!"
+msgctxt "In-game message"
+
+#: guitext:14
+msgid "Hmmm. I believe T'Kaan's wife will be pleased, but you have done yourself no credit at all."
+msgstr "Hmmm... Je crois que la femme de T'Kaan va être contente, mais vous ne vous êtes fait aucun mérite du tout!"
+msgctxt "In-game message"
+
+#: guitext:15
+msgid "Excellent work, Keeper. You have pleased T'Kaan (though not his wife!) and your name is being mentioned by the Ancients!"
+msgstr "Excellent travail, Gardien! Vous avez réjoui T'Kaan (mais pas sa femme!) et votre nom est en train d'être mentionné par les Anciens!"
+msgctxt "In-game message"
+
+#: guitext:16
+msgid "Act swiftly, Keeper! Perverse though it sounds, heroes are about to die and you must save them!"
+msgstr "Agissez rapidement, Gardien! Aussi pervers que ça puisse sembler, les héros sont sur le point de mourir et vous devez les sauver!"
+msgctxt "In-game message"
+
+#: guitext:17
+msgid "An intervention from the Ancients! The hero heart is the key; your time is limited, Keeper."
+msgstr "Intervention des Anciens: le Coeur du Donjon des héros est la clé. Votre temps est limité, Gardien!"
+msgctxt "In-game message"
+
+#: guitext:18
+msgid "It's showtime! The Ancients crave amusement, Keeper. Do not disappoint them!"
+msgstr "C'est l'heure du spectacle! Les Anciens implorent de l'amusement, Gardien! N'allez pas les décevoir!"
+msgctxt "In-game message"
+
+#: guitext:19
+msgid "Bravo, Keeper! Your performance & cunning have impressed the Ancients. Behold your reward."
+msgstr "Bravo, Gardien! Votre performance et votre astuce ont impressionnés les Anciens! Voici votre récompense!"
+msgctxt "In-game message"
+
+#: guitext:20
+msgid "I think I hear the snoring of the Ancients, Keeper. You have been a disappointment."
+msgstr "Je pense que j'entends les Anciens ronfler, Gardien! Vous avez été très décevant..."
+msgctxt "In-game message"
+
+#: guitext:21
+msgid "Cunning and haste are required here, Keeper!"
+msgstr "De la ruse et de la vitesse sont requises ici, Gardien!"
+msgctxt "In-game message"
+
+#: guitext:22
+msgid "A magnificent performance, Keeper! The Ancients applaud you!"
+msgstr "Une magnifique performance, Gardien! Les Anciens vous applaudissent!"
+msgctxt "In-game message"
+
+#: guitext:23
+msgid "Defeat is inevitable now, Keeper. Maybe the moonlight wasn't bright enough? Did you use ALL your spells?"
+msgstr "La défaite est inévitable maintenant, Gardien. Peut-être que la lumière de la lune n'était pas assez brillante? Aviez-vous utilisé TOUS vos sorts?"
+msgctxt "In-game message"
+
+#: guitext:24
+msgid "The Avatars are free, Keeper. Be on your guard."
+msgstr "Les Avatars sont libre, Gardien. Soyez sur vos gardes!"
+msgctxt "In-game message"
+
+#: guitext:25
+msgid "I trust any further hero interference will be treated with the contempt it deserves?"
+msgstr "J'espère que davantage d'intrusion de héros sera traitée avec le mépris qu'elle mérite?"
+msgctxt "In-game message"
+
+#: guitext:26
+msgid "Hmmm, is that the whiff of heroes I smell?"
+msgstr "Hmmm, est-ce une bouffée d'odeur de héros que je sens?"
+msgctxt "In-game message"
+
+#: guitext:27
+msgid "Perhaps you are more suited to Eversmile?"
+msgstr "Peut-être êtes-vous plus convenu à EUPHORIA?"
+msgctxt "In-game message"
+
+#: guitext:28
+msgid "A victory again, Keeper. Do not relax; we are still in the training phase. The Ancients wouldn't know you from one of their imps!"
+msgstr "Encore une victoire, Gardien! Ne vous détendez pas, vous êtes encore dans la phase d'entraînement. Les Anciens ne voudraient pas vous connaître comme étant l'un de vos lutins!"
+msgctxt "In-game message"
+
+#: guitext:29
+msgid "Time to destroy the hero heart was limited, Keeper."
+msgstr "Le temps pour détruire le Coeur du Donjon était limité, Gardien."
+msgctxt "In-game message"
+
+#: guitext:30
+msgid "Well done, Keeper. Now capture Reapers to add to your army. Other Keepers amass their armies against you!"
+msgstr "Bien joué, Gardien! Maintenant, capturez les Grands cornus pour qu'ils s'ajoutent à votre armée. Les autres Gardiens regroupent leurs armées contre vous!"
+msgctxt "In-game message"
+
+#: guitext:31
+msgid "Excellent, Keeper. The Ancients are preparing tougher tasks as they gaze on the destruction you've wrought!"
+msgstr "Excellent, Gardien! Les Anciens sont en train de préparer des tâches plus dures alors qu'ils ont contemplé les ravages que vous avez provoqués!"
+msgctxt "In-game message"
+
+#: guitext:32
+msgid "Do you recognise that stench? It's the smell of fear. Another Keeper and a land await!"
+msgstr "Reconnaissez-vous cette puanteur? C'est l'odeur de la peur! Un autre Gardien et un territoire vous attendent!"
+msgctxt "In-game message"
+
+#: guitext:33
+msgid "Kwan Tek, an Ancient with great power, has honoured you with a chance to prove yourself in his land. You have no creatures, but he has gifted you a powerful spell."
+msgstr "Kwan Tek, un Ancien avec une grande puissance, vous a honoré avec une chance de vous prouver dans son royaume. Vous n'avez aucune créatures, mais il vous a fait présent d'un puissant sortilège!"
+msgctxt "In-game message"
+
+#: guitext:34
+msgid "Cunningly done, Keeper, but your task is only half complete!"
+msgstr "Très astucieux, Gardien, mais votre tâche est seulement à moitié complétée!"
+msgctxt "In-game message"
+
+#: guitext:35
+msgid "Kwan Tek salutes you. You have proved your skills in his land, and may proceed with His blessing."
+msgstr "Kwan Tek vous salue! Vous avez prouvé vos habiletés dans son royaume, et pouvez progresser avec grâce!"
+msgctxt "In-game message"
+
+#: guitext:36
+msgid "Kwan Tek has not left you entirely alone, Keeper! Use this unDead minion wisely."
+msgstr "Kwan Tek ne vous a pas laissé seul entièrement, Gardien: utilisez ce mort-vivant sagement!"
+msgctxt "In-game message"
+
+#: guitext:37
+msgid "No time to waste, Keeper! The Ancient Avatar has tracked you down, and recalls a previous encounter! Your Dungeon is weak; re-inforce it immediately!"
+msgstr "Il n'y a pas de temps à perdre, Gardien! L'Ancien Avatar vous a localisé, et rappelle une précédente rencontre! Votre Donjon est fragile: renforcez-le immédiatement!"
+msgctxt "In-game message"
+
+#: guitext:38
+msgid "Bravo, Keeper. Let him be the first of many! Will he never learn?"
+msgstr "Bravo, Gardien! Laissez-lui être le premier d'entre tous! N'apprendra-t-il donc jamais?"
+msgctxt "In-game message"
+
+#: guitext:39
+msgid "You are unstoppable, Keeper! I think I hear the approach of further heroes; your torture room will indeed be busy! "
+msgstr "Vous êtes implacable, Gardien! Je pense que j'entends l'approche de davantage de héros. Votre salle des tortures sera incroyablement occupé!"
+msgctxt "In-game message"
+
+#: guitext:40
+msgid "Is your concentration faltering, Keeper?"
+msgstr "Est-ce que votre concentration est hésitante, Gardien?"
+msgctxt "In-game message"
+
+#: guitext:41
+msgid "Be aware, Keeper, the only imps available are the ones you have brought with you to this land."
+msgstr "Attention Gardien, les seuls lutins disponibles sont ceux que vous avez amené avec vous sur ce royaume."
+msgctxt "In-game message"
+
+#: guitext:42
+msgid "Let the heroes feel your wrath, oh Evil One!"
+msgstr "Laissez les héros sentir votre colère, ô Gardien malveillant!"
+msgctxt "In-game message"
+
+#: guitext:43
+msgid "You must free your creatures to progress in this realm, Master!"
+msgstr "Vous devez libérer vos créatures pour progresser dans ce royaume, Maître!"
+msgctxt "In-game message"
+
+#: guitext:44
+msgid "A substantial force of Knights is being summoned by the hero heart; you must put a stop to this, your Evilness!"
+msgstr "Une force substentielle de Chevaliers est en train d'être invoqué par le Coeur du Donjon des héros. Vous devez mettre un terme à cela, votre Méchanceté!"
+msgctxt "In-game message"
+
+#: guitext:45
+msgid "That's put a stop to the re-inforcements, Eminence! Victory approaches, and the Ancients have set you a puzzle to solve!"
+msgstr "C'est qu'il faut mettre fin aux renfors, votre Eminence! La victoire approche, et les Anciens vous ont préparé un puzzle à résoudre!"
+msgctxt "In-game message"
+
+#: guitext:46
+msgid "Congratulations, Keeper, the land is yours! And the puzzle?"
+msgstr "Félicitations, Gardien, cette terre est maintenant la vôtre! Et le puzzle?"
+msgctxt "In-game message"
+
+#: guitext:47
+msgid "Welcome, Keeper, to an esteemed seat of learning. You have impressed the Ancients, and earned a place at a highly regarded College indeed!"
+msgstr "Bienvenue Gardien, à un siège estimé d'apprentissage. Vous avez impressionné les Anciens, et avez mérité une place à un Collège hautement qualifié!"
+msgctxt "In-game message"
+
+#: guitext:48
+msgid "A bit of light revision, Keeper? You now need a creature with Wind Power!"
+msgstr "Un peu de légère révision, Gardien? Vous avez maintenant besoin d'une créature avec le sort Ouragan."
+msgctxt "In-game message"
+
+#: guitext:49
+msgid "Well done, Keeper! You will soon placate your angry creatures."
+msgstr "Bien joué, Gardien! Vous pourrez bientôt calmer vos créatures mécontentes."
+msgctxt "In-game message"
+
+#: guitext:50
+msgid "You have graduated with full honours! Congratulations, Keeper B.E. Perhaps you'd like to throw a hero corpse into the air?"
+msgstr "Vous avez gradué avec plein d'honneur! Félicitations, Gardien! P.S.: Peut-être aimeriez-vous tirer un corps de héros dans les airs?"
+msgctxt "In-game message"
+
+#: guitext:51
+msgid "The Heroes' Dungeon Heart throbs before you. Administer the coup de grace!"
+msgstr "Le Coeur du Donjon des héros bat avant vous. Administrez le coup de grâce!"
+msgctxt "In-game message"
+
+#: guitext:52
+msgid "Well done, Keeper. Do not kill the tunneller you have stranded; you have work for him."
+msgstr "Bien joué, Gardien! Ne tuez par le nain piocheur que vous avez laissé en rade: vous avez du travail pour lui!"
+msgctxt "In-game message"
+
+#: guitext:53
+msgid "The claiming of the portal in this land must be done with great care. Your courage is not the only thing that needs re-inforcing."
+msgstr "La réclamation du portail dans cette terre doit être fait avec grande prudence! Votre courage n'est pas la seule chose qui a besoin d'être renforcé!"
+msgctxt "In-game message"
+
+#: guitext:54
+msgid "Your first minion! Amongst your next tasks is a trick involving the prison. Take a straight path!"
+msgstr "Voilà votre premier larbin! Parmi vos prochaines tâches, il y a une astuce concernant la prison. Prenez un chemin direct!"
+msgctxt "In-game message"
+
+#: guitext:55
+msgid "Excellent, Keeper! You will need to build an army for the final battle, so keep 'em coming!"
+msgstr "Excellent, Gardien! Vous aurez besoin de construire une armée pour la bataille finale, alors laissez-les venir!"
+msgctxt "In-game message"
+
+#: guitext:56
+msgid "The hero dungeon lies in ruins, and now you must prepare for the final battle. His forces are formidable, so take care, Keeper!"
+msgstr "Le Donjon des héros est maintenant en ruines, et maintenant vous devez vous préparer pour la bataille finale. Ses forces sont formidable, alors soyez prudent, Gardien!"
+msgctxt "In-game message"
+
+#: guitext:57
+msgid "A victory to be proud of, Keeper! Salaar will not forget you in a hurry!"
+msgstr "Une victoire pour en être fier, Gardien! Salaar ne vous oubliera pas de sitôt!"
+msgctxt "In-game message"
+
+#: guitext:58
+msgid "Your enemies defeat is imminent; savour this moment, Keeper! Let your laughter fill the air!"
+msgstr "La défaite de vos ennemis est imminente! Savourez ce moment, Gardien! Laissez vos rires remplir l'air!"
+msgctxt "In-game message"
+
+#: guitext:59
+msgid "Your most valued convert is being tortured, and will defect imminently unless rescued; he holds the key to this realm!"
+msgstr "Votre plus valeureux converti est en train d'être torturé, et va se rallier à l'ennemi d'un moment à l'autre à moins d'être libéré! Il garde la clé de ce royaume!"
+msgctxt "In-game message"
+
+#: guitext:60
+msgid "Force this lazy minion to claim the library, Keeper."
+msgstr "Forcez ce larbin paresseux à réclamer la bibliothèque, Gardien!"
+msgctxt "In-game message"
+
+#: guitext:61
+msgid "This Samurai will be the source of your army. However there is a limit to their number."
+msgstr "Ce Samouraï sera la source de votre armée. Cependant, il y a une limite à leur nombre."
+msgctxt "In-game message"
+
+#: guitext:62
+msgid "This thief will be the source of your army. With extra training they may develop into very useful warriors."
+msgstr "Ce Voleur sera la source de votre armée. Avec de l'extra entraînement, ils peuvent se déveloper en guerriers très utiles!"
+msgctxt "In-game message"
+
+#: guitext:63
+msgid "Your cunning does you credit, Keeper! The future is now in your hands. Scared of a balanced battle, your weaselness?"
+msgstr "Votre astuce fait votre honneur, Gardien! Le futur est maintenant entre vos mains! Effrayé d'une bataille équilibrée?"
+msgctxt "In-game message"
+
+#: guitext:64
+msgid "Victory awaits, Keeper. Act with haste!"
+msgstr "La victoire attend, Gardien! Agissez avec rapidité!"
+msgctxt "In-game message"
+
+#: guitext:65
+msgid "How satisfying it is to see an enemy Keeper's dungeon crumble and his power dissipate. Your reputation grows with your cunning!"
+msgstr "Qu'il est satisfaisant de voir un Donjon d'un Gardien ennemi s'écrouler et son pouvoir se dissiper! Votre réputation grandit avec votre astuce!"
+msgctxt "In-game message"
+
+#: guitext:66
+msgid "Explain yourself, Keeper! I trust you're not still waiting for Ug the mythical Barbarian?"
+msgstr "Expliquez-vous, Gardien! J'espère que vous n'attendez pas encore YONEL le mythique Barbare?"
+msgctxt "In-game message"
+
+#: guitext:67
+msgid "This land requires aggression and speed, Keeper. It is unfortunate therefore that your minions are dominated by the bone idle!"
+msgstr "Cette terre requiert de l'aggressivité et de la vitesse, Gardien! Il serait regrettable, par conséquent, que vos larbins soient dominés par des fainéants!"
+msgctxt "In-game message"
+
+#: guitext:68
+msgid "No portal, Keeper? The snoring of the Ancients grows thunderous!"
+msgstr "Toujours pas de portail, Gardien? Le ronflement des Anciens est de plus en plus bruyant!"
+msgctxt "In-game message"
+
+#: guitext:69
+msgid "Your best soldier has arrived. Train him well, for he is your only hope!"
+msgstr "Votre meilleur soldat est arrivé! Entraînez-le bien, parce qu'il est votre seul espoir!"
+msgctxt "In-game message"
+
+#: guitext:70
+msgid "Your persistent success is getting predictable, Master!"
+msgstr "Votre succès persistant est devenu prévisible, Maître!"
+msgctxt "In-game message"
+
+#: guitext:71
+msgid "Are you interested in Entomology, Keeper? Insects are the only minions you will attract; down in the slime where you belong!"
+msgstr "Êtes-vous intéressé à l'Entomologie, Gardien? Les insectes sont les seuls larbins que vous attirerez, tout en bas dans la terre d'où vous provenez!"
+msgctxt "In-game message"
+
+#: guitext:72
+msgid "A temple, Keeper! What will you do with it?"
+msgstr "Un temple, Gardien! Qu'allez-vous faire avec?"
+msgctxt "In-game message"
+
+#: guitext:73
+msgid "Good scarifice, Keeper. This mage has a power you will need to conquer this realm."
+msgstr "Bon sacrifice, Gardien! Ce Sorcier a un sort que vous aurez de besoin pour conquérir ce royaume."
+msgctxt "In-game message"
+
+#: guitext:74
+msgid "Finally, the prison is claimed! Now capture as many heroes as you can."
+msgstr "Finalement, la prison est réclamée! Maintenant, capturez le plus de héros que vous pourrez!"
+msgctxt "In-game message"
+
+#: guitext:75
+msgctxt "In-game message"
+msgid "You have prevailed, Keeper. The bodies of your enemies litter the most forlorn alcoves of your domain, in tribute to their futile efforts to keep you at bay."
+msgstr "Vous avez l'avantage, Gardien! Les corps de vos ennemis jonchent les alcôves les plus délaissées de votre domaine, en hommage à leurs efforts futiles de vous tenir en échec!"
+
+#: guitext:76
+msgctxt "In-game message"
+msgid "Try dropping some money into the temple. You will receive a message from the Gods!"
+msgstr "Essayez de lâcher de l'or dans la piscine du temple. Vous recevrez un message des Dieux!"
+
+#: guitext:77
+msgctxt "In-game message"
+msgid "A formidable army of the Undead awaits you, Keeper. Maybe you'd better just quit?."
+msgstr "Une formidable armée de morts-vivants vous attend, Gardien. Peut-être voudriez-vous mieux juste quitter?"
+
+#: guitext:78
+msgctxt "In-game message"
+msgid "In this realm the Ancients have granted you have workers but no fighters. An imp wouldn't go amiss either!"
+msgstr "Dans ce royaume, les Anciens vous ont accordés des travailleurs mais sans combattants. Un lutin ne serait également pas de refus!"
+
+#: guitext:79
+msgctxt "In-game message"
+msgid "Here's a warrior to do your bidding!"
+msgstr "Voilà un combattant à vos ordres!"
+
+#: guitext:80
+msgctxt "In-game message"
+msgid "Wow, you have a dragon! Can you make another?"
+msgstr "Wow, vous avez un Dragon! Pouvez-vous en avoir un autre?"
+
+#: guitext:81
+msgctxt "In-game message"
+msgid "Two Dragons, Keeper? Now you are unstoppable!"
+msgstr "Deux Dragons, Gardien? Vous voilà implacable maintenant!"
+
+#: guitext:82
+msgctxt "In-game message"
+msgid "I assume you know that you can train a creature by putting him into battle?"
+msgstr "J'assume que vous savez que vous pouvez entraîner une créature en la plaçant au combat?"
+
+#: guitext:83
+msgctxt "In-game message"
+msgid "Another victory, Keeper! A puzzle awaits you; are you brain as well as brawn?"
+msgstr "Une autre victoire, Gardien! Un puzzle vous attend: êtes-vous autant cerveau que muscles?"
+
+#: guitext:84
+msgctxt "In-game message"
+msgid "Welcome to the Land of Dragons, Keeper. With skill you will gain their services, but beware - they are fickle creatures in this realm!"
+msgstr "Bienvenue sur la terre des Dragons, Gardien! Avec habileté, vous gagnerez leurs services, mais attention: ils sont d'inconstantes créatures dans ce royaume!"
+
+#: guitext:85
+msgctxt "In-game message"
+msgid "Perhaps a different strategy, Keeper?"
+msgstr "Peut-être une différente stratégie, Gardien?"
+
+#: guitext:86
+msgctxt "In-game message"
+msgid "Almost a Dragon! I hear it has a taste for Keepers, so don't let it get hungry."
+msgstr "Presque un Dragon! J'ai entendu qu'il a un goût pour les Gardiens, alors ne le laissez pas être affamé!"
+
+#: guitext:87
+msgctxt "In-game message"
+msgid "Finally, Keeper, a dungeon worthy of the name. Can you afford one?"
+msgstr "Finalement Gardien, un Donjon digne du nom! Pouvez-vous vous en permettre un?"
+
+#: guitext:88
+msgctxt "In-game message"
+msgid "The dragon you were promised! Now its simply a matter of defeating all heroes and two other Keepers!"
+msgstr "Enfin, le Dragon comme promis! Maintenant, c'est simplement une question de vaincre tous les héros et les deux autres Gardiens!"
+
+#: guitext:89
+msgctxt "In-game message"
+msgid "Switch on the computer assistant. This realm is so easy you can let it do your work while you have a cup of lemon tea!"
+msgstr "Mettez en marche votre assistant informatique. Ce royaume est si facile que vous pouvez le laisser faire son travail pendant que vous siroté une tasse de thé au citron!"
+
+#: guitext:90
+msgctxt "In-game message"
+msgid "A great victory. The Ancients are alarmed!"
+msgstr "Une superbe victoire! Les Anciens sont alarmés!"
+
+#: guitext:91
+msgctxt "In-game message"
+msgid "You have attracted the hottest babe in the Underworld, Keeper, and made even the Ancients jealous! Pander to her whims and she'll do anything for you!"
+msgstr "Vous avec attiré la plus sexy nana du monde souterrain, Gardien, et avez même rendu les Anciens jaloux! Pliez-vous à ses exigences et elle fera n'importe quoi pour vous!"
+
+#: guitext:92
+msgctxt "In-game message"
+msgid "Your mistress grows stronger with every battle, Keeper!"
+msgstr "Votre Maîtresse devient de plus en plus forte après chaque bataille, Gardien!"
+
+#: guitext:93
+msgctxt "In-game message"
+msgid "You must be aching to possess this awesome woman again, Keeper? Concentrate, Master, the climax approaches!"
+msgstr "Vous devez être douloureux pour posséder cette magnifique demoiselle de nouveau, Gardien! Concentrez-vous, Maître, l'apogée approche!"
+
+#: guitext:94
+msgctxt "In-game message"
+msgid "A woman like that needs care, Keeper. She rests with the Ancients now."
+msgstr "Une femme comme ça a besoin d'attention, Gardien. Elle reste avec les Anciens maintenant..."
+
+#: guitext:95
+msgctxt "In-game message"
+msgid "And the two of you can live mercilessly ever after! Will she accompany you to the hidden realm?"
+msgstr "Vous aurez beaucoup d'enfants et vous vivrez impitoyablement pour toujours! Est-ce qu'elle vous accompagnera au monde caché?"
+
+#: guitext:96
+msgctxt "In-game message"
+msgid "You have won a magnificent victory, Master. You have a talent for twisted mercilessness that makes other Keepers look well behaved by comparison."
+msgstr "Vous avez remporté une magnifique victoire, Maître! Vous avez un talent pour être tordu impitoyablement, ce qui rend les autres Gardiens à bien se comporter en comparaison!"
+
+#: guitext:97
+msgctxt "In-game message"
+msgid "You have threatened the security of the Ancients, Keeper. Now get outside with the Dog!"
+msgstr "Vous avez menacé la sécurité des Anciens, Gardien. Maintenant, sortez avec votre chien, si vous voyez ce que je veux dire!"
+
+#: guitext:98
+msgctxt "In-game message"
+msgid "You must control your temper, Keeper! Everything has a purpose."
+msgstr "Vous devez contrôler votre humeur, Gardien! Tout a une utilité!"
+
+#: guitext:99
+msgctxt "In-game message"
+msgid "Salaar has gifted you the ability to research boulder traps; he is obviously on your side!"
+msgstr "Salaar vous a fait présent de l'habileté à construire des pièges Rocher. Il est manifestement de votre côté!"
+
+#: guitext:100
+msgctxt "In-game message"
+msgid "You've once again attracted the interest of Salaar. He has summoned you to this land to further prove yourself. Success will bring his assistance; do not disappoint him!"
+msgstr "Vous avez une fois de plus attiré l'intérêt de Salaar! Il vous a invoqué sur cette terre pour vous permettre de vous prouver davantage. Le succès va amener son assistance. Ne le décevez pas!"
+
+#: guitext:101
+msgctxt "In-game message"
+msgid "An intriguing assignment, Keeper. Thor has chosen you to negotiate a settlement in this land. I think you know what he expects!"
+msgstr "Une intrigante attribution, Gardien. Thor vous a choisi pour négocier une solution sur cette terre. Je pense que vous savez ce qu'il attend!"
+
+#: guitext:102
+msgctxt "In-game message"
+msgid "Negotiation is all about bridge-building between opposing parties!"
+msgstr "La négociation est tout sur la construction de ponts entre les groupes opposées!"
+
+#: guitext:103
+msgctxt "In-game message"
+msgid "Thor has examined the details of the final settlement, and it is acceptable!"
+msgstr "Thor a examiné les détails de la solution finale, et c'est acceptable!"
+
+#: guitext:104
+msgctxt "In-game message"
+msgid "Salaar has placed a reward in this realm, though obviously its discovery won't be easy. Would you want it that way?"
+msgstr "Salaar vous a placé une récompense dans ce royaume, bien que manifestement sa découverte ne sera pas facile. Voudriez-vous l'avoir de cette façon?"
+
+#: guitext:105
+msgctxt "In-game message"
+msgid "Behold a land fraught with Danger! Twas here that the legendary Antak met his doom. You must be patient and persistent, Keeper, if you are not to share his fate!"
+msgstr "Voici une terre pleine de dangers! C'était ici que le légendaire Antak a rencontré sa perte. Vous devez être patient et persistant, Gardien, si vous ne voulez pas partager le même destin."
+
+#: guitext:106
+msgctxt "In-game message"
+msgid "Caution, Keeper! Your fate depends on where you choose to dig south."
+msgstr "Attention, Gardien! Votre destin dépend de l'endroit où vous choisissez de creuser au Sud."
+
+#: guitext:107
+msgctxt "In-game message"
+msgid "Room designs must be stolen in this realm, Keeper; I trust this gives you no moral quandry?"
+msgstr "Le design des salles doit être volé dans ce royaume, Gardien. J'espère que ça ne vous donne pas le moral de l'embarras?"
+
+#: guitext:108
+msgctxt "In-game message"
+msgid "You must fight to train your dragon, Keeper, but you will need minions. Leave plenty alive to torture!"
+msgstr "Vous devez combattre pour entraîner votre Dragon, Gardien, mais vous aurez besoin de créatures. Laissez assez de héros en vie pour la torture!"
+
+#: guitext:109
+msgctxt "In-game message"
+msgid "The hero lair is riddled with lava traps. If triggered they will deny access to the rooms you need. You know what you must do!"
+msgstr "L'antre des héros est criblé de pièges Lave. S'ils sont déclenchés, ils empêcheront l'accès aux salles dont vous avez de besoin. Vous savez ce qu'il vous reste à faire, non?"
+
+#: guitext:110
+msgctxt "In-game message"
+msgid "Your army is small, Keeper! Dare you still hope for victory?"
+msgstr "Votre armée est bien trop petite, Gardien! Pensez-vous toujours espérer pour la victoire?"
+
+#: guitext:111
+msgctxt "In-game message"
+msgid "Antak failed in this realm because he killed too many heroes. I trust you will learn from his mistake?"
+msgstr "Antak a échoué dans ce royaume parce qu'il a tué trop de héros. J'espère que vous apprendrez de son erreur?"
+
+#: guitext:112
+msgctxt "In-game message"
+msgid "You hold the key to this realm by controlling the balance of power. Two formidable armies oppose you - they must be manipulated to serve your purpose!"
+msgstr "Vous gardez la clé à ce royaume en contrôlant l'équilibre du pouvoir. Deux formidables armées s'opposent à vous - ils doivent être manipulé pour servir à votre objectif!"
+
+#: guitext:113
+msgctxt "In-game message"
+msgid "The Endgame begins! Victory depends on knowing when to intervene."
+msgstr "La fin de partie commence! La victoire dépend de savoir quand vous intervenez."
+
+#: guitext:114
+msgctxt "In-game message"
+msgid "You must share in Antak's shame. Salaar is disappointed."
+msgstr "Vous devez avoir la honte d'Antak. Salaar est désappointé..."
+
+#: guitext:115
+msgctxt "In-game message"
+msgid "An exceptional performance, Keeper. You may soon join the Ancients as an equal!!"
+msgstr "Une exceptionnelle performance, Gardien! Vous allez bientôt joindre les Ancients comme étant un des leurs!"
+
+#: guitext:116
+msgctxt "In-game message"
+msgid "Is this a prison, Keeper? The Ancients call it a cloning factory!"
+msgstr "Est-ce une prison, Gardien? Les Anciens appellent ça la salle de clonage!"
+
+#: guitext:117
+msgctxt "In-game message"
+msgid "Are you good at Martial Arts, Keeper? You'll need to be!"
+msgstr "Êtes-vous bon aux Arts Martiaux, Gardien? Vous aurez besoin de l'être!"
+
+#: guitext:118
+msgctxt "In-game message"
+msgid "Congratulations, Keeper. You have found an important ally. With his help you can conquer all of the Underworld!"
+msgstr "Félicitations, Gardien! Vous avez trouvé un important allié! Avec son aide, vous pouvez conquérir tout le monde souterrain!"
+
+#: guitext:119
+msgctxt "In-game message"
+msgid "A few Avatars against your mighty skeletons? How pathetic!"
+msgstr "Quelques Avatars contre vos puissants squelettes? Que c'est pitoyable!"
+
+#: guitext:120
+msgctxt "In-game message"
+msgid "Your Ghosts have the skills you need to leave your Dungeon Heart."
+msgstr "Vos fantômes ont les habiletés que vous avez de besoin pour quitter votre Coeur du Donjon."
+
+#: guitext:121
+msgctxt "In-game message"
+msgid "Magnificent, Keeper! You have a seat amidst the Ancients between Salaar & Thor! You have truly shown that you are worthy. Mind you, L'Cyfre & T'Kaan look uneasy; are they your next victims, oh Omnipotent One?"
+msgstr "Magnifique, Gardien! Vous avez une place parmi les Anciens entre Salaar et Thor! Vous avez vraiment montré que vous en êtes digne! Regardez, L'Cyfre & T'Kaan semblent troublés. Sont-ils vos prochaines victimes, ô Tout-Puissant?"
+
+#: guitext:122
+msgctxt "In-game message"
+msgid "Thank you for playing Ancient Keeper. Written by Pawel & Dayo."
+msgstr "Merci d'avoir joué Ancient Keeper! Écrit par: Pawel et Dayo. Traduit par: DragonsLover."
+
+#: guitext:123
+msgctxt "In-game message"
+msgid "Keep your nerve, Keeper. Your greatest victory awaits you!"
+msgstr "Calmez vos nerfs, Gardie. Votre plus grande victoire vous attend!"
+
+#: guitext:124
+msgctxt "In-game message"
+msgid "You are defeated at the final hurdle, Keeper. Still, you didn't get this far by giving up easily. Re-enter this realm immediately!"
+msgstr "Vous avez été vaincu à l'obstacle final, Gardien. Même, vous n'aviez pas été assez loin pour abandonner aussi facilement. Ré-entrez dans ce royaume immédiatement!"
+
+#: guitext:125
+msgctxt "In-game message"
+msgid "Ancient Keeper is written for the AI patched version of Dungeon Keeper only. Please ensure you are playing this version (patched 1.35MB, old 1.34MB)."
+msgstr "Ancient Keeper a été fait avec la version patchée de Dungeon Keeper seulement. Assurez-vous que vous êtes en train de jouer cette version. Le fichier exécutable patché pèse 1.35Mo et celui non patché pèse 1.34Mo."
+
+#: guitext:126
+msgctxt "In-game message"
+msgid "This realm will demonstrate the power of the Undead!"
+msgstr "Ce royaume va vous démontrer la puissance du mort-vivant!"
+
+#: guitext:127
+msgctxt "In-game message"
+msgid "Excellent, Keeper! Now free your imps, but beware; they are not alone!"
+msgstr "Excellent, Gardien! Maintenant libérez vos lutins, mais prenez garde: ils ne sont pas seuls!"
+
+#: guitext:128
+msgctxt "In-game message"
+msgid "Bravo, Keeper. Now you have company for the next realm!"
+msgstr "Bravo, Gardien! Maintenant, vous avez de la compagnie pour le royaume suivant!"
+
+#: guitext:129
+msgctxt "In-game message"
+msgid "The outer ramp is not connected to your Dungeon Heart."
+msgstr "La rampe extérieure n'est pas connectée à votre Coeur du Donjon. Prenez-en note!"
+
+#: guitext:130
+msgctxt "In-game message"
+msgid "If you have only 5,000 Gold, you are playing the unpatched version of the game (should be 45,000). You need to rectify this."
+msgstr "Si vous avez seulement 5000 d'or, vous jouez la version non patchée du jeu (ce devrait être 45000 d'or). Vous avez besoin de corriger ça."
+
+#: guitext:131
+msgctxt "In-game message"
+msgid "Run Run Run Claim Claim Claim Kill Kill Kill!"
+msgstr "Courez Courez Courez Réclamez Réclamez Réclamez Tuez Tuez Tuez!"
+
+#: guitext:132
+msgctxt "In-game message"
+msgid "You took your time!"
+msgstr "Vous preniez votre temps!"
+
+#: guitext:133
+msgctxt "In-game message"
+msgid "You may wish to leave 1 or 2 of them alive. Then again you may not!"
+msgstr "Vous pouvez souhaiter d'en laisser un ou deux d'entre eux en vie. Mais encore, vous n'êtes pas obligé! C'est juste que..."
+
+#: guitext:134
+msgctxt "In-game message"
+msgid "Bravo, Keeper! Perhaps Ug the Barbarian will accompany you to the next realm?"
+msgstr "Bravo, Gardien! Peut-être que Yonel le Barbare vous accompagnera au prochain royaume?"
+
+#: guitext:135
+msgctxt "In-game message"
+msgid "Concentration, Keeper! To be defeated after all that effort; you must be sicker than a dieting Bile-Demon!"
+msgstr "Concentration, Gardien! Pour avoir été vaincu après tout cet effort, vous devez être encore plus malade qu'un Démon enragé à la diète!"
+
+#: guitext:136
+msgctxt "In-game message"
+msgid "Sorry I'm late."
+msgstr "Désolé, je suis en retard."
+
+#: guitext:137
+msgctxt "In-game message"
+msgid "I hope you've brought your accountant with you, Keeper! Finance holds the key to this realm."
+msgstr "J'espère que vous avez amené votre comptable avec vous, Gardien! Le financement garde la clé de ce royaume."
+
+#: guitext:138
+msgctxt "In-game message"
+msgid "Well done, Keeper. Can you work out how to access the central island?"
+msgstr "Bien joué, Gardien! Pouvez-vous maintenant trouver le moyen d'accéder à l'île centrale?"
+
+#: guitext:139
+msgctxt "In-game message"
+msgid "I suppose it was obvious that they'd kill each other if they ran out of money?"
+msgstr "Je suppose qu'il était évident qu'ils se seraient entretués s'ils étaient ruinés?"
+
+#: guitext:140
+msgctxt "In-game message"
+msgid "If you keep this Horned Reaper happy, then Salaar will kiss his Bile Demon!"
+msgstr "Si vous gardez ce Grand cornu de bonne humeur, alors Salaar va embrasser son Démon enragé!"
+
+#: guitext:141
+msgctxt "In-game message"
+msgid "This realm is riddled with boulder traps, Keeper."
+msgstr "Ce royaume est criblé avec des pièges Rocher, Gardien."
+
+#: guitext:142
+msgctxt "In-game message"
+msgid "You have failed. Perhaps you're not the harbinger of doom the forces of darkness were hoping for."
+msgstr "MEUH"
+
+#: guitext:143
+msgctxt "In-game message"
+msgid "Your constant success is getting boring, Keeper. You needn't travel alone to the next realm!"
+msgstr "MEUH"
+
+#: guitext:144
+msgctxt "In-game message"
+msgid "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
+msgstr "MEUH"
+
+#: guitext:145
+msgctxt "In-game message"
+msgid "Half your allotted time has elapsed."
+msgstr "MEUH"
+
+#: guitext:146
+msgctxt "In-game message"
+msgid "You are out of time. That was a shocking performance."
+msgstr "MEUH"
+
+#: guitext:147
+msgctxt "In-game message"
+msgid "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time. The dark gods will send you a Giant to help you conquer the next realm."
+msgstr "MEUH"
+
+#: guitext:148
+msgctxt "In-game message"
+msgid "You have no gold left. It pays to keep your head in such a charged environment."
+msgstr "MEUH"
+
+#: guitext:149
+msgctxt "In-game message"
+msgid "You have been called to this realm to punish a horde of revolting Bile Demons by crushing them with Boulder Traps scattered around the perimeter of the dungeon. You have very little time, so rock and roll!"
+msgstr "MEUH"
+
+#: guitext:150
+msgctxt "In-game message"
+msgid "Half your time has expired."
+msgstr "MEUH"
+
+#: guitext:151
+msgctxt "In-game message"
+msgid "Your time is up. You have failed. I'm embarrassed to come from the same inter-dimensional void as you."
+msgstr "MEUH"
+
+#: guitext:152
+msgctxt "In-game message"
+msgid "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by granting you three superior Imps when you reach the next realm."
+msgstr "MEUH"
+
+#: guitext:153
+msgctxt "In-game message"
+msgid "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve you well in the future."
+msgstr "MEUH"
+
+#: guitext:154
+msgctxt "In-game message"
+msgid "The people of this realm speak of a Dungeon Keeper called Wisel, who is bound to get in your way. When he does, you will have to consign him to history. This will be no mean feat. Resources are scarce because of his activities."
+msgstr "MEUH"
+
+#: guitext:155
+msgctxt "In-game message"
+msgid "Wisel is defeated. The land is yours to plunder and despoil for all eternity. Give 'em hell, master."
+msgstr "MEUH"
+
+#: guitext:156
+msgctxt "In-game message"
+msgid "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
+msgstr "MEUH"
+
+#: guitext:157
+msgctxt "In-game message"
+msgid "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
+msgstr "MEUH"
+
+#: guitext:158
+msgctxt "In-game message"
+msgid "It is rumoured that two Dragons are held captive somewhere east of here. Were you to find them and free them, they would make powerful servants."
+msgstr "MEUH"
+
+#: guitext:159
+msgctxt "In-game message"
+msgid "A tunnel to the north leads to the Lord of the Realm's domain. This gate is guarded well. It might be wise to direct the humans' attention towards your subterranean enemy."
+msgstr "MEUH"
+
+#: guitext:160
+msgctxt "In-game message"
+msgid "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
+msgstr "MEUH"
+
+#: guitext:161
+msgctxt "In-game message"
+msgid "May I suggest that you kill or imprison anything that gets in your way?"
+msgstr "MEUH"
+
+#: guitext:162
+msgctxt "In-game message"
+msgid "Another realm falls under your evil reign. Another cloud of misery and despair gathers. Lovely."
+msgstr "MEUH"
+
+#: guitext:163
+msgctxt "In-game message"
+msgid "You have failed. This is a grim day for evil."
+msgstr "MEUH"
+
+#: guitext:164
+msgctxt "In-game message"
+msgid "Dispense with a particularly obnoxious party of Dwarves which wanders this region and recruit as many Bile Demons as you can. If you free the Wizard held captive in this realm, he will serve you for some time to come."
+msgstr "MEUH"
+
+#: guitext:165
+msgctxt "In-game message"
+msgid "Take more care of your Bile Demons or you will never make it beyond this realm."
+msgstr "MEUH"
+
+#: guitext:166
+msgctxt "In-game message"
+msgid "How time flies... hurry!"
+msgstr "MEUH"
+
+#: guitext:167
+msgctxt "In-game message"
+msgid "You will meet your nemesis, the Avatar, in this subterranean place. This is your ultimate test. Remember, mercy is for losers."
+msgstr "MEUH"
+
+#: guitext:168
+msgctxt "In-game message"
+msgid "The Avatar and his allys are defeated, yet his power over this land lingers. Prepare thyself..."
+msgstr "MEUH"
+
+#: guitext:169
+msgctxt "In-game message"
+msgid "You got rid of that Keeper easily. Now all that stands between you and total world domination is that ponce in shining armour. Let's get him."
+msgstr "MEUH"
+
+#: guitext:170
+msgctxt "In-game message"
+msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
+msgstr "MEUH"
+
+#: guitext:171
+msgctxt "In-game message"
+msgid "What is this? The Avatar lives!"
+msgstr "MEUH"
+
+#: guitext:172
+msgctxt "In-game message"
+msgid "Finally, you stand unchallenged. The world is yours to waste and despoil. I bet you have never felt so bad."
+msgstr "MEUH"
+
+#: guitext:173
+msgid "You are imprisoned in the land of the flies. The king of your imps has been imprisoned by the heroes to your south. His son is at your side. Enlist the flies to re-unite your imps, and wreak your revenge!"
+msgstr "Vous êtes emprisonné dans la terre des mouches. Le roi de vos lutins a été emprisonné par les héros au Sud. Son fils est à vos côtés. Engagez les mouches pour réunir vos lutins, et assouvissez votre revanche!"
+
+#: guitext:174
+msgid "Your favourite Horned Reaper has been captured, brainwashed and imprisoned. To finish this level, you'll have to set him free and kill all opponents in the process, thus making the world a better and more evil place(yeah!)."
+msgstr "Votre Grand cornu préféré a été capturé, eût un lavage de cerveau et a été emprisonné. Pour finir ce niveau, vous aurez à le libérer et tuer tous les adversaires dans la procédure, de cette façon cela rendra le monde un peu meilleur et rendra la place plus malveillante (ouais)!"
+
+#: guitext:175
+msgid "No time for celebrations Keeper. Your imp King has brought the instruments of your vengeance. To work! "
+msgstr "Pas le temps pour les célébrations, Gardien! Votre roi lutin a amené les instruments de votre vengeance. Au travail!"
+
+#: guitext:176
+msgid "Evil monks have betrayed the Shao-Lin temple to your rivals. Heroes will attempt to retrieve it, but the temple should be yours oh devious one! "
+msgstr "Les malveillants moines ont livrés le temple Shao-Lin à vos rivaux. Les héros vont tenter de le retrouver, mais le temple devrait être le vôtre, ô être Sournois!"
+
+#: guitext:177
+msgid "You are under starter's orders! Let the games begin Keeper! "
+msgstr "Vous êtes sous les ordres de votre assistant! Que la partie commence, Gardien!"
+
+#: guitext:178
+msgid "The monks have returned with re-inforcements to reclaim their temple. Better explain the situation to them! "
+msgstr "Les moines ont retournés avec du renfort pour réclamer leur temple. Vous êtes mieux de leur expliquer la situation!"
+
+#: guitext:179
+msgid "Behold, the abandoned realm of Salaar, one of the Great Ancient Keepers. Paranoid heroes guard this realm with care!"
+msgstr "Voyez, le royaume abandonné de Salaar, un des Grand Anciens Gardien. Les héros paranoïdes gardent ce royaume avec attention!"
+
+msgctxt "Unused"
+#: guitext:180
+msgid "Salaar was truly Evil! Discover and gaze in awe at His training room! Are you skillful enough to use it?"
+msgstr "Salaar était vraiment malveillant! Découvrez et contemplez l'effroyable mais admirable salle d'entraînement! Êtes-vous assez habile pour l'utiliser?"
+
+#: guitext:181
+msgid "Conquer the hero castles in this realm, and you will be a worthy successor to Salaar. Be bold for He is watching from below!"
+msgstr "Allez conquérir les châteaux des héros dans ce royaume, et vous serez un brave successeur de Salaar. Soyez audacieux puisqu'il observe d'en-dessous!"
+
+msgctxt "Level name"
+#: guitext:182
+msgid "Salaar had a limit to the bridges he could own at one time. He sees no reason why you should have more! "
+msgstr "Salaar a eût une limite aux ponts qu'il pourrait posséder en même temps. Il ne voit aucune raison pourquoi vous devriez en avoir plus!"
+
+msgctxt "Level name"
+#: guitext:183
+msgid "That noise is Salaar's mocking laugh! You have failed and you are dismissed! "
+msgstr "Ce bruit est le rire moqueur de Salaar! Vous avez échoué et vous êtes renvoyé!"
+
+msgctxt "Level name"
+#: guitext:184
+msgid "Well done, Keeper! You have pleased Salaar. You are a worthy successor!"
+msgstr "Bien joué, Gardien! Vous avez réjoui Salaar! Vous êtes un brave successeur!"
+
+msgctxt "Level name"
+#: guitext:185
+#: guitext:186
+#: guitext:187
+#: guitext:188
+msgctxt "Level name"
+#: guitext:189
+#: guitext:190
+#: guitext:191
+#: guitext:192
+msgctxt "Level name"
+#: guitext:193
+#: guitext:194
+#: guitext:195
+#: guitext:196
+msgctxt "Level name"
+#: guitext:197
+#: guitext:198
+#: guitext:199
+#: guitext:200
+msgctxt "Level name"
+msgid "Meuh"
+msgstr ""
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Red Carpet"
+msgstr "Tapis Rouge"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Harmony"
+msgstr "Harmonie"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Avarice"
+msgstr "Avarice"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "T'Kaan's Mistress"
+msgstr "La Maîtresse de T'Kaan"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "The Realm of Salaar"
+msgstr "Le Royaume de Salaar"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Save the Heroes"
+msgstr "Sauvez les héros!"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Kwan Tek's Ordeal"
+msgstr "L'épreuve de Kwan Tek"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Avatar's Revenge"
+msgstr "La Revanche de l'Avatar"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Knight Manoeuvres"
+msgstr "Manoeuvres chevaleresque"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "The University of Hades"
+msgstr "L'Université des Enfers"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Salaar's Test"
+msgstr "Le Test de Salaar"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Rescue the Avatar"
+msgstr "Sauvez l'Avatar!"
+
+#: guitext:214
+msgid "Sloth"
+msgstr "Paresse"
+
+#: guitext:215
+msgid "Entomology"
+msgstr "Entomologie"
+
+#: guitext:216
+msgid "Flowers of Despair"
+msgstr "Les Fleurs du Désespoir"
+
+#: guitext:217
+msgid "Dragonia"
+msgstr "Dragonia"
+
+#: guitext:218
+msgid "Fortress of the Sun"
+msgstr "La Forteresse du Soleil"
+
+#: guitext:219
+msgid "Thor's Diplomat"
+msgstr "La Diplomate de Thor"
+
+#: guitext:220
+msgid "Antak's Ruin"
+msgstr "La Ruine d'Antak"
+
+#: guitext:221
+msgid "L'Cyfre's Challenge"
+msgstr "Le Défi de L'Cyfre"
+
+#: guitext:222
+msgctxt "In-game interface description"
+msgid "Name and Health: [23.4]"
+msgstr "Nom et Santé: Nom de la créature ainsi que son niveau de santé."
+
+#: guitext:223
+msgctxt "In-game interface description"
+msgid "Experience: The creature's experience level. [23.3]"
+msgstr "Expérience: Niveau d'expérience de la créature ainsi que son délai pour passer au niveau suivant."
+
+#: guitext:224
+msgctxt "In-game interface description"
+msgid "Hunger: How badly a creature needs to suck down a chicken or two."
+msgstr "Faim: Une créature a réellement besoin d'engloutir un ou deux poulets."
+
+#: guitext:225
+msgctxt "In-game interface description"
+msgid "Cancel"
+msgstr "Annuler"
+
+#: guitext:226
+msgctxt "Creature spell"
+msgid "Arrow: [25.4]"
+msgstr "Flèche: Projectile de base de l'Archer causant 30 points de dégâts."
+
+#: guitext:227
+msgctxt "Creature spell"
+msgid "Freeze: [26.8]"
+msgstr "Glaciateur: Boule de glace qui, au contact de la créature ciblée, la transforme en statue de glace où elle ne pourra plus se déplacer, ni attaquer pendant un court moment."
+
+#: guitext:228
+msgctxt "Creature spell"
+msgid "Armour: [26.1]"
+msgstr "Armure: Augmente le niveau de résistance de la créature."
+
+#: guitext:229
+msgctxt "Creature spell"
+msgid "Lightning: [26.13]"
+msgstr "Eclair: Eclair foudroyant causant 20 points de dégâts."
+
+#: guitext:230
+msgctxt "Creature spell"
+msgid "Rebound: [26.18]"
+msgstr "Rebond: Bouclier enchanté qui renvoie toutes les projectiles ennemies vers leurs envoyeurs."
+
+#: guitext:231
+msgctxt "Creature spell"
+msgid "Fear: Not used"
+msgstr "Terreur: Non utilisée"
+
+#: guitext:232
+msgctxt "Creature spell"
+msgid "Sight: Not used"
+msgstr "Oeil: La créature peut détecter les créatures invisibles ennemies."
+
+#: guitext:233
+msgctxt "Creature spell"
+msgid "Missile: [26.15]"
+msgstr "Projectile: Boule reptilienne hurlante causant 20 points de dégâts."
+
+#: guitext:234
+msgctxt "Creature spell"
+msgid "Grenade: [26.9]"
+msgstr "Grenade: Utilisée uniquement pendant la possession, c'est une boule hurlante qui rebondit et explose après 3 secondes, causant alors des dommages et faisant tout projeter aux alentours."
+
+#: guitext:235
+msgctxt "Creature spell"
+msgid "Navigating Missile: [26.16]"
+msgstr "Projectile guidé: Boule reptilienne hurlante qui vise automatiquement une cible ennemie, causant 40 points de dégâts."
+
+#: guitext:236
+msgctxt "Creature spell"
+msgid "Speed: [26.20]"
+msgstr "Accélération: Augmente la vitesse de déplacement et de compétence de la créature."
+
+#: guitext:237
+#: guitext:253
+msgctxt "Creature spell"
+msgid "Poison Cloud: [26.17]"
+msgstr "Nuage empoisonné: Boule puante qui produit des vapeurs toxiques lorsqu'elle explose au contact d'un obstacle ou d'une créature."
+
+#: guitext:238
+msgctxt "Creature spell"
+msgid "Group: Not used"
+msgstr "Contrôle de groupe: Non utilisé"
+
+#: guitext:239
+msgctxt "Creature spell"
+msgid "Invisibility: [26.12]"
+msgstr "Invisibilité: La créature devient invisible à l'ennemi."
+
+#: guitext:240
+msgctxt "Creature spell"
+msgid "Teleport: [26.21]"
+msgstr "Téléportation: La créature peut se téléporter où elle le désire."
+
+#: guitext:241
+msgctxt "Creature spell"
+msgid "Flame Breath: [26.6]"
+msgstr "Souffle ardent: Souffle de flammes dévastatrices qui brûlent tout."
+
+#: guitext:242
+msgctxt "Creature spell"
+msgid "Illumination: Not used"
+msgstr "Illumination: Non utilisée"
+
+#: guitext:243
+msgctxt "Creature spell"
+msgid "Flight: [26.7]"
+msgstr "Vol: Permet à la créature de voler."
+
+#: guitext:244
+msgctxt "Creature spell"
+msgid "Hail Storm: [26.10]"
+msgstr "Grêle: Pluie de grêles causant 5 points de dégâts pour chaque grêle."
+
+#: guitext:245
+msgctxt "Creature spell"
+msgid "Slow: [26.19]"
+msgstr "Ralentisseur: Boule magique qui, au contact de la créature ciblée, crée un anneau rouge qui ralentit sa vitesse de déplacement et de compétence pendant un certain temps."
+
+#: guitext:246
+msgctxt "Creature spell"
+msgid "Drain: [26.4]"
+msgstr "Drain de vie: Rayon rouge qui réduit 20 points de vie d'une cible pour être transférée à la créature."
+
+#: guitext:247
+msgctxt "Creature spell"
+msgid "Word of Power: [26.23]"
+msgstr "Anneaux de feu: Anneaux de feu provenant du corps de la créature et projetant toutes créatures ennemies aux alentours."
+
+#: guitext:248
+msgctxt "Creature spell"
+msgid "Heal: [26.11]"
+msgstr "Guérison: La créature se soigne d'elle-même lorsqu'elle est blessée."
+
+#: guitext:249
+msgctxt "Creature spell"
+msgid "Wind: [26.22]"
+msgstr "Ouragan: Propulse toutes créatures affectées par le vent loin de la créature."
+
+#: guitext:250
+msgctxt "Creature spell"
+msgid "Meteor: [26.14]"
+msgstr "Météorite: Grosse boule de feu solide causant 100 points de dégâts."
+
+#: guitext:251
+msgctxt "Creature spell"
+msgid "Fireball: [26.5]"
+msgstr "Boule de feu: Boule de feu causant 30 points de dégâts."
+
+#: guitext:252
+msgctxt "Creature spell"
+msgid "Hand to Hand: [25.3]"
+msgstr "Combat rapproché: Attaque de base de toutes les créatures en utilisant leurs crocs, griffes, cornes, poings, épée, hache, massue ou toute autre arme de base."
+
+#: guitext:254
+msgctxt "Creature spell"
+msgid "Dig: [25.2]"
+msgstr "Excavation: Unique aux Lutins, ce sort permet de creuser des galeries et de réclamer du territoire."
+
+#: guitext:255
+msgctxt "Creature spell"
+msgid "Disease: [26.3]"
+msgstr "Epidémie: Non utilisée"
+
+#: guitext:256
+msgctxt "Creature spell"
+msgid "Chicken: [26.2]"
+msgstr "Galinamorphose: Non utilisée"
+
+#: guitext:257
+msgctxt "Creature spell"
+msgid "Time Bomb"
+msgstr "Bombe à retardement: Non utilisée"
+
+#: guitext:258
+msgctxt "Creature name"
+msgid "Fairy"
+msgstr "Fée"
+
+#: guitext:259
+msgctxt "Creature name"
+msgid "Imp"
+msgstr "Lutin"
+
+#: guitext:260
+msgctxt "Creature name"
+msgid "Beetle"
+msgstr "Scarabée"
+
+#: guitext:261
+msgctxt "Creature name"
+msgid "Troll"
+msgstr "Troll"
+
+#: guitext:262
+msgctxt "Creature name"
+msgid "Demon Spawn"
+msgstr "Démon avorton"
+
+#: guitext:263
+msgctxt "Creature name"
+msgid "Warlock"
+msgstr "Sorcier"
+
+#: guitext:264
+msgctxt "Creature name"
+msgid "Fly"
+msgstr "Mouche"
+
+#: guitext:265
+msgctxt "Creature name"
+msgid "Spider"
+msgstr "Araignée"
+
+#: guitext:266
+msgctxt "Creature name"
+msgid "Skeleton"
+msgstr "Squelette"
+
+#: guitext:267
+msgctxt "Creature name"
+msgid "Horned Reaper"
+msgstr "Grand cornu"
+
+#: guitext:268
+msgctxt "Creature name"
+msgid "Dragon"
+msgstr "Dragon"
+
+#: guitext:269
+msgctxt "Creature name"
+msgid "Tentacle"
+msgstr "Tentacule"
+
+#: guitext:270
+msgctxt "Creature name"
+msgid "Hound"
+msgstr "Cerbère"
+
+#: guitext:271
+msgctxt "Creature name"
+msgid "Ghost"
+msgstr "Fantôme"
+
+#: guitext:272
+msgctxt "Creature name"
+msgid "Mistress"
+msgstr "Maîtresse noire"
+
+#: guitext:273
+msgctxt "Creature name"
+msgid "Bile Demon"
+msgstr "Démon enragé"
+
+#: guitext:274
+msgctxt "Creature name"
+msgid "Vampire"
+msgstr "Vampire"
+
+#: guitext:275
+msgctxt "Creature name"
+msgid "Barbarian"
+msgstr "Barbare"
+
+#: guitext:276
+msgctxt "Creature name"
+msgid "Knight"
+msgstr "Chevalier"
+
+#: guitext:277
+msgctxt "Creature name"
+msgid "Wizard"
+msgstr "Mage"
+
+#: guitext:278
+msgctxt "Creature name"
+msgid "Orc"
+msgstr "Orque"
+
+#: guitext:279
+msgctxt "Creature name"
+msgid "Mountain Dwarf"
+msgstr "Nain des montagnes"
+
+#: guitext:280
+msgctxt "Creature name"
+msgid "Valley Dwarf"
+msgstr "Nain des vallées"
+
+#: guitext:281
+msgctxt "Creature name"
+msgid "Thief"
+msgstr "Voleur"
+
+#: guitext:282
+msgctxt "Creature name"
+msgid "Samurai"
+msgstr "Ninja"
+
+#: guitext:283
+msgctxt "Creature name"
+msgid "Priestess"
+msgstr "Prêtresse"
+
+#: guitext:284
+msgctxt "Creature name"
+msgid "Giant"
+msgstr "Géant"
+
+#: guitext:285
+msgctxt "Creature name"
+msgid "Archer"
+msgstr "Archer"
+
+#: guitext:286
+msgctxt "Creature name"
+msgid "Monk"
+msgstr "Moine"
+
+#: guitext:287
+msgctxt "In-game interface description"
+msgid "Query: Select this and left click on a creature to view information on that creature. LMB select. [5.8]"
+msgstr "Mode Question: Sélectionnez cette option avec le bouton gauche de la souris et cliquez sur une de vos créatures avec le bouton gauche de la souris pour voir ses caractéristiques."
+
+#: guitext:288
+msgctxt "Menu interface item"
+msgid "Select game"
+msgstr "SÉLECTIONNER UNE PARTIE"
+
+#: guitext:289
+msgctxt "Menu interface item"
+msgid "Network Menu"
+msgstr "MENU RÉSEAU"
+
+#: guitext:290
+#: guitext:343
+msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "MENU PRINCIPAL"
+
+#: guitext:291
+msgctxt "In-game interface description"
+msgid "Anger: How angry the creature is. [23.2]"
+msgstr "Humeur: Indique l'état d'humeur de la créature."
+
+#: guitext:292
+msgctxt "In-game interface description"
+msgid "Creature Kills: The number of enemies the creature has slain. [23.7]"
+msgstr "Victimes: Nombre d'ennemis massacrés par la créature."
+
+#: guitext:293
+msgctxt "In-game interface description"
+msgid "Strength: The amount of damage the creature inflicts upon it's enemies. [23.12]"
+msgstr "Force: Dommages infligés par la créature à ses ennemis."
+
+#: guitext:294
+msgctxt "In-game interface description"
+msgid "Wage: The creature's salary in gold. [23.13]"
+msgstr "Gage: Salaire de la créature en or."
+
+#: guitext:295
+msgctxt "In-game interface description"
+msgid "Gold Held : The amount of gold the creature is carrying. [23.8]"
+msgstr "Or: Quantité d'or transporté par la créature."
+
+#: guitext:296
+msgctxt "In-game interface description"
+msgid "Defence: The chance a creature will avoid a blow. [23.9]"
+msgstr "Défense: Probabilité qu'a une créature d'éviter un coup."
+
+#: guitext:297
+msgctxt "In-game interface description"
+msgid "Skill: The creature's ability to perform tasks. [23.14]"
+msgstr "Compétence: Aptitude d'une créature à effectuer des tâches."
+
+#: guitext:298
+msgctxt "In-game interface description"
+msgid "Age/Time In Dungeon: The length of time you have employed the creature. [23.10]"
+msgstr "Temps passé dans le donjon: Durée pendant laquelle vous avez employé la créature."
+
+#: guitext:299
+msgctxt "In-game interface description"
+msgid "Dexterity: The chance a creature will avoid a trap or an enemy weapon. [23.15]"
+msgstr "Dextérité: Probabilité pour une créature d'éviter un piège ou une arme ennemie."
+
+#: guitext:300
+msgctxt "In-game interface description"
+msgid "Luck: The chance that a creature will do a double attack or a double defence in combat. [23.11]"
+msgstr "Chance: Possibilité pour une créature d'effectuer une double attaque ou une double défense pendant un combat."
+
+#: guitext:301
+msgctxt "In-game interface description"
+msgid "Blood type: As if you care. Blood is blood, right? [23.16]"
+msgstr "Groupe sanguin: Comme si c'était important ! Du sang, c'est du sang, non ?"
+
+#: guitext:302
+msgctxt "In-game interface description"
+msgid "Idle: The creature is either sleeping or not working. LMB pick up creature. RMB zoom. [9.1 and 22.2.1]"
+msgstr "Oisiveté: La créature dort, mange ou ne travaille pas. Prenez la créature avec le bouton gauche de la souris, zoomez avec le bouton droit."
+
+#: guitext:303
+msgctxt "In-game interface description"
+msgid "Working: The creature is performing tasks. LMB pick up creature. RMB zoom. [9.2 and 22.2.1]"
+msgstr "Travail: La créature effectue des tâches. Prenez la créature avec le bouton gauche de la souris, zoomez avec le bouton droit."
+
+#: guitext:304
+msgctxt "In-game interface description"
+msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom. [9.3 and 22.2.1]"
+msgstr "Combat: La créature est au combat. Prenez la créature avec le bouton gauche de la souris, zoomez avec le bouton droit."
+
+#: guitext:305
+msgctxt "In-game interface description"
+msgid "Fight: Your creatures always attack. LMB select. [6.5.1]"
+msgstr "Attaque: Vos créatures attaquent toujours. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:306
+msgctxt "In-game interface description"
+msgid "Flee: Your creatures attempt to preserve their lives. LMB select. [5.2]"
+msgstr "Fuite: Vos créatures essaient de sauver leur vie. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:307
+msgctxt "In-game interface description"
+msgid "Imprison: Your creatures stun their enemies in battle and imprison those they defeat. LMB select. [5.1]"
+msgstr "Emprisonnement: Vos créatures assomment leurs ennemis et les lutins emprisonnent les vaincus. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:308
+msgctxt "In-game interface description"
+msgid "Defending: The creature is concentrating on avoiding its adversary's blows."
+msgstr "Esquive: La créature se concentre pour éviter les coups de l'adversaire."
+
+#: guitext:309
+msgctxt "In-game interface item"
+msgid "Are you sure?"
+msgstr "Vous confirmez ?"
+
+#: guitext:310
+msgctxt "In-game interface item"
+msgid "Yes"
+msgstr "Oui"
+
+#: guitext:311
+msgctxt "In-game interface item"
+msgid "No"
+msgstr "Non"
+
+#: guitext:312
+msgctxt "In-game interface item"
+msgid "For"
+msgstr "POUR"
+
+#: guitext:313
+msgctxt "In-game interface description"
+msgid "Shadows: The number of shadows cast by each creature. LMB toggle. [3.2.2]"
+msgstr "Ombres: Nombre d'ombres projetées par chaque créatures. Changez avec le bouton gauche de la souris."
+
+#: guitext:314
+msgctxt "In-game interface description"
+msgid "View Type: Swap between the default and forced perspective views. LMB toggle. [3.2.2]"
+msgstr "Type d'affichage: Passe de l'affichage par défaut à la perspective. Changez avec le bouton gauche de la souris."
+
+#: guitext:315
+msgctxt "In-game interface description"
+msgid "Wall Height: Swap between high or low walls. LMB toggle. [3.2.2]"
+msgstr "Hauteur des murs: Sélection de la hauteur des murs. Changez avec le bouton gauche de la souris."
+
+#: guitext:316
+msgctxt "In-game interface description"
+msgid "View Distance: The amount of dungeon drawn. This directly affects the speed of the game. LMB toggle. [3.2.2]"
+msgstr "Surface affichée: Taille de la surface affichée, qui affecte directement la vitesse du jeu. Changez avec le bouton gauche de la souris."
+
+#: guitext:317
+msgctxt "In-game interface description"
+msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle. [3.2.2]"
+msgstr "Correction gamma: Ajuste la luminosité. Changez avec le bouton gauche de la souris."
+
+#: guitext:318
+msgctxt "In-game interface item"
+msgid "Of"
+msgstr "De"
+
+#: guitext:319
+msgctxt "Slab description"
+msgid "Empty Lair: Would suit itinerant creature."
+msgstr "Antre vide: Conviendrait à toute créature vagabonde."
+
+#: guitext:320
+msgctxt "Menu interface item"
+msgid "Paused"
+msgstr "PAUSE"
+
+#: guitext:321
+msgctxt "In-game interface description"
+msgid "Zoom In: Zoom in the Dynamic Map. LMB select. [4.1]"
+msgstr "Zoom avant: Zoom avant sur la carte dynamique. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:322
+msgctxt "In-game interface description"
+msgid "Zoom Out: Zoom out the Dynamic Map. LMB select. [4.1]"
+msgstr "Zoom arrière: Zoom arrière sur la carte dynamique. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:323
+msgctxt "In-game interface description"
+msgid "Full Screen Map: Takes you to the Map Screen. LMB select. [4.1.1]"
+msgstr "Carte plein écran: Affiche l'écran de la carte. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:324
+msgctxt "Slab description"
+msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgstr "Rocher impénétrable: Les lutins ne peuvent pas creuser dans cette roche."
+
+#: guitext:325
+msgctxt "Slab description"
+msgid "Earth: You can excavate this. [12.1]"
+msgstr "Terre: Les lutins peuvent creuser dans cette roche."
+
+#: guitext:326
+msgctxt "Slab description"
+msgid "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to your Treasure Room. [12.2]"
+msgstr "Filon d'or: Source de métal précieux à faire exploiter par les lutins."
+
+#: guitext:327
+msgctxt "Slab description"
+msgid "Lava: Burns any creature that step on it. [14.2]"
+msgstr "Lave: Toute créature non-résistante à la lave qui marche dedans sera brûlée."
+
+#: guitext:328
+msgctxt "Slab description"
+msgid "Water: Creatures move more slowly through water. [14.1]"
+msgstr "Eau: Les créatures se déplacent plus lentement dans l'eau."
+
+#: guitext:329
+msgctxt "Slab description"
+msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgstr "Mur: Mur en pierre renforcé infranchissable par les intrus."
+
+#: guitext:330
+msgctxt "Slab description"
+msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
+msgstr "Mur endommagé: A moins qu'il ne soit réparé, ce mur finira par s'effondrer."
+
+#: guitext:331
+msgctxt "Slab description"
+msgid "Path: Unclaimed earth floor. [12.1]"
+msgstr "Chemin: Zone non réclamée."
+
+#: guitext:332
+msgctxt "Slab description"
+msgid "Claimed area: Your dungeon territory. [12.1]"
+msgstr "Zone réclamée: Le territoire d'un donjon."
+
+#: guitext:333
+msgctxt "In-game interface item"
+msgid "More..."
+msgstr "Suite..."
+
+#: guitext:334
+msgctxt "In-game message"
+msgid "Level completed - press Escape to continue"
+msgstr "Niveau terminé - Appuyez sur la barre d'espacement pour continuer!"
+
+#: guitext:335
+msgctxt "In-game message"
+msgid "You have been defeated. Press Space to restart."
+msgstr "Vous avez échoué... Appuyez sur la barre d'espacement pour recommencer la conquête de ce royaume."
+
+#: guitext:336
+msgctxt "On-screen message"
+msgid "RECORDING FLIC"
+msgstr "ENREGISTREMENT SÉQUENCE"
+
+#: guitext:337
+msgctxt "On-screen message"
+msgid "ERROR RECORDING FLIC"
+msgstr "ENREGISTREMENT SÉQUENCE INCORRECT"
+
+#: guitext:338
+msgctxt "On-screen message"
+msgid "FINISHED RECORDING FLIC"
+msgstr "ENREGISTREMENT SÉQUENCE TERMINÉ"
+
+#: guitext:339
+msgctxt "Unused"
+msgid "Time Bomb"
+msgstr "Bombe à retardement"
+
+#: guitext:340
+msgctxt "In-game interface item"
+msgid "Sound FX"
+msgstr "Effets Sonores"
+
+#: guitext:341
+msgctxt "In-game interface item"
+msgid "Music"
+msgstr "Musique"
+
+#: guitext:342
+msgctxt "In-game interface item"
+msgid "UNUSED"
+msgstr "NON UTILISÉ"
+
+#: guitext:344
+msgctxt "Menu interface item"
+msgid "Load Menu"
+msgstr "MENU DE CHARGEMENT"
+
+#: guitext:345
+msgctxt "Menu interface item"
+msgid "Load Game"
+msgstr "CHARGER UNE PARTIE"
+
+#: guitext:346
+msgctxt "Menu interface item"
+msgid "Continue Game"
+msgstr "CONTINUER LA PARTIE"
+
+#: guitext:347
+msgctxt "Menu interface item"
+msgid "Multiplayer"
+msgstr "MULTIJOUEURS"
+
+#: guitext:348
+msgctxt "Menu interface item"
+msgid "Return to Main Menu"
+msgstr "RETOUR AU MENU PRINCIPAL"
+
+#: guitext:349
+msgctxt "Menu interface item"
+msgid "Play Intro"
+msgstr "VOIR L'INTRODUCTION"
+
+#: guitext:350
+msgctxt "Menu interface item"
+msgid "Service Menu"
+msgstr "MENU SERVICE"
+
+#: guitext:351
+msgctxt "Menu interface item"
+msgid "Session Menu"
+msgstr "MENU SESSION"
+
+#: guitext:352
+msgctxt "Menu interface item"
+msgid "Speed"
+msgstr "VITESSE"
+
+#: guitext:353
+msgctxt "Menu interface item"
+msgid "COM Port"
+msgstr "PORT COM"
+
+#: guitext:354
+msgctxt "Menu interface item"
+msgid "Phone Number"
+msgstr "No TÉLÉPHONE"
+
+#: guitext:355
+msgctxt "Menu interface item"
+msgid "IRQ"
+msgstr "IRQ"
+
+#: guitext:356
+msgctxt "Menu interface item"
+msgid "Statistics"
+msgstr "STATISTIQUES"
+
+#: guitext:357
+msgctxt "Menu interface item"
+msgid "Level Completed"
+msgstr "NIVEAU TERMINÉ"
+
+#: guitext:358
+msgctxt "Menu interface item"
+msgid "UNUSED"
+msgstr "INUTILISE"
+
+#: guitext:359
+msgctxt "Menu interface item"
+msgid "Quit"
+msgstr "QUITTER"
+
+#: guitext:360
+msgctxt "Menu interface item"
+msgid "Ancient Keeper"
+msgstr "ANCIENT KEEPER"
+
+#: guitext:361
+msgctxt "Unused"
+msgid "This is a tale of valour and honour and how tasty heroes are...."
+msgstr "Ceci est un conte sur l'honneur et la vaillance... et sur la prestance des héros..."
+
+#: guitext:362
+msgctxt "Credits"
+msgid "Designed By"
+msgstr "CRÉÉ PAR"
+
+#: guitext:363
+msgctxt "Credits"
+msgid "Project Leader"
+msgstr "CHEF DE PROJET"
+
+#: guitext:364
+msgctxt "Credits"
+msgid "Lead Programmer"
+msgstr "PROGRAMMEUR PRINCIPAL"
+
+#: guitext:365
+msgctxt "Credits"
+msgid "Lead Artist"
+msgstr "GRAPHISTE PRINCIPAL"
+
+#: guitext:366
+msgctxt "Credits"
+msgid "Programming"
+msgstr "PROGRAMMATION"
+
+#: guitext:367
+msgctxt "Credits"
+msgid "Engine Design"
+msgstr "CONCEPTION DU MOTEUR"
+
+#: guitext:368
+msgctxt "Credits"
+msgid "Music and Sfx"
+msgstr "MUSIQUE ET EFFETS SPÉCIAUX"
+
+#: guitext:369
+msgctxt "Credits"
+msgid "Graphics Programmers"
+msgstr "PROGRAMMATION DES GRAPHISMES"
+
+#: guitext:370
+msgctxt "Credits"
+msgid "Artists"
+msgstr "GRAPHISTES"
+
+#: guitext:371
+msgctxt "Credits"
+msgid "Network Programming"
+msgstr "PROGRAMMATION RÉSEAU"
+
+#: guitext:372
+msgctxt "Credits"
+msgid "Testing Manager"
+msgstr "RESPONSABLE DES TESTS"
+
+#: guitext:373
+msgctxt "Credits"
+msgid "Ancient Keeper Levels : Pawel & Dayo"
+msgstr "TESTEURS PRINCIPAUX"
+
+#: guitext:374
+msgctxt "Credits"
+msgid "Lead Tester"
+msgstr "TESTEUR PRINCIPAL"
+
+#: guitext:375
+msgctxt "Credits"
+msgid "Management"
+msgstr "CHEF DE PROJET"
+
+#: guitext:376
+msgctxt "Credits"
+msgid "Marketing and PR"
+msgstr "MARKETING ET RELATIONS PUBLIQUES"
+
+#: guitext:377
+msgctxt "Credits"
+msgid "Tech Support"
+msgstr "ASSISTANCE TECHNIQUE"
+
+#: guitext:378
+msgctxt "Credits"
+msgid "Administration"
+msgstr "ADMINISTRATION"
+
+#: guitext:379
+msgctxt "Credits"
+msgid "Thanks To"
+msgstr "REMERCIEMENTS À"
+
+#: guitext:380
+msgctxt "Credits"
+msgid "Producer"
+msgstr "PRODUCTEUR"
+
+#: guitext:381
+msgctxt "Credits"
+msgid "Level Design"
+msgstr "CONCEPTION DES NIVEAUX"
+
+#: guitext:382
+msgctxt "Credits"
+msgid "Script By"
+msgstr "SCRIPT"
+
+#: guitext:383
+msgctxt "Credits"
+msgid "Libraries and Tools"
+msgstr "BIBLIOTHÈQUES ET OUTILS"
+
+#: guitext:384
+msgctxt "Credits"
+msgid "Playtesters"
+msgstr "TESTEURS DU JEU"
+
+#: guitext:385
+msgctxt "Credits"
+msgid "Localisation"
+msgstr "LOCALISATION"
+
+#: guitext:386
+msgctxt "Credits"
+msgid "Special Thanks To"
+msgstr "REMERCIEMENTS PARTICULIERS À"
+
+#: guitext:387
+msgctxt "Credits"
+msgid "Package Design"
+msgstr "CONCEPTION DE L'EMBALLAGE"
+
+#: guitext:388
+msgctxt "Credits"
+msgid "Documentation"
+msgstr "DOCUMENTATION"
+
+#: guitext:389
+msgctxt "Credits"
+msgid "Documentation Layout"
+msgstr "MISE EN PAGE DE LA DOCUMENTATION"
+
+#: guitext:390
+msgctxt "Credits"
+msgid "Production"
+msgstr "RÉALISATION"
+
+#: guitext:391
+msgctxt "Credits"
+msgid "Quality Assurance"
+msgstr "ASSURANCE QUALITÉ"
+
+#: guitext:392
+msgctxt "Credits"
+msgid "Lead Level Design"
+msgstr "RESPONSABLE CONCEPTION DES NIVEAUX"
+
+#: guitext:393
+msgctxt "Credits"
+msgid "Intro"
+msgstr "INTRODUCTION"
+
+#: guitext:394
+msgctxt "Credits"
+msgid "Testers"
+msgstr "TESTEURS"
+
+#: guitext:395
+msgctxt "Menu interface item"
+msgid "Sessions"
+msgstr "SESSIONS"
+
+#: guitext:396
+msgctxt "Menu interface item"
+msgid "Name"
+msgstr "NOM"
+
+#: guitext:397
+msgctxt "Menu interface item"
+msgid "Services"
+msgstr "SERVICES"
+
+#: guitext:398
+msgctxt "Menu interface item"
+msgid "Messages"
+msgstr "MESSAGES"
+
+#: guitext:399
+msgctxt "Menu interface item"
+msgid "Create Game"
+msgstr "CRÉER PARTIE"
+
+#: guitext:400
+msgctxt "Menu interface item"
+msgid "Join Game"
+msgstr "JOINDRE UNE PARTIE"
+
+#: guitext:401
+msgctxt "Menu interface item"
+msgid "Start Game"
+msgstr "LANCER LE JEU"
+
+#: guitext:402
+msgctxt "Menu interface item"
+msgid "Game Menu"
+msgstr "MENU JEU"
+
+#: guitext:403
+msgctxt "Menu interface item"
+msgid "Cancel"
+msgstr "ANNULER"
+
+#: guitext:404
+msgctxt "Menu interface item"
+msgid "No Name"
+msgstr "SANS NOM"
+
+#: guitext:405
+msgctxt "Menu interface item"
+msgid "Players"
+msgstr "JOUEURS"
+
+#: guitext:406
+msgctxt "Menu interface item"
+msgid "Level"
+msgstr "NIVEAU"
+
+#: guitext:407
+msgctxt "Menu interface item"
+msgid "Levels"
+msgstr "NIVEAUX"
+
+#: guitext:408
+msgctxt "Menu interface item"
+msgid "Games"
+msgstr "PARTIES"
+
+#: guitext:409
+msgctxt "Menu interface item"
+msgid "Modem Menu"
+msgstr "MENU MODEM"
+
+#: guitext:410
+msgctxt "Menu interface item"
+msgid "Serial Menu"
+msgstr "MENU LIAISON SÉRIE"
+
+#: guitext:411
+msgctxt "Menu interface item"
+msgid "Init"
+msgstr "INITIALISATION"
+
+#: guitext:412
+msgctxt "Menu interface item"
+msgid "Hangup"
+msgstr "RACCROCHER"
+
+#: guitext:413
+msgctxt "Menu interface item"
+msgid "Clear"
+msgstr "EFFACER"
+
+#: guitext:414
+msgctxt "Menu interface item"
+msgid "Answer"
+msgstr "RÉPONDRE"
+
+#: guitext:415
+msgctxt "Menu interface item"
+msgid "Start"
+msgstr "DÉMARRER"
+
+#: guitext:416
+msgctxt "Menu interface item"
+msgid "Ally"
+msgstr "ALLIÉ"
+
+#: guitext:417
+msgctxt "Menu interface item"
+msgid "Alliance"
+msgstr "ALLIANCE"
+
+#: guitext:418
+msgctxt "Menu interface item"
+msgid "Credits"
+msgstr "GÉNÉRIQUE"
+
+#: guitext:419
+msgctxt "Menu interface item"
+msgid "Ok"
+msgstr "OK"
+
+#: guitext:420
+msgctxt "Dungeon special decription"
+msgid "Reveal Map: Reveals the entire underground realm to you."
+msgstr "Dévoiler carte: Affiche le royaume souterrain dans son intégralité."
+
+#: guitext:421
+msgctxt "Dungeon special decription"
+msgid "Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgstr "Ressusciter créature: Vous pouvez faire revenir un de vos larbins de l'au-delà."
+
+#: guitext:422
+msgctxt "Dungeon special decription"
+msgid "Transfer Creature: Pick one of your creatures to accompany you to the next realm."
+msgstr "Transférer créature: Prenez une de vos créatures pour qu'elle vous accompagne dans le royaume suivant."
+
+#: guitext:423
+msgctxt "Dungeon special decription"
+msgid "Steal Hero: Subvert a hero to your cause."
+msgstr "Voler héros: Ralliez un héros à votre cause."
+
+#: guitext:424
+msgctxt "Dungeon special decription"
+msgid "Multiply Creatures: Create a double of each of your creatures."
+msgstr "Multiplier créatures: Créez un double de chacune de vos créatures."
+
+#: guitext:425
+msgctxt "Dungeon special decription"
+msgid "Increase Level: Bestows greater skill on all your creatures."
+msgstr "Augmenter le niveau: Accorde des compétences supérieures à toutes vos créatures."
+
+#: guitext:426
+msgctxt "Dungeon special decription"
+msgid "Make Safe : Reinforces your entire dungeon."
+msgstr "Sécurité: Renforce tout votre donjon."
+
+#: guitext:427
+msgctxt "Dungeon special decription"
+msgid "Locate Kantars Realms: You will be transported to a secret realm after you have conquered this one."
+msgstr "Localiser monde de Kantars: Vous serez transporté dans un royaume secret quand vous aurez conquis celui-ci."
+
+#: guitext:428
+msgctxt "Dungeon special name"
+msgid "Resurrect Creature"
+msgstr "Ressusciter créature"
+
+#: guitext:429
+msgctxt "Dungeon special name"
+msgid "Transfer Creature"
+msgstr "Transférer créature"
+
+#: guitext:430
+msgctxt "Menu interface item"
+msgid "Underworld Amusement"
+msgstr "BONUS"
+
+#: guitext:431
+msgctxt "Menu interface item"
+msgid "High Score Table"
+msgstr "LES MEILLEURS SCORES"
+
+#: guitext:432
+msgctxt "Menu interface item"
+msgid "Go to Query Mode"
+msgstr "Mode Question: Sélectionnez cette option avec le bouton gauche de la souris et cliquez sur une de vos créatures avec le bouton gauche de la souris pour voir ses caractéristiques."
+
+#: guitext:433
+msgctxt "Menu interface item"
+msgid "More information"
+msgstr "Informations suivantes"
+
+#: guitext:434
+msgctxt "Menu interface item"
+msgid "Back to main Query Screen"
+msgstr "RETOUR A L'ÉCRAN D'AIDE"
+
+#: guitext:435
+msgctxt "Menu interface item"
+msgid "Selected action"
+msgstr "ACTION SELECTIONNÉE"
+
+#: guitext:436
+msgctxt "Menu interface item"
+msgid "Choose party"
+msgstr "CHOISIR UN CAMP"
+
+#: guitext:437
+msgctxt "Menu interface item"
+msgid "Enter dungeon"
+msgstr "ENTRER DANS LE DONJON"
+
+#: guitext:438
+msgctxt "Menu interface item"
+msgid "Party members"
+msgstr "MEMBRES DE L'ÉQUIPE"
+
+#: guitext:439
+msgctxt "Menu interface item"
+msgid "Available creatures"
+msgstr "CRÉATURES DISPONIBLES"
+
+#: guitext:440
+msgctxt "Menu interface item"
+msgid "Creature"
+msgstr "CRÉATURE"
+
+#: guitext:441
+msgctxt "Menu interface item"
+msgid "Money available"
+msgstr "Or disponible: Votre réserve de métal précieux."
+
+#: guitext:442
+msgctxt "Menu interface item"
+msgid "Leader"
+msgstr "CHEF"
+
+#: guitext:443
+msgctxt "Menu interface item"
+msgid "Hire"
+msgstr "ENGAGER"
+
+#: guitext:444
+msgctxt "Menu interface item"
+msgid "Fire"
+msgstr "RENVOYER"
+
+#: guitext:445
+msgctxt "Menu interface item"
+msgid "Cost"
+msgstr "COUT"
+
+#: guitext:446
+msgctxt "Menu interface item"
+msgid "Type"
+msgstr "TYPE"
+
+#: guitext:447
+msgctxt "In-game interface description"
+msgid "Information Panel: Miscellaneous information. [5.0]"
+msgstr "Panneau d'informations: Informations diverses."
+
+#: guitext:448
+msgctxt "In-game interface description"
+msgid "Room Panel: The rooms available for you to build. [6.0]"
+msgstr "Panneau des salles: Les salles que vous pouvez construire."
+
+#: guitext:449
+msgctxt "In-game interface description"
+msgid "Research Panel: The spells available to you. [7.0]"
+msgstr "Panneau de recherche: Les sortilèges qui sont disponibles."
+
+#: guitext:450
+msgctxt "In-game interface description"
+msgid "Workshop Panel: The traps and doors available to you. [8.0]"
+msgstr "Panneau de l'atelier: Pièges et portes disponibles."
+
+#: guitext:451
+msgctxt "In-game interface description"
+msgid "Creature Panel: Information on your creatures. [9.0]"
+msgstr "Panneau des créatures: Informations sur vos créatures."
+
+#: guitext:452
+msgctxt "In-game interface description"
+msgid "Research Time: The time until a new spell is researched. [5.4]"
+msgstr "Durée de la recherche: Délai avant la découverte d'un nouveau sortilège ou d'une nouvelle salle."
+
+#: guitext:453
+msgctxt "In-game interface description"
+msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
+msgstr "Durée de fabrication: Délai de fabrication d'un nouveau piège ou d'une nouvelle porte."
+
+#: guitext:454
+msgctxt "In-game interface description"
+msgid "Time: The time until the next Creature Payday. [5.3]"
+msgstr "Jour de la paye: Délai jusqu'au prochain jour de paye."
+
+#: guitext:455
+msgctxt "In-game interface description"
+msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
+msgstr "Nombre de salles: Nombre de salles que le gardien possède."
+
+#: guitext:456
+msgctxt "In-game interface description"
+msgid "Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+msgstr "Nombre de créatures: Nombre de créatures que le gardien possède."
+
+#: guitext:457
+msgctxt "Menu interface item"
+msgid "Choose game"
+msgstr "CHOISISSEZ UNE PARTIE"
+
+#: guitext:458
+msgctxt "Menu interface item"
+msgid "Game type"
+msgstr "TYPE DE JEU"
+
+#: guitext:459
+msgctxt "Menu interface item"
+msgid "Keeper vs keeper"
+msgstr "GARDIEN CONTRE GARDIEN"
+
+#: guitext:460
+msgctxt "Menu interface item"
+msgid "Keeper vs heroes"
+msgstr "GARDIEN CONTRE HÉROS"
+
+#: guitext:461
+msgctxt "Menu interface item"
+msgid "Deathmatch"
+msgstr "COMBAT À MORT"
+
+#: guitext:462
+msgctxt "In-game interface description"
+msgid "Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgstr "Vendre: Vendez un carré d'une salle à moitié prix, un piège ou une porte. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:463
+msgctxt "In-game interface description"
+msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
+msgstr "Vendre: Vendez un carré d'une salle à moitié prix, un piège ou une porte. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:464
+msgctxt "In-game interface description"
+msgid "Next Battle: Zoom to the next battle. LMB select."
+msgstr "Prochaine bataille: Zoom sur la bataille suivante. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:465
+msgctxt "In-game interface item"
+msgid "Close Window"
+msgstr "Fermer la fenêtre"
+
+#: guitext:466
+msgctxt "In-game interface item"
+msgid "Zoom to area"
+msgstr "Zoom sur la zone"
+
+#: guitext:467
+msgctxt "Menu interface item"
+msgid "No mouse installed"
+msgstr "Souris non installée"
+
+#: guitext:468
+msgctxt "Menu interface item"
+msgid "Define keys"
+msgstr "CONTRÔLES"
+
+#: guitext:469
+msgctxt "Game controls"
+msgid "Ally with player"
+msgstr "Alliance avec un gardien: Sélectionnez cet icône avec le bouton gauche de la souris pour vous allier avec ce gardien."
+
+#: guitext:470
+msgctxt "Game controls"
+msgid "Press a key"
+msgstr "APPUYEZ SUR UNE TOUCHE"
+
+#: guitext:471
+msgctxt "Game controls"
+msgid "UP"
+msgstr "HAUT"
+
+#: guitext:472
+msgctxt "Game controls"
+msgid "DOWN"
+msgstr "BAS"
+
+#: guitext:473
+msgctxt "Game controls"
+msgid "LEFT"
+msgstr "GAUCHE"
+
+#: guitext:474
+msgctxt "Game controls"
+msgid "RIGHT"
+msgstr "DROITE"
+
+#: guitext:475
+msgctxt "Game controls"
+msgid "ROTATE"
+msgstr "ROTATION"
+
+#: guitext:476
+msgctxt "Game controls"
+msgid "SPEED"
+msgstr "VITESSE"
+
+#: guitext:477
+msgctxt "Game controls"
+msgid "ROTATE LEFT"
+msgstr "TOURNER À GAUCHE"
+
+#: guitext:478
+msgctxt "Game controls"
+msgid "ROTATE RIGHT"
+msgstr "TOURNER À DROITE"
+
+#: guitext:479
+msgctxt "Game controls"
+msgid "ZOOM IN"
+msgstr "ZOOM AVANT"
+
+#: guitext:480
+msgctxt "Game controls"
+msgid "ZOOM OUT"
+msgstr "ZOOM ARRIÈRE"
+
+#: guitext:481
+msgctxt "Keyboard"
+msgid "LEFT CONTROL"
+msgstr "TOUCHE CTRL GAUCHE"
+
+#: guitext:482
+msgctxt "Keyboard"
+msgid "RIGHT CONTROL"
+msgstr "TOUCHE CTRL DROITE"
+
+#: guitext:483
+msgctxt "Keyboard"
+msgid "LEFT SHIFT"
+msgstr "TOUCHE SHIFT GAUCHE"
+
+#: guitext:484
+msgctxt "Keyboard"
+msgid "RIGHT SHIFT"
+msgstr "TOUCHE SHIFT DROITE"
+
+#: guitext:485
+msgctxt "Keyboard"
+msgid "LEFT ALT"
+msgstr "TOUCHE ALT GAUCHE"
+
+#: guitext:486
+msgctxt "Keyboard"
+msgid "RIGHT ALT"
+msgstr "TOUCHE ALT DROITE"
+
+#: guitext:487
+msgctxt "Keyboard"
+msgid "SPACE"
+msgstr "BARRE D'ESPACEMENT"
+
+#: guitext:488
+msgctxt "Keyboard"
+msgid "RETURN"
+msgstr "ENTRÉE"
+
+#: guitext:489
+msgctxt "Keyboard"
+msgid "TAB"
+msgstr "TOUCHE TAB"
+
+#: guitext:490
+msgctxt "Keyboard"
+msgid "CAPS LOCK"
+msgstr "TOUCHE VERR MAJ"
+
+#: guitext:491
+msgctxt "Keyboard"
+msgid "BACKSPACE"
+msgstr "RETOUR ARRIÈRE"
+
+#: guitext:492
+msgctxt "Keyboard"
+msgid "INSERT"
+msgstr "TOUCHE INSER"
+
+#: guitext:493
+msgctxt "Keyboard"
+msgid "DELETE"
+msgstr "TOUCHE SUPPR"
+
+#: guitext:494
+msgctxt "Keyboard"
+msgid "HOME"
+msgstr "TOUCHE DÉBUT"
+
+#: guitext:495
+msgctxt "Keyboard"
+msgid "END"
+msgstr "TOUCHE FIN"
+
+#: guitext:496
+msgctxt "Keyboard"
+msgid "PAGE UP"
+msgstr "TOUCHE PAGE HAUT"
+
+#: guitext:497
+msgctxt "Keyboard"
+msgid "PAGE DOWN"
+msgstr "TOUCHE PAGE BAS"
+
+#: guitext:498
+msgctxt "Keyboard"
+msgid "NUM LOCK"
+msgstr "TOUCHE VERR NUM"
+
+#: guitext:499
+msgctxt "Keyboard"
+msgid "NUM /"
+msgstr "NUM /"
+
+#: guitext:500
+msgctxt "Keyboard"
+msgid "NUM *"
+msgstr "NUM *"
+
+#: guitext:501
+msgctxt "Keyboard"
+msgid "NUM -"
+msgstr "NUM -"
+
+#: guitext:502
+msgctxt "Keyboard"
+msgid "NUM +"
+msgstr "NUM +"
+
+#: guitext:503
+msgctxt "Keyboard"
+msgid "NUM ENTER"
+msgstr "NUM ENTRÉE"
+
+#: guitext:504
+msgctxt "Keyboard"
+msgid "NUM DELETE"
+msgstr "NUM SUPPR"
+
+#: guitext:505
+msgctxt "Keyboard"
+msgid "NUM 1"
+msgstr "TOUCHE 1"
+
+#: guitext:506
+msgctxt "Keyboard"
+msgid "NUM 2"
+msgstr "TOUCHE 2"
+
+#: guitext:507
+msgctxt "Keyboard"
+msgid "NUM 3"
+msgstr "TOUCHE 3"
+
+#: guitext:508
+msgctxt "Keyboard"
+msgid "NUM 4"
+msgstr "TOUCHE 4"
+
+#: guitext:509
+msgctxt "Keyboard"
+msgid "NUM 5"
+msgstr "TOUCHE 5"
+
+#: guitext:510
+msgctxt "Keyboard"
+msgid "NUM 6"
+msgstr "TOUCHE 6"
+
+#: guitext:511
+msgctxt "Keyboard"
+msgid "NUM 7"
+msgstr "TOUCHE 7"
+
+#: guitext:512
+msgctxt "Keyboard"
+msgid "NUM 8"
+msgstr "TOUCHE 8"
+
+#: guitext:513
+msgctxt "Keyboard"
+msgid "NUM 9"
+msgstr "TOUCHE 9"
+
+#: guitext:514
+msgctxt "Keyboard"
+msgid "NUM 0"
+msgstr "TOUCHE 0"
+
+#: guitext:515
+msgctxt "Keyboard"
+msgid "F1"
+msgstr "TOUCHE F1"
+
+#: guitext:516
+msgctxt "Keyboard"
+msgid "F2"
+msgstr "TOUCHE F2"
+
+#: guitext:517
+msgctxt "Keyboard"
+msgid "F3"
+msgstr "TOUCHE F3"
+
+#: guitext:518
+msgctxt "Keyboard"
+msgid "F4"
+msgstr "TOUCHE F4"
+
+#: guitext:519
+msgctxt "Keyboard"
+msgid "F5"
+msgstr "TOUCHE F5"
+
+#: guitext:520
+msgctxt "Keyboard"
+msgid "F6"
+msgstr "TOUCHE F6"
+
+#: guitext:521
+msgctxt "Keyboard"
+msgid "F7"
+msgstr "TOUCHE F7"
+
+#: guitext:522
+msgctxt "Keyboard"
+msgid "F8"
+msgstr "TOUCHE F8"
+
+#: guitext:523
+msgctxt "Keyboard"
+msgid "F9"
+msgstr "TOUCHE F9"
+
+#: guitext:524
+msgctxt "Keyboard"
+msgid "F10"
+msgstr "TOUCHE F10"
+
+#: guitext:525
+msgctxt "Keyboard"
+msgid "F11"
+msgstr "TOUCHE F11"
+
+#: guitext:526
+msgctxt "Keyboard"
+msgid "F12"
+msgstr "TOUCHE F12"
+
+#: guitext:527
+msgctxt "Keyboard"
+msgid "UP"
+msgstr "HAUT"
+
+#: guitext:528
+msgctxt "Keyboard"
+msgid "DOWN"
+msgstr "BAS"
+
+#: guitext:529
+msgctxt "Keyboard"
+msgid "LEFT"
+msgstr "GAUCHE"
+
+#: guitext:530
+msgctxt "Keyboard"
+msgid "RIGHT"
+msgstr "DROITE"
+
+#: guitext:531
+msgctxt "Network game message"
+msgid "Initialising Modem"
+msgstr "INITIALISATION DU MODEM"
+
+#: guitext:532
+msgctxt "Network game message"
+msgid "Connecting Modem"
+msgstr "CONNEXION DU MODEM"
+
+#: guitext:533
+msgctxt "Network game message"
+msgid "Dial"
+msgstr "COMPOSER"
+
+#: guitext:534
+msgctxt "Network game message"
+msgid "Continue"
+msgstr "CONTINUER"
+
+#: guitext:535
+msgctxt "Network game message"
+msgid "Line Engaged"
+msgstr "LIGNE OCCUPÉE"
+
+#: guitext:536
+msgctxt "Network game message"
+msgid "Unknown Error"
+msgstr "ERREUR INCONNUE"
+
+#: guitext:537
+msgctxt "Network game message"
+msgid "No Carrier"
+msgstr "PAS DE PORTEUSE"
+
+#: guitext:538
+msgctxt "Network game message"
+msgid "No Dial Tone"
+msgstr "PAS DE TONALITÉ"
+
+#: guitext:539
+msgctxt "Network game message"
+msgid "No Response"
+msgstr "PAS DE REPONSE"
+
+#: guitext:540
+msgctxt "Network game message"
+msgid "No Server"
+msgstr "PAS DE SERVEUR"
+
+#: guitext:541
+msgctxt "Network game message"
+msgid "Unable to initialise"
+msgstr "INITIALISATION IMPOSSIBLE"
+
+#: guitext:542
+msgctxt "Network game message"
+msgid "Unable to create game"
+msgstr "IMPOSSIBLE DE CRÉER UNE PARTIE"
+
+#: guitext:543
+msgctxt "Network game message"
+msgid "Unable to join game"
+msgstr "IMPOSSIBLE DE SE JOINDRE À LA PARTIE"
+
+#: guitext:544
+msgctxt "Slab description"
+msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgstr "Gemmes: Richesses infinies à faire extraire par les lutins."
+
+#: guitext:545
+msgctxt "Object description"
+msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgstr "Portail des héros: Les héros passent par là pour envahir votre donjon."
+
+#: guitext:546
+msgctxt "Creature name"
+msgid "Tunneller"
+msgstr "Piocheur"
+
+#: guitext:547
+msgctxt "Creature name"
+msgid "Avatar"
+msgstr "Avatar"
+
+#: guitext:548
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
+msgstr "Modifier l'assistant : Actuellement AGRESSIF. Changez avec le bouton gauche de la souris."
+
+#: guitext:549
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
+msgstr "Modifier l'assistant: Actuellement DEFENSIF. Changez avec le bouton gauche de la souris."
+
+#: guitext:550
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgstr "Modifier l'assistant: Actuellement CONSTRUCTION SEULEMENT. Changez avec le bouton gauche de la souris."
+
+#: guitext:551
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgstr "Modifier l'assistant: Actuellement DEPLACEMENT SEULEMENT. Changez avec le bouton gauche de la souris."
+
+#: guitext:552
+msgctxt "In-game tab with rooms"
+msgid "Treasure Room"
+msgstr "SALLE DU TRÉSOR"
+
+#: guitext:553
+msgctxt "In-game tab with rooms"
+msgid "Library"
+msgstr "BIBLIOTHÈQUE"
+
+#: guitext:554
+msgctxt "In-game tab with rooms"
+msgid "Lair"
+msgstr "ANTRE"
+
+#: guitext:555
+msgctxt "In-game tab with rooms"
+msgid "Prison"
+msgstr "PRISON"
+
+#: guitext:556
+msgctxt "In-game tab with rooms"
+msgid "Torture Room"
+msgstr "SALLE DES TORTURES"
+
+#: guitext:557
+msgctxt "In-game tab with rooms"
+msgid "Training Room"
+msgstr "SALLE D'ENTRAÎNEMENT"
+
+#: guitext:558
+msgctxt "In-game tab with rooms"
+msgid "Dungeon Heart"
+msgstr "COEUR DU DONJON"
+
+#: guitext:559
+msgctxt "In-game tab with rooms"
+msgid "Workshop"
+msgstr "ATELIER"
+
+#: guitext:560
+msgctxt "In-game tab with rooms"
+msgid "Scavenger Room"
+msgstr "SALLE D'ENRÔLEMENT"
+
+#: guitext:561
+msgctxt "In-game tab with rooms"
+msgid "Temple"
+msgstr "TEMPLE"
+
+#: guitext:562
+msgctxt "In-game tab with rooms"
+msgid "Graveyard"
+msgstr "CIMETIÈRE"
+
+#: guitext:563
+msgctxt "In-game tab with rooms"
+msgid "Barracks"
+msgstr "QUARTIER GÉNÉRAL"
+
+#: guitext:564
+msgctxt "In-game tab with rooms"
+msgid "Hatchery"
+msgstr "COUVOIR"
+
+#: guitext:565
+msgctxt "In-game tab with rooms"
+msgid "Guard Post"
+msgstr "POSTE DE GARDE"
+
+#: guitext:566
+msgctxt "In-game tab with rooms"
+msgid "Bridge"
+msgstr "PONT"
+
+#: guitext:567
+msgid "Fight"
+msgstr "COMBAT"
+
+#: guitext:568
+msgid "Annoyed"
+msgstr "ENNUYÉ(E)"
+
+#: guitext:569
+msgctxt "Keyboard"
+msgid "Shift"
+msgstr "TOUCHE MAJ"
+
+#: guitext:570
+msgctxt "Keyboard"
+msgid "Control"
+msgstr "TOUCHE CTRL"
+
+#: guitext:571
+msgctxt "Keyboard"
+msgid "Alt"
+msgstr "TOUCHE ALT"
+
+#: guitext:572
+msgctxt "Credits"
+msgid "Additional Artwork"
+msgstr "GRAPHISMES ADDITIONNELS"
+
+#: guitext:573
+msgctxt "Credits"
+msgid "Additional Programming"
+msgstr "PROGRAMMATION ADDITIONNELLE"
+
+#: guitext:574
+msgctxt "Credits"
+msgid "Manual And Documentation"
+msgstr "MANUEL ET DOCUMENTATION"
+
+#: guitext:575
+msgctxt "Credits"
+msgid "Installer"
+msgstr "PROGRAMME D'INSTALLATION"
+
+#: guitext:576
+msgctxt "Credits"
+msgid "Additional Level Design"
+msgstr "CONCEPTION DES NIVEAUX SUPPLEMENTAIRES"
+
+#: guitext:577
+msgctxt "Credits"
+msgid "Additional Thanks"
+msgstr "NOUS REMERCIONS ÉGALEMENT:"
+
+#: guitext:578
+msgctxt "Trap names"
+msgid "Boulder Trap"
+msgstr "Rocher"
+
+#: guitext:579
+msgctxt "Trap names"
+msgid "Alarm Trap"
+msgstr "Alarme"
+
+#: guitext:580
+msgctxt "Trap names"
+msgid "Poison Gas Trap"
+msgstr "Nuage empoisonné"
+
+#: guitext:581
+msgctxt "Trap names"
+msgid "Lightning Trap"
+msgstr "Eclair de feu"
+
+#: guitext:582
+msgctxt "Trap names"
+msgid "Word of Power Trap"
+msgstr "Anneaux de feu"
+
+#: guitext:583
+msgctxt "Trap names"
+msgid "Lava Trap"
+msgstr "Lave"
+
+#: guitext:584
+msgctxt "Trap description"
+msgid "Boulder Trap: A rolling rock that crushes everything in its path. LMB select. RMB zoom. [20.1]"
+msgstr "Rocher: Pierre qui roule en écrasant tout sur son passage. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:585
+msgctxt "Trap description"
+msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgstr "Alarme: Lance un sortilège de ralliement. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:586
+msgctxt "Trap description"
+msgid "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB select. RMB zoom. [20.3]"
+msgstr "Nuage empoisonné: Un nuage de vapeurs toxiques est envoyé sur vos ennemis. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:587
+msgctxt "Trap description"
+msgid "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB select. RMB zoom. [20.4]"
+msgstr "Eclair de feu: Les créatures ennemies à proximité sont frappées par la foudre. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:588
+msgctxt "Trap description"
+msgid "Word of Power Trap: Radiates devastating rings of demonic energy, damaging all creatures within range. LMB select. RMB zoom. [20.5]"
+msgstr "Anneaux de feu: Diffuse des anneaux d'énergie démoniaque dévastateurs, frappant toutes les créatures se trouvant à portée. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:589
+msgctxt "Trap description"
+msgid "Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB select. RMB zoom. [20.6]"
+msgstr "Lave: Le carré se désintègre et fait place à de la lave en fusion. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:590
+msgctxt "Door name"
+msgid "Wooden Door"
+msgstr "Porte en bois"
+
+#: guitext:591
+msgctxt "Door name"
+msgid "Braced Door"
+msgstr "Porte renforcée"
+
+#: guitext:592
+msgctxt "Door name"
+msgid "Iron Door"
+msgstr "Porte en fer"
+
+#: guitext:593
+msgctxt "Door name"
+msgid "Magic Door"
+msgstr "Porte magique"
+
+#: guitext:594
+msgctxt "Door description"
+msgid "Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. [21.1]"
+msgstr "Porte en bois: Le moyen le plus simple d'interdire le passage. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:595
+msgctxt "Door description"
+msgid "Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+msgstr "Porte renforcée: Porte en bois renforcée avec du fer. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:596
+msgctxt "Door description"
+msgid "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB select. RMB zoom. [21.3]"
+msgstr "Porte en fer: Porte lourde et solide pouvant résister à des dégâts massifs. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:597
+msgctxt "Door description"
+msgid "Magic Door: A special door, highly resistant to physical damage but susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+msgstr "Porte magique: Porte spéciale, extrêmement résistante aux attaques physiques, mais pas aux attaques magiques. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:598
+msgctxt "Room name"
+msgid "Portal"
+msgstr "Portail"
+
+#: guitext:599
+msgctxt "Room name"
+msgid "Treasure Room"
+msgstr "Salle du trésor"
+
+#: guitext:600
+msgctxt "Room name"
+msgid "Library"
+msgstr "Bibliothèque"
+
+#: guitext:601
+msgctxt "Room name"
+msgid "Prison"
+msgstr "Prison"
+
+#: guitext:602
+msgctxt "Room name"
+msgid "Torture Chamber"
+msgstr "Salle des tortures"
+
+#: guitext:603
+msgctxt "Room name"
+msgid "Training Room"
+msgstr "Salle d'entraînement"
+
+#: guitext:604
+msgctxt "Room name"
+msgid "Dungeon Heart"
+msgstr "Coeur du donjon"
+
+#: guitext:605
+msgctxt "Room name"
+msgid "Workshop"
+msgstr "Atelier"
+
+#: guitext:606
+msgctxt "Room name"
+msgid "Graveyard"
+msgstr "Cimetière"
+
+#: guitext:607
+msgctxt "Room name"
+msgid "Barracks"
+msgstr "Quartier général"
+
+#: guitext:608
+msgctxt "Room name"
+msgid "Hatchery"
+msgstr "Couvoir"
+
+#: guitext:609
+msgctxt "Room name"
+msgid "Lair"
+msgstr "Antre"
+
+#: guitext:610
+msgctxt "Room name"
+msgid "Bridge"
+msgstr "Pont"
+
+#: guitext:611
+msgctxt "Room name"
+msgid "Guard Post"
+msgstr "Poste de garde"
+
+#: guitext:612
+msgctxt "Room name"
+msgid "Temple"
+msgstr "Temple"
+
+#: guitext:613
+msgctxt "Room name"
+msgid "Scavenger Room"
+msgstr "Salle d'enrôlement"
+
+#: guitext:614
+msgctxt "Object name"
+msgid "Hero Gate"
+msgstr "Portail des héros"
+
+#: guitext:615
+msgctxt "Room description"
+msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
+msgstr "Salle du trésor: Votre or y est stocké. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:616
+msgctxt "Room description"
+msgid "Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
+msgstr "Bibliothèque: Salle où sont créés les sortilèges et les salles. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:617
+msgctxt "Room description"
+msgid "Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. [17.10]"
+msgstr "Prison: Enfermez-y les créatures ennemies pour être tranquille. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:618
+msgctxt "Room description"
+msgid "Training Room: Place creatures in here to improve their experience. LMB select. RMB zoom. [17.5]"
+msgstr "Salle d'entraînement: Placez-y vos créatures pour améliorer leurs compétences. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:619
+msgctxt "Room description"
+msgid "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB zoom. [17.11]"
+msgstr "Salle des tortures: Torturez des créatures pour satisfaire vos malins plaisirs. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:620
+msgctxt "Room description"
+msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
+msgstr "Coeur du donjon: La force vitale de votre donjon."
+
+#: guitext:621
+msgctxt "Room description"
+msgid "Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. RMB zoom. [17.8]"
+msgstr "Atelier: Placez-y des créatures pour qu'elles fabriquent des pièges et des portes. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:622
+msgctxt "Room description"
+msgid "Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB zoom. [17.13]"
+msgstr "Cimetière: Les morts y sont gardés pour y pourrir. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:623
+msgctxt "Room description"
+msgid "Barracks: Group creatures by placing them into the room. LMB select. RMB zoom. [17.9]"
+msgstr "Quartier général: Rassemblez les créatures en les plaçant dans cette salle. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:624
+msgctxt "Room description"
+msgid "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. RMB zoom. [17.3]"
+msgstr "Couvoir: C'est là que les créatures se régalent de pauvres petits poulets sans défense. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:625
+msgctxt "Room description"
+msgid "Lair: Where your creatures sleep and replenish their energy. LMB select. RMB zoom. [17.2]"
+msgstr "Antre: Vos créatures s'y reposent et reprennent des forces. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:626
+msgctxt "Room description"
+msgid "Bridge: Place this on water and lava to allow creatures to cross. LMB select. RMB zoom. [17.6]"
+msgstr "Pont: Placez-le au-dessus de l'eau ou de la lave pour que vos créatures puissent traverser. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:627
+msgctxt "Room description"
+msgid "Guard Post: Your creatures keep watch over your dungeon when placed on this room. LMB select. RMB zoom. [17.7]"
+msgstr "Poste de garde: Vos créatures surveillent votre donjon quand vous les placez dans cette salle. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:628
+msgctxt "Room description"
+msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+msgstr "Temple: Les créatures sont plus heureuses si elles adorent les dieux du mal. Sacrifiez des créatures en les laissant tomber dans les fonds baptismaux. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:629
+msgctxt "Room description"
+msgid "Scavenger Room: Creatures placed onto the room lure their kin away from other dungeons or through portals. LMB select. RMB zoom. [17.14]"
+msgstr "Salle d'enrôlement: Les créatures placées dans cette salle incitent leurs homologues à quitter d'autres donjons ou à franchir les portails. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:630
+msgctxt "Keeper spell name"
+msgid "Possess Creature"
+msgstr "POSSESSION"
+
+#: guitext:631
+msgctxt "Keeper spell name"
+msgid "Create Imp"
+msgstr "Création de lutin"
+
+#: guitext:632
+msgctxt "Keeper spell name"
+msgid "Sight of Evil"
+msgstr "Oeil du diable"
+
+#: guitext:633
+msgctxt "Keeper spell name"
+msgid "Call To Arms"
+msgstr "Ralliement"
+
+#: guitext:634
+msgctxt "Keeper spell name"
+msgid "Hold Audience"
+msgstr "Capteur de foule"
+
+#: guitext:635
+msgctxt "Keeper spell name"
+msgid "Cave-In"
+msgstr "Effondrement"
+
+#: guitext:636
+msgctxt "Keeper spell name"
+msgid "Must Obey"
+msgstr "Obéissance"
+
+#: guitext:637
+msgctxt "Keeper spell name"
+msgid "Speed Monster"
+msgstr "Accélération"
+
+#: guitext:638
+msgctxt "Keeper spell name"
+msgid "Protect Monster"
+msgstr "Protection"
+
+#: guitext:639
+msgctxt "Keeper spell name"
+msgid "Conceal Monster"
+msgstr "Invisibilité"
+
+#: guitext:640
+msgctxt "Keeper spell name"
+msgid "Lightning Strike"
+msgstr "Foudre"
+
+#: guitext:641
+msgctxt "Keeper spell name"
+msgid "Chicken"
+msgstr "Galinamorphose"
+
+#: guitext:642
+msgctxt "Keeper spell name"
+msgid "Disease"
+msgstr "Epidémie"
+
+#: guitext:643
+msgctxt "Keeper spell name"
+msgid "Destroy Walls"
+msgstr "Défortification"
+
+#: guitext:644
+msgctxt "Keeper spell name"
+msgid "Heal"
+msgstr "Guérison"
+
+#: guitext:645
+msgctxt "Keeper spell name"
+msgid "Time Bomb"
+msgstr "Bombe à retardement"
+
+#: guitext:646
+msgctxt "Keeper spell name"
+msgid "Armageddon"
+msgstr "Armageddon"
+
+#: guitext:647
+msgctxt "Keeper spell description"
+msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
+msgstr "Possession: Contrôlez directement une créature. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:648
+msgctxt "Keeper spell description"
+msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
+msgstr "Création de lutin: Faites apparaître un nouveau lutin dans un endroit quelconque de votre donjon. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:649
+msgctxt "Keeper spell description"
+msgid "Sight of Evil: Reveal a hidden area of the map for a limited time. LMB select. RMB zoom. [18.3]"
+msgstr "Oeil du diable: Révèle une zone cachée de la carte pendant une période limitée. Sélectionnez avec le bouton gauche de la souris, zoomez avec le bouton droit et double-cliquez pour annuler."
+
+#: guitext:650
+msgctxt "Keeper spell description"
+msgid "Call To Arms: Calls all your creatures to an area of your dungeon. LMB select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+msgstr "Ralliement: Rassemble vos créatures dans une zone quelconque du donjon. Sélectionnez avec le bouton gauche de la souris, zoomez avec le bouton droit et double-cliquez pour annuler."
+
+#: guitext:651
+msgctxt "Keeper spell description"
+msgid "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. RMB zoom. [18.8]"
+msgstr "Capteur de foule: Rassemble toutes vos créatures autour du coeur de votre donjon. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:652
+msgctxt "Keeper spell description"
+msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
+msgstr "Effondrement: Le plafond du donjon s'effondre. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:653
+msgctxt "Keeper spell description"
+msgid "Must Obey: Forces your creatures to obey your every command. LMB select. [18.5]"
+msgstr "Obéissance: Force toutes vos créatures à obéir à tous vos ordres. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:654
+msgctxt "Keeper spell description"
+msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgstr "Accélération: Augmente la vitesse de déplacement et de compétence de vos créatures. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:655
+msgctxt "Keeper spell description"
+msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgstr "Protection: Protège avec efficacité vos créatures de toute attaque. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:656
+msgctxt "Keeper spell description"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
+msgstr "Invisibilité: Vos créatures sont invisibles pour l'ennemi. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:657
+msgctxt "Keeper spell description"
+msgid "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of lightning. LMB select. [18.10]"
+msgstr "Foudre: Frappe une zone du donjon d'un éclair dévastateur. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:658
+msgctxt "Keeper spell description"
+msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
+msgstr "Galinamorphose: Transforme l'ennemi en un savoureux casse-croûte... Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:659
+msgctxt "Keeper spell description"
+msgid "Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
+msgstr "Epidémie: Transmet un mal mortel à une créature ennemie. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:660
+msgctxt "Keeper spell description"
+msgid "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgstr "Défortification: Réduit les murs en poussière. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:661
+msgctxt "Keeper spell description"
+msgid "Heal: Cast on an area of the dungeon to improve the health of your creatures. LMB select. [18.9]"
+msgstr "Guérison: Soigne efficacement une créature de ses blessures. Sélectionnez avec le bouton gauche de la souris."
+
+#: guitext:662
+msgctxt "Keeper spell description"
+msgid "Time Bomb"
+msgstr "Bombe à retardement"
+
+#: guitext:663
+msgctxt "Keeper spell description"
+msgid "Armageddon: Transports all the creatures in the land to your Dungeon Heart for a final, decisive battle. LMB select. [18.15]"
+msgstr "Armageddon: Transporte toutes les créatures du territoire vers le coeur de votre donjon pour l'ultime bataille. Sélectionnez avec le bouton gauche de la souris."
