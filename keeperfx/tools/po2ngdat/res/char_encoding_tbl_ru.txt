@@ -1,3 +1,5 @@
+# Conversion table for KeeperFX Japanese language.
+# Contains UTF-8 chars and corresponding cp 866 OEM Russian codes.
 0x20	 
 0x21	!
 0x22	"

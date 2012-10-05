@@ -1,3 +1,5 @@
+# Conversion table for KeeperFX European languages.
+# Contains UTF-8 chars and corresponding DK charcodes (these are non-standard codes, but a bit similar to Latin-1).
 0x20	 
 0x21	!
 0x22	"
