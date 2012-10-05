@@ -344,132 +344,132 @@ msgstr "Przejąłeś Więzienie. Skorzystaj z opcji pojmania na Pulpicie Informa
 #: guitext:62
 msgctxt "In-game message"
 msgid "Your dedicated librarians have designed a Guard Post. Place a Guard Post in a strategically important area and assign creatures to occupy it by dropping them there."
-msgstr "TWOI ODDANI BIBLIOTEKARZE ZAPROJEKTOWALI POSTERUNEK. UMIEŚĆ POSTERUNEK W MIEJSCU O DUŻYM ZNACZENIU STRATEGICZNYM I PRZYDZIEL MU OBSADĘ, UMIESZCZAJĄC NA NIM SWOJE STWORY."
+msgstr "Twoi oddani bibliotekarze zaprojektowali Posterunek. Umieść Posterunek w miejscu o dużym znaczeniu strategicznym i przydziel mu obsadę, umieszczając na nim swoje stwory."
 
 #: guitext:63
 msgctxt "In-game message"
 msgid "A Spider has joined your dungeon. They are natural enemies of Flies, so endeavour to keep them apart. Overcoming such obstacles will temper your mettle - whatever that means."
-msgstr "DO TWOICH STWORÓW DOŁĄCZYŁ PAJĄK. PAJĄKI SĄ NATURALNYMI WROGAMI MUCH, ZADBAJ WIĘC O TO, BY SIĘ Z NIMI NIE ZETKNĘŁY. POKONYWANIE TEGO TYPU PRZESZKÓD BĘDZIE HARTOWAĆ TWÓJ CHARAKTER - COKOLWIEK TO ZNACZY."
+msgstr "Do twoich stworów dołączył Pająk. Pająki są naturalnymi wrogami Much, zadbaj więc o to, by się z nimi nie zetknęły. Pokonywanie tego typu przeszkód będzie hartować twój charakter - cokolwiek to znaczy."
 
 #: guitext:64
 msgctxt "In-game message"
 msgid "It's time to mete out the ultimate punishment to a keeper who dares to challenge you for this corner of your subterranean empire. The price of failure shall be oblivion."
-msgstr "NADSZEDŁ CZAS WYMIERZENIA OSTATECZNEJ KARY RYWALOWI, KTÓRY OŚMIELA SIĘ WYZWAĆ CIĘ DO WALKI O TEN FRAGMENT TWEGO PODZIEMNEGO IMPERIUM. KARĄ ZA KLĘSKĘ BĘDZIE ZAPOMNIENIE."
+msgstr "Nadszedł czas wymierzenia ostatecznej kary rywalowi, który ośmiela się wyzwać cię do walki o ten fragment twego podziemnego imperium. Karą za klęskę będzie zapomnienie."
 
 #: guitext:65
 msgctxt "In-game message"
 msgid "How satisfying it is to see an enemy Keeper's dungeon crumble and his power dissipate. There'll be no controversy over this year's hall of infamy nomination."
-msgstr "JAK MIŁO OBSERWOWAĆ PORAŻKĘ WROGIEGO STRAŻNIKA I ROZPAD JEGO POTĘGI. NIE BĘDZIE PROBLEMÓW Z TEGOROCZNĄ NOMINACJĄ DO SALONU NIESŁAWY."
+msgstr "Jak miło obserwować porażkę wrogiego strażnika i rozpad jego potęgi. Nie będzie problemów z tegoroczną nominacją do salonu niesławy."
 
 #: guitext:66
 msgctxt "In-game message"
 msgid "You have claimed a Torture Room. Place captive heroes and creatures into this chamber of horrors to convert them to your supremely evil way. Alternatively, place your own creatures within the room whenever disciplinary measures become necessary."
-msgstr "PRZEJĄŁEŚ SALĘ TORTUR. MOŻESZ UMIESZCZAĆ W TYM GABINECIE GROZY POJMANYCH BOHATERÓW I STWORY, ABY PRZEKONAĆ ICH DO TWEGO NADZWYCZAJ ZŁEGO STYLU ŻYCIA. MOŻESZ TAKŻE WYSŁAĆ TAM WŁASNYCH PODWŁADNYCH, GDY POJAWI SIĘ POTRZEBA ZAPROWADZENIA DYSCYPLINY."
+msgstr "Przejąłeś Salę Tortur. Możesz umieszczać w tym gabinecie grozy pojmanych bohaterów i stwory, aby przekonać ich do twego nadzwyczaj złego stylu życia. Możesz także wysłać tam własnych podwładnych, gdy pojawi się potrzeba zaprowadzenia dyscypliny."
 
 #: guitext:67
 msgctxt "In-game message"
 msgid "You have finally constructed a dungeon impressive enough to attract a Dark Mistress. You must discipline these wicked wenches frequently. They respond particularly well to a good slapping."
-msgstr "W KOŃCU UDAŁO CI SIĘ SKONSTRUOWAĆ NA TYLE WSPANIAŁY LOCH, ABY ZWABIĆ CZARNĄ DAMĘ. TE NIEGODZIWE DZIEWOJE NALEŻY CZĘSTO KARAĆ. KILKA SOLIDNYCH KLAPSÓW DAJE SZCZEGÓLNIE POŻĄDANE REZULTATY."
+msgstr "W końcu udało ci się skonstruować na tyle wspaniały loch, aby zwabić Czarną Damę. Te niegodziwe dziewoje należy często karać. Kilka solidnych klapsów daje szczególnie pożądane rezultaty."
 
 #: guitext:68
 msgctxt "In-game message"
 msgid "Your manufacturers have created a Braced Door. If security matters, you can be sure when you buy a Braced Door. You couldn't be certain with only a curtain and a hole in the wall is no help at all."
-msgstr "TWOI RZEMIEŚLNICY SKONSTRUOWALI OKUTE DRZWI. GDY CHODZI O BEZPIECZEŃSTWO, OKUTE DRZWI SĄ CENNĄ INWESTYCJĄ. A TAK NA MARGINESIE, ROZPATRUJĄC KWESTIĘ OCHRONY - DZIURA W ŚCIANIE TO ZA MAŁO, ZASŁONA TEŻ NIE WYSTARCZY."
+msgstr "Twoi rzemieślnicy skonstruowali Okute Drzwi. Gdy chodzi o bezpieczeństwo, Okute Drzwi są cenną inwestycją. A tak na marginesie, rozpatrując kwestię ochrony - dziura w ścianie to za mało, zasłona też nie wystarczy."
 
 #: guitext:69
 msgctxt "In-game message"
 msgid "Your researchers have devised a spell that unleashes the energy of a thunderstorm on the target of your choice. Select the spell, aim at a hostile creature and flash-fry him with a Lightning Strike."
-msgstr "TWOI BIBLIOFILE OPRACOWALI ZAKLĘCIE, KTÓRE UMOŻLIWIA ZESŁANIE NA GŁOWĘ WYBRANEGO CELU CAŁEJ MOCY BURZY Z PIORUNAMI. UAKTYWNIJ ZAKLĘCIE, WYBIERZ WROGIEGO STWORA I BŁYSKAWICZNIE USMAŻ GO BŁYSKAWICĄ."
+msgstr "Twoi bibliofile opracowali zaklęcie, które umożliwia zesłanie na głowę wybranego celu całej mocy burzy z piorunami. Uaktywnij zaklęcie, wybierz wrogiego stwora i błyskawicznie usmaż go Błyskawicą."
 
 #: guitext:70
 msgctxt "In-game message"
 msgid "You have manufactured a powerful Lightning Trap. Try it out. It's bound to give someone a shock."
-msgstr "SKONSTRUOWAŁEŚ POTĘŻNĄ PUŁAPKĘ ELEKTRYCZNĄ. WYPRÓBUJ JĄ. Z PEWNOŚCIĄ ZNAJDZIE SIĘ KTOŚ, DLA KOGO OKAŻE SIĘ WSTRZĄSAJĄCA."
+msgstr "Skonstruowałeś potężną Pułapkę Elektryczną. Wypróbuj ją. Z pewnością znajdzie się ktoś, dla kogo okaże się wstrząsająca."
 
 #: guitext:71
 msgctxt "In-game message"
 msgid "It appears you have arrived in the middle of a raging battle. Perhaps it would be wise to stay out of the way until you are strong enough to eliminate both sides."
-msgstr "WYGLĄDA NA TO, ŻE TRAFIŁEŚ W ŚRODEK SZALEŃCZEJ WOJNY. NAJLEPIEJ CHYBA BĘDZIE TRZYMAĆ SIĘ NA UBOCZU DO CHWILI, KIEDY UROŚNIESZ W SIŁĘ NA TYLE, BY ROZPRAWIĆ SIĘ Z OBIEMA STRONAMI."
+msgstr "Wygląda na to, że trafiłeś w środek szaleńczej wojny. Najlepiej chyba będzie trzymać się na uboczu do chwili, kiedy urośniesz w siłę na tyle, by rozprawić się z obiema stronami."
 
 #: guitext:72
 msgctxt "In-game message"
 msgid "An Orc warlord joins you and brings with him the plans for building a Barracks. In this room you can form creatures into teams."
-msgstr "WÓDZ ORKÓW PRZYŁĄCZA SIĘ DO CIEBIE, PRZYNOSZĄC PLANY KONSTRUKCJI KOSZAR. W TYM POMIESZCZENIU BĘDZIESZ MÓGŁ GRUPOWAĆ STWORY W ODDZIAŁY."
+msgstr "Wódz Orków przyłącza się do ciebie, przynosząc plany konstrukcji Koszar. W tym pomieszczeniu będziesz mógł grupować stwory w oddziały."
 
 #: guitext:73
 msgctxt "In-game message"
 msgid "I think I hear the clanking of plate armour. Yes, the Lord of the Land has finally roused himself from the fireside to find out where all his loyal servants have gone."
-msgstr "WYDAJE MI SIĘ, ŻE SŁYCHAĆ CHRZĘST PEŁNEJ ZBROI. TAK, TO WŁADCA KRAINY RUSZYŁ SIĘ WRESZCIE OD KOMINKA, ABY SPRAWDZIĆ, GDZIE PRZEPADLI WSZYSCY JEGO WIERNI SŁUDZY."
+msgstr "Wydaje mi się, że słychać chrzęst pełnej zbroi. Tak, to Władca Krainy ruszył się wreszcie od kominka, aby sprawdzić, gdzie przepadli wszyscy jego wierni słudzy."
 
 #: guitext:74
 msgctxt "In-game message"
 msgid "You have turned local heroes into something of an endangered species, now make the enemy Dungeon Keeper extinct."
-msgstr "SPRAWIŁEŚ, ŻE MIEJSCOWI BOHATEROWIE NALEŻĄ DO GINĄCEGO GATUNKU. WROGI STRAŻNIK TEŻ POWINIEN JUŻ BYĆ NA WYMARCIU - ZAJMIJ SIĘ TYM. "
+msgstr "Sprawiłeś, że miejscowi bohaterowie należą do ginącego gatunku. Wrogi strażnik też powinien już być na wymarciu - zajmij się tym."
 
 #: guitext:75
 msgctxt "In-game message"
 msgid "You have prevailed, Keeper. The bodies of your enemies litter the most forlorn alcoves of your domain, in tribute to their futile efforts to keep you at bay."
-msgstr "JESTEŚ GÓRĄ, STRAŻNIKU. CIAŁA WROGÓW ZAŚMIECAJĄ NAJBARDZIEJ PONURE ZAKĄTKI TWYCH WŁOŚCI, JAKO NIESŁAWNA PAMIĄTKA ICH DAREMNYCH STARAŃ, BY CIĘ POWSTRZYMAĆ."
+msgstr "Jesteś górą, strażniku. Ciała wrogów zaśmiecają najbardziej ponure zakątki twych włości, jako niesławna pamiątka ich daremnych starań, by cię powstrzymać."
 
 #: guitext:76
 msgctxt "In-game message"
 msgid "Seek out the one who would be your rival in this region of the underworld. Explain the concept of early retirement to him. On the other hand, string him up. It's in the only language he understands."
-msgstr "ODSZUKAJ TEGO, KTÓRY JEST TWOIM RYWALEM W TYM REJONIE PODZIEMIA. OBJAŚNIJ MU OD RĘKI KONCEPCJĘ WCZEŚNIEJSZEGO PRZEJŚCIA NA EMERYTURĘ. DRUGĄ RĘKĄ CHWYĆ GO ZA GARDŁO (I ŚCIŚNIJ PALCE). TO JEDYNY JĘZYK, JAKI ZROZUMIE."
+msgstr "Odszukaj tego, który jest twoim rywalem w tym rejonie podziemia. Objaśnij mu od ręki koncepcję wcześniejszego przejścia na emeryturę. Drugą ręką chwyć go za gardło (i ściśnij palce). to jedyny język, jaki zrozumie."
 
 #: guitext:77
 msgctxt "In-game message"
 msgid "You have researched the power of Invisibility. Cast it on a creature to hide it from enemy eyes."
-msgstr "OPANOWAŁEŚ POTĘGĘ NIEWIDZIALNOŚCI. RZUĆ TO ZAKLĘCIE, ABY UKRYĆ STWORA PRZED WŚCIBSKIM SPOJRZENIEM WROGA."
+msgstr "Opanowałeś potęgę Niewidzialności. Rzuć to zaklęcie, aby ukryć stwora przed wścibskim spojrzeniem wroga."
 
 #: guitext:78
 msgctxt "In-game message"
 msgid "The Protect Creature spell has been researched at last. Cast it on a creature to increase its toughness."
-msgstr "UDAŁO SIĘ OPRACOWAĆ ZAKLĘCIE OCHRONY STWORA. RZUĆ JE NA STWORA, ABY ZWIĘKSZYĆ JEGO WYTRZYMAŁOŚĆ."
+msgstr "Udało się opracować zaklęcie Ochrony Stwora. Rzuć je na stwora, aby zwiększyć jego wytrzymałość."
 
 #: guitext:79
 msgctxt "In-game message"
 msgid "That's another enemy successfully written off. The defenceless inhabitants of the land above bow down before your depraved presence. As if that will save them..."
-msgstr "OTO KOLEJNY NIEPRZYJACIEL SPISANY NA STRATY. BEZBRONNI MIESZKAŃCY KRAINY NA POWIERZCHNI PADAJĄ NA KOLANA PRZED WASZĄ NIEPRAWOŚCIĄ. JAKBY TO MOGŁO ICH OCALIĆ..."
+msgstr "Oto kolejny nieprzyjaciel spisany na straty. Bezbronni mieszkańcy krainy na powierzchni padają na kolana przed waszą nieprawością. Jakby to mogło ich ocalić..."
 
 #: guitext:80
 msgctxt "In-game message"
 msgid "Researchers have found instructions for building a Temple to the dark gods. Sacrifice creatures in the Temple's pool to receive gifts from these gods. You might have to experiment with the offerings you make. The dark gods are not easy to please."
-msgstr "BADACZE WYSZPERALI INSTRUKCJE BUDOWY ŚWIĄTYNI CIEMNYCH BOGÓW. SKŁADAJ NA ŚWIĄTYNNYM OŁTARZU OFIARY ZE STWORÓW, ABY OTRZYMYWAĆ DARY. BYĆ MOŻE OSIĄGNIĘCIE POŻĄDANYCH EFEKTÓW BĘDZIE WYMAGAŁO KILKU EKSPERYMENTÓW. CIEMNYCH BOGÓW TRUDNO ZADOWOLIĆ."
+msgstr "Badacze wyszperali instrukcje budowy Świątyni Ciemnych Bogów. Składaj na świątynnym ołtarzu ofiary ze stworów, aby otrzymywać dary. Być może osiągnięcie pożądanych efektów będzie wymagało kilku eksperymentów. Ciemnych bogów trudno zadowolić."
 
 #: guitext:81
 msgctxt "In-game message"
 msgid "This realm is ruled by four arrogant Wizards who think they've got everything under control, because their feeble magical power impresses the locals. But you're not from these parts..."
-msgstr "W TYM KRÓLESTWIE RZĄDY SPRAWUJĄ CZTEREJ ZAROZUMIALI CZARODZIEJE, KTÓRZY UWAŻAJĄ, ŻE MAJĄ NAD WSZYSTKIM KONTROLĘ, PONIEWAŻ ICH BEZNADZIEJNA MOC MAGICZNA ROBI WRAŻENIE NA PROSTACZKACH. TY JEDNAK NIE DASZ SIĘ NA TO NABRAĆ..."
+msgstr "W tym królestwie rządy sprawują czterej zarozumiali Czarodzieje, którzy uważają, że mają nad wszystkim kontrolę, ponieważ ich beznadziejna moc magiczna robi wrażenie na prostaczkach. Ty jednak nie dasz się na to nabrać..."
 
 #: guitext:82
 msgctxt "In-game message"
 msgid "Well, you're done down here. Time to introduce yourself to the locals and re-organise their nice little lives."
-msgstr "CÓŻ, NA DOLE WSZYSTKO GOTOWE. PORA PRZEDSTAWIĆ SIĘ POWIERZCHNIAKOM I ZMODYFIKOWAĆ ICH SIELSKĄ EGZYSTENCJĘ."
+msgstr "Cóż, na dole wszystko gotowe. Pora przedstawić się powierzchniakom i zmodyfikować ich sielską egzystencję."
 
 #: guitext:83
 msgctxt "In-game message"
 msgid "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll fail, because everything makes a Horned Reaper angry but at least try to make sure that everything near it is an enemy creature when it finally goes ballistic."
-msgstr "STRZEŻ SIĘ, PRZYZWAŁEŚ ROGATEGO ROZPRUWACZA. POSTARAJ SIĘ NIE DENERWOWAĆ GO. TO SIĘ CO PRAWDA NIE UDA, GDYŻ ROGACZA DENERWUJE WŁAŚCIWIE WSZYSTKO. DOŁÓŻ PRZYNAJMNIEJ STARAŃ, ABY WTEDY, GDY WYJDZIE Z SIEBIE, W POBLIŻU ZNAJDOWAŁY SIĘ JEDYNIE SIŁY WROGA."
+msgstr "Strzeż się, przyzwałeś Rogatego Rozpruwacza. Postaraj się nie denerwować go. To się co prawda nie uda, gdyż rogacza denerwuje właściwie wszystko. Dołóż przynajmniej starań, aby wtedy, gdy wyjdzie z siebie, w pobliżu znajdowały się jedynie siły wroga."
 
 #: guitext:84
 msgctxt "In-game message"
 msgid "Your researchers have concocted a Disease spell. Cast it on enemy creatures and watch the affliction spread like the plague."
-msgstr "TWOI BADACZE UPICHCILI ZAKLĘCIE CHOROBY. RZUĆ JE NA STWORY PRZECIWNIKA I OBSERWUJ, JAK CIERPIENIE SZERZY SIĘ NICZYM ZARAZA."
+msgstr "Twoi badacze upichcili zaklęcie Choroby. Rzuć je na stwory przeciwnika i obserwuj, jak cierpienie szerzy się niczym zaraza."
 
 #: guitext:85
 msgctxt "In-game message"
 msgid "A Vampire has risen from your Graveyard, nourished by the souls of the dead which have been brought here. You have to suck up to Vampires or they go off in a huff, but they're extremely powerful and fearsome underlings to have in your employ."
-msgstr "NA TWOIM CMENTARZYSKU PRZEBUDZIŁ SIĘ WAMPIR, WYHODOWANY NA DUSZACH NIESZCZĘŚNIKÓW, KTÓRYCH TU PRZYWLECZONO. POZWÓL IM SIĘ PRZYSSAĆ, BO ODEJDĄ W GNIEWIE, A STANOWIĄ NADZWYCZAJ POTĘŻNY I BUDZĄCY PRZERAŻENIE PERSONEL."
+msgstr "Na twoim Cmentarzysku przebudził się Wampir, wyhodowany na duszach nieszczęśników, których tu przywleczono. Pozwól im się przyssać, bo odejdą w gniewie, a stanowią nadzwyczaj potężny i budzący przerażenie personel."
 
 #: guitext:86
 msgctxt "In-game message"
 msgid "You have researched the Graveyard. Your Imps will drag corpses here to rot... And possibly to rise again as Vampires, ready to do your bidding. That's style."
-msgstr "WYNALAZŁEŚ CMENTARZYSKO. TWOJE CHOCHLIKI BĘDĄ ODNOSIĆ TAM WALAJĄCE SIĘ PO LOCHU ZWŁOKI... NIECH SIĘ ROZKŁADAJĄ, NA ZDROWIE POWSTAJĄCYM Z NICH WAMPIROM, GOTOWYM NA TWOJE ROZKAZY. COŚ PIĘKNEGO."
+msgstr "Wynalazłeś Cmentarzysko. Twoje Chochliki będą odnosić tam walające się po lochu zwłoki... Niech się rozkładają, na zdrowie powstającym z nich Wampirom, gotowym na twoje rozkazy. Coś pięknego."
 
 #: guitext:87
 msgctxt "In-game message"
 msgid "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
-msgstr "SKONSTRUOWAŁEŚ DRZWI ŻELAZNE. TO ZNAKOMITA ZAPORA. STOSUJ JE MĄDRZE."
+msgstr "Skonstruowałeś Drzwi Żelazne. To znakomita zapora. Stosuj je mądrze."
 
 #: guitext:88
 msgctxt "In-game message"
@@ -479,42 +479,42 @@ msgstr "JASKINIĘ NA POŁUDNIU ZAMIESZKUJĄ POTĘŻNE STWORY. ODDZIELA CIĘ OD N
 #: guitext:89
 msgctxt "In-game message"
 msgid "You have overcome all resistance to your rule, O despicable one. It's time to flex the old misery muscle on the pathetic inhabitants of the land above."
-msgstr "WSZYSTKICH OPORNYCH PODDAŁEŚ SWEJ WŁADZY, O NIKCZEMNY. PORA POĆWICZYĆ MIĘŚNIE NA TYCH BEZNADZIEJNYCH POWIERZCHNIAKACH."
+msgstr "Wszystkich opornych poddałeś swej władzy, o nikczemny. Pora poćwiczyć mięśnie na tych beznadziejnych powierzchniakach."
 
 #: guitext:90
 msgctxt "In-game message"
 msgid "You have a manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
-msgstr "SKONSTRUOWAŁEŚ PUŁAPKĘ KAMIENNĄ. UMIEŚĆ JĄ W KORYTARZU I ZAWYJ W ZAPAMIĘTAŁYM ZACHWYCIE, GDY WIELKI GŁAZ BĘDZIE TURLAĆ SIĘ PO ZASKOCZONYCH PRZECHODNIACH."
+msgstr "Skonstruowałeś Pułapkę Kamienną. Umieść ją w korytarzu i zawyj w zapamiętałym zachwycie, gdy wielki głaz będzie turlać się po zaskoczonych przechodniach."
 
 #: guitext:91
 msgctxt "In-game message"
 msgid "With typical brilliance, you have researched the Cave-In spell. Use it to block off passages and repair dungeon breaches. Interestingly, the rockfall will crush to death any creatures caught beneath it."
-msgstr "Z WŁAŚCIWĄ SOBIE BYSTROŚCIĄ WYNALAZŁEŚ ZAKLĘCIE ZAWALENIA. WYKORZYSTAJ JE DO BLOKOWANIA PRZEJŚĆ I LIKWIDACJI WŁAMAŃ DO LOCHU. CO CIEKAWE, SPADAJĄCE SKAŁY MOGĄ ŚMIERTELNIE ZGNIEŚĆ WSZYSTKIE STWORY, JAKIE PRZYPADKIEM ZNAJDĄ SIĘ POD NIMI."
+msgstr "Z właściwą sobie bystrością wynalazłeś zaklęcie Zawalenia. Wykorzystaj je do blokowania przejść i likwidacji włamań do lochu. Co ciekawe, spadające skały mogą śmiertelnie zgnieść wszystkie stwory, jakie przypadkiem znajdą się pod nimi."
 
 #: guitext:92
 msgctxt "In-game message"
 msgid "Your tireless librarians have researched the Scavenger Room. Creatures placed within a Scavenger Room will lure their kin from other dungeons and the outside world, into your domain."
-msgstr "TWOI NIESTRUDZENI BIBLIOTEKARZE ZAPROJEKTOWALI OCZYSZCZALNIĘ. STWORY UMIESZCZONE W OCZYSZCZALNI BĘDĄ WABIĆ DO TWOJEGO PODZIEMIA SWYCH POBRATYMCÓW Z INNYCH LOCHÓW I ZE ŚWIATA ZEWNĘTRZNEGO."
+msgstr "Twoi niestrudzeni bibliotekarze zaprojektowali Oczyszczalnię. Stwory umieszczone w Oczyszczalni będą wabić do twojego podziemia swych pobratymców z innych lochów i ze świata zewnętrznego."
 
 #: guitext:93
 msgctxt "In-game message"
 msgid "Your great wealth has bought the loyalty of a passing Dragon. They are fickle creatures. Keep your eye on this one."
-msgstr "TWOJE WIELKIE BOGACTWO ZWABIŁO PRZECHODZĄCEGO W POBLIŻU SMOKA. SMOKI TO PŁOCHE ISTOTY. MIEJ GO NA OKU."
+msgstr "Twoje wielkie bogactwo zwabiło przechodzącego w pobliżu Smoka. Smoki to płoche istoty. Miej go na oku."
 
 #: guitext:94
 msgctxt "In-game message"
 msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
-msgstr "OCZYSZCZALNIA ZWABIŁA DO TWOJEGO LOCHU OGARA PIEKIEŁ."
+msgstr "Oczyszczalnia zwabiła do twojego lochu Ogara Piekieł."
 
 #: guitext:95
 msgctxt "In-game message"
 msgid "The other two Keepers in this region have put aside their differences for the moment and joined forces, in an effort to destroy you. That's almost a compliment. Kill the creeps."
-msgstr "DWAJ POZOSTALI STRAŻNICY TEGO REJONU CHWILOWO ODŁOŻYLI NA BOK SWOJE ANIMOZJE I POŁĄCZYLI SIŁY, ABY CIĘ ZNISZCZYĆ. TO NIEMAL KOMPLEMENT. WYKOŃCZ TE FAJTŁAPY."
+msgstr "Dwaj pozostali strażnicy tego rejonu chwilowo odłożyli na bok swoje animozje i połączyli siły, aby cię zniszczyć. To niemal komplement. Wykończ te fajtłapy."
 
 #: guitext:96
 msgctxt "In-game message"
 msgid "You have won a magnificent victory, Master. You have a talent for twisted mercilessness that makes other Keepers look well behaved by comparison."
-msgstr "ODNIOSŁEŚ WSPANIAŁE ZWYCIĘSTWO, PANIE. WYKAZAŁEŚ SIĘ ZAMIŁOWANIEM DO TAK WYRAFINOWANEGO OKAZYWANIA BRAKU MIŁOSIERDZIA, ŻE ZACHOWANIE INNYCH STRAŻNIKÓW W PORÓWNANIU Z TWOIM WYDAJE SIĘ GRZECZNE I POPRAWNE."
+msgstr "Odniosłeś wspaniałe zwycięstwo, panie. Wykazałeś się zamiłowaniem do tak wyrafinowanego okazywania braku miłosierdzia, że zachowanie innych strażników w porównaniu z twoim wydaje się grzeczne i poprawne."
 
 #: guitext:97
 msgctxt "In-game message"
@@ -4290,22 +4290,22 @@ msgid "IPX"
 msgstr "IPX"
 
 #: guitext:877
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "N"
 msgstr "PN"
 
 #: guitext:878
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "E"
 msgstr "W"
 
 #: guitext:879
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "S"
 msgstr "PD"
 
 #: guitext:880
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "W"
 msgstr "Z"
 

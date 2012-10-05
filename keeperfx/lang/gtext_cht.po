@@ -3052,1188 +3052,1187 @@ msgstr "守卫岗哨: 你的怪物被放在这里时，会看守整个地下城�
 #: guitext:628
 msgctxt "Room description"
 msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
-msgstr "守卫岗哨: 你的怪物被放在这里时，会看守整个地下城。按滑鼠左键选择。按滑鼠右键缩放视野。[17.7]"
+msgstr "祭坛: 敬拜黑暗诸神可以让怪物快乐一点。你可以把怪物丢进洗礼盆中，用它们来献祭。按滑鼠左键选择。按滑鼠右键缩放视野。[17.12]"
 
 #: guitext:629
 msgctxt "Room description"
 msgid "Scavenger Room: Creatures placed onto the room lure their kin away from other dungeons or through portals. LMB select. RMB zoom. [17.14]"
-msgstr "祭坛: 敬拜黑暗诸神可以让怪物快乐一点。你可以把怪物丢进洗礼盆中，用它们来献祭。按滑鼠左键选择。按滑鼠右键缩放视野。[17.12]"
+msgstr "迷乱室: 被放在这个房间里的怪物会将同类生物由别的地下城或传送门吸引过来。按滑鼠左键选择。按滑鼠右键缩放视野。[17.14]"
 
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr "迷乱室: 被放在这个房间里的怪物会将同类生物由别的地下城或传送门吸引过来。按滑鼠左键选择。按滑鼠右键缩放视野。[17.14]"
+msgstr "怪物附体术"
 
 #: guitext:631
 msgctxt "Keeper spell name"
 msgid "Create Imp"
-msgstr "怪物附体术"
+msgstr "创造小恶魔"
 
 #: guitext:632
 msgctxt "Keeper spell name"
 msgid "Sight of Evil"
-msgstr "创造小恶魔"
+msgstr "恶魔之眼"
 
 #: guitext:633
 msgctxt "Keeper spell name"
 msgid "Call To Arms"
-msgstr "恶魔之眼"
+msgstr "战斗呼叫"
 
 #: guitext:634
 msgctxt "Keeper spell name"
 msgid "Hold Audience"
-msgstr "战斗呼叫"
+msgstr "召集怪物"
 
 #: guitext:635
 msgctxt "Keeper spell name"
 msgid "Cave-In"
-msgstr "召集怪物"
+msgstr "下陷术"
 
 #: guitext:636
 msgctxt "Keeper spell name"
 msgid "Must Obey"
-msgstr "下陷术"
+msgstr "强あ法术"
 
 #: guitext:637
 msgctxt "Keeper spell name"
 msgid "Speed Monster"
-msgstr "强あ法术"
+msgstr "加速术"
 
 #: guitext:638
 msgctxt "Keeper spell name"
 msgid "Protect Monster"
-msgstr "加速术"
+msgstr "保护术"
 
 #: guitext:639
 msgctxt "Keeper spell name"
 msgid "Conceal Monster"
-msgstr "保护术"
+msgstr "隐形术"
 
 #: guitext:640
 msgctxt "Keeper spell name"
 msgid "Lightning Strike"
-msgstr "隐形术"
+msgstr "闪击术"
 
 #: guitext:641
 msgctxt "Keeper spell name"
 msgid "Chicken"
-msgstr "闪击术"
+msgstr "弱鸡术"
 
 #: guitext:642
 msgctxt "Keeper spell name"
 msgid "Disease"
-msgstr "弱鸡术"
+msgstr "疾病术"
 
 #: guitext:643
 msgctxt "Keeper spell name"
 msgid "Destroy Walls"
-msgstr "疾病术"
+msgstr "破墙术"
 
 #: guitext:644
 msgctxt "Keeper spell name"
 msgid "Heal"
-msgstr "破墙术"
+msgstr "医疗术"
 
 #: guitext:645
 msgctxt "Keeper spell name"
 msgid "Time Bomb"
-msgstr "医疗术"
+msgstr "定时炸弹"
 
 #: guitext:646
 msgctxt "Keeper spell name"
 msgid "Armageddon"
-msgstr "定时炸弹"
+msgstr "最终决战法术"
 
 #: guitext:647
 msgctxt "Keeper spell description"
 msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
-msgstr "最终决战法术"
+msgstr "怪物附体术: 直接控あ一只怪物。按滑鼠左键选择。[18.1]"
 
 #: guitext:648
 msgctxt "Keeper spell description"
 msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
-msgstr "怪物附体术: 直接控あ一只怪物。按滑鼠左键选择。[18.1]"
+msgstr "创造小恶魔: 召唤新的小恶魔前来。按滑鼠左键选择。[18.2]"
 
 #: guitext:649
 msgctxt "Keeper spell description"
 msgid "Sight of Evil: Reveal a hidden area of the map for a limited time. LMB select. RMB zoom. [18.3]"
-msgstr "创造小恶魔: 召唤新的小恶魔前来。按滑鼠左键选择。[18.2]"
+msgstr "恶魔之眼: 在有限时间内，显示地图上的一处隐藏区域。按滑鼠左键选择。[18.3]"
 
 #: guitext:650
 msgctxt "Keeper spell description"
 msgid "Call To Arms: Calls all your creatures to an area of your dungeon. LMB select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
-msgstr "恶魔之眼: 在有限时间内，显示地图上的一处隐藏区域。按滑鼠左键选择。[18.3]"
+msgstr "战斗呼叫: 将手下的所有怪物召集到地下城的某个地区。按滑鼠左键选择，再按一次滑鼠左键重新选择，按第三次滑鼠左键则取消。按滑鼠右键缩放视野。[18.6]"
 
 #: guitext:651
 msgctxt "Keeper spell description"
 msgid "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. RMB zoom. [18.8]"
-msgstr "战斗呼叫: 将手下的所有怪物召集到地下城的某个地区。按滑鼠左键选择，再按一次滑鼠左键重新选择，按第三次滑鼠左键则取消。按滑鼠右键缩放视野。[18.6]"
+msgstr "召集怪物术: 将你手下的所有怪物聚集到地城之心。按滑鼠左键选择。按滑鼠右键缩放视野。[18.8]"
 
 #: guitext:652
 msgctxt "Keeper spell description"
 msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
-msgstr "召集怪物术: 将你手下的所有怪物聚集到地城之心。按滑鼠左键选择。按滑鼠右键缩放视野。[18.8]"
+msgstr "下陷术: 使地下城的屋顶坍塌。按滑鼠左键选择。[18.13]"
 
 #: guitext:653
 msgctxt "Keeper spell description"
 msgid "Must Obey: Forces your creatures to obey your every command. LMB select. [18.5]"
-msgstr "下陷术: 使地下城的屋顶坍塌。按滑鼠左键选择。[18.13]"
+msgstr "强あ术: 强迫你的怪物服从你的每一个命令。按滑鼠左键选择。[18.5]"
 
 #: guitext:654
 msgctxt "Keeper spell description"
 msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
-msgstr "强あ术: 强迫你的怪物服从你的每一个命令。按滑鼠左键选择。[18.5]"
+msgstr "加速术: 提高怪物的速度。按滑鼠左键选择。[18.4]"
 
 #: guitext:655
 msgctxt "Keeper spell description"
 msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
-msgstr "加速术: 提高怪物的速度。按滑鼠左键选择。[18.4]"
+msgstr "保护术: 保护你的怪物不受攻击。按滑鼠左键选择。[18.11]"
 
 #: guitext:656
 msgctxt "Keeper spell description"
 msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
-msgstr "保护术: 保护你的怪物不受攻击。按滑鼠左键选择。[18.11]"
+msgstr "隐形术: 让敌人看不见你的怪物。按滑鼠左键选择。[18.7]"
 
 #: guitext:657
 msgctxt "Keeper spell description"
 msgid "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of lightning. LMB select. [18.10]"
-msgstr "隐形术: 让敌人看不见你的怪物。按滑鼠左键选择。[18.7]"
+msgstr "闪击术: 以破坏性的闪电攻击地下城的某个区域。按滑鼠左键选择。[18.10]"
 
 #: guitext:658
 msgctxt "Keeper spell description"
 msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
-msgstr "闪击术: 以破坏性的闪电攻击地下城的某个区域。按滑鼠左键选择。[18.10]"
+msgstr "弱鸡术: 将敌人变成美味的家禽。按滑鼠左键选择。[18.12]"
 
 #: guitext:659
 msgctxt "Keeper spell description"
 msgid "Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
-msgstr "弱鸡术: 将敌人变成美味的家禽。按滑鼠左键选择。[18.12]"
+msgstr "疾病术: 对敌人的一只怪物造成致命的病。按滑鼠左键选择。[18.14]"
 
 #: guitext:660
 msgctxt "Keeper spell description"
 msgid "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
-msgstr "疾病术: 对敌人的一只怪物造成致命的病。按滑鼠左键选择。[18.14]"
+msgstr "破墙术: 击毁敌人的加强墙。按滑鼠左键选择。[18.16]"
 
 #: guitext:661
 msgctxt "Keeper spell description"
 msgid "Heal: Cast on an area of the dungeon to improve the health of your creatures. LMB select. [18.9]"
-msgstr "破墙术: 击毁敌人的加强墙。按滑鼠左键选择。[18.16]"
+msgstr "医疗术: 对地下城的一个区域施展，提高怪物的健康。按滑鼠左键选择。[18.9]"
 
 #: guitext:662
 msgctxt "Keeper spell description"
 msgid "Time Bomb"
-msgstr "医疗术: 对地下城的一个区域施展，提高怪物的健康。按滑鼠左键选择。[18.9]"
+msgstr "定时炸弹"
 
 #: guitext:663
 msgctxt "Keeper spell description"
 msgid "Armageddon: Transports all the creatures in the land to your Dungeon Heart for a final, decisive battle. LMB select. [18.15]"
-msgstr "定时炸弹"
+msgstr "最终决战法术: 将大地上的所有怪物传送到你的地城之心，进行最后决定性的战争。按滑鼠左键选择。[18.15]"
 
 #: guitext:664
 msgctxt "Game event name"
 msgid "Treasure Room full"
-msgstr "最终决战法术: 将大地上的所有怪物传送到你的地城之心，进行最后决定性的战争。按滑鼠左键选择。[18.15]"
+msgstr "宝藏室已满"
 
 #: guitext:665
 msgctxt "Game event name"
 msgid "Scavenging detected"
-msgstr "宝藏室已满"
+msgstr "发现迷乱现象"
 
 #: guitext:666
 msgctxt "Game event name"
 msgid "Creature Payday"
-msgstr "发现迷乱现象"
+msgstr "怪物支薪日"
 
 #: guitext:667
 msgctxt "Game event name"
 msgid "New spell picked up"
-msgstr "怪物支薪日"
+msgstr "找到新法术"
 
 #: guitext:668
 msgctxt "Game event name"
 msgid "New room taken over"
-msgstr "找到新法术"
+msgstr "新房间完成"
 
 #: guitext:669
 msgctxt "Game event name"
 msgid "New area discovered"
-msgstr "新房间完成"
+msgstr "发现新地区"
 
 #: guitext:670
 msgctxt "Game event name"
 msgid "Information"
-msgstr "发现新地区"
+msgstr "资料"
 
 #: guitext:671
 msgctxt "Game event name"
 msgid "Room lost"
-msgstr "资料"
+msgstr "失去房间"
 
 #: guitext:672
 msgctxt "Game event name"
 msgid "Heart attacked"
-msgstr "失去房间"
+msgstr "地城之心受攻击"
 
 #: guitext:673
 msgctxt "Game event name"
 msgid "Fight"
-msgstr "地城之心受攻击"
+msgstr "战斗"
 
 #: guitext:674
 msgctxt "Game event name"
 msgid "Objective"
-msgstr "战斗"
+msgstr "目标"
 
 #: guitext:675
 msgctxt "Game event name"
 msgid "Breach"
-msgstr "目标"
+msgstr "裂痕"
 
 #: guitext:676
 msgctxt "Game event name"
 msgid "New spell researched"
-msgstr "裂痕"
+msgstr "发现新法术"
 
 #: guitext:677
 msgctxt "Game event name"
 msgid "New room researched"
-msgstr "发现新法术"
+msgstr "发明新房间"
 
 #: guitext:678
 msgctxt "Game event name"
 msgid "New Trap"
-msgstr "发明新房间"
+msgstr "新陷阱"
 
 #: guitext:679
 msgctxt "Game event name"
 msgid "New Door"
-msgstr "新陷阱"
+msgstr "新门"
 
 #: guitext:680
 msgctxt "Game event name"
 msgid "New creature in dungeon"
-msgstr "新门"
+msgstr "新怪物进入地下城"
 
 #: guitext:681
 msgctxt "Game event name"
 msgid "Creature annoyed"
-msgstr "新怪物进入地下城"
+msgstr "怪物感到恼怒"
 
 #: guitext:682
 msgctxt "Game event name"
 msgid "No more living space"
-msgstr "怪物感到恼怒"
+msgstr "生活空间不足"
 
 #: guitext:683
 msgctxt "Game event name"
 msgid "Alarm triggered"
-msgstr "生活空间不足"
+msgstr "警铃已启动"
 
 #: guitext:684
 msgctxt "Game event name"
 msgid "Room under attack"
-msgstr "警铃已启动"
+msgstr "房间遭受攻击"
 
 #: guitext:685
 msgctxt "Game event name"
 msgid "Treasure Room needed"
-msgstr "房间遭受攻击"
+msgstr "需要宝藏室"
 
 #: guitext:686
 msgctxt "Game event name"
 msgid "Creatures becoming hungry"
-msgstr "需要宝藏室"
+msgstr "怪物饿了"
 
 #: guitext:687
 msgctxt "Game event name"
 msgid "Trap crate found"
-msgstr "怪物饿了"
+msgstr "发现陷阱箱"
 
 #: guitext:688
 msgctxt "Game event name"
 msgid "Door crate found"
-msgstr "发现陷阱箱"
+msgstr "发现门箱"
 
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr "发现门箱"
+msgstr "发现地城特殊物品"
 
 #: guitext:690
 msgctxt "Game event description"
 msgid "Treasure Room full: LMB toggle. RMB delete."
-msgstr "发现地城特殊物品"
+msgstr "宝藏室已满: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:691
 msgctxt "Game event description"
 msgid "Creature being scavenged: LMB toggle. RMB delete."
-msgstr "宝藏室已满: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "怪物受到迷乱影响: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:692
 msgctxt "Game event description"
 msgid "Creature Payday: LMB toggle. RMB delete."
-msgstr "怪物受到迷乱影响: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "怪物支薪日: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:693
 msgctxt "Game event description"
 msgid "New spell picked up: LMB toggle. RMB delete."
-msgstr "怪物支薪日: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "找到新法术: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:694
 msgctxt "Game event description"
 msgid "New room taken over: LBM toggle. RMB delete."
-msgstr "找到新法术: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "完成新房间: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:695
 msgctxt "Game event description"
 msgid "New area discovered: LMB toggle. RMB delete."
-msgstr "完成新房间: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "发现新地区: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:696
 msgctxt "Game event description"
 msgid "Information: LMB toggle. RMB delete."
-msgstr "发现新地区: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "资料: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:697
 msgctxt "Game event description"
 msgid "Room lost: LMB toggle. RMB delete."
-msgstr "资料: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "失去房间: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:698
 msgctxt "Game event description"
 msgid "Dungeon Heart Attacked: LMB toggle. RMB delete."
-msgstr "失去房间: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "地城之心受攻击: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:699
 msgctxt "Game event description"
 msgid "Fight: LMB toggle. RMB delete. [10.5]"
-msgstr "地城之心受攻击: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "战斗: 按滑鼠左键切换。按滑鼠右键删除。[10.5]"
 
 #: guitext:700
 msgctxt "Game event description"
 msgid "Objective: LMB toggle. [11.3]"
-msgstr "战斗: 按滑鼠左键切换。按滑鼠右键删除。[10.5]"
+msgstr "目标: 按滑鼠左键切换。按滑鼠右键删除。[11.3]"
 
 #: guitext:701
 msgctxt "Game event description"
 msgid "Breach: LMB toggle. RMB delete."
-msgstr "目标: 按滑鼠左键切换。按滑鼠右键删除。[11.3]"
+msgstr "裂痕: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:702
 msgctxt "Game event description"
 msgid "New spell researched: LMB toggle. RMB delete."
-msgstr "裂痕: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "发现新法术: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:703
 msgctxt "Game event description"
 msgid "New room researched: LMB toggle. RMB delete."
-msgstr "发现新法术: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "发明新房间: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:704
 msgctxt "Game event description"
 msgid "New trap: LMB toggle. RMB delete."
-msgstr "发明新房间: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "新陷阱: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:705
 msgctxt "Game event description"
 msgid "New door: LMB toggle. RMB delete."
-msgstr "新陷阱: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "新门: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:706
 msgctxt "Game event description"
 msgid "New creature in dungeon: LMB toggle. RMB delete."
-msgstr "新门: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "新怪物进入地下城: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:707
 msgctxt "Game event description"
 msgid "Creature is annoyed: LMB toggle. RMB delete."
-msgstr "新怪物进入地下城: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "怪物感到恼怒: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:708
 msgctxt "Game event description"
 msgid "No more living set: LMB toggle. RMB delete."
-msgstr "怪物感到恼怒: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "生活空间不足: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:709
 msgctxt "Game event description"
 msgid "Alarm triggered: LMB toggle. RMB delete."
-msgstr "生活空间不足: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "警铃已启动: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:710
 msgctxt "Game event description"
 msgid "Room under attack: LMB toggle. RMB delete."
-msgstr "警铃已启动: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "房间遭受攻击: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:711
 msgctxt "Game event description"
 msgid "Need Treasure Room: LMB toggle. RMB delete."
-msgstr "房间遭受攻击: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "需要宝藏室: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:712
 msgctxt "Game event description"
 msgid "Creatures becoming hungry: LMB toggle. RMB delete."
-msgstr "需要宝藏室: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "怪物饿了: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:713
 msgctxt "Game event description"
 msgid "Trap crate found: LMB toggle. RMB delete."
-msgstr "怪物饿了: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "发现陷阱箱: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:714
 msgctxt "Game event description"
 msgid "Door crate found: LMB toggle. RMB delete."
-msgstr "发现陷阱箱: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "发现门箱: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:715
 msgctxt "Game event description"
 msgid "Dungeon special found: LMB toggle. RMB delete."
-msgstr "发现门箱: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "发现地城特殊物品: 按滑鼠左键切换。按滑鼠右键删除。"
 
 #: guitext:716
 msgctxt "In-game interface item"
 msgid "Options"
-msgstr "发现地城特殊物品: 按滑鼠左键切换。按滑鼠右键删除。"
+msgstr "选项"
 
 #: guitext:717
 msgctxt "In-game interface item"
 msgid "Graphics Options"
-msgstr "选项"
+msgstr "图形选项"
 
 #: guitext:718
 msgctxt "In-game interface item"
 msgid "Sound Options"
-msgstr "图形选项"
+msgstr "音效选项"
 
 #: guitext:719
 msgctxt "In-game interface item"
 msgid "Load"
-msgstr "音效选项"
+msgstr "载入"
 
 #: guitext:720
 msgctxt "In-game interface item"
 msgid "Save"
-msgstr "载入"
+msgstr "储存"
 
 #: guitext:721
 msgctxt "In-game interface item"
 msgid "Computer Assistance"
-msgstr "储存"
+msgstr "电脑辅助"
 
 #: guitext:722
 msgctxt "In-game interface description"
 msgid "Options: Open Options Panel. LMB open panel. [3.2]"
-msgstr "电脑辅助"
+msgstr "选项: 开启选项面板。按滑鼠左键开启面板。[3.2]"
 
 #: guitext:723
 msgctxt "In-game interface description"
 msgid "Graphics Menu: Customise the graphics. [3.2.2]"
-msgstr "选项: 开启选项面板。按滑鼠左键开启面板。[3.2]"
+msgstr "图形选单: 设定图形。[3.2.2]"
 
 #: guitext:724
 msgctxt "In-game interface description"
 msgid "Sound Menu: Adjust the sound and music volumes. [3.2.3]"
-msgstr "图形选单: 设定图形。[3.2.2]"
+msgstr "音效选单: 调整音效及音乐音量。[3.2.3]"
 
 #: guitext:725
 msgctxt "In-game interface description"
 msgid "Load Game: Load a previously saved game. [3.2.1]"
-msgstr "音效选单: 调整音效及音乐音量。[3.2.3]"
+msgstr "载入游戏: 载入先前储存的游戏进度。[3.2.1]"
 
 #: guitext:726
 msgctxt "In-game interface description"
 msgid "Save Game: Save your current game. [3.2.1]"
-msgstr "载入游戏: 载入先前储存的游戏进度。[3.2.1]"
+msgstr "储存游戏: 储存你目前的游戏进度。[3.2.1]"
 
 #: guitext:727
 msgctxt "In-game interface description"
 msgid "Quit Game: Quit back to the Level Map. [3.2.5]"
-msgstr "储存游戏: 储存你目前的游戏进度。[3.2.1]"
+msgstr "离开游戏: 离开此处，回到关卡地图。[3.2.5]"
 
 #: guitext:728
 msgctxt "In-game interface description"
 msgid "Computer Assistance Menu: Customise the Computer Assistant. [3.2.4]"
-msgstr "离开游戏: 离开此处，回到关卡地图。[3.2.5]"
+msgstr "电脑辅助选单: 设定电脑辅助选项。[3.2.4]"
 
 #: guitext:729
 msgctxt "In-game interface description"
 msgid "Aggressive Computer Assistant: Constructs your dungeon and always trys to attack the enemy. LMB select. [3.2.4]"
-msgstr "电脑辅助选单: 设定电脑辅助选项。[3.2.4]"
+msgstr "侵略性电脑辅助: 建造你的地下城，而且主动尝试攻击敌人。按滑鼠左键选择。[3.2.4]"
 
 #: guitext:730
 msgctxt "In-game interface description"
 msgid "Defensive Computer Assistant: Constructs your dungeon but does not attack the enemy. LMB select. [3.2.4]"
-msgstr "侵略性电脑辅助: 建造你的地下城，而且主动尝试攻击敌人。按滑鼠左键选择。[3.2.4]"
+msgstr "防御性电脑辅助: 建造你的地下城，但是不攻击敌人。按滑鼠左键选择。[3.2.4]"
 
 #: guitext:731
 msgctxt "In-game interface description"
 msgid "Construction Only Computer Assistant: Digs, places rooms and traps but does not move creatures. LMB select. [3.2.4]"
-msgstr "防御性电脑辅助: 建造你的地下城，但是不攻击敌人。按滑鼠左键选择。[3.2.4]"
+msgstr "仅负责建筑之电脑辅助: 挖掘、安置房间及陷阱，但是不移动怪物。按滑鼠左键选择。[3.2.4]"
 
 #: guitext:732
 msgctxt "In-game interface description"
 msgid "Move Only Computer Assistant: Moves and slaps your creatures. LMB select. [3.2.4]"
-msgstr "仅负责建筑之电脑辅助: 挖掘、安置房间及陷阱，但是不移动怪物。按滑鼠左键选择。[3.2.4]"
+msgstr "仅负责移动之电脑辅助: 移动并拍打你的怪物。按滑鼠左键选择。[3.2.4]"
 
 #: guitext:733
 msgctxt "In-game interface description"
 msgid "Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "仅负责移动之电脑辅助: 移动并拍打你的怪物。按滑鼠左键选择。[3.2.4]"
+msgstr "抓取最具经验之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
 
 #: guitext:734
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "抓取最具经验之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
+msgstr "抓取不事生产之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "抓取不事生产之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
+msgstr "抓取工作中之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
 
 #: guitext:736
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "抓取工作中之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
+msgstr "抓取战斗中之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
 
 #: guitext:737
 msgctxt "In-game interface description"
 msgid "Invert Mouse: Inverts the vertical mouse movements while Possessing a creature. LMB toggle."
-msgstr "抓取战斗中之怪物: 按滑鼠左键抓取怪物。按滑鼠右键缩放视野。[22.2.1]"
+msgstr "翻转滑鼠方向: 在附身于怪物身上时，使滑鼠的垂直移动方向颠倒。按滑鼠左键切换。"
 
 #: guitext:738
 msgctxt "In-game interface description"
 msgid "Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse movements when in Possess Creature mode. LMB toggle."
-msgstr "翻转滑鼠方向: 在附身于怪物身上时，使滑鼠的垂直移动方向颠倒。按滑鼠左键切换。"
+msgstr "附身怪物时之滑鼠灵敏度: 调整在附身怪物模式中，滑鼠移动的灵敏度。按滑鼠左键切换。"
 
 #: guitext:739
 msgctxt "In-game interface description"
 msgid "More sensitive."
-msgstr "附身怪物时之滑鼠灵敏度: 调整在附身怪物模式中，滑鼠移动的灵敏度。按滑鼠左键切换。"
+msgstr "较灵敏。"
 
 #: guitext:740
 msgctxt "In-game interface description"
 msgid "Less sensitive."
-msgstr "较灵敏。"
+msgstr "较不灵敏"
 
 #: guitext:741
 msgctxt "Statistic name"
 msgid "Number of Creatures"
-msgstr "较不灵敏"
+msgstr "怪物数量"
 
 #: guitext:742
 msgctxt "Statistic name"
 msgid "Gold Mined"
-msgstr "怪物数量"
+msgstr "已挖掘之黄金"
 
 #: guitext:743
 msgctxt "Statistic name"
 msgid "Efficiency"
-msgstr "已挖掘之黄金"
+msgstr "效率"
 
 #: guitext:744
 msgctxt "Statistic name"
 msgid "Secrets"
-msgstr "效率"
+msgstr "秘密"
 
 #: guitext:745
 msgctxt "Statistic name"
 msgid "Money"
-msgstr "秘密"
+msgstr "金钱"
 
 #: guitext:746
 msgctxt "Statistic name"
 msgid "Time"
-msgstr "金钱"
+msgstr "时间"
 
 #: guitext:747
 msgctxt "Statistic name"
 msgid "Style"
-msgstr "时间"
+msgstr "类型"
 
 #: guitext:748
 msgctxt "Statistic name"
 msgid "Rating"
-msgstr "类型"
+msgstr "评比"
 
 #: guitext:749
 msgctxt "Statistic name"
 msgid "Creatures Attracted"
-msgstr "评比"
+msgstr "吸引之怪物数"
 
 #: guitext:750
 msgctxt "Statistic name"
 msgid "Battles Won"
-msgstr "吸引之怪物数"
+msgstr "赢得之战役数"
 
 #: guitext:751
 msgctxt "Statistic name"
 msgid "Battles Lost"
-msgstr "赢得之战役数"
+msgstr "战败之战役数"
 
 #: guitext:752
 msgctxt "Statistic name"
 msgid "Times Dungeon Breached"
-msgstr "战败之战役数"
+msgstr "地下城遭攻击之次数"
 
 #: guitext:753
 msgctxt "Statistic name"
 msgid "Imps Deployed"
-msgstr "地下城遭攻击之次数"
+msgstr "ぇ署之小恶魔数目"
 
 #: guitext:754
 msgctxt "Statistic name"
 msgid "Creatures Left"
-msgstr "ぇ署之小恶魔数目"
+msgstr "剩余之怪物数"
 
 #: guitext:755
 msgctxt "Statistic name"
 msgid "Doors Destroyed"
-msgstr "剩余之怪物数"
+msgstr "摧毁的门"
 
 #: guitext:756
 msgctxt "Statistic name"
 msgid "Rooms Destroyed"
-msgstr "摧毁的门"
+msgstr "摧毁的房间"
 
 #: guitext:757
 msgctxt "Statistic name"
 msgid "Dungeon Area"
-msgstr "摧毁的房间"
+msgstr "地城区域"
 
 #: guitext:758
 msgctxt "Statistic name"
 msgid "Ideas Researched"
-msgstr "地城区域"
+msgstr "研发之创意数目"
 
 #: guitext:759
 msgctxt "Statistic name"
 msgid "Creatures Scavenged"
-msgstr "研发之创意数目"
+msgstr "迷乱之怪物数目"
 
 #: guitext:760
 msgctxt "Statistic name"
 msgid "Creatures Summoned"
-msgstr "迷乱之怪物数目"
+msgstr "召唤之怪物数目"
 
 #: guitext:761
 msgctxt "Statistic name"
 msgid "Creatures Sacrificed"
-msgstr "召唤之怪物数目"
+msgstr "献祭之怪物数目"
 
 #: guitext:762
 msgctxt "Statistic name"
 msgid "Creatures Tortured"
-msgstr "献祭之怪物数目"
+msgstr "刑求之怪物数目"
 
 #: guitext:763
 msgctxt "Statistic name"
 msgid "Creatures Trained"
-msgstr "刑求之怪物数目"
+msgstr "训练之怪物数目"
 
 #: guitext:764
 msgctxt "Statistic name"
 msgid "Gold Pots Stolen"
-msgstr "训练之怪物数目"
+msgstr "偷得之黄金罐"
 
 #: guitext:765
 msgctxt "Statistic name"
 msgid "Spells Stolen"
-msgstr "偷得之黄金罐"
+msgstr "偷得之法术"
 
 #: guitext:766
 msgctxt "Statistic name"
 msgid "Traps Manufactured"
-msgstr "偷得之法术"
+msgstr "制造之陷阱数"
 
 #: guitext:767
 msgctxt "Statistic name"
 msgid "Traps Unused"
-msgstr "制造之陷阱数"
+msgstr "未使用之陷阱数"
 
 #: guitext:768
 msgctxt "Statistic name"
 msgid "Doors Manufactured"
-msgstr "未使用之陷阱数"
+msgstr "制造之门数"
 
 #: guitext:769
 msgctxt "Statistic name"
 msgid "Doors Unused"
-msgstr "制造之门数"
+msgstr "未使用之门数"
 
 #: guitext:770
 msgctxt "Statistic name"
 msgid "Number of Rooms"
-msgstr "未使用之门数"
+msgstr "房间数量"
 
 #: guitext:771
 msgctxt "Statistic name"
 msgid "Number of Portals"
-msgstr "房间数量"
+msgstr "传送门数量"
 
 #: guitext:772
 msgctxt "Statistic name"
 msgid "Slaps"
-msgstr "传送门数量"
+msgstr "拍击次数"
 
 #: guitext:773
 msgctxt "Statistic name"
 msgid "Cave-Ins"
-msgstr "拍击次数"
+msgstr "塌陷处的数目"
 
 #: guitext:774
 msgctxt "Statistic name"
 msgid "Skeletons Raised"
-msgstr "塌陷处的数目"
+msgstr "唤起之骷髅数"
 
 #: guitext:775
 msgctxt "Statistic name"
 msgid "Bridges Built"
-msgstr "唤起之骷髅数"
+msgstr "桥梁的数目"
 
 #: guitext:776
 msgctxt "Statistic name"
 msgid "Rock Dug Out"
-msgstr "桥梁的数目"
+msgstr "挖掘出之岩石数量"
 
 #: guitext:777
 msgctxt "Statistic name"
 msgid "Salary Cost"
-msgstr "挖掘出之岩石数量"
+msgstr "薪资之花费"
 
 #: guitext:778
 msgctxt "Statistic name"
 msgid "Flies Eaten By Spiders"
-msgstr "薪资之花费"
+msgstr "被蜘蛛捕食之苍蝇数目"
 
 #: guitext:779
 msgctxt "Statistic name"
 msgid "Territory Destroyed"
-msgstr "被蜘蛛捕食之苍蝇数目"
+msgstr "摧毁之领地"
 
 #: guitext:780
 msgctxt "Statistic name"
 msgid "Rooms Constructed"
-msgstr "摧毁之领地"
+msgstr "建造之房间数量"
 
 #: guitext:781
 msgctxt "Statistic name"
 msgid "Traps Used"
-msgstr "建造之房间数量"
+msgstr "使用陷阱数"
 
 #: guitext:782
 msgctxt "Statistic name"
 msgid "Keepers Destroyed"
-msgstr "使用陷阱数"
+msgstr "消灭的守护者"
 
 #: guitext:783
 msgctxt "Statistic name"
 msgid "Area Claimed"
-msgstr "消灭的守护者"
+msgstr "占领之地区数量"
 
 #: guitext:784
 msgctxt "Statistic name"
 msgid "Backs Stabbed"
-msgstr "占领之地区数量"
+msgstr "暗算次数"
 
 #: guitext:785
 msgctxt "Statistic name"
 msgid "Chickens Hatched"
-msgstr "暗算次数"
+msgstr "孵育出来的鸡数量"
 
 #: guitext:786
 msgctxt "Statistic name"
 msgid "Chickens Eaten"
-msgstr "孵育出来的鸡数量"
+msgstr "食用的鸡数量"
 
 #: guitext:787
 msgctxt "Statistic name"
 msgid "Hopes Dashed"
-msgstr "食用的鸡数量"
+msgstr "摧毁希望的次数"
 
 #: guitext:788
 msgctxt "Statistic name"
 msgid "Promises Broken"
-msgstr "摧毁希望的次数"
+msgstr "不守承诺的次数"
 
 #: guitext:789
 msgctxt "Statistic name"
 msgid "Ghosts Raised"
-msgstr "不守承诺的次数"
+msgstr "召唤来的鬼魂数量"
 
 #: guitext:790
 msgctxt "Statistic name"
 msgid "Doors Used"
-msgstr "召唤来的鬼魂数量"
+msgstr "使用之门数"
 
 #: guitext:791
 msgctxt "Statistic name"
 msgid "Your Creatures Killed By You"
-msgstr "使用之门数"
+msgstr "被你杀害的自家怪物数目"
 
 #: guitext:792
 msgctxt "Statistic name"
 msgid "Things Researched"
-msgstr "被你杀害的自家怪物数目"
+msgstr "研发出来的物品数"
 
 #: guitext:793
 msgctxt "Statistic name"
 msgid "Last Creature Attracted"
-msgstr "研发出来的物品数"
+msgstr "最后吸引的怪物"
 
 #: guitext:794
 msgctxt "Statistic name"
 msgid "Items Manufactured"
-msgstr "最后吸引的怪物"
+msgstr "制造之物品数"
 
 #: guitext:795
 msgctxt "Statistic name"
 msgid "Creatures Converted"
-msgstr "制造之物品数"
+msgstr "使之改变阵营的怪物数"
 
 #: guitext:796
 msgctxt "Statistic name"
 msgid "Territory Lost"
-msgstr "使之改变阵营的怪物数"
+msgstr "失去的领土数"
 
 #: guitext:797
 msgctxt "Statistic name"
 msgid "Traps Armed"
-msgstr "失去的领土数"
+msgstr "ぇ置之陷阱数"
 
 #: guitext:798
 msgctxt "Statistic name"
 msgid "Chickens Wasted"
-msgstr "ぇ置之陷阱数"
+msgstr "消耗鸡的数量"
 
 #: guitext:799
 msgctxt "Statistic name"
 msgid "Lies Told"
-msgstr "消耗鸡的数量"
+msgstr "说谎的次数"
 
 #: guitext:800
 msgctxt "Statistic name"
 msgid "Creatures Annoyed"
-msgstr "说谎的次数"
+msgstr "惹怒之怪物数"
 
 #: guitext:801
 msgctxt "Statistic name"
 msgid "Graveyard Body Count"
-msgstr "惹怒之怪物数"
+msgstr "墓园中的尸体数目"
 
 #: guitext:802
 msgctxt "Statistic name"
 msgid "Vampires Created"
-msgstr "墓园中的尸体数目"
+msgstr "创造的吸血鬼数目"
 
 #: guitext:803
 msgctxt "Easter egg"
 msgid "When night does not give way to day, And children are too scared to play, Abandon hope, embrace despair, You're destined for my Dragon's lair"
-msgstr "创造的吸血鬼数目"
+msgstr "当夜晚不肯为白天让路，孩子恐惧得不能游戏，放弃希望，拥抱绝望，你注定要成为我的龙穴。"
 
 #: guitext:804
 msgctxt "Easter egg"
 msgid "If thou art bold and pure of heart, Come down here, be torn apart."
-msgstr "当夜晚不肯为白天让路，孩子恐惧得不能游戏，放弃希望，拥抱绝望，你注定要成为我的龙穴。"
+msgstr "如果你既坚强又纯洁，下来这里让人撕成两截。"
 
 #: guitext:805
 msgctxt "Easter egg"
 msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
-msgstr "如果你既坚强又纯洁，下来这里让人撕成两截。"
+msgstr "或许你可以在我的地城中踏步，但是放心，你最后ぅ有死路。"
 
 #: guitext:806
 msgctxt "Easter egg"
 msgid "If you find you lose it all, Why not play Theme Hospital?"
-msgstr "或许你可以在我的地城中踏步，但是放心，你最后ぅ有死路。"
+msgstr "如果你发现自己败得一蹋涂地，何不玩玩「杏林也疯狂」？"
 
 #: guitext:807
 msgctxt "Easter egg"
 msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
-msgstr "如果你发现自己败得一蹋涂地，何不玩玩「杏林也疯狂」？"
+msgstr "拥有真正勇气的装甲骑士，叉在铁叉上时熟得更快。"
 
 #: guitext:808
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, I think you'll find they're here to stay."
-msgstr "拥有真正勇气的装甲骑士，叉在铁叉上时熟得更快。"
+msgstr "邪恶，敌意，死亡，腐朽，我想你会发现它们都停留在这里。"
 
 #: guitext:809
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, Just another working day."
-msgstr "邪恶，敌意，死亡，腐朽，我想你会发现它们都停留在这里。"
+msgstr "邪恶，敌意，死亡，腐朽，ぅ不过是另外一个工作天。"
 
 #: guitext:810
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, There really is no better way."
-msgstr "邪恶，敌意，死亡，腐朽，ぅ不过是另外一个工作天。"
+msgstr "邪恶，敌意，死亡，腐朽，确实没有更好的方法。"
 
 #: guitext:811
 msgctxt "Easter egg"
 msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
-msgstr "邪恶，敌意，死亡，腐朽，确实没有更好的方法。"
+msgstr "巨人，矮人，盗贼和精灵，你们都不会非常吓人。"
 
 #: guitext:812
 msgctxt "Easter egg"
 msgid "The denizens of your domain, Just cannot wait to kill again."
-msgstr "巨人，矮人，盗贼和精灵，你们都不会非常吓人。"
+msgstr "你的领土的居民，迫不及待地要再进行杀戮。"
 
 #: guitext:813
 msgctxt "Easter egg"
 msgid "The better creatures you employ, The greater carnage you enjoy."
-msgstr "你的领土的居民，迫不及待地要再进行杀戮。"
+msgstr "你运用的怪物越优秀，你享受的屠杀越快活。"
 
 #: guitext:814
 msgctxt "Easter egg"
 msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
-msgstr "你运用的怪物越优秀，你享受的屠杀越快活。"
+msgstr "听！圣者就在屋外，我可以闻到领主的惊骇。"
 
 #: guitext:815
 msgctxt "Easter egg"
 msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
-msgstr "听！圣者就在屋外，我可以闻到领主的惊骇。"
+msgstr "入侵者会迎接他们的毁灭，就在你的地城的刑求室内。"
 
 #: guitext:816
 msgctxt "Easter egg"
 msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
-msgstr "入侵者会迎接他们的毁灭，就在你的地城的刑求室内。"
+msgstr "虽然入侵者的心很纯净，他们仍将倒毙在你的地城的地板上。"
 
 #: guitext:817
 msgctxt "Easter egg"
 msgid "Your tunnels will be dark and cold, And no place for a Knight of old, Even if he claims he's bold."
-msgstr "虽然入侵者的心很纯净，他们仍将倒毙在你的地城的地板上。"
+msgstr "你的隧道将既冷又暗，而且没有地方给老骑士容身，即使他宣称他很坚强也一样。"
 
 #: guitext:818
 msgctxt "Easter egg"
 msgid "The fools who enter your domain, Will never see the light again."
-msgstr "你的隧道将既冷又暗，而且没有地方给老骑士容身，即使他宣称他很坚强也一样。"
+msgstr "进入你领土的傻瓜，再也见不到明天的阳光。"
 
 #: guitext:819
 msgctxt "Easter egg"
 msgid "Pain and anguish are your tools, To use upon intruding fools."
-msgstr "进入你领土的傻瓜，再也见不到明天的阳光。"
+msgstr "痛苦和悲伤是你的工具，用来对付入侵的笨蛋。"
 
 #: guitext:820
 msgctxt "Easter egg"
 msgid "When good guys head right for your treasure, Hunt and kill them at your leisure."
-msgstr "痛苦和悲伤是你的工具，用来对付入侵的笨蛋。"
+msgstr "当好人朝著你的宝藏前来，你可以随心所欲地猎杀他们。"
 
 #: guitext:821
 msgctxt "Easter egg"
 msgid "Protect your gold and Dungeon Heart, And slap your minions till they fart."
-msgstr "当好人朝著你的宝藏前来，你可以随心所欲地猎杀他们。"
+msgstr "保护你的黄金和地城之心，并拍击你的手下直到它们服从听命。"
 
 #: guitext:822
 msgctxt "Easter egg"
 msgid "Use your creatures' fear of you. To make them do what you want them to."
-msgstr "保护你的黄金和地城之心，并拍击你的手下直到它们服从听命。"
+msgstr "利用怪物对你的惧怕，让它们做你要它们做的事情。"
 
 #: guitext:823
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
-msgstr "利用怪物对你的惧怕，让它们做你要它们做的事情。"
+msgstr "地城中的魔法师很可怕？一个陷阱就可以轻易解决他。"
 
 #: guitext:824
 msgctxt "Easter egg"
 msgid "When your creatures give you hell, Stick them in your Prison Cell."
-msgstr "地城中的魔法师很可怕？一个陷阱就可以轻易解决他。"
+msgstr "当你的怪物不给你好日子，就把它们丢到囚房去。"
 
 #: guitext:825
 msgctxt "Easter egg"
 msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
-msgstr "当你的怪物不给你好日子，就把它们丢到囚房去。"
+msgstr "在地城守护者的故事中，刑求是至高的光荣。"
 
 #: guitext:826
 msgctxt "Easter egg"
 msgid "You are the Keeper, chosen one, And being evil is great fun."
-msgstr "在地城守护者的故事中，刑求是至高的光荣。"
+msgstr "你是守护者，被上天拣选的人，而且作坏人是很有趣的事。"
 
 #: guitext:827
 msgctxt "Easter egg"
 msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
-msgstr "你是守护者，被上天拣选的人，而且作坏人是很有趣的事。"
+msgstr "当你的部队受到饥饿的打击，你的孵化室有好吃的小鸡。"
 
 #: guitext:828
 msgctxt "Easter egg"
 msgid "Fill the Avatar with dread. Really make him wet the bed."
-msgstr "当你的部队受到饥饿的打击，你的孵化室有好吃的小鸡。"
+msgstr "用恐惧填满圣者的心，让他尿□床单不能自己。"
 
 #: guitext:829
 msgctxt "In-game hint message"
 msgid "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to circulate."
-msgstr "用恐惧填满圣者的心，让他尿□床单不能自己。"
+msgstr "小恶魔是地下城的生命泉源。就像血液一样，它们也必须进行循环。"
 
 #: guitext:830
 msgctxt "In-game hint message"
 msgid "Feeling mean? Set your minions to imprison and when your cells are full, spend some time torturing..."
-msgstr "小恶魔是地下城的生命泉源。就像血液一样，它们也必须进行循环。"
+msgstr "觉得太残忍吗？将手下设定为囚禁；当囚室客满时，花一些做刑求的工作。"
 
 #: guitext:831
 msgctxt "In-game hint message"
 msgid "If your creatures get unhappy, slap some sense into them. They'll soon realise how lucky they are."
-msgstr "觉得太残忍吗？将手下设定为囚禁；当囚室客满时，花一些做刑求的工作。"
+msgstr "如果你的怪物变得不快乐，用几个巴掌把它们打醒。它们很快就了解自己有多幸运。"
 
 #: guitext:832
 msgctxt "In-game hint message"
 msgid "The underworld is your domain and the adventurers come to steal it. Never show pity, even when the intruders are defenceless and pathetic."
-msgstr "如果你的怪物变得不快乐，用几个巴掌把它们打醒。它们很快就了解自己有多幸运。"
+msgstr "地底世界是你的领土，那些冒险者却来偷取其中的宝物。绝对不要表示怜悯，即使入侵者没有防御能力又引人同情也一样。"
 
 #: guitext:833
 msgctxt "In-game hint message"
 msgid "Compassion is the hallmark of the good Keeper. But good Keepers never win. Only evil ones."
-msgstr "地底世界是你的领土，那些冒险者却来偷取其中的宝物。绝对不要表示怜悯，即使入侵者没有防御能力又引人同情也一样。"
+msgstr "同情是好守护者的特徵。但是好守护者从来不曾获得胜利。ぅ有邪恶的守护者才会赢。"
 
 #: guitext:834
 msgctxt "In-game hint message"
 msgid "There's never a moment to waste. Already the bravest of the brave are queuing up to enter your dungeon. So stop reading this and get going."
-msgstr "同情是好守护者的特徵。但是好守护者从来不曾获得胜利。ぅ有邪恶的守护者才会赢。"
+msgstr "绝对不能浪费时间。英雄中的英雄已经排队要进入你的地下城。因此别再看这个讯息了，快动工吧。"
 
 #: guitext:835
 msgctxt "In-game hint message"
 msgid "Build fast. You'll want the biggest possible welcoming committee ready for the intruders."
-msgstr "绝对不能浪费时间。英雄中的英雄已经排队要进入你的地下城。因此别再看这个讯息了，快动工吧。"
+msgstr "迅速进行建造。你会需要最盛大的欢迎场面来迎接入侵者。"
 
 #: guitext:836
 msgctxt "In-game hint message"
 msgid "Keep your Imps digging. There are always surprises to be found deep in the earth."
-msgstr "迅速进行建造。你会需要最盛大的欢迎场面来迎接入侵者。"
+msgstr "让你的小恶魔不断地挖掘。在地底深处永远都会有惊奇的事物等候你去发掘。"
 
 #: guitext:837
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr "让你的小恶魔不断地挖掘。在地底深处永远都会有惊奇的事物等候你去发掘。"
+msgstr "控あ最黄金的人便能控あ整个地底世界。"
 
 #: guitext:838
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
-msgstr "控あ最黄金的人便能控あ整个地底世界。"
+msgstr "恐惧和残酷是你最大的武器。用智慧好好地运用它们。"
 
 #: guitext:839
 msgctxt "In-game hint message"
 msgid "Foolish is the Keeper who sells all his rooms and refuses to pay his creatures."
-msgstr "恐惧和残酷是你最大的武器。用智慧好好地运用它们。"
+msgstr "把所有房间出售，又拒绝支薪给怪物的守护者是天字第一号大笨蛋。"
 
 #: guitext:840
 msgctxt "Menu interface item"
 msgid "Return to options menu"
-msgstr "把所有房间出售，又拒绝支薪给怪物的守护者是天字第一号大笨蛋。"
+msgstr "回选项选单"
 
 #: guitext:841
 msgctxt "Menu interface item"
 msgid "Exit"
-msgstr "回选项选单"
+msgstr "离开"
 
 #: guitext:842
 msgctxt "Menu interface item"
 msgid "Audio"
-msgstr "离开"
+msgstr "音效"
 
 #: guitext:843
 msgctxt "Menu interface item"
 msgid "Invert Mouse"
-msgstr "音效"
+msgstr "翻转滑鼠方向"
 
 #: guitext:844
 msgctxt "Menu interface item"
 msgid "Mouse Sensitivity"
-msgstr "翻转滑鼠方向"
+msgstr "滑鼠灵敏度"
 
 #: guitext:845
 msgctxt "Menu interface item"
 msgid "Computer"
-msgstr "滑鼠灵敏度"
+msgstr "电脑"
 
 #: guitext:846
 msgctxt "Menu interface item"
 msgid "Computer Players"
-msgstr "电脑"
+msgstr "电脑玩者"
 
 #: guitext:847
 msgctxt "Menu interface item"
 msgid "On"
-msgstr "电脑玩者"
+msgstr "开"
 
 #: guitext:848
 msgctxt "Menu interface item"
 msgid "Off"
-msgstr "开"
+msgstr "关"
 
 #: guitext:849
 msgctxt "Menu interface item"
 msgid "Sensitivity"
-msgstr "关"
+msgstr "灵敏度"
 
 #: guitext:850
 msgctxt "Menu interface item"
 msgid "Mouse Options"
-msgstr "灵敏度"
+msgstr "滑鼠选项"
 
 #: guitext:851
 msgctxt "Menu interface item"
 msgid "Mouse"
-msgstr "滑鼠选项"
+msgstr "滑鼠"
 
 #: guitext:852
 msgctxt "Menu interface item"
 msgid "Undo Pickup"
-msgstr "滑鼠"
+msgstr "不作挑选"
 
 #: guitext:853
 msgctxt "Menu interface item"
 msgid "Pause"
-msgstr "不作挑选"
+msgstr "暂停"
 
 #: guitext:854
 msgctxt "Menu interface item"
 msgid "Map"
-msgstr "暂停"
+msgstr "地图"
 
 #: guitext:855
 msgctxt "On-screen message"
 msgid "Insufficient Memory"
-msgstr "地图"
+msgstr "记忆体不足"
 
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr "记忆体不足"
+msgstr "无法改变萤幕解悉度"
 
 #: guitext:857
 msgctxt "Menu interface item"
 msgid "Query"
-msgstr "无法改变萤幕解悉度"
+msgstr "疑问"
 
 #: guitext:858
 msgctxt "Credits"
 msgid "Support Art"
-msgstr "疑问"
+msgstr "支援美术人员"
 
 #: guitext:859
 msgctxt "Credits"
 msgid "Navigation System"
-msgstr "支援美术人员"
+msgstr "导引系统"
 
 #: guitext:860
 msgctxt "Credits"
 msgid "Script"
-msgstr "导引系统"
+msgstr "脚本"
 
 #: guitext:861
 msgctxt "Credits"
 msgid "Voice Over"
-msgstr "脚本"
+msgstr "结束音乐"
 
 #: guitext:862
 msgctxt "Credits"
 msgid "Finance"
-msgstr "结束音乐"
+msgstr "特别感谢"
 
 #: guitext:864
 msgctxt "Credits"
-msgctxt "Credits"
 msgid "Localisation Management"
-msgstr "特别感谢"
+msgstr "中文化监制"
 
 #: guitext:865
 msgctxt "Credits"
 msgid "Language Test Supervisor"
-msgstr "中文化监制"
+msgstr "语言测试支援"
 
 #: guitext:866
 msgctxt "Credits"
@@ -4243,122 +4242,122 @@ msgstr "语言测试支援"
 #: guitext:867
 msgctxt "Credits"
 msgid "Localisation Audio Management"
-msgstr "语言测试支援"
+msgstr "中文化语音监制"
 
 #: guitext:868
 msgctxt "Network game message"
 msgid "Attempting To Join"
-msgstr "中文化语音监制"
+msgstr "尝试加入"
 
 #: guitext:869
 msgctxt "Network game message"
 msgid "Resyncing"
-msgstr "尝试加入"
+msgstr "重新同步化中"
 
 #: guitext:870
 msgctxt "Menu interface item"
 msgid "1 Player"
-msgstr "重新同步化中"
+msgstr "一名玩者"
 
 #: guitext:871
 msgctxt "Menu interface item"
 msgid "2 Players"
-msgstr "一名玩者"
+msgstr "两名玩者"
 
 #: guitext:872
 msgctxt "Menu interface item"
 msgid "3 Players"
-msgstr "两名玩者"
+msgstr "三名玩者"
 
 #: guitext:873
 msgctxt "Menu interface item"
 msgid "4 Players"
-msgstr "三名玩者"
+msgstr "四名玩者"
 
 #: guitext:874
 msgctxt "Menu interface item"
 msgid "Serial"
-msgstr "四名玩者"
+msgstr "串列"
 
 #: guitext:875
 msgctxt "Menu interface item"
 msgid "Modem"
-msgstr "串列"
+msgstr "数据机"
 
 #: guitext:876
 msgctxt "Menu interface item"
 msgid "IPX"
-msgstr "数据机"
-
-#: guitext:877
-msgctxt "Menu interface item"
-msgid "N"
 msgstr "IPX"
 
-#: guitext:878
-msgctxt "Menu interface item"
-msgid "E"
+#: guitext:877
+msgctxt "World direction"
+msgid "N"
 msgstr "N"
 
-#: guitext:879
-msgctxt "Menu interface item"
-msgid "S"
+#: guitext:878
+msgctxt "World direction"
+msgid "E"
 msgstr "E"
 
-#: guitext:880
-msgctxt "Menu interface item"
-msgid "W"
+#: guitext:879
+msgctxt "World direction"
+msgid "S"
 msgstr "S"
+
+#: guitext:880
+msgctxt "World direction"
+msgid "W"
+msgstr "W"
 
 #: guitext:881
 msgctxt "Menu interface item"
 msgid "Vs"
-msgstr "W"
+msgstr "对抗"
 
 #: guitext:882
 msgctxt "Credits"
 msgid "Game design"
-msgstr "对抗"
+msgstr "游戏设计"
 
 #: guitext:883
 msgctxt "Credits"
 msgid "Associate Producer"
-msgstr "游戏设计"
+msgstr "副制作人"
 
 #: guitext:884
 msgctxt "Credits"
 msgid "Additional Script"
-msgstr "副制作人"
+msgstr "新增脚本"
 
 #: guitext:885
 msgctxt "Easter egg"
 msgid "Happy Birthday"
-msgstr "新增脚本"
+msgstr "生日快乐"
 
 #: guitext:886
 msgctxt "Menu interface message"
 msgid "Error"
-msgstr "生日快乐"
+msgstr "错误"
 
 #: guitext:887
 msgctxt "Menu interface message"
 msgid "Error Saving"
-msgstr "错误"
+msgstr "储存错误"
 
 #: guitext:888
 msgctxt "Menu interface message"
 msgid "New Levels"
-msgstr "储存错误"
+msgstr "新关卡"
 
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Please insert Data Disk CD-ROM"
-msgstr "新关卡"
+msgstr "请放入地城守护者资料光碟片"
 
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "请放入地城守护者资料光碟片"
+msgstr "请放入地城守护者光碟片"
 
 #: guitext:891
 msgctxt "Menu interface message"

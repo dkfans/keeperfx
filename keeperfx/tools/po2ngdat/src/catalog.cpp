@@ -19,6 +19,7 @@
 /******************************************************************************/
 
 #include <stdio.h>
+#include <wchar.h>
 
 #include <string>
 #include <vector>
@@ -391,7 +392,7 @@ void Catalog::HeaderData::ParseDict()
         for (std::vector<std::wstring>::iterator it = tkn.begin(); it!=tkn.end(); ++it)
         {
             if (i>=BOOKMARK_LAST) break;
-            val = _wtol(it->c_str());
+            val = wcstol(it->c_str(),NULL,0);
             Bookmarks[i] = val;
             i++;
         }
@@ -1196,7 +1197,7 @@ static unsigned GetCountFromPluralFormsHeader(const Catalog::HeaderData& header)
             if (form.substr(0,pos).compare(L"nplurals") == 0)
             {
                 std::wstring sval = form.substr(pos+1);
-                return _wtol(sval.c_str());
+                return wcstol(sval.c_str(),NULL,0);
             }
         }
     }
