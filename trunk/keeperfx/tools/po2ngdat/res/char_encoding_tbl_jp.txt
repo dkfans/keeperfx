@@ -1,3 +1,5 @@
+# Conversion table for KeeperFX Japanese language.
+# Contains UTF-8 chars and corresponding cp 932 Shift-JIS Japanese codes.
 0x0020	 
 0x0021	!
 0x0022	"

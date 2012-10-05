@@ -488,15 +488,26 @@ pkg/fxdata/gtext_rus.dat: lang/gtext_rus.po $(POTONGDAT)
 	-$(ECHO) ' '
 
 pkg/fxdata/gtext_chi.dat: lang/gtext_chi.po $(POTONGDAT)
-pkg/fxdata/gtext_cht.dat: lang/gtext_cht.po $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_jp.txt" "$<"
+	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_ch.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-# Creation of engine language files from PO/POT files
-pkg/fxdata/%.dat: lang/%.pot $(POTONGDAT)
+pkg/fxdata/gtext_cht.dat: lang/gtext_cht.po $(POTONGDAT)
+	-$(ECHO) 'Building language file: $@'
+	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_ch.txt" "$<"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+# Creation of engine language files from PO files
 pkg/fxdata/%.dat: lang/%.po $(POTONGDAT)
+	-$(ECHO) 'Building language file: $@'
+	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_eu.txt" "$<"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+# Creation of engine language files from POT files
+pkg/fxdata/%.dat: lang/%.pot $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
 	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_eu.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
