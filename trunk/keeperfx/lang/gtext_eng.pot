@@ -4289,22 +4289,22 @@ msgid "IPX"
 msgstr ""
 
 #: guitext:877
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "N"
 msgstr ""
 
 #: guitext:878
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "E"
 msgstr ""
 
 #: guitext:879
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "S"
 msgstr ""
 
 #: guitext:880
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "W"
 msgstr ""
 

@@ -4291,22 +4291,22 @@ msgid "IPX"
 msgstr "IPX"
 
 #: guitext:877
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "N"
 msgstr "N"
 
 #: guitext:878
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "E"
 msgstr "E"
 
 #: guitext:879
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "S"
 msgstr "S"
 
 #: guitext:880
-msgctxt "Menu interface item"
+msgctxt "World direction"
 msgid "W"
 msgstr "O"
 
