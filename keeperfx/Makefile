@@ -281,7 +281,7 @@ LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 # mark icons as precious, because even tho we can re-create them, it requires having "png2ico" tool
 .PRECIOUS: res/%.ico
 # name virtual targets
-.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-package package
+.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-package package pkg-before pkg-copydat pkg-campaigns pkg-languages
 
 all: standard
 
@@ -323,19 +323,27 @@ clean-package:
 	-$(RM) pkg/keeperfx*
 	-$(ECHO) ' '
 
-package: $(CAMPAIGNS) $(NGTEXTSRCS)
-	-$(RM) "pkg/keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z"
+package: pkg-before pkg-copydat pkg-campaigns pkg-languages
 	$(CP) bin/* pkg/
 	$(CP) docs/keeperfx_readme.txt pkg/
-	$(CP) config/keeperfx.cfg pkg/
-	$(MKDIR) pkg/creatrs
-	$(CP) config/creatrs/*.cfg pkg/creatrs/
-	$(MKDIR) pkg/fxdata
-	$(CP) config/fxdata/*.cfg pkg/fxdata/
-	$(MKDIR) pkg/ldata
-	$(CP) config/ldata/*.txt pkg/ldata/
 	cd pkg; \
 	7z a "keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z" "*" -x!*/.svn -x!.svn -x!*.7z
+
+pkg-before:
+	-$(RM) "pkg/keeperfx_ccp-$(subst .,_,$(VER_STRING))-patch.7z"
+	$(MKDIR) pkg/creatrs
+	$(MKDIR) pkg/fxdata
+	$(MKDIR) pkg/ldata
+
+pkg-copydat:
+	$(CP) config/keeperfx.cfg pkg/
+	$(CP) config/creatrs/*.cfg pkg/creatrs/
+	$(CP) config/fxdata/*.cfg pkg/fxdata/
+	$(CP) config/ldata/*.txt pkg/ldata/
+
+pkg-campaigns: $(CAMPAIGNS)
+
+pkg-languages: $(NGTEXTSRCS)
 
 pkg/campgns/%.cfg: campgns/%.cfg
 	@$(MKDIR) $(@D)
@@ -476,40 +484,40 @@ res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08b
 # Creation of engine language files from PO/POT files
 pkg/fxdata/gtext_jap.dat: lang/gtext_jap.po $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_jp.txt" "$<"
+	$(POTONGDAT) -o "$@" -e "tools/po2ngdat/res/char_encoding_tbl_jp.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 # Creation of engine language files from PO/POT files
 pkg/fxdata/gtext_rus.dat: lang/gtext_rus.po $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_ru.txt" "$<"
+	$(POTONGDAT) -o "$@" -e "tools/po2ngdat/res/char_encoding_tbl_ru.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 pkg/fxdata/gtext_chi.dat: lang/gtext_chi.po $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_ch.txt" "$<"
+	$(POTONGDAT) -o "$@" -e "tools/po2ngdat/res/char_encoding_tbl_ch.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 pkg/fxdata/gtext_cht.dat: lang/gtext_cht.po $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_ch.txt" "$<"
+	$(POTONGDAT) -o "$@" -e "tools/po2ngdat/res/char_encoding_tbl_ch.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 # Creation of engine language files from PO files
 pkg/fxdata/%.dat: lang/%.po $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_eu.txt" "$<"
+	$(POTONGDAT) -o "$@" -e "tools/po2ngdat/res/char_encoding_tbl_eu.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 # Creation of engine language files from POT files
 pkg/fxdata/%.dat: lang/%.pot $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
-	$(POTONGDAT) -o "$@" -e "tools\po2ngdat\res\char_encoding_tbl_eu.txt" "$<"
+	$(POTONGDAT) -o "$@" -e "tools/po2ngdat/res/char_encoding_tbl_eu.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
