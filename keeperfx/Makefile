@@ -154,6 +154,7 @@ obj/thing_corpses.o \
 obj/config_campaigns.o \
 obj/front_credits.o \
 obj/front_torture.o \
+obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_trapdoor.o \
 obj/config_objects.o \

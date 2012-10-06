@@ -25,6 +25,7 @@
 #include "thing_objects.h"
 #include "thing_doors.h"
 #include "thing_traps.h"
+#include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_trapdoor.h"
@@ -196,7 +197,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   if (plridx == my_player_number)
   {
     i = event_button_info[event->kind].field_6;
-    if (i != 201)
+    if (i != GUIStr_Empty)
       strcpy(game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
   }
   if (event->kind == 2)
@@ -347,7 +348,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
           i = -i;
           event->target = i;
         }
-        strncpy(game.evntbox_text_buffer, campaign.strings[i%STRINGS_MAX], MESSAGE_TEXT_LEN-1);
+        strncpy(game.evntbox_text_buffer, cmpgn_string(i), MESSAGE_TEXT_LEN-1);
         strncpy(game.evntbox_scroll_window.text, game.evntbox_text_buffer, MESSAGE_TEXT_LEN-1);
         other_off = 1;
         turn_on_menu(GMnu_TEXT_INFO);

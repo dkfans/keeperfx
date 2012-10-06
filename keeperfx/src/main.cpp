@@ -42,6 +42,7 @@
 #include "kjm_input.h"
 #include "packets.h"
 #include "config.h"
+#include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
@@ -3978,10 +3979,10 @@ void set_quick_information(long msg_id, long target, long x, long y)
 
 void set_general_objective(long msg_id, long target, long x, long y)
 {
-    process_objective(campaign.strings[msg_id%STRINGS_MAX], target, x, y);
+    process_objective(cmpgn_string(msg_id), target, x, y);
 }
 
-void process_objective(char *msg_text, long target, long x, long y)
+void process_objective(const char *msg_text, long target, long x, long y)
 {
     struct PlayerInfo *player;
     long pos_x,pos_y;
@@ -5270,7 +5271,7 @@ void process_player_states(void)
   _DK_process_player_states();
 }
 
-void set_level_objective(char *msg_text)
+void set_level_objective(const char *msg_text)
 {
     if (msg_text == NULL)
     {
