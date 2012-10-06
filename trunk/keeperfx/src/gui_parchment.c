@@ -36,6 +36,7 @@
 #include "map_data.h"
 #include "map_blocks.h"
 #include "player_data.h"
+#include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "thing_data.h"
@@ -479,7 +480,7 @@ void draw_map_level_name(void)
 {
   struct LevelInformation *lvinfo;
   LevelNumber lvnum;
-  char *lv_name;
+  const char *lv_name;
   int x,y,w,h;
   // Retrieving name
   lv_name = NULL;
@@ -487,8 +488,8 @@ void draw_map_level_name(void)
   lvinfo = get_level_info(lvnum);
   if (lvinfo != NULL)
   {
-    if ((lvinfo->name_id > 0) && (lvinfo->name_id < STRINGS_MAX))
-      lv_name = campaign.strings[lvinfo->name_id];
+    if (lvinfo->name_id > 0)
+      lv_name = cmpgn_string(lvinfo->name_id);
     else
       lv_name = lvinfo->name;
   } else

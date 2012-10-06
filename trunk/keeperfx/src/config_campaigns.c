@@ -25,6 +25,7 @@
 #include "bflib_dernc.h"
 
 #include "config.h"
+#include "config_strings.h"
 
 #ifdef __cplusplus
 extern "C" {

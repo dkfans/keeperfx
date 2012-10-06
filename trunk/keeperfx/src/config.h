@@ -237,10 +237,6 @@ short get_level_fgroup(LevelNumber lvnum);
 const char *get_current_language_str(void);
 const char *get_language_lwrstr(int lang_id);
 /******************************************************************************/
-TbBool setup_gui_strings_data(void);
-TbBool free_gui_strings_data(void);
-TbBool reset_strings(char **strings);
-TbBool setup_campaign_strings_data(struct GameCampaign *campgn);
 TbBool reset_credits(struct CreditsItem *credits);
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/

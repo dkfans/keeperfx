@@ -36,6 +36,7 @@
 #include "bflib_network.h"
 
 #include "config.h"
+#include "config_strings.h"
 #include "config_campaigns.h"
 #include "light_data.h"
 #include "lvl_filesdk1.h"
@@ -1288,7 +1289,7 @@ void draw_netmap_players_hands(void)
 void draw_map_level_descriptions(void)
 {
   struct LevelInformation *lvinfo;
-  char *lv_name;
+  const char *lv_name;
   long lvnum;
   long x,y,w,h;
   if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
@@ -1300,8 +1301,8 @@ void draw_map_level_descriptions(void)
     lvinfo = get_level_info(lvnum);
     if (lvinfo == NULL)
       return;
-    if ((lvinfo->name_id > 0) && (lvinfo->name_id < STRINGS_MAX))
-      lv_name = campaign.strings[lvinfo->name_id];
+    if (lvinfo->name_id > 0)
+      lv_name = cmpgn_string(lvinfo->name_id);
     else
       lv_name = lvinfo->name;
     if ((lv_name != NULL) && (strlen(lv_name) > 0))

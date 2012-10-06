@@ -26,6 +26,7 @@
 #include "bflib_keybrd.h"
 #include "gui_frontbtns.h"
 #include "frontend.h"
+#include "config_strings.h"
 #include "config_campaigns.h"
 
 #ifdef __cplusplus
@@ -70,7 +71,7 @@ void frontcredits_draw(void)
           text = gui_strings[credit->num%STRINGS_MAX];
           break;
         case CIK_CStringId:
-          text = campaign.strings[credit->num%STRINGS_MAX];
+          text = cmpgn_string(credit->num);
           break;
         case CIK_DirectText:
           text = credit->str;
