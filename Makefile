@@ -111,6 +111,7 @@ obj/config_lenses.o \
 obj/config_magic.o \
 obj/config_objects.o \
 obj/config_rules.o \
+obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_trapdoor.o \
 obj/creature_battle.o \
