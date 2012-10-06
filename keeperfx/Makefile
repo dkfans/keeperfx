@@ -210,24 +210,25 @@ obj/vidfade.o \
 obj/KeeperSpeechImp.o \
 $(RES)
 CAMPAIGNS  = \
-pkg/campgns/ancntkpr.cfg \
-pkg/campgns/burdnimp.cfg \
-pkg/campgns/dstninja.cfg \
-pkg/campgns/dzjr06lv.cfg \
-pkg/campgns/dzjr10lv.cfg \
-pkg/campgns/dzjr25lv.cfg \
-pkg/campgns/evilkeep.cfg \
-pkg/campgns/grkreign.cfg \
-pkg/campgns/jdkmaps8.cfg \
-pkg/campgns/kdklvpck.cfg \
-pkg/campgns/keeporig.cfg \
-pkg/campgns/lqizgood.cfg \
-pkg/campgns/lrdvexer.cfg \
-pkg/campgns/ncastles.cfg \
-pkg/campgns/postanck.cfg \
-pkg/campgns/questfth.cfg \
-pkg/campgns/twinkprs.cfg
-NGTEXTSRCS = \
+ancntkpr \
+burdnimp \
+dstninja \
+dzjr06lv \
+dzjr10lv \
+dzjr25lv \
+evilkeep \
+grkreign \
+jdkmaps8 \
+kdklvpck \
+keeporig \
+lqizgood \
+lrdvexer \
+ncastles \
+postanck \
+questfth \
+twinkprs
+CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
+NGTEXTDATS = \
 pkg/fxdata/gtext_chi.dat \
 pkg/fxdata/gtext_cht.dat \
 pkg/fxdata/gtext_dut.dat \
@@ -240,6 +241,16 @@ pkg/fxdata/gtext_rus.dat \
 pkg/fxdata/gtext_spa.dat \
 pkg/fxdata/gtext_swe.dat \
 pkg/fxdata/gtext_eng.dat
+NCTEXTDATS = \
+pkg/campgns/ancntkpr/text_eng.dat \
+pkg/campgns/ancntkpr/text_fre.dat \
+pkg/campgns/burdnimp/text_eng.dat \
+pkg/campgns/evilkeep/text_eng.dat \
+pkg/campgns/evilkeep/text_fre.dat \
+pkg/campgns/evilkeep/text_ger.dat \
+pkg/campgns/grkreign/text_eng.dat \
+pkg/campgns/lqizgood/text_eng.dat \
+pkg/campgns/questfth/text_eng.dat
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 
@@ -341,9 +352,9 @@ pkg-copydat:
 	$(CP) config/fxdata/*.cfg pkg/fxdata/
 	$(CP) config/ldata/*.txt pkg/ldata/
 
-pkg-campaigns: $(CAMPAIGNS)
+pkg-campaigns: $(CAMPAIGN_CFGS)
 
-pkg-languages: $(NGTEXTSRCS)
+pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS)
 
 pkg/campgns/%.cfg: campgns/%.cfg
 	@$(MKDIR) $(@D)
@@ -520,5 +531,22 @@ pkg/fxdata/%.dat: lang/%.pot $(POTONGDAT)
 	$(POTONGDAT) -o "$@" -e "tools/po2ngdat/res/char_encoding_tbl_eu.txt" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
+
+# Creation of engine language files for campaigns
+define define_campaign_language_rule
+pkg/campgns/$(1)/%.dat: lang/$(1)/%.po $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	$$(POTONGDAT) -o "$$@" -e "tools/po2ngdat/res/char_encoding_tbl_eu.txt" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+pkg/campgns/$(1)/%.dat: lang/$(1)/%.pot $$(POTONGDAT)
+	-$$(ECHO) 'Building language file: $$@'
+	$$(POTONGDAT) -o "$$@" -e "tools/po2ngdat/res/char_encoding_tbl_eu.txt" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+endef
+
+$(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_language_rule,$(campaign))))
 
 #******************************************************************************
