@@ -20,6 +20,7 @@
 #ifndef KFXENC_HPP_
 #define KFXENC_HPP_
 
+#include <stdint.h> // <cstdint> seem to require c++11
 #include <map>
 
 class UnicodeConvert

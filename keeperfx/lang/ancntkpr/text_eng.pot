@@ -1,6 +1,6 @@
-#******************************************************************************
+# *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-#******************************************************************************
+# *****************************************************************************
 #   @file ancntkpr/text_eng.pot
 #      KeeperFX Campaign Strings translation template
 #  @par Purpose:
@@ -16,7 +16,7 @@
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-#******************************************************************************
+# *****************************************************************************
 #, fuzzy:
 msgid ""
 msgstr ""
@@ -25,7 +25,7 @@ msgstr ""
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team [code.google.com]\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -751,195 +751,95 @@ msgid "Your constant success is getting boring, Keeper. You needn't travel alone
 msgstr ""
 
 #: guitext:144
-msgctxt "In-game message"
-msgid "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
-msgstr ""
-
 #: guitext:145
-msgctxt "In-game message"
-msgid "Half your allotted time has elapsed."
-msgstr ""
-
 #: guitext:146
-msgctxt "In-game message"
-msgid "You are out of time. That was a shocking performance."
-msgstr ""
-
 #: guitext:147
-msgctxt "In-game message"
-msgid "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time. The dark gods will send you a Giant to help you conquer the next realm."
-msgstr ""
-
 #: guitext:148
-msgctxt "In-game message"
-msgid "You have no gold left. It pays to keep your head in such a charged environment."
-msgstr ""
-
 #: guitext:149
-msgctxt "In-game message"
-msgid "You have been called to this realm to punish a horde of revolting Bile Demons by crushing them with Boulder Traps scattered around the perimeter of the dungeon. You have very little time, so rock and roll!"
-msgstr ""
-
 #: guitext:150
-msgctxt "In-game message"
-msgid "Half your time has expired."
-msgstr ""
-
 #: guitext:151
-msgctxt "In-game message"
-msgid "Your time is up. You have failed. I'm embarrassed to come from the same inter-dimensional void as you."
-msgstr ""
-
 #: guitext:152
-msgctxt "In-game message"
-msgid "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by granting you three superior Imps when you reach the next realm."
-msgstr ""
-
 #: guitext:153
-msgctxt "In-game message"
-msgid "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve you well in the future."
-msgstr ""
-
 #: guitext:154
-msgctxt "In-game message"
-msgid "The people of this realm speak of a Dungeon Keeper called Wisel, who is bound to get in your way. When he does, you will have to consign him to history. This will be no mean feat. Resources are scarce because of his activities."
-msgstr ""
-
 #: guitext:155
-msgctxt "In-game message"
-msgid "Wisel is defeated. The land is yours to plunder and despoil for all eternity. Give 'em hell, master."
-msgstr ""
-
 #: guitext:156
-msgctxt "In-game message"
-msgid "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
-msgstr ""
-
 #: guitext:157
-msgctxt "In-game message"
-msgid "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
-msgstr ""
-
 #: guitext:158
-msgctxt "In-game message"
-msgid "It is rumoured that two Dragons are held captive somewhere east of here. Were you to find them and free them, they would make powerful servants."
-msgstr ""
-
 #: guitext:159
-msgctxt "In-game message"
-msgid "A tunnel to the north leads to the Lord of the Realm's domain. This gate is guarded well. It might be wise to direct the humans' attention towards your subterranean enemy."
-msgstr ""
-
 #: guitext:160
-msgctxt "In-game message"
-msgid "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
-msgstr ""
-
 #: guitext:161
-msgctxt "In-game message"
-msgid "May I suggest that you kill or imprison anything that gets in your way?"
-msgstr ""
-
 #: guitext:162
-msgctxt "In-game message"
-msgid "Another realm falls under your evil reign. Another cloud of misery and despair gathers. Lovely."
-msgstr ""
-
 #: guitext:163
-msgctxt "In-game message"
-msgid "You have failed. This is a grim day for evil."
-msgstr ""
-
 #: guitext:164
-msgctxt "In-game message"
-msgid "Dispense with a particularly obnoxious party of Dwarves which wanders this region and recruit as many Bile Demons as you can. If you free the Wizard held captive in this realm, he will serve you for some time to come."
-msgstr ""
-
 #: guitext:165
-msgctxt "In-game message"
-msgid "Take more care of your Bile Demons or you will never make it beyond this realm."
-msgstr ""
-
 #: guitext:166
-msgctxt "In-game message"
-msgid "How time flies... hurry!"
-msgstr ""
-
 #: guitext:167
-msgctxt "In-game message"
-msgid "You will meet your nemesis, the Avatar, in this subterranean place. This is your ultimate test. Remember, mercy is for losers."
-msgstr ""
-
 #: guitext:168
-msgctxt "In-game message"
-msgid "The Avatar and his allys are defeated, yet his power over this land lingers. Prepare thyself..."
-msgstr ""
-
 #: guitext:169
-msgctxt "In-game message"
-msgid "You got rid of that Keeper easily. Now all that stands between you and total world domination is that ponce in shining armour. Let's get him."
-msgstr ""
-
 #: guitext:170
-msgctxt "In-game message"
-msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
-msgstr ""
-
 #: guitext:171
-msgctxt "In-game message"
-msgid "What is this? The Avatar lives!"
-msgstr ""
-
 #: guitext:172
 msgctxt "In-game message"
-msgid "Finally, you stand unchallenged. The world is yours to waste and despoil. I bet you have never felt so bad."
+msgid "Moo3"
 msgstr ""
 
 #: guitext:173
+msgctxt "In-game message"
 msgid "You are imprisoned in the land of the flies. The king of your imps has been imprisoned by the heroes to your south. His son is at your side. Enlist the flies to re-unite your imps, and wreak your revenge!"
 msgstr ""
 
 #: guitext:174
+msgctxt "In-game message"
 msgid "Your favourite Horned Reaper has been captured, brainwashed and imprisoned. To finish this level, you'll have to set him free and kill all opponents in the process, thus making the world a better and more evil place(yeah!)."
 msgstr ""
 
 #: guitext:175
+msgctxt "In-game message"
 msgid "No time for celebrations Keeper. Your imp King has brought the instruments of your vengeance. To work!"
 msgstr ""
 
 #: guitext:176
+msgctxt "In-game message"
 msgid "Evil monks have betrayed the Shao-Lin temple to your rivals. Heroes will attempt to retrieve it, but the temple should be yours oh devious one!"
 msgstr ""
 
 #: guitext:177
+msgctxt "In-game message"
 msgid "You are under starter's orders! Let the games begin Keeper!"
 msgstr ""
 
 #: guitext:178
+msgctxt "In-game message"
 msgid "The monks have returned with re-inforcements to reclaim their temple. Better explain the situation to them!"
 msgstr ""
 
 #: guitext:179
+msgctxt "In-game message"
 msgid "Behold, the abandoned realm of Salaar, one of the Great Ancient Keepers. Paranoid heroes guard this realm with care!"
 msgstr ""
 
 #: guitext:180
+msgctxt "In-game message"
 msgid "Salaar was truly Evil! Discover and gaze in awe at His training room! Are you skillful enough to use it?"
 msgstr ""
 
 #: guitext:181
+msgctxt "In-game message"
 msgid "Conquer the hero castles in this realm, and you will be a worthy successor to Salaar. Be bold for He is watching from below!"
 msgstr ""
 
 #: guitext:182
+msgctxt "In-game message"
 msgid "Salaar had a limit to the bridges he could own at one time. He sees no reason why you should have more!"
 msgstr ""
 
 #: guitext:183
+msgctxt "In-game message"
 msgid "That noise is Salaar's mocking laugh! You have failed and you are dismissed!"
 msgstr ""
 
 #: guitext:184
+msgctxt "In-game message"
 msgid "Well done, Keeper! You have pleased Salaar. You are a worthy successor!"
 msgstr ""
 
@@ -959,11 +859,12 @@ msgstr ""
 #: guitext:198
 #: guitext:199
 #: guitext:200
-msgctxt "Unused"
+msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
 #: guitext:202
+msgctxt "Level name"
 msgid "Red Carpet"
 msgstr ""
 
@@ -1063,24 +964,11 @@ msgid "L'Cyfre's Challenge"
 msgstr ""
 
 #: guitext:222
-msgctxt "Level name"
-msgctxt "In-game interface description"
-msgid "Name and Health: [23.4]"
-msgstr ""
-
 #: guitext:223
-msgctxt "In-game interface description"
-msgid "Experience: The creature's experience level. [23.3]"
-msgstr ""
-
 #: guitext:224
-msgctxt "In-game interface description"
-msgid "Hunger: How badly a creature needs to suck down a chicken or two."
-msgstr ""
-
 #: guitext:225
-msgctxt "In-game interface description"
-msgid "Cancel"
+msgctxt "Level name"
+msgid "Unused"
 msgstr ""
 
 #: guitext:226
@@ -1236,7 +1124,7 @@ msgstr ""
 
 #: guitext:257
 msgctxt "Creature spell"
-msgid "Time Bomb"
+msgid "Time Bomb: Does boom."
 msgstr ""
 
 #: guitext:258
@@ -1385,189 +1273,50 @@ msgid "Monk"
 msgstr ""
 
 #: guitext:287
-msgctxt "In-game interface description"
-msgid "Query: Select this and left click on a creature to view information on that creature. LMB select. [5.8]"
-msgstr ""
-
 #: guitext:288
-msgctxt "Menu interface item"
-msgid "Select game"
-msgstr ""
-
 #: guitext:289
-msgctxt "Menu interface item"
-msgid "Network Menu"
-msgstr ""
-
 #: guitext:290
 #: guitext:343
-msgctxt "Menu interface item"
-msgid "Main Menu"
-msgstr ""
-
 #: guitext:291
-msgctxt "In-game interface description"
-msgid "Anger: How angry the creature is. [23.2]"
-msgstr ""
-
 #: guitext:292
-msgctxt "In-game interface description"
-msgid "Creature Kills: The number of enemies the creature has slain. [23.7]"
-msgstr ""
-
 #: guitext:293
-msgctxt "In-game interface description"
-msgid "Strength: The amount of damage the creature inflicts upon it's enemies. [23.12]"
-msgstr ""
-
 #: guitext:294
-msgctxt "In-game interface description"
-msgid "Wage: The creature's salary in gold. [23.13]"
-msgstr ""
-
 #: guitext:295
-msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying. [23.8]"
-msgstr ""
-
 #: guitext:296
-msgctxt "In-game interface description"
-msgid "Defence: The chance a creature will avoid a blow. [23.9]"
-msgstr ""
-
 #: guitext:297
-msgctxt "In-game interface description"
-msgid "Skill: The creature's ability to perform tasks. [23.14]"
-msgstr ""
-
 #: guitext:298
-msgctxt "In-game interface description"
-msgid "Age/Time In Dungeon: The length of time you have employed the creature. [23.10]"
-msgstr ""
-
 #: guitext:299
-msgctxt "In-game interface description"
-msgid "Dexterity: The chance a creature will avoid a trap or an enemy weapon. [23.15]"
-msgstr ""
-
 #: guitext:300
-msgctxt "In-game interface description"
-msgid "Luck: The chance that a creature will do a double attack or a double defence in combat. [23.11]"
-msgstr ""
-
 #: guitext:301
-msgctxt "In-game interface description"
-msgid "Blood type: As if you care. Blood is blood, right? [23.16]"
-msgstr ""
-
 #: guitext:302
-msgctxt "In-game interface description"
-msgid "Idle: The creature is either sleeping or not working. LMB pick up creature. RMB zoom. [9.1 and 22.2.1]"
-msgstr ""
-
 #: guitext:303
-msgctxt "In-game interface description"
-msgid "Working: The creature is performing tasks. LMB pick up creature. RMB zoom. [9.2 and 22.2.1]"
-msgstr ""
-
 #: guitext:304
-msgctxt "In-game interface description"
-msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom. [9.3 and 22.2.1]"
-msgstr ""
-
 #: guitext:305
-msgctxt "In-game interface description"
-msgid "Fight: Your creatures always attack. LMB select. [6.5.1]"
-msgstr ""
-
 #: guitext:306
-msgctxt "In-game interface description"
-msgid "Flee: Your creatures attempt to preserve their lives. LMB select. [5.2]"
-msgstr ""
-
 #: guitext:307
-msgctxt "In-game interface description"
-msgid "Imprison: Your creatures stun their enemies in battle and imprison those they defeat. LMB select. [5.1]"
-msgstr ""
-
 #: guitext:308
-msgctxt "In-game interface description"
-msgid "Defending: The creature is concentrating on avoiding its adversary's blows."
-msgstr ""
-
 #: guitext:309
-msgctxt "In-game interface item"
-msgid "Are you sure?"
-msgstr ""
-
 #: guitext:310
-msgctxt "In-game interface item"
-msgid "Yes"
-msgstr ""
-
 #: guitext:311
-msgctxt "In-game interface item"
-msgid "No"
-msgstr ""
-
 #: guitext:312
-msgctxt "In-game interface item"
-msgid "For"
-msgstr ""
-
 #: guitext:313
-msgctxt "In-game interface description"
-msgid "Shadows: The number of shadows cast by each creature. LMB toggle. [3.2.2]"
-msgstr ""
-
 #: guitext:314
-msgctxt "In-game interface description"
-msgid "View Type: Swap between the default and forced perspective views. LMB toggle. [3.2.2]"
-msgstr ""
-
 #: guitext:315
-msgctxt "In-game interface description"
-msgid "Wall Height: Swap between high or low walls. LMB toggle. [3.2.2]"
-msgstr ""
-
 #: guitext:316
-msgctxt "In-game interface description"
-msgid "View Distance: The amount of dungeon drawn. This directly affects the speed of the game. LMB toggle. [3.2.2]"
-msgstr ""
-
 #: guitext:317
-msgctxt "In-game interface description"
-msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle. [3.2.2]"
-msgstr ""
-
 #: guitext:318
-msgctxt "In-game interface item"
-msgid "Of"
+#: guitext:320
+#: guitext:321
+#: guitext:322
+#: guitext:323
+#: guitext:333
+msgctxt "Unused"
+msgid "Moo9"
 msgstr ""
 
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr ""
-
-#: guitext:320
-msgctxt "Menu interface item"
-msgid "Paused"
-msgstr ""
-
-#: guitext:321
-msgctxt "In-game interface description"
-msgid "Zoom In: Zoom in the Dynamic Map. LMB select. [4.1]"
-msgstr ""
-
-#: guitext:322
-msgctxt "In-game interface description"
-msgid "Zoom Out: Zoom out the Dynamic Map. LMB select. [4.1]"
-msgstr ""
-
-#: guitext:323
-msgctxt "In-game interface description"
-msgid "Full Screen Map: Takes you to the Map Screen. LMB select. [4.1.1]"
 msgstr ""
 
 #: guitext:324
@@ -1615,11 +1364,6 @@ msgctxt "Slab description"
 msgid "Claimed area: Your dungeon territory. [12.1]"
 msgstr ""
 
-#: guitext:333
-msgctxt "In-game interface item"
-msgid "More..."
-msgstr ""
-
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
@@ -1631,418 +1375,90 @@ msgid "You have been defeated. Press Space to restart."
 msgstr ""
 
 #: guitext:336
-msgctxt "On-screen message"
-msgid "RECORDING FLIC"
-msgstr ""
-
 #: guitext:337
-msgctxt "On-screen message"
-msgid "ERROR RECORDING FLIC"
-msgstr ""
-
 #: guitext:338
-msgctxt "On-screen message"
-msgid "FINISHED RECORDING FLIC"
-msgstr ""
-
 #: guitext:339
-msgctxt "Unused"
-msgid "Time Bomb"
-msgstr ""
-
 #: guitext:340
-msgctxt "In-game interface item"
-msgid "Sound FX"
-msgstr ""
-
 #: guitext:341
-msgctxt "In-game interface item"
-msgid "Music"
-msgstr ""
-
 #: guitext:342
-msgctxt "In-game interface item"
-msgid "UNUSED"
-msgstr ""
-
 #: guitext:344
-msgctxt "Menu interface item"
-msgid "Load Menu"
-msgstr ""
-
 #: guitext:345
-msgctxt "Menu interface item"
-msgid "Load Game"
-msgstr ""
-
 #: guitext:346
-msgctxt "Menu interface item"
-msgid "Continue Game"
-msgstr ""
-
 #: guitext:347
-msgctxt "Menu interface item"
-msgid "Multiplayer"
-msgstr ""
-
 #: guitext:348
-msgctxt "Menu interface item"
-msgid "Return to Main Menu"
-msgstr ""
-
 #: guitext:349
-msgctxt "Menu interface item"
-msgid "Play Intro"
-msgstr ""
-
 #: guitext:350
-msgctxt "Menu interface item"
-msgid "Service Menu"
-msgstr ""
-
 #: guitext:351
-msgctxt "Menu interface item"
-msgid "Session Menu"
-msgstr ""
-
 #: guitext:352
-msgctxt "Menu interface item"
-msgid "Speed"
-msgstr ""
-
 #: guitext:353
-msgctxt "Menu interface item"
-msgid "COM Port"
-msgstr ""
-
 #: guitext:354
-msgctxt "Menu interface item"
-msgid "Phone Number"
-msgstr ""
-
 #: guitext:355
-msgctxt "Menu interface item"
-msgid "IRQ"
-msgstr ""
-
 #: guitext:356
-msgctxt "Menu interface item"
-msgid "Statistics"
-msgstr ""
-
 #: guitext:357
-msgctxt "Menu interface item"
-msgid "Level Completed"
-msgstr ""
-
 #: guitext:358
-msgctxt "Menu interface item"
-msgid "UNUSED"
-msgstr ""
-
 #: guitext:359
-msgctxt "Menu interface item"
-msgid "Quit"
-msgstr ""
-
 #: guitext:360
-msgctxt "Menu interface item"
-msgid "Ancient Keeper"
-msgstr ""
-
 #: guitext:361
-msgctxt "Unused"
-msgid "This is a tale of valour and honour and how tasty heroes are...."
-msgstr ""
-
 #: guitext:362
-msgctxt "Credits"
-msgid "Designed By"
-msgstr ""
-
 #: guitext:363
-msgctxt "Credits"
-msgid "Project Leader"
-msgstr ""
-
 #: guitext:364
-msgctxt "Credits"
-msgid "Lead Programmer"
-msgstr ""
-
 #: guitext:365
-msgctxt "Credits"
-msgid "Lead Artist"
-msgstr ""
-
 #: guitext:366
-msgctxt "Credits"
-msgid "Programming"
-msgstr ""
-
 #: guitext:367
-msgctxt "Credits"
-msgid "Engine Design"
-msgstr ""
-
 #: guitext:368
-msgctxt "Credits"
-msgid "Music and Sfx"
-msgstr ""
-
 #: guitext:369
-msgctxt "Credits"
-msgid "Graphics Programmers"
-msgstr ""
-
 #: guitext:370
-msgctxt "Credits"
-msgid "Artists"
-msgstr ""
-
 #: guitext:371
-msgctxt "Credits"
-msgid "Network Programming"
-msgstr ""
-
 #: guitext:372
-msgctxt "Credits"
-msgid "Testing Manager"
-msgstr ""
-
 #: guitext:373
-msgctxt "Credits"
-msgid "Ancient Keeper Levels : Pawel & Dayo"
-msgstr ""
-
 #: guitext:374
-msgctxt "Credits"
-msgid "Lead Tester"
-msgstr ""
-
 #: guitext:375
-msgctxt "Credits"
-msgid "Management"
-msgstr ""
-
 #: guitext:376
-msgctxt "Credits"
-msgid "Marketing and PR"
-msgstr ""
-
 #: guitext:377
-msgctxt "Credits"
-msgid "Tech Support"
-msgstr ""
-
 #: guitext:378
-msgctxt "Credits"
-msgid "Administration"
-msgstr ""
-
 #: guitext:379
-msgctxt "Credits"
-msgid "Thanks To"
-msgstr ""
-
 #: guitext:380
-msgctxt "Credits"
-msgid "Producer"
-msgstr ""
-
 #: guitext:381
-msgctxt "Credits"
-msgid "Level Design"
-msgstr ""
-
 #: guitext:382
-msgctxt "Credits"
-msgid "Script By"
-msgstr ""
-
 #: guitext:383
-msgctxt "Credits"
-msgid "Libraries and Tools"
-msgstr ""
-
 #: guitext:384
-msgctxt "Credits"
-msgid "Playtesters"
-msgstr ""
-
 #: guitext:385
-msgctxt "Credits"
-msgid "Localisation"
-msgstr ""
-
 #: guitext:386
-msgctxt "Credits"
-msgid "Special Thanks To"
-msgstr ""
-
 #: guitext:387
-msgctxt "Credits"
-msgid "Package Design"
-msgstr ""
-
 #: guitext:388
-msgctxt "Credits"
-msgid "Documentation"
-msgstr ""
-
 #: guitext:389
-msgctxt "Credits"
-msgid "Documentation Layout"
-msgstr ""
-
 #: guitext:390
-msgctxt "Credits"
-msgid "Production"
-msgstr ""
-
 #: guitext:391
-msgctxt "Credits"
-msgid "Quality Assurance"
-msgstr ""
-
 #: guitext:392
-msgctxt "Credits"
-msgid "Lead Level Design"
-msgstr ""
-
 #: guitext:393
-msgctxt "Credits"
-msgid "Intro"
-msgstr ""
-
 #: guitext:394
-msgctxt "Credits"
-msgid "Testers"
-msgstr ""
-
 #: guitext:395
-msgctxt "Menu interface item"
-msgid "Sessions"
-msgstr ""
-
 #: guitext:396
-msgctxt "Menu interface item"
-msgid "Name"
-msgstr ""
-
 #: guitext:397
-msgctxt "Menu interface item"
-msgid "Services"
-msgstr ""
-
 #: guitext:398
-msgctxt "Menu interface item"
-msgid "Messages"
-msgstr ""
-
 #: guitext:399
-msgctxt "Menu interface item"
-msgid "Create Game"
-msgstr ""
-
 #: guitext:400
-msgctxt "Menu interface item"
-msgid "Join Game"
-msgstr ""
-
 #: guitext:401
-msgctxt "Menu interface item"
-msgid "Start Game"
-msgstr ""
-
 #: guitext:402
-msgctxt "Menu interface item"
-msgid "Game Menu"
-msgstr ""
-
 #: guitext:403
-msgctxt "Menu interface item"
-msgid "Cancel"
-msgstr ""
-
 #: guitext:404
-msgctxt "Menu interface item"
-msgid "No Name"
-msgstr ""
-
 #: guitext:405
-msgctxt "Menu interface item"
-msgid "Players"
-msgstr ""
-
 #: guitext:406
-msgctxt "Menu interface item"
-msgid "Level"
-msgstr ""
-
 #: guitext:407
-msgctxt "Menu interface item"
-msgid "Levels"
-msgstr ""
-
 #: guitext:408
-msgctxt "Menu interface item"
-msgid "Games"
-msgstr ""
-
 #: guitext:409
-msgctxt "Menu interface item"
-msgid "Modem Menu"
-msgstr ""
-
 #: guitext:410
-msgctxt "Menu interface item"
-msgid "Serial Menu"
-msgstr ""
-
 #: guitext:411
-msgctxt "Menu interface item"
-msgid "Init"
-msgstr ""
-
 #: guitext:412
-msgctxt "Menu interface item"
-msgid "Hangup"
-msgstr ""
-
 #: guitext:413
-msgctxt "Menu interface item"
-msgid "Clear"
-msgstr ""
-
 #: guitext:414
-msgctxt "Menu interface item"
-msgid "Answer"
-msgstr ""
-
 #: guitext:415
-msgctxt "Menu interface item"
-msgid "Start"
-msgstr ""
-
 #: guitext:416
-msgctxt "Menu interface item"
-msgid "Ally"
-msgstr ""
-
 #: guitext:417
-msgctxt "Menu interface item"
-msgid "Alliance"
-msgstr ""
-
 #: guitext:418
-msgctxt "Menu interface item"
-msgid "Credits"
-msgstr ""
-
 #: guitext:419
-msgctxt "Menu interface item"
-msgid "Ok"
+msgctxt "Unused"
+msgid "Moo5"
 msgstr ""
 
 #: guitext:420
@@ -2101,568 +1517,120 @@ msgid "Underworld Amusement"
 msgstr ""
 
 #: guitext:431
-msgctxt "Menu interface item"
-msgid "High Score Table"
-msgstr ""
-
 #: guitext:432
-msgctxt "Menu interface item"
-msgid "Go to Query Mode"
-msgstr ""
-
 #: guitext:433
-msgctxt "Menu interface item"
-msgid "More information"
-msgstr ""
-
 #: guitext:434
-msgctxt "Menu interface item"
-msgid "Back to main Query Screen"
-msgstr ""
-
 #: guitext:435
-msgctxt "Menu interface item"
-msgid "Selected action"
-msgstr ""
-
 #: guitext:436
-msgctxt "Menu interface item"
-msgid "Choose party"
-msgstr ""
-
 #: guitext:437
-msgctxt "Menu interface item"
-msgid "Enter dungeon"
-msgstr ""
-
 #: guitext:438
-msgctxt "Menu interface item"
-msgid "Party members"
-msgstr ""
-
 #: guitext:439
-msgctxt "Menu interface item"
-msgid "Available creatures"
-msgstr ""
-
 #: guitext:440
-msgctxt "Menu interface item"
-msgid "Creature"
-msgstr ""
-
 #: guitext:441
-msgctxt "Menu interface item"
-msgid "Money available"
-msgstr ""
-
 #: guitext:442
-msgctxt "Menu interface item"
-msgid "Leader"
-msgstr ""
-
 #: guitext:443
-msgctxt "Menu interface item"
-msgid "Hire"
-msgstr ""
-
 #: guitext:444
-msgctxt "Menu interface item"
-msgid "Fire"
-msgstr ""
-
 #: guitext:445
-msgctxt "Menu interface item"
-msgid "Cost"
-msgstr ""
-
 #: guitext:446
-msgctxt "Menu interface item"
-msgid "Type"
-msgstr ""
-
 #: guitext:447
-msgctxt "In-game interface description"
-msgid "Information Panel: Miscellaneous information. [5.0]"
-msgstr ""
-
 #: guitext:448
-msgctxt "In-game interface description"
-msgid "Room Panel: The rooms available for you to build. [6.0]"
-msgstr ""
-
 #: guitext:449
-msgctxt "In-game interface description"
-msgid "Research Panel: The spells available to you. [7.0]"
-msgstr ""
-
 #: guitext:450
-msgctxt "In-game interface description"
-msgid "Workshop Panel: The traps and doors available to you. [8.0]"
-msgstr ""
-
 #: guitext:451
-msgctxt "In-game interface description"
-msgid "Creature Panel: Information on your creatures. [9.0]"
-msgstr ""
-
 #: guitext:452
-msgctxt "In-game interface description"
-msgid "Research Time: The time until a new spell is researched. [5.4]"
-msgstr ""
-
 #: guitext:453
-msgctxt "In-game interface description"
-msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
-msgstr ""
-
 #: guitext:454
-msgctxt "In-game interface description"
-msgid "Time: The time until the next Creature Payday. [5.3]"
-msgstr ""
-
 #: guitext:455
-msgctxt "In-game interface description"
-msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
-msgstr ""
-
 #: guitext:456
-msgctxt "In-game interface description"
-msgid "Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
-msgstr ""
-
 #: guitext:457
-msgctxt "Menu interface item"
-msgid "Choose game"
-msgstr ""
-
 #: guitext:458
-msgctxt "Menu interface item"
-msgid "Game type"
-msgstr ""
-
 #: guitext:459
-msgctxt "Menu interface item"
-msgid "Keeper vs keeper"
-msgstr ""
-
 #: guitext:460
-msgctxt "Menu interface item"
-msgid "Keeper vs heroes"
-msgstr ""
-
 #: guitext:461
-msgctxt "Menu interface item"
-msgid "Deathmatch"
-msgstr ""
-
 #: guitext:462
-msgctxt "In-game interface description"
-msgid "Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
-msgstr ""
-
 #: guitext:463
-msgctxt "In-game interface description"
-msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
-msgstr ""
-
 #: guitext:464
-msgctxt "In-game interface description"
-msgid "Next Battle: Zoom to the next battle. LMB select."
-msgstr ""
-
 #: guitext:465
-msgctxt "In-game interface item"
-msgid "Close Window"
-msgstr ""
-
 #: guitext:466
-msgctxt "In-game interface item"
-msgid "Zoom to area"
-msgstr ""
-
 #: guitext:467
-msgctxt "Menu interface item"
-msgid "No mouse installed"
-msgstr ""
-
 #: guitext:468
-msgctxt "Menu interface item"
-msgid "Define keys"
-msgstr ""
-
 #: guitext:469
-msgctxt "Game controls"
-msgid "Ally with player"
-msgstr ""
-
 #: guitext:470
-msgctxt "Game controls"
-msgid "Press a key"
-msgstr ""
-
 #: guitext:471
-msgctxt "Game controls"
-msgid "UP"
-msgstr ""
-
 #: guitext:472
-msgctxt "Game controls"
-msgid "DOWN"
-msgstr ""
-
 #: guitext:473
-msgctxt "Game controls"
-msgid "LEFT"
-msgstr ""
-
 #: guitext:474
-msgctxt "Game controls"
-msgid "RIGHT"
-msgstr ""
-
 #: guitext:475
-msgctxt "Game controls"
-msgid "ROTATE"
-msgstr ""
-
 #: guitext:476
-msgctxt "Game controls"
-msgid "SPEED"
-msgstr ""
-
 #: guitext:477
-msgctxt "Game controls"
-msgid "ROTATE LEFT"
-msgstr ""
-
 #: guitext:478
-msgctxt "Game controls"
-msgid "ROTATE RIGHT"
-msgstr ""
-
 #: guitext:479
-msgctxt "Game controls"
-msgid "ZOOM IN"
-msgstr ""
-
 #: guitext:480
-msgctxt "Game controls"
-msgid "ZOOM OUT"
-msgstr ""
-
 #: guitext:481
-msgctxt "Keyboard"
-msgid "LEFT CONTROL"
-msgstr ""
-
 #: guitext:482
-msgctxt "Keyboard"
-msgid "RIGHT CONTROL"
-msgstr ""
-
 #: guitext:483
-msgctxt "Keyboard"
-msgid "LEFT SHIFT"
-msgstr ""
-
 #: guitext:484
-msgctxt "Keyboard"
-msgid "RIGHT SHIFT"
-msgstr ""
-
 #: guitext:485
-msgctxt "Keyboard"
-msgid "LEFT ALT"
-msgstr ""
-
 #: guitext:486
-msgctxt "Keyboard"
-msgid "RIGHT ALT"
-msgstr ""
-
 #: guitext:487
-msgctxt "Keyboard"
-msgid "SPACE"
-msgstr ""
-
 #: guitext:488
-msgctxt "Keyboard"
-msgid "RETURN"
-msgstr ""
-
 #: guitext:489
-msgctxt "Keyboard"
-msgid "TAB"
-msgstr ""
-
 #: guitext:490
-msgctxt "Keyboard"
-msgid "CAPS LOCK"
-msgstr ""
-
 #: guitext:491
-msgctxt "Keyboard"
-msgid "BACKSPACE"
-msgstr ""
-
 #: guitext:492
-msgctxt "Keyboard"
-msgid "INSERT"
-msgstr ""
-
 #: guitext:493
-msgctxt "Keyboard"
-msgid "DELETE"
-msgstr ""
-
 #: guitext:494
-msgctxt "Keyboard"
-msgid "HOME"
-msgstr ""
-
 #: guitext:495
-msgctxt "Keyboard"
-msgid "END"
-msgstr ""
-
 #: guitext:496
-msgctxt "Keyboard"
-msgid "PAGE UP"
-msgstr ""
-
 #: guitext:497
-msgctxt "Keyboard"
-msgid "PAGE DOWN"
-msgstr ""
-
 #: guitext:498
-msgctxt "Keyboard"
-msgid "NUM LOCK"
-msgstr ""
-
 #: guitext:499
-msgctxt "Keyboard"
-msgid "NUM /"
-msgstr ""
-
 #: guitext:500
-msgctxt "Keyboard"
-msgid "NUM *"
-msgstr ""
-
 #: guitext:501
-msgctxt "Keyboard"
-msgid "NUM -"
-msgstr ""
-
 #: guitext:502
-msgctxt "Keyboard"
-msgid "NUM +"
-msgstr ""
-
 #: guitext:503
-msgctxt "Keyboard"
-msgid "NUM ENTER"
-msgstr ""
-
 #: guitext:504
-msgctxt "Keyboard"
-msgid "NUM DELETE"
-msgstr ""
-
 #: guitext:505
-msgctxt "Keyboard"
-msgid "NUM 1"
-msgstr ""
-
 #: guitext:506
-msgctxt "Keyboard"
-msgid "NUM 2"
-msgstr ""
-
 #: guitext:507
-msgctxt "Keyboard"
-msgid "NUM 3"
-msgstr ""
-
 #: guitext:508
-msgctxt "Keyboard"
-msgid "NUM 4"
-msgstr ""
-
 #: guitext:509
-msgctxt "Keyboard"
-msgid "NUM 5"
-msgstr ""
-
 #: guitext:510
-msgctxt "Keyboard"
-msgid "NUM 6"
-msgstr ""
-
 #: guitext:511
-msgctxt "Keyboard"
-msgid "NUM 7"
-msgstr ""
-
 #: guitext:512
-msgctxt "Keyboard"
-msgid "NUM 8"
-msgstr ""
-
 #: guitext:513
-msgctxt "Keyboard"
-msgid "NUM 9"
-msgstr ""
-
 #: guitext:514
-msgctxt "Keyboard"
-msgid "NUM 0"
-msgstr ""
-
 #: guitext:515
-msgctxt "Keyboard"
-msgid "F1"
-msgstr ""
-
 #: guitext:516
-msgctxt "Keyboard"
-msgid "F2"
-msgstr ""
-
 #: guitext:517
-msgctxt "Keyboard"
-msgid "F3"
-msgstr ""
-
 #: guitext:518
-msgctxt "Keyboard"
-msgid "F4"
-msgstr ""
-
 #: guitext:519
-msgctxt "Keyboard"
-msgid "F5"
-msgstr ""
-
 #: guitext:520
-msgctxt "Keyboard"
-msgid "F6"
-msgstr ""
-
 #: guitext:521
-msgctxt "Keyboard"
-msgid "F7"
-msgstr ""
-
 #: guitext:522
-msgctxt "Keyboard"
-msgid "F8"
-msgstr ""
-
 #: guitext:523
-msgctxt "Keyboard"
-msgid "F9"
-msgstr ""
-
 #: guitext:524
-msgctxt "Keyboard"
-msgid "F10"
-msgstr ""
-
 #: guitext:525
-msgctxt "Keyboard"
-msgid "F11"
-msgstr ""
-
 #: guitext:526
-msgctxt "Keyboard"
-msgid "F12"
-msgstr ""
-
 #: guitext:527
-msgctxt "Keyboard"
-msgid "UP"
-msgstr ""
-
 #: guitext:528
-msgctxt "Keyboard"
-msgid "DOWN"
-msgstr ""
-
 #: guitext:529
-msgctxt "Keyboard"
-msgid "LEFT"
-msgstr ""
-
 #: guitext:530
-msgctxt "Keyboard"
-msgid "RIGHT"
-msgstr ""
-
 #: guitext:531
-msgctxt "Network game message"
-msgid "Initialising Modem"
-msgstr ""
-
 #: guitext:532
-msgctxt "Network game message"
-msgid "Connecting Modem"
-msgstr ""
-
 #: guitext:533
-msgctxt "Network game message"
-msgid "Dial"
-msgstr ""
-
 #: guitext:534
-msgctxt "Network game message"
-msgid "Continue"
-msgstr ""
-
 #: guitext:535
-msgctxt "Network game message"
-msgid "Line Engaged"
-msgstr ""
-
 #: guitext:536
-msgctxt "Network game message"
-msgid "Unknown Error"
-msgstr ""
-
 #: guitext:537
-msgctxt "Network game message"
-msgid "No Carrier"
-msgstr ""
-
 #: guitext:538
-msgctxt "Network game message"
-msgid "No Dial Tone"
-msgstr ""
-
 #: guitext:539
-msgctxt "Network game message"
-msgid "No Response"
-msgstr ""
-
 #: guitext:540
-msgctxt "Network game message"
-msgid "No Server"
-msgstr ""
-
 #: guitext:541
-msgctxt "Network game message"
-msgid "Unable to initialise"
-msgstr ""
-
 #: guitext:542
-msgctxt "Network game message"
-msgid "Unable to create game"
-msgstr ""
-
 #: guitext:543
-msgctxt "Network game message"
-msgid "Unable to join game"
+msgctxt "Unused"
+msgid "Moo6"
 msgstr ""
 
 #: guitext:544
@@ -2686,23 +1654,11 @@ msgid "Avatar"
 msgstr ""
 
 #: guitext:548
-msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
-msgstr ""
-
 #: guitext:549
-msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
-msgstr ""
-
 #: guitext:550
-msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
-msgstr ""
-
 #: guitext:551
-msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgctxt "Unused"
+msgid "Moo7"
 msgstr ""
 
 #: guitext:552
@@ -2781,56 +1737,18 @@ msgid "Bridge"
 msgstr ""
 
 #: guitext:567
-msgid "Fight"
-msgstr ""
-
 #: guitext:568
-msgid "Annoyed"
-msgstr ""
-
 #: guitext:569
-msgctxt "Keyboard"
-msgid "Shift"
-msgstr ""
-
 #: guitext:570
-msgctxt "Keyboard"
-msgid "Control"
-msgstr ""
-
 #: guitext:571
-msgctxt "Keyboard"
-msgid "Alt"
-msgstr ""
-
 #: guitext:572
-msgctxt "Credits"
-msgid "Additional Artwork"
-msgstr ""
-
 #: guitext:573
-msgctxt "Credits"
-msgid "Additional Programming"
-msgstr ""
-
 #: guitext:574
-msgctxt "Credits"
-msgid "Manual And Documentation"
-msgstr ""
-
 #: guitext:575
-msgctxt "Credits"
-msgid "Installer"
-msgstr ""
-
 #: guitext:576
-msgctxt "Credits"
-msgid "Additional Level Design"
-msgstr ""
-
 #: guitext:577
-msgctxt "Credits"
-msgid "Additional Thanks"
+msgctxt "Unused"
+msgid "Moo8"
 msgstr ""
 
 #: guitext:578
@@ -3255,7 +2173,7 @@ msgstr ""
 
 #: guitext:662
 msgctxt "Keeper spell description"
-msgid "Time Bomb"
+msgid "Time Bomb: Does boom."
 msgstr ""
 
 #: guitext:663
