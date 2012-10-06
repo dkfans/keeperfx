@@ -1,6 +1,6 @@
-# ******************************************************************************
+# *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-# ******************************************************************************
+# *****************************************************************************
 #   @file evilkeep/text_ger.po
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
@@ -15,7 +15,7 @@
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-# ******************************************************************************
+# *****************************************************************************
 msgid ""
 msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.40\n"
@@ -23,7 +23,7 @@ msgstr ""
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2012-10-06 12:56+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team [code.google.com]\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
