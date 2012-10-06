@@ -32,7 +32,16 @@ pkg/fxdata/gtext_spa.dat \
 pkg/fxdata/gtext_swe.dat \
 pkg/fxdata/gtext_eng.dat
 
-NCTEXTDATS =
+NCTEXTDATS = \
+pkg/campgns/ancntkpr/text_eng.dat \
+pkg/campgns/ancntkpr/text_fre.dat \
+pkg/campgns/burdnimp/text_eng.dat \
+pkg/campgns/evilkeep/text_eng.dat \
+pkg/campgns/evilkeep/text_fre.dat \
+pkg/campgns/evilkeep/text_ger.dat \
+pkg/campgns/grkreign/text_eng.dat \
+pkg/campgns/lqizgood/text_eng.dat \
+pkg/campgns/questfth/text_eng.dat
 
 pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
 
