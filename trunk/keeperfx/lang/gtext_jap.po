@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.40\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2012-10-02 10:55+0900\n"
+"PO-Revision-Date: 2012-10-06 14:50+0900\n"
 "Last-Translator: keita umetsu <coerulea@nifty.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
@@ -1784,7 +1784,7 @@ msgstr "経験: クリーチャーの経験レベル。 [23.5]"
 #: guitext:224
 msgctxt "In-game interface description"
 msgid "Hunger: How badly a creature needs to suck down a chicken or two."
-msgstr "空腹: クリーチャーがニワトリを食べたがっている度合い。"
+msgstr "空腹: クリーチャーがニワトリを食べたがっている度合。"
 
 #: guitext:225
 msgctxt "In-game interface description"
@@ -1944,7 +1944,7 @@ msgstr "呪い: [26.2]"
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb"
-msgstr "時鍬爆弾"
+msgstr "時限爆弾"
 
 #: guitext:258
 msgctxt "Creature name"
@@ -3033,7 +3033,7 @@ msgstr "次の戦闘: 次の戦闘を表示する。左クリックで選択。"
 #: guitext:465
 msgctxt "In-game interface item"
 msgid "Close Window"
-msgstr "ウィンドウを謬じる"
+msgstr "ウィンドウを閉じる"
 
 #: guitext:466
 msgctxt "In-game interface item"
@@ -3068,7 +3068,7 @@ msgstr "上へ"
 #: guitext:472
 msgctxt "Game controls"
 msgid "DOWN"
-msgstr "榎へ"
+msgstr "下へ"
 
 #: guitext:473
 msgctxt "Game controls"
@@ -3497,12 +3497,12 @@ msgstr "牢獄"
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr "拷問旨"
+msgstr "拷問室"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr "拷問室"
+msgstr "訓練室"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
@@ -5402,7 +5402,7 @@ msgstr "データディスクＣＤを入れて下さい。"
 #: guitext:890
 msgctxt "Menu interface message"
 msgid "Please insert Dungeon Keeper CD-ROM"
-msgstr "ダンジョンキーパーＣＤを入れ|榎-い。"
+msgstr "ダンジョンキーパーＣＤを入れて下さい。"
 
 #: guitext:891
 msgctxt "Menu interface message"

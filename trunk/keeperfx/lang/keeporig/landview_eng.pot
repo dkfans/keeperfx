@@ -1,6 +1,6 @@
-#******************************************************************************
+# *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-#******************************************************************************
+# *****************************************************************************
 #   @file landview_eng.pot
 #      KeeperFX Land View Strings translation template
 #  @par Purpose:
@@ -16,7 +16,7 @@
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-#******************************************************************************
+# *****************************************************************************
 #, fuzzy:
 msgid ""
 msgstr ""
@@ -25,7 +25,7 @@ msgstr ""
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
-"Language-Team: KeeperFX Team [code.google.com]\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
