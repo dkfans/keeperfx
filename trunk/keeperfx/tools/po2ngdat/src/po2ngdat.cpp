@@ -20,8 +20,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
-#include <stdbool.h>
-#include <string.h>
+#include <stdbool.h> // <cstdbool> requires c++11
+#include <cstring>
 #include <getopt.h>
 
 #include "po2ngdat_version.h"
