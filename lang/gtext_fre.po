@@ -3221,7 +3221,7 @@ msgstr "Guérison: Appliquez à une zone du donjon pour restaurer la santé de v
 
 #: guitext:662
 msgctxt "Keeper spell description"
-msgid "Time Bomb"
+msgid "Time Bomb: Does boom."
 msgstr "Bombe à retardement"
 
 #: guitext:663
