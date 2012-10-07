@@ -412,7 +412,7 @@ enum GUIStrings {
     GUIStr_InsertDataCD = 889,
     GUIStr_InsertKeeperCD,
     GUIStr_InbsertDeeperCD,
-    GUIStr_LevelEventMessage2 = 892, // range 892..940, DD
+    GUIStr_LevelEventMessageDD = 892, // range 892..940, Deeper Dungeons
     GUIStr_MnuFreePlayLevels = 941,
     GUIStr_MnuLandSelection = 942,
     GUIStr_MnuCampaigns = 943,
