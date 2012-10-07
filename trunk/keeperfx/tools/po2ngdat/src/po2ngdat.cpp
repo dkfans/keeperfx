@@ -96,7 +96,7 @@ char *file_name_strip_to_body(const char *fname_inp)
 {
     char *fname;
     const char *tmp1;
-    char *tmp2;
+    const char *tmp2;
     if (fname_inp == NULL)
       return NULL;
     tmp1 = strrchr(fname_inp, '/');
@@ -122,7 +122,7 @@ char *file_name_strip_path(const char *fname_inp)
 {
     char *fname;
     const char *tmp1;
-    char *tmp2;
+    const char *tmp2;
     if (fname_inp == NULL)
       return NULL;
     tmp1 = strrchr(fname_inp, '/');
