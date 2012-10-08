@@ -97,6 +97,7 @@ char *file_name_strip_to_body(const char *fname_inp)
     char *fname;
     const char *tmp1;
     const char *tmp2;
+    char *tmp3;
     if (fname_inp == NULL)
       return NULL;
     tmp1 = strrchr(fname_inp, '/');
@@ -110,10 +111,10 @@ char *file_name_strip_to_body(const char *fname_inp)
     fname = strdup(tmp1);
     if (fname == NULL)
       return NULL;
-    tmp2 = strrchr(fname,'.');
-    if ((tmp2 != NULL) && (fname+1 < tmp2))
+    tmp3 = strrchr(fname,'.');
+    if ((tmp3 != NULL) && (fname+1 < tmp3))
     {
-        *tmp2 = '\0';
+        *tmp3 = '\0';
     }
     return fname;
 }
