@@ -69,7 +69,7 @@ void draw_lit_bar64k(long pos_x, long pos_y, long width);
 void draw_slab64k(long pos_x, long pos_y, long width, long height);
 void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height);
 void draw_button_string(struct GuiButton *gbtn, char *text);
-int draw_text_box(char *text);
+int draw_text_box(const char *text);
 
 void draw_gui_panel_sprite_left(long x, long y, long spridx);
 void draw_gui_panel_sprite_rmleft(long x, long y, long spridx, unsigned long remap);

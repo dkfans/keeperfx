@@ -31,6 +31,7 @@
 #include "thing_objects.h"
 #include "thing_traps.h"
 #include "dungeon_data.h"
+#include "config_strings.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_trapdoor.h"
@@ -46,12 +47,12 @@ DLLIMPORT void _DK_draw_tooltip(void);
 DLLIMPORT void _DK_setup_gui_tooltip(struct GuiButton *gbtn);
 
 /******************************************************************************/
-const char jtytext[] = "JONTY HERE   : ...I AM WRITING THIS AT 4AM ON KEEPERS LAST DAY. I LOOK AROUND THE OFFICE AND ALL I SEE ARE THE TIRED PALE FACES OF THE KEEPER TEAM. THIS PROJECT HAS DESTROYED THE HEALTH AND SOCIAL LIVES OF EACH MEMBER, SO I HOPE YOU LIKE THE GAME. "
-    "AMAZINGLY AFTER SIXTEEN HOURS A DAY, 7 DAYS A WEEK, FOR NEARLY 5 MONTHS WE STILL DO. THIS GAME HAS BEEN WRITTEN WITH A PASSION I AM PROUD TO BE PART OF.... I DO NOT JUST HOPE YOU LIKE IT, I ALSO HOPE YOU ARE AWARE OF THE HUGE AMOUNT OF WORK WE HAVE ALL DONE. "
-    "ENOUGH WAFFLE AND ON TO THE REASON FOR THIS TEXT... THE ENDLESS GREETINGS... GREETINGS GO OUT TO IN RANDOM ORDER... RAB C, JACOON, BUCK, SI, BARRIE, KIK, CHRIS, PROC, RUSS, RIK, ALEX NEEDS, LARRY MOOR, EMMA TEUTON - AN ALE DUE TO EACH ONE OF YOU - THE LIST GOES ON.... "
-    "LOUISE GEE, MY GOOD SIS NICOLA, GEMMA, JENNY, HALEY, JO EVANS...  SARAH TELFORD.. PETER AND STEVEN, AMELIA, SARAH, ISY, SALLY, MARK, MATT WOODCOCK, PAUL NETTLETON, PETE BANFORD, TOM, DAVE BANHAM, DAVE KEENS, ALISON BOSSON, MIKE LINCOLN, KIRSTY, DARREN SAWYER... AND ALL UEA NORWICH PAST AND PRESENT. "
-    "NICK ARNOTT, BAVERSTOCK, SARAH BANKS, SEANY, MARK STACEY, GILEY MILEY COOKSON [WHERE ARE YOU?], STEVE CLARIDGE, DEUBERT, JAMES GREENGRASS, SIMON ONG, KEVIN RUSSELL, CLARE WRIGHTON, ELTON [GIB IS JUST A DAY AWAY], NICOLA GOULD, STEVE LAST, KEN MALCOLN, RICO, ANDY CAKEBREAD, ROBBO, CARR, "
-    "AND THE LITTLE ONE, CROFTY, SCOOPER, JASON STANTON [A CUP OF COFFEE], AARON SENNA, MIKE DORELL, IAN HOWIE, HELEN THAIN, ALEX FOREST-HAY, LEE HAZELWOOD, VICKY ARNOLD, GUY SIMMONS, SHIN, VAL TAYLOR.... IF I FORGOT YOU I AM SORRY... BUT SLEEP IS DUE TO ME... AND I HAVE A DREAM TO LIVE...";
+const char jtytext[] = "Jonty here   : ...I am writing this at 4am on Keepers last day. I look around the office and all I see are the tired pale faces of the Keeper team. This project has destroyed the health and social lives of each member, so I hope you like the game. "
+    "Amazingly after sixteen hours a day, 7 days a week, for nearly 5 months we still do. This game has been written with a passion I am proud to be part of.... I do not just hope you like it, I also hope you are aware of the huge amount of work we have all done. "
+    "Enough waffle and on to the reason for this text... The endless greetings... Greetings go out to in random order... Rab C, Jacoon, Buck, Si, Barrie, Kik, Chris, Proc, Russ, Rik, Alex Needs, Larry Moor, Emma Teuton - An ale due to each one of you - the list goes on.... "
+    "Louise Gee, my good sis Nicola, Gemma, Jenny, Haley, Jo Evans...  Sarah Telford.. Peter and Steven, Amelia, Sarah, Isy, Sally, Mark, Matt Woodcock, Paul Nettleton, Pete Banford, Tom, Dave Banham, Dave Keens, Alison Bosson, Mike Lincoln, Kirsty, Darren Sawyer... and all UEA Norwich past and present. "
+    "Nick Arnott, Baverstock, Sarah Banks, Seany, Mark Stacey, Giley Miley Cookson [where are you?], Steve Claridge, Deubert, James Greengrass, Simon Ong, Kevin Russell, Clare Wrighton, Elton [Gib is just a day away], Nicola Gould, Steve Last, Ken Malcoln, Rico, Andy Cakebread, Robbo, Carr, "
+    "and the little one, Crofty, Scooper, Jason Stanton [a cup of coffee], Aaron Senna, Mike Dorell, Ian Howie, Helen Thain, Alex Forest-Hay, Lee Hazelwood, Vicky Arnold, Guy Simmons, Shin, Val Taylor.... If I forgot you I am sorry... but sleep is due to me... and I have a dream to live...";
 
 /******************************************************************************/
 
@@ -65,10 +66,7 @@ inline void reset_scrolling_tooltip(void)
 inline void set_gui_tooltip_box(int bxtype,long stridx)
 {
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
-  if ((stridx > 0) && (stridx < STRINGS_MAX))
-    strncpy(tool_tip_box.text, gui_strings[stridx], TOOLTIP_MAX_LEN);
-  else
-    strcpy(tool_tip_box.text, "n/a");
+  strncpy(tool_tip_box.text, gui_string(stridx), TOOLTIP_MAX_LEN);
   tool_tip_box.pos_x = GetMouseX();
   tool_tip_box.pos_y = GetMouseY()+86;
   tool_tip_box.field_809 = bxtype;
@@ -162,7 +160,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   {
     update_gui_tooltip_target(thing);
     i = book_thing_to_magic(thing);
-    set_gui_tooltip_box(5,get_power_description_strindex(i));
+    set_gui_tooltip_box(5,get_power_name_strindex(i));
     return true;
   }
   // Find a workshop crate to show tooltip for
@@ -209,7 +207,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
         crdata = creature_data_get(objdat->related_creatr_model);
-        set_gui_tooltip_box_fmt(5,"%s %s", gui_strings[crdata->namestr_idx%STRINGS_MAX], gui_strings[609]); // (creature) Lair
+        set_gui_tooltip_box_fmt(5,"%s %s", gui_string(crdata->namestr_idx), gui_strings[609]); // (creature) Lair
       } else
       {
         help_tip_time++;
@@ -297,20 +295,17 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct CreatureData *crdata;
-  char *text;
+  const char *text;
   long i,k;
-  if (gbtn->tooltip_id == 201)
+  if (gbtn->tooltip_id == GUIStr_Empty)
     return;
   if (!settings.tooltips_on)
     return;
   dungeon = get_my_dungeon();
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
   i = gbtn->tooltip_id;
-  if ((i >= 0) && (i < STRINGS_MAX))
-    text = gui_strings[i];
-  else
-    text = lbEmptyString;
-  if ((i == 456) || (i == 455))
+  text = gui_string(i);
+  if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
   {
     if (tool_tip_box.gbutton != NULL)
         k = (long)tool_tip_box.gbutton->content;
@@ -322,18 +317,18 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
     else
       sprintf(tool_tip_box.text, "%s", text);
   } else
-  if ((i == 658) && (dungeon->chickens_sacrificed > 16))
+  if ((i == get_power_description_strindex(PwrK_CHICKEN)) && (dungeon->chickens_sacrificed > 16)) // Chicken spell tooltip easter egg
   {
-    strncpy(tool_tip_box.text, jtytext, TOOLTIP_MAX_LEN);
+      strncpy(tool_tip_box.text, jtytext, TOOLTIP_MAX_LEN);
   } else
-  if (i == 733)
+  if (i == GUIStr_PickCreatrMostExpDesc)
   {
     if ( (gbtn->field_1B > 0) && (top_of_breed_list+gbtn->field_1B < CREATURE_TYPES_COUNT) )
       k = breed_activities[top_of_breed_list+gbtn->field_1B];
     else
       k = get_players_special_digger_breed(my_player_number);
     crdata = creature_data_get(k);
-    sprintf(tool_tip_box.text, "%-6s: %s", gui_strings[crdata->namestr_idx], text);
+    sprintf(tool_tip_box.text, "%-6s: %s", gui_string(crdata->namestr_idx), text);
   } else
   {
     strncpy(tool_tip_box.text, text, TOOLTIP_MAX_LEN);

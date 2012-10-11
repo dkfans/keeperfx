@@ -244,8 +244,8 @@ struct SpellData {
       unsigned char flag_8;
       short field_9;
       short field_B;
-      short field_D;
-      unsigned short field_F;
+      unsigned short name_stridx;
+      unsigned short tooltip_stridx;
       short field_11;
       short field_13;
       Expand_Check_Func field_15;
@@ -271,6 +271,7 @@ struct SpellInfo *get_magic_info(int mgc_idx);
 TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo);
 struct SpellData *get_power_data(int pwr_idx);
 long get_power_description_strindex(int pwr_idx);
+long get_power_name_strindex(int pwr_idx);
 TbBool power_data_is_invalid(const struct SpellData *pwrdata);
 TbBool spell_is_stupid(int sptype);
 long get_power_index_for_work_state(long work_state);

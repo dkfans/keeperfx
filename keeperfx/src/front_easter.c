@@ -29,6 +29,7 @@
 #include "kjm_input.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
+#include "config_strings.h"
 #include "frontend.h"
 #include "keeperfx.hpp"
 
@@ -96,7 +97,7 @@ void frontbirthday_draw(void)
     {
         unsigned short line_pos;
         line_pos = LbTextLineHeight();
-        LbTextDraw(0, 170-line_pos, gui_strings[885]); // "Happy Birthday"
+        LbTextDraw(0, 170-line_pos, gui_string(GUIStr_HappyBirthday));
         LbTextDraw(0, 170, name);
     } else
     {

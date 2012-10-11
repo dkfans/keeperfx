@@ -60,10 +60,9 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
   _DK_do_button_click_actions(gbtn, s, callback);
 }
 
-void setup_input_field(struct GuiButton *gbtn)
+void setup_input_field(struct GuiButton *gbtn, const char * empty_text)
 {
     char *content;
-    char text[INPUT_FIELD_LEN];
     lbInkey = 0;
     memset(backup_input_field, 0, INPUT_FIELD_LEN);
     content = (char *)gbtn->content;
@@ -74,9 +73,8 @@ void setup_input_field(struct GuiButton *gbtn)
     }
     strncpy(backup_input_field, content, INPUT_FIELD_LEN-1);
     backup_input_field[INPUT_FIELD_LEN-1] = '\0';
-    // Check if the text drawn is "UNUSED" in current language; if it is, ignore that string
-    snprintf(text,INPUT_FIELD_LEN-1,"%s",gui_strings[358]); // string says "UNUSED"
-    if (strcmp(text, backup_input_field) == 0)
+    // Check if the text drawn should be treated as empty; if it is, ignore that string
+    if ((empty_text != NULL) && (strncmp(empty_text, backup_input_field, INPUT_FIELD_LEN-1) == 0))
     {
         *content = '\0';
     }

@@ -39,6 +39,7 @@
 #include "net_game.h"
 #include "packets.h"
 #include "config.h"
+#include "config_strings.h"
 #include "game_merge.h"
 #include "keeperfx.hpp"
 
@@ -79,7 +80,7 @@ long modem_initialise_callback(void)
   }
   if (LbScreenLock() == Lb_SUCCESS)
   {
-    draw_text_box(gui_strings[531]); // Initialising Modem
+    draw_text_box(gui_string(GUIStr_NetInitingModem));
     LbScreenUnlock();
   }
   LbScreenSwap();
@@ -95,7 +96,7 @@ long modem_connect_callback(void)
   }
   if (LbScreenLock() == Lb_SUCCESS)
   {
-    draw_text_box(gui_strings[532]); // Connecting Modem
+    draw_text_box(gui_string(GUIStr_NetConnectnModem));
     LbScreenUnlock();
   }
   LbScreenSwap();
@@ -104,35 +105,35 @@ long modem_connect_callback(void)
 
 void process_network_error(long errcode)
 {
-  char *text;
+  const char *text;
   switch (errcode)
   {
   case 4:
-      text = gui_strings[535];
+      text = gui_string(GUIStr_NetLineEngaged);
       break;
   case 5:
-      text = gui_strings[536];
+      text = gui_string(GUIStr_NetUnknownError);
       break;
   case 6:
-      text = gui_strings[537];
+      text = gui_string(GUIStr_NetNoCarrier);
       break;
   case 7:
-      text = gui_strings[538];
+      text = gui_string(GUIStr_NetNoDialTone);
       break;
   case -1:
-      text = gui_strings[539];
+      text = gui_string(GUIStr_NetNoResponse);
       break;
   case -2:
-      text = gui_strings[540];
+      text = gui_string(GUIStr_NetNoServer);
       break;
   case -800:
-      text = gui_strings[541];
+      text = gui_string(GUIStr_NetUnableToInit);
       break;
   case -801:
-      text = gui_strings[542];
+      text = gui_string(GUIStr_NetUnableToCrGame);
       break;
   case -802:
-      text = gui_strings[543];
+      text = gui_string(GUIStr_NetUnableToJoin);
       break;
   default:
       ERRORLOG("Unknown modem error code %ld",errcode);
@@ -171,7 +172,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
     text_h = LbTextHeight("Wq");
     text_x = x-max_width+100;
     text_y = y+58;
-    LbTextDraw(0/pixel_size, (50-pixel_size*text_h)/pixel_size, gui_strings[869]);
+    LbTextDraw(0/pixel_size, (50-pixel_size*text_h)/pixel_size, gui_string(GUIStr_NetResyncing));
     LbDrawBox(text_x/pixel_size, text_y/pixel_size, 2*max_width/pixel_size, 16/pixel_size, 0);
     LbDrawBox(text_x/pixel_size, text_y/pixel_size, 2*min_width/pixel_size, 16/pixel_size, 133);
     LbScreenUnlock();
@@ -233,7 +234,7 @@ void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, voi
   if (net_number_of_sessions == 0)
   {
     net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-    strcpy(&netcdat->svc_name[8],gui_strings[875]);
+    strcpy(&netcdat->svc_name[8],gui_string(GUIStr_NetModem));
     net_number_of_sessions++;
   }
 }
@@ -247,26 +248,26 @@ void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, voi
   }
   if (strcasecmp("SERIAL", netcdat->svc_name) == 0)
   {
-    strcpy(net_service[net_number_of_services], gui_strings[874]);
+    LbStringCopy(net_service[net_number_of_services], gui_string(GUIStr_NetSerial), NET_MESSAGE_LEN);
     net_number_of_services++;
   } else
   if (strcasecmp("MODEM", netcdat->svc_name) == 0)
   {
-    strcpy(net_service[net_number_of_services], gui_strings[875]);
+      LbStringCopy(net_service[net_number_of_services], gui_string(GUIStr_NetModem), NET_MESSAGE_LEN);
     net_number_of_services++;
   } else
   if (strcasecmp("IPX", netcdat->svc_name) == 0)
   {
-    strcpy(net_service[net_number_of_services], gui_strings[876]);
+      LbStringCopy(net_service[net_number_of_services], gui_string(GUIStr_NetIpx), NET_MESSAGE_LEN);
     net_number_of_services++;
   } else
   if (strcasecmp("TCP", netcdat->svc_name) == 0)
   {
-    strcpy(net_service[net_number_of_services], "TCP/IP");
+      LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO put this in GUI strings
     net_number_of_services++;
   } else
   {
-    ERRORLOG("Unrecognised Network Service");
+    ERRORLOG("Unrecognized Network Service");
   }
 }
 
@@ -415,7 +416,7 @@ void display_attempting_to_join_message(void)
 {
   if (LbScreenLock() == Lb_SUCCESS)
   {
-    draw_text_box(gui_strings[868]); // "Attempting To Join"
+    draw_text_box(gui_string(GUIStr_NetAttemptingToJoin));
     LbScreenUnlock();
   }
   LbScreenSwap();
@@ -439,24 +440,25 @@ void net_load_config_file(void)
   }
   // If can't load, then use default config
   LbMemoryCopy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
-  LbStringCopy(net_config_info.str_u2, gui_strings[404], 20);
+  LbStringCopy(net_config_info.str_u2, gui_string(GUIStr_MnuNoName), 20);
 }
 
 void frontnet_service_setup(void)
 {
-  net_number_of_services = 0;
-  LbMemorySet(net_service, 0, sizeof(net_service));
-  // Create list of available services
-  if (LbNetwork_EnumerateServices(enum_services_callback, NULL))
-    ERRORLOG("LbNetwork_EnumerateServices() failed");
-  // Create skirmish option if it should be enabled
-  if ((game.system_flags & GSF_AllowOnePlayer) != 0)
-  {
-    LbStringCopy(net_service[net_number_of_services], gui_strings[870], 64);
-    net_number_of_services++;
-  }
-  frontnet_init_level_descriptions();
-  net_load_config_file();
+    net_number_of_services = 0;
+    LbMemorySet(net_service, 0, sizeof(net_service));
+    // Create list of available services
+    if (LbNetwork_EnumerateServices(enum_services_callback, NULL)) {
+        ERRORLOG("LbNetwork_EnumerateServices() failed");
+    }
+    // Create skirmish option if it should be enabled
+    if ((game.system_flags & GSF_AllowOnePlayer) != 0)
+    {
+        LbStringCopy(net_service[net_number_of_services], gui_string(GUIStr_Net1Player), NET_SERVICE_LEN);
+        net_number_of_services++;
+    }
+    frontnet_init_level_descriptions();
+    net_load_config_file();
 }
 
 void frontnet_session_setup(void)

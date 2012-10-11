@@ -29,6 +29,7 @@ extern "C" {
 
 #define NET_PLAYERS_COUNT       4
 #define NET_SERVICES_COUNT     16
+#define NET_SERVICE_LEN        64
 #define PACKETS_COUNT           5
 
 /******************************************************************************/
@@ -50,7 +51,7 @@ DLLIMPORT struct TbNetworkPlayerName _DK_net_player[NET_PLAYERS_COUNT];
 #define net_player _DK_net_player
 DLLIMPORT struct ConfigInfo _DK_net_config_info;
 #define net_config_info _DK_net_config_info
-DLLIMPORT char _DK_net_service[16][64];
+DLLIMPORT char _DK_net_service[16][NET_SERVICE_LEN];
 #define net_service _DK_net_service
 DLLIMPORT char _DK_net_player_name[20];
 #define net_player_name _DK_net_player_name

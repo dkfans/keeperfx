@@ -5041,15 +5041,15 @@ struct Thing *event_is_attached_to_thing(long ev_idx)
     event = &game.event[ev_idx];
     switch (event->kind)
     {
-    case 3:
-    case 6:
-    case 10:
-    case 14:
-    case 16:
-    case 17:
-    case 24:
-    case 25:
-    case 26:
+    case EvKind_Objective:
+    case EvKind_NewCreature:
+    case EvKind_CreatrScavenged:
+    case EvKind_SpellPickedUp:
+    case EvKind_CreatrIsAnnoyed:
+    case EvKind_NoMoreLivingSet:
+    case EvKind_TrapCrateFound:
+    case EvKind_DoorCrateFound:
+    case EvKind_DnSpecialFound:
         i = event->target;
         break;
     default:
@@ -5298,12 +5298,12 @@ void update_player_objectives(int plridx)
     {
     case VicS_WonLevel:
         if (plridx == my_player_number)
-          set_level_objective(gui_strings[0]); // Success message
+          set_level_objective(cmpgn_string(CpgStr_SuccessLandIsYours));
         display_objectives(player->id_number, 0, 0);
         break;
     case VicS_LostLevel:
         if (plridx == my_player_number)
-          set_level_objective(gui_strings[335]); // Defeated message
+          set_level_objective(cmpgn_string(CpgStr_LevelLost));
         display_objectives(player->id_number, 0, 0);
         break;
     }
