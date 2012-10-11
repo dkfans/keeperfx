@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "thing_doors.h"
+#include "config_strings.h"
 #include "config_creature.h"
 
 #include "keeperfx.hpp"
@@ -90,34 +91,34 @@ struct SlabAttr slab_attrs[] = {
   {332, 0, 3,         0, 0, 0, 2,  2, 1, 1, 0, 0, 0},
   {327, 0, 2,         0, 0, 1, 0,  3, 1, 0, 0, 0, 1},
   {328, 0, 2,         0, 0, 2, 0,  4, 1, 1, 0, 0, 2},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4,  5, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3,  5, 1, 0, 0, 1, 0}, // [15]
-  {201, 4, 4, 0x10|0x02, 2, 0, 4,  6, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3,  6, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4,  7, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3,  7, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4,  8, 1, 1, 0, 0, 0}, // [20]
-  {201, 4, 2, 0x20|0x10, 0, 0, 3,  8, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4,  9, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3,  9, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 10, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 10, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 11, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 11, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 12, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 12, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 13, 1, 1, 0, 0, 0}, // [30]
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 13, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 14, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 14, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 15, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 15, 1, 0, 0, 1, 0}, // [35]
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 16, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 16, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 17, 1, 1, 0, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 17, 1, 0, 0, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 4, 18, 1, 1, 0, 0, 0}, // [40]
-  {201, 4, 2, 0x20|0x10, 0, 0, 3, 18, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  5, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  5, 1, 0, 0, 1, 0}, // [15]
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  6, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  6, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  7, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  7, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  8, 1, 1, 0, 0, 0}, // [20]
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  8, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  9, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  9, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 10, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 10, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 11, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 11, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 12, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 12, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 13, 1, 1, 0, 0, 0}, // [30]
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 13, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 14, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 14, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 15, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 15, 1, 0, 0, 1, 0}, // [35]
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 16, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 16, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 17, 1, 1, 0, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 17, 1, 0, 0, 1, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 18, 1, 1, 0, 0, 0}, // [40]
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 18, 1, 0, 0, 1, 0},
   {590, 4, 5, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
   {590, 4, 5, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
   {591, 4, 6, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
@@ -126,14 +127,14 @@ struct SlabAttr slab_attrs[] = {
   {592, 4, 7, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
   {593, 4, 8, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
   {593, 4, 8, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
-  {201, 4, 2,         0, 0, 0, 5,  0, 1, 0, 1, 0, 0}, // [50]
-  {201, 4, 4, 0x10|0x02, 2, 0, 5,  1, 1, 1, 1, 0, 3},
+  {GUIStr_Empty, 4, 2,         0, 0, 0, 5,  0, 1, 0, 1, 0, 0}, // [50]
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 5,  1, 1, 1, 1, 0, 3},
   {544, 4, 1, 0x10|0x01, 0, 0, 5,  0, 1, 0, 1, 1, 0},
-  {201, 4, 4, 0x10|0x02, 2, 0, 5,  1, 1, 1, 1, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0}, // [55]
-  {201, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
-  {201, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
+  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 5,  1, 1, 1, 1, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0}, // [55]
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
+  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
 };
 /******************************************************************************/
 struct SlabAttr *get_slab_kind_attrs(long slab_kind)
@@ -283,7 +284,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         {
             slabst = &slab_conf.slab_cfgstats[i];
             LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
-            slabst->tooltip_stridx = 201;
+            slabst->tooltip_stridx = GUIStr_Empty;
             if (i < slab_conf.slab_types_count)
             {
                 slab_desc[i].name = slabst->code_name;
@@ -298,7 +299,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         for (i=0; i < arr_size; i++)
         {
             slbattr = get_slab_kind_attrs(i);
-            slbattr->tooltip_idx = 201;
+            slbattr->tooltip_idx = GUIStr_Empty;
         }
     }
     // Parse every numbered block within range
@@ -337,27 +338,25 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         case 1: // NAME
             if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) <= 0)
             {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-              break;
+                CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 2: // TOOLTIPTEXTID
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              if (k > 0)
-              {
-                  slbattr->tooltip_idx = k;
-                  n++;
-              }
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                    slbattr->tooltip_idx = k;
+                    n++;
+                }
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
-            break;
             break;
         case 0: // comment
             break;
@@ -447,7 +446,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
       {
           roomst = &slab_conf.room_cfgstats[i];
           LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
-          roomst->tooltip_stridx = 201;
+          roomst->tooltip_stridx = GUIStr_Empty;
           roomst->creature_creation_model = 0;
           if (i < slab_conf.room_types_count)
           {

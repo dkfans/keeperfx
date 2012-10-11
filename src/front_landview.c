@@ -1306,9 +1306,9 @@ void draw_map_level_descriptions(void)
     else
       lv_name = lvinfo->name;
     if ((lv_name != NULL) && (strlen(lv_name) > 0))
-      sprintf(level_name, "%s %d: %s", gui_strings[406], (int)lvinfo->lvnum, lv_name);
+      sprintf(level_name, "%s %d: %s", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
     else
-      sprintf(level_name, "%s %d", gui_strings[406], (int)lvinfo->lvnum);
+      sprintf(level_name, "%s %d", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
     w = LbTextStringWidth(level_name);
     x = lvinfo->ensign_x - map_info.scrshift_x;
     y = lvinfo->ensign_y - map_info.scrshift_y - 8;
@@ -1458,9 +1458,9 @@ void frontnetmap_input(void)
             left_button_clicked = 0;
             lvinfo = get_level_info(fe_net_level_selected);
             if (lvinfo != NULL)
-              sprintf(level_name, "%s %d", gui_strings[406], (int)lvinfo->lvnum);
+              sprintf(level_name, "%s %d", gui_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
             else
-              sprintf(level_name, "%s", gui_strings[406]);
+              sprintf(level_name, "%s", gui_string(GUIStr_MnuLevel));
           }
         }
       }
@@ -1682,7 +1682,7 @@ TbBool frontnetmap_update(void)
     if ((!nmps.tmp1) && (nmps.lvnum > 0) && (nmps.is_selected))
     {
         set_selected_level_number(nmps.lvnum);
-        sprintf(level_name, "%s %d", gui_strings[406], (int)nmps.lvnum);
+        sprintf(level_name, "%s %d", gui_string(GUIStr_MnuLevel), (int)nmps.lvnum);
         map_info.fading = true;
         map_info.fade_pos = 1;
         map_info.fade_step = 4;

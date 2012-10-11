@@ -40,6 +40,7 @@
 #include "frontmenu_ingame_tabs.h"
 #include "vidmode.h"
 #include "config.h"
+#include "config_strings.h"
 #include "config_terrain.h"
 #include "game_merge.h"
 
@@ -778,7 +779,7 @@ void process_pointer_graphic(void)
 void redraw_display(void)
 {
     //_DK_redraw_display();return;
-    char *text;
+    const char *text;
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
@@ -849,7 +850,7 @@ void redraw_display(void)
     if (((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
     {
           LbTextSetFont(winfont);
-          text = gui_strings[320]; // "Paused"
+          text = gui_string(GUIStr_PausedMsg);
           long pos_x,pos_y;
           long w,h;
           int i;
@@ -884,7 +885,7 @@ void redraw_display(void)
         i = game.play_gameturn - game.field_150356 - game.armageddon.count_down;
       }
       LbTextSetFont(winfont);
-      text = buf_sprintf(" %s %03d", gui_strings[646], i/2); // Armageddon message
+      text = buf_sprintf(" %s %03d", gui_string(646), i/2); // Armageddon message
       i = LbTextCharWidth(' ');
       w = pixel_size*LbTextStringWidth(text) + 6*i;
       pos_x = MyScreenWidth - w - 16;

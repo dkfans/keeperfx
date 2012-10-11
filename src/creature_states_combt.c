@@ -672,7 +672,7 @@ TbBool battle_remove(struct Thing *fighter)
     for (i=0; i < EVENTS_COUNT; i++)
     {
         event = &game.event[i];
-        if (event->kind == 2) {
+        if (event->kind == EvKind_Fight) {
             if ( !find_first_battle_of_mine(event->owner) )
             {
                 event->mappos_x = 0;

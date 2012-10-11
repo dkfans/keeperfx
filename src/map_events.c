@@ -196,32 +196,31 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   dungeon->visible_event_idx = evidx;
   if (plridx == my_player_number)
   {
-    i = event_button_info[event->kind].field_6;
-    if (i != GUIStr_Empty)
-      strcpy(game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+    i = event_button_info[event->kind].msgstr_id;
+    strcpy(game.evntbox_scroll_window.text, gui_string(i));
   }
-  if (event->kind == 2)
+  if (event->kind == EvKind_Fight)
     dungeon->field_1174 = find_first_battle_of_mine(plridx);
   if (plridx == my_player_number)
   {
     other_off = 0;
     switch (event->kind)
     {
-    case 1:
-    case 4:
+    case EvKind_HeartAttacked:
+    case EvKind_Breach:
         other_off = 1;
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 2:
+    case EvKind_Fight:
         turn_off_menu(GMnu_TEXT_INFO);
         turn_on_menu(GMnu_BATTLE);
         break;
-    case 3:
+    case EvKind_Objective:
         strcpy(game.evntbox_scroll_window.text, game.evntbox_text_objective);
         for (i=EVENT_BUTTONS_COUNT; i >= 0; i--)
         {
           k = dungeon->field_13A7[i];
-          if (game.event[k%EVENTS_COUNT].kind == 3)
+          if (game.event[k%EVENTS_COUNT].kind == EvKind_Objective)
           {
             other_off = 1;
             turn_on_menu(GMnu_TEXT_INFO);
@@ -230,15 +229,15 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
           }
         }
         break;
-    case 5:
+    case EvKind_NewRoomResrch:
         other_off = 1;
         rdata = room_data_get_for_kind(event->target);
         i = rdata->msg1str_idx;
-        text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text, cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 6:
+    case EvKind_NewCreature:
         other_off = 1;
         thing = thing_get(event->target);
         // If thing is invalid - leave the message without it.
@@ -247,35 +246,35 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         {
           crdata = creature_data_get_from_thing(thing);
           i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
           strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         }
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 7:
+    case EvKind_NewSpellResrch:
         other_off = 1;
-        i = get_power_description_strindex(event->target);
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        i = get_power_name_strindex(event->target);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 8:
+    case EvKind_NewTrap:
         other_off = 1;
         trapst = get_trap_model_stats(event->target);
         i = trapst->name_stridx;
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 9:
+    case EvKind_NewDoor:
         other_off = 1;
         doorst = get_door_model_stats(event->target);
         i = doorst->name_stridx;
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 10: // Scavenge detected
+    case EvKind_CreatrScavenged: // Scavenge detected
         other_off = 1;
         thing = thing_get(event->target);
         // If thing is invalid - leave the message without it.
@@ -284,41 +283,41 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         {
           crdata = creature_data_get_from_thing(thing);
           i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
           strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         }
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 11:
-    case 13:
+    case EvKind_TreasureRoomFull:
+    case EvKind_AreaDiscovered:
         other_off = 1;
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 12:
+    case EvKind_CreaturePayday:
         other_off = 1;
         text = buf_sprintf("%s:\n %d", game.evntbox_scroll_window.text, event->target);
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 14:
+    case EvKind_SpellPickedUp:
         other_off = 1;
         thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
-        i = get_power_description_strindex(book_thing_to_magic(thing));
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        i = get_power_name_strindex(book_thing_to_magic(thing));
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 15:
+    case EvKind_RoomTakenOver:
         other_off = 1;
         rdata = room_data_get_for_kind(event->target);
         i = rdata->msg1str_idx;
-        text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,gui_strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s",game.evntbox_scroll_window.text,cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 16:
+    case EvKind_CreatrIsAnnoyed:
         other_off = 1;
         thing = thing_get(event->target);
         // If thing is invalid - leave the message without it.
@@ -327,21 +326,21 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         {
           crdata = creature_data_get_from_thing(thing);
           i = crdata->namestr_idx;
-          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+          text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
           strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         }
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 17:
-    case 18:
-    case 19:
-    case 20:
-    case 22:
-    case 23:
+    case EvKind_NoMoreLivingSet:
+    case EvKind_AlarmTriggered:
+    case EvKind_RoomUnderAttack:
+    case EvKind_NeedTreasureRoom:
+    case EvKind_RoomLost:
+    case EvKind_CreatrHungry:
         other_off = 1;
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 21:
+    case EvKind_Information:
         i = (long)event->target;
         if (i < 0)
         {
@@ -353,39 +352,39 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
         other_off = 1;
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-    case 24:
+    case EvKind_TrapCrateFound:
         other_off = 1;
         thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         trapst = get_trap_model_stats(box_thing_to_door_or_trap(thing));
         i = trapst->name_stridx;
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-      case 25:
+      case EvKind_DoorCrateFound:
         other_off = 1;
         thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         doorst = get_door_model_stats(box_thing_to_door_or_trap(thing));
         i = doorst->name_stridx;
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-      case 26:
+      case EvKind_DnSpecialFound:
         other_off = 1;
         thing = thing_get(event->target);
         if (thing_is_invalid(thing))
           break;
         i = specials_text[box_thing_to_special(thing)];
-        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, gui_strings[i%STRINGS_MAX]);
+        text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
         strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
         turn_on_menu(GMnu_TEXT_INFO);
         break;
-      case 27:
+      case EvKind_QuickInformation:
         i = (long)event->target;
         if (i < 0)
         {

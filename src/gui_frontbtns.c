@@ -73,11 +73,11 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_idx)
   for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
   {
     gbtn = &active_buttons[gidx];
-    if (gbtn->field_0 & 0x01)
+    if (gbtn->flags & 0x01)
       if ( ((gmbtn_idx == -1) || (gmbtn_idx != gidx)) &&
            (gbtn->gbtype != Lb_RADIOBTN) && (gbtn != input_button) )
       {
-        set_flag_byte(&gbtn->field_0,0x10,false);
+        set_flag_byte(&gbtn->flags,0x10,false);
         gbtn->field_1 = 0;
         gbtn->field_2 = 0;
       }
@@ -95,7 +95,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
   if ((gbtn->field_1) && (left_button_released))
   {
     callback = gbtn->click_event;
-    if ((callback != NULL) || ((gbtn->field_0 & 0x02) != 0) ||
+    if ((callback != NULL) || ((gbtn->flags & 0x02) != 0) ||
         (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
     {
       left_button_released = 0;
@@ -164,9 +164,9 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
   {
       result = true;
       callback = gbtn->click_event;
-      if ((callback != NULL) || (((gbtn->field_0 & 2)!=0) ||
+      if ((callback != NULL) || (((gbtn->flags & 2)!=0) ||
          (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN)))
-        if ((gbtn->field_0 & 0x08) != 0)
+        if ((gbtn->flags & 0x08) != 0)
         {
           switch (gbtn->gbtype)
           {
@@ -187,7 +187,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
   {
       result = true;
       callback = gbtn->rclick_event;
-      if ((callback != NULL) && ((gbtn->field_0 & 8)!=0))
+      if ((callback != NULL) && ((gbtn->flags & 8)!=0))
       {
         switch (gbtn->gbtype)
         {
@@ -213,7 +213,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
           game.flash_button_index = 0;
       }
       callback = gbtn->click_event;
-      if ((callback != NULL) || (gbtn->field_0 & 0x02) ||
+      if ((callback != NULL) || (gbtn->flags & 0x02) ||
          (gbtn->field_2F) || (gbtn->gbtype == Lb_RADIOBTN))
       {
         left_button_clicked = 0;
@@ -243,7 +243,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
 void kill_button(struct GuiButton *gbtn)
 {
   if (gbtn != NULL)
-    set_flag_byte(&gbtn->field_0, 0x01, false);
+    set_flag_byte(&gbtn->flags, 0x01, false);
 }
 
 void kill_button_area_input(void)
@@ -347,7 +347,7 @@ void gui_area_normal_button(struct GuiButton *gbtn)
       ERRORLOG("Cycle button cannot have a normal button draw function!");
     pos_x = gbtn->scr_pos_x / (long)pixel_size;
     pos_y = gbtn->scr_pos_y / (long)pixel_size;
-    if ((gbtn->field_0 & 0x08) != 0)
+    if ((gbtn->flags & 0x08) != 0)
     {
         if ( (gbtn->field_1 != 0) || (gbtn->field_2 != 0) )
             spr_idx++;
@@ -371,7 +371,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     int h;
     SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
     fbinfo_idx = (unsigned int)gbtn->content;
-    if ((gbtn->field_0 & 0x08) == 0)
+    if ((gbtn->flags & 0x08) == 0)
     {
         fntidx = 3;
         spridx = 14;
@@ -423,37 +423,16 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
 
 void frontend_draw_large_menu_button(struct GuiButton *gbtn)
 {
-    unsigned long btninfo_idx;
-    char *text;
-    int idx;
-    btninfo_idx = (unsigned long)gbtn->content;
-    if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
-      idx = frontend_button_info[btninfo_idx].capstr_idx;
-    else
-      idx = -1;
-    if ((idx >= 0) && (idx < STRINGS_MAX))
-      text = gui_strings[idx];
-    else
-      text = NULL;
+    const char *text;
+    text = frontend_button_caption_text(gbtn);
     frontend_draw_button(gbtn, 1, text, Lb_TEXT_HALIGN_CENTER);
 }
 
 void frontend_draw_vlarge_menu_button(struct GuiButton *gbtn)
 {
-  unsigned int btninfo_idx;
-  const char *text;
-  int idx;
-  //_DK_frontend_draw_vlarge_menu_button(gbtn);
-  btninfo_idx = (unsigned long)gbtn->content;
-  if (btninfo_idx < FRONTEND_BUTTON_INFO_COUNT)
-    idx = frontend_button_info[btninfo_idx].capstr_idx;
-  else
-    idx = -1;
-  if ((idx >= 0) && (idx < STRINGS_MAX))
-    text = gui_strings[idx];
-  else
-    text = NULL;
-  frontend_draw_button(gbtn, 2, text, Lb_TEXT_HALIGN_CENTER);
+    const char *text;
+    text = frontend_button_caption_text(gbtn);
+    frontend_draw_button(gbtn, 2, text, Lb_TEXT_HALIGN_CENTER);
 }
 
 void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
@@ -587,7 +566,7 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
 {
     long spr_idx,btn_id;
     //_DK_frontnet_draw_slider_button(gbtn);
-    if ((gbtn->field_0 & 0x08) != 0)
+    if ((gbtn->flags & 0x08) != 0)
     {
         btn_id = (long)gbtn->content;
         if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
@@ -617,7 +596,7 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
 
 void gui_area_null(struct GuiButton *gbtn)
 {
-  if ((gbtn->field_0 & 0x08) != 0)
+  if ((gbtn->flags & 0x08) != 0)
   {
     LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
       &button_sprite[gbtn->field_29]);
