@@ -43,16 +43,27 @@ struct GuiBoxOption;
 
 // Type definitions
 enum TbButtonType {
-        Lb_CYCLEBTN  =  2,
-        Lb_RADIOBTN  =  3,
-        Lb_SLIDER    =  4,
-        Lb_EDITBTN   =  5,
+    Lb_CYCLEBTN  =  2,
+    Lb_RADIOBTN  =  3,
+    Lb_SLIDER    =  4,
+    Lb_EDITBTN   =  5,
+};
+
+enum TbButtonFlags {
+    LbBtnF_Unknown01  =  0x01,
+    LbBtnF_Unknown02  =  0x02,
+    LbBtnF_Unknown04  =  0x04,
+    LbBtnF_Unknown08  =  0x08,
+    LbBtnF_Unknown10  =  0x10,
+    LbBtnF_Unknown20  =  0x20,
+    LbBtnF_Unknown40  =  0x40,
+    LbBtnF_Unknown80  =  0x80,
 };
 
 union GuiVariant {
-      long lval;
-      long *lptr;
-      char *str;
+    long lval;
+    long *lptr;
+    char *str;
 };
 
 typedef long (*Gf_OptnBox_4Callback)(struct GuiBox *, struct GuiBoxOption *, unsigned char, long *);
@@ -120,7 +131,7 @@ struct GuiButtonInit {
 };
 
 struct GuiButton {
-       unsigned char field_0;
+       unsigned char flags;
        unsigned char field_1;
        unsigned char field_2;
        char gmenu_idx;
@@ -181,8 +192,8 @@ struct FrontEndButtonData {
 
 struct EventTypeInfo { //sizeof=0x10
     int field_0;
-    unsigned short field_4;
-    unsigned short field_6;
+    unsigned short tooltip_id;
+    unsigned short msgstr_id;
     int field_8;
     int field_C;
 };
@@ -208,7 +219,7 @@ DLLIMPORT extern char *_DK_strings[DK_STRINGS_MAX+1];
 void do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 void do_sound_menu_click(void);
 void do_sound_button_click(struct GuiButton *gbtn);
-void setup_input_field(struct GuiButton *gbtn);
+void setup_input_field(struct GuiButton *gbtn, const char * empty_text);
 
 /******************************************************************************/
 #ifdef __cplusplus

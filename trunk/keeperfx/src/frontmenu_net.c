@@ -429,9 +429,9 @@ void frontnet_comport_up_maintain(struct GuiButton *gbtn)
 void frontnet_net_serial_start_maintain(struct GuiButton *gbtn)
 {
   if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
-    gbtn->field_0 &= 0xF7u;
+    gbtn->flags &= 0xF7u;
   else
-    gbtn->field_0 |= 0x08;
+    gbtn->flags |= 0x08;
 }
 
 void frontnet_serial_reset(void)
@@ -899,12 +899,12 @@ void frontnet_net_serial_start(struct GuiButton *gbtn)
 
 void frontnet_service_up_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->field_0, 0x08, (net_service_scroll_offset != 0));
+  set_flag_byte(&gbtn->flags, 0x08, (net_service_scroll_offset != 0));
 }
 
 void frontnet_service_down_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->field_0, 0x08, (net_number_of_services-1 > net_service_scroll_offset));
+  set_flag_byte(&gbtn->flags, 0x08, (net_number_of_services-1 > net_service_scroll_offset));
 }
 
 void frontnet_service_up(struct GuiButton *gbtn)
@@ -921,7 +921,7 @@ void frontnet_service_down(struct GuiButton *gbtn)
 
 void frontnet_service_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->field_0, 0x08, (net_service_scroll_offset+(long)gbtn->content-45 < net_number_of_services));
+  set_flag_byte(&gbtn->flags, 0x08, (net_service_scroll_offset+(long)gbtn->content-45 < net_number_of_services));
 }
 
 void frontnet_draw_service_button(struct GuiButton *gbtn)

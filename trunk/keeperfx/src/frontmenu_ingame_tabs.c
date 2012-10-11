@@ -474,7 +474,7 @@ void menu_tab_maintain(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   player = get_my_player();
-  set_flag_byte(&gbtn->field_0, 0x08, (player->victory_state != VicS_LostLevel));
+  set_flag_byte(&gbtn->flags, 0x08, (player->victory_state != VicS_LostLevel));
 }
 
 void gui_area_autopilot_button(struct GuiButton *gbtn)
@@ -504,7 +504,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
 {
   struct Dungeon *dungeon;
   unsigned long i;
-  if ((gbtn->field_0 & 0x08) != 0)
+  if ((gbtn->flags & 0x08) != 0)
   {
     dungeon = get_players_num_dungeon(my_player_number);
     i = (unsigned long)gbtn->content;
@@ -653,18 +653,18 @@ void maintain_spell(struct GuiButton *gbtn)
   if (!is_power_available(player->id_number,i))
   {
     gbtn->field_1B |= 0x8000u;
-    gbtn->field_0 &= ~0x08;
+    gbtn->flags &= ~0x08;
   } else
   if (i == 19)
   {
       if (game.field_150356 != 0)
       {
         gbtn->field_1B |= 0x8000u;
-        gbtn->field_0 &= ~0x08;
+        gbtn->flags &= ~0x08;
       } else
       {
         gbtn->field_1B = 0;
-        gbtn->field_0 |= 0x08;
+        gbtn->flags |= 0x08;
       }
   } else
   if (i == 9)
@@ -672,16 +672,16 @@ void maintain_spell(struct GuiButton *gbtn)
       if (dungeon->field_88C[0])
       {
         gbtn->field_1B |= 0x8000u;
-        gbtn->field_0 &= ~0x08;
+        gbtn->flags &= ~0x08;
       } else
       {
         gbtn->field_1B = 0;
-        gbtn->field_0 |= 0x08;
+        gbtn->flags |= 0x08;
       }
   } else
   {
     gbtn->field_1B = 0;
-    gbtn->field_0 |= 0x08;
+    gbtn->flags |= 0x08;
   }
 }
 
@@ -693,11 +693,11 @@ void maintain_trap(struct GuiButton *gbtn)
     if (is_trap_placeable(my_player_number, i))
     {
         gbtn->field_1B = 0;
-        gbtn->field_0 |= 0x08;
+        gbtn->flags |= 0x08;
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        gbtn->field_0 &= ~0x08;
+        gbtn->flags &= ~0x08;
     }
 }
 
@@ -712,11 +712,11 @@ void maintain_door(struct GuiButton *gbtn)
     if (dungeon->door_placeable[trap_dat->field_4%DOOR_TYPES_COUNT])
     {
         gbtn->field_1B = 0;
-        set_flag_byte(&gbtn->field_0, 0x08, true);
+        set_flag_byte(&gbtn->flags, 0x08, true);
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        set_flag_byte(&gbtn->field_0, 0x08, false);
+        set_flag_byte(&gbtn->flags, 0x08, false);
     }
 }
 
@@ -737,11 +737,11 @@ void maintain_big_trap(struct GuiButton *gbtn)
       || ((i == 18) && (dungeon->door_amount[n] > 0)) )
     {
         gbtn->field_1B = 0;
-        gbtn->field_0 |= 0x08;
+        gbtn->flags |= 0x08;
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        gbtn->field_0 &= ~0x08;
+        gbtn->flags &= ~0x08;
     }
 }
 
@@ -839,7 +839,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     int spridx;
     long cr_total;
     cr_total = 0;
-    if ((kind > 0) && (kind < CREATURE_TYPES_COUNT) && (gbtn->field_0 & 0x08))
+    if ((kind > 0) && (kind < CREATURE_TYPES_COUNT) && (gbtn->flags & 0x08))
     {
         dungeon = get_players_num_dungeon(my_player_number);
         spridx = gbtn->field_29;
@@ -1037,30 +1037,30 @@ void maintain_event_button(struct GuiButton *gbtn)
   {
     gbtn->field_1B |= 0x4000u;
     gbtn->field_29 = 0;
-    set_flag_byte(&gbtn->field_0, 0x08, false);
+    set_flag_byte(&gbtn->flags, 0x08, false);
     gbtn->field_1 = 0;
     gbtn->field_2 = 0;
     gbtn->tooltip_id = 201;
     return;
   }
   event = &game.event[evnt_idx];
-  if ((event->kind == 3) && (new_objective))
+  if ((event->kind == EvKind_Objective) && (new_objective))
   {
     activate_event_box(evnt_idx);
   }
   gbtn->field_29 = event_button_info[event->kind].field_0;
-  if ((event->kind == 2) && ((event->mappos_x != 0) || (event->mappos_y != 0))
+  if ((event->kind == EvKind_Fight) && ((event->mappos_x != 0) || (event->mappos_y != 0))
       && ((game.play_gameturn & 0x01) != 0))
   {
     gbtn->field_29 += 2;
   } else
-  if ((event->kind == 21) && (event->target < 0)
+  if ((event->kind == EvKind_Information) && (event->target < 0)
      && ((game.play_gameturn & 0x01) != 0))
   {
     gbtn->field_29 += 2;
   }
-  gbtn->tooltip_id = event_button_info[event->kind].field_4;
-  set_flag_byte(&gbtn->field_0, 0x08, true);
+  gbtn->tooltip_id = event_button_info[event->kind].tooltip_id;
+  set_flag_byte(&gbtn->flags, 0x08, true);
   gbtn->field_1B = 0;
 }
 

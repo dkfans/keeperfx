@@ -23,6 +23,7 @@
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
+#include "config_strings.h"
 #include "game_saves.h"
 #include "gui_draw.h"
 #include "gui_frontbtns.h"
@@ -132,7 +133,7 @@ void gui_load_game_maintain(struct GuiButton *gbtn)
   else
       slot_num = 0;
   centry = &save_game_catalogue[slot_num];
-  set_flag_byte(&gbtn->field_0, 0x08, ((centry->flags & CEF_InUse) != 0));
+  set_flag_byte(&gbtn->flags, 0x08, ((centry->flags & CEF_InUse) != 0));
 }
 
 void gui_load_game(struct GuiButton *gbtn)
@@ -172,17 +173,17 @@ void gui_save_game(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   long slot_num;
   player = get_my_player();
-  if (strcasecmp((char *)gbtn->content, gui_strings[342]) != 0) // "UNUSED"
+  if (strcasecmp((char *)gbtn->content, gui_string(GUIStr_SlotUnused)) != 0)
   {
       slot_num = gbtn->field_1B%TOTAL_SAVE_SLOTS_COUNT;
       fill_game_catalogue_slot(slot_num,(char *)gbtn->content);
       if (save_game(slot_num))
       {
-        output_message(SMsg_GameSaved, 0, true);
+          output_message(SMsg_GameSaved, 0, true);
       } else
       {
-        ERRORLOG("Error in save!");
-        create_error_box(536);
+          ERRORLOG("Error in save!");
+          create_error_box(GUIStr_ErrorSaving);
       }
   }
   set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
@@ -192,7 +193,7 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
 {
     struct CatalogueEntry *centry;
     long slot_num;
-    char *text;
+    const char *text;
     SYNCDBG(6,"Starting");
     for (slot_num=0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
@@ -200,7 +201,7 @@ void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
         if ((centry->flags & CEF_InUse) != 0)
           text = centry->textname;
         else
-          text = gui_strings[342]; // UNUSED
+          text = gui_string(GUIStr_SlotUnused);
         strncpy(input_string[slot_num], text, SAVE_TEXTNAME_LEN);
     }
 }
@@ -244,12 +245,12 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
 
 void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->field_0, 0x08, (load_game_scroll_offset != 0));
+  set_flag_byte(&gbtn->flags, 0x08, (load_game_scroll_offset != 0));
 }
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->field_0, 0x08, (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1));
+  set_flag_byte(&gbtn->flags, 0x08, (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1));
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)

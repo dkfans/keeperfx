@@ -162,11 +162,18 @@ struct SpellData *get_power_data(int pwr_idx)
   return &spell_data[0];
 }
 
+long get_power_name_strindex(int pwr_idx)
+{
+  if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
+    return 0;
+  return spell_data[pwr_idx].name_stridx;
+}
+
 long get_power_description_strindex(int pwr_idx)
 {
   if ((pwr_idx < 0) || (pwr_idx >= POWER_TYPES_COUNT))
     return 0;
-  return spell_data[pwr_idx].field_D;
+  return spell_data[pwr_idx].tooltip_stridx;
 }
 
 TbBool power_data_is_invalid(const struct SpellData *pwrdata)

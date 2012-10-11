@@ -23,6 +23,7 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "config_strings.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -216,7 +217,7 @@ unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
  */
 unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
 unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
-unsigned short specials_text[] = {201, 420, 421, 422, 423, 424, 425, 426, 427, 0};
+unsigned short specials_text[] = {GUIStr_Empty, 420, 421, 422, 423, 424, 425, 426, 427, 0};
 
 /******************************************************************************/
 DLLIMPORT long _DK_move_object(struct Thing *thing);

@@ -26,6 +26,7 @@
 
 #include "globals.h"
 #include "config.h"
+#include "config_strings.h"
 #include "thing_doors.h"
 #include "thing_creature.h"
 #include "creature_instances.h"
@@ -146,7 +147,7 @@ const struct NamedCommand creature_graphics_desc[] = {
   };
 
 struct CreatureData creature_data[] = {
-  {0x00,  0, 201},
+  {0x00,  0, GUIStr_Empty},
   {0x05, 57, 277},
   {0x01, 58, 275},
   {0x01, 59, 285},
@@ -177,7 +178,7 @@ struct CreatureData creature_data[] = {
   {0x02, 84, 271},
   {0x02, 85, 269},
   {0x01,126, 278},
-  {0x00,  0, 201},
+  {0x00,  0, GUIStr_Empty},
   };
 
 /******************************************************************************/

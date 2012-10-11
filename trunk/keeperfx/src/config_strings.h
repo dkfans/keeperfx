@@ -37,7 +37,7 @@ enum GUIStrings {
     GUIStr_ExperienceDesc,
     GUIStr_HungerDesc,
     GUIStr_Cancel,
-    GUIStr_CreatureSpellDesc = 226, // range 226..257
+    GUIStr_CreatureSpellDesc = 226, // range 226..257, per-campaign
     GUIStr_CreatureKind1 = 258, // range 258..286, per-campaign
     GUIStr_CreatureQueryDesc = 287,
     GUIStr_SelectGame,
@@ -297,8 +297,8 @@ enum GUIStrings {
     GUIStr_EventCreaturePayday,
     GUIStr_EventNewSpellPickedUp,
     GUIStr_EventNewRoomTakenOver,
-    GUIStr_EventNewAreaDiscovered,
-    GUIStr_EventInformation,
+    GUIStr_EventAreaDiscovered,
+    GUIStr_EventInformation = 670,
     GUIStr_EventRoomLost,
     GUIStr_EventHeartAttacked,
     GUIStr_EventFight,
@@ -308,7 +308,7 @@ enum GUIStrings {
     GUIStr_EventNewRoomResearched = 677,
     GUIStr_EventNewTrap,
     GUIStr_EventNewDoor,
-    GUIStr_EventNewCreature,
+    GUIStr_EventNewCreature = 680,
     GUIStr_EventCreatureAnnoyed,
     GUIStr_EventNoMoreLivingSpace,
     GUIStr_EventAlarmTriggered,
@@ -318,28 +318,28 @@ enum GUIStrings {
     GUIStr_EventTrapCrateFound,
     GUIStr_EventDoorCrateFound,
     GUIStr_EventDnSpecialFound = 689,
-    GUIStr_EventTreasureRoomFullDesc = 690,
-    GUIStr_EventCreatureScavengedDesc,
+    GUIStr_EventTreasrRoomFullDesc = 690,
+    GUIStr_EventCreatrScavngDesc,
     GUIStr_EventCreaturePaydayDesc,
-    GUIStr_EventNewSpellPickedUpDesc,
-    GUIStr_EventNewRoomTakenOverDesc,
-    GUIStr_EventNewAreaDiscoveredDesc,
+    GUIStr_EventSpellPickedUpDesc,
+    GUIStr_EventRoomTakenOverDesc,
+    GUIStr_EventAreaDiscoveredDesc,
     GUIStr_EventInformationDesc,
     GUIStr_EventRoomLostDesc,
     GUIStr_EventDnHeartAttackedDesc = 698,
     GUIStr_EventFightDesc,
-    GUIStr_EventObjectiveDesc,
+    GUIStr_EventObjectiveDesc = 700,
     GUIStr_EventBreachDesc,
     GUIStr_EventNewSpellResrchDesc,
     GUIStr_EventNewRoomResrchDesc,
     GUIStr_EventNewTrapDesc,
     GUIStr_EventNewDoorDesc,
     GUIStr_EventNewCreatureDesc,
-    GUIStr_EventCreatureIsAnnoyedDesc,
+    GUIStr_EventCreatrAnnoyedDesc,
     GUIStr_EventNoMoreLivingSetDesc,
     GUIStr_EventAlarmTriggeredDesc,
-    GUIStr_EventRoomUnderAttackDesc,
-    GUIStr_EventNeedTreasureRoomDesc,
+    GUIStr_EventRoomUnderAttackDesc = 710,
+    GUIStr_EventNeedTreasrRoomDesc,
     GUIStr_EventCreaturesHungryDesc,
     GUIStr_EventTrapCrateFoundDesc,
     GUIStr_EventDoorCrateFoundDesc,
@@ -361,7 +361,7 @@ enum GUIStrings {
     GUIStr_DefensiveAssistDesc,
     GUIStr_ConstructionAssistDesc,
     GUIStr_MoveOnlyAssistDesc,
-    GUIStr_PickCreatrMostExpdesc = 733,
+    GUIStr_PickCreatrMostExpDesc = 733,
     GUIStr_PickCreatrIdleDesc,
     GUIStr_PickCreatrWorkingDesc,
     GUIStr_PickCreatrFightingDesc,
@@ -420,7 +420,55 @@ enum GUIStrings {
 };
 
 enum CampaignStrings {
+    CpgStr_SuccessLandIsYours = 0,
+    CpgStr_LevelEventMessage = 1, // range 1..200
     CpgStr_Empty = 201,
+    CpgStr_LevelName = 202, // range 202..221
+    CpgStr_CreatureSpellDesc = 226, // range 226..257
+    CpgStr_CreatureKind1 = 258, // range 258..286
+    CpgStr_TerrainEmptyLairDesc = 319,
+    CpgStr_TerrainVarDesc1 = 324, // range 324..332
+    CpgStr_LevelWon = 334,
+    CpgStr_LevelLost,
+    CpgStr_CreditsHead1 = 362, // range 362..394
+    CpgStr_SpecRevealMapDesc = 420,
+    CpgStr_SpecResurrectCreatureDesc,
+    CpgStr_SpecTransferCreatureDesc,
+    CpgStr_SpecStealHeroDesc,
+    CpgStr_SpecMultiplyCreaturesDesc,
+    CpgStr_SpecIncreaseLevelDesc,
+    CpgStr_SpecMakeSafeDesc,
+    CpgStr_SpecLocateHiddenWorldDesc,
+    CpgStr_SpecResurrectCreature,
+    CpgStr_SpecTransferCreature,
+    CpgStr_BonusLevel = 430,
+    CpgStr_TerrainVarDesc2 = 544, // range 544..545
+    CpgStr_CreatureKind2 = 546, // range 546..547
+    CpgStr_RoomKind1 = 552, // range 552..566
+    CpgStr_BoulderTrap = 578,
+    CpgStr_TrapKindAlarm,
+    CpgStr_TrapKindPoisonGas,
+    CpgStr_TrapKindLightning,
+    CpgStr_TrapKindWordOfPower,
+    CpgStr_TrapKindLava,
+    CpgStr_TrapBoulderDesc = 584,
+    CpgStr_AlarmTrapDesc,
+    CpgStr_PoisonGasTrapDesc,
+    CpgStr_LightningTrapDesc,
+    CpgStr_WordOfPowerTrapDesc,
+    CpgStr_LavaTrapDesc,
+    CpgStr_DoorKindWooden = 590,
+    CpgStr_DoorKindBraced,
+    CpgStr_DoorKindIron,
+    CpgStr_DoorKindMagic,
+    CpgStr_WoodenDoorDesc = 594,
+    CpgStr_BracedDoorDesc,
+    CpgStr_IronDoorDesc,
+    CpgStr_MagicDoorDesc,
+    CpgStr_RoomKind2 = 598, // range 598..614
+    CpgStr_RoomDesc1 = 615, // range 615..629
+    CpgStr_PowerKind1 = 630, // range 630..646
+    CpgStr_PowerDesc1 = 647, // range 647..663
 };
 
 /******************************************************************************/

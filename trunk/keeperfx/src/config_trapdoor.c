@@ -25,6 +25,7 @@
 #include "bflib_dernc.h"
 
 #include "config.h"
+#include "config_strings.h"
 #include "thing_doors.h"
 
 #include "keeperfx.hpp"
@@ -181,8 +182,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       {
           trapst = &trapdoor_conf.trap_cfgstats[i];
           LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
-          trapst->name_stridx = 201;
-          trapst->tooltip_stridx = 201;
+          trapst->name_stridx = GUIStr_Empty;
+          trapst->tooltip_stridx = GUIStr_Empty;
           if (i < trapdoor_conf.trap_types_count)
           {
               trap_desc[i].name = trapst->code_name;
@@ -377,7 +378,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
       {
           doorst = &trapdoor_conf.door_cfgstats[i];
           LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
-          doorst->name_stridx = 201;
+          doorst->name_stridx = GUIStr_Empty;
           if (i < trapdoor_conf.door_types_count)
           {
               door_desc[i].name = doorst->code_name;

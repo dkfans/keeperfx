@@ -220,7 +220,7 @@ TbBool frontend_high_score_table_input(void)
 
 void frontend_maintain_high_score_ok_button(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->field_0, 0x08, (high_score_entry_input_active == -1));
+  set_flag_byte(&gbtn->flags, 0x08, (high_score_entry_input_active == -1));
 }
 
 void add_score_to_high_score_table(void)

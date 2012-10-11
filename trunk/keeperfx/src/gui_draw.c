@@ -236,7 +236,7 @@ void draw_message_box_at(long startx, long starty, long box_width, long box_heig
     }
 }
 
-int draw_text_box(char *text)
+int draw_text_box(const char *text)
 {
     //return _DK_draw_text_box(text);
     long spritesy,spritesx;
