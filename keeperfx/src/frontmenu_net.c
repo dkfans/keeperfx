@@ -941,7 +941,7 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
   LbTextSetFont(frontend_font[fntidx]);
   // Set drawing window
   int height;
-  lbDisplay.DrawFlags = 0x0020;
+  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   height = LbTextHeight(net_service[srvidx]);
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
   //Draw the text

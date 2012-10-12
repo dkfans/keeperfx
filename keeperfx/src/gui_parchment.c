@@ -279,9 +279,9 @@ void draw_overhead_room_icons(long x, long y)
       {
           room_visibility = abs(rkind_select - room->kind);
           if ((room_visibility < 2) || (room_visibility >= 4))
-            lbDisplay.DrawFlags &= ~0x0004;
+            lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
           else
-              lbDisplay.DrawFlags |= 0x0004;
+              lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
           if (room_visibility < 4)
           {
             if (subtile_revealed(room->central_stl_x, room->central_stl_y, player->id_number))
@@ -300,7 +300,7 @@ void draw_overhead_room_icons(long x, long y)
           }
         }
     }
-    lbDisplay.DrawFlags &= ~0x0004;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
 }
 
 void draw_overhead_things(long x, long y)
@@ -383,7 +383,7 @@ void draw_overhead_things(long x, long y)
         if (dungeon->field_884 > 0)
         {
             struct MagicStats *magstat;
-            lbDisplay.DrawFlags = 0x0010;
+            lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010;
             magstat = &game.magic_stats[PwrK_CALL2ARMS];
             k = (4 * ((i + game.play_gameturn) & 7) * subtile_slab_fast(magstat->power[dungeon->field_883]));
             pos_x = x + (4 * subtile_slab_fast(dungeon->field_881));
@@ -657,10 +657,10 @@ void draw_zoom_box(void)
       }
       scr_y += subtile_size;
     }
-    lbDisplay.DrawFlags |= 0x0010;
+    lbDisplay.DrawFlags |= Lb_SPRITE_UNKNOWN0010;
     LbDrawBox(scrtop_x/pixel_size, scrtop_y/pixel_size,
         (map_tiles_x*subtile_size)/pixel_size, (map_tiles_y*subtile_size)/pixel_size, 0);
-    set_flag_word(&lbDisplay.DrawFlags,0x0010,false);
+    set_flag_word(&lbDisplay.DrawFlags,Lb_SPRITE_UNKNOWN0010,false);
     // Draw thing sprites on the map
     LbScreenSetGraphicsWindow( (scrtop_x+2)/pixel_size, (scrtop_y+2)/pixel_size,
         (map_tiles_x*subtile_size-4)/pixel_size, (map_tiles_y*subtile_size-4)/pixel_size);

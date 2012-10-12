@@ -637,18 +637,18 @@ void gui_draw_box(struct GuiBox *gbox)
   pos_x = gbox->pos_x + 8;
   if (gbox != gui_get_highest_priority_box())
   {
-    lbDisplay.DrawFlags |= 0x0004;
+    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[6][0][0]);
-    if (lbDisplay.DrawFlags & 0x0010)
+    if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
     {
       LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
     } else
     {
-      lbDisplay.DrawFlags ^= 0x0010;
+      lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
       LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[0][0][0]);
-      lbDisplay.DrawFlags ^= 0x0010;
+      lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
     }
-    lbDisplay.DrawFlags ^= 0x0004;
+    lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
     lbDisplay.DrawColour = colours[3][3][3];
     goptn = gbox->optn_list;
     while (goptn->label[0] != '!')
@@ -670,18 +670,18 @@ void gui_draw_box(struct GuiBox *gbox)
     }
   } else
   {
-    lbDisplay.DrawFlags |= 0x0004;
+    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[12][0][0]);
-    if (lbDisplay.DrawFlags & 0x0010)
+    if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
     {
       LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
     } else
     {
-      lbDisplay.DrawFlags ^= 0x0010;
+      lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
       LbDrawBox(gbox->pos_x/pixel_size, gbox->pos_y/pixel_size, gbox->width/pixel_size, gbox->height/pixel_size, colours[2][0][0]);
-      lbDisplay.DrawFlags ^= 0x0010;
+      lbDisplay.DrawFlags ^= Lb_SPRITE_UNKNOWN0010;
     }
-    lbDisplay.DrawFlags ^= 0x0004;
+    lbDisplay.DrawFlags ^= Lb_SPRITE_TRANSPAR4;
     goptn = gbox->optn_list;
     while (goptn->label[0] != '!')
     {
