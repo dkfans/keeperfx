@@ -91,7 +91,7 @@ void frontbirthday_draw(void)
     frontend_copy_background();
     LbTextSetWindow(70, 70, 500, 340);
     LbTextSetFont(frontstory_font);
-    lbDisplay.DrawFlags = 0x0100;
+    lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010;
     const char *name=get_team_birthday();
     if ( name != NULL )
     {
@@ -180,7 +180,7 @@ void draw_eastegg(void)
       eastegg_skeksis_cntr++;
       LbTextSetFont(winfont);
       text=buf_sprintf("Dene says a big 'Hello' to Goth Buns, Tarts and Barbies");
-      lbDisplay.DrawFlags = 0x0040;
+      lbDisplay.DrawFlags = Lb_TEXT_UNKNOWN0040;
       for (i=0; i<30; i+=2)
       {
         pos = game.play_gameturn - i;
@@ -188,7 +188,7 @@ void draw_eastegg(void)
         LbTextDraw((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
           (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, text);
       }
-      set_flag_word(&lbDisplay.DrawFlags,0x0040,false);
+      set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_UNKNOWN0040,false);
       pos=game.play_gameturn;
       LbTextDraw((LbCosL(16*(long)pos) / 512 + 120) / pixel_size,
         (LbSinL(32*(long)pos) / 512 + 200) / pixel_size, text);
@@ -200,7 +200,7 @@ void draw_eastegg(void)
   if (game.eastegg01_cntr >= eastegg_feckoff_codes.length)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= ~0x0040;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
     LbTextSetFont(winfont);
     i = 0;
     text = buf_sprintf("Simon says Hi to everyone he knows...");
@@ -240,7 +240,7 @@ void draw_eastegg(void)
   if (game.eastegg02_cntr >= eastegg_jlw_codes.length)
   {
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
-    lbDisplay.DrawFlags &= 0xFFBFu;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
     LbTextSetFont(winfont);
     i = 1;
     text = buf_sprintf("Alex, hopefully lying on a beach with Jo, says Hi");

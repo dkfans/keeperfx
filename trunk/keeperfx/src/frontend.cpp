@@ -1232,7 +1232,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
   struct FrontEndButtonData *febtn_data;
   long i;
   i = (long)gbtn->content;
-  lbDisplay.DrawFlags = 0x20;
+  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   febtn_data = &frontend_button_info[i%FRONTEND_BUTTON_INFO_COUNT];
   if ((gbtn->flags & 0x08) == 0)
     LbTextSetFont(frontend_font[3]);
@@ -1289,8 +1289,8 @@ void draw_scrolling_button_string(struct GuiButton *gbtn, const char *text)
   unsigned short flg_mem;
   long text_height,area_height;
   flg_mem = lbDisplay.DrawFlags;
-  lbDisplay.DrawFlags &= 0xFFBF;
-  lbDisplay.DrawFlags |= 0x0100;
+  lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
+  lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
   LbTextSetWindow(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
         gbtn->width/pixel_size, gbtn->height/pixel_size);
   scrollwnd = (struct TextScrollWindow *)gbtn->content;
@@ -2184,7 +2184,7 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
     i = 3;
   else
     i = 1;
-  lbDisplay.DrawFlags = 0x20;
+  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   LbTextSetFont(frontend_font[i]);
   i = LbTextLineHeight();
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
@@ -2292,7 +2292,7 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
     i = 3;
   else*/
     i = 1;
-  lbDisplay.DrawFlags = 0x20;
+  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   LbTextSetFont(frontend_font[i]);
   i = LbTextLineHeight();
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, i);
@@ -2839,14 +2839,14 @@ void draw_active_menus_buttons(void)
             {
               if (gmnu->menu_init != NULL)
                 if (gmnu->menu_init->fade_time)
-                  lbDisplay.DrawFlags |= 0x04;
+                  lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
             }
             callback = gmnu->draw_cb;
             if (callback != NULL)
               callback(gmnu);
             if (gmnu->visible == 2)
               draw_menu_buttons(gmnu);
-            lbDisplay.DrawFlags &= ~0x04;
+            lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
         }
     }
     SYNCDBG(9,"Finished");
