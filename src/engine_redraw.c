@@ -157,7 +157,7 @@ void message_draw(void)
   for (i=0; i < game.active_messages_count; i++)
   {
       LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-      set_flag_word(&lbDisplay.DrawFlags,0x0040,false);
+      set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_UNKNOWN0040,false);
       LbTextDraw((x+32)/pixel_size, y/pixel_size, game.messages[i].text);
       draw_gui_panel_sprite_left(x, y, 488+game.messages[i].field_40);
       y += pixel_size * h;
@@ -823,7 +823,7 @@ void redraw_display(void)
     }
     //LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     LbTextSetFont(winfont);
-    lbDisplay.DrawFlags &= 0xFFBFu;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
     if ((player->field_0 & 0x04) != 0)
     {
@@ -863,7 +863,7 @@ void redraw_display(void)
             pos_x = (MyScreenWidth-w)/2;
           pos_y=16;
           i = LbTextLineHeight();
-          lbDisplay.DrawFlags = 0x0100;
+          lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
           h = pixel_size*i + pixel_size*i/2;
           LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
           draw_slab64k(pos_x, pos_y, w, h);
@@ -891,7 +891,7 @@ void redraw_display(void)
       pos_x = MyScreenWidth - w - 16;
       pos_y = 16;
       i = LbTextLineHeight();
-      lbDisplay.DrawFlags = 0x0100;
+      lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
       h = pixel_size*i + pixel_size*i/2;
       LbTextSetWindow(pos_x/pixel_size, pos_y/pixel_size, w/pixel_size, h/pixel_size);
       draw_slab64k(pos_x, pos_y, w, h);

@@ -245,9 +245,9 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
     else
         val_in_range = 1;
     if ( val_in_range )
-      lbDisplay.DrawFlags |= 0x0001;
+      lbDisplay.DrawFlags |= Lb_SPRITE_ONECOLOUR1;
     else
-      lbDisplay.DrawFlags &= ~0x0001;
+      lbDisplay.DrawFlags &= ~Lb_SPRITE_ONECOLOUR1;
     if (kspr->field_8 == 0)
     {
         kspr += a3;

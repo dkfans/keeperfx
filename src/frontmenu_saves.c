@@ -233,7 +233,7 @@ void frontend_draw_load_game_button(struct GuiButton *gbtn)
   nfont = frontend_button_info[gbidx%FRONTEND_BUTTON_INFO_COUNT].font_index;
   if ((gbidx != 0) && (frontend_mouse_over_button == gbidx))
       nfont = 2;
-  lbDisplay.DrawFlags = 0x20;
+  lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   LbTextSetFont(frontend_font[nfont]);
   h = LbTextLineHeight();
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, h);

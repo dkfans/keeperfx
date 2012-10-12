@@ -967,7 +967,7 @@ void draw_engine_number(struct Number *num)
     long w,h,pos_x;
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
-    lbDisplay.DrawFlags &= ~0x0001;
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_ONECOLOUR1;
     spr = &button_sprite[71];
     w = spr->SWidth;
     h = spr->SHeight;
@@ -2960,9 +2960,9 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     else
         needs_xflip = 1;
     if ( needs_xflip )
-      lbDisplay.DrawFlags |= 0x0001;
+      lbDisplay.DrawFlags |= Lb_SPRITE_ONECOLOUR1;
     else
-      lbDisplay.DrawFlags &= ~0x0001;
+      lbDisplay.DrawFlags &= ~Lb_SPRITE_ONECOLOUR1;
     sprite_group = sprgroup;
     lltemp = 4 - ((((long)kspr_frame + 128) & 0x7FF) >> 8);
     sprite_delta = abs(lltemp);
@@ -3134,16 +3134,16 @@ void prepare_jonty_remap_and_scale(long *scale, const struct JontySpr *jspr)
     *scale = (thelens * (long)thing->field_46) / fade;
     if ((thing->field_4F & 0xC) != 0)
     {
-        lbDisplay.DrawFlags |= 0x0800u;
+        lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         shade_factor = thing->field_51;
         lbSpriteReMapPtr = &pixmap.ghost[256 * shade_factor];
     } else
     if (shade_factor == 32)
     {
-        lbDisplay.DrawFlags &= ~0x0800u;
+        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
     } else
     {
-        lbDisplay.DrawFlags |= 0x0800u;
+        lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         lbSpriteReMapPtr = &pixmap.fade_tables[256 * shade_factor];
     }
 }
@@ -3169,12 +3169,12 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
     switch (thing->field_4F & 0x30)
     {
     case 0x10:
-        lbDisplay.DrawFlags |= 0x0008;
-        lbDisplay.DrawFlags &= ~0x0800;
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
     case 0x20:
-        lbDisplay.DrawFlags |= 0x0004;
-        lbDisplay.DrawFlags &= ~0x0800;
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
         break;
     case 0x30:
         EngineSpriteDrawUsingAlpha = 1;
@@ -3189,13 +3189,13 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
         {
           if (player->acamera->field_6 == 2)
           {
-              lbDisplay.DrawFlags |= 0x0800;
+              lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
               lbSpriteReMapPtr = white_pal;
           }
         } else
         if ((thing->field_4F & 0x80) != 0)
         {
-            lbDisplay.DrawFlags |= 0x0800;
+            lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = red_pal;
             thing->field_4F &= ~0x80u;
         }

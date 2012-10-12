@@ -63,44 +63,50 @@ inline void reset_scrolling_tooltip(void)
     set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
 }
 
-inline void set_gui_tooltip_box(int bxtype,long stridx)
-{
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
-  strncpy(tool_tip_box.text, gui_string(stridx), TOOLTIP_MAX_LEN);
-  tool_tip_box.pos_x = GetMouseX();
-  tool_tip_box.pos_y = GetMouseY()+86;
-  tool_tip_box.field_809 = bxtype;
-}
-
 inline void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
 {
   set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
   va_list val;
   va_start(val, format);
-  vsprintf(tool_tip_box.text, format, val);
+  vsnprintf(tool_tip_box.text, TOOLTIP_MAX_LEN, format, val);
   va_end(val);
-  tool_tip_box.pos_x = GetMouseX();
-  tool_tip_box.pos_y = GetMouseY()+86;
+  if (bxtype != 0) {
+      tool_tip_box.pos_x = GetMouseX();
+      tool_tip_box.pos_y = GetMouseY()+86;
+  }
   tool_tip_box.field_809 = bxtype;
 }
 
 inline TbBool update_gui_tooltip_target(void *target)
 {
-  if (target != tool_tip_box.target)
-  {
-    help_tip_time = 0;
-    tool_tip_box.target = target;
-    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
-    return true;
-  }
-  return false;
+    if (target != tool_tip_box.target)
+    {
+        help_tip_time = 0;
+        tool_tip_box.target = target;
+        set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+        return true;
+    }
+    return false;
 }
 
 inline void clear_gui_tooltip_target(void)
 {
-  help_tip_time = 0;
-  tool_tip_box.target = NULL;
-  set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+    help_tip_time = 0;
+    tool_tip_box.target = NULL;
+    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+}
+
+inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
+{
+    if (gbtn != tool_tip_box.gbutton)
+    {
+        tool_tip_box.gbutton = gbtn;
+        tool_tip_box.pos_x = GetMouseX();
+        tool_tip_box.pos_y = GetMouseY()+86;
+        tool_tip_box.field_809 = 0;
+        return true;
+    }
+    return false;
 }
 
 inline void clear_gui_tooltip_button(void)
@@ -126,7 +132,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
     {
         trapst = get_trap_model_stats(thing->model);
-        set_gui_tooltip_box(4,trapst->name_stridx);
+        set_gui_tooltip_box_fmt(4,"%s",cmpgn_string(trapst->name_stridx));
     } else
     {
         help_tip_time++;
@@ -151,7 +157,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
       update_gui_tooltip_target(thing);
-      set_gui_tooltip_box(5,specials_text[box_thing_to_special(thing)]);
+      set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(specials_text[box_thing_to_special(thing)]));
       return true;
   }
   // Find a spellbook to show tooltip for
@@ -160,7 +166,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   {
     update_gui_tooltip_target(thing);
     i = book_thing_to_magic(thing);
-    set_gui_tooltip_box(5,get_power_name_strindex(i));
+    set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(get_power_name_strindex(i)));
     return true;
   }
   // Find a workshop crate to show tooltip for
@@ -179,7 +185,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
         doorst = get_door_model_stats(box_thing_to_door_or_trap(thing));
         i = doorst->name_stridx;
     }
-    set_gui_tooltip_box(5,i);
+    set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(i));
     return true;
   }
   if (!settings.tooltips_on)
@@ -193,7 +199,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
-        set_gui_tooltip_box(5,545); // Hero Gate tooltip
+          set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(545)); // Hero Gate tooltip
       } else
       {
         help_tip_time++;
@@ -207,7 +213,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
       {
         crdata = creature_data_get(objdat->related_creatr_model);
-        set_gui_tooltip_box_fmt(5,"%s %s", gui_string(crdata->namestr_idx), gui_strings[609]); // (creature) Lair
+        set_gui_tooltip_box_fmt(5,"%s %s", cmpgn_string(crdata->namestr_idx), cmpgn_string(609)); // (creature) Lair
       } else
       {
         help_tip_time++;
@@ -230,13 +236,13 @@ short setup_land_tooltips(struct Coord3d *pos)
   slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
   skind = slb->kind;
   slbattr = get_slab_kind_attrs(skind);
-  if (slbattr->tooltip_idx == 201)
+  if (slbattr->tooltip_idx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target((void *)skind);
   player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
   {
-    set_gui_tooltip_box(2,slbattr->tooltip_idx);
+      set_gui_tooltip_box_fmt(2,"%s",cmpgn_string(slbattr->tooltip_idx));
   } else
   {
     help_tip_time++;
@@ -256,13 +262,13 @@ short setup_room_tooltips(struct Coord3d *pos)
   if (room_is_invalid(room))
     return false;
   stridx = room_data[room->kind].msg1str_idx;
-  if (stridx == 201)
+  if (stridx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target(room);
   player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
   {
-    set_gui_tooltip_box(1,stridx);
+    set_gui_tooltip_box_fmt(1,"%s",cmpgn_string(stridx));
   } else
   {
     help_tip_time++;
@@ -307,38 +313,33 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
   text = gui_string(i);
   if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
   {
-    if (tool_tip_box.gbutton != NULL)
-        k = (long)tool_tip_box.gbutton->content;
-    else
-        k = -1;
-    player = get_player(k);
-    if (player->field_15[0] != '\0')
-      sprintf(tool_tip_box.text, "%s: %s", text, player->field_15);
-    else
-      sprintf(tool_tip_box.text, "%s", text);
+      if (tool_tip_box.gbutton != NULL)
+          k = (long)tool_tip_box.gbutton->content;
+      else
+          k = -1;
+      player = get_player(k);
+      if (player->field_15[0] != '\0')
+          set_gui_tooltip_box_fmt(0, "%s: %s", text, player->field_15);
+      else
+          set_gui_tooltip_box_fmt(0, "%s", text);
   } else
   if ((i == get_power_description_strindex(PwrK_CHICKEN)) && (dungeon->chickens_sacrificed > 16)) // Chicken spell tooltip easter egg
   {
-      strncpy(tool_tip_box.text, jtytext, TOOLTIP_MAX_LEN);
+      set_gui_tooltip_box_fmt(0, "%s", jtytext);
   } else
   if (i == GUIStr_PickCreatrMostExpDesc)
   {
-    if ( (gbtn->field_1B > 0) && (top_of_breed_list+gbtn->field_1B < CREATURE_TYPES_COUNT) )
-      k = breed_activities[top_of_breed_list+gbtn->field_1B];
-    else
-      k = get_players_special_digger_breed(my_player_number);
-    crdata = creature_data_get(k);
-    sprintf(tool_tip_box.text, "%-6s: %s", gui_string(crdata->namestr_idx), text);
+      if ( (gbtn->field_1B > 0) && (top_of_breed_list+gbtn->field_1B < CREATURE_TYPES_COUNT) )
+        k = breed_activities[top_of_breed_list+gbtn->field_1B];
+      else
+        k = get_players_special_digger_breed(my_player_number);
+      crdata = creature_data_get(k);
+      set_gui_tooltip_box_fmt(0, "%-6s: %s", cmpgn_string(crdata->namestr_idx), text);
   } else
   {
-    strncpy(tool_tip_box.text, text, TOOLTIP_MAX_LEN);
+      set_gui_tooltip_box_fmt(0, "%s", text);
   }
-  if (gbtn != tool_tip_box.gbutton)
-  {
-    tool_tip_box.gbutton = gbtn;
-    tool_tip_box.pos_x = GetMouseX();
-    tool_tip_box.pos_y = GetMouseY()+86;
-  }
+  update_gui_tooltip_button(gbtn);
 }
 
 TbBool gui_button_tooltip_update(int gbtn_idx)
@@ -371,11 +372,8 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
         }
     } else
     {
-        tool_tip_time = 0;
-        tool_tip_box.gbutton = gbtn;
-        tool_tip_box.pos_x = GetMouseX();
-        tool_tip_box.pos_y = GetMouseY()+86;
-        tool_tip_box.field_809 = 0;
+        clear_gui_tooltip_button();
+        update_gui_tooltip_button(gbtn);
     }
     return true;
   }
@@ -452,7 +450,7 @@ void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, lo
   if (tttext != NULL)
   {
     x = pos_x+26;
-    lbDisplay.DrawFlags &= 0xFFBFu;
+    lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
     y = pos_y - (ttheight+28);
     if (x > MyScreenWidth)
       x = MyScreenWidth;
@@ -542,7 +540,7 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   if (tttext == NULL)
     return;
   flg_mem = lbDisplay.DrawFlags;
-  lbDisplay.DrawFlags &= 0xFFBFu;
+  lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
   hdwidth = find_and_pad_string_width_to_first_character(tttext, ':');
   ttwidth = pixel_size * LbTextStringWidth(tttext);
   ttheight = pixel_size * LbTextStringHeight(tttext);

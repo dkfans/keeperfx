@@ -143,7 +143,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
   if ( xpos2 == xpos1 )
   {//Vertical line
     long idx = ypos2 - ypos1 + 1;
-    if ( lbDisplay.DrawFlags & 4 )
+    if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
     {
       unsigned short glass_idx = (unsigned char)colour << 8;
       do {
@@ -155,7 +155,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
       } while ( idx>0 );
     } else
     {
-      if ( lbDisplay.DrawFlags & 8 )
+      if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
       {
         unsigned short glass_idx = (unsigned char)colour;
         do
@@ -182,7 +182,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
   } else
   {//Horizontal line
     long idx = xpos2 - xpos1 + 1;
-    if ( lbDisplay.DrawFlags & 4 )
+    if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
     {
       unsigned short glass_idx = (unsigned char)colour << 8;
       do
@@ -197,7 +197,7 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
     }
     else
     {
-      if ( lbDisplay.DrawFlags & 8 )
+      if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
       {
         unsigned short glass_idx = (unsigned char)colour;
         do
@@ -327,7 +327,7 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
  */
 TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
 {
-  if (lbDisplay.DrawFlags & 0x0010)
+  if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
   {
     if ((width < 1) || (height < 1))
       return Lb_FAIL;
@@ -419,7 +419,7 @@ inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x, long y
         return Lb_OK;
       btm = sprHt - delta;
     }
-    if ((lbDisplay.DrawFlags & 0x0002) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR2) != 0)
     {
         spd->r = &lbDisplay.WScreen[x + (y+btm-1)*lbDisplay.GraphicsScreenWidth + left];
         spd->nextRowDelta = -lbDisplay.GraphicsScreenWidth;
@@ -1815,7 +1815,7 @@ TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long 
     SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
       return 1;
-    if ((lbDisplay.DrawFlags & 0x0800) != 0)
+    if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
         lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
     LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
     return LbSpriteDrawUsingScalingData(0,0,sprite);
@@ -1958,12 +1958,12 @@ void LbDrawPixelClip(long x, long y, TbPixel colour)
     int val;
     buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
     val = 0;
-    if ((lbDisplay.DrawFlags & 0x04) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
     {
         val = (colour << 8) + (*buf);
         *buf = lbDisplay.GlassMap[val];
     } else
-    if ((lbDisplay.DrawFlags & 0x08) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
     {
         val = ((*buf) << 8) + colour;
         *buf = lbDisplay.GlassMap[val];
@@ -2072,7 +2072,7 @@ static inline void LbDrawPixelClipSolid(long x, long y, TbPixel colour)
 void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
 {
     int na,nb,n;
-    if ((lbDisplay.DrawFlags & 0x04) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
     {
         nb = radius;
         n = 3 - 2 * radius;
@@ -2112,7 +2112,7 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             LbDrawPixelClipOpaq1(x + nb, y + na, colour);
         }
     } else
-    if ((lbDisplay.DrawFlags & 0x08) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
     {
         nb = radius;
         n = 3 - 2 * radius;
@@ -2197,7 +2197,7 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
 
 void LbDrawCircle(long x, long y, long radius, TbPixel colour)
 {
-    if ((lbDisplay.DrawFlags & 0x0010) != 0)
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010) != 0)
         LbDrawCircleOutline(x, y, radius, colour);
     else
         LbDrawCircleFilled(x, y, radius, colour);
@@ -2236,7 +2236,7 @@ void draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
   long offset = lbDisplay.GraphicsScreenWidth * y1 + x1;
   long x = x1;
   long y = y1;
-  if ( lbDisplay.DrawFlags & 4 )
+  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
   {
     if (apx <= apy)
     {
@@ -2276,7 +2276,7 @@ void draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
       }
     }
   } else
-  if ( lbDisplay.DrawFlags & 8 )
+  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
   {
       if ( apx <= apy )
       {
@@ -2457,7 +2457,7 @@ TbResult LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour)
 //Does no screen locking.
 void __fastcall LbDrawTriangle(long x1, long y1, long x2, long y2, long x3, long y3, TbPixel colour)
 {
-  if ( lbDisplay.DrawFlags & 0x0010 )
+  if ( lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010 )
   {
     LbDrawLine(x1, y1, x2, y2, colour);
     LbDrawLine(x2, y2, x3, y3, colour);
@@ -2478,7 +2478,7 @@ void __fastcall LbDrawBoxNoClip(long x, long y, unsigned long width, unsigned lo
   //Space between lines in video buffer
   unsigned long screen_delta = lbDisplay.GraphicsScreenWidth - width;
   unsigned char *screen_ptr = lbDisplay.GraphicsWindowPtr + x + lbDisplay.GraphicsScreenWidth * y;
-  if ( lbDisplay.DrawFlags & 4 )
+  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
   {
       unsigned short glass_idx = (unsigned char)colour << 8;
       do {
@@ -2494,7 +2494,7 @@ void __fastcall LbDrawBoxNoClip(long x, long y, unsigned long width, unsigned lo
           idxh--;
       } while ( idxh>0 );
   } else
-  if ( lbDisplay.DrawFlags & 8 )
+  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
   {
       unsigned short glass_idx = (unsigned char)colour;
       do {
