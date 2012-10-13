@@ -155,6 +155,8 @@ typedef unsigned char RoomKind;
 typedef unsigned short SpellKind;
 /** Type which stores PwrK_* values. */
 typedef unsigned short PowerKind;
+/** Type which stores EvKind_* values. */
+typedef unsigned char EventKind;
 typedef short BattleIndex;
 typedef long HitPoints;
 /** Type which stores TUFRet_* values. */

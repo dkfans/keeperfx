@@ -134,37 +134,6 @@ enum GameKinds {
     GKind_KeeperGame,
 };
 
-enum EventKinds {
-    EvKind_Nothing = 0,
-    EvKind_HeartAttacked,
-    EvKind_Fight,
-    EvKind_Objective,
-    EvKind_Breach,
-    EvKind_NewRoomResrch,
-    EvKind_NewCreature,
-    EvKind_NewSpellResrch,
-    EvKind_NewTrap,
-    EvKind_NewDoor,
-    EvKind_CreatrScavenged,
-    EvKind_TreasureRoomFull,
-    EvKind_CreaturePayday,
-    EvKind_AreaDiscovered,
-    EvKind_SpellPickedUp,
-    EvKind_RoomTakenOver,
-    EvKind_CreatrIsAnnoyed,
-    EvKind_NoMoreLivingSet,
-    EvKind_AlarmTriggered,
-    EvKind_RoomUnderAttack,
-    EvKind_NeedTreasureRoom,
-    EvKind_Information,
-    EvKind_RoomLost,
-    EvKind_CreatrHungry,
-    EvKind_TrapCrateFound,
-    EvKind_DoorCrateFound,
-    EvKind_DnSpecialFound,
-    EvKind_QuickInformation,
-};
-
 struct TbLoadFiles;
 struct RoomFlag;
 struct Number;

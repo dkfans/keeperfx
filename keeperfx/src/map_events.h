@@ -32,6 +32,37 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+enum EventKinds {
+    EvKind_Nothing = 0,
+    EvKind_HeartAttacked,
+    EvKind_Fight,
+    EvKind_Objective,
+    EvKind_Breach,
+    EvKind_NewRoomResrch,
+    EvKind_NewCreature,
+    EvKind_NewSpellResrch,
+    EvKind_NewTrap,
+    EvKind_NewDoor,
+    EvKind_CreatrScavenged, //10
+    EvKind_TreasureRoomFull,
+    EvKind_CreaturePayday,
+    EvKind_AreaDiscovered,
+    EvKind_SpellPickedUp,
+    EvKind_RoomTakenOver,
+    EvKind_CreatrIsAnnoyed,
+    EvKind_NoMoreLivingSet,
+    EvKind_AlarmTriggered,
+    EvKind_RoomUnderAttack,
+    EvKind_NeedTreasureRoom,//20
+    EvKind_Information,
+    EvKind_RoomLost,
+    EvKind_CreatrHungry,
+    EvKind_TrapCrateFound,
+    EvKind_DoorCrateFound,
+    EvKind_DnSpecialFound,
+    EvKind_QuickInformation,
+};
+
 struct Event;
 struct Dungeon;
 struct PlayerInfo;
@@ -42,12 +73,13 @@ extern struct EventTypeInfo event_button_info[28];
 /******************************************************************************/
 DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
 /******************************************************************************/
-long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
+long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
+long event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 void event_initialise_all(void);
 long event_move_player_towards_event(struct PlayerInfo *player, long var);
-struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
+struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 struct Event *event_allocate_free_event_structure(void);
-void event_initialise_event(struct Event *event, long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
+void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon);
 void event_delete_event(long plridx, long num);
 void go_on_then_activate_the_event_box(long plridx, long evidx);

@@ -47,6 +47,7 @@ enum TbButtonType {
     Lb_RADIOBTN  =  3,
     Lb_SLIDER    =  4,
     Lb_EDITBTN   =  5,
+    Lb_UNKNBTN6  =  6,
 };
 
 enum TbButtonFlags {
@@ -220,6 +221,8 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Cal
 void do_sound_menu_click(void);
 void do_sound_button_click(struct GuiButton *gbtn);
 void setup_input_field(struct GuiButton *gbtn, const char * empty_text);
+
+TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos_x, TbScreenPos pos_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

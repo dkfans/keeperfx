@@ -71,7 +71,6 @@ DLLIMPORT long _DK_add_ranged_attacker(struct Thing *fighter, struct Thing *enmt
 DLLIMPORT long _DK_add_melee_attacker(struct Thing *fighter, struct Thing *enmtng);
 DLLIMPORT long _DK_creature_has_ranged_weapon(struct Thing *thing);
 DLLIMPORT void _DK_battle_add(struct Thing *fighter, struct Thing *enmtng);
-DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsigned char combat_kind, unsigned char a4, long a5);
 DLLIMPORT void _DK_remove_thing_from_battle_list(struct Thing *thing);
 DLLIMPORT void _DK_insert_thing_in_battle_list(struct Thing *thing, unsigned short a2);
 DLLIMPORT void _DK_cleanup_battle(unsigned short a1);
@@ -278,11 +277,6 @@ long creature_can_have_combat_with_creature(const struct Thing *fighter, const s
     return _DK_creature_can_have_combat_with_creature(fighter, enmtng, a2, a4, a5);
 }
 
-long event_create_event_or_update_old_event(long a1, long a2, unsigned char a3, unsigned char a4, long a5)
-{
-    return _DK_event_create_event_or_update_old_event(a1, a2, a3, a4, a5);
-}
-
 void remove_thing_from_battle_list(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -468,7 +462,7 @@ void update_battle_events(BattleIndex battle_id)
         if (i == hero_player_number)
             continue;
         if ( (1 << i) & owner_flags ) {
-            event_create_event_or_update_old_event(pos_x, pos_y, 2, i, 0);
+            event_create_event_or_update_old_event(pos_x, pos_y, EvKind_Fight, i, 0);
         }
     }
 }

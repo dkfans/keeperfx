@@ -3958,7 +3958,7 @@ void set_general_information(long msg_id, long target, long x, long y)
     pos_y = (y << 8) + 128;
     pos_x = (x << 8) + 128;
   }
-  event_create_event(pos_x, pos_y, 21, player->id_number, -msg_id);
+  event_create_event(pos_x, pos_y, EvKind_Information, player->id_number, -msg_id);
 }
 
 void set_quick_information(long msg_id, long target, long x, long y)
@@ -3974,7 +3974,7 @@ void set_quick_information(long msg_id, long target, long x, long y)
       pos_y = (y << 8) + 128;
       pos_x = (x << 8) + 128;
     }
-    event_create_event(pos_x, pos_y, 27, player->id_number, -msg_id);
+    event_create_event(pos_x, pos_y, EvKind_QuickInformation, player->id_number, -msg_id);
 }
 
 void set_general_objective(long msg_id, long target, long x, long y)
@@ -4670,7 +4670,8 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
             }
 
             if (dungeon_has_room(dungeon, RoK_LAIR)) {
-                event_create_event_or_update_nearby_existing_event(0, 0, 17, dungeon->owner, 0);
+                event_create_event_or_update_nearby_existing_event(0, 0,
+                    EvKind_NoMoreLivingSet, dungeon->owner, 0);
             }
         }
     }

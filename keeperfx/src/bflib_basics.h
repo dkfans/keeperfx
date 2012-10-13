@@ -86,6 +86,7 @@ typedef unsigned long TbBigChecksum;
 typedef long Offset;
 typedef int TbFileHandle;
 typedef unsigned char TbBool;
+typedef short TbScreenPos;
 
 struct TbFileFind {
           char Filename[144];

@@ -66,18 +66,18 @@ DLLIMPORT void _DK_frontnet_draw_scroll_box_tab(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontnet_draw_scroll_box(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontnet_draw_slider_button(struct GuiButton *gbtn);
 /******************************************************************************/
-void gui_clear_buttons_not_over_mouse(int gmbtn_idx)
+void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
 {
   struct GuiButton *gbtn;
   int gidx;
   for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
   {
     gbtn = &active_buttons[gidx];
-    if (gbtn->flags & 0x01)
-      if ( ((gmbtn_idx == -1) || (gmbtn_idx != gidx)) &&
+    if (gbtn->flags & LbBtnF_Unknown01)
+      if ( ((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
            (gbtn->gbtype != Lb_RADIOBTN) && (gbtn != input_button) )
       {
-        set_flag_byte(&gbtn->flags,0x10,false);
+        set_flag_byte(&gbtn->flags,LbBtnF_Unknown10,false);
         gbtn->field_1 = 0;
         gbtn->field_2 = 0;
       }
