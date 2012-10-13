@@ -42,6 +42,23 @@ TbCharCount input_field_pos;
 /******************************************************************************/
 // Functions
 
+/**
+ * Checks if given position is over a specific button.
+ * @param gbtn The button which position is to be verified.
+ * @param pos_x The on-screen position X coord.
+ * @param pos_y The on-screen position Y coord.
+ * @return Returns true it position is over the button.
+ */
+TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos_x, TbScreenPos pos_y)
+{
+    TbScreenPos x = gbtn->pos_x;
+    TbScreenPos y = gbtn->pos_y;
+    if ( (pos_x >= x) && (pos_x < x + gbtn->width)
+      && (pos_y >= y) && (pos_y < y + gbtn->height) )
+        return true;
+    return false;
+}
+
 void do_sound_menu_click(void)
 {
     play_non_3d_sample_no_overlap(61);

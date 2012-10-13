@@ -126,7 +126,7 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
     }
     event_create_event_or_update_nearby_existing_event(
         get_subtile_center_pos(room->central_stl_x), get_subtile_center_pos(room->central_stl_y),
-        19, room->owner, 0);
+        EvKind_RoomUnderAttack, room->owner, 0);
     if (is_my_player_number(room->owner))
       output_message(SMsg_EnemyDestroyRooms, 400, true);
     cctrl = creature_control_get_from_thing(thing);

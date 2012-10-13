@@ -39,16 +39,22 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
+DLLIMPORT long _DK_event_create_event_or_update_nearby_existing_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
 DLLIMPORT void _DK_event_initialise_all(void);
 DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, long var);
-DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char a3, unsigned char dngn_id, long msg_id);
+DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
 DLLIMPORT void _DK_go_on_then_activate_the_event_box(long plridx, long val);
+DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsigned char combat_kind, unsigned char a4, long a5);
 
 /******************************************************************************/
-long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, unsigned char a3, unsigned char dngn_id, long msg_id)
+long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
 {
-    return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, a3, dngn_id, msg_id);
+    return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, evkind, dngn_id, msg_id);
+}
+
+long event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
+{
+    return _DK_event_create_event_or_update_old_event(map_x, map_y, evkind, dngn_id, msg_id);
 }
 
 void event_initialise_all(void)
@@ -61,7 +67,7 @@ long event_move_player_towards_event(struct PlayerInfo *player, long var)
   return _DK_event_move_player_towards_event(player,var);
 }
 
-struct Event *event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id)
+struct Event *event_create_event(long map_x, long map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
 {
   struct Dungeon *dungeon;
   struct Event *event;
@@ -109,7 +115,7 @@ struct Event *event_allocate_free_event_structure(void)
   return NULL;
 }
 
-void event_initialise_event(struct Event *event, long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id)
+void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
 {
   event->mappos_x = map_x;
   event->mappos_y = map_y;

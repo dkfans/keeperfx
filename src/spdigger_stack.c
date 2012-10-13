@@ -764,7 +764,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     {
         if (is_my_player_number(thing->owner))
             output_message(SMsg_RoomTreasrNeeded, 1000, true);
-        event_create_event_or_update_nearby_existing_event(0, 0, 20, thing->owner, 0);
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NeedTreasureRoom, thing->owner, 0);
         return 0;
     }
     // If we have it, is it unreachable, or just too small?
@@ -776,7 +776,7 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
     }
     if (is_my_player_number(thing->owner))
         output_message(SMsg_TreasuryTooSmall, 1000, true);
-    event_create_event_or_update_nearby_existing_event(0, 0, 11, thing->owner, 0);
+    event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, thing->owner, 0);
     return 0;
 }
 
@@ -1150,13 +1150,13 @@ long check_out_imp_stack(struct Thing *thing)
             {
                 event_create_event_or_update_nearby_existing_event(
                     get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                    14, thing->owner, sectng->index);
+                    EvKind_SpellPickedUp, thing->owner, sectng->index);
             } else
             if (thing_is_special_box(sectng))
             {
                 event_create_event_or_update_nearby_existing_event(
                     get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                    26, thing->owner, sectng->index);
+                    EvKind_DnSpecialFound, thing->owner, sectng->index);
             } else
             {
                 WARNLOG("Strange pickup (model %d) - no event",(int)sectng->model);
@@ -1234,13 +1234,13 @@ long check_out_imp_stack(struct Thing *thing)
             {
               event_create_event_or_update_nearby_existing_event(
                   get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                  24, thing->owner, sectng->index);
+                  EvKind_TrapCrateFound, thing->owner, sectng->index);
             } else
             if (i == 9)
             {
               event_create_event_or_update_nearby_existing_event(
                   get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                  25, thing->owner, sectng->index);
+                  EvKind_DoorCrateFound, thing->owner, sectng->index);
             } else
             {
                 WARNLOG("Strange pickup (class %d) - no event",(int)i);

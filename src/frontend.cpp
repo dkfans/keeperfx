@@ -694,23 +694,6 @@ void create_error_box(unsigned short msg_idx)
     }
 }
 
-/**
- * Checks if mouse pointer is currently over a specific button.
- * @return Returns true it mouse is over the button.
- */
-short check_if_mouse_is_over_button(struct GuiButton *gbtn)
-{
-  int mouse_x = GetMouseX();
-  int mouse_y = GetMouseY();
-  int x = gbtn->pos_x;
-  int y = gbtn->pos_y;
-  if ( (mouse_x >= x) && (mouse_x < x + gbtn->width)
-    && (mouse_y >= y) && (mouse_y < y + gbtn->height)
-    && (gbtn->flags & 0x04) )
-    return true;
-  return false;
-}
-
 void demo(void)
 {
   static long index = 0;

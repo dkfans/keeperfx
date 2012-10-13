@@ -1813,12 +1813,12 @@ long create_workshop_object_in_workshop_room(long plyr_idx, long tng_class, long
     {
     case TCls_Trap:
         if ( !dungeon->trap_placeable[tng_kind] ) {
-            event_create_event(thing->mappos.x.val, thing->mappos.y.val, TCls_Trap, plyr_idx, tng_kind);
+            event_create_event(thing->mappos.x.val, thing->mappos.y.val, EvKind_NewTrap, plyr_idx, tng_kind);
         }
         break;
     case TCls_Door:
         if ( !dungeon->door_placeable[tng_kind] ) {
-          event_create_event(thing->mappos.x.val, thing->mappos.y.val, TCls_Door, plyr_idx, tng_kind);
+          event_create_event(thing->mappos.x.val, thing->mappos.y.val, EvKind_NewDoor, plyr_idx, tng_kind);
         }
         break;
     default:
@@ -2140,7 +2140,7 @@ TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl
 void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    //_DK_change_room_map_element_ownership(room, plyr_idx);
+    //_DK_change_room_map_element_ownership(room, plyr_idx); return;
     dungeon = get_dungeon(plyr_idx);
     {
         struct SlabMap *slb;
@@ -2182,7 +2182,7 @@ void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
                 change_room_subtile_things_ownership(room, stl_x, stl_y, plyr_idx);
             }
         }
-        pannel_map_update(stl_x, stl_y, 3, 3);
+        pannel_map_update(start_stl_x, start_stl_y, 3, 3);
         // Per-slab code ends
         k++;
         if (k > room->slabs_count)
@@ -2334,7 +2334,8 @@ long claim_room(struct Room *room,struct Thing *claimtng)
     change_room_map_element_ownership(room, claimtng->owner);
     redraw_room_map_elements(room);
     do_room_unprettying(room, claimtng->owner);
-    event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 15, claimtng->owner, room->kind);
+    event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
+        EvKind_RoomTakenOver, claimtng->owner, room->kind);
     do_room_integration(room);
     thing_play_sample(claimtng, 116, 100, 0, 3, 0, 4, 256);
     output_room_takeover_message(room, oldowner, claimtng->owner);
@@ -2364,7 +2365,8 @@ long claim_enemy_room(struct Room *room,struct Thing *claimtng)
     change_room_map_element_ownership(room, claimtng->owner);
     redraw_room_map_elements(room);
     do_room_unprettying(room, claimtng->owner);
-    event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y), 15, claimtng->owner, room->kind);
+    event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
+        EvKind_RoomTakenOver, claimtng->owner, room->kind);
     do_room_integration(room);
     output_room_takeover_message(room, oldowner, claimtng->owner);
     return 1;

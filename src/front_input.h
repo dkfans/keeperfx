@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#pragma pack(1)
+
 enum GameKeys {
     Gkey_MoveUp = 0,
     Gkey_MoveDown,
@@ -62,8 +64,10 @@ enum GameKeys {
     Gkey_SwitchToMap,
 };
 
+struct GuiMenu;
+struct GuiButton;
 
-/******************************************************************************/
+#pragma pack()
 /******************************************************************************/
 void input(void);
 short get_inputs(void);
@@ -71,6 +75,7 @@ short get_screen_capture_inputs(void);
 int is_game_key_pressed(long key_id, long *val, TbBool ignore_mods);
 short game_is_busy_doing_gui_string_input(void);
 short get_gui_inputs(short gameplay_on);
+TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn);
 
 /******************************************************************************/
 #ifdef __cplusplus
