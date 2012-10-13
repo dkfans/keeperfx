@@ -191,6 +191,18 @@ short get_screen_capture_inputs(void)
   return false;
 }
 
+/**
+ * Checks if mouse pointer is currently over a specific button.
+ * @param gbtn The button which position is to be verified.
+ * @return Returns true it mouse is over the button.
+ */
+TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
+{
+    if ((gbtn->flags & 0x04) == 0)
+        return false;
+    return check_if_pos_is_over_button(gbtn, GetMouseX(), GetMouseY());
+}
+
 void clip_frame_skip(void)
 {
   if (game.frame_skip > 512)
@@ -1745,7 +1757,7 @@ short get_gui_inputs(short gameplay_on)
     for (idx=0; idx < ACTIVE_BUTTONS_COUNT; idx++)
     {
       struct GuiButton *gbtn = &active_buttons[idx];
-      if ((gbtn->flags & 0x01) && (gbtn->gbtype == 6))
+      if ((gbtn->flags & 0x01) && (gbtn->gbtype == Lb_UNKNBTN6))
           gbtn->field_1 = 0;
     }
   }

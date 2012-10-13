@@ -336,7 +336,7 @@ long instf_dig(struct Thing *thing, long *param)
         {
             event_create_event_or_update_nearby_existing_event(
                 get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                13, thing->owner, 0);
+                EvKind_AreaDiscovered, thing->owner, 0);
             if (is_my_player_number(thing->owner))
                 output_message(SMsg_DugIntoNewArea, 0, true);
         }
@@ -348,7 +348,7 @@ long instf_dig(struct Thing *thing, long *param)
         {
             event_create_event_or_update_nearby_existing_event(
                 get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                13, thing->owner, 0);
+                EvKind_AreaDiscovered, thing->owner, 0);
             if (is_my_player_number(thing->owner))
                 output_message(SMsg_DugIntoNewArea, 0, true);
         }
@@ -390,7 +390,7 @@ long instf_destroy(struct Thing *thing, long *param)
             MapCoord ccor_x,ccor_y;
             ccor_x = subtile_coord_center(room->central_stl_x);
             ccor_y = subtile_coord_center(room->central_stl_y);
-            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, 22, room->owner, 0);
+            event_create_event_or_update_nearby_existing_event(ccor_x, ccor_y, EvKind_RoomLost, room->owner, 0);
             claim_enemy_room(room, thing);
         }
         thing_play_sample(thing, 76, 100, 0, 3, 0, 2, 256);

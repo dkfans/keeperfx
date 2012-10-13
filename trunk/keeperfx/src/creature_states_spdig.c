@@ -527,7 +527,8 @@ short imp_converts_dungeon(struct Thing *thing)
                 MapCoord rstl_x,rstl_y;
                 rstl_x = subtile_coord_center(room->central_stl_x);
                 rstl_y = subtile_coord_center(room->central_stl_y);
-                event_create_event_or_update_nearby_existing_event(rstl_x, rstl_y, 19, room->owner, 0);
+                event_create_event_or_update_nearby_existing_event(rstl_x, rstl_y,
+                    EvKind_RoomUnderAttack, room->owner, 0);
                 if (is_my_player_number(room->owner) ) {
                   output_message(SMsg_EnemyDestroyRooms, 400, 1);
                 }
