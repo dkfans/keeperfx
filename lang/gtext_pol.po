@@ -27,8 +27,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Japanese\n"
-"X-Poedit-Country: JAPAN\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: guitext:0
@@ -519,382 +519,382 @@ msgstr "Odniosłeś wspaniałe zwycięstwo, panie. Wykazałeś się zamiłowanie
 #: guitext:97
 msgctxt "In-game message"
 msgid "You have discovered a devastating magical power. Target it against a creature to transform a fearsome monster into a clucking chicken. Marvellous."
-msgstr "ODKRYŁEŚ MAGICZNĄ SIŁĘ ZNISZCZENIA. SKIERUJ JĄ PRZECIWKO JAKIEMUŚ STWOROWI, A ZMIENISZ STRASZLIWE MONSTRUM W GODNE POLITOWANIA KURCZĘ. CUDOWNIE."
+msgstr "Odkryłeś magiczną siłę o druzgocącej mocy. Skieruj ją przeciwko jakiemuś stworowi, a zmienisz straszliwe monstrum w godne politowania kurczę. Cudownie."
 
 #: guitext:98
 msgctxt "In-game message"
 msgid "Your manufacturers have built an Alarm Trap. It will warn you of your enemies' approach and summon nearby creatures to deal with the intruders."
-msgstr "TWOI RZEMIEŚLNICY SKONSTRUOWALI CZUJNIK ALARMOWY. BĘDZIE ON OSTRZEGAŁ O NADCHODZĄCYM NIEPRZYJACIELU I WZYWAŁ POBLISKIE STWORY DO WALKI Z NAJEŹDŹCAMI."
+msgstr "Twoi rzemieślnicy skonstruowali Czujnik Alarmowy. Będzie on ostrzegał o nadchodzącym nieprzyjacielu i wzywał pobliskie stwory do walki z najeźdźcami."
 
 #: guitext:99
 msgctxt "In-game message"
 msgid "You have created a Magic Door. These are almost impregnable to all but magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
-msgstr "STWORZYŁEŚ DRZWI MAGICZNE. SĄ ONE PRAKTYCZNIE NIEPRZENIKLIWE DLA WSZYSTKIEGO POZA MAGIĄ. ZALECAM ZAINSTALOWANIE ICH W SKARBCU I PRZY SERCU LABIRYNTU."
+msgstr "Stworzyłeś Drzwi Magiczne. Są one praktycznie nieprzenikliwe dla wszystkiego poza magią. Zalecam zainstalowanie ich w Skarbcu i przy Sercu Labiryntu."
 
 #: guitext:100
 msgctxt "In-game message"
 msgid "Elsewhere in this fiery realm you have a rival Keeper to contend with. I advise extreme antisocial behaviour on your part."
-msgstr "GDZIEŚ W TYM GOREJĄCYM KRÓLESTWIE JEST TWÓJ RYWAL, Z KTÓRYM MUSISZ SOBIE PORADZIĆ. OCZEKUJEMY NADZWYCZAJ ASPOŁECZNEGO ZACHOWANIA Z TWOJEJ STRONY."
+msgstr "Gdzieś w tym gorejącym królestwie jest twój rywal, z którym musisz sobie poradzić. Oczekujemy nadzwyczaj aspołecznego zachowania z twojej strony."
 
 #: guitext:101
 msgctxt "In-game message"
 msgid "Notch up another victory, most malicious one. You have another land to add to your dismal collection."
-msgstr "MOŻESZ ODFAJKOWAĆ KOLEJNE ZWYCIĘSTWO, O NAJZŁOŚLIWSZY. OTO NASTĘPNA KRAINA ZOSTAJE DODANA DO TWEJ PONUREJ KOLEKCJI"
+msgstr "Możesz odfajkować kolejne zwycięstwo, o najzłośliwszy. Oto następna kraina zostaje dodana do twej ponurej kolekcji."
 
 #: guitext:102
 msgctxt "In-game message"
 msgid "Your annihilation of the first wave has met with the approval of a pack of demons from the fifth plane of hell. Train your creatures and prepare for another battle. You're attracting quite an audience."
-msgstr "LIKWIDACJA PIERWSZEJ FALI NATRĘTÓW ZOSTAŁA DOCENIONA PRZEZ GRUPĘ DEMONÓW Z PIĄTEGO KRĘGU PIEKIEŁ. ĆWICZ SWE STWORY I GOTUJ SIĘ DO NASTĘPNEJ BITWY. TWE POCZYNANIA PRZYCIĄGAJĄ UWAGĘ."
+msgstr "Likwidacja pierwszej fali natrętów została doceniona przez grupę demonów z piątego kręgu piekieł. Ćwicz swe stwory i gotuj się do następnej bitwy. Twe poczynania przyciągają uwagę."
 
 #: guitext:103
 msgctxt "In-game message"
 msgid "The enemy are upon us. I'm just telling you in case you were having a doze."
-msgstr "WRÓG NADCIĄGA. MÓWIĘ CI TO, PANIE, NA WYPADEK, GDYBYŚ SIĘ AKURAT BYŁ ZDRZEMNĄŁ."
+msgstr "Wróg nadciąga. Mówię ci to, panie, na wypadek, gdybyś się akurat był zdrzemnął."
 
 #: guitext:104
 msgctxt "In-game message"
 msgid "All the heroes are dead, which is as it should be. This land and all its spoils are yours. May I suggest that you waste everything?"
-msgstr "WSZYSCY BOHATEROWIE LEŻĄ NIEŻYWI, CZYLI JEST TAK, JAK BYĆ POWINNO. TA KRAINA I WSZYSTKIE JEJ DOBRA NALEŻĄ DO CIEBIE. CZY WOLNO MI ZASUGEROWAĆ, ABYŚ WSZYSTKO TO ZMARNOTRAWIŁ, PANIE?"
+msgstr "Wszyscy bohaterowie leżą nieżywi, czyli jest tak, jak być powinno. Ta kraina i wszystkie jej dobra należą do ciebie. Czy wolno mi zasugerować, abyś wszystko to zmarnotrawił, panie?"
 
 #: guitext:105
 msgctxt "In-game message"
 msgid "If lands had legs this one would be on its knees. Its desperate inhabitants are preparing a full scale attack on your dungeon. It will be an ideal opportunity to practise unspeakable evil on a massive scale. Go for it, master."
-msgstr "GDYBY ZIEMIA MIAŁA NOGI, TEN OBSZAR ZOSTAŁBY RZUCONY NA KOLANA. JEGO ZROZPACZENI MIESZKAŃCY SZYKUJĄ OSTATECZNY ATAK NA TWOJE PODZIEMIE. BĘDZIE TO ŚWIETNA OKAZJA DO OKAZANIA NIEWYMOWNEJ PODŁOŚCI NA WIELKĄ SKALĘ. DO DZIEŁA, PANIE."
+msgstr "Gdyby ziemia miała nogi, ten obszar zostałby rzucony na kolana. Jego zrozpaczeni mieszkańcy szykują ostateczny atak na twoje podziemie. Będzie to świetna okazja do okazania niewymownej podłości na wielką skalę. Do dzieła, panie."
 
 #: guitext:106
 msgctxt "In-game message"
 msgid "Your latest discovery is the Word of Power Trap. When activated, the trap triggers an expanding ring of fire that incinerates anything caught in its area of effect. What a scream that should be."
-msgstr "TWÓJ NAJNOWSZY WYNALAZEK TO PUŁAPKA MOCNEGO SŁOWA. UAKTYWNIONA, EMITUJE ROZSZERZAJĄCY SIĘ KRĄG OGNIA, PIEKĄCY WSZYSTKO, CO ZNAJDZIE SIĘ W SĄSIEDZTWIE. ALEŻ TO BĘDZIE WRZASK."
+msgstr "Twój najnowszy wynalazek to Pułapka Mocnego Słowa. Uaktywniona, emituje rozszerzający się krąg ognia, piekący wszystko, co znajdzie się w sąsiedztwie. Ależ to będzie wrzask."
 
 #: guitext:107
 msgctxt "In-game message"
 msgid "The Hold Audience spell has been researched. It will immediately teleport all of your creatures back to your Dungeon Heart. Let's hope you never need it."
-msgstr "OPRACOWANO ZAKLĘCIE AUDIENCJI. ZAKLĘCIE TO NATYCHMIAST SKIERUJE WSZYSTKIE STWORY DO SERCA LABIRYNTU. MIEJMY NADZIEJĘ, ŻE NIGDY NIE BĘDZIE POTRZEBNE."
+msgstr "Opracowano zaklęcie Audiencji. Zaklęcie to natychmiast skieruje wszystkie stwory do Serca Labiryntu. Miejmy nadzieję, że nigdy nie będzie potrzebne."
 
 #: guitext:108
 msgctxt "In-game message"
 msgid "You can't swing a cat for Dungeon Keepers fighting over the destiny of this region. It should fall to you to settle the disagreement once and for all."
-msgstr "NIE WCISNĄŁBYŚ NAWET SZPILKI MIĘDZY GOSPODARZY PODZIEMIA WALCZĄCYCH O PRZEZNACZENIE TEJ KRAINY. TWOIM ZADANIEM BĘDZIE POŁOŻYĆ KRES TYM SWAROM - RAZ NA ZAWSZE."
+msgstr "Nie wcisnąłbyś nawet szpilki między Gospodarzy Podziemia walczących o przeznaczenie tej krainy. Twoim zadaniem będzie położyć kres tym swarom - raz na zawsze."
 
 #: guitext:109
 msgctxt "In-game message"
 msgid "Your researchers have discovered the devastating Chicken spell. Cast it on any creature to instantly transform the target into poultry. It's a fowl weapon."
-msgstr "TWOI BADACZE ODKRYLI PRZERAŻAJĄCE ZAKLĘCIE PRZEMIANY W KURCZAKA. RZUĆ JE NA STWORA, ABY NATYCHMIAST ZMIENIĆ GO W DRÓB. TO BROŃ DOBOR.. DROBOR.... DROBIOWA."
+msgstr "Twoi badacze odkryli przerażające zaklęcie Przemiany w Kurczaka. Rzuć je na stwora, aby natychmiast zmienić go w drób. To broń dobor.. drobor.... drobiowa."
 
 #: guitext:110
 msgctxt "In-game message"
 msgid "So, now you have a spell that turns fortified walls to dust. It's expensive to cast and it's also possible that your enemies possess the same magic power. This could still turn out to be one of those days."
-msgstr "A ZATEM MASZ TERAZ DO DYSPOZYCJI ZAKLĘCIE, ZMIENIAJĄCE U MOCNIONE ŚCIANY W PYŁ. JEST ONO KOSZTOWNE I PRAWDOPODOBNIE ZNANE TAKŻE TWOIM WROGOM. NIEMNIEJ JEDNAK MOŻE TO OZNACZAĆ PRZEŁOM W ZMAGANIACH."
+msgstr "A zatem masz teraz do dyspozycji zaklęcie, zmieniające Umocnione Ściany w pył. Jest ono kosztowne i prawdopodobnie znane także twoim wrogom. Niemniej jednak może to oznaczać przełom w zmaganiach."
 
 #: guitext:111
 msgctxt "In-game message"
 msgid "Only the Lord of this Land stands between you and hectares of desolation and woe. I bet you can't wait to meet him."
-msgstr "JEDYNIE WŁADCA KRAINY STOI MIĘDZY TOBĄ A HEKTARAMI SPUSTOSZENIA I NIEDOLI. DAM GŁOWĘ, ŻE NIE MOŻESZ DOCZEKAĆ SIĘ SPOTKANIA Z NIM."
+msgstr "Jedynie władca krainy stoi między tobą a hektarami spustoszenia i niedoli. Dam głowę, że nie możesz doczekać się spotkania z nim."
 
 #: guitext:112
 msgctxt "In-game message"
 msgid "Your continued success makes me sick. Thank you, your wickedness."
-msgstr "TE CIĄGŁE SUKCESY WYWOŁUJĄ U MNIE MDŁOŚCI. DZIĘKI, O WASZA NIEGODZIWOŚĆ."
+msgstr "Te ciągłe sukcesy wywołują u mnie mdłości. Dzięki, o wasza niegodziwość."
 
 #: guitext:113
 msgctxt "In-game message"
 msgid "You seem to have started a trend. Two other Dungeon Keepers also have designs on this dark domain. Expect no quarter from your rivals."
-msgstr "JAK SIĘ WYDAJE, ZAPOCZĄTKOWAŁEŚ PEWNĄ MODĘ. DWAJ POZOSTALI STRAŻNICY TAKŻE MAJĄ PLANY CO DO TYCH MROCZNYCH WŁOŚCI. NIE OCZEKUJ, ŻE BĘDĄ CIĘ OSZCZĘDZAĆ."
+msgstr "Jak się wydaje, zapoczątkowałeś pewną modę. Dwaj pozostali strażnicy także mają plany co do tych mrocznych włości. Nie oczekuj, że będą cię oszczędzać."
 
 #: guitext:114
 msgctxt "In-game message"
 msgid "Can you see how vulnerable one of your opponents has become? Then kill him."
-msgstr "CZY WIDZISZ, JAK PODATNY NA ATAK STAŁ SIĘ JEDEN Z PRZECIWNIKÓW? NO TO ZABIJ GO."
+msgstr "Czy widzisz, jak podatny na atak stał się jeden z przeciwników? No to zabij go."
 
 #: guitext:115
 msgctxt "In-game message"
 msgid "I spy a keeper with hardly any creatures left under his control. I spy a Keeper who's about to die."
-msgstr "WYTROPIŁEM STRAŻNIKA, KTÓREMU POZOSTAŁO JUŻ NIEWIELU PODWŁADNYCH., WYTROPIŁEM GOSPODARZA, KTÓREGO PRZEZNACZENIEM JEST ŚMIERĆ."
+msgstr "Wytropiłem Strażnika, któremu pozostało już niewielu podwładnych. Wytropiłem Gospodarza, którego przeznaczeniem jest śmierć."
 
 #: guitext:116
 msgctxt "In-game message"
 msgid "This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I call practical archaeology."
-msgstr "TEN STAROŻYTNY LOCH MA WIELKIE ZNACZENIE ARCHEOLOGICZNE. CO OZNACZA, ŻE POWINNIŚMY TU ZNALEŹĆ KILKA CIEKAWYCH SKARBÓW WARTYCH PRZYWŁASZCZENIA SOBIE. JEST TO TAK ZWANA ARCHEOLOGIA STOSOWANA."
+msgstr "Ten starożytny loch ma wielkie znaczenie archeologiczne. Co oznacza, że powinniśmy tu znaleźć kilka ciekawych skarbów wartych przywłaszczenia sobie. Jest to tak zwana archeologia stosowana."
 
 #: guitext:117
 msgctxt "In-game message"
 msgid "Your librarians have learned a spell that can break through fortified walls. Give them a slap for not learning it earlier."
-msgstr "TWOI BIBLIOFILE NAUCZYLI SIĘ ZAKLĘCIA UMOŻLIWIAJĄCEGO PRZEBICIE SIĘ PRZEZ WZMOCNIONE ŚCIANY. TO KARYGODNE, ŻE NIE ZROBILI TEGO WCZEŚNIEJ - DAJ IM KLAPSA."
+msgstr "Twoi bibliofile nauczyli się zaklęcia umożliwiającego przebicie się przez Wzmocnione Ściany. To karygodne, że nie zrobili tego wcześniej - daj im klapsa."
 
 #: guitext:118
 msgctxt "In-game message"
 msgid "One of your opponents has developed a spell that can break through fortified walls. Typical. Be on your guard."
-msgstr "JEDEN Z TWOICH PRZECIWNIKÓW OPANOWAŁ ZAKLĘCIE, KTÓRE POZWALA MU NA PRZEBICIE UMOCNIONYCH ŚCIAN. TYPOWE, TYPOWE. CZUWAJ."
+msgstr "Jeden z twoich przeciwników opanował zaklęcie, które pozwala mu na przebicie Umocnionych Ścian. Typowe, typowe. Zachowaj czujność."
 
 #: guitext:119
 msgctxt "In-game message"
 msgid "You have developed the Armageddon spell. That's quite a name to live up to. Make sure you're the most powerful force in the region before casting it."
-msgstr "WYNALAZŁEŚ ZAKLĘCIE O NAZWIE ARMAGEDDON. NIEZŁA NAZWA, CO NIE? UPEWNIJ SIĘ, ŻE JESTEŚ NAJWIĘKSZĄ POTĘGĄ W OKOLICY... ZANIM JE RZUCISZ."
+msgstr "Wynalazłeś zaklęcie o nazwie Armageddon. Niezła nazwa, co nie? Upewnij się, że jesteś największą potęgą w okolicy... zanim je rzucisz."
 
 #: guitext:120
 msgctxt "In-game message"
 msgid "You will not find any easy path through this region. You will have to fight hard to gain any advantage. But, if you intend to rule the world, you've simply got to get through days like this."
-msgstr "W TYM REJONIE NIE BĘDZIESZ MIAŁ ŁATWEGO ŻYCIA. ZANOSI SIĘ NA CIĘŻKĄ WALKĘ O ZDOBYCIE PRZEWAGI. ALE JEŚLI CHCE SIĘ WŁADAĆ ŚWIATEM, TRZEBA RADZIĆ SOBIE Z CODZIENNYMI TRUDAMI."
+msgstr "W tym rejonie nie będziesz miał łatwego życia. Zanosi się na ciężką walkę o zdobycie przewagi. Ale jeśli chce się władać światem, trzeba radzić sobie z codziennymi trudami."
 
 #: guitext:121
 msgctxt "In-game message"
 msgid "Your manufacturers have crafted the Lava Trap."
-msgstr "TWOI RZEMIEŚLNICY SKONSTRUOWALI PUŁAPKĘ MAGMOWĄ."
+msgstr "Twoi rzemieślnicy skonstruowali Pułapkę Magmową."
 
 #: guitext:122
 msgctxt "In-game message"
 msgid "Your location is already known to the heroes of this land. They have moved quickly to mobilise their forces against you. It's pathetic. They deserve to have their heads impaled on lances for such impudence."
-msgstr "BOHATEROWIE TEGO KRAJU WIEDZĄ JUŻ, GDZIE CIĘ SZUKAĆ. ZAJĘLI SIĘ WŁAŚNIE MOBILIZACJĄ SWYCH SIŁ. TO TAKIE ROMANTYCZNE. ZASŁUGUJĄ, BY OZDOBIĆ ICH GŁOWAMI WŁÓCZNIE ZATKNIĘTE U WEJŚCIA DO LOCHU."
+msgstr "Bohaterowie tego kraju wiedzą już, gdzie cię szukać. Zajęli się właśnie mobilizacją swych sił. To takie romantyczne. Zasługują, by ozdobić ich głowami włócznie zatknięte u wejścia do lochu."
 
 #: guitext:123
 msgctxt "In-game message"
 msgid "You've upset the local Lord. He's on his way right now. Shall I alert the media?"
-msgstr "ZDENERWOWAŁEŚ MIEJSCOWEGO WŁADCĘ. WŁAŚNIE NADCHODZI. CZY MAM ZAWIADOMIĆ PRASĘ?"
+msgstr "Zdenerwowałeś miejscowego władcę. Właśnie nadchodzi. Czy mam zawiadomić prasę?"
 
 #: guitext:124
 msgctxt "In-game message"
 msgid "The heroes of this realm possess treasures of great power. Obviously, these should belong to you. I'm certain you will settle the matter of their ownership in your own way."
-msgstr "BOHATEROWIE TEGO KRÓLESTWA SĄ W POSIADANIU POTĘŻNYCH SKARBÓW. OCZYWIŚCIE POWINNY ZMIENIĆ WŁAŚCICIELA. JESTEM PRZEKONANY, ŻE ROZWIĄŻESZ TĘ KWESTIĘ WE WŁAŚCIWY SOBIE SPOSÓB, PANIE."
+msgstr "Bohaterowie tego królestwa są w posiadaniu potężnych skarbów. Oczywiście powinny zmienić właściciela. Jestem przekonany, że rozwiążesz tę kwestię we właściwy sobie sposób, panie."
 
 #: guitext:125
 msgctxt "In-game message"
 msgid "It appears you have a rival. Another Keeper believes he is more ruthless and evil than you. We shall soon see."
-msgstr "WYGLĄDA NA TO, ŻE MASZ RYWALA. INNEMU STRAŻNIKOWI WYDAJE SIĘ, ŻE JEST BARDZIEJ BEZLITOSNY I PRZESIĄKNIĘTY ZŁEM, NIŻ TY. TO SIĘ OKAŻE..."
+msgstr "Wygląda na to, że masz rywala. Innemu strażnikowi wydaje się, że jest bardziej bezlitosny i przesiąknięty złem, niż ty. To się okaże..."
 
 #: guitext:126
 msgctxt "In-game message"
 msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
-msgstr "TO STAROŻYTNE KRÓLESTWO OBFITUJE W MAGICZNE PRZEDMIOTY. NIC TYLKO PLĄDROWAĆ."
+msgstr "To starożytne królestwo obfituje w magiczne przedmioty. Nic tylko plądrować."
 
 #: guitext:127
 msgctxt "In-game message"
 msgid "The guardians of this realm are asleep at the moment. Attack them as soon as you can or they'll be breakfasted, wide awake and inherently more difficult to slaughter."
-msgstr "WARTY TEGO KRÓLESTWA WŁAŚNIE ŚPIĄ. ZAATAKUJ SZYBKO TYCH ŚPIĄCYCH RYCERZY, W PRZECIWNYM RAZIE, ZDĄŻĄ SIĘ POSILIĆ, ROZBUDZIĆ I - CO ZA TYM IDZIE - ICH POKONANIE BĘDZIE TRUDNIEJSZE."
+msgstr "Warty tego królestwa właśnie śpią. Zaatakuj szybko tych śpiących rycerzy, w przeciwnym razie, zdążą się posilić, rozbudzić i - co za tym idzie - ich pokonanie będzie trudniejsze."
 
 #: guitext:128
 msgctxt "In-game message"
 msgid "If you should encounter hero patrols, ensure that none of their number escape. Otherwise your presence will be revealed and then you will be in trouble."
-msgstr "JEŚLI NATKNIESZ SIĘ NA PATROLE BOHATERÓW, POWINIENEŚ ZADBAĆ O TO, ABY NIKT Z NICH NIE UMKNĄŁ. W PRZECIWNYM RAZIE TWOJA OBECNOŚĆ ZOSTANIE ODKRYTA I BĘDZIESZ MIAŁ KŁOPOTY."
+msgstr "Jeśli natkniesz się na patrole bohaterów, powinieneś zadbać o to, aby nikt z nich nie umknął. W przeciwnym razie twoja obecność zostanie odkryta i będziesz miał kłopoty."
 
 #: guitext:129
 msgctxt "In-game message"
 msgid "You're taking forever over this. Attack and destroy the heroes' stronghold soon, preferably before hell freezes over."
-msgstr "TO TRWA JUŻ CAŁE WIEKI. ZAATAKUJ I ZNISZCZ TWIERDZĘ BOHATERÓW, NIM TEMPERATURA W PIEKLE SPADNIE PONIŻEJ ZERA."
+msgstr "To trwa już całe wieki. Zaatakuj i zniszcz twierdzę bohaterów, nim temperatura w piekle spadnie poniżej zera."
 
 #: guitext:130
 msgctxt "In-game message"
 msgid "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
-msgstr "PRZYBYŁY POSIŁKI WROGA. NO I CO Z TEGO? TO TYLKO TROCHĘ WIĘCEJ ZABIJANIA."
+msgstr "Przybyły posiłki wroga. No i co z tego? To tylko trochę więcej zabijania."
 
 #: guitext:131
 msgctxt "In-game message"
 msgid "The heroes of this realm have prepared for your coming by building an underground stronghold of their own. Who do they think they are? Sorry, master, that was a rhetorical question."
-msgstr "BOHATEROWIE TEGO KRÓLESTWA PRZYGOTOWALI SIĘ NA TWE PRZYBYCIE, BUDUJĄC WŁASNĄ PODZIEMNĄ TWIERDZĘ. ZA KOGO ONI SIĘ UWAŻAJĄ?... WYBACZ, PANIE, TO BYŁO PYTANIE RETORYCZNE."
+msgstr "Bohaterowie tego królestwa przygotowali się na twe przybycie, budując własną podziemną twierdzę. Za kogo oni się uważają?... Wybacz, panie, to było pytanie retoryczne."
 
 #: guitext:132
 msgctxt "In-game message"
 msgid "You are about to face the greatest challenge yet to your evil aspirations. Here it comes, ready or not."
-msgstr "ZA CHWILĘ STAWISZ CZOŁA NAJWIĘKSZEMU WYZWANIU DLA TWYCH POKRĘTNYCH AMBICJI. GOTÓW CZY NIE, ONO NADCHODZI."
+msgstr "Za chwilę stawisz czoła największemu wyzwaniu dla twych pokrętnych ambicji. Gotów czy nie, ono nadchodzi."
 
 #: guitext:133
 msgctxt "In-game message"
 msgid "Three other Dungeon Keepers, each as evil and powerful as you, have expanded their empires into this realm. Ultimately, only the one who rules the underworld can conquer the realms above."
-msgstr "TRZEJ INNI STRAŻNICY, KAŻDY RÓWNIE WYSTĘPNY I POTĘŻNY, JAK TY, UTWORZYLI SWE MOCARSTWA W TYM KRÓLESTWIE. ALE OSTATECZNIE TYLKO JEDYNY WŁADCA PODZIEMIA BĘDZIE MÓGŁ ZDOBYĆ KRAINĘ POWIERZCHNIAKÓW."
+msgstr "Trzej inni strażnicy, każdy równie występny i potężny, jak ty, utworzyli swe mocarstwa w tym królestwie. Ale ostatecznie tylko jedyny władca podziemia będzie mógł zdobyć krainę powierzchniaków."
 
 #: guitext:134
 msgctxt "In-game message"
 msgid "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
-msgstr "TO KRÓLESTWA AŻ SIĘ PROSI, BY ZAPANOWAŁA W NIM WIECZNA CIEMNOŚĆ. SAM AVATAR MA TUTAJ SWÓJ ZAMEK. CO WIĘCEJ, JESZCZE JEDEN GOSPODARZ POŻĄDA JEGO DUSZY. ALEŻ BĘDZIE BAŁAGAN."
+msgstr "To królestwa aż się prosi, by zapanowała w nim wieczna ciemność. Sam Avatar ma tutaj swój zamek. Co więcej, jeszcze jeden gospodarz pożąda jego duszy. Ależ będzie bałagan."
 
 #: guitext:135
 msgctxt "In-game message"
 msgid "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize."
-msgstr "ZNISZCZYŁEŚ ZAMEK AVATARA, ALE TWÓJ RYWAL ZDĄŻYŁ WZIĄĆ BOHATERA DO NIEWOLI. JAK BYŁO, TAK BYŁO, ALE TYLKO GOSPODARZ O NAJMROCZNIEJSZYM SERCU MOŻE ZLIKWIDOWAĆ TEGO LEGENDARNEGO BOHATERA, SPLĄDRUJ ZATEM LOCH RYWALA I ODBIERZ NAGRODĘ."
+msgstr "Zniszczyłeś zamek Avatara, ale twój rywal zdążył wziąć bohatera do niewoli. Jak było, tak było, ale tylko gospodarz o najmroczniejszym sercu może zlikwidować tego legendarnego bohatera, splądruj zatem loch rywala i odbierz nagrodę."
 
 #: guitext:136
 msgctxt "In-game message"
 msgid "The Avatar has been resurrected by loyal lieutenants in hiding. But their act has revealed them to us, here in this realm. Now the Avatar rallies all those who would stand against you. It's time you gave this self-righteous oaf a proper kicking, master."
-msgstr "AVATAR ZOSTAŁ SKRYCIE WSKRZESZONY PRZEZ SWYCH PODWŁADNYCH. LECZ DZIĘKI TEMU ODKRYLIŚMY ICH KRYJÓWKĘ, TU W TYM KRÓLESTWIE. TERAZ AVATAR ZBIERA WSZYSTKICH, KTÓRZY MOGLIBY CI SIĘ PRZECIWSTAWIĆ. CZAS, ABYŚ DAŁ TEMU ZADUFANEMU NIEZGULE LEKCJĘ, PANIE."
+msgstr "Avatar został skrycie wskrzeszony przez swych podwładnych. Lecz dzięki temu odkryliśmy ich kryjówkę, tu w tym królestwie. Teraz Avatar zbiera wszystkich, którzy mogliby ci się przeciwstawić. Czas, abyś dał temu zadufanemu niezgule lekcję, panie."
 
 #: guitext:137
 msgctxt "In-game message"
 msgid "Powerful magic permeating through the rock from the realm above prevents a dungeon from being constructed here. You will have to conquer this realm another way."
-msgstr "PRZENIKAJĄCA SKAŁĘ POTĘŻNA MAGIA KRÓLESTWA NA POWIERZCHNI UNIEMOŻLIWIA BUDOWĘ PODZIEMIA. TEN KRAJ MUSISZ PODBIĆ W INNY SPOSÓB."
+msgstr "Przenikająca skałę potężna magia królestwa na powierzchni uniemożliwia budowę podziemia. Ten kraj musisz podbić w inny sposób."
 
 #: guitext:138
 msgctxt "In-game message"
 msgid "Possess this Dragon to help you negotiate the fiery pits but be prepared to transfer your soul to a more appropriate creature when the situation demands it."
-msgstr "OPĘTAJ SMOKA, ABY ŁATWIEJ PRZEBYĆ TE OGNISTE KRATERY, BĄDŹ JEDNAK PRZYGOTOWANY NA PRZENIESIENIE SWEGO DUCHA W CIAŁO BARDZIEJ ODPOWIEDNIEGO STWORA, JEŚLI SYTUACJA BĘDZIE TEGO WYMAGAŁA."
+msgstr "Opętaj Smoka, aby łatwiej przebyć te ogniste kratery. Bądź jednak przygotowany na przeniesienie swego ducha w ciało bardziej odpowiedniego stwora, jeśli sytuacja będzie tego wymagała."
 
 #: guitext:139
 msgctxt "In-game message"
 msgid "Possess the Vampire below. Should you succeed in killing every hero in this region, the Vampire will accompany you to the realm beyond."
-msgstr "OPĘTAJ WAMPIRA. GDY UDA CI SIĘ ZABIĆ WSZYSTKICH BOHATERÓW W TEJ OKOLICY, WAMPIR BĘDZIE CI TOWARZYSZYŁ DO ZEWNĘTRZNEGO KRÓLESTWA."
+msgstr "Opętaj Wampira. Gdy uda ci się zabić wszystkich bohaterów w tej okolicy, Wampir będzie ci towarzyszył do zewnętrznego królestwa."
 
 #: guitext:140
 msgctxt "In-game message"
 msgid "These Imps have all turned rogue and therefore must die. The speed with which you accomplish their destruction will determine your fitness for greater tasks ahead."
-msgstr "TYM CHOCHLIKOM TYLKO PSOTY W GŁOWIE I DLATEGO MUSZĄ UMRZEĆ. SZYBKOŚĆ, Z JAKĄ ZREALIZUJESZ ICH ZAGŁADĘ, ZADECYDUJE O TWEJ PRZYDATNOŚCI DO CZEKAJĄCYCH CIĘ, WAŻNIEJSZYCH ZADAŃ."
+msgstr "Tym Chochlikom tylko psoty w głowie i dlatego muszą umrzeć. Szybkość, z jaką zrealizujesz ich zagładę, zadecyduje o twej przydatności do czekających cię, ważniejszych zadań."
 
 #: guitext:141
 msgctxt "In-game message"
 msgid "Tempus fugit, Keeper. You have been warned."
-msgstr "CZAS UMYKA, GOSPODARZU. CZUJ SIĘ OSTRZEŻONY."
+msgstr "Czas umyka, Gospodarzu. Czuj się ostrzeżony."
 
 #: guitext:142
 msgctxt "In-game message"
 msgid "You have failed. Perhaps you're not the harbinger of doom the forces of darkness were hoping for."
-msgstr "ZAWIODŁEŚ. PRAWDOPODOBNIE NIE JESTEŚ TYM ZWIASTUNEM ZAGŁADY, NA KTÓREGO CZEKAŁY SIŁY CIEMNOŚCI CHODZIŁO."
+msgstr "Zawiodłeś. Prawdopodobnie nie jesteś tym zwiastunem zagłady, na którego czekały siły ciemności chodziło."
 
 #: guitext:143
 msgctxt "In-game message"
 msgid "You are indeed a twisted soul, master. You made the Imps extinct with such panache that not one but two Dark Mistresses have devoted themselves to helping you achieve your next goal. You may proceed to your next conquest."
-msgstr "ZAISTE, MASZ POKRĘTNĄ DUSZĘ, PANIE. ZAGŁADĘ TYCH CHOCHLIKÓW UCZYNIŁEŚ TAK BOLESNĄ, ŻE NIE JEDNA, A DWIE CZARNE DAMY OFIARUJĄ CI SWOJĄ POMOC W WYKONANIU NASTĘPNEGO ZLECENIA. ZAJMIJ SIĘ KOLEJNYM PODBOJEM."
+msgstr "Zaiste, masz pokrętną duszę, panie. Zagładę tych Chochlików uczyniłeś tak bolesną, że nie jedna, a dwie Czarne Damy ofiarują ci swoją pomoc w wykonaniu następnego zlecenia. Zajmij się kolejnym podbojem."
 
 #: guitext:144
 msgctxt "In-game message"
 msgid "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
-msgstr "ZADANIE, KTÓRE PRZED TOBĄ STAWIAMY, MUSISZ WYKONAĆ Z SZYBKOŚCIĄ BŁYSKAWICY. ZABIJ TE CHOCHLIKI TAK SZYBKO, JAK TYLKO POTRAFISZ."
+msgstr "Zadanie, które przed tobą stawiamy, musisz wykonać z szybkością błyskawicy. Zabij te Chochliki tak szybko, jak tylko potrafisz."
 
 #: guitext:145
 msgctxt "In-game message"
 msgid "Half your allotted time has elapsed."
-msgstr "UPŁYNĘŁA POŁOWA WYZNACZONEGO CZASU."
+msgstr "Upłynęła połowa wyznaczonego czasu."
 
 #: guitext:146
 msgctxt "In-game message"
 msgid "You are out of time. That was a shocking performance."
-msgstr "ZABRAKŁO CI CZASU. TWA NIEZDARNOŚĆ PRZYPRAWIA O CZKAWKĘ."
+msgstr "Zabrakło ci czasu. Twa niezdarność przyprawia o czkawkę."
 
 #: guitext:147
 msgctxt "In-game message"
 msgid "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time. The dark gods will send you a Giant to help you conquer the next realm."
-msgstr "TO KONIEC. JUŻ TYLKO DROBNE SKRAWKI PRZYSMAŻONEGO MIĘSA DRGAJĄ W MIEJSCACH, GDZIE WAŁĘSAŁY SIĘ CHOCHLIKI. TYM RAZEM NIEWĄTPLIWIE TRZYMAŁEŚ RĘKĘ NA PULSIE. CIEMNI BOGOWIE ZSYŁAJĄ CI OLBRZYMA, KTÓRY POMOŻE W PODBOJU NASTĘPNEGO KRÓLESTWA."
+msgstr "To koniec. Już tylko drobne skrawki przysmażonego mięsa drgają w miejscach, gdzie wałęsały się Chochliki. Tym razem niewątpliwie trzymałeś rękę na pulsie. Ciemni bogowie zsyłają ci Olbrzyma, który pomoże w podboju następnego królestwa."
 
 #: guitext:148
 msgctxt "In-game message"
 msgid "You have no gold left. It pays to keep your head in such a charged environment."
-msgstr "NIE MASZ JUŻ ZŁOTA. W TEJ ZMIENIONEJ SYTUACJI OPŁACA SIĘ DZIAŁAĆ Z GŁOWĄ."
+msgstr "Nie masz już złota. W tej zmienionej sytuacji opłaca się działać z głową."
 
 #: guitext:149
 msgctxt "In-game message"
 msgid "You have been called to this realm to punish a horde of revolting Bile Demons by crushing them with Boulder Traps scattered around the perimeter of the dungeon. You have very little time, so rock and roll!"
-msgstr "ZOSTAŁEŚ WEZWANY DO TEGO KRÓLESTWA, ABY UKARAĆ ZGRAJĘ BUNTUJĄCYCH SIĘ DEMONÓW ŻÓŁCIOWYCH, MIAŻDŻĄC ICH ZA POMOCĄ KAMIENNYCH PUŁAPEK, ROZPROSZONYCH NA OBRZEŻACH PODZIEMIA. MASZ BARDZO MAŁO CZASU, WIĘC, NIECH TE KAMIENIE SPADNĄ NA SERCA."
+msgstr "Zostałeś wezwany do tego królestwa, aby ukarać zgraję buntujących się Demonów Żółciowych, miażdżąc ich za pomocą kamiennych pułapek, rozproszonych na obrzeżach podziemia. Masz bardzo mało czasu, więc, niech te kamienie spadną na serca."
 
 #: guitext:150
 msgctxt "In-game message"
 msgid "Half your time has expired."
-msgstr "UPŁYNĘŁA POŁOWA WYZNACZONEGO CZASU."
+msgstr "Upłynęła połowa wyznaczonego czasu."
 
 #: guitext:151
 msgctxt "In-game message"
 msgid "Your time is up. You have failed. I'm embarrassed to come from the same inter-dimensional void as you."
-msgstr "CZAS MINĄŁ. ZAWIODŁEŚ. WSTYD MI, ŻE POCHODZĘ Z TEJ SAMEJ MIĘDZYWYMIAROWEJ OTCHŁANI, CO TY."
+msgstr "Czas minął. Zawiodłeś. Wstyd mi, że pochodzę z tej samej międzywymiarowej otchłani, co ty."
 
 #: guitext:152
 msgctxt "In-game message"
 msgid "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by granting you three superior Imps when you reach the next realm."
-msgstr "DOBRA ROBOTA. TWOJA GORLIWOŚĆ W UŻYCIU WIELKICH GŁAZÓW ZOSTANIE NAGRODZONA PRZEZ CIEMNYCH BOGÓW. GDY PRZYBĘDZIESZ DO NASTĘPNEGO KRÓLESTWA, OTRZYMASZ DO POMOCY TRZY SUPERCHOCHLIKI."
+msgstr "Dobra robota. Twoja gorliwość w użyciu wielkich głazów zostanie nagrodzona przez ciemnych bogów. Gdy przybędziesz do następnego królestwa, otrzymasz do pomocy trzy superchochliki."
 
 #: guitext:153
 msgctxt "In-game message"
 msgid "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve you well in the future."
-msgstr "TEN REJON PODZIEMIA POSŁUŻY WYPRÓBOWANIU TWOJEJ UMIEJĘTNOŚCI PRZEMIERZANIA LABIRYNTU JASKIŃ. ZAISTE, NAJWIĘKSZYM WROGIEM JEST TU CZAS. POKONAJ GO, A DOWIESZ SIĘ, GDZIE UWIĘZIONO LEGENDARNEGO UGA BARBARZYŃCĘ, KTÓRY W PRZYSZŁOŚCI MOŻE BYĆ BARDZO UŻYTECZNY."
+msgstr "Ten rejon podziemia posłuży wypróbowaniu twojej umiejętności przemierzania labiryntu jaskiń. Zaiste, największym wrogiem jest tu czas. Pokonaj go, a dowiesz się, gdzie uwięziono legendarnego Uga Barbarzyńcę, który w przyszłości może być bardzo użyteczny."
 
 #: guitext:154
 msgctxt "In-game message"
 msgid "The people of this realm speak of a Dungeon Keeper called Wisel, who is bound to get in your way. When he does, you will have to consign him to history. This will be no mean feat. Resources are scarce because of his activities."
-msgstr "LUD TEGO KRÓLESTWA WSPOMINAŁ COŚ O STRAŻNIKU, IMIENIEM WISEL, KTÓRY BĘDZIE CI SIĘ PLĄTAŁ POD NOGAMI. GDY SIĘ ZAPLĄCZE, BĘDZIESZ MUSIAŁ PRZENIEŚĆ GO DO HISTORII. NIC W TYM ZŁEGO. NIESTETY, Z UWAGI NA DZIAŁALNOŚĆ WISELA, MAŁO TU SUROWCÓW."
+msgstr "Lud tego królestwa wspominał coś o strażniku, imieniem Wisel, który będzie ci się plątał pod nogami. Gdy się zaplącze, będziesz musiał przenieść go do historii. Nic w tym złego. Niestety, z uwagi na działalność Wisela, mało tu surowców."
 
 #: guitext:155
 msgctxt "In-game message"
 msgid "Wisel is defeated. The land is yours to plunder and despoil for all eternity. Give 'em hell, master."
-msgstr "WISEL ZOSTAŁ POKONANY. MOŻESZ BEZ PRZESZKÓD NISZCZYĆ I PLĄDROWAĆ TĘ KRAINĘ PRZEZ CAŁĄ WIECZNOŚĆ. ZEŚLIJ NA NIĄ WSZYSTKIE OGNIE PIEKIEŁ, O PANIE."
+msgstr "Wisel został pokonany. Możesz bez przeszkód niszczyć i plądrować tę krainę przez całą wieczność. Ześlij na nią wszystkie ognie piekieł, o panie."
 
 #: guitext:156
 msgctxt "In-game message"
 msgid "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
-msgstr "TWOJE ZŁO ZDEPRAWOWAŁO PEWNEGO SAMURAJA, KTÓRY ZAPOMNIAŁ O HONORZE I PRZYŁĄCZYŁ SIĘ DO CIEBIE. JEŚLI TWOJE SŁUGI PONIOSĄ ZNACZNE STRATY, TEN WOJOWNIK WEZWIE SWOICH TOWARZYSZY BRONI, ABY WZMOCNILI TWE SZEREGI. CO ZA UPRZEJMOŚĆ. CO ZA GŁUPOTA!"
+msgstr "Twoje zło zdeprawowało pewnego Samuraja, który zapomniał o honorze i przyłączył się do ciebie. Jeśli twoje sługi poniosą znaczne straty, ten wojownik wezwie swoich towarzyszy broni, aby wzmocnili twe szeregi. Co za uprzejmość. Co za głupota!"
 
 #: guitext:157
 msgctxt "In-game message"
 msgid "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
-msgstr "TEN REJON PODZIEMIA JEST PRZERYTY TUNELAMI PEŁNYMI DZIELNYCH POSZUKIWACZY PRZYGÓD. NIKT JEDNAK NIE TWIERDZIŁ, ŻE SZERZENIE ZŁA TO BUŁKA Z MASŁEM."
+msgstr "Ten rejon podziemia jest przeryty tunelami pełnymi dzielnych poszukiwaczy przygód. Nikt jednak nie twierdził, że szerzenie zła to bułka z masłem."
 
 #: guitext:158
 msgctxt "In-game message"
 msgid "It is rumoured that two Dragons are held captive somewhere east of here. Were you to find them and free them, they would make powerful servants."
-msgstr "PLOTKA GŁOSI, ŻE GDZIEŚ NA WSCHODZIE UWIĘZIONE ZOSTAŁY DWA SMOKI. JEŚLI ZDOŁASZ JE ODNALEŹĆ I UWOLNIĆ, BĘDĄ POTĘŻNYMI SŁUGAMI."
+msgstr "Plotka głosi, że gdzieś na wschodzie uwięzione zostały dwa Smoki. Jeśli zdołasz je odnaleźć i uwolnić, będą potężnymi sługami."
 
 #: guitext:159
 msgctxt "In-game message"
 msgid "A tunnel to the north leads to the Lord of the Realm's domain. This gate is guarded well. It might be wise to direct the humans' attention towards your subterranean enemy."
-msgstr "TUNEL NA PÓŁNOCY PROWADZI DO WŁADCY PODZIEMNYCH WŁOŚCI. BRAMA JEST JEDNAK DOBRZE STRZEŻONA. BYĆ MOŻE NAJROZSĄDNIEJ JEST SKIEROWAĆ NA NIĄ UWAGĘ POWIERZCHNIAKÓW."
+msgstr "Tunel na północy prowadzi do władcy podziemnych włości. Brama jest jednak dobrze strzeżona. Być może najrozsądniej jest skierować na nią uwagę powierzchniaków."
 
 #: guitext:160
 msgctxt "In-game message"
 msgid "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
-msgstr "PUŁAPKI KAMIENNE SĄ WYŚMIENITE W ZGNIATANIU WROGA, ALE MASZ DO DYSPOZYCJI TYLKO TRZY, WIĘC WYKORZYSTAJ JE MĄDRZE."
+msgstr "Pułapki kamienne są wyśmienite w zgniataniu wroga, ale masz do dyspozycji tylko trzy, więc wykorzystaj je mądrze."
 
 #: guitext:161
 msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
-msgstr "CZY WOLNO MI ZAPROPONOWAĆ, PANIE, ABYŚ ZABIŁ LUB UWIĘZIŁ KAŻDEGO, KTO STANIE NA TWEJ DRODZE?"
+msgstr "Czy wolno mi zaproponować, panie, abyś zabił lub uwięził każdego, kto stanie na twej drodze?"
 
 #: guitext:162
 msgctxt "In-game message"
 msgid "Another realm falls under your evil reign. Another cloud of misery and despair gathers. Lovely."
-msgstr "KOLEJNE KRÓLESTWO DOSTAŁO SIĘ POD TWE NIEGODZIWE PANOWANIE. WNOSI SIĘ KOLEJNY OBŁOK ROZPACZLIWYCH WESTCHNIEŃ I DESPERACJI. ŚLICZNIE."
+msgstr "Kolejne królestwo dostało się pod twe niegodziwe panowanie. Wnosi się kolejny obłok rozpaczliwych westchnień i desperacji. Ślicznie."
 
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
-msgstr "ZAWIODŁEŚ. TO GORZKI DZIEŃ DLA WSZECHŚWIATOWEGO ZŁA."
+msgstr "Zawiodłeś. To gorzki dzień dla wszechświatowego zła."
 
 #: guitext:164
 msgctxt "In-game message"
 msgid "Dispense with a particularly obnoxious party of Dwarves which wanders this region and recruit as many Bile Demons as you can. If you free the Wizard held captive in this realm, he will serve you for some time to come."
-msgstr "ROZPRAW SIĘ ZE SZCZEGÓLNIE NIEZNOŚNĄ DRUŻYNĄ KRASNOLUDÓW, KTÓRA WAŁĘSA SIĘ PO OKOLICY I ZWERBUJ TYLE DEMONÓW ŻÓŁCIOWYCH, ILE SIĘ DA. JEŚLI UWOLNISZ CZARNOKSIĘŻNIKA, WIĘZIONEGO W TYM KRÓLESTWIE, BĘDZIE CI SŁUŻYŁ PRZEZ JAKIŚ CZAS."
+msgstr "Rozpraw się ze szczególnie nieznośną drużyną Krasnoludów, która wałęsa się po okolicy i zwerbuj tyle Demonów Żółciowych, ile się da. Jeśli uwolnisz Czarnoksiężnika, więzionego w tym królestwie, będzie ci służył przez jakiś czas."
 
 #: guitext:165
 msgctxt "In-game message"
 msgid "Take more care of your Bile Demons or you will never make it beyond this realm."
-msgstr "OPIEKUJ SIĘ LEPIEJ SWOIMI DEMONAMI ŻÓŁCIOWYMI, ALBO NIGDY NIE WYDOSTANIESZ SIĘ Z TEGO KRÓLESTWA."
+msgstr "Opiekuj się lepiej swoimi Demonami Żółciowymi, albo nigdy nie wydostaniesz się z tego królestwa."
 
 #: guitext:166
 msgctxt "In-game message"
 msgid "How time flies... hurry!"
-msgstr "CZAS UCIEKA... SPIESZ SIĘ!"
+msgstr "Czas ucieka... spiesz się!"
 
 #: guitext:167
 msgctxt "In-game message"
 msgid "You will meet your nemesis, the Avatar, in this subterranean place. This is your ultimate test. Remember, mercy is for losers."
-msgstr "W TYM PODZIEMNYM MIEJSCU SPOTKASZ SWE PRZEZNACZENIE - AVATARA. TO TWOJA OSTATECZNA PRÓBA. PAMIĘTAJ, ŻE MIŁOSIERDZIE JEST DLA MIĘCZAKÓW."
+msgstr "W tym podziemnym miejscu spotkasz swe przeznaczenie - Avatara. To twoja ostateczna próba. Pamiętaj, że miłosierdzie jest dla mięczaków."
 
 #: guitext:168
 msgctxt "In-game message"
 msgid "The Avatar and his allys are defeated, yet his power over this land lingers. Prepare thyself..."
-msgstr "CHOĆ AVATAR I JEGO SOJUSZNICY ZOSTALI POKONANI, JEGO WŁADZA NAD TĄ KRAINĄ JESZCZE TRWA. BĄDŹ GOTÓW..."
+msgstr "Choć Avatar i jego sojusznicy zostali pokonani, jego władza nad tą krainą jeszcze trwa. Bądź gotów..."
 
 #: guitext:169
 msgctxt "In-game message"
 msgid "You got rid of that Keeper easily. Now all that stands between you and total world domination is that ponce in shining armour. Let's get him."
-msgstr "GŁADKO POZBYŁEŚ SIĘ TEGO STRAŻNIKA. TERAZ MIĘDZY TOBĄ A BEZGRANICZNĄ WŁADZĄ NAD ŚWIATEM STOI JEDYNIE TA OFIARA LOSU W BŁYSZCZĄCEJ ZBROI. WEŹMY SIĘ ZA NIEGO."
+msgstr "Gładko pozbyłeś się tego Strażnika. Teraz między tobą a bezgraniczną władzą nad światem stoi jedynie ta ofiara losu w błyszczącej zbroi. Weźmy się za niego."
 
 #: guitext:170
 msgctxt "In-game message"
 msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
-msgstr "ZWYCIĘSTWO NALEŻY DO CIEBIE. ZAPRAWDĘ, ZASŁUŻYŁEŚ SOBIE NA SWÓJ TYTUŁ, GOSPODARZU PODZIEMIA."
+msgstr "Zwycięstwo należy do ciebie. Zaprawdę, zasłużyłeś sobie na swój tytuł, Gospodarzu Podziemia."
 
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
-msgstr "A TO CO? AVATAR ŻYJE!"
+msgstr "A to co? Avatar żyje!"
 
 #: guitext:172
 msgctxt "In-game message"
 msgid "Finally, you stand unchallenged. The world is yours to waste and despoil. I bet you have never felt so bad."
-msgstr "TERAZ JUŻ NIKT NIE ZAKWESTIONUJE TWEJ WŁADZY. MOŻESZ NISZCZYĆ I DEPRAWOWAĆ CAŁY ŚWIAT. DAM GŁOWĘ, ŻE NIGDY NIE CZUŁEŚ SIĘ TAK PODLE."
+msgstr "Teraz już nikt nie zakwestionuje twej władzy. Możesz niszczyć i deprawować cały świat. Dam głowę, że nigdy nie czułeś się tak podle."
 
 #: guitext:173
 #: guitext:174
@@ -931,102 +931,102 @@ msgstr "Muuuu"
 #: guitext:202
 msgctxt "Level name"
 msgid "Eversmile"
-msgstr "ŚMIECHOWICE"
+msgstr "Śmiechowice"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Cosyton"
-msgstr "PRZYTULICE"
+msgstr "Przytulice"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Waterdream Warm"
-msgstr "CIEPLICE LETNIE"
+msgstr "Cieplice Letnie"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Flowerhat"
-msgstr "KWIATOWICE"
+msgstr "Kwiatowice"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Lushmeadow-on-Down"
-msgstr "SPOKOJNOWO NIŻNE"
+msgstr "Spokojnowo Niżne"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Snuggledell"
-msgstr "PIESZCZOCHÓW"
+msgstr "Pieszczochów"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Wishvale"
-msgstr "WYMARZENICE"
+msgstr "Wymarzenice"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Tickle"
-msgstr "ŁASKOTNIKI"
+msgstr "Łaskotniki"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Moonbrush Wood"
-msgstr "KSIĘŻYLAS"
+msgstr "Księżylas"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Nevergrim"
-msgstr "NIESMUTA"
+msgstr "Niesmuta"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Hearth"
-msgstr "ZACISZE"
+msgstr "Zacisze"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Elf's Dance"
-msgstr "ELFITAN"
+msgstr "Elfitan"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr "DĄBROWA IMPREZOWA"
+msgstr "Dąbrowa Imprezowa"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Sleepiburgh"
-msgstr "ŚPIOCHOWICE"
+msgstr "Śpiochowice"
 
 #: guitext:216
 msgctxt "Level name"
 msgid "Woodly Rhyme"
-msgstr "SIELANKÓW"
+msgstr "Sielanków"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Tulipscent"
-msgstr "OGRODOWO"
+msgstr "Ogrodowo"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Mirthshire"
-msgstr "UCIECHÓW"
+msgstr "Uciechów"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Blaise End"
-msgstr "MŁODA MIŁOSNA"
+msgstr "Młoda Miłosna"
 
 #: guitext:220
 msgctxt "Level name"
 msgid "Mistle"
-msgstr "MIŁOŚCIN"
+msgstr "Miłościn"
 
 #: guitext:221
 msgctxt "Level name"
 msgid "Skybird Trill"
-msgstr "PTASZKOĆWIERKOWO"
+msgstr "Ptaszkoćwierkowo"
 
 #: guitext:222
 msgctxt "In-game interface description"
@@ -1357,18 +1357,18 @@ msgstr "Przesłuchanie: Uaktywnij to narzędzie i kliknij LPM na stworze, aby pr
 #: guitext:288
 msgctxt "Menu interface item"
 msgid "Select game"
-msgstr "WYBIERZ GRĘ"
+msgstr "Wybierz grę"
 
 #: guitext:289
 msgctxt "Menu interface item"
 msgid "Network Menu"
-msgstr "MENU SIECIOWE"
+msgstr "Menu Sieciowe"
 
 #: guitext:290
 #: guitext:343
 msgctxt "Menu interface item"
 msgid "Main Menu"
-msgstr "MENU GŁÓWNE"
+msgstr "Menu Główne"
 
 #: guitext:291
 msgctxt "In-game interface description"
@@ -1518,7 +1518,7 @@ msgstr "Puste legowisko: Posłuży wędrownemu stworowi."
 #: guitext:320
 msgctxt "Menu interface item"
 msgid "Paused"
-msgstr "Przerwa w grze "
+msgstr "Przerwa w grze"
 
 #: guitext:321
 msgctxt "In-game interface description"
@@ -1588,57 +1588,57 @@ msgstr "WIĘCEJ..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "POZIOM UKOŃCZONY - NACIŚNIJ ESCAPE, ABY PRZEJŚĆ DALEJ "
+msgstr "Poziom ukończony - naciśnij Escape, aby przejść dalej"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "POZIOM PRZEGRANY - NACIŚNIJ ESCAPE, ABY ZACZĄĆ OD NOWA "
+msgstr "Poziom przegrany - naciśnij Escape, aby zacząć od nowa"
 
 #: guitext:336
 msgctxt "On-screen message"
 msgid "RECORDING FLIC"
-msgstr "NAGRYWANIE FILMU "
+msgstr "NAGRYWANIE FILMU"
 
 #: guitext:337
 msgctxt "On-screen message"
 msgid "ERROR RECORDING FLIC"
-msgstr "NAGRYWANIA BŁĄD PODCZAS FILMU "
+msgstr "BŁĄD NAGRYWANIA FILMU"
 
 #: guitext:338
 msgctxt "On-screen message"
 msgid "FINISHED RECORDING FLIC"
-msgstr "NAGRYWANIE ZAKOŃCZONE "
+msgstr "NAGRYWANIE ZAKOŃCZONE"
 
 #: guitext:339
 msgctxt "Unused"
 msgid "Time Bomb"
-msgstr "Bomba zegarowa "
+msgstr "Bomba Zegarowa"
 
 #: guitext:340
 msgctxt "In-game interface item"
 msgid "Sound FX"
-msgstr "Efekty dźwiękowe "
+msgstr "Efekty dźwiękowe"
 
 #: guitext:341
 msgctxt "In-game interface item"
 msgid "Music"
-msgstr "Muzyka "
+msgstr "Muzyka"
 
 #: guitext:342
 msgctxt "In-game interface item"
 msgid "UNUSED"
-msgstr "NIEUŻYWANE "
+msgstr "NIEUŻYWANE"
 
 #: guitext:344
 msgctxt "Menu interface item"
 msgid "Load Menu"
-msgstr "Menu wczytywania "
+msgstr "Menu wczytywania"
 
 #: guitext:345
 msgctxt "Menu interface item"
 msgid "Load Game"
-msgstr "Wczytanie gry "
+msgstr "Wczytanie gry"
 
 #: guitext:346
 msgctxt "Menu interface item"
@@ -1648,42 +1648,42 @@ msgstr "Kontynuacja gry"
 #: guitext:347
 msgctxt "Menu interface item"
 msgid "Multiplayer"
-msgstr "Gra wieloosobowa "
+msgstr "Gra wieloosobowa"
 
 #: guitext:348
 msgctxt "Menu interface item"
 msgid "Return to Main Menu"
-msgstr "Powrót do menu głównego "
+msgstr "Powrót do menu głównego"
 
 #: guitext:349
 msgctxt "Menu interface item"
 msgid "Play Intro"
-msgstr "Odtworzenie wstępu "
+msgstr "Odtworzenie wstępu"
 
 #: guitext:350
 msgctxt "Menu interface item"
 msgid "Service Menu"
-msgstr "Menu usługi "
+msgstr "Menu usług"
 
 #: guitext:351
 msgctxt "Menu interface item"
 msgid "Session Menu"
-msgstr "Menu sesji "
+msgstr "Menu sesji"
 
 #: guitext:352
 msgctxt "Menu interface item"
 msgid "Speed"
-msgstr "Szybkość "
+msgstr "Szybkość"
 
 #: guitext:353
 msgctxt "Menu interface item"
 msgid "COM Port"
-msgstr "Port COM "
+msgstr "Port COM"
 
 #: guitext:354
 msgctxt "Menu interface item"
 msgid "Phone Number"
-msgstr "Numer telefonu "
+msgstr "Numer telefonu"
 
 #: guitext:355
 msgctxt "Menu interface item"
@@ -1723,212 +1723,212 @@ msgstr "Oto opowieść o męstwie, honorze i jeszcze o tym, jak smakują bohater
 #: guitext:362
 msgctxt "Credits"
 msgid "Designed By"
-msgstr "AUTOR PROJEKTU "
+msgstr "Autor Projektu"
 
 #: guitext:363
 msgctxt "Credits"
 msgid "Project Leader"
-msgstr "KIEROWNIK PROJEKTU "
+msgstr "Kierownik Projektu"
 
 #: guitext:364
 msgctxt "Credits"
 msgid "Lead Programmer"
-msgstr "GŁÓWNY PROGRAMISTA"
+msgstr "Główny Programista"
 
 #: guitext:365
 msgctxt "Credits"
 msgid "Lead Artist"
-msgstr "GŁÓWNY GRAFIK"
+msgstr "Główny Grafik"
 
 #: guitext:366
 msgctxt "Credits"
 msgid "Programming"
-msgstr "PROGRAMOWANIE"
+msgstr "Programowanie"
 
 #: guitext:367
 msgctxt "Credits"
 msgid "Engine Design"
-msgstr "PROJEKT ALGORYTMU"
+msgstr "Projekt Silnika"
 
 #: guitext:368
 msgctxt "Credits"
 msgid "Music and Sfx"
-msgstr "MUZYKA I DŹWIĘK"
+msgstr "Muzyka i Dźwięk"
 
 #: guitext:369
 msgctxt "Credits"
 msgid "Graphics Programmers"
-msgstr "PROGRAMIŚCI GRAFIKI"
+msgstr "Programiści Grafiki"
 
 #: guitext:370
 msgctxt "Credits"
 msgid "Artists"
-msgstr "GRAFICY"
+msgstr "Graficy"
 
 #: guitext:371
 msgctxt "Credits"
 msgid "Network Programming"
-msgstr "PROGRAMOWANIE SIECI"
+msgstr "Programowanie Trybu Sieciowego"
 
 #: guitext:372
 msgctxt "Credits"
 msgid "Testing Manager"
-msgstr "KIEROWNIK TESTOWANIA"
+msgstr "Kierownik Testowania"
 
 #: guitext:373
 msgctxt "Credits"
 msgid "Lead Testers"
-msgstr "GŁÓWNI TESTERZY"
+msgstr "Główni Testerzy"
 
 #: guitext:374
 msgctxt "Credits"
 msgid "Lead Tester"
-msgstr "GŁÓWNY TESTER"
+msgstr "Główny Tester"
 
 #: guitext:375
 msgctxt "Credits"
 msgid "Management"
-msgstr "KIEROWNICTWO"
+msgstr "Kierownictwo"
 
 #: guitext:376
 msgctxt "Credits"
 msgid "Marketing and PR"
-msgstr "MARKETING I KONTAKTY Z PRASĄ"
+msgstr "Marketing i kontakty z prasą"
 
 #: guitext:377
 msgctxt "Credits"
 msgid "Tech Support"
-msgstr "POMOC TECHNICZNA"
+msgstr "Pomoc Techniczna"
 
 #: guitext:378
 msgctxt "Credits"
 msgid "Administration"
-msgstr "ZARZĄDZANIE"
+msgstr "Zarządzanie"
 
 #: guitext:379
 msgctxt "Credits"
 msgid "Thanks To"
-msgstr "PODZIĘKOWANIA OTRZYMUJĄ"
+msgstr "Podziękowania Otrzymują"
 
 #: guitext:380
 msgctxt "Credits"
 msgid "Producer"
-msgstr "PRODUCENT"
+msgstr "Producent"
 
 #: guitext:381
 msgctxt "Credits"
 msgid "Level Design"
-msgstr "PROJEKT POZIOMÓW"
+msgstr "Projekt Poziomów"
 
 #: guitext:382
 msgctxt "Credits"
 msgid "Script By"
-msgstr "SKRYPT"
+msgstr "Oskryptowanie"
 
 #: guitext:383
 msgctxt "Credits"
 msgid "Libraries and Tools"
-msgstr "BIBLIOTEKI I NARZĘDZIA"
+msgstr "Biblioteki i Narzędzia"
 
 #: guitext:384
 msgctxt "Credits"
 msgid "Playtesters"
-msgstr "TESTERZY"
+msgstr "Testerzy"
 
 #: guitext:385
 msgctxt "Credits"
 msgid "Localisation"
-msgstr "LOKALIZACJA"
+msgstr "Lokalizacja"
 
 #: guitext:386
 msgctxt "Credits"
 msgid "Special Thanks To"
-msgstr "SPECJALNE PODZIEKOWANIA OTRZYMUJĄ"
+msgstr "Specjalne podziekowania otrzymują"
 
 #: guitext:387
 msgctxt "Credits"
 msgid "Package Design"
-msgstr "PROJEKT OPAKOWANIA"
+msgstr "Projekt opakowania"
 
 #: guitext:388
 msgctxt "Credits"
 msgid "Documentation"
-msgstr "DOKUMENTACJA"
+msgstr "Dokumentacja"
 
 #: guitext:389
 msgctxt "Credits"
 msgid "Documentation Layout"
-msgstr "OPRAWA GRAFICZNA DOKUMENTACJI"
+msgstr "Oprawa graficzna dokumentacji"
 
 #: guitext:390
 msgctxt "Credits"
 msgid "Production"
-msgstr "PRODUKCJA"
+msgstr "Produkcja"
 
 #: guitext:391
 msgctxt "Credits"
 msgid "Quality Assurance"
-msgstr "KONTROLA JAKOŚCI"
+msgstr "Kontrola jakości"
 
 #: guitext:392
 msgctxt "Credits"
 msgid "Lead Level Design"
-msgstr "GŁÓWNY PROJEKTANT POZIOMÓW"
+msgstr "Główny projektant poziomów"
 
 #: guitext:393
 msgctxt "Credits"
 msgid "Intro"
-msgstr "SEKWENCJA WSTĘPNA"
+msgstr "Sekwencja wstępna"
 
 #: guitext:394
 msgctxt "Credits"
 msgid "Testers"
-msgstr "TESTERZY"
+msgstr "Testerzy"
 
 #: guitext:395
 msgctxt "Menu interface item"
 msgid "Sessions"
-msgstr "SESJE"
+msgstr "Sesje"
 
 #: guitext:396
 msgctxt "Menu interface item"
 msgid "Name"
-msgstr "NAZWA"
+msgstr "Nazwa"
 
 #: guitext:397
 msgctxt "Menu interface item"
 msgid "Services"
-msgstr "USŁUGI"
+msgstr "Usługi"
 
 #: guitext:398
 msgctxt "Menu interface item"
 msgid "Messages"
-msgstr "KOMUNIKATY"
+msgstr "Komunikaty"
 
 #: guitext:399
 msgctxt "Menu interface item"
 msgid "Create Game"
-msgstr "UTWÓRZ GRĘ"
+msgstr "Utwórz grę"
 
 #: guitext:400
 msgctxt "Menu interface item"
 msgid "Join Game"
-msgstr "DOŁĄCZ DO GRY"
+msgstr "Dołącz do gry"
 
 #: guitext:401
 msgctxt "Menu interface item"
 msgid "Start Game"
-msgstr "ROZPOCZNIJ GRĘ"
+msgstr "Rozpocznij grę"
 
 #: guitext:402
 msgctxt "Menu interface item"
 msgid "Game Menu"
-msgstr "MENU GRY"
+msgstr "Menu gry"
 
 #: guitext:403
 msgctxt "Menu interface item"
 msgid "Cancel"
-msgstr "REZYGNACJA"
+msgstr "Rezygnacja"
 
 #: guitext:404
 msgctxt "Menu interface item"
@@ -1938,72 +1938,72 @@ msgstr "BEZ NAZWY"
 #: guitext:405
 msgctxt "Menu interface item"
 msgid "Players"
-msgstr "GRACZE"
+msgstr "Gracze"
 
 #: guitext:406
 msgctxt "Menu interface item"
 msgid "Level"
-msgstr "POZIOM"
+msgstr "Poziom"
 
 #: guitext:407
 msgctxt "Menu interface item"
 msgid "Levels"
-msgstr "POZIOMY"
+msgstr "Poziomy"
 
 #: guitext:408
 msgctxt "Menu interface item"
 msgid "Games"
-msgstr "GRY"
+msgstr "Gry"
 
 #: guitext:409
 msgctxt "Menu interface item"
 msgid "Modem Menu"
-msgstr "MENU MODEMU"
+msgstr "Menu modemu"
 
 #: guitext:410
 msgctxt "Menu interface item"
 msgid "Serial Menu"
-msgstr "MENU POŁĄCZENIA SZEREGOWEGO"
+msgstr "Menu połączenia szeregowego"
 
 #: guitext:411
 msgctxt "Menu interface item"
 msgid "Init"
-msgstr "INIT"
+msgstr "Init"
 
 #: guitext:412
 msgctxt "Menu interface item"
 msgid "Hangup"
-msgstr "PRZERWIJ"
+msgstr "Przerwij"
 
 #: guitext:413
 msgctxt "Menu interface item"
 msgid "Clear"
-msgstr "KASUJ"
+msgstr "Kasuj"
 
 #: guitext:414
 msgctxt "Menu interface item"
 msgid "Answer"
-msgstr "ODBIERZ"
+msgstr "Odbierz"
 
 #: guitext:415
 msgctxt "Menu interface item"
 msgid "Start"
-msgstr "ROZPOCZĘCIE"
+msgstr "Rozpoczęcie"
 
 #: guitext:416
 msgctxt "Menu interface item"
 msgid "Ally"
-msgstr "SOJUSZNIK"
+msgstr "Sojusznik"
 
 #: guitext:417
 msgctxt "Menu interface item"
 msgid "Alliance"
-msgstr "SOJUSZ"
+msgstr "Sojusz"
 
 #: guitext:418
 msgctxt "Menu interface item"
 msgid "Credits"
-msgstr "TWÓRCY"
+msgstr "Twórcy"
 
 #: guitext:419
 msgctxt "Menu interface item"
@@ -2068,82 +2068,82 @@ msgstr "PREMIA "
 #: guitext:431
 msgctxt "Menu interface item"
 msgid "High Score Table"
-msgstr "Tabela rekordów "
+msgstr "Tabela rekordów"
 
 #: guitext:432
 msgctxt "Menu interface item"
 msgid "Go to Query Mode"
-msgstr "PRZEJŚCIE W TRYB PRZESŁUCHIWANIA "
+msgstr "Przejście w Tryb Przesłuchiwania"
 
 #: guitext:433
 msgctxt "Menu interface item"
 msgid "More information"
-msgstr "WIĘCEJ DANYCH "
+msgstr "Więcej danych"
 
 #: guitext:434
 msgctxt "Menu interface item"
 msgid "Back to main Query Screen"
-msgstr "POWRÓT DO EKRANU PRZESŁUCHIWANIA "
+msgstr "Powrót do Ekranu Przesłuchiwania"
 
 #: guitext:435
 msgctxt "Menu interface item"
 msgid "Selected action"
-msgstr "WYBRANA CZYNNOŚĆ "
+msgstr "Wybrana czynność"
 
 #: guitext:436
 msgctxt "Menu interface item"
 msgid "Choose party"
-msgstr "WYBIERZ DRUŻYNĘ "
+msgstr "Wybierz drużynę"
 
 #: guitext:437
 msgctxt "Menu interface item"
 msgid "Enter dungeon"
-msgstr "WEJDŹ DO LOCHU "
+msgstr "Wejdź do lochu"
 
 #: guitext:438
 msgctxt "Menu interface item"
 msgid "Party members"
-msgstr "CZŁONKOWIE DRUŻYNY "
+msgstr "Członkowie drużyny"
 
 #: guitext:439
 msgctxt "Menu interface item"
 msgid "Available creatures"
-msgstr "DOSTĘPNE STWORY "
+msgstr "Dostępne stwory"
 
 #: guitext:440
 msgctxt "Menu interface item"
 msgid "Creature"
-msgstr "STWÓR "
+msgstr "Stwór"
 
 #: guitext:441
 msgctxt "Menu interface item"
 msgid "Money available"
-msgstr "DOSTĘPNE PIENIĄDZE "
+msgstr "Dostępne pieniądze"
 
 #: guitext:442
 msgctxt "Menu interface item"
 msgid "Leader"
-msgstr "DOWÓDCA "
+msgstr "Dowódca"
 
 #: guitext:443
 msgctxt "Menu interface item"
 msgid "Hire"
-msgstr "WYNAJMIJ "
+msgstr "Wynajmij"
 
 #: guitext:444
 msgctxt "Menu interface item"
 msgid "Fire"
-msgstr "ZWOLNIJ "
+msgstr "Zwolnij"
 
 #: guitext:445
 msgctxt "Menu interface item"
 msgid "Cost"
-msgstr "KOSZT "
+msgstr "Koszt"
 
 #: guitext:446
 msgctxt "Menu interface item"
 msgid "Type"
-msgstr "RODZAJ"
+msgstr "Rodzaj"
 
 #: guitext:447
 msgctxt "In-game interface description"
@@ -2198,27 +2198,27 @@ msgstr "Liczba stworów: Liczba stworów, jakie posiada dany strażnik. [5.7]"
 #: guitext:457
 msgctxt "Menu interface item"
 msgid "Choose game"
-msgstr "WYBIERZ GRĘ"
+msgstr "Wybierz grę"
 
 #: guitext:458
 msgctxt "Menu interface item"
 msgid "Game type"
-msgstr "TYP GRY"
+msgstr "Typ gry"
 
 #: guitext:459
 msgctxt "Menu interface item"
 msgid "Keeper vs keeper"
-msgstr "STRAŻNIK KONTRA STRAŻNIK"
+msgstr "Strażnik kontra strażnik"
 
 #: guitext:460
 msgctxt "Menu interface item"
 msgid "Keeper vs heroes"
-msgstr "STRAŻNIK KONTRA BOHATEROWIE"
+msgstr "Strażnik kontra bohaterowie"
 
 #: guitext:461
 msgctxt "Menu interface item"
 msgid "Deathmatch"
-msgstr "ŚMIERTELNE STARCIE"
+msgstr "Śmiertelne starcie"
 
 #: guitext:462
 msgctxt "In-game interface description"
@@ -2248,22 +2248,22 @@ msgstr "Zbliżenie obszaru "
 #: guitext:467
 msgctxt "Menu interface item"
 msgid "No mouse installed"
-msgstr "BRAK MYSZY "
+msgstr "Brak myszy"
 
 #: guitext:468
 msgctxt "Menu interface item"
 msgid "Define keys"
-msgstr "KONFIGURACJA KLAWIATURY "
+msgstr "Konfiguracja klawiatury"
 
 #: guitext:469
 msgctxt "Game controls"
 msgid "Ally with player"
-msgstr "SOJUSZ Z GRACZEM "
+msgstr "Sojusz z graczem"
 
 #: guitext:470
 msgctxt "Game controls"
 msgid "Press a key"
-msgstr "NACIŚNIJ JAKIŚ KLAWISZ "
+msgstr "Naciśnij jakiś klawisz"
 
 #: guitext:471
 msgctxt "Game controls"
@@ -2408,82 +2408,82 @@ msgstr "NUM LOCK"
 #: guitext:499
 msgctxt "Keyboard"
 msgid "NUM /"
-msgstr "/ (KLAWIATURA NUMERYCZNA)"
+msgstr "/ (klawiatura numeryczna)"
 
 #: guitext:500
 msgctxt "Keyboard"
 msgid "NUM *"
-msgstr "* (KLAWIATURA NUMERYCZNA)"
+msgstr "* (klawiatura numeryczna)"
 
 #: guitext:501
 msgctxt "Keyboard"
 msgid "NUM -"
-msgstr "- (KLAWIATURA NUMERYCZNA)"
+msgstr "- (klawiatura numeryczna)"
 
 #: guitext:502
 msgctxt "Keyboard"
 msgid "NUM +"
-msgstr "+ (KLAWIATURA NUMERYCZNA)"
+msgstr "+ (klawiatura numeryczna)"
 
 #: guitext:503
 msgctxt "Keyboard"
 msgid "NUM ENTER"
-msgstr "ENTER (KLAWIATURA NUMERYCZNA)"
+msgstr "ENTER (klawiatura numeryczna)"
 
 #: guitext:504
 msgctxt "Keyboard"
 msgid "NUM DELETE"
-msgstr "DELETE (KLAWIATURA NUMERYCZNA)"
+msgstr "DELETE (klawiatura numeryczna)"
 
 #: guitext:505
 msgctxt "Keyboard"
 msgid "NUM 1"
-msgstr "1 (KLAWIATURA NUMERYCZNA)"
+msgstr "1 (klawiatura numeryczna)"
 
 #: guitext:506
 msgctxt "Keyboard"
 msgid "NUM 2"
-msgstr "2 (KLAWIATURA NUMERYCZNA)"
+msgstr "2 (klawiatura numeryczna)"
 
 #: guitext:507
 msgctxt "Keyboard"
 msgid "NUM 3"
-msgstr "3 (KLAWIATURA NUMERYCZNA)"
+msgstr "3 (klawiatura numeryczna)"
 
 #: guitext:508
 msgctxt "Keyboard"
 msgid "NUM 4"
-msgstr "4 (KLAWIATURA NUMERYCZNA)"
+msgstr "4 (klawiatura numeryczna)"
 
 #: guitext:509
 msgctxt "Keyboard"
 msgid "NUM 5"
-msgstr "5 (KLAWIATURA NUMERYCZNA)"
+msgstr "5 (klawiatura numeryczna)"
 
 #: guitext:510
 msgctxt "Keyboard"
 msgid "NUM 6"
-msgstr "6 (KLAWIATURA NUMERYCZNA)"
+msgstr "6 (klawiatura numeryczna)"
 
 #: guitext:511
 msgctxt "Keyboard"
 msgid "NUM 7"
-msgstr "7 (KLAWIATURA NUMERYCZNA)"
+msgstr "7 (klawiatura numeryczna)"
 
 #: guitext:512
 msgctxt "Keyboard"
 msgid "NUM 8"
-msgstr "8 (KLAWIATURA NUMERYCZNA)"
+msgstr "8 (klawiatura numeryczna)"
 
 #: guitext:513
 msgctxt "Keyboard"
 msgid "NUM 9"
-msgstr "9 (KLAWIATURA NUMERYCZNA)"
+msgstr "9 (klawiatura numeryczna)"
 
 #: guitext:514
 msgctxt "Keyboard"
 msgid "NUM 0"
-msgstr "0 (KLAWIATURA NUMERYCZNA)"
+msgstr "0 (klawiatura numeryczna)"
 
 #: guitext:515
 msgctxt "Keyboard"
@@ -2568,67 +2568,67 @@ msgstr "W PRAWO"
 #: guitext:531
 msgctxt "Network game message"
 msgid "Initialising Modem"
-msgstr "INICJALIZACJA MODEMU"
+msgstr "Inicjalizacja modemu"
 
 #: guitext:532
 msgctxt "Network game message"
 msgid "Connecting Modem"
-msgstr "ŁĄCZENIE MODEMU"
+msgstr "Łączenie modemu"
 
 #: guitext:533
 msgctxt "Network game message"
 msgid "Dial"
-msgstr "WYBIERANIE NUMERU"
+msgstr "Wybieranie numeru"
 
 #: guitext:534
 msgctxt "Network game message"
 msgid "Continue"
-msgstr "KONTYNUACJA"
+msgstr "Kontynuacja"
 
 #: guitext:535
 msgctxt "Network game message"
 msgid "Line Engaged"
-msgstr "LINIA ZAJĘTA"
+msgstr "Linia zajęta"
 
 #: guitext:536
 msgctxt "Network game message"
 msgid "Unknown Error"
-msgstr "NIEZNANY BŁĄD"
+msgstr "Nieznany błąd"
 
 #: guitext:537
 msgctxt "Network game message"
 msgid "No Carrier"
-msgstr "BRAK NOŚNEJ"
+msgstr "Brak nośnej"
 
 #: guitext:538
 msgctxt "Network game message"
 msgid "No Dial Tone"
-msgstr "BRAK SYGNAŁU"
+msgstr "Brak sygnału"
 
 #: guitext:539
 msgctxt "Network game message"
 msgid "No Response"
-msgstr "BRAK ODPOWIEDZI"
+msgstr "Brak odpowiedzi"
 
 #: guitext:540
 msgctxt "Network game message"
 msgid "No Server"
-msgstr "BRAK SERWERA"
+msgstr "Brak serwera"
 
 #: guitext:541
 msgctxt "Network game message"
 msgid "Unable to initialise"
-msgstr "INICJALIZACJA NIEMOŻLIWA"
+msgstr "Inicjalizacja niemożliwa"
 
 #: guitext:542
 msgctxt "Network game message"
 msgid "Unable to create game"
-msgstr "UTWORZENIE GRY NIEMOŻLIWE"
+msgstr "Utworzenie gry niemożliwe"
 
 #: guitext:543
 msgctxt "Network game message"
 msgid "Unable to join game"
-msgstr "DOŁĄCZENIE DO GRY NIEMOŻLIWE"
+msgstr "Dołączenie do gry niemożliwe"
 
 #: guitext:544
 msgctxt "Slab description"
@@ -2673,95 +2673,95 @@ msgstr "Przełącznik komputerowego pomocnika: Bieżący tryb - przemieszczanie.
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr "SKARBIEC"
+msgstr "Skarbiec"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
 msgid "Library"
-msgstr "BIBLIOTEKA"
+msgstr "Biblioteka"
 
 #: guitext:554
 msgctxt "In-game tab with rooms"
 msgid "Lair"
-msgstr "LEGOWISKO"
+msgstr "Legowisko"
 
 #: guitext:555
 msgctxt "In-game tab with rooms"
 msgid "Prison"
-msgstr "WIĘZIENIE"
+msgstr "Więzienie"
 
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr "SALA TORTUR"
+msgstr "Sala Tortur"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
 msgid "Training Room"
-msgstr "SALA TRENINGOWA"
+msgstr "Sala Treningowa"
 
 #: guitext:558
 msgctxt "In-game tab with rooms"
 msgid "Dungeon Heart"
-msgstr "SERCE LABIRYNTU"
+msgstr "Serce Labiryntu"
 
 #: guitext:559
 msgctxt "In-game tab with rooms"
 msgid "Workshop"
-msgstr "WARSZTAT"
+msgstr "Warsztat"
 
 #: guitext:560
 msgctxt "In-game tab with rooms"
 msgid "Scavenger Room"
-msgstr "OCZYSZCZALNIA"
+msgstr "Oczyszczalnia"
 
 #: guitext:561
 msgctxt "In-game tab with rooms"
 msgid "Temple"
-msgstr "ŚWIĄTYNIA"
+msgstr "Świątynia"
 
 #: guitext:562
 msgctxt "In-game tab with rooms"
 msgid "Graveyard"
-msgstr "CMENTARZYSKO"
+msgstr "Cmentarzysko"
 
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr "KOSZARY"
+msgstr "Koszary"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
 msgid "Hatchery"
-msgstr "KURNIK"
+msgstr "Kurnik"
 
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr "POSTERUNEK"
+msgstr "Posterunek"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
 msgid "Bridge"
-msgstr "MOST"
+msgstr "Most"
 
 #: guitext:567
 msgid "Fight"
-msgstr "WALKA"
+msgstr "Walka"
 
 #: guitext:568
 msgid "Annoyed"
-msgstr "ZDENERWOWANY"
+msgstr "Zdenerwowany"
 
 #: guitext:569
 msgctxt "Keyboard"
 msgid "Shift"
-msgstr "SHIFT"
+msgstr "Shift"
 
 #: guitext:570
 msgctxt "Keyboard"
 msgid "Control"
-msgstr "CTRL"
+msgstr "Ctrl"
 
 #: guitext:571
 msgctxt "Keyboard"
@@ -2771,33 +2771,33 @@ msgstr "ALT"
 #: guitext:572
 msgctxt "Credits"
 msgid "Additional Artwork"
-msgstr "DODATKOWA GRAFIKA"
+msgstr "Dodatkowa grafika"
 
 #: guitext:573
 msgctxt "Credits"
 msgid "Additional Programming"
-msgstr "DODATKOWE PROGRAMOWANIE"
+msgstr "Dodatkowe programowanie"
 
 #: guitext:574
 msgctxt "Credits"
 msgid "Manual And Documentation"
-msgstr "INSTRUKCJA I DOKUMENTACJA"
+msgstr "Instrukcja i Dokumentacja"
 
 #: guitext:575
 msgctxt "Credits"
 msgid "Installer"
-msgstr "PROGRAM INSTALACYJNY"
+msgstr "Program instalacyjny"
 
 #: guitext:576
 msgctxt "Credits"
 msgid "Additional Level Design"
-msgstr "DODATKOWE PROJEKTY POZIOMÓW"
+msgstr "Dodatkowe projekty poziomów"
 
 #: guitext:577
 #: guitext:863
 msgctxt "Credits"
 msgid "Additional Thanks"
-msgstr "DODATKOWE PODZIĘKOWANIA"
+msgstr "Dodatkowe podziękowania"
 
 #: guitext:578
 msgctxt "Trap names"
@@ -4352,7 +4352,7 @@ msgstr "Nowe poziomy"
 #: guitext:889
 msgctxt "Menu interface message"
 msgid "Please insert Data Disk CD-ROM"
-msgstr "Włóż do napędu płytę Data Disk "
+msgstr "Włóż do napędu płytę Data Disk"
 
 #: guitext:890
 msgctxt "Menu interface message"
