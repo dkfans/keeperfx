@@ -26,7 +26,8 @@ CC   = $(CROSS_COMPILE)gcc
 WINDRES = $(CROSS_COMPILE)windres
 DLLTOOL = $(CROSS_COMPILE)dlltool
 EXETODLL = peresec/bin/peresec
-BMPTORAWLV = tools/landvico/bin/landvico
+PNGTORAWLV = tools/landvico/bin/landvico
+PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal
 POTONGDAT = tools/po2ngdat/bin/po2ngdat
 RM = rm -f
 MV = mv -f
@@ -472,8 +473,11 @@ bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
 
-$(BMPTORAWLV): tools/landvico/src/landvico.cpp tools/landvico/Makefile
+$(PNGTORAWLV): tools/landvico/src/landvico.cpp tools/landvico/Makefile
 	$(MAKE) -C tools/landvico
+
+$(PNGTOBSPAL): tools/png2bestpal/src/png2bestpal.cpp tools/png2bestpal/Makefile
+	$(MAKE) -C tools/png2bestpal
 
 $(POTONGDAT): tools/po2ngdat/src/po2ngdat.cpp tools/po2ngdat/Makefile
 	$(MAKE) -C tools/po2ngdat

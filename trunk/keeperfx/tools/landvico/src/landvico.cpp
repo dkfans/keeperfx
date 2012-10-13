@@ -50,6 +50,9 @@ enum {
 
 int verbose = 0;
 
+#define LogMsg(format,args...) fprintf(stdout,format "\n", ## args)
+#define LogErr(format,args...) fprintf(stderr,format "\n", ## args)
+
 /** A struct closing non-global command line parameters */
 struct ProgramOptions {
     char *fname_inp;
@@ -73,8 +76,10 @@ void free_prog_options(struct ProgramOptions *opts)
 
 const int word_max=65535;
 const int transparency_threshold=196;
-const int color_reduce_warning_threshold=512; //maximum quadratic euclidean distance in RGB color space that a palette color may have to a source color assigned to it before a warning is issued
-const unsigned int slow_reduction_warn_threshold=262144; //number of colors in source image times number of colors in target image that triggers the warning that the reduction may take a while
+//maximum quadratic euclidean distance in RGB color space that a palette color may have to a source color assigned to it before a warning is issued
+const int color_reduce_warning_threshold=512;
+//number of colors in source image times number of colors in target image that triggers the warning that the reduction may take a while
+const unsigned int slow_reduction_warn_threshold=262144;
 
 void writeByte(FILE* f, int byte)
 {
@@ -99,6 +104,8 @@ struct png_data
              palette(NULL),transMap(NULL),num_palette(0),requested_colors(0),col_bits(0){};
 };
 
+typedef hash_map<unsigned long,signed int> MapQuadToPal;
+
 int andMaskLineLen(const png_data& img)
 {
   int len=(img.width+7)>>3;
@@ -121,6 +128,16 @@ bool checkTransparent1(png_bytep data, png_data&)
 bool checkTransparent3(png_bytep, png_data&)
 {
   return false;
+}
+
+bool imgAddPaletteQuad(png_data& img, MapQuadToPal& q2p_map, unsigned long quad)
+{
+    int palentry = img.num_palette;
+    img.palette[palentry].red = quad&255;
+    img.palette[palentry].green = (quad>>8)&255;
+    img.palette[palentry].blue = (quad>>16)&255;
+    q2p_map[quad] = palentry;
+    img.num_palette++;
 }
 
 //returns true if color reduction resulted in at least one of the image's colors
@@ -148,7 +165,7 @@ bool convert_rgb_to_indexed(png_data& img, bool hasAlpha)
     //if an alpha channel is present, set all transparent pixels to RGBA (0,0,0,0)
     //transparent pixels will already be mapped to palette entry 0, non-transparent
     //pixels will not get a mapping yet (-1)
-    hash_map<unsigned int,signed int> mapQuadToPalEntry;
+    MapQuadToPal mapQuadToPalEntry;
     png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
 
     for (int y=img.height-1; y>=0; --y)
@@ -161,19 +178,21 @@ bool convert_rgb_to_indexed(png_data& img, bool hasAlpha)
 
             if (hasAlpha)
             {
-                if (trans)
-                {
+                if (trans) {
                     pixel[0]=0;
                     pixel[1]=0;
                     pixel[2]=0;
                     pixel[3]=0;
                     quad=0;
+                } else {
+                    pixel[3]=255;
                 }
-                else pixel[3]=255;
 
                 quad+=(pixel[3]<<24);
             }
-            else if (!trans) quad+=(255<<24);
+            else if (!trans) {
+                quad+=(255<<24);
+            }
 
             if (trans)
                 mapQuadToPalEntry[quad]=0;
@@ -186,20 +205,16 @@ bool convert_rgb_to_indexed(png_data& img, bool hasAlpha)
 
     //always allocate entry 0 to black and entry 1 to white because
     //sometimes AND mask is interpreted as color index
-    img.num_palette=2;
-    img.palette[0].red=0;
-    img.palette[0].green=0;
-    img.palette[0].blue=0;
-    img.palette[1].red=255;
-    img.palette[1].green=255;
-    img.palette[1].blue=255;
 
-    mapQuadToPalEntry[255<<24]=0; //map (non-transparent) black to entry 0
-    mapQuadToPalEntry[255+(255<<8)+(255<<16)+(255<<24)]=1; //map (non-transparent) white to entry 1
+    img.num_palette = 0;
+    //map (non-transparent) black to entry 0
+    imgAddPaletteQuad(img, mapQuadToPalEntry, 255<<24);
+    //map (non-transparent) white to entry 1
+    imgAddPaletteQuad(img, mapQuadToPalEntry, 255|(255<<8)|(255<<16)|(255<<24));
 
     if (mapQuadToPalEntry.size()*img.requested_colors>slow_reduction_warn_threshold)
     {
-        fprintf(stdout,"Please be patient. My color reduction algorithm is really slow.\n");
+        fprintf(stdout,"Please be patient. The color reduction algorithm is quite slow.\n");
     }
 
     //Now fill up the palette with colors from the image by repeatedly picking the
@@ -211,11 +226,11 @@ bool convert_rgb_to_indexed(png_data& img, bool hasAlpha)
         unsigned int mostDifferentQuad=0;
         int mdqMinDist=-1; //smallest distance to an entry in the palette for mostDifferentQuad
         int mdqDistSum=-1; //sum over all distances to palette entries for mostDifferentQuad
-        hash_map<unsigned int,signed int>::iterator stop=mapQuadToPalEntry.end();
-        hash_map<unsigned int,signed int>::iterator iter=mapQuadToPalEntry.begin();
+        MapQuadToPal::iterator stop=mapQuadToPalEntry.end();
+        MapQuadToPal::iterator iter=mapQuadToPalEntry.begin();
         while(iter!=stop)
         {
-            hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
+            MapQuadToPal::value_type& mapping=*iter++;
             if (mapping.second<0)
             {
                 unsigned int quad=mapping.first;
@@ -245,24 +260,24 @@ bool convert_rgb_to_indexed(png_data& img, bool hasAlpha)
             }
         }
 
-        if (mdqMinDist>0) //if we have found a most different quad, add it to the palette
-        {                  //and map it to the new palette entry
-            int palentry=img.num_palette;
-            img.palette[palentry].red=mostDifferentQuad&255;
-            img.palette[palentry].green=(mostDifferentQuad>>8)&255;
-            img.palette[palentry].blue=(mostDifferentQuad>>16)&255;
-            mapQuadToPalEntry[mostDifferentQuad]=palentry;
-            ++img.num_palette;
+        if (mdqMinDist>0) {
+            /* If we have found a most different quad, add it to the palette,
+             * and map it to the new palette entry.
+             */
+            imgAddPaletteQuad(img, mapQuadToPalEntry, mostDifferentQuad);
+        } else {
+            /* otherwise (i.e. all quads are mapped) the palette is finished
+             */
+            break;
         }
-        else break; //otherwise (i.e. all quads are mapped) the palette is finished
     }
 
     //Now map all yet unmapped colors to the most appropriate palette entry
-    hash_map<unsigned int,signed int>::iterator stop=mapQuadToPalEntry.end();
-    hash_map<unsigned int,signed int>::iterator iter=mapQuadToPalEntry.begin();
+    MapQuadToPal::iterator stop=mapQuadToPalEntry.end();
+    MapQuadToPal::iterator iter=mapQuadToPalEntry.begin();
     while(iter!=stop)
     {
-        hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
+        MapQuadToPal::value_type& mapping=*iter++;
         if (mapping.second<0)
         {
             unsigned int quad=mapping.first;
@@ -294,11 +309,11 @@ bool convert_rgb_to_indexed(png_data& img, bool hasAlpha)
         int green=0;
         int blue=0;
         int numMappings=0;
-        hash_map<unsigned int,signed int>::iterator stop=mapQuadToPalEntry.end();
-        hash_map<unsigned int,signed int>::iterator iter=mapQuadToPalEntry.begin();
+        MapQuadToPal::iterator stop=mapQuadToPalEntry.end();
+        MapQuadToPal::iterator iter=mapQuadToPalEntry.begin();
         while(iter!=stop)
         {
-            hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
+            MapQuadToPal::value_type& mapping=*iter++;
             if (mapping.second==i)
             {
                 unsigned int quad=mapping.first;
@@ -324,7 +339,7 @@ bool convert_rgb_to_indexed(png_data& img, bool hasAlpha)
     iter=mapQuadToPalEntry.begin();
     while(iter!=stop)
     {
-        hash_map<unsigned int,signed int>::value_type& mapping=*iter++;
+        MapQuadToPal::value_type& mapping=*iter++;
         unsigned int quad=mapping.first;
         if ((quad>>24)!=0) //if color is not transparent
         {
