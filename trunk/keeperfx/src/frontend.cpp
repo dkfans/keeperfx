@@ -2176,18 +2176,21 @@ void frontend_draw_level_select_button(struct GuiButton *gbtn)
 
 void frontend_level_select(struct GuiButton *gbtn)
 {
+    // Find the level number
     long i;
     long lvnum;
     i = (long)gbtn->content + select_level_scroll_offset - 45;
     lvnum = 0;
     if (i < campaign.freeplay_levels_count)
       lvnum = campaign.freeplay_levels[i];
-    if (lvnum > 0)
-    {
-        game.selected_level_number = lvnum;
-        game.flags_font |= FFlg_unk80;
-        frontend_set_state(FeSt_UNKNOWN07);
-    }
+    if (lvnum <= 0)
+        return;
+    // Load the default campaign (free play levels should be played with default campaign settings)
+    if (!change_campaign(""))
+        return;
+    game.selected_level_number = lvnum;
+    game.flags_font |= FFlg_unk80;
+    frontend_set_state(FeSt_START_KPRLEVEL);
 }
 
 void frontend_level_list_unload(void)
@@ -2441,8 +2444,8 @@ int frontend_set_state(long nstate)
   case FeSt_CAMPAIGN_SELECT:
       turn_off_menu(GMnu_FECAMPAIGN_SELECT);
       break;
-  case FeSt_UNKNOWN07:
-  case FeSt_UNKNOWN08:
+  case FeSt_START_KPRLEVEL:
+  case FeSt_START_MPLEVEL:
   case FeSt_UNKNOWN09:
   case FeSt_LOAD_GAME:
   case FeSt_INTRO:
@@ -2502,7 +2505,7 @@ int frontend_set_state(long nstate)
       set_pointer_graphic_menu();
       set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
       break;
-    case FeSt_UNKNOWN07:
+    case FeSt_START_KPRLEVEL:
     case FeSt_UNKNOWN09:
     case FeSt_LOAD_GAME:
     case FeSt_INTRO:
@@ -2511,7 +2514,7 @@ int frontend_set_state(long nstate)
     case FeSt_PACKET_DEMO:
       fade_palette_in = 0;
       break;
-    case FeSt_UNKNOWN08:
+    case FeSt_START_MPLEVEL:
       if ((game.flags_font & FFlg_unk10) != 0)
         LbNetwork_ChangeExchangeTimeout(30);
       fade_palette_in = 0;
@@ -3086,8 +3089,8 @@ void frontend_update(short *finish_menu)
       case FeSt_NET_START:
         frontnet_start_update();
         break;
-      case FeSt_UNKNOWN07:
-      case FeSt_UNKNOWN08:
+      case FeSt_START_KPRLEVEL:
+      case FeSt_START_MPLEVEL:
       case FeSt_LOAD_GAME:
       case FeSt_PACKET_DEMO:
         *finish_menu = 1;

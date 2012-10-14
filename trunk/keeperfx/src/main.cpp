@@ -7253,7 +7253,7 @@ void wait_at_frontend(void)
   short flgmem;
   switch (prev_state)
   {
-  case FeSt_UNKNOWN07:
+  case FeSt_START_KPRLEVEL:
         my_player_number = default_loc_player;
         game.game_kind = GKind_NetworkGame;
         set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
@@ -7261,7 +7261,7 @@ void wait_at_frontend(void)
         player->field_2C = 1;
         startup_network_game(true);
         break;
-  case FeSt_UNKNOWN08:
+  case FeSt_START_MPLEVEL:
         set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
         game.game_kind = GKind_KeeperGame;
         player = get_my_player();
