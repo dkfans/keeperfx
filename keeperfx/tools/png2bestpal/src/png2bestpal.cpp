@@ -25,6 +25,9 @@
 #include <climits>
 #include <getopt.h>
 
+#include <fstream>
+#include <sstream>
+
 #if __GNUC__ > 2
 #include <ext/hash_map>
 #else
@@ -65,9 +68,11 @@ public:
     {
         fnames_inp.clear();
         fname_pal = "";
+        fname_map = "";
     }
     std::vector<std::string> fnames_inp;
     std::string fname_pal;
+    std::string fname_map;
 };
 
 //maximum quadratic euclidean distance in RGB color space that a palette color may have to a source color assigned to it before a warning is issued
@@ -98,6 +103,9 @@ public:
     {
         requested_colors = reqColors;
         for (col_bits=1; (1<<col_bits) < requested_colors; col_bits++);
+        paletteRemap.resize(256);
+        for (int i=0; i < 256; i++)
+            paletteRemap[i] = i;
     }
     int requestedColors(void)
     { return requested_colors; }
@@ -115,6 +123,7 @@ public:
     }
     std::vector<ImageData> images;
     ColorPalette palette;
+    std::vector<int> paletteRemap;
     MapQuadToPal mapQuadToPalEntry;
 private:
     int requested_colors;
@@ -133,13 +142,19 @@ bool checkTransparent3(png_bytep, ImageData&)
   return false;
 }
 
-//returns true if color reduction resulted in at least one of the image's colors
-//being mapped to a palette color with a quadratic distance of more than
-//color_reduce_warning_threshold
-bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
+/**
+ * Gather all colors, evaluate values with alpha channel.
+ * Makes sure alpha channel (if present) contains only 0 and 255 if
+ * an alpha channel is present, set all transparent pixels to RGBA (0,0,0,0)
+ * transparent pixels will already be mapped to palette entry 0,
+ * non-transparent pixels will not get a mapping yet (-1).
+ * @param ws
+ * @param img
+ * @param hasAlpha
+ * @return
+ */
+short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlpha)
 {
-    int maxColors = ws.requestedColors();
-
     checkTransparent_t checkTrans=checkTransparent1;
     int bytesPerPixel=4;
     if (!hasAlpha)
@@ -147,12 +162,6 @@ bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
         bytesPerPixel=3;
         checkTrans=checkTransparent3;
     }
-
-    //first pass: gather all colors, make sure
-    //alpha channel (if present) contains only 0 and 255
-    //if an alpha channel is present, set all transparent pixels to RGBA (0,0,0,0)
-    //transparent pixels will already be mapped to palette entry 0, non-transparent
-    //pixels will not get a mapping yet (-1)
     png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
 
     for (int y=img.height-1; y>=0; --y)
@@ -160,48 +169,55 @@ bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
         png_bytep pixel=row_pointers[y];
         for (unsigned i=0; i<img.width; ++i)
         {
-            unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
+            unsigned char r,g,b,a;
+            unsigned int quad;
             bool trans=(*checkTrans)(pixel,img);
 
+            r = pixel[0];
+            g = pixel[1];
+            b = pixel[2];
             if (hasAlpha)
             {
                 if (trans) {
-                    pixel[0]=0;
-                    pixel[1]=0;
-                    pixel[2]=0;
-                    pixel[3]=0;
-                    quad=0;
+                    a = pixel[3];
                 } else {
-                    pixel[3]=255;
+                    a=255;
                 }
-
-                quad+=(pixel[3]<<24);
+            } else
+            {
+                if (trans) {
+                    a = 0;
+                } else {
+                    a=255;
+                }
             }
-            else if (!trans) {
-                quad+=(255<<24);
-            }
+            quad=r+(g<<8)+(b<<16)+(a<<24);
 
             if (trans)
-                ws.mapQuadToPalEntry[quad]=0;
+                ws.mapQuadToPalEntry[quad] = 0;
             else
-                ws.mapQuadToPalEntry[quad]=-1;
+                ws.mapQuadToPalEntry[quad] = -1;
 
             pixel+=bytesPerPixel;
         }
     }
+    return ERR_OK;
+}
 
-    //always allocate entry 0 to black and entry 1 to white because
-    //sometimes AND mask is interpreted as color index
 
-    //map (non-transparent) black to entry 0
-    ws.addPaletteQuad(255<<24);
-    //map (non-transparent) white to entry 1
-    ws.addPaletteQuad(255|(255<<8)|(255<<16)|(255<<24));
-
-    //Now fill up the palette with colors from the image by repeatedly picking the
-    //color most different from the previously picked colors and adding this to the
-    //palette. This is done to make sure that in case there are more image colors than
-    //palette entries, palette entries are not wasted on similar colors.
+/**
+ * Fill up the palette with colors from the image.
+ * This is done by repeatedly picking the color most different from the
+ * previously picked colors and adding this to the palette.
+ * This is done to make sure that in case there are more image colors than
+ * palette entries, palette entries are not wasted on similar colors.
+ *
+ * @param ws
+ * @return
+ */
+short pick_palette_of_most_different_colors(WorkingSet& ws)
+{
+    int maxColors = ws.requestedColors();
     while(ws.palette.size() < maxColors)
     {
         unsigned int mostDifferentQuad=0;
@@ -253,8 +269,16 @@ bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
             break;
         }
     }
+    return ERR_OK;
+}
 
-    //Now map all yet unmapped colors to the most appropriate palette entry
+/**
+ * Maps all yet unmapped colors to the most appropriate palette entry.
+ * @param ws
+ * @return
+ */
+short map_palette_colors_to_most_apropriate(WorkingSet& ws)
+{
     MapQuadToPal::iterator stop = ws.mapQuadToPalEntry.end();
     MapQuadToPal::iterator iter = ws.mapQuadToPalEntry.begin();
     while(iter!=stop)
@@ -286,13 +310,16 @@ bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
             mapping.second=bestIndex;
         }
     }
-
-    return true;
+    return ERR_OK;
 }
 
-/** Adjusts all palette entries to be the mean of all colors mapped to it.
+/**
+ * Adjusts all palette entries to be the mean of all colors mapped to it.
+ *
+ * @param ws
+ * @return
  */
-bool update_palette_colors_to_average_of_uses(WorkingSet& ws)
+short update_palette_colors_to_average_of_uses(WorkingSet& ws)
 {
     ColorPalette::iterator paliter;
     for (paliter = ws.palette.begin(); paliter != ws.palette.end(); paliter++)
@@ -324,7 +351,13 @@ bool update_palette_colors_to_average_of_uses(WorkingSet& ws)
         }
     }
 
-    return true;
+    return ERR_OK;
+}
+
+short remap_palette_colors_order(WorkingSet& ws)
+{
+    //TODO
+    return ERR_OK;
 }
 
 char *file_name_change_extension(const char *fname_inp,const char *ext)
@@ -381,9 +414,8 @@ char *file_name_strip_to_body(const char *fname_inp)
     return fname;
 }
 
-char *file_name_strip_path(const char *fname_inp)
+std::string file_name_strip_path(const char *fname_inp)
 {
-    char *fname;
     const char *tmp1;
     char *tmp2;
     if (fname_inp == NULL)
@@ -396,10 +428,9 @@ char *file_name_strip_path(const char *fname_inp)
         tmp1++; // skip the '/' or '\\' char
     else
         tmp1 = fname_inp;
-    fname = strdup(tmp1);
-    if (fname == NULL)
-      return NULL;
-    return fname;
+    if (tmp1 == NULL)
+      return "";
+    return tmp1;
 }
 
 int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
@@ -410,12 +441,13 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         static struct option long_options[] = {
             {"verbose", no_argument,       0, 'v'},
             {"output",  required_argument, 0, 'o'},
+            {"palmap",  required_argument, 0, 'm'},
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vo:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vo:m:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -435,6 +467,9 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             break;
         case 'o':
             opts.fname_pal = optarg;
+            break;
+        case 'm':
+            opts.fname_map = optarg;
             break;
         case '?':
                // unrecognized option
@@ -561,6 +596,71 @@ short load_inp_png_file(ImageData& img, const std::string& fname_inp, ProgramOpt
     return ERR_OK;
 }
 
+short load_pal_mapping_file(WorkingSet& ws, const std::string& fname_map, ProgramOptions& opts)
+{
+    std::fstream f;
+    size_t currentLine;
+    size_t errors;
+
+    /* Load the .po file: */
+    f.open(fname_map.c_str(), std::fstream::in);
+
+    currentLine = 0;
+    errors = 0;
+    while (!f.eof())
+    {
+        // read next line and strip insignificant whitespace from it:
+        std::string line;
+        std::getline(f, line);
+        currentLine++;
+
+        size_t pos;
+        pos = line.find_first_not_of(" \n\r\t");
+        // If empty line or comment
+        if ((pos == std::string::npos) || (line[pos] == '#'))
+            continue;
+
+        int code = strtol(line.substr(pos).c_str(),NULL,16);
+        if (code == 0)
+        {
+            errors++;
+            LogErr("Invalid entry id in PAL mapping entry at line %ld.", (long)currentLine);
+            continue;
+        }
+        pos = line.find("\t",pos);
+        // If invalid line
+        if (pos == std::string::npos)
+        {
+            errors++;
+            LogErr("PAL mapping entry at line %ld has no tab separated quad.", (long)currentLine);
+            continue;
+        }
+        int quad = strtol(line.substr(pos+1).c_str(),NULL,16);
+        if (quad == 0)
+        {
+            errors++;
+            LogErr("Invalid quad value in PAL mapping entry at line %ld.", (long)currentLine);
+            continue;
+        }
+        {
+            int i = ws.palette.size();
+            ws.addPaletteQuad(quad);
+            ws.paletteRemap[i] = code;
+            ws.paletteRemap[code] = i;
+        }
+    }
+
+    if (errors > 0)
+    {
+        LogErr("Couldn't load file %s, it is probably corrupted.", fname_map.c_str());
+        return ERR_FILE_READ;
+    }
+
+    f.close();
+
+    return ERR_OK;
+}
+
 short save_pal_file(WorkingSet& ws, const std::string& fname_pal, ProgramOptions& opts)
 {
     // Open and write the PAL file
@@ -590,7 +690,7 @@ short save_pal_file(WorkingSet& ws, const std::string& fname_pal, ProgramOptions
 int main(int argc, char* argv[])
 {
     static ProgramOptions opts;
-    if (!load_command_line_options(opts, argc, argv))
+   if (!load_command_line_options(opts, argc, argv))
     {
         show_head();
         show_usage(argv[0]);
@@ -602,31 +702,64 @@ int main(int argc, char* argv[])
 
     static WorkingSet ws;
 
+    ws.requestedColors(256);
+    if (opts.fname_map.length() > 0)
+    {
+        // load unmoveable palette entries from mapping file
+        if (load_pal_mapping_file(ws, opts.fname_map, opts) != ERR_OK) {
+            LogErr("Mappings load failed.");
+            return 7;
+        }
+    } else
+    {
+        //map (non-transparent) black to entry 0
+        ws.addPaletteQuad(255<<24);
+        //map (non-transparent) white to entry 1
+        ws.addPaletteQuad(255|(255<<8)|(255<<16)|(255<<24));
+    }
     {
         std::vector<std::string>::iterator iter;
         for (iter = opts.fnames_inp.begin(); iter != opts.fnames_inp.end(); iter++)
         {
-            ws.images.push_back(ImageData());
-            if (load_inp_png_file(*ws.images.rend(), *iter, opts) != ERR_OK) {
+            LogMsg("Loading image \"%s\".",iter->c_str());
+            ImageData img = ImageData();
+            if (load_inp_png_file(img, *iter, opts) != ERR_OK) {
                 return 2;
+            }
+            LogMsg("Gathering colors of image...");
+            if (gather_list_of_colors_in_image(ws, img, ((img.color_type & PNG_COLOR_MASK_ALPHA) != ERR_OK))) {
+                LogErr("Gathering failed.");
+                return 3;
             }
         }
     }
     {
-        std::vector<ImageData>::iterator iter;
-        ws.requestedColors(256);
-        for (iter = ws.images.begin(); iter != ws.images.end(); iter++)
-        {
-            if (convert_rgb_to_indexed(ws, *iter, (((*iter).color_type & PNG_COLOR_MASK_ALPHA)!=0))) {
-                LogErr("Warning! Color reduction may not be optimal!");
-            }
-            update_palette_colors_to_average_of_uses(ws);
+        LogMsg("Picking most diverse palette...");
+        if (pick_palette_of_most_different_colors(ws) != ERR_OK) {
+            LogErr("Picking palette failed.");
+            return 4;
+        }
+        LogMsg("Mapping colors to palette...");
+        if (map_palette_colors_to_most_apropriate(ws) != ERR_OK) {
+            LogErr("Mapping colors failed.");
+            return 5;
+        }
+        LogMsg("Updating palette to average...");
+        if (update_palette_colors_to_average_of_uses(ws) != ERR_OK) {
+            LogErr("Updating palette to average failed.");
+            return 6;
+        }
+        LogMsg("Reorder palette entries...");
+        if (remap_palette_colors_order(ws) != ERR_OK) {
+            LogErr("Reordering failed.");
+            return 6;
         }
     }
+    LogMsg("Saving...");
     if (save_pal_file(ws, opts.fname_pal, opts) != ERR_OK) {
         return 8;
     }
+    LogMsg("Done.");
     return 0;
 }
-
 
