@@ -1,7 +1,7 @@
 /******************************************************************************/
-// Land View files converter for KeeperFX
+// PNG and PAL to RAW files converter for KeeperFX
 /******************************************************************************/
-/** @file landvico_version.h
+/** @file pngpal2raw_version.h
  *     Project name, version, copyrights and global definitions.
  * @par Purpose:
  *     Header file for global names and defines used by resource compiler.
@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef LANDVICO_VERSION_H
-#define LANDVICO_VERSION_H
+#ifndef PNGPAL2RAW_VERSION_H
+#define PNGPAL2RAW_VERSION_H
 
 /* Version definitions */
 #define VER_MAJOR         1
@@ -26,11 +26,11 @@
 #define VER_BUILD         1
 #define VER_STRING        "1.0.1.1"
 /* Program name, copyrights and file names */
-#define PROGRAM_NAME      "LandViCo"
-#define PROGRAM_FULL_NAME "Land View files converter for KeeperFX"
+#define PROGRAM_NAME      "PngPal2raw"
+#define PROGRAM_FULL_NAME "PNG and PAL to RAW files converter"
 #define PROGRAM_AUTHORS   "Tomasz Lis"
 #define COMPANY_NAME      "Community based"
-#define INTERNAL_NAME     "landvico"
+#define INTERNAL_NAME     "pngpal2raw"
 #define LEGAL_COPYRIGHT   "GNU General Public License"
 #define LEGAL_TRADEMARKS  ""
 #define FILE_VERSION VER_STRING
@@ -40,5 +40,5 @@
 #define PRODUCT_VERSION    VER_STRING
 #define DEFAULT_LOG_FILENAME INTERNAL_NAME".log"
 
-#endif /*LANDVICO_VERSION_H*/
+#endif /*PNGPAL2RAW_VERSION_H*/
 /******************************************************************************/

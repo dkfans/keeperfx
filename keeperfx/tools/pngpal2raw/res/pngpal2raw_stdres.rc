@@ -1,8 +1,8 @@
 /******************************************************************************/
-// Land View files converter for KeeperFX
+// PNG and PAL to RAW files converter for KeeperFX
 /******************************************************************************/
-/** @file landvico_stdres.rc
- *     Standard Windows resoures used by LandViCo application.
+/** @file pngpal2raw_stdres.rc
+ *     Standard Windows resources used by PngPal2raw application.
  * @par Purpose:
  *     Defines icons and executable information data (VersionInfo)
  *     used by Ms Windows as description of the application.
@@ -19,9 +19,9 @@
 /******************************************************************************/
 
 #include <windows.h> // include for version info constants
-#include "../src/landvico_version.h" // define values for version info
+#include "../src/pngpal2raw_version.h" // define values for version info
 
-A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "landvico.ico"
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "pngpal2raw.ico"
 
 // Create version info block, using defines from the header file
 1 VERSIONINFO
