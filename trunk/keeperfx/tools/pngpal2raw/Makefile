@@ -19,7 +19,7 @@
 #******************************************************************************
 OS = $(shell uname -s)
 ifneq (,$(findstring MINGW,$(OS)))
-RES  = obj/landvico_stdres.res
+RES  = obj/pngpal2raw_stdres.res
 else
 RES  = 
 endif
@@ -27,10 +27,10 @@ CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
-BIN  = bin/landvico
+BIN  = bin/pngpal2raw
 LIBS =
 OBJS = \
-obj/landvico.o \
+obj/pngpal2raw.o \
 $(RES)
 
 LINKOBJ  = $(OBJS)

@@ -1,12 +1,11 @@
 /******************************************************************************/
-// Best 8bpp palette selector for a series of PNG files
+// Land View files converter for KeeperFX
 /******************************************************************************/
-/** @file png2bestpal.cpp
+/** @file pngpal2raw.c
  *     Program code file.
  * @par Purpose:
- *     Contains code to read PNG files and select the best special 8bpp
- *     palette for KeeperFX which would allow to display all the files.
- *     Based on png2ico project.
+ *     Contains code to read PNG files and convert them to 8bpp RAWs with
+ *     special palette generated with Png2bestPal. Based on png2ico project.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis <listom@gmail.com>
@@ -36,7 +35,7 @@
 
 #include <png.h>
 
-#include "png2bestpal_version.h"
+#include "pngpal2raw_version.h"
 
 using namespace std;
 namespace __gnu_cxx{};
@@ -52,10 +51,10 @@ enum {
     ERR_LIMIT_EXCEED= -6, // static limit exceeded
 };
 
+int verbose = 0;
+
 #define LogMsg(format,args...) fprintf(stdout,format "\n", ## args)
 #define LogErr(format,args...) fprintf(stderr,format "\n", ## args)
-
-int verbose = 0;
 
 /** A class closing non-global command line parameters */
 class ProgramOptions {
@@ -66,21 +65,26 @@ public:
     }
     void clear()
     {
-        fnames_inp.clear();
+        fname_inp.clear();
         fname_pal.clear();
-        fname_map.clear();
+        fname_out.clear();
     }
-    std::vector<std::string> fnames_inp;
+    std::string fname_inp;
     std::string fname_pal;
-    std::string fname_map;
+    std::string fname_out;
 };
+
+typedef unsigned long RGBAQuad;
+typedef png_color RGBColor;
+typedef hash_map<RGBAQuad,signed int> MapQuadToPal;
+typedef std::vector<RGBColor> ColorPalette;
 
 class ImageData
 {
 public:
     ImageData():png_ptr(NULL),info_ptr(NULL),end_info(NULL),width(0),height(0),
-        transMap(NULL),col_bits(0),transparency_threshold(196){}
-    int colorBPP(void)
+           transMap(NULL),col_bits(0),transparency_threshold(196){}
+    int colorBPP(void) const
     { return col_bits; }
     png_structp png_ptr;
     png_infop info_ptr;
@@ -91,11 +95,6 @@ public:
     int col_bits;
     int transparency_threshold;
 };
-
-typedef unsigned long RGBAQuad;
-typedef png_color RGBColor;
-typedef hash_map<RGBAQuad,signed int> MapQuadToPal;
-typedef std::vector<RGBColor> ColorPalette;
 
 class WorkingSet
 {
@@ -109,9 +108,9 @@ public:
         for (int i=0; i < requested_colors; i++)
             paletteRemap[i] = i;
     }
-    int requestedColors(void)
+    int requestedColors(void) const
     { return requested_colors; }
-    int requestedColorBPP(void)
+    int requestedColorBPP(void) const
     { return requested_col_bits; }
     void addPaletteQuad(RGBAQuad quad)
     {
@@ -132,11 +131,36 @@ private:
     int requested_col_bits;
 };
 
+const int word_max=65535;
+//maximum quadratic euclidean distance in RGB color space that a palette color may have to a source color assigned to it before a warning is issued
+const int color_reduce_warning_threshold=512;
+//number of colors in source image times number of colors in target image that triggers the warning that the reduction may take a while
+const unsigned int slow_reduction_warn_threshold=262144;
+
+void writeByte(FILE* f, int byte)
+{
+  char data[1];
+  data[0]=(byte&255);
+  if (fwrite(data,1,1,f)!=1) {perror("Write error"); exit(1);}
+}
+
+int andMaskLineLen(const ImageData& img)
+{
+  int len=(img.width+7)>>3;
+  return (len+3)&~3;
+}
+
+int xorMaskLineLen(const ImageData& img)
+{
+  int pixelsPerByte = (8 / img.colorBPP());
+  return ((img.width+pixelsPerByte-1)/pixelsPerByte+3)&~3;
+}
+
 typedef bool (*checkTransparent_t)(png_bytep, ImageData&);
 
 bool checkTransparent1(png_bytep data, ImageData& img)
 {
-  return (data[3]<img.transparency_threshold);
+  return (data[3] < img.transparency_threshold);
 }
 
 bool checkTransparent3(png_bytep, ImageData&)
@@ -205,80 +229,12 @@ short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlp
     return ERR_OK;
 }
 
-
-/**
- * Fill up the palette with colors from the image.
- * This is done by repeatedly picking the color most different from the
- * previously picked colors and adding this to the palette.
- * This is done to make sure that in case there are more image colors than
- * palette entries, palette entries are not wasted on similar colors.
- *
- * @param ws
- * @return
- */
-short pick_palette_of_most_different_colors(WorkingSet& ws)
-{
-    int maxColors = ws.requestedColors();
-    while(ws.palette.size() < maxColors)
-    {
-        RGBAQuad mostDifferentQuad=0;
-        long long mdqMinDist = -1; //smallest distance to an entry in the palette for mostDifferentQuad
-        long long mdqDistSum = -1; //sum over all distances to palette entries for mostDifferentQuad
-        MapQuadToPal::iterator stop = ws.mapQuadToPalEntry.end();
-        MapQuadToPal::iterator iter = ws.mapQuadToPalEntry.begin();
-        while(iter!=stop)
-        {
-            MapQuadToPal::value_type& mapping=*iter++;
-            if (mapping.second<0)
-            {
-                RGBAQuad quad=mapping.first;
-                int red=quad&255;  //must be signed
-                int green=(quad>>8)&255;
-                int blue=(quad>>16)&255;
-                long long distSum=0;
-                long long minDist=LONG_LONG_MAX;
-                ColorPalette::iterator paliter;
-                for (paliter = ws.palette.begin(); paliter != ws.palette.end(); paliter++)
-                {
-                    long long dist=(red - paliter->red);
-                    dist*=dist;
-                    int temp=(green - paliter->green);
-                    dist+=temp*temp;
-                    temp=(blue - paliter->blue);
-                    dist+=temp*temp;
-                    if (dist<minDist) minDist=dist;
-                    distSum += dist;
-                }
-
-                if (minDist>mdqMinDist || (minDist==mdqMinDist && distSum>mdqDistSum))
-                {
-                    mostDifferentQuad=quad;
-                    mdqMinDist=minDist;
-                    mdqDistSum=distSum;
-                }
-            }
-        }
-
-        if (mdqMinDist>0) {
-            /* If we have found a most different quad, add it to the palette,
-             * and map it to the new palette entry.
-             */
-            ws.addPaletteQuad(mostDifferentQuad);
-        } else {
-            /* otherwise (i.e. all quads are mapped) the palette is finished
-             */
-            break;
-        }
-    }
-    return ERR_OK;
-}
-
 /**
  * Maps all yet unmapped colors to the most appropriate palette entry.
- * @param ws
+ * @param img
  * @return
  */
-short map_palette_colors_to_most_apropriate(WorkingSet& ws)
+short map_palette_colors_to_most_apropriate(WorkingSet& ws, ImageData& img)
 {
     MapQuadToPal::iterator stop = ws.mapQuadToPalEntry.end();
     MapQuadToPal::iterator iter = ws.mapQuadToPalEntry.begin();
@@ -314,60 +270,95 @@ short map_palette_colors_to_most_apropriate(WorkingSet& ws)
     return ERR_OK;
 }
 
-/**
- * Adjusts all palette entries to be the mean of all colors mapped to it.
- *
- * @param ws
- * @return
- */
-short update_palette_colors_to_average_of_uses(WorkingSet& ws)
+//returns true if color reduction resulted in at least one of the image's colors
+//being mapped to a palette color with a quadratic distance of more than
+//color_reduce_warning_threshold
+bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
 {
-    ColorPalette::iterator paliter;
-    for (paliter = ws.palette.begin(); paliter != ws.palette.end(); paliter++)
+    checkTransparent_t checkTrans=checkTransparent1;
+    int bytesPerPixel = (img.colorBPP()+7) >> 3;
+    if (!hasAlpha)
     {
-        long long red=0;
-        long long green=0;
-        long long blue=0;
-        long long numMappings=0;
-        MapQuadToPal::iterator stop = ws.mapQuadToPalEntry.end();
-        MapQuadToPal::iterator iter = ws.mapQuadToPalEntry.begin();
-        while(iter!=stop)
+        checkTrans=checkTransparent3;
+    }
+
+    png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
+
+    int transLineLen=andMaskLineLen(img);
+    int transLinePad=transLineLen - ((img.width+7)/8);
+    img.transMap=(png_bytepp)malloc(img.height*sizeof(png_bytep));
+
+    //second pass: convert RGB to palette entries
+    for (int y=img.height-1; y>=0; --y)
+    {
+        png_bytep row=row_pointers[y];
+        png_bytep pixel=row;
+        int count8=0;
+        int transbyte=0;
+        png_bytep transPtr=img.transMap[y]=(png_bytep)malloc(transLineLen);
+
+        for (unsigned i=0; i<img.width; ++i)
         {
-            MapQuadToPal::value_type& mapping=*iter++;
-            if (mapping.second == (paliter - ws.palette.begin()))
+            bool trans=((*checkTrans)(pixel,img));
+            unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
+            if (!trans) quad+=(255<<24); //NOTE: alpha channel has already been set to 255 for non-transparent pixels, so this is correct even for images with alpha channel
+
+            if (trans) ++transbyte;
+            if (++count8==8)
             {
-                RGBAQuad quad=mapping.first;
-                red+=quad&255;
-                green+=(quad>>8)&255;
-                blue+=(quad>>16)&255;
-                numMappings++;
+                *transPtr++ = transbyte;
+                count8=0;
+                transbyte=0;
             }
+            transbyte+=transbyte; //shift left 1
+
+            int palentry = ws.mapQuadToPalEntry[quad];
+            row[i]=palentry;
+            pixel+=bytesPerPixel;
         }
 
-        if (numMappings>0)
-        {
-            int c;
-            c = (red+red+numMappings)/(numMappings);
-            paliter->red = ((c+(c&1))>>1);
-            c = (green+green+numMappings)/(numMappings);
-            paliter->green = ((c+(c&1))>>1);
-            c = (blue+blue+numMappings)/(numMappings);
-            paliter->blue = ((c+(c&1))>>1);
-        }
+        for(int i=0; i<transLinePad; ++i) *transPtr++ = 0;
     }
+
+    img.col_bits = ws.requestedColorBPP();
 
     return ERR_OK;
 }
 
-short remap_palette_colors_order(WorkingSet& ws)
+//packs a line of width pixels (1 byte per pixel) in row, with 8/nbits pixels packed
+//into each byte
+//returns the new number of bytes in row
+int pack(png_bytep row,int width,int nbits)
 {
-    ColorPalette orig;
-    orig.insert(orig.begin(),ws.palette.begin(),ws.palette.end());
-    for (int i = 0; i < ws.paletteRemap.size(); i++) {
-        ws.palette[i] = orig[ws.paletteRemap[i]];
+  int pixelsPerByte=8/nbits;
+  if (pixelsPerByte<=1) return width;
+  int ander=(1<<nbits)-1;
+  int outByte=0;
+  int count=0;
+  int outIndex=0;
+  for (int i=0; i<width; ++i)
+  {
+    outByte+=(row[i]&ander);
+    if (++count==pixelsPerByte)
+    {
+      row[outIndex]=outByte;
+      count=0;
+      ++outIndex;
+      outByte=0;
     }
-    return ERR_OK;
+    outByte<<=nbits;
+  }
+
+  if (count>0)
+  {
+    outByte<<=nbits*(pixelsPerByte-count);
+    row[outIndex]=outByte;
+    ++outIndex;
+  }
+
+  return outIndex;
 }
+
 
 char *file_name_change_extension(const char *fname_inp,const char *ext)
 {
@@ -450,13 +441,13 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         static struct option long_options[] = {
             {"verbose", no_argument,       0, 'v'},
             {"output",  required_argument, 0, 'o'},
-            {"palmap",  required_argument, 0, 'm'},
+            {"palette",  required_argument,0, 'p'},
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vo:m:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vo:p:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -475,10 +466,10 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             verbose++;
             break;
         case 'o':
-            opts.fname_pal = optarg;
+            opts.fname_out = optarg;
             break;
-        case 'm':
-            opts.fname_map = optarg;
+        case 'p':
+            opts.fname_pal = optarg;
             break;
         case '?':
                // unrecognized option
@@ -488,41 +479,45 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         }
     }
     // remaining command line arguments (not options)
-    while (optind < argc)
+    if (optind < argc)
     {
-        opts.fnames_inp.push_back(argv[optind++]);
+        opts.fname_inp = argv[optind++];
     }
-    if ((optind < argc) || (opts.fnames_inp.size() < 1))
+    if ((optind < argc) || (opts.fname_inp.size() < 1))
     {
         LogErr("Incorrectly specified input file name.");
         return false;
     }
     // fill names that were not set by arguments
+    if (opts.fname_out.length() < 1)
+    {
+        opts.fname_out = file_name_change_extension(opts.fname_inp.c_str(),"raw");
+    }
     if (opts.fname_pal.length() < 1)
     {
-        opts.fname_pal = file_name_change_extension(opts.fnames_inp[0].c_str(),"pal");
+        opts.fname_pal = file_name_change_extension(opts.fname_inp.c_str(),"pal");
     }
     return true;
 }
 
 short show_head(void)
 {
-    LogMsg("\n%s (%s) %s",PROGRAM_FULL_NAME,PROGRAM_NAME,VER_STRING);
-    LogMsg("  Created by %s; %s",PROGRAM_AUTHORS,LEGAL_COPYRIGHT);
-    LogMsg("----------------------------------------");
+    printf("\n%s (%s) %s\n",PROGRAM_FULL_NAME,PROGRAM_NAME,VER_STRING);
+    printf("  Created by %s; %s\n",PROGRAM_AUTHORS,LEGAL_COPYRIGHT);
+    printf("----------------------------------------\n");
     return ERR_OK;
 }
 
 /** Displays information about how to use this tool. */
-short show_usage(char *fname)
+short show_usage(const std::string &fname)
 {
-    std::string xname = file_name_strip_path(fname);
-    LogMsg("usage:\n");
-    LogMsg("    %s [options] <filename>", xname.c_str());
-    LogMsg("where <filename> should be the input BMP file, and [options] are:");
-    LogMsg("    -v,--verbose             Verbose console output mode");
-    LogMsg("    -m<file>,--palmap<file>  Static palette entries mapping file name");
-    LogMsg("    -o<file>,--output<file>  Output PAL file name");
+    std::string xname = file_name_strip_path(fname.c_str());
+    printf("usage:\n");
+    printf("    %s [options] <filename>\n", xname.c_str());
+    printf("where <filename> should be the input PNG file, and [options] are:\n");
+    printf("    -v,--verbose             Verbose console output mode\n");
+    printf("    -p<file>,--palette<file> Input PAL file name\n");
+    printf("    -o<file>,--output<file>  Output RAW file name\n");
     return ERR_OK;
 }
 
@@ -612,63 +607,39 @@ short load_inp_png_file(ImageData& img, const std::string& fname_inp, ProgramOpt
     return ERR_OK;
 }
 
-short load_pal_mapping_file(WorkingSet& ws, const std::string& fname_map, ProgramOptions& opts)
+short load_inp_palette_file(WorkingSet& ws, const std::string& fname_pal, ProgramOptions& opts)
 {
     std::fstream f;
     size_t currentLine;
     size_t errors;
 
-    /* Load the .txt file: */
-    f.open(fname_map.c_str(), std::fstream::in);
+    /* Load the .pal file: */
+    f.open(fname_pal.c_str(), std::ios::in | std::ios::binary);
 
     currentLine = 0;
-    errors = 0;
     while (!f.eof())
     {
-        // read next line and strip insignificant whitespace from it:
-        std::string line;
-        std::getline(f, line);
+        unsigned char col[3];
+        unsigned char r,g,b;
+        // read next color
+        f.read((char *)col, 3);
         currentLine++;
 
-        size_t pos;
-        pos = line.find_first_not_of(" \n\r\t");
-        // If empty line or comment
-        if ((pos == std::string::npos) || (line[pos] == '#'))
-            continue;
-
-        int code = strtol(line.substr(pos).c_str(),NULL,16);
-        if (code == 0)
+        if (f.fail())
         {
             errors++;
-            LogErr("Invalid entry id in PAL mapping entry at line %ld.", (long)currentLine);
-            continue;
+            LogErr("Warning: PAL file is truncated, partial color entry found.");
+            break;
         }
-        pos = line.find("\t",pos);
-        // If invalid line
-        if (pos == std::string::npos)
-        {
-            errors++;
-            LogErr("PAL mapping entry at line %ld has no tab separated quad.", (long)currentLine);
-            continue;
-        }
-        int quad = strtol(line.substr(pos+1).c_str(),NULL,16);
-        if (quad == 0)
-        {
-            errors++;
-            LogErr("Invalid quad value in PAL mapping entry at line %ld.", (long)currentLine);
-            continue;
-        }
-        {
-            int i = ws.palette.size();
-            ws.addPaletteQuad(quad);
-            ws.paletteRemap[i] = code;
-            ws.paletteRemap[code] = i;
-        }
+        r = (col[0] << 2) + 1;
+        g = (col[1] << 2) + 1;
+        b = (col[2] << 2) + 1;
+        ws.addPaletteQuad((r)|(g<<8)|(b<<16)|(255<<24));
     }
 
-    if (errors > 0)
+    if (ws.palette.size() != ws.requestedColors())
     {
-        LogErr("Couldn't load file %s, it is probably corrupted.", fname_map.c_str());
+        LogErr("Incomplete file %s, got %d colors from it while expected %d.", fname_pal.c_str(),(int)ws.palette.size(),ws.requestedColors());
         return ERR_FILE_READ;
     }
 
@@ -677,28 +648,26 @@ short load_pal_mapping_file(WorkingSet& ws, const std::string& fname_map, Progra
     return ERR_OK;
 }
 
-short save_pal_file(WorkingSet& ws, const std::string& fname_pal, ProgramOptions& opts)
+short save_raw_file(ImageData& img, const std::string& fname_raw, ProgramOptions& opts)
 {
-    // Open and write the PAL file
+    // Open and write the RAW file
     {
-        FILE* palfile = fopen(fname_pal.c_str(),"wb");
-        if (palfile == NULL) {
-            perror(fname_pal.c_str());
+        FILE* rawfile = fopen(fname_raw.c_str(),"wb");
+        if (rawfile == NULL) {
+            perror(fname_raw.c_str());
             return ERR_CANT_OPEN;
         }
-        ColorPalette::iterator iter;
-        for (iter = ws.palette.begin(); iter != ws.palette.end(); iter++)
+        png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
+        int y;
+        for (y = img.height-1; y >= 0; y--)
         {
-            unsigned char col[3];
-            col[0] = ((iter->red + (iter->red&2)) >> 2);
-            col[1] = ((iter->green + (iter->green&2)) >> 2);
-            col[2] = ((iter->blue + (iter->blue&2)) >> 2);
-            if (fwrite(col,3,1,palfile) != 1) {
-                perror(fname_pal.c_str());
-                return ERR_FILE_WRITE;
-            }
+            png_bytep row = row_pointers[y];
+            int newLength = pack(row,img.width,img.colorBPP());
+            if (fwrite(row,newLength,1,rawfile)!=1) {perror(fname_raw.c_str()); exit(1);}
+            for(int i=0; i<xorMaskLineLen(img)-newLength; ++i) writeByte(rawfile,0);
         }
-        fclose(palfile);
+        fclose(rawfile);
+
     }
     return ERR_OK;
 }
@@ -706,7 +675,7 @@ short save_pal_file(WorkingSet& ws, const std::string& fname_pal, ProgramOptions
 int main(int argc, char* argv[])
 {
     static ProgramOptions opts;
-   if (!load_command_line_options(opts, argc, argv))
+    if (!load_command_line_options(opts, argc, argv))
     {
         show_head();
         show_usage(argv[0]);
@@ -718,64 +687,43 @@ int main(int argc, char* argv[])
 
     static WorkingSet ws;
 
+    LogMsg("Loading image \"%s\".",opts.fname_inp.c_str());
+    ImageData img = ImageData();
+    if (load_inp_png_file(img, opts.fname_inp, opts) != ERR_OK) {
+        return 2;
+    }
+
+    LogMsg("Gathering colors of image...");
+    if (gather_list_of_colors_in_image(ws, img, (img.color_type & PNG_COLOR_MASK_ALPHA)) != ERR_OK) {
+        LogErr("Gathering failed.");
+        return 3;
+    }
+
     ws.requestedColors(256);
-    if (opts.fname_map.length() > 0)
-    {
-        // load unmoveable palette entries from mapping file
-        if (load_pal_mapping_file(ws, opts.fname_map, opts) != ERR_OK) {
-            LogErr("Mappings load failed.");
-            return 7;
-        }
-    } else
-    {
-        //map (non-transparent) black to entry 0
-        ws.addPaletteQuad(255<<24);
-        //map (non-transparent) white to entry 1
-        ws.addPaletteQuad(255|(255<<8)|(255<<16)|(255<<24));
+    LogMsg("Loading palette file \"%s\".",opts.fname_pal.c_str());
+    if (load_inp_palette_file(ws, opts.fname_pal, opts) != ERR_OK) {
+        LogErr("Loading palette failed.");
+        return 4;
     }
-    {
-        std::vector<std::string>::iterator iter;
-        for (iter = opts.fnames_inp.begin(); iter != opts.fnames_inp.end(); iter++)
-        {
-            LogMsg("Loading image \"%s\".",iter->c_str());
-            ImageData img = ImageData();
-            if (load_inp_png_file(img, *iter, opts) != ERR_OK) {
-                return 2;
-            }
-            LogMsg("Gathering colors of image...");
-            if (gather_list_of_colors_in_image(ws, img, (img.color_type & PNG_COLOR_MASK_ALPHA)) != ERR_OK) {
-                LogErr("Gathering failed.");
-                return 3;
-            }
-        }
+
+    LogMsg("Mapping colors to palette...");
+    if (map_palette_colors_to_most_apropriate(ws, img) != ERR_OK) {
+        LogErr("Mapping colors failed.");
+        return 5;
     }
-    {
-        LogMsg("Picking most diverse palette...");
-        if (pick_palette_of_most_different_colors(ws) != ERR_OK) {
-            LogErr("Picking palette failed.");
-            return 4;
-        }
-        LogMsg("Mapping colors to palette...");
-        if (map_palette_colors_to_most_apropriate(ws) != ERR_OK) {
-            LogErr("Mapping colors failed.");
-            return 5;
-        }
-        LogMsg("Updating palette to average...");
-        if (update_palette_colors_to_average_of_uses(ws) != ERR_OK) {
-            LogErr("Updating palette to average failed.");
-            return 6;
-        }
-        LogMsg("Reordering palette entries...");
-        if (remap_palette_colors_order(ws) != ERR_OK) {
-            LogErr("Reordering failed.");
-            return 6;
-        }
+
+    LogMsg("Converting colors to indexes...");
+    if (convert_rgb_to_indexed(ws, img, ((img.color_type & PNG_COLOR_MASK_ALPHA) != ERR_OK))) {
+        LogErr("Converting colors failed.");
+        return 6;
     }
-    LogMsg("Saving...");
-    if (save_pal_file(ws, opts.fname_pal, opts) != ERR_OK) {
+
+    LogMsg("Saving file \"%s\".",opts.fname_out.c_str());
+    if (save_raw_file(img, opts.fname_out, opts) != ERR_OK) {
         return 8;
     }
-    LogMsg("Done.");
+
     return 0;
 }
+
 
