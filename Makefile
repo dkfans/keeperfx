@@ -34,6 +34,8 @@ DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
 PNGTOICO  = tools/png2ico/png2ico$(CROSS_EXEEXT)
+PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
+PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
 POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
 RM       = rm -f
 MV       = mv -f
@@ -435,6 +437,8 @@ include libexterns.mk
 
 include tool_peresec.mk
 include tool_png2ico.mk
+include tool_pngpal2raw.mk
+include tool_png2bestpal.mk
 include tool_po2ngdat.mk
 
 include package.mk
