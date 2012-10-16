@@ -97,6 +97,17 @@ typedef png_color RGBColor;
 typedef hash_map<RGBAQuad,signed int> MapQuadToPal;
 typedef std::vector<RGBColor> ColorPalette;
 
+inline RGBAQuad mkquad(int r,int g,int b,int a)
+{ return (r)|(g<<8)|(b<<16)|(a<<24); }
+inline int quad_r(RGBAQuad q)
+{ return (q)&255; }
+inline int quad_g(RGBAQuad q)
+{ return (q>>8)&255; }
+inline int quad_b(RGBAQuad q)
+{ return (q>>16)&255; }
+inline int quad_a(RGBAQuad q)
+{ return (q>>24)&255; }
+
 class WorkingSet
 {
 public:
@@ -108,6 +119,7 @@ public:
         paletteRemap.resize(requested_colors);
         for (int i=0; i < requested_colors; i++)
             paletteRemap[i] = i;
+        palette.reserve(reqColors);
     }
     int requestedColors(void)
     { return requested_colors; }
@@ -117,9 +129,9 @@ public:
     {
         int palentry = palette.size();
         RGBColor ncol;
-        ncol.red = quad&255;
-        ncol.green = (quad>>8)&255;
-        ncol.blue = (quad>>16)&255;
+        ncol.red = quad_r(quad);
+        ncol.green = quad_g(quad);
+        ncol.blue = quad_b(quad);
         palette.push_back(ncol);
         mapQuadToPalEntry[quad] = palentry;
     }
@@ -132,14 +144,14 @@ private:
     int requested_col_bits;
 };
 
-typedef bool (*checkTransparent_t)(png_bytep, ImageData&);
+typedef bool (*checkTransparent_t)(png_bytep, const ImageData&);
 
-bool checkTransparent1(png_bytep data, ImageData& img)
+bool checkTransparent1(png_bytep data, const ImageData& img)
 {
   return (data[3]<img.transparency_threshold);
 }
 
-bool checkTransparent3(png_bytep, ImageData&)
+bool checkTransparent3(png_bytep, const ImageData&)
 {
   return false;
 }
@@ -192,7 +204,7 @@ short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlp
                     a=255;
                 }
             }
-            quad=r+(g<<8)+(b<<16)+(a<<24);
+            quad=mkquad(r,g,b,a);
 
             if (trans)
                 ws.mapQuadToPalEntry[quad] = 0;
@@ -232,9 +244,9 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
             if (mapping.second<0)
             {
                 RGBAQuad quad=mapping.first;
-                int red=quad&255;  //must be signed
-                int green=(quad>>8)&255;
-                int blue=(quad>>16)&255;
+                int red=quad_r(quad);  //must be signed
+                int green=quad_g(quad);
+                int blue=quad_b(quad);
                 long long distSum=0;
                 long long minDist=LONG_LONG_MAX;
                 ColorPalette::iterator paliter;
@@ -288,9 +300,9 @@ short map_palette_colors_to_most_apropriate(WorkingSet& ws)
         if (mapping.second<0)
         {
             RGBAQuad quad=mapping.first;
-            int red=quad&255;  //must be signed
-            int green=(quad>>8)&255;
-            int blue=(quad>>16)&255;
+            int red=quad_r(quad);  //must be signed
+            int green=quad_g(quad);
+            int blue=quad_b(quad);
             int minDist=INT_MAX;
             int bestIndex=0;
             ColorPalette::iterator paliter;
@@ -337,9 +349,9 @@ short update_palette_colors_to_average_of_uses(WorkingSet& ws)
             if (mapping.second == (paliter - ws.palette.begin()))
             {
                 RGBAQuad quad=mapping.first;
-                red+=quad&255;
-                green+=(quad>>8)&255;
-                blue+=(quad>>16)&255;
+                red+=quad_r(quad);
+                green+=quad_g(quad);
+                blue+=quad_b(quad);
                 numMappings++;
             }
         }
@@ -637,7 +649,7 @@ short load_pal_mapping_file(WorkingSet& ws, const std::string& fname_map, Progra
             continue;
 
         int code = strtol(line.substr(pos).c_str(),NULL,16);
-        if (code == 0)
+        if (code < 0)
         {
             errors++;
             LogErr("Invalid entry id in PAL mapping entry at line %ld.", (long)currentLine);
@@ -658,6 +670,7 @@ short load_pal_mapping_file(WorkingSet& ws, const std::string& fname_map, Progra
             LogErr("Invalid quad value in PAL mapping entry at line %ld.", (long)currentLine);
             continue;
         }
+        quad = mkquad((quad>>16)&255,(quad>>8)&255,quad&255,255);
         {
             int i = ws.palette.size();
             ws.addPaletteQuad(quad);
@@ -719,6 +732,7 @@ int main(int argc, char* argv[])
     static WorkingSet ws;
 
     ws.requestedColors(256);
+    ws.mapQuadToPalEntry.resize(1048576);
     if (opts.fname_map.length() > 0)
     {
         // load unmoveable palette entries from mapping file
@@ -729,9 +743,9 @@ int main(int argc, char* argv[])
     } else
     {
         //map (non-transparent) black to entry 0
-        ws.addPaletteQuad(255<<24);
+        ws.addPaletteQuad(mkquad(0,0,0,255));
         //map (non-transparent) white to entry 1
-        ws.addPaletteQuad(255|(255<<8)|(255<<16)|(255<<24));
+        ws.addPaletteQuad(mkquad(255,255,255,255));
     }
     {
         std::vector<std::string>::iterator iter;

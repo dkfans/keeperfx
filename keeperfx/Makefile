@@ -253,6 +253,23 @@ pkg/campgns/evilkeep/text_ger.dat \
 pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/questfth/text_eng.dat
+LANDVIEWRAWS = \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/dkmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/burdnimp_lnd/bimap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/dstninja_lnd/dnmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/dzjr06lv_lnd/dzmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/dzjr10lv_lnd/dzmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/dzjr25lv_lnd/dzmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/evilkeep_lnd/ekmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/grkreign_lnd/krmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/jdkmaps8_lnd/jdmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18,pkg/campgns/kdklvpck_lnd/kdmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12,pkg/campgns/lqizgood_lnd/lqmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/lrdvexer_lnd/lvmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/ncastles_lnd/ctmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08,pkg/campgns/postanck_lnd/pamap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/qhmap$(num).raw) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/tkmap$(num).raw)
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 
@@ -357,6 +374,8 @@ pkg-copydat:
 pkg-campaigns: $(CAMPAIGN_CFGS)
 
 pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS)
+
+pkg-landviews: $(LANDVIEWRAWS)
 
 pkg/campgns/%.cfg: campgns/%.cfg
 	@$(MKDIR) $(@D)
@@ -541,17 +560,40 @@ pkg/fxdata/%.dat: lang/%.pot $(POTONGDAT)
 define define_campaign_language_rule
 pkg/campgns/$(1)/%.dat: lang/$(1)/%.po $$(POTONGDAT)
 	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
 	$$(POTONGDAT) -o "$$@" -e "tools/po2ngdat/res/char_encoding_tbl_eu.txt" "$$<"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
 pkg/campgns/$(1)/%.dat: lang/$(1)/%.pot $$(POTONGDAT)
 	-$$(ECHO) 'Building language file: $$@'
+	@$$(MKDIR) $$(@D)
 	$$(POTONGDAT) -o "$$@" -e "tools/po2ngdat/res/char_encoding_tbl_eu.txt" "$$<"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_language_rule,$(campaign))))
+
+# Creation of land view image files for campaigns
+define define_campaign_landview_rule
+pkg/campgns/$(1)_lnd/%.pal: gfx/$(1)_lnd/%.png $$(PNGTOBSPAL)
+	-$$(ECHO) 'Building land view palette: $$@'
+	@$$(MKDIR) $$(@D)
+	$$(PNGTOBSPAL) -o "$$@" -m "tools/png2bestpal/res/color_tbl_landview.txt" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+pkg/campgns/$(1)_lnd/%.raw: gfx/$(1)_lnd/%.png pkg/campgns/$(1)_lnd/%.pal $$(PNGTORAW)
+	-$$(ECHO) 'Building land view image: $$@'
+	$$(PNGTORAW) -o "$$@" -p "$$(word 2,$$^)" "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+# mark palette files precious to make sure they're not auto-removed after raw is built
+.PRECIOUS: pkg/campgns/$(1)_lnd/%.pal
+endef
+
+$(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_rule,$(campaign))))
 
 #******************************************************************************

@@ -1,4 +1,6 @@
 # Colors which should be similar to specific values
+# for for compatibility with other images.
+# These below are for sprites from dkflag00.dat and netflag.dat:
 0x01	0xfcfcac
 0x0b	0xf4f468
 0x3a	0x389cdc
