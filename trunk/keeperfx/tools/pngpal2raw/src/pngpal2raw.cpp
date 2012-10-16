@@ -276,11 +276,11 @@ int nearest_palette_color_index(const ColorPalette& palette, const RGBAQuad quad
 
 /**
  * Propagates an error into adjacent cells.
- * @param alg
- * @param w
- * @param e
- * @param i
- * @param j
+ * @param alg Diffusuion algorithm index.
+ * @param w Error delta value.
+ * @param e The error array.
+ * @param i Error central coordinate.
+ * @param j Error central coordinate.
  */
 void propagateError(int alg, float w, DitherError &e, int i, int j)
 {
@@ -712,8 +712,7 @@ short save_raw_file(ImageData& img, const std::string& fname_raw, ProgramOptions
             return ERR_CANT_OPEN;
         }
         png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
-        int y;
-        for (y = img.height-1; y >= 0; y--)
+        for (int y=0; y<img.height; y++)
         {
             png_bytep row = row_pointers[y];
             int newLength = pack(row,img.width,img.colorBPP());
