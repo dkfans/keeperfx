@@ -442,4 +442,5 @@ include tool_png2bestpal.mk
 include tool_po2ngdat.mk
 
 include package.mk
-include lang.mk
+include pkg_lang.mk
+include pkg_gfx.mk
