@@ -74,11 +74,20 @@ public:
     std::string fname_out;
 };
 
+class RGBAccum {
+public:
+    RGBAccum(): r(0),g(0),b(0) {};
+    long r;
+    long g;
+    long b;
+};
+
+
 typedef unsigned long RGBAQuad;
 typedef png_color RGBColor;
 typedef hash_map<RGBAQuad,signed int> MapQuadToPal;
 typedef std::vector<RGBColor> ColorPalette;
-
+typedef std::vector<std::vector<float> > DitherError;
 class ImageData
 {
 public:
@@ -99,7 +108,7 @@ public:
 class WorkingSet
 {
 public:
-    WorkingSet():requested_colors(0),requested_col_bits(0){}
+    WorkingSet():alg(0),requested_colors(0),requested_col_bits(0){}
     void requestedColors(int reqColors)
     {
         requested_colors = reqColors;
@@ -125,17 +134,90 @@ public:
     //std::vector<ImageData> images;
     ColorPalette palette;
     std::vector<int> paletteRemap;
+    DitherError mapErrorR;
+    DitherError mapErrorG;
+    DitherError mapErrorB;
     MapQuadToPal mapQuadToPalEntry;
+    int alg;
 private:
     int requested_colors;
     int requested_col_bits;
 };
 
-const int word_max=65535;
-//maximum quadratic euclidean distance in RGB color space that a palette color may have to a source color assigned to it before a warning is issued
-const int color_reduce_warning_threshold=512;
-//number of colors in source image times number of colors in target image that triggers the warning that the reduction may take a while
-const unsigned int slow_reduction_warn_threshold=262144;
+/* to avoid indices below 0 in dithering error array */
+#define SHIFT 3
+
+float dif[11][3][6] =
+{
+   {
+      {0,        0,        0,        0,        7.0/16.0, 0},
+      {0,        0,        3.0/16.0, 5.0/16.0, 1.0/16.0, 0},
+      {0,        0       , 0,        0,        0,        0}
+   },
+   {
+      {0,        0,        0,        0,        7.0/48.0, 5.0/48.0},
+      {0,        3.0/48.0, 5.0/48.0, 7.0/48.0, 5.0/48.0, 3.0/48.0},
+      {0,        1.0/48.0, 3.0/48.0, 5.0/48.0, 3.0/48.0, 1.0/48.0}
+   },
+   {
+      {0,        0,        0,        0,        8.0/42.0, 4.0/42.0},
+      {0,        2.0/42.0, 4.0/42.0, 8.0/42.0, 4.0/42.0, 2.0/42.0},
+      {0,        1.0/42.0, 2.0/42.0, 4.0/42.0, 2.0/42.0, 1.0/42.0}
+   },
+   {
+      {0,        0,        0,        0,        8.0/32.0, 4.0/32.0},
+      {0,        2.0/32.0, 4.0/32.0, 8.0/32.0, 4.0/32.0, 2.0/32.0},
+      {0,        0       , 0,        0,        0,        0}
+   },
+   {
+      {0,        0,        0,        0,        7.0/16.0, 0},
+      {0,        1.0/16.0, 3.0/16.0, 5.0/16.0, 0,        0},
+      {0,        0       , 0,        0,        0,        0}
+   },
+   {
+      {0,        0,        0,        0,        5.0/32.0, 3.0/32.0},
+      {0,        2.0/32.0, 4.0/32.0, 5.0/32.0, 4.0/32.0, 2.0/32.0},
+      {0,        0       , 2.0/32.0, 3.0/32.0, 2.0/32.0, 0}
+   },
+   {
+      {0,        0,        0,        0,        4.0/16.0, 3.0/16.0},
+      {0,        1.0/16.0, 2.0/16.0, 3.0/16.0, 2.0/16.0, 1.0/16.0},
+      {0,        0       , 0,        0,        0,        0}
+   },
+   {
+      {0,        0,        0,        0,        2.0/4.0,  0},
+      {0,        0,        1.0/4.0,  1.0/4.0,  0,        0},
+      {0,        0       , 0,        0,        0,        0}
+   },
+   {
+      {0,        0,        0,        0,        1.0/8.0,  1.0/8.0},
+      {0,        0,        1.0/8.0,  1.0/8.0,  1.0/8.0,  0},
+      {0,        0,        0,        1.0/8.0,  0,        0}
+   },
+   {
+      {0,        0,        0,        0,        4.0/8.0,  0},
+      {0,        1.0/8.0,  1.0/8.0,  2.0/8.0,  0,        0},
+      {0,        0,        0,        0,        0,        0}
+   },
+   {
+      {0,        0,        0,        0,        8.0/16.0, 0},
+      {1.0/16.0, 1.0/16.0, 2.0/16.0, 4.0/16.0, 0,        0},
+      {0,        0,        0,        0,        0,        0}
+   }
+};
+
+/**
+ * Cuts given value to color range (0..255).
+ * @param x
+ * @return
+ */
+int clipIntensity(long x)
+{
+   if (x > 255) return 255;
+   if (x < 0) return 0;
+   return x;
+}
+
 
 void writeByte(FILE* f, int byte)
 {
@@ -168,112 +250,78 @@ bool checkTransparent3(png_bytep, ImageData&)
   return false;
 }
 
-/**
- * Gather all colors, evaluate values with alpha channel.
- * Makes sure alpha channel (if present) contains only 0 and 255 if
- * an alpha channel is present, set all transparent pixels to RGBA (0,0,0,0)
- * transparent pixels will already be mapped to palette entry 0,
- * non-transparent pixels will not get a mapping yet (-1).
- * @param ws
- * @param img
- * @param hasAlpha
- * @return
- */
-short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlpha)
+int nearest_palette_color_index(const ColorPalette& palette, const RGBAQuad quad)
 {
-    checkTransparent_t checkTrans=checkTransparent1;
-    int bytesPerPixel = (img.colorBPP()+7) >> 3;
-    if (!hasAlpha)
+    int red=quad&255;  //must be signed
+    int green=(quad>>8)&255;
+    int blue=(quad>>16)&255;
+    int minDist=INT_MAX;
+    int bestIndex=0;
+    ColorPalette::const_iterator paliter;
+    for (paliter = palette.begin(); paliter != palette.end(); paliter++)
     {
-        checkTrans=checkTransparent3;
-    }
-    png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
-
-    for (int y=img.height-1; y>=0; --y)
-    {
-        png_bytep pixel=row_pointers[y];
-        for (unsigned i=0; i<img.width; ++i)
-        {
-            unsigned char r,g,b,a;
-            RGBAQuad quad;
-            bool trans=(*checkTrans)(pixel,img);
-
-            r = pixel[0];
-            g = pixel[1];
-            b = pixel[2];
-            if (hasAlpha)
-            {
-                if (trans) {
-                    a = pixel[3];
-                } else {
-                    a=255;
-                }
-            } else
-            {
-                if (trans) {
-                    a = 0;
-                } else {
-                    a=255;
-                }
-            }
-            quad=r+(g<<8)+(b<<16)+(a<<24);
-
-            if (trans)
-                ws.mapQuadToPalEntry[quad] = 0;
-            else
-                ws.mapQuadToPalEntry[quad] = -1;
-
-            pixel+=bytesPerPixel;
+        int dist=(red - paliter->red);
+        dist*=dist;
+        int temp=(green - paliter->green);
+        dist+=temp*temp;
+        temp=(blue - paliter->blue);
+        dist+=temp*temp;
+        if (dist<minDist) {
+            minDist=dist;
+            bestIndex = (paliter - palette.begin());
         }
     }
-    return ERR_OK;
+    return bestIndex;
 }
 
 /**
- * Maps all yet unmapped colors to the most appropriate palette entry.
- * @param img
- * @return
+ * Propagates an error into adjacent cells.
+ * @param alg
+ * @param w
+ * @param e
+ * @param i
+ * @param j
  */
-short map_palette_colors_to_most_apropriate(WorkingSet& ws, ImageData& img)
+void propagateError(int alg, float w, DitherError &e, int i, int j)
 {
-    MapQuadToPal::iterator stop = ws.mapQuadToPalEntry.end();
-    MapQuadToPal::iterator iter = ws.mapQuadToPalEntry.begin();
-    while(iter!=stop)
-    {
-        MapQuadToPal::value_type& mapping=*iter++;
-        if (mapping.second<0)
-        {
-            RGBAQuad quad=mapping.first;
-            int red=quad&255;  //must be signed
-            int green=(quad>>8)&255;
-            int blue=(quad>>16)&255;
-            int minDist=INT_MAX;
-            int bestIndex=0;
-            ColorPalette::iterator paliter;
-            for (paliter = ws.palette.begin(); paliter != ws.palette.end(); paliter++)
-            {
-                int dist=(red - paliter->red);
-                dist*=dist;
-                int temp=(green - paliter->green);
-                dist+=temp*temp;
-                temp=(blue - paliter->blue);
-                dist+=temp*temp;
-                if (dist<minDist) {
-                    minDist=dist;
-                    bestIndex = (paliter - ws.palette.begin());
-                }
-            }
+   e[i+1+SHIFT][j  ] = e[i+1+SHIFT][j  ] + (w*dif[alg][0][4]);
+   e[i+2+SHIFT][j  ] = e[i+2+SHIFT][j  ] + (w*dif[alg][0][5]);
 
-            mapping.second=bestIndex;
-        }
-    }
-    return ERR_OK;
+   e[i-3+SHIFT][j+1] = e[i-3+SHIFT][j+1] + (w*dif[alg][1][0]);
+   e[i-2+SHIFT][j+1] = e[i-2+SHIFT][j+1] + (w*dif[alg][1][1]);
+   e[i-1+SHIFT][j+1] = e[i-1+SHIFT][j+1] + (w*dif[alg][1][2]);
+   e[i  +SHIFT][j+1] = e[i  +SHIFT][j+1] + (w*dif[alg][1][3]);
+   e[i+1+SHIFT][j+1] = e[i+1+SHIFT][j+1] + (w*dif[alg][1][4]);
+   e[i+2+SHIFT][j+1] = e[i+2+SHIFT][j+1] + (w*dif[alg][1][5]);
+
+   e[i-3+SHIFT][j+2] = e[i-3+SHIFT][j+2] + (w*dif[alg][2][0]);
+   e[i-2+SHIFT][j+2] = e[i-2+SHIFT][j+2] + (w*dif[alg][2][1]);
+   e[i-1+SHIFT][j+2] = e[i-1+SHIFT][j+2] + (w*dif[alg][2][2]);
+   e[i  +SHIFT][j+2] = e[i  +SHIFT][j+2] + (w*dif[alg][2][3]);
+   e[i+1+SHIFT][j+2] = e[i+1+SHIFT][j+2] + (w*dif[alg][2][4]);
+   e[i+2+SHIFT][j+2] = e[i+2+SHIFT][j+2] + (w*dif[alg][2][5]);
 }
 
-//returns true if color reduction resulted in at least one of the image's colors
-//being mapped to a palette color with a quadratic distance of more than
-//color_reduce_warning_threshold
-bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
+int dithered_palette_color_index(WorkingSet& ws, const ColorPalette& palette, unsigned int x, unsigned int y, RGBAQuad quad)
+{
+    int red=(quad&255);  //must be signed
+    int green=(quad>>8)&255;
+    int blue=(quad>>16)&255;
+    int alpha=(quad>>24)&255;
+    red = clipIntensity(red + ws.mapErrorR[x+SHIFT][y]);
+    green = clipIntensity(green + ws.mapErrorG[x+SHIFT][y]);
+    blue = clipIntensity(blue + ws.mapErrorB[x+SHIFT][y]);
+
+    int bestIndex = nearest_palette_color_index(palette,(red)|(green<<8)|(blue<<16)|(alpha<<24));
+
+    propagateError(ws.alg, red - palette[bestIndex].red , ws.mapErrorR, x, y);
+    propagateError(ws.alg, green - palette[bestIndex].green , ws.mapErrorG, x, y);
+    propagateError(ws.alg, blue - palette[bestIndex].blue , ws.mapErrorB, x, y);
+
+    return bestIndex;
+}
+
+short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
 {
     checkTransparent_t checkTrans=checkTransparent1;
     int bytesPerPixel = (img.colorBPP()+7) >> 3;
@@ -288,8 +336,20 @@ bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
     int transLinePad=transLineLen - ((img.width+7)/8);
     img.transMap=(png_bytepp)malloc(img.height*sizeof(png_bytep));
 
+
+    ws.mapErrorR.resize(img.width+2*SHIFT);
+    ws.mapErrorG.resize(img.width+2*SHIFT);
+    ws.mapErrorB.resize(img.width+2*SHIFT);
+    for (int i=0; i < img.width+2*SHIFT; i++)
+    {
+        ws.mapErrorR[i].resize(img.height+2*SHIFT);
+        ws.mapErrorG[i].resize(img.height+2*SHIFT);
+        ws.mapErrorB[i].resize(img.height+2*SHIFT);
+    }
+
     //second pass: convert RGB to palette entries
-    for (int y=img.height-1; y>=0; --y)
+    //for (int y=img.height-1; y>=0; --y)
+    for (int y=0; y<img.height; y++)
     {
         png_bytep row=row_pointers[y];
         png_bytep pixel=row;
@@ -297,7 +357,7 @@ bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
         int transbyte=0;
         png_bytep transPtr=img.transMap[y]=(png_bytep)malloc(transLineLen);
 
-        for (unsigned i=0; i<img.width; ++i)
+        for (unsigned x=0; x<img.width; ++x)
         {
             bool trans=((*checkTrans)(pixel,img));
             unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
@@ -312,8 +372,8 @@ bool convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
             }
             transbyte+=transbyte; //shift left 1
 
-            int palentry = ws.mapQuadToPalEntry[quad];
-            row[i]=palentry;
+            int palentry = dithered_palette_color_index(ws, ws.palette, x, y, quad);
+            row[x]=palentry;
             pixel+=bytesPerPixel;
         }
 
@@ -610,25 +670,19 @@ short load_inp_png_file(ImageData& img, const std::string& fname_inp, ProgramOpt
 short load_inp_palette_file(WorkingSet& ws, const std::string& fname_pal, ProgramOptions& opts)
 {
     std::fstream f;
-    size_t currentLine;
-    size_t errors;
 
     /* Load the .pal file: */
     f.open(fname_pal.c_str(), std::ios::in | std::ios::binary);
 
-    currentLine = 0;
     while (!f.eof())
     {
         unsigned char col[3];
         unsigned char r,g,b;
         // read next color
         f.read((char *)col, 3);
-        currentLine++;
 
-        if (f.fail())
+        if (!f.good())
         {
-            errors++;
-            LogErr("Warning: PAL file is truncated, partial color entry found.");
             break;
         }
         r = (col[0] << 2) + 1;
@@ -693,23 +747,11 @@ int main(int argc, char* argv[])
         return 2;
     }
 
-    LogMsg("Gathering colors of image...");
-    if (gather_list_of_colors_in_image(ws, img, (img.color_type & PNG_COLOR_MASK_ALPHA)) != ERR_OK) {
-        LogErr("Gathering failed.");
-        return 3;
-    }
-
     ws.requestedColors(256);
     LogMsg("Loading palette file \"%s\".",opts.fname_pal.c_str());
     if (load_inp_palette_file(ws, opts.fname_pal, opts) != ERR_OK) {
         LogErr("Loading palette failed.");
         return 4;
-    }
-
-    LogMsg("Mapping colors to palette...");
-    if (map_palette_colors_to_most_apropriate(ws, img) != ERR_OK) {
-        LogErr("Mapping colors failed.");
-        return 5;
     }
 
     LogMsg("Converting colors to indexes...");
