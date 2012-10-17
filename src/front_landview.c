@@ -602,105 +602,105 @@ TbBool set_pointer_graphic_spland(long frame)
 
 void frontzoom_to_point(long map_x, long map_y, long zoom)
 {
-  unsigned char *dst_buf;
-  unsigned char *src_buf;
-  unsigned char *dst;
-  unsigned char *src;
-  long scr_x,scr_y;
-  long src_delta,bpos_x,bpos_y;
-  long dst_width,dst_height,dst_scanln;
-  long x,y;
-  src_delta = 256 - zoom;
-  // Restricting coordinates - to make sure we won't go outside of the buffer
-  // Let's use scr_x,scr_y as temp values
-  scr_x = ((lbDisplay.GraphicsScreenWidth*src_delta)>>9);
-  scr_y = ((lbDisplay.GraphicsScreenHeight*src_delta)>>9);
-  if (map_x >= (MAP_SCREEN_WIDTH-scr_x))
-    map_x = (MAP_SCREEN_WIDTH-scr_x-1);
-  if (map_x < scr_x)
-    map_x = scr_x;
-  if (map_y >= (MAP_SCREEN_HEIGHT-scr_y))
-    map_y = (MAP_SCREEN_HEIGHT-scr_y-1);
-  if (map_y < scr_y)
-    map_y = scr_y;
-  // Initializing variables used for all quadres of screen
-  scr_x = map_x - map_info.scrshift_x;
-  if (scr_x > lbDisplay.PhysicalScreenWidth) scr_x = lbDisplay.PhysicalScreenWidth;
-  if (scr_x < 0) scr_x = 0;
-  scr_y = map_y - map_info.scrshift_y;
-  if (scr_y > lbDisplay.PhysicalScreenHeight) scr_y = lbDisplay.PhysicalScreenHeight;
-  if (scr_y < 0) scr_y = 0;
-  src_buf = &map_screen[MAP_SCREEN_WIDTH * map_y + map_x];
-  dst_scanln = lbDisplay.GraphicsScreenWidth;
-  dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
-  // Drawing first quadre
-  bpos_y = 0;
-  dst = dst_buf;
-  dst_width = scr_x;
-  dst_height = scr_y;
-  for (y=0; y <= dst_height; y++)
-  {
-      bpos_x = 0;
-      src = &src_buf[-5*(bpos_y & 0xFFFFFF00)];
-      for (x=0; x <= dst_width; x++)
-      {
-        bpos_x += src_delta;
-        dst[-x] = src[-(bpos_x >> 8)];
-      }
-      dst -= dst_scanln;
-      bpos_y += src_delta;
-  }
-  // Drawing 2nd quadre
-  bpos_y = 0;
-  dst = dst_buf;
-  dst_width = -scr_x + lbDisplay.PhysicalScreenWidth;
-  dst_height = scr_y;
-  for (y=0; y <= dst_height; y++)
-  {
-      bpos_x = 0;
-      src = &src_buf[-5*(bpos_y & 0xFFFFFF00)];
-      for (x=0; x < dst_width; x++)
-      {
-        bpos_x += src_delta;
-        dst[x] = src[(bpos_x >> 8)];
-      }
-      dst -= dst_scanln;
-      bpos_y += src_delta;
-  }
-  // Drawing 3rd quadre
-  bpos_y = 0;
-  dst = dst_buf + dst_scanln;
-  dst_width = scr_x;
-  dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1;
-  for (y=0; y < dst_height; y++)
-  {
-      bpos_x = 0;
-      src = &src_buf[5*(bpos_y & 0xFFFFFF00)];
-      for (x=0; x <= dst_width; x++)
-      {
-        bpos_x += src_delta;
-        dst[-x] = src[-(bpos_x >> 8)];
-      }
-      dst += dst_scanln;
-      bpos_y += src_delta;
-  }
-  // Drawing 4th quadre
-  bpos_y = 0;
-  dst = dst_buf + dst_scanln;
-  dst_width = -scr_x + lbDisplay.PhysicalScreenWidth;
-  dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1;
-  for (y=0; y < dst_height; y++)
-  {
-      bpos_x = 0;
-      src = &src_buf[5*(bpos_y & 0xFFFFFF00)];
-      for (x=0; x < dst_width; x++)
-      {
-        dst[x] = src[(bpos_x >> 8)];
-        bpos_x += src_delta;
-      }
-      dst += dst_scanln;
-      bpos_y += src_delta;
-  }
+    unsigned char *dst_buf;
+    unsigned char *src_buf;
+    unsigned char *dst;
+    unsigned char *src;
+    long scr_x,scr_y;
+    long src_delta,bpos_x,bpos_y;
+    long dst_width,dst_height,dst_scanln;
+    long x,y;
+    src_delta = 256 - zoom;
+    // Restricting coordinates - to make sure we won't go outside of the buffer
+    // Let's use scr_x,scr_y as temp values
+    scr_x = ((lbDisplay.GraphicsScreenWidth*src_delta)>>9);
+    scr_y = ((lbDisplay.GraphicsScreenHeight*src_delta)>>9);
+    if (map_x >= (MAP_SCREEN_WIDTH-scr_x))
+      map_x = (MAP_SCREEN_WIDTH-scr_x-1);
+    if (map_x < scr_x)
+      map_x = scr_x;
+    if (map_y >= (MAP_SCREEN_HEIGHT-scr_y))
+      map_y = (MAP_SCREEN_HEIGHT-scr_y-1);
+    if (map_y < scr_y)
+      map_y = scr_y;
+    // Initializing variables used for all quadres of screen
+    scr_x = map_x - map_info.scrshift_x;
+    if (scr_x > lbDisplay.PhysicalScreenWidth) scr_x = lbDisplay.PhysicalScreenWidth;
+    if (scr_x < 0) scr_x = 0;
+    scr_y = map_y - map_info.scrshift_y;
+    if (scr_y > lbDisplay.PhysicalScreenHeight) scr_y = lbDisplay.PhysicalScreenHeight;
+    if (scr_y < 0) scr_y = 0;
+    src_buf = &map_screen[MAP_SCREEN_WIDTH * map_y + map_x];
+    dst_scanln = lbDisplay.GraphicsScreenWidth;
+    dst_buf = &lbDisplay.WScreen[dst_scanln * scr_y + scr_x];
+    // Drawing first quadre
+    bpos_y = 0;
+    dst = dst_buf;
+    dst_width = scr_x;
+    dst_height = scr_y;
+    for (y=0; y <= dst_height; y++)
+    {
+        bpos_x = 0;
+        src = &src_buf[-5*(bpos_y & 0xFFFFFF00)];
+        for (x=0; x <= dst_width; x++)
+        {
+          bpos_x += src_delta;
+          dst[-x] = src[-(bpos_x >> 8)];
+        }
+        dst -= dst_scanln;
+        bpos_y += src_delta;
+    }
+    // Drawing 2nd quadre
+    bpos_y = 0;
+    dst = dst_buf;
+    dst_width = -scr_x + lbDisplay.PhysicalScreenWidth;
+    dst_height = scr_y;
+    for (y=0; y <= dst_height; y++)
+    {
+        bpos_x = 0;
+        src = &src_buf[-5*(bpos_y & 0xFFFFFF00)];
+        for (x=0; x < dst_width; x++)
+        {
+          bpos_x += src_delta;
+          dst[x] = src[(bpos_x >> 8)];
+        }
+        dst -= dst_scanln;
+        bpos_y += src_delta;
+    }
+    // Drawing 3rd quadre
+    bpos_y = 0;
+    dst = dst_buf + dst_scanln;
+    dst_width = scr_x;
+    dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1;
+    for (y=0; y < dst_height; y++)
+    {
+        bpos_x = 0;
+        src = &src_buf[5*(bpos_y & 0xFFFFFF00)];
+        for (x=0; x <= dst_width; x++)
+        {
+            bpos_x += src_delta;
+            dst[-x] = src[-(bpos_x >> 8)];
+        }
+        dst += dst_scanln;
+        bpos_y += src_delta;
+    }
+    // Drawing 4th quadre
+    bpos_y = 0;
+    dst = dst_buf + dst_scanln;
+    dst_width = -scr_x + lbDisplay.PhysicalScreenWidth;
+    dst_height = -scr_y + lbDisplay.PhysicalScreenHeight - 1;
+    for (y=0; y < dst_height; y++)
+    {
+        bpos_x = 0;
+        src = &src_buf[5*(bpos_y & 0xFFFFFF00)];
+        for (x=0; x < dst_width; x++)
+        {
+            dst[x] = src[(bpos_x >> 8)];
+            bpos_x += src_delta;
+        }
+        dst += dst_scanln;
+        bpos_y += src_delta;
+    }
 }
 
 void compressed_window_draw(void)
@@ -729,113 +729,116 @@ void unload_map_and_window(void)
 
 TbBool load_map_and_window(LevelNumber lvnum)
 {
-  struct LevelInformation *lvinfo;
-  char *land_view;
-  char *land_window;
-  char *fname;
-  long flen;
-  SYNCDBG(8,"Starting");
-//  return _DK_load_map_and_window(cmpgidx);
-  land_view = NULL;
-  land_window = NULL;
-  if (lvnum == SINGLEPLAYER_NOTSTARTED)
-  {
-    land_view = campaign.land_view_start;
-    land_window = campaign.land_window_start;
-  } else
-  if (lvnum == SINGLEPLAYER_FINISHED)
-  {
-    land_view = campaign.land_view_end;
-    land_window = campaign.land_window_end;
-  } else
-  {
-    lvinfo = get_level_info(lvnum);
-    if (lvinfo != NULL)
+    struct LevelInformation *lvinfo;
+    char *land_view;
+    char *land_window;
+    char *fname;
+    long flen;
+    SYNCDBG(8,"Starting");
+//    return _DK_load_map_and_window(cmpgidx);
+    // Select proper land view image for the level
+    land_view = NULL;
+    land_window = NULL;
+    if (lvnum == SINGLEPLAYER_NOTSTARTED)
     {
-      land_view = lvinfo->land_view;
-      land_window = lvinfo->land_window;
+        land_view = campaign.land_view_start;
+        land_window = campaign.land_window_start;
+    } else
+    if (lvnum == SINGLEPLAYER_FINISHED)
+    {
+        land_view = campaign.land_view_end;
+        land_window = campaign.land_window_end;
     } else
     {
-      land_view = campaign.land_view_start;
-      land_window = campaign.land_window_start;
+        lvinfo = get_level_info(lvnum);
+        if (lvinfo != NULL)
+        {
+            land_view = lvinfo->land_view;
+            land_window = lvinfo->land_window;
+        } else
+        {
+            land_view = campaign.land_view_start;
+            land_window = campaign.land_window_start;
+        }
     }
-  }
-  if ((land_view == NULL) || (land_window == NULL))
-  {
-    ERRORLOG("No land View file names for level %d",lvnum);
-    return false;
-  }
-  fname = prepare_file_fmtpath(FGrp_LandView,"%s.raw",land_view);
-  flen = LbFileLengthRnc(fname);
-  if (flen < 1024)
-  {
-    ERRORLOG("Land Map file doesn't exist or is too small");
-    return false;
-  }
-  if (flen > 1228997)
-  {
-    ERRORLOG("Not enough memory in game structure for land Map");
-    return false;
-  }
-  if (LbFileLoadAt(fname, &game.land_map_start) != flen)
-  {
-    ERRORLOG("Unable to load land Map background");
-    return false;
-  }
-  map_screen = &game.land_map_start;
-  memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
-  fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
-  wait_for_cd_to_be_available();
-  map_window_len = LbFileLoadAt(fname, block_mem);
-  if (map_window_len < WINDOW_Y_SIZE*sizeof(long))
-  {
-    ERRORLOG("Unable to load Land Map Window");
-    unload_map_and_window();
-    return false;
-  }
-  // Prepare pointer to offsets array; WINDOW_Y_SIZE entries
-  window_y_offset = (long *)&block_mem[0];
-  // Prepare pointer to window data
-  map_window = &block_mem[WINDOW_Y_SIZE*sizeof(long)];
-  // Update length, so that it corresponds to map_window pointer
-  map_window_len -= WINDOW_Y_SIZE*sizeof(long);
-  // Load palette
-  fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
-  wait_for_cd_to_be_available();
-  if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
-  {
-    ERRORLOG("Unable to load Land Map screen palette");
-    unload_map_and_window();
-    return false;
-  }
-  SYNCDBG(9,"Finished");
-  return true;
+    if ((land_view == NULL) || (land_window == NULL))
+    {
+        ERRORLOG("No Land View file names for level %d",lvnum);
+        return false;
+    }
+    // Prepare full file name and load the image
+    fname = prepare_file_fmtpath(FGrp_LandView,"%s.raw",land_view);
+    flen = LbFileLengthRnc(fname);
+    if (flen < 1024)
+    {
+        ERRORLOG("Land Map file doesn't exist or is too small");
+        return false;
+    }
+    if (flen > 1228997)
+    {
+        ERRORLOG("Not enough memory in game structure for Land Map");
+        return false;
+    }
+    if (LbFileLoadAt(fname, &game.land_map_start) != flen)
+    {
+        ERRORLOG("Unable to load Land Map background");
+        return false;
+    }
+    map_screen = &game.land_map_start;
+    memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
+    // Now prepare window sprite file name and load the file
+    fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
+    wait_for_cd_to_be_available();
+    map_window_len = LbFileLoadAt(fname, block_mem);
+    if (map_window_len < WINDOW_Y_SIZE*sizeof(long))
+    {
+        ERRORLOG("Unable to load Land Map Window");
+        unload_map_and_window();
+        return false;
+    }
+    // Prepare pointer to offsets array; WINDOW_Y_SIZE entries
+    window_y_offset = (long *)&block_mem[0];
+    // Prepare pointer to window data
+    map_window = &block_mem[WINDOW_Y_SIZE*sizeof(long)];
+    // Update length, so that it corresponds to map_window pointer
+    map_window_len -= WINDOW_Y_SIZE*sizeof(long);
+    // Load palette
+    fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
+    wait_for_cd_to_be_available();
+    if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
+    {
+        ERRORLOG("Unable to load Land Map screen palette");
+        unload_map_and_window();
+        return false;
+    }
+    SYNCDBG(9,"Finished");
+    return true;
 }
 
 void frontnet_init_level_descriptions(void)
 {
-  find_and_load_lif_files();
-  find_and_load_lof_files();
+    find_and_load_lif_files();
+    find_and_load_lof_files();
 }
 
 void frontnetmap_unload(void)
 {
-  clear_light_system();
-  clear_mapmap();
-  clear_things_and_persons_data();
-  clear_computer();
-  clear_rooms();
-  clear_dungeons();
-  clear_slabs();
-  memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-  LbDataFreeAll(netmap_flag_load_files);
-  memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-  fe_network_active = 0;
-  if ((game.flags_cd & 0x10) == 0)
-  {
-    StopRedbookTrack();
-    SetRedbookVolume(settings.redbook_volume);
-  }
+    clear_light_system();
+    clear_mapmap();
+    clear_things_and_persons_data();
+    clear_computer();
+    clear_rooms();
+    clear_dungeons();
+    clear_slabs();
+    memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+    LbDataFreeAll(netmap_flag_load_files);
+    memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
+    fe_network_active = 0;
+    if ((game.flags_cd & 0x10) == 0)
+    {
+        StopRedbookTrack();
+        SetRedbookVolume(settings.redbook_volume);
+    }
 }
 
 TbBool frontnetmap_load(void)
