@@ -248,11 +248,11 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
                 int green=quad_g(quad);
                 int blue=quad_b(quad);
                 long long distSum=0;
-                long long minDist=LONG_LONG_MAX;
+                long minDist=LONG_MAX;
                 ColorPalette::iterator paliter;
                 for (paliter = ws.palette.begin(); paliter != ws.palette.end(); paliter++)
                 {
-                    long long dist=(red - paliter->red);
+                    long dist=(red - paliter->red);
                     dist*=dist;
                     int temp=(green - paliter->green);
                     dist+=temp*temp;

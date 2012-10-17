@@ -51,6 +51,37 @@ enum {
     ERR_LIMIT_EXCEED= -6, // static limit exceeded
 };
 
+enum {
+    OutFmt_RAW = 0,
+    OutFmt_HSPR,
+};
+
+enum {
+    DfsAlg_FldStnbrg = 0,
+    DfsAlg_JrvJdcNnk,
+    DfsAlg_Stucki,
+    DfsAlg_Burkes,
+    DfsAlg_Fan,
+    DfsAlg_Sierra3,
+    DfsAlg_Sierra2,
+    DfsAlg_Sierra24A,
+    DfsAlg_Atkinson,
+    DfsAlg_ShiauFan4,
+    DfsAlg_ShiauFan5,
+};
+/*
+"Floyd-Steinberg"
+"Jarvis, Judice, Ninke"
+"Stucki"
+"Burkes"
+"Fan"
+"Sierra 3"
+"Sierra 2"
+"Sierra 2-4A (Filter Lite)"
+"Atkinson"
+"Shiau-Fan (4-cell)"
+"Shiau-Fan (5-cell)"
+*/
 int verbose = 0;
 
 #define LogMsg(format,args...) fprintf(stdout,format "\n", ## args)
@@ -68,10 +99,14 @@ public:
         fname_inp.clear();
         fname_pal.clear();
         fname_out.clear();
+        alg = DfsAlg_FldStnbrg;
+        fmt = OutFmt_RAW;
     }
     std::string fname_inp;
     std::string fname_pal;
     std::string fname_out;
+    int fmt;
+    int alg;
 };
 
 class RGBAccum {
@@ -108,7 +143,7 @@ public:
 class WorkingSet
 {
 public:
-    WorkingSet():alg(0),requested_colors(0),requested_col_bits(0){}
+    WorkingSet():alg(DfsAlg_FldStnbrg),requested_colors(0),requested_col_bits(0){}
     void requestedColors(int reqColors)
     {
         requested_colors = reqColors;
@@ -250,6 +285,11 @@ bool checkTransparent3(png_bytep, ImageData&)
   return false;
 }
 
+inline bool isTransparentX(png_bytep data, int x)
+{
+  return (data[x>>3] & (1<<(7-(x&7))));
+}
+
 int nearest_palette_color_index(const ColorPalette& palette, const RGBAQuad quad)
 {
     int red=quad&255;  //must be signed
@@ -385,10 +425,11 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
     return ERR_OK;
 }
 
-//packs a line of width pixels (1 byte per pixel) in row, with 8/nbits pixels packed
-//into each byte
-//returns the new number of bytes in row
-int pack(png_bytep row,int width,int nbits)
+/**
+ * Packs a line of width pixels (1 byte per pixel) in row, with 8/nbits pixels packed into each byte.
+ * @return the new number of bytes in row
+ */
+int raw_pack(png_bytep row,int width,int nbits)
 {
   int pixelsPerByte=8/nbits;
   if (pixelsPerByte<=1) return width;
@@ -419,6 +460,36 @@ int pack(png_bytep row,int width,int nbits)
   return outIndex;
 }
 
+/**
+ * Packs a line of pixels (1 byte per pixel) so that transparent bytes are RLE-encoded.
+ * @return the new number of bytes in row
+ */
+int hspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_trans, int width, const ColorPalette& palette)
+{
+    int area;
+    int outIndex=0;
+    int i=0;
+    while (i < width)
+    {
+        // Filled
+        area = 0;
+        while ( (i+area < width) && !isTransparentX(inp_trans, i+area) )
+            area++;
+        *(long *)(out_row+outIndex) = area;
+        outIndex += sizeof(long);
+        memcpy(out_row+outIndex, inp_row+i, area);
+        outIndex += area;
+        i += area;
+        // Transparent
+        area = 0;
+        while ( (i+area < width) && isTransparentX(inp_trans, i+area) )
+            area++;
+        *(long *)(out_row+outIndex) = area;
+        outIndex += sizeof(long);
+        i += area;
+    }
+    return outIndex;
+}
 
 char *file_name_change_extension(const char *fname_inp,const char *ext)
 {
@@ -500,14 +571,16 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     {
         static struct option long_options[] = {
             {"verbose", no_argument,       0, 'v'},
+            {"format",  required_argument, 0, 'f'},
+            {"diffuse", required_argument, 0, 'd'},
             {"output",  required_argument, 0, 'o'},
-            {"palette",  required_argument,0, 'p'},
+            {"palette", required_argument, 0, 'p'},
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vo:p:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vf:d:o:p:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -524,6 +597,40 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
                break;
         case 'v':
             verbose++;
+            break;
+        case 'f':
+            if (strcasecmp(optarg,"HSPR") == 0)
+                opts.fmt = OutFmt_HSPR;
+            else if (strcasecmp(optarg,"RAW") == 0)
+                opts.fmt = OutFmt_RAW;
+            else
+                return false;
+            break;
+        case 'd':
+            if (strcasecmp(optarg,"FldStnbrg") == 0)
+                opts.alg = DfsAlg_FldStnbrg;
+            else if (strcasecmp(optarg,"JrvJdcNnk") == 0)
+                opts.alg = DfsAlg_JrvJdcNnk;
+            else if (strcasecmp(optarg,"Stucki") == 0)
+                opts.alg = DfsAlg_Stucki;
+            else if (strcasecmp(optarg,"Burkes") == 0)
+                opts.alg = DfsAlg_Burkes;
+            else if (strcasecmp(optarg,"Fan") == 0)
+                opts.alg = DfsAlg_Fan;
+            else if (strcasecmp(optarg,"Sierra3") == 0)
+                opts.alg = DfsAlg_Sierra3;
+            else if (strcasecmp(optarg,"Sierra2") == 0)
+                opts.alg = DfsAlg_Sierra2;
+            else if (strcasecmp(optarg,"Sierra24A") == 0)
+                opts.alg = DfsAlg_Sierra24A;
+            else if (strcasecmp(optarg,"Atkinson") == 0)
+                opts.alg = DfsAlg_Atkinson;
+            else if (strcasecmp(optarg,"ShiauFan4") == 0)
+                opts.alg = DfsAlg_ShiauFan4;
+            else if (strcasecmp(optarg,"ShiauFan5") == 0)
+                opts.alg = DfsAlg_ShiauFan5;
+            else
+                return false;
             break;
         case 'o':
             opts.fname_out = optarg;
@@ -576,8 +683,10 @@ short show_usage(const std::string &fname)
     printf("    %s [options] <filename>\n", xname.c_str());
     printf("where <filename> should be the input PNG file, and [options] are:\n");
     printf("    -v,--verbose             Verbose console output mode\n");
+    printf("    -d<alg>,--diffuse<alg>   Diffusion algorithm used for bpp convertion\n");
+    printf("    -f<fmt>,--format<fmt>    Output file format, RAW or HSPR\n");
     printf("    -p<file>,--palette<file> Input PAL file name\n");
-    printf("    -o<file>,--output<file>  Output RAW file name\n");
+    printf("    -o<file>,--output<file>  Output image file name\n");
     return ERR_OK;
 }
 
@@ -702,25 +811,57 @@ short load_inp_palette_file(WorkingSet& ws, const std::string& fname_pal, Progra
     return ERR_OK;
 }
 
-short save_raw_file(ImageData& img, const std::string& fname_raw, ProgramOptions& opts)
+short save_raw_file(WorkingSet& ws, ImageData& img, const std::string& fname_out, ProgramOptions& opts)
 {
     // Open and write the RAW file
     {
-        FILE* rawfile = fopen(fname_raw.c_str(),"wb");
+        FILE* rawfile = fopen(fname_out.c_str(),"wb");
         if (rawfile == NULL) {
-            perror(fname_raw.c_str());
+            perror(fname_out.c_str());
             return ERR_CANT_OPEN;
         }
         png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
         for (int y=0; y<img.height; y++)
         {
             png_bytep row = row_pointers[y];
-            int newLength = pack(row,img.width,img.colorBPP());
-            if (fwrite(row,newLength,1,rawfile)!=1) {perror(fname_raw.c_str()); exit(1);}
+            int newLength = raw_pack(row,img.width,img.colorBPP());
+            if (fwrite(row,newLength,1,rawfile)!=1) {perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             for(int i=0; i<xorMaskLineLen(img)-newLength; ++i) writeByte(rawfile,0);
         }
         fclose(rawfile);
 
+    }
+    return ERR_OK;
+}
+
+short save_hugspr_file(WorkingSet& ws, ImageData& img, const std::string& fname_out, ProgramOptions& opts)
+{
+    // Open and write the HugeSprite file
+    {
+        FILE* rawfile = fopen(fname_out.c_str(),"wb");
+        if (rawfile == NULL) {
+            perror(fname_out.c_str());
+            return ERR_CANT_OPEN;
+        }
+        long * row_shifts = new long[img.height];
+        if (fwrite(row_shifts,img.height*sizeof(long),1,rawfile)!=1) {perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        long base_pos = ftell(rawfile);
+        png_bytep out_row = new png_byte[img.width*3];
+        png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
+        for (int y=0; y<img.height; y++)
+        {
+            row_shifts[y] = ftell(rawfile) - base_pos;
+            png_bytep inp_row = row_pointers[y];
+            png_bytep inp_trans = img.transMap[y];
+            int newLength = hspr_pack(out_row,inp_row,inp_trans,img.width,ws.palette);
+            if (fwrite(out_row,newLength,1,rawfile)!=1) {perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            //writeByte(rawfile,0);
+        }
+        delete[] out_row;
+        fseek(rawfile,0,SEEK_SET);
+        if (fwrite(row_shifts,img.height*sizeof(long),1,rawfile)!=1) {perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        delete[] row_shifts;
+        fclose(rawfile);
     }
     return ERR_OK;
 }
@@ -746,6 +887,7 @@ int main(int argc, char* argv[])
         return 2;
     }
 
+    ws.alg = opts.alg;
     ws.requestedColors(256);
     LogMsg("Loading palette file \"%s\".",opts.fname_pal.c_str());
     if (load_inp_palette_file(ws, opts.fname_pal, opts) != ERR_OK) {
@@ -759,9 +901,20 @@ int main(int argc, char* argv[])
         return 6;
     }
 
-    LogMsg("Saving file \"%s\".",opts.fname_out.c_str());
-    if (save_raw_file(img, opts.fname_out, opts) != ERR_OK) {
-        return 8;
+    switch (opts.fmt)
+    {
+    case OutFmt_RAW:
+        LogMsg("Saving RAW file \"%s\".",opts.fname_out.c_str());
+        if (save_raw_file(ws, img, opts.fname_out, opts) != ERR_OK) {
+            return 8;
+        }
+        break;
+    case OutFmt_HSPR:
+        LogMsg("Saving HSPR file \"%s\".",opts.fname_out.c_str());
+        if (save_hugspr_file(ws, img, opts.fname_out, opts) != ERR_OK) {
+            return 8;
+        }
+        break;
     }
 
     return 0;
