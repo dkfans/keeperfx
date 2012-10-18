@@ -254,22 +254,22 @@ pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/questfth/text_eng.dat
 LANDVIEWRAWS = \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/dkmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/burdnimp_lnd/bimap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/dstninja_lnd/dnmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/dzjr06lv_lnd/dzmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/dzjr10lv_lnd/dzmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/dzjr25lv_lnd/dzmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/evilkeep_lnd/ekmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/grkreign_lnd/krmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/jdkmaps8_lnd/jdmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18,pkg/campgns/kdklvpck_lnd/kdmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12,pkg/campgns/lqizgood_lnd/lqmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/lrdvexer_lnd/lvmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/ncastles_lnd/ctmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08,pkg/campgns/postanck_lnd/pamap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/qhmap$(num).raw) \
-$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/tkmap$(num).raw)
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/burdnimp_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/dstninja_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/dzjr06lv_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/dzjr10lv_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/dzjr25lv_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/evilkeep_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/grkreign_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/jdkmaps8_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18,pkg/campgns/kdklvpck_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12,pkg/campgns/lqizgood_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/lrdvexer_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/ncastles_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08,pkg/campgns/postanck_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat)
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 
@@ -577,21 +577,27 @@ $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_language_r
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
-pkg/campgns/$(1)_lnd/%.pal: gfx/$(1)_lnd/%.png $$(PNGTOBSPAL)
+pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/$(1)_lnd/rgmap%.png gfx/$(1)_lnd/viframe.png $$(PNGTOBSPAL)
 	-$$(ECHO) 'Building land view palette: $$@'
 	@$$(MKDIR) $$(@D)
 	$$(PNGTOBSPAL) -o "$$@" -m "tools/png2bestpal/res/color_tbl_landview.txt" "$$<"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
-pkg/campgns/$(1)_lnd/%.raw: gfx/$(1)_lnd/%.png pkg/campgns/$(1)_lnd/%.pal $$(PNGTORAW)
+pkg/campgns/$(1)_lnd/rgmap%.raw: gfx/$(1)_lnd/rgmap%.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW)
 	-$$(ECHO) 'Building land view image: $$@'
-	$$(PNGTORAW) -o "$$@" -p "$$(word 2,$$^)" "$$<"
+	$$(PNGTORAW) -o "$$@" -p "$$(word 2,$$^)" -f raw -l 100 "$$<"
+	-$$(ECHO) 'Finished building: $$@'
+	-$$(ECHO) ' '
+
+pkg/campgns/$(1)_lnd/viframe%.dat: gfx/$(1)_lnd/viframe.png pkg/campgns/$(1)_lnd/rgmap%.pal $$(PNGTORAW)
+	-$$(ECHO) 'Building land view frame: $$@'
+	$$(PNGTORAW) -o "$$@" -p "$$(word 2,$$^)" -f hspr -l 50 "$$<"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
 # mark palette files precious to make sure they're not auto-removed after raw is built
-.PRECIOUS: pkg/campgns/$(1)_lnd/%.pal
+.PRECIOUS: pkg/campgns/$(1)_lnd/rgmap%.pal
 endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_rule,$(campaign))))

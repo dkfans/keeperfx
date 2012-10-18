@@ -24,6 +24,7 @@
 #include <climits>
 #include <getopt.h>
 
+#include <cmath>
 #include <fstream>
 #include <sstream>
 
@@ -101,12 +102,14 @@ public:
         fname_out.clear();
         alg = DfsAlg_FldStnbrg;
         fmt = OutFmt_RAW;
+        lvl = 100;
     }
     std::string fname_inp;
     std::string fname_pal;
     std::string fname_out;
     int fmt;
     int alg;
+    int lvl;
 };
 
 class RGBAccum {
@@ -143,7 +146,7 @@ public:
 class WorkingSet
 {
 public:
-    WorkingSet():alg(DfsAlg_FldStnbrg),requested_colors(0),requested_col_bits(0){}
+    WorkingSet():alg(DfsAlg_FldStnbrg),lvl(0),requested_colors(0),requested_col_bits(0){}
     void requestedColors(int reqColors)
     {
         requested_colors = reqColors;
@@ -154,6 +157,23 @@ public:
     }
     int requestedColors(void) const
     { return requested_colors; }
+    void ditherLevel(int level)
+    {
+        lvl = level;
+        lvlCurve.resize(512);
+        lvlCurve[256+0] = 0;
+        if (level > 0) {
+            for (int i=1; i < 256; i++) {
+                lvlCurve[256+i] = pow(i,lvl/100.);
+                lvlCurve[256-i] = -lvlCurve[256+i];
+            }
+        } else {
+            for (int i=1; i < 256; i++) {
+                lvlCurve[256+i] = i;
+                lvlCurve[256-i] = -i;
+            }
+        }
+    }
     int requestedColorBPP(void) const
     { return requested_col_bits; }
     void addPaletteQuad(RGBAQuad quad)
@@ -173,7 +193,9 @@ public:
     DitherError mapErrorG;
     DitherError mapErrorB;
     MapQuadToPal mapQuadToPalEntry;
+    std::vector<float> lvlCurve;
     int alg;
+    int lvl;
 private:
     int requested_colors;
     int requested_col_bits;
@@ -316,30 +338,31 @@ int nearest_palette_color_index(const ColorPalette& palette, const RGBAQuad quad
 
 /**
  * Propagates an error into adjacent cells.
- * @param alg Diffusuion algorithm index.
- * @param w Error delta value.
+ * @param alg Diffusion algorithm index.
+ * @param lvl Diffusion level.
+ * @param wd Error delta value.
  * @param e The error array.
  * @param i Error central coordinate.
  * @param j Error central coordinate.
  */
 void propagateError(int alg, float w, DitherError &e, int i, int j)
 {
-   e[i+1+SHIFT][j  ] = e[i+1+SHIFT][j  ] + (w*dif[alg][0][4]);
-   e[i+2+SHIFT][j  ] = e[i+2+SHIFT][j  ] + (w*dif[alg][0][5]);
+    e[i+1+SHIFT][j  ] = e[i+1+SHIFT][j  ] + (w*dif[alg][0][4]);
+    e[i+2+SHIFT][j  ] = e[i+2+SHIFT][j  ] + (w*dif[alg][0][5]);
 
-   e[i-3+SHIFT][j+1] = e[i-3+SHIFT][j+1] + (w*dif[alg][1][0]);
-   e[i-2+SHIFT][j+1] = e[i-2+SHIFT][j+1] + (w*dif[alg][1][1]);
-   e[i-1+SHIFT][j+1] = e[i-1+SHIFT][j+1] + (w*dif[alg][1][2]);
-   e[i  +SHIFT][j+1] = e[i  +SHIFT][j+1] + (w*dif[alg][1][3]);
-   e[i+1+SHIFT][j+1] = e[i+1+SHIFT][j+1] + (w*dif[alg][1][4]);
-   e[i+2+SHIFT][j+1] = e[i+2+SHIFT][j+1] + (w*dif[alg][1][5]);
+    e[i-3+SHIFT][j+1] = e[i-3+SHIFT][j+1] + (w*dif[alg][1][0]);
+    e[i-2+SHIFT][j+1] = e[i-2+SHIFT][j+1] + (w*dif[alg][1][1]);
+    e[i-1+SHIFT][j+1] = e[i-1+SHIFT][j+1] + (w*dif[alg][1][2]);
+    e[i  +SHIFT][j+1] = e[i  +SHIFT][j+1] + (w*dif[alg][1][3]);
+    e[i+1+SHIFT][j+1] = e[i+1+SHIFT][j+1] + (w*dif[alg][1][4]);
+    e[i+2+SHIFT][j+1] = e[i+2+SHIFT][j+1] + (w*dif[alg][1][5]);
 
-   e[i-3+SHIFT][j+2] = e[i-3+SHIFT][j+2] + (w*dif[alg][2][0]);
-   e[i-2+SHIFT][j+2] = e[i-2+SHIFT][j+2] + (w*dif[alg][2][1]);
-   e[i-1+SHIFT][j+2] = e[i-1+SHIFT][j+2] + (w*dif[alg][2][2]);
-   e[i  +SHIFT][j+2] = e[i  +SHIFT][j+2] + (w*dif[alg][2][3]);
-   e[i+1+SHIFT][j+2] = e[i+1+SHIFT][j+2] + (w*dif[alg][2][4]);
-   e[i+2+SHIFT][j+2] = e[i+2+SHIFT][j+2] + (w*dif[alg][2][5]);
+    e[i-3+SHIFT][j+2] = e[i-3+SHIFT][j+2] + (w*dif[alg][2][0]);
+    e[i-2+SHIFT][j+2] = e[i-2+SHIFT][j+2] + (w*dif[alg][2][1]);
+    e[i-1+SHIFT][j+2] = e[i-1+SHIFT][j+2] + (w*dif[alg][2][2]);
+    e[i  +SHIFT][j+2] = e[i  +SHIFT][j+2] + (w*dif[alg][2][3]);
+    e[i+1+SHIFT][j+2] = e[i+1+SHIFT][j+2] + (w*dif[alg][2][4]);
+    e[i+2+SHIFT][j+2] = e[i+2+SHIFT][j+2] + (w*dif[alg][2][5]);
 }
 
 int dithered_palette_color_index(WorkingSet& ws, const ColorPalette& palette, unsigned int x, unsigned int y, RGBAQuad quad)
@@ -348,15 +371,15 @@ int dithered_palette_color_index(WorkingSet& ws, const ColorPalette& palette, un
     int green=(quad>>8)&255;
     int blue=(quad>>16)&255;
     int alpha=(quad>>24)&255;
-    red = clipIntensity(red + ws.mapErrorR[x+SHIFT][y]);
-    green = clipIntensity(green + ws.mapErrorG[x+SHIFT][y]);
-    blue = clipIntensity(blue + ws.mapErrorB[x+SHIFT][y]);
+    red = clipIntensity(red + (ws.mapErrorR[x+SHIFT][y]+0.5));
+    green = clipIntensity(green + (ws.mapErrorG[x+SHIFT][y]+0.5));
+    blue = clipIntensity(blue + (ws.mapErrorB[x+SHIFT][y]+0.5));
 
     int bestIndex = nearest_palette_color_index(palette,(red)|(green<<8)|(blue<<16)|(alpha<<24));
 
-    propagateError(ws.alg, red - palette[bestIndex].red , ws.mapErrorR, x, y);
-    propagateError(ws.alg, green - palette[bestIndex].green , ws.mapErrorG, x, y);
-    propagateError(ws.alg, blue - palette[bestIndex].blue , ws.mapErrorB, x, y);
+    propagateError(ws.alg, ws.lvlCurve[256 + red - palette[bestIndex].red] , ws.mapErrorR, x, y);
+    propagateError(ws.alg, ws.lvlCurve[256 + green - palette[bestIndex].green] , ws.mapErrorG, x, y);
+    propagateError(ws.alg, ws.lvlCurve[256 + blue - palette[bestIndex].blue] , ws.mapErrorB, x, y);
 
     return bestIndex;
 }
@@ -573,6 +596,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             {"verbose", no_argument,       0, 'v'},
             {"format",  required_argument, 0, 'f'},
             {"diffuse", required_argument, 0, 'd'},
+            {"dflevel", required_argument, 0, 'l'},
             {"output",  required_argument, 0, 'o'},
             {"palette", required_argument, 0, 'p'},
             {NULL,      0,                 0,'\0'}
@@ -580,7 +604,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vf:d:o:p:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vf:d:l:o:p:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -631,6 +655,9 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
                 opts.alg = DfsAlg_ShiauFan5;
             else
                 return false;
+            break;
+        case 'l':
+            opts.lvl = atol(optarg);
             break;
         case 'o':
             opts.fname_out = optarg;
@@ -684,6 +711,7 @@ short show_usage(const std::string &fname)
     printf("where <filename> should be the input PNG file, and [options] are:\n");
     printf("    -v,--verbose             Verbose console output mode\n");
     printf("    -d<alg>,--diffuse<alg>   Diffusion algorithm used for bpp convertion\n");
+    printf("    -l<num>,--dflevel<num>   Diffusion level, 1..100\n");
     printf("    -f<fmt>,--format<fmt>    Output file format, RAW or HSPR\n");
     printf("    -p<file>,--palette<file> Input PAL file name\n");
     printf("    -o<file>,--output<file>  Output image file name\n");
@@ -888,6 +916,7 @@ int main(int argc, char* argv[])
     }
 
     ws.alg = opts.alg;
+    ws.ditherLevel(opts.lvl);
     ws.requestedColors(256);
     LogMsg("Loading palette file \"%s\".",opts.fname_pal.c_str());
     if (load_inp_palette_file(ws, opts.fname_pal, opts) != ERR_OK) {
