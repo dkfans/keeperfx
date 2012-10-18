@@ -252,21 +252,23 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
                 ColorPalette::iterator paliter;
                 for (paliter = ws.palette.begin(); paliter != ws.palette.end(); paliter++)
                 {
-                    long dist=(red - paliter->red);
-                    dist*=dist;
-                    int temp=(green - paliter->green);
-                    dist+=temp*temp;
-                    temp=(blue - paliter->blue);
-                    dist+=temp*temp;
-                    if (dist<minDist) minDist=dist;
+                    int temp;
+                    long dist;
+                    temp = (red - paliter->red);
+                    dist = temp*temp;
+                    temp = (green - paliter->green);
+                    dist += temp*temp;
+                    temp = (blue - paliter->blue);
+                    dist += temp*temp;
+                    if (dist < minDist) minDist = dist;
                     distSum += dist;
                 }
 
                 if (minDist>mdqMinDist || (minDist==mdqMinDist && distSum>mdqDistSum))
                 {
-                    mostDifferentQuad=quad;
-                    mdqMinDist=minDist;
-                    mdqDistSum=distSum;
+                    mostDifferentQuad = quad;
+                    mdqMinDist = minDist;
+                    mdqDistSum = distSum;
                 }
             }
         }
