@@ -125,6 +125,14 @@ public:
     { return requested_colors; }
     int requestedColorBPP(void)
     { return requested_col_bits; }
+    void addPaletteBlindEntry(int r, int g, int b)
+    {
+        RGBColor ncol;
+        ncol.red = r;
+        ncol.green = g;
+        ncol.blue = b;
+        palette.push_back(ncol);
+    }
     void addPaletteQuad(RGBAQuad quad)
     {
         int palentry = palette.size();
@@ -231,7 +239,7 @@ short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlp
 short pick_palette_of_most_different_colors(WorkingSet& ws)
 {
     int maxColors = ws.requestedColors();
-    while(ws.palette.size() < maxColors)
+    while (ws.palette.size() < maxColors)
     {
         RGBAQuad mostDifferentQuad=0;
         long long mdqMinDist = -1; //smallest distance to an entry in the palette for mostDifferentQuad
@@ -283,6 +291,11 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
              */
             break;
         }
+    }
+    // If there are not enough colors, fill the empty entries with zeros
+    while (ws.palette.size() < maxColors)
+    {
+        ws.addPaletteBlindEntry(0,0,0);
     }
     return ERR_OK;
 }
