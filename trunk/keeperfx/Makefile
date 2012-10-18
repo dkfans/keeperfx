@@ -21,14 +21,20 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
+ifeq ($(OS),Windows_NT)
+    CROSS_EXEEXT = .exe
+else
+    CROSS_EXEEXT =
+endif
+EXEEXT = .exe
 CPP  = $(CROSS_COMPILE)g++
 CC   = $(CROSS_COMPILE)gcc
 WINDRES = $(CROSS_COMPILE)windres
 DLLTOOL = $(CROSS_COMPILE)dlltool
-EXETODLL = peresec/bin/peresec
-PNGTORAW = tools/pngpal2raw/bin/pngpal2raw
-PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal
-POTONGDAT = tools/po2ngdat/bin/po2ngdat
+EXETODLL = peresec/bin/peresec$(CROSS_EXEEXT)
+PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
+PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
+POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
 RM = rm -f
 MV = mv -f
 CP = cp -f
@@ -36,8 +42,8 @@ MKDIR    = mkdir -p
 ECHO     = @echo
 DOXYTOOL = doxygen
 PNG2ICO  = png2ico
-BIN      = bin/keeperfx.exe
-HVLOGBIN = bin/keeperfx_hvlog.exe
+BIN      = bin/keeperfx$(EXEEXT)
+HVLOGBIN = bin/keeperfx_hvlog$(EXEEXT)
 GENSRC   = obj/ver_defs.h
 RES      = obj/keeperfx_stdres.res
 LIBS     = lib/libkeeperfx.a
@@ -375,6 +381,8 @@ pkg-campaigns: $(CAMPAIGN_CFGS)
 
 pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS)
 
+pkg-gfx: pkg-landviews
+
 pkg-landviews: $(LANDVIEWRAWS)
 
 pkg/campgns/%.cfg: campgns/%.cfg
@@ -577,10 +585,10 @@ $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_language_r
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
-pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/$(1)_lnd/rgmap%.png gfx/$(1)_lnd/viframe.png $$(PNGTOBSPAL)
+pkg/campgns/$(1)_lnd/rgmap%.pal: gfx/$(1)_lnd/rgmap%.png gfx/$(1)_lnd/viframe.png tools/png2bestpal/res/color_tbl_landview.txt $$(PNGTOBSPAL)
 	-$$(ECHO) 'Building land view palette: $$@'
 	@$$(MKDIR) $$(@D)
-	$$(PNGTOBSPAL) -o "$$@" -m "tools/png2bestpal/res/color_tbl_landview.txt" "$$<"
+	$$(PNGTOBSPAL) -o "$$@" -m "$$(word 3,$$^)" "$$(word 1,$$^)" "$$(word 2,$$^)"
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
