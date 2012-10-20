@@ -20,14 +20,16 @@
 OS = $(shell uname -s)
 ifneq (,$(findstring MINGW,$(OS)))
 RES  = obj/po2ngdat_stdres.res
+EXEEXT = .exe
 else
 RES  = 
+EXEEXT =
 endif
 CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
-BIN  = bin/po2ngdat
+BIN  = bin/po2ngdat$(EXEEXT)
 LIBS =
 OBJS = \
 obj/catalog.o \

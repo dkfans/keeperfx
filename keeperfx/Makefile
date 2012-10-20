@@ -21,23 +21,25 @@
 #      (at your option) any later version.
 #
 #******************************************************************************
-ifeq ($(OS),Windows_NT)
-    CROSS_EXEEXT = .exe
+ifneq (,$(findstring Windows,$(OS)))
+  CROSS_EXEEXT = .exe
 else
-    CROSS_EXEEXT =
+  CROSS_EXEEXT =
 endif
 EXEEXT = .exe
-CPP  = $(CROSS_COMPILE)g++
-CC   = $(CROSS_COMPILE)gcc
-WINDRES = $(CROSS_COMPILE)windres
-DLLTOOL = $(CROSS_COMPILE)dlltool
+CPP   = $(CROSS_COMPILE)g++
+CC    = $(CROSS_COMPILE)gcc
+WINDRES  = $(CROSS_COMPILE)windres
+DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = peresec/bin/peresec$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
 PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
 POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
-RM = rm -f
-MV = mv -f
-CP = cp -f
+RNC   = tools/rnctools/bin/rnc$(CROSS_EXEEXT)
+DERNC = tools/rnctools/bin/dernc$(CROSS_EXEEXT)
+RM    = rm -f
+MV    = mv -f
+CP    = cp -f
 MKDIR    = mkdir -p
 ECHO     = @echo
 DOXYTOOL = doxygen
@@ -261,21 +263,21 @@ pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/questfth/text_eng.dat
 LANDVIEWRAWS = \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/burdnimp_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/dstninja_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/dzjr06lv_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/dzjr10lv_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/dzjr25lv_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/evilkeep_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/grkreign_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/jdkmaps8_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18,pkg/campgns/kdklvpck_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12,pkg/campgns/lqizgood_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/lrdvexer_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/ncastles_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08,pkg/campgns/postanck_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat)
+$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/burdnimp_lnd/rgmap$(num).raw pkg/campgns/burdnimp_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/dstninja_lnd/rgmap$(num).raw pkg/campgns/dstninja_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/dzjr06lv_lnd/rgmap$(num).raw pkg/campgns/dzjr06lv_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/dzjr10lv_lnd/rgmap$(num).raw pkg/campgns/dzjr10lv_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/dzjr25lv_lnd/rgmap$(num).raw pkg/campgns/dzjr25lv_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/evilkeep_lnd/rgmap$(num).raw pkg/campgns/evilkeep_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/grkreign_lnd/rgmap$(num).raw pkg/campgns/grkreign_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/jdkmaps8_lnd/rgmap$(num).raw pkg/campgns/jdkmaps8_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18,pkg/campgns/kdklvpck_lnd/rgmap$(num).raw pkg/campgns/kdklvpck_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12,pkg/campgns/lqizgood_lnd/rgmap$(num).raw pkg/campgns/lqizgood_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/lrdvexer_lnd/rgmap$(num).raw pkg/campgns/lrdvexer_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/ncastles_lnd/rgmap$(num).raw pkg/campgns/ncastles_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08,pkg/campgns/postanck_lnd/rgmap$(num).raw pkg/campgns/postanck_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/rgmap$(num).raw pkg/campgns/questfth_lnd/viframe$(num).dat) \
+$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/rgmap$(num).raw pkg/campgns/twinkprs_lnd/viframe$(num).dat)
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 
@@ -317,7 +319,7 @@ LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 # mark icons as precious, because even tho we can re-create them, it requires having "png2ico" tool
 .PRECIOUS: res/%.ico
 # name virtual targets
-.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-package package pkg-before pkg-copydat pkg-campaigns pkg-languages
+.PHONY: all standard std-before std-after debug hvlog-before hvlog-after docs docsdox clean clean-build clean-tools clean-package package pkg-before pkg-copydat pkg-campaigns pkg-languages tools
 
 all: standard
 
@@ -340,16 +342,21 @@ hvlog-before:
 docsdox: docs/doxygen.conf
 	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
 
-clean: clean-build clean-package
+clean: clean-build clean-tools clean-package
 
 clean-build:
 	-$(RM) $(STDOBJS) $(BIN)
 	-$(RM) $(HVLOGOBJS) $(HVLOGBIN)
 	-$(RM) $(LIBS) $(GENSRC)
 	-$(RM) bin/keeperfx*
+	-$(ECHO) ' '
+
+clean-tools:
 	$(MAKE) clean -C peresec
 	$(MAKE) clean -C tools/pngpal2raw
-	-$(ECHO) ' '
+	$(MAKE) clean -C tools/png2bestpal
+	$(MAKE) clean -C tools/po2ngdat
+	$(MAKE) clean -C tools/rnctools
 
 clean-package:
 	-$(RM) -R pkg/campgns
@@ -497,6 +504,8 @@ bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 	-$(ECHO) 'Finished creating: $@'
 	-$(ECHO) ' '
 
+tools: $(EXETODLL) $(PNGTORAW) $(PNGTOBSPAL) $(POTONGDAT) $(RNC) $(DERNC)
+
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
 
@@ -508,6 +517,9 @@ $(PNGTOBSPAL): tools/png2bestpal/src/png2bestpal.cpp tools/png2bestpal/Makefile
 
 $(POTONGDAT): tools/po2ngdat/src/po2ngdat.cpp tools/po2ngdat/Makefile
 	$(MAKE) -C tools/po2ngdat
+
+$(RNC) $(DERNC): tools/rnctools/src/rnc.c tools/rnctools/src/dernc.c tools/rnctools/Makefile
+	$(MAKE) -C tools/rnctools
 
 # Windows resources compilation
 # Should depend on res/keeperfx_icon.ico, but currently we've assuming ICO files are alredy made 

@@ -20,14 +20,16 @@
 OS = $(shell uname -s)
 ifneq (,$(findstring MINGW,$(OS)))
 RES  = obj/png2bestpal_stdres.res
+EXEEXT = .exe
 else
 RES  = 
+EXEEXT =
 endif
 CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
-BIN  = bin/png2bestpal
+BIN  = bin/png2bestpal$(EXEEXT)
 LIBS =
 OBJS = \
 obj/png2bestpal.o \
