@@ -166,10 +166,10 @@
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
 					</target>
-					<target name="tools/po2ngdat/bin/po2ngdat" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+					<target name="tools" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildArguments/>
-						<buildTarget>tools/po2ngdat/bin/po2ngdat</buildTarget>
+						<buildTarget>tools</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
@@ -182,10 +182,9 @@
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
 					</target>
-					<target name="pkg-landviews" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+					<target name="pkg-gfx" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
-						<buildTarget>pkg-landviews</buildTarget>
+						<buildTarget>pkg-gfx</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
@@ -356,10 +355,10 @@
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
 					</target>
-					<target name="tools/po2ngdat/bin/po2ngdat" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+					<target name="tools" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildArguments/>
-						<buildTarget>tools/po2ngdat/bin/po2ngdat</buildTarget>
+						<buildTarget>tools</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
@@ -372,10 +371,9 @@
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
 					</target>
-					<target name="pkg-landviews" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+					<target name="pkg-gfx" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
-						<buildTarget>pkg-landviews</buildTarget>
+						<buildTarget>pkg-gfx</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>

@@ -1,5 +1,5 @@
 #******************************************************************************
-#  Land View files converter for KeeperFX
+#  ProPak/RNC Compressor/Decompressor
 #******************************************************************************
 #   @file Makefile
 #      A script used by GNU Make to recompile the project.
@@ -9,7 +9,7 @@
 #  @par Comment:
 #      None.
 #  @author   Tomasz Lis
-#  @date     25 Jul 2012 - 18 Aug 2012
+#  @date     14 Feb 2008 - 01 Nov 2011
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #******************************************************************************
 OS = $(shell uname -s)
 ifneq (,$(findstring MINGW,$(OS)))
-RES  = obj/pngpal2raw_stdres.res
+RES  = obj/rnc_stdres.res
 EXEEXT = .exe
 else
 RES  = 
@@ -29,14 +29,17 @@ CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
-BIN  = bin/pngpal2raw$(EXEEXT)
+ENCBIN  = bin/rnc$(EXEEXT)
+DECBIN  = bin/dernc$(EXEEXT)
+ENCOBJS = obj/rnc.o obj/rnc_dernc.o
+DECOBJS = obj/dernc.o
 LIBS =
 OBJS = \
-obj/pngpal2raw.o \
+obj/lbfileio.o \
+obj/lblogging.o \
 $(RES)
 
-LINKOBJ  = $(OBJS)
-LINKLIB = -static -lpng -lz -lm
+LINKLIB = 
 INCS = 
 CXXINCS = 
 # flags to generate dependency files
@@ -52,21 +55,45 @@ RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before $(BIN) all-after
+all: all-before $(ENCBIN) $(DECBIN) all-after
 
 clean: clean-custom
-	-${RM} $(OBJS) $(BIN) $(LIBS)
+	-${RM} $(OBJS) $(ENCOBJS) $(DECOBJS) $(ENCBIN) $(DECBIN)
 	-@echo ' '
 
-$(BIN): $(OBJS) $(LIBS)
+$(ENCBIN): $(ENCOBJS) $(OBJS) $(LIBS)
 	@echo 'Building target: $@'
-	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS)
+	$(CPP) $(ENCOBJS) $(OBJS) -o "$@" $(LINKLIB) $(OPTFLAGS)
+	@echo 'Finished building target: $@'
+	@echo ' '
+
+$(DECBIN): $(DECOBJS) $(OBJS) $(LIBS)
+	@echo 'Building target: $@'
+	$(CPP) $(DECOBJS) $(OBJS) -o "$@" $(LINKLIB) $(OPTFLAGS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 obj/%.o: src/%.cpp
 	@echo 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+obj/rnc_dernc.o: src/dernc.c
+	@echo 'Building file: $<'
+	$(CC) $(CFLAGS) -DCOMPRESSOR -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+obj/dernc.o: src/dernc.c
+	@echo 'Building file: $<'
+	$(CC) $(CFLAGS) -DMAIN_DERNC -o"$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+obj/rnc.o: src/rnc.c
+	@echo 'Building file: $<'
+	$(CC) $(CFLAGS) -DMAIN_RNC -o"$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 
