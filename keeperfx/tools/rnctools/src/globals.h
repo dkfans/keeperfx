@@ -47,7 +47,7 @@
 #endif
 
 // Return values for all other functions
-#define ERR_NONE           0
+#define ERR_OK             0
 // Note: error codes -1..-79 are reserved standard C library errors with sign reverted.
 //    these are defined in errno.h
 #define ERR_BASE_RNC      -90

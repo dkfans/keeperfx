@@ -14,7 +14,6 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
 #ifndef LBFILEIO_H
 #define LBFILEIO_H
 

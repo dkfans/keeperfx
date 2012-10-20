@@ -159,25 +159,10 @@
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
 					</target>
-					<target name="tools/pngpal2raw/bin/pngpal2raw" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-						<buildCommand>mingw32-make</buildCommand>
-						<buildTarget>tools/pngpal2raw/bin/pngpal2raw</buildTarget>
-						<stopOnError>true</stopOnError>
-						<useDefaultCommand>true</useDefaultCommand>
-						<runAllBuilders>true</runAllBuilders>
-					</target>
 					<target name="tools" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildArguments/>
 						<buildTarget>tools</buildTarget>
-						<stopOnError>true</stopOnError>
-						<useDefaultCommand>true</useDefaultCommand>
-						<runAllBuilders>true</runAllBuilders>
-					</target>
-					<target name="tools/png2bestpal/bin/png2bestpal" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
-						<buildTarget>tools/png2bestpal/bin/png2bestpal</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
@@ -348,25 +333,10 @@
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
 					</target>
-					<target name="tools/pngpal2raw/bin/pngpal2raw" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-						<buildCommand>mingw32-make</buildCommand>
-						<buildTarget>tools/pngpal2raw/bin/pngpal2raw</buildTarget>
-						<stopOnError>true</stopOnError>
-						<useDefaultCommand>true</useDefaultCommand>
-						<runAllBuilders>true</runAllBuilders>
-					</target>
 					<target name="tools" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>mingw32-make</buildCommand>
 						<buildArguments/>
 						<buildTarget>tools</buildTarget>
-						<stopOnError>true</stopOnError>
-						<useDefaultCommand>true</useDefaultCommand>
-						<runAllBuilders>true</runAllBuilders>
-					</target>
-					<target name="tools/png2bestpal/bin/png2bestpal" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-						<buildCommand>mingw32-make</buildCommand>
-						<buildArguments/>
-						<buildTarget>tools/png2bestpal/bin/png2bestpal</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>true</runAllBuilders>
