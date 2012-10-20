@@ -31,12 +31,14 @@ WINDRES = windres
 DLLTOOL = dlltool
 ENCBIN  = bin/rnc$(EXEEXT)
 DECBIN  = bin/dernc$(EXEEXT)
-ENCOBJS = obj/rnc.o obj/rnc_dernc.o
+ENCOBJS = obj/rnc.o obj/lbrncpack.o
 DECOBJS = obj/dernc.o
 LIBS =
 OBJS = \
 obj/lbfileio.o \
 obj/lblogging.o \
+obj/lbrncbase.o \
+obj/lbpathutil.o \
 $(RES)
 
 LINKLIB = 
@@ -79,27 +81,9 @@ obj/%.o: src/%.cpp
 	@echo 'Finished building: $<'
 	@echo ' '
 
-obj/rnc_dernc.o: src/dernc.c
-	@echo 'Building file: $<'
-	$(CC) $(CFLAGS) -DCOMPRESSOR -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
-
-obj/dernc.o: src/dernc.c
-	@echo 'Building file: $<'
-	$(CC) $(CFLAGS) -DMAIN_DERNC -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
-
-obj/rnc.o: src/rnc.c
-	@echo 'Building file: $<'
-	$(CC) $(CFLAGS) -DMAIN_RNC -o"$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
-
 obj/%.o: src/%.c
 	@echo 'Building file: $<'
-	$(CC) $(CFLAGS) -o"$@" "$<"
+	$(CC) $(CFLAGS) -DCOMPRESSOR -o"$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

@@ -1,8 +1,8 @@
 /******************************************************************************/
-/** @file dernc.h
+/** @file lbrncbase.h
  * RNC decompression support.
  * @par Purpose:
- *     Header file. Defines exported routines from dernc.c.
+ *     Header file. Defines exported routines from lbrncbase.c.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -15,9 +15,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-#ifndef RNC_DERNC_H
-#define RNC_DERNC_H
+#ifndef RNC_BASE_H
+#define RNC_BASE_H
 
 typedef long (*rnc_callback)(long done,long total);
 
