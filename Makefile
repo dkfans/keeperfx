@@ -27,16 +27,18 @@ else
   CROSS_EXEEXT =
 endif
 EXEEXT = .exe
-CPP   = $(CROSS_COMPILE)g++
-CC    = $(CROSS_COMPILE)gcc
+CPP      = $(CROSS_COMPILE)g++
+CC       = $(CROSS_COMPILE)gcc
 WINDRES  = $(CROSS_COMPILE)windres
 DLLTOOL  = $(CROSS_COMPILE)dlltool
 EXETODLL = tools/peresec/bin/peresec$(CROSS_EXEEXT)
 DOXYTOOL = doxygen
-PNGTOICO  = tools/png2ico/png2ico$(CROSS_EXEEXT)
+PNGTOICO = tools/png2ico/png2ico$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
 PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
 POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
+RNC      = tools/rnctools/bin/rnc$(CROSS_EXEEXT)
+DERNC    = tools/rnctools/bin/dernc$(CROSS_EXEEXT)
 RM       = rm -f
 MV       = mv -f
 CP       = cp -f
@@ -440,6 +442,7 @@ include tool_png2ico.mk
 include tool_pngpal2raw.mk
 include tool_png2bestpal.mk
 include tool_po2ngdat.mk
+include tool_rnctools.mk
 
 include package.mk
 include pkg_lang.mk

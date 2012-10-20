@@ -5,6 +5,7 @@ ifneq (,$(findstring Windows,$(OS)))
   PNGTORAW_DOWNLOAD=https://github.com/dkfans/pngpal2raw/releases/download/v1.0.2/pngpal2raw-1_0_2_35-devel-win.zip
   PNGTOBSPAL_DOWNLOAD=https://github.com/dkfans/png2bestpal/releases/download/v1.0.2/png2bestpal-1_0_2_20-devel-win.zip
   POTONGDAT_DOWNLOAD=https://github.com/dkfans/po2ngdat/releases/download/v1.0.2.30/po2ngdat-1_0_2_30-devel-win.zip
+  RNCTOOLS_DOWNLOAD=https://github.com/dkfans/rnctools/releases/download/v1.0.2/rnctools-1_0_2_5-devel-win.zip
 else
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
@@ -13,12 +14,14 @@ ifeq ($(UNAME_S),Linux)
   PNGTORAW_DOWNLOAD=https://github.com/dkfans/pngpal2raw/releases/download/v1.0.2/pngpal2raw-1_0_2_35-devel-lin.tar.gz
   PNGTOBSPAL_DOWNLOAD=https://github.com/dkfans/png2bestpal/releases/download/v1.0.2/png2bestpal-1_0_2_20-devel-lin.tar.gz
   POTONGDAT_DOWNLOAD=https://github.com/dkfans/po2ngdat/releases/download/v1.0.2.30/po2ngdat-1_0_2_30-devel-lin.tar.gz
+  RNCTOOLS_DOWNLOAD=https://github.com/dkfans/rnctools/releases/download/v1.0.2/rnctools-1_0_2_5-devel-lin.tar.gz
 else
   PERESEC_DOWNLOAD=no_prebuild_available_for_your_os
   PNGTOICO_DOWNLOAD=no_prebuild_available_for_your_os
   PNGTORAW_DOWNLOAD=no_prebuild_available_for_your_os
   PNGTOBSPAL_DOWNLOAD=no_prebuild_available_for_your_os
   POTONGDAT_DOWNLOAD=no_prebuild_available_for_your_os
+  RNCTOOLS_DOWNLOAD=no_prebuild_available_for_your_os
 endif
 endif
 PERESEC_PACKAGE=$(notdir $(PERESEC_DOWNLOAD))
@@ -26,6 +29,7 @@ PNGTOICO_PACKAGE=$(notdir $(PNGTOICO_DOWNLOAD))
 PNGTORAW_PACKAGE=$(notdir $(PNGTORAW_DOWNLOAD))
 PNGTOBSPAL_PACKAGE=$(notdir $(PNGTOBSPAL_DOWNLOAD))
 POTONGDAT_PACKAGE=$(notdir $(POTONGDAT_DOWNLOAD))
+RNCTOOLS_PACKAGE=$(notdir $(RNCTOOLS_DOWNLOAD))
 
 # Tools and libraries to be used for the target system
 # Currently, the target is always windows-mingw32
