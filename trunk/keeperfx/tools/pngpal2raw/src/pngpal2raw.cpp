@@ -55,6 +55,7 @@ enum {
 enum {
     OutFmt_RAW = 0,
     OutFmt_HSPR,
+    OutFmt_SSPR,
 };
 
 enum {
@@ -97,16 +98,18 @@ public:
     }
     void clear()
     {
-        fname_inp.clear();
+        fnames_inp.clear();
         fname_pal.clear();
         fname_out.clear();
+        fname_tab.clear();
         alg = DfsAlg_FldStnbrg;
         fmt = OutFmt_RAW;
         lvl = 100;
     }
-    std::string fname_inp;
+    std::vector<std::string> fnames_inp;
     std::string fname_pal;
     std::string fname_out;
+    std::string fname_tab;
     int fmt;
     int alg;
     int lvl;
@@ -484,7 +487,7 @@ int raw_pack(png_bytep row,int width,int nbits)
 }
 
 /**
- * Packs a line of pixels (1 byte per pixel) so that transparent bytes are RLE-encoded.
+ * Packs a line of pixels (1 byte per pixel) so that transparent bytes are RLE-encoded into HugeSprite.
  * @return the new number of bytes in row
  */
 int hspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_trans, int width, const ColorPalette& palette)
@@ -514,77 +517,98 @@ int hspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
     return outIndex;
 }
 
-char *file_name_change_extension(const char *fname_inp,const char *ext)
+#pragma pack(1)
+
+struct SmallSprite {
+        size_t Data;
+        unsigned char SWidth;
+        unsigned char SHeight;
+};
+
+#pragma pack()
+
+/**
+ * Packs a line of pixels (1 byte per pixel) so that transparent bytes are RLE-encoded into SmallSprite.
+ * @return the new number of bytes in row.
+ */
+int sspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_trans, int width, const ColorPalette& palette)
 {
-    char *fname;
-    char *tmp1,*tmp2;
-    if (fname_inp == NULL)
-      return NULL;
-    fname = (char *)malloc(strlen(fname_inp)+strlen(ext)+2);
-    if (fname == NULL)
-      return NULL;
-    strcpy(fname,fname_inp);
-    tmp1 = strrchr(fname, '/');
-    tmp2 = strrchr(fname, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
-        tmp1 = tmp2;
-    if (tmp1 == NULL)
-        tmp1 = fname;
-    tmp2 = strrchr(tmp1,'.');
-    if ((tmp2 != NULL) && (tmp1+1 < tmp2))
+    int area;
+    int outIndex=0;
+    int i=0;
+    while (i < width)
     {
-        sprintf(tmp2,".%s",ext);
+        // Filled
+        area = 0;
+        while ( (i+area < width) && !isTransparentX(inp_trans, i+area) ) {
+            area++;
+        }
+        while (area > 0) {
+            char part_area;
+            if (area > 127) {
+                part_area = 127;
+                area -= 127;
+            } else {
+                part_area = area;
+                area = 0;
+            }
+            *(char *)(out_row+outIndex) = part_area;
+            outIndex += sizeof(char);
+            memcpy(out_row+outIndex, inp_row+i, part_area);
+            outIndex += part_area;
+            i += part_area;
+        }
+        // Transparent
+        area = 0;
+        while ( (i+area < width) && isTransparentX(inp_trans, i+area) ) {
+            area++;
+        }
+        while (area > 0) {
+            char part_area;
+            if (area > 127) {
+                part_area = -127;
+                area -= 127;
+            } else {
+                part_area = -area;
+                area = 0;
+            }
+            *(char *)(out_row+outIndex) = part_area;
+            outIndex += sizeof(char);
+            i += part_area;
+        }
+    }
+    { // End a line with 0
+        *(char *)(out_row+outIndex) = 0;
+        outIndex += sizeof(char);
+    }
+    return outIndex;
+}
+
+std::string file_name_strip_path(const std::string &fname_inp)
+{
+    size_t tmp1,tmp2;
+    tmp1 = fname_inp.find_last_of('/');
+    tmp2 = fname_inp.find_last_of('\\');
+    if ((tmp1 == std::string::npos) || (tmp1 < tmp2))
+        tmp1 = tmp2;
+    if (tmp1 != std::string::npos)
+        return fname_inp.substr(tmp1+1);
+    return fname_inp;
+}
+
+std::string file_name_change_extension(const std::string &fname_inp, const std::string &ext)
+{
+    std::string fname = file_name_strip_path(fname_inp);
+    size_t tmp2;
+    tmp2 = fname.find_last_of('.');
+    if (tmp2 != std::string::npos)
+    {
+        fname.replace(tmp2+1,fname.length()-tmp2,ext);
     } else
     {
-        tmp2 = fname + strlen(fname);
-        sprintf(tmp2,".%s",ext);
+        fname += "." + ext;
     }
     return fname;
-}
-
-char *file_name_strip_to_body(const char *fname_inp)
-{
-    char *fname;
-    const char *tmp1;
-    char *tmp2;
-    if (fname_inp == NULL)
-      return NULL;
-    tmp1 = strrchr(fname_inp, '/');
-    tmp2 = strrchr(fname_inp, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
-        tmp1 = tmp2;
-    if (tmp1 != NULL)
-        tmp1++; // skip the '/' or '\\' char
-    else
-        tmp1 = fname_inp;
-    fname = strdup(tmp1);
-    if (fname == NULL)
-      return NULL;
-    tmp2 = strrchr(fname,'.');
-    if ((tmp2 != NULL) && (fname+1 < tmp2))
-    {
-        *tmp2 = '\0';
-    }
-    return fname;
-}
-
-std::string file_name_strip_path(const char *fname_inp)
-{
-    const char *tmp1;
-    char *tmp2;
-    if (fname_inp == NULL)
-      return NULL;
-    tmp1 = strrchr(fname_inp, '/');
-    tmp2 = strrchr(fname_inp, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
-        tmp1 = tmp2;
-    if (tmp1 != NULL)
-        tmp1++; // skip the '/' or '\\' char
-    else
-        tmp1 = fname_inp;
-    if (tmp1 == NULL)
-      return "";
-    return tmp1;
 }
 
 int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
@@ -598,6 +622,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             {"diffuse", required_argument, 0, 'd'},
             {"dflevel", required_argument, 0, 'l'},
             {"output",  required_argument, 0, 'o'},
+            {"outtab",  required_argument, 0, 't'},
             {"palette", required_argument, 0, 'p'},
             {NULL,      0,                 0,'\0'}
         };
@@ -625,6 +650,8 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         case 'f':
             if (strcasecmp(optarg,"HSPR") == 0)
                 opts.fmt = OutFmt_HSPR;
+            else if (strcasecmp(optarg,"SSPR") == 0)
+                opts.fmt = OutFmt_SSPR;
             else if (strcasecmp(optarg,"RAW") == 0)
                 opts.fmt = OutFmt_RAW;
             else
@@ -662,6 +689,9 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         case 'o':
             opts.fname_out = optarg;
             break;
+        case 't':
+            opts.fname_tab = optarg;
+            break;
         case 'p':
             opts.fname_pal = optarg;
             break;
@@ -673,23 +703,42 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         }
     }
     // remaining command line arguments (not options)
-    if (optind < argc)
+    while (optind < argc)
     {
-        opts.fname_inp = argv[optind++];
+        opts.fnames_inp.push_back(argv[optind++]);
     }
-    if ((optind < argc) || (opts.fname_inp.size() < 1))
+    if ((optind < argc) || (opts.fnames_inp.size() < 1))
     {
         LogErr("Incorrectly specified input file name.");
+        return false;
+    }
+    if ((opts.fmt != OutFmt_SSPR) && (opts.fnames_inp.size() != 1))
+    {
+        LogErr("This format supports only one input file name.");
         return false;
     }
     // fill names that were not set by arguments
     if (opts.fname_out.length() < 1)
     {
-        opts.fname_out = file_name_change_extension(opts.fname_inp.c_str(),"raw");
+        switch (opts.fmt)
+        {
+        case OutFmt_HSPR:
+        case OutFmt_SSPR:
+            opts.fname_out = file_name_change_extension(opts.fnames_inp[0],"dat");
+            break;
+        case OutFmt_RAW:
+        default:
+            opts.fname_out = file_name_change_extension(opts.fnames_inp[0],"raw");
+            break;
+        }
+    }
+    if (opts.fname_tab.length() < 1)
+    {
+        opts.fname_tab = file_name_change_extension(opts.fname_out,"tab");
     }
     if (opts.fname_pal.length() < 1)
     {
-        opts.fname_pal = file_name_change_extension(opts.fname_inp.c_str(),"pal");
+        opts.fname_pal = file_name_change_extension(opts.fnames_inp[0],"pal");
     }
     return true;
 }
@@ -715,6 +764,7 @@ short show_usage(const std::string &fname)
     printf("    -f<fmt>,--format<fmt>    Output file format, RAW or HSPR\n");
     printf("    -p<file>,--palette<file> Input PAL file name\n");
     printf("    -o<file>,--output<file>  Output image file name\n");
+    printf("    -t<file>,--outtab<file>  Output tabulation file name\n");
     return ERR_OK;
 }
 
@@ -894,6 +944,49 @@ short save_hugspr_file(WorkingSet& ws, ImageData& img, const std::string& fname_
     return ERR_OK;
 }
 
+short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std::string& fname_out, const std::string& fname_tab, ProgramOptions& opts)
+{
+    // Open and write the HugeSprite file
+    {
+        FILE* rawfile = fopen(fname_out.c_str(),"wb");
+        if (rawfile == NULL) {
+            perror(fname_out.c_str());
+            return ERR_CANT_OPEN;
+        }
+        FILE* tabfile = fopen(fname_tab.c_str(),"wb");
+        if (tabfile == NULL) {
+            perror(fname_tab.c_str());
+            return ERR_CANT_OPEN;
+        }
+        std::vector<SmallSprite> spr_shifts;
+        spr_shifts.resize(imgs.size()+1);
+        long base_pos = ftell(rawfile);
+        for (int i = 0; i < imgs.size(); i++)
+        {
+            ImageData &img = imgs[i];
+            spr_shifts[i].Data = ftell(rawfile) - base_pos;
+            spr_shifts[i].SWidth = img.width;
+            spr_shifts[i].SHeight = img.height;
+            png_bytep out_row = new png_byte[img.width*3];
+            png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
+            for (int y=0; y<img.height; y++)
+            {
+                png_bytep inp_row = row_pointers[y];
+                png_bytep inp_trans = img.transMap[y];
+                int newLength = sspr_pack(out_row,inp_row,inp_trans,img.width,ws.palette);
+                if (fwrite(out_row,newLength,1,rawfile) != 1)
+                { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            }
+            delete[] out_row;
+        }
+        if (fwrite(&spr_shifts.front(),sizeof(SmallSprite),spr_shifts.size(),tabfile) != spr_shifts.size())
+        { perror(fname_tab.c_str()); return ERR_FILE_WRITE; }
+        fclose(rawfile);
+        fclose(tabfile);
+    }
+    return ERR_OK;
+}
+
 int main(int argc, char* argv[])
 {
     static ProgramOptions opts;
@@ -909,10 +1002,17 @@ int main(int argc, char* argv[])
 
     static WorkingSet ws;
 
-    LogMsg("Loading image \"%s\".",opts.fname_inp.c_str());
-    ImageData img = ImageData();
-    if (load_inp_png_file(img, opts.fname_inp, opts) != ERR_OK) {
-        return 2;
+    std::vector<ImageData> imgs;
+    imgs.resize(opts.fnames_inp.size());
+    {
+        for (int i = 0; i < opts.fnames_inp.size(); i++)
+        {
+            LogMsg("Loading image \"%s\".",opts.fnames_inp[i].c_str());
+            ImageData& img = imgs[i];
+            if (load_inp_png_file(img, opts.fnames_inp[i], opts) != ERR_OK) {
+                return 2;
+            }
+        }
     }
 
     ws.alg = opts.alg;
@@ -924,23 +1024,36 @@ int main(int argc, char* argv[])
         return 4;
     }
 
-    LogMsg("Converting colors to indexes...");
-    if (convert_rgb_to_indexed(ws, img, ((img.color_type & PNG_COLOR_MASK_ALPHA) != ERR_OK))) {
-        LogErr("Converting colors failed.");
-        return 6;
+    {
+        std::vector<ImageData>::iterator iter;
+        for (iter = imgs.begin(); iter != imgs.end(); iter++)
+        {
+            LogMsg("Converting image %d colors to indexes...",(int)(iter-imgs.begin()));
+            ImageData& img = *iter;
+            if (convert_rgb_to_indexed(ws, img, ((img.color_type & PNG_COLOR_MASK_ALPHA) != ERR_OK))) {
+                LogErr("Converting colors failed.");
+                return 6;
+            }
+        }
     }
 
     switch (opts.fmt)
     {
     case OutFmt_RAW:
         LogMsg("Saving RAW file \"%s\".",opts.fname_out.c_str());
-        if (save_raw_file(ws, img, opts.fname_out, opts) != ERR_OK) {
+        if (save_raw_file(ws, imgs[0], opts.fname_out, opts) != ERR_OK) {
             return 8;
         }
         break;
     case OutFmt_HSPR:
         LogMsg("Saving HSPR file \"%s\".",opts.fname_out.c_str());
-        if (save_hugspr_file(ws, img, opts.fname_out, opts) != ERR_OK) {
+        if (save_hugspr_file(ws, imgs[0], opts.fname_out, opts) != ERR_OK) {
+            return 8;
+        }
+        break;
+    case OutFmt_SSPR:
+        LogMsg("Saving SSPR file \"%s\".",opts.fname_out.c_str());
+        if (save_smallspr_file(ws, imgs, opts.fname_out, opts.fname_tab, opts) != ERR_OK) {
             return 8;
         }
         break;
