@@ -87,7 +87,17 @@ enum {
 int verbose = 0;
 
 #define LogMsg(format,args...) fprintf(stdout,format "\n", ## args)
+#define LogDbg(format,args...) if (verbose) fprintf(stdout,format "\n", ## args)
 #define LogErr(format,args...) fprintf(stderr,format "\n", ## args)
+
+class ImageArea {
+public:
+    ImageArea(const std::string &nname, int nx=-1, int ny=-1, int nw=-1, int nh=-1):
+        fname(nname),x(nx),y(ny),w(nw),h(nh) {};
+    std::string fname;
+    int x,y;
+    int w,h;
+};
 
 /** A class closing non-global command line parameters */
 class ProgramOptions {
@@ -98,21 +108,25 @@ public:
     }
     void clear()
     {
-        fnames_inp.clear();
+        inp.clear();
+        fname_lst.clear();
         fname_pal.clear();
         fname_out.clear();
         fname_tab.clear();
         alg = DfsAlg_FldStnbrg;
         fmt = OutFmt_RAW;
         lvl = 100;
+        batch = false;
     }
-    std::vector<std::string> fnames_inp;
+    std::vector<ImageArea> inp;
+    std::string fname_lst;
     std::string fname_pal;
     std::string fname_out;
     std::string fname_tab;
     int fmt;
     int alg;
     int lvl;
+    bool batch;
 };
 
 class RGBAccum {
@@ -399,7 +413,6 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
     png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
 
     int transLineLen=andMaskLineLen(img);
-    int transLinePad=transLineLen - ((img.width+7)/8);
     img.transMap=(png_bytepp)malloc(img.height*sizeof(png_bytep));
 
 
@@ -442,8 +455,18 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
             row[x]=palentry;
             pixel+=bytesPerPixel;
         }
-
-        for(int i=0; i<transLinePad; ++i) *transPtr++ = 0;
+        // Finish the 8-bit bound if it's needed
+        while (count8 != 0)
+        {
+            ++transbyte;
+            if (++count8==8)
+            {
+                *transPtr++ = transbyte;
+                count8=0;
+                transbyte=0;
+            }
+            transbyte+=transbyte; //shift left 1
+        }
     }
 
     img.col_bits = ws.requestedColorBPP();
@@ -543,8 +566,9 @@ int sspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
         while ( (i+area < width) && !isTransparentX(inp_trans, i+area) ) {
             area++;
         }
+        LogDbg("fill area %d",area);
         while (area > 0) {
-            char part_area;
+            int part_area;
             if (area > 127) {
                 part_area = 127;
                 area -= 127;
@@ -552,7 +576,7 @@ int sspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
                 part_area = area;
                 area = 0;
             }
-            *(char *)(out_row+outIndex) = part_area;
+            *(char *)(out_row+outIndex) = (char)(part_area);
             outIndex += sizeof(char);
             memcpy(out_row+outIndex, inp_row+i, part_area);
             outIndex += part_area;
@@ -563,16 +587,21 @@ int sspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
         while ( (i+area < width) && isTransparentX(inp_trans, i+area) ) {
             area++;
         }
+        LogDbg("trans area %d",area);
+        if (i+area >= width) {
+            i += area;
+            area = 0;
+        }
         while (area > 0) {
-            char part_area;
+            int part_area;
             if (area > 127) {
-                part_area = -127;
+                part_area = 127;
                 area -= 127;
             } else {
-                part_area = -area;
+                part_area = area;
                 area = 0;
             }
-            *(char *)(out_row+outIndex) = part_area;
+            *(char *)(out_row+outIndex) = (char)(-part_area);
             outIndex += sizeof(char);
             i += part_area;
         }
@@ -618,6 +647,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     {
         static struct option long_options[] = {
             {"verbose", no_argument,       0, 'v'},
+            {"batchlist",no_argument,      0, 'b'},
             {"format",  required_argument, 0, 'f'},
             {"diffuse", required_argument, 0, 'd'},
             {"dflevel", required_argument, 0, 'l'},
@@ -629,7 +659,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vf:d:l:o:p:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vbf:d:l:o:p:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -639,13 +669,17 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
                /* If this option set a flag, do nothing else now. */
                if (long_options[option_index].flag != 0)
                    break;
-               printf ("option %s", long_options[option_index].name);
-               if (optarg)
-                 printf (" with arg %s", optarg);
-               printf ("\n");
+               if (optarg) {
+                   LogDbg("option %s with arg %s", long_options[option_index].name, optarg);
+               } else {
+                   LogDbg("option %s with no arg", long_options[option_index].name);
+               }
                break;
         case 'v':
             verbose++;
+            break;
+        case 'b':
+            opts.batch = true;
             break;
         case 'f':
             if (strcasecmp(optarg,"HSPR") == 0)
@@ -705,14 +739,33 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     // remaining command line arguments (not options)
     while (optind < argc)
     {
-        opts.fnames_inp.push_back(argv[optind++]);
+        if (opts.batch) {
+            // In batch mode, file name is not an image but text file with list
+            opts.fname_lst = argv[optind++];
+            break;
+        }
+        opts.inp.push_back(ImageArea(argv[optind++]));
     }
-    if ((optind < argc) || (opts.fnames_inp.size() < 1))
+    // Load the files list, if it's provided
+    if (!opts.fname_lst.empty())
+    {
+        ifstream infile;
+        infile.open(opts.fname_lst.c_str(), ifstream::in);
+         while (infile.good()) {
+             std::string str;
+             std::getline(infile, str, '\n');
+             str.erase(str.find_last_not_of(" \n\r\t")+1);
+             if (!str.empty()) {
+                 opts.inp.push_back(ImageArea(str));
+             }
+         }
+    }
+    if ((optind < argc) || (opts.inp.empty() && opts.fname_lst.empty()))
     {
         LogErr("Incorrectly specified input file name.");
         return false;
     }
-    if ((opts.fmt != OutFmt_SSPR) && (opts.fnames_inp.size() != 1))
+    if ((opts.fmt != OutFmt_SSPR) && (opts.inp.size() != 1))
     {
         LogErr("This format supports only one input file name.");
         return false;
@@ -724,11 +777,11 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         {
         case OutFmt_HSPR:
         case OutFmt_SSPR:
-            opts.fname_out = file_name_change_extension(opts.fnames_inp[0],"dat");
+            opts.fname_out = file_name_change_extension(opts.inp[0].fname,"dat");
             break;
         case OutFmt_RAW:
         default:
-            opts.fname_out = file_name_change_extension(opts.fnames_inp[0],"raw");
+            opts.fname_out = file_name_change_extension(opts.inp[0].fname,"raw");
             break;
         }
     }
@@ -738,7 +791,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     }
     if (opts.fname_pal.length() < 1)
     {
-        opts.fname_pal = file_name_change_extension(opts.fnames_inp[0],"pal");
+        opts.fname_pal = file_name_change_extension(opts.inp[0].fname,"pal");
     }
     return true;
 }
@@ -765,6 +818,7 @@ short show_usage(const std::string &fname)
     printf("    -p<file>,--palette<file> Input PAL file name\n");
     printf("    -o<file>,--output<file>  Output image file name\n");
     printf("    -t<file>,--outtab<file>  Output tabulation file name\n");
+    printf("    -b,--batchlist           Batch, input file is not an image but contains a list of PNGs\n");
     return ERR_OK;
 }
 
@@ -946,42 +1000,50 @@ short save_hugspr_file(WorkingSet& ws, ImageData& img, const std::string& fname_
 
 short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std::string& fname_out, const std::string& fname_tab, ProgramOptions& opts)
 {
-    // Open and write the HugeSprite file
+    std::vector<SmallSprite> spr_shifts;
+    // Open and write the SmallSprite file
     {
         FILE* rawfile = fopen(fname_out.c_str(),"wb");
         if (rawfile == NULL) {
             perror(fname_out.c_str());
             return ERR_CANT_OPEN;
         }
-        FILE* tabfile = fopen(fname_tab.c_str(),"wb");
-        if (tabfile == NULL) {
-            perror(fname_tab.c_str());
-            return ERR_CANT_OPEN;
-        }
-        std::vector<SmallSprite> spr_shifts;
         spr_shifts.resize(imgs.size()+1);
         long base_pos = ftell(rawfile);
+        {
+            unsigned short spr_count;
+            spr_count = imgs.size()+1;
+            if (fwrite(&spr_count,sizeof(spr_count),1,rawfile) != 1)
+            { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        }
         for (int i = 0; i < imgs.size(); i++)
         {
             ImageData &img = imgs[i];
             spr_shifts[i].Data = ftell(rawfile) - base_pos;
             spr_shifts[i].SWidth = img.width;
             spr_shifts[i].SHeight = img.height;
-            png_bytep out_row = new png_byte[img.width*3];
+            std::vector<png_byte> out_row;
+            out_row.resize(img.width*3);
             png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
             for (int y=0; y<img.height; y++)
             {
                 png_bytep inp_row = row_pointers[y];
                 png_bytep inp_trans = img.transMap[y];
-                int newLength = sspr_pack(out_row,inp_row,inp_trans,img.width,ws.palette);
-                if (fwrite(out_row,newLength,1,rawfile) != 1)
+                int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.width,ws.palette);
+                if (fwrite(&out_row.front(),newLength,1,rawfile) != 1)
                 { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             }
-            delete[] out_row;
+        }
+        fclose(rawfile);
+    }
+    {
+        FILE* tabfile = fopen(fname_tab.c_str(),"wb");
+        if (tabfile == NULL) {
+            perror(fname_tab.c_str());
+            return ERR_CANT_OPEN;
         }
         if (fwrite(&spr_shifts.front(),sizeof(SmallSprite),spr_shifts.size(),tabfile) != spr_shifts.size())
         { perror(fname_tab.c_str()); return ERR_FILE_WRITE; }
-        fclose(rawfile);
         fclose(tabfile);
     }
     return ERR_OK;
@@ -1003,13 +1065,13 @@ int main(int argc, char* argv[])
     static WorkingSet ws;
 
     std::vector<ImageData> imgs;
-    imgs.resize(opts.fnames_inp.size());
+    imgs.resize(opts.inp.size());
     {
-        for (int i = 0; i < opts.fnames_inp.size(); i++)
+        for (int i = 0; i < opts.inp.size(); i++)
         {
-            LogMsg("Loading image \"%s\".",opts.fnames_inp[i].c_str());
+            LogMsg("Loading image \"%s\".",opts.inp[i].fname.c_str());
             ImageData& img = imgs[i];
-            if (load_inp_png_file(img, opts.fnames_inp[i], opts) != ERR_OK) {
+            if (load_inp_png_file(img, opts.inp[i].fname, opts) != ERR_OK) {
                 return 2;
             }
         }

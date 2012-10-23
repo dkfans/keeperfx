@@ -197,20 +197,10 @@ short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlp
             r = pixel[0];
             g = pixel[1];
             b = pixel[2];
-            if (hasAlpha)
-            {
-                if (trans) {
-                    a = pixel[3];
-                } else {
-                    a=255;
-                }
-            } else
-            {
-                if (trans) {
-                    a = 0;
-                } else {
-                    a=255;
-                }
+            if (trans) {
+                a = 0;
+            } else {
+                a=255;
             }
             quad=mkquad(r,g,b,a);
 
@@ -242,19 +232,24 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
     while (ws.palette.size() < maxColors)
     {
         RGBAQuad mostDifferentQuad=0;
-        long long mdqMinDist = -1; //smallest distance to an entry in the palette for mostDifferentQuad
+        long mdqMinDist = -1; //smallest distance to an entry in the palette for mostDifferentQuad
         long long mdqDistSum = -1; //sum over all distances to palette entries for mostDifferentQuad
         MapQuadToPal::iterator stop = ws.mapQuadToPalEntry.end();
         MapQuadToPal::iterator iter = ws.mapQuadToPalEntry.begin();
+        // For all unique colors from the complete list
         while(iter!=stop)
         {
             MapQuadToPal::value_type& mapping=*iter++;
-            if (mapping.second<0)
+            // If the color is unmapped yet
+            if (mapping.second < 0)
             {
-                RGBAQuad quad=mapping.first;
-                int red=quad_r(quad);  //must be signed
-                int green=quad_g(quad);
-                int blue=quad_b(quad);
+                RGBAQuad quad = mapping.first;
+                int red = quad_r(quad);  //must be signed
+                int green = quad_g(quad);
+                int blue = quad_b(quad);
+                /* Compute sum of all distances to this color
+                 * and minimal distance (to the closest color) for this entry.
+                 */
                 long long distSum=0;
                 long minDist=LONG_MAX;
                 ColorPalette::iterator paliter;
@@ -262,17 +257,17 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
                 {
                     int temp;
                     long dist;
-                    temp = (red - paliter->red);
+                    temp = (red - (int)paliter->red);
                     dist = temp*temp;
-                    temp = (green - paliter->green);
+                    temp = (green - (int)paliter->green);
                     dist += temp*temp;
-                    temp = (blue - paliter->blue);
+                    temp = (blue - (int)paliter->blue);
                     dist += temp*temp;
                     if (dist < minDist) minDist = dist;
                     distSum += dist;
                 }
 
-                if (minDist>mdqMinDist || (minDist==mdqMinDist && distSum>mdqDistSum))
+                if ( (minDist > mdqMinDist) || (minDist==mdqMinDist && distSum>mdqDistSum))
                 {
                     mostDifferentQuad = quad;
                     mdqMinDist = minDist;
@@ -292,7 +287,7 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
             break;
         }
     }
-    // If there are not enough colors, fill the empty entries with zeros
+    // If there are not enough colors, fill the empty entries with more colors from the palette
     while (ws.palette.size() < maxColors)
     {
         ws.addPaletteBlindEntry(0,0,0);
@@ -364,6 +359,8 @@ short update_palette_colors_to_average_of_uses(WorkingSet& ws)
             if (mapping.second == (paliter - ws.palette.begin()))
             {
                 RGBAQuad quad=mapping.first;
+                if (quad_a(quad) <= 192)
+                    continue;
                 red+=quad_r(quad);
                 green+=quad_g(quad);
                 blue+=quad_b(quad);
@@ -392,6 +389,7 @@ short remap_palette_colors_order(WorkingSet& ws)
     orig.insert(orig.begin(),ws.palette.begin(),ws.palette.end());
     for (int i = 0; i < ws.paletteRemap.size(); i++) {
         ws.palette[i] = orig[ws.paletteRemap[i]];
+        printf("%d -> %d\n",i,ws.paletteRemap[i]);
     }
     return ERR_OK;
 }
@@ -689,9 +687,23 @@ short load_pal_mapping_file(WorkingSet& ws, const std::string& fname_map, Progra
         {
             int i = ws.palette.size();
             ws.addPaletteQuad(quad);
-            ws.paletteRemap[i] = code;
             ws.paletteRemap[code] = i;
         }
+    }
+    /* Make sure no palette entries are lost.
+     * The code below adds co-mappings to the mappings added above.
+     * Note that it assumes the entries are added to palette exactly as above.
+     */
+    for (int i = 0; i < ws.paletteRemap.size(); i++)
+    {
+        vector<int>::iterator iter;
+        iter = std::find(ws.paletteRemap.begin()+i,ws.paletteRemap.end(),i);
+        if (iter != ws.paletteRemap.end())
+            continue;
+        int k = i;
+        while (ws.paletteRemap[k] != k)
+            k = ws.paletteRemap[k];
+        ws.paletteRemap[k] = i;
     }
 
     if (errors > 0)
