@@ -33,6 +33,7 @@
 #else
 #include <hash_map>
 #endif
+//#include <unordered_map>
 
 #include <png.h>
 
@@ -613,12 +614,24 @@ int sspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
     return outIndex;
 }
 
+std::string file_name_get_path(const std::string &fname_inp)
+{
+    size_t tmp1,tmp2;
+    tmp1 = fname_inp.find_last_of('/');
+    tmp2 = fname_inp.find_last_of('\\');
+    if ((tmp1 == std::string::npos) || ((tmp2 != std::string::npos) && (tmp1 < tmp2)))
+        tmp1 = tmp2;
+    if (tmp1 != std::string::npos)
+        return fname_inp.substr(0,tmp1);
+    return "";
+}
+
 std::string file_name_strip_path(const std::string &fname_inp)
 {
     size_t tmp1,tmp2;
     tmp1 = fname_inp.find_last_of('/');
     tmp2 = fname_inp.find_last_of('\\');
-    if ((tmp1 == std::string::npos) || (tmp1 < tmp2))
+    if ((tmp1 == std::string::npos) || ((tmp2 != std::string::npos) && (tmp1 < tmp2)))
         tmp1 = tmp2;
     if (tmp1 != std::string::npos)
         return fname_inp.substr(tmp1+1);
@@ -627,7 +640,7 @@ std::string file_name_strip_path(const std::string &fname_inp)
 
 std::string file_name_change_extension(const std::string &fname_inp, const std::string &ext)
 {
-    std::string fname = file_name_strip_path(fname_inp);
+    std::string fname = fname_inp;
     size_t tmp2;
     tmp2 = fname.find_last_of('.');
     if (tmp2 != std::string::npos)
@@ -749,14 +762,15 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     // Load the files list, if it's provided
     if (!opts.fname_lst.empty())
     {
-        ifstream infile;
+        std::ifstream infile;
+        std::string lstpath = file_name_get_path(opts.fname_lst);
         infile.open(opts.fname_lst.c_str(), ifstream::in);
          while (infile.good()) {
              std::string str;
              std::getline(infile, str, '\n');
              str.erase(str.find_last_not_of(" \n\r\t")+1);
              if (!str.empty()) {
-                 opts.inp.push_back(ImageArea(str));
+                 opts.inp.push_back(ImageArea(lstpath+"/"+str));
              }
          }
     }
@@ -777,11 +791,11 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         {
         case OutFmt_HSPR:
         case OutFmt_SSPR:
-            opts.fname_out = file_name_change_extension(opts.inp[0].fname,"dat");
+            opts.fname_out = file_name_change_extension(file_name_strip_path(opts.inp[0].fname),"dat");
             break;
         case OutFmt_RAW:
         default:
-            opts.fname_out = file_name_change_extension(opts.inp[0].fname,"raw");
+            opts.fname_out = file_name_change_extension(file_name_strip_path(opts.inp[0].fname),"raw");
             break;
         }
     }
@@ -791,7 +805,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     }
     if (opts.fname_pal.length() < 1)
     {
-        opts.fname_pal = file_name_change_extension(opts.inp[0].fname,"pal");
+        opts.fname_pal = file_name_change_extension(opts.fname_out,"pal");
     }
     return true;
 }
@@ -1031,6 +1045,11 @@ short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
                 png_bytep inp_trans = img.transMap[y];
                 int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.width,ws.palette);
                 if (fwrite(&out_row.front(),newLength,1,rawfile) != 1)
+                { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            }
+            { // End an image with 7f
+                char endofimg = 0x7f;
+                if (fwrite(&endofimg,sizeof(char),1,rawfile) != 1)
                 { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             }
         }

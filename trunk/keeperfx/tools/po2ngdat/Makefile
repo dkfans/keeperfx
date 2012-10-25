@@ -45,11 +45,15 @@ CXXINCS =
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" 
 # code optimization flags
 OPTFLAGS = -O3
+DBGFLAGS =
+# linker flags
+LINKFLAGS = -std=c++11
 # compiler warning generation flags
 WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter
 # disabled warnings: -Wextra -Wtype-limits
-CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS)
+CXXFLAGS = $(CXXINCS) -std=c++11 -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -62,7 +66,7 @@ clean: clean-custom
 
 $(BIN): $(OBJS) $(LIBS)
 	@echo 'Building target: $@'
-	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS)
+	$(CPP) $(LINKOBJ) -o "$@" $(LDFLAGS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
