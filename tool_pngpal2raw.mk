@@ -92,3 +92,5 @@ else
 $(error Cannot find pngpal2raw tool source nor prebuild. Use git submodules to get source.)
 
 endif
+
+#******************************************************************************

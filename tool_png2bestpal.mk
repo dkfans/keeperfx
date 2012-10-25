@@ -108,3 +108,5 @@ else
 $(error Cannot find png2bestpal tool source nor prebuild. Use git submodules to get source.)
 
 endif
+
+#******************************************************************************

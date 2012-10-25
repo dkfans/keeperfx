@@ -19,6 +19,7 @@
 #******************************************************************************
 
 LANDVIEWRAWS = \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/keeporig_lnd/rgmap$(num).raw pkg/campgns/keeporig_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/burdnimp_lnd/rgmap$(num).raw pkg/campgns/burdnimp_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/dstninja_lnd/rgmap$(num).raw pkg/campgns/dstninja_lnd/viframe$(num).dat) \
@@ -36,9 +37,15 @@ $(foreach num,00 01 02 03 04 05 06 07 08,pkg/campgns/postanck_lnd/rgmap$(num).ra
 $(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/rgmap$(num).raw pkg/campgns/questfth_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/rgmap$(num).raw pkg/campgns/twinkprs_lnd/viframe$(num).dat)
 
-pkg-gfx: pkg-landviews
+GUIDATTABS = \
+pkg/ldata/dkflag00.dat \
+pkg/ldata/netflag.dat
+
+pkg-gfx: pkg-landviews pkg-guidattabs
 
 pkg-landviews: $(LANDVIEWRAWS) pkg-before
+
+pkg-guidattabs: $(GUIDATTABS) pkg-before
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
@@ -69,12 +76,28 @@ endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_rule,$(campaign))))
 
+pkg/ldata/dkflag00.dat: gfx/dkflag00/filelist.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+	-$(ECHO) 'Building tabulated sprites: $$@'
+	$(MKDIR) "$(@D)"
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
+	-$(RNC) "$@"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/ldata/netflag.dat: gfx/netflag/filelist.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+	-$(ECHO) 'Building tabulated sprites: $$@'
+	$(MKDIR) "$(@D)"
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
+	-$(RNC) "$@"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
 # package release, if no targets were modified with the update.
-$(foreach campaign,$(sort $(CAMPAIGNS)), gfx/$(campaign)_lnd/%.png): | gfx/$(GFXSRC_PACKAGE)
+$(foreach campaign,$(sort $(CAMPAIGNS)), gfx/$(campaign)_lnd/%.png) gfx/%/filelist.txt: | gfx/$(GFXSRC_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
-	7z x -aoa -y "$|"
+	7z x -aoa -y -ogfx "$|"
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -87,3 +110,5 @@ gfx/$(GFXSRC_PACKAGE):
 	$(MV) "$@.dl" "$@"
 	-$(ECHO) 'Finished downloading: $@'
 	-$(ECHO) ' '
+
+#******************************************************************************

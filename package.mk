@@ -90,3 +90,4 @@ pkg/campgns/%.cfg: campgns/%.cfg
 #	 Copy the actual campaign file
 	$(CP) $< $@
 
+#******************************************************************************

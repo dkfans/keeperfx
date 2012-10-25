@@ -102,3 +102,4 @@ endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_language_rule,$(campaign))))
 
+#******************************************************************************

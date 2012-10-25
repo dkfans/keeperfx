@@ -92,3 +92,5 @@ else
 $(error Cannot find png2ico tool source nor prebuild. Get package or source manually.)
 
 endif
+
+#******************************************************************************
