@@ -371,6 +371,81 @@ void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, lon
   _DK_anger_apply_anger_to_creature(thing, anger, a2, a3);
 }
 
+/**
+ * Returns if a creature is affected by given spell.
+ * @param thing The creature thing.
+ * @param spkind The spell, from SpellKind enumeration.
+ * @return True if the creature is affected, false otherwise.
+ */
+TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
+{
+    const struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    switch (spkind)
+    {
+    case SplK_Freeze:
+        return ((cctrl->affected_by_spells & CCSpl_Freeze) != 0);
+    case SplK_Armour:
+        return ((cctrl->spell_flags & CSAfF_Armour) != 0);
+    case SplK_Rebound:
+        return ((cctrl->spell_flags & CSAfF_Rebound) != 0);
+    case SplK_Invisibility:
+        return ((cctrl->spell_flags & CSAfF_Invisibility) != 0);
+    case SplK_Teleport:
+        return ((cctrl->affected_by_spells & CCSpl_Teleport) != 0);
+    case SplK_Speed:
+        return ((cctrl->spell_flags & CSAfF_Speed) != 0);
+    case SplK_Slow:
+        return ((cctrl->spell_flags & CSAfF_Slow) != 0);
+    case SplK_Fly:
+        return ((cctrl->spell_flags & CSAfF_Fly) != 0);
+    case SplK_Sight:
+        return ((cctrl->spell_flags & CSAfF_Sight) != 0);
+    case SplK_Disease:
+        return ((cctrl->spell_flags & CSAfF_Disease) != 0);
+    case SplK_Chicken:
+        return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
+    case SplK_Lightning:
+        return false;//TODO
+    case SplK_Heal:
+        return false;//TODO
+    case SplK_PoisonCloud:
+        return false;//TODO
+    case SplK_Drain:
+        return false;//TODO
+    case SplK_Fear:
+        return false;//TODO
+    case SplK_Missile:
+        return false;//TODO
+    case SplK_NavigMissile:
+        return false;//TODO
+    case SplK_FlameBreath:
+        return false;//TODO
+    case SplK_Wind:
+        return false;//TODO
+    case SplK_Light:
+        return false;//TODO
+    case SplK_Grenade:
+        return false;//TODO
+    case SplK_Hailstorm:
+        return false;//TODO
+    case SplK_WordOfPower:
+        return false;//TODO
+    case SplK_CrazyGas:
+        return false;//TODO
+    case SplK_TimeBomb:
+        return false;//TODO
+    case SplK_Fireball:
+        return false;//TODO
+    case SplK_FireBomb:
+        return false;//TODO
+    default:
+        SYNCDBG(3,"Unrecognized spell kind %d",(int)spkind);
+        return false;
+    }
+
+}
+
 long get_free_spell_slot(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -1377,6 +1452,7 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
     } else
     if (!creature_model_bleeds(thing->model))
     {
+        // Non-bleeding creatures have no flesh explosion effects
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         creature_death_as_nature_intended(thing);

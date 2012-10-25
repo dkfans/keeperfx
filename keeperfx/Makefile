@@ -262,6 +262,7 @@ pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/questfth/text_eng.dat
 LANDVIEWRAWS = \
+$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/keeporig_lnd/rgmap$(num).raw pkg/campgns/keeporig_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/burdnimp_lnd/rgmap$(num).raw pkg/campgns/burdnimp_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/dstninja_lnd/rgmap$(num).raw pkg/campgns/dstninja_lnd/viframe$(num).dat) \
@@ -278,6 +279,9 @@ $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/ncastles_lnd/rgmap
 $(foreach num,00 01 02 03 04 05 06 07 08,pkg/campgns/postanck_lnd/rgmap$(num).raw pkg/campgns/postanck_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/rgmap$(num).raw pkg/campgns/questfth_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/rgmap$(num).raw pkg/campgns/twinkprs_lnd/viframe$(num).dat)
+GUIDATTABS = \
+pkg/ldata/dkflag00.dat \
+pkg/ldata/netflag.dat
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
 
@@ -388,9 +392,11 @@ pkg-campaigns: $(CAMPAIGN_CFGS)
 
 pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS)
 
-pkg-gfx: pkg-landviews
+pkg-gfx: pkg-landviews pkg-guidattabs
 
 pkg-landviews: $(LANDVIEWRAWS)
+
+pkg-guidattabs: $(GUIDATTABS)
 
 pkg/campgns/%.cfg: campgns/%.cfg
 	@$(MKDIR) $(@D)
@@ -623,5 +629,19 @@ pkg/campgns/$(1)_lnd/viframe%.dat: gfx/$(1)_lnd/viframe.png pkg/campgns/$(1)_lnd
 endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_rule,$(campaign))))
+
+pkg/ldata/dkflag00.dat: gfx/dkflag00/filelist.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+	-$(ECHO) 'Building tabulated sprites: $$@'
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 10 "$<"
+	-$(RNC) "$@"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/ldata/netflag.dat: gfx/netflag/filelist.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+	-$(ECHO) 'Building tabulated sprites: $$@'
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 10 "$<"
+	-$(RNC) "$@"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
 
 #******************************************************************************

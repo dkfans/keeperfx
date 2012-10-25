@@ -53,6 +53,7 @@ enum {
 };
 
 #define LogMsg(format,args...) fprintf(stdout,format "\n", ## args)
+#define LogDbg(format,args...) if (verbose) fprintf(stdout,format "\n", ## args)
 #define LogErr(format,args...) fprintf(stderr,format "\n", ## args)
 
 int verbose = 0;
@@ -389,7 +390,7 @@ short remap_palette_colors_order(WorkingSet& ws)
     orig.insert(orig.begin(),ws.palette.begin(),ws.palette.end());
     for (int i = 0; i < ws.paletteRemap.size(); i++) {
         ws.palette[i] = orig[ws.paletteRemap[i]];
-        printf("%d -> %d\n",i,ws.paletteRemap[i]);
+        LogDbg("color map %d -> %d",i,ws.paletteRemap[i]);
     }
     return ERR_OK;
 }
