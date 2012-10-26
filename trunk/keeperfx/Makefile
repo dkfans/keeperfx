@@ -632,14 +632,14 @@ $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_r
 
 pkg/ldata/dkflag00.dat: gfx/dkflag00/filelist.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
 	-$(ECHO) 'Building tabulated sprites: $$@'
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 10 "$<"
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
 	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
 pkg/ldata/netflag.dat: gfx/netflag/filelist.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
 	-$(ECHO) 'Building tabulated sprites: $$@'
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 10 "$<"
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
 	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '

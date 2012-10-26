@@ -1,7 +1,7 @@
 /******************************************************************************/
-// Land View files converter for KeeperFX
+// PNG and PAL to RAW/DAT/SPR files converter for KeeperFX
 /******************************************************************************/
-/** @file pngpal2raw.c
+/** @file pngpal2raw.cpp
  *     Program code file.
  * @par Purpose:
  *     Contains code to read PNG files and convert them to 8bpp RAWs with
@@ -28,138 +28,16 @@
 #include <fstream>
 #include <sstream>
 
-#if __GNUC__ > 2
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
-//#include <unordered_map>
-
 #include <png.h>
 
+#include "ci_string.h"
+#include "prog_options.h"
+#include "imagedata.h"
 #include "pngpal2raw_version.h"
 
 using namespace std;
-namespace __gnu_cxx{};
-using namespace __gnu_cxx;
 
-enum {
-    ERR_OK          =  0,
-    ERR_CANT_OPEN   = -1, // fopen problem
-    ERR_BAD_FILE    = -2, // incorrect file format
-    ERR_NO_MEMORY   = -3, // malloc error
-    ERR_FILE_READ   = -4, // fget/fread/fseek error
-    ERR_FILE_WRITE  = -5, // fput/fwrite error
-    ERR_LIMIT_EXCEED= -6, // static limit exceeded
-};
-
-enum {
-    OutFmt_RAW = 0,
-    OutFmt_HSPR,
-    OutFmt_SSPR,
-};
-
-enum {
-    DfsAlg_FldStnbrg = 0,
-    DfsAlg_JrvJdcNnk,
-    DfsAlg_Stucki,
-    DfsAlg_Burkes,
-    DfsAlg_Fan,
-    DfsAlg_Sierra3,
-    DfsAlg_Sierra2,
-    DfsAlg_Sierra24A,
-    DfsAlg_Atkinson,
-    DfsAlg_ShiauFan4,
-    DfsAlg_ShiauFan5,
-};
-/*
-"Floyd-Steinberg"
-"Jarvis, Judice, Ninke"
-"Stucki"
-"Burkes"
-"Fan"
-"Sierra 3"
-"Sierra 2"
-"Sierra 2-4A (Filter Lite)"
-"Atkinson"
-"Shiau-Fan (4-cell)"
-"Shiau-Fan (5-cell)"
-*/
 int verbose = 0;
-
-#define LogMsg(format,args...) fprintf(stdout,format "\n", ## args)
-#define LogDbg(format,args...) if (verbose) fprintf(stdout,format "\n", ## args)
-#define LogErr(format,args...) fprintf(stderr,format "\n", ## args)
-
-class ImageArea {
-public:
-    ImageArea(const std::string &nname, int nx=-1, int ny=-1, int nw=-1, int nh=-1):
-        fname(nname),x(nx),y(ny),w(nw),h(nh) {};
-    std::string fname;
-    int x,y;
-    int w,h;
-};
-
-/** A class closing non-global command line parameters */
-class ProgramOptions {
-public:
-    ProgramOptions()
-    {
-        clear();
-    }
-    void clear()
-    {
-        inp.clear();
-        fname_lst.clear();
-        fname_pal.clear();
-        fname_out.clear();
-        fname_tab.clear();
-        alg = DfsAlg_FldStnbrg;
-        fmt = OutFmt_RAW;
-        lvl = 100;
-        batch = false;
-    }
-    std::vector<ImageArea> inp;
-    std::string fname_lst;
-    std::string fname_pal;
-    std::string fname_out;
-    std::string fname_tab;
-    int fmt;
-    int alg;
-    int lvl;
-    bool batch;
-};
-
-class RGBAccum {
-public:
-    RGBAccum(): r(0),g(0),b(0) {};
-    long r;
-    long g;
-    long b;
-};
-
-
-typedef unsigned long RGBAQuad;
-typedef png_color RGBColor;
-typedef hash_map<RGBAQuad,signed int> MapQuadToPal;
-typedef std::vector<RGBColor> ColorPalette;
-typedef std::vector<std::vector<float> > DitherError;
-class ImageData
-{
-public:
-    ImageData():png_ptr(NULL),info_ptr(NULL),end_info(NULL),width(0),height(0),
-           transMap(NULL),col_bits(0),transparency_threshold(196){}
-    int colorBPP(void) const
-    { return col_bits; }
-    png_structp png_ptr;
-    png_infop info_ptr;
-    png_infop end_info;
-    png_uint_32 width, height;
-    png_bytepp transMap;
-    int color_type;
-    int col_bits;
-    int transparency_threshold;
-};
 
 class WorkingSet
 {
@@ -187,8 +65,8 @@ public:
             }
         } else {
             for (int i=1; i < 256; i++) {
-                lvlCurve[256+i] = i;
-                lvlCurve[256-i] = -i;
+                lvlCurve[256+i] = 0;
+                lvlCurve[256-i] = 0;
             }
         }
     }
@@ -197,11 +75,7 @@ public:
     void addPaletteQuad(RGBAQuad quad)
     {
         int palentry = palette.size();
-        RGBColor ncol;
-        ncol.red = quad&255;
-        ncol.green = (quad>>8)&255;
-        ncol.blue = (quad>>16)&255;
-        palette.push_back(ncol);
+        palette.push_back(RGBColor(quad));
         mapQuadToPalEntry[quad] = palentry;
     }
     //std::vector<ImageData> images;
@@ -325,11 +199,6 @@ bool checkTransparent3(png_bytep, ImageData&)
   return false;
 }
 
-inline bool isTransparentX(png_bytep data, int x)
-{
-  return (data[x>>3] & (1<<(7-(x&7))));
-}
-
 int nearest_palette_color_index(const ColorPalette& palette, const RGBAQuad quad)
 {
     int red=quad&255;  //must be signed
@@ -395,9 +264,12 @@ int dithered_palette_color_index(WorkingSet& ws, const ColorPalette& palette, un
 
     int bestIndex = nearest_palette_color_index(palette,(red)|(green<<8)|(blue<<16)|(alpha<<24));
 
-    propagateError(ws.alg, ws.lvlCurve[256 + red - palette[bestIndex].red] , ws.mapErrorR, x, y);
-    propagateError(ws.alg, ws.lvlCurve[256 + green - palette[bestIndex].green] , ws.mapErrorG, x, y);
-    propagateError(ws.alg, ws.lvlCurve[256 + blue - palette[bestIndex].blue] , ws.mapErrorB, x, y);
+    // Add dither error only for non-transparent pixels
+    if (alpha > 192) {
+        propagateError(ws.alg, ws.lvlCurve[256 + red - palette[bestIndex].red] , ws.mapErrorR, x, y);
+        propagateError(ws.alg, ws.lvlCurve[256 + green - palette[bestIndex].green] , ws.mapErrorG, x, y);
+        propagateError(ws.alg, ws.lvlCurve[256 + blue - palette[bestIndex].blue] , ws.mapErrorB, x, y);
+    }
 
     return bestIndex;
 }
@@ -413,19 +285,14 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
 
     png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
 
-    int transLineLen=andMaskLineLen(img);
-    img.transMap=(png_bytepp)malloc(img.height*sizeof(png_bytep));
-
-
-    ws.mapErrorR.resize(img.width+2*SHIFT);
-    ws.mapErrorG.resize(img.width+2*SHIFT);
-    ws.mapErrorB.resize(img.width+2*SHIFT);
-    for (int i=0; i < img.width+2*SHIFT; i++)
-    {
-        ws.mapErrorR[i].resize(img.height+2*SHIFT);
-        ws.mapErrorG[i].resize(img.height+2*SHIFT);
-        ws.mapErrorB[i].resize(img.height+2*SHIFT);
-    }
+    img.transMap.resize2d(img.width,img.height);
+    img.transMap.zeroize2d();
+    ws.mapErrorR.resize2d(img.height+2*SHIFT,img.width+2*SHIFT);
+    ws.mapErrorR.zeroize2d();
+    ws.mapErrorG.resize2d(img.height+2*SHIFT,img.width+2*SHIFT);
+    ws.mapErrorG.zeroize2d();
+    ws.mapErrorB.resize2d(img.height+2*SHIFT,img.width+2*SHIFT);
+    ws.mapErrorB.zeroize2d();
 
     //second pass: convert RGB to palette entries
     //for (int y=img.height-1; y>=0; --y)
@@ -433,9 +300,7 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
     {
         png_bytep row=row_pointers[y];
         png_bytep pixel=row;
-        int count8=0;
-        int transbyte=0;
-        png_bytep transPtr=img.transMap[y]=(png_bytep)malloc(transLineLen);
+        ColorTranparency::Column& transPtr = img.transMap[y];
 
         for (unsigned x=0; x<img.width; ++x)
         {
@@ -443,30 +308,11 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
             unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
             if (!trans) quad+=(255<<24); //NOTE: alpha channel has already been set to 255 for non-transparent pixels, so this is correct even for images with alpha channel
 
-            if (trans) ++transbyte;
-            if (++count8==8)
-            {
-                *transPtr++ = transbyte;
-                count8=0;
-                transbyte=0;
-            }
-            transbyte+=transbyte; //shift left 1
+            transPtr[x] = trans;
 
             int palentry = dithered_palette_color_index(ws, ws.palette, x, y, quad);
             row[x]=palentry;
             pixel+=bytesPerPixel;
-        }
-        // Finish the 8-bit bound if it's needed
-        while (count8 != 0)
-        {
-            ++transbyte;
-            if (++count8==8)
-            {
-                *transPtr++ = transbyte;
-                count8=0;
-                transbyte=0;
-            }
-            transbyte+=transbyte; //shift left 1
         }
     }
 
@@ -514,7 +360,7 @@ int raw_pack(png_bytep row,int width,int nbits)
  * Packs a line of pixels (1 byte per pixel) so that transparent bytes are RLE-encoded into HugeSprite.
  * @return the new number of bytes in row
  */
-int hspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_trans, int width, const ColorPalette& palette)
+int hspr_pack(png_bytep out_row, const png_bytep inp_row, const ColorTranparency::Column& inp_trans, int width, const ColorPalette& palette)
 {
     int area;
     int outIndex=0;
@@ -523,7 +369,7 @@ int hspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
     {
         // Filled
         area = 0;
-        while ( (i+area < width) && !isTransparentX(inp_trans, i+area) )
+        while ( (i+area < width) && (!inp_trans[i+area]) )
             area++;
         *(long *)(out_row+outIndex) = area;
         outIndex += sizeof(long);
@@ -532,7 +378,7 @@ int hspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
         i += area;
         // Transparent
         area = 0;
-        while ( (i+area < width) && isTransparentX(inp_trans, i+area) )
+        while ( (i+area < width) && inp_trans[i+area] )
             area++;
         *(long *)(out_row+outIndex) = area;
         outIndex += sizeof(long);
@@ -555,7 +401,7 @@ struct SmallSprite {
  * Packs a line of pixels (1 byte per pixel) so that transparent bytes are RLE-encoded into SmallSprite.
  * @return the new number of bytes in row.
  */
-int sspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_trans, int width, const ColorPalette& palette)
+int sspr_pack(png_bytep out_row, const png_bytep inp_row, const ColorTranparency::Column& inp_trans, int width, const ColorPalette& palette)
 {
     int area;
     int outIndex=0;
@@ -564,7 +410,7 @@ int sspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
     {
         // Filled
         area = 0;
-        while ( (i+area < width) && !isTransparentX(inp_trans, i+area) ) {
+        while ( (i+area < width) && (!inp_trans[i+area]) ) {
             area++;
         }
         LogDbg("fill area %d",area);
@@ -585,7 +431,7 @@ int sspr_pack(png_bytep out_row, const png_bytep inp_row, const png_bytep inp_tr
         }
         // Transparent
         area = 0;
-        while ( (i+area < width) && isTransparentX(inp_trans, i+area) ) {
+        while ( (i+area < width) && inp_trans[i+area] ) {
             area++;
         }
         LogDbg("trans area %d",area);
@@ -695,37 +541,37 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             opts.batch = true;
             break;
         case 'f':
-            if (strcasecmp(optarg,"HSPR") == 0)
+            if (ci_string(optarg).compare("HSPR") == 0)
                 opts.fmt = OutFmt_HSPR;
-            else if (strcasecmp(optarg,"SSPR") == 0)
+            else if (ci_string(optarg).compare("SSPR") == 0)
                 opts.fmt = OutFmt_SSPR;
-            else if (strcasecmp(optarg,"RAW") == 0)
+            else if (ci_string(optarg).compare("RAW") == 0)
                 opts.fmt = OutFmt_RAW;
             else
                 return false;
             break;
         case 'd':
-            if (strcasecmp(optarg,"FldStnbrg") == 0)
+            if (ci_string(optarg).compare("FldStnbrg") == 0)
                 opts.alg = DfsAlg_FldStnbrg;
-            else if (strcasecmp(optarg,"JrvJdcNnk") == 0)
+            else if (ci_string(optarg).compare("JrvJdcNnk") == 0)
                 opts.alg = DfsAlg_JrvJdcNnk;
-            else if (strcasecmp(optarg,"Stucki") == 0)
+            else if (ci_string(optarg).compare("Stucki") == 0)
                 opts.alg = DfsAlg_Stucki;
-            else if (strcasecmp(optarg,"Burkes") == 0)
+            else if (ci_string(optarg).compare("Burkes") == 0)
                 opts.alg = DfsAlg_Burkes;
-            else if (strcasecmp(optarg,"Fan") == 0)
+            else if (ci_string(optarg).compare("Fan") == 0)
                 opts.alg = DfsAlg_Fan;
-            else if (strcasecmp(optarg,"Sierra3") == 0)
+            else if (ci_string(optarg).compare("Sierra3") == 0)
                 opts.alg = DfsAlg_Sierra3;
-            else if (strcasecmp(optarg,"Sierra2") == 0)
+            else if (ci_string(optarg).compare("Sierra2") == 0)
                 opts.alg = DfsAlg_Sierra2;
-            else if (strcasecmp(optarg,"Sierra24A") == 0)
+            else if (ci_string(optarg).compare("Sierra24A") == 0)
                 opts.alg = DfsAlg_Sierra24A;
-            else if (strcasecmp(optarg,"Atkinson") == 0)
+            else if (ci_string(optarg).compare("Atkinson") == 0)
                 opts.alg = DfsAlg_Atkinson;
-            else if (strcasecmp(optarg,"ShiauFan4") == 0)
+            else if (ci_string(optarg).compare("ShiauFan4") == 0)
                 opts.alg = DfsAlg_ShiauFan4;
-            else if (strcasecmp(optarg,"ShiauFan5") == 0)
+            else if (ci_string(optarg).compare("ShiauFan5") == 0)
                 opts.alg = DfsAlg_ShiauFan5;
             else
                 return false;
@@ -836,92 +682,6 @@ short show_usage(const std::string &fname)
     return ERR_OK;
 }
 
-short load_inp_png_file(ImageData& img, const std::string& fname_inp, ProgramOptions& opts)
-{
-    FILE* pngfile = fopen(fname_inp.c_str(),"rb");
-    if (pngfile == NULL) {
-        perror(fname_inp.c_str());
-        return ERR_CANT_OPEN;
-    }
-    png_byte header[8];
-    if (fread(header,8,1,pngfile) != 1) {
-        perror(fname_inp.c_str());
-        fclose(pngfile);
-        return ERR_FILE_READ;
-    }
-    if (png_sig_cmp(header,0,8)) {
-        LogErr("%s: Not a PNG file",fname_inp.c_str());
-        fclose(pngfile);
-        return ERR_BAD_FILE;
-    }
-
-    img.png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!img.png_ptr)
-    {
-        LogErr("%s: png_create_read_struct error",fname_inp.c_str());
-        fclose(pngfile);
-        return ERR_BAD_FILE;
-    }
-
-    img.info_ptr=png_create_info_struct(img.png_ptr);
-    if (!img.info_ptr)
-    {
-        png_destroy_read_struct(&img.png_ptr, (png_infopp)NULL, (png_infopp)NULL);
-        LogErr("%s: png_create_info_struct error",fname_inp.c_str());
-        fclose(pngfile);
-        return ERR_BAD_FILE;
-    }
-
-    img.end_info=png_create_info_struct(img.png_ptr);
-    if (!img.end_info)
-    {
-        png_destroy_read_struct(&img.png_ptr, &img.info_ptr, (png_infopp)NULL);
-        LogErr("%s: png_create_info_struct error",fname_inp.c_str());
-        fclose(pngfile);
-        return ERR_BAD_FILE;
-    }
-
-    if (setjmp(png_jmpbuf(img.png_ptr)))
-    {
-        png_destroy_read_struct(&img.png_ptr, &img.info_ptr, &img.end_info);
-        LogErr("%s: PNG error",fname_inp.c_str());
-        fclose(pngfile);
-        exit(1);
-    }
-
-    png_init_io(img.png_ptr, pngfile);
-    png_set_sig_bytes(img.png_ptr,8);
-    int trafo=PNG_TRANSFORM_PACKING|PNG_TRANSFORM_STRIP_16|PNG_TRANSFORM_EXPAND;
-    png_read_png(img.png_ptr, img.info_ptr, trafo , NULL);
-
-    int bit_depth, interlace_type, compression_type, filter_method;
-    png_get_IHDR(img.png_ptr, img.info_ptr, &img.width, &img.height, &bit_depth, &img.color_type,
-        &interlace_type, &compression_type, &filter_method);
-
-    if ((img.color_type & PNG_COLOR_MASK_COLOR)==0)
-    {
-        LogErr("%s: Grayscale image not supported",fname_inp.c_str());
-        fclose(pngfile);
-        return ERR_BAD_FILE;
-    }
-
-    fclose(pngfile);
-
-    if (img.color_type==PNG_COLOR_TYPE_PALETTE)
-    {
-        LogErr("Invalid format. This shouldn't happen. PNG_TRANSFORM_EXPAND transforms image to RGB.");
-        return ERR_BAD_FILE;
-    }
-
-    if (img.color_type & PNG_COLOR_MASK_ALPHA) {
-        img.col_bits = 32;
-    } else {
-        img.col_bits = 24;
-    }
-
-    return ERR_OK;
-}
-
 short load_inp_palette_file(WorkingSet& ws, const std::string& fname_pal, ProgramOptions& opts)
 {
     std::fstream f;
@@ -998,7 +758,7 @@ short save_hugspr_file(WorkingSet& ws, ImageData& img, const std::string& fname_
         {
             row_shifts[y] = ftell(rawfile) - base_pos;
             png_bytep inp_row = row_pointers[y];
-            png_bytep inp_trans = img.transMap[y];
+            ColorTranparency::Column& inp_trans = img.transMap[y];
             int newLength = hspr_pack(out_row,inp_row,inp_trans,img.width,ws.palette);
             if (fwrite(out_row,newLength,1,rawfile)!=1) {perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             //writeByte(rawfile,0);
@@ -1022,7 +782,13 @@ short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
             perror(fname_out.c_str());
             return ERR_CANT_OPEN;
         }
-        spr_shifts.resize(imgs.size()+1);
+        // Shifts start with index 1; the 0 is empty and unused
+        {
+            spr_shifts.resize(imgs.size()+1);
+            spr_shifts[0].Data = 0;
+            spr_shifts[0].SWidth = 0;
+            spr_shifts[0].SHeight = 0;
+        }
         long base_pos = ftell(rawfile);
         {
             unsigned short spr_count;
@@ -1033,22 +799,24 @@ short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
         for (int i = 0; i < imgs.size(); i++)
         {
             ImageData &img = imgs[i];
-            spr_shifts[i].Data = ftell(rawfile) - base_pos;
-            spr_shifts[i].SWidth = img.width;
-            spr_shifts[i].SHeight = img.height;
+            spr_shifts[i+1].Data = ftell(rawfile) - base_pos;
+            spr_shifts[i+1].SWidth = img.width;
+            spr_shifts[i+1].SHeight = img.height;
             std::vector<png_byte> out_row;
             out_row.resize(img.width*3);
             png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
             for (int y=0; y<img.height; y++)
             {
                 png_bytep inp_row = row_pointers[y];
-                png_bytep inp_trans = img.transMap[y];
+                ColorTranparency::Column& inp_trans = img.transMap[y];
                 int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.width,ws.palette);
                 if (fwrite(&out_row.front(),newLength,1,rawfile) != 1)
                 { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             }
-            { // End an image with 7f
-                char endofimg = 0x7f;
+            {
+                // End an image with (-128) - it's available in u2 encoding, and only values -127..127
+                //are used for defining size of data and transparency, so this special value wasn't used before
+                char endofimg = -128;
                 if (fwrite(&endofimg,sizeof(char),1,rawfile) != 1)
                 { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             }
