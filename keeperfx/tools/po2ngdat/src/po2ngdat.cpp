@@ -20,13 +20,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
-#include <stdbool.h> // <cstdbool> requires c++11
+#include <cstdbool>
 #include <cstring>
 #include <getopt.h>
+#include <memory>
 
 #include "po2ngdat_version.h"
 
-//#include "poparser.h"
 #include "catalog.hpp"
 #include "kfxenc.hpp"
 
@@ -45,98 +45,54 @@ int verbose = 0;
 
 /** A struct closing non-global command line parameters */
 struct ProgramOptions {
-    char *fname_inp;
-    char *fname_out;
-    char *fname_enc;
+    std::string fname_inp;
+    std::string fname_out;
+    std::string fname_enc;
 };
 
 void clear_prog_options(struct ProgramOptions *opts)
 {
-    opts->fname_inp = NULL;
-    opts->fname_out = NULL;
-    opts->fname_enc = NULL;
+    opts->fname_inp.clear();
+    opts->fname_out.clear();
+    opts->fname_enc.clear();
 }
 
-void free_prog_options(struct ProgramOptions *opts)
+std::string file_name_get_path(const std::string &fname_inp)
 {
-    free(opts->fname_inp);
-    free(opts->fname_out);
-    free(opts->fname_enc);
-}
-
-char *file_name_change_extension(const char *fname_inp,const char *ext)
-{
-    char *fname;
-    char *tmp1,*tmp2;
-    if (fname_inp == NULL)
-      return NULL;
-    fname = (char *)malloc(strlen(fname_inp)+strlen(ext)+2);
-    if (fname == NULL)
-      return NULL;
-    strcpy(fname,fname_inp);
-    tmp1 = strrchr(fname, '/');
-    tmp2 = strrchr(fname, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
+    size_t tmp1,tmp2;
+    tmp1 = fname_inp.find_last_of('/');
+    tmp2 = fname_inp.find_last_of('\\');
+    if ((tmp1 == std::string::npos) || ((tmp2 != std::string::npos) && (tmp1 < tmp2)))
         tmp1 = tmp2;
-    if (tmp1 == NULL)
-        tmp1 = fname;
-    tmp2 = strrchr(tmp1,'.');
-    if ((tmp2 != NULL) && (tmp1+1 < tmp2))
+    if (tmp1 != std::string::npos)
+        return fname_inp.substr(0,tmp1);
+    return "";
+}
+
+std::string file_name_strip_path(const std::string &fname_inp)
+{
+    size_t tmp1,tmp2;
+    tmp1 = fname_inp.find_last_of('/');
+    tmp2 = fname_inp.find_last_of('\\');
+    if ((tmp1 == std::string::npos) || ((tmp2 != std::string::npos) && (tmp1 < tmp2)))
+        tmp1 = tmp2;
+    if (tmp1 != std::string::npos)
+        return fname_inp.substr(tmp1+1);
+    return fname_inp;
+}
+
+std::string file_name_change_extension(const std::string &fname_inp, const std::string &ext)
+{
+    std::string fname = fname_inp;
+    size_t tmp2;
+    tmp2 = fname.find_last_of('.');
+    if (tmp2 != std::string::npos)
     {
-        sprintf(tmp2,".%s",ext);
+        fname.replace(tmp2+1,fname.length()-tmp2,ext);
     } else
     {
-        tmp2 = fname + strlen(fname);
-        sprintf(tmp2,".%s",ext);
+        fname += "." + ext;
     }
-    return fname;
-}
-
-char *file_name_strip_to_body(const char *fname_inp)
-{
-    char *fname;
-    const char *tmp1;
-    const char *tmp2;
-    char *tmp3;
-    if (fname_inp == NULL)
-      return NULL;
-    tmp1 = strrchr(fname_inp, '/');
-    tmp2 = strrchr(fname_inp, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
-        tmp1 = tmp2;
-    if (tmp1 != NULL)
-        tmp1++; // skip the '/' or '\\' char
-    else
-        tmp1 = fname_inp;
-    fname = strdup(tmp1);
-    if (fname == NULL)
-      return NULL;
-    tmp3 = strrchr(fname,'.');
-    if ((tmp3 != NULL) && (fname+1 < tmp3))
-    {
-        *tmp3 = '\0';
-    }
-    return fname;
-}
-
-char *file_name_strip_path(const char *fname_inp)
-{
-    char *fname;
-    const char *tmp1;
-    const char *tmp2;
-    if (fname_inp == NULL)
-      return NULL;
-    tmp1 = strrchr(fname_inp, '/');
-    tmp2 = strrchr(fname_inp, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
-        tmp1 = tmp2;
-    if (tmp1 != NULL)
-        tmp1++; // skip the '/' or '\\' char
-    else
-        tmp1 = fname_inp;
-    fname = strdup(tmp1);
-    if (fname == NULL)
-      return NULL;
     return fname;
 }
 
@@ -173,10 +129,10 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
             verbose = 1;
             break;
         case 'o':
-            opts->fname_out = strdup(optarg);
+            opts->fname_out = optarg;
             break;
         case 'e':
-            opts->fname_enc = strdup(optarg);
+            opts->fname_enc = optarg;
             break;
         case '?':
                // unrecognized option
@@ -188,21 +144,21 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
     // remaining command line arguments (not options)
     if (optind < argc)
     {
-        opts->fname_inp = strdup(argv[optind++]);
+        opts->fname_inp = argv[optind++];
     }
-    if ((optind < argc) || (opts->fname_inp == NULL))
+    if ((optind < argc) || (opts->fname_inp.empty()))
     {
         printf("Incorrectly specified input file name.\n");
         return false;
     }
     // fill names that were not set by arguments
-    if (opts->fname_out == NULL)
+    if (opts->fname_out.empty())
     {
         opts->fname_out = file_name_change_extension(opts->fname_inp,"dat");
     }
-    if (opts->fname_enc == NULL)
+    if (opts->fname_enc.empty())
     {
-        opts->fname_enc = strdup("char_encoding_tbl_eu.txt");
+        opts->fname_enc = "char_encoding_tbl_eu.txt";
     }
     return true;
 }
@@ -216,12 +172,11 @@ short show_head(void)
 }
 
 /** Displays information about how to use this tool. */
-short show_usage(char *fname)
+short show_usage(const std::string &fname)
 {
-    char *xname = file_name_strip_path(fname);
+    std::string xname = file_name_strip_path(fname);
     printf("usage:\n");
-    printf("    %s [options] <filename>\n", xname);
-    free(xname);
+    printf("    %s [options] <filename>\n", xname.c_str());
     printf("where <filename> should be the input PO file, and [options] are:\n");
     printf("    -v,--verbose             Verbose console output mode\n");
     printf("    -o<file>,--output<file>  Output DAT file name\n");
@@ -235,7 +190,7 @@ bool write_dat(const std::string& out_file, const std::vector<std::string> &data
 
     f.open(out_file.c_str(), std::fstream::out|std::fstream::binary);
 
-    for (std::vector<std::string>::const_iterator it = data.begin(); it != data.end(); ++it)
+    for (auto it = data.begin(); it != data.end(); ++it)
     {
         f << *it << '\0';
     }
@@ -259,38 +214,39 @@ int main(int argc, char* argv[])
         show_head();
 
     // Read PO file
-    printf("Loading input file \"%s\"\n", opts.fname_inp);
-    class Catalog * catalog = new Catalog();
-    catalog->Load(opts.fname_inp, 0);
+    printf("Loading input file \"%s\"\n", opts.fname_inp.c_str());
     std::vector<std::wstring> * translations;
-    // Find translation lines
-    printf("Retrieve sorted list of translations\n");
-    translations = catalog->ToTranslationsVectorByRef(L"guitext",10000);
-    delete catalog;
+    {
+        std::unique_ptr<Catalog> catalog(new Catalog());
+        catalog->Load(opts.fname_inp, 0);
+        // Find translation lines
+        printf("Retrieve sorted list of translations\n");
+        translations = catalog->ToTranslationsVectorByRef(L"guitext",10000);
+    }
     // Show warnings for missing translations
     size_t i = 0;
-    for (std::vector<std::wstring>::iterator it = translations->begin(); it != translations->end(); ++it)
+    for (auto it = translations->begin(); it != translations->end(); ++it)
     {
-        if (((*it).length() <= 0) && (i != 201))
+        if ((*it).empty() && (i != 201))
             printf("Warning: No reference to line %ld\n",(long)i);
         i++;
     }
     // Read character encoding
-    printf("Loading encoding array \"%s\"\n", opts.fname_enc);
-    UnicodeConvert * kfx_convert = new UnicodeConvert();
-    kfx_convert->Load(opts.fname_enc, 0);
-    // Convert strings to local encoding
-    printf("Encoding translations\n");
+    printf("Loading encoding array \"%s\"\n", opts.fname_enc.c_str());
     std::vector<std::string> * encoded = new std::vector<std::string>();
-    for (std::vector<std::wstring>::iterator it = translations->begin(); it != translations->end(); ++it)
     {
-        encoded->push_back(kfx_convert->EncodeU16String(*it));
+        std::unique_ptr<UnicodeConvert> kfx_convert(new UnicodeConvert());
+        kfx_convert->Load(opts.fname_enc, 0);
+        // Convert strings to local encoding
+        printf("Encoding translations\n");
+        for (auto it = translations->begin(); it != translations->end(); ++it)
+        {
+            encoded->push_back(kfx_convert->EncodeU16String(*it));
+        }
     }
-    delete kfx_convert;
     delete translations;
-    printf("Writing output file \"%s\"\n",opts.fname_out);
+    printf("Writing output file \"%s\"\n",opts.fname_out.c_str());
     write_dat(opts.fname_out, *encoded);
     delete encoded;
-    free_prog_options(&opts);
     return 0;
 }

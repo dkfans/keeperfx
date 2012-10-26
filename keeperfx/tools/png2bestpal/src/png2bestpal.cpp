@@ -395,77 +395,43 @@ short remap_palette_colors_order(WorkingSet& ws)
     return ERR_OK;
 }
 
-char *file_name_change_extension(const char *fname_inp,const char *ext)
+std::string file_name_get_path(const std::string &fname_inp)
 {
-    char *fname;
-    char *tmp1,*tmp2;
-    if (fname_inp == NULL)
-      return NULL;
-    fname = (char *)malloc(strlen(fname_inp)+strlen(ext)+2);
-    if (fname == NULL)
-      return NULL;
-    strcpy(fname,fname_inp);
-    tmp1 = strrchr(fname, '/');
-    tmp2 = strrchr(fname, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
+    size_t tmp1,tmp2;
+    tmp1 = fname_inp.find_last_of('/');
+    tmp2 = fname_inp.find_last_of('\\');
+    if ((tmp1 == std::string::npos) || ((tmp2 != std::string::npos) && (tmp1 < tmp2)))
         tmp1 = tmp2;
-    if (tmp1 == NULL)
-        tmp1 = fname;
-    tmp2 = strrchr(tmp1,'.');
-    if ((tmp2 != NULL) && (tmp1+1 < tmp2))
+    if (tmp1 != std::string::npos)
+        return fname_inp.substr(0,tmp1);
+    return "";
+}
+
+std::string file_name_strip_path(const std::string &fname_inp)
+{
+    size_t tmp1,tmp2;
+    tmp1 = fname_inp.find_last_of('/');
+    tmp2 = fname_inp.find_last_of('\\');
+    if ((tmp1 == std::string::npos) || ((tmp2 != std::string::npos) && (tmp1 < tmp2)))
+        tmp1 = tmp2;
+    if (tmp1 != std::string::npos)
+        return fname_inp.substr(tmp1+1);
+    return fname_inp;
+}
+
+std::string file_name_change_extension(const std::string &fname_inp, const std::string &ext)
+{
+    std::string fname = fname_inp;
+    size_t tmp2;
+    tmp2 = fname.find_last_of('.');
+    if (tmp2 != std::string::npos)
     {
-        sprintf(tmp2,".%s",ext);
+        fname.replace(tmp2+1,fname.length()-tmp2,ext);
     } else
     {
-        tmp2 = fname + strlen(fname);
-        sprintf(tmp2,".%s",ext);
+        fname += "." + ext;
     }
     return fname;
-}
-
-char *file_name_strip_to_body(const char *fname_inp)
-{
-    char *fname;
-    const char *tmp1;
-    char *tmp2;
-    if (fname_inp == NULL)
-      return NULL;
-    tmp1 = strrchr(fname_inp, '/');
-    tmp2 = strrchr(fname_inp, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
-        tmp1 = tmp2;
-    if (tmp1 != NULL)
-        tmp1++; // skip the '/' or '\\' char
-    else
-        tmp1 = fname_inp;
-    fname = strdup(tmp1);
-    if (fname == NULL)
-      return NULL;
-    tmp2 = strrchr(fname,'.');
-    if ((tmp2 != NULL) && (fname+1 < tmp2))
-    {
-        *tmp2 = '\0';
-    }
-    return fname;
-}
-
-std::string file_name_strip_path(const char *fname_inp)
-{
-    const char *tmp1;
-    char *tmp2;
-    if (fname_inp == NULL)
-      return NULL;
-    tmp1 = strrchr(fname_inp, '/');
-    tmp2 = strrchr(fname_inp, '\\');
-    if ((tmp1 == NULL) || (tmp1 < tmp2))
-        tmp1 = tmp2;
-    if (tmp1 != NULL)
-        tmp1++; // skip the '/' or '\\' char
-    else
-        tmp1 = fname_inp;
-    if (tmp1 == NULL)
-      return "";
-    return tmp1;
 }
 
 int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
@@ -526,7 +492,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     // fill names that were not set by arguments
     if (opts.fname_pal.length() < 1)
     {
-        opts.fname_pal = file_name_change_extension(opts.fnames_inp[0].c_str(),"pal");
+        opts.fname_pal = file_name_change_extension(opts.fnames_inp[0],"pal");
     }
     return true;
 }
@@ -540,7 +506,7 @@ short show_head(void)
 }
 
 /** Displays information about how to use this tool. */
-short show_usage(char *fname)
+short show_usage(const std::string& fname)
 {
     std::string xname = file_name_strip_path(fname);
     LogMsg("usage:\n");
