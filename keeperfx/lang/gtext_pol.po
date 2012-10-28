@@ -1,6 +1,6 @@
-#******************************************************************************
+# *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-#******************************************************************************
+# *****************************************************************************
 #   @file gtext_pol.po
 #      KeeperFX GUI Strings translation file
 #  @par Purpose:
@@ -15,17 +15,17 @@
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-#******************************************************************************
+# *****************************************************************************
 msgid ""
 msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.40\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2012-10-04 00:03+0100\n"
+"PO-Revision-Date: 2012-10-28 13:38+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Polish\n"
 "X-Poedit-Country: POLAND\n"
@@ -3221,8 +3221,8 @@ msgstr "Uzdrowienie: Rzucone na określony obszar lochu poprawia stan zdrowia Tw
 
 #: guitext:662
 msgctxt "Keeper spell description"
-msgid "Time Bomb"
-msgstr "Bomba zegarowa"
+msgid "Time Bomb: Does boom."
+msgstr "Bomba zegarowa: Robi bum po kilku chwilach od rzucenia."
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -4364,216 +4364,259 @@ msgctxt "Menu interface message"
 msgid "Please insert The Deeper Dungeons CD-ROM"
 msgstr "Włóż do napędu płytę The Deeper Dungeons"
 
+#. DD Level Korros Tor first objective
 #: guitext:892
 msgctxt "In-game message"
 msgid "The might of two rival Dungeon Keepers challenge your claim to this realm. Decimate them both to achieve total domination, but beware of bands of heroes hidden in the caverns."
 msgstr "Dwaj potężni Strażnicy bronią tego królestwa przed Twymi zakusami. Aby przejąć panowanie, musisz ich zniszczyć; pamiętaj też o kryjących się w jaskiniach bandach bohaterów."
 
+#. DD Level Kari-Mar first objective
 #: guitext:893
 msgctxt "In-game message"
 msgid "Another Keeper has already claimed this realm. He is unfit to rule so destroy him and take what is rightfully yours. Great riches lie in the caverns around the land; explore to gain more power."
 msgstr "To królestwo podbił już inny Strażnik. Niestety nie nadaje się na władcę - zniszcz go i weź, co Twoje. Ogromne bogactwa ukryte są w okolicznych jaskiniach; zbadaj je, by zdobyć większą potęgę."
 
+#. DD Level Belbata first objective
 #: guitext:894
 msgctxt "In-game message"
 msgid "This land is highly coveted amongst the evil and there are three enemy Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr "Ta kraina budzi dużą pożądliwość sił zła - jeśli chcesz przejąć władzę, musisz pokonać trzech innych Gospodarzy. Miej baczenie na bandy wypomadowanych bohaterów, czyhających, by schwytać w pułapkę każdego nieostrożnego Strażnika."
 
+#. DD Level Pladitz waypoint objective
 #: guitext:895
 msgctxt "In-game message"
 msgid "The Lord of the Land and his pitiful band of followers lie dead. Good riddance to them and their sad, happy lives. Now seize your chance and attack your rival Keeper. Domination awaits."
 msgstr "Pan tej ziemi i jego budzący politowanie poddani legli martwi. To wielce szczęśliwy koniec ich przygnębiająco radosnego żywota. Wykorzystaj szansę i zaatakuj wrogich Strażników. Władza czeka."
 
+#. DD Level Pladitz first objective
 #: guitext:896
 msgctxt "In-game message"
 msgid "You and a rival Dungeon Keeper are vying for control of this realm but the Lord of the Land has constructed his own dungeon between you to halt your conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr "Walczysz o to królestwo z innym Strażnikiem, ale władca krainy zbudował między wami własny loch, by przerwać waszą rywalizację. Zniszcz go, a potem rywala, by zdobyć pełnię władzy."
 
+#. DD Level Pladitz waypoint objective
 #: guitext:897
 msgctxt "In-game message"
 msgid "You have done well to come this far but further hardships await. Search the map carefully and you may find many secrets to aid your conquest."
 msgstr "Nieźle sobie radzisz, skoro zaszedłeś tak daleko, ale czekają Cię następne trudy. Dokładnie przeszukaj mapę, bowiem ukryto tu liczne niespodzianki, które z pewnością pomogą Ci w dalszych podbojach."
 
+#. DD Level Abbadon first objective
 #: guitext:898
 msgctxt "In-game message"
 msgid "You have come to this realm with little to assist you so you must explore to gain more power. Keep an eye out for any loathsome heroes who may try to thwart your progress."
 msgstr "Przybyłeś tu z pustymi rękami, musisz więc odkrywać, by zdobyć potęgę. Strzeż się tych obrzydliwych bohaterów, bo mogą próbować powstrzymać Twoją ekspansję."
 
+#. DD Level Daka-Gorn first objective
 #: guitext:899
 msgctxt "In-game message"
 msgid "Beware Keeper. This realm is infested with the sickly goodness of heroes and fairies. Hunt them down and feed them their own entrails."
 msgstr "Uważaj Strażniku. Ta okolica przepełniona jest mdlącą dobrocią bohaterów i wróżek. Zapoluj na nich, niech udławią się własnymi trzewiami."
 
+#. DD Level Morkardar first objective
 #: guitext:900
 msgctxt "In-game message"
 msgid "Your opponent for this realm has foolishly challenged your superior skill. Such disrespect should be punished so make an example of his insolence."
 msgstr "Strażnik, który pretenduje do miana władcy tego królestwa, niebacznie wyzwał Twoje nieprzeciętne umiejętności. Taka zniewaga powinna zostać przykładnie ukarana; niech będzie to przestroga dla innych zuchwalców."
 
+#. DD Level Morkardar information soon after start
 #: guitext:901
 msgctxt "In-game message"
 msgid "Ancient powers lie hidden in this realm. Seek them out and use them for your own evil purposes."
 msgstr "W tym królestwie kryją się starożytne moce. Odszukaj je i wykorzystaj w sobie wiadomych, demoniczny celach."
 
+#. DD Level Abbadon objective after rooms built
 #: guitext:902
 msgctxt "In-game message"
 msgid "A foolish challenger stands between you and total dominance. Annihilate his forces and feed his body to your ravenous minions."
 msgstr "Miedzy Tobą a całkowitą dominacją stanął nierozważny śmiałek. Zetrzyj z powierzchni ziemi wspierające go siły, a jego ciało rzuć na pożarcie swym żarłocznym sługom."
 
+#. DD Level Daka-Gorn information after AP reached
 #: guitext:903
 msgctxt "In-game message"
 msgid "I can hear footsteps beyond the walls of the hero castle which dominates this land. Tread carefully Keeper and rid the land of goodness once and for all."
 msgstr "Słyszę zza ścian zamczyska odgłos kroków bohatera, który włada tą krainą. Postępuj ostrożnie Gospodarzu, a raz na zawsze wygnasz dobro z tego królestwa."
 
+#. DD Level Netzcaro first objective
 #: guitext:904
 msgctxt "In-game message"
 msgid "The once strong hero fortress of this realm has grown rotten and weak. Tear down it's walls and let your creatures feast on the heroes within."
 msgstr "Niegdyś potężna forteca górująca nad tym królestwem rozpada się i wietrzeje. Zburz jej mury i pozwól swym stworom poharcować z okolicznymi bohaterami."
 
+#. DD Level Netzcaro information after AP reached
 #: guitext:905
 msgctxt "In-game message"
 msgid "This realm will be a test of your cunning and deviousness. Your dungeon has been fortified with seven steel doors to aid you in your conquest."
 msgstr "To królestwo będzie sprawdzianem Twojej pomysłowości i niegodziwości. Na szczęście Twój loch zamyka siedem stalowych drzwi."
 
+#. DD Level Netzcaro objective after AP reached
 #: guitext:906
 msgctxt "In-game message"
 msgid "Congratulations Keeper. This vial has given your researchers a much needed boost. You can now construct Bridges that enable you to traverse water and fire."
 msgstr "Gratulacje Strażniku. Ta fiolka dała Twoim badaczom tak potrzebny bodziec. Teraz możesz budować mosty, które pozwolą pokonywać wodę i ogień."
 
+#. unused (incorrectly used in Dixaroc)
 #: guitext:907
 msgctxt "In-game message"
 msgid "Food is scarce in this land and the only Hatchery available to you is inside a hero dungeon. Find this food before your creatures turn against you."
 msgstr "Żywność jest tu bezcenna. Jedyny kurnik znajduje się w zamku bohatera. Zdobądź pożywienie nim Twoje stwory zwrócą się przeciw Tobie."
 
+#. DD Level Belial information after getting vampire
 #: guitext:908
 msgctxt "In-game message"
 msgid "Entombed in stone by a cruel band of heroes, the Vampire you have rescued demands revenge for his imprisonment. His anger will make him a valuable asset to your army of evil."
 msgstr "Zamieniony w kamień przez okrutną bandę bohaterów Wampir, którego uratowałeś, żąda zemsty na swych oprawcach. Przepełniająca go wściekłość sprawia, że jest cennym nabytkiem dla Twojej armii zła."
 
+#. DD Level Batezek first objective
 #: guitext:909
 msgctxt "In-game message"
 msgid "You are surrounded on all sides by valiant heroes so show them the true meaning of evil and terror."
 msgstr "Ze wszystkich stron otaczają Cię mężni bohaterowie, więc pokaż im, co naprawdę znaczą słowa 'zło' i 'terror'."
 
+#. DD Level Batezek objective after cleaning all good creatures
 #: guitext:910
 msgctxt "In-game message"
 msgid "The Lord of the Land has sent his fiercest warriors against you. Show them no mercy and flay them alive."
 msgstr "Pan tej krainy wysłał przeciw Tobie swych najwaleczniejszych wojowników. Zapomnij o litości i żywcem obedrzyj ich ze skóry."
 
+#. DD Level Benetzaron first objective
 #: guitext:911
 msgctxt "In-game message"
 msgid "Explore this realm to uncover riches and secrets. Tread carefully Keeper, or you could be burned."
 msgstr "Zbadanie tej krainy pozwoli odkryć bogactwa i tajemnice. Bądź ostrożny Strażniku, inaczej spłoniesz."
 
+#. DD Level Svatona first objective
 #: guitext:912
 msgctxt "In-game message"
 msgid "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a humiliating defeat Keeper, the penalty for such failure is torture and death."
 msgstr "Tylko jeden Gospodarz może zawładnąć tą krainą. Jeśli pozwolisz sobie na upokarzającą klęskę, czekają Cię tortury i śmierć. Nie popełnij błędu, Strażniku."
 
+#. DD Level Caddis Fell first objective
 #: guitext:913
 msgctxt "In-game message"
 msgid "Choices, choices Keeper. Choose your path wisely. Some routes are more perilous than others ..."
 msgstr "Wybory, wybory Strażniku. Mądrze wybierz drogę. Niektóre ścieżki są bardziej niebezpieczne niż inne..."
 
+#. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
 msgctxt "In-game message"
 msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the north ..."
 msgstr "Gratulacje Gospodarzu, masz doprawdy potężną armię. Ale nie spoczywaj na laurach, na północy masz następnego rywala..."
 
+#. DD Level Caddis Fell objective after player1 destroyed
 #: guitext:915
 msgctxt "In-game message"
 msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the south ..."
 msgstr "Gratulacje Gospodarzu, masz doprawdy potężną armię. Ale nie spoczywaj na laurach, na południu masz następnego rywala..."
 
+#. DD Level Caddis Fell objective after entrance claimed
 #: guitext:916
 msgctxt "In-game message"
 msgid "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and then destroy the rival Keeper to achieve total domination."
 msgstr "Władca tej krainy to patetyczne indywiduum, które hoduje puszyste angorki. Wgnieć go w ziemię, a potem zniszcz Strażnika, który próbuje wejść Ci w drogę, a osiągniesz pełnię władzy."
 
+#. DD Level Kanasko first objective
 #: guitext:917
 msgctxt "In-game message"
 msgid "Make haste Keeper. The heroes of this realm are many and strong. Prepare your forces well or face a humiliating defeat ..."
 msgstr "Spiesz się Gospodarzu. Bohaterowie w tym królestwie są liczni i mocni. Przygotuj dobrze swoje siły, bo poniesiesz poniżającą klęskę..."
 
+#. DD Level Belial first objective
 #: guitext:918
 msgctxt "In-game message"
 msgid "The Avatar is a wretched being, full of happiness and good cheer. Food is scarce in his land and the only Hatchery available is inside his dungeons. Destroy his mighty fortress and wipe the smile from his face before your creatures turn against you."
 msgstr "Avatar to nędzna istota, pełna radości i dobrych chęci. Żywność jest w tym królestwie bardzo cennym dobrem, jedyny kurnik znajduje się w zamku Avatara. Zniszcz jego potężną fortecę i zetrzyj mu uśmiech z twarzy, nim Twoje stwory obrócą się przeciw Tobie."
 
+#. DD Level Belial objective after AP reached
 #: guitext:919
 msgctxt "In-game message"
 msgid "The Avatar has massed an army of heroic Lords to confront you. Prepare to be attacked!"
 msgstr "Avatar skrzyknął przeciw Tobie armię bohaterskich rycerzy. Przygotuj się na atak!"
 
+#. DD Level Belial objective after AP reached
 #: guitext:920
 msgctxt "In-game message"
 msgid "Decimate this outpost and send fear into the heart of the Avatar."
 msgstr "Zdziesiątkuj ten posterunek i zasiej strach w sercu Avatara."
 
+#. DD Level Belial objective after AP reached
 #: guitext:921
 msgctxt "In-game message"
 msgid "The Avatar's castle is ripe for the taking. Train your forces well, Keeper. The ultimate battle awaits ..."
 msgstr "Zamek Avatara dojrzał, by go przejąć. Dobrze wytrenuj oddziały, Strażniku. Przed Tobą ostateczna rozgrywka..."
 
+#. DD Level Belial objective when adding Avatar
 #: guitext:922
 msgctxt "In-game message"
 msgid "You are now in the heart of the Avatar's castle. The sickly sweet smell of goodness still hangs in the air. Kill the Avatar and send his soul to eternal damnation."
 msgstr "Znalazłeś się w sercu avatarowego zamczyska. W powietrzu wciąż unosi się mdląco słodki zapach dobra. Zabij Avatara i skaż jego duszę na wieczne potępienie."
 
+#. DD Levels generic information after finding a Mistress
 #: guitext:923
 msgctxt "In-game message"
 msgid "Well done, Keeper. The Mistress you have discovered is an excellent prize."
 msgstr "Dobrze zrobione, Strażniku. Dama, którą pozyskałeś, to wspaniała nagroda."
 
+#. DD Levels generic information after finding a Bile Demon
 #: guitext:924
 msgctxt "In-game message"
 msgid "The Bile Demon you have rescued will be a valuable but hungry asset to your dungeon. Make sure your Hatchery can satisfy his voracious appetite."
 msgstr "Demon żółciowy, którego uratowałeś, to wartościowy, ale żarłoczny sojusznik. Upewnij się, czy Twój kurnik zaspokoi jego monstrualny apetyt."
 
+#. DD Level Dixaroc first objective
 #: guitext:925
 msgctxt "In-game message"
 msgid "A devious Wizard has cheated you of your magical powers. Use your only Spider and explore the realm. Find the Wizard, kill him and make an example of his foolishness."
 msgstr "Zbłąkany czarownik podstępem pozbawił Cię mocy magicznej. Przy pomocy swego jedynego pająka przeszukaj królestwo. Znajdź czarownika i zabij go - kara za jego głupotę powinna być przestrogą dla innych."
 
+#. DD Level Dixaroc information after getting Imps
 #: guitext:926
 msgctxt "In-game message"
 msgid "You have found some Imps who consider it a great honour to serve you."
 msgstr "Znalazłeś kilka chochlików, które poczytują sobie za honor służbę w Twych szeregach."
 
+#. DD Levels Dixaroc information after finding Bile Demons
 #: guitext:927
 msgctxt "In-game message"
 msgid "You have discovered a group of Bile Demons who will aid you in your fight."
 msgstr "Odkryłeś grupę demonów żółciowych, które będą wspierać Cię w walce."
 
+#. DD Level Dixaroc information just after PLAYER1 destroyed
 #: guitext:928
 msgctxt "In-game message"
 msgid "The destruction of this pathetic Keeper brings with it a useful bonus. You now have the ability to build Bridges. Dig deeper and you may find more secrets to strengthen your powers."
 msgstr "Zniszczenie tego żałosnego Strażnika przyniesie Ci wartościową premię. Będziesz mógł budować mosty. Jeśli pokopiesz głębiej, może znajdziesz sposób, by wzmocnić swoje siły."
 
+#. DD Level Dixaroc information some time after PLAYER1 destroyed
 #: guitext:929
 msgctxt "In-game message"
 msgid "A warning, Keeper. There is a stench of hero in the air."
 msgstr "Ostrzeżenie, Strażniku. W powietrzu unosi się swąd bohaterów."
 
+#. DD Level Dixaroc information after AP reached
 #: guitext:930
 msgctxt "In-game message"
 msgid "You have done well to get this far Keeper. Do not become complacent, however. A great struggle lies ahead."
 msgstr "Dobrze sobie radzisz Strażniku, skoro zaszedłeś tak daleko. Ale nie spoczywaj na laurach. Przed Tobą wielka bitwa."
 
+#. DD Level Dixaroc information after AP reached
 #: guitext:931
 msgctxt "In-game message"
 msgid "Before you lies the Wizard's domain. Defeat him and you will regain your powers."
 msgstr "Rozciąga się przed Tobą dominium czarownika. Pokonaj go, a odzyskasz moc."
 
+#. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
 msgctxt "In-game message"
-msgid "Your magical powers are restored Keeper.  You can finally show these fools what you are made of."
+msgid "Your magical powers are restored Keeper. You can finally show these fools what you are made of."
 msgstr "Twoje zdolności magiczne wróciły, Strażniku. Teraz możesz nareszcie pokazać tym głupcom, gdzie raki zimują."
 
+#. DD Level Caddis Fell objective after AP reached
 #: guitext:933
 msgctxt "In-game message"
 msgid "A black shadow is creeping over this land. Now is the time to strike. Take control of your Vampire and use him to find and kill the Lord of the Land. If you succeed, the Vampire will join you in the next realm."
 msgstr "Czarny cień rozciąga się nad tą krainą. Przyszedł czas, by uderzyć. Przejmij kontrolę nad wampirem i użyj go do zgładzenia władcy tej ziemi. Jeśli Ci się powiedzie, wampir przejdzie wraz z Tobą do następnego królestwa."
 
+#. DD Level Belial information after winning
 #: guitext:934
 msgctxt "In-game message"
 msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
