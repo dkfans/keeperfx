@@ -87,7 +87,7 @@ msgstr ""
 
 #: landview:61
 msgctxt "Level summary"
-msgid "You've learned the special properties of an unconcious body. I still have no idea how this works."
+msgid "You've learned the special properties of an unconscious body. I still have no idea how this works."
 msgstr ""
 
 #: landview:70
@@ -97,7 +97,7 @@ msgstr ""
 
 #: landview:71
 msgctxt "Level summary"
-msgid "You've destoyed the enemy without any creatures. Now you know that having a map revealed do have benefits."
+msgid "You've destroyed the enemy without any creatures. Now you know that having a map revealed do have benefits."
 msgstr ""
 
 #: landview:80
