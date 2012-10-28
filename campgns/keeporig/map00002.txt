@@ -18,6 +18,9 @@ REM   TRAINING - when basic 3 are built
 REM New creatures for the player:
 REM   DEMON_SPAWN - from start (but needs TRAINING for attraction)
 
+REM Flags used:
+REM   PLAYER0,FLAG3 - State of TRAINING building; 0-not built yet; 1-built.
+
 START_MONEY(PLAYER0,2500)
 SET_GENERATE_SPEED(350)
 MAX_CREATURES(PLAYER0,14)
