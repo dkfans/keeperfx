@@ -1,4 +1,17 @@
-REM Dixaroc
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for DD Level Dixaroc
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM            KeeperFX CCP Team
+REM  Date:     17 Dec 1996 - 10 Oct 2012
+REM  Copying and copyrights:
+REM    This program is free software; you can redistribute it and/or modify
+REM    it under the terms of the GNU General Public License as published by
+REM    the Free Software Foundation; either version 2 of the License, or
+REM    (at your option) any later version.
+REM ****************************************************************************
 
 COMPUTER_PLAYER(PLAYER1,2)
 COMPUTER_PLAYER(PLAYER2,2)
@@ -225,10 +238,6 @@ IF(PLAYER0,TOTAL_IMPS == 0)
 	ENDIF
 ENDIF
 
-IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-	DISPLAY_OBJECTIVE(907,PLAYER0)
-ENDIF
-
 REM		*** WIN GAME CONDITIONS ***
 
 IF(PLAYER_GOOD,WIZARD < 1)
@@ -240,5 +249,5 @@ IF(PLAYER_GOOD,WIZARD < 1)
 ENDIF
 
 IF(PLAYER0,BILE_DEMON >= 1)
-	DISPLAY_INFORMATION(927,PLAYER0)
+	DISPLAY_INFORMATION(927,ALL_PLAYERS)
 ENDIF

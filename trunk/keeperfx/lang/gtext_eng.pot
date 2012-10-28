@@ -142,7 +142,7 @@ msgstr ""
 
 #: guitext:22
 msgctxt "In-game message"
-msgid "When Imps have no other orders, they run around reinforcing your dungeon.  Fortified walls keep out intruders. Rooms with reinforced walls make your creatures feel more at home and heroes more terrified."
+msgid "When Imps have no other orders, they run around reinforcing your dungeon. Fortified walls keep out intruders. Rooms with reinforced walls make your creatures feel more at home and heroes more terrified."
 msgstr ""
 
 #: guitext:23
@@ -4363,216 +4363,259 @@ msgctxt "Menu interface message"
 msgid "Please insert The Deeper Dungeons CD-ROM"
 msgstr ""
 
+#. DD Level Korros Tor first objective
 #: guitext:892
 msgctxt "In-game message"
 msgid "The might of two rival Dungeon Keepers challenge your claim to this realm. Decimate them both to achieve total domination, but beware of bands of heroes hidden in the caverns."
 msgstr ""
 
+#. DD Level Kari-Mar first objective
 #: guitext:893
 msgctxt "In-game message"
 msgid "Another Keeper has already claimed this realm. He is unfit to rule so destroy him and take what is rightfully yours. Great riches lie in the caverns around the land; explore to gain more power."
 msgstr ""
 
+#. DD Level Belbata first objective
 #: guitext:894
 msgctxt "In-game message"
 msgid "This land is highly coveted amongst the evil and there are three enemy Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
 
+#. DD Level Pladitz waypoint objective
 #: guitext:895
 msgctxt "In-game message"
 msgid "The Lord of the Land and his pitiful band of followers lie dead. Good riddance to them and their sad, happy lives. Now seize your chance and attack your rival Keeper. Domination awaits."
 msgstr ""
 
+#. DD Level Pladitz first objective
 #: guitext:896
 msgctxt "In-game message"
 msgid "You and a rival Dungeon Keeper are vying for control of this realm but the Lord of the Land has constructed his own dungeon between you to halt your conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr ""
 
+#. DD Level Pladitz waypoint objective
 #: guitext:897
 msgctxt "In-game message"
 msgid "You have done well to come this far but further hardships await. Search the map carefully and you may find many secrets to aid your conquest."
 msgstr ""
 
+#. DD Level Abbadon first objective
 #: guitext:898
 msgctxt "In-game message"
 msgid "You have come to this realm with little to assist you so you must explore to gain more power. Keep an eye out for any loathsome heroes who may try to thwart your progress."
 msgstr ""
 
+#. DD Level Daka-Gorn first objective
 #: guitext:899
 msgctxt "In-game message"
 msgid "Beware Keeper. This realm is infested with the sickly goodness of heroes and fairies. Hunt them down and feed them their own entrails."
 msgstr ""
 
+#. DD Level Morkardar first objective
 #: guitext:900
 msgctxt "In-game message"
 msgid "Your opponent for this realm has foolishly challenged your superior skill. Such disrespect should be punished so make an example of his insolence."
 msgstr ""
 
+#. DD Level Morkardar information soon after start
 #: guitext:901
 msgctxt "In-game message"
 msgid "Ancient powers lie hidden in this realm. Seek them out and use them for your own evil purposes."
 msgstr ""
 
+#. DD Level Abbadon objective after rooms built
 #: guitext:902
 msgctxt "In-game message"
 msgid "A foolish challenger stands between you and total dominance. Annihilate his forces and feed his body to your ravenous minions."
 msgstr ""
 
+#. DD Level Daka-Gorn information after AP reached
 #: guitext:903
 msgctxt "In-game message"
 msgid "I can hear footsteps beyond the walls of the hero castle which dominates this land. Tread carefully Keeper and rid the land of goodness once and for all."
 msgstr ""
 
+#. DD Level Netzcaro first objective
 #: guitext:904
 msgctxt "In-game message"
 msgid "The once strong hero fortress of this realm has grown rotten and weak. Tear down it's walls and let your creatures feast on the heroes within."
 msgstr ""
 
+#. DD Level Netzcaro information after AP reached
 #: guitext:905
 msgctxt "In-game message"
 msgid "This realm will be a test of your cunning and deviousness. Your dungeon has been fortified with seven steel doors to aid you in your conquest."
 msgstr ""
 
+#. DD Level Netzcaro objective after AP reached
 #: guitext:906
 msgctxt "In-game message"
 msgid "Congratulations Keeper. This vial has given your researchers a much needed boost. You can now construct Bridges that enable you to traverse water and fire."
 msgstr ""
 
+#. DD Level Belial information soon after start
 #: guitext:907
 msgctxt "In-game message"
 msgid "Food is scarce in this land and the only Hatchery available to you is inside a hero dungeon. Find this food before your creatures turn against you."
 msgstr ""
 
+#. DD Level Belial information after getting vampire
 #: guitext:908
 msgctxt "In-game message"
 msgid "Entombed in stone by a cruel band of heroes, the Vampire you have rescued demands revenge for his imprisonment. His anger will make him a valuable asset to your army of evil."
 msgstr ""
 
+#. DD Level Batezek first objective
 #: guitext:909
 msgctxt "In-game message"
 msgid "You are surrounded on all sides by valiant heroes so show them the true meaning of evil and terror."
 msgstr ""
 
+#. DD Level Batezek objective after cleaning all good creatures
 #: guitext:910
 msgctxt "In-game message"
 msgid "The Lord of the Land has sent his fiercest warriors against you. Show them no mercy and flay them alive."
 msgstr ""
 
+#. DD Level Benetzaron first objective
 #: guitext:911
 msgctxt "In-game message"
 msgid "Explore this realm to uncover riches and secrets. Tread carefully Keeper, or you could be burned."
 msgstr ""
 
+#. DD Level Svatona first objective
 #: guitext:912
 msgctxt "In-game message"
 msgid "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a humiliating defeat Keeper, the penalty for such failure is torture and death."
 msgstr ""
 
+#. DD Level Caddis Fell first objective
 #: guitext:913
 msgctxt "In-game message"
 msgid "Choices, choices Keeper. Choose your path wisely. Some routes are more perilous than others ..."
 msgstr ""
 
+#. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
 msgctxt "In-game message"
 msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the north ..."
 msgstr ""
 
+#. DD Level Caddis Fell objective after player1 destroyed
 #: guitext:915
 msgctxt "In-game message"
 msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the south ..."
 msgstr ""
 
+#. DD Level Caddis Fell objective after entrance claimed
 #: guitext:916
 msgctxt "In-game message"
 msgid "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and then destroy the rival Keeper to achieve total domination."
 msgstr ""
 
+#. DD Level Kanasko first objective
 #: guitext:917
 msgctxt "In-game message"
 msgid "Make haste Keeper. The heroes of this realm are many and strong. Prepare your forces well or face a humiliating defeat ..."
 msgstr ""
 
+#. DD Level Belial first objective
 #: guitext:918
 msgctxt "In-game message"
 msgid "The Avatar is a wretched being, full of happiness and good cheer. Food is scarce in his land and the only Hatchery available is inside his dungeons. Destroy his mighty fortress and wipe the smile from his face before your creatures turn against you."
 msgstr ""
 
+#. DD Level Belial objective after AP reached
 #: guitext:919
 msgctxt "In-game message"
 msgid "The Avatar has massed an army of heroic Lords to confront you. Prepare to be attacked!"
 msgstr ""
 
+#. DD Level Belial objective after AP reached
 #: guitext:920
 msgctxt "In-game message"
 msgid "Decimate this outpost and send fear into the heart of the Avatar."
 msgstr ""
 
+#. DD Level Belial objective after AP reached
 #: guitext:921
 msgctxt "In-game message"
 msgid "The Avatar's castle is ripe for the taking. Train your forces well, Keeper. The ultimate battle awaits ..."
 msgstr ""
 
+#. DD Level Belial objective when adding Avatar
 #: guitext:922
 msgctxt "In-game message"
 msgid "You are now in the heart of the Avatar's castle. The sickly sweet smell of goodness still hangs in the air. Kill the Avatar and send his soul to eternal damnation."
 msgstr ""
 
+#. DD Levels generic information after finding a Mistress
 #: guitext:923
 msgctxt "In-game message"
 msgid "Well done, Keeper. The Mistress you have discovered is an excellent prize."
 msgstr ""
 
+#. DD Levels generic information after finding a Bile Demon
 #: guitext:924
 msgctxt "In-game message"
 msgid "The Bile Demon you have rescued will be a valuable but hungry asset to your dungeon. Make sure your Hatchery can satisfy his voracious appetite."
 msgstr ""
 
+#. DD Level Dixaroc first objective
 #: guitext:925
 msgctxt "In-game message"
 msgid "A devious Wizard has cheated you of your magical powers. Use your only Spider and explore the realm. Find the Wizard, kill him and make an example of his foolishness."
 msgstr ""
 
+#. DD Level Dixaroc information after getting Imps
 #: guitext:926
 msgctxt "In-game message"
 msgid "You have found some Imps who consider it a great honour to serve you."
 msgstr ""
 
+#. DD Levels Dixaroc information after finding Bile Demons
 #: guitext:927
 msgctxt "In-game message"
 msgid "You have discovered a group of Bile Demons who will aid you in your fight."
 msgstr ""
 
+#. DD Level Dixaroc information just after PLAYER1 destroyed
 #: guitext:928
 msgctxt "In-game message"
 msgid "The destruction of this pathetic Keeper brings with it a useful bonus. You now have the ability to build Bridges. Dig deeper and you may find more secrets to strengthen your powers."
 msgstr ""
 
+#. DD Level Dixaroc information some time after PLAYER1 destroyed
 #: guitext:929
 msgctxt "In-game message"
 msgid "A warning, Keeper. There is a stench of hero in the air."
 msgstr ""
 
+#. DD Level Dixaroc information after AP reached
 #: guitext:930
 msgctxt "In-game message"
 msgid "You have done well to get this far Keeper. Do not become complacent, however. A great struggle lies ahead."
 msgstr ""
 
+#. DD Level Dixaroc information after AP reached
 #: guitext:931
 msgctxt "In-game message"
 msgid "Before you lies the Wizard's domain. Defeat him and you will regain your powers."
 msgstr ""
 
+#. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
 msgctxt "In-game message"
-msgid "Your magical powers are restored Keeper.  You can finally show these fools what you are made of."
+msgid "Your magical powers are restored Keeper. You can finally show these fools what you are made of."
 msgstr ""
 
+#. DD Level Caddis Fell objective after AP reached
 #: guitext:933
 msgctxt "In-game message"
 msgid "A black shadow is creeping over this land. Now is the time to strike. Take control of your Vampire and use him to find and kill the Lord of the Land. If you succeed, the Vampire will join you in the next realm."
 msgstr ""
 
+#. DD Level Belial information after winning
 #: guitext:934
 msgctxt "In-game message"
 msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
