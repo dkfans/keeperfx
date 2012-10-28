@@ -30,176 +30,211 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
 msgstr ""
 
+#. Level Eversmile information soon after start
 #: guitext:1
 msgctxt "In-game message"
 msgid "This is a message. Right click to delete it."
 msgstr ""
 
+#. Level Eversmile first objective
 #: guitext:2
 msgctxt "In-game message"
 msgid "The first thing a Keeper needs is somewhere to keep gold, when it's been mined out of the rock by his imps. To create a Treasure Room, select the Treasure Room icon from the Rooms Panel and fill the empty area to the west with Treasure Room tiles."
 msgstr ""
 
+#. Level Eversmile information when started building Treasure Room
 #: guitext:3
 msgctxt "In-game message"
 msgid "Use the cursor keys to see other areas of the underworld. Rotate and zoom the view with the right ctrl key and cursor keys."
 msgstr ""
 
+#. Level Eversmile objective when built Treasure Room
 #: guitext:4
 msgctxt "In-game message"
 msgid "Expertly done. Press the right mouse button to turn the pointer back into the Hand of Evil. Mine out the gold to the east by tagging the area with the left mouse button. Your Imps will dig out the gold and carry it back to your Treasure Room."
 msgstr ""
 
+#. Level Eversmile information while digging gold
 #: guitext:5
 msgctxt "In-game message"
 msgid "If you want to make your creatures work harder, slap them by right clicking the Hand of Evil on them. Slapping will harm your creatures."
 msgstr ""
 
+#. Level Eversmile information while digging gold
 #: guitext:6
 msgctxt "In-game message"
 msgid "Use the left mouse button to pluck your creatures from the dungeon. Use the right mouse button to drop them over a room or tile belonging to your dungeon. Creatures perform the task most relevant to the situation they're dropped into."
 msgstr ""
 
+#. Level Eversmile objective after digging gold
 #: guitext:7
 msgctxt "In-game message"
 msgid "Greedily done, Keeper. Now, you need to turn some of your dungeon into a Lair. Lairs are where creatures rest and recover. The area your imps just mined out would be an ideal spot for some creatures to lurk. Select the Lair icon from the Rooms Panel."
 msgstr ""
 
+#. Level Eversmile objective after Lair built
 #: guitext:8
 msgctxt "In-game message"
 msgid "Dig a tunnel that connects to the Portal to the north. Portals appear on the map as flashing squares, until they are claimed. Creatures only use Portals claimed by a Keeper. Your imps claim a Portal as soon as it connects to your dungeon."
 msgstr ""
 
+#. Level Eversmile objective when digging w/o Treasure Room
 #: guitext:9
 msgctxt "In-game message"
 msgid "You should build a Treasure Room first. Select the Treasure Room icon from the Rooms Panel and left click on the tiles in the area to the west of your Dungeon Heart."
 msgstr ""
 
+#. Level Eversmile information after some digging
 #: guitext:10
 msgctxt "In-game message"
 msgid "Pick up creatures by left clicking on them. Drop them by right clicking over a room or tile belonging to your dungeon. Creatures perform tasks relevant to the situation they're dropped into."
 msgstr ""
 
+#. Level Eversmile information after some digging
 #: guitext:11
 msgctxt "In-game message"
 msgid "If you want your creatures to work harder, slap them with a right click of the hand. Your creatures take damage from each slap they receive."
 msgstr ""
 
+#. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
 msgctxt "In-game message"
 msgid "You have not yet built a Treasure Room. Until you build this room, you will be unable to pay any creatures. Only imps give their loyalty freely. No other creatures will serve you unpaid."
 msgstr ""
 
+#. Level Eversmile objective after getting first creature
 #: guitext:13
 msgctxt "In-game message"
 msgid "Your first minion has arrived. It's a giant Fly. It can spit corrosive vomit at your enemies and its wings grant the hideous insect the speed to intercept the most nimble trespassers."
 msgstr ""
 
+#. Level Eversmile objective after getting first beetle
 #: guitext:14
 msgctxt "In-game message"
 msgid "A Beetle has scuttled into your realm. It's tough enough to absorb a lot of damage. Like most creatures, Beetles require food. Dig out a new area, select the Hatchery icon and create your Hatchery. Tasty snacks will soon emerge from its enchanted soil."
 msgstr ""
 
+#. Level Eversmile objective after Hatchery built
 #: guitext:15
 msgctxt "In-game message"
 msgid "Imps fortify your walls to prevent intruders tunnelling in. If you want to create more imps, go to the Research Panel, select the Imp icon and left click anywhere in your dungeon. Each Imp you create costs more than the previous one."
 msgstr ""
 
+#. Level Eversmile information after having few creatures
 #: guitext:16
 msgctxt "In-game message"
 msgid "Why not have a handful of creatures ready to drop on top of intruders? To pick up creatures quickly, left click on them from within the Creatures Panel. You can only drop creatures within the confines of your own dungeon."
 msgstr ""
 
+#. Level Eversmile objective some time after all rooms are built
 #: guitext:17
 msgctxt "In-game message"
 msgid "Intruders approach. They seek gaps in your fortifications, in order to gain entry to your dungeon. A white trail on the map indicates their progress. Click the icon at the top of the Control Panel to see a bigger map."
 msgstr ""
 
+#. Level Eversmile objective after first wave defeat
 #: guitext:18
 msgctxt "In-game message"
 msgid "Savour your first victory while you can. You have attracted the wrath of the Lord of this realm. His party will soon be here."
 msgstr ""
 
+#. Level Eversmile objective when LOTL comes
 #: guitext:19
 msgctxt "In-game message"
 msgid "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
 msgstr ""
 
+#. Level Eversmile objective after LOTL defeat
 #: guitext:20
 msgctxt "In-game message"
 msgid "Your work here is done. Now there is no-one to prevent you from obliterating this nauseating realm and expanding your empire into a neighbouring land. Nice."
 msgstr ""
 
+#. Level Eversmile objective when having no Imps
 #: guitext:21
 msgctxt "In-game message"
 msgid "You require more Imps. Use the Create Imp spell to conjure them into your domain. Remember, each Imp you create is more expensive than the last."
 msgstr ""
 
+#. Level Cosyton information soon after start
 #: guitext:22
 msgctxt "In-game message"
 msgid "When Imps have no other orders, they run around reinforcing your dungeon. Fortified walls keep out intruders. Rooms with reinforced walls make your creatures feel more at home and heroes more terrified."
 msgstr ""
 
+#. Level Cosyton information soon after start
 #: guitext:23
 msgctxt "In-game message"
 msgid "Possess creatures by choosing the Possess spell from the Research Panel and left-clicking on the creature you want to control. Right-click to leave the creature again."
 msgstr ""
 
+#. Level Cosyton first objective
 #: guitext:24
 msgctxt "In-game message"
 msgid "Remember the lessons you learned in Brana Hauk. You must build a Treasure Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms in squares of at least nine tiles to increase the efficiency of the room."
 msgstr ""
 
+#. Level Cosyton objective after basic rooms built
 #: guitext:25
 msgctxt "In-game message"
 msgid "You will need to make your creatures stronger. In a Training Room, your creatures can hone their fighting skills, gain new abilities and learn more powerful spells."
 msgstr ""
 
+#. Level Cosyton objective after Training Room built
 #: guitext:26
 msgctxt "In-game message"
 msgid "Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the walls of your dungeon. This increases the efficiency of rooms and repels would-be invaders."
 msgstr ""
 
+#. Level Cosyton information after Training Room built
 #: guitext:27
 msgctxt "In-game message"
 msgid "The Training Room attracts ever more ferocious creatures, such as Demon Spawn. Build it and they will come."
 msgstr ""
 
+#. Level Cosyton information after attracting Demon Spawn
 #: guitext:28
 msgctxt "In-game message"
 msgid "To train creatures, drop them in the Training Room. The number that occasionally appears above a creature's head indicates how much gold it has cost for that creature to train."
 msgstr ""
 
+#. Level Cosyton information some time after Demon Spawn
 #: guitext:29
 msgctxt "In-game message"
 msgid "You can train creatures more rapidly by slapping them as they work out in the Training Room."
 msgstr ""
 
+#. Level Cosyton objective soon after 2nd Demon Spawn
 #: guitext:30
 msgctxt "In-game message"
 msgid "Heroes are already on their way. Make sure your creatures are well trained and ready for the attack. The heroes you will face in this realm are tougher than those you met beneath Brana Hauk."
 msgstr ""
 
+#. Level Cosyton objective after defeating LOTL (option 1)
 #: guitext:31
 msgctxt "In-game message"
 msgid "Harder the heroes may have been but they were obviously no match for your forces."
 msgstr ""
 
+#. Level Cosyton objective after AP reached
 #: guitext:32
 msgctxt "In-game message"
 msgid "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
 msgstr ""
 
+#. Level Cosyton objective after defeating LOTL (option 2)
 #: guitext:33
 msgctxt "In-game message"
 msgid "Congratulations. You have conquered the enemy hordes."
 msgstr ""
 
+#. Level Waterdream Warm first objective
 #: guitext:34
 msgctxt "In-game message"
 msgid "Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training Room. Make sure they're all big enough. Cramped conditions do nothing for the morale of your minions."
