@@ -501,7 +501,7 @@ void update_things(void)
   TbBigChecksum sum;
   optimised_lights = 0;
   total_lights = 0;
-  do_lights = game.field_4614D;
+  do_lights = game.lish.field_4614D;
   sum = 0;
   sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
   update_creatures_not_in_list();

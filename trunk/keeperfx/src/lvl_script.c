@@ -2225,17 +2225,17 @@ long script_scan_line(char *line,TbBool preloaded)
 
 short clear_script(void)
 {
-  memset(&game.script, 0, sizeof(struct LevelScript));
-  script_current_condition = -1;
-  text_line_number = 1;
-  return true;
+    LbMemorySet(&game.script, 0, sizeof(struct LevelScript));
+    script_current_condition = -1;
+    text_line_number = 1;
+    return true;
 }
 
 short clear_quick_messages(void)
 {
   long i;
   for (i=0; i < QUICK_MESSAGES_COUNT; i++)
-    memset(gameadd.quick_messages[i],0,MESSAGE_TEXT_LEN);
+      LbMemorySet(gameadd.quick_messages[i],0,MESSAGE_TEXT_LEN);
   return true;
 }
 

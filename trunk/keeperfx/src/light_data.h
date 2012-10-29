@@ -107,7 +107,6 @@ DLLIMPORT long _DK_light_updated_stat_lights;
 DLLIMPORT long _DK_light_out_of_date_stat_lights;
 #define light_out_of_date_stat_lights _DK_light_out_of_date_stat_lights
 /******************************************************************************/
-void clear_light_system(void);
 void clear_stat_light_map(void);
 void update_light_render_area(void);
 void light_delete_light(long idx);

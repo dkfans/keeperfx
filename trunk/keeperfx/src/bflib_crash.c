@@ -34,6 +34,7 @@
 #include <stdbool.h>
 
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "bflib_video.h"
 /******************************************************************************/
 static const char* sigstr(int s)
@@ -98,7 +99,7 @@ _backtrace(int depth , LPCONTEXT context)
 {
     STACKFRAME frame;
     char module_name_raw[MAX_PATH];
-    memset(&frame,0,sizeof(frame));
+    LbMemorySet(&frame,0,sizeof(frame));
 
     frame.AddrPC.Offset = context->Eip;
     frame.AddrPC.Mode = AddrModeFlat;

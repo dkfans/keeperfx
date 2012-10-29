@@ -213,7 +213,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
     if (creature_is_group_member(thing))
       make_group_member_leader(thing);
   }
-  memset(&ilght, 0, sizeof(struct InitLight));
+  LbMemorySet(&ilght, 0, sizeof(struct InitLight));
   ilght.mappos.x.val = thing->mappos.x.val;
   ilght.mappos.y.val = thing->mappos.y.val;
   ilght.mappos.z.val = thing->mappos.z.val;
@@ -807,10 +807,8 @@ void process_thing_spell_effects(struct Thing *thing)
 short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *goldtng)
 {
     struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
     long i;
     crstat = creature_stats_get_from_thing(creatng);
-    cctrl = creature_control_get_from_thing(creatng);
     if (goldtng->creature.gold_carried <= 0)
     {
       ERRORLOG("GoldPile had no gold so was deleted.");
@@ -2535,8 +2533,6 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
  */
 long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))
@@ -2565,8 +2561,6 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
  */
 long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
       && ((param->model_id == -1) || (thing->model == param->model_id))

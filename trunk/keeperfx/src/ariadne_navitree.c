@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "bflib_math.h"
 
 #include "ariadne_tringls.h"
@@ -291,7 +292,7 @@ void tags_init(void)
     //Note that tag_current is a tag value, not tag index
     if (tag_current >= 255)
     {
-        memset(Tags, 0, sizeof(Tags));
+        LbMemorySet(Tags, 0, sizeof(Tags));
         tag_current = 0;
     }
     tag_current++;

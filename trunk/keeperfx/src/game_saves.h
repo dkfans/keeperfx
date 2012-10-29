@@ -109,7 +109,7 @@ TbBool save_game_save_catalogue(void);
 TbBool load_game_save_catalogue(void);
 TbBool fill_game_catalogue_slot(long slot_num,const char *textname);
 /******************************************************************************/
-TbBool set_transfered_creature(long plyr_idx, long model, long explevel);
+TbBool set_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel);
 void clear_transfered_creature(void);
 /******************************************************************************/
 short continue_game_available(void);

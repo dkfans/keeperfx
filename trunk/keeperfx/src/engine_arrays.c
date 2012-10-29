@@ -1077,7 +1077,7 @@ TbBool load_ceiling_table(void)
             if ( (nchr == 10) || (nchr == 44) || (nchr == 32) || (nchr == 9) || (nchr == 13) )
                 continue;
         }
-        memset(numstr, 0, sizeof(numstr));
+        LbMemorySet(numstr, 0, sizeof(numstr));
         for (i=0; i < sizeof(numstr); i++)
         {
             numstr[i] = nchr;

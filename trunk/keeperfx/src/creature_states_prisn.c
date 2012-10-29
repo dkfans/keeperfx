@@ -205,12 +205,10 @@ short creature_in_prison(struct Thing *thing)
 TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
 {
   struct Dungeon *dungeon;
-  struct CreatureStats *crstat;
   struct CreatureControl *cctrl;
   struct Thing *crthing;
   long crmodel;
   cctrl = creature_control_get_from_thing(thing);
-  crstat = creature_stats_get_from_thing(thing);
   crmodel = get_room_create_creature_model(room->kind); // That normally returns skeleton breed
   crthing = create_creature(&thing->mappos, crmodel, room->owner);
   if (thing_is_invalid(crthing))
