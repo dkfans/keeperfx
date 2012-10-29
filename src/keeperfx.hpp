@@ -32,6 +32,7 @@
 #include "player_computer.h"
 #include "game_merge.h"
 #include "game_saves.h"
+#include "game_lghtshdw.h"
 #include "thing_creature.h"
 #include "creature_control.h"
 #include "creature_battle.h"
@@ -66,14 +67,12 @@ extern "C" {
 #define GAME_KEYS_COUNT        32
 #define LENSES_COUNT           15
 #define MINMAXS_COUNT          64
-#define SHADOW_LIMITS_COUNT  2048
 #define SPIRAL_STEPS_COUNT   2500
 #define GOLD_LOOKUP_COUNT      40
 #define SPELL_POINTER_GROUPS   14
 #define SLABSET_COUNT        1304
 #define SLABOBJS_COUNT        512
 #define BOOKMARKS_COUNT         5
-#define SHADOW_CACHE_COUNT          40
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
 #define PLAYER_STATES_COUNT    32
@@ -237,20 +236,6 @@ struct UnkStruc5 { // sizeof=0x12
     unsigned short texture_0[3];
 char field_6[2];
 short field_8[5];
-};
-
-struct UnkStruc6 { // sizeof = 8
-  unsigned char field_0;
-  unsigned char field_1;
-  unsigned char field_2;
-  unsigned char field_3;
-  unsigned long field_4;
-};
-
-struct ShadowCache { // sizeof = 129
-  unsigned char flags;
-  unsigned char field_1[127];
-  unsigned char field_80;
 };
 
 struct ObjectConfig { // sizeof=0x1D
@@ -433,20 +418,7 @@ char field_117DA[14];
     short slabobjs_idx[SLABSET_COUNT];
     struct SlabObj slabobjs[SLABOBJS_COUNT];
     unsigned char land_map_start;
-// probably one structure.. LightSystem ?
-    struct UnkStruc6 field_1DD41[1024];
-    unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
-    struct Light lights[LIGHTS_COUNT];
-    struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
-    unsigned short stat_light_map[256*256];
-long field_46149;
-char field_4614D;
-char field_4614E;
-int field_4614F;
-int field_46153;
-// end of "LightSystem"
-
-    unsigned short subtile_lightness[256*256];
+    struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
     unsigned char navigation_map[256*256];
@@ -635,9 +607,9 @@ char field_1516FF;
     long boulder_reduce_health_room;
     struct GuiMessage messages[GUI_MESSAGES_COUNT];
     unsigned char active_messages_count;
-    unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
+    struct IntralevelData intralvl;
     long bonus_time;
-    struct CreatureStorage transfered_creature;
+    struct CreatureStorage intralvl_transfered_creature; //TODO [structs] When possible, add it to IntralevelData struct
     struct Armageddon armageddon;
 char field_1517F6;
     char comp_player_aggressive;

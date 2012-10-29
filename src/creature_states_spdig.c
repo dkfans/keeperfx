@@ -792,12 +792,10 @@ long take_from_gold_pile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long limit)
 
 short imp_picks_up_gold_pile(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     long gold_taken;
     SYNCDBG(19,"Starting");
     //return _DK_imp_picks_up_gold_pile(thing);
-    cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     if (crstat->gold_hold > thing->creature.gold_carried)
     {
@@ -851,9 +849,7 @@ short imp_toking(struct Thing *thing)
 TbBool creature_drop_thing_to_another_room(struct Thing *thing, struct Room *skiproom, signed char rkind)
 {
     struct Room *ownroom;
-    struct CreatureControl *cctrl;
     struct Coord3d pos;
-    cctrl = creature_control_get_from_thing(thing);
     ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, rkind, 0, 1);
     if ( room_is_invalid(ownroom) || (ownroom->index == skiproom->index) )
     {

@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "globals.h"
 #include "bflib_string.h"
 #include "bflib_sound.h"
@@ -81,7 +82,7 @@ void setup_input_field(struct GuiButton *gbtn, const char * empty_text)
 {
     char *content;
     lbInkey = 0;
-    memset(backup_input_field, 0, INPUT_FIELD_LEN);
+    LbMemorySet(backup_input_field, 0, INPUT_FIELD_LEN);
     content = (char *)gbtn->content;
     if (content == NULL)
     {

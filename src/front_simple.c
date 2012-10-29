@@ -93,14 +93,14 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
     for (h=0; h<spy; h++)
     {
       dst = dst_buf + (h)*scanline;
-      memset(dst,0,scanline);
+      LbMemorySet(dst, 0, scanline);
     }
     // Clearing bottom of the canvas
     // (Note: it must be done before drawing, to make sure we won't overwrite last line)
     for (h=nlines-spy; h<nlines; h++)
     {
-      dst = dst_buf + (h)*scanline;
-      memset(dst,0,scanline);
+        dst = dst_buf + (h)*scanline;
+        LbMemorySet(dst, 0, scanline);
     }
   }
   // Now drawing

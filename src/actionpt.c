@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 
 #include "keeperfx.hpp"
 
@@ -160,19 +161,19 @@ TbBool process_action_points(void)
 
 void clear_action_points(void)
 {
-  long i;
-  for (i=0; i < ACTN_POINTS_COUNT; i++)
-  {
-    memset(&game.action_points[i], 0, sizeof(struct ActionPoint));
-  }
+    long i;
+    for (i=0; i < ACTN_POINTS_COUNT; i++)
+    {
+        LbMemorySet(&game.action_points[i], 0, sizeof(struct ActionPoint));
+    }
 }
 
 void delete_action_point_structure(struct ActionPoint *apt)
 {
-  if (apt->flags & 0x01)
-  {
-    memset(apt, 0, sizeof(struct ActionPoint));
-  }
+    if (apt->flags & 0x01)
+    {
+        LbMemorySet(apt, 0, sizeof(struct ActionPoint));
+    }
 }
 
 void delete_all_action_point_structures(void)

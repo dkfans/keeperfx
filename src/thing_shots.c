@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "thing_data.h"
@@ -395,7 +396,6 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *target, stru
 {
     struct Thing *shooter;
     struct ShotConfigStats *shotst;
-    struct CreatureStats *tgcrstat;
     struct CreatureControl *tgcctrl;
     long damage,throw_strength;
     shotst = get_shot_model_stats(shotng->model);
@@ -405,7 +405,6 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *target, stru
     shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index)
         shooter = thing_get(shotng->parent_idx);
-    tgcrstat = creature_stats_get_from_thing(target);
     tgcctrl = creature_control_get_from_thing(target);
     damage = get_damage_of_melee_shot(shotng, target);
     if (damage != 0)
@@ -693,10 +692,8 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, 
  */
 TbBool shot_hit_something_while_moving(struct Thing *thing, struct Coord3d *nxpos)
 {
-    struct ShotConfigStats *shotst;
     struct Thing *target;
     target = INVALID_THING;
-    shotst = get_shot_model_stats(thing->model);
     switch ( thing->byte_16 )
     {
     case 8:
@@ -991,7 +988,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->health = shotst->old->health;
     if (shotst->old->field_50)
     {
-        memset(&ilght, 0, sizeof(struct InitLight));
+        LbMemorySet(&ilght, 0, sizeof(struct InitLight));
         memcpy(&ilght.mappos,&thing->mappos,sizeof(struct Coord3d));
         ilght.field_0 = shotst->old->field_50;
         ilght.field_2 = shotst->old->field_52;

@@ -1806,7 +1806,6 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
 {
     MenuNumber mnu_num;
     struct GuiMenu *amnu;
-    struct PlayerInfo *player;
     Gf_Mnu_Callback callback;
     struct GuiButtonInit *btninit;
     int i;
@@ -1829,7 +1828,6 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
         return -1;
     }
     SYNCDBG(18,"Menu number %d added to stack",(int)mnu_num);
-    player = get_my_player();
     amnu = get_active_menu(mnu_num);
     amnu->visible = 1;
     amnu->number = mnu_num;

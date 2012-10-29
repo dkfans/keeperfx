@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 
 #include "player_data.h"
 #include "map_data.h"
@@ -54,7 +55,7 @@ struct Light *light_allocate_light(void)
     long i;
     for (i=1; i < LIGHTS_COUNT; i++)
     {
-        lgt = &game.lights[i];
+        lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) == 0)
         {
             lgt->flags |= LgtF_Allocated;
@@ -67,14 +68,14 @@ struct Light *light_allocate_light(void)
 
 void light_free_light(struct Light *lgt)
 {
-    memset(lgt, 0, sizeof(struct Light));
+    LbMemorySet(lgt, 0, sizeof(struct Light));
 }
 
-TbBool light_is_invalid(struct Light *lgt)
+TbBool light_is_invalid(const struct Light *lgt)
 {
     if (lgt == NULL)
         return true;
-    if ((lgt < &game.lights[1]) || (lgt > &game.lights[LIGHTS_COUNT-1]))
+    if ((lgt < &game.lish.lights[1]) || (lgt > &game.lish.lights[LIGHTS_COUNT-1]))
         return true;
     return false;
 }
@@ -85,7 +86,7 @@ struct ShadowCache *light_allocate_shadow_cache(void)
     long i;
     for (i=1; i < SHADOW_CACHE_COUNT; i++)
     {
-        shdc = &game.shadow_cache[i];
+        shdc = &game.lish.shadow_cache[i];
         if ((shdc->flags & ShCF_Allocated) == 0)
         {
             shdc->flags |= ShCF_Allocated;
@@ -99,7 +100,7 @@ TbBool light_shadow_cache_invalid(struct ShadowCache *shdc)
 {
     if (shdc == NULL)
         return true;
-    if ((shdc < &game.shadow_cache[1]) || (shdc > &game.shadow_cache[SHADOW_CACHE_COUNT-1]))
+    if ((shdc < &game.lish.shadow_cache[1]) || (shdc > &game.lish.shadow_cache[SHADOW_CACHE_COUNT-1]))
         return true;
     return false;
 }
@@ -109,13 +110,13 @@ long light_shadow_cache_index(struct ShadowCache *shdc)
     long i;
     if (light_shadow_cache_invalid(shdc))
         return 0;
-    i = ((char *)shdc - (char *)&game.shadow_cache[0]);
+    i = ((char *)shdc - (char *)&game.lish.shadow_cache[0]);
     return i / sizeof(struct ShadowCache);
 }
 
 void light_shadow_cache_free(struct ShadowCache *shdc)
 {
-    memset(shdc, 0, sizeof(struct ShadowCache));
+    LbMemorySet(shdc, 0, sizeof(struct ShadowCache));
 }
 
 TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
@@ -244,7 +245,7 @@ TbBool lights_stats_debug_dump(void)
     long i,n;
     for (i=0; i < SHADOW_CACHE_COUNT; i++)
     {
-        shdc = &game.shadow_cache[i];
+        shdc = &game.lish.shadow_cache[i];
         if ((shdc->flags & ShCF_Allocated) != 0)
             shadowcs[i] = -1;
         else
@@ -254,7 +255,7 @@ TbBool lights_stats_debug_dump(void)
     lgh_dynm = 0;
     for (i=0; i < LIGHTS_COUNT; i++)
     {
-        lgt = &game.lights[i];
+        lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) != 0)
         {
             lights[i] = -1;
@@ -356,7 +357,7 @@ void light_set_light_never_cache(long lgt_id)
         ERRORLOG("Attempt to set size of invalid light %d",(int)lgt_id);
         return;
     }
-    lgt = &game.lights[lgt_id];
+    lgt = &game.lish.lights[lgt_id];
     if ((lgt->flags & LgtF_Allocated) == 0)
     {
         ERRORLOG("Attempt to set size of unallocated light structure %d",(int)lgt_id);
@@ -371,7 +372,7 @@ long light_is_light_allocated(long lgt_id)
     //return _DK_light_is_light_allocated(lgt_id);
     if (lgt_id <= 0)
         return false;
-    lgt = &game.lights[lgt_id];
+    lgt = &game.lish.lights[lgt_id];
     if ((lgt->flags & LgtF_Allocated) == 0)
         return false;
     return true;
@@ -428,7 +429,7 @@ void light_turn_light_off(long idx)
         ERRORLOG("Attempt to turn off light %d",(int)idx);
         return;
     }
-    lgt = &game.lights[idx];
+    lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
         ERRORLOG("Attempt to turn off unallocated light structure");
         return;
@@ -454,7 +455,7 @@ void light_turn_light_on(long idx)
         ERRORLOG("Attempt to turn on light %d",(int)idx);
         return;
     }
-    lgt = &game.lights[idx];
+    lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
         ERRORLOG("Attempt to turn on unallocated light structure %d",(int)idx);
         return;
@@ -485,23 +486,18 @@ long light_set_light_intensity(long a1, long a2)
   return _DK_light_set_light_intensity(a1, a2);
 }
 
-void clear_light_system(void)
-{
-    memset(game.field_1DD41, 0, 0x28416u);
-}
-
 void clear_stat_light_map(void)
 {
     unsigned long x,y,i;
-    game.field_46149 = 32;
-    game.field_4614D = 0;
-    game.field_4614F = 0;
+    game.lish.field_46149 = 32;
+    game.lish.field_4614D = 0;
+    game.lish.field_4614F = 0;
     for (y=0; y < (map_subtiles_y+1); y++)
     {
         for (x=0; x < (map_subtiles_x+1); x++)
         {
           i = get_subtile_number(x,y);
-          game.stat_light_map[i] = 0;
+          game.lish.stat_light_map[i] = 0;
         }
     }
 }
@@ -516,14 +512,14 @@ void light_delete_light(long idx)
         ERRORLOG("Attempt to delete light %d",(int)idx);
         return;
     }
-    lgt = &game.lights[idx];
+    lgt = &game.lish.lights[idx];
     if ((lgt->flags & LgtF_Allocated) == 0) {
         ERRORLOG("Attempt to delete unallocated light structure %d",(int)idx);
         return;
     }
     if (lgt->shadow_index > 0)
     {
-        shdc = &game.shadow_cache[lgt->shadow_index];
+        shdc = &game.lish.shadow_cache[lgt->shadow_index];
         light_shadow_cache_free(shdc);
     }
     if ((lgt->flags & LgtF_Dynamic) != 0)
@@ -550,17 +546,17 @@ void light_initialise(void)
     int i;
     for (i=0; i < LIGHTS_COUNT; i++)
     {
-        lgt = &game.lights[i];
+        lgt = &game.lish.lights[i];
         if ((lgt->flags & LgtF_Allocated) != 0)
             light_delete_light(lgt->index);
     }
-    if (!game.field_4614E)
+    if (!game.lish.field_4614E)
     {
         light_initialise_lighting_tables();
         for (i=0; i < 32; i++) {
             light_bitmask[i] = 1 << (31-i);
         }
-        game.field_4614E = 1;
+        game.lish.field_4614E = 1;
     }
     stat_light_needs_updating = 1;
     light_total_dynamic_lights = 0;
@@ -580,12 +576,12 @@ void light_set_lights_on(char state)
 {
     if (state)
     {
-        game.field_46149 = 10;
-        game.field_4614D = 1;
+        game.lish.field_46149 = 10;
+        game.lish.field_4614D = 1;
     } else
     {
-        game.field_46149 = 32;
-        game.field_4614D = 0;
+        game.lish.field_46149 = 32;
+        game.lish.field_4614D = 0;
     }
     // Enable lights on all but bounding subtiles
     light_stat_light_map_clear_area(0, 0, map_subtiles_x, map_subtiles_y);

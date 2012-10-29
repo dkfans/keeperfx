@@ -1634,7 +1634,7 @@ short creature_pick_up_spell_to_steal(struct Thing *thing)
     }
     pos.x.val = 0;
     pos.y.val = 0;
-    //TODO STEAL_SPELLS write the spell stealing code
+    //TODO STEAL_SPELLS write the spell stealing code - find hero gate to escape
     SYNCLOG("Stealing spells not implemented - reset");
     set_start_state(thing);
     return 0;

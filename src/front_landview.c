@@ -38,6 +38,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "game_lghtshdw.h"
 #include "light_data.h"
 #include "lvl_filesdk1.h"
 #include "front_simple.h"
@@ -224,11 +225,9 @@ void update_ensigns_visibility(void)
 void update_net_ensigns_visibility(void)
 {
   struct LevelInformation *lvinfo;
-  struct PlayerInfo *player;
   long lvnum;
   SYNCDBG(18,"Starting");
   set_all_ensigns_state(LvSt_Hidden);
-  player = get_my_player();
   lvnum = first_multiplayer_level();
   while (lvnum > 0)
   {
@@ -716,7 +715,7 @@ void compressed_window_draw(void)
 
 void unload_map_and_window(void)
 {
-  clear_light_system();
+  clear_light_system(&game.lish);
   clear_things_and_persons_data();
   clear_mapmap();
   clear_computer();
@@ -823,7 +822,7 @@ void frontnet_init_level_descriptions(void)
 
 void frontnetmap_unload(void)
 {
-    clear_light_system();
+    clear_light_system(&game.lish);
     clear_mapmap();
     clear_things_and_persons_data();
     clear_computer();
@@ -968,7 +967,7 @@ TbBool frontmap_load(void)
     LevelNumber lvnum;
     SYNCDBG(4,"Starting");
 //  return _DK_frontmap_load();
-    memset(scratch, 0, PALETTE_SIZE);
+    LbMemorySet(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
     play_desc_speech_time = 0;
     playing_good_descriptive_speech = 0;
@@ -1530,7 +1529,7 @@ TbBool frontmap_exchange_screen_packet(void)
     struct ScreenPacket *nspck;
     struct LevelInformation *lvinfo;
     struct TbSprite *spr;
-    memset(net_screen_packet, 0, sizeof(net_screen_packet));
+    LbMemorySet(net_screen_packet, 0, sizeof(net_screen_packet));
     nspck = &net_screen_packet[my_player_number];
     nspck->field_4 |= 0x01;
     nspck->field_A = fe_net_level_selected;
@@ -1592,7 +1591,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
     LevelNumber pckt_lvnum;
     long i;
     long tmp2;
-    memset(scratch, 0, PALETTE_SIZE);
+    LbMemorySet(scratch, 0, PALETTE_SIZE);
     tmp2 = -1;
     for (i=0; i < NET_PLAYERS_COUNT; i++)
     {
@@ -1651,7 +1650,6 @@ TbBool frontnetmap_update(void)
 {
     struct NetMapPlayersState nmps;
     struct LevelInformation *lvinfo;
-    struct TbSprite *spr;
     long i;
     SYNCDBG(8,"Starting");
 //  return _DK_frontnetmap_update();
@@ -1689,7 +1687,6 @@ TbBool frontnetmap_update(void)
         map_info.fading = true;
         map_info.fade_pos = 1;
         map_info.fade_step = 4;
-        spr = get_map_ensign(1);
         lvinfo = get_level_info(nmps.lvnum);
         if (lvinfo != NULL)
         {

@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "ariadne_navitree.h"
 #include "ariadne_regions.h"
@@ -282,7 +283,7 @@ void triangulate_map(unsigned char *imap)
 void init_navigation_map(void)
 {
     long stl_x,stl_y;
-    memset(game.navigation_map, 0, navigation_map_size_x*navigation_map_size_y);
+    LbMemorySet(game.navigation_map, 0, navigation_map_size_x*navigation_map_size_y);
     for (stl_y=0; stl_y < navigation_map_size_y; stl_y++)
     {
         for (stl_x=0; stl_x < navigation_map_size_x; stl_x++)
@@ -1172,7 +1173,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, stru
     struct Path path;
     long nav_sizexy;
     long i,k;
-    memset(&path, 0, sizeof(struct Path));
+    LbMemorySet(&path, 0, sizeof(struct Path));
     arid->startpos.x.val = srcpos->x.val;
     arid->startpos.y.val = srcpos->y.val;
     arid->startpos.z.val = srcpos->z.val;
@@ -1224,7 +1225,7 @@ AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coor
     //return _DK_ariadne_initialise_creature_route(thing, pos, speed, storage);
     cctrl = creature_control_get_from_thing(thing);
     arid = &(cctrl->arid);
-    memset(arid, 0, sizeof(struct Ariadne));
+    LbMemorySet(arid, 0, sizeof(struct Ariadne));
     if (ariadne_creature_reached_position(thing, pos))
     {
         ret = ariadne_prepare_creature_route_target_reached(thing, arid, &thing->mappos, pos);

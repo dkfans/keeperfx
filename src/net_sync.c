@@ -147,26 +147,26 @@ void recall_localised_game_structure(void)
 
 void resync_game(void)
 {
-  struct PlayerInfo *player;
-  int i;
-  SYNCDBG(2,"Starting");
-  //return _DK_resync_game();
-  player = get_my_player();
-  draw_out_of_sync_box(0, 32, player->engine_window_x);
-  reset_eye_lenses();
-  store_localised_game_structure();
-  i = get_resync_sender();
-  if (is_my_player_number(i))
-  {
-    send_resync_game();
-  } else
-  {
-    receive_resync_game();
-  }
-  recall_localised_game_structure();
-  reinit_level_after_load();
-  set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-  set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+    struct PlayerInfo *player;
+    int i;
+    SYNCDBG(2,"Starting");
+    //return _DK_resync_game();
+    player = get_my_player();
+    draw_out_of_sync_box(0, 32, player->engine_window_x);
+    reset_eye_lenses();
+    store_localised_game_structure();
+    i = get_resync_sender();
+    if (is_my_player_number(i))
+    {
+        send_resync_game();
+    } else
+    {
+        receive_resync_game();
+    }
+    recall_localised_game_structure();
+    reinit_level_after_load();
+    set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
+    set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
 }
 
 /**
@@ -175,37 +175,35 @@ void resync_game(void)
  */
 short perform_checksum_verification(void)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  struct Thing *thing;
-  unsigned long checksum_mem;
-  short result;
-  int i;
-  player = get_my_player();
-  result = true;
-  checksum_mem = 0;
-  for (i=1; i<THINGS_COUNT; i++)
-  {
-      thing = thing_get(i);
-      if (thing_exists(thing)) {
-          checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
-      }
-  }
-  clear_packets();
-  pckt = get_packet(my_player_number);
-  set_packet_action(pckt, 12, 0, 0, 0, 0);
-  pckt->chksum = checksum_mem + game.action_rand_seed;
-  if (LbNetwork_Exchange(pckt))
-  {
-    ERRORLOG("Network exchange failed on level checksum verification");
-    result = false;
-  }
-  if ( checksums_different() )
-  {
-    ERRORLOG("Level checksums different for network players");
-    result = false;
-  }
-  return result;
+    struct Packet *pckt;
+    struct Thing *thing;
+    unsigned long checksum_mem;
+    short result;
+    int i;
+    result = true;
+    checksum_mem = 0;
+    for (i=1; i<THINGS_COUNT; i++)
+    {
+        thing = thing_get(i);
+        if (thing_exists(thing)) {
+            checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
+        }
+    }
+    clear_packets();
+    pckt = get_packet(my_player_number);
+    set_packet_action(pckt, 12, 0, 0, 0, 0);
+    pckt->chksum = checksum_mem + game.action_rand_seed;
+    if (LbNetwork_Exchange(pckt))
+    {
+        ERRORLOG("Network exchange failed on level checksum verification");
+        result = false;
+    }
+    if ( checksums_different() )
+    {
+        ERRORLOG("Level checksums different for network players");
+        result = false;
+    }
+    return result;
 }
 /******************************************************************************/
 #ifdef __cplusplus

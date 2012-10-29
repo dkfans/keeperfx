@@ -126,13 +126,13 @@ TbBool clear_campaign(struct GameCampaign *campgn)
 {
   int i;
   SYNCDBG(10,"Starting");
-  memset(campgn->name,0,LINEMSG_SIZE);
-  memset(campgn->fname,0,DISKPATH_SIZE);
-  memset(campgn->levels_location,0,DISKPATH_SIZE);
-  memset(campgn->speech_location,0,DISKPATH_SIZE);
-  memset(campgn->land_location,0,DISKPATH_SIZE);
-  memset(campgn->creatures_location,0,DISKPATH_SIZE);
-  memset(campgn->configs_location,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->name,0,LINEMSG_SIZE);
+  LbMemorySet(campgn->fname,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->levels_location,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->speech_location,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->land_location,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->creatures_location,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->configs_location,0,DISKPATH_SIZE);
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     campgn->single_levels[i] = 0;
@@ -161,17 +161,17 @@ TbBool clear_campaign(struct GameCampaign *campgn)
   campgn->lvinfos = NULL;
   campgn->ambient_good = 0;
   campgn->ambient_bad = 0;
-  memset(campgn->land_view_start,0,DISKPATH_SIZE);
-  memset(campgn->land_window_start,0,DISKPATH_SIZE);
-  memset(campgn->land_view_end,0,DISKPATH_SIZE);
-  memset(campgn->land_window_end,0,DISKPATH_SIZE);
-  memset(campgn->strings_fname,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->land_view_start,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->land_window_start,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->land_view_end,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->land_window_end,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->strings_fname,0,DISKPATH_SIZE);
   campgn->strings_data = NULL;
   reset_strings(campgn->strings);
-  memset(campgn->hiscore_fname,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->hiscore_fname,0,DISKPATH_SIZE);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = 0;
-  memset(campgn->credits_fname,0,DISKPATH_SIZE);
+  LbMemorySet(campgn->credits_fname,0,DISKPATH_SIZE);
   campgn->credits_data = NULL;
   reset_credits(campgn->credits);
   return true;

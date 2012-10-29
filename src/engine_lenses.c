@@ -129,9 +129,7 @@ void rotpers_standard(struct EngineCoord *epos, struct M33 *matx)
     long sx,sy,sz;
     long tx,ty,tz;
     long long val,mval;
-    long zoom;
     //_DK_rotpers_standard(epos, matx);
-    zoom = camera_zoom / pixel_size;
     sx = epos->y;
     sy = epos->x;
     sz = epos->z;

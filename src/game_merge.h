@@ -65,6 +65,14 @@ enum ClassicBugFlags {
 struct PlayerInfo;
 
 /**
+ * Structure which stores data copied between levels.
+ * This data is not lost between levels of a campaign.
+ */
+struct IntralevelData {
+    unsigned char bonuses_found[BONUS_LEVEL_STORAGE_COUNT];
+};
+
+/**
  * Defines additional elements, which are not stored in main 'Game' struct.
  */
 struct GameAdd {

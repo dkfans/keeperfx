@@ -256,7 +256,6 @@ void draw_power_hand(void)
 {
   SYNCDBG(7,"Starting");
   struct PlayerInfo *player;
-  struct Dungeon *dungeon;
   struct CreatureControl *cctrl;
   struct CreaturePickedUpOffset *pickoffs;
   struct Thing *thing;
@@ -266,7 +265,6 @@ void draw_power_hand(void)
   long x,y;
   //_DK_draw_power_hand(); return;
   player = get_my_player();
-  dungeon = get_dungeon(player->id_number);
   if ((player->field_6 & 0x01) != 0)
     return;
   if (game.small_map_state == 2)

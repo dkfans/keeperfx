@@ -118,7 +118,7 @@ TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
     WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
     return false;
   }
-  return ((game.bonuses_found[n] & k) != 0);
+  return ((game.intralvl.bonuses_found[n] & k) != 0);
 }
 
 /**
@@ -140,7 +140,7 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
     WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
     return false;
   }
-  set_flag_byte(&game.bonuses_found[n], k, visible);
+  set_flag_byte(&game.intralvl.bonuses_found[n], k, visible);
   return true;
 }
 
@@ -166,7 +166,7 @@ void hide_all_bonus_levels(struct PlayerInfo *player)
 {
   int i;
   for(i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
-    game.bonuses_found[i] = 0;
+    game.intralvl.bonuses_found[i] = 0;
 }
 
 /**

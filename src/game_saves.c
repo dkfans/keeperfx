@@ -60,10 +60,10 @@ struct CatalogueEntry save_game_catalogue[TOTAL_SAVE_SLOTS_COUNT];
 TbBool is_primitive_save_version(long filesize)
 {
     if (filesize < (char *)&game.loaded_level_number - (char *)&game)
-      return false;
-  if (filesize <= 1382437) // sizeof(struct Game) - but it's better to use constant here
-    return true;
-  return false;
+        return false;
+    if (filesize <= 1382437) // sizeof(struct Game) - but it's better to use constant here
+        return true;
+    return false;
 }
 /*
 short save_version_compatible(long filesize,struct Game *header)
@@ -331,15 +331,15 @@ TbBool load_game(long slot_num)
       return false;
     }
     file_len = LbFileLengthHandle(fh);
-/*  if (is_primitive_save_version(file_len))
+    if (is_primitive_save_version(file_len))
     {
-        if (LbFileRead(handle, buf, sizeof(buf)) != sizeof(buf))
+        //if (LbFileRead(handle, buf, sizeof(buf)) != sizeof(buf))
         {
           LbFileClose(handle);
           save_catalogue_slot_disable(slot_num);
           return false;
         }
-        LbFileSeek(handle, (char *)&game.campaign_fname[0] - (char *)&game, Lb_FILE_SEEK_BEGINNING);
+        /*LbFileSeek(handle, (char *)&game.campaign_fname[0] - (char *)&game, Lb_FILE_SEEK_BEGINNING);
         LbFileRead(handle, cmpgn_fname, CAMPAIGN_FNAME_LEN);
         cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
         if (!change_campaign(cmpgn_fname))
@@ -358,8 +358,8 @@ TbBool load_game(long slot_num)
         set_selected_level_number(((struct Game *)buf)->load_restart_level);
         set_continue_level_number(((struct Game *)buf)->continue_level_number);
         startup_network_game();
-        return true;
-    }*/
+        return true;*/
+    }
     centry = &save_game_catalogue[slot_num];
     LbFileSeek(fh, 0, Lb_FILE_SEEK_BEGINNING);
     if (load_game_chunks(fh,centry) != GLoad_SavedGame)
@@ -497,7 +497,7 @@ TbBool load_game_save_catalogue(void)
     for (slot_num=0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
         centry = &save_game_catalogue[slot_num];
-        memset(centry, 0, sizeof(struct CatalogueEntry));
+        LbMemorySet(centry, 0, sizeof(struct CatalogueEntry));
         fname = prepare_file_fmtpath(FGrp_Save, saved_game_filename, slot_num);
         fh = LbFileOpen(fname,Lb_FILE_MODE_READ_ONLY);
         if (fh == -1)
@@ -597,63 +597,60 @@ short continue_game_available(void)
 
 short load_continue_game(void)
 {
-  unsigned char buf[14];
-  unsigned char bonus[20];
-  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
-  long lvnum;
-  long i;
+    unsigned char buf[14];
+    unsigned char bonus[20];
+    char cmpgn_fname[CAMPAIGN_FNAME_LEN];
+    long lvnum;
+    long i;
 
-  if (!read_continue_game_part(buf,0,14))
-  {
-      WARNLOG("Can't read continue game file head");
+    if (!read_continue_game_part(buf,0,14))
+    {
+        WARNLOG("Can't read continue game file head");
+        return false;
+    }
+    i = (char *)&game.campaign_fname[0] - (char *)&game;
+    read_continue_game_part((unsigned char *)cmpgn_fname,i,CAMPAIGN_FNAME_LEN);
+    cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
+    if (!change_campaign(cmpgn_fname))
+    {
+        ERRORLOG("Unable to load campaign");
+        return false;
+    }
+    lvnum = ((struct Game *)buf)->continue_level_number;
+    if (!is_singleplayer_like_level(lvnum))
+    {
+      WARNLOG("Level number in continue file is incorrect");
       return false;
-  }
-  i = (char *)&game.campaign_fname[0] - (char *)&game;
-  read_continue_game_part((unsigned char *)cmpgn_fname,i,CAMPAIGN_FNAME_LEN);
-  cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-  if (!change_campaign(cmpgn_fname))
-  {
-      ERRORLOG("Unable to load campaign");
-      return false;
-  }
-  lvnum = ((struct Game *)buf)->continue_level_number;
-  if (!is_singleplayer_like_level(lvnum))
-  {
-    WARNLOG("Level number in continue file is incorrect");
-    return false;
-  }
-  set_continue_level_number(lvnum);
-  LbMemorySet(bonus,0,sizeof(bonus));
-  i = (char *)&game.bonuses_found[0] - (char *)&game;
-  read_continue_game_part(bonus,i,16);
-/*  game.load_restart_level = ((struct Game *)buf)->load_restart_level;
-  game.version_major = ((struct Game *)buf)->version_major;
-  game.version_minor = ((struct Game *)buf)->version_minor;*/
-  for (i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
-    game.bonuses_found[i] = bonus[i];
-  LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-  update_extra_levels_visibility();
-  i = (char *)&game.transfered_creature - (char *)&game.bonuses_found[0];
-  game.transfered_creature.model = bonus[i];
-  game.transfered_creature.explevel = bonus[i+1];
-  return true;
+    }
+    set_continue_level_number(lvnum);
+    LbMemorySet(bonus, 0, sizeof(bonus));
+    i = (char *)&game.intralvl.bonuses_found[0] - (char *)&game;
+    read_continue_game_part(bonus,i,16);
+    for (i=0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
+      game.intralvl.bonuses_found[i] = bonus[i];
+    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
+    update_extra_levels_visibility();
+    i = (char *)&game.intralvl_transfered_creature - (char *)&game.intralvl.bonuses_found[0];
+    game.intralvl_transfered_creature.model = bonus[i];
+    game.intralvl_transfered_creature.explevel = bonus[i+1];
+    return true;
 }
 
-TbBool set_transfered_creature(long plyr_idx, long model, long explevel)
+TbBool set_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel)
 {
-  if (is_my_player_number(plyr_idx))
-  {
-    game.transfered_creature.model = model;
-    game.transfered_creature.explevel = explevel;
-    return true;
-  }
-  return false;
+    if (is_my_player_number(plyr_idx))
+    {
+        game.intralvl_transfered_creature.model = model;
+        game.intralvl_transfered_creature.explevel = explevel;
+        return true;
+    }
+    return false;
 }
 
 void clear_transfered_creature(void)
 {
-  game.transfered_creature.model = 0;
-  game.transfered_creature.explevel = 0;
+    game.intralvl_transfered_creature.model = 0;
+    game.intralvl_transfered_creature.explevel = 0;
 }
 
 /******************************************************************************/

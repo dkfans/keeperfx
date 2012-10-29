@@ -1080,7 +1080,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
   if (flags & 0x01)
   {
       SYNCLOG("Starting to record new movie, \"%s\".",fname);
-      memset(&animation, 0, sizeof(struct Animation));
+      LbMemorySet(&animation, 0, sizeof(struct Animation));
       animation.field_0 |= flags;
       animation.videobuf = LbMemoryAlloc(2 * height*width);
       if (animation.videobuf==NULL)
@@ -1116,10 +1116,10 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
       animation.header.creator = 0x464C4942;//'BILF'
       animation.header.aspecty = 5;
       animation.header.updater = 0x464C4942;
-      memset(animation.header.reserved3, 0, sizeof(animation.header.reserved3));
+      LbMemorySet(animation.header.reserved3, 0, sizeof(animation.header.reserved3));
       animation.header.oframe1 = 0;
       animation.header.oframe2 = 0;
-      memset(animation.header.reserved4, 0, sizeof(animation.header.reserved4));
+      LbMemorySet(animation.header.reserved4, 0, sizeof(animation.header.reserved4));
       animation.field_18 = arg2;
       if ( !anim_write_data(&animation.header, sizeof(struct AnimFLIHeader)) )
       {
@@ -1129,7 +1129,7 @@ short anim_open(char *fname, int arg1, short arg2, int width, int height, int bp
       }
       animation.field_31C = 0;
       animation.field_320 = height*width + 1024;
-      memset(animation.palette, -1, sizeof(animation.palette));
+      LbMemorySet(animation.palette, -1, sizeof(animation.palette));
   }
   if (flags & 0x02)
   {
@@ -1184,11 +1184,11 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
   int height = animation.header.height;
   animation.field_C = animation.chunkdata;
   max_chunk_size = anim_buffer_size(width,height,animation.header.depth);
-  memset(animation.chunkdata, 0, max_chunk_size);
+  LbMemorySet(animation.chunkdata, 0, max_chunk_size);
   animation.prefix.ctype = 0xF1FAu;
   animation.prefix.nchunks = 0;
   animation.prefix.csize = 0;
-  memset(animation.prefix.reserved, 0, sizeof(animation.prefix.reserved));
+  LbMemorySet(animation.prefix.reserved, 0, sizeof(animation.prefix.reserved));
   struct AnimFLIPrefix *prefx = (struct AnimFLIPrefix *)animation.field_C;
   anim_store_data(&animation.prefix, sizeof(struct AnimFLIPrefix));
   animation.subchunk.ctype = 0;
@@ -1231,10 +1231,10 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
     // Determining the best compression method
     dataptr = animation.field_C;
     brun_size = anim_make_FLI_BRUN(screenbuf);
-    memset(dataptr, 0, brun_size);
+    LbMemorySet(dataptr, 0, brun_size);
     animation.field_C = dataptr;
     ss2_size = anim_make_FLI_SS2(screenbuf, animation.videobuf);
-    memset(dataptr, 0, ss2_size);
+    LbMemorySet(dataptr, 0, ss2_size);
     animation.field_C = dataptr;
     lc_size = anim_make_FLI_LC(screenbuf, animation.videobuf);
     if ((lc_size < ss2_size) && (lc_size < brun_size))
@@ -1245,18 +1245,18 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
     } else
     if (ss2_size < brun_size)
     {
-      // Clear the LC compressed data
-      memset(dataptr, 0, lc_size);
-      animation.field_C = dataptr;
-      // Compress with SS2 method
-      anim_make_FLI_SS2(screenbuf, animation.videobuf);
-      prefx->nchunks++;
-      subchnk->ctype = FLI_SS2;
+        // Clear the LC compressed data
+        LbMemorySet(dataptr, 0, lc_size);
+        animation.field_C = dataptr;
+        // Compress with SS2 method
+        anim_make_FLI_SS2(screenbuf, animation.videobuf);
+        prefx->nchunks++;
+        subchnk->ctype = FLI_SS2;
     } else
     if ( brun_size < scrpoints+16 )
     {
       // Clear the LC compressed data
-      memset(dataptr, 0, lc_size);
+        LbMemorySet(dataptr, 0, lc_size);
       animation.field_C = dataptr;
       // Compress with BRUN method
       anim_make_FLI_BRUN(screenbuf);
@@ -1265,7 +1265,7 @@ TbBool anim_make_next_frame(unsigned char *screenbuf, unsigned char *palette)
     } else
     {
       // Clear the LC compressed data
-      memset(dataptr, 0, lc_size);
+        LbMemorySet(dataptr, 0, lc_size);
       animation.field_C = dataptr;
       // Store uncompressed frame data
       anim_make_FLI_COPY(screenbuf);

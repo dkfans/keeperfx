@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_datetm.h"
@@ -127,7 +128,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
         LbPaletteSet(pal);
     } else
     {
-        memset(palette_buf, 0, sizeof(palette_buf));
+        LbMemorySet(palette_buf, 0, sizeof(palette_buf));
         LbPaletteSet(palette_buf);
     }
 }
@@ -154,7 +155,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         LbPaletteSet(pal);
     } else
     {
-        memset(palette_buf, 0, sizeof(palette_buf));
+        LbMemorySet(palette_buf, 0, sizeof(palette_buf));
         LbPaletteSet(palette_buf);
     }
 }

@@ -295,8 +295,6 @@ short cleanup_sacrifice(struct Thing *thing)
 
 long create_sacrifice_unique_award(struct Coord3d *pos, long plyr_idx, long sacfunc, long explevel)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(plyr_idx);
   switch (sacfunc)
   {
   case UnqF_MkAllAngry:

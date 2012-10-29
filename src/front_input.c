@@ -448,9 +448,6 @@ short get_global_inputs(void)
     JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
     // Timing report
     JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game.num_fps);
-    struct Dungeon *dungeon;
-    dungeon = get_players_dungeon(player);
-//    show_onscreen_msg(2*game.num_fps, "DEBUG field_8D4=%d", (int)dungeon->chickens_sacrificed);
     test_variable = !test_variable;
   }
 

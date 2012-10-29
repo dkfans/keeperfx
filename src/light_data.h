@@ -108,7 +108,6 @@ DLLIMPORT long _DK_light_out_of_date_stat_lights;
 
 #pragma pack()
 /******************************************************************************/
-void clear_light_system(void);
 void clear_stat_light_map(void);
 void update_light_render_area(void);
 void light_delete_light(long idx);

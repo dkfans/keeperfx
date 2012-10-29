@@ -19,6 +19,7 @@
 #include "thing_effects.h"
 #include "globals.h"
 
+#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "thing_objects.h"
@@ -495,7 +496,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         return INVALID_THING;
     }
     eestat = &effect_element_stats[eelmodel];
-    memset(&ilght, 0, sizeof(struct InitLight));
+    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
     thing = allocate_free_thing_structure(FTAF_Default);
     if (thing->index == 0) {
         ERRORDBG(8,"Should be able to allocate effect element %d for player %d, but failed.",(int)eelmodel,(int)owner);
@@ -934,7 +935,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         i = effnfo->start_health / 2;
         if (thing->health == effnfo->start_health)
         {
-            memset(temp_pal, 63, PALETTE_SIZE);
+            LbMemorySet(temp_pal, 63, PALETTE_SIZE);
         } else
         if (thing->health > i)
         {

@@ -276,13 +276,13 @@ void setup_training_search_for_post(struct Thing *creatng)
         k--;
     }
     // Got trainer (or not...), now do the correct action
-    if (thing_is_invalid(thing))
+    if (thing_is_invalid(traintng))
     {
         SYNCDBG(6,"Room no longer have training post, moving somewhere else.");
         setup_move_to_new_training_position(creatng, room, true);
     } else
     {
-        i = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+        i = get_subtile_number(traintng->mappos.x.stl.num,traintng->mappos.y.stl.num);
         setup_training_move_near(creatng, i);
     }
 }

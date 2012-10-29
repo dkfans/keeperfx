@@ -163,6 +163,7 @@ obj/frontmenu_net.o \
 obj/frontmenu_options.o \
 obj/frontmenu_saves.o \
 obj/frontmenu_specials.o \
+obj/game_lghtshdw.o \
 obj/game_merge.o \
 obj/game_saves.o \
 obj/gui_boxmenu.o \

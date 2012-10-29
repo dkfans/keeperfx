@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "bflib_network.h"
 
 #include "player_data.h"
@@ -75,7 +76,7 @@ short setup_network_service(int srvidx)
       SYNCMSG("Initializing %d-players type %d network",maxplayrs,srvidx);
       break;
   }
-  memset(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
+  LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
   if ( LbNetwork_Init(srvidx, maxplayrs, &net_screen_packet,
       sizeof(struct ScreenPacket), &net_player_info[0], init_data) )
   {

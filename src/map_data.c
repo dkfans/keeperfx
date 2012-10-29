@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_memory.h"
 #include "slab_data.h"
 #include "keeperfx.hpp"
 
@@ -445,14 +446,6 @@ MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v)
   return subtile_slab_fast(stl_v)*3+2;
 }
 
-long get_subtile_lightness(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    if (stl_x > map_subtiles_x) stl_x = map_subtiles_x;
-    if (stl_y > map_subtiles_y) stl_y = map_subtiles_y;
-    if (stl_x < 0)  stl_x = 0;
-    if (stl_y < 0) stl_y = 0;
-    return game.subtile_lightness[get_subtile_number(stl_x,stl_y)];
-}
 /******************************************************************************/
 
 void clear_mapwho(void)
@@ -474,41 +467,37 @@ void clear_mapmap_soft(void)
 {
     struct Map *map;
     MapSubtlCoord x,y;
-    unsigned short *wptr;
     for (y=0; y < (map_subtiles_y+1); y++)
     {
         for (x=0; x < (map_subtiles_x+1); x++)
         {
           map = &game.map[get_subtile_number(x,y)];
-          wptr = &game.subtile_lightness[get_subtile_number(x,y)];
           map->data &= 0xFF3FFFFFu;
           map->data &= 0xFFFFF800u;
           map->data &= 0xFFC007FFu;
           map->data &= 0x0FFFFFFFu;
           map->flags = 0;
-          *wptr = MINIMUM_LIGHTNESS;
         }
     }
+    clear_subtiles_lightness(&game.lish);
 }
 
 void clear_mapmap(void)
 {
     struct Map *map;
     unsigned long x,y;
-    unsigned short *wptr;
     unsigned char *flg;
     for (y=0; y < (map_subtiles_y+1); y++)
     {
         for (x=0; x < (map_subtiles_x+1); x++)
         {
           map = get_map_block_at(x,y);
-          wptr = &game.subtile_lightness[get_subtile_number(x,y)];
           flg = &game.navigation_map[get_subtile_number(x,y)];
-          memset(map, 0, sizeof(struct Map));
-          *wptr = MINIMUM_LIGHTNESS;
+          LbMemorySet(map, 0, sizeof(struct Map));
           *flg = 0;
         }
     }
+    clear_subtiles_lightness(&game.lish);
 }
 
 /**

@@ -182,7 +182,7 @@ void clear_packets(void)
 {
     int i;
     for (i=0; i < PACKETS_COUNT; i++) {
-        memset(&game.packets[i], 0, sizeof(struct Packet));
+        LbMemorySet(&game.packets[i], 0, sizeof(struct Packet));
     }
 }
 
@@ -462,13 +462,11 @@ TbBool player_sell_trap_at_subtile(long plyr_idx, long stl_x, long stl_y)
 TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Packet *pckt;
     struct SlabMap *slb;
     MapSubtlCoord stl_x,stl_y;
     MapCoord x,y;
     player = get_player(plyr_idx);
-    dungeon = get_players_dungeon(player);
     pckt = get_packet_direct(player->packet_num);
     if ((pckt->control_flags & PCtr_MapCoordsValid) == 0)
     {
@@ -530,14 +528,12 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
 TbBool process_dungeon_power_hand_state(long plyr_idx)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Thing *thing;
     struct Packet *pckt;
     MapSubtlCoord stl_x,stl_y;
     MapCoord x,y;
     long i;
     player = get_player(plyr_idx);
-    dungeon = get_players_dungeon(player);
     pckt = get_packet_direct(player->packet_num);
     x = ((unsigned short)pckt->pos_x);
     y = ((unsigned short)pckt->pos_y);
@@ -606,13 +602,11 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
 TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Packet *pckt;
     MapSubtlCoord stl_x,stl_y;
     MapCoord x,y;
     long i;
     player = get_player(plyr_idx);
-    dungeon = get_players_dungeon(player);
     pckt = get_packet_direct(player->packet_num);
     x = ((unsigned short)pckt->pos_x);
     y = ((unsigned short)pckt->pos_y);
@@ -941,9 +935,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
 TbBool process_dungeon_control_packet_clicks(long plyr_idx)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Packet *pckt;
-    struct CreatureControl *cctrl;
     struct Thing *thing;
     MapSubtlCoord stl_x,stl_y;
     short val172;
@@ -952,7 +944,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     long i,k;
 
     player = get_player(plyr_idx);
-    dungeon = get_players_dungeon(player);
     pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Starting for state %d",(int)player->work_state);
     player->field_4A4 = 1;
@@ -1170,7 +1161,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             {
               player->controlled_thing_idx = thing->index;
               initialise_thing_state(thing, CrSt_ManualControl);
-              cctrl = creature_control_get_from_thing(thing);
               if (creature_is_group_member(thing))
                 make_group_member_leader(thing);
             }
@@ -1882,11 +1872,11 @@ TbBool process_players_global_packet_action(long plyr_idx)
       player->field_0 &= 0xFBu;
       if (player->mp_message_text[0] != '\0')
         message_add(player->id_number);
-      memset(player->mp_message_text, 0, 64);
+      LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
       return 0;
   case PckA_ToggleLights:
       if (is_my_player(player))
-        light_set_lights_on(game.field_4614D == 0);
+        light_set_lights_on(game.lish.field_4614D == 0);
       return 1;
   case PckA_SwitchScrnRes:
         if (is_my_player(player))

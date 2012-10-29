@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
 
@@ -624,7 +625,7 @@ long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long 
         thing->health = 2;
         dungeon->field_5DA = splevel;
         dungeon->keeper_sight_thing_idx = thing->index;
-        memset(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
+        LbMemorySet(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
         thing->field_4F |= 0x01;
         thing_play_sample(thing, 51, 100, -1, 3, 0, 3, 256);
     }
