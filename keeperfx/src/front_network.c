@@ -281,7 +281,7 @@ void frontnet_session_update(void)
   if (LbTimerClock() >= last_enum_sessions)
   {
     net_number_of_sessions = 0;
-    memset(net_session, 0, sizeof(net_session));
+    LbMemorySet(net_session, 0, sizeof(net_session));
     if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
       ERRORLOG("LbNetwork_EnumerateSessions() failed");
     last_enum_sessions = LbTimerClock();
@@ -369,7 +369,7 @@ void frontnet_rewite_net_messages(void)
   k = 0;
   i = net_number_of_messages;
   for (i=0; i < NET_MESSAGES_COUNT; i++)
-    LbMemorySet(&lmsg[i], '\0', sizeof(struct NetMessage));
+    LbMemorySet(&lmsg[i], 0, sizeof(struct NetMessage));
   for (i=0; i < net_number_of_messages; i++)
   {
     nmsg = &net_message[i];

@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_filelst.h"
@@ -33,6 +34,7 @@
 #include "bflib_sndlib.h"
 #include "config.h"
 #include "engine_render.h"
+#include "game_lghtshdw.h"
 #include "player_data.h"
 #include "kjm_input.h"
 #include "front_simple.h"
@@ -138,7 +140,7 @@ void fronttorture_unload(void)
   memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
   StopAllSamples();
   // Clearing the space used for torture graphics
-  clear_light_system();
+  clear_light_system(&game.lish);
   clear_computer();
   clear_things_and_persons_data();
   clear_mapmap();
@@ -220,7 +222,7 @@ void fronttorture_load(void)
   torture_door_selected = -1;
   torture_end_sprite = -1;
   torture_sprite_direction = 0;
-  memset(door_sound_state, 0, 0x48u);
+  LbMemorySet(door_sound_state, 0, TORTURE_DOORS_COUNT*sizeof(struct DoorSoundState));
 
   player = get_my_player();
   if (player->victory_state == VicS_WonLevel)

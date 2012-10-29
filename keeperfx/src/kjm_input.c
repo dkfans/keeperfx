@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "bflib_memory.h"
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
 #include "bflib_mouse.h"
@@ -334,7 +335,7 @@ void init_key_to_strings(void)
 {
     struct KeyToStringInit *ktsi;
     long k;
-    memset(key_to_string, 0, sizeof(key_to_string));
+    LbMemorySet(key_to_string, 0, sizeof(key_to_string));
     for (ktsi = &key_to_string_init[0]; ktsi->chr != 0; ktsi++)
     {
       k = ktsi->chr;

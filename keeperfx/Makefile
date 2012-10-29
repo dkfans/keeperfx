@@ -208,6 +208,7 @@ obj/power_hand.o \
 obj/map_columns.o \
 obj/map_blocks.o \
 obj/game_merge.o \
+obj/game_lghtshdw.o \
 obj/thing_stats.o \
 obj/thing_effects.o \
 obj/thing_navigate.o \

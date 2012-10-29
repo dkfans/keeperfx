@@ -19,6 +19,7 @@
 #include "map_columns.h"
 #include "globals.h"
 
+#include "bflib_memory.h"
 #include "slab_data.h"
 #include "keeperfx.hpp"
 
@@ -156,7 +157,7 @@ void clear_columns(void)
   for (i=0; i < COLUMNS_COUNT; i++)
   {
     colmn = &game.columns_data[i];
-    memset(colmn, 0, sizeof(struct Column));
+    LbMemorySet(colmn, 0, sizeof(struct Column));
     colmn->baseblock = 1;
     make_solidmask(colmn);
   }
@@ -181,7 +182,7 @@ void init_whole_blocks(void)
     long i;
     //_DK_init_whole_blocks(); return;
     game.field_149E6E = -1;
-    memset(&lcolmn, 0, sizeof(lcolmn));
+    LbMemorySet(&lcolmn, 0, sizeof(struct Column));
     // Prepare the local column
     lcolmn.baseblock = 22;
     lcolmn.cubes[0] = 10;

@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_memory.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_instances.h"
@@ -282,7 +283,7 @@ TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool
     //result = _DK_creature_can_navigate_to(thing, pos, no_owner);
     struct Path path;
     long nav_sizexy;
-    memset(&path, 0, sizeof(struct Path));
+    LbMemorySet(&path, 0, sizeof(struct Path));
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if (no_owner)
       owner_player_navigating = -1;

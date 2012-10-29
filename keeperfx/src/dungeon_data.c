@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_memory.h"
 #include "keeperfx.hpp"
 
 /******************************************************************************/
@@ -79,9 +80,9 @@ void clear_dungeons(void)
   int i;
   for (i=0; i < DUNGEONS_COUNT; i++)
   {
-    memset(&game.dungeon[i], 0, sizeof(struct Dungeon));
+      LbMemorySet(&game.dungeon[i], 0, sizeof(struct Dungeon));
   }
-  memset(&bad_dungeon, 0, sizeof(struct Dungeon));
+  LbMemorySet(&bad_dungeon, 0, sizeof(struct Dungeon));
   game.field_14E4A4 = 0;
   game.field_14E4A0 = 0;
   game.field_14E49E = 0;

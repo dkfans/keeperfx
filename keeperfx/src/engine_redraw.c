@@ -342,7 +342,7 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
     SYNCDBG(9,"Starting");
     //_DK_update_explored_flags_for_power_sight(player);
     dungeon = get_players_dungeon(player);
-    memset(backup_explored, 0, sizeof(backup_explored));
+    LbMemorySet(backup_explored, 0, sizeof(backup_explored));
     if (dungeon->keeper_sight_thing_idx == 0)
         return;
     thing = thing_get(dungeon->keeper_sight_thing_idx);
@@ -462,7 +462,7 @@ void redraw_isometric_view(void)
     if (player->acamera == NULL)
         return;
     memcpy(&pos,&player->acamera->mappos,sizeof(struct Coord3d));
-    memset(&ewnd,0,sizeof(TbGraphicsWindow));
+    LbMemorySet(&ewnd, 0, sizeof(TbGraphicsWindow));
     if (player->field_45F != 1)
       player->field_45F = 1;
     dungeon = get_players_num_dungeon(my_player_number);
@@ -846,7 +846,7 @@ void redraw_display(void)
         draw_spell_cost = 0;
     }
     if (bonus_timer_enabled())
-      draw_bonus_timer();
+        draw_bonus_timer();
     if (((game.numfield_C & 0x01) != 0) && ((game.numfield_C & 0x80) == 0))
     {
           LbTextSetFont(winfont);

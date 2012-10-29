@@ -213,7 +213,6 @@ void initialise_eye_lenses(void)
 void setup_eye_lens(long nlens)
 {
     //_DK_setup_eye_lens(nlens);return;
-    struct PlayerInfo *player;
     struct LensConfig *lenscfg;
     char *fname;
     if ((game.flags_cd & MFlg_EyeLensReady) == 0)
@@ -222,7 +221,6 @@ void setup_eye_lens(long nlens)
       return;
     }
     SYNCDBG(7,"Starting for lens %ld",nlens);
-    player = get_my_player();
     if (clear_lens_palette())
         game.numfield_1A = 0;
     if (nlens == 0)

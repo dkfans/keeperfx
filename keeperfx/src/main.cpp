@@ -2369,8 +2369,6 @@ void restore_computer_player_after_load(void)
 
 short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
   *map_x = 0;
   *map_y = 0;
   if ((screen_x >= 150) && (screen_x < 490)
@@ -3258,23 +3256,6 @@ void reinit_level_after_load(void)
     sound_reinit_after_load();
 }
 
-void create_shadow_limits(long start, long end)
-{
-    if (start <= end)
-    {
-        memset(&game.shadow_limits[start], 1, end-start);
-    } else
-    {
-        memset(&game.shadow_limits[start], 1, SHADOW_LIMITS_COUNT-1-start);
-        memset(&game.shadow_limits[0], 1, end);
-    }
-}
-
-void clear_shadow_limits(void)
-{
-    memset(game.shadow_limits, 0, SHADOW_LIMITS_COUNT);
-}
-
 /**
  * Sets to defaults some basic parameters which are
  * later copied into Game structure.
@@ -3301,6 +3282,7 @@ TbBool set_default_startup_parameters(void)
 void clear_complete_game(void)
 {
     memset(&game, 0, sizeof(struct Game));
+    memset(&gameadd, 0, sizeof(struct GameAdd));
     game.turns_packetoff = -1;
     game.numfield_149F46 = 0;
     game.packet_checksum = start_params.packet_checksum;
@@ -3484,7 +3466,7 @@ void clear_game_for_summary(void)
 {
     SYNCDBG(6,"Starting");
     delete_all_structures();
-    clear_shadow_limits();
+    clear_shadow_limits(&game.lish);
     clear_stat_light_map();
     clear_mapwho();
     game.entrance_room_id = 0;
@@ -4070,9 +4052,7 @@ short player_has_lost(long plyr_idx)
 
 long compute_player_final_score(struct PlayerInfo *player,long gameplay_score)
 {
-    struct PlayerInfo *myplyr;
     long i;
-    myplyr = get_my_player();
     if (((game.system_flags & GSF_NetworkActive) != 0)
       || !is_singleplayer_level(game.loaded_level_number)) {
         i = 2 * gameplay_score;
@@ -5749,13 +5729,11 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     long x,y;
     SYNCDBG(17,"Starting");
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Thing *thing;
     do_map_rotate_stuff(curr_mx-start_x-58, curr_my-start_y-58, &x, &y, zoom);
     game.hand_over_subtile_x = x;
     game.hand_over_subtile_y = y;
     player = get_my_player();
-    dungeon = get_dungeon(player->id_number);
     thing = get_first_thing_in_power_hand(player);
     if (!thing_is_invalid(thing))
     {
@@ -6759,7 +6737,7 @@ void init_level(void)
     SYNCDBG(6,"Starting");
     struct CreatureStorage transfer_mem;
     //_DK_init_level(); return;
-    LbMemoryCopy(&transfer_mem,&game.transfered_creature,sizeof(struct CreatureStorage));
+    LbMemoryCopy(&transfer_mem,&game.intralvl_transfered_creature,sizeof(struct CreatureStorage));
     game.flags_gui = 0;
     game.action_rand_seed = 1;
     free_swipe_graphic();
@@ -6795,7 +6773,7 @@ void init_level(void)
     light_set_lights_on(1);
     init_dungeon_owner(game.hero_player_num);
     game.numfield_D |= 0x04;
-    LbMemoryCopy(&game.transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
+    LbMemoryCopy(&game.intralvl_transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
     event_initialise_all();
     battle_initialise();
     ambient_sound_prepare();
@@ -6936,16 +6914,16 @@ TbBool create_transferred_creature_on_level(void)
     struct Thing *thing;
     struct Dungeon *dungeon;
     struct Coord3d *pos;
-    if (game.transfered_creature.model > 0)
+    if (game.intralvl_transfered_creature.model > 0)
     {
         player = get_my_player();
         dungeon = get_dungeon(player->id_number);
         thing = thing_get(dungeon->dnheart_idx);
         pos = &(thing->mappos);
-        thing = create_creature(pos, game.transfered_creature.model, 5);
+        thing = create_creature(pos, game.intralvl_transfered_creature.model, 5);
         if (thing_is_invalid(thing))
           return false;
-        init_creature_level(thing, game.transfered_creature.explevel);
+        init_creature_level(thing, game.intralvl_transfered_creature.explevel);
         clear_transfered_creature();
         return true;
     }

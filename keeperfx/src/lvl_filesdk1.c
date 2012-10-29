@@ -653,7 +653,7 @@ TbBool load_map_data_file(unsigned long lv_num)
     for (x=0; x < (map_subtiles_x+1); x++)
     {
       map = get_map_block_at(x,y);
-      wptr = &game.subtile_lightness[get_subtile_number(x,y)];
+      wptr = &game.lish.subtile_lightness[get_subtile_number(x,y)];
       *wptr = 32;
       map->data &= 0xFFC007FFu;
       map->data &= 0xF0FFFFFFu;
@@ -849,20 +849,20 @@ TbBool columns_add_static_entries(void)
     wptr = &game.field_14A818[0];
     for (i=0; i < 3; i++)
     {
-      memset(&lcolmn, 0, sizeof(struct Column));
-      lcolmn.baseblock = c[i];
-      for (k=0; k < 6; k++)
-      {
-        lcolmn.cubes[0] = player_cubes[k];
-        make_solidmask(&lcolmn);
-        ncol = find_column(&lcolmn);
-        if (ncol == 0)
-          ncol = create_column(&lcolmn);
-        colmn = get_column(ncol);
-        colmn->bitfileds |= 0x01;
-        *wptr = -(short)ncol;
-        wptr++;
-      }
+        LbMemorySet(&lcolmn, 0, sizeof(struct Column));
+        lcolmn.baseblock = c[i];
+        for (k=0; k < 6; k++)
+        {
+          lcolmn.cubes[0] = player_cubes[k];
+          make_solidmask(&lcolmn);
+          ncol = find_column(&lcolmn);
+          if (ncol == 0)
+            ncol = create_column(&lcolmn);
+          colmn = get_column(ncol);
+          colmn->bitfileds |= 0x01;
+          *wptr = -(short)ncol;
+          wptr++;
+        }
     }
     return true;
 }

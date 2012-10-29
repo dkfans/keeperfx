@@ -285,7 +285,6 @@ long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
 {
   struct CreatureControl *cctrl;
-  struct CreatureStats *crstat;
   struct Thing *efftng;
   struct Thing *thing;
   struct Camera *cam;
@@ -312,7 +311,6 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           pos.x.val = thing->mappos.x.val;
           pos.y.val = thing->mappos.y.val;
           pos.z.val = thing->mappos.z.val + (thing->field_58 >> 1);
-          crstat = creature_stats_get_from_thing(thing);
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_Unknown06, thing->owner);
           thing_play_sample(thing, 75, 100, 0, 3, 0, 3, 256);

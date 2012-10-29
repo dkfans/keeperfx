@@ -32,6 +32,7 @@
 #include "engine_arrays.h"
 #include "engine_redraw.h"
 #include "creature_graphics.h"
+#include "game_lghtshdw.h"
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -2584,17 +2585,17 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
 
     i = 0;
     if (sibrevealed[0][1] && sibrevealed[0][2] && sibrevealed[1][2] && sibrevealed[1][1])
-        i = get_subtile_lightness(stl_x+1,stl_y);
+        i = get_subtile_lightness(&game.lish,stl_x+1,stl_y);
     prepare_lightness_intensity_array(stl_x+1,stl_y,lightness_arr[(1-a8) & 3],i);
 
     i = 0;
     if (sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[2][0] && sibrevealed[2][1])
-        i = get_subtile_lightness(stl_x,stl_y+1);
+        i = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
     prepare_lightness_intensity_array(stl_x,stl_y+1,lightness_arr[(-1-a8) & 3],i);
 
     i = 0;
     if (sibrevealed[2][2] && sibrevealed[1][2] && sibrevealed[1][1] && sibrevealed[2][1])
-        i = get_subtile_lightness(stl_x+1,stl_y+1);
+        i = get_subtile_lightness(&game.lish,stl_x+1,stl_y+1);
     prepare_lightness_intensity_array(stl_x+1,stl_y+1,lightness_arr[(-2-a8) & 3],i);
 
     // Get column to be drawn on the current subtile
@@ -2712,10 +2713,10 @@ unsigned short get_thing_shade(struct Thing *thing)
     stl_y = thing->mappos.y.stl.num;
     fract_x = thing->mappos.x.stl.pos;
     fract_y = thing->mappos.y.stl.pos;
-    lgh[0][0] = get_subtile_lightness(stl_x,  stl_y);
-    lgh[0][1] = get_subtile_lightness(stl_x+1,stl_y);
-    lgh[1][0] = get_subtile_lightness(stl_x,  stl_y+1);
-    lgh[1][1] = get_subtile_lightness(stl_x+1,stl_y+1);
+    lgh[0][0] = get_subtile_lightness(&game.lish,stl_x,  stl_y);
+    lgh[0][1] = get_subtile_lightness(&game.lish,stl_x+1,stl_y);
+    lgh[1][0] = get_subtile_lightness(&game.lish,stl_x,  stl_y+1);
+    lgh[1][1] = get_subtile_lightness(&game.lish,stl_x+1,stl_y+1);
     shval = (fract_x
         * (lgh[0][1] + (fract_y * (lgh[1][1] - lgh[0][1]) >> 8)
         - (lgh[0][0] + (fract_y * (lgh[1][0] - lgh[0][0]) >> 8))) >> 8)
@@ -3408,7 +3409,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
             skip_h = kspr->field_B;
             for (i = fill_h; i > 0; i--)
             {
-                memset(tmpbuf, 0, fill_w);
+                LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
             sprite_to_sbuff_xflip((unsigned char *)*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
@@ -3419,7 +3420,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
             skip_h = kspr->field_B;
             for (i = fill_h; i > 0; i--)
             {
-                memset(tmpbuf, 0, fill_w);
+                LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
             sprite_to_sbuff((unsigned char *)*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
@@ -3440,7 +3441,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
             tmpbuf = outbuf;
             for (i = fill_h; i > 0; i--)
             {
-                memset(tmpbuf, 0, fill_w);
+                LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
             sprite_to_sbuff_xflip((unsigned char *)*keepsprite[keepsprite_id], &outbuf[kspr->field_4], kspr->field_5, 256);
@@ -3449,7 +3450,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
             tmpbuf = outbuf;
             for (i = fill_h; i > 0; i--)
             {
-                memset(tmpbuf, 0, fill_w);
+                LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
             sprite_to_sbuff((unsigned char *)*keepsprite[keepsprite_id], &outbuf[0], kspr->field_5, 256);
@@ -3784,7 +3785,7 @@ void draw_frontview_engine(struct Camera *cam)
             {
                 if (get_mapblk_column_index(map) > 0)
                 {
-                    draw_element(map, game.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
+                    draw_element(map, game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {

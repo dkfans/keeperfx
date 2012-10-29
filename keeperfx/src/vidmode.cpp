@@ -931,8 +931,6 @@ TbScreenMode reenter_video_mode(void)
 TbScreenMode switch_to_next_video_mode(void)
 {
     TbScreenMode scrmode;
-    unsigned long prev_units_per_pixel_size;
-    prev_units_per_pixel_size = units_per_pixel*(long)pixel_size;
     scrmode = get_next_vidmode(lbDisplay.ScreenMode);
     if ( setup_screen_mode(scrmode) )
     {

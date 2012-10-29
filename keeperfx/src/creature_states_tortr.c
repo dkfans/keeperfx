@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_memory.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -255,7 +256,7 @@ long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
     reveal_success = 0;
 
     ownership_map = (unsigned char *)malloc(map_tiles_y*map_tiles_x);
-    memset(ownership_map,0,map_tiles_y*map_tiles_x);
+    LbMemorySet(ownership_map,0,map_tiles_y*map_tiles_x);
     for (slb_y=0; slb_y < map_tiles_y; slb_y++)
     {
         for (slb_x=0; slb_x < map_tiles_x; slb_x++)

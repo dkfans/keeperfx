@@ -554,7 +554,7 @@ void SAI_destroy_for_player(int plyr)
     free(plyrstate->plan);
     SAI_destroy_plan(plyr);
 
-    memset(plyrstate, 0, sizeof(*plyrstate));
+    LbMemorySet(plyrstate, 0, sizeof(*plyrstate));
 }
 
 void SAI_init_for_player(int plyr)

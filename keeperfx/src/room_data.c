@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_memory.h"
 #include "config_creature.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
@@ -550,7 +551,7 @@ void delete_room_structure(struct Room *room)
                   secroom->next_of_owner = room->next_of_owner;
           }
       }
-      memset(room, 0, sizeof(struct Room));
+      LbMemorySet(room, 0, sizeof(struct Room));
     }
 }
 
