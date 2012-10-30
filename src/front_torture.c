@@ -332,10 +332,10 @@ void fronttorture_input(void)
   }
   if ((pckt->action & 0x01) != 0)
   {
-    frontend_set_state(FeSt_LEVEL_STATS);
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-      LbNetwork_Stop();
-    return;
+      frontend_set_state(FeSt_LEVEL_STATS);
+      if ((game.system_flags & GSF_NetworkActive) != 0)
+          LbNetwork_Stop();
+      return;
   }
   // Get active door
   door_id = torture_door_over_point(x,y);

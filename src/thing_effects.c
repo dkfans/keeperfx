@@ -1098,11 +1098,12 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     return thing;
 }
 
-void create_special_used_effect(const struct Coord3d *pos, long plyr_idx)
+struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx)
 {
     struct Thing *efftng;
     efftng = create_effect(pos, TngEff_Unknown67, plyr_idx);
     TRACE_THING(efftng);
+    return efftng;
 }
 
 TbBool destroy_effect_thing(struct Thing *thing)

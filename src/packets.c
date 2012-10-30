@@ -875,7 +875,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
             }
             player->field_43E = player->thing_under_hand;
             set_player_state(player, 12, 0);
-            set_player_instance(player, 9, 0);
+            set_player_instance(player, PI_QueryCrtr, 0);
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
@@ -1107,7 +1107,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 turn_on_menu(31);
               }
               player->field_43E = player->thing_under_hand;
-              set_player_instance(player, 9, 0);
+              set_player_instance(player, PI_QueryCrtr, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
@@ -1122,12 +1122,12 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
               turn_off_query_menus();
               turn_on_main_panel_menu();
             }
-            set_player_instance(player, 10, 0);
+            set_player_instance(player, PI_UnqueryCrtr, 0);
             unset_packet_control(pckt, PCtr_RBtnRelease);
           } else
           if (thing->health < 0)
           {
-            set_player_instance(player, 10, 0);
+            set_player_instance(player, PI_UnqueryCrtr, 0);
             if (is_my_player(player))
             {
               turn_off_query_menus();
@@ -1713,90 +1713,90 @@ void process_players_message_character(struct PlayerInfo *player)
 
 void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 {
-  struct PlayerInfo *swplyr;
-  struct PlayerInfo *myplyr;
-  short winning_quit;
-  long plyr_count;
-  int i;
+    struct PlayerInfo *swplyr;
+    struct PlayerInfo *myplyr;
+    short winning_quit;
+    long plyr_count;
+    int i;
 
-  plyr_count = 0;
-  myplyr = get_my_player();
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-  {
-    winning_quit = winning_player_quitting(player, &plyr_count);
-    if (winning_quit)
+    plyr_count = 0;
+    myplyr = get_my_player();
+    if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      // Set other players as losers
-      for (i=0; i < PLAYERS_COUNT; i++)
+      winning_quit = winning_player_quitting(player, &plyr_count);
+      if (winning_quit)
       {
-        swplyr = get_player(i);
-        if (player_exists(swplyr))
+        // Set other players as losers
+        for (i=0; i < PLAYERS_COUNT; i++)
         {
-          if (swplyr->field_2C == 1)
-            if (swplyr->victory_state == VicS_Undecided)
-              swplyr->victory_state = VicS_WonLevel;
+          swplyr = get_player(i);
+          if (player_exists(swplyr))
+          {
+            if (swplyr->field_2C == 1)
+              if (swplyr->victory_state == VicS_Undecided)
+                swplyr->victory_state = VicS_WonLevel;
+          }
         }
       }
-    }
 
-    if ((player == myplyr) || (frontend_should_all_players_quit()))
-    {
-      if ((!winning_quit) || (plyr_count <= 1))
-        LbNetwork_Stop();
-      else
-        myplyr->field_3 |= 0x10;
-    } else
-    {
-      if (!winning_quit)
+      if ((player == myplyr) || (frontend_should_all_players_quit()))
       {
-        if (player->victory_state != VicS_Undecided)
-        {
-          player->field_0 &= 0xFE;
-        } else
-        {
-          player->field_0 |= 0x40;
-          toggle_computer_player(player->id_number);
-        }
-        if (player == myplyr)
-        {
-          quit_game = 1;
-          if (complete_quit)
-            exit_keeper = 1;
-        }
-        return;
+        if ((!winning_quit) || (plyr_count <= 1))
+          LbNetwork_Stop();
+        else
+          myplyr->field_3 |= 0x10;
       } else
-      if (plyr_count <= 1)
-        LbNetwork_Stop();
-      else
-        myplyr->field_3 |= 0x10u;
-    }
-    quit_game = 1;
-    if (complete_quit)
-      exit_keeper = 1;
-    if (frontend_should_all_players_quit())
-    {
-      for (i=0; i < PLAYERS_COUNT; i++)
       {
-        swplyr = get_player(i);
-        if (player_exists(swplyr))
+        if (!winning_quit)
         {
-          swplyr->field_0 &= 0xFEu;
-          swplyr->field_6 |= 0x02u;
-        }
+          if (player->victory_state != VicS_Undecided)
+          {
+            player->field_0 &= ~0x01;
+          } else
+          {
+            player->field_0 |= 0x40;
+            toggle_computer_player(player->id_number);
+          }
+          if (player == myplyr)
+          {
+            quit_game = 1;
+            if (complete_quit)
+              exit_keeper = 1;
+          }
+          return;
+        } else
+        if (plyr_count <= 1)
+          LbNetwork_Stop();
+        else
+          myplyr->field_3 |= 0x10u;
       }
-    } else
-    {
-      player->field_0 &= 0xFE;
+      quit_game = 1;
+      if (complete_quit)
+        exit_keeper = 1;
+      if (frontend_should_all_players_quit())
+      {
+        for (i=0; i < PLAYERS_COUNT; i++)
+        {
+          swplyr = get_player(i);
+          if (player_exists(swplyr))
+          {
+            swplyr->field_0 &= ~0x01;
+            swplyr->field_6 |= 0x02;
+          }
+        }
+      } else
+      {
+        player->field_0 &= ~0x01;
+      }
+      return;
     }
-    return;
-  }
-  player->field_0 &= 0xFE;
-  if (player == myplyr)
-  {
-    quit_game = 1;
-    if (complete_quit)
-      exit_keeper = 1;
-  }
+    player->field_0 &= ~0x01;
+    if (player == myplyr)
+    {
+        quit_game = 1;
+        if (complete_quit)
+          exit_keeper = 1;
+    }
 }
 
 TbBool process_players_global_packet_action(long plyr_idx)
@@ -1859,7 +1859,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
           resign_level(player);
           break;
       }
-      player->field_0 &= 0xFE;
+      player->field_0 &= ~0x01;
       if (is_my_player(player))
       {
         frontend_save_continue_game(false);
@@ -1869,7 +1869,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       player->field_0 |= 0x04;
       return 0;
   case PckA_PlyrMsgEnd:
-      player->field_0 &= 0xFBu;
+      player->field_0 &= ~0x04;
       if (player->mp_message_text[0] != '\0')
         message_add(player->id_number);
       LbMemorySet(player->mp_message_text, 0, PLAYER_MP_MESSAGE_LEN);
@@ -2005,7 +2005,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       room = room_get(pckt->field_6);
       player->field_E4 = room->central_stl_x << 8;
       player->field_E6 = room->central_stl_y << 8;
-      set_player_instance(player, 16, 0);
+      set_player_instance(player, PI_ZoomToPos, 0);
       if (player->work_state == PSt_BuildRoom)
         set_player_state(player, 2, room->kind);
       return 0;
@@ -2015,7 +2015,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
-      set_player_instance(player, 16, 0);
+      set_player_instance(player, PI_ZoomToPos, 0);
       if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
         set_player_state(player, 16, thing->model);
       return 0;
@@ -2025,7 +2025,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
       thing = thing_get(pckt->field_6);
       player->field_E4 = thing->mappos.x.val;
       player->field_E6 = thing->mappos.y.val;
-      set_player_instance(player, 16, 0);
+      set_player_instance(player, PI_ZoomToPos, 0);
       if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
         set_player_state(player, 18, thing->model);
       return 0;
@@ -2034,7 +2034,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
         turn_off_query(plyr_idx);
       player->field_E4 = pckt->field_6;
       player->field_E6 = pckt->field_8;
-      set_player_instance(player, 16, 0);
+      set_player_instance(player, PI_ZoomToPos, 0);
       return 0;
   case 88:
       game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
@@ -2086,7 +2086,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
             thing = thing_get(dungeon->keeper_sight_thing_idx);
             player->field_E4 = thing->mappos.x.val;
             player->field_E6 = thing->mappos.y.val;
-            set_player_instance(player, 16, 0);
+            set_player_instance(player, PI_ZoomToPos, 0);
           }
           break;
       case 6:
@@ -2094,7 +2094,7 @@ TbBool process_players_global_packet_action(long plyr_idx)
           {
             player->field_E4 = ((unsigned long)dungeon->field_881) << 8;
             player->field_E6 = ((unsigned long)dungeon->field_882) << 8;
-            set_player_instance(player, 16, 0);
+            set_player_instance(player, PI_ZoomToPos, 0);
           }
           break;
       }

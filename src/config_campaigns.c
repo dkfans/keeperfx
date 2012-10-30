@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "config_strings.h"
+#include "lvl_filesdk1.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,7 +89,7 @@ struct CampaignsList campaigns_list;
 /******************************************************************************/
 /*
  * Frees campaign sub-entries memory without NULLing invalid pointers.
- * Call 'clear_campaign' to reset values after they're freed.
+ * Call clear_campaign() to reset values after they're freed.
  */
 TbBool free_campaign(struct GameCampaign *campgn)
 {
@@ -994,6 +995,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
 TbBool change_campaign(const char *cmpgn_fname)
 {
     TbBool result;
+    SYNCDBG(8,"Starting");
     if ((campaign.fname[0] != '\0') && (strcasecmp(campaign.fname,cmpgn_fname) == 0))
         return true;
     free_campaign(&campaign);
@@ -1001,6 +1003,8 @@ TbBool change_campaign(const char *cmpgn_fname)
         result = load_campaign(cmpgn_fname,&campaign,CnfLd_Standard);
     else
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard);
+    find_and_load_lif_files();
+    find_and_load_lof_files();
     load_or_create_high_score_table();
     return result;
 }

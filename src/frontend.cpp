@@ -1503,13 +1503,17 @@ short frontend_save_continue_game(short allow_lvnum_grow)
    || ((game.numfield_C & 0x02) != 0)
    || (game.packet_load_enable))
     return false;
+  // Select the continue level (move the campaign forward)
   lvnum = get_continue_level_number();
   if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel))
   {
-    if (is_singleplayer_like_level(lvnum))
-      lvnum = next_singleplayer_level(lvnum);
-    if (lvnum == LEVELNUMBER_ERROR)
-      lvnum = get_continue_level_number();
+      // If level number growth makes sense, do it
+      if (is_singleplayer_like_level(lvnum)) {
+          lvnum = next_singleplayer_level(lvnum);
+      }
+      if (lvnum == LEVELNUMBER_ERROR) {
+          lvnum = get_continue_level_number();
+      }
   }
   return save_continue_game(lvnum);
 }
@@ -2199,9 +2203,14 @@ void frontend_level_list_unload(void)
 
 void frontend_level_list_load(void)
 {
-  find_and_load_lif_files();
-  find_and_load_lof_files();
-  number_of_freeplay_levels = campaign.freeplay_levels_count;
+    if (!is_campaign_loaded())
+    {
+        if (!change_campaign("")) {
+            number_of_freeplay_levels = 0;
+            return;
+        }
+    }
+    number_of_freeplay_levels = campaign.freeplay_levels_count;
 }
 
 void frontend_level_select_update(void)
@@ -2285,20 +2294,20 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
 
 void frontend_campaign_select(struct GuiButton *gbtn)
 {
-  long i;
-  struct GameCampaign *campgn;
-  i = (long)gbtn->content + select_level_scroll_offset - 45;
-  campgn = NULL;
-  if ((i >= 0) && (i < campaigns_list.items_num))
-    campgn = &campaigns_list.items[i];
-  if (campgn == NULL)
-    return;
-  if (!frontend_start_new_campaign(campgn->fname))
-  {
-    ERRORLOG("Unable to start new campaign");
-    return;
-  }
-  frontend_set_state(FeSt_LAND_VIEW);
+    long i;
+    struct GameCampaign *campgn;
+    i = (long)gbtn->content + select_level_scroll_offset - 45;
+    campgn = NULL;
+    if ((i >= 0) && (i < campaigns_list.items_num))
+        campgn = &campaigns_list.items[i];
+    if (campgn == NULL)
+        return;
+    if (!frontend_start_new_campaign(campgn->fname))
+    {
+        ERRORLOG("Unable to start new campaign");
+        return;
+    }
+    frontend_set_state(FeSt_LAND_VIEW);
 }
 
 void frontend_campaign_select_update(void)
@@ -3132,6 +3141,25 @@ void frontend_update(short *finish_menu)
   SYNCDBG(17,"Finished");
 }
 
+int get_menu_state_based_on_last_level(LevelNumber lvnum)
+{
+    if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
+    {
+        return FeSt_LAND_VIEW;
+    } else
+    if (is_multiplayer_level(lvnum))
+    {
+        return FeSt_NET_SERVICE;
+    } else
+    if (is_freeplay_level(lvnum))
+    {
+        return FeSt_LEVEL_SELECT;
+    } else
+    {
+        return FeSt_MAIN_MENU;
+    }
+}
+
 /**
  * Chooses initial frontend menu state.
  * Used when game is first run, or player exits from gameplay.
@@ -3140,8 +3168,8 @@ int get_startup_menu_state(void)
 {
   struct PlayerInfo *player;
   LevelNumber lvnum;
-  if (game.flags_cd & 0x40)
-  {
+  if (game.flags_cd & MFlg_unk40)
+  { // If starting up the game after intro
     if (is_full_moon)
     {
         SYNCLOG("Full moon state selected");
@@ -3158,86 +3186,73 @@ int get_startup_menu_state(void)
     }
   } else
   {
-    SYNCLOG("Player-based state selected");
     player = get_my_player();
     lvnum = get_loaded_level_number();
     if ((game.system_flags & GSF_NetworkActive) != 0)
-    {
-      if ((player->field_3 & 0x10) != 0)
-      {
-        player->field_3 &= 0xEF;
-        return FeSt_TORTURE;
-      } else
-      if ((player->field_6 & 0x02) == 0)
-      {
-        return FeSt_LEVEL_STATS;
-      } else
-      if ( setup_old_network_service() )
-      {
-        return FeSt_NET_SESSION;
-      } else
-      {
-        return FeSt_MAIN_MENU;
-      }
+    { // If played real network game, then resulting screen isn't changed based on victory
+        SYNCLOG("Network game summary state selected");
+        if ((player->field_3 & 0x10) != 0)
+        { // Player has tortured LOTL - go FeSt_TORTURE before any others
+          player->field_3 &= ~0x10;
+          return FeSt_TORTURE;
+        } else
+        if ((player->field_6 & 0x02) == 0)
+        {
+          return FeSt_LEVEL_STATS;
+        } else
+        if ( setup_old_network_service() )
+        {
+          return FeSt_NET_SESSION;
+        } else
+        {
+          return FeSt_MAIN_MENU;
+        }
     } else
     if ((player->field_6 & 0x02) || (player->victory_state == VicS_Undecided))
     {
-      if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
-      {
-        return FeSt_LAND_VIEW;
-      } else
-      if (is_freeplay_level(lvnum)) // note that this will only work if LIFs are loaded
-      {
-        return FeSt_LEVEL_SELECT;
-      } else
-      {
-          return FeSt_MAIN_MENU;
-      }
+        SYNCLOG("Undecided victory state selected");
+        return get_menu_state_based_on_last_level(lvnum);
     } else
-    if (game.flags_cd & 0x01)
-    {
-      game.flags_cd &= 0xFEu;
-      return FeSt_MAIN_MENU;
+    if (game.flags_cd & MFlg_IsDemoMode)
+    { // It wasn't a real game, just a demo - back to main menu
+        SYNCLOG("Demo mode state selected");
+        game.flags_cd &= ~MFlg_IsDemoMode;
+        return FeSt_MAIN_MENU;
     } else
     if (player->victory_state == VicS_WonLevel)
     {
-      if (is_singleplayer_level(lvnum))
-      {
-        if ((player->field_3 & 0x10) != 0)
+        SYNCLOG("Victory achieved state selected");
+        if (is_singleplayer_level(lvnum))
         {
-           player->field_3 &= 0xEF;
-           return FeSt_TORTURE;
+            if ((player->field_3 & 0x10) != 0)
+            {
+                player->field_3 &= ~0x10;
+                return FeSt_TORTURE;
+            } else
+            if (get_continue_level_number() == SINGLEPLAYER_FINISHED)
+            {
+                return FeSt_OUTRO;
+            } else
+            {
+                return FeSt_LEVEL_STATS;
+            }
         } else
-        if (get_continue_level_number() == SINGLEPLAYER_FINISHED)
+        if (is_bonus_level(lvnum) || is_extra_level(lvnum))
         {
-          return FeSt_OUTRO;
+            return FeSt_LAND_VIEW;
         } else
         {
-          return FeSt_LEVEL_STATS;
+            return FeSt_LEVEL_STATS;
         }
-      } else
-      if (is_bonus_level(lvnum) || is_extra_level(lvnum))
-      {
-        return FeSt_LAND_VIEW;
-      } else
-      {
-        return FeSt_LEVEL_STATS;
-      }
     } else
     if (player->victory_state == VicS_State3)
     {
+        SYNCLOG("Victory st3 state selected");
         return FeSt_LEVEL_STATS;
     } else
-    if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
     {
-      return FeSt_LAND_VIEW;
-    } else
-    if (is_freeplay_level(lvnum)) // note that this will only work if LIFs are loaded
-    {
-      return FeSt_LEVEL_SELECT;
-    } else
-    {
-        return FeSt_MAIN_MENU;
+        SYNCLOG("Lost level state selected");
+        return get_menu_state_based_on_last_level(lvnum);
     }
   }
   ERRORLOG("Unresolved menu state");
