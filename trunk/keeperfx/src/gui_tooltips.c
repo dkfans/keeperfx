@@ -344,7 +344,6 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
 
 TbBool gui_button_tooltip_update(int gbtn_idx)
 {
-  static TbBool doing_tooltip = false;
   struct PlayerInfo *player;
   struct GuiButton *gbtn;
   if ((gbtn_idx < 0) || (gbtn_idx >= ACTIVE_BUTTONS_COUNT))
@@ -352,7 +351,6 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
     clear_gui_tooltip_button();
     return false;
   }
-  doing_tooltip = false;
   player = get_my_player();
   gbtn = &active_buttons[gbtn_idx];
   if ((get_active_menu(gbtn->gmenu_idx)->visible == 2) && ((gbtn->field_1B & 0x8000u) == 0))
@@ -367,7 +365,6 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
         } else
         {
           tool_tip_time++;
-          doing_tooltip = true;
           busy_doing_gui = 1;
         }
     } else

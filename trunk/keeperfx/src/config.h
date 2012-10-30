@@ -198,7 +198,6 @@ unsigned long get_level_highest_score(LevelNumber lvnum);
 short is_bonus_level(LevelNumber lvnum);
 short is_extra_level(LevelNumber lvnum);
 short is_singleplayer_level(LevelNumber lvnum);
-short is_original_singleplayer_level(LevelNumber lvnum);
 short is_singleplayer_like_level(LevelNumber lvnum);
 short is_multiplayer_level(LevelNumber lvnum);
 short is_campaign_level(LevelNumber lvnum);

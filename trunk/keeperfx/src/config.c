@@ -1337,8 +1337,12 @@ short is_bonus_level(long lvnum)
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.bonus_levels[i] == lvnum)
+    {
+        SYNCDBG(7,"Level %ld identified as bonus",lvnum);
         return true;
+    }
   }
+  SYNCDBG(7,"Level %ld not recognized as bonus",lvnum);
   return false;
 }
 
@@ -1346,11 +1350,15 @@ short is_extra_level(long lvnum)
 {
   int i;
   if (lvnum < 1) return false;
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (i=0; i<EXTRA_LEVELS_COUNT; i++)
   {
-    if (campaign.extra_levels[i] == lvnum)
-        return true;
+      if (campaign.extra_levels[i] == lvnum)
+      {
+          SYNCDBG(7,"Level %ld identified as extra",lvnum);
+          return true;
+      }
   }
+  SYNCDBG(7,"Level %ld not recognized as extra",lvnum);
   return false;
 }
 
@@ -1397,7 +1405,7 @@ int array_index_for_extra_level(long ex_lvnum)
 {
   int i;
   if (ex_lvnum < 1) return -1;
-  for (i=0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  for (i=0; i < EXTRA_LEVELS_COUNT; i++)
   {
     if (campaign.extra_levels[i] == ex_lvnum)
         return i;
@@ -1568,7 +1576,7 @@ LevelNumber get_extra_level(unsigned short elv_kind)
   LevelNumber lvnum;
   i = elv_kind;
   i--;
-  if ((i < 0) || (i >= CAMPAIGN_LEVELS_COUNT))
+  if ((i < 0) || (i >= EXTRA_LEVELS_COUNT))
     return LEVELNUMBER_ERROR;
   lvnum = campaign.extra_levels[i];
   SYNCDBG(5,"Extra level kind %d has number %ld",(int)elv_kind,lvnum);
@@ -1685,12 +1693,12 @@ LevelNumber next_extra_level(LevelNumber ex_lvnum)
   if (ex_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (ex_lvnum == SINGLEPLAYER_NOTSTARTED) return first_extra_level();
   if (ex_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
+  for (i=0; i<EXTRA_LEVELS_COUNT; i++)
   {
     if (campaign.extra_levels[i] == ex_lvnum)
     {
       i++;
-      while (i < CAMPAIGN_LEVELS_COUNT)
+      while (i < EXTRA_LEVELS_COUNT)
       {
         if (campaign.extra_levels[i] > 0)
           return campaign.extra_levels[i];
@@ -1784,13 +1792,6 @@ short is_singleplayer_level(LevelNumber lvnum)
   return false;
 }
 
-short is_original_singleplayer_level(LevelNumber lvnum)
-{
-    if ((lvnum>=1)&&(lvnum<21))
-        return true;
-    return false;
-}
-
 short is_multiplayer_level(LevelNumber lvnum)
 {
   int i;
@@ -1798,7 +1799,10 @@ short is_multiplayer_level(LevelNumber lvnum)
   for (i=0; i<CAMPAIGN_LEVELS_COUNT; i++)
   {
     if (campaign.multi_levels[i] == lvnum)
+    {
+        SYNCDBG(17,"Level %ld identified as MP",lvnum);
         return true;
+    }
   }
   // Original MP checking - remove when it's not needed anymore
   struct NetLevelDesc *lvdesc;
@@ -1808,8 +1812,12 @@ short is_multiplayer_level(LevelNumber lvnum)
   {
     lvdesc = &net_level_desc[i];
     if (lvdesc->lvnum == lvnum)
-      return true;
+    {
+        SYNCDBG(17,"Level %ld identified as MP with old description",lvnum);
+        return true;
+    }
   }
+  SYNCDBG(17,"Level %ld not recognized as MP",lvnum);
   return false;
 }
 

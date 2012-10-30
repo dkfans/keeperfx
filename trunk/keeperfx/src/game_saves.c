@@ -335,18 +335,18 @@ TbBool load_game(long slot_num)
     {
         //if (LbFileRead(handle, buf, sizeof(buf)) != sizeof(buf))
         {
-          LbFileClose(handle);
+          LbFileClose(fh);
           save_catalogue_slot_disable(slot_num);
           return false;
         }
-        /*LbFileSeek(handle, (char *)&game.campaign_fname[0] - (char *)&game, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(handle, cmpgn_fname, CAMPAIGN_FNAME_LEN);
+        /*LbFileSeek(fh, (char *)&game.campaign_fname[0] - (char *)&game, Lb_FILE_SEEK_BEGINNING);
+        LbFileRead(fh, cmpgn_fname, CAMPAIGN_FNAME_LEN);
         cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
         if (!change_campaign(cmpgn_fname))
         {
           ERRORLOG("Unable to load campaign associated with saved game");
         }
-        LbFileClose(handle);
+        LbFileClose(fh);
         WARNMSG("Saved game file \"%s\" has incompatible version; restarting level.",fname);
         player = get_my_player();
         player->field_7 = 0;
