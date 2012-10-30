@@ -816,8 +816,12 @@ TbBool load_map_and_window(LevelNumber lvnum)
 
 void frontnet_init_level_descriptions(void)
 {
-    find_and_load_lif_files();
-    find_and_load_lof_files();
+    if (!is_campaign_loaded())
+    {
+        if (!change_campaign("")) {
+            return;
+        }
+    }
 }
 
 void frontnetmap_unload(void)

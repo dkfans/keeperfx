@@ -347,21 +347,26 @@ void frontstats_leave(struct GuiButton *gbtn)
     } else
     if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
     {
-      frontend_set_state(FeSt_LAND_VIEW);
+        frontend_set_state(FeSt_LAND_VIEW);
+    } else
+    if (is_multiplayer_level(lvnum))
+    {
+        frontend_set_state(FeSt_NET_SERVICE);
     } else
     if (is_freeplay_level(lvnum))
     {
-      frontend_set_state(FeSt_LEVEL_SELECT);
+        frontend_set_state(FeSt_LEVEL_SELECT);
     } else
     {
-      frontend_set_state(FeSt_MAIN_MENU);
+        frontend_set_state(FeSt_MAIN_MENU);
     }
+
   }
 }
 
 void frontstats_set_timer(void)
 {
-  frontstats_timer = LbTimerClock() + 3000;
+  frontstats_timer = LbTimerClock() + 2000;
 }
 
 void frontstats_update(void)

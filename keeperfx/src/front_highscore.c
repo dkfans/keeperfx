@@ -28,6 +28,7 @@
 #include "bflib_sprfnt.h"
 #include "kjm_input.h"
 #include "config_campaigns.h"
+#include "config_strings.h"
 #include "frontend.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -59,15 +60,15 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     i += col4_width;
     if (idx == high_score_entry_input_active)
     {
-      i += LbTextStringDraw(i, pos_y, high_score_entry, Fnt_LeftJustify);
-      // Blinking cursor
-      if ((LbTimerClock() & 0x0100) != 0)
-      {
-        LbTextStringDraw(i, pos_y, "_", Fnt_LeftJustify);
-      }
+        i += LbTextStringDraw(i, pos_y, high_score_entry, Fnt_LeftJustify);
+        // Blinking cursor
+        if ((LbTimerClock() & 0x0100) != 0)
+        {
+            LbTextStringDraw(i, pos_y, "_", Fnt_LeftJustify);
+        }
     } else
     {
-      LbTextStringDraw(i, pos_y, hscore->name, Fnt_LeftJustify);
+        LbTextStringDraw(i, pos_y, hscore->name, Fnt_LeftJustify);
     }
 }
 
@@ -151,22 +152,22 @@ void frontend_quit_high_score_table(struct GuiButton *gbtn)
     lvnum = get_loaded_level_number();
     if (fe_high_score_table_from_main_menu)
     {
-      frontend_set_state(FeSt_MAIN_MENU);
+        frontend_set_state(FeSt_MAIN_MENU);
     } else
     if (is_singleplayer_level(lvnum) || is_bonus_level(lvnum) || is_extra_level(lvnum))
     {
-      frontend_set_state(FeSt_LAND_VIEW);
+        frontend_set_state(FeSt_LAND_VIEW);
     } else
     if (is_multiplayer_level(lvnum))
     {
-      frontend_set_state(FeSt_MAIN_MENU);
+        frontend_set_state(FeSt_NET_SERVICE);
     } else
     if (is_freeplay_level(lvnum))
     {
-      frontend_set_state(FeSt_LEVEL_SELECT);
+        frontend_set_state(FeSt_LEVEL_SELECT);
     } else
     {
-      frontend_set_state(FeSt_MAIN_MENU);
+        frontend_set_state(FeSt_MAIN_MENU);
     }
 }
 
@@ -179,23 +180,26 @@ TbBool frontend_high_score_table_input(void)
     return false;
   if (lbInkey == KC_BACK)
   {
-    if (high_score_entry_index > 0)
-    {
-      i = high_score_entry_index-1;
-      high_score_entry[i] = '\0';
-      high_score_entry_index = i;
+      if (high_score_entry_index > 0)
+      {
+          i = high_score_entry_index-1;
+          high_score_entry[i] = '\0';
+          high_score_entry_index = i;
+      }
       lbInkey = KC_UNASSIGNED;
       return true;
-    }
   }
-  if (lbInkey == KC_RETURN)
+  if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
   {
-    hscore = &campaign.hiscore_table[high_score_entry_input_active];
-    strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
-    high_score_entry_input_active = -1;
-    save_high_score_table();
-    lbInkey = KC_UNASSIGNED;
-    return true;
+      hscore = &campaign.hiscore_table[high_score_entry_input_active];
+      if (lbInkey == KC_ESCAPE)
+          strncpy(hscore->name, gui_string(442), HISCORE_NAME_LENGTH);
+      else
+          strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
+      high_score_entry_input_active = -1;
+      save_high_score_table();
+      lbInkey = KC_UNASSIGNED;
+      return true;
   }
   if (high_score_entry_index < HISCORE_NAME_LENGTH)
   {

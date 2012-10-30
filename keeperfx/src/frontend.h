@@ -50,6 +50,7 @@ enum DemoItem_Kind {
 };
 
 enum FrontendMenuState {
+  FeSt_INITIAL            =  0,
   FeSt_MAIN_MENU          =  1,
   FeSt_FELOAD_GAME        =  2,
   FeSt_LAND_VIEW          =  3,

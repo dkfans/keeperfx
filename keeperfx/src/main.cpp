@@ -3494,6 +3494,7 @@ void clear_game(void)
 
 void clear_game_for_save(void)
 {
+    SYNCDBG(6,"Starting");
     delete_all_structures();
     light_initialise();
     clear_mapwho();
@@ -4175,22 +4176,16 @@ TbBool move_campaign_to_prev_level(void)
 
 short complete_level(struct PlayerInfo *player)
 {
-    long lvnum;
+    LevelNumber lvnum;
     SYNCDBG(6,"Starting");
     if (!is_my_player(player))
-      return false;
+        return false;
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      LbNetwork_Stop();
-      quit_game = 1;
-      return true;
+        LbNetwork_Stop();
+        quit_game = 1;
+        return true;
     }
-    lvnum = get_continue_level_number();
-    if (get_loaded_level_number() == lvnum)
-    {
-      move_campaign_to_next_level();
-    }
-    set_selected_level_number(get_continue_level_number());
     quit_game = 1;
     return true;
 }
