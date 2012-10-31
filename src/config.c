@@ -1332,7 +1332,7 @@ TbBool setup_campaign_credits_data(struct GameCampaign *campgn)
   return result;
 }
 
-short is_bonus_level(long lvnum)
+short is_bonus_level(LevelNumber lvnum)
 {
   int i;
   if (lvnum < 1) return false;
@@ -1348,7 +1348,7 @@ short is_bonus_level(long lvnum)
   return false;
 }
 
-short is_extra_level(long lvnum)
+short is_extra_level(LevelNumber lvnum)
 {
   int i;
   if (lvnum < 1) return false;
@@ -1387,7 +1387,7 @@ int storage_index_for_bonus_level(LevelNumber bn_lvnum)
  * Returns index for Campaign->bonus_levels associated with given bonus level.
  * If the level is not found, returns -1.
  */
-int array_index_for_bonus_level(long bn_lvnum)
+int array_index_for_bonus_level(LevelNumber bn_lvnum)
 {
   int i;
   if (bn_lvnum < 1) return -1;
@@ -1403,7 +1403,7 @@ int array_index_for_bonus_level(long bn_lvnum)
  * Returns index for Campaign->extra_levels associated with given extra level.
  * If the level is not found, returns -1.
  */
-int array_index_for_extra_level(long ex_lvnum)
+int array_index_for_extra_level(LevelNumber ex_lvnum)
 {
   int i;
   if (ex_lvnum < 1) return -1;

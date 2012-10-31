@@ -516,39 +516,39 @@ long add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thi
 
 TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
 {
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(18,"Starting");
-  k = 0;
-  i = game.thing_lists[TngList_Traps].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    k = 0;
+    i = game.thing_lists[TngList_Traps].index;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Thing list loop body
+        if ((num <= 0) || (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT))
+          break;
+        if ((thing->byte_13 == 0) && (thing->owner == dungeon->owner))
+        {
+            if ( add_object_for_trap_to_imp_stack(dungeon, thing) )
+                num--;
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    i = thing->next_of_class;
-    // Thing list loop body
-    if ((num <= 0) || (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT))
-      break;
-    if ((!thing->byte_13) && (thing->owner == dungeon->owner))
-    {
-      if ( add_object_for_trap_to_imp_stack(dungeon, thing) )
-        num--;
-    }
-    // Thing list loop body ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  SYNCDBG(19,"Finished");
-  return true;
+    SYNCDBG(19,"Finished");
+    return true;
 }
 
 TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
