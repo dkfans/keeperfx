@@ -299,7 +299,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         for (i=0; i < arr_size; i++)
         {
             slbattr = get_slab_kind_attrs(i);
-            slbattr->tooltip_idx = GUIStr_Empty;
+            slbattr->tooltip_stridx = GUIStr_Empty;
         }
     }
     // Parse every numbered block within range
@@ -348,7 +348,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 k = atoi(word_buf);
                 if (k > 0)
                 {
-                    slbattr->tooltip_idx = k;
+                    slbattr->tooltip_stridx = k;
                     n++;
                 }
             }
