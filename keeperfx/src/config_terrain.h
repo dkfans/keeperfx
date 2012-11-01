@@ -37,7 +37,7 @@ extern "C" {
 struct SlabMap;
 
 struct SlabAttr {
-    unsigned short tooltip_idx;
+    unsigned short tooltip_stridx;
     short field_2;
     short field_4;
     long field_6;

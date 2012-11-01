@@ -236,13 +236,13 @@ short setup_land_tooltips(struct Coord3d *pos)
   slb = get_slabmap_for_subtile(pos->x.stl.num, pos->y.stl.num);
   skind = slb->kind;
   slbattr = get_slab_kind_attrs(skind);
-  if (slbattr->tooltip_idx == GUIStr_Empty)
+  if (slbattr->tooltip_stridx == GUIStr_Empty)
     return false;
   update_gui_tooltip_target((void *)skind);
   player = get_my_player();
   if ( (help_tip_time > 20) || (player->work_state == PSt_Unknown12) )
   {
-      set_gui_tooltip_box_fmt(2,"%s",cmpgn_string(slbattr->tooltip_idx));
+      set_gui_tooltip_box_fmt(2,"%s",cmpgn_string(slbattr->tooltip_stridx));
   } else
   {
     help_tip_time++;
@@ -426,51 +426,51 @@ void toggle_tooltips(void)
 
 void draw_tooltip_slab64k(char *tttext, long pos_x, long pos_y, long ttwidth, long ttheight, long viswidth)
 {
-  unsigned int flg_mem;
-  long x,y;
-  flg_mem = lbDisplay.DrawFlags;
-  if (ttwidth > viswidth)
-  {
-    if (tooltip_scroll_timer <= 0)
+    unsigned int flg_mem;
+    long x,y;
+    flg_mem = lbDisplay.DrawFlags;
+    if (ttwidth > viswidth)
     {
-      if (-ttwidth >= tooltip_scroll_offset)
-        tooltip_scroll_offset = viswidth;
-      else
-        tooltip_scroll_offset -= 4;
-    } else
-    {
-      tooltip_scroll_timer--;
-      if (tooltip_scroll_timer < 0)
-        tooltip_scroll_offset = 0;
+        if (tooltip_scroll_timer <= 0)
+        {
+            if (-ttwidth >= tooltip_scroll_offset)
+              tooltip_scroll_offset = viswidth;
+            else
+              tooltip_scroll_offset -= 4;
+        } else
+        {
+            tooltip_scroll_timer--;
+            if (tooltip_scroll_timer < 0)
+              tooltip_scroll_offset = 0;
+        }
     }
-  }
-  if (tttext != NULL)
-  {
-    x = pos_x+26;
-    lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
-    y = pos_y - (ttheight+28);
-    if (x > MyScreenWidth)
-      x = MyScreenWidth;
-    if (x < 6)
-      x = 6;
-    if (y > MyScreenHeight)
-      y = MyScreenHeight;
-    if (y < 4)
-      y = 4;
-    if (x+viswidth >= MyScreenWidth)
-      x = MyScreenWidth-viswidth;
-    if (y+ttheight >= MyScreenHeight)
-      y = MyScreenHeight-ttheight;
-    if (*tttext)
+    if (tttext != NULL)
     {
-      LbTextSetWindow(x/pixel_size, y/pixel_size, viswidth/pixel_size, ttheight/pixel_size);
-      draw_slab64k(x, y, viswidth, ttheight);
-      lbDisplay.DrawFlags = 0;
-      LbTextDraw(tooltip_scroll_offset/pixel_size, -2/pixel_size, tttext);
+        x = pos_x+26;
+        lbDisplay.DrawFlags &= ~Lb_TEXT_UNKNOWN0040;
+        y = pos_y - (ttheight+28);
+        if (x > MyScreenWidth)
+          x = MyScreenWidth;
+        if (x < 6)
+          x = 6;
+        if (y > MyScreenHeight)
+          y = MyScreenHeight;
+        if (y < 4)
+          y = 4;
+        if (x+viswidth >= MyScreenWidth)
+          x = MyScreenWidth-viswidth;
+        if (y+ttheight >= MyScreenHeight)
+          y = MyScreenHeight-ttheight;
+        if (tttext[0] != '\0')
+        {
+            LbTextSetWindow(x/pixel_size, y/pixel_size, viswidth/pixel_size, ttheight/pixel_size);
+            draw_slab64k(x, y, viswidth, ttheight);
+            lbDisplay.DrawFlags = 0;
+            LbTextDraw(tooltip_scroll_offset/pixel_size, -2/pixel_size, tttext);
+        }
     }
-  }
-  LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
-  lbDisplay.DrawFlags = flg_mem;
+    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenHeight/pixel_size, MyScreenWidth/pixel_size);
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 long find_string_length_to_first_character(char *str, char fch)
@@ -547,11 +547,11 @@ void draw_tooltip_at(long ttpos_x,long ttpos_y,char *tttext)
   pos_y = ttpos_y;
   if (player->view_type == PVT_MapScreen)
   {
-    pos_y = GetMouseY() + 24;
-    if (pos_y > MyScreenHeight-104)
-      pos_y = MyScreenHeight - 104;
-    if (pos_y < 0)
-      pos_y = 0;
+      pos_y = GetMouseY() + 24;
+      if (pos_y > MyScreenHeight-104)
+          pos_y = MyScreenHeight - 104;
+      if (pos_y < 0)
+          pos_y = 0;
   }
   draw_tooltip_slab64k(tttext, pos_x, pos_y, ttwidth, ttheight, hdwidth);
 }
