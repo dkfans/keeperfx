@@ -1059,7 +1059,7 @@ void maintain_event_button(struct GuiButton *gbtn)
   {
     gbtn->field_29 += 2;
   }
-  gbtn->tooltip_id = event_button_info[event->kind].tooltip_id;
+  gbtn->tooltip_id = event_button_info[event->kind].tooltip_stridx;
   set_flag_byte(&gbtn->flags, 0x08, true);
   gbtn->field_1B = 0;
 }

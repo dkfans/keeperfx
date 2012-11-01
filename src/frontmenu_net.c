@@ -493,7 +493,7 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
 {
   //_DK_frontnet_draw_session_button(gbtn);
   long sessionIndex;
-  long fontIndex;
+  long font_idx;
   long btnIndex;
   long height;
 
@@ -501,12 +501,12 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
   sessionIndex = net_session_scroll_offset + btnIndex - 45;
   if ((sessionIndex < 0) || (sessionIndex >= net_number_of_sessions))
       return;
-  fontIndex = frontend_button_info[btnIndex%FRONTEND_BUTTON_INFO_COUNT].font_index;
+  font_idx = frontend_button_info[btnIndex%FRONTEND_BUTTON_INFO_COUNT].font_index;
   if ((btnIndex > 0) && (frontend_mouse_over_button == btnIndex)) {
-      fontIndex = 2;
+      font_idx = 2;
   }
   lbDisplay.DrawFlags = 0;
-  LbTextSetFont(frontend_font[fontIndex]);
+  LbTextSetFont(frontend_font[font_idx]);
   height = LbTextLineHeight();
   LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
   LbTextDraw(0, 0, net_session[sessionIndex]->text);
@@ -928,17 +928,17 @@ void frontnet_draw_service_button(struct GuiButton *gbtn)
 {
   int srvidx;
   long fbinfo_idx;
-  int fntidx;
+  int font_idx;
   // Find and verify selected network service
   fbinfo_idx = (long)(gbtn->content);
   srvidx = fbinfo_idx + net_service_scroll_offset - 45;
   if (srvidx >= net_number_of_services)
     return;
   // Select font to draw
-  fntidx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
+  font_idx = frontend_button_info[fbinfo_idx%FRONTEND_BUTTON_INFO_COUNT].font_index;
   if ((fbinfo_idx != 0) && (frontend_mouse_over_button == fbinfo_idx))
-      fntidx = 2;
-  LbTextSetFont(frontend_font[fntidx]);
+      font_idx = 2;
+  LbTextSetFont(frontend_font[font_idx]);
   // Set drawing window
   int height;
   lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;

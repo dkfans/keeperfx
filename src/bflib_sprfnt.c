@@ -308,7 +308,7 @@ struct AsianFont *dbc_fonts_list(void)
   return NULL;
 }
 
-int dbc_draw_font_sprite_text(struct AsianFontWindow *awind, struct AsianDraw *adraw,
+int dbc_draw_font_sprite_text(const struct AsianFontWindow *awind, const struct AsianDraw *adraw,
       long pos_x, long pos_y, short colr1, short colr2, short colr3)
 {
     long scr_x,scr_y;

@@ -71,10 +71,14 @@ struct AsianDraw {
   unsigned long field_20;
 };
 
+/**
+ * Defines a font drawing window.
+ * Values are signed to ease comparison with negative values.
+ */
 struct AsianFontWindow {
-  unsigned long width;
-  unsigned long height;
-  unsigned long scanline;
+  long width;
+  long height;
+  long scanline;
   unsigned char *buf_ptr;
 };
 

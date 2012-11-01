@@ -193,7 +193,7 @@ struct FrontEndButtonData {
 
 struct EventTypeInfo { //sizeof=0x10
     int field_0;
-    unsigned short tooltip_id;
+    unsigned short tooltip_stridx;
     unsigned short msgstr_id;
     int field_8;
     int field_C;
