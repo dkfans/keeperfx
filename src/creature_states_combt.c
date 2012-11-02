@@ -431,6 +431,8 @@ void update_battle_events(BattleIndex battle_id)
     unsigned long k;
     int i;
     owner_flags = 0;
+    pos_x = -1;
+    pos_y = -1;
     k = 0;
     battle = creature_battle_get(battle_id);
     i = battle->first_creatr;

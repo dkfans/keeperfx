@@ -19,6 +19,7 @@
 /******************************************************************************/
 #include "bflib_sprfnt.h"
 
+#include <stdarg.h>
 #include "bflib_basics.h"
 #include "globals.h"
 
@@ -850,6 +851,40 @@ TbBool LbTextDraw(int posx, int posy, const char *text)
   put_down_sprites(sbuf, ebuf, x, y, len);
   LbScreenLoadGraphicsWindow(&grwnd);
   return true;
+}
+
+/**
+ * Draws a formatted string in the current text window.
+ * @param posx Position of the text, X coord.
+ * @param posy Position of the text, Y coord.
+ * @param fmt The text format to be drawn.
+ * @param arg Arguments to the formatting.
+ * @return
+ */
+TbBool LbTextDrawVA(int posx, int posy, const char *fmt, va_list arg)
+{
+    char * text = (char *)malloc(8192);
+    if (text == NULL) return false;
+    vsnprintf(text, TEXT_DRAW_MAX_LEN, fmt, arg);
+    TbBool result = LbTextDraw(posx, posy, text);
+    free(text);
+    return result;
+}
+
+/**
+ * Draws a formatted string in the current text window.
+ * @param posx Position of the text, X coord.
+ * @param posy Position of the text, Y coord.
+ * @param fmt The text format to be drawn.
+ * @return
+ */
+TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...)
+{
+    va_list val;
+    va_start(val, fmt);
+    TbBool result = LbTextDrawVA(posx, posy, fmt, val);
+    va_end(val);
+    return result;
 }
 
 /** Returns standard height of a line of text, in currently active font.

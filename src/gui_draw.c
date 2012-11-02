@@ -273,6 +273,59 @@ int draw_text_box(const char *text)
     return LbTextDraw(0, (box_height - spritesy * n) / 2, text);
 }
 
+void draw_scroll_box(struct GuiButton *gbtn, long num_rows)
+{
+    struct TbSprite *spr;
+    int pos_x,pos_y;
+    int spridx;
+    int delta;
+    int i;
+    lbDisplay.DrawFlags = 0;
+    pos_y = gbtn->scr_pos_y;
+    { // First row
+        pos_x = gbtn->scr_pos_x;
+        spr = &frontend_sprite[25];
+        for (i = 6; i > 0; i--)
+        {
+            LbSpriteDraw(pos_x, pos_y, spr);
+            pos_x += spr->SWidth;
+            spr++;
+        }
+        spr = &frontend_sprite[25];
+        pos_y += spr->SHeight;
+    }
+    // Further rows
+    while (num_rows > 0)
+    {
+        spridx = 40;
+        if (num_rows < 3)
+          spridx = 33;
+        spr = &frontend_sprite[spridx];
+        pos_x = gbtn->scr_pos_x;
+        for (i = 6; i > 0; i--)
+        {
+            LbSpriteDraw(pos_x, pos_y, spr);
+            pos_x += spr->SWidth;
+            spr++;
+        }
+        spr = &frontend_sprite[spridx];
+        pos_y += spr->SHeight;
+        delta = 3;
+        if (num_rows < 3)
+            delta = 1;
+        num_rows -= delta;
+    }
+    // Last row
+    spr = &frontend_sprite[47];
+    pos_x = gbtn->scr_pos_x;
+    for (i = 6; i > 0; i--)
+    {
+        LbSpriteDraw(pos_x, pos_y, spr);
+        pos_x += spr->SWidth;
+        spr++;
+    }
+}
+
 void draw_gui_panel_sprite_left(long x, long y, long spridx)
 {
   struct TbSprite *spr;

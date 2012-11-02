@@ -49,7 +49,9 @@ struct DoorDesc { // sizeof = 44
   long field_28;
 };
 
-typedef long TortureState;
+struct TortureState { // sizeof = 4
+  long action;
+};
 
 #pragma pack()
 /******************************************************************************/

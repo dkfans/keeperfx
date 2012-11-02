@@ -26,17 +26,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-#pragma pack(1)
 
-struct TbSprite;
-struct TbSetupSprite;
+#define TEXT_DRAW_MAX_LEN 4096
 
 enum TbFontDrawFlags {
   Fnt_LeftJustify   = 0x00,
   Fnt_RightJustify  = 0x01,
   Fnt_CenterPos     = 0x02,
   };
+
+/******************************************************************************/
+#pragma pack(1)
+
+struct TbSprite;
+struct TbSetupSprite;
 
 struct AsianFont {
   const char *fname;
@@ -91,6 +94,7 @@ DLLIMPORT extern unsigned char _DK_lbSpacesPerTab;
 #pragma pack()
 /******************************************************************************/
 TbBool LbTextDraw(int posx, int posy, const char *text);
+TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...);
 int LbTextHeight(const char *text);
 int LbTextLineHeight(void);
 int LbTextSetWindow(int posx, int posy, int width, int height);

@@ -487,12 +487,6 @@ long num_chars_in_font = 128;
 int status_panel_width = 140;
 
 /******************************************************************************/
-long stat_return_c_slong(long *ptr)
-{
-  if (ptr == NULL) return 0;
-  return *ptr;
-}
-
 short menu_is_active(short idx)
 {
   return (menu_id_to_number(idx) >= 0);

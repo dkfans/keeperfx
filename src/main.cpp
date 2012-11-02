@@ -4173,7 +4173,6 @@ TbBool move_campaign_to_prev_level(void)
 
 short complete_level(struct PlayerInfo *player)
 {
-    LevelNumber lvnum;
     SYNCDBG(6,"Starting");
     if (!is_my_player(player))
         return false;

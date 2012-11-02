@@ -61,7 +61,7 @@ DLLIMPORT extern struct DoorSoundState _DK_door_sound_state[TORTURE_DOORS_COUNT]
 #define door_sound_state _DK_door_sound_state
 DLLIMPORT extern struct DoorDesc _DK_doors[TORTURE_DOORS_COUNT];
 #define doors _DK_doors
-DLLIMPORT extern TortureState _DK_torture_state;
+DLLIMPORT extern struct TortureState _DK_torture_state;
 #define torture_state _DK_torture_state
 DLLIMPORT extern unsigned char *_DK_torture_background;
 #define torture_background _DK_torture_background
@@ -218,7 +218,7 @@ void fronttorture_load(void)
   LbSpriteSetupAll(setup_torture_sprites);
   frontend_load_data_reset();
   memcpy(&frontend_palette, torture_palette, PALETTE_SIZE);
-  torture_state = 0;
+  torture_state.action = 0;
   torture_door_selected = -1;
   torture_end_sprite = -1;
   torture_sprite_direction = 0;
@@ -344,12 +344,12 @@ void fronttorture_input(void)
   // Make the action
   if (door_id == -1)
     torture_left_button = 0;
-  switch (torture_state)
+  switch (torture_state.action)
   {
   case 0:
       if (door_id != -1)
       {
-        torture_state = 1;
+        torture_state.action = 1;
         torture_sprite_direction = 1;
         torture_door_selected = door_id;
         torture_sprite_frame = 3;
@@ -361,14 +361,14 @@ void fronttorture_input(void)
       {
         if (door_id == -1)
         {
-          torture_state = 2;
+          torture_state.action = 2;
           torture_sprite_frame = 8;
           torture_end_sprite = 4;
           torture_sprite_direction = -1;
         } else
         if ((pckt->action & 6) != 0)
         {
-          torture_state = 3;
+          torture_state.action = 3;
           torture_left_button = 0;
           torture_sprite_frame = 7;
           torture_end_sprite = 11;
@@ -380,7 +380,7 @@ void fronttorture_input(void)
   case 2:
       if (torture_sprite_frame == torture_end_sprite)
       {
-        torture_state = 0;
+        torture_state.action = 0;
         torture_door_selected = -1;
       }
       break;
@@ -389,7 +389,7 @@ void fronttorture_input(void)
       {
         if (((pckt->action & 0x04) == 0) || (door_id == -1))
         {
-          torture_state = 4;
+          torture_state.action = 4;
           torture_sprite_frame = 12;
           torture_end_sprite = 8;
           torture_sprite_direction = -1;
@@ -400,7 +400,7 @@ void fronttorture_input(void)
   case 4:
       if (torture_sprite_frame == torture_end_sprite)
       {
-        torture_state = 1;
+        torture_state.action = 1;
         torture_sprite_frame = 7;
         torture_end_sprite = 7;
       }
@@ -410,7 +410,41 @@ void fronttorture_input(void)
 
 void fronttorture_update(void)
 {
-  _DK_fronttorture_update();
+    //_DK_fronttorture_update();
+    if ( torture_state.action )
+    {
+      if ( torture_sprite_frame != torture_end_sprite )
+        torture_sprite_frame += torture_sprite_direction;
+    }
+    int i;
+    for (i = 0; i < TORTURE_DOORS_COUNT; i++)
+    {
+        struct DoorDesc * door;
+        struct DoorSoundState * doorsnd;
+        door = &doors[i];
+        doorsnd = &door_sound_state[i];
+        if ( doorsnd->field_4 )
+        {
+            int volume;
+            volume = doorsnd->field_4 + doorsnd->field_0;
+            if (volume <= 0)
+            {
+                volume = 0;
+                doorsnd->field_4 = 0;
+                StopSample(0, door->field_28);
+            } else
+            if (volume >= 127)
+            {
+                volume = 127;
+                doorsnd->field_4 = 0;
+            }
+            doorsnd->field_0 = volume;
+            if (volume > 0)
+            {
+              SetSampleVolume(0, door->field_28, volume, 0);
+            }
+        }
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus
