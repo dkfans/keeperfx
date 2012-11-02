@@ -59,11 +59,11 @@ struct Map {
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern const long map_to_slab[];
-extern int map_subtiles_x;
-extern int map_subtiles_y;
-extern int map_subtiles_z;
-extern int map_tiles_x;
-extern int map_tiles_y;
+extern MapSubtlCoord map_subtiles_x;
+extern MapSubtlCoord map_subtiles_y;
+extern MapSubtlCoord map_subtiles_z;
+extern MapSlabCoord map_tiles_x;
+extern MapSlabCoord map_tiles_y;
 extern long navigation_map_size_x;
 extern long navigation_map_size_y;
 extern unsigned char *IanMap;

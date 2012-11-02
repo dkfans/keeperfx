@@ -50,20 +50,20 @@ const long map_to_slab[] = {
 /** Map subtiles, X dimension.
  *  @note The subtile indexed [map_subtiles_x] should exist
  *      in the map, so there really is map_subtiles_x+1 subtiles. */
-int map_subtiles_x = 255;
+MapSubtlCoord map_subtiles_x = 255;
 /** Map subtiles, Y dimension.
  *  @note The subtile indexed [map_subtiles_y] should exist
  *      in the map, so there really is map_subtiles_y+1 subtiles. */
-int map_subtiles_z = 8;
+MapSubtlCoord map_subtiles_z = 8;
 /** Map subtiles, Z dimension.
  */
-int map_subtiles_y = 255;
+MapSubtlCoord map_subtiles_y = 255;
 /** Map tiles, X dimension.
  *  Equals to tiles (slabs) count; The last slab has index map_tiles_x-1. */
-int map_tiles_x = 85;
+MapSlabCoord map_tiles_x = 85;
 /** Map tiles, Y dimension.
  *  Equals to tiles (slabs) count; The last slab has index map_tiles_y-1. */
-int map_tiles_y = 85;
+MapSlabCoord map_tiles_y = 85;
 
 long navigation_map_size_x = 256;
 long navigation_map_size_y = 256;
