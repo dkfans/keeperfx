@@ -29,6 +29,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+#define TEXT_DRAW_MAX_LEN 4096
+
 struct TbSprite;
 struct TbSetupSprite;
 
@@ -90,6 +92,7 @@ DLLIMPORT extern unsigned char _DK_lbSpacesPerTab;
 #define lbSpacesPerTab _DK_lbSpacesPerTab
 /******************************************************************************/
 TbBool LbTextDraw(int posx, int posy, const char *text);
+TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...);
 int LbTextHeight(const char *text);
 int LbTextLineHeight(void);
 int LbTextSetWindow(int posx, int posy, int width, int height);

@@ -4,7 +4,7 @@
 /** @file front_lvlstats.c
  *     High Score screen displaying routines.
  * @par Purpose:
- *     Functions to show and maintain the high scores screen.
+ *     Functions to show and maintain the level statistics screen.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
@@ -27,6 +27,8 @@
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
 #include "kjm_input.h"
+#include "gui_draw.h"
+#include "config_strings.h"
 #include "config_campaigns.h"
 #include "front_highscore.h"
 #include "front_landview.h"
@@ -40,8 +42,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT extern struct StatsData _DK_scrolling_stats_data[];
-#define scrolling_stats_data _DK_scrolling_stats_data
+//DLLIMPORT extern struct StatsData _DK_scrolling_stats_data[];
+//#define scrolling_stats_data _DK_scrolling_stats_data
 DLLIMPORT extern struct LevelStats _DK_frontstats_data;
 #define frontstats_data _DK_frontstats_data
 DLLIMPORT extern TbClockMSec _DK_frontstats_timer;
@@ -53,6 +55,9 @@ DLLIMPORT void _DK_frontstats_initialise(void);
 DLLIMPORT void _DK_frontstats_draw_main_stats(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontstats_draw_scrolling_stats(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontstats_leave(struct GuiButton *gbtn);
+/******************************************************************************/
+extern struct StatsData main_stats_data[];
+extern struct StatsData scrolling_stats_data[];
 /******************************************************************************/
 /** Calculates average efficiency of player's rooms.
  * @param plyr_idx Player for whom statistic is to be calculated.
@@ -281,6 +286,7 @@ void frontstats_initialise(void)
 {
     struct Dungeon *dungeon;
     //_DK_frontstats_initialise();
+    // Initialize stats in dungeon
     dungeon = get_my_dungeon();
     dungeon->lvstats.end_time = LbTimerClock();
     dungeon->lvstats.num_creatures = dungeon->num_active_creatrs;
@@ -311,12 +317,67 @@ void frontstats_initialise(void)
 
 void frontstats_draw_main_stats(struct GuiButton *gbtn)
 {
-  _DK_frontstats_draw_main_stats(gbtn);
+    struct StatsData *stat;
+    int stat_val;
+    int pos_x,pos_y;
+    //_DK_frontstats_draw_main_stats(gbtn);
+    draw_scroll_box(gbtn, 6);
+    LbTextSetFont(frontend_font[1]);
+    pos_x = gbtn->scr_pos_x;
+    pos_y = LbTextLineHeight()/2 + gbtn->scr_pos_y;
+    for (stat = main_stats_data; stat->name_stridx > 0; stat++)
+    {
+        struct TbSprite *spr;
+        spr = &frontend_sprite[25];
+        LbTextSetWindow( (spr->SWidth + pos_x) / pixel_size, pos_y / pixel_size,
+          (gbtn->width - 2 * spr->SWidth) / pixel_size, LbTextLineHeight() / pixel_size);
+        lbDisplay.DrawFlags = 0x20;
+        LbTextSetFont(frontend_font[1]);
+        LbTextDraw(0, 0, gui_string(stat->name_stridx));
+        lbDisplay.DrawFlags = 0x80;
+        if (stat->get_value != NULL) {
+            stat_val = stat->get_value(stat->get_arg);
+        } else {
+            stat_val = -1;
+        }
+        LbTextDrawFmt(0, 0, "%d", stat_val);
+        pos_y += LbTextLineHeight() + 1;
+    }
 }
 
 void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
 {
-  _DK_frontstats_draw_scrolling_stats(gbtn);
+    struct StatsData *stat;
+    int stat_val;
+    int pos_x,pos_y;
+    int ln_height;
+    //_DK_frontstats_draw_scrolling_stats(gbtn);
+    draw_scroll_box(gbtn, 5);
+    {
+        struct TbSprite *spr;
+        spr = &frontend_sprite[25];
+        LbTextSetWindow(spr->SWidth + gbtn->scr_pos_x, spr->SHeight + gbtn->scr_pos_y - 7,
+          gbtn->width - 2 * spr->SWidth, gbtn->height + 2 * (8 - spr->SHeight));
+    }
+    pos_x = 0;
+    pos_y = -scrolling_offset;
+    for ( stat = &scrolling_stats_data[scrolling_index]; pos_y < gbtn->height; pos_y += ln_height + 4 )
+    {
+        lbDisplay.DrawFlags = 0x20;
+        LbTextSetFont(frontend_font[1]);
+        LbTextDraw(pos_x, pos_y, gui_string(stat->name_stridx));
+        lbDisplay.DrawFlags = 0x80;
+        if (stat->get_value != NULL) {
+            stat_val = stat->get_value(stat->get_arg);
+        } else {
+            stat_val = -1;
+        }
+        LbTextDrawFmt(pos_x, pos_y, "%d", stat_val);
+        stat++;
+        if (!stat->name_stridx)
+          stat = scrolling_stats_data;
+        ln_height = LbTextLineHeight();
+    }
 }
 
 /**
@@ -380,7 +441,7 @@ void frontstats_update(void)
   {
     scrolling_offset -= h+4;
     scrolling_index++;
-    if (!scrolling_stats_data[scrolling_index].field_0)
+    if (!scrolling_stats_data[scrolling_index].name_stridx)
       scrolling_index = 0;
   }
   lvnum = get_loaded_level_number();

@@ -126,6 +126,7 @@ obj/engine_redraw.o \
 obj/front_landview.o \
 obj/front_highscore.o \
 obj/front_lvlstats.o \
+obj/front_lvlstats_data.o \
 obj/front_easter.o \
 obj/frontmenu_net.o \
 obj/frontmenu_options.o \
