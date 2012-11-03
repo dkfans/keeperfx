@@ -141,6 +141,7 @@ DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, st
 DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *creatng);
 DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long state);
+DLLIMPORT long _DK_creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *thing);
@@ -1283,7 +1284,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
         slb = get_slabmap_direct(slab_num);
         slbattr = get_slab_attrs(slb);
         do_move = false;
-        if ( ((slbattr->field_6 & 0x02) != 0) || ((slbattr->field_6 & 0x10) == 0) )
+        if ( ((slbattr->flags & SlbAtFlg_Unk02) != 0) || ((slbattr->flags & SlbAtFlg_Unk10) == 0) )
             do_move = true;
         base_x = 3 * slb_num_decode_x(slab_num);
         base_y = 3 * slb_num_decode_y(slab_num);
@@ -2209,9 +2210,50 @@ short tunneller_doing_nothing(struct Thing *creatng)
   return _DK_tunneller_doing_nothing(creatng);
 }
 
+long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)
+{
+    return _DK_creature_tunnel_to(creatng, pos, a3);
+}
+
 short tunnelling(struct Thing *creatng)
 {
-  return _DK_tunnelling(creatng);
+    struct SlabMap *slb;
+    long speed;
+    //return _DK_tunnelling(creatng);
+    speed = get_creature_speed(creatng);
+    slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (slabmap_owner(slb) == cctrl->sbyte_89)
+    {
+        internal_set_thing_state(creatng, 34);
+        return 1;
+    }
+    struct Coord3d *pos;
+    long move_result;
+    pos = &cctrl->moveto_pos;
+    move_result = creature_tunnel_to(creatng, pos, speed);
+    if (move_result == 1)
+    {
+        internal_set_thing_state(creatng, 77);
+        return 1;
+    }
+    if (move_result == -1)
+    {
+        ERRORLOG("Bad place to tunnel to!");
+        set_start_state(creatng);
+        creatng->continue_state = 0;
+        return 0;
+    }
+    if (((game.play_gameturn + creatng->index) & 0x7F) != 0)
+    {
+        return 0;
+    }
+    if (!creature_can_navigate_to(creatng, pos, 0))
+    {
+        return 0;
+    }
+    return 1;
 }
 /******************************************************************************/
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)

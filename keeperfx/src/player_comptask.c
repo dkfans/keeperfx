@@ -568,7 +568,7 @@ long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short 
         delta_y = small_around[n].delta_y;
         slb = get_slabmap_for_subtile(stl_x + 3*delta_x, stl_y + 3*delta_y);
         slbattr = get_slab_attrs(slb);
-        if (slbattr->field_14 != 0)
+        if (slbattr->is_unknflg14 != 0)
         {
             if (slb->kind != SlbT_GEMS)
             {
@@ -579,7 +579,7 @@ long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short 
                 }
             }
         }
-        if ( ((slbattr->field_6 & 0x29) == 0) && (slb->kind != SlbT_LAVA) ) {
+        if ( ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Unk01)) == 0) && (slb->kind != SlbT_LAVA) ) {
             stl_num = get_subtile_number(stl_x + 3*delta_x, stl_y + 3*delta_y);
             return stl_num;
         }
@@ -621,9 +621,9 @@ TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int plyr_idx)
     slbattr = get_slab_attrs(slb);
     if ( (slabmap_owner(slb) == plyr_idx) || (plyr_idx == -1) )
     {
-        if ( ((slbattr->field_6 & 0x10) == 0) && (slb->kind != SlbT_LAVA) )
+        if ( ((slbattr->flags & SlbAtFlg_Unk10) == 0) && (slb->kind != SlbT_LAVA) )
             return true;
-        if ((slbattr->field_6 & 0x02) != 0)
+        if ((slbattr->flags & SlbAtFlg_Unk02) != 0)
             return true;
     }
     return false;
@@ -645,13 +645,13 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     if (slb->kind == SlbT_GEMS) {
         return 1;
     }
-    if (slbattr->field_F == 4) {
+    if (slbattr->category == SlbAtCtg_Unknown4) {
         return -1;
     }
-    if ((slbattr->field_6 & 0x02) != 0) {
+    if ((slbattr->flags & SlbAtFlg_Unk02) != 0) {
         return -1;
     }
-    if ( ((slbattr->field_6 & 0x29) != 0) || (slb->kind == SlbT_LAVA) )
+    if ( ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Unk01)) != 0) || (slb->kind == SlbT_LAVA) )
         i = 1;
     else
         i = 0;
@@ -662,13 +662,13 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return -1;
     }
-    if ((slbattr->field_6 & 0x01) != 0) {
+    if ((slbattr->flags & SlbAtFlg_Unk01) != 0) {
         return -1;
     }
     if ( (slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER) ) {
         return 1;
     }
-    if ( (slbattr->field_14 == 0) || (slb->kind == SlbT_GEMS) ) {
+    if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS) ) {
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
@@ -748,7 +748,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             gldslb_y = gldstl_y / 3;
             slb = get_slabmap_block(gldslb_x, gldslb_y);
             slbattr = get_slab_attrs(slb);
-            if ( ((slbattr->field_6 & (0x20|0x08|0x01)) != 0) || (slb->kind == SlbT_LAVA) )
+            if ( ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Unk01)) != 0) || (slb->kind == SlbT_LAVA) )
                 i = 1;
             else
                 i = 0;
@@ -804,10 +804,10 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             slb = get_slabmap_block(gldslb_x, gldslb_y);
             mapblk = get_map_block_at(gldstl_x, gldstl_y);
             slbattr = get_slab_attrs(slb);
-            if ( (slbattr->field_14 == 0) || (slb->kind == SlbT_GEMS)
+            if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS)
               || (((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
             {
-                if ( ((slbattr->field_6 & 0x01) == 0) || (digflags == 0) )
+                if ( ((slbattr->flags & SlbAtFlg_Unk01) == 0) || (digflags == 0) )
                     break;
             }
             if ( !simulation )
@@ -816,7 +816,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
                   break;
               if (digflags != 0)
               {
-                if ((slbattr->field_6 & 0x01) != 0)
+                if ((slbattr->flags & SlbAtFlg_Unk01) != 0)
                   cdig->field_58++;
               }
             }
@@ -894,7 +894,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             }
             cdig->direction_around = small_around_index_towards_destination(cdig->pos_20.x.stl.num,cdig->pos_20.x.stl.num,digstl_x,digstl_y);
             slbattr = get_slab_attrs(slb);
-            if ( (slbattr->field_14 != 0) && (slb->kind != SlbT_GEMS) )
+            if ( (slbattr->is_unknflg14 != 0) && (slb->kind != SlbT_GEMS) )
             {
                 mapblk = get_map_block_at(digstl_x, digstl_y);
                 if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner) ) {
@@ -924,7 +924,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
         digslb_y = digstl_y / 3;
         slb = get_slabmap_block(digslb_x, digslb_y);
         slbattr = get_slab_attrs(slb);
-        if ( (slbattr->field_14 != 0) && (slb->kind != SlbT_GEMS) )
+        if ( (slbattr->is_unknflg14 != 0) && (slb->kind != SlbT_GEMS) )
         {
             mapblk = get_map_block_at(digstl_x, digstl_y);
             if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner) )
@@ -981,7 +981,7 @@ long check_for_gold(long stl_x, long stl_y, long plyr_idx)
     stl_num = get_subtile_number(stl_x+1,stl_y+1);
     slb = get_slabmap_for_subtile(stl_x,stl_y);
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->field_6 & 0x01) != 0) {
+    if ((slbattr->flags & SlbAtFlg_Unk01) != 0) {
         return (find_from_task_list(plyr_idx, stl_num) < 0);
     }
     return 0;
@@ -1048,7 +1048,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_20.x.stl.num, ctask->dig.pos_20.y.stl.num);
 
-        if ((get_slab_attrs(slb)->field_6 & 0x01) != 0)
+        if ((get_slab_attrs(slb)->flags & 0x01) != 0)
         {
             ctask->field_60--;
             if (ctask->field_60 > 0) {

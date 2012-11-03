@@ -196,7 +196,7 @@ TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
     return false;
 }
 
-TbBool slab_kind_is_door(SlabType slbkind)
+TbBool slab_kind_is_door(SlabKind slbkind)
 {
     if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORMAGIC2))
     {
@@ -205,7 +205,7 @@ TbBool slab_kind_is_door(SlabType slbkind)
     return false;
 }
 
-TbBool slab_kind_is_nonmagic_door(SlabType slbkind)
+TbBool slab_kind_is_nonmagic_door(SlabKind slbkind)
 {
     if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORIRON2))
         return true;
@@ -219,7 +219,7 @@ TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return slab_kind_is_door(slb->kind);
 }
 
-TbBool slab_kind_is_animated(SlabType slbkind)
+TbBool slab_kind_is_animated(SlabKind slbkind)
 {
     if (slab_kind_is_door(slbkind))
         return true;
