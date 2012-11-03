@@ -1272,7 +1272,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if ((slbattr->field_6 & 0x29) != 0)
+  if ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Unk01)) != 0)
   {
     *context = 1;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;

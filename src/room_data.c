@@ -1016,9 +1016,9 @@ unsigned short i_can_allocate_free_room_structure(void)
   return ret;
 }
 
-RoomKind slab_to_room_type(SlabType slab_type)
+RoomKind slab_to_room_type(SlabKind slbkind)
 {
-  switch (slab_type)
+  switch (slbkind)
   {
   case SlbT_ENTRANCE:
       return RoK_ENTRANCE;

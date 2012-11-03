@@ -137,7 +137,7 @@ struct SlabAttr slab_attrs[] = {
   {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
 };
 /******************************************************************************/
-struct SlabAttr *get_slab_kind_attrs(long slab_kind)
+struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind)
 {
     if ((slab_kind < 0) || (slab_kind >= sizeof(slab_attrs)/sizeof(slab_attrs[0])))
         return &slab_attrs[0];
@@ -151,7 +151,7 @@ struct SlabAttr *get_slab_attrs(struct SlabMap *slb)
     return get_slab_kind_attrs(slb->kind);
 }
 
-struct SlabConfigStats *get_slab_kind_stats(int slab_kind)
+struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind)
 {
     if ((slab_kind < 0) || (slab_kind >= slab_conf.slab_types_count))
         return &slab_conf.slab_cfgstats[0];
@@ -165,7 +165,19 @@ struct SlabConfigStats *get_slab_stats(struct SlabMap *slb)
     return get_slab_kind_stats(slb->kind);
 }
 
-struct RoomConfigStats *get_room_kind_stats(int room_kind)
+/**
+ * Returns Code Name (name to use in script file) of given slab kind.
+ */
+const char *slab_code_name(SlabKind slbkind)
+{
+    const char *name;
+    name = get_conf_parameter_text(slab_desc,slbkind);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
+struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind)
 {
     if ((room_kind < 0) || (room_kind >= slab_conf.room_types_count))
         return &slab_conf.room_cfgstats[0];
@@ -175,7 +187,7 @@ struct RoomConfigStats *get_room_kind_stats(int room_kind)
 /**
  * Returns Code Name (name to use in script file) of given room kind.
  */
-const char *room_code_name(long rkind)
+const char *room_code_name(RoomKind rkind)
 {
     const char *name;
     name = get_conf_parameter_text(room_desc,rkind);
@@ -658,7 +670,7 @@ TbBool make_all_rooms_free(void)
 /**
  * Makes all rooms to be available to research for the player.
  */
-TbBool make_all_rooms_researchable(long plyr_idx)
+TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;
@@ -675,7 +687,7 @@ TbBool make_all_rooms_researchable(long plyr_idx)
 /**
  * Sets room availability state.
  */
-TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
+TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch, long avail)
 {
     struct Dungeon *dungeon;
     // note that we can't get_players_num_dungeon() because players
@@ -701,7 +713,7 @@ TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail)
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if the player has enough money or map position is on correct spot.
  */
-TbBool is_room_available(long plyr_idx, long room_idx)
+TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -715,7 +727,7 @@ TbBool is_room_available(long plyr_idx, long room_idx)
     }
     if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
     {
-      ERRORLOG("Incorrect room %ld (player %ld)",room_idx, plyr_idx);
+      ERRORLOG("Incorrect room %d (player %d)",(int)room_idx, (int)plyr_idx);
       return false;
     }
     if (dungeon->room_buildable[room_idx])
@@ -723,7 +735,7 @@ TbBool is_room_available(long plyr_idx, long room_idx)
     return false;
 }
 
-/*
+/**
  * Makes all the rooms, which are researchable, to be instantly available.
  */
 TbBool make_available_all_researchable_rooms(long plyr_idx)
@@ -742,6 +754,16 @@ TbBool make_available_all_researchable_rooms(long plyr_idx)
         }
     }
     return true;
+}
+
+/**
+ * Returns if given slab kind is indestructible - cannot be damaged by digging nor anything else.
+ * @param slbkind The slab kind to be checked.
+ * @return True if the slab cannot be damaged, false otherwise.
+ */
+TbBool slab_indestructible(RoomKind slbkind)
+{
+    return (slbkind == SlbT_ROCK) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_ENTRANCE);
 }
 
 /** Returns creature model to be created by given room kind.

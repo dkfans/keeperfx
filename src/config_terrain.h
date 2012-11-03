@@ -34,22 +34,43 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+enum SlabAttrCategory {
+    SlbAtCtg_Unset = 0,
+    SlbAtCtg_Unknown1,
+    SlbAtCtg_Unknown2,
+    SlbAtCtg_Unknown3,
+    SlbAtCtg_Unknown4,
+    SlbAtCtg_Unknown5,
+};
+
+enum SlabAttrFlags {
+    SlbAtFlg_None =  0x00,
+    SlbAtFlg_Unk01 = 0x01,
+    SlbAtFlg_Unk02 = 0x02,
+    SlbAtFlg_Unk04 = 0x04,
+    SlbAtFlg_Unk08 = 0x08,
+    SlbAtFlg_Unk10 = 0x10,
+    SlbAtFlg_Unk20 = 0x20,
+    SlbAtFlg_Unk40 = 0x40,
+    SlbAtFlg_Unk80 = 0x80,
+};
+
 struct SlabMap;
 
 struct SlabAttr {
     unsigned short tooltip_stridx;
     short field_2;
     short field_4;
-    long field_6;
+    unsigned long flags;
     long field_A;
     unsigned char field_E;
-    unsigned char field_F;
+    unsigned char category;
     unsigned char field_10;
-    unsigned char field_11;
+    unsigned char is_unknflg11;
     unsigned char is_safe_land;
-    unsigned char field_13;
-    unsigned char field_14;
-    unsigned char field_15;
+    unsigned char is_unknflg13;
+    unsigned char is_unknflg14;
+    unsigned char is_unknflg15;
 };
 
 #pragma pack()
@@ -78,18 +99,21 @@ extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
-struct SlabAttr *get_slab_kind_attrs(long slab_kind);
+struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind);
 struct SlabAttr *get_slab_attrs(struct SlabMap *slb);
-struct SlabConfigStats *get_slab_kind_stats(int slab_kind);
+struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind);
 struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
-const char *room_code_name(long rkind);
+const char *room_code_name(RoomKind rkind);
+const char *slab_code_name(SlabKind slbkind);
 /******************************************************************************/
-struct RoomConfigStats *get_room_kind_stats(int room_kind);
+TbBool slab_indestructible(RoomKind slbkind);
+/******************************************************************************/
+struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);
-TbBool set_room_available(long plyr_idx, long room_idx, long resrch, long avail);
+TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch, long avail);
 TbBool make_available_all_researchable_rooms(long plyr_idx);
-TbBool make_all_rooms_researchable(long plyr_idx);
-TbBool is_room_available(long plyr_idx, long room_idx);
+TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
+TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
 ThingModel get_room_create_creature_model(RoomKind room_kind);
 TbBool enemies_may_work_in_room(RoomKind rkind);
 /******************************************************************************/

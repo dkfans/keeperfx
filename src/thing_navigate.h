@@ -26,6 +26,13 @@
 extern "C" {
 #endif
 
+enum SlabBlockedFlags {
+    SlbBloF_None   = 0x00,
+    SlbBloF_Side01 = 0x01,
+    SlbBloF_Side02 = 0x02,
+    SlbBloF_Side04 = 0x04,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

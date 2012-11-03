@@ -79,6 +79,7 @@ extern long nav_map_initialised;
 #define slab_subtile_center(slb) ((MapSubtlCoord)(slb)*3+(MapSubtlCoord)1)
 /******************************************************************************/
 #define coord_subtile(coord) ((coord)/256)
+#define coord_slab(coord) ((coord)/(256*3))
 #define subtile_coord(stl,spos) ((stl)*256+(spos))
 #define subtile_coord_center(stl) ((stl)*256+128)
 #define navmap_tile_number(stl_x,stl_y) ((stl_y)*navigation_map_size_x+(stl_x))
@@ -88,10 +89,10 @@ struct Map *get_map_block_at_pos(long stl_num);
 unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
 TbBool map_block_invalid(const struct Map *map);
-void reveal_map_subtile(long stl_x, long stl_y, long plyr_idx);
+void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
-void reveal_map_block(struct Map *map, long plyr_idx);
-TbBool map_block_revealed(const struct Map *map, long plyr_idx);
+void reveal_map_block(struct Map *map, PlayerNumber plyr_idx);
+TbBool map_block_revealed(const struct Map *map, PlayerNumber plyr_idx);
 TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit);
 TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y);
 long get_ceiling_height(const struct Coord3d *pos);

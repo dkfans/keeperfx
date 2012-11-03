@@ -102,8 +102,9 @@ void lock_door(struct Thing *doortng)
     place_animating_slab_type_on_map(dostat->field_0, 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
     pannel_map_update(stl_x-1, stl_y-1, 3, 3);
-    if (!add_key_on_door(doortng))
-      WARNMSG("Cannot create a keyhole when locking a door.");
+    if (!add_key_on_door(doortng)) {
+        WARNMSG("Cannot create a keyhole when locking a door.");
+    }
 }
 
 long destroy_door(struct Thing *thing)
@@ -126,7 +127,8 @@ TbBool door_can_stand(struct Thing *thing)
         slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
         slb = get_slabmap_block(slb_x,slb_y);
         slbattr = get_slab_attrs(slb);
-      if ((slbattr->field_F == 3) || (slb->kind == SlbT_ROCK) || (slb->kind == SlbT_EARTH) || (slb->kind == SlbT_TORCHDIRT)
+      if ((slbattr->category == SlbAtCtg_Unknown3) || (slb->kind == SlbT_ROCK)
+          || (slb->kind == SlbT_EARTH) || (slb->kind == SlbT_TORCHDIRT)
           || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
         wall_flags |= 0x01;
     }

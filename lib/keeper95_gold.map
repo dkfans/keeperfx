@@ -1188,6 +1188,7 @@
  0001:000CB390       move_effect_element
  0001:000CB760       move_effect
  0001:000CB8F0       creature_move_to_using_gates
+ 0001:000CBA70       creature_tunnel_to
  0001:000CBC00       move_to_position
  0001:000CBD50       move_backwards_to_position
  0001:000CBDF0       tunnelling

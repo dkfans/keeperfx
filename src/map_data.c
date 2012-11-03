@@ -226,7 +226,7 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
   return false;
 }
 
-void reveal_map_block(struct Map *map, long plyr_idx)
+void reveal_map_block(struct Map *map, PlayerNumber plyr_idx)
 {
   unsigned short nflag;
   unsigned long i;
@@ -235,7 +235,7 @@ void reveal_map_block(struct Map *map, long plyr_idx)
   map->data |= (i & 0x0F) << 28;
 }
 
-TbBool map_block_revealed(const struct Map *map, long plyr_idx)
+TbBool map_block_revealed(const struct Map *map, PlayerNumber plyr_idx)
 {
   unsigned short plyr_bit;
   plyr_bit = (1 << plyr_idx);
