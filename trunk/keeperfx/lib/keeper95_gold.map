@@ -1581,6 +1581,7 @@
  0001:000567D0       mad_killing_psycho
  0001:000AFBD0       manufacturing
  0001:000CBD50       move_backwards_to_position
+ 0001:000CBA70       creature_tunnel_to
  0001:00089600       move_check_attack_any_door
  0001:00089670       move_check_can_damage_wall
  0001:00089410       move_check_kill_creatures

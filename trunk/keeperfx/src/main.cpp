@@ -3142,7 +3142,7 @@ TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_
   return true;
 }
 
-TbBool create_hero_special_worker(long x, long y, PlayerNumber owner)
+TbBool create_hero_special_worker(MapCoord x, MapCoord y, PlayerNumber owner)
 {
     struct Thing *thing;
     struct Coord3d pos;
@@ -5695,7 +5695,7 @@ short can_dig_here(long stl_x, long stl_y, long plyr_idx)
           return false;
     }
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->field_6 & 0x29) != 0)
+    if ((slbattr->flags & 0x29) != 0)
       return true;
     return false;
 }

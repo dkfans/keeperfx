@@ -27,9 +27,12 @@
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
+#include "thing_objects.h"
 #include "front_simple.h"
 #include "thing_stats.h"
+#include "map_blocks.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "gui_topmsg.h"
 #include "creature_states.h"
 #include "creature_groups.h"
@@ -51,7 +54,7 @@ DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thin
 DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
 DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
 DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *thing);
-DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *thing, long a2);
+DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags);
 /******************************************************************************/
 TbBool shot_is_slappable(const struct Thing *thing, long plyr_idx)
 {
@@ -114,9 +117,121 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *thing, struct Coord
     return _DK_get_shot_collided_with_same_type(thing, nxpos);
 }
 
-void process_dig_shot_hit_wall(struct Thing *thing, long a2)
+TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
 {
-    _DK_process_dig_shot_hit_wall(thing, a2); return;
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    struct SlabMap *slb;
+    long gold;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    dungeon = get_dungeon(creatng->owner);
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, creatng->owner, cctrl->explevel, slb);
+    creatng->creature.gold_carried += gold;
+    if (dungeon_invalid(dungeon)) {
+        dungeon->lvstats.gold_mined += gold;
+    }
+    if (crstat->gold_hold <= creatng->creature.gold_carried)
+    {
+        drop_gold_pile(creatng->creature.gold_carried, &creatng->mappos);
+        creatng->creature.gold_carried = 0;
+    }
+    return true;
+}
+
+void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
+{
+    MapSubtlCoord stl_x, stl_y;
+    struct Thing *diggertng;
+    unsigned long k;
+    //_DK_process_dig_shot_hit_wall(thing, a2); return;
+    diggertng = INVALID_THING;
+    if (thing->index != thing->parent_idx)
+      diggertng = thing_get(thing->parent_idx);
+    if (!thing_exists(diggertng))
+    {
+        ERRORLOG("Digging shot hit wall, but there's no digger creature index %d.",thing->parent_idx);
+        return;
+    }
+    if (blocked_flags & SlbBloF_Side01)
+    {
+        k = thing->field_52 & 0xFC00;
+        if (k != 0)
+        {
+          stl_x = 3 * coord_slab(thing->mappos.x.val) - 2;
+          stl_y = 3 * coord_slab(thing->mappos.y.val) + 1;
+        }
+        else
+        {
+          stl_x = 3 * coord_slab(thing->mappos.x.val) + 4;
+          stl_y = 3 * coord_slab(thing->mappos.y.val) + 1;
+        }
+    } else
+    if (blocked_flags & SlbBloF_Side02)
+    {
+        k = thing->field_52 & 0xFE00;
+        if ((k != 0) && (k != 0x0600))
+        {
+          stl_x = 3 * coord_slab(thing->mappos.x.val) + 1;
+          stl_y = 3 * coord_slab(thing->mappos.y.val) + 4;
+        }
+        else
+        {
+          stl_x = 3 * coord_slab(thing->mappos.x.val) + 1;
+          stl_y = 3 * coord_slab(thing->mappos.y.val) - 2;
+        }
+    } else
+    {
+        stl_x = coord_subtile(thing->mappos.x.val);
+        stl_y = coord_subtile(thing->mappos.y.val);
+    }
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    // You can only dig your own or neutral ground
+    if ((slabmap_owner(slb) != game.neutral_player_num) && (slabmap_owner(slb) != diggertng->owner))
+    {
+        return;
+    }
+    struct Map *map;
+    map = get_map_block_at(stl_x, stl_y);
+    // Doors cannot be digged
+    if ((map->flags & MapFlg_IsDoor) != 0)
+    {
+        return;
+    }
+    if ((map->flags & MapFlg_Unkn10) == 0)
+    {
+        return;
+    }
+    int damage;
+    damage = thing->word_14;
+    if ((damage >= slb->health) && !slab_indestructible(slb->kind))
+    {
+        if ((map->flags & MapFlg_Unkn01) != 0)
+        { // Valuables require counting gold
+            give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
+            mine_out_block(stl_x, stl_y, diggertng->owner);
+            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 0x100);
+        } else
+        if ((map->flags & MapFlg_IsDoor) == 0)
+        { // All non-gold and non-door slabs are just destroyed
+            dig_out_block(stl_x, stl_y, diggertng->owner);
+            thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 0x100);
+        }
+        check_map_explored(diggertng, stl_x, stl_y);
+    } else
+    {
+        if (!slab_indestructible(slb->kind))
+        {
+            slb->health -= damage;
+        }
+        if ((map->flags & MapFlg_Unkn01) != 0)
+        {
+            give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
+        }
+    }
 }
 
 struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long eff_kind, long snd_idx, long snd_range)

@@ -151,6 +151,8 @@ typedef unsigned char ThingModel;
 typedef unsigned short CrtrStateId;
 /** Type which stores room kind index. */
 typedef unsigned char RoomKind;
+/** Type which stores slab kind index. */
+typedef unsigned char SlabKind;
 /** Type which stores SplK_* values. */
 typedef unsigned short SpellKind;
 /** Type which stores PwrK_* values. */
@@ -163,6 +165,21 @@ typedef long HitPoints;
 typedef short TngUpdateRet;
 /** Type which stores CrStRet_* values. */
 typedef short CrStateRet;
+/** Level number within a campaign. */
+typedef long LevelNumber;
+/** Map coordinate in full resolution. Position within subtile is scaled 0..255. */
+typedef long MapCoord;
+/** Map subtile coordinate. Every slab consists of 3x3 subtiles. */
+typedef long MapSubtlCoord;
+/** Map slab coordinate. Slab is a cubic part of map with specific content. */
+typedef short MapSlabCoord;
+/** Map subtile 2D coordinates, coded into one number. */
+typedef unsigned long SubtlCodedCoords;
+/** Map slab 2D coordinates, coded into one number. */
+typedef unsigned long SlabCodedCoords;
+typedef unsigned char PlayerFlags;
+/** Movement speed on objects in the game. */
+typedef short MoveSpeed;
 
 
 struct Coord2d {
@@ -240,16 +257,6 @@ struct AroundLByte {
   signed short delta_x;
   signed short delta_y;
 };
-
-typedef unsigned char SlabType;
-typedef long LevelNumber;
-typedef long MapCoord;
-typedef long MapSubtlCoord;
-typedef short MapSlabCoord;
-typedef unsigned long SubtlCodedCoords;
-typedef unsigned long SlabCodedCoords;
-typedef unsigned char PlayerFlags;
-typedef short MoveSpeed;
 
 #pragma pack()
 

@@ -1078,7 +1078,7 @@ short initialise_map_wlb_auto(void)
           n = slb->kind;
         }
         slbattr = get_slab_kind_attrs(n);
-        n = (slbattr->field_15 << 3);
+        n = (slbattr->is_unknflg15 << 3);
         slb->field_5 ^= (slb->field_5 ^ n) & 0x18;
       }
     SYNCMSG("Regenerated WLB flags, unsure for %lu bridge blocks.",nbridge);
@@ -1158,7 +1158,7 @@ short load_map_slab_file(unsigned long lv_num)
         n = lword(&buf[i]);
         if (n > SLAB_TYPES_COUNT)
         {
-          WARNMSG("Slab Type %d exceeds limit of %d",n,SLAB_TYPES_COUNT);
+          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,SLAB_TYPES_COUNT);
           n = SlbT_ROCK;
         }
         slb->kind = n;

@@ -503,22 +503,22 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
     struct Coord3d locpos;
     unsigned short flags;
     //return _DK_get_thing_blocked_flags_at(thing, pos);
-    flags = 0;
+    flags = SlbBloF_None;
     locpos.x.val = pos->x.val;
     locpos.y.val = thing->mappos.y.val;
     locpos.z.val = thing->mappos.z.val;
     if ( thing_in_wall_at(thing, &locpos) )
-        flags |= 0x01;
+        flags |= SlbBloF_Side01;
     locpos.x.val = thing->mappos.x.val;
     locpos.y.val = pos->y.val;
     locpos.z.val = thing->mappos.z.val;
     if ( thing_in_wall_at(thing, &locpos) )
-        flags |= 0x02;
+        flags |= SlbBloF_Side02;
     locpos.x.val = thing->mappos.x.val;
     locpos.y.val = thing->mappos.y.val;
     locpos.z.val = pos->z.val;
     if ( thing_in_wall_at(thing, &locpos) )
-        flags |= 0x04;
+        flags |= SlbBloF_Side04;
     switch ( flags )
     {
     case 0:
@@ -526,28 +526,28 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
         locpos.y.val = pos->y.val;
         locpos.z.val = pos->z.val;
         if ( thing_in_wall_at(thing, &locpos) )
-            flags = 0x07;
+            flags = SlbBloF_Side01 | SlbBloF_Side02 | SlbBloF_Side04;
         break;
     case 1:
         locpos.x.val = thing->mappos.x.val;
         locpos.y.val = pos->y.val;
         locpos.z.val = pos->z.val;
         if ( thing_in_wall_at(thing, &locpos) )
-            flags = 0x07;
+            flags = SlbBloF_Side01 | SlbBloF_Side02 | SlbBloF_Side04;
         break;
     case 2:
         locpos.x.val = pos->x.val;
         locpos.y.val = thing->mappos.y.val;
         locpos.z.val = pos->z.val;
         if ( thing_in_wall_at(thing, &locpos) )
-            flags = 0x07;
+            flags = SlbBloF_Side01 | SlbBloF_Side02 | SlbBloF_Side04;
         break;
     case 4:
         locpos.x.val = pos->x.val;
         locpos.y.val = pos->y.val;
         locpos.z.val = thing->mappos.z.val;
         if ( thing_in_wall_at(thing, &locpos) )
-          flags = 0x07;
+            flags = SlbBloF_Side01 | SlbBloF_Side02 | SlbBloF_Side04;
         break;
     }
     return flags;

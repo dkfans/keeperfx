@@ -913,7 +913,7 @@ void gui_set_button_flashing(long btn_idx, long gameturns);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 TbBool create_random_evil_creature(long x, long y, PlayerNumber owner, long max_lv);
 TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_lv);
-TbBool create_hero_special_worker(long x, long y, PlayerNumber owner);
+TbBool create_hero_special_worker(MapCoord x, MapCoord y, PlayerNumber owner);
 
 unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);

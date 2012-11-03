@@ -318,9 +318,9 @@ void shuffle_unattached_things_on_slab(long a1, long a2)
     _DK_shuffle_unattached_things_on_slab(a1, a2);
 }
 
-void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5)
+void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5)
 {
-    SlabType previous_slab_types_around[8];
+    SlabKind previous_slab_types_around[8];
     struct SlabMap *slb;
     struct SlabAttr *slbattr;
     MapSlabCoord slb_x,slb_y;
@@ -360,7 +360,7 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
     shuffle_unattached_things_on_slab(slb_x, slb_y);
 
     slbattr = get_slab_kind_attrs(skind);
-    if ((slbattr->field_F == 4) || (slbattr->field_F == 2))
+    if ((slbattr->category == SlbAtCtg_Unknown4) || (slbattr->category == SlbAtCtg_Unknown2))
     {
       for (i = 0; i < 8; i++)
       {
@@ -407,7 +407,7 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
           || (game.game_kind == GKind_Unknown1))
         {
             slbattr = get_slab_kind_attrs(slb->kind);
-            if (slbattr->field_F != 5)
+            if (slbattr->category != SlbAtCtg_Unknown5)
                 place_single_slab_type_on_map(slb->kind, spos_x, spos_y, slabmap_owner(slb));
         }
     }
@@ -440,7 +440,7 @@ void place_slab_type_on_map(SlabType nslab, MapSubtlCoord stl_x, MapSubtlCoord s
 
 void replace_map_slab_when_destroyed(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    SlabType nslab;
+    SlabKind nslab;
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
     switch (slabmap_wlb(slb))
