@@ -41,6 +41,7 @@
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
+#include "lvl_script.h"
 #include "thing_traps.h"
 #include "sounds.h"
 
@@ -126,8 +127,6 @@ DLLIMPORT short _DK_state_cleanup_dragging_object(struct Thing *creatng);
 DLLIMPORT short _DK_state_cleanup_in_room(struct Thing *creatng);
 DLLIMPORT short _DK_state_cleanup_unable_to_fight(struct Thing *creatng);
 DLLIMPORT short _DK_state_cleanup_unconscious(struct Thing *creatng);
-DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *creatng);
-DLLIMPORT short _DK_tunnelling(struct Thing *creatng);
 DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *creatng, struct Room *room, unsigned char a3);
 DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *creatng, long a1, long a2);
 DLLIMPORT void _DK_create_effect_around_thing(struct Thing *creatng, long eff_kind);
@@ -141,7 +140,6 @@ DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, st
 DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *creatng);
 DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *thing, long state);
-DLLIMPORT long _DK_creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *thing);
@@ -198,8 +196,6 @@ short state_cleanup_dragging_object(struct Thing *creatng);
 short state_cleanup_in_room(struct Thing *creatng);
 short state_cleanup_unable_to_fight(struct Thing *creatng);
 short state_cleanup_unconscious(struct Thing *creatng);
-short tunneller_doing_nothing(struct Thing *creatng);
-short tunnelling(struct Thing *creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *thing);
 short creature_pick_up_spell_to_steal(struct Thing *thing);
 
@@ -2026,6 +2022,7 @@ TbBool wander_point_get_random_pos(struct Wander *wandr, struct Coord3d *pos)
   }
   return false;
 }
+
 TbBool get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char a2, struct Thing *thing, struct Coord3d *pos)
 {
   struct PlayerInfo *player;
@@ -2203,57 +2200,6 @@ TbBool check_experience_upgrade(struct Thing *thing)
         cctrl->spell_flags |= 0x4000;
     }
     return true;
-}
-
-short tunneller_doing_nothing(struct Thing *creatng)
-{
-  return _DK_tunneller_doing_nothing(creatng);
-}
-
-long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)
-{
-    return _DK_creature_tunnel_to(creatng, pos, a3);
-}
-
-short tunnelling(struct Thing *creatng)
-{
-    struct SlabMap *slb;
-    long speed;
-    //return _DK_tunnelling(creatng);
-    speed = get_creature_speed(creatng);
-    slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
-    if (slabmap_owner(slb) == cctrl->sbyte_89)
-    {
-        internal_set_thing_state(creatng, 34);
-        return 1;
-    }
-    struct Coord3d *pos;
-    long move_result;
-    pos = &cctrl->moveto_pos;
-    move_result = creature_tunnel_to(creatng, pos, speed);
-    if (move_result == 1)
-    {
-        internal_set_thing_state(creatng, 77);
-        return 1;
-    }
-    if (move_result == -1)
-    {
-        ERRORLOG("Bad place to tunnel to!");
-        set_start_state(creatng);
-        creatng->continue_state = 0;
-        return 0;
-    }
-    if (((game.play_gameturn + creatng->index) & 0x7F) != 0)
-    {
-        return 0;
-    }
-    if (!creature_can_navigate_to(creatng, pos, 0))
-    {
-        return 0;
-    }
-    return 1;
 }
 /******************************************************************************/
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)

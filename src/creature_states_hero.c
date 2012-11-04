@@ -34,6 +34,7 @@
 #include "room_jobs.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
+#include "lvl_script.h"
 
 #include "keeperfx.hpp"
 
@@ -50,6 +51,10 @@ DLLIMPORT short _DK_good_returns_to_start(struct Thing *thing);
 DLLIMPORT short _DK_good_wait_in_exit_door(struct Thing *thing);
 DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *thing, long dngn_id);
 DLLIMPORT short _DK_creature_hero_entering(struct Thing *thing);
+DLLIMPORT long _DK_get_best_dungeon_to_tunnel_to(struct Thing *creatng);
+DLLIMPORT long _DK_creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3);
+DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *creatng);
+DLLIMPORT short _DK_tunnelling(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -338,31 +343,40 @@ short good_back_at_start(struct Thing *thing)
     return _DK_good_back_at_start(thing);
 }
 
-TbBool good_setup_wander_to_dungeon_heart(struct Thing *thing, long dngn_idx)
+TbBool good_setup_wander_to_dungeon_heart(struct Thing *thing, long plyr_idx)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
+    SYNCDBG(18,"Starting");
     TRACE_THING(thing);
-    dungeon = get_dungeon(dngn_idx);
-    if (dungeon_invalid(dungeon) || (thing->owner == dngn_idx))
+    if (thing->owner == plyr_idx)
     {
-        ERRORLOG("The %s tried to wander to invalid player (%d) heart", thing_model_name(thing), (int)dngn_idx);
+        ERRORLOG("The %s tried to wander to own (%d) heart", thing_model_name(thing), (int)plyr_idx);
         return false;
     }
-    player = get_player(dngn_idx);
-    if ((!player_exists(player)) || (dungeon->dnheart_idx < 1))
+    player = get_player(plyr_idx);
+    if (!player_exists(player))
     {
-        WARNLOG("The %s tried to wander to inactive player (%d) heart", thing_model_name(thing), (int)dngn_idx);
+        WARNLOG("The %s tried to wander to inactive player (%d) heart", thing_model_name(thing), (int)plyr_idx);
         return false;
     }
+    struct Thing *heartng;
+    heartng = INVALID_THING;
     {
-        struct Thing *heartng;
-        heartng = thing_get(dungeon->dnheart_idx);
-        TRACE_THING(heartng);
-        set_creature_object_combat(thing, heartng);
+        struct Dungeon *dungeon;
+        dungeon = get_players_dungeon(player);
+        if (!dungeon_invalid(dungeon))
+            heartng = thing_get(dungeon->dnheart_idx);
     }
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng))
+    {
+        WARNLOG("The %s tried to wander to player (%d) which has no heart", thing_model_name(thing), (int)plyr_idx);
+        return false;
+    }
+    set_creature_object_combat(thing, heartng);
     return true;
 }
+
 
 short good_doing_nothing(struct Thing *thing)
 {
@@ -685,4 +699,135 @@ short creature_hero_entering(struct Thing *thing)
     return 0;
 }
 
+long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
+{
+    return _DK_get_best_dungeon_to_tunnel_to(creatng);
+}
+
+short setup_person_tunnel_to_position(struct Thing *creatng, long stl_x, long stl_y, unsigned char a4)
+{
+    struct CreatureControl *cctrl;
+    if ( internal_set_thing_state(creatng, 28) )
+    {
+        cctrl = creature_control_get_from_thing(creatng);
+        cctrl->moveto_pos.x.stl.num = stl_x;
+        cctrl->moveto_pos.y.stl.num = stl_y;
+        cctrl->moveto_pos.x.stl.pos = 128;
+        cctrl->moveto_pos.y.stl.pos = 128;
+        cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
+    }
+    return 0;
+}
+
+long send_tunneller_to_point_in_dungeon(struct Thing *creatng, long plyr_idx, struct Coord3d *pos)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->sbyte_89 = plyr_idx;
+    setup_person_tunnel_to_position(creatng, pos->x.stl.num, pos->y.stl.num, 0);
+    creatng->continue_state = 77;
+    return 1;
+}
+
+short tunneller_doing_nothing(struct Thing *creatng)
+{
+    //return _DK_tunneller_doing_nothing(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (game.play_gameturn - cctrl->long_9A <= 1)
+    {
+        return 1;
+    }
+    struct Thing *heartng;
+    heartng = INVALID_THING;
+    {
+        /* Sometimes we may have no target dungeon. In that case, destination dungeon
+         * index is negative. This code will handle this case, as well as non-existing
+         * dungeons.
+         */
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(cctrl->sbyte_89);
+        if (!dungeon_invalid(dungeon))
+            heartng = thing_get(dungeon->dnheart_idx);
+    }
+    if (!thing_exists(heartng))
+    {
+        script_support_send_tunneller_to_appropriate_dungeon(creatng);
+        return 0;
+    }
+    if ((heartng->active_state != 3) && creature_can_navigate_to(creatng, &heartng->mappos, 0))
+    {
+        internal_set_thing_state(creatng, 34);
+        return 1;
+    }
+    cctrl->sbyte_89 = good_find_enemy_dungeon(creatng);
+    if (cctrl->sbyte_89 != -1)
+    {
+      internal_set_thing_state(creatng, 34);
+      return 1;
+    }
+
+    int plyr_idx;
+    plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
+    if ( plyr_idx == -1 )
+      return 1;
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if ( dungeon->num_active_creatrs || dungeon->num_active_diggers )
+    {
+        struct Coord3d pos;
+        get_random_position_in_dungeon_for_creature(plyr_idx, 1, creatng, &pos);
+        send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos);
+    } else
+    {
+        good_setup_wander_to_dungeon_heart(creatng, plyr_idx);
+    }
+    return 1;
+}
+
+long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)
+{
+    return _DK_creature_tunnel_to(creatng, pos, a3);
+}
+
+short tunnelling(struct Thing *creatng)
+{
+    struct SlabMap *slb;
+    long speed;
+    //return _DK_tunnelling(creatng);
+    speed = get_creature_speed(creatng);
+    slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (slabmap_owner(slb) == cctrl->sbyte_89)
+    {
+        internal_set_thing_state(creatng, 34);
+        return 1;
+    }
+    struct Coord3d *pos;
+    long move_result;
+    pos = &cctrl->moveto_pos;
+    move_result = creature_tunnel_to(creatng, pos, speed);
+    if (move_result == 1)
+    {
+        internal_set_thing_state(creatng, 77);
+        return 1;
+    }
+    if (move_result == -1)
+    {
+        ERRORLOG("Bad place to tunnel to!");
+        set_start_state(creatng);
+        creatng->continue_state = 0;
+        return 0;
+    }
+    if (((game.play_gameturn + creatng->index) & 0x7F) != 0)
+    {
+        return 0;
+    }
+    if (!creature_can_navigate_to(creatng, pos, 0))
+    {
+        return 0;
+    }
+    return 1;
+}
 /******************************************************************************/
