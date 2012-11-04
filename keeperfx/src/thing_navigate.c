@@ -319,7 +319,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx)
         return false;
     }
     dungeon = get_dungeon(player->id_number);
-    heartng = NULL;
+    heartng = INVALID_THING;
     if (!dungeon_invalid(dungeon))
         heartng = thing_get(dungeon->dnheart_idx);
     if (thing_is_invalid(heartng))
