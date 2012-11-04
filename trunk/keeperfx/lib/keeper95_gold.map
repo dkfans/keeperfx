@@ -1090,6 +1090,7 @@
  0001:000A7050       remove_explored_flags_for_power_sight
  0001:00032990       engine
  0001:000A6940       update_explored_flags_for_power_sight
+ 0001:000A6410       get_best_dungeon_to_tunnel_to
  0001:000225B0       draw_power_hand
  0001:0005B490       i_can_allocate_free_thing_structure
  0001:0005B590       allocate_free_thing_structure
