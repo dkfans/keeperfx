@@ -240,21 +240,25 @@ msgctxt "In-game message"
 msgid "Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training Room. Make sure they're all big enough. Cramped conditions do nothing for the morale of your minions."
 msgstr ""
 
+#. Level Waterdream Warm objective after basic 5 rooms are built/claimed
 #: guitext:35
 msgctxt "In-game message"
 msgid "The time has come to build a Library. Libraries are where new devices, room designs and magic spells are researched. Make a Library at least as big as the other rooms. Researchers like quiet too, so try to build your Library off the side of a corridor."
 msgstr ""
 
+#. Level Waterdream Warm information after started building library
 #: guitext:36
 msgctxt "In-game message"
 msgid "Your new Library will attract creatures like Warlocks, who are interested in researching magic and dungeon designs. These evil mages are real bookworms, as well as being magically proficient themselves."
 msgstr ""
 
+#. Level Waterdream Warm objective after finished building library
 #: guitext:37
 msgctxt "In-game message"
 msgid "That's a fine collection of parchments and tomes you've assembled. Most creatures can engage in research but Warlocks make the best and keenest researchers. Stupid Trolls have trouble holding books the right way up and sometimes even chew the pages."
 msgstr ""
 
+#. Level Waterdream Warm objective after attracting warlock
 #: guitext:38
 msgctxt "In-game message"
 msgid "The scent of arcane knowledge has lured a greedy Warlock into your dungeon. Don't forget to train your Warlocks occasionally. Their spell casting abilities make them fine long range fighters."
