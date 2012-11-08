@@ -42,6 +42,11 @@ void remove_relevant_forces_from_thing_after_slide(struct Thing *thing, struct C
 TbBool positions_equivalent(const struct Coord3d *pos_a, const struct Coord3d *pos_b);
 long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
 void creature_set_speed(struct Thing *thing, long speed);
+
+long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos);
+long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
+long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
+long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
 /******************************************************************************/
 #ifdef __cplusplus
 }

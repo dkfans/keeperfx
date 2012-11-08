@@ -28,6 +28,7 @@
 #include "config_terrain.h"
 #include "config_crtrstates.h"
 #include "thing_stats.h"
+#include "thing_physics.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -944,12 +945,189 @@ short arrive_at_call_to_arms(struct Thing *thing)
     return 1;
 }
 
-long person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+/**
+ * Finds a safe position for creature on one of subtiles of given slab.
+ * @param pos The returned position.
+ * @param thing The creature to be moved.
+ * @param slb_x Given slab to move onto, X coord.
+ * @param slb_y Given slab to move onto, Y coord.
+ * @param start_stl Starting element when testing subtiles, used for enhanced randomness.
+ * @return True if the safe position was found; false otherwise.
+ */
+TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, MapSubtlCoord start_stl)
 {
-    return _DK_person_get_somewhere_adjacent_in_room(thing, room, pos);
+    MapSubtlCoord base_x,base_y;
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = thing->mappos.x.stl.num;
+    stl_y = thing->mappos.y.stl.num;
+    base_x = 3 * slb_x;
+    base_y = 3 * slb_y;
+    long i,k;
+    k = start_stl;
+    for (i=0; i < 9; i++)
+    {
+        MapSubtlCoord x,y;
+        x = base_x + (k%3);
+        y = base_y + (k/3);
+        if ((x != stl_x) || (y != stl_y))
+        {
+            struct Map *map;
+            map = get_map_block_at(x,y);
+            if ((map->flags & MapFlg_Unkn10) == 0)
+            {
+                struct CreatureStats *crstat;
+                crstat = creature_stats_get_from_thing(thing);
+                if ((crstat->hurt_by_lava <= 0) || !map_pos_is_lava(x,y))
+                {
+                    int block_radius;
+                    block_radius = subtile_coord(thing_nav_block_sizexy(thing),0) / 2;
+                    pos->x.val = subtile_coord_center(x);
+                    pos->y.val = subtile_coord_center(y);
+                    pos->z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
+                    return true;
+                }
+            }
+        }
+        k = (k+1) % 9;
+    }
+    return false;
 }
 
-SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind)
+/**
+ * Finds any position for creature on one of subtiles of given slab.
+ * To be used when finding correct, safe position fails.
+ * @param pos The returned position.
+ * @param thing The creature to be moved.
+ * @param slb_x Given slab to move onto, X coord.
+ * @param slb_y Given slab to move onto, Y coord.
+ * @param start_stl Starting element when testing subtiles, used for enhanced randomness.
+ * @return True if any position was found; false otherwise.
+ */
+TbBool creature_find_any_position_to_move_within_slab(struct Coord3d *pos, const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, MapSubtlCoord start_stl)
+{
+    MapSubtlCoord base_x,base_y;
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = thing->mappos.x.stl.num;
+    stl_y = thing->mappos.y.stl.num;
+    base_x = 3 * slb_x;
+    base_y = 3 * slb_y;
+    long i,k;
+    k = start_stl;
+    for (i=0; i < 9; i++)
+    {
+        MapSubtlCoord x,y;
+        x = base_x + (k%3);
+        y = base_y + (k/3);
+        if ((x != stl_x) || (y != stl_y))
+        {
+            pos->x.val = subtile_coord_center(x);
+            pos->y.val = subtile_coord_center(y);
+            pos->z.val = get_thing_height_at(thing, pos);
+            return true;
+        }
+        k = (k+1) % 9;
+    }
+    return false;
+}
+
+/**
+ * Finds a safe, adjacent position in room for a creature.
+ * Makes sure the specific room currently occupied is not left.
+ * @param thing The creature to be moved.
+ * @param room The room inside which the creature should stay.
+ * @param pos The adjacent position returned.
+ * @return True if a position was found, false if cannot move.
+ * @see find_position_around_in_room()
+ */
+TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos)
+{
+    struct Room *aroom;
+    struct Map *map;
+    MapSlabCoord slb_x,slb_y;
+    struct Coord3d locpos;
+    int block_radius;
+    long slab_num,slab_base;
+    int start_stl;
+    long m,n;
+    SYNCDBG(17,"Starting for %s index %d",thing_model_name(thing),(long)thing->index);
+    //return _DK_person_get_somewhere_adjacent_in_room(thing, room, pos);
+    block_radius = subtile_coord(thing_nav_block_sizexy(thing),0) >> 1;
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    slab_base = get_slab_number(slb_x, slb_y);
+
+    start_stl = ACTION_RANDOM(AROUND_MAP_LENGTH);
+    m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        slab_num = slab_base + small_around_slab[m];
+        slb_x = slb_num_decode_x(slab_num);
+        slb_y = slb_num_decode_y(slab_num);
+        aroom = INVALID_ROOM;
+        map = get_map_block_at(3 * slb_x, 3 * slb_y);
+        if ((map->flags & MapFlg_Unkn02) != 0)
+        {
+            aroom = slab_room_get(slb_x, slb_y);
+        }
+        if (room_exists(aroom) && (aroom->index == room->index))
+        {
+            if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
+            {
+                if (!thing_in_wall_at_with_radius(thing, &locpos, block_radius))
+                {
+                    pos->z.val = locpos.x.val;
+                    pos->y.val = locpos.y.val;
+                    pos->z.val = locpos.z.val;
+                    SYNCDBG(8,"Possible to move %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                        (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
+                        (int)locpos.x.stl.num, (int)locpos.y.stl.num);
+                    return true;
+                }
+            }
+        }
+        m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
+    }
+    // Cannot find a good position - but at least move within the same slab we're on
+    {
+        slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+        slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+        aroom = INVALID_ROOM;
+        map = get_map_block_at(3 * slb_x, 3 * slb_y);
+        if ((map->flags & MapFlg_Unkn02) != 0)
+        {
+            aroom = slab_room_get(slb_x, slb_y);
+        }
+        if (room_exists(aroom) && (aroom->index == room->index))
+        {
+            if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
+            {
+                if (!thing_in_wall_at_with_radius(thing, &locpos, block_radius))
+                {
+                    pos->x.val = locpos.x.val;
+                    pos->y.val = locpos.y.val;
+                    pos->z.val = locpos.z.val;
+                    SYNCDBG(8,"Possible to move %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                        (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
+                        (int)locpos.x.stl.num, (int)locpos.y.stl.num);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Finds a safe, adjacent position in room for a creature.
+ * Allows moving to adjacent room of the same kind and owner.
+ *
+ * @param pos Position of the creature to be moved.
+ * @param owner Room owner to keep.
+ * @param rkind Kind of the room inside which the creature should stay.
+ * @return Coded subtiles of the new position, or 0 on failure.
+ * @see person_get_somewhere_adjacent_in_room()
+ */
+SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long owner, long rkind)
 {
     SubtlCodedCoords stl_num;
     SubtlCodedCoords accepted_stl_num;
@@ -993,7 +1171,9 @@ SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, l
             }
         }
         if (accepted_stl_num > 0)
+        {
             return accepted_stl_num;
+        }
           m = (m + 1) % AROUND_MAP_LENGTH;
     }
     return 0;
@@ -1251,95 +1431,86 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
     }
 }
 
-TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing)
+/**
+ * Returns if given slab meets the requirements for a creature to move on it for its own will.
+ * @param thing The creature which is moving.
+ * @param slb_x The destination slab, X coord.
+ * @param slb_y The destination slab, Y coord.
+ * @return True if the creature is willing to move on that slab, false otherwise.
+ */
+TbBool slab_is_valid_for_creature_choose_move(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct CreatureStats *crstat;
     struct SlabMap *slb;
     struct SlabAttr *slbattr;
+    MapSubtlCoord base_x,base_y;
     struct Thing *doortng;
-    long base_x,base_y;
-    long stl_x,stl_y;
-    long start_stl;
+    slb = get_slabmap_block(slb_x, slb_y);
+    slbattr = get_slab_attrs(slb);
+    if ( ((slbattr->flags & SlbAtFlg_Unk02) != 0) || ((slbattr->flags & SlbAtFlg_Unk10) == 0) )
+        return true;
+    base_x = 3 * slb_x;
+    base_y = 3 * slb_y;
+    doortng = get_door_for_position(base_x, base_y);
+    if (!thing_is_invalid(doortng))
+    {
+      if ((doortng->owner == thing->owner) && (!doortng->byte_18))
+          return true;
+    }
+    return false;
+}
+
+TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing)
+{
+    MapSlabCoord slb_x,slb_y;
+    MapSubtlCoord start_stl;
     long slab_num,slab_base;
-    long i,k,m,n;
-    TbBool do_move;
-    long x,y;
-    SYNCDBG(17,"Starting for thing %d",(long)thing->index);
+    long m,n;
+    SYNCDBG(17,"Starting for %s index %d",thing_model_name(thing),(long)thing->index);
     //return _DK_creature_choose_random_destination_on_valid_adjacent_slab(thing);
-
-    stl_x = thing->mappos.x.stl.num;
-    stl_y = thing->mappos.y.stl.num;
-
-    slab_base = get_slab_number(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    slab_base = get_slab_number(slb_x, slb_y);
 
     start_stl = ACTION_RANDOM(9);
     m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
     for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         slab_num = slab_base + small_around_slab[m];
-        slb = get_slabmap_direct(slab_num);
-        slbattr = get_slab_attrs(slb);
-        do_move = false;
-        if ( ((slbattr->flags & SlbAtFlg_Unk02) != 0) || ((slbattr->flags & SlbAtFlg_Unk10) == 0) )
-            do_move = true;
-        base_x = 3 * slb_num_decode_x(slab_num);
-        base_y = 3 * slb_num_decode_y(slab_num);
-        if (!do_move)
+        slb_x = slb_num_decode_x(slab_num);
+        slb_y = slb_num_decode_y(slab_num);
+        if (slab_is_valid_for_creature_choose_move(thing, slb_x, slb_y))
         {
-          doortng = get_door_for_position(base_x, base_y);
-          if (!thing_is_invalid(doortng))
-          {
-            if ((doortng->owner == thing->owner) && (!doortng->byte_18))
-                do_move = true;
-          }
-        }
-        if (do_move)
-        {
-            k = start_stl;
-            for (i=0; i < 9; i++)
+            struct Coord3d locpos;
+            if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
             {
-              x = base_x + (k%3);
-              y = base_y + (k/3);
-              if ((x != stl_x) || (y != stl_y))
-              {
-                  crstat = creature_stats_get_from_thing(thing);
-                  if ((crstat->hurt_by_lava <= 0) || !map_pos_is_lava(stl_x,stl_y))
-                  {
-                      if (setup_person_move_to_position(thing, x, y, 0))
-                      {
-                          SYNCDBG(8,"Moving thing %d from (%d,%d) to (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)x,(int)y);
-                          return true;
-                      }
-                  }
-              }
-              k = (k+1) % 9;
-            }
-            if (slb->kind != SlbT_LAVA)
-            {
-                SYNCDBG(8,"Found non lava around");
-                return false;
+                if (setup_person_move_to_position(thing, locpos.x.stl.num, locpos.y.stl.num, 0))
+                {
+                    SYNCDBG(8,"Moving thing %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                        (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
+                        (int)locpos.x.stl.num, (int)locpos.y.stl.num);
+                    return true;
+                }
             }
         }
         m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
     }
-    base_x = 3 * subtile_slab_fast(thing->mappos.x.stl.num);
-    base_y = 3 * subtile_slab_fast(thing->mappos.y.stl.num);
-    k = start_stl;
-    for (i=0; i < 9; i++)
+    // Cannot find a good position - but at least move within the same slab we're on
     {
-        x = base_x + (k%3);
-        y = base_y + (k/3);
-        if ((x != stl_x) || (y != stl_y))
+        slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+        slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+        struct Coord3d locpos;
+        if (creature_find_any_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
         {
-          if (setup_person_move_to_position(thing, x, y, 0))
-          {
-              SYNCDBG(8,"Moving thing %d from (%d,%d) to (%d,%d)",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)x,(int)y);
-              return true;
-          }
+            if (setup_person_move_to_position(thing, locpos.x.stl.num, locpos.y.stl.num, 0))
+            {
+                SYNCDBG(8,"Forcefully moving %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                    (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
+                    (int)locpos.x.stl.num, (int)locpos.y.stl.num);
+                return true;
+            }
         }
-        k = (k+1) % 9;
     }
-    SYNCDBG(8,"Moving thing %d from (%d,%d) failed",(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+    SYNCDBG(8,"Moving %s index %d from (%d,%d) failed",thing_model_name(thing),(int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
     return false;
 }
 
@@ -1602,7 +1773,7 @@ short creature_steal_gold(struct Thing *thing)
     amount = remove_gold_from_hoarde(hrdtng, room, max_amount);
     thing->creature.gold_carried += amount;
     create_price_effect(&thing->mappos, thing->owner, amount);
-    SYNCDBG(6,"Stolen %ld gold from hoarde at (%d,%d)",amount,(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
+    SYNCDBG(6,"Stolen %ld gold from hoard at (%d,%d)",amount,(int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num);
     set_start_state(thing);
     return 0;
 }
