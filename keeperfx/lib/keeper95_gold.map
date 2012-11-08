@@ -1171,6 +1171,7 @@
  0001:000B6600       find_random_room_for_thing_with_spare_room_item_capacity
  0001:000BD240       player_has_room_of_type
  0001:0005DE40       get_thing_height_at
+ 0001:0005E180       get_thing_height_at_with_radius
  0001:0005ED80       place_thing_in_mapwho
  0001:0005EE00       remove_thing_from_mapwho
  0001:000A5AB0       process_payday
@@ -1272,6 +1273,7 @@
  0001:00037FF0       do_map_rotate_stuff
  0001:000791A0       can_drop_thing_here
  0001:000CEB50       thing_in_wall_at
+ 0001:000CECB0       thing_in_wall_at_with_radius
  0001:000109E0       load_swipe_graphic_for_creature
  0001:000C0E40       control_creature_as_controller
  0001:000C0D90       control_creature_as_passenger

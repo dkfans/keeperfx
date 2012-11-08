@@ -67,6 +67,7 @@
 #include "front_lvlstats.h"
 #include "front_easter.h"
 #include "thing_stats.h"
+#include "thing_physics.h"
 #include "thing_creature.h"
 #include "thing_corpses.h"
 #include "thing_objects.h"
@@ -197,7 +198,6 @@ DLLIMPORT void _DK_init_keeper(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
 DLLIMPORT void _DK_set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
 DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
-DLLIMPORT long _DK_thing_in_wall_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT void _DK_do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 DLLIMPORT unsigned char _DK_active_battle_exists(unsigned char a1);
 DLLIMPORT unsigned char _DK_step_battles_forward(unsigned char a1);
@@ -221,7 +221,6 @@ DLLIMPORT void _DK_process_entrance_generation(void);
 DLLIMPORT void _DK_process_payday(void);
 DLLIMPORT void _DK_remove_thing_from_mapwho(struct Thing *thing);
 DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
-DLLIMPORT long _DK_get_thing_height_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
 DLLIMPORT long _DK_get_next_manufacture(struct Dungeon *dungeon);
 DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
@@ -4875,12 +4874,6 @@ void place_thing_in_mapwho(struct Thing *thing)
   _DK_place_thing_in_mapwho(thing);
 }
 
-long get_thing_height_at(struct Thing *thing, struct Coord3d *pos)
-{
-  SYNCDBG(18,"Starting");
-  return _DK_get_thing_height_at(thing, pos);
-}
-
 long manufacture_points_required(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
 {
   switch (mfcr_type)
@@ -5698,11 +5691,6 @@ short can_dig_here(long stl_x, long stl_y, long plyr_idx)
     if ((slbattr->flags & 0x29) != 0)
       return true;
     return false;
-}
-
-long thing_in_wall_at(struct Thing *thing, struct Coord3d *pos)
-{
-    return _DK_thing_in_wall_at(thing, pos);
 }
 
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx)

@@ -725,7 +725,7 @@ long send_tunneller_to_point_in_dungeon(struct Thing *creatng, long plyr_idx, st
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->sbyte_89 = plyr_idx;
     setup_person_tunnel_to_position(creatng, pos->x.stl.num, pos->y.stl.num, 0);
-    creatng->continue_state = 77;
+    creatng->continue_state = CrSt_TunnellerDoingNothing;
     return 1;
 }
 
@@ -757,13 +757,13 @@ short tunneller_doing_nothing(struct Thing *creatng)
     }
     if ((heartng->active_state != 3) && creature_can_navigate_to(creatng, &heartng->mappos, 0))
     {
-        internal_set_thing_state(creatng, 34);
+        internal_set_thing_state(creatng, CrSt_GoodDoingNothing);
         return 1;
     }
     cctrl->sbyte_89 = good_find_enemy_dungeon(creatng);
     if (cctrl->sbyte_89 != -1)
     {
-      internal_set_thing_state(creatng, 34);
+      internal_set_thing_state(creatng, CrSt_GoodDoingNothing);
       return 1;
     }
 

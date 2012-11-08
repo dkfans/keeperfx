@@ -860,6 +860,9 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
             return mode;
         }
         // Mode with same name but different params is registered
+#ifdef __DEBUG
+        LbWarnLog("%s: Mode with same name but different params is registered, cannot register %dx%dx%d\n",__func__, (int)width, (int)height, (int)bpp);
+#endif
         return Lb_SCREEN_MODE_INVALID;
     }
     if (lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
@@ -902,6 +905,9 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
     if (ret != 3)
     {
         // Cannot recognize parameters in mode
+#ifdef __DEBUG
+        LbWarnLog("%s: Cannot recognize parameters in mode, got %dx%dx%d\n",__func__, width, height, bpp);
+#endif
         return Lb_SCREEN_MODE_INVALID;
     }
     if (bpp < 9) {

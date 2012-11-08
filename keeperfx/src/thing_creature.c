@@ -3109,7 +3109,7 @@ void check_for_creature_escape_from_lava(struct Thing *thing)
     if (((thing->alloc_flags & TAlF_IsControlled) == 0) && ((thing->movement_flags & TMvF_IsOnLava) != 0))
     {
       crstat = creature_stats_get_from_thing(thing);
-      if (crstat->hurt_by_lava)
+      if (crstat->hurt_by_lava > 0)
       {
           cctrl = creature_control_get_from_thing(thing);
           if ((!creature_is_escaping_death(thing)) && (cctrl->field_2FE + 64 < game.play_gameturn))
