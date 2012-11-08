@@ -1046,10 +1046,8 @@ void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, cha
 TbBool get_next_manufacture(struct Dungeon *dungeon);
 void remove_thing_from_mapwho(struct Thing *thing);
 void place_thing_in_mapwho(struct Thing *thing);
-long get_thing_height_at(struct Thing *thing, struct Coord3d *pos);
 unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 short can_dig_here(long x, long y, long owner);
-long thing_in_wall_at(struct Thing *thing, struct Coord3d *pos);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);

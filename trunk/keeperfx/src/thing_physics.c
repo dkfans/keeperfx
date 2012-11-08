@@ -35,6 +35,10 @@ extern "C" {
 DLLIMPORT void _DK_slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 DLLIMPORT void _DK_bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 DLLIMPORT long _DK_creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT long _DK_thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
+DLLIMPORT long _DK_get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos);
+DLLIMPORT long _DK_get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long a3);
+DLLIMPORT long _DK_thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long a3);
 /******************************************************************************/
 
 
@@ -127,6 +131,27 @@ TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing)
 {
     // Don't clip the Z coord - clipping would make impossible to hit base ground (ie. water drip over water)
     return set_coords_add_velocity(pos, &thing->mappos, &thing->velocity, MapCoord_ClipX|MapCoord_ClipY);
+}
+
+long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos)
+{
+  SYNCDBG(18,"Starting");
+  return _DK_get_thing_height_at(thing, pos);
+}
+
+long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
+{
+    return _DK_get_thing_height_at_with_radius(thing, pos, radius);
+}
+
+long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
+{
+    return _DK_thing_in_wall_at(thing, pos);
+}
+
+long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
+{
+    return _DK_thing_in_wall_at_with_radius(thing, pos, radius);
 }
 
 /******************************************************************************/

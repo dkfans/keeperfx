@@ -287,7 +287,7 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
 void creature_drag_object(struct Thing *thing, struct Thing *dragtng);
 long process_work_speed_on_work_value(struct Thing *thing, long base_val);
 unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
-SubtlCodedCoords find_position_around_in_room(struct Coord3d *pos, long owner, long rkind);
+SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long owner, long rkind);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 long slab_by_players_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool process_creature_hunger(struct Thing *thing);
@@ -298,7 +298,7 @@ struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool anger_make_creature_angry(struct Thing *thing, long reason);
-long person_get_somewhere_adjacent_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 TbBool get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char a2, struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
