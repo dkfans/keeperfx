@@ -31,6 +31,7 @@
 #include "thing_corpses.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
+#include "thing_physics.h"
 #include "room_data.h"
 #include "thing_objects.h"
 #include "map_events.h"

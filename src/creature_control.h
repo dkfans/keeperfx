@@ -130,7 +130,7 @@ struct CreatureControl {
     short opponents_ranged[COMBAT_RANGED_OPPONENTS_LIMIT];
     unsigned char opponents_melee_count;
     unsigned char opponents_ranged_count;
-    unsigned short field_1D;
+    unsigned short players_prev_creature_idx;
     unsigned short players_next_creature_idx;
 unsigned short field_21;
     unsigned char explevel;

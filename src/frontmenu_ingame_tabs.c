@@ -771,6 +771,8 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     else
         kind = get_players_special_digger_breed(my_player_number);
     pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
+        pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
     pick_up_creature_of_breed_and_gui_job(kind, (job_idx & 0x03), my_player_number, pick_flags);
@@ -809,10 +811,12 @@ void pick_up_next_creature(struct GuiButton *gbtn)
         kind = breed_activities[(i + top_of_breed_list) % CREATURE_TYPES_COUNT];
     }
     else {
-        kind = 23;
+        kind = get_players_special_digger_breed(my_player_number);
     }
 
     pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
+        pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
     pick_up_creature_of_breed_and_gui_job(kind, -1, my_player_number, pick_flags);

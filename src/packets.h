@@ -117,7 +117,7 @@ enum TbPacketAction {
         PckA_Unknown087,
         PckA_Unknown088,
         PckA_SpellCTADis,
-        PckA_Unknown090,//90
+        PckA_PickUpThing,//90
         PckA_DumpHeldThings,
         PckA_Unknown092,
         PckA_UseSpecialBox,

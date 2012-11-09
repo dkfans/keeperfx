@@ -42,6 +42,7 @@
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
+#include "engine_arrays.h"
 #include "lvl_script.h"
 #include "thing_traps.h"
 #include "sounds.h"
@@ -1065,7 +1066,7 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
         slb_y = slb_num_decode_y(slab_num);
         aroom = INVALID_ROOM;
         map = get_map_block_at(3 * slb_x, 3 * slb_y);
-        if ((map->flags & MapFlg_Unkn02) != 0)
+        if ((map->flags & MapFlg_IsRoom) != 0)
         {
             aroom = slab_room_get(slb_x, slb_y);
         }
@@ -1093,7 +1094,7 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
         slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
         aroom = INVALID_ROOM;
         map = get_map_block_at(3 * slb_x, 3 * slb_y);
-        if ((map->flags & MapFlg_Unkn02) != 0)
+        if ((map->flags & MapFlg_IsRoom) != 0)
         {
             aroom = slab_room_get(slb_x, slb_y);
         }
@@ -1400,9 +1401,50 @@ short creature_change_from_chicken(struct Thing *creatng)
   return _DK_creature_change_from_chicken(creatng);
 }
 
+void set_creature_size_stuff(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if ((cctrl->spell_flags & 0x02) != 0) {
+      creatng->field_46 = 300;
+    } else {
+      creatng->field_46 = 300 + (300 * cctrl->explevel) / 20;
+    }
+}
+
 short creature_change_to_chicken(struct Thing *creatng)
 {
-  return _DK_creature_change_to_chicken(creatng);
+    struct CreatureControl *cctrl;
+    //return _DK_creature_change_to_chicken(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    creature_set_speed(creatng, 0);
+    if (cctrl->field_282 > 0)
+        cctrl->field_282--;
+    if (cctrl->field_282 > 0)
+    {
+      creatng->field_50 |= 0x01;
+      creatng->field_4F |= 0x01;
+      struct Thing *efftng;
+      efftng = create_effect_element(&creatng->mappos, 59, creatng->owner);
+      if (!thing_is_invalid(efftng))
+      {
+          unsigned long i;
+          i = convert_td_iso(819);
+          set_thing_draw(efftng, i, 0, 1200 * cctrl->field_282 / 10 + 300, -1, 0, 2);
+          efftng->field_4F &= ~0x20;
+          efftng->field_4F |= 0x10;
+      }
+      return 0;
+    }
+    cctrl->spell_flags |= 0x02;
+    creatng->field_4F &= ~0x01;
+    set_creature_size_stuff(creatng);
+    creatng->field_1 &= ~0x10;
+    creatng->active_state = 133;
+    creatng->continue_state = 0;
+    cctrl->field_302 = 0;
+    clear_creature_instance(creatng);
+    return 1;
 }
 
 short creature_doing_nothing(struct Thing *creatng)
