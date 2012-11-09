@@ -29,6 +29,7 @@
 #include "config_rules.h"
 #include "config_terrain.h"
 #include "thing_stats.h"
+#include "thing_physics.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"

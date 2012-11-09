@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "thing_physics.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "thing_list.h"

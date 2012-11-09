@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     30 Jan 2009 - 11 Feb 2009
+ * @date     30 Jan 2009 - 11 Oct 2012
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@
 #include "config_terrain.h"
 #include "player_instances.h"
 #include "player_data.h"
+#include "thing_physics.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
 #include "thing_objects.h"

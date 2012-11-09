@@ -38,6 +38,7 @@
 #include "gui_soundmsgs.h"
 #include "player_instances.h"
 #include "player_data.h"
+#include "thing_physics.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
