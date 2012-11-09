@@ -2484,12 +2484,12 @@ void zoom_from_map(void)
   }
 }
 
-long can_thing_be_picked_up_by_player(const struct Thing *thing, long plyr_idx)
+long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
   return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
 }
 
-long can_thing_be_picked_up2_by_player(const struct Thing *thing, long plyr_idx)
+long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
   //TODO: rewrite, then give it better name
   return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
@@ -3540,7 +3540,7 @@ void reset_script_timers_and_flags(void)
     }
 }
 
-void init_good_player_as(long plr_idx)
+void init_good_player_as(PlayerNumber plr_idx)
 {
     struct PlayerInfo *player;
     game.hero_player_num = plr_idx;
@@ -3824,12 +3824,12 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, long var)
   return _DK_battle_move_player_towards_battle(player, var);
 }
 
-long set_autopilot_type(unsigned int plridx, long aptype)
+long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
 {
-  return _DK_set_autopilot_type(plridx, aptype);
+  return _DK_set_autopilot_type(plyr_idx, aptype);
 }
 
-void level_lost_go_first_person(long plyr_idx)
+void level_lost_go_first_person(PlayerNumber plyr_idx)
 {
   struct CreatureControl *cctrl;
   struct PlayerInfo *player;
@@ -3976,7 +3976,7 @@ void process_objective(const char *msg_text, long target, long x, long y)
     display_objectives(player->id_number, pos_x, pos_y);
 }
 
-void directly_cast_spell_on_thing(long plridx, unsigned char a2, unsigned short a3, long a4)
+void directly_cast_spell_on_thing(PlayerNumber plridx, unsigned char a2, unsigned short a3, long a4)
 {
   _DK_directly_cast_spell_on_thing(plridx, a2, a3, a4);
 }
@@ -4032,7 +4032,7 @@ short resign_level(struct PlayerInfo *player)
     return true;
 }
 
-short player_has_won(long plyr_idx)
+short player_has_won(PlayerNumber plyr_idx)
 {
   struct PlayerInfo *player;
   player = get_player(plyr_idx);
@@ -4041,7 +4041,7 @@ short player_has_won(long plyr_idx)
   return (player->victory_state == VicS_WonLevel);
 }
 
-short player_has_lost(long plyr_idx)
+short player_has_lost(PlayerNumber plyr_idx)
 {
   struct PlayerInfo *player;
   player = get_player(plyr_idx);
@@ -4114,7 +4114,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     clear_transfered_creature();
   }
   clear_things_in_hand(player);
-  dungeon->field_63 = 0;
+  dungeon->num_things_in_hand = 0;
   if (dungeon->field_884 != 0)
     turn_off_call_to_arms(player->id_number);
   if (dungeon->keeper_sight_thing_idx > 0)
@@ -4135,44 +4135,6 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     toggle_computer_player(player->id_number);
 }
 
-TbBool move_campaign_to_next_level(void)
-{
-  long lvnum;
-  long curr_lvnum;
-  curr_lvnum = get_continue_level_number();
-  lvnum = next_singleplayer_level(curr_lvnum);
-  if (lvnum != LEVELNUMBER_ERROR)
-  {
-    set_continue_level_number(lvnum);
-    SYNCDBG(8,"Continue level moved to %ld.",lvnum);
-    return true;
-  } else
-  {
-    set_continue_level_number(SINGLEPLAYER_NOTSTARTED);
-    SYNCDBG(8,"Continue level moved to NOTSTARTED.");
-    return false;
-  }
-}
-
-TbBool move_campaign_to_prev_level(void)
-{
-    long lvnum;
-    long curr_lvnum;
-    curr_lvnum = get_continue_level_number();
-    lvnum = prev_singleplayer_level(curr_lvnum);
-    if (lvnum != LEVELNUMBER_ERROR)
-    {
-        set_continue_level_number(lvnum);
-        SYNCDBG(8,"Continue level moved to %ld.",lvnum);
-        return true;
-    } else
-    {
-        set_continue_level_number(SINGLEPLAYER_FINISHED);
-        SYNCDBG(8,"Continue level moved to FINISHED.");
-        return false;
-    }
-}
-
 short complete_level(struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
@@ -4183,6 +4145,13 @@ short complete_level(struct PlayerInfo *player)
         LbNetwork_Stop();
         quit_game = 1;
         return true;
+    }
+    LevelNumber lvnum;
+    lvnum = get_continue_level_number();
+    if (get_loaded_level_number() == lvnum)
+    {
+        SYNCDBG(7,"Progressing the campaign");
+        move_campaign_to_next_level();
     }
     quit_game = 1;
     return true;
@@ -6723,7 +6692,7 @@ void init_level(void)
     game.flags_gui = 0;
     game.action_rand_seed = 1;
     free_swipe_graphic();
-    game.field_1516FF = -1;
+    game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
     clear_game();
     reset_heap_manager();

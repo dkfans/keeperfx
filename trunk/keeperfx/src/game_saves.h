@@ -112,7 +112,10 @@ TbBool fill_game_catalogue_slot(long slot_num,const char *textname);
 TbBool set_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel);
 void clear_transfered_creature(void);
 /******************************************************************************/
-short continue_game_available(void);
+LevelNumber move_campaign_to_next_level(void);
+LevelNumber move_campaign_to_prev_level(void);
+/******************************************************************************/
+TbBool continue_game_available(void);
 short load_continue_game(void);
 short save_continue_game(LevelNumber lv_num);
 short read_continue_game_part(unsigned char *buf,long pos,long buf_len);

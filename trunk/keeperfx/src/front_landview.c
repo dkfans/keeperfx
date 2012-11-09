@@ -1343,76 +1343,76 @@ void frontnetmap_draw(void)
 
 void frontmap_input(void)
 {
-  SYNCDBG(8,"Starting");
-  short zoom_done;
-  long mouse_x,mouse_y;
-  if (map_info.field_0)
-  {
-    if (!map_info.fading)
+    SYNCDBG(8,"Starting");
+    short zoom_done;
+    long mouse_x,mouse_y;
+    if (map_info.field_0)
     {
-      map_info.field_0 = 0;
-      play_desc_speech_time = LbTimerClock() + 1000;
-    }
-    zoom_done = false;
-  } else
-  {
-    zoom_done = true;
-  }
-  if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
-  {
-    clear_key_pressed(KC_ESCAPE);
-    frontend_set_state(FeSt_MAIN_MENU);
-    LbPaletteStopOpenFade();
-    return;
-  }
-  if (zoom_done)
-  {
-    check_mouse_scroll();
-    if (is_key_pressed(KC_F11, KMod_CONTROL))
-    {
-      if ((game.flags_font & FFlg_AlexCheat) != 0)
+      if (!map_info.fading)
       {
-        set_all_ensigns_state(LvSt_Visible);
-        clear_key_pressed(KC_F11);
-        return;
+        map_info.field_0 = 0;
+        play_desc_speech_time = LbTimerClock() + 1000;
       }
-    }
-    if (is_key_pressed(KC_F10, KMod_CONTROL))
+      zoom_done = false;
+    } else
     {
-      if ((game.flags_font & FFlg_AlexCheat) != 0)
+      zoom_done = true;
+    }
+    if (is_key_pressed(KC_ESCAPE, KMod_DONTCARE))
+    {
+      clear_key_pressed(KC_ESCAPE);
+      frontend_set_state(FeSt_MAIN_MENU);
+      LbPaletteStopOpenFade();
+      return;
+    }
+    if (zoom_done)
+    {
+      check_mouse_scroll();
+      if (is_key_pressed(KC_F11, KMod_CONTROL))
       {
-        move_campaign_to_next_level();
-        frontmap_unload();
-        frontmap_load();
-        //update_ensigns_visibility();
-        clear_key_pressed(KC_F10);
-        return;
+        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        {
+          set_all_ensigns_state(LvSt_Visible);
+          clear_key_pressed(KC_F11);
+          return;
+        }
       }
-    }
-    if (is_key_pressed(KC_F9, KMod_CONTROL))
-    {
-      if ((game.flags_font & FFlg_AlexCheat) != 0)
+      if (is_key_pressed(KC_F10, KMod_CONTROL))
       {
-        move_campaign_to_prev_level();
-        frontmap_unload();
-        frontmap_load();
-        //update_ensigns_visibility();
-        clear_key_pressed(KC_F9);
-        return;
+        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        {
+          move_campaign_to_next_level();
+          frontmap_unload();
+          frontmap_load();
+          //update_ensigns_visibility();
+          clear_key_pressed(KC_F10);
+          return;
+        }
       }
+      if (is_key_pressed(KC_F9, KMod_CONTROL))
+      {
+        if ((game.flags_font & FFlg_AlexCheat) != 0)
+        {
+          move_campaign_to_prev_level();
+          frontmap_unload();
+          frontmap_load();
+          //update_ensigns_visibility();
+          clear_key_pressed(KC_F9);
+          return;
+        }
+      }
+      if (left_button_clicked)
+      {
+        left_button_clicked = 0;
+        frontmap_input_active_ensign(left_button_clicked_x, left_button_clicked_y);
+        if (clicked_map_level_ensign())
+          return;
+      }
+      mouse_x = GetMouseX();
+      mouse_y = GetMouseY();
+      frontmap_input_active_ensign(mouse_x, mouse_y);
     }
-    if (left_button_clicked)
-    {
-      left_button_clicked = 0;
-      frontmap_input_active_ensign(left_button_clicked_x, left_button_clicked_y);
-      if (clicked_map_level_ensign())
-        return;
-    }
-    mouse_x = GetMouseX();
-    mouse_y = GetMouseY();
-    frontmap_input_active_ensign(mouse_x, mouse_y);
-  }
-  update_velocity();
+    update_velocity();
 }
 
 void frontnetmap_input(void)
