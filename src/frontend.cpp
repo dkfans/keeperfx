@@ -1474,42 +1474,39 @@ void frontend_start_new_game(struct GuiButton *gbtn)
  */
 short frontend_save_continue_game(short allow_lvnum_grow)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  unsigned short victory_state;
-  short flg_mem;
-  LevelNumber lvnum;
-  SYNCDBG(6,"Starting");
-  player = get_my_player();
-  dungeon = get_players_dungeon(player);
-  // Save some of the data from clearing
-  victory_state = player->victory_state;
-  memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
-  flg_mem = ((player->field_3 & 0x10) != 0);
-  // clear all data
-  clear_game_for_save();
-  // Restore saved data
-  player->victory_state = victory_state;
-  memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-  set_flag_byte(&player->field_3,0x10,flg_mem);
-  // Only save continue if level was won, and not in packet mode
-  if (((game.system_flags & GSF_NetworkActive) != 0)
-   || ((game.numfield_C & 0x02) != 0)
-   || (game.packet_load_enable))
-    return false;
-  // Select the continue level (move the campaign forward)
-  lvnum = get_continue_level_number();
-  if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel))
-  {
-      // If level number growth makes sense, do it
-      if (is_singleplayer_like_level(lvnum)) {
-          lvnum = next_singleplayer_level(lvnum);
-      }
-      if (lvnum == LEVELNUMBER_ERROR) {
-          lvnum = get_continue_level_number();
-      }
-  }
-  return save_continue_game(lvnum);
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    unsigned short victory_state;
+    short flg_mem;
+    LevelNumber lvnum;
+    SYNCDBG(6,"Starting");
+    player = get_my_player();
+    dungeon = get_players_dungeon(player);
+    // Save some of the data from clearing
+    victory_state = player->victory_state;
+    memcpy(scratch, &dungeon->lvstats, sizeof(struct LevelStats));
+    flg_mem = ((player->field_3 & 0x10) != 0);
+    // clear all data
+    clear_game_for_save();
+    // Restore saved data
+    player->victory_state = victory_state;
+    memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
+    set_flag_byte(&player->field_3,0x10,flg_mem);
+    // Only save continue if level was won, and not in packet mode
+    if (((game.system_flags & GSF_NetworkActive) != 0)
+     || ((game.numfield_C & 0x02) != 0)
+     || (game.packet_load_enable))
+        return false;
+    // Select the continue level (move the campaign forward)
+    if ((allow_lvnum_grow) && (player->victory_state == VicS_WonLevel)) {
+        // If level number growth makes sense, do it
+        SYNCDBG(7,"Progressing the campaign");
+        lvnum = move_campaign_to_next_level();
+    } else {
+        SYNCDBG(7,"No change in campaign position, victory state %d",(int)player->victory_state);
+        lvnum = get_continue_level_number();
+    }
+    return save_continue_game(lvnum);
 }
 
 void frontend_load_continue_game(struct GuiButton *gbtn)
@@ -3162,7 +3159,7 @@ int get_startup_menu_state(void)
 {
   struct PlayerInfo *player;
   LevelNumber lvnum;
-  if (game.flags_cd & MFlg_unk40)
+  if ((game.flags_cd & MFlg_unk40) != 0)
   { // If starting up the game after intro
     if (is_full_moon)
     {

@@ -320,16 +320,16 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
   cctrl = creature_control_get_from_thing(transftng);
   set_transfered_creature(plyr_idx, transftng->model, cctrl->explevel);
   // Remove the creature from power hand
-  for (i = 0; i < dungeon->field_63; i++)
+  for (i = 0; i < dungeon->num_things_in_hand; i++)
   {
     if (dungeon->things_in_hand[i] == transftng->index)
     {
-      for ( ; i < dungeon->field_63-1; i++)
+      for ( ; i < dungeon->num_things_in_hand-1; i++)
       {
         dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
       }
-      dungeon->field_63--;
-      dungeon->things_in_hand[dungeon->field_63] = 0;
+      dungeon->num_things_in_hand--;
+      dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
     }
   }
   kill_creature(transftng, NULL, 0, 1, 0, 0);

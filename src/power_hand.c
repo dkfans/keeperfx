@@ -173,18 +173,25 @@ void set_power_hand_graphic(long plyr_idx, long a2, long a3)
   }
 }
 
-TbBool power_hand_is_empty(struct PlayerInfo *player)
+TbBool power_hand_is_empty(const struct PlayerInfo *player)
 {
-  struct Dungeon *dungeon;
+    const struct Dungeon *dungeon;
+    dungeon = get_dungeon(player->id_number);
+    return (dungeon->num_things_in_hand <= 0);
+}
+
+TbBool power_hand_is_full(const struct PlayerInfo *player)
+{
+    const struct Dungeon *dungeon;
   dungeon = get_dungeon(player->id_number);
-  return (dungeon->things_in_hand[0] == 0);
+  return (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND);
 }
 
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  return thing_get(dungeon->things_in_hand[0]);
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(player->id_number);
+    return thing_get(dungeon->things_in_hand[0]);
 }
 
 /** Silently removes a thing from player's power hand.
@@ -198,16 +205,16 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, long plyr_idx)
   struct Dungeon *dungeon;
   long i;
   dungeon = get_dungeon(plyr_idx);
-  for (i = 0; i < dungeon->field_63; i++)
+  for (i = 0; i < dungeon->num_things_in_hand; i++)
   {
     if (dungeon->things_in_hand[i] == thing->index)
     {
-      for ( ; i < dungeon->field_63-1; i++)
+      for ( ; i < dungeon->num_things_in_hand-1; i++)
       {
         dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
       }
-      dungeon->field_63--;
-      dungeon->things_in_hand[dungeon->field_63] = 0;
+      dungeon->num_things_in_hand--;
+      dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
       return true;
     }
   }
@@ -226,14 +233,14 @@ TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx)
   long i;
   //return _DK_dump_thing_in_power_hand(thing, plyr_idx);
   dungeon = get_dungeon(plyr_idx);
-  if (dungeon->field_63 >= MAX_THINGS_IN_HAND)
+  if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND)
     return false;
   // Move all things in list up, to free position 0
   for (i = MAX_THINGS_IN_HAND-1; i > 0; i--)
   {
     dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
   }
-  dungeon->field_63++;
+  dungeon->num_things_in_hand++;
   dungeon->things_in_hand[0] = thing->index;
   if (thing->class_id == TCls_Creature)
     remove_all_traces_of_combat(thing);
@@ -472,9 +479,9 @@ long place_thing_in_power_hand(struct Thing *thing, long var)
   return _DK_place_thing_in_power_hand(thing, var);
 }
 
-short dump_held_things_on_map(unsigned int plyridx, long a2, long a3, short a4)
+short dump_held_things_on_map(PlayerNumber plyr_idx, long a2, long a3, short a4)
 {
-  return _DK_dump_held_things_on_map(plyridx, a2, a3, a4);
+  return _DK_dump_held_things_on_map(plyr_idx, a2, a3, a4);
 }
 
 void clear_things_in_hand(struct PlayerInfo *player)
@@ -542,12 +549,12 @@ void delete_power_hand(PlayerNumber owner)
     delete_thing_structure(thing, 0);
 }
 
-long prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx)
+long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
 {
     return _DK_prepare_thing_for_power_hand(tng_idx, plyr_idx);
 }
 
-void add_creature_to_sacrifice_list(long plyr_idx, long model, long explevel)
+void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long explevel)
 {
   struct Dungeon *dungeon;
   SYNCDBG(6,"Player %ld sacrificed creture model %ld exp level %d",plyr_idx,model,explevel);
@@ -567,7 +574,7 @@ void add_creature_to_sacrifice_list(long plyr_idx, long model, long explevel)
   dungeon->lvstats.creatures_sacrificed++;
 }
 
-TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx)
+TbBool magic_use_power_hand(PlayerNumber plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
@@ -575,16 +582,16 @@ TbBool magic_use_power_hand(long plyr_idx, unsigned short a2, unsigned short a3,
   //return _DK_magic_use_power_hand(plyr_idx, a2, a3, tng_idx);
   dungeon = get_dungeon(plyr_idx);
   player = get_player(plyr_idx);
-  if (dungeon->field_63 >= 8)
+  if (dungeon->num_things_in_hand >= 8)
     return false;
   thing = thing_get(tng_idx);
   if (thing_is_invalid(thing))
   {
-    thing = NULL;
+    thing = INVALID_THING;
   } else
   if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
   {
-      thing = NULL;
+      thing = INVALID_THING;
   }
   if (thing_is_invalid(thing))
   {
