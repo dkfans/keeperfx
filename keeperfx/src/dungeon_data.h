@@ -200,7 +200,7 @@ struct Dungeon {
     int field_59;
     int field_5D;
     short field_61;
-    unsigned char field_63;
+    unsigned char num_things_in_hand;
     short field_64[480];
     unsigned short job_breeds_count[CREATURE_TYPES_COUNT][3];
     unsigned short field_4E4[CREATURE_TYPES_COUNT][3];

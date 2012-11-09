@@ -159,7 +159,7 @@ long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_hand_grab(player, n);
   dungeon = get_players_dungeon(player);
   thing = thing_get(player->hand_thing_idx);
-  if (dungeon->field_63)
+  if (dungeon->num_things_in_hand)
   {
     dungeon->field_43 = 60;
     dungeon->field_53 = 40;

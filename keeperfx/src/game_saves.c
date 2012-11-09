@@ -394,7 +394,7 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.player_score = 0;
       dungeon->lvstats.allow_save_score = 1;
     }
-    game.field_1516FF = 0;
+    game.loaded_swipe_idx = 0;
     return true;
 }
 
@@ -520,19 +520,14 @@ TbBool initialise_load_game_slots(void)
 
 short save_continue_game(LevelNumber lvnum)
 {
-    LevelNumber bkp_lvnum;
     char *fname;
     long fsize;
     // Update continue level number
-    bkp_lvnum = get_continue_level_number();
     if (is_singleplayer_like_level(lvnum))
       set_continue_level_number(lvnum);
     SYNCDBG(6,"Continue set to level %d (loaded is %d)",(int)get_continue_level_number(),(int)get_loaded_level_number());
     fname = prepare_file_path(FGrp_Save,continue_game_filename);
     fsize = LbFileSaveAt(fname, &game, sizeof(struct Game));
-    // Reset original continue level number
-    if (is_singleplayer_like_level(lvnum))
-        set_continue_level_number(bkp_lvnum);
     return (fsize == sizeof(struct Game));
 }
 
@@ -559,40 +554,46 @@ short read_continue_game_part(unsigned char *buf,long pos,long buf_len)
   return result;
 }
 
-short continue_game_available(void)
+/**
+ * Indicates whether continue game option is available.
+ * @return
+ */
+TbBool continue_game_available(void)
 {
-  unsigned char buf[14];
-  char cmpgn_fname[CAMPAIGN_FNAME_LEN];
-  long lvnum;
-  long i;
-  SYNCDBG(6,"Starting");
-  {
-    if (!read_continue_game_part(buf,0,sizeof(buf)))
+    unsigned char buf[14];
+    char cmpgn_fname[CAMPAIGN_FNAME_LEN];
+    long lvnum;
+    long i;
+    SYNCDBG(6,"Starting");
     {
-      return false;
+        if (!read_continue_game_part(buf,0,sizeof(buf)))
+        {
+            return false;
+        }
+        i = (char *)&game.campaign_fname[0] - (char *)&game;
+        read_continue_game_part((unsigned char *)cmpgn_fname,i,CAMPAIGN_FNAME_LEN);
+        cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
+        lvnum = ((struct Game *)buf)->continue_level_number;
+        if (!change_campaign(cmpgn_fname))
+        {
+          ERRORLOG("Unable to load campaign");
+          return false;
+        }
+        if (is_singleplayer_like_level(lvnum))
+        {
+            set_continue_level_number(lvnum);
+        }
     }
-    i = (char *)&game.campaign_fname[0] - (char *)&game;
-    read_continue_game_part((unsigned char *)cmpgn_fname,i,CAMPAIGN_FNAME_LEN);
-    cmpgn_fname[CAMPAIGN_FNAME_LEN-1] = '\0';
-    lvnum = ((struct Game *)buf)->continue_level_number;
-    if (!change_campaign(cmpgn_fname))
-    {
-      ERRORLOG("Unable to load campaign");
-      return false;
-    }
+    lvnum = get_continue_level_number();
     if (is_singleplayer_like_level(lvnum))
-      set_continue_level_number(lvnum);
-  }
-  lvnum = get_continue_level_number();
-  if (is_singleplayer_like_level(lvnum))
-  {
-    SYNCDBG(7,"Continue to level %d is available",(int)lvnum);
-    return true;
-  } else
-  {
-    SYNCDBG(7,"Level %d from continue file is not single player",(int)lvnum);
-    return false;
-  }
+    {
+        SYNCDBG(7,"Continue to level %d is available",(int)lvnum);
+        return true;
+    } else
+    {
+        SYNCDBG(7,"Level %d from continue file is not single player",(int)lvnum);
+        return false;
+    }
 }
 
 short load_continue_game(void)
@@ -651,6 +652,46 @@ void clear_transfered_creature(void)
 {
     game.intralvl_transfered_creature.model = 0;
     game.intralvl_transfered_creature.explevel = 0;
+}
+
+LevelNumber move_campaign_to_next_level(void)
+{
+    LevelNumber lvnum;
+    LevelNumber curr_lvnum;
+    curr_lvnum = get_continue_level_number();
+    lvnum = next_singleplayer_level(curr_lvnum);
+    SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
+    if (lvnum != LEVELNUMBER_ERROR)
+    {
+        curr_lvnum = set_continue_level_number(lvnum);
+        SYNCDBG(8,"Continue level moved to %ld.",curr_lvnum);
+        return curr_lvnum;
+    } else
+    {
+        curr_lvnum = set_continue_level_number(SINGLEPLAYER_NOTSTARTED);
+        SYNCDBG(8,"Continue level moved to NOTSTARTED.");
+        return curr_lvnum;
+    }
+}
+
+LevelNumber move_campaign_to_prev_level(void)
+{
+    long lvnum;
+    long curr_lvnum;
+    curr_lvnum = get_continue_level_number();
+    lvnum = prev_singleplayer_level(curr_lvnum);
+    SYNCDBG(15,"Campaign move %ld to %ld",(long)curr_lvnum,(long)lvnum);
+    if (lvnum != LEVELNUMBER_ERROR)
+    {
+        curr_lvnum = set_continue_level_number(lvnum);
+        SYNCDBG(8,"Continue level moved to %ld.",(long)curr_lvnum);
+        return curr_lvnum;
+    } else
+    {
+        curr_lvnum = set_continue_level_number(SINGLEPLAYER_FINISHED);
+        SYNCDBG(8,"Continue level moved to FINISHED.");
+        return curr_lvnum;
+    }
 }
 
 /******************************************************************************/

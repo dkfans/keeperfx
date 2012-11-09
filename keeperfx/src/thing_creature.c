@@ -271,10 +271,10 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
 void free_swipe_graphic(void)
 {
     SYNCDBG(6,"Starting");
-    if (game.field_1516FF != -1)
+    if (game.loaded_swipe_idx != -1)
     {
-      LbDataFreeAll(swipe_load_file);
-      game.field_1516FF = -1;
+        LbDataFreeAll(swipe_load_file);
+        game.loaded_swipe_idx = -1;
     }
     LbSpriteClearAll(swipe_setup_sprites);
 }
@@ -288,7 +288,7 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
     //_DK_load_swipe_graphic_for_creature(thing);
 
     i = creatures[thing->model%CREATURE_TYPES_COUNT].swipe_idx;
-    if ((i == 0) || (game.field_1516FF == i))
+    if ((i == 0) || (game.loaded_swipe_idx == i))
         return;
     free_swipe_graphic();
     swpe_idx = 5 * (i-1);
@@ -307,7 +307,7 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
         return;
     }
     LbSpriteSetupAll(swipe_setup_sprites);
-    game.field_1516FF = swpe_idx;
+    game.loaded_swipe_idx = swpe_idx;
 }
 
 long creature_available_for_combat_this_turn(struct Thing *thing)
