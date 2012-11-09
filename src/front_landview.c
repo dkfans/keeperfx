@@ -537,56 +537,67 @@ short clicked_map_level_ensign(void)
   return false;
 }
 
-short stop_description_speech(void)
+TbBool initialize_description_speech(void)
 {
-  if ((playing_good_descriptive_speech) || (playing_bad_descriptive_speech))
-  {
+    play_desc_speech_time = 0;
+    playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
     playing_good_descriptive_speech = 0;
     playing_bad_descriptive_speech = 0;
-    playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
-    StopStreamedSample();
+    played_good_descriptive_speech = 0;
+    played_bad_descriptive_speech = 0;
     return true;
-  }
-  return false;
 }
 
-short play_current_description_speech(short play_good)
+TbBool stop_description_speech(void)
 {
-  LevelNumber lvnum;
-  lvnum = get_continue_level_number();
-  if (!play_good)
-    lvnum = prev_singleplayer_level(lvnum);
-  return play_description_speech(lvnum,play_good);
-}
-
-short play_description_speech(LevelNumber lvnum, short play_good)
-{
-  struct LevelInformation *lvinfo;
-  char *fname;
-  if (playing_speech_lvnum == lvnum)
-    return true;
-  lvinfo = get_level_info(lvnum);
-  if (lvinfo == NULL)
+    if ((playing_good_descriptive_speech) || (playing_bad_descriptive_speech))
+    {
+        playing_good_descriptive_speech = 0;
+        playing_bad_descriptive_speech = 0;
+        playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
+        StopStreamedSample();
+        return true;
+    }
     return false;
-  if (play_good)
-  {
-    if (lvinfo->speech_before[0] == '\0')
+}
+
+TbBool play_current_description_speech(short play_good)
+{
+    LevelNumber lvnum;
+    lvnum = get_continue_level_number();
+    if (!play_good)
+        lvnum = prev_singleplayer_level(lvnum);
+    return play_description_speech(lvnum,play_good);
+}
+
+TbBool play_description_speech(LevelNumber lvnum, short play_good)
+{
+    struct LevelInformation *lvinfo;
+    char *fname;
+    if (playing_speech_lvnum == lvnum)
+      return true;
+    lvinfo = get_level_info(lvnum);
+    if (lvinfo == NULL)
       return false;
-    stop_description_speech();
-    fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_before);
-    playing_good_descriptive_speech = 1;
-  } else
-  {
-    if (lvinfo->speech_after[0] == '\0')
-      return false;
-    stop_description_speech();
-    fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_after);
-    playing_bad_descriptive_speech = 1;
-  }
-  playing_speech_lvnum = lvnum;
-  SetStreamedSampleVolume(127);
-  PlayStreamedSample(fname, 1622, 0, 1);
-  return true;
+    if (play_good)
+    {
+      if (lvinfo->speech_before[0] == '\0')
+        return false;
+      stop_description_speech();
+      fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_before);
+      playing_good_descriptive_speech = 1;
+    } else
+    {
+      if (lvinfo->speech_after[0] == '\0')
+        return false;
+      stop_description_speech();
+      fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_after);
+      playing_bad_descriptive_speech = 1;
+    }
+    playing_speech_lvnum = lvnum;
+    SetStreamedSampleVolume(127);
+    PlayStreamedSample(fname, 1622, 0, 1);
+    return true;
 }
 
 TbBool set_pointer_graphic_spland(long frame)
@@ -973,12 +984,7 @@ TbBool frontmap_load(void)
 //  return _DK_frontmap_load();
     LbMemorySet(scratch, 0, PALETTE_SIZE);
     LbPaletteSet(scratch);
-    play_desc_speech_time = 0;
-    playing_good_descriptive_speech = 0;
-    playing_bad_descriptive_speech = 0;
-    played_good_descriptive_speech = 0;
-    played_bad_descriptive_speech = 0;
-    playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
+    initialize_description_speech();
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
     wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
@@ -1714,8 +1720,6 @@ TbBool frontnetmap_update(void)
     SYNCDBG(8,"Normal end");
     return false;
 }
-
-
 
 
 /******************************************************************************/
