@@ -331,10 +331,10 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         spr = &frontend_sprite[25];
         LbTextSetWindow( (spr->SWidth + pos_x) / pixel_size, pos_y / pixel_size,
           (gbtn->width - 2 * spr->SWidth) / pixel_size, LbTextLineHeight() / pixel_size);
-        lbDisplay.DrawFlags = 0x20;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         LbTextSetFont(frontend_font[1]);
         LbTextDraw(0, 0, gui_string(stat->name_stridx));
-        lbDisplay.DrawFlags = 0x80;
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
         if (stat->get_value != NULL) {
             stat_val = stat->get_value(stat->get_arg);
         } else {
@@ -427,29 +427,32 @@ void frontstats_leave(struct GuiButton *gbtn)
 
 void frontstats_set_timer(void)
 {
-  frontstats_timer = LbTimerClock() + 2000;
+    initialize_description_speech();
+    frontstats_timer = LbTimerClock() + 2000;
 }
 
 void frontstats_update(void)
 {
-  LevelNumber lvnum;
-  int h;
-  scrolling_offset++;
-  LbTextSetFont(frontend_font[1]);
-  h = LbTextLineHeight();
-  if (h+4 < scrolling_offset)
-  {
-    scrolling_offset -= h+4;
-    scrolling_index++;
-    if (!scrolling_stats_data[scrolling_index].name_stridx)
-      scrolling_index = 0;
-  }
-  lvnum = get_loaded_level_number();
-  if (frontstats_timer != 0)
-    if (LbTimerClock() > frontstats_timer)
+    LevelNumber lvnum;
+    int h;
+    scrolling_offset++;
+    LbTextSetFont(frontend_font[1]);
+    h = LbTextLineHeight();
+    if (h+4 < scrolling_offset)
     {
-      play_description_speech(lvnum,0);
-      frontstats_timer = 0;
+        scrolling_offset -= h+4;
+        scrolling_index++;
+        if (!scrolling_stats_data[scrolling_index].name_stridx)
+            scrolling_index = 0;
+    }
+    lvnum = get_loaded_level_number();
+    if (frontstats_timer != 0)
+    {
+        if (LbTimerClock() > frontstats_timer)
+        {
+            play_description_speech(lvnum,0);
+            frontstats_timer = 0;
+        }
     }
 }
 

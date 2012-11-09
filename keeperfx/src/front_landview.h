@@ -136,8 +136,9 @@ void frontzoom_to_point(long a1, long a2, long a3);
 void compressed_window_draw(void);
 void frontnet_init_level_descriptions(void);
 
-short play_current_description_speech(short play_good);
-short play_description_speech(LevelNumber lvnum, short play_good);
+TbBool initialize_description_speech(void);
+TbBool play_current_description_speech(short play_good);
+TbBool play_description_speech(LevelNumber lvnum, short play_good);
 void check_mouse_scroll(void);
 void update_velocity(void);
 /******************************************************************************/
