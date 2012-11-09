@@ -26,6 +26,7 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
+#include "thing_physics.h"
 #include "thing_traps.h"
 #include "thing_effects.h"
 #include "room_jobs.h"

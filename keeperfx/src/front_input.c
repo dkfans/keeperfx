@@ -1476,7 +1476,7 @@ static void speech_pickup_of_gui_job(int job_idx)
     int kind;
     unsigned char pick_flags;
 
-    SYNCDBG(7, "Picking up creature of breed %s for job of type %i",
+    SYNCDBG(7, "Picking up creature of breed %s for job of type %d",
         last_speech_event.u.creature.model_name, job_idx);
     kind = creature_model_id(last_speech_event.u.creature.model_name);
     if (kind < 0) {
@@ -1485,6 +1485,8 @@ static void speech_pickup_of_gui_job(int job_idx)
     }
 
     pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL] || (job_idx == -1))
+        pick_flags |= TPF_OrderedPick;
     if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
         pick_flags |= TPF_ReverseOrder;
     pick_up_creature_of_breed_and_gui_job(kind, job_idx, my_player_number, pick_flags);

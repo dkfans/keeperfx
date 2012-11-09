@@ -42,7 +42,8 @@ struct Thing;
 
 enum ThingPickFlags {
     TPF_PickableCheck    = 0x01,
-    TPF_ReverseOrder     = 0x02,
+    TPF_OrderedPick      = 0x02,
+    TPF_ReverseOrder     = 0x04,
 };
 
 struct CreatureStorage {
@@ -110,7 +111,7 @@ void process_thing_spell_effects(struct Thing *thing);
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
 void change_creature_owner(struct Thing *thing, long nowner);
-struct Thing *find_my_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, TbBool pick_check);
+struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags);
 struct Thing *pick_up_creature_of_breed_and_gui_job(long breed_idx, long job_idx, long owner, unsigned char pick_flags);
 struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const struct Thing *dragtng);
 
@@ -126,7 +127,7 @@ TbBool creature_stats_debug_dump(void);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_creature_special_digger(const struct Thing *thing);
-TbBool creature_is_slappable(const struct Thing *thing, long plyr_idx);
+TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
