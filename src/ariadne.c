@@ -922,7 +922,7 @@ void ariadne_pull_out_waypoint(const struct Thing *thing, const struct Ariadne *
  * @param thing The thing which is moving.
  * @param arid The Ariadne which is being changed.
  */
-void ariadne_init_current_waypoint(struct Thing *thing, struct Ariadne *arid)
+void ariadne_init_current_waypoint(const struct Thing *thing, struct Ariadne *arid)
 {
     ariadne_pull_out_waypoint(thing, arid, arid->current_waypoint, &arid->current_waypoint_pos);
     arid->current_waypoint_pos.z.val = get_thing_height_at(thing, &arid->current_waypoint_pos);
@@ -980,7 +980,7 @@ long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
     return flags;
 }
 
-long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long blk_flags)
+TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long blk_flags)
 {
     long radius;
     long start_x,end_x,start_y,end_y;
@@ -1001,7 +1001,7 @@ long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long 
             for (stl_y = start_y; stl_y <= end_y; stl_y++)
             {
                 if (subtile_is_door(stl_x, stl_y))
-                    return 1;
+                    return true;
             }
         }
     }
@@ -1015,11 +1015,11 @@ long blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned long 
             for (stl_x = start_x; stl_x <= end_x; stl_x++)
             {
                 if (subtile_is_door(stl_x, stl_y))
-                    return 1;
+                    return true;
             }
         }
     }
-    return 0;
+    return false;
 }
 
 long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out)
@@ -1106,8 +1106,8 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     unsigned long blk_flags;
     //return _DK_ariadne_init_movement_to_current_waypoint(thing, arid);
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
-    delta_x = ((long)arid->field_26 * LbSinL(angle)) >> 16;
-    delta_y = ((long)arid->field_26 * LbCosL(angle)) >> 16;
+    delta_x = ((long)arid->move_speed * LbSinL(angle)) >> 16;
+    delta_y = ((long)arid->move_speed * LbCosL(angle)) >> 16;
     requested_pos.x.val = (long)thing->mappos.x.val + delta_x;
     requested_pos.y.val = (long)thing->mappos.y.val - delta_y;
     requested_pos.z.val = get_thing_height_at(thing, &requested_pos);
@@ -1145,7 +1145,7 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     return 1;
 }
 
-AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *thing, struct Ariadne *arid, struct Coord3d *srcpos, struct Coord3d *dstpos)
+AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *thing, struct Ariadne *arid, const struct Coord3d *srcpos, const struct Coord3d *dstpos)
 {
     arid->startpos.x.val = srcpos->x.val;
     arid->startpos.y.val = srcpos->y.val;
@@ -1165,10 +1165,11 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *
     arid->stored_waypoints = 1;
     arid->total_waypoints = 1;
     arid->field_1E = 0;
-    return 0;
+    return AridRet_OK;
 }
 
-AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, struct Ariadne *arid, struct Coord3d *srcpos, struct Coord3d *dstpos, long a3, unsigned char no_owner)
+AriadneReturn ariadne_prepare_creature_route_to_target(const struct Thing *thing, struct Ariadne *arid,
+    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char no_owner)
 {
     struct Path path;
     long nav_sizexy;
@@ -1192,14 +1193,16 @@ AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, stru
     nav_thing_can_travel_over_lava = 0;
     if (path.waypoints_num <= 0)
         return AridRet_Val2;
+    // Fill total waypoints number
     if (path.waypoints_num <= 255)
         arid->total_waypoints = path.waypoints_num;
     else
         arid->total_waypoints = 255;
-    if (arid->total_waypoints < 10)
+    // Fill stored waypoints (up to ARID_WAYPOINTS_COUNT)
+    if (arid->total_waypoints < ARID_WAYPOINTS_COUNT)
         arid->stored_waypoints = arid->total_waypoints;
     else
-        arid->stored_waypoints = 10;
+        arid->stored_waypoints = ARID_WAYPOINTS_COUNT;
     k = 0;
     for (i = 0; i < arid->stored_waypoints; i++)
     {
@@ -1212,7 +1215,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target(struct Thing *thing, stru
     arid->pos_12.x.val = thing->mappos.x.val;
     arid->pos_12.y.val = thing->mappos.y.val;
     arid->pos_12.z.val = thing->mappos.z.val;
-    arid->field_26 = a3;
+    arid->move_speed = speed;
     return AridRet_OK;
 }
 
@@ -1229,13 +1232,19 @@ AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coor
     if (ariadne_creature_reached_position(thing, pos))
     {
         ret = ariadne_prepare_creature_route_target_reached(thing, arid, &thing->mappos, pos);
-        if (ret != AridRet_OK)
+        if (ret != AridRet_OK) {
+            /*NAVIDBG(9,"Failed to reach route from %5d,%5d to %5d,%5d",
+                (int)thing->mappos.x.val,(int)thing->mappos.y.val, (int)pos->x.val,(int)pos->y.val);*/
             return ret;
+        }
     } else
     {
         ret = ariadne_prepare_creature_route_to_target(thing, arid, &thing->mappos, pos, speed, storage);
-        if (ret != AridRet_OK)
+        if (ret != AridRet_OK) {
+            /*NAVIDBG(9,"Failed to prepare route from %5d,%5d to %5d,%5d",
+                (int)thing->mappos.x.val,(int)thing->mappos.y.val, (int)pos->x.val,(int)pos->y.val);*/
             return ret;
+        }
         ariadne_init_current_waypoint(thing, arid);
     }
     ret = ariadne_init_movement_to_current_waypoint(thing, arid);
@@ -1268,7 +1277,7 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
     pos.x.val = arid->endpos.x.val;
     pos.y.val = arid->endpos.y.val;
     pos.z.val = arid->endpos.z.val;
-    return ariadne_initialise_creature_route(thing, &pos, arid->field_26, arid->field_1E);
+    return ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E);
 }
 
 TbBool ariadne_creature_reached_waypoint(const struct Thing *thing, const struct Ariadne *arid)
@@ -1287,7 +1296,7 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
-        if (ariadne_initialise_creature_route(thing, &pos, arid->field_26, arid->field_1E) != AridRet_OK)
+        if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E) != AridRet_OK)
         {
             return 3;
         }
@@ -1310,9 +1319,9 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     case 2:
         angle = ariadne_get_wallhug_angle(thing, arid);
         arid->field_60 = angle;
-        i = arid->field_26 * LbSinL(angle);
+        i = arid->move_speed * LbSinL(angle);
         arid->pos_12.x.val = thing->mappos.x.val + (i >> 16);
-        i = arid->field_26 * LbCosL(angle);
+        i = arid->move_speed * LbCosL(angle);
         arid->pos_12.y.val = thing->mappos.y.val - (i >> 16);
         arid->field_21 = 2;
         return 0;
@@ -1333,26 +1342,26 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     return _DK_ariadne_update_state_wallhug(thing, arid);
 }
 
-AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long a4, struct Coord3d *nextpos, unsigned char a5)
+AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long speed, struct Coord3d *nextpos, unsigned char a5)
 {
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
     AriadneReturn result;
     AriadneReturn aret;
     //TODO PATHFINDING rewritten code has been disabled because it has errors (1/2)
-    result = _DK_ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5); return result;
+    result = _DK_ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5); return result;
 
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
     arid->field_22 = 0;
     if ((finalpos->x.val != arid->endpos.x.val)
      || (finalpos->y.val != arid->endpos.y.val)
-     || (arid->field_26 != a4))
+     || (arid->move_speed != speed))
     {
-        aret = ariadne_initialise_creature_route(thing, finalpos, a4, a5);
+        aret = ariadne_initialise_creature_route(thing, finalpos, speed, a5);
         if (aret != AridRet_OK)
             return AridRet_Val2;
-        arid->field_26 = a4;
+        arid->move_speed = speed;
         if (arid->field_22)
         {
             nextpos->x.val = arid->pos_12.x.val;
@@ -1379,7 +1388,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             ariadne_init_movement_to_current_waypoint(thing, arid);
         } else
         {
-            aret = ariadne_initialise_creature_route(thing, finalpos, a4, a5);
+            aret = ariadne_initialise_creature_route(thing, finalpos, speed, a5);
             if (aret != AridRet_OK)
             {
               return AridRet_PartOK;
@@ -1417,20 +1426,20 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
 
 /** Initializes creature to start moving towards given position.
  *  Hero Gates can be used by the creature to shorten distance.
- * @param thing
- * @param finalpos
- * @param nextpos
+ * @param thing The creature thing to be moved.
+ * @param finalpos Final position coordinates.
+ * @param nextpos Next step coordinates.
  * @param a4
  * @param a5
  * @return
  */
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long a4, unsigned char a5)
 {
-    struct CreatureControl *cctrl;
     SYNCDBG(18,"Starting");
     //return _DK_creature_follow_route_to_using_gates(thing, finalpos, nextpos, a4, a5);
     if (game.field_14EA4B)
     {
+        struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         cctrl->arid.field_23 = 1;
     }

@@ -45,7 +45,7 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
     }
     if (!remove_item_from_room_capacity(room))
         return false;
-    remove_spell_from_player(object_to_magic[spelltng->model], room->owner);
+    remove_spell_from_player(book_thing_to_magic(spelltng), room->owner);
     if (is_my_player_number(room->owner))
     {
         output_message(SMsg_SpellbookStolen, 0, true);

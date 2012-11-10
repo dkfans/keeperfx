@@ -22,6 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "thing_list.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,6 +43,7 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
 TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *room);
 TbBool remove_creature_from_work_room(struct Thing *thing);
 
+struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing *creatng, const struct Room *room, Thing_Bool_Filter matcher_cb);
 /******************************************************************************/
 #ifdef __cplusplus
 }

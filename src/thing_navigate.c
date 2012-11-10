@@ -224,8 +224,12 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (object_is_hero_gate(thing) && creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0))
-            return thing;
+        if (object_is_hero_gate(thing))
+        {
+            if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, 0)) {
+                return thing;
+            }
+        }
         // Per thing code ends
         k++;
         if (k > THINGS_COUNT)
@@ -272,7 +276,7 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
 
 TbBool creature_can_travel_over_lava(const struct Thing *thing)
 {
-    struct CreatureStats *crstat;
+    const struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     return (crstat->hurt_by_lava <= 0) || ((thing->movement_flags & TMvF_Flying) != 0);
 }
@@ -349,13 +353,11 @@ long creature_turn_to_face_angle(struct Thing *thing, long a2)
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, long a5, TbBool backward)
 {
-    struct CreatureControl *cctrl;
     struct Coord3d nextpos;
     AriadneReturn follow_result;
     long i;
     SYNCDBG(18,"Starting to move thing %d into (%d,%d)",(int)thing->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
     //return _DK_creature_move_to_using_gates(thing, pos, speed, a4, a5, backward);
-    cctrl = creature_control_get_from_thing(thing);
     if ( backward )
     {
         i = (thing->field_52 + LbFPMath_PI);
@@ -377,6 +379,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     {
         return  1;
     }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
     if ( backward )
     {
         if ( creature_turn_to_face_backwards(thing, &nextpos) )

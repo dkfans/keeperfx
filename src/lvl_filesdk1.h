@@ -38,15 +38,15 @@ enum LoadMapFileFlags {
 /******************************************************************************/
 extern long level_file_version;
 /******************************************************************************/
-unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fext,long *ldsize,unsigned short flags);
+unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags);
 TbBool find_and_load_lif_files(void);
 TbBool find_and_load_lof_files(void);
-long convert_old_column_file(unsigned long lv_num);
-TbBool load_column_file(unsigned long lv_num);
+long convert_old_column_file(LevelNumber lv_num);
+TbBool load_column_file(LevelNumber lv_num);
 TbBool load_slab_file(void);
-TbBool load_map_data_file(unsigned long lv_num);
-TbBool load_thing_file(unsigned long lv_num);
-TbBool load_action_point_file(unsigned long lv_num);
+TbBool load_map_data_file(LevelNumber lv_num);
+TbBool load_thing_file(LevelNumber lv_num);
+TbBool load_action_point_file(LevelNumber lv_num);
 TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n);
 
 TbBool load_map_file(LevelNumber lvnum);
