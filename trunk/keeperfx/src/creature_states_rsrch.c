@@ -476,7 +476,12 @@ TbBool process_job_stress(struct Thing *creatng, struct Room *room)
     return true;
 }
 
-long process_research_function(struct Thing *thing)
+/**
+ * Does a step of researching.
+ * Informs if the research cycle should end.
+ * @param thing
+ */
+CrCheckRet process_research_function(struct Thing *thing)
 {
     struct Dungeon *dungeon;
     struct CreatureStats *crstat;
@@ -486,18 +491,18 @@ long process_research_function(struct Thing *thing)
     if (dungeon_invalid(dungeon)) {
         SYNCDBG(9,"The %s index %d cannot work as player %d has no dungeon",thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
-        return 1;
+        return CrCkRet_Continue;
     }
     crstat = creature_stats_get_from_thing(thing);
     if ( (crstat->research_value <= 0) || (dungeon->field_F78 < 0) ) {
         set_start_state(thing);
-        return 1;
+        return CrCkRet_Continue;
     }
     room = get_room_creature_works_in(thing);
     if ( !room_still_valid_as_type_for_thing(room, RoK_LIBRARY, thing) ) {
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
         set_start_state(thing);
-        return 1;
+        return CrCkRet_Continue;
     }
     long work_value;
     struct CreatureControl *cctrl;
@@ -508,26 +513,24 @@ long process_research_function(struct Thing *thing)
     dungeon->total_research_points += work_value;
     dungeon->field_1193 += work_value;
     process_job_stress(thing, room);
-    return 0;
+    return CrCkRet_Available;
 }
 
 short researching(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     struct Dungeon *dungeon;
-    struct Room *room;
     long i;
+    TRACE_THING(thing);
     //return _DK_researching(thing);
     dungeon = get_dungeon(thing->owner);
-    cctrl = creature_control_get_from_thing(thing);
     if (thing->owner == game.neutral_player_num)
     {
         ERRORLOG("Neutral %s can't do research",thing_model_name(thing));
         remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return 0;
+        return CrStRet_Unchanged;
     }
+    struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     if ( (crstat->research_value == 0) || (dungeon->field_F78 < 0) )
     {
@@ -538,33 +541,28 @@ short researching(struct Thing *thing)
         }
         remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return 0;
+        return CrStRet_Unchanged;
     }
     // Get and verify working room
+    struct Room *room;
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (cctrl->work_room_id != room->index))
+    if (creature_work_in_room_no_longer_possible(room, RoK_LIBRARY, thing))
     {
-        WARNLOG("Room %s index %d is is not %s work room %d",room_code_name(room->kind),(int)room->index,thing_model_name(thing),(int)cctrl->work_room_id);
         remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return 0;
+        return CrStRet_ResetFail;
     }
-    if (!room_still_valid_as_type_for_thing(room, RoK_LIBRARY, thing))
-    {
-        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
+
     if (room->used_capacity > room->total_capacity)
     {
       if ( is_my_player_number(room->owner) )
           output_message(SMsg_LibraryTooSmall, 0, true);
       remove_creature_from_work_room(thing);
       set_start_state(thing);
-      return 0;
+      return CrStRet_Unchanged;
     }
     process_research_function(thing);
+    struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     if ( (game.play_gameturn - dungeon->field_AE5 < 50)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
@@ -572,7 +570,7 @@ short researching(struct Thing *thing)
       external_set_thing_state(thing, CrSt_CreatureBeHappy);
       cctrl->field_282 = 50;
       cctrl->long_9A = 0;
-      return 1;
+      return CrStRet_Modified;
     }
     if (cctrl->instance_id != CrInst_NULL)
       return 1;

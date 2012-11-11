@@ -447,10 +447,11 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
 
 short move_to_position(struct Thing *thing)
 {
-    Thing_State_Func callback;
+    CreatureStateCheck callback;
     struct CreatureControl *cctrl;
     struct StateInfo *stati;
-    long move_result,state_result;
+    long move_result;
+    CrCheckRet state_check;
     long speed;
     long i;
     SYNCDBG(18,"Starting for thing %d",(int)thing->index);
@@ -462,24 +463,24 @@ short move_to_position(struct Thing *thing)
         return 1;
     }
     move_result = creature_move_to_using_gates(thing, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 0);
-    state_result = 0;
+    state_check = CrCkRet_Available;
     stati = get_thing_continue_state_info(thing);
     if (!state_info_invalid(stati))
     {
-        callback = stati->ofsfield_C;
+        callback = stati->move_check;
         if (callback != NULL)
         {
-            SYNCDBG(18,"Doing callback");
-            state_result = callback(thing);
+            SYNCDBG(18,"Doing move check callback");
+            state_check = callback(thing);
         }
     }
-    if (state_result == 0)
+    if (state_check == CrCkRet_Available)
     {
         // If moving was successful
         if (move_result == 1) {
             // Back to "main state"
             internal_set_thing_state(thing, thing->continue_state);
-            return 1;
+            return CrStRet_Modified;
         }
         // If moving failed, do a reset
         if (move_result == -1) {
@@ -487,9 +488,18 @@ short move_to_position(struct Thing *thing)
             internal_set_thing_state(thing, thing->continue_state);
             set_start_state(thing);
             SYNCDBG(8,"Couldn't move %s to place required for state %d; reset to state %d",thing_model_name(thing),(int)i,(int)thing->active_state);
+            return CrStRet_ResetOk;
         }
     }
-    return state_result;
+    switch (state_check)
+    {
+    case CrCkRet_Deleted:
+        return CrStRet_Deleted;
+    case CrCkRet_Available:
+        return CrStRet_Modified;
+    default:
+        return CrStRet_ResetOk;
+    }
 }
 
 long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos)

@@ -99,51 +99,51 @@ struct Creatures creatures_NEW[] = {
 };
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, long a3);
-DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *thing, long a2);
-DLLIMPORT void _DK_change_creature_owner(struct Thing *thing , char nowner);
-DLLIMPORT void _DK_cause_creature_death(struct Thing *thing, unsigned char a2);
-DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spell_lev);
+DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long a2);
+DLLIMPORT void _DK_change_creature_owner(struct Thing *creatng , char nowner);
+DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char a2);
+DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *creatng, long spell_idx, long spell_lev);
 DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long no_effects);
 DLLIMPORT void _DK_creature_cast_spell(struct Thing *caster, long a2, long a3, long no_effects, long a5);
-DLLIMPORT void _DK_set_first_creature(struct Thing *thing);
-DLLIMPORT void _DK_remove_first_creature(struct Thing *thing);
+DLLIMPORT void _DK_set_first_creature(struct Thing *creatng);
+DLLIMPORT void _DK_remove_first_creature(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
 DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
 DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
-DLLIMPORT long _DK_remove_creature_from_group(struct Thing *thing);
+DLLIMPORT long _DK_remove_creature_from_group(struct Thing *creatng);
 DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
-DLLIMPORT void _DK_anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
-DLLIMPORT long _DK_creature_available_for_combat_this_turn(struct Thing *thing);
-DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
+DLLIMPORT void _DK_anger_apply_anger_to_creature(struct Thing *creatng, long anger, long a2, long a3);
+DLLIMPORT long _DK_creature_available_for_combat_this_turn(struct Thing *creatng);
+DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thing *creatng);
 DLLIMPORT long _DK_set_creature_object_combat(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_set_creature_door_combat(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3);
-DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
-DLLIMPORT void _DK_load_swipe_graphic_for_creature(struct Thing *thing);
+DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *player, struct Thing *creatng);
+DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *creatng);
+DLLIMPORT void _DK_load_swipe_graphic_for_creature(struct Thing *creatng);
 DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short a2);
-DLLIMPORT long _DK_creature_instance_has_reset(struct Thing *thing, long a2);
-DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *thing, long a2);
-DLLIMPORT void _DK_set_creature_instance(struct Thing *thing, long a1, long a2, long a3, struct Coord3d *pos);
-DLLIMPORT void _DK_draw_creature_view(struct Thing *thing);
-DLLIMPORT void _DK_process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT short _DK_kill_creature(struct Thing *thing, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char no_effects);
-DLLIMPORT void _DK_update_creature_count(struct Thing *thing);
-DLLIMPORT long _DK_process_creature_state(struct Thing *thing);
-DLLIMPORT long _DK_move_creature(struct Thing *thing);
-DLLIMPORT void _DK_init_creature_level(struct Thing *thing, long nlev);
-DLLIMPORT long _DK_check_for_first_person_barrack_party(struct Thing *thing);
-DLLIMPORT void _DK_terminate_thing_spell_effect(struct Thing *thing, long a2);
-DLLIMPORT void _DK_creature_increase_level(struct Thing *thing);
-DLLIMPORT void _DK_thing_death_flesh_explosion(struct Thing *thing);
-DLLIMPORT void _DK_thing_death_gas_and_flesh_explosion(struct Thing *thing);
-DLLIMPORT void _DK_thing_death_smoke_explosion(struct Thing *thing);
-DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *thing);
-DLLIMPORT long _DK_creature_is_group_leader(struct Thing *thing);
-DLLIMPORT long _DK_update_creature_levels(struct Thing *thing);
-DLLIMPORT long _DK_update_creature(struct Thing *thing);
-DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *thing);
+DLLIMPORT long _DK_creature_instance_has_reset(struct Thing *creatng, long a2);
+DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long a2);
+DLLIMPORT void _DK_set_creature_instance(struct Thing *creatng, long a1, long a2, long a3, struct Coord3d *pos);
+DLLIMPORT void _DK_draw_creature_view(struct Thing *creatng);
+DLLIMPORT void _DK_process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord3d *pos);
+DLLIMPORT short _DK_kill_creature(struct Thing *creatng, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char no_effects);
+DLLIMPORT void _DK_update_creature_count(struct Thing *creatng);
+DLLIMPORT long _DK_process_creature_state(struct Thing *creatng);
+DLLIMPORT long _DK_move_creature(struct Thing *creatng);
+DLLIMPORT void _DK_init_creature_level(struct Thing *creatng, long nlev);
+DLLIMPORT long _DK_check_for_first_person_barrack_party(struct Thing *creatng);
+DLLIMPORT void _DK_terminate_thing_spell_effect(struct Thing *creatng, long a2);
+DLLIMPORT void _DK_creature_increase_level(struct Thing *creatng);
+DLLIMPORT void _DK_thing_death_flesh_explosion(struct Thing *creatng);
+DLLIMPORT void _DK_thing_death_gas_and_flesh_explosion(struct Thing *creatng);
+DLLIMPORT void _DK_thing_death_smoke_explosion(struct Thing *creatng);
+DLLIMPORT void _DK_thing_death_ice_explosion(struct Thing *creatng);
+DLLIMPORT long _DK_creature_is_group_leader(struct Thing *creatng);
+DLLIMPORT long _DK_update_creature_levels(struct Thing *creatng);
+DLLIMPORT long _DK_update_creature(struct Thing *creatng);
+DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -1489,12 +1489,12 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   light_turn_light_on(player->field_460);
 }
 
-void delete_effects_attached_to_creature(struct Thing *crtng)
+void delete_effects_attached_to_creature(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Thing *efftng;
     long i,k;
-    cctrl = creature_control_get_from_thing(crtng);
+    cctrl = creature_control_get_from_thing(creatng);
     if (creature_control_invalid(cctrl)) {
         return;
     }
@@ -1512,9 +1512,9 @@ void delete_effects_attached_to_creature(struct Thing *crtng)
             }
         }
     }
-    if ((cctrl->spell_flags & 0x0100) != 0)
+    if ((cctrl->spell_flags & CSAfF_Disease) != 0)
     {
-        cctrl->spell_flags &= ~0x0100;
+        cctrl->spell_flags &= ~CSAfF_Disease;
         for (i=0; i < 3; i++)
         {
             k = cctrl->field_2B9[i];
@@ -1538,12 +1538,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     SYNCDBG(18,"Starting");
     //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, disallow_unconscious);
     dungeon = INVALID_DUNGEON;
-    cctrl = creature_control_get_from_thing(thing);
-    cleanup_current_thing_state(thing);
-    remove_all_traces_of_combat(thing);
-    if (creature_is_group_member(thing)) {
-        remove_creature_from_group(thing);
-    }
+    cleanup_creature_state_and_interactions(thing);
     if (!thing_is_invalid(killertng))
     {
         if (killertng->owner == game.neutral_player_num)
@@ -1552,7 +1547,6 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     if (killer_plyr_idx == game.neutral_player_num) {
       died_in_battle = 0;
     }
-    remove_events_thing_is_attached_to(thing);
     if (!thing_exists(thing)) {
         ERRORLOG("Tried to kill nonexisting thing!");
         return false;
@@ -1567,9 +1561,9 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
             dungeon->battles_lost++;
         }
     }
-    delete_effects_attached_to_creature(thing);
     update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
-    if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) || (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
+    if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) ||
+        (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
         if ((no_effects) && ((thing->alloc_flags & TAlF_IsControlled) != 0)) {
             prepare_to_controlled_creature_death(thing);
@@ -1844,7 +1838,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
   cctrl->explevel = nlvl;
   max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
   cctrl->max_health = max_health;
-  if ((cctrl->spell_flags & 0x0200) != 0)
+  if ((cctrl->spell_flags & CSAfF_Chicken) != 0)
     thing->field_46 = 300;
   else
     thing->field_46 = saturate_set_signed( 300 + (300*(unsigned long)(cctrl->explevel)) / 20, 16);
@@ -2206,50 +2200,59 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
     _DK_anger_set_creature_anger_all_types(thing, a2);
 }
 
-void change_creature_owner(struct Thing *thing, long nowner)
+TbBool remove_creature_lair(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
     struct Room *room;
-    //_DK_change_creature_owner(thing, nowner);
-    if (thing->light_id != 0) {
-        light_delete_light(thing->light_id);
-        thing->light_id = 0;
-    }
-    if (creature_is_group_member(thing))
-        remove_creature_from_group(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->lairtng_idx != 0)
-    {
-        room = room_get(cctrl->lair_room_id);
-        if (!room_is_invalid(room)) {
-            creature_remove_lair_from_room(thing, room);
-        } else {
-            ERRORDBG(8,"The %s index %d has lair %d in non-existing room.",thing_model_name(thing),(int)thing->index,(int)cctrl->lairtng_idx);
-            cctrl->lairtng_idx = 0;
-        }
+    if (cctrl->lairtng_idx <= 0) {
+        return false;
     }
-    if ((thing->alloc_flags & TAlF_Unkn08) != 0)
-      remove_first_creature(thing);
-    if (thing->owner != game.neutral_player_num)
+    room = room_get(cctrl->lair_room_id);
+    if (!room_is_invalid(room)) {
+        creature_remove_lair_from_room(thing, room);
+        return true;
+    } else {
+        ERRORDBG(8,"The %s index %d has lair %d in non-existing room.",thing_model_name(thing),(int)thing->index,(int)cctrl->lairtng_idx);
+        cctrl->lairtng_idx = 0;
+    }
+    return false;
+}
+
+void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
+{
+    struct Dungeon *dungeon;
+    SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(creatng),(int)creatng->owner,(int)nowner);
+    //_DK_change_creature_owner(thing, nowner); return;
+    // Remove the creature from old owner
+    if (creatng->light_id != 0) {
+        light_delete_light(creatng->light_id);
+        creatng->light_id = 0;
+    }
+    cleanup_creature_state_and_interactions(creatng);
+    remove_creature_lair(creatng);
+    if ((creatng->alloc_flags & TAlF_Unkn08) != 0) {
+        remove_first_creature(creatng);
+    }
+    if (creatng->owner != game.neutral_player_num)
     {
-        dungeon = get_dungeon(thing->owner);
-        dungeon->score -= get_creature_thing_score(thing);
-        if ( anger_is_creature_angry(thing) )
+        dungeon = get_dungeon(creatng->owner);
+        dungeon->score -= get_creature_thing_score(creatng);
+        if ( anger_is_creature_angry(creatng) )
             dungeon->creatures_annoyed--;
-        remove_events_thing_is_attached_to(thing);
+        remove_events_thing_is_attached_to(creatng);
     }
-    thing->owner = nowner;
-    set_first_creature(thing);
-    set_start_state(thing);
-    if (thing->owner != game.neutral_player_num)
+    // Add the creature to new owner
+    creatng->owner = nowner;
+    set_first_creature(creatng);
+    set_start_state(creatng);
+    if (creatng->owner != game.neutral_player_num)
     {
-        dungeon = get_dungeon(thing->owner);
-        dungeon->score += get_creature_thing_score(thing);
-        if ( anger_is_creature_angry(thing) )
+        dungeon = get_dungeon(creatng->owner);
+        dungeon->score += get_creature_thing_score(creatng);
+        if ( anger_is_creature_angry(creatng) )
             dungeon->creatures_annoyed++;
     }
-
 }
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
@@ -3310,9 +3313,9 @@ long update_creature_levels(struct Thing *thing)
     struct Thing *newtng;
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & 0x4000) == 0)
+    if ((cctrl->spell_flags & CSAfF_Unkn4000) == 0)
         return 0;
-    cctrl->spell_flags &= ~0x4000;
+    cctrl->spell_flags &= ~CSAfF_Unkn4000;
     remove_creature_score_from_owner(thing);
     // If a creature is not on highest level, just update the level
     if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
@@ -3487,7 +3490,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->pos_BB.z.val = 0;
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown40,false);
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown80,false);
-    cctrl->spell_flags &= ~0x0400;
+    cctrl->spell_flags &= ~CSAfF_Unkn0400;
     process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;

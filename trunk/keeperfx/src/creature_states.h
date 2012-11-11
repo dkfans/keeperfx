@@ -216,15 +216,22 @@ enum CreatureStateReturns {
     CrStRet_ResetFail     =  3, /**< Returned if the creature state has been reset, task was either abandoned or couldn't be completed. */
 };
 
+/** Defines return values of creature state check functions. */
+enum CreatureCheckReturns {
+    CrCkRet_Deleted       = -1, /**< Returned if the creature being updated no longer exists. */
+    CrCkRet_Available     =  0, /**< Returned if the creature is available for additional processing, even reset. */
+    CrCkRet_Continue      =  1, /**< Returned if the action being performed on the creature shall continue, creature shouldn't be processed. */
+};
+
 typedef short (*CreatureStateFunc1)(struct Thing *);
 typedef char (*CreatureStateFunc2)(struct Thing *);
-typedef long (*CreatureStateFunc3)(struct Thing *);
+typedef CrCheckRet (*CreatureStateCheck)(struct Thing *);
 
 struct StateInfo { // sizeof = 41
     CreatureStateFunc1 ofsfield_0;
     CreatureStateFunc1 cleanup_state;
     CreatureStateFunc2 ofsfield_8;
-    CreatureStateFunc3 ofsfield_C;
+    CreatureStateCheck move_check;
   unsigned char field_10;
   unsigned char field_11;
   unsigned char field_12;
@@ -266,6 +273,7 @@ TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState);
 TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state);
 TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState);
 TbBool cleanup_current_thing_state(struct Thing *thing);
+TbBool cleanup_creature_state_and_interactions(struct Thing *thing);
 struct StateInfo *get_thing_active_state_info(struct Thing *thing);
 struct StateInfo *get_thing_continue_state_info(struct Thing *thing);
 struct StateInfo *get_thing_state_info_num(CrtrStateId state_id);
@@ -291,8 +299,12 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long ow
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 long slab_by_players_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool process_creature_hunger(struct Thing *thing);
+
 TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
+TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomKind rkind, const struct Thing *thing, const char *func_name);
+#define creature_work_in_room_no_longer_possible(room, rkind, thing) creature_work_in_room_no_longer_possible_f(room, rkind, thing, __func__)
+
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
@@ -317,7 +329,6 @@ TbBool creature_is_scavengering(const struct Thing *thing);
 TbBool creature_is_escaping_death(const struct Thing *thing);
 TbBool creature_is_kept_in_custody(const struct Thing *thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
-TbBool remove_creature_from_work_room(struct Thing *thing);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool anger_is_creature_livid(const struct Thing *thing);
 TbBool anger_is_creature_angry(const struct Thing *thing);

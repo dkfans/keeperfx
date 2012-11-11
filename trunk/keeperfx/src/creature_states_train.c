@@ -576,47 +576,44 @@ short at_training_room(struct Thing *thing)
     return 1;
 }
 
-short training(struct Thing *thing)
+CrStateRet training(struct Thing *thing)
 {
-    struct Dungeon *dungeon;
-    struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    TbBool finish_training;
-    struct Room *room;
     long i;
+    TRACE_THING(thing);
     SYNCDBG(18,"Starting");
     //return _DK_training(thing);
-    dungeon = get_dungeon(thing->owner);
     cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
     // Check if we should finish training
-    finish_training = false;
     if (!creature_can_be_trained(thing))
     {
         SYNCDBG(9,"Ending training %s level %d; creature isn't trainable",thing_model_name(thing),(int)cctrl->explevel);
-        finish_training = true;
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return CrStRet_ResetOk;
     }
     if (!player_can_afford_to_train_creature(thing))
     {
         SYNCDBG(19,"Ending training %s index %d; cannot afford",thing_model_name(thing),(int)thing->index);
         if (is_my_player_number(thing->owner))
             output_message(SMsg_NoGoldToTrain, MESSAGE_DELAY_TREASURY, true);
-        finish_training = true;
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return CrStRet_ResetFail;
     }
     // Check if we're in correct room
+    struct Room *room;
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room) || (room->kind != RoK_TRAINING)
-     || (cctrl->work_room_id != room->index) || (room->owner != thing->owner))
-    {
-        SYNCDBG(9,"Ending training %s index %d; training room no longer valid",thing_model_name(thing),(int)thing->index);
-        finish_training = true;
-    }
-    if (finish_training)
+    if (creature_work_in_room_no_longer_possible(room, RoK_TRAINING, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return 0;
+        return CrStRet_ResetFail;
     }
+    struct Dungeon *dungeon;
+    struct CreatureStats *crstat;
+    dungeon = get_dungeon(thing->owner);
+    crstat = creature_stats_get_from_thing(thing);
     // Pay for the training
     cctrl->field_82++;
     if (cctrl->field_82 >= game.train_cost_frequency)
@@ -640,7 +637,7 @@ short training(struct Thing *thing)
         }
         dungeon->lvstats.creatures_trained++;
     }
-    return 1;
+    return CrStRet_Modified;
 }
 
 /******************************************************************************/

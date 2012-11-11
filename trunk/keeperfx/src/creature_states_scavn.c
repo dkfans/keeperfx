@@ -145,7 +145,7 @@ short creature_scavenged_reappear(struct Thing *thing)
   return _DK_creature_scavenged_reappear(thing);
 }
 
-long process_scavenge_function(struct Thing *thing)
+CrCheckRet process_scavenge_function(struct Thing *thing)
 {
   return _DK_process_scavenge_function(thing);
 }

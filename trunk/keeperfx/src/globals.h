@@ -165,6 +165,8 @@ typedef long HitPoints;
 typedef short TngUpdateRet;
 /** Type which stores CrStRet_* values. */
 typedef short CrStateRet;
+/** Type which stores CrCkRet_* values. */
+typedef short CrCheckRet;
 /** Level number within a campaign. */
 typedef long LevelNumber;
 /** Map coordinate in full resolution. Position within subtile is scaled 0..255. */

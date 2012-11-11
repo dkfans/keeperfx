@@ -143,7 +143,7 @@ long setup_prison_move(struct Thing *thing, struct Room *room)
   return _DK_setup_prison_move(thing, room);
 }
 
-long process_prison_visuals(struct Thing *thing, struct Room *room)
+CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -171,35 +171,35 @@ long process_prison_visuals(struct Thing *thing, struct Room *room)
     return Lb_OK;
 }
 
-short creature_in_prison(struct Thing *thing)
+CrStateRet creature_in_prison(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     struct Room *room;
-    TbResult ret;
     //return _DK_creature_in_prison(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
+    if (creature_work_in_room_no_longer_possible(room, RoK_PRISON, thing))
     {
+        remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return Lb_OK;
-    }
-    if ((room->kind != RoK_PRISON) || (cctrl->work_room_id != room->index))
-    {
-        set_start_state(thing);
-        return Lb_OK;
+        return CrStRet_ResetFail;
     }
     if (room->total_capacity < room->used_capacity)
     {
         if (is_my_player_number(room->owner))
             output_message(SMsg_PrisonTooSmall, 0, true);
         set_start_state(thing);
-        return Lb_OK;
+        return CrStRet_ResetOk;
     }
-    ret = process_prison_function(thing);
-    if (ret == Lb_OK)
+    switch (process_prison_function(thing))
+    {
+    case CrCkRet_Deleted:
+        return CrStRet_Deleted;
+    case CrCkRet_Available:
         process_prison_visuals(thing, room);
-    return ret;
+        return CrStRet_Modified;
+    default:
+        return CrStRet_ResetOk;
+    }
 }
 
 TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thing)
@@ -246,7 +246,12 @@ long process_prison_food(struct Thing *thing, struct Room *room)
   return _DK_process_prison_food(thing, room);
 }
 
-long process_prison_function(struct Thing *thing)
+/**
+ * Does a step of being impisoned.
+ * Informs if the imprisoning cycle should end.
+ * @param thing
+ */
+CrCheckRet process_prison_function(struct Thing *thing)
 {
   struct Room *room;
   //return _DK_process_prison_function(thing);
@@ -255,26 +260,26 @@ long process_prison_function(struct Thing *thing)
   {
       WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
       set_start_state(thing);
-      return 1;
+      return CrCkRet_Continue;
   }
   process_creature_hunger(thing);
   if ( process_prisoner_skelification(thing,room) )
-    return -1;
+    return CrCkRet_Deleted;
   struct CreatureControl *cctrl;
   cctrl = creature_control_get_from_thing(thing);
   if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(thing, room) )
-    return 1;
+    return CrCkRet_Continue;
   // Rest of the actions are done only once per 64 turns
   if ((game.play_gameturn & 0x3F) != 0)
-    return 0;
+    return CrCkRet_Available;
   if (jailbreak_possible(room, thing->owner))
   {
       if ( is_my_player_number(room->owner) )
         output_message(SMsg_PrisonersEscaping, 0, true);
       set_start_state(thing);
-      return 1;
+      return CrCkRet_Continue;
   }
-  return 0;
+  return CrCkRet_Available;
 }
 
 /******************************************************************************/
