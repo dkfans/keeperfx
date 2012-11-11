@@ -217,7 +217,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
       if (!external_set_thing_state(dsttng, CrSt_InPowerHand))
           return 0;
       cctrl = creature_control_get_from_thing(dsttng);
-      if (cctrl->spell_flags & 0x0200)
+      if (cctrl->spell_flags & CSAfF_Chicken)
           i = convert_td_iso(122);
       else
           i = get_creature_anim(dsttng, 9);

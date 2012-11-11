@@ -148,23 +148,28 @@ short at_temple(struct Thing *thing)
     return 1;
 }
 
-short praying_in_temple(struct Thing *thing)
+CrStateRet praying_in_temple(struct Thing *thing)
 {
     struct Room *room;
-    struct CreatureControl *cctrl;
     //return _DK_praying_in_temple(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
-    if ( !room_still_valid_as_type_for_thing(room, RoK_TEMPLE, thing) || (cctrl->work_room_id != room->index) )
+    if (creature_work_in_room_no_longer_possible(room, RoK_TEMPLE, thing))
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return 0;
+        return CrStRet_ResetFail;
     }
-    if (process_temple_function(thing) == 0)
+    switch (process_temple_function(thing))
+    {
+    case CrCkRet_Deleted:
+        return CrStRet_Deleted;
+    case CrCkRet_Available:
         process_temple_visuals(thing, room);
-    return 1;
-
+        return CrStRet_Modified;
+    default:
+        return CrStRet_ResetOk;
+    }
 }
 
 long process_temple_cure(struct Thing *thing)
@@ -179,7 +184,7 @@ long process_temple_cure(struct Thing *thing)
     return 1;
 }
 
-long process_temple_function(struct Thing *thing)
+CrCheckRet process_temple_function(struct Thing *thing)
 {
     struct Room *room;
     //return _DK_process_temple_function(thing);
@@ -188,7 +193,7 @@ long process_temple_function(struct Thing *thing)
     {
         remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return 1;
+        return CrCkRet_Continue;
     }
     { // Modify anger
         long anger_change;
@@ -204,7 +209,7 @@ long process_temple_function(struct Thing *thing)
         cctrl = creature_control_get_from_thing(thing);
         cctrl->field_82++;
     }
-    return 0;
+    return CrCkRet_Available;
 }
 
 short state_cleanup_in_temple(struct Thing *thing)

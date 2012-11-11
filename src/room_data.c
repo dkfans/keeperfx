@@ -2055,11 +2055,11 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
                 if (cctrl->lairtng_idx == thing->index) {
                     creature_remove_lair_from_room(tmptng, room);
                 } else {
-                    ERRORLOG("Lair thinks it belongs to a creature, but the creature disagrees.");
+                    ERRORLOG("Lair thing thinks it belongs to a creature, but the creature disagrees.");
                 }
             } else
             {
-                ERRORLOG("This lair has no owner!!!");
+                ERRORLOG("Lair thing %d has no owner!",(int)thing->index);
             }
             return;
         }

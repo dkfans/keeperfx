@@ -43,15 +43,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_at_kinky_torture_room(struct Thing *thing);
-DLLIMPORT short _DK_at_torture_room(struct Thing *thing);
-DLLIMPORT short _DK_cleanup_torturing(struct Thing *thing);
-DLLIMPORT short _DK_kinky_torturing(struct Thing *thing);
-DLLIMPORT long _DK_process_torture_function(struct Thing *thing);
-DLLIMPORT short _DK_torturing(struct Thing *thing);
-DLLIMPORT long _DK_process_torture_visuals(struct Thing *thing, struct Room *room, long a3);
-DLLIMPORT long _DK_reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx);
-DLLIMPORT long _DK_process_kinky_function(struct Thing *thing);
+DLLIMPORT short _DK_at_kinky_torture_room(struct Thing *creatng);
+DLLIMPORT short _DK_at_torture_room(struct Thing *creatng);
+DLLIMPORT short _DK_cleanup_torturing(struct Thing *creatng);
+DLLIMPORT short _DK_kinky_torturing(struct Thing *creatng);
+DLLIMPORT long _DK_process_torture_function(struct Thing *creatng);
+DLLIMPORT short _DK_torturing(struct Thing *creatng);
+DLLIMPORT long _DK_process_torture_visuals(struct Thing *creatng, struct Room *room, long a3);
+DLLIMPORT long _DK_reveal_players_map_to_player(struct Thing *creatng, long benefit_plyr_idx);
+DLLIMPORT long _DK_process_kinky_function(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -142,41 +142,44 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, long a3)
 
 short kinky_torturing(struct Thing *thing)
 {
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
     struct Room *room;
     //return _DK_kinky_torturing(thing);
+    TRACE_THING(thing);
+    room = get_room_thing_is_on(thing);
+    if (creature_work_in_room_no_longer_possible(room, RoK_TORTURE, thing))
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return CrStRet_ResetFail;
+    }
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
-    room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if (!room_still_valid_as_type_for_thing(room, RoK_TORTURE, thing) || (cctrl->work_room_id != room->index))
-    {
-        WARNLOG("Room %s index %d is not the one %s worked in",room_code_name(room->kind),(int)room->index,thing_model_name(thing));
-        set_start_state(thing);
-        return 0;
-    }
     if (game.play_gameturn-cctrl->field_82 > crstat->torture_time)
     {
         set_start_state(thing);
-        return 0;
+        return CrStRet_ResetOk;
     }
-    process_kinky_function(thing);
-    process_torture_visuals(thing, room, 110);
-    return 1;
+    switch (process_kinky_function(thing))
+    {
+    case CrCkRet_Deleted:
+        return CrStRet_Deleted;
+    case CrCkRet_Available:
+        process_torture_visuals(thing, room, 110);
+        return CrStRet_Modified;
+    default:
+        return CrStRet_ResetOk;
+    }
 }
 
-long process_kinky_function(struct Thing *thing)
+CrCheckRet process_kinky_function(struct Thing *thing)
 {
   struct CreatureStats *crstat;
   //return _DK_process_kinky_function(thing);
   crstat = creature_stats_get_from_thing(thing);
   anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, 4, 1);
-  return 0;
+  return CrCkRet_Available;
 }
 
 void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
@@ -205,25 +208,25 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
         output_message(SMsg_TortureMadeGhost, 0, true);
 }
 
-void convert_tortured_creature_owner(struct Thing *thing, long new_owner)
+void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_owner)
 {
     struct Dungeon *dungeon;
     if (is_my_player_number(new_owner))
     {
         output_message(SMsg_TortureConverted, 0, true);
     } else
-    if (is_my_player_number(thing->owner))
+    if (is_my_player_number(creatng->owner))
     {
         output_message(SMsg_CreatureJoinedEnemy, 0, true);
     }
-    change_creature_owner(thing, new_owner);
-    anger_set_creature_anger_all_types(thing, 0);
+    change_creature_owner(creatng, new_owner);
+    anger_set_creature_anger_all_types(creatng, 0);
     dungeon = get_dungeon(new_owner);
     if (!dungeon_invalid(dungeon))
         dungeon->lvstats.creatures_converted++;
 }
 
-long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
+long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr_idx)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
@@ -355,7 +358,43 @@ long reveal_players_map_to_player(struct Thing *thing, long benefit_plyr_idx)
     return 1;
 }
 
-long process_torture_function(struct Thing *thing)
+/**
+ * Computes the average time required for a torture victim to be converted in given room.
+ *
+ * @param thing The victim creature.
+ * @param room The torture chamber room.
+ */
+long compute_torture_convert_time(const struct Thing *thing, const struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    long i;
+    cctrl = creature_control_get_from_thing(thing);
+    i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency >> 8;
+    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+      i = (4 * i) / 3;
+    if (cctrl->field_21 != 0)
+      i = (5 * i) / 4;
+    return i;
+}
+
+/**
+ * Computes the average time required for a torture victim to start revealing information.
+ *
+ * @param thing The victim creature.
+ * @param room The torture chamber room.
+ */
+long compute_torture_broke_chance(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    long i;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) - (long)crstat->torture_time;
+    return (i/64 + 1);
+}
+
+CrCheckRet process_torture_function(struct Thing *thing)
 {
     struct Room *room;
     long i;
@@ -365,7 +404,7 @@ long process_torture_function(struct Thing *thing)
     {
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
         set_start_state(thing);
-        return 1;
+        return CrCkRet_Continue;
     }
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -378,41 +417,62 @@ long process_torture_function(struct Thing *thing)
         remove_health_from_thing_and_display_health(thing, i);
         cctrl->field_82 = (long)game.play_gameturn;
     }
+    // Check if we should convert the creature into ghost
     if ((thing->health < 0) && (game.ghost_convert_chance > 0))
     {
-        if (ACTION_RANDOM(game.ghost_convert_chance) == 0)
+        if (ACTION_RANDOM(100) < game.ghost_convert_chance)
         {
             convert_creature_to_ghost(room, thing);
-            return -1;
+            return CrCkRet_Deleted;
         }
     }
+    // Other torture functions are available only when torturing enemies
     if (room->owner == thing->owner)
-        return 0;
-
-    i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency >> 8;
-
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
-      i = (4 * i) / 3;
-    if (cctrl->field_21 != 0)
-      i = (5 * i) / 4;
+        return CrCkRet_Available;
+    // Torture must take some time before it has any affect
+    i = compute_torture_convert_time(thing,room);
     if ( (i < crstat->torture_time) || (cctrl->word_A6 == 0) )
         return 0;
-    i = (long)game.play_gameturn - (long)crstat->torture_time - cctrl->tortured.start_gameturn;
-    if (ACTION_RANDOM(100) >= (i/64 + 1))
-        return 0;
-    if (ACTION_RANDOM(3) == 0)
+    // After that, every time broke chance is hit, do something
+    if (ACTION_RANDOM(100) < compute_torture_broke_chance(thing))
     {
-        convert_tortured_creature_owner(thing, room->owner);
-        return 1;
+        SYNCDBG(4,"The %s has been broken",thing_model_name(thing));
+        if (ACTION_RANDOM(3) == 0)
+        { // 33% chance of converting creature and ending the torture
+            convert_tortured_creature_owner(thing, room->owner);
+            return CrCkRet_Continue;
+        } else
+        { // 67% chance of revealing information about enemy and continue the torture
+            cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_time / 2;
+            reveal_players_map_to_player(thing, room->owner);
+            return CrCkRet_Available;
+        }
     }
-    cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_time / 2;
-    reveal_players_map_to_player(thing, room->owner);
-    return 0;
+    return CrCkRet_Available;
 }
 
-short torturing(struct Thing *thing)
+CrStateRet torturing(struct Thing *thing)
 {
-  return _DK_torturing(thing);
+    struct Room *room;
+    //return _DK_torturing(thing);
+    TRACE_THING(thing);
+    room = get_room_thing_is_on(thing);
+    if (creature_work_in_room_no_longer_possible(room, RoK_TORTURE, thing))
+    {
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return CrStRet_ResetFail;
+    }
+    switch (process_torture_function(thing))
+    {
+    case CrCkRet_Deleted:
+        return CrStRet_Deleted;
+    case CrCkRet_Available:
+        process_torture_visuals(thing, room, 43);
+        return CrStRet_Modified;
+    default:
+        return CrStRet_ResetOk;
+    }
 }
 
 /******************************************************************************/

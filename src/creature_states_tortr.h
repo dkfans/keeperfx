@@ -34,12 +34,12 @@ struct Thing;
 #pragma pack()
 /******************************************************************************/
 short at_kinky_torture_room(struct Thing *thing);
-short kinky_torturing(struct Thing *thing);
-long process_kinky_function(struct Thing *thing);
+CrStateRet kinky_torturing(struct Thing *thing);
+CrCheckRet process_kinky_function(struct Thing *thing);
 
 short at_torture_room(struct Thing *thing);
-short torturing(struct Thing *thing);
-long process_torture_function(struct Thing *thing);
+CrStateRet torturing(struct Thing *thing);
+CrCheckRet process_torture_function(struct Thing *thing);
 short cleanup_torturing(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -34,8 +34,8 @@ struct Thing;
 #pragma pack()
 /******************************************************************************/
 short at_temple(struct Thing *thing);
-short praying_in_temple(struct Thing *thing);
-long process_temple_function(struct Thing *thing);
+CrStateRet praying_in_temple(struct Thing *thing);
+CrCheckRet process_temple_function(struct Thing *thing);
 short state_cleanup_in_temple(struct Thing *thing);
 
 short cleanup_sacrifice(struct Thing *thing);

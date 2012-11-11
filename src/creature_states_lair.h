@@ -33,8 +33,8 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
-short creature_at_changed_lair(struct Thing *thing);
-short creature_at_new_lair(struct Thing *thing);
+CrStateRet creature_at_changed_lair(struct Thing *thing);
+CrStateRet creature_at_new_lair(struct Thing *thing);
 short creature_change_lair(struct Thing *thing);
 short creature_choose_room_for_lair_site(struct Thing *thing);
 

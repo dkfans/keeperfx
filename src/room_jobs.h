@@ -37,6 +37,7 @@ struct Room;
 #pragma pack()
 /******************************************************************************/
 struct Room *get_room_creature_works_in(const struct Thing *thing);
+TbBool creature_is_working_in_room(const struct Thing *creatng, const struct Room *room);
 
 TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room);
 TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *room);

@@ -47,6 +47,25 @@ struct Room *get_room_creature_works_in(const struct Thing *thing)
     return room_get(cctrl->work_room_id);
 }
 
+/**
+ * Informs in the creature is working in given room.
+ * @param creatng The creature thing.
+ * @param room The room to be checked if creature works in it.
+ * @return True if the creature is working in the room, false otherwise.
+ */
+TbBool creature_is_working_in_room(const struct Thing *creatng, const struct Room *room)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl)) {
+        return false;
+    }
+    if (room_is_invalid(room)) {
+        return false;
+    }
+    return (cctrl->work_room_id == room->index);
+}
+
 TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *room)
 {
     struct CreatureControl *cctrl;

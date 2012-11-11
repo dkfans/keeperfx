@@ -192,7 +192,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & 0x0200) != 0)
+    if ((cctrl->spell_flags & CSAfF_Chicken) != 0)
         return false;
     // Neutral creatures won't fight
     if (thing->owner == game.neutral_player_num)

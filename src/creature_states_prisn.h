@@ -37,8 +37,8 @@ short cleanup_prison(struct Thing *thing);
 short creature_arrived_at_prison(struct Thing *thing);
 short creature_drop_body_in_prison(struct Thing *thing);
 short creature_freeze_prisonors(struct Thing *thing);
-short creature_in_prison(struct Thing *thing);
-long process_prison_function(struct Thing *thing);
+CrStateRet creature_in_prison(struct Thing *thing);
+CrCheckRet process_prison_function(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

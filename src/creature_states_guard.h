@@ -34,7 +34,7 @@ struct Thing;
 #pragma pack()
 /******************************************************************************/
 short at_guard_post_room(struct Thing *thing);
-short guarding(struct Thing *thing);
+CrStateRet guarding(struct Thing *thing);
 
 /******************************************************************************/
 #ifdef __cplusplus

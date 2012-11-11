@@ -190,7 +190,7 @@ unsigned short field_60;
  * Should be executed in every function which changes a thing.
  * Can be defined to any SYNCLOG routine, making complete trace of usage on a thing.
  */
-#define TRACE_THING(thing)
+#define TRACE_THING(thing) if (thing->index == 1745) SYNCLOG("traced avatar state %d cont %d",(int)thing->active_state,(int)thing->continue_state)
 
 #pragma pack()
 /******************************************************************************/
@@ -211,7 +211,7 @@ long thing_get_index(const struct Thing *thing);
 
 TbBool thing_touching_floor(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
-unsigned char creature_remove_lair_from_room(struct Thing *thing, struct Room *room);
+TbBool creature_remove_lair_from_room(struct Thing *thing, struct Room *room);
 
 /******************************************************************************/
 #ifdef __cplusplus

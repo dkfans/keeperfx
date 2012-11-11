@@ -405,7 +405,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
       thing->field_4F |= 0x01;
     } else
-    if ((cctrl->spell_flags & 0x0200) == 0)
+    if ((cctrl->spell_flags & CSAfF_Chicken) == 0)
     {
         if (cctrl->instance_id != CrInst_NULL)
         {
