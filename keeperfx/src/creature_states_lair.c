@@ -176,44 +176,63 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     return 1;
 }
 
-short creature_at_changed_lair(struct Thing *creatng)
+CrStateRet creature_at_changed_lair(struct Thing *creatng)
 {
     struct Room *room;
+    TRACE_THING(creatng);
     //return _DK_creature_at_changed_lair(thing);
     if (!thing_is_on_own_room_tile(creatng))
     {
         set_start_state(creatng);
-        return 0;
+        return CrStRet_ResetFail;
     }
     room = get_room_thing_is_on(creatng);
     if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
         set_start_state(creatng);
-        return 0;
+        return CrStRet_ResetFail;
     }
     if (!creature_add_lair_to_room(creatng, room)) {
         internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
-        return 0;
+        return CrStRet_Modified;
     }
     // All done - finish the state
     set_start_state(creatng);
-    return 0;
+    return CrStRet_ResetOk;
 }
 
-short creature_at_new_lair(struct Thing *thing)
+CrStateRet creature_at_new_lair(struct Thing *thing)
 {
-  return _DK_creature_at_new_lair(thing);
+    struct Room *room;
+    TRACE_THING(thing);
+    //return _DK_creature_at_new_lair(thing);
+    room = get_room_thing_is_on(thing);
+    if ( !room_still_valid_as_type_for_thing(room, RoK_LAIR, thing) )
+    {
+        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
+        set_start_state(thing);
+        return CrStRet_ResetFail;
+    }
+    if (!creature_add_lair_to_room(thing, room))
+    {
+        internal_set_thing_state(thing, CrSt_CreatureChooseRoomForLairSite);
+        return CrStRet_Modified;
+    }
+    set_start_state(thing);
+    return CrStRet_ResetOk;
 }
 
 short creature_change_lair(struct Thing *thing)
 {
-  return _DK_creature_change_lair(thing);
+    TRACE_THING(thing);
+    return _DK_creature_change_lair(thing);
 }
 
 short creature_choose_room_for_lair_site(struct Thing *thing)
 {
-  return _DK_creature_choose_room_for_lair_site(thing);
+    TRACE_THING(thing);
+    return _DK_creature_choose_room_for_lair_site(thing);
 }
 
 short at_lair_to_sleep(struct Thing *thing)

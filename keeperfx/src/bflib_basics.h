@@ -114,7 +114,9 @@ struct TbLog {
 };
 
 struct TbNetworkCallbackData;
+/** Command function result, alias for TbResult. */
 typedef int TbError;
+/** Command function result, valid values are of TbErrorCode enumeration. */
 typedef int TbResult;
 typedef size_t TbSize;
 

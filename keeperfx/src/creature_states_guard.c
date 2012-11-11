@@ -83,37 +83,23 @@ short at_guard_post_room(struct Thing *thing)
     return 1;
 }
 
-short guarding(struct Thing *thing)
+CrStateRet guarding(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
     struct Room *room;
     //return _DK_guarding(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    TRACE_THING(thing);
     room = get_room_thing_is_on(thing);
-    if ( room_is_invalid(room) )
+    if (creature_work_in_room_no_longer_possible(room, RoK_GUARDPOST, thing))
     {
-        SYNCDBG(4,"Target work room for %s no longer exists",thing_model_name(thing));
         remove_creature_from_work_room(thing);
         set_start_state(thing);
-        return 0;
+        return CrStRet_ResetFail;
     }
-    if ( (room->kind != RoK_GUARDPOST) || (room->owner != thing->owner) )
-    {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    if (cctrl->work_room_id != room->index)
-    {
-        WARNLOG("Room %s is not the one %s selected to work in",room_code_name(room->kind),thing_model_name(thing));
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
     if ( !creature_move_to(thing, &cctrl->moveto_pos, cctrl->max_speed, 0, 0) )
     {
-        return 1;
+        return CrStRet_Unchanged;
     }
     if ( !person_get_somewhere_adjacent_in_room(thing, room, &cctrl->moveto_pos) )
     {
@@ -121,7 +107,7 @@ short guarding(struct Thing *thing)
         cctrl->moveto_pos.y.val = thing->mappos.y.val;
         cctrl->moveto_pos.z.val = thing->mappos.z.val;
     }
-    return 1;
+    return CrStRet_Modified;
 }
 
 /******************************************************************************/

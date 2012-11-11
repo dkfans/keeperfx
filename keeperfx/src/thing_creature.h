@@ -62,39 +62,44 @@ extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
-TbBool creature_increase_level(struct Thing *thing);
-TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
-void free_swipe_graphic(void);
-void load_swipe_graphic_for_creature(struct Thing *thing);
-void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-long creature_available_for_combat_this_turn(struct Thing *thing);
-struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
-long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
-void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
-void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing);
-short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
-struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y);
-struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, FilterParam param);
-void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
 long move_creature(struct Thing *thing);
 TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
       unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
-void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char a2, unsigned char hit_type);
-void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
-void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
+
+TbBool creature_increase_level(struct Thing *thing);
 void set_creature_level(struct Thing *thing, long nlvl);
 void init_creature_level(struct Thing *thing, long nlev);
 long get_creature_speed(const struct Thing *thing);
-long creature_instance_has_reset(struct Thing *thing, long a2);
+
+TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
+TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
+void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 long get_human_controlled_creature_target(struct Thing *thing, long a2);
+struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
+void load_swipe_graphic_for_creature(struct Thing *thing);
+void free_swipe_graphic(void);
+
+long creature_available_for_combat_this_turn(struct Thing *thing);
+long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
+void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
+void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char a2, unsigned char hit_type);
+void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
+void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
+
+struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
+void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing);
+short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
+struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y);
+struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, FilterParam param);
+void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
+void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
+long creature_instance_has_reset(struct Thing *thing, long a2);
 void set_creature_instance(struct Thing *thing, long a1, long a2, long a3, struct Coord3d *pos);
 unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2);
 void draw_creature_view(struct Thing *thing);
-struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
+
 long remove_creature_from_group(struct Thing *thing);
 long add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
 TbBool creature_is_group_member(const struct Thing *thing);
@@ -104,13 +109,16 @@ void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
 long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxFilterParam param, long maximizer);
 
+TbBool remove_creature_lair(struct Thing *thing);
+
 TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind);
 void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev);
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
 void process_thing_spell_effects(struct Thing *thing);
+void delete_effects_attached_to_creature(struct Thing *creatng);
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
-void change_creature_owner(struct Thing *thing, long nowner);
+void change_creature_owner(struct Thing *thing, PlayerNumber nowner);
 struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags);
 struct Thing *pick_up_creature_of_breed_and_gui_job(long breed_idx, long job_idx, long owner, unsigned char pick_flags);
 struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const struct Thing *dragtng);
