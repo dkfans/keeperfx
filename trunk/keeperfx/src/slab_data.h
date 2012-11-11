@@ -73,6 +73,7 @@ enum SlabTypes {
 #pragma pack(1)
 
 struct PlayerInfo;
+struct Thing;
 
 struct SlabMap {
       SlabKind kind;
@@ -109,6 +110,7 @@ TbBool slab_kind_is_animated(SlabKind slbkind);
 struct SlabMap *get_slabmap_block(MapSlabCoord slab_x, MapSlabCoord slab_y);
 struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct SlabMap *get_slabmap_direct(SlabCodedCoords slab_num);
+struct SlabMap *get_slabmap_thing_is_on(const struct Thing *thing);
 TbBool slabmap_block_invalid(const struct SlabMap *slb);
 long slabmap_owner(const struct SlabMap *slb);
 void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner);

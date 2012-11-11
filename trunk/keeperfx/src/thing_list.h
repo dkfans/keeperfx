@@ -86,6 +86,9 @@ typedef long (*Thing_State_Func)(struct Thing *);
 /** Definition of a callback type used for updating thing of specific class or model. */
 typedef TngUpdateRet (*Thing_Class_Func)(struct Thing *);
 typedef long (*Thing_Filter)(const struct Thing *, FilterParam);
+/** Definition of a simple callback type which can only return true/false and has no memory of previous checks. */
+typedef TbBool (*Thing_Bool_Filter)(const struct Thing *);
+/** Definition of a callback type used for selecting best match through all the things by maximizing a value. */
 typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxFilterParam, long);
 typedef long (*Thing_Collide_Func)(struct Thing *, struct Thing *, long, long);
 
@@ -151,6 +154,7 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, lon
 struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, long plyr_idx);
 struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, long plyr_idx, long skip_thing_id);
 struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx);
+struct Thing *get_object_around_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, long plyr_idx, Thing_Bool_Filter matcher_cb);
 struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx);
 struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, long plyr_idx);
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

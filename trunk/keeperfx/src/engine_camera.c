@@ -47,30 +47,41 @@ DLLIMPORT long _DK_get_camera_zoom(struct Camera *camera);
 /******************************************************************************/
 long camera_zoom;
 /******************************************************************************/
-long get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+MapCoord get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-  long dx;
-  long dy;
-  long dz;
-  dy = abs(pos2->y.val - (long)pos1->y.val);
-  dx = abs(pos2->x.val - (long)pos1->x.val);
-  if (dy <= dx)
-    dy = dx;
-  dz = abs(pos2->z.val - (long)pos1->z.val);
-  if (dy <= dz)
-    dy = dz;
-  return dy;
+  long dist_x;
+  long dist_y;
+  long dist_z;
+  dist_y = abs(pos2->y.val - (long)pos1->y.val);
+  dist_x = abs(pos2->x.val - (long)pos1->x.val);
+  if (dist_y <= dist_x)
+    dist_y = dist_x;
+  dist_z = abs(pos2->z.val - (long)pos1->z.val);
+  if (dist_y <= dist_z)
+    dist_y = dist_z;
+  return dist_y;
 }
 
-long get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+MapCoord get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-  long dx,dy;
-  dy = abs(pos1->y.val - (long)pos2->y.val);
-  dx = abs(pos1->x.val - (long)pos2->x.val);
-  if (dy <= dx)
-    return dx;
-  return dy;
+  long dist_x,dist_y;
+  dist_y = abs(pos1->y.val - (long)pos2->y.val);
+  dist_x = abs(pos1->x.val - (long)pos2->x.val);
+  if (dist_y <= dist_x)
+    return dist_x;
+  return dist_y;
 }
+
+MapCoord get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y)
+{
+    long dist_x,dist_y;
+    dist_x = abs((long)pos1_x - (long)pos2_x);
+    dist_y = abs((long)pos1_y - (long)pos2_y);
+    if (dist_y <= dist_x)
+      return dist_x;
+    return dist_y;
+}
+
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
     //_DK_angles_to_vector(angle_xy, angle_yz, dist, cvect); return;

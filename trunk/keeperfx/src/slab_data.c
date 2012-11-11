@@ -88,15 +88,28 @@ struct SlabMap *get_slabmap_block(MapSlabCoord slab_x, MapSlabCoord slab_y)
 }
 
 /**
- * Returns SlabMap struct for given (X,Y) subtile coords.
+ * Gives SlabMap struct for given (X,Y) subtile coords.
+ * @param stl_x
+ * @param stl_y
  */
 struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  if ((stl_x < 0) || (stl_x >= map_subtiles_x))
-      return INVALID_SLABMAP_BLOCK;
-  if ((stl_y < 0) || (stl_y >= map_subtiles_y))
-      return INVALID_SLABMAP_BLOCK;
-  return &game.slabmap[subtile_slab_fast(stl_y)*(map_tiles_x) + subtile_slab_fast(stl_x)];
+    if ((stl_x < 0) || (stl_x >= map_subtiles_x))
+        return INVALID_SLABMAP_BLOCK;
+    if ((stl_y < 0) || (stl_y >= map_subtiles_y))
+        return INVALID_SLABMAP_BLOCK;
+    return &game.slabmap[subtile_slab_fast(stl_y)*(map_tiles_x) + subtile_slab_fast(stl_x)];
+}
+
+/**
+ * Gives SlabMap struct for slab on which given thing is placed.
+ * @param thing The thing which coordinates are used to retrieve SlabMap.
+ */
+struct SlabMap *get_slabmap_thing_is_on(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return INVALID_SLABMAP_BLOCK;
+    return get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
 /**
@@ -104,11 +117,11 @@ struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y
  */
 TbBool slabmap_block_invalid(const struct SlabMap *slb)
 {
-  if (slb == NULL)
-    return true;
-  if (slb == INVALID_SLABMAP_BLOCK)
-    return true;
-  return (slb < &game.slabmap[0]);
+    if (slb == NULL)
+        return true;
+    if (slb == INVALID_SLABMAP_BLOCK)
+        return true;
+    return (slb < &game.slabmap[0]);
 }
 
 /**
@@ -143,11 +156,11 @@ void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber o
     stl_y = 3 * slb_y;
     for (i = 0; i < 3; i++)
     {
-      for (k = 0; k < 3; k++)
-      {
-          slb = get_slabmap_for_subtile(stl_x + k, stl_y + i);
-          slabmap_set_owner(slb, owner);
-      }
+        for (k = 0; k < 3; k++)
+        {
+            slb = get_slabmap_for_subtile(stl_x + k, stl_y + i);
+            slabmap_set_owner(slb, owner);
+        }
     }
 }
 
@@ -208,7 +221,9 @@ TbBool slab_kind_is_door(SlabKind slbkind)
 TbBool slab_kind_is_nonmagic_door(SlabKind slbkind)
 {
     if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORIRON2))
+    {
         return true;
+    }
     return false;
 }
 

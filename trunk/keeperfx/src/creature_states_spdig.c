@@ -84,8 +84,8 @@ DLLIMPORT long _DK_check_out_unprettied_drop_place(struct Thing *digger);
 DLLIMPORT long _DK_check_out_unclaimed_gold(struct Thing *digger, long a1);
 DLLIMPORT long _DK_imp_will_soon_be_arming_trap(struct Thing *digger);
 DLLIMPORT long _DK_check_out_object_for_trap(struct Thing *traptng, struct Thing *digger);
-DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp(struct Thing *traptng, long a2);
-DLLIMPORT long _DK_imp_will_soon_be_getting_object(long a2, struct Thing *digger);
+DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp(struct Thing *traptng, long plyr_idx);
+DLLIMPORT long _DK_imp_will_soon_be_getting_object(long plyr_idx, struct Thing *objtng);
 DLLIMPORT long _DK_take_from_gold_pile(unsigned short stl_x, unsigned short stl_y, long limit);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -132,9 +132,53 @@ long check_out_unprettied_drop_place(struct Thing *thing)
     return _DK_check_out_unprettied_drop_place(thing);
 }
 
-long imp_will_soon_be_getting_object(long a2, struct Thing *thing)
+TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing *objtng)
 {
-    return _DK_imp_will_soon_be_getting_object(a2, thing);
+    const struct Thing *spdigtng;
+    const struct CreatureControl *cctrl;
+    const struct Dungeon *dungeon;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    //return _DK_imp_will_soon_be_getting_object(a2, objtng);
+    dungeon = get_players_num_dungeon(plyr_idx);
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        spdigtng = thing_get(i);
+        TRACE_THING(spdigtng);
+        cctrl = creature_control_get_from_thing(spdigtng);
+        if (thing_is_invalid(spdigtng) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->pickup_object_id == objtng->index)
+        {
+            CrtrStateId crstate;
+            crstate = get_creature_state_besides_move(spdigtng);
+            if (crstate == CrSt_CreaturePicksUpTrapObject)
+                return true;
+            crstate = get_creature_state_besides_drag(spdigtng);
+            if (crstate == CrSt_CreatureArmsTrap)
+                return true;
+            crstate = get_creature_state_besides_move(spdigtng);
+            if (crstate == CrSt_CreaturePicksUpTrapForWorkshop)
+                return true;
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return false;
 }
 
 long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
@@ -453,22 +497,22 @@ short imp_arrives_at_dig_or_mine(struct Thing *thing)
 
 short imp_arrives_at_improve_dungeon(struct Thing *thing)
 {
-  //return _DK_imp_arrives_at_improve_dungeon(thing);
-  if ( check_place_to_pretty_excluding(thing,
-      subtile_slab_fast(thing->mappos.x.stl.num),
-      subtile_slab_fast(thing->mappos.y.stl.num)) )
-  {
-    internal_set_thing_state(thing, CrSt_ImpImprovesDungeon);
-  } else
-  {
-    internal_set_thing_state(thing, CrSt_ImpLastDidJob);
-  }
-  return 1;
+    //return _DK_imp_arrives_at_improve_dungeon(thing);
+    if ( check_place_to_pretty_excluding(thing,
+        subtile_slab_fast(thing->mappos.x.stl.num),
+        subtile_slab_fast(thing->mappos.y.stl.num)) )
+    {
+        internal_set_thing_state(thing, CrSt_ImpImprovesDungeon);
+    } else
+    {
+        internal_set_thing_state(thing, CrSt_ImpLastDidJob);
+    }
+    return 1;
 }
 
 short imp_arrives_at_reinforce(struct Thing *thing)
 {
-  return _DK_imp_arrives_at_reinforce(thing);
+    return _DK_imp_arrives_at_reinforce(thing);
 }
 
 short imp_birth(struct Thing *thing)
@@ -549,7 +593,7 @@ short imp_converts_dungeon(struct Thing *thing)
     return 1;
 }
 
-TbBool too_much_gold_lies_around_thing(struct Thing *thing)
+TbBool too_much_gold_lies_around_thing(const struct Thing *thing)
 {
   return gold_pile_with_maximum_at_xy(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
@@ -1267,7 +1311,7 @@ short creature_drops_spell_object_in_library(struct Thing *thing)
     if (thing_is_spellbook(spelltng))
     {
         if (add_item_to_room_capacity(room)) {
-            add_spell_to_player(object_to_magic[spelltng->model], thing->owner);
+            add_spell_to_player(book_thing_to_magic(spelltng), thing->owner);
         }
     }
     // The action of moving object is now finished
