@@ -449,7 +449,12 @@ int box_thing_to_special(const struct Thing *thing)
     return object_to_special[thing->model];
 }
 
-int book_thing_to_magic(const struct Thing *thing)
+/**
+ * Gives power kind associated with given spellbook thing.
+ * @param thing The spellbook object thing.
+ * @return Power kind, or 0 if the thing is not a spellbook object.
+ */
+PowerKind book_thing_to_magic(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
@@ -601,19 +606,46 @@ TbBool object_is_guard_flag(const struct Thing *thing)
   }
 }
 
-struct Thing *get_spellbook_at_position(long x, long y)
+/**
+ * Finds spellbook in a 3x3 subtiles area around given position.
+ * Selects the spellbook which is nearest to center of given subtile.
+ * @param stl_x Central search subtile X coord.
+ * @param stl_y Central search subtile Y coord.
+ * @return The nearest thing, or invalid thing if no match was found.
+ */
+struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  return _DK_get_spellbook_at_position(x, y);
+    //return _DK_get_spellbook_at_position(x, y);
+    return get_object_around_owned_by_and_matching_bool_filter(
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_spellbook);
 }
 
-struct Thing *get_special_at_position(long x, long y)
+/**
+ * Finds special box in a 3x3 subtiles area around given position.
+ * Selects the box which is nearest to center of given subtile.
+ * @param stl_x Central search subtile X coord.
+ * @param stl_y Central search subtile Y coord.
+ * @return The nearest thing, or invalid thing if no match was found.
+ */
+struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  return _DK_get_special_at_position(x, y);
+    //return _DK_get_special_at_position(x, y);
+    return get_object_around_owned_by_and_matching_bool_filter(
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_special_box);
 }
 
-struct Thing *get_crate_at_position(long x, long y)
+/**
+ * Finds crate box in a 3x3 subtiles area around given position.
+ * Selects the box which is nearest to center of given subtile.
+ * @param stl_x Central search subtile X coord.
+ * @param stl_y Central search subtile Y coord.
+ * @return The nearest thing, or invalid thing if no match was found.
+ */
+struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  return _DK_get_crate_at_position(x, y);
+    //return _DK_get_crate_at_position(x, y);
+    return get_object_around_owned_by_and_matching_bool_filter(
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_door_or_trap_box);
 }
 
 long food_moves(struct Thing *thing)
@@ -919,7 +951,7 @@ TbBool thing_is_gold_hoard(const struct Thing *thing)
     return object_is_gold_hoard(thing);
 }
 
-struct Thing *find_gold_hoard_at(unsigned short stl_x, unsigned short stl_y)
+struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing *thing;
     struct Map *mapblk;
@@ -966,7 +998,7 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     return true;
 }
 
-struct Thing *create_gold_pile(struct Coord3d *pos, long plyr_idx, long value)
+struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long value)
 {
     struct Thing *thing;
     thing = create_object(pos, 43, plyr_idx, -1);

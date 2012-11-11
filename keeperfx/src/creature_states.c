@@ -1642,12 +1642,36 @@ unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struc
 
 short creature_present_to_dungeon_heart(struct Thing *creatng)
 {
-  return _DK_creature_present_to_dungeon_heart(creatng);
+    //return _DK_creature_present_to_dungeon_heart(creatng);
+    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    thing_play_sample(creatng, 76, 100, 0, 3, 0, 2, 0x100);
+    if ( !external_set_thing_state(creatng, CrSt_CreatureDoingNothing) )
+      set_start_state(creatng);
+    return 1;
 }
 
 short creature_pretend_chicken_move(struct Thing *creatng)
 {
-  return _DK_creature_pretend_chicken_move(creatng);
+    struct CreatureControl *cctrl;
+    long speed;
+    //return _DK_creature_pretend_chicken_move(creatng);
+    long move_ret;
+    cctrl = creature_control_get_from_thing(creatng);
+    if ((cctrl->affected_by_spells & 0x01) != 0)
+    {
+        return 1;
+    }
+    speed = get_creature_speed(creatng);
+    move_ret = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->field_88, 0);
+    if (move_ret == 1)
+    {
+        internal_set_thing_state(creatng, CrSt_CreaturePretendChickenSetupMove);
+    } else
+    if (move_ret == -1)
+    {
+        internal_set_thing_state(creatng, CrSt_CreaturePretendChickenSetupMove);
+    }
+    return 1;
 }
 
 short creature_pretend_chicken_setup_move(struct Thing *creatng)
@@ -1655,52 +1679,26 @@ short creature_pretend_chicken_setup_move(struct Thing *creatng)
   return _DK_creature_pretend_chicken_setup_move(creatng);
 }
 
-struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *thing, struct Room *room)
+/**
+ * Gives a gold hoard in a room which can be accessed by given creature.
+ * @param creatng The creature which should be able to access the object.
+ * @param room Room in which the object lies.
+ * @return The goald hoard thing, or invalid thing if not found.
+ */
+struct Thing *find_gold_hoarde_in_room_for_creature(struct Thing *creatng, struct Room *room)
 {
-    struct Thing *gldtng,*tmptng;
-    long selected;
-    long slb_x,slb_y;
-    unsigned long k;
-    long i;
-    gldtng = NULL;
-    if (room->slabs_count <= 0)
-    {
-        WARNLOG("Room with no slabs detected!");
-        return NULL;
-    }
-    selected = ACTION_RANDOM(room->slabs_count);
-    k = 0;
-    i = room->slabs_list;
-    while (i != 0)
-    {
-        slb_x = slb_num_decode_x(i);
-        slb_y = slb_num_decode_y(i);
-        // Per room tile code
-        tmptng = find_gold_hoard_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (!thing_is_invalid(tmptng))
-        {
-            if (creature_can_navigate_to_with_storage(thing, &tmptng->mappos, 0))
-            {
-                gldtng = tmptng;
-                if (selected > 0)
-                {
-                    selected--;
-                } else
-                {
-                    break;
-                }
-            }
-        }
-        // Per room tile code ends
-        i = get_next_slab_number_in_room(i);
-        k++;
-        if (k > room->slabs_count)
-        {
-          ERRORLOG("Room slabs list length exceeded when sweeping");
-          break;
-        }
-    }
-    return gldtng;
+    return find_object_in_room_for_creature_matching_bool_filter(creatng, room, thing_is_gold_hoard);
+}
+
+/**
+ * Gives a spellbook in a room which can be accessed by given creature.
+ * @param creatng The creature which should be able to access the spellbook.
+ * @param room Room in which the spellbook lies.
+ * @return The spellbook thing, or invalid thing if not found.
+ */
+struct Thing *find_spell_in_room_for_creature(struct Thing *creatng, struct Room *room)
+{
+    return find_object_in_room_for_creature_matching_bool_filter(creatng, room, thing_is_spellbook);
 }
 
 /**
@@ -1755,8 +1753,7 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    //TODO STEAL_SPELLS make correct spell finding function
-    spltng = NULL;//find_spell_in_room_for_creature(thing, room);
+    spltng = find_spell_in_room_for_creature(thing, room);
     if (thing_is_invalid(spltng))
     {
         WARNLOG("Cannot steal spell - no spellbook found in library");

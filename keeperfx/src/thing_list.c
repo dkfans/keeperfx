@@ -201,14 +201,39 @@ long near_map_block_thing_filter_not_specdigger(const struct Thing *thing, MaxFi
     long dist_x,dist_y;
     if (thing->class_id == TCls_Creature)
     {
-      if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
-      {
-          // note that abs() is not required because we're computing square of the values
-          dist_x = param->num1-(MapCoord)thing->mappos.x.val;
-          dist_y = param->num2-(MapCoord)thing->mappos.y.val;
-          // This function should return max value when the distance is minimal, so:
-          return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
-      }
+        if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+        {
+            // note that abs() is not required because we're computing square of the values
+            dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+            dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+            // This function should return max value when the distance is minimal, so:
+            return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    long dist_x,dist_y;
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if ((param->model_id == -1) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                Thing_Bool_Filter matcher_cb = (Thing_Bool_Filter)param->ptr3;
+                if ((matcher_cb != NULL) && matcher_cb(thing))
+                {
+                    // note that abs() is not required because we're computing square of the values
+                    dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+                    dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+                    // This function should return max value when the distance is minimal, so:
+                    return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+                }
+            }
+        }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -1704,6 +1729,28 @@ struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_
     param.num1 = pos_x;
     param.num2 = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
+/** Finds thing on revealed subtiles around given position, which matches given bool filter.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose things will be searched. Alies are not included.
+ * @return The target thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_object_around_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, long plyr_idx, Thing_Bool_Filter matcher_cb)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = near_map_block_thing_filter_call_bool_filter;
+    param.class_id = TCls_Object;
+    param.model_id = -1;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    param.ptr3 = (void *)matcher_cb;
+    return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 9, filter, &param);
 }
 
 /** Finds creature on revealed subtiles around given position, who is not special digger and is enemy to given player.

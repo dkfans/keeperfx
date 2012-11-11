@@ -21,11 +21,13 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "bflib_math.h"
 #include "creature_control.h"
 #include "dungeon_data.h"
 #include "light_data.h"
 #include "thing_data.h"
 #include "thing_list.h"
+#include "thing_navigate.h"
 #include "config_terrain.h"
 #include "gui_topmsg.h"
 
@@ -172,6 +174,65 @@ TbBool remove_creature_from_work_room(struct Thing *creatng)
         return false;
     }
     return remove_creature_from_specific_room(creatng, room);
+}
+
+/**
+ * Gives an object in given room which matches given filter and to which the creature can navigate.
+ * @param creatng Creature which should be able to access object to be returned.
+ * @param room The room which tiles are to be searched.
+ * @param matcher_cb Filter which objects must match to be returned.
+ * @note This function may be used for selecting an object to be picked by a player's own creature,
+ *  but also for selecting a target for stealing by enemy. Because of that, the function does not
+ *  check an owner of the object thing.
+ * @return The object thing which matches given criteria.
+ */
+struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing *creatng, const struct Room *room, Thing_Bool_Filter matcher_cb)
+{
+    struct Thing *rettng,*tmptng;
+    long selected;
+    unsigned long k;
+    long i;
+    rettng = INVALID_THING;
+    if (room->slabs_count <= 0)
+    {
+        WARNLOG("Room with no slabs detected!");
+        return rettng;
+    }
+    selected = ACTION_RANDOM(room->slabs_count);
+    k = 0;
+    i = room->slabs_list;
+    while (i != 0)
+    {
+        MapSubtlCoord stl_x,stl_y;
+        stl_x = slab_subtile_center(slb_num_decode_x(i));
+        stl_y = slab_subtile_center(slb_num_decode_y(i));
+        // Per room tile code
+        tmptng = get_object_around_owned_by_and_matching_bool_filter(
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, matcher_cb);
+        if (!thing_is_invalid(tmptng))
+        {
+            if (creature_can_navigate_to_with_storage(creatng, &tmptng->mappos, 0))
+            {
+                rettng = tmptng;
+                if (selected > 0)
+                {
+                    selected--;
+                } else
+                {
+                    break;
+                }
+            }
+        }
+        // Per room tile code ends
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > room->slabs_count)
+        {
+          ERRORLOG("Room slabs list length exceeded when sweeping");
+          break;
+        }
+    }
+    return rettng;
 }
 /******************************************************************************/
 #ifdef __cplusplus

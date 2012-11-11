@@ -58,7 +58,7 @@ DLLIMPORT void _DK_initialise_extra_slab_info(unsigned long lv_num);
  * on success, returns a buffer which should be freed after use,
  * and sets ldsize into its size.
  */
-unsigned char *load_single_map_file_to_buffer(unsigned long lvnum,const char *fext,long *ldsize,unsigned short flags)
+unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags)
 {
   unsigned char *buf;
   char *fname;
@@ -562,12 +562,12 @@ TbBool find_and_load_lof_files(void)
     return result;
 }
 
-long convert_old_column_file(unsigned long lv_num)
+long convert_old_column_file(LevelNumber lv_num)
 {
   return _DK_convert_old_column_file(lv_num);
 }
 
-TbBool load_column_file(unsigned long lv_num)
+TbBool load_column_file(LevelNumber lv_num)
 {
     //return _DK_load_column_file(lv_num);
     struct Column *colmn;
@@ -623,84 +623,88 @@ TbBool load_column_file(unsigned long lv_num)
     return true;
 }
 
-TbBool load_map_data_file(unsigned long lv_num)
+TbBool load_map_data_file(LevelNumber lv_num)
 {
-  //return _DK_load_map_data_file(lv_num);
-  struct Map *map;
-  unsigned long x,y;
-  unsigned char *buf;
-  unsigned long i;
-  unsigned long n;
-  unsigned short *wptr;
-  long fsize;
-  clear_map();
-  fsize = 2*(map_subtiles_y+1)*(map_subtiles_x+1);
-  buf = load_single_map_file_to_buffer(lv_num,"dat",&fsize,LMFF_None);
-  if (buf == NULL)
-    return false;
-  i = 0;
-  for (y=0; y < (map_subtiles_y+1); y++)
-    for (x=0; x < (map_subtiles_x+1); x++)
+    //return _DK_load_map_data_file(lv_num);
+    struct Map *map;
+    unsigned long x,y;
+    unsigned char *buf;
+    unsigned long i;
+    unsigned long n;
+    unsigned short *wptr;
+    long fsize;
+    clear_map();
+    fsize = 2*(map_subtiles_y+1)*(map_subtiles_x+1);
+    buf = load_single_map_file_to_buffer(lv_num,"dat",&fsize,LMFF_None);
+    if (buf == NULL)
+        return false;
+    i = 0;
+    for (y=0; y < (map_subtiles_y+1); y++)
     {
-      map = get_map_block_at(x,y);
-      n = -lword(&buf[i]);
-      map->data ^= (map->data ^ n) & 0x7FF;
-      i += 2;
+        for (x=0; x < (map_subtiles_x+1); x++)
+        {
+            map = get_map_block_at(x,y);
+            n = -lword(&buf[i]);
+            map->data ^= (map->data ^ n) & 0x7FF;
+            i += 2;
+        }
     }
-  LbMemoryFree(buf);
-  // Clear some bits and do some other setup
-  for (y=0; y < (map_subtiles_y+1); y++)
-    for (x=0; x < (map_subtiles_x+1); x++)
+    LbMemoryFree(buf);
+    // Clear some bits and do some other setup
+    for (y=0; y < (map_subtiles_y+1); y++)
     {
-      map = get_map_block_at(x,y);
-      wptr = &game.lish.subtile_lightness[get_subtile_number(x,y)];
-      *wptr = 32;
-      map->data &= 0xFFC007FFu;
-      map->data &= 0xF0FFFFFFu;
-      map->data &= 0x0FFFFFFFu;
+        for (x=0; x < (map_subtiles_x+1); x++)
+        {
+            map = get_map_block_at(x,y);
+            wptr = &game.lish.subtile_lightness[get_subtile_number(x,y)];
+            *wptr = 32;
+            map->data &= 0xFFC007FFu;
+            map->data &= 0xF0FFFFFFu;
+            map->data &= 0x0FFFFFFFu;
+        }
     }
-  return true;
+    return true;
 }
 
-TbBool load_thing_file(unsigned long lv_num)
+TbBool load_thing_file(LevelNumber lv_num)
 {
-  struct InitThing itng;
-  unsigned long i;
-  long k;
-  long total;
-  unsigned char *buf;
-  long fsize;
-  SYNCDBG(5,"Starting");
-  fsize = 2;
-  buf = load_single_map_file_to_buffer(lv_num,"tng",&fsize,LMFF_None);
-  if (buf == NULL)
-    return false;
-  i = 0;
-  total = lword(&buf[i]);
-  i += 2;
-  // Validate total amount of things
-  if ((total < 0) || (total > (fsize-2)/sizeof(struct InitThing)))
-  {
-    total = (fsize-2)/sizeof(struct InitThing);
-    WARNMSG("Bad amount of things in TNG file; corrected to %ld.",total);
-  }
-  if (total > THINGS_COUNT-2)
-  {
-    WARNMSG("Only %d things supported, TNG file has %ld.",THINGS_COUNT-2,total);
-    total = THINGS_COUNT-2;
-  }
-  // Create things
-  for (k=0; k < total; k++)
-  {
-    LbMemoryCopy(&itng, &buf[i], sizeof(struct InitThing));
-    thing_create_thing(&itng);
-    i += sizeof(struct InitThing);
-  }
-  LbMemoryFree(buf);
-  return true;
+    struct InitThing itng;
+    unsigned long i;
+    long k;
+    long total;
+    unsigned char *buf;
+    long fsize;
+    SYNCDBG(5,"Starting");
+    fsize = 2;
+    buf = load_single_map_file_to_buffer(lv_num,"tng",&fsize,LMFF_None);
+    if (buf == NULL)
+      return false;
+    i = 0;
+    total = lword(&buf[i]);
+    i += 2;
+    // Validate total amount of things
+    if ((total < 0) || (total > (fsize-2)/sizeof(struct InitThing)))
+    {
+        total = (fsize-2)/sizeof(struct InitThing);
+        WARNMSG("Bad amount of things in TNG file; corrected to %ld.",total);
+    }
+    if (total > THINGS_COUNT-2)
+    {
+        WARNMSG("Only %d things supported, TNG file has %ld.",THINGS_COUNT-2,total);
+        total = THINGS_COUNT-2;
+    }
+    // Create things
+    for (k=0; k < total; k++)
+    {
+        LbMemoryCopy(&itng, &buf[i], sizeof(struct InitThing));
+        thing_create_thing(&itng);
+        i += sizeof(struct InitThing);
+    }
+    LbMemoryFree(buf);
+    return true;
 }
 
-TbBool load_action_point_file(unsigned long lv_num)
+TbBool load_action_point_file(LevelNumber lv_num)
 {
   struct InitActionPoint iapt;
   unsigned long i;
@@ -1029,7 +1033,7 @@ long load_map_wibble_file(unsigned long lv_num)
     return true;
 }
 
-short load_map_ownership_file(unsigned long lv_num)
+short load_map_ownership_file(LevelNumber lv_num)
 {
     struct SlabMap *slb;
     unsigned long x,y;
@@ -1048,7 +1052,7 @@ short load_map_ownership_file(unsigned long lv_num)
         if ((x < map_subtiles_x) && (y < map_subtiles_y))
             slabmap_set_owner(slb,buf[i]);
         else
-            slabmap_set_owner(slb,5);
+            slabmap_set_owner(slb,NEUTRAL_PLAYER);
         i++;
       }
     LbMemoryFree(buf);

@@ -78,12 +78,12 @@ struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
 unsigned int get_workshop_object_class_for_thing(const struct Thing *thing);
 unsigned int get_workshop_object_class(unsigned int tmodel);
-struct Thing *get_spellbook_at_position(long x, long y);
-struct Thing *get_special_at_position(long x, long y);
-struct Thing *get_crate_at_position(long x, long y);
+struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 int box_thing_to_special(const struct Thing *thing);
-int book_thing_to_magic(const struct Thing *thing);
+PowerKind book_thing_to_magic(const struct Thing *thing);
 int box_thing_to_door_or_trap(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);
@@ -104,7 +104,7 @@ TbBool thing_is_spellbook(const struct Thing *thing);
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, long plyr_idx, long parent_idx);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx);
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, long plyr_idx, long value);
-struct Thing *find_gold_hoard_at(unsigned short stl_x, unsigned short stl_y);
+struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);

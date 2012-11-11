@@ -43,15 +43,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_good_attack_room(struct Thing *thing);
-DLLIMPORT short _DK_good_back_at_start(struct Thing *thing);
-DLLIMPORT short _DK_good_doing_nothing(struct Thing *thing);
-DLLIMPORT short _DK_good_drops_gold(struct Thing *thing);
-DLLIMPORT short _DK_good_leave_through_exit_door(struct Thing *thing);
-DLLIMPORT short _DK_good_returns_to_start(struct Thing *thing);
-DLLIMPORT short _DK_good_wait_in_exit_door(struct Thing *thing);
-DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *thing, long dngn_id);
-DLLIMPORT short _DK_creature_hero_entering(struct Thing *thing);
+DLLIMPORT short _DK_good_attack_room(struct Thing *creatng);
+DLLIMPORT short _DK_good_back_at_start(struct Thing *creatng);
+DLLIMPORT short _DK_good_doing_nothing(struct Thing *creatng);
+DLLIMPORT short _DK_good_drops_gold(struct Thing *creatng);
+DLLIMPORT short _DK_good_leave_through_exit_door(struct Thing *creatng);
+DLLIMPORT short _DK_good_returns_to_start(struct Thing *creatng);
+DLLIMPORT short _DK_good_wait_in_exit_door(struct Thing *creatng);
+DLLIMPORT long _DK_good_setup_loot_treasure_room(struct Thing *creatng, long dngn_id);
+DLLIMPORT short _DK_creature_hero_entering(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_dungeon_to_tunnel_to(struct Thing *creatng);
 DLLIMPORT long _DK_creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3);
 DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *creatng);
@@ -91,22 +91,22 @@ long good_find_enemy_dungeon(struct Thing *thing)
     return -1;
 }
 
-TbBool good_setup_wander_to_exit(struct Thing *thing)
+TbBool good_setup_wander_to_exit(struct Thing *creatng)
 {
     struct Thing *gatetng;
     SYNCDBG(7,"Starting");
-    gatetng = find_hero_door_hero_can_navigate_to(thing);
+    gatetng = find_hero_door_hero_can_navigate_to(creatng);
     if (thing_is_invalid(gatetng))
     {
-        SYNCLOG("Can't find any exit gate for hero %s.",thing_model_name(thing));
+        SYNCLOG("Can't find any exit gate for hero %s.",thing_model_name(creatng));
         return false;
     }
-    if (!setup_person_move_to_position(thing, gatetng->mappos.x.stl.num, gatetng->mappos.y.stl.num, 0))
+    if (!setup_person_move_to_position(creatng, gatetng->mappos.x.stl.num, gatetng->mappos.y.stl.num, 0))
     {
-        WARNLOG("Hero %s can't move to exit gate at (%d,%d).",thing_model_name(thing),(int)gatetng->mappos.x.stl.num, (int)gatetng->mappos.y.stl.num);
+        WARNLOG("Hero %s can't move to exit gate at (%d,%d).",thing_model_name(creatng),(int)gatetng->mappos.x.stl.num, (int)gatetng->mappos.y.stl.num);
         return false;
     }
-    thing->continue_state = CrSt_GoodLeaveThroughExitDoor;
+    creatng->continue_state = CrSt_GoodLeaveThroughExitDoor;
     return true;
 }
 

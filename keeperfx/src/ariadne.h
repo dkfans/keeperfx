@@ -60,7 +60,7 @@ struct Ariadne { // sizeof = 102
   unsigned char field_22;
   unsigned char field_23;
   unsigned char field_24[2];
-  unsigned short field_26;
+  unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
     unsigned char current_waypoint;
     /** List of nearest waypoints in the way towards destination, stored in an array. */
