@@ -1232,7 +1232,7 @@ short creature_being_dropped(struct Thing *thing)
     long stl_x, stl_y;
     struct Room *room;
     struct Thing *leadtng;
-    //return _DK_creature_being_dropped(creatng);
+    return _DK_creature_being_dropped(thing);//TODO TORTURE Disabled due to torture-related problems with rewritten version
     cctrl = creature_control_get_from_thing(thing);
     cctrl->flgfield_1 |= 0x02;
     cctrl->field_DE[14] = game.play_gameturn + 100;
