@@ -208,10 +208,11 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
   set_player_mode(player, 2);
   if (thing->class_id == TCls_Creature)
   {
-    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-    check_for_first_person_barrack_party(thing);
-    if (creature_is_group_member(thing))
-      make_group_member_leader(thing);
+      cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+      check_for_first_person_barrack_party(thing);
+      if (creature_is_group_member(thing)) {
+          make_group_member_leader(thing);
+      }
   }
   LbMemorySet(&ilght, 0, sizeof(struct InitLight));
   ilght.mappos.x.val = thing->mappos.x.val;
@@ -398,7 +399,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Slow:
         return ((cctrl->spell_flags & CSAfF_Slow) != 0);
     case SplK_Fly:
-        return ((cctrl->spell_flags & CSAfF_Fly) != 0);
+        return ((cctrl->spell_flags & CSAfF_Flying) != 0);
     case SplK_Sight:
         return ((cctrl->spell_flags & CSAfF_Sight) != 0);
     case SplK_Disease:
@@ -512,7 +513,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             cctrl->affected_by_spells |= CCSpl_Freeze;
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
-                cctrl->spell_flags |= 0x8000;
+                cctrl->spell_flags |= CSAfF_Freeze;
                 thing->movement_flags &= ~TMvF_Flying;
             }
             creature_set_speed(thing, 0);
@@ -620,7 +621,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         {
             cctrl->casted_spells[i].spkind = spell_idx;
             cctrl->casted_spells[i].field_1 = splconf->duration;
-            cctrl->spell_flags |= CSAfF_Fly;
+            cctrl->spell_flags |= CSAfF_Flying;
             thing->movement_flags |= TMvF_Flying;
         }
         break;
@@ -641,7 +642,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
           magstat = &game.magic_stats[PwrK_DISEASE];
           cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
           n = 0;
-          cctrl->spell_flags |= 0x0100;
+          cctrl->spell_flags |= CSAfF_Disease;
           cctrl->field_B6 = thing->owner;
           cctrl->field_2EB = game.play_gameturn;
           for (k=0; k < 3; k++)
@@ -677,7 +678,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         {
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
             cctrl->field_282 = 10;
-            cctrl->spell_flags |= 0x0200;
+            cctrl->spell_flags |= CSAfF_Chicken;
             cctrl->casted_spells[i].spkind = spell_idx;
             magstat = &game.magic_stats[PwrK_CHICKEN];
             cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
@@ -2360,7 +2361,7 @@ TbBool creature_increase_level(struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
     {
-      cctrl->spell_flags |= 0x4000;
+      cctrl->spell_flags |= CSAfF_Unkn0040;
       return true;
     }
   }
@@ -3313,9 +3314,9 @@ long update_creature_levels(struct Thing *thing)
     struct Thing *newtng;
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_Unkn4000) == 0)
+    if ((cctrl->spell_flags & CSAfF_Unkn0040) == 0)
         return 0;
-    cctrl->spell_flags &= ~CSAfF_Unkn4000;
+    cctrl->spell_flags &= ~CSAfF_Unkn0040;
     remove_creature_score_from_owner(thing);
     // If a creature is not on highest level, just update the level
     if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
@@ -3490,7 +3491,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->pos_BB.z.val = 0;
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown40,false);
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown80,false);
-    cctrl->spell_flags &= ~CSAfF_Unkn0400;
+    cctrl->spell_flags &= ~CSAfF_Unkn0004;
     process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;

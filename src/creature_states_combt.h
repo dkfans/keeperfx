@@ -63,6 +63,8 @@ TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
+TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
+struct Thing *check_for_door_to_fight(const struct Thing *thing);
 long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4);
 long creature_can_see_combat_path(const struct Thing * a, const struct Thing * b, long c);
 long get_combat_distance(const struct Thing *thing, const struct Thing *enemy);

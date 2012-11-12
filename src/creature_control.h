@@ -325,7 +325,7 @@ unsigned char field_D3;
     unsigned short field_DA;
     unsigned char target_x;
     unsigned char target_y;
-long field_DE[48];
+    unsigned long instance_use_turn[CREATURE_INSTANCES_COUNT];
     char instances[CREATURE_INSTANCES_COUNT];
     unsigned short field_1CE;
   unsigned short field_1D0;
@@ -351,7 +351,7 @@ unsigned char field_29E[12];
     unsigned short prev_in_room;//field_2AC
 short field_2AE;
     unsigned char field_2B0;
-short field_2B1;
+short job_assigned;
 unsigned short field_2B3[3];
 unsigned short field_2B9[3];
 

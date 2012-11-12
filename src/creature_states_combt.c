@@ -1815,15 +1815,53 @@ TbBool creature_look_for_combat(struct Thing *thing)
 
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
 {
-    struct Thing *heartng;
     if ((get_creature_model_flags(thing) & MF_NoEnmHeartAttack) != 0) {
         return false;
     }
+    struct Thing *heartng;
     heartng = get_enemy_dungeon_heart_creature_can_see(thing);
     if (thing_is_invalid(heartng)) {
         return false;
     }
     set_creature_object_combat(thing, heartng);
+    return true;
+}
+
+struct Thing *check_for_door_to_fight(const struct Thing *thing)
+{
+    struct Thing *doortng;
+    long m,n;
+    m = ACTION_RANDOM(4);
+    for (n=0; n < 4; n++)
+    {
+        long slb_x,slb_y;
+        slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
+        slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
+        doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (!thing_is_invalid(doortng))
+        {
+          if (thing->owner != doortng->owner)
+              return doortng;
+        }
+        m = (m+1) % 4;
+    }
+    return INVALID_THING;
+}
+
+TbBool creature_look_for_enemy_door_combat(struct Thing *thing)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    // Creatures which can pass doors shouldn't pick a fight with them
+    if (crstat->can_go_locked_doors) {
+        return false;
+    }
+    struct Thing *doortng;
+    doortng = check_for_door_to_fight(thing);
+    if (thing_is_invalid(doortng)) {
+        return false;
+    }
+    set_creature_door_combat(thing, doortng);
     return true;
 }
 

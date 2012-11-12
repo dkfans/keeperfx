@@ -1162,8 +1162,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             {
               player->controlled_thing_idx = thing->index;
               initialise_thing_state(thing, CrSt_ManualControl);
-              if (creature_is_group_member(thing))
-                make_group_member_leader(thing);
+              if (creature_is_group_member(thing)) {
+                  make_group_member_leader(thing);
+              }
             }
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);

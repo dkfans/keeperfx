@@ -205,7 +205,7 @@ void process_creature_instance(struct Thing *thing)
                 cctrl->field_D3 = 0;
                 return;
             }
-            cctrl->field_DE[cctrl->instance_id] = game.play_gameturn;
+            cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
             cctrl->instance_id = CrInst_NULL;
         }
         cctrl->field_D3 = 0;

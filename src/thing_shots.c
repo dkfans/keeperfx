@@ -474,7 +474,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case 21:
         case 22:
             cctrl = creature_control_get_from_thing(target);
-            if ((cctrl->affected_by_spells & 0x02) != 0) {
+            if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0) {
                 efftng = create_effect(&shotng->mappos, TngEff_Unknown22, shotng->owner);
             } else
             if (creature_model_bleeds(target->model)) {
