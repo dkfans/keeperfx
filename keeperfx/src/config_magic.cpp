@@ -980,7 +980,7 @@ unsigned long spell_to_creature_affected_flag(SpellKind spkind)
     case SplK_Slow:
         return CSAfF_Slow;
     case SplK_Fly:
-        return CSAfF_Fly;
+        return CSAfF_Flying;
     case SplK_Sight:
         return CSAfF_Sight;
     default:

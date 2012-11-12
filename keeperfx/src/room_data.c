@@ -600,10 +600,10 @@ void change_work_room_of_creatures_working_in_room(struct Room *wrkroom, struct 
 }
 
 /**
- * Changes job of all creatures working in specific room.
+ * Changes active state of all creatures working in specific room.
  * @param wrkroom The room creatures are working in.
  */
-void reset_job_of_creatures_working_in_room(struct Room *wrkroom)
+void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
 {
     unsigned long k;
     k = 0;
@@ -2359,7 +2359,7 @@ long claim_enemy_room(struct Room *room,struct Thing *claimtng)
     {
         return 0;
     }
-    reset_job_of_creatures_working_in_room(room);
+    reset_state_of_creatures_working_in_room(room);
     remove_room_from_players_list(room,oldowner);
     room->owner = claimtng->owner;
     room->field_C = (long)game.hits_per_slab * (long)room->slabs_count;

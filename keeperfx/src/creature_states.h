@@ -304,6 +304,7 @@ TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind 
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomKind rkind, const struct Thing *thing, const char *func_name);
 #define creature_work_in_room_no_longer_possible(room, rkind, thing) creature_work_in_room_no_longer_possible_f(room, rkind, thing, __func__)
+TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job);
 
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);

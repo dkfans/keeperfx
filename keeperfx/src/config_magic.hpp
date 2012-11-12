@@ -67,20 +67,22 @@ enum SpellKinds {
 };
 
 enum CreatureSpellAffectedFlags {
-    CSAfF_Slow         = 0x0001,
-    CSAfF_Speed        = 0x0002,
-    CSAfF_Armour       = 0x0004,
-    CSAfF_Rebound      = 0x0008,
-    CSAfF_Fly          = 0x0010,
-    CSAfF_Invisibility = 0x0020,
-    CSAfF_Sight        = 0x0040,
-    CSAfF_Disease      = 0x0100,
-    CSAfF_Chicken      = 0x0200,
-    CSAfF_Unkn0400     = 0x0400,
-    CSAfF_Unkn0800     = 0x0800,
-    CSAfF_Unkn1000     = 0x1000,
-    CSAfF_Unkn2000     = 0x2000,
-    CSAfF_Unkn4000     = 0x4000,
+    CSAfF_Disease      = 0x0001,
+    CSAfF_Chicken      = 0x0002,
+    CSAfF_Unkn0004     = 0x0004,
+    CSAfF_Unkn0008     = 0x0008,
+    CSAfF_Unkn0010     = 0x0010,
+    CSAfF_Unkn0020     = 0x0020,
+    CSAfF_Unkn0040     = 0x0040,
+    CSAfF_Freeze       = 0x0080,
+    CSAfF_Slow         = 0x0100,
+    CSAfF_Speed        = 0x0200,
+    CSAfF_Armour       = 0x0400,
+    CSAfF_Rebound      = 0x0800,
+    CSAfF_Flying       = 0x1000,
+    CSAfF_Invisibility = 0x2000,
+    CSAfF_Sight        = 0x4000,
+    CSAfF_Unkn8000     = 0x8000,
 };
 
 enum PowerKinds {

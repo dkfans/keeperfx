@@ -190,7 +190,7 @@ unsigned short field_60;
  * Should be executed in every function which changes a thing.
  * Can be defined to any SYNCLOG routine, making complete trace of usage on a thing.
  */
-#define TRACE_THING(thing) if (thing->index == 1745) SYNCLOG("traced avatar state %d cont %d",(int)thing->active_state,(int)thing->continue_state)
+#define TRACE_THING(thing)
 
 #pragma pack()
 /******************************************************************************/
