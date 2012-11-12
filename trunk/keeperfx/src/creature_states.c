@@ -847,27 +847,6 @@ short arrive_at_alarm(struct Thing *creatng)
     return 1;
 }
 
-struct Thing *check_for_door_to_fight(struct Thing *thing)
-{
-    struct Thing *doortng;
-    long m,n;
-    m = ACTION_RANDOM(4);
-    for (n=0; n < 4; n++)
-    {
-        long slb_x,slb_y;
-        slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
-        slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
-        doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (!thing_is_invalid(doortng))
-        {
-          if (thing->owner != doortng->owner)
-              return doortng;
-        }
-        m = (m+1) % 4;
-    }
-    return NULL;
-}
-
 long setup_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
 {
     struct Coord3d pos;
@@ -1207,7 +1186,7 @@ short creature_being_dropped_at_sacrificial_ground(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if (slabmap_owner(slb) == thing->owner)
     {
-        cctrl->flgfield_1 &= ~0x02;
+        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(thing);
     }
     if ( creature_will_do_combat(thing) )
@@ -1219,9 +1198,10 @@ short creature_being_dropped_at_sacrificial_ground(struct Thing *thing)
             return 2;
         }
     }
-    if ((cctrl->group_leader & TngGroup_LeaderIndex) != 0)
+    if (creature_is_group_member(thing)) {
         remove_creature_from_group(thing);
-    cctrl->flgfield_1 |= 0x02;
+    }
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
     initialise_thing_state(thing, CrSt_CreatureSacrifice);
     return 2;
 }
@@ -1232,21 +1212,23 @@ short creature_being_dropped(struct Thing *thing)
     long stl_x, stl_y;
     struct Room *room;
     struct Thing *leadtng;
-    return _DK_creature_being_dropped(thing);//TODO TORTURE Disabled due to torture-related problems with rewritten version
+    //return _DK_creature_being_dropped(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->flgfield_1 |= 0x02;
-    cctrl->field_DE[14] = game.play_gameturn + 100;
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
+    // If dropped on sacrificial ground, process the sacrifice
     if (subtile_has_sacrificial_on_top(stl_x, stl_y))
     {
         return creature_being_dropped_at_sacrificial_ground(thing);
     }
-    if ( !thing_touching_floor(thing) && ((thing->movement_flags & 0x20) == 0) )
+    // If dropping still in progress, do nothing
+    if ( !thing_touching_floor(thing) && ((thing->movement_flags & TMvF_Flying) == 0) )
     {
         return 1;
     }
-    cctrl->field_2B1 = 0;
+    set_creature_assigned_job(thing, Job_NULL);
     if ((cctrl->spell_flags & CSAfF_Chicken) == 0)
     {
         if ((get_creature_model_flags(thing) & MF_TremblingFat) != 0)
@@ -1260,9 +1242,9 @@ short creature_being_dropped(struct Thing *thing)
         struct SlabMap *slb;
         slb = get_slabmap_for_subtile(stl_x,stl_y);
         if (slabmap_owner(slb) == thing->owner)
-            cctrl->flgfield_1 &= ~0x02;
+            cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         else
-            cctrl->flgfield_1 |= 0x02;
+            cctrl->flgfield_1 |= CCFlg_NoCompControl;
         check_map_explored(thing, stl_x, stl_y);
         leadtng = get_group_leader(thing);
         if (!thing_is_invalid(leadtng))
@@ -1278,24 +1260,14 @@ short creature_being_dropped(struct Thing *thing)
         }
         if ( creature_will_do_combat(thing) )
         {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(thing);
             if (creature_look_for_combat(thing)) {
                 return 2;
             }
             if (creature_look_for_enemy_heart_combat(thing)) {
                 return 2;
             }
-            // Creatures which can pass doors shouldn't pick a fight with them
-            if (!crstat->can_go_locked_doors)
-            {
-                struct Thing *doortng;
-                doortng = check_for_door_to_fight(thing);
-                if (!thing_is_invalid(doortng))
-                {
-                    set_creature_door_combat(thing, doortng);
-                    return 2;
-                }
+            if (creature_look_for_enemy_door_combat(thing)) {
+                return 2;
             }
         }
         if ((get_creature_model_flags(thing) & MF_IsSpecDigger) != 0)
@@ -1304,7 +1276,7 @@ short creature_being_dropped(struct Thing *thing)
             {
                 if (check_out_available_imp_drop_tasks(thing))
                 {
-                    cctrl->flgfield_1 &= ~0x02;
+                    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
                     return 2;
                 }
             }
@@ -1313,29 +1285,30 @@ short creature_being_dropped(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if (room_is_invalid(room))
     {
-        cctrl->flgfield_1 &= ~0x02;
+        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(thing);
         return 2;
     }
     if (room->owner != thing->owner)
     {
-        if ( (room->kind != RoK_TORTURE) && (room->kind != RoK_PRISON) )
+        if (!enemies_may_work_in_room(room->kind))
         {
-            cctrl->flgfield_1 &= ~0x02;
+            cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
             set_start_state(thing);
             return 2;
         }
     }
     if ( room->kind == RoK_ENTRANCE || (room->kind == RoK_PRISON || room->kind == RoK_TORTURE) )
     {
-        if ( cctrl->group_leader & TngGroup_LeaderIndex )
+        if (creature_is_group_member(thing)) {
             remove_creature_from_group(thing);
+        }
     }
     if (room->kind == RoK_TEMPLE)
     {
         if (subtile_has_sacrificial_on_top(stl_x, stl_y))
         {
-            cctrl->flgfield_1 &= ~0x02;
+            cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
             set_start_state(thing);
             return 2;
         }
@@ -1347,11 +1320,11 @@ short creature_being_dropped(struct Thing *thing)
     }
     if ( !send_creature_to_room(thing, room) )
     {
-        cctrl->flgfield_1 &= ~0x02;
+        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(thing);
         return 2;
     }
-    cctrl->field_2B1 = get_job_for_room(room->kind, false);
+    set_creature_assigned_job(thing, get_job_for_room(room->kind, false));
     return 2;
 }
 
@@ -1405,7 +1378,7 @@ void set_creature_size_stuff(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0) {
+    if ((cctrl->spell_flags & CSAfF_Chicken) != 0) {
       creatng->field_46 = 300;
     } else {
       creatng->field_46 = 300 + (300 * cctrl->explevel) / 20;
@@ -1436,7 +1409,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       }
       return 0;
     }
-    cctrl->spell_flags |= 0x02;
+    cctrl->spell_flags |= CSAfF_Chicken;
     creatng->field_4F &= ~0x01;
     set_creature_size_stuff(creatng);
     creatng->field_1 &= ~0x10;
@@ -1657,7 +1630,7 @@ short creature_pretend_chicken_move(struct Thing *creatng)
     //return _DK_creature_pretend_chicken_move(creatng);
     long move_ret;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->affected_by_spells & 0x01) != 0)
+    if ((cctrl->affected_by_spells & CCSpl_Unknown01) != 0)
     {
         return 1;
     }
@@ -2191,7 +2164,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
 
     tmptng = thing_get(cctrl1->battle_enemy_idx);
     TRACE_THING(tmptng);
-    if  ( (cctrl1->spell_flags & CSAfF_Unkn1000) || (cctrl2->spell_flags & CSAfF_Unkn1000)
+    if  ( (cctrl1->spell_flags & CSAfF_Unkn0010) || (cctrl2->spell_flags & CSAfF_Unkn0010)
         || ((cctrl1->combat_flags) && (tmptng == tng2)) )
     {
         if (tng2 != tng1)
@@ -2436,7 +2409,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        cctrl->spell_flags |= 0x4000;
+        cctrl->spell_flags |= 0x0040;
     }
     return true;
 }
@@ -2479,6 +2452,20 @@ TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState)
     return true;
 }
 
+TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job)
+{
+    struct CreatureControl *cctrl;
+    TRACE_THING(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("The %s index %d has invalid control",thing_model_name(thing),(int)thing->index);
+        return false;
+    }
+    cctrl->job_assigned = new_job;
+    return true;
+}
+
 TbBool cleanup_current_thing_state(struct Thing *thing)
 {
     struct StateInfo *stati;
@@ -2499,6 +2486,7 @@ TbBool cleanup_current_thing_state(struct Thing *thing)
 TbBool cleanup_creature_state_and_interactions(struct Thing *thing)
 {
     cleanup_current_thing_state(thing);
+    set_creature_assigned_job(thing,Job_NULL);
     remove_all_traces_of_combat(thing);
     if (creature_is_group_member(thing)) {
         remove_creature_from_group(thing);
