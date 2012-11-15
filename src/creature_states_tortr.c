@@ -370,7 +370,7 @@ long compute_torture_convert_time(const struct Thing *thing, const struct Room *
     long i;
     cctrl = creature_control_get_from_thing(thing);
     i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) * room->efficiency >> 8;
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+    if (creature_affected_by_spell(thing, SplK_Speed))
       i = (4 * i) / 3;
     if (cctrl->field_21 != 0)
       i = (5 * i) / 4;

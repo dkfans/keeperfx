@@ -373,7 +373,7 @@ void update_creature_graphic_field_4F(struct Thing *thing)
         thing->field_4F |= 0x10;
         thing->field_4F |= 0x20;
     } else
-    if (((cctrl->spell_flags & CSAfF_Invisibility) != 0) && (cctrl->field_AF <= 0))
+    if (creature_affected_by_spell(thing, SplK_Invisibility) && (cctrl->field_AF <= 0))
     {
       if (is_my_player_number(thing->owner))
       {
@@ -405,7 +405,7 @@ void update_creature_graphic_anim(struct Thing *thing)
     {
       thing->field_4F |= 0x01;
     } else
-    if ((cctrl->spell_flags & CSAfF_Chicken) == 0)
+    if (!creature_affected_by_spell(thing, SplK_Chicken))
     {
         if (cctrl->instance_id != CrInst_NULL)
         {
@@ -416,7 +416,7 @@ void update_creature_graphic_anim(struct Thing *thing)
           inst_inf = creature_instance_info_get(cctrl->instance_id);
           update_creature_anim(thing, cctrl->field_1CE, inst_inf->graphics_idx);
         } else
-        if ((cctrl->field_B1 != 0) || (thing->health < 0) || ((cctrl->affected_by_spells & CCSpl_Freeze) != 0))
+        if ((cctrl->field_B1 != 0) || (thing->health < 0) || creature_affected_by_spell(thing, SplK_Freeze))
         {
             update_creature_anim(thing, 256, 8);
         } else
@@ -496,7 +496,7 @@ void update_creature_graphic_tint(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
+    if (creature_affected_by_spell(thing, SplK_Freeze))
     {
         tint_thing(thing, colours[4][4][15], 1);
     } else

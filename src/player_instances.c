@@ -199,7 +199,6 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_hand_grab(player, n);
   struct Thing *dsttng;
   struct Thing *grabtng;
-  struct CreatureControl *cctrl;
   long i;
   SYNCDBG(8,"Starting");
   dsttng = thing_get(player->field_43E);
@@ -216,8 +215,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   case TCls_Creature:
       if (!external_set_thing_state(dsttng, CrSt_InPowerHand))
           return 0;
-      cctrl = creature_control_get_from_thing(dsttng);
-      if (cctrl->spell_flags & CSAfF_Chicken)
+      if (creature_affected_by_spell(dsttng, SplK_Chicken))
           i = convert_td_iso(122);
       else
           i = get_creature_anim(dsttng, 9);
@@ -284,7 +282,6 @@ long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 
 long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
 {
-  struct CreatureControl *cctrl;
   struct Thing *efftng;
   struct Thing *thing;
   struct Camera *cam;
@@ -301,8 +298,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   switch (thing->class_id)
   {
   case TCls_Creature:
-      cctrl = creature_control_get_from_thing(thing);
-      if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
+      if (creature_affected_by_spell(thing, SplK_Freeze))
       {
           kill_creature(thing, 0, thing->owner, 0, 0, 0);
       } else
@@ -485,8 +481,6 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
 {
   //return _DK_pinstfe_direct_control_creature(player, n);
   struct Thing *thing;
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
   long i,k;
   thing = thing_get(player->field_43E);
   if (thing_is_invalid(thing))
@@ -509,17 +503,19 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
   if (thing->class_id == TCls_Creature)
   {
     load_swipe_graphic_for_creature(thing);
-    cctrl = creature_control_get_from_thing(thing);
     if (is_my_player(player))
     {
-      if (cctrl->affected_by_spells & CCSpl_Freeze)
+      if (creature_affected_by_spell(thing, SplK_Freeze))
         PaletteSetPlayerPalette(player, blue_palette);
     }
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     for (i=0; i < 10; i++)
     {
       k = crstat->instance_spell[i];
-      if (cctrl->instances[k])
+      if (cctrl->instance_available[k])
       {
         cctrl->field_1E8 = k;
         break;

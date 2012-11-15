@@ -192,7 +192,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_Chicken) != 0)
+    if (creature_affected_by_spell(thing, SplK_Chicken))
         return false;
     // Neutral creatures won't fight
     if (thing->owner == game.neutral_player_num)
@@ -1799,7 +1799,7 @@ TbBool creature_look_for_combat(struct Thing *thing)
         return true;
     }
 
-    if ( ((cctrl->spell_flags & CSAfF_Invisibility) != 0) && (cctrl->field_AF <= 0) )
+    if ( creature_affected_by_spell(thing, SplK_Invisibility) && (cctrl->field_AF <= 0) )
     {
       if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
           return false;

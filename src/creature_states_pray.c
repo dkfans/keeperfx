@@ -176,9 +176,9 @@ long process_temple_cure(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_Disease) != 0)
+    if (creature_affected_by_spell(thing, SplK_Disease))
         terminate_thing_spell_effect(thing, SplK_Disease);
-    if ((cctrl->spell_flags & CSAfF_Chicken) != 0)
+    if (creature_affected_by_spell(thing, SplK_Chicken))
         terminate_thing_spell_effect(thing, SplK_Chicken);
     cctrl->field_3D = game.play_gameturn;
     return 1;

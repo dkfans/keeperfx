@@ -848,7 +848,6 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
 long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
 {
     struct Thing *thing;
-    struct CreatureControl *cctrl;
     unsigned long k;
     long i;
     long dist,damage,naffected;
@@ -865,12 +864,11 @@ long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_id
         }
         i = thing->next_of_class;
         // Per-thing code
-        cctrl = creature_control_get_from_thing(thing);
         if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
         {
             if (thing->owner != immune_plyr_idx)
             {
-              if ((cctrl->spell_flags & CSAfF_Armour) == 0)
+              if (!creature_affected_by_spell(thing, SplK_Armour))
               {
                   dist = get_2d_box_distance(&thing->mappos, pos);
                   damage = get_radially_decaying_value(max_damage, range/2, range/2, dist);

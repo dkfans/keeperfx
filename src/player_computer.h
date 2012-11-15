@@ -34,6 +34,7 @@ extern "C" {
 #define COMPUTER_PROCESS_LISTS_COUNT 14
 #define COMPUTER_TRAP_LOC_COUNT      20
 
+#define COMPUTER_PROCESS_TYPES_COUNT 26
 #define COMPUTER_CHECKS_TYPES_COUNT  51
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 
@@ -337,6 +338,13 @@ DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[14];
 
 #pragma pack()
 /******************************************************************************/
+struct ComputerPlayerConfig {
+    int processes_count;
+    int checks_count;
+    int events_count;
+    int computers_count;
+};
+/******************************************************************************/
 extern unsigned short computer_types[];
 /******************************************************************************/
 struct ComputerProcessTypes *get_computer_process_type_template(long cpt_idx);
@@ -369,7 +377,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);
-short load_computer_player_config(void);
+TbBool load_computer_player_config(unsigned short flags);
 void setup_computer_players2(void);
 /******************************************************************************/
 #ifdef __cplusplus

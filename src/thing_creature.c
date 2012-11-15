@@ -1443,7 +1443,7 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
         creature_rebirth_at_lair(thing);
         return;
     }
-    if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
+    if (creature_affected_by_spell(thing, SplK_Freeze))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
@@ -1499,7 +1499,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     if (creature_control_invalid(cctrl)) {
         return;
     }
-    if ((cctrl->spell_flags & CSAfF_Armour) != 0)
+    if (creature_affected_by_spell(creatng, SplK_Armour))
     {
         cctrl->spell_flags &= ~CSAfF_Armour;
         for (i=0; i < 3; i++)
@@ -1513,7 +1513,7 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
             }
         }
     }
-    if ((cctrl->spell_flags & CSAfF_Disease) != 0)
+    if (creature_affected_by_spell(creatng, SplK_Disease))
     {
         cctrl->spell_flags &= ~CSAfF_Disease;
         for (i=0; i < 3; i++)
@@ -1839,7 +1839,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
   cctrl->explevel = nlvl;
   max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
   cctrl->max_health = max_health;
-  if ((cctrl->spell_flags & CSAfF_Chicken) != 0)
+  if (creature_affected_by_spell(thing, SplK_Chicken))
     thing->field_46 = 300;
   else
     thing->field_46 = saturate_set_signed( 300 + (300*(unsigned long)(cctrl->explevel)) / 20, 16);
@@ -1853,7 +1853,7 @@ void set_creature_level(struct Thing *thing, long nlvl)
     if (k > 0)
     {
       if (crstat->instance_level[i] <= cctrl->explevel+1)
-        cctrl->instances[k] = 1;
+        cctrl->instance_available[k] = true;
     }
   }
   add_creature_score_to_owner(thing);
@@ -1920,12 +1920,12 @@ void get_creature_instance_times(struct Thing *thing, long inst_idx, long *ritim
         itime = inst_inf->time;
         aitime = inst_inf->action_time;
     }
-    if ((cctrl->spell_flags & CSAfF_Slow) != 0)
+    if (creature_affected_by_spell(thing, SplK_Slow))
     {
         aitime *= 2;
         itime *= 2;
     }
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+    if (creature_affected_by_spell(thing, SplK_Speed))
     {
         aitime /= 2;
         itime /= 2;
@@ -3415,7 +3415,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
         cctrl = creature_control_get_from_thing(thing);
         player = get_player(thing->owner);
-        if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0)
+        if (creature_affected_by_spell(thing, SplK_Freeze))
         {
             if ((player->field_3 & 0x04) == 0)
               PaletteSetPlayerPalette(player, blue_palette);
