@@ -118,11 +118,11 @@ Creature_Instf_Func creature_instances_func_list[] = {
  * @param func_name Name of the caller function, for logging purposes.
  * @return Instance Info struct is returned.
  */
-struct InstanceInfo *creature_instance_info_get_ptr(long inst_idx,const char *func_name)
+struct InstanceInfo *creature_instance_info_get_ptr(CrInstance inst_idx,const char *func_name)
 {
     if ((inst_idx < 0) || (inst_idx >= sizeof(instance_info)/sizeof(instance_info[0])))
     {
-        ERRORMSG("%s: Tried to get invalid instance info %ld!",func_name,inst_idx);
+        ERRORMSG("%s: Tried to get invalid instance info %d!",func_name,(int)inst_idx);
         return &instance_info[0];
     }
     return &instance_info[inst_idx];
@@ -133,17 +133,17 @@ TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf)
     return (inst_inf < &instance_info[1]);
 }
 
-long creature_instance_is_available(struct Thing *thing, long inum)
+TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum)
 {
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
-        return 0;
-    return cctrl->instances[inum];
+        return false;
+    return cctrl->instance_available[inum];
 }
 
-TbBool instance_is_ranged_weapon(long inum)
+TbBool instance_is_ranged_weapon(CrInstance inum)
 {
     switch (inum)
     {
@@ -171,7 +171,7 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     for (inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
     {
-        if (cctrl->instances[inum] > 0)
+        if (cctrl->instance_available[inum] > 0)
         {
             if (instance_is_ranged_weapon(inum))
                 return true;

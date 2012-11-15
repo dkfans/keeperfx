@@ -263,7 +263,6 @@ void draw_power_hand(void)
 {
   SYNCDBG(7,"Starting");
   struct PlayerInfo *player;
-  struct CreatureControl *cctrl;
   struct CreaturePickedUpOffset *pickoffs;
   struct Thing *thing;
   struct Thing *picktng;
@@ -345,8 +344,7 @@ void draw_power_hand(void)
     switch (picktng->class_id)
     {
     case TCls_Creature:
-        cctrl = creature_control_get_from_thing(picktng);
-        if ((cctrl->spell_flags & CSAfF_Chicken) == 0)
+        if (!creature_affected_by_spell(picktng, SplK_Chicken))
         {
             pickoffs = get_creature_picked_up_offset(picktng);
             x = GetMouseX() + pickoffs->delta_x;

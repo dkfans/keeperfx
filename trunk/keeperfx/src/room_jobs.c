@@ -68,16 +68,14 @@ TbBool creature_is_working_in_room(const struct Thing *creatng, const struct Roo
 
 TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *room)
 {
-    struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
-    cctrl = creature_control_get_from_thing(creatng);
     if (creatng->light_id != 0) {
         light_delete_light(creatng->light_id);
         creatng->light_id = 0;
     }
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+    if (creature_affected_by_spell(creatng, SplK_Speed))
         terminate_thing_spell_effect(creatng, SplK_Speed);
-    if ((cctrl->spell_flags & CSAfF_Invisibility) != 0)
+    if (creature_affected_by_spell(creatng, SplK_Invisibility))
         terminate_thing_spell_effect(creatng, SplK_Invisibility);
     dungeon = get_dungeon(room->owner);
     dungeon->lvstats.creatures_tortured++;

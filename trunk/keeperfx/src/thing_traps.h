@@ -30,6 +30,20 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+enum ThingTrapModels {
+    TngTrp_None = 0,
+    TngTrp_Unknown01,
+    TngTrp_Unknown02,
+    TngTrp_Unknown03,
+    TngTrp_Unknown04,
+    TngTrp_Unknown05,
+    TngTrp_Unknown06,
+    TngTrp_Unknown07,
+    TngTrp_Unknown08,
+    TngTrp_Unknown09,
+    TngTrp_Unknown10,
+};
+
 struct Thing;
 
 struct TrapData {
