@@ -1229,7 +1229,7 @@ short creature_being_dropped(struct Thing *thing)
         return 1;
     }
     set_creature_assigned_job(thing, Job_NULL);
-    if ((cctrl->spell_flags & CSAfF_Chicken) == 0)
+    if (!creature_affected_by_spell(thing, SplK_Chicken))
     {
         if ((get_creature_model_flags(thing) & MF_TremblingFat) != 0)
         {
@@ -1313,7 +1313,7 @@ short creature_being_dropped(struct Thing *thing)
             return 2;
         }
     }
-    if ( (cctrl->spell_flags & CSAfF_Chicken) && (room->kind != RoK_TEMPLE) )
+    if ( creature_affected_by_spell(thing, SplK_Chicken) && (room->kind != RoK_TEMPLE) )
     {
         set_start_state(thing);
         return 2;
@@ -1378,7 +1378,7 @@ void set_creature_size_stuff(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->spell_flags & CSAfF_Chicken) != 0) {
+    if (creature_affected_by_spell(creatng, SplK_Chicken)) {
       creatng->field_46 = 300;
     } else {
       creatng->field_46 = 300 + (300 * cctrl->explevel) / 20;
@@ -2128,7 +2128,7 @@ TbBool process_creature_hunger(struct Thing *thing)
     struct CreatureStats *crstat;
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->hunger_rate == 0) || ((cctrl->affected_by_spells & CCSpl_Freeze) != 0) )
+    if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) )
         return false;
     cctrl->hunger_level++;
     if (cctrl->hunger_level <= crstat->hunger_rate)
@@ -2173,13 +2173,13 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
             && ((tng2->alloc_flags & TAlF_IsInLimbo) == 0) && ((tng2->field_1 & TF1_InCtrldLimbo) == 0))
             {
                 crstat1 = creature_stats_get_from_thing(tng1);
-                if ((cctrl2->spell_flags & CSAfF_Invisibility) == 0)
+                if (!creature_affected_by_spell(tng2, SplK_Invisibility))
                     return true;
                 if (cctrl2->field_AF > 0)
                     return true;
                 if (crstat1->can_see_invisible)
                     return true;
-                if ((cctrl1->spell_flags & CSAfF_Sight) != 0)
+                if (creature_affected_by_spell(tng1, SplK_Sight))
                     return true;
             }
         }
@@ -2378,7 +2378,7 @@ long process_work_speed_on_work_value(struct Thing *thing, long base_val)
     long val;
     cctrl = creature_control_get_from_thing(thing);
     val = base_val;
-    if ((cctrl->spell_flags & CSAfF_Speed) != 0)
+    if (creature_affected_by_spell(thing, SplK_Speed))
         val = 2 * val;
     if (cctrl->field_21)
         val = 4 * val / 3;
@@ -2409,7 +2409,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        cctrl->spell_flags |= 0x0040;
+        cctrl->spell_flags |= CSAfF_Unkn0040;
     }
     return true;
 }
@@ -2567,7 +2567,6 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
 short set_start_state_f(struct Thing *thing,const char *func_name)
 {
     struct PlayerInfo *player;
-    struct CreatureControl *cctrl;
     long i;
     SYNCDBG(8,"%s: Starting for %s index %d, owner %d, last state %s, stacked %s",func_name,thing_model_name(thing),
         (int)thing->index,(int)thing->owner,creature_state_code_name(thing->active_state),creature_state_code_name(thing->continue_state));
@@ -2598,8 +2597,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
         return thing->active_state;
     }
-    cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_Chicken) != 0)
+    if (creature_affected_by_spell(thing, SplK_Chicken))
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);

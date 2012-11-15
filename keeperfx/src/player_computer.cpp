@@ -87,6 +87,8 @@ const struct NamedCommand compp_computer_commands[] = {
   {NULL,              0},
   };
 
+struct ComputerPlayerConfig comp_player_conf;
+
 ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
 unsigned short computer_types[] = { 201, 201, 201, 201, 201, 201, 729, 730, 731, 732 };
 
@@ -778,57 +780,122 @@ short init_computer_process_lists(void)
   return true;
 }
 
-short parse_computer_player_common_blocks(char *buf,long len)
+TbBool parse_computer_player_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  long pos;
-  int k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[32];
-  // Find the block
-  sprintf(block_buf,"common");
-  pos = 0;
-  k = find_conf_block(buf,&pos,len,block_buf);
-  if (k < 0)
-  {
-    WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
-    return 0;
-  }
-  while (pos<len)
-  {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,compp_common_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // COMPUTERASSISTS
-//TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
-          break;
-      case 2: // PROCESSESCOUNT
-//TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
-          break;
-      case 3: // CHECKSCOUNT
-//TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
-          break;
-      case 4: // EVENTSCOUNT
-//TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
-          break;
-      case 5: // COMPUTERSCOUNT
-//TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-  return 1;
+    long pos;
+    int k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
+    // Initialize block data
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        comp_player_conf.processes_count = 1;
+        comp_player_conf.checks_count = 1;
+        comp_player_conf.events_count = 1;
+        comp_player_conf.computers_count = 1;
+    }
+    // Find the block
+    sprintf(block_buf,"common");
+    pos = 0;
+    k = find_conf_block(buf,&pos,len,block_buf);
+    if (k < 0)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
+    }
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_common_commands,cmd_num)
+    while (pos<len)
+    {
+        // Finding command number in this line
+        cmd_num = recognize_conf_command(buf,&pos,len,compp_common_commands);
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        n = 0;
+        switch (cmd_num)
+        {
+        case 1: // COMPUTERASSISTS
+  //TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
+            break;
+        case 2: // PROCESSESCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= COMPUTER_PROCESS_TYPES_COUNT))
+              {
+                  comp_player_conf.processes_count = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 3: // CHECKSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= COMPUTER_CHECKS_TYPES_COUNT))
+              {
+                  comp_player_conf.checks_count = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 4: // EVENTSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= COMPUTER_EVENTS_TYPES_COUNT))
+              {
+                  comp_player_conf.events_count = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 5: // COMPUTERSCOUNT
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if ((k > 0) && (k <= COMPUTER_PROCESS_LISTS_COUNT))
+              {
+                  comp_player_conf.computers_count = k;
+                n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
+            break;
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+    }
+#undef COMMAND_TEXT
+    return true;
 }
 
 short parse_computer_player_process_blocks(char *buf,long len)
@@ -1449,8 +1516,9 @@ short parse_computer_player_computer_blocks(char *buf,long len)
   return 1;
 }
 
-short load_computer_player_config(void)
+TbBool load_computer_player_config(unsigned short flags)
 {
+  static const char *textname = "Computer Player";
   const char *fname;
   char *buf;
   long len;
@@ -1475,7 +1543,7 @@ short load_computer_player_config(void)
   len = LbFileLoadAt(fname, buf);
   if (len>0)
   {
-    parse_computer_player_common_blocks(buf,len);
+    parse_computer_player_common_blocks(buf,len, textname, flags);
     parse_computer_player_process_blocks(buf,len);
     parse_computer_player_check_blocks(buf,len);
     parse_computer_player_event_blocks(buf,len);
@@ -1486,7 +1554,7 @@ short load_computer_player_config(void)
   // Hack to synchronize local structure with the one inside DLL.
   // Remove when it's not needed anymore.
   LbMemoryCopy(_DK_ComputerProcessLists,ComputerProcessLists,13*sizeof(struct ComputerProcessTypes));
-  return 1;
+  return true;
 }
 
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process)

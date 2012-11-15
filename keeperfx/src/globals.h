@@ -169,6 +169,8 @@ typedef short CrStateRet;
 typedef short CrCheckRet;
 /** Type which stores Job_* values. */
 typedef short CreatureJob;
+/** Creature instance index, stores CrInst_* values. */
+typedef short CrInstance;
 /** Level number within a campaign. */
 typedef long LevelNumber;
 /** Map coordinate in full resolution. Position within subtile is scaled 0..255. */

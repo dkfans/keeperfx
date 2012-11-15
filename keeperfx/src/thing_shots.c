@@ -447,7 +447,6 @@ long get_damage_of_melee_shot(struct Thing *shotng, struct Thing *target)
 
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
 {
-    struct CreatureControl *cctrl;
     struct Thing *efftng;
     //_DK_create_relevant_effect_for_shot_hitting_thing(shotng, target); return;
     efftng = INVALID_THING;
@@ -473,8 +472,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         case 14:
         case 21:
         case 22:
-            cctrl = creature_control_get_from_thing(target);
-            if ((cctrl->affected_by_spells & CCSpl_Freeze) != 0) {
+            if (creature_affected_by_spell(target, SplK_Freeze)) {
                 efftng = create_effect(&shotng->mappos, TngEff_Unknown22, shotng->owner);
             } else
             if (creature_model_bleeds(target->model)) {
@@ -607,7 +605,6 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     struct Thing *shooter;
     struct Thing *efftng;
     struct ShotConfigStats *shotst;
-    struct CreatureControl *tgcctrl;
     struct Coord3d pos2;
     long i,n,amp;
     //return _DK_shot_hit_shootable_thing_at(shotng, target, pos);
@@ -630,40 +627,36 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     }
     if ( (shotst->old->field_28 != 0) || (target->health < 0) )
         return 0;
-    tgcctrl = creature_control_get_from_thing(target);
-    if (!creature_control_invalid(tgcctrl))
+    if ( (creature_affected_by_spell(target, SplK_Rebound)) && (shotst->old->field_29 == 0) )
     {
-        if ( ((tgcctrl->spell_flags & CSAfF_Rebound) != 0) && (shotst->old->field_29 == 0) )
-        {
-            struct Thing *killertng;
-            killertng = INVALID_THING;
-            if (shotng->index != shotng->parent_idx) {
-                killertng = thing_get(shotng->parent_idx);
-            }
-            if ( !thing_is_invalid(killertng) )
-            {
-                struct CreatureStats *crstat;
-                crstat = creature_stats_get_from_thing(killertng);
-                pos2.x.val = killertng->mappos.x.val;
-                pos2.y.val = killertng->mappos.y.val;
-                pos2.z.val = crstat->eye_height + killertng->mappos.z.val;
-                clear_thing_acceleration(shotng);
-                set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
-                shotng->parent_idx = target->parent_idx;
-                shotng->owner = target->owner;
-            } else
-            {
-                clear_thing_acceleration(shotng);
-                i = (shotng->field_52 + 1024) & 0x7FF;
-                n = (shotng->field_54 + 1024) & 0x7FF;
-                set_thing_acceleration_angles(shotng, i, n);
-                if (target->class_id == TCls_Creature)
-                {
-                    shotng->parent_idx = target->parent_idx;
-                }
-            }
-            return 1;
+        struct Thing *killertng;
+        killertng = INVALID_THING;
+        if (shotng->index != shotng->parent_idx) {
+            killertng = thing_get(shotng->parent_idx);
         }
+        if ( !thing_is_invalid(killertng) )
+        {
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(killertng);
+            pos2.x.val = killertng->mappos.x.val;
+            pos2.y.val = killertng->mappos.y.val;
+            pos2.z.val = crstat->eye_height + killertng->mappos.z.val;
+            clear_thing_acceleration(shotng);
+            set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
+            shotng->parent_idx = target->parent_idx;
+            shotng->owner = target->owner;
+        } else
+        {
+            clear_thing_acceleration(shotng);
+            i = (shotng->field_52 + 1024) & 0x7FF;
+            n = (shotng->field_54 + 1024) & 0x7FF;
+            set_thing_acceleration_angles(shotng, i, n);
+            if (target->class_id == TCls_Creature)
+            {
+                shotng->parent_idx = target->parent_idx;
+            }
+        }
+        return 1;
     }
     // Immunity to boulders
     if (shot_is_boulder(shotng))

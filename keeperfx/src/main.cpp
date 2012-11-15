@@ -3245,7 +3245,7 @@ void reinit_level_after_load(void)
     end_rooms = &game.rooms[ROOMS_COUNT];
     load_texture_map_file(game.texture_id, 2);
     init_animating_texture_maps();
-    load_computer_player_config();
+    load_computer_player_config(CnfLd_Standard);
     init_gui();
     reset_gui_based_on_player_mode();
     erstats_clear();
@@ -6698,7 +6698,7 @@ void init_level(void)
     reset_heap_manager();
     lens_mode = 0;
     setup_heap_manager();
-    load_computer_player_config();
+    load_computer_player_config(CnfLd_Standard);
     init_good_player_as(hero_player_number);
 
     light_set_lights_on(1);
