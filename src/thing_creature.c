@@ -34,6 +34,7 @@
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_battle.h"
+#include "creature_groups.h"
 #include "config_lenses.h"
 #include "config_crtrstates.h"
 #include "thing_stats.h"
@@ -46,9 +47,11 @@
 #include "lens_api.h"
 #include "light_data.h"
 #include "room_jobs.h"
+#include "map_utils.h"
 #include "gui_topmsg.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "power_hand.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "engine_redraw.h"
@@ -144,6 +147,7 @@ DLLIMPORT long _DK_creature_is_group_leader(struct Thing *creatng);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *creatng);
 DLLIMPORT long _DK_update_creature(struct Thing *creatng);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
+DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
 /******************************************************************************/
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
@@ -3169,6 +3173,25 @@ void process_creature_leave_footsteps(struct Thing *thing)
           nfoot = get_foot_creature_has_down(thing);
           footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 94, thing->owner);
         }
+    }
+}
+
+/**
+ * Applies given damage points to a creature and shows health flower.
+ * Uses the creature defense value to compute the actual damage.
+ * Can be used only to make damage - never to heal creature.
+ *
+ * @param thing
+ * @param dmg
+ * @param a3
+ */
+void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, char a3)
+{
+    //_DK_apply_damage_to_thing_and_display_health(thing, a1, a2);
+    if (dmg > 0)
+    {
+        apply_damage_to_thing(thing, dmg, a3);
+        thing->word_17 = 8;
     }
 }
 

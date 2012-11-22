@@ -36,6 +36,7 @@
 #include "engine_render.h"
 #include "game_lghtshdw.h"
 #include "player_data.h"
+#include "room_list.h"
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "frontend.h"

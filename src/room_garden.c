@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file creature_states_rsrch.h
- *     Header file for creature_states_rsrch.c.
+/** @file room_garden.c
+ *     Hatchery room maintain functions.
  * @par Purpose:
- *     Creature state machine functions for their job in various rooms.
+ *     Functions to create and use scavenger rooms.
  * @par Comment:
- *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   KeeperFX Team
- * @date     23 Sep 2009 - 05 Jan 2011
+ *     None.
+ * @author   Tomasz Lis
+ * @date     07 Apr 2011 - 19 Nov 2012
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,31 +16,28 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CRTRSTATERSRCH_H
-#define DK_CRTRSTATERSRCH_H
+#include "room_garden.h"
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
+#include "room_data.h"
+#include "player_data.h"
+#include "dungeon_data.h"
+#include "thing_data.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /******************************************************************************/
-#pragma pack(1)
+DLLIMPORT long _DK_remove_food_from_food_room_if_possible(struct Thing *thing);
 
-struct Thing;
-struct Dungeon;
-
-#pragma pack()
-/******************************************************************************/
-short at_research_room(struct Thing *thing);
-CrCheckRet process_research_function(struct Thing *thing);
-short researching(struct Thing *thing);
-TbBool force_complete_current_research(long plyr_idx);
-long get_next_research_item(const struct Dungeon *dungeon);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-#endif
+/******************************************************************************/
+long remove_food_from_food_room_if_possible(struct Thing *thing)
+{
+  return _DK_remove_food_from_food_room_if_possible(thing);
+}
+/******************************************************************************/

@@ -32,6 +32,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
+struct PlayerInfo;
 
 struct CreatureBattle { // sizeof = 17
   unsigned long fighters_num;
@@ -59,6 +60,11 @@ void setup_combat_flee_position(struct Thing *thing);
 void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
 long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
 
+unsigned char active_battle_exists(unsigned char a1);
+void maintain_my_battle_list(void);
+unsigned char step_battles_forward(unsigned char a1);
+long battle_move_player_towards_battle(struct PlayerInfo *player, long var);
+void battle_initialise(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

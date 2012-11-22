@@ -40,6 +40,10 @@ struct TbSetupSprite {
         unsigned long *Data;
 };
 
+struct BigSprite {
+    char unknown;
+};
+
 #pragma pack()
 /******************************************************************************/
 /*

@@ -28,6 +28,7 @@
 #include "thing_stats.h"
 #include "config_terrain.h"
 #include "creature_states.h"
+#include "creature_states_rsrch.h"
 #include "magic.h"
 #include "gui_soundmsgs.h"
 
@@ -35,7 +36,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-
+DLLIMPORT void _DK_process_player_research(int plr_idx);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner)
 {
@@ -57,7 +62,106 @@ TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long
     return true;
 }
 
-/******************************************************************************/
-#ifdef __cplusplus
+void init_dungeons_research(void)
+{
+    struct Dungeon *dungeon;
+    int i;
+    for (i=0; i < DUNGEONS_COUNT; i++)
+    {
+      dungeon = get_dungeon(i);
+      dungeon->field_F78 = get_next_research_item(dungeon);
+    }
 }
-#endif
+
+TbBool remove_all_research_from_player(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    dungeon->research_num = 0;
+    dungeon->research_override = 1;
+    return true;
+}
+
+TbBool research_overriden_for_player(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    return (dungeon->research_override != 0);
+}
+
+TbBool clear_research_for_all_players(void)
+{
+    struct Dungeon *dungeon;
+    int plyr_idx;
+    for (plyr_idx=0; plyr_idx < DUNGEONS_COUNT; plyr_idx++)
+    {
+      dungeon = get_dungeon(plyr_idx);
+      dungeon->research_num = 0;
+      dungeon->research_override = 0;
+    }
+    return true;
+}
+
+TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
+{
+    struct Dungeon *dungeon;
+    struct ResearchVal *resrch;
+    long i;
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->research_num;
+    if (i >= DUNGEON_RESEARCH_COUNT)
+    {
+      ERRORLOG("Too much research (%d items) for player %d", i, plyr_idx);
+      return false;
+    }
+    resrch = &dungeon->research[i];
+    resrch->rtyp = rtyp;
+    resrch->rkind = rkind;
+    resrch->req_amount = amount;
+    dungeon->research_num++;
+    return true;
+}
+
+TbBool add_research_to_all_players(long rtyp, long rkind, long amount)
+{
+  TbBool result;
+  long i;
+  result = true;
+  SYNCDBG(17,"Adding type %d, kind %d, amount %d",rtyp, rkind, amount);
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    result &= add_research_to_player(i, rtyp, rkind, amount);
+  }
+  return result;
+}
+
+TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
+{
+  struct Dungeon *dungeon;
+  struct ResearchVal *resrch;
+  long i;
+  dungeon = get_dungeon(plyr_idx);
+  for (i = 0; i < dungeon->research_num; i++)
+  {
+    resrch = &dungeon->research[i];
+    if ((resrch->rtyp == rtyp) && (resrch->rkind = rkind))
+    {
+      resrch->req_amount = amount;
+    }
+    return true;
+  }
+  return false;
+}
+
+TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount)
+{
+  if (update_players_research_amount(plyr_idx, rtyp, rkind, amount))
+    return true;
+  return add_research_to_player(plyr_idx, rtyp, rkind, amount);
+}
+
+void process_player_research(PlayerNumber plyr_idx)
+{
+  _DK_process_player_research(plyr_idx);
+}
+/******************************************************************************/

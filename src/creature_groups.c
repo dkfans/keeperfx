@@ -214,6 +214,20 @@ TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_
     return true;
 }
 
+TbBool make_group_member_leader(struct Thing *leadtng)
+{
+    struct Thing *prvtng;
+    prvtng = get_group_leader(leadtng);
+    if (thing_is_invalid(prvtng))
+        return false;
+    if (prvtng != leadtng)
+    {
+        remove_creature_from_group(leadtng);
+        add_creature_to_group_as_leader(leadtng, prvtng);
+        return true;
+    }
+    return false;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

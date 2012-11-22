@@ -27,8 +27,10 @@
 #include "bflib_math.h"
 #include "bflib_bufrw.h"
 #include "bflib_heapmgr.h"
+#include "map_utils.h"
 #include "engine_camera.h"
 #include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
 
@@ -47,6 +49,7 @@ DLLIMPORT void _DK_set_room_playing_ambient_sound(struct Coord3d *pos, long samp
 DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
 DLLIMPORT int _DK_process_sound_heap(void);
 DLLIMPORT int _DK_process_3d_sounds(void);
+DLLIMPORT void _DK_sound_reinit_after_load(void);
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8)
 {
@@ -518,6 +521,83 @@ void randomize_sound_font(void)
           StartMusic(1, 127);
         break;
     }
+}
+
+struct Thing *create_ambient_sound(const struct Coord3d *pos, ThingModel model, PlayerNumber owner)
+{
+    struct Thing *thing;
+    if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
+    {
+        ERRORDBG(3,"Cannot create ambient sound %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
+    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    if (thing->index == 0) {
+        ERRORDBG(3,"Should be able to allocate ambient sound %d for player %d, but failed.",(int)model,(int)owner);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
+    thing->class_id = TCls_AmbientSnd;
+    thing->model = model;
+    thing->parent_idx = thing->index;
+    memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
+    thing->owner = owner;
+    thing->field_4F |= 0x01;
+    add_thing_to_its_class_list(thing);
+    return thing;
+}
+
+TbBool ambient_sound_prepare(void)
+{
+    struct Thing *thing;
+    struct Coord3d pos;
+    memset(&pos,0,sizeof(struct Coord3d)); // ambient sound position
+    thing = create_ambient_sound(&pos, 1, game.neutral_player_num);
+    if (thing_is_invalid(thing))
+    {
+        game.ambient_sound_thing_idx = 0;
+        ERRORLOG("Could not create ambient sound object");
+        return false;
+    }
+    game.ambient_sound_thing_idx = thing->index;
+    return true;
+}
+
+TbBool ambient_sound_stop(void)
+{
+    struct Thing *thing;
+    thing = thing_get(game.ambient_sound_thing_idx);
+    if (thing_is_invalid(thing))
+    {
+        return false;
+    }
+    if (thing->snd_emitter_id != 0)
+    {
+        S3DDestroySoundEmitterAndSamples(thing->snd_emitter_id);
+        thing->snd_emitter_id = 0;
+    }
+    return true;
+}
+
+void sound_reinit_after_load(void)
+{
+    //_DK_sound_reinit_after_load();
+    stop_all_things_playing_samples();
+    if (SpeechEmitter != 0)
+    {
+        S3DDestroySoundEmitterAndSamples(SpeechEmitter);
+        SpeechEmitter = 0;
+    }
+    if (Non3DEmitter != 0)
+    {
+        S3DDestroySoundEmitterAndSamples(Non3DEmitter);
+        Non3DEmitter = 0;
+    }
+    ambient_sound_stop();
+    StartMusic(1, 127);
+    init_messages();
+    randomize_sound_font();
 }
 
 /******************************************************************************/

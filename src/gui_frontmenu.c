@@ -33,7 +33,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_turn_off_roaming_menus(void);
-DLLIMPORT void _DK_turn_off_menu(char);
+DLLIMPORT void _DK_turn_off_menu(char mnu_idx);
 DLLIMPORT void _DK_turn_on_menu(int);//char);
 DLLIMPORT void _DK_turn_off_event_box_if_necessary(long plridx, char val);
 DLLIMPORT unsigned long _DK_turn_off_all_window_menus(void);

@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "thing_data.h"
+#include "map_utils.h"
 
 #include "keeperfx.hpp"
 
@@ -33,6 +34,8 @@ DLLIMPORT struct Thing *_DK_get_trap_for_position(long pos_x, long pos_y);
 DLLIMPORT struct Thing *_DK_get_trap_for_slab_position(long slb_x, long slb_y);
 DLLIMPORT long _DK_update_trap(struct Thing *thing);
 DLLIMPORT void _DK_update_trap_trigger(struct Thing *thing);
+DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
+DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3);
 
 /******************************************************************************/
 TbBool destroy_trap(struct Thing *thing)
@@ -186,6 +189,16 @@ long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
     return total;
 }
 
+void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
+{
+    _DK_external_activate_trap_shot_at_angle(thing, a2);
+}
+
+unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3)
+{
+  SYNCDBG(7,"Starting");
+  return _DK_tag_cursor_blocks_place_trap(a1, a2, a3);
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

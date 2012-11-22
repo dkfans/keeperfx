@@ -30,6 +30,7 @@
 #include "config_magic.hpp"
 #include "config_creature.h"
 #include "game_merge.h"
+#include "room_library.h"
 
 #include "keeperfx.hpp"
 

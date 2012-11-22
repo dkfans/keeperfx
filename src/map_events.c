@@ -45,6 +45,12 @@ DLLIMPORT long _DK_event_move_player_towards_event(struct PlayerInfo *player, lo
 DLLIMPORT struct Event *_DK_event_create_event(long map_x, long map_y, unsigned char evkind, unsigned char dngn_id, long msg_id);
 DLLIMPORT void _DK_go_on_then_activate_the_event_box(long plridx, long val);
 DLLIMPORT long _DK_event_create_event_or_update_old_event(long a1, long a2, unsigned char combat_kind, unsigned char a4, long a5);
+DLLIMPORT void _DK_event_process_events(void);
+DLLIMPORT void _DK_update_all_events(void);
+DLLIMPORT void _DK_maintain_my_event_list(struct Dungeon *dungeon);
+DLLIMPORT void _DK_event_delete_event(long plridx, long num);
+DLLIMPORT void _DK_remove_events_thing_is_attached_to(struct Thing *thing);
+DLLIMPORT void _DK_event_kill_all_players_events(long plyr_idx);
 
 /******************************************************************************/
 long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
@@ -418,6 +424,132 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
   SYNCDBG(8,"Finished");
 }
 
+void maintain_my_event_list(struct Dungeon *dungeon)
+{
+  _DK_maintain_my_event_list(dungeon); return;
+}
+
+void kill_oldest_my_event(struct Dungeon *dungeon)
+{
+  struct Event *event;
+  long old_idx;
+  long old_birth;
+  long i,k;
+  old_idx = -1;
+  old_birth = 2147483647;
+  for (i=12; i > 0; i--)
+  {
+    k = dungeon->field_13A7[i];
+    event = &game.event[k];
+    if ((event->birth_turn >= 0) && (event->birth_turn < old_birth))
+    {
+      old_idx = k;
+      old_birth = event->birth_turn;
+    }
+  }
+  if (old_idx >= 0)
+    event_delete_event(dungeon->owner, old_idx);
+  maintain_my_event_list(dungeon);
+}
+
+void maintain_all_players_event_lists(void)
+{
+  struct PlayerInfo *player;
+  struct Dungeon *dungeon;
+  long i;
+  for (i=0; i < PLAYERS_COUNT; i++)
+  {
+    player = get_player(i);
+    if (player_exists(player))
+    {
+      dungeon = get_players_dungeon(player);
+      maintain_my_event_list(dungeon);
+    }
+  }
+}
+
+struct Thing *event_is_attached_to_thing(long ev_idx)
+{
+    struct Event *event;
+    long i;
+    event = &game.event[ev_idx];
+    switch (event->kind)
+    {
+    case EvKind_Objective:
+    case EvKind_NewCreature:
+    case EvKind_CreatrScavenged:
+    case EvKind_SpellPickedUp:
+    case EvKind_CreatrIsAnnoyed:
+    case EvKind_NoMoreLivingSet:
+    case EvKind_TrapCrateFound:
+    case EvKind_DoorCrateFound:
+    case EvKind_DnSpecialFound:
+        i = event->target;
+        break;
+    default:
+        i = 0;
+        break;
+    }
+    return thing_get(i);
+}
+
+void event_process_events(void)
+{
+  _DK_event_process_events();
+}
+
+void update_all_events(void)
+{
+  struct Thing *thing;
+  struct Event *event;
+  long i;
+//  _DK_update_all_events();
+  for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
+  {
+    thing = event_is_attached_to_thing(i);
+    if (!thing_is_invalid(thing))
+    {
+      event = &game.event[i];
+      if ((thing->class_id == TCls_Creature) && ((thing->alloc_flags & TAlF_IsInLimbo) || (thing->field_1 & TF1_InCtrldLimbo)))
+      {
+        event->mappos_x = 0;
+        event->mappos_y = 0;
+      } else
+      {
+        event->mappos_x = thing->mappos.x.val;
+        event->mappos_y = thing->mappos.y.val;
+      }
+    }
+  }
+  maintain_all_players_event_lists();
+}
+
+void event_kill_all_players_events(long plyr_idx)
+{
+  SYNCDBG(8,"Starting");
+  _DK_event_kill_all_players_events(plyr_idx);
+}
+
+void remove_events_thing_is_attached_to(struct Thing *thing)
+{
+  _DK_remove_events_thing_is_attached_to(thing);
+}
+
+void clear_events(void)
+{
+    int i;
+    for (i=0; i < EVENTS_COUNT; i++)
+    {
+      memset(&game.event[i], 0, sizeof(struct Event));
+    }
+    memset(&game.evntbox_scroll_window, 0, sizeof(struct TextScrollWindow));
+    memset(&game.evntbox_text_buffer, 0, MESSAGE_TEXT_LEN);
+    memset(&game.evntbox_text_objective, 0, MESSAGE_TEXT_LEN);
+    for (i=0; i < 5; i++)
+    {
+      memset(&game.bookmark[i], 0, sizeof(struct Bookmark));
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

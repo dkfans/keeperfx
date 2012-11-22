@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file creature_states_rsrch.h
- *     Header file for creature_states_rsrch.c.
+/** @file room_util.h
+ *     Header file for room_util.c.
  * @par Purpose:
- *     Creature state machine functions for their job in various rooms.
+ *     Generic utility and maintain functions for rooms.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   KeeperFX Team
- * @date     23 Sep 2009 - 05 Jan 2011
+ * @author   Tomasz Lis
+ * @date     07 Apr 2011 - 05 Jun 2011
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CRTRSTATERSRCH_H
-#define DK_CRTRSTATERSRCH_H
+#ifndef DK_ROOM_UTIL_H
+#define DK_ROOM_UTIL_H
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,16 +29,15 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct Room;
 struct Thing;
 struct Dungeon;
 
 #pragma pack()
 /******************************************************************************/
-short at_research_room(struct Thing *thing);
-CrCheckRet process_research_function(struct Thing *thing);
-short researching(struct Thing *thing);
-TbBool force_complete_current_research(long plyr_idx);
-long get_next_research_item(const struct Dungeon *dungeon);
+void process_rooms(void);
+
+TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gnd_slab);
 /******************************************************************************/
 #ifdef __cplusplus
 }

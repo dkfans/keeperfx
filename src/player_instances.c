@@ -31,6 +31,7 @@
 #include "light_data.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_traps.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "power_hand.h"

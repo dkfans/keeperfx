@@ -111,7 +111,7 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
  * @param plyr2_idx Index of the second player.
  * @return True if the players are mutual allies; false otherwise.
  */
-TbBool players_are_mutual_allies(long plyr1_idx, long plyr2_idx)
+TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
 {
     struct PlayerInfo *player1,*player2;
     // Player is always his own ally
@@ -131,7 +131,7 @@ TbBool players_are_mutual_allies(long plyr1_idx, long plyr2_idx)
         && ((player2->allied_players & (1<<plyr1_idx)) != 0);
 }
 
-TbBool player_allied_with(const struct PlayerInfo *player, long ally_idx)
+TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx)
 {
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
     {
@@ -139,6 +139,28 @@ TbBool player_allied_with(const struct PlayerInfo *player, long ally_idx)
         return false;
     }
     return ((player->allied_players & (1<<ally_idx)) != 0);
+}
+
+TbBool player_is_friendly_or_defeated(PlayerNumber plyr_idx, PlayerNumber win_plyr_idx)
+{
+    struct PlayerInfo *player;
+    struct PlayerInfo *win_player;
+    struct Dungeon *dungeon;
+    // Handle neutral player at first, because we can't get PlayerInfo nor Dungeon for it
+    if ((win_plyr_idx == game.neutral_player_num) || (plyr_idx == game.neutral_player_num))
+        return true;
+    player = get_player(plyr_idx);
+    win_player = get_player(win_plyr_idx);
+    if (player_exists(player))
+    {
+        if ( (!player_allied_with(win_player, plyr_idx)) || (!player_allied_with(player, win_plyr_idx)) )
+        {
+            dungeon = get_dungeon(plyr_idx);
+            if (dungeon->dnheart_idx > 0)
+              return false;
+        }
+    }
+    return true;
 }
 
 void clear_players(void)
@@ -165,7 +187,7 @@ void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
     player->allied_players ^= (1 << allyidx);
 }
 
-TbBool set_ally_with_player(long plyridx, long ally_idx, TbBool state)
+TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state)
 {
     struct PlayerInfo *player;
     player = get_player(plyridx);
