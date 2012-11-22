@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#define SPIRAL_STEPS_COUNT   2500
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,9 +33,20 @@ extern "C" {
 
 struct Thing;
 
+struct MapOffset {
+  char v;
+  char h;
+  unsigned short both;
+};
+
 #pragma pack()
 /******************************************************************************/
-
+DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
+#define spiral_step _DK_spiral_step
+/******************************************************************************/
+extern const struct Around around[];
+/******************************************************************************/
+void init_spiral_steps(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -131,6 +131,8 @@ struct LevelStats { // sizeof = 392
 
 #pragma pack()
 /******************************************************************************/
+long update_dungeons_scores(void);
+TbBool load_stats_files(void);
 
 /******************************************************************************/
 #ifdef __cplusplus

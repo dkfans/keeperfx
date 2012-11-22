@@ -36,6 +36,15 @@ struct Thing;
 /******************************************************************************/
 TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner);
 
+void init_dungeons_research(void);
+TbBool add_research_to_player(PlayerNumber plyr_idx, long rtyp, long rkind, long amount);
+TbBool add_research_to_all_players(long rtyp, long rkind, long amount);
+TbBool remove_all_research_from_player(PlayerNumber plyr_idx);
+TbBool clear_research_for_all_players(void);
+TbBool research_overriden_for_player(PlayerNumber plyr_idx);
+TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount);
+TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rkind, long amount);
+void process_player_research(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

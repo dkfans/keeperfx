@@ -63,9 +63,21 @@ enum EventKinds {
     EvKind_QuickInformation,
 };
 
-struct Event;
+struct Thing;
 struct Dungeon;
 struct PlayerInfo;
+
+struct Event { // sizeof=0x15
+unsigned char field_0;
+unsigned char field_1;
+    long mappos_x;
+    long mappos_y;
+    unsigned char owner;
+    unsigned char kind;
+    long target;
+    long birth_turn;
+unsigned char field_14;
+};
 
 #pragma pack()
 /******************************************************************************/
@@ -83,7 +95,14 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
 void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon);
 void event_delete_event(long plridx, long num);
 void go_on_then_activate_the_event_box(long plridx, long evidx);
-
+void clear_events(void);
+void remove_events_thing_is_attached_to(struct Thing *thing);
+struct Thing *event_is_attached_to_thing(long ev_idx);
+void maintain_my_event_list(struct Dungeon *dungeon);
+void kill_oldest_my_event(struct Dungeon *dungeon);
+void event_kill_all_players_events(long plyr_idx);
+void event_process_events(void);
+void update_all_events(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

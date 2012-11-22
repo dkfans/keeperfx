@@ -51,6 +51,7 @@
 #include "thing_navigate.h"
 #include "creature_states.h"
 #include "creature_instances.h"
+#include "creature_groups.h"
 #include "dungeon_data.h"
 #include "tasks_list.h"
 #include "power_specials.h"

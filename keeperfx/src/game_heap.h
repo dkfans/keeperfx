@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file creature_states_rsrch.h
- *     Header file for creature_states_rsrch.c.
+/** @file game_heap.h
+ *     Header file for game_heap.c.
  * @par Purpose:
- *     Creature state machine functions for their job in various rooms.
+ *     Definition of heap, used for storing memory-expensive sounds and graphics.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   KeeperFX Team
- * @date     23 Sep 2009 - 05 Jan 2011
+ * @author   Tomasz Lis
+ * @date     07 Apr 2011 - 19 Nov 2012
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CRTRSTATERSRCH_H
-#define DK_CRTRSTATERSRCH_H
+#ifndef DK_GAME_HEAP_H
+#define DK_GAME_HEAP_H
 
-#include "bflib_basics.h"
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,16 +29,22 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct Thing;
-struct Dungeon;
+DLLIMPORT long _DK_sound_heap_size;
+#define sound_heap_size _DK_sound_heap_size
+DLLIMPORT unsigned char *_DK_sound_heap_memory;
+#define sound_heap_memory _DK_sound_heap_memory
+DLLIMPORT long _DK_heap_size;
+#define heap_size _DK_heap_size
+DLLIMPORT unsigned char *_DK_heap;
+#define heap _DK_heap
 
 #pragma pack()
 /******************************************************************************/
-short at_research_room(struct Thing *thing);
-CrCheckRet process_research_function(struct Thing *thing);
-short researching(struct Thing *thing);
-TbBool force_complete_current_research(long plyr_idx);
-long get_next_research_item(const struct Dungeon *dungeon);
+TbBool setup_heap_manager(void);
+TbBool setup_heap_memory(void);
+void reset_heap_manager(void);
+void reset_heap_memory(void);
+TbBool setup_heaps(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

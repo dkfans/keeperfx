@@ -41,6 +41,7 @@
 #include "game_lghtshdw.h"
 #include "light_data.h"
 #include "lvl_filesdk1.h"
+#include "room_list.h"
 #include "front_simple.h"
 #include "front_network.h"
 #include "frontend.h"

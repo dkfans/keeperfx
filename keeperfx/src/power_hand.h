@@ -51,8 +51,16 @@ TbBool magic_use_power_hand(PlayerNumber plyr_idx, unsigned short a2, unsigned s
 struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
+long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+
+TbBool slap_object(struct Thing *thing);
+TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);
+TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
+
 struct Thing *create_power_hand(PlayerNumber owner);
 void delete_power_hand(PlayerNumber owner);
+void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }

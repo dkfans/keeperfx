@@ -44,6 +44,7 @@
 #include "thing_stats.h"
 #include "creature_states.h"
 #include "creature_groups.h"
+#include "room_library.h"
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
 #include "dungeon_data.h"

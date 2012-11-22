@@ -240,6 +240,7 @@ DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
+DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
@@ -604,6 +605,11 @@ TbBool object_is_guard_flag(const struct Thing *thing)
     default:
         return false;
   }
+}
+
+long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount)
+{
+  return _DK_add_gold_to_hoarde(thing, room, amount);
 }
 
 /**
