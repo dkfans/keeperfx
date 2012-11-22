@@ -29,6 +29,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define PLAYERS_COUNT           5
+#define PLAYERS_EXT_COUNT       6
 /** This acts as default value for neutral_player_number */
 #define NEUTRAL_PLAYER          5
 /** This acts as default value for hero_player_number */
@@ -97,7 +98,8 @@ unsigned char field_14;
     long field_31;
     short thing_under_hand;
     unsigned char view_mode;
-    struct Camera *acamera;  // Pointer to the currently active camera
+    /** Pointer to the currently active camera. */
+    struct Camera *acamera;
     struct Camera cameras[4];
     unsigned short field_E4;
     unsigned short field_E6;
@@ -174,10 +176,11 @@ TbBool player_invalid(struct PlayerInfo *player);
 TbBool player_exists(struct PlayerInfo *player);
 TbBool is_my_player(struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
-TbBool player_allied_with(const struct PlayerInfo *player, long ally_idx);
+TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);
-TbBool players_are_mutual_allies(long plyr1_idx, long plyr2_idx);
-TbBool set_ally_with_player(long plyridx, long ally_idx, TbBool state);
+TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
+TbBool player_is_friendly_or_defeated(PlayerNumber plyr_idx, PlayerNumber win_plyr_idx);
+TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state);
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
 
 void clear_players(void);

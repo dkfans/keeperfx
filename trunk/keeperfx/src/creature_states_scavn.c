@@ -32,6 +32,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "room_scavenge.h"
 #include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"

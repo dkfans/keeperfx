@@ -44,6 +44,9 @@ DLLIMPORT void _DK_view_zoom_camera_in(struct Camera *cam, long a2, long angle_x
 DLLIMPORT void _DK_set_camera_zoom(struct Camera *cam, long val);
 DLLIMPORT void _DK_view_zoom_camera_out(struct Camera *cam, long a2, long angle_xy);
 DLLIMPORT long _DK_get_camera_zoom(struct Camera *camera);
+DLLIMPORT void _DK_view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 /******************************************************************************/
 long camera_zoom;
 /******************************************************************************/
@@ -312,6 +315,21 @@ unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl)
     if (units_per_pixel+units_per_pixel_min > 55) // this means resolution over 1200x1024
         size_wide += size_wide>>4;
     return  ((zoom_lvl*size_wide) >> 8) + ((zoom_lvl*size_narr) >> 8);
+}
+
+void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3)
+{
+  _DK_view_set_camera_y_inertia(cam, a2, a3);
+}
+
+void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3)
+{
+  _DK_view_set_camera_x_inertia(cam, a2, a3);
+}
+
+void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3)
+{
+    _DK_view_set_camera_rotation_inertia(cam, a2, a3);
 }
 /******************************************************************************/
 #ifdef __cplusplus

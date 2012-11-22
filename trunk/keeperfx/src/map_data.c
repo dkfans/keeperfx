@@ -71,6 +71,8 @@ long navigation_map_size_y = 256;
 unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
+DLLIMPORT void _DK_clear_mapwho(void);
+/******************************************************************************/
 /**
  * Returns if the subtile coords are in range of subtiles which have slab entry.
  */
@@ -391,10 +393,14 @@ TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source
  */
 SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  if (stl_x > map_subtiles_x+1) stl_x = map_subtiles_x+1;
-  if (stl_y > map_subtiles_y+1) stl_y = map_subtiles_y+1;
-  if (stl_x < 0)  stl_x = 0;
-  if (stl_y < 0) stl_y = 0;
+  if (stl_x > map_subtiles_x+1u)
+      stl_x = map_subtiles_x+1;
+  if (stl_y > map_subtiles_y+1u)
+      stl_y = map_subtiles_y+1;
+  if (stl_x < 0)
+      stl_x = 0;
+  if (stl_y < 0)
+      stl_y = 0;
   return stl_y*(map_subtiles_x+1) + stl_x;
 }
 

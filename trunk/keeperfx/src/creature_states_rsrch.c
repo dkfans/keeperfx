@@ -136,9 +136,9 @@ TbBool research_needed(struct ResearchVal *rsrchval, struct Dungeon *dungeon)
     return false;
 }
 
-long get_next_research_item(struct Dungeon *dungeon)
+long get_next_research_item(const struct Dungeon *dungeon)
 {
-    struct ResearchVal *rsrchval;
+    const struct ResearchVal *rsrchval;
     long resnum;
     //return _DK_get_next_research_item(dungeon);
     if (dungeon->research_num == 0)

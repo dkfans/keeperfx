@@ -200,8 +200,6 @@ TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, ThingMod
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
-
-TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

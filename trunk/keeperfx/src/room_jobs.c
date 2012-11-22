@@ -38,6 +38,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_remove_creature_from_work_room(struct Thing *creatng);
+DLLIMPORT short _DK_send_creature_to_room(struct Thing *thing, struct Room *room);
 
 /******************************************************************************/
 struct Room *get_room_creature_works_in(const struct Thing *thing)
@@ -250,6 +251,11 @@ struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing
         }
     }
     return rettng;
+}
+
+short send_creature_to_room(struct Thing *thing, struct Room *room)
+{
+    return _DK_send_creature_to_room(thing, room);
 }
 /******************************************************************************/
 #ifdef __cplusplus

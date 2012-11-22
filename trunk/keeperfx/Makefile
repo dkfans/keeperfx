@@ -110,6 +110,7 @@ obj/thing_list.o \
 obj/lvl_script.o \
 obj/dungeon_data.o \
 obj/player_data.o \
+obj/dungeon_stats.o \
 obj/player_instances.o \
 obj/player_comptask.o \
 obj/player_computer.o \
@@ -118,6 +119,7 @@ obj/spdigger_stack.o \
 obj/lvl_filesdk1.o \
 obj/front_simple.o \
 obj/game_saves.o \
+obj/game_heap.o \
 obj/engine_render.o \
 obj/engine_camera.o \
 obj/engine_lenses.o \
@@ -145,9 +147,15 @@ obj/gui_soundmsgs.o \
 obj/thing_creature.o \
 obj/slab_data.o \
 obj/room_data.o \
+obj/room_list.o \
+obj/room_util.o \
 obj/room_workshop.o \
 obj/room_library.o \
 obj/room_graveyard.o \
+obj/room_garden.o \
+obj/room_lair.o \
+obj/room_scavenge.o \
+obj/room_entrance.o \
 obj/room_jobs.o \
 obj/creature_control.o \
 obj/creature_instances.o \
@@ -300,10 +308,10 @@ DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 # code optimization and debugging flags
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
-  OPTFLAGS = -march=pentium -O0
+  OPTFLAGS = -march=i686 -O0
   DBGFLAGS = -g -DDEBUG
 else
-  OPTFLAGS = -march=pentium -O3
+  OPTFLAGS = -march=i686 -O0 # temporarely disabled, should be -O3
   DBGFLAGS = 
 endif
 # linker flags

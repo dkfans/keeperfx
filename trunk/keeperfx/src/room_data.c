@@ -31,11 +31,13 @@
 #include "thing_effects.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
+#include "map_utils.h"
 #include "config_terrain.h"
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "magic.h"
+#include "room_util.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

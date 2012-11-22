@@ -38,6 +38,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_find_first_battle_of_mine(unsigned char idx);
+DLLIMPORT unsigned char _DK_active_battle_exists(unsigned char a1);
+DLLIMPORT unsigned char _DK_step_battles_forward(unsigned char a1);
+DLLIMPORT long _DK_battle_move_player_towards_battle(struct PlayerInfo *player, long var);
+DLLIMPORT void _DK_maintain_my_battle_list(void);
+DLLIMPORT void _DK_battle_initialise(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -274,4 +279,28 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long com
     setup_combat_flee_position(fighter);
 }
 
+unsigned char active_battle_exists(unsigned char a1)
+{
+  return _DK_active_battle_exists(a1);
+}
+
+unsigned char step_battles_forward(unsigned char a1)
+{
+  return _DK_step_battles_forward(a1);
+}
+
+long battle_move_player_towards_battle(struct PlayerInfo *player, long var)
+{
+  return _DK_battle_move_player_towards_battle(player, var);
+}
+
+void battle_initialise(void)
+{
+  _DK_battle_initialise();
+}
+
+void maintain_my_battle_list(void)
+{
+  _DK_maintain_my_battle_list();
+}
 /******************************************************************************/

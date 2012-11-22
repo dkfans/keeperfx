@@ -25,8 +25,11 @@
 #include "power_specials.h"
 #include "player_data.h"
 #include "dungeon_data.h"
+#include "room_garden.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
+#include "thing_shots.h"
+#include "thing_traps.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
@@ -60,8 +63,17 @@ DLLIMPORT struct Thing *_DK_get_nearest_thing_for_slap(unsigned char plyr_idx, l
 DLLIMPORT void _DK_process_things_in_dungeon_hand(void);
 DLLIMPORT long _DK_place_thing_in_power_hand(struct Thing *thing, long var);
 DLLIMPORT short _DK_dump_held_things_on_map(unsigned char a1, long a2, long a3, short a4);
+DLLIMPORT long _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, unsigned char plyr_idx);
+DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
+DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long a2);
+DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
 
 /******************************************************************************/
+struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
+{
+  return _DK_create_gold_for_hand_grab(thing, a2);
+}
+
 unsigned long object_is_pickable_by_hand(struct Thing *thing, long plyr_idx)
 {
   return _DK_object_is_pickable_by_hand(thing, plyr_idx);
@@ -81,6 +93,17 @@ TbBool thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
     return true;
   // Other things are not pickable
   return false;
+}
+
+long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+  return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
+}
+
+long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+  //TODO: rewrite, then give it better name
+  return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
 }
 
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
@@ -398,6 +421,14 @@ void draw_power_hand(void)
   }
 }
 
+TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
+{
+    if (thing->owner == plyr_idx) {
+        return (object_is_mature_food(thing));
+    }
+    return false;
+}
+
 /*void get_nearest_thing_for_hand_or_slap_on_map_block(long *near_distance, struct Thing **near_thing,struct Map *mapblk, long plyr_idx, long x, long y)
 {
   struct Thing *thing;
@@ -458,6 +489,23 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
+}
+
+TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
+{
+  switch (thing->class_id)
+  {
+  case TCls_Object:
+      return object_is_slappable(thing, plyr_idx);
+  case TCls_Shot:
+      return shot_is_slappable(thing, plyr_idx);
+  case TCls_Creature:
+      return creature_is_slappable(thing, plyr_idx);
+  case TCls_Trap:
+      return trap_is_slappable(thing, plyr_idx);
+  default:
+      return false;
+  }
 }
 
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y)
@@ -620,7 +668,19 @@ TbBool magic_use_power_hand(PlayerNumber plyr_idx, unsigned short a2, unsigned s
   return false;
 }
 
+void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)
+{
+  _DK_stop_creatures_around_hand(a1, a2, a3);
+}
 
+TbBool slap_object(struct Thing *thing)
+{
+  if (object_is_mature_food(thing)) {
+      destroy_object(thing);
+      return true;
+  }
+  return false;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

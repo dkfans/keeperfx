@@ -248,6 +248,7 @@ TbError ServiceProvider::Send(unsigned long plr_id, void *buf)
   }
   messageType = 0;
   seqNbr = 0;
+  dataLen = 0;
   DecodeMessageStub(buf,&dataLen,&messageType,&seqNbr);
   if (plr_id != this->localPlayerId)
   {
