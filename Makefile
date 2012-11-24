@@ -113,8 +113,10 @@ obj/config_crtrmodel.o \
 obj/config_crtrstates.o \
 obj/config_lenses.o \
 obj/config_magic.o \
+obj/config_magic_data.o \
 obj/config_objects.o \
 obj/config_rules.o \
+obj/config_settings.o \
 obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_trapdoor.o \
@@ -141,6 +143,7 @@ obj/creature_states_train.o \
 obj/creature_states_tresr.o \
 obj/creature_states_wrshp.o \
 obj/dungeon_data.o \
+obj/dungeon_stats.o \
 obj/engine_arrays.o \
 obj/engine_camera.o \
 obj/engine_lenses.o \
@@ -151,8 +154,8 @@ obj/front_easter.o \
 obj/front_highscore.o \
 obj/front_input.o \
 obj/front_landview.o \
-obj/front_lvlstats_data.o \
 obj/front_lvlstats.o \
+obj/front_lvlstats_data.o \
 obj/front_network.o \
 obj/front_simple.o \
 obj/front_torture.o \
@@ -165,6 +168,7 @@ obj/frontmenu_options.o \
 obj/frontmenu_saves.o \
 obj/frontmenu_specials.o \
 obj/game_heap.o \
+obj/game_legacy.o \
 obj/game_lghtshdw.o \
 obj/game_merge.o \
 obj/game_saves.o \
@@ -172,6 +176,8 @@ obj/gui_boxmenu.o \
 obj/gui_draw.o \
 obj/gui_frontbtns.o \
 obj/gui_frontmenu.o \
+obj/gui_msgs.o \
+obj/gui_panel.o \
 obj/gui_parchment.o \
 obj/gui_soundmsgs.o \
 obj/gui_tooltips.o \
@@ -189,15 +195,17 @@ obj/map_columns.o \
 obj/map_data.o \
 obj/map_events.o \
 obj/map_utils.o \
-obj/net_sync.o \
 obj/net_game.o \
+obj/net_sync.o \
 obj/packets.o \
+obj/player_complookup.o \
 obj/player_comptask.o \
 obj/player_computer.o \
 obj/player_data.o \
-obj/dungeon_stats.o \
 obj/player_instances.o \
+obj/player_utils.o \
 obj/power_hand.o \
+obj/power_process.o \
 obj/power_specials.o \
 obj/room_data.o \
 obj/room_entrance.o \
@@ -211,8 +219,8 @@ obj/room_scavenge.o \
 obj/room_util.o \
 obj/room_workshop.o \
 obj/scrcapt.o \
-obj/sounds.o \
 obj/slab_data.o \
+obj/sounds.o \
 obj/spdigger_stack.o \
 obj/tasks_list.o \
 obj/thing_corpses.o \
@@ -220,6 +228,7 @@ obj/thing_creature.o \
 obj/thing_data.o \
 obj/thing_doors.o \
 obj/thing_effects.o \
+obj/thing_factory.o \
 obj/thing_list.o \
 obj/thing_navigate.o \
 obj/thing_objects.o \

@@ -43,7 +43,8 @@ TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
 TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *boxtng);
 TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
 TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, long wrkitm_kind);
-
+long remove_workshop_item(long owner, long tngclass, long tngmodel);
+long remove_workshop_object_from_player(PlayerNumber owner, long model);
 /******************************************************************************/
 #ifdef __cplusplus
 }

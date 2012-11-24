@@ -25,10 +25,11 @@
 #include "room_lair.h"
 #include "player_data.h"
 #include "dungeon_data.h"
+#include "player_utils.h"
 #include "thing_data.h"
 #include "config_creature.h"
 #include "gui_soundmsgs.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -41,7 +41,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "game_merge.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,6 +70,10 @@ const struct ConfigInfo default_net_config_info = {
     "",
     "",
 };
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 long modem_initialise_callback(void)
 {
@@ -481,6 +485,3 @@ void frontnet_serial_setup(void)
   _DK_frontnet_serial_setup();
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

@@ -29,6 +29,7 @@
 #include "game_merge.h"
 #include "net_game.h"
 #include "lens_api.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

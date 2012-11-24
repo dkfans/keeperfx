@@ -25,10 +25,13 @@
 
 #include "player_data.h"
 #include "front_landview.h"
+#include "player_utils.h"
 #include "packets.h"
 #include "frontend.h"
 #include "front_network.h"
 #include "net_sync.h"
+#include "config_settings.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

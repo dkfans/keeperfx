@@ -36,8 +36,10 @@
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
+#include "gui_panel.h"
 #include "magic.h"
 #include "room_util.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -213,6 +215,10 @@ DLLIMPORT void _DK_replace_room_slab(struct Room *room, long plyr_idz, long a3, 
 DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char plyr_idz, unsigned short a3, unsigned short a4);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char plyr_idz, char a3, unsigned char a4);
 DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int kind);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 struct Room *room_get(long room_idx)
 {
@@ -2377,6 +2383,3 @@ long claim_enemy_room(struct Room *room,struct Thing *claimtng)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

@@ -33,11 +33,12 @@
 #include "thing_stats.h"
 #include "thing_creature.h"
 #include "map_utils.h"
+#include "config_objects.h"
 #include "config_creature.h"
 #include "creature_states.h"
 #include "engine_camera.h"
-
 #include "gui_topmsg.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -82,6 +83,8 @@ DLLIMPORT void _DK_add_thing_to_list(struct Thing *thing, struct StructureList *
 DLLIMPORT void _DK_remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
 DLLIMPORT struct Thing *_DK_get_nearest_object_at_position(long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_find_base_thing_on_mapwho(unsigned char oclass, unsigned short model, unsigned short x, unsigned short y);
+DLLIMPORT void _DK_remove_thing_from_mapwho(struct Thing *thing);
+DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
 /******************************************************************************/
 void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 {
@@ -562,10 +565,14 @@ struct Thing *find_players_dungeon_heart(unsigned short plyridx)
             break;
         }
         i = thing->next_of_class;
-        if ((game.objects_config[thing->model].field_6) && (thing->owner == plyridx))
+        // Per-thing code
+        struct ObjectConfig *objconf;
+        objconf = get_object_model_stats2(thing->model);
+        if ((objconf->field_6) && (thing->owner == plyridx))
         {
             return thing;
         }
+        // Per-thing code ends
         k++;
         if (k > THINGS_COUNT)
         {
@@ -619,16 +626,16 @@ void setup_computer_player(int plr_idx)
 
 void setup_computer_players(void)
 {
-  struct PlayerInfo *player;
-  int plr_idx;
-  for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
-  {
-      player = get_player(plr_idx);
-      if (!player_exists(player))
-      {
-        setup_computer_player(plr_idx);
-      }
-  }
+    struct PlayerInfo *player;
+    int plr_idx;
+    for (plr_idx=0; plr_idx<PLAYERS_COUNT; plr_idx++)
+    {
+        player = get_player(plr_idx);
+        if (!player_exists(player))
+        {
+          setup_computer_player(plr_idx);
+        }
+    }
 }
 
 void setup_zombie_players(void)
@@ -668,6 +675,39 @@ void init_all_creature_states(void)
           break;
         }
     }
+}
+
+void remove_thing_from_mapwho(struct Thing *thing)
+{
+    struct Map *mapblk;
+    struct Thing *mwtng;
+    SYNCDBG(18,"Starting");
+    //_DK_remove_thing_from_mapwho(thing);
+    if ((thing->alloc_flags & TAlF_IsInMapWho) == 0)
+        return;
+    if (thing->prev_on_mapblk > 0)
+    {
+        mwtng = thing_get(thing->prev_on_mapblk);
+        mwtng->next_on_mapblk = thing->next_on_mapblk;
+    } else
+    {
+        mapblk = get_map_block_at(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+        set_mapwho_thing_index(mapblk, thing->next_on_mapblk);
+    }
+    if (thing->next_on_mapblk > 0)
+    {
+        mwtng = thing_get(thing->next_on_mapblk);
+        mwtng->prev_on_mapblk = thing->prev_on_mapblk;
+    }
+    thing->next_on_mapblk = 0;
+    thing->prev_on_mapblk = 0;
+    thing->alloc_flags &= ~TAlF_IsInMapWho;
+}
+
+void place_thing_in_mapwho(struct Thing *thing)
+{
+  SYNCDBG(18,"Starting");
+  _DK_place_thing_in_mapwho(thing);
 }
 
 struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel model, MapSubtlCoord stl_x, MapSubtlCoord stl_y)

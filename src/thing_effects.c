@@ -32,6 +32,8 @@
 #include "map_blocks.h"
 #include "creature_graphics.h"
 #include "gui_topmsg.h"
+#include "game_legacy.h"
+#include "engine_redraw.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

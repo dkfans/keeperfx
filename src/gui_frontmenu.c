@@ -25,6 +25,8 @@
 #include "frontend.h"
 #include "gui_frontbtns.h"
 #include "front_input.h"
+#include "config_settings.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

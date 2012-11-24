@@ -64,6 +64,14 @@ enum ClassicBugFlags {
 
 struct PlayerInfo;
 
+struct TextScrollWindow {
+    char text[MESSAGE_TEXT_LEN];
+    long start_y;
+    char action;
+    long text_height;
+    long window_height;
+};
+
 /**
  * Structure which stores data copied between levels.
  * This data is not lost between levels of a campaign.

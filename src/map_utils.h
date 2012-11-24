@@ -23,6 +23,7 @@
 #include "globals.h"
 
 #define SPIRAL_STEPS_COUNT   2500
+#define AROUND_TILES_COUNT      9
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,6 +48,7 @@ DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 extern const struct Around around[];
 /******************************************************************************/
 void init_spiral_steps(void);
+long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }

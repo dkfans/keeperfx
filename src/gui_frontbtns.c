@@ -39,8 +39,7 @@
 #include <mmsystem.h>
 #endif
 
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

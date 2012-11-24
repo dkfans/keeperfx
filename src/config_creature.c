@@ -30,8 +30,7 @@
 #include "thing_doors.h"
 #include "thing_creature.h"
 #include "creature_instances.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -49,6 +49,8 @@ struct DoorStats { // sizeof = 8
 /******************************************************************************/
 DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
 #define door_stats _DK_door_stats
+DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
+#define door_to_object _DK_door_to_object
 
 #pragma pack()
 /******************************************************************************/
@@ -58,6 +60,7 @@ void unlock_door(struct Thing *thing);
 long destroy_door(struct Thing *thing);
 TngUpdateRet process_door(struct Thing *thing);
 
+unsigned char find_door_of_type(ThingModel model, PlayerNumber owner);
 /******************************************************************************/
 #ifdef __cplusplus
 }

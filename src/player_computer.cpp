@@ -32,7 +32,8 @@
 #include "creature_states.h"
 #include "magic.h"
 #include "thing_traps.h"
-#include "keeperfx.hpp"
+#include "player_complookup.h"
+#include "game_legacy.h"
 #include "skirmish_ai.h"
 
 #ifdef __cplusplus

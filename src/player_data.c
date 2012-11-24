@@ -21,7 +21,12 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
-#include "keeperfx.hpp"
+#include "player_instances.h"
+#include "game_legacy.h"
+#include "engine_redraw.h"
+#include "frontend.h"
+#include "thing_objects.h"
+#include "power_hand.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -35,6 +40,10 @@ unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0
 long neutral_player_number = NEUTRAL_PLAYER;
 long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
+/******************************************************************************/
+DLLIMPORT void _DK_set_player_state(struct PlayerInfo *player, unsigned char a1, long a2);
+DLLIMPORT void _DK_set_player_mode(struct PlayerInfo *player, long val);
+DLLIMPORT void _DK_reset_player_mode(struct PlayerInfo *player, unsigned char a2);
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
 {
@@ -200,5 +209,156 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
     else
         player->allied_players &= ~(1 << ally_idx);
     return true;
+}
+
+void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
+{
+  struct Thing *thing;
+  struct Coord3d pos;
+  //_DK_set_player_state(player, nwrk_state, chosen_kind);
+  // Selecting the same state again - update only 2nd parameter
+  if (player->work_state == nwrk_state)
+  {
+    switch ( player->work_state )
+    {
+    case PSt_BuildRoom:
+        player->chosen_room_kind = chosen_kind;
+        break;
+    case PSt_PlaceTrap:
+        player->chosen_trap_kind = chosen_kind;
+        break;
+    case PSt_PlaceDoor:
+        player->chosen_door_kind = chosen_kind;
+        break;
+    }
+    return;
+  }
+  player->continue_work_state = player->work_state;
+  player->work_state = nwrk_state;
+  if (is_my_player(player))
+    game.field_14E92E = 0;
+  if ((player->work_state != PSt_Unknown12) && (player->work_state != PSt_Unknown15)
+     && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr))
+  {
+    player->controlled_thing_idx = 0;
+  }
+  switch (player->work_state)
+  {
+  case PSt_CtrlDungeon:
+      player->field_4A4 = 1;
+      break;
+  case PSt_BuildRoom:
+      player->chosen_room_kind = chosen_kind;
+      break;
+  case PSt_Unknown5:
+      create_power_hand(player->id_number);
+      break;
+  case PSt_Slap:
+      pos.x.val = 0;
+      pos.y.val = 0;
+      pos.z.val = 0;
+      thing = create_object(&pos, 37, player->id_number, -1);
+      if (thing_is_invalid(thing))
+      {
+        player->hand_thing_idx = 0;
+        break;
+      }
+      player->hand_thing_idx = thing->index;
+      set_power_hand_graphic(player->id_number, 785, 256);
+      place_thing_in_limbo(thing);
+      break;
+  case PSt_PlaceTrap:
+      player->chosen_trap_kind = chosen_kind;
+      break;
+  case PSt_PlaceDoor:
+      player->chosen_door_kind = chosen_kind;
+      break;
+  default:
+      break;
+  }
+}
+
+void set_player_mode(struct PlayerInfo *player, long nview)
+{
+  long i;
+  if (player->view_type == nview)
+    return;
+  player->view_type = nview;
+  player->field_0 &= 0xF7;
+  if (is_my_player(player))
+  {
+    game.numfield_D &= 0xF7;
+    game.numfield_D |= 0x01;
+    if (is_my_player(player))
+      stop_all_things_playing_samples();
+  }
+  switch (player->view_type)
+  {
+  case PVT_DungeonTop:
+      i = 2;
+      if (player->field_4B5 == 5)
+      {
+        set_engine_view(player, 2);
+        i = 5;
+      }
+      set_engine_view(player, i);
+      if (is_my_player(player))
+        toggle_status_menu((game.numfield_C & 0x40) != 0);
+      if ((game.numfield_C & 0x20) != 0)
+        setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
+      else
+        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+      break;
+  case PVT_CreatureContrl:
+  case PVT_CreaturePasngr:
+      set_engine_view(player, 1);
+      if (is_my_player(player))
+        game.numfield_D &= ~0x01;
+      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
+      break;
+  case PVT_MapScreen:
+      player->continue_work_state = player->work_state;
+      set_engine_view(player, 3);
+      break;
+  case PVT_MapFadeIn:
+      set_player_instance(player, PI_MapFadeTo, 0);
+      break;
+  case PVT_MapFadeOut:
+      set_player_instance(player, PI_MapFadeFrom, 0);
+      break;
+  }
+}
+
+void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
+{
+  //_DK_reset_player_mode(player, nmode);
+  player->view_type = nmode;
+  switch (nmode)
+  {
+    case 1:
+      player->work_state = player->continue_work_state;
+      if (player->field_4B5 == 5)
+        set_engine_view(player, 5);
+      else
+        set_engine_view(player, 2);
+      if (is_my_player(player))
+        game.numfield_D &= ~0x01;
+      break;
+    case 2:
+    case 3:
+      player->work_state = player->continue_work_state;
+      set_engine_view(player, 1);
+      if (is_my_player(player))
+        game.numfield_D |= 0x01;
+      break;
+    case 4:
+      player->work_state = player->continue_work_state;
+      set_engine_view(player, 3);
+      if (is_my_player(player))
+        game.numfield_D &= ~0x01;
+      break;
+    default:
+      break;
+  }
 }
 /******************************************************************************/

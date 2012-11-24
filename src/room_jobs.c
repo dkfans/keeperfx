@@ -30,8 +30,7 @@
 #include "thing_navigate.h"
 #include "config_terrain.h"
 #include "gui_topmsg.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

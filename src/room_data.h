@@ -28,6 +28,7 @@ extern "C" {
 
 #define ROOM_TYPES_COUNT      17
 #define SLAB_AROUND_COUNT      4
+#define ROOMS_COUNT          150
 /******************************************************************************/
 enum RoomFlags {
     RoF_Allocated           = 0x01,
@@ -125,6 +126,11 @@ struct RoomData {
       short field_11;
       short msg1str_idx;
       short msg2str_idx;
+};
+
+struct RoomStats {
+  short cost;
+  unsigned short health;
 };
 
 #define INVALID_ROOM (&game.rooms[0])

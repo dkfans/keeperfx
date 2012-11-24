@@ -33,6 +33,7 @@
 #include "gui_topmsg.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

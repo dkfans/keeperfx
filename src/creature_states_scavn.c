@@ -34,8 +34,7 @@
 #include "room_jobs.h"
 #include "room_scavenge.h"
 #include "gui_soundmsgs.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

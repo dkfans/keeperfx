@@ -34,6 +34,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+struct ManfctrConfig { // sizeof=0x14
+  int manufct_level;
+  int manufct_required;
+  int shots;
+  int shots_delay;
+  long selling_value;
+};
 
 #pragma pack()
 /******************************************************************************/

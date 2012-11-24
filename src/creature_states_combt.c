@@ -36,8 +36,8 @@
 #include "room_data.h"
 #include "room_jobs.h"
 #include "gui_soundmsgs.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
+#include "engine_redraw.h"
 
 #ifdef __cplusplus
 extern "C" {

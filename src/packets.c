@@ -42,6 +42,7 @@
 #include "config_creature.h"
 #include "config_crtrmodel.h"
 #include "config_terrain.h"
+#include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "thing_physics.h"
@@ -56,6 +57,7 @@
 #include "tasks_list.h"
 #include "power_specials.h"
 #include "power_hand.h"
+#include "room_util.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "magic.h"
@@ -66,6 +68,8 @@
 #include "gui_soundmsgs.h"
 #include "net_game.h"
 #include "net_sync.h"
+#include "game_legacy.h"
+#include "engine_redraw.h"
 
 #include "keeperfx.hpp"
 

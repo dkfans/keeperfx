@@ -25,13 +25,21 @@
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_stats.h"
+#include "thing_effects.h"
 #include "config_terrain.h"
+#include "game_legacy.h"
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-
+DLLIMPORT long _DK_remove_workshop_item(long a1, long a2, long a3);
+DLLIMPORT long _DK_remove_workshop_object_from_player(long a1, long a2);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
 {
@@ -92,7 +100,57 @@ TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, long 
     return true;
 }
 
-/******************************************************************************/
-#ifdef __cplusplus
+struct Thing *get_workshop_box_thing(long owner, long model)
+{
+    struct Thing *thing;
+    int i,k;
+    k = 0;
+    i = game.thing_lists[TngList_Objects].index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->model == model) && (thing->owner == owner) )
+        {
+            if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
+                return thing;
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
 }
-#endif
+
+long remove_workshop_item(long owner, long tngclass, long tngmodel)
+{
+    SYNCDBG(8,"Starting");
+    return _DK_remove_workshop_item(owner, tngclass, tngmodel);
+}
+
+long remove_workshop_object_from_player(PlayerNumber owner, long model)
+{
+    struct Thing *thing;
+    struct Room *room;
+    //return _DK_remove_workshop_object_from_player(a1, a2);
+    thing = get_workshop_box_thing(owner, model);
+    if (thing_is_invalid(thing))
+        return 0;
+    room = get_room_thing_is_on(thing);
+    if ( room_exists(room) ) {
+        remove_workshop_object_from_workshop(room,thing);
+    } else {
+        WARNLOG("Crate thing index %d isn't placed existing room; removing anyway",(int)thing->index);
+    }
+    create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+    delete_thing_structure(thing, 0);
+    return 1;
+}
+/******************************************************************************/

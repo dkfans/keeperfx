@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_sprfnt.h"
 #include "bflib_sound.h"
+#include "bflib_mouse.h"
 
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -34,7 +35,9 @@
 #include "gui_boxmenu.h"
 #include "gui_tooltips.h"
 #include "power_hand.h"
+#include "power_process.h"
 #include "engine_render.h"
+#include "engine_lenses.h"
 #include "front_easter.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
@@ -43,6 +46,7 @@
 #include "config_strings.h"
 #include "config_terrain.h"
 #include "game_merge.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 
@@ -57,11 +61,18 @@ DLLIMPORT void _DK_redraw_creature_view(void);
 DLLIMPORT void _DK_redraw_isometric_view(void);
 DLLIMPORT void _DK_redraw_frontview(void);
 DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
-DLLIMPORT void _DK_update_explored_flags_for_power_sight(struct PlayerInfo *player);
 DLLIMPORT long _DK_map_fade_in(long a);
 DLLIMPORT long _DK_map_fade_out(long a);
 DLLIMPORT void _DK_message_draw(void);
 DLLIMPORT void _DK_draw_sound_stuff(void);
+DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
+DLLIMPORT void _DK_set_sprite_view_3d(void);
+DLLIMPORT void _DK_set_sprite_view_isometric(void);
+DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 void setup_engine_window(long x, long y, long width, long height)
 {
@@ -140,6 +151,72 @@ long map_fade_out(long a)
   return _DK_map_fade_out(a);
 }
 
+void set_sprite_view_3d(void)
+{
+    _DK_set_sprite_view_3d();
+}
+
+void set_sprite_view_isometric(void)
+{
+    _DK_set_sprite_view_isometric();
+}
+
+long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
+{
+    return 1;
+}
+
+unsigned char line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+  return _DK_line_of_sight_3d(pos1, pos2);
+}
+
+void set_engine_view(struct PlayerInfo *player, long val)
+{
+    //_DK_set_engine_view(player, val);
+    switch ( val )
+    {
+    case 1:
+      player->acamera = &player->cameras[1];
+      if (!is_my_player(player))
+        break;
+      lens_mode = 2;
+      set_sprite_view_3d();
+      S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
+      S3DSetDeadzoneRadius(0);
+      LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
+      break;
+    case 2:
+      player->acamera = &player->cameras[0];
+      if (!is_my_player(player))
+        break;
+      lens_mode = 0;
+      set_sprite_view_isometric();
+      S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
+      S3DSetDeadzoneRadius(1280);
+      break;
+    case 3:
+      player->acamera = &player->cameras[2];
+      if (!is_my_player(player))
+        break;
+      S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
+      S3DSetDeadzoneRadius(1280);
+      break;
+    case 5:
+      player->acamera = &player->cameras[3];
+      if (!is_my_player(player))
+        break;
+      lens_mode = 0;
+      set_sprite_view_isometric();
+      S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
+      S3DSetDeadzoneRadius(1280);
+      break;
+    default:
+      break;
+    }
+    player->view_mode = val;
+}
+
 void draw_overlay_compass(long a1, long a2)
 {
   _DK_draw_overlay_compass(a1, a2);
@@ -162,196 +239,6 @@ void message_draw(void)
       draw_gui_panel_sprite_left(x, y, 488+game.messages[i].field_40);
       y += pixel_size * h;
   }
-}
-
-void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
-{
-    struct Dungeon *dungeon;
-    long stl_x,stl_y;
-    long soe_x,soe_y;
-    dungeon = get_players_dungeon(player);
-    stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
-    for (soe_y=0; soe_y < 2*MAX_SOE_RADIUS; soe_y++,stl_y++)
-    {
-        stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
-        for (soe_x=0; soe_x < 2*MAX_SOE_RADIUS; soe_x++,stl_x++)
-        {
-            if (dungeon->soe_explored_flags[soe_y][soe_x])
-            {
-                struct Map *mapblk;
-                mapblk = get_map_block_at(stl_x, stl_y);
-                if (!map_block_invalid(mapblk))
-                {
-                    if (map_block_revealed(mapblk, player->id_number))
-                        backup_explored[soe_y][soe_x] |= 0x01;
-                    if ((mapblk->flags & MapFlg_Unkn04) != 0)
-                        backup_explored[soe_y][soe_x] |= 0x02;
-                    if ((mapblk->flags & MapFlg_Unkn80) != 0)
-                        backup_explored[soe_y][soe_x] |= 0x04;
-                }
-            }
-        }
-    }
-}
-
-void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
-{
-    struct Dungeon *dungeon;
-    long stl_x,stl_y;
-    long soe_x,soe_y;
-    long slb_x,slb_y;
-    long boundstl_x;
-    long delta;
-    long i;
-    dungeon = get_players_dungeon(player);
-    stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
-    for (soe_y=0; soe_y < 2*MAX_SOE_RADIUS; soe_y++,stl_y++)
-    {
-        if ( (stl_y >= 0) && (stl_y <= 255) )
-        {
-            stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
-            for (soe_x=0; soe_x <= MAX_SOE_RADIUS; soe_x++,stl_x++)
-            {
-                if (dungeon->soe_explored_flags[soe_y][soe_x])
-                {
-                    soe_x++;
-                    // Find max value for delta
-                    delta = 0;
-                    for (i=1; soe_x < 2*MAX_SOE_RADIUS; soe_x++,i++)
-                    {
-                        if ( dungeon->soe_explored_flags[soe_y][soe_x] )
-                            delta = i;
-                    }
-                    boundstl_x = stl_x + delta;
-                    if (stl_x < 0)
-                    {
-                        stl_x = 0;
-                    } else
-                    if (stl_x > map_subtiles_x-1)
-                    {
-                        stl_x = map_subtiles_x-1;
-                    }
-                    if (boundstl_x < 0)
-                    {
-                        boundstl_x = 0;
-                    } else
-                    if (boundstl_x > map_subtiles_x-1)
-                    {
-                        boundstl_x = map_subtiles_x-1;
-                    }
-                    if (boundstl_x >= stl_x)
-                    {
-                        delta = boundstl_x - stl_x + 1;
-                        slb_y = subtile_slab_fast(stl_y);
-                        for (i=0; i < delta; i++)
-                        {
-                            struct Map *mapblk;
-                            struct SlabMap *slb;
-                            struct SlabAttr *slbattr;
-                            mapblk = get_map_block_at(stl_x+i, stl_y);
-                            reveal_map_block(mapblk, player->id_number);
-                            slb_x = subtile_slab_fast(stl_x+i);
-                            slb = get_slabmap_block(slb_x, slb_y);
-                            slbattr = get_slab_attrs(slb);
-                            if ( !slbattr->is_unknflg14 )
-                                mapblk->flags &= ~(MapFlg_Unkn80|MapFlg_Unkn04);
-                            mapblk++;
-                        }
-                        stl_x += delta;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
-{
-    struct Dungeon *dungeon;
-    long stl_x,stl_y;
-    long soe_x,soe_y;
-    long boundstl_y;
-    long slb_x,slb_y;
-    long delta;
-    long i;
-    dungeon = get_players_dungeon(player);
-    stl_x = (long)soe_pos->x.stl.num - MAX_SOE_RADIUS;
-    for (soe_x=0; soe_x < 2*MAX_SOE_RADIUS; soe_x++,stl_x++)
-    {
-        if ( (stl_x >= 0) && (stl_x <= 255) )
-        {
-            stl_y = (long)soe_pos->y.stl.num - MAX_SOE_RADIUS;
-            for (soe_y=0; soe_y <= MAX_SOE_RADIUS; soe_y++,stl_y++)
-            {
-                if (dungeon->soe_explored_flags[soe_y][soe_x])
-                {
-                    soe_y++;
-                    // Find max value for delta
-                    delta = 0;
-                    for (i=1; soe_y < 2*MAX_SOE_RADIUS; soe_y++,i++)
-                    {
-                        if (dungeon->soe_explored_flags[soe_y][soe_x])
-                            delta = i;
-                    }
-                    boundstl_y = stl_y + delta;
-                    if (boundstl_y < 0)
-                    {
-                        boundstl_y = 0;
-                    } else
-                    if (boundstl_y > map_subtiles_y-1)
-                    {
-                        boundstl_y = map_subtiles_y-1;
-                    }
-                    if (stl_y < 0)
-                    {
-                        stl_y = 0;
-                    } else
-                    if (stl_y > map_subtiles_y-1)
-                    {
-                        stl_y = map_subtiles_y-1;
-                    }
-                    if (stl_y <= boundstl_y)
-                    {
-                      delta = boundstl_y - stl_y + 1;
-                      slb_x = subtile_slab_fast(stl_x);
-                      for (i=0; i < delta; i++)
-                      {
-                          struct Map *mapblk;
-                          slb_y = subtile_slab_fast(stl_y+i);
-                          mapblk = get_map_block_at(stl_x, stl_y+i);
-                          reveal_map_block(mapblk, player->id_number);
-                          struct SlabMap *slb;
-                          struct SlabAttr *slbattr;
-                          slb = get_slabmap_block(slb_x, slb_y);
-                          slbattr = get_slab_attrs(slb);
-                          if ( !slbattr->is_unknflg14 )
-                              mapblk->flags &= ~(MapFlg_Unkn80|MapFlg_Unkn04);
-                      }
-                      stl_y += delta;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void update_explored_flags_for_power_sight(struct PlayerInfo *player)
-{
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    SYNCDBG(9,"Starting");
-    //_DK_update_explored_flags_for_power_sight(player);
-    dungeon = get_players_dungeon(player);
-    LbMemorySet(backup_explored, 0, sizeof(backup_explored));
-    if (dungeon->keeper_sight_thing_idx == 0)
-        return;
-    thing = thing_get(dungeon->keeper_sight_thing_idx);
-    TRACE_THING(thing);
-    // Fill the backup_explored array
-    store_backup_explored_flags_for_power_sight(player, &thing->mappos);
-    update_vertical_explored_flags_for_power_sight(player, &thing->mappos);
-    update_horizonal_explored_flags_for_power_sight(player, &thing->mappos);
-
 }
 
 void redraw_creature_view(void)
@@ -923,6 +810,3 @@ TbBool keeper_screen_redraw(void)
   return false;
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

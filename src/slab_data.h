@@ -27,6 +27,8 @@ extern "C" {
 #endif
 
 /******************************************************************************/
+#define SLABSET_COUNT        1304
+#define SLABOBJS_COUNT        512
 
 enum SlabTypes {
     SlbT_ROCK               =   0,
@@ -126,6 +128,7 @@ void clear_slabs(void);
 void reveal_whole_map(struct PlayerInfo *player);
 void update_blocks_in_area(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey);
 void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
+void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
 
 /******************************************************************************/
 #ifdef __cplusplus

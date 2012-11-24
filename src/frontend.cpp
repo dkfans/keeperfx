@@ -41,7 +41,7 @@
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
-#include "config_magic.hpp"
+#include "config_magic.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
@@ -70,10 +70,13 @@
 #include "thing_traps.h"
 #include "power_hand.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
 #include "vidfade.h"
+#include "config_settings.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 
@@ -525,8 +528,8 @@ void get_player_gui_clicks(void)
         {
           if (a_menu_window_is_active())
           {
-            game.numfield_D &= 0xF7u;
-            player->field_0 &= 0xF7u;
+            game.numfield_D &= ~0x08;
+            player->field_0 &= ~0x08;
             turn_off_all_window_menus();
           } else
           {

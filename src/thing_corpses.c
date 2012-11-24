@@ -36,7 +36,7 @@
 #include "config_creature.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
-
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

@@ -30,8 +30,7 @@
 #include "lens_api.h"
 #include "light_data.h"
 #include "sounds.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

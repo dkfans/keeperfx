@@ -24,8 +24,7 @@
 #include "bflib_sound.h"
 #include "bflib_math.h"
 #include "game_merge.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

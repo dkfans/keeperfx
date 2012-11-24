@@ -42,6 +42,7 @@
 #include "engine_render.h"
 #include "engine_arrays.h"
 #include "sounds.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 
@@ -67,7 +68,10 @@ DLLIMPORT long _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, u
 DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long a2);
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
-
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
 {
@@ -682,6 +686,3 @@ TbBool slap_object(struct Thing *thing)
   return false;
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

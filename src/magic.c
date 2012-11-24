@@ -26,6 +26,7 @@
 
 #include "player_data.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "dungeon_data.h"
 #include "thing_list.h"
 #include "game_merge.h"
@@ -39,12 +40,11 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "config_creature.h"
-#include "config_magic.hpp"
+#include "config_magic.h"
 #include "gui_soundmsgs.h"
 #include "room_jobs.h"
 #include "sounds.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

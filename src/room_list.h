@@ -32,6 +32,11 @@ extern "C" {
 struct Room;
 struct Thing;
 
+DLLIMPORT struct Room *_DK_start_rooms;
+#define start_rooms _DK_start_rooms
+DLLIMPORT struct Room *_DK_end_rooms;
+#define end_rooms _DK_end_rooms
+
 #pragma pack()
 /******************************************************************************/
 void clear_rooms(void);

@@ -29,6 +29,7 @@
 #include "gui_frontbtns.h"
 #include "frontend.h"
 #include "packets.h"
+#include "config_settings.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -125,6 +126,10 @@ struct GuiMenu video_menu =
  { 13, 0, 4, video_menu_buttons,         POS_GAMECTR,POS_GAMECTR,160, 170, gui_pretty_background,       0, NULL,    init_video_menu,         0, 1, 0,};
 struct GuiMenu sound_menu =
  { 14, 0, 4, sound_menu_buttons,         POS_GAMECTR,POS_GAMECTR,280, 170, gui_pretty_background,       0, NULL,    init_audio_menu,         0, 1, 0,};
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
@@ -254,6 +259,3 @@ void init_audio_menu(struct GuiMenu *gmnu)
   _DK_init_audio_menu(gmnu);
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

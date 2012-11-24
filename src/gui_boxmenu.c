@@ -30,10 +30,12 @@
 #include "creature_instances.h"
 #include "player_data.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "kjm_input.h"
 #include "packets.h"
 #include "thing_data.h"
 #include "gui_draw.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

@@ -29,7 +29,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define TERRAIN_ITEMS_MAX 256
+#define TERRAIN_ITEMS_MAX    256
+// Amount of possible types of slabs
+#define SLAB_TYPES_COUNT      58
 
 /******************************************************************************/
 #pragma pack(1)

@@ -21,7 +21,6 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +30,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
+struct PlayerInfo;
 
 #pragma pack()
 /******************************************************************************/

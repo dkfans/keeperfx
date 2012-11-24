@@ -34,7 +34,8 @@
 #include "thing_physics.h"
 #include "gui_topmsg.h"
 #include "map_columns.h"
-#include "keeperfx.hpp"
+#include "map_utils.h"
+#include "game_legacy.h"
 
 #define EDGEFIT_LEN           64
 #define EDGEOR_COUNT           4

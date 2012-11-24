@@ -38,6 +38,10 @@ DLLIMPORT short _DK_iso_td[TD_ISO_POINTS];
 unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
 
 /******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 long convert_td_iso(unsigned long n)
 {
   if ((lens_mode == 2) || (lens_mode == 3))
@@ -1100,6 +1104,3 @@ TbBool load_ceiling_table(void)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

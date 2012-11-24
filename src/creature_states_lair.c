@@ -35,6 +35,7 @@
 #include "room_data.h"
 #include "room_jobs.h"
 #include "engine_arrays.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

@@ -80,6 +80,12 @@ unsigned char field_1;
 unsigned char field_14;
 };
 
+struct Bookmark { // sizeof = 3
+  unsigned char x;
+  unsigned char y;
+  unsigned char flags;
+};
+
 /******************************************************************************/
 DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
 

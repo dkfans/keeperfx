@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_magic.hpp
- *     Header file for config_magic.cpp.
+/** @file config_magic.h
+ *     Header file for config_magic.c.
  * @par Purpose:
  *     Support of configuration files for magic spells.
  * @par Comment:
@@ -139,7 +139,6 @@ struct MagicConfig {
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
 };
 
-/******************************************************************************/
 #pragma pack(1)
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -261,13 +260,12 @@ struct SpellData {
       unsigned char flag_1A;
 };
 
+#pragma pack()
 /******************************************************************************/
 DLLIMPORT struct ShotStats _DK_shot_stats[30];
 #define shot_stats _DK_shot_stats
 DLLIMPORT struct SpellInfo _DK_spell_info[];
 DLLIMPORT struct SpellData _DK_spell_data[POWER_TYPES_COUNT+1];
-
-#pragma pack()
 /******************************************************************************/
 extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];

@@ -33,11 +33,14 @@
 #include "config_trapdoor.h"
 #include "config_rules.h"
 #include "config_lenses.h"
-#include "config_magic.hpp"
+#include "config_magic.h"
 #include "config_creature.h"
 #include "gui_soundmsgs.h"
+#include "gui_panel.h"
 #include "player_instances.h"
 #include "player_data.h"
+#include "player_utils.h"
+#include "thing_factory.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -48,6 +51,7 @@
 #include "lvl_filesdk1.h"
 #include "game_merge.h"
 #include "dungeon_data.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

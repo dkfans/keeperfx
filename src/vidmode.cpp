@@ -38,6 +38,8 @@
 #include "engine_redraw.h"
 #include "config.h"
 #include "lens_api.h"
+#include "config_settings.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

@@ -24,7 +24,8 @@
 #include "config_terrain.h"
 #include "map_blocks.h"
 #include "ariadne.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
+#include "gui_panel.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +37,7 @@ struct SlabMap bad_slabmap_block;
 /******************************************************************************/
 DLLIMPORT long _DK_calculate_effeciency_score_for_room_slab(long a1, long plyr_idx);
 DLLIMPORT void _DK_update_blocks_in_area(long sx, long sy, long ex, long ey);
+DLLIMPORT void _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
 /******************************************************************************/
 /**
  * Returns slab number, which stores both X and Y coords in one number.
@@ -302,6 +304,11 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     if (sx <= 0)
         sx = 0;
     update_blocks_in_area(sx, sy, ex, ey);
+}
+
+void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2)
+{
+  _DK_do_slab_efficiency_alteration(a1, a2);
 }
 /******************************************************************************/
 #ifdef __cplusplus

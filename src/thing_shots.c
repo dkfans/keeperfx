@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "thing_data.h"
+#include "thing_factory.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -33,9 +34,11 @@
 #include "map_blocks.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "power_process.h"
 #include "gui_topmsg.h"
 #include "creature_states.h"
 #include "creature_groups.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

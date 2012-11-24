@@ -27,8 +27,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "thing_doors.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

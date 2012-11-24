@@ -27,7 +27,8 @@
 #include "config_lenses.h"
 #include "config_trapdoor.h"
 #include "config_terrain.h"
-#include "keeperfx.hpp"
+#include "room_library.h"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

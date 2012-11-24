@@ -30,8 +30,7 @@
 #include "thing_navigate.h"
 #include "thing_stats.h"
 #include "thing_objects.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -281,26 +280,26 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long com
 
 unsigned char active_battle_exists(unsigned char a1)
 {
-  return _DK_active_battle_exists(a1);
+    return _DK_active_battle_exists(a1);
 }
 
 unsigned char step_battles_forward(unsigned char a1)
 {
-  return _DK_step_battles_forward(a1);
+    return _DK_step_battles_forward(a1);
 }
 
 long battle_move_player_towards_battle(struct PlayerInfo *player, long var)
 {
-  return _DK_battle_move_player_towards_battle(player, var);
+    return _DK_battle_move_player_towards_battle(player, var);
 }
 
 void battle_initialise(void)
 {
-  _DK_battle_initialise();
+    _DK_battle_initialise();
 }
 
 void maintain_my_battle_list(void)
 {
-  _DK_maintain_my_battle_list();
+    _DK_maintain_my_battle_list();
 }
 /******************************************************************************/

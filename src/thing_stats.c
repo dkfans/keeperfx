@@ -30,10 +30,9 @@
 #include "config_crtrstates.h"
 #include "config_objects.h"
 #include "player_data.h"
-#include "config_magic.hpp"
+#include "config_magic.h"
 #include "vidfade.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
