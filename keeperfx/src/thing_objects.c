@@ -884,7 +884,7 @@ TngUpdateRet update_object(struct Thing *thing)
  * @param parent_idx Slab number associated with the flag.
  * @return Guard flag object thing.
  */
-struct Thing *create_guard_flag_object(const struct Coord3d *pos, long plyr_idx, long parent_idx)
+struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx)
 {
     struct Thing *thing;
     ThingModel grdflag_kind;
@@ -901,7 +901,7 @@ struct Thing *create_guard_flag_object(const struct Coord3d *pos, long plyr_idx,
     return thing;
 }
 
-struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)
+struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
 {
     struct Thing *thing;
     struct Coord3d pos;
@@ -924,7 +924,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, long plyr_idx)
  * @param value The amount of gold to be stored inside the hoard.
  * @return Hoard object thing, which still require to be associated to room.
  */
-struct Thing *create_gold_hoard_object(const struct Coord3d *pos, long plyr_idx, long value)
+struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long value)
 {
     struct Thing *thing;
     long hoard_size_holds,hoard_size,hoard_store;

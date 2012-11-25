@@ -54,7 +54,7 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d 
 TbBool creature_can_travel_over_lava(const struct Thing *thing);
 TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool no_owner);
 TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage);
-TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx);
+TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, long a5, TbBool backward);

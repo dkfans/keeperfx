@@ -205,7 +205,6 @@ DLLIMPORT void _DK_turn_off_sight_of_evil(long plridx);
 DLLIMPORT void _DK_directly_cast_spell_on_thing(unsigned char plridx, unsigned char a2, unsigned short a3, long a4);
 DLLIMPORT void _DK_lose_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_level_lost_go_first_person(long plridx);
-DLLIMPORT void __cdecl _DK_set_gamma(char, int);
 DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_free_swipe_graphic(void);
 DLLIMPORT void _DK_draw_bonus_timer(void);
@@ -279,9 +278,156 @@ void setup_block_mem(void)
     }
 }
 
-void init_alpha_table(void)
+TbBool init_alpha_table(void)
 {
-  _DK_init_alpha_table();
+    long len;
+    char *fname;
+    static const char textname[] = "alpha color table";
+    fname = prepare_file_path(FGrp_StdData,"alpha.col");
+    SYNCDBG(0,"%s %s file \"%s\".","Reading",textname,fname);
+    //_DK_init_alpha_table(); return true;
+    wait_for_cd_to_be_available();
+    // Loading file data
+    len = LbFileLoadAt(fname, alpha_sprite_table);
+    if (len == sizeof(alpha_sprite_table)) {
+        return true;
+    }
+    WARNMSG("The %s file \"%s\" couldn't be loaded, re-generating it.",textname,fname);
+    // Parse the config file
+    unsigned char *baseCol;
+    int blendR, blendG, blendB;
+    int nrow, n;
+    // Every color alpha-blended with shade of grey
+    blendG = 0;
+    for (nrow = 256; nrow < 2304; nrow += 256)
+    {
+        for (n=0; n < 256; n++)
+        {
+            baseCol = &_DK_palette[3*n];
+            int valR,valG,valB;
+            valR = blendG + baseCol[0];
+            if (valR >= 63)
+              valR = 63;
+            valG = blendG + baseCol[1];
+            if (valG >= 63)
+              valG = 63;
+            valB = blendG + baseCol[2];
+            if (valB >= 63)
+              valB = 63;
+            TbPixel c;
+            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
+            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
+        }
+        blendG += 4;
+    }
+    // Every color alpha-blended with brown/orange
+    blendG = 0;
+    blendR = 0;
+    for (nrow = 2304; nrow < 4352; nrow += 256)
+    {
+        for (n=0; n < 256; n++)
+        {
+            baseCol = &_DK_palette[3*n];
+            int valR,valG,valB;
+            valR = blendR + baseCol[0];
+            if (valR >= 63)
+              valR = 63;
+            valG = blendG + baseCol[1];
+            if (valG >= 63)
+              valG = 63;
+            valB = baseCol[2];
+            if (valB >= 63)
+              valB = 63;
+            TbPixel c;
+            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
+            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
+        }
+        blendG += 4;
+        blendR += 7;
+    }
+    // Every color alpha-blended with intense red
+    blendG = 0;
+    blendR = 0;
+    for (nrow = 4352; nrow < 6400; nrow += 256)
+    {
+        for (n=0; n < 256; n++)
+        {
+            baseCol = &_DK_palette[3*n];
+            int valR,valG,valB;
+            valR = blendR + baseCol[0];
+            if (valR >= 63)
+              valR = 63;
+            valG = blendG + baseCol[1];
+            if (valG >= 63)
+              valG = 63;
+            valB = blendG + baseCol[2];
+            if (valB >= 63)
+              valB = 63;
+            TbPixel c;
+            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
+            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
+      }
+      nrow += 256;
+      blendR += 6;
+      blendG += 1;
+    }
+    // Every color alpha-blended with blue
+    blendB = 0;
+    blendR = 0;
+    for (nrow = 6400; nrow < 8448; nrow += 256)
+    {
+        n = 0;
+        for (n=0; n < 256; n++)
+        {
+            baseCol = &_DK_palette[3*n];
+            int valR,valG,valB;
+            valR = blendR + baseCol[0];
+            if (valR >= 63)
+              valR = 63;
+            valG = blendR + baseCol[1];
+            if (valG >= 63)
+              valG = 63;
+            valB = blendB + baseCol[2];
+            if (valB >= 63)
+              valB = 63;
+            TbPixel c;
+            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
+            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
+        }
+        nrow += 256;
+        blendB += 6;
+        blendR += 2;
+    }
+    // Every color alpha-blended with green
+    blendG = 0;
+    blendR = 0;
+    for (nrow = 8448; nrow < 10496; nrow += 256)
+    {
+        n = 0;
+        for (n=0; n < 256; n++)
+        {
+            baseCol = &_DK_palette[3*n];
+            int valR,valG,valB;
+            valR = blendR + baseCol[0];
+            if (valR >= 63)
+              valR = 63;
+            valG = blendG + baseCol[1];
+            if (valG >= 63)
+              valG = 63;
+            valB = blendR + baseCol[2];
+            if (valB >= 63)
+              valB = 63;
+            TbPixel c;
+            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
+            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
+        }
+        nrow += 256;
+        blendG += 6;
+        blendR += 2;
+    }
+    //Freeing and exiting
+    LbFileSaveAt(fname, alpha_sprite_table, sizeof(alpha_sprite_table));
+    return true;
 }
 
 void setup_stuff(void)
@@ -906,7 +1052,7 @@ void zero_messages(void)
 
 /** Returns if cursor for given player is at top of the dungeon in 3D view.
  *  Cursor placed at top of dungeon is marked by green/red "volume box";
- *   if there's no volume box, cursor should be of the fileld behind it
+ *   if there's no volume box, cursor should be of the field behind it
  *   (the exact field in a line of view through cursor). If cursor is at top
  *   of view, then pointed map field is a bit lower than the line of view
  *   through cursor.
