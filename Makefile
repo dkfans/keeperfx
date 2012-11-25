@@ -119,6 +119,7 @@ obj/config_rules.o \
 obj/config_settings.o \
 obj/config_strings.o \
 obj/config_terrain.o \
+obj/config_cubes.o \
 obj/config_trapdoor.o \
 obj/creature_battle.o \
 obj/creature_control.o \
@@ -161,6 +162,7 @@ obj/front_simple.o \
 obj/front_torture.o \
 obj/frontend.o \
 obj/frontmenu_ingame_evnt.o \
+obj/frontmenu_ingame_map.o \
 obj/frontmenu_ingame_opts.o \
 obj/frontmenu_ingame_tabs.o \
 obj/frontmenu_net.o \
@@ -177,7 +179,6 @@ obj/gui_draw.o \
 obj/gui_frontbtns.o \
 obj/gui_frontmenu.o \
 obj/gui_msgs.o \
-obj/gui_panel.o \
 obj/gui_parchment.o \
 obj/gui_soundmsgs.o \
 obj/gui_tooltips.o \

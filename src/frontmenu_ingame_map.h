@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file gui_panel.h
- *     Header file for gui_panel.c.
+/** @file frontmenu_ingame_map.h
+ *     Header file for frontmenu_ingame_map.c.
  * @par Purpose:
- *     Left GUI panel drawing and support functions.
+ *     Map on in-game GUI panel drawing and support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -17,8 +17,8 @@
  */
 /******************************************************************************/
 
-#ifndef DK_GUIPANEL_H
-#define DK_GUIPANEL_H
+#ifndef DK_FRONTMENU_INGAMEMAP_H
+#define DK_FRONTMENU_INGAMEMAP_H
 
 #include "bflib_basics.h"
 #include "globals.h"
@@ -27,10 +27,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT long _DK_clicked_on_small_map;
+#define clicked_on_small_map _DK_clicked_on_small_map
+DLLIMPORT unsigned char _DK_grabbed_small_map;
+#define grabbed_small_map _DK_grabbed_small_map
 /******************************************************************************/
 void pannel_map_update(long x, long y, long w, long h);
-void gui_set_button_flashing(long btn_idx, long gameturns);
-short zoom_to_fight(unsigned char a1);
+void pannel_map_draw(long x, long y, long zoom);
+
+void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
+short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
+short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
+short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 /******************************************************************************/
 #ifdef __cplusplus
 }

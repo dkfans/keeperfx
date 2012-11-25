@@ -177,4 +177,18 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
   _DK_gui_area_enemy_battlers(gbtn);
 }
 
+short zoom_to_fight(unsigned char a1)
+{
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    player = get_my_player();
+    if (active_battle_exists(a1))
+    {
+        dungeon = get_players_num_dungeon(my_player_number);
+        set_players_packet_action(player, 104, dungeon->field_1174, 0, 0, 0);
+        step_battles_forward(a1);
+        return true;
+    }
+    return false;
+}
 /******************************************************************************/

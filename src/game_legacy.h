@@ -36,6 +36,7 @@
 #include "config_magic.h"
 #include "config_trapdoor.h"
 #include "config_objects.h"
+#include "config_cubes.h"
 #include "map_columns.h"
 #include "map_events.h"
 #include "lvl_script.h"
@@ -71,12 +72,6 @@ enum GameKinds {
 /******************************************************************************/
 #pragma pack(1)
 
-struct UnkStruc5 { // sizeof=0x12
-    unsigned short texture_0[3];
-char field_6[2];
-short field_8[5];
-};
-
 struct CreaturePool { // sizeof = 129
   long crtr_kind[CREATURE_TYPES_COUNT];
   unsigned char is_empty;
@@ -111,7 +106,7 @@ char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
-    struct UnkStruc5 struc_D8C7[512];
+    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
     struct ObjectConfig objects_config[239];
 char field_117DA[14];
     // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf

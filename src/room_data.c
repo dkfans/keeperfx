@@ -36,10 +36,10 @@
 #include "creature_states.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
-#include "gui_panel.h"
 #include "magic.h"
 #include "room_util.h"
 #include "game_legacy.h"
+#include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

@@ -36,7 +36,7 @@
 #include "config_magic.h"
 #include "config_creature.h"
 #include "gui_soundmsgs.h"
-#include "gui_panel.h"
+#include "frontmenu_ingame_tabs.h"
 #include "player_instances.h"
 #include "player_data.h"
 #include "player_utils.h"

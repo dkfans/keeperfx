@@ -413,39 +413,29 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Disease) != 0);
     case SplK_Chicken:
         return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
+    // Handle spells with no continous effect
     case SplK_Lightning:
-        return false;//TODO
     case SplK_Heal:
-        return false;//TODO
-    case SplK_PoisonCloud:
-        return false;//TODO
-    case SplK_Drain:
-        return false;//TODO
-    case SplK_Fear:
-        return false;//TODO
     case SplK_Missile:
-        return false;//TODO
     case SplK_NavigMissile:
-        return false;//TODO
+    case SplK_Grenade:
+    case SplK_WordOfPower:
+    case SplK_TimeBomb:
+    case SplK_Fireball:
+    case SplK_FireBomb:
     case SplK_FlameBreath:
+    case SplK_Drain:
+    case SplK_PoisonCloud:
+        return false;
+    case SplK_Fear:
         return false;//TODO
     case SplK_Wind:
         return false;//TODO
     case SplK_Light:
         return false;//TODO
-    case SplK_Grenade:
-        return false;//TODO
     case SplK_Hailstorm:
         return false;//TODO
-    case SplK_WordOfPower:
-        return false;//TODO
     case SplK_CrazyGas:
-        return false;//TODO
-    case SplK_TimeBomb:
-        return false;//TODO
-    case SplK_Fireball:
-        return false;//TODO
-    case SplK_FireBomb:
         return false;//TODO
     default:
         SYNCDBG(3,"Unrecognized spell kind %d",(int)spkind);
@@ -494,6 +484,20 @@ long get_free_spell_slot(struct Thing *thing)
     return ci;
 }
 
+TbBool fill_spell_slot(struct Thing *thing, long slot_idx, SpellKind spell_idx, long spell_power)
+{
+    struct CreatureControl *cctrl;
+    struct CastedSpellData *cspell;
+    if ((slot_idx < 0) || (slot_idx >= CREATURE_MAX_SPELLS_CASTED_AT))
+        return false;
+    cctrl = creature_control_get_from_thing(thing);
+    cspell = &cctrl->casted_spells[slot_idx];
+    cspell->spkind = spell_idx;
+    cspell->field_1 = spell_power;
+    return true;
+}
+
+
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
     struct CreatureControl *cctrl;
@@ -515,8 +519,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = splconf->duration;
+            fill_spell_slot(thing, i, spell_idx, splconf->duration);
             cctrl->affected_by_spells |= CCSpl_Freeze;
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
@@ -531,8 +534,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (i != -1)
         {
             magstat = &game.magic_stats[PwrK_PROTECT];
-            cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+            fill_spell_slot(thing, i, spell_idx, magstat->power[spell_lev]);
             n = 0;
             cctrl->spell_flags |= CSAfF_Armour;
             for (k=0; k < 3; k++)
@@ -561,8 +563,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = splconf->duration;
+            fill_spell_slot(thing, i, spell_idx, splconf->duration);
             cctrl->spell_flags |= CSAfF_Rebound;
         }
         break;
@@ -585,9 +586,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->casted_spells[i].spkind = spell_idx;
             magstat = &game.magic_stats[PwrK_CONCEAL];
-            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+            fill_spell_slot(thing, i, spell_idx, magstat->power[spell_lev]);
             cctrl->spell_flags |= CSAfF_Invisibility;
             cctrl->field_AF = 0;
         }
@@ -596,8 +596,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = splconf->duration;
+            fill_spell_slot(thing, i, spell_idx, splconf->duration);
             cctrl->affected_by_spells |= CCSpl_Teleport;
         }
         break;
@@ -605,9 +604,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->casted_spells[i].spkind = spell_idx;
             magstat = &game.magic_stats[PwrK_SPEEDCRTR];
-            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+            fill_spell_slot(thing, i, spell_idx, magstat->power[spell_lev]);
             cctrl->spell_flags |= CSAfF_Speed;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
@@ -616,8 +614,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = splconf->duration;
+            fill_spell_slot(thing, i, spell_idx, splconf->duration);
             cctrl->spell_flags |= CSAfF_Slow;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
         }
@@ -626,8 +623,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = splconf->duration;
+            fill_spell_slot(thing, i, spell_idx, splconf->duration);
             cctrl->spell_flags |= CSAfF_Flying;
             thing->movement_flags |= TMvF_Flying;
         }
@@ -636,8 +632,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            cctrl->casted_spells[i].spkind = spell_idx;
-            cctrl->casted_spells[i].field_1 = splconf->duration;
+            fill_spell_slot(thing, i, spell_idx, splconf->duration);
             cctrl->spell_flags |= CSAfF_Sight;
         }
         break;
@@ -645,9 +640,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-          cctrl->casted_spells[i].spkind = spell_idx;
           magstat = &game.magic_stats[PwrK_DISEASE];
-          cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
+          fill_spell_slot(thing, i, spell_idx, magstat->power[spell_lev]);
           n = 0;
           cctrl->spell_flags |= CSAfF_Disease;
           cctrl->field_B6 = thing->owner;
@@ -683,12 +677,11 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
+            magstat = &game.magic_stats[PwrK_CHICKEN];
+            fill_spell_slot(thing, i, spell_idx, magstat->power[spell_lev]);
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
             cctrl->field_282 = 10;
             cctrl->spell_flags |= CSAfF_Chicken;
-            cctrl->casted_spells[i].spkind = spell_idx;
-            magstat = &game.magic_stats[PwrK_CHICKEN];
-            cctrl->casted_spells[i].field_1 = magstat->power[spell_lev];
         }
         break;
     default:

@@ -41,6 +41,7 @@
 #include "packets.h"
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
+#include "frontmenu_ingame_map.h"
 #include "frontend.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
@@ -1222,4 +1223,9 @@ void draw_whole_status_panel(void)
     draw_overlay_things(mmzoom);
 }
 
+void gui_set_button_flashing(long btn_idx, long gameturns)
+{
+    game.flash_button_index = btn_idx;
+    game.flash_button_gameturns = gameturns;
+}
 /******************************************************************************/
