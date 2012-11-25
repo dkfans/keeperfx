@@ -30,6 +30,7 @@
 #include "thing_effects.h"
 #include "thing_shots.h"
 #include "thing_traps.h"
+#include "thing_physics.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
@@ -684,5 +685,18 @@ TbBool slap_object(struct Thing *thing)
       return true;
   }
   return false;
+}
+
+short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx)
+{
+    struct Coord3d pos;
+    TbBool is_digger;
+    is_digger = thing_is_creature_special_digger(thing);
+    if (!can_drop_thing_here(x, y, dngn_idx, is_digger))
+      return false;
+    pos.x.val = (x << 8) + 128;
+    pos.y.val = (y << 8) + 128;
+    pos.z.val = get_thing_height_at(thing, &pos);
+    return !thing_in_wall_at(thing, &pos);
 }
 /******************************************************************************/

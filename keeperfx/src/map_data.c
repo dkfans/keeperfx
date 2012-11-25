@@ -23,7 +23,7 @@
 #include "bflib_memory.h"
 #include "slab_data.h"
 #include "game_legacy.h"
-#include "gui_panel.h"
+#include "frontmenu_ingame_map.h"
 
 #ifdef __cplusplus
 extern "C" {

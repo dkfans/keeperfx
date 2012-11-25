@@ -53,19 +53,19 @@ extern "C" {
 const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
 
 /******************************************************************************/
-DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long spl_id, long a4);
+DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long spl_id, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long spl_id, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long spl_id, long stl_y);
 DLLIMPORT short _DK_magic_use_power_imp(unsigned short plyr_idx, unsigned short a2, unsigned short spl_id);
-DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long spl_id, long a4, long a5);
-DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long spl_id, long a4);
-DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long spl_id, long a4);
-DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long spl_id, long a4);
-DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long spl_id, long a4, long a5);
-DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short spl_id, unsigned short a4);
+DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long spl_id, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long spl_id, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long spl_id, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long spl_id, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long spl_id, long stl_y);
+DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long spl_id, long stl_y);
+DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long spl_id, long stl_y);
+DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long spl_id, long stl_y, long splevel);
+DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short spl_id, unsigned short stl_y);
 DLLIMPORT short _DK_magic_use_power_slap(unsigned short plyr_idx, unsigned short a2, unsigned short spl_id);
 DLLIMPORT short _DK_magic_use_power_obey(unsigned short plridx);
 DLLIMPORT long _DK_magic_use_power_armageddon(unsigned char val);
@@ -73,7 +73,7 @@ DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
 
 DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
-DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char spl_id, unsigned char a4, long a5);
+DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char spl_id, unsigned char stl_y, long splevel);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long spl_id);
 /******************************************************************************/
 long can_cast_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long spl_id)
@@ -321,24 +321,49 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
         return Lb_OK;
     }
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Chicken))
+    if (thing_affected_by_spell(thing, SplK_Chicken)) {
         return Lb_OK;
+    }
     // If we can't afford the spell, fail
-    if (!pay_for_spell(plyr_idx, PwrK_CHICKEN, splevel))
+    if (!pay_for_spell(plyr_idx, PwrK_CHICKEN, splevel)) {
         return Lb_FAIL;
+    }
     // Check if the creature kind isn't affected by that spell
     if ((get_creature_model_flags(thing) & MF_NeverChickens) != 0)
     {
         return Lb_SUCCESS;
     }
-    thing_play_sample(thing, 109, 100, 0, 3, 0, 2, 256);
     apply_spell_effect_to_thing(thing, SplK_Chicken, splevel);
+    thing_play_sample(thing, 109, 100, 0, 3, 0, 2, 256);
     return Lb_SUCCESS;
 }
 
-void magic_use_power_disease(unsigned char a1, struct Thing *thing, long a3, long a4, long a5)
+TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-  _DK_magic_use_power_disease(a1, thing, a3, a4, a5);
+    //_DK_magic_use_power_disease(a1, thing, a3, a4, a5); return Lb_OK;
+    if ( !can_cast_spell_at_xy(plyr_idx, PwrK_DISEASE, stl_x, stl_y, 0)
+      || !can_cast_spell_on_creature(plyr_idx, thing, PwrK_DISEASE) )
+    {
+        if (is_my_player_number(plyr_idx))
+            play_non_3d_sample(119);
+        return Lb_OK;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if ( thing_affected_by_spell(thing, SplK_Disease) ) {
+        return Lb_OK;
+    }
+    // If we can't afford the spell, fail
+    if (!pay_for_spell(plyr_idx, PwrK_DISEASE, splevel)) {
+        return Lb_FAIL;
+    }
+    apply_spell_effect_to_thing(thing, SplK_Disease, splevel);
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        cctrl->field_B6 = plyr_idx;
+    }
+    thing_play_sample(thing, 59, 100, 0, 3u, 0, 3, 256);
+    return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)

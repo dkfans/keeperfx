@@ -805,7 +805,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     unsigned long center_block_idx;
     long fepos,bepos,ecpos;
     long clip_start,clip_end;
-    struct UnkStruc5 *texturing;
+    struct CubeAttribs *texturing;
     unsigned short *cubenum_ptr;
     long i,n;
     if ((stl_y <= 0) || (stl_y >= 255))
@@ -863,7 +863,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         height_bit = 1;
         while (height_bit <= solidmsk_center)
         {
-            texturing = &game.struc_D8C7[*cubenum_ptr];
+            texturing = &game.cubes_data[*cubenum_ptr];
             if ((solidmsk_center & height_bit) != 0)
             {
               if ((solidmsk_top & height_bit) == 0)
@@ -900,7 +900,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
-            texturing = &game.struc_D8C7[*cubenum_ptr];
+            texturing = &game.cubes_data[*cubenum_ptr];
             textr_idx = texturing->field_8[0];
             do_a_trig_gourad_tr(&becol[0].cors[ecpos], &becol[1].cors[ecpos], &fecol[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fecol[1].cors[ecpos], &fecol[0].cors[ecpos], &becol[0].cors[ecpos], textr_idx, -1);
@@ -916,7 +916,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
-            texturing = &game.struc_D8C7[*cubenum_ptr];
+            texturing = &game.cubes_data[*cubenum_ptr];
             textr_idx = texturing->field_8[0];
             do_a_trig_gourad_tr(&becol[0].cors[ecpos], &becol[1].cors[ecpos], &fecol[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fecol[1].cors[ecpos], &fecol[0].cors[ecpos], &becol[0].cors[ecpos], textr_idx, -1);
@@ -2560,7 +2560,7 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
     struct Column *col;
-    struct UnkStruc5 *unkstrcp;
+    struct CubeAttribs *unkstrcp;
     struct Map *mapblk;
     long lightness_arr[4][9];
     long bckt_idx;
@@ -2641,7 +2641,7 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
       if (col->cubes[tc] == 0)
         break;
       y -= delta_y;
-      unkstrcp = &game.struc_D8C7[col->cubes[tc]];
+      unkstrcp = &game.cubes_data[col->cubes[tc]];
       if (*a9 > y)
       {
         *a9 = y;
@@ -2689,7 +2689,7 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
             if (col->cubes[tc] == 0)
               break;
             y -= delta_y;
-            unkstrcp = &game.struc_D8C7[col->cubes[tc]];
+            unkstrcp = &game.cubes_data[col->cubes[tc]];
             if (*a9 > y)
             {
               add_lgttextrdquad_to_polypool(pos_x, y, unkstrcp->texture_0[cube_itm], a7, delta_y, 0,

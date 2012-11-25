@@ -141,7 +141,6 @@ DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, lo
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
-DLLIMPORT long _DK_load_cube_file(void);
 DLLIMPORT void _DK_init_colours(void);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT void _DK_draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
@@ -166,7 +165,6 @@ DLLIMPORT void _DK_init_keeper(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
 DLLIMPORT void _DK_set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
 DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
-DLLIMPORT void _DK_do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 DLLIMPORT void _DK_go_to_my_next_room_of_type(unsigned long rkind);
 DLLIMPORT void _DK_instant_instance_selected(long a1);
 DLLIMPORT void _DK_initialise_map_collides(void);
@@ -183,7 +181,6 @@ DLLIMPORT void _DK_process_dungeon_power_magic(void);
 DLLIMPORT void _DK_process_dungeon_devastation_effects(void);
 DLLIMPORT void _DK_process_payday(void);
 DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
-DLLIMPORT long _DK_get_next_manufacture(struct Dungeon *dungeon);
 DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
 DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
@@ -213,7 +210,6 @@ DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_free_swipe_graphic(void);
 DLLIMPORT void _DK_draw_bonus_timer(void);
 DLLIMPORT void _DK_engine(struct Camera *cam);
-DLLIMPORT void _DK_pannel_map_draw(long x, long y, long zoom);
 DLLIMPORT void _DK_draw_overlay_things(long zoom);
 DLLIMPORT void _DK_reinit_level_after_load(void);
 DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
@@ -233,7 +229,6 @@ DLLIMPORT void _DK_frontend_set_state(long);
 DLLIMPORT void _DK_demo(void);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_process_dungeons(void);
-DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
 DLLIMPORT void _DK_process_level_script(void);
 DLLIMPORT void _DK_message_update(void);
 DLLIMPORT long _DK_wander_point_update(struct Wander *wandr);
@@ -586,12 +581,6 @@ long load_anim_file(void)
 {
   SYNCDBG(8,"Starting");
   return _DK_load_anim_file();
-}
-
-long load_cube_file(void)
-{
-  SYNCDBG(8,"Starting");
-  return _DK_load_cube_file();
 }
 
 void init_colours(void)
@@ -2085,180 +2074,6 @@ struct Room *player_has_room_of_type(long plyr_idx, long rkind)
   return _DK_player_has_room_of_type(plyr_idx, rkind);
 }
 
-TbBool set_manufacture_level(struct Dungeon *dungeon)
-{
-    int wrkshp_slabs;
-    wrkshp_slabs = count_slabs_of_room_type(dungeon->owner, RoK_WORKSHOP);
-    if (wrkshp_slabs <= 9)
-    {
-        dungeon->manufacture_level = 0;
-    } else
-    if (wrkshp_slabs <= 16)
-    {
-        dungeon->manufacture_level = 1;
-    } else
-    if (wrkshp_slabs <= 25)
-    {
-        if (wrkshp_slabs == 20) // why there's special code for 20 slabs!?
-            dungeon->manufacture_level = 4;
-        else
-            dungeon->manufacture_level = 2;
-    } else
-    if (wrkshp_slabs <= 36)
-    {
-        dungeon->manufacture_level = 3;
-    } else
-    {
-        dungeon->manufacture_level = 4;
-    }
-    return true;
-}
-
-TbBool get_next_manufacture(struct Dungeon *dungeon)
-{
-    int chosen_class,chosen_kind,chosen_amount,chosen_level;
-    struct ManfctrConfig *mconf;
-    int tng_kind;
-    long amount;
-    //return _DK_get_next_manufacture(dungeon);
-    set_manufacture_level(dungeon);
-    chosen_class = TCls_Empty;
-    chosen_kind = 0;
-    chosen_amount = LONG_MAX;
-    chosen_level = LONG_MAX;
-    // Try getting door kind for manufacture
-    for (tng_kind = 1; tng_kind < DOOR_TYPES_COUNT; tng_kind++)
-    {
-        mconf = &game.doors_config[tng_kind];
-        if ( (dungeon->door_buildable[tng_kind]) && (dungeon->manufacture_level >= mconf->manufct_level) )
-        {
-            amount = dungeon->door_amount[tng_kind];
-            if (amount < MANUFACTURED_ITEMS_LIMIT)
-            {
-                if ( (chosen_amount > amount) ||
-                    ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
-                {
-                    chosen_class = TCls_Door;
-                    chosen_amount = dungeon->door_amount[tng_kind];
-                    chosen_kind = tng_kind;
-                    chosen_level = mconf->manufct_level;
-                }
-            }
-        }
-    }
-    // Try getting trap kind for manufacture
-    for (tng_kind = 1; tng_kind < TRAP_TYPES_COUNT; tng_kind++)
-    {
-        mconf = &game.traps_config[tng_kind];
-        if ( (dungeon->trap_buildable[tng_kind]) && (dungeon->manufacture_level >= mconf->manufct_level) )
-        {
-            amount = dungeon->trap_amount[tng_kind];
-            if (amount < MANUFACTURED_ITEMS_LIMIT)
-            {
-                if ( (chosen_amount > amount) ||
-                    ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
-                {
-                    chosen_class = TCls_Trap;
-                    chosen_amount = dungeon->trap_amount[tng_kind];
-                    chosen_kind = tng_kind;
-                    chosen_level = mconf->manufct_level;
-                }
-            }
-        }
-    }
-    if (chosen_class != TCls_Empty)
-    {
-        dungeon->manufacture_class = chosen_class;
-        dungeon->manufacture_kind = chosen_kind;
-        return true;
-    }
-    return false;
-}
-
-long manufacture_points_required(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
-{
-  switch (mfcr_type)
-  {
-  case TCls_Trap:
-      return game.traps_config[mfcr_kind%TRAP_TYPES_COUNT].manufct_required;
-  case TCls_Door:
-      return game.doors_config[mfcr_kind%DOOR_TYPES_COUNT].manufct_required;
-  default:
-      ERRORMSG("%s: Invalid type of manufacture",func_name);
-      return 0;
-  }
-}
-
-short process_player_manufacturing(long plyr_idx)
-{
-  struct Dungeon *dungeon;
-  struct PlayerInfo *player;
-  struct Room *room;
-  int k;
-  SYNCDBG(17,"Starting");
-//  return _DK_process_player_manufacturing(plr_idx);
-
-  dungeon = get_players_num_dungeon(plyr_idx);
-  room = player_has_room_of_type(plyr_idx, RoK_WORKSHOP);
-  if (room_is_invalid(room))
-      return true;
-  if (dungeon->manufacture_class == TCls_Empty)
-  {
-      get_next_manufacture(dungeon);
-      return true;
-  }
-  k = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind, __func__);
-  // If we don't have enough manufacture points, don't do anything
-  if (dungeon->manufacture_progress < (k << 8))
-    return true;
-  // Try to do the manufacturing
-  room = find_room_with_spare_room_item_capacity(plyr_idx, RoK_WORKSHOP);
-  if (room_is_invalid(room))
-  {
-      dungeon->manufacture_class = TCls_Empty;
-      return false;
-  }
-  if (check_workshop_item_limit_reached(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind))
-  {
-      ERRORLOG("Bad choice for manufacturing - limit reached for %s kind %d",thing_class_code_name(dungeon->manufacture_class),(int)dungeon->manufacture_kind);
-      get_next_manufacture(dungeon);
-      return false;
-  }
-  if (create_workshop_object_in_workshop_room(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind) == 0)
-  {
-      ERRORLOG("Could not create manufactured %s kind %d",thing_class_code_name(dungeon->manufacture_class),(int)dungeon->manufacture_kind);
-      return false;
-  }
-  add_workshop_item(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind);
-
-  switch (dungeon->manufacture_class)
-  {
-  case TCls_Trap:
-      dungeon->lvstats.manufactured_traps++;
-      // If that's local player - make a message
-      player=get_my_player();
-      if (player->id_number == plyr_idx)
-        output_message(SMsg_ManufacturedTrap, 0, true);
-      break;
-  case TCls_Door:
-      dungeon->lvstats.manufactured_doors++;
-      // If that's local player - make a message
-      player=get_my_player();
-      if (player->id_number == plyr_idx)
-        output_message(SMsg_ManufacturedDoor, 0, true);
-      break;
-  default:
-      ERRORLOG("Invalid type of new manufacture");
-      return false;
-  }
-
-  dungeon->manufacture_progress -= (k << 8);
-  dungeon->field_118B = game.play_gameturn;
-  dungeon->lvstats.manufactured_items++;
-  get_next_manufacture(dungeon);
-  return true;
-}
-
 void process_level_script(void)
 {
   SYNCDBG(6,"Starting");
@@ -2695,73 +2510,6 @@ void draw_swipe(void)
   _DK_draw_swipe();
 }
 
-void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5)
-{
-  _DK_do_map_rotate_stuff(a1, a2, a3, a4, a5);
-}
-
-short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
-{
-  SYNCDBG(17,"Starting");
-  struct PlayerInfo *player;
-  long x,y;
-  if (!clicked_on_small_map)
-  {
-    grabbed_small_map = 0;
-    return 0;
-  }
-  x = (curr_x - (MyScreenWidth >> 1)) / 2;
-  y = (curr_y - (MyScreenHeight >> 1)) / 2;
-  if ((abs(curr_x - old_mx) < 2) && (abs(curr_y - old_my) < 2))
-    return 0;
-  if (!grabbed_small_map)
-  {
-    grabbed_small_map = 1;
-    x = 0;
-    y = 0;
-  }
-  do_map_rotate_stuff(x, y, &curr_x, &curr_y, zoom);
-  player = get_my_player();
-  game.hand_over_subtile_x = curr_x;
-  game.hand_over_subtile_y = curr_y;
-  if (subtile_has_slab(curr_x, curr_y))
-  {
-    set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
-  }
-  return 1;
-}
-
-short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
-{
-  SYNCDBG(17,"Starting");
-  struct PlayerInfo *player;
-  short result;
-  result = 0;
-  player = get_my_player();
-  if ((left_button_released) && (clicked_on_small_map))
-  {
-      if (grabbed_small_map)
-      {
-        game.small_map_state = 2;
-        LbMouseSetPosition((begin_x+58)/pixel_size, (begin_y+58)/pixel_size);
-      } else
-      {
-        do_map_rotate_stuff(curr_x-begin_x-58, curr_y-begin_y-58, &curr_x, &curr_y, zoom);
-        game.hand_over_subtile_x = curr_x;
-        game.hand_over_subtile_y = curr_y;
-        if (subtile_has_slab(curr_x, curr_y))
-        {
-          result = 1;
-          set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
-        }
-      }
-    grabbed_small_map = 0;
-    clicked_on_small_map = 0;
-    left_button_released = 0;
-  }
-  return result;
-}
-
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
 /* Currently this only makes Dungeon Heart blinking; maybe I'll find a purpose for it later
@@ -2807,9 +2555,9 @@ void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4,
   _DK_tag_cursor_blocks_thing_in_hand(a1, a2, a3, a4, a5);
 }
 
-unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4)
+unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long allow_unclaimed)
 {
-  return _DK_can_drop_thing_here(x, y, a3, a4);
+  return _DK_can_drop_thing_here(x, y, a3, allow_unclaimed);
 }
 
 /**
@@ -2833,49 +2581,6 @@ short can_dig_here(long stl_x, long stl_y, long plyr_idx)
     if ((slbattr->flags & 0x29) != 0)
       return true;
     return false;
-}
-
-short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx)
-{
-    struct Coord3d pos;
-    TbBool is_digger;
-    is_digger = thing_is_creature_special_digger(thing);
-    if (!can_drop_thing_here(x, y, dngn_idx, is_digger))
-      return false;
-    pos.x.val = (x << 8) + 128;
-    pos.y.val = (y << 8) + 128;
-    pos.z.val = get_thing_height_at(thing, &pos);
-    return !thing_in_wall_at(thing, &pos);
-}
-
-short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
-{
-    long x,y;
-    SYNCDBG(17,"Starting");
-    struct PlayerInfo *player;
-    struct Thing *thing;
-    do_map_rotate_stuff(curr_mx-start_x-58, curr_my-start_y-58, &x, &y, zoom);
-    game.hand_over_subtile_x = x;
-    game.hand_over_subtile_y = y;
-    player = get_my_player();
-    thing = get_first_thing_in_power_hand(player);
-    if (!thing_is_invalid(thing))
-    {
-        if (can_place_thing_here(thing, x, y, player->id_number))
-          game.small_map_state = 1;
-    }
-    if (right_button_clicked)
-      right_button_clicked = 0;
-    if (right_button_released)
-    {
-        right_button_released = 0;
-        if (subtile_has_slab(x, y))
-        {
-          set_players_packet_action(player, PckA_DumpHeldThings, x, y, 0, 0);
-          return 1;
-        }
-    }
-    return 0;
 }
 
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
@@ -3036,11 +2741,6 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     lbDisplay.DrawFlags = flg_mem;
     thing_being_displayed = 0;
     LbScreenLoadGraphicsWindow(&grwnd);
-}
-
-void pannel_map_draw(long x, long y, long zoom)
-{
-  _DK_pannel_map_draw(x, y, zoom);
 }
 
 void draw_overlay_things(long zoom)

@@ -123,7 +123,7 @@ long creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos)
 /** Retrieves planned next position for given thing, without collision detection.
  *  Just adds thing velocity to current position and does some clipping. Nothing fancy.
  * @param pos The position to be set.
- * @param thing Source thing which position and valocity is used.
+ * @param thing Source thing which position and velocity is used.
  * @return Gives true if values were in map coords range, false if they were
  *  outside map area and had to be corrected.
  */

@@ -609,8 +609,8 @@ void init_objects(void)
     game.objects_config[32].field_8 = 1;
     game.objects_config[114].field_8 = 1;
     game.objects_config[115].field_8 = 1;
-    game.objects_config[117].field_8 = 1;
     game.objects_config[116].field_8 = 1;
+    game.objects_config[117].field_8 = 1;
     game.objects_config[118].field_8 = 1;
     game.objects_config[119].field_8 = 1;
     game.objects_config[125].field_8 = 1;
