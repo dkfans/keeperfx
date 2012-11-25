@@ -45,9 +45,12 @@
 #include "gui_frontbtns.h"
 #include "gui_tooltips.h"
 #include "gui_topmsg.h"
+#include "gui_panel.h"
 #include "power_hand.h"
 #include "thing_traps.h"
 #include "kjm_input.h"
+#include "config_settings.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 #include "KeeperSpeech.h"
@@ -88,6 +91,10 @@ void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
 short zoom_shortcuts(void);
 short get_bookmark_inputs(void);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 short game_is_busy_doing_gui_string_input(void)
 {
@@ -1858,6 +1865,3 @@ short get_gui_inputs(short gameplay_on)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

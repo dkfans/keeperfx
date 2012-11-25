@@ -1,0 +1,58 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file player_utils.h
+ *     Header file for player_utils.c.
+ * @par Purpose:
+ *     Player data structures definitions.
+ * @par Comment:
+ *     Just a header file - #defines, typedefs, function prototypes etc.
+ * @author   Tomasz Lis
+ * @date     10 Nov 2009 - 20 Nov 2012
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#ifndef DK_PLYR_UTILS_H
+#define DK_PLYR_UTILS_H
+
+#include "bflib_basics.h"
+#include "globals.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/******************************************************************************/
+
+/******************************************************************************/
+#pragma pack(1)
+
+struct PlayerInfo;
+
+#pragma pack()
+/******************************************************************************/
+/******************************************************************************/
+short player_has_won(PlayerNumber plyr_idx);
+short player_has_lost(PlayerNumber plyr_idx);
+void set_player_as_won_level(struct PlayerInfo *player);
+void set_player_as_lost_level(struct PlayerInfo *player);
+
+long compute_player_final_score(struct PlayerInfo *player, long gameplay_score);
+
+long take_money_from_dungeon(PlayerNumber plyr_idx, long amount, unsigned char a3);
+long update_dungeon_generation_speeds(void);
+void calculate_dungeon_area_scores(void);
+
+void init_players(void);
+void init_player(struct PlayerInfo *player, short no_explore);
+void post_init_players(void);
+void init_players_local_game(void);
+void init_keeper_map_exploration(struct PlayerInfo *player);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+#endif

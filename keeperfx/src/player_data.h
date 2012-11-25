@@ -60,6 +60,13 @@ enum PlayerViewType {
     PVT_MapFadeOut,
 };
 
+enum PlayerVictoryState {
+    VicS_Undecided = 0,
+    VicS_WonLevel,
+    VicS_LostLevel,
+    VicS_State3,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -182,6 +189,10 @@ TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
 TbBool player_is_friendly_or_defeated(PlayerNumber plyr_idx, PlayerNumber win_plyr_idx);
 TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state);
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
+
+void set_player_state(struct PlayerInfo *player, short a1, long a2);
+void set_player_mode(struct PlayerInfo *player, long val);
+void reset_player_mode(struct PlayerInfo *player, unsigned short nmode);
 
 void clear_players(void);
 /******************************************************************************/

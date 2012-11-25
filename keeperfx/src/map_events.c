@@ -32,8 +32,7 @@
 #include "gui_frontmenu.h"
 #include "frontend.h"
 #include "room_workshop.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

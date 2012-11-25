@@ -71,16 +71,6 @@ enum ThingMovementFlags {
 
 struct Room;
 
-struct InitThing { // sizeof=0x15
-    struct Coord3d mappos;
-    unsigned char oclass;
-    unsigned char model;
-    unsigned char owner;
-    unsigned short range;
-    unsigned short index;
-    unsigned char params[8];
-};
-
 struct Thing {
     unsigned char alloc_flags;
     unsigned char field_1;
@@ -196,7 +186,6 @@ unsigned short field_60;
 /******************************************************************************/
 #define allocate_free_thing_structure(a1) allocate_free_thing_structure_f(a1, __func__)
 struct Thing *allocate_free_thing_structure_f(unsigned char a1, const char *func_name);
-short thing_create_thing(struct InitThing *itng);
 TbBool i_can_allocate_free_thing_structure(unsigned char allocflags);
 #define delete_thing_structure(thing, a2) delete_thing_structure_f(thing, a2, __func__)
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name);

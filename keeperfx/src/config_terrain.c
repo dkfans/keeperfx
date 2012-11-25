@@ -28,8 +28,7 @@
 #include "thing_doors.h"
 #include "config_strings.h"
 #include "config_creature.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,6 +135,10 @@ struct SlabAttr slab_attrs[] = {
   {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
   {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
 };
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind)
 {
@@ -785,6 +788,3 @@ TbBool enemies_may_work_in_room(RoomKind rkind)
     return (rkind == RoK_PRISON) || (rkind == RoK_TORTURE);
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

@@ -35,11 +35,15 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "power_hand.h"
+#include "player_utils.h"
 #include "magic.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "engine_arrays.h"
+#include "engine_redraw.h"
 #include "sounds.h"
+#include "config_settings.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 
@@ -151,7 +155,10 @@ DLLIMPORT void _DK_process_player_instance(struct PlayerInfo *player);
 DLLIMPORT void _DK_process_player_instances(void);
 DLLIMPORT void _DK_set_player_instance(struct PlayerInfo *playerinf, long, int);
 DLLIMPORT void _DK_leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
@@ -1119,6 +1126,3 @@ struct Room *player_build_room_at(long stl_x, long stl_y, long plyr_idx, long rk
     return room;
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

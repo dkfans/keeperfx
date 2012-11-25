@@ -79,6 +79,12 @@ unsigned char field_1;
 unsigned char field_14;
 };
 
+struct Bookmark { // sizeof = 3
+  unsigned char x;
+  unsigned char y;
+  unsigned char flags;
+};
+
 #pragma pack()
 /******************************************************************************/
 extern struct EventTypeInfo event_button_info[28];

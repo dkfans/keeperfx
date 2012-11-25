@@ -31,6 +31,7 @@
 #include "player_data.h"
 #include "packets.h"
 #include "frontend.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -103,6 +104,10 @@ struct GuiMenu save_menu =
  { 12, 0, 4, save_menu_buttons,          POS_GAMECTR,POS_GAMECTR,436, 350, gui_pretty_background,       0, NULL,    init_save_menu,          0, 1, 0,};
 struct GuiMenu frontend_load_menu =
  { 19, 0, 1, frontend_load_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 int frontend_load_game_button_to_index(struct GuiButton *gbtn)
 {
@@ -290,6 +295,3 @@ void init_save_menu(struct GuiMenu *gmnu)
   update_loadsave_input_strings(save_game_catalogue);
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

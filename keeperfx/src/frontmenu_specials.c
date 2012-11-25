@@ -101,6 +101,10 @@ struct GuiMenu transfer_creature_menu =
 struct GuiMenu armageddon_menu =
  { 30, 0, 4, armageddon_buttons,         POS_GAMECTR,POS_GAMECTR,200, 116, gui_pretty_background,       0, NULL,    NULL,                    0, 1, 0,};
 /******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 void select_resurrect_creature(struct GuiButton *gbtn)
 {
   _DK_select_resurrect_creature(gbtn);
@@ -171,6 +175,3 @@ void choose_armageddon(struct GuiButton *gbtn)
   _DK_choose_armageddon(gbtn);
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

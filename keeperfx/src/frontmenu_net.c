@@ -32,6 +32,7 @@
 #include "frontend.h"
 #include "net_game.h"
 #include "game_merge.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -308,6 +309,10 @@ struct GuiMenu frontend_net_modem_menu =
  { 23, 0, 1, frontend_net_modem_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
 struct GuiMenu frontend_net_serial_menu =
  { 24, 0, 1, frontend_net_serial_buttons,         0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 const char *get_net_speed_text(int id)
 {
@@ -968,6 +973,3 @@ void frontnet_service_select(struct GuiButton *gbtn)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

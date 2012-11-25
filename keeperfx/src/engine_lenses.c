@@ -57,6 +57,10 @@ DLLIMPORT void _DK_rotpers_circular(struct EngineCoord *epos, struct M33 *matx);
 DLLIMPORT void _DK_rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx);
 
 /******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt)
 {
   long i;
@@ -198,6 +202,3 @@ void rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx)
   _DK_rotpers_fisheye(epos, matx);
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

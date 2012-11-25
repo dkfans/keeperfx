@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     17 Mar 2009 - 10 May 2009
+ * @date     17 Mar 2009 - 21 Nov 2012
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #include "config_lenses.h"
 #include "config_crtrstates.h"
 #include "thing_stats.h"
+#include "thing_factory.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
@@ -52,10 +53,12 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "power_hand.h"
+#include "power_process.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
 #include "engine_redraw.h"
 #include "sounds.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

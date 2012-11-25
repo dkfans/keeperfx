@@ -28,7 +28,7 @@
 #include "bflib_sprfnt.h"
 #include "globals.h"
 #include "gui_topmsg.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #include <string.h>
 /******************************************************************************/

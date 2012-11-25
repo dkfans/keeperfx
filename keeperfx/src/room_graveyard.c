@@ -26,6 +26,7 @@
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "config_terrain.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

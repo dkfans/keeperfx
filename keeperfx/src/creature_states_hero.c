@@ -36,8 +36,7 @@
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
 #include "lvl_script.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

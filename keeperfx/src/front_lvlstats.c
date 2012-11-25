@@ -30,13 +30,14 @@
 #include "gui_draw.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "config_settings.h"
 #include "front_highscore.h"
 #include "front_landview.h"
 #include "frontend.h"
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "game_merge.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,6 +59,10 @@ DLLIMPORT void _DK_frontstats_leave(struct GuiButton *gbtn);
 /******************************************************************************/
 extern struct StatsData main_stats_data[];
 extern struct StatsData scrolling_stats_data[];
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 /** Calculates average efficiency of player's rooms.
  * @param plyr_idx Player for whom statistic is to be calculated.
@@ -457,6 +462,3 @@ void frontstats_update(void)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

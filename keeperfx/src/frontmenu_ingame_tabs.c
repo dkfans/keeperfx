@@ -33,7 +33,7 @@
 #include "thing_doors.h"
 #include "creature_control.h"
 #include "config_creature.h"
-#include "config_magic.hpp"
+#include "config_magic.h"
 #include "config_trapdoor.h"
 #include "room_workshop.h"
 #include "gui_frontbtns.h"
@@ -42,6 +42,7 @@
 #include "frontmenu_ingame_evnt.h"
 #include "frontmenu_ingame_opts.h"
 #include "frontend.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -444,6 +445,10 @@ struct GuiMenu creature_query_menu2 =
  { 35, 0, 1, creature_query_buttons2,             0,          0, 140, 400, gui_creature_query_background1,0,NULL,   NULL,                    0, 0, 1,};
 struct GuiMenu creature_query_menu3 =
  { 32, 0, 1, creature_query_buttons3,             0,          0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 void gui_zoom_in(struct GuiButton *gbtn)
 {
@@ -1218,6 +1223,3 @@ void draw_whole_status_panel(void)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

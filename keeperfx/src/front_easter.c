@@ -31,6 +31,7 @@
 #include "gui_soundmsgs.h"
 #include "config_strings.h"
 #include "frontend.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -69,6 +70,10 @@ DLLIMPORT extern unsigned char _DK_eastegg_skeksis_cntr;
 #define eastegg_skeksis_cntr _DK_eastegg_skeksis_cntr
 /******************************************************************************/
 DLLIMPORT void _DK_input_eastegg(void);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 const char *get_team_birthday(void)
 {
@@ -275,6 +280,3 @@ void draw_eastegg(void)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

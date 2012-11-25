@@ -28,7 +28,7 @@
 #include "gui_frontmenu.h"
 #include "packets.h"
 #include "frontend.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,7 +86,10 @@ struct GuiMenu battle_menu =
 // { 34, 0, 4, battle_buttons,                    160,        300, 480, 102, gui_round_glass_background,  0, NULL,    NULL,                    0, 0, 0,};
  { GMnu_BATTLE,      0, 4, battle_buttons,                    160, POS_SCRBTM, 480, 102, gui_round_glass_background,  0, NULL,    NULL,                    0, 0, 0,};
 /******************************************************************************/
-
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
 {
   struct Dungeon *dungeon;
@@ -175,6 +178,3 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

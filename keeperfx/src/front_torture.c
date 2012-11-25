@@ -41,6 +41,7 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "vidfade.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 
@@ -104,6 +105,10 @@ DLLIMPORT void _DK_fronttorture_update(void);
 DLLIMPORT void _DK_fronttorture_draw(void);
 DLLIMPORT void _DK_fronttorture_unload(void);
 DLLIMPORT void _DK_fronttorture_load(void);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 void torture_play_sound(long door_id, TbBool state)
 {
@@ -448,6 +453,3 @@ void fronttorture_update(void)
     }
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

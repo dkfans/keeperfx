@@ -32,7 +32,7 @@
 #include "thing_physics.h"
 #include "dungeon_data.h"
 #include "ariadne.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

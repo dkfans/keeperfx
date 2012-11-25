@@ -37,6 +37,8 @@
 #include "front_simple.h"
 #include "frontend.h"
 #include "vidmode.h"
+#include "config_settings.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -110,6 +112,10 @@ unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 unsigned long render_problems;
 long render_prob_kind;
 long sp_x,sp_y,sp_dx,sp_dy;
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
 {
@@ -3805,6 +3811,3 @@ void draw_frontview_engine(struct Camera *cam)
     SYNCDBG(9,"Finished");
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

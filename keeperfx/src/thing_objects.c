@@ -24,6 +24,7 @@
 #include "bflib_math.h"
 #include "bflib_sound.h"
 #include "config_strings.h"
+#include "config_objects.h"
 #include "thing_stats.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
@@ -33,7 +34,7 @@
 #include "gui_topmsg.h"
 #include "engine_arrays.h"
 #include "sounds.h"
-
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -245,7 +246,6 @@ DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *thing, struct Room *room, lo
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
     struct Objects *objdat;
-    struct ObjectConfig *objconf;
     struct InitLight ilight;
     struct Thing *thing;
     long i,k;
@@ -270,7 +270,8 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     else
       thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
-    objconf = &game.objects_config[model];
+    struct ObjectConfig *objconf;
+    objconf = get_object_model_stats2(model);
     objdat = get_objects_data_for_thing(thing);
     thing->sizexy = objdat->field_9;
     thing->field_58 = objdat->field_B;
@@ -679,7 +680,9 @@ void update_dungeon_heart_beat(struct Thing *thing)
     {
         i = (char)thing->byte_14;
         thing->field_3E = 0;
-        k = 384 * (long)(game.objects_config[5].health - thing->health) / game.objects_config[5].health;
+        struct ObjectConfig *objconf;
+        objconf = get_object_model_stats2(5);
+        k = 384 * (long)(objconf->health - thing->health) / objconf->health;
         k = base_heart_beat_rate / (k + 128);
         light_set_light_intensity(thing->light_id, light_get_light_intensity(thing->light_id) + (i*36/k));
         thing->field_40 += (i*base_heart_beat_rate/k);
@@ -719,22 +722,24 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *thing)
     //return _DK_object_update_dungeon_heart(thing);
     if ((thing->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-      if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
-      {
-          thing->health += game.dungeon_heart_heal_health;
-          if (thing->health < 0)
-          {
-            thing->health = 0;
-          } else
-          if (thing->health > game.objects_config[5].health)
-          {
-            thing->health = game.objects_config[5].health;
-          }
-      }
-      k = ((thing->health << 8) / game.objects_config[5].health) << 7;
-      i = (saturate_set_signed(k,32) >> 8) + 128;
-      thing->field_46 = i * (long)objects_data[5].field_D >> 8;
-      thing->sizexy = i * (long)objects_data[5].field_9 >> 8;
+        struct ObjectConfig *objconf;
+        objconf = get_object_model_stats2(5);
+        if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
+        {
+            thing->health += game.dungeon_heart_heal_health;
+            if (thing->health < 0)
+            {
+              thing->health = 0;
+            } else
+            if (thing->health > objconf->health)
+            {
+              thing->health = objconf->health;
+            }
+        }
+        k = ((thing->health << 8) / objconf->health) << 7;
+        i = (saturate_set_signed(k,32) >> 8) + 128;
+        thing->field_46 = i * (long)objects_data[5].field_D >> 8;
+        thing->sizexy = i * (long)objects_data[5].field_9 >> 8;
     } else
     if (thing->owner != game.neutral_player_num)
     {

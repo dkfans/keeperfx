@@ -21,7 +21,7 @@
 
 #include "bflib_memory.h"
 #include "slab_data.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

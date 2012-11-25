@@ -27,15 +27,19 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
+#include "thing_objects.h"
+#include "room_list.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+unsigned long gold_per_hoarde = 2000; //TODO CONFIG place into any config struct
+/******************************************************************************/
 DLLIMPORT void _DK_process_rooms(void);
 DLLIMPORT short _DK_delete_room_slab(long x, long y, unsigned char gnd_slab);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -344,6 +348,30 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gn
         recreate_rooms_from_room_slabs(room, gnd_slab);
         reset_creatures_rooms(room);
         free_room_structure(room);
+    }
+    return true;
+}
+
+/**
+ * Updates thing interaction with rooms. Sometimes deletes the given thing.
+ * @param thing Thing to be checked, and assimilated or deleted.
+ * @return True if the thing was assimilated, false if it was deleted.
+ */
+short check_and_asimilate_thing_by_room(struct Thing *thing)
+{
+    struct Room *room;
+    unsigned long n;
+    if (thing_is_gold_hoard(thing))
+    {
+        room = get_room_thing_is_on(thing);
+        if (room_is_invalid(room))
+        {
+            delete_thing_structure(thing, 0);
+            return false;
+        }
+        n = (gold_per_hoarde/5)*(((long)thing->model)-51);
+        thing->owner = room->owner;
+        add_gold_to_hoarde(thing, room, n);
     }
     return true;
 }

@@ -46,6 +46,7 @@
 #include "lvl_script.h"
 #include "thing_traps.h"
 #include "sounds.h"
+#include "game_legacy.h"
 
 #include "creature_states_gardn.h"
 #include "creature_states_hero.h"
@@ -142,6 +143,7 @@ DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, st
 DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *creatng);
 DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *creatng, long state);
+DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -538,7 +540,7 @@ struct StateInfo *get_thing_state_info_num(CrtrStateId state_id)
     return &states[state_id];
 }
 
-long get_creature_state_besides_move(const struct Thing *thing)
+CrtrStateId get_creature_state_besides_move(const struct Thing *thing)
 {
     long i;
     i = thing->active_state;
@@ -547,7 +549,7 @@ long get_creature_state_besides_move(const struct Thing *thing)
     return i;
 }
 
-long get_creature_state_besides_drag(const struct Thing *thing)
+CrtrStateId get_creature_state_besides_drag(const struct Thing *thing)
 {
     long i;
     i = thing->active_state;
@@ -2621,4 +2623,33 @@ TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state)
     return true;
 }
 
+void init_creature_state(struct Thing *thing)
+{
+    struct Room *room;
+    if (thing->owner == game.neutral_player_num)
+    {
+        set_start_state(thing);
+        return;
+    }
+    room = get_room_thing_is_on(thing);
+    if (!room_is_invalid(room))
+    {
+        switch (room->kind)
+        {
+        case RoK_PRISON:
+        case RoK_TORTURE:
+        case RoK_GUARDPOST:
+            if ( send_creature_to_room(thing, room) )
+              return;
+        default:
+            break;
+        }
+    }
+    set_start_state(thing);
+}
+
+void process_person_moods_and_needs(struct Thing *thing)
+{
+    _DK_process_person_moods_and_needs(thing);
+}
 /******************************************************************************/

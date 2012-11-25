@@ -26,7 +26,8 @@
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "config_terrain.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
+#include "gui_panel.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,6 +44,7 @@ DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long a2);
+DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
 
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
@@ -316,6 +318,11 @@ void place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, 
 void shuffle_unattached_things_on_slab(long a1, long a2)
 {
     _DK_shuffle_unattached_things_on_slab(a1, a2);
+}
+
+unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4)
+{
+    return _DK_alter_rock_style(a1, a2, a3, a4);
 }
 
 void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5)
