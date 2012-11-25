@@ -26,8 +26,8 @@
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "config_terrain.h"
+#include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
-#include "gui_panel.h"
 
 #ifdef __cplusplus
 extern "C" {

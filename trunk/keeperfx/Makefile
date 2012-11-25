@@ -98,7 +98,6 @@ obj/bflib_video.o \
 obj/bflib_semphr.o \
 obj/scrcapt.o \
 obj/gui_draw.o \
-obj/gui_panel.o \
 obj/gui_msgs.o \
 obj/kjm_input.o \
 obj/packets.o \
@@ -143,6 +142,7 @@ obj/frontmenu_specials.o \
 obj/frontmenu_ingame_tabs.o \
 obj/frontmenu_ingame_evnt.o \
 obj/frontmenu_ingame_opts.o \
+obj/frontmenu_ingame_map.o \
 obj/gui_parchment.o \
 obj/gui_boxmenu.o \
 obj/gui_frontmenu.o \
@@ -181,6 +181,7 @@ obj/front_torture.o \
 obj/config_strings.o \
 obj/config_settings.o \
 obj/config_terrain.o \
+obj/config_cubes.o \
 obj/config_trapdoor.o \
 obj/config_objects.o \
 obj/config_rules.o \

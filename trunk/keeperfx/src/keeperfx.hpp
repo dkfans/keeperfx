@@ -242,8 +242,6 @@ DLLIMPORT unsigned char *_DK_block_ptrs[592];
 #define block_ptrs _DK_block_ptrs
 DLLIMPORT long _DK_frame_number;
 #define frame_number _DK_frame_number
-DLLIMPORT unsigned char _DK_grabbed_small_map;
-#define grabbed_small_map _DK_grabbed_small_map
 DLLIMPORT long _DK_draw_spell_cost;
 #define draw_spell_cost _DK_draw_spell_cost
 DLLIMPORT char _DK_level_name[88];
@@ -286,12 +284,6 @@ DLLIMPORT long _DK_dummy_y;
 #define dummy_y _DK_dummy_y
 DLLIMPORT long _DK_dummy;
 #define dummy _DK_dummy
-DLLIMPORT long _DK_clicked_on_small_map;
-#define clicked_on_small_map _DK_clicked_on_small_map
-DLLIMPORT long _DK_old_mx;
-#define old_mx _DK_old_mx
-DLLIMPORT long _DK_old_my;
-#define old_my _DK_old_my
 DLLIMPORT unsigned char _DK_zoom_to_heart_palette[768];
 #define zoom_to_heart_palette _DK_zoom_to_heart_palette
 DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
@@ -382,11 +374,9 @@ TbBool swap_creature(long ncrt_id, long crtr_id);
 void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 void engine(struct PlayerInfo *player, struct Camera *cam);
 void draw_gold_total(unsigned char a1, long scr_x, long scr_y, long long value);
-void pannel_map_draw(long x, long y, long zoom);
 void draw_overlay_things(long zoom);
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
-void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 void update_breed_activities(void);
 void set_level_objective(const char *msg_text);
 void find_map_location_coords(long location, long *x, long *y, const char *func_name);
@@ -418,7 +408,6 @@ void set_general_objective(long msg_id, long target, long x, long y);
 void turn_off_sight_of_evil(long plridx);
 short dump_held_things_on_map(PlayerNumber plyr_idx, long a2, long a3, short a4);
 long set_autopilot_type(PlayerNumber plridx, long aptype);
-long place_thing_in_power_hand(struct Thing *thing, long var);
 void instant_instance_selected(long a1);
 void centre_engine_window(void);
 void change_engine_window_relative_size(long w_delta, long h_delta);
@@ -440,13 +429,8 @@ long process_creature_self_spell_casting(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
 struct Room *player_has_room_of_type(long plr_idx, long roomkind);
 void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
-TbBool get_next_manufacture(struct Dungeon *dungeon);
 unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 short can_dig_here(long x, long y, long owner);
-short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
-short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
-short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
-short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 
 TbPixel get_player_path_colour(unsigned short owner);
 

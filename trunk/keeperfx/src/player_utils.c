@@ -33,8 +33,9 @@
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
-#include "gui_panel.h"
 #include "engine_redraw.h"
+#include "frontmenu_ingame_tabs.h"
+#include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 
 /******************************************************************************/

@@ -34,8 +34,8 @@
 #include "front_lvlstats.h"
 #include "lens_api.h"
 #include "gui_soundmsgs.h"
-#include "gui_panel.h"
 #include "game_legacy.h"
+#include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

@@ -24,8 +24,8 @@
 #include "config_terrain.h"
 #include "map_blocks.h"
 #include "ariadne.h"
+#include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
-#include "gui_panel.h"
 
 #ifdef __cplusplus
 extern "C" {

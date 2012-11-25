@@ -28,7 +28,7 @@
 #include "ariadne.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
-#include "gui_panel.h"
+#include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

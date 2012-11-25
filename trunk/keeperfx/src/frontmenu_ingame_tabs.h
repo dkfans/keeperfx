@@ -64,7 +64,7 @@ extern struct GuiMenu creature_query_menu2;
 extern struct GuiMenu creature_query_menu3;
 /******************************************************************************/
 void draw_whole_status_panel(void);
-
+void gui_set_button_flashing(long btn_idx, long gameturns);
 /******************************************************************************/
 #ifdef __cplusplus
 }
