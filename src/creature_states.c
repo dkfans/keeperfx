@@ -2166,7 +2166,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
 
     tmptng = thing_get(cctrl1->battle_enemy_idx);
     TRACE_THING(tmptng);
-    if  ( (cctrl1->spell_flags & CSAfF_Unkn0010) || (cctrl2->spell_flags & CSAfF_Unkn0010)
+    if  ( (cctrl1->spell_flags & CSAfF_Unkn1000) || (cctrl2->spell_flags & CSAfF_Unkn1000)
         || ((cctrl1->combat_flags) && (tmptng == tng2)) )
     {
         if (tng2 != tng1)
@@ -2179,9 +2179,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
                     return true;
                 if (cctrl2->field_AF > 0)
                     return true;
-                if (crstat1->can_see_invisible)
-                    return true;
-                if (creature_affected_by_spell(tng1, SplK_Sight))
+                if (crstat1->can_see_invisible || creature_affected_by_spell(tng1, SplK_Sight))
                     return true;
             }
         }
@@ -2411,7 +2409,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        cctrl->spell_flags |= CSAfF_Unkn0040;
+        cctrl->spell_flags |= CSAfF_Unkn4000;
     }
     return true;
 }

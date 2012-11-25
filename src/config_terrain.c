@@ -741,7 +741,7 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
 /**
  * Makes all the rooms, which are researchable, to be instantly available.
  */
-TbBool make_available_all_researchable_rooms(long plyr_idx)
+TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;

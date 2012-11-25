@@ -1783,6 +1783,7 @@
  0003:000ED310       game
  0003:0023EB38       sound_heap_size
  0003:0023EB54       eye_lens_spare_screen_memory
+ 0003:0023EB58       alpha_sprite_table
  0003:00241458       port_sprite
  0003:00241460       install_info
  0003:00241500       end_gui_panel_sprite_data

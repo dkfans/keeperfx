@@ -113,7 +113,7 @@ TbBool slab_indestructible(RoomKind slbkind);
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);
 TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch, long avail);
-TbBool make_available_all_researchable_rooms(long plyr_idx);
+TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx);
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
 ThingModel get_room_create_creature_model(RoomKind room_kind);

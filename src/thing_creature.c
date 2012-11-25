@@ -2361,7 +2361,7 @@ TbBool creature_increase_level(struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
     {
-      cctrl->spell_flags |= CSAfF_Unkn0040;
+      cctrl->spell_flags |= CSAfF_Unkn4000;
       return true;
     }
   }
@@ -3333,9 +3333,9 @@ long update_creature_levels(struct Thing *thing)
     struct Thing *newtng;
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_Unkn0040) == 0)
+    if ((cctrl->spell_flags & CSAfF_Unkn4000) == 0)
         return 0;
-    cctrl->spell_flags &= ~CSAfF_Unkn0040;
+    cctrl->spell_flags &= ~CSAfF_Unkn4000;
     remove_creature_score_from_owner(thing);
     // If a creature is not on highest level, just update the level
     if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
@@ -3510,7 +3510,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->pos_BB.z.val = 0;
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown40,false);
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown80,false);
-    cctrl->spell_flags &= ~CSAfF_Unkn0004;
+    cctrl->spell_flags &= ~CSAfF_Unkn0400;
     process_thing_spell_effects(thing);
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;

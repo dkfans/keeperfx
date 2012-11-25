@@ -48,7 +48,7 @@ TbBool trap_is_active(const struct Thing *thing)
   return ((thing->byte_13 > 0) && (thing->long_14 <= game.play_gameturn));
 }
 
-TbBool trap_is_slappable(const struct Thing *thing, long plyr_idx)
+TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
   if (thing->owner == plyr_idx)
   {

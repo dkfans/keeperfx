@@ -657,7 +657,7 @@ int trap_model_id(const char * code_name)
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if map position is on correct spot.
  */
-TbBool is_trap_placeable(long plyr_idx, long trap_idx)
+TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -683,7 +683,7 @@ TbBool is_trap_placeable(long plyr_idx, long trap_idx)
  * Checks only if it's set as buildable in level script.
  * Doesn't check if player has workshop or workforce for the task.
  */
-TbBool is_trap_buildable(long plyr_idx, long trap_idx)
+TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);

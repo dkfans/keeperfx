@@ -310,7 +310,7 @@ TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool
  * @param plyr_idx
  * @return
  */
-TbBool creature_can_get_to_dungeon(struct Thing *thing, long plyr_idx)
+TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
