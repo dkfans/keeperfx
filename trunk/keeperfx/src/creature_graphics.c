@@ -28,7 +28,7 @@
 #include "engine_lenses.h"
 #include "engine_arrays.h"
 #include "gui_draw.h"
-
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

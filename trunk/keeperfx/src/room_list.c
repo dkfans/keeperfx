@@ -26,8 +26,7 @@
 #include "thing_data.h"
 #include "thing_stats.h"
 #include "config_terrain.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

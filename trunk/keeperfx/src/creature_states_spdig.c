@@ -40,7 +40,7 @@
 #include "spdigger_stack.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
-
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 /** Effects used when creating new imps. Every player color has different index. */

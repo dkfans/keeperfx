@@ -182,6 +182,8 @@ long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_id
 void update_things(void);
 
 struct Thing *find_base_thing_on_mapwho(ThingClass oclass, ThingModel okind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void remove_thing_from_mapwho(struct Thing *thing);
+void place_thing_in_mapwho(struct Thing *thing);
 
 struct Thing *find_hero_gate_of_number(long num);
 long get_free_hero_gate_number(void);

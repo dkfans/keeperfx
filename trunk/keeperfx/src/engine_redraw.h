@@ -36,18 +36,19 @@ struct PlayerInfo;
 /******************************************************************************/
 DLLIMPORT unsigned char _DK_smooth_on;
 #define smooth_on _DK_smooth_on
-DLLIMPORT unsigned char _DK_backup_explored[26][26];
-#define backup_explored _DK_backup_explored
 /******************************************************************************/
 void setup_engine_window(long x1, long y1, long x2, long y2);
 void store_engine_window(TbGraphicsWindow *ewnd,int divider);
 void load_engine_window(TbGraphicsWindow *ewnd);
 
+void set_engine_view(struct PlayerInfo *player, long val);
+
 void draw_overlay_compass(long a1, long a2);
-void update_explored_flags_for_power_sight(struct PlayerInfo *player);
 
 TbBool keeper_screen_redraw(void);
 void smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
+
+unsigned char line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
 /******************************************************************************/
 #ifdef __cplusplus
 }

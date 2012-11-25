@@ -27,7 +27,15 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define COMMANDDESC_ARGS_COUNT 8
+#define COMMANDDESC_ARGS_COUNT    8
+
+#define PARTY_TRIGGERS_COUNT     48
+#define CREATURE_PARTYS_COUNT    16
+#define PARTY_MEMBERS_COUNT       8
+#define CONDITIONS_COUNT         48
+#define TUNNELLER_TRIGGERS_COUNT 16
+#define SCRIPT_VALUES_COUNT      64
+#define WIN_CONDITIONS_COUNT      4
 
 enum TbScriptCommands {
     Cmd_NONE                           =  0,
@@ -163,6 +171,84 @@ struct ScriptLine {
   long np[COMMANDDESC_ARGS_COUNT];
   char tcmnd[MAX_TEXT_LENGTH];
   char tp[COMMANDDESC_ARGS_COUNT][MAX_TEXT_LENGTH];
+};
+
+struct TunnellerTrigger { // sizeof = 18
+  unsigned char flags;
+  char condit_idx;
+  unsigned char plyr_idx;
+  unsigned long location;
+  unsigned char heading;
+  long target;
+  long carried_gold;
+  unsigned char crtr_level;
+  char party_id;
+};
+
+struct PartyTrigger { // sizeof = 13
+  unsigned char flags;
+  char condit_idx;
+  char creatr_id;
+  unsigned char plyr_idx;
+  unsigned long location;
+  unsigned char crtr_level;
+  unsigned short carried_gold;
+  unsigned short ncopies;
+};
+
+struct ScriptValue { // sizeof = 16
+  unsigned char flags;
+  char condit_idx;
+  unsigned char valtype;
+  unsigned char field_3;
+  long field_4;
+  long field_8;
+  long field_C;
+};
+
+struct Condition { // sizeof = 12
+  short condit_idx;
+  unsigned char status;
+  unsigned char plyr_idx;
+  unsigned char variabl_type;
+  unsigned short variabl_idx;
+  unsigned char operation;
+  unsigned long rvalue;
+};
+
+struct PartyMember { // sizeof = 13
+  unsigned char flags;
+  unsigned char field_65;
+  unsigned char crtr_kind;
+  unsigned char objectv;
+  long countdown;
+  unsigned char crtr_level;
+  unsigned short carried_gold;
+  unsigned short field_6F;
+};
+
+
+struct Party { // sizeof = 208
+  char prtname[100];
+  struct PartyMember members[PARTY_MEMBERS_COUNT];
+  unsigned long members_num;
+};
+
+struct LevelScript { // sizeof = 5884
+    struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT];
+    unsigned long tunneller_triggers_num;
+    struct PartyTrigger party_triggers[PARTY_TRIGGERS_COUNT];
+    unsigned long party_triggers_num;
+    struct ScriptValue values[SCRIPT_VALUES_COUNT];
+    unsigned long values_num;
+    struct Condition conditions[CONDITIONS_COUNT];
+    unsigned long conditions_num;
+    struct Party creature_partys[CREATURE_PARTYS_COUNT];
+    unsigned long creature_partys_num;
+    unsigned short win_conditions[WIN_CONDITIONS_COUNT];
+    unsigned long win_conditions_num;
+    unsigned short lose_conditions[WIN_CONDITIONS_COUNT];
+    unsigned long lose_conditions_num;
 };
 
 #pragma pack()

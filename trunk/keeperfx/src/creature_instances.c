@@ -31,9 +31,10 @@
 #include "room_data.h"
 #include "map_blocks.h"
 #include "spdigger_stack.h"
-#include "config_magic.hpp"
+#include "config_magic.h"
 #include "gui_soundmsgs.h"
 #include "sounds.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 
@@ -109,9 +110,11 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
   NULL,
 };
-
 /******************************************************************************/
-
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 /** Returns creature instance info structure for given instance index.
  *
  * @param inst_idx Instance index.
@@ -480,8 +483,4 @@ long instf_tunnel(struct Thing *thing, long *param)
     TRACE_THING(thing);
     return _DK_instf_tunnel(thing, param);
 }
-
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

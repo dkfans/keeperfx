@@ -49,6 +49,8 @@ TbBool add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
 TbBool create_party(char *prtname);
 TbBool add_member_to_party_name(const char *prtname, long crtr_model, long crtr_level, long carried_gold, long objctv_id, long countdown);
 TbBool make_group_member_leader(struct Thing *leadtng);
+long process_obey_leader(struct Thing *thing);
+void leader_find_positions_for_followers(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

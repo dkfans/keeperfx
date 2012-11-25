@@ -98,6 +98,8 @@ obj/bflib_video.o \
 obj/bflib_semphr.o \
 obj/scrcapt.o \
 obj/gui_draw.o \
+obj/gui_panel.o \
+obj/gui_msgs.o \
 obj/kjm_input.o \
 obj/packets.o \
 obj/net_sync.o \
@@ -106,19 +108,23 @@ obj/config.o \
 obj/front_input.o \
 obj/front_network.o \
 obj/thing_data.o \
+obj/thing_factory.o \
 obj/thing_list.o \
 obj/lvl_script.o \
 obj/dungeon_data.o \
 obj/player_data.o \
+obj/player_utils.o \
 obj/dungeon_stats.o \
 obj/player_instances.o \
 obj/player_comptask.o \
+obj/player_complookup.o \
 obj/player_computer.o \
 obj/tasks_list.o \
 obj/spdigger_stack.o \
 obj/lvl_filesdk1.o \
 obj/front_simple.o \
 obj/game_saves.o \
+obj/game_legacy.o \
 obj/game_heap.o \
 obj/engine_render.o \
 obj/engine_camera.o \
@@ -173,6 +179,7 @@ obj/config_campaigns.o \
 obj/front_credits.o \
 obj/front_torture.o \
 obj/config_strings.o \
+obj/config_settings.o \
 obj/config_terrain.o \
 obj/config_trapdoor.o \
 obj/config_objects.o \
@@ -213,6 +220,7 @@ obj/thing_objects.o \
 obj/thing_physics.o \
 obj/magic.o \
 obj/power_specials.o \
+obj/power_process.o \
 obj/power_hand.o \
 obj/map_columns.o \
 obj/map_blocks.o \
@@ -223,6 +231,7 @@ obj/thing_effects.o \
 obj/thing_navigate.o \
 obj/actionpt.o \
 obj/config_magic.o \
+obj/config_magic_data.o \
 obj/frontend.o \
 obj/sounds.o \
 obj/vidmode.o \

@@ -36,8 +36,7 @@
 #include "thing_objects.h"
 #include "map_events.h"
 #include "gui_soundmsgs.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

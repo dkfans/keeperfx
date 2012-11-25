@@ -23,8 +23,7 @@
 #include "bflib_sound.h"
 #include "bflib_memory.h"
 #include "thing_stats.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

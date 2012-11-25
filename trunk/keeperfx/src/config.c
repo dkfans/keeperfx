@@ -104,8 +104,14 @@ short is_near_new_moon = 0;
 /******************************************************************************/
 DLLIMPORT int __stdcall _DK_load_configuration(void);
 /******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 /**
  * Updates enabled features flags. Returns true if ALL features are enabled.
+ * @param mem_size Amount of memory available for the game.
+ * @return
  */
 TbBool update_features(unsigned long mem_size)
 {
@@ -1854,6 +1860,3 @@ short is_freeplay_level(LevelNumber lvnum)
   return false;
 }
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

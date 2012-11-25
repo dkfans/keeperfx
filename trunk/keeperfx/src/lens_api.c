@@ -29,6 +29,7 @@
 #include "lens_mist.h"
 #include "lens_flyeye.h"
 #include "vidmode.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

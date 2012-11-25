@@ -47,8 +47,13 @@ DLLIMPORT long _DK_get_camera_zoom(struct Camera *camera);
 DLLIMPORT void _DK_view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 DLLIMPORT void _DK_view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 DLLIMPORT void _DK_view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+DLLIMPORT void _DK_init_player_cameras(struct PlayerInfo *player);
 /******************************************************************************/
 long camera_zoom;
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 MapCoord get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
@@ -331,7 +336,9 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3)
 {
     _DK_view_set_camera_rotation_inertia(cam, a2, a3);
 }
-/******************************************************************************/
-#ifdef __cplusplus
+
+void init_player_cameras(struct PlayerInfo *player)
+{
+  _DK_init_player_cameras(player);
 }
-#endif
+/******************************************************************************/

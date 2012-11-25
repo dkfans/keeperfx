@@ -44,6 +44,8 @@ const struct Around around[] = {
   { 0, 0}, // this entry shouldn't be used
 };
 /******************************************************************************/
+DLLIMPORT long _DK_get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -100,5 +102,10 @@ void init_spiral_steps(void)
             x--;
       }
     }
+}
+
+long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
+{
+  return _DK_get_floor_height_under_thing_at(thing, pos);
 }
 /******************************************************************************/

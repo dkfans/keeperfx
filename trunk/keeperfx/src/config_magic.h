@@ -1,8 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_magic.hpp
- *     Header file for config_magic.cpp.
+/** @file config_magic.h
+ *     Header file for config_magic.c.
  * @par Purpose:
  *     Support of configuration files for magic spells.
  * @par Comment:

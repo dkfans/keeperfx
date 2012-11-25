@@ -25,7 +25,7 @@
 #include "bflib_video.h"
 #include "bflib_sprfnt.h"
 #include "game_merge.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

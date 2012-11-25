@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "config.h"
+#include "light_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,6 +48,15 @@ enum ObjectCategoryIndex {
 /******************************************************************************/
 #pragma pack(1)
 
+struct ObjectConfig { // sizeof=0x1D
+    long health;
+char field_4;
+char field_5;
+char field_6;
+char field_7;
+char field_8;
+    struct InitLight ilght;
+};
 
 #pragma pack()
 /******************************************************************************/
@@ -66,8 +76,10 @@ extern struct NamedCommand object_desc[OBJECT_ITEMS_MAX];
 /******************************************************************************/
 TbBool load_objects_config(const char *conf_fname,unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);
+struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel);
 const char *object_code_name(ThingModel tngmodel);
 ThingModel object_model_id(const char * code_name);
+void init_objects(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

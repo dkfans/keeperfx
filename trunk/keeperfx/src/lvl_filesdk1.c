@@ -31,6 +31,8 @@
 #include "config_campaigns.h"
 #include "config_terrain.h"
 #include "light_data.h"
+#include "thing_factory.h"
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus

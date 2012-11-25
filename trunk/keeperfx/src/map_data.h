@@ -129,6 +129,8 @@ TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoor
 TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
+void clear_slab_dig(long a1, long a2, char a3);
+
 void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void reveal_map_area(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void clear_mapwho(void);

@@ -27,6 +27,8 @@
 #include "config_terrain.h"
 #include "ariadne.h"
 #include "gui_topmsg.h"
+#include "game_legacy.h"
+#include "gui_panel.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -45,6 +47,7 @@ DLLIMPORT struct Thing *_DK_create_door(struct Coord3d *pos, unsigned short a1, 
 DLLIMPORT long _DK_destroy_door(struct Thing *doortng);
 DLLIMPORT long _DK_process_door(struct Thing *doortng);
 DLLIMPORT long _DK_check_door_should_open(struct Thing *doortng);
+DLLIMPORT unsigned char _DK_find_door_of_type(unsigned long a1, unsigned char a2);
 /******************************************************************************/
 
 
@@ -272,6 +275,34 @@ TngUpdateRet process_door(struct Thing *thing)
     return TUFRet_Modified;
 }
 
+unsigned char find_door_of_type(ThingModel model, PlayerNumber owner)
+{
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+   //return _DK_find_door_of_type(a1, a2);
+    k = 0;
+    i = game.thing_lists[TngList_Doors].index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->owner == owner) && (thing->model == model))
+            return true;
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return false;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -36,6 +36,7 @@
 #include "frontend.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 
@@ -48,7 +49,10 @@ DLLIMPORT void _DK_resurrect_creature(struct Thing *boxtng, unsigned char a2, un
 DLLIMPORT void _DK_transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char crmodel);
 DLLIMPORT void _DK_make_safe(struct PlayerInfo *player);
 DLLIMPORT unsigned long _DK_steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
-
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 /**
  * Makes a bonus level for current SP level visible on the land map screen.
@@ -373,7 +377,25 @@ void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
   }
 }
 
-/******************************************************************************/
-#ifdef __cplusplus
+TbBool create_transferred_creature_on_level(void)
+{
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    struct Dungeon *dungeon;
+    struct Coord3d *pos;
+    if (game.intralvl_transfered_creature.model > 0)
+    {
+        player = get_my_player();
+        dungeon = get_dungeon(player->id_number);
+        thing = thing_get(dungeon->dnheart_idx);
+        pos = &(thing->mappos);
+        thing = create_creature(pos, game.intralvl_transfered_creature.model, 5);
+        if (thing_is_invalid(thing))
+          return false;
+        init_creature_level(thing, game.intralvl_transfered_creature.explevel);
+        clear_transfered_creature();
+        return true;
+    }
+    return false;
 }
-#endif
+/******************************************************************************/

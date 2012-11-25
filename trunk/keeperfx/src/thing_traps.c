@@ -22,8 +22,7 @@
 #include "bflib_basics.h"
 #include "thing_data.h"
 #include "map_utils.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

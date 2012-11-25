@@ -38,6 +38,8 @@ extern "C" {
 #define HISCORE_NAME_LENGTH          64
 #define CAMPAIGNS_LIST_GROW_DELTA     8
 #define CAMPAIGN_CREDITS_COUNT      360
+/** Strings length */
+#define CAMPAIGN_FNAME_LEN           64
 
 enum CreditsItemKind {
     CIK_None,

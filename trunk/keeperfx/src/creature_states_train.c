@@ -28,6 +28,7 @@
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
+#include "player_utils.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_objects.h"
@@ -36,8 +37,7 @@
 #include "room_data.h"
 #include "room_jobs.h"
 #include "gui_soundmsgs.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

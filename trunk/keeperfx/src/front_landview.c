@@ -38,6 +38,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "config_settings.h"
 #include "game_lghtshdw.h"
 #include "light_data.h"
 #include "lvl_filesdk1.h"
@@ -48,6 +49,7 @@
 #include "kjm_input.h"
 #include "vidmode.h"
 #include "vidfade.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 
@@ -90,6 +92,10 @@ DLLIMPORT void _DK_frontzoom_to_point(long a1, long a2, long a3);
 DLLIMPORT void _DK_compressed_window_draw(void);
 DLLIMPORT void _DK_check_mouse_scroll(void);
 DLLIMPORT void _DK_update_velocity(void);
+/******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
 /******************************************************************************/
 void draw_map_screen(void)
 {
@@ -1724,6 +1730,3 @@ TbBool frontnetmap_update(void)
 
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

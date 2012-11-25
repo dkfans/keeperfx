@@ -22,7 +22,8 @@
 #include "bflib_math.h"
 #include "bflib_memory.h"
 #include "slab_data.h"
-#include "keeperfx.hpp"
+#include "game_legacy.h"
+#include "gui_panel.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,6 +73,7 @@ unsigned char *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
 DLLIMPORT void _DK_clear_mapwho(void);
+DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, char a3);
 /******************************************************************************/
 /**
  * Returns if the subtile coords are in range of subtiles which have slab entry.
@@ -504,6 +506,18 @@ void clear_mapmap(void)
         }
     }
     clear_subtiles_lightness(&game.lish);
+}
+
+/**
+ * Clears digging operations for given player on given map slab.
+ *
+ * @param slb_x Slab X coord.
+ * @param slb_y Slab Y coord.
+ * @param plyr_idx Player index whose dig tag shall be cleared.
+ */
+void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
+{
+  _DK_clear_slab_dig(slb_x, slb_y, plyr_idx);
 }
 
 /**

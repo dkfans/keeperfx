@@ -46,6 +46,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void get_floor_and_ceiling_heights_at(const struct Coord3d *pos, unsigned long *heights);
 TbBool point_in_map_is_solid(const struct Coord3d *pos);
+unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
 
 long element_top_face_texture(struct Map *map);
 /******************************************************************************/

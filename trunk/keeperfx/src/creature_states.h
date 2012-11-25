@@ -267,26 +267,29 @@ DLLIMPORT long _DK_r_stackpos;
 DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
 #define reinforce_stack _DK_reinforce_stack
 /******************************************************************************/
-TbBool creature_model_bleeds(unsigned long crmodel);
-TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state);
-TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState);
-TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state);
-TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState);
-TbBool cleanup_current_thing_state(struct Thing *thing);
-TbBool cleanup_creature_state_and_interactions(struct Thing *thing);
+CrtrStateId get_creature_state_besides_move(const struct Thing *thing);
+CrtrStateId get_creature_state_besides_drag(const struct Thing *thing);
+long get_creature_state_type(const struct Thing *thing);
+
 struct StateInfo *get_thing_active_state_info(struct Thing *thing);
 struct StateInfo *get_thing_continue_state_info(struct Thing *thing);
 struct StateInfo *get_thing_state_info_num(CrtrStateId state_id);
 struct StateInfo *get_creature_state_with_task_completion(struct Thing *thing);
+
 TbBool state_info_invalid(struct StateInfo *stati);
-void create_effect_around_thing(struct Thing *thing, long eff_kind);
-long get_creature_state_besides_move(const struct Thing *thing);
-long get_creature_state_besides_drag(const struct Thing *thing);
-long get_creature_state_type(const struct Thing *thing);
-long get_creature_gui_job(const struct Thing *thing);
+TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_state, CrtrStateId next_state);
+TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState);
+TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state);
+void init_creature_state(struct Thing *thing);
+TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState);
+TbBool cleanup_current_thing_state(struct Thing *thing);
+TbBool cleanup_creature_state_and_interactions(struct Thing *thing);
 short set_start_state_f(struct Thing *thing,const char *func_name);
 #define set_start_state(thing) set_start_state_f(thing,__func__)
-
+/******************************************************************************/
+TbBool creature_model_bleeds(unsigned long crmodel);
+void create_effect_around_thing(struct Thing *thing, long eff_kind);
+long get_creature_gui_job(const struct Thing *thing);
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 
@@ -299,6 +302,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long ow
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 long slab_by_players_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool process_creature_hunger(struct Thing *thing);
+void process_person_moods_and_needs(struct Thing *thing);
 
 TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);

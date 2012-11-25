@@ -25,8 +25,7 @@
 #include "thing_list.h"
 #include "thing_creature.h"
 #include "creature_control.h"
-
-#include "keeperfx.hpp"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +33,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT long _DK_add_creature_to_group(struct Thing *crthing, struct Thing *grthing);
 DLLIMPORT long _DK_get_highest_experience_level_in_group(struct Thing *thing);
+DLLIMPORT long _DK_process_obey_leader(struct Thing *thing);
+DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
 
 /******************************************************************************/
 long get_highest_experience_level_in_group(struct Thing *thing)
@@ -227,6 +228,16 @@ TbBool make_group_member_leader(struct Thing *leadtng)
         return true;
     }
     return false;
+}
+
+long process_obey_leader(struct Thing *thing)
+{
+  return _DK_process_obey_leader(thing);
+}
+
+void leader_find_positions_for_followers(struct Thing *thing)
+{
+  _DK_leader_find_positions_for_followers(thing);
 }
 /******************************************************************************/
 #ifdef __cplusplus

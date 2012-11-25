@@ -65,6 +65,10 @@ struct ActiveBitmap nocd_bmp;
 /******************************************************************************/
 unsigned char palette_buf[PALETTE_SIZE];
 /******************************************************************************/
+#ifdef __cplusplus
+}
+#endif
+/******************************************************************************/
 /** Copies the given RAW image at center of screen buffer.
  *
  * @param dst_buf Destination screen buffer.
@@ -524,6 +528,3 @@ TbBool display_centered_message(long showTime, char *text)
 }
 
 /******************************************************************************/
-#ifdef __cplusplus
-}
-#endif

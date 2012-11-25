@@ -32,6 +32,7 @@ extern "C" {
 struct EngineCoord;
 struct M33;
 struct EngineCol;
+struct PlayerInfo;
 
 // Camera constants; max zoom is when everything is large
 #define CAMERA_ZOOM_MIN     4100
@@ -93,6 +94,8 @@ void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigne
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
+
+void init_player_cameras(struct PlayerInfo *player);
 /******************************************************************************/
 #ifdef __cplusplus
 }

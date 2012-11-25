@@ -40,6 +40,7 @@
 #include "dungeon_data.h"
 #include "map_blocks.h"
 #include "slab_data.h"
+#include "game_legacy.h"
 
 #include "keeperfx.hpp"
 

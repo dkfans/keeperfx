@@ -49,7 +49,7 @@
 #include "config_objects.h"
 #include "config_rules.h"
 #include "config_lenses.h"
-#include "config_magic.hpp"
+#include "config_magic.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_crtrmodel.h"
@@ -57,6 +57,7 @@
 #include "lvl_filesdk1.h"
 #include "thing_list.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "game_heap.h"
 #include "game_saves.h"
 #include "engine_render.h"
@@ -93,7 +94,9 @@
 #include "lens_api.h"
 #include "light_data.h"
 #include "magic.h"
+#include "power_process.h"
 #include "power_hand.h"
+#include "power_specials.h"
 #include "game_merge.h"
 #include "gui_topmsg.h"
 #include "gui_boxmenu.h"
@@ -104,6 +107,9 @@
 #include "sounds.h"
 #include "vidfade.h"
 #include "KeeperSpeech.h"
+#include "config_settings.h"
+#include "game_legacy.h"
+#include "room_list.h"
 
 int test_variable;
 
@@ -114,7 +120,6 @@ unsigned short bf_argc;
 char *bf_argv[CMDLN_MAXLEN+1];
 
 short default_loc_player = 0;
-unsigned long gold_per_hoarde = 2000;
 struct StartupParameters start_params;
 
 //long const imp_spangle_effects[] = {
@@ -133,7 +138,6 @@ extern "C" {
 
 DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
@@ -141,11 +145,7 @@ DLLIMPORT long _DK_load_cube_file(void);
 DLLIMPORT void _DK_init_colours(void);
 DLLIMPORT void _DK_place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 DLLIMPORT void _DK_draw_spell_cursor(unsigned char a1, unsigned short a2, unsigned char stl_x, unsigned char stl_y);
-DLLIMPORT long _DK_take_money_from_dungeon(short a1, long a2, unsigned char a3);
-DLLIMPORT unsigned char _DK_find_door_of_type(unsigned long a1, unsigned char a2);
-DLLIMPORT void _DK_process_armageddon(void);
 DLLIMPORT void _DK_update_breed_activities(void);
-DLLIMPORT long _DK_remove_workshop_object_from_player(long a1, long a2);
 DLLIMPORT struct Thing *_DK_get_queryable_object_near(unsigned short a1, unsigned short a2, long a3);
 DLLIMPORT int _DK_can_thing_be_queried(struct Thing *thing, long a2);
 DLLIMPORT int _DK_can_thing_be_possessed(struct Thing *thing, long a2);
@@ -155,13 +155,10 @@ DLLIMPORT void _DK_tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a
 DLLIMPORT long _DK_packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5);
 DLLIMPORT void _DK_delete_room_slabbed_objects(long a1);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
-DLLIMPORT long _DK_remove_workshop_item(long a1, long a2, long a3);
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 DLLIMPORT void _DK_tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);
-DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_door_for_position(long pos_x, long pos_y);
-DLLIMPORT long _DK_process_obey_leader(struct Thing *thing);
 DLLIMPORT long _DK_is_thing_passenger_controlled(struct Thing *thing);
 DLLIMPORT void _DK_setup_3d(void);
 DLLIMPORT void _DK_setup_stuff(void);
@@ -185,32 +182,19 @@ DLLIMPORT void _DK_check_players_lost(void);
 DLLIMPORT void _DK_process_dungeon_power_magic(void);
 DLLIMPORT void _DK_process_dungeon_devastation_effects(void);
 DLLIMPORT void _DK_process_payday(void);
-DLLIMPORT void _DK_remove_thing_from_mapwho(struct Thing *thing);
-DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
 DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
 DLLIMPORT long _DK_get_next_manufacture(struct Dungeon *dungeon);
 DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
-DLLIMPORT struct Thing *_DK_create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
-DLLIMPORT long _DK_get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
-DLLIMPORT void _DK_process_disease(struct Thing *thing);
 DLLIMPORT void _DK_process_keeper_spell_effect(struct Thing *thing);
-DLLIMPORT void _DK_leader_find_positions_for_followers(struct Thing *thing);
 DLLIMPORT unsigned long _DK_lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos);
 DLLIMPORT void _DK_affect_nearby_enemy_creatures_with_wind(struct Thing *thing);
-DLLIMPORT void _DK_god_lightning_choose_next_creature(struct Thing *thing);
-DLLIMPORT void _DK_draw_god_lightning(struct Thing *thing);
 DLLIMPORT void _DK_affect_nearby_stuff_with_vortex(struct Thing *thing);
 DLLIMPORT void _DK_affect_nearby_friends_with_alarm(struct Thing *thing);
 DLLIMPORT long _DK_apply_wallhug_force_to_boulder(struct Thing *thing);
-DLLIMPORT void _DK_lightning_modify_palette(struct Thing *thing);
-DLLIMPORT void _DK_update_god_lightning_ball(struct Thing *thing);
 DLLIMPORT long _DK_process_creature_self_spell_casting(struct Thing *thing);
-DLLIMPORT void _DK_gui_set_button_flashing(long a1, long a2);
 DLLIMPORT void _DK_check_and_auto_fix_stats(void);
-DLLIMPORT long _DK_update_dungeon_generation_speeds(void);
-DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
 DLLIMPORT void _DK_delete_all_structures(void);
 DLLIMPORT void _DK_clear_game(void);
 DLLIMPORT void _DK_clear_game_for_save(void);
@@ -219,10 +203,7 @@ DLLIMPORT void _DK_update_thing_animation(struct Thing *thing);
 DLLIMPORT void _DK_init_messages(void);
 DLLIMPORT void _DK_message_add(char c);
 DLLIMPORT void _DK_toggle_creature_tendencies(struct PlayerInfo *player, char val);
-DLLIMPORT void _DK_turn_off_call_to_arms(long a);
-DLLIMPORT void _DK_set_player_state(struct PlayerInfo *player, unsigned char a1, long a2);
 DLLIMPORT long _DK_set_autopilot_type(long plridx, long aptype);
-DLLIMPORT void _DK_set_player_mode(struct PlayerInfo *player, long val);
 DLLIMPORT void _DK_turn_off_sight_of_evil(long plridx);
 DLLIMPORT void _DK_directly_cast_spell_on_thing(unsigned char plridx, unsigned char a2, unsigned short a3, long a4);
 DLLIMPORT void _DK_lose_level(struct PlayerInfo *player);
@@ -232,30 +213,18 @@ DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_free_swipe_graphic(void);
 DLLIMPORT void _DK_draw_bonus_timer(void);
 DLLIMPORT void _DK_engine(struct Camera *cam);
-DLLIMPORT void _DK_remove_explored_flags_for_power_sight(struct PlayerInfo *player);
 DLLIMPORT void _DK_pannel_map_draw(long x, long y, long zoom);
 DLLIMPORT void _DK_draw_overlay_things(long zoom);
-DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
 DLLIMPORT void _DK_reinit_level_after_load(void);
 DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
 DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
 DLLIMPORT void _DK_init_animating_texture_maps(void);
 DLLIMPORT void _DK_init_lookups(void);
-DLLIMPORT int _DK_load_settings(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
-DLLIMPORT void _DK_clear_slab_dig(long a1, long a2, char a3);
-DLLIMPORT long _DK_thing_is_special(Thing *thing);
 DLLIMPORT int _DK_play_smacker_file(char *fname, int);
 DLLIMPORT int _DK_LoadMcgaData(void);
-DLLIMPORT void _DK_reset_player_mode(struct PlayerInfo *player, unsigned char a2);
-DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
-DLLIMPORT void _DK_init_player_cameras(struct PlayerInfo *player);
-DLLIMPORT void _DK_pannel_map_update(long x, long y, long w, long h);
 DLLIMPORT long _DK_ceiling_set_info(long a1, long a2, long a3);
 DLLIMPORT void _DK_startup_saved_packet_game(void);
-DLLIMPORT void _DK_set_sprite_view_3d(void);
-DLLIMPORT void _DK_set_sprite_view_isometric(void);
-DLLIMPORT void _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
 DLLIMPORT void __stdcall _DK_IsRunningUnmark(void);
 DLLIMPORT int __stdcall _DK_play_smk_(char *fname, int smkflags, int plyflags);
@@ -263,7 +232,6 @@ DLLIMPORT void _DK_cumulative_screen_shot(void);
 DLLIMPORT void _DK_frontend_set_state(long);
 DLLIMPORT void _DK_demo(void);
 DLLIMPORT void _DK_draw_gui(void);
-DLLIMPORT void _DK_save_settings(void);
 DLLIMPORT void _DK_process_dungeons(void);
 DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
 DLLIMPORT void _DK_process_level_script(void);
@@ -278,12 +246,9 @@ DLLIMPORT void _DK_set_mouse_light(struct PlayerInfo *player);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_turn_off_query(char a);
 DLLIMPORT void _DK_post_init_level(void);
-DLLIMPORT void _DK_post_init_players(void);
 DLLIMPORT void _DK_init_level(void);
-DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
 DLLIMPORT int _DK_frontend_is_player_allied(long plyr1, long plyr2);
 DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
-DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
 DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
 DLLIMPORT void _DK_startup_network_game(void);
 DLLIMPORT void _DK_load_ceiling_table(void);
@@ -293,25 +258,6 @@ DLLIMPORT extern HINSTANCE _DK_hInstance;
 #ifdef __cplusplus
 }
 #endif
-
-void init_player_as_single_keeper(struct PlayerInfo *player)
-{
-    unsigned short idx;
-    struct InitLight ilght;
-    memset(&ilght, 0, sizeof(struct InitLight));
-    player->field_4CD = 0;
-    ilght.field_0 = 2560;
-    ilght.field_2 = 48;
-    ilght.field_3 = 5;
-    ilght.is_dynamic = 1;
-    idx = light_create_light(&ilght);
-    player->field_460 = idx;
-    if (idx != 0) {
-        light_set_light_never_cache(idx);
-    } else {
-        WARNLOG("Cannot allocate light to player %d.",(int)player->id_number);
-    }
-}
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
@@ -364,79 +310,9 @@ void setup_stuff(void)
     init_alpha_table();
 }
 
-void process_person_moods_and_needs(struct Thing *thing)
-{
-    _DK_process_person_moods_and_needs(thing);
-}
-
 void process_dungeon_destroy(struct Thing *thing)
 {
   _DK_process_dungeon_destroy(thing);
-}
-
-unsigned char find_door_of_type(unsigned long a1, unsigned char a2)
-{
-  return _DK_find_door_of_type(a1, a2);
-}
-
-void process_armageddon(void)
-{
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  long i;
-  SYNCDBG(6,"Starting");
-  //_DK_process_armageddon(); return;
-  if (game.field_150356 == 0)
-    return;
-  if (game.armageddon.count_down+game.field_150356 > game.play_gameturn)
-  {
-    player = get_player(game.field_15035E);
-    dungeon = get_dungeon(player->id_number);
-    thing = thing_get(dungeon->dnheart_idx);
-    if ((player->victory_state == VicS_LostLevel) || thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtMineGold))
-        game.field_150356 = 0;
-  } else
-  if (game.armageddon.count_down+game.field_150356 == game.play_gameturn)
-  {
-    for (i=0; i < PLAYERS_COUNT; i++)
-    {
-      player = get_player(i);
-      if (player_exists(player))
-      {
-        if (player->field_2C == 1)
-          reveal_whole_map(player);
-      }
-    }
-  } else
-  if (game.armageddon.count_down+game.field_150356 < game.play_gameturn)
-  {
-    for (i=0; i < PLAYERS_COUNT; i++)
-    {
-      player = get_player(i);
-      if ( (player_exists(player)) && (player->field_2C == 1) )
-      {
-        dungeon = get_dungeon(player->id_number);
-        if ( (player->victory_state == VicS_Undecided) && (dungeon->num_active_creatrs == 0))
-        {
-          event_kill_all_players_events(i);
-          set_player_as_lost_level(player);
-          if (is_my_player_number(i))
-            LbPaletteSet(_DK_palette);
-          thing = thing_get(dungeon->dnheart_idx);
-          if (!thing_is_invalid(thing))
-          {
-            thing->health = -1;
-          }
-        }
-      }
-    }
-  }
-}
-
-long process_obey_leader(struct Thing *thing)
-{
-  return _DK_process_obey_leader(thing);
 }
 
 TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
@@ -455,95 +331,10 @@ TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
     return true;
 }
 
-void reset_player_mode(struct PlayerInfo *player, unsigned short nmode)
-{
-  //_DK_reset_player_mode(player, nmode);
-  player->view_type = nmode;
-  switch (nmode)
-  {
-    case 1:
-      player->work_state = player->continue_work_state;
-      if (player->field_4B5 == 5)
-        set_engine_view(player, 5);
-      else
-        set_engine_view(player, 2);
-      if (is_my_player(player))
-        game.numfield_D &= 0xFEu;
-      break;
-    case 2:
-    case 3:
-      player->work_state = player->continue_work_state;
-      set_engine_view(player, 1);
-      if (is_my_player(player))
-        game.numfield_D |= 0x01;
-      break;
-    case 4:
-      player->work_state = player->continue_work_state;
-      set_engine_view(player, 3);
-      if (is_my_player(player))
-        game.numfield_D &= ~0x01;
-      break;
-    default:
-      break;
-  }
-}
-
-void init_keeper_map_exploration(struct PlayerInfo *player)
-{
-  _DK_init_keeper_map_exploration(player);
-}
-
-void init_player_cameras(struct PlayerInfo *player)
-{
-  _DK_init_player_cameras(player);
-}
-
-void init_creature_state(struct Thing *thing)
-{
-    struct Room *room;
-    if (thing->owner == game.neutral_player_num)
-    {
-        set_start_state(thing);
-        return;
-    }
-    room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room))
-    {
-        switch (room->kind)
-        {
-        case RoK_PRISON:
-        case RoK_TORTURE:
-        case RoK_GUARDPOST:
-            if ( send_creature_to_room(thing, room) )
-              return;
-        default:
-            break;
-        }
-    }
-    set_start_state(thing);
-}
-
 void clear_creature_pool(void)
 {
     memset(&game.pool,0,sizeof(struct CreaturePool));
     game.pool.is_empty = true;
-}
-
-/**
- * Clears digging operations for given player on given map slab.
- *
- * @param slb_x Slab X coord.
- * @param slb_y Slab Y coord.
- * @param plyr_idx Player index whose dig tag shall be cleared.
- */
-void clear_slab_dig(long slb_x, long slb_y, char plyr_idx)
-{
-  _DK_clear_slab_dig(slb_x, slb_y, plyr_idx);
-}
-
-long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
-{
-  return _DK_get_floor_height_under_thing_at(thing, pos);
 }
 
 void give_shooter_drained_health(struct Thing *shooter, long health_delta)
@@ -567,12 +358,6 @@ void give_shooter_drained_health(struct Thing *shooter, long health_delta)
 long get_foot_creature_has_down(struct Thing *thing)
 {
     return _DK_get_foot_creature_has_down(thing);
-}
-
-void process_disease(struct Thing *thing)
-{
-    SYNCDBG(18,"Starting");
-    _DK_process_disease(thing);
 }
 
 void process_keeper_spell_effect(struct Thing *thing)
@@ -601,36 +386,6 @@ TbBool add_spell_to_player(long spl_idx, long plyr_idx)
     return true;
 }
 
-unsigned char sight_of_evil_expand_check(void)
-{
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    player = get_my_player();
-    dungeon = get_dungeon(player->id_number);
-    return (player->field_4D2 != 0) && (dungeon->keeper_sight_thing_idx == 0);
-}
-
-unsigned char call_to_arms_expand_check(void)
-{
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    player = get_my_player();
-    dungeon = get_dungeon(player->id_number);
-    return (player->field_4D2 != 0) && (dungeon->field_884 == 0);
-}
-
-unsigned char general_expand_check(void)
-{
-    struct PlayerInfo *player;
-    player = get_my_player();
-    return (player->field_4D2 != 0);
-}
-
-void leader_find_positions_for_followers(struct Thing *thing)
-{
-  _DK_leader_find_positions_for_followers(thing);
-}
-
 long is_thing_passenger_controlled(struct Thing *thing)
 {
     return _DK_is_thing_passenger_controlled(thing);
@@ -651,16 +406,6 @@ void affect_nearby_enemy_creatures_with_wind(struct Thing *thing)
     _DK_affect_nearby_enemy_creatures_with_wind(thing);
 }
 
-void god_lightning_choose_next_creature(struct Thing *thing)
-{
-    _DK_god_lightning_choose_next_creature(thing);
-}
-
-void draw_god_lightning(struct Thing *thing)
-{
-    _DK_draw_god_lightning(thing);
-}
-
 void affect_nearby_stuff_with_vortex(struct Thing *thing)
 {
   _DK_affect_nearby_stuff_with_vortex(thing);
@@ -676,94 +421,6 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
   return _DK_apply_wallhug_force_to_boulder(thing);
 }
 
-void lightning_modify_palette(struct Thing *thing)
-{
-    struct PlayerInfo *myplyr;
-    // _DK_lightning_modify_palette(thing);
-    myplyr = get_my_player();
-
-    if (thing->health == 0)
-    {
-      PaletteSetPlayerPalette(myplyr, _DK_palette);
-      myplyr->field_3 &= ~0x08;
-      return;
-    }
-    if (myplyr->acamera == NULL)
-    {
-        WARNLOG("No active camera");
-        return;
-    }
-    if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
-    {
-      if ((myplyr->field_3 & 0x08) != 0)
-      {
-        if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
-        {
-            PaletteSetPlayerPalette(myplyr, _DK_palette);
-            myplyr->field_3 &= 0xF7u;
-        }
-      }
-      return;
-    }
-    if ((myplyr->view_mode != PVM_ParchFadeIn) && (myplyr->view_mode != PVM_ParchFadeOut) && (myplyr->view_mode != PVM_ParchmentView))
-    {
-      if ((myplyr->field_3 & 0x08) == 0)
-      {
-        if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
-        {
-          PaletteSetPlayerPalette(myplyr, lightning_palette);
-          myplyr->field_3 |= 0x08;
-        }
-      }
-    }
-}
-
-void update_god_lightning_ball(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Thing *target;
-    struct ShotConfigStats *shotst;
-    long i;
-//    _DK_update_god_lightning_ball(thing);
-    if (thing->health <= 0)
-    {
-        lightning_modify_palette(thing);
-        return;
-    }
-    i = (game.play_gameturn - thing->field_9) % 16;
-    switch (i)
-    {
-    case 0:
-        god_lightning_choose_next_creature(thing);
-        break;
-    case 1:
-        target = thing_get(thing->word_17);
-        if (thing_is_invalid(target))
-            break;
-        draw_lightning(&thing->mappos,&target->mappos, 96, 60);
-        break;
-    case 2:
-        target = thing_get(thing->word_17);
-        if (thing_is_invalid(target))
-            break;
-        shotst = get_shot_model_stats(24);
-        apply_damage_to_thing_and_display_health(target, shotst->old->damage, thing->owner);
-        if (target->health < 0)
-        {
-            cctrl = creature_control_get_from_thing(target);
-            cctrl->shot_model = ShM_GodLightBall;
-            kill_creature(target, INVALID_THING, thing->owner, 0, 1, 0);
-        }
-        thing->word_17 = 0;
-        break;
-    }
-}
-
-unsigned char line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2)
-{
-  return _DK_line_of_sight_3d(pos1, pos2);
-}
-
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4)
 {
   _DK_draw_flame_breath(pos1, pos2, a3, a4);
@@ -772,45 +429,6 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long
 void draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4)
 {
   _DK_draw_lightning(pos1, pos2, a3, a4);
-}
-
-struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
-{
-    struct MagicStats *magstat;
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
-    {
-        ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)cimodel,(int)owner);
-        erstat_inc(ESE_NoFreeThings);
-        return INVALID_THING;
-    }
-    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
-    if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate cave in %d for player %d, but failed.",(int)cimodel,(int)owner);
-        erstat_inc(ESE_NoFreeThings);
-        return INVALID_THING;
-    }
-    thing->class_id = TCls_CaveIn;
-    thing->model = 0;
-    thing->parent_idx = thing->index;
-    memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
-    thing->owner = owner;
-    thing->field_9 = game.play_gameturn;
-    magstat = &game.magic_stats[PwrK_CAVEIN];
-    thing->word_15 = magstat->time;
-    thing->byte_13 = pos->x.stl.num;
-    thing->byte_14 = pos->y.stl.num;
-    thing->byte_17 = cimodel;
-    thing->health = magstat->time;
-    if (owner != game.neutral_player_num)
-    {
-        dungeon = get_dungeon(owner);
-        dungeon->camera_deviate_quake = thing->word_15;
-    }
-    add_thing_to_its_class_list(thing);
-    place_thing_in_mapwho(thing);
-    return thing;
 }
 
 unsigned long setup_move_off_lava(struct Thing *thing)
@@ -834,16 +452,6 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
       }
     }
     return false;
-}
-
-void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2)
-{
-  _DK_do_slab_efficiency_alteration(a1, a2);
-}
-
-unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4)
-{
-    return _DK_alter_rock_style(a1, a2, a3, a4);
 }
 
 void update_thing_animation(struct Thing *thing)
@@ -1000,268 +608,6 @@ void engine_init(void)
     load_ceiling_table();
 }
 
-void init_objects(void)
-{
-    long i;
-    game.objects_config[1].ilght.field_0 = 0;
-    game.objects_config[1].ilght.field_2 = 0x00;
-    game.objects_config[1].ilght.field_3 = 0;
-    game.objects_config[1].health = 100;
-    game.objects_config[1].field_4 = 20;
-    game.objects_config[1].field_5 = 0;
-    game.objects_config[2].health = 100;
-    game.objects_config[2].field_4 = 0;
-    game.objects_config[2].field_5 = 1;
-    game.objects_config[2].ilght.is_dynamic = 0;
-    game.objects_config[2].field_8 = 1;
-    game.objects_config[49].health = 100;
-    game.objects_config[49].field_4 = 0;
-    game.objects_config[49].field_5 = 1;
-    game.objects_config[49].ilght.is_dynamic = 0;
-    game.objects_config[49].field_8 = 1;
-    game.objects_config[3].health = 100;
-    game.objects_config[3].field_4 = 20;
-    game.objects_config[4].health = 100;
-    game.objects_config[4].field_4 = 20;
-    game.objects_config[4].field_5 = 1;
-    game.objects_config[4].ilght.is_dynamic = 0;
-    game.objects_config[4].field_8 = 1;
-    game.objects_config[5].health = 1;
-    game.objects_config[2].ilght.field_0 = 0x0600;
-    game.objects_config[2].ilght.field_2 = 0x32;
-    game.objects_config[2].ilght.field_3 = 5;
-    game.objects_config[5].field_4 = 20;
-    game.objects_config[5].field_5 = 0;
-    game.objects_config[5].ilght.is_dynamic = 1;
-    game.objects_config[5].field_6 = 1;
-    game.objects_config[5].field_8 = 1;
-    game.objects_config[6].field_4 = 8;
-    game.objects_config[6].health = 50;
-    game.objects_config[7].health = 100;
-    game.objects_config[7].field_4 = 0;
-    game.objects_config[7].field_5 = 1;
-    game.objects_config[7].field_8 = 1;
-    game.objects_config[8].health = 100;
-    game.objects_config[8].field_4 = 20;
-    game.objects_config[8].field_5 = 1;
-    game.objects_config[10].health = 1000;
-    game.objects_config[10].field_4 = 9;
-    game.objects_config[28].health = 100;
-    game.objects_config[49].ilght.field_0 = 0x0A00u;
-    game.objects_config[49].ilght.field_2 = 0x28;
-    game.objects_config[49].ilght.field_3 = 5;
-    game.objects_config[4].ilght.field_0 = 0x0700u;
-    game.objects_config[4].ilght.field_2 = 0x2F;
-    game.objects_config[4].ilght.field_3 = 5;
-    game.objects_config[5].ilght.field_0 = 0x0E00u;
-    game.objects_config[5].ilght.field_2 = 0x24;
-    game.objects_config[5].ilght.field_3 = 5;
-    game.objects_config[28].field_4 = 0;
-    game.objects_config[28].field_5 = 1;
-    game.objects_config[28].ilght.is_dynamic = 0;
-    game.objects_config[28].field_8 = 1;
-    game.objects_config[11].ilght.field_0 = 0x0400u;
-    game.objects_config[11].ilght.field_2 = 0x3E;
-    game.objects_config[11].ilght.field_3 = 0;
-    game.objects_config[11].field_4 = 10;
-    game.objects_config[11].field_5 = 0;
-    game.objects_config[11].ilght.is_dynamic = 0;
-    game.objects_config[11].field_8 = 1;
-    game.objects_config[12].ilght.field_0 = 0x0400u;
-    game.objects_config[12].ilght.field_2 = 0x3E;
-    game.objects_config[12].ilght.field_3 = 0;
-    game.objects_config[12].field_4 = 10;
-    game.objects_config[12].field_5 = 0;
-    game.objects_config[12].ilght.is_dynamic = 0;
-    game.objects_config[12].field_8 = 1;
-    game.objects_config[13].field_4 = 10;
-    game.objects_config[13].field_5 = 0;
-    game.objects_config[13].ilght.field_0 = 0x0400u;
-    game.objects_config[13].ilght.field_2 = 0x3E;
-    game.objects_config[13].ilght.field_3 = 0;
-    game.objects_config[13].ilght.is_dynamic = 0;
-    game.objects_config[13].field_8 = 1;
-    game.objects_config[14].ilght.field_0 = 0x0400u;
-    game.objects_config[14].ilght.field_2 = 0x3E;
-    game.objects_config[14].ilght.field_3 = 0;
-    game.objects_config[14].field_4 = 10;
-    game.objects_config[14].field_5 = 0;
-    game.objects_config[14].ilght.is_dynamic = 0;
-    game.objects_config[14].field_8 = 1;
-    game.objects_config[15].field_4 = 10;
-    game.objects_config[15].field_5 = 0;
-    game.objects_config[15].ilght.field_0 = 0x0400u;
-    game.objects_config[15].ilght.field_2 = 0x3E;
-    game.objects_config[15].ilght.field_3 = 0;
-    game.objects_config[15].ilght.is_dynamic = 0;
-    game.objects_config[15].field_8 = 1;
-    game.objects_config[16].ilght.field_0 = 0x0400u;
-    game.objects_config[16].ilght.field_2 = 0x3E;
-    game.objects_config[16].ilght.field_3 = 0;
-    game.objects_config[16].field_4 = 10;
-    game.objects_config[16].field_5 = 0;
-    game.objects_config[16].ilght.is_dynamic = 0;
-    game.objects_config[16].field_8 = 1;
-    game.objects_config[17].field_4 = 10;
-    game.objects_config[17].field_5 = 0;
-    game.objects_config[17].ilght.field_0 = 0x0400u;
-    game.objects_config[17].ilght.field_2 = 0x3E;
-    game.objects_config[17].ilght.field_3 = 0;
-    game.objects_config[17].ilght.is_dynamic = 0;
-    game.objects_config[17].field_8 = 1;
-    game.objects_config[43].field_4 = 8;
-    game.objects_config[43].health = 50;
-    game.objects_config[28].ilght.field_0 = 0x0600u;
-    game.objects_config[28].ilght.field_2 = 0x2E;
-    game.objects_config[28].ilght.field_3 = 5;
-    game.objects_config[18].field_4 = 10;
-    game.objects_config[18].field_5 = 0;
-    game.objects_config[18].ilght.field_0 = 0x0400u;
-    game.objects_config[18].ilght.field_2 = 0x3E;
-    game.objects_config[18].ilght.field_3 = 0;
-    game.objects_config[18].ilght.is_dynamic = 0;
-    game.objects_config[19].ilght.field_0 = 0x0400u;
-    game.objects_config[19].ilght.field_2 = 0x3E;
-    game.objects_config[19].ilght.field_3 = 0;
-    game.objects_config[18].field_8 = 1;
-    game.objects_config[19].field_4 = 10;
-    game.objects_config[19].field_5 = 0;
-    game.objects_config[20].ilght.field_0 = 0x0400u;
-    game.objects_config[20].ilght.field_2 = 0x3E;
-    game.objects_config[20].ilght.field_3 = 0;
-    game.objects_config[19].ilght.is_dynamic = 0;
-    game.objects_config[19].field_8 = 1;
-    game.objects_config[20].field_4 = 10;
-    game.objects_config[20].field_5 = 0;
-    game.objects_config[20].ilght.is_dynamic = 0;
-    game.objects_config[21].ilght.field_0 = 0x0400u;
-    game.objects_config[21].ilght.field_2 = 0x3E;
-    game.objects_config[21].ilght.field_3 = 0;
-    game.objects_config[20].field_8 = 1;
-    game.objects_config[21].field_4 = 10;
-    game.objects_config[21].field_5 = 0;
-    game.objects_config[22].ilght.field_0 = 0x0400u;
-    game.objects_config[22].ilght.field_2 = 0x3E;
-    game.objects_config[22].ilght.field_3 = 0;
-    game.objects_config[21].ilght.is_dynamic = 0;
-    game.objects_config[21].field_8 = 1;
-    game.objects_config[22].field_4 = 10;
-    game.objects_config[22].field_5 = 0;
-    game.objects_config[22].ilght.is_dynamic = 0;
-    game.objects_config[23].ilght.field_0 = 0x0400u;
-    game.objects_config[23].ilght.field_2 = 0x3E;
-    game.objects_config[23].ilght.field_3 = 0;
-    game.objects_config[22].field_8 = 1;
-    game.objects_config[23].field_4 = 10;
-    game.objects_config[23].field_5 = 0;
-    game.objects_config[45].ilght.field_0 = 0x0400u;
-    game.objects_config[45].ilght.field_2 = 0x3E;
-    game.objects_config[45].ilght.field_3 = 0;
-    game.objects_config[23].ilght.is_dynamic = 0;
-    game.objects_config[23].field_8 = 1;
-    game.objects_config[45].field_4 = 10;
-    game.objects_config[45].field_5 = 0;
-    game.objects_config[45].ilght.is_dynamic = 0;
-    game.objects_config[46].ilght.field_0 = 0x0400u;
-    game.objects_config[46].ilght.field_2 = 0x3E;
-    game.objects_config[46].ilght.field_3 = 0;
-    game.objects_config[45].field_8 = 1;
-    game.objects_config[46].field_4 = 10;
-    game.objects_config[46].field_5 = 0;
-    game.objects_config[47].ilght.field_0 = 0x0400u;
-    game.objects_config[47].ilght.field_2 = 0x3E;
-    game.objects_config[47].ilght.field_3 = 0;
-    game.objects_config[46].ilght.is_dynamic = 0;
-    game.objects_config[46].field_8 = 1;
-    game.objects_config[47].field_4 = 10;
-    game.objects_config[47].field_5 = 0;
-    game.objects_config[47].ilght.is_dynamic = 0;
-    game.objects_config[134].ilght.field_0 = 0x0400u;
-    game.objects_config[134].ilght.field_2 = 0x3E;
-    game.objects_config[134].ilght.field_3 = 0;
-    game.objects_config[47].field_8 = 1;
-    game.objects_config[134].field_4 = 10;
-    game.objects_config[134].field_5 = 0;
-    game.objects_config[134].ilght.is_dynamic = 0;
-    game.objects_config[87].ilght.field_0 = 0x0400u;
-    game.objects_config[87].ilght.field_2 = 0x3E;
-    game.objects_config[87].ilght.field_3 = 0;
-    game.objects_config[134].field_8 = 1;
-    game.objects_config[87].field_4 = 10;
-    game.objects_config[87].field_5 = 0;
-    game.objects_config[88].ilght.field_0 = 0x0400u;
-    game.objects_config[88].ilght.field_2 = 0x3E;
-    game.objects_config[88].ilght.field_3 = 0;
-    game.objects_config[87].ilght.is_dynamic = 0;
-    game.objects_config[88].field_4 = 10;
-    game.objects_config[88].field_5 = 0;
-    game.objects_config[89].ilght.field_0 = 0x0400u;
-    game.objects_config[89].ilght.field_2 = 0x3E;
-    game.objects_config[89].ilght.field_3 = 0;
-    game.objects_config[88].ilght.is_dynamic = 0;
-    game.objects_config[89].field_4 = 10;
-    game.objects_config[89].field_5 = 0;
-    game.objects_config[90].ilght.field_0 = 0x0400u;
-    game.objects_config[90].ilght.field_2 = 0x3E;
-    game.objects_config[90].ilght.field_3 = 0;
-    game.objects_config[89].ilght.is_dynamic = 0;
-    game.objects_config[90].field_4 = 10;
-    game.objects_config[90].field_5 = 0;
-    game.objects_config[91].ilght.field_0 = 0x0400u;
-    game.objects_config[91].ilght.field_2 = 0x3E;
-    game.objects_config[91].ilght.field_3 = 0;
-    game.objects_config[90].ilght.is_dynamic = 0;
-    game.objects_config[91].field_4 = 10;
-    game.objects_config[91].field_5 = 0;
-    game.objects_config[92].ilght.field_0 = 0x0400u;
-    game.objects_config[92].ilght.field_2 = 0x3E;
-    game.objects_config[92].ilght.field_3 = 0;
-    game.objects_config[91].ilght.is_dynamic = 0;
-    game.objects_config[92].field_4 = 10;
-    game.objects_config[92].field_5 = 0;
-    game.objects_config[93].ilght.field_0 = 0x0400u;
-    game.objects_config[93].ilght.field_2 = 0x3E;
-    game.objects_config[93].ilght.field_3 = 0;
-    game.objects_config[92].ilght.is_dynamic = 0;
-    game.objects_config[93].field_4 = 10;
-    game.objects_config[93].field_5 = 0;
-    game.objects_config[86].ilght.field_0 = 0x0400u;
-    game.objects_config[86].ilght.field_2 = 0x3E;
-    game.objects_config[86].ilght.field_3 = 0;
-    game.objects_config[93].ilght.is_dynamic = 0;
-    game.objects_config[86].field_4 = 10;
-    game.objects_config[86].field_5 = 0;
-    game.objects_config[86].ilght.is_dynamic = 0;
-    game.objects_config[109].field_7 = 1;
-    game.objects_config[109].field_8 = 1;
-    game.objects_config[94].field_8 = 1;
-    game.objects_config[95].field_8 = 1;
-    game.objects_config[96].field_8 = 1;
-    game.objects_config[97].field_8 = 1;
-    game.objects_config[98].field_8 = 1;
-    game.objects_config[99].field_8 = 1;
-    game.objects_config[106].field_8 = 1;
-    game.objects_config[107].field_8 = 1;
-    game.objects_config[108].field_8 = 1;
-    game.objects_config[128].field_4 = 10;
-    for (i=57; i <= 85; i++)
-    {
-      game.objects_config[i].field_8 = 1;
-    }
-    game.objects_config[126].field_8 = 1;
-    game.objects_config[26].field_8 = 1;
-    game.objects_config[27].field_8 = 1;
-    game.objects_config[31].field_8 = 1;
-    game.objects_config[32].field_8 = 1;
-    game.objects_config[114].field_8 = 1;
-    game.objects_config[115].field_8 = 1;
-    game.objects_config[117].field_8 = 1;
-    game.objects_config[116].field_8 = 1;
-    game.objects_config[118].field_8 = 1;
-    game.objects_config[119].field_8 = 1;
-    game.objects_config[125].field_8 = 1;
-}
-
 void init_keeper(void)
 {
   SYNCDBG(8,"Starting");
@@ -1334,57 +680,6 @@ short ceiling_set_info(long height_max, long height_min, long step)
   game.field_14A814 = step;
   game.field_14A810 = (2*game.field_14A80C+1) * (2*game.field_14A80C+1);
   return 1;
-}
-
-void setup_default_settings(void)
-{
-    // CPU status variable
-    struct CPU_INFO cpu_info;
-    const struct GameSettings default_settings = {
-     0, 4, 3, 0, 1, 0, 127, 90, 1, 0, 1,
-     {
-      {KC_UP, KMod_NONE},       {KC_DOWN, KMod_NONE},
-      {KC_LEFT, KMod_NONE},     {KC_RIGHT, KMod_NONE},
-      {KC_LCONTROL, KMod_NONE}, {KC_LSHIFT, KMod_NONE},
-      {KC_DELETE, KMod_NONE},   {KC_PGDOWN, KMod_NONE},
-      {KC_HOME, KMod_NONE},     {KC_END, KMod_NONE},
-      {KC_T, KMod_NONE},        {KC_L, KMod_NONE},
-      {KC_L, KMod_SHIFT},       {KC_P, KMod_SHIFT},
-      {KC_T, KMod_ALT},         {KC_T, KMod_SHIFT},
-      {KC_H, KMod_NONE},        {KC_W, KMod_NONE},
-      {KC_S, KMod_NONE},        {KC_T, KMod_CONTROL},
-      {KC_G, KMod_NONE},        {KC_B, KMod_NONE},
-      {KC_H, KMod_SHIFT},       {KC_G, KMod_SHIFT},
-      {KC_B, KMod_SHIFT},       {KC_F, KMod_NONE},
-      {KC_A, KMod_NONE},        {KC_LSHIFT, KMod_NONE},
-      {KC_NUMPAD0, KMod_NONE},  {KC_BACK, KMod_NONE},
-      {KC_P, KMod_NONE},        {KC_M, KMod_NONE},
-     }, 1, 0, 6};
-    LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
-    cpu_detect(&cpu_info);
-    settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
-    if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
-    {
-        SYNCDBG(6,"Updating to hires video mode");
-        settings.video_scrnmode = get_next_vidmode(settings.video_scrnmode);
-    }
-}
-
-TbBool load_settings(void)
-{
-    SYNCDBG(6,"Starting");
-    char *fname;
-    long len;
-    fname = prepare_file_path(FGrp_Save,"settings.dat");
-    len = LbFileLengthRnc(fname);
-    if (len == sizeof(struct GameSettings))
-    {
-      if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
-          return true;
-    }
-    setup_default_settings();
-    LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
-    return false;
 }
 
 /**
@@ -1795,14 +1090,6 @@ void update_breed_activities(void)
   _DK_update_breed_activities();
 }
 
-short save_settings(void)
-{
-  char *fname;
-  fname=prepare_file_path(FGrp_Save,"settings.dat");
-  LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
-  return true;
-}
-
 void toggle_hero_health_flowers(void)
 {
   const char *statstr;
@@ -1857,11 +1144,6 @@ void zoom_from_map(void)
   }
 }
 
-long take_money_from_dungeon(PlayerNumber plyr_idx, long a2, unsigned char a3)
-{
-  return _DK_take_money_from_dungeon(plyr_idx, a2, a3);
-}
-
 void reset_gui_based_on_player_mode(void)
 {
   _DK_reset_gui_based_on_player_mode();
@@ -1872,223 +1154,9 @@ void reinit_tagged_blocks_for_player(unsigned char idx)
   _DK_reinit_tagged_blocks_for_player(idx);
 }
 
-long update_dungeon_generation_speeds(void)
-{
-  return _DK_update_dungeon_generation_speeds();
-}
-
-void calculate_dungeon_area_scores(void)
-{
-  _DK_calculate_dungeon_area_scores();
-}
-
-struct GoldLookup *get_gold_lookup(long idx)
-{
-    return &game.gold_lookup[idx];
-}
-
-long gold_lookup_index(const struct GoldLookup *gldlook)
-{
-    long i;
-    i = ((char *)gldlook - (char *)&game.gold_lookup[0]);
-    if ( (i < 0) || (i >= GOLD_LOOKUP_COUNT*sizeof(struct GoldLookup)) )
-        return 0;
-    return i / sizeof(struct GoldLookup);
-}
-
-
-/** Finds a gold vein with smaller amount of gold and gem slabs than given values.
- *  Gems slabs count has higher priority than gold slabs count.
- *
- * @param higher_gold_slabs
- * @param higher_gem_slabs
- * @return
- */
-long smaller_gold_vein_lookup_idx(long higher_gold_slabs, long higher_gem_slabs)
-{
-    struct GoldLookup *gldlook;
-    long gold_slabs, gem_slabs;
-    long gold_idx;
-    long i;
-    gold_slabs = higher_gold_slabs;
-    gem_slabs = higher_gem_slabs;
-    gold_idx = -1;
-    for (i=0; i < GOLD_LOOKUP_COUNT; i++)
-    {
-        gldlook = get_gold_lookup(i);
-        if (gldlook->field_10 == gem_slabs)
-        {
-            if (gldlook->field_A < gold_slabs)
-            {
-              gold_slabs = gldlook->field_A;
-              gold_idx = i;
-            }
-        } else
-        if (gldlook->field_10 < gem_slabs)
-        {
-            gem_slabs = gldlook->field_10;
-            gold_slabs = gldlook->field_A;
-            gold_idx = i;
-        }
-    }
-    return gold_idx;
-}
-
-void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, long *gold_next_idx, MapSlabCoord veinslb_x, MapSlabCoord veinslb_y)
-{
-    struct GoldLookup *gldlook;
-    struct SlabMap *slb;
-    SlabCodedCoords slb_num,slb_around;
-    MapSlabCoord slb_x,slb_y;
-    long gold_slabs,gem_slabs;
-    long vein_total,vein_idx;
-    long gld_v1,gld_v2,gld_v3;
-    long gold_idx;
-    // First, find a vein
-    vein_total = 0;
-    slb_x = veinslb_x;
-    slb_y = veinslb_y;
-    gld_v1 = 0;
-    gld_v2 = 0;
-    gld_v3 = 0;
-    gem_slabs = 0;
-    gold_slabs = 0;
-    slb_num = get_slab_number(slb_x, slb_y);
-    treasure_map[slb_num] |= 0x02;
-    for (vein_idx=0; vein_idx <= vein_total; vein_idx++)
-    {
-        gld_v1 += slb_x;
-        gld_v2 += slb_y;
-        gld_v3++;
-        slb_around = get_slab_number(slb_x, slb_y);
-        slb = get_slabmap_direct(slb_around);
-        if (slb->kind == SlbT_GEMS)
-        {
-            gem_slabs++;
-        } else
-        {
-            gold_slabs++;
-            slb_around = get_slab_number(slb_x-1, slb_y);
-            if ((treasure_map[slb_around] & 0x03) == 0)
-            {
-                treasure_map[slb_around] |= 0x02;
-                vein_list[vein_total] = slb_around;
-                vein_total++;
-            }
-            slb_around = get_slab_number(slb_x+1, slb_y);
-            if ((treasure_map[slb_around] & 0x03) == 0)
-            {
-                treasure_map[slb_around] |= 0x02;
-                vein_list[vein_total] = slb_around;
-                vein_total++;
-            }
-            slb_around = get_slab_number(slb_x, slb_y-1);
-            if ((treasure_map[slb_around] & 0x03) == 0)
-            {
-                treasure_map[slb_around] |= 0x02;
-                vein_list[vein_total] = slb_around;
-                vein_total++;
-            }
-            slb_around = get_slab_number(slb_x, slb_y+1);
-            if ((treasure_map[slb_around] & 0x03) == 0)
-            {
-                treasure_map[slb_around] |= 0x02;
-                vein_list[vein_total] = slb_around;
-                vein_total++;
-            }
-        }
-        // Move to next slab in list
-        slb_x = slb_num_decode_x(vein_list[vein_idx]);
-        slb_y = slb_num_decode_y(vein_list[vein_idx]);
-    }
-    // Now get a GoldLookup struct to put the vein into
-    if (*gold_next_idx < GOLD_LOOKUP_COUNT)
-    {
-        gold_idx = *gold_next_idx;
-        (*gold_next_idx)++;
-    } else
-    {
-        gold_idx = smaller_gold_vein_lookup_idx(gold_slabs, gem_slabs);
-    }
-    // Write the vein to GoldLookup item
-    if (gold_idx != -1)
-    {
-        gldlook = get_gold_lookup(gold_idx);
-        LbMemorySet(gldlook, 0, sizeof(struct GoldLookup));
-        gldlook->field_0 |= 0x01;
-        gldlook->x_stl_num = 3 * gld_v1 / gld_v3 + 1;
-        gldlook->y_stl_num = 3 * gld_v2 / gld_v3 + 1;
-        gldlook->field_A = gold_slabs;
-        gldlook->field_C = 0;
-        gldlook->field_E = gold_slabs;
-        gldlook->field_10 = gem_slabs;
-    }
-}
-
-void check_map_for_gold(void)
-{
-    MapSlabCoord slb_x,slb_y;
-    struct SlabMap *slb;
-    SlabCodedCoords slb_num;
-    unsigned char *treasure_map;
-    unsigned short *vein_list;
-    long gold_next_idx;
-    long i;
-    SYNCDBG(8,"Starting");
-    //_DK_check_map_for_gold();
-    for (i=0; i < GOLD_LOOKUP_COUNT; i++) {
-        LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
-    }
-
-    treasure_map = (unsigned char *)scratch;
-    vein_list = (unsigned short *)&scratch[map_tiles_x*map_tiles_y];
-    for (slb_y = 0; slb_y < map_tiles_y; slb_y++) {
-        for (slb_x = 0; slb_x < map_tiles_x; slb_x++) {
-            slb_num = get_slab_number(slb_x, slb_y);
-            slb = get_slabmap_direct(slb_num);
-            treasure_map[slb_num] = 0;
-            if ( (slb->kind != SlbT_GOLD) && (slb->kind != SlbT_GEMS) ) {
-                treasure_map[slb_num] |= 0x01;
-            }
-        }
-    }
-    gold_next_idx = 0;
-    for (slb_y = 0; slb_y < map_tiles_y; slb_y++) {
-        for (slb_x = 0; slb_x < map_tiles_x; slb_x++) {
-            slb_num = get_slab_number(slb_x, slb_y);
-            if ( ((treasure_map[slb_num] & 0x01) == 0) && ((treasure_map[slb_num] & 0x02) == 0) )
-            {
-                check_treasure_map(treasure_map, vein_list, &gold_next_idx, slb_x, slb_y);
-            }
-        }
-    }
-    SYNCDBG(8,"Found %ld possible digging locations",gold_next_idx);
-}
-
-void gui_set_button_flashing(long btn_idx, long gameturns)
-{
-    game.flash_button_index = btn_idx;
-    game.flash_button_gameturns = gameturns;
-}
-
 void instant_instance_selected(long a1)
 {
     _DK_instant_instance_selected(a1);
-}
-
-short zoom_to_fight(unsigned char a1)
-{
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    player = get_my_player();
-    if (active_battle_exists(a1))
-    {
-        dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, 104, dungeon->field_1174, 0, 0, 0);
-        step_battles_forward(a1);
-        return true;
-    }
-    return false;
 }
 
 TbBool create_random_evil_creature(long x, long y, PlayerNumber owner, long max_lv)
@@ -2623,193 +1691,9 @@ void centre_engine_window(void)
     setup_engine_window(x1, y1, player->engine_window_width, player->engine_window_height);
 }
 
-long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
-{
-    return 1;
-}
-
-void set_sprite_view_3d(void)
-{
-    _DK_set_sprite_view_3d();
-}
-
-void set_sprite_view_isometric(void)
-{
-    _DK_set_sprite_view_isometric();
-}
-
-void set_engine_view(struct PlayerInfo *player, long val)
-{
-    //_DK_set_engine_view(player, val);
-    switch ( val )
-    {
-    case 1:
-      player->acamera = &player->cameras[1];
-      if (!is_my_player(player))
-        break;
-      lens_mode = 2;
-      set_sprite_view_3d();
-      S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
-      S3DSetDeadzoneRadius(0);
-      LbMouseSetPosition((MyScreenWidth/pixel_size) >> 1,(MyScreenHeight/pixel_size) >> 1);
-      break;
-    case 2:
-      player->acamera = &player->cameras[0];
-      if (!is_my_player(player))
-        break;
-      lens_mode = 0;
-      set_sprite_view_isometric();
-      S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
-      S3DSetDeadzoneRadius(1280);
-      break;
-    case 3:
-      player->acamera = &player->cameras[2];
-      if (!is_my_player(player))
-        break;
-      S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
-      S3DSetDeadzoneRadius(1280);
-      break;
-    case 5:
-      player->acamera = &player->cameras[3];
-      if (!is_my_player(player))
-        break;
-      lens_mode = 0;
-      set_sprite_view_isometric();
-      S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
-      S3DSetDeadzoneRadius(1280);
-      break;
-    default:
-      break;
-    }
-    player->view_mode = val;
-}
-
-void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
-{
-  struct Thing *thing;
-  struct Coord3d pos;
-  //_DK_set_player_state(player, nwrk_state, chosen_kind);
-  // Selecting the same state again - update only 2nd parameter
-  if (player->work_state == nwrk_state)
-  {
-    switch ( player->work_state )
-    {
-    case PSt_BuildRoom:
-        player->chosen_room_kind = chosen_kind;
-        break;
-    case PSt_PlaceTrap:
-        player->chosen_trap_kind = chosen_kind;
-        break;
-    case PSt_PlaceDoor:
-        player->chosen_door_kind = chosen_kind;
-        break;
-    }
-    return;
-  }
-  player->continue_work_state = player->work_state;
-  player->work_state = nwrk_state;
-  if (is_my_player(player))
-    game.field_14E92E = 0;
-  if ((player->work_state != PSt_Unknown12) && (player->work_state != PSt_Unknown15)
-     && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr))
-  {
-    player->controlled_thing_idx = 0;
-  }
-  switch (player->work_state)
-  {
-  case PSt_CtrlDungeon:
-      player->field_4A4 = 1;
-      break;
-  case PSt_BuildRoom:
-      player->chosen_room_kind = chosen_kind;
-      break;
-  case PSt_Unknown5:
-      create_power_hand(player->id_number);
-      break;
-  case PSt_Slap:
-      pos.x.val = 0;
-      pos.y.val = 0;
-      pos.z.val = 0;
-      thing = create_object(&pos, 37, player->id_number, -1);
-      if (thing_is_invalid(thing))
-      {
-        player->hand_thing_idx = 0;
-        break;
-      }
-      player->hand_thing_idx = thing->index;
-      set_power_hand_graphic(player->id_number, 785, 256);
-      place_thing_in_limbo(thing);
-      break;
-  case PSt_PlaceTrap:
-      player->chosen_trap_kind = chosen_kind;
-      break;
-  case PSt_PlaceDoor:
-      player->chosen_door_kind = chosen_kind;
-      break;
-  default:
-      break;
-  }
-}
-
-void set_player_mode(struct PlayerInfo *player, long nview)
-{
-  long i;
-  if (player->view_type == nview)
-    return;
-  player->view_type = nview;
-  player->field_0 &= 0xF7;
-  if (is_my_player(player))
-  {
-    game.numfield_D &= 0xF7;
-    game.numfield_D |= 0x01;
-    if (is_my_player(player))
-      stop_all_things_playing_samples();
-  }
-  switch (player->view_type)
-  {
-  case PVT_DungeonTop:
-      i = 2;
-      if (player->field_4B5 == 5)
-      {
-        set_engine_view(player, 2);
-        i = 5;
-      }
-      set_engine_view(player, i);
-      if (is_my_player(player))
-        toggle_status_menu((game.numfield_C & 0x40) != 0);
-      if ((game.numfield_C & 0x20) != 0)
-        setup_engine_window(status_panel_width, 0, MyScreenWidth, MyScreenHeight);
-      else
-        setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-      break;
-  case PVT_CreatureContrl:
-  case PVT_CreaturePasngr:
-      set_engine_view(player, 1);
-      if (is_my_player(player))
-        game.numfield_D &= ~0x01;
-      setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-      break;
-  case PVT_MapScreen:
-      player->continue_work_state = player->work_state;
-      set_engine_view(player, 3);
-      break;
-  case PVT_MapFadeIn:
-      set_player_instance(player, PI_MapFadeTo, 0);
-      break;
-  case PVT_MapFadeOut:
-      set_player_instance(player, PI_MapFadeFrom, 0);
-      break;
-  }
-}
-
 void turn_off_query(short a)
 {
   _DK_turn_off_query(a);
-}
-
-void turn_off_call_to_arms(long a)
-{
-  _DK_turn_off_call_to_arms(a);
 }
 
 long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
@@ -3020,109 +1904,6 @@ short resign_level(struct PlayerInfo *player)
     return true;
 }
 
-short player_has_won(PlayerNumber plyr_idx)
-{
-  struct PlayerInfo *player;
-  player = get_player(plyr_idx);
-  if (player_invalid(player))
-    return false;
-  return (player->victory_state == VicS_WonLevel);
-}
-
-short player_has_lost(PlayerNumber plyr_idx)
-{
-  struct PlayerInfo *player;
-  player = get_player(plyr_idx);
-  if (player_invalid(player))
-    return false;
-  return (player->victory_state == VicS_LostLevel);
-}
-
-long compute_player_final_score(struct PlayerInfo *player,long gameplay_score)
-{
-    long i;
-    if (((game.system_flags & GSF_NetworkActive) != 0)
-      || !is_singleplayer_level(game.loaded_level_number)) {
-        i = 2 * gameplay_score;
-    } else {
-        i = gameplay_score + 10 * gameplay_score * array_index_for_singleplayer_level(game.loaded_level_number) / 100;
-    }
-    if (player_has_lost(player->id_number))
-        i /= 2;
-    return i;
-}
-
-void set_player_as_won_level(struct PlayerInfo *player)
-{
-  struct Dungeon *dungeon;
-  if (player->victory_state != VicS_Undecided)
-  {
-      WARNLOG("Player fate is already decided to %d",(int)player->victory_state);
-      return;
-  }
-  if (is_my_player(player))
-    frontstats_initialise();
-  player->victory_state = VicS_WonLevel;
-  dungeon = get_dungeon(player->id_number);
-  // Computing player score
-  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
-  dungeon->lvstats.allow_save_score = 1;
-  if ((game.system_flags & GSF_NetworkActive) == 0)
-    player->field_4EB = game.play_gameturn + 300;
-  if (is_my_player(player))
-  {
-    if (lord_of_the_land_in_prison_or_tortured())
-    {
-        SYNCLOG("Lord Of The Land kept captive. Torture tower unlocked.");
-        player->field_3 |= 0x10;
-    }
-    output_message(SMsg_LevelWon, 0, true);
-  }
-}
-
-void set_player_as_lost_level(struct PlayerInfo *player)
-{
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  if (player->victory_state != VicS_Undecided)
-  {
-      WARNLOG("Victory state already set to %d",(int)player->victory_state);
-      return;
-  }
-  if (is_my_player(player))
-    frontstats_initialise();
-  player->victory_state = VicS_LostLevel;
-  dungeon = get_dungeon(player->id_number);
-  // Computing player score
-  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
-  if (is_my_player(player))
-  {
-    output_message(SMsg_LevelFailed, 0, true);
-    turn_off_all_menus();
-    clear_transfered_creature();
-  }
-  clear_things_in_hand(player);
-  dungeon->num_things_in_hand = 0;
-  if (dungeon->field_884 != 0)
-    turn_off_call_to_arms(player->id_number);
-  if (dungeon->keeper_sight_thing_idx > 0)
-  {
-    thing = thing_get(dungeon->keeper_sight_thing_idx);
-    delete_thing_structure(thing, 0);
-    dungeon->keeper_sight_thing_idx = 0;
-  }
-  if (is_my_player(player))
-    gui_set_button_flashing(0, 0);
-  set_player_mode(player, 1);
-  set_player_state(player, 1, 0);
-  if ((game.system_flags & GSF_NetworkActive) == 0)
-    player->field_4EB = game.play_gameturn + 300;
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-    reveal_whole_map(player);
-  if ((dungeon->computer_enabled & 0x01) != 0)
-    toggle_computer_player(player->id_number);
-}
-
 short complete_level(struct PlayerInfo *player)
 {
     SYNCDBG(6,"Starting");
@@ -3236,14 +2017,14 @@ void check_players_lost(void)
 
 void process_dungeon_power_magic(void)
 {
-  SYNCDBG(8,"Starting");
-  _DK_process_dungeon_power_magic();
+    SYNCDBG(8,"Starting");
+    _DK_process_dungeon_power_magic();
 }
 
 void process_dungeon_devastation_effects(void)
 {
-  SYNCDBG(8,"Starting");
-  _DK_process_dungeon_devastation_effects();
+    SYNCDBG(8,"Starting");
+    _DK_process_dungeon_devastation_effects();
 }
 
 void process_payday(void)
@@ -3392,39 +2173,6 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
         return true;
     }
     return false;
-}
-
-void remove_thing_from_mapwho(struct Thing *thing)
-{
-    struct Map *mapblk;
-    struct Thing *mwtng;
-    SYNCDBG(18,"Starting");
-    //_DK_remove_thing_from_mapwho(thing);
-    if ((thing->alloc_flags & TAlF_IsInMapWho) == 0)
-        return;
-    if (thing->prev_on_mapblk > 0)
-    {
-        mwtng = thing_get(thing->prev_on_mapblk);
-        mwtng->next_on_mapblk = thing->next_on_mapblk;
-    } else
-    {
-        mapblk = get_map_block_at(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-        set_mapwho_thing_index(mapblk, thing->next_on_mapblk);
-    }
-    if (thing->next_on_mapblk > 0)
-    {
-        mwtng = thing_get(thing->next_on_mapblk);
-        mwtng->prev_on_mapblk = thing->prev_on_mapblk;
-    }
-    thing->next_on_mapblk = 0;
-    thing->prev_on_mapblk = 0;
-    thing->alloc_flags &= ~TAlF_IsInMapWho;
-}
-
-void place_thing_in_mapwho(struct Thing *thing)
-{
-  SYNCDBG(18,"Starting");
-  _DK_place_thing_in_mapwho(thing);
 }
 
 long manufacture_points_required(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
@@ -4014,54 +2762,6 @@ short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, lo
   return result;
 }
 
-struct Thing *get_workshop_box_thing(long owner, long model)
-{
-    struct Thing *thing;
-    int i,k;
-    k = 0;
-    i = game.thing_lists[TngList_Objects].index;
-    while (i > 0)
-    {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-            break;
-        i = thing->next_of_class;
-        // Per-thing code
-        if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->model == model) && (thing->owner == owner) )
-        {
-            if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
-                return thing;
-        }
-        // Per-thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-    }
-    return INVALID_THING;
-}
-
-long remove_workshop_object_from_player(long owner, long model)
-{
-    struct Thing *thing;
-    struct Room *room;
-    //return _DK_remove_workshop_object_from_player(a1, a2);
-    thing = get_workshop_box_thing(owner, model);
-    if (thing_is_invalid(thing))
-        return 0;
-    room = get_room_thing_is_on(thing);
-    if ( room_exists(room) ) {
-        remove_workshop_object_from_workshop(room,thing);
-    } else {
-        WARNLOG("Crate thing index %d isn't placed existing room; removing anyway",(int)thing->index);
-    }
-    create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
-    delete_thing_structure(thing, 0);
-    return 1;
-}
-
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
 /* Currently this only makes Dungeon Heart blinking; maybe I'll find a purpose for it later
@@ -4336,12 +3036,6 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     lbDisplay.DrawFlags = flg_mem;
     thing_being_displayed = 0;
     LbScreenLoadGraphicsWindow(&grwnd);
-}
-
-void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
-{
-    SYNCDBG(9,"Starting");
-    _DK_remove_explored_flags_for_power_sight(player);
 }
 
 void pannel_map_draw(long x, long y, long zoom)
@@ -4677,164 +3371,10 @@ unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3)
     return _DK_tag_cursor_blocks_place_door(a1, a2, a3);
 }
 
-long remove_workshop_item(long owner, long tngclass, long tngmodel)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_remove_workshop_item(owner, tngclass, tngmodel);
-}
-
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4)
 {
     SYNCDBG(7,"Starting");
     return _DK_tag_cursor_blocks_place_room(a1, a2, a3, a4);
-}
-
-/**
- * Updates thing interaction with rooms. Sometimes deletes the given thing.
- * @param thing Thing to be checked, and assimilatedor deleted.
- * @return True if the thing was asimilated, false if it was deleted.
- */
-short check_and_asimilate_thing_by_room(struct Thing *thing)
-{
-  struct Room *room;
-  unsigned long n;
-  if (thing_is_gold_hoard(thing))
-  {
-    room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        delete_thing_structure(thing, 0);
-        return false;
-    }
-    n = (gold_per_hoarde/5)*(((long)thing->model)-51);
-    thing->owner = room->owner;
-    add_gold_to_hoarde(thing, room, n);
-  }
-  return true;
-}
-
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4)
-{
-    struct Thing *thing;
-    //return _DK_create_thing(pos, tngclass, model, owner, a4);
-    thing = INVALID_THING;
-    switch (tngclass)
-    {
-    case TCls_Object:
-        thing = create_object(pos, model, owner, a4);
-        break;
-    case TCls_Shot:
-        thing = create_shot(pos, model, owner);
-        break;
-    case TCls_EffectElem:
-        thing = create_effect_element(pos, model, owner);
-        break;
-    case TCls_DeadCreature:
-        thing = create_dead_creature(pos, model, 1, owner, 0);
-        break;
-    case TCls_Creature:
-        thing = create_creature(pos, model, owner);
-        break;
-    case TCls_Effect:
-        thing = create_effect(pos, model, owner);
-        break;
-    case TCls_Trap:
-        thing = create_trap(pos, model, owner);
-        break;
-    case TCls_AmbientSnd:
-        thing = create_ambient_sound(pos, model, owner);
-        break;
-    case TCls_CaveIn:
-        thing = create_cave_in(pos, model, owner);
-        break;
-    default:
-        break;
-    }
-    return thing;
-}
-
-short thing_create_thing(struct InitThing *itng)
-{
-    struct Thing *thing;
-    if (itng->owner == 7)
-    {
-        ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.hero_player_num);
-        itng->owner = game.hero_player_num;
-    } else
-    if (itng->owner == 8)
-    {
-        ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.neutral_player_num);
-        itng->owner = game.neutral_player_num;
-    }
-    if (itng->owner > 5)
-    {
-        ERRORLOG("Invalid owning player %d, thing discarded", (int)itng->owner);
-        return false;
-    }
-    switch (itng->oclass)
-    {
-    case TCls_Object:
-        thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
-        if (!thing_is_invalid(thing))
-        {
-            if (itng->model == 49)
-                thing->byte_13 = itng->params[1];
-            check_and_asimilate_thing_by_room(thing);
-            // make sure we don't have invalid pointer
-            thing = INVALID_THING;
-        } else
-        {
-            ERRORLOG("Couldn't create object model %d", (int)itng->model);
-            return false;
-        }
-        break;
-    case TCls_Creature:
-        thing = create_creature(&itng->mappos, itng->model, itng->owner);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Couldn't create creature model %d", (int)itng->model);
-            return false;
-        }
-        init_creature_level(thing, itng->params[1]);
-        break;
-    case TCls_EffectGen:
-        thing = create_effect_generator(&itng->mappos, itng->model, itng->range, itng->owner, itng->index);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Couldn't create effect generator model %d", (int)itng->model);
-            return false;
-        }
-        break;
-    case TCls_Trap:
-        thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Couldn't create trap model %d", (int)itng->model);
-            return false;
-        }
-        break;
-    case TCls_Door:
-        thing = create_door(&itng->mappos, itng->model, itng->params[0], itng->owner, itng->params[1]);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Couldn't create door model %d", (int)itng->model);
-            return false;
-        }
-        break;
-    case 10:
-    case 11:
-        thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Couldn't create thing class %d model %d", (int)itng->oclass, (int)itng->model);
-            return false;
-        }
-        break;
-    default:
-        ERRORLOG("Invalid class %d, thing discarded", (int)itng->oclass);
-        return false;
-    }
-    return true;
 }
 
 void initialise_map_collides(void)
@@ -4998,18 +3538,10 @@ void init_level(void)
     game.field_151801 = 0;
     game.field_151805 = 0;
     game.field_151809 = 0;
-    game.chosen_spell_type = 0;
-    game.chosen_spell_look = 0;
-    game.chosen_spell_tooltip = 0;
+    set_chosen_spell_none();
     game.manufactr_element = 0;
     game.numfield_15181D = 0;
     game.manufactr_tooltip = 0;
-}
-
-void pannel_map_update(long x, long y, long w, long h)
-{
-    SYNCDBG(7,"Starting");
-    _DK_pannel_map_update(x, y, w, h);
 }
 
 void set_chosen_spell(long sptype, long sptooltip)
@@ -5030,115 +3562,6 @@ void set_chosen_spell_none(void)
     game.chosen_spell_type = 0;
     game.chosen_spell_look = 0;
     game.chosen_spell_tooltip = 0;
-}
-
-void init_player_music(struct PlayerInfo *player)
-{
-    LevelNumber lvnum;
-    lvnum = get_loaded_level_number();
-    game.audiotrack = ((lvnum - 1) % -4) + 3;
-    randomize_sound_font();
-}
-
-void init_player(struct PlayerInfo *player, short no_explore)
-{
-    SYNCDBG(5,"Starting");
-    //_DK_init_player(player, no_explore); return;
-    player->mouse_x = 10;
-    player->mouse_y = 12;
-    player->minimap_zoom = 256;
-    player->field_4D1 = player->id_number;
-    setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight);
-    player->continue_work_state = PSt_CtrlDungeon;
-    player->work_state = PSt_CtrlDungeon;
-    player->field_14 = 2;
-    player->palette = _DK_palette;
-    if (is_my_player(player))
-    {
-        set_flag_byte(&game.numfield_C,0x40,true);
-        set_gui_visible(true);
-        init_gui();
-        turn_on_menu(GMnu_MAIN);
-        turn_on_menu(GMnu_ROOM);
-    }
-    switch (game.game_kind)
-    {
-    case GKind_NetworkGame:
-        init_player_as_single_keeper(player);
-        init_player_start(player);
-        reset_player_mode(player, 1);
-        if ( !no_explore )
-          init_keeper_map_exploration(player);
-        break;
-    case GKind_KeeperGame:
-        if (player->field_2C != 1)
-        {
-          ERRORLOG("Non Keeper in Keeper game");
-          break;
-        }
-        init_player_as_single_keeper(player);
-        init_player_start(player);
-        reset_player_mode(player, 1);
-        init_keeper_map_exploration(player);
-        break;
-    default:
-        ERRORLOG("How do I set up this player?");
-        break;
-    }
-    init_player_cameras(player);
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
-    player->mp_message_text[0] = '\0';
-    if (is_my_player(player))
-    {
-        init_player_music(player);
-    }
-    player->allied_players = (1 << player->id_number);
-    player->field_10 = 0;
-}
-
-void init_players(void)
-{
-    struct PlayerInfo *player;
-    int i;
-    for (i=0;i<PLAYERS_COUNT;i++)
-    {
-        player = get_player(i);
-        player->field_0 ^= (player->field_0 ^ ((game.packet_save_head.field_C & (1 << i)) >> i)) & 1;
-        if (player_exists(player))
-        {
-            player->id_number = i;
-            player->field_0 ^= (player->field_0 ^ (((game.packet_save_head.field_D & (1 << i)) >> i) << 6)) & 0x40;
-            if ((player->field_0 & 0x40) == 0)
-            {
-              game.field_14E495++;
-              player->field_2C = 1;
-              game.game_kind = GKind_KeeperGame;
-              init_player(player, 0);
-            }
-        }
-    }
-}
-
-TbBool create_transferred_creature_on_level(void)
-{
-    struct PlayerInfo *player;
-    struct Thing *thing;
-    struct Dungeon *dungeon;
-    struct Coord3d *pos;
-    if (game.intralvl_transfered_creature.model > 0)
-    {
-        player = get_my_player();
-        dungeon = get_dungeon(player->id_number);
-        thing = thing_get(dungeon->dnheart_idx);
-        pos = &(thing->mappos);
-        thing = create_creature(pos, game.intralvl_transfered_creature.model, 5);
-        if (thing_is_invalid(thing))
-          return false;
-        init_creature_level(thing, game.intralvl_transfered_creature.explevel);
-        clear_transfered_creature();
-        return true;
-    }
-    return false;
 }
 
 void post_init_level(void)
@@ -5174,31 +3597,12 @@ void post_init_level(void)
     SYNCDBG(9,"Finished");
 }
 
-void post_init_players(void)
-{
-    _DK_post_init_players(); return;
-}
-
 short init_animating_texture_maps(void)
 {
     SYNCDBG(8,"Starting");
     //_DK_init_animating_texture_maps(); return;
     anim_counter = 7;
     return update_animating_texture_maps();
-}
-
-void init_players_local_game(void)
-{
-    struct PlayerInfo *player;
-    SYNCDBG(4,"Starting");
-    player = get_my_player();
-    player->id_number = my_player_number;
-    player->field_0 |= 0x01;
-    if (settings.field_3 < 1u)
-      player->field_4B5 = 2;
-    else
-      player->field_4B5 = 5;
-    init_player(player, 0);
 }
 
 void startup_saved_packet_game(void)
@@ -5545,18 +3949,18 @@ void game_loop(void)
 
 short reset_game(void)
 {
-  SYNCDBG(6,"Starting");
-  _DK_IsRunningUnmark();
+    SYNCDBG(6,"Starting");
+    _DK_IsRunningUnmark();
 
-  KeeperSpeechExit();
+    KeeperSpeechExit();
 
-  LbMouseSuspend();
-  LbIKeyboardClose();
-  LbScreenReset();
-  LbDataFreeAll(game_load_files);
-  free_gui_strings_data();
-  FreeAudio();
-  return LbMemoryReset();
+    LbMouseSuspend();
+    LbIKeyboardClose();
+    LbScreenReset();
+    LbDataFreeAll(game_load_files);
+    free_gui_strings_data();
+    FreeAudio();
+    return LbMemoryReset();
 }
 
 short process_command_line(unsigned short argc, char *argv[])
