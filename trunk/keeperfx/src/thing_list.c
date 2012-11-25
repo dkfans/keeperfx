@@ -1024,7 +1024,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
     return INVALID_THING;
 }
 
-long count_player_creatures_not_counting_to_total(long plyr_idx)
+long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
 {
   struct Dungeon *dungeon;
   struct CreatureControl *cctrl;
@@ -1058,7 +1058,7 @@ long count_player_creatures_not_counting_to_total(long plyr_idx)
   return count;
 }
 
-struct Thing *get_random_players_creature_of_model(long plyr_idx, ThingModel crmodel)
+struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
 {
     struct Dungeon *dungeon;
     long total_count,crtr_idx;
@@ -1819,7 +1819,7 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
  * @param plyr_idx Player whose creature from revealed position will be returned.
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundFilterParam param;

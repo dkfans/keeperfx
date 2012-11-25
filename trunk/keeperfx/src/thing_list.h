@@ -141,7 +141,7 @@ struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_
 long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
 // Final routines to select thing belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
-struct Thing *get_random_players_creature_of_model(long plyr_idx, ThingModel crmodel);
+struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer);
 struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param);
@@ -150,7 +150,7 @@ long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long
 // Final routines to select thing on/near given map position
 struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
-struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
+struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
 struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, long plyr_idx);
 struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, long plyr_idx, long skip_thing_id);
 struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx);
@@ -174,7 +174,7 @@ void init_all_creature_states(void);
 long creature_of_model_in_prison_or_tortured(ThingModel crmodel);
 long count_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
-long count_player_creatures_not_counting_to_total(long plyr_idx);
+long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx);
 TbBool lord_of_the_land_in_prison_or_tortured(void);
 struct Thing *find_nearest_enemy_creature(struct Thing *crtng);
 long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage);

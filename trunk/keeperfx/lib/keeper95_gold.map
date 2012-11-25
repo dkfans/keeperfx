@@ -484,6 +484,7 @@
  0003:000315A8       minmaxs
  0003:000A6564       eye_lens_memory
  0003:0023EB54       eye_lens_spare_screen_memory
+ 0003:0023EB58       alpha_sprite_table
  0003:00040DCC       my_mouse_y
  0003:00040DD0       my_mouse_x
  0003:0000E6F0       instance_info
