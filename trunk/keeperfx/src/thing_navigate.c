@@ -56,12 +56,13 @@ DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
 }
 #endif
 /******************************************************************************/
-TbBool creature_can_navigate_to_with_storage(struct Thing *crtng, struct Coord3d *pos, unsigned char storage)
+TbBool creature_can_navigate_to_with_storage_f(struct Thing *crtng, struct Coord3d *pos, unsigned char storage, const char *func_name)
 {
     AriadneReturn ret;
-    SYNCDBG(18,"Starting");
+    NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(crtng),(int)crtng->index,
+        (int)crtng->mappos.x.stl.num, (int)crtng->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
     ret = ariadne_initialise_creature_route(crtng, pos, get_creature_speed(crtng), storage);
-    SYNCDBG(18,"Ariadne returned %d",(int)ret);
+    NAVIDBG(18,"Ariadne returned %d",(int)ret);
     return (ret == AridRet_OK);
 }
 
@@ -281,9 +282,10 @@ TbBool creature_can_travel_over_lava(const struct Thing *thing)
     return (crstat->hurt_by_lava <= 0) || ((thing->movement_flags & TMvF_Flying) != 0);
 }
 
-TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool no_owner)
+TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *pos, TbBool no_owner, const char *func_name)
 {
-    SYNCDBG(17,"Starting");
+    NAVIDBG(8,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
+        (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
     //result = _DK_creature_can_navigate_to(thing, pos, no_owner);
     struct Path path;
     long nav_sizexy;
@@ -297,7 +299,7 @@ TbBool creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, TbBool
     path_init8_wide(&path, thing->mappos.x.val, thing->mappos.y.val,
         pos->x.val, pos->y.val, -2, nav_sizexy);
     nav_thing_can_travel_over_lava = 0;
-    SYNCDBG(17,"Finished, %ld waypoints",(long)path.waypoints_num);
+    NAVIDBG(17,"Finished, %ld waypoints",(long)path.waypoints_num);
     return (path.waypoints_num > 0);
 }
 

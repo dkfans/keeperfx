@@ -32,6 +32,7 @@ extern "C" {
 
 struct Thing;
 struct TbColorTables;
+struct TbAlphaTables;
 struct PlayerInfo;
 
 #pragma pack()
@@ -46,6 +47,8 @@ void fade_out(void);
 void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal);
 void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg);
 void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
+
+void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,unsigned char *dpal);
 
 long PaletteFadePlayer(struct PlayerInfo *player);
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);

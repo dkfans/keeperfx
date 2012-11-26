@@ -278,176 +278,50 @@ void setup_block_mem(void)
     }
 }
 
-TbBool init_alpha_table(void)
-{
-    long len;
-    char *fname;
-    static const char textname[] = "alpha color table";
-    fname = prepare_file_path(FGrp_StdData,"alpha.col");
-    SYNCDBG(0,"%s %s file \"%s\".","Reading",textname,fname);
-    //_DK_init_alpha_table(); return true;
-    wait_for_cd_to_be_available();
-    // Loading file data
-    len = LbFileLoadAt(fname, alpha_sprite_table);
-    if (len == sizeof(alpha_sprite_table)) {
-        return true;
-    }
-    WARNMSG("The %s file \"%s\" couldn't be loaded, re-generating it.",textname,fname);
-    // Parse the config file
-    unsigned char *baseCol;
-    int blendR, blendG, blendB;
-    int nrow, n;
-    // Every color alpha-blended with shade of grey
-    blendG = 0;
-    for (nrow = 256; nrow < 2304; nrow += 256)
-    {
-        for (n=0; n < 256; n++)
-        {
-            baseCol = &_DK_palette[3*n];
-            int valR,valG,valB;
-            valR = blendG + baseCol[0];
-            if (valR >= 63)
-              valR = 63;
-            valG = blendG + baseCol[1];
-            if (valG >= 63)
-              valG = 63;
-            valB = blendG + baseCol[2];
-            if (valB >= 63)
-              valB = 63;
-            TbPixel c;
-            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
-            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
-        }
-        blendG += 4;
-    }
-    // Every color alpha-blended with brown/orange
-    blendG = 0;
-    blendR = 0;
-    for (nrow = 2304; nrow < 4352; nrow += 256)
-    {
-        for (n=0; n < 256; n++)
-        {
-            baseCol = &_DK_palette[3*n];
-            int valR,valG,valB;
-            valR = blendR + baseCol[0];
-            if (valR >= 63)
-              valR = 63;
-            valG = blendG + baseCol[1];
-            if (valG >= 63)
-              valG = 63;
-            valB = baseCol[2];
-            if (valB >= 63)
-              valB = 63;
-            TbPixel c;
-            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
-            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
-        }
-        blendG += 4;
-        blendR += 7;
-    }
-    // Every color alpha-blended with intense red
-    blendG = 0;
-    blendR = 0;
-    for (nrow = 4352; nrow < 6400; nrow += 256)
-    {
-        for (n=0; n < 256; n++)
-        {
-            baseCol = &_DK_palette[3*n];
-            int valR,valG,valB;
-            valR = blendR + baseCol[0];
-            if (valR >= 63)
-              valR = 63;
-            valG = blendG + baseCol[1];
-            if (valG >= 63)
-              valG = 63;
-            valB = blendG + baseCol[2];
-            if (valB >= 63)
-              valB = 63;
-            TbPixel c;
-            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
-            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
-      }
-      nrow += 256;
-      blendR += 6;
-      blendG += 1;
-    }
-    // Every color alpha-blended with blue
-    blendB = 0;
-    blendR = 0;
-    for (nrow = 6400; nrow < 8448; nrow += 256)
-    {
-        n = 0;
-        for (n=0; n < 256; n++)
-        {
-            baseCol = &_DK_palette[3*n];
-            int valR,valG,valB;
-            valR = blendR + baseCol[0];
-            if (valR >= 63)
-              valR = 63;
-            valG = blendR + baseCol[1];
-            if (valG >= 63)
-              valG = 63;
-            valB = blendB + baseCol[2];
-            if (valB >= 63)
-              valB = 63;
-            TbPixel c;
-            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
-            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
-        }
-        nrow += 256;
-        blendB += 6;
-        blendR += 2;
-    }
-    // Every color alpha-blended with green
-    blendG = 0;
-    blendR = 0;
-    for (nrow = 8448; nrow < 10496; nrow += 256)
-    {
-        n = 0;
-        for (n=0; n < 256; n++)
-        {
-            baseCol = &_DK_palette[3*n];
-            int valR,valG,valB;
-            valR = blendR + baseCol[0];
-            if (valR >= 63)
-              valR = 63;
-            valG = blendG + baseCol[1];
-            if (valG >= 63)
-              valG = 63;
-            valB = blendR + baseCol[2];
-            if (valB >= 63)
-              valB = 63;
-            TbPixel c;
-            c = LbPaletteFindColour(_DK_palette, valR, valG, valB);
-            eye_lens_spare_screen_memory[nrow + 4 + n] = c;
-        }
-        nrow += 256;
-        blendG += 6;
-        blendR += 2;
-    }
-    //Freeing and exiting
-    LbFileSaveAt(fname, alpha_sprite_table, sizeof(alpha_sprite_table));
-    return true;
-}
-
-void setup_stuff(void)
+TbBool init_fades_table(void)
 {
     char *fname;
     long i;
+    static const char textname[] = "alpha color table";
     fname = prepare_file_path(FGrp_StdData,"tables.dat");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
     setup_block_mem();
     if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
     {
-      compute_fade_tables(&pixmap,_DK_palette,_DK_palette);
-      LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
+        compute_fade_tables(&pixmap,_DK_palette,_DK_palette);
+        LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
     }
     lbDisplay.FadeTable = pixmap.fade_tables;
     // Update black color
     for (i=0; i < 8192; i++)
     {
-      if (pixmap.fade_tables[i] == 0)
-        pixmap.fade_tables[i] = 144;
+        if (pixmap.fade_tables[i] == 0) {
+            pixmap.fade_tables[i] = 144;
+        }
     }
+    return true;
+}
+
+
+TbBool init_alpha_table(void)
+{
+    char *fname;
+    static const char textname[] = "alpha color table";
+    fname = prepare_file_path(FGrp_StdData,"alpha.col");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    //_DK_init_alpha_table(); return true;
+    // Loading file data
+    if (LbFileLoadAt(fname, &alpha_sprite_table) != sizeof(struct TbAlphaTables))
+    {
+        compute_alpha_tables(&alpha_sprite_table,_DK_palette,_DK_palette);
+        LbFileSaveAt(fname, &alpha_sprite_table, sizeof(struct TbAlphaTables));
+    }
+    return true;
+}
+
+void setup_stuff(void)
+{
+    init_fades_table();
     init_alpha_table();
 }
 
