@@ -51,54 +51,110 @@ void fade_out(void)
 
 void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal)
 {
-  unsigned char *dst;
-  unsigned long i,k;
-  unsigned long r,g,b;
-  unsigned long rr,rg,rb;
-  SYNCMSG("Recomputing fade tables");
-  // Intense fade to/from black - slower fade near black
-  dst = coltbl->fade_tables;
-  for (i=0; i < 32; i++)
-  {
-    for (k=0; k < 256; k++)
+    unsigned char *dst;
+    unsigned long i,k;
+    unsigned long r,g,b;
+    unsigned long rr,rg,rb;
+    SYNCMSG("Recomputing fade tables");
+    // Intense fade to/from black - slower fade near black
+    dst = coltbl->fade_tables;
+    for (i=0; i < 32; i++)
     {
-      r = spal[3*k+0];
-      g = spal[3*k+1];
-      b = spal[3*k+2];
-      *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
-      dst++;
+      for (k=0; k < 256; k++)
+      {
+        r = spal[3*k+0];
+        g = spal[3*k+1];
+        b = spal[3*k+2];
+        *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
+        dst++;
+      }
     }
-  }
-  // Intense fade to/from black - faster fade part
-  for (i=32; i < 192; i+=3)
-  {
-    for (k=0; k < 256; k++)
+    // Intense fade to/from black - faster fade part
+    for (i=32; i < 192; i+=3)
     {
-      r = spal[3*k+0];
-      g = spal[3*k+1];
-      b = spal[3*k+2];
-      *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
-      dst++;
+      for (k=0; k < 256; k++)
+      {
+        r = spal[3*k+0];
+        g = spal[3*k+1];
+        b = spal[3*k+2];
+        *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
+        dst++;
+      }
     }
-  }
-  // Other fadings - between all the colors
-  dst = coltbl->ghost;
-  for (i=0; i < 256; i++)
-  {
-    // Reference colors
-    rr = spal[3*i+0];
-    rg = spal[3*i+1];
-    rb = spal[3*i+2];
-    // Creating fades
-    for (k=0; k < 256; k++)
+    // Other fadings - between all the colors
+    dst = coltbl->ghost;
+    for (i=0; i < 256; i++)
     {
-      r = dpal[3*k+0];
-      g = dpal[3*k+1];
-      b = dpal[3*k+2];
-      *dst = LbPaletteFindColour(dpal, (rr+2*r) / 3, (rg+2*g) / 3, (rb+2*b) / 3);
-      dst++;
+      // Reference colors
+      rr = spal[3*i+0];
+      rg = spal[3*i+1];
+      rb = spal[3*i+2];
+      // Creating fades
+      for (k=0; k < 256; k++)
+      {
+        r = dpal[3*k+0];
+        g = dpal[3*k+1];
+        b = dpal[3*k+2];
+        *dst = LbPaletteFindColour(dpal, (rr+2*r) / 3, (rg+2*g) / 3, (rb+2*b) / 3);
+        dst++;
+      }
     }
-  }
+}
+
+void compute_alpha_table(unsigned char *alphtbl, unsigned char *spal, unsigned char *dpal, char dred, char dgreen, char dblue)
+{
+    int blendR, blendG, blendB;
+    int nrow, n;
+    blendR = 0;
+    blendG = 0;
+    blendB = 0;
+    // Every color alpha-blended with given values for 8 steps of intensity
+    for (nrow = 0; nrow < 8; nrow++)
+    {
+        for (n=0; n < 256; n++)
+        {
+            unsigned char *baseCol;
+            baseCol = &spal[3*n];
+            int valR,valG,valB;
+            valR = blendR + baseCol[0];
+            if (valR >= 63)
+              valR = 63;
+            valG = blendG + baseCol[1];
+            if (valG >= 63)
+              valG = 63;
+            valB = blendB + baseCol[2];
+            if (valB >= 63)
+              valB = 63;
+            TbPixel c;
+            c = LbPaletteFindColour(dpal, valR, valG, valB);
+            alphtbl[nrow*256 + n] = c;
+        }
+        blendR += dred;
+        blendG += dgreen;
+        blendB += dblue;
+    }
+}
+
+void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,unsigned char *dpal)
+{
+    SYNCMSG("Recomputing alpha tables");
+    {
+        int n;
+        for (n=0; n < 256; n++)
+        {
+            alphtbls->black[n] = 144;
+        }
+    }
+    // Every color alpha-blended with shade of grey
+    compute_alpha_table(alphtbls->grey, spal, dpal, 4, 4, 4);
+    // Every color alpha-blended with brown/orange
+    compute_alpha_table(alphtbls->orange, spal, dpal, 7, 4, 0);
+    // Every color alpha-blended with intense red
+    compute_alpha_table(alphtbls->red, spal, dpal, 6, 1, 1);
+    // Every color alpha-blended with blue
+    compute_alpha_table(alphtbls->blue, spal, dpal, 2, 2, 6);
+    // Every color alpha-blended with green
+    compute_alpha_table(alphtbls->green, spal, dpal, 2, 6, 2);
 }
 
 void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)

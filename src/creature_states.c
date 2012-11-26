@@ -927,6 +927,19 @@ short arrive_at_call_to_arms(struct Thing *creatng)
     return 1;
 }
 
+TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    // If the position is over lava, and we can't continuously fly, then it's toxic
+    if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
+        // Check not only if a creature is now flying, but also whether it's natural ability
+        if (((creatng->movement_flags & TMvF_Flying) == 0) || (!crstat->flying))
+            return true;
+    }
+    return false;
+}
+
 /**
  * Finds a safe position for creature on one of subtiles of given slab.
  * @param pos The returned position.
@@ -942,8 +955,8 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
     MapSubtlCoord stl_x,stl_y;
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
-    base_x = 3 * slb_x;
-    base_y = 3 * slb_y;
+    base_x = slab_subtile(slb_x,0);
+    base_y = slab_subtile(slb_y,0);
     long i,k;
     k = start_stl;
     for (i=0; i < 9; i++)
@@ -957,9 +970,7 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
             map = get_map_block_at(x,y);
             if ((map->flags & MapFlg_Unkn10) == 0)
             {
-                struct CreatureStats *crstat;
-                crstat = creature_stats_get_from_thing(thing);
-                if ((crstat->hurt_by_lava <= 0) || !map_pos_is_lava(x,y))
+                if (!terrain_toxic_for_creature_at_position(thing, x, y))
                 {
                     int block_radius;
                     block_radius = subtile_coord(thing_nav_block_sizexy(thing),0) / 2;

@@ -1175,6 +1175,8 @@ AriadneReturn ariadne_prepare_creature_route_to_target(const struct Thing *thing
     struct Path path;
     long nav_sizexy;
     long i,k;
+    NAVIDBG(18,"The %s from %3d,%3d to %3d,%3d", thing_model_name(thing),
+        (int)srcpos->x.stl.num, (int)srcpos->y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
     LbMemorySet(&path, 0, sizeof(struct Path));
     arid->startpos.x.val = srcpos->x.val;
     arid->startpos.y.val = srcpos->y.val;
@@ -1225,7 +1227,8 @@ AriadneReturn ariadne_initialise_creature_route(struct Thing *thing, struct Coor
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
     AriadneReturn ret;
-    SYNCDBG(18,"Route for %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)pos->x.val,(int)pos->y.val);
+    NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+        (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
     //return _DK_ariadne_initialise_creature_route(thing, pos, speed, storage);
     cctrl = creature_control_get_from_thing(thing);
     arid = &(cctrl->arid);
@@ -1278,6 +1281,8 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
     pos.x.val = arid->endpos.x.val;
     pos.y.val = arid->endpos.y.val;
     pos.z.val = arid->endpos.z.val;
+    NAVIDBG(8,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+        (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)pos.x.stl.num, (int)pos.y.stl.num);
     return ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E);
 }
 
@@ -1297,6 +1302,8 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
         pos.x.val = arid->endpos.x.val;
         pos.y.val = arid->endpos.y.val;
         pos.z.val = arid->endpos.z.val;
+        NAVIDBG(8,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+            (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)pos.x.stl.num, (int)pos.y.stl.num);
         if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E) != AridRet_OK)
         {
             return 3;
@@ -1349,6 +1356,8 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     struct Ariadne *arid;
     AriadneReturn result;
     AriadneReturn aret;
+    NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
+        (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)finalpos->x.stl.num, (int)finalpos->y.stl.num);
     //TODO PATHFINDING rewritten code has been disabled because it has errors (1/2)
     result = _DK_ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5); return result;
 
