@@ -359,15 +359,15 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 void destroy_food(struct Thing *thing)
 {
     struct Room *room;
-    struct Dungeon *dungeon;
     struct Thing *efftng;
     struct Coord3d pos;
     PlayerNumber plyr_idx;
     long i;
     SYNCDBG(8,"Starting");
     plyr_idx = thing->owner;
-    dungeon = get_dungeon(plyr_idx);
     if (game.neutral_player_num != plyr_idx) {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(plyr_idx);
         dungeon->lvstats.chickens_wasted++;
     }
     efftng = create_effect(&thing->mappos, TngEff_Unknown49, plyr_idx);

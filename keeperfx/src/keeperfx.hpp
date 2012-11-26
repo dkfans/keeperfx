@@ -170,7 +170,7 @@ DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 
 DLLIMPORT extern unsigned char *_DK_blue_palette;
 #define blue_palette _DK_blue_palette
-DLLIMPORT extern unsigned char _DK_alpha_sprite_table[0x2900];
+DLLIMPORT extern struct TbAlphaTables _DK_alpha_sprite_table;
 #define alpha_sprite_table _DK_alpha_sprite_table
 DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
 #define game_load_files _DK_game_load_files
