@@ -660,7 +660,7 @@ TngUpdateRet move_effect_element(struct Thing *thing)
     if ( positions_equivalent(&thing->mappos, &pos) ) {
         return TUFRet_Unchanged;
     }
-    if ((thing->movement_flags & 0x10) == 0)
+    if ((thing->movement_flags & TMvF_Unknown10) == 0)
     {
         if (!move_allowed)
         {

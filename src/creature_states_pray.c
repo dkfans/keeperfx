@@ -28,6 +28,7 @@
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
+#include "creature_graphics.h"
 #include "thing_stats.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
@@ -274,7 +275,47 @@ TbBool make_all_players_creatures_angry(long plyr_idx)
 
 long force_complete_current_manufacturing(long plyr_idx)
 {
-    return _DK_force_complete_current_manufacturing(plyr_idx);
+    struct Dungeon *dungeon;
+    const struct ManfctrConfig *mconf;
+    int manufct_required;
+    long i;
+    //return _DK_force_complete_current_manufacturing(plyr_idx);
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Player %d cannot manufacture.",plyr_idx);
+        return 0;
+    }
+    switch (dungeon->manufacture_class)
+    {
+    case TCls_Trap:
+        i = dungeon->manufacture_kind;
+        mconf = &game.traps_config[i];
+        manufct_required = mconf->manufct_required;
+        break;
+    case TCls_Door:
+        i = dungeon->manufacture_kind;
+        mconf = &game.doors_config[i];
+        manufct_required = mconf->manufct_required;
+        break;
+    case TCls_Empty:
+        manufct_required = 0;
+        break;
+    default:
+        ERRORLOG("Invalid class of new manufacture, %d",(int)dungeon->manufacture_class);
+        manufct_required = 0;
+        break;
+    }
+    if (manufct_required <= 0)
+    {
+        WARNLOG("No points required to finish manufacture of class %d",(int)dungeon->manufacture_class);
+        return 0;
+    }
+    i = manufct_required << 8;
+    if (i <= dungeon->manufacture_progress)
+        i = dungeon->manufacture_progress;
+    dungeon->manufacture_progress = i;
+    return 0;
 }
 
 void apply_spell_effect_to_players_creatures(long plyr_idx, long spl_idx, long overchrg)
@@ -289,12 +330,45 @@ void kill_all_players_chickens(long plyr_idx)
 
 short creature_being_summoned(struct Thing *thing)
 {
-  return _DK_creature_being_summoned(thing);
+    struct CreatureControl *cctrl;
+    short orig_w, orig_h;
+    short unsc_w, unsc_h;
+    //return _DK_creature_being_summoned(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl)) {
+        return 0;
+    }
+    if (cctrl->word_9A <= 0)
+    {
+        get_keepsprite_unscaled_dimensions(thing->field_44, thing->field_52, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
+        create_effect(&thing->mappos, 4, thing->owner);
+        thing->movement_flags |= 0x04;
+        cctrl->word_9A = 1;
+        cctrl->word_9C = 48;//orig_h;
+        return 0;
+    }
+    cctrl->word_9A++;
+    if (cctrl->word_9A > cctrl->word_9C)
+    {
+        thing->movement_flags &= ~0x04;
+        set_start_state(thing);
+        return 0;
+    }
+    // Rotate the creature as it appears from temple
+    creature_turn_to_face_angle(thing, thing->field_52 + 256);
+    return 0;
 }
 
 short cleanup_sacrifice(struct Thing *thing)
 {
-  return _DK_cleanup_sacrifice(thing);
+    struct CreatureStats *crstat;
+    //return _DK_cleanup_sacrifice(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    if (crstat->flying) {
+        thing->movement_flags |= TMvF_Flying;
+    }
+    thing->movement_flags &= ~TMvF_Unknown04;
+    return 1;
 }
 
 long create_sacrifice_unique_award(struct Coord3d *pos, long plyr_idx, long sacfunc, long explevel)
