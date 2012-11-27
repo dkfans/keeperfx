@@ -56,8 +56,6 @@ DLLIMPORT extern unsigned long _DK_gui_panel_sprite_data;
 #define gui_panel_sprite_data _DK_gui_panel_sprite_data
 DLLIMPORT extern unsigned long _DK_end_gui_panel_sprite_data;
 #define end_gui_panel_sprite_data _DK_end_gui_panel_sprite_data
-DLLIMPORT unsigned char _DK_colours[16][16][16];
-#define colours _DK_colours
 DLLIMPORT extern unsigned char *_DK_frontend_background;
 #define frontend_background _DK_frontend_background
 

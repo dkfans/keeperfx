@@ -27,6 +27,9 @@
 extern "C" {
 #endif
 
+#define COLOUR_TABLE_BITS_PER_VALUE 4
+#define COLOUR_TABLE_DIMENSION (1<<COLOUR_TABLE_BITS_PER_VALUE)
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -34,6 +37,7 @@ struct Thing;
 struct TbColorTables;
 struct TbAlphaTables;
 struct PlayerInfo;
+typedef unsigned char TbRGBColorTable[COLOUR_TABLE_DIMENSION][COLOUR_TABLE_DIMENSION][COLOUR_TABLE_DIMENSION];
 
 #pragma pack()
 /******************************************************************************/
@@ -41,6 +45,10 @@ DLLIMPORT extern unsigned char _DK_fade_palette_in;
 #define fade_palette_in _DK_fade_palette_in
 DLLIMPORT extern unsigned char _DK_frontend_palette[768];
 #define frontend_palette _DK_frontend_palette
+DLLIMPORT TbRGBColorTable _DK_colours;
+#define colours _DK_colours
+DLLIMPORT extern struct TbAlphaTables _DK_alpha_sprite_table;
+#define alpha_sprite_table _DK_alpha_sprite_table
 /******************************************************************************/
 void fade_in(void);
 void fade_out(void);
@@ -49,6 +57,10 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
 void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 
 void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,unsigned char *dpal);
+void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal);
+void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal,
+    const unsigned char *dpal, int shiftR, int shiftG, int shiftB);
+
 
 long PaletteFadePlayer(struct PlayerInfo *player);
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);

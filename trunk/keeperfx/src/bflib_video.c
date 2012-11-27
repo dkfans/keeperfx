@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT int _DK_LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
+DLLIMPORT int _DK_LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned char g, unsigned char b);
 DLLIMPORT void _DK_copy_to_screen(unsigned char *srcbuf, unsigned long width, unsigned long height, unsigned int flags);
 /******************************************************************************/
 // Global variables
@@ -922,7 +922,7 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
     return LbRegisterVideoMode(desc, width, height, bpp, flags);
 }
 
-TbPixel LbPaletteFindColour(unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)
+TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)
 {
   return _DK_LbPaletteFindColour(pal, r, g, b);
 }
