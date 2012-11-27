@@ -50,6 +50,15 @@ struct TbAlphaTables {
     unsigned char blue[8*256];
     unsigned char green[8*256];
 };
+
+struct TbGradientTables {
+    unsigned char black[256];
+    unsigned char grey[8*256];
+    unsigned char orange[8*256];
+    unsigned char red[8*256];
+    unsigned char blue[8*256];
+    unsigned char green[8*256];
+};
 /******************************************************************************/
 DLLIMPORT unsigned short _DK_pixels_per_block;
 #define pixels_per_block _DK_pixels_per_block

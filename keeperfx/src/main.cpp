@@ -319,6 +319,59 @@ TbBool init_alpha_table(void)
     return true;
 }
 
+TbBool init_rgb2idx_table(void)
+{
+    char *fname;
+    static const char textname[] = "rgb-to-index color table";
+    fname = prepare_file_path(FGrp_StdData,"colours.col");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    // Loading file data
+    if (LbFileLoadAt(fname, &colours) != sizeof(TbRGBColorTable))
+    {
+        compute_rgb2idx_table(colours,_DK_palette);
+        LbFileSaveAt(fname, &colours, sizeof(TbRGBColorTable));
+    }
+    return true;
+}
+
+TbBool init_redpal_table(void)
+{
+    char *fname;
+    static const char textname[] = "red-blended color table";
+    fname = prepare_file_path(FGrp_StdData,"redpal.col");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    // Loading file data
+    if (LbFileLoadAt(fname, &red_pal) != 256)
+    {
+        compute_shifted_palette_table(red_pal, _DK_palette, _DK_palette, 20, -10, -10);
+        LbFileSaveAt(fname, &red_pal, 256);
+    }
+    return true;
+}
+
+TbBool init_whitepal_table(void)
+{
+    char *fname;
+    static const char textname[] = "white-blended color table";
+    fname = prepare_file_path(FGrp_StdData,"whitepal.col");
+    SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
+    // Loading file data
+    if (LbFileLoadAt(fname, &white_pal) != 256)
+    {
+        compute_shifted_palette_table(white_pal, _DK_palette, _DK_palette, 48, 48, 48);
+        LbFileSaveAt(fname, &white_pal, 256);
+    }
+    return true;
+}
+
+void init_colours(void)
+{
+    //_DK_init_colours(); return true;
+    init_rgb2idx_table();
+    init_redpal_table();
+    init_whitepal_table();
+}
+
 void setup_stuff(void)
 {
     init_fades_table();
@@ -372,12 +425,51 @@ void give_shooter_drained_health(struct Thing *shooter, long health_delta)
 
 long get_foot_creature_has_down(struct Thing *thing)
 {
-    return _DK_get_foot_creature_has_down(thing);
+    struct CreatureControl *cctrl;
+    unsigned short val;
+    long i;
+    int n;
+    //return _DK_get_foot_creature_has_down(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    val = thing->field_48;
+    if (val == (cctrl->field_CE >> 8))
+        return 0;
+    n = get_creature_breed_graphics(thing->model, 1);
+    i = convert_td_iso(n);
+    if (i != thing->field_44)
+        return 0;
+    if (val == 1)
+        return 1;
+    if (val == 4)
+        return 2;
+    return 0;
 }
 
 void process_keeper_spell_effect(struct Thing *thing)
 {
-  _DK_process_keeper_spell_effect(thing);
+    struct CreatureControl *cctrl;
+    //_DK_process_keeper_spell_effect(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_2AE--;
+    if (cctrl->field_2AE <= 0)
+    {
+        cctrl->field_2B0 = 0;
+        return;
+    }
+    if (cctrl->field_2B0 == 7)
+    {
+        struct Coord3d pos;
+        long amp,direction;
+        long delta_x,delta_y;
+        amp = 5 * thing->sizexy / 8;
+        direction = ACTION_RANDOM(2*LbFPMath_PI);
+        delta_x = (amp * LbSinL(direction) >> 8);
+        delta_y = (amp * LbCosL(direction) >> 8);
+        pos.x.val = thing->mappos.x.val + (delta_x >> 8);
+        pos.y.val = thing->mappos.y.val - (delta_y >> 8);
+        pos.z.val = thing->mappos.z.val;
+        create_effect_element(&pos, 0x2D, thing->owner);
+    }
 }
 
 TbBool add_spell_to_player(long spl_idx, long plyr_idx)
@@ -401,9 +493,29 @@ TbBool add_spell_to_player(long spl_idx, long plyr_idx)
     return true;
 }
 
-long is_thing_passenger_controlled(struct Thing *thing)
+TbBool is_thing_passenger_controlled(const struct Thing *thing)
 {
-    return _DK_is_thing_passenger_controlled(thing);
+    struct PlayerInfo *player;
+    //return _DK_is_thing_passenger_controlled(thing);
+    if (thing->owner != game.neutral_player_num)
+        return 0;
+    player = get_player(thing->owner);
+    if (player->work_state != PSt_CtrlDirect)
+        return false;
+    switch (player->instance_num)
+    {
+    case PI_DirctCtrl:
+        return (thing->index == player->field_43E);
+    case PI_CrCtrlFade:
+        return (thing->index == player->controlled_thing_idx);
+    case PI_PsngrCtLeave:
+        return (thing->index == player->field_43E);
+    case PI_Unset:
+        return (thing->index == player->controlled_thing_idx);
+    default:
+        break;
+    }
+    return false;
 }
 
 long process_creature_self_spell_casting(struct Thing *thing)
@@ -530,7 +642,7 @@ void update_thing_animation(struct Thing *thing)
  * Plays a smacker animation file and sets frontend state to nstate.
  * @param nstate Frontend state; -1 means no change, -2 means don't even
  *    change screen mode.
- * @return Returns false if fatal error occured and probram execution should end.
+ * @return Returns false if fatal error occurred and program execution should end.
  */
 short play_smacker_file(char *filename, int nstate)
 {
@@ -601,12 +713,6 @@ long load_anim_file(void)
 {
   SYNCDBG(8,"Starting");
   return _DK_load_anim_file();
-}
-
-void init_colours(void)
-{
-  SYNCDBG(8,"Starting");
-  _DK_init_colours();
 }
 
 void engine_init(void)

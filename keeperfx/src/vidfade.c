@@ -157,6 +157,53 @@ void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,uns
     compute_alpha_table(alphtbls->green, spal, dpal, 2, 6, 2);
 }
 
+void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal)
+{
+    int valR, valG, valB, scaler;
+    SYNCMSG("Recomputing rgb-to-index tables");
+    scaler = (1<<6)/COLOUR_TABLE_DIMENSION;
+    for (valR=0; valR < COLOUR_TABLE_DIMENSION; valR++)
+    {
+        for (valG = 0; valG < COLOUR_TABLE_DIMENSION; valG++)
+        {
+            for (valB = 0; valB < COLOUR_TABLE_DIMENSION; valB++)
+            {
+                TbPixel c = LbPaletteFindColour(spal, scaler * valR + (scaler-1),
+                    scaler * valG + (scaler-1), scaler * valB + (scaler-1));
+                ctab[valR][valG][valB] = c;
+            }
+        }
+    }
+}
+
+/**
+ * Gets colours from source palette, adds given shifts to every colour and encodes it to index in destination palette.
+ * @param ocol Output colours buffer.
+ * @param spal Source palette, from which initial colors are taken.
+ * @param dpal Destination palette, in which the output colors are coded.
+ * @param shiftR Color intensity shift value, red.
+ * @param shiftG Color intensity shift value, green.
+ * @param shiftB Color intensity shift value, blue.
+ */
+void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal, const unsigned char *dpal, int shiftR, int shiftG, int shiftB)
+{
+    int valR, valG, valB, i;
+    SYNCMSG("Recomputing palette table");
+    for (i=0; i < 256; i++)
+    {
+        valR = (int)spal[3*i+0] + shiftR;
+        if (valR >= 63) valR = 63;
+        if (valR <   0) valR = 0;
+        valG = (int)spal[3*i+1] + shiftG;
+        if (valG >= 63) valG = 63;
+        if (valG <   0) valG = 0;
+        valB = (int)spal[3*i+2] + shiftB;
+        if (valB >= 63) valB = 63;
+        if (valB <   0) valB = 0;
+        ocol[i] = LbPaletteFindColour(dpal, valR, valG, valB);
+    }
+}
+
 void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
 {
 /*    if (flg != Lb_PALETTE_FADE_CLOSED)
