@@ -142,7 +142,7 @@ char field_462;
     short field_4AB;
     short field_4AD;
     unsigned char field_4AF;
-    unsigned char instance_num;
+    unsigned char instance_num; //< Player instance, from PlayerInstanceNum enum.
     unsigned long field_4B1;
     char field_4B5;
     long dungeon_camera_zoom;

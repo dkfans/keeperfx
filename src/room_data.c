@@ -832,9 +832,9 @@ void update_room_central_tile_position(struct Room *room)
             return;
         }
     }
-    room->central_stl_x = map_tiles_x / 2;
-    room->central_stl_y = map_tiles_y / 2;
-    ERRORLOG("Cannot find position to place an ensign.");
+    room->central_stl_x = mass_x;
+    room->central_stl_y = mass_y;
+    ERRORLOG("Cannot find position in %s index %d to place an ensign.",room_code_name(room->kind),(int)room->index);
 }
 
 void add_room_to_global_list(struct Room *room)

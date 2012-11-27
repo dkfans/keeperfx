@@ -144,8 +144,6 @@ struct InitEffect { // sizeof = 39
 
 DLLIMPORT extern unsigned char *_DK_blue_palette;
 #define blue_palette _DK_blue_palette
-DLLIMPORT extern struct TbAlphaTables _DK_alpha_sprite_table;
-#define alpha_sprite_table _DK_alpha_sprite_table
 DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
 #define game_load_files _DK_game_load_files
 DLLIMPORT extern unsigned char _DK_exit_keeper;
@@ -300,7 +298,7 @@ void update(void);
 void intro(void);
 void outro(void);
 
-long is_thing_passenger_controlled(struct Thing *thing);
+TbBool is_thing_passenger_controlled(const struct Thing *thing);
 
 int can_thing_be_queried(struct Thing *thing, long a2);
 int can_thing_be_possessed(struct Thing *thing, long a2);
