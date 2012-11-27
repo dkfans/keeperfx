@@ -320,7 +320,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
         output_message(SMsg_ManufacturedDoor, 0, true);
       break;
   default:
-      ERRORLOG("Invalid type of new manufacture");
+      ERRORLOG("Invalid type of new manufacture, %d",(int)dungeon->manufacture_class);
       return false;
   }
 
