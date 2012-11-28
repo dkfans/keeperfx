@@ -121,9 +121,9 @@ struct RoomData {
       Room_Update_Func ofsfield_3;
       Room_Update_Func ofsfield_7;
       Room_Update_Func offfield_B;
-      unsigned char field_F;
-      unsigned char field_10;
-      short field_11;
+      unsigned char field_F; //< Originally was long, but the only used values are 1 and 0
+      unsigned char field_10; //< Unused, originally was part of field_F
+      short field_11; //< Unused, originally was part of field_F
       short msg1str_idx;
       short msg2str_idx;
 };
