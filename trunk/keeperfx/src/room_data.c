@@ -440,13 +440,20 @@ long get_player_rooms_count(PlayerNumber plyr_idx, RoomKind rkind)
 
 void set_room_capacity(struct Room *room, long capac)
 {
+    struct RoomData *rdata;
     SYNCDBG(7,"Starting");
-    _DK_set_room_capacity(room, capac);
+    //_DK_set_room_capacity(room, capac);
+    rdata = room_data_get_for_room(room);
+    if ((capac == 0) || (rdata->field_F))
+    {
+        do_room_integration(room);
+    }
 }
 
 void set_room_efficiency(struct Room *room)
 {
-  _DK_set_room_efficiency(room);
+    //_DK_set_room_efficiency(room);
+    room->efficiency = calculate_room_efficiency(room);
 }
 
 void count_slabs(struct Room *room)
@@ -472,7 +479,6 @@ void count_slabs_div2(struct Room *room)
   if (count <= 1)
     count = 1;
   room->total_capacity = count;
-
 }
 
 void count_books_in_room(struct Room *room)
@@ -1453,7 +1459,7 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
     int i;
     SYNCDBG(18,"Starting");
     loc_total_spare_cap = 0;
-    max_spare_room = NULL;
+    max_spare_room = INVALID_ROOM;
     max_spare_cap = 0;
     k = 0;
     i = room_idx;
@@ -1507,7 +1513,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
     int i;
     SYNCDBG(18,"Starting");
     dungeon = get_dungeon(owner);
-    nearoom = NULL;
+    nearoom = INVALID_ROOM;
     neardistance = LONG_MAX;
     k = 0;
     i = dungeon->room_kind[rkind];
@@ -1722,7 +1728,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
   unsigned long k;
   long i;
   retdist = LONG_MAX;
-  retroom = NULL;
+  retroom = INVALID_ROOM;
   i = dungeon->room_kind[rkind];
   k = 0;
   while (i != 0)
@@ -2289,15 +2295,19 @@ void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
 void do_room_integration(struct Room *room)
 {
     struct RoomData *rdata;
+    Room_Update_Func cb;
     update_room_efficiency(room);
     rdata = room_data_get_for_room(room);
     room->field_C = (long)game.hits_per_slab * (long)room->slabs_count;
-    if (rdata->ofsfield_3 != NULL)
-        rdata->ofsfield_3(room);
-    if (rdata->ofsfield_7 != NULL)
-        rdata->ofsfield_7(room);
-    if (rdata->offfield_B != NULL)
-        rdata->offfield_B(room);
+    cb = rdata->ofsfield_3;
+    if (cb != NULL)
+        cb(room);
+    cb = rdata->ofsfield_7;
+    if (cb != NULL)
+        cb(room);
+    cb = rdata->offfield_B;
+    if (cb != NULL)
+        cb(room);
     init_room_sparks(room);
 }
 
