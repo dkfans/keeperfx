@@ -260,7 +260,7 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long com
     }
     if ( (cctrl->combat_flags != 0) && ((cctrl->combat_flags & (CmbtF_Unknown08|CmbtF_Unknown10)) == 0) )
     {
-        long crstate = get_creature_state_besides_move(fighter);
+        CrtrStateId crstate = get_creature_state_besides_move(fighter);
         ERRORLOG("Creature in combat already - state %s", creature_state_code_name(crstate));
         return;
     }
