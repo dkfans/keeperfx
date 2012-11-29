@@ -166,7 +166,7 @@ void delete_all_control_structures(void)
     for (i=1; i < CREATURES_COUNT; i++)
     {
       cctrl = creature_control_get(i);
-      if (cctrl != NULL)
+      if (!creature_control_invalid(cctrl))
       {
         if ((cctrl->flgfield_1 & CCFlg_Exists) != 0)
           delete_control_structure(cctrl);
@@ -267,7 +267,7 @@ TbBool disband_creatures_group(struct Thing *thing)
     }
     // Disband the group, removing creatures from end
     k = 0;
-    while (ctng != NULL)
+    while (!thing_is_invalid(ctng))
     {
         cctrl = creature_control_get_from_thing(ctng);
         ntng = thing_get(cctrl->prev_in_group);
@@ -278,7 +278,7 @@ TbBool disband_creatures_group(struct Thing *thing)
           ctng = ntng;
         } else
         {
-          ctng = NULL;
+          ctng = INVALID_THING;
         }
         k++;
         if (k > CREATURES_COUNT)
