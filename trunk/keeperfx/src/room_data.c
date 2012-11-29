@@ -642,18 +642,71 @@ void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
     }
 }
 
-struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, RoomKind rkind)
+void update_room_total_capacity(struct Room *room)
+{
+    struct RoomData *rdata;
+    rdata = room_data_get_for_room(room);
+    if (rdata->update_total_capacity != NULL)
+    {
+        rdata->update_total_capacity(room);
+    }
+}
+
+/**
+ * Counts slabs making up the room and stores them in the room.
+ * Also, updates room index in all the slabs.
+ * @param room
+ */
+void count_room_slabs(struct Room *room)
+{
+    struct SlabMap *slb;
+    unsigned long k;
+    long i;
+    long n;
+    n = 0;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb))
+        {
+            ERRORLOG("Jump to invalid item when sweeping Slabs.");
+            break;
+        }
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        n++;
+        slb->room_index = room->index;
+        // Per room tile code ends
+        k++;
+        if (k >= map_tiles_x*map_tiles_y)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    room->slabs_count = n;
+}
+
+/**
+ * Checks if a room slab of given kind at given subtile could link to any of rooms at adjacent slabs.
+ * @param owner The owning player index of the new room slab.
+ * @param x The x subtile of the new room slab.
+ * @param y The y subtile of the new room slab.
+ * @param rkind  Kind of the new room slab.
+ * @return
+ */
+struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind)
 {
     SlabCodedCoords central_slbnum;
     struct SlabMap *slb;
-    struct RoomData *rdata;
     struct Room *linkroom;
     struct Room *room;
-    long stl_x,stl_y;
-    long i,n;
-    unsigned long k;
-    // TODO: rework! may lead to hang on map borders
+    MapSubtlCoord stl_x,stl_y;
+    long n;
     //return _DK_link_adjacent_rooms_of_type(owner, x, y, rkind);
+    // Encoded slab coords - we will need it if we'll find adjacent room
     central_slbnum = get_slab_number(subtile_slab_fast(x),subtile_slab_fast(y));
     // Localize the room to be merged with other rooms
     linkroom = INVALID_ROOM;
@@ -668,11 +721,11 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, Ro
           {
               // Add the central slab to room which was found
               room->total_capacity = 0;
-              slb = get_slabmap_direct(room->field_39);
+              slb = get_slabmap_direct(room->slabs_list_tail);
               slb->next_in_room = central_slbnum;
               slb = get_slabmap_direct(central_slbnum);
               slb->next_in_room = 0;
-              room->field_39 = central_slbnum;
+              room->slabs_list_tail = central_slbnum;
               linkroom = room;
               break;
           }
@@ -680,8 +733,9 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, Ro
     }
     if ( room_is_invalid(linkroom) )
     {
-        return NULL;
+        return INVALID_ROOM;
     }
+    // If slab was added to the room, check if more rooms now have to be linked together
     for (n++; n < 4; n++)
     {
         stl_x = x + 3 * (long)small_around[n].delta_x;
@@ -693,32 +747,21 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, Ro
           {
               if (room != linkroom)
               {
-                  slb = get_slabmap_direct(linkroom->field_39);
+                  // We have a room to merge
+                  slb = get_slabmap_direct(linkroom->slabs_list_tail);
+                  // Link together lists of slabs
                   slb->next_in_room = room->slabs_list;
-                  linkroom->field_39 = room->field_39;
-                  linkroom->slabs_count = 0;
-                  k = 0;
-                  i = room->slabs_list;
-                  while (i != 0)
-                  {
-                      // Per room tile code
-                      linkroom->slabs_count++;
-                      slb->room_index = linkroom->index;
-                      // Per room tile code ends
-                      i = get_next_slab_number_in_room(i);
-                      k++;
-                      if (k > room->slabs_count)
-                      {
-                          ERRORLOG("Room slabs list length exceeded when sweeping");
-                          break;
-                      }
-                  }
-                  rdata = room_data_get_for_kind(linkroom->kind);
-                  if (rdata->ofsfield_3 != NULL)
-                  {
-                      rdata->ofsfield_3(linkroom);
-                  }
+                  linkroom->slabs_list_tail = room->slabs_list_tail;
+                  // Clear list of slabs in the old room
+                  room->slabs_count = 0;
+                  room->slabs_list = 0;
+                  room->slabs_list_tail = 0;
+                  // Update slabs in the new list
+                  count_room_slabs(linkroom);
+                  update_room_total_capacity(linkroom);
+                  // Make sure creatures working in th3e room won't leave
                   change_work_room_of_creatures_working_in_room(room, linkroom);
+                  // Delete the old room
                   delete_room_flag(room);
                   free_room_structure(room);
               }
@@ -726,39 +769,6 @@ struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, Ro
         }
     }
     return linkroom;
-}
-
-void count_room_slabs(struct Room *room)
-{
-    struct SlabMap *slb;
-    long slb_x,slb_y;
-    unsigned long k;
-    long i;
-    room->slabs_count = 0;
-    k = 0;
-    i = room->slabs_list;
-    while (i > 0)
-    {
-        slb_x = slb_num_decode_x(i);
-        slb_y = slb_num_decode_y(i);
-        slb = get_slabmap_block(slb_x,slb_y);
-        if (slabmap_block_invalid(slb))
-        {
-          ERRORLOG("Jump to invalid item when sweeping Slabs.");
-          break;
-        }
-        i = get_next_slab_number_in_room(i);
-        // Per room tile code
-        room->slabs_count++;
-        slb->room_index = room->index;
-        // Per room tile code ends
-        k++;
-        if (k >= map_tiles_x*map_tiles_y)
-        {
-            ERRORLOG("Room slabs list length exceeded when sweeping");
-            break;
-        }
-    }
 }
 
 /** Returns coordinates of slab at mass centre of given room.
@@ -787,8 +797,8 @@ void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *
         slb = get_slabmap_block(slb_x,slb_y);
         if (slabmap_block_invalid(slb))
         {
-          ERRORLOG("Jump to invalid item when sweeping Slabs.");
-          break;
+            ERRORLOG("Jump to invalid item when sweeping room %s index %d Slabs.",room_code_name(room->kind),(int)room->index);
+            break;
         }
         // Per room tile code
         tot_x += slb_x;
@@ -797,7 +807,7 @@ void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *
         k++;
         if (k > room->slabs_count)
         {
-            ERRORLOG("Room slabs list length exceeded when sweeping");
+            ERRORLOG("Room %s index %d slabs list length exceeded when sweeping.",room_code_name(room->kind),(int)room->index);
             break;
         }
     }
@@ -809,6 +819,7 @@ void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *
         *mass_x = tot_x;
         *mass_y = tot_y;
     } else {
+        ERRORLOG("Room %s index %d has no slabs.",room_code_name(room->kind),(int)room->index);
         *mass_x = map_tiles_x / 2;
         *mass_y = map_tiles_y / 2;
     }
@@ -945,7 +956,7 @@ struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord 
     slb_y = subtile_slab_fast(stl_y);
     i = get_slab_number(slb_x, slb_y);
     room->slabs_list = i;
-    room->field_39 = i;
+    room->slabs_list_tail = i;
     slb = get_slabmap_direct(i);
     slb->next_in_room = 0;
     return room;
@@ -954,7 +965,7 @@ struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord 
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Room *room;
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting to make %s at (%d,%d)",room_code_name(rkind),(int)stl_x,(int)stl_y);
     // room = _DK_create_room(owner, rkind, x, y); return room;
     // Try linking the new room slab to existing room
     room = link_adjacent_rooms_of_type(owner, stl_x, stl_y, rkind);
@@ -2299,7 +2310,7 @@ void do_room_integration(struct Room *room)
     update_room_efficiency(room);
     rdata = room_data_get_for_room(room);
     room->field_C = (long)game.hits_per_slab * (long)room->slabs_count;
-    cb = rdata->ofsfield_3;
+    cb = rdata->update_total_capacity;
     if (cb != NULL)
         cb(room);
     cb = rdata->ofsfield_7;

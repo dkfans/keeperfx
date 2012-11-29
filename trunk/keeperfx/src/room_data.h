@@ -106,7 +106,7 @@ struct Room {
     };
     };
     unsigned short slabs_list;
-    unsigned short field_39;
+    unsigned short slabs_list_tail;
     unsigned short slabs_count;
     unsigned short creatures_list;
     unsigned short efficiency;
@@ -118,7 +118,7 @@ struct Room {
 struct RoomData {
       unsigned char numfield_0;
       short numfield_1;
-      Room_Update_Func ofsfield_3;
+      Room_Update_Func update_total_capacity;
       Room_Update_Func ofsfield_7;
       Room_Update_Func offfield_B;
       unsigned char field_F; //< Originally was long, but the only used values are 1 and 0
@@ -187,7 +187,7 @@ struct Room *allocate_free_room_structure(void);
 unsigned short i_can_allocate_free_room_structure(void);
 void delete_all_room_structures(void);
 void delete_room_structure(struct Room *room);
-struct Room *link_adjacent_rooms_of_type(unsigned char owner, long x, long y, RoomKind rkind);
+struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind);
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short room_grow_food(struct Room *room);
 void update_room_efficiency(struct Room *room);

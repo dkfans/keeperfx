@@ -36,6 +36,7 @@
 #include "thing_data.h"
 #include "gui_draw.h"
 #include "game_legacy.h"
+#include "vidfade.h"
 
 #include "keeperfx.hpp"
 
@@ -64,7 +65,7 @@ long gf_decide_victory(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned
 
 struct GuiBoxOption gui_main_cheat_list[] = { //gui_main_option_list in beta
   {"Null mode",                1,           NULL,      gf_change_player_state, 0, 0, 0,        PSt_None, 0, 0, 0, 0},
-  {"Place tunneller mode",     1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_MkGoodWorker, 0, 0, 0, 0},
+  {"Place tunneler mode",      1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_MkGoodWorker, 0, 0, 0, 0},
   {"Place creature mode",      1,           NULL,      gf_change_player_state, 0, 0, 0, PSt_MkBadCreatr, 0, 0, 0, 0},
   {"Place hero mode",          1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_MkGoodCreatr, 0, 0, 0, 0},
   {"Destroy walls mode",       1,           NULL,      gf_change_player_state, 0, 0, 0,PSt_DestroyWalls, 0, 0, 0, 0},
