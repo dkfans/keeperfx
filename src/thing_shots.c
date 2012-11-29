@@ -46,18 +46,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_move_shot(struct Thing *thing);
-DLLIMPORT long _DK_update_shot(struct Thing *thing);
+DLLIMPORT long _DK_move_shot(struct Thing *shotng);
+DLLIMPORT long _DK_update_shot(struct Thing *shotng);
 
-DLLIMPORT struct Thing *_DK_get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5);
-DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *thing, struct Coord3d *nxpos);
-DLLIMPORT long _DK_shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT long _DK_shot_hit_door_at(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT struct Thing *_DK_get_thing_collided_with_at_satisfying_filter(struct Thing *shotng, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5);
+DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *shotng, struct Coord3d *nxpos);
+DLLIMPORT long _DK_shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos);
+DLLIMPORT long _DK_shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos);
 DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
 DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
 DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
-DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *thing);
-DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *thing, long blocked_flags);
+DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *shotng);
+DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *shotng, long blocked_flags);
 /******************************************************************************/
 TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
@@ -158,7 +158,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
         ERRORLOG("Digging shot hit wall, but there's no digger creature index %d.",thing->parent_idx);
         return;
     }
-    if (blocked_flags & SlbBloF_Side01)
+    if (blocked_flags & SlbBloF_WalledX)
     {
         k = thing->field_52 & 0xFC00;
         if (k != 0)
@@ -172,7 +172,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
           stl_y = 3 * coord_slab(thing->mappos.y.val) + 1;
         }
     } else
-    if (blocked_flags & SlbBloF_Side02)
+    if (blocked_flags & SlbBloF_WalledY)
     {
         k = thing->field_52 & 0xFE00;
         if ((k != 0) && (k != 0x0600))
@@ -268,67 +268,68 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
  *     If the shot wasn't detonated, then the function returns false.
  * @note This function may delete the thing given in parameter.
  */
-TbBool shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
+TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
 {
     struct ShotConfigStats *shotst;
     struct Thing *shooter;
-    struct Thing *doortng;
     struct Thing *efftng;
+    struct Thing *doortng;
     unsigned long blocked_flags;
-    long cube_id;
     TbBool shot_explodes;
     long i;
+    SYNCDBG(8,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
     //return _DK_shot_hit_wall_at(thing, pos);
 
     efftng = INVALID_THING;
     shooter = INVALID_THING;
     shot_explodes = 0;
-    shotst = get_shot_model_stats(thing->model);
-    if (thing->index != thing->parent_idx) {
-        shooter = thing_get(thing->parent_idx);
+    shotst = get_shot_model_stats(shotng->model);
+    if (shotng->index != shotng->parent_idx) {
+        shooter = thing_get(shotng->parent_idx);
     }
-    blocked_flags = get_thing_blocked_flags_at(thing, pos);
+    blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if ( shotst->old->field_49 ) {
-        process_dig_shot_hit_wall(thing, blocked_flags);
+        process_dig_shot_hit_wall(shotng, blocked_flags);
     }
 
-    if ((blocked_flags & 0x04) != 0)
+    // If blocked by a higher wall
+    if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
+        long cube_id;
         cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num);
         doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
         if (!thing_is_invalid(doortng))
         {
-            efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
             if ( shotst->old->field_36 )
               shot_explodes = 1;
             if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
             {
-              apply_damage_to_thing(doortng, thing->word_14, -1);
-            }
-            else
+                apply_damage_to_thing(doortng, shotng->word_14, -1);
+            } else
             {
-              i = 32 * thing->word_14 / 256;
-              if (i <= 1)
-                  i = 1;
-              apply_damage_to_thing(doortng, i, -1);
+                i = 32 * shotng->word_14 / 256;
+                if (i <= 1)
+                    i = 1;
+                apply_damage_to_thing(doortng, i, -1);
             }
         } else
         if (cube_is_water(cube_id))
         {
-            efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_37, shotst->old->field_39, 1);
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_37, shotst->old->field_39, 1);
             if ( shotst->old->field_3B ) {
                 shot_explodes = 1;
             }
         } else
         if (cube_is_lava(cube_id))
         {
-            efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_3C, shotst->old->field_3E, 1);
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_3C, shotst->old->field_3E, 1);
             if ( shotst->old->field_40 ) {
                 shot_explodes = 1;
             }
         } else
         {
-            efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
             if ( shotst->old->field_30 ) {
                 shot_explodes = 1;
             }
@@ -337,27 +338,27 @@ TbBool shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
 
     if ( !shot_explodes )
     {
-        if ((blocked_flags & 0x03) != 0)
+        if ((blocked_flags & (SlbBloF_WalledX|SlbBloF_WalledY)) != 0)
         {
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
             if (!thing_is_invalid(doortng))
             {
-                efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
                 if (shotst->old->field_36)
                     shot_explodes = 1;
                 if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
                 {
-                    apply_damage_to_thing(doortng, thing->word_14, -1);
+                    apply_damage_to_thing(doortng, shotng->word_14, -1);
                 } else
                 {
-                    i = 32 * thing->word_14 / 256;
+                    i = 32 * shotng->word_14 / 256;
                     if (i <= 1)
                       i = 1;
                     apply_damage_to_thing(doortng, i, -1);
                 }
             } else
             {
-                efftng = create_shot_hit_effect(&thing->mappos, thing->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
+                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
                 if ( shotst->old->field_30 )
                   shot_explodes = 1;
             }
@@ -372,15 +373,15 @@ TbBool shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
         if ( shotst->old->field_41 ) {
             explosion_affecting_area(shooter, pos, shotst->old->field_41, shotst->old->field_43, 256, shotst->old->field_4A);
         }
-        delete_thing_structure(thing, 0);
+        delete_thing_structure(shotng, 0);
         return true;
     }
     if (shotst->old->field_D <= 0)
     {
-        slide_thing_against_wall_at(thing, pos, blocked_flags);
+        slide_thing_against_wall_at(shotng, pos, blocked_flags);
     } else
     {
-        bounce_thing_off_wall_at(thing, pos, blocked_flags);
+        bounce_thing_off_wall_at(shotng, pos, blocked_flags);
     }
     return false;
 }
@@ -394,33 +395,115 @@ TbBool shot_hit_wall_at(struct Thing *thing, struct Coord3d *pos)
  *     If the shot wasn't detonated, then the function returns false.
  * @note This function may delete the thing given in parameter.
  */
-long shot_hit_door_at(struct Thing *thing, struct Coord3d *pos)
+long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
 {
-    return _DK_shot_hit_door_at(thing, pos);
+    struct Thing *efftng;
+    struct Thing *shooter;
+    struct ShotConfigStats *shotst;
+    struct Thing *doortng;
+    long blocked_flags;
+    int i,n;
+    TbBool shod_explodes;
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
+    //return _DK_shot_hit_door_at(thing, pos);
+    shooter = INVALID_THING;
+    shod_explodes = false;
+    shotst = get_shot_model_stats(shotng->model);
+    // Identify the creator if the shot
+    if (shotng->index != shotng->parent_idx)
+    {
+        shooter = thing_get(shotng->parent_idx);
+        TRACE_THING(shooter);
+    }
+    efftng = INVALID_THING;
+    blocked_flags = get_thing_blocked_flags_at(shotng, pos);
+    if (blocked_flags != 0)
+    {
+      doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+      // If we did found a door to hit
+      if (!thing_is_invalid(doortng))
+      {
+          // If the shot hit is supposed to create effect thing
+          n = shotst->old->field_31;
+          if (n > 0) {
+              efftng = create_effect(&shotng->mappos, n, shotng->owner);
+          }
+          // If the shot hit is supposed to create sound
+          n = shotst->old->field_33;
+          if (n > 0)
+          {
+              if (!thing_is_invalid(efftng)) {
+                  i = shotst->old->field_35;
+                  thing_play_sample(efftng, n + ACTION_RANDOM(i), 100, 0, 3, 0, 2, 256);
+              }
+          }
+          // Shall the shot be destroyed on impact
+          if (shotst->old->field_36) {
+              shod_explodes = true;
+          }
+          // Apply damage to the door
+          if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
+          {
+              apply_damage_to_thing(doortng, shotng->word_14, -1);
+          } else
+          {
+              i = 32 * shotng->word_14 / 256;
+              if (i < 1)
+                  i = 1;
+              apply_damage_to_thing(doortng, i, -1);
+          }
+      }
+    }
+    if (!thing_is_invalid(efftng)) {
+        efftng->byte_16 = shotst->old->field_4A;
+    }
+    if ( shod_explodes )
+    {
+        if (shotst->old->field_41 != 0) {
+            explosion_affecting_area(shooter, pos, shotst->old->field_41, shotst->old->field_43, 256, shotst->old->field_4A);
+        }
+        delete_thing_structure(shotng, 0);
+        return 1;
+    }
+    else
+    if (shotst->old->field_D <= 0)
+    {
+        slide_thing_against_wall_at(shotng, pos, blocked_flags);
+        return 0;
+    } else
+    {
+        bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        return 0;
+    }
 }
 
-TbBool apply_shot_experience(struct Thing *shooter, struct Thing *target, long shot_model)
+TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, long exp_increase, long shot_model)
 {
-    struct CreatureStats *tgcrstat;
     struct ShotConfigStats *shotst;
-    struct CreatureControl *tgcctrl;
     struct CreatureControl *shcctrl;
-    long exp_mag,exp_factor,exp_gained;
+    long exp_mag,exp_gained;
     if (!creature_can_gain_experience(shooter))
         return false;
     shcctrl = creature_control_get_from_thing(shooter);
-    tgcctrl = creature_control_get_from_thing(target);
-    tgcrstat = creature_stats_get_from_thing(target);
-    exp_factor = tgcrstat->exp_for_hitting;
     shotst = get_shot_model_stats(shot_model);
     exp_mag = shotst->old->experience_given_to_shooter;
-    exp_gained = (exp_mag * (exp_factor + 12 * exp_factor * (long)tgcctrl->explevel / 100) << 8) / 256;
+    exp_gained = (exp_mag * (exp_factor + 12 * exp_factor * exp_increase / 100) << 8) / 256;
     shcctrl->prev_exp_points = shcctrl->exp_points;
     shcctrl->exp_points += exp_gained;
     if ( check_experience_upgrade(shooter) ) {
         external_set_thing_state(shooter, CrSt_CreatureBeHappy);
     }
     return true;
+}
+
+// originally was apply_shot_experience()
+TbBool apply_shot_experience_from_hitting_creature(struct Thing *shooter, struct Thing *target, long shot_model)
+{
+    struct CreatureStats *tgcrstat;
+    struct CreatureControl *tgcctrl;
+    tgcctrl = creature_control_get_from_thing(target);
+    tgcrstat = creature_stats_get_from_thing(target);
+    return apply_shot_experience(shooter, tgcrstat->exp_for_hitting, tgcctrl->explevel, shot_model);
 }
 
 long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
@@ -489,7 +572,25 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
 
 long check_hit_when_attacking_door(struct Thing *thing)
 {
-    return _DK_check_hit_when_attacking_door(thing);
+    //return _DK_check_hit_when_attacking_door(thing);
+    if (!thing_is_creature(thing))
+    {
+        ERRORLOG("The %s in invalid for this check", thing_model_name(thing));
+        return 0;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->combat_flags & CmbtF_Unknown10) != 0)
+    {
+        CrtrStateId crstate;
+        crstate = get_creature_state_besides_move(thing);
+        if (crstate != CrSt_CreatureCombatFlee)
+        {
+            set_start_state(thing);
+            return 1;
+        }
+    }
+    return 1;
 }
 
 TbBool shot_kill_creature(struct Thing *shotng, struct Thing *target)
@@ -617,11 +718,11 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
     }
-    if (!thing_is_invalid(shooter))
+    if (thing_is_creature(shooter))
     {
-        if ( (shooter->class_id == TCls_Creature) && (target->class_id == TCls_Creature) )
+        if (thing_is_creature(target))
         {
-            apply_shot_experience(shooter, target, shotng->model);
+            apply_shot_experience_from_hitting_creature(shooter, target, shotng->model);
         }
     }
     if (shotst->old->field_48 != 0)
@@ -801,110 +902,111 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, 
  *     If the shot wasn't detonated, then the function returns false.
  * @note This function may delete the thing given in parameter.
  */
-TbBool shot_hit_something_while_moving(struct Thing *thing, struct Coord3d *nxpos)
+TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxpos)
 {
     struct Thing *target;
+    SYNCDBG(18,"Starting for %s index %d targeting %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->byte_16);
     target = INVALID_THING;
-    switch ( thing->byte_16 )
+    switch ( shotng->byte_16 )
     {
     case 8:
-        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
             return true;
         break;
     case 1:
-        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_including_objects, 0, 0);
+        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_including_objects, 0, 0);
         if ( thing_is_invalid(target) )
             break;
-        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
             return true;
         break;
     case 2:
-        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_excluding_objects, 0, 0);
+        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_excluding_objects, 0, 0);
         if ( thing_is_invalid(target) )
             break;
-        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
             return true;
         break;
     case 3:
-        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_except_own_including_objects, 0, 0);
+        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_except_own_including_objects, 0, 0);
         if ( thing_is_invalid(target) )
             break;
-        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
             return true;
         break;
     case 4:
-        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects, 0, 0);
+        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects, 0, 0);
         if ( thing_is_invalid(target) )
             break;
-        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
             return true;
         break;
     case 7:
-        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_dungeon_heart_only, 0, 0);
+        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_dungeon_heart_only, 0, 0);
         if ( thing_is_invalid(target) )
             break;
-        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
             return true;
         break;
     case 9:
-        target = get_thing_collided_with_at_satisfying_filter(thing, nxpos, collide_filter_thing_is_shootable_by_any_player_including_objects, 0, 0);
+        target = get_thing_collided_with_at_satisfying_filter(shotng, nxpos, collide_filter_thing_is_shootable_by_any_player_including_objects, 0, 0);
         if ( !thing_is_invalid(target) )
         {
-            if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+            if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
               return true;
             break;
         }
-        target = get_shot_collided_with_same_type(thing, nxpos);
+        target = get_shot_collided_with_same_type(shotng, nxpos);
         if ( !thing_is_invalid(target) )
         {
-            thing->health = -1;
+            shotng->health = -1;
             return true;
         }
-        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
             return true;
         break;
     default:
         ERRORLOG("Shot has no hit thing type");
-        if ( shot_hit_shootable_thing_at(thing, target, nxpos) )
+        if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
             return true;
         break;
     }
     return false;
 }
 
-TngUpdateRet move_shot(struct Thing *thing)
+TngUpdateRet move_shot(struct Thing *shotng)
 {
-    //return _DK_move_shot(thing);
     struct ShotConfigStats *shotst;
     struct Coord3d pos;
     TbBool move_allowed;
-    SYNCDBG(18,"Starting for thing index %d, model %d",(int)thing->index,(int)thing->model);
-    TRACE_THING(thing);
+    SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
+    TRACE_THING(shotng);
+    //return _DK_move_shot(thing);
 
-    move_allowed = get_thing_next_position(&pos, thing);
-    shotst = get_shot_model_stats(thing->model);
+    move_allowed = get_thing_next_position(&pos, shotng);
+    shotst = get_shot_model_stats(shotng->model);
     if ( !shotst->old->field_28 )
     {
-        if ( shot_hit_something_while_moving(thing, &pos) ) {
+        if ( shot_hit_something_while_moving(shotng, &pos) ) {
             return TUFRet_Deleted;
         }
     }
-    if ((thing->movement_flags & TMvF_Unknown10) != 0)
+    if ((shotng->movement_flags & TMvF_Unknown10) != 0)
     {
-      if ( (shotst->old->field_48) && thing_in_wall_at(thing, &pos) ) {
-          if ( shot_hit_door_at(thing, &pos) ) {
+      if ( (shotst->old->field_48) && thing_in_wall_at(shotng, &pos) ) {
+          if ( shot_hit_door_at(shotng, &pos) ) {
               return TUFRet_Deleted;
           }
       }
     } else
     {
-      if ((!move_allowed) || thing_in_wall_at(thing, &pos)) {
-          if ( shot_hit_wall_at(thing, &pos) ) {
+      if ((!move_allowed) || thing_in_wall_at(shotng, &pos)) {
+          if ( shot_hit_wall_at(shotng, &pos) ) {
               return TUFRet_Deleted;
           }
       }
     }
-    move_thing_in_map(thing, &pos);
+    move_thing_in_map(shotng, &pos);
     return TUFRet_Modified;
 }
 
