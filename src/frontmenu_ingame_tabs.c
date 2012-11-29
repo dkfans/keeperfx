@@ -45,6 +45,7 @@
 #include "frontend.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
+#include "vidfade.h"
 
 #ifdef __cplusplus
 extern "C" {

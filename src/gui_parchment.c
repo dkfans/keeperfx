@@ -46,6 +46,7 @@
 #include "creature_states.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "vidfade.h"
 
 #include "keeperfx.hpp"
 

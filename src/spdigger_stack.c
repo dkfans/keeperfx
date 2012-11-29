@@ -627,7 +627,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short 
     return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
 }
 
-long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
+long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
 {
     struct SlabMap *place_slb;
     struct Coord3d pos;
@@ -743,13 +743,16 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
 {
     struct Dungeon *dungeon;
     struct Room *room;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(8,"Starting");
     //If the imp doesn't have any money - then just return
-    if (thing->creature.gold_carried <= 0)
+    if (thing->creature.gold_carried <= 0) {
+        SYNCDBG(8,"b");
       return 0;
+    }
     // Find a treasure room to drop the money
+    SYNCDBG(8,"C");
     room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, 0, 1);
-    if (room != NULL)
+    if (room_is_invalid(room))
     {
         if (setup_head_for_empty_treasure_space(thing, room))
         {
@@ -786,8 +789,9 @@ long check_out_available_imp_tasks(struct Thing *thing)
     SYNCDBG(9,"Starting");
     cctrl = creature_control_get_from_thing(thing);
     imp_stack_update(thing);
-    if ( check_out_imp_stack(thing) )
+    if ( check_out_imp_stack(thing) ) {
         return 1;
+    }
     if (game.play_gameturn-cctrl->field_2C7 > 128)
     {
         check_out_imp_has_money_for_treasure_room(thing);
@@ -939,17 +943,416 @@ long imp_stack_update(struct Thing *thing)
     return 1;
 }
 
+long check_out_worker_improve_dungeon(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    SYNCDBG(18,"Starting");
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    if ( !check_place_to_pretty_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
+    {
+        istack->task_id = DigTsk_None;
+        return 0;
+    }
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        return 0;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->digger.last_did_job = 2;
+    return 1;
+}
+
+long check_out_worker_convert_dungeon(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    SYNCDBG(18,"Starting");
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    if (!check_place_to_convert_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
+    {
+        istack->task_id = DigTsk_None;
+        return 0;
+    }
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        return 0;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->digger.last_did_job = 2;
+    return 1;
+}
+
+long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    struct CreatureControl *cctrl;
+    SYNCDBG(18,"Starting");
+    cctrl = creature_control_get_from_thing(thing);
+    if (game.play_gameturn - cctrl->field_2C7 > 128)
+    {
+        cctrl->field_95--;
+        check_out_imp_has_money_for_treasure_room(thing);
+        cctrl->field_2C7 = game.play_gameturn;
+        return 1;
+    }
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    if (check_place_to_reinforce(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) <= 0)
+    {
+        istack->task_id = DigTsk_None;
+        return 0;
+    }
+    if (!check_out_uncrowded_reinforce_position(thing, istack->field_0, &stl_x, &stl_y))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    thing->continue_state = CrSt_ImpArrivesAtReinforce;
+    cctrl->digger.byte_93 = 0;
+    cctrl->word_8D = istack->field_0;
+    cctrl->digger.last_did_job = 3;
+    return 1;
+}
+
+long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    SYNCDBG(18,"Starting");
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    if (!player_has_room(thing->owner, RoK_PRISON)) {
+        return 0;
+    }
+    if (!player_creature_tends_to(thing->owner, CrTend_Imprison)) {
+        return 0;
+    }
+    if (!find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1))
+    {
+      if (is_my_player_number(thing->owner))
+      {
+        if (!find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1))
+          output_message(SMsg_PrisonTooSmall, 1000, true);
+      }
+      istack->task_id = DigTsk_None;
+      return -1;
+    }
+    struct Thing *sectng;
+    sectng = check_place_to_pickup_unconscious_body(thing, stl_x, stl_y);
+    if (thing_is_invalid(sectng))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    thing->continue_state = CrSt_CreaturePickUpUnconsciousBody;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->pickup_creature_id = sectng->index;
+    return 1;
+}
+
+long check_out_worker_pickup_corpse(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    if (!player_has_room(thing->owner, RoK_GRAVEYARD)) {
+        return 0;
+    }
+    if ( find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1) )
+    {
+        if (is_my_player_number(thing->owner))
+        {
+          if (!find_room_with_spare_capacity(thing->owner, RoK_GRAVEYARD, 1))
+            output_message(SMsg_GraveyardTooSmall, 1000, true);
+        }
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    struct Thing *sectng;
+    sectng = check_place_to_pickup_dead_body(thing, stl_x, stl_y);
+    if (thing_is_invalid(sectng))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    thing->continue_state = CrSt_CreaturePicksUpCorpse;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->pickup_object_id = sectng->index;
+    return 1;
+}
+
+long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    if (!player_has_room(thing->owner, RoK_LIBRARY)) {
+        return 0;
+    }
+    if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, 0))
+    {
+        if (is_my_player_number(thing->owner))
+        {
+          if (!find_room_with_spare_room_item_capacity(thing->owner, RoK_LIBRARY))
+            output_message(SMsg_LibraryTooSmall, 1000, true);
+        }
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    struct Thing *sectng;
+    sectng = check_place_to_pickup_spell(thing, stl_x, stl_y);
+    if (thing_is_invalid(sectng))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (thing_is_spellbook(sectng))
+    {
+        event_create_event_or_update_nearby_existing_event(
+            get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
+            EvKind_SpellPickedUp, thing->owner, sectng->index);
+    } else
+    if (thing_is_special_box(sectng))
+    {
+        event_create_event_or_update_nearby_existing_event(
+            get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
+            EvKind_DnSpecialFound, thing->owner, sectng->index);
+    } else
+    {
+        WARNLOG("Strange pickup (model %d) - no event",(int)sectng->model);
+    }
+    thing->continue_state = CrSt_CreaturePicksUpSpellObject;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->pickup_object_id = sectng->index;
+    return 1;
+}
+
+long check_out_worker_pickup_trapbox(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    struct Thing *sectng;
+    sectng = check_place_to_pickup_crate(thing, stl_x, stl_y);
+    if (thing_is_invalid(sectng))
+    {
+        istack->task_id = DigTsk_None;
+        return 0;
+    }
+    if (!thing_is_trap_box(sectng))
+    {
+        return 0;
+    }
+    struct Thing *trdtng;
+    trdtng = check_for_empty_trap_for_imp_not_being_armed(thing, box_thing_to_door_or_trap(sectng));
+    if (thing_is_invalid(trdtng))
+    {
+        return 0;
+    }
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        return 0;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    thing->continue_state = CrSt_CreaturePicksUpTrapObject;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->pickup_object_id = sectng->index;
+    cctrl->field_70 = trdtng->index;
+    return 1;
+}
+
+long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    long i;
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    if (!player_has_room(thing->owner, RoK_WORKSHOP)) {
+        return 0;
+    }
+    if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, 0))
+    {
+      if (is_my_player_number(thing->owner))
+      {
+        if (!find_room_with_spare_room_item_capacity(thing->owner, RoK_WORKSHOP))
+          output_message(SMsg_WorkshopTooSmall, 1000, true);
+      }
+      istack->task_id = DigTsk_None;
+      return -1;
+    }
+    struct Thing *sectng;
+    sectng = check_place_to_pickup_crate(thing, stl_x, stl_y);
+    if (thing_is_invalid(sectng))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    i = workshop_object_class[sectng->model];
+    if ( i == 8 )
+    {
+      event_create_event_or_update_nearby_existing_event(
+          get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
+          EvKind_TrapCrateFound, thing->owner, sectng->index);
+    } else
+    if (i == 9)
+    {
+      event_create_event_or_update_nearby_existing_event(
+          get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
+          EvKind_DoorCrateFound, thing->owner, sectng->index);
+    } else
+    {
+        WARNLOG("Strange pickup (class %d) - no event",(int)i);
+    }
+    thing->continue_state = CrSt_CreaturePicksUpTrapForWorkshop;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->pickup_object_id = sectng->index;
+    return 1;
+}
+
+long check_out_worker_pickup_dig_or_mine(struct Thing *thing, struct DiggerStack *istack)
+{
+    MapSubtlCoord stl_x,stl_y;
+    long i;
+    i = find_dig_from_task_list(thing->owner, istack->field_0);
+    if (i == -1)
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    stl_x = 0; stl_y = 0;
+    if (!check_place_to_dig_and_get_position(thing, istack->field_0, &stl_x, &stl_y)
+      || !setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    {
+      istack->task_id = DigTsk_None;
+      return -1;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->word_91 = i;
+    cctrl->word_8F = istack->field_0;
+    cctrl->digger.last_did_job = 1;
+    struct MapTask *task;
+    task = get_task_list_entry(thing->owner, i);
+    if (task->kind == SDDigTask_MineGold)
+    {
+      thing->continue_state = CrSt_ImpArrivesAtMineGold;
+    } else
+    {
+      thing->continue_state = CrSt_ImpArrivesAtDigDirt;
+    }
+    return 1;
+}
+
+long check_out_worker_pickup_gold_pile(struct Thing *thing, struct DiggerStack *istack)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    if (crstat->gold_hold <= thing->creature.gold_carried)
+    {
+        if (game.play_gameturn - cctrl->field_2C7 > 128)
+        {
+          check_out_imp_has_money_for_treasure_room(thing);
+          cctrl->field_2C7 = game.play_gameturn;
+        }
+        return 1;
+    }
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = stl_num_decode_x(istack->field_0);
+    stl_y = stl_num_decode_y(istack->field_0);
+    if (!check_place_to_pickup_gold(thing, stl_x, stl_y))
+    {
+        istack->task_id = DigTsk_None;
+        return 0;
+    }
+    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    {
+        return 0;
+    }
+    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    {
+        istack->task_id = DigTsk_None;
+        return -1;
+    }
+    thing->continue_state = CrSt_ImpPicksUpGoldPile;
+    return 1;
+}
+
 long check_out_imp_stack(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
-    struct CreatureStats *crstat;
-    struct Thing *sectng;
-    struct Thing *trdtng;
     struct DiggerStack *istack;
-    struct MapTask *task;
-    long stl_x,stl_y;
-    long i;
+    long ret;
     SYNCDBG(18,"Starting");
     //return _DK_check_out_imp_stack(thing);
     cctrl = creature_control_get_from_thing(thing);
@@ -972,346 +1375,46 @@ long check_out_imp_stack(struct Thing *thing)
         switch (istack->task_id)
         {
         case DigTsk_ImproveDungeon:
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            if ( !check_place_to_pretty_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
-            {
-                istack->task_id = DigTsk_None;
-                break;
-            }
-            if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-            {
-              break;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
-            cctrl->digger.last_did_job = 2;
-            return 1;
-
+            ret = check_out_worker_improve_dungeon(thing, istack);
+            break;
         case DigTsk_ConvertDungeon:
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            if (!check_place_to_convert_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
-            {
-                istack->task_id = DigTsk_None;
-                break;
-            }
-            if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-            {
-              break;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
-            cctrl->digger.last_did_job = 2;
-            return 1;
-
+            ret = check_out_worker_convert_dungeon(thing, istack);
+            break;
         case DigTsk_ReinforceWall:
-            if (game.play_gameturn - cctrl->field_2C7 > 128)
-            {
-              cctrl->field_95--;
-              check_out_imp_has_money_for_treasure_room(thing);
-              cctrl->field_2C7 = game.play_gameturn;
-              return 1;
-            }
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            if (check_place_to_reinforce(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) <= 0)
-            {
-                istack->task_id = DigTsk_None;
-                break;
-            }
-            if (!check_out_uncrowded_reinforce_position(thing, istack->field_0, &stl_x, &stl_y))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            thing->continue_state = CrSt_ImpArrivesAtReinforce;
-            cctrl->digger.byte_93 = 0;
-            cctrl->word_8D = istack->field_0;
-            cctrl->digger.last_did_job = 3;
-            return 1;
-
+            ret = check_out_worker_reinforce_wall(thing, istack);
+            break;
         case DigTsk_PickUpUnconscious:
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            if (!player_has_room(dungeon->owner,RoK_PRISON) ||
-                !player_creature_tends_to(dungeon->owner,CrTend_Imprison))
-              break;
-            if (!find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1))
-            {
-              if (is_my_player_number(thing->owner))
-              {
-                if (!find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1))
-                  output_message(SMsg_PrisonTooSmall, 1000, true);
-              }
-              istack->task_id = DigTsk_None;
-              return -1;
-            }
-            sectng = check_place_to_pickup_unconscious_body(thing, stl_x, stl_y);
-            if (thing_is_invalid(sectng))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            thing->continue_state = CrSt_CreaturePickUpUnconsciousBody;
-            cctrl->pickup_creature_id = sectng->index;
-            return 1;
-
+            ret = check_out_worker_pickup_unconscious(thing, istack);
+            break;
         case DigTsk_PickUpCorpse:
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            if (!dungeon_has_room(dungeon, RoK_GRAVEYARD))
-              break;
-            if ( find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1) )
-            {
-              if (is_my_player_number(thing->owner))
-              {
-                if (!find_room_with_spare_capacity(thing->owner, RoK_GRAVEYARD, 1))
-                  output_message(SMsg_GraveyardTooSmall, 1000, true);
-              }
-              istack->task_id = DigTsk_None;
-              return -1;
-            }
-            sectng = check_place_to_pickup_dead_body(thing, stl_x, stl_y);
-            if (thing_is_invalid(sectng))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            thing->continue_state = CrSt_CreaturePicksUpCorpse;
-            cctrl->pickup_object_id = sectng->index;
-            return 1;
-
+            ret = check_out_worker_pickup_corpse(thing, istack);
+            break;
         case DigTsk_PicksUpSpellBook:
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            if (!dungeon_has_room(dungeon, RoK_LIBRARY))
-                break;
-            if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_LIBRARY, 0))
-            {
-                if (is_my_player_number(thing->owner))
-                {
-                  if (!find_room_with_spare_room_item_capacity(thing->owner, RoK_LIBRARY))
-                    output_message(SMsg_LibraryTooSmall, 1000, true);
-                }
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            sectng = check_place_to_pickup_spell(thing, stl_x, stl_y);
-            if (thing_is_invalid(sectng))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0) )
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (thing_is_spellbook(sectng))
-            {
-                event_create_event_or_update_nearby_existing_event(
-                    get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                    EvKind_SpellPickedUp, thing->owner, sectng->index);
-            } else
-            if (thing_is_special_box(sectng))
-            {
-                event_create_event_or_update_nearby_existing_event(
-                    get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                    EvKind_DnSpecialFound, thing->owner, sectng->index);
-            } else
-            {
-                WARNLOG("Strange pickup (model %d) - no event",(int)sectng->model);
-            }
-            thing->continue_state = CrSt_CreaturePicksUpSpellObject;
-            cctrl->pickup_object_id = sectng->index;
-            return 1;
-
+            ret = check_out_worker_pickup_spellbook(thing, istack);
+            break;
         case DigTsk_PicksUpTrapBox:
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            sectng = check_place_to_pickup_crate(thing, stl_x, stl_y);
-            if (thing_is_invalid(sectng))
-            {
-                istack->task_id = DigTsk_None;
-                break;
-            }
-            if (!thing_is_trap_box(sectng))
-            {
-                break;
-            }
-            trdtng = check_for_empty_trap_for_imp_not_being_armed(thing, box_thing_to_door_or_trap(sectng));
-            if (thing_is_invalid(trdtng))
-            {
-                break;
-            }
-            if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-            {
-              break;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
-            {
-              istack->task_id = DigTsk_None;
-              return -1;
-            }
-            thing->continue_state = CrSt_CreaturePicksUpTrapObject;
-            cctrl->pickup_object_id = sectng->index;
-            cctrl->field_70 = trdtng->index;
-            return 1;
-
+            ret = check_out_worker_pickup_trapbox(thing, istack);
+            break;
         case DigTsk_PicksUpTrapForWorkshop:
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            if (!dungeon_has_room(dungeon, RoK_WORKSHOP)) {
-              break;
-            }
-            if (!find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, 0))
-            {
-              if (is_my_player_number(thing->owner))
-              {
-                if (!find_room_with_spare_room_item_capacity(thing->owner, RoK_WORKSHOP))
-                  output_message(SMsg_WorkshopTooSmall, 1000, true);
-              }
-              istack->task_id = DigTsk_None;
-              return -1;
-            }
-            sectng = check_place_to_pickup_crate(thing, stl_x, stl_y);
-            if (thing_is_invalid(sectng))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            i = workshop_object_class[sectng->model];
-            if ( i == 8 )
-            {
-              event_create_event_or_update_nearby_existing_event(
-                  get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                  EvKind_TrapCrateFound, thing->owner, sectng->index);
-            } else
-            if (i == 9)
-            {
-              event_create_event_or_update_nearby_existing_event(
-                  get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
-                  EvKind_DoorCrateFound, thing->owner, sectng->index);
-            } else
-            {
-                WARNLOG("Strange pickup (class %d) - no event",(int)i);
-            }
-            thing->continue_state = CrSt_CreaturePicksUpTrapForWorkshop;
-            cctrl->pickup_object_id = sectng->index;
-            return 1;
-
+            ret = check_out_worker_pickup_trap_for_workshop(thing, istack);
+            break;
         case DigTsk_DigOrMine:
-            i = find_dig_from_task_list(thing->owner, istack->field_0);
-            if (i == -1)
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            stl_x = 0; stl_y = 0;
-            if (!check_place_to_dig_and_get_position(thing, istack->field_0, &stl_x, &stl_y)
-              || !setup_person_move_to_position(thing, stl_x, stl_y, 0))
-            {
-              istack->task_id = DigTsk_None;
-              return -1;
-            }
-            cctrl->word_91 = i;
-            cctrl->word_8F = istack->field_0;
-            cctrl->digger.last_did_job = 1;
-            task = get_dungeon_task_list_entry(dungeon, i);
-            if (task->kind == SDDigTask_MineGold)
-            {
-              thing->continue_state = CrSt_ImpArrivesAtMineGold;
-            } else
-            {
-              thing->continue_state = CrSt_ImpArrivesAtDigDirt;
-            }
-            return 1;
-
+            ret = check_out_worker_pickup_dig_or_mine(thing, istack);
+            break;
         case DigTsk_PicksUpGoldPile:
-            crstat = creature_stats_get_from_thing(thing);
-            if (crstat->gold_hold <= thing->creature.gold_carried)
-            {
-                if (game.play_gameturn - cctrl->field_2C7 > 128)
-                {
-                  check_out_imp_has_money_for_treasure_room(thing);
-                  cctrl->field_2C7 = game.play_gameturn;
-                }
-                return 1;
-            }
-            stl_x = stl_num_decode_x(istack->field_0);
-            stl_y = stl_num_decode_y(istack->field_0);
-            if (!check_place_to_pickup_gold(thing, stl_x, stl_y))
-            {
-                istack->task_id = DigTsk_None;
-                break;
-            }
-            if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-            {
-                break;
-            }
-            if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
-            {
-                istack->task_id = DigTsk_None;
-                return -1;
-            }
-            thing->continue_state = CrSt_ImpPicksUpGoldPile;
-            return 1;
-
+            ret = check_out_worker_pickup_gold_pile(thing, istack);
+            break;
         case DigTsk_None:
+            ret = 0;
             break;
         default:
+            ret = 0;
             ERRORLOG("Invalid stack type, %d",(int)istack->task_id);
             istack->task_id = DigTsk_None;
             break;
+        }
+        if (ret != 0) {
+            return ret;
         }
     }
     return 0;

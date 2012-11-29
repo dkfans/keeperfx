@@ -29,6 +29,7 @@
 #include "engine_arrays.h"
 #include "gui_draw.h"
 #include "game_legacy.h"
+#include "vidfade.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
