@@ -201,6 +201,8 @@ TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey)
 long pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
 long triangle_brute_find8_near(long pos_x, long pos_y);
 
+long thing_nav_block_sizexy(const struct Thing *thing);
+long thing_nav_sizexy(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

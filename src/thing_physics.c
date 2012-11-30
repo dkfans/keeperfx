@@ -24,9 +24,11 @@
 
 #include "thing_data.h"
 #include "thing_stats.h"
+#include "thing_creature.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "map_data.h"
+#include "map_columns.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -144,9 +146,58 @@ long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coo
     return _DK_get_thing_height_at_with_radius(thing, pos, radius);
 }
 
+TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord height_beg, MapCoord height_end)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if ((mapblk->flags & 0x10) != 0)
+    {
+        return true;
+    }
+    if (get_map_floor_height(mapblk) > height_beg)
+    {
+        return true;
+    }
+    if (get_map_ceiling_height(mapblk) < height_end)
+    {
+        return true;
+    }
+    return false;
+}
+
 long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-    return _DK_thing_in_wall_at(thing, pos);
+    int radius;
+    long i;
+    //return _DK_thing_in_wall_at(thing, pos);
+    if (thing_is_creature(thing)) {
+        i = thing_nav_sizexy(thing);
+    } else {
+        i = thing->sizexy;
+    }
+    radius = i/2;
+    // Base on the radius, determine bounds of the object
+    MapSubtlCoord stl_x_beg, stl_x_end;
+    MapSubtlCoord stl_y_beg, stl_y_end;
+    MapCoord height_beg, height_end;
+    height_beg = pos->z.val;
+    height_end = height_beg + thing->field_58;
+    stl_x_beg = coord_subtile(pos->x.val - radius);
+    stl_x_end = coord_subtile(pos->x.val + radius);
+    stl_y_end = coord_subtile(pos->y.val + radius);
+    stl_y_beg = coord_subtile(pos->y.val - radius);
+    MapSubtlCoord stl_x, stl_y;
+    for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        stl_x = stl_x_beg;
+        for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+        {
+            if (map_is_solid_at_height(stl_x, stl_y, height_beg, height_end)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)

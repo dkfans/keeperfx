@@ -56,7 +56,7 @@ TbBool setup_workshop_move(struct Thing *thing, SubtlCodedCoords stl_num)
     cctrl->moveto_pos.y.stl.num = stl_num_decode_y(stl_num);
     cctrl->moveto_pos.y.stl.pos = 128;
     cctrl->moveto_pos.z.val = get_thing_height_at(thing, &cctrl->moveto_pos);
-    if ( thing_in_wall_at(thing, &cctrl->moveto_pos) )
+    if (thing_in_wall_at(thing, &cctrl->moveto_pos))
     {
         ERRORLOG("Illegal setup to subtile (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
         set_start_state(thing);

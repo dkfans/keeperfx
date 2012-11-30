@@ -599,7 +599,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
     effstat = &effect_element_stats[thing->model];
     blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
     slide_thing_against_wall_at(thing, next_pos, blocked_flags);
-    if ( ((blocked_flags & 0x04) != 0) && effstat->field_15 && effstat->field_22 )
+    if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && effstat->field_15 && effstat->field_22 )
     {
         struct Thing *efftng;
         efftng = thing;

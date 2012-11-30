@@ -2674,7 +2674,7 @@ void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long 
     }
 
     // If there are still some solid cubes higher than tc
-    if (((col->bitfileds & 0x0E) != 0) && (col->solidmask > (1 << tc)))
+    if (((col->bitfields & 0x0E) != 0) && (col->solidmask > (1 << tc)))
     {
         // Find any top cube separated by empty space
         for (;tc < COLUMN_STACK_HEIGHT; tc++)

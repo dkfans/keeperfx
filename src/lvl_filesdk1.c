@@ -617,8 +617,8 @@ TbBool load_column_file(LevelNumber lv_num)
         LbMemoryCopy(colmn, &buf[i], sizeof(struct Column));
         //Update top cube in the column
         n = find_column_height(colmn);
-        colmn->bitfileds &= 0x0F;
-        colmn->bitfileds |= (n<<4) & 0xF0;
+        colmn->bitfields &= 0x0F;
+        colmn->bitfields |= (n<<4) & 0xF0;
         i += sizeof(struct Column);
     }
     LbMemoryFree(buf);
@@ -865,7 +865,7 @@ TbBool columns_add_static_entries(void)
           if (ncol == 0)
             ncol = create_column(&lcolmn);
           colmn = get_column(ncol);
-          colmn->bitfileds |= 0x01;
+          colmn->bitfields |= 0x01;
           *wptr = -(short)ncol;
           wptr++;
         }
@@ -895,7 +895,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
             {
               ncol = create_column(&lcolmn);
               colmn = get_column(ncol);
-              colmn->bitfileds |= 0x01;
+              colmn->bitfields |= 0x01;
             }
           } else
           {
@@ -928,7 +928,7 @@ TbBool create_columns_from_list(struct Column *cols, long ccount)
           if (ncol == 0)
             ncol = create_column(&cols[i]);
           colmn = get_column(ncol);
-          colmn->bitfileds |= 0x01;
+          colmn->bitfields |= 0x01;
         }
     }
     return true;

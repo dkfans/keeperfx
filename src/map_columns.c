@@ -77,7 +77,7 @@ long get_top_cube_at_pos(long stl_num)
     //return _DK_get_top_cube_at_pos(mpos);
     map = get_map_block_at_pos(stl_num);
     col = get_map_column(map);
-    top_pos = (col->bitfileds >> 4) & 0x0F;
+    top_pos = (col->bitfields >> 4) & 0x0F;
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
@@ -91,7 +91,7 @@ long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   unsigned long top_pos;
   long tcube;
   col = get_column_at(stl_x, stl_y);
-  top_pos = (col->bitfileds >> 4) & 0x0F;
+  top_pos = (col->bitfields >> 4) & 0x0F;
   if (top_pos > 0)
     tcube = col->cubes[top_pos-1];
   else
@@ -125,18 +125,46 @@ unsigned short find_column_height(struct Column *col)
   return h;
 }
 
-long get_floor_height_at(struct Coord3d *pos)
+long get_map_floor_height(const struct Map *mapblk)
 {
-    const struct Map *mapblk;
     const struct Column *colmn;
     long i,cubes_height;
-    mapblk = get_map_block_at(pos->x.val >> 8, pos->y.val >> 8);
     colmn = get_map_column(mapblk);
     cubes_height = 0;
-    i = colmn->bitfileds;
+    i = colmn->bitfields;
     if ((i & 0xF0) > 0)
         cubes_height = i >> 4;
     return cubes_height << 8;
+}
+
+long get_floor_height_at(const struct Coord3d *pos)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(pos->x.val >> 8, pos->y.val >> 8);
+    return get_map_floor_height(mapblk);
+}
+
+long get_map_ceiling_height(const struct Map *mapblk)
+{
+    const struct Column *colmn;
+    long i,cubes_height;
+    colmn = get_map_column(mapblk);
+    i = colmn->bitfields;
+    if ((i & 0x0E) > 0)
+    {
+        cubes_height = 8 - ((i & 0x0E) >> 1);
+    } else
+    {
+        cubes_height = get_mapblk_filled_subtiles(mapblk);
+    }
+    return cubes_height << 8;
+}
+
+long get_ceiling_height_at(const struct Coord3d *pos)
+{
+    struct Map *mapblk;
+    mapblk = get_map_block_at(pos->x.val >> 8, pos->y.val >> 8);
+    return get_map_ceiling_height(mapblk);
 }
 
 long find_column(struct Column *colmn)
@@ -197,7 +225,7 @@ void init_whole_blocks(void)
       i = create_column(&lcolmn);
     colmn = get_column(i);
     // Update its parameters
-    colmn->bitfileds |= 0x01;
+    colmn->bitfields |= 0x01;
     game.field_149E7C = 24;
     game.unrevealed_column_idx = i;
 }
