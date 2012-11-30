@@ -35,7 +35,7 @@ struct Map;
 
 struct Column { // sizeof=0x18
     short use;
-    unsigned char bitfileds;
+    unsigned char bitfields;
     unsigned short solidmask;
     unsigned short baseblock;
     unsigned char orient;
@@ -57,17 +57,21 @@ struct Column *get_map_column(const struct Map *map);
 struct Column *get_column(long idx);
 TbBool column_invalid(const struct Column *col);
 
-long get_top_cube_at_pos(long mpos);
-long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void make_solidmask(struct Column *col);
 void clear_columns(void);
 void init_columns(void);
 long find_column(struct Column *col);
 long create_column(struct Column *col);
 unsigned short find_column_height(struct Column *col);
-long get_floor_height_at(struct Coord3d *pos);
 void init_whole_blocks(void);
 void init_top_texture_to_cube_table(void);
+
+long get_top_cube_at_pos(long mpos);
+long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+long get_map_floor_height(const struct Map *mapblk);
+long get_floor_height_at(const struct Coord3d *pos);
+long get_map_ceiling_height(const struct Map *mapblk);
+long get_ceiling_height_at(const struct Coord3d *pos);
 
 TbBool cube_is_water(long cube_id);
 TbBool cube_is_lava(long cube_id);

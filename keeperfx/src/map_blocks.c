@@ -476,7 +476,7 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     if (column_invalid(col))
         z = 0;
     else
-        z = (col->bitfileds >> 4) & 0x0F;
+        z = (col->bitfields >> 4) & 0x0F;
     for (y = stl_y; y < stl_y+3; y++)
     {
       for (x = stl_x; x < stl_x+3; x++)
@@ -498,9 +498,9 @@ void get_floor_and_ceiling_heights_at(const struct Coord3d *pos, unsigned long *
     mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
     i = get_mapblk_column_index(mapblk);
     col = get_column(i);
-    if (col->bitfileds & 0xF0)
-        heights[0] = col->bitfileds >> 4;
-    k = col->bitfileds & 0xE;
+    if (col->bitfields & 0xF0)
+        heights[0] = col->bitfields >> 4;
+    k = col->bitfields & 0xE;
     if (k)
     {
         height = 8 - (k >> 1);
@@ -524,13 +524,13 @@ TbBool point_in_map_is_solid(const struct Coord3d *pos)
     unsigned long check_h;
     col = get_column_at(pos->x.stl.num, pos->y.stl.num);
     check_h = pos->z.stl.num;
-    if (col->bitfileds & 0xE)
+    if (col->bitfields & 0xE)
     {
         get_floor_and_ceiling_heights_at(pos, heights);
     } else
     {
         mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
-        heights[0] = col->bitfileds >> 4;
+        heights[0] = col->bitfields >> 4;
         heights[1] = get_mapblk_filled_subtiles(mapblk);
     }
     if ((heights[1] <= check_h) || (heights[0] > check_h))
@@ -581,7 +581,7 @@ void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     if (column_invalid(col))
         z = 0;
     else
-        z = (col->bitfileds >> 4) & 0x0F;
+        z = (col->bitfields >> 4) & 0x0F;
     for (y = stl_y; y < stl_y+3; y++)
     {
         for (x = stl_x; x < stl_x+3; x++)

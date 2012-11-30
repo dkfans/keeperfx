@@ -2251,11 +2251,11 @@ long get_navigation_colour_for_cube(long stl_x, long stl_y)
     long tcube;
     long i;
     col = get_column_at(stl_x, stl_y);
-    i = (col->bitfileds >> 4);
+    i = (col->bitfields >> 4);
     if (i > 15)
       i = 15;
     tcube = get_top_cube_at(stl_x, stl_y);
-    if (cube_is_lava(tcube) || ((tcube >= 294) && (tcube <= 302)))
+    if (cube_is_lava(tcube) || cube_is_sacrificial(tcube))
       i |= 0x10;
     return i;
 }
