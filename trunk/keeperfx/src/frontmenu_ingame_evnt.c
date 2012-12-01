@@ -185,7 +185,7 @@ short zoom_to_fight(unsigned char a1)
     if (active_battle_exists(a1))
     {
         dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, 104, dungeon->field_1174, 0, 0, 0);
+        set_players_packet_action(player, 104, dungeon->visible_battles[0], 0, 0, 0);
         step_battles_forward(a1);
         return true;
     }

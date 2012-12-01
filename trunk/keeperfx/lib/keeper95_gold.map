@@ -151,6 +151,8 @@
  0003:00247730       high_score_entry
  0003:00247F40       high_score_entry_index
  0003:00020870       frontstory_setup_sprites
+ 0003:00246E58       enemy_battler_list
+ 0003:00246FD0       friendly_battler_list
  0003:00246ED0       active_menus
  0003:00247000       tool_tip_time
  0003:0001756C       busy_doing_gui
