@@ -194,9 +194,8 @@ unsigned char field_F7D;
     unsigned long digger_stack_update_turn;
     unsigned long digger_stack_length;
     unsigned char visible_event_idx;
-    unsigned char field_1174;
-    unsigned char field_1175;
-    unsigned char field_1176;
+    /** Array with battle indexes with the battles currently visible in fight event message */
+    unsigned char visible_battles[3];
     short zoom_annoyed_creature_idx;
     long total_experience_creatures_gained;
     long total_research_points;

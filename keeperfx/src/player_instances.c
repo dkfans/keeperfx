@@ -897,15 +897,15 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
   long x,y;
   //return _DK_pinstfm_zoom_to_position(player, n);
   cam = player->acamera;
-  if (abs(cam->mappos.x.val - player->field_E4) >= abs(player->field_4DB))
+  if (abs(cam->mappos.x.val - player->zoom_to_pos_x) >= abs(player->field_4DB))
     x = player->field_4DB + cam->mappos.x.val;
   else
-    x = player->field_E4;
-  if (abs(cam->mappos.y.val - player->field_E6) >= abs(player->field_4DF))
+    x = player->zoom_to_pos_x;
+  if (abs(cam->mappos.y.val - player->zoom_to_pos_y) >= abs(player->field_4DF))
     y = player->field_4DF + cam->mappos.y.val;
   else
-    y = player->field_E6;
-  if ((player->field_E4 == x) && (player->field_E6 == y))
+    y = player->zoom_to_pos_y;
+  if ((player->zoom_to_pos_x == x) && (player->zoom_to_pos_y == y))
       player->field_4B1 = 0;
   cam->mappos.x.val = x;
   cam->mappos.y.val = y;

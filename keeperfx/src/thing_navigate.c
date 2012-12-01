@@ -299,7 +299,7 @@ TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *pos, TbBo
     path_init8_wide(&path, thing->mappos.x.val, thing->mappos.y.val,
         pos->x.val, pos->y.val, -2, nav_sizexy);
     nav_thing_can_travel_over_lava = 0;
-    NAVIDBG(17,"Finished, %ld waypoints",(long)path.waypoints_num);
+    NAVIDBG(9,"%s: Finished, %d waypoints",func_name,(int)path.waypoints_num);
     return (path.waypoints_num > 0);
 }
 

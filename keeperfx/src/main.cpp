@@ -806,8 +806,28 @@ short ceiling_set_info(long height_max, long height_min, long step)
   return 1;
 }
 
+void IsRunningMark(void)
+{
+    _DK_IsRunningMark();
+/*  HKEY hKey;
+  if ( !RegCreateKeyA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning", &hKey) )
+    RegCloseKey(hKey);*/
+}
+
+void IsRunningUnmark(void)
+{
+    _DK_IsRunningUnmark();
+    /*HKEY hKey;
+    if ( !RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning",
+            0, 0x20019u, &hKey) )
+    {
+        RegCloseKey(hKey);
+        RegDeleteKeyA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Bullfrog Productions Ltd\\Dungeon Keeper\\IsRunning");
+    }*/
+}
+
 /**
- * Initial video setup - loads only most importand files to show startup screens.
+ * Initial video setup - loads only most important files to show startup screens.
  */
 TbBool initial_setup(void)
 {
@@ -955,7 +975,7 @@ short setup_game(void)
 
   if ( result )
   {
-      _DK_IsRunningMark();
+      IsRunningMark();
       if ( !initial_setup() )
         result = 0;
   }
@@ -3785,7 +3805,7 @@ void game_loop(void)
 short reset_game(void)
 {
     SYNCDBG(6,"Starting");
-    _DK_IsRunningUnmark();
+    IsRunningUnmark();
 
     KeeperSpeechExit();
 

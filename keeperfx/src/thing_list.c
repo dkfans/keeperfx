@@ -1262,7 +1262,7 @@ struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer
       i = thing->next_on_mapblk;
       // Begin per-loop code
       n = filter(thing, param, *maximizer);
-      if (n >= *maximizer)
+      if (n > *maximizer)
       {
           retng = thing;
           *maximizer = n;
@@ -1313,7 +1313,7 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
             i = get_mapwho_thing_index(mapblk);
             n = maximizer;
             thing = get_thing_on_map_block_with_filter(i, filter, param, &n);
-            if (!thing_is_invalid(thing) && (n >= maximizer))
+            if (!thing_is_invalid(thing) && (n > maximizer))
             {
                 retng = thing;
                 maximizer = n;

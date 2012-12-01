@@ -211,7 +211,7 @@ void go_on_then_activate_the_event_box(long plridx, long evidx)
     strcpy(game.evntbox_scroll_window.text, gui_string(i));
   }
   if (event->kind == EvKind_Fight)
-    dungeon->field_1174 = find_first_battle_of_mine(plridx);
+    dungeon->visible_battles[0] = find_first_battle_of_mine(plridx);
   if (plridx == my_player_number)
   {
     other_off = 0;
