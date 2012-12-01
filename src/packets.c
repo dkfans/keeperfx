@@ -2011,8 +2011,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       room = room_get(pckt->field_6);
-      player->field_E4 = room->central_stl_x << 8;
-      player->field_E6 = room->central_stl_y << 8;
+      player->zoom_to_pos_x = subtile_coord_center(room->central_stl_x);
+      player->zoom_to_pos_y = subtile_coord_center(room->central_stl_y);
       set_player_instance(player, PI_ZoomToPos, 0);
       if (player->work_state == PSt_BuildRoom)
         set_player_state(player, 2, room->kind);
@@ -2021,8 +2021,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
-      player->field_E4 = thing->mappos.x.val;
-      player->field_E6 = thing->mappos.y.val;
+      player->zoom_to_pos_x = thing->mappos.x.val;
+      player->zoom_to_pos_y = thing->mappos.y.val;
       set_player_instance(player, PI_ZoomToPos, 0);
       if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
         set_player_state(player, 16, thing->model);
@@ -2031,8 +2031,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
-      player->field_E4 = thing->mappos.x.val;
-      player->field_E6 = thing->mappos.y.val;
+      player->zoom_to_pos_x = thing->mappos.x.val;
+      player->zoom_to_pos_y = thing->mappos.y.val;
       set_player_instance(player, PI_ZoomToPos, 0);
       if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
         set_player_state(player, 18, thing->model);
@@ -2040,8 +2040,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_Unknown087:
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
-      player->field_E4 = pckt->field_6;
-      player->field_E6 = pckt->field_8;
+      player->zoom_to_pos_x = pckt->field_6;
+      player->zoom_to_pos_y = pckt->field_8;
       set_player_instance(player, PI_ZoomToPos, 0);
       return 0;
   case PckA_Unknown088:
@@ -2092,16 +2092,16 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           {
             struct Thing *thing;
             thing = thing_get(dungeon->keeper_sight_thing_idx);
-            player->field_E4 = thing->mappos.x.val;
-            player->field_E6 = thing->mappos.y.val;
+            player->zoom_to_pos_x = thing->mappos.x.val;
+            player->zoom_to_pos_y = thing->mappos.y.val;
             set_player_instance(player, PI_ZoomToPos, 0);
           }
           break;
       case 6:
           if (dungeon->field_884)
           {
-            player->field_E4 = ((unsigned long)dungeon->field_881) << 8;
-            player->field_E6 = ((unsigned long)dungeon->field_882) << 8;
+            player->zoom_to_pos_x = ((unsigned long)dungeon->field_881) << 8;
+            player->zoom_to_pos_y = ((unsigned long)dungeon->field_882) << 8;
             set_player_instance(player, PI_ZoomToPos, 0);
           }
           break;

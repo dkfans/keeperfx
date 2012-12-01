@@ -743,21 +743,19 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
 {
     struct Dungeon *dungeon;
     struct Room *room;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     //If the imp doesn't have any money - then just return
     if (thing->creature.gold_carried <= 0) {
-        SYNCDBG(8,"b");
-      return 0;
+        return 0;
     }
     // Find a treasure room to drop the money
-    SYNCDBG(8,"C");
     room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TREASURE, 0, 1);
-    if (room_is_invalid(room))
+    if (!room_is_invalid(room))
     {
         if (setup_head_for_empty_treasure_space(thing, room))
         {
-          thing->continue_state = CrSt_ImpDropsGold;
-          return 1;
+            thing->continue_state = CrSt_ImpDropsGold;
+            return 1;
         }
         return 0;
     }
@@ -771,15 +769,19 @@ long check_out_imp_has_money_for_treasure_room(struct Thing *thing)
         return 0;
     }
     // If we have it, is it unreachable, or just too small?
-    if (find_room_with_spare_capacity(thing->owner, RoK_TREASURE, 1) != NULL)
+    room = find_room_with_spare_capacity(thing->owner, RoK_TREASURE, 1);
+    if (room_is_invalid(room))
     {
+        // No room with spare capacity - treasury is too small
+        if (is_my_player_number(thing->owner))
+            output_message(SMsg_TreasuryTooSmall, 1000, true);
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, thing->owner, 0);
+    } else
+    {
+        // There are rooms with spare capacity - they must be just unreachable
         if (is_my_player_number(thing->owner))
             output_message(SMsg_NoRouteToTreasury, 1000, true);
-        return 0;
     }
-    if (is_my_player_number(thing->owner))
-        output_message(SMsg_TreasuryTooSmall, 1000, true);
-    event_create_event_or_update_nearby_existing_event(0, 0, EvKind_TreasureRoomFull, thing->owner, 0);
     return 0;
 }
 
@@ -889,12 +891,12 @@ long check_out_imp_last_did(struct Thing *thing)
       room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TRAINING, 0, 1);
       if (!room_is_invalid(room))
       {
-        if ( setup_random_head_for_room(thing, room, 0) )
-        {
-          thing->continue_state = CrSt_AtTrainingRoom;
-          cctrl->target_room_id = room->index;
-          return true;
-        }
+          if ( setup_random_head_for_room(thing, room, 0) )
+          {
+            thing->continue_state = CrSt_AtTrainingRoom;
+            cctrl->target_room_id = room->index;
+            return true;
+          }
       }
       if (is_my_player_number(thing->owner))
       {
@@ -1046,12 +1048,16 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     if (!player_creature_tends_to(thing->owner, CrTend_Imprison)) {
         return 0;
     }
-    if (!find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1))
+    struct Room * room;
+    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1);
+    if (room_is_invalid(room))
     {
       if (is_my_player_number(thing->owner))
       {
-        if (!find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1))
-          output_message(SMsg_PrisonTooSmall, 1000, true);
+          room = find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1);
+          if (room_is_invalid(room)) {
+              output_message(SMsg_PrisonTooSmall, 1000, true);
+          }
       }
       istack->task_id = DigTsk_None;
       return -1;
@@ -1088,12 +1094,16 @@ long check_out_worker_pickup_corpse(struct Thing *thing, struct DiggerStack *ist
     if (!player_has_room(thing->owner, RoK_GRAVEYARD)) {
         return 0;
     }
-    if ( find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1) )
+    struct Room * room;
+    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1);
+    if (room_is_invalid(room))
     {
         if (is_my_player_number(thing->owner))
         {
-          if (!find_room_with_spare_capacity(thing->owner, RoK_GRAVEYARD, 1))
-            output_message(SMsg_GraveyardTooSmall, 1000, true);
+            room = find_room_with_spare_capacity(thing->owner, RoK_GRAVEYARD, 1);
+            if (room_is_invalid(room)) {
+                output_message(SMsg_GraveyardTooSmall, 1000, true);
+            }
         }
         istack->task_id = DigTsk_None;
         return -1;

@@ -354,7 +354,6 @@ short field_2AE;
     short job_assigned;
 unsigned short field_2B3[3];
 unsigned short field_2B9[3];
-
 unsigned char field_2BF[2];
 unsigned short field_2C1;
 unsigned short field_2C3;

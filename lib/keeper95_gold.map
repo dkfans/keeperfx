@@ -1838,9 +1838,11 @@
  0003:00245B20       active_buttons
  0003:00246E4C       video_cluedo_mode
  0003:00246E50       top_of_breed_list
+ 0003:00246E58       enemy_battler_list
  0003:00246E88       backup_input_field
  0003:00246EC8       no_of_active_menus
  0003:00246ED0       active_menus
+ 0003:00246FD0       friendly_battler_list
  0003:00247000       tool_tip_time
  0003:00247004       sound_level
  0003:00247008       video_shadows

@@ -27,7 +27,8 @@ extern "C" {
 #endif
 
 /** Max amount of battles supported on any map. */
-#define BATTLES_COUNT       48
+#define BATTLES_COUNT          48
+#define MESSAGE_BATTLERS_COUNT  8
 /******************************************************************************/
 #pragma pack(1)
 
@@ -48,8 +49,11 @@ struct CreatureBattle { // sizeof = 17
 struct CreatureBattle *creature_battle_get(BattleIndex battle_idx);
 struct CreatureBattle *creature_battle_get_from_thing(const struct Thing *thing);
 TbBool creature_battle_invalid(const struct CreatureBattle *battle);
+TbBool creature_battle_exists(BattleIndex battle_idx);
 
 BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx);
+BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx);
+BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex prev_idx);
 
 TbBool has_melee_combat_attackers(struct Thing *victim);
 TbBool can_add_melee_combat_attacker(struct Thing *victim);
@@ -63,7 +67,7 @@ long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, lon
 unsigned char active_battle_exists(unsigned char a1);
 void maintain_my_battle_list(void);
 unsigned char step_battles_forward(unsigned char a1);
-long battle_move_player_towards_battle(struct PlayerInfo *player, long var);
+long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_id);
 void battle_initialise(void);
 /******************************************************************************/
 #ifdef __cplusplus

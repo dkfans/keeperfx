@@ -108,8 +108,8 @@ unsigned char field_14;
     /** Pointer to the currently active camera. */
     struct Camera *acamera;
     struct Camera cameras[4];
-    unsigned short field_E4;
-    unsigned short field_E6;
+    unsigned short zoom_to_pos_x;
+    unsigned short zoom_to_pos_y;
 char field_E8[2];
     struct Wander wandr1;
     struct Wander wandr2;

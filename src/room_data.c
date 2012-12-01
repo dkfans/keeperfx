@@ -1522,7 +1522,7 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
     struct Room *room;
     unsigned long k;
     int i;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18,"Searching for %s with capacity for %s index %d",room_code_name(rkind),thing_model_name(thing),(int)thing->index);
     dungeon = get_dungeon(owner);
     nearoom = INVALID_ROOM;
     neardistance = LONG_MAX;
@@ -1548,8 +1548,8 @@ struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing
                 if ((thing->class_id != TCls_Creature)
                   || creature_can_navigate_to(thing, &pos, nav_no_owner))
                 {
-                  neardistance = distance;
-                  nearoom = room;
+                    neardistance = distance;
+                    nearoom = room;
                 }
             }
         }
