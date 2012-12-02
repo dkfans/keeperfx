@@ -29,6 +29,7 @@
 #include "creature_control.h"
 #include "map_data.h"
 #include "map_columns.h"
+#include "map_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -189,7 +190,6 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     MapSubtlCoord stl_x, stl_y;
     for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
     {
-        stl_x = stl_x_beg;
         for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
             if (map_is_solid_at_height(stl_x, stl_y, height_beg, height_end)) {
@@ -205,6 +205,38 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
     return _DK_thing_in_wall_at_with_radius(thing, pos, radius);
 }
 
+long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
+{
+    int radius;
+    long i;
+    //return _DK_get_floor_height_under_thing_at(thing, pos);
+    if (thing_is_creature(thing)) {
+        i = thing_nav_sizexy(thing);
+    } else {
+        i = thing->sizexy;
+    }
+    radius = i/2;
+    // Get range of coords under thing
+    MapCoord pos_x_beg, pos_x_end;
+    MapCoord pos_y_beg, pos_y_end;
+    pos_x_beg = (pos->x.val - radius);
+    if (pos_x_beg < 0)
+        pos_x_beg = 0;
+    pos_x_end = pos->x.val + radius;
+    pos_y_beg = (pos->y.val - radius);
+    if (pos_y_beg < 0)
+        pos_y_beg = 0;
+    if (pos_x_end >= 65535)
+        pos_x_end = 65535;
+    pos_y_end = pos->y.val + radius;
+    if (pos_y_end >= 65535)
+        pos_y_end = 65535;
+    // Find correct floor and ceiling plane for the area
+    MapSubtlCoord floor_height, ceiling_height;
+    get_min_floor_and_ceiling_heights_for_rect(coord_subtile(pos_x_beg), coord_subtile(pos_y_beg),
+        coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
+    return floor_height << 8;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

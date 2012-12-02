@@ -48,7 +48,10 @@ DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 extern const struct Around around[];
 /******************************************************************************/
 void init_spiral_steps(void);
-long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos);
+
+void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
+    MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
+    MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);
 /******************************************************************************/
 #ifdef __cplusplus
 }
