@@ -487,53 +487,61 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     }
 }
 
-void get_floor_and_ceiling_heights_at(const struct Coord3d *pos, unsigned long *heights)
+/**
+ * Updates given floor and ceiling height so that they are restricted to given subtile.
+ * Can be used sequentially on adjacent subtiles to compute max height of a thing which could fit through.
+ *
+ * @param stl_x The subtile to be checked, X coord.
+ * @param stl_y The subtile to be checked, Y coord.
+ * @param floor_height Floor height value reference. Value is updated only if new one is larger.
+ * @param ceiling_height Ceiling height value reference. Value is updated only if new one is smaller.
+ */
+void update_floor_and_ceiling_heights_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y,
+    MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height)
 {
     struct Column *col;
     struct Map *mapblk;
     long i;
     unsigned long height,k;
-    heights[0] = 0;
-    heights[1] = 15;
-    mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+    mapblk = get_map_block_at(stl_x, stl_y);
     i = get_mapblk_column_index(mapblk);
     col = get_column(i);
     if (col->bitfields & 0xF0)
-        heights[0] = col->bitfields >> 4;
-    k = col->bitfields & 0xE;
-    if (k)
     {
-        height = 8 - (k >> 1);
-        if (height >= 15)
-            height = 15;
-        heights[1] = height;
-    } else
-    {
-        height = get_mapblk_filled_subtiles(mapblk);
-        if (height >= 15)
-            height = 15;
-        heights[1] = height;
+        height = col->bitfields >> 4;
+        if (height > *floor_height)
+            *floor_height = height;
     }
+    k = col->bitfields & 0xE;
+    if (k) {
+        height = 8 - (k >> 1);
+    } else {
+        height = get_mapblk_filled_subtiles(mapblk);
+    }
+    if (height < *ceiling_height)
+        *ceiling_height = height;
 }
 
 TbBool point_in_map_is_solid(const struct Coord3d *pos)
 {
     struct Map *mapblk;
     struct Column *col;
-    unsigned long heights[2];
+    MapSubtlCoord floor_height, ceiling_height;
     unsigned long check_h;
     col = get_column_at(pos->x.stl.num, pos->y.stl.num);
     check_h = pos->z.stl.num;
     if (col->bitfields & 0xE)
     {
-        get_floor_and_ceiling_heights_at(pos, heights);
+        floor_height = 0;
+        ceiling_height = 15;
+        update_floor_and_ceiling_heights_at(pos->x.stl.num, pos->y.stl.num, &floor_height, &ceiling_height);
     } else
     {
         mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
-        heights[0] = col->bitfields >> 4;
-        heights[1] = get_mapblk_filled_subtiles(mapblk);
+        floor_height = col->bitfields >> 4;
+        ceiling_height = get_mapblk_filled_subtiles(mapblk);
     }
-    if ((heights[1] <= check_h) || (heights[0] > check_h))
+    if ((ceiling_height <= check_h) || (floor_height > check_h))
         return 1;
     return 0;
 }
