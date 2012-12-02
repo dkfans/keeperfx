@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 
 #include "map_blocks.h"
+#include "map_data.h"
 #include "slab_data.h"
 #include "room_data.h"
 
@@ -104,8 +105,29 @@ void init_spiral_steps(void)
     }
 }
 
-long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
+/**
+ * Returns minimal floor and ceiling heights for subtiles in given range.
+ * @param stl_x_beg First subtile to be checked, X coord.
+ * @param stl_y_beg First subtile to be checked, Y coord.
+ * @param stl_x_end Last subtile to be checked, X coord.
+ * @param stl_y_end Last subtile to be checked, Y coord.
+ * @param floor_height Floor height value reference. Set to max floor height in range.
+ * @param ceiling_height Ceiling height value reference. Set to min ceiling height in range.
+ */
+void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
+    MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
+    MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height)
 {
-  return _DK_get_floor_height_under_thing_at(thing, pos);
+    MapSubtlCoord stl_x, stl_y;
+    *floor_height = 0;
+    *ceiling_height = 15;
+    for (stl_y = stl_y_beg; stl_y <= stl_y_end; stl_y++)
+    {
+        for (stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
+        {
+            update_floor_and_ceiling_heights_at(stl_x, stl_y,
+                floor_height, ceiling_height);
+        }
+    }
 }
 /******************************************************************************/
