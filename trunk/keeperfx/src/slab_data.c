@@ -306,9 +306,9 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     update_blocks_in_area(sx, sy, ex, ey);
 }
 
-void do_slab_efficiency_alteration(unsigned char a1, unsigned char a2)
+void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-  _DK_do_slab_efficiency_alteration(a1, a2);
+    _DK_do_slab_efficiency_alteration(slb_x, slb_y); return;
 }
 /******************************************************************************/
 #ifdef __cplusplus

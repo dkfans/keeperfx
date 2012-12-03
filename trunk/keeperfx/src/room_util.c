@@ -45,7 +45,8 @@ DLLIMPORT short _DK_delete_room_slab(long x, long y, unsigned char gnd_slab);
 }
 #endif
 /******************************************************************************/
-struct Thing *create_room_surrounding_flame(struct Room *room,struct Coord3d *pos,unsigned short eetype, unsigned short owner)
+struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
+    unsigned short eetype, PlayerNumber owner)
 {
   struct Thing *eething;
   eething = create_effect_element(pos, room_effect_elements[eetype & 7], owner);
@@ -59,7 +60,7 @@ struct Thing *create_room_surrounding_flame(struct Room *room,struct Coord3d *po
   return eething;
 }
 
-void room_update_surrounding_flames(struct Room *room, struct Coord3d *pos)
+void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
     MapSlabCoord x,y;
     long i,k;
@@ -86,31 +87,31 @@ void room_update_surrounding_flames(struct Room *room, struct Coord3d *pos)
 
 void process_room_surrounding_flames(struct Room *room)
 {
-  struct Coord3d pos;
-  long x,y;
-  long i;
-  SYNCDBG(19,"Starting");
-  x = 3 * slb_num_decode_x(room->field_41);
-  y = 3 * slb_num_decode_y(room->field_41);
-  i = 3 * room->field_43 + room->field_44;
-  pos.x.val = 256 * (x+1) + room_spark_offset[i].delta_x + 128;
-  pos.y.val = 256 * (y+1) + room_spark_offset[i].delta_y + 128;
-  pos.z.val = 0;
-  // Create new element
-  if (room->owner == game.neutral_player_num)
-  {
-    create_room_surrounding_flame(room,&pos,game.play_gameturn & 3,game.neutral_player_num);
-  } else
-  if (room_effect_elements[room->owner] != 0)
-  {
-    create_room_surrounding_flame(room,&pos,room->owner,room->owner);
-  }
-  // Update coords for next element
-  if (room->field_44 == 2)
-  {
-    room_update_surrounding_flames(room,&pos);
-  }
-  room->field_44 = (room->field_44 + 1) % 3;
+    struct Coord3d pos;
+    long x,y;
+    long i;
+    SYNCDBG(19,"Starting");
+    x = 3 * slb_num_decode_x(room->field_41);
+    y = 3 * slb_num_decode_y(room->field_41);
+    i = 3 * room->field_43 + room->field_44;
+    pos.x.val = 256 * (x+1) + room_spark_offset[i].delta_x + 128;
+    pos.y.val = 256 * (y+1) + room_spark_offset[i].delta_y + 128;
+    pos.z.val = 0;
+    // Create new element
+    if (room->owner == game.neutral_player_num)
+    {
+      create_room_surrounding_flame(room,&pos,game.play_gameturn & 3,game.neutral_player_num);
+    } else
+    if (room_effect_elements[room->owner] != 0)
+    {
+      create_room_surrounding_flame(room,&pos,room->owner,room->owner);
+    }
+    // Update coords for next element
+    if (room->field_44 == 2)
+    {
+      room_update_surrounding_flames(room,&pos);
+    }
+    room->field_44 = (room->field_44 + 1) % 3;
 }
 
 void recompute_rooms_count_in_dungeons(void)

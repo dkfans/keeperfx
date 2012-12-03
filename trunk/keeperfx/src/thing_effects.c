@@ -490,7 +490,6 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     struct Thing *thing;
     long i,n;
     //return _DK_create_effect_element(pos, eelmodel, owner);
-
     if (!i_can_allocate_free_thing_structure(FTAF_Default)) {
         return INVALID_THING;
     }
