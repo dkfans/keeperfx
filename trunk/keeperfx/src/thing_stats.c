@@ -316,24 +316,54 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
 }
 
 /**
- * Computes damage of an attack, taking luck and creature level into account.
+ * Projects expected damage of an attack, taking luck and creature level into account.
+ * Uses no random factors - instead, projects a best estimate.
+ * This function allows evaluating damage creature can make. It shouldn't be used
+ * to actually inflict the damage.
+ * @param base_param Base damage.
+ * @param luck Creature luck, scaled 0..100.
+ * @param crlevel Creature level, 0..9.
  */
-long compute_creature_attack_damage(long base_param,long luck,unsigned short crlevel)
+long project_creature_attack_damage(long base_param,long luck,unsigned short crlevel)
 {
-  long max_param;
-  if (base_param < -60000)
-    base_param = -60000;
-  if (base_param > 60000)
-    base_param = 60000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
-  if (luck > 0)
-  {
-    if (ACTION_RANDOM(101) < luck)
-      max_param *= 2;
-  }
-  return saturate_set_signed(max_param, 16);
+    long max_param;
+    if (base_param < -60000)
+        base_param = -60000;
+    if (base_param > 60000)
+        base_param = 60000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+    if (luck > 0)
+    {
+        if (luck > 100) luck = 100;
+          max_param += luck*max_param/100;
+    }
+    return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes damage of an attack, taking luck and creature level into account.
+ * @param base_param Base damage.
+ * @param luck Creature luck, scaled 0..100.
+ * @param crlevel Creature level, 0..9.
+ */
+long compute_creature_attack_damage(long base_param, long luck, unsigned short crlevel)
+{
+    long max_param;
+    if (base_param < -60000)
+        base_param = -60000;
+    if (base_param > 60000)
+        base_param = 60000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+    if (luck > 0)
+    {
+        if (ACTION_RANDOM(101) < luck)
+          max_param *= 2;
+    }
+    return saturate_set_signed(max_param, 16);
 }
 
 /**

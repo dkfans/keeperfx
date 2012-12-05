@@ -511,10 +511,10 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     return _DK_shot_hit_object_at(shotng, target, pos);
 }
 
-long get_damage_of_melee_shot(struct Thing *shotng, struct Thing *target)
+long get_damage_of_melee_shot(const struct Thing *shotng, const struct Thing *target)
 {
-    struct CreatureStats *tgcrstat;
-    struct CreatureControl *tgcctrl;
+    const struct CreatureStats *tgcrstat;
+    const struct CreatureControl *tgcctrl;
     long crdefense,hitchance;
     tgcrstat = creature_stats_get_from_thing(target);
     tgcctrl = creature_control_get_from_thing(target);
@@ -528,6 +528,26 @@ long get_damage_of_melee_shot(struct Thing *shotng, struct Thing *target)
     }
     if (ACTION_RANDOM(256) < (128+hitchance))
       return shotng->word_14;
+    return 0;
+}
+
+long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target)
+{
+    const struct CreatureStats *tgcrstat;
+    const struct CreatureControl *tgcctrl;
+    long crdefense,hitchance;
+    tgcrstat = creature_stats_get_from_thing(target);
+    tgcctrl = creature_control_get_from_thing(target);
+    crdefense = compute_creature_max_defense(tgcrstat->defense,tgcctrl->explevel);
+    hitchance = (shot_dexterity - crdefense) / 2;
+    if (hitchance < -96) {
+        hitchance = -96;
+    } else
+    if (hitchance > 96) {
+        hitchance = 96;
+    }
+    if ((128+hitchance)*255/2)
+      return shot_damage;
     return 0;
 }
 

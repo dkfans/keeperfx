@@ -1636,31 +1636,61 @@ void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d
 
 /**
  * Calculates damage made by a creature by hand (using strength).
+ * @param thing The creature which will be inflicting the damage.
  */
-long calculate_melee_damage(struct Thing *thing)
+long calculate_melee_damage(const struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  struct CreatureStats *crstat;
-  cctrl = creature_control_get_from_thing(thing);
-  crstat = creature_stats_get_from_thing(thing);
-  return compute_creature_attack_damage(crstat->strength, crstat->luck, cctrl->explevel);
+    const struct CreatureControl *cctrl;
+    const struct CreatureStats *crstat;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    return compute_creature_attack_damage(crstat->strength, crstat->luck, cctrl->explevel);
 }
 
 /**
- * Calculates damage made by a creature using specific shot type.
+ * Calculates damage made by a creature using specific shot model.
+ * @param thing The creature which will be shooting.
+ * @param shot_model Shot kind which will be created.
  */
-long calculate_shot_damage(struct Thing *thing, ThingModel shot_model)
+long calculate_shot_damage(const struct Thing *thing, ThingModel shot_model)
 {
-  struct CreatureControl *cctrl;
-  struct CreatureStats *crstat;
-  struct ShotConfigStats *shotst;
-  shotst = get_shot_model_stats(shot_model);
-  cctrl = creature_control_get_from_thing(thing);
-  crstat = creature_stats_get_from_thing(thing);
-  return compute_creature_attack_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
+    const struct CreatureControl *cctrl;
+    const struct CreatureStats *crstat;
+    const struct ShotConfigStats *shotst;
+    shotst = get_shot_model_stats(shot_model);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    return compute_creature_attack_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
 }
 
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char a2, unsigned char hit_type)
+/**
+ * Projects damage made by a creature using specific shot model.
+ * Gives a best estimate of the damage, but shouldn't be used to actually inflict it.
+ * @param thing The creature which will be shooting.
+ * @param shot_model Shot kind which will be created.
+ */
+long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model)
+{
+    const struct CreatureControl *cctrl;
+    const struct CreatureStats *crstat;
+    const struct ShotConfigStats *shotst;
+    shotst = get_shot_model_stats(shot_model);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    long damage;
+    if ( shotst->old->field_48 )
+    {
+        // Project melee damage
+        damage = project_creature_attack_damage(crstat->strength, crstat->luck, cctrl->explevel);
+    } else
+    {
+        // Project shot damage
+        damage = project_creature_attack_damage(shotst->old->damage, crstat->luck, cctrl->explevel);
+    }
+    return damage;
+}
+
+void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char a2, unsigned char hit_type)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -1952,7 +1982,7 @@ void get_creature_instance_times(struct Thing *thing, long inst_idx, long *ritim
     *raitime = aitime;
 }
 
-void set_creature_instance(struct Thing *thing, long inst_idx, long a2, long a3, struct Coord3d *pos)
+void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, long a3, struct Coord3d *pos)
 {
     struct InstanceInfo *inst_inf;
     struct CreatureControl *cctrl;
