@@ -97,7 +97,7 @@ void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, lon
 void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, char a3);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(struct Thing *thing, long a2);
-void set_creature_instance(struct Thing *thing, long a1, long a2, long a3, struct Coord3d *pos);
+void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, long a3, struct Coord3d *pos);
 unsigned short find_next_annoyed_creature(unsigned char a1, unsigned short a2);
 void draw_creature_view(struct Thing *thing);
 
@@ -128,7 +128,9 @@ void init_creature_scores(void);
 long get_creature_thing_score(struct Thing *thing);
 TbBool add_creature_score_to_owner(struct Thing *thing);
 TbBool remove_creature_score_from_owner(struct Thing *thing);
-long calculate_melee_damage(struct Thing *thing);
+long calculate_melee_damage(const struct Thing *thing);
+long calculate_shot_damage(const struct Thing *thing, ThingModel shot_model);
+long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_model);
 
 long update_creature_levels(struct Thing *thing);
 TngUpdateRet update_creature(struct Thing *thing);
