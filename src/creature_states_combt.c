@@ -32,6 +32,7 @@
 #include "thing_physics.h"
 #include "thing_objects.h"
 #include "thing_effects.h"
+#include "thing_shots.h"
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
@@ -65,8 +66,8 @@ DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, 
 DLLIMPORT long _DK_creature_can_have_combat_with_creature(const struct Thing *fighter, const struct Thing *enmtng, long a2, long a4, long a5);
 DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fighter, struct Thing *enmtng, long dist);
 DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long enmtng);
-DLLIMPORT long _DK_get_best_ranged_offensive_weapon(struct Thing *thing, long enmtng);
-DLLIMPORT long _DK_get_best_melee_offensive_weapon(struct Thing *thing, long enmtng);
+DLLIMPORT long _DK_get_best_ranged_offensive_weapon(const struct Thing *thing, long enmtng);
+DLLIMPORT long _DK_get_best_melee_offensive_weapon(const struct Thing *thing, long enmtng);
 DLLIMPORT long _DK_jonty_creature_can_see_thing_including_lava_check(struct Thing * creatng, struct Thing * thing);
 DLLIMPORT long _DK_add_ranged_attacker(struct Thing *fighter, struct Thing *enmtng);
 DLLIMPORT long _DK_add_melee_attacker(struct Thing *fighter, struct Thing *enmtng);
@@ -221,7 +222,7 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    // Creature with fear 255 are scared of everything other that their own model
+    // Creature with fear 101 are scared of everything other that their own model
     if (crstat->fear_wounded >= 101)
     {
         if (enmtng->model != thing->model)
@@ -1372,7 +1373,7 @@ long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
     return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
 }
 
-long get_best_ranged_offensive_weapon(struct Thing *thing, long a2)
+CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long a2)
 {
     return _DK_get_best_ranged_offensive_weapon(thing, a2);
 }
@@ -1382,7 +1383,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long
     return _DK_ranged_combat_move(thing, enmtng, a3, a4);
 }
 
-long get_best_melee_offensive_weapon(struct Thing *thing, long a2)
+CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long a2)
 {
     return _DK_get_best_melee_offensive_weapon(thing, a2);
 }
@@ -1642,7 +1643,8 @@ void creature_in_ranged_combat(struct Thing *thing)
     SYNCDBG(19,"Starting for %s",thing_model_name(thing));
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
-    long dist, cmbtyp, weapon;
+    long dist, cmbtyp;
+    CrInstance weapon;
     //_DK_creature_in_ranged_combat(thing);
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
@@ -1945,4 +1947,50 @@ short creature_damage_walls(struct Thing *thing)
     return _DK_creature_damage_walls(thing);
 }
 
+/**
+ * Projects damage made by a creature attack on given target.
+ * Gives a best estimate of the damage, but shouldn't be used to actually inflict it.
+ * @param firing The creature which will be shooting.
+ * @param target The target creature.
+ */
+long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target)
+{
+    struct CreatureStats *crstat;
+    // Determine most likely shot of the firing creature
+    long dist;
+    CrInstance weapon;
+    dist = get_combat_distance(firing, target);
+    weapon = 0;
+    crstat = creature_stats_get_from_thing(firing);
+    if (crstat->attack_preference == PrefAttck_Ranged) {
+        weapon = get_best_ranged_offensive_weapon(firing, dist);
+        if (weapon == 0) {
+            weapon = get_best_melee_offensive_weapon(firing, dist);
+        }
+    } else {
+        weapon = get_best_melee_offensive_weapon(firing, dist);
+        if (weapon == 0) {
+            weapon = get_best_ranged_offensive_weapon(firing, dist);
+        }
+    }
+    if (weapon == 0) {
+        // It seem the creatures cannot currently attack each other
+        return 0;
+    }
+    // Get shot model from instance
+    ThingModel shot_model;
+    {
+        struct InstanceInfo *inst_inf;
+        inst_inf = creature_instance_info_get(weapon);
+        shot_model = inst_inf->field_22;
+    }
+    long dexterity, damage;
+    damage = project_creature_shot_damage(firing, shot_model);
+    // Adjust the damage with target creature defense
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(firing);
+    dexterity = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+    damage = project_damage_of_melee_shot(dexterity, damage, target);
+    return damage;
+}
 /******************************************************************************/

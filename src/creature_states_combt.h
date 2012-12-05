@@ -60,6 +60,8 @@ TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy);
 TbBool set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3);
 TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_id);
 
+long project_creature_attack_target_damage(const struct Thing *firing, const struct Thing *target);
+
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);

@@ -72,6 +72,9 @@ struct Coord3d;
 struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);
 TngUpdateRet update_shot(struct Thing *thing);
 
+long get_damage_of_melee_shot(const struct Thing *shotng, const struct Thing *target);
+long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target);
+
 TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool shot_model_is_navigable(long tngmodel);
 TbBool shot_model_makes_flesh_explosion(long shot_model);
