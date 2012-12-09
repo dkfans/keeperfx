@@ -153,7 +153,7 @@ extern short const around_map[];
 #define AROUND_MAP_LENGTH 9
 /******************************************************************************/
 struct Room *room_get(long room_idx);
-struct Room *subtile_room_get(long stl_x, long stl_y);
+struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Room *slab_room_get(long slb_x, long slb_y);
 TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);

@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
@@ -93,6 +94,8 @@ DLLIMPORT long _DK_check_for_possible_combat_with_attacker(struct Thing *figtng,
 DLLIMPORT long _DK_line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng);
 DLLIMPORT long _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng);
 DLLIMPORT long _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *frpos, const struct Coord3d *topos, long plyr_idx);
+DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
+DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -101,6 +104,36 @@ const CombatState combat_state[] = {
     creature_in_melee_combat,
 };
 
+const struct CombatWeapon ranged_offensive_weapon[] = {
+    {CrInst_FREEZE,            156, LONG_MAX},
+    {CrInst_FIRE_BOMB,         768, LONG_MAX},
+    {CrInst_LIGHTNING,         768, LONG_MAX},
+    {CrInst_HAILSTORM,         156, LONG_MAX},
+    {CrInst_POISON_CLOUD,      156, LONG_MAX},
+    {CrInst_DRAIN,             156, LONG_MAX},
+    {CrInst_SLOW,              156, LONG_MAX},
+    {CrInst_NAVIGATING_MISSILE,156, LONG_MAX},
+    {CrInst_MISSILE,           156, LONG_MAX},
+    {CrInst_FIREBALL,          156, LONG_MAX},
+    {CrInst_FIRE_ARROW,        156, LONG_MAX},
+    {CrInst_WORD_OF_POWER,       0, 284},
+    {CrInst_FART,                0, 284},
+    {CrInst_FLAME_BREATH,      156, 284},
+    {CrInst_SWING_WEAPON_SWORD,  0, 284},
+    {CrInst_SWING_WEAPON_FIST,   0, 284},
+    {CrInst_NULL,                0,   0},
+};
+
+const struct CombatWeapon melee_offensive_weapon[] = {
+    {CrInst_HAILSTORM,         156, LONG_MAX},
+    {CrInst_FREEZE,            156, LONG_MAX},
+    {CrInst_WORD_OF_POWER,       0, 284},
+    {CrInst_FART,                0, 284},
+    {CrInst_FLAME_BREATH,      156, 284},
+    {CrInst_SWING_WEAPON_SWORD,  0, 284},
+    {CrInst_SWING_WEAPON_FIST,   0, 284},
+    {CrInst_NULL,                0,   0},
+};
 
 #ifdef __cplusplus
 }
@@ -1373,24 +1406,198 @@ long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
     return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
 }
 
-CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long a2)
-{
-    return _DK_get_best_ranged_offensive_weapon(thing, a2);
-}
-
 long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
 {
     return _DK_ranged_combat_move(thing, enmtng, a3, a4);
 }
 
-CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long a2)
+#define INSTANCE_RET_IF_AVAIL(thing, inst_id) \
+    if (creature_instance_is_available(thing, CrInst_WIND) \
+      && creature_instance_has_reset(thing, CrInst_WIND)) { \
+        return CrInst_WIND; \
+    }
+/**
+ * Gives attack type optimized for self preservation.
+ * @param thing The creature for which the instance is selected.
+ */
+CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
-    return _DK_get_best_melee_offensive_weapon(thing, a2);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->spell_flags & CSAfF_Unkn0400) != 0)
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
+    }
+    if (!creature_affected_by_spell(thing, SplK_Invisibility))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
+    }
+    if (thing->health < cctrl->max_health/3)
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
+    }
+    if (!creature_affected_by_spell(thing, SplK_Armour))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_ARMOUR);
+    }
+    if (!creature_affected_by_spell(thing, SplK_Speed))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);
+    }
+    if (!creature_affected_by_spell(thing, SplK_Rebound))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_REBOUND);
+    }
+    if (!creature_affected_by_spell(thing, SplK_Fly))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+    }
+    return CrInst_NULL;
+}
+#undef INSTANCE_RET_IF_AVAIL
+
+/**
+ * Gives combat weapon instance from given array which matches given distance.
+ * @param thing The creature for which the instance is selected.
+ * @param cweapons Pointer to the first element of 0-terminated array of weapons.
+ * @param dist The distance which needs to be matched.
+ * @return
+ */
+CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, const struct CombatWeapon * cweapons, long dist)
+{
+    CrInstance inst_id;
+    const struct CombatWeapon * cweapon;
+    inst_id = CrInst_NULL;
+    for (cweapon = cweapons; cweapon->inst_id != CrInst_NULL; cweapon++)
+    {
+        if (creature_instance_is_available(thing, cweapon->inst_id))
+        {
+            if (creature_instance_has_reset(thing, cweapon->inst_id))
+            {
+                if ((cweapon->range_min <= dist) && (cweapon->range_max >= dist)) {
+                    return cweapon->inst_id;
+                }
+            }
+            if (inst_id == CrInst_NULL) {
+                inst_id = -(cweapon->inst_id);
+            }
+        }
+    }
+    return inst_id;
+}
+
+CrInstance get_best_ranged_offensive_weapon(const struct Thing *thing, long dist)
+{
+    CrInstance inst_id;
+    //return _DK_get_best_ranged_offensive_weapon(thing, dist);
+    inst_id = get_best_self_preservation_instance_to_use(thing);
+    if (inst_id == CrInst_NULL) {
+        inst_id = get_best_combat_weapon_instance_to_use(thing, ranged_offensive_weapon, dist);
+    }
+    return inst_id;
+}
+
+CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
+{
+    CrInstance inst_id;
+    //return _DK_get_best_melee_offensive_weapon(thing, dist);
+    inst_id = get_best_self_preservation_instance_to_use(thing);
+    if (inst_id == CrInst_NULL) {
+        inst_id = get_best_combat_weapon_instance_to_use(thing, melee_offensive_weapon, dist);
+    }
+    return inst_id;
+}
+
+TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
+{
+    struct CreatureStats *crstat;
+    long angle, angdiff;
+    crstat = creature_stats_get_from_thing(thing);
+    angle = get_angle_xy_to(&thing->mappos, &checktng->mappos);
+    angdiff = get_angle_difference(thing->field_52, angle);
+    return (angdiff < crstat->field_of_view);
+}
+
+long combat_has_line_of_sight(struct Thing *thing, struct Thing *enmtng, long a3)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->long_9A != game.play_gameturn || cctrl->word_A4 != enmtng->index )
+    {
+      cctrl->long_9A = game.play_gameturn;
+      cctrl->word_A4 = enmtng->index;
+      struct CreatureStats *crstat;
+      crstat = creature_stats_get_from_thing(thing);
+      if ((crstat->visual_range << 8) >= a3)
+      {
+          cctrl->field_A8 = jonty_creature_can_see_thing_including_lava_check(thing, enmtng);
+      } else
+      {
+          cctrl->field_A8 = 0;
+      }
+    }
+    return cctrl->field_A8;
+}
+
+long old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
+{
+    return _DK_old_combat_move(thing, enmtng, a3, a4);
+}
+
+long guard_post_combat_move(struct Thing *thing, long a2)
+{
+    return _DK_guard_post_combat_move(thing, a2);
 }
 
 long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
 {
-    return _DK_melee_combat_move(thing, enmtng, a3, a4);
+    struct CreatureControl *cctrl;
+    //return _DK_melee_combat_move(thing, enmtng, a3, a4);
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->instance_id != CrInst_NULL)
+    {
+        creature_turn_to_face(thing, &enmtng->mappos);
+        return 0;
+    }
+    if ((cctrl->job_assigned == 512) && guard_post_combat_move(thing, a4))
+    {
+        return 0;
+    }
+    if (a3 < 156)
+    {
+        creature_retreat_from_combat(thing, enmtng, a4, 0);
+        cctrl->field_AA = 0;
+        return thing_in_field_of_view(thing, enmtng);
+    }
+    if (a3 <= 284)
+    {
+        if (old_combat_move(thing, enmtng, 284, a4)) {
+            return 0;
+        }
+        return thing_in_field_of_view(thing, enmtng);
+    }
+    cctrl->field_AA = 0;
+    if (thing_in_field_of_view(thing, enmtng)
+      && creature_has_ranged_weapon(thing))
+    {
+        if (((cctrl->combat_flags & 0x18) == 0)
+          && combat_has_line_of_sight(thing, enmtng, a3))
+        {
+            CrInstance inst_id;
+            inst_id = get_best_ranged_offensive_weapon(thing, a3);
+            if (inst_id > 0)
+            {
+                set_creature_instance(thing, inst_id, 1, enmtng->index, 0);
+                return 0;
+            }
+        }
+    }
+    if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1)
+    {
+        set_start_state(thing);
+        return 0;
+    }
+    return 0;
 }
 
 TbBool creature_scared(struct Thing *thing, struct Thing *enemy)
@@ -1958,30 +2165,29 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     struct CreatureStats *crstat;
     // Determine most likely shot of the firing creature
     long dist;
-    CrInstance weapon;
+    CrInstance inst_id;
     dist = get_combat_distance(firing, target);
-    weapon = 0;
     crstat = creature_stats_get_from_thing(firing);
     if (crstat->attack_preference == PrefAttck_Ranged) {
-        weapon = get_best_ranged_offensive_weapon(firing, dist);
-        if (weapon == 0) {
-            weapon = get_best_melee_offensive_weapon(firing, dist);
+        inst_id = get_best_combat_weapon_instance_to_use(firing, ranged_offensive_weapon, dist);
+        if (inst_id == CrInst_NULL) {
+            inst_id = get_best_combat_weapon_instance_to_use(firing, melee_offensive_weapon, dist);;
         }
     } else {
-        weapon = get_best_melee_offensive_weapon(firing, dist);
-        if (weapon == 0) {
-            weapon = get_best_ranged_offensive_weapon(firing, dist);
+        inst_id = get_best_combat_weapon_instance_to_use(firing, melee_offensive_weapon, dist);;
+        if (inst_id == CrInst_NULL) {
+            inst_id = get_best_combat_weapon_instance_to_use(firing, ranged_offensive_weapon, dist);
         }
     }
-    if (weapon == 0) {
+    if (inst_id == CrInst_NULL) {
         // It seem the creatures cannot currently attack each other
-        return 0;
+        return CrInst_NULL;
     }
     // Get shot model from instance
     ThingModel shot_model;
     {
         struct InstanceInfo *inst_inf;
-        inst_inf = creature_instance_info_get(weapon);
+        inst_inf = creature_instance_info_get(inst_id);
         shot_model = inst_inf->field_22;
     }
     long dexterity, damage;

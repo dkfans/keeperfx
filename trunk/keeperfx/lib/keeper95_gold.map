@@ -1148,6 +1148,7 @@
  0001:0000D620       leader_find_positions_for_followers
  0001:0000D570       creature_is_group_leader
  0001:000122B0       process_keeper_spell_effect
+ 0001:000125E0       old_combat_move
  0001:000C16A0       set_creature_graphic
  0001:000C2000       apply_damage_to_thing_and_display_health
  0001:00010DF0       apply_spell_effect_to_thing
@@ -1292,6 +1293,7 @@
  0001:00023960       set_thing_draw
  0001:00005EF0       light_set_light_minimum_size_to_cache
  0001:000522A0       check_map_for_gold
+ 0001:000CC7C0       guard_post_combat_move
  0001:000750B0       computer_check_build_all_rooms
  0001:00075120       computer_check_any_room
  0001:00075210       computer_setup_any_room
