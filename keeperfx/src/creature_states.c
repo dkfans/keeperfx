@@ -1774,7 +1774,7 @@ short creature_steal_gold(struct Thing *creatng)
     long max_amount,amount;
     //return _DK_creature_steal_gold(thing);
     crstat = creature_stats_get_from_thing(creatng);
-    room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+    room = get_room_thing_is_on(creatng);
     if (room_is_invalid(room) || (room->kind != RoK_TREASURE))
     {
         WARNLOG("Cannot steal gold - not on treasure room at (%d,%d)",(int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
@@ -1819,7 +1819,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    room = subtile_room_get(spelltng->mappos.x.stl.num,spelltng->mappos.y.stl.num);
+    room = get_room_thing_is_on(spelltng);
     // Check if we're stealing the spell from a library
     if (!room_is_invalid(room))
     {

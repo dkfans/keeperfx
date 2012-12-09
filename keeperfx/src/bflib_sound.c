@@ -28,6 +28,7 @@
 #include "bflib_heapmgr.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
+#include "bflib_planar.h"
 #include "globals.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
@@ -407,33 +408,6 @@ long get_emitter_sight(struct SoundReceiver *recv, struct SoundEmitter *emit)
     return LineOfSightFunction(recv->pos.val_x, recv->pos.val_y, recv->pos.val_z, emit->pos.val_x, emit->pos.val_y, emit->pos.val_z);
 }
 
-long get_angle_sign(long angle_a, long angle_b)
-{
-    long diff;
-    diff = abs((angle_a & 0x7FF) - (angle_b & 0x7FF));
-    if (diff > 1024)
-        diff = (2048 - diff);
-    return diff;
-}
-
-long get_angle_difference(long angle_a, long angle_b)
-{
-    long diff;
-    diff = (angle_b & 0x7FF) - (angle_a & 0x7FF);
-    if (diff == 0)
-        return 0;
-    if (abs(diff) > 1024)
-    {
-      if (diff >= 0)
-          diff -= 2048;
-      else
-          diff += 2048;
-    }
-    if (diff == 0)
-        return 0;
-    return diff / abs(diff);
-}
-
 long get_emitter_volume(const struct SoundReceiver *recv, const struct SoundEmitter *emit, long dist)
 {
     long long sens,vol;
@@ -601,11 +575,6 @@ TbBool emitter_is_playing(struct SoundEmitter *emit)
     }
     return false;
 }
-
-/*long get_angle_difference(long a1, long a2)
-{
-
-}*/
 
 TbBool remove_active_samples_from_emitter(struct SoundEmitter *emit)
 {
