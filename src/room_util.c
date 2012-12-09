@@ -62,27 +62,30 @@ struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coor
 
 void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
-    MapSlabCoord x,y;
+    struct Room *curoom;
+    MapSubtlCoord x,y;
     long i,k;
     i = room->field_43;
-    x = pos->x.stl.num + (MapSlabCoord)small_around[i].delta_x;
-    y = pos->y.stl.num + (MapSlabCoord)small_around[i].delta_y;
-    if (room != subtile_room_get(x,y))
+    x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
+    y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
+    curoom = subtile_room_get(x,y);
+    if (curoom->index != room->index)
     {
         k = (i + 1) % 4;
         room->field_43 = k;
         return;
     }
     k = (i + 3) % 4;
-    x += (MapSlabCoord)small_around[k].delta_x;
-    y += (MapSlabCoord)small_around[k].delta_y;
-    if (room == subtile_room_get(x,y))
+    x += (MapSubtlCoord)small_around[k].delta_x;
+    y += (MapSubtlCoord)small_around[k].delta_y;
+    curoom = subtile_room_get(x,y);
+    if (curoom->index != room->index)
     {
-        room->field_41 += slab_around[i] + slab_around[k];
-        room->field_43 = k;
+        room->field_41 += slab_around[i];
         return;
     }
-    room->field_41 += slab_around[i];
+    room->field_41 += slab_around[i] + slab_around[k];
+    room->field_43 = k;
 }
 
 void process_room_surrounding_flames(struct Room *room)

@@ -196,6 +196,7 @@
  0001:00011C80       creature_cast_spell
  0001:00011E10       process_spells_affected_by_effect_elements
  0001:000122B0       process_keeper_spell_effect
+ 0001:000125E0       old_combat_move
  0001:000128A0       place_slab_type_on_map
  0001:00013030       place_single_slab_type_on_map
  0001:00013BB0       place_animating_slab_type_on_map
@@ -1197,6 +1198,7 @@
  0001:000CBFC0       get_nearest_valid_position_for_creature_at
  0001:000CC0C0       creature_choose_random_destination_on_valid_adjacent_slab
  0001:000CC690       ranged_combat_move
+ 0001:000CC7C0       guard_post_combat_move
  0001:000CC8D0       melee_combat_move
  0001:000CCAA0       waiting_combat_move
  0001:000CCC90       process_checks

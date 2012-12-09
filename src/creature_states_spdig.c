@@ -1034,7 +1034,7 @@ short creature_picks_up_spell_object(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    enmroom = subtile_room_get(picktng->mappos.x.stl.num,picktng->mappos.y.stl.num);
+    enmroom = get_room_thing_is_on(picktng);
     ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_LIBRARY, 0, 1);
     if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
     {

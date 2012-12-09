@@ -149,7 +149,7 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
         {
             if ( (get_creature_state_besides_move(thing) == CrSt_Training) && (cctrl->training.partner_idx == 0) )
             {
-                if (subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num) == room) {
+                if (get_room_thing_is_on(thing) == room) {
                     return thing;
                 } else {
                     WARNLOG("The %s pretends to be in room but it's not.",thing_model_name(thing));
@@ -232,7 +232,7 @@ void setup_training_search_for_post(struct Thing *creatng)
     long min_distance,dist;
     long slb_x,slb_y;
     long i,k;
-    room = subtile_room_get(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+    room = get_room_thing_is_on(creatng);
     // Let's start from a random slab
     slb_x = -1;
     slb_y = -1;
@@ -456,7 +456,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             setup_move_to_new_training_position(thing, room, false);
             break;
         }
-        if (subtile_room_get(crtng->mappos.x.stl.num, crtng->mappos.y.stl.num) != room)
+        if (get_room_thing_is_on(crtng) != room)
         {
             SYNCDBG(8,"The %s cannot start partner training - partner has left the room.",thing_model_name(thing));
             cctrl->training.partner_idx = 0;

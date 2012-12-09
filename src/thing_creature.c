@@ -129,7 +129,7 @@ DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *pl
 DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *creatng);
 DLLIMPORT void _DK_load_swipe_graphic_for_creature(struct Thing *creatng);
 DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short a2);
-DLLIMPORT long _DK_creature_instance_has_reset(struct Thing *creatng, long a2);
+DLLIMPORT long _DK_creature_instance_has_reset(const struct Thing *creatng, long a2);
 DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long a2);
 DLLIMPORT void _DK_set_creature_instance(struct Thing *creatng, long a1, long a2, long a3, struct Coord3d *pos);
 DLLIMPORT void _DK_draw_creature_view(struct Thing *creatng);
@@ -1923,7 +1923,7 @@ long get_creature_speed(const struct Thing *thing)
     return speed;
 }
 
-long creature_instance_has_reset(struct Thing *thing, long a2)
+long creature_instance_has_reset(const struct Thing *thing, long a2)
 {
   return _DK_creature_instance_has_reset(thing, a2);
 }

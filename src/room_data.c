@@ -227,7 +227,7 @@ struct Room *room_get(long room_idx)
   return &game.rooms[room_idx];
 }
 
-struct Room *subtile_room_get(long stl_x, long stl_y)
+struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   struct SlabMap *slb;
   slb = get_slabmap_for_subtile(stl_x,stl_y);

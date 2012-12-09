@@ -296,7 +296,7 @@ void draw_power_hand(void)
   struct Thing *picktng;
   struct Room *room;
   struct RoomData *rdata;
-  long x,y;
+  long stl_x,stl_y;
   //_DK_draw_power_hand(); return;
   player = get_my_player();
   if ((player->field_6 & 0x01) != 0)
@@ -309,10 +309,10 @@ void draw_power_hand(void)
   if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
     && mouse_is_over_small_map(player->mouse_x, player->mouse_y) )
   {
-    x = game.hand_over_subtile_x;
-    y = game.hand_over_subtile_y;
-    room = subtile_room_get(x,y);
-    if ((!room_is_invalid(room)) && (subtile_revealed(x, y, player->id_number)))
+    stl_x = game.hand_over_subtile_x;
+    stl_y = game.hand_over_subtile_y;
+    room = subtile_room_get(stl_x,stl_y);
+    if ((!room_is_invalid(room)) && (subtile_revealed(stl_x, stl_y, player->id_number)))
     {
       rdata = room_data_get_for_room(room);
       draw_gui_panel_sprite_centered(GetMouseX()+24, GetMouseY()+32, rdata->numfield_1);
@@ -375,52 +375,52 @@ void draw_power_hand(void)
         if (!creature_affected_by_spell(picktng, SplK_Chicken))
         {
             pickoffs = get_creature_picked_up_offset(picktng);
-            x = GetMouseX() + pickoffs->delta_x;
-            y = GetMouseY() + pickoffs->delta_y;
+            stl_x = GetMouseX() + pickoffs->delta_x;
+            stl_y = GetMouseY() + pickoffs->delta_y;
             if (creatures[picktng->model].field_7 )
               EngineSpriteDrawUsingAlpha = 1;
-            process_keeper_sprite(x / pixel_size, y / pixel_size,
+            process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
                 picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
             EngineSpriteDrawUsingAlpha = 0;
         } else
         {
-            x = GetMouseX()+11;
-            y = GetMouseY()+56;
-            process_keeper_sprite(x / pixel_size, y / pixel_size,
+            stl_x = GetMouseX()+11;
+            stl_y = GetMouseY()+56;
+            process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
                 picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
         }
         break;
     case TCls_Object:
         if (object_is_mature_food(picktng))
         {
-          x = GetMouseX()+11;
-          y = GetMouseY()+56;
-          process_keeper_sprite(x / pixel_size, y / pixel_size,
+          stl_x = GetMouseX()+11;
+          stl_y = GetMouseY()+56;
+          process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
               picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
           break;
         } else
         if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
           break;
     default:
-        x = GetMouseX();
-        y = GetMouseY();
-        process_keeper_sprite(x / pixel_size, y / pixel_size,
+        stl_x = GetMouseX();
+        stl_y = GetMouseY();
+        process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
               picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
         break;
     }
   }
   if (player->field_C == 784)
   {
-    x = GetMouseX()+58;
-    y = GetMouseY()+6;
-    process_keeper_sprite(x / pixel_size, y / pixel_size,
+    stl_x = GetMouseX()+58;
+    stl_y = GetMouseY()+6;
+    process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
         thing->field_44, 0, thing->field_48, 64 / pixel_size);
     draw_mini_things_in_hand(GetMouseX()+60, GetMouseY());
   } else
   {
-    x = GetMouseX()+60;
-    y = GetMouseY()+40;
-    process_keeper_sprite(x / pixel_size, y / pixel_size,
+    stl_x = GetMouseX()+60;
+    stl_y = GetMouseY()+40;
+    process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
         thing->field_44, 0, thing->field_48, 64 / pixel_size);
     draw_mini_things_in_hand(GetMouseX()+60, GetMouseY());
   }
