@@ -1123,6 +1123,7 @@
  0001:000BF800       state_cleanup_unable_to_fight
  0001:000BF830       state_cleanup_unconscious
  0001:000BF850       state_cleanup_dragging_object
+ 0001:000BF890       get_best_position_outside_room
  0001:000BFAF0       creature_evacuate_room
  0001:000BFC50       creature_change_to_chicken
  0001:000BFD90       creature_change_from_chicken

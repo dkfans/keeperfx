@@ -144,6 +144,7 @@ DLLIMPORT short _DK_creature_choose_random_destination_on_valid_adjacent_slab(st
 DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *creatng, long state);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
+DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -966,9 +967,9 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
         y = base_y + (k/3);
         if ((x != stl_x) || (y != stl_y))
         {
-            struct Map *map;
-            map = get_map_block_at(x,y);
-            if ((map->flags & MapFlg_Unkn10) == 0)
+            struct Map *mapblk;
+            mapblk = get_map_block_at(x,y);
+            if ((mapblk->flags & MapFlg_Unkn10) == 0)
             {
                 if (!terrain_toxic_for_creature_at_position(thing, x, y))
                 {
@@ -1035,7 +1036,7 @@ TbBool creature_find_any_position_to_move_within_slab(struct Coord3d *pos, const
 TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos)
 {
     struct Room *aroom;
-    struct Map *map;
+    struct Map *mapblk;
     MapSlabCoord slb_x,slb_y;
     struct Coord3d locpos;
     int block_radius;
@@ -1057,8 +1058,8 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
         slb_x = slb_num_decode_x(slab_num);
         slb_y = slb_num_decode_y(slab_num);
         aroom = INVALID_ROOM;
-        map = get_map_block_at(3 * slb_x, 3 * slb_y);
-        if ((map->flags & MapFlg_IsRoom) != 0)
+        mapblk = get_map_block_at(3 * slb_x, 3 * slb_y);
+        if ((mapblk->flags & MapFlg_IsRoom) != 0)
         {
             aroom = slab_room_get(slb_x, slb_y);
         }
@@ -1085,8 +1086,8 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
         slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
         slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
         aroom = INVALID_ROOM;
-        map = get_map_block_at(3 * slb_x, 3 * slb_y);
-        if ((map->flags & MapFlg_IsRoom) != 0)
+        mapblk = get_map_block_at(3 * slb_x, 3 * slb_y);
+        if ((mapblk->flags & MapFlg_IsRoom) != 0)
         {
             aroom = slab_room_get(slb_x, slb_y);
         }
@@ -1558,19 +1559,92 @@ short creature_escaping_death(struct Thing *creatng)
   return _DK_creature_escaping_death(creatng);
 }
 
+long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
+{
+    return _DK_get_best_position_outside_room(creatng, pos, room);
+}
+
 short creature_evacuate_room(struct Thing *creatng)
 {
-  return _DK_creature_evacuate_room(creatng);
+    struct Coord3d pos;
+    //return _DK_creature_evacuate_room(creatng);
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
+    if (!thing_is_on_any_room_tile(creatng))
+    {
+        set_start_state(creatng);
+        return CrCkRet_Continue;
+    }
+    struct Room *room;
+    struct CreatureControl *cctrl;
+    room = get_room_thing_is_on(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->word_9A != room->index)
+    {
+        set_start_state(creatng);
+        return CrCkRet_Continue;
+    }
+    long ret;
+    ret = get_best_position_outside_room(creatng, &pos, room);
+    set_creature_assigned_job(creatng, Job_NULL);
+    if (ret != 1)
+    {
+        if (ret == -1)
+        {
+            set_start_state(creatng);
+            return CrCkRet_Continue;
+        }
+        return CrCkRet_Continue;
+    }
+    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        ERRORLOG("Cannot nav outside room");
+        set_start_state(creatng);
+        return CrCkRet_Continue;
+    }
+    creatng->continue_state = CrSt_CreatureEvacuateRoom;
+    return CrCkRet_Continue;
 }
 
 short creature_explore_dungeon(struct Thing *creatng)
 {
-  return _DK_creature_explore_dungeon(creatng);
+    struct Coord3d pos;
+    TbBool got_position;
+    //return _DK_creature_explore_dungeon(creatng);
+    got_position = get_random_position_in_dungeon_for_creature(creatng->owner, 0, creatng, &pos);
+    if (!got_position) {
+        got_position = get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos);
+    }
+    if (!got_position) {
+        ERRORLOG("No random position in dungeon %d",(int)creatng->owner);
+        set_start_state(creatng);
+        return CrCkRet_Available;
+    }
+    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        WARNLOG("Can't navigate to subtile (%d,%d) for exploring",(int)pos.x.stl.num, (int)pos.y.stl.num);
+        set_start_state(creatng);
+        return CrCkRet_Available;
+    }
+    creatng->continue_state = CrSt_CreatureDoingNothing;
+    return CrCkRet_Continue;
 }
 
 short creature_fired(struct Thing *creatng)
 {
-  return _DK_creature_fired(creatng);
+    struct Room *room;
+    TRACE_THING(creatng);
+    //return _DK_creature_fired(creatng);
+    room = get_room_thing_is_on(creatng);
+    if (!room_exists(room) || (room->kind != RoK_ENTRANCE))
+    {
+        set_start_state(creatng);
+        return CrCkRet_Continue;
+    }
+    play_creature_sound_and_create_sound_thing(creatng, 4, 2);
+    kill_creature(creatng, INVALID_THING, -1, 1, 0, 0);
+    return CrCkRet_Deleted;
 }
 
 short creature_follow_leader(struct Thing *creatng)
@@ -2248,28 +2322,28 @@ TbBool wander_point_get_random_pos(struct Wander *wandr, struct Coord3d *pos)
 
 TbBool get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char a2, struct Thing *thing, struct Coord3d *pos)
 {
-  struct PlayerInfo *player;
-  if (plyr_idx == game.neutral_player_num)
-  {
-    ERRORLOG("Attempt to get random position in neutral dungeon");
-    return false;
-  }
-  player = get_player(plyr_idx);
-  if (player_invalid(player))
-  {
-    ERRORLOG("Attempt to get random position in invalid dungeon");
-    return false;
-  }
-  if ( a2 )
-  {
-    if (!wander_point_get_random_pos(&player->wandr1, pos))
+    struct PlayerInfo *player;
+    if (plyr_idx == game.neutral_player_num)
+    {
+      ERRORLOG("Attempt to get random position in neutral dungeon");
       return false;
-  } else
-  {
-    if (!wander_point_get_random_pos(&player->wandr2, pos))
+    }
+    player = get_player(plyr_idx);
+    if (player_invalid(player))
+    {
+      ERRORLOG("Attempt to get random position in invalid dungeon");
       return false;
-  }
-  return true;
+    }
+    if ( a2 )
+    {
+      if (!wander_point_get_random_pos(&player->wandr1, pos))
+        return false;
+    } else
+    {
+      if (!wander_point_get_random_pos(&player->wandr2, pos))
+        return false;
+    }
+    return true;
 }
 
 TbBool creature_can_hear_within_distance(struct Thing *thing, long dist)

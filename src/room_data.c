@@ -1245,6 +1245,11 @@ TbBool update_room_contents(struct Room *room)
   return true;
 }
 
+TbBool thing_is_on_any_room_tile(const struct Thing *thing)
+{
+    return subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+}
+
 TbBool thing_is_on_own_room_tile(const struct Thing *thing)
 {
     return subtile_is_player_room(thing->owner, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
