@@ -124,8 +124,9 @@ MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v);
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool lava_at_position(const struct Coord3d *pos);
-TbBool subtile_is_player_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-TbBool subtile_is_sellable_room(long plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_room(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_player_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
