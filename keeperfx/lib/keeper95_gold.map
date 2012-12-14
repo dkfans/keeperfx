@@ -1168,6 +1168,7 @@
  0001:00064880       create_effect_generator
  0001:000C01E0       setup_move_off_lava
  0001:000BF280       cleanup_current_thing_state
+ 0001:000BF890       get_best_position_outside_room
  0001:0005A730       process_creature_standing_on_corpses_at
  0001:000B0050       create_workshop_object_in_workshop_room
  0001:000B02B0       get_next_manufacture

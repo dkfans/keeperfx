@@ -348,20 +348,41 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
     struct CreatureSound *crsound;
     long i;
     SYNCDBG(8,"Starting");
-    if (playing_creature_sound(thing, snd_idx))
+    if (playing_creature_sound(thing, snd_idx)) {
       return;
+    }
     crsound = get_creature_sound(thing, snd_idx);
-    if (crsound == NULL)
-    {
-      //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
-      return;
+    if (crsound == NULL) {
+        //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
+        return;
     }
     i = UNSYNC_RANDOM(crsound->count);
     //SYNCLOG("Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
-    if ( a4 )
-      thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, 256);
-    else
-      thing_play_sample(thing, crsound->index+i, 100, 0, 3, 0, a3, 256);
+    if ( a4 ) {
+        thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, 256);
+    } else {
+        thing_play_sample(thing, crsound->index+i, 100, 0, 3, 0, a3, 256);
+    }
+}
+
+void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2)
+{
+    struct CreatureSound *crsound;
+    struct Thing *efftng;
+    long i;
+    if (playing_creature_sound(thing, snd_idx)) {
+        return;
+    }
+    crsound = get_creature_sound(thing, snd_idx);
+    if (crsound == NULL) {
+        //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
+        return;
+    }
+    i = UNSYNC_RANDOM(crsound->count);
+    efftng = create_effect(&thing->mappos, 0x31, thing->owner);
+    if (!thing_is_invalid(efftng)) {
+        thing_play_sample(efftng, crsound->index+i, 100, 0, 3, 0, a2, 256);
+    }
 }
 
 void reset_creature_eye_lens(struct Thing *thing)

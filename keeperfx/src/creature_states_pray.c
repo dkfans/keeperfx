@@ -549,56 +549,56 @@ long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
 
 short creature_being_sacrificed(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  struct SlabMap *slb;
-  struct Coord3d pos;
-  long owner,model,award;
-  SYNCDBG(6,"Starting");
-  //return _DK_creature_being_sacrificed(thing);
+    struct CreatureControl *cctrl;
+    struct SlabMap *slb;
+    struct Coord3d pos;
+    long owner,model,award;
+    SYNCDBG(6,"Starting");
+    //return _DK_creature_being_sacrificed(thing);
 
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->word_9A--;
-  if (cctrl->word_9A > 0)
-  {
-      // No flying while being sacrificed
-      award = creature_turn_to_face_angle(thing, thing->field_52 + 256);
-      thing->movement_flags &= ~TMvF_Flying;
-      return 0;
-  }
-  slb = get_slabmap_for_subtile(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-  owner = slabmap_owner(slb);
-  add_creature_to_sacrifice_list(owner, thing->model, cctrl->explevel);
-  pos.x.val = thing->mappos.x.val;
-  pos.y.val = thing->mappos.y.val;
-  pos.z.val = thing->mappos.z.val;
-  model = thing->model;
-  kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
-  award = process_sacrifice_award(&pos, model, owner);
-  if (is_my_player_number(owner))
-  {
-    switch (award)
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->word_9A--;
+    if (cctrl->word_9A > 0)
     {
-    case SacR_AngryWarn:
-        output_message(SMsg_SacrificeBad, 0, true);
-        break;
-    case SacR_DontCare:
-        output_message(SMsg_SacrificeNeutral, 0, true);
-        break;
-    case SacR_Pleased:
-        output_message(SMsg_SacrificeGood, 0, true);
-        break;
-    case SacR_Awarded:
-        output_message(SMsg_SacrificeReward, 0, true);
-        break;
-    case SacR_Punished:
-        output_message(SMsg_SacrificePunish, 0, true);
-        break;
-    default:
-        ERRORLOG("Invalid sacrifice return");
-        break;
+        // No flying while being sacrificed
+        award = creature_turn_to_face_angle(thing, thing->field_52 + 256);
+        thing->movement_flags &= ~TMvF_Flying;
+        return 0;
     }
-  }
-  return -1;
+    slb = get_slabmap_for_subtile(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+    owner = slabmap_owner(slb);
+    add_creature_to_sacrifice_list(owner, thing->model, cctrl->explevel);
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val;
+    model = thing->model;
+    kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+    award = process_sacrifice_award(&pos, model, owner);
+    if (is_my_player_number(owner))
+    {
+      switch (award)
+      {
+      case SacR_AngryWarn:
+          output_message(SMsg_SacrificeBad, 0, true);
+          break;
+      case SacR_DontCare:
+          output_message(SMsg_SacrificeNeutral, 0, true);
+          break;
+      case SacR_Pleased:
+          output_message(SMsg_SacrificeGood, 0, true);
+          break;
+      case SacR_Awarded:
+          output_message(SMsg_SacrificeReward, 0, true);
+          break;
+      case SacR_Punished:
+          output_message(SMsg_SacrificePunish, 0, true);
+          break;
+      default:
+          ERRORLOG("Invalid sacrifice return");
+          break;
+      }
+    }
+    return -1;
 }
 
 short creature_sacrifice(struct Thing *thing)
