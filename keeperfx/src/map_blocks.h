@@ -47,6 +47,9 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 void update_floor_and_ceiling_heights_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);
 TbBool point_in_map_is_solid(const struct Coord3d *pos);
+TbBool point_in_map_is_solid_ignoring_door(const struct Coord3d *pos, const struct Thing *doortng);
+unsigned short get_point_in_map_solid_flags_ignoring_door(const struct Coord3d *pos, const struct Thing *doortng);
+unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord3d *pos, PlayerNumber plyr_idx);
 unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
 
 long element_top_face_texture(struct Map *map);

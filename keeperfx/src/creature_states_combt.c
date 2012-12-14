@@ -37,6 +37,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "map_blocks.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
@@ -139,20 +140,477 @@ const struct CombatWeapon melee_offensive_weapon[] = {
 }
 #endif
 /******************************************************************************/
-
-long line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng)
+TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
+    const struct Coord3d *nextpos, const struct Thing *doortng)
 {
-    return _DK_line_of_sight_3d_ignoring_specific_door(frpos, topos, doortng);
+    // If both dimensions changed, allow the pass
+    if ((nextpos->x.stl.num != prevpos->x.stl.num) &&
+        (nextpos->y.stl.num != prevpos->y.stl.num)) {
+        return true;
+    }
+    struct Coord3d pos1;
+    struct Coord3d pos2;
+    int subdelta_x, subdelta_y;
+    subdelta_x = (nextpos->x.stl.num - prevpos->x.stl.num);
+    subdelta_y = (nextpos->y.stl.num - prevpos->y.stl.num);
+    switch (subdelta_x + 2 * subdelta_y)
+    {
+    case -3:
+        pos2.x.val = prevpos->x.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val - 256;
+        pos2.y.val = prevpos->y.val - 256;
+        if (!point_in_map_is_solid_ignoring_door(&pos1, doortng) &&
+            !point_in_map_is_solid_ignoring_door(&pos2, doortng)) {
+            return false;
+        }
+        break;
+    case -1:
+        pos2.y.val = prevpos->y.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val - 256;
+        pos2.x.val = prevpos->x.val + 256;
+        if (!point_in_map_is_solid_ignoring_door(&pos1, doortng) &&
+            !point_in_map_is_solid_ignoring_door(&pos2, doortng)) {
+            return false;
+        }
+        break;
+    case 1:
+        pos2.x.val = prevpos->x.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val - 256;
+        pos2.y.val = prevpos->y.val + 256;
+        if (!point_in_map_is_solid_ignoring_door(&pos1, doortng) &&
+            !point_in_map_is_solid_ignoring_door(&pos2, doortng)) {
+            return false;
+        }
+        break;
+    case 3:
+        pos2.y.val = prevpos->y.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val + 256;
+        pos2.x.val = prevpos->x.val + 256;
+        if (!point_in_map_is_solid_ignoring_door(&pos1, doortng) &&
+            !point_in_map_is_solid_ignoring_door(&pos2, doortng)) {
+            return false;
+        }
+        break;
+    }
+    return true;
 }
 
-long jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng)
+
+TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
+    const struct Coord3d *topos, const struct Thing *doortng)
 {
-    return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(frpos, topos, doortng);
+    MapSubtlCoord dx,dy,dz;
+    dx = (MapSubtlCoord)topos->x.val - (MapSubtlCoord)frpos->x.val;
+    dy = (MapSubtlCoord)topos->y.val - (MapSubtlCoord)frpos->y.val;
+    dz = (MapSubtlCoord)topos->z.val - (MapSubtlCoord)frpos->z.val;
+    if ((topos->x.stl.num == frpos->x.stl.num) &&
+        (topos->y.stl.num == frpos->y.stl.num)) {
+        return true;
+    }
+    //return _DK_line_of_sight_3d_ignoring_specific_door(frpos, topos, doortng);
+    MapCoord increase_x, increase_y, increase_z;
+    MapSubtlCoord distance;
+    if (dx >= 0) {
+        increase_x = 256;
+    } else {
+        dx = -dx;
+        increase_x = -256;
+    }
+    if (dy >= 0) {
+        increase_y = 256;
+    } else {
+        dy = -dy;
+        increase_y = -256;
+    }
+    if (dz >= 0) {
+        increase_z = 256;
+    } else {
+        dz = -dz;
+        increase_z = -256;
+    }
+    { // Compute amount of steps for the loop
+        int maxdim1, maxdim2;
+        if (dy == dx)
+        {
+            increase_z = increase_z * dz / dx;
+            maxdim1 = frpos->x.stl.num;
+            maxdim2 = topos->x.stl.num;
+        }
+        else
+        if (dy > dx)
+        {
+            increase_x = dx * increase_x / dy;
+            increase_z = increase_z * dz / dy;
+            maxdim1 = frpos->y.stl.num;
+            maxdim2 = topos->y.stl.num;
+        } else
+        {
+            increase_y = increase_y * dy / dx;
+            increase_z = increase_z * dz / dx;
+            maxdim1 = frpos->x.stl.num;
+            maxdim2 = topos->x.stl.num;
+        }
+        distance = abs(maxdim2 - maxdim1);
+    }
+    // Go through the distance with given increases
+    struct Coord3d prevpos;
+    struct Coord3d nextpos;
+    prevpos.x.val = frpos->x.val;
+    prevpos.y.val = frpos->y.val;
+    prevpos.z.val = frpos->z.val;
+    nextpos.x.val = prevpos.x.val + increase_x;
+    nextpos.y.val = prevpos.y.val + increase_y;
+    nextpos.z.val = prevpos.z.val + increase_z;
+    while (distance > 0)
+    {
+        if (point_in_map_is_solid_ignoring_door(&nextpos, doortng)) {
+            return false;
+        }
+        if (!sibling_line_of_sight_ignoring_door(&prevpos, &nextpos, doortng)) {
+            return false;
+        }
+        // Go to next sibling subtile
+        prevpos.x.val = nextpos.x.val;
+        prevpos.y.val = nextpos.y.val;
+        prevpos.z.val = nextpos.z.val;
+        nextpos.x.val += increase_x;
+        nextpos.y.val += increase_y;
+        nextpos.z.val += increase_z;
+        distance--;
+    }
+    return true;
 }
 
-long jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *frpos, const struct Coord3d *topos, long plyr_idx)
+TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct Coord3d *prevpos,
+    const struct Coord3d *nextpos, const struct Thing *doortng)
 {
-    return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(frpos, topos, plyr_idx);
+    // If both dimensions changed, allow the pass
+    if ((nextpos->x.stl.num != prevpos->x.stl.num) &&
+        (nextpos->y.stl.num != prevpos->y.stl.num)) {
+        return true;
+    }
+    struct Coord3d pos1;
+    struct Coord3d pos2;
+    int subdelta_x, subdelta_y;
+    subdelta_x = (nextpos->x.stl.num - prevpos->x.stl.num);
+    subdelta_y = (nextpos->y.stl.num - prevpos->y.stl.num);
+    switch (subdelta_x + 2 * subdelta_y)
+    {
+    case -3:
+        pos2.x.val = prevpos->x.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val - 256;
+        pos2.y.val = prevpos->y.val - 256;
+        if (get_point_in_map_solid_flags_ignoring_door(&pos1, doortng) & 0x01) {
+            return false;
+        }
+        if (get_point_in_map_solid_flags_ignoring_door(&pos2, doortng) & 0x01) {
+            return false;
+        }
+        break;
+    case -1:
+        pos2.y.val = prevpos->y.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val - 256;
+        pos2.x.val = prevpos->x.val + 256;
+        if (get_point_in_map_solid_flags_ignoring_door(&pos1, doortng) & 0x01) {
+            return false;
+        }
+        if (get_point_in_map_solid_flags_ignoring_door(&pos2, doortng) & 0x01) {
+            return false;
+        }
+        break;
+    case 1:
+        pos2.x.val = prevpos->x.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val - 256;
+        pos2.y.val = prevpos->y.val + 256;
+        if (get_point_in_map_solid_flags_ignoring_door(&pos1, doortng) & 0x01) {
+            return false;
+        }
+        if (get_point_in_map_solid_flags_ignoring_door(&pos2, doortng) & 0x01) {
+            return false;
+        }
+        break;
+    case 3:
+        pos2.y.val = prevpos->y.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val + 256;
+        pos2.x.val = prevpos->x.val + 256;
+        if (get_point_in_map_solid_flags_ignoring_door(&pos1, doortng) & 0x01) {
+            return false;
+        }
+        if (get_point_in_map_solid_flags_ignoring_door(&pos2, doortng) & 0x01) {
+            return false;
+        }
+        break;
+    }
+    return true;
+}
+
+TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const struct Coord3d *frpos,
+    const struct Coord3d *topos, const struct Thing *doortng)
+{
+    MapSubtlCoord dx,dy,dz;
+    dx = (MapSubtlCoord)topos->x.val - (MapSubtlCoord)frpos->x.val;
+    dy = (MapSubtlCoord)topos->y.val - (MapSubtlCoord)frpos->y.val;
+    dz = (MapSubtlCoord)topos->z.val - (MapSubtlCoord)frpos->z.val;
+    if ((topos->x.stl.num == frpos->x.stl.num) &&
+        (topos->y.stl.num == frpos->y.stl.num)) {
+        return true;
+    }
+    //return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(frpos, topos, doortng);
+    MapCoord increase_x, increase_y, increase_z;
+    MapSubtlCoord distance;
+    if (dx >= 0) {
+        increase_x = 256;
+    } else {
+        dx = -dx;
+        increase_x = -256;
+    }
+    if (dy >= 0) {
+        increase_y = 256;
+    } else {
+        dy = -dy;
+        increase_y = -256;
+    }
+    if (dz >= 0) {
+        increase_z = 256;
+    } else {
+        dz = -dz;
+        increase_z = -256;
+    }
+    { // Compute amount of steps for the loop
+        int maxdim1, maxdim2;
+        if (dy == dx)
+        {
+            increase_z = increase_z * dz / dx;
+            maxdim1 = frpos->x.stl.num;
+            maxdim2 = topos->x.stl.num;
+        }
+        else
+        if (dy > dx)
+        {
+            increase_x = dx * increase_x / dy;
+            increase_z = increase_z * dz / dy;
+            maxdim1 = frpos->y.stl.num;
+            maxdim2 = topos->y.stl.num;
+        } else
+        {
+            increase_y = increase_y * dy / dx;
+            increase_z = increase_z * dz / dx;
+            maxdim1 = frpos->x.stl.num;
+            maxdim2 = topos->x.stl.num;
+        }
+        distance = abs(maxdim2 - maxdim1);
+    }
+    // Go through the distance with given increases
+    struct Coord3d prevpos;
+    struct Coord3d nextpos;
+    prevpos.x.val = frpos->x.val;
+    prevpos.y.val = frpos->y.val;
+    prevpos.z.val = frpos->z.val;
+    nextpos.x.val = prevpos.x.val + increase_x;
+    nextpos.y.val = prevpos.y.val + increase_y;
+    nextpos.z.val = prevpos.z.val + increase_z;
+    while (distance > 0)
+    {
+        if (get_point_in_map_solid_flags_ignoring_door(&nextpos, doortng) & 0x01) {
+            return false;
+        }
+        if (!sibling_line_of_sight_3d_including_lava_check_ignoring_door(&prevpos, &nextpos, doortng)) {
+            return false;
+        }
+        // Go to next sibling subtile
+        prevpos.x.val = nextpos.x.val;
+        prevpos.y.val = nextpos.y.val;
+        prevpos.z.val = nextpos.z.val;
+        nextpos.x.val += increase_x;
+        nextpos.y.val += increase_y;
+        nextpos.z.val += increase_z;
+        distance--;
+    }
+    return true;
+}
+
+TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *prevpos,
+    const struct Coord3d *nextpos, PlayerNumber plyr_idx)
+{
+    // If both dimensions changed, allow the pass
+    if ((nextpos->x.stl.num != prevpos->x.stl.num) &&
+        (nextpos->y.stl.num != prevpos->y.stl.num)) {
+        return true;
+    }
+    struct Coord3d pos1;
+    struct Coord3d pos2;
+    int subdelta_x, subdelta_y;
+    subdelta_x = (nextpos->x.stl.num - prevpos->x.stl.num);
+    subdelta_y = (nextpos->y.stl.num - prevpos->y.stl.num);
+    switch (subdelta_x + 2 * subdelta_y)
+    {
+    case -3:
+        pos2.x.val = prevpos->x.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val - 256;
+        pos2.y.val = prevpos->y.val - 256;
+        if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
+            return false;
+        }
+        if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
+            return false;
+        }
+        break;
+    case -1:
+        pos2.y.val = prevpos->y.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val - 256;
+        pos2.x.val = prevpos->x.val + 256;
+        if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
+            return false;
+        }
+        if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
+            return false;
+        }
+        break;
+    case 1:
+        pos2.x.val = prevpos->x.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val - 256;
+        pos2.y.val = prevpos->y.val + 256;
+        if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
+            return false;
+        }
+        if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
+            return false;
+        }
+        break;
+    case 3:
+        pos2.y.val = prevpos->y.val;
+        pos2.z.val = prevpos->z.val;
+        pos1.x.val = prevpos->x.val;
+        pos1.z.val = prevpos->z.val;
+        pos1.y.val = prevpos->y.val + 256;
+        pos2.x.val = prevpos->x.val + 256;
+        if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
+            return false;
+        }
+        if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
+            return false;
+        }
+        break;
+    }
+    return true;
+}
+
+TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *frpos,
+    const struct Coord3d *topos, PlayerNumber plyr_idx)
+{
+    MapSubtlCoord dx,dy,dz;
+    dx = (MapSubtlCoord)topos->x.val - (MapSubtlCoord)frpos->x.val;
+    dy = (MapSubtlCoord)topos->y.val - (MapSubtlCoord)frpos->y.val;
+    dz = (MapSubtlCoord)topos->z.val - (MapSubtlCoord)frpos->z.val;
+    if ((topos->x.stl.num == frpos->x.stl.num) &&
+        (topos->y.stl.num == frpos->y.stl.num)) {
+        return true;
+    }
+    //return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(frpos, topos, plyr_idx);
+    MapCoord increase_x, increase_y, increase_z;
+    MapSubtlCoord distance;
+    if (dx >= 0) {
+        increase_x = 256;
+    } else {
+        dx = -dx;
+        increase_x = -256;
+    }
+    if (dy >= 0) {
+        increase_y = 256;
+    } else {
+        dy = -dy;
+        increase_y = -256;
+    }
+    if (dz >= 0) {
+        increase_z = 256;
+    } else {
+        dz = -dz;
+        increase_z = -256;
+    }
+    { // Compute amount of steps for the loop
+        int maxdim1, maxdim2;
+        if (dy == dx)
+        {
+            increase_z = increase_z * dz / dx;
+            maxdim1 = frpos->x.stl.num;
+            maxdim2 = topos->x.stl.num;
+        }
+        else
+        if (dy > dx)
+        {
+            increase_x = dx * increase_x / dy;
+            increase_z = increase_z * dz / dy;
+            maxdim1 = frpos->y.stl.num;
+            maxdim2 = topos->y.stl.num;
+        } else
+        {
+            increase_y = increase_y * dy / dx;
+            increase_z = increase_z * dz / dx;
+            maxdim1 = frpos->x.stl.num;
+            maxdim2 = topos->x.stl.num;
+        }
+        distance = abs(maxdim2 - maxdim1);
+    }
+    // Go through the distance with given increases
+    struct Coord3d prevpos;
+    struct Coord3d nextpos;
+    prevpos.x.val = frpos->x.val;
+    prevpos.y.val = frpos->y.val;
+    prevpos.z.val = frpos->z.val;
+    nextpos.x.val = prevpos.x.val + increase_x;
+    nextpos.y.val = prevpos.y.val + increase_y;
+    nextpos.z.val = prevpos.z.val + increase_z;
+    while (distance > 0)
+    {
+        if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
+            return false;
+        }
+        if (!sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(&prevpos, &nextpos, plyr_idx)) {
+            return false;
+        }
+        // Go to next sibling subtile
+        prevpos.x.val = nextpos.x.val;
+        prevpos.y.val = nextpos.y.val;
+        prevpos.z.val = nextpos.z.val;
+        nextpos.x.val += increase_x;
+        nextpos.y.val += increase_y;
+        nextpos.z.val += increase_z;
+        distance--;
+    }
+    return true;
 }
 
 long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
@@ -161,7 +619,6 @@ long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creat
     const struct Coord3d *srcpos;
     struct Coord3d pos1;
     struct Coord3d pos2;
-    long result;
     //return _DK_jonty_creature_can_see_thing_including_lava_check(creatng, thing);
     crstat = creature_stats_get_from_thing(creatng);
     srcpos = &creatng->mappos;
@@ -172,42 +629,45 @@ long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creat
     pos2.y.val = thing->mappos.y.val;
     pos2.z.val = thing->mappos.z.val;
     pos1.z.val += crstat->eye_height;
-    if (thing->class_id == 9)
+    if (thing->class_id == TCls_Door)
     {
-      if ( !creature_can_travel_over_lava(creatng) && !lava_at_position(srcpos) )
-      {
-        result = jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing);
-        if ( result <= 0 )
+        if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
         {
-          pos2.z.val += thing->field_58;
-          result = jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing);
+            if (line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing))
+                return true;
+            pos2.z.val += thing->field_58;
+            if (line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing))
+                return true;
+            return false;
+        } else
+        {
+            if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing))
+                return true;
+            pos2.z.val += thing->field_58;
+            if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing))
+                return true;
+            return false;
         }
-        return result;
-      }
-      if ( line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing) )
-        return 1;
-      pos2.z.val += thing->field_58;
-      if ( line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing) )
-        return 1;
-      return 0;
-    }
-    if ( creature_can_travel_over_lava(creatng) || lava_at_position(srcpos) )
+    } else
     {
-      if ( line_of_sight_3d(&pos1, &pos2) )
-        return 1;
-      pos2.z.val += thing->field_58;
-      if ( line_of_sight_3d(&pos1, &pos2) )
-        return 1;
-      return 0;
+        if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
+        {
+            if (line_of_sight_3d(&pos1, &pos2))
+                return true;
+            pos2.z.val += thing->field_58;
+            if (line_of_sight_3d(&pos1, &pos2))
+                return true;
+            return false;
+        } else
+        {
+            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner))
+                return true;
+            pos2.z.val += thing->field_58;
+            if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner))
+                return true;
+            return false;
+        }
     }
-    result = jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner);
-    if (result <= 0)
-    {
-        pos2.z.val += thing->field_58;
-        result = jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner);
-    }
-    return result;
-
 }
 
 long creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist)
@@ -220,7 +680,6 @@ long creature_can_see_combat_path(const struct Thing *creatng, const struct Thin
 
     return 0;
 }
-
 
 TbBool creature_will_do_combat(const struct Thing *thing)
 {
@@ -382,9 +841,28 @@ void remove_thing_from_battle_list(struct Thing *thing)
     SYNCDBG(19,"Finished");
 }
 
-void insert_thing_in_battle_list(struct Thing *thing, unsigned short a2)
+void insert_thing_in_battle_list(struct Thing *thing, BattleIndex battle_id)
 {
-    _DK_insert_thing_in_battle_list(thing, a2);
+    struct CreatureBattle *battle;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    battle = creature_battle_get(battle_id);
+    //_DK_insert_thing_in_battle_list(thing, battle_id);
+    cctrl->battle_next_creatr = battle->last_creatr;
+    cctrl->battle_prev_creatr = 0;
+    cctrl->battle_id = battle_id;
+    if (battle->first_creatr <= 0) {
+        battle->first_creatr = thing->index;
+    }
+    if (battle->last_creatr > 0) {
+        struct Thing *enmtng;
+        struct CreatureControl *enmctrl;
+        enmtng = thing_get(battle->last_creatr);
+        enmctrl = creature_control_get_from_thing(enmtng);
+        enmctrl->battle_prev_creatr = thing->index;
+    }
+    battle->last_creatr = thing->index;
+    battle->fighters_num++;
 }
 
 long count_creatures_really_in_combat(BattleIndex battle_id)

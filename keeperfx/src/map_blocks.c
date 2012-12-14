@@ -542,8 +542,8 @@ TbBool point_in_map_is_solid(const struct Coord3d *pos)
         ceiling_height = get_mapblk_filled_subtiles(mapblk);
     }
     if ((ceiling_height <= check_h) || (floor_height > check_h))
-        return 1;
-    return 0;
+        return true;
+    return false;
 }
 
 /**
@@ -643,6 +643,63 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
 long element_top_face_texture(struct Map *map)
 {
   return _DK_element_top_face_texture(map);
+}
+
+TbBool point_in_map_is_solid_ignoring_door(const struct Coord3d *pos, const struct Thing *doortng)
+{
+    struct Thing *thing;
+    thing = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+    if (!thing_is_invalid(thing)) {
+        return (thing->index != doortng->index);
+    } else {
+        return point_in_map_is_solid(pos);
+    }
+}
+
+unsigned short get_point_in_map_solid_flags_ignoring_door(const struct Coord3d *pos, const struct Thing *doortng)
+{
+    struct Thing *thing;
+    unsigned short flags;
+    thing = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+    flags = 0;
+    if (!thing_is_invalid(thing))
+    {
+        if (thing->index != doortng->index) {
+            flags |= 0x01;
+        }
+    } else
+    if (map_pos_is_lava(pos->x.stl.num, pos->y.stl.num))
+    {
+        flags |= 0x02;
+    } else
+    if (point_in_map_is_solid(pos))
+    {
+        flags |= 0x01;
+    }
+    return flags;
+}
+
+unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord3d *pos, PlayerNumber plyr_idx)
+{
+    struct Thing *thing;
+    unsigned short flags;
+    thing = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+    flags = 0;
+    if (!thing_is_invalid(thing))
+    {
+        if ((thing->owner != plyr_idx) || (thing->byte_18 != 0)) {
+            flags |= 0x01;
+        }
+    } else
+    if (map_pos_is_lava(pos->x.stl.num, pos->y.stl.num))
+    {
+        flags |= 0x02;
+    } else
+    if (point_in_map_is_solid(pos))
+    {
+        flags |= 0x01;
+    }
+    return flags;
 }
 
 /*
