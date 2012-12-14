@@ -2103,18 +2103,18 @@ TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomK
 {
     if (!room_exists(room))
     {
-        SYNCLOG("%s: The %s can no longer work because former work room doesn't exist",thing_model_name(thing));
+        SYNCLOG("%s: The %s can no longer work in %s because former work room doesn't exist",thing_model_name(thing),room_code_name(rkind));
         // Note that if given room doesn't exist, it do not mean this
         return true;
     }
     if (!room_still_valid_as_type_for_thing(room, rkind, thing))
     {
-        WARNLOG("%s: Room %s index %d is not valid for %s to work in",func_name,room_code_name(room->kind),(int)room->index,thing_model_name(thing));
+        WARNLOG("%s: Room %s index %d is not valid %d for %s to work in",func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),thing_model_name(thing));
         return true;
     }
     if (!creature_is_working_in_room(thing, room))
     {
-        WARNLOG("%s: Room %s index %d is not the one %s selected to work in",func_name,room_code_name(room->kind),(int)room->index,thing_model_name(thing));
+        WARNLOG("%s: Room %s index %d is not the %s which %s selected to work in",func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),thing_model_name(thing));
         return true;
     }
     return false;
