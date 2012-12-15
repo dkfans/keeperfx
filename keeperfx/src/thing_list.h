@@ -198,6 +198,8 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl
 TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
+TbBool apply_anger_to_all_players_creatures_excluding(PlayerNumber plyr_idx, long anger,
+    long reason, const struct Thing *excltng);
 
 TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);

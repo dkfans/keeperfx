@@ -190,6 +190,11 @@ TbBool things_stats_debug_dump(void)
     return false;
 }
 
+TbBool is_neutral_thing(const struct Thing *thing)
+{
+    return (thing->owner == game.neutral_player_num);
+}
+
 /**
  * Returns a value which decays around some epicenter, like blast damage.
  *
@@ -436,28 +441,28 @@ long compute_controlled_speed_decrease(long prev_speed, long speed_limit)
 
 long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  struct Dungeon *dungeon;
-  long speed;
-  cctrl = creature_control_get_from_thing(thing);
-  crstat = creature_stats_get_from_thing(thing);
-  speed = crstat->base_speed;
-  if (cctrl->field_21)
-    speed *= 2;
-  if (creature_affected_by_spell(thing, SplK_Speed))
-    speed *= 2;
-  if (creature_affected_by_spell(thing, SplK_Slow))
-    speed /= 2;
-  if (game.neutral_player_num != thing->owner)
-  {
-    dungeon = get_dungeon(thing->owner);
-    if (dungeon->tortured_creatures[thing->model] > 0)
-      speed = 5 * speed / 4;
-    if (dungeon->field_888)
-      speed = 5 * speed / 4;
-  }
-  return speed;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long speed;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    speed = crstat->base_speed;
+    if (cctrl->field_21)
+        speed *= 2;
+    if (creature_affected_by_spell(thing, SplK_Speed))
+        speed *= 2;
+    if (creature_affected_by_spell(thing, SplK_Slow))
+        speed /= 2;
+    if (!is_neutral_thing(thing))
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(thing->owner);
+        if (dungeon->tortured_creatures[thing->model] > 0)
+            speed = 5 * speed / 4;
+        if (dungeon->field_888)
+            speed = 5 * speed / 4;
+    }
+    return speed;
 }
 
 /**
