@@ -173,7 +173,7 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
         }
     } else
     // Neutral creatures don't have flee place
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
     {
         if ( (pos->x.val != 0) || (pos->y.val != 0) )
         {

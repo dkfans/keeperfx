@@ -1552,7 +1552,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
         ERRORLOG("Tried to kill nonexisting thing!");
         return false;
     }
-    if (thing->owner != game.neutral_player_num) {
+    if (!is_neutral_thing(thing)) {
         dungeon = get_players_num_dungeon(thing->owner);
     }
     if (!dungeon_invalid(dungeon))

@@ -26,6 +26,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "thing_stats.h"
+#include "thing_effects.h"
 #include "frontend.h"
 #include "lens_api.h"
 #include "light_data.h"

@@ -68,6 +68,33 @@ TbBool column_invalid(const struct Column *colmn)
   return (colmn <= game.columns.lookup[0]) || (colmn > game.columns.lookup[COLUMNS_COUNT-1]) || (colmn == NULL);
 }
 
+/**
+ * Returns height of a column, in subtiles.
+ * @param mapblk The map block for which column height should be returned.
+ */
+long get_column_height(const struct Map *mapblk)
+{
+    const struct Column *col;
+    col = get_map_column(mapblk);
+    if (column_invalid(col))
+        return 0;
+    return (col->bitfields & 0xF0) >> 4;
+}
+
+/** Returns height of a column, in subtiles.
+ *
+ * @param stl_x Subtile for which column height should be returned, X coord.
+ * @param stl_y Subtile for which column height should be returned, Y coord.
+ */
+long get_column_height_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    const struct Column *col;
+    col = get_column_at(stl_x, stl_y);
+    if (column_invalid(col))
+        return 0;
+    return (col->bitfields & 0xF0) >> 4;
+}
+
 long get_top_cube_at_pos(long stl_num)
 {
     struct Column *col;
@@ -87,16 +114,16 @@ long get_top_cube_at_pos(long stl_num)
 
 long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  struct Column *col;
-  unsigned long top_pos;
-  long tcube;
-  col = get_column_at(stl_x, stl_y);
-  top_pos = (col->bitfields >> 4) & 0x0F;
-  if (top_pos > 0)
-    tcube = col->cubes[top_pos-1];
-  else
-    tcube = game.field_14BB65[col->baseblock];
-  return tcube;
+    struct Column *col;
+    unsigned long top_pos;
+    long tcube;
+    col = get_column_at(stl_x, stl_y);
+    top_pos = (col->bitfields >> 4) & 0x0F;
+    if (top_pos > 0)
+        tcube = col->cubes[top_pos-1];
+    else
+        tcube = game.field_14BB65[col->baseblock];
+    return tcube;
 }
 
 void make_solidmask(struct Column *col)
@@ -125,6 +152,10 @@ unsigned short find_column_height(struct Column *col)
   return h;
 }
 
+/**
+ * Returns height of a floor, in map coordinates.
+ * @param mapblk The map block for which floor height should be returned.
+ */
 long get_map_floor_height(const struct Map *mapblk)
 {
     const struct Column *colmn;
@@ -137,6 +168,10 @@ long get_map_floor_height(const struct Map *mapblk)
     return cubes_height << 8;
 }
 
+/**
+ * Returns height of a floor, in map coordinates.
+ * @param pos The coordinates of a block for which floor height should be returned.
+ */
 long get_floor_height_at(const struct Coord3d *pos)
 {
     struct Map *mapblk;

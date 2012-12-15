@@ -687,7 +687,7 @@ short creature_hero_entering(struct Thing *thing)
     }
     if ( thing_touching_floor(thing) || ((thing->movement_flags & TMvF_Flying) != 0) )
     {
-        if (thing->owner != game.neutral_player_num)
+        if (is_neutral_thing(thing))
         {
             set_start_state(thing);
             cctrl->field_282--;

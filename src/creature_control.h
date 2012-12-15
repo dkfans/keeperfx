@@ -20,8 +20,10 @@
 #define DK_CRTRCTRL_H
 
 #include "bflib_basics.h"
-#include "ariadne.h"
 #include "globals.h"
+
+#include "ariadne.h"
+#include "creature_groups.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -345,8 +347,7 @@ unsigned char field_284[2];
     unsigned char field_287;
     struct Coord3d flee_pos;
     long field_28E;
-unsigned char field_292[12];
-unsigned char field_29E[12];
+    struct MemberPos followers_pos[8];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
 short field_2AE;
@@ -370,8 +371,8 @@ unsigned char field_2CB[32];
     unsigned long field_2FA;
     unsigned long field_2FE;
     unsigned char field_302;
-unsigned char field_303[3];
-unsigned char field_306[2];
+    long field_303;
+    unsigned char field_307;
 };
 
 struct CreatureStatsOLD { // sizeof = 230

@@ -66,9 +66,12 @@ unsigned short find_column_height(struct Column *col);
 void init_whole_blocks(void);
 void init_top_texture_to_cube_table(void);
 
+long get_column_height(const struct Map *mapblk);
+long get_column_height_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long get_top_cube_at_pos(long mpos);
 long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long get_map_floor_height(const struct Map *mapblk);
+long get_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long get_floor_height_at(const struct Coord3d *pos);
 long get_map_ceiling_height(const struct Map *mapblk);
 long get_ceiling_height_at(const struct Coord3d *pos);

@@ -145,6 +145,7 @@ DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, 
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *creatng, long state);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *thing);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
+DLLIMPORT struct Room * _DK_find_nearest_room_for_thing(struct Thing *thing, char a2, char a3, unsigned __int8 a4);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -1649,37 +1650,256 @@ short creature_fired(struct Thing *creatng)
 
 short creature_follow_leader(struct Thing *creatng)
 {
-  return _DK_creature_follow_leader(creatng);
+    struct Thing *leadtng;
+    long i;
+    //return _DK_creature_follow_leader(creatng);
+    leadtng = get_group_leader(creatng);
+    if (!thing_is_invalid(leadtng) || (leadtng->index == creatng->index))
+    {
+        set_start_state(creatng);
+        return 1;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if ((cctrl->spell_flags & CSAfF_Unkn1000) != 0)
+    {
+        remove_creature_from_group(creatng);
+        set_start_state(creatng);
+        return 1;
+    }
+    struct Coord3d follwr_pos;
+    TbBool found_pos;
+    long group_len;
+    found_pos = false;
+    group_len = get_no_creatures_in_group(leadtng);
+    if (group_len > 0)
+    {
+        struct CreatureControl *leadctrl;
+        leadctrl = creature_control_get_from_thing(leadtng);
+        for (i = 0; i < group_len; i++)
+        {
+            struct MemberPos *avail_pos;
+            avail_pos = &leadctrl->followers_pos[i];
+            if (((avail_pos->flags & 0x02) != 0) && ((avail_pos->flags & 0x01) == 0))
+            {
+                follwr_pos.x.val = subtile_coord_center(stl_num_decode_x(avail_pos->stl_num));
+                follwr_pos.y.val = subtile_coord_center(stl_num_decode_y(avail_pos->stl_num));
+                follwr_pos.z.val = 0;
+                avail_pos->flags |= 0x01;
+                found_pos = true;
+                break;
+            }
+        }
+    }
+    if (!found_pos)
+    {
+        set_start_state(creatng);
+        return 1;
+    }
+    int amount;
+    amount = cctrl->field_307;
+    if (amount > 8)
+    {
+        remove_creature_from_group(creatng);
+        return 0;
+    }
+    if ((amount > 0) && (cctrl->field_303 + 16 > game.play_gameturn))
+    {
+        return 0;
+    }
+    cctrl->field_303 = game.play_gameturn;
+    MapCoord dist;
+    int speed;
+    dist = get_2d_box_distance(&creatng->mappos, &follwr_pos);
+    speed = get_creature_speed(leadtng);
+    // If we're too far from the designated position, do a speed run
+    if (dist > 1536)
+    {
+        speed = 3 * speed;
+        if (speed >= 256)
+            speed = 256;
+        if ( creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1 )
+        {
+          cctrl->field_307++;
+          return 0;
+        }
+    } else
+    // If we're close, continue moving at normal speed
+    if (dist <= 256)
+    {
+        if (dist <= 0)
+        {
+            creature_turn_to_face(creatng, &leadtng->mappos);
+        } else
+        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            cctrl->field_307++;
+            return 0;
+        }
+    } else
+    // If we're in between, move just a bit faster than leader
+    {
+        speed = 5 * speed / 4;
+        if (speed >= 256)
+            speed = 256;
+        if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
+        {
+            cctrl->field_307++;
+            return 0;
+        }
+    }
+    cctrl->field_307 = 0;
+    return 0;
 }
 
 short creature_in_hold_audience(struct Thing *creatng)
 {
-  return _DK_creature_in_hold_audience(creatng);
+    struct CreatureControl *cctrl;
+    struct Coord3d pos;
+    //return _DK_creature_in_hold_audience(creatng);
+    int speed;
+    speed = get_creature_speed(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    if ((cctrl->field_82 == -1) && (cctrl->instance_id == CrInst_NULL))
+    {
+        struct Room *room;
+        room = get_room_thing_is_on(creatng);
+        if (room_is_invalid(room)) {
+            return 1;
+        }
+        if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
+            return 1;
+        }
+        setup_person_move_to_position(creatng, coord_subtile(pos.x.val), coord_subtile(pos.y.val), 0);
+        creatng->continue_state = CrSt_CreatureInHoldAudience;
+        cctrl->field_82 = 0;
+        return 1;
+    }
+    long ret;
+    ret = creature_move_to(creatng, &cctrl->moveto_pos, speed, cctrl->field_88, 0);
+    if (ret != 1)
+    {
+        if (ret == -1)
+        {
+            ERRORLOG("Hope we never get here...");
+            set_start_state(creatng);
+            return 0;
+        }
+        return 1;
+    }
+    if (cctrl->field_82 != 0)
+    {
+        if ((cctrl->field_82 != 1) || (cctrl->instance_id != CrInst_NULL))
+            return 1;
+        cctrl->field_82 = -1;
+    } else
+    {
+        cctrl->field_82 = 1;
+        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+    }
+    return 1;
 }
 
 short creature_kill_creatures(struct Thing *creatng)
 {
-  return _DK_creature_kill_creatures(creatng);
+    struct Dungeon *dungeon;
+    //return _DK_creature_kill_creatures(creatng);
+    dungeon = get_dungeon(creatng->owner);
+    if (dungeon->num_active_creatrs <= 1) {
+        set_start_state(creatng);
+        return 0;
+    }
+    struct Thing *thing;
+    long crtr_idx;
+    crtr_idx = ACTION_RANDOM(dungeon->num_active_creatrs);
+    thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, crtr_idx);
+    if (thing_is_invalid(thing)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (setup_person_move_to_coord(creatng, &thing->mappos, 0)) {
+        creatng->continue_state = CrSt_CreatureKillCreatures;
+    }
+    return 1;
 }
 
 short creature_leaves(struct Thing *creatng)
 {
-  return _DK_creature_leaves(creatng);
+    struct Room *room;
+    //return _DK_creature_leaves(creatng);
+    room = get_room_thing_is_on(creatng);
+    if (room_is_invalid(room) || (room->kind != RoK_ENTRANCE) || (room->owner != creatng->owner))
+    {
+        internal_set_thing_state(creatng, CrSt_CreatureLeavingDungeon);
+        return 1;
+    }
+    if (!is_neutral_thing(creatng))
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(creatng->owner);
+        dungeon->total_creatures_left++;
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(creatng);
+        apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, 4, creatng);
+    }
+    kill_creature(creatng, INVALID_THING, -1, 1, 0, 0);
+    return CrStRet_Deleted;
 }
 
 short creature_leaves_or_dies(struct Thing *creatng)
 {
-  return _DK_creature_leaves_or_dies(creatng);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_creature_leaves_or_dies(creatng);
+    // If we're on an entrance, then just leave the dungeon
+    room = get_room_thing_is_on(creatng);
+    if (!room_is_invalid(room) && (room->kind == RoK_ENTRANCE))
+    {
+        kill_creature(creatng, INVALID_THING, -1, 1, 0, 0);
+        return -1;
+    }
+    // Otherwise, try heading for nearest entrance
+    room = find_nearest_room_for_thing(creatng, creatng->owner, 1, 0);
+    if (room_is_invalid(room))
+    {
+        kill_creature(creatng, INVALID_THING, -1, 0, 0, 0);
+        return -1;
+    }
+    if (!setup_random_head_for_room(creatng, room, 0))
+    {
+        kill_creature(creatng, INVALID_THING, -1, 0, 0, 0);
+        return -1;
+    }
+    creatng->continue_state = CrSt_LeavesBecauseOwnerLost;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->flgfield_1 |= 0x02;
+    return 1;
 }
 
 short creature_leaving_dungeon(struct Thing *creatng)
 {
-  return _DK_creature_leaving_dungeon(creatng);
+    struct Room *room;
+    //return _DK_creature_leaving_dungeon(creatng);
+    room = find_nearest_room_for_thing(creatng, creatng->owner, 1, 0);
+    if (room_is_invalid(room))
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!setup_random_head_for_room(creatng, room, 0))
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    if (is_my_player_number(creatng->owner))
+        output_message(SMsg_CreatureLeaving, 500, 1);
+    creatng->continue_state = CrSt_CreatureLeaves;
+    return 1;
 }
 
 short creature_persuade(struct Thing *creatng)
 {
-  return _DK_creature_persuade(creatng);
+    return _DK_creature_persuade(creatng);
 }
 
 void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
@@ -1695,9 +1915,72 @@ void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
     }
 }
 
-unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos)
 {
-    return _DK_find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos);
+    int nav_sizexy;
+    long selected;
+    unsigned long k;
+    long i;
+    //return _DK_find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos);
+    nav_sizexy = thing_nav_block_sizexy(thing) << 8;
+    if (room_is_invalid(room) || (room->slabs_count <= 0)) {
+        ERRORLOG("Invalid room or number of slabs is zero");
+        return 0;
+    }
+    selected = ACTION_RANDOM(room->slabs_count);
+    k = 0;
+    i = room->slabs_list;
+    // Get the selected index
+    while (i != 0)
+    {
+        // Per room tile code
+        if (k >= selected)
+        {
+            break;
+        }
+        // Per room tile code ends
+        i = get_next_slab_number_in_room(i);
+        k++;
+    }
+    // Sweep rooms starting on that index
+    while (i != 0)
+    {
+        MapSubtlCoord stl_x,stl_y,start_stl;
+        long n;
+        stl_x = slab_subtile(slb_num_decode_x(i),0);
+        stl_y = slab_subtile(slb_num_decode_y(i),0);
+        // Per room tile code
+        start_stl = ACTION_RANDOM(9);
+        for (n=0; n < 9; n++)
+        {
+            MapSubtlCoord x,y;
+            x = start_stl % 3 + stl_x;
+            y = start_stl / 3 + stl_y;
+            if (get_column_height_at(x, y) == 1)
+            {
+              if ( !find_base_thing_on_mapwho(TCls_Object, -1, x, y) )
+              {
+                pos->x.val = subtile_coord_center(x);
+                pos->y.val = subtile_coord_center(y);
+                pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                if ( !thing_in_wall_at_with_radius(thing, pos, nav_sizexy) )
+                  return 1;
+              }
+            }
+            start_stl = (start_stl + 1) % 9;
+        }
+        // Per room tile code ends
+        if (k >= room->slabs_count)
+        {
+            k = 0;
+            i = room->slabs_list;
+        } else {
+            k++;
+            i = get_next_slab_number_in_room(i);
+        }
+    }
+    ERRORLOG("Could not find valid RANDOM point in room for thing");
+    return 0;
 }
 
 short creature_present_to_dungeon_heart(struct Thing *creatng)
@@ -1954,6 +2237,11 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
 {
   return _DK_setup_random_head_for_room(thing, room, a3);
+}
+
+struct Room * find_nearest_room_for_thing(struct Thing *thing, char a2, char a3, unsigned char a4)
+{
+    return _DK_find_nearest_room_for_thing(thing, a2, a3, a4);
 }
 
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5)
@@ -2467,7 +2755,7 @@ long process_work_speed_on_work_value(struct Thing *thing, long base_val)
         val = 2 * val;
     if (cctrl->field_21)
         val = 4 * val / 3;
-    if (thing->owner != game.neutral_player_num)
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         if (dungeon->tortured_creatures[thing->model] > 0)
@@ -2662,7 +2950,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
       initialise_thing_state(thing, CrSt_ManualControl);
       return thing->active_state;
     }
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
     {
       cleanup_current_thing_state(thing);
       initialise_thing_state(thing, CrSt_CreatureDormant);
@@ -2709,7 +2997,7 @@ TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state)
 void init_creature_state(struct Thing *thing)
 {
     struct Room *room;
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
     {
         set_start_state(thing);
         return;

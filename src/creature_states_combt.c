@@ -688,7 +688,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_Chicken))
         return false;
     // Neutral creatures won't fight
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
         return false;
     if ((cctrl->flgfield_1 & 0x02) != 0)
         return false;
@@ -724,7 +724,7 @@ TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
         return false;
     }
     // Neutral creatures are not easily scared, as they shouldn't have enemies
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
         return false;
     // Creatures are scared if their health drops lower than
     // fear_wounded percent of base health

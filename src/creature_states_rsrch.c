@@ -60,7 +60,7 @@ short at_research_room(struct Thing *thing)
     //return _DK_at_research_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
     {
         set_start_state(thing);
         return 0;
@@ -69,7 +69,7 @@ short at_research_room(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     if ((crstat->research_value <= 0) || (dungeon->field_F78 < 0))
     {
-        if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
+        if ( !is_neutral_thing(thing) && (dungeon->field_F78 < 0) )
         {
             if ( is_my_player_number(dungeon->owner) )
                 output_message(SMsg_NoMoreReseach, 500, true);
@@ -522,7 +522,7 @@ short researching(struct Thing *thing)
     TRACE_THING(thing);
     //return _DK_researching(thing);
     dungeon = get_dungeon(thing->owner);
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
     {
         ERRORLOG("Neutral %s can't do research",thing_model_name(thing));
         remove_creature_from_work_room(thing);
@@ -533,7 +533,7 @@ short researching(struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     if ( (crstat->research_value == 0) || (dungeon->field_F78 < 0) )
     {
-        if ( (thing->owner != game.neutral_player_num) && (dungeon->field_F78 < 0) )
+        if ( !is_neutral_thing(thing) && (dungeon->field_F78 < 0) )
         {
             if ( is_my_player_number(dungeon->owner) )
                 output_message(SMsg_NoMoreReseach, 500, true);

@@ -467,23 +467,18 @@ void replace_map_slab_when_destroyed(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct Column *col;
     MapSubtlCoord stl_x,stl_y;
     long x,y,z;
     stl_x = 3 * slb_x;
     stl_y = 3 * slb_y;
-    col = get_column_at(stl_x, stl_y);
-    if (column_invalid(col))
-        z = 0;
-    else
-        z = (col->bitfields >> 4) & 0x0F;
+    z = get_column_height_at(stl_x, stl_y);
     for (y = stl_y; y < stl_y+3; y++)
     {
-      for (x = stl_x; x < stl_x+3; x++)
-      {
-        if (z > 0)
-          create_gold_rubble_for_dug_block(x, y, z, game.neutral_player_num);
-      }
+        for (x = stl_x; x < stl_x+3; x++)
+        {
+            if (z > 0)
+                create_gold_rubble_for_dug_block(x, y, z, game.neutral_player_num);
+        }
     }
 }
 
@@ -538,7 +533,7 @@ TbBool point_in_map_is_solid(const struct Coord3d *pos)
     } else
     {
         mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
-        floor_height = col->bitfields >> 4;
+        floor_height = get_column_height_at(pos->x.stl.num, pos->y.stl.num);
         ceiling_height = get_mapblk_filled_subtiles(mapblk);
     }
     if ((ceiling_height <= check_h) || (floor_height > check_h))
@@ -580,16 +575,11 @@ unsigned char dig_has_revealed_area(long a1, long a2, unsigned char a3)
 
 void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct Column *col;
     MapSubtlCoord stl_x,stl_y;
     long x,y,z;
     stl_x = 3 * slb_x;
     stl_y = 3 * slb_y;
-    col = get_column_at(stl_x, stl_y);
-    if (column_invalid(col))
-        z = 0;
-    else
-        z = (col->bitfields >> 4) & 0x0F;
+    z = get_column_height_at(stl_x, stl_y);
     for (y = stl_y; y < stl_y+3; y++)
     {
         for (x = stl_x; x < stl_x+3; x++)

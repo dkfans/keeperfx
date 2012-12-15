@@ -1711,6 +1711,45 @@ TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, ThingMod
   return true;
 }
 
+TbBool apply_anger_to_all_players_creatures_excluding(PlayerNumber plyr_idx, long anger, long reason, const struct Thing *excltng)
+{
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    //return _DK_make_all_players_creatures_angry(plyr_idx);
+    dungeon = get_players_num_dungeon(plyr_idx);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (thing->index != excltng->index) {
+            anger_apply_anger_to_creature(thing, anger, reason, 1);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return true;
+}
+
 TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   const struct Map *mapblk;
