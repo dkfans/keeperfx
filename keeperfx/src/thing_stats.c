@@ -465,6 +465,22 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     return speed;
 }
 
+long calculate_correct_creature_pay(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    long pay;
+    pay = compute_creature_max_pay(crstat->pay,cctrl->explevel);
+    // If torturing creature of that model, halve the salary
+    if (dungeon->tortured_creatures[thing->model] > 0)
+        pay /= 2;
+    return pay;
+}
+
 /**
  * Computes parameter (luck,armour) of a creature on given level.
  * Applies for situations where the level doesn't really matters.

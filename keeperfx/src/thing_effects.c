@@ -901,7 +901,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
               if (k <= 1) k = 1;
               mag = effnfo->accel_z_min + ACTION_RANDOM(k);
               elemtng->acceleration.z.val += (mag*LbSinL(argZ)) >> 16;
-              elemtng->field_1 |= 0x04;
+              elemtng->field_1 |= TF1_PushdByAccel;
           }
           break;
     case 2:
@@ -1032,7 +1032,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             elemtng->acceleration.x.val += acc_x;
             elemtng->acceleration.y.val += acc_y;
             elemtng->acceleration.z.val += acc_z;
-            elemtng->field_1 |= 0x04;
+            elemtng->field_1 |= TF1_PushdByAccel;
             if (egenstat->sound_sample_idx > 0)
             {
                 sectng = create_effect(&elemtng->mappos, TngEff_Unknown49, thing->owner);

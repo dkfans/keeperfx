@@ -987,11 +987,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
         text = buf_sprintf("%ld", i);
         break;
     case 3: // payday wage
-        dungeon = get_players_num_dungeon(thing->owner);
-        if (dungeon->tortured_creatures[thing->model] > 0)
-          i = compute_creature_max_pay(crstat->pay,cctrl->explevel)/2;
-        else
-          i = compute_creature_max_pay(crstat->pay,cctrl->explevel);
+        i = calculate_correct_creature_pay(thing);
         text = buf_sprintf("%ld", i);
         break;
     case 4: // armour
