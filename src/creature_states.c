@@ -43,6 +43,7 @@
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "engine_arrays.h"
+#include "player_utils.h"
 #include "lvl_script.h"
 #include "thing_traps.h"
 #include "sounds.h"
@@ -1444,17 +1445,17 @@ void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(crtng);
-    if (cctrl->field_6E == 0)
+    if (cctrl->dragtng_idx == 0)
     {
         ERRORLOG("The %s isn't dragging anything",thing_model_name(crtng));
     } else
-    if (dragtng->index != cctrl->field_6E)
+    if (dragtng->index != cctrl->dragtng_idx)
     {
         ERRORLOG("The %s isn't dragging %s",thing_model_name(crtng),thing_model_name(dragtng));
     }
-    cctrl->field_6E = 0;
+    cctrl->dragtng_idx = 0;
     dragtng->alloc_flags &= ~TAlF_IsDragged;
-    dragtng->field_1 &= ~TF1_Unkn01;
+    dragtng->field_1 &= ~TF1_IsDragged1;
     move_thing_in_map(dragtng, &crtng->mappos);
     if (dragtng->light_id != 0) {
         light_turn_light_on(dragtng->light_id);
@@ -1906,9 +1907,9 @@ void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_6E = dragtng->index;
+    cctrl->dragtng_idx = dragtng->index;
     dragtng->alloc_flags |= TAlF_IsDragged;
-    dragtng->field_1 |= TF1_Unkn01;
+    dragtng->field_1 |= TF1_IsDragged1;
     dragtng->owner = game.neutral_player_num;
     if (dragtng->light_id != 0) {
       light_turn_light_off(dragtng->light_id);
@@ -2170,7 +2171,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     spelltng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(spelltng);
-    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & TF1_Unkn01) != 0)
+    if ( thing_is_invalid(spelltng) || ((spelltng->field_1 & TF1_IsDragged1) != 0)
       || (get_2d_box_distance(&creatng->mappos, &spelltng->mappos) >= 512))
     {
         set_start_state(creatng);
@@ -2201,12 +2202,93 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
 
 short creature_take_salary(struct Thing *creatng)
 {
-  return _DK_creature_take_salary(creatng);
+    struct Dungeon *dungeon;
+    struct Room *room;
+    TRACE_THING(creatng);
+    SYNCDBG(18,"Starting");
+    //return _DK_creature_take_salary(creatng);
+    if (!thing_is_on_own_room_tile(creatng))
+    {
+        internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
+        return 1;
+    }
+    room = get_room_thing_is_on(creatng);
+    dungeon = get_dungeon(creatng->owner);
+    if ((room->kind != RoK_TREASURE) || ((room->used_capacity <= 0) && (dungeon->offmap_money_owned <= 0)))
+    {
+        internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
+        return 1;
+    }
+    long salary;
+    salary = calculate_correct_creature_pay(creatng);
+    take_money_from_dungeon(creatng->owner, salary, 0);
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(creatng);
+        if (cctrl->field_48 > 0)
+            cctrl->field_48--;
+    }
+    set_start_state(creatng);
+    {
+        struct Thing *efftng;
+        efftng = create_effect_element(&creatng->mappos, 0x29, creatng->owner);
+        if (!thing_is_invalid(efftng))
+        {
+            efftng->long_13 = salary;
+            thing_play_sample(efftng, 32, 100, 0, 3, 0, 2, 256);
+        }
+    }
+    dungeon->lvstats.salary_cost += salary;
+    return 1;
+}
+
+void make_creature_conscious(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    TRACE_THING(creatng);
+    SYNCDBG(18,"Starting");
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->flgfield_1 &= ~CCFlg_Immortal;
+    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+    cctrl->conscious_back_turns = 0;
+    if ((creatng->field_1 & TF1_IsDragged1) != 0)
+    {
+        struct Thing *sectng;
+        struct CreatureControl *secctrl;
+        sectng = thing_get(cctrl->dragtng_idx);
+        TRACE_THING(sectng);
+        secctrl = creature_control_get_from_thing(sectng);
+        if (!creature_control_invalid(secctrl)) {
+            if (secctrl->dragtng_idx <= 0) {
+                WARNLOG("The %s is not dragging something",thing_model_name(sectng));
+            }
+            secctrl->dragtng_idx = 0;
+        } else {
+            ERRORLOG("The %s has no valid control structure",thing_model_name(sectng));
+        }
+        if (cctrl->dragtng_idx <= 0) {
+            WARNLOG("The %s is not dragged by something",thing_model_name(creatng));
+        }
+        creatng->field_1 &= ~TF1_IsDragged1;
+        cctrl->dragtng_idx = 0;
+    }
+    set_start_state(creatng);
 }
 
 short creature_unconscious(struct Thing *creatng)
 {
-  return _DK_creature_unconscious(creatng);
+    struct CreatureControl *cctrl;
+    TRACE_THING(creatng);
+    SYNCDBG(18,"Starting");
+    //return _DK_creature_unconscious(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->conscious_back_turns--;
+    if (cctrl->conscious_back_turns > 0)
+    {
+        return 0;
+    }
+    make_creature_conscious(creatng);
+    return 1;
 }
 
 short creature_vandalise_rooms(struct Thing *creatng)

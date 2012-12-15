@@ -284,7 +284,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         return TUFRet_Modified;
     }
     if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
-      && ((thing->field_1 & TF1_Unkn01) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
+      && ((thing->field_1 & TF1_IsDragged1) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
     {
         delete_thing_structure(thing, 0);
         return TUFRet_Deleted;

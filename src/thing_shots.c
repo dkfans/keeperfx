@@ -53,9 +53,9 @@ DLLIMPORT struct Thing *_DK_get_thing_collided_with_at_satisfying_filter(struct 
 DLLIMPORT struct Thing *_DK_get_shot_collided_with_same_type(struct Thing *shotng, struct Coord3d *nxpos);
 DLLIMPORT long _DK_shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos);
 DLLIMPORT long _DK_shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos);
-DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
-DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos);
-DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target);
+DLLIMPORT long _DK_shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos);
+DLLIMPORT long _DK_shot_hit_object_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos);
+DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *trgtng);
 DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *shotng);
 DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *shotng, long blocked_flags);
 /******************************************************************************/
@@ -629,7 +629,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *target)
     return true;
 }
 
-long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
+long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct Thing *shooter;
     struct ShotConfigStats *shotst;
@@ -637,43 +637,43 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *target, stru
     long damage,throw_strength;
     shotst = get_shot_model_stats(shotng->model);
     throw_strength = shotng->field_20;
-    if (target->health < 0)
+    if (trgtng->health < 0)
         return 0;
     shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index)
         shooter = thing_get(shotng->parent_idx);
-    tgcctrl = creature_control_get_from_thing(target);
-    damage = get_damage_of_melee_shot(shotng, target);
+    tgcctrl = creature_control_get_from_thing(trgtng);
+    damage = get_damage_of_melee_shot(shotng, trgtng);
     if (damage != 0)
     {
       if (shotst->old->field_22 > 0)
       {
-          thing_play_sample(target, shotst->old->field_22, 100, 0, 3, 0, 2, 256);
-          play_creature_sound(target, 1, 3, 0);
+          thing_play_sample(trgtng, shotst->old->field_22, 100, 0, 3, 0, 2, 256);
+          play_creature_sound(trgtng, 1, 3, 0);
       }
       if (!thing_is_invalid(shooter)) {
-          apply_damage_to_thing_and_display_health(target, shotng->word_14, shooter->owner);
+          apply_damage_to_thing_and_display_health(trgtng, shotng->word_14, shooter->owner);
       } else {
-          apply_damage_to_thing_and_display_health(target, shotng->word_14, -1);
+          apply_damage_to_thing_and_display_health(trgtng, shotng->word_14, -1);
       }
       if (shotst->old->field_24 != 0) {
           tgcctrl->field_B1 = shotst->old->field_24;
       }
       if ( shotst->old->field_2A )
       {
-          target->acceleration.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
-          target->acceleration.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
-          target->field_1 |= 0x04;
+          trgtng->acceleration.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
+          trgtng->acceleration.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
+          trgtng->field_1 |= TF1_PushdByAccel;
       }
-      create_relevant_effect_for_shot_hitting_thing(shotng, target);
-      if (target->health >= 0)
+      create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
+      if (trgtng->health >= 0)
       {
-          if (target->owner != shotng->owner) {
-              check_hit_when_attacking_door(target);
+          if (trgtng->owner != shotng->owner) {
+              check_hit_when_attacking_door(trgtng);
           }
       } else
       {
-          shot_kill_creature(shotng,target);
+          shot_kill_creature(shotng,trgtng);
       }
     }
     if (shotst->old->destroy_on_first_hit) {
@@ -724,7 +724,7 @@ void shot_kills_creature(struct Thing *shotng, struct Thing *target)
     }
 }
 
-long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
+long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct Thing *shooter;
     struct Thing *efftng;
@@ -740,18 +740,18 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     }
     if (thing_is_creature(shooter))
     {
-        if (thing_is_creature(target))
+        if (thing_is_creature(trgtng))
         {
-            apply_shot_experience_from_hitting_creature(shooter, target, shotng->model);
+            apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
         }
     }
     if (shotst->old->field_48 != 0)
     {
-        return melee_shot_hit_creature_at(shotng, target, pos);
+        return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
-    if ( (shotst->old->field_28 != 0) || (target->health < 0) )
+    if ( (shotst->old->field_28 != 0) || (trgtng->health < 0) )
         return 0;
-    if ( (creature_affected_by_spell(target, SplK_Rebound)) && (shotst->old->field_29 == 0) )
+    if ( (creature_affected_by_spell(trgtng, SplK_Rebound)) && (shotst->old->field_29 == 0) )
     {
         struct Thing *killertng;
         killertng = INVALID_THING;
@@ -767,17 +767,17 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
             pos2.z.val = crstat->eye_height + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
-            shotng->parent_idx = target->parent_idx;
-            shotng->owner = target->owner;
+            shotng->parent_idx = trgtng->parent_idx;
+            shotng->owner = trgtng->owner;
         } else
         {
             clear_thing_acceleration(shotng);
             i = (shotng->field_52 + 1024) & 0x7FF;
             n = (shotng->field_54 + 1024) & 0x7FF;
             set_thing_acceleration_angles(shotng, i, n);
-            if (target->class_id == TCls_Creature)
+            if (trgtng->class_id == TCls_Creature)
             {
-                shotng->parent_idx = target->parent_idx;
+                shotng->parent_idx = trgtng->parent_idx;
             }
         }
         return 1;
@@ -785,9 +785,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     // Immunity to boulders
     if (shot_is_boulder(shotng))
     {
-        if ((get_creature_model_flags(target) & MF_ImmuneToBoulder) != 0)
+        if ((get_creature_model_flags(trgtng) & MF_ImmuneToBoulder) != 0)
         {
-            efftng = create_effect(&target->mappos, TngEff_Unknown14, target->owner);
+            efftng = create_effect(&trgtng->mappos, TngEff_Unknown14, trgtng->owner);
             if ( !thing_is_invalid(efftng) ) {
                 efftng->byte_16 = 8;
             }
@@ -797,8 +797,8 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
     }
     if (shotst->old->field_22 != 0)
     {
-        play_creature_sound(target, 1, 1, 0);
-        thing_play_sample(target, shotst->old->field_22, 100, 0, 3, 0, 2, 256);
+        play_creature_sound(trgtng, 1, 1, 0);
+        thing_play_sample(trgtng, shotst->old->field_22, 100, 0, 3, 0, 2, 256);
     }
     if (shotng->word_14 != 0)
     {
@@ -806,15 +806,15 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
             give_shooter_drained_health(shooter, shotng->word_14 / 2);
         }
         if ( !thing_is_invalid(shooter) ) {
-            apply_damage_to_thing_and_display_health(target, shotng->word_14, shooter->owner);
+            apply_damage_to_thing_and_display_health(trgtng, shotng->word_14, shooter->owner);
         } else {
-            apply_damage_to_thing_and_display_health(target, shotng->word_14, -1);
+            apply_damage_to_thing_and_display_health(trgtng, shotng->word_14, -1);
         }
     }
     if (shotst->old->field_24 != 0)
     {
         struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(target);
+        cctrl = creature_control_get_from_thing(trgtng);
         if (cctrl->field_B1 == 0) {
             cctrl->field_B1 = shotst->old->field_24;
         }
@@ -828,39 +828,39 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *target, struct Coo
         } else {
             n = 0;
         }
-        apply_spell_effect_to_thing(target, shotst->old->cast_spell_kind, n);
+        apply_spell_effect_to_thing(trgtng, shotst->old->cast_spell_kind, n);
     }
     if (shotst->old->field_4B != 0)
     {
         if ( !thing_is_invalid(shooter) )
         {
             if (get_no_creatures_in_group(shooter) < 8) {
-                add_creature_to_group(target, shooter);
+                add_creature_to_group(trgtng, shooter);
             }
         }
     }
     if (shotst->old->field_2A != 0)
     {
         i = amp * (long)shotng->velocity.x.val;
-        target->acceleration.x.val += i / 16;
+        trgtng->acceleration.x.val += i / 16;
         i = amp * (long)shotng->velocity.y.val;
-        target->acceleration.y.val += i / 16;
-        target->field_1 |= 0x04;
+        trgtng->acceleration.y.val += i / 16;
+        trgtng->field_1 |= TF1_PushdByAccel;
     }
-    create_relevant_effect_for_shot_hitting_thing(shotng, target);
+    create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->old->field_45 != 0)
     {
         struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(target);
+        crstat = creature_stats_get_from_thing(trgtng);
         shotng->health -= crstat->damage_to_boulder;
     }
-    if (target->health < 0)
+    if (trgtng->health < 0)
     {
-        shot_kills_creature(shotng, target);
+        shot_kills_creature(shotng, trgtng);
     } else
     {
-        if (target->owner != shotng->owner) {
-            check_hit_when_attacking_door(target);
+        if (trgtng->owner != shotng->owner) {
+            check_hit_when_attacking_door(trgtng);
         }
     }
     if (shotst->old->destroy_on_first_hit != 0) {
@@ -1115,7 +1115,7 @@ TngUpdateRet update_shot(struct Thing *thing)
                 thing->acceleration.x.val += cvect.x;
                 thing->acceleration.y.val += cvect.y;
                 thing->acceleration.z.val += cvect.z;
-                thing->field_1 |= 0x04;
+                thing->field_1 |= TF1_PushdByAccel;
             }
             break;
         case ShM_Wind:

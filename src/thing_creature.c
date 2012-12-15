@@ -553,7 +553,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     ntng->acceleration.x.val += cvect.x;
                     ntng->acceleration.y.val += cvect.y;
                     ntng->acceleration.z.val += cvect.z;
-                    ntng->field_1 |= 0x04;
+                    ntng->field_1 |= TF1_PushdByAccel;
                 }
                 n += ANGLE_TRIGL_PERIOD/3;
             }
@@ -1189,7 +1189,7 @@ void throw_out_gold(struct Thing *thing)
         gldtng->acceleration.x.val += x/256;
         gldtng->acceleration.y.val -= y/256;
         gldtng->acceleration.z.val += ACTION_RANDOM(64) + 96;
-        gldtng->field_1 |= 0x04;
+        gldtng->field_1 |= TF1_PushdByAccel;
         if (i < 400)
             delta = i;
         else
@@ -1624,7 +1624,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     cctrl = creature_control_get_from_thing(thing);
     cctrl->flgfield_1 |= CCFlg_Immortal;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    cctrl->field_280 = 2000;
+    cctrl->conscious_back_turns = 2000;//TODO [config] Add amount of turn creature is unconscious to config file
     thing->health = 1;
     return false;
 }
@@ -2413,14 +2413,14 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
     cctrl = creature_control_get_from_thing(thing);
     if (param->num1 > 0)
     {
-        if (cctrl->field_6E == param->num1)
+        if (cctrl->dragtng_idx == param->num1)
             return LONG_MAX;
         return -1;
     }
     if ((param->class_id > 0) || (param->model_id > 0) || (param->plyr_idx >= 0))
     {
         struct Thing *dragtng;
-        dragtng = thing_get(cctrl->field_6E);
+        dragtng = thing_get(cctrl->dragtng_idx);
         if ((param->plyr_idx >= 0) && (dragtng->owner != param->plyr_idx))
             return -1;
         if ((param->model_id > 0) && (dragtng->model != param->model_id))
@@ -3524,10 +3524,10 @@ TngUpdateRet update_creature(struct Thing *thing)
           leader_find_positions_for_followers(thing);
     }
 
-    if (cctrl->field_6E > 0)
+    if (cctrl->dragtng_idx > 0)
     {
-        tngp = thing_get(cctrl->field_6E);
-        if ((tngp->field_1 & TF1_Unkn01) != 0)
+        tngp = thing_get(cctrl->dragtng_idx);
+        if ((tngp->field_1 & TF1_IsDragged1) != 0)
           move_thing_in_map(tngp, &thing->mappos);
     }
     if (update_creature_levels(thing) == -1)

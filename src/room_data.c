@@ -1744,58 +1744,47 @@ struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind
 //TODO CREATURE_AI try to select lair far away from CTA and enemies
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind)
 {
-  struct Room *room;
-  struct Room *retroom;
-  struct CreatureControl *cctrl;
-  struct CreatureStats *crstat;
-  long retdist,dist,pay;
-  unsigned long k;
-  long i;
-  retdist = LONG_MAX;
-  retroom = INVALID_ROOM;
-  i = dungeon->room_kind[rkind];
-  k = 0;
-  while (i != 0)
-  {
-    room = room_get(i);
-    if (room_is_invalid(room))
+    struct Room *room;
+    struct Room *retroom;
+    long retdist,dist,pay;
+    unsigned long k;
+    long i;
+    retdist = LONG_MAX;
+    retroom = INVALID_ROOM;
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid room detected");
-      break;
-    }
-    i = room->next_of_owner;
-    // Per-room code
-    if (room->kind == RoK_TREASURE)
-    {
-        cctrl = creature_control_get_from_thing(thing);
-        crstat = creature_stats_get_from_thing(thing);
-        dungeon = get_dungeon(thing->owner);
-        if (dungeon->tortured_creatures[thing->model] )
+        room = room_get(i);
+        if (room_is_invalid(room))
         {
-          pay = compute_creature_max_pay(crstat->pay,cctrl->explevel) / 2;
-        } else
-        {
-          pay = compute_creature_max_pay(crstat->pay,cctrl->explevel);
+            ERRORLOG("Jump to invalid room detected");
+            break;
         }
-        if (room->capacity_used_for_storage > pay)
-          continue;
+        i = room->next_of_owner;
+        // Per-room code
+        if (room->kind == RoK_TREASURE)
+        {
+            pay = calculate_correct_creature_pay(thing);
+            if (room->capacity_used_for_storage > pay)
+              continue;
+        }
+        dist =  abs(thing->mappos.y.stl.num - room->central_stl_y);
+        dist += abs(thing->mappos.x.stl.num - room->central_stl_x);
+        if (retdist > dist)
+        {
+            retdist = dist;
+            retroom = room;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
     }
-    dist =  abs(thing->mappos.y.stl.num - room->central_stl_y);
-    dist += abs(thing->mappos.x.stl.num - room->central_stl_x);
-    if (retdist > dist)
-    {
-      retdist = dist;
-      retroom = room;
-    }
-    // Per-room code ends
-    k++;
-    if (k > ROOMS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping rooms list");
-      break;
-    }
-  }
-  return retroom;
+    return retroom;
 }
 
 struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4)
@@ -2054,7 +2043,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         break;
     case RoK_WORKSHOP:
         // Workshop owns trap boxes, machines and anvils
-        if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_Unkn01) == 0) )
+        if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_IsDragged1) == 0) )
         {
             oldowner = thing->owner;
             thing->owner = newowner;

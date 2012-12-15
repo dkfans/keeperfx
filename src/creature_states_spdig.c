@@ -215,7 +215,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
         if (thing->model == find_model)
         {
             slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-            if ( (slabmap_owner(slb) == find_owner) && ((thing->field_1 & TF1_Unkn01) == 0) )
+            if ( (slabmap_owner(slb) == find_owner) && ((thing->field_1 & TF1_IsDragged1) == 0) )
             {
                 if ( !imp_will_soon_be_getting_object(find_owner, thing) )
                 {
@@ -373,7 +373,7 @@ long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
         // Per-thing code
         if ( thing_is_trap_box(thing) )
         {
-          if ( ((thing->field_1 & TF1_Unkn01) == 0) && (get_room_thing_is_on(thing) == room) )
+          if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (get_room_thing_is_on(thing) == room) )
           {
               traptng = check_for_empty_trap_for_imp(digger, box_thing_to_door_or_trap(thing));
               if (thing_is_invalid(traptng))
@@ -920,22 +920,22 @@ TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     dragctrl = creature_control_get_from_thing(dragtng);
     // Check if we're already dragging
-    picktng = thing_get(cctrl->field_6E);
+    picktng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(picktng);
     if (!thing_is_invalid(picktng)) {
         ERRORLOG("Thing is already dragging something");
         return false;
     }
-    picktng = thing_get(dragctrl->field_6E);
+    picktng = thing_get(dragctrl->dragtng_idx);
     TRACE_THING(picktng);
     if (!thing_is_invalid(picktng)) {
         ERRORLOG("Thing is already dragged by something");
         return false;
     }
     // Set the new dragging
-    cctrl->field_6E = dragtng->index;
-    dragtng->field_1 |= 0x01;
-    dragctrl->field_6E = thing->index;
+    cctrl->dragtng_idx = dragtng->index;
+    dragtng->field_1 |= TF1_IsDragged1;
+    dragctrl->dragtng_idx = thing->index;
     return false;
 }
 
@@ -957,7 +957,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     picktng = thing_get(cctrl->pickup_creature_id);
     TRACE_THING(picktng);
-    if ( thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || ((picktng->field_1 & TF1_Unkn01) != 0)
+    if ( thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || ((picktng->field_1 & TF1_IsDragged1) != 0)
       || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
     {
         SYNCDBG(8,"The %s to be picked up isn't in correct place or state",thing_model_name(picktng));
@@ -1028,7 +1028,7 @@ short creature_picks_up_spell_object(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
-    if ( thing_is_invalid(picktng) || ((picktng->field_1 & TF1_Unkn01) != 0)
+    if ( thing_is_invalid(picktng) || ((picktng->field_1 & TF1_IsDragged1) != 0)
       || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(thing);
@@ -1071,7 +1071,7 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
     cratetng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(cratetng);
     // Check if everything is right
-    if ( thing_is_invalid(cratetng) || ((cratetng->field_1 & TF1_Unkn01) != 0)
+    if ( thing_is_invalid(cratetng) || ((cratetng->field_1 & TF1_IsDragged1) != 0)
       || (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512) )
     {
         set_start_state(thing);
@@ -1121,7 +1121,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( ((cratetng->field_1 & TF1_Unkn01) != 0)
+    if ( ((cratetng->field_1 & TF1_IsDragged1) != 0)
       || (traptng->class_id != TCls_Trap) || (box_thing_to_door_or_trap(cratetng) != traptng->model))
     {
         WARNLOG("Cannot use %s index %d to refill %s index %d",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
@@ -1167,7 +1167,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *thing)
     TRACE_THING(thing);
     //return _DK_creature_drops_corpse_in_graveyard(thing);
     cctrl = creature_control_get_from_thing(thing);
-    corpse = thing_get(cctrl->field_6E);
+    corpse = thing_get(cctrl->dragtng_idx);
     TRACE_THING(corpse);
     // Check if corpse is ok
     if ( !thing_exists(corpse) )
@@ -1217,7 +1217,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     TRACE_THING(thing);
     //return _DK_creature_drops_crate_in_workshop(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cratetng = thing_get(cctrl->field_6E);
+    cratetng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(cratetng);
     // Check if crate is ok
     if ( !thing_exists(cratetng) )
@@ -1273,7 +1273,7 @@ short creature_drops_spell_object_in_library(struct Thing *thing)
     TRACE_THING(thing);
     //return _DK_creature_drops_spell_object_in_library(thing);
     cctrl = creature_control_get_from_thing(thing);
-    spelltng = thing_get(cctrl->field_6E);
+    spelltng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(spelltng);
     // Check if spell is ok
     if ( !thing_exists(spelltng) )
@@ -1334,7 +1334,7 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     dungeon = get_dungeon(thing->owner);
-    cratetng = thing_get(cctrl->field_6E);
+    cratetng = thing_get(cctrl->dragtng_idx);
     TRACE_THING(cratetng);
     traptng = thing_get(cctrl->field_70);
     TRACE_THING(traptng);

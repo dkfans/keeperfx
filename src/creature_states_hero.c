@@ -657,7 +657,7 @@ short good_wait_in_exit_door(struct Thing *thing)
             }
         }
         thing->creature.gold_carried = 0;
-        tmptng = thing_get(cctrl->field_6E);
+        tmptng = thing_get(cctrl->dragtng_idx);
         TRACE_THING(tmptng);
         if (!thing_is_invalid(tmptng))
         {

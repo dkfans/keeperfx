@@ -143,7 +143,9 @@ unsigned char field_2C;
 unsigned char field_33[6];
     long hunger_level;
     long field_3D;
-unsigned char field_41[9];
+unsigned char field_41[7];
+    unsigned char field_48;
+    unsigned char field_49;
     long field_4A;
 unsigned char field_4E[8];
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
@@ -158,7 +160,7 @@ unsigned char field_67;
     /** Lair object thing index. */
     unsigned short lairtng_idx;
     short field_6C;
-    short field_6E;
+    short dragtng_idx;
     unsigned short field_70;
     unsigned short pickup_object_id;
     unsigned short pickup_creature_id;
@@ -340,7 +342,7 @@ unsigned char field_1E9[46];
 unsigned char field_27D;
 unsigned char field_27E;
 unsigned char field_27F;
-    short field_280;
+    short conscious_back_turns;
     short field_282;
 unsigned char field_284[2];
     unsigned char field_286;
