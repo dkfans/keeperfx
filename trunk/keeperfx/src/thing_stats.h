@@ -41,6 +41,7 @@ const char *thing_model_name(const struct Thing *thing);
 const char *thing_class_code_name(long class_id);
 const char *creatrtng_actstate_name(const struct Thing *thing);
 TbBool things_stats_debug_dump(void);
+TbBool is_neutral_thing(const struct Thing *thing);
 /******************************************************************************/
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel);
 long compute_creature_max_pay(long base_pay,unsigned short crlevel);

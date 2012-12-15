@@ -297,7 +297,7 @@ TbBool check_experience_upgrade(struct Thing *thing);
 void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
 void creature_drag_object(struct Thing *thing, struct Thing *dragtng);
 long process_work_speed_on_work_value(struct Thing *thing, long base_val);
-unsigned char find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long owner, long rkind);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
 long slab_by_players_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
@@ -311,6 +311,7 @@ TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomK
 TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job);
 
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
+struct Room * find_nearest_room_for_thing(struct Thing *thing, char a2, char a3, unsigned char a4);
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);

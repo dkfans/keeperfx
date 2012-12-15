@@ -497,8 +497,8 @@ TbBool is_thing_passenger_controlled(const struct Thing *thing)
 {
     struct PlayerInfo *player;
     //return _DK_is_thing_passenger_controlled(thing);
-    if (thing->owner != game.neutral_player_num)
-        return 0;
+    if (is_neutral_thing(thing))
+        return false;
     player = get_player(thing->owner);
     if (player->work_state != PSt_CtrlDirect)
         return false;

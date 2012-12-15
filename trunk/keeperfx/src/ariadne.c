@@ -2247,11 +2247,9 @@ long get_navigation_colour_for_door(long stl_x, long stl_y)
 
 long get_navigation_colour_for_cube(long stl_x, long stl_y)
 {
-    struct Column *col;
     long tcube;
     long i;
-    col = get_column_at(stl_x, stl_y);
-    i = (col->bitfields >> 4);
+    i = get_column_height_at(stl_x, stl_y);
     if (i > 15)
       i = 15;
     tcube = get_top_cube_at(stl_x, stl_y);

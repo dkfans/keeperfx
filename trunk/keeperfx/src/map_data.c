@@ -591,7 +591,6 @@ TbBool lava_at_position(const struct Coord3d *pos)
 TbBool subtile_is_room(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map *mapblk;
-    struct SlabMap *slb;
     mapblk = get_map_block_at(stl_x,stl_y);
     if (map_block_invalid(mapblk) || ((mapblk->flags & MapFlg_IsRoom) == 0))
         return false;
