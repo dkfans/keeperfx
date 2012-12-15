@@ -141,7 +141,7 @@ TbBool imp_will_soon_be_arming_trap(struct Thing *traptng)
 
 void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng)
 {
-    if ((dragtng->field_1 & TF1_Unkn01) || (dragtng->alloc_flags & TAlF_IsDragged))
+    if ((dragtng->field_1 & TF1_IsDragged1) || (dragtng->alloc_flags & TAlF_IsDragged))
     {
         struct Thing *creatng;
         creatng = find_players_creature_dragging_thing(dragtng->owner, dragtng);
@@ -476,7 +476,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        if ( ((thing->field_1 & TF1_Unkn01) == 0) && (thing->active_state == 2) && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
+        if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (thing->active_state == 2) && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
         {
             if (room_is_invalid(room))
             {
@@ -580,7 +580,7 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
       break;
     if ( thing_is_door_or_trap_box(thing) )
     {
-      if ((thing->field_1 & TF1_Unkn01) == 0)
+      if ((thing->field_1 & TF1_IsDragged1) == 0)
       {
         if ((thing->owner == dungeon->owner) || (thing->owner == game.neutral_player_num))
         {
