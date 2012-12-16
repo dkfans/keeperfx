@@ -987,12 +987,6 @@ struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x
     return room;
 }
 
-TbBool room_can_have_flag(const struct Room *room)
-{
-    return ( (room->kind != RoK_DUNGHEART) && (room->kind != RoK_ENTRANCE)
-      && (room->kind != RoK_GUARDPOST) && (room->kind != RoK_BRIDGE) );
-}
-
 void create_room_flag(struct Room *room)
 {
     struct Thing *thing;
@@ -1002,7 +996,7 @@ void create_room_flag(struct Room *room)
     stl_x = slab_subtile_center(slb_num_decode_x(room->slabs_list));
     stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
     SYNCDBG(7,"Starting for %s at (%ld,%ld)",room_code_name(room->kind),stl_x,stl_y);
-    if (room_can_have_flag(room))
+    if (room_can_have_flag(room->kind))
     {
         pos.z.val = 2 << 8;
         pos.x.val = stl_x << 8;
@@ -1027,7 +1021,7 @@ void delete_room_flag(struct Room *room)
     MapSubtlCoord stl_x,stl_y;
     stl_x = slab_subtile_center(slb_num_decode_x(room->slabs_list));
     stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
-    if (room_can_have_flag(room))
+    if (room_can_have_flag(room->kind))
     {
         thing = find_base_thing_on_mapwho(TCls_Object, 25, stl_x, stl_y);
         if (!thing_is_invalid(thing)) {

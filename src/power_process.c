@@ -85,7 +85,7 @@ void process_armageddon(void)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    struct Thing *thing;
+    struct Thing *heartng;
     long i;
     SYNCDBG(6,"Starting");
     //_DK_process_armageddon(); return;
@@ -95,8 +95,8 @@ void process_armageddon(void)
     {
         player = get_player(game.field_15035E);
         dungeon = get_dungeon(player->id_number);
-        thing = thing_get(dungeon->dnheart_idx);
-        if ((player->victory_state == VicS_LostLevel) || thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtMineGold))
+        heartng = thing_get(dungeon->dnheart_idx);
+        if ((player->victory_state == VicS_LostLevel) || thing_is_invalid(heartng) || (heartng->active_state == ObSt_State3))
             game.field_150356 = 0;
     } else
     if (game.armageddon.count_down+game.field_150356 == game.play_gameturn)
@@ -125,10 +125,10 @@ void process_armageddon(void)
               set_player_as_lost_level(player);
               if (is_my_player_number(i))
                 LbPaletteSet(_DK_palette);
-              thing = thing_get(dungeon->dnheart_idx);
-              if (!thing_is_invalid(thing))
+              heartng = thing_get(dungeon->dnheart_idx);
+              if (!thing_is_invalid(heartng))
               {
-                thing->health = -1;
+                heartng->health = -1;
               }
             }
           }

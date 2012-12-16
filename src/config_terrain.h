@@ -118,6 +118,9 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
 ThingModel get_room_create_creature_model(RoomKind room_kind);
 TbBool enemies_may_work_in_room(RoomKind rkind);
+TbBool room_cannot_vandalize(RoomKind rkind);
+TbBool room_never_buildable(RoomKind rkind);
+TbBool room_can_have_flag(RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }
