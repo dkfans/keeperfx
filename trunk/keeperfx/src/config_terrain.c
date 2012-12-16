@@ -52,8 +52,16 @@ const struct NamedCommand terrain_room_commands[] = {
   {"NAME",            1},
   {"COST",            2},
   {"HEALTH",          3},
-  {"CREATURECREATION",4},
+  {"PROPERTIES",      4},
+  {"SLABASSIGN",      5},
+  {"CREATURECREATION",6},
   {NULL,              0},
+  };
+
+const struct NamedCommand  terrain_room_properties_commands[] = {
+  {"HAS_NO_ENSIGN",     1},
+  {"CANNOT_VANDALIZE",  2},
+  {NULL,                0},
   };
 
 const struct NamedCommand terrain_health_commands[] = {
@@ -551,7 +559,45 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 4: // CREATURECREATION
+      case 4: // PROPERTIES
+          roomst->flags = RoCFlg_None;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(terrain_room_properties_commands, word_buf);
+              switch (k)
+              {
+              case 1: // HAS_NO_ENSIGN
+                  roomst->flags |= RoCFlg_NoEnsign;
+                  n++;
+                  break;
+              case 2: // CANNOT_VANDALIZE
+                  roomst->flags |= RoCFlg_CantVandalize;
+                  n++;
+                  break;
+              default:
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                  break;
+              }
+          }
+          break;
+      case 5: // SLABASSIGN
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = get_id(slab_desc, word_buf);
+            if (k >= 0)
+            {
+                roomst->assigned_slab = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 6: // CREATURECREATION
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = get_id(creature_desc, word_buf);
@@ -660,14 +706,14 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
  */
 TbBool make_all_rooms_free(void)
 {
-  struct RoomStats *rstat;
-  long i;
-  for (i=0; i < slab_conf.room_types_count; i++)
-  {
-    rstat = &game.room_stats[i];
-    rstat->cost = 0;
-  }
-  return true;
+    struct RoomStats *rstat;
+    long i;
+    for (i=0; i < slab_conf.room_types_count; i++)
+    {
+        rstat = &game.room_stats[i];
+        rstat->cost = 0;
+    }
+    return true;
 }
 
 /**
@@ -794,8 +840,9 @@ TbBool enemies_may_work_in_room(RoomKind rkind)
  */
 TbBool room_cannot_vandalize(RoomKind rkind)
 {
-    //TODO CONFIG Place this in room config data
-    return (rkind == RoK_DUNGHEART) || (rkind == RoK_ENTRANCE) || (rkind == RoK_BRIDGE);
+    struct RoomConfigStats *roomst;
+    roomst = get_room_kind_stats(rkind);
+    return ((roomst->flags & RoCFlg_CantVandalize) != 0);
 }
 
 /**
@@ -814,10 +861,40 @@ TbBool room_never_buildable(RoomKind rkind)
  * @param rkind The room kind to be checked.
  * @return True if given room kind should have the flag, false otherwise.
  */
-TbBool room_can_have_flag(RoomKind rkind)
+TbBool room_can_have_ensign(RoomKind rkind)
 {
-    return ( (rkind != RoK_DUNGHEART) && (rkind != RoK_ENTRANCE)
-      && (rkind != RoK_GUARDPOST) && (rkind != RoK_BRIDGE) );
+    struct RoomConfigStats *roomst;
+    roomst = get_room_kind_stats(rkind);
+    return ((roomst->flags & RoCFlg_NoEnsign) == 0);
 }
 
+/**
+ * Returns slab kind which corresponds to given room kind.
+ * @param rkind The room kind to be checked.
+ * @return The corresponding slab kind index.
+ */
+SlabKind room_corresponding_slab(RoomKind rkind)
+{
+    struct RoomConfigStats *roomst;
+    roomst = get_room_kind_stats(rkind);
+    return roomst->assigned_slab;
+}
+
+/**
+ * Returns room kind which corresponds to given slab kind.
+ * @param slbkind The slab kind to be checked.
+ * @return The corresponding room kind index.
+ */
+RoomKind slab_corresponding_room(SlabKind slbkind)
+{
+    struct RoomConfigStats *roomst;
+    RoomKind rkind;
+    for (rkind=0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        roomst = get_room_kind_stats(rkind);
+        if (roomst->assigned_slab == slbkind)
+            return rkind;
+    }
+    return 0;
+}
 /******************************************************************************/

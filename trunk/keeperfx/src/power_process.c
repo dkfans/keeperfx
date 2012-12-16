@@ -27,6 +27,7 @@
 #include "dungeon_data.h"
 #include "player_utils.h"
 #include "thing_shots.h"
+#include "thing_objects.h"
 #include "creature_states.h"
 #include "config_terrain.h"
 #include "front_simple.h"

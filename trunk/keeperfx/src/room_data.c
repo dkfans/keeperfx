@@ -852,7 +852,7 @@ void update_room_central_tile_position(struct Room *room)
     }
     room->central_stl_x = mass_x;
     room->central_stl_y = mass_y;
-    ERRORLOG("Cannot find position in %s index %d to place an ensign.",room_code_name(room->kind),(int)room->index);
+    WARNLOG("Cannot find position in %s index %d to place an ensign.",room_code_name(room->kind),(int)room->index);
 }
 
 void add_room_to_global_list(struct Room *room)
@@ -996,7 +996,7 @@ void create_room_flag(struct Room *room)
     stl_x = slab_subtile_center(slb_num_decode_x(room->slabs_list));
     stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
     SYNCDBG(7,"Starting for %s at (%ld,%ld)",room_code_name(room->kind),stl_x,stl_y);
-    if (room_can_have_flag(room->kind))
+    if (room_can_have_ensign(room->kind))
     {
         pos.z.val = 2 << 8;
         pos.x.val = stl_x << 8;
@@ -1021,7 +1021,7 @@ void delete_room_flag(struct Room *room)
     MapSubtlCoord stl_x,stl_y;
     stl_x = slab_subtile_center(slb_num_decode_x(room->slabs_list));
     stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
-    if (room_can_have_flag(room->kind))
+    if (room_can_have_ensign(room->kind))
     {
         thing = find_base_thing_on_mapwho(TCls_Object, 25, stl_x, stl_y);
         if (!thing_is_invalid(thing)) {
@@ -1041,47 +1041,6 @@ unsigned short i_can_allocate_free_room_structure(void)
   if (ret == 0)
       SYNCDBG(3,"No slot for next room");
   return ret;
-}
-
-RoomKind slab_to_room_type(SlabKind slbkind)
-{
-  switch (slbkind)
-  {
-  case SlbT_ENTRANCE:
-      return RoK_ENTRANCE;
-  case SlbT_TREASURE:
-      return RoK_TREASURE;
-  case SlbT_LIBRARY:
-      return RoK_LIBRARY;
-  case SlbT_PRISON:
-      return RoK_PRISON;
-  case SlbT_TORTURE:
-      return RoK_TORTURE;
-  case SlbT_TRAINING:
-      return RoK_TRAINING;
-  case SlbT_DUNGHEART:
-      return RoK_DUNGHEART;
-  case SlbT_WORKSHOP:
-      return RoK_WORKSHOP;
-  case SlbT_SCAVENGER:
-      return RoK_SCAVENGER;
-  case SlbT_TEMPLE:
-      return RoK_TEMPLE;
-  case SlbT_GRAVEYARD:
-      return RoK_GRAVEYARD;
-  case SlbT_GARDEN:
-      return RoK_GARDEN;
-  case SlbT_LAIR:
-      return RoK_LAIR;
-  case SlbT_BARRACKS:
-      return RoK_BARRACKS;
-  case SlbT_BRIDGE:
-      return RoK_BRIDGE;
-  case SlbT_GUARDPOST:
-      return RoK_GUARDPOST;
-  default:
-      return RoK_NONE;
-  }
 }
 
 void reinitialise_treaure_rooms(void)
@@ -1126,15 +1085,15 @@ TbBool initialise_map_rooms(void)
             struct Room *room;
             RoomKind rkind;
             slb = get_slabmap_block(slb_x, slb_y);
-            rkind = slab_to_room_type(slb->kind);
+            rkind = slab_corresponding_room(slb->kind);
             if (rkind > 0)
-              room = create_room(slabmap_owner(slb), rkind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+                room = create_room(slabmap_owner(slb), rkind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
             else
-              room = INVALID_ROOM;
+                room = INVALID_ROOM;
             if (!room_is_invalid(room))
             {
-              set_room_efficiency(room);
-              set_room_capacity(room, 0);
+                set_room_efficiency(room);
+                set_room_capacity(room, 0);
             }
         }
     }
