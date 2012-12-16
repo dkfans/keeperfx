@@ -207,7 +207,7 @@ long calculate_traps_unused(long plyr_idx)
     return count;
 }
 
-long count_rooms_of_type(long plyr_idx, long rkind)
+long count_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct Dungeon *dungeon;
     struct Room *room;
@@ -221,22 +221,22 @@ long count_rooms_of_type(long plyr_idx, long rkind)
       room = room_get(i);
       if (room_is_invalid(room))
       {
-        ERRORLOG("Jump to invalid room detected");
-        break;
+          ERRORLOG("Jump to invalid room detected");
+          break;
       }
       i = room->next_of_owner;
       // No Per-room code - we only want count
       k++;
       if (k > ROOMS_COUNT)
       {
-        ERRORLOG("Infinite loop detected when sweeping rooms list");
-        break;
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
       }
     }
     return k;
 }
 
-long calculate_num_rooms(long plyr_idx)
+long calculate_num_rooms(PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     long rkind;
@@ -245,7 +245,7 @@ long calculate_num_rooms(long plyr_idx)
     player = get_player(plyr_idx);
     for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
-        if ((rkind != RoK_ENTRANCE) && (rkind != RoK_DUNGHEART))
+        if (!room_never_buildable(rkind))
         {
             count += count_rooms_of_type(player->id_number, rkind);
         }
@@ -253,7 +253,7 @@ long calculate_num_rooms(long plyr_idx)
     return count;
 }
 
-long calculate_entrances(long plyr_idx)
+long calculate_entrances(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     struct Room *room;

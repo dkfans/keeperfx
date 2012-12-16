@@ -770,14 +770,13 @@ TbBool slab_indestructible(RoomKind slbkind)
 }
 
 /** Returns creature model to be created by given room kind.
- *
- * @param room_kind
+ * @param rkind The room kind to be checked.
  * @return
  */
-ThingModel get_room_create_creature_model(RoomKind room_kind)
+ThingModel get_room_create_creature_model(RoomKind rkind)
 {
-    struct RoomConfigStats *roomst;
-    roomst = get_room_kind_stats(room_kind);
+    const struct RoomConfigStats *roomst;
+    roomst = get_room_kind_stats(rkind);
     return roomst->creature_creation_model;
 }
 
@@ -787,4 +786,38 @@ TbBool enemies_may_work_in_room(RoomKind rkind)
     // Note that sacrificing a creature or putting it on portal shouldn't be treated as giving it work
     return (rkind == RoK_PRISON) || (rkind == RoK_TORTURE);
 }
+
+/**
+ * Returns if given room kind cannot be vandalized (it's either indestructible or crucial for the game).
+ * @param rkind The room kind to be checked.
+ * @return True if given room kind cannot be vandalized or accidently destroyed, false otherwise.
+ */
+TbBool room_cannot_vandalize(RoomKind rkind)
+{
+    //TODO CONFIG Place this in room config data
+    return (rkind == RoK_DUNGHEART) || (rkind == RoK_ENTRANCE) || (rkind == RoK_BRIDGE);
+}
+
+/**
+ * Returns if given room kind is by definition not buildable.
+ * @param rkind The room kind to be checked.
+ * @return True if given room kind is unconditionally not buildable, false otherwise.
+ */
+TbBool room_never_buildable(RoomKind rkind)
+{
+    //TODO CONFIG Place this in room config data
+    return (rkind == RoK_DUNGHEART) || (rkind == RoK_ENTRANCE);
+}
+
+/**
+ * Returns if given room kind can have an informational ensign regarding health and effectiveness.
+ * @param rkind The room kind to be checked.
+ * @return True if given room kind should have the flag, false otherwise.
+ */
+TbBool room_can_have_flag(RoomKind rkind)
+{
+    return ( (rkind != RoK_DUNGHEART) && (rkind != RoK_ENTRANCE)
+      && (rkind != RoK_GUARDPOST) && (rkind != RoK_BRIDGE) );
+}
+
 /******************************************************************************/

@@ -2133,20 +2133,20 @@ void check_players_won(void)
 
 void check_players_lost(void)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
   long i;
   SYNCDBG(8,"Starting");
   //_DK_check_players_lost();
   for (i=0; i < PLAYERS_COUNT; i++)
   {
+      struct PlayerInfo *player;
       player = get_player(i);
       if (player_exists(player) && (player->field_2C == 1))
       {
+          struct Dungeon *dungeon;
+          struct Thing *heartng;
           dungeon = get_players_dungeon(player);
-          thing = thing_get(dungeon->dnheart_idx);
-          if ((thing_is_invalid(thing) || (thing->active_state == CrSt_ImpArrivesAtMineGold)) && (player->victory_state == VicS_Undecided))
+          heartng = thing_get(dungeon->dnheart_idx);
+          if ((thing_is_invalid(heartng) || (heartng->active_state == ObSt_State3)) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
