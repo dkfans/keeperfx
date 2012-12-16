@@ -29,6 +29,15 @@ extern "C" {
 
 /******************************************************************************/
 #define OBJECT_TYPES_COUNT  135
+
+enum ObjectStates {
+    ObSt_Unused = 0,
+    ObSt_State1,
+    ObSt_State2,
+    ObSt_State3,
+    ObSt_State4,
+    ObSt_State5,
+};
 /******************************************************************************/
 #pragma pack(1)
 

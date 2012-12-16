@@ -333,7 +333,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx)
         //WARNLOG("Cannot navigate to player without heart");
         return false;
     }
-    if (heartng->active_state == 3)
+    if (heartng->active_state == ObSt_State3)
         return false;
     return  creature_can_navigate_to(thing, &heartng->mappos, 0);
 }

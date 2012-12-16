@@ -476,7 +476,8 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (thing->active_state == 2) && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
+        if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (thing->active_state == DCrSt_Unknown02)
+           && (thing->byte_14 == 0) && corpse_is_rottable(thing) )
         {
             if (room_is_invalid(room))
             {

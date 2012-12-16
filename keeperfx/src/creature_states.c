@@ -23,6 +23,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
+#include "creature_graphics.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -870,7 +871,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, u
         return false;
     if (thing->owner == room->owner)
         return false;
-    if ((room->kind == RoK_DUNGHEART) || (room->kind == RoK_ENTRANCE) || (room->kind == RoK_BRIDGE))
+    if (room_cannot_vandalize(room->kind))
         return false;
     if ( !find_first_valid_position_for_thing_in_room(thing, room, &pos) )
         return false;
@@ -1385,11 +1386,6 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
   return _DK_creature_cannot_find_anything_to_do(creatng);
 }
 
-short creature_change_from_chicken(struct Thing *creatng)
-{
-  return _DK_creature_change_from_chicken(creatng);
-}
-
 void set_creature_size_stuff(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
@@ -1398,6 +1394,42 @@ void set_creature_size_stuff(struct Thing *creatng)
       creatng->field_46 = 300;
     } else {
       creatng->field_46 = 300 + (300 * cctrl->explevel) / 20;
+    }
+}
+
+short creature_change_from_chicken(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    //return _DK_creature_change_from_chicken(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    creature_set_speed(creatng, 0);
+    if (cctrl->field_282 > 0)
+        cctrl->field_282--;
+    if (cctrl->field_282 > 0)
+    { // Changing under way - gradually modify size of the creature
+        creatng->field_4F |= 0x01;
+        creatng->field_50 |= 0x01;
+        struct Thing *efftng;
+        efftng = create_effect_element(&creatng->mappos, 0x3Bu, creatng->owner);
+        if (!thing_is_invalid(efftng))
+        {
+            unsigned long k;
+            long n;
+            n = (10 - cctrl->field_282) * (300 * cctrl->explevel / 20 + 300) / 10;
+            k = get_creature_anim(creatng, 0);
+            set_thing_draw(efftng, k, 256, n, -1, 0, 2);
+            efftng->field_4F &= ~0x20;
+            efftng->field_4F |= 0x10;
+        }
+        return 0;
+    } else
+    {
+      creatng->field_4F &= ~0x01;
+      cctrl->affected_by_spells &= ~0x01;
+      cctrl->spell_flags &= ~0x0200;
+      set_creature_size_stuff(creatng);
+      set_start_state(creatng);
+      return 1;
     }
 }
 
@@ -1417,9 +1449,9 @@ short creature_change_to_chicken(struct Thing *creatng)
       efftng = create_effect_element(&creatng->mappos, 59, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
-          unsigned long i;
-          i = convert_td_iso(819);
-          set_thing_draw(efftng, i, 0, 1200 * cctrl->field_282 / 10 + 300, -1, 0, 2);
+          unsigned long k;
+          k = convert_td_iso(819);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->field_282 / 10 + 300, -1, 0, 2);
           efftng->field_4F &= ~0x20;
           efftng->field_4F |= 0x10;
       }
@@ -1429,8 +1461,8 @@ short creature_change_to_chicken(struct Thing *creatng)
     creatng->field_4F &= ~0x01;
     set_creature_size_stuff(creatng);
     creatng->field_1 &= ~0x10;
-    creatng->active_state = 133;
-    creatng->continue_state = 0;
+    creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
+    creatng->continue_state = CrSt_Unused;
     cctrl->field_302 = 0;
     clear_creature_instance(creatng);
     return 1;
@@ -1438,7 +1470,7 @@ short creature_change_to_chicken(struct Thing *creatng)
 
 short creature_doing_nothing(struct Thing *creatng)
 {
-  return _DK_creature_doing_nothing(creatng);
+    return _DK_creature_doing_nothing(creatng);
 }
 
 void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
@@ -2214,7 +2246,8 @@ short creature_take_salary(struct Thing *creatng)
     }
     room = get_room_thing_is_on(creatng);
     dungeon = get_dungeon(creatng->owner);
-    if ((room->kind != RoK_TREASURE) || ((room->used_capacity <= 0) && (dungeon->offmap_money_owned <= 0)))
+    if (room_is_invalid(room) || (room->kind != RoK_TREASURE) ||
+      ((room->used_capacity <= 0) && (dungeon->offmap_money_owned <= 0)))
     {
         internal_set_thing_state(creatng, CrSt_CreatureWantsSalary);
         return 1;
@@ -2282,7 +2315,8 @@ short creature_unconscious(struct Thing *creatng)
     SYNCDBG(18,"Starting");
     //return _DK_creature_unconscious(creatng);
     cctrl = creature_control_get_from_thing(creatng);
-    cctrl->conscious_back_turns--;
+    if (cctrl->conscious_back_turns > 0)
+        cctrl->conscious_back_turns--;
     if (cctrl->conscious_back_turns > 0)
     {
         return 0;
@@ -2293,7 +2327,28 @@ short creature_unconscious(struct Thing *creatng)
 
 short creature_vandalise_rooms(struct Thing *creatng)
 {
-  return _DK_creature_vandalise_rooms(creatng);
+    struct CreatureControl *cctrl;
+    TRACE_THING(creatng);
+    SYNCDBG(18,"Starting");
+    //return _DK_creature_vandalise_rooms(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->target_room_id = 0;
+    struct Room *room;
+    room = get_room_thing_is_on(creatng);
+    if (room_is_invalid(room))
+    {
+      set_start_state(creatng);
+      return 0;
+    }
+    if (room_cannot_vandalize(room->kind))
+    {
+        return 1;
+    }
+    if (cctrl->instance_id == CrInst_NULL)
+    {
+        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+    }
+    return 1;
 }
 
 short creature_wait_at_treasure_room_door(struct Thing *creatng)

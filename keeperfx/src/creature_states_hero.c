@@ -755,7 +755,7 @@ short tunneller_doing_nothing(struct Thing *creatng)
         script_support_send_tunneller_to_appropriate_dungeon(creatng);
         return 0;
     }
-    if ((heartng->active_state != 3) && creature_can_navigate_to(creatng, &heartng->mappos, 0))
+    if ((heartng->active_state != ObSt_State3) && creature_can_navigate_to(creatng, &heartng->mappos, 0))
     {
         internal_set_thing_state(creatng, CrSt_GoodDoingNothing);
         return 1;
