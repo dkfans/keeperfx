@@ -41,16 +41,16 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long food_moves(struct Thing *heartng);
-long food_grows(struct Thing *heartng);
-long object_being_dropped(struct Thing *heartng);
+long food_moves(struct Thing *thing);
+long food_grows(struct Thing *thing);
+long object_being_dropped(struct Thing *thing);
 TngUpdateRet object_update_dungeon_heart(struct Thing *thing);
-TngUpdateRet object_update_call_to_arms(struct Thing *heartng);
-TngUpdateRet object_update_armour(struct Thing *heartng);
-TngUpdateRet object_update_object_scale(struct Thing *heartng);
-TngUpdateRet object_update_armour2(struct Thing *heartng);
-TngUpdateRet object_update_power_sight(struct Thing *heartng);
-TngUpdateRet object_update_power_lightning(struct Thing *heartng);
+TngUpdateRet object_update_call_to_arms(struct Thing *thing);
+TngUpdateRet object_update_armour(struct Thing *thing);
+TngUpdateRet object_update_object_scale(struct Thing *thing);
+TngUpdateRet object_update_armour2(struct Thing *thing);
+TngUpdateRet object_update_power_sight(struct Thing *thing);
+TngUpdateRet object_update_power_lightning(struct Thing *thing);
 
 Thing_State_Func object_state_functions[] = {
     NULL,
@@ -221,27 +221,27 @@ unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
 unsigned short specials_text[] = {GUIStr_Empty, 420, 421, 422, 423, 424, 425, 426, 427, 0};
 
 /******************************************************************************/
-DLLIMPORT long _DK_move_object(struct Thing *heartng);
-DLLIMPORT long _DK_update_object(struct Thing *heartng);
-DLLIMPORT long _DK_food_moves(struct Thing *heartng);
-DLLIMPORT long _DK_food_grows(struct Thing *heartng);
-DLLIMPORT long _DK_object_being_dropped(struct Thing *heartng);
-DLLIMPORT long _DK_object_update_dungeon_heart(struct Thing *heartng);
-DLLIMPORT long _DK_object_update_call_to_arms(struct Thing *heartng);
-DLLIMPORT long _DK_object_update_armour(struct Thing *heartng);
-DLLIMPORT long _DK_object_update_object_scale(struct Thing *heartng);
-DLLIMPORT long _DK_object_update_armour2(struct Thing *heartng);
-DLLIMPORT long _DK_object_update_power_sight(struct Thing *heartng);
-DLLIMPORT long _DK_object_update_power_lightning(struct Thing *heartng);
-DLLIMPORT long _DK_object_is_gold_pile(struct Thing *heartng);
-DLLIMPORT long _DK_object_is_gold(struct Thing *heartng);
-DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *heartng, struct Room *room, long amount);
+DLLIMPORT long _DK_move_object(struct Thing *thing);
+DLLIMPORT long _DK_update_object(struct Thing *thing);
+DLLIMPORT long _DK_food_moves(struct Thing *thing);
+DLLIMPORT long _DK_food_grows(struct Thing *thing);
+DLLIMPORT long _DK_object_being_dropped(struct Thing *thing);
+DLLIMPORT long _DK_object_update_dungeon_heart(struct Thing *thing);
+DLLIMPORT long _DK_object_update_call_to_arms(struct Thing *thing);
+DLLIMPORT long _DK_object_update_armour(struct Thing *thing);
+DLLIMPORT long _DK_object_update_object_scale(struct Thing *thing);
+DLLIMPORT long _DK_object_update_armour2(struct Thing *thing);
+DLLIMPORT long _DK_object_update_power_sight(struct Thing *thing);
+DLLIMPORT long _DK_object_update_power_lightning(struct Thing *thing);
+DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
+DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
+DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
-DLLIMPORT long _DK_thing_is_spellbook(struct Thing *heartng);
+DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
 DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
-DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *heartng, struct Room *room, long amount);
+DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
@@ -655,19 +655,19 @@ struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_door_or_trap_box);
 }
 
-long food_moves(struct Thing *heartng)
+long food_moves(struct Thing *thing)
 {
-  return _DK_food_moves(heartng);
+  return _DK_food_moves(thing);
 }
 
-long food_grows(struct Thing *heartng)
+long food_grows(struct Thing *thing)
 {
-  return _DK_food_grows(heartng);
+  return _DK_food_grows(thing);
 }
 
-long object_being_dropped(struct Thing *heartng)
+long object_being_dropped(struct Thing *thing)
 {
-  return _DK_object_being_dropped(heartng);
+  return _DK_object_being_dropped(thing);
 }
 
 void update_dungeon_heart_beat(struct Thing *heartng)
@@ -763,34 +763,34 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *thing)
     return TUFRet_Modified;
 }
 
-TngUpdateRet object_update_call_to_arms(struct Thing *heartng)
+TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 {
-    return _DK_object_update_call_to_arms(heartng);
+    return _DK_object_update_call_to_arms(thing);
 }
 
-TngUpdateRet object_update_armour(struct Thing *heartng)
+TngUpdateRet object_update_armour(struct Thing *thing)
 {
-    return _DK_object_update_armour(heartng);
+    return _DK_object_update_armour(thing);
 }
 
-TngUpdateRet object_update_object_scale(struct Thing *heartng)
+TngUpdateRet object_update_object_scale(struct Thing *thing)
 {
-    return _DK_object_update_object_scale(heartng);
+    return _DK_object_update_object_scale(thing);
 }
 
-TngUpdateRet object_update_armour2(struct Thing *heartng)
+TngUpdateRet object_update_armour2(struct Thing *thing)
 {
-    return _DK_object_update_armour2(heartng);
+    return _DK_object_update_armour2(thing);
 }
 
-TngUpdateRet object_update_power_sight(struct Thing *heartng)
+TngUpdateRet object_update_power_sight(struct Thing *thing)
 {
-    return _DK_object_update_power_sight(heartng);
+    return _DK_object_update_power_sight(thing);
 }
 
-TngUpdateRet object_update_power_lightning(struct Thing *heartng)
+TngUpdateRet object_update_power_lightning(struct Thing *thing)
 {
-    return _DK_object_update_power_lightning(heartng);
+    return _DK_object_update_power_lightning(thing);
 }
 
 TngUpdateRet move_object(struct Thing *thing)
