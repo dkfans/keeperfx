@@ -30,6 +30,7 @@
 #include "gui_draw.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
+#include "config_terrain.h"
 #include "config_settings.h"
 #include "front_highscore.h"
 #include "front_landview.h"

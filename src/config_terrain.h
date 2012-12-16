@@ -57,6 +57,12 @@ enum SlabAttrFlags {
     SlbAtFlg_Unk80 = 0x80,
 };
 
+enum RoomCfgFlags {
+    RoCFlg_None          = 0x00,
+    RoCFlg_NoEnsign      = 0x01,
+    RoCFlg_CantVandalize = 0x02,
+};
+
 struct SlabMap;
 
 struct SlabAttr {
@@ -80,12 +86,15 @@ struct SlabAttr {
 struct SlabConfigStats {
     char code_name[COMMAND_WORD_LEN];
     long tooltip_stridx;
+    RoomKind assigned_room;
 };
 
 struct RoomConfigStats {
     char code_name[COMMAND_WORD_LEN];
     long tooltip_stridx;
     long creature_creation_model;
+    SlabKind assigned_slab;
+    unsigned long flags;
 };
 
 struct SlabsConfig {
@@ -120,7 +129,9 @@ ThingModel get_room_create_creature_model(RoomKind room_kind);
 TbBool enemies_may_work_in_room(RoomKind rkind);
 TbBool room_cannot_vandalize(RoomKind rkind);
 TbBool room_never_buildable(RoomKind rkind);
-TbBool room_can_have_flag(RoomKind rkind);
+TbBool room_can_have_ensign(RoomKind rkind);
+SlabKind room_corresponding_slab(RoomKind rkind);
+RoomKind slab_corresponding_room(SlabKind slbkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

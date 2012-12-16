@@ -38,19 +38,19 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_creature_can_navigate_to(struct Thing *thing, struct Coord3d *pos, unsigned char no_owner);
-DLLIMPORT long _DK_creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, short speed, long storage, long a5, unsigned char a6);
-DLLIMPORT long _DK_creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *thing, long a2);
-DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT unsigned char _DK_creature_can_navigate_to(struct Thing *creatng, struct Coord3d *pos, unsigned char no_owner);
+DLLIMPORT long _DK_creature_move_to_using_gates(struct Thing *creatng, struct Coord3d *pos, short speed, long storage, long a5, unsigned char a6);
+DLLIMPORT long _DK_creature_turn_to_face(struct Thing *creatng, struct Coord3d *pos);
+DLLIMPORT long _DK_creature_turn_to_face_backwards(struct Thing *creatng, struct Coord3d *pos);
+DLLIMPORT long _DK_creature_turn_to_face_angle(struct Thing *creatng, long a2);
+DLLIMPORT unsigned char _DK_get_nearest_valid_position_for_creature_at(struct Thing *creatng, struct Coord3d *pos);
 DLLIMPORT void _DK_nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py);
-DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *thing, long stl_x, long stl_y, unsigned char storage);
-DLLIMPORT short _DK_move_to_position(struct Thing *thing);
-DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2);
-DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos);
-DLLIMPORT void _DK_move_thing_in_map(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT short _DK_setup_person_move_to_position(struct Thing *creatng, long stl_x, long stl_y, unsigned char storage);
+DLLIMPORT short _DK_move_to_position(struct Thing *creatng);
+DLLIMPORT long _DK_get_next_gap_creature_can_fit_in_below_point(struct Thing *creatng, struct Coord3d *pos);
+DLLIMPORT long _DK_thing_covers_same_blocks_in_two_positions(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos2);
+DLLIMPORT long _DK_get_thing_blocked_flags_at(struct Thing *creatng, struct Coord3d *pos);
+DLLIMPORT void _DK_move_thing_in_map(struct Thing *creatng, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -312,7 +312,7 @@ TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *pos, TbBo
  * @param plyr_idx
  * @return
  */
-TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx)
+TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -335,7 +335,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx)
     }
     if (heartng->active_state == ObSt_State3)
         return false;
-    return  creature_can_navigate_to(thing, &heartng->mappos, 0);
+    return  creature_can_navigate_to(creatng, &heartng->mappos, 0);
 }
 
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)

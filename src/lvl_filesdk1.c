@@ -1114,13 +1114,13 @@ short load_map_wlb_file(unsigned long lv_num)
         n = (buf[i] << 3);
         n = slb->field_5 ^ ((slb->field_5 ^ n) & 0x18);
         slb->field_5 = n;
-        n &= 0x18;
-        if ((n != 16) || (slb->kind != SlbT_WATER))
-          if ((n != 8) || (slb->kind != SlbT_LAVA))
-            if (((n == 16) || (n == 8)) && (slb->kind != SlbT_BRIDGE))
+        n &= (0x08|0x10);
+        if ((n != 0x10) || (slb->kind != SlbT_WATER))
+          if ((n != 0x08) || (slb->kind != SlbT_LAVA))
+            if (((n == 0x10) || (n == 0x08)) && (slb->kind != SlbT_BRIDGE))
             {
                 nfixes++;
-                slb->field_5 &= 0xE7u;
+                slb->field_5 &= ~(0x08|0x10);
             }
         i++;
       }
