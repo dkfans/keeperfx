@@ -348,7 +348,7 @@ void draw_power_hand(void)
     if ( (player->work_state != PSt_CtrlDungeon)
       || ((player->field_455 != 3) && ((player->work_state != PSt_CtrlDungeon) || (player->field_455) || (player->field_454 != 3))) )
     {
-      if ((player->instance_num != 1) && (player->instance_num != 2))
+      if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop))
       {
         if (player->work_state == PSt_Slap)
         {

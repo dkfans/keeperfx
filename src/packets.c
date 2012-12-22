@@ -550,7 +550,7 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     player->field_3 &= ~0x02;
     if ((player->field_455 != 0) && (player->field_455 != 3))
     {
-      if (player->instance_num != 1)
+      if (player->instance_num != PI_Grab)
       {
           delete_power_hand(player->id_number);
       }
@@ -582,8 +582,8 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     }
     if (player->hand_thing_idx != 0)
     {
-      if ((player->instance_num != 1) && (player->instance_num != 2) &&
-          (player->instance_num != 3) && (player->instance_num != 4))
+      if ((player->instance_num != PI_Grab) && (player->instance_num != PI_Drop) &&
+          (player->instance_num != PI_Whip) && (player->instance_num != PI_WhipEnd))
       {
         thing = get_first_thing_in_power_hand(player);
         if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
@@ -866,7 +866,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         {
           player->field_43E = player->thing_under_hand;
           set_player_state(player, 11, 0);
-          set_player_instance(player, 5, 0);
+          set_player_instance(player, PI_DirctCtrl, 0);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
         if ((player->thing_under_hand != 0) && (player->field_5 != 0)
@@ -1055,13 +1055,13 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           if (player->thing_under_hand > 0)
           {
             player->field_43E = player->thing_under_hand;
-            set_player_instance(player, 6, 0);
+            set_player_instance(player, PI_PsngrCtrl, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
         }
         if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
         {
-          if (player->instance_num != 6)
+          if (player->instance_num != PI_PsngrCtrl)
           {
             set_player_state(player, player->continue_work_state, 0);
             unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -1080,13 +1080,13 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
           if (player->thing_under_hand > 0)
           {
             player->field_43E = player->thing_under_hand;
-            set_player_instance(player, 5, 0);
+            set_player_instance(player, PI_DirctCtrl, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
         }
         if ((pckt->control_flags & PCtr_RBtnRelease) != 0)
         {
-          if (player->instance_num != 5)
+          if (player->instance_num != PI_DirctCtrl)
           {
             set_player_state(player, player->continue_work_state, 0);
             unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -1536,10 +1536,13 @@ void process_pause_packet(long a1, long a2)
     {
         if ((player->field_0 & 0x40) == 0)
         {
-          if ((player->instance_num == 14) || (player->instance_num == 15)
-           || (player->instance_num == 13) || (player->instance_num ==  5)
-           || (player->instance_num ==  6) || (player->instance_num ==  7)
-           || (player->instance_num ==  8))
+          if ((player->instance_num == PI_MapFadeTo)
+           || (player->instance_num == PI_MapFadeFrom)
+           || (player->instance_num == PI_CrCtrlFade)
+           || (player->instance_num == PI_DirctCtrl)
+           || (player->instance_num == PI_PsngrCtrl)
+           || (player->instance_num == PI_DirctCtLeave)
+           || (player->instance_num == PI_PsngrCtLeave))
           {
             can = false;
             break;
@@ -2248,7 +2251,7 @@ void process_players_creature_passenger_packet_action(long idx)
   if (pckt->action == 32)
   {
     player->field_43E = pckt->field_6;
-    set_player_instance(player, 8, 0);
+    set_player_instance(player, PI_PsngrCtLeave, 0);
   }
   SYNCDBG(8,"Finished");
 }
@@ -2430,7 +2433,7 @@ void process_players_creature_control_packet_action(long idx)
   {
   case 33:
       player->field_43E = pckt->field_6;
-      set_player_instance(player, 7, 0);
+      set_player_instance(player, PI_DirctCtLeave, 0);
       break;
   case 39:
       thing = thing_get(player->controlled_thing_idx);

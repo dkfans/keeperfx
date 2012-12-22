@@ -956,72 +956,71 @@ void gui_area_ally(struct GuiButton *gbtn)
 
 void gui_area_stat_button(struct GuiButton *gbtn)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  struct Dungeon *dungeon;
-  struct PlayerInfo *player;
-  struct Thing *thing;
-  char *text;
-  long i;
-  draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 459);
-  player = get_my_player();
-  thing = thing_get(player->controlled_thing_idx);
-  if (!thing_exists(thing))
-    return;
-  if (thing->class_id == TCls_Creature)
-  {
-    crstat = creature_stats_get_from_thing(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    switch ((long)gbtn->content)
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    char *text;
+    long i;
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 459);
+    player = get_my_player();
+    thing = thing_get(player->controlled_thing_idx);
+    if (!thing_exists(thing))
+      return;
+    if (thing->class_id == TCls_Creature)
     {
-    case 0: // kills
-        i = cctrl->field_C2;
-        text = buf_sprintf("%ld", i);
-        break;
-    case 1: // strength
-        i = compute_creature_max_strength(crstat->strength,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
-        break;
-    case 2: // gold held
-        i = thing->creature.gold_carried;
-        text = buf_sprintf("%ld", i);
-        break;
-    case 3: // payday wage
-        i = calculate_correct_creature_pay(thing);
-        text = buf_sprintf("%ld", i);
-        break;
-    case 4: // armour
-        i = compute_creature_max_armour(crstat->armour,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
-        break;
-    case 5: // defence
-        i = compute_creature_max_defense(crstat->defense,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
-        break;
-    case 6: // time in dungeon
-        i = (game.play_gameturn-thing->field_9) / 2000 + cctrl->field_286;
-        if (i >= 99)
-          i = 99;
-        text = buf_sprintf("%ld", i);
-        break;
-    case 7: // dexterity
-        i = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
-        break;
-    case 8: // luck
-        i = compute_creature_max_luck(crstat->luck,cctrl->explevel);
-        text = buf_sprintf("%ld", i);
-        break;
-    case 9: // blood type
-        i = cctrl->field_287;
-        text = buf_sprintf("%s", blood_types[i%BLOOD_TYPES_COUNT]);
-        break;
-    default:
-        return;
+      crstat = creature_stats_get_from_thing(thing);
+      cctrl = creature_control_get_from_thing(thing);
+      switch ((long)gbtn->content)
+      {
+      case 0: // kills
+          i = cctrl->field_C2;
+          text = buf_sprintf("%ld", i);
+          break;
+      case 1: // strength
+          i = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+          text = buf_sprintf("%ld", i);
+          break;
+      case 2: // gold held
+          i = thing->creature.gold_carried;
+          text = buf_sprintf("%ld", i);
+          break;
+      case 3: // payday wage
+          i = calculate_correct_creature_pay(thing);
+          text = buf_sprintf("%ld", i);
+          break;
+      case 4: // armour
+          i = compute_creature_max_armour(crstat->armour,cctrl->explevel);
+          text = buf_sprintf("%ld", i);
+          break;
+      case 5: // defence
+          i = compute_creature_max_defense(crstat->defense,cctrl->explevel);
+          text = buf_sprintf("%ld", i);
+          break;
+      case 6: // time in dungeon
+          i = (game.play_gameturn-thing->field_9) / 2000 + cctrl->field_286;
+          if (i >= 99)
+            i = 99;
+          text = buf_sprintf("%ld", i);
+          break;
+      case 7: // dexterity
+          i = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+          text = buf_sprintf("%ld", i);
+          break;
+      case 8: // luck
+          i = compute_creature_max_luck(crstat->luck,cctrl->explevel);
+          text = buf_sprintf("%ld", i);
+          break;
+      case 9: // blood type
+          i = cctrl->field_287;
+          text = buf_sprintf("%s", blood_types[i%BLOOD_TYPES_COUNT]);
+          break;
+      default:
+          return;
+      }
+      draw_gui_panel_sprite_left(gbtn->scr_pos_x-6, gbtn->scr_pos_y-12, gbtn->field_29);
+      draw_button_string(gbtn, text);
     }
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x-6, gbtn->scr_pos_y-12, gbtn->field_29);
-    draw_button_string(gbtn, text);
-  }
 }
 
 void maintain_event_button(struct GuiButton *gbtn)

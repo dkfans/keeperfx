@@ -817,7 +817,7 @@ short tunnelling(struct Thing *creatng)
     {
         ERRORLOG("Bad place to tunnel to!");
         set_start_state(creatng);
-        creatng->continue_state = 0;
+        creatng->continue_state = CrSt_Unused;
         return 0;
     }
     if (((game.play_gameturn + creatng->index) & 0x7F) != 0)

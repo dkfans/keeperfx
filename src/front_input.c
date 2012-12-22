@@ -626,7 +626,7 @@ TbBool get_level_lost_inputs(void)
       {
         if (player->work_state == PSt_Unknown15)
         {
-          set_player_instance(player, 10, 0);
+          set_player_instance(player, PI_UnqueryCrtr, 0);
         } else
         {
           inp_done=get_small_map_inputs(player->mouse_x, player->mouse_y, player->minimap_zoom / (3-pixel_size));

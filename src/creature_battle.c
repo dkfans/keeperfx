@@ -327,7 +327,7 @@ long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex ba
     }
     player->zoom_to_pos_x = thing->mappos.x.val;
     player->zoom_to_pos_y = thing->mappos.y.val;
-    set_player_instance(player, 16, 0);
+    set_player_instance(player, PI_ZoomToPos, 0);
     return 1;
 }
 

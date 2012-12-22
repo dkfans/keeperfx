@@ -2961,7 +2961,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If creature wants salary, let it go get the gold
-    if ( cctrl->field_41[7] )
+    if ( cctrl->field_48 )
     {
         // If already taking salary, then don't do anything
         if (creature_is_taking_salary_activity(thing))
