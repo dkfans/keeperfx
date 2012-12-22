@@ -351,7 +351,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       }
       break;
   }
-  set_player_instance(player, 4, false);
+  set_player_instance(player, PI_WhipEnd, false);
   return 0;
 }
 
@@ -429,7 +429,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         player->field_43E = 0;
         player->field_0 &= 0xEF;
         player->field_0 &= 0x7F;
-        set_player_instance(player, 0, true);
+        set_player_instance(player, PI_Unset, true);
         return 0;
     }
     if (player->view_mode != PVM_FrontView)
@@ -507,7 +507,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
     player->field_0 &= 0x7F;
     return 0;
   }
-  set_player_instance(player, 13, false);
+  set_player_instance(player, PI_CrCtrlFade, false);
   if (thing->class_id == TCls_Creature)
   {
     load_swipe_graphic_for_creature(thing);
@@ -538,13 +538,12 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
 long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
 //  return _DK_pinstfe_passenger_control_creature(player, n);
-  struct Thing *thing;
-  thing = thing_get(player->field_43E);
-  if (!thing_is_invalid(thing))
-    control_creature_as_passenger(player, thing);
-  set_player_instance(player, 13, false);
-  return 0;
-
+    struct Thing *thing;
+    thing = thing_get(player->field_43E);
+    if (!thing_is_invalid(thing))
+      control_creature_as_passenger(player, thing);
+    set_player_instance(player, PI_CrCtrlFade, false);
+    return 0;
 }
 
 long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
@@ -553,7 +552,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_direct_leave_creature(player, n);
   if (player->field_43E == 0)
   {
-    set_player_instance(player, 0, true);
+    set_player_instance(player, PI_Unset, true);
     return 0;
   }
   player->field_0 |= 0x80;
@@ -598,7 +597,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_passenger_leave_creature(player, n);
   if (player->field_43E == 0)
   {
-      set_player_instance(player, 0, true);
+      set_player_instance(player, PI_Unset, true);
       return 0;
   }
   player->field_0 |= 0x80;
@@ -629,8 +628,8 @@ long pinstfe_leave_creature(struct PlayerInfo *player, long *n)
   set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, _DK_palette);
-  player->field_0 &= 0xEF;
-  player->field_0 &= 0x7F;
+  player->field_0 &= ~0x10;
+  player->field_0 &= ~0x80;
   return 0;
 }
 
@@ -795,9 +794,9 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->orient_a = 256;
   }
   light_turn_light_on(player->field_460);
-  player->field_0 &= 0xEF;
-  player->field_0 &= 0x7F;
-  game.numfield_D &= 0xF7;
+  player->field_0 &= ~0x10;
+  player->field_0 &= ~0x80;
+  game.numfield_D &= ~0x08;
   if (is_my_player(player))
     PaletteSetPlayerPalette(player, _DK_palette);
   return 0;
@@ -820,9 +819,9 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
     else
       PaletteSetPlayerPalette(player, _DK_palette);
   }
-  player->field_0 &= 0xEF;
+  player->field_0 &= ~0x10;
   light_turn_light_off(player->field_460);
-  player->field_0 &= 0x7F;
+  player->field_0 &= ~0x80;
   return 0;
 }
 
@@ -856,14 +855,14 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
   set_player_mode(player, 4);
   if (is_my_player(player))
     settings.tooltips_on = ((player->field_1 & 0x02) != 0);
-  player->field_0 &= 0x7Fu;
+  player->field_0 &= ~0x80;
   return 0;
 }
 
 long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
 {
   //return _DK_pinstfs_fade_from_map(player, n);
-  player->field_0 |= 0x80u;
+  player->field_0 |= 0x80;
   if (is_my_player(player))
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
@@ -914,10 +913,10 @@ long pinstfm_zoom_to_position(struct PlayerInfo *player, long *n)
 
 long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
-  //return _DK_pinstfe_zoom_to_position(player, n);
-  player->field_0 &= 0x7F;
-  player->field_0 &= 0xEF;
-  return 0;
+    //return _DK_pinstfe_zoom_to_position(player, n);
+    player->field_0 &= ~0x80;
+    player->field_0 &= ~0x10;
+    return 0;
 }
 
 void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force)
@@ -968,16 +967,16 @@ void process_player_instance(struct PlayerInfo *player)
 
 void process_player_instances(void)
 {
-  //_DK_process_player_instances();return;
-  int i;
-  struct PlayerInfo *player;
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player))
-      process_player_instance(player);
-  }
-  SYNCDBG(9,"Finished");
+    //_DK_process_player_instances();return;
+    int i;
+    struct PlayerInfo *player;
+    for (i=0; i<PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player))
+          process_player_instance(player);
+    }
+    SYNCDBG(9,"Finished");
 }
 
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
@@ -989,7 +988,7 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     //_DK_leave_creature_as_controller(player, thing);
     if ((thing->owner != player->id_number) || (thing->index != player->controlled_thing_idx))
     {
-        set_player_instance(player, 0, 1);
+        set_player_instance(player, PI_Unset, 1);
         clear_selected_creature(player);
         player->field_31 = 0;
         set_player_mode(player, 1);
@@ -1039,7 +1038,7 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   SYNCDBG(7,"Starting");
   if ((thing->owner != player->id_number) || (thing->index != player->controlled_thing_idx))
   {
-    set_player_instance(player, 0, 1);
+    set_player_instance(player, PI_Unset, 1);
     clear_selected_creature(player);
     player->field_31 = 0;
     set_player_mode(player, 1);

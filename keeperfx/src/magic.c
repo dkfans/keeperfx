@@ -145,7 +145,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
   play_creature_sound(thing, CrSnd_SlappedOuch, 3, 0);
 }
 
-TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5)
+TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_id, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a5)
 {
   struct PlayerInfo *player;
   struct Map *mapblk;
@@ -229,7 +229,7 @@ TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsign
   return can_cast;
 }
 
-TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel)
+TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind spkind, long splevel)
 {
     struct Dungeon *dungeon;
     struct MagicStats *magstat;
@@ -362,7 +362,7 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
         cctrl = creature_control_get_from_thing(thing);
         cctrl->field_B6 = plyr_idx;
     }
-    thing_play_sample(thing, 59, 100, 0, 3u, 0, 3, 256);
+    thing_play_sample(thing, 59, 100, 0, 3, 0, 3, 256);
     return Lb_SUCCESS;
 }
 
@@ -668,7 +668,7 @@ long magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, l
   return _DK_magic_use_power_call_to_arms(a1, a2, a3, a4, a5);
 }
 
-short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y)
+short magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
@@ -676,7 +676,7 @@ short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsign
     //return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    if ((player->instance_num == 3) || (game.play_gameturn - dungeon->field_14AE <= 10))
+    if ((player->instance_num == PI_Whip) || (game.play_gameturn - dungeon->field_14AE <= 10))
     {
       return 0;
     }
@@ -687,7 +687,7 @@ short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsign
     }
     player->field_43E = thing->index;
     player->field_440 = thing->field_9;
-    set_player_instance(player, 3, 0);
+    set_player_instance(player, PI_Whip, 0);
     dungeon->lvstats.num_slaps++;
     return 0;
 }
@@ -699,7 +699,7 @@ short magic_use_power_slap_thing(unsigned short plyr_idx, struct Thing *thing)
 
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    if ((player->instance_num == 3) || (game.play_gameturn - dungeon->field_14AE <= 10))
+    if ((player->instance_num == PI_Whip) || (game.play_gameturn - dungeon->field_14AE <= 10))
     {
       return 0;
     }
@@ -709,7 +709,7 @@ short magic_use_power_slap_thing(unsigned short plyr_idx, struct Thing *thing)
     }
     player->field_43E = thing->index;
     player->field_440 = thing->field_9;
-    set_player_instance(player, 3, 0);
+    set_player_instance(player, PI_Whip, 0);
     dungeon->lvstats.num_slaps++;
     return 0;
 }

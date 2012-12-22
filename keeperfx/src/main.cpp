@@ -282,7 +282,7 @@ TbBool init_fades_table(void)
 {
     char *fname;
     long i;
-    static const char textname[] = "alpha color table";
+    static const char textname[] = "fade table";
     fname = prepare_file_path(FGrp_StdData,"tables.dat");
     SYNCDBG(0,"Reading %s file \"%s\".",textname,fname);
     setup_block_mem();
@@ -292,11 +292,12 @@ TbBool init_fades_table(void)
         LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
     }
     lbDisplay.FadeTable = pixmap.fade_tables;
+    TbPixel cblack = 144;
     // Update black color
     for (i=0; i < 8192; i++)
     {
         if (pixmap.fade_tables[i] == 0) {
-            pixmap.fade_tables[i] = 144;
+            pixmap.fade_tables[i] = cblack;
         }
     }
     return true;
@@ -478,14 +479,14 @@ TbBool add_spell_to_player(long spl_idx, long plyr_idx)
     long i;
     if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
     {
-        ERRORLOG("Can't add incorrect spell %ld to player %ld",spl_idx, plyr_idx);
+        ERRORLOG("Can't add incorrect spell %d to player %d",(int)spl_idx, (int)plyr_idx);
         return false;
     }
     dungeon = get_dungeon(plyr_idx);
     i = dungeon->magic_level[spl_idx];
     if (i >= 255)
     {
-        ERRORLOG("Spell %ld has bad magic_level=%ld for player %ld",spl_idx, i, plyr_idx);
+        ERRORLOG("Spell %d has bad magic_level=%d for player %d", (int)spl_idx, (int)i, (int)plyr_idx);
         return false;
     }
     dungeon->magic_level[spl_idx] = i+1;
@@ -734,41 +735,41 @@ void engine_init(void)
 
 void init_keeper(void)
 {
-  SYNCDBG(8,"Starting");
-  engine_init();
-  init_iso_3d_conversion_tables();
-  init_objects();
-  init_colours();
-  init_spiral_steps();
-  init_key_to_strings();
-  load_stats_files();
-  check_and_auto_fix_stats();
-  init_creature_scores();
-  load_cube_file();
-  init_top_texture_to_cube_table();
-  load_anim_file();
-  game.neutral_player_num = neutral_player_number;
-  game.field_14EA34 = 4;
-  game.field_14EA38 = 200;
-  game.field_14EA28 = 256;
-  game.field_14EA2A = 256;
-  game.field_14EA2C = 256;
-  game.field_14EA2E = 256;
-  if (game.generate_speed <= 0)
-    game.generate_speed = game.default_generate_speed;
-  poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
-  lbDisplay.GlassMap = pixmap.ghost;
-  lbDisplay.DrawColour = colours[15][15][15];
-  game.comp_player_aggressive = 0;
-  game.comp_player_defensive = 1;
-  game.comp_player_construct = 0;
-  game.comp_player_creatrsonly = 0;
-  game.creatures_tend_1 = 0;
-  game.creatures_tend_2 = 0;
-  game.numfield_C |= 0x40;
-  game.numfield_D |= (0x20 | 0x40);
-  init_censorship();
-  SYNCDBG(9,"Finished");
+    SYNCDBG(8,"Starting");
+    engine_init();
+    init_iso_3d_conversion_tables();
+    init_objects();
+    init_colours();
+    init_spiral_steps();
+    init_key_to_strings();
+    load_stats_files();
+    check_and_auto_fix_stats();
+    init_creature_scores();
+    load_cube_file();
+    init_top_texture_to_cube_table();
+    load_anim_file();
+    game.neutral_player_num = neutral_player_number;
+    game.field_14EA34 = 4;
+    game.field_14EA38 = 200;
+    game.field_14EA28 = 256;
+    game.field_14EA2A = 256;
+    game.field_14EA2C = 256;
+    game.field_14EA2E = 256;
+    if (game.generate_speed <= 0)
+      game.generate_speed = game.default_generate_speed;
+    poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
+    lbDisplay.GlassMap = pixmap.ghost;
+    lbDisplay.DrawColour = colours[15][15][15];
+    game.comp_player_aggressive = 0;
+    game.comp_player_defensive = 1;
+    game.comp_player_construct = 0;
+    game.comp_player_creatrsonly = 0;
+    game.creatures_tend_1 = 0;
+    game.creatures_tend_2 = 0;
+    game.numfield_C |= 0x40;
+    game.numfield_D |= (0x20 | 0x40);
+    init_censorship();
+    SYNCDBG(9,"Finished");
 }
 
 short ceiling_set_info(long height_max, long height_min, long step)
@@ -3759,7 +3760,7 @@ void game_loop(void)
     {
       if (game.numfield_15 == -1)
       {
-        set_player_instance(player, 11, 0);
+        set_player_instance(player, PI_HeartZoom, 0);
       } else
       {
         game.numfield_15 = -1;

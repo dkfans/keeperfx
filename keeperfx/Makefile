@@ -321,7 +321,8 @@ ifeq ($(DEBUG), 1)
   OPTFLAGS = -march=i686 -O0
   DBGFLAGS = -g -DDEBUG
 else
-  OPTFLAGS = -march=i686 -O0 # temporarely disabled, should be -O3
+  # frame pointer is required for ASM code to work
+  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O3
   DBGFLAGS = 
 endif
 # linker flags
