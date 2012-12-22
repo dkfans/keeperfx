@@ -2411,14 +2411,14 @@ short move_backwards_to_position(struct Thing *creatng)
     if (i == 1)
     {
         internal_set_thing_state(creatng, creatng->continue_state);
-        creatng->continue_state = 0;
+        creatng->continue_state = CrSt_Unused;
         return 1;
     }
     if (i == -1)
     {
         ERRORLOG("Bad place (%d,%d) to move %s backwards to.",(int)cctrl->moveto_pos.x.val,(int)cctrl->moveto_pos.y.val,thing_model_name(creatng));
         set_start_state(creatng);
-        creatng->continue_state = 0;
+        creatng->continue_state = CrSt_Unused;
         return 0;
     }
     return 0;

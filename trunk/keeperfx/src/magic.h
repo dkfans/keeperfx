@@ -36,9 +36,9 @@ struct Thing;
 #pragma pack()
 /******************************************************************************/
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
-TbBool can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char spl_id, unsigned char stl_x, unsigned char stl_y, long a5);
+TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_id, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a5);
 void update_power_sight_explored(struct PlayerInfo *player);
-TbBool pay_for_spell(PlayerNumber plyr_idx, long spkind, long splevel);
+TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind spkind, long splevel);
 long thing_affected_by_spell(struct Thing *thing, long spkind);
 void remove_spell_from_player(long spl_idx, PlayerNumber plyr_idx);
 
@@ -54,7 +54,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 long magic_use_power_sight(unsigned char a1, long a2, long a3, long a4);
 void magic_use_power_cave_in(unsigned char a1, long a2, long a3, long a4);
 long magic_use_power_call_to_arms(unsigned char a1, long a2, long a3, long a4, long a5);
-short magic_use_power_slap(unsigned short plyr_idx, unsigned short stl_x, unsigned short stl_y);
+short magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short magic_use_power_slap_thing(unsigned short plyr_idx, struct Thing *thing);
 void magic_use_power_hold_audience(unsigned char idx);
 void magic_use_power_armageddon(unsigned int plridx);

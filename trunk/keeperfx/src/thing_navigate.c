@@ -455,7 +455,6 @@ short move_to_position(struct Thing *thing)
     long move_result;
     CrCheckRet state_check;
     long speed;
-    long i;
     SYNCDBG(18,"Starting for thing %d",(int)thing->index);
     //return _DK_move_to_position(thing);
     cctrl = creature_control_get_from_thing(thing);
@@ -486,10 +485,11 @@ short move_to_position(struct Thing *thing)
         }
         // If moving failed, do a reset
         if (move_result == -1) {
-            i = thing->continue_state;
-            internal_set_thing_state(thing, thing->continue_state);
+            CrtrStateId cntstat;
+            cntstat = thing->continue_state;
+            internal_set_thing_state(thing, cntstat);
             set_start_state(thing);
-            SYNCDBG(8,"Couldn't move %s to place required for state %d; reset to state %d",thing_model_name(thing),(int)i,(int)thing->active_state);
+            SYNCDBG(8,"Couldn't move %s to place required for state %d; reset to state %d",thing_model_name(thing),(int)cntstat,(int)thing->active_state);
             return CrStRet_ResetOk;
         }
     }
