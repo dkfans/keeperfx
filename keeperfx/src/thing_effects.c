@@ -534,7 +534,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->field_24 = eestat->field_1C;
     thing->movement_flags |= TMvF_Unknown08;
     set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->field_16);
-    thing->field_9 = game.play_gameturn;
+    thing->creation_turn = game.play_gameturn;
 
     if (eestat->numfield_3 > 0)
     {
@@ -737,7 +737,7 @@ TngUpdateRet update_effect_element(struct Thing *thing)
     i = eestats->subeffect_delay;
     if (i > 0)
     {
-      if (((thing->field_9 - game.play_gameturn) % i) == 0) {
+      if (((thing->creation_turn - game.play_gameturn) % i) == 0) {
           create_effect_element(&thing->mappos, eestats->subeffect_model, thing->owner);
       }
     }
@@ -1064,7 +1064,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
         ERRORDBG(8,"Should be able to allocate effect %d for player %d, but failed.",(int)effmodel,(int)owner);
         return INVALID_THING;
     }
-    thing->field_9 = game.play_gameturn;
+    thing->creation_turn = game.play_gameturn;
     thing->class_id = TCls_Effect;
     thing->model = effmodel;
     thing->mappos.x.val = pos->x.val;
@@ -1245,7 +1245,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     //TODO CONFIG Damage and blow of WOP shouldn't be hardcoded
     max_damage = 150;
     blow_strength = 0;
-    if (efftng->field_9 != game.play_gameturn)
+    if (efftng->creation_turn != game.play_gameturn)
         return;
     {
         long stl_range;

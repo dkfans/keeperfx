@@ -206,7 +206,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
   }
   cam = player->acamera;
   player->controlled_thing_idx = thing->index;
-  player->field_31 = thing->field_9;
+  player->field_31 = thing->creation_turn;
   if (cam != NULL)
     player->field_4B5 = cam->field_6;
   thing->alloc_flags |= TAlF_IsControlled;
@@ -268,7 +268,7 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
   }
   cam = player->acamera;
   player->controlled_thing_idx = thing->index;
-  player->field_31 = thing->field_9;
+  player->field_31 = thing->creation_turn;
   if (cam != NULL)
     player->field_4B5 = cam->field_6;
   set_player_mode(player, 3);
@@ -1474,7 +1474,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
   struct PlayerInfo *player;
   player = get_player(thing->owner);
   leave_creature_as_controller(player, thing);
-  player->field_43E = 0;
+  player->influenced_thing_idx = 0;
   if (player->id_number == thing->owner)
     setup_eye_lens(0);
   set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
@@ -1968,7 +1968,7 @@ void get_creature_instance_times(struct Thing *thing, long inst_idx, long *ritim
     if (game.neutral_player_num != thing->owner)
     {
         dungeon = get_dungeon(thing->owner);
-        if (dungeon->field_888)
+        if (dungeon->must_obey_turn)
         {
             aitime -= aitime / 4;
             itime -= itime / 4;
@@ -2345,7 +2345,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
-    crtng->field_9 = game.play_gameturn;
+    crtng->creation_turn = game.play_gameturn;
     cctrl->field_286 = 17+ACTION_RANDOM(13);
     cctrl->field_287 = ACTION_RANDOM(7);
     if (owner == game.hero_player_num)
@@ -3399,7 +3399,7 @@ long update_creature_levels(struct Thing *thing)
     if (thing->index == player->controlled_thing_idx)
     {
         player->controlled_thing_idx = newtng->index;
-        player->field_31 = newtng->field_9;
+        player->field_31 = newtng->creation_turn;
     }
     kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
     return -1;

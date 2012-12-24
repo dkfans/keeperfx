@@ -741,7 +741,7 @@ short game_is_busy_doing_gui(void)
     if (!pwrdata->flag_19)
       return true;
     thing = thing_get(battle_creature_over);
-    return  (thing->owner != player->id_number) && (!pwrdata->flag_1A);
+    return  (thing->owner != player->id_number) && (!pwrdata->can_cast_on_enemy);
   }
   return false;
 }
@@ -961,11 +961,11 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
   k = pwrdata->field_4;
   if ((k == PSt_CallToArms) && (player->work_state == PSt_CallToArms))
   {
-    set_players_packet_action(player, PckA_SpellCTADis, 0, 0, 0, 0);
+    set_players_packet_action(player, PckA_PwrCTADis, 0, 0, 0, 0);
   } else
   if ((k == PSt_SightOfEvil) && (player->work_state == PSt_SightOfEvil))
   {
-    set_players_packet_action(player, PckA_SpellSOEDis, 0, 0, 0, 0);
+    set_players_packet_action(player, PckA_PwrSOEDis, 0, 0, 0, 0);
   } else
   {
     set_players_packet_action(player, pwrdata->field_0, k, 0, 0, 0);

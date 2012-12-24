@@ -57,7 +57,7 @@ enum FreeThingAllocFlags {
 enum ThingMovementFlags {
     TMvF_Default            = 0x00,
     TMvF_IsOnWater          = 0x01,
-    TMvF_IsOnLava          = 0x02,
+    TMvF_IsOnLava           = 0x02,
     TMvF_Unknown04          = 0x04,
     TMvF_Unknown08          = 0x08,
     TMvF_Unknown10          = 0x10,
@@ -79,7 +79,7 @@ struct Thing {
     unsigned char owner;
     unsigned char active_state;
     unsigned char continue_state;
-    long field_9;
+    long creation_turn;
     struct Coord3d mappos;
     union {
       struct {

@@ -268,7 +268,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 }
             } else
             {
-                if (game.play_gameturn - thing->field_9 > game.body_remains_for) {
+                if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
@@ -430,7 +430,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->field_24 = 51;
     thing->field_22 = 0;
     thing->movement_flags |= TMvF_Unknown08;
-    thing->field_9 = game.play_gameturn;
+    thing->creation_turn = game.play_gameturn;
     if (creatures[model].field_7)
       thing->field_4F |= 0x30;
     add_thing_to_its_class_list(thing);
@@ -493,7 +493,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
         if (player->controlled_thing_idx == prev_idx)
         {
             player->controlled_thing_idx = deadtng->index;
-            player->field_31 = deadtng->field_9;
+            player->field_31 = deadtng->creation_turn;
         }
     }
     return deadtng;

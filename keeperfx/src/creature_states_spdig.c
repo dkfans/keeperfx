@@ -527,7 +527,7 @@ short imp_birth(struct Thing *thing)
       }
       return 1;
     }
-    i = game.play_gameturn - thing->field_9;
+    i = game.play_gameturn - thing->creation_turn;
     if ((i % 2) == 0) {
       create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
     }

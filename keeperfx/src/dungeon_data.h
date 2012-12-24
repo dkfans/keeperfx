@@ -116,7 +116,7 @@ struct Dungeon {
     unsigned char field_882;
     unsigned char field_883;
     int field_884;
-    int field_888;
+    int must_obey_turn;
     int field_88C[10];
     unsigned char creatures_praying[CREATURE_TYPES_COUNT];
     unsigned char chickens_sacrificed;
