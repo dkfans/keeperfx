@@ -257,7 +257,7 @@ struct SpellData {
       short field_13;
       Expand_Check_Func field_15;
       unsigned char flag_19;
-      unsigned char flag_1A;
+      unsigned char can_cast_on_enemy;
 };
 
 #pragma pack()

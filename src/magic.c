@@ -626,7 +626,7 @@ long magic_use_power_sight(unsigned char plyr_idx, long stl_x, long stl_y, long 
             dungeon->field_5D4 = cgt;
         }
         thing = thing_get(dungeon->keeper_sight_thing_idx);
-        if (cgt < (long)thing->field_9)
+        if (cgt < (long)thing->creation_turn)
         {
             dungeon->computer_enabled |= 0x04;
             dungeon->sight_casted_stl_x = stl_x;
@@ -685,8 +685,8 @@ short magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     {
       return 0;
     }
-    player->field_43E = thing->index;
-    player->field_440 = thing->field_9;
+    player->influenced_thing_idx = thing->index;
+    player->influenced_thing_creation = thing->creation_turn;
     set_player_instance(player, PI_Whip, 0);
     dungeon->lvstats.num_slaps++;
     return 0;
@@ -707,14 +707,14 @@ short magic_use_power_slap_thing(unsigned short plyr_idx, struct Thing *thing)
     {
       return 0;
     }
-    player->field_43E = thing->index;
-    player->field_440 = thing->field_9;
+    player->influenced_thing_idx = thing->index;
+    player->influenced_thing_creation = thing->creation_turn;
     set_player_instance(player, PI_Whip, 0);
     dungeon->lvstats.num_slaps++;
     return 0;
 }
 
-int get_spell_overcharge_level(struct PlayerInfo *player)
+int get_power_overcharge_level(struct PlayerInfo *player)
 {
     int i;
     i = (player->field_4D2 >> 2);
@@ -723,7 +723,7 @@ int get_spell_overcharge_level(struct PlayerInfo *player)
     return i;
 }
 
-TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx)
+TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx)
 {
   struct Dungeon *dungeon;
   struct MagicStats *mgstat;
@@ -768,8 +768,8 @@ void remove_spell_from_player(long spl_idx, PlayerNumber plyr_idx)
     switch ( spl_idx )
     {
     case PwrK_OBEY:
-        if (dungeon->field_888)
-            dungeon->field_888 = 0;
+        if (dungeon->must_obey_turn)
+            dungeon->must_obey_turn = 0;
         break;
     case PwrK_SIGHT:
         if (dungeon->keeper_sight_thing_idx)

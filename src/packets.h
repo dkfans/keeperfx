@@ -51,7 +51,7 @@ enum TbPacketAction {
         PckA_SwitchScrnRes,
         PckA_TogglePause,
         PckA_Unknown023,
-        PckA_Unknown024,
+        PckA_SetCluedo,
         PckA_Unknown025,//25
         PckA_BookmarkLoad,
         PckA_SetGammaLevel,
@@ -64,7 +64,7 @@ enum TbPacketAction {
         PckA_Unknown034,
         PckA_Unknown035,//35
         PckA_SetPlyrState,
-        PckA_Unknown037,
+        PckA_SwitchView,
         PckA_Unknown038,
         PckA_CtrlCrtrSetInstnc,
         PckA_Unknown040,//40
@@ -116,7 +116,7 @@ enum TbPacketAction {
         PckA_Unknown086,
         PckA_Unknown087,
         PckA_Unknown088,
-        PckA_SpellCTADis,
+        PckA_PwrCTADis,
         PckA_PickUpThing,//90
         PckA_DumpHeldThings,
         PckA_Unknown092,
@@ -124,8 +124,8 @@ enum TbPacketAction {
         PckA_Unknown094,
         PckA_ResurrectCrtr,//95
         PckA_TransferCreatr,
-        PckA_Unknown097,
-        PckA_Unknown098,
+        PckA_PwrObeyUse,
+        PckA_PwrArmagUse,
         PckA_Unknown099,
         PckA_Unknown100,//100
         PckA_Unknown101,
@@ -137,14 +137,14 @@ enum TbPacketAction {
         PckA_ToggleComputer,
         PckA_PlyrFastMsg,
         PckA_SetComputerKind,
-        PckA_Unknown110,//110
+        PckA_GoSpectator,//110
         PckA_Unknown111,
         PckA_Unknown112,
         PckA_Unknown113,
-        PckA_SpellSOEDis,
+        PckA_PwrSOEDis,
         PckA_Unknown115,//115
         PckA_Unknown116,
-        PckA_Unknown117,
+        PckA_PwrUseOnThing,
         PckA_PlyrToggleAlly,
         PckA_Unknown119,
         PckA_Unknown120,//120

@@ -334,28 +334,28 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
           if (dungeon->field_884)
             player->field_4D2 = (dungeon->field_883 << 2);
           else
-            update_spell_overcharge(player, 6);
+            update_power_overcharge(player, 6);
           break;
       case PSt_CaveIn:
-          update_spell_overcharge(player, 7);
+          update_power_overcharge(player, 7);
           break;
       case PSt_SightOfEvil:
-          update_spell_overcharge(player, 5);
+          update_power_overcharge(player, 5);
           break;
       case PSt_Lightning:
-          update_spell_overcharge(player, 10);
+          update_power_overcharge(player, 10);
           break;
       case PSt_SpeedUp:
-          update_spell_overcharge(player, 11);
+          update_power_overcharge(player, 11);
           break;
       case PSt_Armour:
-          update_spell_overcharge(player, 12);
+          update_power_overcharge(player, 12);
           break;
       case PSt_Conceal:
-          update_spell_overcharge(player, 13);
+          update_power_overcharge(player, 13);
           break;
       case PSt_Heal:
-          update_spell_overcharge(player, 8);
+          update_power_overcharge(player, 8);
           break;
       default:
           player->field_4D2++;
@@ -864,7 +864,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
           && can_thing_be_possessed(thing_get(player->thing_under_hand), plyr_idx) )
         {
-          player->field_43E = player->thing_under_hand;
+          player->influenced_thing_idx = player->thing_under_hand;
           set_player_state(player, 11, 0);
           set_player_instance(player, PI_DirctCtrl, 0);
           unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -880,7 +880,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               turn_off_all_panel_menus();
               turn_on_menu(31);
             }
-            player->field_43E = player->thing_under_hand;
+            player->influenced_thing_idx = player->thing_under_hand;
             set_player_state(player, 12, 0);
             set_player_instance(player, PI_QueryCrtr, 0);
           }
@@ -1009,7 +1009,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_CallToArms:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            i = get_spell_overcharge_level(player);
+            i = get_power_overcharge_level(player);
             magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, i, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1017,7 +1017,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_CaveIn:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            i = get_spell_overcharge_level(player);
+            i = get_power_overcharge_level(player);
             magic_use_power_cave_in(plyr_idx, stl_x, stl_y, i);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1025,7 +1025,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_SightOfEvil:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            i = get_spell_overcharge_level(player);
+            i = get_power_overcharge_level(player);
             magic_use_power_sight(plyr_idx, stl_x, stl_y, i);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1054,7 +1054,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-            player->field_43E = player->thing_under_hand;
+            player->influenced_thing_idx = player->thing_under_hand;
             set_player_instance(player, PI_PsngrCtrl, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
@@ -1079,7 +1079,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         {
           if (player->thing_under_hand > 0)
           {
-            player->field_43E = player->thing_under_hand;
+            player->influenced_thing_idx = player->thing_under_hand;
             set_player_instance(player, PI_DirctCtrl, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);
           }
@@ -1113,7 +1113,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 initialise_tab_tags_and_menu(31);
                 turn_on_menu(31);
               }
-              player->field_43E = player->thing_under_hand;
+              player->influenced_thing_idx = player->thing_under_hand;
               set_player_instance(player, PI_QueryCrtr, 0);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -1200,7 +1200,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = 0;
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            i = get_spell_overcharge_level(player);
+            i = get_power_overcharge_level(player);
             magic_use_power_lightning(plyr_idx, stl_x, stl_y, i);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1239,7 +1239,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_spell_overcharge_level(player);
+          i = get_power_overcharge_level(player);
           magic_use_power_speed(plyr_idx, thing, stl_x, stl_y, i);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1255,7 +1255,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_spell_overcharge_level(player);
+          i = get_power_overcharge_level(player);
           magic_use_power_armour(plyr_idx, thing, stl_x, stl_y, i);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1271,7 +1271,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_spell_overcharge_level(player);
+          i = get_power_overcharge_level(player);
           magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, i);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1287,7 +1287,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_spell_overcharge_level(player);
+          i = get_power_overcharge_level(player);
           magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, i);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1305,7 +1305,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_DestroyWalls:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-          i = get_spell_overcharge_level(player);
+          i = get_power_overcharge_level(player);
           magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1320,7 +1320,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_spell_overcharge_level(player);
+          i = get_power_overcharge_level(player);
           magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, i);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1336,7 +1336,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_spell_overcharge_level(player);
+          i = get_power_overcharge_level(player);
           magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, i);
           unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1896,7 +1896,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_TogglePause:
       process_pause_packet((game.numfield_C & 0x01) == 0, pckt->field_6);
       return 1;
-  case PckA_Unknown024:
+  case PckA_SetCluedo:
       if (is_my_player(player))
       {
         settings.video_cluedo_mode = pckt->field_6;
@@ -1932,7 +1932,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SetPlyrState:
       set_player_state(player, pckt->field_6, pckt->field_8);
       return 0;
-  case PckA_Unknown037:
+  case PckA_SwitchView:
       set_engine_view(player, pckt->field_6);
       return 0;
   case PckA_ToggleTendency:
@@ -2050,7 +2050,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_Unknown088:
       game.numfield_D ^= (game.numfield_D ^ (0x04 * ((game.numfield_D & 0x04) == 0))) & 0x04;
       return 0;
-  case PckA_SpellCTADis:
+  case PckA_PwrCTADis:
       turn_off_call_to_arms(plyr_idx);
       return 0;
   case PckA_PickUpThing:
@@ -2070,10 +2070,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         event_delete_event(plyr_idx, pckt->field_6);
       }
       return 0;
-  case PckA_Unknown097:
+  case PckA_PwrObeyUse:
       magic_use_power_obey(plyr_idx);
       return 0;
-  case PckA_Unknown098:
+  case PckA_PwrArmagUse:
       magic_use_power_armageddon(plyr_idx);
       return 0;
   case PckA_Unknown099:
@@ -2124,7 +2124,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->field_6);
       return 0;
-  case PckA_Unknown110:
+  case PckA_GoSpectator:
       level_lost_go_first_person(plyr_idx);
       return 0;
   case PckA_Unknown111:
@@ -2135,7 +2135,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
           dump_held_things_on_map(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 1);
       }
       return false;
-  case PckA_SpellSOEDis:
+  case PckA_PwrSOEDis:
       turn_off_sight_of_evil(plyr_idx);
       return false;
   case PckA_Unknown115:
@@ -2146,7 +2146,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       turn_off_event_box_if_necessary(plyr_idx, dungeon->visible_event_idx);
       dungeon->visible_event_idx = 0;
       return false;
-  case PckA_Unknown117:
+  case PckA_PwrUseOnThing:
       i = player->field_4D2 / 4;
       if (i > 8) i = 8;
       directly_cast_spell_on_thing(plyr_idx, pckt->field_6, pckt->field_8, i);
@@ -2250,7 +2250,7 @@ void process_players_creature_passenger_packet_action(long idx)
   pckt = get_packet_direct(player->packet_num);
   if (pckt->action == 32)
   {
-    player->field_43E = pckt->field_6;
+    player->influenced_thing_idx = pckt->field_6;
     set_player_instance(player, PI_PsngrCtLeave, 0);
   }
   SYNCDBG(8,"Finished");
@@ -2432,7 +2432,7 @@ void process_players_creature_control_packet_action(long idx)
   switch (pckt->action)
   {
   case 33:
-      player->field_43E = pckt->field_6;
+      player->influenced_thing_idx = pckt->field_6;
       set_player_instance(player, PI_DirctCtLeave, 0);
       break;
   case 39:

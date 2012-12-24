@@ -286,7 +286,7 @@ unsigned char field_88;
     unsigned char pole_stl_y;
     unsigned char search_timeout;
     short partner_idx;
-    long partner_field9;
+    long partner_creation;
     unsigned char byte_A5x;
     } training;
   };

@@ -998,7 +998,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
           text = buf_sprintf("%ld", i);
           break;
       case 6: // time in dungeon
-          i = (game.play_gameturn-thing->field_9) / 2000 + cctrl->field_286;
+          i = (game.play_gameturn-thing->creation_turn) / 2000 + cctrl->field_286;
           if (i >= 99)
             i = 99;
           text = buf_sprintf("%ld", i);
@@ -1149,7 +1149,7 @@ void spell_lost_first_person(struct GuiButton *gbtn)
 {
   struct PlayerInfo *player;
   player=get_my_player();
-  set_players_packet_action(player, PckA_Unknown110, 0, 0, 0, 0);
+  set_players_packet_action(player, PckA_GoSpectator, 0, 0, 0, 0);
 }
 
 void gui_set_tend_to(struct GuiButton *gbtn)

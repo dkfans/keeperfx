@@ -28,6 +28,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
+enum SpellCastAllow {
+    CastAllow_Normal = 0,
+    CastAllow_Unrevealed = 0x01,
+    CastAllow_Unowned    = 0x02,
+};
+
 #pragma pack(1)
 
 struct PlayerInfo;
@@ -60,8 +66,14 @@ void magic_use_power_hold_audience(unsigned char idx);
 void magic_use_power_armageddon(unsigned int plridx);
 short magic_use_power_obey(unsigned short plridx);
 
-int get_spell_overcharge_level(struct PlayerInfo *player);
-TbBool update_spell_overcharge(struct PlayerInfo *player, int spl_idx);
+TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing);
+TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
+    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
+TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel);
+
+int get_power_overcharge_level(struct PlayerInfo *player);
+TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
 long can_cast_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long a3);
 /******************************************************************************/
 #ifdef __cplusplus

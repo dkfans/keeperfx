@@ -198,7 +198,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     }
     cam = player->acamera;
     player->controlled_thing_idx = thing->index;
-    player->field_31 = thing->field_9;
+    player->field_31 = thing->creation_turn;
     player->field_4B5 = cam->field_6;
     thing->alloc_flags |= TAlF_IsControlled;
     thing->field_4F |= 0x01;

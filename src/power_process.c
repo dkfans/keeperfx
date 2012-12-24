@@ -197,7 +197,7 @@ void update_god_lightning_ball(struct Thing *thing)
         lightning_modify_palette(thing);
         return;
     }
-    i = (game.play_gameturn - thing->field_9) % 16;
+    i = (game.play_gameturn - thing->creation_turn) % 16;
     switch (i)
     {
     case 0:

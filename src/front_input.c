@@ -795,7 +795,7 @@ short get_creature_passenger_action_inputs(void)
   struct Thing *thing;
   thing = thing_get(player->controlled_thing_idx);
   TRACE_THING(thing);
-  if ((player->field_31 != thing->field_9) || ((thing->alloc_flags & TAlF_Exists)==0) )
+  if ((player->field_31 != thing->creation_turn) || ((thing->alloc_flags & TAlF_Exists)==0) )
   {
     set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
     return true;
@@ -837,7 +837,7 @@ short get_creature_control_action_inputs(void)
       struct Thing *thing;
       thing = thing_get(player->controlled_thing_idx);
       TRACE_THING(thing);
-      if ( (player->field_31 != thing->field_9) || ((thing->alloc_flags & TAlF_Exists) == 0)
+      if ( (player->field_31 != thing->creation_turn) || ((thing->alloc_flags & TAlF_Exists) == 0)
          || (thing->active_state == CrSt_CreatureUnconscious) )
         make_packet = true;
     }

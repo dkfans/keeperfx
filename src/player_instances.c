@@ -186,7 +186,7 @@ long pinstfm_hand_grab(struct PlayerInfo *player, long *n)
   struct Dungeon *dungeon;
   //return _DK_pinstfs_hand_grab(player, n);
   dungeon = get_players_dungeon(player);
-  thing = thing_get(player->field_43E);
+  thing = thing_get(player->influenced_thing_idx);
   if (thing->class_id == TCls_Creature)
   {
       pickoffs = get_creature_picked_up_offset(thing);
@@ -209,12 +209,12 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   struct Thing *grabtng;
   long i;
   SYNCDBG(8,"Starting");
-  dsttng = thing_get(player->field_43E);
+  dsttng = thing_get(player->influenced_thing_idx);
   grabtng = thing_get(player->hand_thing_idx);
   if (!thing_is_pickable_by_hand(player,dsttng))
   {
-    player->field_440 = 0;
-    player->field_43E = 0;
+    player->influenced_thing_creation = 0;
+    player->influenced_thing_idx = 0;
     return 0;
   }
   set_power_hand_offset(player, dsttng);
@@ -233,8 +233,8 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
       dsttng = process_object_being_picked_up(dsttng, grabtng->owner);
       if (thing_is_invalid(dsttng))
       {
-          player->field_440 = 0;
-          player->field_43E = 0;
+          player->influenced_thing_creation = 0;
+          player->influenced_thing_idx = 0;
           return 0;
       }
       break;
@@ -242,8 +242,8 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   if (!thing_is_invalid(grabtng))
     set_power_hand_graphic(player->id_number, 784, 256);
   dump_thing_in_power_hand(dsttng, player->id_number);
-  player->field_440 = 0;
-  player->field_43E = 0;
+  player->influenced_thing_creation = 0;
+  player->influenced_thing_idx = 0;
   place_thing_in_limbo(dsttng);
   return 0;
 }
@@ -255,7 +255,7 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
   //return _DK_pinstfs_hand_drop(player, n);
   dungeon = get_players_dungeon(player);
   thing = thing_get(player->hand_thing_idx);
-  player->field_43E = dungeon->things_in_hand[0];
+  player->influenced_thing_idx = dungeon->things_in_hand[0];
   if (!thing_is_invalid(thing))
     set_power_hand_graphic(player->id_number, 783, -256);
   return 0;
@@ -273,7 +273,7 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
   dungeon->field_53 = 40;
   if (!thing_is_invalid(thing))
     set_power_hand_graphic(player->id_number, 782, 256);
-  player->field_43E = 0;
+  player->influenced_thing_idx = 0;
   return 0;
 
 }
@@ -296,11 +296,11 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   struct Coord3d pos;
   //return _DK_pinstfe_hand_whip(player, n);
 
-  thing = thing_get(player->field_43E);
-  if (((thing->alloc_flags & TAlF_Exists) == 0) || (thing->field_9 != player->field_440) || (!thing_slappable(thing, player->id_number)))
+  thing = thing_get(player->influenced_thing_idx);
+  if (((thing->alloc_flags & TAlF_Exists) == 0) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
   {
-    player->field_440 = 0;
-    player->field_43E = 0;
+    player->influenced_thing_creation = 0;
+    player->influenced_thing_idx = 0;
     return 0;
   }
   switch (thing->class_id)
@@ -420,13 +420,13 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     cam = player->acamera;
     if (cam == NULL)
         return 0;
-    thing = thing_get(player->field_43E);
+    thing = thing_get(player->influenced_thing_idx);
     if (thing_is_invalid(thing) || (thing->class_id == 4) || (thing->health < 0))
     {
         set_camera_zoom(cam, player->dungeon_camera_zoom);
         if (is_my_player(player))
             PaletteSetPlayerPalette(player, _DK_palette);
-        player->field_43E = 0;
+        player->influenced_thing_idx = 0;
         player->field_0 &= 0xEF;
         player->field_0 &= 0x7F;
         set_player_instance(player, PI_Unset, true);
@@ -449,7 +449,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         }
         cam->orient_a += mv_a;
         cam->orient_a %= ANGLE_TRIGL_PERIOD;
-        thing = thing_get(player->field_43E);
+        thing = thing_get(player->influenced_thing_idx);
         crstat = creature_stats_get_from_thing(thing);
         // Now mv_a becomes a circle radius
         mv_a = crstat->eye_height + thing->mappos.z.val;
@@ -490,7 +490,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_direct_control_creature(player, n);
   struct Thing *thing;
   long i,k;
-  thing = thing_get(player->field_43E);
+  thing = thing_get(player->influenced_thing_idx);
   if (thing_is_invalid(thing))
     thing = NULL;
   if (!thing_is_invalid(thing))
@@ -539,7 +539,7 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
 {
 //  return _DK_pinstfe_passenger_control_creature(player, n);
     struct Thing *thing;
-    thing = thing_get(player->field_43E);
+    thing = thing_get(player->influenced_thing_idx);
     if (!thing_is_invalid(thing))
       control_creature_as_passenger(player, thing);
     set_player_instance(player, PI_CrCtrlFade, false);
@@ -550,13 +550,13 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
 {
   struct Thing *thing;
   //return _DK_pinstfs_direct_leave_creature(player, n);
-  if (player->field_43E == 0)
+  if (player->influenced_thing_idx == 0)
   {
     set_player_instance(player, PI_Unset, true);
     return 0;
   }
   player->field_0 |= 0x80;
-  thing = thing_get(player->field_43E);
+  thing = thing_get(player->influenced_thing_idx);
   reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
@@ -569,10 +569,10 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       turn_on_main_panel_menu();
       set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
   }
-  thing = thing_get(player->field_43E);
+  thing = thing_get(player->influenced_thing_idx);
   leave_creature_as_controller(player, thing);
   player->field_0 |= 0x10;
-  player->field_43E = 0;
+  player->influenced_thing_idx = 0;
   light_turn_light_on(player->field_460);
   play_non_3d_sample(177);
   return 0;
@@ -595,13 +595,13 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
 {
   struct Thing *thing;
   //return _DK_pinstfs_passenger_leave_creature(player, n);
-  if (player->field_43E == 0)
+  if (player->influenced_thing_idx == 0)
   {
       set_player_instance(player, PI_Unset, true);
       return 0;
   }
   player->field_0 |= 0x80;
-  thing = thing_get(player->field_43E);
+  thing = thing_get(player->influenced_thing_idx);
   reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
@@ -616,7 +616,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
   }
   leave_creature_as_passenger(player, thing);
   player->field_0 |= 0x10;
-  player->field_43E = 0;
+  player->influenced_thing_idx = 0;
   light_turn_light_on(player->field_460);
   play_non_3d_sample(177);
   return 0;
@@ -637,7 +637,7 @@ long pinstfs_query_creature(struct PlayerInfo *player, long *n)
 {
   struct Thing *thing;
   //return _DK_pinstfs_query_creature(player, n);
-  thing = thing_get(player->field_43E);
+  thing = thing_get(player->influenced_thing_idx);
   player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
   set_selected_creature(player, thing);
   set_player_state(player, 15, 0);

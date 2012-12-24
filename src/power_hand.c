@@ -88,7 +88,7 @@ TbBool thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
 {
   if (thing_is_invalid(thing))
     return false;
-  if (((thing->alloc_flags & TAlF_Exists) == 0) || (thing->field_9 != player->field_440))
+  if (((thing->alloc_flags & TAlF_Exists) == 0) || (thing->creation_turn != player->influenced_thing_creation))
     return false;
   // All creatures can be picked
   if (thing->class_id == TCls_Creature)

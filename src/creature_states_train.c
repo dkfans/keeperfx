@@ -192,11 +192,11 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
             prctrl->training.mode = CrTrMd_PartnerTraining;
             prctrl->training.train_timeout = 75;
             prctrl->training.partner_idx = thing->index;
-            prctrl->training.partner_field9 = thing->field_9;
+            prctrl->training.partner_creation = thing->creation_turn;
             cctrl->training.mode = CrTrMd_PartnerTraining;
             cctrl->training.train_timeout = 75;
             cctrl->training.partner_idx = prtng->index;
-            cctrl->training.partner_field9 = prtng->field_9;
+            cctrl->training.partner_creation = prtng->creation_turn;
             return;
       }
     }
@@ -442,7 +442,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         }
         crtng = thing_get(cctrl->training.partner_idx);
         TRACE_THING(crtng);
-        if (!thing_exists(crtng) || (get_creature_state_besides_move(crtng) != CrSt_Training) || (crtng->field_9 != cctrl->training.partner_field9))
+        if (!thing_exists(crtng) || (get_creature_state_besides_move(crtng) != CrSt_Training) || (crtng->creation_turn != cctrl->training.partner_creation))
         {
             SYNCDBG(8,"The %s cannot start partner training - creature to train with is gone.",thing_model_name(thing));
             setup_move_to_new_training_position(thing, room, false);

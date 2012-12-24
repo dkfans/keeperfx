@@ -1150,7 +1150,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             update_god_lightning_ball(thing);
             break;
         case ShM_TrapLightning:
-            if (((game.play_gameturn - thing->field_9) % 16) == 0)
+            if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
             {
               thing->field_19 = 5;
               god_lightning_choose_next_creature(thing);
@@ -1197,7 +1197,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    thing->field_9 = game.play_gameturn;
+    thing->creation_turn = game.play_gameturn;
     thing->class_id = TCls_Shot;
     thing->model = model;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
