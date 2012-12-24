@@ -1433,7 +1433,7 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *enemy)
     }
     figctrl->combat_flags |= CmbtF_Ranged;
     figctrl->battle_enemy_idx = enemy->index;
-    figctrl->long_9E = enemy->field_9;
+    figctrl->long_9E = enemy->creation_turn;
     if (!add_ranged_combat_attacker(enemy, fighter->index)) {
         ERRORLOG("Cannot add a ranged attacker, but there was free space - internal error");
         figctrl->combat_flags &= ~CmbtF_Ranged;
@@ -1475,7 +1475,7 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
     }
     figctrl->combat_flags |= CmbtF_Melee;
     figctrl->battle_enemy_idx = enemy->index;
-    figctrl->long_9E = enemy->field_9;
+    figctrl->long_9E = enemy->creation_turn;
     if (!add_melee_combat_attacker(enemy, fighter->index)) {
         ERRORLOG("Cannot add a melee attacker, but %s index %d had free slot - internal error",thing_model_name(fighter),(int)fighter->index);
         figctrl->combat_flags &= ~CmbtF_Melee;
@@ -1505,7 +1505,7 @@ TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *enemy)
     }
     figctrl->combat_flags |= CmbtF_Waiting;
     figctrl->battle_enemy_idx = enemy->index;
-    figctrl->long_9E = enemy->field_9;
+    figctrl->long_9E = enemy->creation_turn;
     if (!battle_add(fighter, enemy)) {
         //TODO COMBAT write the function to remove the waiting attacker (might be dummy)
         //remove_waiting_combat_attacker(enemy, fighter->index);
@@ -1723,7 +1723,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
     struct CreatureControl *cctrl;
     struct CreatureControl *enmcctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ( (!thing_exists(enmtng)) || (cctrl->long_9E != enmtng->field_9) )
+    if ( (!thing_exists(enmtng)) || (cctrl->long_9E != enmtng->creation_turn) )
     {
         SYNCDBG(8,"Enemy creature doesn't exist");
         return false;
@@ -1732,7 +1732,7 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
     if (creature_control_invalid(enmcctrl) && (enmtng->class_id != TCls_Object) && (enmtng->class_id != TCls_Door))
     {
         ERRORLOG("No control structure - C%d M%d GT%ld CA%d", (int)enmtng->class_id,
-            (int)enmtng->model, (long)game.play_gameturn, (int)thing->field_9);
+            (int)enmtng->model, (long)game.play_gameturn, (int)thing->creation_turn);
         return false;
     }
     return true;

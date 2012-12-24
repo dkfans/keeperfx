@@ -286,7 +286,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 
     set_flag_byte(&thing->movement_flags, TMvF_Unknown40, objconf->field_8);
     thing->owner = owner;
-    thing->field_9 = game.play_gameturn;
+    thing->creation_turn = game.play_gameturn;
 
     if (!objdat->field_2)
     {

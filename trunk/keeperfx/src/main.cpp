@@ -506,11 +506,11 @@ TbBool is_thing_passenger_controlled(const struct Thing *thing)
     switch (player->instance_num)
     {
     case PI_DirctCtrl:
-        return (thing->index == player->field_43E);
+        return (thing->index == player->influenced_thing_idx);
     case PI_CrCtrlFade:
         return (thing->index == player->controlled_thing_idx);
     case PI_PsngrCtLeave:
-        return (thing->index == player->field_43E);
+        return (thing->index == player->influenced_thing_idx);
     case PI_Unset:
         return (thing->index == player->controlled_thing_idx);
     default:
@@ -2623,7 +2623,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     thing = thing_get(tng_idx);
     allow_cast = false;
     pwrdata = get_power_data(spl_id);
-    if ((tng_idx == 0) || (thing->owner == player->id_number) || (pwrdata->flag_1A != 0))
+    if ((tng_idx == 0) || (thing->owner == player->id_number) || (pwrdata->can_cast_on_enemy != 0))
     {
       if (can_cast_spell_at_xy(player->id_number, spl_id, stl_x, stl_y, 0))
       {

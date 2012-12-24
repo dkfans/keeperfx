@@ -593,7 +593,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
     cctrl->field_282 = game.hero_door_wait_time;
-    cctrl->byte_8A = tmptng->field_9;
+    cctrl->byte_8A = tmptng->creation_turn;
     place_thing_in_creature_controlled_limbo(thing);
     internal_set_thing_state(thing, CrSt_GoodWaitInExitDoor);
     return 1;
@@ -649,7 +649,7 @@ short good_wait_in_exit_door(struct Thing *thing)
         tmptng = find_base_thing_on_mapwho(TCls_Object, 49, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
         if (!thing_is_invalid(tmptng))
         {
-            if (cctrl->byte_8A == tmptng->field_9)
+            if (cctrl->byte_8A == tmptng->creation_turn)
             {
               remove_thing_from_creature_controlled_limbo(thing);
               set_start_state(thing);

@@ -2707,7 +2707,7 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
     {
         enemytng = thing_get(cctrl->word_9A);
         TRACE_THING(enemytng);
-        if (((enemytng->alloc_flags & TAlF_Exists) == 0) || (cctrl->long_9C != enemytng->field_9))
+        if (((enemytng->alloc_flags & TAlF_Exists) == 0) || (cctrl->long_9C != enemytng->creation_turn))
         {
           enemytng = NULL;
           cctrl->long_9C = 0;
@@ -2728,7 +2728,7 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
         return NULL;
     }
     cctrl->word_9A = enemytng->index;
-    cctrl->long_9C = enemytng->field_9;
+    cctrl->long_9C = enemytng->creation_turn;
     return enemytng;
 }
 
@@ -2897,7 +2897,7 @@ long process_work_speed_on_work_value(struct Thing *thing, long base_val)
         dungeon = get_dungeon(thing->owner);
         if (dungeon->tortured_creatures[thing->model] > 0)
             val = 4 * val / 3;
-        if (dungeon->field_888)
+        if (dungeon->must_obey_turn)
             val = 6 * val / 5;
     }
     return val;
