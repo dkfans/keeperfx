@@ -1397,6 +1397,7 @@ short read_exports_section(unsigned char *buf, long filesize, struct PEInfo *pe)
     if (verbose)
         printf("Got %ld function addresses from .DLL.\n",idx);
 
+    data = buf + fnnames_table_raw_pos;
     for (idx=0; idx < names_num; idx++)
     {
         //TODO PeRESec: Read export function names from .DLL!

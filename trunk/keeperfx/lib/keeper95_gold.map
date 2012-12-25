@@ -990,6 +990,7 @@
  0001:00057960       update_things
  0001:000B45F0       process_rooms
  0001:000A80C0       process_messages
+ 0001:000A84C0       person_search_for_food_again
  0001:0005D4D0       find_nearest_rooms_for_ambient_sound
  0001:0005DB00       get_next_gap_creature_can_fit_in_below_point
  0001:0006EF80       process_computer_players2
@@ -1173,6 +1174,7 @@
  0001:000B0050       create_workshop_object_in_workshop_room
  0001:000B02B0       get_next_manufacture
  0001:000B60A0       find_nearest_room_for_thing
+ 0001:000B6B00       find_nearest_room_for_thing_with_used_capacity
  0001:000B6D10       find_room_with_spare_room_item_capacity
  0001:000B6600       find_random_room_for_thing_with_spare_room_item_capacity
  0001:000BD240       player_has_room_of_type
@@ -1354,7 +1356,11 @@
  0001:00015F90       script_process_value
  0001:00090120       creature_fire_shot
  0001:00011C80       creature_cast_spell
+ 0001:000703C0       process_creature_needs_to_heal_critical
+ 0001:000705A0       process_creature_needs_to_heal
  0001:00070CA0       process_person_moods_and_needs
+ 0001:00070820       process_creature_needs_to_eat
+ 0001:00070AC0       process_creature_needs_a_wage
  0001:0008F460       creature_available_for_combat_this_turn
  0001:0008DF40       creature_look_for_combat
  0001:0008F2E0       creature_has_ranged_weapon
@@ -1372,6 +1378,7 @@
  0001:000A7950       stop_sample_using_heap
  0001:000A5720       load_map_and_window
  0001:00019800       anger_apply_anger_to_creature
+ 0001:00019D30       anger_process_creature_anger
  0001:00043CF0       object_is_pickable_by_hand
  0001:0004A2E0       set_power_hand_offset
  0001:000C4B40       dump_thing_in_power_hand

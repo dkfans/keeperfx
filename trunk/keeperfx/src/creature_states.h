@@ -313,6 +313,7 @@ TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job);
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
 struct Room * find_nearest_room_for_thing(struct Thing *thing, char a2, char a3, unsigned char a4);
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
+struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, char a2, char a3, unsigned char a4, long a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool anger_make_creature_angry(struct Thing *thing, long reason);

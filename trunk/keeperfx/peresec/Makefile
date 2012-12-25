@@ -20,14 +20,16 @@
 OS = $(shell uname -s)
 ifneq (,$(findstring MINGW,$(OS)))
 RES  = obj/peresec_stdres.res
+EXEEXT = .exe
 else
 RES  = 
+EXEEXT =
 endif
 CPP  = g++
 CC   = gcc
 WINDRES = windres
 DLLTOOL = dlltool
-BIN  = bin/peresec
+BIN  = bin/peresec$(EXEEXT)
 LIBS =
 OBJS = \
 obj/peresec.o \
@@ -41,11 +43,15 @@ CXXINCS =
 DEPFLAGS = -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" 
 # code optimization flags
 OPTFLAGS = -O3
+DBGFLAGS =
+# linker flags
+LINKFLAGS = 
 # compiler warning generation flags
 WARNFLAGS = -Wall -Wno-sign-compare -Wno-unused-parameter
 # disabled warnings: -Wextra -Wtype-limits
 CXXFLAGS = $(CXXINCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS)
 CFLAGS = $(INCS) -c -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS)
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
@@ -58,7 +64,7 @@ clean: clean-custom
 
 $(BIN): $(OBJS) $(LIBS)
 	@echo 'Building target: $@'
-	$(CPP) $(LINKOBJ) -o "$@" $(LINKLIB) $(OPTFLAGS)
+	$(CPP) $(LINKOBJ) -o "$@" $(LDFLAGS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
