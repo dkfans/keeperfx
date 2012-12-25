@@ -332,6 +332,10 @@ struct Computer2 { // sizeof = 5322
   short field_14C8;
 };
 
+struct THate {
+    char field_0;
+};
+
 /******************************************************************************/
 DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[14];
 //#define ComputerProcessLists _DK_ComputerProcessLists
