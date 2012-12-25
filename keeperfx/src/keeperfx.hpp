@@ -400,7 +400,6 @@ short winning_player_quitting(struct PlayerInfo *player, long *plyr_count);
 short lose_level(struct PlayerInfo *player);
 short resign_level(struct PlayerInfo *player);
 short complete_level(struct PlayerInfo *player);
-void directly_cast_spell_on_thing(PlayerNumber plridx, unsigned char a2, unsigned short a3, long a4);
 void set_general_information(long msg_id, long target, long x, long y);
 void set_quick_information(long msg_id, long target, long x, long y);
 void process_objective(const char *msg_text, long target, long x, long y);

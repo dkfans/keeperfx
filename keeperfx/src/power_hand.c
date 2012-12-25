@@ -31,6 +31,7 @@
 #include "thing_shots.h"
 #include "thing_traps.h"
 #include "thing_physics.h"
+#include "thing_stats.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
@@ -51,7 +52,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned long _DK_object_is_pickable_by_hand(struct Thing *thing, long a2);
+DLLIMPORT unsigned long _DK_object_is_pickable_by_hand(const struct Thing *thing, long a2);
 DLLIMPORT void _DK_set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
 DLLIMPORT struct Thing *_DK_process_object_being_picked_up(struct Thing *thing, long a2);
 DLLIMPORT void _DK_set_power_hand_graphic(long a1, long a2, long a3);
@@ -76,39 +77,42 @@ DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsign
 /******************************************************************************/
 struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
 {
-  return _DK_create_gold_for_hand_grab(thing, a2);
+    return _DK_create_gold_for_hand_grab(thing, a2);
 }
 
-unsigned long object_is_pickable_by_hand(struct Thing *thing, long plyr_idx)
+unsigned long object_is_pickable_by_hand(const struct Thing *thing, long plyr_idx)
 {
-  return _DK_object_is_pickable_by_hand(thing, plyr_idx);
+    return _DK_object_is_pickable_by_hand(thing, plyr_idx);
 }
 
-TbBool thing_is_pickable_by_hand(struct PlayerInfo *player,struct Thing *thing)
+TbBool thing_is_picked_up(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
+    return (((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->field_1 & TF1_InCtrldLimbo) != 0));
+}
+
+TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing)
+{
+    if (!thing_exists(thing))
+        return false;
+    // All creatures can be picked
+    if (thing->class_id == TCls_Creature)
+        return true;
+    // Some objects can be picked
+    if ((thing->class_id == TCls_Object) && object_is_pickable_by_hand(thing, player->id_number))
+        return true;
+    // Other things are not pickable
     return false;
-  if (((thing->alloc_flags & TAlF_Exists) == 0) || (thing->creation_turn != player->influenced_thing_creation))
-    return false;
-  // All creatures can be picked
-  if (thing->class_id == TCls_Creature)
-    return true;
-  // Some objects can be picked
-  if ((thing->class_id == TCls_Object) && object_is_pickable_by_hand(thing, player->id_number))
-    return true;
-  // Other things are not pickable
-  return false;
 }
 
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-  return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
+    return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
 }
 
 long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-  //TODO: rewrite, then give it better name
-  return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
+    //TODO: rewrite, then give it better name
+    return _DK_can_thing_be_picked_up2_by_player(thing, plyr_idx);
 }
 
 void set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing)
@@ -480,7 +484,7 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord x, MapC
 long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
-    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0)
+    if (!thing_is_picked_up(thing)
         && (thing->active_state != CrSt_CreatureUnconscious))
     {
       if (can_thing_be_picked_up_by_player(thing, param->plyr_idx) || thing_slappable(thing, param->plyr_idx))
@@ -525,9 +529,38 @@ struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-long place_thing_in_power_hand(struct Thing *thing, long var)
+TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
 {
-  return _DK_place_thing_in_power_hand(thing, var);
+    struct PlayerInfo *player;
+    long i;
+    //return _DK_place_thing_in_power_hand(thing, plyr_idx);
+    if ( ((thing->alloc_flags & 0x10) != 0) || ((thing->field_1 & 0x02) != 0) ) {
+        ERRORLOG("The %s cannot be currently picked up",thing_model_name(thing));
+        return false;
+    }
+    player = get_player(plyr_idx);
+    if (!thing_is_pickable_by_hand(player, thing)) {
+        ERRORLOG("The %s is not pickable thing",thing_model_name(thing));
+        return false;
+    }
+    if (thing_is_picked_up(thing)) {
+        ERRORLOG("The %s is already picked up",thing_model_name(thing));
+        return false;
+    }
+    if (thing_is_creature(thing))
+    {
+        clear_creature_instance(thing);
+        if (!external_set_thing_state(thing, CrSt_InPowerHand)) {
+            return false;
+        }
+        i = get_creature_anim(thing, 9);
+        set_thing_draw(thing, i, 256, -1, -1, 0, 2);
+    }
+    dump_thing_in_power_hand(thing, plyr_idx);
+    remove_thing_from_mapwho(thing);
+    thing->alloc_flags |= 0x10;
+    thing->field_4F |= 0x01;
+    return true;
 }
 
 short dump_held_things_on_map(PlayerNumber plyr_idx, long a2, long a3, short a4)
@@ -602,7 +635,24 @@ void delete_power_hand(PlayerNumber owner)
 
 long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
 {
-    return _DK_prepare_thing_for_power_hand(tng_idx, plyr_idx);
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    //return _DK_prepare_thing_for_power_hand(tng_idx, plyr_idx);
+    player = get_player(plyr_idx);
+    dungeon = get_dungeon(player->id_number);
+    if (player->hand_thing_idx == 0)
+        create_power_hand(plyr_idx);
+    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND) {
+      return 0;
+    }
+    struct Thing *thing;
+    thing = thing_get(tng_idx);
+    player->influenced_thing_idx = thing->index;
+    player->influenced_thing_creation = thing->creation_turn;
+    set_player_instance(player, 1, 0);
+    if (thing_is_creature(thing))
+        clear_creature_instance(thing);
+    return 1;
 }
 
 void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long explevel)
@@ -625,7 +675,7 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long expl
   dungeon->lvstats.creatures_sacrificed++;
 }
 
-TbBool magic_use_power_hand(PlayerNumber plyr_idx, unsigned short a2, unsigned short a3, unsigned short tng_idx)
+TbResult magic_use_power_hand(PlayerNumber plyr_idx, unsigned short stl_x, unsigned short stl_y, unsigned short tng_idx)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;

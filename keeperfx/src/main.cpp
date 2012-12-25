@@ -1993,11 +1993,6 @@ void process_objective(const char *msg_text, long target, long x, long y)
     display_objectives(player->id_number, pos_x, pos_y);
 }
 
-void directly_cast_spell_on_thing(PlayerNumber plridx, unsigned char a2, unsigned short a3, long a4)
-{
-  _DK_directly_cast_spell_on_thing(plridx, a2, a3, a4);
-}
-
 short winning_player_quitting(struct PlayerInfo *player, long *plyr_count)
 {
     struct PlayerInfo *swplyr;
@@ -2643,9 +2638,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     {
       if (chkfunc())
       {
-        i = player->field_4D2/4;
-        if (i > 8)
-          i = 8;
+        i = get_power_overcharge_level(player);
         set_pointer_graphic(16+i);
         magstat = &game.magic_stats[spl_id];
         draw_spell_cost = magstat->cost[i];

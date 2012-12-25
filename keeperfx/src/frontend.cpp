@@ -977,25 +977,25 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
 /**
  * Sets a new chosen special spell (Armageddon or Hold Audience).
  */
-void choose_special_spell(int kind, int tooltip_id)
+void choose_special_spell(int spkind, int tooltip_id)
 {
     struct Dungeon *dungeon;
     struct SpellData *pwrdata;
     struct MagicStats *magstat;
 
-    if ((kind != PwrK_HOLDAUDNC) && (kind != PwrK_ARMAGEDDON)) {
+    if ((spkind != PwrK_HOLDAUDNC) && (spkind != PwrK_ARMAGEDDON)) {
         WARNLOG("Bad power kind");
         return;
     }
 
     dungeon = get_players_num_dungeon(my_player_number);
-    set_chosen_spell(kind, tooltip_id);
-    magstat = &game.magic_stats[kind];
+    set_chosen_spell(spkind, tooltip_id);
+    magstat = &game.magic_stats[spkind];
 
     if (dungeon->total_money_owned >= magstat->cost[0]) {
-        pwrdata = get_power_data(kind);
+        pwrdata = get_power_data(spkind);
         play_non_3d_sample_no_overlap(pwrdata->field_11); // Play the spell speech
-        switch (kind)
+        switch (spkind)
         {
         case PwrK_ARMAGEDDON:
             turn_on_menu(GMnu_ARMAGEDDON);

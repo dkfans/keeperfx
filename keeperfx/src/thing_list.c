@@ -32,6 +32,7 @@
 #include "thing_corpses.h"
 #include "thing_stats.h"
 #include "thing_creature.h"
+#include "power_hand.h"
 #include "map_utils.h"
 #include "config_objects.h"
 #include "config_creature.h"
@@ -507,10 +508,11 @@ unsigned long update_creatures_not_in_list(void)
     }
     if ((thing->alloc_flags & TAlF_IsInGroup) != 0)
     {
-      if ((thing->alloc_flags & TAlF_IsInLimbo) != 0)
+      if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
         update_thing_animation(thing);
-      else
+      } else {
         update_thing(thing);
+      }
     }
     k++;
     if (k > THINGS_COUNT)
@@ -905,7 +907,7 @@ long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_id
         }
         i = thing->next_of_class;
         // Per-thing code
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
+        if (!thing_is_picked_up(thing))
         {
             if (thing->owner != immune_plyr_idx)
             {
@@ -1610,7 +1612,7 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl
     // Per thing processing block
     if ((thing->class_id == TCls_Creature) && (thing != excltng))
     {
-        if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
+        if (!thing_is_picked_up(thing))
         {
             if ((thing->active_state == CrSt_ImpDigsDirt) || (thing->active_state == CrSt_ImpMinesGold))
             {
@@ -1695,7 +1697,32 @@ TbBool update_speed_of_player_creatures_of_model(PlayerNumber plyr_idx, ThingMod
       }
       i = cctrl->players_next_creature_idx;
       // Thing list loop body
-      if (thing->model == crmodel)
+      if ((crmodel <= 0) || (thing->model == crmodel))
+      {
+          cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+      }
+      // Thing list loop body ends
+      k++;
+      if (k > CREATURES_COUNT)
+      {
+        ERRORLOG("Infinite loop detected when sweeping creatures list");
+        break;
+      }
+  }
+  k = 0;
+  i = dungeon->digger_list_start;
+  while (i != 0)
+  {
+      thing = thing_get(i);
+      cctrl = creature_control_get_from_thing(thing);
+      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+      {
+        ERRORLOG("Jump to invalid creature detected");
+        break;
+      }
+      i = cctrl->players_next_creature_idx;
+      // Thing list loop body
+      if ((crmodel <= 0) || (thing->model == crmodel))
       {
           cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
       }
