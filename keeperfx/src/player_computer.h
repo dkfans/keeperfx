@@ -339,6 +339,10 @@ struct ComputerPlayerConfig {
     int computers_count;
 };
 
+struct THate {
+    char field_0;
+};
+
 #pragma pack()
 /******************************************************************************/
 extern unsigned short computer_types[];

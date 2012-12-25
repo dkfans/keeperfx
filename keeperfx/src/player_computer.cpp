@@ -105,6 +105,10 @@ DLLIMPORT void _DK_computer_check_events(struct Computer2 *comp);
 DLLIMPORT long _DK_process_checks(struct Computer2 *comp);
 DLLIMPORT long _DK_process_tasks(struct Computer2 *comp);
 DLLIMPORT long _DK_get_computer_money_less_cost(struct Computer2 *comp);
+DLLIMPORT long _DK_count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
+DLLIMPORT struct ComputerTask *_DK_is_there_an_attack_task(struct Computer2 *comp);
+DLLIMPORT void _DK_get_opponent(struct Computer2 *comp, struct THate *hate);
+DLLIMPORT long _DK_setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long a4);
 
 DLLIMPORT long _DK_computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *process);
 //#define computer_check_build_all_rooms _DK_computer_check_build_all_rooms
@@ -2015,6 +2019,26 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
   return _DK_computer_check_sight_of_evil(comp, process);
 }
 
+long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
+{
+    return _DK_count_creatures_availiable_for_fight(comp, pos);
+}
+
+struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp)
+{
+    return _DK_is_there_an_attack_task(comp);
+}
+
+void get_opponent(struct Computer2 *comp, struct THate *hate)
+{
+    _DK_get_opponent(comp, hate);
+}
+
+long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long a4)
+{
+    return _DK_setup_computer_attack(comp, process, pos, a4);
+}
+
 long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *process)
 {
   return _DK_computer_check_attack1(comp, process);
@@ -2022,7 +2046,7 @@ long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *proc
 
 long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_check_safe_attack(comp, process);
+    return _DK_computer_check_safe_attack(comp, process);
 }
 
 long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process)

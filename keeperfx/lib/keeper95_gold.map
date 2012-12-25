@@ -1788,6 +1788,10 @@
  0001:0004C950       computer_find_non_solid_block
  0001:0004CCA0       computer_able_to_use_magic
  0001:0004DDE0       count_creatures_for_defend_pickup
+ 0001:0004C3C0       get_opponent
+ 0001:0004E9C0       setup_computer_attack
+ 0001:0004EB10       count_creatures_availiable_for_fight
+ 0001:0004F120       is_there_an_attack_task
  0001:0004EDF0       check_call_to_arms
  0001:0004EEA0       get_task_in_progress
  0001:00001E60       get_free_task
