@@ -56,7 +56,7 @@ struct TrapDoorSelling {
 
 struct MoveToRoom {
     char kind;
-    long field_1;
+    long priority;
 };
 
 /******************************************************************************/
@@ -238,69 +238,45 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     }
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-      return 0;
+      return Lb_FAIL;
     }
     switch (gaction)
     {
     case GA_Unk01:
         break;
     case GA_UsePwrHandPick:
-        if (dungeon->magic_level[PwrK_HAND] == 0)
-          break;
         thing = thing_get(param1);
-        i = place_thing_in_power_hand(thing, plyr_idx);
-        if (i < 0)
-          return -1;
-        return 1;
+        if (!is_power_available(plyr_idx, PwrK_HAND))
+            break;
+        if (!place_thing_in_power_hand(thing, plyr_idx))
+          return Lb_FAIL;
+        return Lb_SUCCESS;
     case GA_UsePwrHandDrop:
-        if (dungeon->magic_level[PwrK_HAND] == 0)
-          break;
-        i = dump_held_things_on_map(plyr_idx, stl_x, stl_y, 0);
-        if (i < 0)
-          return -1;
-        return 1;
+        // Note that we can drop things even if we have no hand power
+        if (!dump_held_things_on_map(plyr_idx, stl_x, stl_y, 0))
+            return Lb_FAIL;
+        return Lb_SUCCESS;
     case GA_UseMkDigger:
-        if (dungeon->magic_level[PwrK_MKDIGGER] == 0)
-          break;
-        i = magic_use_power_imp(plyr_idx, stl_x, stl_y);
-        return 1;
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, alevel, stl_x, stl_y, CastAllow_Unrevealed);
     case GA_UseSlap:
-        if (dungeon->magic_level[PwrK_SLAP] == 0)
-          break;
-        i = magic_use_power_slap(plyr_idx, stl_x, stl_y);
-        return i;
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, CastAllow_Unrevealed);
     case GA_UsePwrSight:
-        if (dungeon->magic_level[PwrK_SIGHT] == 0)
-          break;
-        i = magic_use_power_sight(plyr_idx, stl_x, stl_y, alevel);
-        return i;
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, alevel, stl_x, stl_y, CastAllow_Unrevealed);
     case GA_UsePwrObey:
-        if (dungeon->magic_level[PwrK_OBEY] == 0)
-          break;
-        i = magic_use_power_obey(plyr_idx);
-        return 1;
+        return magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, alevel);
     case GA_UsePwrHealCrtr:
-        if (dungeon->magic_level[PwrK_HEALCRTR] == 0)
-          break;
         thing = thing_get(param1);
-        magic_use_power_heal(plyr_idx, thing, thing->mappos.x.stl.num,thing->mappos.y.stl.num, alevel);
-        return 1;
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_HEALCRTR, alevel, stl_x, stl_y, thing);
     case GA_UsePwrCall2Arms:
-        if (dungeon->magic_level[PwrK_CALL2ARMS] == 0)
-          break;
-        i = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, alevel, 1);
-        return i;
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, alevel, stl_x, stl_y, CastAllow_Unrevealed);
     case GA_UsePwrCaveIn:
-        if (dungeon->magic_level[PwrK_CAVEIN] == 0)
-          break;
-        magic_use_power_cave_in(plyr_idx, stl_x, stl_y, alevel);
-        return 1;
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, alevel, stl_x, stl_y, CastAllow_Unrevealed);
     case GA_StopPwrCall2Arms:
         turn_off_call_to_arms(plyr_idx);
-        return 1;
+        return Lb_SUCCESS;
     case GA_Unk12:
         dungeon->field_88C[0] = 0;
-        return 1;
+        return Lb_SUCCESS;
     case GA_Unk13:
     case GA_Unk14:
         slb = get_slabmap_block(slb_x, slb_y);
@@ -318,7 +294,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_Unk16:
         room = player_build_room_at(stl_x, stl_y, plyr_idx, param2);
         if (room_is_invalid(room))
-          break;
+            break;
         return room->index;
     case GA_SetTendencies:
         dungeon->creature_tendencies = param1;
@@ -344,37 +320,27 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
         return i;
     case GA_UsePwrLightning:
-        magic_use_power_lightning(plyr_idx, stl_x, stl_y, alevel);
-        return 1;
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, alevel, stl_x, stl_y, CastAllow_Normal);
     case GA_UsePwrSpeedUp:
         thing = thing_get(param1);
-        magic_use_power_speed(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
-        return 1;
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SPEEDCRTR, alevel, stl_x, stl_y, thing);
     case GA_UsePwrArmour:
         thing = thing_get(param1);
-        magic_use_power_armour(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
-        return 1;
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_PROTECT, alevel, stl_x, stl_y, thing);
     case GA_UsePwrConceal:
         thing = thing_get(param1);
-        magic_use_power_conceal(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
-        return 1;
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, alevel, stl_x, stl_y, thing);
     case GA_UsePwrHoldAudnc:
-        magic_use_power_hold_audience(plyr_idx);
-        break;
+        return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, alevel);
     case GA_UsePwrDisease:
         thing = thing_get(param1);
-        magic_use_power_disease(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
-        return 1;
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_DISEASE, alevel, stl_x, stl_y, thing);
     case GA_UsePwrChicken:
         thing = thing_get(param1);
-        magic_use_power_chicken(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
-        return 1;
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, alevel, stl_x, stl_y, thing);
     case GA_UsePwrSlap:
-        if (dungeon->magic_level[PwrK_SLAP] == 0)
-          break;
         thing = thing_get(param1);
-        i = magic_use_power_slap_thing(plyr_idx, thing);
-        return i;
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, thing);
     default:
         ERRORLOG("Unknown game action %d", (int)gaction);
         break;
@@ -483,9 +449,9 @@ struct Room *get_room_to_place_creature(const struct Computer2 *comp, const stru
         room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
         if (room_is_invalid(room))
             continue;
-        if (chosen_priority < total_spare_cap * move_to_room[k].field_1)
+        if (chosen_priority < total_spare_cap * move_to_room[k].priority)
         {
-            chosen_priority = total_spare_cap * move_to_room[k].field_1;
+            chosen_priority = total_spare_cap * move_to_room[k].priority;
             chosen_room = room;
         }
     }
