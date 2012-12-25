@@ -677,50 +677,52 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long expl
 
 TbResult magic_use_power_hand(PlayerNumber plyr_idx, unsigned short stl_x, unsigned short stl_y, unsigned short tng_idx)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  //return _DK_magic_use_power_hand(plyr_idx, a2, a3, tng_idx);
-  dungeon = get_dungeon(plyr_idx);
-  player = get_player(plyr_idx);
-  if (dungeon->num_things_in_hand >= 8)
-    return false;
-  thing = thing_get(tng_idx);
-  if (thing_is_invalid(thing))
-  {
-    thing = INVALID_THING;
-  } else
-  if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
-  {
-      thing = INVALID_THING;
-  }
-  if (thing_is_invalid(thing))
-  {
-      if (player->thing_under_hand > 0)
-          thing = thing_get(player->thing_under_hand);
-  }
-  if (thing_is_invalid(thing))
-      return false;
-  if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
-  {
-      return false;
-  }
-  if (thing->class_id != TCls_Object)
-  {
-      prepare_thing_for_power_hand(thing->index, plyr_idx);
-      return true;
-  }
-  if (is_dungeon_special(thing))
-  {
-      activate_dungeon_special(thing, player);
-      return false;
-  }
-  if ( object_is_pickable_by_hand(thing, plyr_idx) )
-  {
-      prepare_thing_for_power_hand(thing->index, plyr_idx);
-      return true;
-  }
-  return false;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    //return _DK_magic_use_power_hand(plyr_idx, stl_x, stl_y, tng_idx);
+    dungeon = get_dungeon(plyr_idx);
+    player = get_player(plyr_idx);
+    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND) {
+        return Lb_FAIL;
+    }
+    thing = thing_get(tng_idx);
+    if (thing_is_invalid(thing))
+    {
+        thing = INVALID_THING;
+    } else
+    if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
+    {
+        thing = INVALID_THING;
+    }
+    if (thing_is_invalid(thing))
+    {
+        if (player->thing_under_hand > 0)
+            thing = thing_get(player->thing_under_hand);
+    }
+    if (thing_is_invalid(thing)) {
+        return Lb_FAIL;
+    }
+    if (!can_thing_be_picked_up_by_player(thing, plyr_idx))
+    {
+        return Lb_OK;
+    }
+    if (thing->class_id != TCls_Object)
+    {
+        prepare_thing_for_power_hand(thing->index, plyr_idx);
+        return Lb_SUCCESS;
+    }
+    if (is_dungeon_special(thing))
+    {
+        activate_dungeon_special(thing, player);
+        return Lb_OK;
+    }
+    if ( object_is_pickable_by_hand(thing, plyr_idx) )
+    {
+        prepare_thing_for_power_hand(thing->index, plyr_idx);
+        return Lb_SUCCESS;
+    }
+    return Lb_FAIL;
 }
 
 void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3)

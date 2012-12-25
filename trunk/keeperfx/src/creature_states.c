@@ -2602,7 +2602,7 @@ TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomK
 {
     if (!room_exists(room))
     {
-        SYNCLOG("%s: The %s can no longer work in %s because former work room doesn't exist",thing_model_name(thing),room_code_name(rkind));
+        SYNCLOG("%s: The %s can no longer work in %s because former work room doesn't exist",func_name,thing_model_name(thing),room_code_name(rkind));
         // Note that if given room doesn't exist, it do not mean this
         return true;
     }
