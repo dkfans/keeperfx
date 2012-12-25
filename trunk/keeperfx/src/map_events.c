@@ -32,6 +32,7 @@
 #include "gui_frontmenu.h"
 #include "frontend.h"
 #include "room_workshop.h"
+#include "power_hand.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -509,7 +510,7 @@ void update_all_events(void)
     if (!thing_is_invalid(thing))
     {
       event = &game.event[i];
-      if ((thing->class_id == TCls_Creature) && ((thing->alloc_flags & TAlF_IsInLimbo) || (thing->field_1 & TF1_InCtrldLimbo)))
+      if ((thing->class_id == TCls_Creature) && thing_is_picked_up(thing))
       {
         event->mappos_x = 0;
         event->mappos_y = 0;

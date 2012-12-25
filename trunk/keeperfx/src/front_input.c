@@ -795,7 +795,7 @@ short get_creature_passenger_action_inputs(void)
   struct Thing *thing;
   thing = thing_get(player->controlled_thing_idx);
   TRACE_THING(thing);
-  if ((player->field_31 != thing->creation_turn) || ((thing->alloc_flags & TAlF_Exists)==0) )
+  if (!thing_exists(thing) || (player->field_31 != thing->creation_turn))
   {
     set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
     return true;

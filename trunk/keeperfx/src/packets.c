@@ -79,15 +79,15 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_process_pause_packet(long a1, long a2);
-DLLIMPORT void _DK_process_map_packet_clicks(long idx);
+DLLIMPORT void _DK_process_map_packet_clicks(long plyr_idx);
 DLLIMPORT void _DK_process_quit_packet(struct PlayerInfo *, int);
-DLLIMPORT void _DK_process_dungeon_control_packet_clicks(long idx);
-DLLIMPORT void _DK_process_players_dungeon_control_packet_control(long idx);
+DLLIMPORT void _DK_process_dungeon_control_packet_clicks(long plyr_idx);
+DLLIMPORT void _DK_process_players_dungeon_control_packet_control(long plyr_idx);
 DLLIMPORT void _DK_process_packets(void);
-DLLIMPORT char _DK_process_players_global_packet_action(PlayerNumber idx);
-DLLIMPORT void _DK_process_players_dungeon_control_packet_action(long idx);
-DLLIMPORT void _DK_process_players_creature_control_packet_control(long idx);
-DLLIMPORT void _DK_process_players_creature_control_packet_action(long idx);
+DLLIMPORT char _DK_process_players_global_packet_action(long plyr_idx);
+DLLIMPORT void _DK_process_players_dungeon_control_packet_action(long plyr_idx);
+DLLIMPORT void _DK_process_players_creature_control_packet_control(long plyr_idx);
+DLLIMPORT void _DK_process_players_creature_control_packet_action(long plyr_idx);
 DLLIMPORT unsigned long _DK_get_packet_save_checksum(void);
 DLLIMPORT void _DK_load_packets_for_turn(long gameturn);
 DLLIMPORT void _DK_open_new_packet_file_for_save(void);
@@ -905,14 +905,15 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           } else
           if (player->field_454 == 3)
           {
-            if (player->thing_under_hand != 0)
+            if (player->thing_under_hand != 0) {
               magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
+            }
           }
         }
         player->field_4AF = 0;
         unset_packet_control(pckt, PCtr_LBtnRelease);
         player->field_455 = 0;
-        player->field_3 &= 0xFEu;
+        player->field_3 &= ~0x01;
       }
     }
 
@@ -929,8 +930,9 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           }
         } else
         {
-          if (player->field_454 == 3)
-            magic_use_power_slap(plyr_idx, stl_x, stl_y);
+          if (player->field_454 == 3) {
+              magic_use_power_slap(plyr_idx, stl_x, stl_y);
+          }
           player->field_4AF = 0;
           unset_packet_control(pckt, PCtr_RBtnRelease);
         }
@@ -1010,6 +1012,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             i = get_power_overcharge_level(player);
+            //!!!!magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, i, stl_x, stl_y, CastAllow_Normal);
             magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, i, 0);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -1287,9 +1290,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_power_overcharge_level(player);
-          magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, i);
-          unset_packet_control(pckt, PCtr_LBtnRelease);
+            i = get_power_overcharge_level(player);
+            magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, i);
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
     case PSt_Sell:
@@ -1298,16 +1301,16 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_CreateDigger:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-          magic_use_power_imp(plyr_idx, stl_x, stl_y);
-          unset_packet_control(pckt, PCtr_LBtnRelease);
+            magic_use_power_imp(plyr_idx, stl_x, stl_y);
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
     case PSt_DestroyWalls:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-          i = get_power_overcharge_level(player);
-          magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i);
-          unset_packet_control(pckt, PCtr_LBtnRelease);
+            i = get_power_overcharge_level(player);
+            magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, i);
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
     case PSt_CastDisease:
@@ -1320,9 +1323,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_power_overcharge_level(player);
-          magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, i);
-          unset_packet_control(pckt, PCtr_LBtnRelease);
+            i = get_power_overcharge_level(player);
+            magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, i);
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
     case PSt_TurnChicken:
@@ -1336,9 +1339,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
         {
-          i = get_power_overcharge_level(player);
-          magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, i);
-          unset_packet_control(pckt, PCtr_LBtnRelease);
+            i = get_power_overcharge_level(player);
+            magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, i);
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
     default:
@@ -2071,10 +2074,10 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       }
       return 0;
   case PckA_PwrObeyUse:
-      magic_use_power_obey(plyr_idx);
+      magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, 0);
       return 0;
   case PckA_PwrArmagUse:
-      magic_use_power_armageddon(plyr_idx);
+      magic_use_available_power_on_level(plyr_idx, PwrK_ARMAGEDDON, 0);
       return 0;
   case PckA_Unknown099:
       turn_off_query(plyr_idx);
@@ -2147,8 +2150,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       dungeon->visible_event_idx = 0;
       return false;
   case PckA_PwrUseOnThing:
-      i = player->field_4D2 / 4;
-      if (i > 8) i = 8;
+      i = get_power_overcharge_level(player);
       directly_cast_spell_on_thing(plyr_idx, pckt->field_6, pckt->field_8, i);
       return 0;
   case PckA_PlyrToggleAlly:
@@ -2256,32 +2258,32 @@ void process_players_creature_passenger_packet_action(long idx)
   SYNCDBG(8,"Finished");
 }
 
-TbBool process_players_dungeon_control_packet_action(long idx)
+TbBool process_players_dungeon_control_packet_action(long plyr_idx)
 {
   SYNCDBG(6,"Starting");
   struct PlayerInfo *player;
   struct Packet *pckt;
-  player = get_player(idx);
+  player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
-    case PckA_HoldAudience:
-      magic_use_power_hold_audience(idx);
+  case PckA_HoldAudience:
+      magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, 0);
       break;
-    case PckA_UseSpecialBox:
+  case PckA_UseSpecialBox:
       activate_dungeon_special(thing_get(pckt->field_6), player);
       break;
-    case PckA_ResurrectCrtr:
-      resurrect_creature(thing_get(pckt->field_6),
-        (pckt->field_8) & 0x0F, (pckt->field_8 >> 4) & 0xFF, (pckt->field_8 >> 12) & 0x0F);
+  case PckA_ResurrectCrtr:
+      resurrect_creature(thing_get(pckt->field_6), (pckt->field_8) & 0x0F, (pckt->field_8 >> 4) & 0xFF,
+          (pckt->field_8 >> 12) & 0x0F);
       break;
-    case PckA_TransferCreatr:
-      transfer_creature(thing_get(pckt->field_6), thing_get(pckt->field_8), idx);
+  case PckA_TransferCreatr:
+      transfer_creature(thing_get(pckt->field_6), thing_get(pckt->field_8), plyr_idx);
       break;
-    case PckA_ToggleComputer:
-      toggle_computer_player(idx);
+  case PckA_ToggleComputer:
+      toggle_computer_player(plyr_idx);
       break;
-    default:
+  default:
       return false;
   }
   return true;

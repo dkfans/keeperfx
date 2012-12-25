@@ -368,10 +368,10 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long a2, long a3);
 long computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
 long process_tasks(struct Computer2 *comp);
-short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
-    unsigned short stl_x, unsigned short stl_y, unsigned short param1, unsigned short param2);
-long try_game_action(struct Computer2 *comp, char a2, unsigned short a3, unsigned short a4,
- unsigned short a5, unsigned short a6, unsigned short a7, unsigned short a8);
+TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
+TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags);
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
