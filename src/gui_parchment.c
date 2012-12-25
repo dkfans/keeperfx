@@ -44,6 +44,7 @@
 #include "thing_traps.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
+#include "power_hand.h"
 #include "game_legacy.h"
 #include "room_list.h"
 #include "vidfade.h"
@@ -330,7 +331,7 @@ void draw_overhead_things(long x, long y)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
+        if (!thing_is_picked_up(thing))
         {
             TbPixel col1,col2;
             col1 = 31;
@@ -409,7 +410,7 @@ void draw_overhead_things(long x, long y)
             }
             i = thing->next_of_class;
             // Per-thing code
-            if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
+            if (!thing_is_picked_up(thing))
             {
                 if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, player->id_number))
                 {
@@ -442,7 +443,7 @@ void draw_overhead_things(long x, long y)
         }
         i = thing->next_of_class;
         // Per-thing code
-        if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
+        if (!thing_is_picked_up(thing))
         {
             if (player->id_number == thing->owner)
             {
@@ -537,7 +538,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
       break;
     }
     i = thing->next_on_mapblk;
-    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
+    if (!thing_is_picked_up(thing))
     {
       spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);
       spos_y = ((subtile_size * ((long)thing->mappos.y.stl.pos)) >> 8);

@@ -31,6 +31,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "gui_soundmsgs.h"
@@ -206,7 +207,7 @@ long get_wanderer_possible_targets_count_in_list(long first_thing_idx, struct Th
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
+        if (!thing_is_picked_up(thing))
         {
             if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) ) {
                 victims_count++;
@@ -246,7 +247,7 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
+        if (!thing_is_picked_up(thing))
         {
             if ( creature_can_navigate_to(wanderer, &thing->mappos, 0) )
             {

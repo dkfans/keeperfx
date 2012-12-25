@@ -35,6 +35,7 @@
 #include "thing_effects.h"
 #include "thing_shots.h"
 #include "thing_navigate.h"
+#include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
@@ -1653,7 +1654,7 @@ long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *r
       // Thing list loop body
       if ( (thing->model == crmodel) && (cctrl->combat_flags == 0) )
       {
-          if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
+          if (!thing_is_picked_up(thing))
           {
               if ((thing != fighter) && (get_room_thing_is_on(thing) == room))
               {

@@ -27,6 +27,7 @@
 #include "thing_stats.h"
 #include "thing_effects.h"
 #include "config_terrain.h"
+#include "power_hand.h"
 #include "game_legacy.h"
 #include "gui_soundmsgs.h"
 #include "keeperfx.hpp"
@@ -147,7 +148,7 @@ struct Thing *get_workshop_box_thing(long owner, long model)
         // Per-thing code
         if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->model == model) && (thing->owner == owner) )
         {
-            if ( ((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0) )
+            if (!thing_is_picked_up(thing))
                 return thing;
         }
         // Per-thing code ends

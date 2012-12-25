@@ -217,8 +217,8 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
     return false;
 }
 
-short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
-    unsigned short stl_x, unsigned short stl_y, unsigned short param1, unsigned short param2)
+TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2)
 {
     struct Dungeon *dungeon;
     MapSlabCoord slb_x,slb_y;
@@ -228,7 +228,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     struct Room *room;
     struct Coord3d pos;
     SYNCDBG(9,"Starting action %d",(int)gaction);
-    //return _DK_game_action(plyr_idx, gaction, a3, stl_x, stl_y, param1, param2);
+    //return _DK_game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
     if (subtile_has_slab(stl_x, stl_y)) {
         slb_x = subtile_slab_fast(stl_x);
         slb_y = subtile_slab_fast(stl_y);
@@ -272,7 +272,7 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     case GA_UsePwrSight:
         if (dungeon->magic_level[PwrK_SIGHT] == 0)
           break;
-        i = magic_use_power_sight(plyr_idx, stl_x, stl_y, a3);
+        i = magic_use_power_sight(plyr_idx, stl_x, stl_y, alevel);
         return i;
     case GA_UsePwrObey:
         if (dungeon->magic_level[PwrK_OBEY] == 0)
@@ -283,17 +283,17 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         if (dungeon->magic_level[PwrK_HEALCRTR] == 0)
           break;
         thing = thing_get(param1);
-        magic_use_power_heal(plyr_idx, thing, thing->mappos.x.stl.num,thing->mappos.y.stl.num, a3);
+        magic_use_power_heal(plyr_idx, thing, thing->mappos.x.stl.num,thing->mappos.y.stl.num, alevel);
         return 1;
     case GA_UsePwrCall2Arms:
         if (dungeon->magic_level[PwrK_CALL2ARMS] == 0)
           break;
-        i = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, a3, 1);
+        i = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, alevel, 1);
         return i;
     case GA_UsePwrCaveIn:
         if (dungeon->magic_level[PwrK_CAVEIN] == 0)
           break;
-        magic_use_power_cave_in(plyr_idx, stl_x, stl_y, a3);
+        magic_use_power_cave_in(plyr_idx, stl_x, stl_y, alevel);
         return 1;
     case GA_StopPwrCall2Arms:
         turn_off_call_to_arms(plyr_idx);
@@ -344,30 +344,30 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
         i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
         return i;
     case GA_UsePwrLightning:
-        magic_use_power_lightning(plyr_idx, stl_x, stl_y, a3);
+        magic_use_power_lightning(plyr_idx, stl_x, stl_y, alevel);
         return 1;
     case GA_UsePwrSpeedUp:
         thing = thing_get(param1);
-        magic_use_power_speed(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        magic_use_power_speed(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
         return 1;
     case GA_UsePwrArmour:
         thing = thing_get(param1);
-        magic_use_power_armour(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        magic_use_power_armour(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
         return 1;
     case GA_UsePwrConceal:
         thing = thing_get(param1);
-        magic_use_power_conceal(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        magic_use_power_conceal(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
         return 1;
     case GA_UsePwrHoldAudnc:
         magic_use_power_hold_audience(plyr_idx);
         break;
     case GA_UsePwrDisease:
         thing = thing_get(param1);
-        magic_use_power_disease(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        magic_use_power_disease(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
         return 1;
     case GA_UsePwrChicken:
         thing = thing_get(param1);
-        magic_use_power_chicken(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, a3);
+        magic_use_power_chicken(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, alevel);
         return 1;
     case GA_UsePwrSlap:
         if (dungeon->magic_level[PwrK_SLAP] == 0)
@@ -382,14 +382,14 @@ short game_action(char plyr_idx, unsigned short gaction, unsigned short a3,
     return 0;
 }
 
-long try_game_action(struct Computer2 *comp,char plyr_idx, unsigned short gaction, unsigned short a3,
-    unsigned short stl_x, unsigned short stl_y, unsigned short param1, unsigned short param2)
+TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2)
 {
-  long result;
-  result = game_action(plyr_idx, gaction, a3, stl_x, stl_y, param1, param2);
+  TbResult result;
+  result = game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
   if (result > 0)
     comp->tasks_did--;
-  SYNCDBG(19,"Returning %ld",result);
+  SYNCDBG(19,"Returning %d",(int)result);
   return result;
 }
 

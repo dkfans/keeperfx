@@ -211,11 +211,12 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   SYNCDBG(8,"Starting");
   dsttng = thing_get(player->influenced_thing_idx);
   grabtng = thing_get(player->hand_thing_idx);
-  if (!thing_is_pickable_by_hand(player,dsttng))
+  if (!thing_is_pickable_by_hand(player,dsttng)
+   || (dsttng->creation_turn != player->influenced_thing_creation))
   {
-    player->influenced_thing_creation = 0;
-    player->influenced_thing_idx = 0;
-    return 0;
+      player->influenced_thing_creation = 0;
+      player->influenced_thing_idx = 0;
+      return 0;
   }
   set_power_hand_offset(player, dsttng);
   switch (dsttng->class_id)
@@ -250,42 +251,40 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
 
 long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 {
-  struct Thing *thing;
-  struct Dungeon *dungeon;
-  //return _DK_pinstfs_hand_drop(player, n);
-  dungeon = get_players_dungeon(player);
-  thing = thing_get(player->hand_thing_idx);
-  player->influenced_thing_idx = dungeon->things_in_hand[0];
-  if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->id_number, 783, -256);
-  return 0;
-
+    struct Thing *thing;
+    struct Dungeon *dungeon;
+    //return _DK_pinstfs_hand_drop(player, n);
+    dungeon = get_players_dungeon(player);
+    thing = thing_get(player->hand_thing_idx);
+    player->influenced_thing_idx = dungeon->things_in_hand[0];
+    if (!thing_is_invalid(thing))
+      set_power_hand_graphic(player->id_number, 783, -256);
+    return 0;
 }
 
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
-  struct Thing *thing;
-  struct Dungeon *dungeon;
-  //return _DK_pinstfe_hand_drop(player, n);
-  dungeon = get_players_dungeon(player);
-  thing = thing_get(player->hand_thing_idx);
-  dungeon->field_43 = 60;
-  dungeon->field_53 = 40;
-  if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->id_number, 782, 256);
-  player->influenced_thing_idx = 0;
-  return 0;
-
+    struct Thing *thing;
+    struct Dungeon *dungeon;
+    //return _DK_pinstfe_hand_drop(player, n);
+    dungeon = get_players_dungeon(player);
+    thing = thing_get(player->hand_thing_idx);
+    dungeon->field_43 = 60;
+    dungeon->field_53 = 40;
+    if (!thing_is_invalid(thing))
+      set_power_hand_graphic(player->id_number, 782, 256);
+    player->influenced_thing_idx = 0;
+    return 0;
 }
 
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 {
-  struct Thing *thing;
-  //return _DK_pinstfs_hand_whip(player, n);
-  thing = thing_get(player->hand_thing_idx);
-  if (!thing_is_invalid(thing))
-    set_power_hand_graphic(player->id_number, 786, 256);
-  return 0;
+    struct Thing *thing;
+    //return _DK_pinstfs_hand_whip(player, n);
+    thing = thing_get(player->hand_thing_idx);
+    if (!thing_is_invalid(thing))
+      set_power_hand_graphic(player->id_number, 786, 256);
+    return 0;
 }
 
 long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
@@ -297,7 +296,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_hand_whip(player, n);
 
   thing = thing_get(player->influenced_thing_idx);
-  if (((thing->alloc_flags & TAlF_Exists) == 0) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
+  if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
   {
     player->influenced_thing_creation = 0;
     player->influenced_thing_idx = 0;

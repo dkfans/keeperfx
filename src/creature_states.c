@@ -1268,7 +1268,7 @@ short creature_being_dropped(struct Thing *creatng)
         {
             if (leadtng != creatng)
             {
-                if ( ((leadtng->alloc_flags & TAlF_IsInLimbo) == 0) && ((leadtng->field_1 & TF1_InCtrldLimbo) == 0) )
+                if (!thing_is_picked_up(leadtng))
                 {
                     if ( get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > 1536 )
                         remove_creature_from_group(creatng);
@@ -2682,7 +2682,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
         if (tng2 != tng1)
         {
             if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
-            && ((tng2->alloc_flags & TAlF_IsInLimbo) == 0) && ((tng2->field_1 & TF1_InCtrldLimbo) == 0))
+            && !thing_is_picked_up(tng2))
             {
                 crstat1 = creature_stats_get_from_thing(tng1);
                 if (!creature_affected_by_spell(tng2, SplK_Invisibility))
