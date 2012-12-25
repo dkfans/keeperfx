@@ -227,6 +227,7 @@
  0001:00019040       creature_being_summoned
  0001:00019140       person_get_somewhere_adjacent_in_temple
  0001:00019800       anger_apply_anger_to_creature
+ 0001:00019D30       anger_process_creature_anger
  0001:0001A110       anger_set_creature_anger
  0001:0001A2B0       anger_set_creature_anger_all_types
  0001:0001A7A0       set_room_playing_ambient_sound
@@ -619,6 +620,10 @@
  0001:00070210       process_kinky_function
  0001:00070240       at_kinky_torture_room
  0001:00070300       kinky_torturing
+ 0001:000703C0       process_creature_needs_to_heal_critical
+ 0001:000705A0       process_creature_needs_to_heal
+ 0001:00070820       process_creature_needs_to_eat
+ 0001:00070AC0       process_creature_needs_a_wage
  0001:00070CA0       process_person_moods_and_needs
  0001:00071090       resync_game
  0001:000723A0       create_creature_at_entrance
@@ -967,6 +972,7 @@
  0001:000A80C0       process_messages
  0001:000A82E0       init_messages
  0001:000A8430       remove_food_from_food_room_if_possible
+ 0001:000A84C0       person_search_for_food_again
  0001:000A87C0       creature_to_garden
  0001:000A8980       creature_eating_at_garden
  0001:000A8A50       creature_arrived_at_garden
@@ -1059,6 +1065,7 @@
  0001:000B60A0       find_nearest_room_for_thing
  0001:000B6600       find_random_room_for_thing_with_spare_room_item_capacity
  0001:000B69C0       find_nearest_room_for_thing_excluding_two_types
+ 0001:000B6B00       find_nearest_room_for_thing_with_used_capacity
  0001:000B6C00       find_nearest_room_for_thing_with_spare_capacity
  0001:000B6D10       find_room_with_spare_room_item_capacity
  0001:000B6D80       find_nearest_room_for_thing_with_spare_item_capacity

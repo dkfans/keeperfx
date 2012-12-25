@@ -33,8 +33,8 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
-
-#include "keeperfx.hpp"
+#include "gui_soundmsgs.h"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,24 +44,44 @@ DLLIMPORT short _DK_creature_arrived_at_garden(struct Thing *thing);
 DLLIMPORT short _DK_creature_eat(struct Thing *thing);
 DLLIMPORT short _DK_creature_eating_at_garden(struct Thing *thing);
 DLLIMPORT short _DK_creature_to_garden(struct Thing *thing);
+DLLIMPORT void _DK_person_search_for_food_again(struct Thing *thing, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+void person_search_for_food_again(struct Thing *thing, struct Room *room)
+{
+    _DK_person_search_for_food_again(thing, room);
+}
+
 short creature_arrived_at_garden(struct Thing *thing)
 {
-  return _DK_creature_arrived_at_garden(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_creature_arrived_at_garden(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->target_room_id = 0;
+    room = get_room_thing_is_on(thing);
+    if (!room_initially_valid_as_type_for_thing(room, RoK_GARDEN, thing))
+    {
+        WARNLOG("Room %s owned by player %d is invalid for %s",
+            room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
+        set_start_state(thing);
+        return 0;
+    }
+    person_search_for_food_again(thing, room);
+    return 1;
 }
 
 short creature_eat(struct Thing *thing)
 {
-  struct CreatureControl *cctrl;
-  //return _DK_creature_eat(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  if (cctrl->instance_id != CrInst_EAT)
-    internal_set_thing_state(thing, thing->continue_state);
-  return 1;
+    struct CreatureControl *cctrl;
+    //return _DK_creature_eat(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->instance_id != CrInst_EAT)
+        internal_set_thing_state(thing, thing->continue_state);
+    return 1;
 }
 
 short creature_eating_at_garden(struct Thing *thing)
@@ -71,7 +91,58 @@ short creature_eating_at_garden(struct Thing *thing)
 
 short creature_to_garden(struct Thing *thing)
 {
-  return _DK_creature_to_garden(thing);
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    //return _DK_creature_to_garden(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if ( !cctrl->field_41[0] ) {
+        set_start_state(thing);
+        return 0;
+    }
+    if (!player_has_room(thing->owner, RoK_GARDEN))
+    {
+        // No room for feeding creatures
+        if (is_my_player_number(thing->owner))
+            output_message(41, 500, 1);
+        event_create_event_or_update_nearby_existing_event(0, 0, 23, thing->owner, 0);
+        room = INVALID_ROOM;
+    } else
+    {
+        room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_GARDEN, 0, 1);
+        if (room_is_invalid(room)) {
+            // No correct room - but check what exactly is the problem
+            room = find_nearest_room_for_thing(thing, thing->owner, RoK_GARDEN, 0);
+            if (room_is_invalid(room)) {
+                // There seem to be a correct room, but we can't reach it
+                if (is_my_player_number(thing->owner))
+                    output_message(34, 500, 1);
+            } else
+            {
+                // The room is reachable, so it probably has just no food
+                if (is_my_player_number(thing->owner))
+                    output_message(22, 500, 1);
+                event_create_event_or_update_nearby_existing_event(0, 0, 23, thing->owner, 0);
+            }
+        }
+    }
+    // Apply anger if there's no room (note that anger isn't applied if room is just empty)
+    if (room_is_invalid(room))
+    {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        anger_apply_anger_to_creature(thing, crstat->annoy_no_hatchery, 2, 1);
+        set_start_state(thing);
+        return 0;
+    }
+    if (!setup_random_head_for_room(thing, room, 0))
+    {
+        ERRORLOG("Attempting to move to garden we cannot navigate to - this should not be possible");
+        set_start_state(thing);
+        return 0;
+    }
+    thing->continue_state = CrSt_CreatureArrivedAtGarden;
+    cctrl->target_room_id = room->index;
+    return 1;
 }
 
 /******************************************************************************/

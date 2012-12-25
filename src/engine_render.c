@@ -3216,7 +3216,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
 
     if (thing->field_44 >= CREATURE_FRAMELIST_LENGTH)
     {
-        ERRORLOG("Invalid graphic Id %d from model %d, class %d", thing->field_44, thing->model, thing->class_id);
+        ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->field_44, (int)thing->model, (int)thing->class_id);
     } else
     {
         switch (thing->class_id)

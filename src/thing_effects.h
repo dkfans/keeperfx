@@ -22,6 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "light_data.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -174,6 +176,23 @@ struct EffectElementStats { // sizeof = 79
   long field_49;
   unsigned char field_4D;
   unsigned char field_4E;
+};
+
+struct InitEffect { // sizeof = 39
+  short start_health;
+  unsigned char generation_type;
+  short accel_xy_min;
+  short accel_xy_max;
+  short accel_z_min;
+  short accel_z_max;
+  unsigned char field_B;
+  short field_C;
+  unsigned char kind_min;
+  unsigned char kind_max;
+  unsigned char area_affect_type;
+  unsigned char field_11;
+  struct InitLight ilght;
+  unsigned char field_26;
 };
 
 #pragma pack()
