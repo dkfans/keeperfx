@@ -138,6 +138,7 @@ DLLIMPORT void _DK_create_effect_around_thing(struct Thing *creatng, long eff_ki
 DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *creatng, long delta);
 DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *creatng, char owner, char a3, char a4, unsigned char a5);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, char a2, char a3, unsigned char a4, long a5);
 DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *creatng, long a2);
 DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *creatng);
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
@@ -148,6 +149,11 @@ DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *creatng, long
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
 DLLIMPORT struct Room * _DK_find_nearest_room_for_thing(struct Thing *thing, char a2, char a3, unsigned char a4);
+DLLIMPORT long _DK_process_creature_needs_to_heal_critical(struct Thing *thing, const struct CreatureStats *crstat);
+DLLIMPORT long _DK_process_creature_needs_a_wage(struct Thing *thing, const struct CreatureStats *crstat);
+DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *thing, const struct CreatureStats *crstat);
+DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *thing, const struct CreatureStats *crstat);
+DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *thing, const struct CreatureStats *crstat);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -2125,7 +2131,8 @@ short creature_search_for_spell_to_steal_in_room(struct Thing *creatng)
     room = room_get(slb->room_index);
     if (room_is_invalid(room) || (room->kind != RoK_LIBRARY))
     {
-        WARNLOG("Cannot steal spell - not on library at (%d,%d)",(int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
+        WARNLOG("Cannot steal spell - not on library at (%d,%d)",
+            (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
         set_start_state(creatng);
         return 0;
     }
@@ -2386,6 +2393,11 @@ struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing
     return _DK_find_nearest_room_for_thing_excluding_two_types(thing, owner, a3, a4, a5);
 }
 
+struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, char a2, char a3, unsigned char a4, long a5)
+{
+    return _DK_find_nearest_room_for_thing_with_used_capacity(thing, a2, a3, a4, a5);
+}
+
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
@@ -2602,18 +2614,18 @@ TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomK
 {
     if (!room_exists(room))
     {
-        SYNCLOG("%s: The %s can no longer work in %s because former work room doesn't exist",func_name,thing_model_name(thing),room_code_name(rkind));
+        SYNCLOG("%s: The %s owned by player %d can no longer work in %s because former work room doesn't exist",func_name,thing_model_name(thing),(int)thing->owner,room_code_name(rkind));
         // Note that if given room doesn't exist, it do not mean this
         return true;
     }
     if (!room_still_valid_as_type_for_thing(room, rkind, thing))
     {
-        WARNLOG("%s: Room %s index %d is not valid %s for %s to work in",func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),thing_model_name(thing));
+        WARNLOG("%s: Room %s index %d is not valid %s for %s owned by player %d to work in",func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),thing_model_name(thing),(int)thing->owner);
         return true;
     }
     if (!creature_is_working_in_room(thing, room))
     {
-        WARNLOG("%s: Room %s index %d is not the %s which %s selected to work in",func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),thing_model_name(thing));
+        WARNLOG("%s: Room %s index %d is not the %s which %s owned by player %d selected to work in",func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),thing_model_name(thing),(int)thing->owner);
         return true;
     }
     return false;
@@ -2645,7 +2657,8 @@ TbBool process_creature_hunger(struct Thing *thing)
     cctrl->hunger_level++;
     if (cctrl->hunger_level <= crstat->hunger_rate)
         return false;
-    if ((game.play_gameturn % game.turns_per_hunger_health_loss) == 0)
+    // Make sure every creature loses health on different turn
+    if (((game.play_gameturn + thing->index) % game.turns_per_hunger_health_loss) == 0)
         remove_health_from_thing_and_display_health(thing, game.hunger_health_loss);
     return true;
 }
@@ -3156,8 +3169,109 @@ void init_creature_state(struct Thing *thing)
     set_start_state(thing);
 }
 
+long process_creature_needs_to_heal_critical(struct Thing *thing, const struct CreatureStats *crstat)
+{
+    return _DK_process_creature_needs_to_heal_critical(thing, crstat);
+}
+
+long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureStats *crstat)
+{
+    return _DK_process_creature_needs_a_wage(thing, crstat);
+}
+
+long process_creature_needs_to_eat(struct Thing *thing, const struct CreatureStats *crstat)
+{
+    return _DK_process_creature_needs_to_eat(thing, crstat);
+}
+
+long anger_process_creature_anger(struct Thing *thing, const struct CreatureStats *crstat)
+{
+    return _DK_anger_process_creature_anger(thing, crstat);
+}
+
+long process_creature_needs_to_heal(struct Thing *thing, const struct CreatureStats *crstat)
+{
+    return _DK_process_creature_needs_to_heal(thing, crstat);
+}
+
+long process_training_need(struct Thing *thing, const struct CreatureStats *crstat)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((crstat->annoy_untrained < 0) || !creature_can_be_trained(thing)) {
+        return 0;
+    }
+    if (creature_is_training(thing)) {
+        return 0;
+    }
+    cctrl->field_4A++;
+    if (cctrl->field_4A >= crstat->annoy_untrained_time)
+    {
+      anger_apply_anger_to_creature(thing, crstat->annoy_untrained, 4, 1);
+      cctrl->field_4A = 0;
+    }
+    return 0;
+}
+
+long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->field_B9 == 0) {
+        return 0;
+    }
+    struct Thing *pisstng;
+    pisstng = thing_get(cctrl->field_B9);
+    if ((pisstng->owner == thing->owner) || !crstat->piss_on_dead) {
+        return 0;
+    }
+    if (game.play_gameturn - cctrl->field_B2 <= 200) {
+        return 0;
+    }
+    if (!external_set_thing_state(thing, CrSt_CreaturePiss))
+    {
+        return 0;
+    }
+    cctrl->field_282 = 50;
+    cctrl->field_B2 = game.play_gameturn;
+    return 1;
+}
+
 void process_person_moods_and_needs(struct Thing *thing)
 {
-    _DK_process_person_moods_and_needs(thing);
+    //_DK_process_person_moods_and_needs(thing);
+    if (get_players_special_digger_breed(thing->owner) == thing->model) {
+        // Special diggers have no special needs
+        return;
+    }
+    if ((thing->owner == game.hero_player_num) || (thing->owner == game.neutral_player_num)) {
+        // Same goes to heroes and neutral creatures
+        return;
+    }
+    if (creature_is_kept_in_custody(thing)) {
+        // And creatures being tortured, imprisoned, etc.
+        return;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    // Now process the needs
+    process_creature_hunger(thing);
+    if (process_creature_needs_to_heal_critical(thing, crstat)) {
+        SYNCDBG(17,"The %s index %d has a critical need to heal",thing_model_name(thing),(long)thing->index);
+    } else
+    if (process_creature_needs_a_wage(thing, crstat)) {
+        SYNCDBG(17,"The %s index %d has a need to get its wage",thing_model_name(thing),(long)thing->index);
+    } else
+    if (process_creature_needs_to_eat(thing, crstat)) {
+        SYNCDBG(17,"The %s index %d has a need to eat",thing_model_name(thing),(long)thing->index);
+    } else
+    if (anger_process_creature_anger(thing, crstat)) {
+        SYNCDBG(17,"The %s index %d has a need cool its anger",thing_model_name(thing),(long)thing->index);
+    } else
+    if (process_creature_needs_to_heal(thing, crstat)) {
+        SYNCDBG(17,"The %s index %d has a need to heal",thing_model_name(thing),(long)thing->index);
+    }
+    process_training_need(thing, crstat);
+    process_piss_need(thing, crstat);
 }
 /******************************************************************************/
