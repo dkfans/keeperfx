@@ -800,25 +800,25 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl
             return Lb_FAIL;
         return Lb_SUCCESS;
     case PwrK_HEALCRTR:
-        return magic_use_power_heal(plyr_idx, thing, thing->mappos.x.stl.num,thing->mappos.y.stl.num, splevel);
+        return magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, splevel);
     case PwrK_SPEEDCRTR:
-        return magic_use_power_speed(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, splevel);
+        return magic_use_power_speed(plyr_idx, thing, stl_x, stl_y, splevel);
     case PwrK_PROTECT:
-        return magic_use_power_armour(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, splevel);
+        return magic_use_power_armour(plyr_idx, thing, stl_x, stl_y, splevel);
     case PwrK_CONCEAL:
-        return magic_use_power_conceal(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, splevel);
+        return magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, splevel);
     case PwrK_DISEASE:
-        return magic_use_power_disease(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, splevel);
+        return magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, splevel);
     case PwrK_CHICKEN:
-        return magic_use_power_chicken(plyr_idx, thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num, splevel);
+        return magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel);
     case PwrK_SLAP:
         return magic_use_power_slap_thing(plyr_idx, thing);
     case PwrK_POSSESS:
         return magic_use_power_possess_thing(plyr_idx, thing);
     case PwrK_CALL2ARMS:
-        return magic_use_power_call_to_arms(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, splevel, CastAllow_Normal);
+        return magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, CastAllow_Normal);
     case PwrK_LIGHTNING:
-        return magic_use_power_lightning(plyr_idx, thing->mappos.x.stl.num, thing->mappos.y.stl.num, splevel);
+        return magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
     default:
         ERRORLOG("Power not supported here: %d", (int)spl_idx);
         break;
