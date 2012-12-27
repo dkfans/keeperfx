@@ -289,8 +289,6 @@ void update(void);
 void intro(void);
 void outro(void);
 
-TbBool is_thing_passenger_controlled(const struct Thing *thing);
-
 int can_thing_be_queried(struct Thing *thing, long a2);
 int can_thing_be_possessed(struct Thing *thing, long a2);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);

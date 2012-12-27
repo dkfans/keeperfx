@@ -494,31 +494,6 @@ TbBool add_spell_to_player(long spl_idx, long plyr_idx)
     return true;
 }
 
-TbBool is_thing_passenger_controlled(const struct Thing *thing)
-{
-    struct PlayerInfo *player;
-    //return _DK_is_thing_passenger_controlled(thing);
-    if (is_neutral_thing(thing))
-        return false;
-    player = get_player(thing->owner);
-    if (player->work_state != PSt_CtrlDirect)
-        return false;
-    switch (player->instance_num)
-    {
-    case PI_DirctCtrl:
-        return (thing->index == player->influenced_thing_idx);
-    case PI_CrCtrlFade:
-        return (thing->index == player->controlled_thing_idx);
-    case PI_PsngrCtLeave:
-        return (thing->index == player->influenced_thing_idx);
-    case PI_Unset:
-        return (thing->index == player->controlled_thing_idx);
-    default:
-        break;
-    }
-    return false;
-}
-
 long process_creature_self_spell_casting(struct Thing *thing)
 {
     return _DK_process_creature_self_spell_casting(thing);
@@ -2489,15 +2464,16 @@ short update_animating_texture_maps(void)
 
 void add_creature_to_pool(long kind, long amount, unsigned long a3)
 {
-  long prev_amount;
-  prev_amount = game.pool.crtr_kind[kind%CREATURE_TYPES_COUNT];
-  if ((a3 == 0) || (prev_amount != -1))
-  {
-    if ((amount != -1) && (amount != 0) && (prev_amount != -1))
-      game.pool.crtr_kind[kind%CREATURE_TYPES_COUNT] = prev_amount+amount;
-    else
-      game.pool.crtr_kind[kind%CREATURE_TYPES_COUNT] = amount;
-  }
+    long prev_amount;
+    kind %= CREATURE_TYPES_COUNT;
+    prev_amount = game.pool.crtr_kind[kind];
+    if ((a3 == 0) || (prev_amount != -1))
+    {
+        if ((amount != -1) && (amount != 0) && (prev_amount != -1))
+            game.pool.crtr_kind[kind] = prev_amount + amount;
+        else
+            game.pool.crtr_kind[kind] = amount;
+    }
 }
 
 short update_creature_pool_state(void)

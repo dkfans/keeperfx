@@ -78,7 +78,7 @@ TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
     return false;
 }
 
-TbBool generation_available_to_dungeon(struct Dungeon * dungeon)
+TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
     if (!dungeon_has_room(dungeon, RoK_ENTRANCE))
@@ -138,7 +138,7 @@ long calculate_excess_attraction_for_creature(int crtr_kind, int plyr_idx)
         plyr_idx, crtr_kind);
 }
 
-TbBool creature_will_generate_for_dungeon(struct Dungeon * dungeon, int crtr_kind)
+TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind)
 {
     RoomKind room_kind;
     struct CreatureStats * stats;
@@ -170,6 +170,16 @@ TbBool creature_will_generate_for_dungeon(struct Dungeon * dungeon, int crtr_kin
         }
     }
 
+    return true;
+}
+
+TbBool remove_creature_from_generate_pool(ThingModel crtr_kind)
+{
+    if (game.pool.crtr_kind[crtr_kind] <= 0) {
+        ERRORLOG("Trying to remove an unavailable creature from the creature pool");
+        return false;
+    }
+    game.pool.crtr_kind[crtr_kind]--;
     return true;
 }
 
