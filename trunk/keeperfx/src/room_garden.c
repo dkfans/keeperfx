@@ -4,7 +4,7 @@
 /** @file room_garden.c
  *     Hatchery room maintain functions.
  * @par Purpose:
- *     Functions to create and use scavenger rooms.
+ *     Functions to create and use garden rooms.
  * @par Comment:
  *     None.
  * @author   Tomasz Lis

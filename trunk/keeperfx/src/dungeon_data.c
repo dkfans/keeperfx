@@ -45,7 +45,7 @@ struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name)
     return &(game.dungeon[plyr_num]);
 }
 
-struct Dungeon *get_players_dungeon_ptr(struct PlayerInfo *player,const char *func_name)
+struct Dungeon *get_players_dungeon_ptr(const struct PlayerInfo *player,const char *func_name)
 {
     PlayerNumber plyr_num;
     plyr_num = player->id_number;
@@ -67,7 +67,7 @@ struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name)
     return &(game.dungeon[plyr_num]);
 }
 
-TbBool dungeon_invalid(struct Dungeon *dungeon)
+TbBool dungeon_invalid(const struct Dungeon *dungeon)
 {
     if (dungeon == INVALID_DUNGEON)
         return true;
@@ -171,7 +171,7 @@ TbBool player_has_room(long plyr_idx, RoomKind rkind)
  * @param rkind Room kind being checked.
  * @return
  */
-TbBool dungeon_has_room(struct Dungeon *dungeon, RoomKind rkind)
+TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
 {
     if (dungeon_invalid(dungeon))
         return false;

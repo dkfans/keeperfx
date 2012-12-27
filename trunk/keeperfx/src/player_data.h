@@ -179,9 +179,9 @@ extern struct PlayerInfo bad_player;
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
 #define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
 #define get_my_player() get_player_f(my_player_number,__func__)
-TbBool player_invalid(struct PlayerInfo *player);
-TbBool player_exists(struct PlayerInfo *player);
-TbBool is_my_player(struct PlayerInfo *player);
+TbBool player_invalid(const struct PlayerInfo *player);
+TbBool player_exists(const struct PlayerInfo *player);
+TbBool is_my_player(const struct PlayerInfo *player);
 TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);

@@ -400,6 +400,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
         break;
       }
       i = thing->next_of_class;
+      // Per-thing code
       if ((thing->alloc_flags & TAlF_IsInGroup) == 0)
       {
           if ((thing->alloc_flags & TAlF_IsInLimbo) != 0) {
@@ -409,6 +410,7 @@ TbBigChecksum update_things_in_list(struct StructureList *list)
           }
       }
       sum += get_thing_checksum(thing);
+      // Per-thing code ends
       k++;
       if (k > THINGS_COUNT)
       {
@@ -440,7 +442,9 @@ unsigned long update_cave_in_things(void)
       break;
     }
     i = thing->next_of_class;
+    // Per-thing code
     update_cave_in(thing);
+    // Per-thing code ends
     k++;
     if (k > THINGS_COUNT)
     {
@@ -457,30 +461,32 @@ unsigned long update_cave_in_things(void)
  */
 unsigned long update_things_sounds_in_list(struct StructureList *list)
 {
-  struct Thing *thing;
-  unsigned long k;
-  int i;
-  SYNCDBG(18,"Starting");
-  k = 0;
-  i = list->index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Starting");
+    k = 0;
+    i = list->index;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        update_thing_sound(thing);
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    i = thing->next_of_class;
-    update_thing_sound(thing);
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  return k;
+    return k;
 }
 
 unsigned long update_creatures_not_in_list(void)
@@ -501,6 +507,7 @@ unsigned long update_creatures_not_in_list(void)
       break;
     }
     i = thing->next_of_class;
+    // Per-thing code
     if (thing->index == 0)
     {
       ERRORLOG("Some THING has been deleted during the processing of another thing");
@@ -514,6 +521,7 @@ unsigned long update_creatures_not_in_list(void)
         update_thing(thing);
       }
     }
+    // Per-thing code ends
     k++;
     if (k > THINGS_COUNT)
     {
@@ -669,7 +677,9 @@ void init_all_creature_states(void)
           break;
         }
         i = thing->next_of_class;
+        // Per-thing code
         init_creature_state(thing);
+        // Per-thing code ends
         k++;
         if (k > THINGS_COUNT)
         {

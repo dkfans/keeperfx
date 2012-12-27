@@ -332,6 +332,7 @@ TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);
 TbBool creature_is_doing_temple_activity(const struct Thing *thing);
 TbBool creature_is_training(const struct Thing *thing);
+TbBool creature_is_being_scavenged(const struct Thing *thing);
 TbBool creature_is_scavengering(const struct Thing *thing);
 TbBool creature_is_escaping_death(const struct Thing *thing);
 TbBool creature_is_kept_in_custody(const struct Thing *thing);

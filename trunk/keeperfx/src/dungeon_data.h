@@ -117,7 +117,8 @@ struct Dungeon {
     unsigned char field_883;
     int field_884;
     int must_obey_turn;
-    int field_88C[10];
+    int field_88C[2];
+    unsigned char field_894[CREATURE_TYPES_COUNT];
     unsigned char creatures_praying[CREATURE_TYPES_COUNT];
     unsigned char chickens_sacrificed;
     unsigned char field_8D5;
@@ -137,7 +138,8 @@ struct Dungeon {
     short field_94B[32];
     short creatures_scavenge_gain;
     short creatures_scavenge_lost;
-    short field_98F[96];
+    long field_98F[CREATURE_TYPES_COUNT];
+    short field_A0F[CREATURE_TYPES_COUNT];
     int creature_max_level[CREATURE_TYPES_COUNT];
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
@@ -235,14 +237,14 @@ unsigned char field_14BC[6];
 extern struct Dungeon bad_dungeon;
 /******************************************************************************/
 struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name);
-struct Dungeon *get_players_dungeon_ptr(struct PlayerInfo *player,const char *func_name);
+struct Dungeon *get_players_dungeon_ptr(const struct PlayerInfo *player,const char *func_name);
 struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name);
 #define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_ptr(plyr_idx,__func__)
 #define get_players_dungeon(player) get_players_dungeon_ptr(player,__func__)
 #define get_dungeon(plyr_idx) get_dungeon_ptr(plyr_idx,__func__)
 #define get_my_dungeon() get_players_num_dungeon_ptr(my_player_number,__func__)
 
-TbBool dungeon_invalid(struct Dungeon *dungeon);
+TbBool dungeon_invalid(const struct Dungeon *dungeon);
 
 void clear_dungeons(void);
 void decrease_dungeon_area(unsigned char plyr_idx, long value);
@@ -251,7 +253,7 @@ void decrease_room_area(unsigned char plyr_idx, long value);
 void increase_dungeon_area(unsigned char plyr_idx, long value);
 void player_add_offmap_gold(long plyr_idx, long value);
 TbBool player_has_room(long plyr_idx, RoomKind rkind);
-TbBool dungeon_has_room(struct Dungeon *dungeon, RoomKind rkind);
+TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
 TbBool player_creature_tends_to(long plyr_idx, unsigned short tend_type);

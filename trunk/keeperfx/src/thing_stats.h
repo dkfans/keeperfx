@@ -54,6 +54,7 @@ long compute_creature_max_sparameter(long base_param,unsigned short crlevel);
 long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
 long compute_creature_max_defense(long base_param,unsigned short crlevel);
 long compute_creature_max_strength(long base_param,unsigned short crlevel);
+long compute_creature_max_loyalty(long base_param,unsigned short crlevel);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected
 #define compute_creature_max_armour compute_creature_max_unaffected
@@ -63,6 +64,7 @@ long compute_value_percentage(long base_val, short npercent);
 long compute_value_8bpercentage(long base_val, short npercent);
 long calculate_correct_creature_maxspeed(const struct Thing *thing);
 long calculate_correct_creature_pay(const struct Thing *thing);
+long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);
 
 long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb);
 long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb);
