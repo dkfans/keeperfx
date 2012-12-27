@@ -1064,6 +1064,31 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   player->field_31 = 0;
 }
 
+TbBool is_thing_passenger_controlled(const struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    //return _DK_is_thing_passenger_controlled(thing);
+    if (is_neutral_thing(thing))
+        return false;
+    player = get_player(thing->owner);
+    if (player->work_state != PSt_CtrlDirect)
+        return false;
+    switch (player->instance_num)
+    {
+    case PI_DirctCtrl:
+        return (thing->index == player->influenced_thing_idx);
+    case PI_CrCtrlFade:
+        return (thing->index == player->controlled_thing_idx);
+    case PI_PsngrCtLeave:
+        return (thing->index == player->influenced_thing_idx);
+    case PI_Unset:
+        return (thing->index == player->controlled_thing_idx);
+    default:
+        break;
+    }
+    return false;
+}
+
 TbBool set_selected_creature(struct PlayerInfo *player, struct Thing *thing)
 {
   if (thing->class_id == TCls_Creature)

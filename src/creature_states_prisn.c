@@ -139,7 +139,7 @@ short creature_freeze_prisonors(struct Thing *thing)
 
 long setup_prison_move(struct Thing *thing, struct Room *room)
 {
-  return _DK_setup_prison_move(thing, room);
+    return _DK_setup_prison_move(thing, room);
 }
 
 CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
@@ -273,7 +273,7 @@ CrCheckRet process_prison_function(struct Thing *thing)
     return CrCkRet_Available;
   if (jailbreak_possible(room, thing->owner))
   {
-      if ( is_my_player_number(room->owner) )
+      if (is_my_player_number(room->owner))
         output_message(SMsg_PrisonersEscaping, 0, true);
       set_start_state(thing);
       return CrCkRet_Continue;

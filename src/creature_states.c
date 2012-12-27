@@ -771,6 +771,17 @@ TbBool creature_is_scavengering(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_being_scavenged(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if (i == CrSt_CreatureBeingScavenged)
+        return true;
+    return false;
+}
+
 TbBool creature_is_escaping_death(const struct Thing *thing)
 {
     CrtrStateId i;

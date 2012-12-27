@@ -53,7 +53,7 @@ struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
     return INVALID_PLAYER;
 }
 
-TbBool player_invalid(struct PlayerInfo *player)
+TbBool player_invalid(const struct PlayerInfo *player)
 {
     if (player == INVALID_PLAYER)
         return true;
@@ -65,14 +65,14 @@ TbBool player_invalid(struct PlayerInfo *player)
  * @param player The player to check.
  * @return True if the player is in use, false otherwise.
  */
-TbBool player_exists(struct PlayerInfo *player)
+TbBool player_exists(const struct PlayerInfo *player)
 {
     if (player_invalid(player))
         return false;
     return ((player->field_0 & RoF_Allocated) != 0);
 }
 
-TbBool is_my_player(struct PlayerInfo *player)
+TbBool is_my_player(const struct PlayerInfo *player)
 {
     struct PlayerInfo *myplyr;
     myplyr = &game.players[my_player_number%PLAYERS_COUNT];

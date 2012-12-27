@@ -52,6 +52,7 @@
 #include "gui_topmsg.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "player_instances.h"
 #include "power_hand.h"
 #include "power_process.h"
 #include "gui_frontmenu.h"

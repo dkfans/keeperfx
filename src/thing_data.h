@@ -96,6 +96,10 @@ struct Thing {
         long long_15a;
       } trap;
       struct {
+        long number;
+        short word_17a;
+      } effect;
+      struct {
       long long_13;
       short word_17a;
       };

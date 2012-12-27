@@ -1050,6 +1050,7 @@
  0001:000B3230       creature_in_melee_combat
  0001:000B32F0       creature_in_combat_wait
  0001:000B33B0       creature_combat_flee
+ 0001:000B35B0       turn_creature_to_scavenger
  0001:000B3840       at_scavenger_room
  0001:000B3930       process_scavenge_function
  0001:000B4220       scavengering

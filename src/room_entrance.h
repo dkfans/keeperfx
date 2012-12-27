@@ -36,6 +36,7 @@ struct Thing;
 /******************************************************************************/
 void process_entrance_generation(void);
 
+TbBool remove_creature_from_generate_pool(ThingModel crtr_kind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

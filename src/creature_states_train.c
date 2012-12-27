@@ -579,7 +579,6 @@ short at_training_room(struct Thing *thing)
 CrStateRet training(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    long i;
     TRACE_THING(thing);
     SYNCDBG(18,"Starting");
     //return _DK_training(thing);
@@ -619,16 +618,19 @@ CrStateRet training(struct Thing *thing)
     if (cctrl->field_82 >= game.train_cost_frequency)
     {
         cctrl->field_82 -= game.train_cost_frequency;
-        if (take_money_from_dungeon(thing->owner, crstat->training_cost, 1) < 0)
+        if (take_money_from_dungeon(thing->owner, crstat->training_cost, 1) < 0) {
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->training_cost,(int)thing->owner);
+        }
         create_price_effect(&thing->mappos, thing->owner, crstat->training_cost);
     }
     if ((cctrl->instance_id != CrInst_NULL) || !check_experience_upgrade(thing))
     {
-        i = process_work_speed_on_work_value(thing,
-            (long)room->efficiency * (long)crstat->training_value);
-        cctrl->exp_points += i;
-        dungeon->total_experience_creatures_gained += i;
+        long work_value;
+        // Training speed does not grow with experience - otherwise it would be too fast
+        work_value = compute_creature_work_value(crstat->training_value,room->efficiency,0);
+        work_value = process_work_speed_on_work_value(thing, work_value);
+        cctrl->exp_points += work_value;
+        dungeon->total_experience_creatures_gained += work_value;
         process_creature_in_training_room(thing, room);
     } else
     {

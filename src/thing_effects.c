@@ -1500,7 +1500,7 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
     elemtng = create_effect_element(pos, TngEff_Unknown41, plyr_idx);
     TRACE_THING(elemtng);
     if (!thing_is_invalid(elemtng)) {
-        elemtng->creature.gold_carried = price;
+        elemtng->effect.number = price;
     }
     return elemtng;
 }

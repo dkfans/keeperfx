@@ -107,31 +107,33 @@ struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short
 
 void init_traps(void)
 {
-  struct Thing *thing;
-  int i,k;
-  k = 0;
-  i = game.thing_lists[TngList_Traps].index;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    int i, k;
+    k = 0;
+    i = game.thing_lists[TngList_Traps].index;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per thing code
+        if (thing->byte_13 == 0)
+        {
+            thing->byte_13 = game.traps_config[thing->model].shots;
+            thing->field_4F ^= (thing->field_4F ^ (trap_stats[thing->model].field_12 << 4)) & 0x30;
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    i = thing->next_of_class;
-    if (thing->byte_13 == 0)
-    {
-      thing->byte_13 = game.traps_config[thing->model].shots;
-      thing->field_4F ^= (thing->field_4F ^ (trap_stats[thing->model].field_12 << 4)) & 0x30;
-    }
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
 }
 
 /**

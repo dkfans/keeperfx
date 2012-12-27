@@ -321,6 +321,20 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
 }
 
 /**
+ * Computes loyalty of a creature on given level.
+ */
+long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
+{
+  long max_param;
+  if ((base_param <= 0) || (base_param > 60000))
+    base_param = 60000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  max_param = base_param + (CREATURE_LOYALTY_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+  return saturate_set_unsigned(max_param, 15);
+}
+
+/**
  * Projects expected damage of an attack, taking luck and creature level into account.
  * Uses no random factors - instead, projects a best estimate.
  * This function allows evaluating damage creature can make. It shouldn't be used
@@ -481,6 +495,20 @@ long calculate_correct_creature_pay(const struct Thing *thing)
     return pay;
 }
 
+long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(callplyr_idx);
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    long scavngpts;
+    scavngpts = (dungeon->field_94B[thing->model] + 1) *
+      compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
+    return scavngpts;
+}
+
 /**
  * Computes parameter (luck,armour) of a creature on given level.
  * Applies for situations where the level doesn't really matters.
@@ -608,7 +636,7 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
             if (thing->owner != game.neutral_player_num)
             {
                 player = get_player(thing->owner);
-                if (thing_get(player->controlled_thing_idx) == thing)
+                if (player->controlled_thing_idx == thing->index)
                 {
                   i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
                   if (i > 10)

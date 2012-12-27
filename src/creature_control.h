@@ -50,6 +50,8 @@ extern "C" {
 #define CREATURE_DEXTERITY_INCREASE_ON_EXP 15
 /** Percentage of creature defense increase for every experience level. */
 #define CREATURE_DEFENSE_INCREASE_ON_EXP   20
+/** Percentage of creature loyalty increase for every experience level. */
+#define CREATURE_LOYALTY_INCREASE_ON_EXP   35
 /** Percentage of creature parameter increase for every experience level.
  *  Used for all parameters that have no separate definition. */
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
