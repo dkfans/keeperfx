@@ -1,0 +1,116 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file questfth/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 28 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: Quest for the Hero campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Quest for the Hero campaign"
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Manudania. Powerful dragons wield this land, but their time draws to end. Kill them my Master!"
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Fhaight Town. Now as we killed the so-called powerful dragons, we have quite a lot of skins. Can we carpet our beautiful dungeons with them?"
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "A-Maze-ing. Nine Horned Reapers rule this land from within a great labyrinth. Watch you back my lord, this won't be an easy exercise."
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Schytem. Reapers power has proved to be exaggerated. Excellent work, my lord!"
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Hivespawn. Abundance of monsters dwell within this land. Some of them would gladly join us, others intend to slay us on first sight. We must control this land at any cost!"
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Deathend. Those which haven't joined us, were convicted to death on in the name of Satan! Those were perfect executions, my Lord!"
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Tower of Power. Wizards of light who rule this land are defended by a division of great Samurai warriors. Let us open the gates to the fortress and kill them with cold blood!"
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Tower of Death. This ground got what it deserved. All the wizards were thrown into eternal damnation! Even after death, they're now bound to this tower. Truly vile work, my evil Master!"
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Dambreak. A triade of powerful keepers rule here. Once they defeated their naive brother and imprisoned his underlings. Free them, and they will surely join your ranks."
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Fleshbreak. What the Lucifer ordered, was fully accomplished here. Your wickedness is astonishing, my Lord!"
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Sin-king. This land wield courageous knights, who will defend this ground to the last drop of blood. We will gladly grand their wishes and get it dripping!"
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Rustwell. From the armour of warriors we made a furniture of our dungeons. When armours begin to rust, the view will be marvelous!"
+msgstr ""
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Superblah. A vampire who prowled this land, resurrected all fallen warriors to skeletons. It wasn't that bad, until all the undead have revolted! Go and shatter these bones!"
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Boneville. Floors in our dungeon have been refined with the bones of dead warriors. Now we can get back to vanquishing the living."
+msgstr ""
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Stronghold. The last land to conquer is an ancient monastery. Monks here are under protection of Paladins. We'll have to snatch the appetizer before our main dish."
+msgstr ""
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Bloodhold. Throwing bodies of monks to the temple was a great sacrilege! Stop for a while and watch the beauty of flowing lava under bloody sky! Excellent work, my Master!"
+msgstr ""
