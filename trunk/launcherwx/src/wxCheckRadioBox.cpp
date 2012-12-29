@@ -109,6 +109,17 @@ int wxCheckRadioBox::OptionIndexInCheckboxes(const wxString &option)
     return -1;
 }
 
+void wxCheckRadioBox::SendRadioEvent(void)
+{
+    wxCommandEvent event(wxEVT_COMMAND_RADIOBOX_SELECTED, GetId());
+    InitCommandEvent(event);
+    // We don't currently need any valid data in the event
+    event.SetInt(0);
+    event.SetString(L"");
+
+    Command(event);
+}
+
 void wxCheckRadioBox::OnCheckButton(wxCommandEvent& event)
 {
     if (event.IsChecked())
@@ -123,6 +134,7 @@ void wxCheckRadioBox::OnCheckButton(wxCommandEvent& event)
             SetAllUncheckedEnabled(true);
         }
     }
+    SendRadioEvent();
 }
 
 void wxCheckRadioBox::SetAllUncheckedEnabled(bool nstate)
