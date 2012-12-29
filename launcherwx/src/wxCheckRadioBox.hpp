@@ -54,6 +54,7 @@ public:
 private:
     void SetAllUncheckedEnabled(bool nstate);
     int OptionIndexInCheckboxes(const wxString &option);
+    void SendRadioEvent(void);
     void OnCheckButton(wxCommandEvent& event);
 };
 

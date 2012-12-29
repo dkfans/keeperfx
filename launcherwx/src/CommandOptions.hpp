@@ -27,6 +27,11 @@ class wxCheckRadioBox;
 
 class CommandOptions : public wxDialog
 {
+    enum {
+        eventID_ChangeOption = wxID_HIGHEST+10,
+        eventID_CmdUpdate,
+    };
+
     wxBoxSizer * topsizer;
 
     wxTextCtrl *cmdLineCtrl;
@@ -49,11 +54,20 @@ public:
     void OnShow(wxShowEvent& event);
     void OnSave(wxCommandEvent& event);
     void OnCancel(wxCommandEvent& event);
+    void OnCmdRefresh(wxCommandEvent& event);
+    void OnCmdKeyRefresh(wxKeyEvent& event);
+    void OnCmdUpdate(wxCommandEvent& event);
 
     void readOptions(void);
     void storeOptions(void);
     std::wstring getCommandLine(void);
 private:
+    std::wstring optionsToCommandLine(void);
+    void commandLineToOptions(const std::wstring & cmdLn);
+    void readOptionsFile(void);
+    void storeOptionsFile(void);
+    std::wstring storedCommandLine;
+    std::wstring unrecognizedOptions;
     // any class wishing to process wxWidgets events must use this macro
     DECLARE_EVENT_TABLE()
 private:

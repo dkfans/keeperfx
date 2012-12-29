@@ -29,7 +29,7 @@ class wxCheckRadioBox;
 class GameSettings : public wxDialog
 {
     enum {
-        eventID_Save = wxID_HIGHEST+1,
+        eventID_Save = wxID_HIGHEST+20,
         eventID_Cancel,
     };
 
