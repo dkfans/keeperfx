@@ -525,7 +525,12 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.exe.release.1579099443." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.exe.release.978223463" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.exe.release">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.exe.release.21513118" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.exe.release"/>
-							<builder buildPath="${workspace_loc:/keeperfx_launchwx}" command="mingw32-make" id="cdt.managedbuild.target.gnu.builder.base.165780325" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
+							<builder buildPath="${workspace_loc:/keeperfx_launchwx}" command="mingw32-make" id="cdt.managedbuild.target.gnu.builder.base.165780325" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin"/>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="obj"/>
+								</outputEntries>
+							</builder>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.release.2046438023" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.release">
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1503649964" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
