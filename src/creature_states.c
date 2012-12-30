@@ -1668,13 +1668,14 @@ short creature_explore_dungeon(struct Thing *creatng)
         got_position = get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos);
     }
     if (!got_position) {
-        ERRORLOG("No random position in dungeon %d",(int)creatng->owner);
+        ERRORLOG("No random position for %s in dungeon %d",thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);
         return CrCkRet_Available;
     }
     if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
     {
-        WARNLOG("Can't navigate to subtile (%d,%d) for exploring",(int)pos.x.stl.num, (int)pos.y.stl.num);
+        SYNCLOG("The %s owned by player %d can't navigate to subtile (%d,%d) for exploring",
+            thing_model_name(creatng),(int)creatng->owner, (int)pos.x.stl.num, (int)pos.y.stl.num);
         set_start_state(creatng);
         return CrCkRet_Available;
     }
@@ -2930,6 +2931,7 @@ long process_work_speed_on_work_value(struct Thing *thing, long base_val)
         if (dungeon->must_obey_turn)
             val = 6 * val / 5;
     }
+    SYNCDBG(19,"Work value %d changed to %d for %s index %d",(int)base_val, (int)val, thing_model_name(thing), (int)thing->index);
     return val;
 }
 

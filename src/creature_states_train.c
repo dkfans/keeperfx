@@ -627,8 +627,9 @@ CrStateRet training(struct Thing *thing)
     {
         long work_value;
         // Training speed does not grow with experience - otherwise it would be too fast
-        work_value = compute_creature_work_value(crstat->training_value,room->efficiency,0);
+        work_value = compute_creature_work_value(crstat->training_value*256, room->efficiency, 0);
         work_value = process_work_speed_on_work_value(thing, work_value);
+        SYNCDBG(19,"The %s index %d produced %d training points",thing_model_name(thing),(int)thing->index,(int)work_value);
         cctrl->exp_points += work_value;
         dungeon->total_experience_creatures_gained += work_value;
         process_creature_in_training_room(thing, room);
