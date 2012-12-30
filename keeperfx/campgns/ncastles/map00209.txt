@@ -1,16 +1,14 @@
-REM **********************************************
-REM
-REM Castle Trinshi
-REM
-REM Trinshi is a Maracite expression; "Trin" or
-REM "Trint" (from the name of the musician Trent
-REM Reznor) meaning "broken"; -shi being a suffix
-REM which indicates that the action has
-REM brought the subject to completion, or has
-REM resulted in a pleasing effect.
-REM
-REM **********************************************
-
+REM ********************************************
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 8, Castle Trinshi
+REM   Trinshi is a Maracite expression; "Trin" or
+REM   "Trint" (from the name of the musician Trent
+REM   Reznor) meaning "broken"; -shi being a suffix
+REM   which indicates that the action has
+REM   brought the subject to completion, or has
+REM   resulted in a pleasing effect.
+REM  Version 1.00
+REM ********************************************
 SET_GENERATE_SPEED(700)
 
 COMPUTER_PLAYER(PLAYER1,1)
@@ -98,9 +96,5 @@ QUICK_INFORMATION(6,"My, you're a very model of stubborn persistence, aren't you
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER1,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME
 ENDIF

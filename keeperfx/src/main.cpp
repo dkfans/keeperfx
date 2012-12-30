@@ -384,7 +384,7 @@ void process_dungeon_destroy(struct Thing *thing)
   _DK_process_dungeon_destroy(thing);
 }
 
-TbBool all_dungeons_destroyed(struct PlayerInfo *win_player)
+TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
 {
     long win_plyr_idx;
     long i;

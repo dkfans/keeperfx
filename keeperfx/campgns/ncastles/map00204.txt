@@ -1,8 +1,7 @@
 REM ********************************************
-REM
-REM Script for Level 204
-REM Dun Ringill
-REM
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 3, Dun Ringill
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(400)
@@ -47,9 +46,5 @@ DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,1)
 QUICK_OBJECTIVE(1,"This town was named for the sad attempts at digging a moat to keep horrible Keepers like us out. It didn't work, but the moat is still there, so be careful. You know what kind of awful things people like to put in moats.",ALL_PLAYERS)
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER3,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME
 ENDIF

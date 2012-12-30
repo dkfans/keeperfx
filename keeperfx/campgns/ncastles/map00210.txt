@@ -1,9 +1,7 @@
 REM ********************************************
-REM
-REM Script for Level 210
-REM
-REM Eastland
-REM
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 9, Eastland
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(700)
@@ -61,7 +59,7 @@ SET_TIMER(PLAYER0,TIMER7)
 QUICK_OBJECTIVE(1,"This castle was once a car-park for a suburban shopping mall, and is almost entirely without magic. Some of the rooms still have disgruntled shoppers trapped inside.",ALL_PLAYERS)
 
 IF(PLAYER0,TIMER0 >= 3000)
-    QUICK_INFORMATION(1,"Attention, K-Mart shoppers! Boulder Traps are half-price until Friday!")
+    QUICK_INFORMATION(10,"Attention, K-Mart shoppers! Boulder Traps are half-price until Friday!")
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 6000)
@@ -93,17 +91,5 @@ IF(PLAYER0,TIMER7 >= 24000)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER1,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER2,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER3,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME
 ENDIF

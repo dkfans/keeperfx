@@ -423,8 +423,9 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
         reset_scavenge_counts(calldngn);
     }
     long work_value;
-    work_value = compute_creature_work_value(crstat->scavenge_value<<8, room->efficiency, callctrl->explevel);
+    work_value = compute_creature_work_value(crstat->scavenge_value*256, room->efficiency, callctrl->explevel);
     work_value = process_work_speed_on_work_value(calltng, work_value);
+    SYNCDBG(19,"The %s index %d produced %d scavenge points",thing_model_name(calltng),(int)calltng->index,(int)work_value);
     struct Thing *scavtng;
     scavtng = get_scavenger_target(calltng);
     if (!thing_is_invalid(scavtng))

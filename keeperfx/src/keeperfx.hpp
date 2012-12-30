@@ -302,7 +302,7 @@ void set_chosen_spell(long sptype, long sptooltip);
 void set_chosen_spell_none(void);
 TbBool add_spell_to_player(long spl_idx, long plyr_idx);
 unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, long a4);
-TbBool all_dungeons_destroyed(struct PlayerInfo *win_player);
+TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 short init_animating_texture_maps(void);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);

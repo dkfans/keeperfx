@@ -1,8 +1,7 @@
 REM ********************************************
-REM
-REM Script for Level 206
-REM Castle Khay
-REM
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 5, Castle Khay
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(500)
@@ -55,17 +54,5 @@ TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)
 QUICK_OBJECTIVE(1,"Another castle. This one is rumoured to be very well defended; whoever brings it down will be the obvious choice for Keeper of the Year.",ALL_PLAYERS)
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER1,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER2,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER3,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME
 ENDIF
