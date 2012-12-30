@@ -41,6 +41,10 @@ DLLIMPORT struct Room *_DK_end_rooms;
 /******************************************************************************/
 void clear_rooms(void);
 
+long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind);
+long count_player_rooms_entrances(PlayerNumber plyr_idx);
+long calculate_player_num_rooms_built(PlayerNumber plyr_idx);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

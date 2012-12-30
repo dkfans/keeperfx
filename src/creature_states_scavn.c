@@ -45,9 +45,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT short _DK_at_scavenger_room(struct Thing *calltng);
-DLLIMPORT short _DK_creature_being_scavenged(struct Thing *calltng);
-DLLIMPORT short _DK_creature_scavenged_disappear(struct Thing *calltng);
-DLLIMPORT short _DK_creature_scavenged_reappear(struct Thing *calltng);
+DLLIMPORT short _DK_creature_being_scavenged(struct Thing *scavtng);
+DLLIMPORT short _DK_creature_scavenged_disappear(struct Thing *scavtng);
+DLLIMPORT short _DK_creature_scavenged_reappear(struct Thing *scavtng);
 DLLIMPORT long _DK_process_scavenge_function(struct Thing *calltng);
 DLLIMPORT short _DK_scavengering(struct Thing *calltng);
 DLLIMPORT long _DK_turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng);

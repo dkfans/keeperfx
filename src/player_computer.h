@@ -298,10 +298,12 @@ struct ComputerTask { // sizeof = 148
 };
 
 struct Comp2_UnkStr1 { // sizeof = 394
-  unsigned char field_0[6];
-  unsigned long field_6;
-  unsigned char field_A[380];
-  unsigned long field_186;
+    unsigned char field_0[6];
+    unsigned long field_6;
+    unsigned char field_A[56];
+    long field_42;
+    unsigned char field_46[320];
+    unsigned long field_186;
 };
 
 struct Computer2 { // sizeof = 5322

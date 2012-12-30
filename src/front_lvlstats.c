@@ -37,6 +37,7 @@
 #include "frontend.h"
 #include "player_data.h"
 #include "dungeon_data.h"
+#include "room_list.h"
 #include "game_merge.h"
 #include "game_legacy.h"
 
@@ -208,86 +209,6 @@ long calculate_traps_unused(long plyr_idx)
     return count;
 }
 
-long count_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
-{
-    struct Dungeon *dungeon;
-    struct Room *room;
-    long i;
-    unsigned long k;
-    dungeon = get_dungeon(plyr_idx);
-    i = dungeon->room_kind[rkind];
-    k = 0;
-    while (i != 0)
-    {
-      room = room_get(i);
-      if (room_is_invalid(room))
-      {
-          ERRORLOG("Jump to invalid room detected");
-          break;
-      }
-      i = room->next_of_owner;
-      // No Per-room code - we only want count
-      k++;
-      if (k > ROOMS_COUNT)
-      {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-      }
-    }
-    return k;
-}
-
-long calculate_num_rooms(PlayerNumber plyr_idx)
-{
-    struct PlayerInfo *player;
-    long rkind;
-    long count;
-    count = 0;
-    player = get_player(plyr_idx);
-    for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
-    {
-        if (!room_never_buildable(rkind))
-        {
-            count += count_rooms_of_type(player->id_number, rkind);
-        }
-    }
-    return count;
-}
-
-long calculate_entrances(PlayerNumber plyr_idx)
-{
-    struct Dungeon *dungeon;
-    struct Room *room;
-    long i;
-    unsigned long k;
-    long count;
-    dungeon = get_dungeon(plyr_idx);
-    count = 0;
-    i = dungeon->room_kind[game.entrance_room_id];
-    k = 0;
-    while (i != 0)
-    {
-      room = room_get(i);
-      if (room_is_invalid(room))
-      {
-        ERRORLOG("Jump to invalid room detected");
-        break;
-      }
-      i = room->next_of_kind;
-      // Per-room code
-      if (room->owner == plyr_idx)
-          count++;
-      // Per-room code ends
-      k++;
-      if (k > ROOMS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping rooms list");
-        break;
-      }
-    }
-    return count;
-}
-
 void frontstats_initialise(void)
 {
     struct Dungeon *dungeon;
@@ -314,9 +235,9 @@ void frontstats_initialise(void)
     dungeon->lvstats.player_style = calculate_style(my_player_number);
     dungeon->lvstats.doors_unused = calculate_doors_unused(my_player_number);
     dungeon->lvstats.traps_unused = calculate_traps_unused(my_player_number);
-    dungeon->lvstats.num_rooms = calculate_num_rooms(my_player_number);
+    dungeon->lvstats.num_rooms = calculate_player_num_rooms_built(my_player_number);
     dungeon->lvstats.gameplay_time = (dungeon->lvstats.end_time - dungeon->lvstats.start_time) / 1000;
-    dungeon->lvstats.num_entrances = calculate_entrances(my_player_number);
+    dungeon->lvstats.num_entrances = count_player_rooms_entrances(my_player_number);
     dungeon->lvstats.hopes_dashed = game.play_gameturn;
     memcpy(&frontstats_data, &dungeon->lvstats, sizeof(struct LevelStats));
 }
