@@ -85,8 +85,7 @@ struct Room {
     unsigned short field_C;
     short total_capacity;
     unsigned short used_capacity;
-    unsigned char field_12;
-    unsigned char field_13[4];
+    unsigned char field_12[5];
     union {
     /** For rooms which can store things, amount of storage space used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */

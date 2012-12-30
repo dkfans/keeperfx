@@ -2080,15 +2080,118 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
 
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  process->field_44 &= 0xFFFFFFF7u;
-  comp->field_0 = 2;
-  return 0;
+    process->field_44 &= ~0x08;
+    comp->field_0 = 2;
+    return 0;
+}
+
+long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
+{
+    struct Room *room;
+    long i;
+    unsigned long k;
+    long count;
+    count = 0;
+    i = game.entrance_room_id;
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_kind;
+        // Per-room code
+        if ((room->field_12[comp->dungeon->owner] & 0x01) == 0)
+        {
+            if ((plyr_idx < 0) || (room->owner == plyr_idx))
+                count++;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return count;
+}
+
+long count_creatures_in_dungeon(struct Dungeon *dungeon)
+{
+    return count_player_list_creatures_of_model(dungeon->creatr_list_start, 0);
+}
+
+long count_imps_in_dungeon(struct Dungeon *dungeon)
+{
+    return count_player_list_creatures_of_model(dungeon->digger_list_start, 0);
 }
 
 long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct Dungeon *compdngn;
     SYNCDBG(8,"Starting");
-    return _DK_computer_checks_hates(comp, check);
+    //return _DK_computer_checks_hates(comp, check);
+    compdngn = comp->dungeon;
+    // Reference values for checking hate
+    int cdngn_creatrs, cdngn_spwrkrs, cdngn_enrancs;
+    cdngn_creatrs = count_creatures_in_dungeon(compdngn);
+    cdngn_spwrkrs = count_imps_in_dungeon(compdngn);
+    cdngn_enrancs = count_entrances(comp, compdngn->owner);
+    // Now check hate for every player
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo *player;
+        struct Dungeon *dungeon;
+        struct Comp2_UnkStr1 *rel;
+        player = get_player(i);
+        dungeon = get_players_dungeon(player);
+        rel = &comp->unkarr_A10[i];
+        if (!player_exists(player) || (player->id_number == compdngn->owner))
+            continue;
+        if (player->field_2C != 1)
+            continue;
+        if (players_are_mutual_allies(compdngn->owner, i))
+            continue;
+        int hdngn_creatrs, hdngn_spwrkrs, hdngn_enrancs;
+        int hate_reasons;
+        hate_reasons = 0;
+        hdngn_creatrs = count_creatures_in_dungeon(dungeon);
+        hdngn_spwrkrs = count_imps_in_dungeon(dungeon);
+        if (hdngn_creatrs >= cdngn_creatrs)
+        {
+            hate_reasons++;
+            rel->field_42++;
+        }
+        if (cdngn_spwrkrs / 6 + cdngn_spwrkrs < hdngn_spwrkrs)
+        {
+            hate_reasons++;
+            rel->field_42++;
+        }
+        if (((int)compdngn->buildable_rooms_count + (int)compdngn->buildable_rooms_count / 6) < (int)dungeon->buildable_rooms_count)
+        {
+            hate_reasons++;
+            rel->field_42++;
+        }
+        hdngn_enrancs = count_entrances(comp, i);
+        if (hdngn_enrancs > cdngn_enrancs)
+        {
+            hate_reasons++;
+            rel->field_42 += 5;
+        }
+        // If no reason to hate the player - hate him randomly for just surviving that long
+        if ((hate_reasons <= 0) && (check->param2 < game.play_gameturn))
+        {
+            if (ACTION_RANDOM(100) < 20) {
+                rel->field_42++;
+            }
+        }
+    }
+    return 4;
 }
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)

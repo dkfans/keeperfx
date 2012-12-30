@@ -2674,36 +2674,42 @@ TbBool process_creature_hunger(struct Thing *thing)
     return true;
 }
 
+/**
+ * Checks if creatures can attack each other.
+ * Note that this function does not include full check from players_are_enemies(),
+ *  so both should be used when applicable.
+ * @param tng1
+ * @param tng2
+ * @return
+ * @see players_are_enemies()
+ */
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2)
 {
-    struct CreatureControl *cctrl1;
-    struct CreatureControl *cctrl2;
     struct PlayerInfo *player1;
     struct PlayerInfo *player2;
-    struct CreatureStats *crstat1;
-    struct Thing *tmptng;
-
-    cctrl1 = creature_control_get_from_thing(tng1);
-    cctrl2 = creature_control_get_from_thing(tng2);
     player1 = get_player(tng1->owner);
     player2 = get_player(tng2->owner);
-
     if ((tng2->owner != tng1->owner) && (tng2->owner != game.neutral_player_num))
     {
-       if ((tng1->owner == game.neutral_player_num) || (tng2->owner == game.neutral_player_num)
-        || (!player_allied_with(player1, tng2->owner)))
+       if (!player_allied_with(player1, tng2->owner))
           return true;
-       if ((tng2->owner == game.neutral_player_num) || (tng1->owner == game.neutral_player_num)
-        || (!player_allied_with(player2, tng1->owner)))
+       if (!player_allied_with(player2, tng1->owner))
           return true;
     }
+
+    struct CreatureControl *cctrl1;
+    struct CreatureControl *cctrl2;
+    struct CreatureStats *crstat1;
+    struct Thing *tmptng;
+    cctrl1 = creature_control_get_from_thing(tng1);
+    cctrl2 = creature_control_get_from_thing(tng2);
 
     tmptng = thing_get(cctrl1->battle_enemy_idx);
     TRACE_THING(tmptng);
     if  ( (cctrl1->spell_flags & CSAfF_Unkn1000) || (cctrl2->spell_flags & CSAfF_Unkn1000)
-        || ((cctrl1->combat_flags) && (tmptng == tng2)) )
+        || ((cctrl1->combat_flags) && (tmptng->index == tng2->index)) )
     {
-        if (tng2 != tng1)
+        if (tng2->index != tng1->index)
         {
             if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
             && !thing_is_picked_up(tng2))
