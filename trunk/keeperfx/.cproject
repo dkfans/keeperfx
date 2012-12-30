@@ -20,12 +20,21 @@
 					<folderInfo id="cdt.managedbuild.toolchain.gnu.mingw.base.253554392.923562546" name="/" resourcePath="">
 						<toolChain errorParsers="" id="org.eclipse.cdt.build.core.prefbase.toolchain.851758495" name="No ToolChain" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
 							<targetPlatform binaryParser="" id="org.eclipse.cdt.build.core.prefbase.toolchain.851758495.556000015" name=""/>
-							<builder buildPath="${workspace_loc:/keeperfx}" command="mingw32-make" errorParsers="org.eclipse.cdt.core.GmakeErrorParser" id="org.eclipse.cdt.build.core.settings.default.builder.87923320" incrementalBuildTarget="heavylog DEBUG=1" keepEnvironmentInBuildfile="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<builder autoBuildTarget="all" buildPath="${workspace_loc:/keeperfx}" cleanBuildTarget="clean" command="mingw32-make" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" errorParsers="org.eclipse.cdt.core.GmakeErrorParser" id="org.eclipse.cdt.build.core.settings.default.builder.87923320" incrementalBuildTarget="heavylog DEBUG=1" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" parallelizationNumber="1" superClass="org.eclipse.cdt.build.core.settings.default.builder">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="bin"/>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="obj"/>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="tools/png2bestpal/bin"/>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="tools/png2bestpal/obj"/>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="tools/pngpal2raw/bin"/>
+									<entry flags="VALUE_WORKSPACE_PATH" kind="outputPath" name="tools/pngpal2raw/obj"/>
+								</outputEntries>
+							</builder>
 							<tool errorParsers="org.eclipse.cdt.core.VCErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GLDErrorParser" id="org.eclipse.cdt.build.core.settings.holder.libs.1558517679" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="debug|standard" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -206,7 +215,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="debug|standard" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

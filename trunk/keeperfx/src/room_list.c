@@ -48,4 +48,91 @@ void clear_rooms(void)
     memset(&game.rooms[i], 0, sizeof(struct Room));
   }
 }
+
+/**
+ * Counts amount of rooms of specific type owned by specific player.
+ * @param plyr_idx The player number. Only specific player number is accepted.
+ * @param rkind Room kind to count. Only specific kind is accepted.
+ */
+long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    long i;
+    unsigned long k;
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+      room = room_get(i);
+      if (room_is_invalid(room))
+      {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+      }
+      i = room->next_of_owner;
+      // No Per-room code - we only want count
+      k++;
+      if (k > ROOMS_COUNT)
+      {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+      }
+    }
+    return k;
+}
+
+/**
+ * Calculates amount of buildable rooms in possession of a player.
+ * @param plyr_idx
+ */
+long calculate_player_num_rooms_built(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo *player;
+    long rkind;
+    long count;
+    count = 0;
+    player = get_player(plyr_idx);
+    for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
+        if (!room_never_buildable(rkind))
+        {
+            count += count_player_rooms_of_type(player->id_number, rkind);
+        }
+    }
+    return count;
+}
+
+long count_player_rooms_entrances(PlayerNumber plyr_idx)
+{
+    struct Room *room;
+    long i;
+    unsigned long k;
+    long count;
+    count = 0;
+    i = game.entrance_room_id;
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_kind;
+        // Per-room code
+        if ((plyr_idx < 0) || (room->owner == plyr_idx))
+            count++;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return count;
+}
 /******************************************************************************/
