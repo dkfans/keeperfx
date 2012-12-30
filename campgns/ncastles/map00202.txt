@@ -1,8 +1,7 @@
 REM ********************************************
-REM
-REM Script for Level 202
-REM Pennegan
-REM
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 1, Pennegan
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(200)

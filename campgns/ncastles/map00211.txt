@@ -1,9 +1,7 @@
 REM ********************************************
-REM
-REM Script for Level 211
-REM
-REM Northland
-REM
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 10, Northland
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(1100)
@@ -162,17 +160,5 @@ IF(PLAYER0,TIMER0 >= 90000)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER1,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER2,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER3,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME
 ENDIF

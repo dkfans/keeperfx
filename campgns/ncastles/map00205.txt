@@ -1,8 +1,7 @@
 REM ********************************************
-REM
-REM Script for Level
-REM Castle Rendri
-REM
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 4, Castle Rendri
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(900)
@@ -72,9 +71,5 @@ IF_ACTION_POINT(1,PLAYER1)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER1,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME
 ENDIF
