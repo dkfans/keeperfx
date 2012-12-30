@@ -1,8 +1,7 @@
 REM ********************************************
-REM
-REM Script for Level 207
-REM Castle Shadris
-REM
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 6, Castle Shadris
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(300)
@@ -80,9 +79,5 @@ IF_ACTION_POINT(1,PLAYER2)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER2,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME
 ENDIF

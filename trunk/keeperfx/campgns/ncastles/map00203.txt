@@ -1,8 +1,7 @@
 REM ********************************************
-REM
-REM Script for Level
-REM Castle Kandro
-REM
+REM  Nikolai's Castles campaign for KeeperFX
+REM  Script for Level 2, Castle Kandro
+REM  Version 1.00
 REM ********************************************
 
 SET_GENERATE_SPEED(250)
@@ -46,14 +45,13 @@ SET_TIMER(PLAYER0,TIMER2)
 SET_TIMER(PLAYER0,TIMER3)
 
 CREATE_PARTY(ALPHA)
-
     ADD_TO_PARTY(ALPHA,KNIGHT,6,3500,ATTACK_ENEMIES,0)
     ADD_TO_PARTY(ALPHA,IMP,1,500,ATTACK_ENEMIES,0)
 
 QUICK_OBJECTIVE(1,"Legends tell, O Keeper, of a castle full of deranged Knights wearing funny hats. This must be the place. Perhaps you should have a word with them about their fashion sense. It would probably be a good idea to raise a small army, first.",PLAYER0)
 
 IF(PLAYER0,TIMER0 >= 400)
-    QUICK_INFORMATION(1,"Incidentally, that legend also said something about watching out for the fairies...")
+    QUICK_INFORMATION(10,"Incidentally, that legend also said something about watching out for the fairies...")
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 800)

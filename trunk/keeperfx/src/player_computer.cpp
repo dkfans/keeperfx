@@ -2151,7 +2151,8 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
         player = get_player(i);
         dungeon = get_players_dungeon(player);
         rel = &comp->unkarr_A10[i];
-        if (!player_exists(player) || (player->id_number == compdngn->owner))
+        if (!player_exists(player) || (player->id_number == compdngn->owner)
+         || (player->id_number == game.neutral_player_num))
             continue;
         if (player->field_2C != 1)
             continue;
