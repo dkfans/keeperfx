@@ -1,0 +1,96 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file dzjr06lv/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: DzjeeAr's 6-level campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Ninja\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "DzjeeAr's 6-level campaign"
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Pile of its own good. This land has never gained pain or the beauty of WAR. Everyone here is happy. You must change it immediately, my lord."
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Handful of stones. Now, this land has tasted all the wonders of pain and war. Recently, its inhabitants were happy. Now we are happy. Great job, my lord!"
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Ancient Fortress. This is a splendid fortress. Many keepers tried to conquer it, but no one done it at last. It is time to change this place into ruins!"
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Splendid ruins. In my whole poor life I haven't seen stones crushed so wonderfully, and ugly humans cut in half as you did it... Now I can see scenes from my best dreams! Good work!"
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "The Necromancer. This land is under rule of one Vampire, who is master in his worship.. Unfortunately, this ignorant fool refused to join our forces.. Now, it's time to show him, who will be master of this sad land."
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Valley of Vampires. The defeated vampire refused to acknowledge your rule.. But a few troll's hammer hits in his mutt, was enough for change his mind. I ordered him to change all local humans into vampires.. Now even children are on the DARK SIDE!"
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Frozen Plains. Even the humans have left this land, in arachnophobia. They feared that giant spiders could come to their houses thru windows and eat them on dinner. Now we will bake those arthropods on supper!"
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Warm plains. Now we can in calmness admire the sights this land, with its stirring lava drift. Spiders are crunchy, when we bake them in this hot lava long enough."
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Barbarian Stronghold. Barbarians are horrible human nation. Before centuries, they were afraid of attacks from underground so much, that they have built this impressive stronghold. We must conquer it at all costs!"
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Keepers Stronghold. Barbarians switched to our side without any complications. Now we've got there even a circus :O My favorite trick is throwing knifes to barbarians! You should try it some day, my lord!"
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Final Countdown. One last step separates us from final victory. None of the keepers went to those lands before. We only know, that all the people which survived, have regrouped there. They are awaiting you.."
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Magmaland. Finally, we won! Now with the whole world conquered, at last we can go rest and relax, watching how blood and lava joyfully flows through all the plains, meadows and mountains!"
+msgstr ""
