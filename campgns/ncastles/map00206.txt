@@ -51,7 +51,8 @@ MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
 
 TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)
 
-QUICK_OBJECTIVE(1,"Another castle. This one is rumoured to be very well defended; whoever brings it down will be the obvious choice for Keeper of the Year.",ALL_PLAYERS)
+REM QUICK_OBJECTIVE(1,"Another castle. This one is rumoured to be very well defended; whoever brings it down will be the obvious choice for Keeper of the Year.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(15,ALL_PLAYERS)
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME

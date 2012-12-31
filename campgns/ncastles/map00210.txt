@@ -56,38 +56,47 @@ SET_TIMER(PLAYER0,TIMER5)
 SET_TIMER(PLAYER0,TIMER6)
 SET_TIMER(PLAYER0,TIMER7)
 
-QUICK_OBJECTIVE(1,"This castle was once a car-park for a suburban shopping mall, and is almost entirely without magic. Some of the rooms still have disgruntled shoppers trapped inside.",ALL_PLAYERS)
+REM QUICK_OBJECTIVE(1,"This castle was once a car-park for a suburban shopping mall, and is almost entirely without magic. Some of the rooms still have disgruntled shoppers trapped inside.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(25,ALL_PLAYERS)
 
 IF(PLAYER0,TIMER0 >= 3000)
-    QUICK_INFORMATION(10,"Attention, K-Mart shoppers! Boulder Traps are half-price until Friday!")
+    REM QUICK_INFORMATION(10,"Attention, K-Mart shoppers! Boulder Traps are half-price until Friday!")
+    DISPLAY_INFORMATION(26,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 6000)
-    QUICK_INFORMATION(2,"We have a lost Demon Spawn named Gerald at the manager's office. Could his parents please pick him up?")
+    REM QUICK_INFORMATION(2,"We have a lost Demon Spawn named Gerald at the manager's office. Could his parents please pick him up?")
+    DISPLAY_INFORMATION(27,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER2 >= 9000)
-    QUICK_INFORMATION(3,"This shopping centre will be open until midnight on Friday 13th for your convenience.")
+    REM QUICK_INFORMATION(3,"This shopping centre will be open until midnight on Friday 13th for your convenience.")
+    DISPLAY_INFORMATION(28,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER3 >= 12000)
-    QUICK_INFORMATION(4,"Owner of car LUH-339; your headlights are on. And your Hellhound has eaten your rear-view mirror.")
+    REM QUICK_INFORMATION(4,"Owner of car LUH-339; your headlights are on. And your Hellhound has eaten your rear-view mirror.")
+    DISPLAY_INFORMATION(29,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER4 >= 15000)
-    QUICK_INFORMATION(5,"Could Gerald's parents please come to the manager's office? He's about to turn into a level five Dragon.")
+    REM QUICK_INFORMATION(5,"Could Gerald's parents please come to the manager's office? He's about to turn into a level five Dragon.")
+    DISPLAY_INFORMATION(30,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER5 >= 18000)
-    QUICK_INFORMATION(6,"Attention, K-Mart shoppers! Discounts on Warlock's robes all this week!")
+    REM QUICK_INFORMATION(6,"Attention, K-Mart shoppers! Discounts on Warlock's robes all this week!")
+    DISPLAY_INFORMATION(31,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER6 >= 21000)
-    QUICK_INFORMATION(7,"Attention, shoppers: please beware of the mad, rampaging vampires in section Seven Blue.")
+    REM QUICK_INFORMATION(7,"Attention, shoppers: please beware of the mad, rampaging vampires in section Seven Blue.")
+    DISPLAY_INFORMATION(32,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER7 >= 24000)
-    QUICK_INFORMATION(8,"Could Gerald's parents please come to the manager's office before he eats another secretary?")
+    REM QUICK_INFORMATION(8,"Could Gerald's parents please come to the manager's office before he eats another secretary?")
+    DISPLAY_INFORMATION(33,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)

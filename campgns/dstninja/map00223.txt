@@ -7,7 +7,8 @@ REM ********************************************
 START_MONEY(PLAYER0,40000)
 
 IF(PLAYER0,GAME_TURN > 20)
-    QUICK_OBJECTIVE(1,"And the public meeting we reached to the emperor, he hides in its own of castle. We must find him and to kill in so Japan again will bloom with the flower of the cherry tree.",PLAYER0)
+    REM QUICK_OBJECTIVE(1,"And the public meeting we reached to the emperor, he hides in its own of castle. We must find him and to kill in so Japan again will bloom with the flower of the cherry tree.",PLAYER0)
+    DISPLAY_OBJECTIVE(17,ALL_PLAYERS)
 ENDIF
 
 
@@ -23,6 +24,7 @@ REM Room_Availability
 	ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"The success is ours! I would never believe that you are so clever. Congratulations for the completion of the campaign The Destiny of Ninja! Behind soon will appear the new part!",PLAYER0)
+    DISPLAY_OBJECTIVE(18,ALL_PLAYERS)
     WIN_GAME
-    QUICK_OBJECTIVE(2,"The success is ours! I would never believe that you are so clever. Congratulations for the completion of the campaign The Destiny of Ninja! Behind soon will appear the new part!",PLAYER0)
 ENDIF

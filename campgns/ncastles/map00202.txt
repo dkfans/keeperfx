@@ -42,24 +42,14 @@ RESEARCH(ALL_PLAYERS,ROOM,TEMPLE,75000)
 RESEARCH(ALL_PLAYERS,ROOM,TORTURE,35000)
 RESEARCH(ALL_PLAYERS,ROOM,TRAINING,900)
 
-QUICK_OBJECTIVE(1,"This relentlessly desolate terrain permits few of the usual rooms. On top of that, no-one lives here except a lot of beetles and spiders, so you'll have to make do.",ALL_PLAYERS)
+REM QUICK_OBJECTIVE(1,"This relentlessly desolate terrain permits few of the usual rooms. On top of that, no-one lives here except a lot of beetles and spiders, so you'll have to make do.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(1,ALL_PLAYERS)
 
 IF(PLAYER0,GAME_TURN > 1000)
-QUICK_INFORMATION(2,"Rumour has it that there are some very nasty things living in the keep at the centre, so be careful.")
+    REM QUICK_INFORMATION(2,"Rumour has it that there are some very nasty things living in the keep at the centre, so be careful.")
+    DISPLAY_INFORMATION(2,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER1,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER2,ALL_DUNGEONS_DESTROYED == 1)
-    WIN_GAME
-ENDIF
-
-IF(PLAYER3,ALL_DUNGEONS_DESTROYED == 1)
     WIN_GAME
 ENDIF

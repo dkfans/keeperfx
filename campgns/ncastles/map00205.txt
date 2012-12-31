@@ -58,15 +58,18 @@ TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
 CREATE_PARTY(ALPHA)
     ADD_TO_PARTY(ALPHA,AVATAR,6,9900,ATTACK_ENEMIES,0)
 
-QUICK_OBJECTIVE(1,"Dear me, another castle! Haven't these sad people learned that fortifications went out of fashion in the middle ages? Show them the error of their ways, Keeper.",ALL_PLAYERS)
+REM QUICK_OBJECTIVE(1,"Dear me, another castle! Haven't these sad people learned that fortifications went out of fashion in the middle ages? Show them the error of their ways, Keeper.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(14,ALL_PLAYERS)
 
 IF_ACTION_POINT(1,PLAYER0)
-    QUICK_INFORMATION(5,"Do you hear something stirring, Keeper? Tin cans?")
+    REM QUICK_INFORMATION(5,"Do you hear something stirring, Keeper? Tin cans?")
+    DISPLAY_INFORMATION(8,ALL_PLAYERS)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ALPHA,-1,1)
 ENDIF
 
 IF_ACTION_POINT(1,PLAYER1)
-    QUICK_INFORMATION(6,"Do you hear something stirring, Keeper? Tin cans?")
+    REM QUICK_INFORMATION(6,"Do you hear something stirring, Keeper? Tin cans?")
+    DISPLAY_INFORMATION(8,ALL_PLAYERS)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ALPHA,-1,1)
 ENDIF
 
