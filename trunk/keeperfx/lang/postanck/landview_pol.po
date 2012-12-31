@@ -1,0 +1,106 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file postanck/landview_pol.po
+#      KeeperFX Land View Strings translation file
+#  @par Purpose:
+#      Contains translation of the national land descriptions in the game.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 28 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2012-12-31 02:56+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Post Ancient Keeper"
+msgstr "Post Odwieczny Strażnik"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Armageddon. Land is worn out by lava, but nonetheless, yonder people are happy. The time to change has come, my black Master!"
+msgstr "Armageddon. Kraina ta jest bardzo zniszczona przez lawę a mimo to ludzie są tam dalej szczęśliwi. Czas to zmienić mój Panie!"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "The Horned Ripper had a lot joys to cut heads and bodies of this settlement's inhabitants! The perfect view, isn't it?"
+msgstr "Krwawe Żniwa. Rogaty Rozpruwacz miał dużo radości ciąć głowy i ciała mieszkańców tej osady! Doskonały widok, nieprawdaż?"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Collect. The Land is less drunk with lava compared to previous one, but also a lot more honest. People are quiet and very nice for themselves. It's time to start a war, here!"
+msgstr "Do ziarnka. Kraina mniej zalana lawą od poprzedniej ale dużo bardziej uczciwa od poprzedniej. Tutaj ludzie są dla siebie bardzo mili i spokojni. Czas zrobić tutaj wojnę!"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Now the Land no longer is such quiet; volcano eruptions are at least once every hour. Inhabitants tried hard to save themsevles, but fortunately did not succeed. Excellent work my lord."
+msgstr "Ciemno Krwisto. Teraz Kraina już nie jest taka spokojna, erupcje wulkanu są tutaj co godzinę. Mieszkańcy robili wszystko żeby uratować siebie ale na szczęście się im nie udało. Doskonała robota mój panie."
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Sacrifice this. The land with rich biography. many murders, but also many sacrifices took place here. Now we will sacrifice the population in our demonic prey to ravage this land!"
+msgstr "Ofiara. Kraina ta jest bardzo dziwna, jej przeszłość jest związana z wieloma morderstwami ale także z wieloma poświęceniami. Teraz to my się poświęcimy alby zniszczyć tę krainę!"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "the Land came back to roots directly to inhabitants we showed as well to be to bad. Even children steal, the excellent work my Lord!"
+msgstr "Złodziejowo. Kraina powróciła do korzeni jak tylko mieszkańcom pokazaliśmy jak dobrze być złym. Nawet dzieci kradną, świetna robota mój panie!"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Defection. the Land of love and the calm, fie I loathe to such of places, better quickly to these let us see about my Lord."
+msgstr "Przekształcenie. Kraina miłości i spokoju, bllee brzydzę się takim miejsc, lepiej szybko się tym zajmijmy mój Panie."
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Over this land hung the new name the Pain. Inhabitants of her slowly themselves go by the board just of course with our help. Ours Black we Will give well and slowly them they torture. The excellent view, the untruth you?"
+msgstr "Ból. Nad krainą tą zawisła nowa nazwa Ból. Mieszkańcy niej powoli sami się wykańczają no oczywiście z naszą pomocą. Nasz Czarne Damy dobrze i powoli ich torturują. Świetny widok, nieprawdaż Panie?"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Imps. In mines of this land are Imps which hinder very much in the conquest of this Land, many guards tried, but to none did not succeed. You must be this first!"
+msgstr "Impy. W kopalniach tej krainy są Chochliki które bardzo przeszkadzają w zdobyciu tej Krainy, wiele strażników próbowało, ale żadnemu się nie udało. Musisz być tym pierwszym!"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Our Imps built the gigantic ravine of the round this land. In the ravine issued the lava and to her we began to lower lively inhabitants of the settlement. The perfect pleasure to watch such unparalleled spectacle, the untruth?"
+msgstr "Wąwóz śmierci. Nasze Chochliki wybudowały olbrzymi wąwóz dokoła tej krainy. W wąwozie wydobyła się lawa a do niej zaczęliśmy spuszczać żywych mieszkańców osady. Doskonała przyjemność oglądać takie niespotykane widowisko, nieprawdaż?"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Clone. Land wields the good and honest lord. The time of him on to teach gentility. Of course our habits!"
+msgstr "Klonowanie. Krainą tą włada dobry i uczciwy lord. Czas go na uczyć dobrych manier. Oczywiście naszych manier!"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Land we called so because because after gardens of the ruler of the land we spread remainders of human bodies became which after the mass take off of people by through our of favourite of Horned the Ripper. The perfect work you sir!"
+msgstr "Krwawy ogród. Krainę tą nazwaliśmy tak gdyż bowiem po ogrodach władcy krainy rozsmarowaliśmy resztki ciał ludzkich jakie zostały po masowym wybiciu ludzi przez naszego ulubionego Rogatego Rozpruwacz. Doskonała robota panie!"
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Dig. Became to us the still one good land to the destruction. Last remainders of the human sort , elfs and bogy means hide in this land. She will track down them and kill to rule over with the all the world!"
+msgstr "Kop. Została nam jeszcze jedna dobra kraina do zniszczenia. Ostatnie resztki gatunku ludzkiego, elfiego i krasnoludzkiego ukrywają się w tej krainie. Wytropi ich i zabij aby zapanować nad całym światem!"
+
+#: landview:71
+msgctxt "Level summary"
+msgid "So certainly my stamping ground. I worship to go outdoors and to look on the red sky blood and the lava flowing after this land. The excellent work my Lord! "
+msgstr "Ulubienice. Tak to z pewnością moje ulubione miejsce. Uwielbiam wyjść na dwór i patrzyć na czerwone niebo krew i lawę spływającą po tej krainie. Doskonała robota Panie!"
+

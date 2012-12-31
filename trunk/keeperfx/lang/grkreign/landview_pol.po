@@ -1,0 +1,136 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file grkreign/landview_pol.po
+#      KeeperFX Land View Strings translation file
+#  @par Purpose:
+#      Contains translation of the national land descriptions in the game.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 28 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Grinics' KReign campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2012-12-31 03:12+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Grinics' KReign campaign"
+msgstr "Grinic'owe KRegiony"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Loveyheart. The land has been ruined by years of war with an enemy keeper. Only a few people survived til now. It's time to slaugher these odd freaks!"
+msgstr "Krasna Pikawa. Ta kraina jest zniszczona przez lata wojny ze wrogim strażnikiem, niewiele ludzi tu zostało. Czas powybijać tą resztę odmieńców!"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Demonhole. This Land is finally as bad as I dreamed about it. Excellent work, Master!"
+msgstr "Demonowo. Kraina ta nareszcie jest tak zła jak marzyłem o tym. Doskonała robota Panie!"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Rabbitjoy. An enormous war continues here. One keeper has already been shattered, and his ex-servants are trapped all over the land. We need to liberate them and destroy all the good that tries to prevail here!"
+msgstr "Uszoradowa. W tej krainie trwa olbrzymia wojna. Jeden strażnik poległ jego sługi są uwięzieni po całej tej krainie w lochach. Powinniśmy uwolnić ich i zniszczyć całe dobro jakie panuję na tej krainie!"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Earbleed. The slaugher you made on these people was inspiring, so was the end of enemy keeper. Human blood flows through this land, like spilled milk on a table. Excellent work, imperturbable Lord!"
+msgstr "Krwawice. Pięknie zabiłeś ludzi i wrogiego strażnika. Krew ludzi spływa po tej krainie niczym rozlane mleko po stole. Doskonała robota mój panie"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Happiclap. Land here is under dominion of inhuman creatures. Only single humanoids may still hide there. Mayor of this town, seeing no other way to clear the land, has joined you. Time to claim this land for us!"
+msgstr "Szczęścioklask. Kraina ta jest pod panowaniem stworów. Parę ludzi może jeszcze się tu kręcić ale naprawdę niewiele. Nawet burmistrz miasta się do ciebie przyłączył. Czas zmienić tę krainę w naszą!"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Hookswing. Enemy creatures were smeared all over the area. Breathtaking view, don't you think?"
+msgstr "Świsthak. Gdy zniszczyliśmy wszystkie wrogie nam stwory postanowiliśmy rozsmarować ich ciała po całej okolicy. Widok przepiękny, nie praw dasz panie?"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Sillimist. Besides you, one more keeper fights for this land. Defeat him and you gain total control here!"
+msgstr "Durnomgieł. O tą krainę walczy jeszcze jeden strażnik, pokonaj go a zdobędziesz całkowite panowanie nad tą krainą!"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Redcloud. Smearing dead bodies all over the area has prooved to be such a good idea that we did it again. Once more we can enjoy the sight."
+msgstr "Krwawomgieł. Ta pięknie znowu rozsmarowaliśmy ciała wroga po kranie. Znowu można nacieszyć wzrok."
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Sadlack. Three keepers are lurking in crannies of this land. They united their strength to fight you. Good luck, evil one!"
+msgstr "Bezsmutek. O te krainę walczy pięć strażników w tym ty. Trzech z nich zjednoczyły siłę aby móc walczyć z Tobą. Powodzenia Panie!"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Hideouscry. When we've annihilated all enemies, we've raised a mound of creatures dead bodies. Then we've put five barrels of black powder under it, and BOOM! Now shreaded meat covers every rotting tree in this ugly land!"
+msgstr "Obrzydliwowo. Gdy pokonaliśmy strażników usypaliśmy z jego martwych potworów wielką górę. Podłożyliśmy pod nich pięć beczek czarnego prochu i BUM! Teraz już nic nie trzeba było mówić tylko patrzeć jak obrzydliwa jest teraz ta kraina!"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Hopemirth. The land is divided into two parts: western and eastern. Typical peasants live in the west, while the east is dominated by cult of Blood Brothers. These are very dangerous, so stay focused, my Lord!"
+msgstr "Złudnadziej. Kraina ta jest podzielona na dwie części: zachodnią i wschodnią. Na zachodzie mieszkają ludzie a na wschodzie jest kult braci krwi. Bracia krwi są bardzo niebezpieczni. Uważaj mój Panie!"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Nosferatia. When we won, the men of Blood Brothers cult have decided to join us. Now they have spread terror among remaining people. Excellent work my Lord!"
+msgstr "Wampirowo. Gdy wygraliśmy z ludźmi kult krwi postanowił się do nas przyłączyć. Sieją oni teraz postrach wśród ludzi. Doskonała robota mój Panie!"
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Castle Hangdamien. This land is ruled by good and honest lord. He is a member of the Black Blood cult. Take care, keeper, as he's very dangerous."
+msgstr "Zamek Tępyzwis. Tą krainą włada dobry i uczciwy lord. Jest on członkiem kultu czarnej krwi. Uważaj na siebie strażniku jest bardzo niebezpieczny."
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Hangdamien Ruin. We succeeded, we overcame the enemy. Our vampire feeding area has expanded greatly. Excellent work, Master!"
+msgstr "Ruiny Tępyzwisu. Udało się nam, pokonaliśmy wroga. Teraz powiększyło się nasze terytorium wampirów. Doskonała robota Panie!"
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Hangdamien Labrinth. The land  bristling with traps and mazes. To win, you have to be clever and never look back. Good luck, keeper!"
+msgstr "Labirynt Wisielców. Kraina ta jest najeżona pułapkami i labiryntami. Aby wygrać musisz być bardzo sprytny i nie oglądać się za siebie. Powodzenia strażniku!"
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Hangdamien Swamp. We were able to re-use the traps we've encounter. When the heroes experienced them, the whole land has filled with the smell of flesh minced into slurry."
+msgstr "Wisielcze Moczary. Postanowiłem ponownie użyć pułapek co na ciebie zastawione były. Ale użyłem ich na ludziach teraz dopiero można poczuć woń zmielonych na papkę bohaterów."
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Hopemirth Wastelands. This land is ruled by brave and strong lord. To break to his castle we must go through some lava. Good luck!"
+msgstr "Dobrochcielne Pustkowia. Tą krainą włada mężny i silny lord. Aby przedrzeć się do jego zamku musimy przejść przez lawę. Powodzenia Panie!"
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Hopemirth Lavadrown. All the inhabitants were thrown into lava alive. It's a pity that you have not heard how the Lord of this land whined. Spectacular victory!"
+msgstr "Lawowo-Utopiowo. Postanowiłem żywcem powrzucać wszystkich żywych mieszkańców krainy do lawy. Szkoda że nie widziałeś jak lord tej krainy skuczał. Przepiękny widok mój panie."
+
+#: landview:100
+msgctxt "Level introduction"
+msgid "Return to Castle Sadlack. Only the final step separates us from complete victory. Find the heart of the hero dungeon, destroy it! Then we take authority over the whole world!"
+msgstr "Powrót do zamku Bezsmutek. Został nam ostatni krok do wygranej. Znajdź serce lochu bohaterów, zniszcz je! A zdobędziemy władze nad całym światem!"
+
+#: landview:101
+msgctxt "Level summary"
+msgid "Masters Castle. We've conquered the whole continent! At the time of the Lord of the land death the volcano erupted. The world was awashed by blood and lava. Now it's time for a real party!"
+msgstr "Zamek Strażnika. Wygraliśmy, zdobyliśmy cały świat na dodatek wulkan eksplodował w chwili zabicia lorda tej krainy. Świat został zalany krwią i lawą. Wyśmienita robota mój Panie"
+
