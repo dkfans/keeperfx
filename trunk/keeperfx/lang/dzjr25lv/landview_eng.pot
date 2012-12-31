@@ -1,0 +1,296 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file dzjr25lv/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: DzjeeAr's 25-level campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Ninja\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "DzjeeAr's 25-level campaign"
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "And fine the start. This land wields the bad ruler. He hid in its own of castle in the south. Track down him and kill, my Lord!"
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Bog. When we conquered  this land we I turned into the gigantic swamp, is thanks to you my lud! The excellent work!"
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Party's help.  This land is very poor into natural resources. Thus mind raw materials. The local ruler also is not  rich but very smart."
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Foully Land. In this land he stinks as from graves, whether it is not beautifully? The excellent work my Lord!"
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Allyed.  Once ages ago, this land was under the rule of great dragons. Last from them hide in volcanic areas.  But is now wielding the here good ruler. We must overcome him to gain this ground!"
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "The dragoon Land. We rescued dragons on to the offering they helped to kill us the enemy Lord. Now Dragons will perform with this earth  as during old times! The perfect  work, my Lord!"
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Gold! The rich land into natural deposits and in addition defend  their  four brothers Avatar's. We must them kill at any cost!"
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Abominably rich lands . With to extract of gold  from this land we built the most beautiful castle. Now we  can for a moment have a rest and be glad with the charm of this disgusting of the bad land! The excellent work , my Lord!"
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Lava River.  This land is crossed by the river of the lava. In addition you have other the guard on the head, in the same way how  you I want to wield with this land. Kill him and later kill the ruler which hides in its own of castle!"
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Fire Land. The lava poured out flooding  this and neighbouring village, the perfect work  keeper!"
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "They enemas. Other guard wields this earth, kill him to gain this land!"
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "One enemy. The dead guard was thrown out from this world to the world of older gods. They will right to him as long as what let us be glad with the calm."
+msgstr ""
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Combiend forces. The bad guard wields this land. Other I try to take over her And you also try to take over  her. Try !"
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Forces of the Demon. Our power is improbable. Nobody will become to us on rouad conquerable of the world, nobody! The perfect  my work  Master!"
+msgstr ""
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Gold enough. In this land you will have to produce evidence with the skill of the thrift. As if you have a lot raw materials and behind together very few Successes!"
+msgstr ""
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Stink Cauntry.  This land is abominably stinking. With the ruse to kill the lord of this land only thou art to this clever scoundrel!"
+msgstr ""
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Ice level.  The handcuffed land with ice , after her surface one  the guard administrates, gain this land you must kill  him! Successes my Lord!"
+msgstr ""
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Ice cold. Thanks we wield to you this land, the perfect work my Lord!"
+msgstr ""
+
+#: landview:100
+msgctxt "Level introduction"
+msgid "Cold again. The land also handcuffed with ice but has also quite a lot resources of the lava.  This land wield brothers of the melanemia. We must them kill!"
+msgstr ""
+
+#: landview:101
+msgctxt "Level summary"
+msgid "Land of the Vamire. It succeeded to convince to us vampires so that they go on our page. It succeeded to us but we had to them a little in this to help, the perfect work my Lord!"
+msgstr ""
+
+#: landview:110
+msgctxt "Level introduction"
+msgid "Big secret. Once took place happened the here gigantic battle among people. One  the lord won and further still I perform here the authority. But I judge that dead not yet forgot about him."
+msgstr ""
+
+#: landview:111
+msgctxt "Level summary"
+msgid "Skeletorn land. Dead helped  to the kill the enemy ruler. Now they are performing here rule and are our good commanders of winter-lands."
+msgstr ""
+
+#: landview:120
+msgctxt "Level introduction"
+msgid "Locked.  In this land rules the courageous and honest lord. We must kill him albs gain this land!"
+msgstr ""
+
+#: landview:121
+msgctxt "Level summary"
+msgid "Murderous Land. We convinced local inhabitants that its good to by bad. Now inhabitants are murdering each other mutually!  The perfect work my Lord!"
+msgstr ""
+
+#: landview:130
+msgctxt "Level introduction"
+msgid "Dungeon of fear. Once fell the here other guard. Filled up behind himself on the lam the portal and his monsters became  on dungeon's . I think that they will join to you if you will find them from filled up tunnels."
+msgstr ""
+
+#: landview:131
+msgctxt "Level summary"
+msgid "Dig In the Hero. Alive we buried heroes smilingly on the face. The perfect  work  my Lord!"
+msgstr ""
+
+#: landview:140
+msgctxt "Level introduction"
+msgid "Dragon's lair. The land wield powerful dragons. To nobody not yet succeeded to gain this earth. You must be first!"
+msgstr ""
+
+#: landview:141
+msgctxt "Level summary"
+msgid "The dragoon lands . It succeeded to us to convince dragons to this so that they fight after our page. We have a now powerful army gaping with the fire! The perfect  work , my Lord!"
+msgstr ""
+
+#: landview:150
+msgctxt "Level introduction"
+msgid "Strong Castel. Two brothers knights wield this land. There are very honest. The time to teach their gentility!"
+msgstr ""
+
+#: landview:151
+msgctxt "Level summary"
+msgid "Keeper's Castle. These brothers into inches were not till so strong as said local people.  In every be  the time we gained the following settlement, let us hope so  further!"
+msgstr ""
+
+#: landview:160
+msgctxt "Level introduction"
+msgid "Golden River. Cheka us the following exercise. The enemy surrounded its own lock castle with the moat. If well we will use her this perhaps she to come on our advantage."
+msgstr ""
+
+#: landview:161
+msgctxt "Level summary"
+msgid "Sunken's Land. We used rivers to the flood these earths. Resultant here gigantic of the swamp and in addition flung itself here all that what bad. The excellent work  my lud!"
+msgstr ""
+
+#: landview:170
+msgctxt "Level introduction"
+msgid "Crisis. In this land Magi  prevail. They are a main weapon in arms of the lord of this land.  Let us see about with them and afterwards we will attack his dungeon heart!"
+msgstr ""
+
+#: landview:171
+msgctxt "Level summary"
+msgid "Magic Land.  This land became  very misshapen by our armies. Local think  that it is the minor offence of wizards. But thick they make a mistake's"
+msgstr ""
+
+#: landview:180
+msgctxt "Level introduction"
+msgid "Keeper captured. For the land fights also other guard. We must show to him who is here  really bad! To the work!"
+msgstr ""
+
+#: landview:181
+msgctxt "Level summary"
+msgid "Smashing. People of local lands crab instead of to unite and to fight against on. Ehh this stupied people."
+msgstr ""
+
+#: landview:190
+msgctxt "Level introduction"
+msgid "How to do? The enemy hides somewhere in this land in powerful of castle. Track down him and kill!"
+msgstr ""
+
+#: landview:191
+msgctxt "Level summary"
+msgid "Putrescent land. Lands rot literally. There became  to us another the step conquerable of the authority over the world. To the work!  The winning is in this range!"
+msgstr ""
+
+#: landview:200
+msgctxt "Level introduction"
+msgid "Final match. It is the already last mission, our last if ourselves us thighs we will rule over with this world and nobody to us no longer will threaten! To the work the guard!"
+msgstr ""
+
+#: landview:201
+msgctxt "Level summary"
+msgid "Roads Lands. The excellent work , never myself this after I would not expect you that you will be in a position to gain the all the world. Congratulations my Lord!"
+msgstr ""
+
+#: landview:500
+msgctxt "Level introduction"
+msgid "Journey secret. Here is found the hidden land in which are found deposits of jewellery."
+msgstr ""
+
+#: landview:501
+msgctxt "Level summary"
+msgid "TODO501"
+msgstr ""
+
+#: landview:510
+msgctxt "Level introduction"
+msgid "Reach secret. In this land hide survivors of heroes."
+msgstr ""
+
+#: landview:511
+msgctxt "Level summary"
+msgid "TODO511"
+msgstr ""
+
+#: landview:520
+msgctxt "Level introduction"
+msgid "Imps secret. In this land are recorded secrets imp's"
+msgstr ""
+
+#: landview:521
+msgctxt "Level summary"
+msgid "TODO521"
+msgstr ""
+
+#: landview:530
+msgctxt "Level introduction"
+msgid "Hornies secret. In this land hide powerful Horned Raper."
+msgstr ""
+
+#: landview:531
+msgctxt "Level summary"
+msgid "TODO531"
+msgstr ""
+
+#: landview:540
+msgctxt "Level introduction"
+msgid "Just secret. In this land one hid reportedly powerful magic scrol, seek and perhaps you will find."
+msgstr ""
+
+#: landview:541
+msgctxt "Level summary"
+msgid "TODO541"
+msgstr ""
+
+#: landview:550
+msgctxt "Level introduction"
+msgid "Moon secret. This land appears only into the full moon, dear knows what can there  lie in wait  himself."
+msgstr ""
+
+#: landview:551
+msgctxt "Level summary"
+msgid "TODO551"
+msgstr ""

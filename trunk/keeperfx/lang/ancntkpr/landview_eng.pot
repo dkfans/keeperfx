@@ -1,7 +1,7 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file landview_eng.pot
+#   @file ancntkpr/landview_eng.pot
 #      KeeperFX Land View Strings translation template
 #  @par Purpose:
 #      Allows to create .po files used for translating the game.

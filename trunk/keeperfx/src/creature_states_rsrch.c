@@ -488,7 +488,8 @@ CrCheckRet process_research_function(struct Thing *thing)
     //return _DK_process_research_function(thing);
     dungeon = get_dungeon(thing->owner);
     if (dungeon_invalid(dungeon)) {
-        SYNCDBG(9,"The %s index %d cannot work as player %d has no dungeon",thing_model_name(thing),(int)thing->index,(int)thing->owner);
+        SYNCDBG(9,"The %s index %d cannot work as player %d has no dungeon",
+            thing_model_name(thing), (int)thing->index, (int)thing->owner);
         set_start_state(thing);
         return CrCkRet_Continue;
     }
@@ -499,7 +500,8 @@ CrCheckRet process_research_function(struct Thing *thing)
     }
     room = get_room_creature_works_in(thing);
     if ( !room_still_valid_as_type_for_thing(room, RoK_LIBRARY, thing) ) {
-        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
+        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",
+            room_code_name(room->kind), (int)room->owner, thing_model_name(thing), (int)thing->owner);
         set_start_state(thing);
         return CrCkRet_Continue;
     }

@@ -1,0 +1,126 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file dstninja/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: The Destiny of Ninja campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "The Destiny of Ninja"
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Shadow Ninja. Greetings, Warrior of Shadow. A Shogun got separated from his armies on the way to the province Iga. You must vanquish him, so that we can use this road to get to than province."
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Clensegawa. Now that the road has been washed by blood of unworthy, we can go forward to the province Iga."
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Extreme Ninja. On our way to the province Iga, we stumbled upon a small village harassed by bad Shogun. Inhabitants of this land starve. We must kill this Shogun!"
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Prosperashi. Something has changed in the air. This land now became sunny and quiet. All that thanks to You, Ninja. Excellent work!"
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Escape. Quite a problem has presented itself on the way. We've been trapped by magic barrier which we can't pass. We must kill the enemy ruler to be able to proceed to the province Iga. To the work!"
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Nomagi. We've killed the enemy ruler and at last reached the province Iga. Now we can start assembling an attacks on the Emperor's Shogun. Excellent work, warrior of the shadow!"
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Dungeon Ninja. Our aim, which is liberation of Japan, requires us first to get rid of the Emperor's Shogun. You must kill him at any cost!"
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Libreyama. Law and order blooms in this land again, all thanks to you. Perfect work!"
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Spectre. Our next task is to chase after support Shogun. We must kill him to weaken the emperor's army. Go, the warrior of shadow!"
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Beautyshima. The land is now beautiful and free from bad Shogun. What a great progress!"
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Speed Ninja. We can no longer put aside the harder goals. We must deal with this mission now. The ceiling here is unstable, and we must progress fast before it collapses. Good luck!"
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Valleyara. This land is now beautiful and quiet, all thanks to us. Gradually we approach the end of our adventure, but a few tasks still remain."
+msgstr ""
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Secret Ninja. This mission is a great challenge, but I think you'll now able to handle it. Bring us victory!"
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Splendidoma. Inhabitants were liberated from the selfish ruler and joined you. But we still have one more Shogun to punish on the way to become emperor!"
+msgstr ""
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Kill shogun. It is the last Shogun standing between us and the emperor. He is a lot more powerful than his former coleagues. Don't go easy on him!"
+msgstr ""
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Gentlerikawa. This land is no longer misgovernment by the ruthless Shogun. Our only remaining goal is the destruction of Emperor himself! Truly surgical strike, man of the shadow!"
+msgstr ""
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Kill emperor. The emperor has barricaded himself in his castle. Time to break his fortifications and kill him! Do not hesitate, Warrior of the Shadow!"
+msgstr ""
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Butterflada. This is the most beautiful land we've liberated. Also, the castle of the emperor is ready to be used as our own fortress. I congratulate you the execution of such great act!"
+msgstr ""
