@@ -1,0 +1,126 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file jdkmaps8/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version:Japanese DKMaps8 pack for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Ninja\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Japanese DKMaps8 pack"
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Inferno. This Lands  its very dangerous. Its many cervice In the rock. In addition eruptions of the volcano are here heaps of times. But we must kounkuest this land to attack next lands."
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "No Man human lands.  This land is impossible to the habitation by the human, but demons are here magnificently. The perfect  work , my Lord!"
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Omakase.  This land is a land of continuous fights. There go on here very big battles. The time to them to add to join and to kill all our enemies!"
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Land's of the Magma.  This land is drunk a powerful magma. The beauty spot, inst. it?"
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Key of victory.  The demented land by  the civil war is torn on all possible  parts. The time to unite her into our unity!"
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Demon's.  We gave to our demons this land for this that so well they fought during previous fights. The excellent  work  my Lord!"
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Surround. This land is after the rule of the good Lord. We must kill him to gain this land!"
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Furriery.  This land experienced the pain from our sword! The perfect  work, my Lord!"
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Sengoku musou. This land wields the lord which is a very good strategist. We must face to him to gain this land!"
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Full Moon Land. This land nevermore will not see the sun, now inhabitants of the land will see only the moonlight! The excellent work my Lord!"
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Riverside. The Lords of this land you hiding In his Castel, you Mast faund him and kill him!"
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Disgusting Lands. These lands became abominably distorted, the perfect work my Lord!"
+msgstr ""
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Super rich. In this land you will have to a great many to seek,  who seeks this will find."
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Destroy Lands.  These lands remained worn out after research of the enemy ruler. Now in this land came into being the true hell! The perfect  excellent  work my Lord!"
+msgstr ""
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Huge army. This land will be a place of the great battle. Here will resolve themselves fates  whether we arrive at the capital or else not. To the work, my lud!"
+msgstr ""
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Of upland. She took place happened here very big battle, not easily it was to conquer but you made this! The excellent work my Lord!"
+msgstr ""
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Present maker. It is already the capital, here will decide himself the last battle. Gain this land, and we will gain the authority over the all the world!"
+msgstr ""
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Reds Lands. Congratulations never myself this you du! Would not expect you, you made this! The all the world belongs to us!"
+msgstr ""
