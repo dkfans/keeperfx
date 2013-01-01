@@ -7,7 +7,8 @@ REM ********************************************
 START_MONEY(ALL_PLAYERS,15000)
 
 IF(PLAYER0,GAME_TURN > 20)
-    QUICK_OBJECTIVE(1,"Extend the warrior of the shadow, then strike right into the heart evils , that is to say enemy shoguna which rules over this village. When him only we will get rid this becoming  to us another of the aim  to the destruction.  Himself Emperor of Japan. But first still we will have to ravage his shogun.",PLAYER0)
+    REM QUICK_OBJECTIVE(1,"Extend the warrior of the shadow, then strike right into the heart evils , that is to say enemy shoguna which rules over this village. When him only we will get rid this becoming  to us another of the aim  to the destruction.  Himself Emperor of Japan. But first still we will have to ravage his shogun.",PLAYER0)
+    DISPLAY_OBJECTIVE(7,ALL_PLAYERS)
 ENDIF
 
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
@@ -32,6 +33,7 @@ REM Spells
 
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"You made it! Now we can without the problem creep to the emperor's palace!",PLAYER0)
+    DISPLAY_OBJECTIVE(8,ALL_PLAYERS)
     WIN_GAME
-    QUICK_OBJECTIVE(2,"You made it! Now we can without the problem creep to the emperor's palace!",PLAYER0)
 ENDIF

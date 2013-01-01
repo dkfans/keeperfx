@@ -68,31 +68,38 @@ CREATE_PARTY(ALPHA)
 
 SET_TIMER(PLAYER0,TIMER1)
 
-QUICK_OBJECTIVE(1,"This castle has stood for thousands of years, repelling all assaults. It's about time someone changed that, don't you agree?",ALL_PLAYERS)
+REM QUICK_OBJECTIVE(1,"This castle has stood for thousands of years, repelling all assaults. It's about time someone changed that, don't you agree?",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(18,ALL_PLAYERS)
 
 IF(PLAYER0,BATTLES_WON >= 7)
-    QUICK_INFORMATION(1,"I think you could have handled that with a little more finesse. Perhaps Quake is more your style. You know, the ham-fisted kind of URRRRGH KILL KILL KILL.")
+    REM QUICK_INFORMATION(1,"I think you could have handled that with a little more finesse. Perhaps Quake is more your style. You know, the ham-fisted kind of URRRRGH KILL KILL KILL.")
+    DISPLAY_INFORMATION(19,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,BATTLES_WON >= 33)
-    QUICK_INFORMATION(2,"You're enjoying this, arent you? You sadistic thug! People like you should be kept in bamboo cages and poked with sharpened sticks!")
+    REM QUICK_INFORMATION(2,"You're enjoying this, arent you? You sadistic thug! People like you should be kept in bamboo cages and poked with sharpened sticks!")
+    DISPLAY_INFORMATION(20,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 10000)
-    QUICK_INFORMATION(3,"Are you entirely sure you know what you're doing? Perhaps some kind of strategy or plan... you do have a plan, don't you, Keeper?")
+    REM QUICK_INFORMATION(3,"Are you entirely sure you know what you're doing? Perhaps some kind of strategy or plan... you do have a plan, don't you, Keeper?")
+    DISPLAY_INFORMATION(21,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 20000)
-QUICK_INFORMATION(4,"This all looks rather daunting, doesn't it? There's no shame in running away with your tail between your legs and cowering under the bed like a level one Imp, you know.")
+    REM QUICK_INFORMATION(4,"This all looks rather daunting, doesn't it? There's no shame in running away with your tail between your legs and cowering under the bed like a level one Imp, you know.")
+    DISPLAY_INFORMATION(22,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,MONEY > 80000)
-    QUICK_INFORMATION(5,"Er, Keeper? There's some Monks here to see you about last year's Tax Return. I think they want money.")
+    REM QUICK_INFORMATION(5,"Er, Keeper? There's some Monks here to see you about last year's Tax Return. I think they want money.")
+    DISPLAY_INFORMATION(23,ALL_PLAYERS)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ALPHA,1,3)
 ENDIF
 
 IF(PLAYER0,TIMER1 >= 30000)
-QUICK_INFORMATION(6,"My, you're a very model of stubborn persistence, aren't you? Never mind; I'm sure a huge swaft of heroes will be along at any moment to kick your nasty behind all the way to Seattle. Wherever that is.")
+    REM QUICK_INFORMATION(6,"My, you're a very model of stubborn persistence, aren't you? Never mind; I'm sure a huge swaft of heroes will be along at any moment to kick your nasty behind all the way to Seattle. Wherever that is.")
+    DISPLAY_INFORMATION(24,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)

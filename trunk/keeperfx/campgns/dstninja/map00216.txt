@@ -7,7 +7,8 @@ REM ********************************************
 START_MONEY(PLAYER0,20000)
 
 IF(PLAYER0,GAME_TURN > 20)
-    QUICK_OBJECTIVE(1,"So you have a following to-do, kill the enemy ruler so that this land be able to live at ease.",PLAYER0)
+    REM QUICK_OBJECTIVE(1,"So you have a following to-do, kill the enemy ruler so that this land be able to live at ease.",PLAYER0)
+    DISPLAY_OBJECTIVE(3,ALL_PLAYERS)
 ENDIF
 
 REM Room_Availability
@@ -26,6 +27,7 @@ REM Spells
 	MAGIC_AVAILABLE(PLAYER1,POWER_SIGHT,1,1)
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"For the man of the shadow is not there out of the question things. That is so in Your chance. The perfect work!",PLAYER0)
+    DISPLAY_OBJECTIVE(4,ALL_PLAYERS)
     WIN_GAME
-    QUICK_OBJECTIVE(2,"For the man of the shadow is not there out of the question things. That is so in Your chance. The perfect work!",PLAYER0)
 ENDIF
