@@ -64,7 +64,8 @@ CREATE_PARTY(ALPHA)
     ADD_TO_PARTY(ALPHA,DWARFA,4,9900,ATTACK_ENEMIES,0)
     ADD_TO_PARTY(ALPHA,DWARFA,4,9900,ATTACK_ENEMIES,0)
 
-QUICK_OBJECTIVE(1,"Another castle. I'm sure you will deal with these sad fools in the traditional manner. Keep in mind: another Keeper to the south has similar intentions, and is rumoured to be rather better equipped than we.",ALL_PLAYERS)
+REM QUICK_OBJECTIVE(1,"Another castle. I'm sure you will deal with these sad fools in the traditional manner. Keep in mind: another Keeper to the south has similar intentions, and is rumoured to be rather better equipped than we.",ALL_PLAYERS)
+DISPLAY_OBJECTIVE(16,ALL_PLAYERS)
 
 IF_ACTION_POINT(1,PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ALPHA,1,1)
