@@ -43,7 +43,8 @@ pkg/campgns/evilkeep/text_ger.dat \
 pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/ncastles/text_eng.dat \
-pkg/campgns/questfth/text_eng.dat
+pkg/campgns/questfth/text_eng.dat \
+pkg/campgns/questfth/text_fre.dat
 
 pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
 
