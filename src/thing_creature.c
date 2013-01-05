@@ -110,8 +110,8 @@ DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, lon
 DLLIMPORT void _DK_change_creature_owner(struct Thing *creatng , char nowner);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char a2);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *creatng, long spell_idx, long spell_lev);
-DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long no_effects);
-DLLIMPORT void _DK_creature_cast_spell(struct Thing *caster, long a2, long a3, long no_effects, long a5);
+DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *castng, struct Thing *target, long a3, long no_effects);
+DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long a2, long a3, long no_effects, long a5);
 DLLIMPORT void _DK_set_first_creature(struct Thing *creatng);
 DLLIMPORT void _DK_remove_first_creature(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
@@ -863,7 +863,7 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
   creature_fire_shot(caster, target, spinfo->shot_model, a4, i);
 }
 
-void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x, long trg_y)
+void creature_cast_spell(struct Thing *castng, long spl_idx, long a3, long trg_x, long trg_y)
 {
     const struct SpellInfo *spinfo;
     struct CreatureControl *cctrl;
@@ -872,8 +872,8 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
     long i,k;
     //_DK_creature_cast_spell(caster, spl_idx, a3, trg_x, trg_y);
     spinfo = get_magic_info(spl_idx);
-    cctrl = creature_control_get_from_thing(caster);
-    crstat = creature_stats_get_from_thing(caster);
+    cctrl = creature_control_get_from_thing(castng);
+    crstat = creature_stats_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature tried to cast spell %ld",spl_idx);
@@ -887,24 +887,24 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
     // Check if the spell can be fired as a shot
     if (spinfo->shot_model)
     {
-        if ((caster->alloc_flags & TAlF_IsControlled) != 0)
+        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
           i = 1;
         else
           i = 4;
-        creature_fire_shot(caster, NULL, spinfo->shot_model, a3, i);
+        creature_fire_shot(castng, NULL, spinfo->shot_model, a3, i);
     } else
     // Check if the spell can be self-casted
     if (spinfo->caster_affected)
     {
         i = (long)spinfo->caster_affect_sound;
         if (i > 0)
-          thing_play_sample(caster, i, 100, 0, 3, 0, 4, 256);
-        apply_spell_effect_to_thing(caster, spl_idx, cctrl->explevel);
+          thing_play_sample(castng, i, 100, 0, 3, 0, 4, 256);
+        apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
     // Check if the spell has an effect associated
     if (spinfo->cast_effect_model != 0)
     {
-        efthing = create_effect(&caster->mappos, spinfo->cast_effect_model, caster->owner);
+        efthing = create_effect(&castng->mappos, spinfo->cast_effect_model, castng->owner);
         if (!thing_is_invalid(efthing))
         {
           if (spinfo->cast_effect_model == 14)
@@ -918,7 +918,7 @@ void creature_cast_spell(struct Thing *caster, long spl_idx, long a3, long trg_x
         // don't have to be limited as others... but let's limit it anyway
         k = compute_creature_attack_range(spinfo->area_range, crstat->luck, cctrl->explevel);
         i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, cctrl->explevel);
-        explosion_affecting_area(caster, &caster->mappos, k, i, spinfo->area_blow, spinfo->area_hit_type);
+        explosion_affecting_area(castng, &castng->mappos, k, i, spinfo->area_blow, spinfo->area_hit_type);
     }
 }
 
@@ -3212,12 +3212,12 @@ void process_creature_leave_footsteps(struct Thing *thing)
  * @param dmg
  * @param a3
  */
-void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, char a3)
+void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx)
 {
-    //_DK_apply_damage_to_thing_and_display_health(thing, a1, a2);
+    //_DK_apply_damage_to_thing_and_display_health(thing, a1, inflicting_plyr_idx);
     if (dmg > 0)
     {
-        apply_damage_to_thing(thing, dmg, a3);
+        apply_damage_to_thing(thing, dmg, inflicting_plyr_idx);
         thing->word_17 = 8;
     }
 }

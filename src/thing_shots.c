@@ -84,16 +84,16 @@ TbBool shot_is_boulder(const struct Thing *thing)
     return (thing->model == 15);
 }
 
-TbBool detonate_shot(struct Thing *thing)
+TbBool detonate_shot(struct Thing *shotng)
 {
     struct PlayerInfo *myplyr;
-    struct Thing *shooter;
-    SYNCDBG(18,"Starting for model %d",(int)thing->model);
-    shooter = INVALID_THING;
+    struct Thing *shootrtng;
+    SYNCDBG(18,"Starting for model %d",(int)shotng->model);
+    shootrtng = INVALID_THING;
     myplyr = get_my_player();
-    if (thing->index != thing->parent_idx)
-        shooter = thing_get(thing->parent_idx);
-    switch ( thing->model )
+    if (shotng->index != shotng->parent_idx)
+        shootrtng = thing_get(shotng->parent_idx);
+    switch ( shotng->model )
     {
     case 4:
     case 16:
@@ -101,17 +101,17 @@ TbBool detonate_shot(struct Thing *thing)
         PaletteSetPlayerPalette(myplyr, _DK_palette);
         break;
     case 11:
-        create_effect(&thing->mappos, TngEff_Unknown50, thing->owner);
-        create_effect(&thing->mappos,  TngEff_Unknown09, thing->owner);
-        explosion_affecting_area(shooter, &thing->mappos, 8, 256, 256, thing->byte_16);
+        create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
+        create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
+        explosion_affecting_area(shootrtng, &shotng->mappos, 8, 256, 256, shotng->byte_16);
         break;
     case 15:
-        create_effect_around_thing(thing, TngEff_Unknown26);
+        create_effect_around_thing(shotng, TngEff_Unknown26);
         break;
     default:
         break;
     }
-    delete_thing_structure(thing, 0);
+    delete_thing_structure(shotng, 0);
     return true;
 }
 

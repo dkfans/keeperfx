@@ -40,6 +40,7 @@
 #include "engine_camera.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
+#include "engine_redraw.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -898,12 +899,57 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
     return false;
 }
 
-long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
+/**
+ * Affects a thing with electric shock.
+ *
+ * @param tngsrc The thing which caused the affect.
+ * @param tngdst The thing being affected by the effect.
+ * @param pos Position of the effect epicenter.
+ * @param max_dist Max distance at which creatures are affected, in map coordinates.
+ * @param max_damage Damage at epicenter of the explosion.
+ * @param owner The owning player index of the explosion.
+ * @return Gives true if the target thing was affected by the spell, false otherwise.
+ * @note If the function returns true, the effect might have caused death of the target.
+ */
+TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoord max_dist, HitPoints max_damage, PlayerNumber owner)
+{
+    MapCoord distance;
+    TbBool affected;
+    affected = false;
+    if (!line_of_sight_3d(pos, &tngdst->mappos))
+    {
+        max_dist /= 3;
+    }
+    distance = get_2d_box_distance(pos, &tngdst->mappos);
+    if (distance < max_dist)
+    {
+        HitPoints damage;
+        if (tngdst->class_id == TCls_Creature)
+        {
+            damage = get_radially_decaying_value(max_damage, max_dist/2, max_dist/2, distance);
+            if (damage != 0)
+            {
+                apply_damage_to_thing_and_display_health(tngdst, damage, owner);
+                affected = true;
+            }
+        }
+        // If the thing is a dying creature
+        if ((tngdst->class_id == TCls_Creature) && (tngdst->health < 0))
+        {
+            kill_creature(tngdst, tngsrc, owner, 0, 1, 0);
+            affected = true;
+        }
+    }
+    return affected;
+}
+
+long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
 {
     struct Thing *thing;
     unsigned long k;
     long i;
-    long dist,damage,naffected;
+    long naffected;
     naffected = 0;
     i = game.thing_lists[TngList_Creatures].index;
     k = 0;
@@ -923,10 +969,8 @@ long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_id
             {
               if (!creature_affected_by_spell(thing, SplK_Armour))
               {
-                  dist = get_2d_box_distance(&thing->mappos, pos);
-                  damage = get_radially_decaying_value(max_damage, range/2, range/2, dist);
-                  apply_damage_to_thing_and_display_health(thing, damage, immune_plyr_idx);
-                  naffected++;
+                  if (electricity_affecting_thing(INVALID_THING, thing, pos, range, max_damage, immune_plyr_idx))
+                      naffected++;
               }
             }
         }

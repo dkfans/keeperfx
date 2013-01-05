@@ -177,7 +177,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
 long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx);
 TbBool lord_of_the_land_in_prison_or_tortured(void);
 struct Thing *find_nearest_enemy_creature(struct Thing *crtng);
-long electricity_affecting_area(struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage);
+long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage);
 
 void update_things(void);
 
