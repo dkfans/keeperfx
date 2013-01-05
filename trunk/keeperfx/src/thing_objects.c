@@ -217,9 +217,9 @@ unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
 /** Dungeon Heart flame objects model per player index.
  */
 unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
+unsigned short lightning_spangles[] = {83, 90, 91, 92, 0, 0};
 unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
 unsigned short specials_text[] = {GUIStr_Empty, 420, 421, 422, 423, 424, 425, 426, 427, 0};
-
 /******************************************************************************/
 DLLIMPORT long _DK_move_object(struct Thing *thing);
 DLLIMPORT long _DK_update_object(struct Thing *thing);
@@ -788,10 +788,43 @@ TngUpdateRet object_update_power_sight(struct Thing *thing)
     return _DK_object_update_power_sight(thing);
 }
 
+#define NUM_ANGLES 16
 TngUpdateRet object_update_power_lightning(struct Thing *thing)
 {
-    return _DK_object_update_power_lightning(thing);
+    long i;
+    //return _DK_object_update_power_lightning(thing);
+    unsigned long exist_turns;
+    long variation;
+    thing->health = 2;
+    exist_turns = game.play_gameturn - thing->creation_turn;
+    variation = NUM_ANGLES * exist_turns;
+    for (i=0; i < NUM_ANGLES; i++)
+    {
+        struct Coord3d pos;
+        int angle;
+        angle = (variation % NUM_ANGLES) * 2*LbFPMath_PI / NUM_ANGLES;
+        if (set_coords_to_cylindric_shift(&pos, &thing->mappos, 8*variation, angle, 0))
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+            if ((mapblk->flags & MapFlg_Unkn10) == 0)
+            {
+                pos.z.val = get_floor_height_at(&pos) + 128;
+                create_effect_element(&pos, lightning_spangles[thing->owner], thing->owner);
+            }
+        }
+        variation++;
+    }
+    struct MagicStats *magstat;
+    magstat = &game.magic_stats[PwrK_LIGHTNING];
+    if (exist_turns > abs(magstat->power[thing->byte_13]))
+    {
+        delete_thing_structure(thing, 0);
+        return TUFRet_Deleted;
+    }
+    return TUFRet_Modified;
 }
+#undef NUM_ANGLES
 
 TngUpdateRet move_object(struct Thing *thing)
 {

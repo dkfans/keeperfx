@@ -62,6 +62,48 @@ long get_angle_sign(long angle_a, long angle_b)
         return 0;
     return diff / abs(diff);
 }
+
+/**
+ * Gives X coordinate of a planar position shift by given distance into given direction.
+ * @param distance Specifies the distance to move.
+ * @param angle Specifies the movement direction.
+ */
+long distance_with_angle_to_coord_x(long distance, long angle)
+{
+    return distance * LbSinL(angle) >> 16;
+}
+
+/**
+ * Gives Y coordinate of a planar position shift by given distance into given direction.
+ * @param distance Specifies the distance to move.
+ * @param angle Specifies the movement direction.
+ */
+long distance_with_angle_to_coord_y(long distance, long angle)
+{
+    return - (distance * LbCosL(angle) >> 8) >> 8;
+}
+
+/**
+ * Gives new X coordinate after shifting planar position by given distance into given direction.
+ * @param pos_x The source coordinate to be shifted.
+ * @param distance Specifies the distance to move.
+ * @param angle Specifies the movement direction.
+ */
+long move_coord_with_angle_x(long pos_x, long distance, long angle)
+{
+    return pos_x + distance * LbSinL(angle) >> 16;
+}
+
+/**
+ * Gives new Y coordinate after shifting planar position by given distance into given direction.
+ * @param pos_y The source coordinate to be shifted.
+ * @param distance Specifies the distance to move.
+ * @param angle Specifies the movement direction.
+ */
+long move_coord_with_angle_y(long pos_y, long distance, long angle)
+{
+    return pos_y - (distance * LbCosL(angle) >> 8) >> 8;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

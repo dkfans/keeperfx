@@ -350,7 +350,7 @@ MapCoord get_subtile_center_pos(MapSubtlCoord stl_v)
  * @param source
  * @param radius
  * @param angle
- * @return
+ * @return Gives true if values were in map coords range, false if they were corrected.
  */
 TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z)
 {
