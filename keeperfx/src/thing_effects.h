@@ -29,7 +29,18 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define HIT_TYPES_COUNT 9
+enum ThingHitTypes {
+    THit_None = 0,
+    THit_CrtrsNObjcts, // Affect all creatures and all objects
+    THit_CrtrsOnly, // Affect only creatures
+    THit_UnownedCrtrsNObjcts, // Affect unowned creatures and objects
+    THit_UnownedCrtrsOnly, // Affect unowned creatures
+    THit_UnownedCrtrsNotArmour, // Affect unowned creatures which are not protected by Armour spell
+    THit_Unk6,
+    THit_HeartOnly, // Affect only dungeon hearts
+    THit_All, // Affect all things
+    THit_TypesCount, // Last item in enumeration, allows checking amount of valid types
+};
 
 enum ThingEffectKind {
     TngEff_None = 0,
@@ -109,6 +120,8 @@ enum ThingEffectKind {
 
 struct InitEffect;
 struct Thing;
+
+typedef unsigned char ThingHitType;
 
 struct EffectGeneratorStats { // sizeof = 57
     long genation_delay_min;
@@ -212,8 +225,8 @@ long get_word_of_power_damage(const struct Thing *efftng, const struct Thing *th
 struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 
-void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
-    MapSubtlCoord range, HitPoints max_damage, long blow_strength, unsigned char hit_type);
+long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
+    MapSubtlCoord range, HitPoints max_damage, long blow_strength, ThingHitType hit_type);
 
 /******************************************************************************/
 #ifdef __cplusplus

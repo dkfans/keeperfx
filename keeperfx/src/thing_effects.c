@@ -1305,33 +1305,41 @@ TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, long explo
     }
     switch (hit_type)
     {
-    case 1:
+    case THit_CrtrsNObjcts:
         if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
           return false;
         return true;
-    case 2:
+    case THit_CrtrsOnly:
         if (thing->class_id != TCls_Creature)
             return false;
         return true;
-    case 3:
+    case THit_UnownedCrtrsNObjcts:
         if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
             return false;
         if (thing->owner == explode_owner)
             return false;
         return true;
-    case 4:
+    case THit_UnownedCrtrsOnly:
         if (thing->class_id != TCls_Creature)
             return false;
         if (thing->owner == explode_owner)
             return false;
         return true;
-    case 7:
+    case THit_UnownedCrtrsNotArmour:
+        if (thing->class_id != TCls_Creature)
+            return false;
+        if (thing->owner == explode_owner)
+            return false;
+        if (creature_affected_by_spell(thing, SplK_Armour))
+            return false;
+        return true;
+    case THit_HeartOnly:
         if (thing->class_id != TCls_Object)
             return false;
         if (!thing_is_dungeon_heart(thing))
             return false;
         return true;
-    case 8:
+    case THit_All:
         return true;
     default:
         WARNLOG("Illegal hit thing type %d for explosion",(int)hit_type);
@@ -1407,16 +1415,17 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
  * @param max_damage Damage at epicenter of the effect.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  * @param hit_type Defines which things are affected.
+ * @return Gives amount of things which were affected by the explosion.
  */
-void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
-    MapSubtlCoord range, HitPoints max_damage, long blow_strength, unsigned char hit_type)
+long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
+    MapSubtlCoord range, HitPoints max_damage, long blow_strength, ThingHitType hit_type)
 {
     const struct Map *mapblk;
     MapSubtlCoord start_x,start_y;
     MapSubtlCoord end_x,end_y;
     MapCoord max_dist;
     //_DK_explosion_affecting_area(tngsrc, pos, range, max_damage, hit_type); return;
-    if ((hit_type < 1) || (hit_type >= HIT_TYPES_COUNT))
+    if ((hit_type < 1) || (hit_type >= THit_TypesCount))
     {
         ERRORLOG("The %s tries to affect area range %d with invalid hit type %d",thing_model_name(tngsrc),(int)range,(int)hit_type);
         hit_type = 1;
@@ -1441,14 +1450,17 @@ void explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
         create_price_effect(pos, my_player_number, max_damage);
 #endif
     MapSubtlCoord stl_x,stl_y;
+    long num_affected;
+    num_affected = 0;
     for (stl_y = start_y; stl_y <= end_y; stl_y++)
     {
         for (stl_x = start_x; stl_x <= end_x; stl_x++)
         {
             mapblk = get_map_block_at(stl_x, stl_y);
-            explosion_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage, blow_strength, hit_type);
+            num_affected += explosion_affecting_map_block(tngsrc, mapblk, pos, max_dist, max_damage, blow_strength, hit_type);
         }
     }
+    return num_affected;
 }
 
 void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long a3, long a4, unsigned char area_affect_type)
