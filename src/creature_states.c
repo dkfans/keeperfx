@@ -1705,8 +1705,10 @@ short creature_follow_leader(struct Thing *creatng)
     long i;
     //return _DK_creature_follow_leader(creatng);
     leadtng = get_group_leader(creatng);
-    if (!thing_is_invalid(leadtng) || (leadtng->index == creatng->index))
+    if (thing_is_invalid(leadtng) || (leadtng->index == creatng->index))
     {
+        SYNCLOG("The %s owned by player %d can no longer follow leader - it's invalid",
+            thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);
         return 1;
     }
@@ -1714,6 +1716,8 @@ short creature_follow_leader(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     if ((cctrl->spell_flags & CSAfF_Unkn1000) != 0)
     {
+        SYNCLOG("The %s owned by player %d can no longer be in group - flags disallow",
+            thing_model_name(creatng),(int)creatng->owner);
         remove_creature_from_group(creatng);
         set_start_state(creatng);
         return 1;
@@ -1744,6 +1748,8 @@ short creature_follow_leader(struct Thing *creatng)
     }
     if (!found_pos)
     {
+        SYNCLOG("The %s owned by player %d can no longer follow leader - no place for follower",
+            thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);
         return 1;
     }
