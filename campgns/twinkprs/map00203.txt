@@ -187,7 +187,7 @@ REM When reached the AP27 room that leads directly to hero dungeon heart
 IF_ACTION_POINT(27,PLAYER0)
     SET_TIMER(PLAYER_GOOD,TIMER0)
     SET_FLAG(PLAYER0,FLAG0,4)
-    QUICK_OBJECTIVE(10,"Beware, the main hero army is coming! I hope you're prepared for this, as otherwise it may be very short fight. Destroy the heart tainted by their rightfulness!.",PLAYER_GOOD)
+    QUICK_OBJECTIVE(10,"Beware, the main hero army is coming! I hope you're prepared for this, as otherwise it may be very short fight. Destroy the heart tainted by their rightfulness!",PLAYER_GOOD)
 ENDIF
 
 REM There may be delay of some turns before all the above conditions are checked,
