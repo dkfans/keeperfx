@@ -23,6 +23,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -184,21 +186,6 @@ struct ComputerEvent { // sizeof = 44
   long last_test_gameturn; // event last checked time
 };
 
-struct ComputerProcessTypes { // sizeof = 1124
-  char *name;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
-  long field_14;
-  long field_18;
-  long field_1C;
-  struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
-  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-  long field_460;
-};
-
 struct ValidRooms { // sizeof = 8
   long rkind;
   struct ComputerProcess *process;
@@ -348,11 +335,20 @@ struct THate {
 #pragma pack()
 /******************************************************************************/
 extern unsigned short computer_types[];
+
+extern struct ComputerProcessMnemonic computer_process_config_list[];
+extern const struct NamedCommand computer_process_func_type[];
+extern Comp_Process_Func computer_process_func_list[];
+
+extern const struct NamedCommand computer_event_func_type[];
+extern Comp_Event_Func computer_event_func_list[];
+
+extern const struct NamedCommand computer_event_test_func_type[];
+extern Comp_EvntTest_Func computer_event_test_func_list[];
+
+extern const struct NamedCommand computer_check_func_type[];
+extern Comp_Check_Func computer_check_func_list[];
 /******************************************************************************/
-DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[14];
-//#define ComputerProcessLists _DK_ComputerProcessLists
-/******************************************************************************/
-struct ComputerProcessTypes *get_computer_process_type_template(long cpt_idx);
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process);
 void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
 void suspend_process(struct Computer2 *comp, struct ComputerProcess *process);
@@ -380,10 +376,18 @@ TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags);
 /******************************************************************************/
+long count_creatures_in_dungeon(const struct Dungeon *dungeon);
+long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx);
+long count_diggers_in_dungeon(const struct Dungeon *dungeon);
+long check_call_to_arms(struct Computer2 *comp);
+long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
+long count_creatures_for_defend_pickup(struct Computer2 *comp);
+long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
+/******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);
-TbBool load_computer_player_config(unsigned short flags);
 void setup_computer_players2(void);
+void restore_computer_player_after_load(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

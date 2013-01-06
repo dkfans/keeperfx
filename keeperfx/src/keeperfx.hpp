@@ -306,7 +306,6 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 short init_animating_texture_maps(void);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(unsigned char idx);
-void restore_computer_player_after_load(void);
 void draw_swipe(void);
 void draw_bonus_timer(void);
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
