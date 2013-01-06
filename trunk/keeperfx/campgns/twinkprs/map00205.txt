@@ -168,6 +168,8 @@ IF(PLAYER0,TOTAL_CREATURES > 0)
     ENDIF
 ENDIF
 
+QUICK_OBJECTIVE(​1,"While travelling to this land, we've lost our Treasure Room plans. While this issue isn't deadly, it influenced our strategy. We will use existing one, left by keeper long dead now.",PLAYER0)
+
 REM ****************************************************************************
 REM Handle mechanics related to the bottom right entry to hero dungeon.
 REM This entry is a way to getting gems, so it's players first priority.
@@ -299,6 +301,7 @@ IF(PLAYER0,ENTRANCE >= 1)
 ENDIF
 
 IF(PLAYER_GOOD,TIMER0 > 3000)
+    QUICK_OBJECTIVE(​2,"The people of this land know well where to find the old Treasure Room. Expect visits of various heroes, looking either for fame and glory, or just for some easy gold.",PLAYER0)
     ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WEAK_WITBAR,27,1)
 ENDIF
 
@@ -374,9 +377,11 @@ ENDIF
 
 REM If enemy heart destroyed, trigger everything
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
-    SET_TIMER(PLAYER_GOOD,TIMER1)
-    IF(PLAYER_GOOD,TIMER1 > 2600)
-        IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+    IF(PLAYER_GOOD,TIMER1 == 0)
+        SET_TIMER(PLAYER_GOOD,TIMER1)
+    ENDIF
+    IF(PLAYER_GOOD,TIMER1 > 1300)
+        IF(PLAYER_GOOD,TOTAL_CREATURES < 1)
             WIN_GAME
         ENDIF
     ENDIF
