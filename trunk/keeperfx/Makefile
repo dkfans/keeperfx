@@ -116,6 +116,9 @@ obj/player_utils.o \
 obj/dungeon_stats.o \
 obj/player_instances.o \
 obj/player_comptask.o \
+obj/player_compprocs.o \
+obj/player_compevents.o \
+obj/player_compchecks.o \
 obj/player_complookup.o \
 obj/player_computer.o \
 obj/tasks_list.o \
@@ -189,6 +192,7 @@ obj/config_lenses.o \
 obj/config_creature.o \
 obj/config_crtrmodel.o \
 obj/config_crtrstates.o \
+obj/config_compp.o \
 obj/lens_mist.o \
 obj/lens_flyeye.o \
 obj/lens_api.o \

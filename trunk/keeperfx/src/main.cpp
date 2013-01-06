@@ -53,6 +53,7 @@
 #include "config_creature.h"
 #include "config_crtrstates.h"
 #include "config_crtrmodel.h"
+#include "config_compp.h"
 #include "lvl_script.h"
 #include "lvl_filesdk1.h"
 #include "thing_list.h"
@@ -1089,69 +1090,6 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
         return true;
     }
     return false;
-}
-
-void restore_computer_player_after_load(void)
-{
-    struct Computer2 *comp;
-    struct PlayerInfo *player;
-    struct ComputerProcessTypes *cpt;
-    long plyr_idx;
-    long i;
-    SYNCDBG(7,"Starting");
-    //_DK_restore_computer_player_after_load();
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-    {
-        player = get_player(plyr_idx);
-        comp = &game.computer[plyr_idx];
-        if (!player_exists(player))
-        {
-            LbMemorySet(comp, 0, sizeof(struct Computer2));
-            comp->dungeon = INVALID_DUNGEON;
-            continue;
-        }
-        if (player->field_2C != 1)
-        {
-            LbMemorySet(comp, 0, sizeof(struct Computer2));
-            comp->dungeon = get_players_dungeon(player);
-            continue;
-        }
-        comp->dungeon = get_players_dungeon(player);
-        cpt = get_computer_process_type_template(comp->model);
-
-        for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
-        {
-            if (cpt->processes[i] == NULL)
-                break;
-            //if (cpt->processes[i]->name == NULL)
-            //    break;
-            SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
-            comp->processes[i].name = cpt->processes[i]->name;
-            comp->processes[i].parent = cpt->processes[i];
-            comp->processes[i].func_check = cpt->processes[i]->func_check;
-            comp->processes[i].func_setup = cpt->processes[i]->func_setup;
-            comp->processes[i].func_task = cpt->processes[i]->func_task;
-            comp->processes[i].func_complete = cpt->processes[i]->func_complete;
-            comp->processes[i].func_pause = cpt->processes[i]->func_pause;
-        }
-        for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
-        {
-            if (cpt->checks[i].name == NULL)
-              break;
-            SYNCDBG(12,"Player %ld check %ld is \"%s\"",plyr_idx,i,cpt->checks[i].name);
-            comp->checks[i].name = cpt->checks[i].name;
-            comp->checks[i].func = cpt->checks[i].func;
-        }
-        for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
-        {
-            if (cpt->events[i].name == NULL)
-              break;
-            comp->events[i].name = cpt->events[i].name;
-            comp->events[i].func_event = cpt->events[i].func_event;
-            comp->events[i].func_test = cpt->events[i].func_test;
-            comp->events[i].process = cpt->events[i].process;
-        }
-    }
 }
 
 short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
