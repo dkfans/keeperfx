@@ -82,12 +82,12 @@ long good_find_enemy_dungeon(struct Thing *thing)
         {
           if ( creature_can_get_to_dungeon(thing, i) )
           {
-              SYNCDBG(18,"Returning enemy player %ld",i);
+              SYNCDBG(8,"The %s index %d can get to enemy player %d",thing_model_name(thing),(int)thing->index,(int)i);
               return i;
           }
         }
     }
-    SYNCDBG(18,"No enemy found");
+    SYNCDBG(8,"The %s index %d cannot find an enemy",thing_model_name(thing),(int)thing->index);
     return -1;
 }
 
@@ -414,62 +414,62 @@ short good_doing_nothing(struct Thing *thing)
     i = cctrl->sbyte_89;
     if (i != -1)
     {
-      player = get_player(i);
-      if (player_invalid(player))
-      {
-          ERRORLOG("Invalid target player in thing no %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
+        player = get_player(i);
+        if (player_invalid(player))
+        {
+            ERRORLOG("Invalid target player in thing no %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
+            cctrl->sbyte_89 = -1;
+            return 0;
+        }
+        if (player->victory_state != VicS_LostLevel)
+        {
+            nturns = game.play_gameturn - cctrl->long_91;
+            if (nturns <= 400)
+            {
+                if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
+                {
+                  thing->continue_state = CrSt_GoodDoingNothing;
+                  return 0;
+                }
+            } else
+            {
+                if (!creature_can_get_to_dungeon(thing,i))
+                {
+                  cctrl->sbyte_89 = -1;
+                }
+            }
+        } else
+        {
           cctrl->sbyte_89 = -1;
-          return 0;
-      }
-      if (player->victory_state != VicS_LostLevel)
-      {
-          nturns = game.play_gameturn - cctrl->long_91;
-          if (nturns <= 400)
-          {
-              if (creature_choose_random_destination_on_valid_adjacent_slab(thing))
-              {
-                thing->continue_state = CrSt_GoodDoingNothing;
-                return 0;
-              }
-          } else
-          {
-              if (!creature_can_get_to_dungeon(thing,i))
-              {
-                cctrl->sbyte_89 = -1;
-              }
-          }
-      } else
-      {
-        cctrl->sbyte_89 = -1;
-      }
+        }
     }
     i = cctrl->sbyte_89;
     if (i == -1)
     {
-      nturns = game.play_gameturn - cctrl->long_91;
-      if (nturns > 400)
-      {
-          cctrl->long_91 = game.play_gameturn;
-          cctrl->byte_8C = 1;
-      }
-      nturns = game.play_gameturn - cctrl->long_8D;
-      if (nturns > 64)
-      {
-          cctrl->long_8D = game.play_gameturn;
-          cctrl->sbyte_89 = good_find_enemy_dungeon(thing);
-      }
-      i = cctrl->sbyte_89;
-      if (i == -1)
-      {
-          SYNCDBG(4,"No enemy dungeon to perform task");
-          if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
-          {
-              thing->continue_state = CrSt_GoodDoingNothing;
-              return 1;
-          }
-          cctrl->field_5 = game.play_gameturn + 16;
-      }
-      return 1;
+        nturns = game.play_gameturn - cctrl->long_91;
+        if (nturns > 400)
+        {
+            cctrl->long_91 = game.play_gameturn;
+            cctrl->byte_8C = 1;
+        }
+        nturns = game.play_gameturn - cctrl->long_8D;
+        if (nturns > 64)
+        {
+            cctrl->long_8D = game.play_gameturn;
+            cctrl->sbyte_89 = good_find_enemy_dungeon(thing);
+        }
+        i = cctrl->sbyte_89;
+        if (i == -1)
+        {
+            SYNCDBG(4,"No enemy dungeon to perform task");
+            if ( creature_choose_random_destination_on_valid_adjacent_slab(thing) )
+            {
+                thing->continue_state = CrSt_GoodDoingNothing;
+                return 1;
+            }
+            cctrl->field_5 = game.play_gameturn + 16;
+        }
+        return 1;
     }
     SYNCDBG(8,"Performing task %d",(int)cctrl->field_4);
     switch (cctrl->field_4)
@@ -690,11 +690,11 @@ short creature_hero_entering(struct Thing *thing)
     {
         if (is_neutral_thing(thing))
         {
-            set_start_state(thing);
+            initialise_thing_state(thing, CrSt_CreatureDormant);
             cctrl->field_282--;
             return 0;
         }
-        initialise_thing_state(thing, CrSt_CreatureDormant);
+        set_start_state(thing);
     }
     cctrl->field_282--;
     return 0;

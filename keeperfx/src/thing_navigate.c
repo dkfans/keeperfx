@@ -321,7 +321,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
     player = get_player(plyr_idx);
     if (!player_exists(player) || (player->field_2C != 1))
     {
-        //WARNLOG("Cannot navigate to inactive player");
+        SYNCDBG(18,"The %s index %d cannot get to inactive player %d",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
     dungeon = get_dungeon(player->id_number);
@@ -330,11 +330,14 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
         heartng = thing_get(dungeon->dnheart_idx);
     if (thing_is_invalid(heartng))
     {
-        //WARNLOG("Cannot navigate to player without heart");
+        SYNCDBG(18,"The %s index %d cannot get to player %d without heart",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
     if (heartng->active_state == ObSt_State3)
+    {
+        SYNCDBG(18,"The %s index %d cannot get to player %d due to heart state",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
+    }
     return  creature_can_navigate_to(creatng, &heartng->mappos, 0);
 }
 
