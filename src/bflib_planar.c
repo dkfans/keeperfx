@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "bflib_math.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -70,7 +72,8 @@ long get_angle_sign(long angle_a, long angle_b)
  */
 long distance_with_angle_to_coord_x(long distance, long angle)
 {
-    return distance * LbSinL(angle) >> 16;
+    long long val = (long long)distance * LbSinL(angle);
+    return val >> 16;
 }
 
 /**
@@ -80,7 +83,8 @@ long distance_with_angle_to_coord_x(long distance, long angle)
  */
 long distance_with_angle_to_coord_y(long distance, long angle)
 {
-    return - (distance * LbCosL(angle) >> 8) >> 8;
+    long long val = - (long long)distance * LbCosL(angle);
+    return val >> 16;
 }
 
 /**
@@ -91,7 +95,8 @@ long distance_with_angle_to_coord_y(long distance, long angle)
  */
 long move_coord_with_angle_x(long pos_x, long distance, long angle)
 {
-    return pos_x + distance * LbSinL(angle) >> 16;
+    long long val = - (long long)distance * LbSinL(angle);
+    return pos_x + (val >> 16);
 }
 
 /**
@@ -102,7 +107,8 @@ long move_coord_with_angle_x(long pos_x, long distance, long angle)
  */
 long move_coord_with_angle_y(long pos_y, long distance, long angle)
 {
-    return pos_y - (distance * LbCosL(angle) >> 8) >> 8;
+    long long val = - (long long)distance * LbCosL(angle);
+    return pos_y + (val >> 16);
 }
 /******************************************************************************/
 #ifdef __cplusplus

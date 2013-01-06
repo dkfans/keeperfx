@@ -29,10 +29,12 @@
 #include "bflib_math.h"
 
 #include "config.h"
+#include "config_compp.h"
 #include "creature_states.h"
 #include "magic.h"
 #include "thing_traps.h"
 #include "player_complookup.h"
+#include "power_hand.h"
 #include "game_legacy.h"
 #include "skirmish_ai.h"
 
@@ -40,55 +42,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_compplayer_file[]="keepcompp.cfg";
-
-const struct NamedCommand compp_common_commands[] = {
-  {"COMPUTERASSISTS", 1},
-  {"PROCESSESCOUNT",  2},
-  {"CHECKSCOUNT",     3},
-  {"EVENTSCOUNT",     4},
-  {"COMPUTERSCOUNT",  5},
-  {NULL,              0},
-  };
-
-const struct NamedCommand compp_process_commands[] = {
-  {"NAME",            1},
-  {"VALUES",          2},
-  {"FUNCTIONS",       3},
-  {"PARAMS",          4},
-  {"MNEMONIC",        5},
-  {NULL,              0},
-  };
-
-const struct NamedCommand compp_check_commands[] = {
-  {"NAME",            1},
-  {"VALUES",          2},
-  {"FUNCTIONS",       3},
-  {"PARAMS",          4},
-  {"MNEMONIC",        5},
-  {NULL,              0},
-  };
-
-const struct NamedCommand compp_event_commands[] = {
-  {"NAME",            1},
-  {"VALUES",          2},
-  {"FUNCTIONS",       3},
-  {"PROCESS",         4},
-  {"PARAMS",          5},
-  {"MNEMONIC",        6},
-  {NULL,              0},
-  };
-
-const struct NamedCommand compp_computer_commands[] = {
-  {"NAME",            1},
-  {"VALUES",          2},
-  {"PROCESSES",       3},
-  {"CHECKS",          4},
-  {"EVENTS",          5},
-  {NULL,              0},
-  };
-
-struct ComputerPlayerConfig comp_player_conf;
 
 ComputerType computer_assist_types[] = { 6, 7, 8, 9 };
 unsigned short computer_types[] = { 201, 201, 201, 201, 201, 201, 729, 730, 731, 732 };
@@ -109,74 +62,31 @@ DLLIMPORT long _DK_count_creatures_availiable_for_fight(struct Computer2 *comp, 
 DLLIMPORT struct ComputerTask *_DK_is_there_an_attack_task(struct Computer2 *comp);
 DLLIMPORT void _DK_get_opponent(struct Computer2 *comp, struct THate *hate);
 DLLIMPORT long _DK_setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long a4);
-
-DLLIMPORT long _DK_computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_check_build_all_rooms _DK_computer_check_build_all_rooms
-DLLIMPORT long _DK_computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_setup_any_room_continue _DK_computer_setup_any_room_continue
-DLLIMPORT long _DK_computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_check_any_room _DK_computer_check_any_room
-DLLIMPORT long _DK_computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_setup_any_room _DK_computer_setup_any_room
-DLLIMPORT long _DK_computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_check_dig_to_entrance _DK_computer_check_dig_to_entrance
-DLLIMPORT long _DK_computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_setup_dig_to_entrance _DK_computer_setup_dig_to_entrance
-DLLIMPORT long _DK_computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_check_dig_to_gold _DK_computer_check_dig_to_gold
-DLLIMPORT long _DK_computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_setup_dig_to_gold _DK_computer_setup_dig_to_gold
-DLLIMPORT long _DK_computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_check_sight_of_evil _DK_computer_check_sight_of_evil
-DLLIMPORT long _DK_computer_setup_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_setup_sight_of_evil _DK_computer_setup_sight_of_evil
-DLLIMPORT long _DK_computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_process_sight_of_evil _DK_computer_process_sight_of_evil
-DLLIMPORT long _DK_computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_check_attack1 _DK_computer_check_attack1
-DLLIMPORT long _DK_computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_setup_attack1 _DK_computer_setup_attack1
-DLLIMPORT long _DK_computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_completed_attack1 _DK_computer_completed_attack1
-DLLIMPORT long _DK_computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_check_safe_attack _DK_computer_check_safe_attack
-DLLIMPORT long _DK_computer_process_task(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_process_task _DK_computer_process_task
-DLLIMPORT long _DK_computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_completed_build_a_room _DK_computer_completed_build_a_room
-DLLIMPORT long _DK_computer_paused_task(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_paused_task _DK_computer_paused_task
-DLLIMPORT long _DK_computer_completed_task(struct Computer2 *comp, struct ComputerProcess *process);
-//#define computer_completed_task _DK_computer_completed_task
-
-DLLIMPORT long _DK_computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
-DLLIMPORT long _DK_computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
 DLLIMPORT long _DK_count_creatures_for_defend_pickup(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
 DLLIMPORT long _DK_computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
 DLLIMPORT long _DK_check_call_to_arms(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlook);
 
-DLLIMPORT long _DK_computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-DLLIMPORT long _DK_computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-DLLIMPORT long _DK_computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent);
-DLLIMPORT long _DK_computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent);
-DLLIMPORT long _DK_computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
-DLLIMPORT long _DK_computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
-DLLIMPORT long _DK_computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
-DLLIMPORT long _DK_computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
+DLLIMPORT long _DK_computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_setup_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_process_task(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_paused_task(struct Computer2 *comp, struct ComputerProcess *process);
+DLLIMPORT long _DK_computer_completed_task(struct Computer2 *comp, struct ComputerProcess *process);
 
 DLLIMPORT extern struct ComputerProcess _DK_BuildAllRooms3x3;
 #define BuildAllRooms3x3 _DK_BuildAllRooms3x3
@@ -446,31 +356,6 @@ char const move_creature_to_train_text[] = "MOVE CREATURE TO TRAINING";
 char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
 char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
-long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
-long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
-
-long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent);
-long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
-long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
-
 struct ComputerProcessMnemonic computer_process_config_list[] = {
   {"Unused", NULL,},
   {"", &BuildAllRooms3x3,},
@@ -549,1019 +434,7 @@ Comp_Process_Func computer_process_func_list[] = {
   NULL,
 };
 
-ComputerName computer_check_names[COMPUTER_CHECKS_TYPES_COUNT];
-struct ComputerCheck computer_checks[COMPUTER_CHECKS_TYPES_COUNT];
-struct ComputerCheckMnemonic computer_check_config_list[COMPUTER_CHECKS_TYPES_COUNT];
-
-const struct NamedCommand computer_check_func_type[] = {
-  {"checks_hates",            1,},
-  {"check_move_to_best_room", 2,},
-  {"check_move_to_room",      3,},
-  {"check_no_imps",           4,},
-  {"check_for_pretty",        5,},
-  {"check_for_quick_attack",  6,},
-  {"check_for_accelerate",    7,},
-  {"check_slap_imps",         8,},
-  {"check_enemy_entrances",   9,},
-  {"check_for_place_door",   10,},
-  {"check_neutral_places",   11,},
-  {"check_for_place_trap",   12,},
-  {"check_for_expand_room",  13,},
-  {"check_for_money",        14,},
-  {"none",                   15,},
-  {NULL,                      0,},
-};
-
-Comp_Check_Func computer_check_func_list[] = {
-  NULL,
-  computer_checks_hates,
-  computer_check_move_creatures_to_best_room,
-  computer_check_move_creatures_to_room,
-  computer_check_no_imps,
-  computer_check_for_pretty,
-  computer_check_for_quick_attack,
-  computer_check_for_accelerate,
-  computer_check_slap_imps,
-  computer_check_enemy_entrances,
-  computer_check_for_place_door,
-  computer_check_neutral_places,
-  computer_check_for_place_trap,
-  computer_check_for_expand_room,
-  computer_check_for_money,
-  NULL,
-  NULL,
-};
-
-ComputerName computer_event_names[COMPUTER_EVENTS_TYPES_COUNT];
-struct ComputerEvent computer_events[COMPUTER_EVENTS_TYPES_COUNT];
-struct ComputerEventMnemonic computer_event_config_list[COMPUTER_EVENTS_TYPES_COUNT];
-
-const struct NamedCommand computer_event_test_func_type[] = {
-  {"event_battle_test",       1,},
-  {"event_check_fighters",    2,},
-  {"event_attack_magic_foe",  3,},
-  {"event_check_rooms_full",  4,},
-  {"event_check_imps_danger", 5,},
-  {"none",                    6,},
-  {NULL,                      0,},
-};
-
-Comp_EvntTest_Func computer_event_test_func_list[] = {
-  NULL,
-  computer_event_battle_test,
-  computer_event_check_fighters,
-  computer_event_attack_magic_foe,
-  computer_event_check_rooms_full,
-  computer_event_check_imps_in_danger,
-  NULL,
-  NULL,
-};
-
-const struct NamedCommand computer_event_func_type[] = {
-  {"event_battle",            1,},
-  {"event_find_link",         2,},
-  {"event_check_payday",      3,},
-  {"none",                    4,},
-  {NULL,                      0,},
-};
-
-Comp_Event_Func computer_event_func_list[] = {
-  NULL,
-  computer_event_battle,
-  computer_event_find_link,
-  computer_event_check_payday,
-  NULL,
-  NULL,
-};
-
-ComputerName ComputerProcessListsNames[COMPUTER_PROCESS_LISTS_COUNT];
-struct ComputerProcessTypes ComputerProcessLists[COMPUTER_PROCESS_LISTS_COUNT];
 /******************************************************************************/
-
-int get_computer_process_config_list_index_prc(struct ComputerProcess *process)
-{
-  int i;
-  const int arr_size = sizeof(computer_process_config_list)/sizeof(computer_process_config_list[0]);
-  for (i=1; i < arr_size; i++)
-  {
-    if (computer_process_config_list[i].process == process)
-      return i;
-  }
-  return 0;
-}
-
-int get_computer_process_config_list_index_mnem(const char *mnemonic)
-{
-  int i;
-  const int arr_size = sizeof(computer_process_config_list)/sizeof(computer_process_config_list[0]);
-  for (i=1; i < arr_size; i++)
-  {
-    if (stricmp(computer_process_config_list[i].name, mnemonic) == 0)
-      return i;
-  }
-  return 0;
-}
-
-int get_computer_check_config_list_index_mnem(const char *mnemonic)
-{
-  int i;
-  const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
-  for (i=1; i < arr_size; i++)
-  {
-    if (stricmp(computer_check_config_list[i].name, mnemonic) == 0)
-      return i;
-  }
-  return 0;
-}
-
-int get_computer_event_config_list_index_mnem(const char *mnemonic)
-{
-  int i;
-  const int arr_size = sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]);
-  for (i=1; i < arr_size; i++)
-  {
-    if (strcasecmp(computer_event_config_list[i].name, mnemonic) == 0)
-      return i;
-  }
-  return 0;
-}
-
-struct ComputerProcessTypes *get_computer_process_type_template(long cpt_idx)
-{
-    if ((cpt_idx < 0) || (cpt_idx >= COMPUTER_PROCESS_LISTS_COUNT))
-        cpt_idx = 0;
-  return &ComputerProcessLists[cpt_idx];
-}
-
-TbBool computer_type_clear_processes(struct ComputerProcessTypes *cpt)
-{
-  int i;
-  for (i=0; i<COMPUTER_PROCESSES_COUNT; i++)
-  {
-    cpt->processes[i] = NULL;
-  }
-  return true;
-}
-
-int computer_type_add_process(struct ComputerProcessTypes *cpt, struct ComputerProcess *process)
-{
-  int i;
-  for (i=0; i<COMPUTER_PROCESSES_COUNT; i++)
-  {
-      if (cpt->processes[i] == NULL)
-      {
-        cpt->processes[i] = process;
-        return i;
-      }
-  }
-  return -1;
-}
-
-short computer_type_clear_checks(struct ComputerProcessTypes *cpt)
-{
-  int i;
-  for (i=0; i<COMPUTER_CHECKS_COUNT; i++)
-  {
-    LbMemorySet(&cpt->checks[i], 0, sizeof(struct ComputerCheck));
-  }
-  return true;
-}
-
-int computer_type_add_check(struct ComputerProcessTypes *cpt, struct ComputerCheck *check)
-{
-  int i;
-  for (i=0; i<COMPUTER_CHECKS_COUNT; i++)
-  {
-      if (cpt->checks[i].name == NULL)
-      {
-        LbMemoryCopy(&cpt->checks[i], check, sizeof(struct ComputerCheck));
-        return i;
-      }
-  }
-  return -1;
-}
-
-short computer_type_clear_events(struct ComputerProcessTypes *cpt)
-{
-  int i;
-  for (i=0; i<COMPUTER_EVENTS_COUNT; i++)
-  {
-    LbMemorySet(&cpt->events[i], 0, sizeof(struct ComputerEvent));
-  }
-  return true;
-}
-
-int computer_type_add_event(struct ComputerProcessTypes *cpt, struct ComputerEvent *event)
-{
-  int i;
-  for (i=0; i<COMPUTER_EVENTS_COUNT; i++)
-  {
-      if (cpt->events[i].name == NULL)
-      {
-        LbMemoryCopy(&cpt->events[i], event, sizeof(struct ComputerEvent));
-        return i;
-      }
-  }
-  return -1;
-}
-
-short init_computer_process_lists(void)
-{
-  struct ComputerProcessTypes *cpt;
-  int i;
-  for (i=0; i<COMPUTER_PROCESS_LISTS_COUNT; i++)
-  {
-    cpt = &ComputerProcessLists[i];
-    LbMemorySet(cpt, 0, sizeof(struct ComputerProcessTypes));
-    LbMemorySet(ComputerProcessListsNames[i], 0, LINEMSG_SIZE);
-  }
-  for (i=0; i<COMPUTER_PROCESS_LISTS_COUNT-1; i++)
-  {
-    cpt = &ComputerProcessLists[i];
-    cpt->name = ComputerProcessListsNames[i];
-    computer_type_clear_processes(cpt);
-    computer_type_clear_checks(cpt);
-  }
-  return true;
-}
-
-TbBool parse_computer_player_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    long pos;
-    int k,n;
-    int cmd_num;
-    // Block name and parameter word store variables
-    char block_buf[COMMAND_WORD_LEN];
-    char word_buf[COMMAND_WORD_LEN];
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        comp_player_conf.processes_count = 1;
-        comp_player_conf.checks_count = 1;
-        comp_player_conf.events_count = 1;
-        comp_player_conf.computers_count = 1;
-    }
-    // Find the block
-    sprintf(block_buf,"common");
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(compp_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        cmd_num = recognize_conf_command(buf,&pos,len,compp_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        n = 0;
-        switch (cmd_num)
-        {
-        case 1: // COMPUTERASSISTS
-  //TODO DLL_CLEANUP make it work when AI structures from DLL will no longer be used
-            break;
-        case 2: // PROCESSESCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_PROCESS_TYPES_COUNT))
-              {
-                  comp_player_conf.processes_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 3: // CHECKSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_CHECKS_TYPES_COUNT))
-              {
-                  comp_player_conf.checks_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 4: // EVENTSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_EVENTS_TYPES_COUNT))
-              {
-                  comp_player_conf.events_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 5: // COMPUTERSCOUNT
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= COMPUTER_PROCESS_LISTS_COUNT))
-              {
-                  comp_player_conf.computers_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
-short parse_computer_player_process_blocks(char *buf,long len)
-{
-  struct ComputerProcess *process;
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variable
-  char block_buf[32];
-  char word_buf[32];
-  const int arr_size = sizeof(computer_process_config_list)/sizeof(computer_process_config_list[0]);
-  for (i=1; i < arr_size; i++)
-  {
-    sprintf(block_buf,"process%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-      WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
-      continue;
-    }
-    process = computer_process_config_list[i].process;
-    process->parent = NULL;
-    while (pos<len)
-    {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,compp_process_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          //For now, let's leave default names.
-          break;
-      case 2: // VALUES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_4 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_8 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_C = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_10 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_14 = k;
-            n++;
-          }
-          if (n < 5)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
-          }
-          break;
-      case 3: // FUNCTIONS
-          k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-          if (k > 0)
-          {
-              process->func_check = computer_process_func_list[k];
-              n++;
-          }
-          k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-          if (k > 0)
-          {
-              process->func_setup = computer_process_func_list[k];
-              n++;
-          }
-          k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-          if (k > 0)
-          {
-              process->func_task = computer_process_func_list[k];
-              n++;
-          }
-          k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-          if (k > 0)
-          {
-              process->func_complete = computer_process_func_list[k];
-              n++;
-          }
-          k = recognize_conf_parameter(buf,&pos,len,computer_process_func_type);
-          if (k > 0)
-          {
-              process->func_pause = computer_process_func_list[k];
-              n++;
-          }
-          if (n < 5)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
-          }
-          break;
-      case 4: // PARAMS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_30 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_34 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_38 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_3C = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_40 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            process->field_44 = k;
-            n++;
-          }
-          if (n < 6)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
-          }
-          break;
-      case 5: // MNEMONIC
-          if (get_conf_parameter_whole(buf,&pos,len,computer_process_config_list[i].name,sizeof(computer_process_config_list[i].name)) <= 0)
-          {
-            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
-            break;
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-  }
-  return 1;
-}
-
-short parse_computer_player_check_blocks(char *buf,long len)
-{
-  struct ComputerCheck *check;
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[32];
-  char word_buf[32];
-  // Initialize the checks array
-  const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
-  for (i=0; i < arr_size; i++)
-  {
-    check = &computer_checks[i];
-    computer_check_config_list[i].name[0] = '\0';
-    computer_check_config_list[i].check = check;
-    check->name = computer_check_names[i];
-    LbMemorySet(computer_check_names[i], 0, LINEMSG_SIZE);
-  }
-  strcpy(computer_check_names[0],"INCORRECT CHECK");
-  // Load the file
-  for (i=1; i < arr_size; i++)
-  {
-    sprintf(block_buf,"check%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-      WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
-      continue;
-    }
-    check = computer_check_config_list[i].check;
-    while (pos<len)
-    {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,compp_check_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_whole(buf,&pos,len,check->name,LINEMSG_SIZE) <= 0)
-          {
-            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
-            break;
-          }
-          break;
-      case 2: // VALUES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            check->flags = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            check->turns_interval = k;
-            n++;
-          }
-          if (n < 2)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
-          }
-          break;
-      case 3: // FUNCTIONS
-          k = recognize_conf_parameter(buf,&pos,len,computer_check_func_type);
-          if (k > 0)
-          {
-              check->func = computer_check_func_list[k];
-              n++;
-          }
-          if (n < 1)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
-          }
-          break;
-      case 4: // PARAMS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            check->param1 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            check->param2 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            check->param3 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            check->turns_last = k;
-            n++;
-          }
-          if (n < 4)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
-          }
-          break;
-      case 5: // MNEMONIC
-          if (get_conf_parameter_whole(buf,&pos,len,computer_check_config_list[i].name,sizeof(computer_check_config_list[i].name)) <= 0)
-          {
-            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
-            break;
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-  }
-  return 1;
-}
-
-short parse_computer_player_event_blocks(char *buf,long len)
-{
-  struct ComputerEvent *cevent;
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[32];
-  char word_buf[32];
-  // Initialize the events array
-  const int arr_size = sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]);
-  for (i=0; i < arr_size; i++)
-  {
-    cevent = &computer_events[i];
-    computer_event_config_list[i].name[0] = '\0';
-    computer_event_config_list[i].event = cevent;
-    cevent->name = computer_event_names[i];
-    LbMemorySet(computer_event_names[i], 0, LINEMSG_SIZE);
-  }
-  strcpy(computer_event_names[0],"INCORRECT EVENT");
-  // Load the file
-  for (i=1; i < arr_size; i++)
-  {
-    sprintf(block_buf,"event%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-      WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
-      continue;
-    }
-    cevent = computer_event_config_list[i].event;
-    while (pos<len)
-    {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,compp_event_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_whole(buf,&pos,len,cevent->name,LINEMSG_SIZE) <= 0)
-          {
-            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
-            break;
-          }
-          break;
-      case 2: // VALUES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cevent->cetype = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cevent->field_8 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cevent->test_interval = k;
-            n++;
-          }
-          if (n < 3)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
-          }
-          break;
-      case 3: // FUNCTIONS
-          k = recognize_conf_parameter(buf,&pos,len,computer_event_func_type);
-          if (k > 0)
-          {
-              cevent->func_event = computer_event_func_list[k];
-              n++;
-          }
-          k = recognize_conf_parameter(buf,&pos,len,computer_event_test_func_type);
-          if (k > 0)
-          {
-              cevent->func_test = computer_event_test_func_list[k];
-              n++;
-          }
-          if (n < 2)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","FUNCTIONS",block_buf);
-          }
-          break;
-      case 4: // PROCESS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_computer_process_config_list_index_mnem(word_buf);
-            if (k > 0)
-            {
-              cevent->process = computer_process_config_list[k].process;
-            } else
-            {
-              WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","PROCESS",word_buf);
-            }
-          }
-          break;
-      case 5: // PARAMS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cevent->param1 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cevent->param2 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cevent->param3 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cevent->last_test_gameturn = k;
-            n++;
-          }
-          if (n < 4)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","PARAMS",block_buf);
-          }
-          break;
-      case 6: // MNEMONIC
-          if (get_conf_parameter_whole(buf,&pos,len,computer_event_config_list[i].name,sizeof(computer_event_config_list[i].name)) <= 0)
-          {
-            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","MNEMONIC",block_buf);
-            break;
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-  }
-  return 1;
-}
-
-short write_computer_player_check_to_log(struct ComputerCheck *check)
-{
-  JUSTMSG("[checkXX]");
-  JUSTMSG("Name = %s",check->name);
-  JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d",check->flags,check->turns_interval);
-  JUSTMSG("Functions = %x",check->func);
-  JUSTMSG("Params = %d %d %d %d",check->param1,check->param2,check->param3,check->turns_last);
-  return true;
-}
-
-short write_computer_player_event_to_log(struct ComputerEvent *event)
-{
-  JUSTMSG("[eventXX]");
-  JUSTMSG("Name = %s",event->name);
-  JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d %d",event->cetype,event->field_8,event->test_interval);
-  JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
-  JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->last_test_gameturn);
-  return true;
-}
-
-short parse_computer_player_computer_blocks(char *buf,long len)
-{
-  struct ComputerProcessTypes *cpt;
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variable
-  char block_buf[32];
-  char word_buf[32];
-  const int arr_size = sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0])-1;
-  for (i=0; i < arr_size; i++)
-  {
-    sprintf(block_buf,"computer%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
-    {
-      WARNMSG("Block [%s] not found in Computer Player file.",block_buf);
-      continue;
-    }
-    cpt = &ComputerProcessLists[i];
-    while (pos<len)
-    {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,compp_computer_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      n = 0;
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_whole(buf,&pos,len,cpt->name,LINEMSG_SIZE) <= 0)
-          {
-            WARNMSG("Couldn't read \"%s\" parameter in [%s] block of Computer file.","NAME",block_buf);
-            break;
-          }
-          break;
-      case 2: // VALUES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cpt->field_4 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cpt->field_8 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cpt->field_C = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cpt->field_10 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cpt->field_14 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cpt->field_18 = k;
-            n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            cpt->field_1C = k;
-            n++;
-          }
-          if (n < 7)
-          {
-            WARNMSG("Couldn't recognize all \"%s\" parameters in [%s] block of Computer file.","VALUES",block_buf);
-          }
-          break;
-      case 3: // PROCESSES
-          computer_type_clear_processes(cpt);
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_computer_process_config_list_index_mnem(word_buf);
-            if (k <= 0)
-            {
-              WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","PROCESSES",word_buf);
-              continue;
-            }
-            n = computer_type_add_process(cpt, computer_process_config_list[k].process);
-            if (n < 0)
-              WARNMSG("Couldn't add \"%s\" list element \"%s\" when reading Computer file.","PROCESSES",word_buf);
-          }
-          break;
-      case 4: // CHECKS
-          computer_type_clear_checks(cpt);
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_computer_check_config_list_index_mnem(word_buf);
-            if (k <= 0)
-            {
-              WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","CHECKS",word_buf);
-              continue;
-            }
-            n = computer_type_add_check(cpt, computer_check_config_list[k].check);
-            if (n < 0)
-              WARNMSG("Couldn't add \"%s\" list element \"%s\" when reading Computer file.","CHECKS",word_buf);
-          }
-          break;
-      case 5: // EVENTS
-          computer_type_clear_events(cpt);
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_computer_event_config_list_index_mnem(word_buf);
-            if (k <= 0)
-            {
-              WARNMSG("Couldn't recognize \"%s\" parameter \"%s\" in Computer file.","EVENTS",word_buf);
-              continue;
-            }
-            n = computer_type_add_event(cpt, computer_event_config_list[k].event);
-            if (n < 0)
-              WARNMSG("Couldn't add \"%s\" list element \"%s\" when reading Computer file.","EVENTS",word_buf);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          WARNMSG("Unrecognized command in Computer Player file, starting on byte %d.",pos);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
-  }
-  return 1;
-}
-
-TbBool load_computer_player_config(unsigned short flags)
-{
-  static const char *textname = "Computer Player";
-  const char *fname;
-  char *buf;
-  long len;
-  init_computer_process_lists();
-  // Load the config file
-  fname = prepare_file_path(FGrp_FxData,keeper_compplayer_file);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
-    return false;
-  }
-  if (len > 65536)
-  {
-    ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  if (len>0)
-  {
-    parse_computer_player_common_blocks(buf,len, textname, flags);
-    parse_computer_player_process_blocks(buf,len);
-    parse_computer_player_check_blocks(buf,len);
-    parse_computer_player_event_blocks(buf,len);
-    parse_computer_player_computer_blocks(buf,len);
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  // Hack to synchronize local structure with the one inside DLL.
-  // Remove when it's not needed anymore.
-  LbMemoryCopy(_DK_ComputerProcessLists,ComputerProcessLists,13*sizeof(struct ComputerProcessTypes));
-  return true;
-}
-
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process)
 {
   Comp_Process_Func callback;
@@ -1615,7 +488,76 @@ long get_computer_money_less_cost(struct Computer2 *comp)
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
 {
     //TODO COMPUTER_EVENT_BREACH needs this function; may be also used somewhere else - not sure
-    return 0;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    //return _DK_make_all_players_creatures_angry(plyr_idx);
+    int stl_x, stl_y;
+    stl_x = 0;
+    stl_y = 0;
+    if (pos != NULL)
+    {
+      stl_x = pos->x.stl.num;
+      stl_y = pos->y.stl.num;
+    }
+    int count;
+    count = 0;
+    k = 0;
+    i = comp->dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing))
+        {
+            if ((thing->active_state != CrSt_CreatureUnconscious) && (!cctrl->combat_flags))
+            {
+                if (!creature_is_called_to_arms(thing) && !creature_is_being_dropped(thing))
+                {
+                    struct StateInfo *stati;
+                    int n;
+                    if (thing->active_state == CrSt_MoveToPosition)
+                        n = thing->continue_state;
+                    else
+                        n = thing->active_state;
+                    stati = get_thing_state_info_num(n);
+                    if ((stati->state_type != 1) || a4 )
+                    {
+                        if (room_is_invalid(room))
+                        {
+                            if (abs(thing->mappos.x.stl.num - stl_x) + abs(thing->mappos.y.stl.num - stl_y) < 2 )
+                              continue;
+                        } else
+                        {
+                            //This needs finishing
+                            //if ( !person_will_do_job_for_room(thing, room) )
+                              continue;
+                        }
+                        count++;
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return count;
 }
 
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, unsigned short rkind, long a3, long a4, long a5)
@@ -2120,252 +1062,14 @@ long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
     return count;
 }
 
-long count_creatures_in_dungeon(struct Dungeon *dungeon)
+long count_creatures_in_dungeon(const struct Dungeon *dungeon)
 {
     return count_player_list_creatures_of_model(dungeon->creatr_list_start, 0);
 }
 
-long count_imps_in_dungeon(struct Dungeon *dungeon)
+long count_diggers_in_dungeon(const struct Dungeon *dungeon)
 {
     return count_player_list_creatures_of_model(dungeon->digger_list_start, 0);
-}
-
-long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    struct Dungeon *compdngn;
-    SYNCDBG(8,"Starting");
-    //return _DK_computer_checks_hates(comp, check);
-    compdngn = comp->dungeon;
-    // Reference values for checking hate
-    int cdngn_creatrs, cdngn_spwrkrs, cdngn_enrancs;
-    cdngn_creatrs = count_creatures_in_dungeon(compdngn);
-    cdngn_spwrkrs = count_imps_in_dungeon(compdngn);
-    cdngn_enrancs = count_entrances(comp, compdngn->owner);
-    // Now check hate for every player
-    int i;
-    for (i=0; i < PLAYERS_COUNT; i++)
-    {
-        struct PlayerInfo *player;
-        struct Dungeon *dungeon;
-        struct Comp2_UnkStr1 *rel;
-        player = get_player(i);
-        dungeon = get_players_dungeon(player);
-        rel = &comp->unkarr_A10[i];
-        if (!player_exists(player) || (player->id_number == compdngn->owner)
-         || (player->id_number == game.neutral_player_num))
-            continue;
-        if (player->field_2C != 1)
-            continue;
-        if (players_are_mutual_allies(compdngn->owner, i))
-            continue;
-        int hdngn_creatrs, hdngn_spwrkrs, hdngn_enrancs;
-        int hate_reasons;
-        hate_reasons = 0;
-        hdngn_creatrs = count_creatures_in_dungeon(dungeon);
-        hdngn_spwrkrs = count_imps_in_dungeon(dungeon);
-        if (hdngn_creatrs >= cdngn_creatrs)
-        {
-            hate_reasons++;
-            rel->field_42++;
-        }
-        if (cdngn_spwrkrs / 6 + cdngn_spwrkrs < hdngn_spwrkrs)
-        {
-            hate_reasons++;
-            rel->field_42++;
-        }
-        if (((int)compdngn->buildable_rooms_count + (int)compdngn->buildable_rooms_count / 6) < (int)dungeon->buildable_rooms_count)
-        {
-            hate_reasons++;
-            rel->field_42++;
-        }
-        hdngn_enrancs = count_entrances(comp, i);
-        if (hdngn_enrancs > cdngn_enrancs)
-        {
-            hate_reasons++;
-            rel->field_42 += 5;
-        }
-        // If no reason to hate the player - hate him randomly for just surviving that long
-        if ((hate_reasons <= 0) && (check->param2 < game.play_gameturn))
-        {
-            if (ACTION_RANDOM(100) < 20) {
-                rel->field_42++;
-            }
-        }
-    }
-    return 4;
-}
-
-long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_move_creatures_to_best_room(comp, check);
-}
-
-long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_move_creatures_to_room(comp, check);
-}
-
-long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_no_imps(comp, check);
-}
-
-long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_pretty(comp, check);
-}
-
-long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_quick_attack(comp, check);
-}
-
-struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *comp, struct Room *room)
-{
-    struct Dungeon *dungeon;
-    struct StateInfo *stati;
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    unsigned long k;
-    long i,n;
-    dungeon = comp->dungeon;
-    i = room->creatures_list;
-    k = 0;
-    while (i != 0)
-    {
-      thing = thing_get(i);
-      cctrl = creature_control_get_from_thing(thing);
-      if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-      {
-        ERRORLOG("Jump to invalid creature %ld detected",i);
-        break;
-      }
-      i = cctrl->next_in_room;
-      // Per creature code
-      if (!thing_affected_by_spell(thing, SplK_Speed))
-      {
-          if (thing->active_state == CrSt_MoveToPosition)
-              n = thing->continue_state;
-          else
-              n = thing->active_state;
-          stati = get_thing_state_info_num(n);
-          if (stati->state_type == 1)
-          {
-              if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > 0)
-              {
-                  return thing;
-              }
-          }
-      }
-      // Per creature code ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        break;
-      }
-    }
-    return INVALID_THING;
-}
-
-struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(struct Computer2 *comp, RoomKind rkind)
-{
-    struct Dungeon *dungeon;
-    struct Room *room;
-    struct Thing *thing;
-    long i;
-    unsigned long k;
-    if ((rkind < 1) || (rkind > ROOM_TYPES_COUNT))
-    {
-        ERRORLOG("Invalid room kind %d",(int)rkind);
-        return INVALID_THING;
-    }
-    dungeon = comp->dungeon;
-    if (dungeon_invalid(dungeon))
-    {
-        ERRORLOG("Invalid computer players dungeon");
-        return INVALID_THING;
-    }
-    i = dungeon->room_kind[rkind];
-    k = 0;
-    while (i != 0)
-    {
-      room = room_get(i);
-      if (room_is_invalid(room))
-      {
-        ERRORLOG("Jump to invalid room detected");
-        break;
-      }
-      i = room->next_of_owner;
-      // Per-room code
-      thing = computer_check_creatures_in_room_for_accelerate(comp, room);
-      if (!thing_is_invalid(thing))
-          return thing;
-      // Per-room code ends
-      k++;
-      if (k > ROOMS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping rooms list");
-        break;
-      }
-    }
-    return INVALID_THING;
-}
-
-long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
-    struct Thing *thing;
-    long i,n;
-    SYNCDBG(8,"Starting");
-    //return _DK_computer_check_for_accelerate(comp, check);
-    if (computer_able_to_use_magic(comp, 11, 8, 3) != 1)
-    {
-        return 4;
-    }
-    n = check->param2 % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
-    if (n <= 0)
-        n = ACTION_RANDOM(sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
-    for (i=0; i < sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]); i++)
-    {
-        thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(comp, workers_in_rooms[n]);
-        if (!thing_is_invalid(thing))
-        {
-            SYNCDBG(8,"Cast on thing %d",(int)thing->index);
-            return 1;
-        }
-        n = (n+1) % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
-    }
-    return 4;
-}
-
-long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_slap_imps(comp, check);
-}
-
-long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_enemy_entrances(comp, check);
-}
-
-long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_place_door(comp, check);
-}
-
-long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_neutral_places(comp, check);
 }
 
 long computer_choose_best_trap_kind_to_place(struct Dungeon *dungeon, long kind_auto, long kind_preselect)
@@ -2471,12 +1175,6 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
         }
     }
     return 4;
-}
-
-long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)
-{
-    SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_expand_room(comp, check);
 }
 
 long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Computer2 *comp, struct Room *room, long thing_idx, long tasks_limit)
@@ -2618,126 +1316,9 @@ long check_call_to_arms(struct Computer2 *comp)
     return _DK_check_call_to_arms(comp);
 }
 
-long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
-{
-    long creatrs_def, creatrs_num;
-    struct Coord3d pos;
-    //return _DK_computer_event_battle(comp, cevent, event);
-    pos.x.stl.num = event->mappos_x;
-    pos.x.stl.pos = 0;
-    pos.y.stl.num = event->mappos_y;
-    pos.y.stl.pos = 0;
-    pos.z.val = 0;
-    if ((pos.x.val <= 0) || (pos.y.val <= 0))
-        return false;
-    creatrs_def = count_creatures_for_defend_pickup(comp);
-    creatrs_num = creatrs_def * (long)cevent->param1 / 100;
-    if ((creatrs_num < 1) && (creatrs_def > 0))
-        creatrs_num = 1;
-    if (creatrs_num <= 0)
-        return false;
-    if (!computer_find_non_solid_block(comp, &pos))
-        return false;
-    if (!get_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
-    {
-        return create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2);
-    } else
-    if (computer_able_to_use_magic(comp, 6, 1, 1) == 1)
-    {
-        if (!get_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0))
-        {
-            if ( check_call_to_arms(comp) )
-            {
-                return create_task_magic_call_to_arms(comp, &pos, creatrs_num);
-            }
-        }
-    }
-    return false;
-}
-
-long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
-{
-  return _DK_computer_event_find_link(comp, cevent, event);
-}
-
-long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent)
-{
-  return _DK_computer_event_battle_test(comp, cevent);
-}
-
-long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
-{
-  return _DK_computer_event_check_fighters(comp, cevent);
-}
-
-long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent)
-{
-  return _DK_computer_event_attack_magic_foe(comp, cevent);
-}
-
-long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
-{
-  return _DK_computer_event_check_rooms_full(comp, cevent);
-}
-
-long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
-{
-  return _DK_computer_event_check_imps_in_danger(comp, cevent);
-}
-
-long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
-{
-  return _DK_computer_event_check_payday(comp, cevent, event);
-}
-
-long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
-{
-    //TODO COMPUTER_EVENT_BREACH is remade from beta; make it work (if it's really needed)
-    struct ComputerTask *ctask;
-    struct Coord3d pos;
-    long i,count;
-
-    //TODO COMPUTER_EVENT_BREACH check why mappos_x and mappos_y isn't used normally
-    pos.x.val = ((event->mappos_x & 0xFF) << 8);
-    pos.y.val = (((event->mappos_x >> 8) & 0xFF) << 8);
-    if ((pos.x.val <= 0) || (pos.y.val <= 0))
-    {
-        return 0;
-    }
-    count = count_creatures_for_pickup(comp, &pos, 0, cevent->param2);
-    i = count * cevent->param1 / 100;
-    if ((i <= 0) && (count > 0))
-    {
-        i = 1;
-    }
-    if (i <= 0)
-    {
-        return 4;
-    }
-    if (!computer_find_non_solid_block(comp, &pos))
-    {
-        return 4;
-    }
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask))
-    {
-        return 4;
-    }
-    ctask->ttype = CTT_MoveCreaturesToDefend;
-    ctask->pos_76.x.val = pos.x.val;
-    ctask->pos_76.y.val = pos.y.val;
-    ctask->pos_76.z.val = pos.z.val;
-    ctask->field_7C = i;
-    ctask->field_70 = cevent->param2;
-    ctask->field_A = game.play_gameturn;
-    ctask->field_5C = game.play_gameturn;
-    ctask->field_60 = comp->field_34;
-    return 1;
-}
-
 void setup_a_computer_player(unsigned short plyridx, long comp_model)
 {
-  struct ComputerProcessTypes *cproctype;
+  struct ComputerProcessTypes *cpt;
   struct ComputerProcess *process;
   struct ComputerProcess *newproc;
   struct ComputerCheck *check;
@@ -2750,14 +1331,14 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
   //_DK_setup_a_computer_player(plyridx, comp_model); return;
   comp = &game.computer[plyridx];
   LbMemorySet(comp, 0, sizeof(struct Computer2));
-  cproctype = &ComputerProcessLists[comp_model];
+  cpt = get_computer_process_type_template(comp_model);
   comp->dungeon = get_players_num_dungeon(plyridx);
   comp->model = comp_model;
-  comp->field_18 = cproctype->field_C;
-  comp->field_14 = cproctype->field_8;
-  comp->field_30 = cproctype->field_10;
-  comp->field_2C = cproctype->field_14;
-  comp->field_20 = cproctype->field_18;
+  comp->field_18 = cpt->field_C;
+  comp->field_14 = cpt->field_8;
+  comp->field_30 = cpt->field_10;
+  comp->field_2C = cpt->field_14;
+  comp->field_20 = cpt->field_18;
   comp->field_C = 1;
   comp->field_0 = 2;
 
@@ -2769,11 +1350,11 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
     else
       unkptr->field_6 = 0;
   }
-  comp->field_1C = cproctype->field_4;
+  comp->field_1C = cpt->field_4;
 
   for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
   {
-    process = cproctype->processes[i];
+    process = cpt->processes[i];
     newproc = &comp->processes[i];
     if ((process == NULL) || (process->name == NULL))
     {
@@ -2794,7 +1375,7 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
 
   for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
   {
-    check = &cproctype->checks[i];
+    check = &cpt->checks[i];
     newchk = &comp->checks[i];
     if ((check == NULL) || (check->name == NULL))
     {
@@ -2811,7 +1392,7 @@ void setup_a_computer_player(unsigned short plyridx, long comp_model)
 
   for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
   {
-    event = &cproctype->events[i];
+    event = &cpt->events[i];
     newevnt = &comp->events[i];
     if ((event == NULL) || (event->name == NULL))
     {
@@ -3128,6 +1709,69 @@ void setup_computer_players2(void)
       }
     }
   }
+}
+
+void restore_computer_player_after_load(void)
+{
+    struct Computer2 *comp;
+    struct PlayerInfo *player;
+    struct ComputerProcessTypes *cpt;
+    long plyr_idx;
+    long i;
+    SYNCDBG(7,"Starting");
+    //_DK_restore_computer_player_after_load();
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        player = get_player(plyr_idx);
+        comp = &game.computer[plyr_idx];
+        if (!player_exists(player))
+        {
+            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            comp->dungeon = INVALID_DUNGEON;
+            continue;
+        }
+        if (player->field_2C != 1)
+        {
+            LbMemorySet(comp, 0, sizeof(struct Computer2));
+            comp->dungeon = get_players_dungeon(player);
+            continue;
+        }
+        comp->dungeon = get_players_dungeon(player);
+        cpt = get_computer_process_type_template(comp->model);
+
+        for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
+        {
+            if (cpt->processes[i] == NULL)
+                break;
+            //if (cpt->processes[i]->name == NULL)
+            //    break;
+            SYNCDBG(12,"Player %ld process %ld is \"%s\"",plyr_idx,i,cpt->processes[i]->name);
+            comp->processes[i].name = cpt->processes[i]->name;
+            comp->processes[i].parent = cpt->processes[i];
+            comp->processes[i].func_check = cpt->processes[i]->func_check;
+            comp->processes[i].func_setup = cpt->processes[i]->func_setup;
+            comp->processes[i].func_task = cpt->processes[i]->func_task;
+            comp->processes[i].func_complete = cpt->processes[i]->func_complete;
+            comp->processes[i].func_pause = cpt->processes[i]->func_pause;
+        }
+        for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
+        {
+            if (cpt->checks[i].name == NULL)
+              break;
+            SYNCDBG(12,"Player %ld check %ld is \"%s\"",plyr_idx,i,cpt->checks[i].name);
+            comp->checks[i].name = cpt->checks[i].name;
+            comp->checks[i].func = cpt->checks[i].func;
+        }
+        for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
+        {
+            if (cpt->events[i].name == NULL)
+              break;
+            comp->events[i].name = cpt->events[i].name;
+            comp->events[i].func_event = cpt->events[i].func_event;
+            comp->events[i].func_test = cpt->events[i].func_test;
+            comp->events[i].process = cpt->events[i].process;
+        }
+    }
 }
 
 /******************************************************************************/

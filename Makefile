@@ -199,7 +199,11 @@ obj/map_utils.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \
+obj/player_compchecks.o \
+obj/player_compevents.o \
 obj/player_complookup.o \
+obj/config_compp.o \
+obj/player_compprocs.o \
 obj/player_comptask.o \
 obj/player_computer.o \
 obj/player_data.o \

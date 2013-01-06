@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file player_computer.c
+/** @file player_comptask.c
  *     Computer player definitions and activities.
  * @par Purpose:
  *     Defines a computer player control variables and events/checks/processes

@@ -793,6 +793,17 @@ TbBool creature_is_escaping_death(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_called_to_arms(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_AlreadyAtCallToArms) || (i == CrSt_ArriveAtCallToArms))
+        return true;
+    return false;
+}
+
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
     CrtrStateId i;

@@ -635,7 +635,8 @@ short good_wait_in_exit_door(struct Thing *thing)
     // Debug code to find incorrect states
     if (thing->owner != hero_player_number)
     {
-        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
+        ERRORLOG("Non hero thing %s index %d, owner %d - reset",
+            thing_model_name(thing), (int)thing->index, (int)thing->owner);
         set_start_state(thing);
         erstat_inc(ESE_BadCreatrState);
         return 0;
@@ -652,9 +653,9 @@ short good_wait_in_exit_door(struct Thing *thing)
         {
             if (cctrl->byte_8A == tmptng->creation_turn)
             {
-              remove_thing_from_creature_controlled_limbo(thing);
-              set_start_state(thing);
-              return 1;
+                remove_thing_from_creature_controlled_limbo(thing);
+                set_start_state(thing);
+                return 1;
             }
         }
         thing->creature.gold_carried = 0;
