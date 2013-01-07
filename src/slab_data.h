@@ -109,7 +109,7 @@ TbBool slab_kind_is_door(SlabKind slbkind);
 TbBool slab_kind_is_nonmagic_door(SlabKind slbkind);
 TbBool slab_kind_is_animated(SlabKind slbkind);
 
-struct SlabMap *get_slabmap_block(MapSlabCoord slab_x, MapSlabCoord slab_y);
+struct SlabMap *get_slabmap_block(MapSlabCoord slb_x, MapSlabCoord slb_y);
 struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct SlabMap *get_slabmap_direct(SlabCodedCoords slab_num);
 struct SlabMap *get_slabmap_thing_is_on(const struct Thing *thing);

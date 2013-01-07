@@ -52,7 +52,7 @@ struct ObjectConfig { // sizeof=0x1D
     long health;
 char field_4;
 char field_5;
-char field_6;
+char is_heart;
 char field_7;
 char field_8;
     struct InitLight ilght;

@@ -373,7 +373,6 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
 
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
 {
-    struct Dungeon *dungeon;
     struct Room *room;
     struct RoomStats *rstat;
     struct Coord3d pos;
@@ -387,13 +386,14 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     //TODO CONFIG sell revenue percentage should be inside config files
     rstat = room_stats_get_for_room(room);
     revenue = compute_value_percentage(rstat->cost, ROOM_SELL_REVENUE_PERCENT);
-    delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), 0);
     if (room->owner != game.neutral_player_num)
     {
+        struct Dungeon *dungeon;
         dungeon = get_players_num_dungeon(room->owner);
         dungeon->rooms_destroyed++;
         dungeon->camera_deviate_jump = 192;
     }
+    delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), 0);
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     if (revenue != 0)

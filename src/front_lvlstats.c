@@ -113,7 +113,6 @@ long calculate_efficiency(long plyr_idx)
 long calculate_style(long plyr_idx)
 {
     struct Dungeon *dungeon;
-    struct Room *room;
     long i,rkind;
     long area,half_area;
     unsigned long k;
@@ -121,6 +120,7 @@ long calculate_style(long plyr_idx)
     dungeon = get_dungeon(plyr_idx);
     for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
+        struct Room *room;
         i = dungeon->room_kind[rkind];
         k = 0;
         while (i != 0)
