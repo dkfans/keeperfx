@@ -37,7 +37,7 @@ msgstr ""
 
 #: guitext:1
 msgctxt "In-game message"
-msgid "This realm used to be one of wealth and peace. Now it is torn and lost in chaos ever since Metilians have been sighted, lured in by the gold. Keep a watchfull eye on your ally, and whipe out any Metilians you encounter."
+msgid "This realm used to be one of wealth and peace. Now it is torn and lost in chaos ever since Metilians have been sighted, lured in by the gold. Keep a watchful eye on your ally, and whipe out any Metilians you encounter."
 msgstr ""
 
 #: guitext:2
@@ -57,7 +57,7 @@ msgstr ""
 
 #: guitext:5
 msgctxt "In-game message"
-msgid "It seems the perfection of the Gror has arrived, a Horned Reaper. These creatures are by far your most powerfull troops, but they won't work for free."
+msgid "It seems the perfection of the Gror has arrived, a Horned Reaper. These creatures are by far your most powerful troops, but they won't work for free."
 msgstr ""
 
 #: guitext:6
@@ -92,7 +92,7 @@ msgstr ""
 
 #: guitext:12
 msgctxt "In-game message"
-msgid "A powerfull Kingdom above ground has begun the construction of a Tower, greater than any before. This Stronghold is supposed to give local Heroes above ground control over lands at a strategicly chosen location. Allied dark forces above ground are unable to do anything against this, held at bay by most powerfull Hero troops. Displeased as the Dark Gods were, the decision was made to deal with this threat underground. This humongous construct supports on three fundaments, one of which is located in this realm. There is no time to lose. With the lava river dried up, heroes have the upperhand in this realm as well. Your mission is simple, try and find yourself a way northward, before heroes find out about your presence, and destroy you."
+msgid "A powerfull Kingdom above ground has begun the construction of a Tower, greater than any before. This Stronghold is supposed to give local Heroes above ground control over lands at a strategic location. Allied dark forces above ground are unable to do anything against this, held at bay by most powerfull Hero troops. Displeased as the Dark Gods were, the decision was made to deal with this threat underground. This humongous construct supports on three fundaments, one of which is located in this realm. There is no time to lose. With the lava river dried up, heroes have the upperhand in this realm as well. Your mission is simple, try and find yourself a way northward, before heroes find out about your presence, and destroy you."
 msgstr ""
 
 #: guitext:13
@@ -102,7 +102,7 @@ msgstr ""
 
 #: guitext:14
 msgctxt "In-game message"
-msgid "While passing through, it might be usefull to enter and explore the Metilian caverns. WHo knows what you can find?..."
+msgid "While passing through, it might be useful to enter and explore the Metilian caverns. WHo knows what you can find?..."
 msgstr ""
 
 #: guitext:15

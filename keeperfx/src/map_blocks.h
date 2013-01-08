@@ -51,6 +51,7 @@ TbBool point_in_map_is_solid_ignoring_door(const struct Coord3d *pos, const stru
 unsigned short get_point_in_map_solid_flags_ignoring_door(const struct Coord3d *pos, const struct Thing *doortng);
 unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord3d *pos, PlayerNumber plyr_idx);
 unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4);
+void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 long element_top_face_texture(struct Map *map);
 /******************************************************************************/

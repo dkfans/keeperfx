@@ -831,12 +831,47 @@ TbBool creature_is_arming_trap(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_manually_controlled_by_owner(const struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    if (!thing_exists(thing))
+        return false;
+    player = get_player(thing->owner);
+    return (player->controlled_thing_idx == thing->index);
+}
+
 TbBool creature_is_kept_in_custody(const struct Thing *thing)
 {
     return (creature_is_kept_in_prison(thing) ||
             creature_is_being_tortured(thing) ||
             creature_is_being_sacrificed(thing) ||
             creature_is_being_dropped(thing));
+}
+
+/**
+ * Returns if a creature is kept in custody by a player other than its owner.
+ * @param thing The creature to be checked.
+ * @return
+ */
+TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
+{
+    if (creature_is_kept_in_prison(thing) ||
+        creature_is_being_tortured(thing) ||
+        creature_is_being_sacrificed(thing) ||
+        creature_is_being_dropped(thing))
+    {
+        struct Room *room;
+        room = get_room_thing_is_on(thing);
+        if (room_is_invalid(room)) {
+            // This must mean we're being dropped outside of room, so not kept in custody
+            return false;
+        }
+        if (thing->owner != room->owner) {
+            // We're in a room, and it's not our own - must be enemy
+            return true;
+        }
+    }
+    return false;
 }
 
 TbBool creature_state_is_unset(const struct Thing *thing)
@@ -1914,19 +1949,11 @@ short creature_leaves(struct Thing *creatng)
     return CrStRet_Deleted;
 }
 
-short creature_leaves_or_dies(struct Thing *creatng)
+short setup_creature_leaves_or_dies(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    //return _DK_creature_leaves_or_dies(creatng);
-    // If we're on an entrance, then just leave the dungeon
-    room = get_room_thing_is_on(creatng);
-    if (!room_is_invalid(room) && (room->kind == RoK_ENTRANCE))
-    {
-        kill_creature(creatng, INVALID_THING, -1, 1, 0, 0);
-        return -1;
-    }
-    // Otherwise, try heading for nearest entrance
+    // Try heading for nearest entrance
     room = find_nearest_room_for_thing(creatng, creatng->owner, 1, 0);
     if (room_is_invalid(room))
     {
@@ -1942,6 +1969,21 @@ short creature_leaves_or_dies(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->flgfield_1 |= 0x02;
     return 1;
+}
+
+short creature_leaves_or_dies(struct Thing *creatng)
+{
+    struct Room *room;
+    //return _DK_creature_leaves_or_dies(creatng);
+    // If we're on an entrance, then just leave the dungeon
+    room = get_room_thing_is_on(creatng);
+    if (!room_is_invalid(room) && (room->kind == RoK_ENTRANCE))
+    {
+        kill_creature(creatng, INVALID_THING, -1, 1, 0, 0);
+        return -1;
+    }
+    // Otherwise, try heading for nearest entrance
+    return setup_creature_leaves_or_dies(creatng);
 }
 
 short creature_leaving_dungeon(struct Thing *creatng)

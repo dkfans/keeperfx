@@ -87,6 +87,7 @@
 #include "map_columns.h"
 #include "map_events.h"
 #include "map_utils.h"
+#include "map_blocks.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_instances.h"
@@ -138,7 +139,7 @@ extern "C" {
 #endif
 
 DLLIMPORT void _DK_draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-DLLIMPORT void _DK_draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
+DLLIMPORT void _DK_draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
 DLLIMPORT void _DK_init_alpha_table(void);
 DLLIMPORT void _DK_engine_init(void);
 DLLIMPORT long _DK_load_anim_file(void);
@@ -380,9 +381,249 @@ void setup_stuff(void)
     init_alpha_table();
 }
 
+void powerful_magic_breaking_sparks(struct Thing *breaktng)
+{
+    struct Coord3d pos;
+    pos.x.stl.num = breaktng->mappos.x.stl.num + ACTION_RANDOM(11) - 5;
+    pos.y.stl.num = breaktng->mappos.y.stl.num + ACTION_RANDOM(11) - 5;
+    pos.x.stl.pos = 128;
+    pos.y.stl.pos = 128;
+    pos.z.val = get_floor_height_at(&pos);
+    draw_lightning(&breaktng->mappos, &pos, 96, 60);
+    if ( !S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0) ) {
+        thing_play_sample(breaktng, 157, 100, -1, 3, 1, 6, 256);
+    }
+}
+
+void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    if (slabmap_block_invalid(slb))
+        return;
+    //TODO rewrite used by process_dungeon_devastation_effects()
+}
+
+void process_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
+{
+    //TODO rewrite used to remove dungeon slabs when heart is destroyed
+    // probably near process_dungeon_devastation_effects()
+}
+
+void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon->field_14B4 == 0)
+    {
+        struct Thing *heartng;
+        heartng = INVALID_THING;
+        if (dungeon->dnheart_idx > 0) {
+            heartng = thing_get(dungeon->dnheart_idx);
+            TRACE_THING(heartng);
+        }
+        if (thing_exists(heartng)) {
+            dungeon->field_14B4 = 1;
+            dungeon->field_14B2[0] = heartng->mappos.x.stl.num;
+            dungeon->field_14B2[1] = heartng->mappos.y.stl.num;
+        } else {
+            dungeon->field_14B4 = 1;
+            dungeon->field_14B2[0] = map_subtiles_x/2;
+            dungeon->field_14B2[1] = map_subtiles_y/2;
+        }
+    }
+}
+
+/**
+ * Destroys all slabs of given room, creating gold rubble effect in the place.
+ * @param room The room structure which slabs are to be destroyed.
+ * @note The room structure is freed before this function end.
+ */
+void destroy_room_leaving_unclaimed_ground(struct Room *room)
+{
+    long slb_x, slb_y;
+    unsigned long k;
+    long i;
+    k = 0;
+    i = room->slabs_list;
+    while (i != 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        if (room->owner != game.neutral_player_num)
+        {
+            struct Dungeon *dungeon;
+            dungeon = get_players_num_dungeon(room->owner);
+            dungeon->rooms_destroyed++;
+        }
+        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
+        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
+        // Per room tile code ends
+        k++;
+        if (k > map_tiles_x*map_tiles_y) // we can't use room->slabs_count as room may be deleted
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+}
+
+void destroy_dungeon_heart_room(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    long i;
+    dungeon = get_dungeon(plyr_idx);
+    struct Room *room;
+    i = dungeon->room_kind[RoK_DUNGHEART];
+    room = room_get(i);
+    if (room_is_invalid(room))
+    {
+        ERRORLOG("Tried to destroy heart for player who doesn't have one");
+        return;
+    }
+    dungeon->room_kind[RoK_DUNGHEART] = room->next_of_kind;
+    destroy_room_leaving_unclaimed_ground(room);
+}
+
+void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num)) {
+        // Don't affect heroes and neutral creatures
+        return;
+    }
+    dungeon = get_dungeon(plyr_idx);
+    // Force leave or kill normal creatures
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!creature_is_manually_controlled_by_owner(thing))
+        {
+            if (!creature_is_kept_in_custody_by_enemy(thing) && !thing_is_picked_up(thing))
+            {
+                setup_creature_leaves_or_dies(thing);
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    // Kill all special workers
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!creature_is_kept_in_custody_by_enemy(thing) && !thing_is_picked_up(thing))
+        {
+            kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+}
+
 void process_dungeon_destroy(struct Thing *thing)
 {
-  _DK_process_dungeon_destroy(thing);
+    struct Dungeon *dungeon;
+    long plyr_idx;
+    plyr_idx = thing->owner;
+    //_DK_process_dungeon_destroy(thing);
+    dungeon = get_dungeon(plyr_idx);
+    if (!dungeon->field_1060) {
+        return;
+    }
+    powerful_magic_breaking_sparks(thing);
+    const struct Coord3d *central_pos;
+    central_pos = &thing->mappos;
+    switch ( dungeon->field_1060 )
+    {
+    case 1:
+        initialise_devastate_dungeon_from_heart(plyr_idx);
+        dungeon->field_1061++;
+        if (dungeon->field_1061 < 32)
+        {
+            if ( ACTION_RANDOM(96) < (dungeon->field_1061 << 6) / 32 + 32 ) {
+                create_effect(central_pos, 0x2Cu, plyr_idx);
+            }
+        } else
+        { // Got to next phase
+            dungeon->field_1060 = 2;
+            dungeon->field_1061 = 0;
+        }
+        break;
+    case 2:
+        dungeon->field_1061++;
+        if (dungeon->field_1061 < 32)
+        {
+            create_effect(central_pos, 0x2Cu, plyr_idx);
+        } else
+        { // Got to next phase
+            dungeon->field_1060 = 3;
+            dungeon->field_1061 = 0;
+        }
+        break;
+    case 3:
+        // Got to next phase
+        dungeon->field_1060 = 4;
+        dungeon->field_1061 = 0;
+        break;
+    case 4:
+        // Final phase - destroy the heart, both pedestal room and container thing
+        setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
+        {
+            struct Thing *efftng;
+            efftng = create_effect(central_pos, 4, plyr_idx);
+            if (!thing_is_invalid(efftng))
+              efftng->byte_16 = 8;
+            efftng = create_effect(central_pos, 14, plyr_idx);
+            if (!thing_is_invalid(efftng))
+                efftng->byte_16 = 8;
+            destroy_dungeon_heart_room(plyr_idx);
+            delete_thing_structure(thing, 0);
+            { // If there is another heart owned by this player, set it to "working" heart
+                struct PlayerInfo *player;
+                player = get_player(plyr_idx);
+                init_player_start(player);
+            }
+        }
+        dungeon->field_1060 = 0;
+        dungeon->field_1061 = 0;
+        break;
+    }
 }
 
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player)
@@ -530,7 +771,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long
   _DK_draw_flame_breath(pos1, pos2, a3, a4);
 }
 
-void draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4)
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4)
 {
   _DK_draw_lightning(pos1, pos2, a3, a4);
 }
@@ -3218,34 +3459,6 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
   return true;
 }
 
-void init_dungeon_owner(unsigned short owner)
-{
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    int i,k;
-    k = 0;
-    i = game.thing_lists[TngList_Objects].index;
-    while (i>0)
-    {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-          break;
-        i = thing->next_of_class;
-        if ((game.objects_config[thing->model].field_6) && (thing->owner == owner))
-        {
-          dungeon = get_dungeon(owner);
-          dungeon->dnheart_idx = thing->index;
-          break;
-        }
-        k++;
-        if (k > THINGS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping things list");
-          break;
-        }
-    }
-}
-
 void init_level(void)
 {
     SYNCDBG(6,"Starting");
@@ -3276,7 +3489,7 @@ void init_level(void)
     init_navigation();
     clear_messages();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-    // Initialize unsynchnonized random seed (the value may be different
+    // Initialize unsynchronized random seed (the value may be different
     // on computers in MP, as it shouldn't affect game actions)
     game.unsync_rand_seed = (unsigned long)LbTimeSec();
     if (!SoundDisabled)
@@ -3285,7 +3498,11 @@ void init_level(void)
         game.field_14BB55 = 0;
     }
     light_set_lights_on(1);
-    init_dungeon_owner(game.hero_player_num);
+    {
+        struct PlayerInfo *player;
+        player = get_player(game.hero_player_num);
+        init_player_start(player);
+    }
     game.numfield_D |= 0x04;
     LbMemoryCopy(&game.intralvl_transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
     event_initialise_all();
