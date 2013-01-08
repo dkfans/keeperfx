@@ -2712,9 +2712,32 @@ void remove_health_from_thing_and_display_health(struct Thing *thing, long delta
   _DK_remove_health_from_thing_and_display_health(thing, delta);
 }
 
-long slab_by_players_land(long plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+/**
+ * Returns if given slab has an adjacent slab owned by given player.
+ * @param plyr_idx
+ * @param slb_x
+ * @param slb_y
+ * @return
+ */
+TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-  return _DK_slab_by_players_land(plyr_idx, slb_x, slb_y);
+    //return _DK_slab_by_players_land(plyr_idx, slb_x, slb_y);
+    long n;
+    for (n=0; n < 4; n++)
+    {
+        long slb_x,slb_y;
+        slb_x = slb_x + (long)small_around[n].delta_x;
+        slb_y = slb_y + (long)small_around[n].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_block(slb_x,slb_y);
+        if (slabmap_owner(slb) == plyr_idx)
+        {
+            if (slab_is_safe_land(plyr_idx, slb_x, slb_y) && !slab_is_liquid(slb_x, slb_y)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 TbBool process_creature_hunger(struct Thing *thing)
@@ -2725,13 +2748,17 @@ TbBool process_creature_hunger(struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     if ( (crstat->hunger_rate == 0) || creature_affected_by_spell(thing, SplK_Freeze) )
         return false;
+    SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
     if (cctrl->hunger_level <= crstat->hunger_rate)
         return false;
     // Make sure every creature loses health on different turn
-    if (((game.play_gameturn + thing->index) % game.turns_per_hunger_health_loss) == 0)
+    if (((game.play_gameturn + thing->index) % game.turns_per_hunger_health_loss) == 0) {
+        SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.hunger_health_loss);
         remove_health_from_thing_and_display_health(thing, game.hunger_health_loss);
-    return true;
+        return true;
+    }
+    return false;
 }
 
 /**

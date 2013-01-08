@@ -58,27 +58,27 @@ TbBool jailbreak_possible(struct Room *room, long plyr_idx)
     unsigned long i;
     unsigned long k;
     struct SlabMap *slb;
-    if ( (room->owner == plyr_idx) || (!room->slabs_list) )
-      return false;
+    if ((room->owner == plyr_idx) || (room->slabs_list <= 0))
+        return false;
     k = 0;
     i = room->slabs_list;
     while (i > 0)
     {
-      slb = get_slabmap_direct(i);
-      if (slabmap_block_invalid(slb))
-      {
-        ERRORLOG("Jump to invalid room slab detected");
-        break;
-      }
-      if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
-        return true;
-      i = get_next_slab_number_in_room(i);
-      k++;
-      if (k > map_tiles_x*map_tiles_y)
-      {
-        ERRORLOG("Infinite loop detected when sweeping room slabs");
-        break;
-      }
+        slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb))
+        {
+            ERRORLOG("Jump to invalid room slab detected");
+            break;
+        }
+        if (slab_by_players_land(plyr_idx, slb_num_decode_x(i), slb_num_decode_y(i)))
+            return true;
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > map_tiles_x * map_tiles_y)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
     }
     return false;
 }

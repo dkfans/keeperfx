@@ -150,8 +150,8 @@ static void open_trace(short idx, signed char x, signed char y)
     }
 
     slab = get_slabmap_block(x, y);
-    if (slab->kind == SlbT_ROCK || slab->kind == SlbT_GEMS ||
-            slab->kind == SlbT_WATER || slab->kind == SlbT_LAVA) {
+    if ((slab->kind == SlbT_ROCK) || (slab->kind == SlbT_GEMS) ||
+            (slab->kind == SlbT_WATER) || (slab->kind == SlbT_LAVA)) {
         return;
     }
 
