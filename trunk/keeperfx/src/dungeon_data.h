@@ -144,6 +144,7 @@ struct Dungeon {
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
     unsigned short battles_won;
+    /** Amount of room tiles a player had which were destroyed (vandalized or damaged by enemy). */
     unsigned short rooms_destroyed;
     unsigned short spells_stolen;
     unsigned short times_broken_into;
@@ -190,7 +191,8 @@ unsigned char field_F7D;
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     unsigned char script_flags[SCRIPT_FLAGS_COUNT];
     long max_creatures_attracted;
-    unsigned char field_1060[5];
+    unsigned char field_1060;
+    long field_1061;
     struct Coord3d pos_1065;
     struct DiggerStack imp_stack[IMP_TASK_MAX_COUNT];
     unsigned long digger_stack_update_turn;

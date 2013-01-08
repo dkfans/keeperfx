@@ -309,7 +309,7 @@ void reinit_tagged_blocks_for_player(unsigned char idx);
 void draw_swipe(void);
 void draw_bonus_timer(void);
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-void draw_lightning(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long a3, long a4);
 void zoom_from_map(void);
 void zoom_to_map(void);
 void toggle_hero_health_flowers(void);

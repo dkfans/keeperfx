@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: Quest for the Hero campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2012-12-31 02:40+0100\n"
+"PO-Revision-Date: 2013-01-08 03:17+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
@@ -112,5 +112,5 @@ msgstr "Forteczno. Naszą ostatnią krainą do podbicia władają Mnisi, są pod
 #: landview:81
 msgctxt "Level summary"
 msgid "Bloodhold. Throwing bodies of monks to the temple was a great sacrilege! Stop for a while and watch the beauty of flowing lava under bloody sky! Excellent work, my Master!"
-msgstr "Krwiowo. Wrzuciliśmy ciała mnichów do świątyni popełniając wielkie świętokractow! Teraz możemy cieszyć się pięknym widokiem spływającej lawy i krwi po świecie! Doskonała robota mój panie!"
+msgstr "Krwiorteczno. Wrzuciliśmy ciała mnichów do świątyni popełniając wielkie świętokractow! Teraz możemy cieszyć się pięknym widokiem spływającej lawy i krwi po świecie! Doskonała robota mój panie!"
 

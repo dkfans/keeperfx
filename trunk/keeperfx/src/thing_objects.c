@@ -744,10 +744,10 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *thing)
     if (thing->owner != game.neutral_player_num)
     {
         dungeon = get_players_num_dungeon(thing->owner);
-        if (dungeon->field_1060[0] == 0)
+        if (dungeon->field_1060 == 0)
         {
-            LbMemorySet(dungeon->field_1060, 0, sizeof(dungeon->field_1060));
-            dungeon->field_1060[0] = 1;
+            dungeon->field_1061 = 0;
+            dungeon->field_1060 = 1;
             dungeon->pos_1065.x.val = thing->mappos.x.val;
             dungeon->pos_1065.y.val = thing->mappos.y.val;
             dungeon->pos_1065.z.val = thing->mappos.z.val;

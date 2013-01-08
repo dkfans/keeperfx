@@ -454,6 +454,12 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     return thing;
 }
 
+/**
+ * Kills a creature and creates a proper corpse on its place.
+ * @param thing The creature to be killed.
+ * @param a1
+ * @return The corpse thing, on invalid thing on error.
+ */
 struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
 {
     struct CreatureControl *cctrl;
@@ -482,7 +488,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long a1)
     deadtng = create_dead_creature(&pos, crmodel, a1, owner, explevel);
     if (thing_is_invalid(deadtng))
     {
-        ERRORLOG("Could not create dead thing.");
+        ERRORLOG("Could not create dead thing while killing %s index %d owned by player %d.",creature_code_name(crmodel),(int)prev_idx,(int)owner);
         return INVALID_THING;
     }
     set_flag_byte(&deadtng->alloc_flags, TAlF_IsControlled, memf1);

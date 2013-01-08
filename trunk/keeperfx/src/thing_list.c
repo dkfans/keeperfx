@@ -561,7 +561,7 @@ void update_things(void)
   SYNCDBG(9,"Finished");
 }
 
-struct Thing *find_players_dungeon_heart(unsigned short plyridx)
+struct Thing *find_players_dungeon_heart(PlayerNumber plyridx)
 {
     struct Thing *thing;
     int i,k;
@@ -579,7 +579,7 @@ struct Thing *find_players_dungeon_heart(unsigned short plyridx)
         // Per-thing code
         struct ObjectConfig *objconf;
         objconf = get_object_model_stats2(thing->model);
-        if ((objconf->field_6) && (thing->owner == plyridx))
+        if ((objconf->is_heart) && (thing->owner == plyridx))
         {
             return thing;
         }
@@ -599,6 +599,7 @@ struct Thing *find_players_dungeon_heart(unsigned short plyridx)
  * Initializes start position of the player.
  * Finds players dungeon heart and initializes players start position.
  * @param player The player to be initialized.
+ * @note Replaces init_dungeon_owner().
  */
 void init_player_start(struct PlayerInfo *player)
 {

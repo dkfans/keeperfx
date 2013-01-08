@@ -387,7 +387,7 @@ void init_objects(void)
     game.objects_config[5].field_4 = 20;
     game.objects_config[5].field_5 = 0;
     game.objects_config[5].ilght.is_dynamic = 1;
-    game.objects_config[5].field_6 = 1;
+    game.objects_config[5].is_heart = 1;
     game.objects_config[5].field_8 = 1;
     game.objects_config[6].field_4 = 8;
     game.objects_config[6].health = 50;
