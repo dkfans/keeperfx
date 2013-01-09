@@ -2,6 +2,14 @@ REM ********************************************
 REM
 REM Script for Level 211
 REM
+REM This level contains prison just next to enemy
+REM wall - it will teach the player what jailbreak is.
+REM It also allows to imprison skeletons - as they
+REM have no hunger, it's not easy to starve them.
+REM Besides that - you've got 2 Bile Demons and
+REM an Avatar, and have to capture heroes to make your
+REM army. The enemy keeper has a better start and is
+REM behind a river, so he won't attack easily.
 REM ********************************************
 SET_GENERATE_SPEED(400)
 COMPUTER_PLAYER(PLAYER1,1)
