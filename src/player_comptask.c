@@ -613,7 +613,7 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     if (slb->kind == SlbT_GEMS) {
         return 1;
     }
-    if (slbattr->category == SlbAtCtg_Unknown4) {
+    if (slbattr->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
     if ((slbattr->flags & SlbAtFlg_Unk02) != 0) {

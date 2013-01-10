@@ -625,7 +625,7 @@ short imp_digs_mines(struct Thing *thing)
       return 1;
     }
     // If gems are marked for digging, but there is too much gold laying around, then don't dig
-    if ((slb->kind == SlbT_GEMS) && too_much_gold_lies_around_thing(thing))
+    if (!slab_kind_is_indestructible(slb->kind) && too_much_gold_lies_around_thing(thing))
     {
       clear_creature_instance(thing);
       internal_set_thing_state(thing, CrSt_ImpLastDidJob);

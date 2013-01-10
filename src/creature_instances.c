@@ -32,6 +32,7 @@
 #include "map_blocks.h"
 #include "spdigger_stack.h"
 #include "config_magic.h"
+#include "config_terrain.h"
 #include "gui_soundmsgs.h"
 #include "sounds.h"
 #include "game_legacy.h"
@@ -315,8 +316,8 @@ long instf_dig(struct Thing *thing, long *param)
     dig_damage = calculate_damage_did_to_slab_with_single_hit(thing, slb);
     if (slb->health > dig_damage)
     {
-        if (slb->kind != SlbT_GEMS)
-          slb->health -= dig_damage;
+        if (!slab_kind_is_indestructible(slb->kind))
+            slb->health -= dig_damage;
         thing_play_sample(thing, 63 + UNSYNC_RANDOM(6), 100, 0, 3, 0, 2, 256);
         create_effect(&thing->mappos, TngEff_Unknown25, thing->owner);
         if (taskkind == SDDigTask_MineGold)

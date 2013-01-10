@@ -38,8 +38,8 @@ DLLIMPORT unsigned char _DK_dig_has_revealed_area(long a1, long a2, unsigned cha
 DLLIMPORT void _DK_dig_out_block(long a1, long a2, long stl_height);
 DLLIMPORT void _DK_check_map_explored(struct Thing *thing, long a2, long stl_height);
 DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char stl_height, unsigned char a4);
-DLLIMPORT long _DK_untag_blocks_for_digging_in_area(long slb_x, long slb_y, signed char stl_height);
-DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long slb_x, long slb_y);
+DLLIMPORT long _DK_untag_blocks_for_digging_in_area(long tgslb_x, long tgslb_y, signed char stl_height);
+DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
 DLLIMPORT long _DK_ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey);
 DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4);
@@ -320,9 +320,63 @@ void shuffle_unattached_things_on_slab(long a1, long a2)
     _DK_shuffle_unattached_things_on_slab(a1, a2);
 }
 
-unsigned char alter_rock_style(unsigned char a1, signed char a2, signed char a3, unsigned char a4)
+/**
+ * For an unfortified dirt slab, select either "clean" slab type, or the one with place for torches.
+ * @param slbkind
+ * @param tgslb_x
+ * @param tgslb_y
+ * @param owner
+ * @return
+ */
+SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord tgslb_y, PlayerNumber owner)
 {
-    return _DK_alter_rock_style(a1, a2, a3, a4);
+    SlabKind retkind;
+    //return _DK_alter_rock_style(slbkind, slb_x, slb_y, owner);
+    retkind = slbkind;
+    if (slbkind == SlbT_EARTH)
+    {
+        long i;
+        for (i = 0; i < 8; i++)
+        {
+            MapSlabCoord slb_y, slb_x;
+            unsigned char flags;
+            slb_x = tgslb_x + my_around_eight[i].delta_x;
+            slb_y = tgslb_y + my_around_eight[i].delta_y;
+            struct SlabMap *slb;
+            struct SlabAttr *slbattr;
+            slb = get_slabmap_block(slb_x,slb_y);
+            if (slabmap_block_invalid(slb))
+                continue;
+            slbattr = get_slab_attrs(slb);
+            if ((slbattr->category == SlbAtCtg_FortifiedGround) || (slbattr->category == SlbAtCtg_RoomInterior) || (slbattr->category == SlbAtCtg_Obstacle))
+            {
+                flags = 0;
+                if ((tgslb_x % 5) == 0)
+                {
+                    struct SlabMap *nxslb;
+                    struct SlabMap *prslb;
+                    prslb = get_slabmap_block(tgslb_x,tgslb_y-1);
+                    nxslb = get_slabmap_block(tgslb_x,tgslb_y+1);
+                    if ((prslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED))
+                        flags |= 0x01;
+                }
+                if ((tgslb_y % 5) == 0)
+                {
+                    struct SlabMap *nxslb;
+                    struct SlabMap *prslb;
+                    prslb = get_slabmap_block(tgslb_x-1,tgslb_y);
+                    nxslb = get_slabmap_block(tgslb_x+1,tgslb_y);
+                    if ((prslb->kind == SlbT_CLAIMED) || (nxslb->kind == SlbT_CLAIMED))
+                        flags |= 0x02;
+                }
+                retkind = (flags < 1) ? SlbT_EARTH : SlbT_TORCHDIRT;
+                break;
+            }
+        }
+        if (i == 8)
+          retkind = SlbT_EARTH;
+    }
+    return retkind;
 }
 
 void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5)
@@ -367,7 +421,7 @@ void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord s
     shuffle_unattached_things_on_slab(slb_x, slb_y);
 
     slbattr = get_slab_kind_attrs(skind);
-    if ((slbattr->category == SlbAtCtg_Unknown4) || (slbattr->category == SlbAtCtg_Unknown2))
+    if ((slbattr->category == SlbAtCtg_RoomInterior) || (slbattr->category == SlbAtCtg_FortifiedGround))
     {
       for (i = 0; i < 8; i++)
       {
@@ -414,7 +468,7 @@ void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord s
           || (game.game_kind == GKind_Unknown1))
         {
             slbattr = get_slab_kind_attrs(slb->kind);
-            if (slbattr->category != SlbAtCtg_Unknown5)
+            if (slbattr->category != SlbAtCtg_Obstacle)
                 place_single_slab_type_on_map(slb->kind, spos_x, spos_y, slabmap_owner(slb));
         }
     }
