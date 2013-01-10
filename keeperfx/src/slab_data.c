@@ -211,42 +211,11 @@ TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
     return false;
 }
 
-TbBool slab_kind_is_door(SlabKind slbkind)
-{
-    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORMAGIC2))
-    {
-        return true;
-    }
-    return false;
-}
-
-TbBool slab_kind_is_nonmagic_door(SlabKind slbkind)
-{
-    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORIRON2))
-    {
-        return true;
-    }
-    return false;
-}
-
 TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap *slb;
     slb = get_slabmap_block(slb_x, slb_y);
     return slab_kind_is_door(slb->kind);
-}
-
-/**
- * Returns if given slab type represents liquid slab.
- * Liquid slabs can be used to build bridges, and other rooms cannot be built on them.
- * @param slbkind
- * @return
- */
-TbBool slab_kind_is_liquid(SlabKind slbkind)
-{
-    if ((slbkind == SlbT_WATER) || (slbkind == SlbT_LAVA))
-        return true;
-    return false;
 }
 
 TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)

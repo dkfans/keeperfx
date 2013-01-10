@@ -1116,7 +1116,7 @@ TbBool clear_selected_creature(struct PlayerInfo *player)
  * @param rkind Kind of the room.
  * @return Returns room struct, or invalid room on error.
  */
-struct Room *player_build_room_at(long stl_x, long stl_y, long plyr_idx, long rkind)
+struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;

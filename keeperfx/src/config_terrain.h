@@ -37,12 +37,12 @@ extern "C" {
 #pragma pack(1)
 
 enum SlabAttrCategory {
-    SlbAtCtg_Unset = 0,
-    SlbAtCtg_Unknown1,
-    SlbAtCtg_Unknown2,
-    SlbAtCtg_Unknown3,
-    SlbAtCtg_Unknown4,
-    SlbAtCtg_Unknown5,
+    SlbAtCtg_Unclaimed = 0,
+    SlbAtCtg_FriableDirt,
+    SlbAtCtg_FortifiedGround,
+    SlbAtCtg_FortifiedWall,
+    SlbAtCtg_RoomInterior,
+    SlbAtCtg_Obstacle,
 };
 
 enum SlabAttrFlags {
@@ -117,7 +117,12 @@ struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
 const char *room_code_name(RoomKind rkind);
 const char *slab_code_name(SlabKind slbkind);
 /******************************************************************************/
-TbBool slab_indestructible(RoomKind slbkind);
+TbBool slab_kind_is_indestructible(RoomKind slbkind);
+TbBool slab_kind_is_fortified_wall(RoomKind slbkind);
+TbBool slab_kind_is_friable_dirt(RoomKind slbkind);
+TbBool slab_kind_is_door(SlabKind slbkind);
+TbBool slab_kind_is_nonmagic_door(SlabKind slbkind);
+TbBool slab_kind_is_liquid(SlabKind slbkind);
 /******************************************************************************/
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);
