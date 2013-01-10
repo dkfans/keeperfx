@@ -1865,7 +1865,7 @@ void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y
     }
 }
 
-struct Room *place_room(unsigned char owner, RoomKind rkind, unsigned short stl_x, unsigned short stl_y)
+struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Room *room;
     struct RoomData *rdata;

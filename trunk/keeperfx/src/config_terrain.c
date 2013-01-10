@@ -84,64 +84,64 @@ struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 
 //TODO CONFIG identify all slab attributes and store them in config file
 struct SlabAttr slab_attrs[] = {
-  {324, 4, 0, 0x20|0x10, 0, 0, 0,  0, 1, 0, 0, 0, 0}, // [0] HARD
-  {326, 4, 1, 0x10|0x01, 0, 0, 0,  0, 1, 0, 0, 1, 0},
-  {325, 4, 0, 0x10|0x08, 0, 0, 1,  0, 1, 0, 0, 1, 0},
-  {325, 4, 0, 0x10|0x08, 0, 0, 1,  0, 1, 0, 0, 1, 0},
-  {329, 4, 2, 0x20|0x10, 0, 0, 3,  0, 1, 0, 0, 1, 0},
-  {329, 4, 2, 0x20|0x10, 0, 0, 3,  0, 1, 0, 0, 1, 0}, // [5]
-  {329, 4, 2, 0x20|0x10, 0, 0, 3,  0, 1, 0, 0, 1, 0},
-  {329, 4, 2, 0x20|0x10, 0, 0, 3,  0, 1, 0, 0, 1, 0},
-  {329, 4, 2, 0x20|0x10, 0, 0, 3,  0, 1, 0, 0, 1, 0},
-  {330, 4, 2, 0x10|0x08, 0, 0, 3,  0, 1, 0, 0, 1, 0},
-  {331, 0, 2,         0, 0, 0, 0,  1, 1, 1, 0, 0, 0}, // [10] PATH
-  {332, 0, 3,         0, 0, 0, 2,  2, 1, 1, 0, 0, 0},
-  {327, 0, 2,         0, 0, 1, 0,  3, 1, 0, 0, 0, 1},
-  {328, 0, 2,         0, 0, 2, 0,  4, 1, 1, 0, 0, 2},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  5, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  5, 1, 0, 0, 1, 0}, // [15]
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  6, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  6, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  7, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  7, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  8, 1, 1, 0, 0, 0}, // [20]
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  8, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4,  9, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3,  9, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 10, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 10, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 11, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 11, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 12, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 12, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 13, 1, 1, 0, 0, 0}, // [30]
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 13, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 14, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 14, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 15, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 15, 1, 0, 0, 1, 0}, // [35]
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 16, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 16, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 17, 1, 1, 0, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 17, 1, 0, 0, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 4, 18, 1, 1, 0, 0, 0}, // [40]
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 3, 18, 1, 0, 0, 1, 0},
-  {590, 4, 5, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
-  {590, 4, 5, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
-  {591, 4, 6, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
-  {591, 4, 6, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0}, // [45]
-  {592, 4, 7, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
-  {592, 4, 7, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
-  {593, 4, 8, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
-  {593, 4, 8, 0x10|0x40, 0, 0, 5,  2, 1, 1, 1, 0, 0},
-  {GUIStr_Empty, 4, 2,         0, 0, 0, 5,  0, 1, 0, 1, 0, 0}, // [50]
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 5,  1, 1, 1, 1, 0, 3},
-  {544, 4, 1, 0x10|0x01, 0, 0, 5,  0, 1, 0, 1, 1, 0},
-  {GUIStr_Empty, 4, 4, 0x10|0x02, 2, 0, 5,  1, 1, 1, 1, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0}, // [55]
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
-  {GUIStr_Empty, 4, 2, 0x20|0x10, 0, 0, 5,  0, 1, 0, 1, 0, 0},
+  {0, 4, 0, 0x20|0x10, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 0, 0, 0}, // [0] HARD
+  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 0, 1, 0},
+  {0, 4, 0, 0x10|0x08, 0, 0, SlbAtCtg_FriableDirt,  0, 1, 0, 0, 1, 0},
+  {0, 4, 0, 0x10|0x08, 0, 0, SlbAtCtg_FriableDirt,  0, 1, 0, 0, 1, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [5]
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
+  {0, 4, 2, 0x10|0x08, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
+  {0, 0, 2,         0, 0, 0, SlbAtCtg_Unclaimed,  1, 1, 1, 0, 0, 0}, // [10] PATH
+  {0, 0, 3,         0, 0, 0, SlbAtCtg_FortifiedGround,  2, 1, 1, 0, 0, 0},
+  {0, 0, 2,         0, 0, 1, SlbAtCtg_Unclaimed,  3, 1, 0, 0, 0, 1},
+  {0, 0, 2,         0, 0, 2, SlbAtCtg_Unclaimed,  4, 1, 1, 0, 0, 2},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  5, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  5, 1, 0, 0, 1, 0}, // [15]
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  6, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  6, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  7, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  7, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  8, 1, 1, 0, 0, 0}, // [20]
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  8, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  9, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  9, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 10, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 10, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 11, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 11, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 12, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 12, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 13, 1, 1, 0, 0, 0}, // [30]
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 13, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 14, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 14, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 15, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 15, 1, 0, 0, 1, 0}, // [35]
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 16, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 16, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 17, 1, 1, 0, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 17, 1, 0, 0, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 18, 1, 1, 0, 0, 0}, // [40]
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 18, 1, 0, 0, 1, 0},
+  {0, 4, 5, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
+  {0, 4, 5, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
+  {0, 4, 6, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
+  {0, 4, 6, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0}, // [45]
+  {0, 4, 7, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
+  {0, 4, 7, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
+  {0, 4, 8, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
+  {0, 4, 8, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
+  {0, 4, 2,         0, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0}, // [50]
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_Obstacle,  1, 1, 1, 1, 0, 3},
+  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 1, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  1, 1, 1, 1, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0}, // [55]
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},
+  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},
 };
 /******************************************************************************/
 #ifdef __cplusplus
@@ -809,10 +809,64 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
  * Returns if given slab kind is indestructible - cannot be damaged by digging nor anything else.
  * @param slbkind The slab kind to be checked.
  * @return True if the slab cannot be damaged, false otherwise.
+ * @note Being indestructible does not necessarily means the slab cannot be marked for digging, or just sold.
  */
-TbBool slab_indestructible(RoomKind slbkind)
+TbBool slab_kind_is_indestructible(RoomKind slbkind)
 {
     return (slbkind == SlbT_ROCK) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_ENTRANCE);
+}
+
+/**
+ * Returns if given slab kind is a reinforced wall, fortified by a player.
+ * @param slbkind The slab kind to be checked.
+ * @return True if the slab is a fortified wall, false otherwise.
+ */
+TbBool slab_kind_is_fortified_wall(RoomKind slbkind)
+{
+    return (slbkind == SlbT_WALLDRAPE) || (slbkind == SlbT_WALLTORCH) ||
+           (slbkind == SlbT_WALLWTWINS) || (slbkind == SlbT_WALLWWOMAN) ||
+           (slbkind == SlbT_WALLPAIRSHR);
+}
+
+/**
+ * Returns if given slab kind is a friable, unfortified and unowned dirt.
+ * @param slbkind The slab kind to be checked.
+ * @return True if the slab is an unowned dirt, false otherwise.
+ */
+TbBool slab_kind_is_friable_dirt(RoomKind slbkind)
+{
+    return (slbkind == SlbT_EARTH) || (slbkind == SlbT_TORCHDIRT);
+}
+
+TbBool slab_kind_is_door(SlabKind slbkind)
+{
+    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORMAGIC2))
+    {
+        return true;
+    }
+    return false;
+}
+
+TbBool slab_kind_is_nonmagic_door(SlabKind slbkind)
+{
+    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORIRON2))
+    {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Returns if given slab type represents liquid slab.
+ * Liquid slabs can be used to build bridges, and other rooms cannot be built on them.
+ * @param slbkind
+ * @return
+ */
+TbBool slab_kind_is_liquid(SlabKind slbkind)
+{
+    if ((slbkind == SlbT_WATER) || (slbkind == SlbT_LAVA))
+        return true;
+    return false;
 }
 
 /** Returns creature model to be created by given room kind.

@@ -210,7 +210,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     }
     int damage;
     damage = thing->word_14;
-    if ((damage >= slb->health) && !slab_indestructible(slb->kind))
+    if ((damage >= slb->health) && !slab_kind_is_indestructible(slb->kind))
     {
         if ((mapblk->flags & MapFlg_Unkn01) != 0)
         { // Valuables require counting gold
@@ -226,7 +226,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
         check_map_explored(diggertng, stl_x, stl_y);
     } else
     {
-        if (!slab_indestructible(slb->kind))
+        if (!slab_kind_is_indestructible(slb->kind))
         {
             slb->health -= damage;
         }

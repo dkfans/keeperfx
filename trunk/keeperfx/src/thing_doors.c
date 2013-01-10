@@ -130,7 +130,7 @@ TbBool door_can_stand(struct Thing *thing)
         slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (int)small_around[i].delta_y;
         slb = get_slabmap_block(slb_x,slb_y);
         slbattr = get_slab_attrs(slb);
-      if ((slbattr->category == SlbAtCtg_Unknown3) || (slb->kind == SlbT_ROCK)
+      if ((slbattr->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK)
           || (slb->kind == SlbT_EARTH) || (slb->kind == SlbT_TORCHDIRT)
           || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
         wall_flags |= 0x01;

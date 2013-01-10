@@ -193,7 +193,7 @@ short room_grow_food(struct Room *room);
 void update_room_efficiency(struct Room *room);
 long create_workshop_object_in_workshop_room(long a1, long a2, long a3);
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind);
-struct Room *place_room(unsigned char owner, RoomKind rkind, unsigned short stl_x, unsigned short stl_y);
+struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool initialise_map_rooms(void);
 void init_room_sparks(struct Room *room);
