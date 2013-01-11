@@ -45,6 +45,8 @@
 #include "gui_soundmsgs.h"
 #include "engine_arrays.h"
 #include "player_utils.h"
+#include "player_instances.h"
+#include "player_computer.h"
 #include "lvl_script.h"
 #include "thing_traps.h"
 #include "sounds.h"
@@ -154,6 +156,8 @@ DLLIMPORT long _DK_process_creature_needs_a_wage(struct Thing *thing, const stru
 DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *thing, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *thing, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *thing, const struct CreatureStats *crstat);
+DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *thing);
+DLLIMPORT long _DK_creature_find_and_perform_anger_job(struct Thing *thing);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -653,21 +657,6 @@ long get_creature_gui_job(const struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return state_type_to_gui_state[0];
     }
-}
-
-TbBool creature_is_doing_lair_activity(const struct Thing *thing)
-{
-    CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_CreatureSleep)
-        return true;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
-    if ((i == CrSt_CreatureGoingHomeToSleep) || (i == CrSt_AtLairToSleep)
-      || (i == CrSt_CreatureChooseRoomForLairSite) || (i == CrSt_CreatureAtNewLair) || (i == CrSt_CreatureWantsAHome)
-      || (i == CrSt_CreatureChangeLair) || (i == CrSt_CreatureAtChangedLair))
-        return true;
-    return false;
 }
 
 TbBool creature_is_being_dropped(const struct Thing *thing)
@@ -1430,6 +1419,33 @@ TbBool anger_is_creature_angry(const struct Thing *creatng)
     if (creature_control_invalid(cctrl))
         return false;
     return ((cctrl->field_66 & 0x01) != 0);
+}
+
+long anger_get_creature_anger_type(const struct Thing *creatng)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long anger_type;
+    long anger_level;
+    long i;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    if (crstat->annoy_level == 0)
+        return 0;
+    if ((cctrl->field_66 & 0x01) == 0)
+        return 0;
+    anger_type = 0;
+    for (i=1; i < 5; i++)
+    {
+        if (anger_level < cctrl->annoyance_level[i-1])
+        {
+            anger_level = cctrl->annoyance_level[i-1];
+            anger_type = i;
+        }
+    }
+    if (anger_level < crstat->annoy_level)
+        return 0;
+    return anger_type;
 }
 
 TbBool anger_make_creature_angry(struct Thing *creatng, long reason)
@@ -3274,9 +3290,60 @@ void init_creature_state(struct Thing *thing)
     set_start_state(thing);
 }
 
+struct Room *get_best_new_lair_for_creature(struct Thing *thing)
+{
+    return _DK_get_best_new_lair_for_creature(thing);
+}
+
+TbBool creature_free_for_sleep(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->field_21 != 0) || ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
+        return false;
+    return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureGoingHomeToSleep);
+}
+
+TbBool creature_free_for_anger_job(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    cctrl = creature_control_get_from_thing(thing);
+    dungeon = get_dungeon(thing->owner);
+    return ((cctrl->spell_flags & CSAfF_Unkn0800) == 0)
+        && (dungeon->must_obey_turn == 0)
+        && ((cctrl->spell_flags & CSAfF_Speed) == 0)
+        && !thing_is_picked_up(thing) && !is_thing_passenger_controlled(thing);
+}
+
 long process_creature_needs_to_heal_critical(struct Thing *thing, const struct CreatureStats *crstat)
 {
-    return _DK_process_creature_needs_to_heal_critical(thing, crstat);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    //return _DK_process_creature_needs_to_heal_critical(thing, crstat);
+    if ((crstat->heal_requirement == 0) || (crstat->lair_size == 0)
+      || (get_creature_health_permil(thing) >= 1000)) {
+        return 0;
+    }
+    if (creature_is_doing_lair_activity(thing)) {
+        return 1;
+    }
+    if (!creature_free_for_sleep(thing)) {
+        return 0;
+    }
+    if ( (game.play_gameturn - cctrl->field_2D7 > 128) &&
+      ((cctrl->lair_room_id != 0) || get_best_new_lair_for_creature(thing)) )
+    {
+        if ( external_set_thing_state(thing, CrSt_CreatureGoingHomeToSleep) )
+            return 1;
+    } else
+    {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        anger_apply_anger_to_creature(thing, crstat->annoy_no_lair, AngR_Val3, 1);
+    }
+    cctrl->field_2D7 = game.play_gameturn;
+    return 0;
 }
 
 long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureStats *crstat)
@@ -3289,9 +3356,100 @@ long process_creature_needs_to_eat(struct Thing *thing, const struct CreatureSta
     return _DK_process_creature_needs_to_eat(thing, crstat);
 }
 
+long creature_find_and_perform_anger_job(struct Thing *thing)
+{
+    return _DK_creature_find_and_perform_anger_job(thing);
+}
+
 long anger_process_creature_anger(struct Thing *thing, const struct CreatureStats *crstat)
 {
-    return _DK_anger_process_creature_anger(thing, crstat);
+    struct CreatureControl *cctrl;
+    //return _DK_anger_process_creature_anger(thing, crstat);
+    cctrl = creature_control_get_from_thing(thing);
+    if (crstat->annoy_level == 0) {
+        return 0;
+    }
+    if (!creature_free_for_anger_job(thing)) {
+        return 0;
+    }
+    if (!anger_is_creature_angry(thing)) {
+        return 0;
+    }
+    if (is_my_player_number(thing->owner))
+    {
+        int anger_motive;
+        anger_motive = anger_get_creature_anger_type(thing);
+        switch (anger_motive)
+        {
+        case 1:
+            output_message(3, 500, 1);
+            break;
+        case 2:
+            output_message(4, 500, 1);
+            break;
+        case 3:
+            if (cctrl->lairtng_idx != 0)
+                output_message(1, 500, 1);
+            else
+                output_message(2, 500, 1);
+            break;
+        case 4:
+            output_message(1, 500, 1);
+            break;
+        default:
+            ERRORLOG("Mental instability error - creature is angry but has no motive (%d).",(int)anger_motive);
+            break;
+        }
+    }
+    if (creature_is_doing_dungeon_improvements(thing)) {
+        return 0;
+    }
+    if (anger_is_creature_livid(thing) && (((game.play_gameturn + thing->index) & 0x3F) == 0))
+    {
+        if (creature_find_and_perform_anger_job(thing))
+            return 1;
+    }
+    if ((crstat->annoy_in_temple < 0) && player_has_room(thing->owner, RoK_TEMPLE)
+      && (game.play_gameturn - cctrl->field_2DF > 128))
+    {
+        struct Room *room;
+        if (creature_is_doing_temple_activity(thing))
+            return 1;
+        cctrl->field_2DF = game.play_gameturn;
+        room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 10, 0, 1);
+        if (!room_is_invalid(room))
+        {
+          if (person_will_do_job_for_room(thing, room) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple) )
+          {
+            cleanup_current_thing_state(thing);
+            if ( send_creature_to_room(thing, room) )
+                return 1;
+            set_start_state(thing);
+            ERRORLOG("Tried sending creature to Temple, could not get there. Cleaned up old state.");
+          }
+        } else
+        {
+            if (is_my_player_number(thing->owner))
+                output_message(31, 500, 1);
+        }
+    }
+    if (cctrl->lair_room_id != 0)
+    {
+      if ((crstat->lair_size != 0) && (game.play_gameturn - cctrl->field_2E3 > 128))
+      {
+        cctrl->field_2E3 = game.play_gameturn;
+        if (anger_get_creature_anger_type(thing) == 3)
+        {
+            if (external_set_thing_state(thing, CrSt_CreatureGoingHomeToSleep))
+              return 1;
+        } else
+        {
+            if (external_set_thing_state(thing, CrSt_PersonSulkHeadForLair))
+              return 1;
+        }
+      }
+    }
+    return 0;
 }
 
 long process_creature_needs_to_heal(struct Thing *thing, const struct CreatureStats *crstat)
@@ -3312,7 +3470,7 @@ long process_training_need(struct Thing *thing, const struct CreatureStats *crst
     cctrl->field_4A++;
     if (cctrl->field_4A >= crstat->annoy_untrained_time)
     {
-      anger_apply_anger_to_creature(thing, crstat->annoy_untrained, 4, 1);
+      anger_apply_anger_to_creature(thing, crstat->annoy_untrained, AngR_Val4, 1);
       cctrl->field_4A = 0;
     }
     return 0;

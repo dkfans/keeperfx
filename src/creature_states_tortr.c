@@ -177,7 +177,7 @@ CrCheckRet process_kinky_function(struct Thing *thing)
   struct CreatureStats *crstat;
   //return _DK_process_kinky_function(thing);
   crstat = creature_stats_get_from_thing(thing);
-  anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, 4, 1);
+  anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, AngR_Val4, 1);
   return CrCkRet_Available;
 }
 
@@ -409,7 +409,7 @@ CrCheckRet process_torture_function(struct Thing *thing)
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
-    anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, 4, 1);
+    anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, AngR_Val4, 1);
     if ((long)game.play_gameturn >= cctrl->field_82 + game.turns_per_torture_health_loss)
     {
         i = compute_creature_max_health(game.torture_health_loss,cctrl->explevel);

@@ -130,7 +130,7 @@ short creature_to_garden(struct Thing *thing)
     {
         struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(thing);
-        anger_apply_anger_to_creature(thing, crstat->annoy_no_hatchery, 2, 1);
+        anger_apply_anger_to_creature(thing, crstat->annoy_no_hatchery, AngR_Val2, 1);
         set_start_state(thing);
         return 0;
     }

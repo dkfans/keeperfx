@@ -108,6 +108,16 @@ enum CreatureCombatFlags {
     CmbtF_Unknown80     = 0x80,
 };
 
+enum CreatureAngerReasons {
+    AngR_Val0      = 0,
+    AngR_Val1      = 1,
+    AngR_Val2      = 2,
+    AngR_Val3      = 3,
+    AngR_Val4      = 4,
+    AngR_Val5      = 5,
+    AngR_Val6      = 6,
+};
+
 enum CreatureCombatStates {
     CmbtSt_Waiting      = 1,
     CmbtSt_Ranged       = 2,
@@ -364,7 +374,12 @@ unsigned short field_2C1;
 unsigned short field_2C3;
 unsigned short field_2C5;
     long field_2C7;
-unsigned char field_2CB[32];
+unsigned char field_2CB[12];
+    long field_2D7;
+unsigned char field_2DB[4];
+    long field_2DF;
+    long field_2E3;
+unsigned char field_2E7[4];
     long field_2EB;
     unsigned long field_2EF;
     short battle_prev_creatr;

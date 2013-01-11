@@ -1087,7 +1087,7 @@ ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
 }
 
 /**
- * Reaturns a job creature can do in a room.
+ * Returns a job creature can do in a room.
  * @param rkind Room kind for which job is to be returned.
  * @param only_computer Include either all jobs, or only those
  *   which can be assigned by dropping creatures by computer player.

@@ -66,6 +66,21 @@ TbBool creature_is_sleeping(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_doing_lair_activity(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = thing->active_state;
+    if (i == CrSt_CreatureSleep)
+        return true;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if ((i == CrSt_CreatureGoingHomeToSleep) || (i == CrSt_AtLairToSleep)
+      || (i == CrSt_CreatureChooseRoomForLairSite) || (i == CrSt_CreatureAtNewLair) || (i == CrSt_CreatureWantsAHome)
+      || (i == CrSt_CreatureChangeLair) || (i == CrSt_CreatureAtChangedLair))
+        return true;
+    return false;
+}
+
 long creature_will_sleep(struct Thing *thing)
 {
     struct CreatureControl *cctrl;

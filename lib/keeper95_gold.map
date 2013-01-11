@@ -746,6 +746,7 @@
  0001:00088680       check_for_empty_trap_for_imp
  0001:000886F0       check_for_empty_trap_for_imp_not_being_armed
  0001:00088760       check_place_to_pickup_gold
+ 0001:00088840       creature_find_and_perform_anger_job
  0001:00088DB0       creature_vandalise_rooms
  0001:00088E70       creature_search_for_gold_to_steal_in_room
  0001:00088F00       creature_steal_gold
@@ -949,6 +950,7 @@
  0001:000A21D0       person_sulk_at_lair
  0001:000A2320       person_sulking
  0001:000A2840       creature_remove_lair_from_room
+ 0001:000A2AB0       get_best_new_lair_for_creature
  0001:000A3220       creature_at_changed_lair
  0001:000A32F0       frontmap_load
  0001:000A4670       frontnetmap_update
