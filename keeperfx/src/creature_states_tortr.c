@@ -155,7 +155,7 @@ short kinky_torturing(struct Thing *thing)
     struct CreatureControl *cctrl;
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if (game.play_gameturn-cctrl->field_82 > crstat->torture_time)
+    if (game.play_gameturn-cctrl->field_82 > crstat->torture_break_time)
     {
         set_start_state(thing);
         return CrStRet_ResetOk;
@@ -389,7 +389,7 @@ long compute_torture_broke_chance(const struct Thing *thing)
     long i;
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
-    i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) - (long)crstat->torture_time;
+    i = ((long)game.play_gameturn - cctrl->tortured.start_gameturn) - (long)crstat->torture_break_time;
     return (i/64 + 1);
 }
 
@@ -430,8 +430,8 @@ CrCheckRet process_torture_function(struct Thing *thing)
         return CrCkRet_Available;
     // Torture must take some time before it has any affect
     i = compute_torture_convert_time(thing,room);
-    if ( (i < crstat->torture_time) || (cctrl->word_A6 == 0) )
-        return 0;
+    if ( (i < crstat->torture_break_time) || (cctrl->word_A6 == 0) )
+        return CrCkRet_Available;
     // After that, every time broke chance is hit, do something
     if (ACTION_RANDOM(100) < compute_torture_broke_chance(thing))
     {
@@ -442,7 +442,7 @@ CrCheckRet process_torture_function(struct Thing *thing)
             return CrCkRet_Continue;
         } else
         { // 67% chance of revealing information about enemy and continue the torture
-            cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_time / 2;
+            cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_break_time / 2;
             reveal_players_map_to_player(thing, room->owner);
             return CrCkRet_Available;
         }

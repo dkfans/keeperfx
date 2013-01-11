@@ -120,6 +120,7 @@ struct ComputerEvent;
 struct Event;
 struct Thing;
 struct ComputerTask;
+struct GoldLookup;
 
 typedef unsigned char ComputerType;
 typedef char ComputerName[LINEMSG_SIZE];
@@ -352,6 +353,11 @@ extern Comp_Check_Func computer_check_func_list[];
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process);
 void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
 void suspend_process(struct Computer2 *comp, struct ComputerProcess *process);
+long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *process);
+/******************************************************************************/
+struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, unsigned short rkind, long a3, long a4, long a5);
+long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
+void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);

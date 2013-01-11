@@ -3066,7 +3066,7 @@ void place_bloody_footprint(struct Thing *thing)
       set_flag_byte(&cctrl->field_2,0x01,false);
     } else
     {
-      if ( thing->alloc_flags & 0x20 )
+      if ((thing->alloc_flags & TAlF_IsControlled) != 0)
       {
         if ((thing->movement_flags & TMvF_Flying) != 0)
         {

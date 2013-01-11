@@ -534,10 +534,6 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     struct PlayerInfo *player;
     long i;
     //return _DK_place_thing_in_power_hand(thing, plyr_idx);
-    if ( ((thing->alloc_flags & 0x10) != 0) || ((thing->field_1 & 0x02) != 0) ) {
-        ERRORLOG("The %s cannot be currently picked up",thing_model_name(thing));
-        return false;
-    }
     player = get_player(plyr_idx);
     if (!thing_is_pickable_by_hand(player, thing)) {
         ERRORLOG("The %s is not pickable thing",thing_model_name(thing));

@@ -769,7 +769,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
       }
       crstat->entrance_force = 0;
       crstat->scavenge_require = 1;
-      crstat->torture_time = 1;
+      crstat->torture_break_time = 1;
   }
   // Find the block
   sprintf(block_buf,"attraction");
@@ -855,7 +855,7 @@ TbBool parse_creaturemodel_attraction_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->torture_time = k;
+            crstat->torture_break_time = k;
             n++;
           }
           if (n < 1)
