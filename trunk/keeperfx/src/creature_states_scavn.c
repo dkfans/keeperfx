@@ -37,6 +37,7 @@
 #include "room_jobs.h"
 #include "room_scavenge.h"
 #include "room_entrance.h"
+#include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
@@ -191,7 +192,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
             return false;
         }
     }
-    if ( ((scavtng->alloc_flags & 0x10) != 0) || ((scavtng->field_1 & 0x02) != 0) ) {
+    if (thing_is_picked_up(scavtng)) {
         return false;
     }
     if (is_thing_passenger_controlled(scavtng) || creature_is_kept_in_custody(scavtng)) {
