@@ -618,7 +618,7 @@ long get_creature_state_type(const struct Thing *thing)
       state_type = states[0].state_type;
       WARNLOG("Creature active state %d is out of range.",(int)state);
   }
-  if (state_type == 6)
+  if (state_type == CrStTyp_Value6)
   {
       state = thing->continue_state;
       if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
@@ -649,7 +649,7 @@ long get_creature_gui_job(const struct Thing *thing)
         return state_type_to_gui_state[state_type];
     } else
     {
-        WARNLOG("The %s has invalid state type(%ld)!",thing_model_name(thing),state_type);
+        WARNLOG("The %s has invalid state type(%d)!",thing_model_name(thing),(int)state_type);
         erstat_inc(ESE_BadCreatrState);
         return state_type_to_gui_state[0];
     }
@@ -3129,7 +3129,7 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     struct StateInfo *next_stati;
     struct StateInfo *curr_stati;
     curr_stati = get_thing_state_info_num(curr_state);
-    if (curr_stati->state_type == 6)
+    if (curr_stati->state_type == CrStTyp_Value6)
       curr_stati = get_thing_state_info_num(thing->continue_state);
     next_stati = get_thing_state_info_num(next_state);
     if ((curr_stati->field_20) && (!next_stati->field_16))

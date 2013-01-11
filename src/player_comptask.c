@@ -33,6 +33,7 @@
 #include "config.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "creature_states.h"
 #include "magic.h"
 #include "thing_traps.h"
 #include "player_instances.h"
@@ -1181,8 +1182,53 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
 
 long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 {
+    struct Dungeon *dungeon;
     SYNCDBG(9,"Starting");
-    return _DK_task_slap_imps(comp,ctask);
+    //return _DK_task_slap_imps(comp,ctask);
+    dungeon = comp->dungeon;
+    ctask->field_7C--;
+    if (ctask->field_7C >= 0)
+    {
+        struct Thing *thing;
+        struct CreatureControl *cctrl;
+        long i;
+        unsigned long k;
+        k = 0;
+        i = dungeon->digger_list_start;
+        while (i > 0)
+        {
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
+                break;
+            cctrl = creature_control_get_from_thing(thing);
+            i = cctrl->players_next_creature_idx;
+            // Per-thing code
+            if (!thing_is_picked_up(thing) && !thing_affected_by_spell(thing, SplK_Speed))
+            {
+                if (cctrl->field_21 == 0)
+                {
+                    long state_type;
+                    state_type = get_creature_state_type(thing);
+                    if (state_type == 1)
+                    {
+                        if (try_game_action(comp, dungeon->owner, 0x1Cu, 0, 0, 0, thing->index, 0) > 0)
+                        {
+                            return 2;
+                        }
+                    }
+                }
+            }
+            // Per-thing code ends
+            k++;
+            if (k > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+        }
+    }
+    remove_task(comp, ctask);
+    return 0;
 }
 
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -1261,7 +1307,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 model = tdsell->model;
                 if ((model < 0) || (model >= DOOR_TYPES_COUNT))
                 {
-                    ERRORLOG("Internal error - invalid model %ld in slot %ld",model,i);
+                    ERRORLOG("Internal error - invalid model %d in slot %d",(int)model,(int)i);
                     break;
                 }
                 if (dungeon->door_amount[model] > 0)
@@ -1272,14 +1318,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                   {
                     remove_workshop_object_from_player(dungeon->owner, door_to_object[model]);
                   }
-                  SYNCDBG(9,"Door model %ld sold for %ld gold",model,value);
+                  SYNCDBG(9,"Door model %d sold for %d gold",(int)model,(int)value);
                 }
                 break;
             case TDSC_Trap:
                 model = tdsell->model;
                 if ((model < 0) || (model >= TRAP_TYPES_COUNT))
                 {
-                    ERRORLOG("Internal error - invalid model %ld in slot %ld",model,i);
+                    ERRORLOG("Internal error - invalid model %d in slot %d",(int)model,(int)i);
                     break;
                 }
                 if (dungeon->trap_amount[model] > 0)
@@ -1421,12 +1467,12 @@ long process_tasks(struct Computer2 *comp)
             n = ctask->ttype;
             if ((n > 0) && (n < sizeof(task_function)/sizeof(task_function[0])))
             {
-                SYNCDBG(12,"Computer Task Type %ld",n);
+                SYNCDBG(12,"Computer Task Type %d",(int)n);
                 task_function[n].func(comp, ctask);
                 ndone++;
             } else
             {
-                ERRORLOG("Bad Computer Task Type %ld",n);
+                ERRORLOG("Bad Computer Task Type %d",(int)n);
             }
         }
         k++;

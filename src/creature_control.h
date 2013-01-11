@@ -531,7 +531,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char entrance_slabs_req[3];
     unsigned char visual_range;
     unsigned char partner_training;
-    short torture_time;
+    /** Minimal game turns a creature must be tortured before it gets a chance to be broken */
+    short torture_break_time;
     short annoy_no_lair;
     short annoy_no_hatchery;
     short annoy_woken_up;
