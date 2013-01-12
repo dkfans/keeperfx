@@ -139,6 +139,7 @@ TbBool creature_stats_debug_dump(void);
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_creature_special_digger(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
+int get_creature_health_permil(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

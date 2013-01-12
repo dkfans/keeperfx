@@ -31,6 +31,7 @@
 #include "config_creature.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"
+#include "creature_states_lair.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_battle.h"
@@ -153,6 +154,24 @@ DLLIMPORT long _DK_update_creature(struct Thing *creatng);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
 /******************************************************************************/
+/**
+ * Returns creature health scaled 0..1000.
+ * @param thing The creature thing.
+ * @return Health value, not always in range of 0..1000.
+ * @note Dying creatures may return negative health.
+ */
+int get_creature_health_permil(struct Thing *thing)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    long health,max_health;
+    health = thing->health * 1000;
+    max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    return health/max_health;
+}
+
 TbBool thing_can_be_controlled_as_controller(struct Thing *thing)
 {
     if (!thing_exists(thing))
@@ -830,7 +849,7 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
         delete_thing_structure(goldtng, 0);
       }
     }
-    anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, 1, 1);
+    anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_Val1, 1);
     return true;
 }
 
@@ -1073,7 +1092,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                   ERRORLOG("GoldPile with no gold!");
                   delete_thing_structure(tgthing, 0);
               }
-              anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, 1, 1);
+              anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, AngR_Val1, 1);
             } else
             if (object_is_mature_food(tgthing))
             {
@@ -1597,7 +1616,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
         }
     }
     crstat = creature_stats_get_from_thing(killertng);
-    anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, 4, 1);
+    anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Val4, 1);
     if (!creature_control_invalid(cctrlgrp) && died_in_battle)
       cctrlgrp->byte_9A++;
     if (!dungeon_invalid(dungeon)) {

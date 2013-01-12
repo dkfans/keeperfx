@@ -460,7 +460,7 @@ TbBool process_job_stress(struct Thing *creatng, struct Room *room)
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         combctrl = creature_control_get_from_thing(combt_thing);
         combctrl->word_9A = room->index;
-        anger_apply_anger_to_creature(creatng, crstat->annoy_job_stress, 4, 1);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_job_stress, AngR_Val4, 1);
         return true;
     }
     if (thing_is_invalid(combt_thing)) {

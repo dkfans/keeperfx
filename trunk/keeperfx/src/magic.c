@@ -39,6 +39,7 @@
 #include "thing_shots.h"
 #include "creature_control.h"
 #include "creature_states.h"
+#include "creature_states_lair.h"
 #include "config_creature.h"
 #include "config_magic.h"
 #include "gui_soundmsgs.h"
@@ -452,13 +453,9 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
 
 TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
     //_DK_magic_use_power_heal(plyr_idx, thing, a3, a4, splevel);
-    crstat = creature_stats_get_from_thing(thing);
-    cctrl = creature_control_get_from_thing(thing);
     // If the creature has full health, do nothing
-    if (thing->health >= compute_creature_max_health(crstat->health,cctrl->explevel)) {
+    if (get_creature_health_permil(thing) >= 1000) {
         return Lb_OK;
     }
     // If we can't afford the spell, fail
