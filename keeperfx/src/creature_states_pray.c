@@ -200,7 +200,7 @@ CrCheckRet process_temple_function(struct Thing *thing)
         struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(thing);
         anger_change = process_work_speed_on_work_value(thing, crstat->annoy_in_temple);
-        anger_apply_anger_to_creature(thing, anger_change, 4, 1);
+        anger_apply_anger_to_creature(thing, anger_change, AngR_Val4, 1);
     }
     // Terminate spells
     process_temple_cure(thing);
@@ -594,7 +594,7 @@ short creature_being_sacrificed(struct Thing *thing)
           output_message(SMsg_SacrificePunish, 0, true);
           break;
       default:
-          ERRORLOG("Invalid sacrifice return");
+          ERRORLOG("Invalid sacrifice return, %d",(int)award);
           break;
       }
     }

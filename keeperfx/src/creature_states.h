@@ -321,14 +321,12 @@ TbBool anger_make_creature_angry(struct Thing *thing, long reason);
 TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 TbBool get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char a2, struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
-TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
 TbBool creature_is_being_tortured(const struct Thing *thing);
 TbBool creature_is_being_sacrificed(const struct Thing *thing);
 TbBool creature_is_manually_controlled_by_owner(const struct Thing *thing);
 TbBool creature_is_kept_in_prison(const struct Thing *thing);
 TbBool creature_is_being_summoned(const struct Thing *thing);
-TbBool creature_is_sleeping(const struct Thing *thing);
 TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing);
 TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);

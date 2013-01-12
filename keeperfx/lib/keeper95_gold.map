@@ -1107,6 +1107,7 @@
  0001:000787D0       battle_remove
  0001:000A82E0       init_messages
  0001:000A2840       creature_remove_lair_from_room
+ 0001:000A2AB0       get_best_new_lair_for_creature
  0001:00054680       draw_single_keepersprite_xflip
  0001:00057D20       update_creatures_not_in_list
  0001:0005ABC0       update_cave_in
@@ -1509,6 +1510,7 @@
  0001:000A1FB0       creature_at_new_lair
  0001:00056D10       creature_attack_rooms
  0001:00088FE0       creature_attempt_to_damage_walls
+ 0001:00088840       creature_find_and_perform_anger_job
  0001:000BFFC0       creature_be_happy
  0001:000BE1A0       creature_being_dropped
  0001:00018E30       creature_being_sacrificed
