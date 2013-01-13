@@ -109,13 +109,11 @@ enum CreatureCombatFlags {
 };
 
 enum CreatureAngerReasons {
-    AngR_Val0      = 0,
-    AngR_Val1      = 1,
-    AngR_Val2      = 2,
-    AngR_Val3      = 3,
-    AngR_Val4      = 4,
-    AngR_Val5      = 5,
-    AngR_Val6      = 6,
+    AngR_None       = 0,
+    AngR_NotPaid    = 1,
+    AngR_Hungry     = 2,
+    AngR_NoLair     = 3,
+    AngR_Other      = 4,
 };
 
 enum CreatureCombatStates {

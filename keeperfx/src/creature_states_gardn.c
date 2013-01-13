@@ -103,7 +103,7 @@ short creature_to_garden(struct Thing *thing)
     {
         // No room for feeding creatures
         if (is_my_player_number(thing->owner))
-            output_message(41, 500, 1);
+            output_message(SMsg_RoomGardenNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
         event_create_event_or_update_nearby_existing_event(0, 0, 23, thing->owner, 0);
         room = INVALID_ROOM;
     } else
@@ -115,12 +115,12 @@ short creature_to_garden(struct Thing *thing)
             if (room_is_invalid(room)) {
                 // There seem to be a correct room, but we can't reach it
                 if (is_my_player_number(thing->owner))
-                    output_message(34, 500, 1);
+                    output_message(SMsg_NoRouteToGarden, MESSAGE_DELAY_ROOM_NEED, 1);
             } else
             {
                 // The room is reachable, so it probably has just no food
                 if (is_my_player_number(thing->owner))
-                    output_message(22, 500, 1);
+                    output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
                 event_create_event_or_update_nearby_existing_event(0, 0, 23, thing->owner, 0);
             }
         }
@@ -130,7 +130,7 @@ short creature_to_garden(struct Thing *thing)
     {
         struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(thing);
-        anger_apply_anger_to_creature(thing, crstat->annoy_no_hatchery, AngR_Val2, 1);
+        anger_apply_anger_to_creature(thing, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         set_start_state(thing);
         return 0;
     }

@@ -135,13 +135,13 @@ DLLIMPORT short _DK_state_cleanup_in_room(struct Thing *creatng);
 DLLIMPORT short _DK_state_cleanup_unable_to_fight(struct Thing *creatng);
 DLLIMPORT short _DK_state_cleanup_unconscious(struct Thing *creatng);
 DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *creatng, struct Room *room, unsigned char a3);
-DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *creatng, long a1, long a2);
+DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *creatng, long a1, long wandr_select);
 DLLIMPORT void _DK_create_effect_around_thing(struct Thing *creatng, long eff_kind);
 DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *creatng, long delta);
 DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *creatng, char owner, char a3, char a4, unsigned char a5);
-DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, char a2, char a3, unsigned char a4, long a5);
-DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *creatng, long a2);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_used_capacity(struct Thing *creatng, char wandr_select, char a3, unsigned char a4, long a5);
+DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *creatng, long wandr_select);
 DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *creatng);
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, struct Room *room);
@@ -150,14 +150,14 @@ DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, 
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *creatng, long state);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
-DLLIMPORT struct Room * _DK_find_nearest_room_for_thing(struct Thing *thing, char a2, char a3, unsigned char a4);
-DLLIMPORT long _DK_process_creature_needs_to_heal_critical(struct Thing *thing, const struct CreatureStats *crstat);
-DLLIMPORT long _DK_process_creature_needs_a_wage(struct Thing *thing, const struct CreatureStats *crstat);
-DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *thing, const struct CreatureStats *crstat);
-DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *thing, const struct CreatureStats *crstat);
-DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *thing, const struct CreatureStats *crstat);
-DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *thing);
-DLLIMPORT long _DK_creature_find_and_perform_anger_job(struct Thing *thing);
+DLLIMPORT struct Room * _DK_find_nearest_room_for_thing(struct Thing *creatng, char wandr_select, char a3, unsigned char a4);
+DLLIMPORT long _DK_process_creature_needs_to_heal_critical(struct Thing *creatng, const struct CreatureStats *crstat);
+DLLIMPORT long _DK_process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureStats *crstat);
+DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat);
+DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *creatng, const struct CreatureStats *crstat);
+DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat);
+DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
+DLLIMPORT long _DK_creature_find_and_perform_anger_job(struct Thing *creatng);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -938,7 +938,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, u
     event_create_event_or_update_nearby_existing_event(subtile_coord_center(room->central_stl_x),
         subtile_coord_center(room->central_stl_y), EvKind_RoomUnderAttack, room->owner, 0);
     if (is_my_player_number(room->owner))
-        output_message(SMsg_EnemyDestroyRooms, 400, true);
+        output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
     thing->continue_state = CrSt_CreatureAttackRooms;
     cctrl = creature_control_get_from_thing(thing);
     if (!creature_control_invalid(cctrl))
@@ -1552,27 +1552,6 @@ short creature_doing_nothing(struct Thing *creatng)
     return _DK_creature_doing_nothing(creatng);
 }
 
-void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng)
-{
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(crtng);
-    if (cctrl->dragtng_idx == 0)
-    {
-        ERRORLOG("The %s isn't dragging anything",thing_model_name(crtng));
-    } else
-    if (dragtng->index != cctrl->dragtng_idx)
-    {
-        ERRORLOG("The %s isn't dragging %s",thing_model_name(crtng),thing_model_name(dragtng));
-    }
-    cctrl->dragtng_idx = 0;
-    dragtng->alloc_flags &= ~TAlF_IsDragged;
-    dragtng->field_1 &= ~TF1_IsDragged1;
-    move_thing_in_map(dragtng, &crtng->mappos);
-    if (dragtng->light_id != 0) {
-        light_turn_light_on(dragtng->light_id);
-    }
-}
-
 /**
  * Returns if given slab meets the requirements for a creature to move on it for its own will.
  * @param thing The creature which is moving.
@@ -2028,10 +2007,15 @@ short creature_persuade(struct Thing *creatng)
     return _DK_creature_persuade(creatng);
 }
 
-void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
+/**
+ * Makes creature drag the specified object.
+ * @param creatng The creature which is to start dragging thing.
+ * @param dragtng The target object to be dragged.
+ */
+void creature_drag_object(struct Thing *creatng, struct Thing *dragtng)
 {
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     cctrl->dragtng_idx = dragtng->index;
     dragtng->alloc_flags |= TAlF_IsDragged;
     dragtng->field_1 |= TF1_IsDragged1;
@@ -2039,6 +2023,62 @@ void creature_drag_object(struct Thing *thing, struct Thing *dragtng)
     if (dragtng->light_id != 0) {
       light_turn_light_off(dragtng->light_id);
     }
+}
+
+void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->dragtng_idx == 0)
+    {
+        ERRORLOG("The %s isn't dragging anything",thing_model_name(creatng));
+    } else
+    if (dragtng->index != cctrl->dragtng_idx)
+    {
+        ERRORLOG("The %s isn't dragging %s",thing_model_name(creatng),thing_model_name(dragtng));
+    }
+    cctrl->dragtng_idx = 0;
+    dragtng->alloc_flags &= ~TAlF_IsDragged;
+    dragtng->field_1 &= ~TF1_IsDragged1;
+    move_thing_in_map(dragtng, &creatng->mappos);
+    if (dragtng->light_id != 0) {
+        light_turn_light_on(dragtng->light_id);
+    }
+}
+
+TbBool creature_is_dragging_something(const struct Thing *creatng)
+{
+    const struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->dragtng_idx == 0) {
+        return false;
+    }
+    const struct Thing *dragtng;
+    dragtng = thing_get(cctrl->dragtng_idx);
+    if (!thing_exists(dragtng)) {
+        ERRORLOG("The %s is dragging nonexisting thing",thing_model_name(creatng));
+        return false;
+    }
+    return true;
+}
+
+TbBool creature_is_dragging_spellbook(const struct Thing *creatng)
+{
+    const struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->dragtng_idx == 0) {
+        return false;
+    }
+    const struct Thing *dragtng;
+    dragtng = thing_get(cctrl->dragtng_idx);
+    if (!thing_exists(dragtng)) {
+        ERRORLOG("The %s is dragging nonexisting thing",thing_model_name(creatng));
+        return false;
+    }
+    if (!thing_is_spellbook(dragtng)) {
+        return false;
+    }
+    return true;
 }
 
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos)
@@ -2282,7 +2322,7 @@ short creature_steal_gold(struct Thing *creatng)
     amount = remove_gold_from_hoarde(hrdtng, room, max_amount);
     creatng->creature.gold_carried += amount;
     create_price_effect(&creatng->mappos, creatng->owner, amount);
-    SYNCDBG(6,"Stolen %ld gold from hoard at (%d,%d)",amount,(int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
+    SYNCDBG(6,"Stolen %d gold from hoard at (%d,%d)",(int)amount, (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num);
     set_start_state(creatng);
     return 0;
 }
@@ -2292,8 +2332,8 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     struct Room *room;
     struct CreatureControl *cctrl;
     struct Thing *spelltng;
-    struct Coord3d pos;
     TRACE_THING(creatng);
+    SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(creatng);
     spelltng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(spelltng);
@@ -2308,22 +2348,18 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     if (!room_is_invalid(room))
     {
         remove_spell_from_library(room, spelltng, creatng->owner);
+        // Play sound - spell stolen
+        if (is_my_player_number(spelltng->owner)) {
+            output_message(SMsg_SpellbookStolen, 500, true);
+        }
     }
-    pos.x.val = 0;
-    pos.y.val = 0;
-    //TODO STEAL_SPELLS write the spell stealing code - find hero gate to escape
-    SYNCLOG("Stealing spells not implemented - reset");
-    set_start_state(creatng);
-    return 0;
-/*
-    creature_drag_object(thing, spelltng);
-    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
-    {
-        SYNCDBG(8,"Cannot move to (%d,%d)",(int)pos.x.stl.num, (int)pos.y.stl.num);
+    creature_drag_object(creatng, spelltng);
+    //TODO STEAL_SPELLS Maybe better than CrSt_GoodLeaveThroughExitDoor set continue_state to CrSt_GoodReturnsToStart?
+    if (!good_setup_wander_to_exit(creatng)) {
+        set_start_state(creatng);
+        return 0;
     }
-    thing->continue_state = CrSt_GoodReturnsToStart;
     return 1;
-*/
 }
 
 short creature_take_salary(struct Thing *creatng)
@@ -2842,13 +2878,13 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
         TRACE_THING(enemytng);
         if (((enemytng->alloc_flags & TAlF_Exists) == 0) || (cctrl->long_9C != enemytng->creation_turn))
         {
-          enemytng = NULL;
+          enemytng = INVALID_THING;
           cctrl->long_9C = 0;
           cctrl->word_9A = 0;
         }
     } else
     {
-        enemytng = NULL;
+        enemytng = INVALID_THING;
     }
     if (game.play_gameturn - cctrl->long_A0 > 64)
     {
@@ -2865,41 +2901,41 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
     return enemytng;
 }
 
-TbBool wander_point_get_random_pos(struct Wander *wandr, struct Coord3d *pos)
+TbBool wander_point_get_random_pos(const struct Wander *wandr, struct Coord3d *pos)
 {
   long irnd;
   if ( wandr->field_0 )
   {
     irnd = ACTION_RANDOM(wandr->field_0);
-    pos->x.val = wandr->field_18[2*irnd] << 8;
-    pos->y.val = wandr->field_18[2*irnd + 1] << 8;
+    pos->x.val = subtile_coord_center(wandr->field_18[2*irnd]);
+    pos->y.val = subtile_coord_center(wandr->field_18[2*irnd + 1]);
     return true;
   }
   return false;
 }
 
-TbBool get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char a2, struct Thing *thing, struct Coord3d *pos)
+TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos)
 {
     struct PlayerInfo *player;
     if (plyr_idx == game.neutral_player_num)
     {
-      ERRORLOG("Attempt to get random position in neutral dungeon");
-      return false;
+        ERRORLOG("Attempt to get random position in neutral dungeon");
+        return false;
     }
     player = get_player(plyr_idx);
     if (player_invalid(player))
     {
-      ERRORLOG("Attempt to get random position in invalid dungeon");
-      return false;
-    }
-    if ( a2 )
-    {
-      if (!wander_point_get_random_pos(&player->wandr1, pos))
+        ERRORLOG("Attempt to get random position in invalid dungeon %d",(int)plyr_idx);
         return false;
+    }
+    if ( wandr_select )
+    {
+        if (!wander_point_get_random_pos(&player->wandr1, pos))
+          return false;
     } else
     {
-      if (!wander_point_get_random_pos(&player->wandr2, pos))
-        return false;
+        if (!wander_point_get_random_pos(&player->wandr2, pos))
+          return false;
     }
     return true;
 }
@@ -3217,17 +3253,17 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
 //    return _DK_set_start_state(thing);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-      cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, CrSt_ManualControl);
-      return thing->active_state;
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_ManualControl);
+        return thing->active_state;
     }
     if (is_neutral_thing(thing))
     {
-      cleanup_current_thing_state(thing);
-      initialise_thing_state(thing, CrSt_CreatureDormant);
-      return thing->active_state;
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_CreatureDormant);
+        return thing->active_state;
     }
-    if (thing->owner == game.hero_player_num)
+    if (is_hero_thing(thing))
     {
         i = creatures[thing->model%CREATURE_TYPES_COUNT].good_start_state;
         cleanup_current_thing_state(thing);
@@ -3235,6 +3271,13 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         return thing->active_state;
     }
     player = get_player(thing->owner);
+    // For creatures which do not have corresponding player
+    if (!player_exists(player))
+    {
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_CreatureDormant);
+        return thing->active_state;
+    }
     if (player->victory_state == VicS_LostLevel)
     {
         cleanup_current_thing_state(thing);
@@ -3340,7 +3383,7 @@ long process_creature_needs_to_heal_critical(struct Thing *thing, const struct C
     {
         struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(thing);
-        anger_apply_anger_to_creature(thing, crstat->annoy_no_lair, AngR_Val3, 1);
+        anger_apply_anger_to_creature(thing, crstat->annoy_no_lair, AngR_NoLair, 1);
     }
     cctrl->field_2D7 = game.play_gameturn;
     return 0;
@@ -3381,22 +3424,23 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
         anger_motive = anger_get_creature_anger_type(thing);
         switch (anger_motive)
         {
-        case 1:
-            output_message(3, 500, 1);
+        case AngR_NotPaid:
+            output_message(SMsg_CreatrAngryNotPaid, MESSAGE_DELAY_CRTR_MOOD, 1);
             break;
-        case 2:
-            output_message(4, 500, 1);
+        case AngR_Hungry:
+            output_message(SMsg_CreatrAngryNoFood, MESSAGE_DELAY_CRTR_MOOD, 1);
             break;
-        case 3:
+        case AngR_NoLair:
             if (cctrl->lairtng_idx != 0)
-                output_message(1, 500, 1);
+                output_message(SMsg_CreatrAngryAnyReson, MESSAGE_DELAY_CRTR_MOOD, 1);
             else
-                output_message(2, 500, 1);
+                output_message(SMsg_CreatrAngryNoLair, MESSAGE_DELAY_CRTR_MOOD, 1);
             break;
-        case 4:
-            output_message(1, 500, 1);
+        case AngR_Other:
+            output_message(SMsg_CreatrAngryAnyReson, MESSAGE_DELAY_CRTR_MOOD, 1);
             break;
         default:
+            output_message(SMsg_CreatrAngryAnyReson, MESSAGE_DELAY_CRTR_MOOD, 1);
             ERRORLOG("Mental instability error - creature is angry but has no motive (%d).",(int)anger_motive);
             break;
         }
@@ -3416,7 +3460,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
         if (creature_is_doing_temple_activity(thing))
             return 1;
         cctrl->field_2DF = game.play_gameturn;
-        room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, 10, 0, 1);
+        room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TEMPLE, 0, 1);
         if (!room_is_invalid(room))
         {
           if (person_will_do_job_for_room(thing, room) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple) )
@@ -3430,23 +3474,24 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
         } else
         {
             if (is_my_player_number(thing->owner))
-                output_message(31, 500, 1);
+                output_message(SMsg_TempleTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
         }
     }
     if (cctrl->lair_room_id != 0)
     {
       if ((crstat->lair_size != 0) && (game.play_gameturn - cctrl->field_2E3 > 128))
       {
-        cctrl->field_2E3 = game.play_gameturn;
-        if (anger_get_creature_anger_type(thing) == 3)
-        {
-            if (external_set_thing_state(thing, CrSt_CreatureGoingHomeToSleep))
-              return 1;
-        } else
-        {
-            if (external_set_thing_state(thing, CrSt_PersonSulkHeadForLair))
-              return 1;
-        }
+          cctrl->field_2E3 = game.play_gameturn;
+          // If creature has no lair, try to go and create it
+          if (anger_get_creature_anger_type(thing) == AngR_NoLair)
+          {
+              if (external_set_thing_state(thing, CrSt_CreatureGoingHomeToSleep))
+                return 1;
+          } else
+          {
+              if (external_set_thing_state(thing, CrSt_PersonSulkHeadForLair))
+                return 1;
+          }
       }
     }
     return 0;
@@ -3470,7 +3515,7 @@ long process_training_need(struct Thing *thing, const struct CreatureStats *crst
     cctrl->field_4A++;
     if (cctrl->field_4A >= crstat->annoy_untrained_time)
     {
-      anger_apply_anger_to_creature(thing, crstat->annoy_untrained, AngR_Val4, 1);
+      anger_apply_anger_to_creature(thing, crstat->annoy_untrained, AngR_Other, 1);
       cctrl->field_4A = 0;
     }
     return 0;
@@ -3507,7 +3552,7 @@ void process_person_moods_and_needs(struct Thing *thing)
         // Special diggers have no special needs
         return;
     }
-    if ((thing->owner == game.hero_player_num) || (thing->owner == game.neutral_player_num)) {
+    if (is_hero_thing(thing) || is_neutral_thing(thing)) {
         // Same goes to heroes and neutral creatures
         return;
     }

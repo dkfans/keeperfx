@@ -199,7 +199,7 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
         return false;
     }
     //TODO [config] Add an option whether scavenging heroes is possible
-    if (scavtng->owner == game.hero_player_num) {
+    if (is_hero_thing(scavtng)) {
         return false;
     }
     struct PlayerInfo *scavplyr;

@@ -53,6 +53,8 @@ short good_wait_in_exit_door(struct Thing *thing);
 short creature_hero_entering(struct Thing *thing);
 short tunneller_doing_nothing(struct Thing *creatng);
 short tunnelling(struct Thing *creatng);
+
+TbBool good_setup_wander_to_exit(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }

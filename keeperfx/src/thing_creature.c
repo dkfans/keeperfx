@@ -849,7 +849,7 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
         delete_thing_structure(goldtng, 0);
       }
     }
-    anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_Val1, 1);
+    anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_NotPaid, 1);
     return true;
 }
 
@@ -1092,7 +1092,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                   ERRORLOG("GoldPile with no gold!");
                   delete_thing_structure(tgthing, 0);
               }
-              anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, AngR_Val1, 1);
+              anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, AngR_NotPaid, 1);
             } else
             if (object_is_mature_food(tgthing))
             {
@@ -1604,19 +1604,19 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
         cctrlgrp->field_C2++;
     }
     if (is_my_player_number(thing->owner)) {
-        output_message(SMsg_BattleDeath, 40, true);
+        output_message(SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
     } else
     if (is_my_player_number(killertng->owner)) {
-        output_message(SMsg_BattleWon, 40, true);
+        output_message(SMsg_BattleWon, MESSAGE_DELAY_BATTLE, true);
     }
-    if (game.hero_player_num == killertng->owner)
+    if (is_hero_thing(killertng))
     {
         if (player_creature_tends_to(killertng->owner,CrTend_Imprison)) {
             ERRORLOG("Hero have tend to imprison");
         }
     }
     crstat = creature_stats_get_from_thing(killertng);
-    anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Val4, 1);
+    anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
     if (!creature_control_invalid(cctrlgrp) && died_in_battle)
       cctrlgrp->byte_9A++;
     if (!dungeon_invalid(dungeon)) {
@@ -2181,7 +2181,7 @@ void remove_first_creature(struct Thing *thing)
       }
     } else
     if ((thing->model != get_players_special_digger_breed(thing->owner))
-        || (game.hero_player_num == thing->owner))
+        || is_hero_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         sectng = thing_get(cctrl->players_prev_creature_idx);
@@ -3609,7 +3609,7 @@ TbBool creature_stats_debug_dump(void)
         i = thing->next_of_class;
         // Per-creature block starts
         crstate = get_creature_state_besides_move(thing);
-        if (thing->owner != hero_player_number) {
+        if (!is_hero_thing(thing)) {
             switch (crstate)
             {
             case CrSt_GoodDoingNothing:

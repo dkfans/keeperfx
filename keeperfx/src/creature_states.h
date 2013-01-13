@@ -294,9 +294,12 @@ long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 short setup_creature_leaves_or_dies(struct Thing *creatng);
 
-TbBool check_experience_upgrade(struct Thing *thing);
 void creature_drop_dragged_object(struct Thing *crtng, struct Thing *dragtng);
-void creature_drag_object(struct Thing *thing, struct Thing *dragtng);
+void creature_drag_object(struct Thing *creatng, struct Thing *dragtng);
+TbBool creature_is_dragging_something(const struct Thing *creatng);
+TbBool creature_is_dragging_spellbook(const struct Thing *creatng);
+
+TbBool check_experience_upgrade(struct Thing *thing);
 long process_work_speed_on_work_value(struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long owner, long rkind);
@@ -319,7 +322,7 @@ void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool anger_make_creature_angry(struct Thing *thing, long reason);
 TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
-TbBool get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char a2, struct Thing *thing, struct Coord3d *pos);
+TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 TbBool creature_is_being_dropped(const struct Thing *thing);
 TbBool creature_is_being_tortured(const struct Thing *thing);

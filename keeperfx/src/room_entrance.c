@@ -291,10 +291,10 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
             if (is_my_player_number(dungeon->owner))
             {
                 if (dungeon_has_room(dungeon, RoK_LAIR)) {
-                    output_message(SMsg_LairTooSmall, 500, true);
+                    output_message(SMsg_LairTooSmall, MESSAGE_DELAY_ROOM_SMALL, true);
                 }
                 else {
-                    output_message(SMsg_RoomLairNeeded, 500, true);
+                    output_message(SMsg_RoomLairNeeded, MESSAGE_DELAY_ROOM_NEED, true);
                 }
             }
 

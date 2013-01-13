@@ -274,7 +274,9 @@ CrCheckRet process_prison_function(struct Thing *thing)
   if (jailbreak_possible(room, thing->owner))
   {
       if (is_my_player_number(room->owner))
-        output_message(SMsg_PrisonersEscaping, 0, true);
+          output_message(SMsg_PrisonersEscaping, 40, true);
+      else if (is_my_player_number(room->owner))
+          output_message(SMsg_CreatrFreedPrison, 40, true);
       set_start_state(thing);
       return CrCkRet_Continue;
   }
