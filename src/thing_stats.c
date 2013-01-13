@@ -195,6 +195,11 @@ TbBool is_neutral_thing(const struct Thing *thing)
     return (thing->owner == game.neutral_player_num);
 }
 
+TbBool is_hero_thing(const struct Thing *thing)
+{
+    return (thing->owner == game.hero_player_num);
+}
+
 /**
  * Returns a value which decays around some epicenter, like blast damage.
  *

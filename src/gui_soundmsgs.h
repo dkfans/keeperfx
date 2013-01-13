@@ -31,14 +31,18 @@ extern "C" {
 
 #define MESSAGE_QUEUE_COUNT     4
 
-#define MESSAGE_DELAY_ROOM_NEED 500
-#define MESSAGE_DELAY_TREASURY  500
+#define MESSAGE_DELAY_ROOM_NEED  500
+#define MESSAGE_DELAY_ROOM_SMALL 500
+#define MESSAGE_DELAY_TREASURY   500
+#define MESSAGE_DELAY_FIGHT      400
+#define MESSAGE_DELAY_BATTLE      40
+#define MESSAGE_DELAY_CRTR_MOOD  500
 
 enum TbSpeechMessages {
         SMsg_None = 0,
         SMsg_CreatrAngryAnyReson,
         SMsg_CreatrAngryNoLair,
-        SMsg_CreatrAngryNotPayed,
+        SMsg_CreatrAngryNotPaid,
         SMsg_CreatrAngryNoFood,
         SMsg_CreatrDestroyRooms,
         SMsg_CreatureLeaving,
@@ -158,6 +162,7 @@ enum TbSpeechMessages {
 };
 #define SMsg_FunnyMessages      SMsg_FullOfPies  // Starts a list of 10 funny quotes
 #define SMsg_EnemyHarassments  110  // Starts a list of harassments
+#define SMsg_EnemyLordQuote    118  // Starts a list of lord of the land quotes
 
 typedef unsigned long Phrase;
 

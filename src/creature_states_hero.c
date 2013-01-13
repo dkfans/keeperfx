@@ -78,13 +78,29 @@ long good_find_enemy_dungeon(struct Thing *thing)
     {
         cctrl->byte_8C = 0;
         cctrl->byte_8B = 0;
+        // Try accessing dungeon heart of undefeated enemy players
         for (i = 0; i < PLAYERS_COUNT; i++)
         {
-          if ( creature_can_get_to_dungeon(thing, i) )
-          {
-              SYNCDBG(8,"The %s index %d can get to enemy player %d",thing_model_name(thing),(int)thing->index,(int)i);
-              return i;
-          }
+            if (player_is_friendly_or_defeated(i, thing->owner)) {
+                continue;
+            }
+            if (creature_can_get_to_dungeon(thing, i))
+            {
+                SYNCDBG(8,"The %s index %d can get to enemy player %d",thing_model_name(thing),(int)thing->index,(int)i);
+                return i;
+            }
+        }
+        // Try accessing any room of any non allied players
+        for (i = 0; i < PLAYERS_COUNT; i++)
+        {
+            if (!players_are_enemies(thing->owner, i)) {
+                continue;
+            }
+            if (creature_can_get_to_any_of_players_rooms(thing, i))
+            {
+                SYNCDBG(8,"The %s index %d can get to room of player %d",thing_model_name(thing),(int)thing->index,(int)i);
+                return i;
+            }
         }
     }
     SYNCDBG(8,"The %s index %d cannot find an enemy",thing_model_name(thing),(int)thing->index);
@@ -134,7 +150,7 @@ TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
         get_subtile_center_pos(room->central_stl_x), get_subtile_center_pos(room->central_stl_y),
         EvKind_RoomUnderAttack, room->owner, 0);
     if (is_my_player_number(room->owner))
-      output_message(SMsg_EnemyDestroyRooms, 400, true);
+      output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
     cctrl = creature_control_get_from_thing(thing);
     thing->continue_state = CrSt_GoodAttackRoom1;
     cctrl->target_room_id = room->index;
@@ -170,12 +186,12 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
     room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_LIBRARY, 0);
     if (room_is_invalid(room))
     {
-        SYNCDBG(6,"No accessible player %ld library found",dngn_id);
+        SYNCDBG(6,"No accessible player %d library found",(int)dngn_id);
         return false;
     }
     if (!setup_person_move_to_position(thing, room->central_stl_x, room->central_stl_y, 0))
     {
-        WARNLOG("Cannot setup move to player %ld library",dngn_id);
+        WARNLOG("Cannot setup move to player %d library",(int)dngn_id);
         return false;
     }
     cctrl = creature_control_get_from_thing(thing);
@@ -323,7 +339,7 @@ TbBool good_setup_wander_to_spdigger(struct Thing *wanderer, long dngn_id)
 short good_attack_room(struct Thing *thing)
 {
     // Debug code to find incorrect states
-    if (thing->owner != hero_player_number)
+    if (!is_hero_thing(thing))
     {
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
@@ -335,7 +351,7 @@ short good_attack_room(struct Thing *thing)
 short good_back_at_start(struct Thing *thing)
 {
     // Debug code to find incorrect states
-    if (thing->owner != hero_player_number)
+    if (!is_hero_thing(thing))
     {
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
@@ -389,7 +405,7 @@ short good_doing_nothing(struct Thing *thing)
     //return _DK_good_doing_nothing(thing);
     SYNCDBG(18,"Starting");
     // Debug code to find incorrect states
-    if (thing->owner != hero_player_number)
+    if (!is_hero_thing(thing))
     {
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
@@ -417,7 +433,7 @@ short good_doing_nothing(struct Thing *thing)
         player = get_player(i);
         if (player_invalid(player))
         {
-            ERRORLOG("Invalid target player in thing no %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
+            ERRORLOG("Invalid target player in thing no %d, %s, owner %d - reset",(int)thing->index,thing_model_name(thing),(int)thing->owner);
             cctrl->sbyte_89 = -1;
             return 0;
         }
@@ -506,17 +522,18 @@ short good_doing_nothing(struct Thing *thing)
         }
         return false;
     case CHeroTsk_StealSpells:
-        //TODO STEAL_SPELLS write a correct code for stealing spells, then enable this
-        if (true)//!thing->holds_a_spell)
+        if (!creature_is_dragging_spellbook(thing))
         {
-            if (good_setup_loot_research_room(thing, i))
+            if (good_setup_loot_research_room(thing, i)) {
                 return true;
+            }
             WARNLOG("Can't loot player %d spells, switching to attack heart", (int)i);
             cctrl->field_4 = CHeroTsk_AttackDnHeart;
         } else
         {
-            if (good_setup_wander_to_exit(thing))
+            if (good_setup_wander_to_exit(thing)) {
                 return true;
+            }
             WARNLOG("Can't wander to exit after looting player %d spells, switching to attack heart", (int)i);
             cctrl->field_4 = CHeroTsk_AttackDnHeart;
         }
@@ -563,7 +580,7 @@ short good_doing_nothing(struct Thing *thing)
 short good_drops_gold(struct Thing *thing)
 {
     // Debug code to find incorrect states
-    if (thing->owner != hero_player_number)
+    if (!is_hero_thing(thing))
     {
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
@@ -578,7 +595,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *tmptng;
     // Debug code to find incorrect states
-    if (thing->owner != hero_player_number)
+    if (!is_hero_thing(thing))
     {
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
@@ -606,7 +623,7 @@ short good_returns_to_start(struct Thing *thing)
     struct Thing *heartng;
     // Debug code to find incorrect states
     SYNCDBG(7,"Starting");
-    if (thing->owner != hero_player_number)
+    if (!is_hero_thing(thing))
     {
         ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
         set_start_state(thing);
@@ -633,7 +650,7 @@ short good_wait_in_exit_door(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Thing *tmptng;
     // Debug code to find incorrect states
-    if (thing->owner != hero_player_number)
+    if (!is_hero_thing(thing))
     {
         ERRORLOG("Non hero thing %s index %d, owner %d - reset",
             thing_model_name(thing), (int)thing->index, (int)thing->owner);

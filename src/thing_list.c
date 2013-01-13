@@ -750,7 +750,7 @@ struct Thing *find_hero_gate_of_number(long num)
       }
       i = thing->next_of_class;
       // Per-thing code
-      if ((thing->model == 49) && (thing->byte_13 == num))
+      if ((object_is_hero_gate(thing)) && (thing->byte_13 == num))
       {
         return thing;
       }
@@ -808,6 +808,75 @@ struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord s
     return INVALID_THING;
 }
 
+struct Thing *get_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxFilterParam param)
+{
+    unsigned long k;
+    long i;
+    struct Thing *retng;
+    long maximizer;
+    maximizer = 0;
+    retng = INVALID_THING;
+    SYNCDBG(19,"Starting");
+    struct StructureList *slist;
+    slist = get_list_for_thing_class(param->class_id);
+    if (slist == NULL) {
+        return INVALID_THING;
+    }
+    i = slist->index;
+    k = 0;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        long n;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        n = filter(thing, param, maximizer);
+        if (n > maximizer)
+        {
+            retng = thing;
+            maximizer = n;
+            if (maximizer == LONG_MAX)
+                break;
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return retng;
+}
+
+/** Finds on whole map a thing owned by given player, which matches given bool filter.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param plyr_idx Player whose things will be searched. Allies are not included, use -1 to select all.
+ * @return The target thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = near_map_block_thing_filter_call_bool_filter;
+    param.class_id = TCls_Object;
+    param.model_id = -1;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    param.ptr3 = (void *)matcher_cb;
+    return get_thing_of_class_with_filter(filter, &param);
+}
+
 struct Thing *find_nearest_enemy_creature(struct Thing *creatng)
 {
   struct Thing *thing;
@@ -816,7 +885,7 @@ struct Thing *find_nearest_enemy_creature(struct Thing *creatng)
   struct Thing *neartng;
   long neardist,dist;
   neardist = LONG_MAX;
-  neartng = NULL;
+  neartng = INVALID_THING;
   i = game.thing_lists[TngList_Creatures].index;
   k = 0;
   while (i != 0)
@@ -1395,13 +1464,11 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
 struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxFilterParam param)
 {
     struct MapOffset *sstep;
-    struct Thing *thing;
     struct Thing *retng;
     long maximizer;
     struct Map *mapblk;
     MapSubtlCoord sx,sy;
     int around;
-    long i,n;
     SYNCDBG(19,"Starting");
     retng = INVALID_THING;
     maximizer = 0;
@@ -1413,6 +1480,8 @@ struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y
       mapblk = get_map_block_at(sx, sy);
       if (!map_block_invalid(mapblk))
       {
+          struct Thing *thing;
+          long i,n;
           i = get_mapwho_thing_index(mapblk);
           n = maximizer;
           thing = get_thing_on_map_block_with_filter(i, filter, param, &n);

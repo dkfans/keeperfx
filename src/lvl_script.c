@@ -2481,7 +2481,7 @@ long script_support_create_thing_at_hero_door(long gate_num, unsigned char tngcl
     if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, 0, 1);
-        output_message(118 + ACTION_RANDOM(8), 0, 1);
+        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
     }
     return thing->index;
 }
@@ -2538,7 +2538,7 @@ long script_support_create_thing_at_action_point(long apt_idx, unsigned char tng
     if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
     {
         output_message(SMsg_LordOfLandComming, 0, 1);
-        output_message(118 + ACTION_RANDOM(8), 0, 1);
+        output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
     }
     return thing->index;
 }

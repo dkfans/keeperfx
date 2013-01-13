@@ -494,10 +494,12 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
 
 long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
 {
-    struct Room *room;
+    const struct Room *room;
+    const struct Dungeon *dungeon;
     long i;
     unsigned long k;
     long count;
+    dungeon = comp->dungeon;
     count = 0;
     i = game.entrance_room_id;
     k = 0;
@@ -511,7 +513,7 @@ long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
         }
         i = room->next_of_kind;
         // Per-room code
-        if ((room->field_12[comp->dungeon->owner] & 0x01) == 0)
+        if ((room->field_12[dungeon->owner] & 0x01) == 0)
         {
             if ((plyr_idx < 0) || (room->owner == plyr_idx))
                 count++;

@@ -975,7 +975,7 @@ void update_battle_events(BattleIndex battle_id)
     }
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        if (i == hero_player_number)
+        if (i == game.hero_player_num)
             continue;
         if ( (1 << i) & owner_flags ) {
             event_create_event_or_update_old_event(pos_x, pos_y, EvKind_Fight, i, 0);
@@ -1542,14 +1542,14 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, lon
       if (is_my_player_number(fighter->owner))
       {
           if (is_my_player_number(enemy->owner)) {
-              output_message(SMsg_FingthingFriends, 400, 1);
+              output_message(SMsg_FingthingFriends, MESSAGE_DELAY_FIGHT, 1);
           } else {
-              output_message(SMsg_CreatureAttacking, 400, 1);
+              output_message(SMsg_CreatureAttacking, MESSAGE_DELAY_FIGHT, 1);
           }
       } else
       {
           if (is_my_player_number(enemy->owner)) {
-            output_message(SMsg_CreatureDefending, 400, 1);
+            output_message(SMsg_CreatureDefending, MESSAGE_DELAY_FIGHT, 1);
           }
       }
     }

@@ -142,6 +142,7 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
 // Final routines to select thing belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
+
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer);
 struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param);
@@ -160,6 +161,12 @@ struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, long plyr_idx);
+
+// Filters to select thing of given class from whole map
+struct Thing *get_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxFilterParam param);
+long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxFilterParam param);
+// Final routines to select thing on/near given map position
+struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb);
 
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);

@@ -953,13 +953,18 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx)
   return (i < SPELL_MAX_LEVEL);
 }
 
-void remove_spell_from_player(long spl_idx, PlayerNumber plyr_idx)
+void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Cannot remove spell %d from invalid dungeon %d!",(int)spl_idx,(int)plyr_idx);
+        return;
+    }
     if (dungeon->magic_level[spl_idx] < 1)
     {
-        ERRORLOG("Cannot remove a spell from player as he doesn't have it!");
+        ERRORLOG("Cannot remove spell %d from player %d as he doesn't have it!",(int)spl_idx,(int)plyr_idx);
         return;
     }
     dungeon->magic_level[spl_idx]--;

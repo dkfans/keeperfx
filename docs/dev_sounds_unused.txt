@@ -36,6 +36,7 @@ Number 51 : "IGAME050.WAV" (A trap design has been taken from you)
 Number 52 : "IGAME051.WAV" (The enemy has taken a door design)
 
 Number 59 : "IGAME058.WAV" (You have freed your creatures from a prison). I don't know if this one is used in the game but if not, then it should be interesting to use it.
+* Now used in process_prison_function(), could be also used elswhere.
 
 Number 60 : "IGAME059.WAV" (Your prisoners are starving to death). This one is unused. Would be fun when a healed prisoner is starving, but at the same time, I just hope it won't be annoying.
 

@@ -2230,7 +2230,7 @@ long get_navigation_colour_for_door(long stl_x, long stl_y)
     {
         return 0x01;
     }
-    if (doortng->owner == game.hero_player_num)
+    if (is_hero_thing(doortng))
         owner = 5;
     else
     if (doortng->owner == game.neutral_player_num)

@@ -104,10 +104,10 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
         return false;
     player1 = get_player(plyr1_idx);
     player2 = get_player(plyr2_idx);
-    // Inactive or invalid players are not enemies
-    if (!player_exists(player1))
+    // Inactive or invalid players are not enemies, as long as they're not heroes
+    if (!player_exists(player1) && (plyr1_idx != game.hero_player_num))
         return false;
-    if (!player_exists(player2))
+    if (!player_exists(player2) && (plyr2_idx != game.hero_player_num))
         return false;
     // And if they're valid, living players - get result from alliances table
     return ((player1->allied_players & (1<<plyr2_idx)) == 0);
@@ -150,21 +150,27 @@ TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx
     return ((player->allied_players & (1<<ally_idx)) != 0);
 }
 
-TbBool player_is_friendly_or_defeated(PlayerNumber plyr_idx, PlayerNumber win_plyr_idx)
+/**
+ * Checks if given player is either friendly to origin player or defeated.
+ * @param check_plyr_idx
+ * @param origin_plyr_idx
+ * @return
+ */
+TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx)
 {
     struct PlayerInfo *player;
     struct PlayerInfo *win_player;
     struct Dungeon *dungeon;
     // Handle neutral player at first, because we can't get PlayerInfo nor Dungeon for it
-    if ((win_plyr_idx == game.neutral_player_num) || (plyr_idx == game.neutral_player_num))
+    if ((origin_plyr_idx == game.neutral_player_num) || (check_plyr_idx == game.neutral_player_num))
         return true;
-    player = get_player(plyr_idx);
-    win_player = get_player(win_plyr_idx);
+    player = get_player(check_plyr_idx);
+    win_player = get_player(origin_plyr_idx);
     if (player_exists(player))
     {
-        if ( (!player_allied_with(win_player, plyr_idx)) || (!player_allied_with(player, win_plyr_idx)) )
+        if ( (!player_allied_with(win_player, check_plyr_idx)) || (!player_allied_with(player, origin_plyr_idx)) )
         {
-            dungeon = get_dungeon(plyr_idx);
+            dungeon = get_dungeon(check_plyr_idx);
             if (dungeon->dnheart_idx > 0)
               return false;
         }

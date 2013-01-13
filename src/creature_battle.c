@@ -161,7 +161,7 @@ long get_flee_position(struct Thing *thing, struct Coord3d *pos)
 
     cctrl = creature_control_get_from_thing(thing);
     // Heroes should flee to their gate
-    if (thing->owner == game.hero_player_num)
+    if (is_hero_thing(thing))
     {
         gatetng = find_hero_door_hero_can_navigate_to(thing);
         if ( !thing_is_invalid(gatetng) )

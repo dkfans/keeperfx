@@ -434,7 +434,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
     {
         // Creature can only be teleported to a revealed location
         destination_valid = true;
-        if ((thing->owner != game.hero_player_num) && (thing->owner != game.neutral_player_num)) {
+        if (!is_hero_thing(thing) && (thing->owner != game.neutral_player_num)) {
             destination_valid = subtile_revealed(pos->x.stl.num, pos->y.stl.num, thing->owner);
         }
         if (destination_valid)
