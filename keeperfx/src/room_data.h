@@ -118,7 +118,7 @@ struct RoomData {
       unsigned char numfield_0;
       short numfield_1;
       Room_Update_Func update_total_capacity;
-      Room_Update_Func ofsfield_7;
+      Room_Update_Func update_used_capacity;
       Room_Update_Func offfield_B;
       unsigned char field_F; //< Originally was long, but the only used values are 1 and 0
       unsigned char field_10; //< Unused, originally was part of field_F
@@ -133,6 +133,17 @@ struct RoomData {
 struct RoomStats {
   short cost;
   unsigned short health;
+};
+
+/** Max. amount of items to be repositioned in a room */
+#define ROOM_REPOSITION_COUNT 16
+
+/**
+ * Structure used for repositioning things in rooms so that they're not placed in solid columns.
+ */
+struct RoomReposition {
+    int used;
+    ThingModel models[ROOM_REPOSITION_COUNT];
 };
 
 #pragma pack()

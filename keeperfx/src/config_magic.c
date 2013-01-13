@@ -937,6 +937,27 @@ unsigned long spell_to_creature_affected_flag(SpellKind spkind)
     return 0;
 }
 
+TbBool add_spell_to_player(PowerKind spl_idx, PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    long i;
+    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
+    {
+        ERRORLOG("Can't add incorrect spell %d to player %d",(int)spl_idx, (int)plyr_idx);
+        return false;
+    }
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->magic_level[spl_idx];
+    if (i >= 255)
+    {
+        ERRORLOG("Spell %d has bad magic_level=%d for player %d", (int)spl_idx, (int)i, (int)plyr_idx);
+        return false;
+    }
+    dungeon->magic_level[spl_idx] = i+1;
+    dungeon->magic_resrchable[spl_idx] = 1;
+    return true;
+}
+
 /**
  * Zeroes all the costs for all spells.
  */
