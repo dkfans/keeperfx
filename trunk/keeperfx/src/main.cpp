@@ -715,27 +715,6 @@ void process_keeper_spell_effect(struct Thing *thing)
     }
 }
 
-TbBool add_spell_to_player(long spl_idx, PlayerNumber plyr_idx)
-{
-    struct Dungeon *dungeon;
-    long i;
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT))
-    {
-        ERRORLOG("Can't add incorrect spell %d to player %d",(int)spl_idx, (int)plyr_idx);
-        return false;
-    }
-    dungeon = get_dungeon(plyr_idx);
-    i = dungeon->magic_level[spl_idx];
-    if (i >= 255)
-    {
-        ERRORLOG("Spell %d has bad magic_level=%d for player %d", (int)spl_idx, (int)i, (int)plyr_idx);
-        return false;
-    }
-    dungeon->magic_level[spl_idx] = i+1;
-    dungeon->magic_resrchable[spl_idx] = 1;
-    return true;
-}
-
 long process_creature_self_spell_casting(struct Thing *thing)
 {
     return _DK_process_creature_self_spell_casting(thing);

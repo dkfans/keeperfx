@@ -29,6 +29,7 @@
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "room_list.h"
+#include "config_terrain.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
@@ -264,13 +265,14 @@ void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, 
 
 void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
 {
-    struct Room *nroom;
     struct SlabMap *slb;
     long slb_x, slb_y;
     unsigned long k;
     long i;
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
     // Clear room index in all slabs
+    // This will make sure that the old room won't be returned by subtile_room_get()
+    // and used as one of new rooms.
     k = 0;
     i = room->slabs_list;
     while (i > 0)
@@ -293,10 +295,13 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
         }
     }
     // Create a new room for every slab
+    struct Room *proom;
+    proom = INVALID_ROOM;
     k = 0;
     i = room->slabs_list;
     while (i != 0)
     {
+        struct Room *nroom;
         slb_x = slb_num_decode_x(i);
         slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
@@ -304,11 +309,17 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
         nroom = create_room(room->owner, room->kind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (room_is_invalid(nroom)) // In case of error, sell the whole thing
         {
+            ERRORLOG("Room creation failed; selling slabs");
             sell_room_slab_when_no_free_room_structures(room, slb_x, slb_y, gnd_slab);
         } else
         {
-            do_room_integration(nroom);
+            // We may have created a new room, or just added tile to the old one
+            // Integrate the room only if we're not adding tiles to old room
+            if ((nroom != proom) && room_exists(proom)) {
+                do_room_integration(proom);
+            }
         }
+        proom = nroom;
         // Per room tile code ends
         k++;
         if (k > room->slabs_count)
@@ -317,6 +328,10 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
             break;
         }
     }
+    if (room_exists(proom)) {
+        do_room_integration(proom);
+    }
+    // The old room no longer has any slabs
     room->slabs_list = 0;
     room->slabs_count = 0;
 }
