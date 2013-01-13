@@ -715,7 +715,7 @@ void process_keeper_spell_effect(struct Thing *thing)
     }
 }
 
-TbBool add_spell_to_player(long spl_idx, long plyr_idx)
+TbBool add_spell_to_player(long spl_idx, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;

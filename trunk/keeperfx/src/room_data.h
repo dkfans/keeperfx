@@ -173,12 +173,13 @@ struct Room *get_room_thing_is_on(const struct Thing *thing);
 void reinitialise_treaure_rooms(void);
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
+TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner);
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind);
 struct Room *find_room_with_spare_capacity(unsigned char owner, signed char kind, long spare);
 struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spare);
 struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long *total_spare_cap);
-struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, signed char kind, unsigned char nav_no_owner, long spare);
-struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, signed char kind, unsigned char nav_no_owner);
+struct Room *find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, RoomKind rkind, unsigned char nav_no_owner, long spare);
+struct Room *find_random_room_creature_can_navigate_to(struct Thing *thing, unsigned char owner, RoomKind rkind, unsigned char nav_no_owner);
 struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);
 
 void create_room_flag(struct Room *room);

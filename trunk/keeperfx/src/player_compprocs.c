@@ -337,9 +337,110 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *pro
   return _DK_computer_check_any_room(comp, process);
 }
 
+PlayerNumber get_player_with_more_entrances_than_computer(const struct Computer2 *comp, int *max_entr_count)
+{
+    PlayerNumber max_plyr_idx;
+    PlayerNumber plyr_idx;
+    const struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    max_plyr_idx = -1;
+    *max_entr_count = dungeon->room_slabs_count[RoK_ENTRANCE];
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        int entr_count;
+        if (plyr_idx == dungeon->owner)
+            continue;
+        entr_count = count_entrances(comp, plyr_idx);
+        if ((entr_count > 0) && (entr_count >= *max_entr_count))
+        {
+            *max_entr_count = entr_count;
+            max_plyr_idx = plyr_idx;
+        }
+    }
+    return max_plyr_idx;
+}
+
+/**
+ * Does a check if there are entrances with specific properties.
+ * @param comp
+ * @return
+ */
+TbBool there_is_virgin_entrance_for_computer(const struct Computer2 *comp)
+{
+    //TODO COMPUTER_AI rename when I know what this function really does
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    long i;
+    unsigned long k;
+    i = game.entrance_room_id;
+    k = 0;
+    while (i != 0)
+    {
+        struct Room *room;
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_kind;
+        // Per-room code
+        if (((room->field_12[dungeon->owner] & 0x01) != 0) &&
+          (room->owner != dungeon->owner))
+        {
+            return true;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return false;
+}
+
 long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_check_dig_to_entrance(comp, process);
+    struct Dungeon *dungeon;
+    SYNCDBG(18,"Starting");
+    //return _DK_computer_check_dig_to_entrance(comp, process);
+    int neutral_entrances;
+    dungeon = comp->dungeon;
+    neutral_entrances = count_entrances(comp, game.neutral_player_num);
+    if (get_task_in_progress(comp, 5))
+    {
+      return 4;
+    }
+    if ((there_is_virgin_entrance_for_computer(comp)) &&
+        (game.play_gameturn - process->field_34 < 2000))
+    {
+        return 4;
+    }
+    PlayerNumber better_plyr_idx;
+    int better_entr_count;
+    better_plyr_idx = get_player_with_more_entrances_than_computer(comp, &better_entr_count);
+    int entr_count;
+    entr_count = dungeon->room_slabs_count[RoK_ENTRANCE];
+    if ((better_plyr_idx >= 0) && (better_entr_count > entr_count))
+    {
+        return 1;
+    }
+    if ((entr_count > 0) && (neutral_entrances/2 <= entr_count))
+    {
+        return 4;
+    }
+    long turns;
+    int trn_mul, trn_div;
+    trn_mul = process->field_8;
+    turns = game.play_gameturn - process->field_34;
+    if (turns >= trn_mul)
+        turns = trn_mul;
+    trn_div = neutral_entrances - entr_count;
+    if (trn_div <= 0)
+      trn_div = 1;
+    return trn_mul / trn_div <= turns;
 }
 
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process)

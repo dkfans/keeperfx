@@ -186,7 +186,7 @@ TbBool is_my_player_number(PlayerNumber plyr_num);
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx);
 TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
-TbBool player_is_friendly_or_defeated(PlayerNumber plyr_idx, PlayerNumber win_plyr_idx);
+TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx);
 TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state);
 void  toggle_ally_with_player(long plyridx, unsigned int allyidx);
 
