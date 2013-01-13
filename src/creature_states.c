@@ -2348,10 +2348,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     if (!room_is_invalid(room))
     {
         remove_spell_from_library(room, spelltng, creatng->owner);
-        // Play sound - spell stolen
-        if (is_my_player_number(spelltng->owner)) {
-            output_message(SMsg_SpellbookStolen, 500, true);
-        }
+        // Note that the above function will also play the speech of stolen spellbook
     }
     creature_drag_object(creatng, spelltng);
     //TODO STEAL_SPELLS Maybe better than CrSt_GoodLeaveThroughExitDoor set continue_state to CrSt_GoodReturnsToStart?

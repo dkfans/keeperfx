@@ -31,6 +31,7 @@
 #include "creature_states_rsrch.h"
 #include "magic.h"
 #include "gui_soundmsgs.h"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +43,41 @@ DLLIMPORT void _DK_process_player_research(int plr_idx);
 }
 #endif
 /******************************************************************************/
+struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Coord3d pos;
+    struct Thing *spelltng;
+    if (room->kind != RoK_LIBRARY) {
+        SYNCDBG(4,"Cannot add spell to %s owned by player %d",room_code_name(room->kind),(int)room->owner);
+        return INVALID_THING;
+    }
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = 0;
+    spelltng = create_object(&pos, spkind, room->owner, -1);
+    if (thing_is_invalid(spelltng))
+    {
+        return INVALID_THING;
+    }
+    // Neutral thing do not need any more processing
+    if (is_neutral_thing(spelltng))
+    {
+        return spelltng;
+    }
+    if (!add_item_to_room_capacity(room))
+    {
+        destroy_object(spelltng);
+        return INVALID_THING;
+    }
+    if (!add_spell_to_player(book_thing_to_magic(spelltng), spelltng->owner))
+    {
+        remove_item_from_room_capacity(room);
+        destroy_object(spelltng);
+        return INVALID_THING;
+    }
+    return spelltng;
+}
+
 TbBool remove_spell_from_library(struct Room *room, struct Thing *spelltng, long new_owner)
 {
     if ( (room->kind != RoK_LIBRARY) || (spelltng->owner != room->owner) ) {
