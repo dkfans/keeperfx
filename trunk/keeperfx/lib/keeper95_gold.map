@@ -43,6 +43,7 @@
  0001:00044ED0       get_nearest_object_at_position
  0001:00050C50       S3DAddSampleToEmitterPri
  0001:00050970       S3DCreateSoundEmitterPri
+ 0001:00050CA0       S3DDeleteSampleFromEmitter
  0001:00050E00       S3DSetSoundReceiverPosition
  0001:00050E30       S3DSetSoundReceiverOrientation
  0001:00050870       S3DInit
@@ -1222,6 +1223,8 @@
  0001:00026B80       rotpers_fisheye
  0001:000C5600       get_nearest_thing_for_slap
  0001:000C5750       get_nearest_thing_for_hand_or_slap
+ 0001:000C5E60       drop_gold_coins
+ 0001:000C5BA0       gold_being_dropped_on_creature
  0001:00035F70       get_front_view_nonaction_inputs
  0001:00054890       draw_keepsprite_unscaled_in_buffer
  0001:00017620       draw_jonty_mapwho

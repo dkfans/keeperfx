@@ -470,20 +470,27 @@ void destroy_room_leaving_unclaimed_ground(struct Room *room)
     }
 }
 
-void destroy_dungeon_heart_room(PlayerNumber plyr_idx)
+void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng)
 {
     struct Dungeon *dungeon;
     long i;
     dungeon = get_dungeon(plyr_idx);
     struct Room *room;
-    i = dungeon->room_kind[RoK_DUNGHEART];
-    room = room_get(i);
+    room = get_room_thing_is_on(heartng);
+    if (room_is_invalid(room) || (room->kind != RoK_DUNGHEART))
+    {
+        WARNLOG("The heart thing is not in heart room");
+        i = dungeon->room_kind[RoK_DUNGHEART];
+        room = room_get(i);
+    }
     if (room_is_invalid(room))
     {
         ERRORLOG("Tried to destroy heart for player who doesn't have one");
         return;
     }
-    dungeon->room_kind[RoK_DUNGHEART] = room->next_of_kind;
+    if (dungeon->room_kind[RoK_DUNGHEART] == room->index) {
+        dungeon->room_kind[RoK_DUNGHEART] = room->next_of_kind;
+    }
     destroy_room_leaving_unclaimed_ground(room);
 }
 
@@ -556,19 +563,19 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
     }
 }
 
-void process_dungeon_destroy(struct Thing *thing)
+void process_dungeon_destroy(struct Thing *heartng)
 {
     struct Dungeon *dungeon;
     long plyr_idx;
-    plyr_idx = thing->owner;
+    plyr_idx = heartng->owner;
     //_DK_process_dungeon_destroy(thing);
     dungeon = get_dungeon(plyr_idx);
     if (!dungeon->field_1060) {
         return;
     }
-    powerful_magic_breaking_sparks(thing);
+    powerful_magic_breaking_sparks(heartng);
     const struct Coord3d *central_pos;
-    central_pos = &thing->mappos;
+    central_pos = &heartng->mappos;
     switch ( dungeon->field_1060 )
     {
     case 1:
@@ -577,7 +584,7 @@ void process_dungeon_destroy(struct Thing *thing)
         if (dungeon->field_1061 < 32)
         {
             if ( ACTION_RANDOM(96) < (dungeon->field_1061 << 6) / 32 + 32 ) {
-                create_effect(central_pos, 0x2Cu, plyr_idx);
+                create_effect(central_pos, 44, plyr_idx);
             }
         } else
         { // Got to next phase
@@ -589,7 +596,7 @@ void process_dungeon_destroy(struct Thing *thing)
         dungeon->field_1061++;
         if (dungeon->field_1061 < 32)
         {
-            create_effect(central_pos, 0x2Cu, plyr_idx);
+            create_effect(central_pos, 44, plyr_idx);
         } else
         { // Got to next phase
             dungeon->field_1060 = 3;
@@ -597,6 +604,11 @@ void process_dungeon_destroy(struct Thing *thing)
         }
         break;
     case 3:
+        // Drop all held things
+        if (dungeon->num_things_in_hand > 0)
+        {
+            dump_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num, 0);
+        }
         // Got to next phase
         dungeon->field_1060 = 4;
         dungeon->field_1061 = 0;
@@ -612,8 +624,8 @@ void process_dungeon_destroy(struct Thing *thing)
             efftng = create_effect(central_pos, 14, plyr_idx);
             if (!thing_is_invalid(efftng))
                 efftng->byte_16 = 8;
-            destroy_dungeon_heart_room(plyr_idx);
-            delete_thing_structure(thing, 0);
+            destroy_dungeon_heart_room(plyr_idx, heartng);
+            delete_thing_structure(heartng, 0);
             { // If there is another heart owned by this player, set it to "working" heart
                 struct PlayerInfo *player;
                 player = get_player(plyr_idx);
