@@ -174,14 +174,14 @@ struct RoomStats *room_stats_get_for_room(const struct Room *room);
 
 long get_room_look_through(RoomKind rkind);
 void set_room_efficiency(struct Room *room);
-void set_room_capacity(struct Room *room, long capac);
+void set_room_capacity(struct Room *room, TbBool skip_integration);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_player_rooms_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
 TbBool thing_is_on_any_room_tile(const struct Thing *thing);
 TbBool thing_is_on_own_room_tile(const struct Thing *thing);
 struct Room *get_room_thing_is_on(const struct Thing *thing);
-void reinitialise_treaure_rooms(void);
+void reinitialise_map_rooms(void);
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner);

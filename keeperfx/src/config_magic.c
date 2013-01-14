@@ -69,6 +69,7 @@ const struct NamedCommand magic_power_commands[] = {
   {"POWER",           2},
   {"COST",            3},
   {"TIME",            4},
+  {"NAMETEXTID",      5},
   {NULL,              0},
   };
 
@@ -638,6 +639,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
 {
   struct PowerConfigStats *powerst;
   struct MagicStats *magstat;
+  struct SpellData *pwrdata;
   long pos;
   int i,k,n;
   int cmd_num;
@@ -681,6 +683,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
     }
     magstat = &game.magic_stats[i];
     powerst = get_power_model_stats(i);
+    pwrdata = get_power_data(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
     while (pos<len)
     {
@@ -748,6 +751,19 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           {
             k = atoi(word_buf);
             magstat->time = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 5: // NAMETEXTID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            pwrdata->name_stridx = k;
             n++;
           }
           if (n < 1)
