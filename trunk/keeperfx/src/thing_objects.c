@@ -313,7 +313,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         ilight.is_dynamic = objconf->ilght.is_dynamic;
         thing->light_id = light_create_light(&ilight);
         if (thing->light_id == 0) {
-            SYNCDBG(8,"Cannot allocate light to %s.",thing_model_name(thing));
+            SYNCDBG(8,"Cannot allocate light to %s",thing_model_name(thing));
         }
     } else {
         thing->light_id = 0;
