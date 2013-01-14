@@ -688,11 +688,11 @@ TbBool load_thing_file(LevelNumber lv_num)
     if ((total < 0) || (total > (fsize-2)/sizeof(struct InitThing)))
     {
         total = (fsize-2)/sizeof(struct InitThing);
-        WARNMSG("Bad amount of things in TNG file; corrected to %ld.",total);
+        WARNMSG("Bad amount of things in TNG file; corrected to %d.",(int)total);
     }
     if (total > THINGS_COUNT-2)
     {
-        WARNMSG("Only %d things supported, TNG file has %ld.",THINGS_COUNT-2,total);
+        WARNMSG("Only %d things supported, TNG file has %d.",(int)(THINGS_COUNT-2),(int)total);
         total = THINGS_COUNT-2;
     }
     // Create things

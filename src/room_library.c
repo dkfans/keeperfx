@@ -69,7 +69,7 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapS
         destroy_object(spelltng);
         return INVALID_THING;
     }
-    if (!add_spell_to_player(book_thing_to_magic(spelltng), spelltng->owner))
+    if (!add_spell_to_player(book_thing_to_magic(spelltng), room->owner))
     {
         remove_item_from_room_capacity(room);
         destroy_object(spelltng);
