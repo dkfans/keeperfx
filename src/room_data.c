@@ -194,7 +194,7 @@ DLLIMPORT void _DK_count_bodies_in_room(struct Room *room);
 DLLIMPORT void _DK_count_food_in_room(struct Room *room);
 DLLIMPORT void _DK_count_lair_occupants(struct Room *room);
 DLLIMPORT short _DK_room_grow_food(struct Room *room);
-DLLIMPORT void _DK_set_room_capacity(struct Room *room, long capac);
+DLLIMPORT void _DK_set_room_capacity(struct Room *room, long skip_integration);
 DLLIMPORT void _DK_set_room_efficiency(struct Room *room);
 DLLIMPORT struct Room *_DK_link_adjacent_rooms_of_type(unsigned char owner, long stl_x, long stl_y, unsigned char rkind);
 DLLIMPORT struct Room *_DK_create_room(unsigned char a1, unsigned char plyr_idz, unsigned short a3, unsigned short a4);
@@ -444,12 +444,12 @@ long get_player_rooms_count(PlayerNumber plyr_idx, RoomKind rkind)
   return k;
 }
 
-void set_room_capacity(struct Room *room, long capac)
+void set_room_capacity(struct Room *room, TbBool skip_integration)
 {
     struct RoomData *rdata;
     //_DK_set_room_capacity(room, capac); return;
     rdata = room_data_get_for_room(room);
-    if ((capac == 0) || (rdata->field_F))
+    if ((!skip_integration) || (rdata->field_F))
     {
         do_room_integration(room);
     }
@@ -654,7 +654,7 @@ void count_and_reposition_books_in_room_on_subtile(struct Room *room, MapSubtlCo
     books_at_subtile = check_books_on_subtile_for_reposition_in_room(room, stl_x, stl_y);
     if (books_at_subtile > 0) {
         // This subtile contains spells
-        SYNCDBG(9,"Got %d books at (%d,%d)",(int)books_at_subtile,(int)stl_x,(int)stl_y);
+        SYNCDBG(19,"Got %d books at (%d,%d)",(int)books_at_subtile,(int)stl_x,(int)stl_y);
         room->used_capacity += books_at_subtile;
     } else
     {
@@ -1288,36 +1288,65 @@ unsigned short i_can_allocate_free_room_structure(void)
   return ret;
 }
 
-void reinitialise_treaure_rooms(void)
+/**
+ * Re-initializes all players rooms of specific kind.
+ * @param rkind
+ * @param skip_integration
+ * @return Total amount of rooms which were reinitialized.
+ */
+long reinitialise_rooms_of_kind(RoomKind rkind, TbBool skip_integration)
 {
-  struct Dungeon *dungeon;
-  struct Room *room;
-  unsigned int i,k,n;
-  for (n=0; n < DUNGEONS_COUNT; n++)
-  {
-    dungeon = get_dungeon(n);
-    i = dungeon->room_kind[RoK_TREASURE];
+    struct Dungeon *dungeon;
+    struct Room *room;
+    unsigned int i,k,n;
     k = 0;
-    while (i != 0)
+    for (n=0; n < DUNGEONS_COUNT; n++)
     {
-      room = room_get(i);
-      if (room_is_invalid(room))
-      {
-        ERRORLOG("Jump to invalid room detected");
-        break;
-      }
-      i = room->next_of_owner;
-      set_room_capacity(room, 1);
-      k++;
-      if (k > ROOMS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping rooms list");
-        break;
-      }
+        dungeon = get_dungeon(n);
+        i = dungeon->room_kind[rkind];
+        while (i != 0)
+        {
+            room = room_get(i);
+            if (room_is_invalid(room))
+            {
+              ERRORLOG("Jump to invalid room detected");
+              break;
+            }
+            i = room->next_of_owner;
+            // Per-room code starts
+            set_room_capacity(room, skip_integration);
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
+            {
+              ERRORLOG("Infinite loop detected when sweeping rooms list");
+              break;
+            }
+        }
     }
-  }
+    return k;
 }
 
+/**
+ * Does re-initialization of level rooms after the level is completely loaded.
+ * @see initialise_map_rooms()
+ * @return
+ */
+void reinitialise_map_rooms(void)
+{
+    RoomKind rkind;
+    for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
+        reinitialise_rooms_of_kind(rkind, false);
+    }
+}
+
+/**
+ * Does basic initialization of level rooms after reading SLB file.
+ * @note While this is executed, things may not be loaded yet.
+ * @see reinitialise_map_rooms()
+ * @return
+ */
 TbBool initialise_map_rooms(void)
 {
     unsigned long slb_x,slb_y;
@@ -1338,7 +1367,7 @@ TbBool initialise_map_rooms(void)
             if (!room_is_invalid(room))
             {
                 set_room_efficiency(room);
-                set_room_capacity(room, 0);
+                set_room_capacity(room, false);
             }
         }
     }
@@ -1733,6 +1762,8 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
 
 /**
  * Retrieves a position in room which could be used as a place for thing to enter that room.
+ * Returns first valid position found.
+ * @todo For Temple and Entrance, this should return border slabs only.
  * @param thing
  * @param room
  * @param pos
@@ -1793,7 +1824,7 @@ TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct R
             break;
         }
     }
-    ERRORLOG("Could not find valid FIRST point in room for creature");
+    ERRORLOG("Could not find valid FIRST point in %s for %s",room_code_name(room->kind),thing_model_name(thing));
     pos->x.val = subtile_coord_center(map_subtiles_x/2);
     pos->y.val = subtile_coord_center(map_subtiles_y/2);
     pos->z.val = subtile_coord(1,0);
@@ -2251,7 +2282,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     SYNCDBG(7,"Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);
     update_room_efficiency(room);
-    set_room_capacity(room,0);
+    set_room_capacity(room,false);
     if (owner != game.neutral_player_num)
     {
         dungeon = get_dungeon(owner);

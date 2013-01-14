@@ -165,12 +165,19 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
     room = find_random_room_creature_can_navigate_to(thing, dngn_id, RoK_TREASURE, 0);
     if (room_is_invalid(room))
     {
-        SYNCDBG(6,"No accessible player %ld treasure room found",dngn_id);
+        SYNCDBG(6,"No accessible player %d treasure room found",(int)dngn_id);
         return false;
     }
-    if (!setup_person_move_to_position(thing, room->central_stl_x, room->central_stl_y, 0))
+    struct Coord3d pos;
+    if (!find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
-        WARNLOG("Cannot setup move to player %ld treasure room",dngn_id);
+        SYNCDBG(6,"No position for %s in %s owned by player %d",
+            thing_model_name(thing),room_code_name(room->kind),(int)room->owner);
+        return false;
+    }
+    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        WARNLOG("Cannot setup move to player %d treasure room",(int)dngn_id);
         return false;
     }
     cctrl = creature_control_get_from_thing(thing);
@@ -189,9 +196,17 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
         SYNCDBG(6,"No accessible player %d library found",(int)dngn_id);
         return false;
     }
-    if (!setup_person_move_to_position(thing, room->central_stl_x, room->central_stl_y, 0))
+    struct Coord3d pos;
+    if (!find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
-        WARNLOG("Cannot setup move to player %d library",(int)dngn_id);
+        SYNCDBG(6,"No position for %s in %s owned by player %d",
+            thing_model_name(thing),room_code_name(room->kind),(int)room->owner);
+        return false;
+    }
+    if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        SYNCDBG(6,"Cannot setup move %s to %s owned by player %d",
+            thing_model_name(thing),room_code_name(room->kind),(int)room->owner);
         return false;
     }
     cctrl = creature_control_get_from_thing(thing);
