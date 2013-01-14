@@ -291,6 +291,7 @@ IF(PLAYER0,TORTURE >= 1)
 ENDIF
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
+    QUICK_OBJECTIVE(19,"Almost there! Just make slaughter of all survivors, we can't have opinion of being mercyful.",PLAYER0)
     IF(PLAYER_GOOD,TOTAL_CREATURES < 1)
         WIN_GAME
     ENDIF
