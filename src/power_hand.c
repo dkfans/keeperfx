@@ -70,6 +70,8 @@ DLLIMPORT long _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, u
 DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long a2);
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
+DLLIMPORT void _DK_drop_gold_coins(struct Coord3d *pos, long a2, long a3);
+DLLIMPORT long _DK_gold_being_dropped_on_creature(long a1, struct Thing *tng1, struct Thing *tng2);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -559,9 +561,19 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     return true;
 }
 
+void drop_gold_coins(struct Coord3d *pos, long a2, long a3)
+{
+    _DK_drop_gold_coins(pos, a2, a3);
+}
+
+long gold_being_dropped_on_creature(long a1, struct Thing *tng1, struct Thing *tng2)
+{
+    return _DK_gold_being_dropped_on_creature(a1, tng1, tng2);
+}
+
 short dump_held_things_on_map(PlayerNumber plyr_idx, long a2, long a3, short a4)
 {
-  return _DK_dump_held_things_on_map(plyr_idx, a2, a3, a4);
+    return _DK_dump_held_things_on_map(plyr_idx, a2, a3, a4);
 }
 
 void clear_things_in_hand(struct PlayerInfo *player)

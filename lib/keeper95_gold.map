@@ -434,6 +434,7 @@
  0001:00050B10       S3DDestroySoundEmitter
  0001:00050BF0       S3DMoveSoundEmitterTo
  0001:00050C50       S3DAddSampleToEmitterPri
+ 0001:00050CA0       S3DDeleteSampleFromEmitter
  0001:00050D70       S3DDeleteAllSamplesFromEmitter
  0001:00050E00       S3DSetSoundReceiverPosition
  0001:00050E30       S3DSetSoundReceiverOrientation
@@ -1180,7 +1181,9 @@
  0001:000C5600       get_nearest_thing_for_slap
  0001:000C5750       get_nearest_thing_for_hand_or_slap
  0001:000C59A0       is_thing_passenger_controlled
+ 0001:000C5BA0       gold_being_dropped_on_creature
  0001:000C5CD0       food_eaten_by_creature
+ 0001:000C5E60       drop_gold_coins
  0001:000C6150       kill_creature
  0001:000C6670       can_thing_be_possessed
  0001:000C67C0       can_thing_be_queried

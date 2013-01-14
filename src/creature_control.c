@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_and_control_creature_as_controller(struct PlayerInfo *player, long a2, struct Coord3d *pos);
+DLLIMPORT struct Thing *_DK_create_and_control_creature_as_controller(struct PlayerInfo *player, long snd_idx, struct Coord3d *pos);
 /******************************************************************************/
 struct CreatureSounds creature_sounds[] = {
 { {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, {   0, 0}, },
@@ -344,6 +344,25 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
     return false;
 }
 
+void stop_creature_sound(struct Thing *thing, long snd_idx)
+{
+    struct CreatureSound *crsound;
+    int i;
+    crsound = get_creature_sound(thing, snd_idx);
+    if (crsound == NULL) {
+        SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
+        return;
+    }
+
+    for (i = 0; i < crsound->count; i++)
+    {
+        if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
+        {
+            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, crsound->index+i, 0);
+        }
+    }
+}
+
 void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
 {
     struct CreatureSound *crsound;
@@ -354,7 +373,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
     }
     crsound = get_creature_sound(thing, snd_idx);
     if (crsound == NULL) {
-        //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
+        SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
         return;
     }
     i = UNSYNC_RANDOM(crsound->count);

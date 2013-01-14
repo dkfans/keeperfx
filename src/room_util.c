@@ -374,6 +374,7 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gn
 /**
  * Updates thing interaction with rooms. Sometimes deletes the given thing.
  * @param thing Thing to be checked, and assimilated or deleted.
+ * @note Used capacity of the room don't have to be updated here, as it is re-computed later.
  * @return True if the thing was either assimilated or left intact, false if it was deleted.
  */
 short check_and_asimilate_thing_by_room(struct Thing *thing)
