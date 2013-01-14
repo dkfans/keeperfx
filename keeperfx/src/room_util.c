@@ -374,7 +374,7 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gn
 /**
  * Updates thing interaction with rooms. Sometimes deletes the given thing.
  * @param thing Thing to be checked, and assimilated or deleted.
- * @return True if the thing was assimilated, false if it was deleted.
+ * @return True if the thing was either assimilated or left intact, false if it was deleted.
  */
 short check_and_asimilate_thing_by_room(struct Thing *thing)
 {
@@ -383,14 +383,35 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room))
+        if (room_is_invalid(room) || (room->kind != RoK_TREASURE))
         {
+            // No room - delete it, hoard cannot exist outside treasure room
+            ERRORLOG("Found %s outside of Treasure Room; removing",thing_model_name(thing));
             delete_thing_structure(thing, 0);
             return false;
         }
         n = (gold_per_hoarde/5)*(((long)thing->model)-51);
         thing->owner = room->owner;
         add_gold_to_hoarde(thing, room, n);
+        return true;
+    }
+    if (thing_is_spellbook(thing))
+    {
+        room = get_room_thing_is_on(thing);
+        if (room_is_invalid(room) || (room->kind != RoK_LIBRARY))
+        {
+            // No room - oh well, leave it as free spell
+            // Just make correct owner so that Imps can pick it up
+            thing->owner = game.neutral_player_num;
+            return true;
+        }
+        if (!add_spell_to_player(book_thing_to_magic(thing), room->owner))
+        {
+            thing->owner = game.neutral_player_num;
+            return true;
+        }
+        thing->owner = room->owner;
+        return true;
     }
     return true;
 }
