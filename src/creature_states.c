@@ -839,11 +839,17 @@ TbBool creature_is_kept_in_custody(const struct Thing *thing)
 
 /**
  * Returns if a creature is kept in custody by a player other than its owner.
+ * There is a limited amount of states the creature can be in while kept in custody.
+ * This function should check all of them, as not meeting any mean that the creature has been freed.
  * @param thing The creature to be checked.
  * @return
  */
 TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
 {
+    if (thing_is_picked_up_by_enemy(thing)) {
+        // The enemy keep us in hand - the fact is clear
+        return true;
+    }
     if (creature_is_kept_in_prison(thing) ||
         creature_is_being_tortured(thing) ||
         creature_is_being_sacrificed(thing) ||
@@ -852,7 +858,8 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
         struct Room *room;
         room = get_room_thing_is_on(thing);
         if (room_is_invalid(room)) {
-            // This must mean we're being dropped outside of room, so not kept in custody
+            // This must mean we're being dropped outside of room, or sold/destroyed the room
+            // so not kept in custody - freed
             return false;
         }
         if (thing->owner != room->owner) {

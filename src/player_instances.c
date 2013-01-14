@@ -242,7 +242,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
   }
   if (!thing_is_invalid(grabtng))
     set_power_hand_graphic(player->id_number, 784, 256);
-  dump_thing_in_power_hand(dsttng, player->id_number);
+  insert_thing_into_power_hand_list(dsttng, player->id_number);
   player->influenced_thing_creation = 0;
   player->influenced_thing_idx = 0;
   place_thing_in_limbo(dsttng);
