@@ -92,6 +92,20 @@ TbBool thing_is_picked_up(const struct Thing *thing)
     return (((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->field_1 & TF1_InCtrldLimbo) != 0));
 }
 
+TbBool thing_is_picked_up_by_owner(const struct Thing *thing)
+{
+    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
+        return false;
+    return thing_is_in_power_hand_list(thing, thing->owner);
+}
+
+TbBool thing_is_picked_up_by_enemy(const struct Thing *thing)
+{
+    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
+        return false;
+    return !thing_is_in_power_hand_list(thing, thing->owner);
+}
+
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing)
 {
     if (!thing_exists(thing))
@@ -228,13 +242,13 @@ struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
     return thing_get(dungeon->things_in_hand[0]);
 }
 
-/** Silently removes a thing from player's power hand.
+/** Removes a thing from player's power hand list without any further processing.
  *
  * @param thing
  * @param plyr_idx
  * @return
  */
-TbBool remove_thing_from_power_hand(struct Thing *thing, long plyr_idx)
+TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx)
 {
   struct Dungeon *dungeon;
   long i;
@@ -255,13 +269,13 @@ TbBool remove_thing_from_power_hand(struct Thing *thing, long plyr_idx)
   return false;
 }
 
-/** Puts a thing into player's power hand.
- *
+/** Puts a thing into player's power hand list without any further processing.
+ * Originally was named dump_thing_in_power_hand().
  * @param thing
  * @param plyr_idx
  * @return
  */
-TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx)
+TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx)
 {
   struct Dungeon *dungeon;
   long i;
@@ -284,6 +298,27 @@ TbBool dump_thing_in_power_hand(struct Thing *thing, long plyr_idx)
       play_creature_sound(thing, CrSnd_HandPick, 3, 1);
   }
   return true;
+}
+
+/** Checks if given thing is placed in power hand of given player.
+ *
+ * @param thing
+ * @param plyr_idx
+ * @return
+ */
+TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    long i;
+    dungeon = get_dungeon(plyr_idx);
+    for (i = 0; i < dungeon->num_things_in_hand; i++)
+    {
+        if (dungeon->things_in_hand[i] == thing->index)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void place_thing_in_limbo(struct Thing *thing)
@@ -554,7 +589,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         i = get_creature_anim(thing, 9);
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
     }
-    dump_thing_in_power_hand(thing, plyr_idx);
+    insert_thing_into_power_hand_list(thing, plyr_idx);
     remove_thing_from_mapwho(thing);
     thing->alloc_flags |= 0x10;
     thing->field_4F |= 0x01;

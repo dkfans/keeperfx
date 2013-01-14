@@ -522,7 +522,7 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
         // Thing list loop body
         if (!creature_is_manually_controlled_by_owner(thing))
         {
-            if (!creature_is_kept_in_custody_by_enemy(thing) && !thing_is_picked_up(thing))
+            if (!creature_is_kept_in_custody_by_enemy(thing))
             {
                 setup_creature_leaves_or_dies(thing);
             }
@@ -549,7 +549,7 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (!creature_is_kept_in_custody_by_enemy(thing) && !thing_is_picked_up(thing))
+        if (!creature_is_kept_in_custody_by_enemy(thing))
         {
             kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
         }
