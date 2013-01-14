@@ -55,6 +55,7 @@ DLLIMPORT long _DK_S3DInit(void);
 DLLIMPORT long _DK_S3DSetNumberOfSounds(long nMaxSounds);
 DLLIMPORT long _DK_S3DSetMaximumSoundDistance(long nDistance);
 DLLIMPORT long _DK_S3DDeleteAllSamplesFromEmitter(long eidx);
+DLLIMPORT long _DK_S3DDeleteSampleFromEmitter(long a1, long a2, long a3);
 
 // Global variables
 long NoSoundEmitters = SOUND_EMITTERS_MAX;
@@ -160,6 +161,11 @@ TbBool S3DEmitterIsPlayingSample(long eidx, long smpl_idx, long bank_id)
         }
     }
     return false;
+}
+
+long S3DDeleteSampleFromEmitter(long a1, long a2, long a3)
+{
+    return _DK_S3DDeleteSampleFromEmitter(a1, a2, a3);
 }
 
 TbBool S3DDeleteAllSamplesFromEmitter(long eidx)

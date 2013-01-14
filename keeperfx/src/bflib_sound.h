@@ -152,6 +152,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6,
 TbBool S3DEmitterIsAllocated(long eidx);
 TbBool S3DEmitterIsPlayingAnySample(long eidx);
 TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
+long S3DDeleteSampleFromEmitter(long a1, long a2, long a3);
 TbBool S3DDeleteAllSamplesFromEmitter(long eidx);
 TbBool S3DDestroySoundEmitterAndSamples(long eidx);
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
