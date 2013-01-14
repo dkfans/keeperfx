@@ -1061,7 +1061,7 @@ short load_map_ownership_file(LevelNumber lv_num)
     return true;
 }
 
-short initialise_map_wlb_auto(void)
+TbBool initialise_map_wlb_auto(void)
 {
     struct SlabMap *slb;
     struct SlabAttr *slbattr;
@@ -1085,13 +1085,13 @@ short initialise_map_wlb_auto(void)
         }
         slbattr = get_slab_kind_attrs(n);
         n = (slbattr->is_unknflg15 << 3);
-        slb->field_5 ^= (slb->field_5 ^ n) & 0x18;
+        slb->field_5 ^= (slb->field_5 ^ n) & (0x10|0x08);
       }
-    SYNCMSG("Regenerated WLB flags, unsure for %lu bridge blocks.",nbridge);
+    SYNCMSG("Regenerated WLB flags, unsure for %d bridge blocks.",(int)nbridge);
     return true;
 }
 
-short load_map_wlb_file(unsigned long lv_num)
+TbBool load_map_wlb_file(unsigned long lv_num)
 {
     struct SlabMap *slb;
     unsigned long x,y;
@@ -1132,9 +1132,9 @@ short load_map_wlb_file(unsigned long lv_num)
     return true;
 }
 
-short initialise_extra_slab_info(unsigned long lv_num)
+TbBool initialise_extra_slab_info(unsigned long lv_num)
 {
-    short result;
+    TbBool result;
     initialise_map_rooms();
     result = load_map_wlb_file(lv_num);
     if (!result)
@@ -1292,7 +1292,7 @@ short load_level_file(LevelNumber lvnum)
           result = false;
         if (!load_thing_file(lvnum))
           result = false;
-        reinitialise_treaure_rooms();
+        reinitialise_map_rooms();
         ceiling_init(0, 1);
     } else
     {
