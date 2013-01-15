@@ -1624,7 +1624,7 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
         check->param1 = val2;
         check->param2 = val3;
         check->param3 = val4;
-        check->turns_last = val5;
+        check->param4 = val5;
         n++;
       }
     }

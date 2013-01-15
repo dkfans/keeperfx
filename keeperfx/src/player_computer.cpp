@@ -935,12 +935,12 @@ TbBool process_checks(struct Computer2 *comp)
             break;
         if ((ccheck->flags & 0x01) == 0)
         {
-            delta = (game.play_gameturn - ccheck->turns_last);
+            delta = (game.play_gameturn - ccheck->param4);
             if ((delta > ccheck->turns_interval) && (ccheck->func != NULL))
             {
                 SYNCDBG(18,"Executing check %ld",i);
                 ccheck->func(comp, ccheck);
-                ccheck->turns_last = game.play_gameturn;
+                ccheck->param4 = game.play_gameturn;
             }
         }
     }

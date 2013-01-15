@@ -26,10 +26,13 @@
 #include "bflib_math.h"
 
 #include "config.h"
+#include "config_terrain.h"
 #include "player_instances.h"
 #include "creature_states.h"
 #include "magic.h"
 #include "dungeon_data.h"
+#include "room_data.h"
+#include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -201,10 +204,100 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     return _DK_computer_check_for_pretty(comp, check);
 }
 
+struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
+{
+    static const RoomKind opponent_room_kinds[] = {RoK_DUNGHEART, RoK_PRISON, RoK_LIBRARY, RoK_TREASURE};
+    struct Dungeon *dungeon;
+    struct Room *room;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon) || (slab_conf.room_types_count < 1)) {
+        return INVALID_ROOM;
+    }
+    int i,n;
+    n = opponent_room_kinds[ACTION_RANDOM(sizeof(opponent_room_kinds)/sizeof(opponent_room_kinds[0]))];
+    for (i=0; i < slab_conf.room_types_count; i++)
+    {
+        room = room_get(dungeon->room_kind[n]);
+        if (room_exists(room)) {
+            return room;
+        }
+        n = (n + 1) % slab_conf.room_types_count;
+    }
+    return INVALID_ROOM;
+}
+
+struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_hate)
+{
+    struct THate hate[4];
+    long i;
+    get_opponent(comp, hate);
+    for (i=0; i < 4; i++)
+    {
+        if ((hate[i].value[2]) && (hate[i].value[0] > min_hate))
+        {
+            struct Room *room;
+            room = get_opponent_room(comp, i);
+            if (!room_is_invalid(room)) {
+                return room;
+            }
+        }
+    }
+    return INVALID_ROOM;
+}
+
+/**
+ * Quick attack is just putting CTA spell on enemy room.
+
+ * @param comp
+ * @param check
+ */
 long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_quick_attack(comp, check);
+    //return _DK_computer_check_for_quick_attack(comp, check);
+    dungeon = comp->dungeon;
+    int creatrs_factor;
+    creatrs_factor = check->param2 * dungeon->num_active_creatrs / 100;
+    if (check->param4 >= creatrs_factor) {
+        return 4;
+    }
+    if (computer_able_to_use_magic(comp, 6, 1, 3) != 1) {
+        return 4;
+    }
+    if ((check_call_to_arms(comp) != 1) || is_there_an_attack_task(comp)) {
+        return 4;
+    }
+    struct Room *room;
+    room = get_hated_room_for_quick_attack(comp, check->param4);
+    if (room_is_invalid(room)) {
+        return 4;
+    }
+    struct Coord3d pos;
+    // TODO COMPUTER_AI We should make sure the place of cast is accessible for creatures
+    pos.x.val = subtile_coord_center(room->central_stl_x);
+    pos.y.val = subtile_coord_center(room->central_stl_y);
+    pos.z.val = subtile_coord(1,0);
+    if (check->param4 >= count_creatures_availiable_for_fight(comp, &pos)) {
+        return 4;
+    }
+    struct ComputerTask *ctask;
+    ctask = get_free_task(comp, 0);
+    if (ctask == NULL) {
+        return 4;
+    }
+    output_message(SMsg_EnemyHarassments+ACTION_RANDOM(8), 500, 1);
+    ctask->ttype = CTT_MagicCallToArms;
+    ctask->field_1 = 0;
+    ctask->pos_76.x.val = pos.x.val;
+    ctask->pos_76.y.val = pos.y.val;
+    ctask->pos_76.z.val = pos.z.val;
+    ctask->field_7C = creatrs_factor;
+    ctask->field_A = game.play_gameturn;
+    ctask->field_60 = 25;
+    ctask->field_5C = game.play_gameturn - 25;
+    ctask->field_8E = check->param3;
+    return 1;
 }
 
 struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *comp, struct Room *room)

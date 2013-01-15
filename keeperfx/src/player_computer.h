@@ -170,7 +170,7 @@ struct ComputerCheck { // sizeof = 32
   long param1;
   long param2;
   long param3;
-  long turns_last;
+  long param4;
 };
 
 struct ComputerEvent { // sizeof = 44
@@ -329,8 +329,11 @@ struct ComputerPlayerConfig {
     int computers_count;
 };
 
+/**
+ * Contains value of hate between players.
+ */
 struct THate {
-    char field_0;
+    long value[4];
 };
 
 #pragma pack()
@@ -356,8 +359,10 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *process);
 /******************************************************************************/
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, unsigned short rkind, long a3, long a4, long a5);
+struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
+void get_opponent(struct Computer2 *comp, struct THate *hate);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
@@ -391,6 +396,7 @@ long check_call_to_arms(struct Computer2 *comp);
 long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
 long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
+long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 /******************************************************************************/
 void setup_a_computer_player(unsigned short plyridx, long comp_model);
 void process_computer_players2(void);
