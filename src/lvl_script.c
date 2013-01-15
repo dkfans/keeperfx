@@ -1129,7 +1129,7 @@ void command_room_available(char *plrname, char *roomname, unsigned long can_res
     command_add_value(Cmd_ROOM_AVAILABLE, plr_id, room_id, can_resrch, can_build);
 }
 
-void command_creature_available(char *plrname, char *crtr_name, unsigned long a3, unsigned long a4)
+void command_creature_available(char *plrname, char *crtr_name, unsigned long can_be_avail, unsigned long force_avail)
 {
     long plr_id,crtr_id;
     if (!get_player_id(plrname, &plr_id))
@@ -1140,7 +1140,7 @@ void command_creature_available(char *plrname, char *crtr_name, unsigned long a3
       SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
       return;
     }
-    command_add_value(Cmd_CREATURE_AVAILABLE, plr_id, crtr_id, a3, a4);
+    command_add_value(Cmd_CREATURE_AVAILABLE, plr_id, crtr_id, can_be_avail, force_avail);
 }
 
 void command_magic_available(char *plrname, char *magname, unsigned long can_resrch, unsigned long can_use)
