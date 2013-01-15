@@ -630,7 +630,7 @@ short parse_computer_player_check_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            check->turns_last = k;
+            check->param4 = k;
             n++;
           }
           if (n < 4)
@@ -820,7 +820,7 @@ short write_computer_player_check_to_log(struct ComputerCheck *check)
   JUSTMSG("Mnemonic = %s","XX");
   JUSTMSG("Values = %d %d",check->flags,check->turns_interval);
   JUSTMSG("Functions = %x",check->func);
-  JUSTMSG("Params = %d %d %d %d",check->param1,check->param2,check->param3,check->turns_last);
+  JUSTMSG("Params = %d %d %d %d",check->param1,check->param2,check->param3,check->param4);
   return true;
 }
 
