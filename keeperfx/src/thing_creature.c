@@ -32,6 +32,8 @@
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_states_lair.h"
+#include "creature_states_mood.h"
+#include "creature_states_gardn.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_battle.h"
@@ -2289,7 +2291,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     {
         dungeon = get_dungeon(creatng->owner);
         dungeon->score -= get_creature_thing_score(creatng);
-        if ( anger_is_creature_angry(creatng) )
+        if (anger_is_creature_angry(creatng))
             dungeon->creatures_annoyed--;
         remove_events_thing_is_attached_to(creatng);
     }
@@ -2968,7 +2970,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If creature is hungry, place it at garden
-    if ((crstat->hunger_rate != 0) && (cctrl->hunger_level > crstat->hunger_rate))
+    if (hunger_is_creature_hungry(thing))
     {
         // If already at garden, then don't do anything
         if (creature_is_doing_garden_activity(thing))

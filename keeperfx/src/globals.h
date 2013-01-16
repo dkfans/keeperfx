@@ -153,6 +153,7 @@ typedef unsigned char ThingModel;
 /** Type which stores thing index. */
 typedef unsigned short ThingIndex;
 typedef unsigned short CrtrStateId;
+typedef unsigned char CrtrExpLevel;
 /** Type which stores room kind index. */
 typedef unsigned char RoomKind;
 /** Type which stores slab kind index. */

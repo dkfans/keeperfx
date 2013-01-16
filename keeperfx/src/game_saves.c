@@ -395,7 +395,7 @@ TbBool load_game(long slot_num)
       dungeon->lvstats.player_score = 0;
       dungeon->lvstats.allow_save_score = 1;
     }
-    game.loaded_swipe_idx = 0;
+    game.loaded_swipe_idx = -1;
     return true;
 }
 

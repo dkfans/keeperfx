@@ -133,4 +133,66 @@ short mad_killing_psycho(struct Thing *thing)
   return _DK_mad_killing_psycho(thing);
 }
 
+void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, long reason)
+{
+    SYNCDBG(8,"Setting to %d",(int)annoy_lv);
+    _DK_anger_set_creature_anger(creatng, annoy_lv, reason);
+}
+
+TbBool anger_is_creature_livid(const struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl))
+        return false;
+    return ((cctrl->field_66 & 0x02) != 0);
+}
+
+TbBool anger_is_creature_angry(const struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl))
+        return false;
+    return ((cctrl->field_66 & 0x01) != 0);
+}
+
+long anger_get_creature_anger_type(const struct Thing *creatng)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long anger_type;
+    long anger_level;
+    long i;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    if (crstat->annoy_level == 0)
+        return 0;
+    if ((cctrl->field_66 & 0x01) == 0)
+        return 0;
+    anger_type = 0;
+    for (i=1; i < 5; i++)
+    {
+        if (anger_level < cctrl->annoyance_level[i-1])
+        {
+            anger_level = cctrl->annoyance_level[i-1];
+            anger_type = i;
+        }
+    }
+    if (anger_level < crstat->annoy_level)
+        return 0;
+    return anger_type;
+}
+
+TbBool anger_make_creature_angry(struct Thing *creatng, long reason)
+{
+  struct CreatureStats *crstat;
+  struct CreatureControl *cctrl;
+  cctrl = creature_control_get_from_thing(creatng);
+  crstat = creature_stats_get_from_thing(creatng);
+  if ((crstat->annoy_level <= 0) || ((cctrl->field_66 & 0x01) != 0))
+    return false;
+  anger_set_creature_anger(creatng, crstat->annoy_level, reason);
+  return true;
+}
 /******************************************************************************/

@@ -32,12 +32,18 @@
 #include "engine_arrays.h"
 #include "engine_redraw.h"
 #include "creature_graphics.h"
+#include "creature_states.h"
+#include "creature_states_mood.h"
+#include "creature_states_gardn.h"
+#include "creature_states_lair.h"
+#include "thing_stats.h"
 #include "game_lghtshdw.h"
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "vidmode.h"
 #include "config_settings.h"
+#include "config_creature.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 
@@ -1004,9 +1010,198 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
     _DK_draw_engine_room_flagpole(rflg);
 }
 
-void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4)
+unsigned short choose_health_sprite(struct Thing *thing)
 {
-    _DK_draw_status_sprites(a1, a2, thing, a4);
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    long health, maxhealth;
+    int color_idx;
+    health = thing->health;
+    maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+    color_idx = (thing->owner % 5);
+    if (is_neutral_thing(thing)) {
+        color_idx = game.play_gameturn & 3;
+    }
+    if ((maxhealth <= 0) || (health <= 0))
+    {
+        return 88 + (8*color_idx) - 8;
+    } else
+    {
+      if (health >= maxhealth) {
+          return 81 + (8*color_idx);
+      } else {
+          return 88 + (8*color_idx) - (8 * health / maxhealth);
+      }
+    }
+}
+
+void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long a4)
+{
+    struct CreatureControl *cctrl;
+    struct PlayerInfo *myplyr;
+    struct Camera *mycam;
+    unsigned short flg_mem;
+    //_DK_draw_status_sprites(a1, a2, thing, a4);
+    myplyr = get_my_player();
+
+    CrtrExpLevel exp;
+    short health_spridx,v31h;
+    signed short anger_spridx;
+    int h_add;
+
+    flg_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags = 0;
+    anger_spridx = 0;
+    h_add = 0;
+    health_spridx = 0;
+    v31h = 0;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((game.flags_cd & 0x80) != 0)
+    {
+      if ( myplyr->thing_under_hand != thing->index )
+      {
+        cctrl->field_43 = game.play_gameturn;
+        return;
+      }
+      cctrl->field_47 = 40;
+    }
+    exp = min(cctrl->explevel,9);
+    mycam = myplyr->acamera;
+    if ((mycam->field_6 == 2) || (mycam->field_6 == 5))
+    {
+      health_spridx = choose_health_sprite(thing);
+      if (is_my_player_number(thing->owner))
+      {
+        lbDisplay.DrawFlags |= 0x04;
+        cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->field_43 - game.play_gameturn != -1)
+        {
+            cctrl->field_47 = 0;
+        } else
+        if (cctrl->field_47 < 40)
+        {
+            cctrl->field_47++;
+        }
+        cctrl->field_43 = game.play_gameturn;
+        if (cctrl->field_47 == 40)
+        {
+            struct StateInfo *stati;
+            stati = get_creature_state_with_task_completion(thing);
+            if ( !stati->field_23 )
+            {
+                if (anger_is_creature_livid(thing))
+                {
+                    stati = &states[CrSt_CreatureLeavingDungeon];
+                } else
+                if (creature_is_called_to_arms(thing))
+                {
+                    stati = &states[CrSt_ArriveAtCallToArms];
+                } else
+                if (creature_is_at_alarm(thing))
+                {
+                    stati = &states[CrSt_ArriveAtAlarm];
+                } else
+                if ( anger_is_creature_angry(thing) )
+                {
+                    stati = &states[CrSt_PersonSulkAtLair];
+                } else
+                if (hunger_is_creature_hungry(thing))
+                {
+                    stati = &states[CrSt_CreatureArrivedAtGarden];
+                } else
+                if (creature_requires_healing(thing))
+                {
+                    stati = &states[CrSt_CreatureSleep];
+                } else
+                if (cctrl->field_48)
+                {
+                    stati = &states[CrSt_CreatureWantsSalary];
+                } else
+                {
+                    stati = get_creature_state_with_task_completion(thing);
+                }
+                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                  v31h = stati->field_24;
+                switch ( anger_get_creature_anger_type(thing) )
+                {
+                case 1:
+                    anger_spridx = 52;
+                    break;
+                case 2:
+                    anger_spridx = 59;
+                    break;
+                case 3:
+                    anger_spridx = 54;
+                    break;
+                case 4:
+                    anger_spridx = 55;
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
+      }
+    }
+    int w, h;
+    struct TbSprite *spr;
+    if ( v31h || anger_spridx )
+    {
+        spr = &button_sprite[70];
+        h = (pixel_size * a4 * spr->SHeight) >> 13;
+        w = (pixel_size * a4 * spr->SWidth) >> 13;
+        LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
+    } else
+    {
+      h = 0;
+    }
+    lbDisplay.DrawFlags &= ~0x08;
+    lbDisplay.DrawFlags &= ~0x04;
+    if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
+    {
+        spr = &button_sprite[anger_spridx];
+        LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
+        spr = &button_sprite[v31h];
+        h_add = spr->SHeight;
+    } else
+    if ( v31h )
+    {
+        spr = &button_sprite[v31h];
+        LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
+        h_add = spr->SHeight;
+    }
+    if ((thing->word_17 > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
+    {
+        spr = &button_sprite[health_spridx];
+        h = pixel_size * spr->SHeight;
+        w = pixel_size * spr->SWidth;
+        if (is_neutral_thing(thing))
+        {
+            LbSpriteDrawOneColour(scrpos_x - w / pixel_size / 2, scrpos_y - h / pixel_size - h_add, spr, player_flash_colours[game.play_gameturn & 3]);
+        } else
+        {
+            LbSpriteDrawOneColour(scrpos_x - w / pixel_size / 2, scrpos_y - h / pixel_size - h_add, spr, player_flash_colours[thing->owner]);
+        }
+    }
+    else
+    {
+      if ( (myplyr->thing_under_hand == thing->index)
+        || ((myplyr->id_number != thing->owner) && (((cctrl->spell_flags & 0x20) == 0) || (cctrl->field_AF > 0)))
+        || (cctrl->combat_flags)
+        || (thing->word_17 > 0)
+        || (mycam->field_6 == 3) )
+      {
+          spr = &button_sprite[health_spridx];
+          w = pixel_size * spr->SWidth;
+          h = pixel_size * spr->SHeight;
+          LbSpriteDraw(scrpos_x - w / pixel_size / 2, scrpos_y - h / pixel_size - h_add, spr);
+          spr = &button_sprite[184 + exp];
+          LbSpriteDraw(scrpos_x - w / pixel_size / 2, scrpos_y - h / pixel_size - h_add, spr);
+      }
+    }
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void draw_iso_only_fastview_mapwho(struct Camera *cam, struct JontySpr *spr)

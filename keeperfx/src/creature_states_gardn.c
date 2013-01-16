@@ -50,6 +50,17 @@ DLLIMPORT void _DK_person_search_for_food_again(struct Thing *thing, struct Room
 }
 #endif
 /******************************************************************************/
+TbBool hunger_is_creature_hungry(const struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl) || creature_stats_invalid(crstat))
+        return false;
+    return ((crstat->hunger_rate != 0) && (cctrl->hunger_level > crstat->hunger_rate));
+}
+
 void person_search_for_food_again(struct Thing *thing, struct Room *room)
 {
     _DK_person_search_for_food_again(thing, room);
