@@ -2401,7 +2401,7 @@ short creature_take_salary(struct Thing *creatng)
         efftng = create_effect_element(&creatng->mappos, 0x29, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            efftng->long_13 = salary;
+            efftng->effect.number = salary;
             thing_play_sample(efftng, 32, 100, 0, 3, 0, 2, 256);
         }
     }

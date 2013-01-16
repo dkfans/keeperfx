@@ -3237,7 +3237,7 @@ void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg
     if (dmg > 0)
     {
         apply_damage_to_thing(thing, dmg, inflicting_plyr_idx);
-        thing->word_17 = 8;
+        thing->creature.health_bar_turns = 8;
     }
 }
 
@@ -3535,8 +3535,8 @@ TngUpdateRet update_creature(struct Thing *thing)
         process_keeper_spell_effect(thing);
     }
 
-    if (thing->word_17 > 0)
-        thing->word_17--;
+    if (thing->creature.health_bar_turns > 0)
+        thing->creature.health_bar_turns--;
 
     if (creature_is_group_member(thing))
     {

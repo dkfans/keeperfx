@@ -721,11 +721,11 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, l
     if (!thing_is_invalid(thing))
     {
         struct Dungeon *dungeon;
-        room->capacity_used_for_storage += thing->object.gold_stored;
+        room->capacity_used_for_storage += thing->valuable.gold_stored;
         dungeon = get_dungeon(room->owner);
         if (!dungeon_invalid(dungeon))
-            dungeon->total_money_owned += thing->object.gold_stored;
-        hoard_size = thing->object.gold_stored / hoard_size_holds;
+            dungeon->total_money_owned += thing->valuable.gold_stored;
+        hoard_size = thing->valuable.gold_stored / hoard_size_holds;
         if (hoard_size > 4)
             hoard_size = 4;
         room->used_capacity += hoard_size;
@@ -738,7 +738,7 @@ short imp_drops_gold(struct Thing *thing)
     struct Room *room;
     struct Thing *gldtng;
     //return _DK_imp_drops_gold(thing);
-    if (thing->long_13 == 0)
+    if (thing->creature.gold_carried == 0)
     {
         set_start_state(thing);
         return 1;
@@ -763,19 +763,19 @@ short imp_drops_gold(struct Thing *thing)
     gldtng = find_gold_hoard_at(center_stl_x, center_stl_y);
     if (!thing_is_invalid(gldtng))
     {
-        thing->long_13 -= add_gold_to_hoarde(gldtng, room, thing->long_13);
+        thing->creature.gold_carried -= add_gold_to_hoarde(gldtng, room, thing->creature.gold_carried);
     } else
     {
         struct Coord3d pos;
         pos.x.val = get_subtile_center_pos(center_stl_x);
         pos.y.val = get_subtile_center_pos(center_stl_y);
         pos.z.val = thing->mappos.z.val;
-        gldtng = create_gold_hoarde(room, &pos, thing->long_13);
+        gldtng = create_gold_hoarde(room, &pos, thing->creature.gold_carried);
         if (!thing_is_invalid(gldtng))
-            thing->long_13 -= gldtng->long_13;
+            thing->creature.gold_carried -= gldtng->valuable.gold_stored;
     }
     thing_play_sample(thing, UNSYNC_RANDOM(3) + 32, 100, 0, 3, 0, 2, 256);
-    if ( (thing->long_13 == 0) || (room->used_capacity >= room->total_capacity) ) {
+    if ( (thing->creature.gold_carried == 0) || (room->used_capacity >= room->total_capacity) ) {
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 1;
     }

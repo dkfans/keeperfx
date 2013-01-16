@@ -2383,12 +2383,12 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
             struct Dungeon *dungeon;
             {
                 dungeon = get_dungeon(newowner);
-                dungeon->total_money_owned += thing->long_13;
+                dungeon->total_money_owned += thing->valuable.gold_stored;
             }
             if (oldowner != game.neutral_player_num)
             {
                 dungeon = get_dungeon(oldowner);
-                dungeon->total_money_owned -= thing->long_13;
+                dungeon->total_money_owned -= thing->valuable.gold_stored;
             }
             thing->owner = newowner;
             return;
