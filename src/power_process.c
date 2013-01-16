@@ -204,13 +204,13 @@ void update_god_lightning_ball(struct Thing *thing)
         god_lightning_choose_next_creature(thing);
         break;
     case 1:
-        target = thing_get(thing->word_17);
+        target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
         draw_lightning(&thing->mappos,&target->mappos, 96, 60);
         break;
     case 2:
-        target = thing_get(thing->word_17);
+        target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
         shotst = get_shot_model_stats(24);
@@ -221,7 +221,7 @@ void update_god_lightning_ball(struct Thing *thing)
             cctrl->shot_model = ShM_GodLightBall;
             kill_creature(target, INVALID_THING, thing->owner, 0, 1, 0);
         }
-        thing->word_17 = 0;
+        thing->shot.target_idx = 0;
         break;
     }
 }

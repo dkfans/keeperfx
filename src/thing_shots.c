@@ -1086,7 +1086,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             }
             break;
         case ShM_NaviMissile:
-            target = thing_get(thing->word_17);
+            target = thing_get(thing->shot.target_idx);
             if ((thing_exists(target)) && (target->class_id == TCls_Creature))
             {
                 pos2.x.val = target->mappos.x.val;
@@ -1154,7 +1154,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             {
               thing->field_19 = 5;
               god_lightning_choose_next_creature(thing);
-              target = thing_get(thing->word_17);
+              target = thing_get(thing->shot.target_idx);
               if (thing_exists(target))
               {
                   shotst = get_shot_model_stats(24);

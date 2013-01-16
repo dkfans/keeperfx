@@ -774,10 +774,11 @@ short tunneller_doing_nothing(struct Thing *creatng)
     }
     struct Thing *heartng;
     heartng = INVALID_THING;
+    /* Sometimes we may have no target dungeon. In that case, destination dungeon
+     * index is negative. */
+    if (cctrl->sbyte_89 != -1)
     {
-        /* Sometimes we may have no target dungeon. In that case, destination dungeon
-         * index is negative. This code will handle this case, as well as non-existing
-         * dungeons.
+        /* This code will handle non-existing dungeons.
          */
         struct Dungeon *dungeon;
         dungeon = get_dungeon(cctrl->sbyte_89);

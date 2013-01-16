@@ -84,21 +84,36 @@ struct Thing {
     union {
       struct {
         long gold_carried;
-        short word_17a;
+        short health_bar_turns;
       } creature;
       struct {
         long gold_stored;
-        short word_17b;
-      } object;
+        short word_17v;
+      } valuable;
+      struct {
+        short word_13f;
+        short word_15f;
+        short word_17f;
+      } food;
       struct {
         unsigned char num_shots;
-        unsigned char byte_14a;
-        long long_15a;
+        unsigned char byte_14t;
+        long long_15t;
       } trap;
       struct {
         long number;
-        short word_17a;
+        short word_17e;
       } effect;
+      struct {
+      short word_13s;
+      short word_15s;
+      short target_idx;
+      } shot;
+      struct {
+      short orientation;
+      short word_15d;
+      short word_17d;
+      } door;
       struct {
       long long_13;
       short word_17a;

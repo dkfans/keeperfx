@@ -95,7 +95,7 @@ void lock_door(struct Thing *doortng)
     struct DoorStats *dostat;
     long stl_x,stl_y;
     //_DK_lock_door(thing);
-    dostat = &door_stats[doortng->model][doortng->word_13];
+    dostat = &door_stats[doortng->model][doortng->door.orientation];
     stl_x = doortng->mappos.x.stl.num;
     stl_y = doortng->mappos.y.stl.num;
     doortng->active_state = DorSt_Unknown02;
@@ -190,7 +190,7 @@ long process_door_opening(struct Thing *thing)
     struct DoorStats *dostat;
     int new_h,old_h,delta_h;
     int slbparam;
-    dostat = &door_stats[thing->model][thing->word_13];
+    dostat = &door_stats[thing->model][thing->door.orientation];
     old_h = (thing->word_16 / 256);
     delta_h = dostat->field_6;
     slbparam = dostat->field_0;
@@ -215,7 +215,7 @@ long process_door_closing(struct Thing *thing)
     int new_h,old_h,delta_h;
     int slbparam;
     old_h = (thing->word_16 / 256);
-    dostat = &door_stats[thing->model][thing->word_13];
+    dostat = &door_stats[thing->model][thing->door.orientation];
     delta_h = dostat->field_6;
     slbparam = dostat->field_0;
     if ( check_door_should_open(thing) )
@@ -248,10 +248,10 @@ TngUpdateRet process_door(struct Thing *thing)
         destroy_door(thing);
         return TUFRet_Deleted;
     }
-    if ((thing->word_13 > 1) || (thing->word_13 < 0))
+    if ((thing->door.orientation > 1) || (thing->door.orientation < 0))
     {
-        ERRORLOG("Invalid %s (index %d) orientation %d",thing_model_name(thing),(int)thing->index,(int)thing->word_13);
-        thing->word_13 &= 1;
+        ERRORLOG("Invalid %s (index %d) orientation %d",thing_model_name(thing),(int)thing->index,(int)thing->door.orientation);
+        thing->door.orientation &= 1;
     }
     switch ( thing->active_state )
     {
