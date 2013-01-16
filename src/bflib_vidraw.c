@@ -1676,122 +1676,166 @@ TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const
         return LbSpriteDrawFCOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
 }
 
-void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
+void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
-    _DK_LbSpriteSetScalingData(x, y, swidth, sheight, dwidth, dheight); return;
-/*    sprscale_enlarge = true;
-    if ( (dwidth<=swidth) && (dheight<=sheight) )
-        sprscale_enlarge = false;
-    long gwidth = lbDisplay.GraphicsWindowWidth;
-    long gheight = lbDisplay.GraphicsWindowHeight;
     long *pwidth;
     long cwidth;
-    if ( (x < 0) || ((dwidth+x) >= gwidth) )
-    {
-      pwidth = sprscale_wbuf;
-      long factor = (dwidth<<16)/swidth;
-      long tmp = (factor >> 1) + (x << 16);
-      cwidth = tmp >> 16;
-      if ( cwidth < 0 )
-        cwidth = 0;
-      if ( cwidth >= gwidth )
-        cwidth = gwidth;
-      long w = swidth;
-      do {
+    pwidth = xsteps_array;
+    long factor = (dwidth<<16)/swidth;
+    long tmp = (factor >> 1) + (x << 16);
+    cwidth = tmp >> 16;
+    if (cwidth < 0)
+      cwidth = 0;
+    if ( cwidth >= gwidth )
+      cwidth = gwidth;
+    long w = swidth;
+    do {
         pwidth[0] = cwidth;
         tmp += factor;
         long cwidth2 = tmp>>16;
-        if ( cwidth2 < 0 )
-          cwidth2 = 0;
-        if ( cwidth2 >= gwidth )
-          cwidth2 = gwidth;
+        if (cwidth2 < 0)
+            cwidth2 = 0;
+        if (cwidth2 > gwidth)
+            cwidth2 = gwidth;
         long wdiff = cwidth2 - cwidth;
         pwidth[1] = wdiff;
         cwidth += wdiff;
-        pwidth += 2;
         w--;
-      } while (w>0);
-    } else
-    {
-      pwidth = sprscale_wbuf;
-      long factor = (dwidth<<16)/swidth;
-      long tmp = (factor >> 1) + (x << 16);
-      cwidth = tmp >> 16;
-      long w=swidth;
-      while ( 1 )
+        pwidth += 2;
+    } while (w > 0);
+}
+
+void LbSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
+{
+    long *pwidth;
+    long cwidth;
+    pwidth = xsteps_array;
+    long factor = (dwidth<<16)/swidth;
+    long tmp = (factor >> 1) + (x << 16);
+    cwidth = tmp >> 16;
+    long w = swidth;
+    do {
+      int i;
+      for (i=0; i < 16; i+=2)
       {
-        int i=0;
-        for (i=0;i<16;i+=2)
-        {
           pwidth[i] = cwidth;
           tmp += factor;
           pwidth[i+1] = (tmp>>16) - cwidth;
           cwidth = (tmp>>16);
           w--;
-          if (w<=0)
-            break;
-        }
-        if (w<=0)
-          break;
-        pwidth += 16;
+          if (w <= 0)
+              break;
       }
+      pwidth += 16;
+    } while (w > 0);
+}
+
+void LbSpriteClearScalingWidth(void)
+{
+    int i;
+    long *pwidth;
+    pwidth = xsteps_array;
+    for (i=0; i < 512; i+=2)
+    {
+        pwidth[i+0] = 0;
+        pwidth[i+1] = 0;
     }
+}
+
+void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
+{
     long *pheight;
     long cheight;
-    //Note: the condition in "if" is suspicious
-    if ( ((long)pwidth<0) || ((long)pwidth + cwidth) >= gheight )
-    {
-      long factor = (dheight<<16)/sheight;
-      pheight = sprscale_hbuf;
-      long h = sheight;
-      long tmp = (factor>>1) + (y<<16);
-      cheight = tmp>>16;
-      if ( cheight < 0 )
+    pheight = ysteps_array;
+    long factor = (dheight<<16)/sheight;
+    long tmp = (factor >> 1) + (y << 16);
+    cheight = tmp >> 16;
+    if (cheight < 0)
         cheight = 0;
-      if ( cheight >= gheight )
+    if (cheight >= gheight)
         cheight = gheight;
-      do
-      {
-        pheight[0] = cheight;
-        tmp += factor;
-        long cheight2 = tmp>>16;
-        if ( cheight2 < 0 )
+    long h = sheight;
+    do {
+      pheight[0] = cheight;
+      tmp += factor;
+      long cheight2 = tmp>>16;
+      if (cheight2 < 0)
           cheight2 = 0;
-        if ( cheight2 >= gheight )
+      if (cheight2 >= gheight)
           cheight2 = gheight;
-        long hdiff = cheight2 - cheight;
-        pheight[1] = hdiff;
-        cheight += hdiff;
-        pheight += 2;
-        h--;
-      }
-      while (h>0);
-    }
-    else
-    {
-      pheight = sprscale_hbuf;
-      long factor = (dheight<<16)/sheight;
-      long tmp = (factor>>1) + (y<<16);
-      cheight = tmp >> 16;
-      long h = sheight;
-      while ( 1 )
+      long hdiff = cheight2 - cheight;
+      pheight[1] = hdiff;
+      cheight += hdiff;
+      h--;
+      pheight += 2;
+    } while (h > 0);
+}
+
+void LbSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
+{
+    long *pheight;
+    long cheight;
+    pheight = ysteps_array;
+    long factor = (dheight<<16)/sheight;
+    long tmp = (factor >> 1) + (y << 16);
+    cheight = tmp >> 16;
+    long h = sheight;
+    do {
+      int i=0;
+      for (i=0; i < 16; i+=2)
       {
-        int i=0;
-        for (i=0;i<16;i+=2)
-        {
-          pheight[i] = cheight;
-          tmp += factor;
-          pheight[i+1] = (tmp>>16) - cheight;
-          cheight = (tmp>>16);
-          h--;
-          if (h<=0)
-            break;
-        }
-        if (h<=0)
+        pheight[i] = cheight;
+        tmp += factor;
+        pheight[i+1] = (tmp>>16) - cheight;
+        cheight = (tmp>>16);
+        h--;
+        if (h <= 0)
           break;
-        pheight += 16;
       }
-    }*/
+      pheight += 16;
+    } while (h > 0);
+}
+
+void LbSpriteClearScalingHeight(void)
+{
+    int i;
+    long *pheight;
+    pheight = ysteps_array;
+    for (i=0; i < 512; i+=2)
+    {
+        pheight[i+0] = 0;
+        pheight[i+1] = 0;
+    }
+}
+
+void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
+{
+    //_DK_LbSpriteSetScalingData(x, y, swidth, sheight, dwidth, dheight); return;
+    long gwidth = lbDisplay.GraphicsWindowWidth;
+    long gheight = lbDisplay.GraphicsWindowHeight;
+    scale_up = true;
+    if ((dwidth <= swidth) && (dheight <= sheight))
+        scale_up = false;
+    if ((swidth <= 0) || (dwidth <= 0)) {
+        WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
+        LbSpriteClearScalingWidth();
+    } else
+    if ((x < 0) || ((dwidth+x) >= gwidth))
+    {
+        LbSpriteSetScalingWidthClipped(x, swidth, dwidth, gwidth);
+    } else {
+        LbSpriteSetScalingWidthSimple(x, swidth, dwidth);
+    }
+    if ((sheight <= 0) || (dheight <= 0)) {
+        WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
+        LbSpriteClearScalingHeight();
+    } else
+    if ((y < 0) || ((dheight+y) >= gheight))
+    {
+        LbSpriteSetScalingHeightClipped(y, sheight, dheight, gheight);
+    } else {
+        LbSpriteSetScalingHeightSimple(y, sheight, dheight);
+    }
 }
 
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)

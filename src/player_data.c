@@ -32,8 +32,9 @@
 /******************************************************************************/
 unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
 
-TbPixel player_path_colours[] = {131, 90, 163, 181,  20,   4, };
-TbPixel player_room_colours[] = {132, 92, 164, 183,  21, 132, };
+TbPixel player_path_colours[]  = {131, 90, 163, 181,  20,   4, };
+TbPixel player_room_colours[]  = {132, 92, 164, 183,  21, 132, };
+TbPixel player_flash_colours[] = {133, 94, 167, 142,  31,  15, };
 
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 

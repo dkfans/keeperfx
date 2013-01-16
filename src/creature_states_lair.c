@@ -81,6 +81,20 @@ TbBool creature_is_doing_lair_activity(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_requires_healing(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct CreatureStats *crstat;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    long maxhealth, minhealth;
+    maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+    minhealth = crstat->heal_requirement * maxhealth / 256;
+    if ((long)thing->health <= minhealth)
+        return true;
+    return false;
+}
+
 long creature_will_sleep(struct Thing *thing)
 {
     struct CreatureControl *cctrl;

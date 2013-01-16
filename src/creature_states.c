@@ -771,6 +771,17 @@ TbBool creature_is_being_scavenged(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_at_alarm(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = thing->active_state;
+    if (i == CrSt_MoveToPosition)
+        i = thing->continue_state;
+    if (i == CrSt_ArriveAtAlarm)
+        return true;
+    return false;
+}
+
 TbBool creature_is_escaping_death(const struct Thing *thing)
 {
     CrtrStateId i;
@@ -1402,69 +1413,6 @@ short creature_being_dropped(struct Thing *creatng)
     }
     set_creature_assigned_job(creatng, get_job_for_room(room->kind, false));
     return 2;
-}
-
-void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, long reason)
-{
-    SYNCDBG(8,"Setting to %d",(int)annoy_lv);
-    _DK_anger_set_creature_anger(creatng, annoy_lv, reason);
-}
-
-TbBool anger_is_creature_livid(const struct Thing *creatng)
-{
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
-    if (creature_control_invalid(cctrl))
-        return false;
-    return ((cctrl->field_66 & 0x02) != 0);
-}
-
-TbBool anger_is_creature_angry(const struct Thing *creatng)
-{
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
-    if (creature_control_invalid(cctrl))
-        return false;
-    return ((cctrl->field_66 & 0x01) != 0);
-}
-
-long anger_get_creature_anger_type(const struct Thing *creatng)
-{
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    long anger_type;
-    long anger_level;
-    long i;
-    cctrl = creature_control_get_from_thing(creatng);
-    crstat = creature_stats_get_from_thing(creatng);
-    if (crstat->annoy_level == 0)
-        return 0;
-    if ((cctrl->field_66 & 0x01) == 0)
-        return 0;
-    anger_type = 0;
-    for (i=1; i < 5; i++)
-    {
-        if (anger_level < cctrl->annoyance_level[i-1])
-        {
-            anger_level = cctrl->annoyance_level[i-1];
-            anger_type = i;
-        }
-    }
-    if (anger_level < crstat->annoy_level)
-        return 0;
-    return anger_type;
-}
-
-TbBool anger_make_creature_angry(struct Thing *creatng, long reason)
-{
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(creatng);
-  crstat = creature_stats_get_from_thing(creatng);
-  if ((crstat->annoy_level <= 0) || ((cctrl->field_66 & 0x01) != 0))
-    return false;
-  anger_set_creature_anger(creatng, crstat->annoy_level, reason);
-  return true;
 }
 
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
@@ -2806,7 +2754,7 @@ TbBool process_creature_hunger(struct Thing *thing)
         return false;
     SYNCDBG(19,"Hungering %s index %d",thing_model_name(thing), (int)thing->index);
     cctrl->hunger_level++;
-    if (cctrl->hunger_level <= crstat->hunger_rate)
+    if (!hunger_is_creature_hungry(thing))
         return false;
     // Make sure every creature loses health on different turn
     if (((game.play_gameturn + thing->index) % game.turns_per_hunger_health_loss) == 0) {
