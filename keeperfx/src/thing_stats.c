@@ -593,7 +593,7 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
         new_health += amount;
         if (new_health >= max_health)
             new_health = max_health;
-        thing->word_17 = 8;
+        thing->creature.health_bar_turns = 8;
         thing->health = new_health;
     }
 }
@@ -635,7 +635,7 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
               cdamage = 1;
             // Apply damage to the thing
             thing->health -= cdamage;
-            thing->word_17 = 8;
+            thing->creature.health_bar_turns = 8;
             thing->field_4F |= 0x80;
             // Red palette if the possessed creature is hit very strong
             if (thing->owner != game.neutral_player_num)

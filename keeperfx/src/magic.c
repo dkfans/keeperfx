@@ -124,7 +124,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     if (i > 0)
     {
       apply_damage_to_thing(thing, i, player->id_number);
-      thing->word_17 = 8;
+      thing->creature.health_bar_turns = 8;
     }
   }
   magstat = &game.magic_stats[PwrK_SLAP];

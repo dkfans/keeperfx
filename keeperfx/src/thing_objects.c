@@ -944,7 +944,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
     thing = create_object(&pos, 6, plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
-    thing->object.gold_stored = game.pot_of_gold_holds;
+    thing->valuable.gold_stored = game.pot_of_gold_holds;
     return thing;
 }
 
@@ -971,7 +971,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
     hoard_store = 9 * game.pot_of_gold_holds;
     if (hoard_store >= value)
         hoard_store = value;
-    thing->long_13 = hoard_store;
+    thing->valuable.gold_stored = hoard_store;
     return thing;
 }
 
