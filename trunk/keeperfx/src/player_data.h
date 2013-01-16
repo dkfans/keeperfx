@@ -171,6 +171,7 @@ DLLIMPORT extern unsigned char _DK_my_player_number;
 extern unsigned short player_colors_map[];
 extern TbPixel player_path_colours[];
 extern TbPixel player_room_colours[];
+extern TbPixel player_flash_colours[];
 extern unsigned short const player_cubes[];
 extern long neutral_player_number;
 extern long hero_player_number;

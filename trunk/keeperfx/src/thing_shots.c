@@ -652,9 +652,9 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           play_creature_sound(trgtng, 1, 3, 0);
       }
       if (!thing_is_invalid(shooter)) {
-          apply_damage_to_thing_and_display_health(trgtng, shotng->word_14, shooter->owner);
+          apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
       } else {
-          apply_damage_to_thing_and_display_health(trgtng, shotng->word_14, -1);
+          apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);
       }
       if (shotst->old->field_24 != 0) {
           tgcctrl->field_B1 = shotst->old->field_24;
@@ -806,9 +806,9 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             give_shooter_drained_health(shooter, shotng->word_14 / 2);
         }
         if ( !thing_is_invalid(shooter) ) {
-            apply_damage_to_thing_and_display_health(trgtng, shotng->word_14, shooter->owner);
+            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
         } else {
-            apply_damage_to_thing_and_display_health(trgtng, shotng->word_14, -1);
+            apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, -1);
         }
     }
     if (shotst->old->field_24 != 0)

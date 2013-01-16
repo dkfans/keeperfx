@@ -320,7 +320,6 @@ struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing
 struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, char a2, char a3, unsigned char a4, long a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
-TbBool anger_make_creature_angry(struct Thing *thing, long reason);
 TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
@@ -337,15 +336,13 @@ TbBool creature_is_doing_temple_activity(const struct Thing *thing);
 TbBool creature_is_training(const struct Thing *thing);
 TbBool creature_is_being_scavenged(const struct Thing *thing);
 TbBool creature_is_scavengering(const struct Thing *thing);
+TbBool creature_is_at_alarm(const struct Thing *thing);
 TbBool creature_is_escaping_death(const struct Thing *thing);
 TbBool creature_is_called_to_arms(const struct Thing *thing);
 TbBool creature_is_kept_in_custody(const struct Thing *thing);
 TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing);
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
-TbBool anger_is_creature_livid(const struct Thing *thing);
-TbBool anger_is_creature_angry(const struct Thing *thing);
-void anger_set_creature_anger(struct Thing *thing, long annoy_lv, long reason);
 /******************************************************************************/
 #ifdef __cplusplus
 }

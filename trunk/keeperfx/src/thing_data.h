@@ -105,9 +105,10 @@ struct Thing {
         short word_17e;
       } effect;
       struct {
-      short word_13s;
-      short word_15s;
-      short target_idx;
+        unsigned char byte_13s;
+        short damage;
+        unsigned char byte_16s;
+        short target_idx;
       } shot;
       struct {
       short orientation;

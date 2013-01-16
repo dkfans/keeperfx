@@ -35,6 +35,7 @@ struct Thing;
 /******************************************************************************/
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_sleeping(const struct Thing *thing);
+TbBool creature_requires_healing(const struct Thing *thing);
 
 CrStateRet creature_at_changed_lair(struct Thing *thing);
 CrStateRet creature_at_new_lair(struct Thing *thing);
