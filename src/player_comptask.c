@@ -923,9 +923,21 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
 long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
 {
     struct Coord3d * location;
+    MapSlabCoord slb_x, slb_y;
     long i;
     SYNCDBG(6,"Starting");
     //return _DK_add_to_trap_location(comp, coord);
+    // Avoid duplicating entries
+    slb_x = subtile_slab(coord->x.stl.num);
+    slb_y = subtile_slab(coord->y.stl.num);
+    for (i=0; i < COMPUTER_TRAP_LOC_COUNT; i++)
+    {
+        location = &comp->trap_locations[i];
+        if ((subtile_slab(location->x.stl.num) == slb_x) && (subtile_slab(location->y.stl.num) == slb_y)) {
+            return false;
+        }
+    }
+    // Find a free place and add the location
     for (i=0; i < COMPUTER_TRAP_LOC_COUNT; i++)
     {
         location = &comp->trap_locations[i];
