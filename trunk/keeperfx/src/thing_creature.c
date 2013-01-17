@@ -347,10 +347,6 @@ long creature_available_for_combat_this_turn(struct Thing *thing)
 
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
 {
-    struct PlayerInfo *player;
-    struct Dungeon * dungeon;
-    struct Thing * heartng;
-    int dist;
     int enemy_idx;
 
     SYNCDBG(17, "Starting");
@@ -363,6 +359,10 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
     {
         if ( players_are_enemies(thing->owner, enemy_idx) )
         {
+            struct PlayerInfo *player;
+            struct Dungeon * dungeon;
+            struct Thing * heartng;
+            int dist;
             player = get_player(enemy_idx);
             dungeon = get_players_dungeon(player);
             heartng = thing_get(dungeon->dnheart_idx);
@@ -370,13 +370,17 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
             {
                 dist = get_combat_distance(thing, heartng);
                 if (creature_can_see_combat_path(thing, heartng, dist)) {
+                    SYNCDBG(17, "The %s index %d owned by player %d sees enemy %s index %d",
+                        thing_model_name(thing),(int)thing->index,(int)thing->owner,thing_model_name(heartng),(int)heartng->index);
                     return heartng;
                 }
+                SYNCDBG(17, "The %s index %d owned by player %d can't see enemy %s index %d",
+                    thing_model_name(thing),(int)thing->index,(int)thing->owner,thing_model_name(heartng),(int)heartng->index);
             }
         }
     }
 
-    return NULL;
+    return INVALID_THING;
 }
 
 long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing)
