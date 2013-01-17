@@ -539,55 +539,86 @@ long count_diggers_in_dungeon(const struct Dungeon *dungeon)
     return count_player_list_creatures_of_model(dungeon->digger_list_start, 0);
 }
 
-long computer_choose_best_trap_kind_to_place(struct Dungeon *dungeon, long kind_auto, long kind_preselect)
+long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
+{
+    if ((trmodel < 1) || (trmodel >= TRAP_TYPES_COUNT))
+        return 0;
+    if (dungeon->trap_buildable[trmodel] > 0)
+    {
+        return dungeon->trap_amount[trmodel];
+    }
+    return 0;
+}
+
+/**
+ * Retrieves count of different trap kinds of which given dungeon has at least given number.
+ * @param dungeon
+ * @param base_amount
+ */
+long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount)
+{
+    long i,kinds;
+    kinds = 0;
+    for (i=1; i < TRAP_TYPES_COUNT; i++)
+    {
+        if (buildable_traps_amount(dungeon, i) >= base_amount)
+        {
+            kinds++;
+        }
+    }
+    return kinds;
+}
+
+/**
+ * Retrieves count of different trap kinds of which given dungeon has at least given number.
+ * @param dungeon
+ * @param base_amount
+ */
+long get_nth_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount, long n)
+{
+    long i;
+    for (i=1; i < TRAP_TYPES_COUNT; i++)
+    {
+        if (buildable_traps_amount(dungeon, i) >= base_amount)
+        {
+            if (n <= 0)
+                return i;
+            n--;
+        }
+    }
+    return 0;
+}
+
+/**
+ * Retrieves best kind of trap to place in dungeon.
+ * @param dungeon The dungeon which owns the spare traps.
+ * @param allow_last Accept kind of which only one box exists.
+ * @param kind_preselect If possible, try to use given kind; only if it's not accessible, check others.
+ */
+long computer_choose_best_trap_kind_to_place(struct Dungeon *dungeon, long allow_last, ThingModel kind_preselect)
 {
     long kinds_multiple,kinds_single;
-    long i;
-    kinds_multiple = 0;
-    for (i=1; i < TRAP_TYPES_COUNT; i++)
-    {
-        if (dungeon->trap_buildable[i])
-        {
-            if (dungeon->trap_amount[i] > 1) {
-              kinds_multiple++;
-            }
-        }
+    // If there are multiple buildable traps of preselected kind
+    if ((kind_preselect > 0) && (buildable_traps_amount(dungeon, kind_preselect) >= 2))
+        return kind_preselect;
+    // No pre-selection - check if there are other multiple traps
+    kinds_multiple = get_number_of_trap_kinds_with_amount_at_least(dungeon, 2);
+    if (kinds_multiple > 0) {
+        SYNCDBG(18,"Returning one of %d plentiful traps",(int)kinds_multiple);
+        return get_nth_of_trap_kinds_with_amount_at_least(dungeon, 2, ACTION_RANDOM(kinds_multiple));
     }
-    kinds_single = 0;
-    for (i=1; i < TRAP_TYPES_COUNT; i++)
-    {
-        if (dungeon->trap_buildable[i])
-        {
-            if (dungeon->trap_amount[i] > 0) {
-                kinds_single++;
-            } else
-            if (kinds_multiple <= 0) {
-                if ((kind_auto == 0) || (kind_preselect == i))
-                  return 0;
-            }
-        }
+    // If there are no multiple traps, and we're not allowing to spend last one
+    if (!allow_last)
+        return 0;
+    // If there are buildable traps of preselected kind
+    if ((kind_preselect > 0) && (buildable_traps_amount(dungeon, kind_preselect) >= 1))
+        return kind_preselect;
+    kinds_single = get_number_of_trap_kinds_with_amount_at_least(dungeon, 1);
+    if (kinds_single > 0) {
+        SYNCDBG(18,"Returning one of %d single traps",(int)kinds_single);
+        return get_nth_of_trap_kinds_with_amount_at_least(dungeon, 1, ACTION_RANDOM(kinds_single));
     }
-    if (kinds_single <= 0)
-      return 0;
-    i = kind_preselect;
-    if (i == 0)
-    {
-        long kind_random;
-        kind_random = ACTION_RANDOM(kinds_single) + 1;
-        for (i=1; i < TRAP_TYPES_COUNT; i++)
-        {
-            if (dungeon->trap_buildable[i] > 0)
-            {
-                if (dungeon->trap_amount[i] > 0)
-                {
-                    kind_random--;
-                    if (kind_random <= 0)
-                      break;
-                }
-            }
-        }
-    }
-    return i;
+    return 0;
 }
 
 long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check)
@@ -610,12 +641,16 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
         if ((location->x.val <= 0) && (location->y.val <= 0))
             continue;
         MapSlabCoord slb_x,slb_y;
-        slb_x = subtile_slab_fast(location->x.stl.num);
-        slb_y = subtile_slab_fast(location->y.stl.num);
+        slb_x = subtile_slab(location->x.stl.num);
+        slb_y = subtile_slab(location->y.stl.num);
         struct SlabMap *slb;
         slb = get_slabmap_block(slb_x,slb_y);
-        if (slabmap_block_invalid(slb))
+        if (slabmap_block_invalid(slb)) {
+            ERRORLOG("Trap location contained off-map point (%d,%d)",(int)location->x.stl.num,(int)location->y.stl.num);
+            location->x.val = 0;
+            location->y.val = 0;
             continue;
+        }
         if ((slabmap_owner(slb) == dungeon->owner) && (slb->kind == SlbT_CLAIMED))
         { // If it's our owned claimed ground, give it a try
             long ret;
@@ -623,7 +658,8 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
             thing = get_trap_for_slab_position(slb_x, slb_y);
             // Only allow to place trap at position where there's no traps already
             if (thing_is_invalid(thing)) {
-                ret = try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0, slb_x, slb_y, kind_chosen, 0);
+                SYNCDBG(8,"Trying to place %s trap at (%d,%d)",trap_code_name(kind_chosen),(int)location->x.stl.num,(int)location->y.stl.num);
+                ret = try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0, location->x.stl.num, location->y.stl.num, kind_chosen, 0);
             } else {
                 ret = -1;
             }
@@ -636,6 +672,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
         { // If it would be a path, we could wait for someone to claim it; but if it's not..
             if (find_from_task_list(dungeon->owner, get_slab_number(slb_x,slb_y)) < 0)
             { // If we have no intention of doing a task there - remove it from list
+                ERRORLOG("Removing outdated trap location (%d,%d)",(int)location->x.stl.num,(int)location->y.stl.num);
                 location->x.val = 0;
                 location->y.val = 0;
             }
