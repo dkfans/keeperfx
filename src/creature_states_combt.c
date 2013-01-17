@@ -458,8 +458,10 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
     const struct Coord3d *nextpos, PlayerNumber plyr_idx)
 {
     // If both dimensions changed, allow the pass
-    if ((nextpos->x.stl.num != prevpos->x.stl.num) &&
-        (nextpos->y.stl.num != prevpos->y.stl.num)) {
+    if (slab_is_door(subtile_slab(nextpos->x.stl.num), subtile_slab(nextpos->y.stl.num)))
+        return false;
+    if ((nextpos->x.stl.num == prevpos->x.stl.num)
+     || (nextpos->y.stl.num == prevpos->y.stl.num)) {
         return true;
     }
     struct Coord3d pos1;
@@ -483,6 +485,7 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
             return false;
         }
         break;
+
     case -1:
         pos2.y.val = prevpos->y.val;
         pos2.z.val = prevpos->z.val;
@@ -497,6 +500,7 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
             return false;
         }
         break;
+
     case 1:
         pos2.x.val = prevpos->x.val;
         pos2.z.val = prevpos->z.val;
@@ -511,6 +515,7 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
             return false;
         }
         break;
+
     case 3:
         pos2.y.val = prevpos->y.val;
         pos2.z.val = prevpos->z.val;
@@ -536,6 +541,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     dx = (MapSubtlCoord)topos->x.val - (MapSubtlCoord)frpos->x.val;
     dy = (MapSubtlCoord)topos->y.val - (MapSubtlCoord)frpos->y.val;
     dz = (MapSubtlCoord)topos->z.val - (MapSubtlCoord)frpos->z.val;
+    // Allow the travel to the same subtile
     if ((topos->x.stl.num == frpos->x.stl.num) &&
         (topos->y.stl.num == frpos->y.stl.num)) {
         return true;
@@ -572,7 +578,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
         else
         if (dy > dx)
         {
-            increase_x = dx * increase_x / dy;
+            increase_x = increase_x * dx / dy;
             increase_z = increase_z * dz / dy;
             maxdim1 = frpos->y.stl.num;
             maxdim2 = topos->y.stl.num;
@@ -597,9 +603,13 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     while (distance > 0)
     {
         if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
+            SYNCDBG(17, "Player %d cannot see through (%d,%d) due to solid flags",
+                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
             return false;
         }
         if (!sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(&prevpos, &nextpos, plyr_idx)) {
+            SYNCDBG(17, "Player %d cannot see through (%d,%d) due to 3D line of sight",
+                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
             return false;
         }
         // Go to next sibling subtile
@@ -632,8 +642,11 @@ long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creat
     pos1.z.val += crstat->eye_height;
     if (thing->class_id == TCls_Door)
     {
+        // If we're immune to lava, or we're already on it - don't care, travel over it
         if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
         {
+            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
+                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
             if (line_of_sight_3d_ignoring_specific_door(&pos1, &pos2, thing))
                 return true;
             pos2.z.val += thing->field_58;
@@ -642,6 +655,8 @@ long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creat
             return false;
         } else
         {
+            SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
+                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&pos1, &pos2, thing))
                 return true;
             pos2.z.val += thing->field_58;
@@ -651,8 +666,11 @@ long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creat
         }
     } else
     {
+        // If we're immune to lava, or we're already on it - don't care, travel over it
         if (lava_at_position(srcpos) || creature_can_travel_over_lava(creatng))
         {
+            SYNCDBG(17, "The %s index %d owned by player %d checks w/o lava %s index %d",
+                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
             if (line_of_sight_3d(&pos1, &pos2))
                 return true;
             pos2.z.val += thing->field_58;
@@ -661,6 +679,8 @@ long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creat
             return false;
         } else
         {
+            SYNCDBG(17, "The %s index %d owned by player %d checks with lava %s index %d",
+                thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,thing_model_name(thing),(int)thing->index);
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&pos1, &pos2, creatng->owner))
                 return true;
             pos2.z.val += thing->field_58;

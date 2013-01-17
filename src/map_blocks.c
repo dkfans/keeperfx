@@ -725,23 +725,25 @@ unsigned short get_point_in_map_solid_flags_ignoring_door(const struct Coord3d *
 
 unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord3d *pos, PlayerNumber plyr_idx)
 {
-    struct Thing *thing;
     unsigned short flags;
-    thing = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
     flags = 0;
-    if (!thing_is_invalid(thing))
-    {
-        if ((thing->owner != plyr_idx) || (thing->byte_18 != 0)) {
-            flags |= 0x01;
-        }
-    } else
     if (map_pos_is_lava(pos->x.stl.num, pos->y.stl.num))
     {
         flags |= 0x02;
     } else
     if (point_in_map_is_solid(pos))
     {
-        flags |= 0x01;
+        struct Thing *thing;
+        thing = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+        if (!thing_is_invalid(thing))
+        {
+            if ((thing->owner != plyr_idx) || (thing->byte_18 != 0)) {
+                flags |= 0x01;
+            }
+        } else
+        {
+            flags |= 0x01;
+        }
     }
     return flags;
 }

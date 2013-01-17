@@ -577,9 +577,7 @@ struct Thing *find_players_dungeon_heart(PlayerNumber plyridx)
         }
         i = thing->next_of_class;
         // Per-thing code
-        struct ObjectConfig *objconf;
-        objconf = get_object_model_stats2(thing->model);
-        if ((objconf->is_heart) && (thing->owner == plyridx))
+        if (thing_is_dungeon_heart(thing) && (thing->owner == plyridx))
         {
             return thing;
         }
