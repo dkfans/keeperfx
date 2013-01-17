@@ -507,7 +507,11 @@ TbBool thing_is_dungeon_heart(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return false;
-    return (thing->class_id == TCls_Object) && (thing->model == 5);
+    if (thing->class_id != TCls_Object)
+        return false;
+    struct ObjectConfig *objconf;
+    objconf = get_object_model_stats2(thing->model);
+    return (objconf->is_heart) != 0;
 }
 
 TbBool thing_is_mature_food(const struct Thing *thing)
