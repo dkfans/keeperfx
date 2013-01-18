@@ -661,8 +661,8 @@ TbBool load_map_data_file(LevelNumber lv_num)
             wptr = &game.lish.subtile_lightness[get_subtile_number(x,y)];
             *wptr = 32;
             map->data &= 0xFFC007FFu;
-            map->data &= 0xF0FFFFFFu;
-            map->data &= 0x0FFFFFFFu;
+            map->data &= ~0x0F000000;
+            map->data &= ~0xF0000000;
         }
     }
     return true;
