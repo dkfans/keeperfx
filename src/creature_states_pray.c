@@ -23,6 +23,7 @@
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_states_rsrch.h"
+#include "creature_states_mood.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "config_creature.h"
