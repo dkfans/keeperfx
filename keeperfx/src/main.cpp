@@ -1621,7 +1621,11 @@ void reinit_level_after_load(void)
     end_rooms = &game.rooms[ROOMS_COUNT];
     load_texture_map_file(game.texture_id, 2);
     init_animating_texture_maps();
+
     load_computer_player_config(CnfLd_Standard);
+    load_stats_files();
+    check_and_auto_fix_stats();
+
     init_gui();
     reset_gui_based_on_player_mode();
     erstats_clear();
@@ -3465,7 +3469,10 @@ void init_level(void)
     reset_heap_manager();
     lens_mode = 0;
     setup_heap_manager();
+
     load_computer_player_config(CnfLd_Standard);
+    load_stats_files();
+    check_and_auto_fix_stats();
     init_good_player_as(hero_player_number);
 
     light_set_lights_on(1);
@@ -3555,8 +3562,6 @@ void post_init_level(void)
     }
     clear_creature_pool();
     setup_computer_players2();
-    load_stats_files();
-    check_and_auto_fix_stats();
     load_script(get_loaded_level_number());
     init_dungeons_research();
     create_transferred_creature_on_level();
@@ -3626,7 +3631,7 @@ void faststartup_saved_packet_game(void)
     reenter_video_mode();
     startup_saved_packet_game();
     player = get_my_player();
-    player->field_6 &= 0xFDu;
+    player->field_6 &= ~0x02;
     set_gui_visible(false);
     set_flag_byte(&game.numfield_C,0x40,false);
 }

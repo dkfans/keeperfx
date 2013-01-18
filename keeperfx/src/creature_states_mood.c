@@ -45,6 +45,7 @@ DLLIMPORT short _DK_creature_roar(struct Thing *thing);
 DLLIMPORT short _DK_creature_be_happy(struct Thing *thing);
 DLLIMPORT short _DK_creature_piss(struct Thing *thing);
 DLLIMPORT short _DK_mad_killing_psycho(struct Thing *thing);
+DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *creatng, long a1, long wandr_select);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -306,8 +306,15 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
     return false;
 }
 
+/**
+ * Setups a wanderer creature to move to a random thing in given list.
+ * @param first_thing_idx
+ * @param wanderer
+ * @return
+ */
 TbBool setup_wanderer_move_to_random_creature_from_list(long first_thing_idx, struct Thing *wanderer)
 {
+    // TODO While this is perfect implementation, it requires much time to process
     long navigable_targets,target_match;
     navigable_targets = get_wanderer_possible_targets_count_in_list(first_thing_idx,wanderer);
     // Select random target

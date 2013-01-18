@@ -457,9 +457,10 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const 
 TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, PlayerNumber plyr_idx)
 {
-    // If both dimensions changed, allow the pass
-    if (slab_is_door(subtile_slab(nextpos->x.stl.num), subtile_slab(nextpos->y.stl.num)))
+    // Check for door at central subtile
+    if (subtile_is_door(slab_subtile_center(subtile_slab(nextpos->x.stl.num)), slab_subtile_center(subtile_slab(nextpos->y.stl.num))))
         return false;
+    // If both subtiles didn't changed, allow the pass
     if ((nextpos->x.stl.num == prevpos->x.stl.num)
      || (nextpos->y.stl.num == prevpos->y.stl.num)) {
         return true;
@@ -476,8 +477,8 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
         pos2.z.val = prevpos->z.val;
         pos1.y.val = prevpos->y.val;
         pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - 256;
-        pos2.y.val = prevpos->y.val - 256;
+        pos1.x.val = prevpos->x.val - subtile_coord(1,0);
+        pos2.y.val = prevpos->y.val - subtile_coord(1,0);
         if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
             return false;
         }
@@ -491,8 +492,8 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
         pos2.z.val = prevpos->z.val;
         pos1.x.val = prevpos->x.val;
         pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val - 256;
-        pos2.x.val = prevpos->x.val + 256;
+        pos1.y.val = prevpos->y.val - subtile_coord(1,0);
+        pos2.x.val = prevpos->x.val + subtile_coord(1,0);
         if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
             return false;
         }
@@ -506,8 +507,8 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
         pos2.z.val = prevpos->z.val;
         pos1.x.val = prevpos->x.val;
         pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - 256;
-        pos2.y.val = prevpos->y.val + 256;
+        pos1.x.val = prevpos->x.val - subtile_coord(1,0);
+        pos2.y.val = prevpos->y.val + subtile_coord(1,0);
         if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
             return false;
         }

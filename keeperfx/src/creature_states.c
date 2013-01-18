@@ -135,7 +135,6 @@ DLLIMPORT short _DK_state_cleanup_in_room(struct Thing *creatng);
 DLLIMPORT short _DK_state_cleanup_unable_to_fight(struct Thing *creatng);
 DLLIMPORT short _DK_state_cleanup_unconscious(struct Thing *creatng);
 DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *creatng, struct Room *room, unsigned char a3);
-DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *creatng, long a1, long wandr_select);
 DLLIMPORT void _DK_create_effect_around_thing(struct Thing *creatng, long eff_kind);
 DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *creatng, long delta);
 DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
