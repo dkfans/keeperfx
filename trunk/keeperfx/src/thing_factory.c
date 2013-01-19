@@ -44,7 +44,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
+DLLIMPORT struct Thing *_DK_create_thing(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long parent_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -89,7 +89,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     return thing;
 }
 
-struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long a4)
+struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long parent_idx)
 {
     struct Thing *thing;
     //return _DK_create_thing(pos, tngclass, model, owner, a4);
@@ -97,7 +97,7 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
     switch (tngclass)
     {
     case TCls_Object:
-        thing = create_object(pos, model, owner, a4);
+        thing = create_object(pos, model, owner, parent_idx);
         break;
     case TCls_Shot:
         thing = create_shot(pos, model, owner);
