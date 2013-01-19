@@ -32,10 +32,10 @@ extern "C" {
 
 enum ObjectStates {
     ObSt_Unused = 0,
-    ObSt_State1,
-    ObSt_State2,
-    ObSt_State3,
-    ObSt_State4,
+    ObSt_FoodMoves,
+    ObSt_FoodGrows,
+    ObSt_BeingDestroyed,
+    ObSt_BeingDropped,
     ObSt_State5,
 };
 /******************************************************************************/

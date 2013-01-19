@@ -950,9 +950,12 @@ void init_keeper(void)
     init_colours();
     init_spiral_steps();
     init_key_to_strings();
+    // Load configs which may have per-campaign part, and even be modified within a level
+    load_computer_player_config(CnfLd_Standard);
     load_stats_files();
     check_and_auto_fix_stats();
     init_creature_scores();
+    // Load graphics structures
     load_cube_file();
     init_top_texture_to_cube_table();
     load_anim_file();
@@ -1605,6 +1608,7 @@ void reinit_level_after_load(void)
     struct PlayerInfo *player;
     int i;
     SYNCDBG(6,"Starting");
+    // Reinit structures from within the game
     player = get_my_player();
     player->field_7 = 0;
     init_lookups();
@@ -1621,10 +1625,6 @@ void reinit_level_after_load(void)
     end_rooms = &game.rooms[ROOMS_COUNT];
     load_texture_map_file(game.texture_id, 2);
     init_animating_texture_maps();
-
-    load_computer_player_config(CnfLd_Standard);
-    load_stats_files();
-    check_and_auto_fix_stats();
 
     init_gui();
     reset_gui_based_on_player_mode();
@@ -2001,7 +2001,7 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
   struct Thing *thing;
-  long spectator_breed;
+  ThingModel spectator_breed;
   SYNCDBG(6,"Starting for player %ld",plyr_idx);
   //_DK_level_lost_go_first_person(plridx);
   player = get_player(plyr_idx);
@@ -2291,7 +2291,7 @@ void check_players_lost(void)
           struct Thing *heartng;
           dungeon = get_players_dungeon(player);
           heartng = thing_get(dungeon->dnheart_idx);
-          if ((thing_is_invalid(heartng) || (heartng->active_state == ObSt_State3)) && (player->victory_state == VicS_Undecided))
+          if ((thing_is_invalid(heartng) || (heartng->active_state == ObSt_BeingDestroyed)) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -3470,17 +3470,20 @@ void init_level(void)
     lens_mode = 0;
     setup_heap_manager();
 
+    // Load configs which may have per-campaign part, and can even be modified within a level
     load_computer_player_config(CnfLd_Standard);
     load_stats_files();
     check_and_auto_fix_stats();
-    init_good_player_as(hero_player_number);
+    init_creature_scores();
 
+    init_good_player_as(hero_player_number);
     light_set_lights_on(1);
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
 
     erstats_clear();
     init_dungeons();
+    // Load the actual level files
     preload_script(get_selected_level_number());
     load_map_file(get_selected_level_number());
 

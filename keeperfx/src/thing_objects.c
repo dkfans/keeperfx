@@ -680,7 +680,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     long long k;
     const long base_heart_beat_rate = 2304;
     static long bounce = 0;
-    if (heartng->active_state != ObSt_State3)
+    if (heartng->active_state != ObSt_BeingDestroyed)
     {
         i = (char)heartng->byte_14;
         heartng->field_3E = 0;
