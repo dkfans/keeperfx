@@ -27,6 +27,8 @@
 
 #include "config.h"
 #include "config_campaigns.h"
+#include "config_creature.h"
+#include "config_compp.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "front_landview.h"
@@ -192,11 +194,16 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             if (load_catalogue_entry(fhandle,&hdr,centry))
             {
                 chunks_done |= SGF_InfoBlock;
-                if (!change_campaign(centry->campaign_fname))
-                {
-                  ERRORLOG("Unable to load campaign");
-                  return GLoad_Failed;
+                if (!change_campaign(centry->campaign_fname)) {
+                    ERRORLOG("Unable to load campaign");
+                    return GLoad_Failed;
                 }
+                // Load configs which may have per-campaign part, and even be modified within a level
+                load_computer_player_config(CnfLd_Standard);
+                load_stats_files();
+                check_and_auto_fix_stats();
+                init_creature_scores();
+                // Update interface items
                 strncpy(high_score_entry,centry->player_name,PLAYER_NAME_LENGTH);
             }
             break;
@@ -363,6 +370,7 @@ TbBool load_game(long slot_num)
     }
     centry = &save_game_catalogue[slot_num];
     LbFileSeek(fh, 0, Lb_FILE_SEEK_BEGINNING);
+    // Here is the actual loading
     if (load_game_chunks(fh,centry) != GLoad_SavedGame)
     {
         LbFileClose(fh);

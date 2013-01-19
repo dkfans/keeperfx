@@ -2786,8 +2786,8 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
   case SVar_CREATURE_NUM:
       if (validx == get_players_special_digger_breed(plyr_idx))
       {
-        dungeon = get_dungeon(plyr_idx);
-        return dungeon->num_active_diggers;
+          dungeon = get_dungeon(plyr_idx);
+          return dungeon->num_active_diggers;
       } else
       {
         return count_player_creatures_of_model(plyr_idx, validx);
@@ -3230,11 +3230,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       }
       break;
   case Cmd_SET_CREATURE_HEALTH:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->health = saturate_set_signed(val3, 16);
-      creature_stats_updated(val2);
+      change_max_health_of_creature_kind(val2, val3);
       break;
   case Cmd_SET_CREATURE_STRENGTH:
       crstat = creature_stats_get(val2);

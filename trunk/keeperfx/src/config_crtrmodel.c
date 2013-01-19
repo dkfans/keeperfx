@@ -26,12 +26,15 @@
 
 #include "config.h"
 #include "thing_doors.h"
+#include "thing_list.h"
+#include "thing_stats.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_lenses.h"
 #include "creature_control.h"
 #include "creature_graphics.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2114,6 +2117,29 @@ TbBool make_all_creatures_free(void)
     }
     return true;
 }
+
+/**
+ * Changes max health of creatures, and updates all creatures to max.
+ */
+TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get(crmodel);
+    if (creature_stats_invalid(crstat)) {
+        ERRORLOG("Invalid creature model %d",(int)crmodel);
+        return false;
+    }
+    crstat->health = saturate_set_signed(new_max, 16);
+    creature_stats_updated(crmodel);
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        do_on_players_all_creatures_of_model(plyr_idx,crmodel,update_creature_health_to_max);
+    }
+    return true;
+}
+
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

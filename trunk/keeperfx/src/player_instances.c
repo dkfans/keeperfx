@@ -658,15 +658,18 @@ long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
   struct Dungeon *dungeon;
   struct Thing *thing;
   struct Coord3d mappos;
+  ThingModel spectator_breed;
+  SYNCDBG(6,"Starting for player %d",(int)player->id_number);
   //return _DK_pinstfs_zoom_to_heart(player, n);
   LbPaletteDataFillWhite(zoom_to_heart_palette);
   light_turn_light_off(player->field_460);
   dungeon = get_players_dungeon(player);
   thing = thing_get(dungeon->dnheart_idx);
+  spectator_breed = get_players_spectator_breed(player->id_number);
   mappos.x.val = thing->mappos.x.val;
-  mappos.y.val = thing->mappos.y.val + 1792;
-  mappos.z.val = thing->mappos.z.val + 256;
-  thing = create_and_control_creature_as_controller(player, 31, &mappos);
+  mappos.y.val = thing->mappos.y.val + subtile_coord(7,0);
+  mappos.z.val = thing->mappos.z.val + subtile_coord(1,0);
+  thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
   if (!thing_is_invalid(thing))
   {
     cctrl = creature_control_get_from_thing(thing);
@@ -687,7 +690,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
   if (!thing_is_invalid(thing))
   {
     pos.x.val = thing->mappos.x.val;
-    pos.y.val = thing->mappos.y.val - 112;
+    pos.y.val = thing->mappos.y.val - subtile_coord(7,0)/16;
     pos.z.val = thing->mappos.z.val;
     move_thing_in_map(thing, &pos);
   }
