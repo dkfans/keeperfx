@@ -56,14 +56,14 @@ DLLIMPORT void _DK_move_thing_in_map(struct Thing *creatng, struct Coord3d *pos)
 }
 #endif
 /******************************************************************************/
-TbBool creature_can_navigate_to_with_storage_f(struct Thing *crtng, struct Coord3d *pos, unsigned char storage, const char *func_name)
+TbBool creature_can_navigate_to_with_storage_f(struct Thing *creatng, struct Coord3d *pos, unsigned char storage, const char *func_name)
 {
-    AriadneReturn ret;
-    NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(crtng),(int)crtng->index,
-        (int)crtng->mappos.x.stl.num, (int)crtng->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
-    ret = ariadne_initialise_creature_route(crtng, pos, get_creature_speed(crtng), storage);
-    NAVIDBG(18,"Ariadne returned %d",(int)ret);
-    return (ret == AridRet_OK);
+    AriadneReturn aret;
+    NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
+        (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
+    aret = ariadne_initialise_creature_route(creatng, pos, get_creature_speed(creatng), storage);
+    NAVIDBG(18,"Ariadne returned %d",(int)aret);
+    return (aret == AridRet_OK);
 }
 
 void nearest_search(long size, long srcx, long srcy, long dstx, long dsty, long *px, long *py)
@@ -282,24 +282,29 @@ TbBool creature_can_travel_over_lava(const struct Thing *thing)
     return (crstat->hurt_by_lava <= 0) || ((thing->movement_flags & TMvF_Flying) != 0);
 }
 
-TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *pos, TbBool no_owner, const char *func_name)
+TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *dstpos, TbBool no_owner, const char *func_name)
 {
-    NAVIDBG(8,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
-        (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
-    //result = _DK_creature_can_navigate_to(thing, pos, no_owner);
+    NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
+        (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);
+    //return _DK_creature_can_navigate_to(thing, dstpos, no_owner);
     struct Path path;
     long nav_sizexy;
     LbMemorySet(&path, 0, sizeof(struct Path));
+    // Set the required parameters
     nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
     if (no_owner)
       owner_player_navigating = -1;
     else
       owner_player_navigating = thing->owner;
-    nav_sizexy = thing_nav_block_sizexy(thing) - 1;
-    path_init8_wide(&path, thing->mappos.x.val, thing->mappos.y.val,
-        pos->x.val, pos->y.val, -2, nav_sizexy);
+    nav_sizexy = thing_nav_block_sizexy(thing);
+    if (nav_sizexy > 0) nav_sizexy--;
+    // Find the path
+    path_init8_wide_f(&path, thing->mappos.x.val, thing->mappos.y.val,
+        dstpos->x.val, dstpos->y.val, -2, nav_sizexy, func_name);
+    // Reset globals
     nav_thing_can_travel_over_lava = 0;
-    NAVIDBG(9,"%s: Finished, %d waypoints",func_name,(int)path.waypoints_num);
+    owner_player_navigating = -1;
+    NAVIDBG(19,"%s: Finished, %d waypoints",func_name,(int)path.waypoints_num);
     return (path.waypoints_num > 0);
 }
 

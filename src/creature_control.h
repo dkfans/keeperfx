@@ -190,7 +190,7 @@ unsigned char field_88;
 // Hard to tell where exactly, but somewhere here a kind-specific, job-specific or owner-specific data starts
   union {
   struct {
-    char sbyte_89x;
+    char target_plyr_idx;
     unsigned char byte_8Ax;
     unsigned char byte_8Bx;
     unsigned char byte_8Cx;

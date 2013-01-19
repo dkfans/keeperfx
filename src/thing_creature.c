@@ -2397,7 +2397,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->field_287 = ACTION_RANDOM(7);
     if (owner == game.hero_player_num)
     {
-      cctrl->sbyte_89 = -1;
+      cctrl->party.target_plyr_idx = -1;
       cctrl->byte_8C = 1;
     }
     cctrl->flee_pos.x.val = crtng->mappos.x.val;
