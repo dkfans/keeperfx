@@ -1066,9 +1066,60 @@ long get_free_hero_gate_number(void)
     return 0;
 }
 
+/** Does a function on all creatures in players list of given model.
+ * @return Count of creatures for which the callback returned true.
+ */
+long do_on_player_list_all_creatures_of_model(long thing_idx, ThingModel crmodel,
+    Thing_Bool_Modifier do_cb)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    long i, n;
+    n = 0;
+    i = thing_idx;
+    k = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if (do_cb(thing))
+            n++;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return n;
+}
+
+/** Does a function on all player creatures of given model.
+ * @param plyr_idx Target player.
+ * @param crmodel Creature model, or -1 for all (except special diggers).
+ *
+ * @return Count of creatures for which the callback returned true.
+ */
+long do_on_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, crmodel, do_cb);
+}
+
+
 /** Counts creatures of given model belonging to given player.
  * @param plyr_idx Target player.
- * @param model Creature model, or -1 for all (except special diggers).
+ * @param crmodel Creature model, or -1 for all (except special diggers).
  *
  * @return Count of players creatures.
  */

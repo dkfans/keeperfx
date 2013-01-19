@@ -94,11 +94,11 @@ void process_armageddon(void)
         return;
     if (game.armageddon.count_down+game.field_150356 > game.play_gameturn)
     {
-        player = get_player(game.field_15035E);
-        dungeon = get_dungeon(player->id_number);
-        heartng = thing_get(dungeon->dnheart_idx);
-        if ((player->victory_state == VicS_LostLevel) || thing_is_invalid(heartng) || (heartng->active_state == ObSt_State3))
+        if (player_cannot_win(game.field_15035E))
+        {
+            // Stop the armageddon if its originator is just losing
             game.field_150356 = 0;
+        }
     } else
     if (game.armageddon.count_down+game.field_150356 == game.play_gameturn)
     {
@@ -116,23 +116,22 @@ void process_armageddon(void)
     {
         for (i=0; i < PLAYERS_COUNT; i++)
         {
-          player = get_player(i);
-          if ( (player_exists(player)) && (player->field_2C == 1) )
-          {
-            dungeon = get_dungeon(player->id_number);
-            if ( (player->victory_state == VicS_Undecided) && (dungeon->num_active_creatrs == 0))
+            player = get_player(i);
+            if ( (player_exists(player)) && (player->field_2C == 1) )
             {
-              event_kill_all_players_events(i);
-              set_player_as_lost_level(player);
-              if (is_my_player_number(i))
-                LbPaletteSet(_DK_palette);
-              heartng = thing_get(dungeon->dnheart_idx);
-              if (!thing_is_invalid(heartng))
-              {
-                heartng->health = -1;
-              }
+                dungeon = get_dungeon(player->id_number);
+                if ((player->victory_state == VicS_Undecided) && (dungeon->num_active_creatrs == 0))
+                {
+                    event_kill_all_players_events(i);
+                    set_player_as_lost_level(player);
+                    if (is_my_player_number(i))
+                        LbPaletteSet(_DK_palette);
+                    heartng = thing_get(dungeon->dnheart_idx);
+                    if (!thing_is_invalid(heartng)) {
+                        heartng->health = -1;
+                    }
+                }
             }
-          }
         }
     }
 }

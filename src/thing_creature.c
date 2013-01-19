@@ -383,6 +383,27 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
     return INVALID_THING;
 }
 
+/*TODO COMBAT Finish rewriting
+void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthing)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    crstat = creature_stats_get_from_thing(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->battle_enemy_idx = obthing->index;
+    cctrl->long_9E = obthing->creation_turn;
+    cctrl->field_AA = 0;
+    cctrl->combat_flags |= 0x08;
+    if ((crstat->attack_preference == 2) && creature_has_ranged_object_weapon(creatng))
+    {
+      cctrl->combat_state_id = 2;
+    } else
+    {
+      cctrl->combat_state_id = 1;
+    }
+}
+*/
+
 long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing)
 {
   return _DK_set_creature_object_combat(crthing, obthing);
@@ -2414,12 +2435,12 @@ TbBool creature_increase_level(struct Thing *thing)
   dungeon = get_dungeon(thing->owner);
   if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
   {
-    crstat = creature_stats_get_from_thing(thing);
-    if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-    {
-      cctrl->spell_flags |= CSAfF_Unkn4000;
-      return true;
-    }
+      crstat = creature_stats_get_from_thing(thing);
+      if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
+      {
+          cctrl->spell_flags |= CSAfF_ExpLevelUp;
+          return true;
+      }
   }
   return false;
 }
@@ -3389,13 +3410,13 @@ long update_creature_levels(struct Thing *thing)
     struct Thing *newtng;
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->spell_flags & CSAfF_Unkn4000) == 0)
+    if ((cctrl->spell_flags & CSAfF_ExpLevelUp) == 0)
         return 0;
-    cctrl->spell_flags &= ~CSAfF_Unkn4000;
-    remove_creature_score_from_owner(thing);
+    cctrl->spell_flags &= ~CSAfF_ExpLevelUp;
     // If a creature is not on highest level, just update the level
     if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
     {
+        remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
         set_creature_level(thing, cctrl->explevel+1);
         return 1;
     }
@@ -3427,6 +3448,7 @@ long update_creature_levels(struct Thing *thing)
         player->controlled_thing_idx = newtng->index;
         player->field_31 = newtng->creation_turn;
     }
+    remove_creature_score_from_owner(thing); // kill_creature() doesn't call this
     kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
     return -1;
 }

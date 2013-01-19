@@ -963,6 +963,11 @@ TbBool add_spell_to_player(PowerKind spl_idx, PlayerNumber plyr_idx)
         return false;
     }
     dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Can't add spell %d to player %d which has no dungeon",(int)spl_idx, (int)plyr_idx);
+        return false;
+    }
     i = dungeon->magic_level[spl_idx];
     if (i >= 255)
     {
@@ -1048,7 +1053,13 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx)
       ERRORLOG("Incorrect spell %ld (player %ld)",spl_idx, plyr_idx);
       return false;
     }
-    if (dungeon->magic_level[spl_idx] > 0) {
+    long i;
+    i = dungeon->magic_level[spl_idx];
+    if (i >= 255) {
+        //ERRORLOG("Spell %d has bad magic_level=%d for player %d", (int)spl_idx, (int)i, (int)plyr_idx);
+        return false;
+    }
+    if (i > 0) {
       return true;
     }
     return false;

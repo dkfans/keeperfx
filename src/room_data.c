@@ -707,9 +707,9 @@ void count_books_in_room(struct Room *room)
             slb_y = slb_num_decode_y(i);
             // Per-slab code
             long dx,dy;
-            for (dy=0; dy < 3; dy++)
+            for (dy=0; dy < STL_PER_SLB; dy++)
             {
-                for (dx=0; dx < 3; dx++)
+                for (dx=0; dx < STL_PER_SLB; dx++)
                 {
                     count_and_reposition_books_in_room_on_subtile(room, 3*slb_x+dx, 3*slb_y+dy, &rrepos);
                 }

@@ -1433,7 +1433,7 @@ TbBool frontend_start_new_campaign(const char *cmpgn_fname)
   for (i=0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
-    player->field_6 &= 0xFD;
+    player->field_6 &= ~0x02;
   }
   player = get_my_player();
   clear_transfered_creature();

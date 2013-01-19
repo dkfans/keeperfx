@@ -883,113 +883,113 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
 
 short parse_campaign_map_blocks(struct GameCampaign *campgn, char *buf, long len)
 {
-  static const char config_textname[] = "Campaign config";
-  long lvnum,bn_lvnum;
-  long i;
-  SYNCDBG(8,"Starting");
-  i = campgn->single_levels_count + campgn->multi_levels_count + campgn->bonus_levels_count
-     + campgn->extra_levels_count + campgn->freeplay_levels_count;
-  if (i <= 0)
-  {
-    WARNMSG("There's zero used levels - no [mapX] blocks to parse in %s file.",config_textname);
-    return 0;
-  }
-  // Initialize the lvinfos array
-  if (!init_level_info_entries(campgn,i))
-  if (campgn->lvinfos == NULL)
-  {
-    WARNMSG("Can't allocate memory for LevelInformation list in %s file.",config_textname);
-    return 0;
-  }
-  lvnum = first_singleplayer_level();
-  while (lvnum > 0)
-  {
-    parse_campaign_map_block(lvnum, LvOp_IsSingle, buf, len);
-    bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
-    if (bn_lvnum > 0)
+    static const char config_textname[] = "Campaign config";
+    long lvnum,bn_lvnum;
+    long i;
+    SYNCDBG(8,"Starting");
+    i = campgn->single_levels_count + campgn->multi_levels_count + campgn->bonus_levels_count
+       + campgn->extra_levels_count + campgn->freeplay_levels_count;
+    if (i <= 0)
     {
-      parse_campaign_map_block(bn_lvnum, LvOp_IsBonus, buf, len);
+        WARNMSG("There's zero used levels - no [mapX] blocks to parse in %s file.",config_textname);
+        return 0;
     }
-    lvnum = next_singleplayer_level(lvnum);
-  }
-  lvnum = first_multiplayer_level();
-  while (lvnum > 0)
-  {
-    parse_campaign_map_block(lvnum, LvOp_IsMulti, buf, len);
-    lvnum = next_multiplayer_level(lvnum);
-  }
-  lvnum = first_extra_level();
-  while (lvnum > 0)
-  {
-    parse_campaign_map_block(lvnum, LvOp_IsExtra, buf, len);
-    lvnum = next_extra_level(lvnum);
-  }
-  return 1;
+    // Initialize the lvinfos array
+    if (!init_level_info_entries(campgn,i))
+    if (campgn->lvinfos == NULL)
+    {
+        WARNMSG("Can't allocate memory for LevelInformation list in %s file.",config_textname);
+        return 0;
+    }
+    lvnum = first_singleplayer_level();
+    while (lvnum > 0)
+    {
+        parse_campaign_map_block(lvnum, LvOp_IsSingle, buf, len);
+        bn_lvnum = bonus_level_for_singleplayer_level(lvnum);
+        if (bn_lvnum > 0)
+        {
+          parse_campaign_map_block(bn_lvnum, LvOp_IsBonus, buf, len);
+        }
+        lvnum = next_singleplayer_level(lvnum);
+    }
+    lvnum = first_multiplayer_level();
+    while (lvnum > 0)
+    {
+        parse_campaign_map_block(lvnum, LvOp_IsMulti, buf, len);
+        lvnum = next_multiplayer_level(lvnum);
+    }
+    lvnum = first_extra_level();
+    while (lvnum > 0)
+    {
+        parse_campaign_map_block(lvnum, LvOp_IsExtra, buf, len);
+        lvnum = next_extra_level(lvnum);
+    }
+    return 1;
 }
 
 TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigned short flags)
 {
-  char *fname;
-  char *buf;
-  long len;
-  TbBool result;
-  // Preparing campaign file name and checking the file
-  clear_campaign(campgn);
-  LbStringCopy(campgn->fname,cmpgn_fname,DISKPATH_SIZE);
-  LbStringCopy(campgn->name,cmpgn_fname,DISKPATH_SIZE);
-  SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
-  fname = prepare_file_path(FGrp_Campgn,cmpgn_fname);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    WARNMSG("Campaign file \"%s\" doesn't exist or is too small.",cmpgn_fname);
+    char *fname;
+    char *buf;
+    long len;
+    TbBool result;
+    // Preparing campaign file name and checking the file
+    clear_campaign(campgn);
+    LbStringCopy(campgn->fname,cmpgn_fname,DISKPATH_SIZE);
+    LbStringCopy(campgn->name,cmpgn_fname,DISKPATH_SIZE);
+    SYNCDBG(0,"%s campaign file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",cmpgn_fname);
+    fname = prepare_file_path(FGrp_Campgn,cmpgn_fname);
+    len = LbFileLengthRnc(fname);
+    if (len < 2)
+    {
+        WARNMSG("Campaign file \"%s\" doesn't exist or is too small.",cmpgn_fname);
+        return false;
+    }
+    if (len > 65536)
+    {
+        WARNMSG("Campaign file \"%s\" is too large.",cmpgn_fname);
+        return false;
+    }
+    buf = (char *)LbMemoryAlloc(len+256);
+    if (buf == NULL)
+      return false;
+    // Loading file data
+    len = LbFileLoadAt(fname, buf);
+    result = (len > 0);
+    if (result)
+    {
+        result = parse_campaign_common_blocks(campgn, buf, len);
+        if (!result)
+          WARNMSG("Parsing campaign file \"%s\" common blocks failed.",cmpgn_fname);
+    }
+    if ((result) && ((flags & CnfLd_ListOnly) == 0))
+    {
+        result = parse_campaign_strings_blocks(campgn, buf, len);
+        if (!result)
+          WARNMSG("Parsing campaign file \"%s\" strings block failed.",cmpgn_fname);
+    }
+    if ((result) && ((flags & CnfLd_ListOnly) == 0))
+    {
+        result = parse_campaign_speech_blocks(campgn, buf, len);
+        if (!result)
+          WARNMSG("Parsing campaign file \"%s\" speech block failed.",cmpgn_fname);
+    }
+    if ((result) && ((flags & CnfLd_ListOnly) == 0))
+    {
+        result = parse_campaign_map_blocks(campgn, buf, len);
+        if (!result)
+          WARNMSG("Parsing campaign file \"%s\" map blocks failed.",cmpgn_fname);
+    }
+    //Freeing and exiting
+    LbMemoryFree(buf);
+    if ((flags & CnfLd_ListOnly) == 0)
+    {
+        setup_campaign_strings_data(campgn);
+        setup_campaign_credits_data(campgn);
+    }
+    if (result)
+        return (campgn->single_levels_count > 0) || (campgn->multi_levels_count > 0);
     return false;
-  }
-  if (len > 65536)
-  {
-    WARNMSG("Campaign file \"%s\" is too large.",cmpgn_fname);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  result = (len > 0);
-  if (result)
-  {
-    result = parse_campaign_common_blocks(campgn, buf, len);
-    if (!result)
-      WARNMSG("Parsing campaign file \"%s\" common blocks failed.",cmpgn_fname);
-  }
-  if ((result) && ((flags & CnfLd_ListOnly) == 0))
-  {
-    result = parse_campaign_strings_blocks(campgn, buf, len);
-    if (!result)
-      WARNMSG("Parsing campaign file \"%s\" strings block failed.",cmpgn_fname);
-  }
-  if ((result) && ((flags & CnfLd_ListOnly) == 0))
-  {
-    result = parse_campaign_speech_blocks(campgn, buf, len);
-    if (!result)
-      WARNMSG("Parsing campaign file \"%s\" speech block failed.",cmpgn_fname);
-  }
-  if ((result) && ((flags & CnfLd_ListOnly) == 0))
-  {
-    result = parse_campaign_map_blocks(campgn, buf, len);
-    if (!result)
-      WARNMSG("Parsing campaign file \"%s\" map blocks failed.",cmpgn_fname);
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  if ((flags & CnfLd_ListOnly) == 0)
-  {
-    setup_campaign_strings_data(campgn);
-    setup_campaign_credits_data(campgn);
-  }
-  if (result)
-    return (campgn->single_levels_count > 0) || (campgn->multi_levels_count > 0);
-  return false;
 }
 
 TbBool change_campaign(const char *cmpgn_fname)
@@ -1003,6 +1003,11 @@ TbBool change_campaign(const char *cmpgn_fname)
         result = load_campaign(cmpgn_fname,&campaign,CnfLd_Standard);
     else
         result = load_campaign(keeper_campaign_file,&campaign,CnfLd_Standard);
+    // Configs which may change within a level should be initialized outside
+    //load_computer_player_config(CnfLd_Standard);
+    //load_stats_files();
+    //check_and_auto_fix_stats();
+    // Make sure all additional levels are loaded
     find_and_load_lif_files();
     find_and_load_lof_files();
     load_or_create_high_score_table();

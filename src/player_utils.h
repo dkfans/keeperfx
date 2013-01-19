@@ -35,8 +35,9 @@ struct PlayerInfo;
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
-short player_has_won(PlayerNumber plyr_idx);
-short player_has_lost(PlayerNumber plyr_idx);
+TbBool player_has_won(PlayerNumber plyr_idx);
+TbBool player_has_lost(PlayerNumber plyr_idx);
+TbBool player_cannot_win(PlayerNumber plyr_idx);
 void set_player_as_won_level(struct PlayerInfo *player);
 void set_player_as_lost_level(struct PlayerInfo *player);
 

@@ -54,6 +54,7 @@ struct Map {
 
 #define INVALID_MAP_BLOCK (&bad_map_block)
 #define MOVE_VELOCITY_LIMIT 256
+#define STL_PER_SLB 3
 
 #pragma pack()
 /******************************************************************************/
@@ -70,16 +71,16 @@ extern unsigned char *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
 /** Convert subtile to slab. */
-#define subtile_slab(stl) ((stl)/3)
+#define subtile_slab(stl) ((stl)/STL_PER_SLB)
 /** Convert subtile to slab, assuming the subtile is in correct range. */
 #define subtile_slab_fast(stl) ((int)map_to_slab[stl])
 /** Converts slab to a subtile. Second parameter selects a specific subtile. */
-#define slab_subtile(slb,subnum) ((MapSubtlCoord)(slb)*3+(MapSubtlCoord)(subnum))
+#define slab_subtile(slb,subnum) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)(subnum))
 /** Converts slab to its central subtile. */
-#define slab_subtile_center(slb) ((MapSubtlCoord)(slb)*3+(MapSubtlCoord)1)
+#define slab_subtile_center(slb) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)1)
 /******************************************************************************/
 #define coord_subtile(coord) ((coord)/256)
-#define coord_slab(coord) ((coord)/(256*3))
+#define coord_slab(coord) ((coord)/(256*STL_PER_SLB))
 #define subtile_coord(stl,spos) ((stl)*256+(spos))
 #define subtile_coord_center(stl) ((stl)*256+128)
 #define navmap_tile_number(stl_x,stl_y) ((stl_y)*navigation_map_size_x+(stl_x))

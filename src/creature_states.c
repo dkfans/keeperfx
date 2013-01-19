@@ -1032,11 +1032,11 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
     base_y = slab_subtile(slb_y,0);
     long i,k;
     k = start_stl;
-    for (i=0; i < 9; i++)
+    for (i=0; i < STL_PER_SLB*STL_PER_SLB; i++)
     {
         MapSubtlCoord x,y;
-        x = base_x + (k%3);
-        y = base_y + (k/3);
+        x = base_x + (k%STL_PER_SLB);
+        y = base_y + (k/STL_PER_SLB);
         if ((x != stl_x) || (y != stl_y))
         {
             struct Map *mapblk;
@@ -1054,7 +1054,7 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
                 }
             }
         }
-        k = (k+1) % 9;
+        k = (k+1) % (STL_PER_SLB*STL_PER_SLB);
     }
     return false;
 }
@@ -1513,7 +1513,7 @@ short creature_doing_nothing(struct Thing *creatng)
  * @param slb_y The destination slab, Y coord.
  * @return True if the creature is willing to move on that slab, false otherwise.
  */
-TbBool slab_is_valid_for_creature_choose_move(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
+TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap *slb;
     struct SlabAttr *slbattr;
@@ -2728,14 +2728,14 @@ TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
     long n;
     for (n=0; n < 4; n++)
     {
-        long slb_x,slb_y;
-        slb_x = slb_x + (long)small_around[n].delta_x;
-        slb_y = slb_y + (long)small_around[n].delta_y;
+        long aslb_x,aslb_y;
+        aslb_x = slb_x + (long)small_around[n].delta_x;
+        aslb_y = slb_y + (long)small_around[n].delta_y;
         struct SlabMap *slb;
         slb = get_slabmap_block(slb_x,slb_y);
         if (slabmap_owner(slb) == plyr_idx)
         {
-            if (slab_is_safe_land(plyr_idx, slb_x, slb_y) && !slab_is_liquid(slb_x, slb_y)) {
+            if (slab_is_safe_land(plyr_idx, aslb_x, aslb_y) && !slab_is_liquid(aslb_x, aslb_y)) {
                 return true;
             }
         }
@@ -3040,7 +3040,7 @@ TbBool check_experience_upgrade(struct Thing *thing)
     if (cctrl->explevel < dungeon->creature_max_level[thing->model])
     {
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
-        cctrl->spell_flags |= CSAfF_Unkn4000;
+        cctrl->spell_flags |= CSAfF_ExpLevelUp;
     }
     return true;
 }

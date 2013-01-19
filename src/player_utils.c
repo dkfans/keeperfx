@@ -25,6 +25,7 @@
 #include "player_instances.h"
 #include "dungeon_data.h"
 #include "power_hand.h"
+#include "thing_objects.h"
 #include "front_simple.h"
 #include "front_lvlstats.h"
 #include "gui_soundmsgs.h"
@@ -47,7 +48,7 @@ DLLIMPORT void _DK_post_init_players(void);
 DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
 DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
 /******************************************************************************/
-short player_has_won(PlayerNumber plyr_idx)
+TbBool player_has_won(PlayerNumber plyr_idx)
 {
   struct PlayerInfo *player;
   player = get_player(plyr_idx);
@@ -56,13 +57,37 @@ short player_has_won(PlayerNumber plyr_idx)
   return (player->victory_state == VicS_WonLevel);
 }
 
-short player_has_lost(PlayerNumber plyr_idx)
+TbBool player_has_lost(PlayerNumber plyr_idx)
 {
   struct PlayerInfo *player;
   player = get_player(plyr_idx);
   if (player_invalid(player))
     return false;
   return (player->victory_state == VicS_LostLevel);
+}
+
+/**
+ * Returns whether given player has no longer any chance to win.
+ * @param plyr_idx
+ * @return
+ */
+TbBool player_cannot_win(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo *player;
+    if (plyr_idx == game.neutral_player_num)
+        return true;
+    player = get_player(plyr_idx);
+    if (!player_exists(player))
+        return true;
+    if (player->victory_state == VicS_LostLevel)
+        return true;
+    struct Thing *heartng;
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(player->id_number);
+    heartng = thing_get(dungeon->dnheart_idx);
+    if (!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed))
+        return true;
+    return false;
 }
 
 void set_player_as_won_level(struct PlayerInfo *player)

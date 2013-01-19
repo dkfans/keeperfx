@@ -91,6 +91,8 @@ typedef TbBool (*Thing_Bool_Filter)(const struct Thing *);
 /** Definition of a callback type used for selecting best match through all the things by maximizing a value. */
 typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxFilterParam, long);
 typedef long (*Thing_Collide_Func)(struct Thing *, struct Thing *, long, long);
+/** Definition of a simple callback type which can only return true/false and can modify the thing. */
+typedef TbBool (*Thing_Bool_Modifier)(struct Thing *);
 
 struct CompoundFilterParam {
      long plyr_idx;
@@ -142,6 +144,7 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
 // Final routines to select thing belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
+long do_on_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb);
 
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer);

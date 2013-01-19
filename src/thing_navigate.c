@@ -104,7 +104,7 @@ TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, M
     struct CreatureControl *cctrl;
     struct Coord3d locpos;
     SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
-    //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, a4);
+    //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, storage);
     locpos.x.val = subtile_coord_center(stl_x);
     locpos.y.val = subtile_coord_center(stl_y);
     locpos.z.val = thing->mappos.z.val;
@@ -333,12 +333,12 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
         SYNCDBG(18,"The %s index %d cannot get to player %d without heart",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
-    if (heartng->active_state == ObSt_State3)
+    if (heartng->active_state == ObSt_BeingDestroyed)
     {
         SYNCDBG(18,"The %s index %d cannot get to player %d due to heart state",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
-    return  creature_can_navigate_to(creatng, &heartng->mappos, 0);
+    return creature_can_navigate_to(creatng, &heartng->mappos, 0);
 }
 
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
