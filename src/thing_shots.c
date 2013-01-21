@@ -204,7 +204,7 @@ void process_dig_shot_hit_wall(struct Thing *thing, unsigned long blocked_flags)
     {
         return;
     }
-    if ((mapblk->flags & MapFlg_Unkn10) == 0)
+    if ((mapblk->flags & MapFlg_IsTall) == 0)
     {
         return;
     }

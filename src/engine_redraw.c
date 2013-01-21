@@ -45,6 +45,7 @@
 #include "config.h"
 #include "config_strings.h"
 #include "config_terrain.h"
+#include "magic.h"
 #include "game_merge.h"
 #include "game_legacy.h"
 
@@ -422,7 +423,6 @@ void redraw_frontview(void)
 void process_pointer_graphic(void)
 {
   struct PlayerInfo *player;
-  struct SpellData *pwrdata;
   struct Dungeon *dungeon;
   struct Thing *thing;
   long i;
@@ -452,19 +452,19 @@ void process_pointer_graphic(void)
       } else
       if (battle_creature_over > 0)
       {
-          i = -1;
+          PowerKind spl_id;
+          spl_id = 0;
           if (player->work_state < PLAYER_STATES_COUNT)
-            i = player_state_to_spell[player->work_state];
-          pwrdata = get_power_data(i);
-          if ((i > 0) && (pwrdata->flag_19))
+              spl_id = player_state_to_spell[player->work_state];
+          thing = thing_get(battle_creature_over);
+          TRACE_THING(thing);
+          if (can_cast_spell_on_creature(player->id_number, thing, spl_id))
           {
-            thing = thing_get(battle_creature_over);
-            TRACE_THING(thing);
-            draw_spell_cursor(player->work_state, battle_creature_over,
-                thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+              draw_spell_cursor(player->work_state, battle_creature_over,
+                  thing->mappos.x.stl.num, thing->mappos.y.stl.num);
           } else
           {
-            set_pointer_graphic(1);
+              set_pointer_graphic(1);
           }
       } else
       if (game_is_busy_doing_gui())

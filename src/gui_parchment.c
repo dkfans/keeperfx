@@ -205,7 +205,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
         pixval = 60;
       }
     } else
-    if ((mapblk->flags & MapFlg_Unkn10) == 0)
+    if ((mapblk->flags & MapFlg_IsTall) == 0)
     {
       if (slb->kind == SlbT_LAVA)
       {

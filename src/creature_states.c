@@ -1041,7 +1041,7 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(x,y);
-            if ((mapblk->flags & MapFlg_Unkn10) == 0)
+            if ((mapblk->flags & MapFlg_IsTall) == 0)
             {
                 if (!terrain_toxic_for_creature_at_position(thing, x, y))
                 {
@@ -1220,7 +1220,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long ow
             MapSubtlCoord stl_x,stl_y;
             stl_num += around_map[m];
             mapblk = get_map_block_at_pos(stl_num);
-            if ( ((mapblk->flags & MapFlg_IsRoom) != 0) && ((mapblk->flags & MapFlg_Unkn10) != 0) )
+            if ( ((mapblk->flags & MapFlg_IsRoom) != 0) && ((mapblk->flags & MapFlg_IsTall) != 0) )
                 break;
             stl_x = stl_num_decode_x(stl_num);
             stl_y = stl_num_decode_y(stl_num);
@@ -2010,7 +2010,7 @@ TbBool creature_is_dragging_something(const struct Thing *creatng)
     const struct Thing *dragtng;
     dragtng = thing_get(cctrl->dragtng_idx);
     if (!thing_exists(dragtng)) {
-        ERRORLOG("The %s is dragging nonexisting thing",thing_model_name(creatng));
+        ERRORLOG("The %s is dragging non-existing thing",thing_model_name(creatng));
         return false;
     }
     return true;
@@ -2026,7 +2026,7 @@ TbBool creature_is_dragging_spellbook(const struct Thing *creatng)
     const struct Thing *dragtng;
     dragtng = thing_get(cctrl->dragtng_idx);
     if (!thing_exists(dragtng)) {
-        ERRORLOG("The %s is dragging nonexisting thing",thing_model_name(creatng));
+        ERRORLOG("The %s is dragging non-existing thing",thing_model_name(creatng));
         return false;
     }
     if (!thing_is_spellbook(dragtng)) {

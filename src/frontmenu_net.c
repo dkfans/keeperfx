@@ -434,7 +434,7 @@ void frontnet_comport_up_maintain(struct GuiButton *gbtn)
 void frontnet_net_serial_start_maintain(struct GuiButton *gbtn)
 {
   if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
-    gbtn->flags &= 0xF7u;
+    gbtn->flags &= ~0x08;
   else
     gbtn->flags |= 0x08;
 }

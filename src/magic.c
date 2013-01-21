@@ -54,47 +54,102 @@ extern "C" {
 const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
 
 /******************************************************************************/
-DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long spl_idx, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long spl_idx, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long spl_idx, long stl_y);
-DLLIMPORT short _DK_magic_use_power_imp(unsigned short plyr_idx, unsigned short a2, unsigned short spl_idx);
-DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long spl_idx, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long spl_idx, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long spl_idx, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long spl_idx, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long spl_idx, long stl_y);
-DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long spl_idx, long stl_y);
-DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long spl_idx, long stl_y);
-DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long spl_idx, long stl_y, long splevel);
-DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short spl_idx, unsigned short stl_y);
-DLLIMPORT short _DK_magic_use_power_slap(unsigned short plyr_idx, unsigned short a2, unsigned short spl_idx);
+DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
+DLLIMPORT short _DK_magic_use_power_imp(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel);
+DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
+DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
+DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
+DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long pwmodel, long stl_y, long splevel);
+DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel, unsigned short stl_y);
+DLLIMPORT short _DK_magic_use_power_slap(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel);
 DLLIMPORT short _DK_magic_use_power_obey(unsigned short plridx);
 DLLIMPORT long _DK_magic_use_power_armageddon(unsigned char val);
 DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
 
 DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
-DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char spl_idx, unsigned char stl_y, long splevel);
-DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long spl_idx);
+DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long splevel);
+DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwmodel);
 /******************************************************************************/
-long can_cast_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, long spl_id)
+TbBool can_cast_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, PowerKind pwmodel)
 {
-    //return _DK_can_cast_spell_on_creature(a1, thing, a3);
-    // Cannot disease own creatures
-    if (spl_id == PwrK_DISEASE)
+    //return _DK_can_cast_spell_on_creature(plyr_idx, thing, pwmodel);
+    // Picked up things are immune to spells
+    if (thing_is_picked_up(thing))
+        return false;
+    struct SpellData *pwrdata;
+    pwrdata = get_power_data(pwmodel);
+    if (power_data_is_invalid(pwrdata))
+        return false;
+    if (thing_is_object(thing))
     {
-        if (thing->owner == plyr_idx)
-          return false;
+        if ((pwrdata->can_cast_flags & PwCast_OwnedFood) != 0)
+        {
+            if (thing->owner == plyr_idx) {
+                if (object_is_mature_food(thing))  {
+                    return true;
+                }
+            }
+        }
+        if ((pwrdata->can_cast_flags & PwCast_OwnedGold) != 0)
+        {
+            if (thing->owner == plyr_idx) {
+                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
+                return true;
+                }
+            }
+        }
+        if ((pwrdata->can_cast_flags & PwCast_OwnedSpell) != 0)
+        {
+            if (thing->owner == plyr_idx) {
+                if (thing_is_spellbook(thing))  {
+                    return true;
+                }
+            }
+        }
     }
-    // Cannot cast spell on creatures kept in enemy prison or tortured by enemy
-    if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing)) {
-        struct Room *room;
-        room = get_room_creature_works_in(thing);
-        if (room->owner != plyr_idx)
-            return false;
+    if (thing_is_creature(thing))
+    {
+        if ((pwrdata->can_cast_flags & PwCast_AllCrtrs) == PwCast_AllCrtrs)
+        {
+            return true;
+        }
+        if ((pwrdata->can_cast_flags & PwCast_OwnedCrtrs) != 0)
+        {
+            if (thing->owner == plyr_idx) {
+                if (!creature_is_kept_in_custody_by_enemy(thing)) {
+                    return true;
+                }
+            }
+        }
+        if ((pwrdata->can_cast_flags & PwCast_AlliedCrtrs) != 0)
+        {
+            if (players_are_mutual_allies(plyr_idx, thing->owner)) {
+                if (!creature_is_kept_in_custody_by_enemy(thing)) {
+                    return true;
+                }
+            }
+        }
+        if ((pwrdata->can_cast_flags & PwCast_CustodyCrtrs) != 0)
+        {
+            if (creature_is_kept_in_custody_by_enemy(thing)) {
+                return true;
+            }
+        }
+        if ((pwrdata->can_cast_flags & PwCast_EnemyCrtrs) != 0)
+        {
+            if (players_are_enemies(plyr_idx, thing->owner)) {
+                return true;
+            }
+        }
     }
-    // Allow all other casts
-    return true;
+    return false;
 }
 
 void update_power_sight_explored(struct PlayerInfo *player)
@@ -155,17 +210,18 @@ TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_idx,
     TbBool can_cast;
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
+
     can_cast = false;
     switch (spl_idx)
     {
     default:
-        if ((mapblk->flags & MapFlg_Unkn10) == 0)
+        if ((mapblk->flags & MapFlg_IsTall) == 0)
         {
           can_cast = true;
         }
         break;
     case PwrK_MKDIGGER:
-        if ((mapblk->flags & MapFlg_Unkn10) == 0)
+        if ((mapblk->flags & MapFlg_IsTall) == 0)
         {
           if ((slabmap_owner(slb) == plyr_idx) || ((allow_flags & CastAllow_Unowned) != 0))
           {
@@ -177,7 +233,7 @@ TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_idx,
         can_cast = true;
         break;
     case PwrK_CALL2ARMS:
-        if ((mapblk->flags & MapFlg_Unkn10) == 0)
+        if ((mapblk->flags & MapFlg_IsTall) == 0)
         {
           if (map_block_revealed(mapblk, plyr_idx) || ((allow_flags & CastAllow_Unrevealed) != 0))
           {
@@ -186,7 +242,7 @@ TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_idx,
         }
         break;
     case PwrK_CAVEIN:
-        if ((mapblk->flags & MapFlg_Unkn10) == 0)
+        if ((mapblk->flags & MapFlg_IsTall) == 0)
         {
           if (power_sight_explored(stl_x, stl_y, plyr_idx)
            || map_block_revealed(mapblk, plyr_idx) || ((allow_flags & CastAllow_Unrevealed) != 0))
@@ -196,7 +252,7 @@ TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_idx,
         }
         break;
     case PwrK_LIGHTNING:
-        if ((mapblk->flags & MapFlg_Unkn10) == 0)
+        if ((mapblk->flags & MapFlg_IsTall) == 0)
         {
             if (power_sight_explored(stl_x, stl_y, plyr_idx)
              || map_block_revealed(mapblk, plyr_idx) || ((allow_flags & CastAllow_Unrevealed) != 0))
@@ -220,7 +276,7 @@ TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_idx,
         if (power_sight_explored(stl_x, stl_y, plyr_idx)
          || map_block_revealed(mapblk, plyr_idx) || ((allow_flags & CastAllow_Unrevealed) != 0))
         {
-          if ((mapblk->flags & MapFlg_Unkn10) != 0)
+          if ((mapblk->flags & MapFlg_IsTall) != 0)
           {
             if ((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom|MapFlg_Unkn01)) == 0)
             {
@@ -330,8 +386,8 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx)
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel);
-    if (!can_cast_spell_at_xy(plyr_idx, PwrK_CHICKEN, stl_x, stl_y, 0)
-     || !can_cast_spell_on_creature(plyr_idx, thing, PwrK_CHICKEN))
+    // TODO SPELL_CAST remove the check below
+    if (!can_cast_spell_at_xy(plyr_idx, PwrK_CHICKEN, stl_x, stl_y, 0))
     {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
@@ -358,6 +414,7 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
 TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_disease(a1, thing, a3, a4, a5); return Lb_OK;
+    // TODO SPELL_CAST remove the check below
     if ( !can_cast_spell_at_xy(plyr_idx, PwrK_DISEASE, stl_x, stl_y, 0)
       || !can_cast_spell_on_creature(plyr_idx, thing, PwrK_DISEASE) )
     {
@@ -453,8 +510,12 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
 
 TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_heal(plyr_idx, thing, a3, a4, splevel);
+    //_DK_magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, splevel);return Lb_OK;
     // If the creature has full health, do nothing
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
     if (get_creature_health_permil(thing) >= 1000) {
         return Lb_OK;
     }
@@ -533,17 +594,14 @@ long thing_affected_by_spell(struct Thing *thing, long spkind)
 TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_speed(plyr_idx, thing, a3, a4, splevel);
-    if (!thing_is_creature(thing))
-    {
+    if (!thing_is_creature(thing)) {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
     }
-    if (thing_affected_by_spell(thing, SplK_Speed))
-    {
+    if (thing_affected_by_spell(thing, SplK_Speed)) {
         return Lb_OK;
     }
-    if (!pay_for_spell(plyr_idx, PwrK_SPEEDCRTR, splevel))
-    {
+    if (!pay_for_spell(plyr_idx, PwrK_SPEEDCRTR, splevel)) {
         return Lb_FAIL;
     }
     thing_play_sample(thing, 38, 100, 0, 3, 0, 2, 256);
@@ -693,12 +751,10 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 
 TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long allow_flags)
 {
+    // TODO SPELL_CAST remove the check below
     if (!can_cast_spell_at_xy(plyr_idx, PwrK_CALL2ARMS, stl_x, stl_y, allow_flags))
     {
-        // Make a rejection sound
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
-        return Lb_OK;
+        return Lb_FAIL;
     }
     return _DK_magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
 }
@@ -767,60 +823,87 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
  * @param stl_y The casting subtile, Y coord.
  * @return
  */
-TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwmodel,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing)
 {
-    if (!is_power_available(plyr_idx, spl_idx)) {
+    TbResult ret;
+    ret = Lb_OK;
+    if (!is_power_available(plyr_idx, pwmodel)) {
         // It shouldn't be possible to select unavailable spell
-        WARNLOG("Player %d tried to cast unavailable spell %d",(int)plyr_idx,(int)spl_idx);
-        return Lb_FAIL;
+        WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwmodel));
+        ret = Lb_FAIL;
     }
     if (!thing_exists(thing)) {
-        WARNLOG("Player %d tried to cast spell %d on nonexisting thing",(int)plyr_idx,(int)spl_idx);
-        return Lb_FAIL;
+        WARNLOG("Player %d tried to cast %s on non-existing thing",(int)plyr_idx,power_code_name(pwmodel));
+        ret = Lb_FAIL;
     }
+    if (ret == Lb_OK)
     {
-        struct SpellData *pwrdata;
-        pwrdata = get_power_data(spl_idx);
-        if ((thing->owner != plyr_idx) && (!pwrdata->can_cast_on_enemy)) {
-            return Lb_FAIL;
+        if (!can_cast_spell_on_creature(plyr_idx, thing, pwmodel)) {
+            WARNLOG("Player %d tried to cast %s on a thing which can't be targeted",(int)plyr_idx,power_code_name(pwmodel));
+            ret = Lb_FAIL;
         }
     }
-    if (splevel > MAGIC_OVERCHARGE_LEVELS) {
-        splevel = MAGIC_OVERCHARGE_LEVELS;
-    }
-    switch (spl_idx)
+    if (ret == Lb_OK)
     {
-    case PwrK_HAND:
-        //TODO check if we should use magic_use_power_hand()
-        if (!place_thing_in_power_hand(thing, plyr_idx))
-            return Lb_FAIL;
-        return Lb_SUCCESS;
-    case PwrK_HEALCRTR:
-        return magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, splevel);
-    case PwrK_SPEEDCRTR:
-        return magic_use_power_speed(plyr_idx, thing, stl_x, stl_y, splevel);
-    case PwrK_PROTECT:
-        return magic_use_power_armour(plyr_idx, thing, stl_x, stl_y, splevel);
-    case PwrK_CONCEAL:
-        return magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, splevel);
-    case PwrK_DISEASE:
-        return magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, splevel);
-    case PwrK_CHICKEN:
-        return magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel);
-    case PwrK_SLAP:
-        return magic_use_power_slap_thing(plyr_idx, thing);
-    case PwrK_POSSESS:
-        return magic_use_power_possess_thing(plyr_idx, thing);
-    case PwrK_CALL2ARMS:
-        return magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, CastAllow_Normal);
-    case PwrK_LIGHTNING:
-        return magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
-    default:
-        ERRORLOG("Power not supported here: %d", (int)spl_idx);
-        break;
+        if (splevel > MAGIC_OVERCHARGE_LEVELS) {
+            WARNLOG("Overcharge level %d out of range, adjusting",(int)splevel);
+            splevel = MAGIC_OVERCHARGE_LEVELS;
+        }
     }
-    return Lb_FAIL;
+    if (ret == Lb_OK)
+    {
+        switch (pwmodel)
+        {
+        case PwrK_HAND:
+            //TODO check if we should use magic_use_power_hand()
+            if (place_thing_in_power_hand(thing, plyr_idx))
+                ret = Lb_SUCCESS;
+            else
+                ret = Lb_FAIL;
+            break;
+        case PwrK_HEALCRTR:
+            ret = magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, splevel);
+            break;
+        case PwrK_SPEEDCRTR:
+            ret = magic_use_power_speed(plyr_idx, thing, stl_x, stl_y, splevel);
+            break;
+        case PwrK_PROTECT:
+            ret = magic_use_power_armour(plyr_idx, thing, stl_x, stl_y, splevel);
+            break;
+        case PwrK_CONCEAL:
+            ret = magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, splevel);
+            break;
+        case PwrK_DISEASE:
+            ret = magic_use_power_disease(plyr_idx, thing, stl_x, stl_y, splevel);
+            break;
+        case PwrK_CHICKEN:
+            ret = magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel);
+            break;
+        case PwrK_SLAP:
+            ret = magic_use_power_slap_thing(plyr_idx, thing);
+            break;
+        case PwrK_POSSESS:
+            ret = magic_use_power_possess_thing(plyr_idx, thing);
+            break;
+        case PwrK_CALL2ARMS:
+            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, CastAllow_Normal);
+            break;
+        case PwrK_LIGHTNING:
+            ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
+            break;
+        default:
+            ERRORLOG("Power not supported here: %d", (int)pwmodel);
+            ret = Lb_FAIL;
+            break;
+        }
+    }
+    if (ret == Lb_FAIL) {
+        // Make a rejection sound
+        if (is_my_player_number(plyr_idx))
+            play_non_3d_sample(119);
+    }
+    return ret;
 }
 
 /**

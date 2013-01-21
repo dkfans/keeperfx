@@ -69,6 +69,7 @@
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "power_hand.h"
+#include "magic.h"
 #include "player_instances.h"
 #include "player_utils.h"
 #include "gui_frontmenu.h"
@@ -723,27 +724,23 @@ void demo(void)
 
 short game_is_busy_doing_gui(void)
 {
-  struct PlayerInfo *player;
-  struct SpellData *pwrdata;
-  struct Thing *thing;
-  long spl_idx;
-  if (!busy_doing_gui)
-    return false;
-  if (battle_creature_over <= 0)
-    return true;
-  player = get_my_player();
-  spl_idx = -1;
-  if (player->work_state < PLAYER_STATES_COUNT)
-    spl_idx = player_state_to_spell[player->work_state];
-  pwrdata = get_power_data(spl_idx);
-  if (!power_data_is_invalid(pwrdata))
-  {
-    if (!pwrdata->flag_19)
+    if (!busy_doing_gui)
+      return false;
+    if (battle_creature_over <= 0)
       return true;
-    thing = thing_get(battle_creature_over);
-    return  (thing->owner != player->id_number) && (!pwrdata->can_cast_on_enemy);
-  }
-  return false;
+    struct PlayerInfo *player;
+    player = get_my_player();
+    PowerKind spl_id;
+    spl_id = 0;
+    if (player->work_state < PLAYER_STATES_COUNT)
+      spl_id = player_state_to_spell[player->work_state];
+    {
+        struct Thing *thing;
+        thing = thing_get(battle_creature_over);
+        if (can_cast_spell_on_creature(player->id_number, thing, spl_id))
+            return true;
+    }
+    return false;
 }
 
 TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)

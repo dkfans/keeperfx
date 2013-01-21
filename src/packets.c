@@ -906,6 +906,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           if (player->field_454 == 3)
           {
             if (player->thing_under_hand != 0) {
+              // TODO SPELL_CAST it's not a good idea to use this directly; change to magic_use_available_power_on_*()
               magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
             }
           }
@@ -1283,8 +1284,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         thing = get_creature_near_and_owned_by(x, y, plyr_idx);
         if (thing_is_invalid(thing))
         {
-          player->thing_under_hand = 0;
-          break;
+            player->thing_under_hand = 0;
+            break;
         }
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)

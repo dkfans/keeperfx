@@ -116,6 +116,53 @@ enum ShotModelFlags {
     ShMF_Navigable  = 0x0002,
 };
 
+enum PowerCanCastFlags {
+    /** Allow casting the spell on enemy creatures kept in custody. */
+    PwCast_CustodyCrtrs  = 0x0001,
+    /** Allow casting the spell on owned creatures not captured by enemy. */
+    PwCast_OwnedCrtrs    = 0x0002,
+    /** Allow casting the spell on creatures of allied players. */
+    PwCast_AlliedCrtrs   = 0x0004,
+    /** Allow casting the spell on creatures of enemy players. */
+    PwCast_EnemyCrtrs    = 0x0008,
+
+    /** Allow casting the spell on neutral walkable tiles - path, water, lava, rooms owned by neutrals. */
+    PwCast_NeutrlGround  = 0x00000010,
+    /** Allow casting the spell on owned ground - rooms floor and claimed ground. */
+    PwCast_OwnedGround   = 0x00000020,
+    /** Allow casting the spell on allied players ground - rooms floor and claimed ground. */
+    PwCast_AlliedGround  = 0x00000040,
+    /** Allow casting the spell on enemy players ground - rooms floor and claimed ground. */
+    PwCast_EnemyGround   = 0x00000080,
+
+    /** Allow casting the spell on neutral tall slabs - earth, wall, gold. */
+    PwCast_NeutrlWall    = 0x00000100,
+    /** Allow casting the spell on owned tall slabs - own fortified wall. */
+    PwCast_OwnedWall     = 0x00000200,
+    /** Allow casting the spell on tall slabs owned by allies - their fortified walls. */
+    PwCast_AlliedWall    = 0x00000400,
+    /** Allow casting the spell on tall slabs owned by enemies - their fortified walls. */
+    PwCast_EnemyWall     = 0x00000800,
+
+    /** Allow casting the spell on owned food things (chickens). */
+    PwCast_OwnedFood     = 0x00001000,
+    /** Allow casting the spell on owned and neutral gold things (piles,pots etc.). */
+    PwCast_OwnedGold     = 0x00002000,
+    /** Allow casting the spell on owned spell books. */
+    PwCast_OwnedSpell    = 0x00004000,
+    /** Allow casting the spell on owned deployed trap things. */
+    PwCast_OwnedTraps    = 0x01000000,
+    /** Allow casting the spell on un-revealed tiles. */
+    PwCast_Unrevealed    = 0x10000000,
+    /** Allow casting the spell on temporarily revealed tiles (with SOE spell). */
+    PwCast_RevealedTemp  = 0x20000000,
+    /** There are no map-related conditions - allow casting the spell anywhere on map. */
+    PwCast_Anywhere      = 0x80000000,
+};
+#define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs)
+#define PwCast_AllGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyGround)
+#define PwCast_AllWall (PwCast_NeutrlWall|PwCast_OwnedWall|PwCast_AlliedWall|PwCast_EnemyWall)
+
 struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
@@ -256,8 +303,7 @@ struct SpellData {
       short field_11;
       short field_13;
       Expand_Check_Func field_15;
-      unsigned char flag_19;
-      unsigned char can_cast_on_enemy;
+      unsigned long can_cast_flags;
 };
 
 #pragma pack()
@@ -265,7 +311,7 @@ struct SpellData {
 DLLIMPORT struct ShotStats _DK_shot_stats[30];
 #define shot_stats _DK_shot_stats
 DLLIMPORT struct SpellInfo _DK_spell_info[];
-DLLIMPORT struct SpellData _DK_spell_data[POWER_TYPES_COUNT+1];
+//DLLIMPORT struct SpellData _DK_spell_data[POWER_TYPES_COUNT+1];
 /******************************************************************************/
 extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];
