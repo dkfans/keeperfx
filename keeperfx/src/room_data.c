@@ -1775,7 +1775,7 @@ TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct R
     //return _DK_find_first_valid_position_for_thing_in_room(thing, room, pos);
     if (!room_exists(room))
     {
-        ERRORLOG("Tried to find position in nonexisting room");
+        ERRORLOG("Tried to find position in non-existing room");
         pos->x.val = subtile_coord_center(map_subtiles_x/2);
         pos->y.val = subtile_coord_center(map_subtiles_y/2);
         pos->z.val = subtile_coord(1,0);

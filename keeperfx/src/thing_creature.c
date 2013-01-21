@@ -1026,7 +1026,7 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
         mapblk = get_map_block_at(stl_x,stl_y);
         if (!map_block_invalid(mapblk))
         {
-            if ((mapblk->flags & MapFlg_Unkn10) == 0)
+            if ((mapblk->flags & MapFlg_IsTall) == 0)
             {
                 thing = find_gold_pile_or_chicken_laying_on_mapblk(mapblk);
                 if (!thing_is_invalid(thing))
@@ -1596,7 +1596,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
       died_in_battle = 0;
     }
     if (!thing_exists(thing)) {
-        ERRORLOG("Tried to kill nonexisting thing!");
+        ERRORLOG("Tried to kill non-existing thing!");
         return false;
     }
     if (!is_neutral_thing(thing)) {

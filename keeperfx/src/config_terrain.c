@@ -136,8 +136,8 @@ struct SlabAttr slab_attrs[] = {
   {0, 4, 8, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
   {0, 4, 2,         0, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0}, // [50]
   {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_Obstacle,  1, 1, 1, 1, 0, 3},
-  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 1, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  1, 1, 1, 1, 0, 0},
+  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 1, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_Obstacle,  1, 1, 1, 1, 0, 0},
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0}, // [55]
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},

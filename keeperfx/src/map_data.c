@@ -263,14 +263,8 @@ TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
 {
     const struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    if ((mapblk->flags & MapFlg_Unkn10) == 0)
+    if ((mapblk->flags & MapFlg_IsTall) == 0)
     {
-        /* This is original condition that was in this function.
-         * I'm not sure what the author ment, but it's obviously wrong.
-        if ((plyr_idx == 0)  ||  !map_block_revealed(mapblk, 0))
-            if (!map_pos_is_lava(stl_x, stl_y))
-                return true;
-        */
         if (map_block_revealed(mapblk, plyr_idx) && !map_pos_is_lava(stl_x, stl_y))
             return true;
     }

@@ -2277,7 +2277,7 @@ long get_navigation_colour(long stl_x, long stl_y)
     {
         return get_navigation_colour_for_door(stl_x, stl_y);
     }
-    if ((mapblk->flags & MapFlg_Unkn10) != 0)
+    if ((mapblk->flags & MapFlg_IsTall) != 0)
     {
         return 0x0F;
     }
