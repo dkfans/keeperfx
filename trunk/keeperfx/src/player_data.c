@@ -50,7 +50,7 @@ struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
 {
     if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
         return &game.players[plyr_idx];
-    ERRORMSG("%s: Tried to get nonexisting player %ld!",func_name,plyr_idx);
+    ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
     return INVALID_PLAYER;
 }
 
@@ -145,7 +145,7 @@ TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx
 {
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
     {
-        WARNLOG("Tried to get nonexisting player!");
+        WARNLOG("Tried to get non-existing player!");
         return false;
     }
     return ((player->allied_players & (1<<ally_idx)) != 0);

@@ -2758,25 +2758,22 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     spl_id = -1;
     if (wrkstate < PLAYER_STATES_COUNT)
       spl_id = player_state_to_spell[wrkstate];
-    SYNCDBG(5,"Starting for spell %ld",spl_id);
+    SYNCDBG(5,"Starting for spell %d",(int)spl_id);
     if (spl_id <= 0)
     {
-      set_pointer_graphic(0);
-      return;
+        set_pointer_graphic(0);
+        return;
     }
     player = get_my_player();
     thing = thing_get(tng_idx);
     allow_cast = false;
     pwrdata = get_power_data(spl_id);
-    if ((tng_idx == 0) || (thing->owner == player->id_number) || (pwrdata->can_cast_on_enemy != 0))
+    if (can_cast_spell_at_xy(player->id_number, spl_id, stl_x, stl_y, 0))
     {
-      if (can_cast_spell_at_xy(player->id_number, spl_id, stl_x, stl_y, 0))
-      {
         if ((tng_idx == 0) || can_cast_spell_on_creature(player->id_number, thing, spl_id))
         {
           allow_cast = true;
         }
-      }
     }
     if (!allow_cast)
     {

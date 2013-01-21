@@ -700,7 +700,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     thing = find_hero_gate_of_number(-i);
     if (thing_is_invalid(thing))
     {
-      ERRORMSG("%s(line %lu): Nonexisting Hero Door, no %d",func_name,ln_num, -i);
+      ERRORMSG("%s(line %lu): Non-existing Hero Door, no %d",func_name,ln_num, -i);
       *location = MLoc_NONE;
       return false;
     }
@@ -711,7 +711,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
   {
     if (!action_point_exists_number(i))
     {
-      ERRORMSG("%s(line %lu): Nonexisting Action Point, no %d",func_name,ln_num, i);
+      ERRORMSG("%s(line %lu): Non-existing Action Point, no %d",func_name,ln_num, i);
       *location = MLoc_NONE;
       return false;
     }
@@ -1235,7 +1235,7 @@ void command_if_action_point(long apt_num, char *plrname)
     apt_id = action_point_number_to_index(apt_num);
     if (!action_point_exists_idx(apt_id))
     {
-        SCRPTERRLOG("Nonexisting Action Point, no %d", apt_num);
+        SCRPTERRLOG("Non-existing Action Point, no %d", apt_num);
         return;
     }
     // Recognize player
@@ -1486,7 +1486,7 @@ void command_reset_action_point(long apt_num)
   apt_idx = action_point_number_to_index(apt_num);
   if (!action_point_exists_idx(apt_idx))
   {
-    SCRPTERRLOG("Nonexisting Action Point, no %d", apt_num);
+    SCRPTERRLOG("Non-existing Action Point, no %d", apt_num);
     return;
   }
   command_add_value(Cmd_RESET_ACTION_POINT, 0, apt_idx, 0, 0);
@@ -2501,7 +2501,7 @@ long script_support_create_thing_at_action_point(long apt_idx, unsigned char tng
     apt = action_point_get(apt_idx);
     if (!action_point_exists(apt))
     {
-        ERRORLOG("Attempt to create thing at nonexisting action point %d",(int)apt_idx);
+        ERRORLOG("Attempt to create thing at non-existing action point %d",(int)apt_idx);
         return 0;
     }
 

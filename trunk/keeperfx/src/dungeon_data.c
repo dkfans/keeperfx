@@ -35,7 +35,7 @@ struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name)
     plyr_num = player->id_number;
     if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORMSG("%s: Tried to get players %d nonexisting dungeon %d!",func_name,(int)plyr_idx,(int)plyr_num);
+        ERRORMSG("%s: Tried to get players %d non-existing dungeon %d!",func_name,(int)plyr_idx,(int)plyr_num);
         return INVALID_DUNGEON;
     }
     if (plyr_num != player->id_number)
@@ -51,7 +51,7 @@ struct Dungeon *get_players_dungeon_ptr(const struct PlayerInfo *player,const ch
     plyr_num = player->id_number;
     if (player_invalid(player) || (plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORLOG("%s: Tried to get nonexisting dungeon %ld!",func_name,(long)plyr_num);
+        ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
         return INVALID_DUNGEON;
     }
     return &(game.dungeon[plyr_num]);
@@ -61,7 +61,7 @@ struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name)
 {
     if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
-        ERRORLOG("%s: Tried to get nonexisting dungeon %ld!",func_name,(long)plyr_num);
+        ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
         return INVALID_DUNGEON;
     }
     return &(game.dungeon[plyr_num]);

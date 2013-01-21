@@ -1386,7 +1386,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Should never happen - only existing thing shall be in list
         if (!thing_exists(thing))
         {
-            WARNLOG("Jump to nonexisting thing");
+            WARNLOG("Jump to non-existing thing");
             break;
         }
         // Per thing processing block

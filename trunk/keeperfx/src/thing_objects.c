@@ -410,6 +410,15 @@ void destroy_object(struct Thing *thing)
     }
 }
 
+TbBool thing_is_object(const struct Thing *thing)
+{
+  if (thing_is_invalid(thing))
+    return false;
+  if (thing->class_id != TCls_Object)
+    return false;
+  return true;
+}
+
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
   unsigned int tmodel;
@@ -811,7 +820,7 @@ TngUpdateRet object_update_power_lightning(struct Thing *thing)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
-            if ((mapblk->flags & MapFlg_Unkn10) == 0)
+            if ((mapblk->flags & MapFlg_IsTall) == 0)
             {
                 pos.z.val = get_floor_height_at(&pos) + 128;
                 create_effect_element(&pos, lightning_spangles[thing->owner], thing->owner);

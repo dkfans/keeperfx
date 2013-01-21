@@ -82,6 +82,7 @@ DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 void destroy_object(struct Thing *thing);
 TngUpdateRet update_object(struct Thing *thing);
+TbBool thing_is_object(const struct Thing *thing);
 
 struct Objects *get_objects_data_for_thing(struct Thing *thing);
 struct Objects *get_objects_data(unsigned int tmodel);
@@ -106,6 +107,7 @@ TbBool object_is_hero_gate(const struct Thing *thing);
 TbBool object_is_mature_food(const struct Thing *thing);
 TbBool object_is_gold(const struct Thing *thing);
 TbBool object_is_gold_pile(const struct Thing *thing);
+TbBool object_is_gold_hoard(const struct Thing *thing);
 TbBool object_is_guard_flag(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);

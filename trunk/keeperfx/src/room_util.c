@@ -197,7 +197,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, long rslb_num)
     rslb = get_slabmap_direct(rslb_num);
     if (slabmap_block_invalid(rslb))
     {
-        ERRORLOG("Nonexisting slab %d.",(int)rslb_num);
+        ERRORLOG("Non-existing slab %d.",(int)rslb_num);
         return;
     }
     // If the slab to remove is first in room slabs list - it's simple

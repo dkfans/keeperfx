@@ -129,7 +129,7 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
   i = storage_index_for_bonus_level(bn_lvnum);
   if (i < 0)
   {
-      WARNLOG("Can't set state of nonexisting bonus level %d.",(int)bn_lvnum);
+      WARNLOG("Can't set state of non-existing bonus level %d.",(int)bn_lvnum);
       return false;
   }
   n = i/8;
