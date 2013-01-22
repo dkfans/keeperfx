@@ -458,7 +458,7 @@ void process_pointer_graphic(void)
               spl_id = player_state_to_spell[player->work_state];
           thing = thing_get(battle_creature_over);
           TRACE_THING(thing);
-          if (can_cast_spell_on_creature(player->id_number, thing, spl_id))
+          if (can_cast_spell_on_thing(player->id_number, thing, spl_id))
           {
               draw_spell_cursor(player->work_state, battle_creature_over,
                   thing->mappos.x.stl.num, thing->mappos.y.stl.num);
