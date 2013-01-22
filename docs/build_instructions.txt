@@ -4,7 +4,9 @@ TOC
 1. Downloading the code repository
 2. Compiling under Windows
 3. Cross-compiling on Linux host
-4. Make command targets
+4. Building additional files
+5. Building a package
+6. Make command targets summary
 
 1. Downloading the code repository
 
@@ -83,13 +85,39 @@ If you'll make the script working, you can easily create your own "nightly build
 site, which will automatically build KeeperFX releases. Just use CRON to start the
 script every day, and it will automatically build and publish the package.
 
-4. Make command targets
+4. Building additional files
+
+Besides the executable file, build system in KeeperFX can also generate other files
+used by the game. The following make commands can be used for this:
+"mingw32-make pkg-languages" - generate text strings DAT files from PO/POT translation sources
+"mingw32-make pkg-gfx" - generate graphics DAT/TAB/RAW/PAL files from PNG bitmaps
+
+Note that "mingw32-make pkg-gfx" requires access to libPNG library. Also, the source PNG files
+used to generate DAT/TAB/RAW/PAL files are not kept on SVN repo - you must download
+them separately and place in "gfx" folder. Download link is on the site:
+http://keeper.lubie.org/html/dk_keeperfx_devel.php
+
+5. Building a package
+
+There is one more very handy function of the build system. It places all the files
+which were built into correct folders (as in the release) and them compresses them into
+a single archive file, which can be easily published as a KeeperFX patch.
+
+The command is "mingw32-make package". It will compress binaries and other files (scripts,
+config files, DAT files) into archive which can be released as a patch. This requires 7-zip
+to be installed on the host system.
+
+Making package will trigger automatic build of language files, but it won't trigger building
+any executables or graphics files.
+
+6. Make command targets summary
 
 The following targets can be used for make:
 standard - build binaries for 'standard release' of KeeperFX
 heavylog - build binaries for 'heavylog release' of KeeperFX
-package - compress binaries and other files (scripts, config files)
-     into archive which can be released as a patch; requires 7-zip
+pkg-languages - generate text strings DAT files from PO/POT translation sources
+pkg-gfx - generate graphics DAT/TAB/RAW/PAL files from PNG bitmaps
+package - compress binaries and other files into 7z archive
 all - just an alias for 'standard'
 clean - removes files created during previous builds
 
