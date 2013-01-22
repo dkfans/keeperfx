@@ -932,7 +932,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         } else
         {
           if (player->field_454 == 3) {
-              magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, CastAllow_Normal);
+              magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, PwCast_None);
           }
           player->field_4AF = 0;
           unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -1013,7 +1013,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, i, stl_x, stl_y, CastAllow_Normal);
+            magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, i, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1021,7 +1021,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, i, stl_x, stl_y, CastAllow_Normal);
+            magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, i, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1029,7 +1029,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, i, stl_x, stl_y, CastAllow_Normal);
+            magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, i, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1042,7 +1042,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             player->thing_under_hand = thing->index;
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, CastAllow_Normal);
+            magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1204,7 +1204,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, i, stl_x, stl_y, CastAllow_Normal);
+            magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, i, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1301,7 +1301,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_CreateDigger:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, 0, stl_x, stl_y, CastAllow_Normal);
+            magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, 0, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
@@ -1309,7 +1309,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             i = get_power_overcharge_level(player);
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_DESTRWALLS, i, stl_x, stl_y, CastAllow_Normal);
+            magic_use_available_power_on_subtile(plyr_idx, PwrK_DESTRWALLS, i, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;

@@ -737,7 +737,7 @@ short game_is_busy_doing_gui(void)
     {
         struct Thing *thing;
         thing = thing_get(battle_creature_over);
-        if (can_cast_spell_on_creature(player->id_number, thing, spl_id))
+        if (can_cast_spell_on_thing(player->id_number, thing, spl_id))
             return true;
     }
     return false;

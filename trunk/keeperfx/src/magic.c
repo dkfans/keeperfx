@@ -41,6 +41,7 @@
 #include "creature_states.h"
 #include "creature_states_lair.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "config_magic.h"
 #include "gui_soundmsgs.h"
 #include "room_jobs.h"
@@ -77,7 +78,15 @@ DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long splevel);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwmodel);
 /******************************************************************************/
-TbBool can_cast_spell_on_creature(PlayerNumber plyr_idx, struct Thing *thing, PowerKind pwmodel)
+/**
+ * Returns if a spell can be casted on specific thing.
+ * Originally was can_cast_spell_on_creature().
+ * @param plyr_idx
+ * @param thing
+ * @param pwmodel
+ * @return
+ */
+TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, struct Thing *thing, PowerKind pwmodel)
 {
     //return _DK_can_cast_spell_on_creature(plyr_idx, thing, pwmodel);
     // Picked up things are immune to spells
@@ -201,93 +210,126 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
   play_creature_sound(thing, CrSnd_SlappedOuch, 3, 0);
 }
 
-TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_idx,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short allow_flags)
+TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
-    struct PlayerInfo *player;
     struct Map *mapblk;
     struct SlabMap *slb;
-    TbBool can_cast;
+    unsigned long can_cast;
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-
-    can_cast = false;
-    switch (spl_idx)
+    struct SpellData *pwrdata;
+    pwrdata = get_power_data(pwmodel);
+    if (power_data_is_invalid(pwrdata))
+        return false;
+    can_cast = pwrdata->can_cast_flags | allow_flags;
+    // Allow casting only on revealed tiles (unless the spell overrides this)
+    if ((can_cast & PwCast_Unrevealed) == 0)
     {
-    default:
-        if ((mapblk->flags & MapFlg_IsTall) == 0)
+        if (!map_block_revealed(mapblk, plyr_idx))
         {
-          can_cast = true;
-        }
-        break;
-    case PwrK_MKDIGGER:
-        if ((mapblk->flags & MapFlg_IsTall) == 0)
-        {
-          if ((slabmap_owner(slb) == plyr_idx) || ((allow_flags & CastAllow_Unowned) != 0))
-          {
-            can_cast = true;
-          }
-        }
-        break;
-    case PwrK_SIGHT:
-        can_cast = true;
-        break;
-    case PwrK_CALL2ARMS:
-        if ((mapblk->flags & MapFlg_IsTall) == 0)
-        {
-          if (map_block_revealed(mapblk, plyr_idx) || ((allow_flags & CastAllow_Unrevealed) != 0))
-          {
-            can_cast = true;
-          }
-        }
-        break;
-    case PwrK_CAVEIN:
-        if ((mapblk->flags & MapFlg_IsTall) == 0)
-        {
-          if (power_sight_explored(stl_x, stl_y, plyr_idx)
-           || map_block_revealed(mapblk, plyr_idx) || ((allow_flags & CastAllow_Unrevealed) != 0))
-          {
-            can_cast = true;
-          }
-        }
-        break;
-    case PwrK_LIGHTNING:
-        if ((mapblk->flags & MapFlg_IsTall) == 0)
-        {
-            if (power_sight_explored(stl_x, stl_y, plyr_idx)
-             || map_block_revealed(mapblk, plyr_idx) || ((allow_flags & CastAllow_Unrevealed) != 0))
-            {
-                player = get_player(plyr_idx);
-                if (player->field_4E3+20 < game.play_gameturn)
-                {
-                  can_cast = true;
-                }
+            // If it's not revealed, we may still accept revealing by SOE spell
+            if ((can_cast & PwCast_RevealedTemp) == 0) {
+                return false;
+            } else
+            if (!power_sight_explored(stl_x, stl_y, plyr_idx)) {
+                return false;
             }
         }
-        break;
-    case PwrK_DISEASE:
-    case PwrK_CHICKEN:
-        if ((slabmap_owner(slb) == plyr_idx) || ((allow_flags & CastAllow_Unowned) != 0))
-        {
-          can_cast = true;
-        }
-        break;
-    case PwrK_DESTRWALLS:
-        if (power_sight_explored(stl_x, stl_y, plyr_idx)
-         || map_block_revealed(mapblk, plyr_idx) || ((allow_flags & CastAllow_Unrevealed) != 0))
-        {
-          if ((mapblk->flags & MapFlg_IsTall) != 0)
-          {
-            if ((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom|MapFlg_Unkn01)) == 0)
-            {
-              if (slb->kind != SlbT_ROCK)
-                can_cast = true;
-            }
-          }
-        }
-        break;
     }
-    return can_cast;
+    if ((can_cast & PwCast_Anywhere) != 0)
+    {
+        // If allowed casting anywhere, we're done
+        return true;
+    }
+    if ((can_cast & PwCast_NeedsDelay) != 0)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        if (game.play_gameturn <= player->field_4E3+20) {
+            return false;
+        }
+    }
+    PlayerNumber slb_owner;
+    slb_owner = slabmap_owner(slb);
+    if ((mapblk->flags & MapFlg_IsTall) != 0)
+    {
+        if ((can_cast & PwCast_Claimable) != 0)
+        {
+            if (((mapblk->flags & (MapFlg_IsDoor|MapFlg_IsRoom|MapFlg_Unkn01)) != 0) || (slb->kind == SlbT_ROCK))
+            {
+                  return false;
+            }
+        }
+        if ((can_cast & PwCast_AllTall) == PwCast_AllTall)
+        {
+            // If allowed all tall slab, we're good
+            return true;
+        }
+        if ((can_cast & PwCast_NeutrlTall) != 0)
+        {
+            if (slb_owner == game.neutral_player_num) {
+                return true;
+            }
+        }
+        if ((can_cast & PwCast_OwnedTall) != 0)
+        {
+            if (slb_owner == plyr_idx) {
+                return true;
+            }
+        }
+        if ((can_cast & PwCast_AlliedTall) != 0)
+        {
+            if ((slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx,slb_owner)) {
+                return true;
+            }
+        }
+        if ((can_cast & PwCast_EnemyTall) != 0)
+        {
+            if (players_are_enemies(plyr_idx,slb_owner)) {
+                return true;
+            }
+        }
+    } else
+    {
+        if ((can_cast & PwCast_Claimable) != 0)
+        {
+            if (slab_kind_is_liquid(slb->kind))
+            {
+                  return false;
+            }
+        }
+        if ((can_cast & PwCast_AllGround) == PwCast_AllGround)
+        {
+            // If allowed all ground slab, we're good
+            return true;
+        }
+        if ((can_cast & PwCast_NeutrlGround) != 0)
+        {
+            if (slb_owner == game.neutral_player_num) {
+                return true;
+            }
+        }
+        if ((can_cast & PwCast_OwnedGround) != 0)
+        {
+            if (slb_owner == plyr_idx) {
+                return true;
+            }
+        }
+        if ((can_cast & PwCast_AlliedGround) != 0)
+        {
+            if ((slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx,slb_owner)) {
+                return true;
+            }
+        }
+        if ((can_cast & PwCast_EnemyGround) != 0)
+        {
+            if (players_are_enemies(plyr_idx,slb_owner)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind spkind, long splevel)
@@ -416,7 +458,7 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
     //_DK_magic_use_power_disease(a1, thing, a3, a4, a5); return Lb_OK;
     // TODO SPELL_CAST remove the check below
     if ( !can_cast_spell_at_xy(plyr_idx, PwrK_DISEASE, stl_x, stl_y, 0)
-      || !can_cast_spell_on_creature(plyr_idx, thing, PwrK_DISEASE) )
+      || !can_cast_spell_on_thing(plyr_idx, thing, PwrK_DISEASE) )
     {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
@@ -839,9 +881,25 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
     }
     if (ret == Lb_OK)
     {
-        if (!can_cast_spell_on_creature(plyr_idx, thing, pwmodel)) {
-            WARNLOG("Player %d tried to cast %s on a thing which can't be targeted",(int)plyr_idx,power_code_name(pwmodel));
-            ret = Lb_FAIL;
+        TbBool cast_at_xy,cast_on_tng;
+        cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, 0);
+        cast_on_tng = can_cast_spell_on_thing(plyr_idx, thing, pwmodel);
+        struct SpellData *pwrdata;
+        pwrdata = get_power_data(pwmodel);
+        if ((pwrdata->can_cast_flags & PwCast_ThingOrMap) != 0)
+        {
+            // Fail only if both functions have failed - one is enough
+            if (!cast_at_xy && !cast_on_tng) {
+                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),cast_at_xy?"a subtile":"a thing");
+                ret = Lb_FAIL;
+            }
+        } else
+        {
+            // Fail if any of the functions has failed - we need both
+            if (!cast_at_xy || !cast_on_tng) {
+                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),cast_at_xy?"a subtile":"a thing");
+                ret = Lb_FAIL;
+            }
         }
     }
     if (ret == Lb_OK)
@@ -887,7 +945,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
             ret = magic_use_power_possess_thing(plyr_idx, thing);
             break;
         case PwrK_CALL2ARMS:
-            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, CastAllow_Normal);
+            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, PwCast_None);
             break;
         case PwrK_LIGHTNING:
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);

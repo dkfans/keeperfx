@@ -2770,7 +2770,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     pwrdata = get_power_data(spl_id);
     if (can_cast_spell_at_xy(player->id_number, spl_id, stl_x, stl_y, 0))
     {
-        if ((tng_idx == 0) || can_cast_spell_on_creature(player->id_number, thing, spl_id))
+        if ((tng_idx == 0) || can_cast_spell_on_thing(player->id_number, thing, spl_id))
         {
           allow_cast = true;
         }
