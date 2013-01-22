@@ -298,7 +298,8 @@ lrdvexer \
 ncastles \
 postanck \
 questfth \
-twinkprs
+twinkprs \
+undedkpr
 
 # load program version
 include version.mk
