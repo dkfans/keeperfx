@@ -258,20 +258,20 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
             return Lb_FAIL;
         return Lb_SUCCESS;
     case GA_UseMkDigger:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, alevel, stl_x, stl_y, CastAllow_Unrevealed);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_UseSlap:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, CastAllow_Unrevealed);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_UsePwrSight:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, alevel, stl_x, stl_y, CastAllow_Unrevealed);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_UsePwrObey:
         return magic_use_available_power_on_level(plyr_idx, PwrK_OBEY, alevel);
     case GA_UsePwrHealCrtr:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_HEALCRTR, alevel, stl_x, stl_y, thing);
     case GA_UsePwrCall2Arms:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, alevel, stl_x, stl_y, CastAllow_Unrevealed);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CALL2ARMS, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_UsePwrCaveIn:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, alevel, stl_x, stl_y, CastAllow_Unrevealed);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_CAVEIN, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_StopPwrCall2Arms:
         turn_off_call_to_arms(plyr_idx);
         return Lb_SUCCESS;
@@ -321,7 +321,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
         return i;
     case GA_UsePwrLightning:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, alevel, stl_x, stl_y, CastAllow_Normal);
+        return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, alevel, stl_x, stl_y, PwCast_None);
     case GA_UsePwrSpeedUp:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_SPEEDCRTR, alevel, stl_x, stl_y, thing);
