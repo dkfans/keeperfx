@@ -1,0 +1,204 @@
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+REM Undead Keeper
+REM Arbor Heights
+REM Made by Duke Ragereaver
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+QUICK_OBJECTIVE(0,"This fortress is the last bastion of the Heroes. Some people claim its construction took serveral hunderd years, so perhaps you can demolish it in a worldrecord. Be alert though, I can sense something evil within those walls.",PLAYER0)
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+START_MONEY(PLAYER0,25000)
+
+IF(PLAYER0,PRISON >= 16)
+    NEXT_COMMAND_REUSABLE
+    ROOM_AVAILABLE(PLAYER0,PRISON,0,0)
+ENDIF
+
+IF(PLAYER0,PRISON < 16)
+    NEXT_COMMAND_REUSABLE
+    ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
+ENDIF
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+SET_GENERATE_SPEED(500)
+ADD_CREATURE_TO_POOL(SKELETON,20)
+ADD_CREATURE_TO_POOL(VAMPIRE,1)
+ADD_CREATURE_TO_POOL(GHOST,10)
+
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+MAX_CREATURES(PLAYER0,20)
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+
+CREATURE_AVAILABLE(PLAYER0,SKELETON,1,1)
+CREATURE_AVAILABLE(PLAYER0,VAMPIRE,1,1)
+CREATURE_AVAILABLE(PLAYER0,GHOST,1,1)
+
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,0)
+ROOM_AVAILABLE(PLAYER0,TREASURE,1,1)
+ROOM_AVAILABLE(PLAYER0,RESEARCH,1,1)
+ROOM_AVAILABLE(PLAYER0,WORKSHOP,1,0)
+ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
+ROOM_AVAILABLE(PLAYER0,GRAVEYARD,1,0)
+ROOM_AVAILABLE(PLAYER0,PRISON,1,0)
+ROOM_AVAILABLE(PLAYER0,TEMPLE,1,0)
+ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+
+DOOR_AVAILABLE(PLAYER0,BRACED,1,0)
+DOOR_AVAILABLE(PLAYER0,STEEL,1,0)
+DOOR_AVAILABLE(PLAYER0,MAGIC,1,0)
+
+TRAP_AVAILABLE(PLAYER0,ALARM,1,0)
+TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
+TRAP_AVAILABLE(PLAYER0,LIGHTNING,1,0)
+TRAP_AVAILABLE(PLAYER0,WORD_OF_POWER,1,0)
+
+
+REM --------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE_PARTY(RAIDERS)
+    ADD_TO_PARTY(RAIDERS,BARBARIAN,4,400,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(RAIDERS,ARCHER,5,300,STEAL_SPELLS,0)
+    ADD_TO_PARTY(RAIDERS,DWARFA,4,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RAIDERS,THIEF,4,200,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(HOLY)
+    ADD_TO_PARTY(HOLY,MONK,8,500,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(HOLY,WIZARD,9,400,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(HOLY,SAMURAI,9,500,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(HOLY,SAMURAI,9,500,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(HOLY,MONK,8,200,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(HOLY,MONK,8,200,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(RPG)
+    ADD_TO_PARTY(RPG,DWARFA,8,1000,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RPG,WIZARD,10,500,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RPG,MONK,10,400,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RPG,BARBARIAN,9,550,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RPG,ARCHER,9,350,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(DEFENDERS)
+    ADD_TO_PARTY(DEFENDERS,ARCHER,8,300,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(DEFENDERS,BARBARIAN,9,500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(DEFENDERS,ARCHER,8,300,DEFEND_PARTY,0)
+    ADD_TO_PARTY(DEFENDERS,DWARFA,7,200,STEAL_GOLD,0)
+    ADD_TO_PARTY(DEFENDERS,SAMURAI,9,200,DEFEND_PARTY,0)
+    ADD_TO_PARTY(DEFENDERS,SAMURAI,9,200,DEFEND_PARTY,0)
+
+CREATE_PARTY(BRUTES)
+    ADD_TO_PARTY(BRUTES,GIANT,9,700,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(BRUTES,GIANTA,9,500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(BRUTES,BARBARIAN,9,500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(BRUTES,BARBARIAN,9,600,ATTACK_DUNGEON_HEART,0)
+
+CREATE_PARTY(ELITE)
+    ADD_TO_PARTY(ELITE,SAMURAI,9,1000,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(ELITE,WIZARD,9,1500,STEAL_SPELLS,0)
+    ADD_TO_PARTY(ELITE,BARBARIAN,8,1000,STEAL_GOLD,0)
+    ADD_TO_PARTY(ELITE,GIANT,7,1000,STEAL_SPELLS,0)
+    ADD_TO_PARTY(ELITE,GIANT,7,1000,DEFEND_PARTY,0)
+    ADD_TO_PARTY(ELITE,SAMURAI,8,1000,DEFEND_PARTY,0)
+
+CREATE_PARTY(MOSTLY_HARMLESS)
+    ADD_TO_PARTY(MOSTLY_HARMLESS,WIZARD,10,1500,DEFEND_PARTY,0)
+    ADD_TO_PARTY(MOSTLY_HARMLESS,AVATAR,10,10000,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(MOSTLY_HARMLESS,WIZARD,10,1500,DEFEND_PARTY,0)
+    ADD_TO_PARTY(MOSTLY_HARMLESS,MONK,10,1200,DEFEND_PARTY,0)
+    ADD_TO_PARTY(MOSTLY_HARMLESS,WIZARD,10,1400,DEFEND_PARTY,0)
+    ADD_TO_PARTY(MOSTLY_HARMLESS,GIANT,10,1200,DEFEND_PARTY,0)
+    ADD_TO_PARTY(MOSTLY_HARMLESS,SAMURAI,10,1500,DEFEND_PARTY,0)
+
+REM --------------------------------------------------------------------------------------------------------------------------------------------
+
+IF_ACTION_POINT(1,PLAYER0)
+    ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,RAIDERS,-1,DUNGEON_HEART,0,3,250)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_IMP == 1)
+QUICK_OBJECTIVE(1,"The Wizards of this realm have robbed you of your spells. They haven't obvious ever heard of the saying ''What goes around comes around''! Expect some reprisals for doing that though. ",PLAYER0)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_CALL_TO_ARMS == 1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,RAIDERS,-1,1)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_HOLD_AUDIENCE == 1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,RAIDERS,-1,1)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_PROTECT == 1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,RAIDERS,-1,1)
+ENDIF
+
+IF_AVAILABLE(PLAYER0,POWER_SPEED == 1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,HOLY,-2,1)
+ENDIF
+
+REM --------------------------------------------------------------------------------------------------------------------------------------------
+
+
+IF_ACTION_POINT(5,PLAYER0)
+    SET_TIMER(PLAYER_GOOD,TIMER0)
+    SET_FLAG(PLAYER_GOOD,FLAG1,1)
+ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,-7,8,7,500)
+ENDIF
+
+IF(PLAYER_GOOD,FLAG1 == 1)
+    IF(PLAYER_GOOD,TIMER0 >= 500)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-3,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,RPG,-4,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,RPG,-2,1)
+    ENDIF
+ENDIF
+
+IF(PLAYER_GOOD,FLAG1 == 1)
+    IF(PLAYER_GOOD,TIMER0 >= 800)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-5,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ELITE,-6,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,BRUTES,7,1)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,BRUTES,6,1)
+    ENDIF
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DEFENDERS,3,1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DEFENDERS,4,1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,HOLY,-2,1)
+ENDIF
+
+IF(PLAYER_GOOD,FLAG1 == 1)
+    IF(PLAYER_GOOD,TIMER0 >= 1250)
+        QUICK_OBJECTIVE(2,"The Avatar is present aswel! May I suggest we capture, torture him and listen to the wonderful sound of bones being shattered?",PLAYER0)
+        ADD_PARTY_TO_LEVEL(PLAYER_GOOD,MOSTLY_HARMLESS,-7,1)
+        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,DWARFA,-7,8,7,1000)
+    ENDIF
+ENDIF
+
+REM --------------------------------------------------------------------------------------------------------------------------------------------
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+        IF(PLAYER_GOOD,AVATAR == 0)
+QUICK_OBJECTIVE(3,"Ahh, now this is what I like to call absolute CARNAGE! Can we move on, please? This place has gone too corpsy to my liking. ",PLAYER0)
+            WIN_GAME
+        ENDIF
+    ENDIF
+ENDIF
