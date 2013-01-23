@@ -497,7 +497,7 @@ short move_to_position(struct Thing *thing)
             cntstat = thing->continue_state;
             internal_set_thing_state(thing, cntstat);
             set_start_state(thing);
-            SYNCDBG(8,"Couldn't move %s to place required for state %d; reset to state %d",thing_model_name(thing),(int)cntstat,(int)thing->active_state);
+            SYNCDBG(8,"Couldn't move %s to place required for state %s; reset to state %s",thing_model_name(thing),creature_state_code_name(cntstat),creatrtng_actstate_name(thing));
             return CrStRet_ResetOk;
         }
     }
