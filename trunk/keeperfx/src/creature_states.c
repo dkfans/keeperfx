@@ -553,6 +553,23 @@ struct StateInfo *get_thing_state_info_num(CrtrStateId state_id)
     return &states[state_id];
 }
 
+CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = thing->active_state;
+    if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
+        i = thing->continue_state;
+    if (i == CrSt_CreatureSlapCowers)
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->active_state_bkp;
+        if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
+            i = cctrl->continue_state_bkp;
+    }
+    return i;
+}
+
 CrtrStateId get_creature_state_besides_move(const struct Thing *thing)
 {
     long i;
@@ -672,9 +689,7 @@ TbBool creature_is_being_dropped(const struct Thing *thing)
 TbBool creature_is_being_tortured(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_Torturing) || (i == CrSt_AtTortureRoom))
         return true;
     return false;
@@ -683,9 +698,7 @@ TbBool creature_is_being_tortured(const struct Thing *thing)
 TbBool creature_is_being_sacrificed(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_CreatureSacrifice) || (i == CrSt_CreatureBeingSacrificed))
         return true;
     return false;
@@ -694,9 +707,7 @@ TbBool creature_is_being_sacrificed(const struct Thing *thing)
 TbBool creature_is_kept_in_prison(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_CreatureInPrison) || (i == CrSt_CreatureArrivedAtPrison))
         return true;
     return false;
@@ -705,9 +716,7 @@ TbBool creature_is_kept_in_prison(const struct Thing *thing)
 TbBool creature_is_being_summoned(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_CreatureBeingSummoned))
         return true;
     return false;
@@ -716,9 +725,7 @@ TbBool creature_is_being_summoned(const struct Thing *thing)
 TbBool creature_is_training(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_Training) || (i == CrSt_AtTrainingRoom))
         return true;
     return false;
@@ -727,9 +734,7 @@ TbBool creature_is_training(const struct Thing *thing)
 TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if (states[i].state_type == 10)
         return true;
     return false;
@@ -738,12 +743,8 @@ TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing)
 TbBool creature_is_doing_garden_activity(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_CreatureEat)
-        return true;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
-    if ((i == CrSt_CreatureToGarden) || (i == CrSt_CreatureArrivedAtGarden))
+    i = get_creature_state_besides_interruptions(thing);
+    if ((i == CrSt_CreatureEat) || (i == CrSt_CreatureToGarden) || (i == CrSt_CreatureArrivedAtGarden))
         return true;
     return false;
 }
@@ -751,9 +752,7 @@ TbBool creature_is_doing_garden_activity(const struct Thing *thing)
 TbBool creature_is_scavengering(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_Scavengering) || (i == CrSt_AtScavengerRoom))
         return true;
     return false;
@@ -762,9 +761,7 @@ TbBool creature_is_scavengering(const struct Thing *thing)
 TbBool creature_is_being_scavenged(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if (i == CrSt_CreatureBeingScavenged)
         return true;
     return false;
@@ -773,9 +770,7 @@ TbBool creature_is_being_scavenged(const struct Thing *thing)
 TbBool creature_is_at_alarm(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if (i == CrSt_ArriveAtAlarm)
         return true;
     return false;
@@ -784,9 +779,7 @@ TbBool creature_is_at_alarm(const struct Thing *thing)
 TbBool creature_is_escaping_death(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if (i == CrSt_CreatureEscapingDeath)
         return true;
     return false;
@@ -795,9 +788,7 @@ TbBool creature_is_escaping_death(const struct Thing *thing)
 TbBool creature_is_called_to_arms(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_AlreadyAtCallToArms) || (i == CrSt_ArriveAtCallToArms))
         return true;
     return false;
@@ -805,13 +796,9 @@ TbBool creature_is_called_to_arms(const struct Thing *thing)
 
 TbBool creature_is_taking_salary_activity(const struct Thing *thing)
 {
-    CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_CreatureWantsSalary)
-        return true;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
-    if (i == CrSt_CreatureTakeSalary)
+    CrtrStateId crstate;
+    crstate = get_creature_state_besides_move(thing);
+    if ((crstate == CrSt_CreatureWantsSalary) || (crstate == CrSt_CreatureTakeSalary))
         return true;
     return false;
 }

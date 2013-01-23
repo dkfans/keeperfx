@@ -66,9 +66,7 @@ DLLIMPORT long _DK_person_get_somewhere_adjacent_in_temple(struct Thing *thing, 
 TbBool creature_is_doing_temple_activity(const struct Thing *thing)
 {
     long i;
-    i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
+    i = get_creature_state_besides_interruptions(thing);
     if ((i == CrSt_AtTemple) || (i == CrSt_PrayingInTemple))
         return true;
     return false;

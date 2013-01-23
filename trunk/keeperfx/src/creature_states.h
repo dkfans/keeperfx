@@ -269,6 +269,7 @@ DLLIMPORT struct DiggerStack _DK_reinforce_stack[];
 /******************************************************************************/
 CrtrStateId get_creature_state_besides_move(const struct Thing *thing);
 CrtrStateId get_creature_state_besides_drag(const struct Thing *thing);
+CrtrStateId get_creature_state_besides_interruptions(const struct Thing *thing);
 long get_creature_state_type(const struct Thing *thing);
 
 struct StateInfo *get_thing_active_state_info(struct Thing *thing);

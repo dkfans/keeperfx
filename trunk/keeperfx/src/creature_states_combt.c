@@ -2228,9 +2228,10 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
     return _DK_change_creature_with_existing_attacker(fighter, enemy, combat_kind);
 }
 
-long check_for_possible_combat(struct Thing *crtng, struct Thing **battltng)
+long check_for_possible_combat(struct Thing *creatng, struct Thing **battltng)
 {
-    return _DK_check_for_possible_combat(crtng, battltng);
+    //TODO CREATURE_AI This function makes it possible to attack creature slapped or dropped in prison; rewrite
+    return _DK_check_for_possible_combat(creatng, battltng);
 }
 
 /**
