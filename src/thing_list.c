@@ -37,6 +37,7 @@
 #include "config_objects.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "player_instances.h"
 #include "engine_camera.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
@@ -605,6 +606,10 @@ void init_player_start(struct PlayerInfo *player)
     struct Thing *thing;
     thing = find_players_dungeon_heart(player->id_number);
     dungeon = get_players_dungeon(player);
+    if (dungeon_invalid(dungeon)) {
+        WARNLOG("Tried to init player %d which has no dungeon",(int)player->id_number);
+        return;
+    }
     if (!thing_is_invalid(thing))
     {
         dungeon->dnheart_idx = thing->index;
@@ -1735,24 +1740,110 @@ short update_thing_sound(struct Thing *thing)
   return true;
 }
 
-long thing_is_shootable_by_any_player_including_objects(struct Thing *thing)
+TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *thing)
 {
-  return _DK_thing_is_shootable_by_any_player_including_objects(thing);
+    //return _DK_thing_is_shootable_by_any_player_including_objects(thing);
+    if (thing_is_creature(thing))
+    {
+        // spectators are not shootable
+        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+            return false;
+        return true;
+    }
+    if (thing_is_object(thing))
+    {
+        if (thing_is_dungeon_heart(thing))
+            return true;
+        if (thing->model == 9) // growing chicken
+            return true;
+        if (object_is_mature_food(thing) && !is_thing_passenger_controlled(thing))
+            return true;
+        return false;
+    }
+    return false;
 }
 
-long thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing)
+TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struct Thing *shooter, const struct Thing *thing)
 {
-  return _DK_thing_is_shootable_by_any_player_except_own_including_objects(shooter, thing);
+    //return _DK_thing_is_shootable_by_any_player_except_own_including_objects(shooter, thing);
+    if (thing_is_invalid(shooter))
+    {
+        // If shooter is not provided, check what we can without it
+        if (thing_is_creature(thing))
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+                return false;
+            if ((cctrl->flgfield_1 & 0x04) == 0)
+                return true;
+            return false;
+        }
+        if (thing_is_object(thing))
+        {
+            if (thing_is_dungeon_heart(thing))
+                return true;
+            return false;
+        }
+        return false;
+    }
+    if ((thing->index == shooter->index) || !thing_is_creature(shooter))
+        return false;
+    if (thing_is_creature(thing))
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+            return false;
+        if (((cctrl->flgfield_1 & 0x04) == 0) && (thing->owner != shooter->owner))
+            return true;
+        return false;
+    }
+    if (thing_is_object(thing))
+    {
+        if (thing_is_dungeon_heart(thing) && (thing->owner != shooter->owner))
+            return true;
+        return false;
+    }
+    return false;
 }
 
-long thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing)
+TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struct Thing *shooter, const struct Thing *thing)
 {
-  return _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(shooter, thing);
+    //return _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(shooter, thing);
+    if (thing_is_invalid(shooter))
+        return true;
+    if (thing->index == shooter->index)
+        return false;
+    if (thing_is_creature(thing))
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+            return false;
+        if (((cctrl->flgfield_1 & 0x04) == 0) && (thing->owner != shooter->owner))
+            return true;
+        return false;
+    }
+    return false;
 }
 
-long thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing)
+TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *thing)
 {
-  return _DK_thing_is_shootable_by_any_player_excluding_objects(thing);
+    //return _DK_thing_is_shootable_by_any_player_excluding_objects(thing);
+    if (thing_is_creature(thing))
+    {
+        // spectators are not shootable
+        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            if ((cctrl->flgfield_1 & 0x04) == 0)
+                return true;
+        }
+        return true;
+    }
+    return false;
 }
 
 /**
