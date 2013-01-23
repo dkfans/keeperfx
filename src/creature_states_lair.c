@@ -70,12 +70,8 @@ TbBool creature_is_sleeping(const struct Thing *thing)
 TbBool creature_is_doing_lair_activity(const struct Thing *thing)
 {
     CrtrStateId i;
-    i = thing->active_state;
-    if (i == CrSt_CreatureSleep)
-        return true;
-    if (i == CrSt_MoveToPosition)
-        i = thing->continue_state;
-    if ((i == CrSt_CreatureGoingHomeToSleep) || (i == CrSt_AtLairToSleep)
+    i = get_creature_state_besides_interruptions(thing);
+    if ((i == CrSt_CreatureSleep) || (i == CrSt_CreatureGoingHomeToSleep) || (i == CrSt_AtLairToSleep)
       || (i == CrSt_CreatureChooseRoomForLairSite) || (i == CrSt_CreatureAtNewLair) || (i == CrSt_CreatureWantsAHome)
       || (i == CrSt_CreatureChangeLair) || (i == CrSt_CreatureAtChangedLair))
         return true;

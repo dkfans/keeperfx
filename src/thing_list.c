@@ -1874,7 +1874,7 @@ TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl
     }
     i = thing->next_on_mapblk;
     // Per thing processing block
-    if ((thing->class_id == TCls_Creature) && (thing != excltng))
+    if ((thing->class_id == TCls_Creature) && (thing->index != excltng->index))
     {
         if (!thing_is_picked_up(thing))
         {
