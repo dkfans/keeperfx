@@ -832,15 +832,15 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
     }
     switch (efftng->byte_16)
     {
-    case 1:
+    case THit_CrtrsNObjcts:
         return thing_is_shootable_by_any_player_including_objects(thing);
-    case 2:
+    case THit_CrtrsOnly:
         return thing_is_shootable_by_any_player_excluding_objects(thing);
-    case 3:
+    case THit_UnownedCrtrsNObjcts:
         return thing_is_shootable_by_any_player_except_own_including_objects(efftng, thing);
-    case 4:
+    case THit_UnownedCrtrsOnly:
         return thing_is_shootable_by_any_player_except_own_excluding_objects(efftng, thing);
-    case 7:
+    case THit_HeartOnly:
         if (thing_is_dungeon_heart(thing) && (thing->owner != efftng->owner))
           return true;
         return false;
@@ -1181,21 +1181,22 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
 /**
  * Computes and applies damage the Word Of Power spell makes to things at given map block.
  * @param efftng The effect thing which represents the spell.
- * @param owntng The thing being source of the spell.
+ * @param tngsrc The thing being source of the spell.
  * @param mapblk Map block on which all targets are to be affected by the spell.
  * @param max_dist Range of the spell on map, used to compute damage decaying with distance; in map coordinates.
  * @param max_damage Damage at epicenter of the explosion.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  */
-long word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntng, struct Map *mapblk, MapCoord max_dist, HitPoints max_damage, long blow_strength)
+long word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk, MapCoord max_dist, HitPoints max_damage, long blow_strength)
 {
+    //TODO SPELLS This function should be replaced with explosion_affecting_map_block()
     struct Thing *thing;
     PlayerNumber owner;
     long num_affected;
     long i;
     unsigned long k;
-    if (!thing_is_invalid(owntng))
-        owner = owntng->owner;
+    if (!thing_is_invalid(tngsrc))
+        owner = tngsrc->owner;
     else
         owner = -1;
     num_affected = 0;
@@ -1211,12 +1212,14 @@ long word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *owntn
             break;
         }
         i = thing->next_on_mapblk;
+        // Per thing processing block
         if (effect_can_affect_thing(efftng, thing)
-          || ((thing->class_id == TCls_Door) && (thing->owner != owntng->owner)))
+          || ((thing->class_id == TCls_Door) && (thing->owner != tngsrc->owner)))
         {
-            if (explosion_affecting_thing(owntng, thing, &efftng->mappos, max_dist, max_damage, blow_strength, owner))
+            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, owner))
                 num_affected++;
         }
+        // Per thing processing block ends
         k++;
         if (k > THINGS_COUNT)
         {
@@ -1296,7 +1299,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
  * Explosions can affect a lot more things than shots. If only the thing isn't invalid,
  * it is by default affected by explosions.
  */
-TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, long explode_owner)
+TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, PlayerNumber explode_owner)
 {
     if (thing_is_invalid(thing))
     {
@@ -1356,7 +1359,7 @@ TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, long explo
  * @param max_dist Max distance at which creatures are affected, in map coordinates.
  * @param max_damage Damage at epicenter of the explosion.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
- * @param hit_type Defines which thibgs are affected.
+ * @param hit_type Defines which things are affected.
  */
 long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapblk, const struct Coord3d *pos,
     MapCoord max_dist, HitPoints max_damage, long blow_strength, unsigned char hit_type)
