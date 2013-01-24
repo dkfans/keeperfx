@@ -821,7 +821,7 @@ long check_call_to_arms(struct Computer2 *comp)
     return _DK_check_call_to_arms(comp);
 }
 
-void setup_a_computer_player(unsigned short plyr_idx, long comp_model)
+TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 {
   struct ComputerProcessTypes *cpt;
   struct ComputerProcess *process;
@@ -837,7 +837,7 @@ void setup_a_computer_player(unsigned short plyr_idx, long comp_model)
   if ((plyr_idx >= PLAYERS_COUNT) || (plyr_idx == game.hero_player_num)
       || (plyr_idx == game.neutral_player_num)) {
       WARNLOG("Tried to setup player %d which can't be used this way",(int)plyr_idx);
-      return;
+      return false;
   }
   comp = &game.computer[plyr_idx];
   LbMemorySet(comp, 0, sizeof(struct Computer2));
@@ -846,7 +846,9 @@ void setup_a_computer_player(unsigned short plyr_idx, long comp_model)
   comp->model = comp_model;
   if (dungeon_invalid(comp->dungeon)) {
       WARNLOG("Tried to setup player %d which has no dungeon",(int)plyr_idx);
-      return;
+      comp->dungeon = INVALID_DUNGEON;
+      comp->model = 0;
+      return false;
   }
   comp->field_18 = cpt->field_C;
   comp->field_14 = cpt->field_8;
@@ -856,7 +858,7 @@ void setup_a_computer_player(unsigned short plyr_idx, long comp_model)
   comp->field_C = 1;
   comp->field_0 = 2;
 
-  for (i=0; i < 5; i++)
+  for (i=0; i < PLAYERS_COUNT; i++)
   {
     unkptr = &comp->unkarr_A10[i];
     if (i == plyr_idx)
@@ -916,6 +918,7 @@ void setup_a_computer_player(unsigned short plyr_idx, long comp_model)
     }
     LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
   }
+  return true;
 }
 
 void computer_check_events(struct Computer2 *comp)

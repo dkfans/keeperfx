@@ -178,9 +178,9 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
     return (dungeon->room_kind[rkind] > 0);
 }
 
-TbBool player_creature_tends_to(long plyr_idx, unsigned short tend_type)
+TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)
 {
-    struct Dungeon *dungeon;
+    const struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
         return false;
     dungeon = get_players_num_dungeon(plyr_idx);

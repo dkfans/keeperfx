@@ -300,15 +300,15 @@ TbBool wander_to_specific_possible_target_in_list(long first_thing_idx, struct T
             }
             // If we've got the right creature, but moving failed for some reason, try next one.
         }
-        // When wrapped, process things only to the start index
-        if (i == matched_thing_idx)
-            break;
         // Wrap to first thing if reached end of list.
         if (i == 0) {
             i = first_thing_idx;
             if (target_match != 0)
                 WARNLOG("Wrapping to start of the list shouldn't occur before target_match reaches 0!");
         }
+        // When wrapped, process things only to the start index
+        if (i == matched_thing_idx)
+            break;
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)

@@ -347,7 +347,7 @@ long creature_available_for_combat_this_turn(struct Thing *thing)
 
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
 {
-    int enemy_idx;
+    PlayerNumber enemy_idx;
 
     SYNCDBG(17, "Starting");
 
@@ -365,8 +365,14 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
             int dist;
             player = get_player(enemy_idx);
             dungeon = get_players_dungeon(player);
+            // We need a valid Dungeon structure, but the player don't have to be
+            // existing - it might be a zombie, or hero player in any state
+            if (player_invalid(player) || dungeon_invalid(dungeon)) {
+                WARNLOG("Invalid dungeon %d, skipped",(int)enemy_idx);
+                continue;
+            }
             heartng = thing_get(dungeon->dnheart_idx);
-            if (player_exists(player) && (!thing_is_invalid(heartng)))
+            if (thing_exists(heartng))
             {
                 dist = get_combat_distance(thing, heartng);
                 if (creature_can_see_combat_path(thing, heartng, dist)) {

@@ -106,6 +106,7 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
     player1 = get_player(plyr1_idx);
     player2 = get_player(plyr2_idx);
     // Inactive or invalid players are not enemies, as long as they're not heroes
+    // (heroes are normally NOT existing keepers)
     if (!player_exists(player1) && (plyr1_idx != game.hero_player_num))
         return false;
     if (!player_exists(player2) && (plyr2_idx != game.hero_player_num))

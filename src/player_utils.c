@@ -47,6 +47,7 @@ DLLIMPORT void _DK_calculate_dungeon_area_scores(void);
 DLLIMPORT void _DK_post_init_players(void);
 DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
 DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
+DLLIMPORT long _DK_wander_point_initialise(struct Wander *wandr, long plyr_idx, long a3);
 /******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)
 {
@@ -346,9 +347,41 @@ void init_players(void)
     }
 }
 
+long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, long a3)
+{
+    return _DK_wander_point_initialise(wandr, plyr_idx, a3);
+}
+
+void post_init_player(struct PlayerInfo *player)
+{
+    switch (game.game_kind)
+    {
+    case 3:
+        break;
+    case 2:
+    case 5:
+        wander_point_initialise(&player->wandr1, player->id_number, 1);
+        wander_point_initialise(&player->wandr2, player->id_number, 0);
+        break;
+    default:
+        if ((player->field_0 & 0x40) == 0)
+          ERRORLOG("Invalid GameMode");
+        break;
+    }
+}
+
 void post_init_players(void)
 {
-    _DK_post_init_players(); return;
+    PlayerNumber plyr_idx;
+    //_DK_post_init_players(); return;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        if ((player->field_0 & 0x01) != 0) {
+            post_init_player(player);
+        }
+    }
 }
 
 void init_players_local_game(void)

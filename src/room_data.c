@@ -779,7 +779,6 @@ void count_lair_occupants(struct Room *room)
 
 void delete_room_structure(struct Room *room)
 {
-    struct Dungeon *dungeon;
     struct Room *secroom;
     unsigned short *wptr;
     //_DK_delete_room_structure(room); return;
@@ -792,6 +791,7 @@ void delete_room_structure(struct Room *room)
     {
       if (room->owner != game.neutral_player_num)
       {
+          struct Dungeon *dungeon;
           dungeon = get_players_num_dungeon(room->owner);
           wptr = &dungeon->room_kind[room->kind];
           if (room->index == *wptr)
@@ -800,8 +800,7 @@ void delete_room_structure(struct Room *room)
               secroom = room_get(room->next_of_owner);
               if (!room_is_invalid(secroom))
                   secroom->prev_of_owner = 0;
-          }
-          else
+          } else
           {
               secroom = room_get(room->next_of_owner);
               if (!room_is_invalid(secroom))

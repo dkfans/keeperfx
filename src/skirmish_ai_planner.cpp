@@ -311,7 +311,7 @@ static void prepare_player_environment(struct PlayerEnvironment * state, int ply
     //look up spells
     for (i = 0; i < KEEPER_SPELLS_COUNT; ++i) {
         if (dungeon->magic_resrchable[i]) {
-            state->spells_researchable |= 1 << i;
+            state->spells_researchable |= (1 << i);
         }
     }
 }

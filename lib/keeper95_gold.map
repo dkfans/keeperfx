@@ -299,6 +299,7 @@
  0001:00033590       draw_status_sprites
  0001:00033CF0       draw_engine_room_flagpole
  0001:00033E40       draw_engine_room_flag_top
+ 0001:00033F90       wander_point_initialise
  0001:00034130       wander_point_update
  0001:000343B0       wp_check_map_pos_valid
  0001:00034720       set_game_key

@@ -971,12 +971,50 @@ TbBool add_spell_to_player(PowerKind spl_idx, PlayerNumber plyr_idx)
     i = dungeon->magic_level[spl_idx];
     if (i >= 255)
     {
-        ERRORLOG("Spell %d has bad magic_level=%d for player %d", (int)spl_idx, (int)i, (int)plyr_idx);
-        return false;
+        ERRORLOG("Spell %d has bad magic_level=%d for player %d, reset", (int)spl_idx, (int)i, (int)plyr_idx);
+        i = 0;
     }
     dungeon->magic_level[spl_idx] = i+1;
     dungeon->magic_resrchable[spl_idx] = 1;
     return true;
+}
+
+void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    long i;
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Cannot remove spell %d from invalid dungeon %d!",(int)spl_idx,(int)plyr_idx);
+        return;
+    }
+    i = dungeon->magic_level[spl_idx];
+    if (i < 1)
+    {
+        ERRORLOG("Cannot remove spell %d from player %d as he doesn't have it!",(int)spl_idx,(int)plyr_idx);
+        return;
+    }
+    dungeon->magic_level[spl_idx] = i-1;
+    switch (spl_idx)
+    {
+    case PwrK_OBEY:
+        if (dungeon->must_obey_turn)
+            dungeon->must_obey_turn = 0;
+        break;
+    case PwrK_SIGHT:
+        if (dungeon->keeper_sight_thing_idx)
+            turn_off_sight_of_evil(plyr_idx);
+        break;
+    case PwrK_CALL2ARMS:
+        if (dungeon->field_884)
+            turn_off_call_to_arms(plyr_idx);
+        break;
+    }
+    if (game.chosen_spell_type == spl_idx)
+    {
+        set_chosen_spell_none();
+    }
 }
 
 /**
@@ -1025,10 +1063,9 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch
   dungeon->magic_resrchable[spl_idx] = resrch;
   if (avail <= 0)
   {
-    dungeon->magic_level[spl_idx] = 0;
-    if (game.chosen_spell_type == spl_idx)
-      set_chosen_spell_none();
-    return true;
+      if (is_power_available(plyr_idx, spl_idx))
+          remove_spell_from_player(spl_idx, plyr_idx);
+      return true;
   }
   return add_spell_to_player(spl_idx, plyr_idx);
 }
