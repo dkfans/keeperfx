@@ -398,7 +398,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 /******************************************************************************/
-void setup_a_computer_player(unsigned short plyridx, long comp_model);
+TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model);
 void process_computer_players2(void);
 void setup_computer_players2(void);
 void restore_computer_player_after_load(void);

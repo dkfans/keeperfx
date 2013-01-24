@@ -1203,6 +1203,7 @@
  0001:0005ECF0       element_top_face_texture
  0001:00023AA0       draw_swipe
  0001:00033590       draw_status_sprites
+ 0001:00033F90       wander_point_initialise
  0001:00076910       draw_texture
  0001:000292F0       do_a_plane_of_engine_columns_isometric
  0001:0002A6D0       do_a_plane_of_engine_columns_cluedo

@@ -838,7 +838,29 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
 
 void edgelen_init(void)
 {
-    _DK_edgelen_init();
+    //_DK_edgelen_init();
+    if (edgelen_initialised)
+        return;
+    edgelen_initialised = true;
+    int i;
+    // Fill edge values
+    EdgeFit = RadiusEdgeFit[1];
+    for (i=0; i < EDGEFIT_LEN; i++)
+    {
+        EdgeFit[i] = 1;
+    }
+    EdgeFit = RadiusEdgeFit[2];
+    for (i=0; i < EDGEFIT_LEN; i++)
+    {
+        EdgeFit[i] = ((i & 0x2A) == 0x2A);
+    }
+    EdgeFit = RadiusEdgeFit[3];
+    for (i=0; i < EDGEFIT_LEN; i++)
+    {
+        EdgeFit[i] = ((i & 0x3F) == 0x3F);
+    }
+    // Reset pointer
+    EdgeFit = RadiusEdgeFit[1];
 }
 
 TbBool ariadne_creature_reached_position(const struct Thing *thing, const struct Coord3d *pos)

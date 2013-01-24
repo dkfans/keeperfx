@@ -3615,6 +3615,7 @@ void startup_saved_packet_game(void)
     else
       my_player_number = game.numfield_149F46;
     init_level();
+    setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
     if (game.field_14E495 == 1)
       game.game_kind = GKind_NetworkGame;
@@ -3677,6 +3678,7 @@ void startup_network_game(TbBool local)
 void faststartup_network_game(void)
 {
     struct PlayerInfo *player;
+    SYNCDBG(3,"Starting");
     reenter_video_mode();
     my_player_number = default_loc_player;
     game.game_kind = GKind_NetworkGame;

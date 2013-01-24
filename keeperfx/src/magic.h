@@ -41,7 +41,6 @@ TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_idx,
 void update_power_sight_explored(struct PlayerInfo *player);
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind spkind, long splevel);
 long thing_affected_by_spell(struct Thing *thing, long spkind);
-void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx);
 
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel);
 TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel);

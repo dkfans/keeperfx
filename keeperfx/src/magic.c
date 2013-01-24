@@ -1093,39 +1093,6 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx)
   }
   return (i < SPELL_MAX_LEVEL);
 }
-
-void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx)
-{
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon))
-    {
-        ERRORLOG("Cannot remove spell %d from invalid dungeon %d!",(int)spl_idx,(int)plyr_idx);
-        return;
-    }
-    if (dungeon->magic_level[spl_idx] < 1)
-    {
-        ERRORLOG("Cannot remove spell %d from player %d as he doesn't have it!",(int)spl_idx,(int)plyr_idx);
-        return;
-    }
-    dungeon->magic_level[spl_idx]--;
-    switch ( spl_idx )
-    {
-    case PwrK_OBEY:
-        if (dungeon->must_obey_turn)
-            dungeon->must_obey_turn = 0;
-        break;
-    case PwrK_SIGHT:
-        if (dungeon->keeper_sight_thing_idx)
-            turn_off_sight_of_evil(plyr_idx);
-        break;
-    case PwrK_CALL2ARMS:
-        if (dungeon->field_884)
-            turn_off_call_to_arms(plyr_idx);
-        break;
-    }
-}
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
