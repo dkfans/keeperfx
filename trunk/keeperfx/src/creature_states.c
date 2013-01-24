@@ -3379,7 +3379,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
             break;
         default:
             output_message(SMsg_CreatrAngryAnyReson, MESSAGE_DELAY_CRTR_MOOD, 1);
-            ERRORLOG("Mental instability error - creature is angry but has no motive (%d).",(int)anger_motive);
+            ERRORLOG("Mental instability - %s owned by player %d is angry but has no motive (%d).",thing_model_name(thing),(int)thing->owner,(int)anger_motive);
             break;
         }
     }

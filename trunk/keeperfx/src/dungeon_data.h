@@ -258,7 +258,7 @@ TbBool player_has_room(long plyr_idx, RoomKind rkind);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
-TbBool player_creature_tends_to(long plyr_idx, unsigned short tend_type);
+TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type);
 TbBool set_trap_buildable_and_add_to_amount(long plyr_idx, long trap_kind, long buildable, long amount);
 TbBool set_door_buildable_and_add_to_amount(long plyr_idx, long door_kind, long buildable, long amount);
 

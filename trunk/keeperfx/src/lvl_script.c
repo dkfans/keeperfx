@@ -728,19 +728,23 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
 
 TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model)
 {
-  struct PlayerInfo *player;
-  player = get_player(plyridx);
-  if (player_invalid(player)) {
-      SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
-      return false;
-  }
-  player->field_0 |= 0x01;
-  player->id_number = plyridx;
-  player->field_2C = 1;
-  player->field_0 |= 0x40;
-  init_player_start(player);
-  setup_a_computer_player(plyridx, comp_model);
-  return true;
+    struct PlayerInfo *player;
+    player = get_player(plyridx);
+    if (player_invalid(player)) {
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        return false;
+    }
+    player->field_0 |= 0x01;
+    player->id_number = plyridx;
+    player->field_2C = 1;
+    player->field_0 |= 0x40;
+    init_player_start(player);
+    if (!setup_a_computer_player(plyridx, comp_model)) {
+        player->field_0 &= ~0x40;
+        player->field_0 &= ~0x01;
+        return false;
+    }
+    return true;
 }
 
 TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
@@ -2866,8 +2870,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       dungeon = get_dungeon(plyr_idx);
       return dungeon->creatures_scavenge_gain;
   case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
-      dungeon = get_dungeon(plyr_idx);
-      return dungeon->magic_level[validx%KEEPER_SPELLS_COUNT];
+      return is_power_available(plyr_idx, validx);
   case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
       dungeon = get_dungeon(plyr_idx);
       return dungeon->trap_amount[validx%TRAP_TYPES_COUNT];

@@ -102,10 +102,10 @@ short at_research_room(struct Thing *thing)
     return 1;
 }
 
-TbBool research_needed(struct ResearchVal *rsrchval, struct Dungeon *dungeon)
+TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon *dungeon)
 {
     if (dungeon->research_num == 0)
-        return -1;
+        return false;
     switch (rsrchval->rtyp)
     {
    case RsCat_Power:
@@ -172,7 +172,7 @@ long get_next_research_item(const struct Dungeon *dungeon)
     return -1;
 }
 
-struct ResearchVal *get_players_current_research_val(long plyr_idx)
+struct ResearchVal *get_players_current_research_val(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
@@ -181,7 +181,7 @@ struct ResearchVal *get_players_current_research_val(long plyr_idx)
     return &dungeon->research[dungeon->field_F78];
 }
 
-TbBool force_complete_current_research(long plyr_idx)
+TbBool force_complete_current_research(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     struct ResearchVal *rsrchval;
