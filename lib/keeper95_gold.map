@@ -1042,6 +1042,7 @@
  0001:000B1BE0       do_unprettying
  0001:000B1D10       imp_stack_update
  0001:000B20F0       add_pretty_and_convert_to_imp_stack
+ 0001:000B26F0       add_to_pretty_to_imp_stack_if_need_to
  0001:000B2950       add_unclaimed_unconscious_bodies_to_imp_stack
  0001:000B2AC0       add_unclaimed_dead_bodies_to_imp_stack
  0001:000B2C10       add_unclaimed_spells_to_imp_stack
