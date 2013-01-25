@@ -156,6 +156,7 @@ extern const short slab_around[];
 extern const unsigned short small_around_pos[4];
 extern struct Around const mid_around[9];
 extern struct AroundLByte const room_spark_offset[];
+#define SMALL_AROUND_COUNT 4
 extern struct Around const small_around[];
 extern struct RoomData room_data[];
 extern struct Around const my_around_eight[];

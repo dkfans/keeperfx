@@ -28,6 +28,7 @@
 #include "dungeon_data.h"
 #include "tasks_list.h"
 #include "config_creature.h"
+#include "config_terrain.h"
 #include "thing_corpses.h"
 #include "thing_navigate.h"
 #include "thing_stats.h"
@@ -36,6 +37,7 @@
 #include "thing_objects.h"
 #include "map_events.h"
 #include "gui_soundmsgs.h"
+#include "front_simple.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -276,18 +278,28 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
     prev_owner = slabmap_owner(slb);
     if (prev_owner == creatng->owner)
         return 0;
-    if (players_are_mutual_allies(creatng->owner, prev_owner))
+    if (players_are_mutual_allies(creatng->owner, prev_owner)) {
+        SYNCDBG(8,"The slab %d,%d is owned by ally, so cennot be converted",(int)slb_x, (int)slb_y);
         return 0;
-    //return _DK_check_place_to_convert_excluding(thing, a2, a3);
+    }
+    //return _DK_check_place_to_convert_excluding(creatng, slb_x, slb_y);
 
     struct Room *room;
     room = room_get(slb->room_index);
-    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (room->kind == RoK_DUNGHEART)))
+    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (room->kind == RoK_DUNGHEART))) {
+        SYNCDBG(8,"The slab %d,%d is not a valid type to be converted",(int)slb_x, (int)slb_y);
         return 0;
+    }
     struct Map *mapblk;
     mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-    if (!map_block_revealed(mapblk, creatng->owner) || !slab_by_players_land(creatng->owner, slb_x, slb_y))
+    if (!map_block_revealed(mapblk, creatng->owner)) {
+        SYNCDBG(8,"The slab %d,%d is not revealed",(int)slb_x, (int)slb_y);
         return 0;
+    }
+    if (!slab_by_players_land(creatng->owner, slb_x, slb_y)) {
+        SYNCDBG(8,"The slab %d,%d is not by players land",(int)slb_x, (int)slb_y);
+        return 0;
+    }
     struct Thing *thing;
     long i;
     unsigned long k;
@@ -306,8 +318,11 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
         // Per thing code start
         if ( thing_is_creature(thing) && (thing->index != creatng->index) )
         {
-            if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) && (thing->active_state == CrSt_ImpConvertsDungeon))
+            if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0) && (thing->active_state == CrSt_ImpConvertsDungeon)) {
+                SYNCDBG(8,"The slab %d,%d is already being converted by %s index %d",
+                    (int)slb_x,(int)slb_y,thing_model_name(thing),(int)thing->index);
                 return 0;
+            }
         }
         // Per thing code end
         k++;
@@ -467,7 +482,7 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
     return nused;
 }
 
-TbBool add_to_reinforce_stack(long stl_x, long stl_y, long task_id)
+TbBool add_to_reinforce_stack(long slb_x, long slb_y, long task_id)
 {
     if (r_stackpos >= 64) {
         return false;
@@ -485,12 +500,167 @@ long add_to_pretty_to_imp_stack_if_need_to(long a1, long a2, struct Dungeon *dun
     return _DK_add_to_pretty_to_imp_stack_if_need_to(a1, a2, dungeon);
 }
 
+struct ExtraSquares spdigger_extra_squares[] = {
+    { 0,  0x00},
+    { 0,  0x00},
+    { 0,  0x00},
+    { 1, ~0x03},
+    { 0,  0x00},
+    { 0,  0x00},
+    { 2, ~0x06},
+    { 1, ~0x01},
+    { 0,  0x00},
+    { 4, ~0x09},
+    { 0,  0x00},
+    { 1, ~0x02},
+    { 3, ~0x0C},
+    { 3, ~0x04},
+    { 2, ~0x02},
+    { 1,  0x00},
+};
+
+struct Around spdigger_extra_positions[] = {
+    { 0, 0},
+    { 1,-1},
+    { 1, 1},
+    {-1, 1},
+    {-1,-1},
+};
+
+long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dungeon, const struct Coord3d * start_pos)
+{
+    unsigned char *slbopt;
+    struct SlabCoord *slblist;
+    unsigned int slblicount;
+    unsigned int slblipos;
+    slbopt = scratch;
+    slblist = (struct SlabCoord *)(scratch + map_tiles_x*map_tiles_y);
+    MapSlabCoord slb_x, slb_y;
+    for (slb_y=0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x=0; slb_x < map_tiles_x; slb_x++)
+        {
+            SlabCodedCoords slb_num;
+            struct SlabMap *slb;
+            slb_num = get_slab_number(slb_x, slb_y);
+            slb = get_slabmap_direct(slb_num);
+            struct SlabAttr *slbattr;
+            slbattr = get_slab_attrs(slb);
+            slbopt[slb_num] = ((slbattr->flags & 0x29) != 0);
+        }
+    }
+    slblipos = 0;
+    slblicount = 0;
+    MapSlabCoord base_slb_x, base_slb_y;
+    base_slb_x = start_pos->x.stl.num / 3;
+    base_slb_y = start_pos->y.stl.num / 3;
+    SlabCodedCoords slb_num;
+    slb_num = get_slab_number(base_slb_x, base_slb_y);
+    slbopt[slb_num] |= 0x02;
+    do
+    {
+        unsigned char around_flags;
+        around_flags = 0;
+
+        long i,n;
+        n = 0;//ACTION_RANDOM(4);
+        for (i=0; i < SMALL_AROUND_COUNT; i++)
+        {
+            slb_x = base_slb_x + (long)small_around[n].delta_x;
+            slb_y = base_slb_y + (long)small_around[n].delta_y;
+            slb_num = get_slab_number(slb_x, slb_y);
+            // Per around code
+            if ((slbopt[slb_num] & 0x01) != 0)
+            {
+                struct SlabMap *slb;
+                around_flags |= (1<<n);
+                slbopt[slb_num] |= 0x02;
+                slb = get_slabmap_direct(slb_num);
+                if ( 64 - dungeon->digger_stack_length > r_stackpos )
+                {
+                  if (slab_kind_is_friable_dirt(slb->kind))
+                  {
+                      struct Map *mapblk;
+                      mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+                      if ( (mapblk->data >> 28) & (1 << dungeon->owner) )
+                      {
+                          if ( slab_by_players_land(dungeon->owner, slb_x, slb_y) )
+                          {
+                              add_to_reinforce_stack(slb_x, slb_y, 3);
+                          }
+                      }
+                  }
+                }
+            } else
+            if ((slbopt[slb_num] & 0x02) == 0)
+            {
+                slbopt[slb_num] |= 0x02;
+                slblist[slblicount].x = slb_x;
+                slblist[slblicount].y = slb_y;
+                slblicount++;
+                if ( !add_to_pretty_to_imp_stack_if_need_to(slb_x, slb_y, dungeon) ) {
+                    SYNCDBG(6,"Can't add any more pretty tasks");
+                    return slblipos;
+                }
+            }
+            // Per around code ends
+            n = (n + 1) % 4;
+        }
+
+        struct ExtraSquares  *square;
+        for (square = &spdigger_extra_squares[around_flags]; square->index != 0; square = &spdigger_extra_squares[around_flags])
+        {
+            if (around_flags == 0x0F)
+            {
+                // If whole around is to be set, just do it in one go
+                for (i=1; i < 5; i++)
+                {
+                    slb_x = base_slb_x + (long)spdigger_extra_positions[i].delta_x;
+                    slb_y = base_slb_y + (long)spdigger_extra_positions[i].delta_y;
+                    slb_num = get_slab_number(slb_x, slb_y);
+                    slbopt[slb_num] |= 0x02;
+                }
+                around_flags = 0;
+            } else
+            {
+                i = square->index;
+                {
+                    slb_x = base_slb_x + (long)spdigger_extra_positions[i].delta_x;
+                    slb_y = base_slb_y + (long)spdigger_extra_positions[i].delta_y;
+                    slb_num = get_slab_number(slb_x, slb_y);
+                    slbopt[slb_num] |= 0x02;
+                }
+                around_flags &= square->flgmask;
+            }
+        }
+        base_slb_x = slblist[slblipos].x;
+        base_slb_y = slblist[slblipos].y;
+        slblipos++;
+    }
+    while (slblipos <= slblicount);
+    return slblipos;
+}
+
+
 void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
 {
-  SYNCDBG(18,"Starting");
-//TODO SPDIGGER rework! (causes hang if near edge of the map)
-//TODO SPDIGGER This also restricts convert tasks to the area connected to heart, instead of connected to diggers.
-  _DK_add_pretty_and_convert_to_imp_stack(dungeon); return;
+    if (dungeon->digger_stack_length >= 64) {
+        WARNLOG("Too many jobs, no place for more");
+        return;
+    }
+    SYNCDBG(18,"Starting");
+    //TODO SPDIGGER This restricts convert tasks to the area connected to heart, instead of connected to diggers.
+    //_DK_add_pretty_and_convert_to_imp_stack(dungeon); return;
+    struct Thing *heartng;
+    heartng = INVALID_THING;
+    if (!dungeon_invalid(dungeon))
+        heartng = thing_get(dungeon->dnheart_idx);
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng)) {
+        WARNLOG("Dungeon has no heart, no dungeon position available");
+        return;
+    }
+    add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, &heartng->mappos);
 }
 
 long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
