@@ -2713,13 +2713,13 @@ TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
 {
     //return _DK_slab_by_players_land(plyr_idx, slb_x, slb_y);
     long n;
-    for (n=0; n < 4; n++)
+    for (n=0; n < SMALL_AROUND_COUNT; n++)
     {
         long aslb_x,aslb_y;
         aslb_x = slb_x + (long)small_around[n].delta_x;
         aslb_y = slb_y + (long)small_around[n].delta_y;
         struct SlabMap *slb;
-        slb = get_slabmap_block(slb_x,slb_y);
+        slb = get_slabmap_block(aslb_x,aslb_y);
         if (slabmap_owner(slb) == plyr_idx)
         {
             if (slab_is_safe_land(plyr_idx, aslb_x, aslb_y) && !slab_is_liquid(aslb_x, aslb_y)) {
