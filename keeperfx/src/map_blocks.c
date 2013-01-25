@@ -122,9 +122,9 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
 void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct PlayerInfo *player;
-    struct Map *map;
+    struct Map *mapblk;
     PlayerNumber plyr_idx;
-    map = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num))
@@ -132,7 +132,7 @@ void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoo
         player = get_player(plyr_idx);
         if (player_exists(player))
         {
-            if (map_block_revealed(map, plyr_idx))
+            if (map_block_revealed(mapblk, plyr_idx))
             {
                 untag_blocks_for_digging_in_area(slab_subtile(slb_x,0), slab_subtile(slb_y,0), plyr_idx);
             }

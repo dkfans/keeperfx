@@ -1116,6 +1116,7 @@
  0001:00057D20       update_creatures_not_in_list
  0001:0005ABC0       update_cave_in
  0001:000B2FC0       get_thing_checksum
+ 0001:000B26F0       add_to_pretty_to_imp_stack_if_need_to
  0001:000C6F60       load_map_data_file
  0001:000C7050       load_column_file
  0001:000C7210       load_action_point_file

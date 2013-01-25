@@ -2509,7 +2509,7 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
 
 long creature_can_have_combat_with_creature_on_slab(const struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
 {
-    struct Map *map;
+    struct Map *mapblk;
     MapSubtlCoord endstl_x,endstl_y;
     MapSubtlCoord stl_x,stl_y;
     long dist;
@@ -2523,9 +2523,9 @@ long creature_can_have_combat_with_creature_on_slab(const struct Thing *creatng,
             long can_combat;
             long i;
             unsigned long k;
-            map = get_map_block_at(stl_x,stl_y);
+            mapblk = get_map_block_at(stl_x,stl_y);
             k = 0;
-            i = get_mapwho_thing_index(map);
+            i = get_mapwho_thing_index(mapblk);
             while (i != 0)
             {
                 thing = thing_get(i);
