@@ -53,6 +53,17 @@ enum SpecialDiggerDigTaskKinds {
 struct Dungeon;
 struct Thing;
 
+struct SlabCoord {
+
+    unsigned char x;
+    unsigned char y;
+};
+
+struct ExtraSquares {
+    unsigned long index;
+    unsigned char flgmask;
+};
+
 #pragma pack()
 /******************************************************************************/
 TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *dungeon);
