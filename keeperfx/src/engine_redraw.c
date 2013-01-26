@@ -69,7 +69,6 @@ DLLIMPORT void _DK_draw_sound_stuff(void);
 DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
 DLLIMPORT void _DK_set_sprite_view_3d(void);
 DLLIMPORT void _DK_set_sprite_view_isometric(void);
-DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -165,11 +164,6 @@ void set_sprite_view_isometric(void)
 long dummy_sound_line_of_sight(long a1, long a2, long a3, long a4, long a5, long a6)
 {
     return 1;
-}
-
-unsigned char line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2)
-{
-  return _DK_line_of_sight_3d(pos1, pos2);
 }
 
 void set_engine_view(struct PlayerInfo *player, long val)

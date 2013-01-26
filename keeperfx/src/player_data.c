@@ -90,29 +90,29 @@ TbBool is_my_player_number(PlayerNumber plyr_num)
 /**
  * Informs if player plyr1_idx considers player plyr2_idx as enemy.
  * Note that if the players are not enemies, it doesn't necessarily mean they're friends.
- * @param plyr1_idx Index of the player who asks for an enemy.
- * @param plyr2_idx Index of the player who could be enemy.
+ * @param origin_plyr_idx Index of the player who asks for an enemy.
+ * @param check_plyr_idx Index of the player who could be enemy.
  * @return True if the players are enemies; false otherwise.
  */
-TbBool players_are_enemies(long plyr1_idx, long plyr2_idx)
+TbBool players_are_enemies(long origin_plyr_idx, long check_plyr_idx)
 {
-    struct PlayerInfo *player1,*player2;
+    struct PlayerInfo *origin_player,*check_player;
     // Player can't be his own enemy
-    if (plyr1_idx == plyr2_idx)
+    if (origin_plyr_idx == check_plyr_idx)
         return false;
     // And neutral player can't be enemy
-    if ((plyr1_idx == game.neutral_player_num) || (plyr2_idx == game.neutral_player_num))
+    if ((origin_plyr_idx == game.neutral_player_num) || (check_plyr_idx == game.neutral_player_num))
         return false;
-    player1 = get_player(plyr1_idx);
-    player2 = get_player(plyr2_idx);
+    origin_player = get_player(origin_plyr_idx);
+    check_player = get_player(check_plyr_idx);
     // Inactive or invalid players are not enemies, as long as they're not heroes
     // (heroes are normally NOT existing keepers)
-    if (!player_exists(player1) && (plyr1_idx != game.hero_player_num))
+    if (!player_exists(origin_player) && (origin_plyr_idx != game.hero_player_num))
         return false;
-    if (!player_exists(player2) && (plyr2_idx != game.hero_player_num))
+    if (!player_exists(check_player) && (check_plyr_idx != game.hero_player_num))
         return false;
     // And if they're valid, living players - get result from alliances table
-    return ((player1->allied_players & (1<<plyr2_idx)) == 0);
+    return ((origin_player->allied_players & (1<<check_plyr_idx)) == 0);
 }
 
 /**
