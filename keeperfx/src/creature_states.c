@@ -1331,6 +1331,17 @@ short creature_being_dropped(struct Thing *creatng)
                 }
             }
         }
+        if ((get_creature_model_flags(creatng) & MF_IsSpecDigger) != 0)
+        {
+            if ((slabmap_owner(slb) == creatng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
+            {
+                if (check_out_available_spdigger_drop_tasks(creatng))
+                {
+                    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+                    return 2;
+                }
+            }
+        }
         if ( creature_will_do_combat(creatng) )
         {
             if (creature_look_for_combat(creatng)) {
@@ -1341,17 +1352,6 @@ short creature_being_dropped(struct Thing *creatng)
             }
             if (creature_look_for_enemy_door_combat(creatng)) {
                 return 2;
-            }
-        }
-        if ((get_creature_model_flags(creatng) & MF_IsSpecDigger) != 0)
-        {
-            if ((slabmap_owner(slb) == creatng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
-            {
-                if (check_out_available_imp_drop_tasks(creatng))
-                {
-                    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-                    return 2;
-                }
             }
         }
     }
