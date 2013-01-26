@@ -204,6 +204,7 @@ obj/ariadne_edge.o \
 obj/ariadne_points.o \
 obj/ariadne_findcache.o \
 obj/ariadne.o \
+obj/creature_senses.o \
 obj/creature_states_hero.o \
 obj/creature_states_mood.o \
 obj/creature_states_gardn.o \

@@ -32,6 +32,7 @@
 #include "thing_corpses.h"
 #include "thing_stats.h"
 #include "thing_creature.h"
+#include "creature_senses.h"
 #include "power_hand.h"
 #include "map_utils.h"
 #include "config_objects.h"
