@@ -45,73 +45,6 @@ DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const s
 }
 #endif
 /******************************************************************************/
-TbBool sibling_line_of_sight(const struct Coord3d *prevpos,
-    const struct Coord3d *nextpos)
-{
-    // If both dimensions changed, allow the pass
-    if ((nextpos->x.stl.num != prevpos->x.stl.num) &&
-        (nextpos->y.stl.num != prevpos->y.stl.num)) {
-        return true;
-    }
-    struct Coord3d pos1;
-    struct Coord3d pos2;
-    int subdelta_x, subdelta_y;
-    subdelta_x = (nextpos->x.stl.num - prevpos->x.stl.num);
-    subdelta_y = (nextpos->y.stl.num - prevpos->y.stl.num);
-    switch (subdelta_x + 2 * subdelta_y)
-    {
-    case -3:
-        pos2.x.val = prevpos->x.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - 256;
-        pos2.y.val = prevpos->y.val - 256;
-        if (!point_in_map_is_solid(&pos1) &&
-            !point_in_map_is_solid(&pos2)) {
-            return false;
-        }
-        break;
-    case -1:
-        pos2.y.val = prevpos->y.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val - 256;
-        pos2.x.val = prevpos->x.val + 256;
-        if (!point_in_map_is_solid(&pos1) &&
-            !point_in_map_is_solid(&pos2)) {
-            return false;
-        }
-        break;
-    case 1:
-        pos2.x.val = prevpos->x.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - 256;
-        pos2.y.val = prevpos->y.val + 256;
-        if (!point_in_map_is_solid(&pos1) &&
-            !point_in_map_is_solid(&pos2)) {
-            return false;
-        }
-        break;
-    case 3:
-        pos2.y.val = prevpos->y.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val + 256;
-        pos2.x.val = prevpos->x.val + 256;
-        if (!point_in_map_is_solid(&pos1) &&
-            !point_in_map_is_solid(&pos2)) {
-            return false;
-        }
-        break;
-    }
-    return true;
-}
-
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
@@ -681,8 +614,7 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
         (topos->y.stl.num == frpos->y.stl.num)) {
         return true;
     }
-    return _DK_line_of_sight_3d(frpos, topos);
-    //TODO CREATURE_AI Rewritten version works different to original, check if it's better or worse
+    //return _DK_line_of_sight_3d(frpos, topos);
 
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
