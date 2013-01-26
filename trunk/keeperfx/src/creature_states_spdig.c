@@ -400,16 +400,33 @@ long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
     return 0;
 }
 
-long check_out_available_imp_drop_tasks(struct Thing *digger)
+/**
+ * Checks for a special digger task for a creature in its vicinity.
+ * @param digger
+ * @bote originally was check_out_available_imp_drop_tasks()
+ */
+long check_out_available_spdigger_drop_tasks(struct Thing *digger)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(digger);
 
-    if ( check_out_unclaimed_unconscious_bodies(digger, 768)
-      || check_out_unclaimed_dead_bodies(digger, 768)
-      || check_out_unclaimed_spells(digger, 768)
-      || check_out_unclaimed_traps(digger, 768)
-      || check_out_empty_traps(digger, 768) )
+    if ( check_out_unclaimed_unconscious_bodies(digger, 768) )
+    {
+        return 1;
+    }
+    if ( check_out_unclaimed_dead_bodies(digger, 768) )
+    {
+        return 1;
+    }
+    if ( check_out_unclaimed_spells(digger, 768) )
+    {
+        return 1;
+    }
+    if ( check_out_unclaimed_traps(digger, 768) )
+    {
+        return 1;
+    }
+    if ( check_out_empty_traps(digger, 768) )
     {
         return 1;
     }
@@ -522,7 +539,7 @@ short imp_birth(struct Thing *thing)
     //return _DK_imp_birth(thing);
     if ( thing_touching_floor(thing) )
     {
-      if (!check_out_available_imp_drop_tasks(thing)) {
+      if (!check_out_available_spdigger_drop_tasks(thing)) {
           set_start_state(thing);
       }
       return 1;
