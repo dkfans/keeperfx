@@ -1759,12 +1759,14 @@
  0003:000A6570       end_winfonts
  0003:000A6678       phase_of_moon
  0003:000A6680       settings
+ 0003:000A66D4       red_palette
  0003:000A66D8       iso_td
  0003:000A6E84       block_mem
  0003:000A6E88       heap_size
  0003:000A6E8C       font_sprites
  0003:000A6E90       gui_panel_sprites
  0003:000A6E94       end_winfont_data
+ 0003:000A6E98       dog_palette
  0003:000A6EA0       td_iso
  0003:000A7650       randomisors
  0003:000A7E50       spiral_step
@@ -1794,6 +1796,7 @@
  0003:000EBEBC       pixels_per_block
  0003:000EBEC0       end_font_sprites
  0003:000EBEC4       end_button_sprites
+ 0003:000EBEC8       vampire_palette
  0003:000EBED0       key_modifiers
  0003:000EBED4       MyScreenHeight
  0003:000EBEEC       edit_icon_data

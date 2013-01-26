@@ -190,8 +190,8 @@ long thing_nav_block_sizexy(const struct Thing *thing)
 {
     long i;
     i = thing->sizexy;
-    if (i >= sizeof(actual_sizexy_to_nav_block_sizexy_table)/sizeof(actual_sizexy_to_nav_block_sizexy_table[0]))
-        i = sizeof(actual_sizexy_to_nav_block_sizexy_table)/sizeof(actual_sizexy_to_nav_block_sizexy_table[0])-1;
+    if (i >= (long)(sizeof(actual_sizexy_to_nav_block_sizexy_table)/sizeof(actual_sizexy_to_nav_block_sizexy_table[0])))
+        i = (long)(sizeof(actual_sizexy_to_nav_block_sizexy_table)/sizeof(actual_sizexy_to_nav_block_sizexy_table[0]))-1;
     if (i < 0)
         i = 0;
     return actual_sizexy_to_nav_block_sizexy_table[i];
@@ -201,8 +201,8 @@ long thing_nav_sizexy(const struct Thing *thing)
 {
     long i;
     i = thing->sizexy;
-    if (i >= sizeof(actual_sizexy_to_nav_sizexy_table)/sizeof(actual_sizexy_to_nav_sizexy_table[0]))
-        i = sizeof(actual_sizexy_to_nav_sizexy_table)/sizeof(actual_sizexy_to_nav_sizexy_table[0])-1;
+    if (i >= (long)(sizeof(actual_sizexy_to_nav_sizexy_table)/sizeof(actual_sizexy_to_nav_sizexy_table[0])))
+        i = (long)(sizeof(actual_sizexy_to_nav_sizexy_table)/sizeof(actual_sizexy_to_nav_sizexy_table[0]))-1;
     if (i < 0)
         i = 0;
     return actual_sizexy_to_nav_sizexy_table[i];

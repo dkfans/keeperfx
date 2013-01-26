@@ -1918,6 +1918,10 @@ TbResult LbHugeSpriteDraw(const unsigned char *sp, long * sp_y_offset, long sp_l
     {
         dst = &r[r_row_delta * h];
         src = &sp[sp_y_offset[yshift + h]];
+        if (src+4 > sp_end) {
+            ERRORLOG("Outranged offset to sprite line %d (%d>%d)",(int)(yshift + h),(int)sp_y_offset[yshift + h],(int)sp_len);
+            return Lb_FAIL;
+        }
         w = 0;
         while (w < xshift)
         {

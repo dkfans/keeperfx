@@ -124,7 +124,7 @@ int get_computer_process_config_list_index_mnem(const char *mnemonic)
 int get_computer_check_config_list_index_mnem(const char *mnemonic)
 {
   int i;
-  const int arr_size = sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]);
+  const int arr_size = (int)(sizeof(computer_check_config_list)/sizeof(computer_check_config_list[0]));
   for (i=1; i < arr_size; i++)
   {
     if (stricmp(computer_check_config_list[i].name, mnemonic) == 0)
@@ -136,7 +136,7 @@ int get_computer_check_config_list_index_mnem(const char *mnemonic)
 int get_computer_event_config_list_index_mnem(const char *mnemonic)
 {
   int i;
-  const int arr_size = sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]);
+  const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
   for (i=1; i < arr_size; i++)
   {
     if (strcasecmp(computer_event_config_list[i].name, mnemonic) == 0)
@@ -669,7 +669,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
   char block_buf[32];
   char word_buf[32];
   // Initialize the events array
-  const int arr_size = sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]);
+  const int arr_size = (int)(sizeof(computer_event_config_list)/sizeof(computer_event_config_list[0]));
   for (i=0; i < arr_size; i++)
   {
     cevent = &computer_events[i];
@@ -844,7 +844,7 @@ short parse_computer_player_computer_blocks(char *buf,long len)
   // Block name and parameter word store variable
   char block_buf[32];
   char word_buf[32];
-  const int arr_size = sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0])-1;
+  const int arr_size = (int)(sizeof(ComputerProcessLists)/sizeof(ComputerProcessLists[0]))-1;
   for (i=0; i < arr_size; i++)
   {
     sprintf(block_buf,"computer%d",i);

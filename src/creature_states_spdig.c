@@ -403,7 +403,7 @@ long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
 /**
  * Checks for a special digger task for a creature in its vicinity.
  * @param digger
- * @bote originally was check_out_available_imp_drop_tasks()
+ * @note originally was check_out_available_imp_drop_tasks()
  */
 long check_out_available_spdigger_drop_tasks(struct Thing *digger)
 {
