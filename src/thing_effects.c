@@ -27,6 +27,7 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
+#include "creature_senses.h"
 #include "front_simple.h"
 #include "map_data.h"
 #include "map_blocks.h"

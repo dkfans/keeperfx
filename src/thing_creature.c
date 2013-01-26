@@ -345,43 +345,56 @@ long creature_available_for_combat_this_turn(struct Thing *thing)
   return _DK_creature_available_for_combat_this_turn(thing);
 }
 
-struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing)
+struct Thing *get_players_dungeon_heart_creature_can_see(struct Thing *creatng, PlayerNumber heart_owner)
+{
+    struct Dungeon * dungeon;
+    dungeon = get_players_num_dungeon(heart_owner);
+    // We need a valid Dungeon structure, but the player don't have to be
+    // existing - it might be a zombie, or hero player in any state
+    if (dungeon_invalid(dungeon)) {
+        WARNLOG("Invalid dungeon %d",(int)heart_owner);
+        return INVALID_THING;
+    }
+    struct Thing * heartng;
+    int dist;
+    heartng = thing_get(dungeon->dnheart_idx);
+    if (!thing_exists(heartng))
+    {
+        SYNCDBG(7,"The dungeon %d has no heart",(int)heart_owner);
+        return INVALID_THING;
+    }
+    dist = get_combat_distance(creatng, heartng);
+    if (!creature_can_see_combat_path(creatng, heartng, dist)) {
+        SYNCDBG(7,"The %s index %d owned by player %d can't see player %d %s index %d at distance %d",
+            thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,
+            (int)heartng->owner,thing_model_name(heartng),(int)heartng->index,(int)dist);
+        return INVALID_THING;
+    }
+    SYNCDBG(7,"The %s index %d owned by player %d sees player %d %s index %d at distance %d",
+        thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,
+        (int)heartng->owner,thing_model_name(heartng),(int)heartng->index,(int)dist);
+    return heartng;
+}
+
+struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *creatng)
 {
     PlayerNumber enemy_idx;
 
     SYNCDBG(17, "Starting");
 
-    //return _DK_get_enemy_dungeon_heart_creature_can_see(thing);
+    //return _DK_get_enemy_dungeon_heart_creature_can_see(creatng);
 
     assert(DUNGEONS_COUNT == PLAYERS_COUNT);
 
     for (enemy_idx = 0; enemy_idx < DUNGEONS_COUNT; enemy_idx++)
     {
-        if ( players_are_enemies(thing->owner, enemy_idx) )
+        if ( players_are_enemies(creatng->owner, enemy_idx) )
         {
-            struct PlayerInfo *player;
-            struct Dungeon * dungeon;
             struct Thing * heartng;
-            int dist;
-            player = get_player(enemy_idx);
-            dungeon = get_players_dungeon(player);
-            // We need a valid Dungeon structure, but the player don't have to be
-            // existing - it might be a zombie, or hero player in any state
-            if (player_invalid(player) || dungeon_invalid(dungeon)) {
-                WARNLOG("Invalid dungeon %d, skipped",(int)enemy_idx);
-                continue;
-            }
-            heartng = thing_get(dungeon->dnheart_idx);
-            if (thing_exists(heartng))
+            heartng = get_players_dungeon_heart_creature_can_see(creatng, enemy_idx);
+            if (!thing_is_invalid(heartng))
             {
-                dist = get_combat_distance(thing, heartng);
-                if (creature_can_see_combat_path(thing, heartng, dist)) {
-                    SYNCDBG(17, "The %s index %d owned by player %d sees enemy %s index %d",
-                        thing_model_name(thing),(int)thing->index,(int)thing->owner,thing_model_name(heartng),(int)heartng->index);
-                    return heartng;
-                }
-                SYNCDBG(17, "The %s index %d owned by player %d can't see enemy %s index %d",
-                    thing_model_name(thing),(int)thing->index,(int)thing->owner,thing_model_name(heartng),(int)heartng->index);
+                return heartng;
             }
         }
     }
