@@ -320,6 +320,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     {
         init_player_music(player);
     }
+    // By default, player is his own ally
     player->allied_players = (1 << player->id_number);
     player->field_10 = 0;
 }

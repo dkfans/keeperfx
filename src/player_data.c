@@ -201,6 +201,8 @@ void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
 {
     struct PlayerInfo *player;
     player = get_player(plyridx);
+    if (player_invalid(player))
+        return;
     player->allied_players ^= (1 << allyidx);
 }
 
@@ -208,7 +210,7 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
 {
     struct PlayerInfo *player;
     player = get_player(plyridx);
-    if (!player_exists(player))
+    if (player_invalid(player))
         return false;
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return false;
