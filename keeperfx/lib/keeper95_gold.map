@@ -410,6 +410,9 @@
  0003:0000FC20       class_functions
  0002:00000D50       imp_spangle_effects
  0003:000EBEB0       blue_palette
+ 0003:000A66D4       red_palette
+ 0003:000A6E98       dog_palette
+ 0003:000EBEC8       vampire_palette
  0003:0000AFE0       creatures
  0003:00245B18       no_of_breeds_owned
  0003:00021FE0       poly_screen

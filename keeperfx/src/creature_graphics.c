@@ -139,8 +139,6 @@ struct CreaturePickedUpOffset creature_picked_up_offset[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT struct KeeperSprite *_DK_creature_table;
-#define creature_table _DK_creature_table
 DLLIMPORT unsigned short _DK_creature_list[CREATURE_FRAMELIST_LENGTH];
 #define creature_list _DK_creature_list
 /******************************************************************************/

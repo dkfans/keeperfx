@@ -807,9 +807,9 @@ TbBool load_map_and_window(LevelNumber lvnum)
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
     wait_for_cd_to_be_available();
     map_window_len = LbFileLoadAt(fname, block_mem);
-    if (map_window_len < WINDOW_Y_SIZE*sizeof(long))
+    if (map_window_len < (long)(WINDOW_Y_SIZE*sizeof(long)))
     {
-        ERRORLOG("Unable to load Land Map Window");
+        ERRORLOG("Unable to load Land Map Window \"%s.dat\"",land_window);
         unload_map_and_window();
         return false;
     }

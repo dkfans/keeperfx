@@ -40,6 +40,7 @@
 #include "lens_api.h"
 #include "config_settings.h"
 #include "game_legacy.h"
+#include "creature_graphics.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -223,6 +224,18 @@ struct TbLoadFiles hi_res_small_pointer_load_files[] = {
 struct TbLoadFiles legal_load_files[] = {
     {"*PALETTE", &_DK_palette, NULL, PALETTE_SIZE, 0, 0},
     {"*SCRATCH", &scratch, NULL, 0x10000, 1, 0},
+    {"", NULL, NULL, 0, 0, 0}, };
+
+struct TbLoadFiles game_load_files[] = {
+    {"*SCRATCH", &scratch, NULL, 0x10000, 0, 0},
+    {"*TEXTURE_PAGE", &block_mem, NULL, max(256*2176,960*720), 0, 0},// Store whole texture image or land view image
+    {"data/creature.tab", (unsigned char**)&creature_table, 0, 0, 0, 0},
+    {"data/palette.dat", &_DK_palette, 0, 0, 0, 0},
+    {"data/bluepal.dat", &blue_palette, 0, 0, 0,0},
+    {"data/redpall.dat", &red_palette, 0, 0, 0,0},
+    {"data/lightng.pal", &lightning_palette, 0, 0, 0, 0},
+    {"data/dogpal.pal", &dog_palette, 0, 0, 0, 0},
+    {"data/vampal.pal", &vampire_palette, 0, 0, 0, 0},
     {"", NULL, NULL, 0, 0, 0}, };
 
 /*
