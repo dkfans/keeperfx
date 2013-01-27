@@ -2360,229 +2360,246 @@ void init_gui(void)
   no_of_active_menus = 0;
 }
 
-int frontend_set_state(long nstate)
+void frontend_shutdown_state(long pstate)
 {
-  char *fname;
-  SYNCDBG(8,"State %d will be switched to %d",frontend_menu_state,nstate);
-  switch (frontend_menu_state)
-  {
-  case 0:
-      init_gui();
-      wait_for_cd_to_be_available();
-      fname = prepare_file_path(FGrp_LoData,"front.pal");
-      if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
-        ERRORLOG("Unable to load FRONTEND PALETTE");
-      wait_for_cd_to_be_available();
-      LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
-      update_mouse();
-      break;
-  case FeSt_MAIN_MENU: // main menu state
-      turn_off_menu(GMnu_FEMAIN);
-      break;
-  case FeSt_FELOAD_GAME:
-      turn_off_menu(GMnu_FELOAD);
-      break;
-  case FeSt_LAND_VIEW:
-      frontmap_unload();
-      frontend_load_data();
-      break;
-  case FeSt_NET_SERVICE:
-      turn_off_menu(GMnu_FENET_SERVICE);
-      break;
-  case FeSt_NET_SESSION: // Network play mode
-      turn_off_menu(GMnu_FENET_SESSION);
-      break;
-  case FeSt_NET_START:
-      turn_off_menu(GMnu_FENET_START);
-      break;
-  case FeSt_STORY_POEM:
-  case FeSt_STORY_BIRTHDAY:
-      frontstory_unload();
-      break;
-  case FeSt_CREDITS:
-      if ((game.flags_cd & MFlg_NoMusic) == 0)
-        StopRedbookTrack();
-      break;
-  case FeSt_NET_MODEM:
-      turn_off_menu(GMnu_FENET_MODEM);
-      frontnet_modem_reset();
-      break;
-  case FeSt_NET_SERIAL:
-      turn_off_menu(GMnu_FENET_SERIAL);
-      frontnet_serial_reset();
-      break;
-  case FeSt_LEVEL_STATS:
-      StopStreamedSample();
-      turn_off_menu(GMnu_FESTATISTICS);
-      break;
-  case FeSt_HIGH_SCORES:
-      turn_off_menu(GMnu_FEHIGH_SCORE_TABLE);
-      break;
-  case FeSt_TORTURE:
-      fronttorture_unload();
-      frontend_load_data();
-      break;
-  case FeSt_NETLAND_VIEW:
-      frontnetmap_unload();
-      frontend_load_data();
-      break;
-  case FeSt_FEDEFINE_KEYS:
-      turn_off_menu(GMnu_FEDEFINE_KEYS);
-      save_settings();
-      break;
-  case FeSt_FEOPTIONS:
-      turn_off_menu(GMnu_FEOPTION);
-      if ((game.flags_cd & MFlg_NoMusic) == 0)
-        StopRedbookTrack();
-      break;
-  case FeSt_LEVEL_SELECT:
-      turn_off_menu(GMnu_FELEVEL_SELECT);
-      frontend_level_list_unload();
-      break;
-  case FeSt_CAMPAIGN_SELECT:
-      turn_off_menu(GMnu_FECAMPAIGN_SELECT);
-      break;
-  case FeSt_START_KPRLEVEL:
-  case FeSt_START_MPLEVEL:
-  case FeSt_UNKNOWN09:
-  case FeSt_LOAD_GAME:
-  case FeSt_INTRO:
-  case FeSt_DEMO: //demo state (intro/credits)
-  case FeSt_OUTRO:
-  case FeSt_PACKET_DEMO:
-      break;
-#if (BFDEBUG_LEVEL > 0)
-  case FeSt_FONT_TEST:
-      free_testfont_fonts();
-      break;
-#endif
-  default:
-      ERRORLOG("Unhandled FRONTEND previous state");
-      break;
-  }
-  if ( frontend_menu_state )
-    fade_out();
-  fade_palette_in = 1;
-  SYNCMSG("Frontend state change from %u into %u",frontend_menu_state,nstate);
-  switch ( nstate )
-  {
-    case 0:
-      set_pointer_graphic_none();
-      break;
-    case FeSt_MAIN_MENU:
-      set_pointer_graphic_menu();
-      continue_game_option_available = continue_game_available();
-      turn_on_menu(GMnu_FEMAIN);
-      last_mouse_x = GetMouseX();
-      last_mouse_y = GetMouseY();
-      time_last_played_demo = LbTimerClock();
-      fe_high_score_table_from_main_menu = true;
-      set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
-      break;
+    char *fname;
+    switch (pstate)
+    {
+    case FeSt_INITIAL:
+        init_gui();
+        wait_for_cd_to_be_available();
+        fname = prepare_file_path(FGrp_LoData,"front.pal");
+        if (LbFileLoadAt(fname, frontend_palette) != PALETTE_SIZE)
+            ERRORLOG("Unable to load FRONTEND PALETTE");
+        wait_for_cd_to_be_available();
+        LbMouseSetPosition(lbDisplay.PhysicalScreenWidth>>1, lbDisplay.PhysicalScreenHeight>>1);
+        update_mouse();
+        break;
+    case FeSt_MAIN_MENU: // main menu state
+        turn_off_menu(GMnu_FEMAIN);
+        break;
     case FeSt_FELOAD_GAME:
-      turn_on_menu(GMnu_FELOAD);
-      set_pointer_graphic_menu();
-      break;
+        turn_off_menu(GMnu_FELOAD);
+        break;
     case FeSt_LAND_VIEW:
-      if ( !frontmap_load() )
-        nstate = 7;
-      break;
+        frontmap_unload();
+        frontend_load_data();
+        break;
     case FeSt_NET_SERVICE:
-      turn_on_menu(GMnu_FENET_SERVICE);
-      frontnet_service_setup();
-      break;
-    case FeSt_NET_SESSION:
-      turn_on_menu(GMnu_FENET_SESSION);
-      frontnet_session_setup();
-      set_pointer_graphic_menu();
-      set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
-      break;
+        turn_off_menu(GMnu_FENET_SERVICE);
+        break;
+    case FeSt_NET_SESSION: // Network play mode
+        turn_off_menu(GMnu_FENET_SESSION);
+        break;
     case FeSt_NET_START:
-      turn_on_menu(GMnu_FENET_START);
-      frontnet_start_setup();
-      set_pointer_graphic_menu();
-      set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
-      break;
+        turn_off_menu(GMnu_FENET_START);
+        break;
+    case FeSt_STORY_POEM:
+    case FeSt_STORY_BIRTHDAY:
+        frontstory_unload();
+        break;
+    case FeSt_CREDITS:
+        if ((game.flags_cd & MFlg_NoMusic) == 0)
+          StopRedbookTrack();
+        break;
+    case FeSt_NET_MODEM:
+        turn_off_menu(GMnu_FENET_MODEM);
+        frontnet_modem_reset();
+        break;
+    case FeSt_NET_SERIAL:
+        turn_off_menu(GMnu_FENET_SERIAL);
+        frontnet_serial_reset();
+        break;
+    case FeSt_LEVEL_STATS:
+        StopStreamedSample();
+        turn_off_menu(GMnu_FESTATISTICS);
+        break;
+    case FeSt_HIGH_SCORES:
+        turn_off_menu(GMnu_FEHIGH_SCORE_TABLE);
+        break;
+    case FeSt_TORTURE:
+        fronttorture_unload();
+        frontend_load_data();
+        break;
+    case FeSt_NETLAND_VIEW:
+        frontnetmap_unload();
+        frontend_load_data();
+        break;
+    case FeSt_FEDEFINE_KEYS:
+        turn_off_menu(GMnu_FEDEFINE_KEYS);
+        save_settings();
+        break;
+    case FeSt_FEOPTIONS:
+        turn_off_menu(GMnu_FEOPTION);
+        if ((game.flags_cd & MFlg_NoMusic) == 0)
+          StopRedbookTrack();
+        break;
+    case FeSt_LEVEL_SELECT:
+        turn_off_menu(GMnu_FELEVEL_SELECT);
+        frontend_level_list_unload();
+        break;
+    case FeSt_CAMPAIGN_SELECT:
+        turn_off_menu(GMnu_FECAMPAIGN_SELECT);
+        break;
     case FeSt_START_KPRLEVEL:
+    case FeSt_START_MPLEVEL:
     case FeSt_UNKNOWN09:
     case FeSt_LOAD_GAME:
     case FeSt_INTRO:
-    case FeSt_DEMO:
+    case FeSt_DEMO: //demo state (intro/credits)
     case FeSt_OUTRO:
     case FeSt_PACKET_DEMO:
-      fade_palette_in = 0;
-      break;
-    case FeSt_START_MPLEVEL:
-      if ((game.flags_font & FFlg_unk10) != 0)
-        LbNetwork_ChangeExchangeTimeout(30);
-      fade_palette_in = 0;
-      break;
-    case FeSt_STORY_POEM:
-    case FeSt_STORY_BIRTHDAY:
-      frontstory_load();
-      break;
-    case FeSt_CREDITS:
-      credits_offset = lbDisplay.PhysicalScreenHeight;
-      credits_end = 0;
-      LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-      lbDisplay.DrawFlags = 0x0100;
-      break;
-    case FeSt_NET_MODEM:
-      turn_on_menu(GMnu_FENET_MODEM);
-      frontnet_modem_setup();
-      break;
-    case FeSt_NET_SERIAL:
-      turn_on_menu(GMnu_FENET_SERIAL);
-      frontnet_serial_setup();
-      break;
-    case FeSt_LEVEL_STATS:
-      turn_on_menu(GMnu_FESTATISTICS);
-      set_pointer_graphic_menu();
-      frontstats_set_timer();
-      break;
-    case FeSt_HIGH_SCORES:
-      turn_on_menu(GMnu_FEHIGH_SCORE_TABLE);
-      frontstats_save_high_score();
-      set_pointer_graphic_menu();
-      break;
-    case FeSt_TORTURE:
-      set_pointer_graphic_menu();
-      fronttorture_load();
-      break;
-    case FeSt_NETLAND_VIEW:
-      set_pointer_graphic_menu();
-      frontnetmap_load();
-      break;
-    case FeSt_FEDEFINE_KEYS:
-      defining_a_key = 0;
-      define_key_scroll_offset = 0;
-      turn_on_menu(GMnu_FEDEFINE_KEYS);
-      break;
-    case FeSt_FEOPTIONS:
-      turn_on_menu(GMnu_FEOPTION);
-      break;
-  case FeSt_LEVEL_SELECT:
-      set_pointer_graphic_menu();
-      turn_on_menu(GMnu_FELEVEL_SELECT);
-      frontend_level_list_load();
-      set_pointer_graphic_menu();
-      break;
-  case FeSt_CAMPAIGN_SELECT:
-      turn_on_menu(GMnu_FECAMPAIGN_SELECT);
-      break;
+        break;
 #if (BFDEBUG_LEVEL > 0)
-  case FeSt_FONT_TEST:
-      fade_palette_in = 0;
-      load_testfont_fonts();
-      set_pointer_graphic_menu();
-      break;
+    case FeSt_FONT_TEST:
+        free_testfont_fonts();
+        break;
 #endif
     default:
-      ERRORLOG("Unhandled FRONTEND new state");
-      break;
-  }
-  frontend_menu_state = nstate;
-  return frontend_menu_state;
+        ERRORLOG("Unhandled FRONTEND state %d shutdown",(int)pstate);
+        break;
+    }
+}
+
+int frontend_setup_state(long nstate)
+{
+    switch ( nstate )
+    {
+      case FeSt_INITIAL:
+          set_pointer_graphic_none();
+          break;
+      case FeSt_MAIN_MENU:
+          continue_game_option_available = continue_game_available();
+          turn_on_menu(GMnu_FEMAIN);
+          last_mouse_x = GetMouseX();
+          last_mouse_y = GetMouseY();
+          time_last_played_demo = LbTimerClock();
+          fe_high_score_table_from_main_menu = true;
+          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          set_pointer_graphic_menu();
+          break;
+      case FeSt_FELOAD_GAME:
+          turn_on_menu(GMnu_FELOAD);
+          set_pointer_graphic_menu();
+          break;
+      case FeSt_LAND_VIEW:
+          set_pointer_graphic_none();
+          if ( !frontmap_load() ) {
+              // Fallback in case of error
+              nstate = FeSt_START_KPRLEVEL;
+          }
+          break;
+      case FeSt_NET_SERVICE:
+          turn_on_menu(GMnu_FENET_SERVICE);
+          frontnet_service_setup();
+          set_pointer_graphic_menu();
+          break;
+      case FeSt_NET_SESSION:
+          turn_on_menu(GMnu_FENET_SESSION);
+          frontnet_session_setup();
+          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          set_pointer_graphic_menu();
+          break;
+      case FeSt_NET_START:
+          turn_on_menu(GMnu_FENET_START);
+          frontnet_start_setup();
+          set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
+          set_pointer_graphic_menu();
+          break;
+      case FeSt_START_KPRLEVEL:
+      case FeSt_UNKNOWN09:
+      case FeSt_LOAD_GAME:
+      case FeSt_INTRO:
+      case FeSt_DEMO:
+      case FeSt_OUTRO:
+      case FeSt_PACKET_DEMO:
+          fade_palette_in = 0;
+          break;
+      case FeSt_START_MPLEVEL:
+          if ((game.flags_font & FFlg_unk10) != 0)
+              LbNetwork_ChangeExchangeTimeout(30);
+          fade_palette_in = 0;
+          break;
+      case FeSt_STORY_POEM:
+      case FeSt_STORY_BIRTHDAY:
+          set_pointer_graphic_none();
+          frontstory_load();
+          break;
+      case FeSt_CREDITS:
+          set_pointer_graphic_none();
+          credits_offset = lbDisplay.PhysicalScreenHeight;
+          credits_end = 0;
+          LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+          lbDisplay.DrawFlags = 0x0100;
+          break;
+      case FeSt_NET_MODEM:
+          turn_on_menu(GMnu_FENET_MODEM);
+          frontnet_modem_setup();
+          break;
+      case FeSt_NET_SERIAL:
+          turn_on_menu(GMnu_FENET_SERIAL);
+          frontnet_serial_setup();
+          break;
+      case FeSt_LEVEL_STATS:
+          turn_on_menu(GMnu_FESTATISTICS);
+          frontstats_set_timer();
+          set_pointer_graphic_menu();
+          break;
+      case FeSt_HIGH_SCORES:
+          turn_on_menu(GMnu_FEHIGH_SCORE_TABLE);
+          frontstats_save_high_score();
+          set_pointer_graphic_menu();
+          break;
+      case FeSt_TORTURE:
+          set_pointer_graphic_none();
+          fronttorture_load();
+          break;
+      case FeSt_NETLAND_VIEW:
+          set_pointer_graphic_none();
+          frontnetmap_load();
+          break;
+      case FeSt_FEDEFINE_KEYS:
+          defining_a_key = 0;
+          define_key_scroll_offset = 0;
+          turn_on_menu(GMnu_FEDEFINE_KEYS);
+          break;
+      case FeSt_FEOPTIONS:
+          turn_on_menu(GMnu_FEOPTION);
+          set_pointer_graphic_menu();
+          break;
+    case FeSt_LEVEL_SELECT:
+        turn_on_menu(GMnu_FELEVEL_SELECT);
+        frontend_level_list_load();
+        set_pointer_graphic_menu();
+        break;
+    case FeSt_CAMPAIGN_SELECT:
+        turn_on_menu(GMnu_FECAMPAIGN_SELECT);
+        set_pointer_graphic_menu();
+        break;
+  #if (BFDEBUG_LEVEL > 0)
+    case FeSt_FONT_TEST:
+        fade_palette_in = 0;
+        load_testfont_fonts();
+        set_pointer_graphic_menu();
+        break;
+  #endif
+      default:
+        ERRORLOG("Unhandled FRONTEND new state");
+        break;
+    }
+    return nstate;
+}
+
+int frontend_set_state(long nstate)
+{
+    SYNCDBG(8,"State %d will be switched to %d",(int)frontend_menu_state,(int)nstate);
+    frontend_shutdown_state(frontend_menu_state);
+    if ( frontend_menu_state )
+      fade_out();
+    fade_palette_in = 1;
+    SYNCMSG("Frontend state change from %d into %d",(int)frontend_menu_state,(int)nstate);
+    frontend_menu_state = frontend_setup_state(nstate);
+    return frontend_menu_state;
 }
 
 short frontstory_input(void)

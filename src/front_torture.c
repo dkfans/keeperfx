@@ -157,88 +157,88 @@ void fronttorture_unload(void)
 
 void fronttorture_load(void)
 {
-  struct PlayerInfo *player;
-  char *fname;
-  unsigned char *ptr;
-  long i,k;
-  wait_for_cd_to_be_available();
-  frontend_load_data_from_cd();
-  memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
-  ptr = block_mem;
-  // Load RAW/PAL background
-  fname = prepare_file_path(FGrp_LoData,"torture.raw");
-  torture_background = ptr;
-  i = LbFileLoadAt(fname, ptr);
-  ptr += i;
-  fname = prepare_file_path(FGrp_LoData,"torture.pal");
-  torture_palette = ptr;
-  i = LbFileLoadAt(fname, ptr);
-  ptr += i;
+    struct PlayerInfo *player;
+    char *fname;
+    unsigned char *ptr;
+    long i,k;
+    wait_for_cd_to_be_available();
+    frontend_load_data_from_cd();
+    memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
+    ptr = block_mem;
+    // Load RAW/PAL background
+    fname = prepare_file_path(FGrp_LoData,"torture.raw");
+    torture_background = ptr;
+    i = LbFileLoadAt(fname, ptr);
+    ptr += i;
+    fname = prepare_file_path(FGrp_LoData,"torture.pal");
+    torture_palette = ptr;
+    i = LbFileLoadAt(fname, ptr);
+    ptr += i;
 
-  // Load DAT/TAB sprites for doors
-  k = 0;
-  {
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].data = (unsigned long)ptr;
-    ptr += i;
-    doors[k].data_end = ptr;
+    // Load DAT/TAB sprites for doors
+    k = 0;
+    {
+        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
+        i = LbFileLoadAt(fname, ptr);
+        doors[k].data = (unsigned long)ptr;
+        ptr += i;
+        doors[k].data_end = ptr;
 
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].sprites = (struct TbSprite *)ptr;
-    ptr += i;
-    doors[k].sprites_end =(struct TbSprite *) ptr;
-  }
-  ptr = &game.land_map_start;
-  for (k=1; k < 8; k++)
-  {
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].data = (unsigned long)ptr;
-    ptr += i;
-    doors[k].data_end = ptr;
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].sprites = (struct TbSprite *)ptr;
-    ptr += i;
-    doors[k].sprites_end = (struct TbSprite *)ptr;
-  }
-  ptr = poly_pool;
-  k = 8;
-  {
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].data = (unsigned long)ptr;
-    ptr += i;
-    doors[k].data_end = ptr;
-    fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-    i = LbFileLoadAt(fname, ptr);
-    doors[k].sprites = (struct TbSprite *)ptr;
-    ptr += i;
-    doors[k].sprites_end = (struct TbSprite *)ptr;
-  }
+        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
+        i = LbFileLoadAt(fname, ptr);
+        doors[k].sprites = (struct TbSprite *)ptr;
+        ptr += i;
+        doors[k].sprites_end =(struct TbSprite *) ptr;
+    }
+    ptr = &game.land_map_start;
+    for (k=1; k < 8; k++)
+    {
+        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
+        i = LbFileLoadAt(fname, ptr);
+        doors[k].data = (unsigned long)ptr;
+        ptr += i;
+        doors[k].data_end = ptr;
+        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
+        i = LbFileLoadAt(fname, ptr);
+        doors[k].sprites = (struct TbSprite *)ptr;
+        ptr += i;
+        doors[k].sprites_end = (struct TbSprite *)ptr;
+    }
+    ptr = poly_pool;
+    k = 8;
+    {
+        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
+        i = LbFileLoadAt(fname, ptr);
+        doors[k].data = (unsigned long)ptr;
+        ptr += i;
+        doors[k].data_end = ptr;
+        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
+        i = LbFileLoadAt(fname, ptr);
+        doors[k].sprites = (struct TbSprite *)ptr;
+        ptr += i;
+        doors[k].sprites_end = (struct TbSprite *)ptr;
+    }
 
-  if ( LbDataLoadAll(torture_load_files) )
-    ERRORLOG("Unable to load torture load files");
-  LbSpriteSetupAll(setup_torture_sprites);
-  frontend_load_data_reset();
-  memcpy(&frontend_palette, torture_palette, PALETTE_SIZE);
-  torture_state.action = 0;
-  torture_door_selected = -1;
-  torture_end_sprite = -1;
-  torture_sprite_direction = 0;
-  LbMemorySet(door_sound_state, 0, TORTURE_DOORS_COUNT*sizeof(struct DoorSoundState));
+    if ( LbDataLoadAll(torture_load_files) )
+        ERRORLOG("Unable to load torture load files");
+    LbSpriteSetupAll(setup_torture_sprites);
+    frontend_load_data_reset();
+    memcpy(&frontend_palette, torture_palette, PALETTE_SIZE);
+    torture_state.action = 0;
+    torture_door_selected = -1;
+    torture_end_sprite = -1;
+    torture_sprite_direction = 0;
+    LbMemorySet(door_sound_state, 0, TORTURE_DOORS_COUNT*sizeof(struct DoorSoundState));
 
-  player = get_my_player();
-  if (player->victory_state == VicS_WonLevel)
-  {
-    LbMouseChangeSpriteAndHotspot(&fronttor_sprites[1], 0, 0);
-  } else
-  {
-    LbMouseChangeSpriteAndHotspot(0, 0, 0);
-  }
-  torture_left_button = 0;
+    player = get_my_player();
+    if (player->victory_state == VicS_WonLevel)
+    {
+        LbMouseChangeSpriteAndHotspot(&fronttor_sprites[1], 0, 0);
+    } else
+    {
+        LbMouseChangeSpriteAndHotspot(0, 0, 0);
+    }
+    torture_left_button = 0;
 }
 
 TbBool fronttorture_draw(void)
@@ -281,143 +281,143 @@ TbBool fronttorture_draw(void)
 
 void fronttorture_input(void)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  long x,y;
-  long plyr_idx,door_id;
-  clear_packets();
-  player = get_my_player();
-  pckt = get_packet(my_player_number);
-  // Get inputs and create packet
-  if (player->victory_state == VicS_WonLevel)
-  {
-    if (left_button_clicked)
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    long x,y;
+    long plyr_idx,door_id;
+    clear_packets();
+    player = get_my_player();
+    pckt = get_packet(my_player_number);
+    // Get inputs and create packet
+    if (player->victory_state == VicS_WonLevel)
     {
-      torture_left_button = 1;
-      left_button_clicked = 0;
+        if (left_button_clicked)
+        {
+            torture_left_button = 1;
+            left_button_clicked = 0;
+        }
+        if ((lbKeyOn[KC_SPACE]) || (lbKeyOn[KC_RETURN]) || (lbKeyOn[KC_ESCAPE]))
+        {
+            lbKeyOn[KC_SPACE] = 0;
+            lbKeyOn[KC_RETURN] = 0;
+            lbKeyOn[KC_ESCAPE] = 0;
+            pckt->action |= 0x01;
+        }
+        if (torture_left_button)
+            pckt->action |= 0x02;
+        if (left_button_held)
+            pckt->action |= 0x04;
+        pckt->field_6 = GetMouseX();
+        pckt->field_8 = GetMouseY();
     }
-    if ((lbKeyOn[KC_SPACE]) || (lbKeyOn[KC_RETURN]) || (lbKeyOn[KC_ESCAPE]))
+    // Exchange packet with other players
+    if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      lbKeyOn[KC_SPACE] = 0;
-      lbKeyOn[KC_RETURN] = 0;
-      lbKeyOn[KC_ESCAPE] = 0;
-      pckt->action |= 0x01;
+        if (LbNetwork_Exchange(pckt))
+            ERRORLOG("LbNetwork_Exchange failed");
     }
-    if (torture_left_button)
-      pckt->action |= 0x02;
-    if (left_button_held)
-      pckt->action |= 0x04;
-    pckt->field_6 = GetMouseX();
-    pckt->field_8 = GetMouseY();
-  }
-  // Exchange packet with other players
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-  {
-    if (LbNetwork_Exchange(pckt))
-      ERRORLOG("LbNetwork_Exchange failed");
-  }
-  // Determine the controlling player and get his mouse coords
-  for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
-  {
-    player = get_player(plyr_idx);
-    pckt = get_packet(plyr_idx);
-    if ((pckt->action != 0) && (player->victory_state == VicS_WonLevel))
-      break;
-  }
-  if (plyr_idx < PLAYERS_COUNT)
-  {
-    x = pckt->field_6;
-    y = pckt->field_8;
-  } else
-  {
-    plyr_idx = my_player_number;
-    player = get_player(plyr_idx);
-    pckt = get_packet(plyr_idx);
-    x = 0;
-    y = 0;
-  }
-  if ((pckt->action & 0x01) != 0)
-  {
-      frontend_set_state(FeSt_LEVEL_STATS);
-      if ((game.system_flags & GSF_NetworkActive) != 0)
-          LbNetwork_Stop();
-      return;
-  }
-  // Get active door
-  door_id = torture_door_over_point(x,y);
-  if ((torture_door_selected != -1) && (torture_door_selected != door_id))
-    door_id = -1;
-  // Make the action
-  if (door_id == -1)
-    torture_left_button = 0;
-  switch (torture_state.action)
-  {
-  case 0:
-      if (door_id != -1)
-      {
-        torture_state.action = 1;
-        torture_sprite_direction = 1;
-        torture_door_selected = door_id;
-        torture_sprite_frame = 3;
-        torture_end_sprite = 7;
-      }
-      break;
-  case 1:
-      if (torture_sprite_frame == torture_end_sprite)
-      {
-        if (door_id == -1)
+    // Determine the controlling player and get his mouse coords
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        player = get_player(plyr_idx);
+        pckt = get_packet(plyr_idx);
+        if ((pckt->action != 0) && (player->victory_state == VicS_WonLevel))
+            break;
+    }
+    if (plyr_idx < PLAYERS_COUNT)
+    {
+        x = pckt->field_6;
+        y = pckt->field_8;
+    } else
+    {
+        plyr_idx = my_player_number;
+        player = get_player(plyr_idx);
+        pckt = get_packet(plyr_idx);
+        x = 0;
+        y = 0;
+    }
+    if ((pckt->action & 0x01) != 0)
+    {
+        frontend_set_state(FeSt_LEVEL_STATS);
+        if ((game.system_flags & GSF_NetworkActive) != 0)
+            LbNetwork_Stop();
+        return;
+    }
+    // Get active door
+    door_id = torture_door_over_point(x,y);
+    if ((torture_door_selected != -1) && (torture_door_selected != door_id))
+        door_id = -1;
+    // Make the action
+    if (door_id == -1)
+      torture_left_button = 0;
+    switch (torture_state.action)
+    {
+    case 0:
+        if (door_id != -1)
         {
-          torture_state.action = 2;
-          torture_sprite_frame = 8;
-          torture_end_sprite = 4;
-          torture_sprite_direction = -1;
-        } else
-        if ((pckt->action & 6) != 0)
-        {
-          torture_state.action = 3;
-          torture_left_button = 0;
-          torture_sprite_frame = 7;
-          torture_end_sprite = 11;
+          torture_state.action = 1;
           torture_sprite_direction = 1;
-          torture_play_sound(torture_door_selected, true);
+          torture_door_selected = door_id;
+          torture_sprite_frame = 3;
+          torture_end_sprite = 7;
         }
-      }
-      break;
-  case 2:
-      if (torture_sprite_frame == torture_end_sprite)
-      {
-        torture_state.action = 0;
-        torture_door_selected = -1;
-      }
-      break;
-  case 3:
-      if (torture_sprite_frame == torture_end_sprite)
-      {
-        if (((pckt->action & 0x04) == 0) || (door_id == -1))
+        break;
+    case 1:
+        if (torture_sprite_frame == torture_end_sprite)
         {
-          torture_state.action = 4;
-          torture_sprite_frame = 12;
-          torture_end_sprite = 8;
-          torture_sprite_direction = -1;
-          torture_play_sound(torture_door_selected, false);
+          if (door_id == -1)
+          {
+            torture_state.action = 2;
+            torture_sprite_frame = 8;
+            torture_end_sprite = 4;
+            torture_sprite_direction = -1;
+          } else
+          if ((pckt->action & 6) != 0)
+          {
+            torture_state.action = 3;
+            torture_left_button = 0;
+            torture_sprite_frame = 7;
+            torture_end_sprite = 11;
+            torture_sprite_direction = 1;
+            torture_play_sound(torture_door_selected, true);
+          }
         }
-      }
-      break;
-  case 4:
-      if (torture_sprite_frame == torture_end_sprite)
-      {
-        torture_state.action = 1;
-        torture_sprite_frame = 7;
-        torture_end_sprite = 7;
-      }
-      break;
-  }
+        break;
+    case 2:
+        if (torture_sprite_frame == torture_end_sprite)
+        {
+          torture_state.action = 0;
+          torture_door_selected = -1;
+        }
+        break;
+    case 3:
+        if (torture_sprite_frame == torture_end_sprite)
+        {
+          if (((pckt->action & 0x04) == 0) || (door_id == -1))
+          {
+            torture_state.action = 4;
+            torture_sprite_frame = 12;
+            torture_end_sprite = 8;
+            torture_sprite_direction = -1;
+            torture_play_sound(torture_door_selected, false);
+          }
+        }
+        break;
+    case 4:
+        if (torture_sprite_frame == torture_end_sprite)
+        {
+          torture_state.action = 1;
+          torture_sprite_frame = 7;
+          torture_end_sprite = 7;
+        }
+        break;
+    }
 }
 
 void fronttorture_update(void)
 {
     //_DK_fronttorture_update();
-    if ( torture_state.action )
+    if (torture_state.action != 0)
     {
       if ( torture_sprite_frame != torture_end_sprite )
         torture_sprite_frame += torture_sprite_direction;
