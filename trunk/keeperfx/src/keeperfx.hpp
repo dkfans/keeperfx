@@ -153,8 +153,12 @@ DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
 
 DLLIMPORT extern unsigned char *_DK_blue_palette;
 #define blue_palette _DK_blue_palette
-DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
-#define game_load_files _DK_game_load_files
+DLLIMPORT extern unsigned char *_DK_red_palette;
+#define red_palette _DK_red_palette
+DLLIMPORT extern unsigned char *_DK_dog_palette;
+#define dog_palette _DK_dog_palette
+DLLIMPORT extern unsigned char *_DK_vampire_palette;
+#define vampire_palette _DK_vampire_palette
 DLLIMPORT extern unsigned char _DK_exit_keeper;
 #define exit_keeper _DK_exit_keeper
 DLLIMPORT extern unsigned char _DK_quit_game;

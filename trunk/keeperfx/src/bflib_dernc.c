@@ -487,6 +487,7 @@ long LbFileLoadAt(const char *fname, void *buffer)
   }
   if (read_status==-1)
   {
+      ERRORLOG("Couldn't read \"%s\", expected size %ld, errno %d",fname,filelength, (int)errno);
       return -1;
   }
   long unp_length = UnpackM1((unsigned char *)buffer, filelength);

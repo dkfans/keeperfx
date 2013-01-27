@@ -75,10 +75,13 @@ DLLIMPORT struct TbColorTables _DK_pixmap;
 #define pixmap _DK_pixmap
 DLLIMPORT extern struct TbLoadFiles _DK_map_flag_load_files[];
 //#define map_flag_load_files _DK_map_flag_load_files
+DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
+//#define game_load_files _DK_game_load_files
 /******************************************************************************/
 extern struct TbSprite *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFiles map_flag_load_files[];
+extern struct TbLoadFiles game_load_files[];
 extern unsigned short units_per_pixel_min;
 extern long base_mouse_sensitivity;
 /******************************************************************************/

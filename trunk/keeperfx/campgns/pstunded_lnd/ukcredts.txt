@@ -8,13 +8,13 @@
 ;   #TEXT - header string entered directly
 ;   TEXT - normal string entered directly
 [CREDITS]
-%Undead Keeper
+%Post Undead Keeper
 
 *381
 Duke Ragereaver
 
 #Land view
-MeinCookie
+Joachim Zielinski aka Ninja
 
 
 %Dungeon Keeper
