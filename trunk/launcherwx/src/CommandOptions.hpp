@@ -43,6 +43,12 @@ class CommandOptions : public wxDialog
     wxTextCtrl * humanPlayerTxtCtrl;
     wxCheckBox * vidDriverChkBx;
     wxTextCtrl * vidDriverTxtCtrl;
+    wxCheckBox * netSessionsChkBx;
+    wxTextCtrl * netSessionsTxtCtrl;
+    wxRadioButton * packetActionNoRadio;
+    wxRadioButton * packetActionLdRadio;
+    wxRadioButton * packetActionSvRadio;
+    wxTextCtrl * packetFileTxtCtrl;
 
 
 public:

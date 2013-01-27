@@ -69,12 +69,18 @@ wxString options_wparam_code[] = {
     _T("-fps"),
     _T("-human"),
     _T("-vidriver"),
+    _T("-sessions"),
+    _T("-packetload"),
+    _T("-packetsave"),
 };
 
 wxString options_wparam_text[] = {
     _T("Set turns/sec."),
     _T("Set human id"),
     _T("Force driver"),
+    _T("Set TCP/IP sessions"),
+    _T("Load"),
+    _T("Save"),
 };
 
 wxString options_tooltips_eng[] = {
@@ -82,13 +88,13 @@ wxString options_tooltips_eng[] = {
     _T("Command line to run. Here you can type by hand the parameters you wish to use."),//1
     _T("You usually want standard version, as it is fast and stable. Heavylog version logs huge amount of messages to a file \"keeperfx.log\" while you're playing. This requires a lot more of computation power, so on slower machines it might severely affect gameplay speed. But if the game will crash, the LOG file may help the developers to fix the problem."),//2
     _T("Switches which you can enable or disable. Their function is explained in readme file. If you don't want to see the intro over and over again, select \"Skip intro\". If you're having problems with keyboard or mouse inside the game, select \"Alt. input\"."),//3
-    _T("."),//4
-    _T("."),//5
-    _T("."),//6
-    _T("."),//7
-    _T("."),//8
-    _T("."),//9
-    _T("."),//10
+    _T("Gameplay speed. Increasing amount of turns per second will make the action faster. Note that you can temporarely unlock the speed limiter with ctrl+'+'."),//4
+    _T("Change human player ID. This allows you to play as blue, green or yellow keeper. Use this option for skirmish - single player levels won't work properly with it, unless they were especially designed for human to play as another keeper."),//5
+    _T("Set the video driver to be used by SDL library. Valid options on Windows host are 'directx' and 'windib'. Use this if your system is broken and most games do not work on it."),//6
+    _T("Host/peer addresses required to join a TCP/IP game. See 'tcp_readme.txt' to get detailed instructions on making multiplayer work."),//7
+    _T("Loads a previously created packet file. Starts the level for which packet file was created, and continues the gameplay. You may exit this mode by pressing Alt+X, or take over the control by pressing ALT+T."),//9
+    _T("Writes a packet file (replay file) when playing. After using this option, you must start a new level (or use '-level' parameter). Saved replay will work properly as long as you won't change any of the game files."),//8
+    _T("Packet files (replays) handling If you wish to save a reply of your game, or load a previously saved one, then use this. Otherwise, set it to 'None' to disable the option."),//10
     _T("Accept changes."),
     _T("Abandon changes and close the window."),
 };
@@ -97,6 +103,7 @@ BEGIN_EVENT_TABLE(CommandOptions, wxDialog)
     //EVT_CLOSE(CommandOptions::OnClose)
     EVT_SHOW(CommandOptions::OnShow)
     EVT_RADIOBOX(eventID_ChangeOption, CommandOptions::OnCmdRefresh)
+    EVT_RADIOBUTTON(eventID_ChangeOption, CommandOptions::OnCmdRefresh)
     EVT_CHECKBOX(eventID_ChangeOption, CommandOptions::OnCmdRefresh)
     EVT_BUTTON(eventID_CmdUpdate, CommandOptions::OnCmdUpdate)
 END_EVENT_TABLE()
@@ -144,7 +151,7 @@ CommandOptions::CommandOptions(wxFrame *parent)
                 wxIntegerValidator<long> gameSpeedVal(NULL, wxNUM_VAL_THOUSANDS_SEPARATOR);
                 gameSpeedVal.SetRange(1,10000);
                 gameSpeedTxtCtrl = new wxTextCtrl(gameSpeedBox, eventID_ChangeOption, wxT("20"), wxDefaultPosition, wxSize(64, -1), 0, gameSpeedVal);
-                gameSpeedTxtCtrl->SetToolTip(options_tooltips_eng[5]);
+                gameSpeedTxtCtrl->SetToolTip(options_tooltips_eng[4]);
                 gameSpeedSizer->Add(gameSpeedTxtCtrl, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL);
                 gameSpeedTxtCtrl->Connect(wxEVT_KEY_UP, wxKeyEventHandler(CommandOptions::OnCmdKeyRefresh), NULL, this);
             }
@@ -156,7 +163,7 @@ CommandOptions::CommandOptions(wxFrame *parent)
         {
             {
                 humanPlayerChkBx = new wxCheckBox(humanPlayerBox, eventID_ChangeOption, options_wparam_text[1]);
-                humanPlayerChkBx->SetToolTip(options_tooltips_eng[6]);
+                humanPlayerChkBx->SetToolTip(options_tooltips_eng[5]);
                 humanPlayerChkBx->SetValue(false);
                 humanPlayerSizer->Add(humanPlayerChkBx, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
             }
@@ -164,7 +171,7 @@ CommandOptions::CommandOptions(wxFrame *parent)
                 wxIntegerValidator<long> humanPlayerVal(NULL, wxNUM_VAL_THOUSANDS_SEPARATOR);
                 humanPlayerVal.SetRange(0,5);
                 humanPlayerTxtCtrl = new wxTextCtrl(humanPlayerBox, eventID_ChangeOption, wxT("0"), wxDefaultPosition, wxSize(64, -1), 0, humanPlayerVal);
-                humanPlayerTxtCtrl->SetToolTip(options_tooltips_eng[7]);
+                humanPlayerTxtCtrl->SetToolTip(options_tooltips_eng[5]);
                 humanPlayerSizer->Add(humanPlayerTxtCtrl, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL);
                 humanPlayerTxtCtrl->Connect(wxEVT_KEY_UP, wxKeyEventHandler(CommandOptions::OnCmdKeyRefresh), NULL, this);
             }
@@ -176,7 +183,7 @@ CommandOptions::CommandOptions(wxFrame *parent)
         {
             {
                 vidDriverChkBx = new wxCheckBox(vidDriverBox, eventID_ChangeOption, options_wparam_text[2]);
-                vidDriverChkBx->SetToolTip(options_tooltips_eng[8]);
+                vidDriverChkBx->SetToolTip(options_tooltips_eng[6]);
                 vidDriverChkBx->SetValue(false);
                 vidDriverSizer->Add(vidDriverChkBx, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
             }
@@ -184,7 +191,7 @@ CommandOptions::CommandOptions(wxFrame *parent)
                 wxTextValidator vidDriverVal(wxFILTER_INCLUDE_CHAR_LIST, NULL);
                 vidDriverVal.SetCharIncludes(L"abcdefghijklmnopqrstuvwxyz0123456789-_");
                 vidDriverTxtCtrl = new wxTextCtrl(vidDriverBox, eventID_ChangeOption, wxT("directx"), wxDefaultPosition, wxSize(64, -1), 0, vidDriverVal);
-                vidDriverTxtCtrl->SetToolTip(options_tooltips_eng[9]);
+                vidDriverTxtCtrl->SetToolTip(options_tooltips_eng[6]);
                 vidDriverSizer->Add(vidDriverTxtCtrl, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL);
                 vidDriverTxtCtrl->Connect(wxEVT_KEY_UP, wxKeyEventHandler(CommandOptions::OnCmdKeyRefresh), NULL, this);
             }
@@ -195,6 +202,69 @@ CommandOptions::CommandOptions(wxFrame *parent)
     }
     cmdOtherPanel->SetSizer(cmdOtherPanelSizer);
     topsizer->Add(cmdOtherPanel, 0, wxEXPAND);
+
+    wxPanel *cmdOther2Panel = new wxPanel(this, wxID_ANY);
+    wxBoxSizer *cmdOther2PanelSizer = new wxBoxSizer( wxHORIZONTAL );
+    {
+        wxStaticBox *netSessionsBox = new wxStaticBox( cmdOther2Panel, wxID_ANY, wxT("Multiplayer peers") );
+        wxStaticBoxSizer* netSessionsSizer = new wxStaticBoxSizer( netSessionsBox, wxVERTICAL );
+        {
+            {
+                netSessionsChkBx = new wxCheckBox(netSessionsBox, eventID_ChangeOption, options_wparam_text[3]);
+                netSessionsChkBx->SetToolTip(options_tooltips_eng[7]);
+                netSessionsChkBx->SetValue(false);
+                netSessionsSizer->Add(netSessionsChkBx, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            {
+                wxTextValidator netSessionsVal(wxFILTER_INCLUDE_CHAR_LIST, NULL);
+                netSessionsVal.SetCharIncludes(L"abcdefABCDEF0123456789-_.:/;");
+                netSessionsTxtCtrl = new wxTextCtrl(netSessionsBox, eventID_ChangeOption, wxT("192.168.1.1:5555"), wxDefaultPosition, wxSize(216, -1), 0, netSessionsVal);
+                netSessionsTxtCtrl->SetToolTip(options_tooltips_eng[7]);
+                netSessionsSizer->Add(netSessionsTxtCtrl, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL);
+                netSessionsTxtCtrl->Connect(wxEVT_KEY_UP, wxKeyEventHandler(CommandOptions::OnCmdKeyRefresh), NULL, this);
+            }
+        }
+        cmdOther2PanelSizer->Add(netSessionsSizer, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
+
+        wxStaticBox *packetFileBox = new wxStaticBox( cmdOther2Panel, wxID_ANY, wxT("Packet files") );
+        wxStaticBoxSizer* packetFileSizer = new wxStaticBoxSizer( packetFileBox, wxVERTICAL );
+        {
+            wxBoxSizer* packetActionSizer = new wxBoxSizer( wxHORIZONTAL );
+            {
+                packetActionNoRadio = new wxRadioButton(packetFileBox, eventID_ChangeOption, "None", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+                packetActionNoRadio->SetToolTip(options_tooltips_eng[10]);
+                packetActionNoRadio->SetValue(false);
+                packetActionSizer->Add(packetActionNoRadio, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            {
+                packetActionLdRadio = new wxRadioButton(packetFileBox, eventID_ChangeOption, options_wparam_text[4]);
+                packetActionLdRadio->SetToolTip(options_tooltips_eng[8]);
+                packetActionLdRadio->SetValue(false);
+                packetActionSizer->Add(packetActionLdRadio, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            {
+                packetActionSvRadio = new wxRadioButton(packetFileBox, eventID_ChangeOption, options_wparam_text[5]);
+                packetActionSvRadio->SetToolTip(options_tooltips_eng[9]);
+                packetActionSvRadio->SetValue(false);
+                packetActionSizer->Add(packetActionSvRadio, 0, wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL);
+            }
+            packetFileSizer->Add(packetActionSizer, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
+
+            {
+                wxTextValidator packetFileVal(wxFILTER_INCLUDE_CHAR_LIST, NULL);
+                packetFileVal.SetCharIncludes(L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-+_.:/\\[];");
+                packetFileTxtCtrl = new wxTextCtrl(packetFileBox, eventID_ChangeOption, wxT("reply.pck"), wxDefaultPosition, wxSize(216, -1), 0, packetFileVal);
+                packetFileTxtCtrl->SetToolTip(options_tooltips_eng[10]);
+                packetFileSizer->Add(packetFileTxtCtrl, 0, wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL);
+                packetFileTxtCtrl->Connect(wxEVT_KEY_UP, wxKeyEventHandler(CommandOptions::OnCmdKeyRefresh), NULL, this);
+            }
+        }
+        cmdOther2PanelSizer->Add(packetFileSizer, 1, wxEXPAND); // for wxStaticBox, we're adding sizer instead of the actual wxStaticBox instance
+
+        cmdOther2PanelSizer->SetMinSize(460, 64);
+    }
+    cmdOther2Panel->SetSizer(cmdOther2PanelSizer);
+    topsizer->Add(cmdOther2Panel, 0, wxEXPAND);
 
     wxPanel *dlgBottomPanel = new wxPanel(this, wxID_ANY);
     wxBoxSizer *dlgBottomPanelSizer = new wxBoxSizer( wxHORIZONTAL );
@@ -249,6 +319,24 @@ std::wstring CommandOptions::optionsToCommandLine(void)
         cmd += options_wparam_code[2];
         cmd += L" ";
         cmd += vidDriverTxtCtrl->GetValue();
+    }
+    if ((netSessionsChkBx->GetValue()) && (netSessionsTxtCtrl->GetValue().Length() > 0)) {
+        cmd += L" ";
+        cmd += options_wparam_code[3];
+        cmd += L" ";
+        cmd += netSessionsTxtCtrl->GetValue();
+    }
+    if ((packetActionLdRadio->GetValue()) && (packetFileTxtCtrl->GetValue().Length() > 0)) {
+        cmd += L" ";
+        cmd += options_wparam_code[4];
+        cmd += L" ";
+        cmd += packetFileTxtCtrl->GetValue();
+    }
+    if ((packetActionSvRadio->GetValue()) && (packetFileTxtCtrl->GetValue().Length() > 0)) {
+        cmd += L" ";
+        cmd += options_wparam_code[5];
+        cmd += L" ";
+        cmd += packetFileTxtCtrl->GetValue();
     }
     return cmd;
 }
@@ -341,6 +429,20 @@ void CommandOptions::commandLineToOptions(const std::wstring& cmdln)
     if (selected_wparams[2].length() > 0) {
         vidDriverChkBx->SetValue(true);
         vidDriverTxtCtrl->SetValue(selected_wparams[2]);
+    }
+    if (selected_wparams[3].length() > 0) {
+        netSessionsChkBx->SetValue(true);
+        netSessionsTxtCtrl->SetValue(selected_wparams[3]);
+    }
+    if (selected_wparams[4].length() > 0) {
+        packetActionLdRadio->SetValue(true);
+        packetFileTxtCtrl->SetValue(selected_wparams[4]);
+    } else
+    if (selected_wparams[5].length() > 0) {
+        packetActionSvRadio->SetValue(true);
+        packetFileTxtCtrl->SetValue(selected_wparams[5]);
+    } else {
+        packetActionNoRadio->SetValue(true);
     }
     unrecognizedOptions = unrecognized;
 }
