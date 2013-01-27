@@ -1038,14 +1038,14 @@ TbBool make_all_powers_cost_free(void)
  */
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 {
-  struct Dungeon *dungeon;
-  long i;
-  dungeon = get_players_num_dungeon(plyr_idx);
-  for (i=0; i < KEEPER_SPELLS_COUNT; i++)
-  {
-    dungeon->magic_resrchable[i] = 1;
-  }
-  return true;
+    struct Dungeon *dungeon;
+    long i;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    for (i=0; i < KEEPER_SPELLS_COUNT; i++)
+    {
+        dungeon->magic_resrchable[i] = 1;
+    }
+    return true;
 }
 
 /**
@@ -1053,21 +1053,21 @@ TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
  */
 TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch, long avail)
 {
-  struct Dungeon *dungeon;
-  SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
-  // note that we can't get_players_num_dungeon() because players
-  // may be uninitialized yet when this is called.
-  dungeon = get_dungeon(plyr_idx);
-  if (dungeon_invalid(dungeon))
-      return false;
-  dungeon->magic_resrchable[spl_idx] = resrch;
-  if (avail <= 0)
-  {
-      if (is_power_available(plyr_idx, spl_idx))
-          remove_spell_from_player(spl_idx, plyr_idx);
-      return true;
-  }
-  return add_spell_to_player(spl_idx, plyr_idx);
+    struct Dungeon *dungeon;
+    SYNCDBG(8,"Starting for spell %ld, player %ld, state %ld,%ld",spl_idx,plyr_idx,resrch,avail);
+    // note that we can't get_players_num_dungeon() because players
+    // may be uninitialized yet when this is called.
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+        return false;
+    dungeon->magic_resrchable[spl_idx] = resrch;
+    if (avail <= 0)
+    {
+        if (is_power_available(plyr_idx, spl_idx))
+            remove_spell_from_player(spl_idx, plyr_idx);
+        return true;
+    }
+    return add_spell_to_player(spl_idx, plyr_idx);
 }
 
 /**
@@ -1087,8 +1087,8 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx)
         return false;
     }
     if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT)) {
-      ERRORLOG("Incorrect spell %ld (player %ld)",spl_idx, plyr_idx);
-      return false;
+        ERRORLOG("Incorrect spell %ld (player %ld)",spl_idx, plyr_idx);
+        return false;
     }
     long i;
     i = dungeon->magic_level[spl_idx];
@@ -1097,7 +1097,7 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx)
         return false;
     }
     if (i > 0) {
-      return true;
+        return true;
     }
     return false;
 }

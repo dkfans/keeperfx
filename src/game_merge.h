@@ -54,9 +54,10 @@ enum GameGUIFlags {
 };
 
 enum ClassicBugFlags {
-    ClscBug_None             = 0x0000,
-    ClscBug_ResurrectForever = 0x0001,
-    ClscBug_Overflow8bitVal  = 0x0002,
+    ClscBug_None               = 0x0000,
+    ClscBug_ResurrectForever   = 0x0001,
+    ClscBug_Overflow8bitVal    = 0x0002,
+    ClscBug_ClaimRoomAllThings = 0x0004,
 };
 
 /******************************************************************************/
