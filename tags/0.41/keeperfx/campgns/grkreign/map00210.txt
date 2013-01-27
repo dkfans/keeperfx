@@ -1,0 +1,74 @@
+REM ********************************************
+REM  Grinics' KReign campaign for KeeperFX
+REM  Script for Level 210
+REM  Version 1.00
+REM ********************************************
+
+REM Briefing
+
+REM ********************************************
+REM The Hangdamiens' experiment was....... half-successful. Even with
+REM Castle Hangdamien conquered, the undead researchers managed to set up their
+REM continued research in a yet unknown location.
+REM Before you proceed there however, you shall need the knowledge to build
+REM a Scavenger Room, which will aid you in the battles to come.
+REM The knowledge lies in the Chief Librarian (as he is known) of Happiclap
+REM Dungeon, a vampire of great intellect. He is currently imprisoned in
+REM the labrinth deep below Castle Hangdamien, awaiting torture to extract the
+REM plans for the aforementioned Scavenger Room out of him. Rescue him.
+REM To do this, you have one of the finest Imps from your Hangdamien Dungeon,
+REM but beware, the hounds of hell will soon be on his scent, so posses him
+REM and try not to kill him, or the price will be high. Be quick, as it's
+REM over when the fat vampire sings.
+
+
+MAX_CREATURES(ALL_PLAYERS,100)
+
+START_MONEY(PLAYER0,70000)
+
+SET_TIMER(PLAYER0,TIMER0)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_OBEY,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,1)
+
+CREATE_PARTY(RESIVOUR)
+    ADD_TO_PARTY(RESIVOUR,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RESIVOUR,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RESIVOUR,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RESIVOUR,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RESIVOUR,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(RESIVOUR2)
+    ADD_TO_PARTY(RESIVOUR2,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RESIVOUR2,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RESIVOUR2,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RESIVOUR2,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(RESIVOUR2,HELL_HOUND,10,0,ATTACK_ENEMIES,0)
+
+DISPLAY_OBJECTIVE(47,ALL_PLAYERS)
+
+IF(PLAYER0,GAME_TURN > 100)
+    DISPLAY_INFORMATION(48)
+ENDIF
+
+IF_ACTION_POINT(1,PLAYER0)
+    ADD_PARTY_TO_LEVEL(PLAYER2,RESIVOUR,-1,2)
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+    ADD_PARTY_TO_LEVEL(PLAYER2,RESIVOUR2,4,2)
+ENDIF
+
+IF_ACTION_POINT(3,PLAYER0)
+    WIN_GAME
+ENDIF
+
+IF(PLAYER0,TIMER0 >= 40000)
+    LOSE_GAME
+ENDIF

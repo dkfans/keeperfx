@@ -1,0 +1,262 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file ancntkpr/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: Ancient Keeper for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Red Carpet. Welcome, Keeper, to the first of the Ancient Realms."
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Good job. It was easy, after the Archers guarding portal were defeated."
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Harmony. A strange land this is, Keeper!"
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "You've learned that a bridge can be more powerful than an army. Congratulations!"
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Avarice. In this realm one of your enemies has captured a band of Avatars."
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "You've learned how to move objects without telepathy. Useful achievement."
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "T'Kaan's mistress, has been exiled to this realm."
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "You've learned how to open your walls and seal them again. Good job!"
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "The Realm of Salaar. Paranoid heroes guard this realm with care!"
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Now you know that not only Training Rooms can be used for training. Impressive."
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Save the Heroes. They are about to die, so act swiftly!"
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "You've learned the special properties of an unconscious body. I still have no idea how this works."
+msgstr ""
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Kwan Tek's Ordeal. He has gifted you a powerful spell."
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid "You've destroyed the enemy without any creatures. Now you know that having a map revealed do have benefits."
+msgstr ""
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Avatar's Revenge. He has tracked you down, and recalls a previous encounter!"
+msgstr ""
+
+#: landview:81
+msgctxt "Level summary"
+msgid "You now know that fortifying walls often comes in handy. Proceed."
+msgstr ""
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Knight Manoeuvres. You must free your creatures, Master!"
+msgstr ""
+
+#: landview:91
+msgctxt "Level summary"
+msgid "You've freed your creatures and survived against the hordes of knights. This is quite impressive."
+msgstr ""
+
+#: landview:100
+msgctxt "Level introduction"
+msgid "The University of Hades. Welcome, Keeper, to an esteemed seat of learning."
+msgstr ""
+
+#: landview:101
+msgctxt "Level summary"
+msgid "You've learned triggering traps and blowing creatures through walls. Speaking of it sound strange."
+msgstr ""
+
+#: landview:110
+msgctxt "Level introduction"
+msgid "Salaar's Test. Do not disappoint him!"
+msgstr ""
+
+#: landview:111
+msgctxt "Level summary"
+msgid "That was a nice 'Hide and Dig' game."
+msgstr ""
+
+#: landview:120
+msgctxt "Level introduction"
+msgid "Rescue the Avatar. Your most valued convert is being tortured!"
+msgstr ""
+
+#: landview:121
+msgctxt "Level summary"
+msgid "TODO121"
+msgstr ""
+
+#: landview:130
+msgctxt "Level introduction"
+msgid "Sloth. This land requires aggression and speed, Keeper."
+msgstr ""
+
+#: landview:131
+msgctxt "Level summary"
+msgid "TODO131"
+msgstr ""
+
+#: landview:140
+msgctxt "Level introduction"
+msgid "Are you interested in Entomology, Keeper?"
+msgstr ""
+
+#: landview:141
+msgctxt "Level summary"
+msgid "TODO141"
+msgstr ""
+
+#: landview:150
+msgctxt "Level introduction"
+msgid "Flowers of Despair. In this realm the Ancients have granted you have workers but no fighters."
+msgstr ""
+
+#: landview:151
+msgctxt "Level summary"
+msgid "TODO151"
+msgstr ""
+
+#: landview:160
+msgctxt "Level introduction"
+msgid "Dragonia. Welcome to the Land of Dragons, Keeper. With skill you will gain their services."
+msgstr ""
+
+#: landview:161
+msgctxt "Level summary"
+msgid "TODO161"
+msgstr ""
+
+#: landview:170
+msgctxt "Level introduction"
+msgid "Fortress of the Sun. You have attracted the hottest babe in the Underworld!"
+msgstr ""
+
+#: landview:171
+msgctxt "Level summary"
+msgid "TODO171"
+msgstr ""
+
+#: landview:180
+msgctxt "Level introduction"
+msgid "Thor's Diplomat. Go and negotiate a settlement in this land."
+msgstr ""
+
+#: landview:181
+msgctxt "Level summary"
+msgid "TODO181"
+msgstr ""
+
+#: landview:190
+msgctxt "Level introduction"
+msgid "Antak's Ruin. You must be patient and persistent, Keeper, if you are not to share his fate!"
+msgstr ""
+
+#: landview:191
+msgctxt "Level summary"
+msgid "TODO191"
+msgstr ""
+
+#: landview:200
+msgctxt "Level introduction"
+msgid "You have earned the right to the ultimate challenge - L'Cyfre's Challenge."
+msgstr ""
+
+#: landview:201
+msgctxt "Level summary"
+msgid "TODO201"
+msgstr ""
+
+#: landview:500
+msgctxt "Bonus introduction"
+msgid "Colosseum."
+msgstr ""
+
+#: landview:510
+msgctxt "Bonus introduction"
+msgid "Shorty."
+msgstr ""
+
+#: landview:520
+msgctxt "Bonus introduction"
+msgid "Run fast."
+msgstr ""
+
+#: landview:530
+msgctxt "Bonus introduction"
+msgid "Crusade."
+msgstr ""
+
+#: landview:540
+msgctxt "Bonus introduction"
+msgid "Alone."
+msgstr ""
+
+#: landview:550
+msgctxt "Bonus introduction"
+msgid "Full Moon."
+msgstr ""
+

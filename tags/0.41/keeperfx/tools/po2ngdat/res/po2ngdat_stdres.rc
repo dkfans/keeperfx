@@ -1,0 +1,52 @@
+/******************************************************************************/
+// PO translation to engine DAT files converter for KeeperFX
+/******************************************************************************/
+/** @file po2ngdat_stdres.rc
+ *     Standard Windows resoures used by Po2ngDat application.
+ * @par Purpose:
+ *     Defines icons and executable information data (VersionInfo)
+ *     used by Ms Windows as description of the application.
+ * @par Comment:
+ *     None.
+ * @author   Tomasz Lis
+ * @date     25 Aug 2012 - 22 Sep 2012
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+
+#include <windows.h> // include for version info constants
+#include "../src/po2ngdat_version.h" // define values for version info
+
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "po2ngdat.ico"
+
+// Create version info block, using defines from the header file
+1 VERSIONINFO
+FILEVERSION VER_MAJOR,VER_MINOR,VER_RELEASE,VER_BUILD
+PRODUCTVERSION VER_MAJOR,VER_MINOR,VER_RELEASE,VER_BUILD
+FILETYPE VFT_APP
+{
+  BLOCK "StringFileInfo"
+	 {
+		 BLOCK "040904E4"
+		 {
+			 VALUE "CompanyName", COMPANY_NAME
+			 VALUE "FileVersion", FILE_VERSION
+			 VALUE "FileDescription", FILE_DESCRIPTION
+			 VALUE "InternalName", INTERNAL_NAME
+			 VALUE "LegalCopyright", LEGAL_COPYRIGHT
+			 VALUE "LegalTrademarks", LEGAL_TRADEMARKS
+			 VALUE "OriginalFilename", ORIGINAL_FILENAME
+			 VALUE "ProductName", PRODUCT_NAME
+			 VALUE "ProductVersion", PRODUCT_VERSION
+		 }
+	 }
+  BLOCK "VarFileInfo"
+	 {
+		 VALUE "Translation", 0x0809, 1252
+	 }
+}
+/******************************************************************************/

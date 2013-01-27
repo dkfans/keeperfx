@@ -1,0 +1,137 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file dzjr10lv/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: DzjeeAr's 10-level campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Ninja\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "DzjeeAr's 10-level campaign"
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Nevergrin. Poor, empty land. Peopled with damned knights since a long time the constant with the fallow land on our front. The time has come to finish this idyll in this disgusting, green valley."
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Blood River. The green glade turned into the waste soaked through with blood. Human body soil their hands here and there making pleasant the scenery. Goods work, my lord."
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Cozyness. In this country town spread raising of hogs. These dirty animals managed efficiently to frighten away no matter which aggressors. The time to carve out swineherds and to make provisions on in neighbouring pigsties!"
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Big granary. From numerous pigsties become only smoky ashes, and the smell of hogs was exchanged on splendid breaths of sulphur. Themselves animals were quartered and salted out to all recces of Your kingdom. At last we have provisions on next three years!"
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Molten dream. The land of the eternal joy, where on every wry face inhabitants gather, raising cheers of the liking. This land should not exist and will stand this already soon!"
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Vampire land. On ashes of the country town became the established huge cemetery, and inhabitants wait only, till we will sharpen me our own arguments&#8230;"
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Blossom. The fertile land , but attacked by other Keeper. Inhabitants do not possess many treasures, but the country town is well in armour. Cheka You the passage by hosts of enemies, waiting at gate."
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Of ashes. From the city and neighbouring fields will became only small heaps of ashes which vampires sedulously assemble for their stupid badinage. The population which fugitive into the mountains is pursued by our dragons and black we will give. We start on further!"
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Ninja Fortress. On the horizon it is visible already the lock castle George Thunderous, and the city, lying in his shadow is afraid no threats. When at last you will reach to their estate, they will feel on themselves what this means fear!"
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "And Pereful Fear. Bad powers embraced this the land. We sent downtown of our horned rippers, so that make there the order. From sounds non-resident from the city it seems , with our deputies they achieved the uncontested success!"
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Hugglepuff. The called lord George to Thunderous, ruler in this land administers with the most of fortresses on continents. You must him quickly neutralize, sir, because the way to other lands will become then opening."
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "The Fell. The head Gregor became crowded on the pale and I am tooking now on the market in town. The most of inhabitants agreeed to arrive at us, but we do not want to have such weak soldiers in the army. They will be killed as the result of &#8222;unhappy&#8221; events."
+msgstr ""
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Divine. The rich land, supported by himself lord, is now standing not prepared before Your army. You must rush through war-movements , because settlers quickly prepare themselves."
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid "The Fell Rowlands. In the chance to his identical city, Fell- Rowlands did not want to submit to Your rule. In cheers of the protest were driven to the dark cave in which will finish their own misery life, buried under powerful stones. The rest of the city we burnt, quickly to move to the next land!"
+msgstr ""
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Twisted. The village, standing off the beaten track, to nobody obstructive. Into the brow to semblance is found there one of greatest of the gold mine on all continents. This would be for us jumbo pump priming, thanks to which we would be able to storm further lands. Mind other Keeper who decided to interest himself with this land."
+msgstr ""
+
+#: landview:81
+msgctxt "Level summary"
+msgid "The crop failure. When we got downtown, inhabitants guilefully filled up the mine, destroying her irrevocably. They were killed together with stones which they pushed to excavations. The Keeper seeing, made by You destructions escaped, leaving the land."
+msgstr ""
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Solarpaint Rock. The land raked many times by inefficient keeper cries wolf even at the slender threat. You must work silently, so that how most longer its imposible in the hide!"
+msgstr ""
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Carina land. Even early noticing You by through inhabitants did not have time to prevent to the defeat of defenders. All ungrateful boys we beat on the pale and we threw to hounds to be devoured. The rest of inhabitants also so will finish, but now will be to us necessary to storming of the fortress."
+msgstr ""
+
+#: landview:100
+msgctxt "Level introduction"
+msgid "Evergrin. The land swimming with the affluence and the joy. There is here no of unhappy, nor tortured man. The idyll rare on this disgusting world of heroes. Cut out them sir into the trunk, so that they do not spoil still air with their own supernatural joy. Other Keeper, trying to attack the country town were talked round by them. To them also you will have to face. Successes!"
+msgstr ""
+
+#: landview:101
+msgctxt "Level summary"
+msgid "The disintegration. From the welfare stayed only sad remembrances, and from inhabitants bones, while from enemy guards prisoners, tortured by ours most severe Dark Mistres. We achieved the great, splendid victory! With what will we see about now?"
+msgstr ""
+

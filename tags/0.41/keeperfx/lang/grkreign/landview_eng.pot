@@ -1,0 +1,136 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file grkreign/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 28 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: Grinics' KReign campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Grinics' KReign campaign"
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Loveyheart. The land has been ruined by years of war with an enemy keeper. Only a few people survived til now. It's time to slaugher these odd freaks!"
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Demonhole. This Land is finally as bad as I dreamed about it. Excellent work, Master!"
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Rabbitjoy. An enormous war continues here. One keeper has already been shattered, and his ex-servants are trapped all over the land. We need to liberate them and destroy all the good that tries to prevail here!"
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Earbleed. The slaugher you made on these people was inspiring, so was the end of enemy keeper. Human blood flows through this land, like spilled milk on a table. Excellent work, imperturbable Lord!"
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Happiclap. Land here is under dominion of inhuman creatures. Only single humanoids may still hide there. Mayor of this town, seeing no other way to clear the land, has joined you. Time to claim this land for us!"
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Hookswing. Enemy creatures were smeared all over the area. Breathtaking view, don't you think?"
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Sillimist. Besides you, one more keeper fights for this land. Defeat him and you gain total control here!"
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Redcloud. Smearing dead bodies all over the area has prooved to be such a good idea that we did it again. Once more we can enjoy the sight."
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Sadlack. Three keepers are lurking in crannies of this land. They united their strength to fight you. Good luck, evil one!"
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Hideouscry. When we've annihilated all enemies, we've raised a mound of creatures dead bodies. Then we've put five barrels of black powder under it, and BOOM! Now shreaded meat covers every rotting tree in this ugly land!"
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Hopemirth. The land is divided into two parts: western and eastern. Typical peasants live in the west, while the east is dominated by cult of Blood Brothers. These are very dangerous, so stay focused, my Lord!"
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Nosferatia. When we won, the men of Blood Brothers cult have decided to join us. Now they have spread terror among remaining people. Excellent work my Lord!"
+msgstr ""
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Castle Hangdamien. This land is ruled by good and honest lord. He is a member of the Black Blood cult. Take care, keeper, as he's very dangerous."
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Hangdamien Ruin. We succeeded, we overcame the enemy. Our vampire feeding area has expanded greatly. Excellent work, Master!"
+msgstr ""
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Hangdamien Labrinth. The land  bristling with traps and mazes. To win, you have to be clever and never look back. Good luck, keeper!"
+msgstr ""
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Hangdamien Swamp. We were able to re-use the traps we've encounter. When the heroes experienced them, the whole land has filled with the smell of flesh minced into slurry."
+msgstr ""
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Hopemirth Wastelands. This land is ruled by brave and strong lord. To break to his castle we must go through some lava. Good luck!"
+msgstr ""
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Hopemirth Lavadrown. All the inhabitants were thrown into lava alive. It's a pity that you have not heard how the Lord of this land whined. Spectacular victory!"
+msgstr ""
+
+#: landview:100
+msgctxt "Level introduction"
+msgid "Return to Castle Sadlack. Only the final step separates us from complete victory. Find the heart of the hero dungeon, destroy it! Then we take authority over the whole world!"
+msgstr ""
+
+#: landview:101
+msgctxt "Level summary"
+msgid "Masters Castle. We've conquered the whole continent! At the time of the Lord of the land death the volcano erupted. The world was awashed by blood and lava. Now it's time for a real party!"
+msgstr ""
