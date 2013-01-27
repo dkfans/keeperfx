@@ -403,7 +403,11 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         {
             // No room - oh well, leave it as free spell
             // Just make correct owner so that Imps can pick it up
-            thing->owner = game.neutral_player_num;
+            if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) == 0) {
+                thing->owner = game.neutral_player_num;
+            } else {
+                thing->owner = room->owner;
+            }
             return true;
         }
         if (!add_spell_to_player(book_thing_to_magic(thing), room->owner))

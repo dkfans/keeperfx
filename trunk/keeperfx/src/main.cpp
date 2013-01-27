@@ -1874,25 +1874,30 @@ void reset_creature_max_levels(void)
     }
 }
 
+/**
+ * Resets timers and flags of all players into default (zeroed) state.
+ * Also enables spells which are always enabled by default.
+ */
 void reset_script_timers_and_flags(void)
 {
     struct Dungeon *dungeon;
-    int i,k;
-    for (i=0; i < DUNGEONS_COUNT; i++)
+    int plyr_idx,k;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-      dungeon = get_dungeon(i);
-      dungeon->magic_resrchable[PwrK_POSSESS] = 1;
-      dungeon->magic_level[PwrK_POSSESS] = 1;
-      for (k=0; k<TURN_TIMERS_COUNT; k++)
-      {
-        memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
-        dungeon->turn_timers[k].state = 0;
+        add_spell_to_player(PwrK_HAND, plyr_idx);
+        add_spell_to_player(PwrK_SLAP, plyr_idx);
+        add_spell_to_player(PwrK_POSSESS, plyr_idx);
+        dungeon = get_dungeon(plyr_idx);
+        for (k=0; k<TURN_TIMERS_COUNT; k++)
+        {
+            memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
+            dungeon->turn_timers[k].state = 0;
+        }
+        for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
+        {
+            dungeon->script_flags[k] = 0;
+        }
       }
-      for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
-      {
-        dungeon->script_flags[k] = 0;
-      }
-    }
 }
 
 void init_good_player_as(PlayerNumber plr_idx)
