@@ -465,6 +465,70 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.41
+  Updates to land view screen
+  Integrated Post Undead Keeper campaign
+  Integrated Conquest of the Arctic campaign
+  Fixed a problem with making non-existing player an ally
+  Improved line of sight computing
+  Many updates to digger tasks code
+  Remade magic maintenance
+  Introduced a new way of determining where a spell can be casted
+  Hero player isn't allowed to be set up as computer player
+  Integrated Undead Keeper campaign
+  Remade dungeon heart fight selection
+  Fixed the problem with computer player placing traps at invalid places
+  Rewritten displaying the heart flower and anger level above a creature
+  Rewritten a part of computer player tasks code
+  Fixed the definition of keeping creature in enemy custody
+  Any player now automatically drops all things in hand while his heart is exploding.
+  Fixed issues with spell being in Library at start of a level
+  Rewritten lot of code around room maintenance
+  Introduced tools which allow to easily create land views from PNG files (Png2bestPal,PngPal2raw)
+  Introduced tools to translate campaigns with use of .po/.pot files (Po2ngdat)
+  Prepared .po/.pot files for all the campaigns which have national messages
+  Rewritten and modified some lightning-related routines
+  Rewritten the function which computes amount of hate computer player has towards other players
+  Rewritten large part of scavenging code
+  Rewritten some code related to needs of creatures
+  Moved some of room and slab properties into terrain config file
+  Rewritten line of sight computation
+  Some modifications to fighting doors
+  Rewritten part of color tables generation
+  Rewritten part of temple summoning code
+  Rewritten and unified the way of searching for things around given coordinates
+  Fixed playing level intro/victory speech multiple times
+  Creatures are now picked by level only with CTRL, and normally they're picked unordered
+  Rewritten hero tunnelling code
+  Statistics screen will now show asian languages correctly
+  Fixed error with invalid screen showing after playing some of DD levels
+  Association between lair object and creature is now moved to config file
+  Added new creature properties
+  Rewritten dropping creature from hand
+  Improved config files for objects and for magic
+  Updated clipping of map coordinates
+  Rewritten the function which handles trap update
+  Updated functions used for updating positions of things
+  Rewritten putting traps by computer player
+  Rewritten the function used for claiming enemy rooms
+  Improved WOP trap to use the same explosion routine as WOP spell
+  Prepared a mechanism to preserve some of classic DK bugs
+  Replaced fear computation algorithm, introduced 3 factors related to fear
+  Rewritten a lair creation routine
+  Rewritten the research process routine
+  Rewritten and improved large part of battle mechanics.
+  Fixed problem with line pitch setting for some rare video modes
+  Rewritten a few routines related to gold gathering
+  Integrated The Destiny of Ninja campaign
+  Fixed truncated water drip effect
+  Fixed multiplayer landview to use ENSIGN_ZOOM
+  Fixed one of rendering routines to be more stable in high resolutions
+  Rewritten spawning heroes
+  Fixed error with drawing creature who is being sacrificed
+  Fixed max zoom problem in very high resolutions
+  Rewritten the keeper sprite drawing function
+  Rewritten creation of shot hit effects
+  
 Version: 0.40a
   Renamed 'debug version' to 'heavylog version'
   Allowed making 'debug' version which is really with debug info
