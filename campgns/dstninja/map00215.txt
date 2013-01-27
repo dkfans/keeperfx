@@ -1,8 +1,11 @@
 REM ********************************************
 REM  The Destiny of Ninja campaign for KeeperFX
 REM  Script for Level 215
-REM  Version 1.00
+REM  Version 1.01
 REM ********************************************
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
 
 IF(PLAYER0,GAME_TURN > 20)
     REM QUICK_OBJECTIVE(1,"Enemy Shogun, hinders to us, by  him not come back to the province Iga kill him!",PLAYER0)

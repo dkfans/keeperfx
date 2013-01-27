@@ -4,6 +4,9 @@ REM  Script for Level 221
 REM  Version 1.00
 REM ********************************************
 
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+
 IF(PLAYER0,GAME_TURN > 20)
     REM QUICK_OBJECTIVE(1,"Seek Ninja, our enemy in these heavily accessible rocky regions, surely somewhere here he hides.",PLAYER0)
     DISPLAY_OBJECTIVE(13,ALL_PLAYERS)

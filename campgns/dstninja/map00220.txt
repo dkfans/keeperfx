@@ -6,6 +6,9 @@ REM ********************************************
 
 START_MONEY(PLAYER0,20000)
 
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+
 IF(PLAYER0,GAME_TURN > 20)
     REM QUICK_OBJECTIVE(1,"Ninja, enemy Shogun is about here. He is very a bad hat, we should put to death him from the surface of the  the ground!",PLAYER0)
     DISPLAY_OBJECTIVE(11,ALL_PLAYERS)
