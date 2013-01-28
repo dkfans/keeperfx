@@ -88,13 +88,13 @@ wxString options_tooltips_eng[] = {
     _T("Command line to run. Here you can type by hand the parameters you wish to use."),//1
     _T("You usually want standard version, as it is fast and stable. Heavylog version logs huge amount of messages to a file \"keeperfx.log\" while you're playing. This requires a lot more of computation power, so on slower machines it might severely affect gameplay speed. But if the game will crash, the LOG file may help the developers to fix the problem."),//2
     _T("Switches which you can enable or disable. Their function is explained in readme file. If you don't want to see the intro over and over again, select \"Skip intro\". If you're having problems with keyboard or mouse inside the game, select \"Alt. input\"."),//3
-    _T("Gameplay speed. Increasing amount of turns per second will make the action faster. Note that you can temporarely unlock the speed limiter with ctrl+'+'."),//4
+    _T("Gameplay speed. Increasing amount of turns per second will make the action faster. Note that you can temporarely unlock the speed limiter with Ctrl+'+'."),//4
     _T("Change human player ID. This allows you to play as blue, green or yellow keeper. Use this option for skirmish - single player levels won't work properly with it, unless they were especially designed for human to play as another keeper."),//5
     _T("Set the video driver to be used by SDL library. Valid options on Windows host are 'directx' and 'windib'. Use this if your system is broken and most games do not work on it."),//6
     _T("Host/peer addresses required to join a TCP/IP game. See 'tcp_readme.txt' to get detailed instructions on making multiplayer work."),//7
-    _T("Loads a previously created packet file. Starts the level for which packet file was created, and continues the gameplay. You may exit this mode by pressing Alt+X, or take over the control by pressing ALT+T."),//9
-    _T("Writes a packet file (replay file) when playing. After using this option, you must start a new level (or use '-level' parameter). Saved replay will work properly as long as you won't change any of the game files."),//8
-    _T("Packet files (replays) handling If you wish to save a reply of your game, or load a previously saved one, then use this. Otherwise, set it to 'None' to disable the option."),//10
+    _T("Loads a previously created packet file. Starts the level for which packet file was created, and continues the gameplay. You may exit this mode by pressing Alt+X, or take over the control by pressing Alt+T."),//9
+    _T("Writes a packet file (replay file) when playing. After using this option, you must start a new level and play it continuously to create the replay correctly. Exiting the level or loading will stop the writing process and truncate your replay file."),//8
+    _T("Packet files (replays) handling. If you wish to save a reply of your game, or load a previously saved one, then use this. Otherwise, set it to 'None' to disable the option. Saved replay will be loadable as long as you won't change any of the game files."),//10
     _T("Accept changes."),
     _T("Abandon changes and close the window."),
 };
