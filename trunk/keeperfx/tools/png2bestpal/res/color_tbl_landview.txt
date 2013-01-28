@@ -1,5 +1,7 @@
 # Colors which should be similar to specific values
-# for for compatibility with other images.
+# for compatibility with other images.
+# The engine always assumes color 0 is black (ie. for fading)
+0x00	0x000000
 # These below are for sprites from dkflag00.dat and netflag.dat:
 0x01	0xfcfcac
 0x0b	0xf4f468
