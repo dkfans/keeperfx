@@ -28,11 +28,9 @@
 #include <fstream>
 #include <sstream>
 
-#if __GNUC__ > 2
-#include <ext/hash_map>
-#else
-#include <hash_map>
-#endif
+
+#include <algorithm>
+#include <unordered_map>
 
 #include <png.h>
 
@@ -95,7 +93,7 @@ public:
 
 typedef unsigned long RGBAQuad;
 typedef png_color RGBColor;
-typedef hash_map<RGBAQuad,signed int> MapQuadToPal;
+typedef std::unordered_map<RGBAQuad,signed int> MapQuadToPal;
 typedef std::vector<RGBColor> ColorPalette;
 
 inline RGBAQuad mkquad(int r,int g,int b,int a)
@@ -644,12 +642,12 @@ short load_pal_mapping_file(WorkingSet& ws, const std::string& fname_map, Progra
             continue;
         }
         int quad = strtol(line.substr(pos+1).c_str(),NULL,16);
-        if (quad == 0)
+        /*if (quad == 0) -- we might need a black color, can't do that test
         {
             errors++;
             LogErr("Invalid quad value in PAL mapping entry at line %ld.", (long)currentLine);
             continue;
-        }
+        }*/
         quad = mkquad((quad>>16)&255,(quad>>8)&255,quad&255,255);
         {
             int i = ws.palette.size();
@@ -726,7 +724,7 @@ int main(int argc, char* argv[])
     static WorkingSet ws;
 
     ws.requestedColors(256);
-    ws.mapQuadToPalEntry.resize(1048576);
+    ws.mapQuadToPalEntry.reserve(1048576);
     if (opts.fname_map.length() > 0)
     {
         // load unmoveable palette entries from mapping file

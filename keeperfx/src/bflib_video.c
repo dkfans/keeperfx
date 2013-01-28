@@ -206,7 +206,7 @@ TbScreenCoord LbScreenHeight(void)
     return lbDisplay.PhysicalScreenHeight;
 }
 
-void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_steps)
+TbResult LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_steps)
 {
     int i,c1,c2;
     unsigned char palette[PALETTE_SIZE];
@@ -222,8 +222,12 @@ void LbPaletteFadeStep(unsigned char *from_pal,unsigned char *to_pal,long fade_s
         c2 = from_pal[i+2];
         palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
     }
+    TbResult ret;
     LbScreenWaitVbi();
-    LbPaletteSet(palette);
+    ret = LbPaletteSet(palette);
+    if (lbHasSecondSurface)
+        LbScreenSwap();
+    return ret;
 }
 
 TbResult LbPaletteStopOpenFade(void)
@@ -234,6 +238,7 @@ TbResult LbPaletteStopOpenFade(void)
 
 long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
 {
+    long errors_num = 0;
     if (flg == Lb_PALETTE_FADE_CLOSED)
     {
         // Finish the fading fast
@@ -246,8 +251,9 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
         fade_count = 0;
         do
         {
-          LbPaletteFadeStep(from_pal,pal,fade_steps);
-          fade_count++;
+            if (LbPaletteFadeStep(from_pal,pal,fade_steps) == Lb_FAIL)
+                errors_num++;
+            fade_count++;
         }
         while (fade_count <= fade_steps);
         fade_started = false;
@@ -271,7 +277,13 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
             pal = to_pal;
         }
     }
-    LbPaletteFadeStep(from_pal,pal,fade_steps);
+    if (LbPaletteFadeStep(from_pal,pal,fade_steps) == Lb_FAIL)
+        errors_num++;
+    if (errors_num > 0) {
+#ifdef __DEBUG
+        LbWarnLog("%s: There were errors while fading\n",__func__);
+#endif
+    }
     return fade_count;
 }
 
@@ -494,7 +506,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     lbScreenSurface = lbDrawSurface = SDL_SetVideoMode(mdinfo->Width, mdinfo->Height, mdinfo->BitsPerPixel, sdlFlags);
 
     if (lbScreenSurface == NULL) {
-        ERRORLOG("Failed to initialize SDL video mode %d.",(int)mode);
+        ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
         return Lb_FAIL;
     }
 
@@ -506,7 +518,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     {
         lbDrawSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, mdinfo->Width, mdinfo->Height, lbEngineBPP, 0, 0, 0, 0);
         if (lbDrawSurface == NULL) {
-            ERRORLOG("Can't create secondary surface");
+            ERRORLOG("Can't create secondary surface: %s",SDL_GetError());
             LbScreenReset();
             return Lb_FAIL;
         }
