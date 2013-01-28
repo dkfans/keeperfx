@@ -35,18 +35,19 @@ extern "C" {
 #endif
 /******************************************************************************/
 TbBool lbAdvancedFade = true;
+int lbFadeDelay = 25;
 /******************************************************************************/
 DLLIMPORT long _DK_PaletteFadePlayer(struct PlayerInfo *player);
 /******************************************************************************/
 void fade_in(void)
 {
-  ProperFadePalette(frontend_palette, 8, Lb_PALETTE_FADE_OPEN);
+    ProperFadePalette(frontend_palette, 8, Lb_PALETTE_FADE_OPEN);
 }
 
 void fade_out(void)
 {
-  ProperFadePalette(NULL, 8, Lb_PALETTE_FADE_CLOSED);
-  LbScreenClear(0);
+    ProperFadePalette(NULL, 8, Lb_PALETTE_FADE_CLOSED);
+    LbScreenClear(0);
 }
 
 void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal)
@@ -221,7 +222,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
               !is_key_pressed(KC_RETURN,KMod_DONTCARE) &&
               !is_mouse_pressed_lrbutton())
           {
-            last_loop_time += 25;
+            last_loop_time += lbFadeDelay;
             LbSleepUntil(last_loop_time);
           }
         }
@@ -231,7 +232,7 @@ void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFl
         LbPaletteSet(pal);
     } else
     {
-        LbMemorySet(palette_buf, 0, sizeof(palette_buf));
+        LbPaletteDataFillBlack(palette_buf);
         LbPaletteSet(palette_buf);
     }
 }
@@ -249,7 +250,7 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         last_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
-          last_loop_time += 25;
+          last_loop_time += lbFadeDelay;
           LbSleepUntil(last_loop_time);
         }
     } else
