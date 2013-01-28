@@ -52,17 +52,17 @@ msgstr ""
 
 #: guitext:4
 msgctxt "In-game message"
-msgid "Is not for the man of the shadow to hesitate and question the truth. You are wise to know that truth. Perfect work!"
+msgid "Is not for the man of the shadow to hesitate and question the order of things. You are wise to know that truth. Perfect work!"
 msgstr ""
 
 #: guitext:5
 msgctxt "In-game message"
-msgid "We have been trapped int oa magic barrier. We cannot progress the journey to Iga until be break it. The only way to do that is to kill enemy shogun which is in this land."
+msgid "We have been trapped into a magic barrier. We cannot progress the journey to Iga until be break it. The only way to do that is to kill enemy shogun which is in this land."
 msgstr ""
 
 #: guitext:6
 msgctxt "In-game message"
-msgid "Excellent work, assasin! Now we can safely reach the province Iga."
+msgid "Excellent work, assassin! Now we can safely reach the province Iga."
 msgstr ""
 
 #: guitext:7
@@ -77,7 +77,7 @@ msgstr ""
 
 #: guitext:9
 msgctxt "In-game message"
-msgid "To succeed with this missions, you must be careful and mind your every move. If the enemies notice anyone, their army will come to crush you. You must reach their heart without causing alarm. Use your spells sensibly, because your gold reserves are limited."
+msgid "To succeed with this mission, you must be careful and mind your every move. If the enemies notice anyone, their army will come to crush you. It is vital that you reach their heart without causing alarm. Use your spells sensibly, because your gold reserves are limited."
 msgstr ""
 
 #: guitext:10
