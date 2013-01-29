@@ -45,7 +45,7 @@ enum QKinds {
     QK_Unknown9,
     QK_Unknown10,
     QK_JontySprite,
-    QK_Unknown12,
+    QK_KeeperSprite,
     QK_Unknown13,
     QK_Unknown14,
     QK_Unknown15,
@@ -241,7 +241,7 @@ struct JontySpr {  // BasicQ type 11,18
     unsigned char field_19[3];
 };
 
-struct BasicUnk12 {
+struct KeeperSpr {
     struct BasicQ b;
     unsigned char field_5;
     unsigned short field_6;
@@ -485,8 +485,8 @@ DLLIMPORT struct KeeperSprite **_DK_keepsprite[KEEPSPRITE_LENGTH];
 #define keepsprite _DK_keepsprite
 DLLIMPORT struct HeapMgrHandle * _DK_heap_handle[KEEPSPRITE_LENGTH];
 #define heap_handle _DK_heap_handle
-DLLIMPORT struct HeapMgrHeader *_DK_hmhdr;
-#define hmhdr _DK_hmhdr
+DLLIMPORT struct HeapMgrHeader *_DK_graphics_heap;
+#define graphics_heap _DK_graphics_heap
 DLLIMPORT TbFileHandle _DK_file_handle;
 #define file_handle _DK_file_handle
 /******************************************************************************/

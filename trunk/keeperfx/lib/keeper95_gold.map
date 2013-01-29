@@ -20,7 +20,8 @@
  0001:0003AAC0       setup_screen_mode_minimal
  0001:0003D2C0       startup_saved_packet_game
  0001:0003CDB0       startup_network_game
- 0001:0003CB30       load_keepersprite_if_needed
+ 0001:0003CB30       heap_manage_keepersprite
+ 0001:0003CC40       load_single_frame
  0001:000AEF30       frontend_load_data
  0001:000C9460       load_game
  0001:00050E70       process_3d_sounds
@@ -203,7 +204,7 @@
  0003:00030D48       lintel_bottom_height
  0003:000409C0       lintel_top_height
  0003:00040F78       heap_handle
- 0003:00049E6C       hmhdr
+ 0003:00049E6C       graphics_heap
  0003:00049E70       keepsprite
  0003:00011F50       file_handle
  0003:0003F944       block_pointed_at_x
@@ -753,6 +754,8 @@
  0001:00065630       setup_eye_lens
  0001:000DA960       LbFileOpen
  0001:000DA9F0       LbFileClose
+ 0001:000DAA10       LbFileSeek
+ 0001:000DAA70       LbFileRead
  0001:000DAE70       LbTextDraw
  0001:000A7850       process_sound_heap
  0001:000463D0       setup_engine_window
@@ -1478,8 +1481,8 @@
  0001:000A7D00       parse_sound_file
  0001:00004C80       heapmgr_init
  0001:00004CD0       heapmgr_add_item
- 0001:00004E10       heapmgr_free_oldest
- 0001:00004E60       heapmgr_make_newest
+ 0001:00004E10       heapmgr_make_newest
+ 0001:00004E60       heapmgr_free_oldest
  0001:00051280       start_emitter_playing
  0001:00021C00       process_pointer_graphic
  0001:0000C9F0       external_activate_trap_shot_at_angle

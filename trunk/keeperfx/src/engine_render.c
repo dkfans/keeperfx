@@ -26,6 +26,7 @@
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_render.h"
+#include "bflib_heapmgr.h"
 
 #include "engine_lenses.h"
 #include "engine_camera.h"
@@ -78,6 +79,7 @@ DLLIMPORT void _DK_do_map_who(short stl_x);
 DLLIMPORT void _DK_fiddle_half_gamut(long y, long pos_y, long floor_x, long floor_y);
 DLLIMPORT long _DK_load_keepersprite_if_needed(unsigned short kspr_n);
 DLLIMPORT void _DK_draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_n, long scale);
+DLLIMPORT long _DK_load_single_frame(unsigned short kspr_idx);
 /******************************************************************************/
 unsigned short shield_offset[] = {
  0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
@@ -2020,7 +2022,7 @@ void display_drawlist(void)
       struct BasicUnk09 *unk09;
       struct BasicUnk10 *unk10;
       struct JontySpr *jonSpr;
-      struct BasicUnk12 *unk12;
+      struct KeeperSpr *keepSpr;
       struct BasicUnk13 *unk13;
       struct BasicUnk14 *unk14;
       struct TexturedQuad *txquad;
@@ -2161,13 +2163,13 @@ void display_drawlist(void)
         case QK_JontySprite:
           draw_jonty_mapwho(item.jonSpr);
           break;
-        case QK_Unknown12:
-          draw_keepsprite_unscaled_in_buffer(item.unk12->field_5C, item.unk12->field_58, item.unk12->field_5E, scratch);
+        case QK_KeeperSprite:
+          draw_keepsprite_unscaled_in_buffer(item.keepSpr->field_5C, item.keepSpr->field_58, item.keepSpr->field_5E, scratch);
           vec_map = scratch;
           vec_mode = VM_Unknown10;
-          vec_colour = item.unk12->p1.field_10;
-          trig(&item.unk12->p1, &item.unk12->p2, &item.unk12->p3);
-          trig(&item.unk12->p1, &item.unk12->p3, &item.unk12->p4);
+          vec_colour = item.keepSpr->p1.field_10;
+          trig(&item.keepSpr->p1, &item.keepSpr->p2, &item.keepSpr->p3);
+          trig(&item.keepSpr->p1, &item.keepSpr->p3, &item.keepSpr->p4);
           break;
         case QK_Unknown13:
           draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
@@ -2478,7 +2480,7 @@ void display_fast_drawlist(struct Camera *cam)
       struct BasicUnk09 *unk09;
       struct BasicUnk10 *unk10;
       struct JontySpr *jonSpr;
-      struct BasicUnk12 *unk12;
+      struct KeeperSpr *unk12;
       struct BasicUnk13 *unk13;
       struct BasicUnk14 *unk14;
       struct TexturedQuad *txquad;
@@ -2938,20 +2940,82 @@ unsigned short get_thing_shade(struct Thing *thing)
 
 void lock_keepersprite(unsigned short kspr_idx)
 {
+    int frame_num,frame_count;
+    struct KeeperSprite *kspr_arr;
+    kspr_arr = &creature_table[kspr_idx];
+    if (kspr_arr->rotable) {
+        frame_count = 5 * kspr_arr->frames;
+    } else {
+        frame_count = kspr_arr->frames;
+    }
+    for (frame_num=0; frame_num < frame_count; frame_num++)
+    {
+        struct HeapMgrHandle *hmhndl;
+        hmhndl = heap_handle[kspr_idx+frame_num];
+        if (hmhndl != NULL) {
+            hmhndl->field_8 |= 0x02;
+        }
+    }
 }
 
 void unlock_keepersprite(unsigned short kspr_idx)
 {
+    int frame_num,frame_count;
+    struct KeeperSprite *kspr_arr;
+    kspr_arr = &creature_table[kspr_idx];
+    if (kspr_arr->rotable) {
+        frame_count = 5 * kspr_arr->frames;
+    } else {
+        frame_count = kspr_arr->frames;
+    }
+    for (frame_num=0; frame_num < frame_count; frame_num++)
+    {
+        struct HeapMgrHandle *hmhndl;
+        hmhndl = heap_handle[kspr_idx+frame_num];
+        if (hmhndl != NULL) {
+            hmhndl->field_8 &= ~0x02;
+        }
+    }
+}
+
+long load_single_frame(unsigned short kspr_idx)
+{
+    //TODO CREATURE_SPRITE required to rewrite creature sprites loading
+    return _DK_load_single_frame(kspr_idx);
 }
 
 long load_keepersprite_if_needed(unsigned short kspr_idx)
 {
-    //TODO CREATURE_SPRITE required to rewrite creature sprites loading
-    return _DK_load_keepersprite_if_needed(kspr_idx);
+    int frame_num,frame_count;
+    struct KeeperSprite *kspr_arr;
+    kspr_arr = &creature_table[kspr_idx];
+    if (kspr_arr->rotable) {
+        frame_count = 5 * kspr_arr->frames;
+    } else {
+        frame_count = kspr_arr->frames;
+    }
+    for (frame_num=0; frame_num < frame_count; frame_num++)
+    {
+        struct HeapMgrHandle *hmhndl;
+        hmhndl = heap_handle[kspr_idx+frame_num];
+        if (hmhndl != NULL)
+        {
+            heapmgr_make_newest(graphics_heap, hmhndl);
+        } else
+        {
+            if ( !load_single_frame(kspr_idx+frame_num) )
+            {
+                return 0;
+            }
+            hmhndl->field_8 |= 0x02;
+        }
+    }
+    return 1;
 }
 
 long heap_manage_keepersprite(unsigned short kspr_idx)
 {
+    //return _DK_heap_manage_keepersprite(kspr_idx);
     long result;
     lock_keepersprite(kspr_idx);
     result = load_keepersprite_if_needed(kspr_idx);
@@ -3204,7 +3268,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         }
     }
     scaled_y += water_y_offset;
-    if (creature_sprites->field_8 == 0)
+    if (creature_sprites->rotable == 0)
     {
         if ( heap_manage_keepersprite(kspr_idx) )
         {
@@ -3219,12 +3283,12 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
             }
         }
     } else
-    if (creature_sprites->field_8 == 2)
+    if (creature_sprites->rotable == 2)
     {
         if ( heap_manage_keepersprite(kspr_idx) )
         {
-            kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->field_9];
-            draw_idx = sprite_group + sprite_delta * (long)kspr->field_9 + kspr_idx;
+            kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->frames];
+            draw_idx = sprite_group + sprite_delta * (long)kspr->frames + kspr_idx;
             if ( needs_xflip )
             {
                 draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
@@ -3593,9 +3657,9 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
     quarter = abs(4 - (i >> 8)); // i is restricted by "&" so (i>>8) is 0..7
     kspr_idx = keepersprite_index(kspr_n);
     kspr_arr = keepersprite_array(kspr_n);
-    if (kspr_arr->field_8 == 0)
+    if (kspr_arr->rotable == 0)
     {
-        if ( !load_keepersprite_if_needed(kspr_idx) )
+        if ( !heap_manage_keepersprite(kspr_idx) )
         {
             return;
         }
@@ -3627,16 +3691,16 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
             sprite_to_sbuff((unsigned char *)*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
         }
     } else
-    if (kspr_arr->field_8 == 2)
+    if (kspr_arr->rotable == 2)
     {
-        if ( !load_keepersprite_if_needed(kspr_idx) )
+        if ( !heap_manage_keepersprite(kspr_idx) )
         {
             return;
         }
-        kspr = &kspr_arr[a3 + quarter * kspr_arr->field_9];
+        kspr = &kspr_arr[a3 + quarter * kspr_arr->frames];
         fill_w = kspr->field_4;
         fill_h = kspr->field_5;
-        keepsprite_id = a3 + quarter * kspr->field_9 + kspr_idx;
+        keepsprite_id = a3 + quarter * kspr->frames + kspr_idx;
         if ( flip_range )
         {
             tmpbuf = outbuf;

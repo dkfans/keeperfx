@@ -35,18 +35,18 @@ struct HeapMgrHeader { // sizeof = 36
   unsigned long field_14;
   unsigned long field_18;
   unsigned long field_1C;
-  unsigned long field_20;
+  struct HeapMgrHandle *field_20;
 };
 
 struct HeapMgrHandle { // sizeof = 28
-  void *field_0;
+  void *buf;
   unsigned long field_4;
   unsigned short field_8;
   unsigned short field_A;
   unsigned long field_C;
   unsigned long field_10;
-  unsigned long field_14;
-  unsigned long field_18;
+  struct HeapMgrHandle *field_14;
+  struct HeapMgrHandle *field_18;
 };
 
 
