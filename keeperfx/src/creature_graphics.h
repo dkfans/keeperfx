@@ -73,8 +73,8 @@ struct KeeperSprite { // sizeof = 16
   unsigned char field_5;
   unsigned char field_6;
   unsigned char field_7;
-  unsigned char field_8;
-  unsigned char field_9;
+  unsigned char rotable;
+  unsigned char frames;
   unsigned char field_A;
   unsigned char field_B;
   short field_C;
