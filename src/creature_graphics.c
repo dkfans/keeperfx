@@ -164,7 +164,7 @@ unsigned char keepersprite_frames(unsigned short n)
       n = 0;
   }
   i = creature_list[n];
-  return creature_table[i].field_9;
+  return creature_table[i].frames;
 }
 
 unsigned char keepersprite_rotable(unsigned short n)
@@ -176,7 +176,7 @@ unsigned char keepersprite_rotable(unsigned short n)
       n = 0;
   }
   i = creature_list[n];
-  return creature_table[i].field_8;
+  return creature_table[i].rotable;
 }
 
 unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
@@ -190,7 +190,7 @@ unsigned char previous_keeper_frame(unsigned short n, unsigned char c)
     i = creature_list[n];
     if (c > 0)
         return c - 1;
-    return creature_table[i].field_9 - 1;
+    return creature_table[i].frames - 1;
 }
 
 unsigned char next_keeper_frame(unsigned short n, unsigned char c)
@@ -202,7 +202,7 @@ unsigned char next_keeper_frame(unsigned short n, unsigned char c)
         n = 0;
     }
     i = creature_list[n];
-    return creature_table[i].field_9;
+    return creature_table[i].frames;
 }
 
 struct KeeperSprite * keepersprite_array(unsigned short n)
@@ -247,7 +247,7 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
       lbDisplay.DrawFlags |= Lb_SPRITE_ONECOLOUR1;
     else
       lbDisplay.DrawFlags &= ~Lb_SPRITE_ONECOLOUR1;
-    if (kspr->field_8 == 0)
+    if (kspr->rotable == 0)
     {
         kspr += a3;
         *orig_w = kspr->field_6;
@@ -263,9 +263,9 @@ void get_keepsprite_unscaled_dimensions(long kspr_frame, long a2, long a3, short
           *unsc_h = kspr->field_B;
         }
     } else
-    if (kspr->field_8 == 2)
+    if (kspr->rotable == 2)
     {
-        kspr += a3 + abs(4 - (((a2 + 128) & 0x7FF) >> 8)) * kspr->field_9;
+        kspr += a3 + abs(4 - (((a2 + 128) & 0x7FF) >> 8)) * kspr->frames;
         *orig_w = kspr->field_4;
         *orig_h = kspr->field_5;
         if ( val_in_range )

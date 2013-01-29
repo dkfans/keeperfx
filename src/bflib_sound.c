@@ -37,6 +37,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
+DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
+DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
+DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
+DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
+
 DLLIMPORT void _DK_stop_sample_using_heap(unsigned long fild8, short smptbl_idx, unsigned char pan);
 DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long smptbl_idx, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
 DLLIMPORT long _DK_get_emitter_pan_volume_pitch(struct SoundReceiver *recv, struct SoundEmitter *emit, long *pan, long *volume, long *pitch);
@@ -795,6 +800,33 @@ void increment_sample_times(void)
     }
 }
 
+struct SampleTable *sample_table_get(short smpl_idx, unsigned char bank_id)
+{
+    if (bank_id > 0)
+    {
+        if (sound_file2 == -1) {
+            //ERRORLOG("Bank %d not opened",2);
+            return NULL;
+        }
+        if ((smpl_idx <= 0) || (smpl_idx >= samples_in_bank2)) {
+            ERRORLOG("Sample %d exceeds bank %d bounds",smpl_idx,2);
+            return NULL;
+        }
+        return &sample_table2[smpl_idx];
+    } else
+    {
+        if (sound_file == -1) {
+            //ERRORLOG("Bank %d not opened",1);
+            return NULL;
+        }
+        if ((smpl_idx <= 0) || (smpl_idx >= samples_in_bank)) {
+          ERRORLOG("Sample %d exceeds bank %d bounds",smpl_idx,1);
+          return NULL;
+        }
+        return &sample_table[smpl_idx];
+    }
+}
+
 long get_sample_sfxid(long smptbl_idx, unsigned char bank_id)
 {
     if ( using_two_banks )
@@ -857,68 +889,50 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
     if (bank_id > 0)
     {
         hmhandle->field_A = samples_in_bank + smpl_idx;
-        LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(sound_file2, hmhandle->field_0, smpl_len);
+        _DK_LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
+        _DK_LbFileRead(sound_file2, hmhandle->buf, smpl_len);
     } else
     {
         hmhandle->field_A = smpl_idx;
-        LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
-        LbFileRead(sound_file, hmhandle->field_0, smpl_len);
+        _DK_LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
+        _DK_LbFileRead(sound_file, hmhandle->buf, smpl_len);
     }
     return hmhandle;
 }
 
 struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char bank_id)
 {
-    struct SampleInfo *smpinfo;
     struct SampleTable *smp_table;
     if ((!using_two_banks) && (bank_id > 0))
     {
-      ERRORLOG("Trying to use two sound banks when only one has been set up");
-      return NULL;
+        ERRORLOG("Trying to use two sound banks when only one has been set up");
+        return NULL;
     }
-    // TODO SOUND use rewritten version when sound routines are rewritten
-    // TODO SOUND Rewrite functions which use S3DAddSampleToEmitterPri() and S3DCreateSoundEmitterPri() (there are lots of them)
-    return _DK_play_sample_using_heap(a1, smpl_idx, a3, a4, a5, a6, a7, bank_id);
+    //return _DK_play_sample_using_heap(a1, smpl_idx, a3, a4, a5, a6, a7, bank_id);
 
-    if (bank_id > 0)
-    {
-      if (sound_file2 == -1)
-        return 0;
-      if ((smpl_idx <= 0) || (smpl_idx >= samples_in_bank2))
-      {
-        ERRORLOG("Sample %d exceeds bank %d bounds",smpl_idx,2);
+    smp_table = sample_table_get(smpl_idx, bank_id);
+    if (smp_table == NULL) {
         return NULL;
-      }
-      smp_table = &sample_table2[smpl_idx];
-    } else
-    {
-      if (sound_file == -1)
-        return 0;
-      if ((smpl_idx <= 0) || (smpl_idx >= samples_in_bank))
-      {
-        ERRORLOG("Sample %d exceeds bank %d bounds",smpl_idx,1);
-        return NULL;
-      }
-      smp_table = &sample_table[smpl_idx];
     }
-    if (smp_table->hmhandle == NULL)
-      smp_table->hmhandle = find_handle_for_new_sample(smp_table->field_4, smpl_idx, smp_table->field_0, bank_id);
-    if (smp_table->hmhandle == NULL)
-    {
-      ERRORLOG("Can't find handle to play sample %d",smpl_idx);
-      return NULL;
+    if (smp_table->hmhandle == NULL) {
+        smp_table->hmhandle = find_handle_for_new_sample(smp_table->field_4, smpl_idx, smp_table->field_0, bank_id);
+    }
+    if (smp_table->hmhandle == NULL) {
+        ERRORLOG("Can't find handle to play sample %d",smpl_idx);
+        return NULL;
     }
     heapmgr_make_newest(sndheap, smp_table->hmhandle);
-    smpinfo = PlaySampleFromAddress(a1, smpl_idx, a3, a4, a5, a6, a7, smp_table->hmhandle, smp_table->sfxid);
-    if (smpinfo == NULL)
-    {
-      ERRORLOG("Can't start playing sample %d",smpl_idx);
-      return NULL;
+    // Start the play
+    struct SampleInfo *smpinfo;
+    smpinfo = PlaySampleFromAddress(a1, smpl_idx, a3, a4, a5, a6, a7, smp_table->hmhandle->buf, smp_table->sfxid);
+    if (smpinfo == NULL) {
+        ERRORLOG("Can't start playing sample %d",smpl_idx);
+        return NULL;
     }
     smpinfo->flags_17 |= 0x01;
-    if (bank_id != 0)
+    if (bank_id != 0) {
         smpinfo->flags_17 |= 0x04;
+    }
     smp_table->hmhandle->field_8 |= 0x06;
     return smpinfo;
 }

@@ -81,8 +81,8 @@ TbBool setup_heap_manager(void)
     i = heap_size / 512;
     if (i >= KEEPSPRITE_LENGTH)
       i = KEEPSPRITE_LENGTH-1;
-    hmhdr = heapmgr_init(heap, heap_size, i);
-    if (hmhdr == NULL)
+    graphics_heap = heapmgr_init(heap, heap_size, i);
+    if (graphics_heap == NULL)
     {
         ERRORLOG("Not enough memory to initialise heap.");
         return false;

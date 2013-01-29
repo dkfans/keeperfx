@@ -34,8 +34,8 @@ enum TbFileMode {
 
 enum TbFileSeekMode {
         Lb_FILE_SEEK_BEGINNING = 0,
-        Lb_FILE_SEEK_CURRENT   = 1,
-        Lb_FILE_SEEK_END       = 2,
+        Lb_FILE_SEEK_CURRENT,
+        Lb_FILE_SEEK_END,
 };
 
 /******************************************************************************/

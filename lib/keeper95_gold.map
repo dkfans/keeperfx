@@ -32,8 +32,8 @@
  0001:000048B0       task_sell_traps_and_doors
  0001:00004C80       heapmgr_init
  0001:00004CD0       heapmgr_add_item
- 0001:00004E10       heapmgr_free_oldest
- 0001:00004E60       heapmgr_make_newest
+ 0001:00004E10       heapmgr_make_newest
+ 0001:00004E60       heapmgr_free_oldest
  0001:00005380       light_render_area
  0001:00005730       light_signal_update_in_area
  0001:000057B0       light_create_light
@@ -329,7 +329,8 @@
  0001:0003C4F0       frontstats_draw_scrolling_stats
  0001:0003C9D0       setup_heap_manager
  0001:0003CAF0       reset_heap_manager
- 0001:0003CB30       load_keepersprite_if_needed
+ 0001:0003CB30       heap_manage_keepersprite
+ 0001:0003CC40       load_single_frame
  0001:0003CDB0       startup_network_game
  0001:0003D2C0       startup_saved_packet_game
  0001:0003D970       set_packet_action
@@ -1266,6 +1267,8 @@
  0001:000DA800       LbScreenFindVideoModes
  0001:000DA960       LbFileOpen
  0001:000DA9F0       LbFileClose
+ 0001:000DAA10       LbFileSeek
+ 0001:000DAA70       LbFileRead
  0001:000DABB0       LbTextSetWindow
  0001:000DAD00       LbTextStringWidth
  0001:000DAE70       LbTextDraw
@@ -1693,7 +1696,7 @@
  0003:00040DE8       frontstats_timer
  0003:00040DF0       frontstats_data
  0003:00040F78       heap_handle
- 0003:00049E6C       hmhdr
+ 0003:00049E6C       graphics_heap
  0003:00049E70       keepsprite
  0003:00052D68       packet_left_button_double_clicked
  0003:00052D80       packet_left_button_click_space_count
