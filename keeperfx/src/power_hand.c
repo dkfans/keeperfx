@@ -566,36 +566,6 @@ struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
-{
-    struct PlayerInfo *player;
-    long i;
-    //return _DK_place_thing_in_power_hand(thing, plyr_idx);
-    player = get_player(plyr_idx);
-    if (!thing_is_pickable_by_hand(player, thing)) {
-        ERRORLOG("The %s is not pickable thing",thing_model_name(thing));
-        return false;
-    }
-    if (thing_is_picked_up(thing)) {
-        ERRORLOG("The %s is already picked up",thing_model_name(thing));
-        return false;
-    }
-    if (thing_is_creature(thing))
-    {
-        clear_creature_instance(thing);
-        if (!external_set_thing_state(thing, CrSt_InPowerHand)) {
-            return false;
-        }
-        i = get_creature_anim(thing, 9);
-        set_thing_draw(thing, i, 256, -1, -1, 0, 2);
-    }
-    insert_thing_into_power_hand_list(thing, plyr_idx);
-    remove_thing_from_mapwho(thing);
-    thing->alloc_flags |= 0x10;
-    thing->field_4F |= 0x01;
-    return true;
-}
-
 void drop_gold_coins(struct Coord3d *pos, long a2, long a3)
 {
     _DK_drop_gold_coins(pos, a2, a3);
@@ -718,6 +688,36 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long expl
   dungeon->lvstats.creatures_sacrificed++;
 }
 
+TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
+{
+    struct PlayerInfo *player;
+    long i;
+    //return _DK_place_thing_in_power_hand(thing, plyr_idx);
+    player = get_player(plyr_idx);
+    if (!thing_is_pickable_by_hand(player, thing)) {
+        ERRORLOG("The %s is not pickable thing",thing_model_name(thing));
+        return false;
+    }
+    if (thing_is_picked_up(thing)) {
+        ERRORLOG("The %s is already picked up",thing_model_name(thing));
+        return false;
+    }
+    if (thing_is_creature(thing))
+    {
+        clear_creature_instance(thing);
+        if (!external_set_thing_state(thing, CrSt_InPowerHand)) {
+            return false;
+        }
+        i = get_creature_anim(thing, 9);
+        set_thing_draw(thing, i, 256, -1, -1, 0, 2);
+    }
+    insert_thing_into_power_hand_list(thing, plyr_idx);
+    remove_thing_from_mapwho(thing);
+    thing->alloc_flags |= 0x10;
+    thing->field_4F |= 0x01;
+    return true;
+}
+
 TbResult magic_use_power_hand(PlayerNumber plyr_idx, unsigned short stl_x, unsigned short stl_y, unsigned short tng_idx)
 {
     struct PlayerInfo *player;
@@ -760,7 +760,7 @@ TbResult magic_use_power_hand(PlayerNumber plyr_idx, unsigned short stl_x, unsig
         activate_dungeon_special(thing, player);
         return Lb_OK;
     }
-    if ( object_is_pickable_by_hand(thing, plyr_idx) )
+    if (object_is_pickable_by_hand(thing, plyr_idx))
     {
         prepare_thing_for_power_hand(thing->index, plyr_idx);
         return Lb_SUCCESS;
