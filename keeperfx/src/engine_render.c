@@ -77,7 +77,7 @@ DLLIMPORT void _DK_do_a_trig_gourad_tr(struct EngineCoord *ep1, struct EngineCoo
 DLLIMPORT void _DK_do_a_trig_gourad_bl(struct EngineCoord *ep1, struct EngineCoord *ep2, struct EngineCoord *ep3, short plane_end, long scale);
 DLLIMPORT void _DK_do_map_who(short stl_x);
 DLLIMPORT void _DK_fiddle_half_gamut(long y, long pos_y, long floor_x, long floor_y);
-DLLIMPORT long _DK_load_keepersprite_if_needed(unsigned short kspr_n);
+DLLIMPORT long _DK_heap_manage_keepersprite(unsigned short kspr_n);
 DLLIMPORT void _DK_draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_n, long scale);
 DLLIMPORT long _DK_load_single_frame(unsigned short kspr_idx);
 /******************************************************************************/
@@ -2996,18 +2996,18 @@ long load_keepersprite_if_needed(unsigned short kspr_idx)
     }
     for (frame_num=0; frame_num < frame_count; frame_num++)
     {
-        struct HeapMgrHandle *hmhndl;
-        hmhndl = heap_handle[kspr_idx+frame_num];
-        if (hmhndl != NULL)
+        struct HeapMgrHandle **hmhndl;
+        hmhndl = &heap_handle[kspr_idx+frame_num];
+        if ((*hmhndl) != NULL)
         {
-            heapmgr_make_newest(graphics_heap, hmhndl);
+            heapmgr_make_newest(graphics_heap, *hmhndl);
         } else
         {
             if ( !load_single_frame(kspr_idx+frame_num) )
             {
                 return 0;
             }
-            hmhndl->field_8 |= 0x02;
+            (*hmhndl)->field_8 |= 0x02;
         }
     }
     return 1;
