@@ -104,13 +104,13 @@ void creature_set_speed(struct Thing *thing, long speed)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if (speed < -256)
+    if (speed < -MAX_VELOCITY)
     {
-        cctrl->move_speed = -256;
+        cctrl->move_speed = -MAX_VELOCITY;
     } else
-    if (speed > 256)
+    if (speed > MAX_VELOCITY)
     {
-        cctrl->move_speed = 256;
+        cctrl->move_speed = MAX_VELOCITY;
     } else
     {
         cctrl->move_speed = speed;

@@ -1755,8 +1755,8 @@ short creature_follow_leader(struct Thing *creatng)
     if (dist > 1536)
     {
         speed = 3 * speed;
-        if (speed >= 256)
-            speed = 256;
+        if (speed >= MAX_VELOCITY)
+            speed = MAX_VELOCITY;
         if ( creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1 )
         {
           cctrl->field_307++;
@@ -1779,8 +1779,8 @@ short creature_follow_leader(struct Thing *creatng)
     // If we're in between, move just a bit faster than leader
     {
         speed = 5 * speed / 4;
-        if (speed >= 256)
-            speed = 256;
+        if (speed >= MAX_VELOCITY)
+            speed = MAX_VELOCITY;
         if (creature_move_to(creatng, &follwr_pos, speed, 0, 0) == -1)
         {
             cctrl->field_307++;

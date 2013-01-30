@@ -1357,9 +1357,9 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long
 }
 
 #define INSTANCE_RET_IF_AVAIL(thing, inst_id) \
-    if (creature_instance_is_available(thing, CrInst_WIND) \
-      && creature_instance_has_reset(thing, CrInst_WIND)) { \
-        return CrInst_WIND; \
+    if (creature_instance_is_available(thing, inst_id) \
+      && creature_instance_has_reset(thing, inst_id)) { \
+        return inst_id; \
     }
 /**
  * Gives attack type optimized for self preservation.
