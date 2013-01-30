@@ -311,12 +311,10 @@ TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *dstpos, T
 
 /**
  * Returns if a creature can get to given players dungeon.
- * @todo This function assumes that getting to players dungeon is equal
- *   to getting to his dungeon heart. It should be later modified, so that
- *   other rooms may also be treated as players dungeon.
  * @param thing
  * @param plyr_idx
  * @return
+ * @see creature_can_get_to_any_of_players_rooms() is a function used in similar manner.
  */
 TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
 {

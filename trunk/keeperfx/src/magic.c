@@ -428,13 +428,6 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx)
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel);
-    // TODO SPELL_CAST remove the check below
-    if (!can_cast_spell_at_xy(plyr_idx, PwrK_CHICKEN, stl_x, stl_y, 0))
-    {
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
-        return Lb_OK;
-    }
     // If this spell is already casted at that creature, do nothing
     if (thing_affected_by_spell(thing, SplK_Chicken)) {
         return Lb_OK;
@@ -456,14 +449,6 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
 TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     //_DK_magic_use_power_disease(a1, thing, a3, a4, a5); return Lb_OK;
-    // TODO SPELL_CAST remove the check below
-    if ( !can_cast_spell_at_xy(plyr_idx, PwrK_DISEASE, stl_x, stl_y, 0)
-      || !can_cast_spell_on_thing(plyr_idx, thing, PwrK_DISEASE) )
-    {
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
-        return Lb_OK;
-    }
     // If this spell is already casted at that creature, do nothing
     if ( thing_affected_by_spell(thing, SplK_Disease) ) {
         return Lb_OK;
@@ -484,13 +469,6 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
 
 TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    if (!can_cast_spell_at_xy(plyr_idx, PwrK_DESTRWALLS, stl_x, stl_y, 0))
-    {
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
-        return Lb_OK;
-    }
-
     _DK_magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
 
     return Lb_SUCCESS;
@@ -498,13 +476,6 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
 
 TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    if (!can_cast_spell_at_xy(plyr_idx, PwrK_TIMEBOMB, stl_x, stl_y, 0))
-    {
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
-        return Lb_OK;
-    }
-
     //TODO SPELL TIMEBOMB write the spell support
 
     return Lb_SUCCESS;
@@ -793,11 +764,6 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 
 TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long allow_flags)
 {
-    // TODO SPELL_CAST remove the check below
-    if (!can_cast_spell_at_xy(plyr_idx, PwrK_CALL2ARMS, stl_x, stl_y, allow_flags))
-    {
-        return Lb_FAIL;
-    }
     return _DK_magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
 }
 

@@ -74,7 +74,7 @@ struct SpellData spell_data[] = {
   {36, 19, 0,  99, 122, 637, 654, 838, 11, general_expand_check, PwCast_AllGround|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs}, //[11] Speed Creature
   {36, 20, 0, 103, 126, 638, 655, 825,  9, general_expand_check, PwCast_AllGround|PwCast_OwnedCrtrs},   //[12] Protect
   {36, 21, 0, 105, 128, 639, 656, 832,  1, general_expand_check, PwCast_AllGround|PwCast_OwnedCrtrs},   //[13] Conceal
-  {36, 26, 0, 310, 319, 642, 659, 835,  3, general_expand_check, PwCast_AllGround|PwCast_EnemyCrtrs|PwCast_CustodyCrtrs}, //[14] Disease
+  {36, 26, 0, 310, 319, 642, 659, 835,  3, general_expand_check, PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyCrtrs|PwCast_CustodyCrtrs}, //[14] Disease
   {36, 27, 0, 306, 314, 641, 658, 827,  2, general_expand_check, PwCast_AllGround|PwCast_EnemyCrtrs|PwCast_CustodyCrtrs}, //[15] Chicken
   {36, 25, 0, 308, 317, 643, 660, 839,  4, general_expand_check, PwCast_AllTall}, //[16] Destroy Walls
   {36, 28, 0, 105, 128, 645, 662,   0,  0, NULL,                 PwCast_AllGround|PwCast_RevealedTemp},    //[17] Time Bomb
