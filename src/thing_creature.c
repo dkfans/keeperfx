@@ -1984,14 +1984,9 @@ long get_creature_speed(const struct Thing *thing)
     speed = cctrl->max_speed;
     if (speed < 0)
         speed = 0;
-    if (speed > 256)
-        speed = 256;
+    if (speed > MAX_VELOCITY)
+        speed = MAX_VELOCITY;
     return speed;
-}
-
-long creature_instance_has_reset(const struct Thing *thing, long a2)
-{
-  return _DK_creature_instance_has_reset(thing, a2);
 }
 
 long get_human_controlled_creature_target(struct Thing *thing, long a2)
@@ -1999,7 +1994,27 @@ long get_human_controlled_creature_target(struct Thing *thing, long a2)
   return _DK_get_human_controlled_creature_target(thing, a2);
 }
 
-void get_creature_instance_times(struct Thing *thing, long inst_idx, long *ritime, long *raitime)
+long creature_instance_has_reset(const struct Thing *thing, long inst_idx)
+{
+    const struct CreatureControl *cctrl;
+    const struct InstanceInfo *inst_inf;
+    long ritime;
+    //return _DK_creature_instance_has_reset(thing, a2);
+    cctrl = creature_control_get_from_thing(thing);
+    inst_inf = creature_instance_info_get(inst_idx);
+    long delta;
+    delta = (long)game.play_gameturn - (long)cctrl->instance_use_turn[inst_idx];
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+    {
+        ritime = inst_inf->fp_reset_time;
+    } else
+    {
+        ritime = inst_inf->reset_time;
+    }
+    return (delta >= ritime);
+}
+
+void get_creature_instance_times(const struct Thing *thing, long inst_idx, long *ritime, long *raitime)
 {
     struct InstanceInfo *inst_inf;
     struct CreatureControl *cctrl;
