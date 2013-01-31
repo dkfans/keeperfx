@@ -3332,9 +3332,92 @@ long process_creature_needs_a_wage(struct Thing *thing, const struct CreatureSta
     return _DK_process_creature_needs_a_wage(thing, crstat);
 }
 
-long process_creature_needs_to_eat(struct Thing *thing, const struct CreatureStats *crstat)
+char creature_free_for_lunchtime(struct Thing *creatng)
 {
-    return _DK_process_creature_needs_to_eat(thing, crstat);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    return (!cctrl->field_21) && ((cctrl->spell_flags & 0x0A00) == 0)
+        && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
+}
+
+long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    //return _DK_process_creature_needs_to_eat(creatng, crstat);
+    if ((crstat->hunger_rate == 0) || (cctrl->hunger_level <= (long)crstat->hunger_rate)) {
+        return 0;
+    }
+    if (creature_is_doing_garden_activity(creatng)) {
+        return 1;
+    }
+
+    if (!creature_free_for_lunchtime(creatng))
+      return 0;
+    if ( crstat->hunger_fill <= cctrl->field_41[1] )
+    {
+        cctrl->field_2DB = game.play_gameturn;
+        cctrl->field_41[1] -= crstat->hunger_fill;
+        return 0;
+    }
+
+    if (!player_has_room(creatng->owner, RoK_GARDEN))
+    {
+        if (is_my_player_number(creatng->owner))
+            output_message(41, 500, 1);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+        return 0;
+    }
+    struct Room * room;
+    if (game.play_gameturn - cctrl->field_2DB <= 128) {
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+        return 0;
+    }
+    room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
+    if (room_is_invalid(room))
+    {
+        cctrl->field_2DB = game.play_gameturn;
+        //
+        room = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+        if (room_is_invalid(room))
+        {
+            if (is_my_player_number(creatng->owner))
+                output_message(34, 500, 1);
+        } else
+        {
+            if (is_my_player_number(creatng->owner))
+                output_message(22, 500, 1);
+        }
+    }
+    if (room_is_invalid(room))
+    {
+      event_create_event_or_update_nearby_existing_event(0, 0, 23, creatng->owner, 0);
+      anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+      return 0;
+    }
+    if (!external_set_thing_state(creatng, CrSt_CreatureToGarden)) {
+        event_create_event_or_update_nearby_existing_event(0, 0, 23, creatng->owner, 0);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+        return 0;
+    }
+    short hunger_fill,hunger_loss,hunger;
+    hunger_loss = cctrl->field_41[1];
+    hunger_fill = crstat->hunger_fill;
+    if (hunger_loss != 0)
+    {
+        hunger = hunger_fill - hunger_loss;
+        cctrl->field_41[0] = hunger;
+        if (hunger <= 0)
+        {
+          ERRORLOG("This shouldn't happen");
+          cctrl->field_41[0] = 1;
+        }
+        cctrl->field_41[1] = 0;
+    } else
+    {
+        cctrl->field_41[0] = hunger_fill;
+    }
+    return 1;
 }
 
 long creature_find_and_perform_anger_job(struct Thing *thing)
@@ -3358,7 +3441,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
     }
     if (is_my_player_number(thing->owner))
     {
-        int anger_motive;
+        AnnoyMotive anger_motive;
         anger_motive = anger_get_creature_anger_type(thing);
         switch (anger_motive)
         {
@@ -3379,7 +3462,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
             break;
         default:
             output_message(SMsg_CreatrAngryAnyReson, MESSAGE_DELAY_CRTR_MOOD, 1);
-            ERRORLOG("Mental instability - %s owned by player %d is angry but has no motive (%d).",thing_model_name(thing),(int)thing->owner,(int)anger_motive);
+            ERRORLOG("The %s owned by player %d is angry but has no motive (%d).",thing_model_name(thing),(int)thing->owner,(int)anger_motive);
             break;
         }
     }

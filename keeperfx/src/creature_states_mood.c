@@ -134,7 +134,7 @@ short mad_killing_psycho(struct Thing *thing)
   return _DK_mad_killing_psycho(thing);
 }
 
-void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, long reason)
+void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, AnnoyMotive reason)
 {
     SYNCDBG(8,"Setting to %d",(int)annoy_lv);
     _DK_anger_set_creature_anger(creatng, annoy_lv, reason);
@@ -146,7 +146,7 @@ TbBool anger_is_creature_livid(const struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     if (creature_control_invalid(cctrl))
         return false;
-    return ((cctrl->field_66 & 0x02) != 0);
+    return ((cctrl->mood_flags & CCMoo_Livid) != 0);
 }
 
 TbBool anger_is_creature_angry(const struct Thing *creatng)
@@ -155,45 +155,46 @@ TbBool anger_is_creature_angry(const struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     if (creature_control_invalid(cctrl))
         return false;
-    return ((cctrl->field_66 & 0x01) != 0);
+    return ((cctrl->mood_flags & CCMoo_Angry) != 0);
 }
 
-long anger_get_creature_anger_type(const struct Thing *creatng)
+AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    long anger_type;
+    AnnoyMotive anger_type;
     long anger_level;
     long i;
     cctrl = creature_control_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
     if (crstat->annoy_level == 0)
-        return 0;
-    if ((cctrl->field_66 & 0x01) == 0)
-        return 0;
-    anger_type = 0;
-    for (i=1; i < 5; i++)
+        return AngR_None;
+    if ((cctrl->mood_flags & CCMoo_Angry) == 0)
+        return AngR_None;
+    anger_type = AngR_None;
+    anger_level = 0;
+    for (i=0; i < 4; i++)
     {
-        if (anger_level < cctrl->annoyance_level[i-1])
+        if (anger_level < cctrl->annoyance_level[i])
         {
-            anger_level = cctrl->annoyance_level[i-1];
-            anger_type = i;
+            anger_level = cctrl->annoyance_level[i];
+            anger_type = i+1;
         }
     }
-    if (anger_level < crstat->annoy_level)
-        return 0;
+    if (anger_level < (long)crstat->annoy_level)
+        return AngR_None;
     return anger_type;
 }
 
-TbBool anger_make_creature_angry(struct Thing *creatng, long reason)
+TbBool anger_make_creature_angry(struct Thing *creatng, AnnoyMotive reason)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(creatng);
-  crstat = creature_stats_get_from_thing(creatng);
-  if ((crstat->annoy_level <= 0) || ((cctrl->field_66 & 0x01) != 0))
-    return false;
-  anger_set_creature_anger(creatng, crstat->annoy_level, reason);
-  return true;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    if ((crstat->annoy_level <= 0) || ((cctrl->mood_flags & CCMoo_Angry) != 0))
+        return false;
+    anger_set_creature_anger(creatng, crstat->annoy_level, reason);
+    return true;
 }
 /******************************************************************************/
