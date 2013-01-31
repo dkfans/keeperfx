@@ -767,28 +767,6 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     return _DK_magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
 }
 
-TbResult magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    //return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
-    thing = get_nearest_thing_for_slap(plyr_idx, get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y));
-    if (thing_is_invalid(thing)) {
-        return Lb_FAIL;
-    }
-    player = get_player(plyr_idx);
-    dungeon = get_dungeon(player->id_number);
-    if ((player->instance_num == PI_Whip) || (game.play_gameturn - dungeon->field_14AE <= 10)) {
-        return Lb_OK;
-    }
-    player->influenced_thing_idx = thing->index;
-    player->influenced_thing_creation = thing->creation_turn;
-    set_player_instance(player, PI_Whip, 0);
-    dungeon->lvstats.num_slaps++;
-    return Lb_SUCCESS;
-}
-
 TbResult magic_use_power_slap_thing(PlayerNumber plyr_idx, struct Thing *thing)
 {
     struct PlayerInfo *player;
@@ -806,6 +784,14 @@ TbResult magic_use_power_slap_thing(PlayerNumber plyr_idx, struct Thing *thing)
     set_player_instance(player, PI_Whip, 0);
     dungeon->lvstats.num_slaps++;
     return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing *thing;
+    //return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
+    thing = get_nearest_thing_for_slap(plyr_idx, get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y));
+    return magic_use_power_slap_thing(plyr_idx, thing);
 }
 
 TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thing)
@@ -856,14 +842,14 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
         {
             // Fail only if both functions have failed - one is enough
             if (!cast_at_xy && !cast_on_tng) {
-                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),cast_at_xy?"a subtile":"a thing");
+                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),cast_on_tng?"a thing":cast_at_xy?"a subtile":"thing or subtile");
                 ret = Lb_FAIL;
             }
         } else
         {
             // Fail if any of the functions has failed - we need both
             if (!cast_at_xy || !cast_on_tng) {
-                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),cast_at_xy?"a subtile":"a thing");
+                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),cast_on_tng?"a thing":cast_at_xy?"a subtile":"thing or subtile");
                 ret = Lb_FAIL;
             }
         }

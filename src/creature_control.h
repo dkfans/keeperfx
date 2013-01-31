@@ -97,6 +97,12 @@ enum CreatureControlSpells {
     CCSpl_Unknown80     = 0x80,
 };
 
+enum CreatureControlMoodFlags {
+    CCMoo_None          = 0x00,
+    CCMoo_Angry         = 0x01,
+    CCMoo_Livid         = 0x02,
+};
+
 enum CreatureCombatFlags {
     CmbtF_Melee         = 0x01,
     CmbtF_Ranged        = 0x02,
@@ -109,17 +115,19 @@ enum CreatureCombatFlags {
 };
 
 enum CreatureAngerReasons {
-    AngR_None       = 0,
-    AngR_NotPaid    = 1,
-    AngR_Hungry     = 2,
-    AngR_NoLair     = 3,
-    AngR_Other      = 4,
+    AngR_None = 0,
+    AngR_NotPaid,
+    AngR_Hungry,
+    AngR_NoLair,
+    AngR_Other,
+    AngR_ListEnd,
 };
 
 enum CreatureCombatStates {
-    CmbtSt_Waiting      = 1,
-    CmbtSt_Ranged       = 2,
-    CmbtSt_Melee        = 3,
+    CmbtSt_Unset = 0,
+    CmbtSt_Waiting,
+    CmbtSt_Ranged,
+    CmbtSt_Melee,
 };
 
 struct CastedSpellData {
@@ -165,7 +173,7 @@ unsigned char field_4E[8];
     * depending on how high the highest value is.
     */
     long annoyance_level[4];
-    unsigned char field_66;
+    unsigned char mood_flags;
 unsigned char field_67;
     /** Lair room index, that is the room which holds creature's lair object. */
     unsigned short lair_room_id;
@@ -376,7 +384,7 @@ unsigned short field_2C5;
     long field_2C7;
 unsigned char field_2CB[12];
     long field_2D7;
-unsigned char field_2DB[4];
+    long field_2DB;
     long field_2DF;
     long field_2E3;
 unsigned char field_2E7[4];

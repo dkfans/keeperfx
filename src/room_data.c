@@ -48,6 +48,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT void _DK_delete_room_structure(struct Room *room);
+DLLIMPORT struct Room * _DK_find_random_room_for_thing(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
 DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char newowner, signed char rkind, unsigned char a4);
 DLLIMPORT long _DK_claim_room(struct Room *room,struct Thing *claimtng);
 DLLIMPORT long _DK_claim_enemy_room(struct Room *room,struct Thing *claimtng);
@@ -96,6 +97,7 @@ struct RoomData room_data[] = {
   {38, 79, count_slabs_with_efficiency, count_lair_occupants, NULL,                1, 0, 0, 609, 625},
   {51, 81, NULL,                    NULL,                   NULL,                  0, 0, 0, 610, 626},
   {53, 83, count_slabs,             NULL,                   NULL,                  0, 0, 0, 611, 627},
+  {50,  0, count_slabs_div2,        NULL,                   NULL,                  0, 0, 0, 201, 201},
 };
 
 struct RoomInfo room_info[] = {
@@ -2110,6 +2112,11 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
     return retroom;
 }
 
+struct Room *find_random_room_for_thing(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4)
+{
+    return _DK_find_random_room_for_thing(thing, plyr_idx, rkind, a4);
+}
+
 struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4)
 {
     return _DK_find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, rkind, a4);
@@ -2272,11 +2279,11 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
     {
         delete_room_slabbed_objects(i);
-        place_animating_slab_type_on_map(rdata->numfield_0, 0, stl_x, stl_y, owner);
+        place_animating_slab_type_on_map(rdata->assigned_slab, 0, stl_x, stl_y, owner);
     } else
     {
         delete_room_slabbed_objects(i);
-        place_slab_type_on_map(rdata->numfield_0, stl_x, stl_y, owner, 0);
+        place_slab_type_on_map(rdata->assigned_slab, stl_x, stl_y, owner, 0);
     }
     SYNCDBG(7,"Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);

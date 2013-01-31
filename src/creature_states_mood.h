@@ -35,9 +35,9 @@ struct Thing;
 /******************************************************************************/
 TbBool anger_is_creature_livid(const struct Thing *thing);
 TbBool anger_is_creature_angry(const struct Thing *thing);
-long anger_get_creature_anger_type(const struct Thing *creatng);
-void anger_set_creature_anger(struct Thing *thing, long annoy_lv, long reason);
-TbBool anger_make_creature_angry(struct Thing *thing, long reason);
+AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng);
+void anger_set_creature_anger(struct Thing *thing, long annoy_lv, AnnoyMotive reason);
+TbBool anger_make_creature_angry(struct Thing *thing, AnnoyMotive reason);
 
 short creature_moan(struct Thing *thing);
 short creature_roar(struct Thing *thing);

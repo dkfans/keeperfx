@@ -1074,6 +1074,7 @@
  0001:000B5900       kill_room_slab_and_contents
  0001:000B5FD0       free_room_structure
  0001:000B60A0       find_nearest_room_for_thing
+ 0001:000B6290       find_random_room_for_thing
  0001:000B6600       find_random_room_for_thing_with_spare_room_item_capacity
  0001:000B69C0       find_nearest_room_for_thing_excluding_two_types
  0001:000B6B00       find_nearest_room_for_thing_with_used_capacity
