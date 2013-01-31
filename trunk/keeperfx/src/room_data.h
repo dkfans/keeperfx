@@ -115,7 +115,7 @@ struct Room {
 };
 
 struct RoomData {
-      unsigned char numfield_0;
+      unsigned char assigned_slab;
       short numfield_1;
       Room_Update_Func update_total_capacity;
       Room_Update_Func update_used_capacity;
@@ -228,6 +228,8 @@ void do_room_integration(struct Room *room);
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char a2, char a3, unsigned char a4);
+struct Room *find_random_room_for_thing(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
+struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Thing *thing, signed char plyr_idx, signed char rkind, unsigned char a4);
 struct Room * pick_random_room(PlayerNumber plyr_idx, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus

@@ -109,42 +109,42 @@ struct Creatures creatures_NEW[] = {
 };
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, long a3);
-DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long a2);
+DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long reason);
 DLLIMPORT void _DK_change_creature_owner(struct Thing *creatng , char nowner);
-DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char a2);
+DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char reason);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *creatng, long spell_idx, long spell_lev);
 DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *castng, struct Thing *target, long a3, long no_effects);
-DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long a2, long a3, long no_effects, long a5);
+DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long reason, long a3, long no_effects, long a5);
 DLLIMPORT void _DK_set_first_creature(struct Thing *creatng);
 DLLIMPORT void _DK_remove_first_creature(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
 DLLIMPORT struct Thing *_DK_get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, long no_effects);
-DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
+DLLIMPORT struct Thing *_DK_get_creature_near_for_controlling(unsigned char a1, long reason, long a3);
 DLLIMPORT long _DK_remove_creature_from_group(struct Thing *creatng);
 DLLIMPORT long _DK_add_creature_to_group_as_leader(struct Thing *thing1, struct Thing *thing2);
-DLLIMPORT void _DK_anger_apply_anger_to_creature(struct Thing *creatng, long anger, long a2, long a3);
+DLLIMPORT void _DK_anger_apply_anger_to_creature(struct Thing *creatng, long anger, long reason, long a3);
 DLLIMPORT long _DK_creature_available_for_combat_this_turn(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_get_enemy_dungeon_heart_creature_can_see(struct Thing *creatng);
 DLLIMPORT long _DK_set_creature_object_combat(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_set_creature_door_combat(struct Thing *creatng, struct Thing *goldtng);
 DLLIMPORT void _DK_food_eaten_by_creature(struct Thing *creatng, struct Thing *goldtng);
-DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char a2, unsigned char a3);
+DLLIMPORT void _DK_creature_fire_shot(struct Thing *firing,struct  Thing *target, unsigned short a1, char reason, unsigned char a3);
 DLLIMPORT unsigned long _DK_control_creature_as_controller(struct PlayerInfo *player, struct Thing *creatng);
 DLLIMPORT unsigned long _DK_control_creature_as_passenger(struct PlayerInfo *player, struct Thing *creatng);
 DLLIMPORT void _DK_load_swipe_graphic_for_creature(struct Thing *creatng);
-DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short a2);
-DLLIMPORT long _DK_creature_instance_has_reset(const struct Thing *creatng, long a2);
-DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long a2);
-DLLIMPORT void _DK_set_creature_instance(struct Thing *creatng, long a1, long a2, long a3, struct Coord3d *pos);
+DLLIMPORT unsigned short _DK_find_next_annoyed_creature(unsigned char a1, unsigned short reason);
+DLLIMPORT long _DK_creature_instance_has_reset(const struct Thing *creatng, long reason);
+DLLIMPORT long _DK_get_human_controlled_creature_target(struct Thing *creatng, long reason);
+DLLIMPORT void _DK_set_creature_instance(struct Thing *creatng, long a1, long reason, long a3, struct Coord3d *pos);
 DLLIMPORT void _DK_draw_creature_view(struct Thing *creatng);
 DLLIMPORT void _DK_process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord3d *pos);
-DLLIMPORT short _DK_kill_creature(struct Thing *creatng, struct Thing *tngrp, char a1, unsigned char a2, unsigned char a3, unsigned char no_effects);
+DLLIMPORT short _DK_kill_creature(struct Thing *creatng, struct Thing *tngrp, char a1, unsigned char reason, unsigned char a3, unsigned char no_effects);
 DLLIMPORT void _DK_update_creature_count(struct Thing *creatng);
 DLLIMPORT long _DK_process_creature_state(struct Thing *creatng);
 DLLIMPORT long _DK_move_creature(struct Thing *creatng);
 DLLIMPORT void _DK_init_creature_level(struct Thing *creatng, long nlev);
 DLLIMPORT long _DK_check_for_first_person_barrack_party(struct Thing *creatng);
-DLLIMPORT void _DK_terminate_thing_spell_effect(struct Thing *creatng, long a2);
+DLLIMPORT void _DK_terminate_thing_spell_effect(struct Thing *creatng, long reason);
 DLLIMPORT void _DK_creature_increase_level(struct Thing *creatng);
 DLLIMPORT void _DK_thing_death_flesh_explosion(struct Thing *creatng);
 DLLIMPORT void _DK_thing_death_gas_and_flesh_explosion(struct Thing *creatng);
@@ -154,7 +154,7 @@ DLLIMPORT long _DK_creature_is_group_leader(struct Thing *creatng);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *creatng);
 DLLIMPORT long _DK_update_creature(struct Thing *creatng);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
-DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char a2);
+DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char reason);
 /******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
@@ -425,7 +425,7 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
 
 long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing)
 {
-  return _DK_set_creature_object_combat(crthing, obthing);
+    return _DK_set_creature_object_combat(crthing, obthing);
 }
 
 void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing)
@@ -437,12 +437,12 @@ void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing)
 
 void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing)
 {
-  _DK_food_eaten_by_creature(crthing, obthing);
+    _DK_food_eaten_by_creature(crthing, obthing);
 }
 
-void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3)
+void anger_apply_anger_to_creature(struct Thing *thing, long anger, AnnoyMotive reason, long a3)
 {
-  _DK_anger_apply_anger_to_creature(thing, anger, a2, a3);
+    _DK_anger_apply_anger_to_creature(thing, anger, reason, a3);
 }
 
 /**

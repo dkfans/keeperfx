@@ -93,7 +93,7 @@ void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing);
 short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
 struct Thing *get_creature_near(unsigned short pos_x, unsigned short pos_y);
 struct Thing *get_creature_near_with_filter(unsigned short pos_x, unsigned short pos_y, Thing_Filter filter, FilterParam param);
-void anger_apply_anger_to_creature(struct Thing *thing, long anger, long a2, long a3);
+void anger_apply_anger_to_creature(struct Thing *thing, long anger, AnnoyMotive reason, long a3);
 void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, PlayerNumber inflicting_plyr_idx);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);

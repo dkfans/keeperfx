@@ -452,181 +452,184 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
 
 TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
-  struct RoomStats *rstat;
-  struct RoomConfigStats *roomst;
-  long pos;
-  int i,k,n;
-  int cmd_num;
-  // Block name and parameter word store variables
-  char block_buf[COMMAND_WORD_LEN];
-  char word_buf[COMMAND_WORD_LEN];
-  // Initialize the rooms array
-  int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      arr_size = sizeof(slab_conf.room_cfgstats)/sizeof(slab_conf.room_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
-      {
-          roomst = &slab_conf.room_cfgstats[i];
-          LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
-          roomst->tooltip_stridx = GUIStr_Empty;
-          roomst->creature_creation_model = 0;
-          if (i < slab_conf.room_types_count)
-          {
-              room_desc[i].name = roomst->code_name;
-              room_desc[i].num = i;
-          } else
-          {
-              room_desc[i].name = NULL;
-              room_desc[i].num = 0;
-          }
-      }
-      arr_size = slab_conf.room_types_count;
-      for (i=0; i < arr_size; i++)
-      {
-        rstat = &game.room_stats[i];
-        rstat->cost = 0;
-        rstat->health = 0;
-      }
-  }
-  // Parse every numbered block within range
-  arr_size = slab_conf.room_types_count;
-  for (i=0; i < arr_size; i++)
-  {
-    sprintf(block_buf,"room%d",i);
-    pos = 0;
-    k = find_conf_block(buf,&pos,len,block_buf);
-    if (k < 0)
+    struct RoomData *rdata;
+    struct RoomStats *rstat;
+    struct RoomConfigStats *roomst;
+    long pos;
+    int i,k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
+    // Initialize the rooms array
+    int arr_size;
+    if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        if ((flags & CnfLd_AcceptPartial) == 0) {
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-            return false;
+        arr_size = sizeof(slab_conf.room_cfgstats)/sizeof(slab_conf.room_cfgstats[0]);
+        for (i=0; i < arr_size; i++)
+        {
+            roomst = &slab_conf.room_cfgstats[i];
+            LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+            roomst->tooltip_stridx = GUIStr_Empty;
+            roomst->creature_creation_model = 0;
+            if (i < slab_conf.room_types_count)
+            {
+                room_desc[i].name = roomst->code_name;
+                room_desc[i].num = i;
+            } else
+            {
+                room_desc[i].name = NULL;
+                room_desc[i].num = 0;
+            }
         }
-        continue;
+        arr_size = slab_conf.room_types_count;
+        for (i=0; i < arr_size; i++)
+        {
+          rstat = &game.room_stats[i];
+          rstat->cost = 0;
+          rstat->health = 0;
+        }
     }
-    rstat = &game.room_stats[i];
-    roomst = &slab_conf.room_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_room_commands,cmd_num)
-    while (pos<len)
+    // Parse every numbered block within range
+    arr_size = slab_conf.room_types_count;
+    for (i=0; i < arr_size; i++)
     {
-      // Finding command number in this line
-      cmd_num = recognize_conf_command(buf,&pos,len,terrain_room_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
-          }
-      }
-      n = 0;
-      switch (cmd_num)
+      sprintf(block_buf,"room%d",i);
+      pos = 0;
+      k = find_conf_block(buf,&pos,len,block_buf);
+      if (k < 0)
       {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,roomst->code_name,COMMAND_WORD_LEN) > 0)
-          {
-            n++;
+          if ((flags & CnfLd_AcceptPartial) == 0) {
+              WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+              return false;
           }
-          if (n < 1)
-          {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // COST
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            rstat->cost = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // HEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            rstat->health = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // PROPERTIES
-          roomst->flags = RoCFlg_None;
-          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = get_id(terrain_room_properties_commands, word_buf);
-              switch (k)
-              {
-              case 1: // HAS_NO_ENSIGN
-                  roomst->flags |= RoCFlg_NoEnsign;
-                  n++;
-                  break;
-              case 2: // CANNOT_VANDALIZE
-                  roomst->flags |= RoCFlg_CantVandalize;
-                  n++;
-                  break;
-              default:
-                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                      COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                  break;
-              }
-          }
-          break;
-      case 5: // SLABASSIGN
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_id(slab_desc, word_buf);
-            if (k >= 0)
-            {
-                roomst->assigned_slab = k;
-                n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // CREATURECREATION
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = get_id(creature_desc, word_buf);
-            if (k >= 0)
-            {
-                roomst->creature_creation_model = k;
-                n++;
-            }
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
+          continue;
       }
-      skip_conf_to_next_line(buf,&pos,len);
-    }
+      rstat = &game.room_stats[i];
+      roomst = &slab_conf.room_cfgstats[i];
+      rdata = room_data_get_for_kind(i);
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_room_commands,cmd_num)
+      while (pos<len)
+      {
+        // Finding command number in this line
+        cmd_num = recognize_conf_command(buf,&pos,len,terrain_room_commands);
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        if ((flags & CnfLd_ListOnly) != 0) {
+            // In "List only" mode, accept only name command
+            if (cmd_num > 1) {
+                cmd_num = 0;
+            }
+        }
+        n = 0;
+        switch (cmd_num)
+        {
+        case 1: // NAME
+            if (get_conf_parameter_single(buf,&pos,len,roomst->code_name,COMMAND_WORD_LEN) > 0)
+            {
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 2: // COST
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              rstat->cost = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 3: // HEALTH
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              rstat->health = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 4: // PROPERTIES
+            roomst->flags = RoCFlg_None;
+            while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = get_id(terrain_room_properties_commands, word_buf);
+                switch (k)
+                {
+                case 1: // HAS_NO_ENSIGN
+                    roomst->flags |= RoCFlg_NoEnsign;
+                    n++;
+                    break;
+                case 2: // CANNOT_VANDALIZE
+                    roomst->flags |= RoCFlg_CantVandalize;
+                    n++;
+                    break;
+                default:
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                    break;
+                }
+            }
+            break;
+        case 5: // SLABASSIGN
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = get_id(slab_desc, word_buf);
+              if (k >= 0)
+              {
+                  roomst->assigned_slab = k;
+                  rdata->assigned_slab = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // CREATURECREATION
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = get_id(creature_desc, word_buf);
+              if (k >= 0)
+              {
+                  roomst->creature_creation_model = k;
+                  n++;
+              }
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
+            break;
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+      }
 #undef COMMAND_TEXT
-  }
-  return true;
+    }
+    return true;
 }
 
 TbBool load_terrain_config_file(const char *textname, const char *fname, unsigned short flags)

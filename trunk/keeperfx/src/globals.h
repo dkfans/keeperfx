@@ -152,8 +152,12 @@ typedef unsigned char ThingClass;
 typedef unsigned char ThingModel;
 /** Type which stores thing index. */
 typedef unsigned short ThingIndex;
+/** Type which stores creature state index. */
 typedef unsigned short CrtrStateId;
+/** Type which stores creature experience level. */
 typedef unsigned char CrtrExpLevel;
+/** Type which stores creature annoyance reason. */
+typedef unsigned char AnnoyMotive;
 /** Type which stores room kind index. */
 typedef unsigned char RoomKind;
 /** Type which stores slab kind index. */

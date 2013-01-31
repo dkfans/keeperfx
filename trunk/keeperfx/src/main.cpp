@@ -4045,7 +4045,7 @@ short process_command_line(unsigned short argc, char *argv[])
             WARNMSG("PacketSave disabled to enable PacketLoad.");
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
-         strncpy(start_params.packet_fname,pr2str,149);
+         strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1);
          narg++;
       } else
       if (strcasecmp(parstr,"packetsave") == 0)
@@ -4054,7 +4054,7 @@ short process_command_line(unsigned short argc, char *argv[])
             WARNMSG("PacketLoad disabled to enable PacketSave.");
          start_params.packet_load_enable = false;
          start_params.packet_save_enable = true;
-         strncpy(start_params.packet_fname,pr2str,149);
+         strncpy(start_params.packet_fname,pr2str,sizeof(start_params.packet_fname)-1);
          narg++;
       } else
       if (strcasecmp(parstr,"q") == 0)
@@ -4097,114 +4097,114 @@ short process_command_line(unsigned short argc, char *argv[])
 
 int LbBullfrogMain(unsigned short argc, char *argv[])
 {
-  short retval;
-  retval=0;
-  LbErrorLogSetup("/", log_file_name, 5);
-  LbScreenHardwareConfig("directx",8);
+    short retval;
+    retval=0;
+    LbErrorLogSetup("/", log_file_name, 5);
+    LbScreenHardwareConfig("directx",8);
 
-  retval=process_command_line(argc,argv);
-  if ( retval < 1 )
-  {
-      static const char *msg_text="Command line parameters analysis failed.\n";
-      error_dialog_fatal(__func__, 1, msg_text);
-      LbErrorLogClose();
-      return 0;
-  }
-
-  LbTimerInit();
-  LbScreenInitialize();
-  LbSetTitle(PROGRAM_NAME);
-  LbSetIcon(1);
-  LbScreenSetDoubleBuffering(true);
-  srand(LbTimerClock());
-
-  retval = setup_game();
-  if (retval)
-  {
-    if ((install_info.lang_id == Lang_Japanese) ||
-        (install_info.lang_id == Lang_ChineseInt) ||
-        (install_info.lang_id == Lang_ChineseTra))
+    retval=process_command_line(argc,argv);
+    if ( retval < 1 )
     {
-      switch (install_info.lang_id)
+        static const char *msg_text="Command line parameters analysis failed.\n";
+        error_dialog_fatal(__func__, 1, msg_text);
+        LbErrorLogClose();
+        return 0;
+    }
+
+    LbTimerInit();
+    LbScreenInitialize();
+    LbSetTitle(PROGRAM_NAME);
+    LbSetIcon(1);
+    LbScreenSetDoubleBuffering(true);
+    srand(LbTimerClock());
+
+    retval = setup_game();
+    if (retval)
+    {
+      if ((install_info.lang_id == Lang_Japanese) ||
+          (install_info.lang_id == Lang_ChineseInt) ||
+          (install_info.lang_id == Lang_ChineseTra))
       {
-      case Lang_Japanese:
-          dbc_set_language(1);
-          break;
-      case Lang_ChineseInt:
-          dbc_set_language(2);
-          break;
-      case Lang_ChineseTra:
-          dbc_set_language(3);
-          break;
-      }
-      if (dbc_initialize("fxdata"))
-      {
-        ERRORLOG("DBC fonts Initialization failed.");
+        switch (install_info.lang_id)
+        {
+        case Lang_Japanese:
+            dbc_set_language(1);
+            break;
+        case Lang_ChineseInt:
+            dbc_set_language(2);
+            break;
+        case Lang_ChineseTra:
+            dbc_set_language(3);
+            break;
+        }
+        if (dbc_initialize("fxdata"))
+        {
+          ERRORLOG("DBC fonts Initialization failed.");
+        }
       }
     }
-  }
-  if ( retval )
-  {
-      game_loop();
-  }
-  reset_game();
-  LbScreenReset();
-  if ( !retval )
-  {
-      static const char *msg_text="Setting up game failed.\n";
-      error_dialog_fatal(__func__, 2, msg_text);
-  } else
-  {
-    SYNCDBG(0,"finished properly");
-  }
-  LbErrorLogClose();
-  return 0;
+    if ( retval )
+    {
+        game_loop();
+    }
+    reset_game();
+    LbScreenReset();
+    if ( !retval )
+    {
+        static const char *msg_text="Setting up game failed.\n";
+        error_dialog_fatal(__func__, 2, msg_text);
+    } else
+    {
+        SYNCDBG(0,"finished properly");
+    }
+    LbErrorLogClose();
+    return 0;
 }
 
 void get_cmdln_args(unsigned short &argc, char *argv[])
 {
-  char *ptr;
-  const char *cmndln_orig;
-  cmndln_orig = GetCommandLineA();
-  strncpy(cmndline, cmndln_orig, CMDLN_MAXLEN);
-  ptr = cmndline;
-  bf_argc = 0;
-  while (*ptr != '\0')
-  {
-      if ((*ptr == '\t') || (*ptr == ' '))
-      {
-          ptr++;
-          continue;
-      }
-      if (*ptr == '\"')
-      {
-          ptr++;
-          bf_argv[bf_argc] = ptr;
-          bf_argc++;
-          while (*ptr != '\0')
-          {
-            if (*ptr == '\"')
-            {
-              *ptr++ = '\0';
-              break;
-            }
+    char *ptr;
+    const char *cmndln_orig;
+    cmndln_orig = GetCommandLineA();
+    strncpy(cmndline, cmndln_orig, CMDLN_MAXLEN);
+    ptr = cmndline;
+    bf_argc = 0;
+    while (*ptr != '\0')
+    {
+        if ((*ptr == '\t') || (*ptr == ' '))
+        {
             ptr++;
-          }
-      } else
-      {
-          bf_argv[bf_argc] = ptr;
-          bf_argc++;
-          while (*ptr != '\0')
-          {
-            if ((*ptr == '\t') || (*ptr == ' '))
-            {
-              *ptr++ = '\0';
-              break;
-            }
+            continue;
+        }
+        if (*ptr == '\"')
+        {
             ptr++;
-          }
-      }
-  }
+            bf_argv[bf_argc] = ptr;
+            bf_argc++;
+            while (*ptr != '\0')
+            {
+              if (*ptr == '\"')
+              {
+                  *ptr++ = '\0';
+                  break;
+              }
+              ptr++;
+            }
+        } else
+        {
+            bf_argv[bf_argc] = ptr;
+            bf_argc++;
+            while (*ptr != '\0')
+            {
+              if ((*ptr == '\t') || (*ptr == ' '))
+              {
+                  *ptr++ = '\0';
+                  break;
+              }
+              ptr++;
+            }
+        }
+    }
 }
 
 int main(int argc, char *argv[])
