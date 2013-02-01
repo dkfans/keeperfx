@@ -45,6 +45,7 @@ long get_angle_sign(long angle_a, long angle_b);
 
 long distance_with_angle_to_coord_x(long distance, long angle);
 long distance_with_angle_to_coord_y(long distance, long angle);
+#define distance_with_angle_to_coord_z(distance, angle) distance_with_angle_to_coord_x(distance, angle)
 long move_coord_with_angle_x(long pos_x, long distance, long angle);
 long move_coord_with_angle_y(long pos_y, long distance, long angle);
 /******************************************************************************/

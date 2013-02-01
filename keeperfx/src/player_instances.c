@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "bflib_planar.h"
 
 #include "creature_control.h"
 #include "creature_states.h"
@@ -320,8 +321,8 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           cam = player->acamera;
           if (cam != NULL)
           {
-            thing->pos_2C.x.val += LbSinL(cam->orient_a) << 6 >> 16;
-            thing->pos_2C.y.val += -(LbCosL(cam->orient_a) << 6 >> 8) >> 8;
+            thing->pos_2C.x.val += distance_with_angle_to_coord_x(64, cam->orient_a);
+            thing->pos_2C.y.val += distance_with_angle_to_coord_y(64, cam->orient_a);
           }
       }
       break;
@@ -452,8 +453,8 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         crstat = creature_stats_get_from_thing(thing);
         // Now mv_a becomes a circle radius
         mv_a = crstat->eye_height + thing->mappos.z.val;
-        mv_x = thing->mappos.x.val + (mv_a * LbSinL(cam->orient_a) >> 16) - (long)cam->mappos.x.val;
-        mv_y = thing->mappos.y.val - (mv_a * LbCosL(cam->orient_a) >> 16) - (long)cam->mappos.y.val;
+        mv_x = thing->mappos.x.val + distance_with_angle_to_coord_x(mv_a ,cam->orient_a) - (long)cam->mappos.x.val;
+        mv_y = thing->mappos.y.val + distance_with_angle_to_coord_y(mv_a ,cam->orient_a) - (long)cam->mappos.y.val;
         if (mv_x < -128)
         {
             mv_x = -128;
@@ -750,7 +751,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   struct Thing *thing;
   struct Camera *dstcam;
   struct Camera *cam;
-  unsigned long deltax,deltay;
+  long deltax,deltay;
   unsigned long addval;
   //return _DK_pinstfm_zoom_out_of_heart(player, n);
   if (player->view_mode != PVM_FrontView)
@@ -764,19 +765,19 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
       cam->orient_a += 16;
       addval = (thing->field_58 >> 1);
       deltax = (LbSinL(cam->orient_a) * (((long)thing->mappos.z.val)+addval) >> 16);
-      deltay = (LbCosL(cam->orient_a) * (((long)thing->mappos.z.val)+addval) >> 16);
+      deltay = -(LbCosL(cam->orient_a) * (((long)thing->mappos.z.val)+addval) >> 16);
     } else
     {
       addval = (thing->field_58 >> 1);
-      deltax = thing->mappos.z.val+addval;
-      deltay = thing->mappos.z.val+addval;
+      deltax = addval;
+      deltay = -addval;
     }
     dstcam = &player->cameras[0];
     dstcam->mappos.x.val = thing->mappos.x.val + deltax;
-    dstcam->mappos.y.val = thing->mappos.y.val - deltay;
+    dstcam->mappos.y.val = thing->mappos.y.val + deltay;
     dstcam = &player->cameras[3];
     dstcam->mappos.x.val = thing->mappos.x.val + deltax;
-    dstcam->mappos.y.val = thing->mappos.y.val - deltay;
+    dstcam->mappos.y.val = thing->mappos.y.val + deltay;
   }
   if (player->field_4B1 >= 8)
     LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
@@ -1012,10 +1013,10 @@ void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing
     i = player->acamera->orient_a;
     crstat = creature_stats_get_from_thing(thing);
     k = thing->mappos.z.val + crstat->eye_height;
-    player->cameras[0].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
-    player->cameras[0].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
-    player->cameras[3].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
-    player->cameras[3].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
+    player->cameras[0].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+    player->cameras[0].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+    player->cameras[3].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+    player->cameras[3].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
     if (thing->class_id == TCls_Creature)
     {
         set_start_state(thing);
@@ -1059,10 +1060,10 @@ void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
   i = player->acamera->orient_a;
   crstat = creature_stats_get_from_thing(thing);
   k = thing->mappos.z.val + crstat->eye_height;
-  player->cameras[0].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
-  player->cameras[0].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
-  player->cameras[3].mappos.x.val = thing->mappos.x.val + ((LbSinL(i) * k) >> 16);
-  player->cameras[3].mappos.y.val = thing->mappos.y.val - ((LbCosL(i) * k) >> 16);
+  player->cameras[0].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+  player->cameras[0].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
+  player->cameras[3].mappos.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(k,i);
+  player->cameras[3].mappos.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(k,i);
   clear_selected_creature(player);
   player->field_31 = 0;
 }

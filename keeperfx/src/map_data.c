@@ -350,7 +350,7 @@ TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *
 {
     long px,py,pz;
     px = source->x.val + ((radius * LbSinL(angle)) >> 16);
-    py = source->y.val - ((radius * LbCosL(angle)) >> 16);
+    py = source->y.val + ((-(radius * LbCosL(angle)) >> 8) >> 8);
     pz = source->z.val + z;
     return set_coords_with_range_check(pos, px, py, pz, MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ);
 }

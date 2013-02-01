@@ -26,6 +26,7 @@
 #include "bflib_math.h"
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
+#include "bflib_planar.h"
 
 #include "engine_lenses.h"
 #include "config_creature.h"
@@ -717,8 +718,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               pos.x.val = thing->mappos.x.val;
               pos.y.val = thing->mappos.y.val;
               pos.z.val = thing->mappos.z.val;
-              pos.x.val += (32 * LbSinL(n) >> 16);
-              pos.y.val -= (32 * LbCosL(n) >> 16);
+              pos.x.val += distance_with_angle_to_coord_x(32,n);
+              pos.y.val += distance_with_angle_to_coord_y(32,n);
               pos.z.val += k * (long)(thing->field_58 >> 1);
               ntng = create_object(&pos, 112, thing->owner, -1);
               if (!thing_is_invalid(ntng))
@@ -3078,13 +3079,13 @@ struct Thing *create_footprint_sine(struct Coord3d *crtr_pos, unsigned short pha
   {
   case 1:
       i = (phase - 512);
-      pos.x.val +=   (LbSinL(i) << 6) >> 16;
-      pos.y.val += -((LbCosL(i) << 6) >> 8) >> 8;
+      pos.x.val += distance_with_angle_to_coord_x(64, i);
+      pos.y.val += distance_with_angle_to_coord_y(64, i);
       return create_thing(&pos, TCls_EffectElem, model, owner, -1);
   case 2:
       i = (phase - 512);
-      pos.x.val -=   (LbSinL(i) << 6) >> 16;
-      pos.y.val -= -((LbCosL(i) << 6) >> 8) >> 8;
+      pos.x.val -= distance_with_angle_to_coord_x(64, i);
+      pos.y.val -= distance_with_angle_to_coord_y(64, i);
       return create_thing(&pos, TCls_EffectElem, model, owner, -1);
   }
   return INVALID_THING;
@@ -3156,26 +3157,26 @@ void place_bloody_footprint(struct Thing *thing)
                   * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 16;
             cctrl->pos_BB.y.val = -((LbCosL(thing->field_52) >> 8)
                   * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 8) >> 8;
-            cctrl->pos_BB.z.val = cctrl->move_speed * LbSinL(thing->field_54) >> 16;
+            cctrl->pos_BB.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->field_54);
           }
           if (cctrl->field_CA != 0)
           {
-            cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
-            cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
+            cctrl->pos_BB.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
+            cctrl->pos_BB.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
           }
         } else
         {
           if (cctrl->move_speed != 0)
           {
             upd_done = 1;
-            cctrl->pos_BB.x.val =   cctrl->move_speed * LbSinL(thing->field_52) >> 16;
-            cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
+            cctrl->pos_BB.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
+            cctrl->pos_BB.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
           }
           if (cctrl->field_CA != 0)
           {
             upd_done = 1;
-            cctrl->pos_BB.x.val +=   cctrl->field_CA * LbSinL(thing->field_52 - 512) >> 16;
-            cctrl->pos_BB.y.val += -(cctrl->field_CA * LbCosL(thing->field_52 - 512) >> 8) >> 8;
+            cctrl->pos_BB.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
+            cctrl->pos_BB.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
           }
         }
       } else
@@ -3186,10 +3187,10 @@ void place_bloody_footprint(struct Thing *thing)
       } else
       if (cctrl->move_speed != 0)
       {
-        upd_done = 1;
-        cctrl->pos_BB.x.val =   cctrl->move_speed * LbSinL(thing->field_52) >> 16;
-        cctrl->pos_BB.y.val = -(cctrl->move_speed * LbCosL(thing->field_52) >> 8) >> 8;
-        cctrl->pos_BB.z.val = 0;
+          upd_done = 1;
+          cctrl->pos_BB.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
+          cctrl->pos_BB.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+          cctrl->pos_BB.z.val = 0;
       }
       if (((thing->movement_flags & TMvF_Flying) != 0) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
       {
