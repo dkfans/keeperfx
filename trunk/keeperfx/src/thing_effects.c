@@ -833,26 +833,12 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
         WARNLOG("Invalid thing tries to interact with other things");
         return false;
     }
-    switch (efftng->byte_16)
+    if (thing->index == efftng->index)
     {
-    case THit_CrtrsNObjcts:
-        return thing_is_shootable_by_any_player_including_objects(thing);
-    case THit_CrtrsOnly:
-        return thing_is_shootable_by_any_player_excluding_objects(thing);
-    case THit_UnownedCrtrsNObjcts:
-        return thing_is_shootable_by_any_player_except_own_including_objects(efftng, thing);
-    case THit_UnownedCrtrsOnly:
-        return thing_is_shootable_by_any_player_except_own_excluding_objects(efftng, thing);
-    case THit_HeartOnly:
-        if (thing_is_dungeon_heart(thing) && (thing->owner != efftng->owner))
-          return true;
-        return false;
-    case 8:
-        return false;
-    default:
-        WARNLOG("Thing has no hit thing type");
+        WARNLOG("Effect tried to shoot itself; suicide not implemented");
         return false;
     }
+    return explosion_can_affect_thing(thing, efftng->byte_16, efftng->owner);
 }
 
 void update_effect_light_intensity(struct Thing *thing)
@@ -1302,7 +1288,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
  * Explosions can affect a lot more things than shots. If only the thing isn't invalid,
  * it is by default affected by explosions.
  */
-TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, PlayerNumber explode_owner)
+TbBool explosion_can_affect_thing(const struct Thing *thing, long hit_type, PlayerNumber shot_owner)
 {
     if (thing_is_invalid(thing))
     {
@@ -1312,43 +1298,29 @@ TbBool explosion_can_affect_thing(struct Thing *thing, long hit_type, PlayerNumb
     switch (hit_type)
     {
     case THit_CrtrsNObjcts:
-        if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
-          return false;
-        return true;
+        return thing_is_shootable_by_any_player_including_objects(thing, shot_owner);
     case THit_CrtrsOnly:
-        if (thing->class_id != TCls_Creature)
-            return false;
-        return true;
-    case THit_UnownedCrtrsNObjcts:
-        if ((thing->class_id != TCls_Creature) && (thing->class_id != TCls_Object))
-            return false;
-        if (thing->owner == explode_owner)
-            return false;
-        return true;
-    case THit_UnownedCrtrsOnly:
-        if (thing->class_id != TCls_Creature)
-            return false;
-        if (thing->owner == explode_owner)
-            return false;
-        return true;
-    case THit_UnownedCrtrsNotArmour:
-        if (thing->class_id != TCls_Creature)
-            return false;
-        if (thing->owner == explode_owner)
-            return false;
-        if (creature_affected_by_spell(thing, SplK_Armour))
-            return false;
-        return true;
+        return thing_is_shootable_by_any_player_excluding_objects(thing, shot_owner);
+    case THit_CrtrsNObjctsNotOwn:
+        return thing_is_shootable_by_any_player_except_own_including_objects(thing, shot_owner);
+    case THit_CrtrsOnlyNotOwn:
+        return thing_is_shootable_by_any_player_except_own_excluding_objects(thing, shot_owner);
+    case THit_CrtrsNotArmourNotOwn:
+        return thing_is_shootable_by_any_player_except_own_excluding_objects_and_not_under_spell(thing, shot_owner, SplK_Armour);
     case THit_HeartOnly:
-        if (thing->class_id != TCls_Object)
-            return false;
-        if (!thing_is_dungeon_heart(thing))
-            return false;
-        return true;
+        if (thing_is_dungeon_heart(thing))
+            return true;
+        return false;
+    case THit_HeartOnlyNotOwn:
+        if (thing_is_dungeon_heart(thing) && (thing->owner != shot_owner))
+          return true;
+        return false;
     case THit_All:
         return true;
+    case THit_None:
+        return false;
     default:
-        WARNLOG("Illegal hit thing type %d for explosion",(int)hit_type);
+        WARNLOG("Illegal hit thing type %d for shot owned by played %d",(int)hit_type,(int)shot_owner);
         return true;
     }
 }
