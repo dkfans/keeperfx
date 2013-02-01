@@ -1741,13 +1741,17 @@ short update_thing_sound(struct Thing *thing)
   return true;
 }
 
-TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *thing)
+TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *thing, PlayerNumber shot_owner)
 {
     //return _DK_thing_is_shootable_by_any_player_including_objects(thing);
     if (thing_is_creature(thing))
     {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
         // spectators are not shootable
         if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+            return false;
+        if ((cctrl->flgfield_1 & CCFlg_Immortal) != 0)
             return false;
         return true;
     }
@@ -1755,93 +1759,100 @@ TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *th
     {
         if (thing_is_dungeon_heart(thing))
             return true;
-        if (thing->model == 9) // growing chicken
+        if (object_is_growing_food(thing))
             return true;
         if (object_is_mature_food(thing) && !is_thing_passenger_controlled(thing))
             return true;
+        if (object_is_gold_pile(thing))
+            return true;
+        if (thing_is_door_or_trap_box(thing))
+            return true;
+        if (thing_is_spellbook(thing) || thing_is_special_box(thing))
+            return true;
         return false;
     }
     return false;
 }
 
-TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struct Thing *shooter, const struct Thing *thing)
+TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struct Thing *thing, PlayerNumber shot_owner)
 {
     //return _DK_thing_is_shootable_by_any_player_except_own_including_objects(shooter, thing);
-    if (thing_is_invalid(shooter))
-    {
-        // If shooter is not provided, check what we can without it
-        if (thing_is_creature(thing))
-        {
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(thing);
-            if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
-                return false;
-            if ((cctrl->flgfield_1 & 0x04) == 0)
-                return true;
-            return false;
-        }
-        if (thing_is_object(thing))
-        {
-            if (thing_is_dungeon_heart(thing))
-                return true;
-            return false;
-        }
-        return false;
-    }
-    if ((thing->index == shooter->index) || !thing_is_creature(shooter))
-        return false;
     if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
             return false;
-        if (((cctrl->flgfield_1 & 0x04) == 0) && (thing->owner != shooter->owner))
-            return true;
-        return false;
+        if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
+            return false;
+        return true;
     }
     if (thing_is_object(thing))
     {
-        if (thing_is_dungeon_heart(thing) && (thing->owner != shooter->owner))
+        if (thing->owner == shot_owner)
+            return false;
+        if (thing_is_dungeon_heart(thing))
+            return true;
+        if (object_is_growing_food(thing))
+            return true;
+        if (object_is_mature_food(thing) && !is_thing_passenger_controlled(thing))
+            return true;
+        if (object_is_gold_pile(thing))
+            return true;
+        if (thing_is_door_or_trap_box(thing))
+            return true;
+        if (thing_is_spellbook(thing) || thing_is_special_box(thing))
             return true;
         return false;
     }
     return false;
 }
 
-TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struct Thing *shooter, const struct Thing *thing)
+TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner)
 {
     //return _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(shooter, thing);
-    if (thing_is_invalid(shooter))
-        return true;
-    if (thing->index == shooter->index)
-        return false;
     if (thing_is_creature(thing))
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
             return false;
-        if (((cctrl->flgfield_1 & 0x04) == 0) && (thing->owner != shooter->owner))
-            return true;
-        return false;
+        if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
+            return false;
+        return true;
     }
     return false;
 }
 
-TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *thing)
+TbBool thing_is_shootable_by_any_player_except_own_excluding_objects_and_not_under_spell(const struct Thing *thing, PlayerNumber shot_owner, SpellKind spkind)
+{
+    if (thing_is_creature(thing))
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
+            return false;
+        if (((cctrl->flgfield_1 & CCFlg_Immortal) != 0) || (thing->owner == shot_owner))
+            return false;
+        if (creature_affected_by_spell(thing, spkind))
+            return false;
+        return true;
+    }
+    return false;
+}
+
+TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner)
 {
     //return _DK_thing_is_shootable_by_any_player_excluding_objects(thing);
     if (thing_is_creature(thing))
     {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
         // spectators are not shootable
         if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
-        {
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(thing);
-            if ((cctrl->flgfield_1 & 0x04) == 0)
-                return true;
-        }
+            return false;
+        if ((cctrl->flgfield_1 & CCFlg_Immortal) != 0)
+            return false;
         return true;
     }
     return false;
