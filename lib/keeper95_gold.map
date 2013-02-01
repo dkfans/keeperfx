@@ -717,6 +717,7 @@
  0001:00080110       ariadne_update_state_wallhug
  0001:000806E0       ariadne_init_wallhug
  0001:00080A50       ariadne_get_wallhug_angle
+ 0001:00081080       ariadne_push_position_against_wall
  0001:000816E0       ariadne_pull_out_waypoint
  0001:00081B30       draw_resurrect_creature
  0001:00081D10       select_resurrect_creature_up

@@ -25,6 +25,7 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
+#include "bflib_planar.h"
 
 #include "engine_lenses.h"
 #include "engine_render.h"
@@ -112,7 +113,7 @@ void angles_to_vector(short angle_xy, short angle_yz, long dist, struct Componen
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     //return _DK_get_angle_xy_to(pos1, pos2);
-    return LbArcTanAngle(pos2->x.val - pos1->x.val, pos2->y.val - pos1->y.val) % ANGLE_TRIGL_PERIOD;
+    return LbArcTanAngle((long)pos2->x.val - (long)pos1->x.val, (long)pos2->y.val - (long)pos1->y.val) % ANGLE_TRIGL_PERIOD;
 }
 
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -138,9 +139,9 @@ void project_point_to_wall_on_angle(const struct Coord3d *pos1, struct Coord3d *
     long n;
     struct Coord3d pos;
     //_DK_project_point_to_wall_on_angle(pos1, pos2, a3, a4, a5, a6);
-    dx =  (distance * LbSinL(angle_xy) >> 16);
-    dy = -(distance * LbCosL(angle_xy) >> 8) >> 8;
-    dz =  (distance * LbSinL(angle_z) >> 16);
+    dx = distance_with_angle_to_coord_x(distance,angle_xy);
+    dy = distance_with_angle_to_coord_y(distance,angle_xy);
+    dz = distance_with_angle_to_coord_z(distance,angle_z);
     pos.x.val = pos1->x.val;
     pos.y.val = pos1->y.val;
     pos.z.val = pos1->z.val;

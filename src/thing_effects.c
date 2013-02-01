@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis
- * @date     01 Jan 2010 - 12 Jan 2010
+ * @date     01 Jan 2010 - 01 Feb 2012
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_sound.h"
+#include "bflib_planar.h"
+
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -895,13 +897,13 @@ void effect_generate_effect_elements(const struct Thing *thing)
               k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
               if (k <= 1) k = 1;
               mag = effnfo->accel_xy_min + ACTION_RANDOM(k);
-              elemtng->acceleration.x.val += (mag*LbSinL(arg)) >> 16;
-              elemtng->acceleration.y.val -= (mag*LbCosL(arg)) >> 16;
+              elemtng->acceleration.x.val += distance_with_angle_to_coord_x(mag,arg);
+              elemtng->acceleration.y.val += distance_with_angle_to_coord_y(mag,arg);
               // Setting Z acceleration
               k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
               if (k <= 1) k = 1;
               mag = effnfo->accel_z_min + ACTION_RANDOM(k);
-              elemtng->acceleration.z.val += (mag*LbSinL(argZ)) >> 16;
+              elemtng->acceleration.z.val += distance_with_angle_to_coord_z(mag,argZ);
               elemtng->field_1 |= TF1_PushdByAccel;
           }
           break;
@@ -1164,8 +1166,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 move_dist = ((max_dist - distance) * blow_strength) / max_dist;
                 if (move_dist > 0)
                 {
-                    tngdst->acceleration.x.val +=   move_dist * LbSinL(move_angle) >> 16;
-                    tngdst->acceleration.y.val += -(move_dist * LbCosL(move_angle) >> 8) >> 8;
+                    tngdst->acceleration.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
+                    tngdst->acceleration.y.val += distance_with_angle_to_coord_y(move_dist, move_angle);
                     tngdst->field_1 |= TF1_PushdByAccel;
                     affected = true;
                 }

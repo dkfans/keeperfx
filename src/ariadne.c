@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "ariadne_navitree.h"
 #include "ariadne_regions.h"
 #include "ariadne_tringls.h"
@@ -74,7 +75,7 @@ DLLIMPORT long _DK_delete_4point(long ptfind_x, long ptfind_y);
 DLLIMPORT long _DK_delete_3point(long ptfind_x, long ptfind_y);
 DLLIMPORT long _DK_triangle_route_do_fwd(long ptfind_x, long ptfind_y, long *ptstart_x, long *ptstart_y);
 DLLIMPORT long _DK_triangle_route_do_bak(long ptfind_x, long ptfind_y, long *ptstart_x, long *ptstart_y);
-DLLIMPORT void _DK_ariadne_pull_out_waypoint(struct Thing *thing, struct Ariadne *arid, long ptstart_x, struct Coord3d *pos);
+DLLIMPORT void _DK_ariadne_pull_out_waypoint(const struct Thing *thing, struct Ariadne *arid, long ptstart_x, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long ptstart_y, struct Coord3d *nextpos, unsigned char a5);
 DLLIMPORT unsigned char _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
@@ -90,6 +91,7 @@ DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
 DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8);
 DLLIMPORT long _DK_fill_concave(long a1, long a2, long speed);
+DLLIMPORT long _DK_ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
 /******************************************************************************/
 DLLIMPORT unsigned long _DK_edgelen_initialised;
 #define edgelen_initialised _DK_edgelen_initialised
@@ -1050,7 +1052,7 @@ long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3
     struct Coord3d lpos;
     long radius;
     unsigned long blk_flags;
-
+    //return _DK_ariadne_push_position_against_wall(thing, pos1, pos_out);
     blk_flags = ariadne_get_blocked_flags(thing, pos1);
     radius = thing_nav_sizexy(thing) >> 1;
     lpos.x.val = pos1->x.val;
@@ -1129,17 +1131,16 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     unsigned long blk_flags;
     //return _DK_ariadne_init_movement_to_current_waypoint(thing, arid);
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
-    delta_x = ((long)arid->move_speed * LbSinL(angle)) >> 16;
-    delta_y = ((long)arid->move_speed * LbCosL(angle)) >> 16;
+    delta_x = distance_with_angle_to_coord_x(arid->move_speed, angle);
+    delta_y = distance_with_angle_to_coord_y(arid->move_speed, angle);
     requested_pos.x.val = (long)thing->mappos.x.val + delta_x;
-    requested_pos.y.val = (long)thing->mappos.y.val - delta_y;
+    requested_pos.y.val = (long)thing->mappos.y.val + delta_y;
     requested_pos.z.val = get_thing_height_at(thing, &requested_pos);
     if (!ariadne_creature_blocked_by_wall_at(thing, &requested_pos))
     {
         arid->field_21 = 1;
         return 1;
     }
-
     blk_flags = ariadne_get_blocked_flags(thing, &requested_pos);
     if (blocked_by_door_at(thing, &requested_pos, blk_flags))
     {
@@ -1327,7 +1328,6 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
 {
     struct Coord3d pos;
     long dist,angle;
-    long i;
 
     if (ariadne_creature_blocked_by_wall_at(thing, &arid->pos_53))
     {
@@ -1360,10 +1360,8 @@ AriadneReturn ariadne_update_state_manoeuvre_to_position(struct Thing *thing, st
     case 2:
         angle = ariadne_get_wallhug_angle(thing, arid);
         arid->field_60 = angle;
-        i = arid->move_speed * LbSinL(angle);
-        arid->pos_12.x.val = thing->mappos.x.val + (i >> 16);
-        i = arid->move_speed * LbCosL(angle);
-        arid->pos_12.y.val = thing->mappos.y.val - (i >> 16);
+        arid->pos_12.x.val = thing->mappos.x.val + distance_with_angle_to_coord_x(arid->move_speed, angle);
+        arid->pos_12.y.val = thing->mappos.y.val + distance_with_angle_to_coord_y(arid->move_speed, angle);
         arid->field_21 = 2;
         return AridRet_OK;
     default:
@@ -1504,7 +1502,7 @@ void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x
     long a6, unsigned char nav_size, const char *func_name)
 {
     long route_dist;
-    //_DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size);
+    //_DK_path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size); return;
     NAVIDBG(9,"%s: Path from %5ld,%5ld to %5ld,%5ld on turn %lu", func_name, start_x, start_y, end_x, end_y, game.play_gameturn);
     if (a6 == -1)
       WARNLOG("%s: implement random externally", func_name);
