@@ -205,7 +205,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
     return _DK_thing_in_wall_at_with_radius(thing, pos, radius);
 }
 
-long get_floor_height_under_thing_at(struct Thing *thing, struct Coord3d *pos)
+long get_floor_height_under_thing_at(const struct Thing *thing, struct Coord3d *pos)
 {
     int radius;
     long i;

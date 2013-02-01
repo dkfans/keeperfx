@@ -26,6 +26,7 @@
 #include "creature_control.h"
 #include "creature_battle.h"
 #include "creature_instances.h"
+#include "creature_senses.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
