@@ -33,12 +33,12 @@ enum ThingHitTypes {
     THit_None = 0,
     THit_CrtrsNObjcts, // Affect all creatures and all objects
     THit_CrtrsOnly, // Affect only creatures
-    THit_UnownedCrtrsNObjcts, // Affect unowned creatures and objects
-    THit_UnownedCrtrsOnly, // Affect unowned creatures
-    THit_UnownedCrtrsNotArmour, // Affect unowned creatures which are not protected by Armour spell
-    THit_Unk6,
-    THit_HeartOnly, // Affect only dungeon hearts
+    THit_CrtrsNObjctsNotOwn, // Affect not own creatures and objects
+    THit_CrtrsOnlyNotOwn, // Affect not own creatures
+    THit_CrtrsNotArmourNotOwn, // Affect not own creatures which are not protected by Armour spell
     THit_All, // Affect all things
+    THit_HeartOnly, // Affect only dungeon hearts
+    THit_HeartOnlyNotOwn, // Affect only not own dungeon hearts
     THit_TypesCount, // Last item in enumeration, allows checking amount of valid types
 };
 
@@ -224,6 +224,7 @@ TbBool destroy_effect_thing(struct Thing *thing);
 struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 
+TbBool explosion_can_affect_thing(const struct Thing *thing, long hit_type, PlayerNumber shot_owner);
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
     MapSubtlCoord range, HitPoints max_damage, long blow_strength, ThingHitType hit_type);
 

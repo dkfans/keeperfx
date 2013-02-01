@@ -200,10 +200,11 @@ long get_free_hero_gate_number(void);
 
 struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel crmodel);
 
-TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *thing);
-TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struct Thing *shooter, const struct Thing *thing);
-TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struct Thing *shooter, const struct Thing *thing);
-TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *thing);
+TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *thing, PlayerNumber shot_owner);
+TbBool thing_is_shootable_by_any_player_except_own_including_objects(const struct Thing *thing, PlayerNumber shot_owner);
+TbBool thing_is_shootable_by_any_player_except_own_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner);
+TbBool thing_is_shootable_by_any_player_except_own_excluding_objects_and_not_under_spell(const struct Thing *thing, PlayerNumber shot_owner, SpellKind spkind);
+TbBool thing_is_shootable_by_any_player_excluding_objects(const struct Thing *thing, PlayerNumber shot_owner);
 TbBool imp_already_digging_at_excluding(struct Thing *excltng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *smallest_gold_pile_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

@@ -541,6 +541,11 @@ TbBool object_is_hero_gate(const struct Thing *thing)
   return (thing->model == 49);
 }
 
+TbBool object_is_growing_food(const struct Thing *thing)
+{
+  return (thing->model == 9);
+}
+
 TbBool object_is_mature_food(const struct Thing *thing)
 {
   return (thing->model == 10);
