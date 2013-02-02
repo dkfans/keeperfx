@@ -185,11 +185,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
   if (crstat->slaps_to_kill > 0)
   {
     i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
-    if (i > 0)
-    {
-      apply_damage_to_thing(thing, i, player->id_number);
-      thing->creature.health_bar_turns = 8;
-    }
+    apply_damage_to_thing_and_display_health(thing, i, player->id_number);
   }
   magstat = &game.magic_stats[PwrK_SLAP];
   i = cctrl->field_21;

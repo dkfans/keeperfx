@@ -885,27 +885,42 @@ long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, str
 
 long collide_filter_thing_is_shootable_by_any_player_including_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return thing_is_shootable_by_any_player_including_objects(thing, coltng->owner);
+    PlayerNumber shot_owner = -1;
+    if (thing_exists(coltng))
+        shot_owner = coltng->owner;
+    return thing_is_shootable_by_any_player_including_objects(thing, shot_owner);
 }
 
 long collide_filter_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return thing_is_shootable_by_any_player_excluding_objects(thing, coltng->owner);
+    PlayerNumber shot_owner = -1;
+    if (thing_exists(coltng))
+        shot_owner = coltng->owner;
+    return thing_is_shootable_by_any_player_excluding_objects(thing, shot_owner);
 }
 
 long collide_filter_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return thing_is_shootable_by_any_player_except_own_including_objects(thing, coltng->owner);
+    PlayerNumber shot_owner = -1;
+    if (thing_exists(coltng))
+        shot_owner = coltng->owner;
+    return thing_is_shootable_by_any_player_except_own_including_objects(thing, shot_owner);
 }
 
 long collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return thing_is_shootable_by_any_player_except_own_excluding_objects(thing, coltng->owner);
+    PlayerNumber shot_owner = -1;
+    if (thing_exists(coltng))
+        shot_owner = coltng->owner;
+    return thing_is_shootable_by_any_player_except_own_excluding_objects(thing, shot_owner);
 }
 
 long collide_filter_thing_is_shootable_dungeon_heart_only(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return (thing_is_dungeon_heart(thing) && (coltng->owner != thing->owner));
+    PlayerNumber shot_owner = -1;
+    if (thing_exists(coltng))
+        shot_owner = coltng->owner;
+    return (thing_is_dungeon_heart(thing) && (shot_owner != thing->owner));
 }
 
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)
