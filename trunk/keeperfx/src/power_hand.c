@@ -92,11 +92,16 @@ TbBool thing_is_picked_up(const struct Thing *thing)
     return (((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->field_1 & TF1_InCtrldLimbo) != 0));
 }
 
-TbBool thing_is_picked_up_by_owner(const struct Thing *thing)
+TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->field_1 & TF1_InCtrldLimbo) == 0))
         return false;
-    return thing_is_in_power_hand_list(thing, thing->owner);
+    return thing_is_in_power_hand_list(thing, plyr_idx);
+}
+
+TbBool thing_is_picked_up_by_owner(const struct Thing *thing)
+{
+    return thing_is_picked_up_by_player(thing, thing->owner);
 }
 
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing)
@@ -120,9 +125,52 @@ TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *
     return false;
 }
 
+TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if ((game.field_150356 != 0) && (game.armageddon.count_down + game.field_150356 <= game.play_gameturn)) {
+        return true;
+    }
+    return false;
+}
+
+TbBool creature_is_pickable_by_hand(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (armageddon_blocks_creature_pickup(thing, plyr_idx))
+        return false;
+    if ((thing->active_state == CrSt_CreatureUnconscious) || thing_is_picked_up(thing))
+        return false;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((thing->health <= 0) || (cctrl->dragtng_idx != 0))
+        return false;
+    if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
+        return false;
+    if (creature_affected_by_spell(thing, SplK_Teleport))
+        return false;
+    if (thing->owner == plyr_idx)
+    {
+        if (creature_is_kept_in_custody_by_enemy(thing))
+            return false;
+    } else
+    {
+        if (creature_is_kept_in_custody_by_player(thing, plyr_idx))
+            return false;
+    }
+    return true;
+}
+
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
+    //return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
+    if (thing_is_creature(thing))
+    {
+        return creature_is_pickable_by_hand(thing, plyr_idx);
+    }
+    if (thing_is_object(thing))
+    {
+        return object_is_pickable_by_hand(thing, plyr_idx);
+    }
+    return false;
 }
 
 long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber plyr_idx)

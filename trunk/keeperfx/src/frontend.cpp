@@ -938,7 +938,7 @@ int frontend_load_data(void)
   return _DK_frontend_load_data();
 }
 
-void activate_room_build_mode(int rkind, int tooltip_id)
+void activate_room_build_mode(int rkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
     player = get_my_player();
@@ -953,46 +953,51 @@ TbBool set_players_packet_change_spell(struct PlayerInfo *player,int sptype)
   struct SpellData *pwrdata;
   long k;
   if (spell_is_stupid(game.chosen_spell_type))
-    return false;
+      return false;
   pwrdata = get_power_data(sptype);
   k = pwrdata->field_4;
   if ((k == PSt_CallToArms) && (player->work_state == PSt_CallToArms))
   {
-    set_players_packet_action(player, PckA_PwrCTADis, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_PwrCTADis, 0, 0, 0, 0);
   } else
   if ((k == PSt_SightOfEvil) && (player->work_state == PSt_SightOfEvil))
   {
-    set_players_packet_action(player, PckA_PwrSOEDis, 0, 0, 0, 0);
+      set_players_packet_action(player, PckA_PwrSOEDis, 0, 0, 0, 0);
   } else
   {
-    set_players_packet_action(player, pwrdata->field_0, k, 0, 0, 0);
-    play_non_3d_sample(pwrdata->field_11);
+      set_players_packet_action(player, pwrdata->field_0, k, 0, 0, 0);
+      play_non_3d_sample(pwrdata->field_11);
   }
   return true;
+}
+
+TbBool is_special_spell(PowerKind pwkind)
+{
+    return ((pwkind == PwrK_HOLDAUDNC) || (pwkind == PwrK_ARMAGEDDON));
 }
 
 /**
  * Sets a new chosen special spell (Armageddon or Hold Audience).
  */
-void choose_special_spell(int spkind, int tooltip_id)
+void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct Dungeon *dungeon;
     struct SpellData *pwrdata;
     struct MagicStats *magstat;
 
-    if ((spkind != PwrK_HOLDAUDNC) && (spkind != PwrK_ARMAGEDDON)) {
+    if (!is_special_spell(pwkind)) {
         WARNLOG("Bad power kind");
         return;
     }
 
     dungeon = get_players_num_dungeon(my_player_number);
-    set_chosen_spell(spkind, tooltip_id);
-    magstat = &game.magic_stats[spkind];
+    set_chosen_spell(pwkind, tooltip_id);
+    magstat = &game.magic_stats[pwkind];
 
     if (dungeon->total_money_owned >= magstat->cost[0]) {
-        pwrdata = get_power_data(spkind);
+        pwrdata = get_power_data(pwkind);
         play_non_3d_sample_no_overlap(pwrdata->field_11); // Play the spell speech
-        switch (spkind)
+        switch (pwkind)
         {
         case PwrK_ARMAGEDDON:
             turn_on_menu(GMnu_ARMAGEDDON);
@@ -1008,26 +1013,26 @@ void choose_special_spell(int spkind, int tooltip_id)
  * Sets a new chosen spell.
  * Fills packet with the previous spell disable action.
  */
-void choose_spell(int kind, int tooltip_id)
+void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
 
-    kind = kind % POWER_TYPES_COUNT;
+    pwkind = pwkind % POWER_TYPES_COUNT;
 
-    if ((kind == PwrK_HOLDAUDNC) || (kind == PwrK_ARMAGEDDON)) {
-        choose_special_spell(kind, tooltip_id);
+    if (is_special_spell(pwkind)) {
+        choose_special_spell(pwkind, tooltip_id);
         return;
     }
 
     player = get_my_player();
 
     // Disable previous spell
-    if (!set_players_packet_change_spell(player, kind)) {
+    if (!set_players_packet_change_spell(player, pwkind)) {
         WARNLOG("Inconsistency when switching spell %d to %d",
-            (int) game.chosen_spell_type, kind);
+            (int) game.chosen_spell_type, pwkind);
     }
 
-    set_chosen_spell(kind, tooltip_id);
+    set_chosen_spell(pwkind, tooltip_id);
 }
 
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)
