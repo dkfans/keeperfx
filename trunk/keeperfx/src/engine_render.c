@@ -1012,6 +1012,10 @@ void draw_engine_room_flagpole(struct RoomFlag *rflg)
     _DK_draw_engine_room_flagpole(rflg);
 }
 
+/**
+ * Selects index of a sprite used to show creature health flower.
+ * @param thing
+ */
 unsigned short choose_health_sprite(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -1028,14 +1032,14 @@ unsigned short choose_health_sprite(struct Thing *thing)
     }
     if ((maxhealth <= 0) || (health <= 0))
     {
-        return 88 + (8*color_idx) - 8;
+        return 88 + (8*color_idx);
+    } else
+    if (health >= maxhealth)
+    {
+        return 88 + (8*color_idx) - 7;
     } else
     {
-      if (health >= maxhealth) {
-          return 81 + (8*color_idx);
-      } else {
-          return 88 + (8*color_idx) - (8 * health / maxhealth);
-      }
+        return 88 + (8*color_idx) - (8 * health / maxhealth);
     }
 }
 
