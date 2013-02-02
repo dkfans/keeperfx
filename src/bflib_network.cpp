@@ -430,7 +430,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     }
 
     //set up the stuff the other parts of the game expect
-    //TODO: try to get rid of this because it makes understanding code much more complicated
+    //TODO NET try to get rid of this because it makes understanding code much more complicated
     localPlayerInfoPtr[source].active = 1;
     strcpy(localPlayerInfoPtr[source].name, netstate.users[source].name);
 }
@@ -461,7 +461,7 @@ static void HandleUserUpdate(NetUserId source, char * ptr, char * end)
     LbStringCopy(netstate.users[id].name, ptr, sizeof(netstate.users[id].name));
 
     //send up the stuff the other parts of the game expect
-    //TODO: try to get rid of this because it makes understanding code much more complicated
+    //TODO NET try to get rid of this because it makes understanding code much more complicated
     localPlayerInfoPtr[id].active = netstate.users[id].progress != USER_UNUSED;
     strcpy(localPlayerInfoPtr[id].name, netstate.users[id].name);
 }
@@ -648,7 +648,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
 
   res = Lb_FAIL;
 
-  localPlayerInfoPtr = locplayr; //TODO: try to get rid of dependency on external player list, makes things 2x more complicated
+  localPlayerInfoPtr = locplayr; //TODO NET try to get rid of dependency on external player list, makes things 2x more complicated
 
   /*//return _DK_LbNetwork_Init(srvcp,guid,maxplayrs,exchng_buf,exchng_size,locplayr,init_data);
   exchangeSize = exchng_size;
@@ -1071,7 +1071,7 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
         }
 
         //set up the stuff the other parts of the game expect
-        //TODO: try to get rid of this because it makes understanding code much more complicated
+        //TODO NET try to get rid of this because it makes understanding code much more complicated
         localPlayerInfoPtr[id].active = 0;
         LbMemorySet(localPlayerInfoPtr[id].name, 0, sizeof(localPlayerInfoPtr[id].name));
     }

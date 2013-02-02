@@ -885,27 +885,27 @@ long shot_hit_shootable_thing_at(struct Thing *shotng, struct Thing *target, str
 
 long collide_filter_thing_is_shootable_by_any_player_including_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return thing_is_shootable_by_any_player_including_objects(thing);
+    return thing_is_shootable_by_any_player_including_objects(thing, coltng->owner);
 }
 
 long collide_filter_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return thing_is_shootable_by_any_player_excluding_objects(thing);
+    return thing_is_shootable_by_any_player_excluding_objects(thing, coltng->owner);
 }
 
 long collide_filter_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return thing_is_shootable_by_any_player_except_own_including_objects(coltng, thing);
+    return thing_is_shootable_by_any_player_except_own_including_objects(thing, coltng->owner);
 }
 
 long collide_filter_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return thing_is_shootable_by_any_player_except_own_excluding_objects(coltng, thing);
+    return thing_is_shootable_by_any_player_except_own_excluding_objects(thing, coltng->owner);
 }
 
 long collide_filter_thing_is_shootable_dungeon_heart_only(struct Thing *thing, struct Thing *coltng, long a3, long a4)
 {
-    return (thing->class_id == TCls_Object) && (thing->model == 5) && (coltng->owner != thing->owner);
+    return (thing_is_dungeon_heart(thing) && (coltng->owner != thing->owner));
 }
 
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5)

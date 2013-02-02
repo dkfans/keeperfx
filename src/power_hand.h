@@ -60,6 +60,7 @@ long can_thing_be_picked_up2_by_player(const struct Thing *thing, PlayerNumber p
 TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_owner(const struct Thing *thing);
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing);
+TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);

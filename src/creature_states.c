@@ -867,6 +867,32 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
+{
+    if (thing_is_picked_up_by_player(thing, plyr_idx)) {
+        // The enemy keep us in hand - the fact is clear
+        return true;
+    }
+    if (creature_is_kept_in_prison(thing) ||
+        creature_is_being_tortured(thing) ||
+        creature_is_being_sacrificed(thing) ||
+        creature_is_being_dropped(thing))
+    {
+        struct Room *room;
+        room = get_room_thing_is_on(thing);
+        if (room_is_invalid(room)) {
+            // This must mean we're being dropped outside of room, or sold/destroyed the room
+            // so not kept in custody - freed
+            return false;
+        }
+        if (room->owner == plyr_idx) {
+            // We're in a room, and it's the player we asked for
+            return true;
+        }
+    }
+    return false;
+}
+
 TbBool creature_state_is_unset(const struct Thing *thing)
 {
     CrtrStateId crstate;

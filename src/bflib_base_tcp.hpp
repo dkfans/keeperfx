@@ -29,7 +29,7 @@
 /*
  * TCP frame format:
  * Header:
- * 0x00-0x04: destination player ID //TODO: potentially cut down on bit length, 8 should be enough... but that applies everywhere
+ * 0x00-0x04: destination player ID //TODO NET potentially cut down on bit length, 8 should be enough... but that applies everywhere
  * 0x04-0x08: tcp data length
  * Data (size of DK message data + DK message header of 4 bytes):
  * 0x08-0x??
