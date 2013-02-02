@@ -106,7 +106,7 @@ struct NetSP //new version
      * Asks if a message has finished reception and get be read through readmsg.
      * May block under some circumstances but shouldn't unless it can be presumed
      * a whole message is on the way.
-     * TODO: this definition is due to how SDL Net handles sockets.. see if it can
+     * TODO NET this definition is due to how SDL Net handles sockets.. see if it can
      *  be improved - ideally this function shouldn't block at all
      * @param source The source user.
      * @param timeout If non-zero, this method will wait this number of milliseconds
