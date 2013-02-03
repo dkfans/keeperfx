@@ -66,20 +66,16 @@ unsigned char general_expand_check(void)
 
 unsigned char sight_of_evil_expand_check(void)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    player = get_my_player();
-    dungeon = get_dungeon(player->id_number);
-    return (player->field_4D2 != 0) && (dungeon->keeper_sight_thing_idx == 0);
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    return (myplyr->field_4D2 != 0) && (!player_uses_power_sight(myplyr->id_number));
 }
 
 unsigned char call_to_arms_expand_check(void)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    player = get_my_player();
-    dungeon = get_dungeon(player->id_number);
-    return (player->field_4D2 != 0) && (dungeon->field_884 == 0);
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    return (myplyr->field_4D2 != 0) && (!player_uses_call_to_arms(myplyr->id_number));
 }
 
 void process_armageddon(void)
@@ -235,9 +231,16 @@ void draw_god_lightning(struct Thing *thing)
     _DK_draw_god_lightning(thing);
 }
 
-void turn_off_call_to_arms(long a)
+TbBool player_uses_call_to_arms(PlayerNumber plyr_idx)
 {
-  _DK_turn_off_call_to_arms(a);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return (dungeon->field_884 != 0);
+}
+
+void turn_off_call_to_arms(PlayerNumber plyr_idx)
+{
+  _DK_turn_off_call_to_arms(plyr_idx);
 }
 
 void store_backup_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
@@ -341,6 +344,13 @@ void update_vertical_explored_flags_for_power_sight(struct PlayerInfo *player, s
     }
 }
 
+TbBool player_uses_power_sight(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return (dungeon->sight_casted_thing_idx > 0);
+}
+
 void update_horizonal_explored_flags_for_power_sight(struct PlayerInfo *player, struct Coord3d *soe_pos)
 {
     struct Dungeon *dungeon;
@@ -419,9 +429,16 @@ void update_explored_flags_for_power_sight(struct PlayerInfo *player)
     //_DK_update_explored_flags_for_power_sight(player);
     dungeon = get_players_dungeon(player);
     LbMemorySet(backup_explored, 0, sizeof(backup_explored));
-    if (dungeon->keeper_sight_thing_idx == 0)
+    if (dungeon->sight_casted_thing_idx == 0) {
         return;
-    thing = thing_get(dungeon->keeper_sight_thing_idx);
+    }
+    thing = thing_get(dungeon->sight_casted_thing_idx);
+    if (!thing_is_object(thing)) {
+        ERRORLOG("Sight thing index %d invalid", (int)dungeon->sight_casted_thing_idx);
+        turn_off_sight_of_evil(player->id_number);
+        dungeon->sight_casted_thing_idx = 0;
+        return;
+    }
     TRACE_THING(thing);
     // Fill the backup_explored array
     store_backup_explored_flags_for_power_sight(player, &thing->mappos);

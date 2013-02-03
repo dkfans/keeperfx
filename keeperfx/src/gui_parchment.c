@@ -383,10 +383,10 @@ void draw_overhead_things(long x, long y)
     }
     for (i=0; i < DUNGEONS_COUNT; i++)
     {
-        dungeon = get_dungeon(i);
-        if (dungeon->field_884 > 0)
+        if (player_uses_call_to_arms(i))
         {
             struct MagicStats *magstat;
+            dungeon = get_dungeon(i);
             lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010;
             magstat = &game.magic_stats[PwrK_CALL2ARMS];
             k = (4 * ((i + game.play_gameturn) & 7) * subtile_slab_fast(magstat->power[dungeon->field_883]));

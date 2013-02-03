@@ -387,7 +387,7 @@ void set_general_information(long msg_id, long target, long x, long y);
 void set_quick_information(long msg_id, long target, long x, long y);
 void process_objective(const char *msg_text, long target, long x, long y);
 void set_general_objective(long msg_id, long target, long x, long y);
-void turn_off_sight_of_evil(long plridx);
+void turn_off_sight_of_evil(PlayerNumber plridx);
 short dump_held_things_on_map(PlayerNumber plyr_idx, long a2, long a3, short a4);
 long set_autopilot_type(PlayerNumber plridx, long aptype);
 void instant_instance_selected(long a1);

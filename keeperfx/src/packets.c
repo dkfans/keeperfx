@@ -331,7 +331,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       switch (player->work_state)
       {
       case PSt_CallToArms:
-          if (dungeon->field_884)
+          if (player_uses_call_to_arms(plyr_idx))
             player->field_4D2 = (dungeon->field_883 << 2);
           else
             update_power_overcharge(player, 6);
@@ -2094,17 +2094,17 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       switch (pckt->field_6)
       {
       case 5:
-          if (dungeon->keeper_sight_thing_idx)
+          if (player_uses_power_sight(plyr_idx))
           {
             struct Thing *thing;
-            thing = thing_get(dungeon->keeper_sight_thing_idx);
+            thing = thing_get(dungeon->sight_casted_thing_idx);
             player->zoom_to_pos_x = thing->mappos.x.val;
             player->zoom_to_pos_y = thing->mappos.y.val;
             set_player_instance(player, PI_ZoomToPos, 0);
           }
           break;
       case 6:
-          if (dungeon->field_884)
+          if (player_uses_call_to_arms(plyr_idx))
           {
             player->zoom_to_pos_x = ((unsigned long)dungeon->field_881) << 8;
             player->zoom_to_pos_y = ((unsigned long)dungeon->field_882) << 8;
