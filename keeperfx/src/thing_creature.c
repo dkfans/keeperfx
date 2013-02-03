@@ -1780,10 +1780,10 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += (cctrl->field_2C1 * LbSinL(firing->field_52+512) >> 16);
-    pos1.y.val -= (cctrl->field_2C1 * LbCosL(firing->field_52+512) >> 8) >> 8;
-    pos1.x.val += (cctrl->field_2C3 * LbSinL(firing->field_52) >> 16);
-    pos1.y.val -= (cctrl->field_2C3 * LbCosL(firing->field_52) >> 8) >> 8;
+    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C1, firing->field_52+512);
+    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C1, firing->field_52+512);
+    pos1.x.val += distance_with_angle_to_coord_x(cctrl->field_2C3, firing->field_52);
+    pos1.y.val += distance_with_angle_to_coord_y(cctrl->field_2C3, firing->field_52);
     pos1.z.val += (cctrl->field_2C5);
     // Compute launch angles
     if (thing_is_invalid(target))
@@ -3153,10 +3153,8 @@ void place_bloody_footprint(struct Thing *thing)
         {
           if (cctrl->move_speed != 0)
           {
-            cctrl->pos_BB.x.val = (LbSinL(thing->field_52)>> 8)
-                  * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 16;
-            cctrl->pos_BB.y.val = -((LbCosL(thing->field_52) >> 8)
-                  * (cctrl->move_speed * LbCosL(thing->field_54) >> 8) >> 8) >> 8;
+            cctrl->pos_BB.x.val = distance_with_angle_to_coord_x(cctrl->move_speed * LbCosL(thing->field_54) >> 16,thing->field_52);
+            cctrl->pos_BB.x.val = distance_with_angle_to_coord_y(cctrl->move_speed * LbCosL(thing->field_54) >> 16,thing->field_52);
             cctrl->pos_BB.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->field_54);
           }
           if (cctrl->field_CA != 0)
