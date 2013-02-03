@@ -344,21 +344,24 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *digger, long tngmodel)
     return INVALID_THING;
 }
 
-long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
+/**
+ * Checks if there are crates in room the creature is on, which could be used to re-arm one of players traps.
+ * If there are, setups given digger to do the task of re-arming trap.
+ * @param digger
+ */
+TbBool check_out_crates_to_arm_trap_in_room(struct Thing *digger)
 {
-    struct CreatureControl *cctrl;
     struct Thing *thing;
     struct Thing *traptng;
     struct Room *room;
     long i;
     unsigned long k;
-    cctrl = creature_control_get_from_thing(digger);
     room = get_room_thing_is_on(digger);
     if (room_is_invalid(room)) {
-        return 0;
+        return false;
     }
     if ( (room->kind != RoK_WORKSHOP) || (room->owner != digger->owner) ) {
-        return 0;
+        return false;
     }
 
     k = 0;
@@ -376,15 +379,16 @@ long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
           if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (get_room_thing_is_on(thing) == room) )
           {
               traptng = check_for_empty_trap_for_imp(digger, box_thing_to_door_or_trap(thing));
-              if (thing_is_invalid(traptng))
+              if (!thing_is_invalid(traptng) && !imp_will_soon_be_getting_object(digger->owner, thing))
               {
-                  if ( !imp_will_soon_be_getting_object(digger->owner, thing)
-                    && setup_person_move_to_position(digger, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
+                  if (setup_person_move_to_position(digger, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0))
                   {
+                      struct CreatureControl *cctrl;
+                      cctrl = creature_control_get_from_thing(digger);
                       digger->continue_state = CrSt_CreaturePicksUpTrapObject;
                       cctrl->pickup_object_id = thing->index;
                       cctrl->field_70 = traptng->index;
-                      return 1;
+                      return true;
                   }
               }
           }
@@ -397,7 +401,7 @@ long check_out_crates_to_arm_trap_in_room(struct Thing *digger)
           break;
         }
     }
-    return 0;
+    return false;
 }
 
 /**

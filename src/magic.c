@@ -905,6 +905,11 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
         WARNLOG("Player %d tried to cast %s on non-existing thing",(int)plyr_idx,power_code_name(pwmodel));
         ret = Lb_FAIL;
     }
+    // Zero coords mean we should take real ones from the thing
+    if ((stl_x == 0) && (stl_y == 0)) {
+        stl_x = thing->mappos.x.stl.num;
+        stl_y = thing->mappos.y.stl.num;
+    }
     if (ret == Lb_OK)
     {
         TbBool cast_at_xy,cast_on_tng;
@@ -916,14 +921,16 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
         {
             // Fail only if both functions have failed - one is enough
             if (!cast_at_xy && !cast_on_tng) {
-                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),cast_on_tng?"a thing":cast_at_xy?"a subtile":"thing or subtile");
+                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),
+                    (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
                 ret = Lb_FAIL;
             }
         } else
         {
             // Fail if any of the functions has failed - we need both
             if (!cast_at_xy || !cast_on_tng) {
-                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),cast_on_tng?"a thing":cast_at_xy?"a subtile":"thing or subtile");
+                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),
+                    (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
                 ret = Lb_FAIL;
             }
         }

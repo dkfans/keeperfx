@@ -818,7 +818,7 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
 short setup_person_tunnel_to_position(struct Thing *creatng, long stl_x, long stl_y, unsigned char a4)
 {
     struct CreatureControl *cctrl;
-    if ( internal_set_thing_state(creatng, 28) )
+    if ( internal_set_thing_state(creatng, CrSt_Tunnelling) )
     {
         cctrl = creature_control_get_from_thing(creatng);
         cctrl->moveto_pos.x.stl.num = stl_x;

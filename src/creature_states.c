@@ -3069,7 +3069,8 @@ TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState)
     struct CreatureControl *cctrl;
     //return _DK_initialise_thing_state(thing, nState);
     TRACE_THING(thing);
-    SYNCDBG(9,"State change %s to %s for %s index %d",creature_state_code_name(thing->active_state), creature_state_code_name(nState), thing_model_name(thing),(int)thing->index);
+    SYNCDBG(9,"State change %s to %s for %s index %d",creature_state_code_name(thing->active_state),
+        creature_state_code_name(nState), thing_model_name(thing),(int)thing->index);
     cleanup_current_thing_state(thing);
     thing->continue_state = CrSt_Unused;
     thing->active_state = nState;

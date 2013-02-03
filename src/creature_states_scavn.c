@@ -136,7 +136,7 @@ short creature_scavenged_disappear(struct Thing *thing)
           output_message(SMsg_MinionScanvenged, 0, true);
         cctrl->byte_9C = thing->owner;
         change_creature_owner(thing, cctrl->byte_9B);
-        internal_set_thing_state(thing, 94);
+        internal_set_thing_state(thing, CrSt_CreatureScavengedReappear);
         return 0;
     } else
     {
