@@ -403,29 +403,29 @@ TbResult magic_use_power_obey(PlayerNumber plyr_idx)
     return Lb_SUCCESS;
 }
 
-void turn_off_sight_of_evil(long plyr_idx)
+void turn_off_sight_of_evil(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-  struct MagicStats *mgstat;
-  long spl_lev,cit;
-  long i,imax,k,n;
-  //_DK_turn_off_sight_of_evil(plyr_idx);
-  dungeon = get_players_num_dungeon(plyr_idx);
-  mgstat = &(game.magic_stats[PwrK_SIGHT]);
-  spl_lev = dungeon->field_5DA;
-  if (spl_lev > SPELL_MAX_LEVEL)
-      spl_lev = SPELL_MAX_LEVEL;
-  i = game.play_gameturn - dungeon->field_5D4;
-  imax = abs(mgstat->power[spl_lev]/4) >> 2;
-  if (i > imax)
-      i = imax;
-  if (i < 0)
-      i = 0;
-  n = game.play_gameturn - mgstat->power[spl_lev];
-  cit = power_sight_close_instance_time[spl_lev];
-  k = imax / cit;
-  if (k < 1) k = 1;
-  dungeon->field_5D4 = n + i/k - cit;
+    struct MagicStats *mgstat;
+    long spl_lev,cit;
+    long i,imax,k,n;
+    //_DK_turn_off_sight_of_evil(plyr_idx);
+    dungeon = get_players_num_dungeon(plyr_idx);
+    mgstat = &(game.magic_stats[PwrK_SIGHT]);
+    spl_lev = dungeon->sight_casted_splevel;
+    if (spl_lev > SPELL_MAX_LEVEL)
+        spl_lev = SPELL_MAX_LEVEL;
+    i = game.play_gameturn - dungeon->sight_casted_gameturn;
+    imax = abs(mgstat->power[spl_lev]/4) >> 2;
+    if (i > imax)
+        i = imax;
+    if (i < 0)
+        i = 0;
+    n = game.play_gameturn - mgstat->power[spl_lev];
+    cit = power_sight_close_instance_time[spl_lev];
+    k = imax / cit;
+    if (k < 1) k = 1;
+    dungeon->sight_casted_gameturn = n + i/k - cit;
 }
 
 TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx)
@@ -779,25 +779,25 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     //return _DK_magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
     dungeon = get_dungeon(plyr_idx);
     magstat = &game.magic_stats[PwrK_SIGHT];
-    if ( dungeon->keeper_sight_thing_idx )
+    if (player_uses_power_sight(plyr_idx))
     {
-        cdt = game.play_gameturn - dungeon->field_5D4;
-        cdlimit = magstat->power[dungeon->field_5DA] >> 4;
+        cdt = game.play_gameturn - dungeon->sight_casted_gameturn;
+        cdlimit = magstat->power[dungeon->sight_casted_splevel] >> 4;
         if (cdt < 0) {
             cdt = 0;
         } else
         if (cdt > cdlimit) {
             cdt = cdlimit;
         }
-        cit = power_sight_close_instance_time[dungeon->field_5DA];
-        cgt = game.play_gameturn - magstat->power[dungeon->field_5DA];
+        cit = power_sight_close_instance_time[dungeon->sight_casted_splevel];
+        cgt = game.play_gameturn - magstat->power[dungeon->sight_casted_splevel];
         i = cdlimit / cit;
         if (i > 0) {
-            dungeon->field_5D4 = cgt + cdt/i - cit;
+            dungeon->sight_casted_gameturn = cgt + cdt/i - cit;
         } else {
-            dungeon->field_5D4 = cgt;
+            dungeon->sight_casted_gameturn = cgt;
         }
-        thing = thing_get(dungeon->keeper_sight_thing_idx);
+        thing = thing_get(dungeon->sight_casted_thing_idx);
         if (cgt < (long)thing->creation_turn)
         {
             dungeon->computer_enabled |= 0x04;
@@ -819,10 +819,10 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     thing = create_object(&pos, 123, plyr_idx, -1);
     if (!thing_is_invalid(thing))
     {
-        dungeon->field_5D4 = game.play_gameturn;
+        dungeon->sight_casted_gameturn = game.play_gameturn;
         thing->health = 2;
-        dungeon->field_5DA = splevel;
-        dungeon->keeper_sight_thing_idx = thing->index;
+        dungeon->sight_casted_splevel = splevel;
+        dungeon->sight_casted_thing_idx = thing->index;
         LbMemorySet(dungeon->soe_explored_flags, 0, sizeof(dungeon->soe_explored_flags));
         thing->field_4F |= 0x01;
         thing_play_sample(thing, 51, 100, -1, 3, 0, 3, 256);

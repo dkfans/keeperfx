@@ -1003,11 +1003,11 @@ void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx)
             dungeon->must_obey_turn = 0;
         break;
     case PwrK_SIGHT:
-        if (dungeon->keeper_sight_thing_idx)
+        if (player_uses_power_sight(plyr_idx))
             turn_off_sight_of_evil(plyr_idx);
         break;
     case PwrK_CALL2ARMS:
-        if (dungeon->field_884)
+        if (player_uses_call_to_arms(plyr_idx))
             turn_off_call_to_arms(plyr_idx);
         break;
     }

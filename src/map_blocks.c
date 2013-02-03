@@ -208,6 +208,13 @@ unsigned short torch_flags_for_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return tflag;
 }
 
+/**
+ * Deletes almost all of object things from a slab.
+ * Leaves only those which are never bound to a slab.
+ * @param slb_x
+ * @param slb_y
+ * @param rmeffect
+ */
 long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
 {
     long stl_num;
@@ -235,7 +242,7 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
           }
           i = thing->next_on_mapblk;
           // Per thing code
-          if (thing->class_id == TCls_Object)
+          if ((thing->class_id == TCls_Object) && !object_is_unaffected_by_terrain_changes(thing))
           {
               if (rmeffect > 0)
               {

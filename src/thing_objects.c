@@ -613,17 +613,28 @@ TbBool object_is_gold_pile(const struct Thing *thing)
  */
 TbBool object_is_guard_flag(const struct Thing *thing)
 {
-  switch (thing->model)
-  {
-    case 115:
-    case 116:
-    case 117:
-    case 118:
-    case 119:
-        return true;
-    default:
+    switch (thing->model)
+    {
+      case 115:
+      case 116:
+      case 117:
+      case 118:
+      case 119:
+          return true;
+      default:
+          return false;
+    }
+}
+
+TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
         return false;
-  }
+    if (thing->class_id != TCls_Object)
+        return false;
+    struct ObjectConfigStats *objst;
+    objst = get_object_model_stats(thing->model);
+    return (objst->gerne == OCtg_Power);
 }
 
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount)
