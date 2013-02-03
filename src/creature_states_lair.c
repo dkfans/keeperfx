@@ -284,12 +284,7 @@ short at_lair_to_sleep(struct Thing *thing)
         return 0;
     }
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_LAIR) || (room->owner != thing->owner))
+    if (!room_initially_valid_as_type_for_thing(room, RoK_LAIR, thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
         set_start_state(thing);
