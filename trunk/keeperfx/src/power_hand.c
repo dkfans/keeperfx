@@ -149,11 +149,13 @@ TbBool creature_is_pickable_by_hand(const struct Thing *thing, PlayerNumber plyr
         return false;
     if (thing->owner == plyr_idx)
     {
+        // Allow own creatures if they're not in enemy custody
         if (creature_is_kept_in_custody_by_enemy(thing))
             return false;
     } else
     {
-        if (creature_is_kept_in_custody_by_player(thing, plyr_idx))
+        // Allow enemy creatures if they are in our custody
+        if (!creature_is_kept_in_custody_by_player(thing, plyr_idx))
             return false;
     }
     return true;

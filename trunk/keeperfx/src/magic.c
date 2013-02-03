@@ -45,6 +45,7 @@
 #include "config_magic.h"
 #include "gui_soundmsgs.h"
 #include "room_jobs.h"
+#include "map_blocks.h"
 #include "sounds.h"
 #include "game_legacy.h"
 
@@ -53,6 +54,18 @@ extern "C" {
 #endif
 /******************************************************************************/
 const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
+
+unsigned char destroy_effect[][9] = {
+    {88, 88, 88, 88, 79, 88, 88, 88, 88,},//splevel=0
+    {88, 88, 88, 88, 32, 88, 88, 88, 88,},
+    {88, 88, 88, 79, 32, 79, 88, 88, 88,},
+    {88, 79, 88, 79, 32, 79, 88, 79, 88,},
+    {88, 79, 88, 79, 32, 79, 88, 79, 88,},
+    {88, 88, 88, 32, 32, 32, 88, 88, 88,},
+    {88, 32, 88, 32, 32, 32, 88, 32, 88,},
+    {79, 32, 79, 32, 32, 32, 79, 32, 79,},
+    {32, 32, 32, 32, 32, 32, 32, 32, 32,},//splevel=8
+};
 
 /******************************************************************************/
 DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
@@ -465,15 +478,93 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
 
 TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    _DK_magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
-
+    //_DK_magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
+    // If we can't afford the spell, fail
+    if (!pay_for_spell(plyr_idx, PwrK_DESTRWALLS, splevel)) {
+        return Lb_FAIL;
+    }
+    MapSlabCoord slb_x_start, slb_y_start, slb_x_end, slb_y_end;
+    int i;
+    slb_x_start = map_to_slab[stl_x] - 1;
+    slb_y_start = map_to_slab[stl_y] - 1;
+    slb_x_end = slb_x_start + 3;
+    slb_y_end = slb_y_start + 3;
+    i = 0;
+    MapSlabCoord slb_x, slb_y;
+    for (slb_y=slb_y_start; slb_y < slb_y_end ; slb_y++)
+    {
+        for (slb_x=slb_x_start; slb_x < slb_x_end ; slb_x++,i++)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            if (slabmap_block_invalid(slb))
+                continue;
+            struct Map *mapblk;
+            mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
+            if (!(mapblk->flags & 0x10) || (mapblk->flags & (0x40|0x02|0x01)) || (slb->kind == SlbT_ROCK) )
+              continue;
+            TbBool is_revealed;
+            is_revealed = subtile_revealed(stl_x, stl_y, plyr_idx);
+            unsigned char destreff;
+            destreff = destroy_effect[splevel][i];
+            if (destreff == 79)
+            {
+                struct SlabAttr *slbattr;
+                slbattr = get_slab_attrs(slb);
+                if (slbattr->category == SlbAtCtg_FortifiedWall)
+                {
+                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx, 0);
+                    do_slab_efficiency_alteration(slb_x, slb_y);
+                } else
+                if ( slb->kind == SlbT_EARTH || slb->kind == SlbT_TORCHDIRT )
+                {
+                    dig_out_block(slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx);
+                    if (is_revealed) {
+                        set_slab_explored(plyr_idx, slb_x, slb_y);
+                    }
+                    clear_slab_dig(slb_x, slb_y, plyr_idx);
+                }
+            } else
+            if (destreff == 32)
+            {
+                dig_out_block(slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx);
+                if (is_revealed) {
+                    set_slab_explored(plyr_idx, slb_x, slb_y);
+                }
+                clear_slab_dig(slb_x, slb_y, plyr_idx);
+            }
+        }
+    }
+    if (is_my_player_number(plyr_idx))
+        play_non_3d_sample(42);
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
+    struct Thing *thing;
+    struct Coord3d pos;
+    //return _DK_magic_use_power_imp(plyr_idx, x, y);
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+        return Lb_FAIL;
+    }
+    if (!pay_for_spell(plyr_idx, PwrK_TIMEBOMB, 0)) {
+        return Lb_FAIL;
+    }
+    pos.x.val = get_subtile_center_pos(stl_x);
+    pos.y.val = get_subtile_center_pos(stl_y);
+    pos.z.val = get_floor_height_at(&pos) + 512;
     //TODO SPELL TIMEBOMB write the spell support
-
+    thing = INVALID_THING;//create_object(&pos, , plyr_idx);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("There was place to create new thing, but creation failed");
+        return Lb_OK;
+    }
+    thing->acceleration.x.val += ACTION_RANDOM(321) - 160;
+    thing->acceleration.y.val += ACTION_RANDOM(321) - 160;
+    thing->acceleration.z.val += 40;
+    thing->field_1 |= TF1_PushdByAccel;
     return Lb_SUCCESS;
 }
 
@@ -484,16 +575,11 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     struct Thing *dnheart;
     struct Coord3d pos;
     //return _DK_magic_use_power_imp(plyr_idx, x, y);
-    if (!can_cast_spell_at_xy(plyr_idx, PwrK_MKDIGGER, stl_x, stl_y, 0)
-     || !i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
-    {
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(119);
-        return Lb_OK;
+    if (!i_can_allocate_free_control_structure()
+     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+        return Lb_FAIL;
     }
-    if (!pay_for_spell(plyr_idx, PwrK_MKDIGGER, 0))
-    {
+    if (!pay_for_spell(plyr_idx, PwrK_MKDIGGER, 0)) {
         return Lb_FAIL;
     }
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -505,7 +591,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     if (thing_is_invalid(thing))
     {
         ERRORLOG("There was place to create new creature, but creation failed");
-        return Lb_SUCCESS;
+        return Lb_OK;
     }
     thing->acceleration.x.val += ACTION_RANDOM(161) - 80;
     thing->acceleration.y.val += ACTION_RANDOM(161) - 80;
@@ -540,7 +626,7 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
 
 TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_conceal(a1, thing, a3, a4, a5);
+    //_DK_magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, a5);
     if (!thing_is_creature(thing)) {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
@@ -560,7 +646,7 @@ TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, Map
 
 TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
-    //_DK_magic_use_power_armour(plyr_idx, thing, a3, a4, splevel);
+    //_DK_magic_use_power_armour(plyr_idx, thing, a3, stl_y, splevel);
     if (!thing_is_creature(thing)) {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
@@ -641,15 +727,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         splevel = MAGIC_OVERCHARGE_LEVELS-1;
     if (splevel < 0)
         splevel = 0;
-    // Check if we can cast that spell
-    if (!can_cast_spell_at_xy(plyr_idx, PwrK_LIGHTNING, stl_x, stl_y, 0))
-    {
-        // Make a rejection sound
-        if (is_my_player_number(plyr_idx))
-          play_non_3d_sample(119);
-        return Lb_OK;
-    }
-    // Pay for it
+    // Pay for the spell
     if (!pay_for_spell(plyr_idx, PwrK_LIGHTNING, splevel))
     {
         return Lb_FAIL;
@@ -922,40 +1000,65 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
  * @param stl_y The target subtile, Y coord.
  * @return
  */
-TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwmodel,
     unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
-    if (!is_power_available(plyr_idx, spl_idx)) {
+    TbResult ret;
+    ret = Lb_OK;
+    if (!is_power_available(plyr_idx, pwmodel)) {
         // It shouldn't be possible to select unavailable spell
-        WARNLOG("Player %d tried to cast unavailable spell %d",(int)plyr_idx,(int)spl_idx);
-        return Lb_FAIL;
+        WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwmodel));
+        ret = Lb_FAIL;
     }
-    if (splevel > MAGIC_OVERCHARGE_LEVELS) {
-        splevel = MAGIC_OVERCHARGE_LEVELS;
-    }
-    switch (spl_idx)
+    if (ret == Lb_OK)
     {
-    case PwrK_MKDIGGER:
-        return magic_use_power_imp(plyr_idx, stl_x, stl_y);
-    case PwrK_SLAP:
-        return magic_use_power_slap(plyr_idx, stl_x, stl_y);
-    case PwrK_SIGHT:
-        return magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
-    case PwrK_CALL2ARMS:
-        return magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
-    case PwrK_CAVEIN:
-        return magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel);
-    case PwrK_LIGHTNING:
-        return magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
-    case PwrK_DESTRWALLS:
-        return magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
-    case PwrK_TIMEBOMB:
-        return magic_use_power_time_bomb(plyr_idx, stl_x, stl_y, splevel);
-    default:
-        ERRORLOG("Power not supported here: %d", (int)spl_idx);
-        break;
+        TbBool cast_at_xy;
+        cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, 0);
+        // Fail if the function has failed
+        if (!cast_at_xy) {
+            WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),"a subtile");
+            ret = Lb_FAIL;
+        }
     }
-    return Lb_FAIL;
+    if (ret == Lb_OK)
+    {
+        if (splevel > MAGIC_OVERCHARGE_LEVELS) {
+            WARNLOG("Overcharge level %d out of range, adjusting",(int)splevel);
+            splevel = MAGIC_OVERCHARGE_LEVELS;
+        }
+    }
+    if (ret == Lb_OK)
+    {
+        switch (pwmodel)
+        {
+        case PwrK_MKDIGGER:
+            ret = magic_use_power_imp(plyr_idx, stl_x, stl_y);
+        case PwrK_SLAP:
+            ret = magic_use_power_slap(plyr_idx, stl_x, stl_y);
+        case PwrK_SIGHT:
+            ret = magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
+        case PwrK_CALL2ARMS:
+            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+        case PwrK_CAVEIN:
+            ret = magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel);
+        case PwrK_LIGHTNING:
+            ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
+        case PwrK_DESTRWALLS:
+            ret = magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
+        case PwrK_TIMEBOMB:
+            ret = magic_use_power_time_bomb(plyr_idx, stl_x, stl_y, splevel);
+        default:
+            ERRORLOG("Power not supported here: %d", (int)pwmodel);
+            ret = Lb_FAIL;
+            break;
+        }
+    }
+    if (ret == Lb_FAIL) {
+        // Make a rejection sound
+        if (is_my_player_number(plyr_idx))
+            play_non_3d_sample(119);
+    }
+    return ret;
 }
 
 /**
