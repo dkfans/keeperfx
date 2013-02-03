@@ -29,6 +29,7 @@ WORKDIR=${WORKDIR:-${HOMEDIR}/nightly/keeperfx}
 RESEASEDIR=${RESEASEDIR:-${HOMEDIR}/public_html/keeper/nightly}
 CROSS_COMPILE_TOOLCHAIN=${CROSS_COMPILE_TOOLCHAIN:-i586-mingw32msvc-}
 
+LANG=C
 REV="$1"
 RUN_DATE=$(date -u '+%Y.%m.%d %T')
 
@@ -106,6 +107,17 @@ function keeperfxbuild {
     sed -i \
         -e "s,VER_BUILD=.\+,VER_BUILD=${REV}," \
         $WORKDIR/version.mk
+
+    # For old versions of GCC (< 4.7)
+    #sed -i \
+    #    -e "s,-std=c[+]+11,-std=c++0x," \
+    #    $WORKDIR/tools/png2bestpal/Makefile
+    #sed -i \
+    #    -e "s,-std=c[+]+11,-std=c++0x," \
+    #    $WORKDIR/tools/pngpal2raw/Makefile
+    #sed -i \
+    #    -e "s,-std=c[+]+11,-std=c++0x," \
+    #    $WORKDIR/tools/po2ngdat/Makefile
 
     # Build
     echo "Building KeeperFX standard"
