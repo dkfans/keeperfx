@@ -106,9 +106,9 @@ struct Dungeon {
     unsigned short field_4E4[CREATURE_TYPES_COUNT][3];
     short field_5A4[15];
     unsigned char room_slabs_count[ROOM_TYPES_COUNT+1];
-    int field_5D4;
-    short keeper_sight_thing_idx;
-    unsigned char field_5DA;
+    int sight_casted_gameturn;
+    short sight_casted_thing_idx;
+    unsigned char sight_casted_splevel;
     unsigned char sight_casted_stl_x;
     unsigned char sight_casted_stl_y;
     unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];

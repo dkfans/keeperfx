@@ -121,45 +121,45 @@ void set_player_as_won_level(struct PlayerInfo *player)
 
 void set_player_as_lost_level(struct PlayerInfo *player)
 {
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  if (player->victory_state != VicS_Undecided)
-  {
-      WARNLOG("Victory state already set to %d",(int)player->victory_state);
-      return;
-  }
-  if (is_my_player(player))
-    frontstats_initialise();
-  player->victory_state = VicS_LostLevel;
-  dungeon = get_dungeon(player->id_number);
-  // Computing player score
-  dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
-  if (is_my_player(player))
-  {
-    output_message(SMsg_LevelFailed, 0, true);
-    turn_off_all_menus();
-    clear_transfered_creature();
-  }
-  clear_things_in_hand(player);
-  dungeon->num_things_in_hand = 0;
-  if (dungeon->field_884 != 0)
-    turn_off_call_to_arms(player->id_number);
-  if (dungeon->keeper_sight_thing_idx > 0)
-  {
-    thing = thing_get(dungeon->keeper_sight_thing_idx);
-    delete_thing_structure(thing, 0);
-    dungeon->keeper_sight_thing_idx = 0;
-  }
-  if (is_my_player(player))
-    gui_set_button_flashing(0, 0);
-  set_player_mode(player, 1);
-  set_player_state(player, 1, 0);
-  if ((game.system_flags & GSF_NetworkActive) == 0)
-    player->field_4EB = game.play_gameturn + 300;
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-    reveal_whole_map(player);
-  if ((dungeon->computer_enabled & 0x01) != 0)
-    toggle_computer_player(player->id_number);
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    if (player->victory_state != VicS_Undecided)
+    {
+        WARNLOG("Victory state already set to %d",(int)player->victory_state);
+        return;
+    }
+    if (is_my_player(player))
+      frontstats_initialise();
+    player->victory_state = VicS_LostLevel;
+    dungeon = get_dungeon(player->id_number);
+    // Computing player score
+    dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
+    if (is_my_player(player))
+    {
+      output_message(SMsg_LevelFailed, 0, true);
+      turn_off_all_menus();
+      clear_transfered_creature();
+    }
+    clear_things_in_hand(player);
+    dungeon->num_things_in_hand = 0;
+    if (player_uses_call_to_arms(player->id_number))
+        turn_off_call_to_arms(player->id_number);
+    if (player_uses_power_sight(player->id_number))
+    {
+        thing = thing_get(dungeon->sight_casted_thing_idx);
+        delete_thing_structure(thing, 0);
+        dungeon->sight_casted_thing_idx = 0;
+    }
+    if (is_my_player(player))
+        gui_set_button_flashing(0, 0);
+    set_player_mode(player, 1);
+    set_player_state(player, 1, 0);
+    if ((game.system_flags & GSF_NetworkActive) == 0)
+        player->field_4EB = game.play_gameturn + 300;
+    if ((game.system_flags & GSF_NetworkActive) != 0)
+        reveal_whole_map(player);
+    if ((dungeon->computer_enabled & 0x01) != 0)
+        toggle_computer_player(player->id_number);
 }
 
 long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)

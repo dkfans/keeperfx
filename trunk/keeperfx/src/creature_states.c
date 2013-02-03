@@ -983,7 +983,7 @@ short arrive_at_call_to_arms(struct Thing *creatng)
     SYNCDBG(18,"Starting");
     //return _DK_arrive_at_call_to_arms(thing);
     dungeon = get_dungeon(creatng->owner);
-    if (dungeon->field_884 == 0)
+    if (!player_uses_call_to_arms(creatng->owner))
     {
         set_start_state(creatng);
         return 1;
