@@ -1286,6 +1286,10 @@ void thing_death_normal(struct Thing *thing)
     deadtng->pos_2C.z.val = memaccl.z.val;
 }
 
+/**
+ * Creates an effect of death with bloody flesh explosion, killing the creature.
+ * @param thing
+ */
 void thing_death_flesh_explosion(struct Thing *thing)
 {
     struct Thing *deadtng;
@@ -1385,6 +1389,11 @@ void thing_death_smoke_explosion(struct Thing *thing)
     thing_play_sample(deadtng, 47, 100, 0, 3, 0, 4, 256);
 }
 
+/**
+ * Creates an effect of frozen body explosion and kills the creature.
+ * The ice explosion effect uses same corpse as flesh explosion.
+ * @param thing
+ */
 void thing_death_ice_explosion(struct Thing *thing)
 {
     struct Thing *deadtng;
@@ -1510,18 +1519,18 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
         creature_rebirth_at_lair(thing);
         return;
     }
-    if (creature_affected_by_spell(thing, SplK_Freeze))
-    {
-        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
-            add_creature_to_pool(crmodel, 1, 1);
-        thing_death_ice_explosion(thing);
-    } else
     if (!creature_model_bleeds(thing->model))
     {
         // Non-bleeding creatures have no flesh explosion effects
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
         creature_death_as_nature_intended(thing);
+    } else
+    if (creature_affected_by_spell(thing, SplK_Freeze))
+    {
+        if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
+            add_creature_to_pool(crmodel, 1, 1);
+        thing_death_ice_explosion(thing);
     } else
     if (shot_model_makes_flesh_explosion(cctrl->shot_model))
     {

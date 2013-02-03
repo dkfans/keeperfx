@@ -926,7 +926,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
     struct SampleInfo *smpinfo;
     smpinfo = PlaySampleFromAddress(a1, smpl_idx, a3, a4, a5, a6, a7, smp_table->hmhandle->buf, smp_table->sfxid);
     if (smpinfo == NULL) {
-        ERRORLOG("Can't start playing sample %d",smpl_idx);
+        SYNCLOG("Can't start playing sample %d",smpl_idx);
         return NULL;
     }
     smpinfo->flags_17 |= 0x01;
