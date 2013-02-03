@@ -54,22 +54,14 @@ short at_guard_post_room(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     room = get_room_thing_is_on(thing);
-    if (room_is_invalid(room))
-    {
-        remove_creature_from_work_room(thing);
-        set_start_state(thing);
-        return 0;
-    }
-    if ((room->kind != RoK_GUARDPOST) || (room->owner != thing->owner))
+    if (!room_initially_valid_as_type_for_thing(room, RoK_GUARDPOST, thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
-        remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
     }
     if ( !add_creature_to_work_room(thing, room) )
     {
-        remove_creature_from_work_room(thing);
         set_start_state(thing);
         return 0;
     }
