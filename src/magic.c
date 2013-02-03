@@ -1033,20 +1033,28 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
         {
         case PwrK_MKDIGGER:
             ret = magic_use_power_imp(plyr_idx, stl_x, stl_y);
+            break;
         case PwrK_SLAP:
             ret = magic_use_power_slap(plyr_idx, stl_x, stl_y);
+            break;
         case PwrK_SIGHT:
             ret = magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
+            break;
         case PwrK_CALL2ARMS:
             ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            break;
         case PwrK_CAVEIN:
             ret = magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel);
+            break;
         case PwrK_LIGHTNING:
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
+            break;
         case PwrK_DESTRWALLS:
             ret = magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
+            break;
         case PwrK_TIMEBOMB:
             ret = magic_use_power_time_bomb(plyr_idx, stl_x, stl_y, splevel);
+            break;
         default:
             ERRORLOG("Power not supported here: %d", (int)pwmodel);
             ret = Lb_FAIL;
