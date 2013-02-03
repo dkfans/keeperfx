@@ -228,7 +228,7 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, long expleve
         return false;
     }
     init_creature_level(thing, explevel);
-    internal_set_thing_state(thing, 95);
+    internal_set_thing_state(thing, CrSt_CreatureBeingSummoned);
     thing->movement_flags |= TMvF_Unknown04;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->word_9C = 48;
