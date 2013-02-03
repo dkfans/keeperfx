@@ -1128,7 +1128,7 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
     long slab_num,slab_base;
     int start_stl;
     long m,n;
-    SYNCDBG(17,"Starting for %s index %d",thing_model_name(thing),(long)thing->index);
+    SYNCDBG(17,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     //return _DK_person_get_somewhere_adjacent_in_room(thing, room, pos);
     block_radius = subtile_coord(thing_nav_block_sizexy(thing),0) >> 1;
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
@@ -1154,7 +1154,7 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
             {
                 if (!thing_in_wall_at_with_radius(thing, &locpos, block_radius))
                 {
-                    pos->z.val = locpos.x.val;
+                    pos->x.val = locpos.x.val;
                     pos->y.val = locpos.y.val;
                     pos->z.val = locpos.z.val;
                     SYNCDBG(8,"Possible to move %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
@@ -1170,13 +1170,7 @@ TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const st
     {
         slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
         slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
-        aroom = INVALID_ROOM;
         mapblk = get_map_block_at(3 * slb_x, 3 * slb_y);
-        if ((mapblk->flags & MapFlg_IsRoom) != 0)
-        {
-            aroom = slab_room_get(slb_x, slb_y);
-        }
-        if (room_exists(aroom) && (aroom->index == room->index))
         {
             if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
             {
