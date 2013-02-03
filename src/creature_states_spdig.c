@@ -580,7 +580,7 @@ short imp_converts_dungeon(struct Thing *thing)
           slb = get_slabmap_block(slb_x, slb_y);
           slbattr = get_slab_attrs(slb);
           set_creature_instance(thing, CrInst_DESTROY_AREA, 0, 0, 0);
-          if (slbattr->category == 4)
+          if (slbattr->category == SlbAtCtg_RoomInterior)
           {
             room = room_get(slb->room_index);
             if (!room_is_invalid(room))
