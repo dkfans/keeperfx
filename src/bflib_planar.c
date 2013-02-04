@@ -88,6 +88,32 @@ long distance_with_angle_to_coord_y(long distance, long angle)
 }
 
 /**
+ * Gives X coordinate of a 3D position shift by given distance into given direction.
+ * @param distance Specifies the distance to move.
+ * @param angle_a Specifies the movement rotation a.
+ * @param angle_b Specifies the movement rotation b.
+ */
+long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b)
+{
+    long long val = (LbSinL(angle_a)>> 8)
+          * (distance * LbCosL(angle_b) >> 8);
+    return val >> 16;
+}
+
+/**
+ * Gives Y coordinate of a 3D position shift by given distance into given direction.
+ * @param distance Specifies the distance to move.
+ * @param angle_a Specifies the movement rotation a.
+ * @param angle_b Specifies the movement rotation b.
+ */
+long distance3d_with_angles_to_coord_y(long distance, long angle_a, long angle_b)
+{
+    long long val = (LbCosL(angle_a) >> 8)
+        * (distance * LbCosL(angle_b) >> 8);
+    return (-(val >> 8)) >> 8;
+}
+
+/**
  * Gives new X coordinate after shifting planar position by given distance into given direction.
  * @param pos_x The source coordinate to be shifted.
  * @param distance Specifies the distance to move.

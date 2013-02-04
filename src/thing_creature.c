@@ -3162,35 +3162,35 @@ void place_bloody_footprint(struct Thing *thing)
         {
           if (cctrl->move_speed != 0)
           {
-            cctrl->pos_BB.x.val = distance_with_angle_to_coord_x(cctrl->move_speed * LbCosL(thing->field_54) >> 16,thing->field_52);
-            cctrl->pos_BB.x.val = distance_with_angle_to_coord_y(cctrl->move_speed * LbCosL(thing->field_54) >> 16,thing->field_52);
-            cctrl->pos_BB.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->field_54);
+              cctrl->pos_BB.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->field_52, thing->field_54);
+              cctrl->pos_BB.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->field_52, thing->field_54);
+              cctrl->pos_BB.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->field_54);
           }
           if (cctrl->field_CA != 0)
           {
-            cctrl->pos_BB.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
-            cctrl->pos_BB.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
+              cctrl->pos_BB.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
+              cctrl->pos_BB.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
           }
         } else
         {
           if (cctrl->move_speed != 0)
           {
-            upd_done = 1;
-            cctrl->pos_BB.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
-            cctrl->pos_BB.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+              upd_done = 1;
+              cctrl->pos_BB.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
+              cctrl->pos_BB.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
           }
           if (cctrl->field_CA != 0)
           {
-            upd_done = 1;
-            cctrl->pos_BB.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
-            cctrl->pos_BB.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
+              upd_done = 1;
+              cctrl->pos_BB.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
+              cctrl->pos_BB.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
           }
         }
       } else
       if (cctrl->field_2 & 0x01)
       {
-        upd_done = 1;
-        set_flag_byte(&cctrl->field_2,0x01,false);
+          upd_done = 1;
+          set_flag_byte(&cctrl->field_2,0x01,false);
       } else
       if (cctrl->move_speed != 0)
       {
