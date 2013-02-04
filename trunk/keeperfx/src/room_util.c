@@ -29,6 +29,7 @@
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "room_list.h"
+#include "room_workshop.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"
@@ -381,6 +382,12 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
 {
     struct Room *room;
     unsigned long n;
+    if ((thing->field_1 & TF1_IsDragged1) != 0)
+    {
+        ERRORLOG("It shouldn't be possible to drag %s during initial asimilation",thing_model_name(thing));
+        thing->owner = game.neutral_player_num;
+        return true;
+    }
     if (thing_is_gold_hoard(thing))
     {
         room = get_room_thing_is_on(thing);
@@ -411,6 +418,28 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             return true;
         }
         if (!add_spell_to_player(book_thing_to_magic(thing), room->owner))
+        {
+            thing->owner = game.neutral_player_num;
+            return true;
+        }
+        thing->owner = room->owner;
+        return true;
+    }
+    if (thing_is_door_or_trap_box(thing))
+    {
+        room = get_room_thing_is_on(thing);
+        if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
+        {
+            // No room - oh well, leave it as free box
+            // Just make correct owner so that Imps can pick it up
+            if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) == 0) {
+                thing->owner = game.neutral_player_num;
+            } else {
+                thing->owner = room->owner;
+            }
+            return true;
+        }
+        if (!add_workshop_item(room->owner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing)))
         {
             thing->owner = game.neutral_player_num;
             return true;

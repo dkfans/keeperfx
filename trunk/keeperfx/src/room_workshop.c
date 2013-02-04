@@ -66,7 +66,7 @@ TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *crat
 TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind)
 {
     struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
+    dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Can't add item; player %d has no dungeon.",(int)plyr_idx);
         return false;
