@@ -232,6 +232,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
   crstat = creature_stats_get_from_thing(thing);
   if ( (thing->health >= 0) || (!crstat->humanoid_creature) )
     return false;
+  //TODO [config] Allow skeletification only if spent specific amount of turns in prison (set low value)
   if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
     return false;
   if (is_my_player_number(room->owner))
@@ -246,7 +247,7 @@ long process_prison_food(struct Thing *thing, struct Room *room)
 }
 
 /**
- * Does a step of being impisoned.
+ * Does a step of being imprisoned.
  * Informs if the imprisoning cycle should end.
  * @param thing
  */
@@ -268,17 +269,18 @@ CrCheckRet process_prison_function(struct Thing *thing)
   cctrl = creature_control_get_from_thing(thing);
   if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(thing, room) )
     return CrCkRet_Continue;
-  // Rest of the actions are done only once per 64 turns
-  if ((game.play_gameturn & 0x3F) != 0)
-    return CrCkRet_Available;
-  if (jailbreak_possible(room, thing->owner))
+  // Breaking from jail is only possible once per some amount of turns
+  if ((game.play_gameturn % gameadd.time_between_prison_break) == 0)
   {
-      if (is_my_player_number(room->owner))
-          output_message(SMsg_PrisonersEscaping, 40, true);
-      else if (is_my_player_number(room->owner))
-          output_message(SMsg_CreatrFreedPrison, 40, true);
-      set_start_state(thing);
-      return CrCkRet_Continue;
+      if (jailbreak_possible(room, thing->owner))
+      {
+          if (is_my_player_number(room->owner))
+              output_message(SMsg_PrisonersEscaping, 40, true);
+          else if (is_my_player_number(room->owner))
+              output_message(SMsg_CreatrFreedPrison, 40, true);
+          set_start_state(thing);
+          return CrCkRet_Continue;
+      }
   }
   return CrCkRet_Available;
 }

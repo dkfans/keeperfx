@@ -436,12 +436,12 @@ CrCheckRet process_torture_function(struct Thing *thing)
     if (ACTION_RANDOM(100) < compute_torture_broke_chance(thing))
     {
         SYNCDBG(4,"The %s has been broken",thing_model_name(thing));
-        if (ACTION_RANDOM(3) == 0)
-        { // 33% chance of converting creature and ending the torture
+        if (ACTION_RANDOM(100) < (int)gameadd.torture_convert_chance)
+        { // converting creature and ending the torture
             convert_tortured_creature_owner(thing, room->owner);
             return CrCkRet_Continue;
         } else
-        { // 67% chance of revealing information about enemy and continue the torture
+        { // revealing information about enemy and continuing the torture
             cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_break_time / 2;
             reveal_players_map_to_player(thing, room->owner);
             return CrCkRet_Available;
