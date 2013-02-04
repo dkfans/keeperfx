@@ -198,9 +198,8 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     if (is_thing_passenger_controlled(scavtng) || creature_is_kept_in_custody(scavtng)) {
         return false;
     }
-    //TODO [config] Add an option whether scavenging heroes is possible
     if (is_hero_thing(scavtng)) {
-        return false;
+        return (gameadd.scavenge_good_allowed != 0);
     }
     struct PlayerInfo *scavplyr;
     scavplyr = get_player(scavtng->owner);
@@ -216,22 +215,8 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
     return false;
 }
 
-struct Thing *get_scavenger_target(const struct Thing *calltng)
+struct Thing *select_scavenger_target(const struct Thing *calltng)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(calltng->owner);
-    { // Check if last scavenged creature of that kind is still good for scavenging
-        struct Thing *lastng;
-        if (dungeon->field_A0F[calltng->model] != 0) {
-            lastng = thing_get(dungeon->field_A0F[calltng->model]);
-        } else {
-            lastng = INVALID_THING;
-        }
-        if (thing_is_valid_scavenge_target(calltng, lastng))
-        {
-            return lastng;
-        }
-    }
     long weakpts;
     struct Thing *weaktng;
     weaktng = INVALID_THING;
@@ -254,6 +239,7 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
         // Per-thing code
         if (thing_is_valid_scavenge_target(calltng, thing))
         {
+            SYNCDBG(8,"The %s is valid target for %s",thing_model_name(thing),thing_model_name(calltng));
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
             if (game.play_gameturn - cctrl->field_3D > game.temple_scavenge_protection_time)
@@ -278,6 +264,25 @@ struct Thing *get_scavenger_target(const struct Thing *calltng)
     return weaktng;
 }
 
+struct Thing *get_scavenger_target(const struct Thing *calltng)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(calltng->owner);
+    { // Check if last scavenged creature of that kind is still good for scavenging
+        struct Thing *lastng;
+        if (dungeon->scavenge_targets[calltng->model] != 0) {
+            lastng = thing_get(dungeon->scavenge_targets[calltng->model]);
+        } else {
+            lastng = INVALID_THING;
+        }
+        if (thing_is_valid_scavenge_target(calltng, lastng))
+        {
+            return lastng;
+        }
+    }
+    return select_scavenger_target(calltng);
+}
+
 long turn_creature_to_scavenger(struct Thing *scavtng, struct Thing *calltng)
 {
     return _DK_turn_creature_to_scavenger(scavtng, calltng);
@@ -288,6 +293,10 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     struct Dungeon *calldngn;
     long num_prayers;
     calldngn = get_dungeon(calltng->owner);
+    if (dungeon_invalid(calldngn)) {
+        ERRORLOG("The %s can't do scavenging - has no dungeon",thing_model_name(calltng));
+        return false;
+    }
     if (scavtng->owner != game.neutral_player_num) {
         calldngn->field_894[scavtng->model]++;
         struct Dungeon *scavdngn;
@@ -296,47 +305,52 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
     } else {
         num_prayers = 0;
     }
-    if (calldngn->field_894[calltng->model] > 2 * num_prayers)
+    if (calldngn->field_894[calltng->model] <= 2 * num_prayers) {
+        SYNCDBG(8, "Player %d prayers are blocking player %d scavenging of %s", (int)scavtng->owner,
+            (int)calltng->owner, thing_model_name(calltng));
+        return false;
+    }
+    SYNCDBG(18,"The %s scavenges %s",thing_model_name(calltng),thing_model_name(scavtng));
+    // If we're starting to scavenge a new creature, do the switch
+    if (calldngn->scavenge_targets[calltng->model] != scavtng->index)
     {
-        // If we're starting to scavenge a new creature, do the switch
-        if (calldngn->field_A0F[calltng->model] != scavtng->index)
+        calldngn->scavenge_turn_points[calltng->model] = work_value;
+        if (calldngn->scavenge_targets[calltng->model] > 0)
         {
-            calldngn->field_98F[calltng->model] = work_value;
-            if (calldngn->field_A0F[calltng->model] > 0)
+            // Stop scavenging old creature
+            struct Thing *thing;
+            thing = thing_get(calldngn->scavenge_targets[calltng->model]);
+            if (thing_is_creature(thing) && (thing->model == calltng->model))
             {
-                struct Thing *thing;
-                thing = thing_get(calldngn->field_A0F[calltng->model]);
-                if (thing_is_creature(thing) && (thing->model == calltng->model))
-                {
-                    if (creature_is_being_scavenged(thing)) {
-                        set_start_state(thing);
-                    }
+                if (creature_is_being_scavenged(thing)) {
+                    set_start_state(thing);
                 }
             }
-            calldngn->field_A0F[calltng->model] = scavtng->index;
-            if (is_my_player_number(scavtng->owner)) {
-                output_message(61, 500, 1);
-            }
-            event_create_event(scavtng->mappos.x.val, scavtng->mappos.y.val, 10, scavtng->owner, scavtng->index);
-        } else
-        {
-            calldngn->field_98F[calltng->model] += work_value;
         }
-        // Make sure the scavenged creature is in correct state
-        if (!creature_is_being_scavenged(scavtng))
-        {
-            if (scavtng->owner != game.neutral_player_num) {
-                external_set_thing_state(scavtng, CrSt_CreatureBeingScavenged);
-            }
+        // Start the new scavenging
+        calldngn->scavenge_targets[calltng->model] = scavtng->index;
+        if (is_my_player_number(scavtng->owner)) {
+            output_message(61, 500, 1);
         }
-        long scavpts;
-        scavpts = calculate_correct_creature_scavenge_required(scavtng, calltng->owner);
-        if (scavpts << 8 < calldngn->field_98F[calltng->model])
-        {
-            turn_creature_to_scavenger(scavtng, calltng);
-            calldngn->field_98F[calltng->model] -= scavpts << 8;
-            return true;
+        event_create_event(scavtng->mappos.x.val, scavtng->mappos.y.val, 10, scavtng->owner, scavtng->index);
+    } else
+    {
+        calldngn->scavenge_turn_points[calltng->model] += work_value;
+    }
+    // Make sure the scavenged creature is in correct state
+    if (!creature_is_being_scavenged(scavtng))
+    {
+        if (scavtng->owner != game.neutral_player_num) {
+            external_set_thing_state(scavtng, CrSt_CreatureBeingScavenged);
         }
+    }
+    long scavpts;
+    scavpts = calculate_correct_creature_scavenge_required(scavtng, calltng->owner);
+    if ((scavpts << 8) < calldngn->scavenge_turn_points[calltng->model])
+    {
+        turn_creature_to_scavenger(scavtng, calltng);
+        calldngn->scavenge_turn_points[calltng->model] -= (scavpts << 8);
+        return true;
     }
     return false;
 }
@@ -382,13 +396,13 @@ TbBool process_scavenge_creature_from_pool(struct Thing *calltng, long work_valu
 {
     struct Dungeon *calldngn;
     calldngn = get_dungeon(calltng->owner);
-    calldngn->field_98F[calltng->model] += work_value;
+    calldngn->scavenge_turn_points[calltng->model] += work_value;
     long scavpts;
     scavpts = calculate_correct_creature_scavenge_required(calltng, calltng->owner);
-    if (scavpts << 8 < calldngn->field_98F[calltng->model])
+    if (scavpts << 8 < calldngn->scavenge_turn_points[calltng->model])
     {
         creature_scavenge_from_creature_pool(calltng);
-        calldngn->field_98F[calltng->model] -= scavpts;
+        calldngn->scavenge_turn_points[calltng->model] -= scavpts;
         return true;
     }
     return false;

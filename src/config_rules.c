@@ -132,6 +132,8 @@ const struct NamedCommand rules_rooms_commands[] = {
   {"PRISONSKELETONCHANCE",      16},
   {"BODIESFORVAMPIRE",          17},
   {"GRAVEYARDCONVERTTIME",      18},
+  {"SCAVENGEGOODALLOWED",       19},
+  {"TIMEBETWEENPRISONBREAK",    20},
   {NULL,                         0},
   };
 
@@ -1107,6 +1109,8 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       game.prison_skeleton_chance = 100;
       game.bodies_for_vampire = 6;
       game.graveyard_convert_time = 300;
+      gameadd.scavenge_good_allowed = 1;
+      gameadd.time_between_prison_break = 64;
   }
   // Find the block
   sprintf(block_buf,"rooms");
@@ -1168,7 +1172,17 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           }
           break;
       case 4: // TORTURECONVERTCHANCE
-          //Unused
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.torture_convert_chance = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
           break;
       case 5: // TIMESPENTINPRISON
           //Unused
@@ -1274,6 +1288,32 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           {
             k = atoi(word_buf);
             game.graveyard_convert_time = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 19: // SCAVENGEGOODALLOWED
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.scavenge_good_allowed = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 20: // TIMEBETWEENPRISONBREAK
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.time_between_prison_break = k;
             n++;
           }
           if (n < 1)
