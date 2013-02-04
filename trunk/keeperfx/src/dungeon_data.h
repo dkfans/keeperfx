@@ -138,8 +138,8 @@ struct Dungeon {
     short field_94B[CREATURE_TYPES_COUNT];
     short creatures_scavenge_gain;
     short creatures_scavenge_lost;
-    long field_98F[CREATURE_TYPES_COUNT];
-    short field_A0F[CREATURE_TYPES_COUNT];
+    long scavenge_turn_points[CREATURE_TYPES_COUNT];
+    short scavenge_targets[CREATURE_TYPES_COUNT];
     int creature_max_level[CREATURE_TYPES_COUNT];
     unsigned short creatures_annoyed;
     unsigned short battles_lost;

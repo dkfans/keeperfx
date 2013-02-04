@@ -88,6 +88,9 @@ struct GameAdd {
     struct CreatureStats creature_stats[CREATURE_TYPES_COUNT];
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
+    unsigned long time_between_prison_break;
+    unsigned char torture_convert_chance;
+    TbBool scavenge_good_allowed;
     unsigned short classic_bugs_flags;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
