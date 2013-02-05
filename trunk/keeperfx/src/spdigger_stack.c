@@ -34,6 +34,7 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_objects.h"
+#include "thing_traps.h"
 #include "room_data.h"
 #include "power_hand.h"
 #include "map_events.h"
@@ -90,13 +91,33 @@ TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *
     return (dungeon->digger_stack_length < IMP_TASK_MAX_COUNT);
 }
 
+/**
+ * Finds a task of given type which concerns given subtile in the current imp stack.
+ * @param stl_num
+ * @param task_type
+ * @param dungeon
+ */
+long find_in_imp_stack_using_pos(long stl_num, long task_type, const struct Dungeon *dungeon)
+{
+    long i;
+    for (i=0; i < dungeon->digger_stack_length; i++)
+    {
+        const struct DiggerStack *istack;
+        istack = &dungeon->imp_stack[i];
+        if ((istack->field_0 == stl_num) && (istack->task_id == task_type)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
 {
     SYNCDBG(19,"Starting");
     return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
 }
 
-/** Returns if the player owns any digger who is working on re-arming it.
+/** Returns if the player owns any digger who is working on re-arming given trap.
  *
  * @param traptng The trap that needs re-arming.
  * @return
@@ -749,9 +770,46 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2)
   return _DK_add_unclaimed_spells_to_imp_stack(dungeon, a2);
 }
 
-long add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *thing)
+TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *boxtng)
 {
-  return _DK_add_object_for_trap_to_imp_stack(dungeon, thing);
+    struct Thing *thing;
+    unsigned long k;
+    int i;
+    //return _DK_add_object_for_trap_to_imp_stack(dungeon, thing);
+    k = 0;
+    i = game.thing_lists[TngList_Objects].index;
+    while (i > 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if (thing->model == trap_to_object[boxtng->model])
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_thing_is_on(thing);
+            if (slabmap_owner(slb) == dungeon->owner)
+            {
+                SubtlCodedCoords stl_num;
+                stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                if (find_in_imp_stack_using_pos(stl_num, DigTsk_PicksUpTrapBox, dungeon) == -1)
+                {
+                    add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpTrapBox, dungeon);
+                    return true;
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return false;
 }
 
 TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
@@ -776,8 +834,9 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
           break;
         if ((thing->byte_13 == 0) && (thing->owner == dungeon->owner))
         {
-            if ( add_object_for_trap_to_imp_stack(dungeon, thing) )
+            if ( add_object_for_trap_to_imp_stack(dungeon, thing) ) {
                 num--;
+            }
         }
         // Thing list loop body ends
         k++;
