@@ -3318,13 +3318,18 @@ TbBool creature_free_for_anger_job(struct Thing *thing)
         && !thing_is_picked_up(thing) && !is_thing_passenger_controlled(thing);
 }
 
+/**
+ * If creature health is very low, go back to lair immediately for healing.
+ * @param thing
+ * @param crstat
+ */
 long process_creature_needs_to_heal_critical(struct Thing *thing, const struct CreatureStats *crstat)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     //return _DK_process_creature_needs_to_heal_critical(thing, crstat);
     if ((crstat->heal_requirement == 0) || (crstat->lair_size == 0)
-      || (get_creature_health_permil(thing) >= 1000)) {
+      || (get_creature_health_permil(thing) >= gameadd.critical_health_permil)) {
         return 0;
     }
     if (creature_is_doing_lair_activity(thing)) {
