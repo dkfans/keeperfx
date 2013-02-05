@@ -93,6 +93,7 @@ const struct NamedCommand rules_creatures_commands[] = {
   {"FIGHTHATEKILLVALUE",         6},
   {"FLEEZONERADIUS",             7},
   {"GAMETURNSINFLEE",            8},
+  {"CRITICALHEALTHPERCENTAGE",   9},
   {NULL,                         0},
   };
 
@@ -730,6 +731,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
       game.fight_hate_kill_value = -5;
       gameadd.flee_zone_radius = 2048;
       game.game_turns_in_flee = 200;
+      gameadd.critical_health_permil = 125;
   }
   // Find the block
   sprintf(block_buf,"creatures");
@@ -847,6 +849,19 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           {
             k = atoi(word_buf);
             game.game_turns_in_flee = k;
+            n++;
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 9: // CRITICALHEALTHPERCENTAGE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            gameadd.critical_health_permil = k*10;
             n++;
           }
           if (n < 1)

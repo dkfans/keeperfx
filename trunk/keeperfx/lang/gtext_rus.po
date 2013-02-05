@@ -1326,7 +1326,7 @@ msgstr "Вор"
 
 #: guitext:282
 msgctxt "Creature name"
-msgid "Ninja"
+msgid "Samurai"
 msgstr "Ниндзя"
 
 #: guitext:283

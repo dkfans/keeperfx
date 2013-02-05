@@ -1326,8 +1326,8 @@ msgstr "Dieb"
 
 #: guitext:282
 msgctxt "Creature name"
-msgid "Ninja"
-msgstr "Ninja"
+msgid "Samurai"
+msgstr "Samurai"
 
 #: guitext:283
 msgctxt "Creature name"
