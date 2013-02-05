@@ -2068,7 +2068,7 @@ msgstr "シーフ"
 
 #: guitext:282
 msgctxt "Creature name"
-msgid "Ninja"
+msgid "Samurai"
 msgstr "サムライ"
 
 #: guitext:283
