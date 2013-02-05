@@ -1251,7 +1251,7 @@ msgstr "Voleur"
 #: guitext:282
 msgctxt "Creature name"
 msgid "Samurai"
-msgstr "Ninja"
+msgstr "Samouraï"
 
 #: guitext:283
 msgctxt "Creature name"

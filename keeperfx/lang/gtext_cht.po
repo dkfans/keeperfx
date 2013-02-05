@@ -1326,7 +1326,7 @@ msgstr "盗贼"
 
 #: guitext:282
 msgctxt "Creature name"
-msgid "Ninja"
+msgid "Samurai"
 msgstr "忍者"
 
 #: guitext:283
