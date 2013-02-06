@@ -860,6 +860,14 @@ TbResult magic_use_power_slap_thing(PlayerNumber plyr_idx, struct Thing *thing)
     return Lb_SUCCESS;
 }
 
+/**
+ * Get a thing and slap it.
+ * @deprecated To be removed and replaced by magic_use_available_power_on_thing() call.
+ * @param plyr_idx
+ * @param stl_x
+ * @param stl_y
+ * @return
+ */
 TbResult magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Thing *thing;
@@ -1043,9 +1051,6 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
         {
         case PwrK_MKDIGGER:
             ret = magic_use_power_imp(plyr_idx, stl_x, stl_y);
-            break;
-        case PwrK_SLAP:
-            ret = magic_use_power_slap(plyr_idx, stl_x, stl_y);
             break;
         case PwrK_SIGHT:
             ret = magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);

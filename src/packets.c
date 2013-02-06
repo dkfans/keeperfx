@@ -906,8 +906,8 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           if (player->field_454 == 3)
           {
             if (player->thing_under_hand != 0) {
-              // TODO SPELL_CAST it's not a good idea to use this directly; change to magic_use_available_power_on_*()
-              magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
+                // TODO SPELL_CAST it's not a good idea to use this directly; change to magic_use_available_power_on_*()
+                magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
             }
           }
         }
@@ -924,15 +924,15 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
       {
         if (!power_hand_is_empty(player))
         {
-          if (dump_held_things_on_map(player->id_number, stl_x, stl_y, 1))
-          {
-            player->field_4AF = 0;
-            unset_packet_control(pckt, PCtr_RBtnRelease);
+          if (dump_held_things_on_map(player->id_number, stl_x, stl_y, 1)) {
+              player->field_4AF = 0;
+              unset_packet_control(pckt, PCtr_RBtnRelease);
           }
         } else
         {
           if (player->field_454 == 3) {
-              magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, PwCast_None);
+              thing = get_nearest_thing_for_slap(plyr_idx, get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y));
+              magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
           }
           player->field_4AF = 0;
           unset_packet_control(pckt, PCtr_RBtnRelease);
@@ -1042,7 +1042,8 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             player->thing_under_hand = thing->index;
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, PwCast_None);
+            magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
+            //magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;

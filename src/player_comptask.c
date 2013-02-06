@@ -260,7 +260,8 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UseMkDigger:
         return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_UseSlap:
-        return magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, PwCast_Unrevealed);
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, thing);
     case GA_UsePwrSight:
         return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_UsePwrObey:
