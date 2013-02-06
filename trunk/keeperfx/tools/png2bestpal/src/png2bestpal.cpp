@@ -93,6 +93,7 @@ public:
 
 typedef unsigned long RGBAQuad;
 typedef png_color RGBColor;
+typedef std::unordered_map<RGBAQuad,unsigned long long> QuadPixelCount;
 typedef std::unordered_map<RGBAQuad,signed int> MapQuadToPal;
 typedef std::vector<RGBColor> ColorPalette;
 
@@ -120,11 +121,16 @@ public:
             paletteRemap[i] = i;
         palette.reserve(reqColors);
     }
+    void reserveHistogram(int estimColors)
+    {
+        quadHistogram.reserve(estimColors);
+        mapQuadToPalEntry.reserve(estimColors);
+    }
     int requestedColors(void)
     { return requested_colors; }
     int requestedColorBPP(void)
     { return requested_col_bits; }
-    void addPaletteBlindEntry(int r, int g, int b)
+    void addPaletteEntry(int r, int g, int b)
     {
         RGBColor ncol;
         ncol.red = r;
@@ -134,18 +140,25 @@ public:
     }
     void addPaletteQuad(RGBAQuad quad)
     {
-        int palentry = palette.size();
         RGBColor ncol;
         ncol.red = quad_r(quad);
         ncol.green = quad_g(quad);
         ncol.blue = quad_b(quad);
         palette.push_back(ncol);
+    }
+    void addHistogramQuad(RGBAQuad quad)
+    {
+        quadHistogram[quad]++;
+    }
+    void addMappingQuad(RGBAQuad quad, int palentry)
+    {
         mapQuadToPalEntry[quad] = palentry;
     }
     //std::vector<ImageData> images;
     ColorPalette palette;
     std::vector<int> paletteRemap;
     MapQuadToPal mapQuadToPalEntry;
+    QuadPixelCount quadHistogram;
 private:
     int requested_colors;
     int requested_col_bits;
@@ -153,22 +166,20 @@ private:
 
 typedef bool (*checkTransparent_t)(png_bytep, const ImageData&);
 
-bool checkTransparent1(png_bytep data, const ImageData& img)
+bool check_transparent_trshld(png_bytep data, const ImageData& img)
 {
   return (data[3]<img.transparency_threshold);
 }
 
-bool checkTransparent3(png_bytep, const ImageData&)
+bool check_transparent_none(png_bytep, const ImageData&)
 {
   return false;
 }
 
 /**
  * Gather all colors, evaluate values with alpha channel.
- * Makes sure alpha channel (if present) contains only 0 and 255 if
- * an alpha channel is present, set all transparent pixels to RGBA (0,0,0,0)
- * transparent pixels will already be mapped to palette entry 0,
- * non-transparent pixels will not get a mapping yet (-1).
+ * Makes sure alpha channel (if present) contains only 0 and 255
+ * if an alpha channel is present.
  * @param ws
  * @param img
  * @param hasAlpha
@@ -176,11 +187,11 @@ bool checkTransparent3(png_bytep, const ImageData&)
  */
 short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlpha)
 {
-    checkTransparent_t checkTrans=checkTransparent1;
+    checkTransparent_t checkTrans = check_transparent_trshld;
     int bytesPerPixel = (img.colorBPP()+7) >> 3;
     if (!hasAlpha)
     {
-        checkTrans=checkTransparent3;
+        checkTrans = check_transparent_none;
     }
     png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
 
@@ -191,7 +202,7 @@ short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlp
         {
             unsigned char r,g,b,a;
             RGBAQuad quad;
-            bool trans=(*checkTrans)(pixel,img);
+            bool trans = (*checkTrans)(pixel,img);
 
             r = pixel[0];
             g = pixel[1];
@@ -199,16 +210,11 @@ short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlp
             if (trans) {
                 a = 0;
             } else {
-                a=255;
+                a = 255;
             }
-            quad=mkquad(r,g,b,a);
-
-            if (trans)
-                ws.mapQuadToPalEntry[quad] = 0;
-            else
-                ws.mapQuadToPalEntry[quad] = -1;
-
-            pixel+=bytesPerPixel;
+            quad = mkquad(r,g,b,a);
+            ws.addHistogramQuad(quad);
+            pixel += bytesPerPixel;
         }
     }
     return ERR_OK;
@@ -221,6 +227,7 @@ short gather_list_of_colors_in_image(WorkingSet& ws, ImageData& img, bool hasAlp
  * previously picked colors and adding this to the palette.
  * This is done to make sure that in case there are more image colors than
  * palette entries, palette entries are not wasted on similar colors.
+ * Requires quadHistogram to be filled with all the colors which exist in the image.
  *
  * @param ws
  * @return
@@ -233,24 +240,24 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
         RGBAQuad mostDifferentQuad=0;
         long mdqMinDist = -1; //smallest distance to an entry in the palette for mostDifferentQuad
         long long mdqDistSum = -1; //sum over all distances to palette entries for mostDifferentQuad
-        MapQuadToPal::iterator stop = ws.mapQuadToPalEntry.end();
-        MapQuadToPal::iterator iter = ws.mapQuadToPalEntry.begin();
+        QuadPixelCount::const_iterator stop = ws.quadHistogram.end();
+        QuadPixelCount::const_iterator iter = ws.quadHistogram.begin();
         // For all unique colors from the complete list
-        while(iter!=stop)
+        while (iter!=stop)
         {
-            MapQuadToPal::value_type& mapping=*iter++;
-            // If the color is unmapped yet
-            if (mapping.second < 0)
+            const QuadPixelCount::value_type& quadCount=*iter++;
+            RGBAQuad quad = quadCount.first;
+            int alpha = quad_a(quad);
+            if (alpha > 0)
             {
-                RGBAQuad quad = mapping.first;
                 int red = quad_r(quad);  //must be signed
                 int green = quad_g(quad);
                 int blue = quad_b(quad);
                 /* Compute sum of all distances to this color
                  * and minimal distance (to the closest color) for this entry.
                  */
-                long long distSum=0;
-                long minDist=LONG_MAX;
+                long long distSum = 0;
+                long minDist = LONG_MAX;
                 ColorPalette::iterator paliter;
                 for (paliter = ws.palette.begin(); paliter != ws.palette.end(); paliter++)
                 {
@@ -289,31 +296,34 @@ short pick_palette_of_most_different_colors(WorkingSet& ws)
     // If there are not enough colors, fill the empty entries with more colors from the palette
     while (ws.palette.size() < maxColors)
     {
-        ws.addPaletteBlindEntry(0,0,0);
+        ws.addPaletteEntry(0,0,0);
     }
     return ERR_OK;
 }
 
 /**
- * Maps all yet unmapped colors to the most appropriate palette entry.
+ * Maps all colors to the most appropriate palette entry.
+ * Does that by filling mapQuadToPalEntry with all quads from quadHistogram and corresponding palette colors.
+ * Maps all transparent pixels to palette entry 0, non-transparent pixels are associated by color distance.
  * @param ws
  * @return
  */
 short map_palette_colors_to_most_apropriate(WorkingSet& ws)
 {
-    MapQuadToPal::iterator stop = ws.mapQuadToPalEntry.end();
-    MapQuadToPal::iterator iter = ws.mapQuadToPalEntry.begin();
+    QuadPixelCount::const_iterator stop = ws.quadHistogram.end();
+    QuadPixelCount::const_iterator iter = ws.quadHistogram.begin();
     while(iter!=stop)
     {
-        MapQuadToPal::value_type& mapping=*iter++;
-        if (mapping.second<0)
+        const QuadPixelCount::value_type& quadCount=*iter++;
+        RGBAQuad quad = quadCount.first;
+        int bestIndex = 0;
+        int alpha = quad_a(quad);
+        if (alpha > 0)
         {
-            RGBAQuad quad=mapping.first;
-            int red=quad_r(quad);  //must be signed
-            int green=quad_g(quad);
-            int blue=quad_b(quad);
-            int minDist=INT_MAX;
-            int bestIndex=0;
+            int red = quad_r(quad);  //must be signed
+            int green = quad_g(quad);
+            int blue = quad_b(quad);
+            int minDist = INT_MAX;
             ColorPalette::iterator paliter;
             for (paliter = ws.palette.begin(); paliter != ws.palette.end(); paliter++)
             {
@@ -328,9 +338,8 @@ short map_palette_colors_to_most_apropriate(WorkingSet& ws)
                     bestIndex = (paliter - ws.palette.begin());
                 }
             }
-
-            mapping.second=bestIndex;
         }
+        ws.addMappingQuad(quad, bestIndex);
     }
     return ERR_OK;
 }
@@ -724,7 +733,7 @@ int main(int argc, char* argv[])
     static WorkingSet ws;
 
     ws.requestedColors(256);
-    ws.mapQuadToPalEntry.reserve(1048576);
+    ws.reserveHistogram(1024*1024);
     if (opts.fname_map.length() > 0)
     {
         // load unmoveable palette entries from mapping file
