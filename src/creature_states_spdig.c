@@ -577,7 +577,7 @@ short imp_converts_dungeon(struct Thing *thing)
     }
     if ( check_place_to_convert_excluding(thing, slb_x, slb_y) )
     {
-      if (cctrl->instance_id == 0)
+      if (cctrl->instance_id == CrInst_NULL)
       {
           struct SlabMap *slb;
           struct SlabAttr *slbattr;
@@ -834,8 +834,9 @@ short imp_improves_dungeon(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    if (cctrl->instance_id == 0)
-      set_creature_instance(thing, CrInst_PRETTY_PATH, 0, 0, 0);
+    if (cctrl->instance_id == CrInst_NULL) {
+        set_creature_instance(thing, CrInst_PRETTY_PATH, 0, 0, 0);
+    }
     return 1;
 }
 
@@ -886,14 +887,14 @@ short imp_toking(struct Thing *thing)
         cctrl->field_282--;
     } else
     {
-        if (cctrl->instance_id == 0) {
+        if (cctrl->instance_id == CrInst_NULL) {
           internal_set_thing_state(thing, thing->continue_state);
           return 1;
         }
     }
     if (cctrl->field_282 > 0)
     {
-        if (cctrl->instance_id == 0)
+        if (cctrl->instance_id == CrInst_NULL)
         {
             if ( ACTION_RANDOM(8) )
                 set_creature_instance(thing, CrInst_RELAXING, 0, 0, 0);

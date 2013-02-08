@@ -185,7 +185,7 @@ void heap_up(long heapid)
         if (pmask == 0)
         {
             erstat_inc(ESE_BadPathHeap);
-            ERRORDBG(8,"sabotaged navigate heap");
+            ERRORDBG(8,"sabotaged navigate heap, heapid=%d",(int)heapid);
             break;
         }
         Heap[pmask] = i;
@@ -209,11 +209,11 @@ TbBool naviheap_add(long heapid)
 
 void tree_init(void)
 {
-  long i;
-  for (i=0; i < TREEVALS_COUNT; i++)
-  {
-      tree_val[i] = -LONG_MAX;
-  }
+    long i;
+    for (i=0; i < TREEVALS_COUNT; i++)
+    {
+        tree_val[i] = -LONG_MAX;
+    }
 }
 
 /** Computes the cost for route through the current tree.

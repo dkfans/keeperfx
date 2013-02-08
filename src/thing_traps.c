@@ -39,27 +39,27 @@ DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_trap(unsigned char a1, long 
 /******************************************************************************/
 TbBool destroy_trap(struct Thing *thing)
 {
-  delete_thing_structure(thing, 0);
-  return true;
+    delete_thing_structure(thing, 0);
+    return true;
 }
 
 TbBool trap_is_active(const struct Thing *thing)
 {
-  return ((thing->byte_13 > 0) && (thing->long_14 <= game.play_gameturn));
+    return ((thing->byte_13 > 0) && (thing->long_14 <= game.play_gameturn));
 }
 
 TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-  if (thing->owner == plyr_idx)
-  {
-    return (thing->model == 1) && trap_is_active(thing);
-  }
-  return false;
+    if (thing->owner == plyr_idx)
+    {
+        return (thing->model == 1) && trap_is_active(thing);
+    }
+    return false;
 }
 
 struct Thing *get_trap_for_position(long pos_x, long pos_y)
 {
-  return _DK_get_trap_for_position(pos_x, pos_y);
+    return _DK_get_trap_for_position(pos_x, pos_y);
 }
 
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -101,8 +101,8 @@ TngUpdateRet update_trap(struct Thing *thing)
 
 struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_create_trap(pos, a1, a2);
+    SYNCDBG(7,"Starting");
+    return _DK_create_trap(pos, a1, a2);
 }
 
 void init_traps(void)
@@ -147,18 +147,17 @@ int get_trap_data_index(int wrkshop_class, int wrkshop_index)
     //TODO: verify that this actually works (I don't know about wrkshop_class relation to field_0)
     //either way this function is needed, so if erroneous simply correct and leave to be
     int i;
-
-    for (i = 0; i < MANUFCTR_TYPES_COUNT; ++i) {
-        if (trap_data[i].field_0 == wrkshop_class && wrkshop_index == trap_data[i].field_4) {
+    for (i=0; i < MANUFCTR_TYPES_COUNT; i++)
+    {
+        if ((trap_data[i].field_0 == wrkshop_class) && (wrkshop_index == trap_data[i].field_4)) {
             return i;
         }
     }
-
     return -1;
 }
 
 /**
- * Removes traps on the sibtile and all sibling subtiles.
+ * Removes traps on the subtile and all sibling subtiles.
  *
  * @param stl_x Central subtile X coordinate.
  * @param stl_y Central subtile Y coordinate.
@@ -197,8 +196,8 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
 
 unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_tag_cursor_blocks_place_trap(a1, a2, a3);
+    SYNCDBG(7,"Starting");
+    return _DK_tag_cursor_blocks_place_trap(a1, a2, a3);
 }
 /******************************************************************************/
 #ifdef __cplusplus

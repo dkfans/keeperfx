@@ -1043,7 +1043,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
-            //magic_use_available_power_on_subtile(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, PwCast_None);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;

@@ -97,7 +97,7 @@ CrStateRet process_temple_visuals(struct Thing *thing, struct Room *room)
     struct CreatureControl *cctrl;
     long turns_in_temple;
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->instance_id != 0)
+    if (cctrl->instance_id != CrInst_NULL)
         return CrStRet_Unchanged;
     turns_in_temple = cctrl->field_82;
     if (turns_in_temple <= 120)
@@ -107,11 +107,11 @@ CrStateRet process_temple_visuals(struct Thing *thing, struct Room *room)
     } else
     if (turns_in_temple < 120 + 50)
     {
-        // Then celebrate for 50 tuns
+        // Then celebrate for 50 turns
         set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
     } else
     {
-        // Then start feom the beginning
+        // Then start from the beginning
         cctrl->field_82 = 0;
     }
     return CrStRet_Modified;

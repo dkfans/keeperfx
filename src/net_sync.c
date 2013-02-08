@@ -80,7 +80,7 @@ TbBool send_resync_game(void)
   TbFileHandle fh;
   char *fname;
 
-  //TODO NET: see if it is necessary to dump to file... probably superfluous
+  //TODO NET see if it is necessary to dump to file... probably superfluous
   fname = prepare_file_path(FGrp_Save,"resync.dat");
   fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
   if (fh == -1)
