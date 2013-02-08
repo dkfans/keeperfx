@@ -373,14 +373,14 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 
     if (netstate.users[source].progress != USER_CONNECTED) {
         NETMSG("Peer was not in connected state");
-        //TODO NET: implement drop
+        //TODO NET implement drop
         return;
     }
 
     if (netstate.password[0] != 0 && strncmp(ptr, netstate.password,
             sizeof(netstate.password)) != 0) {
         NETMSG("Peer chose wrong password");
-        //TODO NET: implement drop
+        //TODO NET implement drop
         return;
     }
 
@@ -394,7 +394,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
 
     LbStringCopy(netstate.users[source].name, ptr, sizeof(netstate.users[source].name));
     if (!isalnum(netstate.users[source].name[0])) {
-        //TODO NET: drop player for bad name
+        //TODO NET drop player for bad name
         //also replace isalnum with something that considers foreign non-ASCII chars
         NETDBG(6, "Connected peer had bad name starting with %c",
             netstate.users[source].name[0]);
@@ -478,7 +478,7 @@ static void HandleClientFrame(NetUserId source, char * ptr, char * end)
     ptr += netstate.user_frame_size;
 
     if (ptr >= end) {
-        //TODO NET: handle bad frame
+        //TODO NET handle bad frame
         NETMSG("Bad frame size from client %u", source);
         return;
     }
@@ -750,7 +750,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *e
   }
 
   if (netstate.sp) {
-      res = netstate.sp->init(OnDroppedUser); //TODO: supply drop callback
+      res = netstate.sp->init(OnDroppedUser); //TODO NET supply drop callback
   }
 
   //_wint_thread_data = thread_data_mem;
@@ -1183,7 +1183,7 @@ TbError LbNetwork_Exchange(void *buf)
             if (netstate.users[id].progress == USER_LOGGEDIN) {
                 if (!netstate.enable_lag ||
                         netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
-                    //TODO: take time to detect a lagger which can then be announced
+                    //TODO NET take time to detect a lagger which can then be announced
                     ProcessMessagesUntilNextFrame(id, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
                 }
 
@@ -1227,7 +1227,7 @@ TbError LbNetwork_Exchange(void *buf)
         ConsumeServerFrame(); //most likely overwrites what is sent in SendClientFrame
     }
 
-    //TODO NET: deal with case where no new frame is available and game should be stalled
+    //TODO NET deal with case where no new frame is available and game should be stalled
 
     netstate.sp->update(OnNewUser);
 

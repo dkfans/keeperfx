@@ -913,6 +913,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
         WARNLOG("Player %d tried to cast %s on non-existing thing",(int)plyr_idx,power_code_name(pwmodel));
         ret = Lb_FAIL;
     }
+    if (ret == Lb_OK)
     {// Zero coords mean we should take real ones from the thing. But even if they're not zero, we might want to fix them sometimes
         struct SpellData *pwrdata;
         pwrdata = get_power_data(pwmodel);

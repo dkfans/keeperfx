@@ -433,7 +433,7 @@ TbBool process_job_stress(struct Thing *creatng, struct Room *room)
     unsigned short stressful_job;
     cctrl = creature_control_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
-    if ( (crstat->job_stress <= 0) || (cctrl->instance_id != 0) ) {
+    if ( (crstat->job_stress <= 0) || (cctrl->instance_id != CrInst_NULL) ) {
         return false;
     }
     if (((game.play_gameturn + creatng->index) % crstat->job_stress) == 0) {

@@ -62,7 +62,7 @@ TbBool creature_can_navigate_to_with_storage_f(struct Thing *creatng, struct Coo
     AriadneReturn aret;
     NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
         (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
-    aret = ariadne_initialise_creature_route(creatng, pos, get_creature_speed(creatng), storage);
+    aret = ariadne_initialise_creature_route_f(creatng, pos, get_creature_speed(creatng), storage, func_name);
     NAVIDBG(18,"Ariadne returned %d",(int)aret);
     return (aret == AridRet_OK);
 }

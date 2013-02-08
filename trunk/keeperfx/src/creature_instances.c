@@ -111,6 +111,59 @@ Creature_Instf_Func creature_instances_func_list[] = {
   NULL,
   NULL,
 };
+
+/*
+struct InstanceInfo instance_info[] = {
+    {0,  0,  0,  0,  0,   0,   0,  0,  0,  0,  0, NULL,                       0,  0},
+    {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,  21,  0},
+    {0,  8,  4,  4,  2,   8,   4,  3,  0,  1,  3, instf_creature_fire_shot,  22,  0},
+    {0,  0,  0,  0,  0,   0,   0,  3,  0,  0,  3, NULL,                       0,  0},
+    {0, 10,  5,  5,  2,  16,   8,  3,  0,  1,  3, instf_creature_fire_shot,  14,  0},
+    {0, 10,  4,  6,  2,  32,   4,  3,  0,  1,  3, instf_creature_cast_spell,  1,  0},
+    {0, 10,  5,  6,  3, 100,  16,  3,  0,  1,  3, instf_creature_cast_spell,  2,  0},
+    {0, 10,  5,  6,  3, 100,  16,  3,  0,  1,  3, instf_creature_cast_spell,  3,  0},
+    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,  4,  0},
+    {0, 10,  5,  6,  3,   4,   1,  3,  0,  1,  3, instf_creature_cast_spell,  5,  0},
+    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,  6,  0},
+    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell,  7,  0},
+    {0, 10,  5,  6,  3,  80,  20,  3,  0,  1,  4, instf_creature_cast_spell,  8,  0},
+    {1, 10,  5,  6,  3, 500, 200,  3,  0,  1,  3, instf_creature_cast_spell,  9,  0},
+    {1, 10,  5,  6,  3,  10, 200,  3,  0,  1,  3, instf_creature_cast_spell, 10,  0},
+    {1, 10,  5,  6,  3, 300, 200,  3,  0,  1,  3, instf_creature_cast_spell, 11,  0},
+    {0, 10,  5,  6,  3, 400,  20,  3,  0,  1,  3, instf_creature_cast_spell, 12,  0},
+    {0, 10,  5,  6,  3,   5,   3,  3,  0,  1,  3, instf_creature_cast_spell, 13,  0},
+    {0, 10,  5,  6,  3,  10,  40,  3,  0,  1,  3, instf_creature_cast_spell, 14,  0},
+    {0, 10,  5,  6,  3,  25,   2,  3,  0,  1,  3, instf_creature_cast_spell, 15,  0},
+    {0, 10,  5,  6,  3,  50,   2,  3,  0,  1,  3, instf_creature_cast_spell, 16,  0},
+    {0, 10,  5, 10,  5,   8,   4,  3,  1,  1,  3, instf_creature_cast_spell, 17,  0},
+    {0, 10,  5,  6,  3,  50,  40,  3,  0,  1,  3, instf_creature_cast_spell, 18,  0},
+    {0, 10,  5,  6,  3,   8,   3,  3,  0,  1,  3, instf_creature_cast_spell, 19,  0},
+    {1, 10,  5,  6,  3, 400, 200,  3,  0,  1,  3, instf_creature_cast_spell, 20,  0},
+    {0, 10,  5,  6,  3,   8,   4,  3,  0,  1,  3, instf_creature_cast_spell, 21,  0},
+    {0, 10,  5,  6,  3,  60,  20,  3,  0,  1,  3, instf_creature_cast_spell, 22,  0},
+    {0, 10,  5,  6,  3, 100,  20,  3,  0,  1,  3, instf_creature_cast_spell, 23,  0},
+    {0, 10,  5,  6,  3,   8, 200,  3,  0,  1,  3, instf_creature_cast_spell, 24,  0},
+    {0,  8,  4,  4,  2, 100,  10,  3,  0,  1,  3, instf_fart,         0,  0},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  0,  3, instf_dig,          0,  0},
+    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_pretty_path,  0,  0},
+    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_destroy,      0,  0},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  0,  3, instf_tunnel,       0,  0},
+    {0,  8,  4,  1,  1,   1,   1, 11,  0,  0,  3, NULL,               3,  0},
+    {0,  8,  4,  4,  2,   1,   1,  7,  0,  0,  3, instf_reinforce,    0,  0},
+    {0, 16,  8,  8,  4,   1,   1, 13,  0,  0,  3, instf_eat,          0,  0},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_attack_room_slab,     0,  0},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_damage_wall,         21,  0},
+    {0,  8,  4,  4,  2,   1,   1,  3,  0,  1,  3, instf_first_person_do_imp_task,0,0},
+    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  6, instf_creature_cast_spell, 29,  0},
+    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 26,  0},
+    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 27,  0},
+    {0, 10,  5,  6,  3,   6,   3,  3,  0,  1,  3, instf_creature_cast_spell, 28,  0},
+    {0,  8,  4,  1,  1,   1,   1, 15,  0,  0,  3, NULL,               4,  0},
+    {0, 16,  8,  8,  4,   1,   1, 14,  0,  0,  3, instf_tortured,     0,  0},
+    {0, 16,  4,  4,  2,   1,   1,  5,  0,  0,  3, NULL,               0,  0},
+    {0,  8,  4,  4,  2,   1,   1,  6,  0,  0,  3, NULL,               0,  0},
+};*/
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -122,7 +175,7 @@ Creature_Instf_Func creature_instances_func_list[] = {
  * @param func_name Name of the caller function, for logging purposes.
  * @return Instance Info struct is returned.
  */
-struct InstanceInfo *creature_instance_info_get_ptr(CrInstance inst_idx,const char *func_name)
+struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name)
 {
     if ((inst_idx < 0) || (inst_idx >= sizeof(instance_info)/sizeof(instance_info[0])))
     {
@@ -223,7 +276,7 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
     int i;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->field_DA <= 0)
+    if (cctrl->targtng_idx <= 0)
     {
         if ((thing->alloc_flags & TAlF_IsControlled) == 0)
             i = 4;
@@ -232,7 +285,7 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
     }
     else if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        target = thing_get(cctrl->field_DA);
+        target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
             i = 1;
@@ -241,7 +294,7 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
     }
     else
     {
-        target = thing_get(cctrl->field_DA);
+        target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
             i = 1;
@@ -250,9 +303,9 @@ long instf_creature_fire_shot(struct Thing *thing, long *param)
         else
             i = 4;
     }
-    if (cctrl->field_DA > 0)
+    if (cctrl->targtng_idx > 0)
     {
-        target = thing_get(cctrl->field_DA);
+        target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
     } else
     {
@@ -274,14 +327,14 @@ long instf_creature_cast_spell(struct Thing *thing, long *param)
     spinfo = get_magic_info(mgc_idx);
     if (spinfo->cast_at_thing)
     {
-        trthing = thing_get(cctrl->field_DA);
+        trthing = thing_get(cctrl->targtng_idx);
         if (!thing_is_invalid(trthing))
         {
             creature_cast_spell_at_thing(thing, trthing, mgc_idx, 1);
             return 0;
         }
     }
-    creature_cast_spell(thing, mgc_idx, 1, cctrl->target_x, cctrl->target_y);
+    creature_cast_spell(thing, mgc_idx, 1, cctrl->targtstl_x, cctrl->targtstl_y);
     return 0;
 }
 

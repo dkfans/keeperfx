@@ -892,75 +892,75 @@ TbBool LbTextDrawFmt(int posx, int posy, const char *fmt, ...)
  */
 int LbTextLineHeight(void)
 {
-  if ((dbc_initialized) && (dbc_enabled))
-  {
-    return dbc_char_height(0xFFFF);
-  } else
-  {
-    return LbSprFontCharHeight(lbFontPtr,' ');
-  }
+    if ((dbc_initialized) && (dbc_enabled))
+    {
+      return dbc_char_height(0xFFFF);
+    } else
+    {
+      return LbSprFontCharHeight(lbFontPtr,' ');
+    }
 }
 
 int LbTextHeight(const char *text)
 {
-  if ((dbc_initialized) && (dbc_enabled))
-  {
-    return dbc_char_height(0xFFFF);
-  } else
-  {
-    return LbSprFontCharHeight(lbFontPtr,' ');
-  }
+    if ((dbc_initialized) && (dbc_enabled))
+    {
+      return dbc_char_height(0xFFFF);
+    } else
+    {
+      return LbSprFontCharHeight(lbFontPtr,' ');
+    }
 }
 
 int LbTextCharWidth(const long chr)
 {
-  if ((dbc_initialized) && (dbc_enabled))
-  {
-    return dbc_char_width(chr);
-  } else
-  {
-    return LbSprFontCharWidth(lbFontPtr,(unsigned char)chr);
-  }
+    if ((dbc_initialized) && (dbc_enabled))
+    {
+      return dbc_char_width(chr);
+    } else
+    {
+      return LbSprFontCharWidth(lbFontPtr,(unsigned char)chr);
+    }
 }
 
 int LbTextCharHeight(const long chr)
 {
-  if ((dbc_initialized) && (dbc_enabled))
-  {
-    return dbc_char_height(chr);
-  } else
-  {
-    return LbSprFontCharHeight(lbFontPtr,(unsigned char)chr);
-  }
+    if ((dbc_initialized) && (dbc_enabled))
+    {
+        return dbc_char_height(chr);
+    } else
+    {
+        return LbSprFontCharHeight(lbFontPtr,(unsigned char)chr);
+    }
 }
 
 int LbTextWordWidth(const char *str)
 {
-  if ((dbc_initialized) && (dbc_enabled))
-  {
-    //TODO SPRITES make proper function
-    return LbSprFontWordWidth(lbFontPtr,str);
-  } else
-  {
-    return LbSprFontWordWidth(lbFontPtr,str);
-  }
+    if ((dbc_initialized) && (dbc_enabled))
+    {
+        //TODO SPRITES make proper function
+        return LbSprFontWordWidth(lbFontPtr,str);
+    } else
+    {
+        return LbSprFontWordWidth(lbFontPtr,str);
+    }
 }
 
 int LbTextSetWindow(int posx, int posy, int width, int height)
 {
-  return _DK_LbTextSetWindow(posx, posy, width, height);
+    return _DK_LbTextSetWindow(posx, posy, width, height);
 }
 
 TbBool change_dbcfont(int nfont)
 {
-  const long fonts_count = dbc_fonts_count();
-  struct AsianFont *dbcfonts = dbc_fonts_list();
-  if ((nfont >= 0) && (nfont < fonts_count) && (dbcfonts != NULL))
-  {
-    active_dbcfont = &dbcfonts[nfont];
-    return true;
-  }
-  return false;
+    const long fonts_count = dbc_fonts_count();
+    struct AsianFont *dbcfonts = dbc_fonts_list();
+    if ((nfont >= 0) && (nfont < fonts_count) && (dbcfonts != NULL))
+    {
+        active_dbcfont = &dbcfonts[nfont];
+        return true;
+    }
+    return false;
 }
 
 TbBool LbTextSetFont(const struct TbSprite *font)
@@ -970,61 +970,61 @@ TbBool LbTextSetFont(const struct TbSprite *font)
     result = true;
     if (dbc_initialized)
     {
-      result = false;
-      dbc_colour0 = LbTextGetFontFaceColor();
-      dbc_colour1 = LbTextGetFontBackColor();
-      if (font == frontend_font[0])
-      {
-        result = change_dbcfont(2);
-      } else
-      if (font == frontend_font[1])
-      {
-        if (lbDisplay.PhysicalScreenWidth < 512)
-          result = change_dbcfont(0);
-        else
-          result = change_dbcfont(1);
-      } else
-      if (font == frontend_font[2])
-      {
-        if (lbDisplay.PhysicalScreenWidth < 512)
-          result = change_dbcfont(0);
-        else
-          result = change_dbcfont(1);
-      } else
-      if (font == frontend_font[3])
-      {
-        if (lbDisplay.PhysicalScreenWidth < 512)
-          result = change_dbcfont(0);
-        else
-          result = change_dbcfont(1);
-      } else
-      if (font == winfont)
-      {
-        if (lbDisplay.PhysicalScreenWidth < 512)
-          result = change_dbcfont(0);
-        else
-          result = change_dbcfont(1);
-      } else
-      if (font == font_sprites)
-      {
-        if (lbDisplay.PhysicalScreenWidth < 512)
-          result = change_dbcfont(0);
-        else
-          result = change_dbcfont(1);
-      } else
-      if (font == frontstory_font)
-      {
-        if (lbDisplay.PhysicalScreenWidth < 512)
-          result = change_dbcfont(0);
-        else
-          result = change_dbcfont(1);
-      } else
-      {
-        if (lbDisplay.PhysicalScreenWidth < 512)
-          result = change_dbcfont(0);
-        else
-          result = change_dbcfont(1);
-      }
+        result = false;
+        dbc_colour0 = LbTextGetFontFaceColor();
+        dbc_colour1 = LbTextGetFontBackColor();
+        if (font == frontend_font[0])
+        {
+          result = change_dbcfont(2);
+        } else
+        if (font == frontend_font[1])
+        {
+          if (lbDisplay.PhysicalScreenWidth < 512)
+            result = change_dbcfont(0);
+          else
+            result = change_dbcfont(1);
+        } else
+        if (font == frontend_font[2])
+        {
+          if (lbDisplay.PhysicalScreenWidth < 512)
+            result = change_dbcfont(0);
+          else
+            result = change_dbcfont(1);
+        } else
+        if (font == frontend_font[3])
+        {
+          if (lbDisplay.PhysicalScreenWidth < 512)
+            result = change_dbcfont(0);
+          else
+            result = change_dbcfont(1);
+        } else
+        if (font == winfont)
+        {
+          if (lbDisplay.PhysicalScreenWidth < 512)
+            result = change_dbcfont(0);
+          else
+            result = change_dbcfont(1);
+        } else
+        if (font == font_sprites)
+        {
+          if (lbDisplay.PhysicalScreenWidth < 512)
+            result = change_dbcfont(0);
+          else
+            result = change_dbcfont(1);
+        } else
+        if (font == frontstory_font)
+        {
+          if (lbDisplay.PhysicalScreenWidth < 512)
+            result = change_dbcfont(0);
+          else
+            result = change_dbcfont(1);
+        } else
+        {
+          if (lbDisplay.PhysicalScreenWidth < 512)
+            result = change_dbcfont(0);
+          else
+            result = change_dbcfont(1);
+        }
     }
     return result;
 }
@@ -1292,26 +1292,26 @@ TbResult LbTextSetClipWindow(int pos_x, int pos_y, int width, int height)
  */
 long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, long mul_width, unsigned short fdflags)
 {
-  long justifyx;
-  if ((fdflags & Lb_TEXT_HALIGN_LEFT) != 0)
-  {
+    long justifyx;
+    if ((fdflags & Lb_TEXT_HALIGN_LEFT) != 0)
+    {
+        return startx;
+    } else
+    if ((fdflags & Lb_TEXT_HALIGN_RIGHT) != 0)
+    {
+        justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
+        return startx + (lbTextJustifyWindow.width + justifyx + mul_width*spr_width - all_chars_width);
+    } else
+    if ((fdflags & Lb_TEXT_HALIGN_CENTER) != 0)
+    {
+        justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
+        return startx + (lbTextJustifyWindow.width + justifyx + mul_width*spr_width - all_chars_width) / 2;
+    } else
+    if ((fdflags & Lb_TEXT_HALIGN_JUSTIFY) != 0)
+    {
+        return startx;
+    }
     return startx;
-  } else
-  if ((fdflags & Lb_TEXT_HALIGN_RIGHT) != 0)
-  {
-    justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
-    return startx + (lbTextJustifyWindow.width + justifyx + mul_width*spr_width - all_chars_width);
-  } else
-  if ((fdflags & Lb_TEXT_HALIGN_CENTER) != 0)
-  {
-    justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
-    return startx + (lbTextJustifyWindow.width + justifyx + mul_width*spr_width - all_chars_width) / 2;
-  } else
-  if ((fdflags & Lb_TEXT_HALIGN_JUSTIFY) != 0)
-  {
-    return startx;
-  }
-  return startx;
 }
 
 /**
@@ -1320,8 +1320,8 @@ long LbGetJustifiedCharPosX(long startx, long all_chars_width, long spr_width, l
  */
 long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height, unsigned short fdflags)
 {
-  // No vertical justification supported - so the decision is simple
-  return starty;
+    // No vertical justification supported - so the decision is simple
+    return starty;
 }
 
 /**
@@ -1330,17 +1330,17 @@ long LbGetJustifiedCharPosY(long starty, long all_lines_height, long spr_height,
  */
 long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_count, unsigned short fdflags)
 {
-  long justifyx;
-  long space_width;
-  if ((fdflags & Lb_TEXT_HALIGN_JUSTIFY) != 0)
-  {
-    space_width = LbTextCharWidth(' ');
-    justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
-    if (words_count > 0)
-      return spr_width + (lbTextJustifyWindow.width+justifyx+space_width-all_chars_width) / words_count;
+    long justifyx;
+    long space_width;
+    if ((fdflags & Lb_TEXT_HALIGN_JUSTIFY) != 0)
+    {
+      space_width = LbTextCharWidth(' ');
+      justifyx = lbTextJustifyWindow.x - lbTextClipWindow.x;
+      if (words_count > 0)
+        return spr_width + (lbTextJustifyWindow.width+justifyx+space_width-all_chars_width) / words_count;
+      return spr_width;
+    }
     return spr_width;
-  }
-  return spr_width;
 }
 
 /**

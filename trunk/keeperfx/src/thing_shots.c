@@ -362,16 +362,15 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 if ( shotst->old->field_30 )
                   shot_explodes = 1;
             }
-
         }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->byte_16 = shotst->old->field_4A;
+        efftng->byte_16 = shotst->old->area_hit_type;
     }
     if ( shot_explodes )
     {
-        if ( shotst->old->field_41 ) {
-            explosion_affecting_area(shooter, pos, shotst->old->field_41, shotst->old->field_43, 256, shotst->old->field_4A);
+        if (shotst->old->area_range != 0) {
+            explosion_affecting_area(shooter, pos, shotst->old->area_range, shotst->old->area_damage, shotst->area_blow, shotst->old->area_hit_type);
         }
         delete_thing_structure(shotng, 0);
         return true;
@@ -403,11 +402,11 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     struct Thing *doortng;
     long blocked_flags;
     int i,n;
-    TbBool shod_explodes;
+    TbBool shot_explodes;
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
     //return _DK_shot_hit_door_at(thing, pos);
     shooter = INVALID_THING;
-    shod_explodes = false;
+    shot_explodes = false;
     shotst = get_shot_model_stats(shotng->model);
     // Identify the creator if the shot
     if (shotng->index != shotng->parent_idx)
@@ -439,15 +438,15 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
           }
           // Shall the shot be destroyed on impact
           if (shotst->old->field_36) {
-              shod_explodes = true;
+              shot_explodes = true;
           }
           // Apply damage to the door
           if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
           {
-              apply_damage_to_thing(doortng, shotng->word_14, -1);
+              apply_damage_to_thing(doortng, shotng->shot.damage, -1);
           } else
           {
-              i = 32 * shotng->word_14 / 256;
+              i = 32 * shotng->shot.damage / 256;
               if (i < 1)
                   i = 1;
               apply_damage_to_thing(doortng, i, -1);
@@ -455,26 +454,24 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
       }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->byte_16 = shotst->old->field_4A;
+        efftng->byte_16 = shotst->old->area_hit_type;
     }
-    if ( shod_explodes )
+    if ( shot_explodes )
     {
-        if (shotst->old->field_41 != 0) {
-            explosion_affecting_area(shooter, pos, shotst->old->field_41, shotst->old->field_43, 256, shotst->old->field_4A);
+        if (shotst->old->area_range != 0) {
+            explosion_affecting_area(shooter, pos, shotst->old->area_range, shotst->old->area_damage, shotst->area_blow, shotst->old->area_hit_type);
         }
         delete_thing_structure(shotng, 0);
-        return 1;
+        return true;
     }
-    else
     if (shotst->old->field_D <= 0)
     {
         slide_thing_against_wall_at(shotng, pos, blocked_flags);
-        return 0;
     } else
     {
         bounce_thing_off_wall_at(shotng, pos, blocked_flags);
-        return 0;
     }
+    return false;
 }
 
 TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, long exp_increase, long shot_model)
