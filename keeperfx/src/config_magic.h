@@ -179,6 +179,7 @@ struct SpellConfigStats {
 struct ShotConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
+    long area_blow;
     struct ShotStats *old;
 };
 
@@ -248,13 +249,13 @@ struct ShotStats // sizeof = 101
   short field_3C;
   short field_3E;
   unsigned char field_40;
-  short field_41;
-  short field_43;
+  short area_range;
+  short area_damage;
   short field_45;
   unsigned char field_47;
   unsigned char field_48;
   unsigned char field_49;
-  unsigned char field_4A;
+  unsigned char area_hit_type;
   unsigned char field_4B;
   unsigned char field_4C;
   unsigned char cannot_make_target_unconscious;

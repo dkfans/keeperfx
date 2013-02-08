@@ -62,9 +62,10 @@ short creature_moan(struct Thing *thing)
     cctrl->field_282 = i;
     if (i <= 0)
     {
-      if (cctrl->instance_id == CrInst_NULL)
-        set_start_state(thing);
-      return 0;
+        if (cctrl->instance_id == CrInst_NULL) {
+            set_start_state(thing);
+        }
+        return 0;
     }
     if (game.play_gameturn - cctrl->long_9A > 32)
     {
