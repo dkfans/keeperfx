@@ -789,18 +789,18 @@ void redraw_display(void)
  */
 TbBool keeper_screen_redraw(void)
 {
-  struct PlayerInfo *player;
-  SYNCDBG(5,"Starting");
-  player = get_my_player();
-  LbScreenClear(0);
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    setup_engine_window(player->engine_window_x, player->engine_window_y,
-        player->engine_window_width, player->engine_window_height);
-    redraw_display();
-    LbScreenUnlock();
-    return true;
-  }
-  return false;
+    struct PlayerInfo *player;
+    SYNCDBG(5,"Starting");
+    player = get_my_player();
+    LbScreenClear(0);
+    if (LbScreenLock() == Lb_SUCCESS)
+    {
+        setup_engine_window(player->engine_window_x, player->engine_window_y,
+            player->engine_window_width, player->engine_window_height);
+        redraw_display();
+        LbScreenUnlock();
+        return true;
+    }
+    return false;
 }
 /******************************************************************************/

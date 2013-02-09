@@ -303,8 +303,8 @@ struct RoomFlag { // BasicQ type 17,19
 };
 
 struct EngineCoord { // sizeof = 28
-  long field_0;
-  long field_4;
+  long view_width;
+  long view_height;
   unsigned short field_8;
   unsigned short field_A;
   long field_C;
