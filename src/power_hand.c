@@ -563,11 +563,6 @@ TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
   }
 }*/
 
-struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord x, MapCoord y)
-{
-    return _DK_get_nearest_thing_for_slap(plyr_idx, x, y);
-}
-
 long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
