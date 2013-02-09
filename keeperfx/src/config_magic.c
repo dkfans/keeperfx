@@ -73,12 +73,44 @@ const struct NamedCommand magic_power_commands[] = {
   {"COST",            3},
   {"TIME",            4},
   {"NAMETEXTID",      5},
+  {"CASTABILITY",     6},
   {NULL,              0},
   };
 
 const struct NamedCommand shotmodel_properties_commands[] = {
   {"SLAPPABLE",         1},
   {"NAVIGABLE",         2},
+  {NULL,                0},
+  };
+
+const struct NamedCommand powermodel_castability_commands[] = {
+  {"CUSTODY_CRTRS",    PwCast_CustodyCrtrs},
+  {"OWNED_CRTRS",      PwCast_OwnedCrtrs},
+  {"ALLIED_CRTRS",     PwCast_AlliedCrtrs},
+  {"ENEMY_CRTRS",      PwCast_EnemyCrtrs},
+  {"NEUTRL_GROUND",    PwCast_NeutrlGround},
+  {"OWNED_GROUND",     PwCast_OwnedGround},
+  {"ALLIED_GROUND",    PwCast_AlliedGround},
+  {"ENEMY_GROUND",     PwCast_EnemyGround},
+  {"NEUTRL_TALL",      PwCast_NeutrlTall},
+  {"OWNED_TALL",       PwCast_OwnedTall},
+  {"ALLIED_TALL",      PwCast_AlliedTall},
+  {"ENEMY_TALL",       PwCast_EnemyTall},
+  {"OWNED_FOOD",       PwCast_OwnedFood},
+  {"OWNED_GOLD",       PwCast_OwnedGold},
+  {"OWNED_SPELL",      PwCast_OwnedSpell},
+  {"OWNED_TRAPS",      PwCast_OwnedTraps},
+  {"NEEDS_DELAY",      PwCast_NeedsDelay},
+  {"CLAIMABLE",        PwCast_Claimable},
+  {"UNREVEALED",       PwCast_Unrevealed},
+  {"REVEALED_TEMP",    PwCast_RevealedTemp},
+  {"THING_OR_MAP",     PwCast_ThingOrMap},
+  {"ANYWHERE",         PwCast_Anywhere},
+  {"ALL_CRTRS",        PwCast_AllCrtrs},
+  {"ALL_THINGS",       PwCast_AllThings},
+  {"ALL_GROUND",       PwCast_AllGround},
+  {"NOT_ENEMY_GROUND", PwCast_NotEnemyGround},
+  {"ALL_TALL",         PwCast_AllTall},
   {NULL,                0},
   };
 /******************************************************************************/
@@ -759,63 +791,92 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       case 1: // NAME
           if (get_conf_parameter_single(buf,&pos,len,powerst->code_name,COMMAND_WORD_LEN) <= 0)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            break;
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              break;
           }
           break;
       case 2: // POWER
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (n > SPELL_MAX_LEVEL)
-            {
-              CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-              break;
-            }
-            magstat->power[n] = k;
-            n++;
+              k = atoi(word_buf);
+              if (n > SPELL_MAX_LEVEL)
+              {
+                CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                break;
+              }
+              magstat->power[n] = k;
+              n++;
           }
           if (n <= SPELL_MAX_LEVEL)
           {
-            CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 3: // COST
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            if (n > SPELL_MAX_LEVEL)
-            {
-              CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-              break;
-            }
-            magstat->cost[n] = k;
-            n++;
+              k = atoi(word_buf);
+              if (n > SPELL_MAX_LEVEL)
+              {
+                CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                break;
+              }
+              magstat->cost[n] = k;
+              n++;
           }
           if (n <= SPELL_MAX_LEVEL)
           {
-            CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 4: // TIME
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            k = atoi(word_buf);
-            magstat->time = k;
-            n++;
+              k = atoi(word_buf);
+              magstat->time = k;
+              n++;
           }
           if (n < 1)
           {
-            CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 5: // NAMETEXTID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              pwrdata->name_stridx = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 6: // CASTABILITY
+          pwrdata->can_cast_flags = 0;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(powermodel_castability_commands, word_buf);
+              if ((k != 0) && (k != -1))
+              {
+                  pwrdata->can_cast_flags |= k;
+                  n++;
+              } else
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+              }
+          }
+          break;
+
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
