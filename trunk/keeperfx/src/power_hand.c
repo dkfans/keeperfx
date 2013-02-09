@@ -584,19 +584,19 @@ long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thin
 
 TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
 {
-  switch (thing->class_id)
-  {
-  case TCls_Object:
-      return object_is_slappable(thing, plyr_idx);
-  case TCls_Shot:
-      return shot_is_slappable(thing, plyr_idx);
-  case TCls_Creature:
-      return creature_is_slappable(thing, plyr_idx);
-  case TCls_Trap:
-      return trap_is_slappable(thing, plyr_idx);
-  default:
-      return false;
-  }
+    switch (thing->class_id)
+    {
+    case TCls_Object:
+        return object_is_slappable(thing, plyr_idx);
+    case TCls_Shot:
+        return shot_is_slappable(thing, plyr_idx);
+    case TCls_Creature:
+        return creature_is_slappable(thing, plyr_idx);
+    case TCls_Trap:
+        return trap_is_slappable(thing, plyr_idx);
+    default:
+        return false;
+    }
 }
 
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y)
