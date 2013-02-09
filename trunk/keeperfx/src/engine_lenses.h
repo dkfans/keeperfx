@@ -37,7 +37,7 @@ struct PolyPoint;
 struct EngineCoord;
 struct M33;
 
-typedef void (*RotPers_Func)(struct EngineCoord *epos, struct M33 *matx);
+typedef void (*RotPers_Func)(struct EngineCoord *epos, const struct M33 *matx);
 typedef void (*Perspect_Func)(struct XYZ *cor, struct PolyPoint *ppt);
 
 struct XYZ { // sizeof = 12
@@ -66,10 +66,10 @@ DLLIMPORT RotPers_Func _DK_rotpers;
 /******************************************************************************/
 void perspective_standard(struct XYZ *cor, struct PolyPoint *ppt);
 void perspective_fisheye(struct XYZ *cor, struct PolyPoint *ppt);
-void rotpers_parallel(struct EngineCoord *epos, struct M33 *matx);
-void rotpers_standard(struct EngineCoord *epos, struct M33 *matx);
-void rotpers_circular(struct EngineCoord *epos, struct M33 *matx);
-void rotpers_fisheye(struct EngineCoord *epos, struct M33 *matx);
+void rotpers_parallel(struct EngineCoord *epos, const struct M33 *matx);
+void rotpers_standard(struct EngineCoord *epos, const struct M33 *matx);
+void rotpers_circular(struct EngineCoord *epos, const struct M33 *matx);
+void rotpers_fisheye(struct EngineCoord *epos, const struct M33 *matx);
 /******************************************************************************/
 #ifdef __cplusplus
 }
