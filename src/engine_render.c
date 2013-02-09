@@ -283,9 +283,9 @@ void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
     epos->y = out_y;
     epos->z = (inp_z * matx->r2[2] + (inp_y + matx->r2[0]) * (inp_x + matx->r2[1]) - matx->r2[3] - inp_x * inp_y) >> 14;
     factor_w = (long)view_width_over_2 + (zoom * out_x >> 16);
-    epos->field_0 = factor_w;
+    epos->view_width = factor_w;
     factor_h = (long)view_height_over_2 - (zoom * out_y >> 16);
-    epos->field_4 = factor_h;
+    epos->view_height = factor_h;
     if (factor_w < 0)
     {
         epos->field_8 |= 0x0008;
@@ -358,29 +358,29 @@ void do_perspective_rotation(long x, long y, long z)
     epos.y = 0;
     epos.z = y;
     rotpers_parallel_3(&epos, &camera_matrix, zoom);
-    x_init_off = epos.field_0;
-    y_init_off = epos.field_4;
+    x_init_off = epos.view_width;
+    y_init_off = epos.view_height;
     depth_init_off = epos.z;
     epos.x = 65536;
     epos.y = 0;
     epos.z = 0;
     rotpers_parallel_3(&epos, &camera_matrix, zoom);
-    hori_offset[0] = epos.field_0 - (engine_w >> 1);
-    hori_offset[1] = epos.field_4 - (engine_h >> 1);
+    hori_offset[0] = epos.view_width - (engine_w >> 1);
+    hori_offset[1] = epos.view_height - (engine_h >> 1);
     hori_offset[2] = epos.z;
     epos.x = 0;
     epos.y = 0;
     epos.z = -65536;
     rotpers_parallel_3(&epos, &camera_matrix, zoom);
-    vert_offset[0] = epos.field_0 - (engine_w >> 1);
-    vert_offset[1] = epos.field_4 - (engine_h >> 1);
+    vert_offset[0] = epos.view_width - (engine_w >> 1);
+    vert_offset[1] = epos.view_height - (engine_h >> 1);
     vert_offset[2] = epos.z;
     epos.x = 0;
     epos.y = 65536;
     epos.z = 0;
     rotpers_parallel_3(&epos, &camera_matrix, zoom);
-    high_offset[0] = epos.field_0 - (engine_w >> 1);
-    high_offset[1] = epos.field_4 - (engine_h >> 1);
+    high_offset[0] = epos.view_width - (engine_w >> 1);
+    high_offset[1] = epos.view_height - (engine_h >> 1);
     high_offset[2] = epos.z;
 }
 
@@ -678,10 +678,10 @@ void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbP
     // Fill parameters
     if (pixel_size > 0)
     {
-        poly->p.field_0 = start->field_0;
-        poly->p.field_4 = start->field_4;
-        poly->p.field_8 = end->field_0;
-        poly->p.field_C = end->field_4;
+        poly->p.field_0 = start->view_width;
+        poly->p.field_4 = start->view_height;
+        poly->p.field_8 = end->view_width;
+        poly->p.field_C = end->view_height;
     }
     poly->p.field_10 = color;
 }
