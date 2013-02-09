@@ -3639,21 +3639,27 @@ TngUpdateRet update_creature(struct Thing *thing)
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Room *room;
+    if (thing->active_state == CrSt_CreatureUnconscious)
+    {
+        return false;
+    }
     if (thing->owner != plyr_idx)
     {
       if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
       {
-        room = get_room_creature_works_in(thing);
-        return (room->owner == plyr_idx);
+          room = get_room_creature_works_in(thing);
+          return (room->owner == plyr_idx);
       }
       return false;
     }
     if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
-      return 0;
+    {
+        return false;
+    }
     if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
     {
         room = get_room_creature_works_in(thing);
-      return (room->owner == plyr_idx);
+        return (room->owner == plyr_idx);
     }
     return true;
 }

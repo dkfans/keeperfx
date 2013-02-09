@@ -288,6 +288,23 @@ long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam ply
   return false;
 }
 
+long near_map_block_thing_filter_is_slappable(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    long dist_x,dist_y;
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if (!thing_is_picked_up(thing) && thing_slappable(thing, param->plyr_idx))
+        {
+            dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+            dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+            // This function should return max value when the distance is minimal, so:
+            return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
@@ -2141,13 +2158,34 @@ struct Thing *get_object_around_owned_by_and_matching_bool_filter(MapCoord pos_x
  * @param plyr_idx Player whose revealed subtiles around will be searched.
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
+struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundFilterParam param;
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_specdigger, plyr_idx);
     filter = near_map_block_thing_filter_is_enemy_of_and_not_specdigger;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
+/** Finds creature on revealed subtiles around given position, which can be slapped by given player.
+ *
+ * @param plyr_idx Player whose creature from revealed position will be returned.
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    SYNCDBG(19,"Starting");
+    //return _DK_get_nearest_thing_for_slap(plyr_idx, pos_x, pos_y);
+    filter = near_map_block_thing_filter_is_slappable;
+    param.class_id = -1;
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
