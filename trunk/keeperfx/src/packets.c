@@ -1345,7 +1345,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     default:
-        ERRORLOG("Unrecognized player %ld work state: %d", plyr_idx, (int)player->work_state);
+        ERRORLOG("Unrecognized player %d work state: %d", (int)plyr_idx, (int)player->work_state);
         ret = false;
         break;
     }
@@ -1358,9 +1358,10 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     {
       if ((x != 0) && (y != 0))  //originally was (y == 0), but it was probably a mistake
       {
-        thing = get_queryable_object_near(x, y, plyr_idx);
-        if (!thing_is_invalid(thing))
-          player->thing_under_hand = thing->index;
+          thing = get_queryable_object_near(x, y, plyr_idx);
+          if (!thing_is_invalid(thing)) {
+              player->thing_under_hand = thing->index;
+          }
       }
     }
     if (((pckt->control_flags & PCtr_HeldAnyButton) != 0) && (val172))
