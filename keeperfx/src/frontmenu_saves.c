@@ -53,58 +53,6 @@ DLLIMPORT void _DK_gui_save_game(struct GuiButton *gbtn);
 DLLIMPORT void _DK_init_load_menu(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_init_save_menu(struct GuiMenu *gmnu);
 /******************************************************************************/
-struct GuiButtonInit load_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 719,  0,       {0},            0, 0, NULL },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               0, 999,  58, 999,  58,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[0]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               1, 999,  90, 999,  90,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[1]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               2, 999, 122, 999, 122,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[2]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               3, 999, 154, 999, 154,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[3]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               4, 999, 186, 999, 186,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[4]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               5, 999, 218, 999, 218,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[5]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               6, 999, 250, 999, 250,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[6]}, 0, 0, gui_load_game_maintain },
-  { 0,  0, 0, 0, 1, gui_load_game,      NULL,        NULL,               7, 999, 282, 999, 282,300, 32, draw_load_button,                  1, 201,  0,{(long)&input_string[7]}, 0, 0, gui_load_game_maintain },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiButtonInit save_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  10, 999,  10,155, 32, gui_area_text,                     1, 720,  0,       {0},            0, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               0, 999,  58, 999,  58,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[0]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               1, 999,  90, 999,  90,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[1]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               2, 999, 122, 999, 122,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[2]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               3, 999, 154, 999, 154,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[3]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               4, 999, 186, 999, 186,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[4]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               5, 999, 218, 999, 218,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[5]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               6, 999, 250, 999, 250,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[6]},15, 0, NULL },
-  { 5, -2,-1,-1, 1, gui_save_game,      NULL,        NULL,               7, 999, 282, 999, 282,300, 32, gui_area_text,                     1, 201,  0,{(long)&input_string[7]},15, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-#define frontend_load_menu_items_visible  6
-struct GuiButtonInit frontend_load_menu_buttons[] = {
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 999,  30, 999,  30,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {7},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 124,  82, 124,220, 26, frontend_draw_scroll_box_tab,      0, 201,  0,      {28},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,  82, 150,  82, 150,450,180, frontend_draw_scroll_box,          0, 201,  0,      {26},            0, 0, NULL },
-  { 1,  0, 0, 0, 0, frontend_load_game_up,NULL,frontend_over_button,     0, 532, 149, 532, 149, 26, 14, frontend_draw_slider_button,       0, 201,  0,      {17},            0, 0, frontend_load_game_up_maintain },
-  { 1,  0, 0, 0, 0, frontend_load_game_down,NULL,frontend_over_button,   0, 532, 317, 532, 317, 26, 14, frontend_draw_slider_button,       0, 201,  0,      {18},            0, 0, frontend_load_game_down_maintain },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 536, 163, 536, 163, 10,154, frontend_draw_games_scroll_tab,    0, 201,  0,      {40},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, NULL,               NULL,        NULL,               0, 102, 125, 102, 125,220, 26, frontend_draw_text,                0, 201,  0,      {30},            0, 0, NULL },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 157,  95, 157,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {45},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 185,  95, 185,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {46},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 213,  95, 213,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {47},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 241,  95, 241,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {48},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 269,  95, 269,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {49},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_load_game,NULL,frontend_over_button,        0,  95, 297,  95, 297,424, 26, frontend_draw_load_game_button,    0, 201,  0,      {50},            0, 0, frontend_load_game_maintain },
-  { 0,  0, 0, 0, 0, frontend_change_state,NULL,frontend_over_button,     1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, 201,  0,       {6},            0, 0, NULL },
-  {-1,  0, 0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,  0,       {0},            0, 0, NULL },
-};
-
-struct GuiMenu load_menu =
- { 11, 0, 4, load_menu_buttons,          POS_GAMECTR,POS_GAMECTR,436, 350, gui_pretty_background,       0, NULL,    init_load_menu,          0, 1, 0,};
-struct GuiMenu save_menu =
- { 12, 0, 4, save_menu_buttons,          POS_GAMECTR,POS_GAMECTR,436, 350, gui_pretty_background,       0, NULL,    init_save_menu,          0, 1, 0,};
-struct GuiMenu frontend_load_menu =
- { 19, 0, 1, frontend_load_menu_buttons,          0,          0, 640, 480, frontend_copy_mnu_background,0, NULL,    NULL,                    0, 0, 0,};
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -255,7 +203,7 @@ void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->flags, 0x08, (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1));
+    set_flag_byte(&gbtn->flags, 0x08, (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1));
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)
@@ -266,8 +214,8 @@ void frontend_load_game_up(struct GuiButton *gbtn)
 
 void frontend_load_game_down(struct GuiButton *gbtn)
 {
-  if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
-    load_game_scroll_offset++;
+    if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
+      load_game_scroll_offset++;
 }
 
 void frontend_draw_games_scroll_tab(struct GuiButton *gbtn)
