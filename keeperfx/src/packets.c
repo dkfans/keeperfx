@@ -864,10 +864,10 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
           && can_thing_be_possessed(thing_get(player->thing_under_hand), plyr_idx) )
         {
-          player->influenced_thing_idx = player->thing_under_hand;
-          set_player_state(player, 11, 0);
-          set_player_instance(player, PI_DirctCtrl, 0);
-          unset_packet_control(pckt, PCtr_LBtnRelease);
+            player->influenced_thing_idx = player->thing_under_hand;
+            set_player_state(player, PSt_CtrlDirect, 0);
+            set_player_instance(player, PI_DirctCtrl, 0);
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         } else
         if ((player->thing_under_hand != 0) && (player->field_5 != 0)
           && (dungeon->things_in_hand[0] != player->thing_under_hand)
@@ -881,7 +881,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
               turn_on_menu(31);
             }
             player->influenced_thing_idx = player->thing_under_hand;
-            set_player_state(player, 12, 0);
+            set_player_state(player, PSt_Unknown12, 0);
             set_player_instance(player, PI_QueryCrtr, 0);
           }
           unset_packet_control(pckt, PCtr_LBtnRelease);
@@ -2022,7 +2022,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->zoom_to_pos_y = subtile_coord_center(room->central_stl_y);
       set_player_instance(player, PI_ZoomToPos, 0);
       if (player->work_state == PSt_BuildRoom)
-        set_player_state(player, 2, room->kind);
+        set_player_state(player, PSt_BuildRoom, room->kind);
       return 0;
   case PckA_Unknown085:
       if (player->work_state == PSt_Unknown15)
@@ -2032,7 +2032,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->zoom_to_pos_y = thing->mappos.y.val;
       set_player_instance(player, PI_ZoomToPos, 0);
       if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
-        set_player_state(player, 16, thing->model);
+        set_player_state(player, PSt_PlaceTrap, thing->model);
       return 0;
   case PckA_Unknown086:
       if (player->work_state == PSt_Unknown15)
@@ -2042,7 +2042,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->zoom_to_pos_y = thing->mappos.y.val;
       set_player_instance(player, PI_ZoomToPos, 0);
       if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
-        set_player_state(player, 18, thing->model);
+        set_player_state(player, PSt_PlaceDoor, thing->model);
       return 0;
   case PckA_Unknown087:
       if (player->work_state == PSt_Unknown15)
@@ -2421,7 +2421,7 @@ void process_players_creature_control_packet_control(long idx)
     ccctrl->field_6C = 4 * angle / 8;
 }
 
-void process_players_creature_control_packet_action(long idx)
+void process_players_creature_control_packet_action(long plyr_idx)
 {
   struct CreatureControl *cctrl;
   struct InstanceInfo *inst_inf;
@@ -2430,7 +2430,7 @@ void process_players_creature_control_packet_action(long idx)
   struct Packet *pckt;
   long i,k;
   SYNCDBG(6,"Starting");
-  player = get_player(idx);
+  player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
@@ -2459,7 +2459,7 @@ void process_players_creature_control_packet_action(long idx)
           inst_inf = creature_instance_info_get(i);
           k = get_human_controlled_creature_target(thing, inst_inf->field_1D);
           set_creature_instance(thing, i, 1, k, 0);
-          if (idx == my_player_number)
+          if (plyr_idx == my_player_number)
             instant_instance_selected(i);
         }
       }

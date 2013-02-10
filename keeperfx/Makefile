@@ -154,6 +154,7 @@ obj/gui_tooltips.o \
 obj/gui_topmsg.o \
 obj/gui_soundmsgs.o \
 obj/thing_creature.o \
+obj/thing_creature_data.o \
 obj/slab_data.o \
 obj/room_data.o \
 obj/room_list.o \
@@ -181,6 +182,7 @@ obj/thing_corpses.o \
 obj/config_campaigns.o \
 obj/front_credits.o \
 obj/front_torture.o \
+obj/front_torture_data.o \
 obj/config_strings.o \
 obj/config_settings.o \
 obj/config_terrain.o \
@@ -498,12 +500,6 @@ obj/std/frontmenu_ingame_evnt.o obj/hvlog/frontmenu_ingame_evnt.o: src/frontmenu
 	-$(ECHO) ' '
 
 obj/std/frontmenu_ingame_opts.o obj/hvlog/frontmenu_ingame_opts.o: src/frontmenu_ingame_opts.c
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/std/front_torture.o obj/hvlog/front_torture.o: src/front_torture.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'

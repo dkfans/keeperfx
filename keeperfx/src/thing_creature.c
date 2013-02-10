@@ -108,6 +108,14 @@ struct Creatures creatures_NEW[] = {
   {17, 34, 1, 0, 1, 0, 2, 0, 0, 0x0180, 1},
   { 0,  0, 1, 0, 1, 0, 1, 0, 0, 0x0000, 1},
 };
+
+/******************************************************************************/
+DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
+//#define swipe_load_file _DK_swipe_load_file
+DLLIMPORT extern struct TbSetupSprite _DK_swipe_setup_sprites[];
+#define swipe_setup_sprites _DK_swipe_setup_sprites
+/******************************************************************************/
+extern struct TbLoadFiles swipe_load_file[];
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, long targtng_idx);
 DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long reason);
@@ -1925,44 +1933,35 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
 
 void set_creature_level(struct Thing *thing, long nlvl)
 {
-  //_DK_set_creature_level(thing, nlvl); return;
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  long old_max_health,max_health;
-  int i,k;
-  crstat = creature_stats_get_from_thing(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Creature has no control");
-      return;
-  }
-  if (nlvl > CREATURE_MAX_LEVEL-1)
-    nlvl = CREATURE_MAX_LEVEL-1;
-  if (nlvl < 0)
-    nlvl = 0;
-  old_max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
-  cctrl->explevel = nlvl;
-  max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
-  cctrl->max_health = max_health;
-  if (creature_affected_by_spell(thing, SplK_Chicken))
-    thing->field_46 = 300;
-  else
-    thing->field_46 = saturate_set_signed( 300 + (300*(unsigned long)(cctrl->explevel)) / 20, 16);
-  if (old_max_health > 0)
-      thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
-  else
-      thing->health = -1;
-  for (i=0; i < 10; i++)
-  {
-    k = crstat->instance_spell[i];
-    if (k > 0)
+    //_DK_set_creature_level(thing, nlvl); return;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    long old_max_health,max_health;
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
     {
-      if (crstat->instance_level[i] <= cctrl->explevel+1)
-        cctrl->instance_available[k] = true;
+        ERRORLOG("Creature has no control");
+        return;
     }
-  }
-  add_creature_score_to_owner(thing);
+    if (nlvl > CREATURE_MAX_LEVEL-1)
+      nlvl = CREATURE_MAX_LEVEL-1;
+    if (nlvl < 0)
+      nlvl = 0;
+    old_max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    cctrl->explevel = nlvl;
+    max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    cctrl->max_health = max_health;
+    if (creature_affected_by_spell(thing, SplK_Chicken))
+      thing->field_46 = 300;
+    else
+      thing->field_46 = saturate_set_signed( 300 + (300*(unsigned long)(cctrl->explevel)) / 20, 16);
+    if (old_max_health > 0)
+        thing->health = saturate_set_signed( (thing->health*max_health)/old_max_health, 16);
+    else
+        thing->health = -1;
+    creature_increase_available_instances(thing);
+    add_creature_score_to_owner(thing);
 }
 
 void init_creature_level(struct Thing *thing, long nlev)

@@ -294,7 +294,7 @@ void intro(void);
 void outro(void);
 
 int can_thing_be_queried(struct Thing *thing, long a2);
-int can_thing_be_possessed(struct Thing *thing, long a2);
+TbBool can_thing_be_possessed(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 void untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);

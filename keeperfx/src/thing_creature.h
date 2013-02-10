@@ -53,10 +53,14 @@ struct CreatureStorage {
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
-#define swipe_load_file _DK_swipe_load_file
-DLLIMPORT extern struct TbSetupSprite _DK_swipe_setup_sprites[];
-#define swipe_setup_sprites _DK_swipe_setup_sprites
+DLLIMPORT extern unsigned char * _DK_swipe_sprite_data[];
+#define swipe_sprite_data _DK_swipe_sprite_data
+DLLIMPORT extern struct TbSprite *_DK_swipe_sprites[];
+#define swipe_sprites _DK_swipe_sprites
+DLLIMPORT extern unsigned char * _DK_end_swipe_sprite_data[];
+#define end_swipe_sprite_data _DK_end_swipe_sprite_data
+DLLIMPORT extern struct TbSprite *_DK_end_swipe_sprites[];
+#define end_swipe_sprites _DK_end_swipe_sprites
 /******************************************************************************/
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;

@@ -3334,9 +3334,36 @@ int can_thing_be_queried(struct Thing *thing, long a2)
   return _DK_can_thing_be_queried(thing, a2);
 }
 
-int can_thing_be_possessed(struct Thing *thing, long a2)
+TbBool can_thing_be_possessed(struct Thing *thing, PlayerNumber plyr_idx)
 {
-  return _DK_can_thing_be_possessed(thing, a2);
+    //return _DK_can_thing_be_possessed(thing, plyr_idx);
+    if (thing->owner != plyr_idx)
+        return false;
+    if (thing_is_creature(thing))
+    {
+        if (thing_is_picked_up(thing))  {
+            return false;
+        }
+        if ((thing->active_state == CrSt_CreatureUnconscious)
+          || creature_affected_by_spell(thing, SplK_Teleport))  {
+            return false;
+        }
+        if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))  {
+            return false;
+        }
+        if (creature_is_kept_in_custody_by_enemy(thing))  {
+            return false;
+        }
+        return true;
+    }
+    if (thing_is_object(thing))
+    {
+        if (object_is_mature_food(thing))  {
+            return true;
+        }
+        return false;
+    }
+    return false;
 }
 
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3)
@@ -3380,14 +3407,14 @@ unsigned char tag_cursor_blocks_place_room(unsigned char a1, long a2, long a3, l
 
 void initialise_map_collides(void)
 {
-  SYNCDBG(7,"Starting");
-  _DK_initialise_map_collides();
+    SYNCDBG(7,"Starting");
+    _DK_initialise_map_collides();
 }
 
 void initialise_map_health(void)
 {
-  SYNCDBG(7,"Starting");
-  _DK_initialise_map_health();
+    SYNCDBG(7,"Starting");
+    _DK_initialise_map_health();
 }
 
 long slabs_count_near(long tx,long ty,long rad,unsigned short slbkind)
@@ -3417,7 +3444,7 @@ long slabs_count_near(long tx,long ty,long rad,unsigned short slbkind)
 
 long ceiling_init(unsigned long a1, unsigned long a2)
 {
-  return _DK_ceiling_init(a1, a2);
+    return _DK_ceiling_init(a1, a2);
 }
 
 long process_temple_special(struct Thing *thing)
@@ -3437,23 +3464,23 @@ long process_temple_special(struct Thing *thing)
 void do_creature_swap(long ncrt_id, long crtr_id)
 {
 //TODO SCRIPT rewrite from DD
-  WARNMSG("Swaping creatures is only supported in Deeper Dungeons");
+  WARNMSG("Swapping creatures is only supported in Deeper Dungeons");
 }
 
 TbBool swap_creature(long ncrt_id, long crtr_id)
 {
-  if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
-  {
-      ERRORLOG("Creature index %d is invalid", crtr_id);
-      return false;
-  }
-  if (creature_swap_idx[crtr_id] > 0)
-  {
-      ERRORLOG("Creature of index %d already swapped", crtr_id);
-      return false;
-  }
-  do_creature_swap(ncrt_id, crtr_id);
-  return true;
+    if ((crtr_id < 0) || (crtr_id >= CREATURE_TYPES_COUNT))
+    {
+        ERRORLOG("Creature index %d is invalid", crtr_id);
+        return false;
+    }
+    if (creature_swap_idx[crtr_id] > 0)
+    {
+        ERRORLOG("Creature of index %d already swapped", crtr_id);
+        return false;
+    }
+    do_creature_swap(ncrt_id, crtr_id);
+    return true;
 }
 
 void init_level(void)

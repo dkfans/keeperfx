@@ -61,45 +61,17 @@ DLLIMPORT extern long _DK_torture_door_selected;
 #define torture_door_selected _DK_torture_door_selected
 DLLIMPORT extern struct DoorSoundState _DK_door_sound_state[TORTURE_DOORS_COUNT];
 #define door_sound_state _DK_door_sound_state
-DLLIMPORT extern struct DoorDesc _DK_doors[TORTURE_DOORS_COUNT];
-#define doors _DK_doors
 DLLIMPORT extern struct TortureState _DK_torture_state;
 #define torture_state _DK_torture_state
 DLLIMPORT extern unsigned char *_DK_torture_background;
 #define torture_background _DK_torture_background
 DLLIMPORT extern unsigned char *_DK_torture_palette;
 #define torture_palette _DK_torture_palette
-DLLIMPORT extern struct TbSprite *_DK_fronttor_sprites;
-#define fronttor_sprites _DK_fronttor_sprites
-DLLIMPORT extern struct TbSprite *_DK_fronttor_end_sprites;
-#define fronttor_end_sprites _DK_fronttor_end_sprites
-DLLIMPORT extern unsigned long _DK_fronttor_data;
-#define fronttor_data _DK_fronttor_data
-DLLIMPORT extern unsigned long _DK_fronttor_end_data;
-#define fronttor_end_data _DK_fronttor_end_data
 /******************************************************************************/
+extern struct TbLoadFiles torture_load_files[];
+extern struct TbSetupSprite setup_torture_sprites[];
+
 long torture_doors_available = TORTURE_DOORS_COUNT;
-
-struct TbLoadFiles torture_load_files[] = {
-  {"ldata/fronttor.tab", (unsigned char **)&fronttor_sprites, (unsigned char **)&fronttor_end_sprites, 0, 0, 0},
-  {"ldata/fronttor.dat", (unsigned char **)&fronttor_data,    (unsigned char **)&fronttor_end_data,    0, 0, 0},
-  {"",                    NULL,                                NULL,                                   0, 0, 0},
-};
-
-struct TbSetupSprite setup_torture_sprites[] = {
-  {&doors[0].sprites, &doors[0].sprites_end, &doors[0].data},
-  {&doors[1].sprites, &doors[1].sprites_end, &doors[1].data},
-  {&doors[2].sprites, &doors[2].sprites_end, &doors[2].data},
-  {&doors[3].sprites, &doors[3].sprites_end, &doors[3].data},
-  {&doors[4].sprites, &doors[4].sprites_end, &doors[4].data},
-  {&doors[5].sprites, &doors[5].sprites_end, &doors[5].data},
-  {&doors[6].sprites, &doors[6].sprites_end, &doors[6].data},
-  {&doors[7].sprites, &doors[7].sprites_end, &doors[7].data},
-  {&doors[8].sprites, &doors[8].sprites_end, &doors[8].data},
-  {&fronttor_sprites, &fronttor_end_sprites, &fronttor_data},
-  {NULL,              NULL,                  NULL,}
-};
-
 /******************************************************************************/
 DLLIMPORT void _DK_fronttorture_update(void);
 DLLIMPORT void _DK_fronttorture_draw(void);
