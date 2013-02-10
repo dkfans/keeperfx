@@ -41,73 +41,76 @@ DLLIMPORT void _DK_frontcredits_draw(void);
 /******************************************************************************/
 void frontcredits_draw(void)
 {
-  struct CreditsItem *credit;
-  TbBool did_draw;
-  int fontid;
-  long i;
-  long h;
-  const char *text;
-  credits_offset -= credits_scroll_speed;
-  frontend_copy_background();
+    struct CreditsItem *credit;
+    TbBool did_draw;
+    int fontid;
+    long i;
+    long h;
+    const char *text;
+    credits_offset -= credits_scroll_speed;
+    frontend_copy_background();
 
-  lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010;
-  LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
-  fontid = 1;
-  LbTextSetFont(frontend_font[fontid]);
-  h = credits_offset;
-  did_draw = h > 0;
-  for (i = 0; campaign.credits[i].kind != CIK_None; i++)
-  {
-    if (h >= lbDisplay.PhysicalScreenHeight)
-      break;
-    credit = &campaign.credits[i];
-    if (credit->font != fontid)
+    lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010 | Lb_TEXT_HALIGN_CENTER;
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+    fontid = 1;
+    LbTextSetFont(frontend_font[fontid]);
+    h = credits_offset;
+    did_draw = h > 0;
+    for (i = 0; campaign.credits[i].kind != CIK_None; i++)
     {
-      fontid = credit->font;
-      LbTextSetFont(frontend_font[fontid]);
-    }
-    if (h > -LbTextLineHeight())
-    {
-        switch (credit->kind)
+        if (h >= lbDisplay.PhysicalScreenHeight)
+          break;
+        credit = &campaign.credits[i];
+        if (credit->font != fontid)
         {
-        case CIK_GStringId:
-          text = gui_string(credit->num);
-          break;
-        case CIK_CStringId:
-          text = cmpgn_string(credit->num);
-          break;
-        case CIK_DirectText:
-          text = credit->str;
-          break;
-        default:
-          text = "";
-          break;
+          fontid = credit->font;
+          LbTextSetFont(frontend_font[fontid]);
         }
-        LbTextDraw(0, h, text);
-        did_draw = 1;
+        if (h > -LbTextLineHeight())
+        {
+            switch (credit->kind)
+            {
+            case CIK_GStringId:
+                text = gui_string(credit->num);
+                break;
+            case CIK_CStringId:
+                text = cmpgn_string(credit->num);
+                break;
+            case CIK_DirectText:
+                text = credit->str;
+                break;
+            default:
+                text = "";
+                break;
+            }
+            LbTextDraw(0, h, text);
+            did_draw = 1;
+        }
+        h += LbTextLineHeight() + 2;
     }
-    h += LbTextLineHeight() + 2;
-  }
-  if (!did_draw)
-  {
-    credits_end = 1;
-    credits_offset = lbDisplay.PhysicalScreenHeight;
-  }
-
+    if (!did_draw)
+    {
+        credits_end = 1;
+        credits_offset = lbDisplay.PhysicalScreenHeight;
+    }
 }
 
 void frontcredits_input(void)
 {
+    int fontid;
     credits_scroll_speed = 1;
+    fontid = 1;
     int speed;
     if ( lbKeyOn[KC_DOWN] )
     {
-        speed = frontend_font[1][32].SHeight;
+        LbTextSetFont(frontend_font[fontid]);
+        speed = LbTextLineHeight();
         credits_scroll_speed = speed;
     } else
     if ((lbKeyOn[KC_UP]) && (credits_offset <= 0))
     {
-        speed = -frontend_font[1][32].SHeight;
+        LbTextSetFont(frontend_font[fontid]);
+        speed = -LbTextLineHeight();
         if (speed <= credits_offset)
           speed = credits_offset;
         credits_scroll_speed = speed;

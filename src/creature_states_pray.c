@@ -34,6 +34,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_physics.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "power_hand.h"
@@ -72,15 +73,10 @@ TbBool creature_is_doing_temple_activity(const struct Thing *thing)
     return false;
 }
 
-long person_get_somewhere_adjacent_in_temple(struct Thing *thing, struct Room *room, struct Coord3d *pos)
-{
-    return _DK_person_get_somewhere_adjacent_in_temple(thing, room, pos);
-}
-
 TbBool setup_temple_move(struct Thing *thing, struct Room *room)
 {
     struct Coord3d pos;
-    if ( !person_get_somewhere_adjacent_in_temple(thing, room, &pos) )
+    if ( !person_get_somewhere_adjacent_in_room_around_borders(thing, room, &pos) )
     {
         return false;
     }
