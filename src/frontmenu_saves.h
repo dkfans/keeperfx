@@ -34,6 +34,7 @@ struct GuiButton;
 /******************************************************************************/
 extern struct GuiMenu load_menu;
 extern struct GuiMenu save_menu;
+#define frontend_load_menu_items_visible  6
 extern struct GuiMenu frontend_load_menu;
 /******************************************************************************/
 void gui_load_game(struct GuiButton *gbtn);
