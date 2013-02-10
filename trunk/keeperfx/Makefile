@@ -140,11 +140,16 @@ obj/front_lvlstats_data.o \
 obj/front_easter.o \
 obj/frontmenu_net.o \
 obj/frontmenu_options.o \
+obj/frontmenu_options_data.o \
 obj/frontmenu_saves.o \
+obj/frontmenu_saves_data.o \
 obj/frontmenu_specials.o \
 obj/frontmenu_ingame_tabs.o \
+obj/frontmenu_ingame_tabs_data.o \
 obj/frontmenu_ingame_evnt.o \
+obj/frontmenu_ingame_evnt_data.o \
 obj/frontmenu_ingame_opts.o \
+obj/frontmenu_ingame_opts_data.o \
 obj/frontmenu_ingame_map.o \
 obj/gui_parchment.o \
 obj/gui_boxmenu.o \
@@ -470,36 +475,6 @@ obj/std/front_network.o obj/hvlog/front_network.o: src/front_network.c
 	-$(ECHO) ' '
 
 obj/std/frontmenu_net.o obj/hvlog/frontmenu_net.o: src/frontmenu_net.c
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/std/frontmenu_options.o obj/hvlog/frontmenu_options.o: src/frontmenu_options.c
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/std/frontmenu_saves.o obj/hvlog/frontmenu_saves.o: src/frontmenu_saves.c
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/std/frontmenu_ingame_tabs.o obj/hvlog/frontmenu_ingame_tabs.o: src/frontmenu_ingame_tabs.c
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/std/frontmenu_ingame_evnt.o obj/hvlog/frontmenu_ingame_evnt.o: src/frontmenu_ingame_evnt.c
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/std/frontmenu_ingame_opts.o obj/hvlog/frontmenu_ingame_opts.o: src/frontmenu_ingame_opts.c
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'

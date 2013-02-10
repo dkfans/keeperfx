@@ -36,8 +36,6 @@ struct GuiButton;
 /******************************************************************************/
 extern struct GuiMenu frontend_define_keys_menu;
 extern struct GuiMenu frontend_option_menu;
-extern struct GuiMenu video_menu;
-extern struct GuiMenu sound_menu;
 /******************************************************************************/
 DLLIMPORT long _DK_fe_mouse_sensitivity;
 #define fe_mouse_sensitivity _DK_fe_mouse_sensitivity

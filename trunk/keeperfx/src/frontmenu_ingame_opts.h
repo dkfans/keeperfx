@@ -38,6 +38,8 @@ extern struct GuiMenu quit_menu;
 extern struct GuiMenu error_box;
 extern struct GuiMenu autopilot_menu;
 
+extern struct GuiMenu video_menu;
+extern struct GuiMenu sound_menu;
 /******************************************************************************/
 #ifdef __cplusplus
 }

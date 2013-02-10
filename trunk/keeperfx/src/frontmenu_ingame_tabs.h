@@ -21,6 +21,8 @@
 
 #include "globals.h"
 
+#include "bflib_guibtns.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
