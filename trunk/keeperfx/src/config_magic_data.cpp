@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_magic_data.c
+/** @file config_magic_data.cpp
  *     Keeper and creature spells configuration loading functions.
  * @par Purpose:
  *     Support of configuration files for magic spells.

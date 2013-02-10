@@ -1517,11 +1517,11 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
     crstat = creature_stats_get(crtr_model);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        for (n=0; n < 10; n++)
+        for (n=0; n < CREATURE_MAX_LEVEL; n++)
         {
-          crstat->instance_spell[n] = 0;
-          crstat->instance_level[n] = 0;
-          crstat->to_level[n] = 0;
+            crstat->instance_spell[n] = 0;
+            crstat->instance_level[n] = 0;
+            crstat->to_level[n] = 0;
         }
         crstat->grow_up = 0;
         crstat->grow_up_level = 0;

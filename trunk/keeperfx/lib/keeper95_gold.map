@@ -361,6 +361,10 @@
  0003:000AA560       pointer_data
  0003:000EBEB4       pointer_sprites
  0003:0024150C       end_pointer_sprites
+ 0003:000EBED8       swipe_sprites
+ 0003:000EB4F8       end_swipe_sprites
+ 0003:000EBE98       swipe_sprite_data
+ 0003:0023EB40       end_swipe_sprite_data
  0003:00246EC8       no_of_active_menus
  0003:002452F8       menu_stack
  0003:000EB4F4       button_sprite
