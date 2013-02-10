@@ -328,23 +328,22 @@ void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, Tb
  */
 TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
 {
-  if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
-  {
-    if ((width < 1) || (height < 1))
-      return Lb_FAIL;
-    LbDrawHVLine(x, y, width + x - 1, y, colour);
-    LbDrawHVLine(x, height + y - 1, width + x - 1, height + y - 1, colour);
-    if (height > 2)
+    if (lbDisplay.DrawFlags & Lb_SPRITE_UNKNOWN0010)
     {
-      LbDrawHVLine(x, y + 1, x, height + y - 2, colour);
-      LbDrawHVLine(width + x - 1, y + 1, width + x - 1, height + y - 2, colour);
+        if ((width < 1) || (height < 1))
+          return Lb_FAIL;
+        LbDrawHVLine(x, y, width + x - 1, y, colour);
+        LbDrawHVLine(x, height + y - 1, width + x - 1, height + y - 1, colour);
+        if (height > 2)
+        {
+          LbDrawHVLine(x, y + 1, x, height + y - 2, colour);
+          LbDrawHVLine(width + x - 1, y + 1, width + x - 1, height + y - 2, colour);
+        }
+    } else
+    {
+        LbDrawBoxClip(x, y, width, height, colour);
     }
-  }
-  else
-  {
-    LbDrawBoxClip(x, y, width, height, colour);
-  }
-  return Lb_SUCCESS;
+    return Lb_SUCCESS;
 }
 
 /** Internal function used to prepare sprite drawing.

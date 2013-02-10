@@ -315,13 +315,16 @@ TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomK
 #define creature_work_in_room_no_longer_possible(room, rkind, thing) creature_work_in_room_no_longer_possible_f(room, rkind, thing, __func__)
 TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job);
 
+// Finding a nearby position to move during a job
 TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *thing);
+TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
+TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
+
 struct Room * find_nearest_room_for_thing(struct Thing *thing, char a2, char a3, unsigned char a4);
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5);
 struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, char a2, char a3, unsigned char a4, long a5);
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
-TbBool person_get_somewhere_adjacent_in_room(const struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 TbBool creature_is_being_dropped(const struct Thing *thing);
