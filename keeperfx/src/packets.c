@@ -334,28 +334,28 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
           if (player_uses_call_to_arms(plyr_idx))
             player->field_4D2 = (dungeon->field_883 << 2);
           else
-            update_power_overcharge(player, 6);
+            update_power_overcharge(player, PwrK_CALL2ARMS);
           break;
       case PSt_CaveIn:
-          update_power_overcharge(player, 7);
+          update_power_overcharge(player, PwrK_CAVEIN);
           break;
       case PSt_SightOfEvil:
-          update_power_overcharge(player, 5);
+          update_power_overcharge(player, PwrK_SIGHT);
           break;
       case PSt_Lightning:
-          update_power_overcharge(player, 10);
+          update_power_overcharge(player, PwrK_LIGHTNING);
           break;
       case PSt_SpeedUp:
-          update_power_overcharge(player, 11);
+          update_power_overcharge(player, PwrK_SPEEDCRTR);
           break;
       case PSt_Armour:
-          update_power_overcharge(player, 12);
+          update_power_overcharge(player, PwrK_PROTECT);
           break;
       case PSt_Conceal:
-          update_power_overcharge(player, 13);
+          update_power_overcharge(player, PwrK_CONCEAL);
           break;
       case PSt_Heal:
-          update_power_overcharge(player, 8);
+          update_power_overcharge(player, PwrK_HEALCRTR);
           break;
       default:
           player->field_4D2++;

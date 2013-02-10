@@ -664,7 +664,7 @@ void draw_zoom_box(void)
     lbDisplay.DrawFlags |= Lb_SPRITE_UNKNOWN0010;
     LbDrawBox(scrtop_x/pixel_size, scrtop_y/pixel_size,
         (map_tiles_x*subtile_size)/pixel_size, (map_tiles_y*subtile_size)/pixel_size, 0);
-    set_flag_word(&lbDisplay.DrawFlags,Lb_SPRITE_UNKNOWN0010,false);
+    lbDisplay.DrawFlags &= ~Lb_SPRITE_UNKNOWN0010;
     // Draw thing sprites on the map
     LbScreenSetGraphicsWindow( (scrtop_x+2)/pixel_size, (scrtop_y+2)/pixel_size,
         (map_tiles_x*subtile_size-4)/pixel_size, (map_tiles_y*subtile_size-4)/pixel_size);

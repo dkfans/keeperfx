@@ -157,26 +157,26 @@ void lightning_modify_palette(struct Thing *thing)
     }
     if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))
     {
-      if ((myplyr->field_3 & 0x08) != 0)
-      {
-        if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+        if ((myplyr->field_3 & 0x08) != 0)
         {
-            PaletteSetPlayerPalette(myplyr, _DK_palette);
-            myplyr->field_3 &= 0xF7u;
+            if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+            {
+                PaletteSetPlayerPalette(myplyr, _DK_palette);
+                myplyr->field_3 &= ~0x08;
+            }
         }
-      }
-      return;
+        return;
     }
     if ((myplyr->view_mode != PVM_ParchFadeIn) && (myplyr->view_mode != PVM_ParchFadeOut) && (myplyr->view_mode != PVM_ParchmentView))
     {
-      if ((myplyr->field_3 & 0x08) == 0)
-      {
-        if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+        if ((myplyr->field_3 & 0x08) == 0)
         {
-          PaletteSetPlayerPalette(myplyr, lightning_palette);
-          myplyr->field_3 |= 0x08;
+            if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+            {
+              PaletteSetPlayerPalette(myplyr, lightning_palette);
+              myplyr->field_3 |= 0x08;
+            }
         }
-      }
     }
 }
 

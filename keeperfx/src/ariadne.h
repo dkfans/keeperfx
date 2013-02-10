@@ -186,7 +186,6 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
 AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
     const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char no_owner, const char *func_name);
 #define ariadne_prepare_creature_route_to_target(thing, arid, srcpos, dstpos, speed, no_owner) ariadne_prepare_creature_route_to_target_f(thing, arid, srcpos, dstpos, speed, no_owner, __func__)
-long thing_nav_block_sizexy(const struct Thing *thing);
 void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size, const char *func_name);
 #define path_init8_wide(path, start_x, start_y, end_x, end_y, a6, nav_size) path_init8_wide_f(path, start_x, start_y, end_x, end_y, a6, nav_size, __func__)
 long get_navigation_colour(long stl_x, long stl_y);
