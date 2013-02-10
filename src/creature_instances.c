@@ -28,6 +28,7 @@
 #include "thing_traps.h"
 #include "thing_stats.h"
 #include "creature_control.h"
+#include "config_creature.h"
 #include "room_data.h"
 #include "map_blocks.h"
 #include "spdigger_stack.h"
@@ -198,6 +199,47 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum
     if (creature_control_invalid(cctrl))
         return false;
     return cctrl->instance_available[inum];
+}
+
+TbBool creature_choose_first_available_instance(struct Thing *thing)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    long i,k;
+    for (i=0; i < CREATURE_MAX_LEVEL; i++)
+    {
+        k = crstat->instance_spell[i];
+        if (k > 0)
+        {
+            if (cctrl->instance_available[k]) {
+                cctrl->field_1E8 = k;
+                return true;
+            }
+        }
+    }
+    cctrl->field_1E8 = 0;
+    return false;
+}
+
+void creature_increase_available_instances(struct Thing *thing)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    int i,k;
+    for (i=0; i < CREATURE_MAX_LEVEL; i++)
+    {
+        k = crstat->instance_spell[i];
+        if (k > 0)
+        {
+            if (crstat->instance_level[i] <= cctrl->explevel+1) {
+                cctrl->instance_available[k] = true;
+            }
+        }
+    }
 }
 
 TbBool instance_is_ranged_weapon(CrInstance inum)

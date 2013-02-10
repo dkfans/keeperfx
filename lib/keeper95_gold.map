@@ -1791,9 +1791,11 @@
  0003:000AB4F0       poly_pool
  0003:000EB4F0       gui_slab
  0003:000EB4F4       button_sprite
+ 0003:000EB4F8       end_swipe_sprites
  0003:000EB510       block_ptrs
  0003:000EBE50       edit_icon_sprites
  0003:000EBE58       level_name
+ 0003:000EBE98       swipe_sprite_data
  0003:000EBEAC       gui_panel_sprite_data
  0003:000EBEB0       blue_palette
  0003:000EBEB4       pointer_sprites
@@ -1804,6 +1806,7 @@
  0003:000EBEC8       vampire_palette
  0003:000EBED0       key_modifiers
  0003:000EBED4       MyScreenHeight
+ 0003:000EBED8       swipe_sprites
  0003:000EBEEC       edit_icon_data
  0003:000EBEF0       creature_table
  0003:000EBEF8       pixel_size
@@ -1813,6 +1816,7 @@
  0003:000ED308       poly_pool_end
  0003:000ED310       game
  0003:0023EB38       sound_heap_size
+ 0003:0023EB40       end_swipe_sprite_data
  0003:0023EB54       eye_lens_spare_screen_memory
  0003:0023EB58       alpha_sprite_table
  0003:00241458       port_sprite

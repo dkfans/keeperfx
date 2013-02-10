@@ -55,6 +55,17 @@ struct TortureState { // sizeof = 4
 
 #pragma pack()
 /******************************************************************************/
+DLLIMPORT extern struct DoorDesc _DK_doors[TORTURE_DOORS_COUNT];
+#define doors _DK_doors
+DLLIMPORT extern struct TbSprite *_DK_fronttor_sprites;
+#define fronttor_sprites _DK_fronttor_sprites
+DLLIMPORT extern struct TbSprite *_DK_fronttor_end_sprites;
+#define fronttor_end_sprites _DK_fronttor_end_sprites
+DLLIMPORT extern unsigned long _DK_fronttor_data;
+#define fronttor_data _DK_fronttor_data
+DLLIMPORT extern unsigned long _DK_fronttor_end_data;
+#define fronttor_end_data _DK_fronttor_end_data
+/******************************************************************************/
 void fronttorture_unload(void);
 void fronttorture_load(void);
 void fronttorture_input(void);

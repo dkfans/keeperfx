@@ -161,6 +161,7 @@ obj/front_lvlstats_data.o \
 obj/front_network.o \
 obj/front_simple.o \
 obj/front_torture.o \
+obj/front_torture_data.o \
 obj/frontend.o \
 obj/frontmenu_ingame_evnt.o \
 obj/frontmenu_ingame_map.o \
@@ -231,6 +232,7 @@ obj/spdigger_stack.o \
 obj/tasks_list.o \
 obj/thing_corpses.o \
 obj/thing_creature.o \
+obj/thing_creature_data.o \
 obj/thing_data.o \
 obj/thing_doors.o \
 obj/thing_effects.o \
@@ -368,12 +370,6 @@ $(HVLOGBIN): $(GENSRC) $(HVLOGOBJS) $(LIBS) hvlog-before
 # Some C files have to be compiled as C++, because their language is not clear
 
 obj/std/front_network.o obj/hvlog/front_network.o: src/front_network.c $(GENSRC)
-	-$(ECHO) 'Building file: $<'
-	$(CPP) $(CXXFLAGS) -o"$@" "$<"
-	-$(ECHO) 'Finished building: $<'
-	-$(ECHO) ' '
-
-obj/std/front_torture.o obj/hvlog/front_torture.o: src/front_torture.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) 'Finished building: $<'

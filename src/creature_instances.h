@@ -113,6 +113,9 @@ struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char
 void process_creature_instance(struct Thing *thing);
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
 TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum);
+
+TbBool creature_choose_first_available_instance(struct Thing *thing);
+void creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus

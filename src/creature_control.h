@@ -24,6 +24,7 @@
 
 #include "ariadne.h"
 #include "creature_groups.h"
+#include "thing_stats.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -541,8 +542,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char immune_to_gas;
     unsigned char attack_preference;
     short field_of_view;
-    unsigned char instance_spell[10];
-    unsigned char instance_level[10];
+    unsigned char instance_spell[CREATURE_MAX_LEVEL];
+    unsigned char instance_level[CREATURE_MAX_LEVEL];
     unsigned char research_value;
     unsigned char humanoid_creature;
     unsigned char piss_on_dead;

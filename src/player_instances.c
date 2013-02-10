@@ -27,6 +27,7 @@
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_graphics.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "thing_stats.h"
 #include "light_data.h"
@@ -406,7 +407,7 @@ long pinstfs_control_creature(struct PlayerInfo *player, long *n)
   player->field_0 |= 0x10;
   player->dungeon_camera_zoom = get_camera_zoom(cam);
   if (is_my_player(player))
-    play_non_3d_sample(39);
+      play_non_3d_sample(39);
   return 0;
 }
 
@@ -421,14 +422,14 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     if (cam == NULL)
         return 0;
     thing = thing_get(player->influenced_thing_idx);
-    if (thing_is_invalid(thing) || (thing->class_id == 4) || (thing->health < 0))
+    if (thing_is_invalid(thing) || (thing->class_id == TCls_DeadCreature) || (thing->health < 0))
     {
         set_camera_zoom(cam, player->dungeon_camera_zoom);
         if (is_my_player(player))
             PaletteSetPlayerPalette(player, _DK_palette);
         player->influenced_thing_idx = 0;
-        player->field_0 &= 0xEF;
-        player->field_0 &= 0x7F;
+        player->field_0 &= ~0x10;
+        player->field_0 &= ~0x80;
         set_player_instance(player, PI_Unset, true);
         return 0;
     }
@@ -487,52 +488,40 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
 
 long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
 {
-  //return _DK_pinstfe_direct_control_creature(player, n);
-  struct Thing *thing;
-  long i,k;
-  thing = thing_get(player->influenced_thing_idx);
-  if (thing_is_invalid(thing))
-    thing = NULL;
-  if (!thing_is_invalid(thing))
-  {
-    if (!control_creature_as_controller(player, thing))
-        thing = NULL;
-  }
-  if (thing_is_invalid(thing))
-  {
-    set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+    //return _DK_pinstfe_direct_control_creature(player, n);
+    struct Thing *thing;
+    thing = thing_get(player->influenced_thing_idx);
+    if (!thing_is_invalid(thing))
+    {
+        if (!control_creature_as_controller(player, thing)) {
+            thing = INVALID_THING;
+        }
+    }
+    if (thing_is_invalid(thing))
+    {
+        set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
+        if (is_my_player(player)) {
+            PaletteSetPlayerPalette(player, _DK_palette);
+        }
+        player->field_0 &= ~0x10;
+        player->field_0 &= ~0x80;
+        return 0;
+    }
+    set_player_instance(player, PI_CrCtrlFade, false);
+    if (thing->class_id == TCls_Creature)
+    {
+        load_swipe_graphic_for_creature(thing);
+        if (is_my_player(player))
+        {
+            if (creature_affected_by_spell(thing, SplK_Freeze)) {
+                PaletteSetPlayerPalette(player, blue_palette);
+            }
+        }
+        creature_choose_first_available_instance(thing);
+    }
     if (is_my_player(player))
-      PaletteSetPlayerPalette(player, _DK_palette);
-    player->field_0 &= 0xEF;
-    player->field_0 &= 0x7F;
+      turn_on_menu(GMnu_CREATURE_QUERY1);
     return 0;
-  }
-  set_player_instance(player, PI_CrCtrlFade, false);
-  if (thing->class_id == TCls_Creature)
-  {
-    load_swipe_graphic_for_creature(thing);
-    if (is_my_player(player))
-    {
-      if (creature_affected_by_spell(thing, SplK_Freeze))
-        PaletteSetPlayerPalette(player, blue_palette);
-    }
-    struct CreatureStats *crstat;
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    crstat = creature_stats_get_from_thing(thing);
-    for (i=0; i < 10; i++)
-    {
-      k = crstat->instance_spell[i];
-      if (cctrl->instance_available[k])
-      {
-        cctrl->field_1E8 = k;
-        break;
-      }
-    }
-  }
-  if (is_my_player(player))
-    turn_on_menu(GMnu_CREATURE_QUERY1);
-  return 0;
 }
 
 long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
