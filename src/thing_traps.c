@@ -71,6 +71,15 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
 }
 
+TbBool thing_is_deployed_trap(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Trap)
+        return false;
+    return true;
+}
+
 void update_trap_trigger(struct Thing *thing)
 {
     _DK_update_trap_trigger(thing); return;

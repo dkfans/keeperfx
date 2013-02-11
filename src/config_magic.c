@@ -80,6 +80,7 @@ const struct NamedCommand magic_power_commands[] = {
 const struct NamedCommand shotmodel_properties_commands[] = {
   {"SLAPPABLE",         1},
   {"NAVIGABLE",         2},
+  {"BOULDER",           3},
   {NULL,                0},
   };
 
@@ -99,7 +100,7 @@ const struct NamedCommand powermodel_castability_commands[] = {
   {"OWNED_FOOD",       PwCast_OwnedFood},
   {"OWNED_GOLD",       PwCast_OwnedGold},
   {"OWNED_SPELL",      PwCast_OwnedSpell},
-  {"OWNED_TRAPS",      PwCast_OwnedTraps},
+  {"OWNED_BOULDERS",   PwCast_OwnedBoulders},
   {"NEEDS_DELAY",      PwCast_NeedsDelay},
   {"CLAIMABLE",        PwCast_Claimable},
   {"UNREVEALED",       PwCast_Unrevealed},
@@ -698,6 +699,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 2: // NAVIGABLE
                 shotst->model_flags |= ShMF_Navigable;
+                n++;
+                break;
+            case 3: // BOULDER
+                shotst->model_flags |= ShMF_Boulder;
                 n++;
                 break;
             default:

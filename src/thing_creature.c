@@ -2055,7 +2055,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
         aitime = 3 * aitime / 4;
         itime = 3 * itime / 4;
     } else
-    if (game.neutral_player_num != thing->owner)
+    if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
         if (dungeon->must_obey_turn)
@@ -2235,7 +2235,7 @@ void remove_first_creature(struct Thing *thing)
         ERRORLOG("Thing %d is not in Peter list",(int)thing->index);
         return;
     }
-    if (game.neutral_player_num == thing->owner)
+    if (is_neutral_thing(thing))
     {
       sectng = thing_get(cctrl->players_prev_creature_idx);
       if (!thing_is_invalid(sectng)) {
@@ -2355,7 +2355,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     if ((creatng->alloc_flags & TAlF_Unkn08) != 0) {
         remove_first_creature(creatng);
     }
-    if (creatng->owner != game.neutral_player_num)
+    if (!is_neutral_thing(creatng))
     {
         dungeon = get_dungeon(creatng->owner);
         dungeon->score -= get_creature_thing_score(creatng);
@@ -2367,7 +2367,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     creatng->owner = nowner;
     set_first_creature(creatng);
     set_start_state(creatng);
-    if (creatng->owner != game.neutral_player_num)
+    if (!is_neutral_thing(creatng))
     {
         dungeon = get_dungeon(creatng->owner);
         dungeon->score += get_creature_thing_score(creatng);
@@ -3354,7 +3354,7 @@ TbBool add_creature_score_to_owner(struct Thing *thing)
 {
     struct Dungeon *dungeon;
     long score;
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
         return false;
     dungeon = get_dungeon(thing->owner);
     if (dungeon_invalid(dungeon))
@@ -3371,7 +3371,7 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
 {
     struct Dungeon *dungeon;
     long score;
-    if (thing->owner == game.neutral_player_num)
+    if (is_neutral_thing(thing))
         return false;
     dungeon = get_dungeon(thing->owner);
     if (dungeon_invalid(dungeon))
