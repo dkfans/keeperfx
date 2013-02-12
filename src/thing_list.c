@@ -1041,8 +1041,10 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     MapCoord distance;
     TbBool affected;
     affected = false;
-    if (!line_of_sight_3d(pos, &tngdst->mappos))
-    {
+    if (!line_of_sight_3d(pos, &tngdst->mappos)) {
+        max_dist /= 3;
+    }
+    if (tngdst->owner == owner) {
         max_dist /= 3;
     }
     distance = get_2d_box_distance(pos, &tngdst->mappos);
