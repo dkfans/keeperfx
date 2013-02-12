@@ -19,6 +19,7 @@
 #ifndef DK_TNGDOORS_H
 #define DK_TNGDOORS_H
 
+#include "bflib_basics.h"
 #include "globals.h"
 
 #ifdef __cplusplus
@@ -54,6 +55,7 @@ DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 #define door_to_object _DK_door_to_object
 /******************************************************************************/
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
+TbBool thing_is_deployed_door(const struct Thing *thing);
 void lock_door(struct Thing *thing);
 void unlock_door(struct Thing *thing);
 long destroy_door(struct Thing *thing);

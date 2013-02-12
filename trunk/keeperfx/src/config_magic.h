@@ -114,6 +114,7 @@ enum ShotModelFlags {
     /** Set if the shot can be slapped with hand of evil of owning player. */
     ShMF_Slappable  = 0x0001,
     ShMF_Navigable  = 0x0002,
+    ShMF_Boulder    = 0x0004,
 };
 
 enum PowerCanCastFlags {
@@ -152,7 +153,7 @@ enum PowerCanCastFlags {
     /** Allow casting the spell on owned spell books. */
     PwCast_OwnedSpell    = 0x00040000,
     /** Allow casting the spell on owned deployed trap things. */
-    PwCast_OwnedTraps    = 0x01000000,
+    PwCast_OwnedBoulders    = 0x01000000,
     /** Allow casting the spell only after a small delay from previous cast. */
     PwCast_NeedsDelay    = 0x04000000,
     /** Allow casting the spell only on claimable/fortificable slabs (for ground - path or claimed, for tall - earth or fortified). */
@@ -167,7 +168,7 @@ enum PowerCanCastFlags {
     PwCast_Anywhere      = 0x80000000,
 };
 #define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs)
-#define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_OwnedFood|PwCast_OwnedGold|PwCast_OwnedSpell|PwCast_OwnedTraps)
+#define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_OwnedFood|PwCast_OwnedGold|PwCast_OwnedSpell|PwCast_OwnedBoulders)
 #define PwCast_AllGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyGround)
 #define PwCast_NotEnemyGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
 #define PwCast_AllTall (PwCast_NeutrlTall|PwCast_OwnedTall|PwCast_AlliedTall|PwCast_EnemyTall)

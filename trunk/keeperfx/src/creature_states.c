@@ -2221,14 +2221,17 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             y = start_stl / 3 + stl_y;
             if (get_column_height_at(x, y) == 1)
             {
-              if ( !find_base_thing_on_mapwho(TCls_Object, -1, x, y) )
-              {
-                pos->x.val = subtile_coord_center(x);
-                pos->y.val = subtile_coord_center(y);
-                pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
-                if ( !thing_in_wall_at_with_radius(thing, pos, nav_sizexy) )
-                  return 1;
-              }
+                struct Thing *objtng;
+                objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
+                if (thing_is_invalid(objtng))
+                {
+                    pos->x.val = subtile_coord_center(x);
+                    pos->y.val = subtile_coord_center(y);
+                    pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
+                    if ( !thing_in_wall_at_with_radius(thing, pos, nav_sizexy) ) {
+                        return true;
+                    }
+                }
             }
             start_stl = (start_stl + 1) % 9;
         }
@@ -2243,7 +2246,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         }
     }
     ERRORLOG("Could not find valid RANDOM point in room for thing");
-    return 0;
+    return false;
 }
 
 short creature_present_to_dungeon_heart(struct Thing *creatng)

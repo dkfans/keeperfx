@@ -71,6 +71,7 @@ struct Coord3d;
 /******************************************************************************/
 struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner);
 TngUpdateRet update_shot(struct Thing *thing);
+TbBool thing_is_shot(const struct Thing *thing);
 
 long get_damage_of_melee_shot(const struct Thing *shotng, const struct Thing *target);
 long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target);

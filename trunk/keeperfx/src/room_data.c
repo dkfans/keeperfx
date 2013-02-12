@@ -2147,13 +2147,13 @@ long create_workshop_object_in_workshop_room(long plyr_idx, long tng_class, long
     }
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Could not create workshop crate thing");
+        ERRORLOG("Could not create workshop crate thing for %s",thing_class_code_name(tng_class));
         return 0;
     }
     room = find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, RoK_WORKSHOP, 0);
     if (room_is_invalid(room))
     {
-        ERRORLOG("No room for thing");
+        ERRORLOG("No room for crate thing for %s",thing_class_code_name(tng_class));
         delete_thing_structure(thing, 0);
         return 0;
     }
@@ -2373,7 +2373,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         break;
     case RoK_WORKSHOP:
         // Workshop owns trap boxes, machines and anvils
-        if (thing_is_door_or_trap_box(thing) && ((thing->field_1 & TF1_IsDragged1) == 0) )
+        if (thing_is_door_or_trap_box(thing) && !thing_is_dragged_or_pulled(thing))
         {
             oldowner = thing->owner;
             thing->owner = newowner;

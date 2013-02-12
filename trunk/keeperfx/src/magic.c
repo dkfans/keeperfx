@@ -37,6 +37,7 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_shots.h"
+#include "thing_traps.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_states_lair.h"
@@ -131,6 +132,29 @@ TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, struct Thing *thing, Power
         {
             if (thing->owner == plyr_idx) {
                 if (thing_is_spellbook(thing))  {
+                    return true;
+                }
+            }
+        }
+    }
+    if (thing_is_shot(thing))
+    {
+        if ((pwrdata->can_cast_flags & PwCast_OwnedBoulders) != 0)
+        {
+            if (thing->owner == plyr_idx) {
+                if (shot_is_slappable(thing, plyr_idx))  {
+                    return true;
+                }
+            }
+        }
+    }
+    if (thing_is_deployed_trap(thing))
+    {
+        // Allow the boulder trap
+        if ((pwrdata->can_cast_flags & PwCast_OwnedBoulders) != 0)
+        {
+            if (thing->owner == plyr_idx) {
+                if ((thing->model == 1) && trap_is_active(thing)) {
                     return true;
                 }
             }
@@ -1035,7 +1059,8 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
         cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, 0);
         // Fail if the function has failed
         if (!cast_at_xy) {
-            WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),"a subtile");
+            WARNLOG("Player %d tried to cast %s on %s which can't be targeted",
+                (int)plyr_idx,power_code_name(pwmodel),"a subtile");
             ret = Lb_FAIL;
         }
     }

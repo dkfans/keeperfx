@@ -166,7 +166,7 @@ TbBool imp_will_soon_be_arming_trap(struct Thing *traptng)
 
 void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng)
 {
-    if ((dragtng->field_1 & TF1_IsDragged1) || (dragtng->alloc_flags & TAlF_IsDragged))
+    if (thing_is_dragged_or_pulled(dragtng))
     {
         struct Thing *creatng;
         creatng = find_players_creature_dragging_thing(dragtng->owner, dragtng);
@@ -879,22 +879,22 @@ TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon)
       break;
     if ( thing_is_door_or_trap_box(thing) )
     {
-      if ((thing->field_1 & TF1_IsDragged1) == 0)
-      {
-        if ((thing->owner == dungeon->owner) || (thing->owner == game.neutral_player_num))
+        if ((thing->field_1 & TF1_IsDragged1) == 0)
         {
-          slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-          if (slabmap_owner(slb) == dungeon->owner)
-          {
-            room = get_room_thing_is_on(thing);
-            if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
+            if ((thing->owner == dungeon->owner) || (thing->owner == game.neutral_player_num))
             {
-              stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-              add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpTrapForWorkshop, dungeon);
+                slb = get_slabmap_for_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                if (slabmap_owner(slb) == dungeon->owner)
+                {
+                    room = get_room_thing_is_on(thing);
+                    if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
+                    {
+                      stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+                      add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpTrapForWorkshop, dungeon);
+                    }
+                }
             }
-          }
         }
-      }
     }
     // Thing list loop body ends
     k++;
@@ -1025,9 +1025,49 @@ long check_place_to_reinforce(struct Thing *thing, long a2, long a3)
     return _DK_check_place_to_reinforce(thing, a2, a3);
 }
 
-struct Thing *check_place_to_pickup_crate(struct Thing *thing, long stl_x, long stl_y)
+struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long n)
 {
-    return _DK_check_place_to_pickup_crate(thing, stl_x, stl_y);
+    //return _DK_check_place_to_pickup_crate(thing, stl_x, stl_y);
+    struct Map *mapblk;
+    long i;
+    unsigned long k;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(creatng);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if (thing_is_door_or_trap_box(thing))
+        {
+          if ((thing->owner == creatng->owner) || is_neutral_thing(thing))
+          {
+            if ((thing->field_1 & TF1_IsDragged1) == 0) {
+                if (n > 0) {
+                    n--;
+                } else {
+                    return thing;
+                }
+            }
+          }
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
 }
 
 /**
@@ -1488,41 +1528,48 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     return 1;
 }
 
-long check_out_worker_pickup_trapbox(struct Thing *thing, struct DiggerStack *istack)
+long check_out_worker_pickup_trapbox(struct Thing *creatng, struct DiggerStack *istack)
 {
     MapSubtlCoord stl_x,stl_y;
     stl_x = stl_num_decode_x(istack->field_0);
     stl_y = stl_num_decode_y(istack->field_0);
-    struct Thing *sectng;
-    sectng = check_place_to_pickup_crate(thing, stl_x, stl_y);
-    if (thing_is_invalid(sectng))
+    struct Thing *cratng;
+    struct Thing *trdtng;
+    long n;
+    for (n=0; true; n++)
+    {
+        cratng = check_place_to_pickup_crate(creatng, stl_x, stl_y, n);
+        if (thing_is_invalid(cratng)) {
+            trdtng = INVALID_THING;
+            break;
+        }
+        // Allow only trap boxes on that subtile which have a corresponding trap to be armed
+        if (thing_is_trap_box(cratng))
+        {
+            trdtng = check_for_empty_trap_for_imp_not_being_armed(creatng, box_thing_to_door_or_trap(cratng));
+            if (!thing_is_invalid(trdtng)) {
+                break;
+            }
+        }
+    }
+    if (thing_is_invalid(cratng))
     {
         istack->task_id = DigTsk_None;
         return 0;
     }
-    if (!thing_is_trap_box(sectng))
+    if (imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y))
     {
         return 0;
     }
-    struct Thing *trdtng;
-    trdtng = check_for_empty_trap_for_imp_not_being_armed(thing, box_thing_to_door_or_trap(sectng));
-    if (thing_is_invalid(trdtng))
-    {
-        return 0;
-    }
-    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
-    {
-        return 0;
-    }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    if (!setup_person_move_to_position(creatng, stl_x, stl_y, 0))
     {
         istack->task_id = DigTsk_None;
         return -1;
     }
-    thing->continue_state = CrSt_CreaturePicksUpTrapObject;
+    creatng->continue_state = CrSt_CreaturePicksUpTrapObject;
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->pickup_object_id = sectng->index;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->pickup_object_id = cratng->index;
     cctrl->field_70 = trdtng->index;
     return 1;
 }
@@ -1547,7 +1594,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
       return -1;
     }
     struct Thing *sectng;
-    sectng = check_place_to_pickup_crate(thing, stl_x, stl_y);
+    sectng = check_place_to_pickup_crate(thing, stl_x, stl_y, 0);
     if (thing_is_invalid(sectng))
     {
         istack->task_id = DigTsk_None;
