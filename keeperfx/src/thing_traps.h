@@ -83,6 +83,7 @@ struct Thing *get_trap_for_position(long pos_x, long pos_y);
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool trap_is_active(const struct Thing *thing);
 TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
+TbBool thing_is_deployed_trap(const struct Thing *thing);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
 int get_trap_data_index(int wrkshop_class, int wrkshop_kind);

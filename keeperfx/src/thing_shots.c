@@ -59,6 +59,15 @@ DLLIMPORT void _DK_create_relevant_effect_for_shot_hitting_thing(struct Thing *s
 DLLIMPORT long _DK_check_hit_when_attacking_door(struct Thing *shotng);
 DLLIMPORT void _DK_process_dig_shot_hit_wall(struct Thing *shotng, long blocked_flags);
 /******************************************************************************/
+TbBool thing_is_shot(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Shot)
+        return false;
+    return true;
+}
+
 TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct ShotConfigStats *shotst;

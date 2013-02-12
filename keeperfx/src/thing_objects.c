@@ -923,7 +923,7 @@ TngUpdateRet update_object(struct Thing *thing)
       {
         thing->movement_flags |= TMvF_IsOnLava;
         objdat = get_objects_data_for_thing(thing);
-        if ( (objdat->field_12) && ((thing->field_1 & TF1_IsDragged1) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
+        if ( (objdat->field_12) && !thing_is_dragged_or_pulled(thing) )
         {
             destroy_object(thing);
             return TUFRet_Deleted;

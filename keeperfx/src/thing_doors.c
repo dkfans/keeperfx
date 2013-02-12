@@ -115,6 +115,15 @@ long destroy_door(struct Thing *thing)
   return _DK_destroy_door(thing);
 }
 
+TbBool thing_is_deployed_door(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Door)
+        return false;
+    return true;
+}
+
 TbBool door_can_stand(struct Thing *thing)
 {
     struct SlabMap *slb;
