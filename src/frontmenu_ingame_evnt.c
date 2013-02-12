@@ -21,13 +21,19 @@
 #include "bflib_basics.h"
 
 #include "bflib_guibtns.h"
+#include "bflib_vidraw.h"
+
 #include "player_data.h"
+#include "player_states.h"
 #include "dungeon_data.h"
+#include "creature_battle.h"
+#include "magic.h"
 #include "gui_draw.h"
 #include "gui_frontbtns.h"
 #include "gui_frontmenu.h"
 #include "packets.h"
 #include "frontend.h"
+#include "vidfade.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -44,6 +50,7 @@ DLLIMPORT void _DK_gui_setup_friend_over(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_friendly_battlers(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_setup_enemy_over(struct GuiButton *gbtn);
 DLLIMPORT void _DK_gui_area_enemy_battlers(struct GuiButton *gbtn);
+DLLIMPORT void _DK_draw_battle_head(struct Thing *thing, long a2, long a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -51,29 +58,29 @@ DLLIMPORT void _DK_gui_area_enemy_battlers(struct GuiButton *gbtn);
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(my_player_number);
-  unsigned int idx;
-  unsigned int evnt_idx;
-  SYNCDBG(5,"Starting");
-  idx = (unsigned long)gbtn->content;
-  if (idx < 121) //size of the field_13A7 array (I can't be completely sure of it)
-    evnt_idx = dungeon->field_13A7[idx];
-  else
-    evnt_idx = 0;
-  if (evnt_idx == dungeon->visible_event_idx)
-  {
-    gui_close_objective(gbtn);
-  } else
-  if (evnt_idx != 0)
-  {
-    activate_event_box(evnt_idx);
-  }
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    unsigned int idx;
+    unsigned int evnt_idx;
+    SYNCDBG(5,"Starting");
+    idx = (unsigned long)gbtn->content;
+    if (idx < 121) //size of the field_13A7 array (I can't be completely sure of it)
+      evnt_idx = dungeon->field_13A7[idx];
+    else
+      evnt_idx = 0;
+    if (evnt_idx == dungeon->visible_event_idx)
+    {
+      gui_close_objective(gbtn);
+    } else
+    if (evnt_idx != 0)
+    {
+      activate_event_box(evnt_idx);
+    }
 }
 
 void gui_kill_event(struct GuiButton *gbtn)
 {
-  _DK_gui_kill_event(gbtn);
+    _DK_gui_kill_event(gbtn);
 }
 
 void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
@@ -108,7 +115,41 @@ void gui_next_battle(struct GuiButton *gbtn)
 
 void gui_get_creature_in_battle(struct GuiButton *gbtn)
 {
-  _DK_gui_get_creature_in_battle(gbtn);
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    if (battle_creature_over <= 0) {
+        return;
+    }
+    //_DK_gui_get_creature_in_battle(gbtn);
+    PowerKind pwmodel;
+    pwmodel = 0;
+    if (myplyr->work_state < PLAYER_STATES_COUNT)
+        pwmodel = player_state_to_spell[myplyr->work_state];
+    struct Thing *thing;
+    thing = thing_get(battle_creature_over);
+    if (!thing_exists(thing)) {
+        WARNLOG("Nonexisting thing in battle");
+        battle_creature_over = 0;
+        return;
+    }
+    TRACE_THING(thing);
+    // If a spell is selected, try to cast it
+    if (pwmodel > 0)
+    {
+        if (can_cast_spell(my_player_number, pwmodel, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing)) {
+            struct Packet *pckt;
+            pckt = get_packet(my_player_number);
+            set_packet_action(pckt, 117, pwmodel, battle_creature_over, 0, 0);
+        }
+    } else
+    {
+        if (can_cast_spell(my_player_number, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing)) {
+            struct Packet *pckt;
+            pckt = get_packet(my_player_number);
+            set_packet_action(pckt, 90, battle_creature_over, 0, 0, 0);
+        }
+    }
+    battle_creature_over = 0;
 }
 
 void gui_go_to_person_in_battle(struct GuiButton *gbtn)
@@ -121,9 +162,57 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
   _DK_gui_setup_friend_over(gbtn);
 }
 
+void draw_battle_head(struct Thing *thing, long a2, long a3)
+{
+    _DK_draw_battle_head(thing, a2, a3); return;
+}
+
 void gui_area_friendly_battlers(struct GuiButton *gbtn)
 {
-  _DK_gui_area_friendly_battlers(gbtn);
+    //_DK_gui_area_friendly_battlers(gbtn);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    BattleIndex battle_id;
+    battle_id = dungeon->visible_battles[gbtn->field_1B];
+    struct CreatureBattle *battle;
+    battle = creature_battle_get(battle_id);
+    if (creature_battle_invalid(battle)) {
+        return;
+    }
+    if (battle->fighters_num <= 0) {
+        return;
+    }
+    int scr_pos_x, wdelta;
+    wdelta = gbtn->width / 7;
+    scr_pos_x = gbtn->scr_pos_x - wdelta + gbtn->width;
+    lbDisplay.DrawFlags |= 0x0004;
+    LbDrawBox(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+        gbtn->width/pixel_size, gbtn->height/pixel_size, colours[0][0][0]);
+    lbDisplay.DrawFlags &= ~0x0004;
+    int i,n;
+    for (n=0; n < 7; n++)
+    {
+        struct Thing *thing;
+        i = friendly_battler_list[n + MESSAGE_BATTLERS_COUNT*gbtn->field_1B];
+        thing = thing_get(i);
+        if (thing_is_creature(thing))
+        {
+            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y);
+            if (thing->index == battle_creature_over)
+            {
+              if (game.play_gameturn & 2)
+              {
+                  TbPixel col;
+                  col = player_flash_colours[game.play_gameturn & 3];
+                  lbDisplay.DrawFlags |= (0x0010|0x0004);
+                  LbDrawBox(scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+                    wdelta/pixel_size, gbtn->height/pixel_size, col);
+                  lbDisplay.DrawFlags &= ~(0x0010|0x0004);
+              }
+            }
+            scr_pos_x -= wdelta;
+        }
+    }
 }
 
 void gui_setup_enemy_over(struct GuiButton *gbtn)

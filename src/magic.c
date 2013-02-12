@@ -92,6 +92,44 @@ DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long splevel);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwmodel);
 /******************************************************************************/
+TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, const char *func_name)
+{
+    if (!is_power_available(plyr_idx, pwmodel)) {
+        return false;
+    }
+    TbBool cast_at_xy,cast_on_tng;
+    cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, 0);
+    struct SpellData *pwrdata;
+    pwrdata = get_power_data(pwmodel);
+    cast_on_tng = true;
+    if ((pwrdata->can_cast_flags & PwCast_AllThings) != 0)
+    {
+        if (thing_exists(thing)) {
+            cast_on_tng = can_cast_spell_on_thing(plyr_idx, thing, pwmodel);
+        } else {
+            cast_on_tng = false;
+        }
+    }
+    if ((pwrdata->can_cast_flags & PwCast_ThingOrMap) != 0)
+    {
+        // Fail only if both functions have failed - one is enough
+        if (!cast_at_xy && !cast_on_tng) {
+            WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
+                power_code_name(pwmodel), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+            return false;
+        }
+    } else
+    {
+        // Fail if any of the functions has failed - we need both
+        if (!cast_at_xy || !cast_on_tng) {
+            WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
+                power_code_name(pwmodel), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+            return false;
+        }
+    }
+    return true;
+}
+
 /**
  * Returns if a spell can be casted on specific thing.
  * Originally was can_cast_spell_on_creature().
@@ -100,8 +138,9 @@ DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing
  * @param pwmodel
  * @return
  */
-TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, struct Thing *thing, PowerKind pwmodel)
+TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel)
 {
+    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     //return _DK_can_cast_spell_on_creature(plyr_idx, thing, pwmodel);
     // Picked up things are immune to spells
     if (thing_is_picked_up(thing))
@@ -948,27 +987,8 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
     }
     if (ret == Lb_OK)
     {
-        TbBool cast_at_xy,cast_on_tng;
-        cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, 0);
-        cast_on_tng = can_cast_spell_on_thing(plyr_idx, thing, pwmodel);
-        struct SpellData *pwrdata;
-        pwrdata = get_power_data(pwmodel);
-        if ((pwrdata->can_cast_flags & PwCast_ThingOrMap) != 0)
-        {
-            // Fail only if both functions have failed - one is enough
-            if (!cast_at_xy && !cast_on_tng) {
-                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),
-                    (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
-                ret = Lb_FAIL;
-            }
-        } else
-        {
-            // Fail if any of the functions has failed - we need both
-            if (!cast_at_xy || !cast_on_tng) {
-                WARNLOG("Player %d tried to cast %s on %s which can't be targeted",(int)plyr_idx,power_code_name(pwmodel),
-                    (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
-                ret = Lb_FAIL;
-            }
+        if (!can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing)) {
+            ret = Lb_FAIL;
         }
     }
     if (ret == Lb_OK)

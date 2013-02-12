@@ -45,11 +45,6 @@ DLLIMPORT long _DK_battle_move_player_towards_battle(struct PlayerInfo *player, 
 DLLIMPORT void _DK_maintain_my_battle_list(void);
 DLLIMPORT void _DK_battle_initialise(void);
 /******************************************************************************/
-DLLIMPORT extern unsigned short _DK_friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
-#define friendly_battler_list _DK_friendly_battler_list
-DLLIMPORT extern unsigned short _DK_enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
-#define enemy_battler_list _DK_enemy_battler_list
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

@@ -35,9 +35,13 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
-void slap_creature(struct PlayerInfo *player, struct Thing *thing);
-TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind spl_idx,
+TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, const char *func_name);
+#define can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing) can_cast_spell_f(plyr_idx, pwmodel, stl_x, stl_y, thing, __func__)
+TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
+TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel);
+
+void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind spkind, long splevel);
 long thing_affected_by_spell(struct Thing *thing, long spkind);
@@ -71,7 +75,6 @@ void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, Thin
 
 int get_power_overcharge_level(struct PlayerInfo *player);
 TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx);
-TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, struct Thing *thing, PowerKind spl_id);
 /******************************************************************************/
 #ifdef __cplusplus
 }

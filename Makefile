@@ -215,6 +215,7 @@ obj/player_comptask.o \
 obj/player_computer.o \
 obj/player_data.o \
 obj/player_instances.o \
+obj/player_states.o \
 obj/player_utils.o \
 obj/power_hand.o \
 obj/power_process.o \

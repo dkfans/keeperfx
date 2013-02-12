@@ -939,6 +939,7 @@
  0001:000A0AE0       choose_armageddon
  0001:000A0B20       turn_off_query
  0001:000A0E70       gui_toggle_ally
+ 0001:000A0ED0       draw_battle_head
  0001:000A11F0       fake_button_click
  0001:000A1300       level_lost_go_first_person
  0001:000A14F0       draw_load_button
