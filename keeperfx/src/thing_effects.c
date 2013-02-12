@@ -1134,14 +1134,17 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     affected = false;
     if ( line_of_sight_3d(pos, &tngdst->mappos) )
     {
+        if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
+            max_dist /= 3;
+        }
         distance = get_2d_distance(pos, &tngdst->mappos);
-        if ( distance < max_dist )
+        if (distance < max_dist)
         {
             long move_dist,move_angle;
-            HitPoints damage;
             move_angle = get_angle_xy_to(pos, &tngdst->mappos);
             if (tngdst->class_id == TCls_Creature)
             {
+                HitPoints damage;
                 damage = get_radially_decaying_value(max_damage,max_dist/4,3*max_dist/4,distance)+1;
                 apply_damage_to_thing_and_display_health(tngdst, damage, owner);
                 affected = true;
@@ -1149,7 +1152,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             // If the thing isn't dying, move it
             if ((tngdst->class_id != TCls_Creature) || (tngdst->health >= 0))
             {
-                move_dist = ((max_dist - distance) * blow_strength) / max_dist;
+                move_dist = get_radially_decaying_value(blow_strength,max_dist/4,3*max_dist/4,distance);
                 if (move_dist > 0)
                 {
                     tngdst->acceleration.x.val += distance_with_angle_to_coord_x(move_dist, move_angle);
