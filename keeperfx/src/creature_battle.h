@@ -45,6 +45,12 @@ struct CreatureBattle { // sizeof = 17
 #pragma pack()
 /******************************************************************************/
 #define INVALID_CRTR_BATTLE (&game.battles[0])
+/******************************************************************************/
+DLLIMPORT extern unsigned short _DK_friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
+#define friendly_battler_list _DK_friendly_battler_list
+DLLIMPORT extern unsigned short _DK_enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
+#define enemy_battler_list _DK_enemy_battler_list
+/******************************************************************************/
 
 struct CreatureBattle *creature_battle_get(BattleIndex battle_idx);
 struct CreatureBattle *creature_battle_get_from_thing(const struct Thing *thing);

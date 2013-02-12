@@ -59,6 +59,7 @@
 #include "thing_list.h"
 #include "player_instances.h"
 #include "player_utils.h"
+#include "player_states.h"
 #include "game_heap.h"
 #include "game_saves.h"
 #include "engine_render.h"
@@ -125,11 +126,6 @@ short default_loc_player = 0;
 struct StartupParameters start_params;
 
 //long const imp_spangle_effects[] = {
-
-unsigned short const player_state_to_spell[] = {
-  0, 0, 0,  0,  0,  0, 6, 7, 5, 0, 18, 18, 0, 0, 0, 0,
-  0,10, 0, 11, 12, 13, 8, 0, 2,16, 14, 15, 0, 3, 0, 0,
-};
 
 //static
 TbClockMSec last_loop_time=0;
@@ -2757,14 +2753,14 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     struct MagicStats *magstat;
     Expand_Check_Func chkfunc;
     TbBool allow_cast;
-    long spl_id;
+    long pwmodel;
     long i;
     //_DK_draw_spell_cursor(wrkstate, tng_idx, stl_x, stl_y); return;
-    spl_id = -1;
+    pwmodel = -1;
     if (wrkstate < PLAYER_STATES_COUNT)
-      spl_id = player_state_to_spell[wrkstate];
-    SYNCDBG(5,"Starting for spell %d",(int)spl_id);
-    if (spl_id <= 0)
+      pwmodel = player_state_to_spell[wrkstate];
+    SYNCDBG(5,"Starting for spell %d",(int)pwmodel);
+    if (pwmodel <= 0)
     {
         set_pointer_graphic(0);
         return;
@@ -2772,14 +2768,8 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     player = get_my_player();
     thing = thing_get(tng_idx);
     allow_cast = false;
-    pwrdata = get_power_data(spl_id);
-    if (can_cast_spell_at_xy(player->id_number, spl_id, stl_x, stl_y, 0))
-    {
-        if ((tng_idx == 0) || can_cast_spell_on_thing(player->id_number, thing, spl_id))
-        {
-          allow_cast = true;
-        }
-    }
+    pwrdata = get_power_data(pwmodel);
+    allow_cast = can_cast_spell(player->id_number, pwmodel, stl_x, stl_y, thing);
     if (!allow_cast)
     {
       set_pointer_graphic(15);
@@ -2792,7 +2782,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
       {
         i = get_power_overcharge_level(player);
         set_pointer_graphic(16+i);
-        magstat = &game.magic_stats[spl_id];
+        magstat = &game.magic_stats[pwmodel];
         draw_spell_cost = magstat->cost[i];
         return;
       }

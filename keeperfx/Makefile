@@ -113,6 +113,7 @@ obj/lvl_script.o \
 obj/dungeon_data.o \
 obj/player_data.o \
 obj/player_utils.o \
+obj/player_states.o \
 obj/dungeon_stats.o \
 obj/player_instances.o \
 obj/player_comptask.o \

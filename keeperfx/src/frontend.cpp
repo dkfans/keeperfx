@@ -72,6 +72,7 @@
 #include "magic.h"
 #include "player_instances.h"
 #include "player_utils.h"
+#include "player_states.h"
 #include "gui_frontmenu.h"
 #include "gui_frontbtns.h"
 #include "gui_soundmsgs.h"
