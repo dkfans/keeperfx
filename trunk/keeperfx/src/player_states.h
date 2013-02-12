@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file frontmenu_ingame_evnt.h
- *     Header file for frontmenu_ingame_evnt.c.
+/** @file player_states.h
+ *     Header file for player_states.c.
  * @par Purpose:
- *     In-game events GUI, visible during gameplay at bottom.
+ *     Player states definitions and functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   KeeperFX Team
- * @date     05 Jan 2009 - 03 Jan 2011
+ * @author   Tomasz Lis
+ * @date     19 Nov 2012 - 02 Feb 2013
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,38 +16,27 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_FRONTMENU_INGAMEVNT_H
-#define DK_FRONTMENU_INGAMEVNT_H
+#ifndef DK_PLYR_STATES_H
+#define DK_PLYR_STATES_H
 
+#include "bflib_basics.h"
 #include "globals.h"
-
-#include "bflib_guibtns.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+#define PLAYER_STATES_COUNT    32
+/******************************************************************************/
 #pragma pack(1)
 
-struct GuiMenu;
-struct GuiButton;
+struct PlayerInfo;
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_text_info_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_battle_buttons[];
-DLLIMPORT extern unsigned short _DK_battle_creature_over;
-#define battle_creature_over _DK_battle_creature_over
+extern unsigned short const player_state_to_spell[];
 /******************************************************************************/
-extern struct GuiMenu text_info_menu;
-extern struct GuiMenu battle_menu;
-/******************************************************************************/
-void gui_open_event(struct GuiButton *gbtn);
-void gui_kill_event(struct GuiButton *gbtn);
-void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx);
-void activate_event_box(long evnt_idx);
 
-short zoom_to_fight(unsigned char a1);
 /******************************************************************************/
 #ifdef __cplusplus
 }

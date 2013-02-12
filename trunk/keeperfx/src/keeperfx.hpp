@@ -61,7 +61,6 @@ extern "C" {
 #define SPELL_POINTER_GROUPS   14
 // Amount of instances; it's 17, 18 or 19
 #define PLAYER_INSTANCES_COUNT 19
-#define PLAYER_STATES_COUNT    32
 #define ZOOM_KEY_ROOMS_COUNT   14
 #define BLOOD_TYPES_COUNT       7
 
@@ -134,7 +133,6 @@ extern short default_loc_player;
 extern struct GuiBox *gui_box;
 extern struct GuiBox *gui_cheat_box;
 extern int test_variable;
-extern unsigned short const player_state_to_spell[];
 extern struct RoomInfo room_info[];
 extern struct StartupParameters start_params;
 
@@ -183,8 +181,6 @@ DLLIMPORT extern struct TbSetupSprite _DK_frontstory_setup_sprites[2];
 #define frontstory_setup_sprites _DK_frontstory_setup_sprites
 DLLIMPORT extern unsigned long _DK_time_last_played_demo;
 #define time_last_played_demo _DK_time_last_played_demo
-DLLIMPORT extern unsigned short _DK_battle_creature_over;
-#define battle_creature_over _DK_battle_creature_over
 DLLIMPORT extern char _DK_gui_room_type_highlighted;
 #define gui_room_type_highlighted _DK_gui_room_type_highlighted
 DLLIMPORT extern char _DK_gui_door_type_highlighted;

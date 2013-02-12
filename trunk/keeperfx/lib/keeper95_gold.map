@@ -933,6 +933,7 @@
  0001:000A0AE0       choose_armageddon
  0001:000A0E70       gui_toggle_ally
  0001:000A1300       level_lost_go_first_person
+ 0001:000A0ED0       draw_battle_head
  0001:000A14F0       draw_load_button
  0001:00094DF0       gui_area_null
  0001:00094E60       gui_area_normal_button
