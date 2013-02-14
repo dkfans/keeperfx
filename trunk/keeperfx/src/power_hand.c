@@ -84,7 +84,46 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
 
 unsigned long object_is_pickable_by_hand(const struct Thing *thing, long plyr_idx)
 {
-    return _DK_object_is_pickable_by_hand(thing, plyr_idx);
+    struct SlabMap *slb;
+    struct Room *room;
+    //return _DK_object_is_pickable_by_hand(thing, plyr_idx);
+    switch (thing->model)
+    {
+      case 3:
+      case 6:
+      case 43:
+          slb = get_slabmap_thing_is_on(thing);
+          if ((slabmap_owner(slb) != plyr_idx) && (slabmap_owner(slb) != game.neutral_player_num))
+            goto LABEL_11;
+          return true;
+      case 10:
+          return (thing->owner == plyr_idx);
+      case 86:
+      case 87:
+      case 88:
+      case 89:
+      case 90:
+      case 91:
+      case 92:
+      case 93:
+          slb = get_slabmap_thing_is_on(thing);
+        if ((slabmap_owner(slb) != plyr_idx) || ((thing->field_1 & 1)) || ((thing->alloc_flags & 0x80)))
+            return false;
+        return true;
+      case 52:
+      case 53:
+      case 54:
+      case 55:
+      case 56:
+  LABEL_11:
+        slb = get_slabmap_thing_is_on(thing);
+        if ((slabmap_owner(slb) == plyr_idx) && (thing->owner == plyr_idx)) {
+            room = get_room_thing_is_on(thing);
+            return (room != 0) && room->kind == 2;
+        }
+        break;
+    }
+    return false;
 }
 
 TbBool thing_is_picked_up(const struct Thing *thing)

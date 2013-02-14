@@ -2769,23 +2769,23 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     thing = thing_get(tng_idx);
     allow_cast = false;
     pwrdata = get_power_data(pwmodel);
-    allow_cast = can_cast_spell(player->id_number, pwmodel, stl_x, stl_y, thing);
+    allow_cast = can_cast_spell(player->id_number, pwmodel, stl_x, stl_y, thing, CastChk_Default);
     if (!allow_cast)
     {
-      set_pointer_graphic(15);
-      return;
+        set_pointer_graphic(15);
+        return;
     }
-    chkfunc = pwrdata->field_15;
+    chkfunc = pwrdata->overcharge_check;
     if (chkfunc != NULL)
     {
-      if (chkfunc())
-      {
-        i = get_power_overcharge_level(player);
-        set_pointer_graphic(16+i);
-        magstat = &game.magic_stats[pwmodel];
-        draw_spell_cost = magstat->cost[i];
-        return;
-      }
+        if (chkfunc())
+        {
+            i = get_power_overcharge_level(player);
+            set_pointer_graphic(16+i);
+            magstat = &game.magic_stats[pwmodel];
+            draw_spell_cost = magstat->cost[i];
+            return;
+        }
     }
     i = pwrdata->field_13;
     set_pointer_graphic_spell(i, game.play_gameturn);
