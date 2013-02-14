@@ -215,6 +215,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
                 break;
             }
             if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd))
+            //accept invalid saves -- if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len)
                 chunks_done |= SGF_GameAdd;
             break;
         case SGC_GameOrig:

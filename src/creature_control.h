@@ -181,6 +181,8 @@ unsigned char field_67;
     /** Lair object thing index. */
     unsigned short lairtng_idx;
     short field_6C;
+    /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
+     *  Specific case is determined by flags. */
     short dragtng_idx;
     unsigned short field_70;
     unsigned short pickup_object_id;

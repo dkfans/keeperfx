@@ -127,33 +127,39 @@ enum PowerCanCastFlags {
     PwCast_AlliedCrtrs   = 0x00000004,
     /** Allow casting the spell on creatures of enemy players. */
     PwCast_EnemyCrtrs    = 0x00000008,
+    /** Allow casting the spell on creatures which are unconscious or dying. */
+    PwCast_NConscCrtrs   = 0x00000010,
+    /** Allow casting the spell on creatures which are bound by state (dragged, being sacrificed, teleported etc.). */
+    PwCast_BoundCrtrs    = 0x00000020,
 
     /** Allow casting the spell on neutral walkable tiles - path, water, lava, rooms owned by neutrals. */
-    PwCast_NeutrlGround  = 0x00000010,
+    PwCast_NeutrlGround  = 0x00000100,
     /** Allow casting the spell on owned ground - rooms floor and claimed ground. */
-    PwCast_OwnedGround   = 0x00000020,
+    PwCast_OwnedGround   = 0x00000200,
     /** Allow casting the spell on allied players ground - rooms floor and claimed ground. */
-    PwCast_AlliedGround  = 0x00000040,
+    PwCast_AlliedGround  = 0x00000400,
     /** Allow casting the spell on enemy players ground - rooms floor and claimed ground. */
-    PwCast_EnemyGround   = 0x00000080,
+    PwCast_EnemyGround   = 0x00000800,
 
     /** Allow casting the spell on neutral tall slabs - earth, wall, gold. */
-    PwCast_NeutrlTall    = 0x00000100,
+    PwCast_NeutrlTall    = 0x00001000,
     /** Allow casting the spell on owned tall slabs - own fortified wall. */
-    PwCast_OwnedTall     = 0x00000200,
+    PwCast_OwnedTall     = 0x00002000,
     /** Allow casting the spell on tall slabs owned by allies - their fortified walls. */
-    PwCast_AlliedTall    = 0x00000400,
+    PwCast_AlliedTall    = 0x00004000,
     /** Allow casting the spell on tall slabs owned by enemies - their fortified walls. */
-    PwCast_EnemyTall     = 0x00000800,
+    PwCast_EnemyTall     = 0x00008000,
 
     /** Allow casting the spell on owned food things (chickens). */
     PwCast_OwnedFood     = 0x00010000,
-    /** Allow casting the spell on owned and neutral gold things (piles,pots etc.). */
+    /** Allow casting the spell on owned gold things (piles,pots etc.). */
     PwCast_OwnedGold     = 0x00020000,
+    /** Allow casting the spell on neutral gold things. */
+    PwCast_NeutrlGold    = 0x00040000,
     /** Allow casting the spell on owned spell books. */
-    PwCast_OwnedSpell    = 0x00040000,
+    PwCast_OwnedSpell    = 0x00080000,
     /** Allow casting the spell on owned deployed trap things. */
-    PwCast_OwnedBoulders    = 0x01000000,
+    PwCast_OwnedBoulders = 0x01000000,
     /** Allow casting the spell only after a small delay from previous cast. */
     PwCast_NeedsDelay    = 0x04000000,
     /** Allow casting the spell only on claimable/fortificable slabs (for ground - path or claimed, for tall - earth or fortified). */
@@ -167,7 +173,7 @@ enum PowerCanCastFlags {
     /** There are no map-related conditions - allow casting the spell anywhere on revealed map. */
     PwCast_Anywhere      = 0x80000000,
 };
-#define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs)
+#define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_NConscCrtrs|PwCast_BoundCrtrs)
 #define PwCast_AllThings (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_OwnedFood|PwCast_OwnedGold|PwCast_OwnedSpell|PwCast_OwnedBoulders)
 #define PwCast_AllGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround|PwCast_EnemyGround)
 #define PwCast_NotEnemyGround (PwCast_NeutrlGround|PwCast_OwnedGround|PwCast_AlliedGround)
@@ -313,7 +319,7 @@ struct SpellData {
       unsigned short tooltip_stridx;
       short field_11;
       short field_13;
-      Expand_Check_Func field_15;
+      Expand_Check_Func overcharge_check;
       unsigned long can_cast_flags;
 };
 

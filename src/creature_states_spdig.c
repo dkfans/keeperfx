@@ -961,6 +961,21 @@ TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing)
     return false;
 }
 
+/**
+ * Returns if a creature is either being dragged or is dragging something.
+ * @param thing The creature to be checked.
+ * @return True if the creature has something to do with dragging, false otherwise.
+ * @see thing_is_dragged_or_pulled() Checks any thing if it's being dragged.
+ */
+TbBool creature_is_dragging_or_being_dragged(const struct Thing *thing)
+{
+    const struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+        return false;
+    return (cctrl->dragtng_idx != 0);
+}
+
 short creature_pick_up_unconscious_body(struct Thing *thing)
 {
     struct Room *ownroom;

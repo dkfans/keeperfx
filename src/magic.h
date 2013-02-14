@@ -33,10 +33,15 @@ extern "C" {
 struct PlayerInfo;
 struct Thing;
 
+enum CastCheckFlags {
+    CastChk_Default = 0, /*< Default all flags. */
+    CastChk_Final = 0x0001, /*< Final check - should be only a formality, as there were checks before. */
+};
+
 #pragma pack()
 /******************************************************************************/
-TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, const char *func_name);
-#define can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing) can_cast_spell_f(plyr_idx, pwmodel, stl_x, stl_y, thing, __func__)
+TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name);
+#define can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing, flags) can_cast_spell_f(plyr_idx, pwmodel, stl_x, stl_y, thing, flags, __func__)
 TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
 TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel);

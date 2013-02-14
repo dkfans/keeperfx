@@ -57,6 +57,8 @@ short creature_drops_crate_in_workshop(struct Thing *thing);
 short creature_drops_spell_object_in_library(struct Thing *thing);
 short creature_arms_trap(struct Thing *thing);
 long check_out_available_spdigger_drop_tasks(struct Thing *digger);
+
+TbBool creature_is_dragging_or_being_dragged(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

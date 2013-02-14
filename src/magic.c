@@ -92,7 +92,7 @@ DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long splevel);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwmodel);
 /******************************************************************************/
-TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, const char *func_name)
+TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
     if (!is_power_available(plyr_idx, pwmodel)) {
         return false;
@@ -114,16 +114,20 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
     {
         // Fail only if both functions have failed - one is enough
         if (!cast_at_xy && !cast_on_tng) {
-            WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                power_code_name(pwmodel), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+            if ((flags & CastChk_Final) != 0) {
+                WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
+                    power_code_name(pwmodel), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+            }
             return false;
         }
     } else
     {
         // Fail if any of the functions has failed - we need both
         if (!cast_at_xy || !cast_on_tng) {
-            WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                power_code_name(pwmodel), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+            if ((flags & CastChk_Final) != 0) {
+                WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
+                    power_code_name(pwmodel), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+            }
             return false;
         }
     }
@@ -163,7 +167,15 @@ TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         {
             if (thing->owner == plyr_idx) {
                 if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
-                return true;
+                    return true;
+                }
+            }
+        }
+        if ((pwrdata->can_cast_flags & PwCast_NeutrlGold) != 0)
+        {
+            if (is_neutral_thing(thing)) {
+                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
+                    return true;
                 }
             }
         }
@@ -205,25 +217,39 @@ TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         {
             return true;
         }
+        if ((pwrdata->can_cast_flags & PwCast_NConscCrtrs) == 0)
+        {
+            if ((thing->active_state == CrSt_CreatureUnconscious) || (thing->health <= 0))
+                return false;
+        }
+        if ((pwrdata->can_cast_flags & PwCast_BoundCrtrs) == 0)
+        {
+            if (armageddon_blocks_creature_pickup(thing, plyr_idx))
+                return false;
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            if (cctrl->dragtng_idx != 0)
+                return false;
+            if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
+                return false;
+            if (creature_affected_by_spell(thing, SplK_Teleport))
+                return false;
+        }
+        if ((pwrdata->can_cast_flags & PwCast_CustodyCrtrs) == 0)
+        {
+            if (creature_is_kept_in_custody_by_enemy(thing)) {
+                return false;
+            }
+        }
         if ((pwrdata->can_cast_flags & PwCast_OwnedCrtrs) != 0)
         {
             if (thing->owner == plyr_idx) {
-                if (!creature_is_kept_in_custody_by_enemy(thing)) {
-                    return true;
-                }
+                return true;
             }
         }
         if ((pwrdata->can_cast_flags & PwCast_AlliedCrtrs) != 0)
         {
             if (players_are_mutual_allies(plyr_idx, thing->owner)) {
-                if (!creature_is_kept_in_custody_by_enemy(thing)) {
-                    return true;
-                }
-            }
-        }
-        if ((pwrdata->can_cast_flags & PwCast_CustodyCrtrs) != 0)
-        {
-            if (creature_is_kept_in_custody_by_enemy(thing)) {
                 return true;
             }
         }
@@ -987,7 +1013,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
     }
     if (ret == Lb_OK)
     {
-        if (!can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing)) {
+        if (!can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing, CastChk_Final)) {
             ret = Lb_FAIL;
         }
     }
