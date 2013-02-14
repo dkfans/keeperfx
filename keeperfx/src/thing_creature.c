@@ -488,7 +488,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Disease) != 0);
     case SplK_Chicken:
         return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
-    // Handle spells with no continous effect
+    // Handle spells with no continuous effect
     case SplK_Lightning:
     case SplK_Heal:
     case SplK_Missile:
