@@ -416,247 +416,259 @@ void redraw_frontview(void)
     gui_draw_all_boxes();
 }
 
-void process_pointer_graphic(void)
+int get_place_room_pointer_graphics(RoomKind rkind)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  long i;
-  //_DK_process_pointer_graphic(); return;
-  player = get_my_player();
-  dungeon = get_dungeon(player->id_number);
-  if (dungeon_invalid(dungeon))
-  {
-      set_pointer_graphic(0);
-      return;
-  }
-  SYNCDBG(6,"Starting for view %d, player state %d, instance %d",(int)player->view_type,(int)player->work_state,(int)player->instance_num);
-  switch (player->view_type)
-  {
+    switch (rkind)
+    {
+    case 2:
+        return 25;
+    case 3:
+        return 27;
+    case 4:
+        return 29;
+    case 5:
+        return 28;
+    case 6:
+        return 30;
+    case 8:
+        return 34;
+    case 9:
+        return 35;
+    case 10:
+        return 33;
+    case 11:
+        return 32;
+    case 12:
+        return 31;
+    case 13:
+        return 26;
+    case 14:
+        return 36;
+    case 15:
+        return 37;
+    case 16:
+        return 38;
+    }
+    return 0;
+}
 
-  case 1:
-      if (player->instance_num == PI_MapFadeFrom)
-      {
+int get_place_trap_pointer_graphics(ThingModel trmodel)
+{
+    switch (trmodel)
+    {
+    case 1:
+        return 5;
+    case 2:
+        return 9;
+    case 3:
+        return 7;
+    case 4:
+        return 8;
+    case 5:
+        return 6;
+    case 6:
+        return 10;
+    }
+    return 0;
+}
+
+int get_place_door_pointer_graphics(ThingModel drmodel)
+{
+    switch (drmodel)
+    {
+    case 1:
+        return 11;
+    case 2:
+        return 12;
+    case 3:
+        return 13;
+    case 4:
+        return 14;
+    }
+    return 0;
+}
+
+void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
+{
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    long i;
+    dungeon = get_dungeon(player->id_number);
+    if (dungeon_invalid(dungeon))
+    {
         set_pointer_graphic(0);
-      } else
-      if (((game.numfield_C & 0x20) != 0) && mouse_is_over_small_map(player->mouse_x, player->mouse_y))
-      {
-          if (game.small_map_state == 2)
+        return;
+    }
+    // During fade
+    if (player->instance_num == PI_MapFadeFrom)
+    {
+        set_pointer_graphic(0);
+        return;
+    }
+    // Mouse over panel map
+    if (((game.numfield_C & 0x20) != 0) && mouse_is_over_small_map(player->mouse_x, player->mouse_y))
+    {
+        if (game.small_map_state == 2) {
             set_pointer_graphic(0);
-          else
+        } else {
             set_pointer_graphic(1);
-      } else
-      if (battle_creature_over > 0)
-      {
-          PowerKind spl_id;
-          spl_id = 0;
-          if (player->work_state < PLAYER_STATES_COUNT)
-              spl_id = player_state_to_spell[player->work_state];
-          thing = thing_get(battle_creature_over);
-          TRACE_THING(thing);
-          if (can_cast_spell_on_thing(player->id_number, thing, spl_id))
-          {
-              draw_spell_cursor(player->work_state, battle_creature_over,
-                  thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-          } else
-          {
-              set_pointer_graphic(1);
-          }
-      } else
-      if (game_is_busy_doing_gui())
-      {
+        }
+        return;
+    }
+    // Mouse over battle message box
+    if (battle_creature_over > 0)
+    {
+        PowerKind pwkind;
+        pwkind = 0;
+        if (player->work_state < PLAYER_STATES_COUNT)
+            pwkind = player_state_to_spell[player->work_state];
+        thing = thing_get(battle_creature_over);
+        TRACE_THING(thing);
+        if (can_cast_spell_on_thing(player->id_number, thing, pwkind))
+        {
+            draw_spell_cursor(player->work_state, battle_creature_over,
+                thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        } else
+        {
+            set_pointer_graphic(1);
+        }
+        return;
+    }
+    // GUI action being processed
+    if (game_is_busy_doing_gui())
+    {
         set_pointer_graphic(1);
-      } else
-      switch (player->work_state)
-      {
-      case PSt_CtrlDungeon:
-          if (player->field_455)
-            i = player->field_455;
-          else
-            i = player->field_454;
-          switch (i)
-          {
-          case 1:
-              set_pointer_graphic(2);
-              break;
-          case 2:
-              set_pointer_graphic(39);
-              break;
-          case 3:
-              thing = thing_get(player->thing_under_hand);
-              TRACE_THING(thing);
-              if ((!thing_is_invalid(thing)) && (player->field_4) && (dungeon->things_in_hand[0] != player->thing_under_hand)
-                  && can_thing_be_possessed(thing, player->id_number))
+        return;
+    }
+    switch (player->work_state)
+    {
+    case PSt_CtrlDungeon:
+        if (player->field_455)
+          i = player->field_455;
+        else
+          i = player->field_454;
+        switch (i)
+        {
+        case 1:
+            set_pointer_graphic(2);
+            break;
+        case 2:
+            set_pointer_graphic(39);
+            break;
+        case 3:
+            thing = thing_get(player->thing_under_hand);
+            TRACE_THING(thing);
+            if ((!thing_is_invalid(thing)) && (player->field_4) && (dungeon->things_in_hand[0] != player->thing_under_hand)
+                && can_thing_be_possessed(thing, player->id_number))
+            {
+              if (is_feature_on(Ft_BigPointer))
               {
-                if (is_feature_on(Ft_BigPointer))
-                {
-                  set_pointer_graphic(96+(game.play_gameturn%i));
-                } else
-                {
-                  set_pointer_graphic(47);
-                }
-                player->field_6 |= 0x01;
+                set_pointer_graphic(96+(game.play_gameturn%i));
               } else
-              if ((!thing_is_invalid(thing)) && (player->field_5) && (dungeon->things_in_hand[0] != player->thing_under_hand)
-                  && can_thing_be_queried(thing, player->id_number))
               {
+                set_pointer_graphic(47);
+              }
+              player->field_6 |= 0x01;
+            } else
+            if ((!thing_is_invalid(thing)) && (player->field_5) && (dungeon->things_in_hand[0] != player->thing_under_hand)
+                && can_thing_be_queried(thing, player->id_number))
+            {
                 set_pointer_graphic(4);
                 player->field_6 |= 0x01;
-              } else
-              {
-                if ((player->field_3 & 0x02) != 0)
+            } else
+            {
+                if ((player->field_3 & 0x02) != 0) {
                   set_pointer_graphic(2);
-                else
+                } else {
                   set_pointer_graphic(0);
-              }
-              break;
-          default:
-              if (player->field_10 <= game.play_gameturn)
-                set_pointer_graphic(1);
-              else
-                set_pointer_graphic(0);
-              break;
-          }
-          break;
-      case PSt_BuildRoom:
-          switch (player->chosen_room_kind)
-          {
-          case 2:
-              set_pointer_graphic(25);
-              break;
-          case 3:
-              set_pointer_graphic(27);
-              break;
-          case 4:
-              set_pointer_graphic(29);
-              break;
-          case 5:
-              set_pointer_graphic(28);
-              break;
-          case 6:
-              set_pointer_graphic(30);
-              break;
-          case 8:
-              set_pointer_graphic(34);
-              break;
-          case 9:
-              set_pointer_graphic(35);
-              break;
-          case 10:
-              set_pointer_graphic(33);
-              break;
-          case 11:
-              set_pointer_graphic(32);
-              break;
-          case 12:
-              set_pointer_graphic(31);
-              break;
-          case 13:
-              set_pointer_graphic(26);
-              break;
-          case 14:
-              set_pointer_graphic(36);
-              break;
-          case 15:
-              set_pointer_graphic(37);
-              break;
-          case 16:
-              set_pointer_graphic(38);
-              break;
-          }
-          return;
-      case PSt_Unknown5:
-      case PSt_Slap:
-          set_pointer_graphic(0);
-          break;
-      case PSt_CallToArms:
-      case PSt_CaveIn:
-      case PSt_SightOfEvil:
-      case PSt_CtrlPassngr:
-      case PSt_CtrlDirect:
-      case PSt_Lightning:
-      case PSt_SpeedUp:
-      case PSt_Armour:
-      case PSt_Conceal:
-      case PSt_Heal:
-      case PSt_CreateDigger:
-      case PSt_DestroyWalls:
-      case PSt_CastDisease:
-      case PSt_TurnChicken:
-          draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
-          break;
-      case PSt_Unknown12:
-      case PSt_Unknown15:
-          set_pointer_graphic(4);
-          break;
-      case PSt_PlaceTrap:
-          switch (player->chosen_trap_kind)
-          {
-          case 1:
-              set_pointer_graphic(5);
-              break;
-          case 2:
-              set_pointer_graphic(9);
-              break;
-          case 3:
-              set_pointer_graphic(7);
-              break;
-          case 4:
-              set_pointer_graphic(8);
-              break;
-          case 5:
-              set_pointer_graphic(6);
-              break;
-          case 6:
-              set_pointer_graphic(10);
-              break;
-          }
-          return;
-      case PSt_PlaceDoor:
-          switch (player->chosen_door_kind)
-          {
-          case 1:
-              set_pointer_graphic(11);
-              break;
-          case 2:
-              set_pointer_graphic(12);
-              break;
-          case 3:
-              set_pointer_graphic(13);
-              break;
-          case 4:
-              set_pointer_graphic(14);
-              break;
-          }
-          return;
-      case PSt_Sell:
-          set_pointer_graphic(3);
-          break;
-      default:
-          set_pointer_graphic(1);
-          break;
-      }
-      break;
-  case 2:
-  case 3:
-      if ((game.numfield_D & 0x08) != 0)
-        set_pointer_graphic(1);
-      else
+                }
+            }
+            break;
+        default:
+            if (player->field_10 <= game.play_gameturn)
+              set_pointer_graphic(1);
+            else
+              set_pointer_graphic(0);
+            break;
+        }
+        break;
+    case PSt_BuildRoom:
+        i = get_place_room_pointer_graphics(player->chosen_room_kind);
+        set_pointer_graphic(i);
+        break;
+    case PSt_Unknown5:
+    case PSt_Slap:
         set_pointer_graphic(0);
-      break;
-  case 4:
-  case 5:
-  case 6:
-      set_pointer_graphic(1);
-      break;
-  case 0:
-      set_pointer_graphic_none();
-      return;
-  default:
-      WARNLOG("Unsupported view type");
-      set_pointer_graphic_none();
-      return;
-  }
+        break;
+    case PSt_CallToArms:
+    case PSt_CaveIn:
+    case PSt_SightOfEvil:
+    case PSt_CtrlPassngr:
+    case PSt_CtrlDirect:
+    case PSt_Lightning:
+    case PSt_SpeedUp:
+    case PSt_Armour:
+    case PSt_Conceal:
+    case PSt_Heal:
+    case PSt_CreateDigger:
+    case PSt_DestroyWalls:
+    case PSt_CastDisease:
+    case PSt_TurnChicken:
+        draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
+        break;
+    case PSt_Unknown12:
+    case PSt_Unknown15:
+        set_pointer_graphic(4);
+        break;
+    case PSt_PlaceTrap:
+        i = get_place_trap_pointer_graphics(player->chosen_trap_kind);
+        set_pointer_graphic(i);
+        break;
+    case PSt_PlaceDoor:
+        i = get_place_door_pointer_graphics(player->chosen_door_kind);
+        set_pointer_graphic(i);
+        break;
+    case PSt_Sell:
+        set_pointer_graphic(3);
+        break;
+    default:
+        set_pointer_graphic(1);
+        break;
+    }
+}
+
+void process_pointer_graphic(void)
+{
+    struct PlayerInfo *player;
+    //_DK_process_pointer_graphic(); return;
+    player = get_my_player();
+    SYNCDBG(6,"Starting for view %d, player state %d, instance %d",(int)player->view_type,(int)player->work_state,(int)player->instance_num);
+    switch (player->view_type)
+    {
+    case PVT_DungeonTop:
+        // This case is complicated
+        process_dungeon_top_pointer_graphic(player);
+        break;
+    case PVT_CreatureContrl:
+    case PVT_CreaturePasngr:
+        if ((game.numfield_D & 0x08) != 0)
+          set_pointer_graphic(1);
+        else
+          set_pointer_graphic(0);
+        break;
+    case PVT_MapScreen:
+    case PVT_MapFadeIn:
+    case PVT_MapFadeOut:
+        set_pointer_graphic(1);
+        break;
+    case PVT_None:
+        set_pointer_graphic_none();
+        break;
+    default:
+        WARNLOG("Unsupported view type");
+        set_pointer_graphic_none();
+        break;
+    }
 }
 
 void redraw_display(void)

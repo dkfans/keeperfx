@@ -2769,7 +2769,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     thing = thing_get(tng_idx);
     allow_cast = false;
     pwrdata = get_power_data(pwmodel);
-    allow_cast = can_cast_spell(player->id_number, pwmodel, stl_x, stl_y, thing, CastChk_Default);
+    allow_cast = can_cast_spell(player->id_number, pwmodel, stl_x, stl_y, thing, CastChk_SkipThing);
     if (!allow_cast)
     {
         set_pointer_graphic(15);

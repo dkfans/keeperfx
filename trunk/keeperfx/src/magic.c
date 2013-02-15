@@ -102,7 +102,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
     struct SpellData *pwrdata;
     pwrdata = get_power_data(pwmodel);
     cast_on_tng = true;
-    if ((pwrdata->can_cast_flags & PwCast_AllThings) != 0)
+    if (((pwrdata->can_cast_flags & PwCast_AllThings) != 0) && ((flags & CastChk_SkipThing) == 0))
     {
         if (thing_exists(thing)) {
             cast_on_tng = can_cast_spell_on_thing(plyr_idx, thing, pwmodel);
@@ -213,32 +213,50 @@ TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     }
     if (thing_is_creature(thing))
     {
+        // Don't allow casting on own creatures kept by enemy - they're out of our control
+        if (thing->owner == plyr_idx)
+        {
+            if (creature_is_kept_in_custody_by_enemy(thing)) {
+                return false;
+            }
+        }
         if ((pwrdata->can_cast_flags & PwCast_AllCrtrs) == PwCast_AllCrtrs)
         {
             return true;
         }
         if ((pwrdata->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
-            if ((thing->active_state == CrSt_CreatureUnconscious) || (thing->health <= 0))
+            if ((thing->active_state == CrSt_CreatureUnconscious) || (thing->health <= 0)) {
+                SYNCDBG(8,"Cannot cast on unconscious");
                 return false;
+            }
         }
         if ((pwrdata->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
-            if (armageddon_blocks_creature_pickup(thing, plyr_idx))
+            if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
+                SYNCDBG(8,"Cannot cast while armageddon");
                 return false;
+            }
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
-            if (cctrl->dragtng_idx != 0)
+            if (cctrl->dragtng_idx != 0) {
+                SYNCDBG(8,"Cannot cast while dragging");
                 return false;
-            if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
+            }
+            if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
+                SYNCDBG(8,"Cannot cast on in/out");
                 return false;
-            if (creature_affected_by_spell(thing, SplK_Teleport))
+            }
+            if (creature_affected_by_spell(thing, SplK_Teleport)) {
+                SYNCDBG(8,"Cannot cast on teleport");
                 return false;
+            }
         }
-        if ((pwrdata->can_cast_flags & PwCast_CustodyCrtrs) == 0)
+        // If allowed custody creatures - allow some enemies
+        if ((pwrdata->can_cast_flags & PwCast_CustodyCrtrs) != 0)
         {
-            if (creature_is_kept_in_custody_by_enemy(thing)) {
-                return false;
+            if (creature_is_kept_in_custody_by_player(thing, plyr_idx)) {
+                return true;
             }
         }
         if ((pwrdata->can_cast_flags & PwCast_OwnedCrtrs) != 0)
@@ -260,6 +278,7 @@ TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
             }
         }
     }
+    SYNCDBG(8,"Cannot cast, no condition met");
     return false;
 }
 

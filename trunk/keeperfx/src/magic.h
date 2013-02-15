@@ -36,6 +36,7 @@ struct Thing;
 enum CastCheckFlags {
     CastChk_Default = 0, /*< Default all flags. */
     CastChk_Final = 0x0001, /*< Final check - should be only a formality, as there were checks before. */
+    CastChk_SkipThing = 0x0002, /*< While checking, skip the conditions related to specific thing. */
 };
 
 #pragma pack()
