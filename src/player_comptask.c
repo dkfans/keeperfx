@@ -517,6 +517,15 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     return _DK_task_dig_to_entrance(comp,ctask);
 }
 
+TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
+{
+    const struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    if ( ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
+        return true;
+    return false;
+}
+
 long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short stl_y, int start_side, TbBool revside)
 {
     long i,n,nchange;
@@ -549,7 +558,7 @@ long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short 
                 }
             }
         }
-        if ( ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Unk01)) == 0) && (slb->kind != SlbT_LAVA) ) {
+        if (!slab_good_for_computer_dig_path(slb)) {
             stl_num = get_subtile_number(stl_x + 3*delta_x, stl_y + 3*delta_y);
             return stl_num;
         }
@@ -609,7 +618,6 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     struct SlabMap *slb;
     SubtlCodedCoords stl_num;
     struct Map *mapblk;
-    long i;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     slbattr = get_slab_attrs(slb);
     if (slb->kind == SlbT_GEMS) {
@@ -621,18 +629,14 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     if ((slbattr->flags & SlbAtFlg_Unk02) != 0) {
         return -1;
     }
-    if ( ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Unk01)) != 0) || (slb->kind == SlbT_LAVA) )
-        i = 1;
-    else
-        i = 0;
-    if ( (i < 1) || (slb->kind == SlbT_WATER) ) {
+    if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
         return -1;
     }
     stl_num = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return -1;
     }
-    if ((slbattr->flags & SlbAtFlg_Unk01) != 0) {
+    if ((slbattr->flags & SlbAtFlg_Valuable) != 0) {
         return -1;
     }
     if ( (slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER) ) {
@@ -718,11 +722,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             gldslb_y = gldstl_y / 3;
             slb = get_slabmap_block(gldslb_x, gldslb_y);
             slbattr = get_slab_attrs(slb);
-            if ( ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Unk01)) != 0) || (slb->kind == SlbT_LAVA) )
-                i = 1;
-            else
-                i = 0;
-            if ( (i != 0) && (slb->kind != SlbT_WATER) )
+            if (slab_good_for_computer_dig_path(slb) && (slb->kind != SlbT_WATER))
             {
                 i = get_subtile_number_at_slab_center(gldslb_x,gldslb_y);
                 if (find_from_task_list(dungeon->owner, i) < 0) {
@@ -777,7 +777,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS)
               || (((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
             {
-                if ( ((slbattr->flags & SlbAtFlg_Unk01) == 0) || (digflags == 0) )
+                if ( ((slbattr->flags & SlbAtFlg_Valuable) == 0) || (digflags == 0) )
                     break;
             }
             if ( !simulation )
@@ -786,7 +786,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
                   break;
               if (digflags != 0)
               {
-                if ((slbattr->flags & SlbAtFlg_Unk01) != 0)
+                if ((slbattr->flags & SlbAtFlg_Valuable) != 0)
                   cdig->field_58++;
               }
             }
@@ -963,7 +963,7 @@ long check_for_gold(long stl_x, long stl_y, long plyr_idx)
     stl_num = get_subtile_number(stl_x+1,stl_y+1);
     slb = get_slabmap_for_subtile(stl_x,stl_y);
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->flags & SlbAtFlg_Unk01) != 0) {
+    if ((slbattr->flags & SlbAtFlg_Valuable) != 0) {
         return (find_from_task_list(plyr_idx, stl_num) < 0);
     }
     return 0;

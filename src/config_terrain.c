@@ -85,7 +85,7 @@ struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 //TODO CONFIG identify all slab attributes and store them in config file
 struct SlabAttr slab_attrs[] = {
   {0, 4, 0, 0x20|0x10, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 0, 0, 0}, // [0] HARD
-  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 0, 1, 0},
+  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 0, 1, 0}, // [1] GOLD
   {0, 4, 0, 0x10|0x08, 0, 0, SlbAtCtg_FriableDirt,  0, 1, 0, 0, 1, 0},
   {0, 4, 0, 0x10|0x08, 0, 0, SlbAtCtg_FriableDirt,  0, 1, 0, 0, 1, 0},
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
@@ -94,13 +94,13 @@ struct SlabAttr slab_attrs[] = {
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
   {0, 4, 2, 0x10|0x08, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
-  {0, 0, 2,         0, 0, 0, SlbAtCtg_Unclaimed,  1, 1, 1, 0, 0, 0}, // [10] PATH
+  {0, 0, 2,         0, 0, 0, SlbAtCtg_Unclaimed,  1, 1, 1, 0, 0, 0},     // [10] PATH
   {0, 0, 3,         0, 0, 0, SlbAtCtg_FortifiedGround,  2, 1, 1, 0, 0, 0},
-  {0, 0, 2,         0, 0, 1, SlbAtCtg_Unclaimed,  3, 1, 0, 0, 0, 1},
-  {0, 0, 2,         0, 0, 2, SlbAtCtg_Unclaimed,  4, 1, 1, 0, 0, 2},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  5, 1, 1, 0, 0, 0},
+  {0, 0, 2,         0, 0, 1, SlbAtCtg_Unclaimed,  3, 1, 0, 0, 0, 1},     // [12] LAVA
+  {0, 0, 2,         0, 0, 2, SlbAtCtg_Unclaimed,  4, 1, 1, 0, 0, 2},     // [13] WATER
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  5, 1, 1, 0, 0, 0},  // [14] ENTRANCE_ZONE
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  5, 1, 0, 0, 1, 0}, // [15]
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  6, 1, 1, 0, 0, 0},
+  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  6, 1, 1, 0, 0, 0},  // [16] TREASURY_AREA
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  6, 1, 0, 0, 1, 0},
   {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  7, 1, 1, 0, 0, 0},
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  7, 1, 0, 0, 1, 0},
@@ -136,7 +136,7 @@ struct SlabAttr slab_attrs[] = {
   {0, 4, 8, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
   {0, 4, 2,         0, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0}, // [50]
   {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_Obstacle,  1, 1, 1, 1, 0, 3},
-  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 1, 0},
+  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 1, 0}, // [52] GEMS
   {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_Obstacle,  1, 1, 1, 1, 0, 0},
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},
   {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0}, // [55]
@@ -155,7 +155,7 @@ struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind)
     return &slab_attrs[slab_kind];
 }
 
-struct SlabAttr *get_slab_attrs(struct SlabMap *slb)
+struct SlabAttr *get_slab_attrs(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return &slab_attrs[0];
