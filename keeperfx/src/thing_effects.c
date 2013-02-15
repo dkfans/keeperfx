@@ -835,7 +835,12 @@ TbBool effect_can_affect_thing(struct Thing *efftng, struct Thing *thing)
     }
     if (thing->index == efftng->index)
     {
-        WARNLOG("Effect tried to shoot itself; suicide not implemented");
+        SYNCDBG(18,"Effect tried to shoot itself; suicide not implemented");
+        return false;
+    }
+    if (thing->index == efftng->parent_idx)
+    {
+        SYNCDBG(18,"Effect tried to shoot its maker; suicide not implemented");
         return false;
     }
     return explosion_can_affect_thing(thing, efftng->byte_16, efftng->owner);
