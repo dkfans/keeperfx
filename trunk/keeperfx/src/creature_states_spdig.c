@@ -306,7 +306,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
                 }
             }
         }
-        n = (n + 1) % 4;
+        n = (n + 1) % SMALL_AROUND_COUNT;
     }
     return 0;
 }

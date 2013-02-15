@@ -47,7 +47,7 @@ enum SlabAttrCategory {
 
 enum SlabAttrFlags {
     SlbAtFlg_None =  0x00,
-    SlbAtFlg_Unk01 = 0x01,
+    SlbAtFlg_Valuable = 0x01, /*< Set for valuable terrain to dig (gold and gems). */
     SlbAtFlg_Unk02 = 0x02,
     SlbAtFlg_Unk04 = 0x04,
     SlbAtFlg_Unk08 = 0x08,
@@ -112,7 +112,7 @@ extern struct SlabsConfig slab_conf;
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
 struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind);
-struct SlabAttr *get_slab_attrs(struct SlabMap *slb);
+struct SlabAttr *get_slab_attrs(const struct SlabMap *slb);
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind);
 struct SlabConfigStats *get_slab_stats(struct SlabMap *slb);
 const char *room_code_name(RoomKind rkind);
