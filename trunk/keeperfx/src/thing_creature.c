@@ -1783,7 +1783,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     struct Coord3d pos1;
     struct Coord3d pos2;
     struct ComponentVector cvect;
-    struct Thing *shot;
+    struct Thing *shotng;
     struct Thing *tmptng;
     short angle_xy,angle_yz;
     long damage;
@@ -1830,7 +1830,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     {
       damage = calculate_shot_damage(firing,shot_model);
     }
-    shot = NULL;
+    shotng = NULL;
     target_idx = 0;
     // Set target index for navigating shots
     if (shot_model_is_navigable(shot_model))
@@ -1846,27 +1846,27 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         {
             project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 20);
         }
-        shot = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
-        if (thing_is_invalid(shot))
+        shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
+        if (thing_is_invalid(shotng))
           return;
         if (shot_model == 12)
           draw_lightning(&pos1, &pos2, 96, 93);
         else
           draw_lightning(&pos1, &pos2, 96, 60);
-        shot->health = shotst->old->health;
-        shot->word_14 = shotst->old->damage;
-        shot->parent_idx = firing->index;
+        shotng->health = shotst->old->health;
+        shotng->word_14 = shotst->old->damage;
+        shotng->parent_idx = firing->index;
         break;
     case 7:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > 768))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->field_52, firing->field_54, 256, 4);
-        shot = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
-        if (thing_is_invalid(shot))
+        shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
+        if (thing_is_invalid(shotng))
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
-        shot->health = shotst->old->health;
-        shot->word_14 = shotst->old->damage;
-        shot->parent_idx = firing->index;
+        shotng->health = shotst->old->health;
+        shotng->word_14 = shotst->old->damage;
+        shotng->parent_idx = firing->index;
         break;
     case 13:
         for (i=0; i < 32; i++)
@@ -1874,42 +1874,42 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
               break;
-            shot = tmptng;
-            shot->byte_16 = hit_type;
-            shot->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
-            shot->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
-            angles_to_vector(shot->field_52, shot->field_54, shotst->old->speed, &cvect);
-            shot->acceleration.x.val += cvect.x;
-            shot->acceleration.y.val += cvect.y;
-            shot->acceleration.z.val += cvect.z;
-            shot->field_1 |= 0x04;
-            shot->word_14 = damage;
-            shot->health = shotst->old->health;
-            shot->parent_idx = firing->index;
+            shotng = tmptng;
+            shotng->shot.hit_type = hit_type;
+            shotng->field_52 = (angle_xy + ACTION_RANDOM(101) - 50) & 0x7FF;
+            shotng->field_54 = (angle_yz + ACTION_RANDOM(101) - 50) & 0x7FF;
+            angles_to_vector(shotng->field_52, shotng->field_54, shotst->old->speed, &cvect);
+            shotng->acceleration.x.val += cvect.x;
+            shotng->acceleration.y.val += cvect.y;
+            shotng->acceleration.z.val += cvect.z;
+            shotng->field_1 |= 0x04;
+            shotng->word_14 = damage;
+            shotng->health = shotst->old->health;
+            shotng->parent_idx = firing->index;
         }
         break;
     default:
-        shot = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
-        if (thing_is_invalid(shot))
+        shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
+        if (thing_is_invalid(shotng))
           return;
-        shot->field_52 = angle_xy;
-        shot->field_54 = angle_yz;
-        angles_to_vector(shot->field_52, shot->field_54, shotst->old->speed, &cvect);
-        shot->acceleration.x.val += cvect.x;
-        shot->acceleration.y.val += cvect.y;
-        shot->acceleration.z.val += cvect.z;
-        shot->field_1 |= 0x04;
-        shot->word_14 = damage;
-        shot->health = shotst->old->health;
-        shot->parent_idx = firing->index;
-        shot->word_17 = target_idx;
-        shot->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+        shotng->field_52 = angle_xy;
+        shotng->field_54 = angle_yz;
+        angles_to_vector(shotng->field_52, shotng->field_54, shotst->old->speed, &cvect);
+        shotng->acceleration.x.val += cvect.x;
+        shotng->acceleration.y.val += cvect.y;
+        shotng->acceleration.z.val += cvect.z;
+        shotng->field_1 |= 0x04;
+        shotng->word_14 = damage;
+        shotng->health = shotst->old->health;
+        shotng->parent_idx = firing->index;
+        shotng->word_17 = target_idx;
+        shotng->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
         break;
     }
-    if (!thing_is_invalid(shot))
+    if (!thing_is_invalid(shotng))
     {
 #if (BFDEBUG_LEVEL > 0)
-      damage = shot->word_14;
+      damage = shotng->word_14;
       // Special debug code that shows amount of damage the shot will make
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
           create_price_effect(&pos1, my_player_number, damage);
@@ -1918,7 +1918,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
       }
 #endif
-      shot->byte_16 = hit_type;
+      shotng->byte_16 = hit_type;
       if (shotst->old->firing_sound > 0)
       {
         thing_play_sample(firing, shotst->old->firing_sound + UNSYNC_RANDOM(shotst->old->firing_sound_variants),
@@ -1926,9 +1926,9 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       }
       if (shotst->old->shot_sound > 0)
       {
-        thing_play_sample(shot, shotst->old->shot_sound, 100, 0, 3, 0, shotst->old->field_20, 256);
+        thing_play_sample(shotng, shotst->old->shot_sound, 100, 0, 3, 0, shotst->old->field_20, 256);
       }
-      set_flag_byte(&shot->movement_flags,TMvF_Unknown10,flag1);
+      set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
     }
 }
 
