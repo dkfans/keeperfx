@@ -79,7 +79,7 @@ DLLIMPORT long _DK_update_thing_sound(struct Thing *thing);
 DLLIMPORT void _DK_update_creatures_not_in_list(void);
 DLLIMPORT long _DK_update_things_in_list(struct StructureList *list);
 DLLIMPORT void _DK_update_things(void);
-DLLIMPORT long _DK_thing_is_shootable_by_any_player_including_objects(struct Thing *thing);
+DLLIMPORT long _DK_thing_is_shootable_by_any_player_including_objects(const struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_including_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_except_own_excluding_objects(struct Thing *shooter, struct Thing *thing);
 DLLIMPORT long _DK_thing_is_shootable_by_any_player_excluding_objects(struct Thing *thing);
@@ -1798,13 +1798,14 @@ TbBool thing_is_shootable_by_any_player_including_objects(const struct Thing *th
     //return _DK_thing_is_shootable_by_any_player_including_objects(thing);
     if (thing_is_creature(thing))
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
         // spectators are not shootable
         if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0)
             return false;
+        /* This would disallow killing unconscious creatures, so we can't
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->flgfield_1 & CCFlg_Immortal) != 0)
-            return false;
+            return false;*/
         return true;
     }
     if (thing_is_object(thing))

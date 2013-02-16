@@ -107,7 +107,7 @@ struct Thing {
       struct {
         unsigned char byte_13s;
         short damage;
-        unsigned char byte_16s;
+        unsigned char hit_type;
         short target_idx;
       } shot;
       struct {

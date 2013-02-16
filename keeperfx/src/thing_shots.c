@@ -112,7 +112,7 @@ TbBool detonate_shot(struct Thing *shotng)
     case 11:
         create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
         create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
-        explosion_affecting_area(shootrtng, &shotng->mappos, 8, 256, 256, shotng->byte_16);
+        explosion_affecting_area(shootrtng, &shotng->mappos, 8, 256, 256, shotng->shot.hit_type);
         break;
     case 15:
         create_effect_around_thing(shotng, TngEff_Unknown26);
@@ -946,9 +946,9 @@ struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, 
 TbBool shot_hit_something_while_moving(struct Thing *shotng, struct Coord3d *nxpos)
 {
     struct Thing *target;
-    SYNCDBG(18,"Starting for %s index %d targeting %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->byte_16);
+    SYNCDBG(18,"Starting for %s index %d, hit type %d",thing_model_name(shotng),(int)shotng->index, (int)shotng->shot.hit_type);
     target = INVALID_THING;
-    switch ( shotng->byte_16 )
+    switch ( shotng->shot.hit_type )
     {
     case 8:
         if ( shot_hit_shootable_thing_at(shotng, target, nxpos) )
@@ -1022,7 +1022,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     TbBool move_allowed;
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
     TRACE_THING(shotng);
-    //return _DK_move_shot(thing);
+    //return _DK_move_shot(shotng);
 
     move_allowed = get_thing_next_position(&pos, shotng);
     shotst = get_shot_model_stats(shotng->model);
