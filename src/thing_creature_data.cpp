@@ -40,6 +40,15 @@ struct TbLoadFiles swipe_load_file[] = {
   {"",                NULL,                                NULL,                                    0, 0, 0},
 };
 
+struct TbSetupSprite swipe_setup_sprites[] = {
+    {&swipe_sprites[0],  &end_swipe_sprites[0], (unsigned long *)&swipe_sprite_data[0]},
+    {&swipe_sprites[1],  &end_swipe_sprites[1], (unsigned long *)&swipe_sprite_data[1]},
+    {&swipe_sprites[2],  &end_swipe_sprites[2], (unsigned long *)&swipe_sprite_data[2]},
+    {&swipe_sprites[3],  &end_swipe_sprites[3], (unsigned long *)&swipe_sprite_data[3]},
+    {&swipe_sprites[4],  &end_swipe_sprites[4], (unsigned long *)&swipe_sprite_data[4]},
+    {NULL,               NULL,                  NULL},
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
