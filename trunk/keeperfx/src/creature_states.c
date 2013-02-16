@@ -1155,9 +1155,8 @@ TbBool fill_mobveable_small_around_slabs_array_in_room(TbBool *avail, const stru
 
 TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y, long start_stl)
 {
-    long nav_size, block_radius;
-    nav_size = subtile_coord(thing_nav_block_sizexy(thing),0);
-    block_radius = (nav_size) >> 1;
+    long block_radius;
+    block_radius = subtile_coord(thing_nav_block_sizexy(thing),0) / 2;
     struct Coord3d locpos;
     if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
     {
@@ -2185,7 +2184,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     unsigned long k;
     long i;
     //return _DK_find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos);
-    nav_sizexy = thing_nav_block_sizexy(thing) << 8;
+    nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing),0);
     if (room_is_invalid(room) || (room->slabs_count <= 0)) {
         ERRORLOG("Invalid room or number of slabs is zero");
         return 0;

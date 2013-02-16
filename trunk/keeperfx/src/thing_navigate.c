@@ -89,7 +89,8 @@ void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Coord3d *
     {
         owner_player_navigating = thing->owner;
     }
-    nav_sizexy = thing_nav_block_sizexy(thing) - 1;
+    nav_sizexy = thing_nav_block_sizexy(thing);
+    if (nav_sizexy > 0) nav_sizexy--;
     nearest_search(nav_sizexy, thing->mappos.x.val, thing->mappos.y.val,
       pos1->x.val, pos1->y.val, &px, &py);
     pos2->x.val = px;

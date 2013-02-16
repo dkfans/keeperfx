@@ -1772,7 +1772,7 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
  */
 TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
-    long nav_size, radius;
+    long block_radius;
     //return _DK_find_first_valid_position_for_thing_in_room(thing, room, pos);
     if (!room_exists(room))
     {
@@ -1782,8 +1782,7 @@ TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct R
         pos->z.val = subtile_coord(1,0);
         return false;
     }
-    nav_size = thing_nav_block_sizexy(thing) << 8;
-    radius = (nav_size) >> 1;
+    block_radius = subtile_coord(thing_nav_block_sizexy(thing),0) / 2;
 
     unsigned long i;
     unsigned long k;
@@ -1809,8 +1808,8 @@ TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct R
                 {
                     pos->x.val = subtile_coord_center(stl_x);
                     pos->y.val = subtile_coord_center(stl_y);
-                    pos->z.val = get_thing_height_at_with_radius(thing, pos, radius);
-                    if ( !thing_in_wall_at_with_radius(thing, pos, radius) ) {
+                    pos->z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
+                    if ( !thing_in_wall_at_with_radius(thing, pos, block_radius) ) {
                       return true;
                     }
                 }
@@ -2159,7 +2158,8 @@ long create_workshop_object_in_workshop_room(long plyr_idx, long tng_class, long
     }
     if ( !find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, &pos) )
     {
-        ERRORLOG("Could not find room for thing");
+        ERRORLOG("Could not find a place in %s index %d for the new %s crate",
+            room_code_name(room->kind),(int)room->index,thing_class_code_name(tng_class));
         delete_thing_structure(thing, 0);
         return 0;
     }
