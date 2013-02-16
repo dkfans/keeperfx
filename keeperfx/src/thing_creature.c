@@ -113,9 +113,10 @@ struct Creatures creatures_NEW[] = {
 DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
 //#define swipe_load_file _DK_swipe_load_file
 DLLIMPORT extern struct TbSetupSprite _DK_swipe_setup_sprites[];
-#define swipe_setup_sprites _DK_swipe_setup_sprites
+//#define swipe_setup_sprites _DK_swipe_setup_sprites
 /******************************************************************************/
 extern struct TbLoadFiles swipe_load_file[];
+extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, long targtng_idx);
 DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long reason);

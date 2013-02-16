@@ -1021,7 +1021,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
 
 short creature_picks_up_corpse(struct Thing *thing)
 {
-    struct Room *ownroom;
+    struct Room *dstroom;
     struct CreatureControl *cctrl;
     struct Thing *picktng;
     struct Coord3d pos;
@@ -1036,8 +1036,8 @@ short creature_picks_up_corpse(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1);
-    if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
+    dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1);
+    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
     {
         WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
         set_start_state(thing);
@@ -1056,7 +1056,7 @@ short creature_picks_up_corpse(struct Thing *thing)
 
 short creature_picks_up_spell_object(struct Thing *thing)
 {
-    struct Room *enmroom, *ownroom;
+    struct Room *enmroom, *dstroom;
     struct CreatureControl *cctrl;
     struct Thing *picktng;
     struct Coord3d pos;
@@ -1072,8 +1072,8 @@ short creature_picks_up_spell_object(struct Thing *thing)
         return 0;
     }
     enmroom = get_room_thing_is_on(picktng);
-    ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_LIBRARY, 0, 1);
-    if ( room_is_invalid(ownroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, ownroom, &pos) )
+    dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_LIBRARY, 0, 1);
+    if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
     {
         WARNLOG("Player %d can't pick spell - doesn't have proper library to store it",(int)thing->owner);
         set_start_state(thing);

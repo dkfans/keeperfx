@@ -1610,6 +1610,7 @@ void reinit_level_after_load(void)
     init_lookups();
     init_navigation();
     reinit_packets_after_load();
+    game.flags_font |= start_params.flags_font;
     parchment_loaded = 0;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
@@ -2798,7 +2799,79 @@ void draw_bonus_timer(void)
 
 void draw_swipe(void)
 {
-  _DK_draw_swipe();
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    //_DK_draw_swipe();
+    struct Thing *thing;
+    thing = thing_get(myplyr->controlled_thing_idx);
+    if (thing_is_creature(thing))
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if ((cctrl->instance_id == 1) || (cctrl->instance_id == 2) || (cctrl->instance_id == 39))
+        {
+            struct TbSprite *startspr;
+            struct TbSprite *endspr;
+            struct TbSprite *sprlist;
+            long allwidth;
+            long i,n;
+            lbDisplay.DrawFlags = 0x0004;
+            n = (int)cctrl->field_D4 * 1280 / cctrl->field_D8;
+            allwidth = 0;
+            i = abs(n) >> 8;
+            sprlist = swipe_sprites[i];
+            startspr = &sprlist[1];
+            endspr = &sprlist[1];
+            for (n=0; n < 3; n++)
+            {
+                allwidth += pixel_size * endspr->SWidth;
+                endspr++;
+            }
+            int scrpos_x, scrpos_y;
+            if (lbDisplay.ScreenMode == 1)
+              scrpos_y = 0;
+            else
+              scrpos_y = (MyScreenHeight - (startspr->SHeight + endspr->SHeight)) / 2;
+            struct TbSprite *spr;
+            if ((myplyr->field_1 & 4) != 0)
+            {
+                int deltay;
+                deltay = pixel_size * sprlist[1].SHeight;
+                for (i=0; i < 6; i+=3)
+                {
+                    spr = &startspr[i];
+                    scrpos_x = (MyScreenWidth - allwidth) / 2;
+                    for (n=0; n < 3; n++)
+                    {
+                        LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, spr);
+                        scrpos_x += pixel_size * spr->SWidth;
+                        spr++;
+                    }
+                    scrpos_y += deltay;
+                }
+            } else
+            {
+                int deltay;
+                lbDisplay.DrawFlags = 0x04|0x01;
+                for (i=0; i < 6; i+=3)
+                {
+                    spr = &sprlist[3+i];
+                    deltay = pixel_size * spr->SHeight;
+                    scrpos_x = (MyScreenWidth - allwidth) / 2;
+                    for (n=0; n < 3; n++)
+                    {
+                        LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, spr);
+                        scrpos_x += pixel_size * spr->SWidth;
+                        spr--;
+                    }
+                    scrpos_y += deltay;
+                }
+            }
+            lbDisplay.DrawFlags = 0;
+            return;
+        }
+    }
+    myplyr->field_1 ^= (myplyr->field_1 ^ 4 * UNSYNC_RANDOM(4)) & 4;
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxFilterParam param, long maximizer)
