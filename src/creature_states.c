@@ -1599,7 +1599,7 @@ short creature_change_from_chicken(struct Thing *creatng)
     } else
     {
       creatng->field_4F &= ~0x01;
-      cctrl->affected_by_spells &= ~0x01;
+      cctrl->affected_by_spells &= ~CCSpl_Unknown01;
       cctrl->spell_flags &= ~0x0200;
       set_creature_size_stuff(creatng);
       set_start_state(creatng);
