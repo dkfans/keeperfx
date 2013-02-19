@@ -213,99 +213,99 @@ long check_for_first_person_barrack_party(struct Thing *thing)
 
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  struct InitLight ilght;
-  struct Camera *cam;
-  //return _DK_control_creature_as_controller(player, thing);
-  if ( (thing->owner != player->id_number) || !thing_can_be_controlled_as_controller(thing) )
-  {
-    if (!control_creature_as_passenger(player, thing))
-      return false;
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    struct InitLight ilght;
+    struct Camera *cam;
+    //return _DK_control_creature_as_controller(player, thing);
+    if ( (thing->owner != player->id_number) || !thing_can_be_controlled_as_controller(thing) )
+    {
+      if (!control_creature_as_passenger(player, thing))
+        return false;
+      cam = player->acamera;
+      crstat = creature_stats_get(get_players_special_digger_breed(player->id_number));
+      cam->mappos.z.val += crstat->eye_height;
+      return true;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->moveto_pos.x.val = 0;
+    cctrl->moveto_pos.y.val = 0;
+    cctrl->moveto_pos.z.val = 0;
+    if (is_my_player(player))
+    {
+      toggle_status_menu(0);
+      turn_off_roaming_menus();
+    }
     cam = player->acamera;
-    crstat = creature_stats_get(get_players_special_digger_breed(player->id_number));
-    cam->mappos.z.val += crstat->eye_height;
-    return true;
-  }
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->moveto_pos.x.val = 0;
-  cctrl->moveto_pos.y.val = 0;
-  cctrl->moveto_pos.z.val = 0;
-  if (is_my_player(player))
-  {
-    toggle_status_menu(0);
-    turn_off_roaming_menus();
-  }
-  cam = player->acamera;
-  player->controlled_thing_idx = thing->index;
-  player->field_31 = thing->creation_turn;
-  if (cam != NULL)
-    player->field_4B5 = cam->field_6;
-  thing->alloc_flags |= TAlF_IsControlled;
-  thing->field_4F |= 0x01;
-  set_start_state(thing);
-  set_player_mode(player, 2);
-  if (thing->class_id == TCls_Creature)
-  {
-      cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-      check_for_first_person_barrack_party(thing);
-      if (creature_is_group_member(thing)) {
-          make_group_member_leader(thing);
-      }
-  }
-  LbMemorySet(&ilght, 0, sizeof(struct InitLight));
-  ilght.mappos.x.val = thing->mappos.x.val;
-  ilght.mappos.y.val = thing->mappos.y.val;
-  ilght.mappos.z.val = thing->mappos.z.val;
-  ilght.field_3 = 1;
-  ilght.field_2 = 36;
-  ilght.field_0 = 2560;
-  ilght.is_dynamic = 1;
-  thing->light_id = light_create_light(&ilght);
-  if (thing->light_id != 0) {
-      light_set_light_never_cache(thing->light_id);
-  } else {
-    ERRORLOG("Cannot allocate light to new controlled thing");
-  }
-  if (is_my_player_number(thing->owner))
-  {
+    player->controlled_thing_idx = thing->index;
+    player->field_31 = thing->creation_turn;
+    if (cam != NULL)
+      player->field_4B5 = cam->field_6;
+    thing->alloc_flags |= TAlF_IsControlled;
+    thing->field_4F |= 0x01;
+    set_start_state(thing);
+    set_player_mode(player, 2);
     if (thing->class_id == TCls_Creature)
     {
-      crstat = creature_stats_get_from_thing(thing);
-      setup_eye_lens(crstat->eye_effect);
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        check_for_first_person_barrack_party(thing);
+        if (creature_is_group_member(thing)) {
+            make_group_member_leader(thing);
+        }
     }
-  }
-  return true;
+    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    ilght.mappos.x.val = thing->mappos.x.val;
+    ilght.mappos.y.val = thing->mappos.y.val;
+    ilght.mappos.z.val = thing->mappos.z.val;
+    ilght.field_3 = 1;
+    ilght.field_2 = 36;
+    ilght.field_0 = 2560;
+    ilght.is_dynamic = 1;
+    thing->light_id = light_create_light(&ilght);
+    if (thing->light_id != 0) {
+        light_set_light_never_cache(thing->light_id);
+    } else {
+      ERRORLOG("Cannot allocate light to new controlled thing");
+    }
+    if (is_my_player_number(thing->owner))
+    {
+      if (thing->class_id == TCls_Creature)
+      {
+        crstat = creature_stats_get_from_thing(thing);
+        setup_eye_lens(crstat->eye_effect);
+      }
+    }
+    return true;
 }
 
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing)
 {
-  struct Camera *cam;
-  //return _DK_control_creature_as_passenger(player, thing);
-  if (thing->owner != player->id_number)
-  {
-    ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->id_number,(int)thing->owner);
-    return false;
-  }
-  if (!thing_can_be_controlled_as_passenger(thing))
-  {
-    ERRORLOG("The %s can't be controlled as passenger",
-        thing_model_name(thing));
-    return false;
-  }
-  if (is_my_player(player))
-  {
-    toggle_status_menu(0);
-    turn_off_roaming_menus();
-  }
-  cam = player->acamera;
-  player->controlled_thing_idx = thing->index;
-  player->field_31 = thing->creation_turn;
-  if (cam != NULL)
-    player->field_4B5 = cam->field_6;
-  set_player_mode(player, 3);
-  thing->field_4F |= 0x01;
-  return true;
+    struct Camera *cam;
+    //return _DK_control_creature_as_passenger(player, thing);
+    if (thing->owner != player->id_number)
+    {
+      ERRORLOG("Player %d cannot control as passenger thing owned by player %d",(int)player->id_number,(int)thing->owner);
+      return false;
+    }
+    if (!thing_can_be_controlled_as_passenger(thing))
+    {
+      ERRORLOG("The %s can't be controlled as passenger",
+          thing_model_name(thing));
+      return false;
+    }
+    if (is_my_player(player))
+    {
+      toggle_status_menu(0);
+      turn_off_roaming_menus();
+    }
+    cam = player->acamera;
+    player->controlled_thing_idx = thing->index;
+    player->field_31 = thing->creation_turn;
+    if (cam != NULL)
+      player->field_4B5 = cam->field_6;
+    set_player_mode(player, 3);
+    thing->field_4F |= 0x01;
+    return true;
 }
 
 void free_swipe_graphic(void)
@@ -352,7 +352,7 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
 
 long creature_available_for_combat_this_turn(struct Thing *thing)
 {
-  return _DK_creature_available_for_combat_this_turn(thing);
+    return _DK_creature_available_for_combat_this_turn(thing);
 }
 
 struct Thing *get_players_dungeon_heart_creature_can_see(struct Thing *creatng, PlayerNumber heart_owner)
@@ -560,6 +560,25 @@ long get_free_spell_slot(struct Thing *thing)
     return ci;
 }
 
+long get_spell_slot(const struct Thing *thing, SpellKind spkind)
+{
+    struct CreatureControl *cctrl;
+    struct CastedSpellData *cspell;
+    long i;
+    cctrl = creature_control_get_from_thing(thing);
+    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        cspell = &cctrl->casted_spells[i];
+        // If there is a slot with required spell
+        if (cspell->spkind == spkind)
+        {
+            return i;
+        }
+    }
+    // If spell not found
+    return -1;
+}
+
 TbBool fill_spell_slot(struct Thing *thing, long slot_idx, SpellKind spell_idx, long spell_power)
 {
     struct CreatureControl *cctrl;
@@ -567,12 +586,28 @@ TbBool fill_spell_slot(struct Thing *thing, long slot_idx, SpellKind spell_idx, 
     if ((slot_idx < 0) || (slot_idx >= CREATURE_MAX_SPELLS_CASTED_AT))
         return false;
     cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+        return false;
     cspell = &cctrl->casted_spells[slot_idx];
     cspell->spkind = spell_idx;
     cspell->field_1 = spell_power;
     return true;
 }
 
+TbBool free_spell_slot(struct Thing *thing, long slot_idx)
+{
+    struct CreatureControl *cctrl;
+    struct CastedSpellData *cspell;
+    if ((slot_idx < 0) || (slot_idx >= CREATURE_MAX_SPELLS_CASTED_AT))
+        return false;
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
+        return false;
+    cspell = &cctrl->casted_spells[slot_idx];
+    cspell->spkind = 0;
+    cspell->field_1 = 0;
+    return true;
+}
 
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
@@ -619,7 +654,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 ntng = create_object(&pos, 51, thing->owner, -1);
                 if (!thing_is_invalid(ntng))
                 {
-                    cctrl->field_2B3[k] = ntng->index;
+                    cctrl->spell_tngidx_armour[k] = ntng->index;
                     ntng->health = magstat->power[spell_lev] + 1;
                     ntng->word_13 = thing->index;
                     ntng->byte_15 = k;
@@ -733,7 +768,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
               ntng = create_object(&pos, 112, thing->owner, -1);
               if (!thing_is_invalid(ntng))
               {
-                cctrl->field_2B9[k] = ntng->index;
+                cctrl->spell_tngidx_disease[k] = ntng->index;
                 ntng->health = magstat->power[spell_lev] + 1;
                 ntng->word_13 = thing->index;
                 ntng->byte_15 = k;
@@ -873,7 +908,85 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
 
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
 {
-    _DK_terminate_thing_spell_effect(thing, spkind);
+    struct CreatureControl *cctrl;
+    int slot_idx;
+    ThingIndex eff_idx;
+    long i;
+    //_DK_terminate_thing_spell_effect(thing, spkind);
+    slot_idx = get_spell_slot(thing, spkind);
+    cctrl = creature_control_get_from_thing(thing);
+    switch ( spkind )
+    {
+    case SplK_Freeze:
+        cctrl->affected_by_spells &= ~CCSpl_Freeze;
+        if ( cctrl->spell_flags & CSAfF_Freeze)
+        {
+          thing->movement_flags |= TMvF_Flying;
+          cctrl->spell_flags &= ~CSAfF_Freeze;
+        }
+        break;
+    case SplK_Armour:
+        cctrl->spell_flags &= ~CSAfF_Armour;
+        for (i=0; i < 3; i++)
+        {
+            eff_idx = cctrl->spell_tngidx_armour[i];
+            if (eff_idx > 0) {
+                struct Thing * efftng;
+                efftng = thing_get(eff_idx);
+                delete_thing_structure(efftng, 0);
+                cctrl->spell_tngidx_armour[i] = 0;
+            }
+        }
+        break;
+    case SplK_Rebound:
+        cctrl->spell_flags &= ~CSAfF_Rebound;
+        break;
+    case SplK_Invisibility:
+        cctrl->spell_flags &= ~CSAfF_Invisibility;
+        cctrl->field_AF = 0;
+        break;
+    case SplK_Teleport:
+        cctrl->affected_by_spells &= ~CCSpl_Teleport;
+        break;
+    case SplK_Speed:
+        cctrl->spell_flags &= ~CSAfF_Speed;
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        break;
+    case SplK_Slow:
+        cctrl->spell_flags &= ~CSAfF_Slow;
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        break;
+    case SplK_Fly:
+        //TODO SPELLS Strange condition regarding the fly - verify why it's here
+        if ((get_creature_model_flags(thing) & MF_IsDiptera) == 0)
+            thing->movement_flags &= ~TMvF_Flying;
+        cctrl->spell_flags &= ~CSAfF_Flying;
+        break;
+    case SplK_Sight:
+        cctrl->spell_flags &= ~CSAfF_Sight;
+        break;
+    case SplK_Disease:
+        cctrl->spell_flags &= ~CSAfF_Disease;
+        for (i=0; i < 3; i++)
+        {
+            eff_idx = cctrl->spell_tngidx_disease[i];
+            if (eff_idx > 0) {
+                struct Thing * efftng;
+                efftng = thing_get(eff_idx);
+                delete_thing_structure(efftng, 0);
+                cctrl->spell_tngidx_disease[i] = 0;
+            }
+        }
+        break;
+    case SplK_Chicken:
+        cctrl->spell_flags &= ~CSAfF_Chicken;
+        external_set_thing_state(thing, CrSt_CreatureChangeFromChicken);
+        cctrl->field_282 = 10;
+        break;
+    }
+    if (slot_idx >= 0) {
+        free_spell_slot(thing, slot_idx);
+    }
 }
 
 void process_thing_spell_effects(struct Thing *thing)
@@ -1589,12 +1702,12 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
         cctrl->spell_flags &= ~CSAfF_Armour;
         for (i=0; i < 3; i++)
         {
-            k = cctrl->field_2B3[i];
+            k = cctrl->spell_tngidx_armour[i];
             if (k != 0)
             {
                 efftng = thing_get(k);
                 delete_thing_structure(efftng, 0);
-                cctrl->field_2B3[i] = 0;
+                cctrl->spell_tngidx_armour[i] = 0;
             }
         }
     }
@@ -1603,12 +1716,12 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
         cctrl->spell_flags &= ~CSAfF_Disease;
         for (i=0; i < 3; i++)
         {
-            k = cctrl->field_2B9[i];
+            k = cctrl->spell_tngidx_disease[i];
             if (k != 0)
             {
                 efftng = thing_get(k);
                 delete_thing_structure(efftng, 0);
-                cctrl->field_2B9[i] = 0;
+                cctrl->spell_tngidx_disease[i] = 0;
             }
         }
     }
