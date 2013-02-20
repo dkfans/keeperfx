@@ -32,6 +32,8 @@ extern "C" {
 
 #pragma pack()
 /******************************************************************************/
+int guibutton_get_unused_slot(void);
+
 void gui_clear_buttons_not_over_mouse(int gmbtn_idx);
 TbBool gui_button_release_inputs(int gmbtn_idx);
 TbBool gui_slider_button_inputs(int gbtn_idx);

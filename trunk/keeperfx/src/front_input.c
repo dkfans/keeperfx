@@ -1781,61 +1781,61 @@ short get_gui_inputs(short gameplay_on)
   // Sweep through buttons
   for (gidx=0; gidx<ACTIVE_BUTTONS_COUNT; gidx++)
   {
-    gbtn = &active_buttons[gidx];
-    if ((gbtn->flags & 0x01) == 0)
-      continue;
-    if (!get_active_menu(gbtn->gmenu_idx)->flgfield_1D)
-      continue;
-    Gf_Btn_Callback callback;
-    callback = gbtn->field_17;
-    if (callback != NULL)
-      callback(gbtn);
-    if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
-      continue;
-    if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
-      || ((gbtn->gbtype == 6) && (gbtn->field_1 != 0)) )
-    {
-      if ((fmmenu_idx==-1) || (gbtn->gmenu_idx == fmmenu_idx))
-      {
-        gmbtn_idx = gidx;
-        set_flag_byte(&gbtn->flags,0x10,true);
-        busy_doing_gui = 1;
-        callback = gbtn->field_F;
-        if (callback != NULL)
+      gbtn = &active_buttons[gidx];
+      if ((gbtn->flags & 0x01) == 0)
+          continue;
+      if (!get_active_menu(gbtn->gmenu_idx)->flgfield_1D)
+          continue;
+      Gf_Btn_Callback callback;
+      callback = gbtn->maintain_call;
+      if (callback != NULL)
           callback(gbtn);
-        if (gbtn->gbtype == 6)
-          break;
-        if (gbtn->gbtype != Lb_SLIDER)
-          over_slider_button = -1;
+      if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
+          continue;
+      if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
+        || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->field_1 != 0)) )
+      {
+          if ((fmmenu_idx==-1) || (gbtn->gmenu_idx == fmmenu_idx))
+          {
+            gmbtn_idx = gidx;
+            set_flag_byte(&gbtn->flags,0x10,true);
+            busy_doing_gui = 1;
+            callback = gbtn->field_F;
+            if (callback != NULL)
+              callback(gbtn);
+            if (gbtn->gbtype == Lb_UNKNBTN6)
+              break;
+            if (gbtn->gbtype != Lb_SLIDER)
+              over_slider_button = -1;
+          } else
+          {
+            set_flag_byte(&gbtn->flags,0x10,false);
+          }
       } else
       {
-        set_flag_byte(&gbtn->flags,0x10,false);
+          set_flag_byte(&gbtn->flags,0x10,false);
       }
-    } else
-    {
-      set_flag_byte(&gbtn->flags,0x10,false);
-    }
-    if (gbtn->gbtype == Lb_SLIDER)
-    {
-      int mouse_x;
-      int mouse_y;
-      int btnsize;
-      mouse_x = GetMouseX();
-      btnsize = gbtn->scr_pos_x + ((gbtn->slide_val)*(((long)gbtn->width)-64) >> 8);
-      if ((mouse_x>(btnsize+22)) && (mouse_x<=(btnsize+44)))
+      if (gbtn->gbtype == Lb_SLIDER)
       {
-        mouse_y = GetMouseY();
-        if ((mouse_y>gbtn->pos_y) && (mouse_y<=(gbtn->pos_y+gbtn->height)))
-        {
-          if ( left_button_clicked )
+          int mouse_x;
+          int mouse_y;
+          int btnsize;
+          mouse_x = GetMouseX();
+          btnsize = gbtn->scr_pos_x + ((gbtn->slide_val)*(((long)gbtn->width)-64) >> 8);
+          if ((mouse_x>(btnsize+22)) && (mouse_x<=(btnsize+44)))
           {
-            left_button_clicked = 0;
-            over_slider_button = gidx;
-            do_sound_menu_click();
+            mouse_y = GetMouseY();
+            if ((mouse_y>gbtn->pos_y) && (mouse_y<=(gbtn->pos_y+gbtn->height)))
+            {
+              if ( left_button_clicked )
+              {
+                left_button_clicked = 0;
+                over_slider_button = gidx;
+                do_sound_menu_click();
+              }
+            }
           }
-        }
       }
-    }
   }  // end for
 
   short result = 0;

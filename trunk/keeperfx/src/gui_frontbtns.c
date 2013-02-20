@@ -67,20 +67,20 @@ DLLIMPORT void _DK_frontnet_draw_slider_button(struct GuiButton *gbtn);
 /******************************************************************************/
 void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
 {
-  struct GuiButton *gbtn;
-  int gidx;
-  for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
-  {
-    gbtn = &active_buttons[gidx];
-    if (gbtn->flags & LbBtnF_Unknown01)
-      if ( ((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
-           (gbtn->gbtype != Lb_RADIOBTN) && (gbtn != input_button) )
-      {
-        set_flag_byte(&gbtn->flags,LbBtnF_Unknown10,false);
-        gbtn->field_1 = 0;
-        gbtn->field_2 = 0;
-      }
-  }
+    struct GuiButton *gbtn;
+    int gidx;
+    for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
+    {
+      gbtn = &active_buttons[gidx];
+      if (gbtn->flags & LbBtnF_Unknown01)
+        if ( ((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
+             (gbtn->gbtype != Lb_RADIOBTN) && (gbtn != input_button) )
+        {
+          set_flag_byte(&gbtn->flags,LbBtnF_Unknown10,false);
+          gbtn->field_1 = 0;
+          gbtn->field_2 = 0;
+        }
+    }
 }
 
 TbBool gui_button_release_inputs(int gmbtn_idx)
@@ -237,6 +237,24 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
       }
   }
   return result;
+}
+
+/**
+ * Returns index of an unused button slot.
+ * @return
+ */
+int guibutton_get_unused_slot(void)
+{
+    struct GuiButton *gbtn;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+        gbtn = &active_buttons[i];
+        if ((gbtn->flags & 0x01) == 0) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void kill_button(struct GuiButton *gbtn)
