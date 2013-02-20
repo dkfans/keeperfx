@@ -362,7 +362,7 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
         if ( (tool_tip_time > 10) || (player->work_state == PSt_Unknown12) )
         {
           busy_doing_gui = 1;
-          if (gbtn->field_13 != gui_area_text)
+          if (gbtn->draw_call != gui_area_text)
             setup_gui_tooltip(gbtn);
         } else
         {
