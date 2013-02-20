@@ -107,23 +107,22 @@ struct DraggingBox {
 
 struct GuiButtonInit {
     char field_0;
-    char field_1;
-    char field_2;
-    short field_3;
+    short field_1; // originally was long
+    short field_3; // unused
     short field_5;
-    Gf_Btn_Callback push_call;
-    Gf_Btn_Callback focus_call;
+    Gf_Btn_Callback click_event;
+    Gf_Btn_Callback rclick_event;
     Gf_Btn_Callback field_F;
     short field_13;
-    short field_15;
-    short field_17;
-    short field_19;
-    short field_1B;
+    short scr_pos_x;
+    short scr_pos_y;
+    short pos_x;
+    short pos_y;
     short width;
     short height;
     Gf_Btn_Callback draw_call;
     short field_25;
-    short field_27;
+    short tooltip_id;
     struct GuiMenu *field_29;
     union GuiVariant field_2D;
     char field_31;
@@ -141,8 +140,8 @@ struct GuiButton {
        Gf_Btn_Callback click_event;
        Gf_Btn_Callback rclick_event;
        Gf_Btn_Callback field_F;
-       Gf_Btn_Callback field_13;
-       Gf_Btn_Callback field_17;
+       Gf_Btn_Callback draw_call;
+       Gf_Btn_Callback maintain_call;
        unsigned short field_1B; // definitely a word, not two bytes
        short scr_pos_x;
        short scr_pos_y;
@@ -154,7 +153,7 @@ struct GuiButton {
        short tooltip_id;
        unsigned short field_2D;
        struct GuiMenu *field_2F;
-       unsigned long *content;
+       unsigned long *content; //TODO change it to GuiVariant
        unsigned short slide_val; // slider value, scaled 0..255
 };
 

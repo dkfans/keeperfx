@@ -1011,7 +1011,7 @@ TbBool process_sound_samples(void)
             }
             if (sample->emit_ptr != NULL)
             {
-              if ( (sample->field_F == 0) ||
+              if ( (sample->volume == 0) ||
                  ( ((sample->emit_ptr->field_1 & 0x08) == 0) && (get_sound_distance(&sample->emit_ptr->pos, &Receiver.pos) > MaxSoundDistance) ) )
                 kick_out_sample(i);
             }
@@ -1109,7 +1109,7 @@ long start_emitter_playing(struct SoundEmitter *emit, long smptbl_idx, long bank
     sample->bank_id = bank_idx;
     sample->emit_ptr = emit;
     sample->field_1D = fild1D;
-    sample->field_F = volume;
+    sample->volume = volume;
     sample->field_D = pan;
     sample->field_B = fildB;
     sample->is_playing = 1;
