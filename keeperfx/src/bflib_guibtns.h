@@ -139,7 +139,7 @@ struct GuiButton {
        unsigned char gbtype;
        Gf_Btn_Callback click_event;
        Gf_Btn_Callback rclick_event;
-       Gf_Btn_Callback field_F;
+       Gf_Btn_Callback unkn_event;
        Gf_Btn_Callback draw_call;
        Gf_Btn_Callback maintain_call;
        unsigned short field_1B; // definitely a word, not two bytes

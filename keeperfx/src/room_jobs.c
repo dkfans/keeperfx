@@ -81,10 +81,29 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
     dungeon->lvstats.creatures_tortured++;
     if (dungeon->tortured_creatures[creatng->model] == 0)
     {
+        dungeon->tortured_creatures[creatng->model]++;
         // Torturing changes speed of creatures of that kind, so let's update
         update_speed_of_player_creatures_of_model(room->owner, creatng->model);
+    } else
+    {
+        dungeon->tortured_creatures[creatng->model]++;
     }
-    dungeon->tortured_creatures[creatng->model]++;
+    return true;
+}
+
+TbBool remove_creature_from_torture_room(struct Thing *creatng)
+{
+    struct Room *room;
+    room = get_room_creature_works_in(creatng);
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(room->owner);
+    dungeon->tortured_creatures[creatng->model]--;
+    if (dungeon->tortured_creatures[creatng->model] == 0)
+    {
+        // Torturing changes speed of creatures of that kind, so let's update
+        update_speed_of_player_creatures_of_model(room->owner, creatng->model);
+        // It also changes their pay, but thet's not updated here
+    }
     return true;
 }
 

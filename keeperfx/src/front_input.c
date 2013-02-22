@@ -1800,7 +1800,7 @@ short get_gui_inputs(short gameplay_on)
             gmbtn_idx = gidx;
             set_flag_byte(&gbtn->flags,0x10,true);
             busy_doing_gui = 1;
-            callback = gbtn->field_F;
+            callback = gbtn->unkn_event;
             if (callback != NULL)
               callback(gbtn);
             if (gbtn->gbtype == Lb_UNKNBTN6)

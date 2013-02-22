@@ -1733,7 +1733,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
     gbtn->flags ^= (gbtn->flags ^ 0x02 * (gbinit->field_5 & 0xff)) & 0x02;
     gbtn->click_event = gbinit->click_event;
     gbtn->rclick_event = gbinit->rclick_event;
-    gbtn->field_F = gbinit->field_F;
+    gbtn->unkn_event = gbinit->field_F;
     gbtn->field_1B = gbinit->field_13;
     gbtn->width = gbinit->width;
     gbtn->height = gbinit->height;
