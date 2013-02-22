@@ -43,6 +43,7 @@ TbBool add_creature_to_work_room(struct Thing *crtng, struct Room *room);
 TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *room);
 TbBool remove_creature_from_specific_room(struct Thing *creatng, struct Room *room);
 TbBool remove_creature_from_work_room(struct Thing *thing);
+TbBool remove_creature_from_torture_room(struct Thing *creatng);
 
 short send_creature_to_room(struct Thing *thing, struct Room *room);
 

@@ -129,9 +129,30 @@ short at_torture_room(struct Thing *thing)
     return 1;
 }
 
-short cleanup_torturing(struct Thing *thing)
+short cleanup_torturing(struct Thing *creatng)
 {
-  return _DK_cleanup_torturing(thing);
+    //return _DK_cleanup_torturing(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->word_A6 > 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(cctrl->word_A6);
+        if (thing_exists(thing)) {
+            thing->word_13 = 0;
+            thing->field_4F &= ~0x01;
+        }
+        cctrl->word_A6 = 0;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if (crstat->flying) {
+        creatng->movement_flags |= 0x20;
+    }
+    cctrl->flgfield_1 &= ~0x02;
+    remove_creature_from_torture_room(creatng);
+    state_cleanup_in_room(creatng);
+    return 1;
 }
 
 long process_torture_visuals(struct Thing *thing, struct Room *room, long a3)

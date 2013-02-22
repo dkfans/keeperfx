@@ -3196,14 +3196,14 @@ TbBool check_experience_upgrade(struct Thing *thing)
 /******************************************************************************/
 TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
 {
-  struct CreatureControl *cctrl;
-  thing->active_state = nState;
-  set_flag_byte(&thing->field_1, 0x10, false);
-  thing->continue_state = CrSt_Unused;
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->field_302 = 0;
-  clear_creature_instance(thing);
-  return true;
+    struct CreatureControl *cctrl;
+    thing->active_state = nState;
+    set_flag_byte(&thing->field_1, 0x10, false);
+    thing->continue_state = CrSt_Unused;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->field_302 = 0;
+    clear_creature_instance(thing);
+    return true;
 }
 
 TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState)
