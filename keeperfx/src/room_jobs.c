@@ -66,6 +66,17 @@ TbBool creature_is_working_in_room(const struct Thing *creatng, const struct Roo
     return (cctrl->work_room_id == room->index);
 }
 
+/**
+ * Does tasks required to add a creature to torture room.
+ * @note This function only does the part of adding which is required
+ *  for torture room. Other tasks required when adding a creature to room,
+ *  like add_creature_to_work_room(), have to be invoked separately.
+ * @param creatng
+ * @param room
+ * @return
+ * @see add_creature_to_work_room()
+ * @see remove_creature_from_torture_room()
+ */
 TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *room)
 {
     struct Dungeon *dungeon;
@@ -91,17 +102,38 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
     return true;
 }
 
+/**
+ * Does tasks required to remove a creature from torture room.
+ * @note This function only does the part of removing which is required
+ *  for torture room. Other tasks required when removing a creature from room,
+ *  like remove_creature_from_work_room(), have to be invoked separately.
+ * @see remove_creature_from_work_room()
+ * @param creatng
+ * @param room
+ * @return
+ */
 TbBool remove_creature_from_torture_room(struct Thing *creatng)
 {
     struct Room *room;
+    PlayerNumber plyr_idx;
     room = get_room_creature_works_in(creatng);
+    if (room_exists(room)) {
+        plyr_idx = room->owner;
+    } else {
+        plyr_idx = -1;
+    }
     struct Dungeon *dungeon;
-    dungeon = get_dungeon(room->owner);
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon) || (dungeon->tortured_creatures[creatng->model] < 1)) {
+        ERRORLOG("The %s is tortured by wrong player %d",thing_model_name(creatng),(int)plyr_idx);
+        erstat_inc(ESE_BadCreatrState);
+        return false;
+    }
     dungeon->tortured_creatures[creatng->model]--;
     if (dungeon->tortured_creatures[creatng->model] == 0)
     {
         // Torturing changes speed of creatures of that kind, so let's update
-        update_speed_of_player_creatures_of_model(room->owner, creatng->model);
+        update_speed_of_player_creatures_of_model(plyr_idx, creatng->model);
         // It also changes their pay, but thet's not updated here
     }
     return true;
