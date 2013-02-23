@@ -3133,7 +3133,9 @@ short state_cleanup_dragging_object(struct Thing *creatng)
 
 short state_cleanup_in_room(struct Thing *creatng)
 {
-  return _DK_state_cleanup_in_room(creatng);
+    //return _DK_state_cleanup_in_room(creatng);
+    remove_creature_from_work_room(creatng);
+    return 1;
 }
 
 short state_cleanup_unable_to_fight(struct Thing *creatng)
@@ -3247,19 +3249,19 @@ TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job)
     return true;
 }
 
-TbBool cleanup_current_thing_state(struct Thing *thing)
+TbBool cleanup_current_thing_state(struct Thing *creatng)
 {
     struct StateInfo *stati;
     CreatureStateFunc1 cleanup_cb;
-    stati = get_creature_state_with_task_completion(thing);
+    stati = get_creature_state_with_task_completion(creatng);
     cleanup_cb = stati->cleanup_state;
     if (cleanup_cb != NULL)
     {
-        cleanup_cb(thing);
-        thing->field_1 |= TF1_Unkn10;
+        cleanup_cb(creatng);
+        creatng->field_1 |= TF1_Unkn10;
     } else
     {
-        clear_creature_instance(thing);
+        clear_creature_instance(creatng);
     }
     return true;
 }
@@ -3392,6 +3394,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         return thing->active_state;
     }
     i = creatures[thing->model%CREATURE_TYPES_COUNT].evil_start_state;
+    cleanup_current_thing_state(thing);
     initialise_thing_state(thing, i);
     return thing->active_state;
 }
