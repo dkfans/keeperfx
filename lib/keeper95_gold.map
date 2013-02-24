@@ -230,6 +230,7 @@
  0001:00019D30       anger_process_creature_anger
  0001:0001A110       anger_set_creature_anger
  0001:0001A2B0       anger_set_creature_anger_all_types
+ 0001:0001A4A0       play_thing_walking
  0001:0001A7A0       set_room_playing_ambient_sound
  0001:0001A920       play_non_3d_sample
  0001:0001B790       sound_reinit_after_load

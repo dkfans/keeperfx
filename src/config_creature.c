@@ -26,6 +26,7 @@
 
 #include "globals.h"
 #include "config.h"
+#include "config_terrain.h"
 #include "config_strings.h"
 #include "thing_doors.h"
 #include "thing_creature.h"
@@ -681,6 +682,7 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
     int cmd_num;
     // Block name and parameter word store variables
     char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
     int arr_size;
     // Initialize the array
     if ((flags & CnfLd_AcceptPartial) == 0)
