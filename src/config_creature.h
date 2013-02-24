@@ -125,6 +125,8 @@ struct CreatureInstanceConfig {
 
 struct CreatureJobConfig {
     char name[COMMAND_WORD_LEN];
+    RoomKind room_kind;
+    unsigned long job_flags;
 };
 
 struct CreatureAngerJobConfig {

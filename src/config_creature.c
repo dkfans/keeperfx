@@ -63,7 +63,15 @@ const struct NamedCommand creaturetype_instance_commands[] = {
 
 const struct NamedCommand creaturetype_job_commands[] = {
   {"NAME",            1},
+  {"RELATEDROOM",     2},
+  {"ASSIGN",          3},
   {NULL,              0},
+  };
+
+const struct NamedCommand creaturetype_job_assign[] = {
+  {"HUMAN_DROP_IN_ROOM",     0x01},
+  {"COMPUTER_DROP_IN_ROOM",  0x02},
+  {NULL,                        0},
   };
 
 const struct NamedCommand creaturetype_angerjob_commands[] = {
@@ -75,48 +83,6 @@ const struct NamedCommand creaturetype_attackpref_commands[] = {
   {"NAME",            1},
   {NULL,              0},
   };
-
-/* Now taken from config file
-const struct NamedCommand angerjob_desc[] = {
-  {"KILL_CREATURES",  1},
-  {"DESTROY_ROOMS",   2},
-  {"LEAVE_DUNGEON",   4},
-  {"STEAL_GOLD",      8},
-  {"DAMAGE_WALLS",   16},
-  {"MAD_PSYCHO",     32},
-  {"PERSUADE",       64},
-  {"JOIN_ENEMY",    128},
-  {"UNKNOWN1",      256},
-  {NULL,              0},
-  };*/
-
-/* Now taken from config file
-const struct NamedCommand creaturejob_desc[] = {
-  {"NULL",            Job_NULL},
-  {"TUNNEL",          Job_TUNNEL},
-  {"DIG",             Job_DIG},
-  {"RESEARCH",        Job_RESEARCH},
-  {"TRAIN",           Job_TRAIN},
-  {"MANUFACTURE",     Job_MANUFACTURE},
-  {"SCAVENGE",        Job_SCAVENGE},
-  {"KINKY_TORTURE",   Job_KINKY_TORTURE},
-  {"FIGHT",           Job_FIGHT},
-  {"SEEK_THE_ENEMY",  Job_SEEK_THE_ENEMY},
-  {"GUARD",           Job_GUARD},
-  {"GROUP",           Job_GROUP},
-  {"BARRACK",         Job_BARRACK},
-  {"TEMPLE",          Job_TEMPLE},
-  {"FREEZE_PRISONERS",Job_FREEZE_PRISONERS},
-  {"EXPLORE",         Job_EXPLORE},
-  {NULL,              0},
-  };*/
-
-/* Now taken from config file
-const struct NamedCommand attackpref_desc[] = {
-  {"MELEE",              PrefAttck_Melee},
-  {"RANGED",             PrefAttck_Ranged},
-  {NULL,                 0},
-  };*/
 
 const struct NamedCommand creature_graphics_desc[] = {
   {"STAND",              0+1},
@@ -724,6 +690,8 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
         {
             jobcfg = &crtr_conf.jobs[i];
             LbMemorySet(jobcfg->name, 0, COMMAND_WORD_LEN);
+            jobcfg->room_kind = RoK_NONE;
+            jobcfg->job_flags = 0;
             if (i < crtr_conf.jobs_count)
             {
                 creaturejob_desc[i].name = crtr_conf.jobs[i].name;
@@ -778,6 +746,44 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                     break;
                 }
                 n++;
+                break;
+            case 2: // RELATEDROOM
+                jobcfg->room_kind = RoK_NONE;
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_id(room_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        jobcfg->room_kind = k;
+                        n++;
+                    } else
+                    {
+                        jobcfg->room_kind = 0;
+                        if (stricmp(word_buf,"NULL") == 0)
+                            n++;
+                    }
+                }
+                if (n < 1)
+                {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                }
+                break;
+            case 3: // ASSIGN
+                jobcfg->job_flags = 0;
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_id(creaturetype_job_assign, word_buf);
+                    if (k > 0)
+                    {
+                        jobcfg->job_flags |= k;
+                      n++;
+                    } else {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                            COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+                        break;
+                    }
+                }
                 break;
             case 0: // comment
                 break;
