@@ -244,6 +244,7 @@ DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
 DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
 DLLIMPORT void _DK_startup_network_game(void);
 DLLIMPORT void _DK_load_ceiling_table(void);
+DLLIMPORT void _DK_play_thing_walking(struct Thing *thing);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -2543,12 +2544,144 @@ void update_flames_nearest_camera(struct Camera *camera)
   _DK_update_flames_nearest_camera(camera);
 }
 
+void play_thing_walking(struct Thing *thing)
+{
+    _DK_play_thing_walking(thing);
+}
+
+void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
+{
+    long near_distance[3];
+    // Don't allow creatures which are far by over 20 subtiles
+    near_distance[0] = 20<<8;
+    near_distance[1] = 20<<8;
+    near_distance[2] = 20<<8;
+    near_creatures[0] = 0;
+    near_creatures[1] = 0;
+    near_creatures[2] = 0;
+    // Find the closest thing for footsteps
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    i = game.thing_lists[TngList_Creatures].index;
+    k = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        thing->field_1 &= ~0x20;
+        if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+        {
+            if ( creature_sounds[thing->model].snd01.index )
+            {
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(thing);
+                long ndist;
+                ndist = get_2d_box_distance(srcpos, &thing->mappos);
+                if (ndist < near_distance[0])
+                {
+                    if (((cctrl->field_9 != 0) && ((int)thing->field_60 >= (int)thing->mappos.z.val))
+                      || ((thing->movement_flags & 0x20) != 0))
+                    {
+                        // Insert the new item to our list
+                        int n;
+                        for (n = 2; n>0; n--)
+                        {
+                            near_creatures[n] = near_creatures[n-1];
+                            near_distance[n] = near_distance[n-1];
+                        }
+                        near_distance[0] = ndist;
+                        near_creatures[0] = thing->index;
+                    }
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+}
+
+long stop_playing_footsteps_sample_in_all_flying_creatures(long smpl_idx)
+{
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    long naffected;
+    naffected = 0;
+    i = game.thing_lists[TngList_Creatures].index;
+    k = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        if ((crstat->flying) && ((thing->field_1 & 0x20) == 0))
+        {
+            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, smpl_idx, 0) ) {
+                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, smpl_idx, 0);
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return naffected;
+}
+
 void update_footsteps_nearest_camera(struct Camera *camera)
 {
-  SYNCDBG(6,"Starting");
-  if (camera == NULL)
-    return;
-  _DK_update_footsteps_nearest_camera(camera);
+    static long timeslice = 0;
+    static long near_creatures[3];
+    struct Coord3d srcpos;
+    SYNCDBG(6,"Starting");
+    if (camera == NULL)
+        return;
+    //_DK_update_footsteps_nearest_camera(camera);
+    srcpos.x.val = camera->mappos.x.val;
+    srcpos.y.val = camera->mappos.y.val;
+    srcpos.z.val = camera->mappos.z.val;
+    if (timeslice == 0) {
+        update_near_creatures_for_footsteps(near_creatures, &srcpos);
+    }
+    long i;
+    for (i=0; i < 3; i++)
+    {
+        struct Thing *thing;
+        if (near_creatures[i] == 0)
+            break;
+        thing = thing_get(near_creatures[i]);
+        if (thing_is_creature(thing)) {
+            thing->field_1 |= 0x20;
+            play_thing_walking(thing);
+        }
+    }
+    if (timeslice == 0)
+    {
+        stop_playing_footsteps_sample_in_all_flying_creatures(25);
+    }
+    timeslice = (timeslice + 1) % 4;
 }
 
 void process_player_states(void)

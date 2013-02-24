@@ -276,19 +276,19 @@ short force_video_mode_reset = true;
  */
 short LoadVRes256Data(long scrbuf_size)
 {
-  int i;
-  // Update size of the parchment buffer, as it is also used as screen buffer
-  if (scrbuf_size < 640*480)
-    scrbuf_size = 640*480;
-  i = LbDataFindStartIndex(vres256_load_files,(unsigned char **)&hires_parchment);
-  if (i>=0)
-  {
-    vres256_load_files[i].SLength = scrbuf_size;
-  }
-  // Load the files
-  if (LbDataLoadAll(vres256_load_files))
-    return 0;
-  return 1;
+    int i;
+    // Update size of the parchment buffer, as it is also used as screen buffer
+    if (scrbuf_size < 640*480)
+        scrbuf_size = 640*480;
+    i = LbDataFindStartIndex(vres256_load_files,(unsigned char **)&hires_parchment);
+    if (i>=0) {
+        vres256_load_files[i].SLength = scrbuf_size;
+    }
+    // Load the files
+    if (LbDataLoadAll(vres256_load_files)) {
+        return 0;
+    }
+    return 1;
 }
 
 /**
