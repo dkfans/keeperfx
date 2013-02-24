@@ -64,10 +64,10 @@ DLLIMPORT void _DK_draw_zoom_box(void);
 /******************************************************************************/
 void load_parchment_file(void)
 {
-  if ( !parchment_loaded )
-  {
-    reload_parchment_file(lbDisplay.PhysicalScreenWidth >= 640);
-  }
+    if ( !parchment_loaded )
+    {
+      reload_parchment_file(lbDisplay.PhysicalScreenWidth >= 640);
+    }
 }
 
 void reload_parchment_file(TbBool hires)
@@ -75,12 +75,12 @@ void reload_parchment_file(TbBool hires)
   char *fname;
   if (hires)
   {
-    fname=prepare_file_path(FGrp_StdData,"gmaphi.raw");
-    LbFileLoadAt(fname, hires_parchment);
+      fname = prepare_file_path(FGrp_StdData,"gmaphi.raw");
+      LbFileLoadAt(fname, hires_parchment);
   } else
   {
-    fname=prepare_file_path(FGrp_StdData,"gmap.raw");
-    LbFileLoadAt(fname, poly_pool);
+      fname = prepare_file_path(FGrp_StdData,"gmap.raw");
+      LbFileLoadAt(fname, poly_pool);
   }
   parchment_loaded = 1;
 }
@@ -92,14 +92,14 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   unsigned char *srcbuf;
   if (lbDisplay.GraphicsScreenWidth < 640)
   {
-    img_width = 320;
-    img_height = 200;
-    srcbuf = poly_pool;
+      img_width = 320;
+      img_height = 200;
+      srcbuf = poly_pool;
   } else
   {
-    img_width = 640;
-    img_height = 480;
-    srcbuf = hires_parchment;
+      img_width = 640;
+      img_height = 480;
+      srcbuf = hires_parchment;
   }
   TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
   int m;
@@ -111,8 +111,8 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
     rect_w = mdinfo->Width-rect_x;
   if (rect_h == POS_AUTO)
     rect_h = mdinfo->Height-rect_y;
-  if (rect_w<0) rect_w=0;
-  if (rect_h<0) rect_h=0;
+  if (rect_w < 0) rect_w = 0;
+  if (rect_h < 0) rect_h = 0;
   // Parchment bitmap can't be scaled
   m = 1;
   // Starting point coords
@@ -135,7 +135,8 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
  */
 void draw_map_parchment(void)
 {
-  parchment_copy_background_at(0,0,POS_AUTO,POS_AUTO);
+    parchment_copy_background_at(0,0,POS_AUTO,POS_AUTO);
+    SYNCDBG(9,"Done");
 }
 
 TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel background)
