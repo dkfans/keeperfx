@@ -1209,17 +1209,17 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
         case 21: // LAIRENEMY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = get_id(creature_desc, word_buf);
-              if (k >= 0)
-              {
-                crstat->lair_enemy = k;
-                n++;
-              } else
-              {
-                crstat->lair_enemy = 0;
-                if (stricmp(word_buf,"NULL") == 0)
+                k = get_id(creature_desc, word_buf);
+                if (k >= 0)
+                {
+                  crstat->lair_enemy = k;
                   n++;
-              }
+                } else
+                {
+                  crstat->lair_enemy = 0;
+                  if (stricmp(word_buf,"NULL") == 0)
+                    n++;
+                }
             }
             if (n < 1)
             {
