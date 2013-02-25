@@ -1790,6 +1790,7 @@
  0003:000AB4D0       hires_parchment
  0003:000AB4D4       winfont
  0003:000AB4D8       units_per_pixel
+ 0003:000AB4E0       sound_seed
  0003:000AB4E4       scratch
  0003:000AB4E8       end_rooms
  0003:000AB4F0       poly_pool

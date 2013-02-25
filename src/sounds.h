@@ -79,6 +79,9 @@ struct UnkSndSampleStr { // sizeof = 16
 
 #pragma pack()
 /******************************************************************************/
+DLLIMPORT unsigned long _DK_sound_seed;
+#define sound_seed _DK_sound_seed
+/******************************************************************************/
 TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5);
 TbBool init_sound(void);
 void randomize_sound_font(void);
@@ -89,6 +92,7 @@ void process_3d_sounds(void);
 void process_sound_heap(void);
 
 void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8);
+void play_thing_walking(struct Thing *thing);
 
 TbBool ambient_sound_prepare(void);
 TbBool ambient_sound_stop(void);

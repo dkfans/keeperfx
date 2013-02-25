@@ -298,7 +298,8 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
     if ((cmodel < 1) || (cmodel >= CREATURE_TYPES_COUNT))
     {
         ERRORLOG("Trying to get sound for undefined creature type");
-        return NULL;
+        // Return dummy element
+        return &creature_sounds[0].snd01;
     }
     switch (snd_idx)
     {
@@ -325,7 +326,8 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
     case 11:
         return &creature_sounds[cmodel].snd11;
     default:
-        return NULL;
+        // Return dummy element
+        return &creature_sounds[0].snd01;
     }
 }
 
@@ -334,8 +336,6 @@ TbBool playing_creature_sound(struct Thing *thing, long snd_idx)
     struct CreatureSound *crsound;
     long i;
     crsound = get_creature_sound(thing, snd_idx);
-    if (crsound == NULL)
-      return false;
     for (i=0; i < crsound->count; i++)
     {
         if (S3DEmitterIsPlayingSample(thing->snd_emitter_id, crsound->index+i, 0))
@@ -349,7 +349,7 @@ void stop_creature_sound(struct Thing *thing, long snd_idx)
     struct CreatureSound *crsound;
     int i;
     crsound = get_creature_sound(thing, snd_idx);
-    if (crsound == NULL) {
+    if (crsound->index <= 0) {
         SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
         return;
     }
@@ -372,7 +372,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
       return;
     }
     crsound = get_creature_sound(thing, snd_idx);
-    if (crsound == NULL) {
+    if (crsound->index <= 0) {
         SYNCDBG(19,"No sample %d for creature %d",snd_idx,thing->model);
         return;
     }
@@ -394,7 +394,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
         return;
     }
     crsound = get_creature_sound(thing, snd_idx);
-    if (crsound == NULL) {
+    if (crsound->index <= 0) {
         //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
         return;
     }
