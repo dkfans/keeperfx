@@ -61,11 +61,17 @@ unsigned long field_4;
 unsigned long field_8;
 unsigned char field_C[6];
   unsigned char field_12;
-unsigned char field_13[7];
-unsigned char field_1A[6];
+unsigned char field_13[5];
+unsigned char field_18;
+unsigned char activation_type;
+unsigned char field_1A;
+  unsigned char field_1B;
+unsigned char field_1C[4];
 unsigned char field_20[8];
 unsigned char field_28[8];
-unsigned char field_30[6];
+short field_30;
+short field_32;
+short field_34;
 };
 
 #pragma pack()
