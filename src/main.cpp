@@ -2574,7 +2574,9 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         thing->field_1 &= ~0x20;
         if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
         {
-            if ( creature_sounds[thing->model].snd01.index )
+            struct CreatureSound *crsound;
+            crsound = get_creature_sound(thing, CrSnd_Footsteps);
+            if ((crsound != NULL) && (crsound->index))
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
@@ -2608,7 +2610,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
     }
 }
 
-long stop_playing_footsteps_sample_in_all_flying_creatures(long smpl_idx)
+long stop_playing_flight_sample_in_all_flying_creatures(void)
 {
     struct Thing *thing;
     unsigned long k;
@@ -2631,8 +2633,8 @@ long stop_playing_footsteps_sample_in_all_flying_creatures(long smpl_idx)
         crstat = creature_stats_get_from_thing(thing);
         if ((crstat->flying) && ((thing->field_1 & 0x20) == 0))
         {
-            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, smpl_idx, 0) ) {
-                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, smpl_idx, 0);
+            if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
+                S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
             }
         }
         // Per-thing code ends
@@ -2675,7 +2677,7 @@ void update_footsteps_nearest_camera(struct Camera *camera)
     }
     if (timeslice == 0)
     {
-        stop_playing_footsteps_sample_in_all_flying_creatures(25);
+        stop_playing_flight_sample_in_all_flying_creatures();
     }
     timeslice = (timeslice + 1) % 4;
 }

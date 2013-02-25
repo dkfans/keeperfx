@@ -129,6 +129,8 @@
  0001:0000B5A0       frontend_draw_computer_players
  0001:0000B660       frontend_toggle_computer_players
  0001:0000BC00       update_trap_trigger
+ 0001:0000BE60       update_trap_trigger_line_of_sight_90
+ 0001:0000C610       activate_trap
  0001:0000C9F0       external_activate_trap_shot_at_angle
  0001:0000CAF0       get_trap_for_position
  0001:0000CB50       get_trap_for_slab_position

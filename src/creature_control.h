@@ -74,6 +74,7 @@ enum CreatureSoundTypes {
     CrSnd_SlappedOuch  = 1,
     CrSnd_PrisonMoan   = 4,
     CrSnd_HandPick     = 5,
+    CrSnd_Footsteps    = 10,
 };
 
 enum CreatureControlFlags {
@@ -643,6 +644,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
 TbBool disband_creatures_group(struct Thing *thing);
 void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
+struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
 void reset_creature_eye_lens(struct Thing *thing);
 TbBool creature_can_gain_experience(struct Thing *thing);
 /******************************************************************************/
