@@ -1159,6 +1159,7 @@
  0001:00059A70       update_dead_creature
  0001:00059CC0       update_trap
  0001:0000BC00       update_trap_trigger
+ 0001:0000BE60       update_trap_trigger_line_of_sight_90
  0001:0008B950       process_effect_generator
  0001:000770F0       process_door
  0001:00089CB0       update_effect
@@ -1493,6 +1494,7 @@
  0001:00051280       start_emitter_playing
  0001:00021C00       process_pointer_graphic
  0001:0000C9F0       external_activate_trap_shot_at_angle
+ 0001:0000C610       activate_trap
  0001:000C1E50       apply_damage_to_thing
  0001:000399A0       init_alpha_table
  0001:000DC3B0       LbPaletteFindColour

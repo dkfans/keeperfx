@@ -320,7 +320,7 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
         return &creature_sounds[cmodel].snd10;
     case 9:
         return &creature_sounds[cmodel].snd06;
-    case 10:
+    case CrSnd_Footsteps:
         return &creature_sounds[cmodel].snd01;
     case 11:
         return &creature_sounds[cmodel].snd11;
