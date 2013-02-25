@@ -33,6 +33,7 @@
 #include "gui_topmsg.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
+#include "config_creature.h"
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
@@ -41,21 +42,28 @@
 extern "C" {
 #endif
 /******************************************************************************/
+const char foot_down_sound_sample_variant[] = {
+   0,  1,  2,  3,  1,  0,  3,  2,  0,  3,  1,  2,  1,  2,  0,  3,
+   1,  0,  1,  1,  1,  1,  0,  1,  0,  1, -1,  1, -1,  1, -1,  0,
+  -1,  0, -1, -1, -1, -1,  0, -1,  0, -1,  1, -1,  1, -1,  1,  0,
+};
+
 char sound_dir[64] = "SOUND";
 /******************************************************************************/
-DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *a2, long *a3, long a4, long a5);
+DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *smptbl_idx, long *a3, long a4, long a5);
 DLLIMPORT int __stdcall _DK_init_sound(void);
-DLLIMPORT long _DK_init_sound_heap_two_banks(unsigned char *a1, long a2, char *a3, char *a4, long a5);
+DLLIMPORT long _DK_init_sound_heap_two_banks(unsigned char *a1, long smptbl_idx, char *a3, char *a4, long a5);
 DLLIMPORT void _DK_set_room_playing_ambient_sound(struct Coord3d *pos, long sample_idx);
 DLLIMPORT void _DK_find_nearest_rooms_for_ambient_sound(void);
 DLLIMPORT int _DK_process_sound_heap(void);
 DLLIMPORT int _DK_process_3d_sounds(void);
 DLLIMPORT void _DK_sound_reinit_after_load(void);
+DLLIMPORT void _DK_play_thing_walking(struct Thing *thing);
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long a8)
+void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
 {
     struct Coord3d rcpos;
-    long i;
+    long eidx;
     if (SoundDisabled)
         return;
     if (GetCurrentSoundMasterVolume() <= 0)
@@ -67,15 +75,91 @@ void thing_play_sample(struct Thing *thing, short a2, unsigned short a3, char a4
     rcpos.z.val = Receiver.pos.val_z;
     if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
     {
-        i = thing->snd_emitter_id;
-        if (i > 0)
+        eidx = thing->snd_emitter_id;
+        if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(i, a2, 0, a3, a8, a4, a5, a6 | 0x01, a7);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, a3, loudness, a4, a5, a6 | 0x01, a7);
         } else
         {
-            i = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               a2, 0, a3, a8, a4, a6 | 0x01, a7);
-           thing->snd_emitter_id = i;
+            eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
+               smptbl_idx, 0, a3, loudness, a4, a6 | 0x01, a7);
+           thing->snd_emitter_id = eidx;
+        }
+    }
+}
+
+void play_thing_walking(struct Thing *thing)
+{
+    //_DK_play_thing_walking(thing); return;
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    struct Camera *cam;
+    cam = myplyr->acamera;
+    { // Skip the thing if its distance to camera is too big
+        int dist_x, dist_y;
+        dist_x = abs(cam->mappos.x.val - thing->mappos.x.val) / 256;
+        dist_y = abs(cam->mappos.y.val - thing->mappos.y.val) / 256;
+        if (dist_x <= dist_y)
+          dist_x = dist_y;
+        if (dist_x >= 10) {
+            return;
+        }
+    }
+    if ((get_creature_model_flags(thing) & MF_IsSpectator) != 0) {
+        // Spectators don't do sounds
+        return;
+    }
+    long loudness;
+    loudness = ((myplyr->view_mode - 1) < 1u) ? 256 : 50;
+    // Flying diptera has a buzzing noise sound
+    if ((get_creature_model_flags(thing) & MF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->field_60 < (int)thing->mappos.z.val))
+    {
+        if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
+            thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+        }
+    }
+    else
+    {
+        if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
+            S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);
+        }
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if ((cctrl->field_9) && get_foot_creature_has_down(thing))
+        {
+            int smpl_variant;
+            smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
+            long smpl_idx;
+            if ((thing->movement_flags & TMvF_Unknown80) != 0) {
+                smpl_idx = 181 + smpl_variant;
+            } else {
+                struct CreatureSound *crsound;
+                crsound = get_creature_sound(thing, CrSnd_Footsteps);
+                smpl_idx = crsound->index + smpl_variant;
+            }
+            cctrl->field_67 = (cctrl->field_67 ^ (cctrl->field_67 ^ (cctrl->field_67 + 1))) & 0x1F;
+            if ((cctrl->field_67 & 0x1F) >= 4)
+            {
+                cctrl->mood_flags &= ~0x1C;
+                cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
+                cctrl->field_67 &= ~0x1F;
+            }
+
+            int v15;
+            unsigned short smpl_delay;
+            v15 = thing->model;
+            if ( v15 == 19 || v15 == 24 ) {
+                smpl_delay = 400;
+            } else
+            if ( v15 == 27 ) {
+                smpl_delay = 300;
+            } else {
+                smpl_delay = 100;
+            }
+            thing_play_sample(thing, smpl_idx, smpl_delay, 0, 3, 3, 1, loudness);
+            if ((thing->movement_flags & TMvF_IsOnWater) != 0) {
+                thing_play_sample(thing, 21 + SOUND_RANDOM(4), 90 + SOUND_RANDOM(20), 0, 3, 3, 1, 256);
+            }
         }
     }
 }

@@ -80,6 +80,7 @@
  0003:00014964       strings_data
  0003:000A6678       phase_of_moon
  0003:000AB424       mem_size
+ 0003:000AB4E0       sound_seed
  0003:00011838       legal_load_files
  0003:000A6554       palette
  0003:000AB4E4       scratch
