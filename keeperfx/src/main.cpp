@@ -244,7 +244,6 @@ DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
 DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
 DLLIMPORT void _DK_startup_network_game(void);
 DLLIMPORT void _DK_load_ceiling_table(void);
-DLLIMPORT void _DK_play_thing_walking(struct Thing *thing);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -2544,11 +2543,6 @@ void update_flames_nearest_camera(struct Camera *camera)
   _DK_update_flames_nearest_camera(camera);
 }
 
-void play_thing_walking(struct Thing *thing)
-{
-    _DK_play_thing_walking(thing);
-}
-
 void update_near_creatures_for_footsteps(long *near_creatures, const struct Coord3d *srcpos)
 {
     long near_distance[3];
@@ -2580,7 +2574,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         {
             struct CreatureSound *crsound;
             crsound = get_creature_sound(thing, CrSnd_Footsteps);
-            if ((crsound != NULL) && (crsound->index))
+            if (crsound->index > 0)
             {
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
@@ -2633,9 +2627,7 @@ long stop_playing_flight_sample_in_all_flying_creatures(void)
         }
         i = thing->next_of_class;
         // Per-thing code
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(thing);
-        if ((crstat->flying) && ((thing->field_1 & 0x20) == 0))
+        if ((get_creature_model_flags(thing) & MF_IsDiptera) && ((thing->field_1 & 0x20) == 0))
         {
             if ( S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
                 S3DDeleteSampleFromEmitter(thing->snd_emitter_id, 25, 0);

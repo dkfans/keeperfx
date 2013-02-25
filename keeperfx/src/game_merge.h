@@ -37,6 +37,7 @@ extern "C" {
 #define QUICK_MESSAGES_COUNT         50
 #define BONUS_LEVEL_STORAGE_COUNT     6
 
+#define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__)
 #define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__)
 #define ACTION_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
 
