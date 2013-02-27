@@ -147,12 +147,12 @@ struct EffectElementStats { // sizeof = 79
   unsigned char field_2;
   short numfield_3;
   short numfield_5;
-  short numfield_7;
-  short numfield_9;
-  short numfield_B;
+  short sprite_idx;
+  short sprite_size_min;
+  short sprite_size_max;
   unsigned char field_D;
-  unsigned short field_E;
-  unsigned short field_10;
+  unsigned short sprite_speed_min;
+  unsigned short sprite_speed_max;
   unsigned char field_12;
   unsigned char field_13;
   unsigned char field_14;

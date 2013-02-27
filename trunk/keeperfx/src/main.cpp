@@ -3451,43 +3451,40 @@ void outro(void)
     play_smacker_file(fname, 17);
 }
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long a4, char a5, char start_frame, unsigned char a7)
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char a7)
 {
-  unsigned long i;
-  //_DK_set_thing_draw(thing, anim, speed, a4, a5, start_frame, a7); return;
-  thing->field_44 = convert_td_iso(anim);
-  thing->field_50 &= 0x03;
-  thing->field_50 |= (a7 << 2);
-  thing->field_49 = keepersprite_frames(thing->field_44);
-  if (speed != -1)
-  {
-    thing->field_3E = speed;
-  }
-  if (a4 != -1)
-  {
-    thing->field_46 = a4;
-  }
-  if (a5 != -1)
-  {
-    set_flag_byte(&thing->field_4F, 0x40, a5);
-  }
-  if (start_frame == -2)
-  {
-    i = keepersprite_frames(thing->field_44) - 1;
-    thing->field_48 = i;
-    thing->field_40 = i << 8;
-  } else
-  if (start_frame == -1)
-  {
-    i = ACTION_RANDOM(thing->field_49);
-    thing->field_48 = i;
-    thing->field_40 = i << 8;
-  } else
-  {
-    i = start_frame;
-    thing->field_48 = i;
-    thing->field_40 = i << 8;
-  }
+    unsigned long i;
+    //_DK_set_thing_draw(thing, anim, speed, a4, a5, start_frame, a7); return;
+    thing->field_44 = convert_td_iso(anim);
+    thing->field_50 &= 0x03;
+    thing->field_50 |= (a7 << 2);
+    thing->field_49 = keepersprite_frames(thing->field_44);
+    if (speed != -1) {
+        thing->field_3E = speed;
+    }
+    if (scale != -1) {
+        thing->field_46 = scale;
+    }
+    if (a5 != -1) {
+        set_flag_byte(&thing->field_4F, 0x40, a5);
+    }
+    if (start_frame == -2)
+    {
+      i = keepersprite_frames(thing->field_44) - 1;
+      thing->field_48 = i;
+      thing->field_40 = i << 8;
+    } else
+    if (start_frame == -1)
+    {
+      i = ACTION_RANDOM(thing->field_49);
+      thing->field_48 = i;
+      thing->field_40 = i << 8;
+    } else
+    {
+      i = start_frame;
+      thing->field_48 = i;
+      thing->field_40 = i << 8;
+    }
 }
 
 void init_dungeons(void)
@@ -4086,65 +4083,67 @@ void wait_at_frontend(void)
 
 void game_loop(void)
 {
-  //_DK_game_loop(); return;
-  unsigned long random_seed;
-  unsigned long playtime;
-  playtime = 0;
-  random_seed = 0;
-  SYNCDBG(0,"Entering gameplay loop.");
-  while ( !exit_keeper )
-  {
-    update_mouse();
-    wait_at_frontend();
-    if ( exit_keeper )
-      break;
-    struct PlayerInfo *player;
-    player = get_my_player();
-    if (game.game_kind == GKind_NetworkGame)
+    //_DK_game_loop(); return;
+    unsigned long total_play_turns;
+    unsigned long playtime;
+    playtime = 0;
+    total_play_turns = 0;
+    SYNCDBG(0,"Entering gameplay loop.");
+    while ( !exit_keeper )
     {
-      if (game.numfield_15 == -1)
+      update_mouse();
+      wait_at_frontend();
+      if ( exit_keeper )
+        break;
+      struct PlayerInfo *player;
+      player = get_my_player();
+      if (game.game_kind == GKind_NetworkGame)
       {
-        set_player_instance(player, PI_HeartZoom, 0);
-      } else
-      {
-        game.numfield_15 = -1;
-        set_flag_byte(&game.numfield_C,0x01,false);
+        if (game.numfield_15 == -1)
+        {
+          set_player_instance(player, PI_HeartZoom, 0);
+        } else
+        {
+          game.numfield_15 = -1;
+          set_flag_byte(&game.numfield_C,0x01,false);
+        }
       }
+      unsigned long starttime;
+      unsigned long endtime;
+      struct Dungeon *dungeon;
+      // get_my_dungeon() can't be used here because players are not initialized yet
+      dungeon = get_dungeon(my_player_number);
+      starttime = LbTimerClock();
+      dungeon->lvstats.start_time = starttime;
+      dungeon->lvstats.end_time = starttime;
+      LbScreenClear(0);
+      LbScreenSwap();
+      keeper_gameplay_loop();
+      set_pointer_graphic_none();
+      LbScreenClear(0);
+      LbScreenSwap();
+      StopRedbookTrack();
+      StopMusic();
+      turn_off_all_menus();
+      delete_all_structures();
+      clear_mapwho();
+      endtime = LbTimerClock();
+      quit_game = 0;
+      if ((game.numfield_C & 0x02) != 0)
+          exit_keeper=true;
+      playtime += endtime-starttime;
+      SYNCDBG(0,"Play time is %d seconds",playtime>>10);
+      total_play_turns += game.play_gameturn;
+      reset_eye_lenses();
+      close_packet_file();
+      game.packet_load_enable = false;
+      game.packet_save_enable = false;
+    } // end while
+    // Stop the movie recording if it's on
+    if ((game.system_flags & GSF_CaptureMovie) != 0) {
+        movie_record_stop();
     }
-    unsigned long starttime;
-    unsigned long endtime;
-    struct Dungeon *dungeon;
-    // get_my_dungeon() can't be used here because players are not initialized yet
-    dungeon = get_dungeon(my_player_number);
-    starttime = LbTimerClock();
-    dungeon->lvstats.start_time = starttime;
-    dungeon->lvstats.end_time = starttime;
-    LbScreenClear(0);
-    LbScreenSwap();
-    keeper_gameplay_loop();
-    set_pointer_graphic_none();
-    LbScreenClear(0);
-    LbScreenSwap();
-    StopRedbookTrack();
-    StopMusic();
-    turn_off_all_menus();
-    delete_all_structures();
-    clear_mapwho();
-    endtime = LbTimerClock();
-    quit_game = 0;
-    if ((game.numfield_C & 0x02) != 0)
-        exit_keeper=true;
-    playtime += endtime-starttime;
-    SYNCDBG(0,"Play time is %d seconds",playtime>>10);
-    random_seed += game.play_gameturn;
-    reset_eye_lenses();
-    close_packet_file();
-    game.packet_load_enable = false;
-    game.packet_save_enable = false;
-  } // end while
-  // Stop the movie recording if it's on
-  if ((game.system_flags & GSF_CaptureMovie) != 0)
-    movie_record_stop();
+    SYNCDBG(7,"Done");
 }
 
 short reset_game(void)

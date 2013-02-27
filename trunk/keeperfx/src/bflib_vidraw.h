@@ -27,6 +27,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define NUM_DRAWITEMS 238
+#define SPRITE_SCALING_XSTEPS 256
+#define SPRITE_SCALING_YSTEPS 312
 
 /******************************************************************************/
 #pragma pack(1)
@@ -180,10 +182,17 @@ DLLIMPORT unsigned char *_DK_lbSpriteReMapPtr;
 #define lbSpriteReMapPtr _DK_lbSpriteReMapPtr
 DLLIMPORT long _DK_scale_up;
 #define scale_up _DK_scale_up
-DLLIMPORT long _DK_xsteps_array[512];
+DLLIMPORT long _DK_xsteps_array[2*SPRITE_SCALING_XSTEPS];
 #define xsteps_array _DK_xsteps_array
-DLLIMPORT long _DK_ysteps_array[624];
+DLLIMPORT long _DK_ysteps_array[2*SPRITE_SCALING_YSTEPS];
 #define ysteps_array _DK_ysteps_array
+
+DLLIMPORT long _DK_alpha_scale_up;
+#define alpha_scale_up _DK_alpha_scale_up
+DLLIMPORT long _DK_alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
+#define alpha_xsteps_array _DK_alpha_xsteps_array
+DLLIMPORT long _DK_alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
+#define alpha_ysteps_array _DK_alpha_ysteps_array
 /******************************************************************************/
 //Routines to be moved into bflib_vipurp
 /*
