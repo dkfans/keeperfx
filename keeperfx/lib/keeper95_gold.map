@@ -753,6 +753,9 @@
  0006:00000014       gtblock_clip_height
  0006:00000018       gtblock_screen_width
  0006:0000001C       gtblock_screen_addr
+ 0006:00000020       alpha_scale_up
+ 0006:00000024       alpha_xsteps_array
+ 0006:00000824       alpha_ysteps_array
  0006:00001030       scale_up
  0006:00001034       xsteps_array
  0006:00001834       ysteps_array

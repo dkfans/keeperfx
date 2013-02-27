@@ -62,7 +62,7 @@ unsigned long field_8;
 unsigned char field_C[6];
   unsigned char field_12;
 unsigned char field_13[5];
-unsigned char field_18;
+unsigned char trigger_type;
 unsigned char activation_type;
 unsigned char field_1A;
   unsigned char field_1B;

@@ -406,7 +406,7 @@ void process_keeper_spell_effect(struct Thing *thing);
 long process_creature_self_spell_casting(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
 struct Room *player_has_room_of_type(long plr_idx, long roomkind);
-void set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
+void set_thing_draw(struct Thing *thing, long anim, long speed, long a4, char a5, char start_frame, unsigned char a7);
 unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 short can_dig_here(long x, long y, long owner);
 
