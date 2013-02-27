@@ -141,6 +141,7 @@ TbBool clear_lens_palette(void)
 {
     struct PlayerInfo *player;
     struct LensConfig *lenscfg;
+    SYNCDBG(7,"Staring");
     player = get_my_player();
     // Get lens config and check if it has palette entry
     lenscfg = get_lens_config(game.numfield_1B);
@@ -148,8 +149,10 @@ TbBool clear_lens_palette(void)
     {
         // If there is a palette entry, then clear it
         player->field_7 = NULL;
+        SYNCDBG(9,"Clear done");
         return true;
     }
+    SYNCDBG(9,"Clear not needed");
     return false;
 }
 
@@ -163,6 +166,7 @@ void set_lens_palette(unsigned char *palette)
 
 void reset_eye_lenses(void)
 {
+    SYNCDBG(7,"Starting");
     free_mist();
     clear_lens_palette();
     if (eye_lens_memory != NULL)
@@ -178,6 +182,7 @@ void reset_eye_lenses(void)
     set_flag_byte(&game.flags_cd, MFlg_EyeLensReady, false);
     game.numfield_1A = 0;
     game.numfield_1B = 0;
+    SYNCDBG(9,"Done");
 }
 
 void initialise_eye_lenses(void)
@@ -218,12 +223,13 @@ void setup_eye_lens(long nlens)
     char *fname;
     if ((game.flags_cd & MFlg_EyeLensReady) == 0)
     {
-      WARNLOG("Can't setup lens - not initialized");
-      return;
+        WARNLOG("Can't setup lens - not initialized");
+        return;
     }
     SYNCDBG(7,"Starting for lens %ld",nlens);
-    if (clear_lens_palette())
+    if (clear_lens_palette()) {
         game.numfield_1A = 0;
+    }
     if (nlens == 0)
     {
         game.numfield_1A = 0;
@@ -232,8 +238,8 @@ void setup_eye_lens(long nlens)
     }
     if (game.numfield_1A == nlens)
     {
-      game.numfield_1B = nlens;
-      return;
+        game.numfield_1B = nlens;
+        return;
     }
     lenscfg = get_lens_config(nlens);
     if ((lenscfg->flags & LCF_HasMist) != 0)

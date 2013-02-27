@@ -83,7 +83,7 @@ struct InitEffect effect_info[] = {
     { 2, 1,  32,  32, -96,  96,  2,   0, 84, 84,  0, 1, {0}, 1},
     { 2, 1,  64,  64, -96,  96,  4,   0, 84, 84,  0, 1, {0}, 1},
     { 3, 1,  96,  96, -96,  96,  4,   0, 84, 84,  0, 1, {0}, 1},
-    { 4, 1,  96,  96, -96,  96,  5,   0, 84, 84,  0, 1, {0}, 1},
+    { 4, 1,  96,  96, -96,  96,  5,   0, 84, 84,  0, 1, {0}, 1}, // [10]
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  1, 1, {0}, 1},
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  1, 1, {0}, 1},
     {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  1, 1, {0}, 1},
@@ -93,7 +93,7 @@ struct InitEffect effect_info[] = {
     {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  0, 1, {0}, 1},
     {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  0, 1, {0}, 1},
     { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  0, 1, {0}, 1},
-    { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  0, 1, {0}, 1},
+    { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  0, 1, {0}, 1}, // [20]
     { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  0, 1, {0}, 1},
     { 1, 1,  32,  32, -96,  96,  1,   0, 24, 24,  0, 1, {0}, 1},
     { 2, 1,  64,  64, -96,  96,  4,   0, 24, 24,  0, 1, {0}, 1},
@@ -175,8 +175,7 @@ struct EffectElementStats effect_element_stats[] = {
     0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
    {2, 1, 0, 30, 40, 929, 320, 374, 0, 128, 128, 1, 1,
     2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0,
-    0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    1},
+    0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
    {2, 1, 0, 20, 20, 981, 172, 192, 0, 256, 256, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 256, 0,
     0, 0, 256, 0, 0, 0, 256, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -519,11 +518,11 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->field_5A = 1;
     thing->field_5C = 1;
 
-    if (eestat->numfield_7 != -1)
+    if (eestat->sprite_idx != -1)
     {
-        i = ACTION_RANDOM(eestat->numfield_B - (long)eestat->numfield_9 + 1);
-        n = ACTION_RANDOM(eestat->field_10   - (long)eestat->field_E    + 1);
-        set_thing_draw(thing, eestat->numfield_7, eestat->field_E + n, eestat->numfield_9 + i, 0, 0, eestat->field_0);
+        i = ACTION_RANDOM(eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
+        n = ACTION_RANDOM(eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
+        set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->field_0);
         set_flag_byte(&thing->field_4F,0x02,eestat->field_13);
         thing->field_4F ^= (thing->field_4F ^ (0x10 * eestat->field_14)) & 0x30;
         set_flag_byte(&thing->field_4F,0x40,eestat->field_D);
@@ -550,19 +549,19 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 
     if (eestat->field_17 != 0)
     {
-        thing->field_4B = eestat->numfield_9;
-        thing->field_4D = eestat->numfield_B;
+        thing->field_4B = eestat->sprite_size_min;
+        thing->field_4D = eestat->sprite_size_max;
         if (eestat->field_17 == 2)
         {
-            thing->field_4A = 2 * (eestat->numfield_B - (long)eestat->numfield_9) / thing->health;
+            thing->field_4A = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 |= 0x02;
         }
         else
         {
-            thing->field_4A = (eestat->numfield_B - (long)eestat->numfield_9) / thing->health;
+            thing->field_4A = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 &= ~0x02;
         }
-        thing->field_46 = eestat->numfield_9;
+        thing->field_46 = eestat->sprite_size_min;
     } else
     {
         thing->field_4A = 0;
@@ -868,7 +867,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     long i,k,n;
     long mag;
     unsigned long arg,argZ;
-    effnfo = &effect_info[thing->model];
+    effnfo = get_effect_info_for_thing(thing);
     SYNCDBG(18,"Preparing Effect, Generation Type %d",(int)effnfo->generation_type);
     switch (effnfo->generation_type)
     {
@@ -908,6 +907,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
               set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
               elemtng = create_effect_element(&pos, n, thing->owner);
               TRACE_THING(elemtng);
+              SYNCDBG(18,"Created %s",thing_model_name(elemtng));
               k += 2048;
           }
           break;
@@ -1088,8 +1088,9 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
-    if (ieffect->field_C != 0)
-      thing_play_sample(thing, ieffect->field_C, 100, 0, 3, 0, 3, 256);
+    if (ieffect->field_C != 0) {
+        thing_play_sample(thing, ieffect->field_C, 100, 0, 3, 0, 3, 256);
+    }
     return thing;
 }
 
@@ -1451,45 +1452,45 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
 
 void poison_cloud_affecting_area(struct Thing *owntng, struct Coord3d *pos, long a3, long a4, unsigned char area_affect_type)
 {
-    _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, area_affect_type);
+    _DK_poison_cloud_affecting_area(owntng, pos, a3, a4, area_affect_type); return;
 }
 
-TngUpdateRet update_effect(struct Thing *thing)
+TngUpdateRet update_effect(struct Thing *efftng)
 {
-    struct InitEffect *effnfo;
+    const struct InitEffect *effnfo;
     struct Thing *subtng;
-    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
-    TRACE_THING(thing);
+    SYNCDBG(18,"Starting for %s",thing_model_name(efftng));
+    TRACE_THING(efftng);
     //return _DK_update_effect(thing);
     subtng = NULL;
-    effnfo = &effect_info[thing->model];
-    if ( thing->parent_idx ) {
-        subtng = thing_get(thing->parent_idx);
+    effnfo = get_effect_info_for_thing(efftng);
+    if (efftng->parent_idx > 0) {
+        subtng = thing_get(efftng->parent_idx);
         TRACE_THING(subtng);
     }
-    if (thing->health <= 0) {
-        destroy_effect_thing(thing);
+    if (efftng->health <= 0) {
+        destroy_effect_thing(efftng);
         return TUFRet_Deleted;
     }
-    update_effect_light_intensity(thing);
+    update_effect_light_intensity(efftng);
     // Effect generators can be used to generate effect elements
-    if ( (effnfo->field_11 == 0) || any_player_close_enough_to_see(&thing->mappos) )
+    if ( (effnfo->field_11 == 0) || any_player_close_enough_to_see(&efftng->mappos) )
     {
-        effect_generate_effect_elements(thing);
+        effect_generate_effect_elements(efftng);
     }
     // Let the effect affect area
     switch (effnfo->area_affect_type)
     {
     case 1:
     case 3:
-        poison_cloud_affecting_area(subtng, &thing->mappos, 1280, 60, effnfo->area_affect_type);
+        poison_cloud_affecting_area(subtng, &efftng->mappos, 1280, 60, effnfo->area_affect_type);
         break;
     case 4:
-        word_of_power_affecting_area(thing, subtng, &thing->mappos, 1280);
+        word_of_power_affecting_area(efftng, subtng, &efftng->mappos, 1280);
         break;
     }
-    thing->health--;
-    return move_effect(thing);
+    efftng->health--;
+    return move_effect(efftng);
 }
 
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price)

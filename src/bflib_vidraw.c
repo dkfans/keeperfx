@@ -1675,11 +1675,11 @@ TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const
         return LbSpriteDrawFCOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
 }
 
-void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
+void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth, long dwidth, long gwidth)
 {
     long *pwidth;
     long cwidth;
-    pwidth = xsteps_array;
+    pwidth = xsteps_arr;
     long factor = (dwidth<<16)/swidth;
     long tmp = (factor >> 1) + (x << 16);
     cwidth = tmp >> 16;
@@ -1704,11 +1704,25 @@ void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidt
     } while (w > 0);
 }
 
-void LbSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
+void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
+{
+    if (swidth > SPRITE_SCALING_XSTEPS)
+        swidth = SPRITE_SCALING_XSTEPS;
+    LbSpriteSetScalingWidthClippedArray(xsteps_array, x, swidth, dwidth, gwidth);
+}
+
+void LbSpriteSetAlphaScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
+{
+    if (swidth > SPRITE_SCALING_XSTEPS)
+        swidth = SPRITE_SCALING_XSTEPS;
+    LbSpriteSetScalingWidthClippedArray(alpha_xsteps_array, x, swidth, dwidth, gwidth);
+}
+
+void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, long dwidth)
 {
     long *pwidth;
     long cwidth;
-    pwidth = xsteps_array;
+    pwidth = xsteps_arr;
     long factor = (dwidth<<16)/swidth;
     long tmp = (factor >> 1) + (x << 16);
     cwidth = tmp >> 16;
@@ -1729,23 +1743,48 @@ void LbSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
     } while (w > 0);
 }
 
-void LbSpriteClearScalingWidth(void)
+void LbSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
+{
+    if (swidth > SPRITE_SCALING_XSTEPS)
+        swidth = SPRITE_SCALING_XSTEPS;
+    LbSpriteSetScalingWidthSimpleArray(xsteps_array, x, swidth, dwidth);
+}
+
+void LbSpriteSetAlphaScalingWidthSimple(long x, long swidth, long dwidth)
+{
+    if (swidth > SPRITE_SCALING_XSTEPS)
+        swidth = SPRITE_SCALING_XSTEPS;
+    LbSpriteSetScalingWidthSimpleArray(alpha_xsteps_array, x, swidth, dwidth);
+}
+
+void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
 {
     int i;
     long *pwidth;
-    pwidth = xsteps_array;
-    for (i=0; i < 512; i+=2)
+    pwidth = xsteps_arr;
+    for (i=0; i < swidth; i++)
     {
-        pwidth[i+0] = 0;
-        pwidth[i+1] = 0;
+        pwidth[0] = 0;
+        pwidth[1] = 0;
+        pwidth += 2;
     }
 }
 
-void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
+void LbSpriteClearScalingWidth(void)
+{
+    LbSpriteClearScalingWidthArray(xsteps_array, SPRITE_SCALING_XSTEPS);
+}
+
+void LbSpriteClearAlphaScalingWidth(void)
+{
+    LbSpriteClearScalingWidthArray(alpha_xsteps_array, SPRITE_SCALING_XSTEPS);
+}
+
+void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheight, long dheight, long gheight)
 {
     long *pheight;
     long cheight;
-    pheight = ysteps_array;
+    pheight = ysteps_arr;
     long factor = (dheight<<16)/sheight;
     long tmp = (factor >> 1) + (y << 16);
     cheight = tmp >> 16;
@@ -1770,11 +1809,25 @@ void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gh
     } while (h > 0);
 }
 
-void LbSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
+void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
+{
+    if (sheight > SPRITE_SCALING_YSTEPS)
+        sheight = SPRITE_SCALING_YSTEPS;
+    LbSpriteSetScalingHeightClippedArray(ysteps_array, y, sheight, dheight, gheight);
+}
+
+void LbSpriteSetAlphaScalingHeightClipped(long y, long sheight, long dheight, long gheight)
+{
+    if (sheight > SPRITE_SCALING_YSTEPS)
+        sheight = SPRITE_SCALING_YSTEPS;
+    LbSpriteSetScalingHeightClippedArray(alpha_ysteps_array, y, sheight, dheight, gheight);
+}
+
+void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight)
 {
     long *pheight;
     long cheight;
-    pheight = ysteps_array;
+    pheight = ysteps_arr;
     long factor = (dheight<<16)/sheight;
     long tmp = (factor >> 1) + (y << 16);
     cheight = tmp >> 16;
@@ -1795,16 +1848,41 @@ void LbSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
     } while (h > 0);
 }
 
-void LbSpriteClearScalingHeight(void)
+void LbSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
+{
+    if (sheight > SPRITE_SCALING_YSTEPS)
+        sheight = SPRITE_SCALING_YSTEPS;
+    LbSpriteSetScalingHeightSimpleArray(ysteps_array, y, sheight, dheight);
+}
+
+void LbSpriteSetAlphaScalingHeightSimple(long y, long sheight, long dheight)
+{
+    if (sheight > SPRITE_SCALING_YSTEPS)
+        sheight = SPRITE_SCALING_YSTEPS;
+    LbSpriteSetScalingHeightSimpleArray(alpha_ysteps_array, y, sheight, dheight);
+}
+
+void LbSpriteClearScalingHeightArray(long * ysteps_arr, long sheight)
 {
     int i;
     long *pheight;
-    pheight = ysteps_array;
-    for (i=0; i < 512; i+=2)
+    pheight = ysteps_arr;
+    for (i=0; i < sheight; i++)
     {
-        pheight[i+0] = 0;
-        pheight[i+1] = 0;
+        pheight[0] = 0;
+        pheight[1] = 0;
+        pheight += 2;
     }
+}
+
+void LbSpriteClearScalingHeight(void)
+{
+    LbSpriteClearScalingHeightArray(ysteps_array, SPRITE_SCALING_YSTEPS);
+}
+
+void LbSpriteClearAlphaScalingHeight(void)
+{
+    LbSpriteClearScalingHeightArray(alpha_ysteps_array, SPRITE_SCALING_YSTEPS);
 }
 
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
@@ -1849,9 +1927,34 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
     return _DK_DrawAlphaSpriteUsingScalingData(posx, posy, sprite);
 }
 
-void SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6)
+void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
 {
-    _DK_SetAlphaScalingData(a1, a2, a3, a4, a5, a6);
+    //_DK_SetAlphaScalingData(a1, a2, a3, a4, a5, a6); return;
+    long gwidth = lbDisplay.GraphicsWindowWidth;
+    long gheight = lbDisplay.GraphicsWindowHeight;
+    alpha_scale_up = true;
+    if ((dwidth <= swidth) && (dheight <= sheight))
+        alpha_scale_up = false;
+    if ((swidth <= 0) || (dwidth <= 0)) {
+        WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
+        LbSpriteClearAlphaScalingWidth();
+    } else
+    if ((x < 0) || ((dwidth+x) >= gwidth))
+    {
+        LbSpriteSetAlphaScalingWidthClipped(x, swidth, dwidth, gwidth);
+    } else {
+        LbSpriteSetAlphaScalingWidthSimple(x, swidth, dwidth);
+    }
+    if ((sheight <= 0) || (dheight <= 0)) {
+        WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
+        LbSpriteClearAlphaScalingHeight();
+    } else
+    if ((y < 0) || ((dheight+y) >= gheight))
+    {
+        LbSpriteSetAlphaScalingHeightClipped(y, sheight, dheight, gheight);
+    } else {
+        LbSpriteSetAlphaScalingHeightSimple(y, sheight, dheight);
+    }
 }
 
 TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height)

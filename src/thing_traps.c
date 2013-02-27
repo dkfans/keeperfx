@@ -100,7 +100,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
     trapstat = &trap_stats[traptng->model];
     if (trapstat->field_1A <= 0)
     {
-        ERRORLOG("Trap activation of shot 0");
+        ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->field_1A);
         return;
     }
     struct Thing *shotng;
@@ -153,13 +153,14 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
     trapstat = &trap_stats[traptng->model];
     if (trapstat->field_1A <= 0)
     {
-        ERRORLOG("Trap activation of effect 0");
+        ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->field_1A);
         return;
     }
     struct Thing *efftng;
     efftng = create_effect(&traptng->mappos, trapstat->field_1A, traptng->owner);
     if (!thing_is_invalid(efftng)) {
         efftng->byte_16 = trapstat->field_1B;
+        SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
 }
 
@@ -169,7 +170,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
     trapstat = &trap_stats[traptng->model];
     if (trapstat->field_1A <= 0)
     {
-        ERRORLOG("Trap activation of shot 0");
+        ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->field_1A);
         return;
     }
     struct Thing *shotng;
@@ -302,7 +303,7 @@ void update_trap_trigger(struct Thing *traptng)
     }
     //_DK_update_trap_trigger(thing); return;
     TbBool do_trig;
-    switch (trap_stats[traptng->model].field_18)
+    switch (trap_stats[traptng->model].trigger_type)
     {
     case 1:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
@@ -311,7 +312,7 @@ void update_trap_trigger(struct Thing *traptng)
         do_trig = update_trap_trigger_pressure(traptng);
         break;
     default:
-        ERRORLOG("Illegal trap trigger type %d",(int)trap_stats[traptng->model].field_18);
+        ERRORLOG("Illegal trap trigger type %d",(int)trap_stats[traptng->model].trigger_type);
         do_trig = false;
         break;
     }
