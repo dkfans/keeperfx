@@ -30,6 +30,7 @@
 #include "bflib_memory.h"
 #include "bflib_sprite.h"
 #include "bflib_mouse.h"
+#include "bflib_render.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +47,7 @@ struct TbSpriteDrawData {
 };
 /******************************************************************************/
 DLLIMPORT int _DK_LbSpriteDraw(long x, long y, const struct TbSprite *spr);
-DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *map);
+DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *cmap);
 DLLIMPORT int _DK_LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
 DLLIMPORT int _DK_LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite);
 DLLIMPORT int _DK_DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite);
@@ -702,7 +703,7 @@ inline void LbDrawBufferOneColorSolid(unsigned char **buf_out,const TbPixel colo
  * @param mirror
  */
 inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, unsigned char *map, const TbBool mirror)
+        const int buf_len, unsigned char *cmap, const TbBool mirror)
 {
   int i;
   unsigned int val;
@@ -712,7 +713,7 @@ inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
     {
         for (i=0; i<buf_len; i++ )
         {
-            val = map[*(const unsigned char *)buf_inp];
+            val = cmap[*(const unsigned char *)buf_inp];
             **buf_out = lbDisplay.GlassMap[(val<<8) + **buf_out];
             buf_inp++;
             (*buf_out)--;
@@ -721,7 +722,7 @@ inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
     {
         for (i=0; i<buf_len; i++ )
         {
-            val = map[*(const unsigned char *)buf_inp];
+            val = cmap[*(const unsigned char *)buf_inp];
             **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + val];
             buf_inp++;
             (*buf_out)--;
@@ -733,7 +734,7 @@ inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
     {
         for (i=0; i<buf_len; i++ )
         {
-            val = map[*(const unsigned char *)buf_inp];
+            val = cmap[*(const unsigned char *)buf_inp];
             **buf_out = lbDisplay.GlassMap[(val<<8) + **buf_out];
             buf_inp++;
             (*buf_out)++;
@@ -742,7 +743,7 @@ inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
     {
         for (i=0; i<buf_len; i++ )
         {
-            val = map[*(const unsigned char *)buf_inp];
+            val = cmap[*(const unsigned char *)buf_inp];
             **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + val];
             buf_inp++;
             (*buf_out)++;
@@ -1915,11 +1916,478 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
     }
 }
 
+void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
+{
+    TbPixel px;
+    unsigned long pxquad;
+    if ( !((int)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
+     && (!((int)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
+     && (!((int)dst & 3) ||  (px = *src, ++src, *dst = px, ++dst, --len, len))))) )
+    {
+        long l;
+        for ( l = len>>2; l > 0; l--)
+        {
+            pxquad = *(unsigned long *)src;
+            src += sizeof(unsigned long);
+            *(unsigned long *)dst = pxquad;
+            dst += sizeof(unsigned long);
+        }
+        if (len & 3)
+        {
+          *dst = *src;
+          if ((len & 3) != 1)
+          {
+            *(dst + 1) = *(src + 1);
+            if ((len & 3) != 2)
+              *(dst + 2) = *(src + 2);
+          }
+        }
+    }
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub1(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub2(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub3(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub4(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub5(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub6(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub07(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ystep[1] != 0)
+        {
+            int ycur;
+            int solid_len;
+            TbPixel * out_line;
+            int xdup, ydup;
+            long *xcurstep;
+            ydup = ystep[1];
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0] + xcurstep[1];
+                    xcurstep -= 2 * pxlen;
+                    out_end += xcurstep[0] + xcurstep[1];
+                }
+                else
+                {
+                    TbPixel *out_start;
+                    out_start = out_end;
+                    for(;pxlen > 0; pxlen--)
+                    {
+                        xdup = xcurstep[1];
+                        if (xdup > 0)
+                        {
+                            unsigned char pxval;
+                            pxval = *sprdata;
+                            for (;xdup > 0; xdup--)
+                            {
+                                *out_end = pxval;
+                                out_end--;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep -= 2;
+                    }
+                    ycur = ydup - 1;
+                    if (ycur > 0)
+                    {
+                        solid_len = out_start - out_end;
+                        out_start = out_end;
+                        solid_len++;
+                        out_line = out_start + scanline;
+                        for (;ycur > 0; ycur--)
+                        {
+                            if (solid_len > 0) {
+                                LbPixelBlockCopyForward(out_line, out_start, solid_len);
+                            }
+                            out_line += scanline;
+                        }
+                    }
+                }
+            }
+            outbuf += scanline;
+            ycur = ydup - 1;
+            for (;ycur > 0; ycur--)
+            {
+                outbuf += scanline;
+            }
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ystep += ystep_delta;
+    }
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub08(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ystep[1] != 0)
+        {
+            int ycur;
+            int solid_len;
+            TbPixel * out_line;
+            int xdup, ydup;
+            long *xcurstep;
+            ydup = ystep[1];
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0];
+                    xcurstep += 2 * pxlen;
+                    out_end += xcurstep[0];
+                }
+                else
+                {
+                    TbPixel *out_start;
+                    out_start = out_end;
+                    for(;pxlen > 0; pxlen--)
+                    {
+                        xdup = xcurstep[1];
+                        if (xdup > 0)
+                        {
+                            unsigned char pxval;
+                            pxval = *sprdata;
+                            for (;xdup > 0; xdup--)
+                            {
+                                *out_end = pxval;
+                                out_end++;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep += 2;
+                    }
+                    ycur = ydup - 1;
+                    if (ycur > 0)
+                    {
+                        solid_len = out_end - out_start;
+                        out_line = out_start + scanline;
+                        for (;ycur > 0; ycur--)
+                        {
+                            if (solid_len > 0) {
+                                LbPixelBlockCopyForward(out_line, out_start, solid_len);
+                            }
+                            out_line += scanline;
+                        }
+                    }
+                }
+            }
+            outbuf += scanline;
+            ycur = ydup - 1;
+            for (;ycur > 0; ycur--)
+            {
+                outbuf += scanline;
+            }
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ystep += ystep_delta;
+    }
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub09(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub10(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub11(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub12(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub13(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub14(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub15(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+TbResult LbSpriteDrawUsingScalingData_sub16(uchar *outbuf, int scanline, long *xstep, long *ystep, struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
     SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
-    return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
-    SYNCDBG(18,"Finished");
+    //return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+    long *xstep;
+    long *ystep;
+    int scanline;
+    {
+        long sposx, sposy;
+        sposx = posx;
+        sposy = posy;
+        scanline = lbDisplay.GraphicsScreenWidth;
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0) {
+            sposx = sprite->SWidth + posx - 1;
+        }
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR2) != 0) {
+            sposy = sprite->SHeight + posy - 1;
+            scanline = -lbDisplay.GraphicsScreenWidth;
+        }
+        xstep = &xsteps_array[2 * sposx];
+        ystep = &ysteps_array[2 * sposy];
+    }
+    uchar *outbuf;
+    {
+        int gspos_x,gspos_y;
+        gspos_y = ystep[0];
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR2) != 0)
+            gspos_y += ystep[1] - 1;
+        gspos_x = xstep[0];
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+            gspos_x += xstep[1] - 1;
+        outbuf = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
+    }
+    if ( scale_up )
+    {
+      if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
+      {
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+        {
+            //return LbSpriteDrawUsingScalingData_sub1(outbuf, scanline, xstep, ystep, sprite);
+            return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+        }
+        else
+        {
+            //return LbSpriteDrawUsingScalingData_sub2(outbuf, scanline, xstep, ystep, sprite);
+            return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+        }
+      }
+      else
+      {
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
+        {
+          if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+          {
+              //return LbSpriteDrawUsingScalingData_sub3(outbuf, scanline, xstep, ystep, sprite);
+              return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+          }
+          else
+          {
+              //return LbSpriteDrawUsingScalingData_sub4(outbuf, scanline, xstep, ystep, sprite);
+              return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+          }
+        }
+        else
+        {
+          if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
+          {
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+            {
+                //return LbSpriteDrawUsingScalingData_sub5(outbuf, scanline, xstep, ystep, sprite);
+                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+            }
+            else
+            {
+                //return LbSpriteDrawUsingScalingData_sub6(outbuf, scanline, xstep, ystep, sprite);
+                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+            }
+          }
+          else
+          {
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+            {
+                return LbSpriteDrawUsingScalingData_sub07(outbuf, scanline, xstep, ystep, sprite);
+            }
+            else
+            {
+                return LbSpriteDrawUsingScalingData_sub08(outbuf, scanline, xstep, ystep, sprite);
+            }
+          }
+        }
+      }
+    }
+    else
+    {
+      if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
+      {
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+        {
+            //return LbSpriteDrawUsingScalingData_sub09(outbuf, scanline, xstep, ystep, sprite);
+            return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+        }
+        else
+        {
+            //return LbSpriteDrawUsingScalingData_sub10(outbuf, scanline, xstep, ystep, sprite);
+            return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+        }
+      }
+      else
+      {
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
+        {
+          if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+          {
+              //return LbSpriteDrawUsingScalingData_sub11(outbuf, scanline, xstep, ystep, sprite);
+              return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+          }
+          else
+          {
+              //return LbSpriteDrawUsingScalingData_sub12(outbuf, scanline, xstep, ystep, sprite);
+              return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+          }
+        }
+        else
+        {
+          if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
+          {
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+            {
+                //return LbSpriteDrawUsingScalingData_sub13(outbuf, scanline, xstep, ystep, sprite);
+                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+            }
+            else
+            {
+                //return LbSpriteDrawUsingScalingData_sub14(outbuf, scanline, xstep, ystep, sprite);
+                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+            }
+          }
+          else
+          {
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+            {
+                //return LbSpriteDrawUsingScalingData_sub15(outbuf, scanline, xstep, ystep, sprite);
+                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+            }
+            else
+            {
+                //return LbSpriteDrawUsingScalingData_sub16(outbuf, scanline, xstep, ystep, sprite);
+                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+            }
+          }
+        }
+      }
+    }
 }
 
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite)
