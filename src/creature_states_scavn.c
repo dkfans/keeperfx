@@ -202,7 +202,10 @@ TbBool thing_is_valid_scavenge_target(const struct Thing *calltng, const struct 
         return (gameadd.scavenge_good_allowed != 0);
     }
     struct PlayerInfo *scavplyr;
-    scavplyr = get_player(scavtng->owner);
+    scavplyr = INVALID_PLAYER;
+    if (scavtng->owner != game.neutral_player_num) {
+        scavplyr = get_player(scavtng->owner);
+    }
     if (scavplyr->controlled_thing_idx != scavtng->index)
     {
         struct CreatureControl *cctrl;
@@ -239,7 +242,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
         // Per-thing code
         if (thing_is_valid_scavenge_target(calltng, thing))
         {
-            SYNCDBG(8,"The %s is valid target for %s",thing_model_name(thing),thing_model_name(calltng));
+            SYNCDBG(18,"The %s is valid target for %s",thing_model_name(thing),thing_model_name(calltng));
             struct CreatureControl *cctrl;
             cctrl = creature_control_get_from_thing(thing);
             if (game.play_gameturn - cctrl->field_3D > game.temple_scavenge_protection_time)
@@ -261,6 +264,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
             break;
         }
     }
+    SYNCDBG(8,"The weakest valid target for %s is %s",thing_model_name(calltng),thing_model_name(weaktng));
     return weaktng;
 }
 
