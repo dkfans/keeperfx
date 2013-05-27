@@ -32,7 +32,6 @@
 #include "bflib_keybrd.h"
 #include "bflib_inputctrl.h"
 #include "bflib_fileio.h"
-//#include <windows.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -164,8 +164,9 @@ function keeperfxpublish {
         fi
         # Add new line to list file
         sed "1i${REV} ${RUN_DATE} ${PKGFILE##*/}" "${RESEASEDIR}/list.txt" > "${RESEASEDIR}/list_new.txt"
-        # Remove lines over 16
-        sed -n -e '1,16p' "${RESEASEDIR}/list_new.txt" > "${RESEASEDIR}/list.txt"
+        # Remove lines over 16 (disabled - don't remove any lines)
+        #sed -n -e '1,16p' "${RESEASEDIR}/list_new.txt" > "${RESEASEDIR}/list.txt"
+        cp -f "${RESEASEDIR}/list_new.txt" "${RESEASEDIR}/list.txt"
     done
     return 0
 }
