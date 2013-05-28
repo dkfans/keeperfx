@@ -2216,7 +2216,7 @@ TbResult LbSpriteDrawUsingScalingData_sub3(uchar *outbuf, int scanline, long *xs
                     if (pxlen < 0)
                     {
                         pxlen = -pxlen;
-                        out_end -= xcurstep[0] - xcurstep[1];
+                        out_end -= xcurstep[0] + xcurstep[1];
                         xcurstep -= 2 * pxlen;
                         out_end += xcurstep[0] + xcurstep[1];
                     }
@@ -2390,7 +2390,7 @@ TbResult LbSpriteDrawUsingScalingData_sub5(uchar *outbuf, int scanline, long *xs
                     if (pxlen < 0)
                     {
                         pxlen = -pxlen;
-                        out_end -= xcurstep[0] - xcurstep[1];
+                        out_end -= xcurstep[0] + xcurstep[1];
                         xcurstep -= 2 * pxlen;
                         out_end += xcurstep[0] + xcurstep[1];
                     }
@@ -2770,12 +2770,150 @@ TbResult LbSpriteDrawUsingScalingData_sub14(uchar *outbuf, int scanline, long *x
 TbResult LbSpriteDrawUsingScalingData_sub15(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(7,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ystep[1] != 0)
+        {
+            long *xcurstep;
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0] + xcurstep[1];
+                    xcurstep -= 2 * pxlen;
+                    out_end += xcurstep[0] + xcurstep[1];
+                }
+                else
+                {
+                    for (;pxlen > 0; pxlen--)
+                    {
+                        if (xcurstep[1] > 0)
+                        {
+                            unsigned char pxval;
+                            pxval = *sprdata;
+                            {
+                                *out_end = pxval;
+                                out_end--;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep -= 2;
+                    }
+                }
+            }
+            outbuf += scanline;
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ystep += ystep_delta;
+    }
     return 0;
 }
 
 TbResult LbSpriteDrawUsingScalingData_sub16(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(7,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ystep[1] != 0)
+        {
+            long *xcurstep;
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0];
+                    xcurstep += 2 * pxlen;
+                    out_end += xcurstep[0];
+                }
+                else
+                {
+                    for (;pxlen > 0; pxlen--)
+                    {
+                        if (xcurstep[1] > 0)
+                        {
+                            unsigned char pxval;
+                            pxval = *sprdata;
+                            {
+                                *out_end = pxval;
+                                out_end++;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep += 2;
+                    }
+                }
+            }
+            outbuf += scanline;
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ystep += ystep_delta;
+    }
     return 0;
 }
 
@@ -2871,12 +3009,12 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
       {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         {
-            //return LbSpriteDrawUsingScalingData_sub09(outbuf, scanline, xstep, ystep, sprite);
+            //return LbSpriteDrawUsingScalingData_sub09(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
             return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
         }
         else
         {
-            //return LbSpriteDrawUsingScalingData_sub10(outbuf, scanline, xstep, ystep, sprite);
+            //return LbSpriteDrawUsingScalingData_sub10(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
             return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
         }
       }
@@ -2886,12 +3024,12 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
         {
           if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
           {
-              //return LbSpriteDrawUsingScalingData_sub11(outbuf, scanline, xstep, ystep, sprite);
+              //return LbSpriteDrawUsingScalingData_sub11(outbuf, scanline, xstep, ystep, sprite, render_ghost);
               return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
           }
           else
           {
-              //return LbSpriteDrawUsingScalingData_sub12(outbuf, scanline, xstep, ystep, sprite);
+              //return LbSpriteDrawUsingScalingData_sub12(outbuf, scanline, xstep, ystep, sprite, render_ghost);
               return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
           }
         }
@@ -2901,12 +3039,12 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                //return LbSpriteDrawUsingScalingData_sub13(outbuf, scanline, xstep, ystep, sprite);
+                //return LbSpriteDrawUsingScalingData_sub13(outbuf, scanline, xstep, ystep, sprite, render_ghost);
                 return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
             }
             else
             {
-                //return LbSpriteDrawUsingScalingData_sub14(outbuf, scanline, xstep, ystep, sprite);
+                //return LbSpriteDrawUsingScalingData_sub14(outbuf, scanline, xstep, ystep, sprite, render_ghost);
                 return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
             }
           }
@@ -2914,13 +3052,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                //return LbSpriteDrawUsingScalingData_sub15(outbuf, scanline, xstep, ystep, sprite);
-                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+                return LbSpriteDrawUsingScalingData_sub15(outbuf, scanline, xstep, ystep, sprite);
             }
             else
             {
-                //return LbSpriteDrawUsingScalingData_sub16(outbuf, scanline, xstep, ystep, sprite);
-                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+                return LbSpriteDrawUsingScalingData_sub16(outbuf, scanline, xstep, ystep, sprite);
             }
           }
         }
