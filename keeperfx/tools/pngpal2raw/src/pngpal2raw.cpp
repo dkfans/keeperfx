@@ -157,8 +157,8 @@ float dif[11][3][6] =
 
 /**
  * Cuts given value to color range (0..255).
- * @param x
- * @return
+ * @param x Value to be verified and clipped.
+ * @return Gives value clipped to valid color range.
  */
 int clipIntensity(long x)
 {
@@ -672,7 +672,7 @@ short show_usage(const std::string &fname)
     printf("    %s [options] <filename>\n", xname.c_str());
     printf("where <filename> should be the input PNG file, and [options] are:\n");
     printf("    -v,--verbose             Verbose console output mode\n");
-    printf("    -d<alg>,--diffuse<alg>   Diffusion algorithm used for bpp convertion\n");
+    printf("    -d<alg>,--diffuse<alg>   Diffusion algorithm used for bpp conversion\n");
     printf("    -l<num>,--dflevel<num>   Diffusion level, 1..100\n");
     printf("    -f<fmt>,--format<fmt>    Output file format, RAW or HSPR\n");
     printf("    -p<file>,--palette<file> Input PAL file name\n");
