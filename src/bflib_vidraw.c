@@ -1676,30 +1676,51 @@ TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const
         return LbSpriteDrawFCOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
 }
 
+/**
+ * Sets X scaling array for drawing scaled sprites.
+ * The X scaling array contains position and length of each pixel of the sprite on destination buffer.
+ * @param xsteps_arr The destination X scaling array.
+ * @param x Position of the sprite in output buffer, X coord.
+ * @param swidth Source sprite original width.
+ * @param dwidth Width which the sprite should have on destination buffer.
+ * @param gwidth Graphics buffer visible window line width.
+ */
 void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth, long dwidth, long gwidth)
 {
     long *pwidth;
-    long cwidth;
+    long pxpos;
     pwidth = xsteps_arr;
     long factor = (dwidth<<16)/swidth;
     long tmp = (factor >> 1) + (x << 16);
-    cwidth = tmp >> 16;
-    if (cwidth < 0)
-      cwidth = 0;
-    if ( cwidth >= gwidth )
-      cwidth = gwidth;
+    pxpos = tmp >> 16;
     long w = swidth;
     do {
-        pwidth[0] = cwidth;
         tmp += factor;
-        long cwidth2 = tmp>>16;
-        if (cwidth2 < 0)
-            cwidth2 = 0;
-        if (cwidth2 > gwidth)
-            cwidth2 = gwidth;
-        long wdiff = cwidth2 - cwidth;
-        pwidth[1] = wdiff;
-        cwidth += wdiff;
+        long pxstart,pxend;
+        pxstart = pxpos;
+        pxend = tmp>>16;
+        // Remember unclipped difference
+        long wdiff = pxend - pxstart;
+        // Now clip to graphics line bounds
+        if (pxstart < 0) {
+            pxstart = 0;
+            pxend = pxstart;
+        } else
+        if (pxstart >= gwidth) {
+            pxstart = gwidth-1;
+            pxend = pxstart;
+        } else
+        if (pxend < 0) {
+            pxend = 0;
+        } else
+        if (pxend > gwidth) {
+            pxend = gwidth;
+        }
+        // Set clipped difference to be drawn
+        pwidth[0] = pxstart;
+        pwidth[1] = pxend - pxstart;
+        // But store position for the unclipped difference
+        pxpos += wdiff;
         w--;
         pwidth += 2;
     } while (w > 0);
@@ -1707,6 +1728,7 @@ void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth,
 
 void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
     if (swidth > SPRITE_SCALING_XSTEPS)
         swidth = SPRITE_SCALING_XSTEPS;
     LbSpriteSetScalingWidthClippedArray(xsteps_array, x, swidth, dwidth, gwidth);
@@ -1714,6 +1736,7 @@ void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidt
 
 void LbSpriteSetAlphaScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
     if (swidth > SPRITE_SCALING_XSTEPS)
         swidth = SPRITE_SCALING_XSTEPS;
     LbSpriteSetScalingWidthClippedArray(alpha_xsteps_array, x, swidth, dwidth, gwidth);
@@ -1746,6 +1769,7 @@ void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, 
 
 void LbSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
 {
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
     if (swidth > SPRITE_SCALING_XSTEPS)
         swidth = SPRITE_SCALING_XSTEPS;
     LbSpriteSetScalingWidthSimpleArray(xsteps_array, x, swidth, dwidth);
@@ -1753,6 +1777,7 @@ void LbSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
 
 void LbSpriteSetAlphaScalingWidthSimple(long x, long swidth, long dwidth)
 {
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
     if (swidth > SPRITE_SCALING_XSTEPS)
         swidth = SPRITE_SCALING_XSTEPS;
     LbSpriteSetScalingWidthSimpleArray(alpha_xsteps_array, x, swidth, dwidth);
@@ -1781,37 +1806,63 @@ void LbSpriteClearAlphaScalingWidth(void)
     LbSpriteClearScalingWidthArray(alpha_xsteps_array, SPRITE_SCALING_XSTEPS);
 }
 
+/**
+ * Sets Y scaling array for drawing scaled sprites.
+ * The Y scaling array contains position and length of each line of pixels of the sprite on destination buffer.
+ * @param ysteps_arr The destination X scaling array.
+ * @param y Position of the sprite in output buffer, Y coord.
+ * @param sheight Source sprite original height.
+ * @param dheight Height which the sprite should have on destination buffer.
+ * @param gheight Graphics buffer visible window lines count.
+ */
 void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheight, long dheight, long gheight)
 {
     long *pheight;
-    long cheight;
+    long lnpos;
     pheight = ysteps_arr;
     long factor = (dheight<<16)/sheight;
     long tmp = (factor >> 1) + (y << 16);
-    cheight = tmp >> 16;
-    if (cheight < 0)
-        cheight = 0;
-    if (cheight >= gheight)
-        cheight = gheight;
+    lnpos = tmp >> 16;
+    if (lnpos < 0)
+        lnpos = 0;
+    if (lnpos >= gheight)
+        lnpos = gheight;
     long h = sheight;
     do {
-      pheight[0] = cheight;
-      tmp += factor;
-      long cheight2 = tmp>>16;
-      if (cheight2 < 0)
-          cheight2 = 0;
-      if (cheight2 >= gheight)
-          cheight2 = gheight;
-      long hdiff = cheight2 - cheight;
-      pheight[1] = hdiff;
-      cheight += hdiff;
-      h--;
-      pheight += 2;
+        tmp += factor;
+        long lnstart,lnend;
+        lnstart = lnpos;
+        lnend = tmp>>16;
+        // Remember unclipped difference
+        long hdiff = lnend - lnstart;
+        // Now clip to graphics line bounds
+        if (lnstart < 0) {
+            lnstart = 0;
+            lnend = lnstart;
+        } else
+        if (lnstart >= gheight) {
+            lnstart = gheight-1;
+            lnend = lnstart;
+        } else
+        if (lnend < 0) {
+            lnend = 0;
+        } else
+        if (lnend > gheight) {
+            lnend = gheight;
+        }
+        // Set clipped difference to be drawn
+        pheight[0] = lnstart;
+        pheight[1] = lnend - lnstart;
+        // But store position for the unclipped difference
+        lnpos += hdiff;
+        h--;
+        pheight += 2;
     } while (h > 0);
 }
 
 void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
 {
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
     if (sheight > SPRITE_SCALING_YSTEPS)
         sheight = SPRITE_SCALING_YSTEPS;
     LbSpriteSetScalingHeightClippedArray(ysteps_array, y, sheight, dheight, gheight);
@@ -1819,6 +1870,7 @@ void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gh
 
 void LbSpriteSetAlphaScalingHeightClipped(long y, long sheight, long dheight, long gheight)
 {
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
     if (sheight > SPRITE_SCALING_YSTEPS)
         sheight = SPRITE_SCALING_YSTEPS;
     LbSpriteSetScalingHeightClippedArray(alpha_ysteps_array, y, sheight, dheight, gheight);
@@ -1851,6 +1903,7 @@ void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight
 
 void LbSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
 {
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
     if (sheight > SPRITE_SCALING_YSTEPS)
         sheight = SPRITE_SCALING_YSTEPS;
     LbSpriteSetScalingHeightSimpleArray(ysteps_array, y, sheight, dheight);
@@ -1858,6 +1911,7 @@ void LbSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
 
 void LbSpriteSetAlphaScalingHeightSimple(long y, long sheight, long dheight)
 {
+    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
     if (sheight > SPRITE_SCALING_YSTEPS)
         sheight = SPRITE_SCALING_YSTEPS;
     LbSpriteSetScalingHeightSimpleArray(alpha_ysteps_array, y, sheight, dheight);
@@ -1894,11 +1948,13 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
     scale_up = true;
     if ((dwidth <= swidth) && (dheight <= sheight))
         scale_up = false;
+    // Checking whether to select simple scaling creation, or more comprehensive one - with clipping
     if ((swidth <= 0) || (dwidth <= 0)) {
         WARNLOG("Tried scaling width %ld -> %ld", swidth, dwidth);
         LbSpriteClearScalingWidth();
     } else
-    if ((x < 0) || ((dwidth+x) >= gwidth))
+    // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
+    if ((x < 0) || ((dwidth+swidth+x) >= gwidth))
     {
         LbSpriteSetScalingWidthClipped(x, swidth, dwidth, gwidth);
     } else {
@@ -1908,7 +1964,8 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
         WARNLOG("Tried scaling height %ld -> %ld", sheight, dheight);
         LbSpriteClearScalingHeight();
     } else
-    if ((y < 0) || ((dheight+y) >= gheight))
+    // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
+    if ((y < 0) || ((dheight+sheight+y) >= gheight))
     {
         LbSpriteSetScalingHeightClipped(y, sheight, dheight, gheight);
     } else {
@@ -1946,7 +2003,7 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
 }
 
 /**
- * Draws a scaled sprite on given buffer, with colour remap, from left to right.
+ * Draws a scaled up sprite on given buffer, with colour remap, from left to right.
  * Requires step arrays for scaling.
  *
  * @param outbuf The output buffer.
@@ -1957,29 +2014,31 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
  * @param cmap The colour remap table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingData_sub1(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
+TbResult LbSpriteDrawUsingScalingUpData_sub1(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             int ycur;
             int solid_len;
             TbPixel * out_line;
             int xdup, ydup;
             long *xcurstep;
-            ydup = ystep[1];
+            ydup = ycurstep[1];
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
@@ -2057,13 +2116,13 @@ TbResult LbSpriteDrawUsingScalingData_sub1(uchar *outbuf, int scanline, long *xs
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
 /**
- * Draws a scaled sprite on given buffer, with colour remap, from right to left.
+ * Draws a scaled up sprite on given buffer, with colour remap, from right to left.
  * Requires step arrays for scaling.
  *
  * @param outbuf The output buffer.
@@ -2074,29 +2133,31 @@ TbResult LbSpriteDrawUsingScalingData_sub1(uchar *outbuf, int scanline, long *xs
  * @param cmap The colour remap table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingData_sub2(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
+TbResult LbSpriteDrawUsingScalingUpData_sub2(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             int ycur;
             int solid_len;
             TbPixel * out_line;
             int xdup, ydup;
             long *xcurstep;
-            ydup = ystep[1];
+            ydup = ycurstep[1];
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
@@ -2172,33 +2233,46 @@ TbResult LbSpriteDrawUsingScalingData_sub2(uchar *outbuf, int scanline, long *xs
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
-TbResult LbSpriteDrawUsingScalingData_sub3(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+/**
+ * Draws a scaled up sprite on given buffer, with transparency mapping, from left to right.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param transmap The transparency mapping table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
-    unsigned int pxmap;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             unsigned char *prevdata;
             int xdup, ydup;
             long *xcurstep;
-            ydup = ystep[1];
+            ydup = ycurstep[1];
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -2227,6 +2301,7 @@ TbResult LbSpriteDrawUsingScalingData_sub3(uchar *outbuf, int scanline, long *xs
                             xdup = xcurstep[1];
                             if (xdup > 0)
                             {
+                                unsigned int pxmap;
                                 pxmap = ((*sprdata) << 8);
                                 for (;xdup > 0; xdup--)
                                 {
@@ -2259,33 +2334,46 @@ TbResult LbSpriteDrawUsingScalingData_sub3(uchar *outbuf, int scanline, long *xs
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
-TbResult LbSpriteDrawUsingScalingData_sub4(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+/**
+ * Draws a scaled up sprite on given buffer, with transparency mapping, from right to left.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param transmap The transparency mapping table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
-    unsigned int pxmap;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             unsigned char *prevdata;
             int xdup, ydup;
             long *xcurstep;
-            ydup = ystep[1];
+            ydup = ycurstep[1];
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -2314,6 +2402,7 @@ TbResult LbSpriteDrawUsingScalingData_sub4(uchar *outbuf, int scanline, long *xs
                             xdup = xcurstep[1];
                             if (xdup > 0)
                             {
+                                unsigned int pxmap;
                                 pxmap = ((*sprdata) << 8);
                                 for (;xdup > 0; xdup--)
                                 {
@@ -2346,33 +2435,46 @@ TbResult LbSpriteDrawUsingScalingData_sub4(uchar *outbuf, int scanline, long *xs
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
-TbResult LbSpriteDrawUsingScalingData_sub5(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+/**
+ * Draws a scaled up sprite on given buffer, with reversed transparency mapping, from left to right.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param transmap The transparency mapping table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingUpData_sub5(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
-    unsigned int pxmap;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             unsigned char *prevdata;
             int xdup, ydup;
             long *xcurstep;
-            ydup = ystep[1];
+            ydup = ycurstep[1];
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -2401,6 +2503,7 @@ TbResult LbSpriteDrawUsingScalingData_sub5(uchar *outbuf, int scanline, long *xs
                             xdup = xcurstep[1];
                             if (xdup > 0)
                             {
+                                unsigned int pxmap;
                                 pxmap = (*sprdata);
                                 for (;xdup > 0; xdup--)
                                 {
@@ -2433,33 +2536,46 @@ TbResult LbSpriteDrawUsingScalingData_sub5(uchar *outbuf, int scanline, long *xs
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
-TbResult LbSpriteDrawUsingScalingData_sub6(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+/**
+ * Draws a scaled up sprite on given buffer, with reversed transparency mapping, from right to left.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param transmap The transparency mapping table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingUpData_sub6(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
-    unsigned int pxmap;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             unsigned char *prevdata;
             int xdup, ydup;
             long *xcurstep;
-            ydup = ystep[1];
+            ydup = ycurstep[1];
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -2488,6 +2604,7 @@ TbResult LbSpriteDrawUsingScalingData_sub6(uchar *outbuf, int scanline, long *xs
                             xdup = xcurstep[1];
                             if (xdup > 0)
                             {
+                                unsigned int pxmap;
                                 pxmap = (*sprdata);
                                 for (;xdup > 0; xdup--)
                                 {
@@ -2520,34 +2637,47 @@ TbResult LbSpriteDrawUsingScalingData_sub6(uchar *outbuf, int scanline, long *xs
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
-TbResult LbSpriteDrawUsingScalingData_sub07(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+/**
+ * Draws a scaled up sprite on given buffer, with original colours, from left to right.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingUpData_sub7(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             int ycur;
             int solid_len;
             TbPixel * out_line;
             int xdup, ydup;
             long *xcurstep;
-            ydup = ystep[1];
+            ydup = ycurstep[1];
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
@@ -2624,34 +2754,47 @@ TbResult LbSpriteDrawUsingScalingData_sub07(uchar *outbuf, int scanline, long *x
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
-TbResult LbSpriteDrawUsingScalingData_sub08(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+/**
+ * Draws a scaled up sprite on given buffer, with original colours, from right to left.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingUpData_sub8(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             int ycur;
             int solid_len;
             TbPixel * out_line;
             int xdup, ydup;
             long *xcurstep;
-            ydup = ystep[1];
+            ydup = ycurstep[1];
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
@@ -2726,63 +2869,436 @@ TbResult LbSpriteDrawUsingScalingData_sub08(uchar *outbuf, int scanline, long *x
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
-TbResult LbSpriteDrawUsingScalingData_sub09(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
-{
-    SYNCDBG(7,"Drawing");
-    return 0;
-}
-
-TbResult LbSpriteDrawUsingScalingData_sub10(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
-{
-    SYNCDBG(7,"Drawing");
-    return 0;
-}
-
-TbResult LbSpriteDrawUsingScalingData_sub11(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
-{
-    SYNCDBG(7,"Drawing");
-    return 0;
-}
-
-TbResult LbSpriteDrawUsingScalingData_sub12(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
-{
-    SYNCDBG(7,"Drawing");
-    return 0;
-}
-
-TbResult LbSpriteDrawUsingScalingData_sub13(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
-{
-    SYNCDBG(7,"Drawing");
-    return 0;
-}
-
-TbResult LbSpriteDrawUsingScalingData_sub14(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
-{
-    SYNCDBG(7,"Drawing");
-    return 0;
-}
-
-TbResult LbSpriteDrawUsingScalingData_sub15(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+/**
+ * Draws a scaled down sprite on given buffer, with colour remap, from left to right.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param cmap The colour remap table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingDownData_sub1(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
+        {
+            long *xcurstep;
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0] + xcurstep[1];
+                    xcurstep -= 2 * pxlen;
+                    out_end += xcurstep[0] + xcurstep[1];
+                }
+                else
+                {
+                    for (;pxlen > 0; pxlen--)
+                    {
+                        if (xcurstep[1] > 0)
+                        {
+                            unsigned char pxval;
+                            pxval = *sprdata;
+                            pxval = cmap[pxval];
+                            {
+                                *out_end = pxval;
+                                out_end--;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep -= 2;
+                    }
+                }
+            }
+            outbuf += scanline;
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ycurstep += ystep_delta;
+    }
+    return 0;
+}
+
+/**
+ * Draws a scaled down sprite on given buffer, with colour remap, from right to left.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param cmap The colour remap table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingDownData_sub2(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
+{
+    SYNCDBG(7,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+    long *ycurstep;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+    ycurstep = ystep;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ycurstep[1] != 0)
+        {
+            long *xcurstep;
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0];
+                    xcurstep += 2 * pxlen;
+                    out_end += xcurstep[0];
+                }
+                else
+                {
+                    for (;pxlen > 0; pxlen--)
+                    {
+                        if (xcurstep[1] > 0)
+                        {
+                            unsigned char pxval;
+                            pxval = *sprdata;
+                            pxval = cmap[pxval];
+                            {
+                                *out_end = pxval;
+                                out_end++;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep += 2;
+                    }
+                }
+            }
+            outbuf += scanline;
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ycurstep += ystep_delta;
+    }
+    return 0;
+}
+
+/**
+ * Draws a scaled down sprite on given buffer, with transparency mapping, from left to right.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param transmap The transparency mapping table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingDownData_sub3(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+{
+    SYNCDBG(7,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+    long *ycurstep;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+    ycurstep = ystep;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ycurstep[1] != 0)
+        {
+            long *xcurstep;
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0] + xcurstep[1];
+                    xcurstep -= 2 * pxlen;
+                    out_end += xcurstep[0] + xcurstep[1];
+                }
+                else
+                {
+                    for (;pxlen > 0; pxlen--)
+                    {
+                        if (xcurstep[1] > 0)
+                        {
+                            unsigned int pxmap;
+                            pxmap = ((*sprdata) << 8);
+                            {
+                                pxmap = (pxmap & ~0x00ff) | ((*out_end));
+                                *out_end = transmap[pxmap];
+                                out_end--;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep -= 2;
+                    }
+                }
+            }
+            outbuf += scanline;
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ycurstep += ystep_delta;
+    }
+    return 0;
+}
+
+/**
+ * Draws a scaled down sprite on given buffer, with transparency mapping, from right to left.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param transmap The transparency mapping table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingDownData_sub4(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+{
+    SYNCDBG(7,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+    long *ycurstep;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+    ycurstep = ystep;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ycurstep[1] != 0)
+        {
+            long *xcurstep;
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0];
+                    xcurstep += 2 * pxlen;
+                    out_end += xcurstep[0];
+                }
+                else
+                {
+                    for (;pxlen > 0; pxlen--)
+                    {
+                        if (xcurstep[1] > 0)
+                        {
+                            unsigned int pxmap;
+                            pxmap = ((*sprdata) << 8);
+                            {
+                                pxmap = (pxmap & ~0x00ff) | ((*out_end));
+                                *out_end = transmap[pxmap];
+                                out_end++;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep += 2;
+                    }
+                }
+            }
+            outbuf += scanline;
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ycurstep += ystep_delta;
+    }
+    return 0;
+}
+
+/**
+ * Draws a scaled down sprite on given buffer, with reverse transparency mapping, from left to right.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param transmap The transparency mapping table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingDownData_sub5(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+/**
+ * Draws a scaled down sprite on given buffer, with reverse transparency mapping, from right to left.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @param transmap The transparency mapping table to be used.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingDownData_sub6(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+{
+    SYNCDBG(7,"Drawing");
+    return 0;
+}
+
+/**
+ * Draws a scaled down sprite on given buffer, with original colours, from left to right.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingDownData_sub7(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+{
+    SYNCDBG(7,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+    long *ycurstep;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+    ycurstep = ystep;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ycurstep[1] != 0)
         {
             long *xcurstep;
             xcurstep = xstep;
@@ -2837,27 +3353,40 @@ TbResult LbSpriteDrawUsingScalingData_sub15(uchar *outbuf, int scanline, long *x
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
 
-TbResult LbSpriteDrawUsingScalingData_sub16(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+/**
+ * Draws a scaled down sprite on given buffer, with original colours, from right to left.
+ * Requires step arrays for scaling.
+ *
+ * @param outbuf The output buffer.
+ * @param scanline Length of the output buffer scanline.
+ * @param xstep Scaling steps array, x dimension.
+ * @param ystep Scaling steps array, y dimension.
+ * @param sprite The source sprite.
+ * @return Gives 0 on success.
+ */
+TbResult LbSpriteDrawUsingScalingDownData_sub8(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(7,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
+    long *ycurstep;
 
     ystep_delta = 2;
     if (scanline < 0) {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
+    ycurstep = ystep;
 
     int h;
     for (h=sprite->SHeight; h > 0; h--)
     {
-        if (ystep[1] != 0)
+        if (ycurstep[1] != 0)
         {
             long *xcurstep;
             xcurstep = xstep;
@@ -2912,7 +3441,7 @@ TbResult LbSpriteDrawUsingScalingData_sub16(uchar *outbuf, int scanline, long *x
                 }
             }
         }
-        ystep += ystep_delta;
+        ycurstep += ystep_delta;
     }
     return 0;
 }
@@ -2956,11 +3485,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
       {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         {
-            return LbSpriteDrawUsingScalingData_sub1(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
+            return LbSpriteDrawUsingScalingUpData_sub1(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
         }
         else
         {
-            return LbSpriteDrawUsingScalingData_sub2(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
+            return LbSpriteDrawUsingScalingUpData_sub2(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
         }
       }
       else
@@ -2969,11 +3498,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
         {
           if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
           {
-              return LbSpriteDrawUsingScalingData_sub3(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+              return LbSpriteDrawUsingScalingUpData_sub3(outbuf, scanline, xstep, ystep, sprite, render_ghost);
           }
           else
           {
-              return LbSpriteDrawUsingScalingData_sub4(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+              return LbSpriteDrawUsingScalingUpData_sub4(outbuf, scanline, xstep, ystep, sprite, render_ghost);
           }
         }
         else
@@ -2982,22 +3511,22 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                return LbSpriteDrawUsingScalingData_sub5(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+                return LbSpriteDrawUsingScalingUpData_sub5(outbuf, scanline, xstep, ystep, sprite, render_ghost);
             }
             else
             {
-                return LbSpriteDrawUsingScalingData_sub6(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+                return LbSpriteDrawUsingScalingUpData_sub6(outbuf, scanline, xstep, ystep, sprite, render_ghost);
             }
           }
           else
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                return LbSpriteDrawUsingScalingData_sub07(outbuf, scanline, xstep, ystep, sprite);
+                return LbSpriteDrawUsingScalingUpData_sub7(outbuf, scanline, xstep, ystep, sprite);
             }
             else
             {
-                return LbSpriteDrawUsingScalingData_sub08(outbuf, scanline, xstep, ystep, sprite);
+                return LbSpriteDrawUsingScalingUpData_sub8(outbuf, scanline, xstep, ystep, sprite);
             }
           }
         }
@@ -3009,13 +3538,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
       {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         {
-            //return LbSpriteDrawUsingScalingData_sub09(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
-            return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+            return LbSpriteDrawUsingScalingDownData_sub1(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
         }
         else
         {
-            //return LbSpriteDrawUsingScalingData_sub10(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
-            return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+            return LbSpriteDrawUsingScalingDownData_sub2(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
         }
       }
       else
@@ -3024,13 +3551,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
         {
           if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
           {
-              //return LbSpriteDrawUsingScalingData_sub11(outbuf, scanline, xstep, ystep, sprite, render_ghost);
-              return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+              return LbSpriteDrawUsingScalingDownData_sub3(outbuf, scanline, xstep, ystep, sprite, render_ghost);
           }
           else
           {
-              //return LbSpriteDrawUsingScalingData_sub12(outbuf, scanline, xstep, ystep, sprite, render_ghost);
-              return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+              return LbSpriteDrawUsingScalingDownData_sub4(outbuf, scanline, xstep, ystep, sprite, render_ghost);
           }
         }
         else
@@ -3039,12 +3564,12 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                //return LbSpriteDrawUsingScalingData_sub13(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+                //return LbSpriteDrawUsingScalingDownData_sub5(outbuf, scanline, xstep, ystep, sprite, render_ghost);
                 return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
             }
             else
             {
-                //return LbSpriteDrawUsingScalingData_sub14(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+                //return LbSpriteDrawUsingScalingDownData_sub6(outbuf, scanline, xstep, ystep, sprite, render_ghost);
                 return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
             }
           }
@@ -3052,11 +3577,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                return LbSpriteDrawUsingScalingData_sub15(outbuf, scanline, xstep, ystep, sprite);
+                return LbSpriteDrawUsingScalingDownData_sub7(outbuf, scanline, xstep, ystep, sprite);
             }
             else
             {
-                return LbSpriteDrawUsingScalingData_sub16(outbuf, scanline, xstep, ystep, sprite);
+                return LbSpriteDrawUsingScalingDownData_sub8(outbuf, scanline, xstep, ystep, sprite);
             }
           }
         }
