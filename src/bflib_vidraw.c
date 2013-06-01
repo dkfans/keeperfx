@@ -2016,7 +2016,7 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub1(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2135,7 +2135,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub1(uchar *outbuf, int scanline, long *
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub2(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2252,7 +2252,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub2(uchar *outbuf, int scanline, long *
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2353,7 +2353,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, long *
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2454,7 +2454,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, long *
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub5(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2555,7 +2555,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub5(uchar *outbuf, int scanline, long *
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub6(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2655,7 +2655,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub6(uchar *outbuf, int scanline, long *
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub7(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2772,7 +2772,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub7(uchar *outbuf, int scanline, long *
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub8(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2888,7 +2888,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub8(uchar *outbuf, int scanline, long *
  */
 TbResult LbSpriteDrawUsingScalingDownData_sub1(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -2978,7 +2978,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub1(uchar *outbuf, int scanline, long
  */
 TbResult LbSpriteDrawUsingScalingDownData_sub2(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -3068,7 +3068,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub2(uchar *outbuf, int scanline, long
  */
 TbResult LbSpriteDrawUsingScalingDownData_sub3(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -3158,7 +3158,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub3(uchar *outbuf, int scanline, long
  */
 TbResult LbSpriteDrawUsingScalingDownData_sub4(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -3248,7 +3248,79 @@ TbResult LbSpriteDrawUsingScalingDownData_sub4(uchar *outbuf, int scanline, long
  */
 TbResult LbSpriteDrawUsingScalingDownData_sub5(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+    long *ycurstep;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+    ycurstep = ystep;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ycurstep[1] != 0)
+        {
+            long *xcurstep;
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0] + xcurstep[1];
+                    xcurstep -= 2 * pxlen;
+                    out_end += xcurstep[0] + xcurstep[1];
+                }
+                else
+                {
+                    for (;pxlen > 0; pxlen--)
+                    {
+                        if (xcurstep[1] > 0)
+                        {
+                            unsigned int pxmap;
+                            pxmap = ((*sprdata));
+                            {
+                                pxmap = (pxmap & ~0xff00) | ((*out_end) << 8);
+                                *out_end = transmap[pxmap];
+                                out_end--;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep -= 2;
+                    }
+                }
+            }
+            outbuf += scanline;
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ycurstep += ystep_delta;
+    }
     return 0;
 }
 
@@ -3266,7 +3338,79 @@ TbResult LbSpriteDrawUsingScalingDownData_sub5(uchar *outbuf, int scanline, long
  */
 TbResult LbSpriteDrawUsingScalingDownData_sub6(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
+    int ystep_delta;
+    unsigned char *sprdata;
+    long *ycurstep;
+
+    ystep_delta = 2;
+    if (scanline < 0) {
+        ystep_delta = -2;
+    }
+    sprdata = sprite->Data;
+    ycurstep = ystep;
+
+    int h;
+    for (h=sprite->SHeight; h > 0; h--)
+    {
+        if (ycurstep[1] != 0)
+        {
+            long *xcurstep;
+            xcurstep = xstep;
+            TbPixel *out_end;
+            out_end = outbuf;
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                    break;
+                if (pxlen < 0)
+                {
+                    pxlen = -pxlen;
+                    out_end -= xcurstep[0];
+                    xcurstep += 2 * pxlen;
+                    out_end += xcurstep[0];
+                }
+                else
+                {
+                    for (;pxlen > 0; pxlen--)
+                    {
+                        if (xcurstep[1] > 0)
+                        {
+                            unsigned int pxmap;
+                            pxmap = ((*sprdata));
+                            {
+                                pxmap = (pxmap & ~0xff00) | ((*out_end) << 8);
+                                *out_end = transmap[pxmap];
+                                out_end++;
+                            }
+                        }
+                        sprdata++;
+                        xcurstep += 2;
+                    }
+                }
+            }
+            outbuf += scanline;
+        }
+        else
+        {
+            while ( 1 )
+            {
+                long pxlen;
+                pxlen = (signed char)*sprdata;
+                sprdata++;
+                if (pxlen == 0)
+                  break;
+                if (pxlen > 0)
+                {
+                    sprdata += pxlen;
+                }
+            }
+        }
+        ycurstep += ystep_delta;
+    }
     return 0;
 }
 
@@ -3283,7 +3427,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub6(uchar *outbuf, int scanline, long
  */
 TbResult LbSpriteDrawUsingScalingDownData_sub7(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -3371,7 +3515,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub7(uchar *outbuf, int scanline, long
  */
 TbResult LbSpriteDrawUsingScalingDownData_sub8(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
-    SYNCDBG(7,"Drawing");
+    SYNCDBG(17,"Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
@@ -3446,6 +3590,16 @@ TbResult LbSpriteDrawUsingScalingDownData_sub8(uchar *outbuf, int scanline, long
     return 0;
 }
 
+/**
+ * Draws a scaled sprite on current graphics window at given position.
+ * Requires LbSpriteSetScalingData() to be called before.
+ *
+ * @param posx The X coord within current graphics window.
+ * @param posy The Y coord within current graphics window.
+ * @param sprite The source sprite.
+ * @return Gives 0 on success.
+ * @see LbSpriteSetScalingData()
+ */
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
     SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
@@ -3564,13 +3718,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                //return LbSpriteDrawUsingScalingDownData_sub5(outbuf, scanline, xstep, ystep, sprite, render_ghost);
-                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+                return LbSpriteDrawUsingScalingDownData_sub5(outbuf, scanline, xstep, ystep, sprite, render_ghost);
             }
             else
             {
-                //return LbSpriteDrawUsingScalingDownData_sub6(outbuf, scanline, xstep, ystep, sprite, render_ghost);
-                return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
+                return LbSpriteDrawUsingScalingDownData_sub6(outbuf, scanline, xstep, ystep, sprite, render_ghost);
             }
           }
           else
@@ -3589,6 +3741,16 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
     }
 }
 
+/**
+ * Draws an alpha-blended scaled sprite on current graphics window at given position.
+ * Requires SetAlphaScalingData() to be called before.
+ *
+ * @param posx The X coord within current graphics window.
+ * @param posy The Y coord within current graphics window.
+ * @param sprite The source sprite.
+ * @return Gives 0 on success.
+ * @see SetAlphaScalingData()
+ */
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
     return _DK_DrawAlphaSpriteUsingScalingData(posx, posy, sprite);
