@@ -84,7 +84,7 @@ TbBool setup_heap_manager(void)
     graphics_heap = heapmgr_init(heap, heap_size, i);
     if (graphics_heap == NULL)
     {
-        ERRORLOG("Not enough memory to initialise heap.");
+        ERRORLOG("Not enough memory to initialize heap.");
         return false;
     }
     wait_for_cd_to_be_available();
@@ -298,7 +298,7 @@ TbBool setup_heaps(void)
         LbMemoryFree(sound_heap_memory);
         sound_heap_memory = NULL;
         SoundDisabled = true;
-        ERRORLOG("Unable to initialise sound heap. Sound disabled.");
+        ERRORLOG("Unable to initialize sound heap. Sound disabled.");
       }
     }
     return true;
