@@ -2038,6 +2038,7 @@ void display_drawlist(void)
     SYNCDBG(9,"Starting");
     render_fade_tables = pixmap.fade_tables;
     render_ghost = pixmap.ghost;
+    render_alpha = (unsigned char *)&alpha_sprite_table;
     render_problems = 0;
     thing_pointed_at = 0;
     for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)

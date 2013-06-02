@@ -3753,7 +3753,59 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
  */
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
-    return _DK_DrawAlphaSpriteUsingScalingData(posx, posy, sprite);
+    SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
+    //return _DK_DrawAlphaSpriteUsingScalingData(posx, posy, sprite);
+    long *xstep;
+    long *ystep;
+    int scanline;
+    {
+        long sposx, sposy;
+        sposx = posx;
+        sposy = posy;
+        scanline = lbDisplay.GraphicsScreenWidth;
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0) {
+            sposx = sprite->SWidth + posx - 1;
+        }
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR2) != 0) {
+            sposy = sprite->SHeight + posy - 1;
+            scanline = -lbDisplay.GraphicsScreenWidth;
+        }
+        xstep = &alpha_xsteps_array[2 * sposx];
+        ystep = &alpha_ysteps_array[2 * sposy];
+    }
+    uchar *outbuf;
+    {
+        int gspos_x,gspos_y;
+        gspos_y = ystep[0];
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR2) != 0)
+            gspos_y += ystep[1] - 1;
+        gspos_x = xstep[0];
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+            gspos_x += xstep[1] - 1;
+        outbuf = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
+    }
+    if ( alpha_scale_up )
+    {
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+        {
+            return LbSpriteDrawUsingScalingUpData_sub3(outbuf, scanline, xstep, ystep, sprite, render_alpha);
+        }
+        else
+        {
+            return LbSpriteDrawUsingScalingUpData_sub4(outbuf, scanline, xstep, ystep, sprite, render_alpha);
+        }
+    }
+    else
+    {
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+        {
+            return LbSpriteDrawUsingScalingDownData_sub3(outbuf, scanline, xstep, ystep, sprite, render_alpha);
+        }
+        else
+        {
+            return LbSpriteDrawUsingScalingDownData_sub4(outbuf, scanline, xstep, ystep, sprite, render_alpha);
+        }
+    }
 }
 
 void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
