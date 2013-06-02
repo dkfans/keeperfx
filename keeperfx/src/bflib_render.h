@@ -98,6 +98,7 @@ extern TbPixel vec_colour;
 extern unsigned char vec_mode;
 extern unsigned char *render_fade_tables;
 extern unsigned char *render_ghost;
+extern unsigned char *render_alpha;
 extern struct PolyPoint polyscans[2*POLY_SCANS_COUNT];
 // Rename pending for these entries
 extern unsigned char *LOC_poly_screen;

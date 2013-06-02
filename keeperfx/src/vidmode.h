@@ -73,6 +73,8 @@ DLLIMPORT int _DK_MinimalResolutionSetup;
 //#define fade_tables _DK_fade_tables
 DLLIMPORT struct TbColorTables _DK_pixmap;
 #define pixmap _DK_pixmap
+DLLIMPORT extern struct TbAlphaTables _DK_alpha_sprite_table;
+#define alpha_sprite_table _DK_alpha_sprite_table
 DLLIMPORT extern struct TbLoadFiles _DK_map_flag_load_files[];
 //#define map_flag_load_files _DK_map_flag_load_files
 DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];

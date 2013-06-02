@@ -47,8 +47,6 @@ DLLIMPORT extern unsigned char _DK_frontend_palette[768];
 #define frontend_palette _DK_frontend_palette
 DLLIMPORT TbRGBColorTable _DK_colours;
 #define colours _DK_colours
-DLLIMPORT extern struct TbAlphaTables _DK_alpha_sprite_table;
-#define alpha_sprite_table _DK_alpha_sprite_table
 /******************************************************************************/
 void fade_in(void);
 void fade_out(void);
