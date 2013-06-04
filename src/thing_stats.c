@@ -67,7 +67,7 @@ const char *thing_classes[] = {
     "UNKNOWN14",
 };
 /******************************************************************************/
-DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char a3);
+DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char dealing_plyr_idx);
 
 /******************************************************************************/
 const char *thing_class_code_name(long class_id)
@@ -598,13 +598,73 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
     }
 }
 
-void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
+static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
     struct PlayerInfo *player;
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    long carmor, cdamage;
+    long carmor;
+    HitPoints cdamage;
     long i;
+    cctrl = creature_control_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(thing);
+    if ((cctrl->flgfield_1 & CCFlg_Immortal) == 0)
+    {
+        // Compute armor value
+        carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel);
+        if (creature_affected_by_spell(thing, SplK_Armour))
+            carmor = (320 * carmor) / 256;
+        // This limit makes armor absorb up to 80% of damage, never more
+        if (carmor > 204)
+            carmor = 204;
+        if (carmor < 0)
+            carmor = 0;
+        // Now compute damage
+        cdamage = (dmg * (256 - carmor)) / 256;
+        if (cdamage <= 0)
+          cdamage = 1;
+        // Apply damage to the thing
+        thing->health -= cdamage;
+        thing->creature.health_bar_turns = 8;
+        thing->field_4F |= 0x80;
+        // Red palette if the possessed creature is hit very strong
+        if (thing->owner != game.neutral_player_num)
+        {
+            player = get_player(thing->owner);
+            if (player->controlled_thing_idx == thing->index)
+            {
+              i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
+              if (i > 10)
+              {
+                  i = 10;
+              } else
+              if (i <= 0)
+              {
+                  i = 1;
+              }
+              PaletteApplyPainToPlayer(player, i);
+            }
+        }
+    }
+}
+
+static void apply_damage_to_object(struct Thing *thing, HitPoints dmg)
+{
+    HitPoints cdamage;
+    cdamage = dmg;
+    thing->health -= cdamage;
+    thing->field_4F |= 0x80;
+}
+
+static void apply_damage_to_door(struct Thing *thing, HitPoints dmg)
+{
+    HitPoints cdamage;
+    cdamage = dmg;
+    thing->health -= cdamage;
+}
+
+void apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
+{
     //_DK_apply_damage_to_thing(thing, dmg, a3);
     // We're here to damage, not to heal
     if (dmg <= 0)
@@ -616,65 +676,24 @@ void apply_damage_to_thing(struct Thing *thing, long dmg, char a3)
     switch (thing->class_id)
     {
     case TCls_Creature:
-        cctrl = creature_control_get_from_thing(thing);
-        crstat = creature_stats_get_from_thing(thing);
-        if ((cctrl->flgfield_1 & CCFlg_Immortal) == 0)
-        {
-            // Compute armor value
-            carmor = compute_creature_max_armour(crstat->armour,cctrl->explevel);
-            if (creature_affected_by_spell(thing, SplK_Armour))
-                carmor = (320 * carmor) / 256;
-            // This limit makes armor absorb up to 80% of damage, never more
-            if (carmor > 204)
-                carmor = 204;
-            if (carmor < 0)
-                carmor = 0;
-            // Now compute damage
-            cdamage = (dmg * (256 - carmor)) / 256;
-            if (cdamage <= 0)
-              cdamage = 1;
-            // Apply damage to the thing
-            thing->health -= cdamage;
-            thing->creature.health_bar_turns = 8;
-            thing->field_4F |= 0x80;
-            // Red palette if the possessed creature is hit very strong
-            if (thing->owner != game.neutral_player_num)
-            {
-                player = get_player(thing->owner);
-                if (player->controlled_thing_idx == thing->index)
-                {
-                  i = (10 * cdamage) / compute_creature_max_health(crstat->health,cctrl->explevel);
-                  if (i > 10)
-                  {
-                      i = 10;
-                  } else
-                  if (i <= 0)
-                  {
-                      i = 1;
-                  }
-                  PaletteApplyPainToPlayer(player, i);
-                }
-            }
-        }
+        apply_damage_to_creature(thing, dmg);
         break;
     case TCls_Object:
-        cdamage = dmg;
-        thing->health -= cdamage;
-        thing->field_4F |= 0x80;
+        apply_damage_to_object(thing, dmg);
         break;
     case TCls_Door:
-        cdamage = dmg;
-        thing->health -= cdamage;
+        apply_damage_to_door(thing, dmg);
         break;
     default:
         break;
     }
     if ((thing->class_id == TCls_Creature) && (thing->health < 0))
     {
+        struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->field_1D2 == -1) && (a3 != -1))
+        if ((cctrl->fighting_player_idx == -1) && (dealing_plyr_idx != -1))
         {
-            cctrl->field_1D2 = a3;
+            cctrl->fighting_player_idx = dealing_plyr_idx;
         }
     }
 }

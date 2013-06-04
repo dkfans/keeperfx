@@ -357,7 +357,7 @@ unsigned char field_D3;
     char instance_available[CREATURE_INSTANCES_COUNT];
     unsigned short field_1CE;
   unsigned short field_1D0;
-    char field_1D2;
+    char fighting_player_idx;
 unsigned char shot_model;
   struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     char field_1E8;

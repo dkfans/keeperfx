@@ -74,7 +74,7 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
 
 TbBool update_creature_health_to_max(struct Thing *thing);
 void apply_health_to_thing_and_display_health(struct Thing *thing, long amount);
-void apply_damage_to_thing(struct Thing *thing, long a2, char a3);
+void apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

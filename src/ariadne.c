@@ -234,6 +234,66 @@ long triangle_findSE8(long ptfind_x, long ptfind_y);
 long ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
 void edgelen_init(void);
 /******************************************************************************/
+static void ariadne_compare_ways(const struct Ariadne *arid1, const struct Ariadne *arid2)
+{
+    const struct Coord3d *p1, *p2;
+    p1 = &arid1->startpos; p2 = &arid2->startpos;
+    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("startpos DIFFERS");
+    }
+    p1 = &arid1->endpos; p2 = &arid2->endpos;
+    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("endpos DIFFERS");
+    }
+    p1 = &arid1->current_waypoint_pos; p2 = &arid2->current_waypoint_pos;
+    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("current_waypoint_pos DIFFERS");
+    }
+    p1 = &arid1->pos_12; p2 = &arid2->pos_12;
+    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("pos_12 DIFFERS");
+    }
+    if (memcmp(&arid1->field_18,&arid2->field_18,14) != 0) {
+        ERRORLOG("field_18..field_24 DIFFERS");
+    }
+    if (arid1->move_speed != arid2->move_speed) {
+        ERRORLOG("move_speed DIFFERS");
+    }
+    if (arid1->current_waypoint != arid2->current_waypoint) {
+        ERRORLOG("current_waypoint DIFFERS");
+    }
+    int i;
+    for (i=0; i < ARID_WAYPOINTS_COUNT; i++) {
+        const struct Coord2d *w1, *w2;
+        w1 = &arid1->waypoints[i]; w2 = &arid2->waypoints[i];
+        if (memcmp(w1,w2,sizeof(struct Coord3d)) != 0) {
+            ERRORLOG("waypoints[%d] DIFFERS (%d,%d) (%d,%d)",i,(int)w1->x.val,(int)w1->y.val,(int)w2->x.val,(int)w2->y.val);
+        }
+    }
+    if (arid1->stored_waypoints != arid2->stored_waypoints) {
+        ERRORLOG("stored_waypoints DIFFERS");
+    }
+    if (arid1->total_waypoints != arid2->total_waypoints) {
+        ERRORLOG("total_waypoints DIFFERS");
+    }
+    p1 = &arid1->pos_53; p2 = &arid2->pos_53;
+    if (memcmp(p1,p2,sizeof(struct Coord3d)) != 0) {
+        ERRORLOG("pos_53 DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    }
+    p1 = &arid1->pos_59; p2 = &arid2->pos_59;
+    if (memcmp(p1,p2,4) != 0) { // Compare only X and Y here; skip Z
+        ERRORLOG("pos_59 DIFFERS (%d,%d,%d) (%d,%d,%d)",(int)p1->x.val,(int)p1->y.val,(int)p1->z.val,(int)p2->x.val,(int)p2->y.val,(int)p2->z.val);
+    }
+    if (arid1->manoeuvre_state != arid2->manoeuvre_state) {
+        ERRORLOG("manoeuvre_state DIFFERS");
+    }
+    if (arid1->field_60 != arid2->field_60) {
+        ERRORLOG("field_60 DIFFERS");
+    }
+    if (arid1->field_62 != arid2->field_62) {
+        ERRORLOG("field_62 DIFFERS");
+    }
+}
 
 unsigned long fits_thro(long tri_idx, long ormask_idx)
 {
@@ -1389,19 +1449,19 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     AriadneReturn aret;
     NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)finalpos->x.stl.num, (int)finalpos->y.stl.num);
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/2)
-    result = _DK_ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5); return result;
-
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/2)
+    result = _DK_ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5); return result;
     arid->field_22 = 0;
     if ((finalpos->x.val != arid->endpos.x.val)
      || (finalpos->y.val != arid->endpos.y.val)
      || (arid->move_speed != speed))
     {
         aret = ariadne_initialise_creature_route(thing, finalpos, speed, a5);
-        if (aret != AridRet_OK)
+        if (aret != AridRet_OK) {
             return AridRet_Val2;
+        }
         arid->move_speed = speed;
         if (arid->field_22)
         {
@@ -1431,7 +1491,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         {
             aret = ariadne_initialise_creature_route(thing, finalpos, speed, a5);
             if (aret != AridRet_OK) {
-              return AridRet_PartOK;
+                return AridRet_PartOK;
             }
         }
     }

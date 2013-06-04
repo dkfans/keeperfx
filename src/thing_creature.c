@@ -1320,9 +1320,9 @@ TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char de
       return inc_player_kills_counter(def_plyr_idx, victim);
     }
   }
-  if ((cctrl->field_1D2 != -1) && (game.neutral_player_num != cctrl->field_1D2))
+  if ((cctrl->fighting_player_idx != -1) && (game.neutral_player_num != cctrl->fighting_player_idx))
   {
-    return inc_player_kills_counter(cctrl->field_1D2, victim);
+    return inc_player_kills_counter(cctrl->fighting_player_idx, victim);
   }
   return false;
 }
@@ -2561,7 +2561,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     cctrl->flee_pos.y.val = crtng->mappos.y.val;
     cctrl->flee_pos.z.val = crtng->mappos.z.val;
     cctrl->flee_pos.z.val = get_thing_height_at(crtng, pos);
-    cctrl->field_1D2 = -1;
+    cctrl->fighting_player_idx = -1;
     if (crstat->flying)
       crtng->movement_flags |= TMvF_Flying;
     set_creature_level(crtng, 0);
