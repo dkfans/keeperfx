@@ -1390,7 +1390,9 @@ TbBigChecksum get_thing_simple_checksum(const struct Thing *tng)
           tng = thing_get(tng_idx);
           if ((tng->alloc_flags & TAlF_Exists) != 0)
           {
-              if (tng->class_id != TCls_AmbientSnd)
+              // It would be nice to completely ignore effects, but since
+              // thing indices are used in packets, lack of effect may cause desync too.
+              if ((tng->class_id != TCls_AmbientSnd) && (tng->class_id != TCls_EffectElem))
               {
                   sum += get_thing_simple_checksum(tng);
               }
