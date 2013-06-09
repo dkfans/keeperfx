@@ -635,16 +635,17 @@ long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProc
 
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  Comp_Process_Func callback;
-  if (process != NULL)
-  {
-    set_flag_dword(&process->field_44, 0x0008, true);
-    set_flag_dword(&process->field_44, 0x0020, false);
-    process->field_34 = game.play_gameturn;
-    callback = process->func_complete;
-    if (callback != NULL)
-      callback(comp, process);
-  }
+    Comp_Process_Func callback;
+    if (process != NULL)
+    {
+        set_flag_dword(&process->field_44, 0x0008, true);
+        set_flag_dword(&process->field_44, 0x0020, false);
+        process->field_34 = game.play_gameturn;
+        callback = process->func_complete;
+        if (callback != NULL) {
+            callback(comp, process);
+        }
+    }
 }
 
 long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *process)
