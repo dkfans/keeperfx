@@ -1042,8 +1042,10 @@
  0001:00042540       process_pause_packet
  0001:000243C0       draw_bonus_timer
  0001:00020140       draw_2d_map
+ 0001:0005CB30       map_fade
  0001:0005C710       map_fade_in
  0001:0005C920       map_fade_out
+ 0001:0005C670       generate_map_fade_ghost_table
  0001:0001EE90       redraw_isometric_view
  0001:0001F4A0       redraw_frontview
  0001:0001F7D0       redraw_creature_view
@@ -1949,6 +1951,9 @@
  0001:000665C0       region_alloc
  0001:0006CC50       gate_route_to_coords
  0001:00069320       fill_concave
+ 0003:00055EA0       map_fade_dest
+ 0003:00055EA4       map_fade_src
+ 0003:00055EA8       map_fade_ghost_table
  0001:00064A80       change_effect_element_into_another
  0001:0006F340       reveal_players_map_to_player
  0001:000CB390       move_effect_element
