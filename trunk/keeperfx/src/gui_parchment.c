@@ -711,7 +711,13 @@ void redraw_parchment_view(void)
   draw_tooltip();
 }
 
-
+void redraw_minimal_overhead_view(void)
+{
+    draw_map_parchment();
+    draw_2d_map();
+    draw_gui();
+    draw_tooltip();
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

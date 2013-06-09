@@ -44,6 +44,7 @@ void load_parchment_file(void);
 void reload_parchment_file(TbBool hires);
 
 void redraw_parchment_view(void);
+void redraw_minimal_overhead_view(void);
 
 /******************************************************************************/
 #ifdef __cplusplus
