@@ -1189,6 +1189,7 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     long angle;
     long delta_x,delta_y;
     unsigned long blk_flags;
+    TRACE_THING(thing);
     //return _DK_ariadne_init_movement_to_current_waypoint(thing, arid);
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
     delta_x = distance_with_angle_to_coord_x(arid->move_speed, angle);
@@ -1322,6 +1323,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, struct Co
     AriadneReturn ret;
     NAVIDBG(18,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name,thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
+    TRACE_THING(thing);
     //return _DK_ariadne_initialise_creature_route(thing, pos, speed, storage);
     cctrl = creature_control_get_from_thing(thing);
     arid = &(cctrl->arid);
@@ -1345,6 +1347,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, struct Co
         ariadne_init_current_waypoint(thing, arid);
     }
     ret = ariadne_init_movement_to_current_waypoint(thing, arid);
+    NAVIDBG(19,"%s: Route prepared", func_name);
     return AridRet_OK;
 }
 

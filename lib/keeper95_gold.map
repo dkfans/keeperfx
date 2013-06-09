@@ -788,6 +788,7 @@
  0001:0008C560       slab_by_players_land
  0001:0008C6A0       imp_will_soon_be_getting_object
  0001:0008C750       imp_will_soon_be_arming_trap
+ 0001:0008C7F0       imp_will_soon_be_converting_at_excluding
  0001:0008C900       imp_will_soon_be_working_at_excluding
  0001:0008CAB0       check_place_to_dig_and_get_position
  0001:0008CE70       check_out_uncrowded_reinforce_position

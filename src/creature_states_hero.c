@@ -407,7 +407,7 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
 {
     struct PlayerInfo *player;
     SYNCDBG(18,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     player = get_player(plyr_idx);
     if (!player_exists(player))
     {
@@ -435,7 +435,7 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
 {
     struct PlayerInfo *player;
     SYNCDBG(18,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     if (creatng->owner == plyr_idx)
     {
         ERRORLOG("The %s tried to wander to own (%d) heart", thing_model_name(creatng), (int)plyr_idx);
@@ -571,6 +571,7 @@ short good_doing_nothing(struct Thing *creatng)
     PlayerNumber target_plyr_idx;
     //return _DK_good_doing_nothing(thing);
     SYNCDBG(18,"Starting");
+    TRACE_THING(creatng);
     // Debug code to find incorrect states
     if (!is_hero_thing(creatng))
     {

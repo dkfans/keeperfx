@@ -106,6 +106,7 @@ TbBool setup_person_move_to_position(struct Thing *thing, MapSubtlCoord stl_x, M
     struct CreatureControl *cctrl;
     struct Coord3d locpos;
     SYNCDBG(18,"Moving %s index %d to (%d,%d)",thing_model_name(thing),(int)thing->index,(int)stl_x,(int)stl_y);
+    TRACE_THING(thing);
     //return _DK_setup_person_move_to_position(thing, stl_x, stl_y, storage);
     locpos.x.val = subtile_coord_center(stl_x);
     locpos.y.val = subtile_coord_center(stl_y);
@@ -247,6 +248,7 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
 void move_thing_in_map(struct Thing *thing, const struct Coord3d *pos)
 {
     SYNCDBG(18,"Starting");
+    TRACE_THING(thing);
     if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
     {
         thing->mappos.x.val = pos->x.val;

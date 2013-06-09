@@ -1112,7 +1112,8 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long a3, long trg_x
 
 void update_creature_count(struct Thing *thing)
 {
-  _DK_update_creature_count(thing);
+    TRACE_THING(thing);
+    _DK_update_creature_count(thing);
 }
 
 struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
@@ -1189,6 +1190,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     long x,y;
     long k;
     SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    TRACE_THING(thing);
     //return _DK_process_creature_state(thing);
     cctrl = creature_control_get_from_thing(thing);
     model_flags = get_creature_model_flags(thing);
