@@ -700,6 +700,7 @@ void process_keeper_spell_effect(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     //_DK_process_keeper_spell_effect(thing);
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_2AE--;
     if (cctrl->field_2AE <= 0)

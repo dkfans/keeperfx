@@ -74,7 +74,8 @@ DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *creatng, l
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_unconscious_body(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT long _DK_check_place_to_reinforce(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_crate(struct Thing *creatng, long stl_x, long stl_y);
-DLLIMPORT long _DK_add_to_pretty_to_imp_stack_if_need_to(long a1, long a2, struct Dungeon *dungeon);
+DLLIMPORT long _DK_add_to_pretty_to_imp_stack_if_need_to(long creatng, long slb_x, struct Dungeon *dungeon);
+DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
 
@@ -114,6 +115,7 @@ long find_in_imp_stack_using_pos(long stl_num, long task_type, const struct Dung
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
 {
     SYNCDBG(19,"Starting");
+    TRACE_THING(thing);
     return _DK_imp_will_soon_be_working_at_excluding(thing, a2, a3);
 }
 
@@ -216,31 +218,104 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     return _DK_check_out_unprettied_or_unconverted_area(thing);
 }
 
-long check_out_unconverted_spiral(struct Thing *thing, long a2)
+long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-  return _DK_check_out_unconverted_spiral(thing, a2);
+    return _DK_imp_will_soon_be_converting_at_excluding(creatng, slb_x, slb_y);
 }
 
-TbBool check_out_unprettied_spot(struct Thing *thing, long slb_x, long slb_y)
+TbBool check_out_unconverted_spot(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    long stl_x,stl_y;
-    if ((slb_x >= 0) && (slb_x < map_tiles_x) && (slb_y >= 0) && (slb_y < map_tiles_y))
+    MapSubtlCoord stl_x,stl_y;
+    if ((slb_x < 0) || (slb_x >= map_tiles_x)) {
+        return false;
+    }
+    if ((slb_y < 0) || (slb_y >= map_tiles_y)) {
+        return false;
+    }
+    if (!check_place_to_convert_excluding(creatng, slb_x, slb_y)) {
+        return false;
+    }
+    stl_x = slab_subtile_center(slb_x);
+    stl_y = slab_subtile_center(slb_y);
+    if (imp_will_soon_be_converting_at_excluding(creatng, stl_x, stl_y)) {
+        return false;
+    }
+    if (!setup_person_move_to_position(creatng, stl_x, stl_y, 0)) {
+        return false;
+    }
+    creatng->continue_state = CrSt_ImpArrivesAtConvertDungeon;
+    return true;
+}
+
+long check_out_unconverted_spiral(struct Thing *thing, long nslabs)
+{
+    const struct Around *arnd;
+    long slb_x,slb_y;
+    long slabi,arndi;
+    long i,imax,k;
+    SYNCDBG(9,"Starting");
+    TRACE_THING(thing);
+    //return _DK_check_out_unconverted_spiral(thing, nslabs);
+
+    slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    imax = 2;
+    arndi = ACTION_RANDOM(4);
+    for (slabi = 0; slabi < nslabs; slabi++)
     {
-      if (check_place_to_pretty_excluding(thing, slb_x, slb_y))
-      {
-          stl_x = slab_subtile_center(slb_x);
-          stl_y = slab_subtile_center(slb_y);
-          if (!imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+        {
+          arnd = &small_around[arndi];
           {
-              if (setup_person_move_to_position(thing, stl_x, stl_y, 0))
-              {
-                  thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
-                  return true;
+              slb_x += arnd->delta_x;
+              slb_y += arnd->delta_y;
+              if (check_out_unconverted_spot(thing, slb_x, slb_y)) {
+                  return 1;
               }
           }
-      }
+          arndi = (arndi + 1) & 3;
+          i = 1;
+        }
+        for (k = 0; k < 4; k++)
+        {
+          arnd = &small_around[arndi];
+          for (; i < imax; i++)
+          {
+              slb_x += arnd->delta_x;
+              slb_y += arnd->delta_y;
+              if (check_out_unconverted_spot(thing, slb_x, slb_y)) {
+                  return 1;
+              }
+          }
+          arndi = (arndi + 1) & 3;
+          i = 0;
+        }
+        imax += 2;
     }
-    return false;
+    return 0;
+}
+
+TbBool check_out_unprettied_spot(struct Thing *creatng, long slb_x, long slb_y)
+{
+    MapSubtlCoord stl_x,stl_y;
+    if ((slb_x < 0) || (slb_x >= map_tiles_x)) {
+        return false;
+    }
+    if ((slb_y < 0) || (slb_y >= map_tiles_y)) {
+        return false;
+    }
+    if (!check_place_to_pretty_excluding(creatng, slb_x, slb_y)) {
+        return false;
+    }
+    stl_x = slab_subtile_center(slb_x);
+    stl_y = slab_subtile_center(slb_y);
+    if (imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y)) {
+        return false;
+    }
+    if (!setup_person_move_to_position(creatng, stl_x, stl_y, 0)) {
+        return false;
+    }
+    creatng->continue_state = CrSt_ImpArrivesAtImproveDungeon;
+    return true;
 }
 
 long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
@@ -250,6 +325,7 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
     long slabi,arndi;
     long i,imax,k;
     SYNCDBG(9,"Starting");
+    TRACE_THING(thing);
     //return _DK_check_out_unprettied_spiral(thing, nslabs);
 
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
@@ -360,6 +436,7 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
 long check_place_to_pretty_excluding(struct Thing *thing, long slb_x, long slb_y)
 {
     SYNCDBG(19,"Starting");
+    TRACE_THING(thing);
     return _DK_check_place_to_pretty_excluding(thing, slb_x, slb_y);
 }
 
@@ -378,6 +455,7 @@ TbBool check_out_unconverted_place(struct Thing *thing)
     long stl_x,stl_y;
     long slb_x,slb_y;
     SYNCDBG(19,"Starting");
+    TRACE_THING(thing);
     slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
     slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
     stl_x = slab_subtile_center(slb_x);
@@ -393,7 +471,7 @@ TbBool check_out_unconverted_place(struct Thing *thing)
     }
     if ( check_out_unconverted_spiral(thing, 1) )
     {
-      return true;
+        return true;
     }
     return false;
 }
@@ -403,6 +481,7 @@ long check_out_unprettied_place(struct Thing *thing)
   long stl_x,stl_y;
   long slb_x,slb_y;
   SYNCDBG(19,"Starting");
+  TRACE_THING(thing);
   slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
   slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
   stl_x = slab_subtile_center(slb_x);
@@ -1166,6 +1245,7 @@ long check_out_imp_last_did(struct Thing *thing)
   //return _DK_check_out_imp_last_did(thing);
   cctrl = creature_control_get_from_thing(thing);
   SYNCDBG(19,"Starting for %s index %d, last did %d",thing_model_name(thing),(int)thing->index,(int)cctrl->digger.last_did_job);
+  TRACE_THING(thing);
   switch (cctrl->digger.last_did_job)
   {
   case 0:
@@ -1173,28 +1253,28 @@ long check_out_imp_last_did(struct Thing *thing)
   case 1:
       if ( check_out_undug_place(thing) || check_out_undug_area(thing) )
       {
-        cctrl->digger.last_did_job = 1;
-        return true;
+          cctrl->digger.last_did_job = 1;
+          return true;
       }
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->digger.last_did_job = 2;
-        return true;
+          cctrl->digger.last_did_job = 2;
+          return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->digger.last_did_job = 2;
-        SYNCDBG(19,"Done on unprettied or unconverted area");
-        return true;
+          cctrl->digger.last_did_job = 2;
+          SYNCDBG(19,"Done on unprettied or unconverted area");
+          return true;
       }
       break;
   case 2:
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
-        cctrl->digger.last_did_job = 2;
-        SYNCDBG(19,"Done on unprettied or unconverted place");
-        return true;
+          cctrl->digger.last_did_job = 2;
+          SYNCDBG(19,"Done on unprettied or unconverted place");
+          return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
@@ -1315,6 +1395,7 @@ long check_out_worker_convert_dungeon(struct Thing *thing, struct DiggerStack *i
 {
     MapSubtlCoord stl_x,stl_y;
     SYNCDBG(18,"Starting");
+    TRACE_THING(thing);
     stl_x = stl_num_decode_x(istack->field_0);
     stl_y = stl_num_decode_y(istack->field_0);
     if (!check_place_to_convert_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
