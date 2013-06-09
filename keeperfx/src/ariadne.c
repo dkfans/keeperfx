@@ -86,7 +86,7 @@ DLLIMPORT void _DK_insert_point(long pt_x, long pt_y);
 DLLIMPORT void _DK_make_edge(long start_x, long end_x, long start_y, long end_y);
 DLLIMPORT long _DK_tri_split2(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long a5);
 DLLIMPORT void _DK_tri_split3(long ptfind_x, long ptfind_y, long ptstart_x);
-DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
+DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
 DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8);
@@ -634,10 +634,63 @@ long cost_to_start(long tri_idx)
     return mincost;
 }
 
-long pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y)
+/**
+ *
+ * @param pos_x
+ * @param pos_y
+ * @param retpos_x
+ * @param retpos_y
+ */
+long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
 {
     //Note: uses LbCompareMultiplications()
-    return _DK_pointed_at8(pos_x, pos_y, retpos_x, retpos_y);
+    //return _DK_pointed_at8(pos_x, pos_y, retpos_x, retpos_y);
+    long npt;
+    long ntri;
+    int pt_id;
+    int ptBx,ptBy;
+    int ptAx,ptAy;
+
+    ntri = *ret_tri;
+    npt = *ret_pt;
+    pt_id = Triangles[ntri].points[npt];
+    ptAx = (Points[pt_id].x << 8) - pos_x;
+    ptAy = (Points[pt_id].y << 8) - pos_y;
+    pt_id =  Triangles[ntri].points[MOD3[npt+2]];
+    ptBx = (Points[pt_id].x << 8) - pos_x;
+    ptBy = (Points[pt_id].y << 8) - pos_y;
+    char pt_rel;
+    pt_rel = LbCompareMultiplications(ptBy, ptAx, ptBx, ptAy) > 0;
+    char prev_rel;
+    while ( 1 )
+    {
+        prev_rel = pt_rel;
+        pt_id = Triangles[ntri].points[MOD3[npt+1]];
+        ptBy = (Points[pt_id].y << 8) - pos_y;
+        ptBx = (Points[pt_id].x << 8) - pos_x;
+        pt_rel = LbCompareMultiplications(ptBy, ptAx, ptBx, ptAy) > 0;
+
+        if ( prev_rel && !pt_rel )
+        {
+            *ret_tri = ntri;
+            *ret_pt = npt;
+            return MOD3[npt+1];
+        }
+        long tri_id;
+        int tri_link;
+        tri_id = Triangles[ntri].tags[npt];
+        if (tri_id < 0) {
+            break;
+        }
+        tri_link = link_find(tri_id, ntri);
+        if (tri_link < 0) {
+            ERRORLOG("no tri link");
+            break;
+        }
+        npt = MOD3[tri_link+1];
+        ntri = tri_id;
+    }
+    return -1;
 }
 
 long triangle_brute_find8_near(long pos_x, long pos_y)
@@ -1230,6 +1283,15 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
     return 1;
 }
 
+/**
+ * Prepares a creature route in which targed is already reached.
+ *
+ * @param thing
+ * @param arid
+ * @param srcpos
+ * @param dstpos
+ * @return
+ */
 AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *thing, struct Ariadne *arid, const struct Coord3d *srcpos, const struct Coord3d *dstpos)
 {
     arid->startpos.x.val = srcpos->x.val;
@@ -1253,6 +1315,17 @@ AriadneReturn ariadne_prepare_creature_route_target_reached(const struct Thing *
     return AridRet_OK;
 }
 
+/**
+ * Prepares creature route from source to destination position.
+ * @param thing
+ * @param arid
+ * @param srcpos
+ * @param dstpos
+ * @param speed
+ * @param no_owner
+ * @param func_name
+ * @return
+ */
 AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
     const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, unsigned char no_owner, const char *func_name)
 {
@@ -1316,7 +1389,7 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     return AridRet_OK;
 }
 
-AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, struct Coord3d *pos, long speed, unsigned char storage, const char *func_name)
+AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char storage, const char *func_name)
 {
     struct CreatureControl *cctrl;
     struct Ariadne *arid;
@@ -2430,7 +2503,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     r = true;
     LastTriangulatedMap = imap;
     NAVIDBG(9,"F=%ld Area %03ld,%03ld %03ld,%03ld T=%04ld",game.play_gameturn,start_x,start_y,end_x,end_y,count_Triangles);
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/2)
+    //TODO PATHFINDING rewritten code has been disabled because it has errors
     _DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)

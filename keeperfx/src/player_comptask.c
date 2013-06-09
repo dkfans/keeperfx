@@ -60,6 +60,11 @@ struct MoveToRoom {
     long priority;
 };
 
+struct MyLookup {
+    long delta_x;
+    long delta_y;
+};
+
 /******************************************************************************/
 long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask);
@@ -127,6 +132,14 @@ const struct MoveToRoom move_to_room[] = {
     {RoK_SCAVENGER, 20},
     {RoK_NONE,       0},
 };
+
+const struct MyLookup lookup[] = {
+    { 0, -3},
+    { 3,  0},
+    { 0,  3},
+    {-3,  0}
+};
+
 /******************************************************************************/
 DLLIMPORT long _DK_task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask);
 DLLIMPORT long _DK_task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask);
@@ -505,10 +518,78 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     return _DK_task_check_room_dug(comp,ctask);
 }
 
+void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
+{
+    struct ComputerProcess *cproc;
+    SYNCDBG(9,"Starting");
+    cproc = &comp->processes[ctask->field_8C];
+    if ((cproc->field_44 & 0x20) != 0) {
+        shut_down_process(comp, cproc);
+    }
+    if (!computer_task_invalid(ctask)) {
+        remove_task(comp, ctask);
+    }
+}
+
 long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
+    struct Dungeon *dungeon;
+    RoomKind rkind;
+    struct RoomStats *rstat;
+    MapSubtlCoord stl_x, stl_y;
+    int i;
     SYNCDBG(9,"Starting");
+    //TODO check, then enable the rewritten code
     return _DK_task_place_room(comp,ctask);
+    dungeon = comp->dungeon;
+    rkind = ctask->field_80;
+    rstat = room_stats_get_for_kind(rkind);
+    // If we don't have money for the room - don't even try
+    if (rstat->cost >= dungeon->total_money_owned) {
+        return 0;
+    }
+    stl_x = ctask->dig.pos_gold.x.stl.num;
+    stl_y = ctask->dig.pos_gold.y.stl.num;
+    i = ctask->dig.field_2C;
+    while (i > 0)
+    {
+        ctask->dig.field_38--;
+        if (ctask->dig.field_38 <= 0)
+        {
+            ctask->dig.field_30++;
+            if (ctask->dig.field_30 & 1)
+                ctask->dig.field_34++;
+            ctask->dig.field_38 = ctask->dig.field_34;
+            ctask->dig.field_3C = (ctask->dig.field_3C + 1) & 3;
+        }
+        i--;
+        if (i == 0) {
+            break;
+        }
+        if (ctask->dig.field_38 <= 0) {
+            continue;
+        }
+        struct SlabMap *slb;
+        slb = get_slabmap_for_subtile(stl_x, stl_y);
+        if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
+        {
+            if (try_game_action(comp, dungeon->owner, GA_Unk16, 0, stl_x, stl_y, 1, rkind) > 0)
+            {
+                ctask->dig.field_44++;
+                if (ctask->dig.field_40 <= ctask->dig.field_44) {
+                    shut_down_task_process(comp, ctask);
+                    return 1;
+                }
+            }
+        }
+        const struct MyLookup *lkp;
+        lkp = &lookup[ctask->dig.field_3C];
+        stl_x += lkp->delta_x;
+        stl_y += lkp->delta_y;
+    }
+    ctask->dig.pos_gold.x.stl.num = stl_x;
+    ctask->dig.pos_gold.y.stl.num = stl_y;
+    return 0;
 }
 
 long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
