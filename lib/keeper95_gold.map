@@ -524,8 +524,10 @@
  0001:0005C3F0       imp_converts_dungeon
  0001:0005C5A0       imp_last_did_job
  0001:0005C5D0       imp_doing_nothing
+ 0001:0005C670       generate_map_fade_ghost_table
  0001:0005C710       map_fade_in
  0001:0005C920       map_fade_out
+ 0001:0005CB30       map_fade
  0001:0005CDB0       find_column
  0001:0005CE30       create_column
  0001:0005D110       init_columns
@@ -1721,6 +1723,9 @@
  0003:00053B80       optimised_lights
  0003:00053B84       do_lights
  0003:00053B88       total_lights
+ 0003:00055EA0       map_fade_dest
+ 0003:00055EA4       map_fade_src
+ 0003:00055EA8       map_fade_ghost_table
  0003:00055EB4       EdgeFit
  0003:00055EB8       EdgePoints
  0003:000564F8       tree_Bx8

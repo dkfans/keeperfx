@@ -25,6 +25,7 @@
 #include "bflib_sprfnt.h"
 #include "bflib_sound.h"
 #include "bflib_mouse.h"
+#include "bflib_dernc.h"
 
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -39,6 +40,7 @@
 #include "power_process.h"
 #include "engine_render.h"
 #include "engine_lenses.h"
+#include "front_simple.h"
 #include "front_easter.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
@@ -71,10 +73,15 @@ DLLIMPORT void _DK_draw_sound_stuff(void);
 DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
 DLLIMPORT void _DK_set_sprite_view_3d(void);
 DLLIMPORT void _DK_set_sprite_view_isometric(void);
+DLLIMPORT void _DK_map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9);
+DLLIMPORT void _DK_generate_map_fade_ghost_table(const char *a1, unsigned char *a2, unsigned char *a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
+/******************************************************************************/
+void redraw_isometric_view(void);
+void redraw_frontview(void);
 /******************************************************************************/
 void setup_engine_window(long x, long y, long width, long height)
 {
@@ -141,16 +148,100 @@ void load_engine_window(TbGraphicsWindow *ewnd)
     player->engine_window_height = ewnd->height;
 }
 
+void map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9)
+{
+    _DK_map_fade(a1, a2, a3, a4, a5, a6, a7, a8, a9); return;
+}
+
+void generate_map_fade_ghost_table(const char *a1, unsigned char *a2, unsigned char *a3)
+{
+    _DK_generate_map_fade_ghost_table(a1, a2, a3); return;
+}
+
+/**
+ * Renders source and destination screens for map fading.
+ * Stores them in given buffers.
+ * @param fade_src
+ * @param fade_dest
+ * @param scanline Line width of the two given buffers.
+ * @param height Height to be filled in given buffers.
+ */
+void prepare_map_fade_buffers(unsigned char *fade_src, unsigned char *fade_dest, int scanline, int height)
+{
+    struct PlayerInfo *player;
+    player=get_my_player();
+    // render the 3D screen
+    if (player->field_4B5 == 2)
+      redraw_isometric_view();
+    else
+      redraw_frontview();
+    // Copy the screen to fade source temp buffer
+    int i;
+    int fadebuf_pos;
+    fadebuf_pos = 0;
+    for (i = 0; i < height; i++)
+    {
+        unsigned char *src;
+        unsigned char *dst;
+        src = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * i;
+        dst = &fade_src[fadebuf_pos];
+        fadebuf_pos += scanline;
+        memcpy(dst, src, MyScreenWidth/pixel_size);
+    }
+    // create the parchment screen
+    load_parchment_file();
+    redraw_minimal_overhead_view();
+    // Copy the screen to fade destination temp buffer
+    fadebuf_pos = 0;
+    for (i = 0; i < height; i++)
+    {
+        unsigned char *src;
+        unsigned char *dst;
+        src = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * i;
+        dst = &fade_dest[fadebuf_pos];
+        fadebuf_pos += scanline;
+        memcpy(dst, src, MyScreenWidth/pixel_size);
+    }
+}
+
 long map_fade_in(long a)
 {
-  SYNCDBG(6,"Starting");
-  return _DK_map_fade_in(a);
+    SYNCDBG(6,"Starting");
+    //return _DK_map_fade_in(a);
+    if (a == 0)
+    {
+        map_fade_ghost_table = poly_pool;
+        map_fade_src = poly_pool+0x10000;
+        map_fade_dest = poly_pool+0x10000+64000;
+        prepare_map_fade_buffers(map_fade_src, map_fade_dest, 320, MyScreenHeight/pixel_size);
+        generate_map_fade_ghost_table("data/mapfadeg.dat", _DK_palette, map_fade_ghost_table);
+    }
+    map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
+      a, 320, 200, lbDisplay.GraphicsScreenWidth);
+    long nxamount =  a + 4;
+    if (nxamount > 32)
+        nxamount = 32;
+    return nxamount;
 }
 
 long map_fade_out(long a)
 {
-  SYNCDBG(6,"Starting");
-  return _DK_map_fade_out(a);
+    SYNCDBG(6,"Starting");
+    //return _DK_map_fade_out(a);
+    if (a == 32)
+    {
+        map_fade_ghost_table = poly_pool;
+        map_fade_src = poly_pool+0x10000;
+        map_fade_dest = poly_pool+0x10000+64000;
+        prepare_map_fade_buffers(map_fade_src, map_fade_dest, 320, MyScreenHeight/pixel_size);
+        generate_map_fade_ghost_table("data/mapfadeg.dat", _DK_palette, map_fade_ghost_table);
+    }
+    map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
+      a, 320, 200, lbDisplay.GraphicsScreenWidth);
+    long nxamount =  a - 4;
+    if (a < 0)
+        nxamount = 0;
+    return nxamount;
 }
 
 void set_sprite_view_3d(void)

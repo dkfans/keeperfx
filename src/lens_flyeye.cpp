@@ -43,9 +43,6 @@ class CHex {
     long source_strip_h;
 };
 /******************************************************************************/
-DLLIMPORT void _DK_flyeye_setup(long width, long height);
-DLLIMPORT void _DK_flyeye_blitsec(unsigned char *srcbuf, unsigned char *dstbuf, long srcwidth, long dstwidth, long n, long height);
-/******************************************************************************/
 static unsigned char *lens_Source;
 static long lens_SourcePitch;
 static unsigned char *lens_Screen;
@@ -221,7 +218,6 @@ void CHex::BlitHex(void)
 void flyeye_setup(long width, long height)
 {
     long i,x,y;
-    //_DK_flyeye_setup(width, height);return;
     ScrCenterX = (width >> 1);
     ScrWidth = width;
     ScrCenterY = (height >> 1);
@@ -283,7 +279,6 @@ void CHex::BlitScan(struct CScan *scan, long h)
  */
 void flyeye_blitsec(unsigned char *srcbuf, long srcpitch, unsigned char *dstbuf, long dstpitch, long start_h, long end_h)
 {
-    //_DK_flyeye_blitsec(srcbuf, dstbuf, srcpitch, dstpitch, start_h, end_h); return;
     long h;
     SYNCDBG(16,"Starting");
     lens_Source = srcbuf;
