@@ -1705,6 +1705,7 @@
  0001:000D1780       check_out_unconverted_spiral
  0001:0008CAB0       check_place_to_dig_and_get_position
  0001:0008C900       imp_will_soon_be_working_at_excluding
+ 0001:0008C7F0       imp_will_soon_be_converting_at_excluding
  0001:000D2170       check_out_undug_place
  0001:000D2490       check_out_undug_area
  0001:000B1D10       imp_stack_update

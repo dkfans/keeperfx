@@ -468,6 +468,7 @@ long check_out_available_spdigger_drop_tasks(struct Thing *digger)
 
 short imp_arrives_at_convert_dungeon(struct Thing *thing)
 {
+    TRACE_THING(thing);
     //return _DK_imp_arrives_at_convert_dungeon(thing);
     if (check_place_to_convert_excluding(thing,
         subtile_slab_fast(thing->mappos.x.stl.num),
@@ -496,6 +497,7 @@ short imp_arrives_at_dig_or_mine(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     SYNCDBG(19,"Starting");
+    TRACE_THING(thing);
     //return _DK_imp_arrives_at_dig_or_mine(thing);
     if ( imp_already_digging_at_excluding(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num) )
     {
@@ -518,6 +520,7 @@ short imp_arrives_at_dig_or_mine(struct Thing *thing)
 
 short imp_arrives_at_improve_dungeon(struct Thing *thing)
 {
+    TRACE_THING(thing);
     //return _DK_imp_arrives_at_improve_dungeon(thing);
     if ( check_place_to_pretty_excluding(thing,
         subtile_slab_fast(thing->mappos.x.stl.num),
@@ -540,6 +543,7 @@ short imp_birth(struct Thing *thing)
 {
     struct CreatureStats *crstat;
     long i;
+    TRACE_THING(thing);
     //return _DK_imp_birth(thing);
     if ( thing_touching_floor(thing) )
     {
@@ -563,6 +567,7 @@ short imp_converts_dungeon(struct Thing *thing)
     struct Room *room;
     MapSubtlCoord stl_x,stl_y;
     MapSlabCoord slb_x,slb_y;
+    TRACE_THING(thing);
     //return _DK_imp_converts_dungeon(thing);
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
@@ -616,7 +621,8 @@ short imp_converts_dungeon(struct Thing *thing)
 
 TbBool too_much_gold_lies_around_thing(const struct Thing *thing)
 {
-  return gold_pile_with_maximum_at_xy(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+    TRACE_THING(thing);
+    return gold_pile_with_maximum_at_xy(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
 }
 
 short imp_digs_mines(struct Thing *thing)
@@ -629,6 +635,7 @@ short imp_digs_mines(struct Thing *thing)
     MapSubtlCoord stl_x,stl_y;
     long delta_x,delta_y;
     SYNCDBG(19,"Starting");
+    TRACE_THING(thing);
     // return _DK_imp_digs_mines(thing);
     cctrl = creature_control_get_from_thing(thing);
     mtask = get_task_list_entry(thing->owner, cctrl->word_91);
@@ -699,6 +706,7 @@ short imp_doing_nothing(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
     SYNCDBG(19,"Starting");
+    TRACE_THING(thing);
     //return _DK_imp_doing_nothing(thing);
     if (!thing_is_creature_special_digger(thing))
     {
@@ -814,6 +822,7 @@ short imp_improves_dungeon(struct Thing *thing)
     long delta_x,delta_y;
     long slb_x,slb_y;
     SYNCDBG(19,"Starting");
+    TRACE_THING(thing);
     // return _DK_imp_digs_mines(thing);
     cctrl = creature_control_get_from_thing(thing);
     // Check if we've arrived at the destination
@@ -861,6 +870,7 @@ short imp_picks_up_gold_pile(struct Thing *thing)
     struct CreatureStats *crstat;
     long gold_taken;
     SYNCDBG(19,"Starting");
+    TRACE_THING(thing);
     //return _DK_imp_picks_up_gold_pile(thing);
     crstat = creature_stats_get_from_thing(thing);
     if (crstat->gold_hold > thing->creature.gold_carried)
@@ -874,12 +884,14 @@ short imp_picks_up_gold_pile(struct Thing *thing)
 
 short imp_reinforces(struct Thing *thing)
 {
-  return _DK_imp_reinforces(thing);
+    TRACE_THING(thing);
+    return _DK_imp_reinforces(thing);
 }
 
 short imp_toking(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
+    TRACE_THING(thing);
     //return _DK_imp_toking(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->field_282 > 0)
@@ -916,6 +928,7 @@ TbBool creature_drop_thing_to_another_room(struct Thing *thing, struct Room *ski
 {
     struct Room *ownroom;
     struct Coord3d pos;
+    TRACE_THING(thing);
     ownroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, rkind, 0, 1);
     if ( room_is_invalid(ownroom) || (ownroom->index == skiproom->index) )
     {
@@ -939,6 +952,8 @@ TbBool set_creature_being_dragged_by(struct Thing *dragtng, struct Thing *thing)
 {
     struct Thing *picktng;
     struct CreatureControl *cctrl, *dragctrl;
+    TRACE_THING(dragtng);
+    TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     dragctrl = creature_control_get_from_thing(dragtng);
     // Check if we're already dragging
@@ -983,6 +998,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     struct Thing *picktng;
     struct Coord3d pos;
     SYNCDBG(9,"Starting");
+    TRACE_THING(thing);
     //return _DK_creature_pick_up_unconscious_body(thing);
     // Check if the player has means to do such kind of action
      if ( !player_has_room(thing->owner, RoK_PRISON) || !player_creature_tends_to(thing->owner, CrTend_Imprison) )
