@@ -216,8 +216,12 @@ struct ComputerDig { // sizeof = 78
     unsigned char field_2A;
     unsigned char direction_around;
     unsigned long field_2C;
-    unsigned char field_30[19];
-    unsigned char field_43[5];
+    long field_30;
+    long field_34;
+    long field_38;
+    long field_3C;
+    long field_40;
+    long field_44;
     long field_48;
     long field_4C;
     long field_50;

@@ -180,7 +180,7 @@ extern unsigned char const actual_sizexy_to_nav_block_sizexy_table[];
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, struct Coord3d *pos, long speed, unsigned char storage, const char *func_name);
+AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char storage, const char *func_name);
 #define ariadne_initialise_creature_route(thing, pos, speed, storage) ariadne_initialise_creature_route_f(thing, pos, speed, storage, __func__)
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);
 AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
@@ -202,7 +202,7 @@ long delaunay_seeded(long a1, long a2, long a3, long a4);
 void border_unlock(long a1, long a2, long a3, long a4);
 TbBool triangulation_border_start(long *a1, long *a2);
 TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
-long pointed_at8(long pos_x, long pos_y, long *retpos_x, long *retpos_y);
+long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
 long triangle_brute_find8_near(long pos_x, long pos_y);
 
 long thing_nav_block_sizexy(const struct Thing *thing);

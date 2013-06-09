@@ -108,8 +108,7 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
  *  for torture room. Other tasks required when removing a creature from room,
  *  like remove_creature_from_work_room(), have to be invoked separately.
  * @see remove_creature_from_work_room()
- * @param creatng
- * @param room
+ * @param creatng The creature thing being removed from room.
  * @return
  */
 TbBool remove_creature_from_torture_room(struct Thing *creatng)
@@ -117,11 +116,11 @@ TbBool remove_creature_from_torture_room(struct Thing *creatng)
     struct Room *room;
     PlayerNumber plyr_idx;
     room = get_room_creature_works_in(creatng);
-    if (room_exists(room)) {
-        plyr_idx = room->owner;
-    } else {
-        plyr_idx = -1;
+    if (!room_exists(room)) {
+        SYNCDBG(6,"The %s worked in a room which no longer exists",thing_model_name(creatng));
+        return false;
     }
+    plyr_idx = room->owner;
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon) || (dungeon->tortured_creatures[creatng->model] < 1)) {
