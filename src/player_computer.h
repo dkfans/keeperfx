@@ -213,20 +213,20 @@ struct ComputerDig { // sizeof = 78
     struct Coord3d pos_gold;
     struct Coord3d pos_20;
     long distance;
-    unsigned char field_2A;
+    unsigned char subfield_2A;
     unsigned char direction_around;
-    unsigned long field_2C;
-    long field_30;
-    long field_34;
-    long field_38;
-    long field_3C;
-    long field_40;
-    long field_44;
-    long field_48;
-    long field_4C;
-    long field_50;
-    long field_54;
-    long field_58;
+    unsigned long subfield_2C;
+    long subfield_30;
+    long subfield_34;
+    long subfield_38;
+    long subfield_3C;
+    long subfield_40;
+    long subfield_44;
+    long subfield_48;
+    long subfield_4C;
+    long subfield_50;
+    long subfield_54;
+    long subfield_58;
 };
 
 struct ComputerTask { // sizeof = 148
