@@ -297,11 +297,11 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
     cdig->pos_14.y.val = endpos.y.val;
     cdig->pos_14.z.val = endpos.z.val;
     cdig->distance = LONG_MAX;
-    cdig->field_2C = 1;
+    cdig->subfield_2C = 1;
     cdig->pos_20.x.val = 0;
     cdig->pos_20.y.val = 0;
     cdig->pos_20.z.val = 0;
-    cdig->field_54 = 0;
+    cdig->subfield_54 = 0;
 }
 
 long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, const struct GoldLookup *gldlook, struct Room **nearroom)

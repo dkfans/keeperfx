@@ -277,6 +277,7 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     MapSubtlCoord stl_x,stl_y;
     MapSubtlCoord sx,sy,ex,ey;
+    SYNCDBG(7,"Starting");
     stl_x = 3 * slb_x;
     stl_y = 3 * slb_y;
 
