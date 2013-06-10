@@ -1940,7 +1940,7 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
     unsigned long k;
     //Note: uses LbCompareMultiplications()
     NAVIDBG(19,"Starting");
-    //_DK_make_edge(start_x, start_y, end_x, end_y);
+    //_DK_make_edge(start_x, start_y, end_x, end_y); return;
     if ((end_x == start_x) && (end_y == start_y))
         return;
     k = 0;
@@ -2037,7 +2037,7 @@ TbBool border_clip_vertical(const unsigned char *imap, long start_x, long end_x,
     TbBool r;
     long i;
     r = true;
-    NAVIDBG(19,"Starting");
+    NAVIDBG(19,"Starting from (%ld,%ld) to (%ld,%ld)",start_x, start_y, end_x, end_y);
     //TODO PATHFINDING triangulate_area sub-function
     _DK_border_clip_vertical(imap, start_x, end_x, start_y, end_y); return true;
     i = start_y;
@@ -2503,7 +2503,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     r = true;
     LastTriangulatedMap = imap;
     NAVIDBG(9,"F=%ld Area %03ld,%03ld %03ld,%03ld T=%04ld",game.play_gameturn,start_x,start_y,end_x,end_y,count_Triangles);
-    //TODO PATHFINDING rewritten code has been disabled because it has errors
+    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/2)
     _DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)

@@ -539,8 +539,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     MapSubtlCoord stl_x, stl_y;
     int i;
     SYNCDBG(9,"Starting");
-    //TODO check, then enable the rewritten code
-    return _DK_task_place_room(comp,ctask);
+    //return _DK_task_place_room(comp,ctask);
     dungeon = comp->dungeon;
     rkind = ctask->field_80;
     rstat = room_stats_get_for_kind(rkind);
@@ -550,42 +549,37 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     stl_x = ctask->dig.pos_gold.x.stl.num;
     stl_y = ctask->dig.pos_gold.y.stl.num;
-    i = ctask->dig.field_2C;
-    while (i > 0)
+    for (i = ctask->dig.subfield_2C; i > 0; i--)
     {
-        ctask->dig.field_38--;
-        if (ctask->dig.field_38 <= 0)
+        if (ctask->dig.subfield_38 > 0)
         {
-            ctask->dig.field_30++;
-            if (ctask->dig.field_30 & 1)
-                ctask->dig.field_34++;
-            ctask->dig.field_38 = ctask->dig.field_34;
-            ctask->dig.field_3C = (ctask->dig.field_3C + 1) & 3;
-        }
-        i--;
-        if (i == 0) {
-            break;
-        }
-        if (ctask->dig.field_38 <= 0) {
-            continue;
-        }
-        struct SlabMap *slb;
-        slb = get_slabmap_for_subtile(stl_x, stl_y);
-        if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
-        {
-            if (try_game_action(comp, dungeon->owner, GA_Unk16, 0, stl_x, stl_y, 1, rkind) > 0)
+            struct SlabMap *slb;
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
             {
-                ctask->dig.field_44++;
-                if (ctask->dig.field_40 <= ctask->dig.field_44) {
-                    shut_down_task_process(comp, ctask);
-                    return 1;
+                if (try_game_action(comp, dungeon->owner, GA_Unk16, 0, stl_x, stl_y, 1, rkind) > 0)
+                {
+                    ctask->dig.subfield_44++;
+                    if (ctask->dig.subfield_40 <= ctask->dig.subfield_44) {
+                        shut_down_task_process(comp, ctask);
+                        return 1;
+                    }
                 }
             }
+            const struct MyLookup *lkp;
+            lkp = &lookup[ctask->dig.subfield_3C];
+            stl_x += lkp->delta_x;
+            stl_y += lkp->delta_y;
         }
-        const struct MyLookup *lkp;
-        lkp = &lookup[ctask->dig.field_3C];
-        stl_x += lkp->delta_x;
-        stl_y += lkp->delta_y;
+        ctask->dig.subfield_38--;
+        if (ctask->dig.subfield_38 <= 0)
+        {
+            ctask->dig.subfield_30++;
+            if (ctask->dig.subfield_30 & 1)
+                ctask->dig.subfield_34++;
+            ctask->dig.subfield_38 = ctask->dig.subfield_34;
+            ctask->dig.subfield_3C = (ctask->dig.subfield_3C + 1) & 3;
+        }
     }
     ctask->dig.pos_gold.x.stl.num = stl_x;
     ctask->dig.pos_gold.y.stl.num = stl_y;
@@ -784,9 +778,9 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
     //SYNCDBG(4,"Starting");
     //return _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
     dungeon = comp->dungeon;
-    cdig->field_54++;
-    if (cdig->field_54 >= 356) {
-        WARNLOG("ComputerDig calls count (%d) exceeds limit",(int)cdig->field_54);
+    cdig->subfield_54++;
+    if (cdig->subfield_54 >= 356) {
+        WARNLOG("ComputerDig calls count (%d) exceeds limit",(int)cdig->subfield_54);
         return -2;
     }
     gldstl_x = 3 * (cdig->pos_gold.x.stl.num / 3);
@@ -848,7 +842,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             }
         }
         long counter2;
-        for (counter2 = cdig->field_2C; counter2 > 0; counter2--)
+        for (counter2 = cdig->subfield_2C; counter2 > 0; counter2--)
         {
             gldslb_x = gldstl_x / 3;
             gldslb_y = gldstl_y / 3;
@@ -868,7 +862,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
               if (digflags != 0)
               {
                 if ((slbattr->flags & SlbAtFlg_Valuable) != 0)
-                  cdig->field_58++;
+                  cdig->subfield_58++;
               }
             }
             counter1++;
@@ -915,18 +909,18 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
                 cdig->pos_20.y.val = cdig->pos_E.y.val;
                 cdig->pos_20.z.val = cdig->pos_E.z.val;
             }
-            cdig->field_48++;
-            if ( (cdig->field_48 > 10) && (cdig->field_4C == gldstl_x) && (cdig->field_50 == gldstl_y) ) {
+            cdig->subfield_48++;
+            if ( (cdig->subfield_48 > 10) && (cdig->subfield_4C == gldstl_x) && (cdig->subfield_50 == gldstl_y) ) {
                 SYNCDBG(15,"Positions are equal at subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
                 return -2;
             }
-            cdig->field_4C = gldstl_x;
-            cdig->field_50 = gldstl_y;
+            cdig->subfield_4C = gldstl_x;
+            cdig->subfield_50 = gldstl_y;
             cdig->distance = get_2d_distance(&cdig->pos_20, &cdig->pos_14);
-            cdig->field_2A = get_hug_side(cdig, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
+            cdig->subfield_2A = get_hug_side(cdig, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
                                cdig->pos_14.x.stl.num, cdig->pos_14.y.stl.num, around_index, dungeon->owner);
             i = dig_to_position(dungeon->owner, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
-                    (around_index + (cdig->field_2A < 1 ? 3 : 1)) & 3, cdig->field_2A);
+                    (around_index + (cdig->subfield_2A < 1 ? 3 : 1)) & 3, cdig->subfield_2A);
             if (i == -1) {
                 SYNCDBG(15,"Preparing digging to subtile (%d,%d) failed",(int)cdig->pos_20.x.stl.num,(int)cdig->pos_20.y.stl.num);
                 return -2;
@@ -965,7 +959,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
     } else
     {
         SYNCDBG(4,"Starting long distance digging");
-        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->field_2A);
+        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->subfield_2A);
         if (i == -1) {
             return -2;
         }
@@ -1072,7 +1066,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
 
     memcpy(&ctask->dig.pos_gold, &ctask->dig.pos_20, sizeof(struct Coord3d));
     ctask->dig.distance = LONG_MAX;
-    ctask->dig.field_54 = 0;
+    ctask->dig.subfield_54 = 0;
 
     struct ComputerDig cdig;
     memcpy(&cdig, &ctask->dig, sizeof(struct ComputerDig));
@@ -1081,8 +1075,8 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     do
     {
         retval = tool_dig_to_pos2(comp, &cdig, 1, 0);
-        SYNCDBG(5,"retval=%d, dig.distance=%d, dig.field_54=%d",
-            retval, cdig.distance, cdig.field_54);
+        SYNCDBG(5,"retval=%d, dig.distance=%d, dig.subfield_54=%d",
+            retval, cdig.distance, cdig.subfield_54);
     } while (retval == 0);
 
     SYNCDBG(6,"Finished");
@@ -1107,7 +1101,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         return 0;
     }
 
-    if (ctask->dig.field_58 >= ctask->long_86)
+    if (ctask->dig.subfield_58 >= ctask->long_86)
     {
         struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_20.x.stl.num, ctask->dig.pos_20.y.stl.num);
 
@@ -1119,7 +1113,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
                 return 0;
             }
         }
-        ctask->dig.field_58 = 0;
+        ctask->dig.subfield_58 = 0;
     }
 
     long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, 1);
@@ -1130,7 +1124,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         add_to_trap_location(comp, &ctask->dig.pos_20);
     }
 
-    if (ctask->dig.field_58 >= ctask->long_86)
+    if (ctask->dig.subfield_58 >= ctask->long_86)
     {
         ctask->field_60 = 700 / comp->field_18;
     }
