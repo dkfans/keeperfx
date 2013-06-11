@@ -1066,7 +1066,7 @@ msgstr "Blindaje: "
 #: guitext:229
 msgctxt "Creature spell"
 msgid "Lightning: [26.13]"
-msgstr "Relàmpago: "
+msgstr "Relámpago: "
 
 #: guitext:230
 msgctxt "Creature spell"
@@ -1262,7 +1262,7 @@ msgstr "Dragón"
 #: guitext:269
 msgctxt "Creature name"
 msgid "Tentacle"
-msgstr "Tentàculo"
+msgstr "Tentáculo"
 
 #: guitext:270
 msgctxt "Creature name"
@@ -1292,7 +1292,7 @@ msgstr "Vampiro"
 #: guitext:275
 msgctxt "Creature name"
 msgid "Barbarian"
-msgstr "Bàrbaro"
+msgstr "Bárbaro"
 
 #: guitext:276
 msgctxt "Creature name"
@@ -1428,17 +1428,17 @@ msgstr "Tipo de sangre: ¿Y a quién le importa? La sangre es sangre siempre, ¿
 #: guitext:302
 msgctxt "In-game interface description"
 msgid "Idle: The creature is either sleeping or not working. LMB pick up creature. RMB zoom. [9.1 and 22.2.1]"
-msgstr "Ociosa: la criatura està durmiendo o no està trabajando. Recoger la criatura con BIR. Zoom para BDR."
+msgstr "Ociosa: la criatura está durmiendo o no está trabajando. Recoger la criatura con BIR. Zoom para BDR."
 
 #: guitext:303
 msgctxt "In-game interface description"
 msgid "Working: The creature is performing tasks. LMB pick up creature. RMB zoom. [9.2 and 22.2.1]"
-msgstr "Trabajando: la criatura està llevando a cabo tareas. : Recoger la criatura con BIR. Zoom para BDR."
+msgstr "Trabajando: la criatura está llevando a cabo tareas. : Recoger la criatura con BIR. Zoom para BDR."
 
 #: guitext:304
 msgctxt "In-game interface description"
 msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom. [9.3 and 22.2.1]"
-msgstr "Luchando: la criatura està en una batalla. Recoger la criatura con BIR. Zoom para BDR."
+msgstr "Luchando: la criatura está en una batalla. Recoger la criatura con BIR. Zoom para BDR."
 
 #: guitext:305
 msgctxt "In-game interface description"
@@ -1463,7 +1463,7 @@ msgstr "Defender: la criatura se concentra en esquivar los golpes del adversario
 #: guitext:309
 msgctxt "In-game interface item"
 msgid "Are you sure?"
-msgstr "¿Estàs seguro?"
+msgstr "¿Estás seguro?"
 
 #: guitext:310
 msgctxt "In-game interface item"
@@ -1513,7 +1513,7 @@ msgstr "   De"
 #: guitext:319
 msgctxt "Slab description"
 msgid "Empty Lair: Would suit itinerant creature."
-msgstr "Guarida vacía: le irà bien a alguna criatura itinerante. "
+msgstr "Guarida vacía: le irá bien a alguna criatura itinerante. "
 
 #: guitext:320
 msgctxt "Menu interface item"
@@ -1523,12 +1523,12 @@ msgstr "En pausa"
 #: guitext:321
 msgctxt "In-game interface description"
 msgid "Zoom In: Zoom in the Dynamic Map. LMB select. [4.1]"
-msgstr "Zoom: ver màs de cerca el Mapa dinàmico. Seleccionar con BIR."
+msgstr "Zoom: ver más de cerca el Mapa dinámico. Seleccionar con BIR."
 
 #: guitext:322
 msgctxt "In-game interface description"
 msgid "Zoom Out: Zoom out the Dynamic Map. LMB select. [4.1]"
-msgstr "Deshacer Zoom: ver una zona màs amplia del Mapa dinàmico. Seleccionar con BIR."
+msgstr "Deshacer Zoom: ver una zona más amplia del Mapa dinámico. Seleccionar con BIR."
 
 #: guitext:323
 msgctxt "In-game interface description"
@@ -1548,7 +1548,7 @@ msgstr "Tierra: aquí puedes excavar."
 #: guitext:326
 msgctxt "Slab description"
 msgid "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to your Treasure Room. [12.2]"
-msgstr "Veta de oro: tu fuente de riqueza. Excàvala y tus duendes llevaràn el oro a tu Sala del tesoro."
+msgstr "Veta de oro: tu fuente de riqueza. Excávala y tus duendes llevarán el oro a tu Sala del tesoro."
 
 #: guitext:327
 msgctxt "Slab description"
@@ -1558,7 +1558,7 @@ msgstr "Lava: Quema a cualquier criatura que la pise."
 #: guitext:328
 msgctxt "Slab description"
 msgid "Water: Creatures move more slowly through water. [14.1]"
-msgstr "Agua: las criaturas avanzan màs despacio por el agua."
+msgstr "Agua: las criaturas avanzan más despacio por el agua."
 
 #: guitext:329
 msgctxt "Slab description"
@@ -1568,7 +1568,7 @@ msgstr "Muro: un muro de piedra reforzada que detiene el avance de los enemigos.
 #: guitext:330
 msgctxt "Slab description"
 msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
-msgstr "Muro dañado: si no lo reparas, este muro se derrumbarà tarde o temprano."
+msgstr "Muro dañado: si no lo reparas, este muro se derrumbará tarde o temprano."
 
 #: guitext:331
 msgctxt "Slab description"
@@ -2013,7 +2013,7 @@ msgstr "OK"
 #: guitext:420
 msgctxt "Dungeon special decription"
 msgid "Reveal Map: Reveals the entire underground realm to you."
-msgstr "Descubrir mapa: Te pone al descubierto todo el reino subterràneo."
+msgstr "Descubrir mapa: Te pone al descubierto todo el reino subterráneo."
 
 #: guitext:421
 msgctxt "Dungeon special decription"
@@ -2048,7 +2048,7 @@ msgstr "Hacer segura: refuerza toda tu mazmorra."
 #: guitext:427
 msgctxt "Dungeon special decription"
 msgid "Locate Hidden World: You will be transported to a secret realm after you have conquered this one."
-msgstr "Localizar mundo oculto: seràs transportado a un reino secreto después de conquistar éste."
+msgstr "Localizar mundo oculto: serás transportado a un reino secreto después de conquistar éste."
 
 #: guitext:428
 msgctxt "Dungeon special name"
@@ -2188,12 +2188,12 @@ msgstr "Tiempo para día de pago: el tiempo que falta para el próximo día de p
 #: guitext:455
 msgctxt "In-game interface description"
 msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
-msgstr "Número de salas: el número de salas que tiene este Guardiàn."
+msgstr "Número de salas: el número de salas que tiene este Guardián."
 
 #: guitext:456
 msgctxt "In-game interface description"
 msgid "Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
-msgstr "Número de criaturas: el número de criaturas que tiene este Guardiàn."
+msgstr "Número de criaturas: el número de criaturas que tiene este Guardián."
 
 #: guitext:457
 msgctxt "Menu interface item"
@@ -2817,7 +2817,7 @@ msgstr "Trampa de gas venenoso"
 #: guitext:581
 msgctxt "Trap names"
 msgid "Lightning Trap"
-msgstr "Trampa relàmpago    "
+msgstr "Trampa relámpago    "
 
 #: guitext:582
 msgctxt "Trap names"
@@ -2847,7 +2847,7 @@ msgstr "Trampa de gas venenoso: una nube de espantosos vapores activada por tus 
 #: guitext:587
 msgctxt "Trap description"
 msgid "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB select. RMB zoom. [20.4]"
-msgstr "Trampa relàmpago: golpea a las criaturas enemigas màs cercanas con relàmpagos. Seleccionar con BIR. Zoom con BDR."
+msgstr "Trampa relámpago: golpea a las criaturas enemigas más cercanas con relámpagos. Seleccionar con BIR. Zoom con BDR."
 
 #: guitext:588
 msgctxt "Trap description"
@@ -2877,12 +2877,12 @@ msgstr "Puerta de hierro"
 #: guitext:593
 msgctxt "Door name"
 msgid "Magic Door"
-msgstr "Puerta màgica"
+msgstr "Puerta mágica"
 
 #: guitext:594
 msgctxt "Door description"
 msgid "Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. [21.1]"
-msgstr "Puerta de madera: la manera màs simple de restringir el acceso. Seleccionar con BIR. Zoom con BDR."
+msgstr "Puerta de madera: la manera más simple de restringir el acceso. Seleccionar con BIR. Zoom con BDR."
 
 #: guitext:595
 msgctxt "Door description"
@@ -2897,7 +2897,7 @@ msgstr "Puerta de hierro: Puerta fuerte, pesada, capaz de soportar grandes daño
 #: guitext:597
 msgctxt "Door description"
 msgid "Magic Door: A special door, highly resistant to physical damage but susceptible to magical damage. LMB select. RMB zoom. [21.4]"
-msgstr "Puerta màgica: una puerta especial, muy resistente al daño físico pero susceptible al daño màgico. Seleccionar con BIR. Zoom con BDR."
+msgstr "Puerta mágica: una puerta especial, muy resistente al daño físico pero susceptible al daño mágico. Seleccionar con BIR. Zoom con BDR."
 
 #: guitext:598
 msgctxt "Room name"
@@ -2922,7 +2922,7 @@ msgstr "Prisión"
 #: guitext:602
 msgctxt "Room name"
 msgid "Torture Chamber"
-msgstr "Càmara de torturas"
+msgstr "Cámara de torturas"
 
 #: guitext:603
 msgctxt "Room name"
@@ -3007,7 +3007,7 @@ msgstr "Sala de entrenamiento: pon aquí a las criaturas para mejorar su experie
 #: guitext:619
 msgctxt "Room description"
 msgid "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB zoom. [17.11]"
-msgstr "Càmara de torturas: Tortura a las criaturas para conseguir tus malévolos fines. Seleccionar con BIR. Zoom con BDR."
+msgstr "Cámara de torturas: Tortura a las criaturas para conseguir tus malévolos fines. Seleccionar con BIR. Zoom con BDR."
 
 #: guitext:620
 msgctxt "Room description"
@@ -3052,7 +3052,7 @@ msgstr "Puesto de guardia: tus criaturas montan guardia y vigilan tu mazmorra cu
 #: guitext:628
 msgctxt "Room description"
 msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
-msgstr "Templo: adorar a los dioses oscuros hace màs felices a tus criaturas. Para sacrificar criaturas, déjalas caer en la fuente. Seleccionar con BIR. Zoom con BDR."
+msgstr "Templo: adorar a los dioses oscuros hace más felices a tus criaturas. Para sacrificar criaturas, déjalas caer en la fuente. Seleccionar con BIR. Zoom con BDR."
 
 #: guitext:629
 msgctxt "Room description"
@@ -3112,7 +3112,7 @@ msgstr "Ocultar monstruo"
 #: guitext:640
 msgctxt "Keeper spell name"
 msgid "Lightning Strike"
-msgstr "Golpe relàmpago"
+msgstr "Golpe relámpago"
 
 #: guitext:641
 msgctxt "Keeper spell name"
@@ -3197,7 +3197,7 @@ msgstr "Ocultar monstruo: hace a tus criaturas invisibles para el enemigo. Selec
 #: guitext:657
 msgctxt "Keeper spell description"
 msgid "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of lightning. LMB select. [18.10]"
-msgstr "Golpe relàmpago: Devasta una zona de la mazmorra con un rayo. Seleccionar con BIR."
+msgstr "Golpe relámpago: Devasta una zona de la mazmorra con un rayo. Seleccionar con BIR."
 
 #: guitext:658
 msgctxt "Keeper spell description"
@@ -3447,12 +3447,12 @@ msgstr "Nueva criatura en mazmorra: Conmutar con BIR. Borrar con BDR."
 #: guitext:707
 msgctxt "Game event description"
 msgid "Creature is annoyed: LMB toggle. RMB delete."
-msgstr "La criatura està enojada: Conmutar con BIR. Borrar con BDR."
+msgstr "La criatura está enojada: Conmutar con BIR. Borrar con BDR."
 
 #: guitext:708
 msgctxt "Game event description"
 msgid "No more living set: LMB toggle. RMB delete."
-msgstr "No hay màs espacio habitable: Conmutar con BIR. Borrar con BDR."
+msgstr "No hay más espacio habitable: Conmutar con BIR. Borrar con BDR."
 
 #: guitext:709
 msgctxt "Game event description"
@@ -3497,7 +3497,7 @@ msgstr "Opciones"
 #: guitext:717
 msgctxt "In-game interface item"
 msgid "Graphics Options"
-msgstr "Opciones gràficas"
+msgstr "Opciones gráficas"
 
 #: guitext:718
 msgctxt "In-game interface item"
@@ -3527,7 +3527,7 @@ msgstr "Opciones: abrir panel de opciones. Abrir panel BIR."
 #: guitext:723
 msgctxt "In-game interface description"
 msgid "Graphics Menu: Customise the graphics. [3.2.2]"
-msgstr "Menú de gràficos: personalizar los gràficos."
+msgstr "Menú de gráficos: personalizar los gráficos."
 
 #: guitext:724
 msgctxt "In-game interface description"
@@ -3577,7 +3577,7 @@ msgstr "Asistencia sólo para movimiento: mueve y azota a tus criaturas. Selecci
 #: guitext:733
 msgctxt "In-game interface description"
 msgid "Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
-msgstr "Recoger criaturas màs expertas: BIR elige una criatura. RMB hace zoom."
+msgstr "Recoger criaturas más expertas: BIR elige una criatura. RMB hace zoom."
 
 #: guitext:734
 msgctxt "In-game interface description"
@@ -3937,7 +3937,7 @@ msgstr "Si eres inocente y puro de alma, Ven a que te despedace en calma."
 #: guitext:805
 msgctxt "Easter egg"
 msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
-msgstr "Por mi mazmorra tú podràs avanzar, Pero es seguro que muerto has de quedar."
+msgstr "Por mi mazmorra tú podrás avanzar, Pero es seguro que muerto has de quedar."
 
 #: guitext:806
 msgctxt "Easter egg"
@@ -3957,7 +3957,7 @@ msgstr "Muerte, maldad, malicia, podredumbre, Aquí han venido para hacerse cost
 #: guitext:809
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, Just another working day."
-msgstr "Muerte, malicia, podredumbre, maldad, Es sólo un día de trabajo màs."
+msgstr "Muerte, malicia, podredumbre, maldad, Es sólo un día de trabajo más."
 
 #: guitext:810
 msgctxt "Easter egg"
@@ -3977,7 +3977,7 @@ msgstr "De tus dominios los ciudadanos, Quieren volver a matar con sus manos."
 #: guitext:813
 msgctxt "Easter egg"
 msgid "The better creatures you employ, The greater carnage you enjoy."
-msgstr "Con mejores criaturas a tu servicio, Màs grande y màs sangriento el sacrificio."
+msgstr "Con mejores criaturas a tu servicio, Más grande y más sangriento el sacrificio."
 
 #: guitext:814
 msgctxt "Easter egg"
@@ -3987,22 +3987,22 @@ msgstr "¡Ey! El Avatar la frontera ha cruzado, Y puedo olfatear un Señor asust
 #: guitext:815
 msgctxt "Easter egg"
 msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
-msgstr "Los infractores probaràn la amargura, En tu excelente Càmara de Tortura."
+msgstr "Los infractores probarán la amargura, En tu excelente Cámara de Tortura."
 
 #: guitext:816
 msgctxt "Easter egg"
 msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
-msgstr "Aunque el intruso tenga buen corazón, Morirà en tu mazmorra, en un rincón."
+msgstr "Aunque el intruso tenga buen corazón, Morirá en tu mazmorra, en un rincón."
 
 #: guitext:817
 msgctxt "Easter egg"
 msgid "Your tunnels will be dark and cold, And no place for a Knight of old, Even if he claims he's bold."
-msgstr "Tus túneles seràn fríos y oscuros, mal sitio para el viejo Caballero , Aunque siga clamando que es duro."
+msgstr "Tus túneles serán fríos y oscuros, mal sitio para el viejo Caballero , Aunque siga clamando que es duro."
 
 #: guitext:818
 msgctxt "Easter egg"
 msgid "The fools who enter your domain, Will never see the light again."
-msgstr "El tonto que en tus dominios se aventura, Vivirà por siempre en una noche oscura."
+msgstr "El tonto que en tus dominios se aventura, Vivirá por siempre en una noche oscura."
 
 #: guitext:819
 msgctxt "Easter egg"
@@ -4012,7 +4012,7 @@ msgstr "Tus herramientas son la angustia y el dolor, Contra los intrusos funcion
 #: guitext:820
 msgctxt "Easter egg"
 msgid "When good guys head right for your treasure, Hunt and kill them at your leisure."
-msgstr "Los buenos a por tu tesoro han ido, Càzalos, màtalos, es divertido."
+msgstr "Los buenos a por tu tesoro han ido, Cázalos, mátalos, es divertido."
 
 #: guitext:821
 msgctxt "Easter egg"
@@ -4022,12 +4022,12 @@ msgstr "Protege el Corazón de la Mazmorra, Y azota a tus sirvientes con la porr
 #: guitext:822
 msgctxt "Easter egg"
 msgid "Use your creatures' fear of you. To make them do what you want them to."
-msgstr "Si tus criaturas te temen, Siempre haràn lo que tú ordenes."
+msgstr "Si tus criaturas te temen, Siempre harán lo que tú ordenes."
 
 #: guitext:823
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
-msgstr "¿Un hechicero en tu mazmorra ha entrado? Una buena trampa lo echarà a un lado."
+msgstr "¿Un hechicero en tu mazmorra ha entrado? Una buena trampa lo echará a un lado."
 
 #: guitext:824
 msgctxt "Easter egg"
@@ -4037,12 +4037,12 @@ msgstr "Cuando tus criaturas no cumplan con presteza, Mételos en la Celda de ca
 #: guitext:825
 msgctxt "Easter egg"
 msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
-msgstr "La tortura es la suprema gloria, Con la que tu Guardiàn hace la historia."
+msgstr "La tortura es la suprema gloria, Con la que tu Guardián hace la historia."
 
 #: guitext:826
 msgctxt "Easter egg"
 msgid "You are the Keeper, chosen one, And being evil is great fun."
-msgstr "Tú eres el Guardiàn, el escogido, Y ser malvado es màs que divertido."
+msgstr "Tú eres el Guardián, el escogido, Y ser malvado es más que divertido."
 
 #: guitext:827
 msgctxt "Easter egg"
@@ -4373,37 +4373,37 @@ msgstr "El poder de dos Guardianes de la Mazmorra rivales desafía tu derecho a 
 #: guitext:893
 msgctxt "In-game message"
 msgid "Another Keeper has already claimed this realm. He is unfit to rule so destroy him and take what is rightfully yours. Great riches lie in the caverns around the land; explore to gain more power."
-msgstr "Otro Guardiàn ha reclamado este reino. No es adecuado para reinar, así que destrúyelo y toma lo que es tuyo por derecho. En las cavernas de esa tierra yacen grandes riquezas: explora, para obtener màs poder."
+msgstr "Otro Guardián ha reclamado este reino. No es adecuado para reinar, así que destrúyelo y toma lo que es tuyo por derecho. En las cavernas de esa tierra yacen grandes riquezas: explora, para obtener más poder."
 
 #: guitext:894
 msgctxt "In-game message"
 msgid "This land is highly coveted amongst the evil and there are three enemy Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for any rogue bands of heroes waiting to ambush a careless Keeper."
-msgstr "Esta tierra es altamente codiciada entre los malvados y hay tres Guardianes de la Mazmorra enemigos con los que debes combatir para reclamar la supremacía. Cuídate de toda banda errante de héroes que esperan para emboscar a un Guardiàn descuidado."
+msgstr "Esta tierra es altamente codiciada entre los malvados y hay tres Guardianes de la Mazmorra enemigos con los que debes combatir para reclamar la supremacía. Cuídate de toda banda errante de héroes que esperan para emboscar a un Guardián descuidado."
 
 #: guitext:895
 msgctxt "In-game message"
 msgid "The Lord of the Land and his pitiful band of followers lie dead. Good riddance to them and their sad, happy lives. Now seize your chance and attack your rival Keeper. Domination awaits."
-msgstr "El Señor de la Tierra y su lamentable banda de seguidores estàn muertos. Buen final para ellos y sus vidas, tristes o felices. Ahora, aprovecha la ocasión y ataca a tu Guardiàn rival. El dominio espera."
+msgstr "El Señor de la Tierra y su lamentable banda de seguidores están muertos. Buen final para ellos y sus vidas, tristes o felices. Ahora, aprovecha la ocasión y ataca a tu Guardián rival. El dominio espera."
 
 #: guitext:896
 msgctxt "In-game message"
 msgid "You and a rival Dungeon Keeper are vying for control of this realm but the Lord of the Land has constructed his own dungeon between you to halt your conquest. Destroy him and the enemy Keeper to reign supreme."
-msgstr "Un Guardiàn de la Mazmorra rival y tú competís por el control de este reino, pero el Señor de la Tierra construyó su propia mazmorra entre vosotros, para impedir tu conquista. Destrúyelo a él y al Guardiàn enemigo para reinar por encima de todos."
+msgstr "Un Guardián de la Mazmorra rival y tú competís por el control de este reino, pero el Señor de la Tierra construyó su propia mazmorra entre vosotros, para impedir tu conquista. Destrúyelo a él y al Guardián enemigo para reinar por encima de todos."
 
 #: guitext:897
 msgctxt "In-game message"
 msgid "You have done well to come this far but further hardships await. Search the map carefully and you may find many secrets to aid your conquest."
-msgstr "Has hecho bien al venir tan lejos, pero te esperan aún màs esfuerzos. Investiga con cuidado el mapa y podràs descubrir muchos secretos que te ayudaràn en tu conquista."
+msgstr "Has hecho bien al venir tan lejos, pero te esperan aún más esfuerzos. Investiga con cuidado el mapa y podrás descubrir muchos secretos que te ayudarán en tu conquista."
 
 #: guitext:898
 msgctxt "In-game message"
 msgid "You have come to this realm with little to assist you so you must explore to gain more power. Keep an eye out for any loathsome heroes who may try to thwart your progress."
-msgstr "Has venido a este reino con muy poco, por lo que debes explorar para obtener màs poder. Vigila a cualquier odioso héroe que pueda intentar desviar tu avance."
+msgstr "Has venido a este reino con muy poco, por lo que debes explorar para obtener más poder. Vigila a cualquier odioso héroe que pueda intentar desviar tu avance."
 
 #: guitext:899
 msgctxt "In-game message"
 msgid "Beware Keeper. This realm is infested with the sickly goodness of heroes and fairies. Hunt them down and feed them their own entrails."
-msgstr "Cuidado, Guardiàn. Este reino està infestado con la bondad malsana de héroes y hadas. Càzalos y hazlos comerse sus propias entrañas."
+msgstr "Cuidado, Guardián. Este reino está infestado con la bondad malsana de héroes y hadas. Cázalos y hazlos comerse sus propias entrañas."
 
 #: guitext:900
 msgctxt "In-game message"
@@ -4423,32 +4423,32 @@ msgstr "Un estúpido retador se interpone entre tí y el dominio total. Aniquila
 #: guitext:903
 msgctxt "In-game message"
 msgid "I can hear footsteps beyond the walls of the hero castle which dominates this land. Tread carefully Keeper and rid the land of goodness once and for all."
-msgstr "Puedo escuchar pasos detràs de las paredes del castillo del héroe que domina esta tierra. Anda con cuidado, Guardiàn, y libera esta tierra de la bondad, de una vez para siempre."
+msgstr "Puedo escuchar pasos detrás de las paredes del castillo del héroe que domina esta tierra. Anda con cuidado, Guardián, y libera esta tierra de la bondad, de una vez para siempre."
 
 #: guitext:904
 msgctxt "In-game message"
 msgid "The once strong hero fortress of this realm has grown rotten and weak. Tear down it's walls and let your creatures feast on the heroes within."
-msgstr "La fortaleza, una vez poderosa,  del héroe de este reino, està ahora corrupta y débil. Arranca sus muros y deja que tus criaturas devoren a los héroes que hay dentro."
+msgstr "La fortaleza, una vez poderosa,  del héroe de este reino, está ahora corrupta y débil. Arranca sus muros y deja que tus criaturas devoren a los héroes que hay dentro."
 
 #: guitext:905
 msgctxt "In-game message"
 msgid "This realm will be a test of your cunning and deviousness. Your dungeon has been fortified with seven steel doors to aid you in your conquest."
-msgstr "Este reino serà una prueba de tu malicia y tortuosidad. Tu mazmorra ha sido fortificada con siete puertas de acero para ayudarte en tu conquista."
+msgstr "Este reino será una prueba de tu malicia y tortuosidad. Tu mazmorra ha sido fortificada con siete puertas de acero para ayudarte en tu conquista."
 
 #: guitext:906
 msgctxt "In-game message"
 msgid "Congratulations Keeper. This vial has given your researchers a much needed boost. You can now construct Bridges that enable you to traverse water and fire."
-msgstr "Enhorabuena, Guardiàn. Esa redoma ha dado a tus investigadores el impulso que tanto necesitaban. Ahora puedes construir Puentes que te permitiràn atravesar agua y fuego."
+msgstr "Enhorabuena, Guardián. Esa redoma ha dado a tus investigadores el impulso que tanto necesitaban. Ahora puedes construir Puentes que te permitirán atravesar agua y fuego."
 
 #: guitext:907
 msgctxt "In-game message"
 msgid "Food is scarce in this land and the only Hatchery available to you is inside a hero dungeon. Find this food before your creatures turn against you."
-msgstr "Los alimentos son escasos en esta tierra y el único Criadero a que tienes acceso està dentro de la mazmorra de un héroe. Encuentra esos alimentos antes de que tus criaturas se vuelvan contra ti."
+msgstr "Los alimentos son escasos en esta tierra y el único Criadero a que tienes acceso está dentro de la mazmorra de un héroe. Encuentra esos alimentos antes de que tus criaturas se vuelvan contra ti."
 
 #: guitext:908
 msgctxt "In-game message"
 msgid "Entombed in stone by a cruel band of heroes, the Vampire you have rescued demands revenge for his imprisonment. His anger will make him a valuable asset to your army of evil."
-msgstr "Empotrado en piedra por una cruel banda de héroes, el Vampiro que has rescatado exige venganza por su captura. Su ira serà algo muy valioso para tu ejército del mal."
+msgstr "Empotrado en piedra por una cruel banda de héroes, el Vampiro que has rescatado exige venganza por su captura. Su ira será algo muy valioso para tu ejército del mal."
 
 #: guitext:909
 msgctxt "In-game message"
@@ -4458,52 +4458,52 @@ msgstr "Valientes héroes te rodean por todas partes, así que muéstrales el ve
 #: guitext:910
 msgctxt "In-game message"
 msgid "The Lord of the Land has sent his fiercest warriors against you. Show them no mercy and flay them alive."
-msgstr "El Señor de la Tierra ha enviado contra ti a sus guerreros màs feroces. Combàtelos sin cuartel y desuéllalos vivos."
+msgstr "El Señor de la Tierra ha enviado contra ti a sus guerreros más feroces. Combátelos sin cuartel y desuéllalos vivos."
 
 #: guitext:911
 msgctxt "In-game message"
 msgid "Explore this realm to uncover riches and secrets. Tread carefully Keeper, or you could be burned."
-msgstr "Explora este reino para descubrir riquezas y secretos. Andate con cuidado, Guardiàn, o puedes quemarte."
+msgstr "Explora este reino para descubrir riquezas y secretos. Andate con cuidado, Guardián, o puedes quemarte."
 
 #: guitext:912
 msgctxt "In-game message"
 msgid "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a humiliating defeat Keeper, the penalty for such failure is torture and death."
-msgstr "Sólo un Guardiàn de la Mazmorra puede reinar victorioso sobre esta tierra. No sufras una derrota humillante, Guardiàn, la pena por semejante fracaso es tortura y muerte."
+msgstr "Sólo un Guardián de la Mazmorra puede reinar victorioso sobre esta tierra. No sufras una derrota humillante, Guardián, la pena por semejante fracaso es tortura y muerte."
 
 #: guitext:913
 msgctxt "In-game message"
 msgid "Choices, choices Keeper. Choose your path wisely. Some routes are more perilous than others ..."
-msgstr "Opciones, opciones, Guardiàn. Selecciona tu camino con sabiduría. Algunos son màs peligrosos que otros..."
+msgstr "Opciones, opciones, Guardián. Selecciona tu camino con sabiduría. Algunos son más peligrosos que otros..."
 
 #: guitext:914
 msgctxt "In-game message"
 msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the north ..."
-msgstr "Enhorabuena, Guardiàn, en verdad tienes un ejército poderoso. Pero no te vuelvas complaciente, aún tienes otro retador al norte..."
+msgstr "Enhorabuena, Guardián, en verdad tienes un ejército poderoso. Pero no te vuelvas complaciente, aún tienes otro retador al norte..."
 
 #: guitext:915
 msgctxt "In-game message"
 msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the south ..."
-msgstr "Enhorabuena, Guardiàn, en verdad tienes un ejército poderoso. Pero no te vuelvas complaciente, aún tienes otro retador al sur..."
+msgstr "Enhorabuena, Guardián, en verdad tienes un ejército poderoso. Pero no te vuelvas complaciente, aún tienes otro retador al sur..."
 
 #: guitext:916
 msgctxt "In-game message"
 msgid "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and then destroy the rival Keeper to achieve total domination."
-msgstr "El Señor de la Tierra es un individuo patético que cría conejitos felpudos. Aplàstalo contra el suelo y destruye después al Guardiàn rival para lograr el dominio total."
+msgstr "El Señor de la Tierra es un individuo patético que cría conejitos felpudos. Aplástalo contra el suelo y destruye después al Guardián rival para lograr el dominio total."
 
 #: guitext:917
 msgctxt "In-game message"
 msgid "Make haste Keeper. The heroes of this realm are many and strong. Prepare your forces well or face a humiliating defeat ..."
-msgstr "Apresúrate, Guardiàn. Los héroes de este reino son muchos y fuertes. Prepara bien tus fuerzas o enfréntate a una derrota humillante..."
+msgstr "Apresúrate, Guardián. Los héroes de este reino son muchos y fuertes. Prepara bien tus fuerzas o enfréntate a una derrota humillante..."
 
 #: guitext:918
 msgctxt "In-game message"
 msgid "The Avatar is a wretched being, full of happiness and good cheer. Food is scarce in his land and the only Hatchery available is inside his dungeons. Destroy his mighty fortress and wipe the smile from his face before your creatures turn against you."
-msgstr "El Avatar es un ser miserable, lleno de felicidad y buen ànimo. Los alimentos son escasos en su tierra y el único Criadero disponible està dentro de sus mazmorras. Destruye su poderosa fortaleza y borra la sonrisa de su rostro antes de que tus criaturas se vuelvan contra ti."
+msgstr "El Avatar es un ser miserable, lleno de felicidad y buen ánimo. Los alimentos son escasos en su tierra y el único Criadero disponible está dentro de sus mazmorras. Destruye su poderosa fortaleza y borra la sonrisa de su rostro antes de que tus criaturas se vuelvan contra ti."
 
 #: guitext:919
 msgctxt "In-game message"
 msgid "The Avatar has massed an army of heroic Lords to confront you. Prepare to be attacked!"
-msgstr "El Avatar ha reunido un ejército de heróicos Señores para enfrentarse a ti. ¡Prepàrate a ser atacado!"
+msgstr "El Avatar ha reunido un ejército de heróicos Señores para enfrentarse a ti. ¡Prepárate a ser atacado!"
 
 #: guitext:920
 msgctxt "In-game message"
@@ -4513,27 +4513,27 @@ msgstr "Diezma este puesto avanzado y envía el miedo al corazón del Avatar."
 #: guitext:921
 msgctxt "In-game message"
 msgid "The Avatar's castle is ripe for the taking. Train your forces well, Keeper. The ultimate battle awaits ..."
-msgstr "El castillo del Avatar està listo para ser tomado. Entrena bien tus fuerzas, Guardiàn. La batalla definitiva te espera..."
+msgstr "El castillo del Avatar está listo para ser tomado. Entrena bien tus fuerzas, Guardián. La batalla definitiva te espera..."
 
 #: guitext:922
 msgctxt "In-game message"
 msgid "You are now in the heart of the Avatar's castle. The sickly sweet smell of goodness still hangs in the air. Kill the Avatar and send his soul to eternal damnation."
-msgstr "Estàs ahora en el centro del castillo del Avatar. El malsano olor dulzón de la bondad se percibe todavía en el aire. Mata al Avatar y envía su alma a la maldición eterna."
+msgstr "Estás ahora en el centro del castillo del Avatar. El malsano olor dulzón de la bondad se percibe todavía en el aire. Mata al Avatar y envía su alma a la maldición eterna."
 
 #: guitext:923
 msgctxt "In-game message"
 msgid "Well done, Keeper. The Mistress you have discovered is an excellent prize."
-msgstr "Bien hecho, Guardiàn. La Dama que has descubierto es una recompensa excelente."
+msgstr "Bien hecho, Guardián. La Dama que has descubierto es una recompensa excelente."
 
 #: guitext:924
 msgctxt "In-game message"
 msgid "The Bile Demon you have rescued will be a valuable but hungry asset to your dungeon. Make sure your Hatchery can satisfy his voracious appetite."
-msgstr "El Demonio de Hiel que has rescatado serà un elemento valioso, aunque hambriento, para tu mazmorra. Asegúrate de que tu Criadero pueda satisfacer su apetito voraz."
+msgstr "El Demonio de Hiel que has rescatado será un elemento valioso, aunque hambriento, para tu mazmorra. Asegúrate de que tu Criadero pueda satisfacer su apetito voraz."
 
 #: guitext:925
 msgctxt "In-game message"
 msgid "A devious Wizard has cheated you of your magical powers. Use your only Spider and explore the realm. Find the Wizard, kill him and make an example of his foolishness."
-msgstr "Un tortuoso Hechicero te ha despojado de tus poderes màgicos. Usa tu única Araña y explora el reino. Encuentra al Hechicero, màtalo y haz un escarmiento de su estupidez."
+msgstr "Un tortuoso Hechicero te ha despojado de tus poderes mágicos. Usa tu única Araña y explora el reino. Encuentra al Hechicero, mátalo y haz un escarmiento de su estupidez."
 
 #: guitext:926
 msgctxt "In-game message"
@@ -4543,42 +4543,42 @@ msgstr "Has hallado varios Duendes que consideran un gran honor servirte."
 #: guitext:927
 msgctxt "In-game message"
 msgid "You have discovered a group of Bile Demons who will aid you in your fight."
-msgstr "Has descubierto un grupo de Demonios de Hiel que te ayudaràn en tu lucha."
+msgstr "Has descubierto un grupo de Demonios de Hiel que te ayudarán en tu lucha."
 
 #: guitext:928
 msgctxt "In-game message"
 msgid "The destruction of this pathetic Keeper brings with it a useful bonus. You now have the ability to build Bridges. Dig deeper and you may find more secrets to strengthen your powers."
-msgstr "La destrucción de este patético Guardiàn nos aporta algo útil. Ahora tienes la habilidad de construir Puentes. Escarba màs profundo y podràs encontrar màs secretos para reforzar tus poderes."
+msgstr "La destrucción de este patético Guardián nos aporta algo útil. Ahora tienes la habilidad de construir Puentes. Escarba más profundo y podrás encontrar más secretos para reforzar tus poderes."
 
 #: guitext:929
 msgctxt "In-game message"
 msgid "A warning, Keeper. There is a stench of hero in the air."
-msgstr "Un aviso, Guardiàn. El aire apesta a héroe. "
+msgstr "Un aviso, Guardián. El aire apesta a héroe. "
 
 #: guitext:930
 msgctxt "In-game message"
 msgid "You have done well to get this far Keeper. Do not become complacent, however. A great struggle lies ahead."
-msgstr "Has hecho bien al llegar tan lejos, Guardiàn. De todos modos, no te vuelvas complaciente. Tienes por delante una gran batalla."
+msgstr "Has hecho bien al llegar tan lejos, Guardián. De todos modos, no te vuelvas complaciente. Tienes por delante una gran batalla."
 
 #: guitext:931
 msgctxt "In-game message"
 msgid "Before you lies the Wizard's domain. Defeat him and you will regain your powers."
-msgstr "Ante ti se extiende el dominio del Hechicero. Destrúyelo y recuperaràs tus poderes."
+msgstr "Ante ti se extiende el dominio del Hechicero. Destrúyelo y recuperarás tus poderes."
 
 #: guitext:932
 msgctxt "In-game message"
 msgid "Your magical powers are restored Keeper.  You can finally show these fools what you are made of."
-msgstr "Tus poderes màgicos te han sido devueltos, Guardiàn. Finalmente, puedes mostrar a esos tontos de qué material estàs hecho."
+msgstr "Tus poderes mágicos te han sido devueltos, Guardián. Finalmente, puedes mostrar a esos tontos de qué material estás hecho."
 
 #: guitext:933
 msgctxt "In-game message"
 msgid "A black shadow is creeping over this land. Now is the time to strike. Take control of your Vampire and use him to find and kill the Lord of the Land. If you succeed, the Vampire will join you in the next realm."
-msgstr "Una sombra negra avanza lentamente sobre esta tierra. Este es el momento de golpear. Toma el control de tu Vampiro y mata al Señor de la Tierra. Si tienes éxito, el Vampiro se reunirà contigo en el próximo reino."
+msgstr "Una sombra negra avanza lentamente sobre esta tierra. Este es el momento de golpear. Toma el control de tu Vampiro y mata al Señor de la Tierra. Si tienes éxito, el Vampiro se reunirá contigo en el próximo reino."
 
 #: guitext:934
 msgctxt "In-game message"
 msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
-msgstr "Tus logros son legendarios, Guardiàn. Los relatos sobre tu maldad y tu astucia seràn los cuentos de horror de muchas generaciones."
+msgstr "Tus logros son legendarios, Guardián. Los relatos sobre tu maldad y tu astucia serán los cuentos de horror de muchas generaciones."
 
 #: guitext:935
 #: guitext:936
