@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "ariadne_points.h"
+#include "gui_topmsg.h"
 
 #define EDGELEN_BITS 6
 
@@ -34,10 +35,51 @@ DLLIMPORT void _DK_triangulation_initxy(long a1, long a2, long a3, long a4);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
+DLLIMPORT long _DK_free_Triangles;
+#define free_Triangles _DK_free_Triangles
 /******************************************************************************/
 struct Triangle bad_triangle;
 const long MOD3[] = {0, 1, 2, 0, 1, 2};
 /******************************************************************************/
+long tri_new(void)
+{
+    long i;
+    if (free_Triangles == -1)
+    {
+        i = ix_Triangles;
+        if ((i < 0) || (i >= TRIANLGLES_COUNT))
+        {
+            ERRORLOG("ix_Triangles overflow");
+            erstat_inc(ESE_NoFreeTriangls);
+            return -1;
+        }
+        ix_Triangles++;
+    } else
+    {
+        i = free_Triangles;
+        if ((i < 0) || (i >= TRIANLGLES_COUNT))
+        {
+            ERRORLOG("free_Triangles overflow");
+            erstat_inc(ESE_NoFreeTriangls);
+            return -1;
+        }
+        free_Triangles = Triangles[free_Triangles].tags[0];
+    }
+    Triangles[i].tree_alt = 0;
+    count_Triangles++;
+    return i;
+}
+
+void tri_dispose(long tri_idx)
+{
+  long pfree_idx;
+  pfree_idx = free_Triangles;
+  free_Triangles = tri_idx;
+  Triangles[tri_idx].tags[0] = pfree_idx;
+  Triangles[tri_idx].tree_alt = 255;
+  count_Triangles--;
+}
+
 long get_triangle_region_id(long tri_id)
 {
     if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))

@@ -709,6 +709,7 @@
  0003:00013384       tri_initialised
  0003:0001338C       count_Triangles
  0003:00013388       ix_Triangles
+ 0003:00013390       free_Triangles
  0003:00056500       find_cache
  0003:00056540       fringe_map
  0003:000133E4       LastTriangulatedMap
@@ -1865,6 +1866,7 @@
  0001:000B5FD0       free_room_structure
  0001:000BB560       reset_creatures_rooms
  0001:000663E0       edgelen_init
+ 0001:00066480       edgelen_set
  0001:00066950       regions_connected
  0001:00067450       triangle_findSE8
  0001:00066E60       triangle_find8
@@ -1873,7 +1875,10 @@
  0001:0006C3B0       path_out_a_bit
  0001:0006C570       route_to_path
  0001:0006DA40       gate_navigator_init8
+ 0001:000698B0       triangle_area1
+ 0001:00069FD0       brute_fill_rectangle
  0001:0006AF70       ma_triangle_route
+ 0001:0006A120       fill_rectangle
  0001:0006DB40       route_through_gates
  0001:00013030       place_single_slab_type_on_map
  0001:00013BB0       place_animating_slab_type_on_map

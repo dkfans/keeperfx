@@ -54,6 +54,9 @@ extern struct Triangle bad_triangle;
 #define INVALID_TRIANGLE &bad_triangle;
 extern const long MOD3[];
 /******************************************************************************/
+long tri_new(void);
+void tri_dispose(long tri_idx);
+
 long get_triangle_region_id(long tri_id);
 TbBool set_triangle_region_id(long tri_id, long reg_id);
 long get_triangle_edgelen(long tri_id);

@@ -63,6 +63,16 @@ long point_new(void)
   return i;
 }
 
+void point_dispose(long pt_id)
+{
+    long last_pt_id;
+    last_pt_id = free_Points;
+    Points[pt_id].y = 0x8000;
+    free_Points = pt_id;
+    Points[pt_id].x = last_pt_id;
+    count_Points--;
+}
+
 TbBool point_set(long pt_id, long x, long y)
 {
     if ((pt_id < 0) || (pt_id >= POINTS_COUNT))
