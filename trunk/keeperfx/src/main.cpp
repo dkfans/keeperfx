@@ -2404,6 +2404,7 @@ void message_update(void)
 
 long wp_check_map_pos_valid(struct Wander *wandr, long a1)
 {
+    SYNCDBG(16,"Starting");
     return _DK_wp_check_map_pos_valid(wandr, a1);
 }
 
@@ -2414,6 +2415,7 @@ long wander_point_update(struct Wander *wandr)
     long tile1,tile2;
     long slb_num,valid_num,idx;
     long i;
+    SYNCDBG(6,"Starting");
     //return _DK_wander_point_update(wandr);
     valid_num = 0;
     slb_num = wandr->field_8;
