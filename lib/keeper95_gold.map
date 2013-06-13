@@ -579,6 +579,7 @@
  0001:00066100       update_all_events
  0001:00066220       triangulation_initxy
  0001:000663E0       edgelen_init
+ 0001:00066480       edgelen_set
  0001:000665C0       region_alloc
  0001:00066950       regions_connected
  0001:00066A90       pointed_at8
@@ -596,7 +597,10 @@
  0001:00069000       delete_3point
  0001:00069320       fill_concave
  0001:00069460       make_edge
+ 0001:000698B0       triangle_area1
  0001:00069DF0       delaunay_seeded
+ 0001:00069FD0       brute_fill_rectangle
+ 0001:0006A120       fill_rectangle
  0001:0006A440       tri_set_rectangle
  0001:0006A690       heap_down
  0001:0006A730       triangle_route_do_fwd
@@ -1384,6 +1388,7 @@
  0003:00013384       tri_initialised
  0003:00013388       ix_Triangles
  0003:0001338C       count_Triangles
+ 0003:00013390       free_Triangles
  0003:00013394       ix_Points
  0003:00013398       count_Points
  0003:0001339C       free_Points

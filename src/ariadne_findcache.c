@@ -87,6 +87,7 @@ long triangle_find8(long pt_x, long pt_y)
     unsigned long k;
     //TODO PATHFINDING may hang if out of points
     NAVIDBG(19,"Starting");
+    //TODO PATHFINDING triangulate_area sub-sub-sub-function
     //return _DK_triangle_find8(pt_x, pt_y);
     ntri = triangle_find_cache_get(pt_x, pt_y);
     for (k=0; k < TRIANLGLES_COUNT; k++)

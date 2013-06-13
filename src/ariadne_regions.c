@@ -167,6 +167,14 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name)
     }
 }
 
+void region_unset_f(long ntri, unsigned long nreg, const char *func_name)
+{
+    Regions[nreg].num_triangles--;
+    Regions[nreg].field_2 = 0;
+    set_triangle_region_id(ntri, 0);
+    Regions[0].num_triangles++;
+}
+
 void region_unlock(long ntri)
 {
     unsigned long oreg;

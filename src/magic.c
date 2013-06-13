@@ -284,8 +284,8 @@ TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
 
 void update_power_sight_explored(struct PlayerInfo *player)
 {
-  SYNCDBG(16,"Starting");
-  _DK_update_power_sight_explored(player);
+    SYNCDBG(16,"Starting");
+    _DK_update_power_sight_explored(player);
 }
 
 long power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx)

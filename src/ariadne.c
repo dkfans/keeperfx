@@ -48,11 +48,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT AriadneReturn _DK_ariadne_initialise_creature_route(struct Thing *thing, struct Coord3d *pos, long ptstart_x, unsigned char ptstart_y);
-DLLIMPORT AriadneReturn _DK_creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long ptstart_y, unsigned char a5);
+DLLIMPORT AriadneReturn _DK_creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long ptstart_y, unsigned char pt_id1);
 DLLIMPORT void _DK_path_init8_wide(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size);
-DLLIMPORT long _DK_route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long a6, struct Path *path, long *a8);
+DLLIMPORT long _DK_route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long a6, struct Path *path, long *a8);
 DLLIMPORT void _DK_path_out_a_bit(struct Path *path, long *ptfind_y);
-DLLIMPORT void _DK_gate_navigator_init8(struct Pathway *pway, long ptfind_y, long ptstart_x, long ptstart_y, long a5, long a6, unsigned char a7);
+DLLIMPORT void _DK_gate_navigator_init8(struct Pathway *pway, long ptfind_y, long ptstart_x, long ptstart_y, long pt_id1, long a6, unsigned char a7);
 DLLIMPORT void _DK_route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
 DLLIMPORT long _DK_triangle_findSE8(long, long);
 DLLIMPORT long _DK_ma_triangle_route(long ptfind_x, long ptfind_y, long *ptstart_x);
@@ -65,11 +65,11 @@ DLLIMPORT void _DK_border_clip_horizontal(const unsigned char *imap, long ptfind
 DLLIMPORT void _DK_border_clip_vertical(const unsigned char *imap, long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
 DLLIMPORT void _DK_edge_lock(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
 DLLIMPORT void _DK_border_internal_points_delete(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
-DLLIMPORT void _DK_tri_set_rectangle(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, unsigned char a5);
-DLLIMPORT long _DK_fringe_get_rectangle(long *ptfind_x, long *ptfind_y, long *ptstart_x, long *ptstart_y, unsigned char *a5);
+DLLIMPORT void _DK_tri_set_rectangle(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, unsigned char pt_id1);
+DLLIMPORT long _DK_fringe_get_rectangle(long *ptfind_x, long *ptfind_y, long *ptstart_x, long *ptstart_y, unsigned char *pt_id1);
 DLLIMPORT void _DK_border_unlock(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
 DLLIMPORT void _DK_triangulation_border_start(long *ptfind_x, long *ptfind_y);
-DLLIMPORT long _DK_edge_find(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long *a6);
+DLLIMPORT long _DK_edge_find(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long *a6);
 DLLIMPORT long _DK_make_3or4point(long *ptfind_x, long *ptfind_y);
 DLLIMPORT long _DK_delete_4point(long ptfind_x, long ptfind_y);
 DLLIMPORT long _DK_delete_3point(long ptfind_x, long ptfind_y);
@@ -77,21 +77,25 @@ DLLIMPORT long _DK_triangle_route_do_fwd(long ptfind_x, long ptfind_y, long *pts
 DLLIMPORT long _DK_triangle_route_do_bak(long ptfind_x, long ptfind_y, long *ptstart_x, long *ptstart_y);
 DLLIMPORT void _DK_ariadne_pull_out_waypoint(const struct Thing *thing, struct Ariadne *arid, long ptstart_x, struct Coord3d *pos);
 DLLIMPORT long _DK_ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariadne *arid);
-DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long ptstart_y, struct Coord3d *nextpos, unsigned char a5);
+DLLIMPORT unsigned char _DK_ariadne_get_next_position_for_route(struct Thing *thing, struct Coord3d *finalpos, long ptstart_y, struct Coord3d *nextpos, unsigned char pt_id1);
 DLLIMPORT unsigned char _DK_ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT long _DK_ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid);
 DLLIMPORT unsigned char _DK_ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos);
 DLLIMPORT void _DK_insert_point(long pt_x, long pt_y);
 DLLIMPORT void _DK_make_edge(long start_x, long end_x, long start_y, long end_y);
-DLLIMPORT long _DK_tri_split2(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long a5);
+DLLIMPORT long _DK_tri_split2(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long pt_id1);
 DLLIMPORT void _DK_tri_split3(long ptfind_x, long ptfind_y, long ptstart_x);
 DLLIMPORT long _DK_pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
 DLLIMPORT long _DK_triangle_brute_find8_near(long pos_x, long pos_y);
 DLLIMPORT void _DK_waypoint_normal(long ptfind_x, long ptfind_y, long *norm_x, long *norm_y);
-DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *a5, long a6, struct Pathway *pway, long a8);
-DLLIMPORT long _DK_fill_concave(long a1, long a2, long speed);
+DLLIMPORT long _DK_gate_route_to_coords(long trAx, long trAy, long trBx, long trBy, long *pt_id1, long a6, struct Pathway *pway, long a8);
+DLLIMPORT long _DK_fill_concave(long tri_id1, long cor_id1, long speed);
 DLLIMPORT long _DK_ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3d *pos1, struct Coord3d *pos_out);
+DLLIMPORT void _DK_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
+DLLIMPORT long _DK_triangle_area1(long tri_id1);
+DLLIMPORT void _DK_brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
+DLLIMPORT void _DK_edgelen_set(long tri_id);
 /******************************************************************************/
 DLLIMPORT unsigned long _DK_edgelen_initialised;
 #define edgelen_initialised _DK_edgelen_initialised
@@ -226,7 +230,7 @@ long ix_Points = 0;
 long free_Points = -1;
 */
 /******************************************************************************/
-long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *a5, long a6, struct Path *path, long *a8);
+long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y, long *pt_id1, long a6, struct Path *path, long *a8);
 void path_out_a_bit(struct Path *path, long *ptfind_y);
 void gate_navigator_init8(struct Pathway *pway, long trAx, long trAy, long trBx, long trBy, long a6, unsigned char a7);
 void route_through_gates(struct Pathway *pway, struct Path *path, long ptstart_x);
@@ -581,15 +585,10 @@ void tag_open_closed_init(void)
     tag_open = tag_current - 1;
 }
 
-void tri_dispose(long tri_idx)
+unsigned long nav_same_component(long a1, long a2, long a3, long a4)
 {
-  long pfree_idx;
-  pfree_idx = free_Triangles;
-  free_Triangles = tri_idx;
-  Triangles[tri_idx].field_6 = pfree_idx;
-  Triangles[tri_idx].field_C = 255;
-  count_Triangles--;
 }
+
 */
 
 TbBool triangulation_border_tag(void)
@@ -644,7 +643,8 @@ long cost_to_start(long tri_idx)
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt)
 {
     //Note: uses LbCompareMultiplications()
-    //return _DK_pointed_at8(pos_x, pos_y, retpos_x, retpos_y);
+    //TODO PATHFINDING triangulate_area sub-sub-sub-function, verify
+    //return _DK_pointed_at8(pos_x, pos_y, ret_tri, ret_pt);
     long npt;
     long ntri;
     int pt_id;
@@ -1527,8 +1527,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)finalpos->x.stl.num, (int)finalpos->y.stl.num);
     cctrl = creature_control_get_from_thing(thing);
     arid = &cctrl->arid;
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (1/2)
-    result = _DK_ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5); return result;
+    //result = _DK_ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5); return result;
     arid->field_22 = 0;
     if ((finalpos->x.val != arid->endpos.x.val)
      || (finalpos->y.val != arid->endpos.y.val)
@@ -1784,14 +1783,62 @@ void tri_split3(long a1, long a2, long a3)
 {
     NAVIDBG(19,"Starting");
     _DK_tri_split3(a1, a2, a3);
+
 }
 
-long tri_split2(long a1, long a2, long a3, long a4, long a5)
+void edgelen_set(long tri_id)
 {
-    return _DK_tri_split2(a1, a2, a3, a4, a5);
+    _DK_edgelen_set(tri_id);
 }
 
-TbBool edge_split(long ntri, long ncor, long pt_x, long pt_y)
+long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
+{
+    long tri_id2;
+    //TODO PATHFINDING rewritten version has errors; fix
+    tri_id2 = _DK_tri_split2(tri_id1, cor_id1, pt_x, pt_y, pt_id1); return tri_id2;
+
+    tri_id2 = tri_new();
+    if (tri_id2 < 0) {
+        return -1;
+    }
+    struct Triangle *tri1;
+    struct Triangle *tri2;
+    tri1 = &Triangles[tri_id1];
+    tri2 = &Triangles[tri_id2];
+    memcpy(tri1,tri2,sizeof(struct Triangle));
+    long cor_id2, reg_id1;
+    cor_id2 = MOD3[cor_id1 + 1];
+    tri1->points[cor_id2] = pt_id1;
+    tri2->points[cor_id1] = pt_id1;
+    tri1->tags[cor_id2] = tri_id2;
+    tri1->field_D |= (1 << cor_id2);
+    tri1->field_D &= ~(1 << (cor_id2 + 3));
+    long tri_id3;
+    tri_id3 = MOD3[cor_id1 + 2];
+    tri2->tags[tri_id3] = tri_id1;
+    tri2->field_D |= (1 << tri_id3);
+    tri2->field_D &= ~(1 << (tri_id3 + 3));
+    long tri_id4;
+    tri_id3 = tri2->tags[cor_id2];
+    if (tri_id3 != -1)
+    {
+        tri_id4 = link_find(tri_id3, tri_id1);
+        if (tri_id4 == -1) {
+            ERRORLOG("A not found");
+        }
+        Triangles[tri_id3].tags[tri_id4] = tri_id2;
+    }
+    reg_id1 = get_triangle_region_id(tri_id1);
+    if (reg_id1 > 0) {
+        region_unset_f(tri_id1, reg_id1, __func__);
+    }
+    tri2->field_E = 0;
+    edgelen_set(tri_id1);
+    edgelen_set(tri_id2);
+    return tri_id2;
+}
+
+long edge_split(long ntri, long ncor, long pt_x, long pt_y)
 {
     long pt_idx;
     long ntr2,ncr2;
@@ -1799,20 +1846,23 @@ TbBool edge_split(long ntri, long ncor, long pt_x, long pt_y)
     NAVIDBG(19,"Starting");
     // Create and fill new point
     pt_idx = point_new();
-    if (pt_idx < 0)
-        return false;
+    if (pt_idx < 0) {
+        return -1;
+    }
     point_set(pt_idx, pt_x, pt_y);
     // Find second ntri and ncor
     ntr2 = Triangles[ntri].tags[ncor];
     ncr2 = link_find(ntr2, ntri);
-    if (ncr2 < 0)
-        return false;
+    if (ncr2 < 0) {
+        point_dispose(pt_idx);
+        return -1;
+    }
     // Do the splitting
     tri_sp1 = tri_split2(ntri, ncor, pt_x, pt_y, pt_idx);
     tri_sp2 = tri_split2(ntr2, ncr2, pt_x, pt_y, pt_idx);
     Triangles[ntr2].tags[ncr2] = tri_sp1;
     Triangles[ntri].tags[ncor] = tri_sp2;
-    return true;
+    return pt_idx;
 }
 
 /** Returns if given coords can divide triangle into same areas.
@@ -1842,32 +1892,33 @@ char triangle_divide_areas_differ(long ntri, long ncorA, long ncorB, long pt_x, 
 TbBool insert_point(long pt_x, long pt_y)
 {
     long ntri;
-    NAVIDBG(19,"Starting");
+    NAVIDBG(19,"Starting for (%d,%d)", (int)pt_x, (int)pt_y);
+    //TODO PATHFINDING triangulate_area sub-sub-function, verify
     //_DK_insert_point(pt_x, pt_y); return true;
     ntri = triangle_find8(pt_x << 8, pt_y << 8);
     if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT))
     {
-      ERRORLOG("triangle not found");
-      return false;
+        ERRORLOG("triangle not found");
+        return false;
     }
     if (triangle_tip_equals(ntri, 0, pt_x, pt_y))
-      return true;
+        return true;
     if (triangle_tip_equals(ntri, 1, pt_x, pt_y))
-      return true;
+        return true;
     if (triangle_tip_equals(ntri, 2, pt_x, pt_y))
-      return true;
+        return true;
 
     if (triangle_divide_areas_differ(ntri, 0, 1, pt_x, pt_y) == 0)
     {
-        return edge_split(ntri, 0, pt_x, pt_y);
+        return edge_split(ntri, 0, pt_x, pt_y) >= 0;
     }
     if (triangle_divide_areas_differ(ntri, 1, 2, pt_x, pt_y) == 0)
     {
-        return edge_split(ntri, 1, pt_x, pt_y);
+        return edge_split(ntri, 1, pt_x, pt_y) >= 0;
     }
     if (triangle_divide_areas_differ(ntri, 2, 0, pt_x, pt_y) == 0)
     {
-        return edge_split(ntri, 2, pt_x, pt_y);
+        return edge_split(ntri, 2, pt_x, pt_y) >= 0;
     }
     tri_split3(ntri, pt_x, pt_y);
     return true;
@@ -1891,10 +1942,12 @@ void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, l
     long tri_id4, cor_id4;
     long i;
     long cx, cy;
+    unsigned long k;
     cor_id1 = start_cor_id1;
     tri_id1 = start_tri_id1;
     cor_id4 = start_cor_id4;
     tri_id4 = start_tri_id4;
+    k = 0;
     do
     {
         tri = get_triangle(tri_id1);
@@ -1906,9 +1959,9 @@ void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, l
         pt = get_triangle_point(tri_id2, cor_id2);
         cx = pt->x;
         cy = pt->y;
-        if (LbCompareMultiplications(pt->y - ey, sx - ex, pt->x - ex, sy - ey) < 0)
-            break;
-
+        if (LbCompareMultiplications(cy - ey, sx - ex, cx - ex, sy - ey) < 0) {
+            continue;
+        }
         tri = get_triangle(tri_id2);
         tri_id3 = tri->tags[cor_id1];
         cor_id3 = link_find(tri_id3,tri_id2);
@@ -1925,6 +1978,12 @@ void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, l
         tri_id4 = tri_id3;
         cor_id4 = cor_id3;
         cor_id1 = cor_id2;
+        k++;
+        if (k >= TRIANLGLES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected");
+            break;
+        }
     } while ((cx != sx) || (cy != sy));
 }
 
@@ -1940,15 +1999,14 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
     unsigned long k;
     //Note: uses LbCompareMultiplications()
     NAVIDBG(19,"Starting");
+    //TODO PATHFINDING triangulate_area sub-sub-function, verify
     //_DK_make_edge(start_x, start_y, end_x, end_y); return;
-    if ((end_x == start_x) && (end_y == start_y))
-        return;
     k = 0;
     sx = start_x;
     sy = start_y;
     ex = end_x;
     ey = end_y;
-    while (1)
+    while ((ex != sx) || (ey != sy))
     {
         if (!point_find(ex, ey, &tri_id1, &cor_id1))
             break;
@@ -1967,13 +2025,18 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
         tri_id3 = tri->tags[cor_id1];
         cor_id3 = link_find(tri_id3,tri_id1);
         pt = get_triangle_point(tri_id3, cor_id3);
+        tri = get_triangle(tri_id1);
+        tri_id3 = tri->tags[cor_id1];
+        cor_id3 = link_find(tri_id3,tri_id1);
+        pt = get_triangle_point(tri_id3, cor_id3);
         tmpX = pt->x;
         tmpY = pt->y;
         if (LbCompareMultiplications(tmpY-ey, sx-ex, tmpX-ex, sy-ey) == 0)
         {
-          make_edge(ex, ey, tmpX, tmpY);
-          make_edge(sx, sy, tmpX, tmpY);
-          break;
+            make_edge(ex, ey, tmpX, tmpY);
+            ex = tmpX;
+            ey = tmpY;
+            continue;
         }
         make_edge_sub(tri_id1, pt_cor, tri_id3, cor_id3, sx, sy, ex, ey);
         tmpX = ex;
@@ -1989,7 +2052,6 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
             break;
         }
     }
-
 }
 
 TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
@@ -2000,8 +2062,8 @@ TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_
     long i;
     r = true;
     NAVIDBG(19,"Starting from (%ld,%ld) to (%ld,%ld)",start_x, start_y, end_x, end_y);
-    //TODO PATHFINDING triangulate_area sub-function
-    _DK_border_clip_horizontal(imap, start_x, end_x, start_y, end_y); return true;
+    //TODO PATHFINDING triangulate_area sub-function, verify
+    //_DK_border_clip_horizontal(imap, start_x, end_x, start_y, end_y); return true;
 
     i = start_x;
     {
@@ -2025,8 +2087,12 @@ TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_
         }
     }
     r &= insert_point(end_x, start_y);
-    make_edge(start_x, start_y, end_x, start_y);
-    //TODO PATHFINDING on a failure, we could release all allocated points...
+    if (r) {
+        make_edge(start_x, start_y, end_x, start_y);
+    } else  {
+        ERRORLOG("Couldn't insert points to make border");
+        //TODO PATHFINDING on a failure, we could release all allocated points...
+    }
     return r;
 }
 
@@ -2038,8 +2104,8 @@ TbBool border_clip_vertical(const unsigned char *imap, long start_x, long end_x,
     long i;
     r = true;
     NAVIDBG(19,"Starting from (%ld,%ld) to (%ld,%ld)",start_x, start_y, end_x, end_y);
-    //TODO PATHFINDING triangulate_area sub-function
-    _DK_border_clip_vertical(imap, start_x, end_x, start_y, end_y); return true;
+    //TODO PATHFINDING triangulate_area sub-function, verify
+    //_DK_border_clip_vertical(imap, start_x, end_x, start_y, end_y); return true;
     i = start_y;
     {
         mapp_center = &imap[navmap_tile_number(start_x,i)];
@@ -2062,8 +2128,12 @@ TbBool border_clip_vertical(const unsigned char *imap, long start_x, long end_x,
         }
     }
     r &= insert_point(start_x, end_y);
-    make_edge(start_x, start_y, start_x, end_y);
-    //TODO PATHFINDING on a failure, we could release all allocated points...
+    if (r) {
+        make_edge(start_x, start_y, start_x, end_y);
+    } else  {
+        ERRORLOG("Couldn't insert points to make border");
+        //TODO PATHFINDING on a failure, we could release all allocated points...
+    }
     return r;
 }
 
@@ -2184,8 +2254,8 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
     struct Point *pt;
     long i,n;
     NAVIDBG(19,"Starting");
-    //TODO PATHFINDING triangulate_area sub-function
-    _DK_border_internal_points_delete(start_x, start_y, end_x, end_y); return;
+    //TODO PATHFINDING triangulate_area sub-function, verify
+    //_DK_border_internal_points_delete(start_x, start_y, end_x, end_y); return;
 
     if (!edge_find(start_x, start_y, end_x, start_y, &edge_tri, &edge_cor))
     {
@@ -2251,13 +2321,100 @@ void border_internal_points_delete(long start_x, long start_y, long end_x, long 
     }
 }
 
-void tri_set_rectangle(long a1, long a2, long a3, long a4, unsigned char a5)
+long triangle_area1(long a1)
 {
-    _DK_tri_set_rectangle(a1, a2, a3, a4, a5);
+    return _DK_triangle_area1(a1);
+}
+
+void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5)
+{
+    _DK_brute_fill_rectangle(start_x, start_y, end_x, end_y, a5);
+}
+
+void fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5)
+{
+    //_DK_fill_rectangle(start_x, start_y, end_x, end_y, a5); return;
+    long tri_n0,tri_k0;
+    long tri_n1,tri_k1;
+    long tri_n2,tri_k2;
+    long tri_n3,tri_k3;
+    long tri_area;
+    long req_area;
+    req_area = 2 * (end_x - start_x) * (end_y - start_y);
+    edge_find(start_x, start_y, start_x, end_y, &tri_n0, &tri_k0);
+    Triangles[tri_n0].tree_alt = a5;
+    tri_area = triangle_area1(tri_n0);
+    if (tri_area == req_area) {
+        return;
+    }
+    edge_find(end_x, end_y, end_x, start_y, &tri_n1, &tri_k1);
+    if (tri_n1 != tri_n0)
+    {
+        Triangles[tri_n1].tree_alt = a5;
+        tri_area += triangle_area1(tri_n1);
+    }
+    if (tri_area == req_area) {
+        return;
+    }
+    edge_find(end_x, start_y, start_x, start_y, &tri_n2, &tri_k2);
+    if ((tri_n2 != tri_n0) && (tri_n2 != tri_n1))
+    {
+        Triangles[tri_n2].tree_alt = a5;
+        tri_area += triangle_area1(tri_n2);
+    }
+    if (tri_area == req_area) {
+        return;
+    }
+    edge_find(start_x, end_y, end_x, end_y, &tri_n3, &tri_k3);
+    if ((tri_n3 != tri_n0) && (tri_n1 != tri_n3) && (tri_n2 != tri_n3))
+    {
+        Triangles[tri_n3].tree_alt = a5;
+        tri_area += triangle_area1(tri_n3);
+    }
+    if (tri_area == req_area) {
+        return;
+    }
+    brute_fill_rectangle(start_x, start_y, end_x, end_y, a5);
+}
+
+TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char a5)
+{
+    long sx,sy,ex,ey;
+    NAVIDBG(19,"Starting");
+    //_DK_tri_set_rectangle(a1, a2, a3, a4, a5); return true;
+    sx = start_x;
+    ex = end_x;
+    if (sx > ex) {
+      sx = end_x;
+      ex = start_x;
+    }
+    sy = start_y;
+    ey = end_y;
+    if (sy > ey) {
+      sy = end_y;
+      ey = start_y;
+    }
+    TbBool r;
+    r = true;
+    r &= insert_point(sx, sy);
+    r &= insert_point(sx, ey);
+    r &= insert_point(ex, ey);
+    r &= insert_point(ex, sy);
+    if (r) {
+        make_edge(sx, sy, sx, ey);
+        make_edge(sx, ey, ex, ey);
+        make_edge(ex, ey, ex, sy);
+        make_edge(ex, sy, sx, sy);
+        fill_rectangle(sx, sy, ex, ey, a5);
+    } else  {
+        ERRORLOG("Couldn't insert points to make rectangle");
+    }
+    return r;
 }
 
 long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5)
 {
+    NAVIDBG(19,"Starting");
     return _DK_fringe_get_rectangle(a1, a2, a3, a4, a5);
 }
 
@@ -2303,8 +2460,8 @@ void border_unlock(long a1, long a2, long a3, long a4)
     struct EdgePoint *ept;
     long ept_id, tri_idx, cor_idx;
     long nerr;
-    //TODO PATHFINDING triangulate_area sub-function
-    _DK_border_unlock(a1, a2, a3, a4); return;
+    //TODO PATHFINDING triangulate_area sub-function, verify
+    //_DK_border_unlock(a1, a2, a3, a4); return;
     edge_points_clean();
     edge_unlock_record_and_regions(a1, a2, a1, a4);
     edge_unlock_record_and_regions(a1, a4, a3, a4);
@@ -2482,8 +2639,9 @@ void triangulation_border_init(void)
       {
           i = Triangles[tri_a].tags[tri_b];
           n = link_find(i, tri_a);
-          if (n < 0)
+          if (n < 0) {
               break;
+          }
           tri_b = MOD3[n+1];
           tri_a = i;
       }
@@ -2503,8 +2661,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     r = true;
     LastTriangulatedMap = imap;
     NAVIDBG(9,"F=%ld Area %03ld,%03ld %03ld,%03ld T=%04ld",game.play_gameturn,start_x,start_y,end_x,end_y,count_Triangles);
-    //TODO PATHFINDING rewritten code has been disabled because it has errors (2/2)
-    _DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
+    //_DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)
     {
@@ -2544,8 +2701,9 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
         r &= border_clip_vertical(imap, start_x, -1, start_y, end_y);
         r &= border_clip_vertical(imap, end_x, 0, start_y, end_y);
         r &= border_lock(start_x, start_y, end_x, end_y);
-        if ( !one_tile )
+        if ( !one_tile ) {
             border_internal_points_delete(start_x, start_y, end_x, end_y);
+        }
     } else
     {
         triangulation_initxy(-256, -256, 512, 512);
