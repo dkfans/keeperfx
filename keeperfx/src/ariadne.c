@@ -1779,16 +1779,91 @@ TbBool delete_point(long pt_tri, long pt_cor)
     return true;
 }
 
-void tri_split3(long a1, long a2, long a3)
-{
-    NAVIDBG(19,"Starting");
-    _DK_tri_split3(a1, a2, a3);
-
-}
-
 void edgelen_set(long tri_id)
 {
     _DK_edgelen_set(tri_id);
+}
+
+long tri_split3(long btri_id, long pt_x, long pt_y)
+{
+    NAVIDBG(19,"Starting");
+    //_DK_tri_split3(a1, a2, a3);
+    struct Triangle *btri;
+    struct Triangle *tri1;
+    struct Triangle *tri2;
+    long tri_id1, tri_id2;
+    tri_id1 = tri_new();
+    if (tri_id1 < 0) {
+        return -1;
+    }
+    tri_id2 = tri_new();
+    if (tri_id2 < 0) {
+        return -1;
+    }
+    btri = &Triangles[btri_id];
+    tri1 = &Triangles[tri_id1];
+    tri2 = &Triangles[tri_id2];
+    memcpy(tri1,btri,sizeof(struct Triangle));
+    memcpy(tri2,btri,sizeof(struct Triangle));
+    long pt_id;
+    struct Point *pt;
+    pt_id = point_new();
+    if (pt_id < 0) {
+        tri_dispose(tri_id1);
+        tri_dispose(tri_id2);
+        return -1;
+    }
+    pt = point_get(pt_id);
+    btri->points[2] = pt_id;
+    tri1->points[0] = pt_id;
+    tri2->points[1] = pt_id;
+    pt->x = pt_x;
+    pt->y = pt_y;
+    btri->tags[1] = tri_id1;
+    btri->tags[2] = tri_id2;
+    btri->field_D |= 0x06;
+    btri->field_D &= 0x0F;
+    tri1->tags[0] = btri_id;
+    tri1->tags[2] = tri_id2;
+    tri1->field_D |= 0x05;
+    tri1->field_D &= 0x17;
+    tri2->tags[0] = btri_id;
+    tri2->tags[1] = tri_id1;
+    tri2->field_D |= 0x03;
+    tri2->field_D &= 0x27;
+
+    long ttri_id, ltri_id;
+    ttri_id = tri1->tags[1];
+    if (ttri_id != -1)
+    {
+        ltri_id = link_find(ttri_id, btri_id);
+        if (ltri_id >= 0) {
+            Triangles[ttri_id].tags[ltri_id] = tri_id1;
+        } else {
+            ERRORLOG("A not found");
+        }
+    }
+    ttri_id = tri2->tags[2];
+    if (ttri_id != -1)
+    {
+        ltri_id = link_find(ttri_id, btri_id);
+        if (ltri_id >= 0) {
+            Triangles[ttri_id].tags[ltri_id] = tri_id2;
+        } else {
+            ERRORLOG("B not found");
+        }
+    }
+    long reg_id;
+    reg_id = get_triangle_region_id(btri_id);
+    if (reg_id > 0) {
+        region_unset_f(btri_id, reg_id, __func__);
+    }
+    tri1->field_E = 0;
+    tri2->field_E = 0;
+    edgelen_set(btri_id);
+    edgelen_set(tri_id1);
+    edgelen_set(tri_id2);
+    return pt_id;
 }
 
 long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
@@ -1920,8 +1995,7 @@ TbBool insert_point(long pt_x, long pt_y)
     {
         return edge_split(ntri, 2, pt_x, pt_y) >= 0;
     }
-    tri_split3(ntri, pt_x, pt_y);
-    return true;
+    return tri_split3(ntri, pt_x, pt_y) >= 0;
 }
 
 long fill_concave(long a1, long a2, long a3)
