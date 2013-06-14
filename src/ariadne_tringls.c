@@ -63,7 +63,7 @@ long tri_new(void)
             erstat_inc(ESE_NoFreeTriangls);
             return -1;
         }
-        free_Triangles = Triangles[free_Triangles].tags[0];
+        free_Triangles = Triangles[i].tags[0];
     }
     Triangles[i].tree_alt = 0;
     count_Triangles++;
