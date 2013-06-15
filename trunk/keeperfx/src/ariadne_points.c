@@ -34,38 +34,51 @@ DLLIMPORT long _DK_ix_Points;
 DLLIMPORT long _DK_free_Points;
 #define free_Points _DK_free_Points
 /******************************************************************************/
-long point_new(void)
+/**
+ * Checks if there's space for given amount of points.
+ * Quite useless, as we never know if a new point will be inserted or existing will be reused.
+ * @param n Amount of point required.
+ * @return Returns whether there is space for given amount of points or not.
+ */
+TbBool has_free_points(long n)
 {
-  long i;
-  if (free_Points == -1)
-  {
-      i = ix_Points;
-      if ((i < 0) || (i >= POINTS_COUNT))
-      {
-          ERRORLOG("ix_Points overflow");
-          erstat_inc(ESE_NoFreePathPts);
-          return -1;
-      }
-      ix_Points++;
-  } else
-  {
-      i = free_Points;
-      if ((i < 0) || (i >= POINTS_COUNT))
-      {
-          ERRORLOG("free_Points overflow");
-          erstat_inc(ESE_NoFreePathPts);
-          return -1;
-      }
-      free_Points = Points[i].x;
-  }
-  Points[i].y = 0;
-  count_Points++;
-  return i;
+    if (count_Points + n >= POINTS_COUNT)
+        return false;
+    return true;
 }
 
-void point_dispose(long pt_id)
+AridPointId point_new(void)
 {
-    long last_pt_id;
+    AridPointId i;
+    if (free_Points == -1)
+    {
+        i = ix_Points;
+        if ((i < 0) || (i >= POINTS_COUNT))
+        {
+            ERRORLOG("ix_Points overflow; %d allocated, id %d outranged",(int)count_Points,(int)ix_Points);
+            erstat_inc(ESE_NoFreePathPts);
+            return -1;
+        }
+        ix_Points++;
+    } else
+    {
+        i = free_Points;
+        if ((i < 0) || (i >= POINTS_COUNT))
+        {
+            ERRORLOG("free_Points overflow; %d allocated, id %d outranged",(int)count_Points,(int)free_Points);
+            erstat_inc(ESE_NoFreePathPts);
+            return -1;
+        }
+        free_Points = Points[i].x;
+    }
+    Points[i].y = 0;
+    count_Points++;
+    return i;
+}
+
+void point_dispose(AridPointId pt_id)
+{
+    AridPointId last_pt_id;
     last_pt_id = free_Points;
     Points[pt_id].y = 0x8000;
     free_Points = pt_id;
@@ -73,7 +86,7 @@ void point_dispose(long pt_id)
     count_Points--;
 }
 
-TbBool point_set(long pt_id, long x, long y)
+TbBool point_set(AridPointId pt_id, long x, long y)
 {
     if ((pt_id < 0) || (pt_id >= POINTS_COUNT))
     {
@@ -84,7 +97,7 @@ TbBool point_set(long pt_id, long x, long y)
     return true;
 }
 
-struct Point *point_get(long pt_id)
+struct Point *point_get(AridPointId pt_id)
 {
     if ((pt_id < 0) || (pt_id >= POINTS_COUNT))
     {
@@ -93,7 +106,7 @@ struct Point *point_get(long pt_id)
     return &Points[pt_id];
 }
 
-TbBool point_equals(long pt_idx, long pt_x, long pt_y)
+TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y)
 {
     long tip_x,tip_y;
     if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))

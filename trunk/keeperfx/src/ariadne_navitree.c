@@ -26,18 +26,13 @@
 #include "ariadne_tringls.h"
 #include "ariadne_points.h"
 #include "ariadne_findcache.h"
+#include "ariadne_naviheap.h"
 #include "gui_topmsg.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_heap_end;
-#define heap_end _DK_heap_end
-DLLIMPORT long _DK_Heap[PATH_HEAP_LEN];
-#define Heap _DK_Heap
-DLLIMPORT long _DK_tree_val[TREEVALS_COUNT];
-#define tree_val _DK_tree_val
 DLLIMPORT unsigned char _DK_Tags[TREEITEMS_COUNT];
 #define Tags _DK_Tags
 DLLIMPORT long _DK_tree_dad[TREEITEMS_COUNT];
@@ -49,162 +44,10 @@ DLLIMPORT long _DK_ix_delaunay;
 DLLIMPORT long _DK_delaunay_stack[DELAUNAY_COUNT];
 #define delaunay_stack _DK_delaunay_stack
 /******************************************************************************/
-DLLIMPORT void _DK_heap_down(long heapid);
 DLLIMPORT long _DK_delaunay_seeded(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
 /******************************************************************************/
 void nodes_classify(void)
 {
-}
-
-/** Initializes navigation heap for new use.
- */
-void naviheap_init(void)
-{
-    heap_end = 0;
-}
-
-/** Checks if the navigation heap is empty.
- *
- * @return
- */
-TbBool naviheap_empty(void)
-{
-    return (heap_end == 0);
-}
-
-/** Retrieves top element of the navigation heap.
- *
- * @return
- */
-long naviheap_top(void)
-{
-    if (heap_end < 1)
-        return -1;
-    return Heap[1];
-}
-
-/** Retrieves given element of the navigation heap.
- *
- * @param heapid
- * @return
- */
-long naviheap_get(long heapid)
-{
-    if ((heapid < 0) || (heapid > heap_end+1))
-        return -1;
-    return Heap[heapid];
-}
-
-/**
- * Returns tree item value for given heap position.
- * @param heapid
- * @return
- */
-long naviheap_item_tree_val(long heapid)
-{
-    long tree_id;
-    if ((heapid < 0) || (heapid >= PATH_HEAP_LEN))
-    {
-        erstat_inc(ESE_BadPathHeap);
-        return -1;
-    }
-    tree_id = Heap[heapid];
-    if ((tree_id < 0) || (tree_id >= TREEVALS_COUNT))
-    {
-        erstat_inc(ESE_BadPathHeap);
-        return -1;
-    }
-    return tree_val[tree_id];
-}
-
-/** Moves heap elements down, removing element of given index.
- *
- * @param heapid
- */
-void heap_down(long heapid)
-{
-    unsigned long hpos,hnew,hend;
-    long tree_idb,tree_ids;
-    long tval_idb;
-    //_DK_heap_down(heapid); return;
-    Heap[heap_end+1] = TREEVALS_COUNT-1;
-    tree_val[TREEVALS_COUNT-1] = LONG_MAX;
-    hend = (heap_end >> 1);
-    tree_idb = Heap[heapid];
-    tval_idb = tree_val[tree_idb];
-    hpos = heapid;
-    while (hpos <= hend)
-    {
-        hnew = (hpos << 1);
-        /* Select the cone with smaller tree value */
-        if (naviheap_item_tree_val(hnew+1) < naviheap_item_tree_val(hnew))
-            hnew++;
-        tree_ids = Heap[hnew];
-        if (tree_val[tree_ids] > tval_idb)
-          break;
-        Heap[hpos] = tree_ids;
-        hpos = hnew;
-    }
-    Heap[hpos] = tree_idb;
-}
-
-/** Removes one element from the heap and returns it.
- *
- * @return The removed element value.
- */
-long naviheap_remove(void)
-{
-  long popval;
-  if (heap_end < 1)
-  {
-      erstat_inc(ESE_BadPathHeap);
-      return -1;
-  }
-  popval = Heap[1];
-  Heap[1] = Heap[heap_end];
-  heap_end--;
-  heap_down(1);
-  return popval;
-}
-
-void heap_up(long heapid)
-{
-    unsigned long nmask,pmask;
-    long i,k;
-    pmask = heapid;
-    Heap[0] = TREEVALS_COUNT-1;
-    tree_val[TREEVALS_COUNT-1] = -1;
-    nmask = pmask;
-    k = Heap[pmask];
-    while ( 1 )
-    {
-        nmask >>= 1;
-        i = Heap[nmask];
-        if (tree_val[k] > tree_val[i])
-          break;
-        if (pmask == 0)
-        {
-            erstat_inc(ESE_BadPathHeap);
-            ERRORDBG(8,"sabotaged navigate heap, heapid=%d",(int)heapid);
-            break;
-        }
-        Heap[pmask] = i;
-        pmask = nmask;
-    }
-    Heap[pmask] = k;
-}
-
-TbBool naviheap_add(long heapid)
-{
-    // Always leave one unused element (not sure why, but originally 2 were left)
-    if (heap_end >= PATH_HEAP_LEN-1)
-    {
-        return false;
-    }
-    heap_end++;
-    Heap[heap_end] = heapid;
-    heap_up(heap_end);
-    return true;
 }
 
 void tree_init(void)
@@ -339,6 +182,12 @@ TbBool navitree_add(long itm_pos, long itm_dat, long mvcost)
 {
     long tag_pos;
     tag_pos = tag_current;
+    if (itm_pos >= TRIANLGLES_COUNT) {
+        WARNLOG("Inserting outranged pos %d",(int)itm_pos);
+    }
+    if (itm_dat >= TREEITEMS_COUNT) {
+        WARNLOG("Inserting outranged dat %d",(int)itm_dat);
+    }
     tree_val[itm_pos] = mvcost;
     Tags[itm_pos] = tag_pos;
     tree_dad[itm_pos] = itm_dat;
