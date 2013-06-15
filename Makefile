@@ -57,6 +57,7 @@ obj/actionpt.o \
 obj/ariadne.o \
 obj/ariadne_edge.o \
 obj/ariadne_findcache.o \
+obj/ariadne_naviheap.o \
 obj/ariadne_navitree.o \
 obj/ariadne_points.o \
 obj/ariadne_regions.o \
@@ -307,6 +308,7 @@ lqizgood \
 lrdvexer \
 ncastles \
 postanck \
+pstunded \
 questfth \
 twinkprs \
 undedkpr

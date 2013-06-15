@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file ariadne_regions.h
- *     Header file for ariadne_regions.c.
+/** @file ariadne_naviheap.h
+ *     Header file for ariadne_naviheap.c.
  * @par Purpose:
- *     Regions array for Ariadne system support functions.
+ *     Navigation heap for Ariadne system support functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     11 Mar 2010 - 22 Jul 2010
+ * @date     11 Mar 2011 - 14 Jun 2013
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,38 +16,27 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_ARIADNE_REGIONS_H
-#define DK_ARIADNE_REGIONS_H
+#ifndef DK_ARIADNE_NAVIHEAP_H
+#define DK_ARIADNE_NAVIHEAP_H
 
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define REGIONS_COUNT 300
-
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /******************************************************************************/
-#pragma pack(1)
-
-struct RegionT { // sizeof = 3
-  unsigned short num_triangles;
-  unsigned char field_2;
-};
-
-#pragma pack()
+#define PATH_HEAP_LEN 258
 /******************************************************************************/
-extern struct RegionT bad_region;
-#define INVALID_REGION &bad_region;
-/******************************************************************************/
-TbBool regions_connected(long tree_reg1, long tree_reg2);
-#define region_set(ntri, nreg) region_set_f(ntri, nreg, __func__)
-void region_set_f(long ntri, unsigned long nreg, const char *func_name);
-#define region_unset(ntri, nreg) region_unset_f(ntri, nreg, __func__)
-void region_unset_f(long ntri, unsigned long nreg, const char *func_name);
-void region_unlock(long ntri);
+TbBool naviheap_empty(void);
+void naviheap_init(void);
 
+long naviheap_top(void);
+long naviheap_get(long heapid);
+long naviheap_remove(void);
+TbBool naviheap_add(long heapid);
+
+long naviheap_item_tree_val(long heapid);
 /******************************************************************************/
 #ifdef __cplusplus
 }

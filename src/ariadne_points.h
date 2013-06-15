@@ -31,6 +31,8 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+typedef long AridPointId;
+
 struct Point { // sizeof = 4
   short x;
   short y;
@@ -44,11 +46,12 @@ DLLIMPORT struct Point _DK_Points[POINTS_COUNT];
 /******************************************************************************/
 #define INVALID_POINT (&Points[0])
 /******************************************************************************/
-long point_new(void);
-void point_dispose(long pt_id);
-TbBool point_set(long pt_id, long x, long y);
-struct Point *point_get(long pt_id);
-TbBool point_equals(long pt_idx, long pt_x, long pt_y);
+TbBool has_free_points(long n);
+AridPointId point_new(void);
+void point_dispose(AridPointId pt_id);
+TbBool point_set(AridPointId pt_id, long x, long y);
+struct Point *point_get(AridPointId pt_id);
+TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

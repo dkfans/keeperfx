@@ -214,8 +214,103 @@ struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *digger,
 
 long check_out_unprettied_or_unconverted_area(struct Thing *thing)
 {
-    SYNCDBG(19,"Starting");
-    return _DK_check_out_unprettied_or_unconverted_area(thing);
+    struct Dungeon *dungeon;
+    struct DiggerStack *stck;
+    struct Coord3d navpos;
+    SYNCDBG(9,"Starting");
+    //return _DK_check_out_unprettied_or_unconverted_area(thing);
+    dungeon = get_dungeon(thing->owner);
+    int min_dist;
+    int min_taskid;
+    struct Coord3d min_pos;
+    MapSubtlCoord srcstl_x, srcstl_y;
+    min_dist = 28;
+    srcstl_x = thing->mappos.x.stl.num;
+    srcstl_y = thing->mappos.y.stl.num;
+    int i;
+    for (i=0; i < dungeon->digger_stack_length; i++)
+    {
+        stck = &dungeon->imp_stack[i];
+        if ((stck->task_id != 1) && (stck->task_id != 2)) {
+            continue;
+        }
+        MapSubtlCoord stl_x, stl_y;
+        MapSlabCoord slb_x, slb_y;
+        stl_x = stl_num_decode_x(stck->field_0);
+        stl_y = stl_num_decode_y(stck->field_0);
+        slb_x = map_to_slab[stl_x];
+        slb_y = map_to_slab[stl_y];
+        int new_dist;
+        new_dist = get_2d_box_distance_xy(srcstl_x, srcstl_y, stl_x, stl_y);
+        if (new_dist >= min_dist) {
+            continue;
+        }
+        if (stck->task_id == 1)
+        {
+            if (!check_place_to_pretty_excluding(thing, slb_x, slb_y)) {
+                // Task is no longer valid
+                stck->task_id = 0;
+                continue;
+            }
+            if (!imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+            {
+                navpos.x.val = subtile_coord_center(stl_x);
+                navpos.y.val = subtile_coord_center(stl_y);
+                navpos.z.val = get_thing_height_at(thing, &navpos);
+                if (creature_can_navigate_to_with_storage(thing, &navpos, 0))
+                {
+                    min_taskid = 1;
+                    min_dist = new_dist;
+                    min_pos.x.val = navpos.x.val;
+                    min_pos.y.val = navpos.y.val;
+                    min_pos.z.val = navpos.z.val;
+                }
+            }
+        } else
+        if (stck->task_id == 2)
+        {
+          if (!check_place_to_convert_excluding(thing, slb_x, slb_y)) {
+              // Task is no longer valid
+              stck->task_id = 0;
+              continue;
+          }
+          if (!imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+          {
+              navpos.x.val = subtile_coord_center(stl_x);
+              navpos.y.val = subtile_coord_center(stl_y);
+              navpos.z.val = get_thing_height_at(thing, &navpos);
+              if (creature_can_navigate_to_with_storage(thing, &navpos, 0))
+              {
+                  min_taskid = 2;
+                  min_dist = new_dist;
+                  min_pos.x.val = navpos.x.val;
+                  min_pos.y.val = navpos.y.val;
+                  min_pos.z.val = navpos.z.val;
+              }
+          }
+        } else
+        {
+            ERRORLOG("Invalid stack type; cleared");
+            stck->task_id = 0;
+        }
+    }
+    if (min_dist == 28)
+      return 0;
+    if (!setup_person_move_to_coord(thing, &min_pos, 0))
+    {
+        ERRORLOG("Digger can navigate but not move to.");
+        return 0;
+    }
+    if (min_taskid == 1)
+    {
+        thing->continue_state = 9;
+        return 1;
+    } else
+    {
+        thing->continue_state = 73;
+        return 1;
+    }
+    return 0;
 }
 
 long imp_will_soon_be_converting_at_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -433,11 +528,60 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
     return 1;
 }
 
-long check_place_to_pretty_excluding(struct Thing *thing, long slb_x, long slb_y)
+long check_place_to_pretty_excluding(struct Thing *creatng, long slb_x, long slb_y)
 {
+    struct SlabMap *slb;
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
-    return _DK_check_place_to_pretty_excluding(thing, slb_x, slb_y);
+    TRACE_THING(creatng);
+    //return _DK_check_place_to_pretty_excluding(creatng, slb_x, slb_y);
+    slb = get_slabmap_block(slb_x, slb_y);
+    if (slb->kind != SlbT_PATH) {
+        SYNCDBG(8,"The slab %d,%d is not a valid type",(int)slb_x, (int)slb_y);
+        return 0;
+    }
+    struct Map *mapblk;
+    mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    if (!map_block_revealed(mapblk, creatng->owner)) {
+        SYNCDBG(8,"The slab %d,%d is not revealed",(int)slb_x, (int)slb_y);
+        return 0;
+    }
+    if (!slab_by_players_land(creatng->owner, slb_x, slb_y)) {
+        SYNCDBG(8,"The slab %d,%d is not by players land",(int)slb_x, (int)slb_y);
+        return 0;
+    }
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if ( thing_is_creature(thing) && (thing->index != creatng->index) )
+        {
+            if (!thing_is_picked_up(thing) && (thing->active_state == CrSt_ImpImprovesDungeon)) {
+                SYNCDBG(8,"The slab %d,%d is already being improved by %s index %d",
+                    (int)slb_x,(int)slb_y,thing_model_name(thing),(int)thing->index);
+                return 0;
+            }
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return 1;
 }
 
 long check_out_unreinforced_place(struct Thing *thing)
@@ -497,7 +641,7 @@ long check_out_unprettied_place(struct Thing *thing)
   }
   if ( check_out_unprettied_spiral(thing, 1) )
   {
-    return true;
+      return true;
   }
   return false;
 }
@@ -1259,13 +1403,14 @@ long check_out_imp_last_did(struct Thing *thing)
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
           cctrl->digger.last_did_job = 2;
+          SYNCDBG(19,"Done on unprettied or unconverted place 1");
           return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
           cctrl->digger.last_did_job = 2;
-          SYNCDBG(19,"Done on unprettied or unconverted area");
+          SYNCDBG(9,"Done on unprettied or unconverted area 1");
           return true;
       }
       break;
@@ -1273,13 +1418,14 @@ long check_out_imp_last_did(struct Thing *thing)
       if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
       {
           cctrl->digger.last_did_job = 2;
-          SYNCDBG(19,"Done on unprettied or unconverted place");
+          SYNCDBG(19,"Done on unprettied or unconverted place 2");
           return true;
       }
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
         cctrl->digger.last_did_job = 2;
+        SYNCDBG(9,"Done on unprettied or unconverted area 2");
         return true;
       }
       if ( check_out_undug_area(thing) )
@@ -1339,6 +1485,7 @@ long check_out_imp_last_did(struct Thing *thing)
       break;
   }
   cctrl->digger.last_did_job = 0;
+  SYNCDBG(9,"No job found");
   return false;
 }
 
