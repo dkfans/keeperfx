@@ -130,6 +130,11 @@ struct Triangle *get_triangle(long tri_id)
     return &Triangles[tri_id];
 }
 
+TbBool triangle_is_invalid(const struct Triangle *tri)
+{
+    return (tri < &Triangles[0]) || (tri > &Triangles[TRIANLGLES_COUNT-1]) || (tri == INVALID_TRIANGLE) || (tri == NULL);
+}
+
 struct Point *get_triangle_point(long tri_id, long pt_cor)
 {
     if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))

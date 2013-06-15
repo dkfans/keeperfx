@@ -26,7 +26,6 @@
 extern "C" {
 #endif
 
-#define PATH_HEAP_LEN 258
 #define TREEITEMS_COUNT 9000
 #define TREEVALS_COUNT 9001
 #define DELAUNAY_COUNT 1000
@@ -34,15 +33,11 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+DLLIMPORT long _DK_tree_val[TREEVALS_COUNT];
+#define tree_val _DK_tree_val
 
 #pragma pack()
 /******************************************************************************/
-TbBool naviheap_empty(void);
-void naviheap_init(void);
-TbBool naviheap_add(long heapid);
-long naviheap_remove(void);
-long naviheap_top(void);
-
 void tags_init(void);
 long update_border_tags(long tag_id, long *border_pt, long border_len);
 long border_tags_to_current(long *border_pt, long border_len);

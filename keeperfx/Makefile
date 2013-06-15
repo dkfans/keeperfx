@@ -208,6 +208,7 @@ obj/light_data.o \
 obj/ariadne_navitree.o \
 obj/ariadne_regions.o \
 obj/ariadne_tringls.o \
+obj/ariadne_naviheap.o \
 obj/ariadne_edge.o \
 obj/ariadne_points.o \
 obj/ariadne_findcache.o \
@@ -269,6 +270,7 @@ lqizgood \
 lrdvexer \
 ncastles \
 postanck \
+pstunded \
 questfth \
 twinkprs \
 undedkpr

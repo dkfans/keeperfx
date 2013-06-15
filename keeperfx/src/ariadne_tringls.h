@@ -51,11 +51,14 @@ DLLIMPORT long _DK_ix_Triangles;
 #define ix_Triangles _DK_ix_Triangles
 /******************************************************************************/
 extern struct Triangle bad_triangle;
-#define INVALID_TRIANGLE &bad_triangle;
+#define INVALID_TRIANGLE &bad_triangle
 extern const long MOD3[];
 /******************************************************************************/
 long tri_new(void);
 void tri_dispose(long tri_idx);
+
+TbBool triangle_is_invalid(const struct Triangle *tri);
+struct Triangle *get_triangle(long tri_id);
 
 long get_triangle_region_id(long tri_id);
 TbBool set_triangle_region_id(long tri_id, long reg_id);
@@ -64,7 +67,6 @@ TbBool set_triangle_edgelen(long tri_id, long edgelen);
 long get_triangle_tree_alt(long tri_id);
 struct Point *get_triangle_point(long tri_id, long pt_cor);
 TbBool triangle_tip_equals(long tri_id, long pt_cor, long pt_x, long pt_y);
-struct Triangle *get_triangle(long tri_id);
 long link_find(long ntri, long val);
 TbBool outer_locked(long ntri, long ncor);
 long edge_rotateAC(long a1, long a2);

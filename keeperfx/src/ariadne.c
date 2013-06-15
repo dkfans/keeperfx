@@ -30,6 +30,7 @@
 #include "ariadne_points.h"
 #include "ariadne_edge.h"
 #include "ariadne_findcache.h"
+#include "ariadne_naviheap.h"
 #include "thing_stats.h"
 #include "thing_navigate.h"
 #include "thing_physics.h"
@@ -698,6 +699,95 @@ long triangle_brute_find8_near(long pos_x, long pos_y)
     return _DK_triangle_brute_find8_near(pos_x, pos_y);
 }
 
+TbBool triangle_check_and_add_navitree_fwd(long ttri)
+{
+    struct Triangle *tri;
+    tri = get_triangle(ttri);
+    if (triangle_is_invalid(tri)) {
+        ERRORLOG("invalid triangle received, no %d",(int)ttri);
+        return false;
+    }
+    long n,nskipped;
+    n = 0;
+    nskipped = 0;
+    long i,k;
+    for (i = 0; i < 3; i++)
+    {
+        k = tri->tags[i];
+        if (!is_current_tag(k))
+        {
+            if ( fits_thro(ttri, n) )
+            {
+                long ttri_alt, k_alt;
+                ttri_alt = get_triangle_tree_alt(ttri);
+                k_alt = get_triangle_tree_alt(k);
+                if ((ttri_alt != -1) && (k_alt != -1))
+                {
+                    long mvcost,navrule;
+                    navrule = nav_rulesA2B(k_alt, ttri_alt);
+                    if (navrule)
+                    {
+                        mvcost = cost_to_start(k);
+                        if (navrule == 2)
+                            mvcost *= 16;
+                        if (!navitree_add(k,ttri,mvcost))
+                            nskipped++;
+                    }
+                }
+            }
+        }
+        n++;
+    }
+    if (nskipped != 0) {
+        NAVIDBG(6,"navigate heap full, %ld points ignored",nskipped);
+        return false;
+    }
+    return true;
+}
+
+TbBool triangle_check_and_add_navitree_bak(long ttri)
+{
+    struct Triangle *tri;
+    tri = get_triangle(ttri);
+    if (triangle_is_invalid(tri)) {
+        ERRORLOG("invalid triangle received");
+        return false;
+    }
+    long n,nskipped;
+    n = 0;
+    nskipped = 0;
+    long i,k;
+    for (i = 0; i < 3; i++)
+    {
+        k = tri->tags[i];
+        if (!is_current_tag(k))
+        {
+            long ttri_alt, k_alt;
+            ttri_alt = get_triangle_tree_alt(ttri);
+            k_alt = get_triangle_tree_alt(k);
+            if ((ttri_alt != -1) && (k_alt != -1))
+            {
+                long mvcost,navrule;
+                navrule = nav_rulesA2B(ttri_alt, k_alt);
+                if (navrule)
+                {
+                    mvcost = cost_to_start(k);
+                    if (navrule == 2)
+                        mvcost *= 16;
+                    if (!navitree_add(k,ttri,mvcost))
+                        nskipped++;
+                }
+            }
+        }
+        n++;
+    }
+    if (nskipped != 0) {
+        NAVIDBG(6,"navigate heap full, %ld points ignored",nskipped);
+        return false;
+    }
+    return true;
+}
+
 /**
  * Triangulates a forward route to ttriB from ttriA.
  * @param ttriA Beginning region triangle.
@@ -708,11 +798,6 @@ long triangle_brute_find8_near(long pos_x, long pos_y)
  */
 long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
 {
-    struct Triangle *tri;
-    long ttriH1,ttriH2;
-    long mvcost,navrule;
-    long nskipped;
-    long i,k,n;
     NAVIDBG(19,"Starting");
     //return _DK_triangle_route_do_fwd(ttriA, ttriB, route, routecost);
     tags_init();
@@ -724,11 +809,16 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
     triangulation_border_tag();
 
     naviheap_init();
-    nskipped = 0;
-    if (!navitree_add(ttriB, ttriB, 1))
-        nskipped++;
+    // Add final region to navigation tree
+    if (!navitree_add(ttriB, ttriB, 1)) {
+        ERRORLOG("Navigate heap full after cleaning");
+        return -1;
+    }
+    // Keep adding sibling regions until we are in beginning region
+    // Do two of them at a time
     while (ttriA != naviheap_top())
     {
+        long ttriH1,ttriH2;
         if (naviheap_empty())
             break;
         ttriH1 = naviheap_remove();
@@ -739,50 +829,27 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
         {
             ttriH2 = naviheap_top();
             if (ttriH2 == ttriA)
-              break;
+                break;
             naviheap_remove();
         }
-        while ( 1 )
+        if (ttriH1 != -1)
         {
-            tri = get_triangle(ttriH1);
-            n = 0;
-            for (i = 0; i < 3; i++)
-            {
-              k = tri->tags[i];
-              if (!is_current_tag(k))
-              {
-                if ( fits_thro(ttriH1, n) )
-                {
-                    navrule = nav_rulesA2B(get_triangle_tree_alt(k), get_triangle_tree_alt(ttriH1));
-                    if ( navrule )
-                    {
-                        mvcost = cost_to_start(k);
-                      if (navrule == 2)
-                          mvcost *= 16;
-                      if (!navitree_add(k,ttriH1,mvcost))
-                          nskipped++;
-                    }
-                }
-              }
-              n++;
-            }
-            if (ttriH2 == -1)
-              break;
-            ttriH1 = ttriH2;
-            ttriH2 = -1;
+            triangle_check_and_add_navitree_fwd(ttriH1);
+        }
+        if (ttriH2 != -1)
+        {
+            triangle_check_and_add_navitree_fwd(ttriH2);
         }
     }
-    if (nskipped != 0)
-    {
-        NAVIDBG(6,"navigate heap full, %ld points ignored",nskipped);
-    }
-
-    NAVIDBG(19,"Nearly finished");
-    if (naviheap_empty())
+    NAVIDBG(19,"Almost finished");
+    if (naviheap_empty()) {
+        // The beginning region was never reached
         return -1;
+    }
+    long i;
     i = copy_tree_to_route(ttriA, ttriB, route, TRIANLGLES_COUNT+1);
-    if (i < 0)
-    {
+    if (i < 0) {
+        erstat_inc(ESE_BadRouteTree);
         ERRORLOG("route length overflow");
     }
     return i;
@@ -799,11 +866,6 @@ long triangle_route_do_fwd(long ttriA, long ttriB, long *route, long *routecost)
  */
 long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
 {
-    struct Triangle *tri;
-    long ttriH1,ttriH2;
-    long mvcost,navrule;
-    long nskipped;
-    long i,k,n;
     NAVIDBG(19,"Starting");
     //return _DK_triangle_route_do_bak(ttriA, ttriB, route, routecost);
     tags_init();
@@ -815,11 +877,16 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
     triangulation_border_tag();
 
     naviheap_init();
-    nskipped = 0;
-    if (!navitree_add(ttriB, ttriB, 1))
-        nskipped++;
+    // Add final region to navigation tree
+    if (!navitree_add(ttriB, ttriB, 1)) {
+        ERRORLOG("Navigate heap full after cleaning");
+        return -1;
+    }
+    // Keep adding sibling regions until we are in beginning region
+    // Do two of them at a time
     while (ttriA != naviheap_top())
     {
+        long ttriH1,ttriH2;
         if (naviheap_empty())
             break;
         ttriH1 = naviheap_remove();
@@ -830,52 +897,28 @@ long triangle_route_do_bak(long ttriA, long ttriB, long *route, long *routecost)
         {
             ttriH2 = naviheap_top();
             if (ttriH2 == ttriA)
-              break;
+                break;
             naviheap_remove();
         }
-        while ( 1 )
+        if (ttriH1 != -1)
         {
-            tri = get_triangle(ttriH1);
-            n = 0;
-            for (i = 0; i < 3; i++)
-            {
-              k = tri->tags[i];
-              if (!is_current_tag(k))
-              {
-                if ( fits_thro(ttriH1, n) )
-                {
-                    navrule = nav_rulesA2B(get_triangle_tree_alt(ttriH1), get_triangle_tree_alt(k));
-                    if ( navrule )
-                    {
-                        mvcost = cost_to_start(k);
-                      if (navrule == 2)
-                          mvcost *= 16;
-                      if (!navitree_add(k,ttriH1,mvcost))
-                          nskipped++;
-                    }
-                }
-              }
-              n++;
-            }
-            if (ttriH2 == -1)
-              break;
-            ttriH1 = ttriH2;
-            ttriH2 = -1;
+            triangle_check_and_add_navitree_bak(ttriH1);
+        }
+        if (ttriH2 != -1)
+        {
+            triangle_check_and_add_navitree_bak(ttriH2);
         }
     }
-    if (nskipped != 0)
-    {
-        NAVIDBG(6,"navigate heap full, %ld points ignored",nskipped);
-    }
-
-    NAVIDBG(19,"Nearly finished");
-    if (naviheap_empty())
+    NAVIDBG(19,"Almost finished");
+    if (naviheap_empty()) {
+        // The beginning region was never reached
         return -1;
+    }
+    long i;
     i = copy_tree_to_route(ttriA, ttriB, route, TRIANLGLES_COUNT+1);
-    if (i < 0)
-    {
+    if (i < 0) {
         erstat_inc(ESE_BadRouteTree);
-        ERRORDBG(6,"route length overflow");
+        ERRORLOG("route length overflow");
     }
     return i;
 }
@@ -897,7 +940,6 @@ long ma_triangle_route(long ttriA, long ttriB, long *routecost)
     // We need to make testing system for routing, then fix the rewritten code
     // and compare results with the original code.
     //return _DK_ma_triangle_route(ttriA, ttriB, routecost);
-
     // Forward route
     NAVIDBG(19,"Making forward route");
     rcost_fwd = 0;
@@ -1856,7 +1898,7 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     long reg_id;
     reg_id = get_triangle_region_id(btri_id);
     if (reg_id > 0) {
-        region_unset_f(btri_id, reg_id, __func__);
+        region_unset(btri_id, reg_id);
     }
     tri1->field_E = 0;
     tri2->field_E = 0;
@@ -1905,7 +1947,7 @@ long tri_split2(long tri_id1, long cor_id1, long pt_x, long pt_y, long pt_id1)
     }
     reg_id1 = get_triangle_region_id(tri_id1);
     if (reg_id1 > 0) {
-        region_unset_f(tri_id1, reg_id1, __func__);
+        region_unset(tri_id1, reg_id1);
     }
     tri2->field_E = 0;
     edgelen_set(tri_id1);
@@ -2294,16 +2336,16 @@ TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, c
     y = ptstart_y;
     while ((x != ptend_x) || (y != ptend_y))
     {
-      if (!edge_find(x, y, ptend_x, ptend_y, &tri_n, &tri_k))
-      {
-        ERRORMSG("%s: edge not found",func_name);
-        return false;
-      }
-      Triangles[tri_n].field_D |= 1 << (tri_k+3);
-      k = MOD3[tri_k+1];
-      pt = get_triangle_point(tri_n,k);
-      x = pt->x;
-      y = pt->y;
+        if (!edge_find(x, y, ptend_x, ptend_y, &tri_n, &tri_k))
+        {
+            ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)x, (int)y, (int)ptend_x, (int)ptend_y);
+            return false;
+        }
+        Triangles[tri_n].field_D |= 1 << (tri_k+3);
+        k = MOD3[tri_k+1];
+        pt = get_triangle_point(tri_n,k);
+        x = pt->x;
+        y = pt->y;
     }
     return true;
 }
