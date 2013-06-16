@@ -24,6 +24,7 @@
 #include <climits>
 #include <getopt.h>
 
+#include <cstring>
 #include <cmath>
 #include <fstream>
 #include <sstream>
