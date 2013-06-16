@@ -94,8 +94,10 @@ DLLIMPORT void _DK_cleanup_battle_leftovers(struct Thing *thing);
 DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
 DLLIMPORT long _DK_get_combat_score(const struct Thing *figtng, const struct Thing *outenmtng, long outscore, long a4);
 DLLIMPORT long _DK_check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, unsigned long *outscore);
-DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4);
+DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long a4);
 DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
+/******************************************************************************/
+long combat_has_line_of_sight(struct Thing *thing, struct Thing *enmtng, long enmdist);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -1353,9 +1355,45 @@ long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
     return _DK_combat_type_is_choice_of_creature(thing, cmbtyp);
 }
 
-long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
+long guard_post_combat_move(struct Thing *thing, long a2)
 {
-    return _DK_ranged_combat_move(thing, enmtng, a3, a4);
+    return _DK_guard_post_combat_move(thing, a2);
+}
+
+long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long a4)
+{
+    struct CreatureControl *cctrl;
+    //return _DK_ranged_combat_move(thing, enmtng, enmdist, a4);
+    cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->instance_id != 0)
+    {
+        creature_turn_to_face(thing, &enmtng->mappos);
+        return 0;
+    }
+    if (cctrl->job_assigned == 512)
+    {
+        if (guard_post_combat_move(thing, a4)) {
+            return 0;
+        }
+    }
+    if (!combat_has_line_of_sight(thing, enmtng, enmdist))
+    {
+        if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) {
+            set_start_state(thing);
+        }
+        return 0;
+    }
+    if (enmdist < 768) {
+        creature_retreat_from_combat(thing, enmtng, a4, 1);
+    } else
+    if (enmdist > 2048) {
+        creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    long enemy_angle;
+    enemy_angle = get_angle_xy_to(&thing->mappos, &enmtng->mappos);
+    return (get_angle_difference(thing->field_52, enemy_angle) < crstat->field_of_view);
 }
 
 #define INSTANCE_RET_IF_AVAIL(thing, inst_id) \
@@ -1465,7 +1503,7 @@ TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
     return (angdiff < crstat->field_of_view);
 }
 
-long combat_has_line_of_sight(struct Thing *thing, struct Thing *enmtng, long a3)
+long combat_has_line_of_sight(struct Thing *thing, struct Thing *enmtng, long enmdist)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -1475,7 +1513,7 @@ long combat_has_line_of_sight(struct Thing *thing, struct Thing *enmtng, long a3
       cctrl->word_A4 = enmtng->index;
       struct CreatureStats *crstat;
       crstat = creature_stats_get_from_thing(thing);
-      if ((crstat->visual_range << 8) >= a3)
+      if ((crstat->visual_range << 8) >= enmdist)
       {
           cctrl->field_A8 = jonty_creature_can_see_thing_including_lava_check(thing, enmtng);
       } else
@@ -1489,11 +1527,6 @@ long combat_has_line_of_sight(struct Thing *thing, struct Thing *enmtng, long a3
 long old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
 {
     return _DK_old_combat_move(thing, enmtng, a3, a4);
-}
-
-long guard_post_combat_move(struct Thing *thing, long a2)
-{
-    return _DK_guard_post_combat_move(thing, a2);
 }
 
 long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
@@ -1779,7 +1812,8 @@ void creature_in_combat_wait(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
     TRACE_THING(enmtng);
-    if ( !creature_is_most_suitable_for_combat(thing, enmtng) ) {
+    if (!creature_is_most_suitable_for_combat(thing, enmtng))
+    {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
         creature_change_to_most_suitable_combat(thing);
         return;
