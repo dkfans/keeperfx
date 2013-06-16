@@ -53,7 +53,6 @@ DLLIMPORT struct Room * _DK_find_random_room_for_thing_with_spare_room_item_capa
 DLLIMPORT long _DK_claim_room(struct Room *room,struct Thing *claimtng);
 DLLIMPORT long _DK_claim_enemy_room(struct Room *room,struct Thing *claimtng);
 DLLIMPORT struct Room *_DK_get_room_thing_is_on(struct Thing *thing);
-DLLIMPORT void _DK_do_unprettying(unsigned char a1, long plyr_idz, long a3);
 DLLIMPORT void _DK_change_room_map_element_ownership(struct Room *room, unsigned char plyr_idz);
 DLLIMPORT void _DK_copy_block_with_cube_groups(short a1, unsigned char plyr_idz, unsigned char a3);
 /******************************************************************************/
@@ -2605,11 +2604,6 @@ void redraw_room_map_elements(struct Room *room)
             break;
         }
     }
-}
-
-void do_unprettying(unsigned char a1, long a2, long a3)
-{
-    _DK_do_unprettying(a1, a2, a3);
 }
 
 void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
