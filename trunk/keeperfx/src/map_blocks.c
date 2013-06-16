@@ -168,6 +168,7 @@ void neutralise_enemy_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 {
     struct SlabMap *slb;
     MapSlabCoord slb_x,slb_y;
+    SYNCDBG(16,"Starting");
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
     slb = get_slabmap_block(slb_x, slb_y);
@@ -386,7 +387,7 @@ SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord t
     return retkind;
 }
 
-void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5)
+void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5,const char *func_name)
 {
     SlabKind previous_slab_types_around[8];
     struct SlabMap *slb;
@@ -395,7 +396,7 @@ void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord s
     MapSlabCoord spos_x,spos_y;
     int skind;
     long i;
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting in %s",func_name);
     if ((stl_x < 0) || (stl_x > map_subtiles_x))
         return;
     if ((stl_y < 0) || (stl_y > map_subtiles_y))
@@ -404,7 +405,7 @@ void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord s
     slb_y = subtile_slab_fast(stl_y);
     if (slab_kind_is_animated(nslab))
     {
-        ERRORLOG("Placing animating slab %d as standard slab",(int)nslab);
+        ERRORLOG("%s: Placing animating slab %d as standard slab",func_name,(int)nslab);
     }
     for (i = 0; i < 8; i++)
     {

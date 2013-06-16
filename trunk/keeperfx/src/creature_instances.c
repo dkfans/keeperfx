@@ -45,20 +45,20 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_process_creature_instance(struct Thing *creatng);
-DLLIMPORT long _DK_instf_attack_room_slab(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_creature_cast_spell(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_creature_fire_shot(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_damage_wall(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_destroy(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_dig(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_eat(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_fart(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_first_person_do_imp_task(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_pretty_path(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_reinforce(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_tortured(struct Thing *creatng, long *param);
-DLLIMPORT long _DK_instf_tunnel(struct Thing *creatng, long *param);
+DLLIMPORT void _DK_process_creature_instance(struct Thing *thing);
+DLLIMPORT long _DK_instf_attack_room_slab(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_creature_cast_spell(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_creature_fire_shot(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_damage_wall(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_destroy(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_dig(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_eat(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_fart(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_first_person_do_imp_task(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_pretty_path(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_reinforce(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_tortured(struct Thing *thing, long *param);
+DLLIMPORT long _DK_instf_tunnel(struct Thing *thing, long *param);
 
 DLLIMPORT struct InstanceInfo _DK_instance_info[48];
 #define instance_info _DK_instance_info
@@ -318,7 +318,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     struct CreatureControl *cctrl;
     struct Thing *target;
     int i;
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->targtng_idx <= 0)
     {
@@ -365,7 +365,7 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     struct Thing *trthing;
     struct SpellInfo *spinfo;
     long mgc_idx;
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     mgc_idx = *param;
     spinfo = get_magic_info(mgc_idx);
@@ -391,7 +391,7 @@ long instf_dig(struct Thing *creatng, long *param)
     long task_idx,taskkind;
     long dig_damage,gold;
     SYNCDBG(16,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     //return _DK_instf_dig(thing, param);
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_dungeon(creatng->owner);
@@ -467,7 +467,7 @@ long instf_destroy(struct Thing *creatng, long *param)
     MapSlabCoord slb_x,slb_y;
     long prev_owner;
 
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
     dungeon = get_dungeon(creatng->owner);
@@ -517,25 +517,25 @@ long instf_destroy(struct Thing *creatng, long *param)
 
 long instf_attack_room_slab(struct Thing *creatng, long *param)
 {
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     return _DK_instf_attack_room_slab(creatng, param);
 }
 
 long instf_damage_wall(struct Thing *creatng, long *param)
 {
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     return _DK_instf_damage_wall(creatng, param);
 }
 
 long instf_eat(struct Thing *creatng, long *param)
 {
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     return _DK_instf_eat(creatng, param);
 }
 
 long instf_fart(struct Thing *creatng, long *param)
 {
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     return _DK_instf_fart(creatng, param);
 }
 
@@ -543,7 +543,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 {
     MapSlabCoord slb_x,slb_y;
     long locparam;
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     //return _DK_instf_first_person_do_imp_task(thing, param);
     slb_x = subtile_slab_fast(creatng->mappos.x.stl.num);
     slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
@@ -570,7 +570,7 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     slb_y = subtile_slab_fast(creatng->mappos.y.stl.num);
     create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
     thing_play_sample(creatng, 76, 100, 0, 3, 0, 2, 256);
-    place_slab_type_on_map(11, 3 * slb_x + 1, 3 * slb_y + 1, creatng->owner, 1);
+    place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
     do_unprettying(creatng->owner, slb_x, slb_y);
     do_slab_efficiency_alteration(slb_x, slb_y);
     increase_dungeon_area(creatng->owner, 1);
@@ -592,19 +592,19 @@ long instf_pretty_path(struct Thing *creatng, long *param)
 
 long instf_reinforce(struct Thing *creatng, long *param)
 {
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     return _DK_instf_reinforce(creatng, param);
 }
 
 long instf_tortured(struct Thing *creatng, long *param)
 {
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     return 1;
 }
 
 long instf_tunnel(struct Thing *creatng, long *param)
 {
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     return _DK_instf_tunnel(creatng, param);
 }
 /******************************************************************************/

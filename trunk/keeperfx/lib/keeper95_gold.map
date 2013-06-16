@@ -1385,6 +1385,7 @@
  0001:000C59A0       is_thing_passenger_controlled
  0001:000BF2E0       external_set_thing_state
  0001:00015F90       script_process_value
+ 0001:000152B0       unfill_reinforced_corners
  0001:00090120       creature_fire_shot
  0001:00011C80       creature_cast_spell
  0001:000703C0       process_creature_needs_to_heal_critical
@@ -1541,6 +1542,7 @@
  0001:00056D10       creature_attack_rooms
  0001:00088FE0       creature_attempt_to_damage_walls
  0001:00088840       creature_find_and_perform_anger_job
+ 0001:00088070       imp_already_reinforcing_at_excluding
  0001:000BFFC0       creature_be_happy
  0001:000BE1A0       creature_being_dropped
  0001:00018E30       creature_being_sacrificed
