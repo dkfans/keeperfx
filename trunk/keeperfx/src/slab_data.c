@@ -38,6 +38,7 @@ struct SlabMap bad_slabmap_block;
 DLLIMPORT long _DK_calculate_effeciency_score_for_room_slab(long a1, long plyr_idx);
 DLLIMPORT void _DK_update_blocks_in_area(long sx, long sy, long ex, long ey);
 DLLIMPORT void _DK_do_slab_efficiency_alteration(unsigned char a1, unsigned char a2);
+DLLIMPORT void _DK_do_unprettying(unsigned char a1, long plyr_idz, long a3);
 /******************************************************************************/
 /**
  * Returns slab number, which stores both X and Y coords in one number.
@@ -299,6 +300,11 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     _DK_do_slab_efficiency_alteration(slb_x, slb_y); return;
+}
+
+void do_unprettying(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    _DK_do_unprettying(plyr_idx, slb_x, slb_y);
 }
 /******************************************************************************/
 #ifdef __cplusplus
