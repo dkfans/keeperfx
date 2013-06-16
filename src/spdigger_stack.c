@@ -66,8 +66,8 @@ DLLIMPORT long _DK_check_out_undug_area(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unprettied_or_unconverted_area(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-DLLIMPORT long _DK_check_out_uncrowded_reinforce_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *a4);
-DLLIMPORT long _DK_check_place_to_dig_and_get_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *a4);
+DLLIMPORT long _DK_check_out_uncrowded_reinforce_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *retslb_y);
+DLLIMPORT long _DK_check_place_to_dig_and_get_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *retslb_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_gold(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *creatng, long slb_x, long slb_y);
@@ -76,6 +76,7 @@ DLLIMPORT long _DK_check_place_to_reinforce(struct Thing *creatng, long slb_x, l
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_crate(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT long _DK_add_to_pretty_to_imp_stack_if_need_to(long creatng, long slb_x, struct Dungeon *dungeon);
 DLLIMPORT long _DK_imp_will_soon_be_converting_at_excluding(struct Thing *creatng, long slb_x, long slb_y);
+DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, long stl_x, long stl_y);
 /******************************************************************************/
 long const dig_pos[] = {0, -1, 1};
 
@@ -1144,9 +1145,78 @@ void add_reinforce_to_imp_stack(struct Dungeon *dungeon)
     }
 }
 
-long check_out_uncrowded_reinforce_position(struct Thing *thing, unsigned short a2, long *a3, long *a4)
+TbBool slab_is_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER)) {
+        return false;
+    }
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    if (!slbattr->is_safe_land) {
+        return false;
+    }
+    return (slabmap_owner(slb) == plyr_idx);
+}
+
+long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    return _DK_imp_already_reinforcing_at_excluding(creatng, stl_x, stl_y);
+}
+
+long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retslb_x, long *retslb_y)
+{
+    MapSubtlCoord basestl_x,basestl_y;
+    //return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
+    basestl_x = stl_num_decode_x(stl_num);
+    basestl_y = stl_num_decode_y(stl_num);
+    int i,n;
+    {
+        long delta_x,delta_y;
+        delta_x = basestl_x - (long)thing->mappos.x.stl.num;
+        delta_y = basestl_y - (long)thing->mappos.y.stl.num;
+        if (abs(delta_y) < abs(delta_x))
+        {
+          if (delta_y > 0)
+              n = 0;
+          else
+              n = 2;
+        } else
+        {
+          if (delta_x > 0)
+              n = 3;
+          else
+              n = 1;
+        }
+    }
+    for (i=0; i < SMALL_AROUND_COUNT; i++)
+    {
+        MapSubtlCoord stl_x,stl_y;
+        stl_x = basestl_x + 2 * (long)small_around[n].delta_x;
+        stl_y = basestl_y + 2 * (long)small_around[n].delta_y;
+        if (slab_is_players_land(thing->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
+        {
+            if (!imp_already_reinforcing_at_excluding(thing, stl_x, stl_y))
+            {
+                if (!imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+                {
+                    struct Coord3d pos;
+                    pos.z.val = 0;
+                    pos.x.val = (stl_x << 8) + 128;
+                    pos.y.val = (stl_y << 8) + 128;
+                    pos.z.val = get_thing_height_at(thing, &pos);
+                    if ( creature_can_navigate_to_with_storage(thing, &pos, 0) != -1 ) {
+                        *retslb_x = stl_x;
+                        *retslb_y = stl_y;
+                        return 1;
+                    }
+                }
+            }
+        }
+        n = (n + 1) % SMALL_AROUND_COUNT;
+    }
+    return 0;
 }
 
 long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords stl_num, MapSubtlCoord *retstl_x, MapSubtlCoord *retstl_y)
@@ -1243,9 +1313,34 @@ struct Thing *check_place_to_pickup_unconscious_body(struct Thing *thing, long a
     return _DK_check_place_to_pickup_unconscious_body(thing, a2, a3);
 }
 
-long check_place_to_reinforce(struct Thing *thing, long a2, long a3)
+long check_place_to_reinforce(struct Thing *creatng, long slb_x, long slb_y)
 {
-    return _DK_check_place_to_reinforce(thing, a2, a3);
+    struct SlabMap *slb;
+    TRACE_THING(creatng);
+    slb = get_slabmap_block(slb_x, slb_y);
+    //return _DK_check_place_to_reinforce(thing, slb_x, slb_y);
+    if ((slb->kind != SlbT_EARTH) && (slb->kind != SlbT_TORCHDIRT)) {
+        SYNCDBG(8,"The slab %d,%d is not a valid type to be reinforced",(int)slb_x, (int)slb_y);
+        return 0;
+    }
+    struct Map *mapblk;
+    mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    if (!map_block_revealed(mapblk, creatng->owner)) {
+        SYNCDBG(8,"The slab %d,%d is not revealed",(int)slb_x, (int)slb_y);
+        return 0;
+    }
+    if (!slab_by_players_land(creatng->owner, slb_x, slb_y)) {
+        SYNCDBG(8,"The slab %d,%d is not by players land",(int)slb_x, (int)slb_y);
+        return 0;
+    }
+    SubtlCodedCoords task_pos;
+    long task_idx;
+    task_pos = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    task_idx = find_dig_from_task_list(creatng->owner, task_pos);
+    if (task_idx != -1) {
+        return -1;
+    }
+    return 1;
 }
 
 struct Thing *check_place_to_pickup_crate(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long n)

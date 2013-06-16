@@ -2327,25 +2327,85 @@ long edge_find(long stlstart_x, long stlstart_y, long stlend_x, long stlend_y, l
 
 TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
 {
-    long tri_n,tri_k;
-    long x,y;
-    struct Point *pt;
-    long k;
+    long pt_x,pt_y;
+    unsigned long k;
     //_DK_edge_lock(ptend_x, ptend_y, ptstart_x, ptstart_y); return true;
-    x = ptstart_x;
-    y = ptstart_y;
-    while ((x != ptend_x) || (y != ptend_y))
+    pt_x = ptstart_x;
+    pt_y = ptstart_y;
+    k = 0;
+    while ((pt_x != ptend_x) || (pt_y != ptend_y))
     {
-        if (!edge_find(x, y, ptend_x, ptend_y, &tri_n, &tri_k))
+        long tri_id,cor_id;
+        if (!edge_find(pt_x, pt_y, ptend_x, ptend_y, &tri_id, &cor_id))
         {
-            ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)x, (int)y, (int)ptend_x, (int)ptend_y);
+            ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)pt_x, (int)pt_y, (int)ptend_x, (int)ptend_y);
             return false;
         }
-        Triangles[tri_n].field_D |= 1 << (tri_k+3);
-        k = MOD3[tri_k+1];
-        pt = get_triangle_point(tri_n,k);
-        x = pt->x;
-        y = pt->y;
+        struct Triangle *tri;
+        tri = get_triangle(tri_id);
+        tri->field_D |= 1 << (cor_id+3);
+        struct Point *pt;
+        pt = get_triangle_point(tri_id,MOD3[cor_id+1]);
+        if (point_is_invalid(pt)) {
+            ERRORLOG("Invalid point on edge");
+            return false;
+        }
+        pt_x = pt->x;
+        pt_y = pt->y;
+        k++;
+        if (k >= TRIANLGLES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected");
+            return false;
+        }
+    }
+    return true;
+}
+
+TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
+{
+    long pt_x,pt_y;
+    unsigned long k;
+    long nerr;
+    pt_x = ptstart_x;
+    pt_y = ptstart_y;
+    k = 0;
+    nerr = 0;
+    while (pt_x != ptend_x || pt_y != ptend_y)
+    {
+        long tri_id,cor_id;
+        if (!edge_find(pt_x, pt_y, ptend_x, ptend_y, &tri_id, &cor_id))
+        {
+            ERRORMSG("%s: edge from (%d,%d) to (%d,%d) not found",func_name,(int)pt_x, (int)pt_y, (int)ptend_x, (int)ptend_y);
+            return false;
+        }
+        if (edge_point_add(pt_x, pt_y) < 0) {
+            nerr++;
+        }
+        region_unlock(tri_id);
+        struct Triangle *tri;
+        tri = get_triangle(tri_id);
+        tri->field_D &= ~(1 << (cor_id+3));
+        struct Point *pt;
+        pt = get_triangle_point(tri_id,MOD3[cor_id+1]);
+        if (point_is_invalid(pt)) {
+            ERRORLOG("Invalid point on edge");
+            return false;
+        }
+        pt_x = pt->x;
+        pt_y = pt->y;
+        k++;
+        if (k >= TRIANLGLES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected");
+            return false;
+        }
+    }
+    if (nerr != 0)
+    {
+        ERRORMSG("%s: overflow for %ld edge points",func_name,nerr);
+        //ERRORLOG("edge_setlock_record:overflow");
+        return true; //TODO PATHFINDING make sure we should return true
     }
     return true;
 }
@@ -2532,43 +2592,6 @@ long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char 
 {
     NAVIDBG(19,"Starting");
     return _DK_fringe_get_rectangle(a1, a2, a3, a4, a5);
-}
-
-TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name)
-{
-    struct Triangle *tri;
-    struct Point *pt;
-    long pt_x,pt_y;
-    long tri_id,cor_id;
-    long nerr;
-    pt_x = ptstart_x;
-    pt_y = ptstart_y;
-    nerr = 0;
-    while (pt_x != ptend_x || pt_y != ptend_y)
-    {
-      if (!edge_find(pt_x, pt_y, ptend_x, ptend_y, &tri_id, &cor_id))
-      {
-          ERRORMSG("%s: edge not found at (%ld,%ld)",func_name,pt_x,pt_y);
-          return false;
-      }
-      if (edge_point_add(pt_x, pt_y) < 0)
-      {
-          nerr++;
-      }
-      region_unlock(tri_id);
-      tri = get_triangle(tri_id);
-      tri->field_D &= ~(1 << (cor_id + 3));
-      pt = get_triangle_point(tri_id,MOD3[cor_id+1]);
-      pt_x = pt->x;
-      pt_y = pt->y;
-    }
-    if (nerr != 0)
-    {
-        ERRORMSG("%s: overflow for %ld edge points",func_name,nerr);
-        //ERRORLOG("edge_setlock_record:overflow");
-        return true; //TODO PATHFINDING make sure we should return true
-    }
-    return true;
 }
 
 void border_unlock(long a1, long a2, long a3, long a4)

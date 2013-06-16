@@ -206,6 +206,7 @@
  0001:00014810       initialise_map_collides
  0001:00014990       initialise_map_health
  0001:00014EB0       do_slab_efficiency_alteration
+ 0001:000152B0       unfill_reinforced_corners
  0001:000156E0       delete_room_slabbed_objects
  0001:000157E0       shuffle_unattached_things_on_slab
  0001:00015F90       script_process_value
@@ -749,6 +750,7 @@
  0001:00083440       creature_follow_leader
  0001:00083710       check_for_first_person_barrack_party
  0001:000863E0       get_id
+ 0001:00088070       imp_already_reinforcing_at_excluding
  0001:00088100       check_place_to_pretty_excluding
  0001:000881C0       check_place_to_convert_excluding
  0001:000883A0       check_place_to_reinforce
