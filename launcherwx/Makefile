@@ -23,7 +23,8 @@ WINDRES = windres
 RM = rm -f
 MV = mv -f
 CP = @cp -f
-ECHO = @echo
+MKDIR = mkdir -p
+ECHO  = @echo
 BIN    = bin/launcher.exe
 RES    = obj/launcher.rc.o
 DATA   = bin/launchermn.jpg
@@ -90,6 +91,10 @@ all: all-before $(BIN) $(DATA) all-after
 
 clean: clean-custom
 	-$(RM) $(OBJS) $(BIN) $(LIBS) $(DATA)
+
+all-before:
+	$(MKDIR) obj
+	$(MKDIR) bin
 
 $(BIN): $(OBJS)
 	-$(ECHO) 'Building target: $@'
