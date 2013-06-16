@@ -571,7 +571,44 @@ void route_through_gates(struct Pathway *pway, struct Path *path, long mag)
 long triangle_findSE8(long ptfind_x, long ptfind_y)
 {
     //Note: uses LbCompareMultiplications()
-    return _DK_triangle_findSE8(ptfind_x, ptfind_y);
+    //return _DK_triangle_findSE8(ptfind_x, ptfind_y);
+    long ntri, ncor;
+    ntri = triangle_find8(ptfind_x, ptfind_y);
+    if (ntri < 0) {
+        return ntri;
+    }
+    for (ncor=0; ncor < 3; ncor++)
+    {
+        struct Point *pt;
+        pt = get_triangle_point(ntri,ncor);
+        if ((pt->x << 8 == ptfind_x) && (pt->y << 8 == ptfind_y))
+        {
+            pointed_at8(65792, 65792, &ntri, &ncor);
+            return ntri;
+        }
+    }
+    for (ncor=0; ncor < 3; ncor++)
+    {
+        struct Point *pt;
+        pt = get_triangle_point(ntri,ncor);
+        int ptA_x, ptA_y;
+        ptA_x = pt->x << 8;
+        ptA_y = pt->y << 8;
+        pt = get_triangle_point(ntri,MOD3[ncor+1]);
+        int ptB_x, ptB_y;
+        ptB_x = pt->x << 8;
+        ptB_y = pt->y << 8;
+        if (LbCompareMultiplications(ptfind_y - ptA_y, ptB_x - ptA_x, ptfind_x - ptA_x, ptB_y - ptA_y) == 0)
+        {
+            if (LbCompareMultiplications(65792 - ptA_y, ptB_x - ptA_x, 65792 - ptA_x, ptB_y - ptA_y) > 0)
+            {
+                struct Triangle *tri;
+                tri = get_triangle(ntri);
+                return tri->tags[ncor];
+            }
+        }
+    }
+    return ntri;
 }
 
 /* TODO PATHFINDING Enable when needed
