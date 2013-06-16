@@ -66,8 +66,8 @@ DLLIMPORT long _DK_check_out_undug_area(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unprettied_or_unconverted_area(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_place(struct Thing *creatng);
 DLLIMPORT long _DK_check_out_unreinforced_area(struct Thing *creatng);
-DLLIMPORT long _DK_check_out_uncrowded_reinforce_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *retslb_y);
-DLLIMPORT long _DK_check_place_to_dig_and_get_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *retslb_y);
+DLLIMPORT long _DK_check_out_uncrowded_reinforce_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *retstl_y);
+DLLIMPORT long _DK_check_place_to_dig_and_get_position(struct Thing *creatng, unsigned short slb_x, long *slb_y, long *retstl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_gold(struct Thing *creatng, long stl_x, long stl_y);
 DLLIMPORT struct Thing *_DK_check_place_to_pickup_spell(struct Thing *creatng, long slb_x, long slb_y);
@@ -1165,7 +1165,7 @@ long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord s
     return _DK_imp_already_reinforcing_at_excluding(creatng, stl_x, stl_y);
 }
 
-long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retslb_x, long *retslb_y)
+long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
 {
     MapSubtlCoord basestl_x,basestl_y;
     //return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
@@ -1207,8 +1207,8 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
                     pos.y.val = (stl_y << 8) + 128;
                     pos.z.val = get_thing_height_at(thing, &pos);
                     if ( creature_can_navigate_to_with_storage(thing, &pos, 0) != -1 ) {
-                        *retslb_x = stl_x;
-                        *retslb_y = stl_y;
+                        *retstl_x = stl_x;
+                        *retstl_y = stl_y;
                         return 1;
                     }
                 }
@@ -2093,8 +2093,10 @@ long check_out_imp_stack(struct Thing *thing)
             break;
         }
         if (ret != 0) {
+            SYNCDBG(19,"Found task, type %d",(int)istack->task_id);
             return ret;
         }
+        SYNCDBG(19,"No task");
     }
     return 0;
 }
