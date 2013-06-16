@@ -36,7 +36,8 @@ struct Map;
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y);
 
-void place_slab_type_on_map(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5);
+#define place_slab_type_on_map(nslab, stl_x, stl_y, owner, a5) place_slab_type_on_map_f(nslab, stl_x, stl_y, owner, a5, __func__)
+void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5,const char *func_name);
 void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, PlayerNumber plyr_idx);
 void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);

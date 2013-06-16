@@ -55,7 +55,7 @@ AridPointId point_new(void)
         i = ix_Points;
         if ((i < 0) || (i >= POINTS_COUNT))
         {
-            ERRORLOG("ix_Points overflow; %d allocated, id %d outranged",(int)count_Points,(int)ix_Points);
+            ERRORDBG(13,"ix_Points overflow; %d allocated, id %d outranged",(int)count_Points,(int)ix_Points);
             erstat_inc(ESE_NoFreePathPts);
             return -1;
         }
@@ -65,7 +65,7 @@ AridPointId point_new(void)
         i = free_Points;
         if ((i < 0) || (i >= POINTS_COUNT))
         {
-            ERRORLOG("free_Points overflow; %d allocated, id %d outranged",(int)count_Points,(int)free_Points);
+            ERRORDBG(13,"free_Points overflow; %d allocated, id %d outranged",(int)count_Points,(int)free_Points);
             erstat_inc(ESE_NoFreePathPts);
             return -1;
         }
@@ -104,6 +104,11 @@ struct Point *point_get(AridPointId pt_id)
         return INVALID_POINT;
     }
     return &Points[pt_id];
+}
+
+TbBool point_is_invalid(const struct Point *pt)
+{
+    return (pt < &Points[0]) || (pt > &Points[POINTS_COUNT-1]) || (pt == INVALID_POINT) || (pt == NULL);
 }
 
 TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y)

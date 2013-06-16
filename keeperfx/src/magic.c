@@ -588,6 +588,7 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
 {
     //_DK_magic_use_power_destroy_walls(plyr_idx, stl_x, stl_y, splevel);
     // If we can't afford the spell, fail
+    SYNCDBG(16,"Starting");
     if (!pay_for_spell(plyr_idx, PwrK_DESTRWALLS, splevel)) {
         return Lb_FAIL;
     }

@@ -50,6 +50,7 @@ AridPointId point_new(void);
 void point_dispose(AridPointId pt_id);
 TbBool point_set(AridPointId pt_id, long x, long y);
 struct Point *point_get(AridPointId pt_id);
+TbBool point_is_invalid(const struct Point *pt);
 TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y);
 
 /******************************************************************************/
