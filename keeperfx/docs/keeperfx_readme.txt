@@ -465,6 +465,37 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.42
+  Launcher updated with additional options
+  More graphics data files are created from PNGs
+  Made Slap spell do be added to a player by default
+  Created new options for preserving classic bugs
+  Fixed invisible mouse cursor when leaving multiplayer game
+  Fixed fading while traveling through the menu
+  Fixed error in defensive spells code
+  Also increased WIND instance reload time
+  Rewritten creature hatchery search while hungry
+  Improved accuracy of angle-to-position calculation
+  Unified computing whether a thing can be affected by a creature spell
+  Rewritten the Destroy Walls spell
+  Removed the possibility of ice explosion death for creatures which do not bleed
+  Added more config options in rules file
+  Improved adding re-arm tasks to imp queue
+  Rewritten engine perspective rotation
+  Retwritten movement while working in temple
+  Rewritten some data structures related to possession swipe effects
+  Fixed not allowing 2 trap boxes on same subtile
+  Increased the push effect caused by explosion
+  Reduced explosion range for friendly creatures to 1/3 of normal range
+  Rewritten spell casting from within battles list message
+  Rewritten and unified magic cast checking
+  Moved some job properties to config files
+  Rewritten footstep sounds playing
+  Rewritten functions which draw scaled sprites
+  Rewritten some of checking for imp jobs
+  Fixed and re-enabled the new pathfinding code
+  Rewritten some imps tasks which make use of pathfinding routines
+
 Version: 0.41
   Updates to land view screen
   Integrated Post Undead Keeper campaign
