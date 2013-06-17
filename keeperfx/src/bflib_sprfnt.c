@@ -946,6 +946,12 @@ int LbTextWordWidth(const char *str)
     }
 }
 
+
+void LbTextUseByteCoding(TbBool is_enabled)
+{
+    dbc_enabled = is_enabled;
+}
+
 int LbTextSetWindow(int posx, int posy, int width, int height)
 {
     return _DK_LbTextSetWindow(posx, posy, width, height);
