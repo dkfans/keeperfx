@@ -562,12 +562,16 @@ void gui_area_anger_button(struct GuiButton *gbtn)
         if (gbtn->content != NULL)
         {
           sprintf(gui_textbuf, "%ld", cr_total);
+          // We will use a special coding for our "string" - we want chars to represent
+          // sprite index directly, without code pages and multibyte chars interpretation
           if ((cr_total > 0) && (dungeon->job_breeds_count[kind][(job_idx & 0x03)] ))
           {
               for (i=0; gui_textbuf[i] != '\0'; i++)
                   gui_textbuf[i] -= 120;
           }
+          LbTextUseByteCoding(false);
           draw_button_string(gbtn, gui_textbuf);
+          LbTextUseByteCoding(true);
         }
     }
     SYNCDBG(12,"Finished");

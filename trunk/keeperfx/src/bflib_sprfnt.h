@@ -124,6 +124,7 @@ int LbSprFontCharWidth(const struct TbSprite *font,const unsigned long chr);
 int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr);
 const struct TbSprite *LbFontCharSprite(const struct TbSprite *font,const unsigned long chr);
 
+void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(const char *text);
 void dbc_set_language(short ilng);
 short dbc_initialize(const char *fpath);
