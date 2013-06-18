@@ -256,6 +256,7 @@ void increase_dungeon_area(unsigned char plyr_idx, long value);
 void player_add_offmap_gold(long plyr_idx, long value);
 TbBool player_has_room(long plyr_idx, RoomKind rkind);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
+struct Room *player_has_room_of_type(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type);

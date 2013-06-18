@@ -45,6 +45,7 @@ DLLIMPORT long _DK_element_top_face_texture(struct Map *map);
 DLLIMPORT void _DK_place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char plyr_idx, unsigned char a4);
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long a2);
 DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, signed char plyr_idx, unsigned char a4);
+DLLIMPORT void _DK_place_and_process_pretty_wall_slab(struct Thing *creatng, long slb_x, long slb_y);
 
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
@@ -772,6 +773,11 @@ unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord
         }
     }
     return flags;
+}
+
+void place_and_process_pretty_wall_slab(struct Thing *creatng, long slb_x, long slb_y)
+{
+    _DK_place_and_process_pretty_wall_slab(creatng, slb_x, slb_y); return;
 }
 
 /*
