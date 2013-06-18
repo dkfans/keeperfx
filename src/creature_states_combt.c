@@ -2022,8 +2022,8 @@ struct Thing *check_for_door_to_fight(const struct Thing *thing)
 {
     struct Thing *doortng;
     long m,n;
-    m = ACTION_RANDOM(4);
-    for (n=0; n < 4; n++)
+    m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         long slb_x,slb_y;
         slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
@@ -2034,7 +2034,7 @@ struct Thing *check_for_door_to_fight(const struct Thing *thing)
           if (thing->owner != doortng->owner)
               return doortng;
         }
-        m = (m+1) % 4;
+        m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
     }
     return INVALID_THING;
 }

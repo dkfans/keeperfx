@@ -1054,6 +1054,7 @@
  0001:000B1720       update_blocks_in_area
  0001:000B1760       dig_out_block
  0001:000B1970       mine_out_block
+ 0001:000B1AC0       place_and_process_pretty_wall_slab
  0001:000B1BE0       do_unprettying
  0001:000B1D10       imp_stack_update
  0001:000B20F0       add_pretty_and_convert_to_imp_stack

@@ -53,6 +53,7 @@ unsigned short get_point_in_map_solid_flags_ignoring_door(const struct Coord3d *
 unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord3d *pos, PlayerNumber plyr_idx);
 SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord tgslb_y, PlayerNumber owner);
 void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
+void place_and_process_pretty_wall_slab(struct Thing *creatng, long slb_x, long slb_y);
 
 long element_top_face_texture(struct Map *map);
 /******************************************************************************/

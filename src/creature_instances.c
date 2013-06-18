@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sound.h"
 
 #include "bflib_math.h"
 #include "thing_list.h"
@@ -592,8 +593,49 @@ long instf_pretty_path(struct Thing *creatng, long *param)
 
 long instf_reinforce(struct Thing *creatng, long *param)
 {
+    struct CreatureControl *cctrl;
+    SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    return _DK_instf_reinforce(creatng, param);
+    //return _DK_instf_reinforce(creatng, param);
+    cctrl = creature_control_get_from_thing(creatng);
+    MapSubtlCoord stl_x,stl_y;
+    MapSlabCoord slb_x,slb_y;
+    stl_x = stl_num_decode_x(cctrl->word_8D);
+    stl_y = stl_num_decode_y(cctrl->word_8D);
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
+    if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
+        return 0;
+    }
+    if (cctrl->digger.byte_93 <= 25)
+    {
+        cctrl->digger.byte_93++;
+        if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 172, 0)) {
+            thing_play_sample(creatng, 172, 100, 0, 3, 0, 2, 256);
+        }
+        return 0;
+    }
+    cctrl->digger.byte_93 = 0;
+    place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
+    struct Coord3d pos;
+    pos.x.stl.pos = 128;
+    pos.y.stl.pos = 128;
+    pos.z.stl.pos = 128;
+    long n;
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
+        pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
+        struct Map *mapblk;
+        mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+        if (map_block_revealed(mapblk, creatng->owner) && ((mapblk->flags & MapFlg_IsTall) == 0))
+        {
+            pos.z.val = get_floor_height_at(&pos);
+            create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
+        }
+    }
+    thing_play_sample(creatng, 41, 100, 0, 3, 0, 3, 256);
+    return 0;
 }
 
 long instf_tortured(struct Thing *creatng, long *param)
@@ -604,7 +646,25 @@ long instf_tortured(struct Thing *creatng, long *param)
 
 long instf_tunnel(struct Thing *creatng, long *param)
 {
+    struct CreatureControl *cctrl;
+    struct SlabMap *slb;
+    SYNCDBG(16,"Starting");
     TRACE_THING(creatng);
-    return _DK_instf_tunnel(creatng, param);
+    //return _DK_instf_tunnel(creatng, param);
+    cctrl = creature_control_get_from_thing(creatng);
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = stl_num_decode_x(cctrl->field_1FF);
+    stl_y = stl_num_decode_y(cctrl->field_1FF);
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_block_invalid(slb)) {
+        return 0;
+    }
+    thing_play_sample(creatng, 69+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 256);
+    if (slb->health > 1) {
+      slb->health--;
+    } else {
+      dig_out_block(stl_x, stl_y, creatng->owner);
+    }
+    return 1;
 }
 /******************************************************************************/
