@@ -24,6 +24,7 @@
 #include "game_legacy.h"
 
 /******************************************************************************/
+DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
 /******************************************************************************/
 struct Dungeon bad_dungeon;
 /******************************************************************************/
@@ -176,6 +177,16 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
     if (dungeon_invalid(dungeon))
         return false;
     return (dungeon->room_kind[rkind] > 0);
+}
+
+struct Room *player_has_room_of_type(PlayerNumber plyr_idx, RoomKind rkind)
+{
+    //return _DK_player_has_room_of_type(plyr_idx, rkind);
+    struct Dungeon *dungeon;
+    if (plyr_idx == game.neutral_player_num)
+        return false;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    return room_get(dungeon->room_kind[rkind]);
 }
 
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type)

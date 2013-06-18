@@ -178,7 +178,6 @@ DLLIMPORT void _DK_check_players_lost(void);
 DLLIMPORT void _DK_process_dungeon_power_magic(void);
 DLLIMPORT void _DK_process_dungeon_devastation_effects(void);
 DLLIMPORT void _DK_process_payday(void);
-DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
 DLLIMPORT unsigned long _DK_setup_move_off_lava(struct Thing *thing);
 DLLIMPORT long _DK_load_texture_map_file(unsigned long lv_num, unsigned char n);
 DLLIMPORT long _DK_get_foot_creature_has_down(struct Thing *thing);
@@ -2370,11 +2369,6 @@ TbBool bonus_timer_enabled(void)
 /*  LevelNumber lvnum;
   lvnum = get_loaded_level_number();
   return (is_bonus_level(lvnum) || is_extra_level(lvnum));*/
-}
-
-struct Room *player_has_room_of_type(long plyr_idx, long rkind)
-{
-  return _DK_player_has_room_of_type(plyr_idx, rkind);
 }
 
 void process_level_script(void)
