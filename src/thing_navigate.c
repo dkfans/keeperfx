@@ -481,7 +481,7 @@ short move_to_position(struct Thing *thing)
         callback = stati->move_check;
         if (callback != NULL)
         {
-            SYNCDBG(18,"Doing move check callback");
+            SYNCDBG(18,"Doing move check callback for continue state %s",creature_state_code_name(thing->continue_state));
             state_check = callback(thing);
         }
     }

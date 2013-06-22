@@ -53,7 +53,7 @@ struct Ariadne { // sizeof = 102
     /** Position of the last reached waypoint. */
     struct Coord3d current_waypoint_pos;
   struct Coord3d pos_12;
-  unsigned char field_18[6];
+  struct Coord3d pos_18;
   unsigned char field_1E;
   unsigned char field_1F[2];
   unsigned char field_21;
@@ -73,7 +73,7 @@ struct Ariadne { // sizeof = 102
   struct Coord3d pos_59;
   unsigned char manoeuvre_state;
   unsigned short field_60;
-  unsigned long field_62;
+  long field_62;
 };
 
 struct PathWayPoint { // sizeof = 8
