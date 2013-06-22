@@ -1644,6 +1644,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
 {
     long angle;
     long distance;
+    NAVIDBG(19,"Starting");
     //return _DK_ariadne_update_state_on_line(thing, arid);
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
@@ -1753,6 +1754,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
 {
     //return _DK_ariadne_update_state_wallhug(thing, arid);
     long distance;
+    NAVIDBG(19,"Starting");
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
     if ((distance - arid->field_62) > 1024)
     {
@@ -1813,7 +1815,10 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
         if (distance < arid->field_62)
         {
             if (ariadne_creature_can_continue_direct_line_to_waypoint(thing, arid, arid->move_speed)) {
-                return ariadne_init_movement_to_current_waypoint(thing, arid) < 1 ? 3 : 0;
+                if (ariadne_init_movement_to_current_waypoint(thing, arid) < 1) {
+                    return 3;
+                }
+                return 0;
             }
             arid->field_62 = distance;
         }
@@ -1875,7 +1880,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
             pos.y.val = arid->endpos.y.val;
             pos.z.val = arid->endpos.z.val;
             if (ariadne_initialise_creature_route(thing, &pos, arid->move_speed, arid->field_1E)) {
-              return 3;
+                return 3;
             }
             return AridRet_OK;
           }
