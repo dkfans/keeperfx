@@ -426,8 +426,8 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
         }
         break;
     case CrTrMd_TurnToTrainPost:
-        pos.x.val = ((long)cctrl->training.pole_stl_x << 8) + 128;
-        pos.y.val = ((long)cctrl->training.pole_stl_y << 8) + 128;
+        pos.x.val = subtile_coord_center(cctrl->training.pole_stl_x);
+        pos.y.val = subtile_coord_center(cctrl->training.pole_stl_y);
         if (creature_turn_to_face(thing, &pos) < 56)
         {
           cctrl->training.mode = CrTrMd_DoTrainWithTrainPost;

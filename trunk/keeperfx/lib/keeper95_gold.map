@@ -985,6 +985,7 @@
  0001:00092C30       maintain_ally
  0001:00092BC0       maintain_prison_bar
  0001:00092CA0       gui_video_cluedo_maintain
+ 0001:00081200       ariadne_check_forward_for_wallhug_gap
  0001:00081B30       draw_resurrect_creature
  0001:00081D10       select_resurrect_creature_up
  0001:00081D20       select_resurrect_creature_down
@@ -1169,6 +1170,7 @@
  0001:0000BE60       update_trap_trigger_line_of_sight_90
  0001:0008B950       process_effect_generator
  0001:000770F0       process_door
+ 0001:00077A20       blocked_by_door_at
  0001:00089CB0       update_effect
  0001:00010B50       process_thing_spell_effects
  0001:00057260       process_creature_self_spell_casting
@@ -1797,6 +1799,7 @@
  0001:00080110       ariadne_update_state_wallhug
  0001:000806E0       ariadne_init_wallhug
  0001:00080A50       ariadne_get_wallhug_angle
+ 0001:00080F40       ariadne_get_blocked_flags
  0001:00081080       ariadne_push_position_against_wall
  0001:000CF000       creature_cannot_move_directly_to
  0001:000C2CA0       creature_can_navigate_to
