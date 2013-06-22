@@ -1105,6 +1105,7 @@
  0001:00082CD0       make_safe
  0001:00089B70       create_effect
  0001:00060B10       init_animating_texture_maps
+ 0001:0007B570       get_thing_navigation_distance
  0001:0007B7F0       init_navigation
  0001:00064C80       reinit_tagged_blocks_for_player
  0001:0001B790       sound_reinit_after_load
@@ -1717,6 +1718,7 @@
  0001:000B1D10       imp_stack_update
  0001:000D1EA0       check_out_unprettied_or_unconverted_area
  0001:000AAA00       creature_can_be_trained
+ 0001:000AAA80       slab_wall_hug_route
  0001:000AA9C0       player_can_afford_to_train_creature
  0001:000D27B0       check_out_unreinforced_place
  0001:000D2A30       check_out_unreinforced_area

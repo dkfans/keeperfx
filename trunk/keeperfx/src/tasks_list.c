@@ -61,9 +61,9 @@ long find_from_task_list(PlayerNumber plyr_idx, SlabCodedCoords srch_tsk)
       imax = MAPTASKS_COUNT;
   for (i=0; i < imax; i++)
   {
-    task = &dungeon->task_list[i];
-    if (task->field_1 == srch_tsk)
-      return i;
+      task = &dungeon->task_list[i];
+      if (task->field_1 == srch_tsk)
+          return i;
   }
   return -1;
 }

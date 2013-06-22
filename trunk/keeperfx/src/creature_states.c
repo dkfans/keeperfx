@@ -157,6 +157,7 @@ DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *creatng, const str
 DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
 DLLIMPORT long _DK_creature_find_and_perform_anger_job(struct Thing *creatng);
+DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -2664,7 +2665,7 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
   return _DK_move_check_can_damage_wall(creatng);
 }
 
-long creature_can_have_combat_with_creature_on_slab(const struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
+long creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
 {
     struct Map *mapblk;
     MapSubtlCoord endstl_x,endstl_y;
@@ -2966,6 +2967,62 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
     return false;
 }
 
+/**
+ * Checks if creatures can attack each other.
+ * This variant loosens conditions if first creature is fighting till death, besides
+ * that it is identical to creature_will_attack_creature().
+ * Note that this function does not include full check from players_are_enemies(),
+ *  so both should be used when applicable.
+ * @param tng1
+ * @param tng2
+ * @return
+ * @see players_are_enemies()
+ * @see creature_will_attack_creature()
+ */
+TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, const struct Thing *tng2)
+{
+    struct PlayerInfo *player1;
+    struct PlayerInfo *player2;
+    player1 = get_player(tng1->owner);
+    player2 = get_player(tng2->owner);
+    if ((tng2->owner != tng1->owner) && (tng2->owner != game.neutral_player_num))
+    {
+       if (!player_allied_with(player1, tng2->owner))
+          return true;
+       if (!player_allied_with(player2, tng1->owner))
+          return true;
+    }
+
+    struct CreatureControl *cctrl1;
+    struct CreatureControl *cctrl2;
+    struct CreatureStats *crstat1;
+    struct Thing *tmptng;
+    cctrl1 = creature_control_get_from_thing(tng1);
+    cctrl2 = creature_control_get_from_thing(tng2);
+
+    tmptng = thing_get(cctrl1->battle_enemy_idx);
+    TRACE_THING(tmptng);
+    if  ((cctrl1->fight_til_death) || (cctrl1->spell_flags & CSAfF_Unkn1000) || (cctrl2->spell_flags & CSAfF_Unkn1000)
+        || ((cctrl1->combat_flags) && (tmptng->index == tng2->index)) )
+    {
+        if (tng2->index != tng1->index)
+        {
+            if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
+            && !thing_is_picked_up(tng2))
+            {
+                crstat1 = creature_stats_get_from_thing(tng1);
+                if (!creature_affected_by_spell(tng2, SplK_Invisibility))
+                    return true;
+                if (cctrl2->field_AF > 0)
+                    return true;
+                if (crstat1->can_see_invisible || creature_affected_by_spell(tng1, SplK_Sight))
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
 struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -3040,11 +3097,16 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
     return true;
 }
 
-TbBool creature_can_hear_within_distance(struct Thing *thing, long dist)
+TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
     return (crstat->hearing) >= (dist/256);
+}
+
+long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3)
+{
+    return _DK_get_thing_navigation_distance(creatng, pos, a3);
 }
 
 /**

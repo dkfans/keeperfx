@@ -290,6 +290,8 @@ short set_start_state_f(struct Thing *thing,const char *func_name);
 #define set_start_state(thing) set_start_state_f(thing,__func__)
 /******************************************************************************/
 TbBool creature_model_bleeds(unsigned long crmodel);
+TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist);
+long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos , unsigned char a3);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
 long get_creature_gui_job(const struct Thing *thing);
 long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
@@ -349,6 +351,7 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing);
 TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
+TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, const struct Thing *tng2);
 /******************************************************************************/
 #ifdef __cplusplus
 }
