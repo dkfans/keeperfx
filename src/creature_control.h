@@ -213,10 +213,8 @@ unsigned char field_88;
   struct {
     long stack_update_turn;
     short word_8Dx;
-    unsigned char byte_8F;
-    unsigned char byte_90;
-    unsigned char byte_91;
-    unsigned char byte_92;
+    unsigned short word_8F;
+    unsigned short word_91;
     unsigned char byte_93;
     unsigned char last_did_job;
     unsigned char field_95;

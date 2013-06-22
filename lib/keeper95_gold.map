@@ -709,6 +709,7 @@
  0001:0007A530       get_packet_save_checksum
  0001:0007A580       jonty_line_of_sight_3d_including_lava_check_ignoring_own_door
  0001:0007AD60       jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door
+ 0001:0007B570       get_thing_navigation_distance
  0001:0007B6C0       update_navigation_triangulation
  0001:0007B7F0       init_navigation
  0001:0007B860       creature_follow_route_to_using_gates
@@ -1016,6 +1017,7 @@
  0001:000A9F20       process_creature_in_training_room
  0001:000AA9C0       player_can_afford_to_train_creature
  0001:000AAA00       creature_can_be_trained
+ 0001:000AAA80       slab_wall_hug_route
  0001:000AC500       frontend_draw_vlarge_menu_button
  0001:000AC580       frontend_draw_small_menu_button
  0001:000AC6F0       frontend_over_button

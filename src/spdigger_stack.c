@@ -696,7 +696,66 @@ long check_out_undug_place(struct Thing *thing)
 long check_out_undug_area(struct Thing *thing)
 {
     SYNCDBG(19,"Starting");
-    return _DK_check_out_undug_area(thing);
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    //return _DK_check_out_undug_area(thing);
+    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(thing);
+    struct MapTask *task;
+    long i,max;
+    max = dungeon->field_AF7;
+    if (max > MAPTASKS_COUNT)
+        max = MAPTASKS_COUNT;
+    MapSubtlCoord digstl_y, digstl_x;
+    digstl_x = stl_num_decode_x(cctrl->digger.word_8F);
+    digstl_y = stl_num_decode_y(cctrl->digger.word_8F);
+    MapSubtlCoord best_dist;
+    MapSubtlCoord best_stl_x, best_stl_y;
+    SubtlCodedCoords best_tsk_stl;
+    int best_tsk_id;
+    best_dist = 24;
+    best_stl_x = -1;
+    best_stl_y = -1;
+    for (i=0; i < max; i++)
+    {
+        task = &dungeon->task_list[i];
+        if (task->kind == SDDigTask_None)
+            continue;
+        if (task->kind != SDDigTask_Unknown3)
+        {
+            SubtlCodedCoords tsk_stl_num;
+            MapSubtlCoord tsk_dist;
+            tsk_stl_num = task->field_1;
+            tsk_dist = get_2d_box_distance_xy(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
+            if (tsk_dist < best_dist)
+            {
+                MapSubtlCoord tsk_stl_x,tsk_stl_y;
+                if (check_place_to_dig_and_get_position(thing, tsk_stl_num, &tsk_stl_x, &tsk_stl_y))
+                {
+                    best_dist = tsk_dist;
+                    best_tsk_id = i;
+                    best_tsk_stl = tsk_stl_num;
+                    best_stl_x = tsk_stl_x;
+                    best_stl_y = tsk_stl_y;
+                }
+            }
+        }
+    }
+    if (best_dist >= 24) {
+        return 0;
+    }
+    if (!setup_person_move_to_position(thing, best_stl_x, best_stl_y, 0)) {
+        return 0;
+    }
+    cctrl->digger.word_91 = best_tsk_id;
+    cctrl->digger.word_8F = best_tsk_stl;
+    task = &dungeon->task_list[best_tsk_id];
+    if (task->kind == SDDigTask_MineGold) {
+        thing->continue_state = CrSt_ImpArrivesAtMineGold;
+    } else {
+        thing->continue_state = CrSt_ImpArrivesAtDigDirt;
+    }
+    return 1;
 }
 
 long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
@@ -1519,14 +1578,14 @@ long check_out_imp_last_did(struct Thing *thing)
       imp_stack_update(thing);
       if ( check_out_unprettied_or_unconverted_area(thing) )
       {
-        cctrl->digger.last_did_job = 2;
-        SYNCDBG(9,"Done on unprettied or unconverted area 2");
-        return true;
+          cctrl->digger.last_did_job = 2;
+          SYNCDBG(9,"Done on unprettied or unconverted area 2");
+          return true;
       }
       if ( check_out_undug_area(thing) )
       {
-        cctrl->digger.last_did_job = 1;
-        return true;
+          cctrl->digger.last_did_job = 1;
+          return true;
       }
       break;
   case 3:
