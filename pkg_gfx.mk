@@ -40,10 +40,31 @@ $(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/rgmap$(num)
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/rgmap$(num).raw pkg/campgns/twinkprs_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/undedkpr_lnd/rgmap$(num).raw pkg/campgns/undedkpr_lnd/viframe$(num).dat)
 
-GUIDATTABS = \
+LANDVIEWDATTABS = \
 pkg/ldata/dkflag00.dat \
 pkg/ldata/netflag.dat \
 pkg/ldata/maphand.dat
+
+TOTRUREDATTABS = \
+pkg/ldata/door01.dat \
+pkg/ldata/door02.dat \
+pkg/ldata/door03.dat \
+pkg/ldata/door04.dat \
+pkg/ldata/door05.dat \
+pkg/ldata/door06.dat \
+pkg/ldata/door07.dat \
+pkg/ldata/door08.dat \
+pkg/ldata/door09.dat \
+pkg/ldata/fronttor.dat
+
+ENGINEDATTABS = \
+pkg/data/gui2-0-1.dat \
+pkg/data/gui2-0-0.dat \
+pkg/data/guihi.dat \
+pkg/data/gui.dat \
+pkg/data/gmapbug.dat
+
+GUIDATTABS = $(LANDVIEWDATTABS) $(TOTRUREDATTABS) $(ENGINEDATTABS)
 
 pkg-gfx: pkg-landviews pkg-guidattabs
 pkg-landviews: $(LANDVIEWRAWS) pkg-before
@@ -73,29 +94,61 @@ pkg/campgns/$(1)_lnd/viframe%.dat: gfx/$(1)_lnd/viframe.png pkg/campgns/$(1)_lnd
 	-$$(ECHO) 'Finished building: $$@'
 	-$$(ECHO) ' '
 
-# mark palette files precious to make sure they're not auto-removed after raw is built
+# mark palette files precious to make sure they're not auto-removed after dependencies are built
 .PRECIOUS: pkg/campgns/$(1)_lnd/rgmap%.pal
 endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_rule,$(campaign))))
 
+pkg/ldata/torture.pal: gfx/palettes/torture.pal
+	-$(ECHO) 'Building torture screen palette: $@'
+	@$(MKDIR) $(@D)
+	# Simplified, for now
+	$(CP) "$<" "$@"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/data/palette.dat: gfx/palettes/engine.pal
+	-$(ECHO) 'Building engine palette: $@'
+	@$(MKDIR) $(@D)
+	# Simplified, for now
+	$(CP) "$<" "$@"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+# mark palette files precious to make sure they're not auto-removed after dependencies are built
+.PRECIOUS: pkg/ldata/torture.pal pkg/data/palette.dat
+
 pkg/ldata/dkflag00.dat: gfx/landview/filelist_dkflag00.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-	-$(ECHO) 'Building tabulated sprites: $@'
-	$(MKDIR) "$(@D)"
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
-	-$(RNC) "$@"
-	-$(ECHO) 'Finished building: $@'
-	-$(ECHO) ' '
-
 pkg/ldata/netflag.dat: gfx/landview/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
-	-$(ECHO) 'Building tabulated sprites: $@'
-	$(MKDIR) "$(@D)"
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
+pkg/ldata/maphand.dat: gfx/landview/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+
+pkg/ldata/fronttor.dat: gfx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door01.dat: gfx/torturescr/filelist_tortr_doora.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door02.dat: gfx/torturescr/filelist_tortr_doorb.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door03.dat: gfx/torturescr/filelist_tortr_doorc.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door04.dat: gfx/torturescr/filelist_tortr_doord.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door05.dat: gfx/torturescr/filelist_tortr_doore.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door06.dat: gfx/torturescr/filelist_tortr_doorf.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door07.dat: gfx/torturescr/filelist_tortr_doorg.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door08.dat: gfx/torturescr/filelist_tortr_doorh.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/door09.dat: gfx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
+
+pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gui2-0-1.dat: gfx/gui2-64/filelist_gui2-0-1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gui2-0-0.dat: gfx/gui2-32/filelist_gui2-0-0.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/guihi.dat: gfx/gui1-64/filelist_guihi.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gui.dat: gfx/gui1-32/filelist_gui.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+
+pkg/ldata/%.raw pkg/data/%.raw:
+	-$(ECHO) 'Building RAW image: $@'
+	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -f raw -l 100 "$<"
 	-$(RNC) "$@"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/ldata/maphand.dat: gfx/landview/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+pkg/ldata/%.dat pkg/data/%.dat:
 	-$(ECHO) 'Building tabulated sprites: $@'
 	$(MKDIR) "$(@D)"
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
