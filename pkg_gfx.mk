@@ -45,7 +45,8 @@ pkg/ldata/dkflag00.dat \
 pkg/ldata/netflag.dat \
 pkg/ldata/maphand.dat
 
-TOTRUREDATTABS = \
+TOTRUREGFX = \
+pkg/ldata/torture.raw \
 pkg/ldata/door01.dat \
 pkg/ldata/door02.dat \
 pkg/ldata/door03.dat \
@@ -57,19 +58,30 @@ pkg/ldata/door08.dat \
 pkg/ldata/door09.dat \
 pkg/ldata/fronttor.dat
 
-ENGINEDATTABS = \
+FRONTENDGFX = \
+pkg/ldata/front.raw \
+pkg/data/frontbit.dat
+
+ENGINEGFX = \
 pkg/data/gui2-0-1.dat \
 pkg/data/gui2-0-0.dat \
 pkg/data/guihi.dat \
 pkg/data/gui.dat \
+pkg/data/hpointer.dat \
+pkg/data/lpointer.dat \
+pkg/data/hpoints.dat \
+pkg/data/lpoints.dat \
 pkg/data/gmapbug.dat
 
 GUIDATTABS = $(LANDVIEWDATTABS) $(TOTRUREDATTABS) $(ENGINEDATTABS)
 
-pkg-gfx: pkg-landviews pkg-guidattabs
-pkg-landviews: $(LANDVIEWRAWS) pkg-before
+pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
 
-pkg-guidattabs: $(GUIDATTABS) pkg-before
+pkg-landviews: pkg-before $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
+
+pkg-menugfx: pkg-before $(TOTRUREGFX) $(FRONTENDGFX)
+
+pkg-enginegfx: pkg-before $(ENGINEGFX)
 
 # Creation of land view image files for campaigns
 define define_campaign_landview_rule
@@ -100,8 +112,15 @@ endef
 
 $(foreach campaign,$(sort $(CAMPAIGNS)),$(eval $(call define_campaign_landview_rule,$(campaign))))
 
-pkg/ldata/torture.pal: gfx/palettes/torture.pal
+pkg/ldata/torture.pal: gfx/torturescr/tortr_background.png gfx/torturescr/tortr_doora_open11.png gfx/torturescr/tortr_doorb_open11.png gfx/torturescr/tortr_doorc_open11.png gfx/torturescr/tortr_doord_open11.png gfx/torturescr/tortr_doore_open11.png gfx/torturescr/tortr_doorf_open11.png gfx/torturescr/tortr_doorg_open11.png gfx/torturescr/tortr_doorh_open11.png gfx/torturescr/tortr_doori_open11.png gfx/torturescr/cursor_horny.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
 	-$(ECHO) 'Building torture screen palette: $@'
+	@$(MKDIR) $(@D)
+	$(PNGTOBSPAL) -o "$@" -m "$(filter %.txt,$^)" $(filter %.png,$^)
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/ldata/front.pal: gfx/palettes/front.pal
+	-$(ECHO) 'Building engine palette: $@'
 	@$(MKDIR) $(@D)
 	# Simplified, for now
 	$(CP) "$<" "$@"
@@ -117,7 +136,7 @@ pkg/data/palette.dat: gfx/palettes/engine.pal
 	-$(ECHO) ' '
 
 # mark palette files precious to make sure they're not auto-removed after dependencies are built
-.PRECIOUS: pkg/ldata/torture.pal pkg/data/palette.dat
+.PRECIOUS: pkg/ldata/torture.pal pkg/ldata/front.pal pkg/data/palette.dat
 
 pkg/ldata/dkflag00.dat: gfx/landview/filelist_dkflag00.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
 pkg/ldata/netflag.dat: gfx/landview/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
@@ -135,11 +154,18 @@ pkg/ldata/door08.dat: gfx/torturescr/filelist_tortr_doorh.txt pkg/ldata/torture.
 pkg/ldata/door09.dat: gfx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
 pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
 
+pkg/ldata/front.raw: gfx/frontend/front_background.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/data/frontbit.dat: gfx/frontend/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+
 pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gui2-0-1.dat: gfx/gui2-64/filelist_gui2-0-1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gui2-0-0.dat: gfx/gui2-32/filelist_gui2-0-0.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/guihi.dat: gfx/gui1-64/filelist_guihi.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gui.dat: gfx/gui1-32/filelist_gui.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/hpointer.dat: gfx/pointer-64/filelist_hpointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/lpointer.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/hpoints.dat: gfx/pointer-64/filelist_hpoints.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/lpoints.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 
 pkg/ldata/%.raw pkg/data/%.raw:
 	-$(ECHO) 'Building RAW image: $@'
@@ -159,7 +185,15 @@ pkg/ldata/%.dat pkg/data/%.dat:
 # The package is extracted only if targets does not exits; the "|" causes file dates to be ignored
 # Note that ignoring timestamp means it is possible to have outadated files after a new
 # package release, if no targets were modified with the update.
-$(foreach campaign,$(sort $(CAMPAIGNS)), gfx/$(campaign)_lnd/%.png) gfx/%/filelist.txt: | gfx/$(GFXSRC_PACKAGE)
+$(foreach campaign,$(sort $(CAMPAIGNS)), gfx/$(campaign)_lnd/%.png) \
+gfx/loading/%.png gfx/palettes/%.pal \
+gfx/font2-32/%.txt gfx/font2-64/%.txt gfx/font_net/%.txt gfx/font_simp-32/%.txt gfx/font_simp-64/%.txt \
+gfx/frontend/%.txt gfx/frontft1/%.txt gfx/frontft2/%.txt gfx/frontft3/%.txt gfx/frontft4/%.txt \
+gfx/gui1-32/%.txt gfx/gui1-64/%.txt gfx/gui2-32/%.txt gfx/gui2-64/%.txt gfx/landview/%.txt \
+gfx/swipe_bhandrl/%.txt gfx/swipe_clawsrl/%.txt gfx/swipe_clawsu/%.txt gfx/swipe_scythlr/%.txt \
+gfx/swipe_sticklr/%.txt gfx/swipe_stickrl/%.txt gfx/swipe_swordrl/%.txt \
+gfx/guimap/%.txt gfx/pointer-64/%.txt gfx/sprites/%.txt gfx/textures/%.txt \
+gfx/parchmentbug/%.txt gfx/torturescr/%.txt gfx/creatrportrait/%.txt: | gfx/$(GFXSRC_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	7z x -aoa -y -ogfx "$|"
 	-$(ECHO) 'Finished extracting: $<'
