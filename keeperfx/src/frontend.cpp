@@ -484,7 +484,7 @@ const unsigned long alliance_grid[4][4] = {
 // Declarations for font testing screen (debug version only)
 struct TbSprite *testfont[TESTFONTS_COUNT];
 struct TbSprite *testfont_end[TESTFONTS_COUNT];
-unsigned long testfont_data[TESTFONTS_COUNT];
+unsigned char * testfont_data[TESTFONTS_COUNT];
 unsigned char *testfont_palette[3];
 long num_chars_in_font = 128;
 #endif
@@ -941,9 +941,40 @@ void frontend_set_alliance(long idx1, long idx2)
       frontend_alliances |= alliance_grid[idx1][idx2];
 }
 
-int frontend_load_data(void)
+TbResult frontend_load_data(void)
 {
-  return _DK_frontend_load_data();
+    char *fname;
+    TbResult ret;
+    long len;
+    //return _DK_frontend_load_data();
+    ret = Lb_SUCCESS;
+    wait_for_cd_to_be_available();
+    frontend_background = (unsigned char *)game.map;
+    fname = prepare_file_path(FGrp_LoData,"front.raw");
+    len = LbFileLoadAt(fname, frontend_background);
+    if (len != 307200) {
+        ret = Lb_FAIL;
+    }
+    frontend_sprite_data = (unsigned char *)poly_pool;
+    fname = prepare_file_path(FGrp_LoData,"frontbit.dat");
+    len = LbFileLoadAt(fname, frontend_sprite_data);
+    if (len < 12) {
+        frontend_end_sprite_data = frontend_sprite_data;
+        ret = Lb_FAIL;
+    } else {
+        frontend_end_sprite_data = ((unsigned char *)frontend_sprite_data + len);
+    }
+    frontend_sprite = (struct TbSprite *)frontend_end_sprite_data;
+    fname = prepare_file_path(FGrp_LoData,"frontbit.tab");
+    len = LbFileLoadAt(fname, frontend_sprite);
+    if (len < 12) {
+        frontend_end_sprite = frontend_sprite;
+        ret = Lb_FAIL;
+    } else {
+        frontend_end_sprite = (struct TbSprite *)((unsigned char *)frontend_sprite + len);
+    }
+    LbSpriteSetup(frontend_sprite, frontend_end_sprite, frontend_sprite_data);
+    return ret;
 }
 
 void activate_room_build_mode(int rkind, TextStringId tooltip_id)
