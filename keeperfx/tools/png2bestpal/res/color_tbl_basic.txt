@@ -1,0 +1,4 @@
+# Colors which should be similar to specific values
+# for compatibility with other images.
+# The engine always assumes color 0 is black (ie. for fading)
+0x00	0x000000

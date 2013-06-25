@@ -34,6 +34,7 @@
 UnicodeConvert::UnicodeConvert()
 {
     m_isOk = false;
+    m_unrecognized = 0;
 }
 
 UnicodeConvert::~UnicodeConvert()
@@ -121,12 +122,14 @@ uint16_t UnicodeConvert::EncodeChar(uint32_t uni)
     }
     if (uni < 0xff)
         return uni;
+    m_unrecognized++;
     return '_';
 }
 
 std::string UnicodeConvert::EncodeU32String(const std::vector<uint32_t> &unistr)
 {
     std::stringstream ss;
+    m_unrecognized = 0;
     for (std::vector<uint32_t>::const_iterator it = unistr.begin(); it!=unistr.end(); ++it)
     {
         uint16_t c = EncodeChar(*it);
@@ -140,6 +143,7 @@ std::string UnicodeConvert::EncodeU32String(const std::vector<uint32_t> &unistr)
 std::string UnicodeConvert::EncodeU16String(const std::wstring &unistr)
 {
     std::stringstream ss;
+    m_unrecognized = 0;
     for (std::wstring::const_iterator it = unistr.begin(); it!=unistr.end(); )
     {
         uint32_t cp = utf8::internal::mask16(*it++);
@@ -154,4 +158,9 @@ std::string UnicodeConvert::EncodeU16String(const std::wstring &unistr)
             ss << (char)(c>>8);
     }
     return ss.str();
+}
+
+int UnicodeConvert::countUnrecognized(void)
+{
+    return m_unrecognized;
 }
