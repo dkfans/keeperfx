@@ -242,6 +242,9 @@ int main(int argc, char* argv[])
         for (auto it = translations->begin(); it != translations->end(); ++it)
         {
             encoded->push_back(kfx_convert->EncodeU16String(*it));
+            if (kfx_convert->countUnrecognized() > 0) {
+                printf("Warning: Translation %ld contains %ld characters with no valid encoding\n",(long)(it-translations->begin()),(long)kfx_convert->countUnrecognized());
+            }
         }
     }
     delete translations;

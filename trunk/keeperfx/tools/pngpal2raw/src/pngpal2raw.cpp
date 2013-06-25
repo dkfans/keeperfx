@@ -857,7 +857,8 @@ int main(int argc, char* argv[])
     {
         for (int i = 0; i < opts.inp.size(); i++)
         {
-            LogMsg("Loading image \"%s\".",opts.inp[i].fname.c_str());
+            if (verbose)
+                LogMsg("Loading image \"%s\".",opts.inp[i].fname.c_str());
             ImageData& img = imgs[i];
             if (load_inp_png_file(img, opts.inp[i].fname, opts) != ERR_OK) {
                 return 2;
@@ -868,7 +869,8 @@ int main(int argc, char* argv[])
     ws.alg = opts.alg;
     ws.ditherLevel(opts.lvl);
     ws.requestedColors(256);
-    LogMsg("Loading palette file \"%s\".",opts.fname_pal.c_str());
+    if (verbose)
+        LogMsg("Loading palette file \"%s\".",opts.fname_pal.c_str());
     if (load_inp_palette_file(ws, opts.fname_pal, opts) != ERR_OK) {
         LogErr("Loading palette failed.");
         return 4;
@@ -878,7 +880,8 @@ int main(int argc, char* argv[])
         std::vector<ImageData>::iterator iter;
         for (iter = imgs.begin(); iter != imgs.end(); iter++)
         {
-            LogMsg("Converting image %d colors to indexes...",(int)(iter-imgs.begin()));
+            if (verbose)
+                LogMsg("Converting image %d colors to indexes...",(int)(iter-imgs.begin()));
             ImageData& img = *iter;
             if (convert_rgb_to_indexed(ws, img, ((img.color_type & PNG_COLOR_MASK_ALPHA) != ERR_OK))) {
                 LogErr("Converting colors failed.");

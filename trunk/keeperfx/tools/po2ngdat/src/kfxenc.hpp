@@ -62,9 +62,16 @@ class UnicodeConvert
          */
         std::string EncodeU16String(const std::wstring &unistr);
 
+        /**
+         * Gives the amount of unrecognized characters during last conversion.
+         * @return Number of chars which couldn't be properly encoded.
+         */
+        int countUnrecognized(void);
+
     private:
         ConvertCodes m_items;
 
+        int m_unrecognized;
         bool m_isOk;
         std::string m_fileName;
 };
