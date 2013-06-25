@@ -1939,6 +1939,7 @@
  0003:002473C8       message_playing
  0003:002473D0       message_queue
  0003:002473F8       frontend_mouse_over_button
+ 0003:002473FC       frontend_end_sprite
  0003:00247404       frontend_mouse_over_button_start_time
  0003:0024740C       load_game_scroll_offset
  0003:00247410       last_mouse_x
@@ -1953,6 +1954,7 @@
  0003:002477F8       defining_a_key_id
  0003:0024781C       old_mouse_over_button
  0003:00247820       frontstory_text_no
+ 0003:00247824       frontend_sprite_data
  0003:00247B28       frontend_background
  0003:00247B30       frontend_font
  0003:00247B40       number_of_saved_games
@@ -1962,6 +1964,7 @@
  0003:00247C5C       credits_scroll_speed
  0003:00247C60       high_score_table
  0003:00247F30       fe_computer_players
+ 0003:00247F34       frontend_end_sprite_data
  0003:00247F38       frontend_sprite
  0003:00247F3C       frontstory_font
  0003:00247F40       high_score_entry_index
