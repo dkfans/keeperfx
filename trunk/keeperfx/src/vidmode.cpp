@@ -84,7 +84,7 @@ long base_mouse_sensitivity = 256;
 /******************************************************************************/
 struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
-unsigned long pointer_data;
+unsigned char * pointer_data;
 
 struct TbSetupSprite setup_sprites_minimal[] = {
   {&frontend_font[0],     &frontend_end_font[0],  &frontend_font_data[0]},
@@ -441,7 +441,7 @@ void load_pointer_file(short hi_res)
   }
   if ( LbDataLoadAll(ldfiles) )
     ERRORLOG("Unable to load pointer files");
-  LbSpriteSetup(pointer_sprites, end_pointer_sprites, (unsigned long)pointer_data);
+  LbSpriteSetup(pointer_sprites, end_pointer_sprites, pointer_data);
 }
 
 TbBool set_pointer_graphic_none(void)

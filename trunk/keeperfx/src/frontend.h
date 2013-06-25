@@ -196,16 +196,16 @@ DLLIMPORT struct TbSprite *_DK_font_sprites;
 #define font_sprites _DK_font_sprites
 DLLIMPORT struct TbSprite *_DK_end_font_sprites;
 #define end_font_sprites _DK_end_font_sprites
-DLLIMPORT unsigned long _DK_font_data;
+DLLIMPORT unsigned char * _DK_font_data;
 #define font_data _DK_font_data
 
 DLLIMPORT extern struct TbSprite *_DK_frontend_font[FRONTEND_FONTS_COUNT];
 #define frontend_font _DK_frontend_font
 DLLIMPORT extern struct TbSprite *_DK_frontend_end_font[FRONTEND_FONTS_COUNT];
 #define frontend_end_font _DK_frontend_end_font
-DLLIMPORT extern unsigned long _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
+DLLIMPORT extern unsigned char * _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
 #define frontend_font_data _DK_frontend_font_data
-DLLIMPORT extern unsigned long _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
+DLLIMPORT extern unsigned char * _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
 #define frontend_end_font_data _DK_frontend_end_font_data
 
 DLLIMPORT extern struct TbSprite *_DK_frontend_sprite;
@@ -215,7 +215,7 @@ DLLIMPORT extern struct TbSprite *_DK_button_sprite;
 #define button_sprite _DK_button_sprite
 DLLIMPORT extern struct TbSprite *_DK_end_button_sprites;
 #define end_button_sprites _DK_end_button_sprites
-DLLIMPORT extern unsigned long _DK_button_sprite_data;
+DLLIMPORT extern unsigned char * _DK_button_sprite_data;
 #define button_sprite_data _DK_button_sprite_data
 DLLIMPORT extern unsigned long _DK_end_button_sprite_data;
 #define end_button_sprite_data _DK_end_button_sprite_data
@@ -227,23 +227,23 @@ DLLIMPORT extern struct TbSprite *_DK_winfont;
 #define winfont _DK_winfont
 DLLIMPORT extern struct TbSprite *_DK_end_winfonts;
 #define end_winfonts _DK_end_winfonts
-DLLIMPORT unsigned long _DK_winfont_data;
+DLLIMPORT unsigned char * _DK_winfont_data;
 #define winfont_data _DK_winfont_data
-DLLIMPORT unsigned long _DK_end_winfont_data;
+DLLIMPORT unsigned char * _DK_end_winfont_data;
 #define end_winfont_data _DK_end_winfont_data
 
 DLLIMPORT struct TbSprite *_DK_edit_icon_sprites;
 #define edit_icon_sprites _DK_edit_icon_sprites
 DLLIMPORT struct TbSprite *_DK_end_edit_icon_sprites;
 #define end_edit_icon_sprites _DK_end_edit_icon_sprites
-DLLIMPORT unsigned long _DK_edit_icon_data;
+DLLIMPORT unsigned char * _DK_edit_icon_data;
 #define edit_icon_data _DK_edit_icon_data
 
 DLLIMPORT extern struct TbSprite *_DK_port_sprite;
 #define port_sprite _DK_port_sprite
 DLLIMPORT extern struct TbSprite *_DK_end_port_sprites;
 #define end_port_sprites _DK_end_port_sprites
-DLLIMPORT extern unsigned long _DK_port_sprite_data;
+DLLIMPORT extern unsigned char * _DK_port_sprite_data;
 #define port_sprite_data _DK_port_sprite_data
 
 DLLIMPORT extern unsigned long _DK_playing_bad_descriptive_speech;
@@ -289,7 +289,7 @@ extern int status_panel_width;
 #define TESTFONTS_COUNT 12
 extern struct TbSprite *testfont[TESTFONTS_COUNT];
 extern struct TbSprite *testfont_end[TESTFONTS_COUNT];
-extern unsigned long testfont_data[TESTFONTS_COUNT];
+extern unsigned char * testfont_data[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
 /******************************************************************************/

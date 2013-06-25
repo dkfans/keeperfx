@@ -3954,7 +3954,7 @@ void wait_at_frontend(void)
   }
   LbScreenClear(0);
   LbScreenSwap();
-  if ( !frontend_load_data() )
+  if (frontend_load_data() != Lb_SUCCESS)
   {
     ERRORLOG("Unable to load frontend data");
     exit_keeper = 1;

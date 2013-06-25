@@ -31,7 +31,7 @@ DLLIMPORT int _DK_LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 DLLIMPORT int _DK_LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const char *data);
 
 /******************************************************************************/
-short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, unsigned long data)
+short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data)
 {
   //return _DK_LbSpriteSetup(start, end, data);
   struct TbSprite *sprt;
@@ -40,9 +40,9 @@ short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, unsigned
   sprt = start;
   while (sprt < end)
   {
-    if ((unsigned long)sprt->Data < data)
+    if ((unsigned long)sprt->Data < (unsigned long)data)
     {
-      sprt->Data += data;
+      sprt->Data += (unsigned long)data;
       n++;
     }
     sprt++;
@@ -63,7 +63,7 @@ int LbSpriteSetupAll(struct TbSetupSprite t_setup[])
   while (stp_sprite->Data != NULL)
   {
     if ((stp_sprite->Start != NULL) && (stp_sprite->End != NULL))
-      LbSpriteSetup(*(stp_sprite->Start), *(stp_sprite->End), *(stp_sprite->Data));
+      LbSpriteSetup(*(stp_sprite->Start), *(stp_sprite->End), (unsigned char *)*(stp_sprite->Data));
     idx++;
     stp_sprite=&t_setup[idx];
   }

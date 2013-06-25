@@ -121,6 +121,10 @@
  0003:00247770       save_game_catalogue
  0003:00247B40       number_of_saved_games
  0003:00247110       backup_explored
+ 0003:00247824       frontend_sprite_data
+ 0003:00247F34       frontend_end_sprite_data
+ 0003:00247F38       frontend_sprite
+ 0003:002473FC       frontend_end_sprite
  0003:00028350       lbUseSdk
  0003:00247428       frontend_palette
  0003:0024740C       load_game_scroll_offset
@@ -148,7 +152,6 @@
  0003:000207C0       frontstory_load_files
  0003:0001EB98       netmap_flag_load_files
  0003:00247F44       fe_high_score_table_from_main_menu
- 0003:00247F38       frontend_sprite
  0003:00247728       define_key_scroll_offset
  0003:00028284       modify_data_load_filename_function
  0003:000207B4       high_score_entry_input_active
