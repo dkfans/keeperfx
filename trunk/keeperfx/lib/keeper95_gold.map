@@ -1266,6 +1266,7 @@
  0001:000A7800       close_sound_heap
  0001:00014810       initialise_map_collides
  0001:00014990       initialise_map_health
+ 0001:000149D0       choose_pretty_type
  0001:00093580       instant_instance_selected
  0001:0000DDC0       set_creature_instance
  0001:0005A3F0       get_human_controlled_creature_target
@@ -1699,6 +1700,7 @@
  0001:000CB760       move_effect
  0001:000128A0       place_slab_type_on_map
  0001:00014EB0       do_slab_efficiency_alteration
+ 0001:00014F90       fill_in_reinforced_corners
  0001:0008B160       poison_cloud_affecting_area
  0001:00005B40       light_set_light_intensity
  0001:00005C30       light_get_light_intensity

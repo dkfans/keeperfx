@@ -84,8 +84,8 @@ long triangle_find8(long pt_x, long pt_y)
 {
     int eqA,eqB,eqC;
     long ntri,ncor;
+    long nxcor; // Used only to verify if pointed_at8() didn't failed
     unsigned long k;
-    //TODO PATHFINDING may hang if out of points
     NAVIDBG(19,"Starting");
     //TODO PATHFINDING triangulate_area sub-sub-sub-function
     //return _DK_triangle_find8(pt_x, pt_y);
@@ -100,29 +100,36 @@ long triangle_find8(long pt_x, long pt_y)
       {
       case 1:
           ntri = Triangles[ntri].tags[0];
+          nxcor = 0;
           break;
       case 2:
           ntri = Triangles[ntri].tags[1];
+          nxcor = 0;
           break;
       case 3:
           ncor = 1;
-          pointed_at8(pt_x, pt_y, &ntri, &ncor);
+          nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
           break;
       case 4:
           ntri = Triangles[ntri].tags[2];
+          nxcor = 0;
           break;
       case 5:
           ncor = 0;
-          pointed_at8(pt_x, pt_y, &ntri, &ncor);
+          nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
           break;
       case 6:
       case 7:
           ncor = 2;
-          pointed_at8(pt_x, pt_y, &ntri, &ncor);
+          nxcor = pointed_at8(pt_x, pt_y, &ntri, &ncor);
           break;
       case 0:
           triangle_find_cache_put(pt_x, pt_y, ntri);
           return ntri;
+      }
+      if (nxcor < 0) {
+          ERRORLOG("No position pointed at %d,%d",(int)pt_x, (int)pt_y);
+          return -1;
       }
     }
     ERRORLOG("Infinite loop detected");
