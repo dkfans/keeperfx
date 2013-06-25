@@ -46,6 +46,8 @@ DLLIMPORT void _DK_place_single_slab_type_on_map(long a1, unsigned char a2, unsi
 DLLIMPORT void _DK_shuffle_unattached_things_on_slab(long a1, long a2);
 DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, signed char plyr_idx, unsigned char a4);
 DLLIMPORT void _DK_place_and_process_pretty_wall_slab(struct Thing *creatng, long slb_x, long slb_y);
+DLLIMPORT void _DK_fill_in_reinforced_corners(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
+DLLIMPORT unsigned char _DK_choose_pretty_type(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
@@ -775,9 +777,67 @@ unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord
     return flags;
 }
 
-void place_and_process_pretty_wall_slab(struct Thing *creatng, long slb_x, long slb_y)
+void fill_in_reinforced_corners(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    _DK_place_and_process_pretty_wall_slab(creatng, slb_x, slb_y); return;
+    SYNCDBG(16,"Starting");
+    _DK_fill_in_reinforced_corners(plyr_idx, slb_x, slb_y); return;
+}
+
+unsigned char choose_pretty_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    SYNCDBG(16,"Starting");
+    return _DK_choose_pretty_type(plyr_idx, slb_x, slb_y);
+}
+
+void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    long m;
+    MapSubtlCoord stl_x,stl_y;
+    stl_x = slab_subtile_center(slb_x);
+    stl_y = slab_subtile_center(slb_y);
+    for (m=0; m < STL_PER_SLB*STL_PER_SLB; m++)
+    {
+        MapSubtlCoord x,y;
+        x = stl_x + (m%STL_PER_SLB);
+        y = stl_y + (m/STL_PER_SLB);
+        struct Map *mapblk;
+        mapblk = get_map_block_at(x,y);
+        mapblk->flags &= ~MapFlg_Unkn80;
+        mapblk->flags &= ~MapFlg_Unkn04;
+    }
+    pannel_map_update(stl_x, stl_y, 3, 3);
+}
+
+void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct CreatureControl *cctrl;
+    SYNCDBG(16,"Starting");
+    //_DK_place_and_process_pretty_wall_slab(creatng, slb_x, slb_y); return;
+    cctrl = creature_control_get_from_thing(creatng);
+    unsigned char pretty_type;
+    MapSubtlCoord wrkstl_x,wrkstl_y;
+    wrkstl_x = stl_num_decode_x(cctrl->word_8D);
+    wrkstl_y = stl_num_decode_y(cctrl->word_8D);
+    pretty_type = choose_pretty_type(creatng->owner, slb_x, slb_y);
+    place_slab_type_on_map(pretty_type, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 0);
+    do_slab_efficiency_alteration(slb_x, slb_y);
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        if (creatng->owner == plyr_idx) {
+            continue;
+        }
+        long task_id;
+        task_id = find_from_task_list(plyr_idx, get_subtile_number(wrkstl_x, wrkstl_y));
+        if (task_id >= 0)
+        {
+            remove_from_task_list(plyr_idx, task_id);
+            if (is_my_player_number(plyr_idx)) {
+                pretty_map_remove_flags_and_update(subtile_slab_fast(wrkstl_x), subtile_slab_fast(wrkstl_y));
+            }
+        }
+    }
+    fill_in_reinforced_corners(creatng->owner, slb_x, slb_y);
 }
 
 /*

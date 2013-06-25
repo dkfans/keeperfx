@@ -152,7 +152,7 @@ void fronttorture_load(void)
     {
         fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
         i = LbFileLoadAt(fname, ptr);
-        doors[k].data = (unsigned long)ptr;
+        doors[k].data = ptr;
         ptr += i;
         doors[k].data_end = ptr;
 
@@ -167,7 +167,7 @@ void fronttorture_load(void)
     {
         fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
         i = LbFileLoadAt(fname, ptr);
-        doors[k].data = (unsigned long)ptr;
+        doors[k].data = ptr;
         ptr += i;
         doors[k].data_end = ptr;
         fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
@@ -181,7 +181,7 @@ void fronttorture_load(void)
     {
         fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
         i = LbFileLoadAt(fname, ptr);
-        doors[k].data = (unsigned long)ptr;
+        doors[k].data = ptr;
         ptr += i;
         doors[k].data_end = ptr;
         fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);

@@ -205,7 +205,9 @@
  0001:00014650       alter_rock_style
  0001:00014810       initialise_map_collides
  0001:00014990       initialise_map_health
+ 0001:000149D0       choose_pretty_type
  0001:00014EB0       do_slab_efficiency_alteration
+ 0001:00014F90       fill_in_reinforced_corners
  0001:000152B0       unfill_reinforced_corners
  0001:000156E0       delete_room_slabbed_objects
  0001:000157E0       shuffle_unattached_things_on_slab
