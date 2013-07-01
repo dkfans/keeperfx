@@ -391,9 +391,37 @@ int hspr_pack(png_bytep out_row, const png_bytep inp_row, const ColorTranparency
 #pragma pack(1)
 
 struct SmallSprite {
-        size_t Data;
-        unsigned char SWidth;
-        unsigned char SHeight;
+    /** Offset of the sprite data in DAT file. */
+    size_t Data;
+    /** Width of the sprite data. */
+    unsigned char SWidth;
+    /** Height of the sprite data. */
+    unsigned char SHeight;
+};
+
+struct JontySprite {
+    /** Offset of the sprite data in DAT file. */
+    size_t Data;
+    /** Width of the sprite data. */
+    unsigned char SWidth;
+    /** Height of the sprite data. */
+    unsigned char SHeight;
+    /** Width of the animation frame (same for whole animation). */
+    unsigned char FrameWidth;
+    /** Height of the animation frame (same for whole animation). */
+    unsigned char FrameHeight;
+    /** Flags informing whether the animation is rotable; 0 - non-rotable, 2 - rotable. */
+    unsigned char Rotable;
+    /** Amount of frames making up the animation (same for whole animation). */
+    unsigned char FramesCount;
+    /** Offset of the sprite within frame; width shift. */
+    char FrameOffsW;
+    /** Offset of the sprite within frame; height shift. */
+    char FrameOffsH;
+    /** Unidentified negative value A. */
+    signed short unkn6;
+    /** Unidentified negative value B. */
+    signed short unkn8;
 };
 
 #pragma pack()
@@ -546,6 +574,8 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
                 opts.fmt = OutFmt_HSPR;
             else if (ci_string(optarg).compare("SSPR") == 0)
                 opts.fmt = OutFmt_SSPR;
+            else if (ci_string(optarg).compare("JSPR") == 0)
+                opts.fmt = OutFmt_JSPR;
             else if (ci_string(optarg).compare("RAW") == 0)
                 opts.fmt = OutFmt_RAW;
             else
@@ -626,7 +656,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         LogErr("Incorrectly specified input file name.");
         return false;
     }
-    if ((opts.fmt != OutFmt_SSPR) && (opts.inp.size() != 1))
+    if ((opts.fmt != OutFmt_SSPR) && (opts.fmt != OutFmt_JSPR) && (opts.inp.size() != 1))
     {
         LogErr("This format supports only one input file name.");
         return false;
@@ -639,6 +669,9 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         case OutFmt_HSPR:
         case OutFmt_SSPR:
             opts.fname_out = file_name_change_extension(file_name_strip_path(opts.inp[0].fname),"dat");
+            break;
+        case OutFmt_JSPR:
+            opts.fname_out = file_name_change_extension(file_name_strip_path(opts.inp[0].fname),"jty");
             break;
         case OutFmt_RAW:
         default:
@@ -837,6 +870,74 @@ short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
     return ERR_OK;
 }
 
+short save_jontyspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std::string& fname_out, const std::string& fname_tab, ProgramOptions& opts)
+{
+    std::vector<JontySprite> spr_shifts;
+    // Open and write the JontySprite file
+    {
+        FILE* rawfile = fopen(fname_out.c_str(),"wb");
+        if (rawfile == NULL) {
+            perror(fname_out.c_str());
+            return ERR_CANT_OPEN;
+        }
+        // Shifts start with index 0, and there's additional entry at end
+        spr_shifts.resize(imgs.size()+1);
+        long base_pos = ftell(rawfile);
+        {
+            unsigned short spr_count;
+            spr_count = imgs.size()+1;
+            if (fwrite(&spr_count,sizeof(spr_count),1,rawfile) != 1)
+            { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        }
+        for (int i = 0; i < imgs.size(); i++)
+        {
+            ImageData &img = imgs[i];
+            memcpy(&spr_shifts[i], &img.additional_data, sizeof(JontySprite));
+            spr_shifts[i+1].Data = ftell(rawfile) - base_pos;
+            spr_shifts[i+1].SWidth = img.width;
+            spr_shifts[i+1].SHeight = img.height;
+            std::vector<png_byte> out_row;
+            out_row.resize(img.width*3);
+            png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
+            for (int y=0; y<img.height; y++)
+            {
+                png_bytep inp_row = row_pointers[y];
+                ColorTranparency::Column& inp_trans = img.transMap[y];
+                int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.width,ws.palette);
+                if (fwrite(&out_row.front(),newLength,1,rawfile) != 1)
+                { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            }
+            {
+                // End an image with (-128) - it's available in u2 encoding, and only values -127..127
+                //are used for defining size of data and transparency, so this special value wasn't used before
+                char endofimg = -128;
+                if (fwrite(&endofimg,sizeof(char),1,rawfile) != 1)
+                { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+            }
+        }
+        // Add the entry at end
+        {
+            int i = imgs.size();
+            memset(&spr_shifts[i], 0, sizeof(JontySprite));
+            spr_shifts[i].Data = ftell(rawfile) - base_pos;
+            spr_shifts[i].SWidth = 0;
+            spr_shifts[i].SHeight = 0;
+        }
+        fclose(rawfile);
+    }
+    {
+        FILE* tabfile = fopen(fname_tab.c_str(),"wb");
+        if (tabfile == NULL) {
+            perror(fname_tab.c_str());
+            return ERR_CANT_OPEN;
+        }
+        if (fwrite(&spr_shifts.front(),sizeof(JontySprite),spr_shifts.size(),tabfile) != spr_shifts.size())
+        { perror(fname_tab.c_str()); return ERR_FILE_WRITE; }
+        fclose(tabfile);
+    }
+    return ERR_OK;
+}
+
 int main(int argc, char* argv[])
 {
     static ProgramOptions opts;
@@ -907,6 +1008,12 @@ int main(int argc, char* argv[])
     case OutFmt_SSPR:
         LogMsg("Saving SSPR file \"%s\".",opts.fname_out.c_str());
         if (save_smallspr_file(ws, imgs, opts.fname_out, opts.fname_tab, opts) != ERR_OK) {
+            return 8;
+        }
+        break;
+    case OutFmt_JSPR:
+        LogMsg("Saving JSPR file \"%s\".",opts.fname_out.c_str());
+        if (save_jontyspr_file(ws, imgs, opts.fname_out, opts.fname_tab, opts) != ERR_OK) {
             return 8;
         }
         break;
