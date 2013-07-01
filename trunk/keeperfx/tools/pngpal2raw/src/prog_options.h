@@ -24,6 +24,7 @@ enum {
     OutFmt_RAW = 0,
     OutFmt_HSPR,
     OutFmt_SSPR,
+    OutFmt_JSPR,
 };
 
 enum {

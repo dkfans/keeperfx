@@ -14,6 +14,8 @@ using namespace __gnu_cxx;
 
 #include <png.h>
 
+#define ADDITIONAL_DATA_LEN 16
+
 class ProgramOptions;
 
 typedef unsigned long RGBAQuad;
@@ -72,6 +74,8 @@ public:
     int color_type;
     int col_bits;
     int transparency_threshold;
+    /** Any additional data required for specific output file format */
+    unsigned char additional_data[ADDITIONAL_DATA_LEN];
 };
 
 short load_inp_png_file(ImageData& img, const std::string& fname_inp, ProgramOptions& opts);

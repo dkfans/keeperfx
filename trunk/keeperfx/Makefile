@@ -325,7 +325,8 @@ $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/undedkpr_lnd/rgmap$(num).raw p
 LANDVIEWDATTABS = \
 pkg/ldata/dkflag00.dat \
 pkg/ldata/netflag.dat \
-pkg/ldata/maphand.dat
+pkg/ldata/maphand.dat \
+pkg/ldata/netfont.dat
 
 TOTRUREGFX = \
 pkg/ldata/torture.raw \
@@ -341,7 +342,11 @@ pkg/ldata/door09.dat \
 pkg/ldata/fronttor.dat
 FRONTENDGFX = \
 pkg/ldata/front.raw \
-pkg/data/frontbit.dat
+pkg/ldata/frontft1.dat \
+pkg/ldata/frontft2.dat \
+pkg/ldata/frontft3.dat \
+pkg/ldata/frontft4.dat \
+pkg/ldata/frontbit.dat
 
 ENGINEGFX = \
 pkg/data/gui2-0-1.dat \
@@ -352,6 +357,10 @@ pkg/data/hpointer.dat \
 pkg/data/lpointer.dat \
 pkg/data/hpoints.dat \
 pkg/data/lpoints.dat \
+pkg/data/hifont.dat \
+pkg/data/lofont.dat \
+pkg/data/font2-0.dat \
+pkg/data/font2-1.dat \
 pkg/data/gmapbug.dat
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -696,6 +705,7 @@ pkg/data/palette.dat: gfx/palettes/engine.pal
 pkg/ldata/dkflag00.dat: gfx/landview/filelist_dkflag00.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
 pkg/ldata/netflag.dat: gfx/landview/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
 pkg/ldata/maphand.dat: gfx/landview/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
+pkg/ldata/netfont.dat: gfx/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW) $(RNC)
 
 pkg/ldata/fronttor.dat: gfx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
 pkg/ldata/door01.dat: gfx/torturescr/filelist_tortr_doora.txt pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
@@ -710,7 +720,11 @@ pkg/ldata/door09.dat: gfx/torturescr/filelist_tortr_doori.txt pkg/ldata/torture.
 pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal $(PNGTORAW) $(RNC)
 
 pkg/ldata/front.raw: gfx/frontend/front_background.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/data/frontbit.dat: gfx/frontend/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontbit.dat: gfx/frontend/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft1.dat: gfx/frontft1/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft2.dat: gfx/frontft2/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft3.dat: gfx/frontft3/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft4.dat: gfx/frontft4/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 
 pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gui2-0-1.dat: gfx/gui2-64/filelist_gui2-0-1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
@@ -721,6 +735,10 @@ pkg/data/hpointer.dat: gfx/pointer-64/filelist_hpointer.txt pkg/data/palette.dat
 pkg/data/lpointer.dat: gfx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/hpoints.dat: gfx/pointer-64/filelist_hpoints.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/lpoints.dat: gfx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/hifont.dat: gfx/font_simp-64/filelist_hifont.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/lofont.dat: gfx/font_simp-32/filelist_lofont.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/font2-0.dat: gfx/font2-32/filelist_font2-0.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/font2-1.dat: gfx/font2-64/filelist_font2-1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 
 
 pkg/ldata/%.raw pkg/data/%.raw:
