@@ -536,6 +536,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         static struct option long_options[] = {
             {"verbose", no_argument,       0, 'v'},
             {"batchlist",no_argument,      0, 'b'},
+            {"framelist",no_argument,      0, 'm'},
             {"format",  required_argument, 0, 'f'},
             {"diffuse", required_argument, 0, 'd'},
             {"dflevel", required_argument, 0, 'l'},
@@ -567,7 +568,10 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             verbose++;
             break;
         case 'b':
-            opts.batch = true;
+            opts.batch = Batch_FILELIST;
+            break;
+        case 'm':
+            opts.batch = Batch_ANIMLIST;
             break;
         case 'f':
             if (ci_string(optarg).compare("HSPR") == 0)
@@ -629,7 +633,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     // remaining command line arguments (not options)
     while (optind < argc)
     {
-        if (opts.batch) {
+        if (opts.batch != Batch_NONE) {
             // In batch mode, file name is not an image but text file with list
             opts.fname_lst = argv[optind++];
             break;
@@ -713,6 +717,7 @@ short show_usage(const std::string &fname)
     printf("    -o<file>,--output<file>  Output image file name\n");
     printf("    -t<file>,--outtab<file>  Output tabulation file name\n");
     printf("    -b,--batchlist           Batch, input file is not an image but contains a list of PNGs\n");
+    printf("    -m,--framelist           Batch, input file is a list of animations which consist of PNGs\n");
     return ERR_OK;
 }
 

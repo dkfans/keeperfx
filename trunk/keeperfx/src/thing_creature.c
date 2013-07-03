@@ -1331,7 +1331,7 @@ TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char de
 
 long move_creature(struct Thing *thing)
 {
-  return _DK_move_creature(thing);
+    return _DK_move_creature(thing);
 }
 
 /**
@@ -3236,23 +3236,86 @@ void place_bloody_footprint(struct Thing *thing)
         if (nfoot)
         {
             footng = create_thing(&thing->mappos, TCls_EffectElem, 23, thing->owner, -1);
-            if (!thing_is_invalid(footng))
+            if (!thing_is_invalid(footng)) {
                 cctrl->bloody_footsteps_turns--;
+            }
         }
         break;
     default:
         footng = create_footprint_sine(&thing->mappos, thing->field_52, nfoot, 23, thing->owner);
-        if (!thing_is_invalid(footng))
+        if (!thing_is_invalid(footng)) {
             cctrl->bloody_footsteps_turns--;
+        }
         break;
     }
   }
 
-  short update_creature_movements(struct Thing *thing)
-  {
+TbBool update_controlled_creature_movement(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    TbBool upd_done = false;
+    if ((thing->movement_flags & TMvF_Flying) != 0)
+    {
+        if (cctrl->move_speed != 0)
+        {
+            cctrl->moveaccel.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->field_52, thing->field_54);
+            cctrl->moveaccel.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->field_52, thing->field_54);
+            cctrl->moveaccel.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->field_54);
+        }
+        if (cctrl->field_CA != 0)
+        {
+            cctrl->moveaccel.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
+            cctrl->moveaccel.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
+        }
+    } else
+    {
+        if (cctrl->move_speed != 0)
+        {
+            cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
+            cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+            upd_done = true;
+        }
+        if (cctrl->field_CA != 0)
+        {
+            cctrl->moveaccel.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
+            cctrl->moveaccel.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
+            upd_done = true;
+        }
+    }
+    return upd_done;
+}
+
+TbBool update_flight_altitude_towards_typical(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    int floor_height,thing_height,i;
+    cctrl = creature_control_get_from_thing(thing);
+    floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
+    thing_height = thing->mappos.z.val;
+    i = floor_height + NORMAL_FLYING_ALTITUDE - thing_height;
+    if (i > 0)
+    {
+        if (i >= 32)
+            i = 32;
+        cctrl->moveaccel.z.val += i;
+        return true;
+    }
+    else if (i < 0)
+    {
+        i = -i;
+        if (i >= 32)
+            i = 32;
+        cctrl->moveaccel.z.val -= i;
+        return true;
+    }
+    return false;
+}
+
+short update_creature_movements(struct Thing *thing)
+{
     struct CreatureControl *cctrl;
     short upd_done;
-    int i;
     SYNCDBG(18,"Starting");
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
@@ -3263,44 +3326,19 @@ void place_bloody_footprint(struct Thing *thing)
     upd_done = 0;
     if (cctrl->affected_by_spells != 0)
     {
-      upd_done = 1;
-      cctrl->pos_BB.x.val = 0;
-      cctrl->pos_BB.y.val = 0;
-      cctrl->pos_BB.z.val = 0;
-      cctrl->move_speed = 0;
-      set_flag_byte(&cctrl->field_2,0x01,false);
+        upd_done = 1;
+        cctrl->moveaccel.x.val = 0;
+        cctrl->moveaccel.y.val = 0;
+        cctrl->moveaccel.z.val = 0;
+        cctrl->move_speed = 0;
+        set_flag_byte(&cctrl->field_2,0x01,false);
     } else
     {
       if ((thing->alloc_flags & TAlF_IsControlled) != 0)
       {
-        if ((thing->movement_flags & TMvF_Flying) != 0)
-        {
-          if (cctrl->move_speed != 0)
-          {
-              cctrl->pos_BB.x.val = distance3d_with_angles_to_coord_x(cctrl->move_speed, thing->field_52, thing->field_54);
-              cctrl->pos_BB.y.val = distance3d_with_angles_to_coord_y(cctrl->move_speed, thing->field_52, thing->field_54);
-              cctrl->pos_BB.z.val = distance_with_angle_to_coord_z(cctrl->move_speed, thing->field_54);
-          }
-          if (cctrl->field_CA != 0)
-          {
-              cctrl->pos_BB.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
-              cctrl->pos_BB.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
-          }
-        } else
-        {
-          if (cctrl->move_speed != 0)
-          {
+          if (update_controlled_creature_movement(thing)) {
               upd_done = 1;
-              cctrl->pos_BB.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
-              cctrl->pos_BB.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
           }
-          if (cctrl->field_CA != 0)
-          {
-              upd_done = 1;
-              cctrl->pos_BB.x.val += distance_with_angle_to_coord_x(cctrl->field_CA, thing->field_52 - 512);
-              cctrl->pos_BB.y.val += distance_with_angle_to_coord_y(cctrl->field_CA, thing->field_52 - 512);
-          }
-        }
       } else
       if (cctrl->field_2 & 0x01)
       {
@@ -3310,35 +3348,22 @@ void place_bloody_footprint(struct Thing *thing)
       if (cctrl->move_speed != 0)
       {
           upd_done = 1;
-          cctrl->pos_BB.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
-          cctrl->pos_BB.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
-          cctrl->pos_BB.z.val = 0;
+          cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
+          cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+          cctrl->moveaccel.z.val = 0;
       }
       if (((thing->movement_flags & TMvF_Flying) != 0) && ((thing->alloc_flags & TAlF_IsControlled) == 0))
       {
-        i = get_floor_height_under_thing_at(thing, &thing->mappos) - thing->mappos.z.val + 256;
-        if (i > 0)
-        {
-          upd_done = 1;
-          if (i >= 32)
-            i = 32;
-          cctrl->pos_BB.z.val += i;
-        } else
-        if (i < 0)
-        {
-          upd_done = 1;
-          i = -i;
-          if (i >= 32)
-            i = 32;
-          cctrl->pos_BB.z.val -= i;
-        }
+          if (update_flight_altitude_towards_typical(thing)) {
+              upd_done = 1;
+          }
       }
     }
     SYNCDBG(19,"Finished");
     if (upd_done)
       return true;
     else
-      return ((cctrl->pos_BB.x.val != 0) || (cctrl->pos_BB.y.val != 0) || (cctrl->pos_BB.z.val != 0));
+      return ((cctrl->moveaccel.x.val != 0) || (cctrl->moveaccel.y.val != 0) || (cctrl->moveaccel.z.val != 0));
 }
 
 void check_for_creature_escape_from_lava(struct Thing *thing)
@@ -3695,9 +3720,9 @@ TngUpdateRet update_creature(struct Thing *thing)
 
     if (update_creature_movements(thing))
     {
-        thing->velocity.x.val += cctrl->pos_BB.x.val;
-        thing->velocity.y.val += cctrl->pos_BB.y.val;
-        thing->velocity.z.val += cctrl->pos_BB.z.val;
+        thing->velocity.x.val += cctrl->moveaccel.x.val;
+        thing->velocity.y.val += cctrl->moveaccel.y.val;
+        thing->velocity.z.val += cctrl->moveaccel.z.val;
     }
     move_creature(thing);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
@@ -3740,9 +3765,9 @@ TngUpdateRet update_creature(struct Thing *thing)
         return TUFRet_Deleted;
     }
     process_creature_self_spell_casting(thing);
-    cctrl->pos_BB.x.val = 0;
-    cctrl->pos_BB.y.val = 0;
-    cctrl->pos_BB.z.val = 0;
+    cctrl->moveaccel.x.val = 0;
+    cctrl->moveaccel.y.val = 0;
+    cctrl->moveaccel.z.val = 0;
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown40,false);
     set_flag_byte(&cctrl->flgfield_1,CCFlg_Unknown80,false);
     cctrl->spell_flags &= ~CSAfF_Unkn0400;

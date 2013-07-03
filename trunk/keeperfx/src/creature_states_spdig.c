@@ -22,6 +22,7 @@
 #include "bflib_math.h"
 #include "creature_states.h"
 #include "thing_list.h"
+#include "thing_physics.h"
 #include "creature_control.h"
 #include "creature_instances.h"
 #include "config_creature.h"
@@ -545,18 +546,23 @@ short imp_birth(struct Thing *thing)
     long i;
     TRACE_THING(thing);
     //return _DK_imp_birth(thing);
-    if ( thing_touching_floor(thing) )
+    if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)) )
     {
-      if (!check_out_available_spdigger_drop_tasks(thing)) {
-          set_start_state(thing);
-      }
-      return 1;
+        crstat = creature_stats_get_from_thing(thing);
+        if (crstat->flying) {
+            thing->movement_flags |= TMvF_Flying;
+        }
+        if (!check_out_available_spdigger_drop_tasks(thing)) {
+            set_start_state(thing);
+        }
+        return 1;
     }
     i = game.play_gameturn - thing->creation_turn;
     if ((i % 2) == 0) {
       create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
     }
     crstat = creature_stats_get_from_thing(thing);
+    thing->movement_flags &= ~TMvF_Flying;
     creature_turn_to_face_angle(thing, i * (long)crstat->max_angle_change);
     return 0;
 }

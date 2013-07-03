@@ -35,6 +35,9 @@ struct Dungeon;
 
 #pragma pack()
 /******************************************************************************/
+TbBool thing_touching_floor(const struct Thing *thing);
+TbBool thing_touching_flight_altitude(const struct Thing *thing);
+
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 void bounce_thing_off_wall_at(struct Thing *thing, struct Coord3d *pos, long a3);
 TbBool get_thing_next_position(struct Coord3d *pos, const struct Thing *thing);
@@ -47,7 +50,7 @@ long get_thing_height_at(const struct Thing *thing, const struct Coord3d *pos);
 long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
 long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos);
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius);
-long get_floor_height_under_thing_at(const struct Thing *thing, struct Coord3d *pos);
+long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
