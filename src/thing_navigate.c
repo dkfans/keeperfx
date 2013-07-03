@@ -402,9 +402,9 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         {
             creature_set_speed(thing, -speed);
             cctrl->field_2 |= 0x01;
-            cctrl->pos_BB.x.val = (long)nextpos.x.val - (long)thing->mappos.x.val;
-            cctrl->pos_BB.y.val = (long)nextpos.y.val - (long)thing->mappos.y.val;
-            cctrl->pos_BB.z.val = 0;
+            cctrl->moveaccel.x.val = (long)nextpos.x.val - (long)thing->mappos.x.val;
+            cctrl->moveaccel.y.val = (long)nextpos.y.val - (long)thing->mappos.y.val;
+            cctrl->moveaccel.z.val = 0;
         }
         SYNCDBG(18,"Backward target set");
     } else
@@ -416,9 +416,9 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         {
             creature_set_speed(thing, speed);
             cctrl->field_2 |= 0x01;
-            cctrl->pos_BB.x.val = (long)nextpos.x.val - (long)thing->mappos.x.val;
-            cctrl->pos_BB.y.val = (long)nextpos.y.val - (long)thing->mappos.y.val;
-            cctrl->pos_BB.z.val = 0;
+            cctrl->moveaccel.x.val = (long)nextpos.x.val - (long)thing->mappos.x.val;
+            cctrl->moveaccel.y.val = (long)nextpos.y.val - (long)thing->mappos.y.val;
+            cctrl->moveaccel.z.val = 0;
         }
         SYNCDBG(18,"Forward target set");
     }

@@ -225,11 +225,6 @@ TbBool thing_exists(const struct Thing *thing)
     return true;
 }
 
-TbBool thing_touching_floor(const struct Thing *thing)
-{
-    return (thing->field_60 == thing->mappos.z.val);
-}
-
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing)
 {
     return ((thing->field_1 & TF1_IsDragged1) != 0) || ((thing->alloc_flags & TAlF_IsDragged) != 0);

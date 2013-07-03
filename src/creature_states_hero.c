@@ -797,7 +797,7 @@ short creature_hero_entering(struct Thing *thing)
         cctrl->field_282--;
         return 0;
     }
-    if ( thing_touching_floor(thing) || ((thing->movement_flags & TMvF_Flying) != 0) )
+    if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)) )
     {
         if (is_neutral_thing(thing))
         {

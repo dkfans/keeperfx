@@ -334,7 +334,7 @@ unsigned char field_AE;
     unsigned char teleport_x;
     unsigned char teleport_y;
 unsigned short field_B9;
-    struct CoordDelta3d pos_BB;
+    struct CoordDelta3d moveaccel;
     unsigned char bloody_footsteps_turns;
     short field_C2;
     short max_speed;

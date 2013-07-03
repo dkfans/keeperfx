@@ -46,6 +46,21 @@ DLLIMPORT long _DK_thing_in_wall_at_with_radius(const struct Thing *thing, const
 
 
 /******************************************************************************/
+TbBool thing_touching_floor(const struct Thing *thing)
+{
+    return (thing->field_60 == thing->mappos.z.val);
+}
+
+TbBool thing_touching_flight_altitude(const struct Thing *thing)
+{
+    int i;
+    if (thing->acceleration.z.val > 0) {
+        return false;
+    }
+    i = get_floor_height_under_thing_at(thing, &thing->mappos);
+    return (i == thing->mappos.z.val + NORMAL_FLYING_ALTITUDE);
+}
+
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long a3)
 {
     _DK_slide_thing_against_wall_at(thing, pos, a3); return;
@@ -205,7 +220,7 @@ long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3
     return _DK_thing_in_wall_at_with_radius(thing, pos, radius);
 }
 
-long get_floor_height_under_thing_at(const struct Thing *thing, struct Coord3d *pos)
+long get_floor_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos)
 {
     int radius;
     long i;
