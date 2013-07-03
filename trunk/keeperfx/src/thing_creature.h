@@ -92,6 +92,7 @@ void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
 void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char a2, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
+unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
 
 struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *thing);
 void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing);

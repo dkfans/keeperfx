@@ -79,6 +79,8 @@ long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const s
 TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool shot_model_is_navigable(long tngmodel);
 TbBool shot_model_makes_flesh_explosion(long shot_model);
+
+struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, long a4, long a5);
 /******************************************************************************/
 #ifdef __cplusplus
 }

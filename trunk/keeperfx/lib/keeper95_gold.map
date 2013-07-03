@@ -1102,6 +1102,7 @@
  0001:000828E0       resurrect_creature
  0001:000830E0       steal_hero
  0001:000C2440       creature_increase_level
+ 0001:000C20D0       creature_is_ambulating
  0001:000A67E0       clear_slab_dig
  0001:00065FC0       remove_events_thing_is_attached_to
  0001:0005B740       delete_thing_structure
@@ -1175,6 +1176,7 @@
  0001:0008B950       process_effect_generator
  0001:000770F0       process_door
  0001:00077A20       blocked_by_door_at
+ 0001:000778B0       check_for_door_collision_at
  0001:00089CB0       update_effect
  0001:00010B50       process_thing_spell_effects
  0001:00057260       process_creature_self_spell_casting
@@ -1498,6 +1500,7 @@
  0001:000246C0       draw_spell_cursor
  0001:00022D70       draw_mini_things_in_hand
  0001:00053E70       process_keeper_sprite
+ 0001:00053E00       update_tunneller_trail
  0001:00026320       engine_init
  0001:000C7190       load_anim_file
  0001:000C6E80       load_cube_file
@@ -1982,6 +1985,7 @@
  0001:00077600       check_door_should_open
  0001:0007F5A0       jonty_creature_can_see_thing_including_lava_check
  0001:000D0700       get_shot_collided_with_same_type
+ 0001:000D0C10       collide_filter_thing_is_of_type
  0001:000D0890       get_thing_collided_with_at_satisfying_filter
  0001:000907E0       shot_hit_shootable_thing_at
  0001:00091720       shot_hit_wall_at
