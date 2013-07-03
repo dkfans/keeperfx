@@ -705,7 +705,7 @@ void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_i
 
 void check_map_explored(struct Thing *thing, long a2, long a3)
 {
-    _DK_check_map_explored(thing, a2, a3);
+    _DK_check_map_explored(thing, a2, a3); return;
 }
 
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)

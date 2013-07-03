@@ -53,6 +53,7 @@
 #include "light_data.h"
 #include "room_jobs.h"
 #include "map_utils.h"
+#include "map_blocks.h"
 #include "gui_topmsg.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -165,6 +166,10 @@ DLLIMPORT long _DK_update_creature_levels(struct Thing *creatng);
 DLLIMPORT long _DK_update_creature(struct Thing *creatng);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char reason);
+DLLIMPORT long _DK_creature_is_ambulating(struct Thing *thing);
+DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *thing, struct Thing *sectng, long a3, long a4);
+DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, long a3);
+DLLIMPORT void _DK_update_tunneller_trail(struct Thing *thing);
 /******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
@@ -1329,9 +1334,246 @@ TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char de
   return false;
 }
 
+long creature_is_ambulating(struct Thing *thing)
+{
+    return _DK_creature_is_ambulating(thing);
+}
+
+long collide_filter_thing_is_of_type(struct Thing *thing, struct Thing *sectng, long a3, long a4)
+{
+    return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
+}
+
+void check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, long a3)
+{
+    _DK_check_for_door_collision_at(thing, pos, a3);
+    return;
+}
+
+unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos)
+{
+    struct Coord3d pos;
+    unsigned int flags;
+    flags = 0;
+    pos.x.val = newpos->x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = thing->mappos.z.val;
+    if ( creature_cannot_move_directly_to(thing, &pos) ) {
+        flags |= 0x01;
+    }
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = newpos->y.val;
+    pos.z.val = thing->mappos.z.val;
+    if ( creature_cannot_move_directly_to(thing, &pos) ) {
+        flags |= 0x02;
+    }
+    pos.x.val = thing->mappos.x.val;
+    pos.y.val = thing->mappos.y.val;
+    pos.z.val = newpos->z.val;
+    if ( creature_cannot_move_directly_to(thing, &pos) ) {
+        flags |= 0x04;
+    }
+    switch (flags)
+    {
+    case 0:
+      if ( creature_cannot_move_directly_to(thing, newpos) ) {
+          flags = 0x07;
+      }
+      break;
+    case 1:
+      pos.x.val = thing->mappos.x.val;
+      pos.y.val = newpos->y.val;
+      pos.z.val = newpos->z.val;
+      if (creature_cannot_move_directly_to(thing, &pos) < 1) {
+          flags = 0x01;
+      } else {
+          flags = 0x07;
+      }
+      break;
+    case 2:
+      pos.x.val = newpos->x.val;
+      pos.y.val = thing->mappos.y.val;
+      pos.z.val = newpos->z.val;
+      if (creature_cannot_move_directly_to(thing, &pos) < 1) {
+          flags = 0x02;
+      } else {
+          flags = 0x07;
+      }
+      break;
+    case 4:
+      pos.x.val = newpos->x.val;
+      pos.y.val = newpos->y.val;
+      pos.z.val = thing->mappos.z.val;
+      if ( creature_cannot_move_directly_to(thing, &pos) ) {
+          flags = 0x07;
+      }
+      break;
+    }
+    return flags;
+}
+
+void update_tunneller_trail(struct Thing *thing)
+{
+    _DK_update_tunneller_trail(thing); return;
+}
+
 long move_creature(struct Thing *thing)
 {
-    return _DK_move_creature(thing);
+    struct CreatureControl *cctrl;
+    //return _DK_move_creature(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    struct Coord3d *tngpos;
+    struct Coord3d pos1;
+    int velo_x,velo_y,velo_z;
+    tngpos = &thing->mappos;
+    pos1.x.val = tngpos->x.val;
+    pos1.y.val = tngpos->y.val;
+    pos1.z.val = tngpos->z.val;
+    velo_y = thing->velocity.y.val;
+    velo_z = thing->velocity.z.val;
+    velo_x = thing->velocity.x.val;
+    cctrl->flgfield_1 &= ~0x08;
+    struct Coord3d pos;
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        pos.x.val = tngpos->x.val;
+        pos.y.val = tngpos->y.val;
+        pos.z.val = tngpos->z.val;
+        if (get_nearest_valid_position_for_creature_at(thing, &pos))
+        {
+            if ((tngpos->x.stl.num != pos.x.stl.num) || (tngpos->y.stl.num != pos.y.stl.num))
+            {
+                remove_thing_from_mapwho(thing);
+                tngpos->x.val = pos.x.val;
+                tngpos->y.val = pos.y.val;
+                tngpos->z.val = pos.z.val;
+                place_thing_in_mapwho(thing);
+            }
+            else
+            {
+                tngpos->x.val = pos.x.val;
+                tngpos->y.val = pos.y.val;
+                tngpos->z.val = pos.z.val;
+            }
+            thing->field_60 = get_thing_height_at(thing, tngpos);
+        }
+        cctrl->flgfield_1 |= 0x08;
+    }
+    if ((get_creature_model_flags(thing) & MF_TremblingFat) != 0)
+    {
+      if (creature_is_ambulating(thing))
+        {
+            if (thing->field_48 > 3)
+            {
+                velo_y = 0;
+                velo_x = 0;
+            }
+        }
+    }
+    if ((velo_x != 0) || (velo_y != 0) || (velo_z != 0))
+    {
+        if (velo_x < -256) {
+            velo_x = -256;
+        } else if (velo_x > 256) {
+            velo_x = 256;
+        }
+        if (velo_y < -256) {
+            velo_y = -256;
+        } else if (velo_y > 256) {
+            velo_y = 256;
+        }
+        if (velo_z < -256) {
+            velo_z = -256;
+        } else if (velo_z > 256) {
+            velo_z = 256;
+        }
+        pos.x.val = velo_x + tngpos->x.val;
+        pos.y.val = velo_y + tngpos->y.val;
+        pos.z.val = velo_z + tngpos->z.val;
+        if (thing->movement_flags & 0x20)
+        {
+            if (thing_in_wall_at(thing, &pos))
+            {
+                long blocked_flags;
+                blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+                if (!cctrl->field_1D0) {
+                    check_for_door_collision_at(thing, &pos, blocked_flags);
+                }
+                slide_thing_against_wall_at(thing, &pos, blocked_flags);
+            }
+        }
+        else
+        {
+            if (thing_in_wall_at(thing, &pos))
+            {
+                if (creature_cannot_move_directly_to(thing, &pos))
+                {
+                    long blocked_flags;
+                    blocked_flags = get_creature_blocked_flags_at(thing, &pos);
+                    if (!cctrl->field_1D0)
+                        check_for_door_collision_at(thing, &pos, blocked_flags);
+                    slide_thing_against_wall_at(thing, &pos, blocked_flags);
+                }
+                else
+                {
+                    pos.z.val = get_thing_height_at(thing, &pos);
+                }
+            }
+        }
+        if ((cctrl->flgfield_1 & 0x10) != 0)
+        {
+            if (get_thing_collided_with_at_satisfying_filter(thing, &pos, collide_filter_thing_is_of_type, 5, -1))
+            {
+                pos.x.val = tngpos->x.val;
+                pos.y.val = tngpos->y.val;
+                pos.z.val = tngpos->z.val;
+            }
+        }
+        if ((tngpos->x.stl.num != pos.x.stl.num) || (tngpos->y.stl.num != pos.y.stl.num))
+        {
+            if (thing->model == 8) {
+                update_tunneller_trail(thing);
+            }
+            if ((subtile_slab_fast(tngpos->x.stl.num) != subtile_slab_fast(pos.x.stl.num))
+             || (subtile_slab_fast(tngpos->y.stl.num) != subtile_slab_fast(pos.y.stl.num)))
+            {
+                check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
+                CreatureStateFunc2 callback;
+                callback = states[thing->active_state].ofsfield_8;
+                if (callback != NULL)
+                {
+                    callback(thing);
+                }
+            }
+        }
+        if ((tngpos->x.stl.num != pos.x.stl.num) || (tngpos->y.stl.num != pos.y.stl.num))
+        {
+            remove_thing_from_mapwho(thing);
+            tngpos->x.val = pos.x.val;
+            tngpos->y.val = pos.y.val;
+            tngpos->z.val = pos.z.val;
+            place_thing_in_mapwho(thing);
+        }
+        else
+        {
+            tngpos->x.val = pos.x.val;
+            tngpos->y.val = pos.y.val;
+            tngpos->z.val = pos.z.val;
+        }
+        thing->field_60 = get_thing_height_at(thing, tngpos);
+    }
+    {
+        long angle;
+        long dist;
+        angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
+        if (get_angle_difference(angle & 0x7FF, thing->field_52) <= 512) {
+            dist = get_2d_distance(&pos1, tngpos);
+        } else {
+            dist = -get_2d_distance(&pos1, tngpos);
+        }
+        cctrl->field_9 = dist;
+    }
+    return 1;
 }
 
 /**

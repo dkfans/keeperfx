@@ -100,68 +100,6 @@ TbBool create_vampire_in_room(struct Room *room)
     return true;
 }
 
-unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos)
-{
-    struct Coord3d pos;
-    unsigned int flags;
-    flags = 0;
-    pos.x.val = newpos->x.val;
-    pos.y.val = thing->mappos.y.val;
-    pos.z.val = thing->mappos.z.val;
-    if ( creature_cannot_move_directly_to(thing, &pos) ) {
-        flags |= 0x01;
-    }
-    pos.x.val = thing->mappos.x.val;
-    pos.y.val = newpos->y.val;
-    pos.z.val = thing->mappos.z.val;
-    if ( creature_cannot_move_directly_to(thing, &pos) ) {
-        flags |= 0x02;
-    }
-    pos.x.val = thing->mappos.x.val;
-    pos.y.val = thing->mappos.y.val;
-    pos.z.val = newpos->z.val;
-    if ( creature_cannot_move_directly_to(thing, &pos) ) {
-        flags |= 0x04;
-    }
-    switch (flags)
-    {
-    case 0:
-      if ( creature_cannot_move_directly_to(thing, newpos) ) {
-          flags = 0x07;
-      }
-      break;
-    case 1:
-      pos.x.val = thing->mappos.x.val;
-      pos.y.val = newpos->y.val;
-      pos.z.val = newpos->z.val;
-      if (creature_cannot_move_directly_to(thing, &pos) < 1) {
-          flags = 0x01;
-      } else {
-          flags = 0x07;
-      }
-      break;
-    case 2:
-      pos.x.val = newpos->x.val;
-      pos.y.val = thing->mappos.y.val;
-      pos.z.val = newpos->z.val;
-      if (creature_cannot_move_directly_to(thing, &pos) < 1) {
-          flags = 0x02;
-      } else {
-          flags = 0x07;
-      }
-      break;
-    case 4:
-      pos.x.val = newpos->x.val;
-      pos.y.val = newpos->y.val;
-      pos.z.val = thing->mappos.z.val;
-      if ( creature_cannot_move_directly_to(thing, &pos) ) {
-          flags = 0x07;
-      }
-      break;
-    }
-    return flags;
-}
-
 void remove_body_from_graveyard(struct Thing *thing)
 {
     struct Dungeon *dungeon;

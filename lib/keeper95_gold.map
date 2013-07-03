@@ -465,6 +465,7 @@
  0001:00053540       good_attack_room
  0001:00053750       tunneller_doing_nothing
  0001:000539E0       good_setup_loot_treasure_room
+ 0001:00053E00       update_tunneller_trail
  0001:00053E70       process_keeper_sprite
  0001:00054680       draw_single_keepersprite_xflip
  0001:00054890       draw_keepsprite_unscaled_in_buffer
@@ -687,6 +688,7 @@
  0001:00077200       destroy_door
  0001:00077600       check_door_should_open
  0001:000777A0       get_door_for_position
+ 0001:000778B0       check_for_door_collision_at
  0001:00077A20       blocked_by_door_at
  0001:00077D20       lock_door
  0001:00077FA0       find_door_of_type
@@ -1189,6 +1191,7 @@
  0001:000C1E50       apply_damage_to_thing
  0001:000C2000       apply_damage_to_thing_and_display_health
  0001:000C2030       remove_health_from_thing_and_display_health
+ 0001:000C20D0       creature_is_ambulating
  0001:000C2150       get_foot_creature_has_down
  0001:000C2440       creature_increase_level
  0001:000C28E0       init_creature_level
@@ -1266,6 +1269,7 @@
  0001:000CF000       creature_cannot_move_directly_to
  0001:000D0700       get_shot_collided_with_same_type
  0001:000D0890       get_thing_collided_with_at_satisfying_filter
+ 0001:000D0C10       collide_filter_thing_is_of_type
  0001:000D0C80       check_out_object_for_trap
  0001:000D0D90       check_out_unclaimed_traps
  0001:000D1030       check_out_unclaimed_spells
