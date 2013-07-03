@@ -28,6 +28,12 @@ enum {
 };
 
 enum {
+    Batch_NONE = 0,
+    Batch_FILELIST,
+    Batch_ANIMLIST,
+};
+
+enum {
     DfsAlg_FldStnbrg = 0,
     DfsAlg_JrvJdcNnk,
     DfsAlg_Stucki,
@@ -58,9 +64,14 @@ class ImageArea {
 public:
     ImageArea(const std::string &nname, int nx=-1, int ny=-1, int nw=-1, int nh=-1):
         fname(nname),x(nx),y(ny),w(nw),h(nh) {};
+    /** Name of the source image file */
     std::string fname;
+    /** X and Y coords of the start of sprite within given image */
     int x,y;
+    /** Width and height the part of the image to be used */
     int w,h;
+    /** Destination format specific data */
+    int fd[4];
 };
 
 /** A class closing non-global command line parameters */
@@ -80,7 +91,7 @@ public:
         alg = DfsAlg_FldStnbrg;
         fmt = OutFmt_RAW;
         lvl = 100;
-        batch = false;
+        batch = Batch_NONE;
     }
     std::vector<ImageArea> inp;
     std::string fname_lst;
@@ -90,6 +101,6 @@ public:
     int fmt;
     int alg;
     int lvl;
-    bool batch;
+    int batch;
 };
 
