@@ -239,7 +239,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
         // Thing list loop body
         if (!thing_is_picked_up(thing))
         {
-            if ((thing->active_state != CrSt_CreatureUnconscious) && (!cctrl->combat_flags))
+            if ((thing->active_state != CrSt_CreatureUnconscious) && (cctrl->combat_flags == 0))
             {
                 if (!creature_is_called_to_arms(thing) && !creature_is_being_dropped(thing))
                 {
@@ -811,9 +811,9 @@ long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos)
     return _DK_computer_find_non_solid_block(comp, pos);
 }
 
-long computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4)
+long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4)
 {
-    return _DK_computer_able_to_use_magic(comp, a2, a3, a4);
+    return _DK_computer_able_to_use_magic(comp, pwkind, a3, a4);
 }
 
 long check_call_to_arms(struct Computer2 *comp)
