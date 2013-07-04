@@ -347,6 +347,9 @@
  0001:00041F50       create_power_hand
  0001:00042110       packet_place_door
  0001:00042540       process_pause_packet
+ 0001:000426D0       set_call_to_arms_as_birthing
+ 0001:00042780       set_call_to_arms_as_dying
+ 0001:00042800       set_call_to_arms_as_rebirthing
  0001:00042980       object_update_call_to_arms
  0001:00042B60       object_update_dungeon_heart
  0001:00042DE0       object_update_armour

@@ -114,7 +114,7 @@ char field_E8[2];
     struct Wander wandr1;
     struct Wander wandr2;
     short hand_thing_idx;
-char field_43C[2];
+    short field_43C;
     short influenced_thing_idx;
     long influenced_thing_creation;
     short engine_window_width;
