@@ -38,6 +38,7 @@
 #include "thing_physics.h"
 #include "thing_shots.h"
 #include "thing_traps.h"
+#include "thing_navigate.h"
 #include "creature_control.h"
 #include "creature_states.h"
 #include "creature_states_lair.h"
@@ -47,6 +48,7 @@
 #include "gui_soundmsgs.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
+#include "map_columns.h"
 #include "sounds.h"
 #include "game_legacy.h"
 
@@ -91,6 +93,9 @@ DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char pl
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long splevel);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwmodel);
+DLLIMPORT void _DK_set_call_to_arms_as_birthing(struct Thing *objtng);
+DLLIMPORT void _DK_set_call_to_arms_as_rebirthing(struct Thing *objtng);
+DLLIMPORT void _DK_set_call_to_arms_as_dying(struct Thing *objtng);
 /******************************************************************************/
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
@@ -945,9 +950,124 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     return Lb_SUCCESS;
 }
 
+void set_call_to_arms_as_birthing(struct Thing *objtng)
+{
+    _DK_set_call_to_arms_as_birthing(objtng); return;
+}
+
+void set_call_to_arms_as_dying(struct Thing *objtng)
+{
+    _DK_set_call_to_arms_as_dying(objtng); return;
+}
+
+void set_call_to_arms_as_rebirthing(struct Thing *objtng)
+{
+    _DK_set_call_to_arms_as_rebirthing(objtng); return;
+}
+
 TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long allow_flags)
 {
-    return _DK_magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+    struct Dungeon *dungeon;
+    struct PlayerInfo *player;
+    SYNCDBG(8,"Starting");
+    //return _DK_magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+    player = get_player(plyr_idx);
+    dungeon = get_players_dungeon(player);
+    if (!can_cast_spell_at_xy(plyr_idx, 6, stl_x, stl_y, allow_flags))
+    {
+        if (is_my_player_number(plyr_idx)) {
+            play_non_3d_sample(119);
+        }
+        return 0;
+    }
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height_at(&pos);
+    struct Thing *objtng;
+    objtng = thing_get(player->field_43C);
+    if ((dungeon->field_884 == 0) || !thing_is_object(objtng))
+    {
+          objtng = create_object(&pos, 24, plyr_idx, -1);
+          if (thing_is_invalid(objtng)) {
+              ERRORLOG("Cannot create call to arms");
+              return 0;
+          }
+          dungeon->field_884 = game.play_gameturn;
+          dungeon->field_883 = splevel;
+          dungeon->field_881 = stl_x;
+          dungeon->field_882 = stl_y;
+          player->field_43C = objtng->index;
+          objtng->mappos.z.val = get_thing_height_at(objtng, &objtng->mappos);
+          set_call_to_arms_as_birthing(objtng);
+          SYNCDBG(9,"Created birthing CTA");
+          return 1;
+    }
+    dungeon->field_884 = game.play_gameturn;
+    dungeon->field_881 = stl_x;
+    dungeon->field_882 = stl_y;
+    set_call_to_arms_as_rebirthing(objtng);
+    unsigned long k;
+    int i;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        struct CreatureControl *cctrl;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
+        {
+            if ((thing->active_state != CrSt_CreatureUnconscious) && ((cctrl->spell_flags & 0x0800) != 0))
+            {
+                struct StateInfo *stati;
+                stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
+                if ( stati->field_28 || creature_is_called_to_arms(thing) )
+                {
+                  if (creature_can_navigate_to_with_storage(thing, &pos, 0))
+                  {
+                      if (creature_is_called_to_arms(thing))
+                      {
+                          setup_person_move_to_position(thing, stl_x, stl_y, 0);
+                          thing->continue_state = CrSt_ArriveAtCallToArms;
+                      } else
+                      {
+                          if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
+                          {
+                              setup_person_move_to_position(thing, stl_x, stl_y, 0);
+                              thing->continue_state = CrSt_ArriveAtCallToArms;
+                          } else
+                          {
+                              set_start_state(thing);
+                          }
+                      }
+                  } else
+                  {
+                      set_start_state(thing);
+                      cctrl->spell_flags &= ~0x0800;
+                  }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return 1;
 }
 
 TbResult magic_use_power_slap_thing(PlayerNumber plyr_idx, struct Thing *thing)

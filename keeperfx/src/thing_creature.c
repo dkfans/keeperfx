@@ -1490,7 +1490,7 @@ long move_creature(struct Thing *thing)
         pos.x.val = velo_x + tngpos->x.val;
         pos.y.val = velo_y + tngpos->y.val;
         pos.z.val = velo_z + tngpos->z.val;
-        if (thing->movement_flags & 0x20)
+        if ((thing->movement_flags & 0x20) != 0)
         {
             if (thing_in_wall_at(thing, &pos))
             {
@@ -1531,7 +1531,7 @@ long move_creature(struct Thing *thing)
         }
         if ((tngpos->x.stl.num != pos.x.stl.num) || (tngpos->y.stl.num != pos.y.stl.num))
         {
-            if (thing->model == 8) {
+            if (thing->model == get_players_special_digger_breed(game.hero_player_num)) {
                 update_tunneller_trail(thing);
             }
             if ((subtile_slab_fast(tngpos->x.stl.num) != subtile_slab_fast(pos.x.stl.num))
