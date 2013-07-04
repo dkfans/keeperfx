@@ -262,7 +262,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if (check->param4 >= creatrs_factor) {
         return 4;
     }
-    if (computer_able_to_use_magic(comp, 6, 1, 3) != 1) {
+    if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 1, 3) != 1) {
         return 4;
     }
     if ((check_call_to_arms(comp) != 1) || is_there_an_attack_task(comp)) {
@@ -399,7 +399,7 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
     long i,n;
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_for_accelerate(comp, check);
-    if (computer_able_to_use_magic(comp, 11, 8, 3) != 1)
+    if (computer_able_to_use_magic(comp, PwrK_SPEEDCRTR, 8, 3) != 1)
     {
         return 4;
     }

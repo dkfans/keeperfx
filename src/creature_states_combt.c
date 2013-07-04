@@ -143,6 +143,39 @@ const struct CombatWeapon melee_offensive_weapon[] = {
 }
 #endif
 /******************************************************************************/
+TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
+{
+    struct CreatureControl *figctrl;
+    long oppn_idx;
+    TRACE_THING(fightng);
+    figctrl = creature_control_get_from_thing(fightng);
+    // Check any enemy creature is in melee opponents list
+    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        struct Thing *enmtng;
+        enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
+        if (!thing_is_invalid(enmtng))
+        {
+            if (players_are_enemies(fightng->owner,enmtng->owner)) {
+                return true;
+            }
+        }
+    }
+    // Check any enemy creature is in ranged opponents list
+    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        struct Thing *enmtng;
+        enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
+        if (!thing_is_invalid(enmtng))
+        {
+            if (players_are_enemies(fightng->owner,enmtng->owner)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 long creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist)
 {
     struct CreatureStats *crstat;
@@ -1640,7 +1673,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long 
     if (thing_in_field_of_view(thing, enmtng)
       && creature_has_ranged_weapon(thing))
     {
-        if (((cctrl->combat_flags & 0x18) == 0)
+        if (((cctrl->combat_flags & (0x10|0x08)) == 0)
           && combat_has_line_of_sight(thing, enmtng, a3))
         {
             CrInstance inst_id;

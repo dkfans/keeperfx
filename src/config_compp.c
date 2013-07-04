@@ -981,43 +981,43 @@ short parse_computer_player_computer_blocks(char *buf,long len)
 
 TbBool load_computer_player_config(unsigned short flags)
 {
-  static const char *textname = "Computer Player";
-  const char *fname;
-  char *buf;
-  long len;
-  init_computer_process_lists();
-  // Load the config file
-  fname = prepare_file_path(FGrp_FxData,keeper_compplayer_file);
-  len = LbFileLengthRnc(fname);
-  if (len < 2)
-  {
-    ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
-    return false;
-  }
-  if (len > 65536)
-  {
-    ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
-    return false;
-  }
-  buf = (char *)LbMemoryAlloc(len+256);
-  if (buf == NULL)
-    return false;
-  // Loading file data
-  len = LbFileLoadAt(fname, buf);
-  if (len>0)
-  {
-    parse_computer_player_common_blocks(buf,len, textname, flags);
-    parse_computer_player_process_blocks(buf,len);
-    parse_computer_player_check_blocks(buf,len);
-    parse_computer_player_event_blocks(buf,len);
-    parse_computer_player_computer_blocks(buf,len);
-  }
-  //Freeing and exiting
-  LbMemoryFree(buf);
-  // Hack to synchronize local structure with the one inside DLL.
-  // Remove when it's not needed anymore.
-  LbMemoryCopy(_DK_ComputerProcessLists,ComputerProcessLists,13*sizeof(struct ComputerProcessTypes));
-  return true;
+    static const char *textname = "Computer Player";
+    const char *fname;
+    char *buf;
+    long len;
+    init_computer_process_lists();
+    // Load the config file
+    fname = prepare_file_path(FGrp_FxData,keeper_compplayer_file);
+    len = LbFileLengthRnc(fname);
+    if (len < 2)
+    {
+        ERRORLOG("Computer Player file \"%s\" doesn't exist or is too small.",keeper_compplayer_file);
+        return false;
+    }
+    if (len > 65536)
+    {
+        ERRORLOG("Computer Player file \"%s\" is too large.",keeper_compplayer_file);
+        return false;
+    }
+    buf = (char *)LbMemoryAlloc(len+256);
+    if (buf == NULL)
+      return false;
+    // Loading file data
+    len = LbFileLoadAt(fname, buf);
+    if (len>0)
+    {
+        parse_computer_player_common_blocks(buf,len, textname, flags);
+        parse_computer_player_process_blocks(buf,len);
+        parse_computer_player_check_blocks(buf,len);
+        parse_computer_player_event_blocks(buf,len);
+        parse_computer_player_computer_blocks(buf,len);
+    }
+    //Freeing and exiting
+    LbMemoryFree(buf);
+    // Hack to synchronize local structure with the one inside DLL.
+    // Remove when it's not needed anymore.
+    LbMemoryCopy(_DK_ComputerProcessLists,ComputerProcessLists,13*sizeof(struct ComputerProcessTypes));
+    return true;
 }
 
 /******************************************************************************/

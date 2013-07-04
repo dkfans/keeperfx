@@ -427,7 +427,7 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
     cctrl->battle_enemy_idx = obthing->index;
     cctrl->long_9E = obthing->creation_turn;
     cctrl->field_AA = 0;
-    cctrl->combat_flags |= 0x08;
+    cctrl->combat_flags |= CmbtF_Unknown08;
     if ((crstat->attack_preference == 2) && creature_has_ranged_object_weapon(creatng))
     {
       cctrl->combat_state_id = 2;
