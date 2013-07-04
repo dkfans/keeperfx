@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "player_instances.h"
+#include "creature_states_combt.h"
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -100,11 +101,10 @@ Comp_Event_Func computer_event_func_list[] = {
 }
 #endif
 /******************************************************************************/
-long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
+long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
 {
-    long creatrs_def, creatrs_num;
-    struct Coord3d pos;
     //return _DK_computer_event_battle(comp, cevent, event);
+    struct Coord3d pos;
     pos.x.stl.num = event->mappos_x;
     pos.x.stl.pos = 0;
     pos.y.stl.num = event->mappos_y;
@@ -112,19 +112,23 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     pos.z.val = 0;
     if ((pos.x.val <= 0) || (pos.y.val <= 0))
         return false;
+    long creatrs_def, creatrs_num;
     creatrs_def = count_creatures_for_defend_pickup(comp);
     creatrs_num = creatrs_def * (long)cevent->param1 / 100;
-    if ((creatrs_num < 1) && (creatrs_def > 0))
+    if ((creatrs_num < 1) && (creatrs_def > 0)) {
         creatrs_num = 1;
-    if (creatrs_num <= 0)
+    }
+    if (creatrs_num <= 0) {
         return false;
-    if (!computer_find_non_solid_block(comp, &pos))
+    }
+    if (!computer_find_non_solid_block(comp, &pos)) {
         return false;
+    }
     if (!get_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
     {
         return create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2);
     } else
-    if (computer_able_to_use_magic(comp, 6, 1, 1) == 1)
+    if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 1, 1) == 1)
     {
         if (!get_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0))
         {
@@ -142,9 +146,125 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
   return _DK_computer_event_find_link(comp, cevent, event);
 }
 
+/**
+ * Finds computer player creature which is currently in a fight.
+ * @param comp
+ * @return
+ */
+struct Thing *find_creature_in_fight_with_enemy(struct Computer2 *comp)
+{
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *creatng;
+    unsigned long k;
+    int i;
+    dungeon = comp->dungeon;
+    // Force leave or kill normal creatures
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        creatng = thing_get(i);
+        cctrl = creature_control_get_from_thing(creatng);
+        if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->combat_flags != 0)
+        {
+            if (creature_is_being_attacked_by_enemy_player(creatng)) {
+                return creatng;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    // Kill all special workers
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        creatng = thing_get(i);
+        cctrl = creature_control_get_from_thing(creatng);
+        if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->combat_flags != 0) {
+            if (creature_is_being_attacked_by_enemy_player(creatng)) {
+                return creatng;
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
 long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-  return _DK_computer_event_battle_test(comp, cevent);
+    //return _DK_computer_event_battle_test(comp, cevent);
+    if (comp->dungeon->fights_num <= 0) {
+        return 4;
+    }
+    struct Thing *creatng;
+    creatng = find_creature_in_fight_with_enemy(comp);
+    if (thing_is_invalid(creatng)) {
+        return 4;
+    }
+    struct Coord3d pos;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
+    long creatrs_def, creatrs_num;
+    creatrs_def = count_creatures_for_defend_pickup(comp);
+    creatrs_num = creatrs_def * (long)cevent->param1 / 100;
+    if ((creatrs_num < 1) && (creatrs_def > 0)) {
+        creatrs_num = 1;
+    }
+    if (creatrs_num <= 0) {
+        return 4;
+    }
+    if (!computer_find_non_solid_block(comp, &pos)) {
+        return 4;
+    }
+    if (!get_task_in_progress(comp, CTT_MoveCreaturesToDefend))
+    {
+        if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
+            return 4;
+        }
+        return 1;
+    }
+    if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 8, 1) == 1)
+    {
+        if (!get_task_in_progress(comp, CTT_MagicCallToArms))
+        {
+            if (check_call_to_arms(comp))
+            {
+                if (!create_task_magic_call_to_arms(comp, &pos, creatrs_num)) {
+                    return 4;
+                }
+                return 1;
+            }
+        }
+    }
+    return 4;
 }
 
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
