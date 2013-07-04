@@ -1415,6 +1415,9 @@ long check_for_valid_combat(struct Thing *thing, struct Thing *enmtng)
     cctrl = creature_control_get_from_thing(thing);
     long valid_combat;
     valid_combat = cctrl->byte_A7;
+    if ((thing->active_state == CrSt_CreatureUnconscious) || (enmtng->active_state == CrSt_CreatureUnconscious)) {
+        return 0;
+    }
     if (!creature_will_attack_creature_incl_til_death(thing, enmtng)) {
         return 0;
     }
@@ -1850,13 +1853,13 @@ long check_for_better_combat(struct Thing *figtng)
         return 0;
     }
     // Check if there's place for new combat, add or replace a slot
-    if ( creature_has_spare_slot_for_combat(figtng, enmtng, combat_kind) )
+    if (creature_has_spare_slot_for_combat(figtng, enmtng, combat_kind))
     {
         if (!change_current_combat(figtng, enmtng, combat_kind))
             return 0;
     } else
     {
-        if ( !change_creature_with_existing_attacker(figtng, enmtng, combat_kind) )
+        if (!change_creature_with_existing_attacker(figtng, enmtng, combat_kind))
             return 0;
     }
     return 1;
@@ -1874,7 +1877,7 @@ void creature_in_combat_wait(struct Thing *thing)
     long dist;
     SYNCDBG(19,"Starting for %s",thing_model_name(thing));
     //_DK_creature_in_combat_wait(thing);
-    if ( check_for_better_combat(thing) ) {
+    if (check_for_better_combat(thing)) {
         SYNCDBG(19,"Switching to better combat");
         return;
     }
@@ -1887,18 +1890,19 @@ void creature_in_combat_wait(struct Thing *thing)
         }
     }
     // Check if we're best combat partner for the enemy
-    long combat_valid;
+    long cmbtyp;
     cctrl = creature_control_get_from_thing(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
     TRACE_THING(enmtng);
     if (!creature_is_most_suitable_for_combat(thing, enmtng))
     {
-        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
+        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",
+            thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
         creature_change_to_most_suitable_combat(thing);
         return;
     }
-    combat_valid = check_for_valid_combat(thing, enmtng);
-    if ( !combat_type_is_choice_of_creature(thing, combat_valid) ) {
+    cmbtyp = check_for_valid_combat(thing, enmtng);
+    if ( !combat_type_is_choice_of_creature(thing, cmbtyp) ) {
         SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return;
