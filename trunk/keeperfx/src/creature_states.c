@@ -1600,8 +1600,8 @@ short creature_change_from_chicken(struct Thing *creatng)
     } else
     {
       creatng->field_4F &= ~0x01;
-      cctrl->affected_by_spells &= ~CCSpl_Unknown01;
-      cctrl->spell_flags &= ~0x0200;
+      cctrl->affected_by_spells &= ~CCSpl_Chicken;
+      cctrl->spell_flags &= ~CSAfF_Chicken;
       set_creature_size_stuff(creatng);
       set_start_state(creatng);
       return 1;
@@ -2266,7 +2266,7 @@ short creature_pretend_chicken_move(struct Thing *creatng)
     //return _DK_creature_pretend_chicken_move(creatng);
     long move_ret;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->affected_by_spells & CCSpl_Unknown01) != 0)
+    if ((cctrl->affected_by_spells & CCSpl_Chicken) != 0)
     {
         return 1;
     }
@@ -2601,9 +2601,9 @@ long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned
   return _DK_setup_random_head_for_room(thing, room, a3);
 }
 
-struct Room * find_nearest_room_for_thing(struct Thing *thing, char a2, char a3, unsigned char a4)
+struct Room * find_nearest_room_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4)
 {
-    return _DK_find_nearest_room_for_thing(thing, a2, a3, a4);
+    return _DK_find_nearest_room_for_thing(thing, plyr_idx, rkind, a4);
 }
 
 struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing, char owner, char a3, char a4, unsigned char a5)
@@ -2611,9 +2611,9 @@ struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing
     return _DK_find_nearest_room_for_thing_excluding_two_types(thing, owner, a3, a4, a5);
 }
 
-struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, char a2, char a3, unsigned char a4, long a5)
+struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4, long a5)
 {
-    return _DK_find_nearest_room_for_thing_with_used_capacity(thing, a2, a3, a4, a5);
+    return _DK_find_nearest_room_for_thing_with_used_capacity(thing, plyr_idx, rkind, a4, a5);
 }
 
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
@@ -3569,7 +3569,7 @@ char creature_free_for_lunchtime(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    return (!cctrl->field_21) && ((cctrl->spell_flags & 0x0A00) == 0)
+    return (!cctrl->field_21) && ((cctrl->spell_flags & (CSAfF_Unkn0800|CSAfF_Chicken)) == 0)
         && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 
@@ -3584,71 +3584,72 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     if (creature_is_doing_garden_activity(creatng)) {
         return 1;
     }
-
-    if (!creature_free_for_lunchtime(creatng))
+    if (!creature_free_for_lunchtime(creatng)) {
       return 0;
-    if ( crstat->hunger_fill <= cctrl->field_41[1] )
+    }
+    if (crstat->hunger_fill <= cctrl->hunger_loss)
     {
-        cctrl->field_2DB = game.play_gameturn;
-        cctrl->field_41[1] -= crstat->hunger_fill;
+        cctrl->garden_check_turn = game.play_gameturn;
+        cctrl->hunger_loss -= crstat->hunger_fill;
         return 0;
     }
 
     if (!player_has_room(creatng->owner, RoK_GARDEN))
     {
         if (is_my_player_number(creatng->owner))
-            output_message(41, 500, 1);
+            output_message(SMsg_RoomGardenNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
         return 0;
     }
     struct Room * room;
-    if (game.play_gameturn - cctrl->field_2DB <= 128) {
+    if (game.play_gameturn - cctrl->garden_check_turn <= 128) {
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
         return 0;
     }
     room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
     if (room_is_invalid(room))
     {
-        cctrl->field_2DB = game.play_gameturn;
-        //
+        cctrl->garden_check_turn = game.play_gameturn;
+        // No food in nearest room, try to find another room
         room = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
         if (room_is_invalid(room))
         {
+            // There seem to be a correct room, but we can't reach it
             if (is_my_player_number(creatng->owner))
-                output_message(34, 500, 1);
+                output_message(SMsg_NoRouteToGarden, MESSAGE_DELAY_ROOM_NEED, 1);
         } else
         {
+            // The room is reachable, so it probably has just no food
             if (is_my_player_number(creatng->owner))
-                output_message(22, 500, 1);
+                output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
         }
     }
-    if (room_is_invalid(room))
-    {
-      event_create_event_or_update_nearby_existing_event(0, 0, 23, creatng->owner, 0);
-      anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
-      return 0;
+    if (room_is_invalid(room)) {
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+        return 0;
     }
     if (!external_set_thing_state(creatng, CrSt_CreatureToGarden)) {
-        event_create_event_or_update_nearby_existing_event(0, 0, 23, creatng->owner, 0);
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
         return 0;
     }
     short hunger_fill,hunger_loss,hunger;
-    hunger_loss = cctrl->field_41[1];
+    hunger_loss = cctrl->hunger_loss;
     hunger_fill = crstat->hunger_fill;
     if (hunger_loss != 0)
     {
         hunger = hunger_fill - hunger_loss;
-        cctrl->field_41[0] = hunger;
+        cctrl->hunger_amount = hunger;
         if (hunger <= 0)
         {
           ERRORLOG("This shouldn't happen");
-          cctrl->field_41[0] = 1;
+          cctrl->hunger_amount = 1;
         }
-        cctrl->field_41[1] = 0;
+        cctrl->hunger_loss = 0;
     } else
     {
-        cctrl->field_41[0] = hunger_fill;
+        cctrl->hunger_amount = hunger_fill;
     }
     return 1;
 }

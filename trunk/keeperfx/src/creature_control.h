@@ -89,7 +89,7 @@ enum CreatureControlFlags {
 };
 
 enum CreatureControlSpells {
-    CCSpl_Unknown01     = 0x01,
+    CCSpl_Chicken       = 0x01,
     CCSpl_Freeze        = 0x02,
     CCSpl_Teleport      = 0x04,
     CCSpl_Unknown08     = 0x08,
@@ -163,7 +163,8 @@ unsigned char field_2C;
 unsigned char field_33[6];
     long hunger_level;
     long field_3D;
-unsigned char field_41[2];
+    unsigned char hunger_amount;
+    unsigned char hunger_loss;
     long field_43;
     unsigned char field_47;
     unsigned char field_48;
@@ -388,7 +389,7 @@ unsigned short field_2C5;
     long field_2C7;
 unsigned char field_2CB[12];
     long field_2D7;
-    long field_2DB;
+    long garden_check_turn;
     long field_2DF;
     long field_2E3;
 unsigned char field_2E7[4];

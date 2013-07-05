@@ -1016,6 +1016,7 @@
  0001:000B45F0       process_rooms
  0001:000A80C0       process_messages
  0001:000A84C0       person_search_for_food_again
+ 0001:000A8310       person_eat_food
  0001:0005D4D0       find_nearest_rooms_for_ambient_sound
  0001:0005DB00       get_next_gap_creature_can_fit_in_below_point
  0001:0006EF80       process_computer_players2

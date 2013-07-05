@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "room_workshop.h"
+#include "thing_list.h"
 
 #ifdef __cplusplus
 extern "C" {
