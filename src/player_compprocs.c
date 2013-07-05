@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "player_instances.h"
+#include "room_lair.h"
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -280,36 +281,36 @@ Comp_Process_Func computer_process_func_list[] = {
 /******************************************************************************/
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  //return _DK_computer_setup_any_room(comp, process);
-  struct ComputerTask *task;
-  long i;
-  task = computer_setup_build_room(comp, process->field_10, process->field_8, process->field_C, process->field_14);
-  if (task != NULL)
-  {
-    set_flag_dword(&process->field_44, 0x0020, true);
-    i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
-    if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
+    //return _DK_computer_setup_any_room(comp, process);
+    struct ComputerTask *task;
+    long i;
+    task = computer_setup_build_room(comp, process->field_10, process->field_8, process->field_C, process->field_14);
+    if (task != NULL)
     {
-      ERRORLOG("Process \"%s\" is outside of Computer Player.",process->name);
-      i = COMPUTER_PROCESSES_COUNT;
+        set_flag_dword(&process->field_44, 0x0020, true);
+        i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
+        if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
+        {
+          ERRORLOG("Process \"%s\" is outside of Computer Player.",process->name);
+          i = COMPUTER_PROCESSES_COUNT;
+        }
+        task->field_8C = i;
+        shut_down_process(comp, process);
+        return 2;
     }
-    task->field_8C = i;
-    shut_down_process(comp, process);
+    if (process->field_8 > process->field_C)
+    {
+        if (process->field_8 <= 2)
+          return 0;
+        process->field_8--;
+    } else
+    {
+        if (process->field_C <= 2)
+          return 0;
+        process->field_C--;
+    }
+    reset_process(comp, process);
     return 2;
-  }
-  if (process->field_8 > process->field_C)
-  {
-    if (process->field_8 <= 2)
-      return 0;
-    process->field_8--;
-  } else
-  {
-    if (process->field_C <= 2)
-      return 0;
-    process->field_C--;
-  }
-  reset_process(comp, process);
-  return 2;
 }
 
 long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerProcess *process)
@@ -327,14 +328,130 @@ long computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *proc
   return _DK_computer_setup_attack1(comp, process);
 }
 
+long count_no_room_build_tasks(struct Computer2 *comp)
+{
+    struct ComputerTask *ctask;
+    long count;
+    count = 0;
+    long i;
+    unsigned long k;
+    i = comp->task_idx;
+    k = 0;
+    while (i != 0)
+    {
+        ctask = get_computer_task(i);
+        if (computer_task_invalid(ctask))
+        {
+            ERRORLOG("Jump to invalid task detected");
+            break;
+        }
+        i = ctask->next_task;
+        // Per-task code
+        if ((ctask->flags & 0x01) != 0)
+        {
+            unsigned char ttype;
+            ttype = ctask->ttype;
+            if ((ttype == CTT_DigRoomPassage) || (ttype == CTT_DigRoom)
+             || (ttype == CTT_CheckRoomDug) || (ttype == CTT_PlaceRoom)) {
+                count++;
+            }
+        }
+        // Per-task code ends
+        k++;
+        if (k > COMPUTER_TASKS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping tasks list");
+            break;
+        }
+    }
+    return count;
+}
+
 long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_check_build_all_rooms(comp, process);
+    struct Dungeon *dungeon;
+    //return _DK_computer_check_build_all_rooms(comp, process);
+    dungeon = comp->dungeon;
+    if (count_no_room_build_tasks(comp) >= comp->max_room_build_tasks) {
+        return 4;
+    }
+    struct ValidRooms *bldroom;
+    for (bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
+    {
+        if (!dungeon->room_kind[bldroom->rkind])
+        {
+            if (computer_check_room_available(comp, bldroom->rkind) == 1) {
+                process->field_10 = bldroom->rkind;
+                return 1;
+            }
+        }
+    }
+    return 4;
+}
+
+long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind)
+{
+  struct Dungeon *dungeon;
+  dungeon = comp->dungeon;
+  if (room_kind == RoK_GARDEN) {
+      return 9999;
+  }
+  if (room_kind == RoK_LAIR)
+  {
+      if (!dungeon_has_room(dungeon, room_kind)) {
+          return 9999;
+      }
+      return calculate_free_lair_space(comp->dungeon);
+  }
+  long used_capacity;
+  long total_capacity;
+  get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
+  if (total_capacity <= 0) {
+      return 9999;
+  }
+  return total_capacity - used_capacity;
 }
 
 long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_check_any_room(comp, process);
+    struct Dungeon *dungeon;
+    //return _DK_computer_check_any_room(comp, process);
+    dungeon = comp->dungeon;
+    long is_avail;
+    is_avail = computer_check_room_available(comp, process->field_10);
+    if (is_avail != 1)
+    {
+        if (is_avail == 0) {
+            process->field_44 |= 0x04;
+        }
+        return is_avail;
+    }
+    if (count_no_room_build_tasks(comp) >= comp->max_room_build_tasks) {
+        return 4;
+    }
+    long used_capacity;
+    long total_capacity;
+    get_room_kind_total_and_used_capacity(dungeon, process->field_10, &total_capacity, &used_capacity);
+    if (total_capacity <= 0) {
+        return 1;
+    }
+    long free_capacity;
+    free_capacity = computer_get_room_kind_free_capacity(comp, process->field_10);
+    if (free_capacity == 9999)
+    {
+        if (process->field_10 == RoK_GARDEN) {
+            return 4;
+        } else {
+            return 1;
+        }
+    } else
+    {
+        if (10*total_capacity/100 <= free_capacity) {
+            return 4;
+        } else {
+            return 1;
+        }
+    }
 }
 
 PlayerNumber get_player_with_more_entrances_than_computer(const struct Computer2 *comp, int *max_entr_count)

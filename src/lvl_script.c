@@ -1603,7 +1603,7 @@ void command_set_computer_globals(char *plrname, long val1, long val2, long val3
     comp->field_1C = val1;
     comp->field_14 = val2;
     comp->field_18 = val3;
-    comp->field_30 = val4;
+    comp->max_room_build_tasks = val4;
     comp->field_2C = val5;
     comp->field_20 = val6;
   }
