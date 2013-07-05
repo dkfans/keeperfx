@@ -311,7 +311,7 @@ struct Computer2 { // sizeof = 5322
   struct Dungeon *dungeon;
   unsigned long model;
   unsigned long field_2C;
-  unsigned long field_30;
+  unsigned long max_room_build_tasks;
   unsigned long field_34;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
@@ -343,6 +343,7 @@ struct THate {
 #pragma pack()
 /******************************************************************************/
 extern unsigned short computer_types[];
+extern struct ValidRooms valid_rooms_to_build[];
 
 extern struct ComputerProcessMnemonic computer_process_config_list[];
 extern const struct NamedCommand computer_process_func_type[];
@@ -393,11 +394,13 @@ TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags);
 /******************************************************************************/
+long computer_check_room_available(struct Computer2 * comp, long rkind);
+long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
+
 long count_creatures_in_dungeon(const struct Dungeon *dungeon);
 long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx);
 long count_diggers_in_dungeon(const struct Dungeon *dungeon);
 long check_call_to_arms(struct Computer2 *comp);
-long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
 long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);

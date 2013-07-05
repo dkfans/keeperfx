@@ -852,7 +852,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
   }
   comp->field_18 = cpt->field_C;
   comp->field_14 = cpt->field_8;
-  comp->field_30 = cpt->field_10;
+  comp->max_room_build_tasks = cpt->field_10;
   comp->field_2C = cpt->field_14;
   comp->field_20 = cpt->field_18;
   comp->field_C = 1;

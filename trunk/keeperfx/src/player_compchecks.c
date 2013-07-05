@@ -370,24 +370,24 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(s
     k = 0;
     while (i != 0)
     {
-      room = room_get(i);
-      if (room_is_invalid(room))
-      {
-        ERRORLOG("Jump to invalid room detected");
-        break;
-      }
-      i = room->next_of_owner;
-      // Per-room code
-      thing = computer_check_creatures_in_room_for_accelerate(comp, room);
-      if (!thing_is_invalid(thing))
-          return thing;
-      // Per-room code ends
-      k++;
-      if (k > ROOMS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping rooms list");
-        break;
-      }
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        thing = computer_check_creatures_in_room_for_accelerate(comp, room);
+        if (!thing_is_invalid(thing))
+            return thing;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
     }
     return INVALID_THING;
 }
