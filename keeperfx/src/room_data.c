@@ -374,15 +374,13 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
     return nslabs;
 }
 
-long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind)
+void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap)
 {
-    struct Dungeon * dungeon;
     struct Room * room;
     int used_capacity;
     int total_capacity;
     long i;
     unsigned long k;
-    dungeon = get_dungeon(plyr_idx);
     total_capacity = 0;
     used_capacity = 0;
     i = dungeon->room_kind[room_kind];
@@ -407,6 +405,17 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
           break;
         }
     }
+    *total_cap = total_capacity;
+    *used_cap = used_capacity;
+}
+
+long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    long used_capacity;
+    long total_capacity;
+    get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
     if (total_capacity <= 0) {
         return 0;
     }
