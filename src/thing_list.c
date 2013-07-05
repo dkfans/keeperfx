@@ -371,6 +371,36 @@ long map_block_thing_filter_is_of_class_and_model_and_owned_by(const struct Thin
     return -1;
 }
 
+long map_block_thing_filter_is_food_available_to_eat_and_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
+{
+    if (thing->class_id == TCls_Object)
+    {
+        if (thing->model == 10)
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                // Return the largest value to stop sweeping
+                return LONG_MAX;
+            }
+        }
+    }
+    if (thing->class_id == TCls_Creature)
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (((cctrl->spell_flags & CSAfF_Chicken) != 0) && (thing->health > 0))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                // Return the largest value to stop sweeping
+                return LONG_MAX;
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
 long map_block_creature_filter_of_model_training_and_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
@@ -2304,6 +2334,27 @@ struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, M
     filter = map_block_thing_filter_is_of_class_and_model_and_owned_by;
     param.class_id = TCls_Object;
     param.model_id = model;
+    param.plyr_idx = plyr_idx;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_THING;
+    }
+    i = get_mapwho_thing_index(mapblk);
+    n = 0;
+    return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+}
+
+struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundFilterParam param;
+    const struct Map *mapblk;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    filter = map_block_thing_filter_is_food_available_to_eat_and_owned_by;
+    param.class_id = -1;
+    param.model_id = -1;
     param.plyr_idx = plyr_idx;
     mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))

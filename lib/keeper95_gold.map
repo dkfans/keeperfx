@@ -1005,6 +1005,7 @@
  0001:000A7D00       parse_sound_file
  0001:000A80C0       process_messages
  0001:000A82E0       init_messages
+ 0001:000A8310       person_eat_food
  0001:000A8430       remove_food_from_food_room_if_possible
  0001:000A84C0       person_search_for_food_again
  0001:000A87C0       creature_to_garden

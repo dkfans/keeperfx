@@ -31,9 +31,11 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "player_instances.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "gui_soundmsgs.h"
+#include "creature_states_prisn.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -45,6 +47,7 @@ DLLIMPORT short _DK_creature_eat(struct Thing *thing);
 DLLIMPORT short _DK_creature_eating_at_garden(struct Thing *thing);
 DLLIMPORT short _DK_creature_to_garden(struct Thing *thing);
 DLLIMPORT void _DK_person_search_for_food_again(struct Thing *thing, struct Room *room);
+DLLIMPORT void _DK_person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -61,9 +64,108 @@ TbBool hunger_is_creature_hungry(const struct Thing *creatng)
     return ((crstat->hunger_rate != 0) && (cctrl->hunger_level > crstat->hunger_rate));
 }
 
-void person_search_for_food_again(struct Thing *thing, struct Room *room)
+void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
-    _DK_person_search_for_food_again(thing, room);
+    return _DK_person_eat_food(creatng, foodtng, room);
+}
+
+void person_search_for_food_again(struct Thing *creatng, struct Room *room)
+{
+    struct Thing *near_food_tng;
+    long near_food_dist;
+    //_DK_person_search_for_food_again(thing, room);
+    near_food_dist = LONG_MAX;
+    near_food_tng = INVALID_THING;
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSubtlCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        // Per-slab code
+        long n;
+        for (n=0; n < 9; n++)
+        {
+            MapSubtlCoord x,y;
+            struct Thing *thing;
+            x = slab_subtile(slb_x,n%3);
+            y = slab_subtile(slb_y,n/3);
+            thing = get_food_at_subtile_available_to_eat_and_owned_by(x, y, -1);
+            if (!thing_is_invalid(thing))
+            {
+                long dist;
+                dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
+                if (near_food_dist > dist)
+                {
+                    near_food_dist = dist;
+                    near_food_tng = thing;
+                }
+            }
+        }
+        // Per-slab code ends
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+    if ( thing_is_invalid(near_food_tng) || is_thing_passenger_controlled(near_food_tng) )
+    {
+        // Warn about no food in this room
+        if (is_my_player_number(creatng->owner))
+            output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
+        // Check whether there's a room which does have food
+        struct Room *nroom;
+        nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
+        if (!room_is_invalid(nroom))
+        {
+            if (setup_random_head_for_room(creatng, nroom, 0)) {
+                creatng->continue_state = CrSt_CreatureArrivedAtGarden;
+            } else {
+                ERRORLOG("Attempting to move to garden we cannot navigate to - this should not be possible");
+                set_start_state(creatng);
+            }
+        }
+        else
+        {
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(creatng);
+            anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
+            // Try to find food in the original room
+            if (setup_prison_move(creatng, room)) {
+                creatng->continue_state = CrSt_CreatureArrivedAtGarden;
+            } else {
+                set_start_state(creatng);
+            }
+        }
+        return;
+    }
+    if (!setup_person_move_close_to_position(creatng,
+           near_food_tng->mappos.x.stl.num, near_food_tng->mappos.y.stl.num, 0))
+    {
+        ERRORLOG("Cannot get near to food");
+        person_eat_food(creatng, near_food_tng, room);
+        return;
+    }
+    struct CreatureControl *cctrl;
+    if (near_food_tng->class_id == 5)
+    {
+        cctrl = creature_control_get_from_thing(near_food_tng);
+        cctrl->affected_by_spells |= 0x01;
+    } else
+    {
+        near_food_tng->byte_15 = 255;
+        near_food_tng->byte_16 = 127;
+    }
+    creatng->continue_state = CrSt_CreatureEatingAtGarden;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->long_9A = near_food_tng->index;
 }
 
 short creature_arrived_at_garden(struct Thing *thing)
@@ -106,7 +208,7 @@ short creature_to_garden(struct Thing *thing)
     struct Room *room;
     //return _DK_creature_to_garden(thing);
     cctrl = creature_control_get_from_thing(thing);
-    if ( !cctrl->field_41[0] ) {
+    if (cctrl->hunger_amount == 0) {
         set_start_state(thing);
         return 0;
     }
@@ -115,7 +217,7 @@ short creature_to_garden(struct Thing *thing)
         // No room for feeding creatures
         if (is_my_player_number(thing->owner))
             output_message(SMsg_RoomGardenNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
-        event_create_event_or_update_nearby_existing_event(0, 0, 23, thing->owner, 0);
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, thing->owner, 0);
         room = INVALID_ROOM;
     } else
     {
@@ -132,7 +234,7 @@ short creature_to_garden(struct Thing *thing)
                 // The room is reachable, so it probably has just no food
                 if (is_my_player_number(thing->owner))
                     output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
-                event_create_event_or_update_nearby_existing_event(0, 0, 23, thing->owner, 0);
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, thing->owner, 0);
             }
         }
     }
