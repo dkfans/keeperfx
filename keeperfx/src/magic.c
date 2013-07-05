@@ -1027,7 +1027,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
         // Thing list loop body
         if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
         {
-            if ((thing->active_state != CrSt_CreatureUnconscious) && ((cctrl->spell_flags & 0x0800) != 0))
+            if ((thing->active_state != CrSt_CreatureUnconscious) && ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
             {
                 struct StateInfo *stati;
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
@@ -1053,7 +1053,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
                   } else
                   {
                       set_start_state(thing);
-                      cctrl->spell_flags &= ~0x0800;
+                      cctrl->spell_flags &= ~CSAfF_Unkn0800;
                   }
                 }
             }
