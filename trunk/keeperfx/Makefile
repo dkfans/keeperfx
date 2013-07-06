@@ -341,6 +341,11 @@ pkg/ldata/door08.dat \
 pkg/ldata/door09.dat \
 pkg/ldata/fronttor.dat
 FRONTENDGFX = \
+pkg/data/legal.raw \
+pkg/fxdata/startup_fx.raw \
+pkg/data/loading.raw \
+pkg/fxdata/loading_640.raw \
+pkg/data/nocd.raw \
 pkg/ldata/front.raw \
 pkg/ldata/frontft1.dat \
 pkg/ldata/frontft2.dat \
@@ -349,6 +354,8 @@ pkg/ldata/frontft4.dat \
 pkg/ldata/frontbit.dat
 
 ENGINEGFX = \
+pkg/data/gmap.raw \
+pkg/data/gmaphi.raw \
 pkg/data/gui2-0-1.dat \
 pkg/data/gui2-0-0.dat \
 pkg/data/guihi.dat \
@@ -449,6 +456,7 @@ clean-package:
 	-$(RM) -R pkg/creatrs
 	-$(RM) -R pkg/fxdata
 	-$(RM) -R pkg/ldata
+	-$(RM) -R pkg/data
 	-$(RM) pkg/keeperfx*
 	-$(ECHO) ' '
 
@@ -683,6 +691,41 @@ pkg/ldata/torture.pal: gfx/torturescr/tortr_background.png gfx/torturescr/tortr_
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
+pkg/data/legal.pal: gfx/loading/legal64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+	-$(ECHO) 'Building legal screen palette: $@'
+	@$(MKDIR) $(@D)
+	$(PNGTOBSPAL) -o "$@" -m "$(filter %.txt,$^)" $(filter %.png,$^)
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/fxdata/startup_fx.pal: gfx/loading/startupfx64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+	-$(ECHO) 'Building startup screen palette: $@'
+	@$(MKDIR) $(@D)
+	$(PNGTOBSPAL) -o "$@" -m "$(filter %.txt,$^)" $(filter %.png,$^)
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/data/loading.pal: gfx/loading/loadng32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+	-$(ECHO) 'Building loading screen palette: $@'
+	@$(MKDIR) $(@D)
+	$(PNGTOBSPAL) -o "$@" -m "$(filter %.txt,$^)" $(filter %.png,$^)
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/fxdata/loading_640.pal: gfx/loading/loadng64.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+	-$(ECHO) 'Building loading screen palette: $@'
+	@$(MKDIR) $(@D)
+	$(PNGTOBSPAL) -o "$@" -m "$(filter %.txt,$^)" $(filter %.png,$^)
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/data/nocd.pal: gfx/loading/nocd32.png tools/png2bestpal/res/color_tbl_basic.txt $(PNGTOBSPAL)
+	-$(ECHO) 'Building loading screen palette: $@'
+	@$(MKDIR) $(@D)
+	$(PNGTOBSPAL) -o "$@" -m "$(filter %.txt,$^)" $(filter %.png,$^)
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
 pkg/ldata/front.pal: gfx/palettes/front.pal
 	-$(ECHO) 'Building engine palette: $@'
 	@$(MKDIR) $(@D)
@@ -726,7 +769,14 @@ pkg/ldata/frontft2.dat: gfx/frontft2/filelist_frontft2.txt pkg/ldata/front.pal $
 pkg/ldata/frontft3.dat: gfx/frontft3/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 pkg/ldata/frontft4.dat: gfx/frontft4/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 
+pkg/data/gmap.raw: gfx/guimap/gmap32.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/gmaphi.raw: gfx/guimap/gmap64.png pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gmapbug.dat: gfx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/legal.raw: gfx/loading/legal64.png pkg/data/legal.pal $(PNGTORAW) $(RNC)
+pkg/fxdata/startup_fx.raw: gfx/loading/startupfx64.png pkg/fxdata/startup_fx.pal $(PNGTORAW) $(RNC)
+pkg/data/loading.raw: gfx/loading/loadng32.png pkg/data/loading.pal $(PNGTORAW) $(RNC)
+pkg/fxdata/loading_640.raw: gfx/loading/loadng64.png pkg/fxdata/loading_640.pal $(PNGTORAW) $(RNC)
+pkg/data/nocd.raw: gfx/loading/nocd32.png pkg/data/nocd.pal $(PNGTORAW) $(RNC)
 pkg/data/gui2-0-1.dat: gfx/gui2-64/filelist_gui2-0-1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/gui2-0-0.dat: gfx/gui2-32/filelist_gui2-0-0.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/guihi.dat: gfx/gui1-64/filelist_guihi.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
@@ -740,8 +790,7 @@ pkg/data/lofont.dat: gfx/font_simp-32/filelist_lofont.txt pkg/data/palette.dat $
 pkg/data/font2-0.dat: gfx/font2-32/filelist_font2-0.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/font2-1.dat: gfx/font2-64/filelist_font2-1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 
-
-pkg/ldata/%.raw pkg/data/%.raw:
+pkg/ldata/%.raw pkg/data/%.raw pkg/fxdata/%.raw:
 	-$(ECHO) 'Building RAW image: $@'
 	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -f raw -l 100 "$<"
 	-$(RNC) "$@"
