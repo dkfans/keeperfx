@@ -35,6 +35,7 @@
 #include "thing_traps.h"
 #include "player_complookup.h"
 #include "power_hand.h"
+#include "room_data.h"
 #include "game_legacy.h"
 #include "skirmish_ai.h"
 
@@ -279,9 +280,104 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
     return count;
 }
 
-struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, unsigned short rkind, long a3, long a4, long a5)
+struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long area, long a6)
 {
-  return _DK_computer_setup_build_room(comp, rkind, a3, a4, a5);
+    struct ComputerTask *roomtask;
+    struct ComputerTask *ctask;
+    for ( ctask = &game.computer_task[comp->task_idx];
+          ctask > game.computer_task;
+          ctask = &game.computer_task[ctask->next_task] )
+    {
+      if (((ctask->flags & 0x01) != 0) && ((ctask->flags & 0x02) != 0))
+      {
+          unsigned short max_f7c;
+          max_f7c = ((ctask->field_7C)&0xffff) / 2;
+          if ( max_f7c <= ((ctask->field_7C >> 16)&0xffff) / 2 )
+            max_f7c = ((ctask->field_7C >> 16)&0xffff) / 2;
+          roomtask = able_to_build_room(comp, &ctask->pos_64, rkind, width_slabs, height_slabs, area + max_f7c + 1, a6);
+          if (roomtask != NULL) {
+              return roomtask;
+          }
+      }
+    }
+    return NULL;
+}
+
+struct ComputerTask * able_to_build_room_at_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long a6)
+{
+    struct ComputerTask *roomtask;
+    struct Room *room;
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    for ( room = &game.rooms[dungeon->room_kind[look_kind]]; room > game.rooms; room = &game.rooms[room->next_of_owner] )
+    {
+        struct Coord3d pos;
+        pos.x.val = subtile_coord_center(room->central_stl_x);
+        pos.y.val = subtile_coord_center(room->central_stl_y);
+        pos.z.val = 256;
+        roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, area, a6);
+        if (roomtask != NULL) {
+            return roomtask;
+        }
+    }
+    return NULL;
+}
+
+struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long look_randstart)
+{
+    struct Dungeon *dungeon;
+    //return _DK_computer_setup_build_room(comp, rkind, a3, a4, a5);
+    dungeon = comp->dungeon;
+    long max_slabs;
+    long area_min,area_max;
+    long i;
+    max_slabs = height_slabs;
+    if (max_slabs < width_slabs)
+        max_slabs = width_slabs;
+    area_min = (max_slabs + 1) / 2 + 1;
+    area_max = area_min / 3 + 2 * area_min;
+    if (rkind == RoK_LAIR)
+    {
+        if (width_slabs*height_slabs < dungeon->max_creatures_attracted)
+        {
+            i = LbSqrL(dungeon->max_creatures_attracted);
+            width_slabs = i + 1;
+            height_slabs = i + 1;
+        }
+    }
+    const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
+    long area;
+    for (area=area_min; area < area_max; area++)
+    {
+        long aparam;
+        for (aparam=1; aparam >= 0; aparam--)
+        {
+            unsigned int lookidx;
+            lookidx = look_randstart;
+            if (look_randstart < 0)
+            {
+                lookidx = ACTION_RANDOM(arr_length);
+            }
+            for (i=0; i < arr_length; i++)
+            {
+                struct ComputerTask *roomtask;
+                int look_kind;
+                look_kind = look_through_rooms[lookidx];
+                if (look_kind == RoK_UNKN17)
+                {
+                    roomtask = able_to_build_room_at_task(comp, rkind, width_slabs, height_slabs, area, aparam);
+                } else
+                {
+                    roomtask = able_to_build_room_at_room(comp, rkind, look_kind, width_slabs, height_slabs, area, aparam);
+                }
+                if (roomtask != NULL) {
+                    return roomtask;
+                }
+                lookidx = (lookidx + 1) % arr_length;
+            }
+        }
+    }
+    return NULL;
 }
 
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
