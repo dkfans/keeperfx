@@ -88,6 +88,7 @@ long add_to_trap_location(struct Computer2 *, struct Coord3d *);
 long find_next_gold(struct Computer2 *, struct ComputerTask *);
 long check_for_gold(long simulation, long digflags, long l3);
 int search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
+struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long a7);
 /******************************************************************************/
 const struct TaskFunctions task_function[] = {
     {NULL, NULL},
@@ -306,7 +307,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         }
         return i;
     case GA_Unk15:
-    case GA_Unk16:
+    case GA_PlaceRoom:
         room = player_build_room_at(stl_x, stl_y, plyr_idx, param2);
         if (room_is_invalid(room))
             break;
@@ -557,7 +558,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
             {
-                if (try_game_action(comp, dungeon->owner, GA_Unk16, 0, stl_x, stl_y, 1, rkind) > 0)
+                if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind) > 0)
                 {
                     ctask->dig.subfield_44++;
                     if (ctask->dig.subfield_40 <= ctask->dig.subfield_44) {
@@ -683,9 +684,10 @@ TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int plyr_idx)
     return false;
 }
 
-/*struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short a3, long a4, long a5, long a6, long a7)
+struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long a6, long a7)
 {
-}*/
+    return _DK_able_to_build_room(comp, pos, rkind, width_slabs, height_slabs, a6, a7);
+}
 
 long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
 {
@@ -1299,7 +1301,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
                     state_type = get_creature_state_type(thing);
                     if (state_type == 1)
                     {
-                        if (try_game_action(comp, dungeon->owner, 0x1Cu, 0, 0, 0, thing->index, 0) > 0)
+                        if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, thing->index, 0) > 0)
                         {
                             return 2;
                         }

@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "player_instances.h"
+#include "config_terrain.h"
 #include "creature_states_combt.h"
 
 #include "dungeon_data.h"
@@ -279,7 +280,36 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-  return _DK_computer_event_check_rooms_full(comp, cevent);
+    long ret;
+    SYNCDBG(8,"Starting");
+    //return _DK_computer_event_check_rooms_full(comp, cevent);
+    ret = 4;
+    struct ValidRooms *bldroom;
+    for (bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
+    {
+        if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
+            continue;
+        }
+        // Find the corresponding build process and mark it as needed
+        long i;
+        for (i=0; i <= COMPUTER_PROCESSES_COUNT; i++)
+        {
+            struct ComputerProcess *cproc;
+            cproc = &comp->processes[i];
+            if ((cproc->field_44 & 0x02) != 0)
+                break;
+            if (cproc->parent == bldroom->process)
+            {
+                SYNCDBG(8,"Need \"%s\"",room_code_name(bldroom->rkind));
+                ret = 1;
+                cproc->field_44 &= ~0x0008;
+                cproc->field_44 &= ~0x0001;
+                cproc->field_3C = 0;
+                cproc->field_38 = 0;
+            }
+        }
+    }
+    return ret;
 }
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)

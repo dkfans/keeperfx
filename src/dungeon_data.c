@@ -174,8 +174,12 @@ TbBool player_has_room(long plyr_idx, RoomKind rkind)
  */
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
 {
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
         return false;
+    }
+    if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
+        return false;
+    }
     return (dungeon->room_kind[rkind] > 0);
 }
 

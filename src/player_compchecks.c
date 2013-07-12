@@ -110,6 +110,23 @@ Comp_Check_Func computer_check_func_list[] = {
   NULL,
   NULL,
 };
+
+struct ExpandRooms expand_rooms[] = {
+  {RoK_TREASURE, 45},
+  {RoK_LAIR, 45},
+  {RoK_GARDEN, 45},
+  {RoK_LIBRARY, 45},
+  {RoK_TRAINING, 35},
+  {RoK_WORKSHOP, 45},
+  {RoK_SCAVENGER, 30},
+  {RoK_PRISON, 30},
+  {RoK_TEMPLE, 25},
+  {RoK_TORTURE, 35},
+  {RoK_GRAVEYARD, 30},
+  {RoK_BARRACKS, 35},
+  {RoK_NONE,0},
+};
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -443,9 +460,123 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     return _DK_computer_check_neutral_places(comp, check);
 }
 
+/**
+ * This function generates "expand room" action on a tile which is claimed ground and could have a room placed on.
+ * It is used to fix vandalized or not fully built rooms, so that they will cover the whole area digged for them.
+ *
+ * @param comp
+ * @param check Computer check data.
+ * @param room The room to be checked for expand.
+ * @param around_start Random value used for setting starting point of the check process.
+ * @return
+ */
+TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct ComputerCheck * check, struct Room *room, long around_start)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        MapSlabCoord slb_x,slb_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_direct(i);
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per-slab code
+        unsigned long m,n;
+        m = around_start % SMALL_AROUND_SLAB_LENGTH;
+        for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+        {
+            MapSlabCoord arslb_x, arslb_y;
+            int available_slabs;
+            available_slabs = 0;
+            arslb_x = slb_x + small_around[m].delta_x;
+            arslb_y = slb_y + small_around[m].delta_y;
+            slb = get_slabmap_block(arslb_x, arslb_y);
+            if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
+            {
+                available_slabs++;
+                if (available_slabs >= 2)
+                {
+                    if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0,
+                        slab_subtile_center(arslb_x), slab_subtile_center(arslb_y), 1, room->kind) > 0) {
+                        return true;
+                    }
+                }
+            }
+            m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
+        }
+        // Per-slab code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+    return false;
+}
+
+long computer_check_for_expand_room_kind(struct Computer2 *comp, struct ComputerCheck * check, RoomKind rkind, long max_slabs, long around_start)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Invalid computer players dungeon");
+        return 0;
+    }
+    struct Room *room;
+    long i;
+    unsigned long k;
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        if ((room->slabs_count > 0) && (room->slabs_count < max_slabs)) {
+            if (computer_check_for_expand_specific_room(comp, check, room, around_start)) {
+                return 1;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    return 0;
+}
+
 long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_expand_room(comp, check);
+    //return _DK_computer_check_for_expand_room(comp, check);
+    long around_start;
+    around_start = ACTION_RANDOM(119);
+    if (get_task_in_progress(comp, 4))
+    {
+        return 0;
+    }
+    const struct ExpandRooms *expndroom;
+    for (expndroom = &expand_rooms[0]; expndroom->rkind != RoK_NONE; expndroom++)
+    {
+        if (computer_check_for_expand_room_kind(comp, check, expndroom->rkind, expndroom->max_slabs, around_start))
+            return 1;
+    }
+    return 0;
 }
 /******************************************************************************/
