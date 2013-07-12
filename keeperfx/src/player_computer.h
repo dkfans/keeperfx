@@ -88,7 +88,7 @@ enum GameActionTypes {
     GA_Unk13,
     GA_Unk14,
     GA_Unk15,
-    GA_Unk16,
+    GA_PlaceRoom,
     GA_SetTendencies,
     GA_PlaceTrap,
     GA_PlaceDoor,
@@ -340,6 +340,11 @@ struct THate {
     long value[4];
 };
 
+struct ExpandRooms {
+    RoomKind rkind;
+    short max_slabs;
+};
+
 #pragma pack()
 /******************************************************************************/
 extern unsigned short computer_types[];
@@ -363,8 +368,10 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
 void suspend_process(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *process);
 /******************************************************************************/
-struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, unsigned short rkind, long a3, long a4, long a5);
+struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long a5);
 struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp);
+struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind,
+    long width_slabs, long height_slabs, long a6, long a7);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
 void get_opponent(struct Computer2 *comp, struct THate *hate);
@@ -387,6 +394,8 @@ TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *po
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long a2, long a3);
 long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4);
+long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
+long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
 long process_tasks(struct Computer2 *comp);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);

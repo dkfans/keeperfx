@@ -26,6 +26,7 @@
 #include "bflib_math.h"
 
 #include "config.h"
+#include "config_terrain.h"
 #include "player_instances.h"
 #include "room_lair.h"
 
@@ -282,31 +283,34 @@ Comp_Process_Func computer_process_func_list[] = {
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process)
 {
     //return _DK_computer_setup_any_room(comp, process);
-    struct ComputerTask *task;
+    struct ComputerTask *ctask;
     long i;
-    task = computer_setup_build_room(comp, process->field_10, process->field_8, process->field_C, process->field_14);
-    if (task != NULL)
+    ctask = computer_setup_build_room(comp, process->field_10, process->field_8, process->field_C, process->field_14);
+    if (ctask != NULL)
     {
-        set_flag_dword(&process->field_44, 0x0020, true);
+        SYNCDBG(8,"Task for \"%s\" has been created",process->name);
+        process->field_44 |= 0x0020;
         i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
         {
           ERRORLOG("Process \"%s\" is outside of Computer Player.",process->name);
           i = COMPUTER_PROCESSES_COUNT;
         }
-        task->field_8C = i;
+        ctask->field_8C = i;
         shut_down_process(comp, process);
         return 2;
     }
     if (process->field_8 > process->field_C)
     {
-        if (process->field_8 <= 2)
-          return 0;
+        if (process->field_8 <= 2) {
+            return 0;
+        }
         process->field_8--;
     } else
     {
-        if (process->field_C <= 2)
-          return 0;
+        if (process->field_C <= 2) {
+            return 0;
+        }
         process->field_C--;
     }
     reset_process(comp, process);
@@ -315,7 +319,40 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *pro
 
 long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_setup_any_room_continue(comp, process);
+    struct ComputerTask *ctask;
+    long i;
+    //return _DK_computer_setup_any_room_continue(comp, process);
+    ctask = computer_setup_build_room(comp, process->field_10, process->field_8, process->field_C, process->field_14);
+    if (ctask != NULL)
+    {
+        SYNCDBG(8,"Task for \"%s\" has been created",process->name);
+        process->field_44 |= 0x0020;
+        i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
+        if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
+        {
+          ERRORLOG("Process \"%s\" is outside of Computer Player.",process->name);
+          i = COMPUTER_PROCESSES_COUNT;
+        }
+        ctask->field_8C = i;
+        shut_down_process(comp, process);
+        process->field_44 &= ~0x0008;
+        return 2;
+    }
+    if (process->field_8 > process->field_C)
+    {
+        if (process->field_8 <= 2) {
+            return 0;
+        }
+        process->field_8--;
+    } else
+    {
+        if (process->field_C <= 2) {
+            return 0;
+        }
+        process->field_C--;
+    }
+    reset_process(comp, process);
+    return 2;
 }
 
 long computer_setup_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process)
@@ -378,15 +415,26 @@ long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProce
     struct ValidRooms *bldroom;
     for (bldroom = valid_rooms_to_build; bldroom->rkind > 0; bldroom++)
     {
-        if (!dungeon->room_kind[bldroom->rkind])
+        if (!dungeon_has_room(dungeon, bldroom->rkind))
         {
             if (computer_check_room_available(comp, bldroom->rkind) == 1) {
+                SYNCDBG(8,"Going to build %s",room_code_name(bldroom->rkind));
                 process->field_10 = bldroom->rkind;
                 return 1;
             }
         }
     }
     return 4;
+}
+
+long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind)
+{
+  struct Dungeon *dungeon;
+  dungeon = comp->dungeon;
+  long used_capacity;
+  long total_capacity;
+  get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
+  return total_capacity;
 }
 
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind)
@@ -433,25 +481,25 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *pro
     long total_capacity;
     get_room_kind_total_and_used_capacity(dungeon, process->field_10, &total_capacity, &used_capacity);
     if (total_capacity <= 0) {
+        SYNCDBG(8,"Need \"%s\" because do not have any",room_code_name(process->field_10));
         return 1;
     }
     long free_capacity;
     free_capacity = computer_get_room_kind_free_capacity(comp, process->field_10);
     if (free_capacity == 9999)
     {
-        if (process->field_10 == RoK_GARDEN) {
-            return 4;
-        } else {
+        if (process->field_10 != RoK_GARDEN) {
+            SYNCDBG(8,"Need \"%s\" because of undetermined capacity",room_code_name(process->field_10));
             return 1;
         }
     } else
     {
-        if (10*total_capacity/100 <= free_capacity) {
-            return 4;
-        } else {
+        if (free_capacity < 10*total_capacity/100) {
+            SYNCDBG(8,"Need \"%s\" because of low free capacity",room_code_name(process->field_10));
             return 1;
         }
     }
+    return 4;
 }
 
 PlayerNumber get_player_with_more_entrances_than_computer(const struct Computer2 *comp, int *max_entr_count)

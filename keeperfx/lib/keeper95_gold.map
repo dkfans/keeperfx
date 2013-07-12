@@ -1384,6 +1384,7 @@
  0001:00076320       computer_paused_task
  0001:00076330       computer_completed_build_a_room
  0001:0004B310       computer_setup_build_room
+ 0001:0004B590       able_to_build_room
  0001:0004BC60       computer_finds_nearest_room_to_gold
  0001:0006F070       process_computer_player2
  0001:00001DD0       process_tasks
