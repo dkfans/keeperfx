@@ -42,11 +42,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_creature_arrived_at_garden(struct Thing *thing);
-DLLIMPORT short _DK_creature_eat(struct Thing *thing);
-DLLIMPORT short _DK_creature_eating_at_garden(struct Thing *thing);
-DLLIMPORT short _DK_creature_to_garden(struct Thing *thing);
-DLLIMPORT void _DK_person_search_for_food_again(struct Thing *thing, struct Room *room);
+DLLIMPORT short _DK_creature_arrived_at_garden(struct Thing *creatng);
+DLLIMPORT short _DK_creature_eat(struct Thing *creatng);
+DLLIMPORT short _DK_creature_eating_at_garden(struct Thing *creatng);
+DLLIMPORT short _DK_creature_to_garden(struct Thing *creatng);
+DLLIMPORT void _DK_person_search_for_food_again(struct Thing *creatng, struct Room *room);
 DLLIMPORT void _DK_person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -114,6 +114,8 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
             break;
         }
     }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
     if ( thing_is_invalid(near_food_tng) || is_thing_passenger_controlled(near_food_tng) )
     {
         // Warn about no food in this room
@@ -122,7 +124,12 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
         // Check whether there's a room which does have food
         struct Room *nroom;
-        nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
+        // Try to find one which has plenty of food
+        nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, crstat->hunger_fill+1);
+        if (room_is_invalid(nroom)) {
+            // If not found, maybe at least one chicken?
+            nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
+        }
         if (!room_is_invalid(nroom))
         {
             if (setup_random_head_for_room(creatng, nroom, 0)) {
@@ -134,8 +141,6 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         }
         else
         {
-            struct CreatureStats *crstat;
-            crstat = creature_stats_get_from_thing(creatng);
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
             // Try to find food in the original room
             if (setup_prison_move(creatng, room)) {
@@ -202,59 +207,64 @@ short creature_eating_at_garden(struct Thing *thing)
   return _DK_creature_eating_at_garden(thing);
 }
 
-short creature_to_garden(struct Thing *thing)
+short creature_to_garden(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    struct Room *room;
+    struct Room *nroom;
     //return _DK_creature_to_garden(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount == 0) {
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    if (!player_has_room(thing->owner, RoK_GARDEN))
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if (!player_has_room(creatng->owner, RoK_GARDEN))
     {
         // No room for feeding creatures
-        if (is_my_player_number(thing->owner))
+        if (is_my_player_number(creatng->owner))
             output_message(SMsg_RoomGardenNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
-        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, thing->owner, 0);
-        room = INVALID_ROOM;
+        event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
+        nroom = INVALID_ROOM;
     } else
     {
-        room = find_nearest_room_for_thing_with_used_capacity(thing, thing->owner, RoK_GARDEN, 0, 1);
-        if (room_is_invalid(room)) {
+        // Try to find one which has plenty of food
+        nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, crstat->hunger_fill+1);
+        if (room_is_invalid(nroom)) {
+            // If not found, maybe at least one chicken?
+            nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
+        }
+        if (room_is_invalid(nroom)) {
             // No correct room - but check what exactly is the problem
-            room = find_nearest_room_for_thing(thing, thing->owner, RoK_GARDEN, 0);
-            if (room_is_invalid(room)) {
+            nroom = find_nearest_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+            if (room_is_invalid(nroom)) {
                 // There seem to be a correct room, but we can't reach it
-                if (is_my_player_number(thing->owner))
+                if (is_my_player_number(creatng->owner))
                     output_message(SMsg_NoRouteToGarden, MESSAGE_DELAY_ROOM_NEED, 1);
             } else
             {
                 // The room is reachable, so it probably has just no food
-                if (is_my_player_number(thing->owner))
+                if (is_my_player_number(creatng->owner))
                     output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
-                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, thing->owner, 0);
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
             }
         }
     }
     // Apply anger if there's no room (note that anger isn't applied if room is just empty)
-    if (room_is_invalid(room))
+    if (room_is_invalid(nroom))
     {
-        struct CreatureStats *crstat;
-        crstat = creature_stats_get_from_thing(thing);
-        anger_apply_anger_to_creature(thing, crstat->annoy_no_hatchery, AngR_Hungry, 1);
-        set_start_state(thing);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
+        set_start_state(creatng);
         return 0;
     }
-    if (!setup_random_head_for_room(thing, room, 0))
+    if (!setup_random_head_for_room(creatng, nroom, 0))
     {
         ERRORLOG("Attempting to move to garden we cannot navigate to - this should not be possible");
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    thing->continue_state = CrSt_CreatureArrivedAtGarden;
-    cctrl->target_room_id = room->index;
+    creatng->continue_state = CrSt_CreatureArrivedAtGarden;
+    cctrl->target_room_id = nroom->index;
     return 1;
 }
 

@@ -3601,18 +3601,18 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
         return 0;
     }
-    struct Room * room;
+    struct Room * nroom;
     if (game.play_gameturn - cctrl->garden_check_turn <= 128) {
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
         return 0;
     }
-    room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
-    if (room_is_invalid(room))
+    nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
+    if (room_is_invalid(nroom))
     {
         cctrl->garden_check_turn = game.play_gameturn;
         // No food in nearest room, try to find another room
-        room = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
-        if (room_is_invalid(room))
+        nroom = find_random_room_for_thing(creatng, creatng->owner, RoK_GARDEN, 0);
+        if (room_is_invalid(nroom))
         {
             // There seem to be a correct room, but we can't reach it
             if (is_my_player_number(creatng->owner))
@@ -3624,7 +3624,7 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
                 output_message(SMsg_GardenTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
         }
     }
-    if (room_is_invalid(room)) {
+    if (room_is_invalid(nroom)) {
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
         return 0;
