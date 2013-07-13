@@ -994,7 +994,7 @@ long add_ranged_attacker(struct Thing *fighter, struct Thing *enemy)
         return false; // We're not going to add anything
     }
     if (!can_add_ranged_combat_attacker(enemy)) {
-        SYNCLOG("Cannot add a ranged attacker to %s index %d - opponents limit reached",thing_model_name(fighter),(int)fighter->index);
+        SYNCDBG(7,"Cannot add a ranged attacker to %s index %d - opponents limit reached",thing_model_name(fighter),(int)fighter->index);
         return false;
     }
     figctrl->combat_flags |= CmbtF_Ranged;
@@ -1036,7 +1036,7 @@ long add_melee_attacker(struct Thing *fighter, struct Thing *enemy)
         return false; // We're not going to add anything
     }
     if (!can_add_melee_combat_attacker(enemy)) {
-        SYNCLOG("Cannot add a melee attacker to %s index %d - opponents limit reached",thing_model_name(fighter),(int)fighter->index);
+        SYNCDBG(7,"Cannot add a melee attacker to %s index %d - opponents limit reached",thing_model_name(fighter),(int)fighter->index);
         return false;
     }
     figctrl->combat_flags |= CmbtF_Melee;
@@ -1067,7 +1067,7 @@ TbBool add_waiting_attacker(struct Thing *fighter, struct Thing *enemy)
     SYNCDBG(18,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
     figctrl = creature_control_get_from_thing(fighter);
     if (figctrl->combat_flags) {
-        SYNCLOG("The %s index %d in combat already - waiting",thing_model_name(fighter),(int)fighter->index);
+        SYNCDBG(7,"The %s index %d in combat already - waiting",thing_model_name(fighter),(int)fighter->index);
     }
     figctrl->combat_flags |= CmbtF_Waiting;
     figctrl->battle_enemy_idx = enemy->index;
