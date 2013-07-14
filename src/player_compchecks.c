@@ -139,9 +139,9 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
     //return _DK_computer_checks_hates(comp, check);
     compdngn = comp->dungeon;
     // Reference values for checking hate
-    int cdngn_creatrs, cdngn_spwrkrs, cdngn_enrancs;
+    int cdngn_creatrs, cdngn_spdiggrs, cdngn_enrancs;
     cdngn_creatrs = count_creatures_in_dungeon(compdngn);
-    cdngn_spwrkrs = count_diggers_in_dungeon(compdngn);
+    cdngn_spdiggrs = count_diggers_in_dungeon(compdngn);
     cdngn_enrancs = count_entrances(comp, compdngn->owner);
     // Now check hate for every player
     int i;
@@ -160,26 +160,30 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
             continue;
         if (players_are_mutual_allies(compdngn->owner, i))
             continue;
-        int hdngn_creatrs, hdngn_spwrkrs, hdngn_enrancs;
+        int hdngn_creatrs, hdngn_spdiggrs, hdngn_enrancs;
         int hate_reasons;
         hate_reasons = 0;
         hdngn_creatrs = count_creatures_in_dungeon(dungeon);
-        hdngn_spwrkrs = count_diggers_in_dungeon(dungeon);
+        hdngn_spdiggrs = count_diggers_in_dungeon(dungeon);
+        // Computers hate players who have more creatures than them
         if (hdngn_creatrs >= cdngn_creatrs)
         {
             hate_reasons++;
             rel->field_42++;
         }
-        if (cdngn_spwrkrs / 6 + cdngn_spwrkrs < hdngn_spwrkrs)
+        // Computers hate players who have more special diggers than them
+        if (cdngn_spdiggrs / 6 + cdngn_spdiggrs < hdngn_spdiggrs)
         {
             hate_reasons++;
             rel->field_42++;
         }
+        // Computers hate players who can build more rooms than them
         if (((int)compdngn->buildable_rooms_count + (int)compdngn->buildable_rooms_count / 6) < (int)dungeon->buildable_rooms_count)
         {
             hate_reasons++;
             rel->field_42++;
         }
+        // Computers highly hate players who claimed more entrances than them
         hdngn_enrancs = count_entrances(comp, i);
         if (hdngn_enrancs > cdngn_enrancs)
         {
@@ -199,8 +203,27 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct ComputerTask *ctask;
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_move_creatures_to_best_room(comp, check);
+    //return _DK_computer_check_move_creatures_to_best_room(comp, check);
+    int num_to_move;
+    num_to_move = check->param2 * comp->dungeon->num_active_creatrs / 100;
+    if (num_to_move <= 0) {
+        return 4;
+    }
+    if (get_task_in_progress(comp, CTT_MoveCreatureToRoom) != NULL) {
+        return 4;
+    }
+    ctask = get_free_task(comp, 1);
+    if (ctask == NULL) {
+        return 4;
+    }
+    ctask->ttype = CTT_MoveCreatureToRoom;
+    ctask->word_70 = 0;
+    ctask->word_80 = 0;
+    ctask->field_7C = num_to_move;
+    ctask->field_A = game.play_gameturn;
+    return 1;
 }
 
 long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check)
@@ -547,6 +570,7 @@ long computer_check_for_expand_room_kind(struct Computer2 *comp, struct Computer
         // Per-room code
         if ((room->slabs_count > 0) && (room->slabs_count < max_slabs)) {
             if (computer_check_for_expand_specific_room(comp, check, room, around_start)) {
+                SYNCDBG(6,"The %s index %d will be expanded",room_code_name(room->kind),(int)room->index);
                 return 1;
             }
         }
@@ -567,16 +591,19 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
     //return _DK_computer_check_for_expand_room(comp, check);
     long around_start;
     around_start = ACTION_RANDOM(119);
-    if (get_task_in_progress(comp, 4))
+    if (get_task_in_progress(comp, CTT_PlaceRoom))
     {
+        SYNCDBG(8,"No rooms expansion - task already in progress");
         return 0;
     }
     const struct ExpandRooms *expndroom;
     for (expndroom = &expand_rooms[0]; expndroom->rkind != RoK_NONE; expndroom++)
     {
-        if (computer_check_for_expand_room_kind(comp, check, expndroom->rkind, expndroom->max_slabs, around_start))
+        if (computer_check_for_expand_room_kind(comp, check, expndroom->rkind, expndroom->max_slabs, around_start)) {
             return 1;
+        }
     }
+    SYNCDBG(8,"No rooms found for expansion");
     return 0;
 }
 /******************************************************************************/

@@ -36,7 +36,7 @@ struct ComputerProcessTypes { // sizeof = 1124
   long field_4;
   long field_8;
   long field_C;
-  long field_10;
+  long max_room_build_tasks;
   long field_14;
   long field_18;
   long field_1C;

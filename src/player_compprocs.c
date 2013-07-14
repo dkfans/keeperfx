@@ -289,7 +289,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *pro
     if (ctask != NULL)
     {
         SYNCDBG(8,"Task for \"%s\" has been created",process->name);
-        process->field_44 |= 0x0020;
+        process->flags |= ComProc_Unkn0020;
         i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
         {
@@ -326,7 +326,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
     if (ctask != NULL)
     {
         SYNCDBG(8,"Task for \"%s\" has been created",process->name);
-        process->field_44 |= 0x0020;
+        process->flags |= ComProc_Unkn0020;
         i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
         if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
         {
@@ -335,7 +335,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
         }
         ctask->field_8C = i;
         shut_down_process(comp, process);
-        process->field_44 &= ~0x0008;
+        process->flags &= ~ComProc_Unkn0008;
         return 2;
     }
     if (process->field_8 > process->field_C)
@@ -365,9 +365,9 @@ long computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *proc
   return _DK_computer_setup_attack1(comp, process);
 }
 
-long count_no_room_build_tasks(struct Computer2 *comp)
+long count_no_room_build_tasks(const struct Computer2 *comp)
 {
-    struct ComputerTask *ctask;
+    const struct ComputerTask *ctask;
     long count;
     count = 0;
     long i;
@@ -384,12 +384,13 @@ long count_no_room_build_tasks(struct Computer2 *comp)
         }
         i = ctask->next_task;
         // Per-task code
-        if ((ctask->flags & 0x01) != 0)
+        if ((ctask->flags & ComTsk_Unkn0001) != 0)
         {
             unsigned char ttype;
             ttype = ctask->ttype;
             if ((ttype == CTT_DigRoomPassage) || (ttype == CTT_DigRoom)
              || (ttype == CTT_CheckRoomDug) || (ttype == CTT_PlaceRoom)) {
+                SYNCDBG(19,"Task %d is matching type %d",(int)i,(int)ttype);
                 count++;
             }
         }
@@ -470,11 +471,13 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *pro
     if (is_avail != 1)
     {
         if (is_avail == 0) {
-            process->field_44 |= 0x04;
+            process->flags |= ComProc_Unkn0004;
         }
         return is_avail;
     }
-    if (count_no_room_build_tasks(comp) >= comp->max_room_build_tasks) {
+    long num_build_tasks = count_no_room_build_tasks(comp);
+    if (num_build_tasks >= comp->max_room_build_tasks) {
+        SYNCDBG(19,"Not building \"%s\" because already doing %d build tasks",room_code_name(process->field_10),(int)num_build_tasks);
         return 4;
     }
     long used_capacity;
@@ -499,6 +502,7 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *pro
             return 1;
         }
     }
+    SYNCDBG(9,"Not building \"%s\" because free capacity is %d/%d",room_code_name(process->field_10),(int)free_capacity, (int)total_capacity);
     return 4;
 }
 
@@ -532,7 +536,6 @@ PlayerNumber get_player_with_more_entrances_than_computer(const struct Computer2
  */
 TbBool there_is_virgin_entrance_for_computer(const struct Computer2 *comp)
 {
-    //TODO COMPUTER_AI rename when I know what this function really does
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     long i;
@@ -574,9 +577,9 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     int neutral_entrances;
     dungeon = comp->dungeon;
     neutral_entrances = count_entrances(comp, game.neutral_player_num);
-    if (get_task_in_progress(comp, 5))
+    if (get_task_in_progress(comp, CTT_DigToEntrance))
     {
-      return 4;
+        return 4;
     }
     if ((there_is_virgin_entrance_for_computer(comp)) &&
         (game.play_gameturn - process->field_34 < 2000))
@@ -632,7 +635,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     digres = computer_finds_nearest_room_to_gold(comp, &startpos, &gldlook);
     if (digres == -1)
     {
-        process->field_44 |= 0x04;
+        process->flags |= ComProc_Unkn0004;
         SYNCDBG(8,"Can't find nearest room to gold; will refresh gold map");
         return 0;
     }
@@ -697,7 +700,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     ctask->pos_76.y.val = endpos.y.val;
     ctask->pos_76.z.val = endpos.z.val;
     ctask->long_86 = process->field_10;
-    ctask->flags |= 0x04;
+    ctask->flags |= ComTsk_Unkn0004;
     posptr->x.stl.num = 3 * (posptr->x.stl.num / 3);
     posptr->y.stl.num = 3 * (posptr->y.stl.num / 3);
     ctask->field_8C = computer_process_index(comp, process);
@@ -713,7 +716,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     setup_dig_to(&ctask->dig, startpos, endpos);
     process->func_complete(comp, process);
     suspend_process(comp, process);
-    comp->field_0 = 2;
+    comp->task_state = CTaskSt_Select;
     return 2;
 }
 
@@ -774,7 +777,7 @@ long computer_process_task(struct Computer2 *comp, struct ComputerProcess *proce
 
 long computer_paused_task(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  comp->field_0 = 2;
+  comp->task_state = CTaskSt_Select;
   return 0;
 }
 
@@ -782,7 +785,7 @@ long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *pro
 {
     SYNCDBG(8,"Completed process \"%s\"",process->name);
     process->field_34 = game.play_gameturn;
-    comp->field_0 = 2;
+    comp->task_state = CTaskSt_Select;
     return 0;
 }
 
@@ -793,8 +796,8 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
 
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *process)
 {
-    process->field_44 &= ~0x08;
-    comp->field_0 = 2;
+    process->flags &= ~ComProc_Unkn0008;
+    comp->task_state = CTaskSt_Select;
     return 0;
 }
 
@@ -803,8 +806,8 @@ void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process)
     Comp_Process_Func callback;
     if (process != NULL)
     {
-        set_flag_dword(&process->field_44, 0x0008, true);
-        set_flag_dword(&process->field_44, 0x0020, false);
+        process->flags |= ComProc_Unkn0008;
+        process->flags &= ~ComProc_Unkn0020;
         process->field_34 = game.play_gameturn;
         callback = process->func_complete;
         if (callback != NULL) {
@@ -826,7 +829,7 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *process)
 {
     if (process != NULL)
     {
-        process->field_44 &= ~0x20;
+        process->flags &= ~ComProc_Unkn0020;
         process->field_38 = 0;
         process->field_3C = game.play_gameturn;
         process->field_34 = game.play_gameturn;
@@ -839,7 +842,7 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *process)
   {
     process->field_3C = 0;
     process->field_38 = 0;
-    set_flag_dword(&process->field_44, 0x0020, false);
+    set_flag_dword(&process->flags, ComProc_Unkn0020, false);
     process->field_34 = game.play_gameturn;
   }
 }
@@ -868,7 +871,7 @@ long set_next_process(struct Computer2 *comp)
             if ( chkres == 1 )
             {
                 process->field_30 = game.play_gameturn;
-                comp->field_0 = 3;
+                comp->task_state = CTaskSt_Perform;
             }
         }
         if (chkres == 4)
