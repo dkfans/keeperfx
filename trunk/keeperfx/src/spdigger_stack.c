@@ -81,6 +81,13 @@ DLLIMPORT long _DK_imp_already_reinforcing_at_excluding(struct Thing *creatng, l
 long const dig_pos[] = {0, -1, 1};
 
 /******************************************************************************/
+/**
+ * Adds task to imp stack. Returns if the stack still has free space.
+ * @param stl_num Map position related to the task.
+ * @param task_type Type of the task.
+ * @param dungeon The dungeon to which task is to be added.
+ * @return True if there is still free slot on the stack after adding, false otherwise.
+ */
 TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *dungeon)
 {
     struct DiggerStack *istack;
@@ -232,7 +239,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     for (i=0; i < dungeon->digger_stack_length; i++)
     {
         stck = &dungeon->imp_stack[i];
-        if ((stck->task_id != 1) && (stck->task_id != 2)) {
+        if ((stck->task_id != DigTsk_ImproveDungeon) && (stck->task_id != DigTsk_ConvertDungeon)) {
             continue;
         }
         MapSubtlCoord stl_x, stl_y;
@@ -647,14 +654,46 @@ long check_out_unprettied_place(struct Thing *thing)
   return false;
 }
 
-long check_out_undug_place(struct Thing *thing)
+TbBool is_digging_indestructible_place(const struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    MapSubtlCoord base_stl_x,base_stl_y;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    cctrl = creature_control_get_from_thing(creatng);
+    base_stl_x = stl_num_decode_x(cctrl->word_8F);
+    base_stl_y = stl_num_decode_y(cctrl->word_8F);
+    n = ACTION_RANDOM(4);
+    for (i=0; i < 4; i++)
+    {
+        SubtlCodedCoords task_pos;
+        MapSlabCoord slb_x,slb_y;
+        long task_idx;
+        slb_x = subtile_slab_fast(base_stl_x)+small_around[n].delta_x;
+        slb_y = subtile_slab_fast(base_stl_y)+small_around[n].delta_y;
+        task_pos = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        task_idx = find_dig_from_task_list(creatng->owner, task_pos);
+        if (task_idx != -1)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            if (slab_kind_is_indestructible(slb->kind)) {
+                return true;
+            }
+        }
+        n = (n + 1) % 4;
+    }
+    return false;
+}
+
+long check_out_undug_place(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     MapSubtlCoord base_stl_x,base_stl_y;
     long i,n;
     SYNCDBG(19,"Starting");
     //return _DK_check_out_undug_place(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     base_stl_x = stl_num_decode_x(cctrl->word_8F);
     base_stl_y = stl_num_decode_y(cctrl->word_8F);
     n = ACTION_RANDOM(4);
@@ -667,23 +706,23 @@ long check_out_undug_place(struct Thing *thing)
         slb_x = subtile_slab_fast(base_stl_x)+small_around[n].delta_x;
         slb_y = subtile_slab_fast(base_stl_y)+small_around[n].delta_y;
         task_pos = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        task_idx = find_dig_from_task_list(thing->owner, task_pos);
+        task_idx = find_dig_from_task_list(creatng->owner, task_pos);
         if (task_idx != -1)
         {
             long mv_x,mv_y;
             mv_x = 0; mv_y = 0;
-            if (check_place_to_dig_and_get_position(thing, task_pos, &mv_x, &mv_y)
-                && setup_person_move_to_position(thing, mv_x, mv_y, 0))
+            if (check_place_to_dig_and_get_position(creatng, task_pos, &mv_x, &mv_y)
+                && setup_person_move_to_position(creatng, mv_x, mv_y, 0))
             {
                 cctrl->word_91 = task_idx;
                 cctrl->word_8F = task_pos;
-                mtask = get_task_list_entry(thing->owner, cctrl->word_91);
+                mtask = get_task_list_entry(creatng->owner, cctrl->word_91);
                 if (mtask->kind == SDDigTask_MineGold)
                 {
-                  thing->continue_state = CrSt_ImpArrivesAtMineGold;
+                  creatng->continue_state = CrSt_ImpArrivesAtMineGold;
                 } else
                 {
-                  thing->continue_state = CrSt_ImpArrivesAtDigDirt;
+                  creatng->continue_state = CrSt_ImpArrivesAtDigDirt;
                 }
                 return 1;
             }
@@ -765,6 +804,7 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
     long i,nused;
     SYNCDBG(18,"Starting");
     nused = 0;
+    // Loop two times; first add destroyable blocks, then (if we have space) those which can be dug forever (gems)
     i = -1;
     while ((num > 0) && (dungeon->digger_stack_length < IMP_TASK_MAX_COUNT))
     {
@@ -776,12 +816,41 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
         stl_y = stl_num_decode_y(mtask->field_1);
         if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
         {
-          if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
-          {
-            add_to_imp_stack_using_pos(mtask->field_1, DigTsk_DigOrMine, dungeon);
-            num--;
-            nused++;
-          }
+            struct SlabMap *slb;
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if (!slab_kind_is_indestructible(slb->kind)) // Add only blocks which can be destroyed by digging
+            {
+                if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
+                {
+                    add_to_imp_stack_using_pos(mtask->field_1, DigTsk_DigOrMine, dungeon);
+                    num--;
+                    nused++;
+                }
+            }
+        }
+    }
+    i = -1;
+    while ((num > 0) && (dungeon->digger_stack_length < IMP_TASK_MAX_COUNT))
+    {
+        i = find_next_dig_in_dungeon_task_list(dungeon, i);
+        if (i < 0)
+            break;
+        mtask = get_dungeon_task_list_entry(dungeon, i);
+        stl_x = stl_num_decode_x(mtask->field_1);
+        stl_y = stl_num_decode_y(mtask->field_1);
+        if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
+            if (slab_kind_is_indestructible(slb->kind)) // This time, add only blocks which cannot be destroyed
+            {
+                if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
+                {
+                    add_to_imp_stack_using_pos(mtask->field_1, DigTsk_DigOrMine, dungeon);
+                    num--;
+                    nused++;
+                }
+            }
         }
     }
     return nused;
@@ -975,14 +1044,14 @@ long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon)
 
 void setup_imp_stack(struct Dungeon *dungeon)
 {
-  long i;
-  for (i = 0; i < dungeon->digger_stack_length; i++)
-  {
-    dungeon->imp_stack[i].task_id = DigTsk_None;
-  }
-  dungeon->digger_stack_update_turn = game.play_gameturn;
-  dungeon->digger_stack_length = 0;
-  r_stackpos = 0;
+    long i;
+    for (i = 0; i < dungeon->digger_stack_length; i++)
+    {
+        dungeon->imp_stack[i].task_id = DigTsk_None;
+    }
+    dungeon->digger_stack_update_turn = game.play_gameturn;
+    dungeon->digger_stack_length = 0;
+    r_stackpos = 0;
 }
 
 long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2)
@@ -1535,120 +1604,124 @@ long check_out_imp_tokes(struct Thing *thing)
     return 1;
 }
 
-long check_out_imp_last_did(struct Thing *thing)
+long check_out_imp_last_did(struct Thing *creatng)
 {
   struct CreatureControl *cctrl;
   struct Dungeon *dungeon;
   struct Room *room;
   //return _DK_check_out_imp_last_did(thing);
-  cctrl = creature_control_get_from_thing(thing);
-  SYNCDBG(19,"Starting for %s index %d, last did %d",thing_model_name(thing),(int)thing->index,(int)cctrl->digger.last_did_job);
-  TRACE_THING(thing);
+  cctrl = creature_control_get_from_thing(creatng);
+  SYNCDBG(19,"Starting for %s index %d, last did %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->digger.last_did_job);
+  TRACE_THING(creatng);
   switch (cctrl->digger.last_did_job)
   {
   case 0:
       return false;
-  case 1:
-      if ( check_out_undug_place(thing) || check_out_undug_area(thing) )
+  case SDLstJob_DigOrMine:
+      if (is_digging_indestructible_place(creatng)) {
+          // If we were digging gems, do task reset every time
+          break;
+      }
+      if ( check_out_undug_place(creatng) || check_out_undug_area(creatng) )
       {
-          cctrl->digger.last_did_job = 1;
+          cctrl->digger.last_did_job = SDLstJob_DigOrMine;
           return true;
       }
-      if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
+      if ( check_out_unconverted_place(creatng) || check_out_unprettied_place(creatng) )
       {
-          cctrl->digger.last_did_job = 2;
+          cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
           SYNCDBG(19,"Done on unprettied or unconverted place 1");
           return true;
       }
-      imp_stack_update(thing);
-      if ( check_out_unprettied_or_unconverted_area(thing) )
+      imp_stack_update(creatng);
+      if ( check_out_unprettied_or_unconverted_area(creatng) )
       {
-          cctrl->digger.last_did_job = 2;
+          cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
           SYNCDBG(9,"Done on unprettied or unconverted area 1");
           return true;
       }
       break;
-  case 2:
-      if ( check_out_unconverted_place(thing) || check_out_unprettied_place(thing) )
+  case SDLstJob_ConvImprDungeon:
+      if ( check_out_unconverted_place(creatng) || check_out_unprettied_place(creatng) )
       {
-          cctrl->digger.last_did_job = 2;
+          cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
           SYNCDBG(19,"Done on unprettied or unconverted place 2");
           return true;
       }
-      imp_stack_update(thing);
-      if ( check_out_unprettied_or_unconverted_area(thing) )
+      imp_stack_update(creatng);
+      if ( check_out_unprettied_or_unconverted_area(creatng) )
       {
-          cctrl->digger.last_did_job = 2;
+          cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
           SYNCDBG(9,"Done on unprettied or unconverted area 2");
           return true;
       }
-      if ( check_out_undug_area(thing) )
+      if ( check_out_undug_area(creatng) )
       {
-          cctrl->digger.last_did_job = 1;
+          cctrl->digger.last_did_job = SDLstJob_DigOrMine;
           return true;
       }
       break;
-  case 3:
-      dungeon = get_dungeon(thing->owner);
-      imp_stack_update(thing);
+  case SDLstJob_ReinforceWall3:
+      dungeon = get_dungeon(creatng->owner);
+      imp_stack_update(creatng);
       if ((dungeon->digger_stack_update_turn != cctrl->digger.stack_update_turn) && (dungeon->digger_stack_length != 3))
         break;
-      if ( check_out_unreinforced_place(thing) )
+      if ( check_out_unreinforced_place(creatng) )
       {
-        cctrl->digger.last_did_job = 3;
+        cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
         return true;
       }
-      if ( check_out_unreinforced_area(thing) )
+      if ( check_out_unreinforced_area(creatng) )
       {
-        cctrl->digger.last_did_job = 3;
+        cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
         return true;
       }
       break;
-  case 4:
-      if ( !creature_can_be_trained(thing) || !player_can_afford_to_train_creature(thing) )
+  case SDLstJob_UseTraining4:
+      if ( !creature_can_be_trained(creatng) || !player_can_afford_to_train_creature(creatng) )
         break;
-      room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TRAINING, 0, 1);
+      room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TRAINING, 0, 1);
       if (!room_is_invalid(room))
       {
-          if ( setup_random_head_for_room(thing, room, 0) )
+          if ( setup_random_head_for_room(creatng, room, 0) )
           {
-            thing->continue_state = CrSt_AtTrainingRoom;
+            creatng->continue_state = CrSt_AtTrainingRoom;
             cctrl->target_room_id = room->index;
             return true;
           }
       }
-      if (is_my_player_number(thing->owner))
+      if (is_my_player_number(creatng->owner))
       {
-        if ( !find_room_with_spare_capacity(thing->owner, RoK_TRAINING, 1) )
+        if ( !find_room_with_spare_capacity(creatng->owner, RoK_TRAINING, 1) )
           output_message(SMsg_TrainingTooSmall, 0, true);
       }
       break;
-  case 9:
-      if ( check_out_unreinforced_place(thing) )
+  case SDLstJob_ReinforceWall9:
+      if ( check_out_unreinforced_place(creatng) )
       {
-        cctrl->digger.last_did_job = 9;
+        cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
         return true;
       }
-      if ( check_out_unreinforced_area(thing) )
+      if ( check_out_unreinforced_area(creatng) )
       {
-        cctrl->digger.last_did_job = 9;
+        cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
         return true;
       }
       break;
   default:
       break;
   }
-  cctrl->digger.last_did_job = 0;
+  cctrl->digger.last_did_job = SDLstJob_None;
   SYNCDBG(9,"No job found");
   return false;
 }
 
-long imp_stack_update(struct Thing *thing)
+long imp_stack_update(struct Thing *creatng)
 {
     struct Dungeon *dungeon;
     SYNCDBG(18,"Starting");
     //return _DK_imp_stack_update(thing);
-    dungeon = get_dungeon(thing->owner);
+    dungeon = get_dungeon(creatng->owner);
     if ((game.play_gameturn - dungeon->digger_stack_update_turn) < 128)
         return 0;
     SYNCDBG(8,"Updating");
@@ -1688,7 +1761,7 @@ long check_out_worker_improve_dungeon(struct Thing *thing, struct DiggerStack *i
     thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->digger.last_did_job = 2;
+    cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
     return 1;
 }
 
@@ -1716,7 +1789,7 @@ long check_out_worker_convert_dungeon(struct Thing *thing, struct DiggerStack *i
     thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->digger.last_did_job = 2;
+    cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
     return 1;
 }
 
@@ -1753,7 +1826,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *is
     thing->continue_state = CrSt_ImpArrivesAtReinforce;
     cctrl->digger.byte_93 = 0;
     cctrl->word_8D = istack->field_0;
-    cctrl->digger.last_did_job = 3;
+    cctrl->digger.last_did_job = SDLstJob_ReinforceWall3;
     return 1;
 }
 
@@ -2015,7 +2088,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     return 1;
 }
 
-long check_out_worker_pickup_dig_or_mine(struct Thing *thing, struct DiggerStack *istack)
+long check_out_worker_dig_or_mine(struct Thing *thing, struct DiggerStack *istack)
 {
     MapSubtlCoord stl_x,stl_y;
     long i;
@@ -2029,22 +2102,22 @@ long check_out_worker_pickup_dig_or_mine(struct Thing *thing, struct DiggerStack
     if (!check_place_to_dig_and_get_position(thing, istack->field_0, &stl_x, &stl_y)
       || !setup_person_move_to_position(thing, stl_x, stl_y, 0))
     {
-      istack->task_id = DigTsk_None;
-      return -1;
+        istack->task_id = DigTsk_None;
+        return -1;
     }
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->word_91 = i;
     cctrl->word_8F = istack->field_0;
-    cctrl->digger.last_did_job = 1;
+    cctrl->digger.last_did_job = SDLstJob_DigOrMine;
     struct MapTask *task;
     task = get_task_list_entry(thing->owner, i);
     if (task->kind == SDDigTask_MineGold)
     {
-      thing->continue_state = CrSt_ImpArrivesAtMineGold;
+        thing->continue_state = CrSt_ImpArrivesAtMineGold;
     } else
     {
-      thing->continue_state = CrSt_ImpArrivesAtDigDirt;
+        thing->continue_state = CrSt_ImpArrivesAtDigDirt;
     }
     return 1;
 }
@@ -2137,7 +2210,7 @@ long check_out_imp_stack(struct Thing *thing)
             ret = check_out_worker_pickup_trap_for_workshop(thing, istack);
             break;
         case DigTsk_DigOrMine:
-            ret = check_out_worker_pickup_dig_or_mine(thing, istack);
+            ret = check_out_worker_dig_or_mine(thing, istack);
             break;
         case DigTsk_PicksUpGoldPile:
             ret = check_out_worker_pickup_gold_pile(thing, istack);
