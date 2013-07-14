@@ -45,6 +45,8 @@ extern "C" {
 
 /** How often to check for possible gold veins which could be digged by computer */
 #define GOLD_DEMAND_CHECK_INTERVAL 5000
+/** How long to wait for diggers to prepare a place for room before dropping the task and assuming it failed */
+#define COMPUTER_DIG_ROOM_TIMEOUT 7500
 
 enum ComputerTaskTypes {
     CTT_None = 0,

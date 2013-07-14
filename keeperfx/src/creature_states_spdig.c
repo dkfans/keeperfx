@@ -437,17 +437,17 @@ long check_out_available_spdigger_drop_tasks(struct Thing *digger)
     }
     if ( check_out_undug_drop_place(digger) )
     {
-        cctrl->digger.last_did_job = 1;
+        cctrl->digger.last_did_job = SDLstJob_DigOrMine;
         return 1;
     }
     if ( check_out_unconverted_drop_place(digger) )
     {
-        cctrl->digger.last_did_job = 2;
+        cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
         return 1;
     }
     if ( check_out_unprettied_drop_place(digger) )
     {
-        cctrl->digger.last_did_job = 2;
+        cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
         return 1;
     }
     if ( check_out_unclaimed_gold(digger, 768) )
@@ -456,14 +456,14 @@ long check_out_available_spdigger_drop_tasks(struct Thing *digger)
     }
     if ( check_out_unreinforced_drop_place(digger) )
     {
-        cctrl->digger.last_did_job = 9;
+        cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
         return 1;
     }
     if ( check_out_crates_to_arm_trap_in_room(digger) )
     {
         return 1;
     }
-    cctrl->digger.last_did_job = 0;
+    cctrl->digger.last_did_job = SDLstJob_None;
     return 0;
 }
 
