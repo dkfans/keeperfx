@@ -106,6 +106,11 @@ void region_alloc(unsigned long tree_reg)
     _DK_region_alloc(tree_reg); return;
 }
 
+void triangulation_init_regions(void)
+{
+    memset(Regions, 0, REGIONS_COUNT*sizeof(struct RegionT));
+}
+
 struct RegionT *get_region(long reg_id)
 {
     if ((reg_id < 0) || (reg_id >= REGIONS_COUNT))

@@ -59,6 +59,7 @@ void tri_dispose(long tri_idx);
 
 TbBool triangle_is_invalid(const struct Triangle *tri);
 struct Triangle *get_triangle(long tri_id);
+long triangle_find_first_used(void);
 
 long get_triangle_region_id(long tri_id);
 TbBool set_triangle_region_id(long tri_id, long reg_id);
@@ -74,8 +75,7 @@ long edge_rotateAC(long a1, long a2);
 long point_loop(long pt_tri, long pt_cor);
 long reduce_point(long *pt_tri, long *pt_cor);
 
-void triangulation_init(void);
-void triangulation_initxy(long a1, long a2, long a3, long a4);
+void triangulation_init_triangles(long pt_id1, long pt_id2, long pt_id3, long pt_id4);
 char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y);
 /******************************************************************************/
 #ifdef __cplusplus

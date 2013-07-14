@@ -80,6 +80,18 @@ void triangle_find_cache_put(long pos_x, long pos_y, long ntri)
   find_cache[cache_y][cache_x] = ntri;
 }
 
+void triangulation_init_cache(long tri_idx)
+{
+    long i;
+    for (i=0; i < 4; i++)
+    {
+        find_cache[i][0] = tri_idx;
+        find_cache[i][1] = tri_idx;
+        find_cache[i][2] = tri_idx;
+        find_cache[i][3] = tri_idx;
+    }
+}
+
 long triangle_find8(long pt_x, long pt_y)
 {
     int eqA,eqB,eqC;
