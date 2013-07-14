@@ -593,7 +593,7 @@ long count_slabs_where_room_cannot_be_built_up_to(PlayerNumber plyr_idx, MapSubt
 long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    if (game.play_gameturn - ctask->field_A > 7500) {
+    if (game.play_gameturn - ctask->field_A > COMPUTER_DIG_ROOM_TIMEOUT) {
         WARNLOG("Task %d couldn't be completed in reasonable time, reset.",(int)ctask->ttype);
         restart_task_process(comp, ctask);
         return 0;

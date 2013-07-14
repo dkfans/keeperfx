@@ -40,6 +40,19 @@ enum SpecialDiggerTask {
     DigTsk_PicksUpGoldPile, // 10
 };
 
+enum SpecialLastJobKinds {
+    SDLstJob_None = 0,
+    SDLstJob_DigOrMine,
+    SDLstJob_ConvImprDungeon,
+    SDLstJob_ReinforceWall3,
+    SDLstJob_UseTraining4,
+    SDLstJob_Unkn5,
+    SDLstJob_Unkn6,
+    SDLstJob_Unkn7,
+    SDLstJob_Unkn8,
+    SDLstJob_ReinforceWall9,
+};
+
 enum SpecialDiggerDigTaskKinds {
     SDDigTask_None = 0,
     SDDigTask_DigEarth,
