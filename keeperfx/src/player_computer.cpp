@@ -30,6 +30,7 @@
 
 #include "config.h"
 #include "config_compp.h"
+#include "config_terrain.h"
 #include "creature_states.h"
 #include "magic.h"
 #include "thing_traps.h"
@@ -282,42 +283,89 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
 
 struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long area, long a6)
 {
-    struct ComputerTask *roomtask;
     struct ComputerTask *ctask;
-    for ( ctask = &game.computer_task[comp->task_idx];
-          ctask > game.computer_task;
-          ctask = &game.computer_task[ctask->next_task] )
+    long i;
+    unsigned long k;
+    i = comp->task_idx;
+    k = 0;
+    while (i != 0)
     {
-      if (((ctask->flags & 0x01) != 0) && ((ctask->flags & 0x02) != 0))
-      {
-          unsigned short max_f7c;
-          max_f7c = ((ctask->field_7C)&0xffff) / 2;
-          if ( max_f7c <= ((ctask->field_7C >> 16)&0xffff) / 2 )
-            max_f7c = ((ctask->field_7C >> 16)&0xffff) / 2;
-          roomtask = able_to_build_room(comp, &ctask->pos_64, rkind, width_slabs, height_slabs, area + max_f7c + 1, a6);
-          if (roomtask != NULL) {
-              return roomtask;
-          }
-      }
+        ctask = get_computer_task(i);
+        if (computer_task_invalid(ctask))
+        {
+            ERRORLOG("Jump to invalid task detected");
+            break;
+        }
+        i = ctask->next_task;
+        // Per-task code
+        if (((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0))
+        {
+            unsigned short max_f7c;
+            struct ComputerTask *roomtask;
+            max_f7c = ((ctask->field_7C)&0xffff) / 2;
+            if ( max_f7c <= ((ctask->field_7C >> 16)&0xffff) / 2 )
+              max_f7c = ((ctask->field_7C >> 16)&0xffff) / 2;
+            roomtask = able_to_build_room(comp, &ctask->pos_64, rkind, width_slabs, height_slabs, area + max_f7c + 1, a6);
+            if (roomtask != NULL) {
+                return roomtask;
+            }
+        }
+        // Per-task code ends
+        k++;
+        if (k > COMPUTER_TASKS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping tasks list");
+            break;
+        }
     }
     return NULL;
 }
 
-struct ComputerTask * able_to_build_room_at_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long a6)
+/**
+ * Checks if we are able to build a room starting out from already build room of given kind.
+ * @param comp
+ * @param rkind The room kind to be built.
+ * @param look_kind The room kind which we'd like to search as starting point.
+ * @param width_slabs
+ * @param height_slabs
+ * @param area
+ * @param a6
+ * @return
+ */
+struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long a6)
 {
-    struct ComputerTask *roomtask;
-    struct Room *room;
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    for ( room = &game.rooms[dungeon->room_kind[look_kind]]; room > game.rooms; room = &game.rooms[room->next_of_owner] )
+    long i;
+    unsigned long k;
+    i = dungeon->room_kind[look_kind];
+    k = 0;
+    while (i != 0)
     {
+        struct Room *room;
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
         struct Coord3d pos;
+        struct ComputerTask *roomtask;
         pos.x.val = subtile_coord_center(room->central_stl_x);
         pos.y.val = subtile_coord_center(room->central_stl_y);
         pos.z.val = 256;
         roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, area, a6);
         if (roomtask != NULL) {
             return roomtask;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
         }
     }
     return NULL;
@@ -368,7 +416,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
                     roomtask = able_to_build_room_at_task(comp, rkind, width_slabs, height_slabs, area, aparam);
                 } else
                 {
-                    roomtask = able_to_build_room_at_room(comp, rkind, look_kind, width_slabs, height_slabs, area, aparam);
+                    roomtask = able_to_build_room_from_room(comp, rkind, look_kind, width_slabs, height_slabs, area, aparam);
                 }
                 if (roomtask != NULL) {
                     return roomtask;
@@ -377,6 +425,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
             }
         }
     }
+    SYNCLOG("Unable to find a place for %s sized %dx%d",(int)width_slabs, (int)height_slabs, room_code_name(rkind));
     return NULL;
 }
 
@@ -461,7 +510,7 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
         }
         i = ctask->next_task;
         // Per-task code
-        if ( ((ctask->flags & 0x01) != 0) && ((ctask->flags & 0x02) != 0) )
+        if ( ((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0) )
         {
             delta_x = (long)ctask->pos_64.x.val - (long)task_pos.x.val;
             delta_y = (long)ctask->pos_64.y.val - (long)task_pos.y.val;
@@ -861,7 +910,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
       for (i=0; i <= COMPUTER_PROCESSES_COUNT; i++)
       {
           cproc = &comp->processes[i];
-          if ((cproc->field_44 & 0x02) != 0)
+          if ((cproc->flags & ComProc_Unkn0002) != 0)
               break;
           //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
           if (cproc->func_check == computer_check_dig_to_gold)
@@ -948,11 +997,11 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
   }
   comp->field_18 = cpt->field_C;
   comp->field_14 = cpt->field_8;
-  comp->max_room_build_tasks = cpt->field_10;
+  comp->max_room_build_tasks = cpt->max_room_build_tasks;
   comp->field_2C = cpt->field_14;
   comp->field_20 = cpt->field_18;
   comp->field_C = 1;
-  comp->field_0 = 2;
+  comp->task_state = CTaskSt_Select;
 
   for (i=0; i < PLAYERS_COUNT; i++)
   {
@@ -984,7 +1033,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     newproc->parent = process;
   }
   newproc = &comp->processes[i];
-  newproc->field_44 |= 0x02;
+  newproc->flags |= ComProc_Unkn0002;
 
   for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
   {
@@ -1083,7 +1132,7 @@ TbBool process_checks(struct Computer2 *comp)
             delta = (game.play_gameturn - ccheck->param4);
             if ((delta > ccheck->turns_interval) && (ccheck->func != NULL))
             {
-                SYNCDBG(18,"Executing check %ld",i);
+                SYNCDBG(8,"Executing check %ld, \"%s\"",i,ccheck->name);
                 ccheck->func(comp, ccheck);
                 ccheck->param4 = game.play_gameturn;
             }
@@ -1104,59 +1153,63 @@ TbBool process_processes_and_task(struct Computer2 *comp)
         return false;
     if ((game.play_gameturn % comp->field_18) == 0)
         process_tasks(comp);
-    switch (comp->field_0)
+    switch (comp->task_state)
     {
-    case 1:
+    case CTaskSt_Wait:
         comp->gameturn_wait--;
         if (comp->gameturn_wait <= 0)
         {
-          comp->gameturn_wait = comp->gameturn_delay;
-          set_next_process(comp);
+            comp->gameturn_wait = comp->gameturn_delay;
+            set_next_process(comp);
         }
         break;
-    case 2:
+    case CTaskSt_Select:
         set_next_process(comp);
         break;
-    case 3:
+    case CTaskSt_Perform:
         if ((comp->ongoing_process > 0) && (comp->ongoing_process <= COMPUTER_PROCESSES_COUNT))
         {
-          process = &comp->processes[comp->ongoing_process];
-          callback = process->func_task;
-          if (callback != NULL)
-            callback(comp,process);
+            process = &comp->processes[comp->ongoing_process];
+            callback = process->func_task;
+            if (callback != NULL) {
+                callback(comp,process);
+            }
         } else
         {
-          ERRORLOG("No Process %d for a computer player",(int)comp->ongoing_process);
-          comp->field_0 = 1;
+            ERRORLOG("No Process %d for a computer player",(int)comp->ongoing_process);
+            comp->task_state = CTaskSt_Wait;
         }
         break;
     default:
-        ERRORLOG("Invalid task state %d",(int)comp->field_0);
+        ERRORLOG("Invalid task state %d",(int)comp->task_state);
         break;
     }
   }
   return true;
 }
 
-void process_computer_player2(unsigned long plyr_idx)
+void process_computer_player2(PlayerNumber plyr_idx)
 {
-  struct Computer2 *comp;
-  SYNCDBG(7,"Starting for player %lu",plyr_idx);
-  //_DK_process_computer_player2(plyr_idx);
-  if (plyr_idx >= PLAYERS_COUNT)
-      return;
-  comp = &game.computer[plyr_idx];
-  if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
-    comp->tasks_did = 1;
-  else
-    comp->tasks_did = 0;
-  if (comp->tasks_did <= 0)
-    return;
-  computer_check_events(comp);
-  process_checks(comp);
-  process_processes_and_task(comp);
-  if ((comp->tasks_did < 0) || (comp->tasks_did > 1))
-    ERRORLOG("Computer performed %d tasks instead of up to one",(int)comp->tasks_did);
+    struct Computer2 *comp;
+    SYNCDBG(7,"Starting for player %d",(int)plyr_idx);
+    //_DK_process_computer_player2(plyr_idx);
+    if (plyr_idx >= PLAYERS_COUNT) {
+        return;
+    }
+    comp = &game.computer[plyr_idx];
+    if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
+      comp->tasks_did = 1;
+    else
+      comp->tasks_did = 0;
+    if (comp->tasks_did <= 0) {
+        return;
+    }
+    computer_check_events(comp);
+    process_checks(comp);
+    process_processes_and_task(comp);
+    if ((comp->tasks_did < 0) || (comp->tasks_did > 1)) {
+        ERRORLOG("Computer player %d performed %d tasks instead of up to one",(int)plyr_idx,(int)comp->tasks_did);
+    }
 }
 
 struct ComputerProcess *computer_player_find_process_by_func_setup(long plyr_idx,Comp_Process_Func func_setup)
@@ -1165,7 +1218,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(long plyr_idx
   struct Computer2 *comp;
   comp = &(game.computer[plyr_idx]);
   process = &comp->processes[0];
-  while ((process->field_44 & 0x02) == 0)
+  while ((process->flags & ComProc_Unkn0002) == 0)
   {
     if (process->func_setup == func_setup)
     {
@@ -1176,7 +1229,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(long plyr_idx
   return NULL;
 }
 
-TbBool computer_player_demands_gold_check(long plyr_idx)
+TbBool computer_player_demands_gold_check(PlayerNumber plyr_idx)
 {
   struct ComputerProcess *dig_process;
   //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
@@ -1187,16 +1240,16 @@ TbBool computer_player_demands_gold_check(long plyr_idx)
       SYNCDBG(18,"Player %d has no digging ability.",(int)plyr_idx);
       return false;
   }
-  if ((dig_process->field_44 & 0x04) == 0)
+  if ((dig_process->flags & ComProc_Unkn0004) == 0)
   {
       SYNCDBG(18,"Player %d isn't interested in digging.",(int)plyr_idx);
       return false;
   }
   SYNCDBG(8,"Player %d wants to start digging.",(int)plyr_idx);
   // If the computer player needs to dig for gold
-  if (gameadd.turn_last_checked_for_gold+5000 < game.play_gameturn)
+  if (gameadd.turn_last_checked_for_gold+GOLD_DEMAND_CHECK_INTERVAL < game.play_gameturn)
   {
-      set_flag_dword(&dig_process->field_44, 0x04, false);
+      dig_process->flags &= ~ComProc_Unkn0004;
       return true;
   }
   return false;
@@ -1229,7 +1282,7 @@ void process_computer_players2(void)
             process_computer_player2(i);
             if (computer_player_demands_gold_check(i))
             {
-              needs_gold_check = true;
+                needs_gold_check = true;
             }
 #endif
           }

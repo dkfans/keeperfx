@@ -1701,7 +1701,7 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
     for (k=0; k < COMPUTER_PROCESSES_COUNT; k++)
     {
       process = &game.computer[i].processes[k];
-      if ((process->field_44 & 0x02) != 0)
+      if ((process->flags & 0x02) != 0)
         break;
       if (process->name == NULL)
         break;
