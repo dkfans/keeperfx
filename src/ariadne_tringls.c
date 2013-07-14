@@ -31,10 +31,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 DLLIMPORT long _DK_edge_rotateAC(long a1, long a2);
-DLLIMPORT void _DK_triangulation_initxy(long a1, long a2, long a3, long a4);
 /******************************************************************************/
-DLLIMPORT long _DK_tri_initialised;
-#define tri_initialised _DK_tri_initialised
 DLLIMPORT long _DK_free_Triangles;
 #define free_Triangles _DK_free_Triangles
 /******************************************************************************/
@@ -242,18 +239,44 @@ long reduce_point(long *pt_tri, long *pt_cor)
     return k;
 }
 
-void triangulation_initxy(long a1, long a2, long a3, long a4)
+long triangle_find_first_used(void)
 {
-    _DK_triangulation_initxy(a1, a2, a3, a4);
+    long tri_idx;
+    for (tri_idx = 0; tri_idx < ix_Triangles; tri_idx++)
+    {
+        struct Triangle *tri;
+        tri = &Triangles[tri_idx];
+        if (tri->tree_alt != 255) {
+            return tri_idx;
+        }
+    }
+    ERRORLOG("not found!!");
+    return -1;
 }
 
-void triangulation_init(void)
+void triangulation_init_triangles(long pt_id1, long pt_id2, long pt_id3, long pt_id4)
 {
-    if (!tri_initialised)
-    {
-        tri_initialised = 1;
-        triangulation_initxy(-256, -256, 512, 512);
-    }
+    free_Triangles = -1;
+    ix_Triangles = 2;
+    count_Triangles = 2;
+    Triangles[0].points[1] = 1;
+    Triangles[1].points[0] = 1;
+    Triangles[1].points[2] = 2;
+    Triangles[0].tags[0] = 1;
+    Triangles[0].points[0] = 3;
+    Triangles[0].points[2] = 0;
+    Triangles[1].points[1] = 3;
+    Triangles[0].tags[1] = -1;
+    Triangles[0].tags[2] = -1;
+    Triangles[0].tree_alt = 15;
+    Triangles[1].tags[0] = 0;
+    Triangles[1].tree_alt = 15;
+    Triangles[1].tags[1] = -1;
+    Triangles[1].tags[2] = -1;
+    Triangles[0].field_D = 7;
+    Triangles[0].field_E = 0;
+    Triangles[1].field_E = 0;
+    Triangles[1].field_D = 7;
 }
 
 char triangle_divide_areas_s8differ(long ntri, long ncorA, long ncorB, long pt_x, long pt_y)

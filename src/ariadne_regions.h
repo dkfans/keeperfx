@@ -47,6 +47,7 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name);
 #define region_unset(ntri, nreg) region_unset_f(ntri, nreg, __func__)
 void region_unset_f(long ntri, unsigned long nreg, const char *func_name);
 void region_unlock(long ntri);
+void triangulation_init_regions(void);
 
 /******************************************************************************/
 #ifdef __cplusplus
