@@ -122,6 +122,61 @@ TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y)
         return false;
     return true;
 }
+
+AridPointId allocated_point_search(long pt_x, long pt_y)
+{
+    AridPointId pt_idx;
+    if (pt_y == 0x8000) {
+        return -1;
+    }
+    for (pt_idx=0; pt_idx < POINTS_COUNT; pt_idx++)
+    {
+        long tip_x,tip_y;
+        tip_x = Points[pt_idx].x;
+        tip_y = Points[pt_idx].y;
+        if ((tip_x == pt_x) && (tip_y == pt_y)) {
+            return pt_idx;
+        }
+    }
+    return -1;
+}
+
+AridPointId point_set_new_or_reuse(long pt_x, long pt_y)
+{
+    AridPointId pt_idx;
+    pt_idx = allocated_point_search(pt_x, pt_y);
+    if (pt_idx >= 0) {
+        return pt_idx;
+    }
+    pt_idx = point_new();
+    if (pt_idx < 0) {
+        return -1;
+    }
+    point_set(pt_idx, pt_x, pt_y);
+    return pt_idx;
+}
+
+void triangulation_initxy_points(long startx, long starty, long endx, long endy)
+{
+    long i;
+    for (i=0; i < POINTS_COUNT; i++)
+    {
+        struct Point *pt;
+        pt = &Points[i];
+        pt->y = 0x8000;
+    }
+    Points[0].x = startx;
+    Points[0].y = starty;
+    Points[1].x = endx;
+    Points[1].y = starty;
+    Points[2].x = endx;
+    Points[2].y = endy;
+    Points[3].x = startx;
+    Points[3].y = endy;
+    ix_Points = 4;
+    count_Points = 4;
+    free_Points = -1;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

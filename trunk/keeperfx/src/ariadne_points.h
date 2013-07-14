@@ -22,7 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define POINTS_COUNT 4500
+// Originally was 4500, but we're not using fwd_path from DLL which gives us 517 extra
+#define POINTS_COUNT 5017
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +53,8 @@ TbBool point_set(AridPointId pt_id, long x, long y);
 struct Point *point_get(AridPointId pt_id);
 TbBool point_is_invalid(const struct Point *pt);
 TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y);
+AridPointId point_set_new_or_reuse(long pt_x, long pt_y);
+void triangulation_initxy_points(long startx, long starty, long endx, long endy);
 
 /******************************************************************************/
 #ifdef __cplusplus

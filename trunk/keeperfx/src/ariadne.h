@@ -26,7 +26,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define TREE_ROUTE_LEN 3000
+// Originally was 3000, but we're not using bak_path from DLL which gives us 517 extra
+#define TREE_ROUTE_LEN 3517
 #define BORDER_LENGTH 100
 #define ROUTE_LENGTH 12000
 #define ARID_WAYPOINTS_COUNT 10
@@ -171,12 +172,14 @@ DLLIMPORT long _DK_route_fwd[ROUTE_LENGTH];
 DLLIMPORT long _DK_route_bak[ROUTE_LENGTH];
 #define route_bak _DK_route_bak
 DLLIMPORT struct Path _DK_fwd_path;
-#define fwd_path _DK_fwd_path
+//#define fwd_path _DK_fwd_path
 DLLIMPORT struct Path _DK_bak_path;
-#define bak_path _DK_bak_path
+//#define bak_path _DK_bak_path
 
 /******************************************************************************/
 extern unsigned char const actual_sizexy_to_nav_block_sizexy_table[];
+extern struct Path fwd_path;
+extern struct Path bak_path;
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
@@ -202,6 +205,8 @@ long delaunay_seeded(long a1, long a2, long a3, long a4);
 void border_unlock(long a1, long a2, long a3, long a4);
 TbBool triangulation_border_start(long *a1, long *a2);
 TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
+void triangulation_init(void);
+void triangulation_initxy(long sx, long sy, long ex, long ey);
 long pointed_at8(long pos_x, long pos_y, long *ret_tri, long *ret_pt);
 long triangle_brute_find8_near(long pos_x, long pos_y);
 

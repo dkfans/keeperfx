@@ -98,7 +98,10 @@ DLLIMPORT long _DK_triangle_area1(long tri_id1);
 DLLIMPORT void _DK_brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
 DLLIMPORT void _DK_edgelen_set(long tri_id);
 DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long a4);
+DLLIMPORT void _DK_triangulation_initxy(long a1, long a2, long a3, long a4);
 /******************************************************************************/
+DLLIMPORT long _DK_tri_initialised;
+#define tri_initialised _DK_tri_initialised
 DLLIMPORT unsigned long _DK_edgelen_initialised;
 #define edgelen_initialised _DK_edgelen_initialised
 DLLIMPORT unsigned long *_DK_EdgeFit;
@@ -194,6 +197,9 @@ const unsigned long actual_sizexy_to_nav_sizexy_table[] = {
     974,
 };
 
+struct Path fwd_path;
+struct Path bak_path;
+/******************************************************************************/
 long thing_nav_block_sizexy(const struct Thing *thing)
 {
     long i;
@@ -2177,19 +2183,17 @@ long tri_split3(long btri_id, long pt_x, long pt_y)
     memcpy(tri1,btri,sizeof(struct Triangle));
     memcpy(tri2,btri,sizeof(struct Triangle));
     long pt_id;
-    struct Point *pt;
-    pt_id = point_new();
+    pt_id = point_set_new_or_reuse(pt_x, pt_y);
+    //pt_id = point_new(); // from before point_set_new_or_reuse()
     if (pt_id < 0) {
         tri_dispose(tri_id1);
         tri_dispose(tri_id2);
         return -1;
     }
-    pt = point_get(pt_id);
+    //point_set(pt_id, pt_x, pt_y); // from before point_set_new_or_reuse()
     btri->points[2] = pt_id;
     tri1->points[0] = pt_id;
     tri2->points[1] = pt_id;
-    pt->x = pt_x;
-    pt->y = pt_y;
     btri->tags[1] = tri_id1;
     btri->tags[2] = tri_id2;
     btri->field_D |= 0x06;
@@ -2291,11 +2295,12 @@ long edge_split(long ntri, long ncor, long pt_x, long pt_y)
     long tri_sp1,tri_sp2;
     NAVIDBG(19,"Starting");
     // Create and fill new point
-    pt_idx = point_new();
+    pt_idx = point_set_new_or_reuse(pt_x, pt_y);
+    //pt_idx = point_new(); // from before point_set_new_or_reuse()
     if (pt_idx < 0) {
         return -1;
     }
-    point_set(pt_idx, pt_x, pt_y);
+    //point_set(pt_idx, pt_x, pt_y); // from before point_set_new_or_reuse()
     // Find second ntri and ncor
     ntr2 = Triangles[ntri].tags[ncor];
     ncr2 = link_find(ntr2, ntri);
@@ -3116,6 +3121,34 @@ void triangulation_border_init(void)
     }
     while ((tri_a != border_a) || (tri_b != border_b));
     NAVIDBG(19,"Finished");
+}
+
+void triangulation_initxy(long startx, long starty, long endx, long endy)
+{
+    long i;
+    //_DK_triangulation_initxy(a1, a2, a3, a4);
+    for (i=0; i < TRIANLGLES_COUNT; i++)
+    {
+        struct Triangle *tri;
+        tri = &Triangles[i];
+        tri->tree_alt = 255;
+    }
+    tri_initialised = 1;
+    triangulation_initxy_points(startx, starty, endx, endy);
+    triangulation_init_triangles(0, 1, 2, 3);
+    edgelen_set(0);
+    edgelen_set(1);
+    triangulation_init_cache(triangle_find_first_used());
+    triangulation_init_regions();
+}
+
+void triangulation_init(void)
+{
+    if (!tri_initialised)
+    {
+        tri_initialised = 1;
+        triangulation_initxy(-256, -256, 512, 512);
+    }
 }
 
 TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
