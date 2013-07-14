@@ -1554,8 +1554,9 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
     ctask = get_free_task(comp, 1);
-    if (ctask == NULL)
+    if (computer_task_invalid(ctask)) {
         return false;
+    }
     ctask->ttype = CTT_MoveCreaturesToDefend;
     ctask->pos_76.x.val = pos->x.val;
     ctask->pos_76.y.val = pos->y.val;
@@ -1573,8 +1574,9 @@ TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *po
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
     ctask = get_free_task(comp, 1);
-    if (ctask == NULL)
+    if (computer_task_invalid(ctask)) {
         return false;
+    }
     ctask->ttype = CTT_MagicCallToArms;
     ctask->field_1 = 0;
     ctask->pos_76.x.val = pos->x.val;
@@ -1593,8 +1595,9 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value)
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
     ctask = get_free_task(comp, 1);
-    if (ctask == NULL)
+    if (computer_task_invalid(ctask)) {
         return false;
+    }
     ctask->ttype = CTT_SellTrapsAndDoors;
     ctask->field_70 = 0;
     ctask->field_A = game.play_gameturn;
@@ -1613,8 +1616,9 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *th
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
     ctask = get_free_task(comp, 0);
-    if (ctask == NULL)
+    if (computer_task_invalid(ctask)) {
         return false;
+    }
     ctask->ttype = CTT_MoveCreatureToPos;
     ctask->word_86 = a2 << 8;
     ctask->word_88 = a3 << 8;

@@ -67,6 +67,7 @@ DLLIMPORT long _DK_computer_find_non_solid_block(struct Computer2 *comp, struct 
 DLLIMPORT long _DK_computer_able_to_use_magic(struct Computer2 *comp, long a2, long a3, long a4);
 DLLIMPORT long _DK_check_call_to_arms(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlook);
+DLLIMPORT long _DK_computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 
 /******************************************************************************/
 // Function definition needed to compare pointers - remove pending
@@ -629,12 +630,72 @@ struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp)
 
 void get_opponent(struct Computer2 *comp, struct THate *hate)
 {
+    // Note that originally the hate array had only 4  items
+    LbMemorySet(hate,0,PLAYERS_COUNT*sizeof(struct THate));
     _DK_get_opponent(comp, hate);
+}
+
+long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos)
+{
+    return _DK_computer_finds_nearest_room_to_pos(comp, retroom, nearpos);
 }
 
 long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long a4)
 {
-    return _DK_setup_computer_attack(comp, process, pos, a4);
+    struct ComputerTask *ctask;
+    struct Room *room;
+    struct Coord3d tmpos1;
+    struct Coord3d tmpos2;
+    //return _DK_setup_computer_attack(comp, process, pos, a4);
+    if (!computer_finds_nearest_room_to_pos(comp, &room, pos)) {
+        return 0;
+    }
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return 0;
+    }
+    ctask->ttype = 7;
+    ctask->pos_70.x.val = room->central_stl_x << 8;
+    ctask->pos_70.y.val = room->central_stl_y << 8;
+    ctask->pos_70.z.val = 256;
+    ctask->pos_76.x.val = pos->x.val;
+    ctask->pos_76.y.val = pos->y.val;
+    ctask->pos_76.z.val = pos->z.val;
+    {
+        long i;
+        i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
+        if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
+        {
+          ERRORLOG("Process \"%s\" is outside of Computer Player.",process->name);
+          i = COMPUTER_PROCESSES_COUNT;
+        }
+        ctask->field_8C = i;
+    }
+    ctask->word_86 = a4;
+    ctask->field_5C = 0;
+    ctask->flags |= 0x04;
+    tmpos2.x.val = ctask->pos_76.x.val;
+    tmpos2.y.val = ctask->pos_76.y.val;
+    tmpos2.z.val = ctask->pos_76.z.val;
+    tmpos1.x.val = ctask->pos_70.x.val;
+    tmpos1.y.val = ctask->pos_70.y.val;
+    tmpos1.z.val = ctask->pos_70.z.val;
+    ctask->dig.pos_gold.x.val = tmpos1.x.val;
+    ctask->dig.pos_gold.y.val = tmpos1.y.val;
+    ctask->dig.pos_gold.z.val = tmpos1.z.val;
+    ctask->dig.pos_E.x.val = tmpos1.x.val;
+    ctask->dig.pos_E.y.val = tmpos1.y.val;
+    ctask->dig.pos_E.z.val = tmpos1.z.val;
+    ctask->dig.pos_14.x.val = tmpos2.x.val;
+    ctask->dig.pos_14.y.val = tmpos2.y.val;
+    ctask->dig.pos_14.z.val = tmpos2.z.val;
+    ctask->dig.pos_20.x.val = 0;
+    ctask->dig.pos_20.y.val = 0;
+    ctask->dig.pos_20.z.val = 0;
+    ctask->dig.distance = 2147483647;
+    ctask->dig.subfield_2C = 1;
+    ctask->dig.subfield_54 = 0;
+    return 1;
 }
 
 long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
