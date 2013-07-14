@@ -501,7 +501,7 @@ short parse_computer_player_process_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            process->field_44 = k;
+            process->flags = k;
             n++;
           }
           if (n < 6)
@@ -894,7 +894,7 @@ short parse_computer_player_computer_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            cpt->field_10 = k;
+            cpt->max_room_build_tasks = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)

@@ -43,6 +43,9 @@ extern "C" {
 /** How strong should be the preference to dig glod from treasure room and not other rooms. Originally was 22 subtiles. */
 #define TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD 16
 
+/** How often to check for possible gold veins which could be digged by computer */
+#define GOLD_DEMAND_CHECK_INTERVAL 5000
+
 enum ComputerTaskTypes {
     CTT_None = 0,
     CTT_DigRoomPassage,
@@ -104,10 +107,58 @@ enum GameActionTypes {
 };
 
 enum ToolDigFlags {
-    ToolDig_BasicOnly = 0x00,
+    ToolDig_BasicOnly = 0x00, /**< Allows to dig only through basic earth slabs. */
     ToolDig_AllowValuable = 0x01, /**< Allows to dig through valuable slabs. */
     ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them.
                                             Also allows to dig through valuable slabs(which should be later changed)). */
+};
+
+enum CompProcessFlags {
+    ComProc_Unkn0001 = 0x0001,
+    ComProc_Unkn0002 = 0x0002,
+    ComProc_Unkn0004 = 0x0004,
+    ComProc_Unkn0008 = 0x0008,
+    ComProc_Unkn0010 = 0x0010,
+    ComProc_Unkn0020 = 0x0020,
+    ComProc_Unkn0040 = 0x0040,
+    ComProc_Unkn0080 = 0x0080,
+    ComProc_Unkn0100 = 0x0100,
+    ComProc_Unkn0200 = 0x0200,
+    ComProc_Unkn0400 = 0x0400,
+    ComProc_Unkn0800 = 0x0800,
+};
+
+enum CompCheckFlags {
+    ComChk_Unkn0001 = 0x0001,
+    ComChk_Unkn0002 = 0x0002,
+    ComChk_Unkn0004 = 0x0004,
+    ComChk_Unkn0008 = 0x0008,
+    ComChk_Unkn0010 = 0x0010,
+    ComChk_Unkn0020 = 0x0020,
+    ComChk_Unkn0040 = 0x0040,
+    ComChk_Unkn0080 = 0x0080,
+    ComChk_Unkn0100 = 0x0100,
+    ComChk_Unkn0200 = 0x0200,
+    ComChk_Unkn0400 = 0x0400,
+    ComChk_Unkn0800 = 0x0800,
+};
+
+enum CompTaskFlags {
+    ComTsk_Unkn0001 = 0x0001,
+    ComTsk_Unkn0002 = 0x0002,
+    ComTsk_Unkn0004 = 0x0004,
+    ComTsk_Unkn0008 = 0x0008,
+    ComTsk_Unkn0010 = 0x0010,
+    ComTsk_Unkn0020 = 0x0020,
+    ComTsk_Unkn0040 = 0x0040,
+    ComTsk_Unkn0080 = 0x0080,
+};
+
+enum CompTaskStates {
+    CTaskSt_None = 0,
+    CTaskSt_Wait, /**< Waiting some game turns before starting a new task. */
+    CTaskSt_Select, /**< Choosing a task to be performed. */
+    CTaskSt_Perform, /**< Performing the task. */
 };
 
 /******************************************************************************/
@@ -159,7 +210,7 @@ struct ComputerProcess { // sizeof = 72
   unsigned long field_38;
   unsigned long field_3C;
   unsigned long field_40;
-  unsigned long field_44;
+  unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
 struct ComputerCheck { // sizeof = 32
@@ -255,6 +306,11 @@ struct ComputerTask { // sizeof = 148
       long field_70;
       unsigned char field_74[2];
     };
+    struct {
+      short word_70;
+      short word_72;
+      unsigned char field_74x[2];
+    };
     };
     union {
     struct Coord3d pos_76;
@@ -299,7 +355,7 @@ struct Comp2_UnkStr1 { // sizeof = 394
 };
 
 struct Computer2 { // sizeof = 5322
-  long field_0;
+  long task_state;
   unsigned long gameturn_delay;
   unsigned long gameturn_wait;
   unsigned long field_C;
@@ -387,7 +443,7 @@ TbBool person_will_do_job_for_room_kind(const struct Thing *thing, RoomKind rkin
 struct ComputerTask *get_computer_task(long idx);
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long a2);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
-TbBool computer_task_invalid(struct ComputerTask *ctask);
+TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
 TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num);

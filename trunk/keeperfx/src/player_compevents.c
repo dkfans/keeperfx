@@ -296,14 +296,14 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         {
             struct ComputerProcess *cproc;
             cproc = &comp->processes[i];
-            if ((cproc->field_44 & 0x02) != 0)
+            if ((cproc->flags & ComProc_Unkn0002) != 0)
                 break;
             if (cproc->parent == bldroom->process)
             {
                 SYNCDBG(8,"Need \"%s\"",room_code_name(bldroom->rkind));
                 ret = 1;
-                cproc->field_44 &= ~0x0008;
-                cproc->field_44 &= ~0x0001;
+                cproc->flags &= ~ComProc_Unkn0008;
+                cproc->flags &= ~ComProc_Unkn0001;
                 cproc->field_3C = 0;
                 cproc->field_38 = 0;
             }
