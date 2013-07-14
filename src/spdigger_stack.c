@@ -1620,6 +1620,7 @@ long check_out_imp_last_did(struct Thing *creatng)
   case SDLstJob_DigOrMine:
       if (is_digging_indestructible_place(creatng)) {
           // If we were digging gems, do task reset every time
+          // This allows to switch to other tasks and not consuming all the imp workforce for ever
           break;
       }
       if ( check_out_undug_place(creatng) || check_out_undug_area(creatng) )

@@ -423,6 +423,7 @@
  0001:0004C030       get_computer_money_less_cost
  0001:0004C3C0       get_opponent
  0001:0004C630       search_spiral
+ 0001:0004C710       computer_finds_nearest_room_to_pos
  0001:0004C950       computer_find_non_solid_block
  0001:0004CA10       fake_place_thing_in_power_hand
  0001:0004CB50       fake_dump_held_creatures_on_map

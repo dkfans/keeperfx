@@ -686,8 +686,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         SYNCDBG(8,"Dig evaluation distance %d, result %d",dig_distance,digres);
     }
     ctask = get_free_task(comp, 0);
-    if (ctask == NULL)
-    {
+    if (computer_task_invalid(ctask)) {
         SYNCDBG(8,"No free task; won't dig");
         return 4;
     }
@@ -757,7 +756,7 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
 
 long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_check_attack1(comp, process);
+    return _DK_computer_check_attack1(comp, process);
 }
 
 long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *process)
