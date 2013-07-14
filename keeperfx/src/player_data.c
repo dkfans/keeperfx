@@ -294,7 +294,7 @@ void set_player_mode(struct PlayerInfo *player, long nview)
   if (player->view_type == nview)
     return;
   player->view_type = nview;
-  player->field_0 &= 0xF7;
+  player->field_0 &= ~0x08;
   if (is_my_player(player))
   {
     game.numfield_D &= 0xF7;

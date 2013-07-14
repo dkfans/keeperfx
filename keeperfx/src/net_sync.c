@@ -192,7 +192,7 @@ short perform_checksum_verification(void)
     }
     clear_packets();
     pckt = get_packet(my_player_number);
-    set_packet_action(pckt, 12, 0, 0, 0, 0);
+    set_packet_action(pckt, PckA_Unknown012, 0, 0, 0, 0);
     pckt->chksum = checksum_mem + game.action_rand_seed;
     if (LbNetwork_Exchange(pckt))
     {

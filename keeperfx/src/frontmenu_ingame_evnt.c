@@ -139,14 +139,14 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
         if (can_cast_spell(my_player_number, pwmodel, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
             struct Packet *pckt;
             pckt = get_packet(my_player_number);
-            set_packet_action(pckt, 117, pwmodel, battle_creature_over, 0, 0);
+            set_packet_action(pckt, PckA_PwrUseOnThing, pwmodel, battle_creature_over, 0, 0);
         }
     } else
     {
         if (can_cast_spell(my_player_number, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
             struct Packet *pckt;
             pckt = get_packet(my_player_number);
-            set_packet_action(pckt, 90, battle_creature_over, 0, 0, 0);
+            set_packet_action(pckt, PckA_PickUpThing, battle_creature_over, 0, 0, 0);
         }
     }
     battle_creature_over = 0;
