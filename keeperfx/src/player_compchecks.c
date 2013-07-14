@@ -215,7 +215,7 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
         return 4;
     }
     ctask = get_free_task(comp, 1);
-    if (ctask == NULL) {
+    if (computer_task_invalid(ctask)) {
         return 4;
     }
     ctask->ttype = CTT_MoveCreatureToRoom;
@@ -268,17 +268,20 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
 
 struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_hate)
 {
-    struct THate hate[4];
-    long i;
+    struct THate hate[PLAYERS_COUNT];
+    long plyr_idx;
     get_opponent(comp, hate);
-    for (i=0; i < 4; i++)
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        if ((hate[i].value[2]) && (hate[i].value[0] > min_hate))
+        if (players_are_enemies(comp->dungeon->owner,plyr_idx))
         {
-            struct Room *room;
-            room = get_opponent_room(comp, i);
-            if (!room_is_invalid(room)) {
-                return room;
+            if ((hate[plyr_idx].value[2]) && (hate[plyr_idx].value[0] > min_hate))
+            {
+                struct Room *room;
+                room = get_opponent_room(comp, plyr_idx);
+                if (!room_is_invalid(room)) {
+                    return room;
+                }
             }
         }
     }
@@ -323,7 +326,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     }
     struct ComputerTask *ctask;
     ctask = get_free_task(comp, 0);
-    if (ctask == NULL) {
+    if (computer_task_invalid(ctask)) {
         return 4;
     }
     output_message(SMsg_EnemyHarassments+ACTION_RANDOM(8), 500, 1);
