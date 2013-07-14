@@ -159,9 +159,9 @@ void gui_turn_on_autopilot(struct GuiButton *gbtn)
 
 void menu_tab_maintain(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  set_flag_byte(&gbtn->flags, 0x08, (player->victory_state != VicS_LostLevel));
+    struct PlayerInfo *player;
+    player = get_my_player();
+    set_flag_byte(&gbtn->flags, 0x08, (player->victory_state != VicS_LostLevel));
 }
 
 void gui_area_autopilot_button(struct GuiButton *gbtn)
@@ -725,9 +725,9 @@ void maintain_event_button(struct GuiButton *gbtn)
 
   if (evnt_idx == 0)
   {
-    gbtn->field_1B |= 0x4000u;
+    gbtn->field_1B |= 0x4000;
     gbtn->field_29 = 0;
-    set_flag_byte(&gbtn->flags, 0x08, false);
+    gbtn->flags &= ~0x08;
     gbtn->field_1 = 0;
     gbtn->field_2 = 0;
     gbtn->tooltip_id = 201;
@@ -750,18 +750,38 @@ void maintain_event_button(struct GuiButton *gbtn)
     gbtn->field_29 += 2;
   }
   gbtn->tooltip_id = event_button_info[event->kind].tooltip_stridx;
-  set_flag_byte(&gbtn->flags, 0x08, true);
+  gbtn->flags |= 0x08;
   gbtn->field_1B = 0;
 }
 
 void gui_toggle_ally(struct GuiButton *gbtn)
 {
-  _DK_gui_toggle_ally(gbtn);
+    PlayerNumber plyr_idx;
+    //_DK_gui_toggle_ally(gbtn);
+    plyr_idx = (int)gbtn->content;
+    if ((gbtn->flags & 0x08) != 0) {
+        struct Packet *pckt;
+        pckt = get_packet(my_player_number);
+        set_packet_action(pckt, PckA_PlyrToggleAlly, plyr_idx, 0, 0, 0);
+    }
 }
 
 void maintain_ally(struct GuiButton *gbtn)
 {
-  _DK_maintain_ally(gbtn);
+    PlayerNumber plyr_idx;
+    struct PlayerInfo *player;
+    //_DK_maintain_ally(gbtn);
+    plyr_idx = (int)gbtn->content;
+    player = get_player(plyr_idx);
+    if (!is_my_player_number(plyr_idx) && ((player->field_0 & 0x01) != 0))
+    {
+        gbtn->field_1B = 0;
+        gbtn->flags |= 0x08;
+    } else
+    {
+        gbtn->field_1B |= 0x8000;
+        gbtn->flags &= ~0x08;
+    }
 }
 
 void maintain_prison_bar(struct GuiButton *gbtn)
