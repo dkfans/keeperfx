@@ -854,7 +854,7 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
  * @param comp Computer player which is doing the task.
  * @param cdig The ComputerDig structure to be changed. Should be dummy if simulating.
  * @param simulation Indicates if we're simulating or doing the real thing.
- * @param digflags These are not really flags, but should be change into flags when all calls to this func are rewritten. Use values from ToolDigFlags enum.
+ * @param digflags These are not really flags, but should be changed into flags when all calls to this func are rewritten. Use values from ToolDigFlags enum.
  * @return
  */
 short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags)

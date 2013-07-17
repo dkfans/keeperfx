@@ -497,7 +497,10 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *pro
         }
     } else
     {
-        if (free_capacity < 10*total_capacity/100) {
+        // The "+1" is to better handle cases when the existing room is very small (capacity lower than 10)
+        // On higher capacities it doesn't make much difference, but highly increases chance
+        // of building new room if existing capacity is low.
+        if (free_capacity <= 10*total_capacity/100 + 1) {
             SYNCDBG(8,"Need \"%s\" because of low free capacity",room_code_name(process->field_10));
             return 1;
         }
