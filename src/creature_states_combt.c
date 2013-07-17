@@ -98,7 +98,7 @@ DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, lo
 DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
 DLLIMPORT long _DK_slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3);
 /******************************************************************************/
-long combat_has_line_of_sight(struct Thing *thing, struct Thing *enmtng, long enmdist);
+long combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, long enmdist);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -210,61 +210,102 @@ long get_combat_distance(const struct Thing *thing, const struct Thing *enmtng)
     return dist - avgc;
 }
 
-long creature_has_other_attackers(struct Thing *thing, long a2)
+/**
+ * Returns if a creature has attackers of different kind than given creature model.
+ * @param fightng The thing which enemies are to be checked.
+ * @param enmodel Enemy creature model which should be ignored.
+ * @return
+ */
+TbBool creature_has_other_attackers(const struct Thing *fightng, ThingModel enmodel)
 {
-    return _DK_creature_has_other_attackers(thing, a2);
+    struct CreatureControl *figctrl;
+    long oppn_idx;
+    TRACE_THING(fightng);
+    //return _DK_creature_has_other_attackers(thing, crmodel);
+    figctrl = creature_control_get_from_thing(fightng);
+    // Check any enemy creature is in melee opponents list
+    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        struct Thing *enmtng;
+        enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
+        if (!thing_is_invalid(enmtng))
+        {
+            if (enmtng->model != enmodel) {
+                return true;
+            }
+        }
+    }
+    // Check any enemy creature is in ranged opponents list
+    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        struct Thing *enmtng;
+        enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
+        if (!thing_is_invalid(enmtng))
+        {
+            if (enmtng->model != enmodel) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
-TbBool creature_is_actually_scared(struct Thing *thing, struct Thing *enmtng)
+TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thing *enmtng)
 {
     struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats *enmstat;
+    enmstat = creature_stats_get_from_thing(enmtng);
+    // Neutral creatures are not easily scared, as they shouldn't have enemies
+    if (is_neutral_thing(creatng))
+        return false;
     // Creature with fear 101 are scared of everything other that their own model
     if (crstat->fear_wounded >= 101)
     {
-        if (enmtng->model != thing->model)
+        if (enmtng->model != creatng->model)
             return true;
-        if (creature_has_other_attackers(thing, thing->model))
+        if (creature_has_other_attackers(creatng, creatng->model))
             return true;
+        // But if faced only creatures of same model, they will fight with no fear
         return false;
     }
-    // Neutral creatures are not easily scared, as they shouldn't have enemies
-    if (is_neutral_thing(thing))
-        return false;
     // Creatures are scared if their health drops lower than
     // fear_wounded percent of base health
-    long maxhealth,fear;
-    if (player_creature_tends_to(thing->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
+    long crmaxhealth,enmaxhealth,fear;
+    if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
         fear = crstat->fear_wounded;
     } else {
         fear = (long)crstat->fear_wounded / crstat->fear_noflee_factor;
     }
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    maxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
-    if (thing->health <= (fear * (long long)maxhealth) / 100)
+    struct CreatureControl *enmctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    enmctrl = creature_control_get_from_thing(enmtng);
+    crmaxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+    enmaxhealth = compute_creature_max_health(enmstat->health,enmctrl->explevel);
+    if (creatng->health <= (fear * (long long)crmaxhealth) / 100)
     {
-        SYNCDBG(8,"The %s is scared due to low health (%ld/%ld)",thing_model_name(thing),(long)thing->health,maxhealth);
+        SYNCDBG(8,"The %s is scared due to low health (%ld/%ld)",thing_model_name(creatng),(long)creatng->health,crmaxhealth);
         return true;
     }
     // If the enemy is way stronger, a creature may be scared anyway
     long long enmstrength,ownstrength;
-    if (player_creature_tends_to(thing->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
+    if (player_creature_tends_to(creatng->owner,CrTend_Flee) || (crstat->fear_noflee_factor <= 0)) {
         fear = crstat->fear_stronger;
     } else {
         fear = (long)crstat->fear_stronger * crstat->fear_noflee_factor;
     }
-    enmstrength = calculate_melee_damage(enmtng) * (long long)enmtng->health;
-    ownstrength = calculate_melee_damage(thing) * (long long)thing->health;
+    enmstrength = calculate_melee_damage(enmtng) * ((long long)enmaxhealth + (long long)enmtng->health)/2;
+    ownstrength = calculate_melee_damage(creatng) * ((long long)crmaxhealth + (long long)creatng->health)/2;
     if (enmstrength >= (fear * ownstrength) / 100)
     {
         // check if there are allied creatures nearby; assume that such creatures are multiplying strength of the creature we're checking
         long support_count;
-        support_count = count_creatures_near_and_owned_by_or_allied_with(thing->mappos.x.val, thing->mappos.y.val, 9, thing->owner);
+        support_count = count_creatures_near_and_owned_by_or_allied_with(creatng->mappos.x.val, creatng->mappos.y.val, 9, creatng->owner);
         ownstrength *= support_count;
         if (enmstrength >= (fear * ownstrength) / 100)
         {
-            SYNCDBG(8,"The %s is scared due to enemy %s strength (%ld vs. %ld)",thing_model_name(thing),thing_model_name(enmtng),(long)ownstrength,(long)enmstrength);
+            SYNCDBG(8,"The %s is scared due to enemy %s strength (%ld vs. %ld)",thing_model_name(creatng),thing_model_name(enmtng),(long)ownstrength,(long)enmstrength);
             return true;
         }
     }
@@ -1616,19 +1657,19 @@ TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
     return (angdiff < crstat->field_of_view);
 }
 
-long combat_has_line_of_sight(struct Thing *thing, struct Thing *enmtng, long enmdist)
+long combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, long enmdist)
 {
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->long_9A != game.play_gameturn || cctrl->word_A4 != enmtng->index )
     {
       cctrl->long_9A = game.play_gameturn;
       cctrl->word_A4 = enmtng->index;
       struct CreatureStats *crstat;
-      crstat = creature_stats_get_from_thing(thing);
+      crstat = creature_stats_get_from_thing(creatng);
       if ((crstat->visual_range << 8) >= enmdist)
       {
-          cctrl->field_A8 = jonty_creature_can_see_thing_including_lava_check(thing, enmtng);
+          cctrl->field_A8 = jonty_creature_can_see_thing_including_lava_check(creatng, enmtng);
       } else
       {
           cctrl->field_A8 = 0;
