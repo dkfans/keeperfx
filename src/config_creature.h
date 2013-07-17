@@ -75,10 +75,10 @@ enum CreatureDeathKind {
     Death_IceExplode,
 };
 
-enum CreaturePreferredAttacks {
-    PrefAttck_Unset = 0,
-    PrefAttck_Melee,
-    PrefAttck_Ranged,
+enum CreatureAttackType {
+    AttckT_Unset = 0,
+    AttckT_Melee,
+    AttckT_Ranged,
 };
 
 /******************************************************************************/
