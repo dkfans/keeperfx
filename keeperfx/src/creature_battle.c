@@ -245,7 +245,7 @@ long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, lon
         return 1;
     }
     crstat = creature_stats_get_from_thing(fighter);
-    if (crstat->attack_preference == PrefAttck_Ranged)
+    if (crstat->attack_preference == AttckT_Ranged)
     {
         if ( creature_has_ranged_weapon(fighter) && can_add_ranged_combat_attacker(enemy) ) {
             return 2;
