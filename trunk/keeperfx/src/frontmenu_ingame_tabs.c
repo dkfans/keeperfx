@@ -635,7 +635,38 @@ void gui_scroll_activity_down(struct GuiButton *gbtn)
 
 void gui_area_ally(struct GuiButton *gbtn)
 {
-  _DK_gui_area_ally(gbtn);
+    PlayerNumber plyr_idx;
+    //_DK_gui_area_ally(gbtn);
+    plyr_idx = (int)gbtn->content;
+    int spr_idx;
+    spr_idx = 498;
+    if ((gbtn->flags & 0x08) == 0) {
+        return;
+    }
+    if (game.play_gameturn & 1)
+    {
+        struct PlayerInfo *player;
+        player = get_my_player();
+        if (player_allied_with(player, plyr_idx)) {
+            spr_idx = 488 + (plyr_idx & 0x0f);
+        }
+    } else
+    {
+        struct PlayerInfo *player;
+        player = get_player(plyr_idx);
+        if (player_allied_with(player, my_player_number)) {
+            spr_idx = 488 + (plyr_idx & 0x0f);
+        }
+    }
+    if ( gbtn->field_1 || gbtn->field_2 )
+    {
+        LbSpriteDrawRemap( gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+            &gui_panel_sprites[spr_idx], &pixmap.fade_tables[44*256]);
+    } else
+    {
+        LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
+            &gui_panel_sprites[spr_idx]);
+    }
 }
 
 void gui_area_stat_button(struct GuiButton *gbtn)

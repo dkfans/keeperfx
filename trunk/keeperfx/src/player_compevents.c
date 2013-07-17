@@ -281,7 +281,7 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
     long ret;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(18,"Starting");
     //return _DK_computer_event_check_rooms_full(comp, cevent);
     ret = 4;
     struct ValidRooms *bldroom;
