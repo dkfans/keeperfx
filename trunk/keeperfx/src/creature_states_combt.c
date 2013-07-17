@@ -65,9 +65,9 @@ DLLIMPORT void _DK_creature_in_melee_combat(struct Thing *thing);
 DLLIMPORT long _DK_creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng);
 DLLIMPORT long _DK_check_for_valid_combat(struct Thing *thing, struct Thing *enmtng);
 DLLIMPORT long _DK_combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp);
-DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long a4);
-DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long a4);
-DLLIMPORT long _DK_creature_can_have_combat_with_creature(const struct Thing *fightng, const struct Thing *enmtng, long dist, long a4, long a5);
+DLLIMPORT long _DK_ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long move_on_ground);
+DLLIMPORT long _DK_melee_combat_move(struct Thing *thing, struct Thing *enmtng, long dist, long move_on_ground);
+DLLIMPORT long _DK_creature_can_have_combat_with_creature(const struct Thing *fightng, const struct Thing *enmtng, long dist, long move_on_ground, long a5);
 DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fightng, struct Thing *enmtng, long dist);
 DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long enmtng);
 DLLIMPORT long _DK_get_best_ranged_offensive_weapon(const struct Thing *thing, long enmtng);
@@ -92,13 +92,13 @@ DLLIMPORT long _DK_creature_has_spare_slot_for_combat(struct Thing *fightng, str
 DLLIMPORT long _DK_change_creature_with_existing_attacker(struct Thing *fightng, struct Thing *enmtng, long combat_kind);
 DLLIMPORT void _DK_cleanup_battle_leftovers(struct Thing *thing);
 DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
-DLLIMPORT long _DK_get_combat_score(const struct Thing *figtng, const struct Thing *outenmtng, long outscore, long a4);
+DLLIMPORT long _DK_get_combat_score(const struct Thing *figtng, const struct Thing *outenmtng, long outscore, long move_on_ground);
 DLLIMPORT long _DK_check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, unsigned long *outscore);
-DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long a4);
+DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long move_on_ground);
 DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
 DLLIMPORT long _DK_slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3);
 /******************************************************************************/
-long combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, long enmdist);
+CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, long enmdist);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -176,14 +176,17 @@ TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
     return false;
 }
 
-long creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist)
+CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    if (dist <= (crstat->visual_range << 8)) {
-        return jonty_creature_can_see_thing_including_lava_check(creatng, enmtng);
+    if (dist > (crstat->visual_range << 8)) {
+        return AttckT_Unset;
     }
-    return 0;
+    if (!jonty_creature_can_see_thing_including_lava_check(creatng, enmtng)) {
+        return AttckT_Unset;
+    }
+    return AttckT_Melee;
 }
 
 TbBool creature_will_do_combat(const struct Thing *thing)
@@ -327,7 +330,7 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3)
     return _DK_slab_wall_hug_route(thing, pos, a3);
 }
 
-long creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long a4, long set_combat)
+CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long move_on_ground, long set_combat)
 {
     struct CreatureControl *fcctrl;
     SYNCDBG(9,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
@@ -337,36 +340,36 @@ long creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing 
     can_see = 0;
     if (creature_can_hear_within_distance(fightng, dist))
     {
-        if (a4)
+        if (move_on_ground)
         {
             if (creature_can_move_to_combat(fightng, enmtng) >= 0) {
-                return 1;
+                return AttckT_Melee;
             }
         } else
         {
             if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
-                  return 1;
+                  return AttckT_Melee;
             }
         }
         if (!creature_has_ranged_weapon(fightng)) {
-            return 0;
+            return AttckT_Unset;
         }
         can_see = creature_can_see_combat_path(fightng, enmtng, dist);
         if (can_see <= 0) {
-            return 0;
+            return AttckT_Unset;
         }
     }
     else
     {
         can_see = creature_can_see_combat_path(fightng, enmtng, dist);
         if (can_see <= 0) {
-          return 0;
+          return AttckT_Unset;
         }
         if (can_see != 2) {
-            return 1;
+            return AttckT_Melee;
         }
         if (!creature_has_ranged_weapon(fightng)) {
-            return 0;
+            return AttckT_Unset;
         }
     }
     if (set_combat)
@@ -375,7 +378,7 @@ long creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing 
         fcctrl->word_A4 = enmtng->index;
         fcctrl->long_9A = game.play_gameturn;
     }
-    return 2;
+    return AttckT_Ranged;
 }
 
 void remove_thing_from_battle_list(struct Thing *thing)
@@ -1176,7 +1179,7 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, lon
         return false;
     }
     crstat = creature_stats_get_from_thing(fighter);
-    if ( (crstat->attack_preference == PrefAttck_Ranged) && creature_has_ranged_weapon(fighter) )
+    if ( (crstat->attack_preference == AttckT_Ranged) && creature_has_ranged_weapon(fighter) )
     {
         if ( add_ranged_attacker(fighter, enemy) )
         {
@@ -1481,26 +1484,26 @@ long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enm
     return (other_score <= curr_score + 258);
 }
 
-long check_for_valid_combat(struct Thing *thing, struct Thing *enmtng)
+CrAttackType check_for_valid_combat(struct Thing *thing, struct Thing *enmtng)
 {
     struct CreatureControl *cctrl;
     SYNCDBG(19,"Starting for %s vs %s",thing_model_name(thing),thing_model_name(enmtng));
     //return _DK_check_for_valid_combat(thing, enmtng);
     cctrl = creature_control_get_from_thing(thing);
-    long valid_combat;
-    valid_combat = cctrl->byte_A7;
-    if ((thing->active_state == CrSt_CreatureUnconscious) || (enmtng->active_state == CrSt_CreatureUnconscious)) {
-        return 0;
+    CrAttackType attack_type;
+    attack_type = cctrl->byte_A7;
+    if (creature_is_being_unconscious(thing) || creature_is_being_unconscious(enmtng)) {
+        return AttckT_Unset;
     }
     if (!creature_will_attack_creature_incl_til_death(thing, enmtng)) {
-        return 0;
+        return AttckT_Unset;
     }
     if (((game.play_gameturn + thing->index) & 7) == 0) {
         long dist;
         dist = get_combat_distance(thing, enmtng);
-        valid_combat = creature_can_have_combat_with_creature(thing, enmtng, dist, 1, 1);
+        attack_type = creature_can_have_combat_with_creature(thing, enmtng, dist, 1, 1);
     }
-    return valid_combat;
+    return attack_type;
 }
 
 long combat_type_is_choice_of_creature(struct Thing *thing, long cmbtyp)
@@ -1530,7 +1533,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist,
             return 0;
         }
     }
-    if (!combat_has_line_of_sight(thing, enmtng, enmdist))
+    if (combat_has_line_of_sight(thing, enmtng, enmdist) == AttckT_Unset)
     {
         if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) {
             set_start_state(thing);
@@ -1657,7 +1660,7 @@ TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
     return (angdiff < crstat->field_of_view);
 }
 
-long combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, long enmdist)
+CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, long enmdist)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
@@ -1665,15 +1668,7 @@ long combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *e
     {
       cctrl->long_9A = game.play_gameturn;
       cctrl->word_A4 = enmtng->index;
-      struct CreatureStats *crstat;
-      crstat = creature_stats_get_from_thing(creatng);
-      if ((crstat->visual_range << 8) >= enmdist)
-      {
-          cctrl->field_A8 = jonty_creature_can_see_thing_including_lava_check(creatng, enmtng);
-      } else
-      {
-          cctrl->field_A8 = 0;
-      }
+      cctrl->field_A8 = creature_can_see_combat_path(creatng, enmtng, enmdist);
     }
     return cctrl->field_A8;
 }
@@ -1683,10 +1678,10 @@ long old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4
     return _DK_old_combat_move(thing, enmtng, a3, a4);
 }
 
-long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4)
+long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long a4)
 {
     struct CreatureControl *cctrl;
-    //return _DK_melee_combat_move(thing, enmtng, a3, a4);
+    //return _DK_melee_combat_move(thing, enmtng, enmdist, a4);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_NULL)
     {
@@ -1697,13 +1692,13 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long 
     {
         return 0;
     }
-    if (a3 < 156)
+    if (enmdist < 156)
     {
         creature_retreat_from_combat(thing, enmtng, a4, 0);
         cctrl->field_AA = 0;
         return thing_in_field_of_view(thing, enmtng);
     }
-    if (a3 <= 284)
+    if (enmdist <= 284)
     {
         if (old_combat_move(thing, enmtng, 284, a4)) {
             return 0;
@@ -1714,15 +1709,17 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long 
     if (thing_in_field_of_view(thing, enmtng)
       && creature_has_ranged_weapon(thing))
     {
-        if (((cctrl->combat_flags & (0x10|0x08)) == 0)
-          && combat_has_line_of_sight(thing, enmtng, a3))
+        if ((cctrl->combat_flags & (0x10|0x08)) == 0)
         {
-            CrInstance inst_id;
-            inst_id = get_best_ranged_offensive_weapon(thing, a3);
-            if (inst_id > 0)
+            if (combat_has_line_of_sight(thing, enmtng, enmdist) != AttckT_Unset)
             {
-                set_creature_instance(thing, inst_id, 1, enmtng->index, 0);
-                return 0;
+                CrInstance inst_id;
+                inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
+                if (inst_id > 0)
+                {
+                    set_creature_instance(thing, inst_id, 1, enmtng->index, 0);
+                    return 0;
+                }
             }
         }
     }
@@ -1944,130 +1941,130 @@ long waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, lo
     return _DK_waiting_combat_move(fighter, enemy, a1, a2);
 }
 
-void creature_in_combat_wait(struct Thing *thing)
+void creature_in_combat_wait(struct Thing *creatng)
 {
     struct Thing *enmtng;
     struct CreatureControl *cctrl;
     long dist;
-    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
-    //_DK_creature_in_combat_wait(thing);
-    if (check_for_better_combat(thing)) {
+    SYNCDBG(19,"Starting for %s",thing_model_name(creatng));
+    //_DK_creature_in_combat_wait(creatng);
+    if (check_for_better_combat(creatng)) {
         SYNCDBG(19,"Switching to better combat");
         return;
     }
     // Check to attack dungeon heart once every 8 turns
-    if (((game.play_gameturn+thing->index) & 7) == 0)
+    if (((game.play_gameturn+creatng->index) & 7) == 0)
     {
-        if (creature_look_for_enemy_heart_combat(thing)) {
+        if (creature_look_for_enemy_heart_combat(creatng)) {
             SYNCDBG(19,"Switching to heart combat");
             return;
         }
     }
     // Check if we're best combat partner for the enemy
     long cmbtyp;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     enmtng = thing_get(cctrl->battle_enemy_idx);
     TRACE_THING(enmtng);
-    if (!creature_is_most_suitable_for_combat(thing, enmtng))
+    if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
         SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",
-            thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
-        creature_change_to_most_suitable_combat(thing);
+            thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
+        creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    cmbtyp = check_for_valid_combat(thing, enmtng);
-    if ( !combat_type_is_choice_of_creature(thing, cmbtyp) ) {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(thing),(int)thing->index);
-        set_start_state(thing);
+    cmbtyp = check_for_valid_combat(creatng, enmtng);
+    if ( !combat_type_is_choice_of_creature(creatng, cmbtyp) ) {
+        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
+        set_start_state(creatng);
         return;
     }
-    dist = get_combat_distance(thing, enmtng);
-    waiting_combat_move(thing, enmtng, dist, 49);
+    dist = get_combat_distance(creatng, enmtng);
+    waiting_combat_move(creatng, enmtng, dist, 49);
     SYNCDBG(19,"Done, continuing combat");
 }
 
-void creature_in_ranged_combat(struct Thing *thing)
+void creature_in_ranged_combat(struct Thing *creatng)
 {
-    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
+    SYNCDBG(19,"Starting for %s",thing_model_name(creatng));
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     long dist, cmbtyp;
     CrInstance weapon;
-    //_DK_creature_in_ranged_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    //_DK_creature_in_ranged_combat(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
     enmtng = thing_get(cctrl->battle_enemy_idx);
     TRACE_THING(enmtng);
-    if (!creature_is_most_suitable_for_combat(thing, enmtng))
+    if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
-        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
-        creature_change_to_most_suitable_combat(thing);
+        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
+        creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    cmbtyp = check_for_valid_combat(thing, enmtng);
-    if (!combat_type_is_choice_of_creature(thing, cmbtyp))
+    cmbtyp = check_for_valid_combat(creatng, enmtng);
+    if (!combat_type_is_choice_of_creature(creatng, cmbtyp))
     {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(thing),(int)thing->index);
-        set_start_state(thing);
+        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
+        set_start_state(creatng);
         return;
     }
-    dist = get_combat_distance(thing, enmtng);
-    weapon = get_best_ranged_offensive_weapon(thing, dist);
+    dist = get_combat_distance(creatng, enmtng);
+    weapon = get_best_ranged_offensive_weapon(creatng, dist);
     if (weapon == 0)
     {
-        set_start_state(thing);
-        SYNCDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(thing),(int)thing->index);
+        set_start_state(creatng);
+        SYNCDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(creatng),(int)creatng->index);
         return;
     }
-    if (!ranged_combat_move(thing, enmtng, dist, 49))
+    if (!ranged_combat_move(creatng, enmtng, dist, 49))
     {
-        SYNCDBG(9,"The %s index %d cannot move in combat",thing_model_name(thing),(int)thing->index);
+        SYNCDBG(9,"The %s index %d cannot move in combat",thing_model_name(creatng),(int)creatng->index);
         return;
     }
     if (weapon > 0)
     {
-        set_creature_instance(thing, weapon, 1, enmtng->index, 0);
+        set_creature_instance(creatng, weapon, 1, enmtng->index, 0);
     }
 }
 
-void creature_in_melee_combat(struct Thing *thing)
+void creature_in_melee_combat(struct Thing *creatng)
 {
-    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
+    SYNCDBG(19,"Starting for %s",thing_model_name(creatng));
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     long dist, cmbtyp, weapon;
-    //_DK_creature_in_melee_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    //_DK_creature_in_melee_combat(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
     enmtng = thing_get(cctrl->battle_enemy_idx);
     TRACE_THING(enmtng);
-    if (!creature_is_most_suitable_for_combat(thing, enmtng))
+    if (!creature_is_most_suitable_for_combat(creatng, enmtng))
     {
-        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(thing),(int)thing->index,thing_model_name(enmtng),(int)enmtng->index);
-        creature_change_to_most_suitable_combat(thing);
+        SYNCDBG(9,"The %s index %d is not most suitable for combat with %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
+        creature_change_to_most_suitable_combat(creatng);
         return;
     }
-    cmbtyp = check_for_valid_combat(thing, enmtng);
-    if (!combat_type_is_choice_of_creature(thing, cmbtyp))
+    cmbtyp = check_for_valid_combat(creatng, enmtng);
+    if (!combat_type_is_choice_of_creature(creatng, cmbtyp))
     {
-        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(thing),(int)thing->index);
-        set_start_state(thing);
+        SYNCDBG(9,"Current combat type is not choice of %s index %d",thing_model_name(creatng),(int)creatng->index);
+        set_start_state(creatng);
         return;
     }
-    dist = get_combat_distance(thing, enmtng);
-    weapon = get_best_melee_offensive_weapon(thing, dist);
+    dist = get_combat_distance(creatng, enmtng);
+    weapon = get_best_melee_offensive_weapon(creatng, dist);
     if (weapon == 0)
     {
-        SYNCDBG(9,"The %s index %d cannot choose melee offensive weapon",thing_model_name(thing),(int)thing->index);
-        set_start_state(thing);
+        SYNCDBG(9,"The %s index %d cannot choose melee offensive weapon",thing_model_name(creatng),(int)creatng->index);
+        set_start_state(creatng);
         return;
     }
-    if (!melee_combat_move(thing, enmtng, dist, CrSt_CreatureInCombat))
+    if (!melee_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
-        SYNCDBG(9,"The %s index %d cannot move in combat",thing_model_name(thing),(int)thing->index);
+        SYNCDBG(9,"The %s index %d cannot move in combat",thing_model_name(creatng),(int)creatng->index);
         return;
     }
     if (weapon > 0)
     {
-        set_creature_instance(thing, weapon, 1, enmtng->index, 0);
+        set_creature_instance(creatng, weapon, 1, enmtng->index, 0);
     }
 }
 
@@ -2312,7 +2309,7 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     CrInstance inst_id;
     dist = get_combat_distance(firing, target);
     crstat = creature_stats_get_from_thing(firing);
-    if (crstat->attack_preference == PrefAttck_Ranged) {
+    if (crstat->attack_preference == AttckT_Ranged) {
         inst_id = get_best_combat_weapon_instance_to_use(firing, ranged_offensive_weapon, dist);
         if (inst_id == CrInst_NULL) {
             inst_id = get_best_combat_weapon_instance_to_use(firing, melee_offensive_weapon, dist);;

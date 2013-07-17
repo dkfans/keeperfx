@@ -680,9 +680,20 @@ TbBool creature_is_being_dropped(const struct Thing *thing)
 {
     CrtrStateId i;
     i = thing->active_state;
-    if (i == CrSt_MoveToPosition)
+    if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
         i = thing->continue_state;
     if (i == CrSt_CreatureBeingDropped)
+        return true;
+    return false;
+}
+
+TbBool creature_is_being_unconscious(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = thing->active_state;
+    if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
+        i = thing->continue_state;
+    if (i == CrSt_CreatureUnconscious)
         return true;
     return false;
 }
@@ -2931,10 +2942,15 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
     player2 = get_player(tng2->owner);
     if ((tng2->owner != tng1->owner) && (tng2->owner != game.neutral_player_num))
     {
-       if (!player_allied_with(player1, tng2->owner))
-          return true;
-       if (!player_allied_with(player2, tng1->owner))
-          return true;
+        if (!creature_is_kept_in_custody_by_player(tng1, tng2->owner)
+         && !creature_is_kept_in_custody_by_player(tng2, tng1->owner)) {
+            if (!player_allied_with(player1, tng2->owner)) {
+               return true;
+            }
+            if (!player_allied_with(player2, tng1->owner)) {
+               return true;
+            }
+        }
     }
 
     struct CreatureControl *cctrl1;
@@ -2987,10 +3003,15 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, co
     player2 = get_player(tng2->owner);
     if ((tng2->owner != tng1->owner) && (tng2->owner != game.neutral_player_num))
     {
-       if (!player_allied_with(player1, tng2->owner))
-          return true;
-       if (!player_allied_with(player2, tng1->owner))
-          return true;
+        if (!creature_is_kept_in_custody_by_player(tng1, tng2->owner)
+         && !creature_is_kept_in_custody_by_player(tng2, tng1->owner)) {
+            if (!player_allied_with(player1, tng2->owner)) {
+               return true;
+            }
+            if (!player_allied_with(player2, tng1->owner)) {
+               return true;
+            }
+        }
     }
 
     struct CreatureControl *cctrl1;

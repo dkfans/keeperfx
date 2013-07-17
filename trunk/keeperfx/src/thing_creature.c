@@ -2744,19 +2744,19 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crstat = creature_stats_get(model);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create breed %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     if (!i_can_allocate_free_control_structure())
     {
-        ERRORDBG(3,"Cannot create breed %d for player %d. There are too many creatures allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create %s for player %d. There are too many creatures allocated.",creature_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeCreatrs);
         return INVALID_THING;
     }
     crtng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (crtng->index == 0) {
-        ERRORDBG(3,"Should be able to allocate creature %d for player %d, but failed.",(int)model,(int)owner);
+        ERRORDBG(3,"Should be able to allocate %s for player %d, but failed.",creature_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
@@ -4021,7 +4021,7 @@ TngUpdateRet update_creature(struct Thing *thing)
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     struct Room *room;
-    if (thing->active_state == CrSt_CreatureUnconscious)
+    if (creature_is_being_unconscious(thing))
     {
         return false;
     }

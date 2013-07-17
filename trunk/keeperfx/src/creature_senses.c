@@ -529,7 +529,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     return true;
 }
 
-long jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
+TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
 {
     struct CreatureStats *crstat;
     const struct Coord3d *srcpos;

@@ -180,6 +180,8 @@ typedef short CrCheckRet;
 typedef short CreatureJob;
 /** Creature instance index, stores CrInst_* values. */
 typedef short CrInstance;
+/** Creature attack type, stores AttckT_* values. */
+typedef short CrAttackType;
 /** Level number within a campaign. */
 typedef long LevelNumber;
 /** Identifier of a national text string. */

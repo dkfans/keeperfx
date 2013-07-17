@@ -61,7 +61,7 @@ void creature_in_melee_combat(struct Thing *thing);
 short creature_attack_rooms(struct Thing *thing);
 short creature_damage_walls(struct Thing *thing);
 short creature_attempt_to_damage_walls(struct Thing *thing);
-long creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5);
+CrAttackType creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5);
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy);
 TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng);
 TbBool set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3);
@@ -76,7 +76,7 @@ TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
 
 struct Thing *check_for_door_to_fight(const struct Thing *thing);
 long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4);
-long creature_can_see_combat_path(const struct Thing * a, const struct Thing * b, long c);
+CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist);
 long get_combat_distance(const struct Thing *thing, const struct Thing *enemy);
 long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3);
 long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng);

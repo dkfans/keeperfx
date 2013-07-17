@@ -331,6 +331,7 @@ void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 TbBool creature_is_being_dropped(const struct Thing *thing);
+TbBool creature_is_being_unconscious(const struct Thing *thing);
 TbBool creature_is_being_tortured(const struct Thing *thing);
 TbBool creature_is_being_sacrificed(const struct Thing *thing);
 TbBool creature_is_manually_controlled_by_owner(const struct Thing *thing);
