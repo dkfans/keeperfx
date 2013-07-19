@@ -476,7 +476,6 @@ pkg-copydat:
 	$(CP) config/keeperfx.cfg pkg/
 	$(CP) config/creatrs/*.cfg pkg/creatrs/
 	$(CP) config/fxdata/*.cfg pkg/fxdata/
-	$(CP) config/ldata/*.txt pkg/ldata/
 
 pkg-campaigns: $(CAMPAIGN_CFGS)
 
