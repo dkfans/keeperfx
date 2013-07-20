@@ -1336,7 +1336,13 @@ TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char de
 
 long creature_is_ambulating(struct Thing *thing)
 {
-    return _DK_creature_is_ambulating(thing);
+    //return _DK_creature_is_ambulating(thing);
+    int n, i;
+    n = get_creature_breed_graphics(thing->model, 1);
+    i = convert_td_iso(n);
+    if (i != thing->field_44)
+        return 0;
+    return 1;
 }
 
 long collide_filter_thing_is_of_type(struct Thing *thing, struct Thing *sectng, long a3, long a4)
@@ -1432,7 +1438,7 @@ long move_creature(struct Thing *thing)
     velo_y = thing->velocity.y.val;
     velo_z = thing->velocity.z.val;
     velo_x = thing->velocity.x.val;
-    cctrl->flgfield_1 &= ~0x08;
+    cctrl->flgfield_1 &= ~CCFlg_Unknown08;
     struct Coord3d pos;
     if (thing_in_wall_at(thing, &thing->mappos))
     {
@@ -1457,7 +1463,7 @@ long move_creature(struct Thing *thing)
             }
             thing->field_60 = get_thing_height_at(thing, tngpos);
         }
-        cctrl->flgfield_1 |= 0x08;
+        cctrl->flgfield_1 |= CCFlg_Unknown08;
     }
     if ((get_creature_model_flags(thing) & MF_TremblingFat) != 0)
     {
@@ -1520,7 +1526,7 @@ long move_creature(struct Thing *thing)
                 }
             }
         }
-        if ((cctrl->flgfield_1 & 0x10) != 0)
+        if ((cctrl->flgfield_1 & CCFlg_Unknown10) != 0)
         {
             if (get_thing_collided_with_at_satisfying_filter(thing, &pos, collide_filter_thing_is_of_type, 5, -1))
             {

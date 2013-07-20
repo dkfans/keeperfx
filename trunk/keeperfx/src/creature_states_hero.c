@@ -470,15 +470,15 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     cctrl = creature_control_get_from_thing(creatng);
-    SYNCDBG(8,"The %s performing task %d",thing_model_name(creatng), (int)cctrl->field_4);
-    switch (cctrl->field_4)
+    SYNCDBG(8,"The %s performing task %d",thing_model_name(creatng), (int)cctrl->party_objective);
+    switch (cctrl->party_objective)
     {
     case CHeroTsk_AttackRooms:
         if (good_setup_attack_rooms(creatng, target_plyr_idx)) {
             return true;
         }
         WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
-        cctrl->field_4 = CHeroTsk_AttackDnHeart;
+        cctrl->party_objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_AttackDnHeart:
         if (good_setup_wander_to_dungeon_heart(creatng, target_plyr_idx)) {
@@ -494,14 +494,14 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
                 return true;
             }
             WARNLOG("Can't loot player %d treasury, switching to attack heart", (int)target_plyr_idx);
-            cctrl->field_4 = CHeroTsk_AttackDnHeart;
+            cctrl->party_objective = CHeroTsk_AttackDnHeart;
         } else
         {
             if (good_setup_wander_to_exit(creatng)) {
                 return true;
             }
             WARNLOG("Can't wander to exit after looting player %d treasury, switching to attack heart", (int)target_plyr_idx);
-            cctrl->field_4 = CHeroTsk_AttackDnHeart;
+            cctrl->party_objective = CHeroTsk_AttackDnHeart;
         }
         return false;
     case CHeroTsk_StealSpells:
@@ -511,14 +511,14 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
                 return true;
             }
             WARNLOG("Can't loot player %d spells, switching to attack heart", (int)target_plyr_idx);
-            cctrl->field_4 = CHeroTsk_AttackDnHeart;
+            cctrl->party_objective = CHeroTsk_AttackDnHeart;
         } else
         {
             if (good_setup_wander_to_exit(creatng)) {
                 return true;
             }
             WARNLOG("Can't wander to exit after looting player %d spells, switching to attack heart", (int)target_plyr_idx);
-            cctrl->field_4 = CHeroTsk_AttackDnHeart;
+            cctrl->party_objective = CHeroTsk_AttackDnHeart;
         }
         return false;
     case CHeroTsk_AttackEnemies:
@@ -553,12 +553,12 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
             }
         }
         WARNLOG("Can't attack player %d creature, switching to attack heart", (int)cctrl->party.target_plyr_idx);
-        cctrl->field_4 = CHeroTsk_AttackDnHeart;
+        cctrl->party_objective = CHeroTsk_AttackDnHeart;
         return false;
     case CHeroTsk_Default:
     default:
         SYNCDBG(4,"Wrong task, switching to attack enemies");
-        cctrl->field_4 = CHeroTsk_AttackEnemies;
+        cctrl->party_objective = CHeroTsk_AttackEnemies;
         return false;
     }
 }
@@ -789,26 +789,28 @@ short creature_hero_entering(struct Thing *thing)
     if (cctrl->field_282 > 0)
     {
         cctrl->field_282--;
-        return 0;
+        return CrStRet_Modified;
     }
     if (cctrl->field_282 == 0)
     {
         thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->field_58 - 1;
         cctrl->field_282--;
-        return 0;
+        return CrStRet_Modified;
     }
-    if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)) )
+    if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing))
+     || (cctrl->field_282 < -500))
     {
         if (is_neutral_thing(thing))
         {
             initialise_thing_state(thing, CrSt_CreatureDormant);
-            cctrl->field_282--;
-            return 0;
+        } else
+        {
+            set_start_state(thing);
         }
-        set_start_state(thing);
+        return CrStRet_ResetOk;
     }
     cctrl->field_282--;
-    return 0;
+    return CrStRet_Modified;
 }
 
 long get_best_dungeon_to_tunnel_to(struct Thing *creatng)

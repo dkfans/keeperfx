@@ -145,7 +145,7 @@ struct CreatureControl {
     unsigned char flgfield_1;
     unsigned char field_2;
     unsigned char combat_flags;
-    unsigned char field_4;
+    unsigned char party_objective;
     long field_5;
     short field_9;
     short opponents_melee[COMBAT_MELEE_OPPONENTS_LIMIT];
@@ -368,7 +368,7 @@ unsigned char field_201[22];
     unsigned char continue_state_bkp;
 unsigned char field_27F;
     short conscious_back_turns;
-    short field_282;
+    short field_282; // signed
 unsigned char field_284[2];
     unsigned char field_286;
     unsigned char field_287;
