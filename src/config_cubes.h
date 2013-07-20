@@ -31,14 +31,14 @@ extern "C" {
 /******************************************************************************/
 
 #define CUBE_ITEMS_MAX 512
+#define CUBE_TEXTURES 6
 
 /******************************************************************************/
 #pragma pack(1)
 
 struct CubeAttribs { // sizeof=0x12
-    unsigned short texture_0[3];
-char field_6[2];
-short field_8[5];
+    unsigned short texture_id[CUBE_TEXTURES];
+    unsigned char field_C[CUBE_TEXTURES];
 };
 
 #pragma pack()
@@ -55,7 +55,7 @@ struct CubesConfig {
 extern const char keeper_cubes_file[];
 extern struct NamedCommand cubes_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
-TbBool load_cubes_config(const char *conf_fname,unsigned short flags);
+TbBool load_cubes_config(unsigned short flags);
 struct CubeConfigStats *get_cube_model_stats(long model);
 const char *cube_code_name(long model);
 ThingModel cube_model_id(const char * code_name);
