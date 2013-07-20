@@ -44,16 +44,16 @@ unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
 /******************************************************************************/
 long convert_td_iso(unsigned long n)
 {
-  if ((lens_mode == 2) || (lens_mode == 3))
-  {
-      if ((n < TD_ISO_POINTS) && (iso_td[n] >= 0))
-        return iso_td[n];
-  } else
-  {
-      if ((n < TD_ISO_POINTS) && (td_iso[n] >= 0))
-        return td_iso[n];
-  }
-  return n;
+    if ((lens_mode == 2) || (lens_mode == 3))
+    {
+        if ((n < TD_ISO_POINTS) && (iso_td[n] >= 0))
+          return iso_td[n];
+    } else
+    {
+        if ((n < TD_ISO_POINTS) && (td_iso[n] >= 0))
+          return td_iso[n];
+    }
+    return n;
 }
 
 void init_iso_3d_conversion_tables(void)

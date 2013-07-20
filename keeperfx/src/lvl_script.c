@@ -2676,47 +2676,47 @@ struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation
 
 struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_idx, long location, long copies_num)
 {
-  struct CreatureControl *cctrl;
-  struct PartyMember *member;
-  struct Thing *prthing;
-  struct Thing *ldthing;
-  struct Thing *thing;
-  long i,k;
-  //return _DK_script_process_new_party(party, plyr_idx, location, copies_num);
-  ldthing = NULL;
-  for (i=0; i < copies_num; i++)
-  {
-    prthing = NULL;
-    for (k=0; k < party->members_num; k++)
+    struct CreatureControl *cctrl;
+    struct PartyMember *member;
+    struct Thing *prthing;
+    struct Thing *ldthing;
+    struct Thing *thing;
+    long i,k;
+    //return _DK_script_process_new_party(party, plyr_idx, location, copies_num);
+    ldthing = NULL;
+    for (i=0; i < copies_num; i++)
     {
-      if (k >= 8)
+      prthing = NULL;
+      for (k=0; k < party->members_num; k++)
       {
-        ERRORLOG("Party too big");
-        break;
-      }
-      member = &(party->members[k]);
-      thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level);
-      if (!thing_is_invalid(thing))
-      {
-        cctrl = creature_control_get_from_thing(thing);
-        cctrl->field_4 = member->objectv;
-        cctrl->field_5 = game.play_gameturn + member->countdown;
-        if (!thing_is_invalid(prthing))
+        if (k >= PARTY_MEMBERS_COUNT)
         {
-          if (cctrl->explevel <= get_highest_experience_level_in_group(prthing))
-          {
-            add_creature_to_group(thing, prthing);
-          } else
-          {
-            add_creature_to_group_as_leader(thing, prthing);
-            ldthing = thing;
-          }
+            ERRORLOG("Party too big");
+            break;
         }
-        prthing = thing;
+        member = &(party->members[k]);
+        thing = script_create_new_creature(plyr_idx, member->crtr_kind, location, member->carried_gold, member->crtr_level);
+        if (!thing_is_invalid(thing))
+        {
+            cctrl = creature_control_get_from_thing(thing);
+            cctrl->party_objective = member->objectv;
+            cctrl->field_5 = game.play_gameturn + member->countdown;
+            if (!thing_is_invalid(prthing))
+            {
+                if (cctrl->explevel <= get_highest_experience_level_in_group(prthing))
+                {
+                    add_creature_to_group(thing, prthing);
+                } else
+                {
+                    add_creature_to_group_as_leader(thing, prthing);
+                    ldthing = thing;
+                }
+            }
+            prthing = thing;
+        }
       }
     }
-  }
-  return ldthing;
+    return ldthing;
 }
 
 struct Thing *script_create_new_creature(unsigned char plyr_idx, long breed, long location, long carried_gold, long crtr_level)
