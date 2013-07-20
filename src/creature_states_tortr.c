@@ -118,7 +118,7 @@ short at_torture_room(struct Thing *thing)
         return 0;
     }
     add_creature_to_torture_room(thing, room);
-    cctrl->flgfield_1 |= 0x02;
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
     cctrl->word_A6 = 0;
     cctrl->field_82 = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
@@ -149,7 +149,7 @@ short cleanup_torturing(struct Thing *creatng)
     if (crstat->flying) {
         creatng->movement_flags |= 0x20;
     }
-    cctrl->flgfield_1 &= ~0x02;
+    cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
     remove_creature_from_torture_room(creatng);
     state_cleanup_in_room(creatng);
     return 1;

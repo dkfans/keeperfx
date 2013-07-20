@@ -106,12 +106,12 @@ short creature_arrived_at_prison(struct Thing *thing)
     {
         if (is_my_player_number(room->owner))
             output_message(SMsg_PrisonTooSmall, 0, true);
-        cctrl->flgfield_1 &= ~0x02;
+        cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(thing);
         return 0;
     }
     cctrl->field_82 = game.play_gameturn;
-    cctrl->flgfield_1 |= 0x02;
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
     internal_set_thing_state(thing, CrSt_CreatureInPrison);
     if (creature_affected_by_spell(thing, SplK_Speed)) {
       terminate_thing_spell_effect(thing, SplK_Speed);

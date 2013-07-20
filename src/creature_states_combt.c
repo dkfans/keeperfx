@@ -198,7 +198,7 @@ TbBool creature_will_do_combat(const struct Thing *thing)
     // Neutral creatures won't fight
     if (is_neutral_thing(thing))
         return false;
-    if ((cctrl->flgfield_1 & 0x02) != 0)
+    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
         return false;
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
 }
