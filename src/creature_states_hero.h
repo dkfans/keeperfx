@@ -55,6 +55,8 @@ short tunneller_doing_nothing(struct Thing *creatng);
 short tunnelling(struct Thing *creatng);
 
 TbBool good_setup_wander_to_exit(struct Thing *creatng);
+short setup_person_tunnel_to_position(struct Thing *creatng, long stl_x, long stl_y, unsigned char a4);
+TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber plyr_idx, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
