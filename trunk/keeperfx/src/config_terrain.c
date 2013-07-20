@@ -770,11 +770,11 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
         return false;
+    }
     // Player must have dungeon heart to build rooms
-    if (dungeon->dnheart_idx <= 0)
-    {
+    if (dungeon->dnheart_idx <= 0) {
         return false;
     }
     if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
@@ -782,8 +782,9 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
       ERRORLOG("Incorrect room %d (player %d)",(int)room_idx, (int)plyr_idx);
       return false;
     }
-    if (dungeon->room_buildable[room_idx])
-      return true;
+    if (dungeon->room_buildable[room_idx]) {
+        return true;
+    }
     return false;
 }
 

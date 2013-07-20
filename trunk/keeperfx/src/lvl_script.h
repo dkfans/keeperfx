@@ -316,8 +316,8 @@ long script_support_create_thing_at_hero_door(long a1, unsigned char a2, unsigne
 long script_support_create_thing_at_action_point(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 long script_support_create_creature_at_dungeon_heart(unsigned char a1, unsigned char a2, unsigned char a3);
 long script_support_send_tunneller_to_action_point(struct Thing *thing, long a2);
-long script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char a2);
-long script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char a2);
+TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx);
+TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx);
 long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
 struct Thing *script_create_new_creature(unsigned char plyr_idx, long kind, long location, long carried_gold, long crtr_level);
 TbBool process_activation_status(struct Condition *condt);

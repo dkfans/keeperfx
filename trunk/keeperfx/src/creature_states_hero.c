@@ -586,10 +586,12 @@ short good_doing_nothing(struct Thing *creatng)
         ERRORLOG("Invalid creature control; no action");
         return 0;
     }
+    // Respect the idle time - just wander around some time
     nturns = game.play_gameturn - cctrl->idle.start_gameturn;
     if (nturns <= 1) {
         return 1;
     }
+    // Do some wandering also if can't find any task to do
     if (cctrl->field_5 > (long)game.play_gameturn)
     {
         if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
@@ -597,6 +599,7 @@ short good_doing_nothing(struct Thing *creatng)
         }
         return 1;
     }
+    // Done wandering - find a target player
     target_plyr_idx = cctrl->party.target_plyr_idx;
     if (target_plyr_idx != -1)
     {
@@ -620,6 +623,7 @@ short good_doing_nothing(struct Thing *creatng)
                     cctrl->party.target_plyr_idx = -1;
                 }
             } else
+            if (nturns >= 0)
             {
                 // Waiting - move around a bit
                 if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
@@ -627,6 +631,11 @@ short good_doing_nothing(struct Thing *creatng)
                     creatng->continue_state = CrSt_GoodDoingNothing;
                     return 0;
                 }
+            } else
+            {
+                // Value lower than 0 would mean it is invalid
+                WARNLOG("Invalid wait time detected for %s, value %ld",thing_model_name(creatng),(long)cctrl->long_91);
+                cctrl->long_91 = 0;
             }
         } else
         {
@@ -663,8 +672,9 @@ short good_doing_nothing(struct Thing *creatng)
         }
         return 1;
     }
-    if (good_creature_setup_task_in_dungeon(creatng, target_plyr_idx))
+    if (good_creature_setup_task_in_dungeon(creatng, target_plyr_idx)) {
         return 1;
+    }
     // If there are problems with the task, do a break before re-trying
     cctrl->field_5 = game.play_gameturn + 200;
     return 0;
@@ -789,7 +799,7 @@ short creature_hero_entering(struct Thing *thing)
     if (cctrl->field_282 > 0)
     {
         cctrl->field_282--;
-        return CrStRet_Modified;
+        return CrStRet_Unchanged;
     }
     if (cctrl->field_282 == 0)
     {
@@ -797,17 +807,15 @@ short creature_hero_entering(struct Thing *thing)
         cctrl->field_282--;
         return CrStRet_Modified;
     }
-    if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing))
-     || (cctrl->field_282 < -500))
+    if ( thing_touching_floor(thing) || (((thing->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(thing)))
     {
-        if (is_neutral_thing(thing))
-        {
-            initialise_thing_state(thing, CrSt_CreatureDormant);
-        } else
-        {
-            set_start_state(thing);
-        }
+        set_start_state(thing);
         return CrStRet_ResetOk;
+    }
+    if (cctrl->field_282 < -500)
+    {
+        set_start_state(thing);
+        return CrStRet_ResetFail;
     }
     cctrl->field_282--;
     return CrStRet_Modified;
@@ -833,14 +841,14 @@ short setup_person_tunnel_to_position(struct Thing *creatng, long stl_x, long st
     return 0;
 }
 
-long send_tunneller_to_point_in_dungeon(struct Thing *creatng, long plyr_idx, struct Coord3d *pos)
+TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber plyr_idx, struct Coord3d *pos)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->party.target_plyr_idx = plyr_idx;
     setup_person_tunnel_to_position(creatng, pos->x.stl.num, pos->y.stl.num, 0);
     creatng->continue_state = CrSt_TunnellerDoingNothing;
-    return 1;
+    return true;
 }
 
 short tunneller_doing_nothing(struct Thing *creatng)
@@ -848,7 +856,8 @@ short tunneller_doing_nothing(struct Thing *creatng)
     //return _DK_tunneller_doing_nothing(creatng);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if (game.play_gameturn - cctrl->long_9A <= 1)
+    // Wait for some time
+    if (cctrl->long_9A + 1 >= game.play_gameturn)
     {
         return 1;
     }
@@ -876,8 +885,9 @@ short tunneller_doing_nothing(struct Thing *creatng)
 
     int plyr_idx;
     plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
-    if ( plyr_idx == -1 )
+    if (plyr_idx == -1) {
       return 1;
+    }
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
     if ( dungeon->num_active_creatrs || dungeon->num_active_diggers )
@@ -901,6 +911,7 @@ short tunnelling(struct Thing *creatng)
 {
     struct SlabMap *slb;
     long speed;
+    SYNCDBG(7,"Starting");
     //return _DK_tunnelling(creatng);
     speed = get_creature_speed(creatng);
     slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);

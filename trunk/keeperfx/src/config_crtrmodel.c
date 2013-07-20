@@ -34,6 +34,7 @@
 #include "config_lenses.h"
 #include "creature_control.h"
 #include "creature_graphics.h"
+#include "creature_states.h"
 #include "player_data.h"
 
 #ifdef __cplusplus
@@ -739,16 +740,26 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   // If the creature is a special breed, then update an attribute in CreatureConfig struct
   if ((crconf->model_flags & MF_IsSpecDigger) != 0)
   {
-      if ((crconf->model_flags & MF_IsEvil) != 0)
+      if ((crconf->model_flags & MF_IsEvil) != 0) {
           crtr_conf.special_digger_evil = crtr_model;
-      else
+      } else {
           crtr_conf.special_digger_good = crtr_model;
+      }
   }
   if ((crconf->model_flags & MF_IsSpectator) != 0)
   {
       crtr_conf.spectator_breed = crtr_model;
   }
-//  if (crstat->humanoid_creature) SYNCMSG("Creature is humanoid.");
+  // Set creature start states based on the flags
+  if ((crconf->model_flags & MF_IsSpecDigger) != 0)
+  {
+      creatures[crtr_model].evil_start_state = CrSt_ImpDoingNothing;
+      creatures[crtr_model].good_start_state = CrSt_TunnellerDoingNothing;
+  } else
+  {
+      creatures[crtr_model].evil_start_state = CrSt_CreatureDoingNothing;
+      creatures[crtr_model].good_start_state = CrSt_GoodDoingNothing;
+  }
   return true;
 }
 

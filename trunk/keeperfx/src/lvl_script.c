@@ -46,6 +46,7 @@
 #include "thing_navigate.h"
 #include "thing_stats.h"
 #include "creature_states.h"
+#include "creature_states_hero.h"
 #include "creature_groups.h"
 #include "room_library.h"
 #include "lvl_filesdk1.h"
@@ -2567,16 +2568,58 @@ long script_support_send_tunneller_to_action_point(struct Thing *thing, long a2)
   return _DK_script_support_send_tunneller_to_action_point(thing, a2);
 }
 
-long script_support_send_tunneller_to_dungeon(struct Thing *thing, unsigned char a2)
+TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_script_support_send_tunneller_to_dungeon(thing, a2);
+    SYNCDBG(7,"Starting");
+    //return _DK_script_support_send_tunneller_to_dungeon(creatng, a2);
+    struct Thing *heartng;
+    heartng = INVALID_THING;
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        if (!dungeon_invalid(dungeon))
+            heartng = thing_get(dungeon->dnheart_idx);
+    }
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng))
+    {
+        WARNLOG("Tried to send %s to player (%d) which has no heart", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    struct Coord3d pos;
+    if (!get_random_position_in_dungeon_for_creature(plyr_idx, 1, creatng, &pos)) {
+        WARNLOG("Tried to send %s to player (%d) but can't find position", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    if (!send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos)) {
+        WARNLOG("Tried to send %s to player (%d) but can't start the task", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    return true;
 }
 
-long script_support_send_tunneller_to_dungeon_heart(struct Thing *thing, unsigned char a2)
+TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_script_support_send_tunneller_to_dungeon_heart(thing, a2);
+    SYNCDBG(7,"Starting");
+    //return _DK_script_support_send_tunneller_to_dungeon_heart(creatng, a2);
+    struct Thing *heartng;
+    heartng = INVALID_THING;
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        if (!dungeon_invalid(dungeon))
+            heartng = thing_get(dungeon->dnheart_idx);
+    }
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng)) {
+        WARNLOG("Tried to send %s to player (%d) which has no heart", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    if (send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &heartng->mappos)) {
+        WARNLOG("Tried to send %s to player (%d) but can't start the task", thing_model_name(creatng), (int)plyr_idx);
+        return false;
+    }
+    return true;
 }
 
 long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing)
