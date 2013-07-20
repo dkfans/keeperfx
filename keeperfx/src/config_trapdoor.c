@@ -662,18 +662,19 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
         return false;
+    }
     // Player must have dungeon heart to place traps
     if (dungeon->dnheart_idx <= 0) {
         return false;
     }
     if ((trap_idx <= 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
-      ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
-      return false;
+        ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
+        return false;
     }
     if (dungeon->trap_placeable[trap_idx]) {
-      return true;
+        return true;
     }
     return false;
 }
@@ -688,18 +689,19 @@ TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
         return false;
+    }
     // Player must have dungeon heart to build anything
     if (dungeon->dnheart_idx <= 0) {
         return false;
     }
     if ((trap_idx <= 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
-      ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
-      return false;
+        ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
+        return false;
     }
     if (dungeon->trap_buildable[trap_idx] > 0) {
-      return true;
+        return true;
     }
     return false;
 }
