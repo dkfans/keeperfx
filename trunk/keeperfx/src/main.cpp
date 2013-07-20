@@ -952,7 +952,8 @@ void init_keeper(void)
     check_and_auto_fix_stats();
     init_creature_scores();
     // Load graphics structures
-    load_cube_file();
+    load_cubes_config(CnfLd_Standard);
+    //load_cube_file();
     init_top_texture_to_cube_table();
     load_anim_file();
     game.neutral_player_num = neutral_player_number;
