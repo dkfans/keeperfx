@@ -206,6 +206,10 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
     struct ComputerTask *ctask;
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_move_creatures_to_best_room(comp, check);
+    //TODO check if should be changed to computer_able_to_use_magic()
+    if (!is_power_available(comp->dungeon->owner, PwrK_HAND)) {
+        return 4;
+    }
     int num_to_move;
     num_to_move = check->param2 * comp->dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
@@ -234,8 +238,30 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
 
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_no_imps(comp, check);
+    //return _DK_computer_check_no_imps(comp, check);
+    dungeon = comp->dungeon;
+    if (dungeon->num_active_diggers >= check->param2) {
+        return 4;
+    }
+    long able;
+    able = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 1);
+    if (able == 1)
+    {
+        struct Thing *heartng;
+        MapSubtlCoord stl_x, stl_y;
+        heartng = thing_get(dungeon->dnheart_idx);
+        stl_x = heartng->mappos.x.stl.num;
+        stl_y = heartng->mappos.y.stl.num;
+        if (xy_walkable(stl_x, stl_y, dungeon->owner))
+        {
+            if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > 0) {
+                able = 1;
+            }
+        }
+    }
+    return able;
 }
 
 long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check)

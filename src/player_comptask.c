@@ -761,7 +761,7 @@ long computer_check_room_available(struct Computer2 * comp, long rkind)
     return 1;
 }
 
-TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, int plyr_idx)
+TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct SlabAttr *slbattr;
     struct SlabMap *slb;
@@ -952,12 +952,14 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             }
             if ( !simulation )
             {
-                if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, gldstl_x, gldstl_y, 1, 1) <= 0)
-                  break;
+                if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, gldstl_x, gldstl_y, 1, 1) <= 0) {
+                    break;
+                }
               if (digflags != 0)
               {
-                if ((slbattr->flags & SlbAtFlg_Valuable) != 0)
-                  cdig->subfield_58++;
+                  if ((slbattr->flags & SlbAtFlg_Valuable) != 0) {
+                      cdig->subfield_58++;
+                  }
               }
             }
             counter1++;
