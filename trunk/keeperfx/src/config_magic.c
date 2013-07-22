@@ -1205,8 +1205,9 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
         return false;
+    }
     // Player must have dungeon heart to cast spells
     if (dungeon->dnheart_idx <= 0) {
         return false;
