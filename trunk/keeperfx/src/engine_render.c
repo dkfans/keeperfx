@@ -39,6 +39,7 @@
 #include "creature_states_lair.h"
 #include "thing_stats.h"
 #include "game_lghtshdw.h"
+#include "game_heap.h"
 #include "kjm_input.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -2985,8 +2986,48 @@ void unlock_keepersprite(unsigned short kspr_idx)
 
 long load_single_frame(unsigned short kspr_idx)
 {
-    //TODO CREATURE_SPRITE required to rewrite creature sprites loading
-    return _DK_load_single_frame(kspr_idx);
+    long nlength;
+    struct HeapMgrHandle *nitem;
+    int i;
+    //return _DK_load_single_frame(kspr_idx);
+    nlength = creature_table[kspr_idx+1].foffset - creature_table[kspr_idx].foffset;
+    // TODO SPRITES Is it really KeeperSprite? A lot of enties are smaller..
+    for (i=0; i < 100; i++)
+    {
+        nitem = heapmgr_add_item(graphics_heap, nlength);
+        if (nitem != NULL) {
+            break;
+        }
+        long idfreed;
+        idfreed = heapmgr_free_oldest(graphics_heap);
+        if (idfreed < 0)
+        {
+            // If can't free anything more, try to defrag existing items
+            heapmgr_complete_defrag(graphics_heap);
+            nitem = heapmgr_add_item(graphics_heap, nlength);
+            if (nitem != NULL) {
+                break;
+            }
+            // Cannot free and cannot defrag - we can't do anything more
+            ERRORLOG("Unable to find freeable item");
+            return 0;
+        }
+        heap_handle[idfreed] = NULL;
+        keepsprite[idfreed] = NULL;
+    }
+    if (nitem == NULL) {
+        ERRORLOG("Unable to make room for new item on heap");
+        return 0;
+    }
+    if (!read_heap_item(nitem, creature_table[kspr_idx].foffset, nlength))
+    {
+        ERRORLOG("Load Fail On KeepSprite %d",(int)kspr_idx);
+        return 0;
+    }
+    keepsprite[kspr_idx] = (unsigned char **)&nitem->buf;
+    heap_handle[kspr_idx] = nitem;
+    nitem->sprite_idx = kspr_idx;
+    return 1;
 }
 
 long load_keepersprite_if_needed(unsigned short kspr_idx)
@@ -3032,7 +3073,7 @@ void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
 {
     struct TbSprite sprite;
     long cut_w,cut_h;
-    struct KeeperSprite **kspr_list;
+    TbSpriteData *kspr_item;
     if ((kspr_idx < 0) || (kspr_idx >= KEEPSPRITE_LENGTH)) {
         WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
         return;
@@ -3040,12 +3081,21 @@ void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
     cut_w = w;
     cut_h = h - water_source_cutoff;
-    if (cut_h <= 0)
+    if (cut_h <= 0) {
         return;
-    kspr_list = keepsprite[kspr_idx];
+    }
+    kspr_item = keepsprite[kspr_idx];
     sprite.SWidth = cut_w;
     sprite.SHeight = cut_h;
-    sprite.Data = (unsigned char *)(*kspr_list);
+    if (kspr_item != NULL) {
+        sprite.Data = *kspr_item;
+    } else {
+        sprite.Data = NULL;
+    }
+    if (sprite.Data == NULL) {
+        WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,x,y);
+        return;
+    }
     if ( EngineSpriteDrawUsingAlpha ) {
         DrawAlphaSpriteUsingScalingData(x, y, &sprite);
     } else {
@@ -3275,32 +3325,34 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     scaled_y += water_y_offset;
     if (creature_sprites->rotable == 0)
     {
-        if ( heap_manage_keepersprite(kspr_idx) )
+        if (!heap_manage_keepersprite(kspr_idx))
         {
-            kspr = &creature_sprites[sprite_group];
-            draw_idx = sprite_group + kspr_idx;
-            if ( needs_xflip )
-            {
-                draw_single_keepersprite_omni_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
-            } else
-            {
-                draw_single_keepersprite_omni(scaled_x, scaled_y, kspr, draw_idx, scale);
-            }
+            return;
+        }
+        kspr = &creature_sprites[sprite_group];
+        draw_idx = sprite_group + kspr_idx;
+        if ( needs_xflip )
+        {
+            draw_single_keepersprite_omni_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
+        } else
+        {
+            draw_single_keepersprite_omni(scaled_x, scaled_y, kspr, draw_idx, scale);
         }
     } else
     if (creature_sprites->rotable == 2)
     {
-        if ( heap_manage_keepersprite(kspr_idx) )
+        if (!heap_manage_keepersprite(kspr_idx))
         {
-            kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->frames];
-            draw_idx = sprite_group + sprite_delta * (long)kspr->frames + kspr_idx;
-            if ( needs_xflip )
-            {
-                draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
-            } else
-            {
-                draw_single_keepersprite(scaled_x, scaled_y, kspr, draw_idx, scale);
-            }
+            return;
+        }
+        kspr = &creature_sprites[sprite_group + sprite_delta * (long)creature_sprites->frames];
+        draw_idx = sprite_group + sprite_delta * (long)kspr->frames + kspr_idx;
+        if ( needs_xflip )
+        {
+            draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
+        } else
+        {
+            draw_single_keepersprite(scaled_x, scaled_y, kspr, draw_idx, scale);
         }
     }
 }
@@ -3516,7 +3568,7 @@ void draw_jonty_mapwho(struct JontySpr *jspr)
  * @param lines_max Max lines to be written into output buffer.
  * @param scanln Length of scanline (length of line in output buffer).
  */
-void sprite_to_sbuff(const unsigned char *sprdata, unsigned char *outbuf, int lines_max, int scanln)
+void sprite_to_sbuff(const TbSpriteData sprdata, unsigned char *outbuf, int lines_max, int scanln)
 {
     unsigned char *out_lnstart;
     unsigned char *out;
@@ -3581,7 +3633,7 @@ void sprite_to_sbuff(const unsigned char *sprdata, unsigned char *outbuf, int li
  * @param lines_max Max lines to be written into output buffer.
  * @param scanln Length of scanline (length of line in output buffer).
  */
-void sprite_to_sbuff_xflip(unsigned char *sprdata, unsigned char *outbuf, int lines_max, int scanln)
+void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *outbuf, int lines_max, int scanln)
 {
     unsigned char *out_lnstart;
     unsigned char *out;
@@ -3664,7 +3716,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
     kspr_arr = keepersprite_array(kspr_n);
     if (kspr_arr->rotable == 0)
     {
-        if ( !heap_manage_keepersprite(kspr_idx) )
+        if (!heap_manage_keepersprite(kspr_idx))
         {
             return;
         }
@@ -3682,7 +3734,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff_xflip((unsigned char *)*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
+            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
         } else
         {
             tmpbuf = outbuf;
@@ -3693,12 +3745,12 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff((unsigned char *)*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
+            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[256 * skip_h + skip_w], kspr->field_5, 256);
         }
     } else
     if (kspr_arr->rotable == 2)
     {
-        if ( !heap_manage_keepersprite(kspr_idx) )
+        if (!heap_manage_keepersprite(kspr_idx))
         {
             return;
         }
@@ -3714,7 +3766,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff_xflip((unsigned char *)*keepsprite[keepsprite_id], &outbuf[kspr->field_4], kspr->field_5, 256);
+            sprite_to_sbuff_xflip(*keepsprite[keepsprite_id], &outbuf[kspr->field_4], kspr->field_5, 256);
         } else
         {
             tmpbuf = outbuf;
@@ -3723,7 +3775,7 @@ void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsi
                 LbMemorySet(tmpbuf, 0, fill_w);
                 tmpbuf += 256;
             }
-            sprite_to_sbuff((unsigned char *)*keepsprite[keepsprite_id], &outbuf[0], kspr->field_5, 256);
+            sprite_to_sbuff(*keepsprite[keepsprite_id], &outbuf[0], kspr->field_5, 256);
         }
     }
 }

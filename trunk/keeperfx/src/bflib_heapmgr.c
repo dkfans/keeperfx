@@ -30,6 +30,7 @@ DLLIMPORT long _DK_heapmgr_free_oldest(struct HeapMgrHeader *hmhead);
 DLLIMPORT struct HeapMgrHandle *_DK_heapmgr_add_item(struct HeapMgrHeader *hmhead, long idx);
 DLLIMPORT void _DK_heapmgr_make_newest(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle);
 DLLIMPORT struct HeapMgrHeader *_DK_heapmgr_init(unsigned char *a1, long a2, long a3);
+DLLIMPORT void _DK_heapmgr_complete_defrag(struct HeapMgrHeader *hmhead);
 /******************************************************************************/
 struct HeapMgrHandle *find_free_handle(struct HeapMgrHeader *hmhead)
 {
@@ -47,9 +48,35 @@ long heapmgr_free_oldest(struct HeapMgrHeader *hmhead)
     return _DK_heapmgr_free_oldest(hmhead);
 }
 
+/**
+ * Changes the heap manager linked list so that given element appears as the newest one.
+ * @param hmhead
+ * @param hmhandle
+ */
 void heapmgr_make_newest(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle)
 {
-    _DK_heapmgr_make_newest(hmhead, hmhandle);
+    struct HeapMgrHandle *hnext;
+    struct HeapMgrHandle *hprev;
+    struct HeapMgrHandle *hsecond;
+    //_DK_heapmgr_make_newest(hmhead, hmhandle);
+    hnext = hmhandle->next_hndl;
+    if (hnext != NULL)
+    {
+        hprev = hmhandle->prev_hndl;
+        hnext->prev_hndl = hprev;
+        if (hprev != NULL)
+        {
+            hprev->next_hndl = hmhandle->next_hndl;
+        } else
+        {
+            hmhead->last_hndl = hmhandle->next_hndl;
+        }
+        hsecond = hmhead->first_hndl;
+        hsecond->next_hndl = hmhandle;
+        hmhandle->next_hndl = NULL;
+        hmhandle->prev_hndl = hsecond;
+        hmhead->first_hndl = hmhandle;
+    }
 }
 
 struct HeapMgrHandle *heapmgr_add_item(struct HeapMgrHeader *hmhead, long idx)
@@ -73,12 +100,15 @@ struct HeapMgrHeader *heapmgr_init(unsigned char *buf_end, long buf_remain, long
     hmgr->field_10 = 0;
     hmgr->field_14 = 0;
     hmgr->field_18 = 0;
-    hmgr->field_1C = 0;
-    hmgr->field_20 = 0;
+    hmgr->last_hndl = NULL;
+    hmgr->first_hndl = NULL;
     return hmgr;
 }
 
-
+void heapmgr_complete_defrag(struct HeapMgrHeader *hmhead)
+{
+    _DK_heapmgr_complete_defrag(hmhead); return;
+}
 
 /******************************************************************************/
 #ifdef __cplusplus

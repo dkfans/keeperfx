@@ -34,19 +34,19 @@ struct HeapMgrHeader { // sizeof = 36
   unsigned long field_10;
   unsigned long field_14;
   unsigned long field_18;
-  unsigned long field_1C;
-  struct HeapMgrHandle *field_20;
+  struct HeapMgrHandle *last_hndl;
+  struct HeapMgrHandle *first_hndl;
 };
 
 struct HeapMgrHandle { // sizeof = 28
   void *buf;
   unsigned long field_4;
   unsigned short field_8;
-  unsigned short field_A;
+  unsigned short sprite_idx;
   unsigned long field_C;
   unsigned long field_10;
-  struct HeapMgrHandle *field_14;
-  struct HeapMgrHandle *field_18;
+  struct HeapMgrHandle *prev_hndl;
+  struct HeapMgrHandle *next_hndl;
 };
 
 
@@ -57,6 +57,7 @@ long heapmgr_free_oldest(struct HeapMgrHeader *hmhead);
 void heapmgr_make_newest(struct HeapMgrHeader *hmhead, struct HeapMgrHandle *hmhandle);
 struct HeapMgrHandle *heapmgr_add_item(struct HeapMgrHeader *hmhead, long idx);
 struct HeapMgrHeader *heapmgr_init(unsigned char *buf_end, long buf_remain, long nsamples);
+void heapmgr_complete_defrag(struct HeapMgrHeader *hmhead);
 
 
 /******************************************************************************/

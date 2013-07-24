@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_heapmgr.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +46,8 @@ TbBool setup_heap_memory(void);
 void reset_heap_manager(void);
 void reset_heap_memory(void);
 TbBool setup_heaps(void);
+
+TbBool read_heap_item(struct HeapMgrHandle *hmhandle, long offs, long len);
 /******************************************************************************/
 #ifdef __cplusplus
 }
