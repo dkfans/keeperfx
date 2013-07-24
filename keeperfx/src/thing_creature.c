@@ -29,6 +29,7 @@
 #include "bflib_planar.h"
 
 #include "engine_lenses.h"
+#include "engine_arrays.h"
 #include "config_creature.h"
 #include "creature_states.h"
 #include "creature_states_combt.h"

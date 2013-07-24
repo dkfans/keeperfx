@@ -36,6 +36,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
 DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
+DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
+DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
 
 DLLIMPORT void _DK_reset_heap_manager(void);
 DLLIMPORT void _DK_reset_heap_memory(void);
@@ -301,6 +303,17 @@ TbBool setup_heaps(void)
         ERRORLOG("Unable to initialize sound heap. Sound disabled.");
       }
     }
+    return true;
+}
+
+TbBool read_heap_item(struct HeapMgrHandle *hmhandle, long offs, long len)
+{
+    if (file_handle == -1) {
+        return false;
+    }
+    // TODO make error handling
+    _DK_LbFileSeek(file_handle, offs, 0);
+    _DK_LbFileRead(file_handle, hmhandle->buf, len);
     return true;
 }
 /******************************************************************************/

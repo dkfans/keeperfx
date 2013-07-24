@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 #include "bflib_render.h"
+#include "bflib_sprite.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -481,7 +482,7 @@ DLLIMPORT long _DK_water_source_cutoff;
 DLLIMPORT long _DK_water_y_offset;
 #define water_y_offset _DK_water_y_offset
 
-DLLIMPORT struct KeeperSprite **_DK_keepsprite[KEEPSPRITE_LENGTH];
+DLLIMPORT TbSpriteData *_DK_keepsprite[KEEPSPRITE_LENGTH];
 #define keepsprite _DK_keepsprite
 DLLIMPORT struct HeapMgrHandle * _DK_heap_handle[KEEPSPRITE_LENGTH];
 #define heap_handle _DK_heap_handle
