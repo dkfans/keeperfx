@@ -1516,6 +1516,7 @@
  0001:00004CD0       heapmgr_add_item
  0001:00004E10       heapmgr_make_newest
  0001:00004E60       heapmgr_free_oldest
+ 0001:00004EA0       heapmgr_free_handle
  0001:00004F70       heapmgr_complete_defrag
  0001:00051280       start_emitter_playing
  0001:00021C00       process_pointer_graphic

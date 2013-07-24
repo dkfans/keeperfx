@@ -27,24 +27,24 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct HeapMgrHeader { // sizeof = 36
-  unsigned char *field_0;
-  unsigned char *field_4;
-  unsigned long field_8;
-  unsigned long field_C;
+  unsigned char *databuf_start;
+  unsigned char *databuf_end;
+  unsigned long databuf_free;
+  unsigned long handles_count;
   unsigned long field_10;
   unsigned long field_14;
-  unsigned long field_18;
+  struct HeapMgrHandle *first_alloc;
   struct HeapMgrHandle *last_hndl;
   struct HeapMgrHandle *first_hndl;
 };
 
 struct HeapMgrHandle { // sizeof = 28
   void *buf;
-  unsigned long field_4;
-  unsigned short field_8;
-  unsigned short sprite_idx;
+  unsigned long len;
+  unsigned short flags;
+  unsigned short idx;
   unsigned long field_C;
-  unsigned long field_10;
+  struct HeapMgrHandle *next_alloc;
   struct HeapMgrHandle *prev_hndl;
   struct HeapMgrHandle *next_hndl;
 };

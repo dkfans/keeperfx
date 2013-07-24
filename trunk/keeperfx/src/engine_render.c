@@ -2959,7 +2959,7 @@ void lock_keepersprite(unsigned short kspr_idx)
         struct HeapMgrHandle *hmhndl;
         hmhndl = heap_handle[kspr_idx+frame_num];
         if (hmhndl != NULL) {
-            hmhndl->field_8 |= 0x02;
+            hmhndl->flags |= 0x02;
         }
     }
 }
@@ -2979,7 +2979,7 @@ void unlock_keepersprite(unsigned short kspr_idx)
         struct HeapMgrHandle *hmhndl;
         hmhndl = heap_handle[kspr_idx+frame_num];
         if (hmhndl != NULL) {
-            hmhndl->field_8 &= ~0x02;
+            hmhndl->flags &= ~0x02;
         }
     }
 }
@@ -2991,7 +2991,6 @@ long load_single_frame(unsigned short kspr_idx)
     int i;
     //return _DK_load_single_frame(kspr_idx);
     nlength = creature_table[kspr_idx+1].foffset - creature_table[kspr_idx].foffset;
-    // TODO SPRITES Is it really KeeperSprite? A lot of enties are smaller..
     for (i=0; i < 100; i++)
     {
         nitem = heapmgr_add_item(graphics_heap, nlength);
@@ -3026,7 +3025,7 @@ long load_single_frame(unsigned short kspr_idx)
     }
     keepsprite[kspr_idx] = (unsigned char **)&nitem->buf;
     heap_handle[kspr_idx] = nitem;
-    nitem->sprite_idx = kspr_idx;
+    nitem->idx = kspr_idx;
     return 1;
 }
 
@@ -3053,7 +3052,7 @@ long load_keepersprite_if_needed(unsigned short kspr_idx)
             {
                 return 0;
             }
-            (*hmhndl)->field_8 |= 0x02;
+            (*hmhndl)->flags |= 0x02;
         }
     }
     return 1;
