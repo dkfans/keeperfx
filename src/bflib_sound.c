@@ -888,12 +888,12 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
         return NULL;
     if (bank_id > 0)
     {
-        hmhandle->sprite_idx = samples_in_bank + smpl_idx;
+        hmhandle->idx = samples_in_bank + smpl_idx;
         _DK_LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
         _DK_LbFileRead(sound_file2, hmhandle->buf, smpl_len);
     } else
     {
-        hmhandle->sprite_idx = smpl_idx;
+        hmhandle->idx = smpl_idx;
         _DK_LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
         _DK_LbFileRead(sound_file, hmhandle->buf, smpl_len);
     }
@@ -933,7 +933,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
     if (bank_id != 0) {
         smpinfo->flags_17 |= 0x04;
     }
-    smp_table->hmhandle->field_8 |= 0x06;
+    smp_table->hmhandle->flags |= 0x06;
     return smpinfo;
 }
 
@@ -967,16 +967,16 @@ void stop_sample_using_heap(unsigned long emit_id, short smptbl_idx, unsigned ch
                             satab = &sample_table2[smptbl_idx];
                             hmhndl = satab->hmhandle;
                             if (hmhndl != NULL) {
-                                hmhndl->field_8 &= ~0x0004;
-                                hmhndl->field_8 &= ~0x0002;
+                                hmhndl->flags &= ~0x0004;
+                                hmhndl->flags &= ~0x0002;
                             }
                         } else
                         {
                             satab = &sample_table[smptbl_idx];
                             hmhndl = satab->hmhandle;
                             if (hmhndl != NULL) {
-                                hmhndl->field_8 &= ~0x0004;
-                                hmhndl->field_8 &= ~0x0002;
+                                hmhndl->flags &= ~0x0004;
+                                hmhndl->flags &= ~0x0002;
                             }
                         }
                         break;

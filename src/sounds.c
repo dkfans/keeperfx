@@ -336,8 +336,8 @@ void process_sound_heap(void)
         satab = &sample_table[i];
         hmhndl = satab->hmhandle;
         if (hmhndl != NULL) {
-            hmhndl->field_8 &= ~0x0004;
-            hmhndl->field_8 &= ~0x0002;
+            hmhndl->flags &= ~0x0004;
+            hmhndl->flags &= ~0x0002;
         }
     }
     if (using_two_banks)
@@ -347,8 +347,8 @@ void process_sound_heap(void)
             satab = &sample_table2[i];
             hmhndl = satab->hmhandle;
             if (hmhndl != NULL) {
-                hmhndl->field_8 &= ~0x0004;
-                hmhndl->field_8 &= ~0x0002;
+                hmhndl->flags &= ~0x0004;
+                hmhndl->flags &= ~0x0002;
             }
         }
     }
@@ -364,16 +364,16 @@ void process_sound_heap(void)
                 satab = &sample_table2[smpinfo->field_12];
                 hmhndl = satab->hmhandle;
                 if (hmhndl != NULL) {
-                    hmhndl->field_8 |= 0x0004;
-                    hmhndl->field_8 |= 0x0002;
+                    hmhndl->flags |= 0x0004;
+                    hmhndl->flags |= 0x0002;
                 }
             } else
             {
                 satab = &sample_table[smpinfo->field_12];
                 hmhndl = satab->hmhandle;
                 if (hmhndl != NULL) {
-                    hmhndl->field_8 |= 0x0004;
-                    hmhndl->field_8 |= 0x0002;
+                    hmhndl->flags |= 0x0004;
+                    hmhndl->flags |= 0x0002;
                 }
             }
           } else
