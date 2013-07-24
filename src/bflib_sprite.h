@@ -28,8 +28,13 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+/**
+ * Type which contains buffer of a sprite, with RLE-encoded alpha channel.
+ */
+typedef unsigned char * TbSpriteData;
+
 struct TbSprite {
-        unsigned char *Data;
+        TbSpriteData Data;
         unsigned char SWidth;
         unsigned char SHeight;
 };
@@ -37,7 +42,7 @@ struct TbSprite {
 struct TbSetupSprite {
         struct TbSprite **Start;
         struct TbSprite **End;
-        unsigned char **Data;
+        TbSpriteData *Data;
 };
 
 struct BigSprite {

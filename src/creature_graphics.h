@@ -68,7 +68,7 @@ struct CreaturePickedUpOffset // sizeof = 8
 };
 
 struct KeeperSprite { // sizeof = 16
-  unsigned char field_0[4];
+  unsigned long foffset;
   unsigned char field_4;
   unsigned char field_5;
   unsigned char field_6;

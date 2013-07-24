@@ -888,12 +888,12 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
         return NULL;
     if (bank_id > 0)
     {
-        hmhandle->field_A = samples_in_bank + smpl_idx;
+        hmhandle->sprite_idx = samples_in_bank + smpl_idx;
         _DK_LbFileSeek(sound_file2, file_pos, Lb_FILE_SEEK_BEGINNING);
         _DK_LbFileRead(sound_file2, hmhandle->buf, smpl_len);
     } else
     {
-        hmhandle->field_A = smpl_idx;
+        hmhandle->sprite_idx = smpl_idx;
         _DK_LbFileSeek(sound_file, file_pos, Lb_FILE_SEEK_BEGINNING);
         _DK_LbFileRead(sound_file, hmhandle->buf, smpl_len);
     }
