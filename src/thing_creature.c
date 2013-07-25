@@ -2218,7 +2218,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         else
           draw_lightning(&pos1, &pos2, 96, 60);
         shotng->health = shotst->old->health;
-        shotng->word_14 = shotst->old->damage;
+        shotng->shot.damage = shotst->old->damage;
         shotng->parent_idx = firing->index;
         break;
     case 7:
@@ -2229,7 +2229,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shotng->health = shotst->old->health;
-        shotng->word_14 = shotst->old->damage;
+        shotng->shot.damage = shotst->old->damage;
         shotng->parent_idx = firing->index;
         break;
     case 13:
@@ -2247,7 +2247,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             shotng->acceleration.y.val += cvect.y;
             shotng->acceleration.z.val += cvect.z;
             shotng->field_1 |= 0x04;
-            shotng->word_14 = damage;
+            shotng->shot.damage = damage;
             shotng->health = shotst->old->health;
             shotng->parent_idx = firing->index;
         }
@@ -2263,11 +2263,11 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->acceleration.y.val += cvect.y;
         shotng->acceleration.z.val += cvect.z;
         shotng->field_1 |= 0x04;
-        shotng->word_14 = damage;
+        shotng->shot.damage = damage;
         shotng->health = shotst->old->health;
         shotng->parent_idx = firing->index;
-        shotng->word_17 = target_idx;
-        shotng->byte_13 = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+        shotng->shot.target_idx = target_idx;
+        shotng->shot.dexterity = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
         break;
     }
     if (!thing_is_invalid(shotng))

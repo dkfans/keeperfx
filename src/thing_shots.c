@@ -525,7 +525,7 @@ long get_damage_of_melee_shot(const struct Thing *shotng, const struct Thing *ta
     tgcrstat = creature_stats_get_from_thing(target);
     tgcctrl = creature_control_get_from_thing(target);
     crdefense = compute_creature_max_defense(tgcrstat->defense,tgcctrl->explevel);
-    hitchance = ((long)shotng->byte_13 - crdefense) / 2;
+    hitchance = ((long)shotng->shot.dexterity - crdefense) / 2;
     if (hitchance < -96) {
         hitchance = -96;
     } else
@@ -533,7 +533,7 @@ long get_damage_of_melee_shot(const struct Thing *shotng, const struct Thing *ta
         hitchance = 96;
     }
     if (ACTION_RANDOM(256) < (128+hitchance))
-      return shotng->word_14;
+      return shotng->shot.damage;
     return 0;
 }
 
@@ -552,8 +552,13 @@ long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const s
     if (hitchance > 96) {
         hitchance = 96;
     }
-    if ((128+hitchance)*255/2)
-      return shot_damage;
+    // If we'd return something which rounds to 0, change it to 1. Otherwise, just use hit chance in computations.
+    if (abs(shot_damage) > 256/(128+hitchance))
+        return shot_damage * (128+hitchance)/256;
+    else if (shot_damage > 0)
+        return 1;
+    else if (shot_damage < 0)
+        return -1;
     return 0;
 }
 
