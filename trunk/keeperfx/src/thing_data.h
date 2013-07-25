@@ -105,7 +105,7 @@ struct Thing {
         short word_17e;
       } effect;
       struct {
-        unsigned char byte_13s;
+        unsigned char dexterity;
         short damage;
         unsigned char hit_type;
         short target_idx;
