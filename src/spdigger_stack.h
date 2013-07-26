@@ -81,6 +81,7 @@ struct ExtraSquares {
 /******************************************************************************/
 TbBool add_to_imp_stack_using_pos(long stl_num, long task_type, struct Dungeon *dungeon);
 long find_in_imp_stack_using_pos(long stl_num, long task_type, const struct Dungeon *dungeon);
+long find_in_imp_stack_starting_at(long task_type, long start_pos, const struct Dungeon *dungeon);
 long add_undug_to_imp_stack(struct Dungeon *dungeon, long num);
 void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon);
 long add_unclaimed_gold_to_imp_stack(struct Dungeon *dungeon);

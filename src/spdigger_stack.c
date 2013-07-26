@@ -120,6 +120,24 @@ long find_in_imp_stack_using_pos(long stl_num, long task_type, const struct Dung
     return -1;
 }
 
+long find_in_imp_stack_starting_at(long task_type, long start_pos, const struct Dungeon *dungeon)
+{
+    long i, n;
+    long stack_len;
+    stack_len = dungeon->digger_stack_length;
+    n = start_pos;
+    for (i=0; i < stack_len; i++)
+    {
+        const struct DiggerStack *istack;
+        istack = &dungeon->imp_stack[n];
+        if (istack->task_id == task_type) {
+            return n;
+        }
+        n = (n+1) % stack_len;
+    }
+    return -1;
+}
+
 long imp_will_soon_be_working_at_excluding(struct Thing *thing, long a2, long a3)
 {
     SYNCDBG(19,"Starting");

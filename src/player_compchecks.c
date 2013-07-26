@@ -29,6 +29,7 @@
 #include "config_terrain.h"
 #include "player_instances.h"
 #include "creature_states.h"
+#include "spdigger_stack.h"
 #include "magic.h"
 #include "dungeon_data.h"
 #include "room_data.h"
@@ -53,6 +54,7 @@ DLLIMPORT long _DK_computer_check_neutral_places(struct Computer2 *comp, struct 
 DLLIMPORT long _DK_computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck * check);
 DLLIMPORT long _DK_computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck * check);
 DLLIMPORT long _DK_computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check);
+DLLIMPORT struct Thing * _DK_find_imp_for_pickup(struct Computer2 *comp, long stl_x, long stl_y);
 
 /******************************************************************************/
 /******************************************************************************/
@@ -232,8 +234,59 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
 
 long computer_check_move_creatures_to_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct Dungeon *dungeon;
+    struct Room *room;
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_move_creatures_to_room(comp, check);
+    //return _DK_computer_check_move_creatures_to_room(comp, check);
+    //TODO check if should be changed to computer_able_to_use_magic()
+    dungeon = comp->dungeon;
+    if (!is_power_available(dungeon->owner, PwrK_HAND)) {
+        return 4;
+    }
+    int num_to_move;
+    num_to_move = check->param2 * dungeon->num_active_creatrs / 100;
+    if (num_to_move <= 0) {
+        return 4;
+    }
+    if (get_task_in_progress(comp, CTT_MoveCreatureToRoom) != NULL) {
+        return 4;
+    }
+    struct ComputerTask *ctask;
+    unsigned long k;
+    long i;
+    k = 0;
+    i = dungeon->room_kind[check->param3];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        if (room->total_capacity > room->used_capacity)
+        {
+            ctask = get_free_task(comp, 1);
+            if (ctask != NULL) {
+                ctask->ttype = CTT_MoveCreatureToRoom;
+                ctask->word_70 = room->index;
+                ctask->word_80 = room->index;
+                ctask->field_7C = num_to_move;
+                ctask->field_A = game.play_gameturn;
+                return 1;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return 4;
 }
 
 long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check)
@@ -264,10 +317,51 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     return able;
 }
 
+struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    return _DK_find_imp_for_pickup(comp, stl_x, stl_y);
+}
+
 long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_pretty(comp, check);
+    //return _DK_computer_check_for_pretty(comp, check);
+    dungeon = comp->dungeon;
+    MapSubtlCoord stl_x, stl_y;
+    {
+        long stack_len;
+        stack_len = dungeon->digger_stack_length;
+        if (stack_len <= check->param2 * dungeon->total_area / 100) {
+            return 4;
+        }
+        long n;
+        n = find_in_imp_stack_starting_at(DigTsk_ImproveDungeon, ACTION_RANDOM(stack_len), dungeon);
+        if (n < 0) {
+            return 4;
+        }
+        const struct DiggerStack *istack;
+        istack = &dungeon->imp_stack[n];
+        stl_x = stl_num_decode_x(istack->field_0);
+        stl_y = stl_num_decode_y(istack->field_0);
+    }
+    struct Thing * creatng;
+    creatng = find_imp_for_pickup(comp, stl_x, stl_y);
+    if (thing_is_invalid(creatng)) {
+        return 4;
+    }
+    struct ComputerTask *ctask;
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return 4;
+    }
+    ctask->ttype = CTT_MoveCreatureToPos;
+    ctask->word_86 = subtile_coord_center(stl_x);
+    ctask->word_88 = subtile_coord_center(stl_y);
+    ctask->word_76 = creatng->index;
+    ctask->word_80 = 0;
+    ctask->field_A = game.play_gameturn;
+    return 1;
 }
 
 struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)

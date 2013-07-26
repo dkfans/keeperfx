@@ -426,7 +426,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
             }
         }
     }
-    SYNCLOG("Unable to find a place for %s sized %dx%d",(int)width_slabs, (int)height_slabs, room_code_name(rkind));
+    SYNCLOG("Unable to find a place for %s sized %dx%d", room_code_name(rkind), (int)width_slabs, (int)height_slabs);
     return NULL;
 }
 
