@@ -182,6 +182,8 @@ typedef short CreatureJob;
 typedef short CrInstance;
 /** Creature attack type, stores AttckT_* values. */
 typedef short CrAttackType;
+/** Creature death flags, stores CrDed_* values. */
+typedef unsigned short CrDeathFlags;
 /** Level number within a campaign. */
 typedef long LevelNumber;
 /** Identifier of a national text string. */

@@ -71,75 +71,52 @@ TbBool activate_bonus_level(struct PlayerInfo *player)
   return result;
 }
 
+void multiply_creatures_in_dungeon_list(struct Dungeon *dungeon, long list_start)
+{
+    struct Thing *thing;
+    struct Thing *tncopy;
+    struct CreatureControl *cctrl;
+    unsigned long k;
+    int i;
+    k = 0;
+    i = list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        tncopy = create_creature(&thing->mappos, thing->model, dungeon->owner);
+        if (thing_is_invalid(tncopy))
+        {
+            WARNLOG("Can't create a copy of creature");
+            break;
+        }
+        set_creature_level(tncopy, cctrl->explevel);
+        tncopy->health = thing->health;
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+}
+
 void multiply_creatures(struct PlayerInfo *player)
 {
   struct Dungeon *dungeon;
-  struct Thing *thing;
-  struct Thing *tncopy;
-  struct CreatureControl *cctrl;
-  unsigned long k;
-  int i;
-  dungeon = get_dungeon(player->id_number);
+  dungeon = get_players_dungeon(player);
   // Copy 'normal' creatures
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->players_next_creature_idx;
-    // Thing list loop body
-    tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
-    if (thing_is_invalid(tncopy))
-    {
-      WARNLOG("Can't create a copy of creature");
-      break;
-    }
-    set_creature_level(tncopy, cctrl->explevel);
-    tncopy->health = thing->health;
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
+  multiply_creatures_in_dungeon_list(dungeon, dungeon->creatr_list_start);
   // Copy 'special worker' creatures
-  k = 0;
-  i = dungeon->digger_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    cctrl = creature_control_get_from_thing(thing);
-    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-    {
-      ERRORLOG("Jump to invalid creature detected");
-      break;
-    }
-    i = cctrl->players_next_creature_idx;
-    // Thing list loop body
-    tncopy = create_creature(&thing->mappos, thing->model, player->id_number);
-    if (thing_is_invalid(tncopy))
-    {
-      WARNLOG("Can't create a copy of creature");
-      break;
-    }
-    set_creature_level(tncopy, cctrl->explevel);
-    tncopy->health = thing->health;
-    // Thing list loop body ends
-    k++;
-    if (k > CREATURES_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping creatures list");
-      break;
-    }
-  }
+  multiply_creatures_in_dungeon_list(dungeon, dungeon->digger_list_start);
 }
 
 void increase_level(struct PlayerInfo *player)
@@ -336,7 +313,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
       dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
     }
   }
-  kill_creature(transftng, NULL, 0, 1, 0, 0);
+  kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
   create_special_used_effect(&boxtng->mappos, plyr_idx);
   remove_events_thing_is_attached_to(boxtng);
   force_any_creature_dragging_owned_thing_to_drop_it(boxtng);

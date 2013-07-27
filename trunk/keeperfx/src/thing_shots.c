@@ -624,20 +624,31 @@ long check_hit_when_attacking_door(struct Thing *thing)
     return 1;
 }
 
-TbBool shot_kill_creature(struct Thing *shotng, struct Thing *target)
+/**
+ * Kills a creature with given shot.
+ * @param shotng The shot which is killing the victim creature.
+ * @param creatng The victim creature thing.
+ * @return True if the creature is being killed, false if something have failed.
+ * @note sometimes named shot_kills_creature().
+ */
+TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
     struct ShotConfigStats *shotst;
-    cctrl = creature_control_get_from_thing(target);
-    target->health = -1;
+    struct CreatureControl *cctrl;
+    shotst = get_shot_model_stats(shotng->model);
+    creatng->health = -1;
+    cctrl = creature_control_get_from_thing(creatng);
     cctrl->shot_model = shotng->model;
-    if (shotng->parent_idx == shotng->index) {
-        kill_creature(target, INVALID_THING, shotng->owner, 0, 1, 0);
+    struct Thing *killertng;
+    CrDeathFlags dieflags;
+    if (shotng->index == shotng->parent_idx) {
+        killertng = INVALID_THING;
+        dieflags = CrDed_DiedInBattle;
     } else {
-        shotst = get_shot_model_stats(shotng->model);
-        kill_creature(target, thing_get(shotng->parent_idx), shotng->owner, 0, 1, shotst->old->cannot_make_target_unconscious);
+        killertng = thing_get(shotng->parent_idx);
+        dieflags = CrDed_DiedInBattle | (shotst->old->cannot_make_target_unconscious?CrDed_NoUnconscious:0);
     }
-    return true;
+    return kill_creature(creatng, killertng, shotng->owner, dieflags);
 }
 
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
@@ -716,23 +727,6 @@ TbBool shot_model_makes_flesh_explosion(long shot_model)
     if ((shot_model == ShM_Firebomb) || (shot_model == ShM_GodLightBall))
         return true;
     return false;
-}
-
-void shot_kills_creature(struct Thing *shotng, struct Thing *target)
-{
-    struct ShotConfigStats *shotst;
-    struct CreatureControl *tgcctrl;
-    struct Thing *killertng;
-    shotst = get_shot_model_stats(shotng->model);
-    target->health = -1;
-    tgcctrl = creature_control_get_from_thing(target);
-    tgcctrl->shot_model = shotng->model;
-    if (shotng->index == shotng->parent_idx) {
-        kill_creature(target, INVALID_THING, shotng->owner, 0, 1, 0);
-    } else {
-        killertng = thing_get(shotng->parent_idx);
-        kill_creature(target, killertng, shotng->owner, 0, 1, shotst->old->cannot_make_target_unconscious);
-    }
 }
 
 long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
@@ -867,7 +861,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (trgtng->health < 0)
     {
-        shot_kills_creature(shotng, trgtng);
+        shot_kill_creature(shotng, trgtng);
     } else
     {
         if (trgtng->owner != shotng->owner) {

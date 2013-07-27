@@ -546,7 +546,7 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
         // Thing list loop body
         if (!creature_is_kept_in_custody_by_enemy(thing))
         {
-            kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+            kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         }
         // Thing list loop body ends
         k++;
