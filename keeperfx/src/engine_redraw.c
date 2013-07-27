@@ -477,7 +477,7 @@ void redraw_isometric_view(void)
 void redraw_frontview(void)
 {
     SYNCDBG(6,"Starting");
-    //_DK_redraw_frontview();
+    //_DK_redraw_frontview(); return;
     struct PlayerInfo *player;
     long w,h;
     player = get_my_player();

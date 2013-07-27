@@ -645,7 +645,7 @@ void create_line_element(long a1, long a2, long a3, long a4, long bckt_idx, TbPi
     poly = (struct BasicUnk13 *)getpoly;
     getpoly += sizeof(struct BasicUnk13);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = 13;
+    poly->b.kind = QK_ClippedLine;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
@@ -674,7 +674,7 @@ void create_line_segment(struct EngineCoord *start, struct EngineCoord *end, TbP
     poly = (struct BasicUnk13 *)getpoly;
     getpoly += sizeof(struct BasicUnk13);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = 13;
+    poly->b.kind = QK_ClippedLine;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     // Fill parameters
     if (pixel_size > 0)
@@ -2060,7 +2060,7 @@ void display_drawlist(void)
           vec_map = block_ptrs[item.unk01->block];
           trig(&item.unk01->p1, &item.unk01->p2, &item.unk01->p3);
           break;
-        case QK_Unknown2:
+        case QK_PolyMode0:
           vec_mode = VM_Unknown0;
           vec_colour = item.unk02->colour;
           point_a.field_0 = item.unk02->x1;
@@ -2071,7 +2071,7 @@ void display_drawlist(void)
           point_c.field_4 = item.unk02->y3;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
-        case QK_Unknown3:
+        case QK_PolyMode4:
           vec_mode = VM_Unknown4;
           vec_colour = item.unk03->colour;
           point_a.field_0 = item.unk03->x1;
@@ -2085,7 +2085,7 @@ void display_drawlist(void)
           point_c.field_10 = item.unk03->vf3 << 16;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
-        case QK_Unknown4:
+        case QK_TrigMode2:
           vec_mode = VM_Unknown2;
           point_a.field_0 = item.unk04->x1;
           point_a.field_4 = item.unk04->y1;
@@ -2101,7 +2101,7 @@ void display_drawlist(void)
           point_c.field_C = item.unk04->vf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
-        case QK_Unknown5:
+        case QK_PolyMode5:
           vec_mode = VM_Unknown5;
           point_a.field_0 = item.unk05->x1;
           point_a.field_4 = item.unk05->y1;
@@ -2120,7 +2120,7 @@ void display_drawlist(void)
           point_c.field_10 = item.unk05->wf3 << 16;
           draw_gpoly(&point_a, &point_b, &point_c);
           break;
-        case QK_Unknown6:
+        case QK_TrigMode3:
           vec_mode = VM_Unknown3;
           point_a.field_0 = item.unk06->x1;
           point_a.field_4 = item.unk06->y1;
@@ -2136,7 +2136,7 @@ void display_drawlist(void)
           point_c.field_C = item.unk06->vf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
-        case QK_Unknown7:
+        case QK_TrigMode6:
           vec_mode = VM_Unknown6;
           point_a.field_0 = item.unk07->x1;
           point_a.field_4 = item.unk07->y1;
@@ -2155,7 +2155,7 @@ void display_drawlist(void)
           point_c.field_10 = item.unk07->wf3 << 16;
           trig(&point_a, &point_b, &point_c);
           break;
-        case QK_Unknown8:
+        case QK_RotableSprite:
           draw_map_who(item.rotSpr);
           break;
         case QK_Unknown9:
@@ -2177,10 +2177,10 @@ void display_drawlist(void)
           trig(&item.keepSpr->p1, &item.keepSpr->p2, &item.keepSpr->p3);
           trig(&item.keepSpr->p1, &item.keepSpr->p3, &item.keepSpr->p4);
           break;
-        case QK_Unknown13:
+        case QK_ClippedLine:
           draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
           break;
-        case QK_Unknown14:
+        case QK_StatusSprites:
           player = get_my_player();
           cam = player->acamera;
           if (cam != NULL)
@@ -2196,7 +2196,7 @@ void display_drawlist(void)
         case QK_RoomFlagPole:
           draw_engine_room_flagpole(item.roomFlg);
           break;
-        case QK_Unknown18:
+        case QK_JontyISOSprite:
           player = get_my_player();
           cam = player->acamera;
           if (cam != NULL)
@@ -2503,31 +2503,31 @@ void display_fast_drawlist(struct Camera *cam)
         {
             switch (item.b->kind)
             {
-            case 11:
+            case QK_JontySprite:
                 draw_fastview_mapwho(cam, item.jonSpr);
                 break;
-            case 13:
+            case QK_ClippedLine:
                 draw_clipped_line(item.unk13->p.field_0,item.unk13->p.field_4,item.unk13->p.field_8,item.unk13->p.field_C,item.unk13->p.field_10);
                 break;
-            case 14:
+            case QK_StatusSprites:
                 if (pixel_size == 1)
                     draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 12288);
                 else
                     draw_status_sprites(item.unk14->field_C, item.unk14->field_10, item.unk14->thing, 4096);
                 break;
-            case 15:
+            case QK_TextureQuad:
                 draw_texturedquad_block(item.txquad);
                 break;
-            case 16:
+            case QK_IntegerValue:
                 draw_engine_number(item.number);
                 break;
-            case 17:
+            case QK_RoomFlagPole:
                 draw_engine_room_flagpole(item.roomFlg);
                 break;
-            case 18:
+            case QK_JontyISOSprite:
                 draw_iso_only_fastview_mapwho(cam, item.jonSpr);
                 break;
-            case 19:
+            case QK_RoomFlagTop:
                 draw_engine_room_flag_top(item.roomFlg);
                 break;
             default:
@@ -2537,13 +2537,14 @@ void display_fast_drawlist(struct Camera *cam)
             }
         }
     } // end for(bucket_num...
-    if (render_problems > 0)
-      WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+    if (render_problems > 0) {
+        WARNLOG("Encoured %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+    }
 }
 
 long convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x, long *y, long *z)
 {
-  return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
+    return _DK_convert_world_coord_to_front_view_screen_coord(pos, cam, x, y, z);
 }
 
 void add_unkn11_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
@@ -2557,7 +2558,7 @@ void add_unkn11_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4
     poly = (struct JontySpr *)getpoly;
     getpoly += sizeof(struct JontySpr);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = 11;
+    poly->b.kind = QK_JontySprite;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     poly->thing = thing;
     if (pixel_size > 0)
@@ -2570,24 +2571,24 @@ void add_unkn11_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4
 
 void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
-  struct JontySpr *poly;
-  if (bckt_idx >= BUCKETS_COUNT)
-    bckt_idx = BUCKETS_COUNT-1;
-  else
-  if (bckt_idx < 0)
-    bckt_idx = 0;
-  poly = (struct JontySpr *)getpoly;
-  getpoly += sizeof(struct JontySpr);
-  poly->b.next = buckets[bckt_idx];
-  poly->b.kind = 18;
-  buckets[bckt_idx] = (struct BasicQ *)poly;
-  poly->thing = thing;
-  if (pixel_size > 0)
-  {
-    poly->scr_x = scr_x / pixel_size;
-    poly->scr_y = scr_y / pixel_size;
-  }
-  poly->field_14 = a4;
+    struct JontySpr *poly;
+    if (bckt_idx >= BUCKETS_COUNT)
+      bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+      bckt_idx = 0;
+    poly = (struct JontySpr *)getpoly;
+    getpoly += sizeof(struct JontySpr);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = QK_JontyISOSprite;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+    poly->thing = thing;
+    if (pixel_size > 0)
+    {
+      poly->scr_x = scr_x / pixel_size;
+      poly->scr_y = scr_y / pixel_size;
+    }
+    poly->field_14 = a4;
 }
 
 void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx)
@@ -2602,7 +2603,7 @@ void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, l
     poly = (struct BasicUnk14 *)getpoly;
     getpoly += sizeof(struct BasicUnk14);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = 14;
+    poly->b.kind = QK_StatusSprites;
     buckets[bckt_idx] = (struct BasicQ *)poly;
     poly->thing = thing;
     if (pixel_size > 0)
@@ -2629,7 +2630,7 @@ void add_textruredquad_to_polypool(long x, long y, long texture_idx, long a7, lo
     poly = (struct TexturedQuad *)getpoly;
     getpoly += sizeof(struct TexturedQuad);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = 15;
+    poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
 
     poly->field_6 = texture_idx;
@@ -2656,7 +2657,7 @@ void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long a6, lo
     poly = (struct TexturedQuad *)getpoly;
     getpoly += sizeof(struct TexturedQuad);
     poly->b.next = buckets[bckt_idx];
-    poly->b.kind = 15;
+    poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
 
     poly->field_6 = texture_idx;
@@ -2674,65 +2675,65 @@ void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long a6, lo
 
 void add_unkn16_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
-  struct Number *poly;
-  if (bckt_idx >= BUCKETS_COUNT)
-    bckt_idx = BUCKETS_COUNT-1;
-  else
-  if (bckt_idx < 0)
-    bckt_idx = 0;
-  poly = (struct Number *)getpoly;
-  getpoly += sizeof(struct Number);
-  poly->b.next = buckets[bckt_idx];
-  poly->b.kind = 16;
-  buckets[bckt_idx] = (struct BasicQ *)poly;
-  if (pixel_size > 0)
-  {
-    poly->x = x / pixel_size;
-    poly->y = y / pixel_size;
-  }
-  poly->lvl = lvl;
+    struct Number *poly;
+    if (bckt_idx >= BUCKETS_COUNT)
+      bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+      bckt_idx = 0;
+    poly = (struct Number *)getpoly;
+    getpoly += sizeof(struct Number);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = QK_IntegerValue;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+    if (pixel_size > 0)
+    {
+      poly->x = x / pixel_size;
+      poly->y = y / pixel_size;
+    }
+    poly->lvl = lvl;
 }
 
 void add_unkn17_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
-  struct RoomFlag *poly;
-  if (bckt_idx >= BUCKETS_COUNT)
-    bckt_idx = BUCKETS_COUNT-1;
-  else
-  if (bckt_idx < 0)
-    bckt_idx = 0;
-  poly = (struct RoomFlag *)getpoly;
-  getpoly += sizeof(struct RoomFlag);
-  poly->b.next = buckets[bckt_idx];
-  poly->b.kind = 17;
-  buckets[bckt_idx] = (struct BasicQ *)poly;
-  if (pixel_size > 0)
-  {
-    poly->x = x / pixel_size;
-    poly->y = y / pixel_size;
-  }
-  poly->lvl = lvl;
+    struct RoomFlag *poly;
+    if (bckt_idx >= BUCKETS_COUNT)
+      bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+      bckt_idx = 0;
+    poly = (struct RoomFlag *)getpoly;
+    getpoly += sizeof(struct RoomFlag);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = QK_RoomFlagPole;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+    if (pixel_size > 0)
+    {
+      poly->x = x / pixel_size;
+      poly->y = y / pixel_size;
+    }
+    poly->lvl = lvl;
 }
 
 void add_unkn19_to_polypool(long x, long y, long lvl, long bckt_idx)
 {
-  struct RoomFlag *poly;
-  if (bckt_idx >= BUCKETS_COUNT)
-    bckt_idx = BUCKETS_COUNT-1;
-  else
-  if (bckt_idx < 0)
-    bckt_idx = 0;
-  poly = (struct RoomFlag *)getpoly;
-  getpoly += sizeof(struct RoomFlag);
-  poly->b.next = buckets[bckt_idx];
-  poly->b.kind = 19;
-  buckets[bckt_idx] = (struct BasicQ *)poly;
-  if (pixel_size > 0)
-  {
-    poly->x = x / pixel_size;
-    poly->y = y / pixel_size;
-  }
-  poly->lvl = lvl;
+    struct RoomFlag *poly;
+    if (bckt_idx >= BUCKETS_COUNT)
+      bckt_idx = BUCKETS_COUNT-1;
+    else
+    if (bckt_idx < 0)
+      bckt_idx = 0;
+    poly = (struct RoomFlag *)getpoly;
+    getpoly += sizeof(struct RoomFlag);
+    poly->b.next = buckets[bckt_idx];
+    poly->b.kind = QK_RoomFlagTop;
+    buckets[bckt_idx] = (struct BasicQ *)poly;
+    if (pixel_size > 0)
+    {
+      poly->x = x / pixel_size;
+      poly->y = y / pixel_size;
+    }
+    poly->lvl = lvl;
 }
 
 void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp, long base_lightness)
@@ -3916,18 +3917,18 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-          add_unkn11_to_polypool(thing, cx, cy, cy, cz-3);
-          if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
-          {
-            create_fast_view_status_box(thing, cx, cy);
-          }
+            add_unkn11_to_polypool(thing, cx, cy, cy, cz-3);
+            if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
+            {
+              create_fast_view_status_box(thing, cx, cy);
+            }
         }
         break;
     case 4:
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-          add_unkn16_to_polypool(cx, cy, thing->creature.gold_carried, 1);
+            add_unkn16_to_polypool(cx, cy, thing->creature.gold_carried, 1);
         }
         break;
     case 5:
@@ -3945,11 +3946,11 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
           thing->long_15 = game.play_gameturn;
           if (thing->field_19 == 40)
           {
-            add_unkn17_to_polypool(cx, cy, thing->creature.gold_carried, cz-3);
-            if (is_free_space_in_poly_pool(1))
-            {
-              add_unkn19_to_polypool(cx, cy, thing->creature.gold_carried, 1);
-            }
+              add_unkn17_to_polypool(cx, cy, thing->creature.gold_carried, cz-3);
+              if (is_free_space_in_poly_pool(1))
+              {
+                  add_unkn19_to_polypool(cx, cy, thing->creature.gold_carried, 1);
+              }
           }
         }
         break;
@@ -3957,7 +3958,7 @@ void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struc
         convert_world_coord_to_front_view_screen_coord(&thing->mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-          add_unkn18_to_polypool(thing, cx, cy, cy, cz-3);
+            add_unkn18_to_polypool(thing, cx, cy, cy, cz-3);
         }
         break;
     default:
