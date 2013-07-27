@@ -220,7 +220,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     if (creature_model_bleeds(thing->model))
       create_effect_around_thing(newthing, TngEff_Unknown10);
     set_start_state(newthing);
-    kill_creature(thing, INVALID_THING, -1, 1, 1, 0);
+    kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
     dungeon = get_dungeon(room->owner);
     if (!dungeon_invalid(dungeon))
         dungeon->lvstats.ghosts_raised++;

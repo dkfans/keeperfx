@@ -123,7 +123,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER))
     {
         ERRORLOG("Scavenger room disappeared.");
-        kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }
     if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
@@ -141,7 +141,7 @@ short creature_scavenged_disappear(struct Thing *thing)
     } else
     {
         ERRORLOG("No valid position inside scavenger room for %s.",thing_model_name(thing));
-        kill_creature(thing, INVALID_THING, -1, 1, 0, 0);
+        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }
 }

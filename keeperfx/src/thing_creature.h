@@ -47,6 +47,14 @@ enum ThingPickFlags {
     TPF_ReverseOrder     = 0x04,
 };
 
+enum CreatureDeathFlags {
+    CrDed_Default        = 0x00, /**< Default value if no flags are needed. */
+    CrDed_NoEffects      = 0x01, /**< Set if no special effects should accompany the creature death. */
+    CrDed_DiedInBattle   = 0x02, /**< Set if the creature died during a battle. */
+    CrDed_NoUnconscious  = 0x04, /**< Set if the creature isn't allowed to become unconscious. */
+    CrDed_NotReallyDying = 0x08, /**< Set if it's not really death, it either transforms or leaves. */
+};
+
 struct CreatureStorage {
   unsigned char model;
   unsigned char explevel;
@@ -68,8 +76,10 @@ extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 long move_creature(struct Thing *thing);
-TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char a3,
-      unsigned char a4, TbBool died_in_battle, TbBool disallow_unconscious);
+TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
+    PlayerNumber killer_plyr_idx, CrDeathFlags flags);
+TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx,
+      TbBool no_effects, TbBool died_in_battle, TbBool disallow_unconscious);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 

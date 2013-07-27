@@ -1844,7 +1844,7 @@ short creature_fired(struct Thing *creatng)
         return CrCkRet_Continue;
     }
     play_creature_sound_and_create_sound_thing(creatng, 4, 2);
-    kill_creature(creatng, INVALID_THING, -1, 1, 0, 0);
+    kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     return CrCkRet_Deleted;
 }
 
@@ -2048,7 +2048,7 @@ short creature_leaves(struct Thing *creatng)
         crstat = creature_stats_get_from_thing(creatng);
         apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, 4, creatng);
     }
-    kill_creature(creatng, INVALID_THING, -1, 1, 0, 0);
+    kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects||CrDed_NotReallyDying);
     return CrStRet_Deleted;
 }
 
@@ -2060,12 +2060,12 @@ short setup_creature_leaves_or_dies(struct Thing *creatng)
     room = find_nearest_room_for_thing(creatng, creatng->owner, 1, 0);
     if (room_is_invalid(room))
     {
-        kill_creature(creatng, INVALID_THING, -1, 0, 0, 0);
+        kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
         return -1;
     }
     if (!setup_random_head_for_room(creatng, room, 0))
     {
-        kill_creature(creatng, INVALID_THING, -1, 0, 0, 0);
+        kill_creature(creatng, INVALID_THING, -1, CrDed_Default);
         return -1;
     }
     creatng->continue_state = CrSt_LeavesBecauseOwnerLost;
@@ -2082,7 +2082,7 @@ short creature_leaves_or_dies(struct Thing *creatng)
     room = get_room_thing_is_on(creatng);
     if (!room_is_invalid(room) && (room->kind == RoK_ENTRANCE))
     {
-        kill_creature(creatng, INVALID_THING, -1, 1, 0, 0);
+        kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }
     // Otherwise, try heading for nearest entrance
