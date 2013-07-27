@@ -166,11 +166,11 @@ DLLIMPORT long _DK_creature_is_group_leader(struct Thing *creatng);
 DLLIMPORT long _DK_update_creature_levels(struct Thing *creatng);
 DLLIMPORT long _DK_update_creature(struct Thing *creatng);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
-DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *thing, long a1, char reason);
-DLLIMPORT long _DK_creature_is_ambulating(struct Thing *thing);
-DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *thing, struct Thing *sectng, long a3, long a4);
-DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, long a3);
-DLLIMPORT void _DK_update_tunneller_trail(struct Thing *thing);
+DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *creatng, long a1, char reason);
+DLLIMPORT long _DK_creature_is_ambulating(struct Thing *creatng);
+DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *creatng, struct Thing *sectng, long a3, long a4);
+DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *creatng, struct Coord3d *pos, long a3);
+DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
 /******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
@@ -1313,11 +1313,12 @@ TbBool inc_player_kills_counter(long killer_idx, struct Thing *victim)
  * Increases kills counters when victim is being killed by killer.
  * Note that killer may be invalid - in this case def_plyr_idx identifies the killer.
  */
-TbBool update_kills_counters(struct Thing *victim, struct Thing *killer, char def_plyr_idx, unsigned char died_in_battle)
+TbBool update_kills_counters(struct Thing *victim, struct Thing *killer,
+    PlayerNumber def_plyr_idx, CrDeathFlags flags)
 {
   struct CreatureControl *cctrl;
   cctrl = creature_control_get_from_thing(victim);
-  if (died_in_battle)
+  if ((flags & CrDed_DiedInBattle) != 0)
   {
     if (!thing_is_invalid(killer))
     {
@@ -1866,12 +1867,12 @@ unsigned long remove_parent_thing_from_things_in_list(struct StructureList *list
     return n;
 }
 
-void cause_creature_death(struct Thing *thing, unsigned char no_effects)
+void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
     long crmodel;
-    //_DK_cause_creature_death(thing, no_effects); return;
+    //_DK_cause_creature_death(thing, (flags & CrDed_NoEffects) != 0); return;
     cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
     throw_out_gold(thing);
@@ -1879,7 +1880,7 @@ void cause_creature_death(struct Thing *thing, unsigned char no_effects)
 
     crmodel = thing->model;
     crstat = creature_stats_get_from_thing(thing);
-    if ((no_effects) || (!thing_exists(thing)))
+    if (((flags & CrDed_NoEffects) != 0) || (!thing_exists(thing)))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
@@ -1978,53 +1979,64 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     }
 }
 
-TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_plyr_idx,
+TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx,
       TbBool no_effects, TbBool died_in_battle, TbBool disallow_unconscious)
+{
+    return kill_creature(creatng, killertng, killer_plyr_idx,
+        (no_effects?CrDed_NoEffects:0) | (died_in_battle?CrDed_DiedInBattle:0) | (disallow_unconscious?CrDed_NoUnconscious:0) );
+}
+
+TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
+    PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
     struct CreatureControl *cctrl;
     struct CreatureControl *cctrlgrp;
     struct CreatureStats *crstat;
     struct Dungeon *dungeon;
     SYNCDBG(18,"Starting");
-    //return _DK_kill_creature(thing, killertng, killer_plyr_idx, a4, died_in_battle, disallow_unconscious);
+    //return _DK_kill_creature(creatng, killertng, killer_plyr_idx, (flags&CrDed_NoEffects)!=0, (flags&CrDed_DiedInBattle)!=0, (flags&CrDed_NoUnconscious)!=0);
     dungeon = INVALID_DUNGEON;
-    cleanup_creature_state_and_interactions(thing);
+    cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))
     {
-        if (killertng->owner == game.neutral_player_num)
-            died_in_battle = 0;
+        if (killertng->owner == game.neutral_player_num) {
+            flags &= ~CrDed_DiedInBattle;
+        }
     }
     if (killer_plyr_idx == game.neutral_player_num) {
-      died_in_battle = 0;
+        flags &= ~CrDed_DiedInBattle;
     }
-    if (!thing_exists(thing)) {
+    if (!thing_exists(creatng)) {
         ERRORLOG("Tried to kill non-existing thing!");
         return false;
     }
-    if (!is_neutral_thing(thing)) {
-        dungeon = get_players_num_dungeon(thing->owner);
+    if (!is_neutral_thing(creatng)) {
+        dungeon = get_players_num_dungeon(creatng->owner);
     }
     if (!dungeon_invalid(dungeon))
     {
-        update_dead_creatures_list(dungeon, thing);
-        if (died_in_battle) {
-            dungeon->battles_lost++;
+        if (((flags & CrDed_NotReallyDying) == 0) || ((gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
+        {
+            update_dead_creatures_list(dungeon, creatng);
+            if ((flags & CrDed_DiedInBattle) != 0) {
+                dungeon->battles_lost++;
+            }
         }
     }
-    update_kills_counters(thing, killertng, killer_plyr_idx, died_in_battle);
+    update_kills_counters(creatng, killertng, killer_plyr_idx, flags);
     if (thing_is_invalid(killertng) || (killertng->owner == game.neutral_player_num) ||
         (killer_plyr_idx == game.neutral_player_num) || dungeon_invalid(dungeon))
     {
-        if ((no_effects) && ((thing->alloc_flags & TAlF_IsControlled) != 0)) {
-            prepare_to_controlled_creature_death(thing);
+        if ((flags & CrDed_NoEffects) && ((creatng->alloc_flags & TAlF_IsControlled) != 0)) {
+            prepare_to_controlled_creature_death(creatng);
         }
-        cause_creature_death(thing, no_effects);
+        cause_creature_death(creatng, flags);
         return true;
     }
     // Now we are sure that killertng and dungeon pointers are correct
-    if (thing->owner == killertng->owner)
+    if (creatng->owner == killertng->owner)
     {
-        if ((get_creature_model_flags(thing) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid)) {
+        if ((get_creature_model_flags(creatng) & MF_IsDiptera) && (get_creature_model_flags(killertng) & MF_IsArachnid)) {
             dungeon->lvstats.flies_killed_by_spiders++;
         }
     }
@@ -2032,7 +2044,7 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     if (!creature_control_invalid(cctrlgrp)) {
         cctrlgrp->field_C2++;
     }
-    if (is_my_player_number(thing->owner)) {
+    if (is_my_player_number(creatng->owner)) {
         output_message(SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
     } else
     if (is_my_player_number(killertng->owner)) {
@@ -2046,35 +2058,35 @@ TbBool kill_creature(struct Thing *thing, struct Thing *killertng, char killer_p
     }
     crstat = creature_stats_get_from_thing(killertng);
     anger_apply_anger_to_creature(killertng, crstat->annoy_win_battle, AngR_Other, 1);
-    if (!creature_control_invalid(cctrlgrp) && died_in_battle)
+    if (!creature_control_invalid(cctrlgrp) && ((flags & CrDed_DiedInBattle) != 0))
       cctrlgrp->byte_9A++;
     if (!dungeon_invalid(dungeon)) {
         dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
     }
     SYNCDBG(18,"Almost finished");
-    if ((disallow_unconscious) || (!player_has_room(killertng->owner,RoK_PRISON))
+    if (((flags & CrDed_NoUnconscious) != 0) || (!player_has_room(killertng->owner,RoK_PRISON))
       || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)))
     {
-        if (no_effects == 0) {
-            cause_creature_death(thing, no_effects);
+        if ((flags & CrDed_NoEffects) == 0) {
+            cause_creature_death(creatng, flags);
             return true;
         }
     }
-    if (no_effects)
+    if ((flags & CrDed_NoEffects) != 0)
     {
-        if ((thing->alloc_flags & TAlF_IsControlled) != 0) {
-            prepare_to_controlled_creature_death(thing);
+        if ((creatng->alloc_flags & TAlF_IsControlled) != 0) {
+            prepare_to_controlled_creature_death(creatng);
         }
-        cause_creature_death(thing, no_effects);
+        cause_creature_death(creatng, flags);
         return true;
     }
-    clear_creature_instance(thing);
-    thing->active_state = CrSt_CreatureUnconscious;
-    cctrl = creature_control_get_from_thing(thing);
+    clear_creature_instance(creatng);
+    creatng->active_state = CrSt_CreatureUnconscious;
+    cctrl = creature_control_get_from_thing(creatng);
     cctrl->flgfield_1 |= CCFlg_Immortal;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     cctrl->conscious_back_turns = 2000;//TODO [config] Add amount of turn creature is unconscious to config file
-    thing->health = 1;
+    creatng->health = 1;
     return false;
 }
 
@@ -2309,10 +2321,14 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Creature has no control");
         return;
     }
-    if (nlvl > CREATURE_MAX_LEVEL-1)
-      nlvl = CREATURE_MAX_LEVEL-1;
-    if (nlvl < 0)
-      nlvl = 0;
+    if (nlvl > CREATURE_MAX_LEVEL-1) {
+        ERRORLOG("Level %d too high, bounding",(int)nlvl);
+        nlvl = CREATURE_MAX_LEVEL-1;
+    }
+    if (nlvl < 0) {
+        ERRORLOG("Level %d too low, bounding",(int)nlvl);
+        nlvl = 0;
+    }
     old_max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
     cctrl->explevel = nlvl;
     max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
@@ -3853,8 +3869,9 @@ long update_creature_levels(struct Thing *thing)
     }
     // If it is highest level, maybe we should transform the creature?
     crstat = creature_stats_get_from_thing(thing);
-    if (crstat->grow_up == 0)
+    if (crstat->grow_up == 0) {
         return 0;
+    }
     // Transforming
     newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
     if (thing_is_invalid(newtng))
@@ -3880,7 +3897,7 @@ long update_creature_levels(struct Thing *thing)
         player->field_31 = newtng->creation_turn;
     }
     remove_creature_score_from_owner(thing); // kill_creature() doesn't call this
-    kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
+    kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious|CrDed_NotReallyDying);
     return -1;
 }
 
@@ -3894,19 +3911,19 @@ TngUpdateRet update_creature(struct Thing *thing)
     if ((thing->active_state == CrSt_CreatureUnconscious) && subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
         SYNCDBG(8,"Killing unconscious %s index %d on door block.",thing_model_name(thing),(int)thing->index);
-        kill_creature(thing, INVALID_THING, -1, 1, 0, 1);
+        kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious);
         return TUFRet_Deleted;
     }
     if (thing->health < 0)
     {
-        kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+        kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         WARNLOG("Killing %s index %d with invalid control.",thing_model_name(thing),(int)thing->index);
-        kill_creature(thing, INVALID_THING, -1, 0, 0, 0);
+        kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
     if (game.field_150356 != 0)

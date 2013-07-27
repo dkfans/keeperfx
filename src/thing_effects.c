@@ -1168,7 +1168,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 }
             } else
             {
-                kill_creature(tngdst, tngsrc, -1, 0, 1, 0);
+                kill_creature(tngdst, tngsrc, -1, CrDed_DiedInBattle);
                 affected = true;
             }
         }

@@ -309,7 +309,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   case TCls_Creature:
       if (creature_affected_by_spell(thing, SplK_Freeze))
       {
-          kill_creature(thing, 0, thing->owner, 0, 0, 0);
+          kill_creature(thing, INVALID_THING, thing->owner, CrDed_Default);
       } else
       {
           slap_creature(player, thing);

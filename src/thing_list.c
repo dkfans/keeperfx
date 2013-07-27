@@ -1093,7 +1093,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
         // If the thing is a dying creature
         if ((tngdst->class_id == TCls_Creature) && (tngdst->health < 0))
         {
-            kill_creature(tngdst, tngsrc, owner, 0, 1, 0);
+            kill_creature(tngdst, tngsrc, owner, CrDed_DiedInBattle);
             affected = true;
         }
     }
