@@ -274,12 +274,12 @@ const struct NamedCommand flag_desc[] = {
 };
 
 const struct NamedCommand hero_objective_desc[] = {
-  {"STEAL_GOLD",           4},
-  {"STEAL_SPELLS",         5},
-  {"ATTACK_ENEMIES",       2},
-  {"ATTACK_DUNGEON_HEART", 3},
-  {"ATTACK_ROOMS",         1},
-  {"DEFEND_PARTY",         6},
+  {"STEAL_GOLD",           CHeroTsk_StealGold},
+  {"STEAL_SPELLS",         CHeroTsk_StealSpells},
+  {"ATTACK_ENEMIES",       CHeroTsk_AttackEnemies},
+  {"ATTACK_DUNGEON_HEART", CHeroTsk_AttackDnHeart},
+  {"ATTACK_ROOMS",         CHeroTsk_AttackRooms},
+  {"DEFEND_PARTY",         CHeroTsk_DefendParty},
   {NULL,                   0},
 };
 
@@ -293,6 +293,15 @@ const struct NamedCommand tendency_desc[] = {
   {"IMPRISON",         1},
   {"FLEE",             2},
   {NULL,               0},
+};
+
+const struct NamedCommand creature_select_criteria_desc[] = {
+  {"MOST_EXPERIENCED",     CSelCrit_MostExperienced},
+  {"LEAST_EXPERIENCED",    CSelCrit_LeastExperienced},
+  {"NEAR_OWN_HEART",       CSelCrit_NearOwnHeart},
+  {"NEAR_ENEMY_HEART",     CSelCrit_NearEnemyHeart},
+  {"ON_ENEMY_GROUND",      CSelCrit_OnEnemyGround},
+  {NULL,                   0},
 };
 
 /******************************************************************************/
@@ -1873,8 +1882,9 @@ void command_play_message(char *plrname, char *msgtype, int msg_num)
 void command_add_gold_to_player(char *plrname, long amount)
 {
   long plr_id;
-  if (!get_player_id(plrname, &plr_id))
-    return;
+  if (!get_player_id(plrname, &plr_id)) {
+      return;
+  }
   command_add_value(Cmd_ADD_GOLD_TO_PLAYER, plr_id, amount, 0, 0);
 }
 
@@ -1895,20 +1905,23 @@ void command_set_creature_tendencies(char *plrname, char *tendency, long value)
 void command_reveal_map_rect(char *plrname, long x, long y, long w, long h)
 {
   long plr_id;
-  if (!get_player_id(plrname, &plr_id))
-    return;
+  if (!get_player_id(plrname, &plr_id)) {
+      return;
+  }
   command_add_value(Cmd_REVEAL_MAP_RECT, plr_id, x, y, (h<<16)+w);
 }
 
 void command_reveal_map_location(char *plrname, char *locname, long range)
 {
-  long plr_id;
-  TbMapLocation location;
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  if (!get_map_location_id(locname, &location))
-    return;
-  command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_id, location, range, 0);
+    long plr_id;
+    TbMapLocation location;
+    if (!get_player_id(plrname, &plr_id)) {
+        return;
+    }
+    if (!get_map_location_id(locname, &location)) {
+        return;
+    }
+    command_add_value(Cmd_REVEAL_MAP_LOCATION, plr_id, location, range, 0);
 }
 
 void command_message(char *msgtext, unsigned char kind)
@@ -1952,22 +1965,26 @@ void command_swap_creature(char *ncrt_name, char *crtr_name)
 
 void command_kill_creature(char *plrname, char *crtr_name, char *criteria, int count)
 {
-  long plr_id,crtr_id;
+  long plr_id,crtr_id,select_id;
   SCRIPTDBG(11,"Starting");
-  if (!get_player_id(plrname, &plr_id))
+  if (!get_player_id(plrname, &plr_id)) {
     return;
-  if (count <= 0)
-  {
+  }
+  if (count <= 0) {
     SCRPTERRLOG("Bad creatures count, %d", count);
     return;
   }
   crtr_id = get_rid(creature_desc, crtr_name);
-  if (crtr_id == -1)
-  {
+  if (crtr_id == -1) {
     SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
     return;
   }
-  //TODO SCRIPT finish killing code!
+  select_id = get_rid(creature_select_criteria_desc, criteria);
+  if (select_id == -1) {
+    SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+    return;
+  }
+  command_add_value(Cmd_KILL_CREATURE, plr_id, crtr_id, select_id, count);
 }
 
 long script_scan_line(char *line,TbBool preloaded)
@@ -2782,7 +2799,7 @@ void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, lo
   ldthing = script_process_new_tunneller(plyr_idx, location, heading, target, crtr_level, carried_gold);
   if (thing_is_invalid(ldthing))
   {
-    ERRORLOG("Couldn't create tunnelling group leader");
+    ERRORLOG("Couldn't create tunneling group leader");
     return;
   }
   gpthing = script_process_new_party(&game.script.creature_partys[prty_id], plyr_idx, location, 1);
@@ -2796,9 +2813,24 @@ void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, lo
 
 void script_process_new_creatures(unsigned char plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level)
 {
-  long i;
-  for (i=0; i < copies_num; i++)
-    script_create_new_creature(plyr_idx, crtr_breed, location, carried_gold, crtr_level);
+    long i;
+    for (i=0; i < copies_num; i++) {
+        script_create_new_creature(plyr_idx, crtr_breed, location, carried_gold, crtr_level);
+    }
+}
+
+TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crtr_breed, long criteria)
+{
+    //TODO SCRIPT finish killing code!
+    return false;
+}
+
+void script_kill_creatures(PlayerNumber plyr_idx, long crtr_breed, long criteria, long copies_num)
+{
+    long i;
+    for (i=0; i < copies_num; i++) {
+        script_kill_creature_with_criteria(plyr_idx, crtr_breed, criteria);
+    }
 }
 
 /**
@@ -3373,6 +3405,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
       for (i=plr_start; i < plr_end; i++)
       {
           player_reveal_map_location(i, val2, val3);
+      }
+      break;
+  case Cmd_KILL_CREATURE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_kill_creatures(i, val2, val3, val3);
       }
       break;
   default:

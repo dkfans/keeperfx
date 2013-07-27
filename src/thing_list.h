@@ -71,6 +71,15 @@ enum ThingUpdateFuncReturns {
     TUFRet_Modified      =  1, /**< Returned if the thing was updated and possibly some variables have changed inside. */
 };
 
+enum CreatureSelectCriteria {
+    CSelCrit_Any              = 0,
+    CSelCrit_MostExperienced  = 1,
+    CSelCrit_LeastExperienced = 2,
+    CSelCrit_NearOwnHeart     = 3,
+    CSelCrit_NearEnemyHeart   = 4,
+    CSelCrit_OnEnemyGround    = 5,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
