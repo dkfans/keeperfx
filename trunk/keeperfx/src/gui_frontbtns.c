@@ -272,22 +272,22 @@ void kill_button_area_input(void)
 
 void setup_radio_buttons(struct GuiMenu *gmnu)
 {
-  struct GuiButton *gbtn;
-  int i;
-  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-  {
-    gbtn = &active_buttons[i];
-    if ((gbtn->content) && (gmnu->number == gbtn->gmenu_idx))
+    struct GuiButton *gbtn;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
-      if (gbtn->gbtype == Lb_RADIOBTN)
-      {
-        if ( *(unsigned char *)gbtn->content )
-          gbtn->field_1 = 1;
-        else
-          gbtn->field_1 = 0;
-      }
+        gbtn = &active_buttons[i];
+        if ((gbtn->content) && (gmnu->number == gbtn->gmenu_idx))
+        {
+            if (gbtn->gbtype == Lb_RADIOBTN)
+            {
+                if ( *(unsigned char *)gbtn->content )
+                  gbtn->field_1 = 1;
+                else
+                  gbtn->field_1 = 0;
+            }
+        }
     }
-  }
 }
 
 void frontend_copy_mnu_background(struct GuiMenu *gmnu)

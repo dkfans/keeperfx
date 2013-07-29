@@ -318,6 +318,7 @@
  0003:00017564       creature_tag
  0003:00247004       sound_level
  0003:00247008       video_shadows
+ 0003:00247010       video_textures
  0003:0024700C       music_level
  0003:0001F214       using_two_banks
  0003:0001F218       sound_file
@@ -327,7 +328,6 @@
  0003:002473BC       sample_table
  0003:002473C0       samples_in_bank
  0003:002473C4       sndheap
- 0003:00247010       video_textures
  0003:00245278       input_string
  0003:00247058       video_view_distance_level
  0003:00245B14       video_gamma_correction
