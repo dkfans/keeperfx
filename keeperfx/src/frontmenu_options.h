@@ -45,7 +45,7 @@ DLLIMPORT long _DK_music_level;
 #define music_level _DK_music_level
 DLLIMPORT char _DK_video_cluedo_mode;
 DLLIMPORT char _DK_video_shadows;
-#define video_shadows _DK_video_shadows
+DLLIMPORT char _DK_video_textures;
 DLLIMPORT char _DK_video_view_distance_level;
 #define video_view_distance_level _DK_video_view_distance_level
 /******************************************************************************/

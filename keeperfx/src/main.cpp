@@ -104,6 +104,7 @@
 #include "gui_topmsg.h"
 #include "gui_boxmenu.h"
 #include "gui_soundmsgs.h"
+#include "gui_frontbtns.h"
 #include "frontmenu_ingame_tabs.h"
 #include "ariadne.h"
 #include "net_game.h"
@@ -1407,7 +1408,7 @@ void zoom_to_map(void)
   if (((game.system_flags & GSF_NetworkActive) != 0)
       || (lbDisplay.PhysicalScreenWidth > 320))
   {
-    if (!toggle_status_menu(false))
+    if (!toggle_status_menu(0))
       set_flag_byte(&game.numfield_C,0x40,false);
     set_players_packet_action(player, PckA_Unknown119, 4, 0, 0, 0);
     turn_off_roaming_menus();
@@ -1426,7 +1427,7 @@ void zoom_from_map(void)
       || (lbDisplay.PhysicalScreenWidth > 320))
   {
       if ((game.numfield_C & 0x40) != 0)
-        toggle_status_menu(true);
+        toggle_status_menu(1);
       set_players_packet_action(player, PckA_Unknown120,1,0,0,0);
   } else
   {
@@ -1436,7 +1437,32 @@ void zoom_from_map(void)
 
 void reset_gui_based_on_player_mode(void)
 {
-  _DK_reset_gui_based_on_player_mode();
+    struct PlayerInfo *player;
+    //_DK_reset_gui_based_on_player_mode();
+    player = get_my_player();
+    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+    {
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+    } else
+    {
+        turn_on_menu(GMnu_MAIN);
+        if (game.field_1517F6)
+        {
+            initialise_tab_tags(game.field_1517F6);
+            turn_on_menu(game.field_1517F6);
+            MenuNumber mnuidx;
+            mnuidx = menu_id_to_number(GMnu_MAIN);
+            if (mnuidx != MENU_INVALID_ID) {
+                setup_radio_buttons(&active_menus[mnuidx]);
+            }
+        }
+        else
+        {
+            turn_on_menu(GMnu_ROOM);
+        }
+    }
+    settings.video_cluedo_mode = player->field_4DA;
+    set_gui_visible(true);
 }
 
 void reinit_tagged_blocks_for_player(unsigned char idx)

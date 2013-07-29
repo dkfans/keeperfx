@@ -1695,7 +1695,7 @@ short get_inputs(void)
         {
           if ((game.system_flags & GSF_NetworkActive) == 0)
             game.numfield_C &= ~0x01;
-          if (toggle_status_menu(false))
+          if (toggle_status_menu(0))
             player->field_1 |= 0x01;
           else
             player->field_1 &= ~0x01;
