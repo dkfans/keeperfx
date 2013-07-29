@@ -23,6 +23,7 @@
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
+#include "bflib_vidraw.h"
 #include "bflib_sndlib.h"
 #include "player_data.h"
 #include "gui_draw.h"
@@ -64,12 +65,14 @@ DLLIMPORT void _DK_init_audio_menu(struct GuiMenu *gmnu);
 /******************************************************************************/
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_define_key_up_maintain(gbtn);
+    //_DK_frontend_define_key_up_maintain(gbtn);
+    gbtn->flags ^= (gbtn->flags ^ 0x08 * (define_key_scroll_offset != 0)) & 0x08;
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_define_key_down_maintain(gbtn);
+    //_DK_frontend_define_key_down_maintain(gbtn);
+    gbtn->flags ^= (gbtn->flags ^ 0x08 * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & 0x08;
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
@@ -79,12 +82,18 @@ void frontend_define_key_maintain(struct GuiButton *gbtn)
 
 void frontend_define_key_up(struct GuiButton *gbtn)
 {
-  _DK_frontend_define_key_up(gbtn);
+    //_DK_frontend_define_key_up(gbtn);
+    if (define_key_scroll_offset > 0) {
+        define_key_scroll_offset--;
+    }
 }
 
 void frontend_define_key_down(struct GuiButton *gbtn)
 {
-  _DK_frontend_define_key_down(gbtn);
+    //_DK_frontend_define_key_down(gbtn);
+    if (define_key_scroll_offset < GAME_KEYS_COUNT-1) {
+        define_key_scroll_offset++;
+    }
 }
 
 void frontend_define_key(struct GuiButton *gbtn)
@@ -101,7 +110,12 @@ void frontend_define_key(struct GuiButton *gbtn)
 
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_define_key_scroll_tab(gbtn);
+    struct TbSprite *spr;
+    long pos;
+    //_DK_frontend_draw_define_key_scroll_tab(gbtn);
+    spr = &frontend_sprite[78];
+    pos = (define_key_scroll_offset * ((gbtn->height - spr->SHeight) << 8) / (GAME_KEYS_COUNT-1) >> 8);
+    LbSpriteDraw(gbtn->scr_pos_x, gbtn->scr_pos_y + pos, spr);
 }
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
@@ -111,22 +125,35 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
 
 void gui_video_shadows(struct GuiButton *gbtn)
 {
-  _DK_gui_video_shadows(gbtn);
+    //_DK_gui_video_shadows(gbtn);
+    settings.video_shadows = _DK_video_shadows;
 }
 
 void gui_video_view_distance_level(struct GuiButton *gbtn)
 {
-  _DK_gui_video_view_distance_level(gbtn);
+    //_DK_gui_video_view_distance_level(gbtn);
+    settings.view_distance = video_view_distance_level;
 }
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
-  _DK_gui_video_rotate_mode(gbtn);
+    //_DK_gui_video_rotate_mode(gbtn);
+    struct Packet *pckt;
+    pckt = get_packet(my_player_number);
+    if (settings.field_3) {
+        set_packet_action(pckt, 37, 5, 0, 0, 0);
+    } else {
+        set_packet_action(pckt, 37, 2, 0, 0, 0);
+    }
+    save_settings();
 }
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
-  _DK_gui_video_cluedo_mode(gbtn);
+    //_DK_gui_video_cluedo_mode(gbtn);
+    struct Packet *pckt;
+    pckt = get_packet(my_player_number);
+    set_packet_action(pckt, 24, _DK_video_cluedo_mode, 0, 0, 0);
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)
@@ -180,13 +207,28 @@ void frontend_draw_invert_mouse(struct GuiButton *gbtn)
   _DK_frontend_draw_invert_mouse(gbtn);
 }
 
+/**
+ * Initializes start state of GUI menu settings.
+ * @param gmnu The GUI menu which is being initialized.
+ */
 void init_video_menu(struct GuiMenu *gmnu)
 {
-  _DK_init_video_menu(gmnu);
+    //_DK_init_video_menu(gmnu);
+    _DK_video_shadows = settings.video_shadows;
+    video_view_distance_level = settings.view_distance;
+    _DK_video_textures = settings.video_textures;
+    _DK_video_cluedo_mode = settings.video_cluedo_mode;
+    video_gamma_correction = settings.gamma_correction;
 }
 
+/**
+ * Initializes start state of GUI menu settings.
+ * @param gmnu The GUI menu which is being initialized.
+ */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-  _DK_init_audio_menu(gmnu);
+    //_DK_init_audio_menu(gmnu);
+    music_level = settings.redbook_volume;
+    sound_level = settings.sound_volume;
 }
 /******************************************************************************/

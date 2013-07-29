@@ -1222,7 +1222,10 @@ void gui_area_text(struct GuiButton *gbtn)
 
 void frontend_init_options_menu(struct GuiMenu *gmnu)
 {
-  _DK_frontend_init_options_menu(gmnu);
+    //_DK_frontend_init_options_menu(gmnu);
+    music_level = settings.redbook_volume;
+    sound_level = settings.sound_volume;
+    fe_mouse_sensitivity = settings.first_person_move_sensitivity;
 }
 
 void frontend_set_player_number(long plr_num)
@@ -2028,7 +2031,7 @@ unsigned long toggle_status_menu(short visible)
 */
   long k;
   unsigned long i;
-  k = menu_id_to_number(1);
+  k = menu_id_to_number(GMnu_MAIN);
   if (k < 0) return 0;
   i = get_active_menu(k)->flgfield_1D;
   if (visible != i)
@@ -2155,7 +2158,7 @@ TbBool toggle_first_person_menu(TbBool visible)
   }
 }
 
-void set_gui_visible(short visible)
+void set_gui_visible(TbBool visible)
 {
   SYNCDBG(6,"Starting");
   set_flag_byte(&game.numfield_C,0x20,visible);
@@ -2167,7 +2170,9 @@ void set_gui_visible(short visible)
       toggle_first_person_menu(is_visbl);
       break;
   case PVT_MapScreen:
-      toggle_status_menu(false);
+  case PVT_MapFadeIn:
+  case PVT_MapFadeOut:
+      toggle_status_menu(0);
       break;
   case PVT_DungeonTop:
   default:
@@ -2182,8 +2187,8 @@ void set_gui_visible(short visible)
 
 void toggle_gui(void)
 {
-  short visible=((game.numfield_C & 0x20) == 0);
-  set_gui_visible(visible);
+    short visible=((game.numfield_C & 0x20) == 0);
+    set_gui_visible(visible);
 }
 
 void frontend_load_data_from_cd(void)
@@ -2398,8 +2403,12 @@ void frontend_draw_campaign_select_button(struct GuiButton *gbtn)
 void frontend_campaign_select(struct GuiButton *gbtn)
 {
     long i;
+    long btn_idx;
     struct GameCampaign *campgn;
-    i = (long)gbtn->content + select_level_scroll_offset - 45;
+    if (gbtn == NULL)
+        return;
+    btn_idx = (long)gbtn->content;
+    i = select_level_scroll_offset + btn_idx-45;
     campgn = NULL;
     if ((i >= 0) && (i < campaigns_list.items_num))
         campgn = &campaigns_list.items[i];
@@ -2431,25 +2440,27 @@ void frontend_campaign_select_update(void)
 
 void frontend_draw_campaign_scroll_tab(struct GuiButton *gbtn)
 {
-  frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_campaign_items_visible-2, campaigns_list.items_num);
+    frontend_draw_scroll_tab(gbtn, select_level_scroll_offset, frontend_select_campaign_items_visible-2, campaigns_list.items_num);
 }
 
-void initialise_tab_tags(long menu_id)
+void initialise_tab_tags(MenuID menu_id)
 {
-  info_tag =  (menu_id == 7) || (menu_id == 31) || (menu_id == 35) || (menu_id == 32);
-  room_tag = (menu_id == 2);
-  spell_tag = (menu_id == 3);
-  trap_tag = (menu_id == 4);
-  creature_tag = (menu_id == 5);
+    info_tag =  (menu_id == GMnu_QUERY) || (menu_id == GMnu_CREATURE_QUERY1) ||
+        (menu_id == GMnu_CREATURE_QUERY2) || (menu_id == GMnu_CREATURE_QUERY3);
+    room_tag = (menu_id == GMnu_ROOM);
+    spell_tag = (menu_id == GMnu_SPELL);
+    trap_tag = (menu_id == GMnu_TRAP);
+    creature_tag = (menu_id == GMnu_CREATURE);
 }
 
-void initialise_tab_tags_and_menu(long menu_id)
+void initialise_tab_tags_and_menu(MenuID menu_id)
 {
-  long menu_num;
-  initialise_tab_tags(menu_id);
-  menu_num = menu_id_to_number(menu_id);
-  if (menu_num >= 0)
-    setup_radio_buttons(get_active_menu(menu_num));
+    MenuNumber menu_num;
+    initialise_tab_tags(menu_id);
+    menu_num = menu_id_to_number(menu_id);
+    if (menu_num >= 0) {
+        setup_radio_buttons(get_active_menu(menu_num));
+    }
 }
 
 void init_gui(void)
