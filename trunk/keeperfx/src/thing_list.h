@@ -85,10 +85,9 @@ enum CreatureSelectCriteria {
 
 struct PlayerInfo;
 struct Thing;
-struct CompoundFilterParam;
+struct CompoundTngFilterParam;
 
-typedef long FilterParam;
-typedef struct CompoundFilterParam * MaxFilterParam;
+typedef struct CompoundTngFilterParam * MaxTngFilterParam;
 
 /** Definition of a callback type used for updating thing which is in specific state. */
 typedef long (*Thing_State_Func)(struct Thing *);
@@ -98,12 +97,12 @@ typedef long (*Thing_Filter)(const struct Thing *, FilterParam);
 /** Definition of a simple callback type which can only return true/false and has no memory of previous checks. */
 typedef TbBool (*Thing_Bool_Filter)(const struct Thing *);
 /** Definition of a callback type used for selecting best match through all the things by maximizing a value. */
-typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxFilterParam, long);
+typedef long (*Thing_Maximizer_Filter)(const struct Thing *, MaxTngFilterParam, long);
 typedef long (*Thing_Collide_Func)(struct Thing *, struct Thing *, long, long);
 /** Definition of a simple callback type which can only return true/false and can modify the thing. */
 typedef TbBool (*Thing_Bool_Modifier)(struct Thing *);
 
-struct CompoundFilterParam {
+struct CompoundTngFilterParam {
      long plyr_idx;
      long class_id;
      long model_id;
@@ -147,19 +146,19 @@ long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thi
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
 
 // Filters to select thing belonging to given player
-struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
-struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
-long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param);
+struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 // Final routines to select thing belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 long do_on_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb);
 
 // Filters to select thing on/near given map position
-struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer);
-struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param);
-struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxFilterParam param);
-long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxFilterParam param);
+struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long *maximizer);
+struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 // Final routines to select thing on/near given map position
 struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
 struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
@@ -177,8 +176,8 @@ struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord 
 long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, long plyr_idx);
 
 // Filters to select thing of given class from whole map
-struct Thing *get_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxFilterParam param);
-long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxFilterParam param);
+struct Thing *get_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 // Final routines to select thing on/near given map position
 struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb);
 

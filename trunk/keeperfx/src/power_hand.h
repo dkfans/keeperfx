@@ -70,6 +70,8 @@ void delete_power_hand(PlayerNumber owner);
 void stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx);
+TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a3, unsigned long allow_unclaimed);
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
