@@ -34,6 +34,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "creature_states.h"
+#include "creature_states_lair.h"
 #include "magic.h"
 #include "thing_traps.h"
 #include "player_instances.h"
@@ -1359,10 +1360,104 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     return _DK_task_move_creature_to_pos(comp,ctask);
 }
 
+struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
+{
+    struct Dungeon *dungeon;
+    unsigned long k;
+    long i;
+    dungeon = comp->dungeon;
+    long best_factor;
+    struct Thing *best_creatng;
+    best_creatng = INVALID_THING;
+    best_factor = LONG_MIN;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct CreatureControl *cctrl;
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
+        {
+            if (cctrl->combat_flags == 0)
+            {
+                if (!creature_is_fleeing_combat(thing) && !creature_is_at_alarm(thing))
+                {
+                    if (!creature_affected_by_spell(thing,SplK_Chicken))
+                    {
+                        if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
+                        {
+                            struct PerExpLevelValues *expvalues;
+                            expvalues = &game.creature_scores[thing->model];
+                            long expval, healthprm, new_factor;
+                            expval = expvalues->value[cctrl->explevel];
+                            healthprm = get_creature_health_permil(thing);
+                            new_factor = healthprm * expval / 1000;
+                            if ((new_factor > best_factor) && (healthprm > 20))
+                            {
+                                best_factor = new_factor;
+                                best_creatng = thing;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return best_creatng;
+}
+
 long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    return _DK_task_move_creatures_to_defend(comp,ctask);
+    struct Thing *thing;
+    //return _DK_task_move_creatures_to_defend(comp,ctask);
+    thing = thing_get(comp->field_14C8);
+    if (!thing_is_invalid(thing))
+    {
+        if (!fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_76))
+        {
+            remove_task(comp, ctask);
+            return 0;
+        }
+        return 2;
+    }
+    if (game.play_gameturn - ctask->field_5C < ctask->field_60) {
+        return 4;
+    }
+    ctask->field_5C = game.play_gameturn;
+    ctask->field_7C--;
+    if (ctask->field_7C <= 0)
+    {
+        remove_task(comp, ctask);
+        return 1;
+    }
+    thing = find_creature_for_defend_pickup(comp);
+    if (!thing_is_invalid(thing))
+    {
+        if (!fake_place_thing_in_power_hand(comp, thing, &ctask->pos_76) )
+        {
+            remove_task(comp, ctask);
+            return 0;
+        }
+        return 2;
+    }
+    return 2;
 }
 
 long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
