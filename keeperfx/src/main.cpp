@@ -163,7 +163,6 @@ DLLIMPORT void _DK_setup_stuff(void);
 DLLIMPORT void _DK_init_keeper(void);
 DLLIMPORT void _DK_check_map_for_gold(void);
 DLLIMPORT void _DK_set_thing_draw(struct Thing *thing, long a2, long a3, long a4, char a5, char a6, unsigned char a7);
-DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 DLLIMPORT void _DK_go_to_my_next_room_of_type(unsigned long rkind);
 DLLIMPORT void _DK_instant_instance_selected(long a1);
 DLLIMPORT void _DK_initialise_map_collides(void);
@@ -3025,7 +3024,7 @@ void draw_swipe(void)
     myplyr->field_1 ^= (myplyr->field_1 ^ 4 * UNSYNC_RANDOM(4)) & 4;
 }
 
-long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
 /* Currently this only makes Dungeon Heart blinking; maybe I'll find a purpose for it later
     long dist_x,dist_y;
@@ -3048,7 +3047,7 @@ long near_map_block_thing_filter_queryable_object(const struct Thing *thing, Max
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     //return _DK_get_queryable_object_near(pos_x, pos_y, plyr_idx);
     filter = near_map_block_thing_filter_queryable_object;
@@ -3068,11 +3067,6 @@ void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4,
 {
   SYNCDBG(7,"Starting");
   _DK_tag_cursor_blocks_thing_in_hand(a1, a2, a3, a4, a5);
-}
-
-unsigned long can_drop_thing_here(long x, long y, long a3, unsigned long allow_unclaimed)
-{
-  return _DK_can_drop_thing_here(x, y, a3, allow_unclaimed);
 }
 
 /**

@@ -495,7 +495,7 @@ struct Room *get_room_to_place_creature(const struct Computer2 *comp, const stru
 struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
     struct Thing *thing;
     struct Room *room;

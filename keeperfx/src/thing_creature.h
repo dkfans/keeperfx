@@ -124,7 +124,7 @@ TbBool creature_is_group_leader(const struct Thing *thing);
 struct Thing *get_group_leader(const struct Thing *thing);
 void set_first_creature(struct Thing *thing);
 void remove_first_creature(struct Thing *thing);
-long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxFilterParam param, long maximizer);
+long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxTngFilterParam param, long maximizer);
 
 TbBool remove_creature_lair(struct Thing *thing);
 

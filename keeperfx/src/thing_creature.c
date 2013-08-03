@@ -2878,7 +2878,7 @@ TbBool creature_increase_level(struct Thing *thing)
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_dragging_specific_thing(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_dragging_specific_thing(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -2912,7 +2912,7 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_most_experienced_and_pickable1(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_most_experienced_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
     long nmaxim;
@@ -2943,7 +2943,7 @@ long player_list_creature_filter_most_experienced_and_pickable1(const struct Thi
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_most_experienced_and_pickable2(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_most_experienced_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
     long nmaxim;
@@ -2974,7 +2974,7 @@ long player_list_creature_filter_most_experienced_and_pickable2(const struct Thi
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_least_experienced_and_pickable1(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_least_experienced_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
     long nmaxim;
@@ -3005,7 +3005,7 @@ long player_list_creature_filter_least_experienced_and_pickable1(const struct Th
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_least_experienced_and_pickable2(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_least_experienced_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
     long nmaxim;
@@ -3036,7 +3036,7 @@ long player_list_creature_filter_least_experienced_and_pickable2(const struct Th
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
@@ -3064,7 +3064,7 @@ long player_list_creature_filter_of_gui_job_and_pickable1(const struct Thing *th
  * @param maximizer Previous max value.
  * @return If returned value is greater than maximizer, then the filtering result should be updated.
  */
-long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if ( ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
       && (thing->class_id == param->class_id)
@@ -3093,7 +3093,7 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
 struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const struct Thing *dragtng)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
     struct Thing *creatng;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -3118,7 +3118,7 @@ struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const 
 struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
     struct Thing *thing;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -3152,7 +3152,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long bree
 struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
     struct Thing *thing;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -3187,7 +3187,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long breed
 struct Thing *find_players_first_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
     struct Thing *thing;
     SYNCDBG(5,"Searching for breed %ld, GUI job %ld",breed_idx,job_idx);
@@ -3228,7 +3228,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
     struct Dungeon *dungeon;
     struct Thing *thing;
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     long i;
     SYNCDBG(5,"Searching for breed %ld, GUI job %ld",breed_idx,job_idx);
     //return _DK_find_my_next_creature_of_breed_and_job(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
@@ -3345,7 +3345,7 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long breed, long job_idx, Pl
     return thing;
 }
 
-long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct Room *room;
     struct Computer2 *comp;

@@ -32,6 +32,7 @@
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
+#include "map_utils.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -102,17 +103,30 @@ Comp_Event_Func computer_event_func_list[] = {
 }
 #endif
 /******************************************************************************/
+TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dungeon *dungeon, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    if ((stl_x <= 0) || (stl_y <= 0)) {
+        return false;
+    }
+    struct CompoundCoordFilterParam param;
+    param.plyr_idx = dungeon->owner;
+    param.slab_kind = -1;
+    param.num1 = 0;
+    param.num2 = 0;
+    param.num3 = 0;
+    return get_position_spiral_near_map_block_with_filter(pos,
+        subtile_coord_center(stl_x), subtile_coord_center(stl_y),
+        81, near_coord_filter_battle_drop_point, &param);
+}
+
+
 long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
 {
     //return _DK_computer_event_battle(comp, cevent, event);
     struct Coord3d pos;
-    pos.x.stl.num = event->mappos_x;
-    pos.x.stl.pos = 0;
-    pos.y.stl.num = event->mappos_y;
-    pos.y.stl.pos = 0;
-    pos.z.val = 0;
-    if ((pos.x.val <= 0) || (pos.y.val <= 0))
+    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, event->mappos_x, event->mappos_y)) {
         return false;
+    }
     long creatrs_def, creatrs_num;
     creatrs_def = count_creatures_for_defend_pickup(comp);
     creatrs_num = creatrs_def * (long)cevent->param1 / 100;

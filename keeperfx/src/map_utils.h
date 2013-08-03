@@ -33,6 +33,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
+struct Coord3d;
 
 struct MapOffset {
   char v;
@@ -41,6 +42,28 @@ struct MapOffset {
 };
 
 #pragma pack()
+
+typedef struct CompoundCoordFilterParam * MaxCoordFilterParam;
+
+/** Definition of a callback type used for selecting best position by maximizing a value. */
+typedef long (*Coord_Maximizer_Filter)(const struct Coord3d *, MaxCoordFilterParam, long);
+
+struct CompoundCoordFilterParam {
+     long plyr_idx;
+     long slab_kind;
+     union {
+     long num1;
+     void *ptr1;
+     };
+     union {
+     long num2;
+     void *ptr2;
+     };
+     union {
+     long num3;
+     void *ptr3;
+     };
+};
 /******************************************************************************/
 DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
 #define spiral_step _DK_spiral_step
@@ -52,6 +75,11 @@ void init_spiral_steps(void);
 void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
     MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);
+
+long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer);
+
+TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y,
+    long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
 /******************************************************************************/
 #ifdef __cplusplus
 }
