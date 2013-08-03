@@ -204,7 +204,7 @@ long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val)
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
 }
 
-long near_map_block_thing_filter_not_specdigger(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long near_map_block_thing_filter_not_specdigger(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
     if (thing->class_id == TCls_Creature)
@@ -222,7 +222,7 @@ long near_map_block_thing_filter_not_specdigger(const struct Thing *thing, MaxFi
     return -1;
 }
 
-long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
@@ -254,7 +254,7 @@ long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thi
   return ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0);
 }
 
-long near_map_block_thing_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long near_map_block_thing_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
     if ((thing->class_id == TCls_Creature) && (thing->owner != param->plyr_idx))
@@ -288,7 +288,7 @@ long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam ply
   return false;
 }
 
-long near_map_block_thing_filter_is_slappable(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long near_map_block_thing_filter_is_slappable(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
     if ((param->class_id == -1) || (thing->class_id == param->class_id))
@@ -305,7 +305,7 @@ long near_map_block_thing_filter_is_slappable(const struct Thing *thing, MaxFilt
     return -1;
 }
 
-long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
     if (thing->class_id == param->class_id)
@@ -337,7 +337,7 @@ long near_map_block_thing_filter_is_owned_by(const struct Thing *thing, MaxFilte
     return -1;
 }
 
-long map_block_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long map_block_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if (thing->class_id == param->class_id)
     {
@@ -354,7 +354,7 @@ long map_block_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with(co
     return -1;
 }
 
-long map_block_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long map_block_thing_filter_is_of_class_and_model_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if (thing->class_id == param->class_id)
     {
@@ -371,7 +371,7 @@ long map_block_thing_filter_is_of_class_and_model_and_owned_by(const struct Thin
     return -1;
 }
 
-long map_block_thing_filter_is_food_available_to_eat_and_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long map_block_thing_filter_is_food_available_to_eat_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if (thing->class_id == TCls_Object)
     {
@@ -399,7 +399,7 @@ long map_block_thing_filter_is_food_available_to_eat_and_owned_by(const struct T
     return -1;
 }
 
-long map_block_creature_filter_of_model_training_and_owned_by(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long map_block_creature_filter_of_model_training_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct CreatureControl *cctrl;
     if (thing->class_id == TCls_Creature)
@@ -890,7 +890,7 @@ struct Thing *find_creature_lair_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord s
     return INVALID_THING;
 }
 
-struct Thing *get_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxFilterParam param)
+struct Thing *get_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param)
 {
     unsigned long k;
     long i;
@@ -947,7 +947,7 @@ struct Thing *get_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxF
 struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     filter = near_map_block_thing_filter_call_bool_filter;
     param.class_id = TCls_Object;
@@ -1338,7 +1338,7 @@ struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingM
  * Only creatures for whom the filter function will return LONG_MAX, are counted.
  * @return Gives the amount of things which matched the filter.
  */
-long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param)
+long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param)
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
@@ -1388,7 +1388,7 @@ long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Fil
  * immediately and no further things will be checked.
  * @return Gives the thing, or invalid thing pointer if not found.
  */
-struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param)
+struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param)
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
@@ -1444,7 +1444,7 @@ struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximiz
  * @return Gives the thing, or invalid thing pointer if not found.
  * @see get_player_list_creature_with_filter()
  */
-struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param)
+struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param)
 {
   struct CreatureControl *cctrl;
   struct Thing *thing;
@@ -1504,7 +1504,7 @@ struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_
  * immediately and no further things will be checked.
  * @return Gives the thing, or invalid thing pointer if not found.
  */
-struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxFilterParam param, long *maximizer)
+struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long *maximizer)
 {
     struct Thing *thing;
     struct Thing *retng;
@@ -1552,7 +1552,7 @@ struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer
  * immediately and no further things will be checked.
  * @return Returns thing, or invalid thing pointer if not found.
  */
-struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxFilterParam param)
+struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxTngFilterParam param)
 {
     struct Thing *thing;
     struct Thing *retng;
@@ -1598,7 +1598,7 @@ struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord
  * immediately and no further things will be checked.
  * @return Returns thing, or invalid thing pointer if not found.
  */
-struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxFilterParam param)
+struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param)
 {
     struct MapOffset *sstep;
     struct Thing *retng;
@@ -1640,7 +1640,7 @@ struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y
  * Amount of things for whom the filter function returns LONG_MAX, is returned.
  * @return Gives count of things which matched the filter.
  */
-long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxFilterParam param)
+long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param)
 {
     struct MapOffset *sstep;
     struct Thing *thing;
@@ -2185,7 +2185,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_not_imp, plyr_idx);
     filter = near_map_block_thing_filter_not_specdigger;
@@ -2205,7 +2205,7 @@ struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_
 struct Thing *get_object_around_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, long plyr_idx, Thing_Bool_Filter matcher_cb)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     filter = near_map_block_thing_filter_call_bool_filter;
     param.class_id = TCls_Object;
@@ -2227,7 +2227,7 @@ struct Thing *get_object_around_owned_by_and_matching_bool_filter(MapCoord pos_x
 struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_specdigger, plyr_idx);
     filter = near_map_block_thing_filter_is_enemy_of_and_not_specdigger;
@@ -2247,7 +2247,7 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
 struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     //return _DK_get_nearest_thing_for_slap(plyr_idx, pos_x, pos_y);
     filter = near_map_block_thing_filter_is_slappable;
@@ -2268,7 +2268,7 @@ struct Thing *get_nearest_thing_for_slap(PlayerNumber plyr_idx, MapCoord pos_x, 
 struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_owned_by, plyr_idx);
     filter = near_map_block_thing_filter_is_owned_by;
@@ -2290,7 +2290,7 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, Pla
 struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     filter = map_block_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with;
     param.class_id = TCls_Creature;
@@ -2312,7 +2312,7 @@ struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapC
 long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     filter = map_block_thing_filter_is_of_class_and_model_and_owned_by_or_allied_with;
     param.class_id = TCls_Creature;
@@ -2327,7 +2327,7 @@ long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord p
 struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     const struct Map *mapblk;
     long i,n;
     SYNCDBG(19,"Starting");
@@ -2348,7 +2348,7 @@ struct Thing *get_object_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, M
 struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     const struct Map *mapblk;
     long i,n;
     SYNCDBG(19,"Starting");
@@ -2369,7 +2369,7 @@ struct Thing *get_food_at_subtile_available_to_eat_and_owned_by(MapSubtlCoord st
 struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     const struct Map *mapblk;
     long i,n;
     SYNCDBG(19,"Starting");
@@ -2397,7 +2397,7 @@ struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, Map
 struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, long plyr_idx)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     filter = map_block_thing_filter_is_of_class_and_model_and_owned_by;
     param.class_id = TCls_Trap;
@@ -2411,7 +2411,7 @@ struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     const struct Map *mapblk;
     MapSlabCoord slb_x,slb_y;
     long i,n;
@@ -2436,7 +2436,7 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long model_id, long plyr_idx, long skip_thing_id)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     const struct Map *mapblk;
     long i,n;
     SYNCDBG(19,"Starting");

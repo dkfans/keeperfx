@@ -25,6 +25,7 @@
 #include "map_data.h"
 #include "slab_data.h"
 #include "room_data.h"
+#include "power_hand.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -129,5 +130,67 @@ void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubt
                 floor_height, ceiling_height);
         }
     }
+}
+
+long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer)
+{
+    if (can_drop_thing_here(pos->x.stl.num, pos->y.stl.num, param->plyr_idx, 1))
+    {
+        if (!is_dangerous_drop_subtile(pos->x.stl.num, pos->y.stl.num))
+        {
+            // This function should return max value when the place is good for dropping.
+            return LONG_MAX;
+        }
+    }
+    // If conditions are not met, return -1 to be sure the position will not be returned.
+    return -1;
+}
+
+
+/**
+ * Returns filtered position from subtiles around given coordinates.
+ * Uses "spiral" checking of surrounding subtiles, up to given number of subtiles.
+ * The position which will return highest nonnegative value from given filter function
+ * will be returned.
+ * If the filter function will return LONG_MAX, the current position will be returned
+ * immediately and no further subtiles will be checked.
+ * @return Returns true if coordinates were found, false otherwise.
+ */
+TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y, long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param)
+{
+    struct MapOffset *sstep;
+    long maximizer;
+    struct Map *mapblk;
+    MapSubtlCoord sx,sy;
+    int around;
+    SYNCDBG(19,"Starting");
+    maximizer = 0;
+    for (around=0; around < spiral_len; around++)
+    {
+      sstep = &spiral_step[around];
+      sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
+      sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
+      mapblk = get_map_block_at(sx, sy);
+      if (!map_block_invalid(mapblk))
+      {
+          long n;
+          n = maximizer;
+          struct Coord3d newpos;
+          newpos.x.val = subtile_coord_center(sx);
+          newpos.y.val = subtile_coord_center(sy);
+          newpos.z.val = 0;
+          n = filter(&newpos, param, n);
+          if (n >= maximizer)
+          {
+              retpos->x.val = newpos.x.val;
+              retpos->y.val = newpos.y.val;
+              retpos->z.val = newpos.z.val;
+              maximizer = n;
+              if (maximizer == LONG_MAX)
+                  break;
+          }
+      }
+    }
+    return (maximizer > 0);
 }
 /******************************************************************************/

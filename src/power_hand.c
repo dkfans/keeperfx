@@ -72,6 +72,7 @@ DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long 
 DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
 DLLIMPORT void _DK_drop_gold_coins(struct Coord3d *pos, long a2, long a3);
 DLLIMPORT long _DK_gold_being_dropped_on_creature(long a1, struct Thing *tng1, struct Thing *tng2);
+DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -602,7 +603,7 @@ TbBool object_is_slappable(const struct Thing *thing, long plyr_idx)
   }
 }*/
 
-long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxFilterParam param, long maximizer)
+long near_map_block_thing_filter_ready_for_hand_or_slap(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
     if (!thing_is_picked_up(thing)
@@ -641,7 +642,7 @@ TbBool thing_slappable(const struct Thing *thing, long plyr_idx)
 struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord pos_x, MapCoord pos_y)
 {
     Thing_Maximizer_Filter filter;
-    struct CompoundFilterParam param;
+    struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     filter = near_map_block_thing_filter_ready_for_hand_or_slap;
     param.plyr_idx = plyr_idx;
@@ -864,6 +865,22 @@ TbBool slap_object(struct Thing *thing)
       return true;
   }
   return false;
+}
+
+TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    long cube_id;
+    cube_id = get_top_cube_at(stl_x, stl_y);
+    if (cube_is_sacrificial(cube_id)) {
+        return true;
+    }
+    //TODO do the same with entrance cube
+    return false;
+}
+
+unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long a3, unsigned long allow_unclaimed)
+{
+  return _DK_can_drop_thing_here(stl_x, stl_y, a3, allow_unclaimed);
 }
 
 short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx)
