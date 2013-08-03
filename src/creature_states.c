@@ -797,6 +797,15 @@ TbBool creature_is_escaping_death(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_fleeing_combat(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = get_creature_state_besides_interruptions(thing);
+    if (i == CrSt_CreatureCombatFlee)
+        return true;
+    return false;
+}
+
 TbBool creature_is_called_to_arms(const struct Thing *thing)
 {
     CrtrStateId i;
