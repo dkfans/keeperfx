@@ -386,9 +386,7 @@ long map_block_thing_filter_is_food_available_to_eat_and_owned_by(const struct T
     }
     if (thing->class_id == TCls_Creature)
     {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if (((cctrl->spell_flags & CSAfF_Chicken) != 0) && (thing->health > 0))
+        if (creature_affected_by_spell(thing,SplK_Chicken) && (thing->health > 0))
         {
             if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
             {
@@ -1289,36 +1287,38 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
 
 long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx)
 {
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  unsigned long k;
-  long i;
-  int count;
-  dungeon = get_players_num_dungeon(plyr_idx);
-  count = 0;
-  k = 0;
-  i = dungeon->creatr_list_start;
-  while (i != 0)
-  {
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    int count;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    count = 0;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if (creature_is_kept_in_prison(thing))
+          count++;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
     }
-    cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->players_next_creature_idx;
-    if (creature_is_kept_in_prison(thing))
-      count++;
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  return count;
+    return count;
 }
 
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel)
