@@ -90,9 +90,12 @@ void setup_training_move(struct Thing *creatng, SubtlCodedCoords stl_num)
     cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
     if (thing_in_wall_at(creatng, &cctrl->moveto_pos))
     {
-        ERRORLOG("Illegal setup to wall at (%d,%d)", (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
+        ERRORLOG("Illegal setup to wall at (%d,%d)",
+            (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
         set_start_state(creatng);
     }
+    SYNCDBG(18,"The %s is moving to (%d,%d)", thing_model_name(creatng),
+        (int)cctrl->moveto_pos.x.stl.num, (int)cctrl->moveto_pos.y.stl.num);
 }
 
 void setup_training_move_near(struct Thing *creatng, SubtlCodedCoords stl_num)

@@ -33,6 +33,7 @@
 #include "magic.h"
 #include "dungeon_data.h"
 #include "room_data.h"
+#include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
@@ -193,7 +194,7 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
             rel->field_42 += 5;
         }
         // If no reason to hate the player - hate him randomly for just surviving that long
-        if ((hate_reasons <= 0) && (check->param2 < game.play_gameturn))
+        if ((hate_reasons <= 0) && (check->param1 < game.play_gameturn))
         {
             if (ACTION_RANDOM(100) < 20) {
                 rel->field_42++;
@@ -205,16 +206,19 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct Dungeon *dungeon;
     struct ComputerTask *ctask;
+    dungeon = comp->dungeon;
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_move_creatures_to_best_room(comp, check);
     //TODO check if should be changed to computer_able_to_use_magic()
-    if (!is_power_available(comp->dungeon->owner, PwrK_HAND)) {
+    if (!is_power_available(dungeon->owner, PwrK_HAND)) {
         return 4;
     }
     int num_to_move;
-    num_to_move = check->param2 * comp->dungeon->num_active_creatrs / 100;
+    num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
+        SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
         return 4;
     }
     if (get_task_in_progress(comp, CTT_MoveCreatureToRoom) != NULL) {
@@ -229,6 +233,7 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
     ctask->word_80 = 0;
     ctask->field_7C = num_to_move;
     ctask->field_A = game.play_gameturn;
+    SYNCDBG(8,"Added task to move %d creatures to best room", (int)num_to_move);
     return 1;
 }
 
@@ -236,16 +241,17 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
 {
     struct Dungeon *dungeon;
     struct Room *room;
-    SYNCDBG(8,"Starting");
+    dungeon = comp->dungeon;
+    SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->param2));
     //return _DK_computer_check_move_creatures_to_room(comp, check);
     //TODO check if should be changed to computer_able_to_use_magic()
-    dungeon = comp->dungeon;
     if (!is_power_available(dungeon->owner, PwrK_HAND)) {
         return 4;
     }
     int num_to_move;
-    num_to_move = check->param2 * dungeon->num_active_creatrs / 100;
+    num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
     if (num_to_move <= 0) {
+        SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
         return 4;
     }
     if (get_task_in_progress(comp, CTT_MoveCreatureToRoom) != NULL) {
@@ -255,7 +261,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     unsigned long k;
     long i;
     k = 0;
-    i = dungeon->room_kind[check->param3];
+    i = dungeon->room_kind[check->param2];
     while (i != 0)
     {
         room = room_get(i);
@@ -275,6 +281,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
                 ctask->word_80 = room->index;
                 ctask->field_7C = num_to_move;
                 ctask->field_A = game.play_gameturn;
+                SYNCDBG(8,"Added task to move %d creatures to room %d", (int)num_to_move,(int)room->index);
                 return 1;
             }
         }
@@ -295,7 +302,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_no_imps(comp, check);
     dungeon = comp->dungeon;
-    if (dungeon->num_active_diggers >= check->param2) {
+    if (dungeon->num_active_diggers >= check->param1) {
         return 4;
     }
     long able;
@@ -319,7 +326,76 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
 
 struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return _DK_find_imp_for_pickup(comp, stl_x, stl_y);
+    struct Dungeon *dungeon;
+    int pick1_dist;
+    struct Thing *pick1_tng;
+    int pick2_dist;
+    struct Thing *pick2_tng;
+    //return _DK_find_imp_for_pickup(comp, stl_x, stl_y);
+    dungeon = comp->dungeon;
+    pick1_dist = INT_MAX;
+    pick2_dist = INT_MAX;
+    pick2_tng = INVALID_THING;
+    pick1_tng = INVALID_THING;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        struct CreatureControl *cctrl;
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+          ERRORLOG("Jump to invalid creature detected");
+          break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (cctrl->combat_flags == 0)
+        {
+            if (!creature_is_being_unconscious(thing) && !creature_affected_by_spell(thing, SplK_Chicken))
+            {
+                if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
+                {
+                    int dist;
+                    long state_type;
+                    dist = abs(stl_x - thing->mappos.x.stl.num) + abs(stl_y - thing->mappos.y.stl.num);
+                    state_type = get_creature_state_type(thing);
+                    if (state_type == CrStTyp_Value1)
+                    {
+                        if (dist < pick1_dist)
+                        {
+                            pick1_dist = dist;
+                            pick1_tng = thing;
+                        }
+                    }
+                    else
+                    {
+                        if (dist < pick2_dist)
+                        {
+                            pick2_dist = dist;
+                            pick2_tng = thing;
+                        }
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
+    }
+    if (!thing_is_invalid(pick2_tng)) {
+        return pick2_tng;
+    } else {
+        return pick1_tng;
+    }
 }
 
 long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check)
@@ -332,7 +408,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     {
         long stack_len;
         stack_len = dungeon->digger_stack_length;
-        if (stack_len <= check->param2 * dungeon->total_area / 100) {
+        if (stack_len <= check->param1 * dungeon->total_area / 100) {
             return 4;
         }
         long n;
@@ -421,8 +497,8 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     //return _DK_computer_check_for_quick_attack(comp, check);
     dungeon = comp->dungeon;
     int creatrs_factor;
-    creatrs_factor = check->param2 * dungeon->num_active_creatrs / 100;
-    if (check->param4 >= creatrs_factor) {
+    creatrs_factor = check->param1 * dungeon->num_active_creatrs / 100;
+    if (check->param3 >= creatrs_factor) {
         return 4;
     }
     if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 1, 3) != 1) {
@@ -432,7 +508,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
         return 4;
     }
     struct Room *room;
-    room = get_hated_room_for_quick_attack(comp, check->param4);
+    room = get_hated_room_for_quick_attack(comp, check->param3);
     if (room_is_invalid(room)) {
         return 4;
     }
@@ -441,7 +517,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     pos.x.val = subtile_coord_center(room->central_stl_x);
     pos.y.val = subtile_coord_center(room->central_stl_y);
     pos.z.val = subtile_coord(1,0);
-    if (check->param4 >= count_creatures_availiable_for_fight(comp, &pos)) {
+    if (check->param3 >= count_creatures_availiable_for_fight(comp, &pos)) {
         return 4;
     }
     struct ComputerTask *ctask;
@@ -459,7 +535,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     ctask->field_A = game.play_gameturn;
     ctask->field_60 = 25;
     ctask->field_5C = game.play_gameturn - 25;
-    ctask->field_8E = check->param3;
+    ctask->field_8E = check->param2;
     return 1;
 }
 
@@ -566,7 +642,7 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
     {
         return 4;
     }
-    n = check->param2 % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    n = check->param1 % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     if (n <= 0)
         n = ACTION_RANDOM(sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
     for (i=0; i < sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]); i++)
