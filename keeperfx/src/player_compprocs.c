@@ -844,7 +844,7 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *process)
   {
     process->field_3C = 0;
     process->field_38 = 0;
-    set_flag_dword(&process->flags, ComProc_Unkn0020, false);
+    process->flags &= ~ComProc_Unkn0020;
     process->field_34 = game.play_gameturn;
   }
 }

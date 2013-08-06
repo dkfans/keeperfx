@@ -835,7 +835,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
     //return _DK_computer_check_for_place_trap(comp, check);
     dungeon = comp->dungeon;
     long kind_chosen;
-    kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param2, check->param3);
+    kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param1, check->param2);
     if (kind_chosen <= 0)
         return 4;
     //TODO COMPUTER_AI Maybe we should prefer corridors when placing traps?
@@ -966,7 +966,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     ret = 4;
     // Try creating digging for gold process
     money = get_computer_money_less_cost(comp);
-    if ((check->param3 > money) || (check->param2 > money))
+    if ((check->param2 > money) || (check->param1 > money))
     {
       for (i=0; i <= COMPUTER_PROCESSES_COUNT; i++)
       {
