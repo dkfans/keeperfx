@@ -107,7 +107,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_COMPUTER_CHECKS",          "AANNNNN ", Cmd_SET_COMPUTER_CHECKS},
   {"SET_COMPUTER_EVENT",           "AANN    ", Cmd_SET_COMPUTER_EVENT},
   {"SET_COMPUTER_PROCESS",         "AANNNNN ", Cmd_SET_COMPUTER_PROCESS},
-  {"ALLY_PLAYERS",                 "AA      ", Cmd_ALLY_PLAYERS},
+  {"ALLY_PLAYERS",                 "AAN     ", Cmd_ALLY_PLAYERS},
   {"DEAD_CREATURES_RETURN_TO_POOL","N       ", Cmd_DEAD_CREATURES_RETURN_TO_POOL},
   {"BONUS_LEVEL_TIME",             "N       ", Cmd_BONUS_LEVEL_TIME},
   {"QUICK_OBJECTIVE",              "NAA     ", Cmd_QUICK_OBJECTIVE},
@@ -2193,7 +2193,10 @@ long script_scan_line(char *line,TbBool preloaded)
       command_set_computer_process(scline->tp[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
       break;
   case Cmd_ALLY_PLAYERS:
-      command_ally_players(scline->tp[0], scline->tp[1], true);
+      if (level_file_version > 0)
+          command_ally_players(scline->tp[0], scline->tp[1], scline->np[2]);
+      else
+          command_ally_players(scline->tp[0], scline->tp[1], true);
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
       command_dead_creatures_return_to_pool(scline->np[0]);
