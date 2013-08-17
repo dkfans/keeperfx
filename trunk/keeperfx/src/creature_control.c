@@ -208,6 +208,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     set_player_mode(player, 2);
     set_start_state(thing);
     // Preparing light object
+    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
     ilght.mappos.x.val = thing->mappos.x.val;
     ilght.mappos.y.val = thing->mappos.y.val;
     ilght.mappos.z.val = thing->mappos.z.val;
