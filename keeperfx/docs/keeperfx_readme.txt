@@ -378,6 +378,14 @@ New and modified level script commands:
  ADD_GOLD_TO_PLAYER
   Allows to add some off-map gold as a reward to a player.
   Example: ADD_GOLD_TO_PLAYER(PLAYER0,5000)
+ ALLY_PLAYERS
+  Marks two players as allied, or ends the alliance. The
+  difference to original DK is that this command takes 3
+  parameters - 2 are players, and third one is 1 if the
+  alliance is being created, and 0 if it is being broken.
+  Note that computer players will not break the alliance
+  by themselves, but human player may do so. So this command
+  is mostly for controlling the computer players behavior.
  BONUS_LEVEL_TIME
   Sets time to be displayed on "bonus timer" - on-screen
   time field, used mostly for bonus levels.
