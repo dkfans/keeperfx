@@ -2418,7 +2418,6 @@ void script_process_lose_game(unsigned short plyr_idx)
 struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner)
 {
     struct Thing *thing;
-    struct CreatureControl *cctrl;
     struct InitLight ilght;
     long light_rand;
     thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
@@ -2437,16 +2436,21 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         }
     }
 
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->flee_pos.x.val = thing->mappos.x.val;
-    cctrl->flee_pos.y.val = thing->mappos.y.val;
-    cctrl->flee_pos.z.val = thing->mappos.z.val;
-    cctrl->flee_pos.z.val = get_thing_height_at(thing, &thing->mappos);
-    cctrl->party.target_plyr_idx = -1;
+    if (thing_is_creature(thing))
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        cctrl->flee_pos.x.val = thing->mappos.x.val;
+        cctrl->flee_pos.y.val = thing->mappos.y.val;
+        cctrl->flee_pos.z.val = thing->mappos.z.val;
+        cctrl->flee_pos.z.val = get_thing_height_at(thing, &thing->mappos);
+        cctrl->party.target_plyr_idx = -1;
+    }
 
     light_rand = ACTION_RANDOM(8);
     if (light_rand < 2)
     {
+        LbMemorySet(&ilght, 0, sizeof(struct InitLight));
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
@@ -2576,10 +2580,52 @@ long script_support_create_thing_at_action_point(long apt_idx, unsigned char tng
     return thing->index;
 }
 
-long script_support_create_creature_at_dungeon_heart(unsigned char a1, unsigned char a2, unsigned char a3)
+/**
+ * Creates a thing on given players dungeon heart.
+ * Originally was script_support_create_creature_at_dungeon_heart().
+ * @param tngclass
+ * @param tngmodel
+ * @param tngowner
+ * @param plyr_idx
+ */
+long script_support_create_thing_at_dungeon_heart(unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char plyr_idx)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_script_support_create_creature_at_dungeon_heart(a1, a2, a3);
+    SYNCDBG(7,"Starting");
+    //return _DK_script_support_create_creature_at_dungeon_heart(tngmodel, tngowner, plyr_idx);
+    struct Thing *heartng;
+    heartng = INVALID_THING;
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        if (!dungeon_invalid(dungeon))
+            heartng = thing_get(dungeon->dnheart_idx);
+    }
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng))
+    {
+        ERRORLOG("Attempt to create thing in player %d dungeon with no heart",(int)plyr_idx);
+        return 0;
+    }
+    struct Coord3d pos;
+    pos.x.val = heartng->mappos.x.val + ACTION_RANDOM(65) - 32;
+    pos.y.val = heartng->mappos.y.val + ACTION_RANDOM(65) - 32;
+    pos.z.val = heartng->mappos.z.val;
+    struct Thing *thing;
+    thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, tngmodel, tngowner);
+    if (thing_is_invalid(thing))
+    {
+        // Error is already logged
+        return 0;
+    }
+    if (thing_is_creature(thing))
+    {
+        if ((get_creature_model_flags(thing) & MF_IsLordOTLand) != 0)
+        {
+            output_message(SMsg_LordOfLandComming, 0, 1);
+            output_message(SMsg_EnemyLordQuote + ACTION_RANDOM(8), 0, 1);
+        }
+    }
+    return thing->index;
 }
 
 long script_support_send_tunneller_to_action_point(struct Thing *thing, long a2)
@@ -2669,7 +2715,7 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long br
         break;
     case MLoc_PLAYERSHEART:
         i = get_map_location_longval(location);
-        tng_idx = script_support_create_creature_at_dungeon_heart(breed, plyr_idx, i);
+        tng_idx = script_support_create_thing_at_dungeon_heart(TCls_Creature, breed, plyr_idx, i);
         effect = 0;
         break;
     case MLoc_NONE:
