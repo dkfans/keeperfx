@@ -33,6 +33,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "gui_soundmsgs.h"
 
 #include "keeperfx.hpp"
 
@@ -42,6 +43,7 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT short _DK_at_workshop_room(struct Thing *thing);
 DLLIMPORT short _DK_manufacturing(struct Thing *thing);
+DLLIMPORT long _DK_process_creature_in_workshop(struct Thing *creatng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -111,9 +113,51 @@ short at_workshop_room(struct Thing *thing)
     return 1;
 }
 
-short manufacturing(struct Thing *thing)
+long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
 {
-  return _DK_manufacturing(thing);
+    return _DK_process_creature_in_workshop(creatng, room);
+}
+
+short manufacturing(struct Thing *creatng)
+{
+    struct Room *room;
+    //return _DK_manufacturing(thing);
+    TRACE_THING(creatng);
+    room = get_room_thing_is_on(creatng);
+    if (creature_work_in_room_no_longer_possible(room, RoK_WORKSHOP, creatng))
+    {
+        remove_creature_from_work_room(creatng);
+        set_start_state(creatng);
+        return CrStRet_ResetFail;
+    }
+    if (room->total_capacity < room->used_capacity)
+    {
+        if (is_my_player_number(creatng->owner))
+            output_message(SMsg_WorkshopTooSmall, 0, true);
+        remove_creature_from_work_room(creatng);
+        set_start_state(creatng);
+        return CrStRet_ResetOk;
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(creatng->owner);
+    if (dungeon->manufacture_class)
+    {
+        struct CreatureControl *cctrl;
+        struct CreatureStats *crstat;
+        cctrl = creature_control_get_from_thing(creatng);
+        crstat = creature_stats_get_from_thing(creatng);
+        long work_value;
+        work_value = compute_creature_work_value(crstat->manufacture_value*256, room->efficiency, cctrl->explevel);
+        work_value = process_work_speed_on_work_value(creatng, work_value);
+        SYNCDBG(9,"The %s index %d produced %d manufacture points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
+        dungeon->manufacture_progress += work_value / 256;
+        dungeon->field_1181 += work_value / 256;
+    } else
+    {
+        WARNDBG(9,"The %s index %d is manufacturing nothing",thing_model_name(creatng),(int)creatng->index);
+    }
+    process_creature_in_workshop(creatng, room);
+    return CrStRet_Modified;
 }
 
 /******************************************************************************/

@@ -1064,6 +1064,7 @@
  0001:000AFFC0       force_complete_current_manufacturing
  0001:000B0050       create_workshop_object_in_workshop_room
  0001:000B02B0       get_next_manufacture
+ 0001:000B0450       process_creature_in_workshop
  0001:000B0F50       remove_workshop_object_from_player
  0001:000B1110       remove_workshop_item
  0001:000B11C0       tag_blocks_for_digging_in_rectangle_around

@@ -241,10 +241,12 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
     }
     if (chosen_class != TCls_Empty)
     {
+        SYNCDBG(8,"Player %d manufacturing class %d kind %d",(int)dungeon->owner,(int)chosen_class,(int)chosen_kind);
         dungeon->manufacture_class = chosen_class;
         dungeon->manufacture_kind = chosen_kind;
         return true;
     }
+    WARNDBG(6,"Player %d has nothing to manufacture",(int)dungeon->owner);
     return false;
 }
 
@@ -274,7 +276,9 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
   dungeon = get_players_num_dungeon(plyr_idx);
   room = player_has_room_of_type(plyr_idx, RoK_WORKSHOP);
   if (room_is_invalid(room))
+  {
       return true;
+  }
   if (dungeon->manufacture_class == TCls_Empty)
   {
       get_next_manufacture(dungeon);
