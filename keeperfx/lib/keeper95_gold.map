@@ -1212,6 +1212,7 @@
  0001:000B35B0       turn_creature_to_scavenger
  0001:000B0050       create_workshop_object_in_workshop_room
  0001:000B02B0       get_next_manufacture
+ 0001:000B0450       process_creature_in_workshop
  0001:000B60A0       find_nearest_room_for_thing
  0001:000B6B00       find_nearest_room_for_thing_with_used_capacity
  0001:000B6D10       find_room_with_spare_room_item_capacity
