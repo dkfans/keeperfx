@@ -528,6 +528,51 @@ std::string file_name_change_extension(const std::string &fname_inp, const std::
     return fname;
 }
 
+int load_imagelist(ProgramOptions &opts, const std::string &fname, int anum = -1)
+{
+    std::ifstream infile;
+    std::string lstpath = file_name_get_path(fname);
+    infile.open(fname.c_str(), ifstream::in);
+    int fd[4] = {0,0,0,0};
+    {
+        // Initial line - animation name and format-specific parameters
+        std::string str;
+        std::getline(infile, str, '\n');
+        istringstream iss(str);
+        iss >> str >> fd[0] >> fd[1] >> fd[2] >> fd[3];
+    }
+    while (infile.good()) {
+        std::string str;
+        int dm[4] = {-1,-1,-1,-1};
+        std::getline(infile, str, '\n');
+        istringstream iss(str);
+        iss >> str >> fd[0] >> fd[1] >> fd[2] >> fd[3];
+        if (!str.empty()) {
+            opts.inp.push_back(ImageArea(lstpath+"/"+str,anum,dm[0],dm[1],dm[2],dm[3],fd[0],fd[1],fd[2],fd[3]));
+            LogDbg("%s anim=%d (%d %d %d %d) (%d %d %d %d)\n",str.c_str(),anum,dm[0],dm[1],dm[2],dm[3],fd[0],fd[1],fd[2],fd[3]);
+        }
+    }
+    return true;
+}
+
+int load_animlist(ProgramOptions &opts, const std::string &fname)
+{
+    std::ifstream infile;
+    std::string lstpath = file_name_get_path(fname);
+    infile.open(fname.c_str(), ifstream::in);
+    int i = 0;
+    while (infile.good()) {
+        std::string str;
+        std::getline(infile, str, '\n');
+        str.erase(str.find_last_not_of(" \n\r\t")+1);
+        if (!str.empty()) {
+            load_imagelist(opts, lstpath+"/"+str, i);
+            i++;
+        }
+    }
+    return (i > 0);
+}
+
 int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
 {
     opts.clear();
@@ -643,17 +688,16 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     // Load the files list, if it's provided
     if (!opts.fname_lst.empty())
     {
-        std::ifstream infile;
-        std::string lstpath = file_name_get_path(opts.fname_lst);
-        infile.open(opts.fname_lst.c_str(), ifstream::in);
-         while (infile.good()) {
-             std::string str;
-             std::getline(infile, str, '\n');
-             str.erase(str.find_last_not_of(" \n\r\t")+1);
-             if (!str.empty()) {
-                 opts.inp.push_back(ImageArea(lstpath+"/"+str));
-             }
-         }
+        int listret;
+        if (opts.fmt == OutFmt_JSPR) {
+            listret = load_animlist(opts, opts.fname_lst);
+        } else {
+            listret = load_imagelist(opts, opts.fname_lst);
+        }
+        if (!listret) {
+            LogErr("Couldn't load a list of input images.");
+            return false;
+        }
     }
     if ((optind < argc) || (opts.inp.empty() && opts.fname_lst.empty()))
     {

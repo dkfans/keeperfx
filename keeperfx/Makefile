@@ -369,6 +369,7 @@ pkg/data/lofont.dat \
 pkg/data/font2-0.dat \
 pkg/data/font2-1.dat \
 pkg/data/gmapbug.dat
+#pkg/data/creature.jty \
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))
@@ -788,6 +789,7 @@ pkg/data/hifont.dat: gfx/font_simp-64/filelist_hifont.txt pkg/data/palette.dat $
 pkg/data/lofont.dat: gfx/font_simp-32/filelist_lofont.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/font2-0.dat: gfx/font2-32/filelist_font2-0.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/font2-1.dat: gfx/font2-64/filelist_font2-1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
+pkg/data/creature.jty: gfx/sprites/animlist.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/ldata/%.raw pkg/data/%.raw pkg/fxdata/%.raw:
 	-$(ECHO) 'Building RAW image: $@'
@@ -801,6 +803,13 @@ pkg/ldata/%.dat pkg/data/%.dat:
 	@$(MKDIR) $(@D)
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f sspr -l 0 "$<"
 	-$(RNC) "$@"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/creatrs/%.jty pkg/data/%.jty:
+	-$(ECHO) 'Building jonty sprites: $@'
+	@$(MKDIR) $(@D)
+	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
