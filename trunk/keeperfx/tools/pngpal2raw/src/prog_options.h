@@ -62,10 +62,12 @@ enum {
 
 class ImageArea {
 public:
-    ImageArea(const std::string &nname, int nx=-1, int ny=-1, int nw=-1, int nh=-1):
-        fname(nname),x(nx),y(ny),w(nw),h(nh) {};
+    ImageArea(const std::string &nname, int nanum=-1, int nx=-1, int ny=-1, int nw=-1, int nh=-1, int nfd0=0, int nfd1=0, int nfd2=0, int nfd3=0):
+        fname(nname),anum(nanum),x(nx),y(ny),w(nw),h(nh) {fd[0]=nfd0;fd[1]=nfd1;fd[2]=nfd2;fd[3]=nfd3;};
     /** Name of the source image file */
     std::string fname;
+    /** Animation index, if this image is a part of animated sequence */
+    int anum;
     /** X and Y coords of the start of sprite within given image */
     int x,y;
     /** Width and height the part of the image to be used */
