@@ -573,6 +573,33 @@ int load_animlist(ProgramOptions &opts, const std::string &fname)
     return (i > 0);
 }
 
+short load_inp_additional_data(ImageData& img, const ImageArea& inp, ProgramOptions& opts)
+{
+    struct JontySprite *jtab;
+    switch (opts.fmt)
+    {
+    case OutFmt_JSPR:
+        //TODO: we need to determine the frame size here
+        jtab = (struct JontySprite *)img.additional_data;
+        jtab->Data = -1;
+        jtab->SWidth = img.width;
+        jtab->SHeight = img.height;
+        jtab->FrameWidth = img.width;
+        jtab->FrameHeight = img.height;
+        jtab->FrameOffsW = 0;
+        jtab->FrameOffsH = 0;
+        jtab->Rotable = inp.fd[0];
+        jtab->FramesCount = inp.fd[1];
+        jtab->unkn6 = inp.fd[2];
+        jtab->unkn8 = inp.fd[3];
+        break;
+    case OutFmt_SSPR:
+    default:
+        break;
+    }
+    return ERR_OK;
+}
+
 int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
 {
     opts.clear();
@@ -689,7 +716,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     if (!opts.fname_lst.empty())
     {
         int listret;
-        if (opts.fmt == OutFmt_JSPR) {
+        if (opts.batch == Batch_ANIMLIST) {
             listret = load_animlist(opts, opts.fname_lst);
         } else {
             listret = load_imagelist(opts, opts.fname_lst);
@@ -906,6 +933,7 @@ short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
         }
         fclose(rawfile);
     }
+    // Open and write the TAB file
     {
         FILE* tabfile = fopen(fname_tab.c_str(),"wb");
         if (tabfile == NULL) {
@@ -974,6 +1002,7 @@ short save_jontyspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
         }
         fclose(rawfile);
     }
+    // Open and write the TAB file
     {
         FILE* tabfile = fopen(fname_tab.c_str(),"wb");
         if (tabfile == NULL) {
@@ -1011,6 +1040,9 @@ int main(int argc, char* argv[])
                 LogMsg("Loading image \"%s\".",opts.inp[i].fname.c_str());
             ImageData& img = imgs[i];
             if (load_inp_png_file(img, opts.inp[i].fname, opts) != ERR_OK) {
+                return 2;
+            }
+            if (load_inp_additional_data(img, opts.inp[i], opts) != ERR_OK) {
                 return 2;
             }
         }
