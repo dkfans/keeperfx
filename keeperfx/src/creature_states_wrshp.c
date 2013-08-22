@@ -35,6 +35,7 @@
 #include "room_jobs.h"
 #include "gui_soundmsgs.h"
 
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -121,7 +122,7 @@ long process_creature_in_workshop(struct Thing *creatng, struct Room *room)
 short manufacturing(struct Thing *creatng)
 {
     struct Room *room;
-    //return _DK_manufacturing(thing);
+    //return _DK_manufacturing(creatng);
     TRACE_THING(creatng);
     room = get_room_thing_is_on(creatng);
     if (creature_work_in_room_no_longer_possible(room, RoK_WORKSHOP, creatng))
@@ -150,8 +151,8 @@ short manufacturing(struct Thing *creatng)
         work_value = compute_creature_work_value(crstat->manufacture_value*256, room->efficiency, cctrl->explevel);
         work_value = process_work_speed_on_work_value(creatng, work_value);
         SYNCDBG(9,"The %s index %d produced %d manufacture points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
-        dungeon->manufacture_progress += work_value / 256;
-        dungeon->field_1181 += work_value / 256;
+        dungeon->manufacture_progress += work_value;
+        dungeon->field_1181 += work_value;
     } else
     {
         WARNDBG(9,"The %s index %d is manufacturing nothing",thing_model_name(creatng),(int)creatng->index);
