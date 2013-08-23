@@ -163,6 +163,15 @@ enum CompTaskStates {
     CTaskSt_Perform, /**< Performing the task. */
 };
 
+/** Return values for computer task functions. */
+enum CompTaskRet {
+    CTaskRet_Unk0 = 0,
+    CTaskRet_Unk1,
+    CTaskRet_Unk2,
+    CTaskRet_Unk3,
+    CTaskRet_Unk4,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -335,13 +344,17 @@ struct ComputerTask { // sizeof = 148
     };
     unsigned char field_84[2];
     union {
-    long long_86;
+    struct Coord3d pos_86;
+    struct {
+      long long_86;
+      unsigned char field_8A[2];
+    };
     struct {
       short word_86;
       short word_88;
+      unsigned char field_8Ax[2];
     };
     };
-    unsigned char field_8A[2];
     unsigned short field_8C;
     long field_8E;
     unsigned short next_task;

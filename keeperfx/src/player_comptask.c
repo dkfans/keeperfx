@@ -89,7 +89,6 @@ long add_to_trap_location(struct Computer2 *, struct Coord3d *);
 long find_next_gold(struct Computer2 *, struct ComputerTask *);
 long check_for_gold(long simulation, long digflags, long l3);
 int search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
-struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long a7);
 /******************************************************************************/
 const struct TaskFunctions task_function[] = {
     {NULL, NULL},
@@ -175,6 +174,8 @@ DLLIMPORT long _DK_check_for_gold(long simulation, long digflags, long l3);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 DLLIMPORT long _DK_dig_to_position(signed char stl_x, unsigned short stl_y, unsigned short plyr_idx, unsigned char a4, unsigned char a5);
 DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short stl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short a7);
+DLLIMPORT struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long a7);
+DLLIMPORT struct Thing *_DK_find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -385,17 +386,50 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2)
 {
-  TbResult result;
-  result = game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
-  if (result > 0)
-    comp->tasks_did--;
-  SYNCDBG(19,"Returning %d",(int)result);
-  return result;
+    TbResult result;
+    result = game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
+    if (result > 0) {
+        comp->tasks_did--;
+    }
+    SYNCDBG(19,"Returning %d",(int)result);
+    return result;
 }
 
-struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long a2)
+struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long ttype)
 {
-    return _DK_get_task_in_progress(comp, a2);
+    struct ComputerTask *ctask;
+    long i;
+    unsigned long k;
+    //return _DK_get_task_in_progress(comp, a2);
+    k = 0;
+    i = comp->task_idx;
+    while (i != 0)
+    {
+        if ((i < 0) || (i >= COMPUTER_TASKS_COUNT))
+        {
+          ERRORLOG("Jump to invalid computer task %ld detected",i);
+          break;
+        }
+        ctask = &game.computer_task[i];
+        i = ctask->next_task;
+        if ((ctask->flags & 0x01) != 0)
+        {
+            long n;
+            n = ctask->ttype;
+            if (n == CTT_WaitForBridge)
+                n = ctask->ottype;
+            if (n == ttype) {
+                return ctask;
+            }
+        }
+        k++;
+        if (k > COMPUTER_TASKS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping computer tasks");
+          break;
+        }
+    }
+    return NULL;
 }
 
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
@@ -608,7 +642,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
             (int)ctask->long_86, (int)ctask->pos_64.x.stl.num, (int)ctask->pos_64.y.stl.num);
         return 4;
     }
-    ctask->ttype = 4;
+    ctask->ttype = CTT_PlaceRoom;
     setup_computer_dig_room(&ctask->dig, &ctask->pos_64, ctask->long_86);
     return 1;
 }
@@ -1300,10 +1334,48 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
     return _DK_task_magic_call_to_arms(comp,ctask);
 }
 
+struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
+{
+    return _DK_find_creature_for_pickup(comp, pos, room, a4);
+}
+
 long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    return _DK_task_pickup_for_attack(comp,ctask);
+    //return _DK_task_pickup_for_attack(comp,ctask);
+    if (game.play_gameturn - ctask->field_A > 7500)
+    {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
+    }
+    if (!xy_walkable(ctask->pos_76.x.stl.num, ctask->pos_76.y.stl.num, comp->dungeon->owner))
+    {
+        return CTaskRet_Unk4;
+    }
+    struct Thing *thing;
+    thing = thing_get(comp->field_14C8);
+    if (!thing_is_invalid(thing))
+    {
+        if (fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_76)) {
+            return CTaskRet_Unk2;
+        }
+        return CTaskRet_Unk4;
+    }
+    if (ctask->field_7C <= 0)
+    {
+        remove_task(comp, ctask);
+        return CTaskRet_Unk1;
+    }
+    ctask->field_7C--;
+    thing = find_creature_for_pickup(comp, &ctask->pos_76, 0, 1);
+    if (!thing_is_invalid(thing))
+    {
+        if (fake_place_thing_in_power_hand(comp, thing, &ctask->pos_76)) {
+            return CTaskRet_Unk2;
+        }
+        return CTaskRet_Unk4;
+    }
+    return CTaskRet_Unk4;
 }
 
 long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -1323,16 +1395,16 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
       pos.y.val = room->central_stl_y << 8;
       pos.z.val = 256;
       if (fake_dump_held_creatures_on_map(comp, thing, &pos) > 0)
-        return 2;
+        return CTaskRet_Unk2;
       remove_task(comp, ctask);
-      return 0;
+      return CTaskRet_Unk0;
     }
     i = ctask->field_7C;
     ctask->field_7C--;
     if (i <= 0)
     {
       remove_task(comp, ctask);
-      return 1;
+      return CTaskRet_Unk1;
     }
     thing = find_creature_to_be_placed_in_room(comp, &room);
     if (!thing_is_invalid(thing))
@@ -1345,19 +1417,45 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         pos.x.val = room->central_stl_x << 8;
         pos.y.val = room->central_stl_y << 8;
         pos.z.val = 256;
-        if ( fake_place_thing_in_power_hand(comp, thing, &pos) )
-          return 2;
+        if (fake_place_thing_in_power_hand(comp, thing, &pos)) {
+            return CTaskRet_Unk2;
+        }
         remove_task(comp, ctask);
-        return 0;
+        return CTaskRet_Unk0;
       }
       remove_task(comp, ctask);
-      return 0;
+      return CTaskRet_Unk0;
 }
 
 long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctask)
 {
+    struct Dungeon *dungeon;
     SYNCDBG(9,"Starting");
-    return _DK_task_move_creature_to_pos(comp,ctask);
+    //return _DK_task_move_creature_to_pos(comp,ctask);
+    dungeon = comp->dungeon;
+    struct Thing *thing;
+    thing = thing_get(comp->field_14C8);
+    if (!thing_is_invalid(thing))
+    {
+        if (ctask->word_76 == comp->field_14C8)
+        {
+            if (fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_86)) {
+                remove_task(comp, ctask);
+                return CTaskRet_Unk2;
+            }
+            remove_task(comp, ctask);
+            return CTaskRet_Unk0;
+        }
+    }
+    thing = thing_get(ctask->word_76);
+    if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
+    {
+        if (fake_place_thing_in_power_hand(comp, thing, &ctask->pos_86)) {
+          return CTaskRet_Unk2;
+        }
+    }
+    remove_task(comp, ctask);
+    return CTaskRet_Unk0;
 }
 
 struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
@@ -1433,19 +1531,19 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
         if (!fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_76))
         {
             remove_task(comp, ctask);
-            return 0;
+            return CTaskRet_Unk0;
         }
-        return 2;
+        return CTaskRet_Unk2;
     }
     if (game.play_gameturn - ctask->field_5C < ctask->field_60) {
-        return 4;
+        return CTaskRet_Unk4;
     }
     ctask->field_5C = game.play_gameturn;
     ctask->field_7C--;
     if (ctask->field_7C <= 0)
     {
         remove_task(comp, ctask);
-        return 1;
+        return CTaskRet_Unk1;
     }
     thing = find_creature_for_defend_pickup(comp);
     if (!thing_is_invalid(thing))
@@ -1453,11 +1551,11 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
         if (!fake_place_thing_in_power_hand(comp, thing, &ctask->pos_76) )
         {
             remove_task(comp, ctask);
-            return 0;
+            return CTaskRet_Unk0;
         }
-        return 2;
+        return CTaskRet_Unk2;
     }
-    return 2;
+    return CTaskRet_Unk2;
 }
 
 long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -1493,7 +1591,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
                     {
                         if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, thing->index, 0) > 0)
                         {
-                            return 2;
+                            return CTaskRet_Unk2;
                         }
                     }
                 }
@@ -1508,7 +1606,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     remove_task(comp, ctask);
-    return 0;
+    return CTaskRet_Unk0;
 }
 
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -1540,22 +1638,22 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     thing = thing_get(ctask->word_76);
     if (thing_is_invalid(thing))
     {
-        return 1;
+        return CTaskRet_Unk1;
     }
     i = ctask->field_7C;
     ctask->field_7C--;
     if ((i <= 0) || (thing->health <= 0))
     {
         remove_task(comp, ctask);
-        return 1;
+        return CTaskRet_Unk1;
     }
     if (computer_able_to_use_magic(comp, ctask->long_86, ctask->field_70, 1) != 1)
-      return 4;
+      return CTaskRet_Unk4;
     i = try_game_action(comp, dungeon->owner, ctask->field_80, ctask->field_70,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->word_76, 0);
     if (i <= 0)
-      return 4;
-    return 2;
+      return CTaskRet_Unk4;
+    return CTaskRet_Unk2;
 }
 
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask)
