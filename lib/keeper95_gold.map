@@ -431,6 +431,7 @@
  0001:0004CB50       fake_dump_held_creatures_on_map
  0001:0004CCA0       computer_able_to_use_magic
  0001:0004CE70       tool_dig_to_pos2
+ 0001:0004DB50       find_creature_for_pickup
  0001:0004DDE0       count_creatures_for_defend_pickup
  0001:0004E200       find_imp_for_pickup
  0001:0004E340       computer_event_find_link

@@ -654,7 +654,7 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     if (computer_task_invalid(ctask)) {
         return 0;
     }
-    ctask->ttype = 7;
+    ctask->ttype = CTT_DigToAttack;
     ctask->pos_70.x.val = room->central_stl_x << 8;
     ctask->pos_70.y.val = room->central_stl_y << 8;
     ctask->pos_70.z.val = 256;
