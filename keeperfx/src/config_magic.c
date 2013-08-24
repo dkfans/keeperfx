@@ -1208,8 +1208,8 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind spl_idx)
     if (dungeon_invalid(dungeon)) {
         return false;
     }
-    // Player must have dungeon heart to cast spells
-    if (dungeon->dnheart_idx <= 0) {
+    // Player must have dungeon heart to cast spells, with no heart only floating spirit spell works
+    if ((dungeon->dnheart_idx <= 0) && (spl_idx != PwrK_POSSESS)) {
         return false;
     }
     if ((spl_idx < 0) || (spl_idx >= KEEPER_SPELLS_COUNT)) {

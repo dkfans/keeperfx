@@ -553,21 +553,21 @@ TbBool object_is_mature_food(const struct Thing *thing)
 
 TbBool object_is_gold(const struct Thing *thing)
 {
-  //return _DK_object_is_gold(thing);
-  switch (thing->model)
-  {
-    case 3:
-    case 6:
-    case 43:
-    case 52:
-    case 53:
-    case 54:
-    case 55:
-    case 56:
-        return true;
-    default:
-        return false;
-  }
+    //return _DK_object_is_gold(thing);
+    switch (thing->model)
+    {
+      case 3:
+      case 6:
+      case 43:
+      case 52:
+      case 53:
+      case 54:
+      case 55:
+      case 56:
+          return true;
+      default:
+          return false;
+    }
 }
 
 /**
@@ -578,32 +578,32 @@ TbBool object_is_gold(const struct Thing *thing)
  */
 TbBool object_is_gold_hoard(const struct Thing *thing)
 {
-  switch (thing->model)
-  {
-    case 52:
-    case 53:
-    case 54:
-    case 55:
-    case 56:
-        return true;
-    default:
-        return false;
-  }
+    switch (thing->model)
+    {
+      case 52:
+      case 53:
+      case 54:
+      case 55:
+      case 56:
+          return true;
+      default:
+          return false;
+    }
 }
 
 TbBool object_is_gold_pile(const struct Thing *thing)
 {
-  //return _DK_object_is_gold_pile(thing);
-  switch (thing->model)
-  {
-    case 3:
-    case 6: // Pot of gold
-    case 43:
-    case 128:
-        return true;
-    default:
-        return false;
-  }
+    //return _DK_object_is_gold_pile(thing);
+    switch (thing->model)
+    {
+      case 3:
+      case 6: // Pot of gold
+      case 43:
+      case 128:
+          return true;
+      default:
+          return false;
+    }
 }
 
 /**

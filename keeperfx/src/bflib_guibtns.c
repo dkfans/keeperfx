@@ -33,8 +33,6 @@
 extern "C" {
 #endif
 
-DLLIMPORT void _DK_do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
-DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 /******************************************************************************/
 // Global variables
 char *gui_strings_data;
@@ -71,11 +69,6 @@ void do_sound_button_click(struct GuiButton *gbtn)
         play_non_3d_sample(60);
     else
         play_non_3d_sample(61);
-}
-
-void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
-{
-  _DK_do_button_click_actions(gbtn, s, callback);
 }
 
 void setup_input_field(struct GuiButton *gbtn, const char * empty_text)

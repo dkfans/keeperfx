@@ -563,7 +563,7 @@ void process_dungeon_destroy(struct Thing *heartng)
     struct Dungeon *dungeon;
     long plyr_idx;
     plyr_idx = heartng->owner;
-    //_DK_process_dungeon_destroy(thing);
+    //_DK_process_dungeon_destroy(heartng); return;
     dungeon = get_dungeon(plyr_idx);
     if (!dungeon->field_1060) {
         return;
@@ -2308,7 +2308,7 @@ void check_players_lost(void)
 {
   long i;
   SYNCDBG(8,"Starting");
-  //_DK_check_players_lost();
+  //_DK_check_players_lost(); return;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
       struct PlayerInfo *player;
@@ -2323,7 +2323,7 @@ void check_players_lost(void)
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
-            //TODO: make sure we really want to do this; it wasn't here in oroginal code, but it will prevent computer player activities on dead player.
+            //TODO: make sure we really want to do this; it wasn't here in original code, but it will prevent computer player activities on dead player.
             player->field_2C = 0;
             if (is_my_player_number(i))
               LbPaletteSet(_DK_palette);

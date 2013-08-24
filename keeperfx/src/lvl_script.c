@@ -2331,88 +2331,88 @@ short preload_script(long lvnum)
 
 short load_script(long lvnum)
 {
-  char *buf;
-  char *buf_end;
-  int lnlen;
-  char *script_data;
-  long script_len;
-  SYNCDBG(7,"Starting");
-  //return _DK_load_script(lvnum);
+    char *buf;
+    char *buf_end;
+    int lnlen;
+    char *script_data;
+    long script_len;
+    SYNCDBG(7,"Starting");
+    //return _DK_load_script(lvnum);
 
-  // Clear script data
-  gui_set_button_flashing(0, 0);
-  clear_script();
-  script_current_condition = -1;
-  next_command_reusable = 0;
-  text_line_number = 1;
-  game.bonus_time = 0;
-  set_flag_byte(&game.flags_gui,GGUI_CountdownTimer,false);
-  game.flags_cd |= MFlg_DeadBackToPool;
-  reset_creature_max_levels();
-  reset_script_timers_and_flags();
-  if (game.numfield_C & 0x08)
-  {
-    convert_old_column_file(lvnum);
-    set_flag_byte(&game.numfield_C,0x08,false);
-  }
-  // Load the file
-  script_len = 1;
-  script_data = (char *)load_single_map_file_to_buffer(lvnum,"txt",&script_len,LMFF_None);
-  if (script_data == NULL)
-    return false;
-  // Process the file lines
-  buf = script_data;
-  buf_end = script_data+script_len;
-  while (buf < buf_end)
-  {
-    // Find end of the line
-    lnlen = 0;
-    while (&buf[lnlen] < buf_end)
+    // Clear script data
+    gui_set_button_flashing(0, 0);
+    clear_script();
+    script_current_condition = -1;
+    next_command_reusable = 0;
+    text_line_number = 1;
+    game.bonus_time = 0;
+    game.flags_gui &= ~GGUI_CountdownTimer;
+    game.flags_cd |= MFlg_DeadBackToPool;
+    reset_creature_max_levels();
+    reset_script_timers_and_flags();
+    if (game.numfield_C & 0x08)
     {
-      if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
-        break;
-      lnlen++;
+      convert_old_column_file(lvnum);
+      set_flag_byte(&game.numfield_C,0x08,false);
     }
-    // Get rid of the next line characters
-    buf[lnlen] = 0;
-    lnlen++;
-    if (&buf[lnlen] < buf_end)
+    // Load the file
+    script_len = 1;
+    script_data = (char *)load_single_map_file_to_buffer(lvnum,"txt",&script_len,LMFF_None);
+    if (script_data == NULL)
+      return false;
+    // Process the file lines
+    buf = script_data;
+    buf_end = script_data+script_len;
+    while (buf < buf_end)
     {
-      if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+      // Find end of the line
+      lnlen = 0;
+      while (&buf[lnlen] < buf_end)
+      {
+        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+          break;
         lnlen++;
+      }
+      // Get rid of the next line characters
+      buf[lnlen] = 0;
+      lnlen++;
+      if (&buf[lnlen] < buf_end)
+      {
+        if ((buf[lnlen] == '\r') || (buf[lnlen] == '\n'))
+          lnlen++;
+      }
+      // Analyze the line
+      script_scan_line(buf, false);
+      // Set new line start
+      text_line_number++;
+      buf += lnlen;
     }
-    // Analyze the line
-    script_scan_line(buf, false);
-    // Set new line start
-    text_line_number++;
-    buf += lnlen;
-  }
-  LbMemoryFree(script_data);
-  if (game.script.win_conditions_num == 0)
-    WARNMSG("No WIN GAME conditions in script file.");
-  if (script_current_condition != -1)
-    WARNMSG("Missing ENDIF's in script file.");
-  JUSTLOG("Used script resources: %d/%d tunneller triggers, %d/%d party triggers, %d/%d script values, %d/%d IF conditions, %d/%d party definitions",
-      (int)game.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
-      (int)game.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
-      (int)game.script.values_num,SCRIPT_VALUES_COUNT,
-      (int)game.script.conditions_num,CONDITIONS_COUNT,
-      (int)game.script.creature_partys_num,CREATURE_PARTYS_COUNT);
-  return true;
+    LbMemoryFree(script_data);
+    if (game.script.win_conditions_num == 0)
+      WARNMSG("No WIN GAME conditions in script file.");
+    if (script_current_condition != -1)
+      WARNMSG("Missing ENDIF's in script file.");
+    JUSTLOG("Used script resources: %d/%d tunneller triggers, %d/%d party triggers, %d/%d script values, %d/%d IF conditions, %d/%d party definitions",
+        (int)game.script.tunneller_triggers_num,TUNNELLER_TRIGGERS_COUNT,
+        (int)game.script.party_triggers_num,PARTY_TRIGGERS_COUNT,
+        (int)game.script.values_num,SCRIPT_VALUES_COUNT,
+        (int)game.script.conditions_num,CONDITIONS_COUNT,
+        (int)game.script.creature_partys_num,CREATURE_PARTYS_COUNT);
+    return true;
 }
 
 void script_process_win_game(unsigned short plyr_idx)
 {
-  struct PlayerInfo *player;
-  player = get_player(plyr_idx);
-  set_player_as_won_level(player);
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    set_player_as_won_level(player);
 }
 
 void script_process_lose_game(unsigned short plyr_idx)
 {
-  struct PlayerInfo *player;
-  player = get_player(plyr_idx);
-  set_player_as_lost_level(player);
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    set_player_as_lost_level(player);
 }
 
 struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner)
@@ -2690,8 +2690,8 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
 
 long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
+    SYNCDBG(7,"Starting");
+    return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
 }
 
 struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long breed, long location)
