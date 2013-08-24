@@ -2323,10 +2323,11 @@ void check_players_lost(void)
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
-            //TODO: make sure we really want to do this; it wasn't here in original code, but it will prevent computer player activities on dead player.
-            player->field_2C = 0;
-            if (is_my_player_number(i))
-              LbPaletteSet(_DK_palette);
+            //this would easily prevent computer player activities on dead player, but it also makes dead player unable to use
+            //floating spirit, so it can't be done this way: player->field_2C = 0;
+            if (is_my_player_number(i)) {
+                LbPaletteSet(_DK_palette);
+            }
           }
       }
   }
