@@ -66,13 +66,13 @@ DLLIMPORT void _DK_init_audio_menu(struct GuiMenu *gmnu);
 void frontend_define_key_up_maintain(struct GuiButton *gbtn)
 {
     //_DK_frontend_define_key_up_maintain(gbtn);
-    gbtn->flags ^= (gbtn->flags ^ 0x08 * (define_key_scroll_offset != 0)) & 0x08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (define_key_scroll_offset != 0)) & LbBtnF_Unknown08;
 }
 
 void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 {
     //_DK_frontend_define_key_down_maintain(gbtn);
-    gbtn->flags ^= (gbtn->flags ^ 0x08 * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & 0x08;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (define_key_scroll_offset < GAME_KEYS_COUNT-1)) & LbBtnF_Unknown08;
 }
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)

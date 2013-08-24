@@ -139,6 +139,8 @@ DLLIMPORT void _DK_frontend_continue_game_maintain(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_main_menu_load_game_maintain(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_main_menu_netservice_maintain(struct GuiButton *gbtn);
 DLLIMPORT void _DK_frontend_main_menu_highscores_maintain(struct GuiButton *gbtn);
+DLLIMPORT void _DK_do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
+DLLIMPORT void _DK_do_button_release_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -909,12 +911,12 @@ void frontend_main_menu_load_game_maintain(struct GuiButton *gbtn)
 
 void frontend_main_menu_netservice_maintain(struct GuiButton *gbtn)
 {
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, true);
+    gbtn->flags |= LbBtnF_Unknown08;
 }
 
 void frontend_main_menu_highscores_maintain(struct GuiButton *gbtn)
 {
-    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, true);
+    gbtn->flags |= LbBtnF_Unknown08;
 }
 
 TbBool frontend_should_all_players_quit(void)
@@ -1188,8 +1190,9 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
 void gui_area_text(struct GuiButton *gbtn)
 {
     //_DK_gui_area_text(gbtn);
-    if ((gbtn->flags & 0x08) == 0)
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
         return;
+    }
     switch (gbtn->field_29)
     {
     case 1:
@@ -1258,7 +1261,7 @@ void frontend_draw_text(struct GuiButton *gbtn)
   i = (long)gbtn->content;
   lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
   febtn_data = &frontend_button_info[i%FRONTEND_BUTTON_INFO_COUNT];
-  if ((gbtn->flags & 0x08) == 0)
+  if ((gbtn->flags & LbBtnF_Unknown08) == 0)
     LbTextSetFont(frontend_font[3]);
   else
   if ((i != 0) && (frontend_mouse_over_button == i))
@@ -1390,7 +1393,7 @@ void gui_area_scroll_window(struct GuiButton *gbtn)
   struct TextScrollWindow *scrollwnd;
   char *text;
   //_DK_gui_area_scroll_window(gbtn); return;
-  if ((gbtn->flags & 0x08) == 0) {
+  if ((gbtn->flags & LbBtnF_Unknown08) == 0) {
       return;
   }
   scrollwnd = (struct TextScrollWindow *)gbtn->content;
@@ -1569,7 +1572,85 @@ void frontend_load_continue_game(struct GuiButton *gbtn)
 void frontend_load_game_maintain(struct GuiButton *gbtn)
 {
   long game_index=load_game_scroll_offset+(long)(gbtn->content)-45;
-  set_flag_byte(&gbtn->flags, 0x08, (game_index < number_of_saved_games));
+  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (game_index < number_of_saved_games));
+}
+
+void clear_radio_buttons(struct GuiMenu *gmnu)
+{
+    struct GuiButton *gbtn;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+        gbtn = &active_buttons[i];
+        if (gbtn->gbtype == Lb_RADIOBTN)
+        {
+            if (gmnu->number == gbtn->gmenu_idx)
+                gbtn->field_1 = 0;
+        }
+    }
+}
+
+void update_radio_button_data(struct GuiMenu *gmnu)
+{
+    struct GuiButton *gbtn;
+    unsigned char *rbstate;
+    int i;
+    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    {
+        gbtn = &active_buttons[i];
+        rbstate = (unsigned char *)gbtn->content;
+        if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->number))
+        {
+          if (gbtn->gbtype == Lb_RADIOBTN)
+          {
+              if (gbtn->field_1)
+                *rbstate = 1;
+              else
+                *rbstate = 0;
+          }
+        }
+    }
+}
+
+void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
+{
+    SYNCDBG(9,"Starting for button type %d",(int)gbtn->gbtype);
+    //_DK_do_button_click_actions(gbtn, s, callback);
+    if (gbtn->gbtype == Lb_RADIOBTN)
+    {
+        //TODO: pointers comparison should be avoided
+        if (s == &gbtn->field_2)
+            return;
+    }
+    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+    {
+        switch (gbtn->gbtype)
+        {
+        case Lb_UNKNBTN0:
+        case Lb_CYCLEBTN:
+        case Lb_EDITBTN:
+        case Lb_UNKNBTN6:
+            *s = 1;
+            break;
+        case Lb_RADIOBTN:
+            if ((gbtn->content != NULL) && (!*s))
+            {
+                unsigned char *rbstate;
+                rbstate = (unsigned char *)gbtn->content;
+                do_sound_button_click(gbtn);
+                struct GuiMenu *amnu;
+                amnu = get_active_menu(gbtn->gmenu_idx);
+                clear_radio_buttons(amnu);
+                *rbstate = 1;
+                *s = 1;
+                update_radio_button_data(amnu);
+            }
+            if (callback != NULL) {
+                callback(gbtn);
+            }
+            break;
+        }
+    }
 }
 
 void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Callback callback)
@@ -1579,12 +1660,12 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
   struct GuiMenu *gmnu;
   switch ( gbtn->gbtype )
   {
-  case 0:
-  case 1:
-      if ((*s!=0) && (callback!=NULL))
+  case Lb_UNKNBTN0:
+  case Lb_UNKNBTN1:
+      if ((*s != 0) && (callback != NULL))
       {
-        do_sound_button_click(gbtn);
-        callback(gbtn);
+          do_sound_button_click(gbtn);
+          callback(gbtn);
       }
       *s = 0;
       break;
@@ -1594,7 +1675,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       if (gbtn->field_2D < i)
           i = 0;
       *(unsigned char *)gbtn->content = i;
-      if ((*s!=0) && (callback!=NULL))
+      if ((*s != 0) && (callback != NULL))
       {
           do_sound_button_click(gbtn);
           callback(gbtn);
@@ -1602,7 +1683,8 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       *s = 0;
       break;
   case Lb_RADIOBTN:
-      if ( (char *)gbtn - (char *)s == -2 )
+      //TODO: pointers comparison should be avoided
+      if (s == &gbtn->field_2)
         return;
       break;
   case Lb_EDITBTN:
@@ -1613,12 +1695,12 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       break;
   }
 
-  if ((char *)gbtn - (char *)s == -1)
+  if (s == &gbtn->field_1)
   {
     gmnu = get_active_menu(gbtn->gmenu_idx);
     if (gbtn->field_2F != NULL)
       create_menu(gbtn->field_2F);
-    if ((gbtn->flags & 0x02) && (gbtn->gbtype != 5))
+    if ((gbtn->flags & LbBtnF_Unknown02) && (gbtn->gbtype != 5))
     {
       if (callback == NULL)
         do_sound_menu_click();
@@ -1686,28 +1768,6 @@ short is_toggleable_menu(short mnu_idx)
   }
 }
 
-void update_radio_button_data(struct GuiMenu *gmnu)
-{
-  struct GuiButton *gbtn;
-  unsigned char *rbstate;
-  int i;
-  for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
-  {
-    gbtn = &active_buttons[i];
-    rbstate = (unsigned char *)gbtn->content;
-    if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->number))
-    {
-      if (gbtn->gbtype == Lb_RADIOBTN)
-      {
-          if (gbtn->field_1)
-            *rbstate = 1;
-          else
-            *rbstate = 0;
-      }
-    }
-  }
-}
-
 void init_slider_bars(struct GuiMenu *gmnu)
 {
   struct GuiButton *gbtn;
@@ -1758,13 +1818,13 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
         return -1;
     }
     gbtn = &active_buttons[gidx];
-    gbtn->flags |= 0x01;
+    gbtn->flags |= LbBtnF_Unknown01;
     struct GuiMenu *gmnuinit;
     gmnuinit = gmnu->menu_init;
     gbtn->gmenu_idx = gmnu->number;
     gbtn->gbtype = gbinit->field_0;
     gbtn->id_num = gbinit->field_1;
-    gbtn->flags ^= (gbtn->flags ^ 0x02 * (gbinit->field_5 & 0xff)) & 0x02;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown02 * (gbinit->field_5 & 0xff)) & LbBtnF_Unknown02;
     gbtn->click_event = gbinit->click_event;
     gbtn->rclick_event = gbinit->rclick_event;
     gbtn->unkn_event = gbinit->field_F;
@@ -1778,11 +1838,11 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
     gbtn->content = (unsigned long *)gbinit->field_2D.lptr;
     gbtn->field_2D = *(short *)&gbinit->field_31;
     gbtn->maintain_call = gbinit->maintain_call;
-    gbtn->flags |= 0x08;
-    gbtn->flags &= ~0x10;
+    gbtn->flags |= LbBtnF_Unknown08;
+    gbtn->flags &= ~LbBtnF_Unknown10;
     gbtn->field_1 = 0;
-    gbtn->flags |= 0x04;
-    gbtn->flags ^= (gbtn->flags ^ 0x20 * (gbinit->field_5 >> 8)) & 0x20;
+    gbtn->flags |= LbBtnF_Unknown04;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->field_5 >> 8)) & LbBtnF_Unknown20;
     if ((gbinit->scr_pos_x == 999) || (gbinit->pos_x == 999))
     {
         i = gmnu->pos_x + (gmnuinit->width >> 1) - (gbinit->width >> 1);
@@ -2358,7 +2418,7 @@ void frontend_campaign_select_up_maintain(struct GuiButton *gbtn)
 void frontend_campaign_select_down_maintain(struct GuiButton *gbtn)
 {
   if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, 0x08, (select_level_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1));
+    set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (select_level_scroll_offset < campaigns_list.items_num-frontend_select_campaign_items_visible+1));
 }
 
 void frontend_campaign_select_maintain(struct GuiButton *gbtn)
@@ -2369,7 +2429,7 @@ void frontend_campaign_select_maintain(struct GuiButton *gbtn)
     return;
   btn_idx = (long)gbtn->content;
   i = select_level_scroll_offset + btn_idx-45;
-  set_flag_byte(&gbtn->flags, 0x08, (i < campaigns_list.items_num));
+  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (i < campaigns_list.items_num));
 }
 
 void frontend_draw_campaign_select_button(struct GuiButton *gbtn)

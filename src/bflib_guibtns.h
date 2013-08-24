@@ -43,6 +43,8 @@ struct GuiBoxOption;
 
 // Type definitions
 enum TbButtonType {
+    Lb_UNKNBTN0  =  0,
+    Lb_UNKNBTN1  =  1,
     Lb_CYCLEBTN  =  2,
     Lb_RADIOBTN  =  3,
     Lb_SLIDER    =  4,
@@ -215,13 +217,14 @@ extern char *gui_strings_data;
 extern TbCharCount input_field_pos;
 /******************************************************************************/
 // Exported functions
-void do_button_click_actions(struct GuiButton *gbtn, unsigned char *, Gf_Btn_Callback callback);
 void do_sound_menu_click(void);
 void do_sound_button_click(struct GuiButton *gbtn);
 void setup_input_field(struct GuiButton *gbtn, const char * empty_text);
 
 TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos_x, TbScreenPos pos_y);
-
+// Defined in the interface but external
+extern void do_button_click_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
+extern void do_button_release_actions(struct GuiButton *, unsigned char *, Gf_Btn_Callback);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -340,18 +340,18 @@ void maintain_spell(struct GuiButton *gbtn)
   if (!is_power_available(player->id_number,i))
   {
     gbtn->field_1B |= 0x8000u;
-    gbtn->flags &= ~0x08;
+    gbtn->flags &= ~LbBtnF_Unknown08;
   } else
   if (i == 19)
   {
       if (game.field_150356 != 0)
       {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~0x08;
+        gbtn->flags &= ~LbBtnF_Unknown08;
       } else
       {
         gbtn->field_1B = 0;
-        gbtn->flags |= 0x08;
+        gbtn->flags |= LbBtnF_Unknown08;
       }
   } else
   if (i == 9)
@@ -359,16 +359,16 @@ void maintain_spell(struct GuiButton *gbtn)
       if (dungeon->field_88C[0])
       {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~0x08;
+        gbtn->flags &= ~LbBtnF_Unknown08;
       } else
       {
         gbtn->field_1B = 0;
-        gbtn->flags |= 0x08;
+        gbtn->flags |= LbBtnF_Unknown08;
       }
   } else
   {
     gbtn->field_1B = 0;
-    gbtn->flags |= 0x08;
+    gbtn->flags |= LbBtnF_Unknown08;
   }
 }
 
@@ -781,7 +781,7 @@ void maintain_event_button(struct GuiButton *gbtn)
     gbtn->field_29 += 2;
   }
   gbtn->tooltip_id = event_button_info[event->kind].tooltip_stridx;
-  gbtn->flags |= 0x08;
+  gbtn->flags |= LbBtnF_Unknown08;
   gbtn->field_1B = 0;
 }
 
@@ -790,7 +790,7 @@ void gui_toggle_ally(struct GuiButton *gbtn)
     PlayerNumber plyr_idx;
     //_DK_gui_toggle_ally(gbtn);
     plyr_idx = (int)gbtn->content;
-    if ((gbtn->flags & 0x08) != 0) {
+    if ((gbtn->flags & LbBtnF_Unknown08) != 0) {
         struct Packet *pckt;
         pckt = get_packet(my_player_number);
         set_packet_action(pckt, PckA_PlyrToggleAlly, plyr_idx, 0, 0, 0);
@@ -807,11 +807,11 @@ void maintain_ally(struct GuiButton *gbtn)
     if (!is_my_player_number(plyr_idx) && ((player->field_0 & 0x01) != 0))
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= 0x08;
+        gbtn->flags |= LbBtnF_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x8000;
-        gbtn->flags &= ~0x08;
+        gbtn->flags &= ~LbBtnF_Unknown08;
     }
 }
 
@@ -882,9 +882,10 @@ void gui_area_player_room_info(struct GuiButton *gbtn)
 
 void spell_lost_first_person(struct GuiButton *gbtn)
 {
-  struct PlayerInfo *player;
-  player=get_my_player();
-  set_players_packet_action(player, PckA_GoSpectator, 0, 0, 0, 0);
+    struct PlayerInfo *player;
+    SYNCDBG(19,"Starting");
+    player=get_my_player();
+    set_players_packet_action(player, PckA_GoSpectator, 0, 0, 0, 0);
 }
 
 void gui_set_tend_to(struct GuiButton *gbtn)

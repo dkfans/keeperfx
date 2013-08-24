@@ -904,12 +904,12 @@ void frontnet_net_serial_start(struct GuiButton *gbtn)
 
 void frontnet_service_up_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->flags, 0x08, (net_service_scroll_offset != 0));
+  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (net_service_scroll_offset != 0));
 }
 
 void frontnet_service_down_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->flags, 0x08, (net_number_of_services-1 > net_service_scroll_offset));
+  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (net_number_of_services-1 > net_service_scroll_offset));
 }
 
 void frontnet_service_up(struct GuiButton *gbtn)
@@ -926,7 +926,7 @@ void frontnet_service_down(struct GuiButton *gbtn)
 
 void frontnet_service_maintain(struct GuiButton *gbtn)
 {
-  set_flag_byte(&gbtn->flags, 0x08, (net_service_scroll_offset+(long)gbtn->content-45 < net_number_of_services));
+  set_flag_byte(&gbtn->flags, LbBtnF_Unknown08, (net_service_scroll_offset+(long)gbtn->content-45 < net_number_of_services));
 }
 
 void frontnet_draw_service_button(struct GuiButton *gbtn)

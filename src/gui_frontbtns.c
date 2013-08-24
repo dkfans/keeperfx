@@ -76,7 +76,7 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
         if ( ((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
              (gbtn->gbtype != Lb_RADIOBTN) && (gbtn != input_button) )
         {
-          set_flag_byte(&gbtn->flags,LbBtnF_Unknown10,false);
+          gbtn->flags &= ~LbBtnF_Unknown10;
           gbtn->field_1 = 0;
           gbtn->field_2 = 0;
         }
@@ -85,158 +85,170 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
 
 TbBool gui_button_release_inputs(int gmbtn_idx)
 {
-  struct GuiButton *gbtn;
-  SYNCDBG(17,"Starting");
-  if (gmbtn_idx < 0)
+    struct GuiButton *gbtn;
+    SYNCDBG(17,"Starting");
+    if (gmbtn_idx < 0)
+      return false;
+    Gf_Btn_Callback callback;
+    gbtn = &active_buttons[gmbtn_idx%ACTIVE_BUTTONS_COUNT];
+    if ((gbtn->field_1) && (left_button_released))
+    {
+        callback = gbtn->click_event;
+        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
+            (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+        {
+            left_button_released = 0;
+            do_button_release_actions(gbtn, &gbtn->field_1, callback);
+        }
+        return true;
+    }
+    if ((gbtn->field_2) && (right_button_released))
+    {
+        callback = gbtn->rclick_event;
+        if (callback != NULL)
+        {
+          right_button_released = 0;
+          do_button_release_actions(gbtn, &gbtn->field_2, callback);
+        }
+        return true;
+    }
     return false;
-  Gf_Btn_Callback callback;
-  gbtn = &active_buttons[gmbtn_idx%ACTIVE_BUTTONS_COUNT];
-  if ((gbtn->field_1) && (left_button_released))
-  {
-    callback = gbtn->click_event;
-    if ((callback != NULL) || ((gbtn->flags & 0x02) != 0) ||
-        (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
-    {
-      left_button_released = 0;
-      do_button_release_actions(gbtn, &gbtn->field_1, callback);
-    }
-    return true;
-  }
-  if ((gbtn->field_2) && (right_button_released))
-  {
-    callback = gbtn->rclick_event;
-    if (callback != NULL)
-    {
-      right_button_released = 0;
-      do_button_release_actions(gbtn, &gbtn->field_2, callback);
-    }
-    return true;
-  }
-  return false;
 }
 
 TbBool gui_slider_button_inputs(int gbtn_idx)
 {
-  Gf_Btn_Callback callback;
-  int mouse_x;
-  int slide_start,slide_end;
-  struct GuiButton *gbtn;
-  if (gbtn_idx < 0)
-    return false;
-  gbtn = &active_buttons[gbtn_idx];
-  mouse_x = GetMouseX();
-  gbtn->field_1 = 1;
-  slide_start = gbtn->pos_x+32;
-  slide_end = gbtn->pos_x+gbtn->width-32;
-  if (mouse_x < slide_start)
-  {
-    gbtn->slide_val = 0;
-  } else
-  if (mouse_x >= slide_end)
-  {
-    gbtn->slide_val = 255;
-  } else
-  if (gbtn->width > 64)
-  {
-    gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64);
-  } else
-  {
-    gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
-  }
-  *gbtn->content = (gbtn->slide_val) * (((long)gbtn->field_2D)+1) >> 8;
-  callback = gbtn->click_event;
-  if (callback != NULL)
-    callback(gbtn);
-  return true;
+    Gf_Btn_Callback callback;
+    int mouse_x;
+    int slide_start,slide_end;
+    struct GuiButton *gbtn;
+    if (gbtn_idx < 0)
+      return false;
+    gbtn = &active_buttons[gbtn_idx];
+    mouse_x = GetMouseX();
+    gbtn->field_1 = 1;
+    slide_start = gbtn->pos_x+32;
+    slide_end = gbtn->pos_x+gbtn->width-32;
+    if (mouse_x < slide_start)
+    {
+      gbtn->slide_val = 0;
+    } else
+    if (mouse_x >= slide_end)
+    {
+      gbtn->slide_val = 255;
+    } else
+    if (gbtn->width > 64)
+    {
+      gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64);
+    } else
+    {
+      gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
+    }
+    *gbtn->content = (gbtn->slide_val) * (((long)gbtn->field_2D)+1) >> 8;
+    callback = gbtn->click_event;
+    if (callback != NULL)
+      callback(gbtn);
+    return true;
 }
 
 TbBool gui_button_click_inputs(int gmbtn_idx)
 {
-  TbBool result;
-  struct GuiButton *gbtn;
-  if (gmbtn_idx < 0)
-    return false;
-  result = false;
-  gbtn = &active_buttons[gmbtn_idx];
-  Gf_Btn_Callback callback;
-  if (lbDisplay.MLeftButton)
-  {
-      result = true;
-      callback = gbtn->click_event;
-      if ((callback != NULL) || (((gbtn->flags & 2)!=0) ||
-         (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN)))
-        if ((gbtn->flags & 0x08) != 0)
+    TbBool result;
+    struct GuiButton *gbtn;
+    if (gmbtn_idx < 0)
+      return false;
+    result = false;
+    gbtn = &active_buttons[gmbtn_idx];
+    Gf_Btn_Callback callback;
+    if (lbDisplay.MLeftButton)
+    {
+        SYNCDBG(8,"Left down for button %d",(int)gmbtn_idx);
+        result = true;
+        callback = gbtn->click_event;
+        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
+           (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
         {
-          switch (gbtn->gbtype)
-          {
-          case 1:
-            if ((gbtn->field_1 > 5) && (callback != NULL))
-              callback(gbtn);
-            else
-              gbtn->field_1++;
-            break;
-          case 6:
-            if (callback != NULL)
-              callback(gbtn);
-            break;
-          }
+            if ((gbtn->flags & LbBtnF_Unknown08) != 0)
+            {
+                SYNCDBG(18,"Left down action for type %d",(int)gbtn->gbtype);
+                switch (gbtn->gbtype)
+                {
+                case Lb_UNKNBTN1:
+                  if ((gbtn->field_1 > 5) && (callback != NULL)) {
+                      callback(gbtn);
+                  } else {
+                      gbtn->field_1++;
+                  }
+                  break;
+                case Lb_UNKNBTN6:
+                  if (callback != NULL) {
+                      callback(gbtn);
+                  }
+                  break;
+                }
+            }
         }
-  } else
-  if (lbDisplay.MRightButton)
-  {
-      result = true;
-      callback = gbtn->rclick_event;
-      if ((callback != NULL) && ((gbtn->flags & 8)!=0))
-      {
-        switch (gbtn->gbtype)
+    } else
+    if (lbDisplay.MRightButton)
+    {
+        SYNCDBG(8,"Right down for button %d",(int)gmbtn_idx);
+        result = true;
+        callback = gbtn->rclick_event;
+        if ((callback != NULL) && ((gbtn->flags & LbBtnF_Unknown08) != 0))
         {
-        case 1:
-          if ( (gbtn->field_2>5) && (callback!=NULL) )
-            callback(gbtn);
-          else
-            gbtn->field_2++;
-          break;
-        case 6:
-          if (callback!=NULL)
-            callback(gbtn);
-          break;
+            SYNCDBG(18,"Right down action for type %d",(int)gbtn->gbtype);
+            switch (gbtn->gbtype)
+            {
+            case Lb_UNKNBTN1:
+              if ((gbtn->field_2 > 5) && (callback != NULL)) {
+                  callback(gbtn);
+              } else {
+                  gbtn->field_2++;
+              }
+              break;
+            case Lb_UNKNBTN6:
+              if (callback != NULL) {
+                  callback(gbtn);
+              }
+              break;
+            }
         }
-      }
-  }
-  if ( left_button_clicked )
-  {
-      result = true;
-      if (game.flash_button_index != 0)
-      {
-        if (gbtn->id_num == game.flash_button_index)
-          game.flash_button_index = 0;
-      }
-      callback = gbtn->click_event;
-      if ((callback != NULL) || (gbtn->flags & 0x02) ||
-         (gbtn->field_2F) || (gbtn->gbtype == Lb_RADIOBTN))
-      {
-        left_button_clicked = 0;
-        gui_last_left_button_pressed_id = gbtn->id_num;
-        do_button_click_actions(gbtn, &gbtn->field_1, callback);
-      }
-  } else
-  if ( right_button_clicked )
-  {
-      result = true;
-      if (game.flash_button_index != 0)
-      {
-        if (gbtn->id_num == game.flash_button_index)
-          game.flash_button_index = 0;
-      }
-      callback = gbtn->rclick_event;
-      if ((callback != NULL))
-      {
-        right_button_clicked = 0;
-        gui_last_right_button_pressed_id = gbtn->id_num;
-        do_button_click_actions(gbtn, &gbtn->field_2, callback);
-      }
-  }
-  return result;
+    }
+    if ( left_button_clicked )
+    {
+        SYNCDBG(8,"Left click for button %d",(int)gmbtn_idx);
+        result = true;
+        if (game.flash_button_index != 0)
+        {
+          if (gbtn->id_num == game.flash_button_index)
+            game.flash_button_index = 0;
+        }
+        callback = gbtn->click_event;
+        if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
+           (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+        {
+          left_button_clicked = 0;
+          gui_last_left_button_pressed_id = gbtn->id_num;
+          do_button_click_actions(gbtn, &gbtn->field_1, callback);
+        }
+    } else
+    if ( right_button_clicked )
+    {
+        SYNCDBG(8,"Right click for button %d",(int)gmbtn_idx);
+        result = true;
+        if (game.flash_button_index != 0)
+        {
+          if (gbtn->id_num == game.flash_button_index)
+            game.flash_button_index = 0;
+        }
+        callback = gbtn->rclick_event;
+        if ((callback != NULL))
+        {
+          right_button_clicked = 0;
+          gui_last_right_button_pressed_id = gbtn->id_num;
+          do_button_click_actions(gbtn, &gbtn->field_2, callback);
+        }
+    }
+    return result;
 }
 
 /**
@@ -250,7 +262,7 @@ int guibutton_get_unused_slot(void)
     for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->flags & 0x01) == 0) {
+        if ((gbtn->flags & LbBtnF_Unknown01) == 0) {
             return i;
         }
     }
@@ -260,7 +272,7 @@ int guibutton_get_unused_slot(void)
 void kill_button(struct GuiButton *gbtn)
 {
   if (gbtn != NULL)
-    set_flag_byte(&gbtn->flags, 0x01, false);
+    set_flag_byte(&gbtn->flags, LbBtnF_Unknown01, false);
 }
 
 void kill_button_area_input(void)
@@ -364,7 +376,7 @@ void gui_area_normal_button(struct GuiButton *gbtn)
       ERRORLOG("Cycle button cannot have a normal button draw function!");
     pos_x = gbtn->scr_pos_x / (long)pixel_size;
     pos_y = gbtn->scr_pos_y / (long)pixel_size;
-    if ((gbtn->flags & 0x08) != 0)
+    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         if ( (gbtn->field_1 != 0) || (gbtn->field_2 != 0) )
             spr_idx++;
@@ -388,7 +400,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     int h;
     SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
     fbinfo_idx = (unsigned int)gbtn->content;
-    if ((gbtn->flags & 0x08) == 0)
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
     {
         fntidx = 3;
         spridx = 14;
@@ -583,7 +595,7 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
 {
     long spr_idx,btn_id;
     //_DK_frontnet_draw_slider_button(gbtn);
-    if ((gbtn->flags & 0x08) != 0)
+    if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
         btn_id = (long)gbtn->content;
         if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
@@ -613,7 +625,7 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
 
 void gui_area_null(struct GuiButton *gbtn)
 {
-  if ((gbtn->flags & 0x08) != 0)
+  if ((gbtn->flags & LbBtnF_Unknown08) != 0)
   {
     LbSpriteDraw(gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
       &button_sprite[gbtn->field_29]);
