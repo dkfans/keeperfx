@@ -87,6 +87,7 @@ DLLIMPORT void _DK_get_creature_control_nonaction_inputs(void);
 DLLIMPORT void _DK_get_map_nonaction_inputs(void);
 DLLIMPORT long _DK_get_bookmark_inputs(void);
 DLLIMPORT int _DK_get_gui_inputs(int);
+DLLIMPORT void _DK_get_level_lost_inputs(void);
 /******************************************************************************/
 void get_dungeon_control_nonaction_inputs(void);
 void get_creature_control_nonaction_inputs(void);
@@ -206,7 +207,7 @@ short get_screen_capture_inputs(void)
  */
 TbBool check_if_mouse_is_over_button(const struct GuiButton *gbtn)
 {
-    if ((gbtn->flags & 0x04) == 0)
+    if ((gbtn->flags & LbBtnF_Unknown04) == 0)
         return false;
     return check_if_pos_is_over_button(gbtn, GetMouseX(), GetMouseY());
 }
@@ -509,165 +510,166 @@ short get_global_inputs(void)
 
 TbBool get_level_lost_inputs(void)
 {
-  struct PlayerInfo *player;
-  long keycode;
-  SYNCDBG(6,"Starting");
-  player = get_my_player();
-  if ((player->field_0 & 0x04) != 0)
-  {
-    get_players_message_inputs();
-    return true;
-  }
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-  {
-    if (is_key_pressed(KC_RETURN,KMod_NONE))
+    struct PlayerInfo *player;
+    long keycode;
+    SYNCDBG(6,"Starting");
+    //_DK_get_level_lost_inputs(); return 0;
+    player = get_my_player();
+    if ((player->field_0 & 0x04) != 0)
     {
-      set_players_packet_action(player, PckA_PlyrMsgBegin, 0,0,0,0);
-      clear_key_pressed(KC_RETURN);
+      get_players_message_inputs();
       return true;
     }
-  }
-  if (get_speed_control_inputs())
-      return true;
-  if (get_minimap_control_inputs())
-      return true;
-  if (get_screen_control_inputs())
-      return true;
-  if (get_screen_capture_inputs())
-      return true;
-  if (is_key_pressed(KC_SPACE,KMod_NONE))
-  {
-    set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
-    clear_key_pressed(KC_SPACE);
-  }
-  if (player->view_type == PVT_MapScreen)
-  {
-    int screen_x = GetMouseX() - 150;
-    int screen_y = GetMouseY() - 56;
-    if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
+    if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-      lbKeyOn[keycode] = 0;
-      zoom_from_map();
-    } else
-    if ( right_button_released )
-    {
-      right_button_released = 0;
-      zoom_from_map();
-    } else
-    if ( left_button_released )
-    {
-        int actn_x = 3*screen_x/4 + 1;
-        int actn_y = 3*screen_y/4 + 1;
-        if  ((actn_x >= 0) && (actn_x < map_subtiles_x) && (actn_y >= 0) && (actn_y < map_subtiles_y))
-        {
-          set_players_packet_action(player, PckA_Unknown081, actn_x,actn_y,0,0);
-          left_button_released = 0;
-        }
-    }
-  } else
-  if (player->view_type == PVT_DungeonTop)
-  {
-    if (is_key_pressed(KC_TAB,KMod_DONTCARE))
-    {
-        if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
-        {
-          clear_key_pressed(KC_TAB);
-          toggle_gui();
-        }
-    } else
-    if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
-    {
-      lbKeyOn[keycode] = 0;
-      if (player->view_mode != PVM_ParchFadeOut)
+      if (is_key_pressed(KC_RETURN,KMod_NONE))
       {
+        set_players_packet_action(player, PckA_PlyrMsgBegin, 0,0,0,0);
+        clear_key_pressed(KC_RETURN);
+        return true;
+      }
+    }
+    if (get_speed_control_inputs())
+        return true;
+    if (get_minimap_control_inputs())
+        return true;
+    if (get_screen_control_inputs())
+        return true;
+    if (get_screen_capture_inputs())
+        return true;
+    if (is_key_pressed(KC_SPACE,KMod_NONE))
+    {
+        set_players_packet_action(player, PckA_FinishGame, 0,0,0,0);
+        clear_key_pressed(KC_SPACE);
+    }
+    if (player->view_type == PVT_MapScreen)
+    {
+      int screen_x = GetMouseX() - 150;
+      int screen_y = GetMouseY() - 56;
+      if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
+      {
+          lbKeyOn[keycode] = 0;
+          zoom_from_map();
+      } else
+      if ( right_button_released )
+      {
+          right_button_released = 0;
+          zoom_from_map();
+      } else
+      if ( left_button_released )
+      {
+          int actn_x = 3*screen_x/4 + 1;
+          int actn_y = 3*screen_y/4 + 1;
+          if  ((actn_x >= 0) && (actn_x < map_subtiles_x) && (actn_y >= 0) && (actn_y < map_subtiles_y))
+          {
+            set_players_packet_action(player, PckA_Unknown081, actn_x,actn_y,0,0);
+            left_button_released = 0;
+          }
+      }
+    } else
+    if (player->view_type == PVT_DungeonTop)
+    {
+      if (is_key_pressed(KC_TAB,KMod_DONTCARE))
+      {
+          if ((player->view_mode == PVM_IsometricView) || (player->view_mode == PVM_FrontView))
+          {
+            clear_key_pressed(KC_TAB);
+            toggle_gui();
+          }
+      } else
+      if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
+      {
+        lbKeyOn[keycode] = 0;
+        if (player->view_mode != PVM_ParchFadeOut)
+        {
+          turn_off_all_window_menus();
+          set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
+          if (((game.system_flags & GSF_NetworkActive) != 0)
+            || (lbDisplay.PhysicalScreenWidth > 320))
+          {
+                if (toggle_status_menu(0))
+                  set_flag_byte(&game.numfield_C,0x40,true);
+                else
+                  set_flag_byte(&game.numfield_C,0x40,false);
+                set_players_packet_action(player, PckA_Unknown119, 4,0,0,0);
+          } else
+          {
+                set_players_packet_action(player, PckA_Unknown080, 5,0,0,0);
+          }
+          turn_off_roaming_menus();
+        }
+      }
+    }
+    if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE))
+    {
+      clear_key_pressed(KC_ESCAPE);
+      if ( a_menu_window_is_active() )
         turn_off_all_window_menus();
-        set_flag_byte(&game.numfield_C, 0x40, (game.numfield_C & 0x20) != 0);
-        if (((game.system_flags & GSF_NetworkActive) != 0)
-          || (lbDisplay.PhysicalScreenWidth > 320))
-        {
-              if (toggle_status_menu(0))
-                set_flag_byte(&game.numfield_C,0x40,true);
-              else
-                set_flag_byte(&game.numfield_C,0x40,false);
-              set_players_packet_action(player, PckA_Unknown119, 4,0,0,0);
-        } else
-        {
-              set_players_packet_action(player, PckA_Unknown080, 5,0,0,0);
-        }
-        turn_off_roaming_menus();
-      }
+      else
+        turn_on_menu(GMnu_OPTIONS);
     }
-  }
-  if (is_key_pressed(KC_ESCAPE,KMod_DONTCARE))
-  {
-    clear_key_pressed(KC_ESCAPE);
-    if ( a_menu_window_is_active() )
-      turn_off_all_window_menus();
-    else
-      turn_on_menu(GMnu_OPTIONS);
-  }
-  struct Thing *thing;
-  TbBool inp_done=false;
-  switch (player->view_type)
-  {
-    case PVT_DungeonTop:
-      inp_done = menu_is_active(GMnu_SPELL_LOST);
-      if ( !inp_done )
-      {
-        if ((game.numfield_C & 0x20) != 0)
+    struct Thing *thing;
+    TbBool inp_done=false;
+    switch (player->view_type)
+    {
+      case PVT_DungeonTop:
+        inp_done = menu_is_active(GMnu_SPELL_LOST);
+        if ( !inp_done )
         {
-          initialise_tab_tags_and_menu(3);
-          turn_off_all_panel_menus();
-          turn_on_menu(GMnu_SPELL_LOST);
+          if ((game.numfield_C & 0x20) != 0)
+          {
+            initialise_tab_tags_and_menu(3);
+            turn_off_all_panel_menus();
+            turn_on_menu(GMnu_SPELL_LOST);
+          }
         }
-      }
-      inp_done = get_gui_inputs(GMnu_MAIN);
-      if ( !inp_done )
-      {
-        if (player->work_state == PSt_Unknown15)
+        inp_done = get_gui_inputs(GMnu_MAIN);
+        if ( !inp_done )
         {
-          set_player_instance(player, PI_UnqueryCrtr, 0);
+          if (player->work_state == PSt_Unknown15)
+          {
+            set_player_instance(player, PI_UnqueryCrtr, 0);
+          } else
+          {
+            inp_done=get_small_map_inputs(player->mouse_x, player->mouse_y, player->minimap_zoom / (3-pixel_size));
+            if ( !inp_done )
+              get_bookmark_inputs();
+            get_dungeon_control_nonaction_inputs();
+          }
+        }
+        break;
+      case PVT_CreatureContrl:
+        thing = thing_get(player->controlled_thing_idx);
+        TRACE_THING(thing);
+        if (thing->class_id == TCls_Creature)
+        {
+          struct CreatureControl *cctrl;
+          cctrl = creature_control_get_from_thing(thing);
+          if ((cctrl->field_2 & 0x02) == 0)
+          {
+            set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
+            inp_done = true;
+          }
         } else
-        {
-          inp_done=get_small_map_inputs(player->mouse_x, player->mouse_y, player->minimap_zoom / (3-pixel_size));
-          if ( !inp_done )
-            get_bookmark_inputs();
-          get_dungeon_control_nonaction_inputs();
-        }
-      }
-      break;
-    case PVT_CreatureContrl:
-      thing = thing_get(player->controlled_thing_idx);
-      TRACE_THING(thing);
-      if (thing->class_id == TCls_Creature)
-      {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->field_2 & 0x02) == 0)
         {
           set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
           inp_done = true;
         }
-      } else
-      {
-        set_players_packet_action(player, PckA_Unknown033, player->controlled_thing_idx,0,0,0);
-        inp_done = true;
-      }
-      break;
-    case PVT_CreaturePasngr:
-      set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
-      break;
-    case PVT_MapScreen:
-      if ( menu_is_active(GMnu_SPELL_LOST) )
-      {
-        if ((game.numfield_C & 0x20) != 0)
-          turn_off_menu(GMnu_SPELL_LOST);
-      }
-      break;
-    default:
         break;
-  }
-  return inp_done;
+      case PVT_CreaturePasngr:
+        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        break;
+      case PVT_MapScreen:
+        if ( menu_is_active(GMnu_SPELL_LOST) )
+        {
+          if ((game.numfield_C & 0x20) != 0)
+            turn_off_menu(GMnu_SPELL_LOST);
+        }
+        break;
+      default:
+          break;
+    }
+    return inp_done;
 }
 
 short get_status_panel_keyboard_action_inputs(void)
@@ -1622,8 +1624,8 @@ short get_inputs(void)
     {
         if (player->field_2C != 1)
         {
-          get_level_lost_inputs();
-          return true;
+            get_level_lost_inputs();
+            return true;
         }
         struct Thing *thing;
         struct CreatureControl *cctrl;
@@ -1631,14 +1633,14 @@ short get_inputs(void)
         TRACE_THING(thing);
         if (!thing_is_creature(thing))
         {
-          get_level_lost_inputs();
-          return true;
+            get_level_lost_inputs();
+            return true;
         }
         cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->field_2 & 0x02) == 0)
         {
-          get_level_lost_inputs();
-          return true;
+            get_level_lost_inputs();
+            return true;
         }
     }
     TbBool inp_handled = false;
@@ -1764,7 +1766,7 @@ short get_gui_inputs(short gameplay_on)
     for (idx=0; idx < ACTIVE_BUTTONS_COUNT; idx++)
     {
       struct GuiButton *gbtn = &active_buttons[idx];
-      if ((gbtn->flags & 0x01) && (gbtn->gbtype == Lb_UNKNBTN6))
+      if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == Lb_UNKNBTN6))
           gbtn->field_1 = 0;
     }
   }
@@ -1782,7 +1784,7 @@ short get_gui_inputs(short gameplay_on)
   for (gidx=0; gidx<ACTIVE_BUTTONS_COUNT; gidx++)
   {
       gbtn = &active_buttons[gidx];
-      if ((gbtn->flags & 0x01) == 0)
+      if ((gbtn->flags & LbBtnF_Unknown01) == 0)
           continue;
       if (!get_active_menu(gbtn->gmenu_idx)->flgfield_1D)
           continue;
@@ -1798,7 +1800,7 @@ short get_gui_inputs(short gameplay_on)
           if ((fmmenu_idx==-1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
             gmbtn_idx = gidx;
-            set_flag_byte(&gbtn->flags,0x10,true);
+            gbtn->flags |= LbBtnF_Unknown10;
             busy_doing_gui = 1;
             callback = gbtn->unkn_event;
             if (callback != NULL)
@@ -1809,11 +1811,11 @@ short get_gui_inputs(short gameplay_on)
               over_slider_button = -1;
           } else
           {
-            set_flag_byte(&gbtn->flags,0x10,false);
+            gbtn->flags &= ~LbBtnF_Unknown10;
           }
       } else
       {
-          set_flag_byte(&gbtn->flags,0x10,false);
+          gbtn->flags &= ~LbBtnF_Unknown10;
       }
       if (gbtn->gbtype == Lb_SLIDER)
       {
