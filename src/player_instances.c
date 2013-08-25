@@ -422,7 +422,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     if (cam == NULL)
         return 0;
     thing = thing_get(player->influenced_thing_idx);
-    if (thing_is_invalid(thing) || (thing->class_id == TCls_DeadCreature) || (thing->health < 0))
+    if (thing_is_invalid(thing) || (thing->class_id == TCls_DeadCreature) || creature_is_dying(thing))
     {
         set_camera_zoom(cam, player->dungeon_camera_zoom);
         if (is_my_player(player))

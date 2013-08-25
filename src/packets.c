@@ -1135,7 +1135,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             set_player_instance(player, PI_UnqueryCrtr, 0);
             unset_packet_control(pckt, PCtr_RBtnRelease);
           } else
-          if (thing->health < 0)
+          if (creature_is_dying(thing))
           {
             set_player_instance(player, PI_UnqueryCrtr, 0);
             if (is_my_player(player))
@@ -2312,7 +2312,7 @@ void process_players_creature_control_packet_control(long idx)
     if (cctng->class_id != TCls_Creature)
         return;
     ccctrl = creature_control_get_from_thing(cctng);
-    if (cctng->health < 0)
+    if (creature_is_dying(cctng))
         return;
     if ((ccctrl->affected_by_spells != 0) || (cctng->active_state == CrSt_CreatureUnconscious))
         return;

@@ -1642,17 +1642,17 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     i = ctask->field_7C;
     ctask->field_7C--;
-    if ((i <= 0) || (thing->health <= 0))
+    if ((i <= 0) || creature_is_dying(thing) || creature_is_being_unconscious(thing))
     {
         remove_task(comp, ctask);
         return CTaskRet_Unk1;
     }
     if (computer_able_to_use_magic(comp, ctask->long_86, ctask->field_70, 1) != 1)
-      return CTaskRet_Unk4;
+        return CTaskRet_Unk4;
     i = try_game_action(comp, dungeon->owner, ctask->field_80, ctask->field_70,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->word_76, 0);
     if (i <= 0)
-      return CTaskRet_Unk4;
+        return CTaskRet_Unk4;
     return CTaskRet_Unk2;
 }
 

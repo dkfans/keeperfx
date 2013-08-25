@@ -228,17 +228,18 @@ TbBool prison_convert_creature_to_skeleton(struct Room *room, struct Thing *thin
 
 TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
 {
-  struct CreatureStats *crstat;
-  crstat = creature_stats_get_from_thing(thing);
-  if ( (thing->health >= 0) || (!crstat->humanoid_creature) )
-    return false;
-  //TODO [config] Allow skeletification only if spent specific amount of turns in prison (set low value)
-  if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
-    return false;
-  if (is_my_player_number(room->owner))
-    output_message(SMsg_PrisonMadeSkeleton, 0, true);
-  prison_convert_creature_to_skeleton(room,thing);
-  return true;
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    if ((thing->health >= 0) || (!crstat->humanoid_creature)) {
+        return false;
+    }
+    //TODO [config] Allow skeletification only if spent specific amount of turns in prison (set low value)
+    if (ACTION_RANDOM(101) > game.prison_skeleton_chance)
+      return false;
+    if (is_my_player_number(room->owner))
+      output_message(SMsg_PrisonMadeSkeleton, 0, true);
+    prison_convert_creature_to_skeleton(room,thing);
+    return true;
 }
 
 long process_prison_food(struct Thing *thing, struct Room *room)
