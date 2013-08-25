@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 
+#include "magic.h"
 #include "power_specials.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -86,43 +87,33 @@ struct Thing *create_gold_for_hand_grab(struct Thing *thing, long a2)
 unsigned long object_is_pickable_by_hand(const struct Thing *thing, long plyr_idx)
 {
     struct SlabMap *slb;
-    struct Room *room;
     //return _DK_object_is_pickable_by_hand(thing, plyr_idx);
-    switch (thing->model)
+    if (object_is_gold(thing))
     {
-      case 3:
-      case 6:
-      case 43:
-          slb = get_slabmap_thing_is_on(thing);
-          if ((slabmap_owner(slb) != plyr_idx) && (slabmap_owner(slb) != game.neutral_player_num))
-            goto LABEL_11;
-          return true;
-      case 10:
-          return (thing->owner == plyr_idx);
-      case 86:
-      case 87:
-      case 88:
-      case 89:
-      case 90:
-      case 91:
-      case 92:
-      case 93:
-          slb = get_slabmap_thing_is_on(thing);
-        if ((slabmap_owner(slb) != plyr_idx) || ((thing->field_1 & 1)) || ((thing->alloc_flags & 0x80)))
-            return false;
-        return true;
-      case 52:
-      case 53:
-      case 54:
-      case 55:
-      case 56:
-  LABEL_11:
+        if (object_is_gold_pile(thing)) {
+            slb = get_slabmap_thing_is_on(thing);
+            if ((slabmap_owner(slb) == plyr_idx) || (slabmap_owner(slb) == game.neutral_player_num))
+                return true;
+        }
         slb = get_slabmap_thing_is_on(thing);
         if ((slabmap_owner(slb) == plyr_idx) && (thing->owner == plyr_idx)) {
+            struct Room *room;
             room = get_room_thing_is_on(thing);
-            return (room != 0) && room->kind == 2;
+            if (room_exists(room) && (room->kind == RoK_TREASURE))
+                return true;
         }
-        break;
+        return false;
+    }
+    if (object_is_mature_food(thing))
+    {
+        return (thing->owner == plyr_idx);
+    }
+    if (thing_is_special_box(thing))
+    {
+        slb = get_slabmap_thing_is_on(thing);
+        if ((slabmap_owner(slb) != plyr_idx) || ((thing->field_1 & 0x01)) || ((thing->alloc_flags & 0x80)))
+            return false;
+        return true;
     }
     return false;
 }
@@ -173,15 +164,20 @@ TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber
     return false;
 }
 
+/**
+ * Returns whether creature can be picked by Power Hand.
+ * @deprecated use can_cast_spell_on_thing() instead
+ * @param thing
+ * @param plyr_idx
+ * @return
+ */
 TbBool creature_is_pickable_by_hand(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     if (armageddon_blocks_creature_pickup(thing, plyr_idx))
         return false;
-    if ((thing->active_state == CrSt_CreatureUnconscious) || thing_is_picked_up(thing))
+    if (creature_is_being_unconscious(thing) || creature_is_dying(thing))
         return false;
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    if ((thing->health <= 0) || (cctrl->dragtng_idx != 0))
+    if (thing_is_picked_up(thing) || creature_is_dragging_something(thing))
         return false;
     if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
         return false;
@@ -206,7 +202,8 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     //return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
     if (thing_is_creature(thing))
     {
-        return creature_is_pickable_by_hand(thing, plyr_idx);
+        //return creature_is_pickable_by_hand(thing, plyr_idx);
+        return can_cast_spell_on_thing(plyr_idx, thing, PwrK_HAND);
     }
     if (thing_is_object(thing))
     {
