@@ -231,29 +231,27 @@ TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         }
         if ((pwrdata->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
-            if ((thing->active_state == CrSt_CreatureUnconscious) || (thing->health <= 0)) {
-                SYNCDBG(8,"Cannot cast on unconscious");
+            if (creature_is_being_unconscious(thing) || creature_is_dying(thing)) {
+                SYNCDBG(8,"Cannot cast on unconscious %s",thing_model_name(thing));
                 return false;
             }
         }
         if ((pwrdata->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
             if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
-                SYNCDBG(8,"Cannot cast while armageddon");
+                SYNCDBG(8,"Cannot cast while armageddon blocks %s",thing_model_name(thing));
                 return false;
             }
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(thing);
-            if (cctrl->dragtng_idx != 0) {
-                SYNCDBG(8,"Cannot cast while dragging");
+            if (creature_is_dragging_something(thing)) {
+                SYNCDBG(8,"Cannot cast while %s is dragging something",thing_model_name(thing));
                 return false;
             }
             if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
-                SYNCDBG(8,"Cannot cast on in/out");
+                SYNCDBG(8,"Cannot cast on %s while entering/leaving",thing_model_name(thing));
                 return false;
             }
             if (creature_affected_by_spell(thing, SplK_Teleport)) {
-                SYNCDBG(8,"Cannot cast on teleport");
+                SYNCDBG(8,"Cannot cast on %s while teleporting",thing_model_name(thing));
                 return false;
             }
         }
@@ -726,10 +724,12 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
         return Lb_FAIL;
     }
     if (get_creature_health_permil(thing) >= 1000) {
+        SYNCDBG(7,"Full health, can't heal %s.",thing_model_name(thing));
         return Lb_OK;
     }
     // If we can't afford the spell, fail
     if (!pay_for_spell(plyr_idx, PwrK_HEALCRTR, splevel)) {
+        ERRORLOG("No gold to heal %s.",thing_model_name(thing));
         return Lb_FAIL;
     }
     // Apply spell effect

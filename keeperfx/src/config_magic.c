@@ -89,7 +89,7 @@ const struct NamedCommand powermodel_castability_commands[] = {
   {"OWNED_CRTRS",      PwCast_OwnedCrtrs},
   {"ALLIED_CRTRS",     PwCast_AlliedCrtrs},
   {"ENEMY_CRTRS",      PwCast_EnemyCrtrs},
-  {"NOT_CONSC_CRTRS",  PwCast_NConscCrtrs},
+  {"UNCONSC_CRTRS",    PwCast_NConscCrtrs},
   {"BOUND_CRTRS",      PwCast_BoundCrtrs},
   {"NEUTRL_GROUND",    PwCast_NeutrlGround},
   {"OWNED_GROUND",     PwCast_OwnedGround},

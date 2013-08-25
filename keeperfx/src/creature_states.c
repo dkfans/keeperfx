@@ -676,6 +676,10 @@ long get_creature_gui_job(const struct Thing *thing)
     }
 }
 
+TbBool creature_is_dying(const struct Thing *thing)
+{
+    return (thing->health < 0);
+}
 TbBool creature_is_being_dropped(const struct Thing *thing)
 {
     CrtrStateId i;
@@ -3859,7 +3863,7 @@ void process_person_moods_and_needs(struct Thing *thing)
         SYNCDBG(17,"The %s index %d has a need to eat",thing_model_name(thing),(long)thing->index);
     } else
     if (anger_process_creature_anger(thing, crstat)) {
-        SYNCDBG(17,"The %s index %d has a need cool its anger",thing_model_name(thing),(long)thing->index);
+        SYNCDBG(17,"The %s index %d has a need to cool its anger",thing_model_name(thing),(long)thing->index);
     } else
     if (process_creature_needs_to_heal(thing, crstat)) {
         SYNCDBG(17,"The %s index %d has a need to heal",thing_model_name(thing),(long)thing->index);

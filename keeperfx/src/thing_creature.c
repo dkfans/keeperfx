@@ -894,11 +894,12 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
     // Make sure the creature level isn't larger than max spell level
     if (spell_lev > SPELL_MAX_LEVEL)
         spell_lev = SPELL_MAX_LEVEL;
+    SYNCDBG(6,"Applying %s to %s",spell_code_name(spell_idx),thing_model_name(thing));
     //_DK_apply_spell_effect_to_thing(thing, spell_idx, spell_lev); return;
     cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("Invalid creature tried to accept spell %ld",spell_idx);
+        ERRORLOG("Invalid creature tried to accept spell %s",spell_code_name(spell_idx));
         return;
     }
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
