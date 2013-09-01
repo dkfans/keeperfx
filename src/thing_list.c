@@ -646,7 +646,7 @@ struct Thing *find_players_dungeon_heart(PlayerNumber plyridx)
  * @param player The player to be initialized.
  * @note Replaces init_dungeon_owner().
  */
-void init_player_start(struct PlayerInfo *player)
+void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
@@ -665,9 +665,14 @@ void init_player_start(struct PlayerInfo *player)
     } else
     {
         dungeon->dnheart_idx = 0;
-        dungeon->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
-        dungeon->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
-        dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
+        // If the player had a heart at it was destroyed, we shouldn't replace
+        // the heart position - it's needed for Floating Spirit
+        if (!keep_prev)
+        {
+            dungeon->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
+            dungeon->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
+            dungeon->mappos.z.val = subtile_coord_center(map_subtiles_z/2);
+        }
     }
 }
 

@@ -293,7 +293,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     {
     case GKind_NetworkGame:
         init_player_as_single_keeper(player);
-        init_player_start(player);
+        init_player_start(player, false);
         reset_player_mode(player, 1);
         if ( !no_explore )
           init_keeper_map_exploration(player);
@@ -305,7 +305,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
           break;
         }
         init_player_as_single_keeper(player);
-        init_player_start(player);
+        init_player_start(player, false);
         reset_player_mode(player, 1);
         init_keeper_map_exploration(player);
         break;
@@ -392,7 +392,7 @@ void init_players_local_game(void)
     player = get_my_player();
     player->id_number = my_player_number;
     player->field_0 |= 0x01;
-    if (settings.field_3 < 1u)
+    if (settings.field_3 < 1)
       player->field_4B5 = 2;
     else
       player->field_4B5 = 5;

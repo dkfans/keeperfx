@@ -748,7 +748,7 @@ TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, lo
     player->id_number = plyridx;
     player->field_2C = 1;
     player->field_0 |= 0x40;
-    init_player_start(player);
+    init_player_start(player, false);
     if (!setup_a_computer_player(plyridx, comp_model)) {
         player->field_0 &= ~0x40;
         player->field_0 &= ~0x01;
@@ -759,19 +759,19 @@ TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, lo
 
 TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx)
 {
-  struct PlayerInfo *player;
-  SYNCDBG(8,"Starting for player %d",(int)plyridx);
-  player = get_player(plyridx);
-  if (player_invalid(player)) {
-      SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
-      return false;
-  }
-  player->field_0 &= ~0x01; // mark as non-existing
-  player->id_number = plyridx;
-  player->field_2C = 0;
-  player->field_0 &= ~0x40;
-  init_player_start(player);
-  return true;
+    struct PlayerInfo *player;
+    SYNCDBG(8,"Starting for player %d",(int)plyridx);
+    player = get_player(plyridx);
+    if (player_invalid(player)) {
+        SCRPTWRNLOG("Tried to set up invalid player %d",(int)plyridx);
+        return false;
+    }
+    player->field_0 &= ~0x01; // mark as non-existing
+    player->id_number = plyridx;
+    player->field_2C = 0;
+    player->field_0 &= ~0x40;
+    init_player_start(player, false);
+    return true;
 }
 
 void command_create_party(char *prtname)
