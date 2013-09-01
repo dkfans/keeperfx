@@ -888,7 +888,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         } else
         if (player->field_455 == player->field_454)
         {
-          if (player->field_454 == 1 )
+          if (player->field_454 == 1)
           {
             if ((player->field_0 & 0x20) != 0)
             {
@@ -906,7 +906,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
           if (player->field_454 == 3)
           {
             if (player->thing_under_hand != 0) {
-                // TODO SPELL_CAST it's not a good idea to use this directly; change to magic_use_available_power_on_*()
+                // TODO SPELLS it's not a good idea to use this directly; change to magic_use_available_power_on_*()
                 magic_use_power_hand(plyr_idx, stl_x, stl_y, 0);
             }
           }

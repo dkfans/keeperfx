@@ -735,8 +735,9 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     //return _DK_prepare_thing_for_power_hand(tng_idx, plyr_idx);
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    if (player->hand_thing_idx == 0)
+    if (player->hand_thing_idx == 0) {
         create_power_hand(plyr_idx);
+    }
     if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND) {
       return 0;
     }
@@ -745,8 +746,9 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
     set_player_instance(player, 1, 0);
-    if (thing_is_creature(thing))
+    if (thing_is_creature(thing)) {
         clear_creature_instance(thing);
+    }
     return 1;
 }
 
