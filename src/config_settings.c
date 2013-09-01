@@ -35,6 +35,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
+unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
+/******************************************************************************/
 DLLIMPORT int _DK_load_settings(void);
 DLLIMPORT void _DK_save_settings(void);
 /******************************************************************************/
@@ -100,4 +102,10 @@ short save_settings(void)
   LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
   return true;
 }
+
+int get_creature_can_see_subtiles(void)
+{
+    return i_can_see_levels[settings.view_distance % 4];
+}
+
 /******************************************************************************/
