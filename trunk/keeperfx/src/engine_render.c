@@ -116,7 +116,6 @@ long const orient_to_mapV1[] = { 0x00, 0x00, 0x1F0000, 0x1F0000 };
 long const orient_to_mapV2[] = { 0x00, 0x1F0000, 0x1F0000, 0x00 };
 long const orient_to_mapV3[] = { 0x1F0000, 0x1F0000, 0x00, 0x00 };
 long const orient_to_mapV4[] = { 0x1F0000, 0x00, 0x00, 0x1F0000 };
-unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
 //unsigned char temp_cluedo_mode;
 unsigned long render_problems;
 long render_prob_kind;
@@ -247,7 +246,7 @@ void update_engine_settings(struct PlayerInfo *player)
     }
     me_pointed_at = NULL;
     me_distance = 100000000;
-    max_i_can_see = i_can_see_levels[settings.view_distance % 4];
+    max_i_can_see = get_creature_can_see_subtiles();
     if (lens_mode != 0)
       temp_cluedo_mode = 0;
     else

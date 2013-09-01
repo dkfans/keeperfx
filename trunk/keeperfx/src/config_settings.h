@@ -60,6 +60,8 @@ DLLIMPORT extern struct GameSettings _DK_settings;
 /******************************************************************************/
 TbBool load_settings(void);
 short save_settings(void);
+
+int get_creature_can_see_subtiles(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }

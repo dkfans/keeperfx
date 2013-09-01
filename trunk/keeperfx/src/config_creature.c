@@ -146,7 +146,6 @@ struct CreatureData creature_data[] = {
   {0x01,126, 278},
   {0x00,  0, GUIStr_Empty},
   };
-
 /******************************************************************************/
 struct CreatureConfig crtr_conf;
 struct NamedCommand creature_desc[CREATURE_TYPES_MAX];

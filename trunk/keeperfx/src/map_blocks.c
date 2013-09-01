@@ -26,6 +26,9 @@
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "config_terrain.h"
+#include "config_settings.h"
+#include "creature_senses.h"
+#include "player_utils.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
 
@@ -36,7 +39,7 @@ extern "C" {
 DLLIMPORT void _DK_mine_out_block(long a1, long a2, long stl_height);
 DLLIMPORT unsigned char _DK_dig_has_revealed_area(long a1, long a2, unsigned char stl_height);
 DLLIMPORT void _DK_dig_out_block(long a1, long a2, long stl_height);
-DLLIMPORT void _DK_check_map_explored(struct Thing *thing, long a2, long stl_height);
+DLLIMPORT void _DK_check_map_explored(struct Thing *creatng, long a2, long stl_height);
 DLLIMPORT void _DK_create_gold_rubble_for_dug_block(long x, long y, unsigned char stl_height, unsigned char a4);
 DLLIMPORT long _DK_untag_blocks_for_digging_in_area(long tgslb_x, long tgslb_y, signed char stl_height);
 DLLIMPORT void _DK_set_slab_explored_flags(unsigned char flag, long tgslb_x, long tgslb_y);
@@ -703,9 +706,462 @@ void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_i
     }
 }
 
-void check_map_explored(struct Thing *thing, long a2, long a3)
+void clear_dig_and_set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
-    _DK_check_map_explored(thing, a2, a3); return;
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x+1, slb_y);
+    if (!slabmap_block_invalid(slb))
+    {
+        struct SlabAttr *slbattr;
+        slbattr = get_slab_attrs(slb);
+        if ((slbattr->flags & 0x40) != 0)
+        {
+            clear_slab_dig(slb_x+1, slb_y, plyr_idx);
+            set_slab_explored(plyr_idx, slb_x+1, slb_y);
+        }
+    }
+    slb = get_slabmap_block(slb_x-1, slb_y);
+    if (!slabmap_block_invalid(slb))
+    {
+        struct SlabAttr *slbattr;
+        slbattr = get_slab_attrs(slb);
+        if ((slbattr->flags & 0x40) != 0)
+        {
+            clear_slab_dig(slb_x-1, slb_y, plyr_idx);
+            set_slab_explored(plyr_idx, slb_x-1, slb_y);
+        }
+    }
+    slb = get_slabmap_block(slb_x, slb_y+1);
+    if (!slabmap_block_invalid(slb))
+    {
+        struct SlabAttr *slbattr;
+        slbattr = get_slab_attrs(slb);
+        if ((slbattr->flags & 0x40) != 0)
+        {
+            clear_slab_dig(slb_x, slb_y+1, plyr_idx);
+            set_slab_explored(plyr_idx, slb_x, slb_y+1);
+        }
+    }
+    slb = get_slabmap_block(slb_x, slb_y-1);
+    if (!slabmap_block_invalid(slb))
+    {
+        struct SlabAttr *slbattr;
+        slbattr = get_slab_attrs(slb);
+        if ((slbattr->flags & 0x40) != 0)
+        {
+            clear_slab_dig(slb_x, slb_y-1, plyr_idx);
+            set_slab_explored(plyr_idx, slb_x, slb_y-1);
+        }
+    }
+}
+
+int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos, int can_see_slabs)
+{
+    long i,n;
+    unsigned long k;
+    MapSlabCoord slb_x, slb_y;
+    slb_x = map_to_slab[pos->x.stl.num];
+    slb_y = map_to_slab[pos->y.stl.num];
+    n = 0;
+    i = game.field_14EA46;
+    k = 0;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        struct CreatureControl *cctrl;
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per thing code starts
+        int dx, dy;
+        dx = slb_x - map_to_slab[thing->mappos.x.stl.num];
+        dy = slb_y - map_to_slab[thing->mappos.y.stl.num];
+        if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
+        {
+            if (line_of_sight_3d(&thing->mappos, pos))
+            {
+                change_creature_owner(thing, creatng->owner);
+                n++;
+                if (creatng->owner != game.neutral_player_num)
+                {
+                    struct Dungeon *dungeon;
+                    dungeon = get_dungeon(creatng->owner);
+                    if (dungeon->owned_creatures_of_model[thing->model] <= 1)
+                    {
+                        if (dungeon->field_1489[thing->model] <= 0)
+                        {
+                            event_create_event(thing->mappos.x.val, thing->mappos.y.val, 6, creatng->owner, thing->index);
+                            dungeon->field_1489[thing->model] = 1;
+                        }
+                    }
+                }
+            }
+        }
+        // Per thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return n;
+}
+
+
+void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx, int can_see_slabs)
+{
+    int delta_see;
+    for (delta_see = -can_see_slabs; delta_see <= can_see_slabs; delta_see++)
+    {
+        if ((delta_see + slb_x < 0) || (delta_see + slb_x >= 85)) {
+            continue;
+        }
+        TbBool go_dir1, go_dir2;
+        TbBool allow_next_dir1, allow_next_dir2;
+        int delta_shift;
+        int delta_x;
+        int rad_y, rad_x;
+        delta_shift = 256 * delta_see;
+        rad_x = 128;
+        allow_next_dir1 = 0;
+        allow_next_dir2 = 0;
+        rad_y = 0;
+        delta_x = delta_shift / can_see_slabs;
+        go_dir1 = 1;
+        go_dir2 = 1;
+        while (rad_y < can_see_slabs<<8)
+        {
+            struct SlabMap *slb;
+            struct SlabAttr *slbattr;
+            MapSlabCoord lslb_y;
+            MapSlabCoord hslb_x,hslb_y;
+            if (!go_dir1 && !go_dir2)
+              break;
+            rad_x += delta_x;
+            rad_y += 256;
+            hslb_x = slb_x + (rad_x >> 8);
+            lslb_y = slb_y - (rad_y >> 8);
+            hslb_y = slb_y + (rad_y >> 8);
+            if ((lslb_y < 0) || (hslb_y >= 85))
+                continue;
+            if ( go_dir1 )
+            {
+                if (delta_shift > 0)
+                {
+                    slb = get_slabmap_block(hslb_x, lslb_y-1);
+                    slbattr = get_slab_attrs(slb);
+                    if ((slbattr->flags & 0x69) != 0)
+                    {
+                        slb = get_slabmap_block(hslb_x, lslb_y+1);
+                        slbattr = get_slab_attrs(slb);
+                        if ((slbattr->flags & 0x69) != 0) {
+                            allow_next_dir1 = 1;
+                            go_dir1 = 0;
+                        }
+                    }
+                }
+                else
+                if (delta_shift < 0)
+                {
+                    slb = get_slabmap_block(hslb_x+1, lslb_y);
+                    slbattr = get_slab_attrs(slb);
+                    if ((slbattr->flags & 0x69) != 0)
+                    {
+                        slb = get_slabmap_block(hslb_x, lslb_y+1);
+                        slbattr = get_slab_attrs(slb);
+                        if ((slbattr->flags & 0x69) != 0) {
+                            allow_next_dir1 = 1;
+                            go_dir1 = 0;
+                        }
+                    }
+                }
+                if ( go_dir1 )
+                {
+                  clear_slab_dig(hslb_x, lslb_y, plyr_idx);
+                  slb = get_slabmap_block(hslb_x, lslb_y);
+                  slbattr = get_slab_attrs(slb);
+                  if (go_dir1 || slbattr->flags & 0x10) {
+                      set_slab_explored(plyr_idx, hslb_x, lslb_y);
+                  }
+                  if (slbattr->flags & 0x69) {
+                      go_dir1 = 0;
+                  }
+                }
+                else
+                if ( allow_next_dir1 )
+                {
+                    allow_next_dir1 = 0;
+                    slb = get_slabmap_block(hslb_x, lslb_y);
+                    slbattr = get_slab_attrs(slb);
+                    if (slbattr->flags & 0x20)
+                    {
+                      clear_slab_dig(hslb_x, lslb_y, plyr_idx);
+                      if (go_dir1 || slbattr->flags & 0x10) {
+                          set_slab_explored(plyr_idx, hslb_x, lslb_y);
+                      }
+                    }
+                }
+            }
+            if ( go_dir2 )
+            {
+              if (delta_shift > 0)
+              {
+                  slb = get_slabmap_block(hslb_x, hslb_y-1);
+                  slbattr = get_slab_attrs(slb);
+                  if (slbattr->flags & 0x69)
+                  {
+                      slb = get_slabmap_block(hslb_x-1, hslb_y);
+                      slbattr = get_slab_attrs(slb);
+                      if (slbattr->flags & 0x69) {
+                        allow_next_dir2 = 1;
+                        go_dir2 = 0;
+                      }
+                  }
+              }
+              else
+              if (delta_shift < 0)
+              {
+                  slb = get_slabmap_block(hslb_x, hslb_y-1);
+                  slbattr = get_slab_attrs(slb);
+                  if (slbattr->flags & 0x69)
+                  {
+                      slb = get_slabmap_block(hslb_x+1, hslb_y);
+                      slbattr = get_slab_attrs(slb);
+                      if (slbattr->flags & 0x69) {
+                        allow_next_dir2 = 1;
+                        go_dir2 = 0;
+                      }
+                  }
+              }
+              if ( go_dir2 )
+              {
+                  clear_slab_dig(hslb_x, hslb_y, plyr_idx);
+                  slb = get_slabmap_block(hslb_x, hslb_y);
+                  slbattr = get_slab_attrs(slb);
+                  if (go_dir2 || slbattr->flags & 0x10) {
+                      set_slab_explored(plyr_idx, hslb_x, hslb_y);
+                  }
+                  if (slbattr->flags & 0x69) {
+                      go_dir2 = 0;
+                  }
+              }
+              else
+              if ( allow_next_dir2 )
+              {
+                  allow_next_dir2 = 0;
+                  slb = get_slabmap_block(hslb_x, hslb_y);
+                  slbattr = get_slab_attrs(slb);
+                  if (slbattr->flags & 0x20)
+                  {
+                      clear_slab_dig(hslb_x, hslb_y, plyr_idx);
+                      slb = get_slabmap_block(hslb_x, hslb_y);
+                      slbattr = get_slab_attrs(slb);
+                      if (go_dir2 || slbattr->flags & 0x10) {
+                          set_slab_explored(plyr_idx, hslb_x, hslb_y);
+                      }
+                  }
+              }
+            }
+        }
+    }
+}
+
+void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx, int can_see_slabs)
+{
+    int delta_see;
+    for (delta_see = -can_see_slabs; delta_see <= can_see_slabs; delta_see++)
+    {
+        if ((delta_see + slb_y < 0) || (delta_see + slb_y >= 85)) {
+            continue;
+        }
+        TbBool go_dir1, go_dir2;
+        TbBool allow_next_dir1, allow_next_dir2;
+        int delta_shift;
+        int delta_y;
+        int rad_y, rad_x;
+        delta_shift = 256 * delta_see;
+        rad_y = 128;
+        allow_next_dir1 = 0;
+        allow_next_dir2 = 0;
+        rad_x = 0;
+        delta_y = delta_shift / can_see_slabs;
+        go_dir1 = 1;
+        go_dir2 = 1;
+        while (rad_x < can_see_slabs<<8)
+        {
+            struct SlabMap *slb;
+            struct SlabAttr *slbattr;
+            MapSlabCoord lslb_x;
+            MapSlabCoord hslb_x,hslb_y;
+            if (!go_dir1 && !go_dir2)
+              break;
+            rad_x += 256;
+            rad_y += delta_y;
+            lslb_x = slb_x - (rad_x >> 8);
+            hslb_x = slb_x + (rad_x >> 8);
+            hslb_y = slb_y + (rad_y >> 8);
+            if ((lslb_x < 0) || (hslb_x >= 85))
+                continue;
+            if ( go_dir1 )
+            {
+                if (delta_shift > 0)
+                {
+                    slb = get_slabmap_block(lslb_x, hslb_y-1);
+                    slbattr = get_slab_attrs(slb);
+                    if ((slbattr->flags & 0x69) != 0)
+                    {
+                        slb = get_slabmap_block(lslb_x+1, hslb_y);
+                        slbattr = get_slab_attrs(slb);
+                        if ((slbattr->flags & 0x69) != 0) {
+                            allow_next_dir1 = 1;
+                            go_dir1 = 0;
+                        }
+                    }
+                }
+                else
+                if (delta_shift < 0)
+                {
+                    slb = get_slabmap_block(lslb_x+1, hslb_y);
+                    slbattr = get_slab_attrs(slb);
+                    if ((slbattr->flags & 0x69) != 0)
+                    {
+                        slb = get_slabmap_block(lslb_x, hslb_y+1);
+                        slbattr = get_slab_attrs(slb);
+                        if ((slbattr->flags & 0x69) != 0) {
+                            allow_next_dir1 = 1;
+                            go_dir1 = 0;
+                        }
+                    }
+                }
+                if ( go_dir1 )
+                {
+                    clear_slab_dig(lslb_x, hslb_y, plyr_idx);
+                    slb = get_slabmap_block(lslb_x, hslb_y);
+                    slbattr = get_slab_attrs(slb);
+                    if ( go_dir1 || slbattr->flags & 0x10) {
+                        set_slab_explored(plyr_idx, lslb_x, hslb_y);
+                    }
+                    if (slbattr->flags & 0x69) {
+                        go_dir1 = 0;
+                    }
+                } else
+                if ( allow_next_dir1 )
+                {
+                    allow_next_dir1 = 0;
+                    slb = get_slabmap_block(lslb_x, hslb_y);
+                    slbattr = get_slab_attrs(slb);
+                    if (slbattr->flags & 0x20)
+                    {
+                        clear_slab_dig(lslb_x, hslb_y, plyr_idx);
+                        if ( go_dir1 || slbattr->flags & 0x10) {
+                            set_slab_explored(plyr_idx, lslb_x, hslb_y);
+                        }
+                    }
+                }
+            }
+            if ( go_dir2 )
+            {
+              if (delta_shift > 0)
+              {
+                  slb = get_slabmap_block(hslb_x-1, hslb_y);
+                  slbattr = get_slab_attrs(slb);
+                  if (slbattr->flags & 0x69)
+                  {
+                      slb = get_slabmap_block(hslb_x, hslb_y-1);
+                      slbattr = get_slab_attrs(slb);
+                      if (slbattr->flags & 0x69) {
+                          allow_next_dir2 = 0;
+                          go_dir2 = 0;
+                      }
+                  }
+              } else
+              if (delta_shift < 0)
+              {
+                  slb = get_slabmap_block(hslb_x-1, hslb_y);
+                  slbattr = get_slab_attrs(slb);
+                  if (slbattr->flags & 0x69)
+                  {
+                      slb = get_slabmap_block(hslb_x, hslb_y+1);
+                      slbattr = get_slab_attrs(slb);
+                      if (slbattr->flags & 0x69) {
+                          allow_next_dir2 = 1;
+                          go_dir2 = 0;
+                      }
+                  }
+              }
+              if ( go_dir2 )
+              {
+                clear_slab_dig(hslb_x, hslb_y, plyr_idx);
+                slb = get_slabmap_block(hslb_x, hslb_y);
+                slbattr = get_slab_attrs(slb);
+                if ( go_dir2 || slbattr->flags & 0x10)
+                  set_slab_explored(plyr_idx, hslb_x, hslb_y);
+                if (slbattr->flags & 0x69)
+                  go_dir2 = 0;
+              } else
+              if ( allow_next_dir2 )
+              {
+                  allow_next_dir2 = 0;
+                  slb = get_slabmap_block(hslb_x, hslb_y);
+                  slbattr = get_slab_attrs(slb);
+                  if (slbattr->flags & 0x20)
+                  {
+                      clear_slab_dig(hslb_x, hslb_y, plyr_idx);
+                      if ( go_dir2 || slbattr->flags & 0x10 ) {
+                          set_slab_explored(plyr_idx, hslb_x, hslb_y);
+                      }
+                  }
+              }
+            }
+        }
+    }
+}
+
+void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    //_DK_check_map_explored(thing, a2, a3); return;
+    if (is_neutral_thing(creatng) || is_hero_thing(creatng))
+        return;
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = get_floor_height_at(&pos);
+    MapSlabCoord slb_x, slb_y;
+    slb_x = map_to_slab[stl_x];
+    slb_y = map_to_slab[stl_y];
+    struct SlabMap *slb;
+    struct SlabAttr *slbattr;
+    slb = get_slabmap_block(slb_x, slb_y);
+    slbattr = get_slab_attrs(slb);
+    if (slbattr->flags & (0x40|0x20|0x08|0x01))
+    {
+        if (slbattr->flags & 0x40)
+        {
+            clear_dig_and_set_explored_around(slb_x, slb_y, creatng->owner);
+        }
+        return;
+    }
+
+    struct PlayerInfo *player;
+    player = get_player(creatng->owner);
+    int can_see_slabs;
+    if (player->controlled_thing_idx == creatng->index)
+    {
+        can_see_slabs = get_creature_can_see_subtiles() / 3;
+        if (can_see_slabs <= 7)
+            can_see_slabs = 7;
+    } else
+    {
+        can_see_slabs = 7;
+    }
+    if (!player_cannot_win(creatng->owner)) {
+        claim_neutral_creatures_in_sight(creatng, &pos, can_see_slabs);
+    }
+    clear_slab_dig(slb_x, slb_y, creatng->owner);
+    set_slab_explored(creatng->owner, slb_x, slb_y);
+    clear_dig_and_set_explored_can_see_x(slb_x, slb_y, creatng->owner, can_see_slabs);
+    clear_dig_and_set_explored_can_see_y(slb_x, slb_y, creatng->owner, can_see_slabs);
 }
 
 long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
