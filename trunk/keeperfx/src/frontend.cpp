@@ -1233,12 +1233,12 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
 
 void frontend_set_player_number(long plr_num)
 {
-  struct PlayerInfo *player;
-  my_player_number = plr_num;
-  player = get_my_player();
-  player->id_number = plr_num;
+    struct PlayerInfo *player;
+    my_player_number = plr_num;
+    player = get_my_player();
+    player->id_number = plr_num;
 //  setup_engine_window(0, 0, MyScreenWidth, MyScreenHeight); - maybe better?
-  setup_engine_window(0, 0, 640, 480);
+    setup_engine_window(0, 0, 640, 480);
 
 }
 

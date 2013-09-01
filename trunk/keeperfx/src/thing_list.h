@@ -186,7 +186,7 @@ void stop_all_things_playing_samples(void);
 unsigned long update_cave_in_things(void);
 unsigned long update_creatures_not_in_list(void);
 unsigned long update_things_in_list(struct StructureList *list);
-void init_player_start(struct PlayerInfo *player);
+void init_player_start(struct PlayerInfo *player, TbBool keep_prev);
 void setup_computer_players(void);
 void setup_zombie_players(void);
 void init_all_creature_states(void);

@@ -624,7 +624,7 @@ void process_dungeon_destroy(struct Thing *heartng)
             { // If there is another heart owned by this player, set it to "working" heart
                 struct PlayerInfo *player;
                 player = get_player(plyr_idx);
-                init_player_start(player);
+                init_player_start(player, true);
             }
         }
         dungeon->field_1060 = 0;
@@ -2025,100 +2025,103 @@ long set_autopilot_type(PlayerNumber plyr_idx, long aptype)
 
 void level_lost_go_first_person(PlayerNumber plyr_idx)
 {
-  struct CreatureControl *cctrl;
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  ThingModel spectator_breed;
-  SYNCDBG(6,"Starting for player %ld",plyr_idx);
-  //_DK_level_lost_go_first_person(plridx);
-  player = get_player(plyr_idx);
-  dungeon = get_dungeon(player->id_number);
-  spectator_breed = get_players_spectator_breed(plyr_idx);
-  player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
-  thing = create_and_control_creature_as_controller(player, spectator_breed, &dungeon->mappos);
-  if (thing_is_invalid(thing))
-  {
-    ERRORLOG("Unable to create spectator creature");
-    return;
-  }
-  cctrl = creature_control_get_from_thing(thing);
-  cctrl->flgfield_1 |= CCFlg_NoCompControl;
-  SYNCDBG(8,"Finished");
+    struct CreatureControl *cctrl;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    ThingModel spectator_breed;
+    SYNCDBG(6,"Starting for player %d",(int)plyr_idx);
+    //_DK_level_lost_go_first_person(plridx);
+    player = get_player(plyr_idx);
+    dungeon = get_dungeon(player->id_number);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Unable to get player %d dungeon",(int)plyr_idx);
+        return;
+    }
+    spectator_breed = get_players_spectator_breed(plyr_idx);
+    player->dungeon_camera_zoom = get_camera_zoom(player->acamera);
+    thing = create_and_control_creature_as_controller(player, spectator_breed, &dungeon->mappos);
+    if (thing_is_invalid(thing)) {
+        ERRORLOG("Unable to create spectator creature");
+        return;
+    }
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    SYNCDBG(8,"Finished");
 }
 
 void find_map_location_coords(long location, long *x, long *y, const char *func_name)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct ActionPoint *apt;
-  struct Thing *thing;
-  long pos_x,pos_y;
-  long i;
-  SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
-  pos_y = 0;
-  pos_x = 0;
-  switch (get_map_location_type(location))
-  {
-  case MLoc_ACTIONPOINT:
-      i = get_map_location_longval(location);
-      apt = action_point_get_by_number(i);
-      if (!action_point_is_invalid(apt))
-      {
-        pos_y = apt->mappos.y.stl.num;
-        pos_x = apt->mappos.x.stl.num;
-      } else
-        WARNMSG("%s: Action Point %d location for not found",func_name,i);
-      break;
-  case MLoc_HEROGATE:
-      i = get_map_location_longval(location);
-      thing = find_hero_gate_of_number(i);
-      if (!thing_is_invalid(thing))
-      {
-        pos_y = thing->mappos.y.stl.num;
-        pos_x = thing->mappos.x.stl.num;
-      } else
-        WARNMSG("%s: Hero Gate %d location not found",func_name,i);
-      break;
-  case MLoc_PLAYERSHEART:
-      i = get_map_location_longval(location);
-      if (i < PLAYERS_COUNT)
-      {
-        player = get_player(i);
-        dungeon = get_dungeon(player->id_number);
-        thing = thing_get(dungeon->dnheart_idx);
-      } else
-        thing = NULL;
-      if (!thing_is_invalid(thing))
-      {
-        pos_y = thing->mappos.y.stl.num;
-        pos_x = thing->mappos.x.stl.num;
-      } else
-        WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
-      break;
-  case MLoc_NONE:
-      pos_y = *y;
-      pos_x = *x;
-      break;
-  case MLoc_THING:
-      i = get_map_location_longval(location);
-      thing = thing_get(i);
-      if (!thing_is_invalid(thing))
-      {
-        pos_y = thing->mappos.y.stl.num;
-        pos_x = thing->mappos.x.stl.num;
-      } else
-        WARNMSG("%s: Thing %d location not found",func_name,i);
-      break;
-  case MLoc_CREATUREBREED:
-  case MLoc_OBJECTKIND:
-  case MLoc_ROOMKIND:
-  default:
-        WARNMSG("%s: Unsupported location, %lu.",func_name,location);
-      break;
-  }
-  *y = pos_y;
-  *x = pos_x;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct ActionPoint *apt;
+    struct Thing *thing;
+    long pos_x,pos_y;
+    long i;
+    SYNCDBG(15,"From %s; Location %ld, pos(%ld,%ld)",func_name, location, *x, *y);
+    pos_y = 0;
+    pos_x = 0;
+    switch (get_map_location_type(location))
+    {
+    case MLoc_ACTIONPOINT:
+        i = get_map_location_longval(location);
+        apt = action_point_get_by_number(i);
+        if (!action_point_is_invalid(apt))
+        {
+          pos_y = apt->mappos.y.stl.num;
+          pos_x = apt->mappos.x.stl.num;
+        } else
+          WARNMSG("%s: Action Point %d location for not found",func_name,i);
+        break;
+    case MLoc_HEROGATE:
+        i = get_map_location_longval(location);
+        thing = find_hero_gate_of_number(i);
+        if (!thing_is_invalid(thing))
+        {
+          pos_y = thing->mappos.y.stl.num;
+          pos_x = thing->mappos.x.stl.num;
+        } else
+          WARNMSG("%s: Hero Gate %d location not found",func_name,i);
+        break;
+    case MLoc_PLAYERSHEART:
+        i = get_map_location_longval(location);
+        if (i < PLAYERS_COUNT)
+        {
+          player = get_player(i);
+          dungeon = get_dungeon(player->id_number);
+          thing = thing_get(dungeon->dnheart_idx);
+        } else
+          thing = NULL;
+        if (!thing_is_invalid(thing))
+        {
+          pos_y = thing->mappos.y.stl.num;
+          pos_x = thing->mappos.x.stl.num;
+        } else
+          WARNMSG("%s: Dungeon Heart location for player %d not found",func_name,i);
+        break;
+    case MLoc_NONE:
+        pos_y = *y;
+        pos_x = *x;
+        break;
+    case MLoc_THING:
+        i = get_map_location_longval(location);
+        thing = thing_get(i);
+        if (!thing_is_invalid(thing))
+        {
+          pos_y = thing->mappos.y.stl.num;
+          pos_x = thing->mappos.x.stl.num;
+        } else
+          WARNMSG("%s: Thing %d location not found",func_name,i);
+        break;
+    case MLoc_CREATUREBREED:
+    case MLoc_OBJECTKIND:
+    case MLoc_ROOMKIND:
+    default:
+          WARNMSG("%s: Unsupported location, %lu.",func_name,location);
+        break;
+    }
+    *y = pos_y;
+    *x = pos_x;
 }
 
 void set_general_information(long msg_id, long target, long x, long y)
@@ -3737,7 +3740,7 @@ void init_level(void)
     {
         struct PlayerInfo *player;
         player = get_player(game.hero_player_num);
-        init_player_start(player);
+        init_player_start(player, false);
     }
     game.numfield_D |= 0x04;
     LbMemoryCopy(&game.intralvl_transfered_creature,&transfer_mem,sizeof(struct CreatureStorage));
