@@ -2014,7 +2014,7 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
  * @param cmap The colour remap table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingUpData_sub1(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
+TbResult LbSpriteDrawUsingScalingUpData_sub1(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2039,6 +2039,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub1(uchar *outbuf, int scanline, long *
             int xdup, ydup;
             long *xcurstep;
             ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
@@ -2063,6 +2065,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub1(uchar *outbuf, int scanline, long *
                     for(;pxlen > 0; pxlen--)
                     {
                         xdup = xcurstep[1];
+                        if (xcurstep[0]+xdup > abs(scanline))
+                            xdup = abs(scanline)-xcurstep[0];
                         if (xdup > 0)
                         {
                             unsigned char pxval;
@@ -2133,7 +2137,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub1(uchar *outbuf, int scanline, long *
  * @param cmap The colour remap table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingUpData_sub2(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
+TbResult LbSpriteDrawUsingScalingUpData_sub2(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2158,6 +2162,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub2(uchar *outbuf, int scanline, long *
             int xdup, ydup;
             long *xcurstep;
             ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
@@ -2182,6 +2188,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub2(uchar *outbuf, int scanline, long *
                     for(;pxlen > 0; pxlen--)
                     {
                         xdup = xcurstep[1];
+                        if (xcurstep[0]+xdup > abs(scanline))
+                            xdup = abs(scanline)-xcurstep[0];
                         if (xdup > 0)
                         {
                             unsigned char pxval;
@@ -2250,7 +2258,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub2(uchar *outbuf, int scanline, long *
  * @param transmap The transparency mapping table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2273,6 +2281,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, long *
             int xdup, ydup;
             long *xcurstep;
             ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -2299,6 +2309,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, long *
                         for (;pxlen > 0; pxlen--)
                         {
                             xdup = xcurstep[1];
+                            if (xcurstep[0]+xdup > abs(scanline))
+                                xdup = abs(scanline)-xcurstep[0];
                             if (xdup > 0)
                             {
                                 unsigned int pxmap;
@@ -2351,7 +2363,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, long *
  * @param transmap The transparency mapping table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2374,6 +2386,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, long *
             int xdup, ydup;
             long *xcurstep;
             ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -2400,6 +2414,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, long *
                         for (;pxlen > 0; pxlen--)
                         {
                             xdup = xcurstep[1];
+                            if (xcurstep[0]+xdup > abs(scanline))
+                                xdup = abs(scanline)-xcurstep[0];
                             if (xdup > 0)
                             {
                                 unsigned int pxmap;
@@ -2452,7 +2468,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, long *
  * @param transmap The transparency mapping table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingUpData_sub5(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+TbResult LbSpriteDrawUsingScalingUpData_sub5(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2475,6 +2491,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub5(uchar *outbuf, int scanline, long *
             int xdup, ydup;
             long *xcurstep;
             ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -2501,6 +2519,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub5(uchar *outbuf, int scanline, long *
                         for (;pxlen > 0; pxlen--)
                         {
                             xdup = xcurstep[1];
+                            if (xcurstep[0]+xdup > abs(scanline))
+                                xdup = abs(scanline)-xcurstep[0];
                             if (xdup > 0)
                             {
                                 unsigned int pxmap;
@@ -2553,7 +2573,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub5(uchar *outbuf, int scanline, long *
  * @param transmap The transparency mapping table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingUpData_sub6(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+TbResult LbSpriteDrawUsingScalingUpData_sub6(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2576,6 +2596,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub6(uchar *outbuf, int scanline, long *
             int xdup, ydup;
             long *xcurstep;
             ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -2602,6 +2624,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub6(uchar *outbuf, int scanline, long *
                         for (;pxlen > 0; pxlen--)
                         {
                             xdup = xcurstep[1];
+                            if (xcurstep[0]+xdup > abs(scanline))
+                                xdup = abs(scanline)-xcurstep[0];
                             if (xdup > 0)
                             {
                                 unsigned int pxmap;
@@ -2653,7 +2677,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub6(uchar *outbuf, int scanline, long *
  * @param sprite The source sprite.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingUpData_sub7(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+TbResult LbSpriteDrawUsingScalingUpData_sub7(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2678,6 +2702,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub7(uchar *outbuf, int scanline, long *
             int xdup, ydup;
             long *xcurstep;
             ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
@@ -2702,6 +2728,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub7(uchar *outbuf, int scanline, long *
                     for(;pxlen > 0; pxlen--)
                     {
                         xdup = xcurstep[1];
+                        if (xcurstep[0]+xdup > abs(scanline))
+                            xdup = abs(scanline)-xcurstep[0];
                         if (xdup > 0)
                         {
                             unsigned char pxval;
@@ -2770,7 +2798,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub7(uchar *outbuf, int scanline, long *
  * @param sprite The source sprite.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingUpData_sub8(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+TbResult LbSpriteDrawUsingScalingUpData_sub8(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2795,6 +2823,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub8(uchar *outbuf, int scanline, long *
             int xdup, ydup;
             long *xcurstep;
             ydup = ycurstep[1];
+            if (ycurstep[0]+ydup > outheight)
+                ydup = outheight-ycurstep[0];
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
@@ -2819,6 +2849,8 @@ TbResult LbSpriteDrawUsingScalingUpData_sub8(uchar *outbuf, int scanline, long *
                     for(;pxlen > 0; pxlen--)
                     {
                         xdup = xcurstep[1];
+                        if (xcurstep[0]+xdup > abs(scanline))
+                            xdup = abs(scanline)-xcurstep[0];
                         if (xdup > 0)
                         {
                             unsigned char pxval;
@@ -2886,7 +2918,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub8(uchar *outbuf, int scanline, long *
  * @param cmap The colour remap table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingDownData_sub1(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
+TbResult LbSpriteDrawUsingScalingDownData_sub1(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2976,7 +3008,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub1(uchar *outbuf, int scanline, long
  * @param cmap The colour remap table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingDownData_sub2(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
+TbResult LbSpriteDrawUsingScalingDownData_sub2(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *cmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -3066,7 +3098,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub2(uchar *outbuf, int scanline, long
  * @param transmap The transparency mapping table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingDownData_sub3(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+TbResult LbSpriteDrawUsingScalingDownData_sub3(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -3156,7 +3188,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub3(uchar *outbuf, int scanline, long
  * @param transmap The transparency mapping table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingDownData_sub4(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+TbResult LbSpriteDrawUsingScalingDownData_sub4(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -3246,7 +3278,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub4(uchar *outbuf, int scanline, long
  * @param transmap The transparency mapping table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingDownData_sub5(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+TbResult LbSpriteDrawUsingScalingDownData_sub5(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -3336,7 +3368,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub5(uchar *outbuf, int scanline, long
  * @param transmap The transparency mapping table to be used.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingDownData_sub6(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
+TbResult LbSpriteDrawUsingScalingDownData_sub6(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -3425,7 +3457,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub6(uchar *outbuf, int scanline, long
  * @param sprite The source sprite.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingDownData_sub7(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+TbResult LbSpriteDrawUsingScalingDownData_sub7(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -3513,7 +3545,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub7(uchar *outbuf, int scanline, long
  * @param sprite The source sprite.
  * @return Gives 0 on success.
  */
-TbResult LbSpriteDrawUsingScalingDownData_sub8(uchar *outbuf, int scanline, long *xstep, long *ystep, const struct TbSprite *sprite)
+TbResult LbSpriteDrawUsingScalingDownData_sub8(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -3623,6 +3655,7 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
         ystep = &ysteps_array[2 * sposy];
     }
     uchar *outbuf;
+    int outheight;
     {
         int gspos_x,gspos_y;
         gspos_y = ystep[0];
@@ -3632,6 +3665,7 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             gspos_x += xstep[1] - 1;
         outbuf = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
+        outheight = lbDisplay.GraphicsScreenHeight;
     }
     if ( scale_up )
     {
@@ -3639,11 +3673,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
       {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         {
-            return LbSpriteDrawUsingScalingUpData_sub1(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
+            return LbSpriteDrawUsingScalingUpData_sub1(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
         }
         else
         {
-            return LbSpriteDrawUsingScalingUpData_sub2(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
+            return LbSpriteDrawUsingScalingUpData_sub2(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
         }
       }
       else
@@ -3652,11 +3686,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
         {
           if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
           {
-              return LbSpriteDrawUsingScalingUpData_sub3(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+              return LbSpriteDrawUsingScalingUpData_sub3(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
           }
           else
           {
-              return LbSpriteDrawUsingScalingUpData_sub4(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+              return LbSpriteDrawUsingScalingUpData_sub4(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
           }
         }
         else
@@ -3665,22 +3699,22 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                return LbSpriteDrawUsingScalingUpData_sub5(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+                return LbSpriteDrawUsingScalingUpData_sub5(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
             }
             else
             {
-                return LbSpriteDrawUsingScalingUpData_sub6(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+                return LbSpriteDrawUsingScalingUpData_sub6(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
             }
           }
           else
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                return LbSpriteDrawUsingScalingUpData_sub7(outbuf, scanline, xstep, ystep, sprite);
+                return LbSpriteDrawUsingScalingUpData_sub7(outbuf, scanline, outheight, xstep, ystep, sprite);
             }
             else
             {
-                return LbSpriteDrawUsingScalingUpData_sub8(outbuf, scanline, xstep, ystep, sprite);
+                return LbSpriteDrawUsingScalingUpData_sub8(outbuf, scanline, outheight, xstep, ystep, sprite);
             }
           }
         }
@@ -3692,11 +3726,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
       {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         {
-            return LbSpriteDrawUsingScalingDownData_sub1(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
+            return LbSpriteDrawUsingScalingDownData_sub1(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
         }
         else
         {
-            return LbSpriteDrawUsingScalingDownData_sub2(outbuf, scanline, xstep, ystep, sprite, lbSpriteReMapPtr);
+            return LbSpriteDrawUsingScalingDownData_sub2(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
         }
       }
       else
@@ -3705,11 +3739,11 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
         {
           if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
           {
-              return LbSpriteDrawUsingScalingDownData_sub3(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+              return LbSpriteDrawUsingScalingDownData_sub3(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
           }
           else
           {
-              return LbSpriteDrawUsingScalingDownData_sub4(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+              return LbSpriteDrawUsingScalingDownData_sub4(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
           }
         }
         else
@@ -3718,22 +3752,22 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *spr
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                return LbSpriteDrawUsingScalingDownData_sub5(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+                return LbSpriteDrawUsingScalingDownData_sub5(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
             }
             else
             {
-                return LbSpriteDrawUsingScalingDownData_sub6(outbuf, scanline, xstep, ystep, sprite, render_ghost);
+                return LbSpriteDrawUsingScalingDownData_sub6(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
             }
           }
           else
           {
             if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             {
-                return LbSpriteDrawUsingScalingDownData_sub7(outbuf, scanline, xstep, ystep, sprite);
+                return LbSpriteDrawUsingScalingDownData_sub7(outbuf, scanline, outheight, xstep, ystep, sprite);
             }
             else
             {
-                return LbSpriteDrawUsingScalingDownData_sub8(outbuf, scanline, xstep, ystep, sprite);
+                return LbSpriteDrawUsingScalingDownData_sub8(outbuf, scanline, outheight, xstep, ystep, sprite);
             }
           }
         }
@@ -3774,6 +3808,7 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
         ystep = &alpha_ysteps_array[2 * sposy];
     }
     uchar *outbuf;
+    int outheight;
     {
         int gspos_x,gspos_y;
         gspos_y = ystep[0];
@@ -3783,27 +3818,28 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
             gspos_x += xstep[1] - 1;
         outbuf = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
+        outheight = lbDisplay.GraphicsScreenHeight;
     }
     if ( alpha_scale_up )
     {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         {
-            return LbSpriteDrawUsingScalingUpData_sub3(outbuf, scanline, xstep, ystep, sprite, render_alpha);
+            return LbSpriteDrawUsingScalingUpData_sub3(outbuf, scanline, outheight, xstep, ystep, sprite, render_alpha);
         }
         else
         {
-            return LbSpriteDrawUsingScalingUpData_sub4(outbuf, scanline, xstep, ystep, sprite, render_alpha);
+            return LbSpriteDrawUsingScalingUpData_sub4(outbuf, scanline, outheight, xstep, ystep, sprite, render_alpha);
         }
     }
     else
     {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
         {
-            return LbSpriteDrawUsingScalingDownData_sub3(outbuf, scanline, xstep, ystep, sprite, render_alpha);
+            return LbSpriteDrawUsingScalingDownData_sub3(outbuf, scanline, outheight, xstep, ystep, sprite, render_alpha);
         }
         else
         {
-            return LbSpriteDrawUsingScalingDownData_sub4(outbuf, scanline, xstep, ystep, sprite, render_alpha);
+            return LbSpriteDrawUsingScalingDownData_sub4(outbuf, scanline, outheight, xstep, ystep, sprite, render_alpha);
         }
     }
 }
