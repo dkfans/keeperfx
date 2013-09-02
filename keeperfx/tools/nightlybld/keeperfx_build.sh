@@ -31,7 +31,7 @@ CROSS_COMPILE_TOOLCHAIN=${CROSS_COMPILE_TOOLCHAIN:-i586-mingw32msvc-}
 
 LANG=C
 REV="$1"
-RUN_DATE=$(date -u '+%Y.%m.%d %T')
+RUN_DATE=$(date -u '+%Y-%m-%d %T')
 
 # Clean products of previous build
 function keeperfxclean {
