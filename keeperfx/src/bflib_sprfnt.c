@@ -252,7 +252,7 @@ int dbc_draw_font_sprite(unsigned char *dst_buf, long dst_scanline, unsigned cha
     if (start_y != 0)
         src_buf += src_scanline * (long)start_y;
     src_val = 0;
-    for (y=height; y > 1; y--)
+    for (y=height; y > 0; y--)
     {
         src = src_buf;
         dst = dst_buf;
