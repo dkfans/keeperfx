@@ -25,10 +25,13 @@
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
 #include "bflib_sndlib.h"
+#include "bflib_guibtns.h"
 #include "player_data.h"
 #include "gui_draw.h"
+#include "config_strings.h"
 #include "gui_frontbtns.h"
 #include "frontend.h"
+#include "kjm_input.h"
 #include "packets.h"
 #include "config_settings.h"
 #include "keeperfx.hpp"
@@ -59,6 +62,13 @@ DLLIMPORT void _DK_frontend_draw_invert_mouse(struct GuiButton *gbtn);
 DLLIMPORT void _DK_init_video_menu(struct GuiMenu *gmnu);
 DLLIMPORT void _DK_init_audio_menu(struct GuiMenu *gmnu);
 /******************************************************************************/
+const long definable_key_string[] = {
+    471, 472, 473, 474, 475, 476, 477, 478,
+    479, 480, 552, 553, 554, 555, 556, 557,
+    558, 559, 560, 561, 562, 563, 564, 565,
+    566, 567, 568, 630, 857, 852, 853, 854,
+};
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -77,7 +87,10 @@ void frontend_define_key_down_maintain(struct GuiButton *gbtn)
 
 void frontend_define_key_maintain(struct GuiButton *gbtn)
 {
-  _DK_frontend_define_key_maintain(gbtn);
+    long key_id;
+  //_DK_frontend_define_key_maintain(gbtn);
+    key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown08 * (key_id < GAME_KEYS_COUNT)) & LbBtnF_Unknown08;
 }
 
 void frontend_define_key_up(struct GuiButton *gbtn)
@@ -98,14 +111,12 @@ void frontend_define_key_down(struct GuiButton *gbtn)
 
 void frontend_define_key(struct GuiButton *gbtn)
 {
-  _DK_frontend_define_key(gbtn);
-/*
-  long key_id;
-  key_id = define_key_scroll_offset - ((long)gbtn->field_33) - 1;
-  defining_a_key = 1;
-  defining_a_key_id = key_id;
-  lbInkey = 0;
-*/
+    long key_id;
+    //_DK_frontend_define_key(gbtn);
+    key_id = define_key_scroll_offset - ((long)gbtn->content) - 1;
+    defining_a_key = 1;
+    defining_a_key_id = key_id;
+    lbInkey = 0;
 }
 
 void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
@@ -120,7 +131,82 @@ void frontend_draw_define_key_scroll_tab(struct GuiButton *gbtn)
 
 void frontend_draw_define_key(struct GuiButton *gbtn)
 {
-  _DK_frontend_draw_define_key(gbtn);
+    long content, key_id;
+    //_DK_frontend_draw_define_key(gbtn);
+    content = (long)gbtn->content;
+    key_id = define_key_scroll_offset - content - 1;
+    if (key_id >= GAME_KEYS_COUNT) {
+        return;
+    }
+    unsigned char code;
+    code = settings.kbkeys[key_id].code;
+    long i;
+    char chbuf[4];
+    const char * keyname;
+    i = key_to_string[code];
+    if (i >= 0)
+    {
+        keyname = gui_string(i);
+    } else
+    {
+        chbuf[0] = -(char)i;
+        chbuf[1] = 0;
+        keyname = chbuf;
+    }
+    if (frontend_mouse_over_button == content) {
+        LbTextSetFont(frontend_font[2]);
+    } else {
+        LbTextSetFont(frontend_font[1]);
+    }
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    lbDisplay.DrawFlags = 0x0020;
+    int h;
+    h = LbTextLineHeight();
+    LbTextDraw(0, (gbtn->height - h) / 2, gui_string(definable_key_string[key_id]));
+    unsigned char mods;
+    mods = settings.kbkeys[key_id].mods;
+    lbDisplay.DrawFlags = 0x0080;
+
+    char text[255];
+    text[0] = '\0';
+    if (mods & KMod_CONTROL)
+    {
+        strcat(text, gui_string(570));
+        strcat(text, " ");
+    }
+    if (mods & KMod_ALT)
+    {
+        strcat(text, gui_string(571));
+        strcat(text, " ");
+    }
+    if (mods & KMod_SHIFT)
+    {
+        strcat(text, gui_string(569));
+        strcat(text, " ");
+    }
+
+    const char *keytext;
+    switch (code)
+    {
+      case 42:
+      case 54:
+        keytext = gui_string(569);
+        break;
+      case 29:
+      case 157:
+        keytext = gui_string(570);
+        break;
+      case 56:
+      case 184:
+        keytext = gui_string(571);
+        break;
+      default:
+        keytext = keyname;
+        break;
+    }
+    strcat(text, keytext);
+    h = LbTextLineHeight();
+    LbTextDraw(0, (gbtn->height - h) / 2, text);
 }
 
 void gui_video_shadows(struct GuiButton *gbtn)
