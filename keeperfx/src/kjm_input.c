@@ -27,12 +27,11 @@
 #include "bflib_mouse.h"
 #include "bflib_math.h"
 
+#include "config_settings.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT long _DK_key_to_string[256];
-#define key_to_string _DK_key_to_string
 /******************************************************************************/
 DLLIMPORT  long _DK_set_game_key(long key_id, unsigned char key, long shift_state, long ctrl_state);
 DLLIMPORT void _DK_update_mouse(void);
@@ -302,7 +301,101 @@ void update_key_modifiers(void)
 
 long set_game_key(long key_id, unsigned char key, long shift_state, long ctrl_state)
 {
-    return _DK_set_game_key(key_id, key, shift_state, ctrl_state);
+    //return _DK_set_game_key(key_id, key, shift_state, ctrl_state);
+    int mods;
+    mods = 0;
+    if (!key_to_string[key]) {
+      return 0;
+    }
+    if (key_id == 4 || key_id == 5)
+    {
+        if (shift_state || ctrl_state) {
+            return 0;
+        }
+        if ( settings.kbkeys[((unsigned int)(key_id - 4) < 1) + 4].code != ((unsigned int)shift_state < 1 ? 29 : 42) )
+        {
+            struct GameKey  *kbk;
+            kbk = &settings.kbkeys[key_id];
+            if (shift_state)
+            {
+                kbk->code = 42;
+            } else
+            if (ctrl_state)
+            {
+                kbk->code = 29;
+            }
+            kbk->mods = 0;
+        }
+        return 1;
+    }
+    if (key_id == 27 || key_id == 28)
+    {
+        mods = 0;
+        if (shift_state || ctrl_state)
+        {
+            if ( settings.kbkeys[((unsigned int)(key_id - 27) < 1) + 27].code != ((unsigned int)shift_state < 1 ? 29 : 42) )
+            {
+                struct GameKey  *kbk;
+                kbk = &settings.kbkeys[key_id];
+                if (shift_state) {
+                    kbk->code = 42;
+                } else
+                if (ctrl_state) {
+                    kbk->code = 29;
+                }
+                kbk->mods = 0;
+            }
+            return 1;
+        } else
+        {
+            long i;
+            for (i = 0; i < GAME_KEYS_COUNT; i++)
+            {
+                struct GameKey  *kbk;
+                kbk = &settings.kbkeys[i];
+                if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
+                    return 0;
+                }
+            }
+            {
+                struct GameKey  *kbk;
+                kbk = &settings.kbkeys[key_id];
+                kbk->code = key;
+                kbk->mods = 0;
+            }
+            return 1;
+        }
+    }
+    if ( key == 42 || key == 54 || key == 29 || key == 157 )
+    {
+        return 0;
+    }
+    {
+        if (shift_state && ctrl_state) {
+            return 0;
+        }
+        mods = 0;
+        if (shift_state)
+            mods |= KMod_SHIFT;
+        if (ctrl_state)
+            mods |= KMod_CONTROL;
+        long i;
+        for (i = 0; i < GAME_KEYS_COUNT; i++)
+        {
+            struct GameKey *kbk;
+            kbk = &settings.kbkeys[i];
+            if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
+                return 0;
+            }
+        }
+        {
+            struct GameKey  *kbk;
+            kbk = &settings.kbkeys[key_id];
+            kbk->code = key;
+            kbk->mods = mods;
+        }
+        return 1;
+    }
 }
 
 void define_key_input(void)

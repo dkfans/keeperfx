@@ -97,6 +97,8 @@ DLLIMPORT extern long _DK_right_button_clicked_x;
 #define right_button_clicked_x _DK_right_button_clicked_x
 DLLIMPORT extern char _DK_left_button_held;
 #define left_button_held _DK_left_button_held
+DLLIMPORT long _DK_key_to_string[256];
+#define key_to_string _DK_key_to_string
 /******************************************************************************/
 /******************************************************************************/
 long GetMouseX(void);
