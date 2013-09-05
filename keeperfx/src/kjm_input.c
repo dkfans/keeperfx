@@ -299,48 +299,70 @@ void update_key_modifiers(void)
   key_modifiers = key_mods;
 }
 
-long set_game_key(long key_id, unsigned char key, long shift_state, long ctrl_state)
+long set_game_key(long key_id, unsigned char key, unsigned int mods)
 {
     //return _DK_set_game_key(key_id, key, shift_state, ctrl_state);
-    int mods;
-    mods = 0;
     if (!key_to_string[key]) {
       return 0;
     }
+    // Rotate & speed - allow only lone modifiers
     if (key_id == 4 || key_id == 5)
     {
-        if (shift_state || ctrl_state) {
-            return 0;
-        }
-        if ( settings.kbkeys[((unsigned int)(key_id - 4) < 1) + 4].code != ((unsigned int)shift_state < 1 ? 29 : 42) )
+        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
         {
-            struct GameKey  *kbk;
-            kbk = &settings.kbkeys[key_id];
-            if (shift_state)
-            {
-                kbk->code = 42;
+            int ncode;
+            if (mods & KMod_SHIFT) {
+                ncode = 42;
             } else
-            if (ctrl_state)
-            {
-                kbk->code = 29;
+            if (mods & KMod_CONTROL) {
+                ncode = 29;
+            } else {
+                ncode = 29;
             }
-            kbk->mods = 0;
-        }
-        return 1;
-    }
-    if (key_id == 27 || key_id == 28)
-    {
-        mods = 0;
-        if (shift_state || ctrl_state)
-        {
-            if ( settings.kbkeys[((unsigned int)(key_id - 27) < 1) + 27].code != ((unsigned int)shift_state < 1 ? 29 : 42) )
+            struct GameKey  *kbk;
+            kbk = &settings.kbkeys[((unsigned int)(key_id - 4) < 1) + 4];
+            if (kbk->code != ncode)
             {
-                struct GameKey  *kbk;
                 kbk = &settings.kbkeys[key_id];
-                if (shift_state) {
+                if (mods & KMod_SHIFT)
+                {
                     kbk->code = 42;
                 } else
-                if (ctrl_state) {
+                if (mods & KMod_CONTROL)
+                {
+                    kbk->code = 29;
+                }
+                kbk->mods = 0;
+            }
+            return 1;
+        } else
+        {
+            return 0;
+        }
+    }
+    // Possess & query - allow lone modifiers and normal keys
+    if (key_id == 27 || key_id == 28)
+    {
+        if ((mods & KMod_SHIFT) || (mods & KMod_CONTROL))
+        {
+            int ncode;
+            if (mods & KMod_SHIFT) {
+                ncode = 42;
+            } else
+            if (mods & KMod_CONTROL) {
+                ncode = 29;
+            } else {
+                ncode = 29;
+            }
+            struct GameKey  *kbk;
+            kbk = &settings.kbkeys[((unsigned int)(key_id - 27) < 1) + 27];
+            if (kbk->code != ncode)
+            {
+                kbk = &settings.kbkeys[key_id];
+                if (mods & KMod_SHIFT) {
+                    kbk->code = 42;
+                } else
+                if (mods & KMod_CONTROL) {
                     kbk->code = 29;
                 }
                 kbk->mods = 0;
@@ -349,59 +371,50 @@ long set_game_key(long key_id, unsigned char key, long shift_state, long ctrl_st
         } else
         {
             long i;
+            struct GameKey  *kbk;
             for (i = 0; i < GAME_KEYS_COUNT; i++)
             {
-                struct GameKey  *kbk;
                 kbk = &settings.kbkeys[i];
                 if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
                     return 0;
                 }
             }
-            {
-                struct GameKey  *kbk;
-                kbk = &settings.kbkeys[key_id];
-                kbk->code = key;
-                kbk->mods = 0;
-            }
+            kbk = &settings.kbkeys[key_id];
+            kbk->code = key;
+            kbk->mods = 0;
             return 1;
         }
     }
+    // Just ignore these keystrokes
     if ( key == 42 || key == 54 || key == 29 || key == 157 )
     {
         return 0;
     }
+    // The normal keys - allow a key alone, or with one modifier
     {
-        if (shift_state && ctrl_state) {
+        if (((mods & KMod_SHIFT) && (mods & KMod_CONTROL))
+         || ((mods & KMod_SHIFT) && (mods & KMod_ALT))
+         || ((mods & KMod_CONTROL) && (mods & KMod_ALT))) {
             return 0;
         }
-        mods = 0;
-        if (shift_state)
-            mods |= KMod_SHIFT;
-        if (ctrl_state)
-            mods |= KMod_CONTROL;
+        struct GameKey *kbk;
         long i;
         for (i = 0; i < GAME_KEYS_COUNT; i++)
         {
-            struct GameKey *kbk;
             kbk = &settings.kbkeys[i];
             if ((i != key_id) && (kbk->code == key) && (kbk->mods == mods)) {
                 return 0;
             }
         }
-        {
-            struct GameKey  *kbk;
-            kbk = &settings.kbkeys[key_id];
-            kbk->code = key;
-            kbk->mods = mods;
-        }
+        kbk = &settings.kbkeys[key_id];
+        kbk->code = key;
+        kbk->mods = mods & (KMod_SHIFT|KMod_CONTROL|KMod_ALT);
         return 1;
     }
 }
 
 void define_key_input(void)
 {
-  TbBool shift_state;
-  TbBool ctrl_state;
   if (lbInkey == KC_ESCAPE)
   {
     defining_a_key = 0;
@@ -409,15 +422,10 @@ void define_key_input(void)
   } else
   if (lbInkey != KC_UNASSIGNED)
   {
-    ctrl_state = 0;
-    if ( lbKeyOn[KC_LCONTROL] || (lbKeyOn[KC_RCONTROL]) )
-      ctrl_state = 1;
-    shift_state = 0;
-    if ( lbKeyOn[KC_LSHIFT] || (lbKeyOn[KC_RSHIFT]) )
-      shift_state = 1;
-    if ( set_game_key(defining_a_key_id, lbInkey, shift_state, ctrl_state) )
-      defining_a_key = 0;
-    lbInkey = KC_UNASSIGNED;
+      update_key_modifiers();
+      if ( set_game_key(defining_a_key_id, lbInkey, key_modifiers) )
+        defining_a_key = 0;
+      lbInkey = KC_UNASSIGNED;
   }
 }
 
