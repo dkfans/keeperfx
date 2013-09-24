@@ -32,9 +32,39 @@ DLLIMPORT unsigned long _DK_action_point_get_players_within(long apt_idx);
 DLLIMPORT long _DK_process_action_points(void);
 
 /******************************************************************************/
+struct ActionPoint *action_point_get_free(void)
+{
+    struct ActionPoint *apt;
+    long apt_idx;
+    for (apt_idx=1; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
+    {
+        apt = &game.action_points[apt_idx];
+        if ((apt->flags & 0x01) == 0)
+            return apt;
+    }
+    return INVALID_ACTION_POINT;
+}
+
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num)
 {
-  return _DK_allocate_free_action_point_structure_with_number(apt_num);
+    struct ActionPoint *apt;
+    //return _DK_allocate_free_action_point_structure_with_number(apt_num);
+    apt = action_point_get_by_number(apt_num);
+    if (action_point_exists(apt)) {
+        ERRORLOG("Attempt to allocate action point over old one");
+        return INVALID_ACTION_POINT;
+    }
+    if (action_point_is_invalid(apt)) {
+        apt = action_point_get_free();
+    }
+    if (action_point_is_invalid(apt)) {
+        ERRORLOG("No free action points to allocate");
+        return INVALID_ACTION_POINT;
+    }
+    apt->flags |= 0x01;
+    apt->num = apt_num;
+    apt->activated = 0;
+    return apt;
 }
 
 struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt)
@@ -42,7 +72,7 @@ struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt)
   struct ActionPoint *apt;
   apt = allocate_free_action_point_structure_with_number(iapt->num);
   if (action_point_is_invalid(apt))
-    return &game.action_points[0];
+    return INVALID_ACTION_POINT;
   apt->mappos.x.val = iapt->mappos.x.val;
   apt->mappos.y.val = iapt->mappos.y.val;
   apt->range = iapt->range;
@@ -51,75 +81,75 @@ struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt)
 
 struct ActionPoint *action_point_get(long apt_idx)
 {
-  if ((apt_idx < 1) || (apt_idx > ACTN_POINTS_COUNT))
-    return &game.action_points[0];
-  return &game.action_points[apt_idx];
+    if ((apt_idx < 1) || (apt_idx > ACTN_POINTS_COUNT))
+        return INVALID_ACTION_POINT;
+    return &game.action_points[apt_idx];
 }
 
 struct ActionPoint *action_point_get_by_number(long apt_num)
 {
-  struct ActionPoint *apt;
-  long apt_idx;
-  for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
-  {
-    apt = &game.action_points[apt_idx];
-    if (apt->num == apt_num)
-      return apt;
-  }
-  return &game.action_points[0];
+    struct ActionPoint *apt;
+    long apt_idx;
+    for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
+    {
+        apt = &game.action_points[apt_idx];
+        if (apt->num == apt_num)
+            return apt;
+    }
+    return INVALID_ACTION_POINT;
 }
 
 long action_point_number_to_index(long apt_num)
 {
-  struct ActionPoint *apt;
-  long apt_idx;
-  for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
-  {
-    apt = &game.action_points[apt_idx];
-    if (apt->num == apt_num)
-      return apt_idx;
-  }
-  return -1;
+    struct ActionPoint *apt;
+    long apt_idx;
+    for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
+    {
+        apt = &game.action_points[apt_idx];
+        if (apt->num == apt_num)
+            return apt_idx;
+    }
+    return -1;
 }
 
 TbBool action_point_is_invalid(const struct ActionPoint *apt)
 {
-  return (apt == &game.action_points[0]) || (apt == NULL);
+    return (apt == INVALID_ACTION_POINT) || (apt == NULL);
 }
 
 TbBool action_point_exists(const struct ActionPoint *apt)
 {
-  if (action_point_is_invalid(apt))
-    return false;
-  return ((apt->flags & 0x01) != 0);
+    if (action_point_is_invalid(apt))
+        return false;
+    return ((apt->flags & 0x01) != 0);
 }
 
 TbBool action_point_exists_idx(long apt_idx)
 {
-  struct ActionPoint *apt;
-  apt = action_point_get(apt_idx);
-  if (action_point_is_invalid(apt))
-    return false;
-  return ((apt->flags & 0x01) != 0);
+    struct ActionPoint *apt;
+    apt = action_point_get(apt_idx);
+    if (action_point_is_invalid(apt))
+        return false;
+    return ((apt->flags & 0x01) != 0);
 }
 
 TbBool action_point_exists_number(long apt_num)
 {
-  struct ActionPoint *apt;
-  apt = action_point_get_by_number(apt_num);
-  if (action_point_is_invalid(apt))
-    return false;
-  return ((apt->flags & 0x01) != 0);
+    struct ActionPoint *apt;
+    apt = action_point_get_by_number(apt_num);
+    if (action_point_is_invalid(apt))
+        return false;
+    return ((apt->flags & 0x01) != 0);
 }
 
 TbBool action_point_reset_idx(long apt_idx)
 {
-  struct ActionPoint *apt;
-  apt = action_point_get(apt_idx);
-  if (action_point_is_invalid(apt))
-    return false;
-  apt->activated = 0;
-  return ((apt->flags & 0x01) != 0);
+    struct ActionPoint *apt;
+    apt = action_point_get(apt_idx);
+    if (action_point_is_invalid(apt))
+        return false;
+    apt->activated = 0;
+    return ((apt->flags & 0x01) != 0);
 }
 
 /**
@@ -128,34 +158,34 @@ TbBool action_point_reset_idx(long apt_idx)
  */
 unsigned long get_action_point_activated_by_players_mask(long apt_idx)
 {
-  struct ActionPoint *apt;
-  apt = action_point_get(apt_idx);
-  return apt->activated;
+    struct ActionPoint *apt;
+    apt = action_point_get(apt_idx);
+    return apt->activated;
 }
 
 PlayerFlags action_point_get_players_within(long apt_idx)
 {
-  return _DK_action_point_get_players_within(apt_idx);
+    return _DK_action_point_get_players_within(apt_idx);
 }
 
 TbBool process_action_points(void)
 {
-  SYNCDBG(6,"Starting");
-  struct ActionPoint *apt;
-  long i;
-  for (i=1; i < ACTN_POINTS_COUNT; i++)
-  {
-    apt = &game.action_points[i];
-    if (apt->flags & 0x01)
+    SYNCDBG(6,"Starting");
+    struct ActionPoint *apt;
+    long i;
+    for (i=1; i < ACTN_POINTS_COUNT; i++)
     {
-      if (((apt->num + game.play_gameturn) & 0x1F) == 0)
+      apt = &game.action_points[i];
+      if (apt->flags & 0x01)
       {
-        apt->activated = action_point_get_players_within(i);
+        if (((apt->num + game.play_gameturn) & 0x1F) == 0)
+        {
+          apt->activated = action_point_get_players_within(i);
 //if (i==1) show_onscreen_msg(2*game.num_fps, "APT PLYRS %d", (int)apt->activated);
+        }
       }
     }
-  }
-  return true;
+    return true;
 }
 
 void clear_action_points(void)
@@ -177,16 +207,16 @@ void delete_action_point_structure(struct ActionPoint *apt)
 
 void delete_all_action_point_structures(void)
 {
-  struct ActionPoint *apt;
-  long i;
-  for (i=1; i < ACTN_POINTS_COUNT; i++)
-  {
-    apt = &game.action_points[i];
-    if (apt != NULL)
+    struct ActionPoint *apt;
+    long i;
+    for (i=1; i < ACTN_POINTS_COUNT; i++)
     {
-      delete_action_point_structure(apt);
+      apt = &game.action_points[i];
+      if (apt != NULL)
+      {
+        delete_action_point_structure(apt);
+      }
     }
-  }
 }
 /******************************************************************************/
 #ifdef __cplusplus
