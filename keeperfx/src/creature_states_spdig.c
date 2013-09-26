@@ -301,7 +301,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
                 if ( setup_person_move_to_position(thing, pos_x, pos_y, 0) )
                 {
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
-                    cctrl->word_8D = stl_num;
+                    cctrl->digger.working_stl = stl_num;
                     cctrl->digger.byte_93 = 0;
                     return 1;
                 }
