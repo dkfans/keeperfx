@@ -1272,8 +1272,8 @@ void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_
     cctrl = creature_control_get_from_thing(creatng);
     unsigned char pretty_type;
     MapSubtlCoord wrkstl_x,wrkstl_y;
-    wrkstl_x = stl_num_decode_x(cctrl->word_8D);
-    wrkstl_y = stl_num_decode_y(cctrl->word_8D);
+    wrkstl_x = stl_num_decode_x(cctrl->digger.working_stl);
+    wrkstl_y = stl_num_decode_y(cctrl->digger.working_stl);
     pretty_type = choose_pretty_type(creatng->owner, slb_x, slb_y);
     place_slab_type_on_map(pretty_type, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 0);
     do_slab_efficiency_alteration(slb_x, slb_y);

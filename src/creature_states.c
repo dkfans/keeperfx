@@ -3365,7 +3365,7 @@ TbBool cleanup_current_thing_state(struct Thing *creatng)
 TbBool cleanup_creature_state_and_interactions(struct Thing *thing)
 {
     cleanup_current_thing_state(thing);
-    set_creature_assigned_job(thing,Job_NULL);
+    set_creature_assigned_job(thing, Job_NULL);
     remove_all_traces_of_combat(thing);
     if (creature_is_group_member(thing)) {
         remove_creature_from_group(thing);
@@ -3456,6 +3456,12 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_ManualControl);
         return thing->active_state;
     }
+    if (creature_affected_by_spell(thing, SplK_Chicken))
+    {
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+        return thing->active_state;
+    }
     if (is_neutral_thing(thing))
     {
         cleanup_current_thing_state(thing);
@@ -3481,12 +3487,6 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
-        return thing->active_state;
-    }
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-    {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
     i = creatures[thing->model%CREATURE_TYPES_COUNT].evil_start_state;

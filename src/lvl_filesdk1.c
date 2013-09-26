@@ -738,7 +738,7 @@ TbBool load_action_point_file(LevelNumber lv_num)
   for (k=0; k < total; k++)
   {
     LbMemoryCopy(&iapt, &buf[i], sizeof(struct InitActionPoint));
-    if (actnpoint_create_actnpoint(&iapt) == &game.action_points[0])
+    if (actnpoint_create_actnpoint(&iapt) == INVALID_ACTION_POINT)
     {
       ERRORLOG("Cannot allocate action point %d during APT load",k);
     }

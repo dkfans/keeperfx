@@ -209,16 +209,16 @@ unsigned char field_88;
     unsigned char byte_8Cx;
     short word_8Dx;
     unsigned char byte_8F;
-    unsigned short word_90[5];
+    unsigned short member_pos_stl[5];
     } party;
   struct {
     long stack_update_turn;
-    short word_8Dx;
+    short working_stl;
     unsigned short word_8F;
     unsigned short word_91;
     unsigned char byte_93;
     unsigned char last_did_job;
-    unsigned char field_95;
+    unsigned char imp_stack_pos;
     unsigned char field_96[4];
   } digger;
   struct {
@@ -363,8 +363,11 @@ unsigned char shot_model;
 unsigned char field_1E9[22];
     short field_1FF;
 unsigned char field_201[22];
+    /* Creature movement path data. */
     struct Ariadne arid;
+    /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char active_state_bkp;
+    /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char continue_state_bkp;
 unsigned char field_27F;
     short conscious_back_turns;

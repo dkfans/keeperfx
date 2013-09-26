@@ -601,8 +601,8 @@ long instf_reinforce(struct Thing *creatng, long *param)
     cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x,stl_y;
     MapSlabCoord slb_x,slb_y;
-    stl_x = stl_num_decode_x(cctrl->word_8D);
-    stl_y = stl_num_decode_y(cctrl->word_8D);
+    stl_x = stl_num_decode_x(cctrl->digger.working_stl);
+    stl_y = stl_num_decode_y(cctrl->digger.working_stl);
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
     if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
