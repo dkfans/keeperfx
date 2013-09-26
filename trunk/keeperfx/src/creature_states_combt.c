@@ -1527,7 +1527,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist,
         creature_turn_to_face(thing, &enmtng->mappos);
         return 0;
     }
-    if (cctrl->job_assigned == 512)
+    if (cctrl->job_assigned == Job_GUARD)
     {
         if (guard_post_combat_move(thing, a4)) {
             return 0;
@@ -1688,9 +1688,11 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
         creature_turn_to_face(thing, &enmtng->mappos);
         return 0;
     }
-    if ((cctrl->job_assigned == 512) && guard_post_combat_move(thing, a4))
+    if (cctrl->job_assigned == Job_GUARD)
     {
-        return 0;
+        if (guard_post_combat_move(thing, a4)) {
+            return 0;
+        }
     }
     if (enmdist < 156)
     {
@@ -1715,7 +1717,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
             {
                 CrInstance inst_id;
                 inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
-                if (inst_id > 0)
+                if (inst_id > CrInst_NULL)
                 {
                     set_creature_instance(thing, inst_id, 1, enmtng->index, 0);
                     return 0;
@@ -1936,9 +1938,59 @@ long check_for_better_combat(struct Thing *figtng)
     return 1;
 }
 
-long waiting_combat_move(struct Thing *fighter, struct Thing *enemy, long a1, long a2)
+long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdist, long a4)
 {
-    return _DK_waiting_combat_move(fighter, enemy, a1, a2);
+    struct CreatureControl *figctrl;
+    //return _DK_waiting_combat_move(figtng, enmtng, enmdist, a4);
+    figctrl = creature_control_get_from_thing(figtng);
+    if (figctrl->instance_id != 0)
+    {
+        creature_turn_to_face(figtng, &enmtng->mappos);
+        return 0;
+    }
+    if (figctrl->job_assigned == Job_GUARD)
+    {
+        if (guard_post_combat_move(figtng, a4)) {
+            return 0;
+        }
+    }
+    if (enmdist < 768) {
+        creature_retreat_from_combat(figtng, enmtng, a4, 1);
+        return 0;
+    }
+    if (enmdist > 2048) {
+        creature_move_to(figtng, &enmtng->mappos, figctrl->max_speed, 0, 0);
+        return 0;
+    }
+    if (creature_turn_to_face(figtng, &enmtng->mappos) >= 85) {
+        return 0;
+    }
+    // If the creature has ranged combat, let it fight
+    if (creature_has_ranged_weapon(figtng))
+    {
+        if (combat_has_line_of_sight(figtng, enmtng, enmdist))
+        {
+            CrInstance weapon;
+            weapon = get_best_ranged_offensive_weapon(figtng, enmdist);
+            if (weapon > CrInst_NULL) {
+                set_creature_instance(figtng, weapon, 1, enmtng->index, 0);
+                return 0;
+            }
+        } else
+        {
+            creature_move_to(figtng, &enmtng->mappos, figctrl->max_speed, 0, 0);
+        }
+    }
+    // Randomly jump waiting for combat
+    if (thing_touching_floor(figtng))
+    {
+        if (ACTION_RANDOM(6) == 0)
+        {
+            figtng->acceleration.z.val += ACTION_RANDOM(80) + 40;
+            figtng->field_1 |= 0x04;
+        }
+    }
+    return 1;
 }
 
 void creature_in_combat_wait(struct Thing *creatng)

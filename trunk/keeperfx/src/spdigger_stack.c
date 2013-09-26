@@ -1820,7 +1820,7 @@ long check_out_worker_reinforce_wall(struct Thing *thing, struct DiggerStack *is
     cctrl = creature_control_get_from_thing(thing);
     if (game.play_gameturn - cctrl->field_2C7 > 128)
     {
-        cctrl->field_95--;
+        cctrl->digger.imp_stack_pos--;
         check_out_imp_has_money_for_treasure_room(thing);
         cctrl->field_2C7 = game.play_gameturn;
         return 1;
@@ -2190,17 +2190,17 @@ long check_out_imp_stack(struct Thing *thing)
     if (cctrl->digger.stack_update_turn != dungeon->digger_stack_update_turn)
     {
       cctrl->digger.stack_update_turn = dungeon->digger_stack_update_turn;
-      cctrl->field_95 = 0;
+      cctrl->digger.imp_stack_pos = 0;
     }
     if (dungeon->digger_stack_length > IMP_TASK_MAX_COUNT)
     {
         ERRORLOG("Imp tasks length %d out of range",(int)dungeon->digger_stack_length);
         dungeon->digger_stack_length = IMP_TASK_MAX_COUNT;
     }
-    while (cctrl->field_95 < dungeon->digger_stack_length)
+    while (cctrl->digger.imp_stack_pos < dungeon->digger_stack_length)
     {
-        istack = &dungeon->imp_stack[cctrl->field_95];
-        cctrl->field_95++;
+        istack = &dungeon->imp_stack[cctrl->digger.imp_stack_pos];
+        cctrl->digger.imp_stack_pos++;
         SYNCDBG(18,"Checking task %d",(int)istack->task_id);
         switch (istack->task_id)
         {
