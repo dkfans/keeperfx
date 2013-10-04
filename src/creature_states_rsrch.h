@@ -34,6 +34,7 @@ struct Dungeon;
 
 #pragma pack()
 /******************************************************************************/
+TbBool creature_can_do_research(const struct Thing *creatng);
 short at_research_room(struct Thing *thing);
 CrCheckRet process_research_function(struct Thing *thing);
 short researching(struct Thing *thing);

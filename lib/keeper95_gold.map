@@ -480,6 +480,7 @@
  0001:00054890       draw_keepsprite_unscaled_in_buffer
  0001:00054E00       creature_doing_nothing
  0001:00055660       creature_cannot_find_anything_to_do
+ 0001:000556C0       attempt_job_preference
  0001:00055D50       arrive_at_call_to_arms
  0001:00055EA0       already_at_call_to_arms
  0001:00055EC0       arrive_at_alarm

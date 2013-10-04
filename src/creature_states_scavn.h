@@ -33,6 +33,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
+TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng);
 short at_scavenger_room(struct Thing *thing);
 short creature_being_scavenged(struct Thing *thing);
 short creature_scavenged_disappear(struct Thing *thing);

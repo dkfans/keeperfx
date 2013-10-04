@@ -1671,6 +1671,50 @@ struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, Room
     return NULL;
 }
 
+struct Room *find_room_for_thing_with_used_capacity(struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_no_owner, long min_used_cap)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    long i;
+    unsigned long k;
+    SYNCDBG(18,"Starting");
+    dungeon = get_dungeon(plyr_idx);
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        struct Coord3d pos;
+        if ((room->used_capacity >= min_used_cap) && find_first_valid_position_for_thing_in_room(creatng, room, &pos))
+        {
+            if (thing_is_creature(creatng))
+            {
+                if (creature_can_navigate_to(creatng, &pos, nav_no_owner)) {
+                    return room;
+                }
+            } else
+            {
+                return room;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    return INVALID_ROOM;
+}
+
 /**
  * Searches for room of given kind and owner which has no less than given spare capacity.
  * @param owner
