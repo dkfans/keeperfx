@@ -151,13 +151,18 @@ short creature_scavenged_reappear(struct Thing *thing)
     return _DK_creature_scavenged_reappear(thing);
 }
 
-TbBool player_can_afford_to_scavenge_creature(const struct Thing *thing)
+/**
+ * Returns if a player to whom the creature belongs can afford the creature to go scavenging.
+ * @param creatng
+ * @return
+ */
+TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 {
     struct Dungeon *dungeon;
-    dungeon = get_dungeon(thing->owner);
+    dungeon = get_dungeon(creatng->owner);
     struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    return (crstat->scavenger_cost >= dungeon->total_money_owned);
+    crstat = creature_stats_get_from_thing(creatng);
+    return (crstat->scavenger_cost < dungeon->total_money_owned);
 }
 
 TbBool reset_scavenge_counts(struct Dungeon *dungeon)
@@ -430,7 +435,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(calltng);
-    if (player_can_afford_to_scavenge_creature(calltng))
+    if (!player_can_afford_to_scavenge_creature(calltng))
     {
         if (is_my_player_number(calltng->owner))
             output_message(88, 500, 1);

@@ -193,6 +193,7 @@ TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct R
 // Finding a room for a thing
 TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumber owner);
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind);
+struct Room *find_room_for_thing_with_used_capacity(struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_no_owner, long min_used_cap);
 struct Room *find_room_with_spare_capacity(unsigned char owner, signed char kind, long spare);
 struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spare);
 struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long *total_spare_cap);
