@@ -364,7 +364,7 @@ void draw_overhead_things(long x, long y)
                     {
                         long memberpos;
                         cctrl = creature_control_get_from_thing(thing);
-                        memberpos = cctrl->party.word_90[n];
+                        memberpos = cctrl->party.member_pos_stl[n];
                         if (memberpos == 0)
                             break;
                         pos_x = x + 4 * stl_num_decode_x(memberpos) / 3;

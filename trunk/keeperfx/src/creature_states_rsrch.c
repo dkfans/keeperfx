@@ -51,25 +51,30 @@ DLLIMPORT long _DK_get_next_research_item(struct Dungeon *dungeon);
 }
 #endif
 /******************************************************************************/
+TbBool creature_can_do_research(const struct Thing *creatng)
+{
+    if (is_neutral_thing(creatng)) {
+        return false;
+    }
+    struct CreatureStats *crstat;
+    struct Dungeon *dungeon;
+    crstat = creature_stats_get_from_thing(creatng);
+    dungeon = get_dungeon(creatng->owner);
+    return (crstat->research_value > 0) && (dungeon->field_F78 >= 0);
+}
+
 short at_research_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     struct Dungeon *dungeon;
     struct Room *room;
     //return _DK_at_research_room(thing);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
-    if (is_neutral_thing(thing))
-    {
-        set_start_state(thing);
-        return 0;
-    }
-    crstat = creature_stats_get_from_thing(thing);
     dungeon = get_dungeon(thing->owner);
-    if ((crstat->research_value <= 0) || (dungeon->field_F78 < 0))
+    if (!creature_can_do_research(thing))
     {
-        if ( !is_neutral_thing(thing) && (dungeon->field_F78 < 0) )
+        if (!is_neutral_thing(thing) && (dungeon->field_F78 < 0))
         {
             if ( is_my_player_number(dungeon->owner) )
                 output_message(SMsg_NoMoreReseach, 500, true);

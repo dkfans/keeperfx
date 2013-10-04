@@ -138,8 +138,8 @@ DLLIMPORT long _DK_setup_random_head_for_room(struct Thing *creatng, struct Room
 DLLIMPORT void _DK_create_effect_around_thing(struct Thing *creatng, long eff_kind);
 DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *creatng, long delta);
 DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
-DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *creatng, char owner, char a3, char a4, unsigned char a5);
-DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_used_capacity(struct Thing *creatng, char wandr_select, char a3, unsigned char a4, long a5);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *creatng, char owner, char a3, char nav_no_owner, unsigned char min_used_cap);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_used_capacity(struct Thing *creatng, char wandr_select, char a3, unsigned char nav_no_owner, long min_used_cap);
 DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *creatng, long wandr_select);
 DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *creatng);
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
@@ -149,7 +149,7 @@ DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, 
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *creatng, long state);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
-DLLIMPORT struct Room * _DK_find_nearest_room_for_thing(struct Thing *creatng, char wandr_select, char a3, unsigned char a4);
+DLLIMPORT struct Room * _DK_find_nearest_room_for_thing(struct Thing *creatng, char wandr_select, char a3, unsigned char nav_no_owner);
 DLLIMPORT long _DK_process_creature_needs_to_heal_critical(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat);
@@ -158,6 +158,7 @@ DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *creatng, const s
 DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
 DLLIMPORT long _DK_creature_find_and_perform_anger_job(struct Thing *creatng);
 DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
+DLLIMPORT long _DK_attempt_job_preference(struct Thing *creatng, long jobpref);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -1667,8 +1668,23 @@ short creature_change_to_chicken(struct Thing *creatng)
     return 1;
 }
 
+long attempt_job_preference(struct Thing *creatng, long jobpref)
+{
+    return _DK_attempt_job_preference(creatng, jobpref);
+}
+
 short creature_doing_nothing(struct Thing *creatng)
 {
+    //TODO CREATURES Important function - rewrite!
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if ((long)game.play_gameturn - cctrl->long_9A <= 1) {
+        return 1;
+    }
+    if ((cctrl->spell_flags & CSAfF_Unkn1000) != 0) {
+      internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
+      return 1;
+    }
     return _DK_creature_doing_nothing(creatng);
 }
 

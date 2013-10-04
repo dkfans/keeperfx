@@ -1570,6 +1570,7 @@
  0001:000B44E0       creature_being_scavenged
  0001:00019040       creature_being_summoned
  0001:00055660       creature_cannot_find_anything_to_do
+ 0001:000556C0       attempt_job_preference
  0001:000BFD90       creature_change_from_chicken
  0001:000A2000       creature_change_lair
  0001:000BFC50       creature_change_to_chicken
