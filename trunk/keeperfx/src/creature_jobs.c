@@ -92,6 +92,19 @@ TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job)
     return true;
 }
 
+/**
+ * Returns if the given job is creature's primary or secondary job.
+ * @param thing
+ * @param job_kind
+ * @return
+ */
+TbBool creature_has_job(const struct Thing *thing, CreatureJob job_kind)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    return (crstat->job_primary & job_kind) || (crstat->job_secondary & job_kind);
+}
+
 TbBool creature_free_for_anger_job(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -169,7 +182,10 @@ TbBool attempt_job_work_in_room(struct Thing *creatng, CreatureJob jobpref)
     RoomKind rkind;
     rkind = get_room_for_job(jobpref);
     room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, rkind, 0, 1);
-    if (room_is_invalid(room) || !find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
+    if (room_is_invalid(room)) {
+        return false;
+    }
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
         return false;
     }
     if (!get_arrive_at_state_for_room(room->kind))

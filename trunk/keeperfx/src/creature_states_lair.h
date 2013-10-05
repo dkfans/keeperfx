@@ -44,6 +44,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing);
 
 short at_lair_to_sleep(struct Thing *thing);
 short cleanup_sleep(struct Thing *thing);
+TbBool creature_move_to_home_lair(struct Thing *creatng);
 short creature_going_home_to_sleep(struct Thing *thing);
 short creature_sleep(struct Thing *thing);
 /******************************************************************************/
