@@ -1210,7 +1210,7 @@ struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
  *   which can be assigned by dropping creatures by computer player.
  * @return A single job flag.
  */
-unsigned long get_job_for_room(RoomKind rkind, TbBool only_computer)
+CreatureJob get_job_for_room(RoomKind rkind, TbBool only_computer)
 {
     long i;
     if (rkind == RoK_NONE) {
@@ -1260,7 +1260,7 @@ CrtrStateId get_arrive_at_state_for_room(RoomKind rkind)
     return jobcfg->initial_crstate;
 }
 
-unsigned long get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind)
+CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind)
 {
     //TODO CONFIG Place related rooms in [jobX] section of config file
     switch (rkind)

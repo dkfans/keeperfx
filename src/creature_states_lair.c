@@ -92,6 +92,22 @@ TbBool creature_requires_healing(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_move_to_home_lair(struct Thing *creatng)
+{
+    if (!creature_has_lair_room(creatng)) {
+        return false;
+    }
+    struct CreatureControl *cctrl;
+    struct Thing *lairtng;
+    cctrl = creature_control_get_from_thing(creatng);
+    lairtng = thing_get(cctrl->lairtng_idx);
+    if (thing_is_invalid(lairtng)) {
+        return false;
+    }
+    return setup_person_move_to_position(creatng, lairtng->mappos.x.stl.num, lairtng->mappos.y.stl.num, 0);
+
+}
+
 long creature_will_sleep(struct Thing *thing)
 {
     struct CreatureControl *cctrl;

@@ -1708,7 +1708,7 @@ short creature_try_going_to_healing_sleep(struct Thing *creatng)
     if (!creature_free_for_sleep(creatng)) {
         return false;
     }
-    if (!creature_has_lair(creatng) && room_is_invalid(get_best_new_lair_for_creature(creatng))) {
+    if (!creature_has_lair_room(creatng) && room_is_invalid(get_best_new_lair_for_creature(creatng))) {
         return false;
     }
     if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {

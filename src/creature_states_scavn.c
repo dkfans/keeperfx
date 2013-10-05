@@ -64,7 +64,7 @@ TbBool creature_can_do_scavenging(const struct Thing *creatng)
     }
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    return (crstat->manufacture_value > 0);
+    return (crstat->scavenge_value > 0);
 }
 
 short at_scavenger_room(struct Thing *thing)
