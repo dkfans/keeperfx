@@ -30,6 +30,7 @@
 #include "thing_data.h"
 #include "thing_list.h"
 #include "thing_navigate.h"
+#include "spdigger_stack.h"
 #include "config_terrain.h"
 #include "config_creature.h"
 #include "gui_topmsg.h"

@@ -2557,9 +2557,67 @@ short creature_set_work_room_based_on_position(struct Thing *creatng)
     return 1;
 }
 
+void init_creature_state(struct Thing *thing)
+{
+    struct Room *room;
+    if (is_neutral_thing(thing))
+    {
+        set_start_state(thing);
+        return;
+    }
+    room = get_room_thing_is_on(thing);
+    if (!room_is_invalid(room))
+    {
+        switch (room->kind)
+        {
+        case RoK_PRISON:
+        case RoK_TORTURE:
+        case RoK_GUARDPOST:
+            if ( send_creature_to_room(thing, room) )
+              return;
+        default:
+            break;
+        }
+    }
+    set_start_state(thing);
+}
+
+TbBool restore_backup_state(struct Thing *creatng, CrtrStateId active_state, CrtrStateId continue_state)
+{
+    struct StateInfo *active_stati;
+    struct StateInfo *continue_stati;
+    active_stati = &states[active_state];
+    continue_stati = &states[continue_state];
+    if ((active_stati->cleanup_state != NULL) || ((continue_state != CrSt_Unused) && (continue_stati->cleanup_state != NULL)))
+    {
+        if ((active_state == CrSt_CreatureInPrison) || (active_state == CrSt_Torturing)
+          || (continue_state == CrSt_CreatureInPrison) || (continue_state == CrSt_Torturing))
+        {
+            init_creature_state(creatng);
+        } else
+        {
+            set_start_state(creatng);
+        }
+        return true;
+    } else
+    {
+        internal_set_thing_state(creatng, active_state);
+        creatng->continue_state = continue_state;
+        return true;
+    }
+}
+
 short creature_slap_cowers(struct Thing *creatng)
 {
-  return _DK_creature_slap_cowers(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    //return _DK_creature_slap_cowers(creatng);
+    if ((cctrl->field_27F > 0) && (cctrl->field_27F-- > 0)) {
+        return 0;
+    }
+    restore_backup_state(creatng, cctrl->active_state_bkp, cctrl->continue_state_bkp);
+    cctrl->field_35 = 0;
+    return 1;
 }
 
 short creature_steal_gold(struct Thing *creatng)
@@ -3644,31 +3702,6 @@ TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state)
     }
     initialise_thing_state(thing, state);
     return true;
-}
-
-void init_creature_state(struct Thing *thing)
-{
-    struct Room *room;
-    if (is_neutral_thing(thing))
-    {
-        set_start_state(thing);
-        return;
-    }
-    room = get_room_thing_is_on(thing);
-    if (!room_is_invalid(room))
-    {
-        switch (room->kind)
-        {
-        case RoK_PRISON:
-        case RoK_TORTURE:
-        case RoK_GUARDPOST:
-            if ( send_creature_to_room(thing, room) )
-              return;
-        default:
-            break;
-        }
-    }
-    set_start_state(thing);
 }
 
 TbBool creature_free_for_sleep(struct Thing *thing)
