@@ -33,6 +33,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
+TbBool creature_can_do_manufacturing(const struct Thing *creatng);
 short at_workshop_room(struct Thing *thing);
 short manufacturing(struct Thing *thing);
 

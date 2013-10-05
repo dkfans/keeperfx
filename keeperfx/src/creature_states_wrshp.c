@@ -50,6 +50,16 @@ DLLIMPORT long _DK_process_creature_in_workshop(struct Thing *creatng, struct Ro
 }
 #endif
 /******************************************************************************/
+TbBool creature_can_do_manufacturing(const struct Thing *creatng)
+{
+    if (is_neutral_thing(creatng)) {
+        return false;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    return (crstat->manufacture_value > 0);
+}
+
 TbBool setup_workshop_move(struct Thing *thing, SubtlCodedCoords stl_num)
 {
     struct CreatureControl *cctrl;

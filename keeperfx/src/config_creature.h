@@ -187,7 +187,7 @@ ThingModel get_players_special_digger_breed(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_breed(PlayerNumber plyr_idx);
 /******************************************************************************/
 RoomKind get_room_for_job(unsigned long job_flags);
-unsigned long get_creature_job_causing_stress(long job_flags, RoomKind rkind);
+unsigned long get_creature_job_causing_stress(unsigned long job_flags, RoomKind rkind);
 unsigned long get_job_for_room(RoomKind rkind, TbBool only_dropable);
 /******************************************************************************/
 #ifdef __cplusplus
