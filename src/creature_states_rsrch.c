@@ -222,7 +222,7 @@ long creature_has_job(struct Thing *thing, unsigned short job_kind)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    return (crstat->job_primary & job_kind) || (job_kind & crstat->job_secondary);
+    return (crstat->job_primary & job_kind) || (crstat->job_secondary & job_kind);
 }
 
 long get_best_quick_range_instance_to_use(struct Thing *thing)

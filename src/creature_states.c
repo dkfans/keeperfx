@@ -1668,14 +1668,374 @@ short creature_change_to_chicken(struct Thing *creatng)
     return 1;
 }
 
+struct Room *get_best_new_lair_for_creature(struct Thing *thing)
+{
+    return _DK_get_best_new_lair_for_creature(thing);
+}
+
+TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Room *room;
+    room = get_creature_lair_room(creatng);
+    if (room_is_invalid(room) || (room->kind != RoK_LAIR)) {
+        return false;
+    }
+    if (game.play_gameturn - cctrl->field_2C7 <= 128) {
+        return false;
+    }
+    cctrl->field_2C7 = game.play_gameturn;
+    if (!setup_random_head_for_room(creatng, room, 0)) {
+        return false;
+    }
+    creatng->continue_state = CrSt_CreatureDoingNothing;
+    return true;
+}
+
+short creature_try_going_to_healing_sleep(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if ((crstat->heal_requirement <= 0) || (crstat->lair_size <= 0)) {
+        return false;
+    }
+    if (game.play_gameturn - cctrl->field_2D7 <= 200) {
+        return false;
+    }
+    cctrl->field_2D7 = game.play_gameturn;
+    if (!creature_free_for_sleep(creatng)) {
+        return false;
+    }
+    if (!creature_has_lair(creatng) && room_is_invalid(get_best_new_lair_for_creature(creatng))) {
+        return false;
+    }
+    if (external_set_thing_state(creatng, CrSt_CreatureGoingHomeToSleep)) {
+        return true;
+    }
+    return false;
+}
+
+TbBool creature_can_do_job_for_player(struct Thing *creatng, PlayerNumber plyr_idx, long jobpref)
+{
+    if (jobpref & Job_TRAIN)
+    {
+        return creature_can_be_trained(creatng);
+    }
+    if (jobpref & Job_RESEARCH)
+    {
+        return creature_can_do_research(creatng);
+    }
+    if (jobpref & Job_MANUFACTURE)
+    {
+        return creature_can_do_manufacturing(creatng);
+    }
+    if (jobpref & Job_SCAVENGE)
+    {
+        return creature_can_do_scavenging(creatng) && player_can_afford_to_scavenge_creature(creatng);
+    }
+    if (jobpref & Job_KINKY_TORTURE)
+    {
+        return true;
+    }
+    if (jobpref & Job_GUARD)
+    {
+        return true;
+    }
+    if (jobpref & Job_FREEZE_PRISONERS)
+    {
+        struct Room *room;
+        room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, get_room_for_job(Job_FREEZE_PRISONERS), 0, 1);
+        return creature_instance_is_available(creatng, 7) && !room_is_invalid(room);
+    }
+    if (jobpref & Job_SEEK_THE_ENEMY)
+    {
+        return true;
+    }
+    if (jobpref & Job_EXPLORE)
+    {
+        return true;
+    }
+    if (jobpref & Job_TEMPLE)
+    {
+        return true;
+    }
+    return false;
+}
+
+CrtrStateId get_initial_state_for_job(long jobpref)
+{
+    if (jobpref & Job_FREEZE_PRISONERS)
+    {
+        return CrSt_CreatureFreezePrisonors;
+    }
+    if (jobpref & Job_SEEK_THE_ENEMY)
+    {
+        return CrSt_SeekTheEnemy;
+    }
+    if (jobpref & Job_EXPLORE)
+    {
+        return CrSt_CreatureExploreDungeon;
+    }
+    return 0;
+}
+
 long attempt_job_preference(struct Thing *creatng, long jobpref)
 {
     return _DK_attempt_job_preference(creatng, jobpref);
 }
 
+TbBool attempt_job_preference_2(struct Thing *creatng, long jobpref)
+{
+    long i;
+    unsigned long k;
+    // Count the amount of jobs set
+    i = 0;
+    k = jobpref;
+    while (k)
+    {
+        k >>= 1;
+        i++;
+    }
+    if (i <= 0) {
+        return false;
+    }
+    unsigned long select_val,select_curr,select_delta;
+    select_val = ACTION_RANDOM(512);
+    select_delta = 512 / i;
+    select_curr = select_delta;
+    /* New code, should look in similar way to original
+    k = 1;
+    for (i=1; i < crtr_conf.jobs_count; i++, k <<= 1)
+    {
+        if (jobpref & k)
+        {
+            if (select_val <= select_curr)
+            {
+                select_curr += select_delta;
+            } else
+            if (creature_can_do_job_for_player(creatng, creatng->owner, k))
+            {
+                CrtrStateId crstate = get_initial_state_for_job(k);
+                if (crstate != CrSt_Unused)
+                {
+                    if (internal_set_thing_state(creatng, crstate)) {
+                        if (crstate == CrSt_SeekTheEnemy) {
+                            struct CreatureControl *cctrl;
+                            cctrl = creature_control_get_from_thing(creatng);
+                            cctrl->word_9A = 0;
+                        }
+                        return true;
+                    }
+                }
+                RoomKind rkind = get_room_for_job(k);
+                if (rkind != RoK_NONE)
+                {
+                    struct Room *room;
+                    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, rkind, 0, 1);
+                    if (!room_is_invalid(room))
+                    {
+                        if (send_creature_to_room(creatng, room)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    */
+    if (jobpref & Job_TRAIN)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        if (creature_can_be_trained(creatng))
+        {
+            struct Room *room;
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TRAINING, 0, 1);
+            if (!room_is_invalid(room))
+            {
+                if (send_creature_to_room(creatng, room)) {
+                  return true;
+                }
+            }
+        }
+    }
+    if (jobpref & Job_RESEARCH)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        {
+            if (creature_can_do_research(creatng))
+            {
+                struct Room *room;
+                room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, 0, 1);
+                if (!room_is_invalid(room))
+                {
+                    if (send_creature_to_room(creatng, room)) {
+                      return true;
+                    }
+                }
+            }
+        }
+    }
+    if (jobpref & Job_MANUFACTURE)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        if (creature_can_do_manufacturing(creatng))
+        {
+            struct Room *room;
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_WORKSHOP, 0, 1);
+            if (!room_is_invalid(room))
+            {
+                if (send_creature_to_room(creatng, room)) {
+                  return true;
+                }
+            }
+        }
+    }
+    if (jobpref & Job_SCAVENGE)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        if (creature_can_do_scavenging(creatng) && player_can_afford_to_scavenge_creature(creatng))
+        {
+            struct Room *room;
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_SCAVENGER, 0, 1);
+            if (!room_is_invalid(room))
+            {
+                if (send_creature_to_room(creatng, room)) {
+                  return true;
+                }
+            }
+        }
+    }
+    if (jobpref & Job_KINKY_TORTURE)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        {
+            struct Room *room;
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TORTURE, 0, 1);
+            if (!room_is_invalid(room))
+            {
+                if (send_creature_to_room(creatng, room)) {
+                  return true;
+                }
+            }
+        }
+    }
+    if (jobpref & Job_GUARD)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        {
+            struct Room *room;
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GUARDPOST, 0, 1);
+            if (!room_is_invalid(room))
+            {
+                if (send_creature_to_room(creatng, room)) {
+                  return true;
+                }
+            }
+        }
+    }
+    if (jobpref & Job_FREEZE_PRISONERS)
+    {
+      if ( select_curr < select_val && creature_instance_is_available(creatng, 7) && find_room_for_thing_with_used_capacity(creatng, creatng->owner, 4, 0, 1) )
+      {
+        internal_set_thing_state(creatng, CrSt_CreatureFreezePrisonors);
+        return 1;
+      }
+      select_curr += select_delta;
+    }
+    if (jobpref & Job_SEEK_THE_ENEMY)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        {
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(creatng);
+            internal_set_thing_state(creatng, CrSt_SeekTheEnemy);
+            cctrl->word_9A = 0;
+            return true;
+        }
+    }
+    if (jobpref & Job_EXPLORE)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        {
+            internal_set_thing_state(creatng, CrSt_CreatureExploreDungeon);
+            return true;
+        }
+    }
+    if (jobpref & 0x1000)
+    {
+        if (select_val <= select_curr)
+        {
+            select_curr += select_delta;
+        } else
+        {
+            struct Room *room;
+            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TEMPLE, 0, 1);
+            if (!room_is_invalid(room))
+            {
+                if (send_creature_to_room(creatng, room)) {
+                  return true;
+                }
+            }
+        }
+    }
+
+    // If no job, give 1% chance of going to temple
+    if (ACTION_RANDOM(100) == 0)
+    {
+        struct Room *room;
+        room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TEMPLE, 0, 1);
+        if (!room_is_invalid(room))
+        {
+            if (send_creature_to_room(creatng, room)) {
+              return true;
+            }
+        }
+    }
+    return 0;
+}
+
+short creature_try_doing_secondary_job(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (game.play_gameturn - cctrl->field_2D3 <= 128) {
+        return false;
+    }
+    cctrl->field_2D3 = game.play_gameturn;
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    return attempt_job_preference_2(creatng, crstat->job_secondary);
+}
+
 short creature_doing_nothing(struct Thing *creatng)
 {
-    //TODO CREATURES Important function - rewrite!
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     if ((long)game.play_gameturn - cctrl->long_9A <= 1) {
@@ -1683,9 +2043,102 @@ short creature_doing_nothing(struct Thing *creatng)
     }
     if ((cctrl->spell_flags & CSAfF_Unkn1000) != 0) {
       internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
+      SYNCDBG(8,"The %s index %d goes mad killing",thing_model_name(creatng),creatng->index);
       return 1;
     }
-    return _DK_creature_doing_nothing(creatng);
+    //return _DK_creature_doing_nothing(creatng);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if ((cctrl->lair_room_id <= 0) && (crstat->lair_size > 0) && (game.play_gameturn - cctrl->field_2C7 > 128))
+    {
+        cctrl->field_2C7 = game.play_gameturn;
+        if (find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, 0, crstat->lair_size))
+        {
+            internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
+            SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
+            return 1;
+        }
+        if (is_my_player_number(creatng->owner))
+        {
+            if (player_has_room(creatng->owner, RoK_LAIR)) {
+                struct Room *room;
+                room = find_room_with_spare_capacity(creatng->owner, RoK_LAIR, crstat->lair_size);
+                if (room_is_invalid(room)) {
+                    output_message(23, 500, 1);
+                } else {
+                    output_message(36, 500, 1);
+                }
+            } else
+            {
+                output_message(40, 500, 1);
+            }
+        }
+        if (player_has_room(creatng->owner, RoK_LAIR)) {
+            event_create_event_or_update_nearby_existing_event(
+                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, creatng->owner, creatng->index);
+        }
+    }
+    if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->field_2E7 > 128))
+    {
+        if (attempt_job_preference(creatng, cctrl->job_assigned)) {
+            SYNCDBG(8,"The %s index %d will do assigned job",thing_model_name(creatng),creatng->index);
+            return 1;
+        }
+        cctrl->field_2E7 = game.play_gameturn;
+    }
+    if ((crstat->job_primary != Job_NULL) && (game.play_gameturn - cctrl->field_2CF > 128))
+    {
+        if (attempt_job_preference(creatng, crstat->job_primary)) {
+            SYNCDBG(8,"The %s index %d will do primary job",thing_model_name(creatng),creatng->index);
+            return 1;
+        }
+        cctrl->field_2CF = game.play_gameturn;
+    }
+    long i, n;
+    n = ACTION_RANDOM(3);
+    for (i=0; i < 3; i++)
+    {
+        switch (n)
+        {
+        case 0:
+            if (creature_try_going_to_lazy_sleep(creatng)) {
+                SYNCDBG(8,"The %s index %d will do lazy sleep",thing_model_name(creatng),creatng->index);
+                return 1;
+            }
+            break;
+        case 1:
+            if (creature_try_going_to_healing_sleep(creatng)) {
+                SYNCDBG(8,"The %s index %d will do healing sleep",thing_model_name(creatng),creatng->index);
+                return 1;
+            }
+            break;
+        case 2:
+            if (creature_try_doing_secondary_job(creatng)) {
+                SYNCDBG(8,"The %s index %d will do secondary job",thing_model_name(creatng),creatng->index);
+                return 1;
+            }
+            break;
+        default:
+            break;
+        }
+        n = (n + 1) % 3;
+    }
+    if (game.play_gameturn - cctrl->field_2CB > 128)
+    {
+        struct Coord3d pos;
+        cctrl->field_2CB = game.play_gameturn;
+        if (get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos))
+        {
+            if (setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+            {
+                creatng->continue_state = CrSt_CreatureDoingNothing;
+                return 1;
+            }
+        }
+    }
+    internal_set_thing_state(creatng, CrSt_CreatureCannotFindAnythingToDo);
+    cctrl->field_282 = game.play_gameturn;
+    return 0;
 }
 
 /**
@@ -3547,11 +4000,6 @@ void init_creature_state(struct Thing *thing)
         }
     }
     set_start_state(thing);
-}
-
-struct Room *get_best_new_lair_for_creature(struct Thing *thing)
-{
-    return _DK_get_best_new_lair_for_creature(thing);
 }
 
 TbBool creature_free_for_sleep(struct Thing *thing)

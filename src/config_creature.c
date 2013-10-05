@@ -759,7 +759,6 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                         n++;
                     } else
                     {
-                        jobcfg->room_kind = 0;
                         if (stricmp(word_buf,"NULL") == 0)
                             n++;
                     }
@@ -1102,57 +1101,44 @@ ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
  */
 unsigned long get_job_for_room(RoomKind rkind, TbBool only_computer)
 {
-    switch (rkind)
-    {
-    case RoK_LIBRARY:
-        return Job_RESEARCH;
-    case RoK_TRAINING:
-        return Job_TRAIN;
-    case RoK_WORKSHOP:
-        return Job_MANUFACTURE;
-    case RoK_SCAVENGER:
-        return Job_SCAVENGE;
-    case RoK_TEMPLE:
-        return Job_TEMPLE;
-    case RoK_GUARDPOST:
-        return Job_GUARD;
-    case RoK_TORTURE:
-        if (only_computer)
-            return Job_NULL;
-        return Job_KINKY_TORTURE;
-    case RoK_BARRACKS: //TODO COMPUTER_AI Maybe computer should be able to place creatures in barracks?
-        if (only_computer)
-            return Job_NULL;
-        return Job_BARRACK;
-    default:
+    long i;
+    if (rkind == RoK_NONE) {
         return Job_NULL;
     }
+    for (i=0; i < crtr_conf.jobs_count; i++)
+    {
+        struct CreatureJobConfig *jobcfg;
+        jobcfg = &crtr_conf.jobs[i];
+        if ((!only_computer) || (only_computer && (jobcfg->job_flags & 0x02)))
+        {
+            if (jobcfg->room_kind == rkind) {
+                return 1<<(i-1);
+            }
+        }
+    }
+    return Job_NULL;
 }
 
 RoomKind get_room_for_job(unsigned long job_flags)
 {
-    if ((job_flags & Job_RESEARCH) != 0)
-        return RoK_LIBRARY;
-    if ((job_flags & Job_TRAIN) != 0)
-        return RoK_TRAINING;
-    if ((job_flags & Job_MANUFACTURE) != 0)
-        return RoK_WORKSHOP;
-    if ((job_flags & Job_SCAVENGE) != 0)
-        return RoK_SCAVENGER;
-    if ((job_flags & Job_KINKY_TORTURE) != 0)
-        return RoK_TORTURE;
-    if ((job_flags & Job_GUARD) != 0)
-        return RoK_GUARDPOST;
-    if ((job_flags & Job_BARRACK) != 0)
-        return RoK_BARRACKS;
-    if ((job_flags & Job_TEMPLE) != 0)
-        return RoK_TEMPLE;
-    if ((job_flags & Job_FREEZE_PRISONERS) != 0)
-        return RoK_PRISON;
-    return RoK_NONE;
+    struct CreatureJobConfig *jobcfg;
+    long i;
+    unsigned long k;
+    i = 0;
+    k = job_flags;
+    while (k)
+    {
+        k >>= 1;
+        i++;
+    }
+    if (i >= crtr_conf.jobs_count) {
+        return RoK_NONE;
+    }
+    jobcfg = &crtr_conf.jobs[i];
+    return jobcfg->room_kind;
 }
 
-unsigned long get_creature_job_causing_stress(long job_flags, RoomKind rkind)
+unsigned long get_creature_job_causing_stress(unsigned long job_flags, RoomKind rkind)
 {
     //TODO CONFIG Place related rooms in [jobX] section of config file
     switch (rkind)

@@ -57,6 +57,16 @@ DLLIMPORT long _DK_turn_creature_to_scavenger(struct Thing *scavtng, struct Thin
 }
 #endif
 /******************************************************************************/
+TbBool creature_can_do_scavenging(const struct Thing *creatng)
+{
+    if (is_neutral_thing(creatng)) {
+        return false;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    return (crstat->manufacture_value > 0);
+}
+
 short at_scavenger_room(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
