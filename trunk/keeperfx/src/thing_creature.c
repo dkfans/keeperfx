@@ -2703,6 +2703,27 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
     _DK_anger_set_creature_anger_all_types(thing, a2);
 }
 
+struct Room *get_creature_lair_room(const struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    struct Room *room;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->lairtng_idx <= 0) {
+        return INVALID_ROOM;
+    }
+    return room_get(cctrl->lair_room_id);
+}
+
+TbBool creature_has_lair(const struct Thing *creatng)
+{
+    struct Room *room;
+    room = get_creature_lair_room(creatng);
+    if (!room_is_invalid(room) && (room->kind == RoK_LAIR)) {
+        return true;
+    }
+    return false;
+}
+
 TbBool remove_creature_lair(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
