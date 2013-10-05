@@ -2706,7 +2706,6 @@ void anger_set_creature_anger_all_types(struct Thing *thing, long a2)
 struct Room *get_creature_lair_room(const struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    struct Room *room;
     cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->lairtng_idx <= 0) {
         return INVALID_ROOM;

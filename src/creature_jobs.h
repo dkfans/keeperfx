@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_crtrstates.h
- *     Header file for config_crtrstates.c.
+/** @file creature_jobs.h
+ *     Header file for creature_jobs.c.
  * @par Purpose:
- *     Support of configuration files for specific creatures.
+ *     Creature job assign and verify functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     25 May 2009 - 23 Jun 2011
+ * @date     27 Aug 2013 - 07 Oct 2013
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,23 +16,29 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CFGCRSTAT_H
-#define DK_CFGCRSTAT_H
+#ifndef DK_CRTRJOBS_H
+#define DK_CRTRJOBS_H
 
-#include "globals.h"
 #include "bflib_basics.h"
-
-#include "config.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /******************************************************************************/
-extern const char creature_states_file[];
-extern struct NamedCommand creatrstate_desc[];
+#pragma pack(1)
+
+struct Thing;
+
+#pragma pack()
 /******************************************************************************/
-TbBool load_creaturestates_config(const char *conf_fname,unsigned short flags);
-const char *creature_state_code_name(long crstate);
+/******************************************************************************/
+TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job);
+TbBool creature_free_for_anger_job(struct Thing *thing);
+long creature_find_and_perform_anger_job(struct Thing *thing);
+long attempt_job_preference(struct Thing *creatng, long jobpref);
+TbBool creature_try_doing_secondary_job(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
