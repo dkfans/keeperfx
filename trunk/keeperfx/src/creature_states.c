@@ -24,6 +24,7 @@
 #include "creature_control.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
+#include "creature_jobs.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -156,9 +157,7 @@ DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *creatng, const st
 DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
-DLLIMPORT long _DK_creature_find_and_perform_anger_job(struct Thing *creatng);
 DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
-DLLIMPORT long _DK_attempt_job_preference(struct Thing *creatng, long jobpref);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -1716,322 +1715,6 @@ short creature_try_going_to_healing_sleep(struct Thing *creatng)
         return true;
     }
     return false;
-}
-
-TbBool creature_can_do_job_for_player(struct Thing *creatng, PlayerNumber plyr_idx, long jobpref)
-{
-    if (jobpref & Job_TRAIN)
-    {
-        return creature_can_be_trained(creatng);
-    }
-    if (jobpref & Job_RESEARCH)
-    {
-        return creature_can_do_research(creatng);
-    }
-    if (jobpref & Job_MANUFACTURE)
-    {
-        return creature_can_do_manufacturing(creatng);
-    }
-    if (jobpref & Job_SCAVENGE)
-    {
-        return creature_can_do_scavenging(creatng) && player_can_afford_to_scavenge_creature(creatng);
-    }
-    if (jobpref & Job_KINKY_TORTURE)
-    {
-        return true;
-    }
-    if (jobpref & Job_GUARD)
-    {
-        return true;
-    }
-    if (jobpref & Job_FREEZE_PRISONERS)
-    {
-        struct Room *room;
-        room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, get_room_for_job(Job_FREEZE_PRISONERS), 0, 1);
-        return creature_instance_is_available(creatng, 7) && !room_is_invalid(room);
-    }
-    if (jobpref & Job_SEEK_THE_ENEMY)
-    {
-        return true;
-    }
-    if (jobpref & Job_EXPLORE)
-    {
-        return true;
-    }
-    if (jobpref & Job_TEMPLE)
-    {
-        return true;
-    }
-    return false;
-}
-
-CrtrStateId get_initial_state_for_job(long jobpref)
-{
-    if (jobpref & Job_FREEZE_PRISONERS)
-    {
-        return CrSt_CreatureFreezePrisonors;
-    }
-    if (jobpref & Job_SEEK_THE_ENEMY)
-    {
-        return CrSt_SeekTheEnemy;
-    }
-    if (jobpref & Job_EXPLORE)
-    {
-        return CrSt_CreatureExploreDungeon;
-    }
-    return 0;
-}
-
-long attempt_job_preference(struct Thing *creatng, long jobpref)
-{
-    return _DK_attempt_job_preference(creatng, jobpref);
-}
-
-TbBool attempt_job_preference_2(struct Thing *creatng, long jobpref)
-{
-    long i;
-    unsigned long k;
-    // Count the amount of jobs set
-    i = 0;
-    k = jobpref;
-    while (k)
-    {
-        k >>= 1;
-        i++;
-    }
-    if (i <= 0) {
-        return false;
-    }
-    unsigned long select_val,select_curr,select_delta;
-    select_val = ACTION_RANDOM(512);
-    select_delta = 512 / i;
-    select_curr = select_delta;
-    /* New code, should look in similar way to original
-    k = 1;
-    for (i=1; i < crtr_conf.jobs_count; i++, k <<= 1)
-    {
-        if (jobpref & k)
-        {
-            if (select_val <= select_curr)
-            {
-                select_curr += select_delta;
-            } else
-            if (creature_can_do_job_for_player(creatng, creatng->owner, k))
-            {
-                CrtrStateId crstate = get_initial_state_for_job(k);
-                if (crstate != CrSt_Unused)
-                {
-                    if (internal_set_thing_state(creatng, crstate)) {
-                        if (crstate == CrSt_SeekTheEnemy) {
-                            struct CreatureControl *cctrl;
-                            cctrl = creature_control_get_from_thing(creatng);
-                            cctrl->word_9A = 0;
-                        }
-                        return true;
-                    }
-                }
-                RoomKind rkind = get_room_for_job(k);
-                if (rkind != RoK_NONE)
-                {
-                    struct Room *room;
-                    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, rkind, 0, 1);
-                    if (!room_is_invalid(room))
-                    {
-                        if (send_creature_to_room(creatng, room)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    */
-    if (jobpref & Job_TRAIN)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        if (creature_can_be_trained(creatng))
-        {
-            struct Room *room;
-            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TRAINING, 0, 1);
-            if (!room_is_invalid(room))
-            {
-                if (send_creature_to_room(creatng, room)) {
-                  return true;
-                }
-            }
-        }
-    }
-    if (jobpref & Job_RESEARCH)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        {
-            if (creature_can_do_research(creatng))
-            {
-                struct Room *room;
-                room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LIBRARY, 0, 1);
-                if (!room_is_invalid(room))
-                {
-                    if (send_creature_to_room(creatng, room)) {
-                      return true;
-                    }
-                }
-            }
-        }
-    }
-    if (jobpref & Job_MANUFACTURE)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        if (creature_can_do_manufacturing(creatng))
-        {
-            struct Room *room;
-            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_WORKSHOP, 0, 1);
-            if (!room_is_invalid(room))
-            {
-                if (send_creature_to_room(creatng, room)) {
-                  return true;
-                }
-            }
-        }
-    }
-    if (jobpref & Job_SCAVENGE)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        if (creature_can_do_scavenging(creatng) && player_can_afford_to_scavenge_creature(creatng))
-        {
-            struct Room *room;
-            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_SCAVENGER, 0, 1);
-            if (!room_is_invalid(room))
-            {
-                if (send_creature_to_room(creatng, room)) {
-                  return true;
-                }
-            }
-        }
-    }
-    if (jobpref & Job_KINKY_TORTURE)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        {
-            struct Room *room;
-            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TORTURE, 0, 1);
-            if (!room_is_invalid(room))
-            {
-                if (send_creature_to_room(creatng, room)) {
-                  return true;
-                }
-            }
-        }
-    }
-    if (jobpref & Job_GUARD)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        {
-            struct Room *room;
-            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GUARDPOST, 0, 1);
-            if (!room_is_invalid(room))
-            {
-                if (send_creature_to_room(creatng, room)) {
-                  return true;
-                }
-            }
-        }
-    }
-    if (jobpref & Job_FREEZE_PRISONERS)
-    {
-      if ( select_curr < select_val && creature_instance_is_available(creatng, 7) && find_room_for_thing_with_used_capacity(creatng, creatng->owner, 4, 0, 1) )
-      {
-        internal_set_thing_state(creatng, CrSt_CreatureFreezePrisonors);
-        return 1;
-      }
-      select_curr += select_delta;
-    }
-    if (jobpref & Job_SEEK_THE_ENEMY)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        {
-            struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(creatng);
-            internal_set_thing_state(creatng, CrSt_SeekTheEnemy);
-            cctrl->word_9A = 0;
-            return true;
-        }
-    }
-    if (jobpref & Job_EXPLORE)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        {
-            internal_set_thing_state(creatng, CrSt_CreatureExploreDungeon);
-            return true;
-        }
-    }
-    if (jobpref & 0x1000)
-    {
-        if (select_val <= select_curr)
-        {
-            select_curr += select_delta;
-        } else
-        {
-            struct Room *room;
-            room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TEMPLE, 0, 1);
-            if (!room_is_invalid(room))
-            {
-                if (send_creature_to_room(creatng, room)) {
-                  return true;
-                }
-            }
-        }
-    }
-
-    // If no job, give 1% chance of going to temple
-    if (ACTION_RANDOM(100) == 0)
-    {
-        struct Room *room;
-        room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_TEMPLE, 0, 1);
-        if (!room_is_invalid(room))
-        {
-            if (send_creature_to_room(creatng, room)) {
-              return true;
-            }
-        }
-    }
-    return 0;
-}
-
-short creature_try_doing_secondary_job(struct Thing *creatng)
-{
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(creatng);
-    if (game.play_gameturn - cctrl->field_2D3 <= 128) {
-        return false;
-    }
-    cctrl->field_2D3 = game.play_gameturn;
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    return attempt_job_preference_2(creatng, crstat->job_secondary);
 }
 
 short creature_doing_nothing(struct Thing *creatng)
@@ -3800,20 +3483,6 @@ TbBool initialise_thing_state(struct Thing *thing, CrtrStateId nState)
     return true;
 }
 
-TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job)
-{
-    struct CreatureControl *cctrl;
-    TRACE_THING(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    if (creature_control_invalid(cctrl))
-    {
-        ERRORLOG("The %s index %d has invalid control",thing_model_name(thing),(int)thing->index);
-        return false;
-    }
-    cctrl->job_assigned = new_job;
-    return true;
-}
-
 TbBool cleanup_current_thing_state(struct Thing *creatng)
 {
     struct StateInfo *stati;
@@ -4011,18 +3680,6 @@ TbBool creature_free_for_sleep(struct Thing *thing)
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureGoingHomeToSleep);
 }
 
-TbBool creature_free_for_anger_job(struct Thing *thing)
-{
-    struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
-    cctrl = creature_control_get_from_thing(thing);
-    dungeon = get_dungeon(thing->owner);
-    return ((cctrl->spell_flags & CSAfF_Unkn0800) == 0)
-        && (dungeon->must_obey_turn == 0)
-        && ((cctrl->spell_flags & CSAfF_Speed) == 0)
-        && !thing_is_picked_up(thing) && !is_thing_passenger_controlled(thing);
-}
-
 /**
  * If creature health is very low, go back to lair immediately for healing.
  * @param thing
@@ -4150,11 +3807,6 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         cctrl->hunger_amount = hunger_fill;
     }
     return 1;
-}
-
-long creature_find_and_perform_anger_job(struct Thing *thing)
-{
-    return _DK_creature_find_and_perform_anger_job(thing);
 }
 
 long anger_process_creature_anger(struct Thing *thing, const struct CreatureStats *crstat)

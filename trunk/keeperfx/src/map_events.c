@@ -53,6 +53,25 @@ DLLIMPORT void _DK_remove_events_thing_is_attached_to(struct Thing *thing);
 DLLIMPORT void _DK_event_kill_all_players_events(long plyr_idx);
 
 /******************************************************************************/
+TbBool event_is_invalid(const struct Event *event)
+{
+    return (event <= &game.event[0]) || (event > &game.event[EVENTS_COUNT-1]) || (event == NULL);
+}
+
+struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_idx)
+{
+    int i;
+    for (i=1; i < EVENTS_COUNT; i++)
+    {
+        struct Event *event;
+        event = &game.event[i];
+        if (((event->field_0 & 0x01) != 0) && (event->owner == plyr_idx) && (event->kind == evkind)) {
+            return event;
+        }
+    }
+    return NULL;
+}
+
 long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
 {
     return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, evkind, dngn_id, msg_id);

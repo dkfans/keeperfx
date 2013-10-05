@@ -100,9 +100,14 @@ struct CreatureInstanceConfig {
     char name[COMMAND_WORD_LEN];
 };
 
+typedef TbBool (*Creature_Job_Assign_Func)(struct Thing *, CreatureJob);
+
 struct CreatureJobConfig {
     char name[COMMAND_WORD_LEN];
+    Creature_Job_Assign_Func func_assign;
     RoomKind room_kind;
+    EventKind event_kind;
+    CrtrStateId initial_crstate;
     unsigned long job_flags;
 };
 
@@ -186,8 +191,12 @@ TbBool set_creature_available(PlayerNumber plyr_idx, long crtr_model, long can_b
 ThingModel get_players_special_digger_breed(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_breed(PlayerNumber plyr_idx);
 /******************************************************************************/
-RoomKind get_room_for_job(unsigned long job_flags);
-unsigned long get_creature_job_causing_stress(unsigned long job_flags, RoomKind rkind);
+struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags);
+RoomKind get_room_for_job(CreatureJob job_flags);
+EventKind get_event_for_job(CreatureJob job_flags);
+CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
+CrtrStateId get_arrive_at_state_for_room(RoomKind rkind);
+unsigned long get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
 unsigned long get_job_for_room(RoomKind rkind, TbBool only_dropable);
 /******************************************************************************/
 #ifdef __cplusplus

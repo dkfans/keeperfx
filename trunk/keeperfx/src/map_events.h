@@ -29,6 +29,7 @@ extern "C" {
 #define EVENT_BUTTONS_COUNT    12
 #define EVENT_KIND_COUNT       27
 #define EVENTS_COUNT          100
+#define INVALID_EVENT &game.event[0]
 /******************************************************************************/
 #pragma pack(1)
 
@@ -91,6 +92,8 @@ extern struct EventTypeInfo event_button_info[28];
 /******************************************************************************/
 DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
 /******************************************************************************/
+struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_idx);
+TbBool event_is_invalid(const struct Event *event);
 long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 long event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 void event_initialise_all(void);
