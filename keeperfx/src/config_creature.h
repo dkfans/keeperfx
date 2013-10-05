@@ -196,8 +196,8 @@ RoomKind get_room_for_job(CreatureJob job_flags);
 EventKind get_event_for_job(CreatureJob job_flags);
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind);
-unsigned long get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
-unsigned long get_job_for_room(RoomKind rkind, TbBool only_dropable);
+CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
+CreatureJob get_job_for_room(RoomKind rkind, TbBool only_dropable);
 /******************************************************************************/
 #ifdef __cplusplus
 }

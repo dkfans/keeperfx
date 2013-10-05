@@ -24,6 +24,7 @@
 #include "creature_instances.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_jobs.h"
 #include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_rules.h"
@@ -210,19 +211,6 @@ TbBool force_complete_current_research(PlayerNumber plyr_idx)
         return true;
     }
     return false;
-}
-
-/**
- * Returns if the given job is creature's primary or secondary job.
- * @param thing
- * @param job_kind
- * @return
- */
-long creature_has_job(struct Thing *thing, unsigned short job_kind)
-{
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    return (crstat->job_primary & job_kind) || (crstat->job_secondary & job_kind);
 }
 
 long get_best_quick_range_instance_to_use(struct Thing *thing)

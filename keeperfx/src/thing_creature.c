@@ -2713,7 +2713,7 @@ struct Room *get_creature_lair_room(const struct Thing *creatng)
     return room_get(cctrl->lair_room_id);
 }
 
-TbBool creature_has_lair(const struct Thing *creatng)
+TbBool creature_has_lair_room(const struct Thing *creatng)
 {
     struct Room *room;
     room = get_creature_lair_room(creatng);

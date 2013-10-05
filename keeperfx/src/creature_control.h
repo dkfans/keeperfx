@@ -382,7 +382,7 @@ unsigned char field_284[2];
     unsigned short prev_in_room;//field_2AC
 short field_2AE;
     unsigned char field_2B0;
-    short job_assigned;
+    unsigned short job_assigned;
 unsigned short spell_tngidx_armour[3];
 unsigned short spell_tngidx_disease[3];
 unsigned char field_2BF[2];
