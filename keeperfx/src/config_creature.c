@@ -28,9 +28,11 @@
 #include "config.h"
 #include "config_terrain.h"
 #include "config_strings.h"
+#include "config_crtrstates.h"
 #include "thing_doors.h"
 #include "thing_creature.h"
 #include "creature_instances.h"
+#include "creature_states.h"
 #include "game_legacy.h"
 
 #ifdef __cplusplus
@@ -65,7 +67,10 @@ const struct NamedCommand creaturetype_instance_commands[] = {
 const struct NamedCommand creaturetype_job_commands[] = {
   {"NAME",            1},
   {"RELATEDROOM",     2},
-  {"ASSIGN",          3},
+  {"RELATEDEVENT",    3},
+  {"ASSIGN",          4},
+  {"INITIALSTATE",    5},
+  {"FUNCTIONS",       6},
   {NULL,              0},
   };
 
@@ -153,6 +158,41 @@ struct NamedCommand instance_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand creaturejob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand angerjob_desc[INSTANCE_TYPES_MAX];
 struct NamedCommand attackpref_desc[INSTANCE_TYPES_MAX];
+/******************************************************************************/
+extern const struct NamedCommand creature_job_assign_func_type[];
+extern Creature_Job_Assign_Func creature_job_assign_func_list[];
+
+const struct NamedCommand mevents_desc[] = {
+    {"MEVENT_NOTHING",        EvKind_Nothing},
+    {"MEVENT_HEARTATTACKED",  EvKind_HeartAttacked},
+    {"MEVENT_FIGHT",          EvKind_Fight},
+    {"MEVENT_OBJECTIVE",      EvKind_Objective},
+    {"MEVENT_BREACH",         EvKind_Breach},
+    {"MEVENT_NEWROOMRESRCH",  EvKind_NewRoomResrch},
+    {"MEVENT_NEWCREATURE",    EvKind_NewCreature},
+    {"MEVENT_NEWSPELLRESRCH", EvKind_NewSpellResrch},
+    {"MEVENT_NEWTRAP",        EvKind_NewTrap},
+    {"MEVENT_NEWDOOR",        EvKind_NewDoor},
+    {"MEVENT_CREATRSCAVENGED",EvKind_CreatrScavenged},
+    {"MEVENT_TREASUREROOMFULL",EvKind_TreasureRoomFull},
+    {"MEVENT_CREATUREPAYDAY", EvKind_CreaturePayday},
+    {"MEVENT_AREADISCOVERED", EvKind_AreaDiscovered},
+    {"MEVENT_SPELLPICKEDUP",  EvKind_SpellPickedUp},
+    {"MEVENT_ROOMTAKENOVER",  EvKind_RoomTakenOver},
+    {"MEVENT_CREATRISANNOYED",EvKind_CreatrIsAnnoyed},
+    {"MEVENT_NOMORELIVINGSET",EvKind_NoMoreLivingSet},
+    {"MEVENT_ALARMTRIGGERED", EvKind_AlarmTriggered},
+    {"MEVENT_ROOMUNDERATTACK",EvKind_RoomUnderAttack},
+    {"MEVENT_NEEDTREASUREROOM",EvKind_NeedTreasureRoom},
+    {"MEVENT_INFORMATION",    EvKind_Information},
+    {"MEVENT_ROOMLOST",       EvKind_RoomLost},
+    {"MEVENT_CREATRHUNGRY",   EvKind_CreatrHungry},
+    {"MEVENT_TRAPCRATEFOUND", EvKind_TrapCrateFound},
+    {"MEVENT_DOORCRATEFOUND", EvKind_DoorCrateFound},
+    {"MEVENT_DNSPECIALFOUND", EvKind_DnSpecialFound},
+    {"MEVENT_QUICKINFORMATION",EvKind_QuickInformation},
+    {NULL,                    0},
+};
 /******************************************************************************/
 /**
  * Returns CreatureStats of given creature model.
@@ -692,7 +732,9 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
             jobcfg = &crtr_conf.jobs[i];
             LbMemorySet(jobcfg->name, 0, COMMAND_WORD_LEN);
             jobcfg->room_kind = RoK_NONE;
+            jobcfg->initial_crstate = CrSt_Unused;
             jobcfg->job_flags = 0;
+            jobcfg->func_assign = NULL;
             if (i < crtr_conf.jobs_count)
             {
                 creaturejob_desc[i].name = crtr_conf.jobs[i].name;
@@ -769,7 +811,24 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                       COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
-            case 3: // ASSIGN
+            case 3: // RELATEDEVENT
+                jobcfg->event_kind = 0;
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_id(mevents_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        jobcfg->event_kind = k;
+                        n++;
+                    }
+                }
+                if (n < 1)
+                {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                }
+                break;
+            case 4: // ASSIGN
                 jobcfg->job_flags = 0;
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
@@ -783,6 +842,41 @@ TbBool parse_creaturetype_job_blocks(char *buf, long len, const char *config_tex
                             COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                         break;
                     }
+                }
+                break;
+            case 5: // INITIALSTATE
+                jobcfg->initial_crstate = CrSt_Unused;
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = get_id(creatrstate_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        jobcfg->initial_crstate = k;
+                        n++;
+                    } else
+                    {
+                        if (stricmp(word_buf,"NONE") == 0)
+                            n++;
+                    }
+                }
+                if (n < 1)
+                {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                }
+                break;
+            case 6: // FUNCTIONS
+                jobcfg->func_assign = NULL;
+                k = recognize_conf_parameter(buf,&pos,len,creature_job_assign_func_type);
+                if (k > 0)
+                {
+                    jobcfg->func_assign = creature_job_assign_func_list[k];
+                    n++;
+                }
+                if (n < 1)
+                {
+                    CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
             case 0: // comment
@@ -1065,7 +1159,7 @@ ThingModel get_players_special_digger_breed(PlayerNumber plyr_idx)
         breed = crtr_conf.special_digger_good;
         if (breed == 0)
         {
-            WARNLOG("Heroes have no digger breed!");
+            WARNLOG("Heroes (player %d) have no digger breed!",(int)plyr_idx);
             breed = crtr_conf.special_digger_evil;
         }
     } else
@@ -1086,10 +1180,27 @@ ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)
     breed = crtr_conf.spectator_breed;
     if (breed == 0)
     {
-        WARNLOG("There is no spectator breed!");
+        WARNLOG("There is no spectator breed for player %d!",(int)plyr_idx);
         breed = crtr_conf.special_digger_good;
     }
     return breed;
+}
+
+struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags)
+{
+    long i;
+    unsigned long k;
+    i = 0;
+    k = job_flags;
+    while (k)
+    {
+        k >>= 1;
+        i++;
+    }
+    if (i >= crtr_conf.jobs_count) {
+        return &crtr_conf.jobs[0];
+    }
+    return &crtr_conf.jobs[i];
 }
 
 /**
@@ -1119,26 +1230,37 @@ unsigned long get_job_for_room(RoomKind rkind, TbBool only_computer)
     return Job_NULL;
 }
 
-RoomKind get_room_for_job(unsigned long job_flags)
+RoomKind get_room_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig *jobcfg;
-    long i;
-    unsigned long k;
-    i = 0;
-    k = job_flags;
-    while (k)
-    {
-        k >>= 1;
-        i++;
-    }
-    if (i >= crtr_conf.jobs_count) {
-        return RoK_NONE;
-    }
-    jobcfg = &crtr_conf.jobs[i];
+    jobcfg = get_config_for_job(job_flags);
     return jobcfg->room_kind;
 }
 
-unsigned long get_creature_job_causing_stress(unsigned long job_flags, RoomKind rkind)
+EventKind get_event_for_job(CreatureJob job_flags)
+{
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(job_flags);
+    return jobcfg->event_kind;
+}
+
+CrtrStateId get_initial_state_for_job(CreatureJob jobpref)
+{
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(jobpref);
+    return jobcfg->initial_crstate;
+}
+
+CrtrStateId get_arrive_at_state_for_room(RoomKind rkind)
+{
+    CreatureJob jobpref;
+    jobpref = get_job_for_room(rkind, false);
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(jobpref);
+    return jobcfg->initial_crstate;
+}
+
+unsigned long get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind)
 {
     //TODO CONFIG Place related rooms in [jobX] section of config file
     switch (rkind)

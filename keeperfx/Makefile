@@ -178,6 +178,7 @@ obj/creature_instances.o \
 obj/creature_graphics.o \
 obj/creature_groups.o \
 obj/creature_battle.o \
+obj/creature_jobs.o \
 obj/map_data.o \
 obj/map_events.o \
 obj/map_utils.o \

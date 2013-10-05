@@ -173,7 +173,7 @@ enum CreatureStates {
     CrSt_CreaturePretendChickenSetupMove,
     CrSt_CreaturePretendChickenMove,
     CrSt_CreatureAttackRooms,
-    CrSt_CreatureFreezePrisonors,
+    CrSt_CreatureFreezePrisoners,
     CrSt_CreatureExploreDungeon,
     CrSt_CreatureEatingAtGarden,
     CrSt_LeavesBecauseOwnerLost,
@@ -316,7 +316,6 @@ TbBool room_initially_valid_as_type_for_thing(const struct Room *room, RoomKind 
 TbBool room_still_valid_as_type_for_thing(const struct Room *room, RoomKind rkind, const struct Thing *thing);
 TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomKind rkind, const struct Thing *thing, const char *func_name);
 #define creature_work_in_room_no_longer_possible(room, rkind, thing) creature_work_in_room_no_longer_possible_f(room, rkind, thing, __func__)
-TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job);
 TbBool creature_free_for_sleep(struct Thing *thing);
 
 // Finding a nearby position to move during a job
