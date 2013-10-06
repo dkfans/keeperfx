@@ -626,6 +626,16 @@ TbBool object_is_guard_flag(const struct Thing *thing)
     }
 }
 
+/**
+ * Returns if given object thing is a workshop equipment.
+ * @param thing
+ * @return
+ */
+TbBool object_is_workshop_equipment(const struct Thing *thing)
+{
+  return ((thing->model == 114) || (thing->model == 26));
+}
+
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
