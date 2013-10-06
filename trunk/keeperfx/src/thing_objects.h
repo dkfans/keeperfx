@@ -112,6 +112,7 @@ TbBool object_is_gold_hoard(const struct Thing *thing);
 TbBool object_is_guard_flag(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
+TbBool object_is_workshop_equipment(const struct Thing *thing);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 
 struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber plyr_idx, long parent_idx);
