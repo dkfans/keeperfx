@@ -206,6 +206,8 @@ typedef unsigned long SlabCodedCoords;
 typedef unsigned char PlayerFlags;
 /** Movement speed on objects in the game. */
 typedef short MoveSpeed;
+/** Parameter for storing gold sum or price. */
+typedef long GoldAmount;
 /** Parameter for filtering functions which return an item with max filter parameter. */
 typedef long FilterParam;
 

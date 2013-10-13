@@ -728,6 +728,7 @@
  0001:0007B7F0       init_navigation
  0001:0007B860       creature_follow_route_to_using_gates
  0001:0007B8B0       get_navigation_colour
+ 0001:0007C7F0       get_next_position_and_angle_required_to_tunnel_creature_to
  0001:0007E910       calculate_free_lair_space
  0001:0007E9D0       process_entrance_generation
  0001:0007ED90       update_dungeon_scores
