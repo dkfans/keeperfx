@@ -119,6 +119,13 @@ struct WayPoints { // sizeof = 1040
   long field_10[256];
 };
 
+struct Navigation { // sizeof = 0x27
+  unsigned char field_0;
+  unsigned char field_1[3];
+  unsigned char field_4[29];
+  struct Coord3d field_21;
+};
+
 #pragma pack()
 /******************************************************************************/
 DLLIMPORT unsigned long *_DK_EdgeFit;
@@ -212,6 +219,9 @@ long triangle_brute_find8_near(long pos_x, long pos_y);
 
 long thing_nav_block_sizexy(const struct Thing *thing);
 long thing_nav_sizexy(const struct Thing *thing);
+
+void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

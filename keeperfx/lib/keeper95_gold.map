@@ -1115,6 +1115,7 @@
  0001:00060B10       init_animating_texture_maps
  0001:0007B570       get_thing_navigation_distance
  0001:0007B7F0       init_navigation
+ 0001:0007C7F0       get_next_position_and_angle_required_to_tunnel_creature_to
  0001:00064C80       reinit_tagged_blocks_for_player
  0001:0001B790       sound_reinit_after_load
  0001:000A18F0       reset_gui_based_on_player_mode
