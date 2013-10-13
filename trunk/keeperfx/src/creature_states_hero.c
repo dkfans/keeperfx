@@ -388,7 +388,49 @@ short good_attack_room(struct Thing *thing)
         set_start_state(thing);
         return false;
     }
-    return _DK_good_attack_room(thing);
+    //return _DK_good_attack_room(thing);
+    MapSlabCoord base_slb_x,base_slb_y;
+    base_slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
+    base_slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    struct Room *room;
+    room = slab_room_get(base_slb_x, base_slb_y);
+    // If the current tile can be destroyed
+    if (room_exists(room) && (room->owner != thing->owner))
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (cctrl->instance_id == 0) {
+            set_creature_instance(thing, 37, 1, 0, 0);
+        }
+        return 1;
+    }
+    // Otherwise, search around for a tile to destroy
+    long m,n;
+    m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        MapSlabCoord slb_x,slb_y;
+        slb_x = base_slb_x + (long)small_around[m].delta_x;
+        slb_y = base_slb_y + (long)small_around[m].delta_y;
+        room = slab_room_get(slb_x, slb_y);
+        if (room_exists(room) && (room->owner != thing->owner))
+        {
+            if (setup_person_move_to_position(thing, slb_x, slb_y, 0))
+            {
+                MapSubtlCoord ev_stl_x,ev_stl_y;
+                ev_stl_x = subtile_coord_center(room->central_stl_x);
+                ev_stl_y = subtile_coord_center(room->central_stl_y);
+                event_create_event_or_update_nearby_existing_event(ev_stl_x, ev_stl_y, EvKind_RoomUnderAttack, room->owner, 0);
+                if (is_my_player_number(room->owner))
+                    output_message(15, 400, 1);
+                thing->continue_state = CrSt_GoodAttackRoom1;
+                return 1;
+            }
+        }
+        m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
+    }
+    set_start_state(thing);
+    return 0;
 }
 
 short good_back_at_start(struct Thing *thing)
