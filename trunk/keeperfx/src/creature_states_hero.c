@@ -57,6 +57,7 @@ DLLIMPORT long _DK_get_best_dungeon_to_tunnel_to(struct Thing *creatng);
 DLLIMPORT long _DK_creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3);
 DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *creatng);
 DLLIMPORT short _DK_tunnelling(struct Thing *creatng);
+DLLIMPORT long _DK_get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -762,7 +763,20 @@ short good_drops_gold(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    return _DK_good_drops_gold(thing);
+    //return _DK_good_drops_gold(thing);
+    GoldAmount amount;
+    amount = game.pot_of_gold_holds;
+    if (thing->creature.gold_carried <= game.pot_of_gold_holds)
+        amount = thing->creature.gold_carried;
+    struct Thing *objtng;
+    objtng = create_object(&thing->mappos, 6, thing->owner, -1);
+    if (thing_is_invalid(objtng)) {
+        return 0;
+    }
+    objtng->valuable.gold_stored = amount;
+    thing->creature.gold_carried -= amount;
+    internal_set_thing_state(thing, CrSt_GoodBackAtStart);
+    return 1;
 }
 
 short good_leave_through_exit_door(struct Thing *thing)
@@ -972,6 +986,11 @@ short tunneller_doing_nothing(struct Thing *creatng)
         good_setup_wander_to_dungeon_heart(creatng, plyr_idx);
     }
     return 1;
+}
+
+long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3)
+{
+  return _DK_get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, a3);
 }
 
 long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)

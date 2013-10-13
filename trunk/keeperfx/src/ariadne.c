@@ -1182,6 +1182,17 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
     return _DK_ariadne_init_wallhug(thing, arid, pos);
 }
 
+void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend)
+{
+    navi->field_0 = 1;
+    navi->field_21.x.val = mvend->x.val;
+    navi->field_21.y.val = mvend->y.val;
+    navi->field_21.z.val = mvend->z.val;
+    navi->field_1[2] = 0;
+    navi->field_1[1] = 0;
+    navi->field_4[0] = 0;
+}
+
 long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
 {
     struct Coord3d lpos;
