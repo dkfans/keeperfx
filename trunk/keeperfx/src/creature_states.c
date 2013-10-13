@@ -1406,7 +1406,7 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long ow
         {
             return accepted_stl_num;
         }
-          m = (m + 1) % AROUND_MAP_LENGTH;
+        m = (m + 1) % AROUND_MAP_LENGTH;
     }
     return 0;
 }
