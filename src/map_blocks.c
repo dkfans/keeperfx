@@ -224,12 +224,12 @@ unsigned short torch_flags_for_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
  */
 long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
 {
-    long stl_num;
+    SubtlCodedCoords stl_num;
     long removed_num;
     long n;
     stl_num = get_subtile_number(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
     removed_num = 0;
-    for (n=0; n < 9; n++)
+    for (n=0; n < AROUND_MAP_LENGTH; n++)
     {
         struct Thing *thing;
         struct Map *mapblk;
@@ -274,6 +274,7 @@ long delete_all_object_things_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, 
 
 long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, long rmeffect)
 {
+    SubtlCodedCoords stl_num;
     struct Thing *thing;
     struct Map *mapblk;
     struct Objects *objdat;
@@ -281,45 +282,46 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
     long removed_num;
     unsigned long k;
     long i,n;
+    stl_num = get_subtile_number(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
     removed_num = 0;
-    for (n=0; n < 9; n++)
+    for (n=0; n < AROUND_MAP_LENGTH; n++)
     {
-      mapblk = get_map_block_at_pos(get_subtile_number(slab_subtile_center(slb_x),slab_subtile_center(slb_y))+around_map[n]);
-      k = 0;
-      i = get_mapwho_thing_index(mapblk);
-      while (i != 0)
-      {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
+        mapblk = get_map_block_at_pos(stl_num+around_map[n]);
+        k = 0;
+        i = get_mapwho_thing_index(mapblk);
+        while (i != 0)
         {
-            WARNLOG("Jump out of things array");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Per thing code
-        if (thing->class_id == TCls_Object)
-        {
-            objdat = get_objects_data_for_thing(thing);
-            if (objdat->field_15)
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
             {
-                if (rmeffect > 0)
+                WARNLOG("Jump out of things array");
+                break;
+            }
+            i = thing->next_on_mapblk;
+            // Per thing code
+            if (thing->class_id == TCls_Object)
+            {
+                objdat = get_objects_data_for_thing(thing);
+                if (objdat->field_15)
                 {
-                    set_coords_to_slab_center(&pos,slb_x,slb_y);
-                    pos.z.val = get_floor_height_at(&pos);
-                    create_effect(&pos, rmeffect, thing->owner);
+                    if (rmeffect > 0)
+                    {
+                        set_coords_to_slab_center(&pos,slb_x,slb_y);
+                        pos.z.val = get_floor_height_at(&pos);
+                        create_effect(&pos, rmeffect, thing->owner);
+                    }
+                    delete_thing_structure(thing, 0);
+                    removed_num++;
                 }
-                delete_thing_structure(thing, 0);
-                removed_num++;
+            }
+            // Per thing code ends
+            k++;
+            if (k > THINGS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
             }
         }
-        // Per thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break;
-        }
-      }
     }
     return removed_num;
 }

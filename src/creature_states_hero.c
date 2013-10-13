@@ -442,7 +442,37 @@ short good_back_at_start(struct Thing *thing)
         set_start_state(thing);
         return false;
     }
-    return _DK_good_back_at_start(thing);
+    //return _DK_good_back_at_start(thing);
+    if (thing->creature.gold_carried <= 0)
+    {
+        set_start_state(thing);
+        return 1;
+    }
+    SubtlCodedCoords stl_num;
+    long m,n;
+    stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+    m = ACTION_RANDOM(AROUND_MAP_LENGTH);
+    for (n=0; n < AROUND_MAP_LENGTH; n++)
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at_pos(stl_num+around_map[m]);
+        // Per-block code
+        if ((mapblk->flags & MapFlg_IsTall) == 0)
+        {
+            MapSubtlCoord stl_x, stl_y;
+            stl_x = stl_num_decode_x(stl_num+around_map[m]);
+            stl_y = stl_num_decode_y(stl_num+around_map[m]);
+            if (setup_person_move_to_position(thing, stl_x, stl_y, 0)) {
+                thing->continue_state = CrSt_GoodDropsGold;
+                return 1;
+            }
+        }
+        // Per-block code ends
+        m = (m + 1) % AROUND_MAP_LENGTH;
+    }
+    set_start_state(thing);
+    return 1;
+
 }
 
 TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
