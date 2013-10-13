@@ -2236,7 +2236,7 @@ struct Thing *check_for_door_to_fight(const struct Thing *thing)
     m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
     for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
-        long slb_x,slb_y;
+        MapSlabCoord slb_x,slb_y;
         slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[m].delta_x;
         slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[m].delta_y;
         doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));

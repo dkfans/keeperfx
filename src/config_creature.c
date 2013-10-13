@@ -1136,7 +1136,7 @@ unsigned short get_creature_model_flags(const struct Thing *thing)
 /**
  * Sets creature availability state.
  */
-TbBool set_creature_available(PlayerNumber plyr_idx, long crtr_model, long can_be_avail, long force_avail)
+TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail)
 {
     struct Dungeon *dungeon;
     // note that we can't get_players_num_dungeon() because players
