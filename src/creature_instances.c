@@ -654,8 +654,8 @@ long instf_tunnel(struct Thing *creatng, long *param)
     //return _DK_instf_tunnel(creatng, param);
     cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x,stl_y;
-    stl_x = stl_num_decode_x(cctrl->field_1FF);
-    stl_y = stl_num_decode_y(cctrl->field_1FF);
+    stl_x = stl_num_decode_x(cctrl->navi.field_15);
+    stl_y = stl_num_decode_y(cctrl->navi.field_15);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb)) {
         return 0;

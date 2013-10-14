@@ -207,9 +207,7 @@ unsigned char field_88;
   struct {
     char target_plyr_idx;
     unsigned char byte_8Ax;
-    unsigned char byte_8Bx;
-    unsigned char byte_8Cx;
-    short word_8Dx;
+    unsigned char long_8B;
     unsigned char byte_8F;
     unsigned short member_pos_stl[5];
     } party;
@@ -362,9 +360,9 @@ unsigned char field_D3;
 unsigned char shot_model;
   struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     char field_1E8;
-unsigned char field_1E9[22];
-    short field_1FF;
-unsigned char field_201[22];
+unsigned char field_1E9;
+    struct Navigation navi;
+unsigned char field_211[6];
     /* Creature movement path data. */
     struct Ariadne arid;
     /* State backup when a creature temporarily changes its state due to being slapped. */
