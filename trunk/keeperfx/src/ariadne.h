@@ -122,8 +122,14 @@ struct WayPoints { // sizeof = 1040
 struct Navigation { // sizeof = 0x27
   unsigned char field_0;
   unsigned char field_1[3];
-  unsigned char field_4[29];
-  struct Coord3d field_21;
+  unsigned char field_4[9];
+  long field_D;
+  unsigned char field_11[4];
+  short field_15;
+  short field_17;
+  unsigned char field_19[2];
+  struct Coord3d pos_1B;
+  struct Coord3d pos_21;
 };
 
 #pragma pack()

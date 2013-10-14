@@ -995,7 +995,62 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
 
 long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)
 {
-    return _DK_creature_tunnel_to(creatng, pos, a3);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    //return _DK_creature_tunnel_to(creatng, pos, a3);
+    long i;
+    cctrl->navi.field_19[0] = 0;
+    if (get_2d_box_distance(&creatng->mappos, pos) <= 32)
+    {
+        creature_set_speed(creatng, 0);
+        return 1;
+    }
+    i = cctrl->party.long_8B;
+    if ((i > 0) && (i < LONG_MAX))
+    {
+        cctrl->party.long_8B++;
+    }
+    if ((pos->x.val != cctrl->navi.pos_21.x.val)
+     || (pos->y.val != cctrl->navi.pos_21.y.val)
+     || (pos->z.val != cctrl->navi.pos_21.z.val))
+    {
+        pos->z.val = get_thing_height_at(creatng, pos);
+        initialise_wallhugging_path_from_to(&cctrl->navi, &creatng->mappos, pos);
+    }
+    if (get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, cctrl->party.byte_8F) == 2)
+    {
+        i = cctrl->navi.field_15;
+        if (cctrl->navi.field_17 != i)
+        {
+            cctrl->navi.field_17 = i;
+        } else
+        if (cctrl->instance_id == 0)
+        {
+            set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
+        }
+    }
+    MapCoord dist;
+    dist = get_2d_distance(&creatng->mappos, &cctrl->navi.pos_1B);
+    if (dist <= 16)
+    {
+        creature_turn_to_face_angle(creatng, cctrl->navi.field_D);
+        creature_set_speed(creatng, 0);
+        return 0;
+    }
+    if (creature_turn_to_face(creatng, &cctrl->navi.pos_1B))
+    {
+        creature_set_speed(creatng, 0);
+        return 0;
+    }
+    else
+    {
+      cctrl->moveaccel.x.val = cctrl->navi.pos_1B.x.val - creatng->mappos.x.val;
+      cctrl->moveaccel.y.val = cctrl->navi.pos_1B.y.val - creatng->mappos.y.val;
+      cctrl->moveaccel.z.val = 0;
+      cctrl->field_2 |= 0x01;
+      creature_set_speed(creatng, min(a3,dist));
+      return 0;
+    }
 }
 
 short tunnelling(struct Thing *creatng)
