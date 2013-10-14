@@ -1185,9 +1185,9 @@ AriadneReturn ariadne_init_wallhug(struct Thing *thing, struct Ariadne *arid, st
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend)
 {
     navi->field_0 = 1;
-    navi->field_21.x.val = mvend->x.val;
-    navi->field_21.y.val = mvend->y.val;
-    navi->field_21.z.val = mvend->z.val;
+    navi->pos_21.x.val = mvend->x.val;
+    navi->pos_21.y.val = mvend->y.val;
+    navi->pos_21.z.val = mvend->z.val;
     navi->field_1[2] = 0;
     navi->field_1[1] = 0;
     navi->field_4[0] = 0;
