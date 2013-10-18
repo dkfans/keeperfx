@@ -729,6 +729,7 @@
  0001:0007B860       creature_follow_route_to_using_gates
  0001:0007B8B0       get_navigation_colour
  0001:0007C7F0       get_next_position_and_angle_required_to_tunnel_creature_to
+ 0001:0007DBA0       check_forward_for_prospective_hugs
  0001:0007E910       calculate_free_lair_space
  0001:0007E9D0       process_entrance_generation
  0001:0007ED90       update_dungeon_scores
@@ -1280,6 +1281,8 @@
  0001:000CEB50       thing_in_wall_at
  0001:000CECB0       thing_in_wall_at_with_radius
  0001:000CF000       creature_cannot_move_directly_to
+ 0001:000CF910       creature_cannot_move_directly_to_with_collide
+ 0001:000D0330       get_map_index_of_first_block_thing_colliding_with_travelling_to
  0001:000D0700       get_shot_collided_with_same_type
  0001:000D0890       get_thing_collided_with_at_satisfying_filter
  0001:000D0C10       collide_filter_thing_is_of_type
