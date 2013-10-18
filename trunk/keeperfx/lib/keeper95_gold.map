@@ -1041,6 +1041,7 @@
  0001:0005AA00       process_player_instances
  0001:0007A530       get_packet_save_checksum
  0001:0007A420       thing_covers_same_blocks_in_two_positions
+ 0001:0007DBA0       check_forward_for_prospective_hugs
  0001:00071090       resync_game
  0001:0003E9A0       process_players_creature_control_packet_control
  0001:0003F1C0       set_mouse_light
@@ -1824,6 +1825,7 @@
  0001:00080F40       ariadne_get_blocked_flags
  0001:00081080       ariadne_push_position_against_wall
  0001:000CF000       creature_cannot_move_directly_to
+ 0001:000CF910       creature_cannot_move_directly_to_with_collide
  0001:000C2CA0       creature_can_navigate_to
  0001:00065B70       event_create_event_or_update_nearby_existing_event
  0001:000B69C0       find_nearest_room_for_thing_excluding_two_types
@@ -1997,6 +1999,7 @@
  0001:0008DB70       set_creature_combat_state
  0001:00077600       check_door_should_open
  0001:0007F5A0       jonty_creature_can_see_thing_including_lava_check
+ 0001:000D0330       get_map_index_of_first_block_thing_colliding_with_travelling_to
  0001:000D0700       get_shot_collided_with_same_type
  0001:000D0C10       collide_filter_thing_is_of_type
  0001:000D0890       get_thing_collided_with_at_satisfying_filter
