@@ -20,9 +20,11 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "creature_control.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -58,6 +60,9 @@ DLLIMPORT long _DK_creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos
 DLLIMPORT short _DK_tunneller_doing_nothing(struct Thing *creatng);
 DLLIMPORT short _DK_tunnelling(struct Thing *creatng);
 DLLIMPORT long _DK_get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
+DLLIMPORT long _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5);
+DLLIMPORT long _DK_creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4);
+DLLIMPORT long _DK_check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos, long a3, long a4, long a5, long a6, unsigned char a7);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -988,9 +993,103 @@ short tunneller_doing_nothing(struct Thing *creatng)
     return 1;
 }
 
+long get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long a4, unsigned char a5)
+{
+    return _DK_get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, startpos, endpos, a4, a5);
+}
+
+long creature_cannot_move_directly_to_with_collide(struct Thing *creatng, struct Coord3d *pos, long a3, unsigned char a4)
+{
+    return _DK_creature_cannot_move_directly_to_with_collide(creatng, pos, a3, a4);
+}
+
+long check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos, long a3, long a4, long a5, long a6, unsigned char a7)
+{
+    return _DK_check_forward_for_prospective_hugs(creatng, pos, a3, a4, a5, a6, a7);
+}
+
+TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MoveSpeed spacing, struct Coord3d *aproachpos)
+{
+    struct Coord3d targetpos;
+    targetpos.x.val = subtile_coord_center(stl_x);
+    targetpos.y.val = subtile_coord_center(stl_y);
+    targetpos.z.val = 0;
+    long min_dist;
+    long n;
+    min_dist = LONG_MAX;
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        long dx,dy;
+        dx = spacing * (long)small_around[n].delta_x;
+        dy = spacing * (long)small_around[n].delta_y;
+        struct Coord3d tmpos;
+        tmpos.x.val = targetpos.x.val + dx;
+        tmpos.y.val = targetpos.y.val + dy;
+        tmpos.z.val = 0;
+        struct Map *mapblk;
+        mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
+        if ((!map_block_invalid(mapblk)) && ((mapblk->flags & MapFlg_IsTall) == 0))
+        {
+            long dist;
+            dist = get_2d_box_distance(srcpos, &tmpos);
+            if (min_dist > dist)
+            {
+                min_dist = dist;
+                aproachpos->x.val = tmpos.x.val;
+                aproachpos->y.val = tmpos.y.val;
+                aproachpos->z.val = tmpos.z.val;
+            }
+        }
+    }
+    return (min_dist < LONG_MAX);
+}
+
+TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, unsigned char a3)
+{
+    navi->field_0 = 2;
+    navi->pos_1B.x.val = creatng->mappos.x.val + distance_with_angle_to_coord_x(speed, navi->field_D);
+    navi->pos_1B.y.val = creatng->mappos.y.val + distance_with_angle_to_coord_y(speed, navi->field_D);
+    navi->pos_1B.z.val = get_thing_height_at(creatng, &navi->pos_1B);
+    struct Coord3d pos1;
+    pos1.x.val = navi->pos_1B.x.val;
+    pos1.y.val = navi->pos_1B.y.val;
+    pos1.z.val = navi->pos_1B.z.val;
+    check_forward_for_prospective_hugs(creatng, &pos1, navi->field_D, navi->field_1[0], 33, speed, a3);
+    if (get_2d_box_distance(&pos1, &creatng->mappos) > 16)
+    {
+        navi->pos_1B.x.val = pos1.x.val;
+        navi->pos_1B.y.val = pos1.y.val;
+        navi->pos_1B.z.val = pos1.z.val;
+    }
+    navi->field_9 = get_2d_box_distance(&creatng->mappos, &navi->pos_1B);
+    int cannot_move;
+    cannot_move = creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_1B, 33, a3);
+    if (cannot_move == 4)
+    {
+        navi->pos_1B.x.val = creatng->mappos.x.val;
+        navi->pos_1B.y.val = creatng->mappos.y.val;
+        navi->pos_1B.z.val = creatng->mappos.z.val;
+        navi->field_9 = 0;
+    }
+    navi->field_5 = get_2d_box_distance(&creatng->mappos, pos);
+    if (cannot_move == 1)
+    {
+        SubtlCodedCoords stl_num;
+        stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_1B, 40, 0);
+        navi->field_15 = stl_num;
+        MapSubtlCoord stl_x, stl_y;
+        stl_x = slab_subtile_center(subtile_slab_fast(stl_num_decode_x(stl_num)));
+        stl_y = slab_subtile_center(subtile_slab_fast(stl_num_decode_y(stl_num)));
+        find_approach_position_to_subtile(&creatng->mappos, stl_x, stl_y, nav_radius + 385, &navi->pos_1B);
+        navi->field_D = get_angle_xy_to(&creatng->mappos, &navi->pos_1B);
+        navi->field_0 = 3;
+    }
+    return true;
+}
+
 long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3)
 {
-  return _DK_get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, a3);
+    return _DK_get_next_position_and_angle_required_to_tunnel_creature_to(creatng, pos, a3);
 }
 
 long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)
