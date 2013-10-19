@@ -1631,7 +1631,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)
         {
             cctrl->navi.field_17 = i;
         } else
-        if (cctrl->instance_id == 0)
+        if (cctrl->instance_id == CrInst_NULL)
         {
             set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
         }
