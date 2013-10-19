@@ -1190,7 +1190,7 @@ void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d
     navi->pos_21.z.val = mvend->z.val;
     navi->field_1[2] = 0;
     navi->field_1[1] = 0;
-    navi->field_4[0] = 0;
+    navi->field_4 = 0;
 }
 
 long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)

@@ -207,7 +207,7 @@ unsigned char field_88;
   struct {
     char target_plyr_idx;
     unsigned char byte_8Ax;
-    unsigned char long_8B;
+    long long_8B;
     unsigned char byte_8F;
     unsigned short member_pos_stl[5];
     } party;
