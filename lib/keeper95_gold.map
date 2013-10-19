@@ -728,6 +728,8 @@
  0001:0007B7F0       init_navigation
  0001:0007B860       creature_follow_route_to_using_gates
  0001:0007B8B0       get_navigation_colour
+ 0001:0007BA90       get_angle_of_wall_hug
+ 0001:0007BEF0       get_starting_angle_and_side_of_hug
  0001:0007C7F0       get_next_position_and_angle_required_to_tunnel_creature_to
  0001:0007DBA0       check_forward_for_prospective_hugs
  0001:0007E910       calculate_free_lair_space
