@@ -1115,6 +1115,8 @@
  0001:00089B70       create_effect
  0001:00060B10       init_animating_texture_maps
  0001:0007B570       get_thing_navigation_distance
+ 0001:0007BA90       get_angle_of_wall_hug
+ 0001:0007BEF0       get_starting_angle_and_side_of_hug
  0001:0007B7F0       init_navigation
  0001:0007C7F0       get_next_position_and_angle_required_to_tunnel_creature_to
  0001:00064C80       reinit_tagged_blocks_for_player
