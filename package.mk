@@ -44,6 +44,8 @@ pkg/%.7z: pkg-before pkg-copybin pkg-copydat pkg-campaigns pkg-languages
 pkg-before:
 	-$(RM) "pkg/keeperfx-$(subst .,_,$(VER_STRING))-*-patch.7z"
 	$(MKDIR) pkg/creatrs
+	$(MKDIR) pkg/data
+	$(MKDIR) pkg/ldata
 	$(MKDIR) pkg/fxdata
 	$(MKDIR) pkg/campgns
 
