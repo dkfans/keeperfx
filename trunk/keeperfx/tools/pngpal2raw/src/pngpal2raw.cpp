@@ -615,12 +615,13 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             {"output",  required_argument, 0, 'o'},
             {"outtab",  required_argument, 0, 't'},
             {"palette", required_argument, 0, 'p'},
+            {"range",   required_argument, 0, 'r'},
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vbf:d:l:o:p:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vbmf:d:l:o:t:p:r:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -694,6 +695,9 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
             break;
         case 'p':
             opts.fname_pal = optarg;
+            break;
+        case 'r':
+            opts.pal_range = atol(optarg);
             break;
         case '?':
                // unrecognized option
@@ -785,6 +789,7 @@ short show_usage(const std::string &fname)
     printf("    -l<num>,--dflevel<num>   Diffusion level, 1..100\n");
     printf("    -f<fmt>,--format<fmt>    Output file format, RAW or HSPR\n");
     printf("    -p<file>,--palette<file> Input PAL file name\n");
+    printf("    -r<num>,--range<num>     Color values range in input PAL file, 1..255\n");
     printf("    -o<file>,--output<file>  Output image file name\n");
     printf("    -t<file>,--outtab<file>  Output tabulation file name\n");
     printf("    -b,--batchlist           Batch, input file is not an image but contains a list of PNGs\n");
@@ -810,9 +815,9 @@ short load_inp_palette_file(WorkingSet& ws, const std::string& fname_pal, Progra
         {
             break;
         }
-        r = (col[0] << 2) + 1;
-        g = (col[1] << 2) + 1;
-        b = (col[2] << 2) + 1;
+        r = (col[0] * 255) / opts.pal_range;
+        g = (col[1] * 255) / opts.pal_range;
+        b = (col[2] * 255) / opts.pal_range;
         ws.addPaletteQuad((r)|(g<<8)|(b<<16)|(255<<24));
     }
 

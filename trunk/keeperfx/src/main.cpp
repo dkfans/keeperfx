@@ -1142,7 +1142,7 @@ short setup_game(void)
   if ( is_new_moon )
     if ( !game.no_intro )
     {
-      fname = prepare_file_path(FGrp_FxData,"bullfrog.smk");
+      fname = prepare_file_path(FGrp_LoData,"bullfrog.smk");
       result = play_smacker_file(fname, -2);
       if ( !result )
         ERRORLOG("Unable to play new moon movie");

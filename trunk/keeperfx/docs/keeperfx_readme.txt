@@ -473,6 +473,61 @@ New and modified level script commands:
 
 Changelog:
 
+Version: 0.43
+  Rewritten some of creature tunneling code and position computation when tunneling.
+  Rewritten some of heroes attacking rooms and dropping gold code.
+  Rewritten moving creatures in workshop.
+  Rewritten the function which controls sending creatures to rooms, moved options to config files.
+  Rewritten the function which controls creature behaviour while it's idle.
+  Rewritten waiting for combat (random jumps) code.
+  Rewritten the function which creates Action Points.
+  Added spaces to Japanese translation.
+  Updated the function which defines game keys to accept ALT modifier.
+  Rewritten "define keys" screen.
+  Rewritten drawing the creatures list in Transfer Creature special.
+  Fixed a possible crash while drawing a sprite with very large scale.
+  Rewritten the function which controls revealing terrain by a creature.
+  Updated power hand pickability code. Added function which checks if a creature is dying.
+  Fixed problem with floating spirit spell being inactive and controlling floating spirit.
+  Rewritten some functions related to computer player tasks.
+  Rewritten some of creature manufacture task code.
+  Rewritten creating a creature at dungeon heart.
+  Allowed turning alliances on and off.
+  Rewritten selecting imps for pickup by computer player.
+  Rewritten selecting creatures for defensive drop by computer player.
+  Upgraded the code used for killing creatures. Created cases when not adding to resurrect list.
+  Rewritten a bit more of computer checks code; fixed a coding mistake which caused a crash.
+  Improved damage projection. Also, made better Dexterity and Defence explanation in config files.
+  Rewritten some of keeper sprites loading and handling code.
+  Fixed tunneller being unwilling to attack sometimes.
+  Fixed the problem with fairies being stucked in the ceiling. They will now lower the flight.
+  Replaced binary cubes config file with text one.
+  Modified some config files to make the game more similar to original DK.
+  Introduced per-campaign config files for Ancient Keeper. Also removed unused credits file.
+  Modified checking if creature will attack another to make sure creatures in prison won't be attacked.
+  Fixed the problem with computer player not building new room if it already has such room with low capacity.
+  Modified fear computation to prevent excessive fluctuation of behavior.
+  Fixed problem with digging gems consuming most all of computer player workforce.
+  Rewritten some of computer player moving creatures code.
+  Improved searching for a hatchery when creature is hungry.
+  Rewritten several computer player routines related to room building.
+  Added automatic creation of a few RAW files from PNGs.
+  Rewritten some of computer building rooms code.
+  Rewritten searching for food. Added another condition of "no food" event.
+  Own creatures fight is no longer causing casting CTA and moving creatures by computer.
+  Combat with unconscious creature is no longer a valid combat.
+  Rewritten creature moving routine and some of prettying code.
+  Workaround for allowing to spawn special workers with fly ability.
+  Rewritten loading frontend sprites. Modified general sprites loading function.
+  Updated spanish language, and building of graphics files.
+  Updated building of GUI DAT/TAB files. Also removed casting Destroy Walls on rock.
+  Modified config to allow casting speed spell on creatures held in custody.
+  Rewritten part of creature fighting code.
+  Rewritten two important functions in pathfinding.
+  Rewritten some creature instance callbacks.
+  Launchwx - Removed a few unused or auto-generated files from KeeperFX installation
+  PngPal2Raw - created loading of TXT animation lists for JSPR(JTY) format support.
+
 Version: 0.42
   Launcher updated with additional options
   More graphics data files are created from PNGs
