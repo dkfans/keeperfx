@@ -1,0 +1,21 @@
+REM ********************************************
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 217
+REM  Version 1.00
+REM ********************************************
+
+ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,1)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+
+IF(PLAYER0,GAME_TURN > 20)
+    REM QUICK_OBJECTIVE(1,"Previous shogun fell in progress of the travel to Iga we became rimmed the magic barrier. I ravage you must kill enemy shoguna which is in this land.",PLAYER0)
+    DISPLAY_OBJECTIVE(5,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"The excellent work assasin! Now we can already safely reach the province Iga.",PLAYER0)
+    DISPLAY_OBJECTIVE(6,ALL_PLAYERS)
+    WIN_GAME
+ENDIF

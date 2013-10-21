@@ -1,0 +1,116 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file burdnimp/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: Burdened Imps' Level Pack for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Me Dug. Dug is your imp leader. Master finds new lands. Many heroes. Very dangerous! Dug pass on place of lands. Keeper can show skill."
+msgstr ""
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Moonshadow Keep. Keep full of good knights and wizards. Piss master off. Kill knights and wizards and make new home for keeper."
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Ha ha ha, Lord of the Land is just being fried, ha ha."
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Winterfrost Run. Dug no get why called Winterfrost. Place very warm. Heroes killed keeper. You take place. Kill heroes!"
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Dug proud to have master. Master good for Dug and Dug good for master."
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Master found more land. Place called Blistering Furnace. Dug been there. Land cold on feet, warm on head. Bad keeper there. Has portal. Master not. Master steal heroes to create army. Master clever. Dug run off now. Dug given day off. Dug work hard. Dug now smoke. Special smoke."
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Dug helps master; dig a hole to put heroes. Rotten heroes stink badly!"
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Master takes you to Raven's Claw. Cave with four evil bad bad magic people! Keeper need go through haunted keep. Dug think scary. Master think amusing. Master thank Keepers for feeding bag. Run now."
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Dug good in digging and swinging pickaxe. Dug be glad to serve at next occasion, ha ha."
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Master find one more land. It called Silversong Fall. People living in ground. That Keeper's domain. Kill intruders. Destroy underground village! Master tired from travelling. Not find new land soon. Work not stop for Dug! Dug go dig!"
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Dug strong! Dug had courage to strike a Dwarf in head. With decayed apple."
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Land called Springwater River. Keepers need to kill naughty knights. Naughty knights! Naughty knights! Hope keepers enjoy! Dug give hint: Not attack right away. Wait for attacks first. If you not get creatures strong in time then dig around. Keeper might find something useful. Dug say bye! Work work work."
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Dug run away! Reaper mad, kills all friends! Oh, poor Dug!"
+msgstr ""
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Master proud to present yet more land. Land called Amberstone Hills. Enemy keeper stripped you clean. Careful with Dug's friends in beginning! Or keeper fail. Dug give no hint! Easy for smart keeper. Here all dungeons are, if keeper missed one. Include beetle fix, Master says! Now Master is drained again. And Master call Dug lazy!"
+msgstr ""
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Dug wants go dig. But no earth left, arghh!"
+msgstr ""
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "The 8th level is called Dreamweave Caverns. Four wizards have cast a spell of fear over your servants, Keeper. Twelve imps fled into the northern part of these caves. Find at least eight of them and make sure they live. Oh, your servants took your spellbooks as well. Time to do a thorough search."
+msgstr ""
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Dug helped with conquering the land! Dug throw some earth in Lord of the Land's helmet! If didn't, Horny dead. Yes, lord got sand in his eyes, ha ha ha!"
+msgstr ""

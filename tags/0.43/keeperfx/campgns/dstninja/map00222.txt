@@ -1,0 +1,29 @@
+REM ********************************************
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 222
+REM  Version 1.00
+REM ********************************************
+
+START_MONEY(PLAYER0,10000)
+
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+		
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER1,POWER_SIGHT,1,1)
+
+IF(PLAYER0,GAME_TURN > 20)
+    REM QUICK_OBJECTIVE(1,"Enemy Shogun is about here you. must seek out him and ravage to perform the recommendation of his own master.",PLAYER0)
+    DISPLAY_OBJECTIVE(15,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"The excellent work the man of the shadow! Now we can begin the following exercise.",PLAYER0)
+    DISPLAY_OBJECTIVE(16,ALL_PLAYERS)
+    WIN_GAME
+ENDIF

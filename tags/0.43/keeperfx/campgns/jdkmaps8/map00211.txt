@@ -1,0 +1,39 @@
+REM ********************************************
+REM
+REM Script for Level 211
+REM
+REM This level contains prison just next to enemy
+REM wall - it will teach the player what jailbreak is.
+REM It also allows to imprison skeletons - as they
+REM have no hunger, it's not easy to starve them.
+REM Besides that - you've got 2 Bile Demons and
+REM an Avatar, and have to capture heroes to make your
+REM army. The enemy keeper has a better start and is
+REM behind a river, so he won't attack easily.
+REM ********************************************
+SET_GENERATE_SPEED(400)
+COMPUTER_PLAYER(PLAYER1,1)
+MAX_CREATURES(ALL_PLAYERS,25)
+
+START_MONEY(ALL_PLAYERS,10000)
+
+ADD_CREATURE_TO_POOL(DARK_MISTRESS,20)
+ADD_CREATURE_TO_POOL(ORC,20)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+
+CREATURE_AVAILABLE(ALL_PLAYERS,DARK_MISTRESS,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
+
+ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
+
+IF(PLAYER1,TOTAL_CREATURES == 0)
+    ADD_CREATURE_TO_LEVEL(PLAYER1,HORNY,PLAYER1,10,10,0)
+    ADD_CREATURE_TO_LEVEL(PLAYER1,VAMPIRE,PLAYER1,5,10,0)
+ENDIF
+
+IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
+    WIN_GAME
+ENDIF

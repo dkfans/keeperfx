@@ -1,0 +1,22 @@
+REM ********************************************
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 105 (Secret 6)
+REM  Version 1.00
+REM ********************************************
+
+DISPLAY_OBJECTIVE(21,PLAYER0)
+
+IF(PLAYER0,TREASURE>0)
+  DISPLAY_INFORMATION(130,PLAYER0)
+ENDIF
+
+IF(PLAYER0,SPELLS_STOLEN<1)
+  IF(PLAYER0,LAIR>23)
+    DISPLAY_OBJECTIVE(23,PLAYER0)
+  ENDIF
+ENDIF
+
+IF(PLAYER_GOOD,TOTAL_CREATURES < 1)
+  DISPLAY_OBJECTIVE(22,PLAYER0)
+  WIN_GAME
+ENDIF

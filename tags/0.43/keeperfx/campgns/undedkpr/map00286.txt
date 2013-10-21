@@ -1,0 +1,149 @@
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+REM Undead Keeper
+REM Rosefield Cathedral
+REM Made by Duke Ragereaver
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+REM Computer stuff
+
+COMPUTER_PLAYER(PLAYER1,0)
+SET_COMPUTER_CHECKS(PLAYER1,"CHECK FOR QUICK ATTACK",700,70,3000,8,12500)
+SET_COMPUTER_PROCESS(PLAYER1,"ATTACK SAFE ATTACK",-1,100,17,100,0)
+SET_COMPUTER_PROCESS(PLAYER1,"ATTACK PLAN 1",-1,100,17,100,0)
+
+SET_COMPUTER_PROCESS(PLAYER1,"BUILD A GRAVEYARD ROOM",0,5,6,11,0)
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+START_MONEY(PLAYER0,25000)
+START_MONEY(PLAYER1,950000)
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+SET_GENERATE_SPEED(400)
+ADD_CREATURE_TO_POOL(SKELETON,60)
+ADD_CREATURE_TO_POOL(VAMPIRE,3)
+ADD_CREATURE_TO_POOL(GHOST,3)
+ADD_CREATURE_TO_POOL(MONK,4)
+ADD_CREATURE_TO_POOL(SPIDER,6)
+
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+MAX_CREATURES(PLAYER0,20)
+MAX_CREATURES(PLAYER1,30)
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATURE_AVAILABLE(ALL_PLAYERS,SKELETON,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,VAMPIRE,1,1)
+CREATURE_AVAILABLE(ALL_PLAYERS,GHOST,1,1)
+CREATURE_AVAILABLE(PLAYER1,MONK,1,1)
+CREATURE_AVAILABLE(PLAYER1,SPIDER,1,1)
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,0)
+ROOM_AVAILABLE(PLAYER1,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,TEMPLE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+
+IF(PLAYER0,GRAVEYARD > 0)
+    ROOM_AVAILABLE(PLAYER0,GRAVEYARD,1,1)
+ROOM_AVAILABLE(PLAYER1,GRAVEYARD,1,1)
+ENDIF
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+MAGIC_AVAILABLE(PLAYER1,POWER_CHICKEN,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+MAGIC_AVAILABLE(PLAYER0,POWER_HEAL_CREATURE,1,0)
+
+REM
+
+REM -------------------------------------------------------------------------------------------------------------------------------------------
+
+
+DOOR_AVAILABLE(ALL_PLAYERS,BRACED,1,0)
+DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
+DOOR_AVAILABLE(ALL_PLAYERS,MAGIC,1,0)
+
+TRAP_AVAILABLE(ALL_PLAYERS,ALARM,1,0)
+TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
+TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
+TRAP_AVAILABLE(ALL_PLAYERS,WORD_OF_POWER,1,0)
+
+
+REM --------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE_PARTY(DEFENDERS)
+    ADD_TO_PARTY(DEFENDERS,SAMURAI,6,400,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(DEFENDERS,MONK,8,750,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(DEFENDERS,DWARFA,6,350,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(DEFENDERS,SAMURAI,6,400,DEFEND_PARTY,0)
+    ADD_TO_PARTY(DEFENDERS,ARCHER,6,350,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(FINAL)
+    ADD_TO_PARTY(FINAL,KNIGHT,10,2500,ATTACK_DUNGEON_HEART,0)
+    ADD_TO_PARTY(FINAL,MONK,8,800,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(FINAL,MONK,8,800,DEFEND_PARTY,0)
+    ADD_TO_PARTY(FINAL,SAMURAI,8,800,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(FINAL,ARCHER,8,800,ATTACK_ENEMIES,0)
+    ADD_TO_PARTY(FINAL,FAIRY,9,500,DEFEND_PARTY,0)
+    ADD_TO_PARTY(FINAL,FAIRY,9,500,STEAL_SPELLS,0)
+
+IF_ACTION_POINT(1,PLAYER0)
+    SET_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+    SET_FLAG(PLAYER_GOOD,FLAG1,1)
+ENDIF
+
+IF(PLAYER_GOOD,FLAG1 == 1)
+    ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,6,10,3,100)
+    ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,FAIRY,7,10,3,100)
+    SET_TIMER(PLAYER_GOOD,TIMER0)
+ENDIF
+
+IF(PLAYER_GOOD,TIMER0 >= 250)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,FINAL,3,1)
+ENDIF
+
+IF(PLAYER_GOOD,TIMER0 >= 10000)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DEFENDERS,4,1)
+    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DEFENDERS,5,1)
+ENDIF
+
+REM --------------------------------------------------------------------------------------------------------------------------------------------
+
+QUICK_OBJECTIVE(0,"The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries burried here.",PLAYER0)
+
+IF_AVAILABLE(PLAYER0,POWER_DISEASE == 1)
+    QUICK_OBJECTIVE(1,"Outstanding, master. Now things will be a little more intresting.",PLAYER0)
+ENDIF
+
+IF(PLAYER1,DUNGEON_DESTROYED == 1)
+    IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+        IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+            QUICK_OBJECTIVE(2,"Just as I thought, the victor was decided before the fight even began!",PLAYER0)
+            WIN_GAME
+        ENDIF
+    ENDIF
+ENDIF

@@ -1,0 +1,17 @@
+REM ********************************************
+REM  Ancient Keeper campaign for KeeperFX
+REM  Script for Level 101 (Secret 2)
+REM  Version 1.00
+REM ********************************************
+
+DISPLAY_OBJECTIVE(126,PLAYER0)
+DISPLAY_INFORMATION(129,PLAYER0)
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+  DISPLAY_OBJECTIVE(127,PLAYER0)
+ENDIF
+
+IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+  DISPLAY_OBJECTIVE(128,PLAYER0)
+  WIN_GAME
+ENDIF

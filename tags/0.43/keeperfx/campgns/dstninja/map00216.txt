@@ -1,0 +1,29 @@
+REM ********************************************
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 216
+REM  Version 1.00
+REM ********************************************
+
+START_MONEY(PLAYER0,20000)
+
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER1,POWER_SIGHT,1,1)
+
+IF(PLAYER0,GAME_TURN > 20)
+    REM QUICK_OBJECTIVE(1,"So you have a following to-do, kill the enemy ruler so that this land be able to live at ease.",PLAYER0)
+    DISPLAY_OBJECTIVE(3,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"For the man of the shadow is not there out of the question things. That is so in Your chance. The perfect work!",PLAYER0)
+    DISPLAY_OBJECTIVE(4,ALL_PLAYERS)
+    WIN_GAME
+ENDIF

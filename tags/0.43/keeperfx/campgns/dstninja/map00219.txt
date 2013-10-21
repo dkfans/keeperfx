@@ -1,0 +1,21 @@
+REM ********************************************
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 219
+REM  Version 1.00
+REM ********************************************
+
+START_MONEY(PLAYER0,20000)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+
+IF(PLAYER0,GAME_TURN > 20)
+    REM QUICK_OBJECTIVE(1,"Perform this missions, you must be very smart and mind every your own movement . Reach unheeded to the heart of the cellar of our enemy and surely it {he, she} will succeed to you to ravage  him. Use your instinct  incantations because your gold reserves are limited.",PLAYER0)
+    DISPLAY_OBJECTIVE(9,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"Congratulations, I did not expect from you are in a position this to make!",PLAYER0)
+    DISPLAY_OBJECTIVE(10,ALL_PLAYERS)
+    WIN_GAME
+ENDIF

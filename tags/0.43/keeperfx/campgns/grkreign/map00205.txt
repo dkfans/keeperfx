@@ -1,0 +1,73 @@
+REM ********************************************
+REM  Grinics' KReign campaign for KeeperFX
+REM  Script for Level 205
+REM  Version 1.00
+REM ********************************************
+
+REM Briefing
+
+REM ********************************************
+REM Happiclap, with foundations so strong, the villages
+REM say that friendship and compassion between them will
+REM always be strong. Unfortunatly, this also makes it
+REM almost impossible to build a dungeon here. Pity.
+REM Though the undergrounds of Happiclap are used to
+REM carry traps and food from Bunnyjoy to the Sillimist Dungeons.
+REM The labrinth has been overthrown by these rouge Keepers
+REM and they have killed all the guides, leaving a terrible
+REM prediciment: Your troops are stranded. Guide them out
+REM of the maze so you can continue with the slaughter of the rouge Keepers.
+
+
+
+MAX_CREATURES(ALL_PLAYERS,100)
+
+START_MONEY(PLAYER0,50000)
+
+ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_OBEY,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SIGHT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CALL_TO_ARMS,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CAVE_IN,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HOLD_AUDIENCE,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CHICKEN,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_LIGHTNING,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_DISEASE,1,1)
+
+DISPLAY_OBJECTIVE(15,ALL_PLAYERS)
+
+IF(PLAYER0,GAME_TURN > 200)
+    DISPLAY_INFORMATION(16)
+ENDIF
+
+IF_ACTION_POINT(1,PLAYER0)
+    ADD_CREATURE_TO_LEVEL(PLAYER1,HORNY,-1,10,2,100)
+ENDIF
+
+IF_ACTION_POINT(2,PLAYER0)
+    ADD_CREATURE_TO_LEVEL(PLAYER1,HORNY,-2,10,3,200)
+ENDIF
+
+IF_ACTION_POINT(3,PLAYER0)
+    ADD_CREATURE_TO_LEVEL(PLAYER1,DRAGON,-1,10,5,1000)
+ENDIF
+
+IF_ACTION_POINT(4,PLAYER0)
+    ADD_CREATURE_TO_LEVEL(PLAYER1,HORNY,-1,10,4,0)
+ENDIF
+
+IF_ACTION_POINT(5,PLAYER0)
+    WIN_GAME
+ENDIF
+
+IF(PLAYER0,TOTAL_CREATURES == 0)
+    LOSE_GAME
+ENDIF

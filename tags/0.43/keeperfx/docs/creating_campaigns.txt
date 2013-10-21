@@ -1,0 +1,192 @@
+How to prepare a new campaign for KeeperFX
+------------------------------
+TOC
+1. Introduction
+2. Creating levels
+3. Creating land view
+4. Creating mentor description
+5. Preparing campaign configuration file
+
+1. Introduction
+
+KeeperFX allows you not only adding your own custom-made levels, but also merging the levels into
+ a campaign and configuring levels to be played in certain order for the campaign.
+ 
+A campaign consists of the following elements:
+a) Levels to be played
+b) Land view images
+c) Mentor description voices
+d) Campaign configuration file
+e) Custom configuration files (optional)
+
+You will have to prepare all of these items to make a campaign. You could also use land view images
+ from another campaign, or skip the mentor voices - but without these elements, your campaign
+ may lose on playability.
+
+This guide will try to show you how to create all the elements of KeeperFX campaign. 
+
+2. Creating levels
+
+You can create levels in any of the editors:
+a) Official DK Level Editor
+b) ADiKtEd - Another DK Level Editor
+c) UnDED - A simple editor, not recommended
+
+Then, you have to prepare scripts for the levels. Scripts are TXT files which store instructions
+ regarding the behavior of the level and its players. Search for "Dungeon Keeper Script Commands
+ Reference" - this document will be very helpful for creating the script.
+
+There are also some helper tools for creating scripts - visit keeper.lubie.org for details.
+
+Remember to playtest every level to make sure it is balanced, isn't too hard and it is possible
+ to win. You don't need a campaign to play a single level - just put it into "levels" folder,
+ and start it from "Free play levels" menu inside KeeperFX. 
+
+3. Creating land view
+
+The land view is the place where you're selecting the level to play. The land view consists of:
+a) a background picture over which you can move the view
+b) an ensign which represents the next level to play (actually, there may be many ensigns visible at once)
+c) a frame picture which indicates that you're looking on the world from a distant tower of some kind
+
+Also, a mentor voice which describes the next level can be heard in the land view
+ screen. Preparation of the mentor audio files will be explained later. For now,
+ we will focus on the graphics files needed to make custom background for the screen.
+
+3.1. Drawing or selecting pictures
+
+What you need to start is a series of land view pictures showing the "progress
+ of evil" after beating every level.
+To be exact, you need:
+a) Land view picture at start of the campaign (whole green; this is used in
+ special cases, ie. multiplayer screen)
+b) Land view picture to be shown before every level (the place where ensign
+ will be placed may be marked somehow, ie. be brighter)
+c) Land view picture at end of the campaign (whole red; shown when the whole
+ campaign is beaten)
+
+The a) picture can be identical to the first picture of b) series, but you may
+ also make it a bit different - ie. a bit lighter.
+
+It is up to you what will be on these pictures. Usually, the pictures are showing
+ the same landscape - first picture shows a green, happy island, and the last
+ one shows red, dead island flowing with lava. But if you have another idea for
+ your campaign - you can use any theme you want.
+
+While selecting photos or drawing your pictures, make notice of their resolution
+ - the images in KeeperFX need to have size 1280x960 pixels. Also, make sure
+ the important part of the picture isn't very close to its border - otherwise,
+ the area you wanted to be visible may prove to be covered by a frame tower picture.
+
+3.2. Preparing pictures for KeeperFX
+
+After the pictures look OK, you have to write them in a format which will be accepted
+ by tools we will use. The format is 24-bit PNG. All modern graphics programs can
+ support that format. To be precise, you need:
+- Color depth: 24-bit
+- Resolution: 1280x960 pixels
+- Format: PNG
+
+3.3. Converting pictures to a format understood by KeeperFX engine
+
+Currently, KeeperFX supports only 8-bit color (256 colors) in land view pictures.
+ But it won't be enough to just convert your image into 8-bit color space. This
+ is because KeeperFX also needs the resulting colors to match colors used in tower
+ frame, ensign pictures and even mouse cursor.
+
+Luckily, KeeperFX contains tools which would allow you to convert a PNG file into
+ the 8-bit format automatically.
+
+You will need the following tools:
+a) png2bestpal - a tool to select a best palette from series of 24-bit PNG files
+b) pngpal2raw - converter between PNG and RAW/HSPR file which can use colors from existing PAL file
+
+These tools are part of KeeperFX and everyone who compiles KeeperFX (ie. creates nightly builds)
+ can also build them. You should be able to find a compiled version somewhere, and if not,
+ you can recompile them by yourself.
+
+If your first land view image file is "rgmap00.png", and the frame is "viframe.png", then
+ you can use the commands below to generate files for KeeperFX:
+png2bestpal -o "rgmap00.pal" -m "color_tbl_landview.txt" "rgmap00.png" "viframe.png"
+pngpal2raw -o "rgmap00.raw" -p "rgmap00.pal" -f raw -l 100 "rgmap00.png"
+pngpal2raw -o "viframe00.dat" -p "rgmap00.pal" -f hspr -l 50 "viframe.png"
+ 
+The first line generates a PAL file which stores best colors to be used for the 8-bit bitmaps.
+It requires additional file, which defines colors used by ensigns and mouse pointers.
+The file is named "color_tbl_landview.txt" and you can find it in KeeperFX source.
+Second line generates RAW file from "rgmap00.png", and third line generates DAT file
+ from "viframe.png".
+
+3.4. Placing files into correct folders
+
+From the commands above, you should now have PAL,RAW and DAT file for every of your levels.
+Place all these files into one folder - they are ready to be used in KeeperFX.
+It is a custom to end name of the folder which stores land view files with "_lnd".
+If you will do that, other people won't get confused when looking at your files.
+
+Every of the resulting RAW files should have size of exactly 1228800 bytes - if it's
+ different, that means you've got bad resolution in the source PNG file.
+
+Every of the resulting PAL files should have 768 bytes.
+
+The DAT files can have various sizes, as they use RLE compression for alpha channel.
+
+If you wish, you can compress the DAT and RAW files with RNC (Rob Northon Compression).
+
+4. Creating mentor description
+
+Mentor description of a level consists of two parts: the one played before you start
+ the level, so-called "good" description, and the one after the level is beaten,
+ praising the victory - called "evil" description. 
+
+4.1. Writing a script
+
+First, you will need to write a script - a simple text file would be enough. Just
+ write what the mentor should say for every level. It may be related to the story,
+ or may be more generic - it's up to you. Writing it down will make it easier to
+ record the voice, but also will allow other people to translate your script to
+ other languages and prepare translated version of the campaign (if they will want
+ to do that for some reason - it happens sometimes). Just remember to publish your
+ script somewhere within the campaign.
+
+4.2. Recording
+
+You may use any recording software and hardware you want. You don't need a studio,
+ or an evil voice - the style of the recording is up to you. Just make sure it isn't
+ hard to understand the words. If you never used any voice recording software, try
+ Audacity - it's a very good tool, and it's open-source.
+
+4.3. Converting to KeeperFX format
+
+After the speeches are recorder, you may try normalizing them or applying dynamic
+ compression - most audio tools have such options. This will make sure the sound are
+ not too silent. Forcing users to turn up their volume is a very bad practice.
+
+Then you have to write them in a format which will be accepted by KeeperFX.
+ The format is 24-bit ADPCM. Most modern audio programs can support that format.
+ To be precise, you need:
+- Channels: mono
+- Bit depth: 16-bit
+- Sample rate: 22050 Hz
+- Format: WAV (Microsoft WAVE)
+- Codec: ADPCM (Microsoft ADPCM)
+
+4.4. Placing files into correct folders
+
+Place all the generated WAV files into one, separate folder. It is a custom to end
+ name of the folder which stores speech files with language shortcut, ie. "_eng".
+
+5. Preparing campaign configuration file
+
+Now as we have all the required files, we need to bind them together with a campaign
+ configuration file. The configuration file does not physically bind all the files
+ into one, but it contains locations and names of all the other files used in the
+ campaign. Creating the configuration file will make our new campaign appear in the
+ "New game" menu.
+ 
+You can base your CFG file on any of the pre-existing files. Note that the one which
+ contains most verbose comments is "keeporig.cfg". Read all the descriptions,
+ and replace level names, level numbers and folder names with the ones you created
+ for your campaign.
+
+Good luck!

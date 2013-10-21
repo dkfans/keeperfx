@@ -1,0 +1,36 @@
+REM ********************************************
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 218
+REM  Version 1.00
+REM ********************************************
+
+START_MONEY(ALL_PLAYERS,15000)
+
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+MAGIC_AVAILABLE(PLAYER1,POWER_SIGHT,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_OBEY,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HEAL_CREATURE,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SPEED,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_PROTECT,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_CONCEAL,1,0)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_DISEASE,1,0)
+
+IF(PLAYER0,GAME_TURN > 20)
+    REM QUICK_OBJECTIVE(1,"Extend the warrior of the shadow, then strike right into the heart evils , that is to say enemy shoguna which rules over this village. When him only we will get rid this becoming  to us another of the aim  to the destruction.  Himself Emperor of Japan. But first still we will have to ravage his shogun.",PLAYER0)
+    DISPLAY_OBJECTIVE(7,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"You made it! Now we can without the problem creep to the emperor's palace!",PLAYER0)
+    DISPLAY_OBJECTIVE(8,ALL_PLAYERS)
+    WIN_GAME
+ENDIF

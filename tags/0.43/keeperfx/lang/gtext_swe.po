@@ -1,0 +1,4611 @@
+#******************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+#******************************************************************************
+#   @file gtext_swe.po
+#      KeeperFX GUI Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+#      Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+#******************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: KeeperFX CCP 0.40\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2012-09-02 03:42+0200\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Swedish\n"
+"X-Poedit-Country: SWEDEN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr "Seger! Landet är ditt. Tryck på mellanslag för att fortsätta till nästa rike."
+
+#: guitext:1
+msgctxt "In-game message"
+msgid "This is a message. Right click to delete it."
+msgstr "Detta är ett meddelande. Högerklicka för att ta bort det."
+
+#: guitext:2
+msgctxt "In-game message"
+msgid "The first thing a Keeper needs is somewhere to keep gold, when it's been mined out of the rock by his imps. To create a Treasure Room, select the Treasure Room icon from the Rooms Panel and fill the empty area to the west with Treasure Room tiles."
+msgstr "Det första en väktare behöver är någonstans att förvara sitt guld efter att det har brutits ur klippan av hans impar. För att skapa en skattkammare, välj skattkammarikonen från rumspanelen och fyll det tomma området i väster med skattkammarplattor."
+
+#: guitext:3
+msgctxt "In-game message"
+msgid "Use the cursor keys to see other areas of the underworld. Rotate and zoom the view with the right ctrl key and cursor keys."
+msgstr "Använd piltangenterna för att se andra områden i underjorden. Rotera och zooma visningen med höger CTRL-tangent och piltangenterna."
+
+#: guitext:4
+msgctxt "In-game message"
+msgid "Expertly done. Press the right mouse button to turn the pointer back into the Hand of Evil. Mine out the gold to the east by tagging the area with the left mouse button. Your Imps will dig out the gold and carry it back to your Treasure Room."
+msgstr "Expertmässigt gjort. Tryck på höger musknapp för att vända pekaren tillbaka till ondskans hand. Gräv ut guldet i öster genom att markera området med vänster musknapp. Dina impar kommer gräva fram guldet och bära det tillbaka till din skattkammare."
+
+#: guitext:5
+msgctxt "In-game message"
+msgid "If you want to make your creatures work harder, slap them by right clicking the Hand of Evil on them. Slapping will harm your creatures."
+msgstr "Om du vill få dina varelser att arbeta hårdare, slå dem litet genom att högerklicka med ondskans hand på dem. Men tänk på att du skadar dina varelser om du slår dem."
+
+#: guitext:6
+msgctxt "In-game message"
+msgid "Use the left mouse button to pluck your creatures from the dungeon. Use the right mouse button to drop them over a room or tile belonging to your dungeon. Creatures perform the task most relevant to the situation they're dropped into."
+msgstr "Använd vänster musknapp för att plocka ut dina varelser från grottan. Använd höger musknapp för att släppa dem över ett rum eller område tillhörande grottan. Varelser utför den uppgift som är mest relevant för den situation de hamnar i."
+
+#: guitext:7
+msgctxt "In-game message"
+msgid "Greedily done, Keeper. Now, you need to turn some of your dungeon into a Lair. Lairs are where creatures rest and recover. The area your imps just mined out would be an ideal spot for some creatures to lurk. Select the Lair icon from the Rooms Panel."
+msgstr "Lystet gjort, väktare. Nu behöver du omvandla litet av din grotta till lyor. Lyor är där varelser vilar och återhämtar sig. Det område dina impar just grävt ut skulle vara ett idealiskt område för en del av dina varelser. Välj lya-ikonen från rumspanelen."
+
+#: guitext:8
+msgctxt "In-game message"
+msgid "Dig a tunnel that connects to the Portal to the north. Portals appear on the map as flashing squares, until they are claimed. Creatures only use Portals claimed by a Keeper. Your imps claim a Portal as soon as it connects to your dungeon."
+msgstr "Gräv en tunnel som ansluter till portalen i norr. Portaler visas på kartan som blinkande fyrkanter tills de intas. Varelser använder endast portaler som intagits av en väktare. Dina impar intar en portal så snart den ansluter till din grotta."
+
+#: guitext:9
+msgctxt "In-game message"
+msgid "You should build a Treasure Room first. Select the Treasure Room icon from the Rooms Panel and left click on the tiles in the area to the west of your Dungeon Heart."
+msgstr "Du skall bygga en skattkammare först. Välj skattkammar-ikonen från rumspanelen och vänsterklicka på plattorna i området till väster om ditt grotthjärta."
+
+#: guitext:10
+msgctxt "In-game message"
+msgid "Pick up creatures by left clicking on them. Drop them by right clicking over a room or tile belonging to your dungeon. Creatures perform tasks relevant to the situation they're dropped into."
+msgstr "Plocka upp varelser genom att vänsterklicka på dem. Släpp dem över ett rum eller område tillhörande grottan genom att högerklicka. Varelser utför den uppgift som är mest relevant för den situation de hamnar i."
+
+#: guitext:11
+msgctxt "In-game message"
+msgid "If you want your creatures to work harder, slap them with a right click of the hand. Your creatures take damage from each slap they receive."
+msgstr "Om du vill få dina varelser att arbeta hårdare, slå dem litet genom att högerklicka med handen på dem. Men tänk på att dina varelser skadas för varje slag."
+
+#: guitext:12
+msgctxt "In-game message"
+msgid "You have not yet built a Treasure Room. Until you build this room, you will be unable to pay any creatures. Only imps give their loyalty freely. No other creatures will serve you unpaid."
+msgstr "Du har ännu inte byggt någon skattkammare. Innan du byggt en sådan kommer du inte kunna avlöna några varelser. Endast impar ger bort sin lojalitet utan ersättning. Inga andra varelser kommer tjäna dig utan betalning."
+
+#: guitext:13
+msgctxt "In-game message"
+msgid "Your first minion has arrived. It's a giant Fly. It can spit corrosive vomit at your enemies and its wings grant the hideous insect the speed to intercept the most nimble trespassers."
+msgstr "Din första underhuggare har anlänt. Det är en fluga. Den kan spotta frätande spya mot dina fiender och dess vingar ger den otäcka insekten en hastighet som mer än väl räcker för att hejda även de snabbaste inkräktarna."
+
+#: guitext:14
+msgctxt "In-game message"
+msgid "A Beetle has scuttled into your realm. It's tough enough to absorb a lot of damage. Like most creatures, Beetles require food. Dig out a new area, select the Hatchery icon and create your Hatchery. Tasty snacks will soon emerge from its enchanted soil."
+msgstr "En skalbagge har skuttat in i din värld. Den är tuff nog att utstå mycket stryk. Som de flesta varelser kräver den mat. Gräv ut ett nytt område, välj odlingsanstalt-ikonen och bygg din odling. Gott käk kommer snart dyka upp från dess förtrollade jord."
+
+#: guitext:15
+msgctxt "In-game message"
+msgid "Imps fortify your walls to prevent intruders tunnelling in. If you want to create more imps, go to the Research Panel, select the Imp icon and left click anywhere in your dungeon. Each Imp you create costs more than the previous one."
+msgstr "Impar förstärker dina väggar för att förhindra inkräktare från att gräva sig in. Om du vill skapa fler impar, gå till forskningspanelen, välj imp-ikonen och vänsterklicka någonstans i din grotta. Varje imp du skapar kostar mer än den föregående."
+
+#: guitext:16
+msgctxt "In-game message"
+msgid "Why not have a handful of creatures ready to drop on top of intruders? To pick up creatures quickly, left click on them from within the Creatures Panel. You can only drop creatures within the confines of your own dungeon."
+msgstr "Varför inte ha en handfull varelser redo att släppa ned på inkräktare? För att snabbt plocka upp en varelse, vänsterklicka på dem från varelsepanelen. Du kan endast släppa varelser inom din grottas gränser."
+
+#: guitext:17
+msgctxt "In-game message"
+msgid "Intruders approach. They seek gaps in your fortifications, in order to gain entry to your dungeon. A white trail on the map indicates their progress. Click the icon at the top of the Control Panel to see a bigger map."
+msgstr "Inkräktare närmar sig. De letar hål i dina förstärkningar för att kunna ta sig in i din grotta. Ett vitt spår på kartan visar deras framfart. Klicka på ikonen överst på kontrollpanelen för att öppna en större karta."
+
+#: guitext:18
+msgctxt "In-game message"
+msgid "Savour your first victory while you can. You have attracted the wrath of the Lord of this realm. His party will soon be here."
+msgstr "Njut av din seger medan du kan. Du har dragit på dig vreden från detta lands härskare. Han och sina hejdukar kommer snart vara här."
+
+#: guitext:19
+msgctxt "In-game message"
+msgid "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
+msgstr "Landets härskare har anlänt. Jag känner lukten av hans rädsla. Besegra honom och landet är ditt."
+
+#: guitext:20
+msgctxt "In-game message"
+msgid "Your work here is done. Now there is no-one to prevent you from obliterating this nauseating realm and expanding your empire into a neighbouring land. Nice."
+msgstr "Ditt arbete här är klart. Nu finns det ingen som kan hindra dig från att utplåna detta vämjeliga ställe och expandera ditt rike till grannlandet. Trevligt."
+
+#: guitext:21
+msgctxt "In-game message"
+msgid "You require more Imps. Use the Create Imp spell to conjure them into your domain. Remember, each Imp you create is more expensive than the last."
+msgstr "Du behöver fler impar. Använd imp-trollformeln för att locka in dem till dina domäner. Kom ihåg, varje ny imp du skapar är dyrare än den förra."
+
+#: guitext:22
+msgctxt "In-game message"
+msgid "When Imps have no other orders, they run around reinforcing your dungeon.  Fortified walls keep out intruders. Rooms with reinforced walls make your creatures feel more at home and heroes more terrified."
+msgstr "När impar inte har någon annan order springer de runt och förstärker din grotta. Förstärkta väggar håller inkräktare borta. Rum med förstärkta väggar får dina varelser att känna sig mer hemmastadda och hjältar mer förskräckta."
+
+#: guitext:23
+msgctxt "In-game message"
+msgid "Possess creatures by choosing the Possess spell from the Research Panel and left-clicking on the creature you want to control. Right-click to leave the creature again."
+msgstr "Kontrollera varelser genom att välja besätt-trollformeln från forskningspanelen och vänsterklicka på den varelse du vill besätta. Högerklicka för att lämna varelsen igen."
+
+#: guitext:24
+msgctxt "In-game message"
+msgid "Remember the lessons you learned in Brana Hauk. You must build a Treasure Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms in squares of at least nine tiles to increase the efficiency of the room."
+msgstr "Kom ihåg läxan du lärde dig i Kliberga. Du måste bygga en skattkammare, en lya och en odlingsanstalt och du behöver inta en portal. Bygg rum i fyrkanter med minst nio plattor för att öka rummets effektivitet."
+
+#: guitext:25
+msgctxt "In-game message"
+msgid "You will need to make your creatures stronger. In a Training Room, your creatures can hone their fighting skills, gain new abilities and learn more powerful spells."
+msgstr "Du måste göra dina varelser starkare. I ett träningsrum kan dina varelser öva sina stridsfärdigheter, skaffa sig nya färdigheter och lära sig kraftfulla trollformler."
+
+#: guitext:26
+msgctxt "In-game message"
+msgid "Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the walls of your dungeon. This increases the efficiency of rooms and repels would-be invaders."
+msgstr "Din plan artar sig, väktare. Ge dina impar tid att förstärka grottans väggar. Det ökar effektiviteten på rummen och avvisar potentiella inkräktare."
+
+#: guitext:27
+msgctxt "In-game message"
+msgid "The Training Room attracts ever more ferocious creatures, such as Demon Spawn. Build it and they will come."
+msgstr "Träningsrummet attraherar ännu fler grymma varelser, som drakdemoner. Bygg ett så kommer de."
+
+#: guitext:28
+msgctxt "In-game message"
+msgid "To train creatures, drop them in the Training Room. The number that occasionally appears above a creature's head indicates how much gold it has cost for that creature to train."
+msgstr "För att träna varelser, släng in dem i träningsrummet. Den siffra som ibland visas ovanför en varelses huvud indikerar hur mycket guld det kostat för att träna den varelsen."
+
+#: guitext:29
+msgctxt "In-game message"
+msgid "You can train creatures more rapidly by slapping them as they work out in the Training Room."
+msgstr "Du kan träna varelser snabbare genom att slå dem när de tränar i träningsrummet."
+
+#: guitext:30
+msgctxt "In-game message"
+msgid "Heroes are already on their way. Make sure your creatures are well trained and ready for the attack. The heroes you will face in this realm are tougher than those you met beneath Brana Hauk."
+msgstr "Hjältar är redan på väg. Se till att dina varelser är vältränade och redo för attacken. De hjältar du kommer möta i detta rike är tuffare än de du mötte i Kliberga."
+
+#: guitext:31
+msgctxt "In-game message"
+msgid "Harder the heroes may have been but they were obviously no match for your forces."
+msgstr "Hjältarna kanske var hårdare och tuffare men de var tydligen ingen match för dina styrkor."
+
+#: guitext:32
+msgctxt "In-game message"
+msgid "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
+msgstr "Hjältarna är på väg. Se till att dina varelser är vältränade och redo för attacken."
+
+#: guitext:33
+msgctxt "In-game message"
+msgid "Congratulations. You have conquered the enemy hordes."
+msgstr "Gratulerar. Du har besegrat fiendestyrkorna."
+
+#: guitext:34
+msgctxt "In-game message"
+msgid "Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training Room. Make sure they're all big enough. Cramped conditions do nothing for the morale of your minions."
+msgstr "Bygg en grotta med en skattkammare, en lya, en odlingsanstalt och ett träningsrum. Se till att alla rummen är tillräckligt stora. Dåliga förhållanden är inte bra för dina underhuggares moral."
+
+#: guitext:35
+msgctxt "In-game message"
+msgid "The time has come to build a Library. Libraries are where new devices, room designs and magic spells are researched. Make a Library at least as big as the other rooms. Researchers like quiet too, so try to build your Library off the side of a corridor."
+msgstr "Det är dags att bygga ett bibliotek. Det är i bibliotek nya prylar, rumdesigner och magiska trollformler forskas fram. Gör biblioteket minst lika stort som andra rum. Forskare gillar tystnad, så försök bygga biblioteket i änden på en korridor."
+
+#: guitext:36
+msgctxt "In-game message"
+msgid "Your new Library will attract creatures like Warlocks, who are interested in researching magic and dungeon designs. These evil mages are real bookworms, as well as being magically proficient themselves."
+msgstr "Ditt nya bibliotek kommer dra till sig nya varelser, som magiker, vilka är intresserade av magisk forskning och grottdesigner. Dessa onda trollkarlar är riktiga bokmalar och är dessutom själva magiska experter."
+
+#: guitext:37
+msgctxt "In-game message"
+msgid "That's a fine collection of parchments and tomes you've assembled. Most creatures can engage in research but Warlocks make the best and keenest researchers. Stupid Trolls have trouble holding books the right way up and sometimes even chew the pages."
+msgstr "Det är en fin samling pergament och luntor du samlat. De flesta varelser kan engageras i forskning men magiker blir de bästa och skarpaste forskarna. Dumma troll har problem med att hålla rätt sida upp och tuggar ibland även i sig sidorna."
+
+#: guitext:38
+msgctxt "In-game message"
+msgid "The scent of arcane knowledge has lured a greedy Warlock into your dungeon. Don't forget to train your Warlocks occasionally. Their spell casting abilities make them fine long range fighters."
+msgstr "Lukten av hemlig kunskap har lockat ner en girig magiker i din grotta. Glöm inte bort att träna dina magiker ibland. Deras förmåga att kasta trollformler gör dem till fina långdistanskämpar."
+
+#: guitext:39
+msgctxt "In-game message"
+msgid "The first wave of attackers lie hacked to pieces on the floor and give your domain that lived in feeling but it surely won't be long before their kin launch another assault."
+msgstr "Den första vågen av attackerare ligger sönderhackade på golvet och ger dina domäner den här hemtrevliga känslan, men det kommer inte dröja länge innan deras släktingar drar igång nästa attack."
+
+#: guitext:40
+msgctxt "In-game message"
+msgid "You meet with success yet again, Keeper. All those corpses will keep your Hatchery's topsoil fertile. They also serve as warnings to other foolhardy adventurers, of course."
+msgstr "Du möter än en gång framgången, väktare. Alla dessa lik kommer hålla odlingsanstaltens ytskikt bördigt. Självklart tjänar de också som en varning åt andra dumdristiga äventyrare."
+
+#: guitext:41
+msgctxt "In-game message"
+msgid "All is quiet again. Use this time to ready yourself for the next attacks. The enemy is only regrouping. It is not yet defeated."
+msgstr "Allt är lugnt igen. Använd denna tid till att förbereda dig på nästa attack. Fienden grupperar bara om sig. De är ännu inte besegrade."
+
+#: guitext:42
+msgctxt "In-game message"
+msgid "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
+msgstr "Spelar den där impen fotboll med ett halshugget huvud? Du måste vara mer uppmärksam, väktare."
+
+#: guitext:43
+msgctxt "In-game message"
+msgid "Now would be an excellent time to train a Warlock."
+msgstr "Nu är den idealiska tidpunkten för att träna en magiker."
+
+#: guitext:44
+msgctxt "In-game message"
+msgid "Already your research bears fruit. The Speed Creature spell has been perfected. Cast it on a creature and observe the dramatic increase in its speed. The effect wears off after a while."
+msgstr "Din forskning bär redan frukt. Trollformeln för hastighet har fulländats. Kasta den på varelser och lägg märke till den dramatiska fartökning de får. Effekten försvinner efter ett tag."
+
+#: guitext:45
+msgctxt "In-game message"
+msgid "Build up your dungeon with the rooms available to you and claim the Portal nearby but do not yet venture north. Powerful adversaries lurk there. It would be wiser not to disturb them until you are prepared."
+msgstr "Bygg upp din grotta med de rum som finns tillgängliga och inta den närliggande portalen, men ge dig ännu inte av norrut. Kraftfulla motståndare lurar där. Det är smartare att inte störa dem förrän du är redo."
+
+#: guitext:46
+msgctxt "In-game message"
+msgid "Clever research has given your Imps the engineering skill to build Bridges. You will need Bridges to cross some of the more hazardous underworld terrain."
+msgstr "Smart forskning har gett dina impar den kunskap som behövs för att bygga bryggor. Du behöver bryggor för att kunna ta dig över en del av den farligare underjordiska terrängen."
+
+#: guitext:47
+msgctxt "In-game message"
+msgid "A study of dungeon designs reveals that Workshops manufacture essential furniture, such as Doors and Traps. If your Workshop occupies a square of at least nine tiles, its mere presence will lure the underworld's finest artisans into your dungeon."
+msgstr "En studie av grottdesign avslöjar att verkstäder tillverkar viktiga möbler, som dörrar och fällor. Om din verkstad upptar minst nio rutor, kommer bara dess närvaro att locka ned underjordens bästa hantverkare till dina växande domäner."
+
+#: guitext:48
+msgctxt "In-game message"
+msgid "To manufacture Traps and Doors in your Workshop you will need to assign creatures to it, by dropping them into the room. Manufactured items can be selected from the Workshop Panel as soon as they're ready."
+msgstr "För att tillverka fällor och dörrar i din verkstad behöver du tilldela varelser dit, genom att släppa dem i rummet. Tillverkade föremål kan väljas från verkstadspanelen så snart de är klara."
+
+#: guitext:49
+msgctxt "In-game message"
+msgid "When your troops are sufficient in number and have had some training, lead them north and crush any who oppose you."
+msgstr "När dina trupper är tillräckligt många i antal och har fått träning, led dem norrut och krossa allt motstånd du möter."
+
+#: guitext:50
+msgctxt "In-game message"
+msgid "You will have to find a way to cross the river of molten lava that bars your way."
+msgstr "Du måste finna en väg över lavafloden som korsar din väg."
+
+#: guitext:51
+msgctxt "In-game message"
+msgid "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby and administer the coup de grace."
+msgstr "Fiendens grotthjärta vibrerar framför dig. Installera dina underhuggare i närheten och sätt in nådastöten."
+
+#: guitext:52
+msgctxt "In-game message"
+msgid "A Troll has joined you. Skilled in the craft of manufacturing, trolls are best employed doing dark deeds in your Workshop. They don't complain about the hours, because their labours keep them away from combat."
+msgstr "Ett troll har gått med dig. Då troll är skickliga hantverkare passar de bäst för svarta handlingar i din verkstad. De klagar heller inte på arbetstiden, eftersom deras arbete håller dem borta från stridens hetta."
+
+#: guitext:53
+msgctxt "In-game message"
+msgid "With the enemy Dungeon Heart in ruins, you have trounced the once proud opposition. Rule your new domain with terror and loathing, for a laugh."
+msgstr "Med fiendens grotthjärta i ruiner har du gått hårt åt det en gång så stolta motståndet. För ett gott skratt, regera din nya domän med terror och vämjelse."
+
+#: guitext:54
+msgctxt "In-game message"
+msgid "Your Workshop has created a Wooden Door. Placed in a corridor, it restricts access to the enemy. Your creatures may pass freely. Lock or unlock Doors by clicking over them with the left mouse button."
+msgstr "Din verkstad har skapat en trädörr. Placerad i en korridor förhindrar den att fienden klampar in. Dina varelser kan passera fritt. Lås eller lås upp dörrar genom att klicka över dem med vänster musknapp."
+
+#: guitext:55
+msgctxt "In-game message"
+msgid "Your Workshop has produced a Poison Gas trap. Position it and, when an intruder sets it off, it will envelop the area in deadly vapours."
+msgstr "Din verkstad har producerat en giftmolnsfälla. Fyll den med gift och den kommer att dränka in området med dödliga ångor när en inkräktare utlöser den."
+
+#: guitext:56
+msgctxt "In-game message"
+msgid "You have researched the Call to Arms spell. The first time you cast it, your creatures gather around a banner created by the spell. Cast it again in a target area. Call to Arms only costs gold when it's targetted beyond your territory."
+msgstr "Du har forskat fram trollformeln vapengripare. Första gången du använder den kommer dina varelser samlas runt en fana som skapats av trollformeln. Kasta den igen i målområdet. Vapengriparen kostar bara guld när dess mål ligger utanför ditt territorium."
+
+#: guitext:57
+msgctxt "In-game message"
+msgid "Another Keeper controls this underworld realm. His dungeon lies to the north. If you are to entice creatures to work for you instead of him, you will have to build a more magnificent dungeon. Get on with it then."
+msgstr "En annan väktare kontrollerar detta underjordiska rike. Hans grotta ligger i norr. Om du tänkt dig att övertala varelserna att arbeta för dig istället för åt honom, måste du bygga en praktfullare grotta. Sätt fart då!"
+
+#: guitext:58
+msgctxt "In-game message"
+msgid "You have slain your rival. His defeat is a testimony to your clever dungeon design. You have the makings of a Dungeon Keeper worthy of the name."
+msgstr "Du har slaktat din rival. Hans nederlag är ett bevis på din intelligenta grottdesign. Du har goda förutsättningar att bli en grottväktare värd namnet."
+
+#: guitext:59
+msgctxt "In-game message"
+msgid "A Bile Demon chooses to side with you. Bile Demons demand large Lairs and ample Hatcheries. These corpulent monstrosities attack somewhat unconventionally."
+msgstr "En gallgasdemon väljer att kampera med dig. Gallgasdemoner kräver stora lyor och stora odlingsanstalter. Dessa korpulenta monster attackerar dock en aning okonventionellt."
+
+#: guitext:60
+msgctxt "In-game message"
+msgid "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an unexplored area and it will be revealed to you for a moment."
+msgstr "Dina lojala forskare har fulländat trollformeln ondskans syn. Kasta den på ett outforskat område och du kommer under en tid se dess hemligheter."
+
+#: guitext:61
+msgctxt "In-game message"
+msgid "You have claimed a Prison. Select imprison from the Information Panel and your creatures subdue their foe, at which point your imps drag the bodies off to a cell. Prisoners who die of starvation may rise again as Skeleton warriors for you to command."
+msgstr "Du har intagit ett fängelse. Välj fängsla från informationspanelen och dina varelser betvingar sin fiende, varvid dina impar drar kropparna till en cell. Fångar som dör av svält kan uppstå igen som skelettkrigare under ditt kommando."
+
+#: guitext:62
+msgctxt "In-game message"
+msgid "Your dedicated librarians have designed a Guard Post. Place a Guard Post in a strategically important area and assign creatures to occupy it by dropping them there."
+msgstr "Dina hängivna bibliotekarier har designat en vaktpost. Placera en vaktpost på en strategiskt viktig plats och tilldela varelser dit genom att släppa ned dem där."
+
+#: guitext:63
+msgctxt "In-game message"
+msgid "A Spider has joined your dungeon. They are natural enemies of Flies, so endeavour to keep them apart. Overcoming such obstacles will temper your mettle - whatever that means."
+msgstr "En spindel har gått med dig i grottan. De är naturliga fiender till flugor, så se till att hålla dem ifrån varandra. Att övervinna sådana hinder kommer pröva ditt kurage - vad nu det betyder."
+
+#: guitext:64
+msgctxt "In-game message"
+msgid "It's time to mete out the ultimate punishment to a keeper who dares to challenge you for this corner of your subterranean empire. The price of failure shall be oblivion."
+msgstr "Det är dags att utmäta det ultimata straffet till en väktare som vågar utmana dig över detta hörn av ditt underjordiska imperium. Priset för misslyckande skall vara glömska."
+
+#: guitext:65
+msgctxt "In-game message"
+msgid "How satisfying it is to see an enemy Keeper's dungeon crumble and his power dissipate. There'll be no controversy over this year's hall of infamy nomination."
+msgstr "Vad tillfredsställande det är att se en fiendes grotta raseras och hans makt försvinna. Det kommer inte vara några kontroverser över detta års nomineringar till årets nidingsdåd."
+
+#: guitext:66
+msgctxt "In-game message"
+msgid "You have claimed a Torture Room. Place captive heroes and creatures into this chamber of horrors to convert them to your supremely evil way. Alternatively, place your own creatures within the room whenever disciplinary measures become necessary."
+msgstr "Du har intagit en tortyrkammare. Placera fångade hjältar och varelser i denna skräckens kammare för att konvertera dem till din överlägset onda sak. Alternativt, placera dina egna varelser i rummet när disciplinära åtgärder blivit ofrånkomliga."
+
+#: guitext:67
+msgctxt "In-game message"
+msgid "You have finally constructed a dungeon impressive enough to attract a Dark Mistress. You must discipline these wicked wenches frequently. They respond particularly well to a good slapping."
+msgstr "Du har slutligen lyckats konstruera en grotta imponerande nog för att dra till sig mörkrets älskarinnor. Du måste med jämna mellanrum disciplinera dessa galna slinkor. De svarar speciellt bra på en rejäl smäll."
+
+#: guitext:68
+msgctxt "In-game message"
+msgid "Your manufacturers have created a Braced Door. If security matters, you can be sure when you buy a Braced Door. You couldn't be certain with only a curtain and a hole in the wall is no help at all."
+msgstr "Dina tillverkare har skapat en förstärkt dörr. Om säkerhet är viktigt kan du känna dig säker när du köper en förstärkt dörr. Du kan inte vara säker med bara en gardin och bara ett hål i väggen är ingen hjälp alls."
+
+#: guitext:69
+msgctxt "In-game message"
+msgid "Your researchers have devised a spell that unleashes the energy of a thunderstorm on the target of your choice. Select the spell, aim at a hostile creature and flash-fry him with a Lightning Strike."
+msgstr "Dina forskare har tagit fram en trollformel som frigör energin hos en rejäl blixt på önskat mål. Välj denna trollformel, sikta på en fientlig varelse och stek honom med ett rejält blixtnedslag."
+
+#: guitext:70
+msgctxt "In-game message"
+msgid "You have manufactured a powerful Lightning Trap. Try it out. It's bound to give someone a shock."
+msgstr "Du har tillverkat en kraftfull blixtfälla. Testa den. Den kommer garanterat ge någon en chock."
+
+#: guitext:71
+msgctxt "In-game message"
+msgid "It appears you have arrived in the middle of a raging battle. Perhaps it would be wise to stay out of the way until you are strong enough to eliminate both sides."
+msgstr "Det verkar som om du anlänt till en pågående strid. Det kanske är bäst att hålla sig undan tills du är stark nog att eliminera båda sidor."
+
+#: guitext:72
+msgctxt "In-game message"
+msgid "An Orc warlord joins you and brings with him the plans for building a Barracks. In this room you can form creatures into teams."
+msgstr "Ett odjur till krigsherre slår sig samman med dig och med sig har han ritningarna för byggnad av barracker. I detta rum kan du formera varelser till grupper."
+
+#: guitext:73
+msgctxt "In-game message"
+msgid "I think I hear the clanking of plate armour. Yes, the Lord of the Land has finally roused himself from the fireside to find out where all his loyal servants have gone."
+msgstr "Jag tror bestämt att jag hör en rustning skramla. Ja, landets härskare har slutligen vaknat upp från slumrandet framför öppna spisen, för att försöka ta reda på vart alla hans lojala tjänare tagit vägen."
+
+#: guitext:74
+msgctxt "In-game message"
+msgid "You have turned local heroes into something of an endangered species, now make the enemy Dungeon Keeper extinct."
+msgstr "Du har fått de lokala hjältarna att bli en utrotningshotad ras, utrota nu den fientliga grottväktaren."
+
+#: guitext:75
+msgctxt "In-game message"
+msgid "You have prevailed, Keeper. The bodies of your enemies litter the most forlorn alcoves of your domain, in tribute to their futile efforts to keep you at bay."
+msgstr "Du har segrat, väktare. Fiendens kroppar skräpar ned de mest ödsliga bersåerna i dina domäner, i sin tribut till deras fåfänga försök att hålla dig stången."
+
+#: guitext:76
+msgctxt "In-game message"
+msgid "Seek out the one who would be your rival in this region of the underworld. Explain the concept of early retirement to him. On the other hand, string him up. It's in the only language he understands."
+msgstr "Sök upp den som skulle vara din rival i denna del av underjorden. Förklara konceptet med förtidspensionering för honom. Å andra sidan, häng upp honom. Det är det enda språk han förstår."
+
+#: guitext:77
+msgctxt "In-game message"
+msgid "You have researched the power of Invisibility. Cast it on a creature to hide it from enemy eyes."
+msgstr "Du har forskat fram trollformeln för osynlighet. Kasta den på en varelse för att dölja honom från fiendens ögon."
+
+#: guitext:78
+msgctxt "In-game message"
+msgid "The Protect Creature spell has been researched at last. Cast it on a creature to increase its toughness."
+msgstr "Trollformeln för skydda varelser har äntligen forskats fram. Kasta den på en varelse för att öka hans tuffhet."
+
+#: guitext:79
+msgctxt "In-game message"
+msgid "That's another enemy successfully written off. The defenceless inhabitants of the land above bow down before your depraved presence. As if that will save them..."
+msgstr "Det var ytterligare en fiende som framgångsrikt skrivits av. De försvarslösa invånarna i landet ovan bugar sig inför din depraverade närvaro. Som om det skulle rädda dem..."
+
+#: guitext:80
+msgctxt "In-game message"
+msgid "Researchers have found instructions for building a Temple to the dark gods. Sacrifice creatures in the Temple's pool to receive gifts from these gods. You might have to experiment with the offerings you make. The dark gods are not easy to please."
+msgstr "Forskarna har funnit instruktioner för hur man bygger ett tempel till de onda gudarna. Offra varelser i templets dopfunt för att mottaga gåvor från dessa gudar. Du kanske måste experimentera lite med dina gåvor. De onda gudarna är inte lätta att behaga."
+
+#: guitext:81
+msgctxt "In-game message"
+msgid "This realm is ruled by four arrogant Wizards who think they've got everything under control, because their feeble magical power impresses the locals. But you're not from these parts..."
+msgstr "Detta rike styrs av fyra arroganta trollkarlar som tror att de har allt under kontroll, eftersom deras kraftlösa magiska krafter imponerar på invånarna. Men du kommer inte härifrån..."
+
+#: guitext:82
+msgctxt "In-game message"
+msgid "Well, you're done down here. Time to introduce yourself to the locals and re-organise their nice little lives."
+msgstr "Jaha, du är klar här. Dags att presentera dig för invånarna och organisera om deras trevliga små liv."
+
+#: guitext:83
+msgctxt "In-game message"
+msgid "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll fail, because everything makes a Horned Reaper angry but at least try to make sure that everything near it is an enemy creature when it finally goes ballistic."
+msgstr "Skåda, du har kallat på en dödsängel. Försök inte irritera den, eftersom du kommer att misslyckas - allting gör den arg. Se i alla fall till att det enda som finns nära när den exploderar är en fiendevarelse."
+
+#: guitext:84
+msgctxt "In-game message"
+msgid "Your researchers have concocted a Disease spell. Cast it on enemy creatures and watch the affliction spread like the plague."
+msgstr "Dina forskare har kokat ihop en sjukdomstrollformel. Kasta den på fiendevarelser och se sjukdomen sprida sig som pesten."
+
+#: guitext:85
+msgctxt "In-game message"
+msgid "A Vampire has risen from your Graveyard, nourished by the souls of the dead which have been brought here. You have to suck up to Vampires or they go off in a huff, but they're extremely powerful and fearsome underlings to have in your employ."
+msgstr "En vampyr har uppstått från din kyrkogård närd av de dödas själar som förts hit. Du måste hålla kvar vampyrerna, annars drar de iväg på nolltid. De är extremt kraftfulla och skräckinjagande underhuggare att ha till din tjänst."
+
+#: guitext:86
+msgctxt "In-game message"
+msgid "You have researched the Graveyard. Your Imps will drag corpses here to rot... And possibly to rise again as Vampires, ready to do your bidding. That's style."
+msgstr "Du har forskat fram kyrkogården. Dina impar kommer dra lik hit för att ruttna... och möjligtvis uppstå som vampyrer, redo att uppfylla dina önskemål. Det är klass det."
+
+#: guitext:87
+msgctxt "In-game message"
+msgid "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
+msgstr "Du har tillverkat en järndörr. Den är en formidabel barriär. Använd den väl."
+
+#: guitext:88
+msgctxt "In-game message"
+msgid "Powerful creatures inhabit a cave south of here. There's a party of heroes between you and them but, if you reach them and convert them to your side before they join the other keepers, you will be unstoppable, unless you do something stupid."
+msgstr "Kraftfulla varelser bor i en grotta åt söder. Det finns en grupp hjältar mellan dig och dem men om du når dem och omvänder dem till din sida innan de slår sig samman med andra väktare i området, kommer du vara ostoppbar. Såvida du inte gör någonting korkat."
+
+#: guitext:89
+msgctxt "In-game message"
+msgid "You have overcome all resistance to your rule, O despicable one. It's time to flex the old misery muscle on the pathetic inhabitants of the land above."
+msgstr "Du har klarat av allt motstånd, du uslaste usling. Det är dags att spänna de gamla olycksmusklerna på de patetiska invånarna i landet ovan."
+
+#: guitext:90
+msgctxt "In-game message"
+msgid "You have a manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
+msgstr "Du har tillverkat en Indy-fälla. Placera den i en korridor och skratta hysteriskt när den obevekligt rasar mot omedvetna inkräktare."
+
+#: guitext:91
+msgctxt "In-game message"
+msgid "With typical brilliance, you have researched the Cave-In spell. Use it to block off passages and repair dungeon breaches. Interestingly, the rockfall will crush to death any creatures caught beneath it."
+msgstr "Med typisk briljans har du forskat fram grottras-trollformeln. Använd den för att blockera passager och reparera grotthål. Vad som är intressant är att de nedfallande klipporna kommer krossa alla varelser som råkar befinna sig nedanför."
+
+#: guitext:92
+msgctxt "In-game message"
+msgid "Your tireless librarians have researched the Scavenger Room. Creatures placed within a Scavenger Room will lure their kin from other dungeons and the outside world, into your domain."
+msgstr "Dina outtröttliga bibliotekarier har forskat fram asätarrummet. Varelser placerade i asätarrummet kommer locka till sig släktingar från andra grottor och från världen utanför till din domän."
+
+#: guitext:93
+msgctxt "In-game message"
+msgid "Your great wealth has bought the loyalty of a passing Dragon. They are fickle creatures. Keep your eye on this one."
+msgstr "Dina stora rikedomar har köpt lojaliteten hos en passerande drake. De är nyckfulla varelser. Håll ditt öga på denna."
+
+#: guitext:94
+msgctxt "In-game message"
+msgid "A Hell Hound has been lured to your domain by your Scavenger Room."
+msgstr "En helveteshund har lockats till din domän av asätarrummet."
+
+#: guitext:95
+msgctxt "In-game message"
+msgid "The other two Keepers in this region have put aside their differences for the moment and joined forces, in an effort to destroy you. That's almost a compliment. Kill the creeps."
+msgstr "De andra två väktarna i detta område har lagt sina meningsskiljaktigheter åt sidan ett tag och slagit sig samman. Allt i ett försök att krossa dig. Det är nästan som en komplimang. Döda krypen."
+
+#: guitext:96
+msgctxt "In-game message"
+msgid "You have won a magnificent victory, Master. You have a talent for twisted mercilessness that makes other Keepers look well behaved by comparison."
+msgstr "Du har vunnit en magnifik seger, herre. Du har en talang för sjuk obarmhärtighet som får andra väktare att verka väluppfostrade vid jämförelse."
+
+#: guitext:97
+msgctxt "In-game message"
+msgid "You have discovered a devastating magical power. Target it against a creature to transform a fearsome monster into a clucking chicken. Marvellous."
+msgstr "Du har upptäckt en förödande magisk kraft. Rikta den mot en varelse för att förvandla ett rysligt monster till en kluckande kyckling. Underbart."
+
+#: guitext:98
+msgctxt "In-game message"
+msgid "Your manufacturers have built an Alarm Trap. It will warn you of your enemies' approach and summon nearby creatures to deal with the intruders."
+msgstr "Dina tillverkare har byggt en alarmfälla. Den kommer varna dig när fienden närmar sig och sammankalla varelser i närheten för att ta hand om inkräktarna."
+
+#: guitext:99
+msgctxt "In-game message"
+msgid "You have created a Magic Door. These are almost impregnable to all but magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
+msgstr "Du har skapat en magisk dörr. Dessa är nästan helt osårbara mot allt utom magiska attackar. Jag rekommenderar att du tillsluter skattkammaren eller ditt grotthjärta med denna dörr."
+
+#: guitext:100
+msgctxt "In-game message"
+msgid "Elsewhere in this fiery realm you have a rival Keeper to contend with. I advise extreme antisocial behaviour on your part."
+msgstr "Någonstans i detta glödheta rike har du en rivaliserande väktare att brottas med. Jag rekommenderar extremt asocialt beteende från din sida."
+
+#: guitext:101
+msgctxt "In-game message"
+msgid "Notch up another victory, most malicious one. You have another land to add to your dismal collection."
+msgstr "Bokför ännu en seger, du mest ondskefulla. Du har ytterligare ett land att lägga till din förskräckliga samling."
+
+#: guitext:102
+msgctxt "In-game message"
+msgid "Your annihilation of the first wave has met with the approval of a pack of demons from the fifth plane of hell. Train your creatures and prepare for another battle. You're attracting quite an audience."
+msgstr "Din förintelse av den första vågen har bemötts med gillande av en samling demoner från helvetets femte plan. Träna dina varelser och förbered dem för ytterligare ett slag. Det är ingen liten publik du drar till dig."
+
+#: guitext:103
+msgctxt "In-game message"
+msgid "The enemy are upon us. I'm just telling you in case you were having a doze."
+msgstr "Fienden är över oss. Jag bara säger det ifall att du hade slumrat till."
+
+#: guitext:104
+msgctxt "In-game message"
+msgid "All the heroes are dead, which is as it should be. This land and all its spoils are yours. May I suggest that you waste everything?"
+msgstr "Alla hjältar är döda, vilket är precis som det skall vara. Detta land och dess byten är ditt. Får jag rekommendera att du förgör rubbet?"
+
+#: guitext:105
+msgctxt "In-game message"
+msgid "If lands had legs this one would be on its knees. Its desperate inhabitants are preparing a full scale attack on your dungeon. It will be an ideal opportunity to practise unspeakable evil on a massive scale. Go for it, master."
+msgstr "Om land hade ben skulle detta stå på knä. Dess desperata invånare förbereder en fullskalig attack mot din grotta. Detta är ett idealiskt tillfälle att praktisera onämnbar ondska i massiv skala. Kör hårt, mästare."
+
+#: guitext:106
+msgctxt "In-game message"
+msgid "Your latest discovery is the Word of Power Trap. When activated, the trap triggers an expanding ring of fire that incinerates anything caught in its area of effect. What a scream that should be."
+msgstr "Din senaste upptäckt är ordets makt-fällan. När den aktiverats utlöser fällan en expanderande eldring som kremerar allt som fångas i mitten. Vilket skrikande det kommer bli."
+
+#: guitext:107
+msgctxt "In-game message"
+msgid "The Hold Audience spell has been researched. It will immediately teleport all of your creatures back to your Dungeon Heart. Let's hope you never need it."
+msgstr "Trollformeln håll audiens har forskats fram. Den kommer omedelbart kalla på alla dina varelser tillbaka till grotthjärtat. Låt oss hoppas på att du aldrig behöver använda den."
+
+#: guitext:108
+msgctxt "In-game message"
+msgid "You can't swing a cat for Dungeon Keepers fighting over the destiny of this region. It should fall to you to settle the disagreement once and for all."
+msgstr "Du kan inte titta på när andra grottväktare slåss om ödet för denna region. Det bör ligga i ditt eget intresse att avgöra detta en gång för alla."
+
+#: guitext:109
+msgctxt "In-game message"
+msgid "Your researchers have discovered the devastating Chicken spell. Cast it on any creature to instantly transform the target into poultry. It's a fowl weapon."
+msgstr "Dina forskare har upptäckt en förödande kycklingtrollformel. Kasta den på en varelse för att genast förvandla målet till en fågel. Det är ett fjäderfävapen."
+
+#: guitext:110
+msgctxt "In-game message"
+msgid "So, now you have a spell that turns fortified walls to dust. It's expensive to cast and it's also possible that your enemies possess the same magic power. This could still turn out to be one of those days."
+msgstr "Så nu har du en trollformel som förvandlar förstärkta väggar till damm. Den är dyr att använda och det finns en möjlighet att dina fiender har samma magiska kraft. Detta skulle kunna visa sig vara en sådan dag."
+
+#: guitext:111
+msgctxt "In-game message"
+msgid "Only the Lord of this Land stands between you and hectares of desolation and woe. I bet you can't wait to meet him."
+msgstr "Endast detta rikes härskare står mellan dig och alla hektar av ödeläggelse och elände. Jag slår vad om att du är ivrig att få träffa honom."
+
+#: guitext:112
+msgctxt "In-game message"
+msgid "Your continued success makes me sick. Thank you, your wickedness."
+msgstr "Din fortsatta framgång får mig att må dåligt. Tack ska du ha din gamla galning."
+
+#: guitext:113
+msgctxt "In-game message"
+msgid "You seem to have started a trend. Two other Dungeon Keepers also have designs on this dark domain. Expect no quarter from your rivals."
+msgstr "Du verkar ha startat en ny trend. Två andra grottväktare har också designer på denna mörka domän. Förvänta dig ingen hyra från dina rivaler."
+
+#: guitext:114
+msgctxt "In-game message"
+msgid "Can you see how vulnerable one of your opponents has become? Then kill him."
+msgstr "Kan du se hur sårbar en av dina motståndare har blivit? Döda honom när du tittat klart."
+
+#: guitext:115
+msgctxt "In-game message"
+msgid "I spy a keeper with hardly any creatures left under his control. I spy a Keeper who's about to die."
+msgstr "Jag ser en väktare som knappt har några varelser kvar i tjänst. Jag ser en väktare som snart skall dö."
+
+#: guitext:116
+msgctxt "In-game message"
+msgid "This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I call practical archaeology."
+msgstr "Denna antika grotta har stort arkeologiskt värde. Det betyder helt enkelt att det bör finnas spännande skatter att stjäla. Det är vad jag kallar praktisk arkeologi."
+
+#: guitext:117
+msgctxt "In-game message"
+msgid "Your librarians have learned a spell that can break through fortified walls. Give them a slap for not learning it earlier."
+msgstr "Dina bokmalar har lärt sig en trollformel som kan slå igenom förstärkta väggar. Ge dem en smäll för att de inte lärt sig den tidigare."
+
+#: guitext:118
+msgctxt "In-game message"
+msgid "One of your opponents has developed a spell that can break through fortified walls. Typical. Be on your guard."
+msgstr "En av dina motståndare har utvecklat en trollformel som kan ta sig igenom förstärkta väggar. Typiskt. Var på din vakt."
+
+#: guitext:119
+msgctxt "In-game message"
+msgid "You have developed the Armageddon spell. That's quite a name to live up to. Make sure you're the most powerful force in the region before casting it."
+msgstr "Du har utvecklat en harmagedon-trollformel. Ganska tungt namn att leva upp till. Var säker på att du är den kraftfullaste i området innan du använder den."
+
+#: guitext:120
+msgctxt "In-game message"
+msgid "You will not find any easy path through this region. You will have to fight hard to gain any advantage. But, if you intend to rule the world, you've simply got to get through days like this."
+msgstr "Du kommer inte hitta någon lätt väg genom detta område. Du måste kämpa hårt för att nå ett övertag. Men om du hade tänkt dig att styra världen, måste du helt enkelt bara klara av dagar som denna."
+
+#: guitext:121
+msgctxt "In-game message"
+msgid "Your manufacturers have crafted the Lava Trap."
+msgstr "Dina tillverkare har tagit fram lavafällan."
+
+#: guitext:122
+msgctxt "In-game message"
+msgid "Your location is already known to the heroes of this land. They have moved quickly to mobilise their forces against you. It's pathetic. They deserve to have their heads impaled on lances for such impudence."
+msgstr "Din närvaro är redan upptäckt av hjältarna i detta land. De har arbetat snabbt för att mobilisera sina styrkor mot dig. Det är patetiskt. De förtjänar att få sina huvuden spetsade på lansar för sådan oförskämdhet."
+
+#: guitext:123
+msgctxt "In-game message"
+msgid "You've upset the local Lord. He's on his way right now. Shall I alert the media?"
+msgstr "Du har retat upp den lokala härskaren. Han är på väg hit nu. Skall jag kontakta media?"
+
+#: guitext:124
+msgctxt "In-game message"
+msgid "The heroes of this realm possess treasures of great power. Obviously, these should belong to you. I'm certain you will settle the matter of their ownership in your own way."
+msgstr "Hjältarna i detta rike har skatter av stort värde. Självklart bör de tillhöra dig. Jag är övertygad om att du kommer lösa äganderättsförhållandena på ditt eget speciella sätt."
+
+#: guitext:125
+msgctxt "In-game message"
+msgid "It appears you have a rival. Another Keeper believes he is more ruthless and evil than you. We shall soon see."
+msgstr "Det verkar som om du har en rival. En annan väktare tror att han är hänsynlösare och ondare än du. Vi skall snart bli varse svaret."
+
+#: guitext:126
+msgctxt "In-game message"
+msgid "This ancient realm is rich in magical artifacts. Go forth and plunder."
+msgstr "Detta gamla rike är rikt på magiska artefakter. Gå vidare och plundra."
+
+#: guitext:127
+msgctxt "In-game message"
+msgid "The guardians of this realm are asleep at the moment. Attack them as soon as you can or they'll be breakfasted, wide awake and inherently more difficult to slaughter."
+msgstr "Vakterna i detta rike sover för tillfället. Anfall dem så snart du kan annars kommer de snart ha fått sin frukost, vara klarvakna och mycket svårare att slakta."
+
+#: guitext:128
+msgctxt "In-game message"
+msgid "If you should encounter hero patrols, ensure that none of their number escape. Otherwise your presence will be revealed and then you will be in trouble."
+msgstr "Om du skulle stöta på en hjältepatrull, se till att ingen av dem slipper undan. Annars kan din närvaro avslöjas och då kommer du hamna i trubbel."
+
+#: guitext:129
+msgctxt "In-game message"
+msgid "You're taking forever over this. Attack and destroy the heroes' stronghold soon, preferably before hell freezes over."
+msgstr "Du tar en enorm tid på dig för detta. Anfall och förstör hjältarnas fäste snart, helst innan helvetetet fryser till is."
+
+#: guitext:130
+msgctxt "In-game message"
+msgid "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
+msgstr "Fiendeförstärkningar har anlänt. Och? Låt oss höra lite mer dödande nu då."
+
+#: guitext:131
+msgctxt "In-game message"
+msgid "The heroes of this realm have prepared for your coming by building an underground stronghold of their own. Who do they think they are? Sorry, master, that was a rhetorical question."
+msgstr "Hjältarna i detta rike har förberett sig för din ankomst genom att bygga ett eget underjordiskt fäste. Vilka tror de att de är? Jag är ledsen, herre, det var en retorisk fråga."
+
+#: guitext:132
+msgctxt "In-game message"
+msgid "You are about to face the greatest challenge yet to your evil aspirations. Here it comes, ready or not."
+msgstr "Du kommer snart att möta den hittills svåraste utmaningen för dina onda mål. Här kommer den, klar eller inte."
+
+#: guitext:133
+msgctxt "In-game message"
+msgid "Three other Dungeon Keepers, each as evil and powerful as you, have expanded their empires into this realm. Ultimately, only the one who rules the underworld can conquer the realms above."
+msgstr "Tre andra grottväktare, var och en lika ond och kraftfull som du, har utökat sina imperium till detta rike. Slutligen kan endast den som styr underjorden erövra riket ovanför."
+
+#: guitext:134
+msgctxt "In-game message"
+msgid "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
+msgstr "Detta rike ber om att få bli kastat in i mörkret. Avataren själv har boskap här. En annan väktare söker också hans själ. Detta kan bli kladdigt."
+
+#: guitext:135
+msgctxt "In-game message"
+msgid "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize."
+msgstr "Du har förstört avatarens slott men din rival har redan tagit avataren till fånga. Det är som det är. Endast väktaren med svartast hjärta kan förgöra denna legendariska hjälte, så leta igenom din rivals grotta och ta priset."
+
+#: guitext:136
+msgctxt "In-game message"
+msgid "The Avatar has been resurrected by loyal lieutenants in hiding. But their act has revealed them to us, here in this realm. Now the Avatar rallies all those who would stand against you. It's time you gave this self-righteous oaf a proper kicking, master."
+msgstr "Avataren har återuppväckts av gömda lojala löjtnanter. Men deras handling har avslöjat dem för oss, här i detta rike. Nu samlar avataren alla som skulle kunna vara emot dig. Det är dags att du ger denna självrättfärdiga fåne en rejäl spark, herre."
+
+#: guitext:137
+msgctxt "In-game message"
+msgid "Powerful magic permeating through the rock from the realm above prevents a dungeon from being constructed here. You will have to conquer this realm another way."
+msgstr "Kraftfull magisk genomträngning genom klippan från riket ovanför förhindrar att en grotta byggs här. Du måste erövra detta rike på något annat sätt."
+
+#: guitext:138
+msgctxt "In-game message"
+msgid "Possess this Dragon to help you negotiate the fiery pits but be prepared to transfer your soul to a more appropriate creature when the situation demands it."
+msgstr "Besätt denna drake till hjälp för att övervinna de glödande hålen, men var beredd på att överföra din själ till en lämpligare varelse när situationen kräver det."
+
+#: guitext:139
+msgctxt "In-game message"
+msgid "Possess the Vampire below. Should you succeed in killing every hero in this region, the Vampire will accompany you to the realm beyond."
+msgstr "Besätt vampyren nedan. Om du skulle lyckas med att döda alla hjältar i detta område, kommer vampyren följa med dig till riket bortanför."
+
+#: guitext:140
+msgctxt "In-game message"
+msgid "These Imps have all turned rogue and therefore must die. The speed with which you accomplish their destruction will determine your fitness for greater tasks ahead."
+msgstr "Alla dessa impar har blivit en riktiga lymlar och måste därför dö. Den hastighet med vilken du klarar av denna utrensning kommer avgöra din kondition för de större uppgifter som ligger framför."
+
+#: guitext:141
+msgctxt "In-game message"
+msgid "Tempus fugit, Keeper. You have been warned."
+msgstr "Tempus Fugit, väktare. Du har varnats."
+
+#: guitext:142
+msgctxt "In-game message"
+msgid "You have failed. Perhaps you're not the harbinger of doom the forces of darkness were hoping for."
+msgstr "Du har misslyckats. Kanske är du inte den undergångens budbärare som ondskans krafter har hoppats på."
+
+#: guitext:143
+msgctxt "In-game message"
+msgid "You are indeed a twisted soul, master. You made the Imps extinct with such panache that not one but two Dark Mistresses have devoted themselves to helping you achieve your next goal. You may proceed to your next conquest."
+msgstr "Du är sannerligen en galning, herre. Du har utrotat imparna med sådan elegans att inte bara en, utan två av mörkrets älskarinnor har vigt sig åt att hjälpa dig uppnå ditt nästa mål. Du kan fortsätta till din nästa erövring."
+
+#: guitext:144
+msgctxt "In-game message"
+msgid "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
+msgstr "Du måste ha blixtsnabba reflexer för att klara av den uppgift som ligger framför dig. Döda dessa impar så snabbt du kan."
+
+#: guitext:145
+msgctxt "In-game message"
+msgid "Half your allotted time has elapsed."
+msgstr "Halva din tilldelade tid har förflutit."
+
+#: guitext:146
+msgctxt "In-game message"
+msgid "You are out of time. That was a shocking performance."
+msgstr "Tiden är ute. Det var en chockerande föreställning."
+
+#: guitext:147
+msgctxt "In-game message"
+msgid "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time. The dark gods will send you a Giant to help you conquer the next realm."
+msgstr "Det är avklarat. Små högar med förkolnat kött ryker där imparna tidigare stod. Du hade verkligen fingret på avtryckaren denna gång. De svarta gudarna kommer sända dig en jätte för att hjälpa dig erövra nästa rike."
+
+#: guitext:148
+msgctxt "In-game message"
+msgid "You have no gold left. It pays to keep your head in such a charged environment."
+msgstr "Du har inget guld kvar. Det kostar att ha huvudet i en sådan laddad miljö."
+
+#: guitext:149
+msgctxt "In-game message"
+msgid "You have been called to this realm to punish a horde of revolting Bile Demons by crushing them with Boulder Traps scattered around the perimeter of the dungeon. You have very little time, so rock and roll!"
+msgstr "Du har kallats till detta rike för att bestraffa en hord revolterande gallgasdemoner genom att krossa dem med Indy-fällor placerade runt grottans ytterkanter. Du har kort tid på dig, så ROCK AND ROLL!"
+
+#: guitext:150
+msgctxt "In-game message"
+msgid "Half your time has expired."
+msgstr "Halva din tid har gått."
+
+#: guitext:151
+msgctxt "In-game message"
+msgid "Your time is up. You have failed. I'm embarrassed to come from the same inter-dimensional void as you."
+msgstr "Tiden är ute. Du har misslyckats. Jag skäms över att komma från samma interdimensionella rymd som du."
+
+#: guitext:152
+msgctxt "In-game message"
+msgid "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by granting you three superior Imps when you reach the next realm."
+msgstr "Bra gjort. Du har excellerat i din användning av stora stenbollar. För detta kommer de svarta gudarna belöna dig, genom att ge dig tre överlägsna impar när du kommer till nästa rike."
+
+#: guitext:153
+msgctxt "In-game message"
+msgid "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve you well in the future."
+msgstr "Detta underjordiska område kommer testa din förmåga att ta dig igenom grottnätverket. Tiden är din fiende här. Besegra den och du kommer hitta var den legendariske krigaren barbaren Hugo sitter fängslad. Hugo kommer tjäna dig väl i framtiden."
+
+#: guitext:154
+msgctxt "In-game message"
+msgid "The people of this realm speak of a Dungeon Keeper called Wisel, who is bound to get in your way. When he does, you will have to consign him to history. This will be no mean feat. Resources are scarce because of his activities."
+msgstr "Folket i detta rike talar om en grottväktare kallad Kloker, som säkert kommer stå i din väg. När han gör det måste du förpassa honom till historien. Detta kommer inte vara alltför svårt. Hans resurser är knappa på grund av hans aktiviteter."
+
+#: guitext:155
+msgctxt "In-game message"
+msgid "Wisel is defeated. The land is yours to plunder and despoil for all eternity. Give 'em hell, master."
+msgstr "Kloker är besegrad. Landet är ditt att plundra och ödelägga för all framtid. Gör deras liv till ett helvete, mästare."
+
+#: guitext:156
+msgctxt "In-game message"
+msgid "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
+msgstr "Din ondska har depraverat en samurajkrigare. Han har övergivit sin samurajheder för att hjälpa din sak. Om din underhuggare skulle lida stora skador, kommer denna krigare till och med att kalla på sina vapenbröder till hjälp. Vad snällt, vad korkat!"
+
+#: guitext:157
+msgctxt "In-game message"
+msgid "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
+msgstr "Detta område av underjorden är översållat med tunnlar och många hjältar utforskar deras labyrintgångar. Ingen sa att det skulle vara enkelt att vara ond."
+
+#: guitext:158
+msgctxt "In-game message"
+msgid "It is rumoured that two Dragons are held captive somewhere east of here. Were you to find them and free them, they would make powerful servants."
+msgstr "Det ryktas att två drakar hålls fängslade någonstans i öster. Om du hittar dem och fritar dem kommer de att bli kraftfullare tjänare."
+
+#: guitext:159
+msgctxt "In-game message"
+msgid "A tunnel to the north leads to the Lord of the Realm's domain. This gate is guarded well. It might be wise to direct the humans' attention towards your subterranean enemy."
+msgstr "En tunnel i norr leder till rikets härskares domäner. Denna port är välbevakad. Det kan vara smart att rikta medborgarnas uppmärksamhet mot din underjordiska fiende."
+
+#: guitext:160
+msgctxt "In-game message"
+msgid "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
+msgstr "Dessa Indy-fällor är idealiska för att krossa fienden, men det finns bara tre av dem till ditt förfogande. Så använd dem klokt."
+
+#: guitext:161
+msgctxt "In-game message"
+msgid "May I suggest that you kill or imprison anything that gets in your way?"
+msgstr "Får jag föreslå att du dödar eller fängslar allt som kommer i din väg?"
+
+#: guitext:162
+msgctxt "In-game message"
+msgid "Another realm falls under your evil reign. Another cloud of misery and despair gathers. Lovely."
+msgstr "Ytterligare ett rike har fallit under ditt ondskefulla styre. Ytterligare ett moln av misär och förtvivlan samlas. Härligt."
+
+#: guitext:163
+msgctxt "In-game message"
+msgid "You have failed. This is a grim day for evil."
+msgstr "Du har misslyckats. Detta är en grym dag för ondskan."
+
+#: guitext:164
+msgctxt "In-game message"
+msgid "Dispense with a particularly obnoxious party of Dwarves which wanders this region and recruit as many Bile Demons as you can. If you free the Wizard held captive in this realm, he will serve you for some time to come."
+msgstr "Ta hand om en grupp med extra vidriga dvärgar som vandrar omkring i detta område och rekrytera så många gallgasdemoner du kan. Om du befriar den magiker som hålls fängslad i detta rike, kommer han att tjäna dig för en tid."
+
+#: guitext:165
+msgctxt "In-game message"
+msgid "Take more care of your Bile Demons or you will never make it beyond this realm."
+msgstr "Ta bättre hand om dina gallgasdemoner, annars kommer du inte klara dig bortanför detta rike."
+
+#: guitext:166
+msgctxt "In-game message"
+msgid "How time flies... hurry!"
+msgstr "Vad tiden går fort... Skynda dig!"
+
+#: guitext:167
+msgctxt "In-game message"
+msgid "You will meet your nemesis, the Avatar, in this subterranean place. This is your ultimate test. Remember, mercy is for losers."
+msgstr "Du kommer möta din nemesis, avataren, på denna underjordiska plats. Detta är ditt slutliga prov. Kom ihåg, nåd är för förlorare."
+
+#: guitext:168
+msgctxt "In-game message"
+msgid "The Avatar and his allys are defeated, yet his power over this land lingers. Prepare thyself..."
+msgstr "Avataren och hans allierade är besegrade, men ändå fortlever hans makt över detta land. Var beredd."
+
+#: guitext:169
+msgctxt "In-game message"
+msgid "You got rid of that Keeper easily. Now all that stands between you and total world domination is that ponce in shining armour. Let's get him."
+msgstr "Du gjorde dig av med den där väktaren ganska enkelt. Det enda som nu står mellan dig och total världsdominans är den där veklingen i skinande rustning. Låt oss ta honom."
+
+#: guitext:170
+msgctxt "In-game message"
+msgid "Success is thine. Truly, you have earned your title, Dungeon Keeper."
+msgstr "Segern är din. Du har verkligen förtjänat din titel, grottväktare."
+
+#: guitext:171
+msgctxt "In-game message"
+msgid "What is this? The Avatar lives!"
+msgstr "Vad är det här? Avataren lever!"
+
+#: guitext:172
+msgctxt "In-game message"
+msgid "Finally, you stand unchallenged. The world is yours to waste and despoil. I bet you have never felt so bad."
+msgstr "Slutligen är du utan motstånd. Världen är din att förgöra och ödelägga. Jag slår vad om att du aldrig känt dig så ond tidigare."
+
+#: guitext:173
+#: guitext:174
+#: guitext:175
+#: guitext:176
+#: guitext:177
+#: guitext:178
+#: guitext:179
+#: guitext:180
+#: guitext:181
+#: guitext:182
+#: guitext:183
+#: guitext:184
+#: guitext:185
+#: guitext:186
+#: guitext:187
+#: guitext:188
+#: guitext:189
+#: guitext:190
+#: guitext:191
+#: guitext:192
+#: guitext:193
+#: guitext:194
+#: guitext:195
+#: guitext:196
+#: guitext:197
+#: guitext:198
+#: guitext:199
+#: guitext:200
+msgctxt "Unused"
+msgid "Moo"
+msgstr "Muu"
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Eversmile"
+msgstr "STORFLIN"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Cosyton"
+msgstr "MYSBERGA"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Waterdream Warm"
+msgstr "VÅTDRÖMMA"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Flowerhat"
+msgstr "BLOMSTERHATT"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Lushmeadow-on-Down"
+msgstr "GRÖNSKEÄNG"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Snuggledell"
+msgstr "KRAMDALEN"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Wishvale"
+msgstr "ÖNSKEDALEN"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Tickle"
+msgstr "KITTLINGE"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Moonbrush Wood"
+msgstr "MÅNSKOGEN"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Nevergrim"
+msgstr "JÄMTSNÄLL"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Hearth"
+msgstr "HEMHÄRDA"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Elf's Dance"
+msgstr "ÄLVDANSEN"
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Buffy Oak"
+msgstr "FYLLEKEN"
+
+#: guitext:215
+msgctxt "Level name"
+msgid "Sleepiburgh"
+msgstr "SOVLANDA"
+
+#: guitext:216
+msgctxt "Level name"
+msgid "Woodly Rhyme"
+msgstr "TRÄRIMMA"
+
+#: guitext:217
+msgctxt "Level name"
+msgid "Tulipscent"
+msgstr "TULPANLUKTABY"
+
+#: guitext:218
+msgctxt "Level name"
+msgid "Mirthshire"
+msgstr "MUNTERÅS"
+
+#: guitext:219
+msgctxt "Level name"
+msgid "Blaise End"
+msgstr "BORTBY"
+
+#: guitext:220
+msgctxt "Level name"
+msgid "Mistle"
+msgstr "MISTELBY"
+
+#: guitext:221
+msgctxt "Level name"
+msgid "Skybird Trill"
+msgstr "DRILLSTAD"
+
+#: guitext:222
+msgctxt "In-game interface description"
+msgid "Name and Health: [23.4]"
+msgstr "Namn och hälsa: [23.4]"
+
+#: guitext:223
+msgctxt "In-game interface description"
+msgid "Experience: The creature's experience level. [23.3]"
+msgstr "Erfarenhet: Varelsens erfarenhetsnivå. [23.3]"
+
+#: guitext:224
+msgctxt "In-game interface description"
+msgid "Hunger: How badly a creature needs to suck down a chicken or two."
+msgstr "Hunger: Hur starkt en varelse behöver svälja ned en kyckling eller två."
+
+#: guitext:225
+msgctxt "In-game interface description"
+msgid "Cancel"
+msgstr "Avbryt"
+
+#: guitext:226
+msgctxt "Creature spell"
+msgid "Arrow: [25.4]"
+msgstr "Pil: [25.4]"
+
+#: guitext:227
+msgctxt "Creature spell"
+msgid "Freeze: [26.8]"
+msgstr "Frys: [26.8]"
+
+#: guitext:228
+msgctxt "Creature spell"
+msgid "Armour: [26.1]"
+msgstr "Rustning: [26.1]"
+
+#: guitext:229
+msgctxt "Creature spell"
+msgid "Lightning: [26.13]"
+msgstr "Blixt: [26.13]"
+
+#: guitext:230
+msgctxt "Creature spell"
+msgid "Rebound: [26.18]"
+msgstr "Retur: [26.18]"
+
+#: guitext:231
+msgctxt "Creature spell"
+msgid "Fear: Not used"
+msgstr "Rädsla: Används inte:"
+
+#: guitext:232
+msgctxt "Creature spell"
+msgid "Sight: Not used"
+msgstr "Syn: Används inte"
+
+#: guitext:233
+msgctxt "Creature spell"
+msgid "Missile: [26.15]"
+msgstr "Missil: [26.15]"
+
+#: guitext:234
+msgctxt "Creature spell"
+msgid "Grenade: [26.9]"
+msgstr "Granat: [26.9]"
+
+#: guitext:235
+msgctxt "Creature spell"
+msgid "Navigating Missile: [26.16]"
+msgstr "Navigerande missil: [26.16]"
+
+#: guitext:236
+msgctxt "Creature spell"
+msgid "Speed: [26.20]"
+msgstr "Hastighet: [26.20]"
+
+#: guitext:237
+#: guitext:253
+msgctxt "Creature spell"
+msgid "Poison Cloud: [26.17]"
+msgstr "Giftmoln: [26.17]"
+
+#: guitext:238
+msgctxt "Creature spell"
+msgid "Group: Not used"
+msgstr "Grupp: Används inte"
+
+#: guitext:239
+msgctxt "Creature spell"
+msgid "Invisibility: [26.12]"
+msgstr "Osynlighet: [26.12]"
+
+#: guitext:240
+msgctxt "Creature spell"
+msgid "Teleport: [26.21]"
+msgstr "Teleportering: [26.21]"
+
+#: guitext:241
+msgctxt "Creature spell"
+msgid "Flame Breath: [26.6]"
+msgstr "Eldkvast: [26.6]"
+
+#: guitext:242
+msgctxt "Creature spell"
+msgid "Illumination: Not used"
+msgstr "Belysning: Används inte"
+
+#: guitext:243
+msgctxt "Creature spell"
+msgid "Flight: [26.7]"
+msgstr "Sväva: [26.7]"
+
+#: guitext:244
+msgctxt "Creature spell"
+msgid "Hail Storm: [26.10]"
+msgstr "Hagelstorm: [26.10]"
+
+#: guitext:245
+msgctxt "Creature spell"
+msgid "Slow: [26.19]"
+msgstr "Långsam: [26.19]"
+
+#: guitext:246
+msgctxt "Creature spell"
+msgid "Drain: [26.4]"
+msgstr "Uttömning: [26.4]"
+
+#: guitext:247
+msgctxt "Creature spell"
+msgid "Word of Power: [26.23]"
+msgstr "Ordets makt: [26.23]"
+
+#: guitext:248
+msgctxt "Creature spell"
+msgid "Heal: [26.11]"
+msgstr "Hela: [26.11]"
+
+#: guitext:249
+msgctxt "Creature spell"
+msgid "Wind: [26.22]"
+msgstr "Vind: [26.22]"
+
+#: guitext:250
+msgctxt "Creature spell"
+msgid "Meteor: [26.14]"
+msgstr "Meteor: [26.14]"
+
+#: guitext:251
+msgctxt "Creature spell"
+msgid "Fireball: [26.5]"
+msgstr "Eldklot: [26.5]"
+
+#: guitext:252
+msgctxt "Creature spell"
+msgid "Hand to Hand: [25.3]"
+msgstr "Närstrid: [25.3]"
+
+#: guitext:254
+msgctxt "Creature spell"
+msgid "Dig: [25.2]"
+msgstr "Gräva: [25.2]"
+
+#: guitext:255
+msgctxt "Creature spell"
+msgid "Disease: [26.3]"
+msgstr "Sjukdom [26.3]"
+
+#: guitext:256
+msgctxt "Creature spell"
+msgid "Chicken: [26.2]"
+msgstr "Kyckling: [26.2]"
+
+#: guitext:257
+msgctxt "Creature spell"
+msgid "Time Bomb"
+msgstr "Tidsinställd bomb"
+
+#: guitext:258
+msgctxt "Creature name"
+msgid "Fairy"
+msgstr "Fé"
+
+#: guitext:259
+msgctxt "Creature name"
+msgid "Imp"
+msgstr "Imp"
+
+#: guitext:260
+msgctxt "Creature name"
+msgid "Beetle"
+msgstr "Skalbagge"
+
+#: guitext:261
+msgctxt "Creature name"
+msgid "Troll"
+msgstr "Troll"
+
+#: guitext:262
+msgctxt "Creature name"
+msgid "Demon Spawn"
+msgstr "Drakdemon"
+
+#: guitext:263
+msgctxt "Creature name"
+msgid "Warlock"
+msgstr "Magiker"
+
+#: guitext:264
+msgctxt "Creature name"
+msgid "Fly"
+msgstr "Fluga"
+
+#: guitext:265
+msgctxt "Creature name"
+msgid "Spider"
+msgstr "Spindel"
+
+#: guitext:266
+msgctxt "Creature name"
+msgid "Skeleton"
+msgstr "Skelett"
+
+#: guitext:267
+msgctxt "Creature name"
+msgid "Horned Reaper"
+msgstr "Dödsängel"
+
+#: guitext:268
+msgctxt "Creature name"
+msgid "Dragon"
+msgstr "Drake"
+
+#: guitext:269
+msgctxt "Creature name"
+msgid "Tentacle"
+msgstr "Tentakel"
+
+#: guitext:270
+msgctxt "Creature name"
+msgid "Hound"
+msgstr "Helveteshund"
+
+#: guitext:271
+msgctxt "Creature name"
+msgid "Ghost"
+msgstr "Spöke"
+
+#: guitext:272
+msgctxt "Creature name"
+msgid "Mistress"
+msgstr "Mörkrets älskarinna"
+
+#: guitext:273
+msgctxt "Creature name"
+msgid "Bile Demon"
+msgstr "Gallgasdemon"
+
+#: guitext:274
+msgctxt "Creature name"
+msgid "Vampire"
+msgstr "Vampyr"
+
+#: guitext:275
+msgctxt "Creature name"
+msgid "Barbarian"
+msgstr "Barbar"
+
+#: guitext:276
+msgctxt "Creature name"
+msgid "Knight"
+msgstr "Riddare"
+
+#: guitext:277
+msgctxt "Creature name"
+msgid "Wizard"
+msgstr "Trollkarl"
+
+#: guitext:278
+msgctxt "Creature name"
+msgid "Orc"
+msgstr "Orch"
+
+#: guitext:279
+msgctxt "Creature name"
+msgid "Mountain Dwarf"
+msgstr "Bergsdvärg"
+
+#: guitext:280
+msgctxt "Creature name"
+msgid "Valley Dwarf"
+msgstr "Daladvärg"
+
+#: guitext:281
+msgctxt "Creature name"
+msgid "Thief"
+msgstr "Tjuv"
+
+#: guitext:282
+msgctxt "Creature name"
+msgid "Samurai"
+msgstr "Samurai"
+
+#: guitext:283
+msgctxt "Creature name"
+msgid "Priestess"
+msgstr "Prästinna"
+
+#: guitext:284
+msgctxt "Creature name"
+msgid "Giant"
+msgstr "Jätte"
+
+#: guitext:285
+msgctxt "Creature name"
+msgid "Archer"
+msgstr "Bågskytt"
+
+#: guitext:286
+msgctxt "Creature name"
+msgid "Monk"
+msgstr "Munk"
+
+#: guitext:287
+msgctxt "In-game interface description"
+msgid "Query: Select this and left click on a creature to view information on that creature. LMB select. [5.8]"
+msgstr "Förklaring: Välj denna och vänsterklicka på en varelse för att visa information om den varelsen. VMK väljer. [5.8]"
+
+#: guitext:288
+msgctxt "Menu interface item"
+msgid "Select game"
+msgstr "VÄLJ SPEL"
+
+#: guitext:289
+msgctxt "Menu interface item"
+msgid "Network Menu"
+msgstr "NÄTVERKSMENY"
+
+#: guitext:290
+#: guitext:343
+msgctxt "Menu interface item"
+msgid "Main Menu"
+msgstr "HUVUDMENY"
+
+#: guitext:291
+msgctxt "In-game interface description"
+msgid "Anger: How angry the creature is. [23.2]"
+msgstr "Ilska: Hur arg en varelse är. [23.2]"
+
+#: guitext:292
+msgctxt "In-game interface description"
+msgid "Creature Kills: The number of enemies the creature has slain. [23.7]"
+msgstr "Antal dödade: Antal fiender varelsen har slagit ihjäl. [23.7]"
+
+#: guitext:293
+msgctxt "In-game interface description"
+msgid "Strength: The amount of damage the creature inflicts upon it's enemies. [23.12]"
+msgstr "Styrka: Den skada varelsen åstadkommer på sina fiender. [23.12]"
+
+#: guitext:294
+msgctxt "In-game interface description"
+msgid "Wage: The creature's salary in gold. [23.13]"
+msgstr "Lön: Varelsens lön i guld. [23.13]"
+
+#: guitext:295
+msgctxt "In-game interface description"
+msgid "Gold Held : The amount of gold the creature is carrying. [23.8]"
+msgstr "Innehavet guld: Den mängd guld varelsen bär. [23.8]"
+
+#: guitext:296
+msgctxt "In-game interface description"
+msgid "Defence: The chance a creature will avoid a blow. [23.9]"
+msgstr "Försvar: Chansen att en varelse kommer klara ett slag. [23.9]"
+
+#: guitext:297
+msgctxt "In-game interface description"
+msgid "Skill: The creature's ability to perform tasks. [23.14]"
+msgstr "Skicklighet: Varelsens förmåga att utföra uppgifter [23.14]"
+
+#: guitext:298
+msgctxt "In-game interface description"
+msgid "Age/Time In Dungeon: The length of time you have employed the creature. [23.10]"
+msgstr "Tid i grottan: Den tid du har haft varelsen anställd. [23.10]"
+
+#: guitext:299
+msgctxt "In-game interface description"
+msgid "Dexterity: The chance a creature will avoid a trap or an enemy weapon. [23.15]"
+msgstr "Smidighet: Chansen att en varelse kommer undvika en fälla eller fiendevapen. [23.15]"
+
+#: guitext:300
+msgctxt "In-game interface description"
+msgid "Luck: The chance that a creature will do a double attack or a double defence in combat. [23.11]"
+msgstr "Tur: Chansen att en varelse kommer göra en dubbelattack eller dubbelförsvar i strid. [23.11]"
+
+#: guitext:301
+msgctxt "In-game interface description"
+msgid "Blood type: As if you care. Blood is blood, right? [23.16]"
+msgstr "Blodtyp: Som om du brydde dig. Blod är blod, eller hur? [23.16]"
+
+#: guitext:302
+msgctxt "In-game interface description"
+msgid "Idle: The creature is either sleeping or not working. LMB pick up creature. RMB zoom. [9.1 and 22.2.1]"
+msgstr "Sysslolös: Antingen sover varelsen eller så arbetar han inte. VMK plockar upp varelse. HMK zoomar. [9.1 och 22.2.1]"
+
+#: guitext:303
+msgctxt "In-game interface description"
+msgid "Working: The creature is performing tasks. LMB pick up creature. RMB zoom. [9.2 and 22.2.1]"
+msgstr "Arbetar: Varelsen utför uppgifter. VMK plockar upp varelse. HMK zoomar. [9.2 och 22.2.1]"
+
+#: guitext:304
+msgctxt "In-game interface description"
+msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom. [9.3 and 22.2.1]"
+msgstr "Strider: Varelsen befinner sig i strid. VMK plockar upp varelse. HMK zoomar. . [9.3 och 22.2.1]"
+
+#: guitext:305
+msgctxt "In-game interface description"
+msgid "Fight: Your creatures always attack. LMB select. [6.5.1]"
+msgstr "Slåss: Dina varelser anfaller alltid. VMK väljer. [6.5.1]"
+
+#: guitext:306
+msgctxt "In-game interface description"
+msgid "Flee: Your creatures attempt to preserve their lives. LMB select. [5.2]"
+msgstr "Fly: Dina varelser försöker rädda sina liv. VMK väljer. [5.2]"
+
+#: guitext:307
+msgctxt "In-game interface description"
+msgid "Imprison: Your creatures stun their enemies in battle and imprison those they defeat. LMB select. [5.1]"
+msgstr "Fängsla: Dina varelser bedövar sina fiender i strid och fängslar de som besegrats. VMK väljer. [5.1]"
+
+#: guitext:308
+msgctxt "In-game interface description"
+msgid "Defending: The creature is concentrating on avoiding its adversary's blows."
+msgstr "Försvar: Varelsen koncentrerar sig på att undvika fiendens slag."
+
+#: guitext:309
+msgctxt "In-game interface item"
+msgid "Are you sure?"
+msgstr "Är du säker?"
+
+#: guitext:310
+msgctxt "In-game interface item"
+msgid "Yes"
+msgstr "Ja"
+
+#: guitext:311
+msgctxt "In-game interface item"
+msgid "No"
+msgstr "Nej"
+
+#: guitext:312
+msgctxt "In-game interface item"
+msgid "For"
+msgstr "För"
+
+#: guitext:313
+msgctxt "In-game interface description"
+msgid "Shadows: The number of shadows cast by each creature. LMB toggle. [3.2.2]"
+msgstr "Skuggor: Det antal skuggor varje varelse kastar. VMK växlar. [3.2.2]"
+
+#: guitext:314
+msgctxt "In-game interface description"
+msgid "View Type: Swap between the default and forced perspective views. LMB toggle. [3.2.2]"
+msgstr "Visningstyp: Växla mellan standard och tvingade perspektivvisningar. VMK växlar. [3.2.2]"
+
+#: guitext:315
+msgctxt "In-game interface description"
+msgid "Wall Height: Swap between high or low walls. LMB toggle. [3.2.2]"
+msgstr "Vägghöjd: Växla mellan höga och låga väggar. VMK växlar. [3.2.2]"
+
+#: guitext:316
+msgctxt "In-game interface description"
+msgid "View Distance: The amount of dungeon drawn. This directly affects the speed of the game. LMB toggle. [3.2.2]"
+msgstr "Visningsavstånd: Den yta av grottan som är ritad. Detta påverkar direkt spelets hastighet. VMK växlar. [3.2.2]"
+
+#: guitext:317
+msgctxt "In-game interface description"
+msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle. [3.2.2]"
+msgstr "Gammakorrektion: Justerar ljusstyrkan i spelet. VMK växlar. [3.2.2]"
+
+#: guitext:318
+msgctxt "In-game interface item"
+msgid "Of"
+msgstr "Av"
+
+#: guitext:319
+msgctxt "Slab description"
+msgid "Empty Lair: Would suit itinerant creature."
+msgstr "Tom lya: Skulle passa en vandrande varelse."
+
+#: guitext:320
+msgctxt "Menu interface item"
+msgid "Paused"
+msgstr "Pause"
+
+#: guitext:321
+msgctxt "In-game interface description"
+msgid "Zoom In: Zoom in the Dynamic Map. LMB select. [4.1]"
+msgstr "Zooma in: Zooma in på den dynamiska kartan. VMK väljer. [4.1]"
+
+#: guitext:322
+msgctxt "In-game interface description"
+msgid "Zoom Out: Zoom out the Dynamic Map. LMB select. [4.1]"
+msgstr "Zooma ut: Zooma ut från den dynamiska kartan. VMK väljer [4.1]"
+
+#: guitext:323
+msgctxt "In-game interface description"
+msgid "Full Screen Map: Takes you to the Map Screen. LMB select. [4.1.1]"
+msgstr "Fullskärmskarta: Tar dig till kartmenyn. VMK väljer. [4.1.1]"
+
+#: guitext:324
+msgctxt "Slab description"
+msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgstr "Ogenomtränglig klippa: Dina impar kan inte gräva sig igenom denna. [12.4]"
+
+#: guitext:325
+msgctxt "Slab description"
+msgid "Earth: You can excavate this. [12.1]"
+msgstr "Jord: Du kan gräva upp detta. [12.1]"
+
+#: guitext:326
+msgctxt "Slab description"
+msgid "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to your Treasure Room. [12.2]"
+msgstr "Guldåder: Din källa till rikedom. Bryt denna och dina impar kommer ta den till din skattkammare. [12.2]"
+
+#: guitext:327
+msgctxt "Slab description"
+msgid "Lava: Burns any creature that step on it. [14.2]"
+msgstr "Lava: Bränner alla varelser som kliver på den. [14.2]"
+
+#: guitext:328
+msgctxt "Slab description"
+msgid "Water: Creatures move more slowly through water. [14.1]"
+msgstr "Vatten: Varelser rör sig långsamt genom vatten [14.1]"
+
+#: guitext:329
+msgctxt "Slab description"
+msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgstr "Vägg: En förstärkt stenvägg som fiender inte kan bryta sig igenom. [12.1]"
+
+#: guitext:330
+msgctxt "Slab description"
+msgid "Damaged Wall: Unless repaired, this wall will eventually collapse."
+msgstr "Skadad vägg: Om den inte repareras kommer den till slut att kollapsa"
+
+#: guitext:331
+msgctxt "Slab description"
+msgid "Path: Unclaimed earth floor. [12.1]"
+msgstr "Jordgolv: Ointaget område. [12.1]"
+
+#: guitext:332
+msgctxt "Slab description"
+msgid "Claimed area: Your dungeon territory. [12.1]"
+msgstr "Intaget område: Någon väktares grottområde. [12.1]"
+
+#: guitext:333
+msgctxt "In-game interface item"
+msgid "More..."
+msgstr "Mer..."
+
+#: guitext:334
+msgctxt "In-game message"
+msgid "Level completed - press Escape to continue"
+msgstr "NIVÅ AVKLARAD - TRYCK PÅ ESC FÖR ATT FORTSÄTTA"
+
+#: guitext:335
+msgctxt "In-game message"
+msgid "You have been defeated. Press Space to restart."
+msgstr "NIVÅ FÖRLORAD - TRYCK PÅ ESC FÖR ATT STARTA OM"
+
+#: guitext:336
+msgctxt "On-screen message"
+msgid "RECORDING FLIC"
+msgstr "SPELAR IN FILMSEKVENS"
+
+#: guitext:337
+msgctxt "On-screen message"
+msgid "ERROR RECORDING FLIC"
+msgstr "FEL VID INSPELNING AV FILMSEKVENS"
+
+#: guitext:338
+msgctxt "On-screen message"
+msgid "FINISHED RECORDING FLIC"
+msgstr "KLAR MED INSPELNING AV FILMSEKVENS"
+
+#: guitext:339
+msgctxt "Unused"
+msgid "Time Bomb"
+msgstr "Tidsinställd bomb"
+
+#: guitext:340
+msgctxt "In-game interface item"
+msgid "Sound FX"
+msgstr "Ljudeffekter"
+
+#: guitext:341
+msgctxt "In-game interface item"
+msgid "Music"
+msgstr "Musik"
+
+#: guitext:342
+msgctxt "In-game interface item"
+msgid "UNUSED"
+msgstr "OANVÄND"
+
+#: guitext:344
+msgctxt "Menu interface item"
+msgid "Load Menu"
+msgstr "LADDNINGSMENY"
+
+#: guitext:345
+msgctxt "Menu interface item"
+msgid "Load Game"
+msgstr "LADDA SPEL"
+
+#: guitext:346
+msgctxt "Menu interface item"
+msgid "Continue Game"
+msgstr "FORTSÄTT SPEL"
+
+#: guitext:347
+msgctxt "Menu interface item"
+msgid "Multiplayer"
+msgstr "MULTISPELARE"
+
+#: guitext:348
+msgctxt "Menu interface item"
+msgid "Return to Main Menu"
+msgstr "ÅTERVÄND TILL HUVUDMENYN"
+
+#: guitext:349
+msgctxt "Menu interface item"
+msgid "Play Intro"
+msgstr "INTRO"
+
+#: guitext:350
+msgctxt "Menu interface item"
+msgid "Service Menu"
+msgstr "MULTISPELARE"
+
+#: guitext:351
+msgctxt "Menu interface item"
+msgid "Session Menu"
+msgstr "SESSIONSMENY"
+
+#: guitext:352
+msgctxt "Menu interface item"
+msgid "Speed"
+msgstr "Hastighet"
+
+#: guitext:353
+msgctxt "Menu interface item"
+msgid "COM Port"
+msgstr "COM-Port"
+
+#: guitext:354
+msgctxt "Menu interface item"
+msgid "Phone Number"
+msgstr "Telefonnummer"
+
+#: guitext:355
+msgctxt "Menu interface item"
+msgid "IRQ"
+msgstr "IRQ"
+
+#: guitext:356
+msgctxt "Menu interface item"
+msgid "Statistics"
+msgstr "STATISTIK"
+
+#: guitext:357
+msgctxt "Menu interface item"
+msgid "Level Completed"
+msgstr "Nivå avklarad"
+
+#: guitext:358
+msgctxt "Menu interface item"
+msgid "UNUSED"
+msgstr "OANVÄND"
+
+#: guitext:359
+msgctxt "Menu interface item"
+msgid "Quit"
+msgstr "AVSLUTA"
+
+#: guitext:360
+msgctxt "Menu interface item"
+msgid "Start New Game"
+msgstr "STARTA NYTT SPEL"
+
+#: guitext:361
+msgctxt "Unused"
+msgid "This is a tale of valour and honour and how tasty heroes are...."
+msgstr "Detta är berättelsen om tapperhet och ära och hur gott hjältar smakar..."
+
+#: guitext:362
+msgctxt "Credits"
+msgid "Designed By"
+msgstr "DESIGNAT AV"
+
+#: guitext:363
+msgctxt "Credits"
+msgid "Project Leader"
+msgstr "PROJEKTLEDARE"
+
+#: guitext:364
+msgctxt "Credits"
+msgid "Lead Programmer"
+msgstr "HUVUDPROGRAMMERARE"
+
+#: guitext:365
+msgctxt "Credits"
+msgid "Lead Artist"
+msgstr "HUVUDTECKNARE"
+
+#: guitext:366
+msgctxt "Credits"
+msgid "Programming"
+msgstr "PROGRAMMERING"
+
+#: guitext:367
+msgctxt "Credits"
+msgid "Engine Design"
+msgstr "SPELMOTORDESIGN"
+
+#: guitext:368
+msgctxt "Credits"
+msgid "Music and Sfx"
+msgstr "MUSIK OCH LJUDEFFEKTER"
+
+#: guitext:369
+msgctxt "Credits"
+msgid "Graphics Programmers"
+msgstr "GRAFIKPROGRAMMERING"
+
+#: guitext:370
+msgctxt "Credits"
+msgid "Artists"
+msgstr "TECKNARE"
+
+#: guitext:371
+msgctxt "Credits"
+msgid "Network Programming"
+msgstr "NÄTVERKSPROGRAMMERING"
+
+#: guitext:372
+msgctxt "Credits"
+msgid "Testing Manager"
+msgstr "TESTANSVARIG"
+
+#: guitext:373
+msgctxt "Credits"
+msgid "Lead Testers"
+msgstr "HUVUDTESTARE"
+
+#: guitext:374
+msgctxt "Credits"
+msgid "Lead Tester"
+msgstr "TESTANSVARIG"
+
+#: guitext:375
+msgctxt "Credits"
+msgid "Management"
+msgstr "LEDNING"
+
+#: guitext:376
+msgctxt "Credits"
+msgid "Marketing and PR"
+msgstr "MARKNADSFÖRING OCH PR"
+
+#: guitext:377
+msgctxt "Credits"
+msgid "Tech Support"
+msgstr "TEKNISK SUPPORT"
+
+#: guitext:378
+msgctxt "Credits"
+msgid "Administration"
+msgstr "ADMINISTRATION"
+
+#: guitext:379
+msgctxt "Credits"
+msgid "Thanks To"
+msgstr "TACK TILL"
+
+#: guitext:380
+msgctxt "Credits"
+msgid "Producer"
+msgstr "PRODUCENT"
+
+#: guitext:381
+msgctxt "Credits"
+msgid "Level Design"
+msgstr "NIVÅDESIGN"
+
+#: guitext:382
+msgctxt "Credits"
+msgid "Script By"
+msgstr "MANUS"
+
+#: guitext:383
+msgctxt "Credits"
+msgid "Libraries and Tools"
+msgstr "BIBLIOTEK OCH VERKTYG"
+
+#: guitext:384
+msgctxt "Credits"
+msgid "Playtesters"
+msgstr "SPELTESTARE"
+
+#: guitext:385
+msgctxt "Credits"
+msgid "Localisation"
+msgstr "LOKALISERING"
+
+#: guitext:386
+msgctxt "Credits"
+msgid "Special Thanks To"
+msgstr "SPECIELLT TACK TILL"
+
+#: guitext:387
+msgctxt "Credits"
+msgid "Package Design"
+msgstr "FÖRPACKNINGSDESIGN"
+
+#: guitext:388
+msgctxt "Credits"
+msgid "Documentation"
+msgstr "DOKUMENTATION"
+
+#: guitext:389
+msgctxt "Credits"
+msgid "Documentation Layout"
+msgstr "DOKUMENTATIONSLAYOUT"
+
+#: guitext:390
+msgctxt "Credits"
+msgid "Production"
+msgstr "PRODUKTION"
+
+#: guitext:391
+msgctxt "Credits"
+msgid "Quality Assurance"
+msgstr "KVALITETSKONTROLL"
+
+#: guitext:392
+msgctxt "Credits"
+msgid "Lead Level Design"
+msgstr "ANSVARIG NIVÅDESIGN"
+
+#: guitext:393
+msgctxt "Credits"
+msgid "Intro"
+msgstr "INTRO"
+
+#: guitext:394
+msgctxt "Credits"
+msgid "Testers"
+msgstr "TESTARE"
+
+#: guitext:395
+msgctxt "Menu interface item"
+msgid "Sessions"
+msgstr "Sessioner"
+
+#: guitext:396
+msgctxt "Menu interface item"
+msgid "Name"
+msgstr "Namn"
+
+#: guitext:397
+msgctxt "Menu interface item"
+msgid "Services"
+msgstr "UPPKOPPLING"
+
+#: guitext:398
+msgctxt "Menu interface item"
+msgid "Messages"
+msgstr "Meddelanden"
+
+#: guitext:399
+msgctxt "Menu interface item"
+msgid "Create Game"
+msgstr "SKAPA SPEL"
+
+#: guitext:400
+msgctxt "Menu interface item"
+msgid "Join Game"
+msgstr "GÅ MED I SPEL"
+
+#: guitext:401
+msgctxt "Menu interface item"
+msgid "Start Game"
+msgstr "STARTA SPEL"
+
+#: guitext:402
+msgctxt "Menu interface item"
+msgid "Game Menu"
+msgstr "SPELMENY"
+
+#: guitext:403
+msgctxt "Menu interface item"
+msgid "Cancel"
+msgstr "AVBRYT"
+
+#: guitext:404
+msgctxt "Menu interface item"
+msgid "No Name"
+msgstr "Inget namn"
+
+#: guitext:405
+msgctxt "Menu interface item"
+msgid "Players"
+msgstr "Spelare"
+
+#: guitext:406
+msgctxt "Menu interface item"
+msgid "Level"
+msgstr "NIVÅ"
+
+#: guitext:407
+msgctxt "Menu interface item"
+msgid "Levels"
+msgstr "NIVÅER"
+
+#: guitext:408
+msgctxt "Menu interface item"
+msgid "Games"
+msgstr "Spel"
+
+#: guitext:409
+msgctxt "Menu interface item"
+msgid "Modem Menu"
+msgstr "MODEMMENY"
+
+#: guitext:410
+msgctxt "Menu interface item"
+msgid "Serial Menu"
+msgstr "SERIELL MENY"
+
+#: guitext:411
+msgctxt "Menu interface item"
+msgid "Init"
+msgstr "Initiering"
+
+#: guitext:412
+msgctxt "Menu interface item"
+msgid "Hangup"
+msgstr "Lägg på"
+
+#: guitext:413
+msgctxt "Menu interface item"
+msgid "Clear"
+msgstr "RENSA"
+
+#: guitext:414
+msgctxt "Menu interface item"
+msgid "Answer"
+msgstr "Svara"
+
+#: guitext:415
+msgctxt "Menu interface item"
+msgid "Start"
+msgstr "STARTA"
+
+#: guitext:416
+msgctxt "Menu interface item"
+msgid "Ally"
+msgstr "VÄN"
+
+#: guitext:417
+msgctxt "Menu interface item"
+msgid "Alliance"
+msgstr "ALLIANS"
+
+#: guitext:418
+msgctxt "Menu interface item"
+msgid "Credits"
+msgstr "MEDVERKANDE"
+
+#: guitext:419
+msgctxt "Menu interface item"
+msgid "Ok"
+msgstr "OK"
+
+#: guitext:420
+msgctxt "Dungeon special decription"
+msgid "Reveal Map: Reveals the entire underground realm to you."
+msgstr "Visa karta: Avslöjar hela underjordens rike för dig."
+
+#: guitext:421
+msgctxt "Dungeon special decription"
+msgid "Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgstr "Återuppväck varelse: Du kan återuppväcka en av dina fallna underhuggare från döden."
+
+#: guitext:422
+msgctxt "Dungeon special decription"
+msgid "Transfer Creature: Pick one of your creatures to accompany you to the next realm."
+msgstr "Överför varelse: Plocka upp en av dina varelser att följa dig till nästa rike."
+
+#: guitext:423
+msgctxt "Dungeon special decription"
+msgid "Steal Hero: Subvert a hero to your cause."
+msgstr "Stjäl hjälte: Konvertera en hjälte till din sak."
+
+#: guitext:424
+msgctxt "Dungeon special decription"
+msgid "Multiply Creatures: Create a double of each of your creatures."
+msgstr "Föröka varelser: Skapa en dublett av varje varelse."
+
+#: guitext:425
+msgctxt "Dungeon special decription"
+msgid "Increase Level: Bestows greater skill on all your creatures."
+msgstr "Öka nivå: Skänker större förmågor åt alla dina varelser."
+
+#: guitext:426
+msgctxt "Dungeon special decription"
+msgid "Make Safe : Reinforces your entire dungeon."
+msgstr "Gör säker: Förstärker hela din grotta."
+
+#: guitext:427
+msgctxt "Dungeon special decription"
+msgid "Locate Hidden World: You will be transported to a secret realm after you have conquered this one."
+msgstr "Gömd värld: Du kommer transporteras till ett hemligt rike efter att du har erövrat detta."
+
+#: guitext:428
+msgctxt "Dungeon special name"
+msgid "Resurrect Creature"
+msgstr "Återuppväck varelse"
+
+#: guitext:429
+msgctxt "Dungeon special name"
+msgid "Transfer Creature"
+msgstr "Överför varelse"
+
+#: guitext:430
+msgctxt "Menu interface item"
+msgid "Bonus"
+msgstr "BONUS"
+
+#: guitext:431
+msgctxt "Menu interface item"
+msgid "High Score Table"
+msgstr "BÄSTA POÄNG"
+
+#: guitext:432
+msgctxt "Menu interface item"
+msgid "Go to Query Mode"
+msgstr "Gå till frågeläge"
+
+#: guitext:433
+msgctxt "Menu interface item"
+msgid "More information"
+msgstr "Mer information"
+
+#: guitext:434
+msgctxt "Menu interface item"
+msgid "Back to main Query Screen"
+msgstr "Tillbaka till frågeläget"
+
+#: guitext:435
+msgctxt "Menu interface item"
+msgid "Selected action"
+msgstr "Vald manöver"
+
+#: guitext:436
+msgctxt "Menu interface item"
+msgid "Choose party"
+msgstr "Välj grupp"
+
+#: guitext:437
+msgctxt "Menu interface item"
+msgid "Enter dungeon"
+msgstr "Gå in i grotta"
+
+#: guitext:438
+msgctxt "Menu interface item"
+msgid "Party members"
+msgstr "Gruppmedlem"
+
+#: guitext:439
+msgctxt "Menu interface item"
+msgid "Available creatures"
+msgstr "Tillgängliga varelser"
+
+#: guitext:440
+msgctxt "Menu interface item"
+msgid "Creature"
+msgstr "Varelse"
+
+#: guitext:441
+msgctxt "Menu interface item"
+msgid "Money available"
+msgstr "Tillgängligt kapital"
+
+#: guitext:442
+msgctxt "Menu interface item"
+msgid "Leader"
+msgstr "Ledare"
+
+#: guitext:443
+msgctxt "Menu interface item"
+msgid "Hire"
+msgstr "Anställ"
+
+#: guitext:444
+msgctxt "Menu interface item"
+msgid "Fire"
+msgstr "Sparka"
+
+#: guitext:445
+msgctxt "Menu interface item"
+msgid "Cost"
+msgstr "Kostnad"
+
+#: guitext:446
+msgctxt "Menu interface item"
+msgid "Type"
+msgstr "Typ"
+
+#: guitext:447
+msgctxt "In-game interface description"
+msgid "Information Panel: Miscellaneous information. [5.0]"
+msgstr "Informationspanel: Blandad information. [5.0]"
+
+#: guitext:448
+msgctxt "In-game interface description"
+msgid "Room Panel: The rooms available for you to build. [6.0]"
+msgstr "Rumspanel: De rum som finns tillgängliga för dig att bygga. [6.0]"
+
+#: guitext:449
+msgctxt "In-game interface description"
+msgid "Research Panel: The spells available to you. [7.0]"
+msgstr "Forskningspanel: De trollformler som finns tillgängliga för dig. [7.0]"
+
+#: guitext:450
+msgctxt "In-game interface description"
+msgid "Workshop Panel: The traps and doors available to you. [8.0]"
+msgstr "Verkstadspanel: De fällor och dörrar som finns tillgängliga för dig. [8.0]"
+
+#: guitext:451
+msgctxt "In-game interface description"
+msgid "Creature Panel: Information on your creatures. [9.0]"
+msgstr "Varelsepanel: Information om dina varelser. [9.0]"
+
+#: guitext:452
+msgctxt "In-game interface description"
+msgid "Research Time: The time until a new spell is researched. [5.4]"
+msgstr "Forskningstid: Den tid det tar innan en ny trollformel har forskats fram. [5.4]"
+
+#: guitext:453
+msgctxt "In-game interface description"
+msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
+msgstr "Verkstadstid: Den tid det tar innan en ny fälla eller dörr är tillverkad. [5.5]"
+
+#: guitext:454
+msgctxt "In-game interface description"
+msgid "Time: The time until the next Creature Payday. [5.3]"
+msgstr "Lönedags: Den tid som återstår innan nästa löneutbetalning till varelserna. [5.3]"
+
+#: guitext:455
+msgctxt "In-game interface description"
+msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
+msgstr "Antal rum: Det antal rum som hålls av denna väktare. [5.6]"
+
+#: guitext:456
+msgctxt "In-game interface description"
+msgid "Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+msgstr "Antal varelser: Det antal varelser som ägs av denna väktare. [5.7]"
+
+#: guitext:457
+msgctxt "Menu interface item"
+msgid "Choose game"
+msgstr "Välj spel"
+
+#: guitext:458
+msgctxt "Menu interface item"
+msgid "Game type"
+msgstr "Speltyp"
+
+#: guitext:459
+msgctxt "Menu interface item"
+msgid "Keeper vs keeper"
+msgstr "Väktare mot väktare"
+
+#: guitext:460
+msgctxt "Menu interface item"
+msgid "Keeper vs heroes"
+msgstr "Väktare mot hjältar"
+
+#: guitext:461
+msgctxt "Menu interface item"
+msgid "Deathmatch"
+msgstr "Dödsmatch"
+
+#: guitext:462
+msgctxt "In-game interface description"
+msgid "Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgstr "Sälj rum: Sälj en rumsplatta för halva byggnadspriset. VMK väljer. [6.4]"
+
+#: guitext:463
+msgctxt "In-game interface description"
+msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
+msgstr "Sälj objekt: Sälj en fälla eller dörr. VMK väljer. [8.1.2]"
+
+#: guitext:464
+msgctxt "In-game interface description"
+msgid "Next Battle: Zoom to the next battle. LMB select."
+msgstr "Nästa strid: Zooma till nästa strid. VMK väljer."
+
+#: guitext:465
+msgctxt "In-game interface item"
+msgid "Close Window"
+msgstr "Stäng fönster"
+
+#: guitext:466
+msgctxt "In-game interface item"
+msgid "Zoom to area"
+msgstr "Zooma till område"
+
+#: guitext:467
+msgctxt "Menu interface item"
+msgid "No mouse installed"
+msgstr "INGEN MUS INSTALLERAD"
+
+#: guitext:468
+msgctxt "Menu interface item"
+msgid "Define keys"
+msgstr "DEFINIERA TANGENTER"
+
+#: guitext:469
+msgctxt "Game controls"
+msgid "Ally with player"
+msgstr "GÅ IHOP MED SPELARE"
+
+#: guitext:470
+msgctxt "Game controls"
+msgid "Press a key"
+msgstr "TRYCK PÅ EN TANGENT"
+
+#: guitext:471
+msgctxt "Game controls"
+msgid "UP"
+msgstr "UPP"
+
+#: guitext:472
+msgctxt "Game controls"
+msgid "DOWN"
+msgstr "NED"
+
+#: guitext:473
+msgctxt "Game controls"
+msgid "LEFT"
+msgstr "VÄNSTER"
+
+#: guitext:474
+msgctxt "Game controls"
+msgid "RIGHT"
+msgstr "HÖGER"
+
+#: guitext:475
+msgctxt "Game controls"
+msgid "ROTATE"
+msgstr "ROTERA"
+
+#: guitext:476
+msgctxt "Game controls"
+msgid "SPEED"
+msgstr "HASTIGHET"
+
+#: guitext:477
+msgctxt "Game controls"
+msgid "ROTATE LEFT"
+msgstr "ROTERA VÄNSTER"
+
+#: guitext:478
+msgctxt "Game controls"
+msgid "ROTATE RIGHT"
+msgstr "ROTERA HÖGER"
+
+#: guitext:479
+msgctxt "Game controls"
+msgid "ZOOM IN"
+msgstr "ZOOMA IN"
+
+#: guitext:480
+msgctxt "Game controls"
+msgid "ZOOM OUT"
+msgstr "ZOOMA UT"
+
+#: guitext:481
+msgctxt "Keyboard"
+msgid "LEFT CONTROL"
+msgstr "VÄNSTER CONTROL"
+
+#: guitext:482
+msgctxt "Keyboard"
+msgid "RIGHT CONTROL"
+msgstr "HÖGER CONTROL"
+
+#: guitext:483
+msgctxt "Keyboard"
+msgid "LEFT SHIFT"
+msgstr "VÄNSTER SHIFT"
+
+#: guitext:484
+msgctxt "Keyboard"
+msgid "RIGHT SHIFT"
+msgstr "HÖGER SHIFT"
+
+#: guitext:485
+msgctxt "Keyboard"
+msgid "LEFT ALT"
+msgstr "VÄNSTER ALT"
+
+#: guitext:486
+msgctxt "Keyboard"
+msgid "RIGHT ALT"
+msgstr "HÖGER ALT"
+
+#: guitext:487
+msgctxt "Keyboard"
+msgid "SPACE"
+msgstr "MELLANSLAG"
+
+#: guitext:488
+msgctxt "Keyboard"
+msgid "RETURN"
+msgstr "ENTER"
+
+#: guitext:489
+msgctxt "Keyboard"
+msgid "TAB"
+msgstr "TAB"
+
+#: guitext:490
+msgctxt "Keyboard"
+msgid "CAPS LOCK"
+msgstr "CAPS LOCK"
+
+#: guitext:491
+msgctxt "Keyboard"
+msgid "BACKSPACE"
+msgstr "BACKSPACE"
+
+#: guitext:492
+msgctxt "Keyboard"
+msgid "INSERT"
+msgstr "INSERT"
+
+#: guitext:493
+msgctxt "Keyboard"
+msgid "DELETE"
+msgstr "DELETE"
+
+#: guitext:494
+msgctxt "Keyboard"
+msgid "HOME"
+msgstr "HOME"
+
+#: guitext:495
+msgctxt "Keyboard"
+msgid "END"
+msgstr "END"
+
+#: guitext:496
+msgctxt "Keyboard"
+msgid "PAGE UP"
+msgstr "PAGE UP"
+
+#: guitext:497
+msgctxt "Keyboard"
+msgid "PAGE DOWN"
+msgstr "PAGE DOWN"
+
+#: guitext:498
+msgctxt "Keyboard"
+msgid "NUM LOCK"
+msgstr "NUM LOCK"
+
+#: guitext:499
+msgctxt "Keyboard"
+msgid "NUM /"
+msgstr "NUM /"
+
+#: guitext:500
+msgctxt "Keyboard"
+msgid "NUM *"
+msgstr "NUM /*"
+
+#: guitext:501
+msgctxt "Keyboard"
+msgid "NUM -"
+msgstr "NUM -"
+
+#: guitext:502
+msgctxt "Keyboard"
+msgid "NUM +"
+msgstr "NUM +"
+
+#: guitext:503
+msgctxt "Keyboard"
+msgid "NUM ENTER"
+msgstr "NUM ENTER"
+
+#: guitext:504
+msgctxt "Keyboard"
+msgid "NUM DELETE"
+msgstr "NUM DELETE"
+
+#: guitext:505
+msgctxt "Keyboard"
+msgid "NUM 1"
+msgstr "NUM 1"
+
+#: guitext:506
+msgctxt "Keyboard"
+msgid "NUM 2"
+msgstr "NUM 2"
+
+#: guitext:507
+msgctxt "Keyboard"
+msgid "NUM 3"
+msgstr "NUM 3"
+
+#: guitext:508
+msgctxt "Keyboard"
+msgid "NUM 4"
+msgstr "NUM 4"
+
+#: guitext:509
+msgctxt "Keyboard"
+msgid "NUM 5"
+msgstr "NUM 5"
+
+#: guitext:510
+msgctxt "Keyboard"
+msgid "NUM 6"
+msgstr "NUM 6"
+
+#: guitext:511
+msgctxt "Keyboard"
+msgid "NUM 7"
+msgstr "NUM 7"
+
+#: guitext:512
+msgctxt "Keyboard"
+msgid "NUM 8"
+msgstr "NUM 8"
+
+#: guitext:513
+msgctxt "Keyboard"
+msgid "NUM 9"
+msgstr "NUM 9"
+
+#: guitext:514
+msgctxt "Keyboard"
+msgid "NUM 0"
+msgstr "NUM 0"
+
+#: guitext:515
+msgctxt "Keyboard"
+msgid "F1"
+msgstr "F1"
+
+#: guitext:516
+msgctxt "Keyboard"
+msgid "F2"
+msgstr "F2"
+
+#: guitext:517
+msgctxt "Keyboard"
+msgid "F3"
+msgstr "F3"
+
+#: guitext:518
+msgctxt "Keyboard"
+msgid "F4"
+msgstr "F4"
+
+#: guitext:519
+msgctxt "Keyboard"
+msgid "F5"
+msgstr "F5"
+
+#: guitext:520
+msgctxt "Keyboard"
+msgid "F6"
+msgstr "F6"
+
+#: guitext:521
+msgctxt "Keyboard"
+msgid "F7"
+msgstr "F7"
+
+#: guitext:522
+msgctxt "Keyboard"
+msgid "F8"
+msgstr "F8"
+
+#: guitext:523
+msgctxt "Keyboard"
+msgid "F9"
+msgstr "F9"
+
+#: guitext:524
+msgctxt "Keyboard"
+msgid "F10"
+msgstr "F10"
+
+#: guitext:525
+msgctxt "Keyboard"
+msgid "F11"
+msgstr "F11"
+
+#: guitext:526
+msgctxt "Keyboard"
+msgid "F12"
+msgstr "F12"
+
+#: guitext:527
+msgctxt "Keyboard"
+msgid "UP"
+msgstr "UPP"
+
+#: guitext:528
+msgctxt "Keyboard"
+msgid "DOWN"
+msgstr "NED"
+
+#: guitext:529
+msgctxt "Keyboard"
+msgid "LEFT"
+msgstr "VÄNSTER"
+
+#: guitext:530
+msgctxt "Keyboard"
+msgid "RIGHT"
+msgstr "HÖGER"
+
+#: guitext:531
+msgctxt "Network game message"
+msgid "Initialising Modem"
+msgstr "INITIERAR MODEM"
+
+#: guitext:532
+msgctxt "Network game message"
+msgid "Connecting Modem"
+msgstr "ANSLUTER MODEM"
+
+#: guitext:533
+msgctxt "Network game message"
+msgid "Dial"
+msgstr "Ring upp"
+
+#: guitext:534
+msgctxt "Network game message"
+msgid "Continue"
+msgstr "FORTSÄTT"
+
+#: guitext:535
+msgctxt "Network game message"
+msgid "Line Engaged"
+msgstr "UPPTAGET"
+
+#: guitext:536
+msgctxt "Network game message"
+msgid "Unknown Error"
+msgstr "OKÄNT FEL"
+
+#: guitext:537
+msgctxt "Network game message"
+msgid "No Carrier"
+msgstr "INGEN LINJE"
+
+#: guitext:538
+msgctxt "Network game message"
+msgid "No Dial Tone"
+msgstr "INGEN KOPPLINGSTON"
+
+#: guitext:539
+msgctxt "Network game message"
+msgid "No Response"
+msgstr "INGET SVAR"
+
+#: guitext:540
+msgctxt "Network game message"
+msgid "No Server"
+msgstr "INGEN SERVER"
+
+#: guitext:541
+msgctxt "Network game message"
+msgid "Unable to initialise"
+msgstr "KAN INTE INITIERA"
+
+#: guitext:542
+msgctxt "Network game message"
+msgid "Unable to create game"
+msgstr "KAN INTE SKAPA SPEL"
+
+#: guitext:543
+msgctxt "Network game message"
+msgid "Unable to join game"
+msgstr "KAN INTE GÅ MED I SPEL"
+
+#: guitext:544
+msgctxt "Slab description"
+msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgstr "Ädelstenar: Obegränsat med rikedomar för dina impar att utvinna. [12.3]"
+
+#: guitext:545
+msgctxt "Object description"
+msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgstr "Hjälteport: Hjältar använder denna portal för att invadera din grotta. [15.4]"
+
+#: guitext:546
+msgctxt "Creature name"
+msgid "Tunneller"
+msgstr "Tunnelsnubbe"
+
+#: guitext:547
+msgctxt "Creature name"
+msgid "Avatar"
+msgstr "Avatar"
+
+#: guitext:548
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
+msgstr "Växla datorhjälp: Nuvarande - Aggressiv. VMK växlar. [3.2.4]"
+
+#: guitext:549
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
+msgstr "Växla datorhjälp: Nuvarande - Defensiv. VMK växlar. [3.2.4]"
+
+#: guitext:550
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgstr "Växla datorhjälp: Nuvarande - Endast konstruktion. VMK växlar. [3.2.4]"
+
+#: guitext:551
+msgctxt "In-game interface description"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgstr "Växla datorhjälp: Nuvarande - Endast flytta. VMK växlar. [3.2.4]"
+
+#: guitext:552
+msgctxt "In-game tab with rooms"
+msgid "Treasure Room"
+msgstr "SKATTKAMMARE"
+
+#: guitext:553
+msgctxt "In-game tab with rooms"
+msgid "Library"
+msgstr "BIBLIOTEK"
+
+#: guitext:554
+msgctxt "In-game tab with rooms"
+msgid "Lair"
+msgstr "LYA"
+
+#: guitext:555
+msgctxt "In-game tab with rooms"
+msgid "Prison"
+msgstr "FÄNGELSE"
+
+#: guitext:556
+msgctxt "In-game tab with rooms"
+msgid "Torture Room"
+msgstr "TORTYRKAMMARE"
+
+#: guitext:557
+msgctxt "In-game tab with rooms"
+msgid "Training Room"
+msgstr "TRÄNINGSRUM"
+
+#: guitext:558
+msgctxt "In-game tab with rooms"
+msgid "Dungeon Heart"
+msgstr "GROTTHJÄRTA"
+
+#: guitext:559
+msgctxt "In-game tab with rooms"
+msgid "Workshop"
+msgstr "VERKSTAD"
+
+#: guitext:560
+msgctxt "In-game tab with rooms"
+msgid "Scavenger Room"
+msgstr "ASÄTARRUM"
+
+#: guitext:561
+msgctxt "In-game tab with rooms"
+msgid "Temple"
+msgstr "TEMPEL"
+
+#: guitext:562
+msgctxt "In-game tab with rooms"
+msgid "Graveyard"
+msgstr "KYRKOGÅRD"
+
+#: guitext:563
+msgctxt "In-game tab with rooms"
+msgid "Barracks"
+msgstr "BARRACKER"
+
+#: guitext:564
+msgctxt "In-game tab with rooms"
+msgid "Hatchery"
+msgstr "ODLINGSANSTALT"
+
+#: guitext:565
+msgctxt "In-game tab with rooms"
+msgid "Guard Post"
+msgstr "VAKTPOST"
+
+#: guitext:566
+msgctxt "In-game tab with rooms"
+msgid "Bridge"
+msgstr "BRYGGA"
+
+#: guitext:567
+msgid "Fight"
+msgstr "STRID"
+
+#: guitext:568
+msgid "Annoyed"
+msgstr "IRRITERAD"
+
+#: guitext:569
+msgctxt "Keyboard"
+msgid "Shift"
+msgstr "SHIFT"
+
+#: guitext:570
+msgctxt "Keyboard"
+msgid "Control"
+msgstr "CONTROL"
+
+#: guitext:571
+msgctxt "Keyboard"
+msgid "Alt"
+msgstr "ALT"
+
+#: guitext:572
+msgctxt "Credits"
+msgid "Additional Artwork"
+msgstr "ÖVRIG GRAFIK"
+
+#: guitext:573
+msgctxt "Credits"
+msgid "Additional Programming"
+msgstr "ÖVRIG PROGRAMMERING"
+
+#: guitext:574
+msgctxt "Credits"
+msgid "Manual And Documentation"
+msgstr "HANDBOK OCH DOKUMENTATION"
+
+#: guitext:575
+msgctxt "Credits"
+msgid "Installer"
+msgstr "INSTALLERARE"
+
+#: guitext:576
+msgctxt "Credits"
+msgid "Additional Level Design"
+msgstr "ÖVRIG NIVÅDESIGN"
+
+#: guitext:577
+#: guitext:863
+msgctxt "Credits"
+msgid "Additional Thanks"
+msgstr "ÖVRIGT TACK"
+
+#: guitext:578
+msgctxt "Trap names"
+msgid "Boulder Trap"
+msgstr "Indy-fälla"
+
+#: guitext:579
+msgctxt "Trap names"
+msgid "Alarm Trap"
+msgstr "Alarmfälla"
+
+#: guitext:580
+msgctxt "Trap names"
+msgid "Poison Gas Trap"
+msgstr "Giftmolnsfälla"
+
+#: guitext:581
+msgctxt "Trap names"
+msgid "Lightning Trap"
+msgstr "Blixtfälla"
+
+#: guitext:582
+msgctxt "Trap names"
+msgid "Word of Power Trap"
+msgstr "Ordets makt-fälla"
+
+#: guitext:583
+msgctxt "Trap names"
+msgid "Lava Trap"
+msgstr "Lavafälla"
+
+#: guitext:584
+msgctxt "Trap description"
+msgid "Boulder Trap: A rolling rock that crushes everything in its path. LMB select. RMB zoom. [20.1]"
+msgstr "Indy-fälla: En rullande sten som krossar allt i sin väg. VMK väljer. HMK zoomar. [20.1]"
+
+#: guitext:585
+msgctxt "Trap description"
+msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgstr "Alarmfälla: Utlöser trollformeln Vapengripare. VMK väljer. HMK zoomar. [20.2]"
+
+#: guitext:586
+msgctxt "Trap description"
+msgid "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB select. RMB zoom. [20.3]"
+msgstr "Giftmolnsfälla: Ett moln av skadliga ångor utlöses av dina fiender. VMK väljer. HMK zoomar. [20.3]"
+
+#: guitext:587
+msgctxt "Trap description"
+msgid "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB select. RMB zoom. [20.4]"
+msgstr "Blixtfälla: Gör att varelser som befinner sig nära fällan träffas av blixten. VMK väljer. HMK zoomar. [20.4]"
+
+#: guitext:588
+msgctxt "Trap description"
+msgid "Word of Power Trap: Radiates devastating rings of demonic energy, damaging all creatures within range. LMB select. RMB zoom. [20.5]"
+msgstr "Ordets makt-fälla: Strålar ut förödande ringar med demonisk energi, vilket skadar alla varelser inom räckhåll. VMK väljer. HMK zoomar. [20.5]"
+
+#: guitext:589
+msgctxt "Trap description"
+msgid "Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB select. RMB zoom. [20.6]"
+msgstr "Lavafälla: Plattan löses upp och avslöjar en pool med flytande lava. VMK väljer. HMK zoomar. [20.6]"
+
+#: guitext:590
+msgctxt "Door name"
+msgid "Wooden Door"
+msgstr "Trädörr"
+
+#: guitext:591
+msgctxt "Door name"
+msgid "Braced Door"
+msgstr "Förstärkt dörr"
+
+#: guitext:592
+msgctxt "Door name"
+msgid "Iron Door"
+msgstr "Järndörr"
+
+#: guitext:593
+msgctxt "Door name"
+msgid "Magic Door"
+msgstr "Magisk dörr"
+
+#: guitext:594
+msgctxt "Door description"
+msgid "Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. [21.1]"
+msgstr "Trädörr: Den enklaste lösningen för att begränsa andras frihet. VMK väljer. HMK zoomar. [21.1]"
+
+#: guitext:595
+msgctxt "Door description"
+msgid "Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+msgstr "Förstärkt dörr: En trädörr förstärkt med järn. VMK väljer. HMK zoomar. [21.2]"
+
+#: guitext:596
+msgctxt "Door description"
+msgid "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB select. RMB zoom. [21.3]"
+msgstr "Järndörr: Stark, tung dörr kapabel att stå emot betydande påverkan. VMK väljer. HMK zoomar. [21.3]"
+
+#: guitext:597
+msgctxt "Door description"
+msgid "Magic Door: A special door, highly resistant to physical damage but susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+msgstr "Magisk dörr: En specialdörr som är väldigt motståndskraftig mot fysisk skada men känslig för magisk påverkan. VMK väljer. HMK zoomar. [21.4]"
+
+#: guitext:598
+msgctxt "Room name"
+msgid "Portal"
+msgstr "Portal"
+
+#: guitext:599
+msgctxt "Room name"
+msgid "Treasure Room"
+msgstr "Skattkammare"
+
+#: guitext:600
+msgctxt "Room name"
+msgid "Library"
+msgstr "Bibliotek"
+
+#: guitext:601
+msgctxt "Room name"
+msgid "Prison"
+msgstr "Fängelse"
+
+#: guitext:602
+msgctxt "Room name"
+msgid "Torture Chamber"
+msgstr "Tortyrkammare"
+
+#: guitext:603
+msgctxt "Room name"
+msgid "Training Room"
+msgstr "Träningsrum"
+
+#: guitext:604
+msgctxt "Room name"
+msgid "Dungeon Heart"
+msgstr "Grotthjärta"
+
+#: guitext:605
+msgctxt "Room name"
+msgid "Workshop"
+msgstr "Verkstad"
+
+#: guitext:606
+msgctxt "Room name"
+msgid "Graveyard"
+msgstr "Kyrkogård"
+
+#: guitext:607
+msgctxt "Room name"
+msgid "Barracks"
+msgstr "Barracker"
+
+#: guitext:608
+msgctxt "Room name"
+msgid "Hatchery"
+msgstr "Odlingsanstalt"
+
+#: guitext:609
+msgctxt "Room name"
+msgid "Lair"
+msgstr "Lya"
+
+#: guitext:610
+msgctxt "Room name"
+msgid "Bridge"
+msgstr "Brygga"
+
+#: guitext:611
+msgctxt "Room name"
+msgid "Guard Post"
+msgstr "Vaktpost"
+
+#: guitext:612
+msgctxt "Room name"
+msgid "Temple"
+msgstr "Tempel"
+
+#: guitext:613
+msgctxt "Room name"
+msgid "Scavenger Room"
+msgstr "Asätarrum"
+
+#: guitext:614
+msgctxt "Object name"
+msgid "Hero Gate"
+msgstr "Hjälteport"
+
+#: guitext:615
+msgctxt "Room description"
+msgid "Treasure Room: Your gold is stored here. LMB select. RMB zoom. [17.1]"
+msgstr "Skattkammare: Här förvaras ditt guld. VMK väljer. HMK zoomar. [17.1]"
+
+#: guitext:616
+msgctxt "Room description"
+msgid "Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
+msgstr "Bibliotek: Det rum där alla trollformler forskas fram. VMK väljer. HMK zoomar. [17.4]"
+
+#: guitext:617
+msgctxt "Room description"
+msgid "Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. [17.10]"
+msgstr "Fängelse: Placera fiendevarelser här för säker förvaraing. VMK väljer. HMK zoomar. [17.10]"
+
+#: guitext:618
+msgctxt "Room description"
+msgid "Training Room: Place creatures in here to improve their experience. LMB select. RMB zoom. [17.5]"
+msgstr "Träningsrum: Placera varelser här för att förbättra deras egenskaper. VMK väljer. HMK zoomar. [17.5]"
+
+#: guitext:619
+msgctxt "Room description"
+msgid "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB zoom. [17.11]"
+msgstr "Tortyrkammare: Tortera varelser för din egen ondskefulla tillfredsställelses skull. VMK väljer. HMK zoomar. [17.11]"
+
+#: guitext:620
+msgctxt "Room description"
+msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
+msgstr "Grotthjärta: Livskraften i din grotta. [11.2]"
+
+#: guitext:621
+msgctxt "Room description"
+msgid "Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. RMB zoom. [17.8]"
+msgstr "Verkstad: Placera varelser här för att tillverka fällor och dörrar. VMK väljer. HMK zoomar. [17.8]"
+
+#: guitext:622
+msgctxt "Room description"
+msgid "Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB zoom. [17.13]"
+msgstr "Kyrkogård: Döda varelser tas till detta rum för att ruttna. VMK väljer. HMK zoomar. [17.13]"
+
+#: guitext:623
+msgctxt "Room description"
+msgid "Barracks: Group creatures by placing them into the room. LMB select. RMB zoom. [17.9]"
+msgstr "Barracker: Gruppera varelser genom att placera dem i detta rum. VMK väljer. HMK zoomar. [17.9]"
+
+#: guitext:624
+msgctxt "Room description"
+msgid "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. RMB zoom. [17.3]"
+msgstr "Odlingsanstalt: Där varelser festar på söta små hjälplösa kycklingar. VMK väljer. HMK zoomar. [17.3]"
+
+#: guitext:625
+msgctxt "Room description"
+msgid "Lair: Where your creatures sleep and replenish their energy. LMB select. RMB zoom. [17.2]"
+msgstr "Lya: Här sover dina varelser och återhämtar sin energi. VMK väljer. HMK zoomar. [17.2]"
+
+#: guitext:626
+msgctxt "Room description"
+msgid "Bridge: Place this on water and lava to allow creatures to cross. LMB select. RMB zoom. [17.6]"
+msgstr "Brygga: Placera denna över vatten och lava för att låta varelser passera. VMK väljer. HMK zoomar. [17.6]"
+
+#: guitext:627
+msgctxt "Room description"
+msgid "Guard Post: Your creatures keep watch over your dungeon when placed on this room. LMB select. RMB zoom. [17.7]"
+msgstr "Vaktpost: Dina varelser håller koll på din grotta när de placeras i detta rum. VMK väljer. HMK zoomar. [17.7]"
+
+#: guitext:628
+msgctxt "Room description"
+msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+msgstr "Tempel: Att dyrka de svarta gudarna får varelserna på bättre humör. Offra varelser genom att släppa dem i dopfunten. VMK väljer. HMK zoomar. [17.12]"
+
+#: guitext:629
+msgctxt "Room description"
+msgid "Scavenger Room: Creatures placed onto the room lure their kin away from other dungeons or through portals. LMB select. RMB zoom. [17.14]"
+msgstr "Asätarrum: Varelser placerade i detta rum lockar till sig släktingar från andra grottor genom portalen. VMK väljer. HMK zoomar. [17.14]"
+
+#: guitext:630
+msgctxt "Keeper spell name"
+msgid "Possess Creature"
+msgstr "BESÄTT VARELSE"
+
+#: guitext:631
+msgctxt "Keeper spell name"
+msgid "Create Imp"
+msgstr "Skapa imp"
+
+#: guitext:632
+msgctxt "Keeper spell name"
+msgid "Sight of Evil"
+msgstr "Ondskans syn"
+
+#: guitext:633
+msgctxt "Keeper spell name"
+msgid "Call To Arms"
+msgstr "Vapengripare"
+
+#: guitext:634
+msgctxt "Keeper spell name"
+msgid "Hold Audience"
+msgstr "Håll audiens"
+
+#: guitext:635
+msgctxt "Keeper spell name"
+msgid "Cave-In"
+msgstr "Grottras"
+
+#: guitext:636
+msgctxt "Keeper spell name"
+msgid "Must Obey"
+msgstr "Tvingad lydnad"
+
+#: guitext:637
+msgctxt "Keeper spell name"
+msgid "Speed Monster"
+msgstr "Hastighet"
+
+#: guitext:638
+msgctxt "Keeper spell name"
+msgid "Protect Monster"
+msgstr "Skydda monster"
+
+#: guitext:639
+msgctxt "Keeper spell name"
+msgid "Conceal Monster"
+msgstr "Dölj monster"
+
+#: guitext:640
+msgctxt "Keeper spell name"
+msgid "Lightning Strike"
+msgstr "Blixt"
+
+#: guitext:641
+msgctxt "Keeper spell name"
+msgid "Chicken"
+msgstr "Kyckling"
+
+#: guitext:642
+msgctxt "Keeper spell name"
+msgid "Disease"
+msgstr "Sjukdom"
+
+#: guitext:643
+msgctxt "Keeper spell name"
+msgid "Destroy Walls"
+msgstr "Förstör väggar"
+
+#: guitext:644
+msgctxt "Keeper spell name"
+msgid "Heal"
+msgstr "Hela"
+
+#: guitext:645
+msgctxt "Keeper spell name"
+msgid "Time Bomb"
+msgstr "Tidsinställd bomb"
+
+#: guitext:646
+msgctxt "Keeper spell name"
+msgid "Armageddon"
+msgstr "Harmagedon"
+
+#: guitext:647
+msgctxt "Keeper spell description"
+msgid "Possess Creature: Control a creature directly. LMB select. [18.1]"
+msgstr "Besätt varelse: Kontrollera en varelse direkt. VMK väljer. [18.1]"
+
+#: guitext:648
+msgctxt "Keeper spell description"
+msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
+msgstr "Skapa imp: Kallar på en ny imp var som helst i din grotta. VMK väljer. [18.2]"
+
+#: guitext:649
+msgctxt "Keeper spell description"
+msgid "Sight of Evil: Reveal a hidden area of the map for a limited time. LMB select. RMB zoom. [18.3]"
+msgstr "Ondskans syn: Avslöjar ett dolt område på kartan under begränsad tid. VMK väljer. HMK zoomar. [18.3]"
+
+#: guitext:650
+msgctxt "Keeper spell description"
+msgid "Call To Arms: Calls all your creatures to an area of your dungeon. LMB select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+msgstr "Vapengripare: Sammankallar alla dina varelser till ett område i grottan. VMK väljer, VMK igen för att ångra, VMK en tredje gång för att avbryta. HMK zoomar. [18.6]"
+
+#: guitext:651
+msgctxt "Keeper spell description"
+msgid "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. RMB zoom. [18.8]"
+msgstr "Håll audiens: Sammankallar dina varelser till grotthjärtat. VMK väljer. HMK zoomar. [18.8]"
+
+#: guitext:652
+msgctxt "Keeper spell description"
+msgid "Cave In: Collapses the roof of the dungeon. LMB select. [18.13]"
+msgstr "Grottras: River ned grottans tak. VMK väljer. [18.13]"
+
+#: guitext:653
+msgctxt "Keeper spell description"
+msgid "Must Obey: Forces your creatures to obey your every command. LMB select. [18.5]"
+msgstr "Tvingad lydnad: Tvingar dina varelser att lyda alla dina kommandon. VMK väljer. [18.5]"
+
+#: guitext:654
+msgctxt "Keeper spell description"
+msgid "Speed Monster: Increases the speed of your monsters. LMB select. [18.4]"
+msgstr "Hastighet: Ökar farten på dina monster. VMK väljer. [18.4]"
+
+#: guitext:655
+msgctxt "Keeper spell description"
+msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgstr "Skydda monster: Skyddar dina varelser från en attack. VMK väljer. [18.11]"
+
+#: guitext:656
+msgctxt "Keeper spell description"
+msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
+msgstr "Dölj monster: Gör dina varelser osynliga för fienden. VMK väljer. [18.7]"
+
+#: guitext:657
+msgctxt "Keeper spell description"
+msgid "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of lightning. LMB select. [18.10]"
+msgstr "Blixt: Ett förödande blixtnedslag slår ned på ett område i grottan. VMK väljer. [18.10]"
+
+#: guitext:658
+msgctxt "Keeper spell description"
+msgid "Chicken: Transforms the enemy into a tasty morsel. LMB select. [18.12]"
+msgstr "Kyckling: Transformera fienden till smakfulla läckerbitar. VMK väljer. [18.12]"
+
+#: guitext:659
+msgctxt "Keeper spell description"
+msgid "Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
+msgstr "Sjukdom: Vållar en dödlig pest på en fiendevarelse. VMK väljer. [18.14]"
+
+#: guitext:660
+msgctxt "Keeper spell description"
+msgid "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgstr "Förstör väggar: Bryter ned förstärkta fiendeväggar. VMK väljer. [18.16]"
+
+#: guitext:661
+msgctxt "Keeper spell description"
+msgid "Heal: Cast on an area of the dungeon to improve the health of your creatures. LMB select. [18.9]"
+msgstr "Hela: Kasta den på ett område i grottan för att förbättra hälsan på dina varelser. VMK väljer. [18.9]"
+
+#: guitext:662
+msgctxt "Keeper spell description"
+msgid "Time Bomb"
+msgstr "Tidsinställd bomb"
+
+#: guitext:663
+msgctxt "Keeper spell description"
+msgid "Armageddon: Transports all the creatures in the land to your Dungeon Heart for a final, decisive battle. LMB select. [18.15]"
+msgstr "Harmagedon: Transporterar alla varelser i landet till ditt grotthjärta för ett slutligt, avgörande slag. VMK väljer. [18.15]"
+
+#: guitext:664
+msgctxt "Game event name"
+msgid "Treasure Room full"
+msgstr "Skattkammare full, utöka utrymmet"
+
+#: guitext:665
+msgctxt "Game event name"
+msgid "Scavenging detected"
+msgstr "Asätning upptäckt hos väktare"
+
+#: guitext:666
+msgctxt "Game event name"
+msgid "Creature Payday"
+msgstr "Lönedags för varelser"
+
+#: guitext:667
+msgctxt "Game event name"
+msgid "New spell picked up"
+msgstr "Ny trollformel intagen"
+
+#: guitext:668
+msgctxt "Game event name"
+msgid "New room taken over"
+msgstr "Nytt rum intaget"
+
+#: guitext:669
+msgctxt "Game event name"
+msgid "New area discovered"
+msgstr "Nytt angränsande område upptäckt"
+
+#: guitext:670
+msgctxt "Game event name"
+msgid "Information"
+msgstr "Allmän information"
+
+#: guitext:671
+msgctxt "Game event name"
+msgid "Room lost"
+msgstr "Du har förlorat ett av dina rum"
+
+#: guitext:672
+msgctxt "Game event name"
+msgid "Heart attacked"
+msgstr "Grotthjärta attackeras"
+
+#: guitext:673
+msgctxt "Game event name"
+msgid "Fight"
+msgstr "Strid mellan följande varelser"
+
+#: guitext:674
+msgctxt "Game event name"
+msgid "Objective"
+msgstr "Bra att veta"
+
+#: guitext:675
+msgctxt "Game event name"
+msgid "Breach"
+msgstr "Inkräktare har kommit in i dina grottor"
+
+#: guitext:676
+msgctxt "Game event name"
+msgid "New spell researched"
+msgstr "Ny trollformel tillgänglig"
+
+#: guitext:677
+msgctxt "Game event name"
+msgid "New room researched"
+msgstr "Nytt rum går att bygga"
+
+#: guitext:678
+msgctxt "Game event name"
+msgid "New Trap"
+msgstr "Ny fälla går att gillra"
+
+#: guitext:679
+msgctxt "Game event name"
+msgid "New Door"
+msgstr "Ny dörr går att bygga"
+
+#: guitext:680
+msgctxt "Game event name"
+msgid "New creature in dungeon"
+msgstr "Ny varelse i grottan"
+
+#: guitext:681
+msgctxt "Game event name"
+msgid "Creature annoyed"
+msgstr "Varelse irriterad"
+
+#: guitext:682
+msgctxt "Game event name"
+msgid "No more living space"
+msgstr "För litet utrymme för varelser att vara i"
+
+#: guitext:683
+msgctxt "Game event name"
+msgid "Alarm triggered"
+msgstr "Alarm utlöst"
+
+#: guitext:684
+msgctxt "Game event name"
+msgid "Room under attack"
+msgstr "Ett av dina rum blir attackerat"
+
+#: guitext:685
+msgctxt "Game event name"
+msgid "Treasure Room needed"
+msgstr "Större skattkammare behövs"
+
+#: guitext:686
+msgctxt "Game event name"
+msgid "Creatures becoming hungry"
+msgstr "Varelser börjar bli hungriga"
+
+#: guitext:687
+msgctxt "Game event name"
+msgid "Trap crate found"
+msgstr "Hittade låda med fälla i"
+
+#: guitext:688
+msgctxt "Game event name"
+msgid "Door crate found"
+msgstr "Ny dörr hittad"
+
+#: guitext:689
+msgctxt "Game event name"
+msgid "Dungeon Special found"
+msgstr "Grottspecial hittad"
+
+#: guitext:690
+msgctxt "Game event description"
+msgid "Treasure Room full: LMB toggle. RMB delete."
+msgstr "Skattkammare full: VMK växlar. HMK raderar."
+
+#: guitext:691
+msgctxt "Game event description"
+msgid "Creature being scavenged: LMB toggle. RMB delete."
+msgstr "Asätning upptäckt: VMK växlar. HMK raderar."
+
+#: guitext:692
+msgctxt "Game event description"
+msgid "Creature Payday: LMB toggle. RMB delete."
+msgstr "Löning: VMK växlar. HMK raderar."
+
+#: guitext:693
+msgctxt "Game event description"
+msgid "New spell picked up: LMB toggle. RMB delete."
+msgstr "Trollformel intagen: VMK växlar. HMK raderar."
+
+#: guitext:694
+msgctxt "Game event description"
+msgid "New room taken over: LBM toggle. RMB delete."
+msgstr "Rum intaget: VMK växlar. HMK raderar."
+
+#: guitext:695
+msgctxt "Game event description"
+msgid "New area discovered: LMB toggle. RMB delete."
+msgstr "Område upptäckt: VMK växlar. HMK raderar."
+
+#: guitext:696
+msgctxt "Game event description"
+msgid "Information: LMB toggle. RMB delete."
+msgstr "Information: VMK växlar. HMK raderar."
+
+#: guitext:697
+msgctxt "Game event description"
+msgid "Room lost: LMB toggle. RMB delete."
+msgstr "Rum förlorat: VMK växlar. HMK raderar."
+
+#: guitext:698
+msgctxt "Game event description"
+msgid "Dungeon Heart Attacked: LMB toggle. RMB delete."
+msgstr "Grotthjärta attackeras: VMK växlar. HMK raderar."
+
+#: guitext:699
+msgctxt "Game event description"
+msgid "Fight: LMB toggle. RMB delete. [10.5]"
+msgstr "Strid: VMK växlar. HMK raderar. [10.5]"
+
+#: guitext:700
+msgctxt "Game event description"
+msgid "Objective: LMB toggle. [11.3]"
+msgstr "Bra att veta: VMK växlar. [10.3]"
+
+#: guitext:701
+msgctxt "Game event description"
+msgid "Breach: LMB toggle. RMB delete."
+msgstr "Inkräktare: VMK växlar. HMK raderar."
+
+#: guitext:702
+msgctxt "Game event description"
+msgid "New spell researched: LMB toggle. RMB delete."
+msgstr "Ny trollformel: VMK växlar. HMK raderar."
+
+#: guitext:703
+msgctxt "Game event description"
+msgid "New room researched: LMB toggle. RMB delete."
+msgstr "Nytt rum: VMK växlar. HMK raderar."
+
+#: guitext:704
+msgctxt "Game event description"
+msgid "New trap: LMB toggle. RMB delete."
+msgstr "Ny fälla: VMK växlar. HMK raderar."
+
+#: guitext:705
+msgctxt "Game event description"
+msgid "New door: LMB toggle. RMB delete."
+msgstr "Ny dörr: VMK växlar. HMK raderar."
+
+#: guitext:706
+msgctxt "Game event description"
+msgid "New creature in dungeon: LMB toggle. RMB delete."
+msgstr "Ny varelse: VMK växlar. HMK raderar."
+
+#: guitext:707
+msgctxt "Game event description"
+msgid "Creature is annoyed: LMB toggle. RMB delete."
+msgstr "Varelse irriterad: VMK växlar. HMK raderar."
+
+#: guitext:708
+msgctxt "Game event description"
+msgid "No more living set: LMB toggle. RMB delete."
+msgstr "För trångt: VMK växlar. HMK raderar."
+
+#: guitext:709
+msgctxt "Game event description"
+msgid "Alarm triggered: LMB toggle. RMB delete."
+msgstr "Alarm utlöst: VMK växlar. HMK raderar."
+
+#: guitext:710
+msgctxt "Game event description"
+msgid "Room under attack: LMB toggle. RMB delete."
+msgstr "Rum attackerat: VMK växlar. HMK raderar."
+
+#: guitext:711
+msgctxt "Game event description"
+msgid "Need Treasure Room: LMB toggle. RMB delete."
+msgstr "Skattkammare full: VMK växlar. HMK raderar."
+
+#: guitext:712
+msgctxt "Game event description"
+msgid "Creatures becoming hungry: LMB toggle. RMB delete."
+msgstr "Varelser hungriga: VMK växlar. HMK raderar."
+
+#: guitext:713
+msgctxt "Game event description"
+msgid "Trap crate found: LMB toggle. RMB delete."
+msgstr "Fälla hittad: VMK växlar. HMK raderar."
+
+#: guitext:714
+msgctxt "Game event description"
+msgid "Door crate found: LMB toggle. RMB delete."
+msgstr "Dörr hittad: VMK växlar. HMK raderar."
+
+#: guitext:715
+msgctxt "Game event description"
+msgid "Dungeon special found: LMB toggle. RMB delete."
+msgstr "Grottspecial hittad: VMK växlar. HMK raderar."
+
+#: guitext:716
+msgctxt "In-game interface item"
+msgid "Options"
+msgstr "ALTERNATIV"
+
+#: guitext:717
+msgctxt "In-game interface item"
+msgid "Graphics Options"
+msgstr "Grafikalternativ"
+
+#: guitext:718
+msgctxt "In-game interface item"
+msgid "Sound Options"
+msgstr "LJUDALTERNATIV"
+
+#: guitext:719
+msgctxt "In-game interface item"
+msgid "Load"
+msgstr "LADDA"
+
+#: guitext:720
+msgctxt "In-game interface item"
+msgid "Save"
+msgstr "SPARA"
+
+#: guitext:721
+msgctxt "In-game interface item"
+msgid "Computer Assistance"
+msgstr "DATORHJÄLP"
+
+#: guitext:722
+msgctxt "In-game interface description"
+msgid "Options: Open Options Panel. LMB open panel. [3.2]"
+msgstr "Alternativ: Gå till alternativspanelen. VMK öppnar panelen. [3.2]"
+
+#: guitext:723
+msgctxt "In-game interface description"
+msgid "Graphics Menu: Customise the graphics. [3.2.2]"
+msgstr "Grafikmeny: Anpassa grafiken. [3.2.2]"
+
+#: guitext:724
+msgctxt "In-game interface description"
+msgid "Sound Menu: Adjust the sound and music volumes. [3.2.3]"
+msgstr "Ljudmeny: Justera ljud- och musikvolym. [3.2.3]"
+
+#: guitext:725
+msgctxt "In-game interface description"
+msgid "Load Game: Load a previously saved game. [3.2.1]"
+msgstr "Ladda spel: Ladda ett tidigare sparat spel. [3.2.1]"
+
+#: guitext:726
+msgctxt "In-game interface description"
+msgid "Save Game: Save your current game. [3.2.1]"
+msgstr "Spara spel: Spara nuvarande spel. [3.2.1]"
+
+#: guitext:727
+msgctxt "In-game interface description"
+msgid "Quit Game: Quit back to the Level Map. [3.2.5]"
+msgstr "Avsluta spel: Gå tillbaka till huvudmenyn. [3.2.5]"
+
+#: guitext:728
+msgctxt "In-game interface description"
+msgid "Computer Assistance Menu: Customise the Computer Assistant. [3.2.4]"
+msgstr "Datorhjälpsmeny: Anpassa datorhjälpen. [3.2.4]"
+
+#: guitext:729
+msgctxt "In-game interface description"
+msgid "Aggressive Computer Assistant: Constructs your dungeon and always trys to attack the enemy. LMB select. [3.2.4]"
+msgstr "Aggressiv datorhjälp: Bygger din grotta och försöker alltid attackera fienden. VMK väljer. [3.2.4]"
+
+#: guitext:730
+msgctxt "In-game interface description"
+msgid "Defensive Computer Assistant: Constructs your dungeon but does not attack the enemy. LMB select. [3.2.4]"
+msgstr "Defensiv datorhjälp: Bygger din grotta men attackerar inte fienden. VMK väljer. [3.2.4]"
+
+#: guitext:731
+msgctxt "In-game interface description"
+msgid "Construction Only Computer Assistant: Digs, places rooms and traps but does not move creatures. LMB select. [3.2.4]"
+msgstr "Endast konstruerande datorhjälp: Gräver, placerar rum och fällor men flyttar inte varelser. VMK väljer. [3.2.4]"
+
+#: guitext:732
+msgctxt "In-game interface description"
+msgid "Move Only Computer Assistant: Moves and slaps your creatures. LMB select. [3.2.4]"
+msgstr "Endast flyttande datorhjälp: Flyttar och slår dina varelser. VMK väljer. [3.2.4]"
+
+#: guitext:733
+msgctxt "In-game interface description"
+msgid "Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr "Mest erfarna varelser av denna typ: VMK plockar upp varelser. HMK zoomar. [22.2.1]"
+
+#: guitext:734
+msgctxt "In-game interface description"
+msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr "Sysslolösa varelser: VMK plockar upp varelser. HMK zoomar. [22.2.1]"
+
+#: guitext:735
+msgctxt "In-game interface description"
+msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr "Arbetande varelser: VMK plockar upp varelser. HMK zoomar. [22.2.1]"
+
+#: guitext:736
+msgctxt "In-game interface description"
+msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgstr "Stridande varelser: VMK plockar upp varelser. HMK zoomar. [22.2.1]"
+
+#: guitext:737
+msgctxt "In-game interface description"
+msgid "Invert Mouse: Inverts the vertical mouse movements while Possessing a creature. LMB toggle."
+msgstr "Invertera mus: Inverterar de vertikala musrörelserna när du besätter en varelse. VMK växlar."
+
+#: guitext:738
+msgctxt "In-game interface description"
+msgid "Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse movements when in Possess Creature mode. LMB toggle."
+msgstr "Besätt varelse-muskänslighet: Justerar känsligheten på musrörelser när läget Besätt varelse är valt. VMK växlar."
+
+#: guitext:739
+msgctxt "In-game interface description"
+msgid "More sensitive."
+msgstr "Mer känslig."
+
+#: guitext:740
+msgctxt "In-game interface description"
+msgid "Less sensitive."
+msgstr "Mindre känslig."
+
+#: guitext:741
+msgctxt "Statistic name"
+msgid "Number of Creatures"
+msgstr "Totalt antal varelser"
+
+#: guitext:742
+msgctxt "Statistic name"
+msgid "Gold Mined"
+msgstr "Brutet guld"
+
+#: guitext:743
+msgctxt "Statistic name"
+msgid "Efficiency"
+msgstr "Effektivitet"
+
+#: guitext:744
+msgctxt "Statistic name"
+msgid "Secrets"
+msgstr "Hemligheter"
+
+#: guitext:745
+msgctxt "Statistic name"
+msgid "Money"
+msgstr "Pengar"
+
+#: guitext:746
+msgctxt "Statistic name"
+msgid "Time"
+msgstr "Tid"
+
+#: guitext:747
+msgctxt "Statistic name"
+msgid "Style"
+msgstr "Stilpoäng"
+
+#: guitext:748
+msgctxt "Statistic name"
+msgid "Rating"
+msgstr "Ranking"
+
+#: guitext:749
+msgctxt "Statistic name"
+msgid "Creatures Attracted"
+msgstr "Nytillkomna varelser"
+
+#: guitext:750
+msgctxt "Statistic name"
+msgid "Battles Won"
+msgstr "Vunna strider"
+
+#: guitext:751
+msgctxt "Statistic name"
+msgid "Battles Lost"
+msgstr "Förlorade strider"
+
+#: guitext:752
+msgctxt "Statistic name"
+msgid "Times Dungeon Breached"
+msgstr "Antal gånger din grotta brutits igenom"
+
+#: guitext:753
+msgctxt "Statistic name"
+msgid "Imps Deployed"
+msgstr "Utplacerade impar"
+
+#: guitext:754
+msgctxt "Statistic name"
+msgid "Creatures Left"
+msgstr "Antal varelser som lämnat dig"
+
+#: guitext:755
+msgctxt "Statistic name"
+msgid "Doors Destroyed"
+msgstr "Förstörda dörrar"
+
+#: guitext:756
+msgctxt "Statistic name"
+msgid "Rooms Destroyed"
+msgstr "Förstörda rum"
+
+#: guitext:757
+msgctxt "Statistic name"
+msgid "Dungeon Area"
+msgstr "Storlek på ditt grottområde"
+
+#: guitext:758
+msgctxt "Statistic name"
+msgid "Ideas Researched"
+msgstr "Påtänkta idéer"
+
+#: guitext:759
+msgctxt "Statistic name"
+msgid "Creatures Scavenged"
+msgstr "Lockade varelser"
+
+#: guitext:760
+msgctxt "Statistic name"
+msgid "Creatures Summoned"
+msgstr "Sammankallade varelser"
+
+#: guitext:761
+msgctxt "Statistic name"
+msgid "Creatures Sacrificed"
+msgstr "Offrade varelser"
+
+#: guitext:762
+msgctxt "Statistic name"
+msgid "Creatures Tortured"
+msgstr "Torterade varelser"
+
+#: guitext:763
+msgctxt "Statistic name"
+msgid "Creatures Trained"
+msgstr "Tränade varelser"
+
+#: guitext:764
+msgctxt "Statistic name"
+msgid "Gold Pots Stolen"
+msgstr "Stulna guldkittlar"
+
+#: guitext:765
+msgctxt "Statistic name"
+msgid "Spells Stolen"
+msgstr "Stulna trollformler"
+
+#: guitext:766
+msgctxt "Statistic name"
+msgid "Traps Manufactured"
+msgstr "Tillverkade fällor"
+
+#: guitext:767
+msgctxt "Statistic name"
+msgid "Traps Unused"
+msgstr "Oanvända fällor"
+
+#: guitext:768
+msgctxt "Statistic name"
+msgid "Doors Manufactured"
+msgstr "Tillverkade dörrar"
+
+#: guitext:769
+msgctxt "Statistic name"
+msgid "Doors Unused"
+msgstr "Oanvända dörrar"
+
+#: guitext:770
+msgctxt "Statistic name"
+msgid "Number of Rooms"
+msgstr "Antal rum"
+
+#: guitext:771
+msgctxt "Statistic name"
+msgid "Number of Portals"
+msgstr "Antal portaler"
+
+#: guitext:772
+msgctxt "Statistic name"
+msgid "Slaps"
+msgstr "Slag du tilldelat dina varelser"
+
+#: guitext:773
+msgctxt "Statistic name"
+msgid "Cave-Ins"
+msgstr "Grottras"
+
+#: guitext:774
+msgctxt "Statistic name"
+msgid "Skeletons Raised"
+msgstr "Återuppväckta skelett"
+
+#: guitext:775
+msgctxt "Statistic name"
+msgid "Bridges Built"
+msgstr "Byggda bryggor"
+
+#: guitext:776
+msgctxt "Statistic name"
+msgid "Rock Dug Out"
+msgstr "Uthuggna klippor"
+
+#: guitext:777
+msgctxt "Statistic name"
+msgid "Salary Cost"
+msgstr "Lönekostnad"
+
+#: guitext:778
+msgctxt "Statistic name"
+msgid "Flies Eaten By Spiders"
+msgstr "Flugor uppätna av spindlar"
+
+#: guitext:779
+msgctxt "Statistic name"
+msgid "Territory Destroyed"
+msgstr "Territorier förstörda"
+
+#: guitext:780
+msgctxt "Statistic name"
+msgid "Rooms Constructed"
+msgstr "Konstruerade rum"
+
+#: guitext:781
+msgctxt "Statistic name"
+msgid "Traps Used"
+msgstr "Använda fällor"
+
+#: guitext:782
+msgctxt "Statistic name"
+msgid "Keepers Destroyed"
+msgstr "Förgjorda väktare"
+
+#: guitext:783
+msgctxt "Statistic name"
+msgid "Area Claimed"
+msgstr "Intagna områden"
+
+#: guitext:784
+msgctxt "Statistic name"
+msgid "Backs Stabbed"
+msgstr "Antal mardrömmar"
+
+#: guitext:785
+msgctxt "Statistic name"
+msgid "Chickens Hatched"
+msgstr "Odlade kycklingar"
+
+#: guitext:786
+msgctxt "Statistic name"
+msgid "Chickens Eaten"
+msgstr "Uppätna kycklingar"
+
+#: guitext:787
+msgctxt "Statistic name"
+msgid "Hopes Dashed"
+msgstr "Grusade hopp"
+
+#: guitext:788
+msgctxt "Statistic name"
+msgid "Promises Broken"
+msgstr "Brutna löften"
+
+#: guitext:789
+msgctxt "Statistic name"
+msgid "Ghosts Raised"
+msgstr "Framkallade spöken"
+
+#: guitext:790
+msgctxt "Statistic name"
+msgid "Doors Used"
+msgstr "Använda dörrar"
+
+#: guitext:791
+msgctxt "Statistic name"
+msgid "Your Creatures Killed By You"
+msgstr "Dina egna varelser dödade av dig"
+
+#: guitext:792
+msgctxt "Statistic name"
+msgid "Things Researched"
+msgstr "Framforskade saker"
+
+#: guitext:793
+msgctxt "Statistic name"
+msgid "Last Creature Attracted"
+msgstr "Sista tilldragna varelse"
+
+#: guitext:794
+msgctxt "Statistic name"
+msgid "Items Manufactured"
+msgstr "Tillverkade objekt"
+
+#: guitext:795
+msgctxt "Statistic name"
+msgid "Creatures Converted"
+msgstr "Konverterade varelser"
+
+#: guitext:796
+msgctxt "Statistic name"
+msgid "Territory Lost"
+msgstr "Förlorade territorier"
+
+#: guitext:797
+msgctxt "Statistic name"
+msgid "Traps Armed"
+msgstr "Gillrade fällor"
+
+#: guitext:798
+msgctxt "Statistic name"
+msgid "Chickens Wasted"
+msgstr "Bortslösade kycklingar"
+
+#: guitext:799
+msgctxt "Statistic name"
+msgid "Lies Told"
+msgstr "Antal berättade lögner"
+
+#: guitext:800
+msgctxt "Statistic name"
+msgid "Creatures Annoyed"
+msgstr "Irriterade varelser"
+
+#: guitext:801
+msgctxt "Statistic name"
+msgid "Graveyard Body Count"
+msgstr "Lik på kyrkogården"
+
+#: guitext:802
+msgctxt "Statistic name"
+msgid "Vampires Created"
+msgstr "Uppväckta vampyrer"
+
+#: guitext:803
+msgctxt "Easter egg"
+msgid "When night does not give way to day, And children are too scared to play, Abandon hope, embrace despair, You're destined for my Dragon's lair"
+msgstr "När natten inte ger plats åt dagen och barn är för rädda för att leka, överge hopp, omfamna misströstan, du är visst destinerad för min drakeka."
+
+#: guitext:804
+msgctxt "Easter egg"
+msgid "If thou art bold and pure of heart, Come down here, be torn apart."
+msgstr "Om du är ren i hjärtat och inte velar, kliv ned och bli sliten i delar."
+
+#: guitext:805
+msgctxt "Easter egg"
+msgid "Through my dungeon you may tread, But rest assured, you'll end up dead."
+msgstr "In i min grotta du stiga må, men var säker på att du kommer dö då."
+
+#: guitext:806
+msgctxt "Easter egg"
+msgid "If you find you lose it all, Why not play Theme Hospital?"
+msgstr "Tycker din fiende att den är ball? Hälsa då ifrån Thor med ett blixtande skall."
+
+#: guitext:807
+msgctxt "Easter egg"
+msgid "Armoured Knights who have true grit, Roast more quickly on a spit."
+msgstr "Rustade riddare med äkta lugn, rostas snabbare i min ugn."
+
+#: guitext:808
+msgctxt "Easter egg"
+msgid "Evil, malice, death, decay, I think you'll find they're here to stay."
+msgstr "Ondska, illvilja, död och förfall, jag tror du märker att de stanna skall."
+
+#: guitext:809
+msgctxt "Easter egg"
+msgid "Evil, malice, death, decay, Just another working day."
+msgstr "Ondska, illvilja, död och förfall, en vanlig arbetsdag i alla fall."
+
+#: guitext:810
+msgctxt "Easter egg"
+msgid "Evil, malice, death, decay, There really is no better way."
+msgstr "Ondska, illvilja, död och förfall, det finns inget bättre kall."
+
+#: guitext:811
+msgctxt "Easter egg"
+msgid "Giant, Dwarf, Thief and Fairy, None of you are very scary."
+msgstr "Jätte, dvärg, tjuv och fé, ingen av er är speciellt upphetsande."
+
+#: guitext:812
+msgctxt "Easter egg"
+msgid "The denizens of your domain, Just cannot wait to kill again."
+msgstr "Invånarna i dina domäner, snart varandra i sin längtan att döda dräper."
+
+#: guitext:813
+msgctxt "Easter egg"
+msgid "The better creatures you employ, The greater carnage you enjoy."
+msgstr "Ju bättre varelser du hyr, desto större blodbad du styr."
+
+#: guitext:814
+msgctxt "Easter egg"
+msgid "Hark! The Avatar's abroad, And I can smell a frightened Lord."
+msgstr "Lyssna! Avataren är nära, jag känner lukten av rädsla hära."
+
+#: guitext:815
+msgctxt "Easter egg"
+msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
+msgstr "Inkräktare sin undergång kommer möta, efter de i tortykammaren blivit blöta."
+
+#: guitext:816
+msgctxt "Easter egg"
+msgid "Though intruders' hearts be pure, They'll end up on your dungeon floor."
+msgstr "Även om inkräktarnas hjärta är rena, kommer de på grottans golv ligga med bena."
+
+#: guitext:817
+msgctxt "Easter egg"
+msgid "Your tunnels will be dark and cold, And no place for a Knight of old, Even if he claims he's bold."
+msgstr "Dina tunnlar kommer vara mörka och kalla, och därmed ingen plats för en riddare av ålder, även om han påstår att han är ballast av de balla."
+
+#: guitext:818
+msgctxt "Easter egg"
+msgid "The fools who enter your domain, Will never see the light again."
+msgstr "Den dåre som i dina domäner träder, kommer aldrig åter få se bra väder."
+
+#: guitext:819
+msgctxt "Easter egg"
+msgid "Pain and anguish are your tools, To use upon intruding fools."
+msgstr "Smärta och ångest dina verktyg är, att använda på de som inkräktar i din sfär."
+
+#: guitext:820
+msgctxt "Easter egg"
+msgid "When good guys head right for your treasure, Hunt and kill them at your leisure."
+msgstr "När goda män styr stegen mot din skatt, jaga och döda dem för ett gott skratt."
+
+#: guitext:821
+msgctxt "Easter egg"
+msgid "Protect your gold and Dungeon Heart, And slap your minions till they fart."
+msgstr "Skydda ditt guld och dunkande grotthjärta, samt slå dina underhuggare så de lär sig att fjärta."
+
+#: guitext:822
+msgctxt "Easter egg"
+msgid "Use your creatures' fear of you. To make them do what you want them to."
+msgstr "Använd dina varelsers rädsla för dig, så de snabbt som ögat gör rätt för sig."
+
+#: guitext:823
+msgctxt "Easter egg"
+msgid "Wizard in your dungeon grim? A trap will make short work of him."
+msgstr "Är en magiker i grottan bister? En fälla gör att han brister."
+
+#: guitext:824
+msgctxt "Easter egg"
+msgid "When your creatures give you hell, Stick them in your Prison Cell."
+msgstr "När dina varelser ger dig mer än du tåla, skicka in dem i din fängelsehåla."
+
+#: guitext:825
+msgctxt "Easter egg"
+msgid "Torture is the crowning glory, Of your Dungeon Keeper story."
+msgstr "Tortyr är kronan på verket så blid, av din fantastika grottväktartid."
+
+#: guitext:826
+msgctxt "Easter egg"
+msgid "You are the Keeper, chosen one, And being evil is great fun."
+msgstr "Du är väktaren du utvalda man, och att vara ond riktigt kul vara kan."
+
+#: guitext:827
+msgctxt "Easter egg"
+msgid "When your troops are hunger-stricken, Your Hatchery has yummy chicken."
+msgstr "När dina trupper hunger känner av, har din odlingsanstalt smaskiga kycklingar utan krav."
+
+#: guitext:828
+msgctxt "Easter egg"
+msgid "Fill the Avatar with dread. Really make him wet the bed."
+msgstr "Fyll Avataren med skräck, så att han i byxan lägger träck."
+
+#: guitext:829
+msgctxt "In-game hint message"
+msgid "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to circulate."
+msgstr "Impar är blodet i din grotta. Som blod måste de tillåtas att cirkulera."
+
+#: guitext:830
+msgctxt "In-game hint message"
+msgid "Feeling mean? Set your minions to imprison and when your cells are full, spend some time torturing..."
+msgstr "Känner du dig otäck? Släng dina underhuggare i fängelse och när cellerna är fulla, avsätt tid för tortyr."
+
+#: guitext:831
+msgctxt "In-game hint message"
+msgid "If your creatures get unhappy, slap some sense into them. They'll soon realise how lucky they are."
+msgstr "Om dina varelser blir olyckliga, slå litet vett i dem. De kommer snart inse hur lyckliga de är."
+
+#: guitext:832
+msgctxt "In-game hint message"
+msgid "The underworld is your domain and the adventurers come to steal it. Never show pity, even when the intruders are defenceless and pathetic."
+msgstr "Underjorden är din domän och äventyrare kommer för att stjäla. Visa aldrig nåd, inte ens då inkräktarna är försvarslösa och patetiska."
+
+#: guitext:833
+msgctxt "In-game hint message"
+msgid "Compassion is the hallmark of the good Keeper. But good Keepers never win. Only evil ones."
+msgstr "Medkänsla är kännetecknet på en god väktare. Men goda väktare vinner aldrig. Bara de onda."
+
+#: guitext:834
+msgctxt "In-game hint message"
+msgid "There's never a moment to waste. Already the bravest of the brave are queuing up to enter your dungeon. So stop reading this and get going."
+msgstr "Du har ingen tid att slösa. Redan har de modigaste av de modiga ställt sig på kö utanför din grotta. Så sluta läs detta och sätt fart."
+
+#: guitext:835
+msgctxt "In-game hint message"
+msgid "Build fast. You'll want the biggest possible welcoming committee ready for the intruders."
+msgstr "Bygg snabbt. Du vill väl ha största möjliga välkomsthälsning redo för dina inkräktare."
+
+#: guitext:836
+msgctxt "In-game hint message"
+msgid "Keep your Imps digging. There are always surprises to be found deep in the earth."
+msgstr "Håll dina impar grävande. Det finns alltid överaskningar att hitta djupt nere i jorden."
+
+#: guitext:837
+msgctxt "In-game hint message"
+msgid "He who controls the most gold controls the entire Underworld."
+msgstr "Den som kontrollerar mest guld, kontrollerar hela underjorden."
+
+#: guitext:838
+msgctxt "In-game hint message"
+msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
+msgstr "Rädsla och brist på nåd är dina bästa vapen. Använd dem klokt."
+
+#: guitext:839
+msgctxt "In-game hint message"
+msgid "Foolish is the Keeper who sells all his rooms and refuses to pay his creatures."
+msgstr "Dumdristig är den väktare som säljer alla sina rum och vägrar betala sina varelser."
+
+#: guitext:840
+msgctxt "Menu interface item"
+msgid "Return to options menu"
+msgstr "ÅTERVÄND TILL ALTERNATIV"
+
+#: guitext:841
+msgctxt "Menu interface item"
+msgid "Exit"
+msgstr "AVSLUTA"
+
+#: guitext:842
+msgctxt "Menu interface item"
+msgid "Audio"
+msgstr "Ljud"
+
+#: guitext:843
+msgctxt "Menu interface item"
+msgid "Invert Mouse"
+msgstr "Invertera mus"
+
+#: guitext:844
+msgctxt "Menu interface item"
+msgid "Mouse Sensitivity"
+msgstr "Muskänslighet"
+
+#: guitext:845
+msgctxt "Menu interface item"
+msgid "Computer"
+msgstr "Dator"
+
+#: guitext:846
+msgctxt "Menu interface item"
+msgid "Computer Players"
+msgstr "Datorspelare"
+
+#: guitext:847
+msgctxt "Menu interface item"
+msgid "On"
+msgstr "På"
+
+#: guitext:848
+msgctxt "Menu interface item"
+msgid "Off"
+msgstr "Av"
+
+#: guitext:849
+msgctxt "Menu interface item"
+msgid "Sensitivity"
+msgstr "Känslighet"
+
+#: guitext:850
+msgctxt "Menu interface item"
+msgid "Mouse Options"
+msgstr "MUSALTERNATIV"
+
+#: guitext:851
+msgctxt "Menu interface item"
+msgid "Mouse"
+msgstr "Mus"
+
+#: guitext:852
+msgctxt "Menu interface item"
+msgid "Undo Pickup"
+msgstr "ÅNGRA PLOCKA UPP"
+
+#: guitext:853
+msgctxt "Menu interface item"
+msgid "Pause"
+msgstr "PAUSE"
+
+#: guitext:854
+msgctxt "Menu interface item"
+msgid "Map"
+msgstr "KARTA"
+
+#: guitext:855
+msgctxt "On-screen message"
+msgid "Insufficient Memory"
+msgstr "OTILLRÄCKLIGT MED MINNE"
+
+#: guitext:856
+msgctxt "On-screen message"
+msgid "Unable To Change Screen Resolution"
+msgstr "KAN EJ ÄNDRA UPPLÖSNING"
+
+#: guitext:857
+msgctxt "Menu interface item"
+msgid "Query"
+msgstr "FÖRKLARING"
+
+#: guitext:858
+msgctxt "Credits"
+msgid "Support Art"
+msgstr "ASSISTERANDE TECKNARE"
+
+#: guitext:859
+msgctxt "Credits"
+msgid "Navigation System"
+msgstr "NAVIGERINGSSYSTEM"
+
+#: guitext:860
+msgctxt "Credits"
+msgid "Script"
+msgstr "MANUS"
+
+#: guitext:861
+msgctxt "Credits"
+msgid "Voice Over"
+msgstr "TAL"
+
+#: guitext:862
+msgctxt "Credits"
+msgid "Finance"
+msgstr "EKONOMI"
+
+#: guitext:864
+msgid "Localisation Management"
+msgctxt "Credits"
+msgstr "LOKALISERINGSLEDNING"
+
+#: guitext:865
+msgctxt "Credits"
+msgctxt "Credits"
+msgid "Language Test Supervisor"
+msgstr "SPRÅKTESTLEDARE"
+
+#: guitext:866
+msgctxt "Credits"
+msgid "Language Testers"
+msgstr "SPRÅKTESTARE"
+
+#: guitext:867
+msgctxt "Credits"
+msgid "Localisation Audio Management"
+msgstr "LJUDLOKALISERINGSLEDNING"
+
+#: guitext:868
+msgctxt "Network game message"
+msgid "Attempting To Join"
+msgstr "FÖRSÖKER GÅ MED"
+
+#: guitext:869
+msgctxt "Network game message"
+msgid "Resyncing"
+msgstr "OMSYNKRONISERAR"
+
+#: guitext:870
+msgctxt "Menu interface item"
+msgid "1 Player"
+msgstr "1 spelare"
+
+#: guitext:871
+msgctxt "Menu interface item"
+msgid "2 Players"
+msgstr "2 spelare"
+
+#: guitext:872
+msgctxt "Menu interface item"
+msgid "3 Players"
+msgstr "3 spelare"
+
+#: guitext:873
+msgctxt "Menu interface item"
+msgid "4 Players"
+msgstr "4 spelare"
+
+#: guitext:874
+msgctxt "Menu interface item"
+msgid "Serial"
+msgstr "Seriell"
+
+#: guitext:875
+msgctxt "Menu interface item"
+msgid "Modem"
+msgstr "Modem"
+
+#: guitext:876
+msgctxt "Menu interface item"
+msgid "IPX"
+msgstr "IPX"
+
+#: guitext:877
+msgctxt "World direction"
+msgid "N"
+msgstr "N"
+
+#: guitext:878
+msgctxt "World direction"
+msgid "E"
+msgstr "Ö"
+
+#: guitext:879
+msgctxt "World direction"
+msgid "S"
+msgstr "S"
+
+#: guitext:880
+msgctxt "World direction"
+msgid "W"
+msgstr "V"
+
+#: guitext:881
+msgctxt "Menu interface item"
+msgid "Vs"
+msgstr "Mot"
+
+#: guitext:882
+msgctxt "Credits"
+msgid "Game design"
+msgstr "SPELDESIGN"
+
+#: guitext:883
+msgctxt "Credits"
+msgid "Associate Producer"
+msgstr "ASSISTERANDE PRODUCENT"
+
+#: guitext:884
+msgctxt "Credits"
+msgid "Additional Script"
+msgstr "ÖVRIGT MANUS"
+
+#: guitext:885
+msgctxt "Easter egg"
+msgid "Happy Birthday"
+msgstr "GRATTIS PÅ FÖDELSEDAGEN"
+
+#: guitext:886
+msgctxt "Menu interface message"
+msgid "Error"
+msgstr "Fel"
+
+#: guitext:887
+msgctxt "Menu interface message"
+msgid "Error Saving"
+msgstr "Fel vid sparning"
+
+#: guitext:888
+msgctxt "Menu interface message"
+msgid "New Levels"
+msgstr "Nya nivåer"
+
+#: guitext:889
+msgctxt "Menu interface message"
+msgid "Please insert Data Disk CD-ROM"
+msgstr "Lägg i Data Disk-cd:n"
+
+#: guitext:890
+msgctxt "Menu interface message"
+msgid "Please insert Dungeon Keeper CD-ROM"
+msgstr "Lägg i Dungeon Keeper-cd:n"
+
+#: guitext:891
+msgctxt "Menu interface message"
+msgid "Please insert The Deeper Dungeons CD-ROM"
+msgstr "Lägg i The Deeper Dungeons-cd:n"
+
+#: guitext:892
+msgctxt "In-game message"
+msgid "The might of two rival Dungeon Keepers challenge your claim to this realm. Decimate them both to achieve total domination, but beware of bands of heroes hidden in the caverns."
+msgstr "Två rivaliserande Grottväktare utmanar ditt anspråk på detta rike. Decimera dem båda för att erhålla totalt herravälde, men akta dig för skaror av hjältar som finns gömda i hålorna."
+
+#: guitext:893
+msgctxt "In-game message"
+msgid "Another Keeper has already claimed this realm. He is unfit to rule so destroy him and take what is rightfully yours. Great riches lie in the caverns around the land; explore to gain more power."
+msgstr "En annan Väktare har redan gjort anspråk på detta rike. Han är oduglig som regent så förgör honom och lägg beslag på det som rättmätigen är ditt. Stora rikedomar ligger i landets grottor; utforska dem för att öka din makt."
+
+#: guitext:894
+msgctxt "In-game message"
+msgid "This land is highly coveted amongst the evil and there are three enemy Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for any rogue bands of heroes waiting to ambush a careless Keeper."
+msgstr "Detta land är hett eftertraktat bland de onda och det finns tre fiendeväktare du måste besegra för att kunna hävda överhöghet. Var vaksam på de landstrykare och hjältar som väntar i bakhåll för att kunna överfalla en oförsiktig Väktare."
+
+#: guitext:895
+msgctxt "In-game message"
+msgid "The Lord of the Land and his pitiful band of followers lie dead. Good riddance to them and their sad, happy lives. Now seize your chance and attack your rival Keeper. Domination awaits."
+msgstr "Landets härskare och hans ynkliga följe ligger döda. Skönt att de befriats från sina bedrövliga, lyckliga liv. Tag nu tillfället i akt och attackera din rivaliserande Väktare. Herravälde väntar."
+
+#: guitext:896
+msgctxt "In-game message"
+msgid "You and a rival Dungeon Keeper are vying for control of this realm but the Lord of the Land has constructed his own dungeon between you to halt your conquest. Destroy him and the enemy Keeper to reign supreme."
+msgstr "Du och en rivaliserande Väktare kämpar om kontrollen för detta rike, men landets härskare har konstruerat sin egen grotta mellan er för att sätta stopp för er erövring. Förinta honom och fiendeväktaren för att härska med suveränitet."
+
+#: guitext:897
+msgctxt "In-game message"
+msgid "You have done well to come this far but further hardships await. Search the map carefully and you may find many secrets to aid your conquest."
+msgstr "Du har gjort ett bra jobb som kommit så här långt men ytterligare vedermödor väntar. Sök noggrant på kartan och du kan finna många hemligheter att bistå dina erövringsförsök."
+
+#: guitext:898
+msgctxt "In-game message"
+msgid "You have come to this realm with little to assist you so you must explore to gain more power. Keep an eye out for any loathsome heroes who may try to thwart your progress."
+msgstr "Du har kommit till detta rike med begränsad hjälp så du måste utforska mer för att öka dina krafter. Var vaksam på vämjeliga hjältar som kan försöka gäcka dina utvecklingsplaner."
+
+#: guitext:899
+msgctxt "In-game message"
+msgid "Beware Keeper. This realm is infested with the sickly goodness of heroes and fairies. Hunt them down and feed them their own entrails."
+msgstr "Akta dig Väktare. Detta rike är översvämmat av kväljande godhet från hjältar och älvor. Jaga dem och mata dem med deras egna inälvor."
+
+#: guitext:900
+msgctxt "In-game message"
+msgid "Your opponent for this realm has foolishly challenged your superior skill. Such disrespect should be punished so make an example of his insolence."
+msgstr "Din motståndare för detta rike har dåraktigt nog utmanat din överlägsna skicklighet. Sådan respektlöshet skall bestraffas. Statuera ett exempel för hans oförskämdhet."
+
+#: guitext:901
+msgctxt "In-game message"
+msgid "Ancient powers lie hidden in this realm. Seek them out and use them for your own evil purposes."
+msgstr "Forntida krafter ligger dolda i detta rike. Sök upp dem och använd dem för dina egna onda ändamål."
+
+#: guitext:902
+msgctxt "In-game message"
+msgid "A foolish challenger stands between you and total dominance. Annihilate his forces and feed his body to your ravenous minions."
+msgstr "En galen utmanare står mellan dig och total dominans. Tillintetgör hans styrkor och servera hans kropp till dina utsvultna gunstlingar."
+
+#: guitext:903
+msgctxt "In-game message"
+msgid "I can hear footsteps beyond the walls of the hero castle which dominates this land. Tread carefully Keeper and rid the land of goodness once and for all."
+msgstr "Jag kan höra fotsteg bakom hjälteslottets väggar vilket dominerar detta land. Gå med lätta steg Väktare och befria landet från godhet en gång för alla."
+
+#: guitext:904
+msgctxt "In-game message"
+msgid "The once strong hero fortress of this realm has grown rotten and weak. Tear down it's walls and let your creatures feast on the heroes within."
+msgstr "Det en gång så starka hjältefortet i detta rike har blivit ruttet och svagt. Riv ned dess väggar och låt dina varelser festa på hjältarna därinne."
+
+#: guitext:905
+msgctxt "In-game message"
+msgid "This realm will be a test of your cunning and deviousness. Your dungeon has been fortified with seven steel doors to aid you in your conquest."
+msgstr "Detta rike kommer bli en test av din list och uppfinningsrikedom. Din grotta har förstärkts med sju ståldörrar för att bistå dig i din erövring."
+
+#: guitext:906
+msgctxt "In-game message"
+msgid "Congratulations Keeper. This vial has given your researchers a much needed boost. You can now construct Bridges that enable you to traverse water and fire."
+msgstr "Gratulerar Väktare. Denna lilla flaska har givit dina forskare en välbehövlig puff framåt. Du kan nu bygga broar som låter dig färdas över vatten och eld."
+
+#: guitext:907
+msgctxt "In-game message"
+msgid "Food is scarce in this land and the only Hatchery available to you is inside a hero dungeon. Find this food before your creatures turn against you."
+msgstr "Mat är en bristvara i detta land och den enda tillgängliga Odlingsanstalten finns inuti en hjältegrotta. Leta upp denna mat innan dina varelser vänder sig emot dig."
+
+#: guitext:908
+msgctxt "In-game message"
+msgid "Entombed in stone by a cruel band of heroes, the Vampire you have rescued demands revenge for his imprisonment. His anger will make him a valuable asset to your army of evil."
+msgstr "Begravd i sten av en grym skara hjältar kräver den Vampyr du har räddat hämnd för sitt fängslande. Hans ilska kommer göra honom till en värdefull tillgång i din ondskans armé."
+
+#: guitext:909
+msgctxt "In-game message"
+msgid "You are surrounded on all sides by valiant heroes so show them the true meaning of evil and terror."
+msgstr "Du är omringad från alla håll av tappra hjältar, så visa dem vad ondska och terror egentligen betyder."
+
+#: guitext:910
+msgctxt "In-game message"
+msgid "The Lord of the Land has sent his fiercest warriors against you. Show them no mercy and flay them alive."
+msgstr "Härskaren i detta land har sänt sina våldsammaste krigare mot dig. Visa dem ingen nåd och flå dem levande."
+
+#: guitext:911
+msgctxt "In-game message"
+msgid "Explore this realm to uncover riches and secrets. Tread carefully Keeper, or you could be burned."
+msgstr "Utforska detta rike för att blotta rikedomar och hemligheter. Gå försiktigt Väktare, annars kan du bränna dig."
+
+#: guitext:912
+msgctxt "In-game message"
+msgid "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a humiliating defeat Keeper, the penalty for such failure is torture and death."
+msgstr "Endast en Grottväktare kan härska segrande över detta land. Undvik förnedrande nederlag Väktare, straffet för sådana misslyckanden är tortyr och död."
+
+#: guitext:913
+msgctxt "In-game message"
+msgid "Choices, choices Keeper. Choose your path wisely. Some routes are more perilous than others ..."
+msgstr "Valmöjligheter Väktare. Välj din väg vist. Vissa vägar är mer riskabla än andra..."
+
+#: guitext:914
+msgctxt "In-game message"
+msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the north ..."
+msgstr "Gratulerar Väktare, du har verkligen en kraftfull armé. Akta dig dock från att bli självbelåten, du har fortfarande en annan utmanare väntande i norr..."
+
+#: guitext:915
+msgctxt "In-game message"
+msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the south ..."
+msgstr " Gratulerar Väktare, du har verkligen en kraftfull armé. Akta dig dock från att bli självbelåten, du har fortfarande en annan utmanare väntande i söder..."
+
+#: guitext:916
+msgctxt "In-game message"
+msgid "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and then destroy the rival Keeper to achieve total domination."
+msgstr "Härskaren i detta land är en patetisk individ som föder upp luddiga kaniner. Sänk honom och förinta sedan den rivaliserande Väktaren för att uppnå total kontroll."
+
+#: guitext:917
+msgctxt "In-game message"
+msgid "Make haste Keeper. The heroes of this realm are many and strong. Prepare your forces well or face a humiliating defeat ..."
+msgstr "Skynda fort Väktare. Hjältarna i detta rike är många och starka. Förbered dina styrkor väl eller möt en förödmjukande förlust..."
+
+#: guitext:918
+msgctxt "In-game message"
+msgid "The Avatar is a wretched being, full of happiness and good cheer. Food is scarce in his land and the only Hatchery available is inside his dungeons. Destroy his mighty fortress and wipe the smile from his face before your creatures turn against you."
+msgstr "Avataren är en stackars sate, full av lycka och munterhet. Mat är en bristvara i hans land och den enda tillgängliga Odlingsanstalten finns inuti hans grottor. Förstör hans mäktiga fästning och torka bort leendet från hans ansikte innan dina varelser vänder sig emot dig."
+
+#: guitext:919
+msgctxt "In-game message"
+msgid "The Avatar has massed an army of heroic Lords to confront you. Prepare to be attacked!"
+msgstr "Avataren har dragit samman en armé av hjältemodiga Lorder att konfrontera dig. Förbered dig på attack!"
+
+#: guitext:920
+msgctxt "In-game message"
+msgid "Decimate this outpost and send fear into the heart of the Avatar."
+msgstr "Decimera denna utpost och ingjut skräck i Avatarens hjärta."
+
+#: guitext:921
+msgctxt "In-game message"
+msgid "The Avatar's castle is ripe for the taking. Train your forces well, Keeper. The ultimate battle awaits ..."
+msgstr "Avatarens slott är moget att plockas. Träna dina styrkor väl, Väktare. Den slutliga striden väntar..."
+
+#: guitext:922
+msgctxt "In-game message"
+msgid "You are now in the heart of the Avatar's castle. The sickly sweet smell of goodness still hangs in the air. Kill the Avatar and send his soul to eternal damnation."
+msgstr "Du befinner dig nu i hjärtat av Avatarens slott. Den sjukligt söta doften av godhet ligger fortfarande i luften. Döda Avataren och sänd hans själ vidare till evig fördömelse."
+
+#: guitext:923
+msgctxt "In-game message"
+msgid "Well done, Keeper. The Mistress you have discovered is an excellent prize."
+msgstr "Bra gjort, Väktare. Den Älskarinna du upptäckt är ett utmärkt pris."
+
+#: guitext:924
+msgctxt "In-game message"
+msgid "The Bile Demon you have rescued will be a valuable but hungry asset to your dungeon. Make sure your Hatchery can satisfy his voracious appetite."
+msgstr "Den Galldemon du räddat kommer bli en värdefull men hungrig tillgång till din grotta. Se till att din Odlingsanstalt kan tillfredsställa hans glupska aptit."
+
+#: guitext:925
+msgctxt "In-game message"
+msgid "A devious Wizard has cheated you of your magical powers. Use your only Spider and explore the realm. Find the Wizard, kill him and make an example of his foolishness."
+msgstr "En falsk Magiker har lurat av dig dina magiska krafter. Använd din enda Spindel och utforska riket. Leta upp Magikern, döda honom och låt hans dårskap få statuera ett exempel."
+
+#: guitext:926
+msgctxt "In-game message"
+msgid "You have found some Imps who consider it a great honour to serve you."
+msgstr "Du har hittat några Impar som ser det som en stor ära att få tjäna dig."
+
+#: guitext:927
+msgctxt "In-game message"
+msgid "You have discovered a group of Bile Demons who will aid you in your fight."
+msgstr "Du har upptäckt en grupp Galldemoner som kommer hjälpa dig i din strid."
+
+#: guitext:928
+msgctxt "In-game message"
+msgid "The destruction of this pathetic Keeper brings with it a useful bonus. You now have the ability to build Bridges. Dig deeper and you may find more secrets to strengthen your powers."
+msgstr "Förintandet av denna patetiska Väktare för med sig en användbar bonus. Du har nu förmågan att bygga broar. Gräv djupare och du skall finna mer hemligheter att stärka din makt med."
+
+#: guitext:929
+msgctxt "In-game message"
+msgid "A warning, Keeper. There is a stench of hero in the air."
+msgstr "En varning, Väktare. Det ligger en stank av hjälte i luften."
+
+#: guitext:930
+msgctxt "In-game message"
+msgid "You have done well to get this far Keeper. Do not become complacent, however. A great struggle lies ahead."
+msgstr "Du har kämpat väl för att komma så här långt, Väktare. Bli dock inte självbelåten. En stor strid väntar."
+
+#: guitext:931
+msgctxt "In-game message"
+msgid "Before you lies the Wizard's domain. Defeat him and you will regain your powers."
+msgstr "Innan du lägger under dig Trollkarlens domäner, besegra honom och du skall återfå dina krafter."
+
+#: guitext:932
+msgctxt "In-game message"
+msgid "Your magical powers are restored Keeper.  You can finally show these fools what you are made of."
+msgstr "Din magiska kraft är återskapad, Väktare. Du kan äntligen visa dessa dårar vad du verkligen är gjord av."
+
+#: guitext:933
+msgctxt "In-game message"
+msgid "A black shadow is creeping over this land. Now is the time to strike. Take control of your Vampire and use him to find and kill the Lord of the Land. If you succeed, the Vampire will join you in the next realm."
+msgstr "En svart skugga kryper över detta land. Nu är tiden inne att slå till. Ta kontroll över din Vampyr och använd honom för att söka upp och döda landets härskare. Om du lyckas, kommer Vampyren att följa dig till nästa rike."
+
+#: guitext:934
+msgctxt "In-game message"
+msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
+msgstr "Din prestation är legendarisk, väktare. Berättelser om din ondska och slughet kommer att bli skräckhistorier för generationer framåt."
+
+#: guitext:935
+#: guitext:936
+#: guitext:937
+#: guitext:938
+#: guitext:939
+#: guitext:940
+msgctxt "Unused"
+msgid "Moo2"
+msgstr "Moo2"
+
+#: guitext:941
+msgctxt "Menu interface item"
+msgid "Free Play levels"
+msgstr "Deeper Dungeons"
+
+#: guitext:942
+msgctxt "Menu interface item"
+msgid "Land selection"
+msgstr "Deeper Dungeons"
+
+#: guitext:943
+msgctxt "Menu interface item"
+msgid "Campaigns"
+msgstr "Campaigns"
+
+#: guitext:944
+msgctxt "Menu interface item"
+msgid "Add computer"
+msgstr "Add computer"

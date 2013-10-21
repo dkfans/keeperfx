@@ -1,0 +1,30 @@
+REM ********************************************
+REM  The Destiny of Ninja campaign for KeeperFX
+REM  Script for Level 223
+REM  Version 1.00
+REM ********************************************
+
+START_MONEY(PLAYER0,40000)
+
+ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+ROOM_AVAILABLE(ALL_PLAYERS,BRIDGE,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,0)
+ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
+
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_HAND,1,1)
+MAGIC_AVAILABLE(ALL_PLAYERS,POWER_SLAP,1,1)
+
+IF(PLAYER0,GAME_TURN > 20)
+    REM QUICK_OBJECTIVE(1,"And the public meeting we reached to the emperor, he hides in its own of castle. We must find him and to kill in so Japan again will bloom with the flower of the cherry tree.",PLAYER0)
+    DISPLAY_OBJECTIVE(17,ALL_PLAYERS)
+ENDIF
+
+IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"The success is ours! I would never believe that you are so clever. Congratulations for the completion of the campaign The Destiny of Ninja! Behind soon will appear the new part!",PLAYER0)
+    DISPLAY_OBJECTIVE(18,ALL_PLAYERS)
+    WIN_GAME
+ENDIF

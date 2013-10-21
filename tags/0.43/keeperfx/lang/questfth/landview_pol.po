@@ -1,0 +1,116 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file questfth/landview_pol.po
+#      KeeperFX Land View Strings translation file
+#  @par Purpose:
+#      Contains translation of the national land descriptions in the game.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 28 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Quest for the Hero campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2013-01-08 03:17+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Quest for the Hero campaign"
+msgstr "Zadanie dla Bohatera"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Manudania. Powerful dragons wield this land, but their time draws to end. Kill them my Master!"
+msgstr "Manudania. Krainą tą władają potężne smoki, lecz ich czas dobiega końca. Rozpraw się z nimi, mistrzu!"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Fhaight Town. Now as we killed the so-called powerful dragons, we have quite a lot of skins. Can we carpet our beautiful dungeons with them?"
+msgstr "Pobojowice. Teraz gdy zabiliśmy potężne smoki, mamy sporo skóry. Możemy obwieść nimi nasze piękne podziemia, nieprawdaż?"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "A-Maze-ing. Nine Horned Reapers rule this land from within a great labyrinth. Watch you back my lord, this won't be an easy exercise."
+msgstr "Nie-Sam-Owity. W tej krainie rządzi dziewięciu Rogatych Rozpruwaczy, mieszkają w wielkim labiryncie, uważaj na siebie panie. To nie będzie proste zadanie!"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Schytem. Reapers power has proved to be exaggerated. Excellent work, my lord!"
+msgstr "Kosowo. Rogaci nie byli aż tak trudnymi wojownikami to pokonania, świetna robota, mój panie!"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Hivespawn. Abundance of monsters dwell within this land. Some of them would gladly join us, others intend to slay us on first sight. We must control this land at any cost!"
+msgstr "Ultarło. W tej krainie jest pełno stworów które by się do nas z chęciom przyłączyły, lecz są i takie które z chęcią zabiły by nas. Musimy zdobyć tę krainę za wszelką cenę!"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Deathend. Those which haven't joined us, were convicted to death on in the name of Satan! Those were perfect executions, my Lord!"
+msgstr "Śmierciowo. Ci którzy nie chcieli się do nas przyłączyć zostali skazani na śmierć w imię szatana! Doskonała robota, panie!"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Tower of Power. Wizards of light who rule this land are defended by a division of great Samurai warriors. Let us open the gates to the fortress and kill them with cold blood!"
+msgstr "Wieża Potęgi. Krainą tą władają magowie światła, których bronią wspaniali samurajowie. Zniszczmy bramy do fortecy i zabijmy ich z zimą krwią!"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Tower of Death. This ground got what it deserved. All the wizards were thrown into eternal damnation! Even after death, they're now bound to this tower. Truly vile work, my evil Master!"
+msgstr "Wieża śmierci. Ta ziemia dostała to na co zasłużyła, skazaliśmy magów na wieczne potępienie! Teraz nie mogą opuścić tej wieży chodź są martwi. Doskonała robota panie!"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Dambreak. A triade of powerful keepers rule here. Once they defeated their naive brother and imprisoned his underlings. Free them, and they will surely join your ranks."
+msgstr "Tamatrach. W krainie tej rządzi trzech potężnych strażników, niegdyś zabili oni innego strażnika i uwięzili jego lud w więzieniach. Jeżeli ich uratujesz to na pewno wstąpią w twoje szeregi."
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Fleshbreak. What the Lucifer ordered, was fully accomplished here. Your wickedness is astonishing, my Lord!"
+msgstr "Kościtrach. Tak więc zostało zrobione to co nakazał nam Lucyfer! Doskonała robota panie!"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Sin-king. This land wield courageous knights, who will defend this ground to the last drop of blood. We will gladly grand their wishes and get it dripping!"
+msgstr "Sin-king. Tą krainą władają mężni rycerze, którzy będą bronić tej ziemi do ostatniej kropli krwi. My z chęciom upuścimy im jej trochę!"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Rustwell. From the armour of warriors we made a furniture of our dungeons. When armours begin to rust, the view will be marvelous!"
+msgstr "Rdzawożre. Z zbroi wojowników zrobiliśmy wystawę po naszym lochu, gdy zbroje zaczną rdzewieć to dopiero będzie widok!"
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Superblah. A vampire who prowled this land, resurrected all fallen warriors to skeletons. It wasn't that bad, until all the undead have revolted! Go and shatter these bones!"
+msgstr "Superłee. Nie jest dobrze sytuacja się zmieniła, po okolicy grasował pewien wampir, który wskrzesił wszystkich wojowników do szkieletów. Szkielety nie oddadzą nam tej krainy bez ponownego boju! Zróbmy to co chcą!"
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Boneville. Floors in our dungeon have been refined with the bones of dead warriors. Now we can get back to vanquishing the living."
+msgstr "Kościowo. Z kości martwych wojowników wysadziliśmy podłogi w naszym lochu, został nam jeszcze jeden cel do wygranej, to potężna twierdza."
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Stronghold. The last land to conquer is an ancient monastery. Monks here are under protection of Paladins. We'll have to snatch the appetizer before our main dish."
+msgstr "Forteczno. Naszą ostatnią krainą do podbicia władają Mnisi, są pod obroną paladynów tak więc zniszczmy najpierw ich a później mnichów!"
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Bloodhold. Throwing bodies of monks to the temple was a great sacrilege! Stop for a while and watch the beauty of flowing lava under bloody sky! Excellent work, my Master!"
+msgstr "Krwiorteczno. Wrzuciliśmy ciała mnichów do świątyni popełniając wielkie świętokractow! Teraz możemy cieszyć się pięknym widokiem spływającej lawy i krwi po świecie! Doskonała robota mój panie!"
+
