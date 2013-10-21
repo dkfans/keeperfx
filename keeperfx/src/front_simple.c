@@ -43,18 +43,18 @@ extern "C" {
 /******************************************************************************/
 struct RawBitmap bitmaps_640[] = {
   {"Empty Image",     640, 480, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   640, 480, 8, FGrp_FxData,   "loading_640.raw",  "loading_640.pal",},
+  {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading64.raw",    "loading64.pal",},
   {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
-  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal.raw",        "legal.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_FxData,   "startup_fx.raw",   "startup_fx.pal",},
+  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal64.raw",      "legal64.pal",},
+  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,   "startupfx64.raw",  "startupfx64.pal",},
 };
 
 struct RawBitmap bitmaps_320[] = {
   {"Empty Image",     320, 200, 8, FGrp_Main,     NULL,               NULL},
-  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading.raw",      "loading.pal",},
+  {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading32.raw"     "loading32.pal",},
   {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
-  {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal.raw",        "legal.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_FxData,   "startup_fx.raw",   "startup_fx.pal",},
+  {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal32.raw",      "legal32.pal",},
+  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startupfx64.raw",  "startupfx64.pal",},
 };
 
 struct ActiveBitmap astd_bmp;

@@ -93,6 +93,7 @@ public:
         alg = DfsAlg_FldStnbrg;
         fmt = OutFmt_RAW;
         lvl = 100;
+        pal_range = 63;
         batch = Batch_NONE;
     }
     std::vector<ImageArea> inp;
@@ -103,6 +104,7 @@ public:
     int fmt;
     int alg;
     int lvl;
+    int pal_range;
     int batch;
 };
 
