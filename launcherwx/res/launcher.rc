@@ -1,3 +1,0 @@
-keeperfx ICON "keeperfx.ico"
-
-#include "wx/msw/wx.rc"
