@@ -573,21 +573,138 @@ int load_animlist(ProgramOptions &opts, const std::string &fname)
     return (i > 0);
 }
 
+int count_img_unused_lines_top(ImageData& img, ProgramOptions& opts, bool hasAlpha)
+{
+    checkTransparent_t checkTrans=checkTransparent1;
+    int bytesPerPixel = (img.colorBPP()+7) >> 3;
+    if (!hasAlpha)
+    {
+        checkTrans=checkTransparent3;
+    }
+
+    png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
+
+    for (int y=0; y<img.height; y++)
+    {
+        png_bytep row=row_pointers[y];
+        png_bytep pixel=row;
+
+        for (int x=0; x<img.width; x++)
+        {
+            bool trans=((*checkTrans)(pixel,img));
+            if (!trans) {
+                return y;
+            }
+            pixel+=bytesPerPixel;
+        }
+    }
+    // If all transparent, return top half of the size
+    return img.height/2;
+}
+
+int count_img_unused_lines_bottom(ImageData& img, ProgramOptions& opts, bool hasAlpha)
+{
+    checkTransparent_t checkTrans=checkTransparent1;
+    int bytesPerPixel = (img.colorBPP()+7) >> 3;
+    if (!hasAlpha)
+    {
+        checkTrans=checkTransparent3;
+    }
+
+    png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
+
+    for (int y=img.height-1; y>=0; y--)
+    {
+        png_bytep row=row_pointers[y];
+        png_bytep pixel=row;
+
+        for (int x=0; x<img.width; x++)
+        {
+            bool trans=((*checkTrans)(pixel,img));
+            if (!trans) {
+                return img.height-1-y;
+            }
+            pixel+=bytesPerPixel;
+        }
+    }
+    // If all transparent, return bottom half of the size
+    return img.height - img.height/2;
+}
+
+int count_img_unused_lines_left(ImageData& img, ProgramOptions& opts, bool hasAlpha)
+{
+    checkTransparent_t checkTrans=checkTransparent1;
+    int bytesPerPixel = (img.colorBPP()+7) >> 3;
+    if (!hasAlpha)
+    {
+        checkTrans=checkTransparent3;
+    }
+
+    png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
+
+    for (int x=0; x<img.width; x++)
+    {
+        for (int y=0; y<img.height; y++)
+        {
+            png_bytep row=row_pointers[y];
+            png_bytep pixel=row + x*bytesPerPixel;
+            bool trans=((*checkTrans)(pixel,img));
+            if (!trans) {
+                return x;
+            }
+        }
+    }
+    // If all transparent, return left half of the size
+    return img.width/2;
+}
+
+int count_img_unused_lines_right(ImageData& img, ProgramOptions& opts, bool hasAlpha)
+{
+    checkTransparent_t checkTrans=checkTransparent1;
+    int bytesPerPixel = (img.colorBPP()+7) >> 3;
+    if (!hasAlpha)
+    {
+        checkTrans=checkTransparent3;
+    }
+
+    png_bytep* row_pointers=png_get_rows(img.png_ptr, img.info_ptr);
+
+    for (int x=img.width-1; x>=0; x--)
+    {
+        for (int y=0; y<img.height; y++)
+        {
+            png_bytep row=row_pointers[y];
+            png_bytep pixel=row + x*bytesPerPixel;
+            bool trans=((*checkTrans)(pixel,img));
+            if (!trans) {
+                return img.width-1-x;
+            }
+        }
+    }
+    // If all transparent, return right half of the size
+    return img.width - img.width/2;
+}
+
 short load_inp_additional_data(ImageData& img, const ImageArea& inp, ProgramOptions& opts)
 {
     struct JontySprite *jtab;
+    int ntop,nbottom,nright,nleft;
     switch (opts.fmt)
     {
     case OutFmt_JSPR:
         //TODO: we need to determine the frame size here
+        ntop = count_img_unused_lines_top(img, opts, (img.color_type & PNG_COLOR_MASK_ALPHA) != 0);
+        nbottom = count_img_unused_lines_bottom(img, opts, (img.color_type & PNG_COLOR_MASK_ALPHA) != 0);
+        nright = count_img_unused_lines_right(img, opts, (img.color_type & PNG_COLOR_MASK_ALPHA) != 0);
+        nleft = count_img_unused_lines_left(img, opts, (img.color_type & PNG_COLOR_MASK_ALPHA) != 0);
         jtab = (struct JontySprite *)img.additional_data;
-        jtab->Data = -1;
-        jtab->SWidth = img.width;
-        jtab->SHeight = img.height;
+        jtab->Data = -1; // To be correctly set later
+        jtab->SWidth = img.width-nright-nleft;
+        jtab->SHeight = img.height-ntop-nbottom;
         jtab->FrameWidth = img.width;
         jtab->FrameHeight = img.height;
-        jtab->FrameOffsW = 0;
-        jtab->FrameOffsH = 0;
+        jtab->FrameOffsW = nleft;
+        jtab->FrameOffsH = ntop;
         jtab->Rotable = inp.fd[0];
         jtab->FramesCount = inp.fd[1];
         jtab->unkn6 = inp.fd[2];
@@ -1070,7 +1187,7 @@ int main(int argc, char* argv[])
             if (verbose)
                 LogMsg("Converting image %d colors to indexes...",(int)(iter-imgs.begin()));
             ImageData& img = *iter;
-            if (convert_rgb_to_indexed(ws, img, ((img.color_type & PNG_COLOR_MASK_ALPHA) != ERR_OK))) {
+            if (convert_rgb_to_indexed(ws, img, (img.color_type & PNG_COLOR_MASK_ALPHA) != 0) != ERR_OK) {
                 LogErr("Converting colors failed.");
                 return 6;
             }

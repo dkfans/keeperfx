@@ -845,7 +845,7 @@ pkg/ldata/%.dat pkg/data/%.dat:
 pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Building jonty sprites: $@'
 	@$(MKDIR) $(@D)
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
+	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
