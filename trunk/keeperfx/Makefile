@@ -356,6 +356,7 @@ pkg/ldata/frontft4.dat \
 pkg/ldata/frontbit.dat
 
 ENGINEGFX = \
+pkg/data/creature.jty \
 pkg/data/frac00.raw \
 pkg/data/frac01.raw \
 pkg/data/frac02.raw \
@@ -380,7 +381,6 @@ pkg/data/lofont.dat \
 pkg/data/font2-0.dat \
 pkg/data/font2-1.dat \
 pkg/data/gmapbug.dat
-#pkg/data/creature.jty \
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
 HVLOGOBJS = $(subst obj/,obj/hvlog/,$(OBJS))

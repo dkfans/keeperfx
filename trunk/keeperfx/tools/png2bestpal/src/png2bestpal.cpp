@@ -619,6 +619,10 @@ short load_pal_mapping_file(WorkingSet& ws, const std::string& fname_map, Progra
 
     /* Load the .txt file: */
     f.open(fname_map.c_str(), std::fstream::in);
+    if (f.fail()) {
+        perror(fname_map.c_str());
+        return ERR_CANT_OPEN;
+    }
 
     currentLine = 0;
     errors = 0;

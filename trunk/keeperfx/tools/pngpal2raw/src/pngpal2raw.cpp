@@ -430,7 +430,7 @@ struct JontySprite {
  * Packs a line of pixels (1 byte per pixel) so that transparent bytes are RLE-encoded into SmallSprite.
  * @return the new number of bytes in row.
  */
-int sspr_pack(png_bytep out_row, const png_bytep inp_row, const ColorTranparency::Column& inp_trans, int width, const ColorPalette& palette)
+int sspr_pack(png_bytep out_row, const png_bytep inp_row, const ColorTranparency::Column& inp_trans, int width, int wskip, const ColorPalette& palette)
 {
     int area;
     int outIndex=0;
@@ -439,7 +439,7 @@ int sspr_pack(png_bytep out_row, const png_bytep inp_row, const ColorTranparency
     {
         // Filled
         area = 0;
-        while ( (i+area < width) && (!inp_trans[i+area]) ) {
+        while ( (i+area < width) && (!inp_trans[wskip+i+area]) ) {
             area++;
         }
         LogDbg("fill area %d",area);
@@ -454,13 +454,13 @@ int sspr_pack(png_bytep out_row, const png_bytep inp_row, const ColorTranparency
             }
             *(char *)(out_row+outIndex) = (char)(part_area);
             outIndex += sizeof(char);
-            memcpy(out_row+outIndex, inp_row+i, part_area);
+            memcpy(out_row+outIndex, inp_row+wskip+i, part_area);
             outIndex += part_area;
             i += part_area;
         }
         // Transparent
         area = 0;
-        while ( (i+area < width) && inp_trans[i+area] ) {
+        while ( (i+area < width) && inp_trans[wskip+i+area] ) {
             area++;
         }
         LogDbg("trans area %d",area);
@@ -533,6 +533,10 @@ int load_imagelist(ProgramOptions &opts, const std::string &fname, int anum = -1
     std::ifstream infile;
     std::string lstpath = file_name_get_path(fname);
     infile.open(fname.c_str(), ifstream::in);
+    if (infile.fail()) {
+        perror(fname.c_str());
+        return false;
+    }
     int fd[4] = {0,0,0,0};
     {
         // Initial line - animation name and format-specific parameters
@@ -560,6 +564,10 @@ int load_animlist(ProgramOptions &opts, const std::string &fname)
     std::ifstream infile;
     std::string lstpath = file_name_get_path(fname);
     infile.open(fname.c_str(), ifstream::in);
+    if (infile.fail()) {
+        perror(fname.c_str());
+        return false;
+    }
     int i = 0;
     while (infile.good()) {
         std::string str;
@@ -692,7 +700,6 @@ short load_inp_additional_data(ImageData& img, const ImageArea& inp, ProgramOpti
     switch (opts.fmt)
     {
     case OutFmt_JSPR:
-        //TODO: we need to determine the frame size here
         ntop = count_img_unused_lines_top(img, opts, (img.color_type & PNG_COLOR_MASK_ALPHA) != 0);
         nbottom = count_img_unused_lines_bottom(img, opts, (img.color_type & PNG_COLOR_MASK_ALPHA) != 0);
         nright = count_img_unused_lines_right(img, opts, (img.color_type & PNG_COLOR_MASK_ALPHA) != 0);
@@ -920,6 +927,10 @@ short load_inp_palette_file(WorkingSet& ws, const std::string& fname_pal, Progra
 
     /* Load the .pal file: */
     f.open(fname_pal.c_str(), std::ios::in | std::ios::binary);
+    if (f.fail()) {
+        perror(fname_pal.c_str());
+        return ERR_CANT_OPEN;
+    }
 
     while (!f.eof())
     {
@@ -1041,7 +1052,7 @@ short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
             {
                 png_bytep inp_row = row_pointers[y];
                 ColorTranparency::Column& inp_trans = img.transMap[y];
-                int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.width,ws.palette);
+                int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.width,0,ws.palette);
                 if (fwrite(&out_row.front(),newLength,1,rawfile) != 1)
                 { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             }
@@ -1082,27 +1093,20 @@ short save_jontyspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
         // Shifts start with index 0, and there's additional entry at end
         spr_shifts.resize(imgs.size()+1);
         long base_pos = ftell(rawfile);
-        {
-            unsigned short spr_count;
-            spr_count = imgs.size()+1;
-            if (fwrite(&spr_count,sizeof(spr_count),1,rawfile) != 1)
-            { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
-        }
         for (int i = 0; i < imgs.size(); i++)
         {
             ImageData &img = imgs[i];
-            memcpy(&spr_shifts[i], &img.additional_data, sizeof(JontySprite));
-            spr_shifts[i+1].Data = ftell(rawfile) - base_pos;
-            spr_shifts[i+1].SWidth = img.width;
-            spr_shifts[i+1].SHeight = img.height;
+            JontySprite &spr = spr_shifts[i];
+            memcpy(&spr, &img.additional_data, sizeof(JontySprite));
+            spr.Data = ftell(rawfile) - base_pos;
             std::vector<png_byte> out_row;
-            out_row.resize(img.width*3);
+            out_row.resize(spr.SWidth*3);
             png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
-            for (int y=0; y<img.height; y++)
+            for (int y=0; y<spr.SHeight; y++)
             {
-                png_bytep inp_row = row_pointers[y];
-                ColorTranparency::Column& inp_trans = img.transMap[y];
-                int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.width,ws.palette);
+                png_bytep inp_row = row_pointers[spr.FrameOffsH+y];
+                ColorTranparency::Column& inp_trans = img.transMap[spr.FrameOffsH+y];
+                int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,spr.SWidth,spr.FrameOffsW,ws.palette);
                 if (fwrite(&out_row.front(),newLength,1,rawfile) != 1)
                 { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             }

@@ -189,6 +189,10 @@ bool write_dat(const std::string& out_file, const std::vector<std::string> &data
     std::fstream f;
 
     f.open(out_file.c_str(), std::fstream::out|std::fstream::binary);
+    if (f.fail()) {
+        perror(out_file.c_str());
+        return false;
+    }
 
     for (auto it = data.begin(); it != data.end(); ++it)
     {

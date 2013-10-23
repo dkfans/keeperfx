@@ -918,6 +918,10 @@ bool Catalog::Load(const std::string& po_file, int flags)
 
     /* Load the .po file: */
     f.open(po_file.c_str(), std::fstream::in);
+    if (f.fail()) {
+        poLogError("Couldn't open file %s, it has probably bad permissions.", po_file.c_str());
+        return false;
+    }
 
     LoadParser parser(this, &f);
     parser.IgnoreHeader(flags & CreationFlag_IgnoreHeader);
