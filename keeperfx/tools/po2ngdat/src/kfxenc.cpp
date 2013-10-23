@@ -53,6 +53,10 @@ bool UnicodeConvert::Load(const std::string& enc_file, int flags)
 
     /* Load the .po file: */
     f.open(enc_file.c_str(), std::fstream::in);
+    if (f.fail()) {
+        encLogError("Couldn't open file %s, it has probably bad permissions.", enc_file.c_str());
+        return false;
+    }
 
     currentLine = 0;
     errors = 0;
