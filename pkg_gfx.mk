@@ -74,6 +74,7 @@ pkg/ldata/frontft4.dat \
 pkg/ldata/frontbit.dat
 
 ENGINEGFX = \
+pkg/data/creature.jty \
 pkg/data/frac00.raw \
 pkg/data/frac01.raw \
 pkg/data/frac02.raw \
@@ -98,7 +99,6 @@ pkg/data/lofont.dat \
 pkg/data/font2-0.dat \
 pkg/data/font2-1.dat \
 pkg/data/gmapbug.dat
-#pkg/data/creature.jty \
 
 GUIDATTABS = $(LANDVIEWDATTABS) $(TOTRUREDATTABS) $(ENGINEDATTABS)
 
@@ -289,7 +289,7 @@ pkg/ldata/%.dat pkg/data/%.dat:
 pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Building jonty sprites: $@'
 	@$(MKDIR) $(@D)
-	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
+	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
