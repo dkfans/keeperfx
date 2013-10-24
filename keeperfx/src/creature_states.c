@@ -1721,7 +1721,8 @@ short creature_doing_nothing(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((long)game.play_gameturn - cctrl->long_9A <= 1) {
+    // Wait for up to 2 turns (note that this is unsigned substraction)
+    if (game.play_gameturn - cctrl->long_9A <= 1) {
         return 1;
     }
     if ((cctrl->spell_flags & CSAfF_Unkn1000) != 0) {
