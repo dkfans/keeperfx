@@ -186,6 +186,8 @@ typedef short CrAttackType;
 typedef unsigned short CrDeathFlags;
 /** Level number within a campaign. */
 typedef long LevelNumber;
+/** Game turn number, used for in-game time computations. */
+typedef unsigned long GameTurn;
 /** Identifier of a national text string. */
 typedef int TextStringId;
 /** Map coordinate in full resolution. Position within subtile is scaled 0..255. */
