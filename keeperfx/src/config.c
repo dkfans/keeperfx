@@ -225,55 +225,58 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
 
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
-  int i,cmdname_len;
-  if ((*pos) >= buflen) return -1;
-  // Skipping starting spaces
-  while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
-  {
-    (*pos)++;
+    int i,cmdname_len;
+    SYNCDBG(19,"Starting");
     if ((*pos) >= buflen) return -1;
-  }
-  // Checking if this line is a comment
-  if (buf[*pos] == ';')
-    return 0;
-  // Checking if this line is start of a block
-  if (buf[*pos] == '[')
-    return -3;
-  // Finding command number
-  i = 0;
-  while (commands[i].num > 0)
-  {
-    cmdname_len = strlen(commands[i].name);
-    if ((*pos)+cmdname_len > buflen)
-      continue;
-    // Find a matching command
-    if (strnicmp(buf+(*pos), commands[i].name, cmdname_len) == 0)
+    // Skipping starting spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
     {
-      (*pos) += cmdname_len;
-      // if we're not at end of input buffer..
-      if ((*pos) < buflen)
-      {
-         // make sure it's whole command, not just start of different one
-        if ((buf[(*pos)] != ' ') && (buf[(*pos)] != '\t')
-         && (buf[(*pos)] != '=')  && ((unsigned char)buf[(*pos)] >= 7))
-        {
-           (*pos) -= cmdname_len;
-           i++;
-           continue;
-        }
-        // Skipping spaces between command and parameters
-        while ((buf[*pos] == ' ') || (buf[*pos] == '\t')
-         || (buf[*pos] == '=')  || ((unsigned char)buf[*pos] < 7))
-        {
-          (*pos)++;
-          if ((*pos) >= buflen) break;
-        }
-      }
-      return commands[i].num;
+        (*pos)++;
+        if ((*pos) >= buflen) return -1;
     }
-    i++;
-  }
-  return -2;
+    // Checking if this line is a comment
+    if (buf[*pos] == ';')
+        return 0;
+    // Checking if this line is start of a block
+    if (buf[*pos] == '[')
+        return -3;
+    // Finding command number
+    i = 0;
+    while (commands[i].num > 0)
+    {
+        cmdname_len = strlen(commands[i].name);
+        if ((*pos)+cmdname_len > buflen) {
+            i++;
+            continue;
+        }
+        // Find a matching command
+        if (strnicmp(buf+(*pos), commands[i].name, cmdname_len) == 0)
+        {
+            (*pos) += cmdname_len;
+            // if we're not at end of input buffer..
+            if ((*pos) < buflen)
+            {
+                // make sure it's whole command, not just start of different one
+               if ((buf[(*pos)] != ' ') && (buf[(*pos)] != '\t')
+                && (buf[(*pos)] != '=')  && ((unsigned char)buf[(*pos)] >= 7))
+               {
+                  (*pos) -= cmdname_len;
+                  i++;
+                  continue;
+               }
+               // Skipping spaces between command and parameters
+               while ((buf[*pos] == ' ') || (buf[*pos] == '\t')
+                || (buf[*pos] == '=')  || ((unsigned char)buf[*pos] < 7))
+               {
+                 (*pos)++;
+                 if ((*pos) >= buflen) break;
+               }
+            }
+            return commands[i].num;
+        }
+        i++;
+    }
+    return -2;
 }
 
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen)
@@ -300,25 +303,28 @@ int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,lon
 
 int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen)
 {
-  int i;
-  if ((*pos) >= buflen) return 0;
-  // Skipping spaces after previous parameter
-  while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
-  {
-    (*pos)++;
+    int i;
     if ((*pos) >= buflen) return 0;
-  }
-  for (i=0; i+1 < dstlen; i++)
-  {
-    if ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\r')
-     || (buf[*pos] == '\n') || ((unsigned char)buf[*pos] < 7))
-      break;
-    dst[i]=buf[*pos];
-    (*pos)++;
-    if ((*pos) >= buflen) break;
-  }
-  dst[i]='\0';
-  return i;
+    // Skipping spaces after previous parameter
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t'))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return 0;
+    }
+    for (i=0; i+1 < dstlen; i++)
+    {
+        if ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\r')
+         || (buf[*pos] == '\n') || ((unsigned char)buf[*pos] < 7))
+          break;
+        dst[i]=buf[*pos];
+        (*pos)++;
+        if ((*pos) >= buflen) {
+            i++;
+            break;
+        }
+    }
+    dst[i]='\0';
+    return i;
 }
 
 /**
