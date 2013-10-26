@@ -194,7 +194,7 @@ short LbFileExists(const char *fname)
   return access(fname,F_OK) == 0;
 }
 
-int LbFilePosition(int handle)
+int LbFilePosition(TbFileHandle handle)
 {
   int result = tell(handle);
   return result;

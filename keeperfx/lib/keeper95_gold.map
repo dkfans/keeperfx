@@ -769,6 +769,7 @@
  0001:000DA9F0       LbFileClose
  0001:000DAA10       LbFileSeek
  0001:000DAA70       LbFileRead
+ 0001:000DA940       LbFilePosition
  0001:000DAE70       LbTextDraw
  0001:000A7850       process_sound_heap
  0001:000463D0       setup_engine_window
