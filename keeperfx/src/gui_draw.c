@@ -126,6 +126,41 @@ void draw_ornate_slab_outline64k(long pos_x, long pos_y, long width, long height
   _DK_draw_ornate_slab_outline64k(pos_x, pos_y, width, height);
 }
 
+void draw_round_slab64k(long pos_x, long pos_y, long width, long height)
+{
+    unsigned short drwflags_mem;
+    drwflags_mem = lbDisplay.DrawFlags;
+    lbDisplay.DrawFlags &= ~0x0010;
+    lbDisplay.DrawFlags |= 0x0004;
+    LbDrawBox((pos_x + 4) / pixel_size, (pos_y + 4) / pixel_size, (width - 8) / pixel_size, (height - 8) / pixel_size, 1);
+    lbDisplay.DrawFlags &= ~0x0004;
+    int x,y;
+    struct TbSprite *spr;
+    long i;
+    spr = gui_panel_sprites;
+    for (i = 0; i < width - 68; i += 26)
+    {
+        x = pos_x + i + 34;
+        y = pos_y + height - 4;
+        LbSpriteDraw(x / pixel_size, pos_y / pixel_size, &spr[242]);
+        LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[248]);
+    }
+    for (i = 0; i < height - 56; i += 20)
+    {
+        x = pos_x + width - 4;
+        y = i + 28 + pos_y;
+        LbSpriteDraw(pos_x / pixel_size, y / pixel_size, &spr[244]);
+        LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[246]);
+    }
+    x = pos_x + width - 34;
+    y = pos_y + height - 28;
+    LbSpriteDraw(pos_x / pixel_size, pos_y / pixel_size, &spr[241]);
+    LbSpriteDraw(x / pixel_size, pos_y / pixel_size, &spr[243]);
+    LbSpriteDraw(pos_x / pixel_size, y / pixel_size, &spr[247]);
+    LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[249]);
+    lbDisplay.DrawFlags = drwflags_mem;
+}
+
 /** Draws a string on GUI button.
  *  Note that the source text buffer may be damaged by this function.
  * @param gbtn Button to draw text on.
