@@ -35,6 +35,7 @@ EXETODLL = peresec/bin/peresec$(CROSS_EXEEXT)
 PNGTORAW = tools/pngpal2raw/bin/pngpal2raw$(CROSS_EXEEXT)
 PNGTOBSPAL = tools/png2bestpal/bin/png2bestpal$(CROSS_EXEEXT)
 POTONGDAT = tools/po2ngdat/bin/po2ngdat$(CROSS_EXEEXT)
+WAVTODAT = tools/sndbanker/bin/sndbanker$(CROSS_EXEEXT)
 RNC   = tools/rnctools/bin/rnc$(CROSS_EXEEXT)
 DERNC = tools/rnctools/bin/dernc$(CROSS_EXEEXT)
 RM    = rm -f
@@ -471,6 +472,7 @@ clean-tools:
 	$(MAKE) clean -C tools/png2bestpal
 	$(MAKE) clean -C tools/po2ngdat
 	$(MAKE) clean -C tools/rnctools
+	$(MAKE) clean -C tools/sndbanker
 
 clean-package:
 	-$(RM) -R pkg/campgns
@@ -586,7 +588,7 @@ bin/keeperfx.dll lib/keeperfx.def: lib/keeper95_gold.dll lib/keeper95_gold.map $
 	-$(ECHO) 'Finished creating: $@'
 	-$(ECHO) ' '
 
-tools: $(EXETODLL) $(PNGTORAW) $(PNGTOBSPAL) $(POTONGDAT) $(RNC) $(DERNC)
+tools: $(EXETODLL) $(PNGTORAW) $(PNGTOBSPAL) $(POTONGDAT) $(RNC) $(DERNC) $(WAVTODAT)
 
 $(EXETODLL): peresec/src/peresec.c peresec/Makefile
 	$(MAKE) -C peresec
@@ -602,6 +604,9 @@ $(POTONGDAT): tools/po2ngdat/src/po2ngdat.cpp tools/po2ngdat/Makefile
 
 $(RNC) $(DERNC): tools/rnctools/src/rnc.c tools/rnctools/src/dernc.c tools/rnctools/Makefile
 	$(MAKE) -C tools/rnctools
+
+$(WAVTODAT): tools/sndbanker/src/sndbanker.cpp tools/sndbanker/Makefile
+	$(MAKE) -C tools/sndbanker
 
 # Windows resources compilation
 # Should depend on res/keeperfx_icon.ico, but currently we've assuming ICO files are alredy made 

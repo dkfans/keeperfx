@@ -8,7 +8,7 @@
  * @par Comment:
  *     None.
  * @author   Tomasz Lis <listom@gmail.com>
- * @date     21 Sep 2013 - 22 Sep 2013
+ * @date     21 Sep 2013 - 26 Sep 2013
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #include <fstream>
 #include <sstream>
 
-//#include "prog_options.h"
+#include "prog_options.h"
 #include "sndbanker_version.h"
 
 using namespace std;
@@ -40,13 +40,6 @@ public:
     WorkingSet() {}
 private:
 };
-
-void writeByte(FILE* f, int byte)
-{
-  char data[1];
-  data[0]=(byte&255);
-  if (fwrite(data,1,1,f)!=1) {perror("Write error"); exit(1);}
-}
 
 std::string file_name_get_path(const std::string &fname_inp)
 {
@@ -85,6 +78,34 @@ std::string file_name_change_extension(const std::string &fname_inp, const std::
         fname += "." + ext;
     }
     return fname;
+}
+
+int load_soundlist(ProgramOptions &opts, const std::string &fname)
+{
+    std::ifstream infile;
+    std::string lstpath = file_name_get_path(fname);
+    infile.open(fname.c_str(), ifstream::in);
+    if (infile.fail()) {
+        perror(fname.c_str());
+        return false;
+    }
+    {
+        // Initial line - sound bank name
+        std::string str;
+        std::getline(infile, str, '\n');
+        istringstream iss(str);
+        iss >> str;
+    }
+    while (infile.good()) {
+        std::string str;
+        std::getline(infile, str, '\n');
+        istringstream iss(str);
+        iss >> str;
+        if (!str.empty()) {
+            opts.inp.push_back(SoundFile(lstpath+"/"+str));
+        }
+    }
+    return true;
 }
 
 int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
@@ -132,12 +153,8 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
     // remaining command line arguments (not options)
     while (optind < argc)
     {
-        if (opts.batch != Batch_NONE) {
-            // In batch mode, file name is not an image but text file with list
-            opts.fname_lst = argv[optind++];
-            break;
-        }
-        opts.inp.push_back(ImageArea(argv[optind++]));
+        opts.fname_lst = argv[optind++];
+        break;
     }
     // Load the files list, if it's provided
     if (!opts.fname_lst.empty())
@@ -182,6 +199,33 @@ short show_usage(const std::string &fname)
     return ERR_OK;
 }
 
+short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::string& fname_out, ProgramOptions& opts)
+{
+    std::vector<SampleEntry> samples;
+    // Open and write the Sound Bank file
+    {
+        FILE* sbfile = fopen(fname_out.c_str(),"wb");
+        if (sbfile == NULL) {
+            perror(fname_out.c_str());
+            return ERR_CANT_OPEN;
+        }
+        // Shifts start with index 1; the 0 is empty and unused
+        {
+            samples.resize(snds.size()+1);
+            samples[0].data = 0;
+        }
+        long base_pos = ftell(sbfile);
+        for (int i = 0; i < snds.size(); i++)
+        {
+            SoundData &snd = snds[i];
+            samples[i+1].data = ftell(sbfile) - base_pos;
+            //TODO
+        }
+        fclose(sbfile);
+    }
+    return ERR_OK;
+}
+
 int main(int argc, char* argv[])
 {
     static ProgramOptions opts;
@@ -198,7 +242,7 @@ int main(int argc, char* argv[])
     static WorkingSet ws;
 
     std::vector<SoundData> snds;
-    imgs.resize(opts.inp.size());
+    snds.resize(opts.inp.size());
     {
         for (int i = 0; i < opts.inp.size(); i++)
         {
@@ -208,7 +252,7 @@ int main(int argc, char* argv[])
     }
 
     LogMsg("Saving DAT file \"%s\".",opts.fname_out.c_str());
-    if (save_dat_file(ws, snds[0], opts.fname_out, opts) != ERR_OK) {
+    if (save_dat_file(ws, snds, opts.fname_out, opts) != ERR_OK) {
         return 8;
     }
 
