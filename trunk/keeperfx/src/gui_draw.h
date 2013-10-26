@@ -74,6 +74,7 @@ void draw_bar64k(long pos_x, long pos_y, long width);
 void draw_lit_bar64k(long pos_x, long pos_y, long width);
 void draw_slab64k(long pos_x, long pos_y, long width, long height);
 void draw_ornate_slab64k(long pos_x, long pos_y, long width, long height);
+void draw_ornate_slab_outline64k(long pos_x, long pos_y, long width, long height);
 void draw_button_string(struct GuiButton *gbtn, char *text);
 int draw_text_box(const char *text);
 void draw_scroll_box(struct GuiButton *gbtn, long a2);

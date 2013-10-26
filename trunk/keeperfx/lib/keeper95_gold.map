@@ -1061,6 +1061,7 @@
  0001:0001F7D0       redraw_creature_view
  0001:0001FB40       draw_creature_view
  0001:0009A380       draw_slab64k
+ 0001:0009A920       draw_ornate_slab_outline64k
  0001:0009ABD0       draw_ornate_slab64k
  0001:00022FD0       draw_zoom_box
  0001:00024520       message_add
