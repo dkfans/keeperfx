@@ -89,6 +89,7 @@ TbBool parse_trapdoor_common_blocks(char *buf, long len, const char *config_text
     // Block name and parameter word store variables
     char block_buf[COMMAND_WORD_LEN];
     char word_buf[COMMAND_WORD_LEN];
+    SYNCDBG(19,"Starting");
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
@@ -172,6 +173,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  SYNCDBG(19,"Starting");
   // Initialize the traps array
   int arr_size;
   if ((flags & CnfLd_AcceptPartial) == 0)
@@ -209,6 +211,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
   for (i=0; i < arr_size; i++)
   {
     sprintf(block_buf,"trap%d",i);
+    SYNCDBG(19,"Block [%s]",block_buf);
     pos = 0;
     k = find_conf_block(buf,&pos,len,block_buf);
     if (k < 0)
@@ -226,6 +229,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
     {
       // Finding command number in this line
       cmd_num = recognize_conf_command(buf,&pos,len,trapdoor_trap_commands);
+      SYNCDBG(19,"Command %s",COMMAND_TEXT(cmd_num));
       // Now store the config item in correct place
       if (cmd_num == -3) break; // if next block starts
       if ((flags & CnfLd_ListOnly) != 0) {
@@ -368,6 +372,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
   // Block name and parameter word store variables
   char block_buf[COMMAND_WORD_LEN];
   char word_buf[COMMAND_WORD_LEN];
+  SYNCDBG(19,"Starting");
   // Initialize the doors array
   int arr_size;
   if ((flags & CnfLd_AcceptPartial) == 0)
@@ -568,6 +573,7 @@ TbBool load_trapdoor_config_file(const char *textname, const char *fname, unsign
     }
     //Freeing and exiting
     LbMemoryFree(buf);
+    SYNCDBG(19,"Done");
     return result;
 }
 
