@@ -41,6 +41,7 @@ DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
 DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
 DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
 DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
+DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
 
 DLLIMPORT void _DK_stop_sample_using_heap(unsigned long fild8, short smptbl_idx, unsigned char pan);
 DLLIMPORT long _DK_start_emitter_playing(struct SoundEmitter *emit, long smptbl_idx, long pan, long volume, long pitch, long a6, long a7, long a8, long a9);
@@ -160,17 +161,38 @@ TbBool S3DEmitterIsPlayingSample(long eidx, long smpl_idx, long bank_id)
     for (i=0; i < MaxNoSounds; i++)
     {
         sample = &SampleList[i];
-        if ((sample->is_playing != 0) && (sample->emit_ptr == emit)) {
-            if ((sample->field_8 == smpl_idx) && (sample->bank_id == bank_id))
+        if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
+        {
+            if ((sample->field_8 == smpl_idx) && (sample->bank_id == bank_id)) {
                 return true;
+            }
         }
     }
     return false;
 }
 
-long S3DDeleteSampleFromEmitter(long a1, long a2, long a3)
+TbBool S3DDeleteSampleFromEmitter(long eidx, long smpl_idx, long bank_id)
 {
-    return _DK_S3DDeleteSampleFromEmitter(a1, a2, a3);
+    struct SoundEmitter *emit;
+    struct S3DSample *sample;
+    long i;
+    //return _DK_S3DDeleteSampleFromEmitter(eidx, smpl_idx, bank_id);
+    emit = S3DGetSoundEmitter(eidx);
+    if (S3DSoundEmitterInvalid(emit))
+        return false;
+    for (i=0; i < MaxNoSounds; i++)
+    {
+        sample = &SampleList[i];
+        if ((sample->is_playing != 0) && (sample->emit_ptr == emit))
+        {
+            if ((sample->field_8 == smpl_idx) && (sample->bank_id == bank_id)) {
+                sample->is_playing = 0;
+                stop_sample_using_heap(get_emitter_id(emit), sample->field_8, sample->bank_id);
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 TbBool S3DDeleteAllSamplesFromEmitter(long eidx)
@@ -626,21 +648,34 @@ long stop_emitter_samples(struct SoundEmitter *emit)
     return num_stopped;
 }
 
+void close_sound_bank(SoundBankID bank_id)
+{
+    switch (bank_id)
+    {
+    case 0:
+        if (sound_file != -1)
+        {
+            _DK_LbFileClose(sound_file);
+            sound_file = -1;
+        }
+        break;
+    case 1:
+        if (sound_file2 != -1)
+        {
+            _DK_LbFileClose(sound_file2);
+            sound_file2 = -1;
+        }
+        break;
+    default:
+        break;
+    }
+}
+
 void close_sound_heap(void)
 {
-    // TODO SOUND use rewritten version when sound routines are rewritten
-    _DK_close_sound_heap(); return;
-
-    if (sound_file != -1)
-    {
-        LbFileClose(sound_file);
-        sound_file = -1;
-    }
-    if (sound_file2 != -1)
-    {
-        LbFileClose(sound_file2);
-        sound_file2 = -1;
-    }
+    //_DK_close_sound_heap(); return;
+    close_sound_bank(0);
+    close_sound_bank(1);
     using_two_banks = 0;
 }
 
@@ -800,7 +835,7 @@ void increment_sample_times(void)
     }
 }
 
-struct SampleTable *sample_table_get(short smpl_idx, unsigned char bank_id)
+struct SampleTable *sample_table_get(short smpl_idx, SoundBankID bank_id)
 {
     if (bank_id > 0)
     {
@@ -900,7 +935,7 @@ struct HeapMgrHandle *find_handle_for_new_sample(long smpl_len, long smpl_idx, l
     return hmhandle;
 }
 
-struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char bank_id)
+struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id)
 {
     struct SampleTable *smp_table;
     if ((!using_two_banks) && (bank_id > 0))
@@ -915,7 +950,7 @@ struct SampleInfo *play_sample_using_heap(unsigned long a1, short smpl_idx, unsi
         return NULL;
     }
     if (smp_table->hmhandle == NULL) {
-        smp_table->hmhandle = find_handle_for_new_sample(smp_table->field_4, smpl_idx, smp_table->field_0, bank_id);
+        smp_table->hmhandle = find_handle_for_new_sample(smp_table->data_size, smpl_idx, smp_table->file_pos, bank_id);
     }
     if (smp_table->hmhandle == NULL) {
         ERRORLOG("Can't find handle to play sample %d",smpl_idx);

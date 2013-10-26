@@ -1311,6 +1311,7 @@
  0001:000D9FC0       LbMemoryFree@4
  0001:000DA0C0       LbMemoryReset@0
  0001:000DA800       LbScreenFindVideoModes
+ 0001:000DA940       LbFilePosition
  0001:000DA960       LbFileOpen
  0001:000DA9F0       LbFileClose
  0001:000DAA10       LbFileSeek

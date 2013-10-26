@@ -55,22 +55,15 @@ struct SoundBankHead { // sizeof = 18
 };
 
 struct SoundBankSample { // sizeof = 32
-  unsigned char field_0[18];
+  unsigned char filename[18];
   unsigned long field_12;
   unsigned long field_16;
-  unsigned long field_1A;
+  unsigned long data_size;
   unsigned char field_1E;
   unsigned char field_1F;
 };
 
 struct SoundBankEntry { // sizeof = 16
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-};
-
-struct UnkSndSampleStr { // sizeof = 16
   unsigned long field_0;
   unsigned long field_4;
   unsigned long field_8;
