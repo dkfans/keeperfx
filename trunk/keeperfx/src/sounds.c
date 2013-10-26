@@ -50,6 +50,12 @@ const char foot_down_sound_sample_variant[] = {
 
 char sound_dir[64] = "SOUND";
 /******************************************************************************/
+DLLIMPORT TbFileHandle _DK_LbFileOpen(const char *fname, int mode);
+DLLIMPORT int _DK_LbFileClose(TbFileHandle handle);
+DLLIMPORT int _DK_LbFileSeek(TbFileHandle handle, long offset, int origin);
+DLLIMPORT int _DK_LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
+DLLIMPORT int _DK_LbFilePosition(TbFileHandle handle);
+
 DLLIMPORT long _DK_parse_sound_file(long a1, unsigned char *smptbl_idx, long *a3, long a4, long a5);
 DLLIMPORT int __stdcall _DK_init_sound(void);
 DLLIMPORT long _DK_init_sound_heap_two_banks(unsigned char *a1, long smptbl_idx, char *a3, char *a4, long a5);
@@ -387,199 +393,204 @@ void process_sound_heap(void)
 
 long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, long buf_len, long a5)
 {
-  struct SoundBankHead bhead;
-  struct SoundBankEntry bentries[9];
-  struct SoundBankSample bsample;
+    struct SoundBankHead bhead;
+    struct SoundBankEntry bentries[9];
+    struct SoundBankSample bsample;
 
-  unsigned char rbuf[8];
-  struct UnkSndSampleStr *smpl;
-  struct SoundBankEntry *bentry;
-  long fsize;
-  long i,k;
+    unsigned char rbuf[8];
+    struct SampleTable *smpl;
+    struct SoundBankEntry *bentry;
+    long fsize;
+    long i,k;
 
-  // TODO SOUND use rewritten version when sound routines are rewritten
-  return _DK_parse_sound_file(fileh, buf, nsamples, buf_len, a5);
+    // TODO SOUND use rewritten version when sound routines are rewritten
+    //return _DK_parse_sound_file(fileh, buf, nsamples, buf_len, a5);
 
-  switch ( a5 )
-  {
-  case 1610:
-      k = 5;
-      break;
-  case 822:
-      k = 6;
-      break;
-  case 811:
-      k = 7;
-      break;
-  case 800:
-      k = 8;
-      break;
-  case 1611:
-      k = 4;
-      break;
-  case 1620:
-      k = 3;
-      break;
-  case 1622:
-      k = 2;
-      break;
-  case 1640:
-      k = 1;
-      break;
-  case 1644:
-      k = 0;
-      break;
-  default:
-      return 0;
-  }
-  LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
-  fsize = LbFilePosition(fileh);
-  LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
-  LbFileRead(fileh, &rbuf, 4);
-  i = read_int32_le_buf(rbuf);
-  LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
-  LbFileRead(fileh, &bhead, 18);
-  LbFileRead(fileh, bentries, sizeof(bentries));
-  bentry = &bentries[k];
-  if (bentry->field_0 == 0)
-      return 0;
-  if (bentry->field_8 == 0)
-      return 0;
-  i = bentry->field_8 >> 5;
-  *nsamples = i;
-  if (16 * (*nsamples) >= buf_len)
-    return 0;
-
-  LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
-  smpl = (struct UnkSndSampleStr *)buf;
-  k = bentry->field_4;
-  for (i=0; i < *nsamples; i++)
-  {
-    LbFileRead(fileh, &bsample, sizeof(bsample));
-    smpl->field_0 = k + bsample.field_12;
-    smpl->field_4 = bsample.field_1A;
-    smpl->field_8 = bsample.field_1E;
-    smpl->field_C = 0;
-  }
-  return 32 * (*nsamples);
+    switch ( a5 )
+    {
+    case 1610:
+        k = 5;
+        break;
+    case 822:
+        k = 6;
+        break;
+    case 811:
+        k = 7;
+        break;
+    case 800:
+        k = 8;
+        break;
+    case 1611:
+        k = 4;
+        break;
+    case 1620:
+        k = 3;
+        break;
+    case 1622:
+        k = 2;
+        break;
+    case 1640:
+        k = 1;
+        break;
+    case 1644:
+        k = 0;
+        break;
+    default:
+        return 0;
+    }
+    _DK_LbFileSeek(fileh, 0, Lb_FILE_SEEK_END);
+    fsize = _DK_LbFilePosition(fileh);
+    _DK_LbFileSeek(fileh, fsize-4, Lb_FILE_SEEK_BEGINNING);
+    _DK_LbFileRead(fileh, &rbuf, 4);
+    i = read_int32_le_buf(rbuf);
+    _DK_LbFileSeek(fileh, i, Lb_FILE_SEEK_BEGINNING);
+    _DK_LbFileRead(fileh, &bhead, 18);
+    _DK_LbFileRead(fileh, bentries, sizeof(bentries));
+    bentry = &bentries[k];
+    if (bentry->field_0 == 0) {
+        return 0;
+    }
+    if (bentry->field_8 == 0) {
+        return 0;
+    }
+    i = bentry->field_8 / sizeof(struct SoundBankSample);
+    *nsamples = i;
+    if (sizeof(struct SampleTable) * (*nsamples) >= buf_len) {
+        return 0;
+    }
+    _DK_LbFileSeek(fileh, bentry->field_0, Lb_FILE_SEEK_BEGINNING);
+    smpl = (struct SampleTable *)buf;
+    k = bentry->field_4;
+    for (i=0; i < *nsamples; i++)
+    {
+        _DK_LbFileRead(fileh, &bsample, sizeof(struct SoundBankSample));
+        smpl->file_pos = k + bsample.field_12;
+        smpl->data_size = bsample.data_size;
+        smpl->sfxid = bsample.field_1E;
+        smpl->hmhandle = NULL;
+        smpl++;
+    }
+    //TODO Check why we're returning nsamples * 32 and not nsamples * 16
+    return sizeof(struct SoundBankSample) * (*nsamples);
 }
 
 TbBool init_sound(void)
 {
-  struct SoundSettings *snd_settng;
-  unsigned long i;
-  SYNCDBG(8,"Starting");
-  if (SoundDisabled)
-    return false;
-  snd_settng = &game.sound_settings;
-  SetupAudioOptionDefaults(snd_settng);
-  snd_settng->field_E = 3;
-  snd_settng->sound_type = 1622;
-  snd_settng->sound_data_path = sound_dir;
-  snd_settng->dir3 = sound_dir;
-  snd_settng->field_12 = 1;
-  snd_settng->stereo = 1;
-  i = get_best_sound_heap_size(mem_size);
-  if (i < 1048576)
-    snd_settng->max_number_of_samples = 10;
-  else
-    snd_settng->max_number_of_samples = 16;
-  snd_settng->danger_music = 0;
-  snd_settng->no_load_music = 0;
-  snd_settng->no_load_sounds = 1;
-  snd_settng->field_16 = 1;
-  if ((game.flags_font & FFlg_UsrSndFont) == 0)
-    snd_settng->field_16 = 0;
-  snd_settng->field_18 = 1;
-  snd_settng->redbook_enable = 1;
-  snd_settng->sound_system = 0;
-  InitAudio(snd_settng);
-  LoadMusic(0);
-  if (!GetSoundInstalled())
-  {
-    SoundDisabled = 1;
-    return false;
-  }
-  S3DInit();
-  S3DSetNumberOfSounds(snd_settng->max_number_of_samples);
-  S3DSetMaximumSoundDistance(5120);
-  return true;
+    struct SoundSettings *snd_settng;
+    unsigned long i;
+    SYNCDBG(8,"Starting");
+    if (SoundDisabled)
+      return false;
+    snd_settng = &game.sound_settings;
+    SetupAudioOptionDefaults(snd_settng);
+    snd_settng->field_E = 3;
+    snd_settng->sound_type = 1622;
+    snd_settng->sound_data_path = sound_dir;
+    snd_settng->dir3 = sound_dir;
+    snd_settng->field_12 = 1;
+    snd_settng->stereo = 1;
+    i = get_best_sound_heap_size(mem_size);
+    if (i < 1048576)
+      snd_settng->max_number_of_samples = 10;
+    else
+      snd_settng->max_number_of_samples = 16;
+    snd_settng->danger_music = 0;
+    snd_settng->no_load_music = 0;
+    snd_settng->no_load_sounds = 1;
+    snd_settng->field_16 = 1;
+    if ((game.flags_font & FFlg_UsrSndFont) == 0)
+      snd_settng->field_16 = 0;
+    snd_settng->field_18 = 1;
+    snd_settng->redbook_enable = 1;
+    snd_settng->sound_system = 0;
+    InitAudio(snd_settng);
+    LoadMusic(0);
+    if (!GetSoundInstalled())
+    {
+      SoundDisabled = 1;
+      return false;
+    }
+    S3DInit();
+    S3DSetNumberOfSounds(snd_settng->max_number_of_samples);
+    S3DSetMaximumSoundDistance(5120);
+    return true;
 }
 
 TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *snd_fname, char *spc_fname, long a5)
 {
-  long i;
-  long buf_len;
-  unsigned char *buf;
-  SYNCDBG(8,"Starting");
-  // TODO SOUND use rewritten version when sound routines are rewritten
-  i = _DK_init_sound_heap_two_banks(heap_mem, heap_size, snd_fname, spc_fname, a5);
-  SYNCMSG("Sound samples in banks: %d,%d",(int)samples_in_bank,(int)samples_in_bank2);
-  return (i != 0);
-
-  LbMemorySet(heap_mem, 0, heap_size);
-  if (sound_file != -1)
-    close_sound_heap();
-  samples_in_bank = 0;
-  samples_in_bank2 = 0;
-  sound_file = LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
-  if (sound_file == -1)
-  {
-    ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
-    return false;
-  }
-  buf = heap_mem;
-  buf_len = heap_size;
-  i = parse_sound_file(sound_file, buf, &samples_in_bank, buf_len, a5);
-  if (i == 0)
-  {
-    ERRORLOG("Couldn't parse sound bank file \"%s\"",snd_fname);
-    close_sound_heap();
-    return false;
-  }
-  sample_table = (struct SampleTable *)buf;
-  buf_len -= i;
-  buf += i;
-  if (buf_len <= 0)
-  {
-    ERRORLOG("Sound bank buffer too short");
-    close_sound_heap();
-    return false;
-  }
-  if (sound_file2 != -1)
-    close_sound_heap();
-  sound_file2 = LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
-  if (sound_file2 == -1)
-  {
-    ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
-    return false;
-  }
-  i = parse_sound_file(sound_file2, buf, &samples_in_bank2, buf_len, a5);
-  if (i == 0)
-  {
-    ERRORLOG("Couldn't parse sound bank file \"%s\"",spc_fname);
-    close_sound_heap();
-    return false;
-  }
-  sample_table2 = (struct SampleTable *)buf;
-  buf_len -= i;
-  buf += i;
-  if (buf_len <= 0)
-  {
-    ERRORLOG("Sound bank buffer too short");
-    close_sound_heap();
-    return false;
-  }
-  SYNCLOG("Got sound buffer of %ld bytes, samples in banks: %d,%d",buf_len,(int)samples_in_bank,(int)samples_in_bank2);
-  sndheap = heapmgr_init(buf, buf_len, samples_in_bank2 + samples_in_bank);
-  if (sndheap == NULL)
-  {
-    ERRORLOG("Sound heap manager init error");
-    close_sound_heap();
-    return false;
-  }
-  using_two_banks = 1;
-  return true;
+    long i;
+    long buf_len;
+    unsigned char *buf;
+    SYNCDBG(8,"Starting");
+    //i = _DK_init_sound_heap_two_banks(heap_mem, heap_size, snd_fname, spc_fname, a5);
+    //SYNCMSG("Sound samples in banks: %d,%d",(int)samples_in_bank,(int)samples_in_bank2);
+    //return (i != 0);
+    LbMemorySet(heap_mem, 0, heap_size);
+    using_two_banks = 0;
+    // Open first sound bank and prepare sample table
+    if (sound_file != -1)
+        close_sound_bank(0);
+    samples_in_bank = 0;
+    sound_file = _DK_LbFileOpen(snd_fname,Lb_FILE_MODE_READ_ONLY);
+    if (sound_file == -1)
+    {
+        ERRORLOG("Couldn't open primary sound bank file \"%s\"",snd_fname);
+        return false;
+    }
+    buf = heap_mem;
+    buf_len = heap_size;
+    i = parse_sound_file(sound_file, buf, &samples_in_bank, buf_len, a5);
+    if (i == 0)
+    {
+        ERRORLOG("Couldn't parse sound bank file \"%s\"",snd_fname);
+        close_sound_heap();
+        return false;
+    }
+    sample_table = (struct SampleTable *)buf;
+    buf_len -= i;
+    buf += i;
+    if (buf_len <= 0)
+    {
+        ERRORLOG("Sound bank buffer too short");
+        close_sound_heap();
+        return false;
+    }
+    // Open second sound bank and prepare sample table
+    if (sound_file2 != -1)
+        close_sound_bank(1);
+    samples_in_bank2 = 0;
+    sound_file2 = _DK_LbFileOpen(spc_fname,Lb_FILE_MODE_READ_ONLY);
+    if (sound_file2 == -1)
+    {
+        ERRORLOG("Couldn't open secondary sound bank file \"%s\"",spc_fname);
+        return false;
+    }
+    i = parse_sound_file(sound_file2, buf, &samples_in_bank2, buf_len, a5);
+    if (i == 0)
+    {
+        ERRORLOG("Couldn't parse sound bank file \"%s\"",spc_fname);
+        close_sound_heap();
+        return false;
+    }
+    sample_table2 = (struct SampleTable *)buf;
+    buf_len -= i;
+    buf += i;
+    if (buf_len <= 0)
+    {
+        ERRORLOG("Sound bank buffer too short");
+        close_sound_heap();
+        return false;
+    }
+    SYNCLOG("Got sound buffer of %ld bytes, samples in banks: %d,%d",buf_len,(int)samples_in_bank,(int)samples_in_bank2);
+    sndheap = heapmgr_init(buf, buf_len, samples_in_bank2 + samples_in_bank);
+    if (sndheap == NULL)
+    {
+        ERRORLOG("Sound heap manager init error");
+        close_sound_heap();
+        return false;
+    }
+    using_two_banks = 1;
+    return true;
 }
 
 void randomize_sound_font(void)

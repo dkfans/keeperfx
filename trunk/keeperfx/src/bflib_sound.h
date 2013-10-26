@@ -90,11 +90,13 @@ struct S3DSample { // sizeof = 37
 };
 
 struct SampleTable { // sizeof = 16
-  unsigned long field_0;
-  unsigned long field_4;
+  unsigned long file_pos;
+  unsigned long data_size;
   unsigned long sfxid;
   struct HeapMgrHandle *hmhandle;
 };
+
+typedef unsigned char SoundBankID;
 
 #pragma pack()
 /******************************************************************************/
@@ -152,7 +154,7 @@ long S3DCreateSoundEmitterPri(long x, long y, long z, long a4, long a5, long a6,
 TbBool S3DEmitterIsAllocated(long eidx);
 TbBool S3DEmitterIsPlayingAnySample(long eidx);
 TbBool S3DEmitterIsPlayingSample(long emitr, long smpl_idx, long a2);
-long S3DDeleteSampleFromEmitter(long a1, long a2, long a3);
+TbBool S3DDeleteSampleFromEmitter(long a1, long a2, long a3);
 TbBool S3DDeleteAllSamplesFromEmitter(long eidx);
 TbBool S3DDestroySoundEmitterAndSamples(long eidx);
 void S3DSetLineOfSightFunction(S3D_LineOfSight_Func);
@@ -163,11 +165,12 @@ void play_non_3d_sample(long sample_idx);
 void play_non_3d_sample_no_overlap(long smpl_idx);
 short sound_emitter_in_use(long eidx);
 long get_best_sound_heap_size(long mem_size);
-struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, unsigned char a8);
+struct SampleInfo *play_sample_using_heap(unsigned long a1, short a2, unsigned long a3, unsigned long a4, unsigned long a5, char a6, unsigned char a7, SoundBankID bank_id);
 void stop_sample_using_heap(unsigned long a1, short a2, unsigned char a3);
 long speech_sample_playing(void);
 long play_speech_sample(long smpl_idx);
 void close_sound_heap(void);
+void close_sound_bank(SoundBankID bank_id);
 long stop_emitter_samples(struct SoundEmitter *emit);
 TbBool process_sound_emitters(void);
 void increment_sample_times(void);
