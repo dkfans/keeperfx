@@ -313,41 +313,6 @@ void frontend_copy_background(void)
     frontend_copy_background_at(0,0,POS_AUTO,POS_AUTO);
 }
 
-void draw_round_slab64k(long pos_x, long pos_y, long width, long height)
-{
-    unsigned short drwflags_mem;
-    drwflags_mem = lbDisplay.DrawFlags;
-    lbDisplay.DrawFlags &= ~0x0010;
-    lbDisplay.DrawFlags |= 0x0004;
-    LbDrawBox((pos_x + 4) / pixel_size, (pos_y + 4) / pixel_size, (width - 8) / pixel_size, (height - 8) / pixel_size, 1);
-    lbDisplay.DrawFlags &= ~0x0004;
-    int x,y;
-    struct TbSprite *spr;
-    long i;
-    spr = gui_panel_sprites;
-    for (i = 0; i < width - 68; i += 26)
-    {
-        x = pos_x + i + 34;
-        y = pos_y + height - 4;
-        LbSpriteDraw(x / pixel_size, pos_y / pixel_size, &spr[242]);
-        LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[248]);
-    }
-    for (i = 0; i < height - 56; i += 20)
-    {
-        x = pos_x + width - 4;
-        y = i + 28 + pos_y;
-        LbSpriteDraw(pos_x / pixel_size, y / pixel_size, &spr[244]);
-        LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[246]);
-    }
-    x = pos_x + width - 34;
-    y = pos_y + height - 28;
-    LbSpriteDraw(pos_x / pixel_size, pos_y / pixel_size, &spr[241]);
-    LbSpriteDraw(x / pixel_size, pos_y / pixel_size, &spr[243]);
-    LbSpriteDraw(pos_x / pixel_size, y / pixel_size, &spr[247]);
-    LbSpriteDraw(x / pixel_size, y / pixel_size, &spr[249]);
-    lbDisplay.DrawFlags = drwflags_mem;
-}
-
 void gui_round_glass_background(struct GuiMenu *gmnu)
 {
     SYNCDBG(19,"Starting");
@@ -450,7 +415,20 @@ void gui_pretty_background(struct GuiMenu *gmnu)
 void gui_area_new_normal_button(struct GuiButton *gbtn)
 {
   SYNCDBG(10,"Starting");
-  _DK_gui_area_new_normal_button(gbtn);
+  struct TbSprite *spr;
+  int i;
+  //_DK_gui_area_new_normal_button(gbtn);
+  spr = &gui_panel_sprites[gbtn->field_29];
+  if ((gbtn->flags & 0x08) != 0)
+  {
+      i = 0;
+      if ((gbtn->field_1) || (gbtn->field_2))
+          i = 1;
+      LbSpriteDraw(gbtn->scr_pos_x / pixel_size, gbtn->scr_pos_y / pixel_size, &spr[1-i]);
+  } else
+  {
+      LbSpriteDrawRemap(gbtn->scr_pos_x / pixel_size, gbtn->scr_pos_y / pixel_size, &spr[1], &pixmap.fade_tables[12*256]);
+  }
   SYNCDBG(12,"Finished");
 }
 
@@ -477,14 +455,40 @@ void gui_area_new_null_button(struct GuiButton *gbtn)
 
 void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 {
-  SYNCDBG(10,"Starting");
-  _DK_gui_area_new_no_anim_button(gbtn);
-  SYNCDBG(12,"Finished");
+    SYNCDBG(10,"Starting");
+    //_DK_gui_area_new_no_anim_button(gbtn);
+    int i;
+    i = gbtn->field_29;
+    if (gbtn->gbtype == 2)
+    {
+        if (gbtn->content != NULL) {
+            i += *(unsigned char *)gbtn->content;
+        } else {
+            ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
+        }
+        if (gbtn->field_2D == 0) {
+            ERRORLOG("Cycle button must have a non-zero MaxVal!");
+        }
+    }
+    struct TbSprite *spr;
+    spr = &gui_panel_sprites[i];
+    if ((gbtn->flags & 0x08) == 0)
+    {
+        LbSpriteDrawRemap(gbtn->scr_pos_x / (int)pixel_size, gbtn->scr_pos_y / (int)pixel_size, spr, &pixmap.fade_tables[12*256]);
+    } else
+    if ((gbtn->field_1) || (gbtn->field_2))
+    {
+        LbSpriteDrawRemap(gbtn->scr_pos_x / (int)pixel_size, gbtn->scr_pos_y / (int)pixel_size, spr, &pixmap.fade_tables[44*256]);
+    } else
+    {
+        LbSpriteDraw(gbtn->scr_pos_x / (int)pixel_size, gbtn->scr_pos_y / (int)pixel_size, spr);
+    }
+    SYNCDBG(12,"Finished");
 }
 
 void gui_area_no_anim_button(struct GuiButton *gbtn)
 {
-  _DK_gui_area_no_anim_button(gbtn);
+    _DK_gui_area_no_anim_button(gbtn);
 }
 
 void gui_area_normal_button(struct GuiButton *gbtn)
