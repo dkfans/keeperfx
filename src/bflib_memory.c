@@ -179,47 +179,69 @@ void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen)
 
 ulong LbStringLength(const char *str)
 {
-  if (str==NULL) return 0;
-  return strlen(str);
+    if (str == NULL) return 0;
+    return strlen(str);
+}
+
+void LbMemRegister_Setup(void)
+{
+    /*memset(lbMemList, 0, 0x800);
+    lbMemAllocation = 0;
+    lbMemCount = 0;*/
 }
 
 int LbMemorySetup()
 {
-  if (lbMemorySetup == 0)
-  {
-//    _lbMemAllocation = 0;
+    if (lbMemorySetup != 0)
+        return 0;
     lbMemorySetup = 1;
-  }
-  return 1;
+    /* Heap handling by application is only required for some platforms
+    if (heap_handle == NULL)
+    {
+        heap_handle = HeapCreate(heap_handle, heap_handle, heap_handle);
+        LbMemRegister_Setup();
+    }
+    if (heap_handle == NULL)
+        return -1;
+    */
+    return 1;
 }
 
 int LbMemoryReset(void)
 {
-  lbMemorySetup = 0;
-  return _DK_LbMemoryReset();
-//  _lbMemAllocation = 0;
-//  CMemory::ReleaseAll();
-//  return 1;
+    if (lbMemorySetup == 0)
+        return 0;
+    lbMemorySetup = 0;
+    //return _DK_LbMemoryReset();
+    /* Heap handling by application is only required for some platforms
+    if (heap_handle != NULL)
+    {
+        if (!HeapDestroy(heap_handle))
+            return -1;
+        heap_handle = NULL;
+    }
+    LbMemRegister_Setup();
+    */
+    return 1;
 }
 
 unsigned char * LbMemoryAllocLow(ulong size)
 {
 //Simplified as we no longer need such memory routines
-  unsigned char *ptr;
-  ptr=(unsigned char *)malloc(size);
-  if (ptr!=NULL)
-    memset(ptr,0,size);
-  return ptr;
+    unsigned char *ptr;
+    ptr=(unsigned char *)malloc(size);
+    if (ptr != NULL)
+      memset(ptr,0,size);
+    return ptr;
 }
 
 unsigned char * LbMemoryAlloc(ulong size)
 {
-//Simplified as we no longer need such memory routines
-  unsigned char *ptr;
-  ptr=(unsigned char *)malloc(size);
-  if (ptr!=NULL)
-    memset(ptr,0,size);
-  return ptr;
+    unsigned char *ptr;
+    ptr=(unsigned char *)malloc(size);
+    if (ptr != NULL)
+      memset(ptr,0,size);
+    return ptr;
 }
 
 int LbMemoryFree(void *mem_ptr)
@@ -270,6 +292,20 @@ void * LbMemoryGrow(void *ptr, unsigned long size)
 void * LbMemoryShrink(void *ptr, unsigned long size)
 {
     return realloc(ptr,size);
+}
+
+/** Reduce previously allocated memory block.
+ *  The size of the memory block pointed to by the ptr parameter is
+ *  changed to the size bytes, reducing the amount of memory available
+ *  in the block. A pointer to the reallocated memory block is returned,
+ *  which usually is the same as the ptr argument.
+ *
+ * @param ptr The previously allocated memory block.
+ * @param size New size of the block.
+ */
+int LbMemoryCompare(void *ptr1, void *ptr2, unsigned long size)
+{
+    return memcmp(ptr1,ptr2,size);
 }
 
 /******************************************************************************/

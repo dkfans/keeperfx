@@ -45,6 +45,7 @@ unsigned char * LbMemoryAlloc(ulong size);
 int LbMemoryFree(void *mem_ptr);
 void * LbMemoryGrow(void *ptr, unsigned long size);
 void * LbMemoryShrink(void *ptr, unsigned long size);
+int LbMemoryCompare(void *ptr1, void *ptr2, unsigned long size);
 void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
 void * LbStringConcat(char *dst, const char *src, const ulong dst_buflen);
 ulong LbStringLength(const char *str);
