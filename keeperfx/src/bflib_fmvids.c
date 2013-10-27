@@ -609,12 +609,59 @@ long anim_make_FLI_COPY(unsigned char *screenbuf)
 
 long anim_make_FLI_BLACK(unsigned char *screenbuf)
 {
-  return 0;
+    return 0;
 }
 
 long anim_make_FLI_COLOUR256(unsigned char *palette)
 {
-  return _DK_anim_make_FLI_COLOUR256(palette);
+    //return _DK_anim_make_FLI_COLOUR256(palette);
+    if (LbMemoryCompare(animation.palette, palette, 768) == 0) {
+        return 0;
+    }
+    unsigned short *change_count;
+    unsigned char *kept_count;
+    short colridx;
+    short change_chunk_len, kept_chunk_len;
+    change_chunk_len = 0;
+    kept_chunk_len = 0;
+    change_count = (unsigned short *)animation.field_C;
+    kept_count = NULL;
+    animation.field_C += 2;
+    for (colridx = 0; colridx < 256; colridx++)
+    {
+        unsigned char *anipal;
+        unsigned char *srcpal;
+        anipal = &animation.palette[3 * colridx];
+        srcpal = &palette[3 * colridx];
+
+        if (LbMemoryCompare(anipal, srcpal, 3) == 0)
+        {
+            change_chunk_len = 0;
+            kept_chunk_len++;
+        } else
+        {
+            if (!change_chunk_len)
+            {
+                *animation.field_C = kept_chunk_len;
+                kept_chunk_len = 0;
+                animation.field_C++;
+                kept_count = (unsigned char *)animation.field_C;
+                animation.field_C++;
+            }
+            ++change_chunk_len;
+            *animation.field_C = 4 * srcpal[0];
+            animation.field_C++;
+            *animation.field_C = 4 * srcpal[1];
+            animation.field_C++;
+            *animation.field_C = 4 * srcpal[2];
+            animation.field_C++;
+            ++(*kept_count);
+        }
+        if (change_chunk_len == 1) {
+            ++(*change_count);
+        }
+    }
+    return 1;
 }
 
 /**
