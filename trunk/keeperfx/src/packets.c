@@ -1582,7 +1582,7 @@ void process_pause_packet(long a1, long a2)
     {
       if ((player->field_3 & 0x08) != 0)
       {
-        PaletteSetPlayerPalette(player, _DK_palette);
+        PaletteSetPlayerPalette(player, engine_palette);
         player->field_3 &= 0xF7u;
       }
     }

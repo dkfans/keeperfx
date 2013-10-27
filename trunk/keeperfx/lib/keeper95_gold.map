@@ -5,8 +5,6 @@
  0001:00051810       IsRunningMark@0
  0001:00051840       IsRunningUnmark@0
  0001:000DFDE0       LbIKeyboardClose@0
- 0001:000D9FC0       LbMemoryFree@4
- 0001:000DA0C0       LbMemoryReset@0
  0001:000DBB60       LbSetIcon@4
  0001:000DBFC0       LbDataLoad@4
  0001:000C7320       load_configuration@0
@@ -16,8 +14,6 @@
  0001:000A4670       frontnetmap_update
  0001:0000ABC0       frontnet_start_update
  0001:000DABB0       LbTextSetWindow
- 0001:0003A520       setup_screen_mode
- 0001:0003AAC0       setup_screen_mode_minimal
  0001:0003D2C0       startup_saved_packet_game
  0001:0003CDB0       startup_network_game
  0001:0003CB30       heap_manage_keepersprite
@@ -1089,7 +1085,6 @@
  0001:000081D0       frontend_is_player_allied
  0001:0003C9D0       setup_heap_manager
  0001:0003CAF0       reset_heap_manager
- 0001:00039D60       LoadMcgaData
  0001:00099D10       update_menu_fade_level
  0001:00098300       draw_button_string
  0001:000946B0       create_button

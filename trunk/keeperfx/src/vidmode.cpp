@@ -47,24 +47,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-//DLLIMPORT struct TbLoadFiles _DK_hi_res_small_pointer_load_files[3];
-//DLLIMPORT struct TbLoadFiles _DK_low_res_small_pointer_load_files[3];
-//DLLIMPORT struct TbLoadFiles _DK_hi_res_pointer_load_files[3];
-//DLLIMPORT struct TbLoadFiles _DK_low_res_pointer_load_files[3];
-//DLLIMPORT struct TbLoadFiles _DK_mcga_load_files[8];
-//DLLIMPORT struct TbLoadFiles _DK_mcga_load_files_minimal[1];
-//DLLIMPORT struct TbLoadFiles _DK_vres256_load_files[9];
-//DLLIMPORT struct TbLoadFiles _DK_vres256_load_files_minimal[11];
-//DLLIMPORT struct TbSetupSprite _DK_setup_sprites_minimal[5];
-//DLLIMPORT struct TbSetupSprite _DK_setup_sprites[8];
-//DLLIMPORT struct TbSprite *_DK_pointer_sprites;
-//DLLIMPORT struct TbSprite *_DK_end_pointer_sprites;
-//DLLIMPORT unsigned long _DK_pointer_data;
-
-
-DLLIMPORT int _DK_setup_screen_mode(short nmode);
-DLLIMPORT int _DK_setup_screen_mode_minimal(short nmode);
-/******************************************************************************/
 TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_320_200_8,
   Lb_SCREEN_MODE_640_400_8,
@@ -220,9 +202,8 @@ struct TbLoadFiles hi_res_small_pointer_load_files[] = {
   {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 
-//DLLIMPORT extern struct TbLoadFiles _DK_legal_load_files[];
 struct TbLoadFiles legal_load_files[] = {
-    {"*PALETTE", &_DK_palette, NULL, PALETTE_SIZE, 0, 0},
+    {"*PALETTE", &engine_palette, NULL, PALETTE_SIZE, 0, 0},
     {"*SCRATCH", &scratch, NULL, 0x10000, 1, 0},
     {"", NULL, NULL, 0, 0, 0}, };
 
@@ -230,7 +211,7 @@ struct TbLoadFiles game_load_files[] = {
     {"*SCRATCH", &scratch, NULL, 0x10000, 0, 0},
     {"*TEXTURE_PAGE", &block_mem, NULL, max(256*2176,960*720), 0, 0},// Store whole texture image or land view image
     {"data/creature.tab", (unsigned char**)&creature_table, 0, 0, 0, 0},
-    {"data/palette.dat", &_DK_palette, 0, 0, 0, 0},
+    {"data/palette.dat", &engine_palette, 0, 0, 0, 0},
     {"data/bluepal.dat", &blue_palette, 0, 0, 0,0},
     {"data/redpall.dat", &red_palette, 0, 0, 0,0},
     {"data/lightng.pal", &lightning_palette, 0, 0, 0, 0},
@@ -299,7 +280,6 @@ short LoadVRes256Data(long scrbuf_size)
  */
 short LoadMcgaData(void)
 {
-  //return _DK_LoadMcgaData();
   struct TbLoadFiles *load_files;
   void *mem;
   struct TbLoadFiles *t_lfile;
@@ -633,7 +613,6 @@ char *get_vidmode_name(unsigned short mode)
 TbBool setup_screen_mode(unsigned short nmode)
 {
     TbScreenModeInfo *mdinfo;
-    //return _DK_setup_screen_mode(nmode);
     unsigned int flg_mem;
     long lens_mem;
     short was_minimal_res;
@@ -714,7 +693,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         }
         if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
         {
-            if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
+            if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 2, 0) != 1)
             {
               ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                   mdinfo->Desc,(int)nmode);
@@ -735,7 +714,7 @@ TbBool setup_screen_mode(unsigned short nmode)
         }
         if ((lbDisplay.ScreenMode != nmode) || (was_minimal_res))
         {
-            if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
+            if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 1, 0) != 1)
             {
               ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                   mdinfo->Desc,(int)nmode);
@@ -793,7 +772,6 @@ TbBool update_screen_mode_data(long width, long height)
 
 short setup_screen_mode_minimal(unsigned short nmode)
 {
-  //return _DK_setup_screen_mode_minimal(nmode);
   unsigned int flg_mem;
   TbScreenModeInfo *mdinfo;
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
@@ -864,7 +842,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       }
       if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
       {
-          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
+          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 2, 0) != 1)
           {
             ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                 mdinfo->Desc,(int)nmode);
@@ -886,7 +864,7 @@ short setup_screen_mode_minimal(unsigned short nmode)
       frontend_load_data_reset();
       if ((nmode != lbDisplay.ScreenMode) || (force_video_mode_reset))
       {
-          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 1, 0) != 1)
+          if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 1, 0) != 1)
           {
              ERRORLOG("Unable to setup screen resolution %s (mode %d)",
                  mdinfo->Desc,(int)nmode);
@@ -908,8 +886,8 @@ TbBool setup_screen_mode_zero(unsigned short nmode)
   TbScreenModeInfo *mdinfo;
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   mdinfo = LbScreenGetModeInfo(nmode);
-  LbPaletteDataFillBlack(_DK_palette);
-  if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, _DK_palette, 2, 0) != 1)
+  LbPaletteDataFillBlack(engine_palette);
+  if (LbScreenSetup((TbScreenMode)nmode, mdinfo->Width, mdinfo->Height, engine_palette, 2, 0) != 1)
   {
       ERRORLOG("Unable to setup screen resolution %s (mode %d)",
           mdinfo->Desc,(int)nmode);

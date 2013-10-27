@@ -280,7 +280,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->continue_work_state = PSt_CtrlDungeon;
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
-    player->palette = _DK_palette;
+    player->palette = engine_palette;
     if (is_my_player(player))
     {
         set_flag_byte(&game.numfield_C,0x40,true);

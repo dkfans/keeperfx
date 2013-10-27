@@ -88,9 +88,6 @@ WINBASEAPI VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS);
 
 #endif
 /******************************************************************************/
-//DLLIMPORT int __stdcall _DK_LbMemoryFree(void *buffer);
-DLLIMPORT int __stdcall _DK_LbMemoryReset(void);
-/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -212,7 +209,6 @@ int LbMemoryReset(void)
     if (lbMemorySetup == 0)
         return 0;
     lbMemorySetup = 0;
-    //return _DK_LbMemoryReset();
     /* Heap handling by application is only required for some platforms
     if (heap_handle != NULL)
     {

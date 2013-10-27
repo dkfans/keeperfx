@@ -426,7 +426,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     {
         set_camera_zoom(cam, player->dungeon_camera_zoom);
         if (is_my_player(player))
-            PaletteSetPlayerPalette(player, _DK_palette);
+            PaletteSetPlayerPalette(player, engine_palette);
         player->influenced_thing_idx = 0;
         player->field_0 &= ~0x10;
         player->field_0 &= ~0x80;
@@ -501,7 +501,7 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
     {
         set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
         if (is_my_player(player)) {
-            PaletteSetPlayerPalette(player, _DK_palette);
+            PaletteSetPlayerPalette(player, engine_palette);
         }
         player->field_0 &= ~0x10;
         player->field_0 &= ~0x80;
@@ -549,7 +549,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
   reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
-      PaletteSetPlayerPalette(player, _DK_palette);
+      PaletteSetPlayerPalette(player, engine_palette);
       player->field_4C5 = 11;
       turn_off_all_window_menus();
       turn_off_menu(31);
@@ -594,7 +594,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
   reset_creature_eye_lens(thing);
   if (is_my_player(player))
   {
-    PaletteSetPlayerPalette(player, _DK_palette);
+    PaletteSetPlayerPalette(player, engine_palette);
     player->field_4C5 = 11;
     turn_off_all_window_menus();
     turn_off_menu(31);
@@ -616,7 +616,7 @@ long pinstfe_leave_creature(struct PlayerInfo *player, long *n)
   //return _DK_pinstfe_leave_creature(player, n);
   set_camera_zoom(player->acamera, player->dungeon_camera_zoom);
   if (is_my_player(player))
-    PaletteSetPlayerPalette(player, _DK_palette);
+    PaletteSetPlayerPalette(player, engine_palette);
   player->field_0 &= ~0x10;
   player->field_0 &= ~0x80;
   return 0;
@@ -769,7 +769,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     dstcam->mappos.y.val = thing->mappos.y.val + deltay;
   }
   if (player->field_4B1 >= 8)
-    LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
+    LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
   return 0;
 
 }
@@ -790,7 +790,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   player->field_0 &= ~0x80;
   game.numfield_D &= ~0x08;
   if (is_my_player(player))
-    PaletteSetPlayerPalette(player, _DK_palette);
+    PaletteSetPlayerPalette(player, engine_palette);
   return 0;
 }
 
@@ -809,7 +809,7 @@ long pinstfe_control_creature_fade(struct PlayerInfo *player, long *n)
     if ((player->field_3 & 0x04) == 0)
       PaletteSetPlayerPalette(player, _DK_blue_palette);
     else
-      PaletteSetPlayerPalette(player, _DK_palette);
+      PaletteSetPlayerPalette(player, engine_palette);
   }
   player->field_0 &= ~0x10;
   light_turn_light_off(player->field_460);

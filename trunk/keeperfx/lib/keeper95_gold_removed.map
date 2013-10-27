@@ -291,3 +291,8 @@
  0001:00072980       display_fast_drawlist
  0001:000741E0       draw_element
  0001:000CA790       setup_person_move_to_coord
+ 0001:0003A520       setup_screen_mode
+ 0001:0003AAC0       setup_screen_mode_minimal
+ 0001:00039D60       LoadMcgaData
+ 0001:000D9FC0       LbMemoryFree@4
+ 0001:000DA0C0       LbMemoryReset@0

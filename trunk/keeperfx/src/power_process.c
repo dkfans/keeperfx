@@ -121,7 +121,7 @@ void process_armageddon(void)
                     event_kill_all_players_events(i);
                     set_player_as_lost_level(player);
                     if (is_my_player_number(i))
-                        LbPaletteSet(_DK_palette);
+                        LbPaletteSet(engine_palette);
                     heartng = thing_get(dungeon->dnheart_idx);
                     if (!thing_is_invalid(heartng)) {
                         heartng->health = -1;
@@ -146,7 +146,7 @@ void lightning_modify_palette(struct Thing *thing)
 
     if (thing->health == 0)
     {
-      PaletteSetPlayerPalette(myplyr, _DK_palette);
+      PaletteSetPlayerPalette(myplyr, engine_palette);
       myplyr->field_3 &= ~0x08;
       return;
     }
@@ -161,7 +161,7 @@ void lightning_modify_palette(struct Thing *thing)
         {
             if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
-                PaletteSetPlayerPalette(myplyr, _DK_palette);
+                PaletteSetPlayerPalette(myplyr, engine_palette);
                 myplyr->field_3 &= ~0x08;
             }
         }
