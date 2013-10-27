@@ -612,6 +612,8 @@ inline void LbDrawBufferTranspr(unsigned char **buf_out,const char *buf_inp,
 }
 
 /** Internal function used to draw part of sprite line.
+ *  Draws by copying pixels from input buffer into output buffer, without any kind of blending
+ *  or altering the color values. Palette for both buffers must be identical.
  *
  * @param buf_out
  * @param buf_inp
@@ -622,11 +624,22 @@ inline void LbDrawBufferSolid(unsigned char **buf_out,const char *buf_inp,
         const int buf_len, const TbBool mirror)
 {
     int i;
-    for (i=0; i < buf_len; i++)
+    if ( mirror )
     {
-        **buf_out = *(const unsigned char *)buf_inp;
-        buf_inp++;
-        (*buf_out)--;
+        for (i=0; i < buf_len; i++)
+        {
+            **buf_out = *(const unsigned char *)buf_inp;
+            buf_inp++;
+            (*buf_out)--;
+        }
+    } else
+    {
+        for (i=0; i < buf_len; i++)
+        {
+            **buf_out = *(const unsigned char *)buf_inp;
+            buf_inp++;
+            (*buf_out)++;
+        }
     }
 }
 
@@ -640,42 +653,42 @@ inline void LbDrawBufferSolid(unsigned char **buf_out,const char *buf_inp,
 inline void LbDrawBufferOneColour(unsigned char **buf_out,const TbPixel colour,
         const int buf_len, const TbBool mirror)
 {
-  int i;
-  if ( mirror )
-  {
-    if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
+    int i;
+    if ( mirror )
     {
-        for (i=0; i<buf_len; i++ )
+        if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
         {
-            **buf_out = lbDisplay.GlassMap[(colour<<8) + **buf_out];
-            (*buf_out)--;
+            for (i=0; i<buf_len; i++ )
+            {
+                **buf_out = lbDisplay.GlassMap[(colour<<8) + **buf_out];
+                (*buf_out)--;
+            }
+        } else
+        {
+            for (i=0; i<buf_len; i++ )
+            {
+                **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + colour];
+                (*buf_out)--;
+            }
         }
     } else
     {
-        for (i=0; i<buf_len; i++ )
+        if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
         {
-            **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + colour];
-            (*buf_out)--;
+            for (i=0; i<buf_len; i++ )
+            {
+                **buf_out = lbDisplay.GlassMap[(colour<<8) + **buf_out];
+                (*buf_out)++;
+            }
+        } else
+        {
+            for (i=0; i<buf_len; i++ )
+            {
+                **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + colour];
+                (*buf_out)++;
+            }
         }
     }
-  } else
-  {
-    if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            **buf_out = lbDisplay.GlassMap[(colour<<8) + **buf_out];
-            (*buf_out)++;
-        }
-    } else
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + colour];
-            (*buf_out)++;
-        }
-    }
-  }
 }
 
 /** Internal function used to draw part of sprite line with single colour.
@@ -688,10 +701,20 @@ inline void LbDrawBufferOneColorSolid(unsigned char **buf_out,const TbPixel colo
         const int buf_len, const TbBool mirror)
 {
     int i;
-    for (i=0; i < buf_len; i++)
+    if ( mirror )
     {
-        **buf_out = colour;
-        (*buf_out)--;
+        for (i=0; i < buf_len; i++)
+        {
+            **buf_out = colour;
+            (*buf_out)--;
+        }
+    } else
+    {
+        for (i=0; i < buf_len; i++)
+        {
+            **buf_out = colour;
+            (*buf_out)++;
+        }
     }
 }
 
@@ -1008,7 +1031,7 @@ inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, short *x
             drawOut = schr - lpos;
             if (drawOut > (*x1))
               drawOut = (*x1);
-            memcpy( (*r), (*sp)+(lpos+1), drawOut);
+            LbDrawBufferSolid(r, (*sp)+(lpos+1), drawOut, false);
             (*r) += drawOut;
             (*sp) += (*(*sp)) + 1;
         }
@@ -1277,28 +1300,34 @@ inline TbResult LbSpriteDrawSlRemap(const char *sp,short sprWd,short sprHt,
     return Lb_SUCCESS;
 }
 
-inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x1, unsigned char *map, short lpos)
+inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x1,
+    unsigned char *map, short lpos,const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
+    // Draw any unfinished block, which should be only partially visible
     if (lpos > 0)
     {
-        // Draw the part of current block which exceeds value of 'lpos'
         schr = *(*sp);
         if (schr < 0)
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
               drawOut = (*x1);
-            (*r) += drawOut;
+            if ( mirror )
+                (*r) -= drawOut;
+            else
+                (*r) += drawOut;
             (*sp)++;
+
         } else
         {
+            // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
             if (drawOut > (*x1))
               drawOut = (*x1);
             LbDrawBufferFCRemap(r,(*sp)+(lpos+1),drawOut,map);
-            (*r) += drawOut;
+            // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
         (*x1) -= drawOut;
@@ -1314,7 +1343,10 @@ inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x
         if (schr < 0)
         { // Skipping some pixels
             (*x1) += schr;
-            (*r) -= *(*sp);
+            if ( mirror )
+               (*r) += *(*sp);
+            else
+               (*r) -= *(*sp);
             (*sp)++;
         } else
         //if ( schr > 0 )
@@ -1324,7 +1356,6 @@ inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x
                 drawOut = (*x1);
             LbDrawBufferFCRemap(r,(*sp)+1,drawOut,map);
             (*x1) -= schr;
-            (*r) += schr;
             (*sp) += (*(*sp)) + 1;
         }
     } //end while
@@ -1357,7 +1388,7 @@ inline TbResult LbSpriteDrawFCRemap(const char *sp,short sprWd,short sprHt,unsig
         // Skip the pixels left before drawing area
         lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
         // Do the actual drawing
-        LbSpriteDrawLineFCRemap(&sp,&r,&x1,map,lpos);
+        LbSpriteDrawLineFCRemap(&sp,&r,&x1,map,lpos,mirror);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
@@ -1378,13 +1409,15 @@ int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *
     ret = LbSpriteDrawPrepare(&spd, x, y, spr);
     if (ret != Lb_SUCCESS)
         return ret;
-    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0)
+    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0) {
         return LbSpriteDrawTrRemap(spd.sp,spd.Wd,spd.Ht,spd.r,map,spd.nextRowDelta,spd.startShift,spd.mirror);
-    else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0)
+    } else
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_ONECOLOUR1) != 0) {
         return LbSpriteDrawSlRemap(spd.sp,spd.Wd,spd.Ht,spd.r,map,spd.nextRowDelta,spd.startShift,spd.mirror);
-    else
+    } else
+    {
         return LbSpriteDrawFCRemap(spd.sp,spd.Wd,spd.Ht,spd.r,map,spd.nextRowDelta,spd.startShift,spd.mirror);
+    }
 }
 
 /** Internal routine to draw one line of a transparent sprite.
@@ -1586,7 +1619,7 @@ inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **r, shor
             drawOut = schr - lpos;
             if (drawOut > (*x1))
               drawOut = (*x1);
-            memset((*r), colour, drawOut);
+            LbDrawBufferOneColorSolid(r, colour, drawOut, false);
             (*r) += drawOut;
             (*sp) += (*(*sp)) + 1;
         }
