@@ -3988,7 +3988,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         } else
         {
             if ((player->field_3 & 0x04) != 0)
-              PaletteSetPlayerPalette(player, _DK_palette);
+              PaletteSetPlayerPalette(player, engine_palette);
         }
     } else
     {

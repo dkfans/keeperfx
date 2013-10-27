@@ -214,7 +214,6 @@ DLLIMPORT void _DK_init_animating_texture_maps(void);
 DLLIMPORT void _DK_init_lookups(void);
 DLLIMPORT void _DK_restore_computer_player_after_load(void);
 DLLIMPORT int _DK_play_smacker_file(char *fname, int);
-DLLIMPORT int _DK_LoadMcgaData(void);
 DLLIMPORT long _DK_ceiling_set_info(long a1, long a2, long a3);
 DLLIMPORT void _DK_startup_saved_packet_game(void);
 DLLIMPORT void __stdcall _DK_IsRunningMark(void);
@@ -285,7 +284,7 @@ TbBool init_fades_table(void)
     setup_block_mem();
     if (LbFileLoadAt(fname, &pixmap) != sizeof(struct TbColorTables))
     {
-        compute_fade_tables(&pixmap,_DK_palette,_DK_palette);
+        compute_fade_tables(&pixmap,engine_palette,engine_palette);
         LbFileSaveAt(fname, &pixmap, sizeof(struct TbColorTables));
     }
     lbDisplay.FadeTable = pixmap.fade_tables;
@@ -311,7 +310,7 @@ TbBool init_alpha_table(void)
     // Loading file data
     if (LbFileLoadAt(fname, &alpha_sprite_table) != sizeof(struct TbAlphaTables))
     {
-        compute_alpha_tables(&alpha_sprite_table,_DK_palette,_DK_palette);
+        compute_alpha_tables(&alpha_sprite_table,engine_palette,engine_palette);
         LbFileSaveAt(fname, &alpha_sprite_table, sizeof(struct TbAlphaTables));
     }
     return true;
@@ -326,7 +325,7 @@ TbBool init_rgb2idx_table(void)
     // Loading file data
     if (LbFileLoadAt(fname, &colours) != sizeof(TbRGBColorTable))
     {
-        compute_rgb2idx_table(colours,_DK_palette);
+        compute_rgb2idx_table(colours,engine_palette);
         LbFileSaveAt(fname, &colours, sizeof(TbRGBColorTable));
     }
     return true;
@@ -341,7 +340,7 @@ TbBool init_redpal_table(void)
     // Loading file data
     if (LbFileLoadAt(fname, &red_pal) != 256)
     {
-        compute_shifted_palette_table(red_pal, _DK_palette, _DK_palette, 20, -10, -10);
+        compute_shifted_palette_table(red_pal, engine_palette, engine_palette, 20, -10, -10);
         LbFileSaveAt(fname, &red_pal, 256);
     }
     return true;
@@ -356,7 +355,7 @@ TbBool init_whitepal_table(void)
     // Loading file data
     if (LbFileLoadAt(fname, &white_pal) != 256)
     {
-        compute_shifted_palette_table(white_pal, _DK_palette, _DK_palette, 48, 48, 48);
+        compute_shifted_palette_table(white_pal, engine_palette, engine_palette, 48, 48, 48);
         LbFileSaveAt(fname, &white_pal, 256);
     }
     return true;
@@ -1153,8 +1152,8 @@ short setup_game(void)
   // loading and no CD screens can run in both 320x2?0 and 640x4?0.
   if ( result && (!game.no_intro) )
   {
-      LbPaletteDataFillBlack(_DK_palette);
-      int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, _DK_palette, 2, 0);
+      LbPaletteDataFillBlack(engine_palette);
+      int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, engine_palette, 2, 0);
       if (mode_ok != 1)
       {
         ERRORLOG("Can't enter movies screen mode to play intro");
@@ -1988,13 +1987,13 @@ TbBool set_gamma(char corrlvl, TbBool do_set)
     }
     if (result)
     {
-      result = (LbFileLoadAt(fname, _DK_palette) != -1);
+      result = (LbFileLoadAt(fname, engine_palette) != -1);
     }
     if ((result) && (do_set))
     {
       struct PlayerInfo *myplyr;
       myplyr=get_my_player();
-      PaletteSetPlayerPalette(myplyr, _DK_palette);
+      PaletteSetPlayerPalette(myplyr, engine_palette);
     }
     if (!result)
       ERRORLOG("Can't load palette file.");
@@ -2329,7 +2328,7 @@ void check_players_lost(void)
             //this would easily prevent computer player activities on dead player, but it also makes dead player unable to use
             //floating spirit, so it can't be done this way: player->field_2C = 0;
             if (is_my_player_number(i)) {
-                LbPaletteSet(_DK_palette);
+                LbPaletteSet(engine_palette);
             }
           }
       }
@@ -2861,7 +2860,7 @@ void update(void)
         player = get_my_player();
         if (player->field_3 & 0x08)
         {
-            PaletteSetPlayerPalette(player, _DK_palette);
+            PaletteSetPlayerPalette(player, engine_palette);
             set_flag_byte(&player->field_3,0x08,false);
         }
         clear_active_dungeons_stats();
@@ -3393,7 +3392,7 @@ void keeper_gameplay_loop(void)
     struct PlayerInfo *player;
     SYNCDBG(5,"Starting");
     player = get_my_player();
-    PaletteSetPlayerPalette(player, _DK_palette);
+    PaletteSetPlayerPalette(player, engine_palette);
     if ((game.numfield_C & 0x02) != 0)
         initialise_eye_lenses();
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
