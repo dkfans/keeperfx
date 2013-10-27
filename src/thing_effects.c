@@ -943,11 +943,11 @@ void effect_generate_effect_elements(const struct Thing *thing)
         } else
         if (thing->health > 0)
         {
-            LbPaletteFade(_DK_palette, 8, Lb_PALETTE_FADE_OPEN);
+            LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
         } else
         {
             player = get_my_player();
-            PaletteSetPlayerPalette(player, _DK_palette);
+            PaletteSetPlayerPalette(player, engine_palette);
             LbPaletteStopOpenFade();
         }
         break;

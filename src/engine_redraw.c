@@ -214,7 +214,7 @@ long map_fade_in(long a)
         map_fade_src = poly_pool+0x10000;
         map_fade_dest = poly_pool+0x10000+64000;
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, 320, MyScreenHeight/pixel_size);
-        generate_map_fade_ghost_table("data/mapfadeg.dat", _DK_palette, map_fade_ghost_table);
+        generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
     map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
       a, 320, 200, lbDisplay.GraphicsScreenWidth);
@@ -234,7 +234,7 @@ long map_fade_out(long a)
         map_fade_src = poly_pool+0x10000;
         map_fade_dest = poly_pool+0x10000+64000;
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, 320, MyScreenHeight/pixel_size);
-        generate_map_fade_ghost_table("data/mapfadeg.dat", _DK_palette, map_fade_ghost_table);
+        generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
     map_fade(lbDisplay.WScreen, map_fade_dest, map_fade_src, pixmap.fade_tables, map_fade_ghost_table,
       a, 320, 200, lbDisplay.GraphicsScreenWidth);

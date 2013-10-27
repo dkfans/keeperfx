@@ -321,9 +321,6 @@
  0001:00038280       game_action
  0001:000394C0       mouse_is_over_small_map
  0001:000399A0       init_alpha_table
- 0001:00039D60       LoadMcgaData
- 0001:0003A520       setup_screen_mode
- 0001:0003AAC0       setup_screen_mode_minimal
  0001:0003B4D0       computer_check_events
  0001:0003B5B0       computer_event_battle
  0001:0003B770       computer_event_check_imps_in_danger
@@ -1308,8 +1305,6 @@
  0001:000D2BD0       check_out_imp_last_did
  0001:000D3660       check_out_imp_stack
  0001:000D9DE0       LbErrorLogSetup@12
- 0001:000D9FC0       LbMemoryFree@4
- 0001:000DA0C0       LbMemoryReset@0
  0001:000DA800       LbScreenFindVideoModes
  0001:000DA940       LbFilePosition
  0001:000DA960       LbFileOpen

@@ -392,7 +392,7 @@ TbBool load_game(long slot_num)
     player->field_4C1 = 0;
     player->field_4C5 = 0;
     player->field_7 = 0;
-    PaletteSetPlayerPalette(player, _DK_palette);
+    PaletteSetPlayerPalette(player, engine_palette);
     reinitialise_eye_lens(game.numfield_1B);
     // Update the lights system state
     light_import_system_state(&gameadd.lightst);

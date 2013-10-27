@@ -107,7 +107,7 @@ TbBool detonate_shot(struct Thing *shotng)
     case 4:
     case 16:
     case 24:
-        PaletteSetPlayerPalette(myplyr, _DK_palette);
+        PaletteSetPlayerPalette(myplyr, engine_palette);
         break;
     case 11:
         create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
