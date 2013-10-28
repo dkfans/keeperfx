@@ -859,7 +859,7 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   {
     set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
     settings.tooltips_on = 0;
-    game.numfield_C &= 0xFFBF;
+    game.numfield_C &= ~0x0040;
   }
   player->field_4BD = 32;
   set_player_mode(player, 1);

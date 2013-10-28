@@ -1456,76 +1456,77 @@ TbBool open_new_packet_file_for_save(void)
 
 void load_packets_for_turn(long nturn)
 {
-  struct Packet *pckt;
-  TbChecksum pckt_chksum;
-  TbBigChecksum tot_chksum;
-  short done;
-  long i;
-  const int turn_data_size = PACKET_TURN_SIZE;
-  unsigned char pckt_buf[PACKET_TURN_SIZE+4];
-  pckt = get_packet(my_player_number);
-  pckt_chksum = pckt->chksum;
-  if (nturn >= game.turns_stored)
-  {
-      ERRORDBG(18,"Out of turns to load from Packet File");
-      erstat_inc(ESE_CantReadPackets);
-      return;
-  }
+    struct Packet *pckt;
+    TbChecksum pckt_chksum;
+    TbBigChecksum tot_chksum;
+    short done;
+    long i;
+    SYNCDBG(19,"Starting");
+    const int turn_data_size = PACKET_TURN_SIZE;
+    unsigned char pckt_buf[PACKET_TURN_SIZE+4];
+    pckt = get_packet(my_player_number);
+    pckt_chksum = pckt->chksum;
+    if (nturn >= game.turns_stored)
+    {
+        ERRORDBG(18,"Out of turns to load from Packet File");
+        erstat_inc(ESE_CantReadPackets);
+        return;
+    }
 
-  if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
-  {
-      ERRORDBG(18,"Cannot read turn data from Packet File");
-      erstat_inc(ESE_CantReadPackets);
-      return;
-  }
-  game.packet_file_pos += turn_data_size;
-  for (i=0; i < NET_PLAYERS_COUNT; i++)
-    LbMemoryCopy(&game.packets[i], &pckt_buf[i*sizeof(struct Packet)], sizeof(struct Packet));
-  tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)]);
-  if (game.numfield_C & 0x01)
-  {
-      done = false;
-      while (!done)
-      {
-        for (i=0; i<NET_PLAYERS_COUNT; i++)
+    if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
+    {
+        ERRORDBG(18,"Cannot read turn data from Packet File");
+        erstat_inc(ESE_CantReadPackets);
+        return;
+    }
+    game.packet_file_pos += turn_data_size;
+    for (i=0; i < NET_PLAYERS_COUNT; i++)
+      LbMemoryCopy(&game.packets[i], &pckt_buf[i*sizeof(struct Packet)], sizeof(struct Packet));
+    tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)]);
+    if ((game.numfield_C & 0x01) != 0)
+    {
+        done = false;
+        while (!done)
         {
-          pckt = get_packet_direct(i);
-          if ((pckt->action != 0) || (pckt->control_flags != 0))
-          {
-            done = true;
-            break;
-          }
+            for (i=0; i<NET_PLAYERS_COUNT; i++)
+            {
+              pckt = get_packet_direct(i);
+              if ((pckt->action != 0) || (pckt->control_flags != 0))
+              {
+                done = true;
+                break;
+              }
+            }
+            game.pckt_gameturn++;
+            if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
+            {
+              ERRORLOG("Cannot read turn data from Packet File");
+              return;
+            }
+            game.packet_file_pos += turn_data_size;
+            for (i=0; i < NET_PLAYERS_COUNT; i++)
+              LbMemoryCopy(&game.packets[i], &pckt_buf[i*sizeof(struct Packet)], sizeof(struct Packet));
+            tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)]);
         }
-        game.pckt_gameturn++;
-        if (LbFileRead(game.packet_save_fp, &pckt_buf, turn_data_size) == -1)
+    }
+    if (game.turns_fastforward > 0)
+        game.turns_fastforward--;
+    if (game.packet_checksum)
+    {
+        pckt = get_packet(my_player_number);
+        if (get_packet_save_checksum() != tot_chksum)
         {
-          ERRORLOG("Cannot read turn data from Packet File");
-          return;
+          ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
+          if (!is_onscreen_msg_visible())
+            show_onscreen_msg(game.num_fps, "Out of sync");
+        } else
+        if (pckt->chksum != pckt_chksum)
+        {
+          ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
+          if (!is_onscreen_msg_visible())
+            show_onscreen_msg(game.num_fps, "Out of sync");
         }
-        game.packet_file_pos += turn_data_size;
-        for (i=0; i < NET_PLAYERS_COUNT; i++)
-          LbMemoryCopy(&game.packets[i], &pckt_buf[i*sizeof(struct Packet)], sizeof(struct Packet));
-        tot_chksum = llong(&pckt_buf[NET_PLAYERS_COUNT*sizeof(struct Packet)]);
-      }
-  }
-  if (game.turns_fastforward > 0)
-      game.turns_fastforward--;
-  if (game.packet_checksum)
-  {
-      pckt = get_packet(my_player_number);
-      if (get_packet_save_checksum() != tot_chksum)
-      {
-        ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
-        if (!is_onscreen_msg_visible())
-          show_onscreen_msg(game.num_fps, "Out of sync");
-      } else
-      if (pckt->chksum != pckt_chksum)
-      {
-        ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
-        if (!is_onscreen_msg_visible())
-          show_onscreen_msg(game.num_fps, "Out of sync");
-      }
-  }
+    }
 }
 
 void process_pause_packet(long a1, long a2)
@@ -1542,50 +1543,50 @@ void process_pause_packet(long a1, long a2)
     {
         if ((player->field_0 & 0x40) == 0)
         {
-          if ((player->instance_num == PI_MapFadeTo)
-           || (player->instance_num == PI_MapFadeFrom)
-           || (player->instance_num == PI_CrCtrlFade)
-           || (player->instance_num == PI_DirctCtrl)
-           || (player->instance_num == PI_PsngrCtrl)
-           || (player->instance_num == PI_DirctCtLeave)
-           || (player->instance_num == PI_PsngrCtLeave))
-          {
-            can = false;
-            break;
-          }
+            if ((player->instance_num == PI_MapFadeTo)
+             || (player->instance_num == PI_MapFadeFrom)
+             || (player->instance_num == PI_CrCtrlFade)
+             || (player->instance_num == PI_DirctCtrl)
+             || (player->instance_num == PI_PsngrCtrl)
+             || (player->instance_num == PI_DirctCtLeave)
+             || (player->instance_num == PI_PsngrCtLeave))
+            {
+              can = false;
+              break;
+            }
         }
     }
   }
   if ( can )
   {
-    player = get_my_player();
-    set_flag_byte(&game.numfield_C, 0x01, a1);
-    if ((game.numfield_C & 0x01) != 0)
-      set_flag_byte(&game.numfield_C, 0x80, a2);
-    else
-      set_flag_byte(&game.numfield_C, 0x01, false);
-    if ( !SoundDisabled )
-    {
+      player = get_my_player();
+      set_flag_byte(&game.numfield_C, 0x01, a1);
+      if ((game.numfield_C & 0x01) != 0)
+          set_flag_byte(&game.numfield_C, 0x80, a2);
+      else
+          set_flag_byte(&game.numfield_C, 0x01, false);
+      if ( !SoundDisabled )
+      {
+        if ((game.numfield_C & 0x01) != 0)
+        {
+          SetSoundMasterVolume(settings.sound_volume >> 1);
+          SetRedbookVolume(settings.redbook_volume >> 1);
+          SetMusicMasterVolume(settings.sound_volume >> 1);
+        } else
+        {
+          SetSoundMasterVolume(settings.sound_volume);
+          SetRedbookVolume(settings.redbook_volume);
+          SetMusicMasterVolume(settings.sound_volume);
+        }
+      }
       if ((game.numfield_C & 0x01) != 0)
       {
-        SetSoundMasterVolume(settings.sound_volume >> 1);
-        SetRedbookVolume(settings.redbook_volume >> 1);
-        SetMusicMasterVolume(settings.sound_volume >> 1);
-      } else
-      {
-        SetSoundMasterVolume(settings.sound_volume);
-        SetRedbookVolume(settings.redbook_volume);
-        SetMusicMasterVolume(settings.sound_volume);
+          if ((player->field_3 & 0x08) != 0)
+          {
+              PaletteSetPlayerPalette(player, engine_palette);
+              player->field_3 &= ~0x08;
+          }
       }
-    }
-    if ((game.numfield_C & 0x01) != 0)
-    {
-      if ((player->field_3 & 0x08) != 0)
-      {
-        PaletteSetPlayerPalette(player, engine_palette);
-        player->field_3 &= 0xF7u;
-      }
-    }
   }
 }
 
