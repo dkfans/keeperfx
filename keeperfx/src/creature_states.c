@@ -1483,6 +1483,7 @@ short creature_being_dropped(struct Thing *creatng)
     set_creature_assigned_job(creatng, Job_NULL);
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
+        // For creatures with trembling fat and not changed to chickens, tremble the camera
         if ((get_creature_model_flags(creatng) & MF_TremblingFat) != 0)
         {
             struct Dungeon *dungeon;
@@ -1565,12 +1566,12 @@ short creature_being_dropped(struct Thing *creatng)
             return 2;
         }
     }
-    if ( creature_affected_by_spell(creatng, SplK_Chicken) && (room->kind != RoK_TEMPLE) )
+    if (creature_affected_by_spell(creatng, SplK_Chicken) && (room->kind != RoK_TEMPLE))
     {
         set_start_state(creatng);
         return 2;
     }
-    if ( !send_creature_to_room(creatng, room) )
+    if (!send_creature_to_room(creatng, room))
     {
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
         set_start_state(creatng);

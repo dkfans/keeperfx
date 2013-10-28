@@ -474,7 +474,7 @@ short get_global_inputs(void)
       (player->instance_num != PI_MapFadeFrom) &&
       (!game_is_busy_doing_gui_string_input()))
   {
-      if ( is_game_key_pressed(Gkey_Unknown30, &keycode, 0) )
+      if ( is_game_key_pressed(Gkey_TogglePause, &keycode, 0) )
       {
         set_packet_pause_toggle();
         clear_key_pressed(keycode);
@@ -1374,16 +1374,16 @@ void get_map_nonaction_inputs(void)
 
 short get_packet_load_game_inputs(void)
 {
-  load_packets_for_turn(game.pckt_gameturn);
-  game.pckt_gameturn++;
-  get_packet_load_game_control_inputs();
-  if (get_speed_control_inputs())
-      return false;
-  if (get_screen_control_inputs())
-      return false;
-  if (get_screen_capture_inputs())
-      return false;
-  return false;
+    load_packets_for_turn(game.pckt_gameturn);
+    game.pckt_gameturn++;
+    get_packet_load_game_control_inputs();
+    if (get_speed_control_inputs())
+        return false;
+    if (get_screen_control_inputs())
+        return false;
+    if (get_screen_capture_inputs())
+        return false;
+    return false;
 }
 
 /**
@@ -1607,7 +1607,7 @@ short get_inputs(void)
         set_players_packet_position(player,127,127);
         if ((!game_is_busy_doing_gui_string_input()) && (game.numfield_C & 0x01))
         {
-          if ( is_game_key_pressed(Gkey_Unknown30, &keycode, 0) )
+          if ( is_game_key_pressed(Gkey_TogglePause, &keycode, 0) )
           {
             lbKeyOn[keycode] = 0;
             set_packet_pause_toggle();

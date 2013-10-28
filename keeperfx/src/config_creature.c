@@ -1260,6 +1260,20 @@ CrtrStateId get_arrive_at_state_for_room(RoomKind rkind)
     return jobcfg->initial_crstate;
 }
 
+/**
+ * Returns Code Name (name to use in script file) of given creature model.
+ */
+const char *creature_job_code_name(CreatureJob job_flag)
+{
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(job_flag);
+    const char *name;
+    name = jobcfg->name;
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
+}
+
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind)
 {
     //TODO CONFIG Place related rooms in [jobX] section of config file
@@ -1280,7 +1294,7 @@ CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkin
     case RoK_BARRACKS:
         return (job_flags & Job_BARRACK);
     case RoK_TEMPLE:
-        return (job_flags & Job_TEMPLE);
+        return (job_flags & Job_TEMPLE_PRAY);
     case RoK_PRISON:
         return (job_flags & Job_FREEZE_PRISONERS);
     }

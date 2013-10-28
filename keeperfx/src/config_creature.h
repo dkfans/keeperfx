@@ -63,7 +63,7 @@ enum CreatureJobFlags {
     Job_GUARD            = 0x0200,
     Job_GROUP            = 0x0400,
     Job_BARRACK          = 0x0800,
-    Job_TEMPLE           = 0x1000,
+    Job_TEMPLE_PRAY           = 0x1000,
     Job_FREEZE_PRISONERS = 0x2000,
     Job_EXPLORE          = 0x4000,
 };
@@ -198,6 +198,7 @@ CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
 CreatureJob get_job_for_room(RoomKind rkind, TbBool only_dropable);
+const char *creature_job_code_name(CreatureJob job_flag);
 /******************************************************************************/
 #ifdef __cplusplus
 }
