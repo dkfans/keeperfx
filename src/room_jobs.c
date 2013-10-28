@@ -363,7 +363,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
     if ((jobpref & crstat->jobs_not_do) != 0)
     {
         anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
-        external_set_thing_state(creatng, 140);
+        external_set_thing_state(creatng, CrSt_CreatureMoan);
         cctrl->field_282 = 50;
         return 0;
     }
@@ -563,9 +563,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         return 0;
     case RoK_TEMPLE:
         if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
-            return 0;
-        }
-        if (!creature_can_do_manufacturing(creatng)) {
             return 0;
         }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))

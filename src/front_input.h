@@ -60,7 +60,7 @@ enum GameKeys {
     Gkey_Unknown27,
     Gkey_Unknown28,
     Gkey_Unknown29,
-    Gkey_Unknown30, // 30
+    Gkey_TogglePause, // 30
     Gkey_SwitchToMap,
 };
 

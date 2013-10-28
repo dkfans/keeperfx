@@ -89,6 +89,7 @@ TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job)
         return false;
     }
     cctrl->job_assigned = new_job;
+    SYNCLOG("Assigned job %s for %s index %d owner %d",creature_job_code_name(new_job),thing_model_name(thing),(int)thing->index,(int)thing->owner);
     return true;
 }
 
@@ -150,7 +151,7 @@ TbBool creature_can_do_job_for_player(struct Thing *creatng, PlayerNumber plyr_i
     {
         return true;
     }
-    if (jobpref & Job_TEMPLE)
+    if (jobpref & Job_TEMPLE_PRAY)
     {
         return true;
     }
@@ -441,7 +442,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
             return true;
         }
     }
-    if (jobpref & Job_TEMPLE)
+    if (jobpref & Job_TEMPLE_PRAY)
     {
         if (select_val <= select_curr)
         {
