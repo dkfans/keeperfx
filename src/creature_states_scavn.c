@@ -488,6 +488,16 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     return 0;
 }
 
+TbBool setup_scavenger_move(struct Thing *thing, struct Room *room)
+{
+    if (!person_move_somewhere_adjacent_in_room(thing, room)) {
+        return false;
+    }
+    thing->continue_state = CrSt_Scavengering;
+    return true;
+}
+
+
 CrStateRet scavengering(struct Thing *thing)
 {
     // Check if we're in correct room
@@ -504,9 +514,7 @@ CrStateRet scavengering(struct Thing *thing)
     {
         return CrStRet_Modified;
     }
-    if (person_move_somewhere_adjacent_in_room(thing, room))
-    {
-        thing->continue_state = CrSt_Scavengering;
+    if (setup_scavenger_move(thing, room)) {
         return CrStRet_Modified;
     }
     return CrStRet_Unchanged;
