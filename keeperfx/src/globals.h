@@ -188,6 +188,8 @@ typedef unsigned short CrDeathFlags;
 typedef long LevelNumber;
 /** Game turn number, used for in-game time computations. */
 typedef unsigned long GameTurn;
+/** Game turns difference, used for in-game time computations. */
+typedef long GameTurnDelta;
 /** Identifier of a national text string. */
 typedef int TextStringId;
 /** Map coordinate in full resolution. Position within subtile is scaled 0..255. */

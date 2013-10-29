@@ -504,7 +504,7 @@ CrStateRet scavengering(struct Thing *thing)
     {
         return CrStRet_Modified;
     }
-    if ( setup_prison_move(thing, room) )
+    if (person_move_somewhere_adjacent_in_room(thing, room))
     {
         thing->continue_state = CrSt_Scavengering;
         return CrStRet_Modified;
