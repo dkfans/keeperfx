@@ -37,6 +37,8 @@
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 
+#include "keeperfx.hpp"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -172,32 +174,32 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
         if (hdngn_creatrs >= cdngn_creatrs)
         {
             hate_reasons++;
-            rel->field_42++;
+            rel->field_6++;
         }
         // Computers hate players who have more special diggers than them
         if (cdngn_spdiggrs / 6 + cdngn_spdiggrs < hdngn_spdiggrs)
         {
             hate_reasons++;
-            rel->field_42++;
+            rel->field_6++;
         }
         // Computers hate players who can build more rooms than them
         if (((int)compdngn->buildable_rooms_count + (int)compdngn->buildable_rooms_count / 6) < (int)dungeon->buildable_rooms_count)
         {
             hate_reasons++;
-            rel->field_42++;
+            rel->field_6++;
         }
         // Computers highly hate players who claimed more entrances than them
         hdngn_enrancs = count_entrances(comp, i);
         if (hdngn_enrancs > cdngn_enrancs)
         {
             hate_reasons++;
-            rel->field_42 += 5;
+            rel->field_6 += 5;
         }
         // If no reason to hate the player - hate him randomly for just surviving that long
         if ((hate_reasons <= 0) && (check->param1 < game.play_gameturn))
         {
             if (ACTION_RANDOM(100) < 20) {
-                rel->field_42++;
+                rel->field_6++;
             }
         }
     }
@@ -660,20 +662,195 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
 
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
+    struct ComputerTask *ctask;
+    struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_slap_imps(comp, check);
+    //return _DK_computer_check_slap_imps(comp, check);
+    dungeon = comp->dungeon;
+    if (get_task_in_progress(comp, CTT_SlapImps)) {
+        return 4;
+    }
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return 4;
+    }
+    ctask->ttype = CTT_SlapImps;
+    ctask->field_7C = check->param1 * dungeon->num_active_diggers / 100;
+    ctask->field_A = game.play_gameturn;
+    return 1;
 }
 
 long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_enemy_entrances(comp, check);
+    //return _DK_computer_check_enemy_entrances(comp, check);
+    long result;
+    result = 4;
+    PlayerNumber plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        if (comp->dungeon->owner == plyr_idx) {
+            continue;
+        }
+        if (players_are_mutual_allies(comp->dungeon->owner, plyr_idx)) {
+            continue;
+        }
+        struct PlayerInfo *player;
+        struct Dungeon *dungeon;
+        player = get_player(plyr_idx);
+        dungeon = get_players_dungeon(player);
+        long i;
+        unsigned long k;
+        i = dungeon->room_kind[RoK_ENTRANCE];
+        k = 0;
+        while (i != 0)
+        {
+            struct Room *room;
+            room = room_get(i);
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("Jump to invalid room detected");
+                break;
+            }
+            i = room->next_of_owner;
+            // Per-room code
+            struct Comp2_UnkStr1 *unkptr;
+            unkptr = &comp->unkarr_A10[plyr_idx];
+            long n;
+            for (n = 0; n < 64; n++)
+            {
+                struct Coord3d *pos;
+                pos = &unkptr->pos_A[n];
+                if ((pos->x.val == subtile_coord(room->central_stl_x,0)) && (pos->y.val == subtile_coord(room->central_stl_y,0))) {
+                    break;
+                }
+            }
+            if (n == 64)
+            {
+                struct Coord3d *pos;
+                n = unkptr->field_4;
+                unkptr->field_4 = (n + 1) % 64;
+                unkptr->field_0 = game.play_gameturn;
+                pos = &unkptr->pos_A[n];
+                pos->x.val = subtile_coord(room->central_stl_x,0);
+                pos->y.val = subtile_coord(room->central_stl_y,0);
+                pos->z.val = subtile_coord(1,0);
+                result = 2;
+            }
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+            }
+        }
+    }
+    return result;
 }
 
 long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_for_place_door(comp, check);
+    //return _DK_computer_check_for_place_door(comp, check);
+    ThingModel tngkind;
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    for (tngkind = 1; tngkind < DOOR_TYPES_COUNT; tngkind++)
+    {
+        if (dungeon->door_amount[tngkind] <= 0) {
+            continue;
+        }
+        unsigned long k;
+        long room_idx;
+        room_idx = check->param1;
+        if (room_idx == 0)
+        {
+            room_idx = (check->param2 + 1) % ROOM_TYPES_COUNT;
+            check->param2 = room_idx;
+        }
+        k = 0;
+        while (room_idx != 0)
+        {
+            struct Room *room;
+            room = room_get(room_idx);
+            if (room_is_invalid(room))
+            {
+                ERRORLOG("Jump to invalid room detected");
+                break;
+            }
+            room_idx = room->next_of_owner;
+            // Per-room code
+            long m,n;
+            m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+            for (n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+            {
+                // Get position containing room center
+                MapSlabCoord slb_x,slb_y;
+                slb_x = subtile_slab_fast(room->central_stl_x);
+                slb_y = subtile_slab_fast(room->central_stl_y);
+                // Move the position to edge of the room
+                struct Room *sibroom;
+                sibroom = slab_room_get(slb_x, slb_y);
+                while (!room_is_invalid(sibroom) && (sibroom->index == room->index))
+                {
+                    slb_x += small_around[m].delta_x;
+                    slb_y += small_around[m].delta_y;
+                    sibroom = slab_room_get(slb_x, slb_y);
+                }
+                // Move the position a few tiles further in that direction searching for a place to put door
+                //TODO COMPUTER_PLAYER Why we can only have doors if corridor is at center of the room? This should be fixed to allow doors everywhere around room.
+                int i;
+                for (i = 4; i > 0; i--)
+                {
+                    struct SlabMap *slb;
+                    slb = get_slabmap_block(slb_x, slb_y);
+                    if ((slabmap_owner(slb) != comp->dungeon->owner) || (slb->kind != SlbT_CLAIMED)) {
+                        i = 0;
+                        break;
+                    }
+                    if (tag_cursor_blocks_place_door(comp->dungeon->owner, slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
+                        break;
+                    }
+                    struct Thing * doortng;
+                    doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+                    if (thing_is_invalid(doortng)) {
+                        break;
+                    }
+                    slb_x += small_around[m].delta_x;
+                    slb_y += small_around[m].delta_y;
+                }
+                // Now if we were able to move, then the position seem ok. One last check - make sure the corridor is not dead end and doesn't already have a door
+                if (i > 0)
+                {
+                    MapSlabCoord nxslb_x,nxslb_y;
+                    nxslb_x = slb_x + small_around[m].delta_x;
+                    nxslb_y = slb_y + small_around[m].delta_y;
+                    struct SlabMap *nxslb;
+                    nxslb = get_slabmap_block(nxslb_x, nxslb_y);
+                    if ((slabmap_owner(nxslb) == comp->dungeon->owner) && (nxslb->kind == SlbT_CLAIMED))
+                    {
+                        struct Thing * doortng;
+                        doortng = get_door_for_position(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y));
+                        if (thing_is_invalid(doortng)) {
+                            if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, slab_subtile_center(slb_x), slab_subtile_center(slb_y), tngkind, 0) > 0) {
+                              return 1;
+                            }
+                        }
+                    }
+                }
+                m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
+            }
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+            }
+        }
+    }
+    return 4;
 }
 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
