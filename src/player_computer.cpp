@@ -1029,102 +1029,105 @@ long check_call_to_arms(struct Computer2 *comp)
 
 TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
 {
-  struct ComputerProcessTypes *cpt;
-  struct ComputerProcess *process;
-  struct ComputerProcess *newproc;
-  struct ComputerCheck *check;
-  struct ComputerCheck *newchk;
-  struct ComputerEvent *event;
-  struct ComputerEvent *newevnt;
-  struct Comp2_UnkStr1 *unkptr;
-  struct Computer2 *comp;
-  long i;
-  //_DK_setup_a_computer_player(plyridx, comp_model); return;
-  if ((plyr_idx >= PLAYERS_COUNT) || (plyr_idx == game.hero_player_num)
-      || (plyr_idx == game.neutral_player_num)) {
-      WARNLOG("Tried to setup player %d which can't be used this way",(int)plyr_idx);
-      return false;
-  }
-  comp = &game.computer[plyr_idx];
-  LbMemorySet(comp, 0, sizeof(struct Computer2));
-  cpt = get_computer_process_type_template(comp_model);
-  comp->dungeon = get_players_num_dungeon(plyr_idx);
-  comp->model = comp_model;
-  if (dungeon_invalid(comp->dungeon)) {
-      WARNLOG("Tried to setup player %d which has no dungeon",(int)plyr_idx);
-      comp->dungeon = INVALID_DUNGEON;
-      comp->model = 0;
-      return false;
-  }
-  comp->field_18 = cpt->field_C;
-  comp->field_14 = cpt->field_8;
-  comp->max_room_build_tasks = cpt->max_room_build_tasks;
-  comp->field_2C = cpt->field_14;
-  comp->field_20 = cpt->field_18;
-  comp->field_C = 1;
-  comp->task_state = CTaskSt_Select;
+    struct ComputerProcessTypes *cpt;
+    struct ComputerProcess *process;
+    struct ComputerProcess *newproc;
+    struct ComputerCheck *check;
+    struct ComputerCheck *newchk;
+    struct ComputerEvent *event;
+    struct ComputerEvent *newevnt;
+    struct Comp2_UnkStr1 *unkptr;
+    struct Computer2 *comp;
+    long i;
+    //_DK_setup_a_computer_player(plyridx, comp_model); return;
+    if ((plyr_idx >= PLAYERS_COUNT) || (plyr_idx == game.hero_player_num)
+        || (plyr_idx == game.neutral_player_num)) {
+        WARNLOG("Tried to setup player %d which can't be used this way",(int)plyr_idx);
+        return false;
+    }
+    comp = &game.computer[plyr_idx];
+    LbMemorySet(comp, 0, sizeof(struct Computer2));
+    cpt = get_computer_process_type_template(comp_model);
+    comp->dungeon = get_players_num_dungeon(plyr_idx);
+    comp->model = comp_model;
+    if (dungeon_invalid(comp->dungeon)) {
+        WARNLOG("Tried to setup player %d which has no dungeon",(int)plyr_idx);
+        comp->dungeon = INVALID_DUNGEON;
+        comp->model = 0;
+        return false;
+    }
+    comp->field_18 = cpt->field_C;
+    comp->field_14 = cpt->field_8;
+    comp->max_room_build_tasks = cpt->max_room_build_tasks;
+    comp->field_2C = cpt->field_14;
+    comp->field_20 = cpt->field_18;
+    comp->field_C = 1;
+    comp->task_state = CTaskSt_Select;
 
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    unkptr = &comp->unkarr_A10[i];
-    if (i == plyr_idx)
-      unkptr->field_6 = 0x80000000;
-    else
-      unkptr->field_6 = 0;
-  }
-  comp->field_1C = cpt->field_4;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        unkptr = &comp->unkarr_A10[i];
+        unkptr->field_0 = 0;
+        unkptr->field_4 = 0;
+        if (i == plyr_idx) {
+            unkptr->field_6 = 0x80000000;
+        } else {
+            unkptr->field_6 = 0;
+        }
+    }
+    comp->field_1C = cpt->field_4;
 
-  for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
-  {
-    process = cpt->processes[i];
+    for (i=0; i < COMPUTER_PROCESSES_COUNT; i++)
+    {
+        process = cpt->processes[i];
+        newproc = &comp->processes[i];
+        if ((process == NULL) || (process->name == NULL))
+        {
+          newproc->name = NULL;
+          break;
+        }
+        // Modifying original ComputerProcessTypes structure - I don't like it!
+        //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
+        if (process->func_setup == computer_setup_any_room)
+        {
+          if (process->field_14 >= 0)
+            process->field_14 = get_room_look_through(process->field_14);
+        }
+        LbMemoryCopy(newproc, process, sizeof(struct ComputerProcess));
+        newproc->parent = process;
+    }
     newproc = &comp->processes[i];
-    if ((process == NULL) || (process->name == NULL))
-    {
-      newproc->name = NULL;
-      break;
-    }
-    // Modifying original ComputerProcessTypes structure - I don't like it!
-    //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
-    if (process->func_setup == computer_setup_any_room)
-    {
-      if (process->field_14 >= 0)
-        process->field_14 = get_room_look_through(process->field_14);
-    }
-    LbMemoryCopy(newproc, process, sizeof(struct ComputerProcess));
-    newproc->parent = process;
-  }
-  newproc = &comp->processes[i];
-  newproc->flags |= ComProc_Unkn0002;
+    newproc->flags |= ComProc_Unkn0002;
 
-  for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
-  {
-    check = &cpt->checks[i];
-    newchk = &comp->checks[i];
-    if ((check == NULL) || (check->name == NULL))
+    for (i=0; i < COMPUTER_CHECKS_COUNT; i++)
     {
-      newchk->name = NULL;
-      break;
+      check = &cpt->checks[i];
+      newchk = &comp->checks[i];
+      if ((check == NULL) || (check->name == NULL))
+      {
+        newchk->name = NULL;
+        break;
+      }
+      LbMemoryCopy(newchk, check, sizeof(struct ComputerCheck));
     }
-    LbMemoryCopy(newchk, check, sizeof(struct ComputerCheck));
-  }
-  // Note that we don't have special, empty check at end of array
-  // The check with 0x02 flag identifies end of active checks
-  // (the check with 0x02 flag is invalid - only previous checks are in use)
-  //newchk = &comp->checks[i];
-  newchk->flags |= 0x02;
+    // Note that we don't have special, empty check at end of array
+    // The check with 0x02 flag identifies end of active checks
+    // (the check with 0x02 flag is invalid - only previous checks are in use)
+    //newchk = &comp->checks[i];
+    newchk->flags |= 0x02;
 
-  for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
-  {
-    event = &cpt->events[i];
-    newevnt = &comp->events[i];
-    if ((event == NULL) || (event->name == NULL))
+    for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
-      newevnt->name = NULL;
-      break;
+        event = &cpt->events[i];
+        newevnt = &comp->events[i];
+        if ((event == NULL) || (event->name == NULL))
+        {
+          newevnt->name = NULL;
+          break;
+        }
+        LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
     }
-    LbMemoryCopy(newevnt, event, sizeof(struct ComputerEvent));
-  }
-  return true;
+    return true;
 }
 
 void computer_check_events(struct Computer2 *comp)
