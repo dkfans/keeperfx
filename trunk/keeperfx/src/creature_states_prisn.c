@@ -143,7 +143,7 @@ TbBool setup_prison_move(struct Thing *thing, struct Room *room)
     if (!person_move_somewhere_adjacent_in_room(thing, room)) {
         return false;
     }
-    thing->continue_state = CrSt_CreatureArrivedAtGarden;
+    thing->continue_state = CrSt_CreatureInPrison;
     return true;
 }
 
@@ -168,11 +168,10 @@ CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
         }
         cctrl->field_82 = game.play_gameturn;
     }
-    if (setup_prison_move(thing, room))
-    {
-        return CrStRet_ResetOk;
+    if (setup_prison_move(thing, room)) {
+        return CrStRet_Modified;
     }
-    return CrStRet_Modified;
+    return CrStRet_Unchanged;
 }
 
 CrStateRet creature_in_prison(struct Thing *thing)

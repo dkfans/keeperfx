@@ -143,7 +143,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         {
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
             // Try to find food in the original room
-            if (setup_prison_move(creatng, room)) {
+            if (person_move_somewhere_adjacent_in_room(creatng, room)) {
                 creatng->continue_state = CrSt_CreatureArrivedAtGarden;
             } else {
                 set_start_state(creatng);
