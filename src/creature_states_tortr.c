@@ -23,8 +23,10 @@
 #include "bflib_memory.h"
 #include "creature_states.h"
 #include "thing_list.h"
+#include "creature_states_prisn.h"
 #include "creature_control.h"
 #include "creature_battle.h"
+#include "creature_instances.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -32,6 +34,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_physics.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
@@ -155,9 +158,121 @@ short cleanup_torturing(struct Thing *creatng)
     return 1;
 }
 
-long process_torture_visuals(struct Thing *thing, struct Room *room, long a3)
+long setup_torture_centre_move(struct Thing *thing, struct Room *room, CrtrStateId nstat)
 {
-  return _DK_process_torture_visuals(thing, room, a3);
+    SlabCodedCoords slbnum;
+    long n;
+    unsigned long k;
+    struct Thing *tortrtng;
+    n = ACTION_RANDOM(room->slabs_count);
+    slbnum = room->slabs_list;
+    k = n;
+    while (slbnum != 0)
+    {
+        slbnum = get_next_slab_number_in_room(slbnum);
+        if (k <= 0)
+            break;
+        k--;
+    }
+    k = 0;
+    while (slbnum != 0)
+    {
+        if (k >= room->slabs_count) {
+            break;
+        }
+        if (room->slabs_count == n) {
+            n = 0;
+            slbnum = room->slabs_list;
+        }
+        MapSlabCoord slb_x,slb_y;
+        slb_x = slb_num_decode_x(slbnum);
+        slb_y = slb_num_decode_y(slbnum);
+        tortrtng = find_base_thing_on_mapwho(1, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (!thing_is_invalid(tortrtng) && (tortrtng->word_13 == 0))
+        {
+            if (setup_person_move_to_coord(thing, &tortrtng->mappos, 0) <= 0)
+            {
+                ERRORLOG("Move failed in torture");
+                break;
+            }
+            struct CreatureControl *cctrl;
+            cctrl = creature_control_get_from_thing(thing);
+            thing->continue_state = nstat;
+            tortrtng->word_13 = thing->index;
+            tortrtng->word_15 = tortrtng->field_46;
+            cctrl->word_A6 = tortrtng->index;
+            return 1;
+        }
+        ++k;
+        slbnum = get_next_slab_number_in_room(slbnum);
+        n++;
+    }
+    return 0;
+}
+
+TbBool setup_torture_move(struct Thing *thing, struct Room *room, CrtrStateId nstat)
+{
+    if (!person_move_somewhere_adjacent_in_room(thing, room)) {
+        return false;
+    }
+    thing->continue_state = nstat;
+    return true;
+}
+
+long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId nstat)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *sectng;
+    //return _DK_process_torture_visuals(thing, room, nstat);
+    cctrl = creature_control_get_from_thing(thing);
+    GameTurnDelta dturn;
+    switch (cctrl->field_A8)
+    {
+    case 0:
+        dturn = game.play_gameturn - cctrl->long_9E;
+        if (dturn > 100) {
+            cctrl->field_A8 = 1;
+        }
+        if (!setup_torture_move(thing, room, nstat)) {
+            return 0;
+        }
+        return 1;
+    case 1:
+        if (!setup_torture_centre_move(thing, room, nstat)) {
+            cctrl->field_A8 = 0;
+            cctrl->long_9E = game.play_gameturn;
+            return 0;
+        }
+        cctrl->field_A8 = 2;
+        cctrl->long_9E = game.play_gameturn;
+        return 1;
+    case 2:
+        sectng = thing_get(cctrl->word_A6);
+        if (creature_turn_to_face_angle(thing, sectng->field_52) >= 85) {
+            return 0;
+        }
+        thing->movement_flags &= ~0x20;
+        cctrl->spell_flags &= ~0x10;
+        thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+        if (cctrl->instance_id == CrInst_NULL) {
+            set_creature_instance(thing, CrInst_TORTURED, 1, 0, 0);
+        }
+        if (thing_exists(sectng)) {
+            sectng->field_4F |= 0x01;
+        } else {
+            ERRORLOG("No centre table for torture");
+        }
+        dturn = game.play_gameturn - cctrl->long_A2;
+        if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
+        {
+            play_creature_sound(thing, 7, 2, 0);
+            cctrl->long_A2 = game.play_gameturn;
+        }
+        return 0;
+    default:
+        break;
+    }
+    return 0;
 }
 
 short kinky_torturing(struct Thing *thing)

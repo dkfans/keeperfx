@@ -137,17 +137,23 @@ short creature_freeze_prisonors(struct Thing *thing)
   return _DK_creature_freeze_prisonors(thing);
 }
 
-long setup_prison_move(struct Thing *thing, struct Room *room)
+TbBool setup_prison_move(struct Thing *thing, struct Room *room)
 {
-    return _DK_setup_prison_move(thing, room);
+    //return _DK_setup_prison_move(thing, room);
+    if (!person_move_somewhere_adjacent_in_room(thing, room)) {
+        return false;
+    }
+    thing->continue_state = CrSt_CreatureArrivedAtGarden;
+    return true;
 }
 
 CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->instance_id != CrInst_NULL)
-        return Lb_OK;
+    if (cctrl->instance_id != CrInst_NULL) {
+        return CrStRet_Unchanged;
+    }
     if (game.play_gameturn - cctrl->field_82 > 200)
     {
         if (game.play_gameturn - cctrl->field_82 < 250)
@@ -158,16 +164,15 @@ CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
                 play_creature_sound(thing, CrSnd_PrisonMoan, 2, 0);
                 cctrl->long_9A = game.play_gameturn;
             }
-            return Lb_SUCCESS;
+            return CrStRet_Modified;
         }
         cctrl->field_82 = game.play_gameturn;
     }
     if (setup_prison_move(thing, room))
     {
-        thing->continue_state = CrSt_CreatureInPrison;
-        return Lb_SUCCESS;
+        return CrStRet_ResetOk;
     }
-    return Lb_OK;
+    return CrStRet_Modified;
 }
 
 CrStateRet creature_in_prison(struct Thing *thing)

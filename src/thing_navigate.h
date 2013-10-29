@@ -37,6 +37,7 @@ enum SlabBlockedFlags {
 #pragma pack(1)
 
 struct Thing;
+struct Room;
 
 /******************************************************************************/
 DLLIMPORT long _DK_owner_player_navigating;
@@ -51,6 +52,7 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord st
 TbBool setup_person_move_backwards_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char storage);
 TbBool setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage);
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage);
+TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct Room *room);
 
 TbBool creature_can_travel_over_lava(const struct Thing *thing);
 TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *pos, TbBool no_owner, const char *func_name);

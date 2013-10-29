@@ -204,6 +204,15 @@ TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d 
     return setup_person_move_backwards_to_position(thing, pos->x.stl.num, pos->y.stl.num, storage);
 }
 
+TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct Room *room)
+{
+    struct Coord3d pos;
+    if (!person_get_somewhere_adjacent_in_room(thing, room, &pos)) {
+        return false;
+    }
+    return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0);
+}
+
 /**
  * Returns a hero gate object to which given hero can navigate.
  * @todo HERO_AI It returns first hero door found, not the best one.
