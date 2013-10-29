@@ -749,97 +749,115 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
     return result;
 }
 
+TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3d *pos)
+{
+    long m,n;
+    m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
+    for (n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        // Get position containing room center
+        MapSlabCoord slb_x,slb_y;
+        slb_x = subtile_slab_fast(room->central_stl_x);
+        slb_y = subtile_slab_fast(room->central_stl_y);
+        // Move the position to edge of the room
+        struct Room *sibroom;
+        sibroom = slab_room_get(slb_x, slb_y);
+        while (!room_is_invalid(sibroom) && (sibroom->index == room->index))
+        {
+            slb_x += small_around[m].delta_x;
+            slb_y += small_around[m].delta_y;
+            sibroom = slab_room_get(slb_x, slb_y);
+        }
+        // Move the position a few tiles further in that direction searching for a place to put door
+        //TODO COMPUTER_PLAYER Why we can only have doors if corridor is at center of the room? This should be fixed to allow doors everywhere around room.
+        int i;
+        for (i = 4; i > 0; i--)
+        {
+            struct SlabMap *slb;
+            slb = get_slabmap_block(slb_x, slb_y);
+            if ((slabmap_owner(slb) != room->owner) || (slb->kind != SlbT_CLAIMED)) {
+                i = 0;
+                break;
+            }
+            if (tag_cursor_blocks_place_door(room->owner, slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
+                break;
+            }
+            struct Thing * doortng;
+            doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+            if (thing_is_invalid(doortng)) {
+                break;
+            }
+            slb_x += small_around[m].delta_x;
+            slb_y += small_around[m].delta_y;
+        }
+        // Now if we were able to move, then the position seem ok. One last check - make sure the corridor is not dead end and doesn't already have a door
+        if (i > 0)
+        {
+            MapSlabCoord nxslb_x,nxslb_y;
+            nxslb_x = slb_x + small_around[m].delta_x;
+            nxslb_y = slb_y + small_around[m].delta_y;
+            struct SlabMap *nxslb;
+            nxslb = get_slabmap_block(nxslb_x, nxslb_y);
+            if ((slabmap_owner(nxslb) == room->owner) && (nxslb->kind == SlbT_CLAIMED))
+            {
+                struct Thing * doortng;
+                doortng = get_door_for_position(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y));
+                if (thing_is_invalid(doortng)) {
+                    pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));
+                    pos->y.val = subtile_coord_center(slab_subtile_center(slb_y));
+                    pos->z.val = subtile_coord(1,0);
+                    return true;
+                }
+            }
+        }
+        m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
+    }
+    return false;
+}
+
 long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_for_place_door(comp, check);
-    ThingModel tngkind;
+    ThingModel doorkind;
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    for (tngkind = 1; tngkind < DOOR_TYPES_COUNT; tngkind++)
+    for (doorkind = 1; doorkind < DOOR_TYPES_COUNT; doorkind++)
     {
-        if (dungeon->door_amount[tngkind] <= 0) {
+        if (dungeon->door_amount[doorkind] <= 0) {
             continue;
         }
-        unsigned long k;
-        long room_idx;
-        room_idx = check->param1;
-        if (room_idx == 0)
+        long rkind;
+        rkind = check->param1;
+        if (rkind == 0)
         {
-            room_idx = (check->param2 + 1) % ROOM_TYPES_COUNT;
-            check->param2 = room_idx;
+            rkind = (check->param2 + 1) % ROOM_TYPES_COUNT;
+            check->param2 = rkind;
         }
+        unsigned long k;
         k = 0;
-        while (room_idx != 0)
+        long i;
+        i = dungeon->room_kind[rkind];
+        while (i != 0)
         {
             struct Room *room;
-            room = room_get(room_idx);
+            room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
                 break;
             }
-            room_idx = room->next_of_owner;
+            i = room->next_of_owner;
             // Per-room code
-            long m,n;
-            m = ACTION_RANDOM(SMALL_AROUND_SLAB_LENGTH);
-            for (n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+            struct Coord3d pos;
+            pos.x.val = 0;
+            pos.y.val = 0;
+            pos.z.val = 0;
+            if (find_place_to_put_door_around_room(room, &pos))
             {
-                // Get position containing room center
-                MapSlabCoord slb_x,slb_y;
-                slb_x = subtile_slab_fast(room->central_stl_x);
-                slb_y = subtile_slab_fast(room->central_stl_y);
-                // Move the position to edge of the room
-                struct Room *sibroom;
-                sibroom = slab_room_get(slb_x, slb_y);
-                while (!room_is_invalid(sibroom) && (sibroom->index == room->index))
-                {
-                    slb_x += small_around[m].delta_x;
-                    slb_y += small_around[m].delta_y;
-                    sibroom = slab_room_get(slb_x, slb_y);
+                if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, pos.x.stl.num, pos.y.stl.num, doorkind, 0) > 0) {
+                  return 1;
                 }
-                // Move the position a few tiles further in that direction searching for a place to put door
-                //TODO COMPUTER_PLAYER Why we can only have doors if corridor is at center of the room? This should be fixed to allow doors everywhere around room.
-                int i;
-                for (i = 4; i > 0; i--)
-                {
-                    struct SlabMap *slb;
-                    slb = get_slabmap_block(slb_x, slb_y);
-                    if ((slabmap_owner(slb) != comp->dungeon->owner) || (slb->kind != SlbT_CLAIMED)) {
-                        i = 0;
-                        break;
-                    }
-                    if (tag_cursor_blocks_place_door(comp->dungeon->owner, slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
-                        break;
-                    }
-                    struct Thing * doortng;
-                    doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-                    if (thing_is_invalid(doortng)) {
-                        break;
-                    }
-                    slb_x += small_around[m].delta_x;
-                    slb_y += small_around[m].delta_y;
-                }
-                // Now if we were able to move, then the position seem ok. One last check - make sure the corridor is not dead end and doesn't already have a door
-                if (i > 0)
-                {
-                    MapSlabCoord nxslb_x,nxslb_y;
-                    nxslb_x = slb_x + small_around[m].delta_x;
-                    nxslb_y = slb_y + small_around[m].delta_y;
-                    struct SlabMap *nxslb;
-                    nxslb = get_slabmap_block(nxslb_x, nxslb_y);
-                    if ((slabmap_owner(nxslb) == comp->dungeon->owner) && (nxslb->kind == SlbT_CLAIMED))
-                    {
-                        struct Thing * doortng;
-                        doortng = get_door_for_position(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y));
-                        if (thing_is_invalid(doortng)) {
-                            if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, slab_subtile_center(slb_x), slab_subtile_center(slb_y), tngkind, 0) > 0) {
-                              return 1;
-                            }
-                        }
-                    }
-                }
-                m = (m + 1) % SMALL_AROUND_SLAB_LENGTH;
             }
             // Per-room code ends
             k++;
