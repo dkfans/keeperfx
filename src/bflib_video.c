@@ -936,7 +936,106 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
 
 TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned char g, unsigned char b)
 {
-  return _DK_LbPaletteFindColour(pal, r, g, b);
+    //return _DK_LbPaletteFindColour(pal, r, g, b);
+    int min_delta;
+    const unsigned char *c;
+    int i;
+    // Compute minimal square difference in color; return exact match if found
+    min_delta = 999999;
+    c = pal;
+    for (i = 0; i < 256; i++)
+    {
+        int dr,dg,db;
+        dr = (r - c[0]) * (r - c[0]);
+        dg = (g - c[1]) * (g - c[1]);
+        db = (b - c[2]) * (b - c[2]);
+        if (min_delta > dr+dg+db)
+        {
+            min_delta = dr+dg+db;
+            if (min_delta == 0) {
+                return i;
+            }
+        }
+        c += 3;
+    }
+    // Gather all the colors with minimal square difference
+    unsigned char tmcol[256];
+    unsigned char *o;
+    int n;
+    n = 0;
+    o = tmcol;
+    c = pal;
+    for (i = 0; i < 256; i++)
+    {
+        int dr,dg,db;
+        dr = (r - c[0]) * (r - c[0]);
+        dg = (g - c[1]) * (g - c[1]);
+        db = (b - c[2]) * (b - c[2]);
+        if (min_delta == dr+dg+db)
+        {
+            n += 1;
+            *o = i;
+            o++;
+        }
+        c += 3;
+    }
+    // If there's only one left on list - return it
+    if (n == 1) {
+        return tmcol[0];
+    }
+    // Get minimal linear difference out of remaining colors
+    min_delta = 999999;
+    for (i = 0; i < n; i++)
+    {
+        int dr,dg,db;
+        c = &pal[3 * tmcol[i]];
+        dr = abs(r - c[0]);
+        dg = abs(g - c[1]);
+        db = abs(b - c[2]);
+        if (min_delta > dr+dg+db) {
+            min_delta = dr+dg+db;
+        }
+    }
+    // Gather all the colors with minimal linear difference
+    // Note that we may re-use tmcol array, because (i <= m)
+    int m;
+    m = 0;
+    o = tmcol;
+    for (i = 0; i < n; i++)
+    {
+        int dr,dg,db;
+        c = &pal[3 * tmcol[i]];
+        dr = abs(r - c[0]);
+        dg = abs(g - c[1]);
+        db = abs(b - c[2]);
+        if (min_delta == dr+dg+db)
+        {
+            m += 1;
+            *o = tmcol[i];
+            o++;
+        }
+    }
+    // If there's only one left on list - return it
+    if (m == 1) {
+        return tmcol[0];
+    }
+    // It's hard to select best color out of the left ones - use darker one with wages
+    min_delta = 999999;
+    o = &tmcol[0];
+    for (i = 0; i < m; i++)
+    {
+        int dr,dg,db;
+        c = &pal[3 * tmcol[i]];
+        dr = (c[0] * c[0]);
+        dg = (c[1] * c[1]);
+        db = (c[2] * c[2]);
+        if (min_delta > db+2*(dg+dr))
+        {
+          min_delta = db+2*(dg+dr);
+          o = &tmcol[i];
+        }
+    }
+    return *o;
 }
 /******************************************************************************/
 #ifdef __cplusplus
