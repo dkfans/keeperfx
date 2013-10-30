@@ -50,6 +50,7 @@ DLLIMPORT void _DK_frontend_high_score_table_input(void);
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width)
 {
     struct HighScore *hscore;
+    char str[64];
     int i;
     if ((idx >= campaign.hiscore_count) || (campaign.hiscore_table == NULL))
       return;
@@ -64,7 +65,11 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     i += col4_width;
     if (idx == high_score_entry_input_active)
     {
-        i += LbTextStringDraw(i, pos_y, high_score_entry, Fnt_LeftJustify);
+        memcpy(str,high_score_entry,sizeof(str));
+        str[sizeof(str)-1] = '\0';
+        LbTextStringDraw(i, pos_y, str, Fnt_LeftJustify);
+        str[high_score_entry_index] = '\0';
+        i += LbTextStringWidth(str);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
@@ -193,6 +198,17 @@ TbBool frontend_high_score_table_input(void)
       lbInkey = KC_UNASSIGNED;
       return true;
   }
+  if (lbInkey == KC_DELETE)
+  {
+      i = high_score_entry_index;
+      while (high_score_entry[i] != '\0')
+      {
+          high_score_entry[i] = high_score_entry[i+1];
+          i++;
+      }
+      lbInkey = KC_UNASSIGNED;
+      return true;
+  }
   if ((lbInkey == KC_RETURN) || (lbInkey == KC_NUMPADENTER) || (lbInkey == KC_ESCAPE))
   {
       hscore = &campaign.hiscore_table[high_score_entry_input_active];
@@ -244,7 +260,7 @@ void add_score_to_high_score_table(void)
     // Preparing input in the new entry
     // Note that we're not clearing previous name - this way it may be easily kept unchanged
     high_score_entry_input_active = idx;
-    high_score_entry_index = 0;
+    high_score_entry_index = strlen(high_score_entry);
   } else
   {
     high_score_entry_input_active = -1;
