@@ -97,7 +97,7 @@ int get_trap_data_index(int wrkshop_class, int wrkshop_kind);
 long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value);
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2);
-unsigned char tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3);
+unsigned char tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }
