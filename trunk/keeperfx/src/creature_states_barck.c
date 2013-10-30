@@ -72,6 +72,19 @@ short at_barrack_room(struct Thing *thing)
 
 short barracking(struct Thing *creatng)
 {
-  return _DK_barracking(creatng);
+    struct Room *room;
+    //return _DK_barracking(creatng);
+    room = get_room_thing_is_on(creatng);
+    if ( !room_still_valid_as_type_for_thing(room, RoK_BARRACKS, creatng) )
+    {
+        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
+        remove_creature_from_work_room(creatng);
+        set_start_state(creatng);
+        return CrStRet_ResetFail;
+    }
+    if (person_move_somewhere_adjacent_in_room(creatng, room)) {
+        creatng->continue_state = CrSt_Barracking;
+    }
+    return CrStRet_Modified;
 }
 /******************************************************************************/
