@@ -957,14 +957,14 @@ void do_a_plane_of_engine_columns_isometric(long xcell, long ycell, long a3, lon
     _DK_do_a_plane_of_engine_columns_isometric(xcell, ycell, a3, a4);
 }
 
-void draw_map_volume_box(long a1, long a2, long a3, long a4, long a5, unsigned char color)
+void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long a5, unsigned char color)
 {
     map_volume_box.visible = 1;
-    map_volume_box.field_3 = a1 & 0xFFFF0000;
-    map_volume_box.field_7 = a2 & 0xFF00;
-    map_volume_box.field_B = a3 & 0xFFFF0000;
+    map_volume_box.field_3 = cor1_x & 0xFFFF00;
+    map_volume_box.field_7 = cor1_y & 0xFF00;
+    map_volume_box.field_B = cor2_x & 0xFFFF00;
     map_volume_box.field_13 = a5;
-    map_volume_box.field_F = a4 & 0xFFFF0000;
+    map_volume_box.field_F = cor2_y & 0xFFFF00;
     map_volume_box.color = color;
 }
 
