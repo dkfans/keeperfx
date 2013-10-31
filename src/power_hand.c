@@ -142,18 +142,18 @@ TbBool thing_is_picked_up_by_enemy(const struct Thing *thing)
     return !thing_is_in_power_hand_list(thing, thing->owner);
 }
 
+/**
+ * Returns if a thing can be picked up by players hand.
+ * @see can_thing_be_picked_up_by_player()
+ * @param player
+ * @param thing
+ * @return
+ */
 TbBool thing_is_pickable_by_hand(struct PlayerInfo *player, const struct Thing *thing)
 {
     if (!thing_exists(thing))
         return false;
-    // All creatures can be picked
-    if (thing->class_id == TCls_Creature)
-        return true;
-    // Some objects can be picked
-    if ((thing->class_id == TCls_Object) && object_is_pickable_by_hand(thing, player->id_number))
-        return true;
-    // Other things are not pickable
-    return false;
+    return can_thing_be_picked_up_by_player(thing, player->id_number);
 }
 
 TbBool armageddon_blocks_creature_pickup(const struct Thing *thing, PlayerNumber plyr_idx)
@@ -200,15 +200,18 @@ TbBool creature_is_pickable_by_hand(const struct Thing *thing, PlayerNumber plyr
 long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
     //return _DK_can_thing_be_picked_up_by_player(thing, plyr_idx);
+    // Some creatures can be picked
     if (thing_is_creature(thing))
     {
         //return creature_is_pickable_by_hand(thing, plyr_idx);
         return can_cast_spell_on_thing(plyr_idx, thing, PwrK_HAND);
     }
+    // Some objects can be picked
     if (thing_is_object(thing))
     {
         return object_is_pickable_by_hand(thing, plyr_idx);
     }
+    // Other things are not pickable
     return false;
 }
 
@@ -413,6 +416,13 @@ void place_thing_in_limbo(struct Thing *thing)
     remove_thing_from_mapwho(thing);
     thing->field_4F |= 0x01;
     thing->alloc_flags |= TAlF_IsInLimbo;
+}
+
+void remove_thing_from_limbo(struct Thing *thing)
+{
+    thing->alloc_flags &= ~TAlF_IsInLimbo;
+    thing->field_4F &= ~0x01;
+    place_thing_in_mapwho(thing);
 }
 
 void draw_power_hand(void)

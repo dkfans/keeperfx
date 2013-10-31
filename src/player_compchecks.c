@@ -875,7 +875,69 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
 long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck * check)
 {
     SYNCDBG(8,"Starting");
-    return _DK_computer_check_neutral_places(comp, check);
+    //return _DK_computer_check_neutral_places(comp, check);
+    struct Comp2_UnkStr1 *rel;
+    rel = &comp->unkarr_A10[game.neutral_player_num];
+    struct Room *near_room;
+    struct Coord3d *near_pos;
+    int near_dist;
+    near_room = INVALID_ROOM;
+    near_dist = 2147483647;
+    near_pos = NULL;
+    int i;
+    for (i=0; i < 64; i++)
+    {
+        struct Coord3d *place;
+        place = &rel->pos_A[i];
+        if ((place->x.val == 0) || (place->y.val == 0)) {
+            continue;
+        }
+        struct Room *room;
+        room = INVALID_ROOM;
+        if (computer_finds_nearest_room_to_pos(comp, &room, place))
+        {
+            int dx,dy;
+            dx = abs((int)room->central_stl_x - (int)place->x.stl.num);
+            dy = abs((int)room->central_stl_y - (int)place->y.stl.num);
+            if (near_dist > dx+dy)
+            {
+                near_room = room;
+                near_pos = place;
+                near_dist = dx+dy;
+            }
+        }
+    }
+    if (room_is_invalid(near_room)) {
+        return 4;
+    }
+    struct ComputerTask *ctask;
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return 4;
+    }
+    ctask->ttype = CTT_DigToNeutral;
+    ctask->byte_80 = 0;
+    ctask->field_A = game.play_gameturn;
+    ctask->pos_70.x.val = subtile_coord(near_room->central_stl_x,0);
+    ctask->pos_70.y.val = subtile_coord(near_room->central_stl_y,0);
+    ctask->pos_70.z.val = subtile_coord(1,0);
+    ctask->pos_76.x.val = near_pos->x.val;
+    ctask->pos_76.y.val = near_pos->y.val;
+    ctask->pos_76.z.val = near_pos->z.val;
+    ctask->flags |= 0x04;
+    struct Coord3d endpos;
+    struct Coord3d startpos;
+    endpos.z.val = ctask->pos_76.x.val;
+    endpos.y.val = ctask->pos_76.y.val;
+    endpos.z.val = ctask->pos_76.z.val;
+    startpos.z.val = ctask->pos_70.x.val;
+    startpos.y.val = ctask->pos_70.y.val;
+    startpos.z.val = ctask->pos_70.z.val;
+    setup_dig_to(&ctask->dig, startpos, endpos);
+    near_pos->x.val = 0;
+    near_pos->y.val = 0;
+    near_pos->z.val = 0;
+    return 1;
 }
 
 /**

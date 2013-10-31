@@ -552,6 +552,7 @@
  0001:0005DE40       get_thing_height_at
  0001:0005E180       get_thing_height_at_with_radius
  0001:0005E470       get_floor_height_under_thing_at
+ 0001:0005E770       get_ceiling_height_above_thing_at
  0001:0005ECF0       element_top_face_texture
  0001:0005ED80       place_thing_in_mapwho
  0001:0005EE00       remove_thing_from_mapwho
