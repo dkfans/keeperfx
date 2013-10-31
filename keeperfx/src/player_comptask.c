@@ -37,6 +37,7 @@
 #include "creature_states_lair.h"
 #include "magic.h"
 #include "thing_traps.h"
+#include "thing_physics.h"
 #include "player_instances.h"
 
 #include "dungeon_data.h"
@@ -176,6 +177,7 @@ DLLIMPORT long _DK_dig_to_position(signed char stl_x, unsigned short stl_y, unsi
 DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short stl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short a7);
 DLLIMPORT struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long a7);
 DLLIMPORT struct Thing *_DK_find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
+DLLIMPORT long _DK_get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -437,15 +439,80 @@ struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
     return _DK_get_free_task(comp, a2);
 }
 
+long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
+{
+    return _DK_get_ceiling_height_above_thing_at(thing, pos);
+}
+
 short fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_fake_dump_held_creatures_on_map(comp, thing, pos);
+    if (thing_is_creature(thing) &&(thing->active_state == CrSt_CreatureUnconscious)) {
+        WARNLOG("The %s Held By computer is unconscious",creature_code_name(thing->model));
+    }
+    //return _DK_fake_dump_held_creatures_on_map(comp, thing, pos);
+    if (!computer_find_non_solid_block(comp, pos)) {
+        return 0;
+    }
+    if (!can_place_thing_here(thing, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
+        return 0;
+    }
+    struct Coord3d locpos;
+    locpos.z.val = 0;
+    locpos.x.val = subtile_coord_center(pos->x.stl.num);
+    locpos.y.val = subtile_coord_center(pos->y.stl.num);
+    locpos.z.val = get_thing_height_at(thing, &locpos);
+    int height,max_height;
+    max_height = get_ceiling_height_above_thing_at(thing, &locpos);
+    height = locpos.z.val + thing->field_58;
+    if (max_height <= height) {
+        return 0;
+    }
+    int i;
+    i = max_height - height;
+    if (i < 0) {
+        i = 0;
+    } else
+    if (i > subtile_coord(3,0)) {
+        i = subtile_coord(3,0);
+    }
+    thing->mappos.x.val = locpos.x.val;
+    thing->mappos.y.val = locpos.y.val;
+    thing->mappos.z.val = locpos.z.val;
+    thing->mappos.z.val += i;
+    remove_thing_from_limbo(thing);
+    if (thing_is_creature(thing)) {
+        initialise_thing_state(thing, CrSt_CreatureBeingDropped);
+    }
+    comp->field_14C8 = 0;
+    comp->tasks_did--;
+    return 1;
 }
 
 long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
 {
     SYNCDBG(9,"Starting");
-    return _DK_fake_place_thing_in_power_hand(comp, thing, pos);
+    //return _DK_fake_place_thing_in_power_hand(comp, thing, pos);
+    if (!can_thing_be_picked_up_by_player(thing, comp->dungeon->owner)) {
+        ERRORLOG("Computer tries to pick up %s which is not pickable", thing_model_name(thing));
+        return 0;
+    }
+    if ((thing->alloc_flags & 0x20) != 0) {
+        return 0;
+    }
+    if (!computer_find_non_solid_block(comp, pos)) {
+        return 0;
+    }
+    if (!can_place_thing_here(thing, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
+        return 0;
+    }
+    if (thing_is_creature(thing)) {
+        clear_creature_instance(thing);
+        external_set_thing_state(thing, 38);
+    }
+    place_thing_in_limbo(thing);
+    comp->field_14C8 = thing->index;
+    comp->tasks_did--;
+    return 1;
 }
 
 TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind)
