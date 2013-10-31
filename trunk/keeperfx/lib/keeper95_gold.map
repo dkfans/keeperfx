@@ -1197,6 +1197,7 @@
  0001:000C2150       get_foot_creature_has_down
  0001:0005DA80       get_top_cube_at_pos
  0001:0005E470       get_floor_height_under_thing_at
+ 0001:0005E770       get_ceiling_height_above_thing_at
  0001:00011E10       process_spells_affected_by_effect_elements
  0001:000CAB80       move_creature
  0001:0000DFE0       process_creature_instance

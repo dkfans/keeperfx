@@ -341,6 +341,11 @@ struct ComputerTask { // sizeof = 148
         };
       short word_82;
     };
+    struct {
+      unsigned char byte_80;
+      unsigned char byte_81;
+      short word_82x;
+    };
     };
     unsigned char field_84[2];
     union {
@@ -466,6 +471,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *th
 long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
+long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
