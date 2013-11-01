@@ -652,7 +652,7 @@ short imp_digs_mines(struct Thing *thing)
     // Check if we've arrived at the destination
     delta_x = abs(thing->mappos.x.stl.num - cctrl->moveto_pos.x.stl.num);
     delta_y = abs(thing->mappos.y.stl.num - cctrl->moveto_pos.y.stl.num);
-    if ((mtask->field_1 != cctrl->word_8F) || (delta_x > 0) || (delta_y > 0))
+    if ((mtask->coords != cctrl->word_8F) || (delta_x > 0) || (delta_y > 0))
     {
       clear_creature_instance(thing);
       internal_set_thing_state(thing, CrSt_ImpLastDidJob);

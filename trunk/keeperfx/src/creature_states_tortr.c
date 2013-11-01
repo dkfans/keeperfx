@@ -327,7 +327,7 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
     newthing = create_creature(&thing->mappos, crmodel, room->owner);
     if (thing_is_invalid(newthing))
     {
-        ERRORLOG("Couldn't create creature model %d in %s room",crmodel,room_code_name(room->kind));
+        ERRORLOG("Couldn't create creature %s in %s room",creature_code_name(crmodel),room_code_name(room->kind));
         return;
     }
     cctrl = creature_control_get_from_thing(thing);

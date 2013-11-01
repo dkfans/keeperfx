@@ -238,11 +238,11 @@ TbBigChecksum compute_players_checksum(void)
     return sum;
 }
 
-void set_player_packet_checksum(long plyr_idx,TbBigChecksum sum)
+void set_player_packet_checksum(PlayerNumber plyr_idx, TbBigChecksum sum)
 {
-  struct Packet *pckt;
-  pckt = get_packet(plyr_idx);
-  pckt->chksum = sum;
+    struct Packet *pckt;
+    pckt = get_packet(plyr_idx);
+    pckt->chksum = sum;
 }
 
 /**
@@ -1422,7 +1422,7 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.field_8 = 0;
     game.packet_save_head.field_C = 0;
     game.packet_save_head.field_D = 0;
-    game.packet_save_head.chksum = game.packet_checksum;
+    game.packet_save_head.chksum_available = game.packet_checksum_verify;
     for (i=0; i<PLAYERS_COUNT; i++)
     {
         player = get_player(i);
@@ -1454,7 +1454,7 @@ TbBool open_new_packet_file_for_save(void)
     return true;
 }
 
-void load_packets_for_turn(long nturn)
+void load_packets_for_turn(GameTurn nturn)
 {
     struct Packet *pckt;
     TbChecksum pckt_chksum;
@@ -1511,20 +1511,20 @@ void load_packets_for_turn(long nturn)
     }
     if (game.turns_fastforward > 0)
         game.turns_fastforward--;
-    if (game.packet_checksum)
+    if (game.packet_checksum_verify)
     {
         pckt = get_packet(my_player_number);
         if (get_packet_save_checksum() != tot_chksum)
         {
-          ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
-          if (!is_onscreen_msg_visible())
-            show_onscreen_msg(game.num_fps, "Out of sync");
+            ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
+            if (!is_onscreen_msg_visible())
+              show_onscreen_msg(game.num_fps, "Out of sync");
         } else
         if (pckt->chksum != pckt_chksum)
         {
-          ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
-          if (!is_onscreen_msg_visible())
-            show_onscreen_msg(game.num_fps, "Out of sync");
+            ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
+            if (!is_onscreen_msg_visible())
+              show_onscreen_msg(game.num_fps, "Out of sync");
         }
     }
 }
@@ -2493,10 +2493,10 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry)
     }
     game.packet_file_pos = LbFilePosition(game.packet_save_fp);
     game.turns_stored = (LbFileLengthHandle(game.packet_save_fp) - game.packet_file_pos) / PACKET_TURN_SIZE;
-    if ((game.packet_checksum) && (!game.packet_save_head.chksum))
+    if ((game.packet_checksum_verify) && (!game.packet_save_head.chksum_available))
     {
         WARNMSG("PacketSave checksum not available, checking disabled.");
-        game.packet_checksum = false;
+        game.packet_checksum_verify = false;
     }
     if (game.log_things_start_turn == -1)
     {
@@ -2526,7 +2526,7 @@ short save_packets(void)
     TbBigChecksum chksum;
     int i;
     SYNCDBG(6,"Starting");
-    if (game.packet_checksum)
+    if (game.packet_checksum_verify)
       chksum = get_packet_save_checksum();
     else
       chksum = 0;

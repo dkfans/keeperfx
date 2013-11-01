@@ -1664,7 +1664,7 @@ void reinit_level_after_load(void)
 TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
-    start_params.packet_checksum = 1;
+    start_params.packet_checksum_verify = 1;
     set_flag_byte(&start_params.flags_font,FFlg_unk01,false);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
@@ -1686,7 +1686,7 @@ void clear_complete_game(void)
     memset(&gameadd, 0, sizeof(struct GameAdd));
     game.turns_packetoff = -1;
     game.numfield_149F46 = 0;
-    game.packet_checksum = start_params.packet_checksum;
+    game.packet_checksum_verify = start_params.packet_checksum_verify;
     game.numfield_1503A2 = -1;
     game.flags_font = start_params.flags_font;
     game.numfield_149F47 = 0;
@@ -3090,7 +3090,7 @@ short can_dig_here(long stl_x, long stl_y, long plyr_idx)
           return false;
     }
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->flags & 0x29) != 0)
+    if ((slbattr->flags & (0x20|0x08|0x01)) != 0)
       return true;
     return false;
 }
@@ -3837,11 +3837,10 @@ void startup_saved_packet_game(void)
 #if (BFDEBUG_LEVEL > 0)
     SYNCDBG(0,"Initialising level %d", (int)get_selected_level_number());
     SYNCMSG("Packet Loading Active (File contains %d turns)", game.turns_stored);
-    if ( game.packet_checksum )
-      SYNCMSG("Packet Checksum Active");
+    SYNCMSG("Packet Checksum Verification %s",game.packet_checksum_verify ? "Enabled" : "Disabled");
     SYNCMSG("Fast Forward through %d game turns", game.turns_fastforward);
     if (game.turns_packetoff != -1)
-      SYNCMSG("Packet Quit at %d", game.turns_packetoff);
+        SYNCMSG("Packet Quit at %d", game.turns_packetoff);
     if (game.packet_load_enable)
     {
       if (game.log_things_end_turn != game.log_things_start_turn)

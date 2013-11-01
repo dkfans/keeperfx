@@ -239,17 +239,27 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
 void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct ComputerProcess *cproc;
-    cproc = &comp->processes[ctask->field_8C];
-    if (cproc >= &comp->processes[0])
+    cproc = get_computer_process(comp, ctask->field_8C);
+    if (cproc != NULL)
     {
         struct ComputerProcess *onproc;
-        onproc = &comp->processes[comp->ongoing_process];
+        onproc = get_computer_process(comp, comp->ongoing_process);
         if (onproc != cproc)
         {
             cproc->flags &= ~0x0020;
             cproc->flags &= ~0x0008;
         }
+    } else {
+        ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
     }
+    remove_task(comp, ctask);
+}
+
+void suspend_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
+{
+    struct ComputerProcess *cproc;
+    cproc = get_computer_process(comp, ctask->field_8C);
+    suspend_process(comp, cproc);
     remove_task(comp, ctask);
 }
 
@@ -718,9 +728,14 @@ void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct ComputerProcess *cproc;
     SYNCDBG(9,"Starting");
-    cproc = &comp->processes[ctask->field_8C];
-    if ((cproc->flags & ComProc_Unkn0020) != 0) {
-        shut_down_process(comp, cproc);
+    cproc = get_computer_process(comp, ctask->field_8C);
+    if (cproc != NULL)
+    {
+        if ((cproc->flags & ComProc_Unkn0020) != 0) {
+            shut_down_process(comp, cproc);
+        }
+    } else {
+        ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
     }
     if (!computer_task_invalid(ctask)) {
         remove_task(comp, ctask);
@@ -797,10 +812,11 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
     return false;
 }
 
-long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short stl_y, int start_side, TbBool revside)
+long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, int start_side, TbBool revside)
 {
     long i,n,nchange;
     //return _DK_dig_to_position(a1, a2, a3, start_side, revside);
+    SYNCDBG(4,"Starting");
     if (revside) {
       nchange = 1;
     } else {
@@ -838,29 +854,172 @@ long dig_to_position(signed char plyr_idx, unsigned short stl_x, unsigned short 
     return -1;
 }
 
-short get_hug_side(struct ComputerDig * cdig, unsigned short a2, unsigned short a3, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short a7)
+TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    return _DK_get_hug_side(cdig, a2, a3, a4, a5, a6, a7);
+    struct SlabMap *slb;
+    const struct SlabAttr *slbattr;
+    struct Map *mapblk;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    mapblk = get_map_block_at(stl_x, stl_y);
+    slbattr = get_slab_attrs(slb);
+    if ((slbattr->is_unknflg14) && (slb->kind != SlbT_GEMS))
+    {
+        if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == plyr_idx)) {
+            return false;
+        }
+    }
+    if (!slab_good_for_computer_dig_path(slb)) {
+      return false;
+    }
+    return true;
+}
+
+
+short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short a6, PlayerNumber plyr_idx)
+{
+    SYNCDBG(4,"Starting");
+    //return _DK_get_hug_side(cdig, stl1_x, stl1_y, stl2_x, stl2_y, a6, plyr_idx);
+    MapSubtlCoord stl_b_x, stl_b_y;
+    MapSubtlCoord stl_a_x, stl_a_y;
+    int maxdist_a,maxdist_b;
+    short round_a,round_b;
+    char state_a, state_b;
+    int dist;
+    int i;
+    stl_a_x = stl1_x;
+    stl_a_y = stl1_y;
+    round_a = (a6 + 1) & 3;
+    dist = max(abs(stl1_x - stl2_x), abs(stl1_y - stl2_y));
+    state_a = 0;
+    maxdist_a = dist - 1;
+    state_b = 0;
+    stl_b_x = stl1_x;
+    stl_b_y = stl1_y;
+    round_b = (a6 - 1) & 3;
+    maxdist_b = dist - 1;
+    for (i = 150; i > 0; i--)
+    {
+        int dx,dy;
+        unsigned short round_idx;
+        if ((state_a == 2) && (state_b == 2)) {
+            break;
+        }
+        if (state_a != 2)
+        {
+            round_idx = (((LbArcTanAngle(stl2_x - stl_a_x, stl2_y - stl_a_y) & LbFPMath_AngleMask) + LbFPMath_PI/4) >> 9) & 3;
+            dist = max(abs(stl_a_x - stl2_x), abs(stl_a_y - stl2_y));
+            dx = small_around[round_idx].delta_x;
+            dy = small_around[round_idx].delta_y;
+            if ((dist <= maxdist_a) && !is_valid_hug_subtile(stl_a_x + 3*dx, stl_a_y + 3*dy, plyr_idx))
+            {
+                stl_a_x += 3*dx;
+                stl_a_y += 3*dy;
+                state_a = 1;
+                maxdist_a = max(abs(stl_a_x - stl2_x), abs(stl_a_y - stl2_y));
+            } else
+            if (state_a == 1)
+            {
+                state_a = 2;
+            } else
+            {
+                int n;
+                round_idx = (round_a - 1) & 3;
+                for (n = 0; n < 4; n++)
+                {
+                    dx = small_around[round_idx].delta_x;
+                    dy = small_around[round_idx].delta_y;
+                    if (!is_valid_hug_subtile(stl_a_x + 3*dx, stl_a_y + 3*dy, plyr_idx))
+                    {
+                        round_a = round_idx;
+                        stl_a_x += 3*dx;
+                        stl_a_y += 3*dy;
+                        break;
+                    }
+                    round_idx = (round_idx + 1) & 3;
+                }
+            }
+            if ((stl_a_x == stl2_x) && (stl_a_y == stl2_y)) {
+                return 1;
+            }
+        }
+        if (state_b != 2)
+        {
+            round_idx = (((LbArcTanAngle(stl2_x - stl_b_x, stl2_y - stl_b_y) & LbFPMath_AngleMask) + LbFPMath_PI/4) >> 9) & 3;
+            dist = max(abs(stl_b_x - stl2_x), abs(stl_b_y - stl2_y));
+            dx = small_around[round_idx].delta_x;
+            dy = small_around[round_idx].delta_y;
+            if ((dist <= maxdist_b) && !is_valid_hug_subtile(stl_b_x + 3*dx, stl_b_y + 3*dy, plyr_idx))
+            {
+                stl_b_x += 3*dx;
+                stl_b_y += 3*dy;
+                state_b = 1;
+                maxdist_b = max(abs(stl_b_x - stl2_x), abs(stl_b_y - stl2_y));
+            } else
+            if (state_b == 1)
+            {
+                state_b = 2;
+            } else
+            {
+                int n;
+                round_idx = (round_b + 1) & 3;
+                for (n = 0; n < 4; n++)
+                {
+                    dx = small_around[round_idx].delta_x;
+                    dy = small_around[round_idx].delta_y;
+                    if (!is_valid_hug_subtile(stl_b_x + 3*dx, stl_b_y + 3*dy, plyr_idx))
+                    {
+                        round_b = round_idx;
+                        stl_b_x += 3*dx;
+                        stl_b_y += 3*dy;
+                        break;
+                    }
+                    round_idx = (round_idx - 1) & 3;
+                }
+            }
+            if ((stl_b_x == stl2_x) && (stl_b_y == stl2_y)) {
+                return 0;
+            }
+        }
+    }
+
+    i = cdig->subfield_2A;
+    if ((i == 0) || (i == 1)) {
+        return i;
+    }
+    int dist_a, dist_b;
+    dist_a = abs(stl_a_y - stl2_y) + abs(stl_a_x - stl1_x);
+    dist_b = abs(stl_b_y - stl2_y) + abs(stl_b_x - stl1_x);
+    if (dist_b > dist_a) {
+        return 1;
+    }
+    if (dist_b < dist_a) {
+        return 0;
+    }
+    return ACTION_RANDOM(2);
 }
 
 /**
  * Checks if given room kind is available for building by computer player.
  * @param comp Computer player.
  * @param rkind Room kind.
- * @return Gives 0 if the room isn't available, 1 if it's available and 4 if it's researchable.
+ * @return Gives IAvail_Never if the room isn't available, IAvail_Now if it's available and IAvail_Later if it's researchable.
  */
-long computer_check_room_available(struct Computer2 * comp, long rkind)
+ItemAvailability computer_check_room_available(struct Computer2 * comp, long rkind)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     if ((rkind < 1) || (rkind >= ROOM_TYPES_COUNT)) {
-        return 0;
+        return IAvail_Never;
+    }
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Invalid dungeon");
+        return IAvail_Never;
     }
     if (!dungeon->room_resrchable[rkind])
-        return 0;
+        return IAvail_Never;
     if (!dungeon->room_buildable[rkind])
-        return 4;
-    return 1;
+        return IAvail_NeedResearch;
+    return IAvail_Now;
 }
 
 TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -959,7 +1118,7 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
  * @param digflags These are not really flags, but should be changed into flags when all calls to this func are rewritten. Use values from ToolDigFlags enum.
  * @return
  */
-short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags)
+short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name)
 {
     struct Dungeon *dungeon;
     struct SlabAttr *slbattr;
@@ -972,28 +1131,27 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
     long counter1,around_index;
     long i;
     unsigned long k;
-    //SYNCDBG(4,"Starting");
+    SYNCDBG(14,"Starting");
     //return _DK_tool_dig_to_pos2(comp, cdig, l1, l2);
     dungeon = comp->dungeon;
-    cdig->subfield_54++;
-    if (cdig->subfield_54 >= 356) {
-        WARNLOG("ComputerDig calls count (%d) exceeds limit",(int)cdig->subfield_54);
+    cdig->calls_count++;
+    if (cdig->calls_count >= 356) {
+        WARNLOG("%s: ComputerDig calls count (%d) exceeds limit",func_name,(int)cdig->calls_count);
         return -2;
     }
-    gldstl_x = 3 * (cdig->pos_gold.x.stl.num / 3);
-    gldstl_y = 3 * (cdig->pos_gold.y.stl.num / 3);
+    gldstl_x = 3 * subtile_slab(cdig->pos_gold.x.stl.num);
+    gldstl_y = 3 * subtile_slab(cdig->pos_gold.y.stl.num);
     around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_14.x.stl.num,cdig->pos_14.y.stl.num);
-    if ( get_2d_distance(&cdig->pos_gold, &cdig->pos_14) <= cdig->distance )
+    if (get_2d_distance(&cdig->pos_gold, &cdig->pos_14) <= cdig->distance)
     {
-        SYNCDBG(4,"Starting small distance digging");
+        SYNCDBG(4,"%s: Starting small distance digging",func_name);
         counter1 = 0;
         k = 0;
         while ( 1 )
         {
-            gldslb_x = gldstl_x / 3;
-            gldslb_y = gldstl_y / 3;
+            gldslb_x = subtile_slab(gldstl_x);
+            gldslb_y = subtile_slab(gldstl_y);
             slb = get_slabmap_block(gldslb_x, gldslb_y);
-            slbattr = get_slab_attrs(slb);
             if (slab_good_for_computer_dig_path(slb) && (slb->kind != SlbT_WATER))
             {
                 i = get_subtile_number_at_slab_center(gldslb_x,gldslb_y);
@@ -1001,21 +1159,24 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
                     break;
                 }
             }
-            if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
+            if (slab_kind_is_liquid(slb->kind))
             {
-              if ((digflags & ToolDig_AllowLiquidWBridge) != 0)
-                  break;
-              if (computer_check_room_available(comp, RoK_BRIDGE) != 1)
-                  break;
+                if ((digflags & ToolDig_AllowLiquidWBridge) != 0) {
+                    break;
+                }
+                if (computer_check_room_available(comp, RoK_BRIDGE) != IAvail_Now) {
+                    break;
+                }
             }
 
             slb = get_slabmap_block(gldslb_x, gldslb_y);
-            if ( (slabmap_owner(slb) != dungeon->owner) && (slab_kind_is_door(slb->kind)) )
+            if ((slabmap_owner(slb) != dungeon->owner) && slab_kind_is_door(slb->kind)) {
                 break;
+            }
             cdig->pos_20.x.stl.num = gldstl_x;
             cdig->pos_20.y.stl.num = gldstl_y;
-            if ( (cdig->pos_14.x.stl.num/3 == gldslb_x) && (cdig->pos_14.y.stl.num/3 == gldslb_y) ) {
-                SYNCDBG(15,"Positions are equal at slab (%d,%d)",(int)gldslb_x,(int)gldslb_y);
+            if ( (subtile_slab(cdig->pos_14.x.stl.num) == gldslb_x) && (subtile_slab(cdig->pos_14.y.stl.num) == gldslb_y) ) {
+                SYNCDBG(5,"Positions are equal at slab (%d,%d)",(int)gldslb_x,(int)gldslb_y);
                 return -1;
             }
             around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_14.x.stl.num,cdig->pos_14.y.stl.num);
@@ -1024,25 +1185,24 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             k++;
             if (k > map_tiles_x*map_tiles_y)
             {
-                ERRORLOG("Infinite loop while finding path to dig gold");
+                ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
                 return -1;
             }
         }
-        slb = get_slabmap_block(gldslb_x, gldslb_y);
-        if ( (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA) )
+        if (slab_is_liquid(gldslb_x, gldslb_y))
         {
-            if ( (computer_check_room_available(comp, RoK_BRIDGE) == 1) ) {
+            if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) {
                 cdig->pos_20.x.stl.num = gldstl_x;
                 cdig->pos_20.y.stl.num = gldstl_y;
-                SYNCDBG(15,"Have bridge, so going through liquid subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
+                SYNCDBG(5,"%s: Have bridge, so going through liquid subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
                 return -5;
             }
         }
         long counter2;
         for (counter2 = cdig->subfield_2C; counter2 > 0; counter2--)
         {
-            gldslb_x = gldstl_x / 3;
-            gldslb_y = gldstl_y / 3;
+            gldslb_x = subtile_slab(gldstl_x);
+            gldslb_y = subtile_slab(gldstl_y);
             slb = get_slabmap_block(gldslb_x, gldslb_y);
             mapblk = get_map_block_at(gldstl_x, gldstl_y);
             slbattr = get_slab_attrs(slb);
@@ -1067,19 +1227,19 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             counter1++;
             cdig->pos_20.x.stl.num = gldstl_x;
             cdig->pos_20.y.stl.num = gldstl_y;
-            if ( (cdig->pos_14.x.stl.num/3 == gldslb_x) && (cdig->pos_14.y.stl.num/3 == gldslb_y) ) {
-                SYNCDBG(15,"Positions are equal at slab (%d,%d)",(int)gldslb_x,(int)gldslb_y);
+            if ( (subtile_slab(cdig->pos_14.x.stl.num) == gldslb_x) && (subtile_slab(cdig->pos_14.y.stl.num) == gldslb_y) ) {
+                SYNCDBG(15,"%s: Positions are equal at slab (%d,%d)",func_name,(int)gldslb_x,(int)gldslb_y);
                 return -1;
             }
             around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_14.x.stl.num,cdig->pos_14.y.stl.num);
             gldstl_x += 3 * small_around[around_index].delta_x;
             gldstl_y += 3 * small_around[around_index].delta_y;
         }
-        if ( (cdig->pos_14.x.stl.num / 3 == gldslb_x) && (cdig->pos_14.y.stl.num / 3 == gldslb_y) )
+        if ( (subtile_slab(cdig->pos_14.x.stl.num) == gldslb_x) && (subtile_slab(cdig->pos_14.y.stl.num) == gldslb_y) )
         {
             cdig->pos_20.x.stl.num = gldstl_x;
             cdig->pos_20.y.stl.num = gldstl_y;
-            SYNCDBG(15,"Positions are equal at slab (%d,%d)",(int)gldslb_x,(int)gldslb_y);
+            SYNCDBG(5,"%s: Positions are equal at slab (%d,%d)",func_name,(int)gldslb_x,(int)gldslb_y);
             return -1;
         } else
         if (counter1 > 0)
@@ -1087,14 +1247,14 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             cdig->pos_gold.x.stl.num = gldstl_x;
             cdig->pos_gold.y.stl.num = gldstl_y;
             cdig->distance = get_2d_distance(&cdig->pos_20, &cdig->pos_14);
-            SYNCDBG(15,"Going through subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
+            SYNCDBG(5,"%s: Going through subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
             return 0;
         } else
         {
             if (comp->field_C == counter2)
             {
-                gldstl_x -= 3 * (MapSubtlCoord)small_around[around_index].delta_x;
-                gldstl_y -= 3 * (MapSubtlCoord)small_around[around_index].delta_y;
+                gldstl_x -= 3 * small_around[around_index].delta_x;
+                gldstl_y -= 3 * small_around[around_index].delta_y;
                 cdig->pos_gold.x.val = subtile_coord(gldstl_x,0);
                 cdig->pos_gold.y.val = subtile_coord(gldstl_y,0);
                 cdig->pos_gold.z.val = 0;
@@ -1110,7 +1270,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             }
             cdig->subfield_48++;
             if ( (cdig->subfield_48 > 10) && (cdig->subfield_4C == gldstl_x) && (cdig->subfield_50 == gldstl_y) ) {
-                SYNCDBG(15,"Positions are equal at subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
+                SYNCDBG(5,"Positions are equal at subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
                 return -2;
             }
             cdig->subfield_4C = gldstl_x;
@@ -1121,51 +1281,51 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
             i = dig_to_position(dungeon->owner, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
                     (around_index + (cdig->subfield_2A < 1 ? 3 : 1)) & 3, cdig->subfield_2A);
             if (i == -1) {
-                SYNCDBG(15,"Preparing digging to subtile (%d,%d) failed",(int)cdig->pos_20.x.stl.num,(int)cdig->pos_20.y.stl.num);
+                SYNCDBG(5,"%s: Preparing digging to subtile (%d,%d) failed",func_name,(int)cdig->pos_20.x.stl.num,(int)cdig->pos_20.y.stl.num);
                 return -2;
             }
             digstl_x = stl_num_decode_x(i);
             digstl_y = stl_num_decode_y(i);
-            digslb_x = digstl_x / 3;
-            digslb_y = digstl_y / 3;
+            digslb_x = subtile_slab(digstl_x);
+            digslb_y = subtile_slab(digstl_y);
             slb = get_slabmap_block(digslb_x, digslb_y);
-            if ( ((slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA)) && (computer_check_room_available(comp, RoK_BRIDGE) == 1) )
+            if (slab_kind_is_liquid(slb->kind) && (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now))
             {
                 cdig->pos_20.y.stl.num = digstl_y;
                 cdig->pos_20.x.stl.num = digstl_x;
-                SYNCDBG(15,"Have bridge, so going through liquid subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
+                SYNCDBG(5,"%s: Have bridge, so going through liquid subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
                 return -5;
             }
             cdig->direction_around = small_around_index_towards_destination(cdig->pos_20.x.stl.num,cdig->pos_20.x.stl.num,digstl_x,digstl_y);
             slbattr = get_slab_attrs(slb);
-            if ( (slbattr->is_unknflg14 != 0) && (slb->kind != SlbT_GEMS) )
+            if ((slbattr->is_unknflg14 != 0) && (slb->kind != SlbT_GEMS))
             {
                 mapblk = get_map_block_at(digstl_x, digstl_y);
                 if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner) ) {
-                    SYNCDBG(15,"Cannot go through subtile (%d,%d)",(int)digstl_x,(int)digstl_y);
+                    SYNCDBG(5,"%s: Cannot go through subtile (%d,%d)",func_name,(int)digstl_x,(int)digstl_y);
                     return -2;
                 }
             }
             i = get_subtile_number(stl_slab_center_subtile(digstl_x),stl_slab_center_subtile(digstl_y));
-            if ( (find_from_task_list(dungeon->owner, i) < 0) && (!simulation) )
+            if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
             {
                 if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
-                    SYNCDBG(15,"Game action failed at subtile (%d,%d)",(int)digstl_x,(int)digstl_y);
+                    SYNCDBG(5,"%s: Game action failed at subtile (%d,%d)",func_name,(int)digstl_x,(int)digstl_y);
                     return -2;
                 }
             }
         }
     } else
     {
-        SYNCDBG(4,"Starting long distance digging");
+        SYNCDBG(4,"%s: Starting long distance digging",func_name);
         i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->subfield_2A);
         if (i == -1) {
             return -2;
         }
         digstl_x = stl_num_decode_x(i);
         digstl_y = stl_num_decode_y(i);
-        digslb_x = digstl_x / 3;
-        digslb_y = digstl_y / 3;
+        digslb_x = subtile_slab(digstl_x);
+        digslb_y = subtile_slab(digstl_y);
         slb = get_slabmap_block(digslb_x, digslb_y);
         slbattr = get_slab_attrs(slb);
         if ( (slbattr->is_unknflg14 != 0) && (slb->kind != SlbT_GEMS) )
@@ -1186,7 +1346,7 @@ short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBoo
     }
     cdig->pos_20.x.stl.num = digstl_x;
     cdig->pos_20.y.stl.num = digstl_y;
-    if ( (cdig->pos_14.x.stl.num/3 == digslb_x) && (cdig->pos_14.y.stl.num/3 == digslb_y) )
+    if ( (subtile_slab(cdig->pos_14.x.stl.num) == digslb_x) && (subtile_slab(cdig->pos_14.y.stl.num) == digslb_y) )
     {
         return -1;
     }
@@ -1265,7 +1425,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
 
     memcpy(&ctask->dig.pos_gold, &ctask->dig.pos_20, sizeof(struct Coord3d));
     ctask->dig.distance = LONG_MAX;
-    ctask->dig.subfield_54 = 0;
+    ctask->dig.calls_count = 0;
 
     struct ComputerDig cdig;
     memcpy(&cdig, &ctask->dig, sizeof(struct ComputerDig));
@@ -1275,7 +1435,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     {
         retval = tool_dig_to_pos2(comp, &cdig, 1, 0);
         SYNCDBG(5,"retval=%d, dig.distance=%d, dig.subfield_54=%d",
-            retval, cdig.distance, cdig.subfield_54);
+            retval, cdig.distance, cdig.calls_count);
     } while (retval == 0);
 
     SYNCDBG(6,"Finished");
@@ -1679,7 +1839,27 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    return _DK_task_dig_to_neutral(comp,ctask);
+    //return _DK_task_dig_to_neutral(comp,ctask);
+    int i;
+    short digret;
+    digret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
+    if (digret == -5)
+    {
+        i = ctask->ttype;
+        ctask->ttype = CTT_WaitForBridge;
+        ctask->ottype = i;
+        return 4;
+    }
+    if ((digret >= -3) && (digret <= -1))
+    {
+        suspend_task_process(comp,ctask);
+        return digret;
+    }
+    if ((ctask->flags & 0x04) != 0) {
+        ctask->flags &= ~0x04;
+        add_to_trap_location(comp, &ctask->dig.pos_20);
+    }
+    return digret;
 }
 
 long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)

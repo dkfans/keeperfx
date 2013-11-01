@@ -149,7 +149,7 @@ unsigned int packet_file_pos;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
 unsigned char numfield_149F38;
-    unsigned char packet_checksum;
+    unsigned char packet_checksum_verify;
     unsigned long log_things_start_turn;
     unsigned long log_things_end_turn;
     unsigned long turns_packetoff;

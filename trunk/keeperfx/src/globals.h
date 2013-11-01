@@ -209,6 +209,8 @@ typedef short MoveSpeed;
 typedef long GoldAmount;
 /** Parameter for filtering functions which return an item with max filter parameter. */
 typedef long FilterParam;
+/** Type which stores IAvail_* values. */
+typedef char ItemAvailability;
 
 
 struct Coord2d {
