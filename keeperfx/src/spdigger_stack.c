@@ -782,7 +782,7 @@ long check_out_undug_area(struct Thing *thing)
         {
             SubtlCodedCoords tsk_stl_num;
             MapSubtlCoord tsk_dist;
-            tsk_stl_num = task->field_1;
+            tsk_stl_num = task->coords;
             tsk_dist = get_2d_box_distance_xy(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
             if (tsk_dist < best_dist)
             {
@@ -830,8 +830,8 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
         if (i < 0)
             break;
         mtask = get_dungeon_task_list_entry(dungeon, i);
-        stl_x = stl_num_decode_x(mtask->field_1);
-        stl_y = stl_num_decode_y(mtask->field_1);
+        stl_x = stl_num_decode_x(mtask->coords);
+        stl_y = stl_num_decode_y(mtask->coords);
         if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
         {
             struct SlabMap *slb;
@@ -840,7 +840,7 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
             {
                 if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
                 {
-                    add_to_imp_stack_using_pos(mtask->field_1, DigTsk_DigOrMine, dungeon);
+                    add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
                     num--;
                     nused++;
                 }
@@ -854,8 +854,8 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
         if (i < 0)
             break;
         mtask = get_dungeon_task_list_entry(dungeon, i);
-        stl_x = stl_num_decode_x(mtask->field_1);
-        stl_y = stl_num_decode_y(mtask->field_1);
+        stl_x = stl_num_decode_x(mtask->coords);
+        stl_y = stl_num_decode_y(mtask->coords);
         if ( subtile_revealed(stl_x, stl_y, dungeon->owner) )
         {
             struct SlabMap *slb;
@@ -864,7 +864,7 @@ long add_undug_to_imp_stack(struct Dungeon *dungeon, long num)
             {
                 if ( block_has_diggable_side(dungeon->owner, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
                 {
-                    add_to_imp_stack_using_pos(mtask->field_1, DigTsk_DigOrMine, dungeon);
+                    add_to_imp_stack_using_pos(mtask->coords, DigTsk_DigOrMine, dungeon);
                     num--;
                     nused++;
                 }
@@ -938,7 +938,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
             slb = get_slabmap_direct(slb_num);
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            slbopt[slb_num] = ((slbattr->flags & 0x29) != 0);
+            slbopt[slb_num] = ((slbattr->flags & (0x20|0x08|0x01)) != 0);
         }
     }
     slblipos = 0;

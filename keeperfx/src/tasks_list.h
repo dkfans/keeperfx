@@ -35,7 +35,7 @@ struct Dungeon;
 
 struct MapTask { // sizeof = 3
   unsigned char kind;
-  unsigned short field_1;
+  unsigned short coords;
 };
 
 #pragma pack()

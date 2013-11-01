@@ -172,6 +172,12 @@ enum CompTaskRet {
     CTaskRet_Unk4,
 };
 
+enum ItemAvailabilityRet {
+    IAvail_Never         = 0,
+    IAvail_Now           = 1,
+    IAvail_NeedResearch  = 4,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -287,7 +293,7 @@ struct ComputerDig { // sizeof = 78
     long subfield_48;
     long subfield_4C;
     long subfield_50;
-    long subfield_54;
+    long calls_count;
     long subfield_58;
 };
 
@@ -441,6 +447,7 @@ void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process);
 void reset_process(struct Computer2 *comp, struct ComputerProcess *process);
 void suspend_process(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *process);
+struct ComputerProcess *get_computer_process(struct Computer2 *comp, int cproc_idx);
 /******************************************************************************/
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long a5);
 struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp);
@@ -477,9 +484,10 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
-short tool_dig_to_pos2(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags);
+short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name);
+#define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
 /******************************************************************************/
-long computer_check_room_available(struct Computer2 * comp, long rkind);
+ItemAvailability computer_check_room_available(struct Computer2 * comp, long rkind);
 long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon);
