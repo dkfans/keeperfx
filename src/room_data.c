@@ -2208,7 +2208,7 @@ long create_workshop_object_in_workshop_room(long plyr_idx, long tng_class, long
         delete_thing_structure(thing, 0);
         return 0;
     }
-    if ( !find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, &pos) )
+    if (!find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, &pos))
     {
         ERRORLOG("Could not find a place in %s index %d for the new %s crate",
             room_code_name(room->kind),(int)room->index,thing_class_code_name(tng_class));

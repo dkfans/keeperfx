@@ -1217,13 +1217,11 @@ long set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *en
         ERRORLOG("Invalid creature control");
         return false;
     }
-    if (cctrl->combat_flags != 0)
-    {
+    if (cctrl->combat_flags != 0) {
         WARNLOG("The %s index %d in combat already - adding till death",thing_model_name(fighter),(int)fighter->index);
         return false; // We're not going to add anything
     }
-    if (!external_set_thing_state(fighter, CrSt_CreatureInCombat))
-    {
+    if (!external_set_thing_state(fighter, CrSt_CreatureInCombat)) {
         return false;
     }
     if (!set_creature_combat_state(fighter, enemy, combat_kind))
@@ -2138,8 +2136,7 @@ short creature_in_combat(struct Thing *thing)
     }
     if (creature_too_scared_for_combat(thing, enmtng))
     {
-        if (!external_set_thing_state(thing, CrSt_CreatureCombatFlee))
-        {
+        if (!external_set_thing_state(thing, CrSt_CreatureCombatFlee)) {
             ERRORLOG("Cannot get %s index %d into flee",thing_model_name(thing),(int)thing->index);
             return 0;
         }

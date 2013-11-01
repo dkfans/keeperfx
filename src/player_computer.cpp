@@ -447,7 +447,7 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
     cdig->pos_20.x.val = 0;
     cdig->pos_20.y.val = 0;
     cdig->pos_20.z.val = 0;
-    cdig->subfield_54 = 0;
+    cdig->calls_count = 0;
 }
 
 long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, const struct GoldLookup *gldlook, struct Room **nearroom)
@@ -694,7 +694,7 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     ctask->dig.pos_20.z.val = 0;
     ctask->dig.distance = 2147483647;
     ctask->dig.subfield_2C = 1;
-    ctask->dig.subfield_54 = 0;
+    ctask->dig.calls_count = 0;
     return 1;
 }
 
@@ -1207,7 +1207,7 @@ TbBool process_checks(struct Computer2 *comp)
 
 TbBool process_processes_and_task(struct Computer2 *comp)
 {
-  struct ComputerProcess *process;
+  struct ComputerProcess *cproc;
   Comp_Process_Func callback;
   int i;
   SYNCDBG(17,"Starting");
@@ -1233,10 +1233,15 @@ TbBool process_processes_and_task(struct Computer2 *comp)
     case CTaskSt_Perform:
         if ((comp->ongoing_process > 0) && (comp->ongoing_process <= COMPUTER_PROCESSES_COUNT))
         {
-            process = &comp->processes[comp->ongoing_process];
-            callback = process->func_task;
+            callback = NULL;
+            cproc = get_computer_process(comp, comp->ongoing_process);
+            if (cproc != NULL) {
+                callback = cproc->func_task;
+            } else {
+                ERRORLOG("Invalid computer process %d referenced",(int)comp->ongoing_process);
+            }
             if (callback != NULL) {
-                callback(comp,process);
+                callback(comp,cproc);
             }
         } else
         {

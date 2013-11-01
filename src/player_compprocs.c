@@ -418,7 +418,7 @@ long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProce
     {
         if (!dungeon_has_room(dungeon, bldroom->rkind))
         {
-            if (computer_check_room_available(comp, bldroom->rkind) == 1) {
+            if (computer_check_room_available(comp, bldroom->rkind) == IAvail_Now) {
                 SYNCDBG(8,"Going to build %s",room_code_name(bldroom->rkind));
                 process->field_10 = bldroom->rkind;
                 return 1;
@@ -466,14 +466,15 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *pro
     struct Dungeon *dungeon;
     //return _DK_computer_check_any_room(comp, process);
     dungeon = comp->dungeon;
-    long is_avail;
+    ItemAvailability is_avail;
     is_avail = computer_check_room_available(comp, process->field_10);
-    if (is_avail != 1)
+    if (is_avail != IAvail_Now)
     {
-        if (is_avail == 0) {
+        if (is_avail == IAvail_Never) {
             process->flags |= ComProc_Unkn0004;
+            return 0;
         }
-        return is_avail;
+        return 4;
     }
     long num_build_tasks = count_no_room_build_tasks(comp);
     if (num_build_tasks >= comp->max_room_build_tasks) {
@@ -818,6 +819,14 @@ void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process)
     }
 }
 
+struct ComputerProcess *get_computer_process(struct Computer2 *comp, int cproc_idx)
+{
+    if ((cproc_idx < 0) || (cproc_idx > COMPUTER_PROCESSES_COUNT)) {
+        return NULL;//&comp->processes[0]
+    }
+    return &comp->processes[cproc_idx];
+}
+
 long computer_process_index(const struct Computer2 *comp, const struct ComputerProcess *process)
 {
     long i;
@@ -835,6 +844,8 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *process)
         process->field_38 = 0;
         process->field_3C = game.play_gameturn;
         process->field_34 = game.play_gameturn;
+    } else {
+        WARNLOG("Invalid computer process referenced");
     }
 }
 

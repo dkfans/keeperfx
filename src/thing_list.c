@@ -583,29 +583,29 @@ unsigned long update_creatures_not_in_list(void)
 
 void update_things(void)
 {
-  SYNCDBG(7,"Starting");
-  //_DK_update_things(); return;
-  TbBigChecksum sum;
-  optimised_lights = 0;
-  total_lights = 0;
-  do_lights = game.lish.field_4614D;
-  sum = 0;
-  sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
-  update_creatures_not_in_list();
-  sum += update_things_in_list(&game.thing_lists[TngList_Traps]);
-  sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
-  sum += update_things_in_list(&game.thing_lists[TngList_Objects]);
-  sum += update_things_in_list(&game.thing_lists[TngList_Effects]);
-  sum += update_things_in_list(&game.thing_lists[TngList_EffectElems]);
-  sum += update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
-  sum += update_things_in_list(&game.thing_lists[TngList_EffectGens]);
-  sum += update_things_in_list(&game.thing_lists[TngList_Doors]);
-  update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
-  update_cave_in_things();
-  sum += compute_players_checksum();
-  sum += game.action_rand_seed;
-  set_player_packet_checksum(my_player_number,sum);
-  SYNCDBG(9,"Finished");
+    SYNCDBG(7,"Starting");
+    //_DK_update_things(); return;
+    TbBigChecksum sum;
+    optimised_lights = 0;
+    total_lights = 0;
+    do_lights = game.lish.field_4614D;
+    sum = 0;
+    sum += update_things_in_list(&game.thing_lists[TngList_Creatures]);
+    update_creatures_not_in_list();
+    sum += update_things_in_list(&game.thing_lists[TngList_Traps]);
+    sum += update_things_in_list(&game.thing_lists[TngList_Shots]);
+    sum += update_things_in_list(&game.thing_lists[TngList_Objects]);
+    sum += update_things_in_list(&game.thing_lists[TngList_Effects]);
+    sum += update_things_in_list(&game.thing_lists[TngList_EffectElems]);
+    sum += update_things_in_list(&game.thing_lists[TngList_DeadCreatrs]);
+    sum += update_things_in_list(&game.thing_lists[TngList_EffectGens]);
+    sum += update_things_in_list(&game.thing_lists[TngList_Doors]);
+    update_things_sounds_in_list(&game.thing_lists[TngList_AmbientSnds]);
+    update_cave_in_things();
+    sum += compute_players_checksum();
+    sum += game.action_rand_seed;
+    set_player_packet_checksum(my_player_number,sum);
+    SYNCDBG(9,"Finished");
 }
 
 struct Thing *find_players_dungeon_heart(PlayerNumber plyridx)

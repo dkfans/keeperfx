@@ -118,7 +118,7 @@ struct StartupParameters {
     unsigned char packet_save_enable;
     unsigned char packet_load_enable;
     char packet_fname[150];
-    unsigned char packet_checksum;
+    unsigned char packet_checksum_verify;
     unsigned char force_ppro_poly;
 };
 

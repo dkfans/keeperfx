@@ -883,7 +883,7 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     int near_dist;
     near_room = INVALID_ROOM;
     near_dist = 2147483647;
-    near_pos = NULL;
+    near_pos = &rel->pos_A[0];
     int i;
     for (i=0; i < 64; i++)
     {

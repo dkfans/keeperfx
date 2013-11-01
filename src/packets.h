@@ -201,7 +201,7 @@ unsigned int field_0;
 unsigned int field_8;
     unsigned char field_C;
     unsigned char field_D;
-    TbChecksum chksum;
+    TbBool chksum_available;
     };
 
 #pragma pack()
@@ -230,12 +230,12 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit);
 void process_packets(void);
 void clear_packets(void);
 TbBigChecksum compute_players_checksum(void);
-void set_player_packet_checksum(long plyr_idx,TbBigChecksum sum);
+void set_player_packet_checksum(PlayerNumber plyr_idx,TbBigChecksum sum);
 short checksums_different(void);
 void post_init_packets(void);
 
 TbBool open_new_packet_file_for_save(void);
-void load_packets_for_turn(long nturn);
+void load_packets_for_turn(GameTurn nturn);
 TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);

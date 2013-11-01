@@ -2366,7 +2366,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
     nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing),0);
     if (room_is_invalid(room) || (room->slabs_count <= 0)) {
         ERRORLOG("Invalid room or number of slabs is zero");
-        return 0;
+        return false;
     }
     selected = ACTION_RANDOM(room->slabs_count);
     k = 0;
@@ -2382,6 +2382,11 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         // Per room tile code ends
         i = get_next_slab_number_in_room(i);
         k++;
+    }
+    if (i == 0) {
+        k = 0;
+        i = room->slabs_list;
+        WARNLOG("Amount of slabs in %s is smaller than count",room_code_name(room->kind));
     }
     // Sweep rooms starting on that index
     while (i != 0)
@@ -2406,7 +2411,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
                     pos->x.val = subtile_coord_center(x);
                     pos->y.val = subtile_coord_center(y);
                     pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
-                    if ( !thing_in_wall_at_with_radius(thing, pos, nav_sizexy) ) {
+                    if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
                         return true;
                     }
                 }
@@ -2414,7 +2419,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             start_stl = (start_stl + 1) % 9;
         }
         // Per room tile code ends
-        if (k >= room->slabs_count)
+        if (k+1 >= room->slabs_count)
         {
             k = 0;
             i = room->slabs_list;
@@ -2423,7 +2428,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             i = get_next_slab_number_in_room(i);
         }
     }
-    ERRORLOG("Could not find valid RANDOM point in room for thing");
+    ERRORLOG("Could not find valid RANDOM point in %s for %s",room_code_name(room->kind),thing_model_name(thing));
     return false;
 }
 
@@ -3693,12 +3698,12 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     return thing->active_state;
 }
 
-TbBool external_set_thing_state(struct Thing *thing, CrtrStateId state)
+TbBool external_set_thing_state_f(struct Thing *thing, CrtrStateId state, const char *func_name)
 {
     //return _DK_external_set_thing_state(thing, state);
     if ( !can_change_from_state_to(thing, thing->active_state, state) )
     {
-        ERRORDBG(4,"State change %s to %s for %s not allowed",creature_state_code_name(thing->active_state),
+        WARNDBG(4,"%s: State change %s to %s for %s not allowed",func_name,creature_state_code_name(thing->active_state),
             creature_state_code_name(state), thing_model_name(thing));
         return false;
     }
