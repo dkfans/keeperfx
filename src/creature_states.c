@@ -1625,7 +1625,7 @@ short creature_change_from_chicken(struct Thing *creatng)
     } else
     {
       creatng->field_4F &= ~0x01;
-      cctrl->affected_by_spells &= ~CCSpl_Chicken;
+      cctrl->affected_by_spells &= ~CCSpl_ChickenRel;
       cctrl->spell_flags &= ~CSAfF_Chicken;
       set_creature_size_stuff(creatng);
       set_start_state(creatng);
@@ -2449,7 +2449,7 @@ short creature_pretend_chicken_move(struct Thing *creatng)
     //return _DK_creature_pretend_chicken_move(creatng);
     long move_ret;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->affected_by_spells & CCSpl_Chicken) != 0)
+    if ((cctrl->affected_by_spells & CCSpl_ChickenRel) != 0)
     {
         return 1;
     }

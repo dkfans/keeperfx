@@ -407,8 +407,8 @@ short good_attack_room(struct Thing *thing)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if (cctrl->instance_id == 0) {
-            set_creature_instance(thing, 37, 1, 0, 0);
+        if (cctrl->instance_id == CrInst_NULL) {
+            set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
         }
         return 1;
     }

@@ -365,7 +365,7 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         if (can_see <= 0) {
           return AttckT_Unset;
         }
-        if (can_see != 2) {
+        if (can_see != AttckT_Ranged) {
             return AttckT_Melee;
         }
         if (!creature_has_ranged_weapon(fightng)) {
@@ -1520,7 +1520,7 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist,
     struct CreatureControl *cctrl;
     //return _DK_ranged_combat_move(thing, enmtng, enmdist, a4);
     cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->instance_id != 0)
+    if (cctrl->instance_id != CrInst_NULL)
     {
         creature_turn_to_face(thing, &enmtng->mappos);
         return 0;

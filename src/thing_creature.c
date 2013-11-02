@@ -526,6 +526,23 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
 
 }
 
+long get_spell_duration_left_on_thing(const struct Thing *thing, SpellKind spkind)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    int i;
+    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        struct CastedSpellData * cspell;
+        cspell = &cctrl->casted_spells[i];
+        if (cspell->spkind == spkind) {
+            return cspell->duration;
+        }
+    }
+    ERRORLOG("No spell of type %d on %s index %d",(int)spkind,thing_model_name(thing),(int)thing->index);
+    return 0;
+}
+
 long get_free_spell_slot(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -544,7 +561,7 @@ long get_free_spell_slot(struct Thing *thing)
             return i;
         }
         // Otherwise, select the one making minimum damage
-        k = abs(cspell->field_1);
+        k = abs(cspell->duration);
         if (k < cval)
         {
             cval = k;
@@ -596,7 +613,7 @@ TbBool fill_spell_slot(struct Thing *thing, long slot_idx, SpellKind spell_idx, 
         return false;
     cspell = &cctrl->casted_spells[slot_idx];
     cspell->spkind = spell_idx;
-    cspell->field_1 = spell_power;
+    cspell->duration = spell_power;
     return true;
 }
 
@@ -611,7 +628,7 @@ TbBool free_spell_slot(struct Thing *thing, long slot_idx)
         return false;
     cspell = &cctrl->casted_spells[slot_idx];
     cspell->spkind = 0;
-    cspell->field_1 = 0;
+    cspell->duration = 0;
     return true;
 }
 
@@ -822,15 +839,15 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     switch (spell_idx)
     {
     case SplK_Freeze:
-        cctrl->casted_spells[idx].field_1 = splconf->duration;
+        cctrl->casted_spells[idx].duration = splconf->duration;
         creature_set_speed(thing, 0);
         break;
     case SplK_Armour:
         magstat = &game.magic_stats[PwrK_PROTECT];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].duration = magstat->power[spell_lev];
         break;
     case SplK_Rebound:
-        cctrl->casted_spells[idx].field_1 = splconf->duration;
+        cctrl->casted_spells[idx].duration = splconf->duration;
         break;
     case SplK_Heal:
         crstat = creature_stats_get_from_thing(thing);
@@ -849,37 +866,37 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Invisibility:
         magstat = &game.magic_stats[PwrK_CONCEAL];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].duration = magstat->power[spell_lev];
         break;
     case SplK_Teleport:
-        cctrl->casted_spells[idx].field_1 = splconf->duration;
+        cctrl->casted_spells[idx].duration = splconf->duration;
         break;
     case SplK_Speed:
         magstat = &game.magic_stats[PwrK_SPEEDCRTR];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].duration = magstat->power[spell_lev];
         break;
     case SplK_Slow:
-        cctrl->casted_spells[idx].field_1 = splconf->duration;
+        cctrl->casted_spells[idx].duration = splconf->duration;
         break;
     case SplK_Light:
-        cctrl->casted_spells[idx].field_1 = splconf->duration;
+        cctrl->casted_spells[idx].duration = splconf->duration;
         break;
     case SplK_Fly:
-        cctrl->casted_spells[idx].field_1 = splconf->duration;
+        cctrl->casted_spells[idx].duration = splconf->duration;
         break;
     case SplK_Sight:
-        cctrl->casted_spells[idx].field_1 = splconf->duration;
+        cctrl->casted_spells[idx].duration = splconf->duration;
         break;
     case SplK_Disease:
         magstat = &game.magic_stats[PwrK_DISEASE];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].duration = magstat->power[spell_lev];
         cctrl->field_B6 = thing->owner;
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
         cctrl->field_282 = 10;
         magstat = &game.magic_stats[PwrK_CHICKEN];
-        cctrl->casted_spells[idx].field_1 = magstat->power[spell_lev];
+        cctrl->casted_spells[idx].duration = magstat->power[spell_lev];
         break;
     default:
         WARNLOG("No action for spell %ld at level %ld",spell_idx,spell_lev);

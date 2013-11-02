@@ -794,7 +794,7 @@ long thing_affected_by_spell(struct Thing *thing, long spkind)
         cspell = &cctrl->casted_spells[i];
         if (cspell->spkind == spkind)
         {
-            return cspell->field_1;
+            return cspell->duration;
         }
     }
     return 0;
