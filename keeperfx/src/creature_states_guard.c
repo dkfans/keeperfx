@@ -33,6 +33,7 @@
 #include "room_data.h"
 #include "room_jobs.h"
 
+#include "game_legacy.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
