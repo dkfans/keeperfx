@@ -59,14 +59,20 @@ struct TrapStats {  // sizeof=54
 unsigned long field_0;
 unsigned long field_4;
 unsigned long field_8;
-unsigned char field_C[6];
+unsigned char field_C;
+unsigned long field_D;
+unsigned char field_11;
   unsigned char field_12;
-unsigned char field_13[5];
+unsigned char field_13;
+short field_14;
+short field_16;
 unsigned char trigger_type;
 unsigned char activation_type;
 unsigned char field_1A;
   unsigned char field_1B;
-unsigned char field_1C[4];
+short field_1C;
+unsigned char field_1E;
+unsigned char field_1F;
 unsigned char field_20[8];
 unsigned char field_28[8];
 short field_30;
@@ -84,7 +90,7 @@ DLLIMPORT struct TrapStats _DK_trap_stats[7]; //not sure - maybe it's 8?
 #define trap_stats _DK_trap_stats
 /******************************************************************************/
 TbBool destroy_trap(struct Thing *thing);
-struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2);
+struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx);
 struct Thing *get_trap_for_position(long pos_x, long pos_y);
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool trap_is_active(const struct Thing *thing);

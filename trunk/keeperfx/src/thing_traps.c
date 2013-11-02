@@ -21,6 +21,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_memory.h"
+
 #include "thing_data.h"
 #include "config_creature.h"
 #include "config_terrain.h"
@@ -32,18 +34,21 @@
 #include "game_legacy.h"
 #include "frontend.h"
 #include "engine_render.h"
+#include "gui_topmsg.h"
+
+#include "keeperfx.hpp"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2);
+DLLIMPORT struct Thing *_DK_create_trap(struct Coord3d *pos, unsigned short trpkind, unsigned short plyr_idx);
 DLLIMPORT struct Thing *_DK_get_trap_for_position(long pos_x, long pos_y);
 DLLIMPORT struct Thing *_DK_get_trap_for_slab_position(long slb_x, long slb_y);
 DLLIMPORT long _DK_update_trap(struct Thing *traptng);
 DLLIMPORT void _DK_update_trap_trigger(struct Thing *traptng);
-DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *traptng, long a2);
-DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_trap(unsigned char a1, long a2, long a3);
+DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *traptng, long plyr_idx);
+DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_trap(unsigned char trpkind, long plyr_idx, long a3);
 DLLIMPORT long _DK_update_trap_trigger_line_of_sight_90(struct Thing *traptng);
 DLLIMPORT void _DK_activate_trap(struct Thing *traptng, struct Thing *creatng);
 
@@ -360,10 +365,78 @@ TngUpdateRet update_trap(struct Thing *thing)
     return TUFRet_Modified;
 }
 
-struct Thing *create_trap(struct Coord3d *pos, unsigned short a1, unsigned short a2)
+struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx)
 {
     SYNCDBG(7,"Starting");
-    return _DK_create_trap(pos, a1, a2);
+    //return _DK_create_trap(pos, trpkind, plyr_idx);
+    struct TrapStats *trapstat;
+    trapstat = &trap_stats[trpkind];
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+        ERRORDBG(3,"Cannot create trap model %d for player %d. There are too many things allocated.",(int)trpkind,(int)plyr_idx);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
+    struct InitLight ilght;
+    LbMemorySet(&ilght, 0, sizeof(struct InitLight));
+    struct Thing *thing;
+    thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    if (thing->index == 0) {
+        ERRORDBG(3,"Should be able to allocate trap %d for player %d, but failed.",(int)trpkind,(int)plyr_idx);
+        erstat_inc(ESE_NoFreeThings);
+        return INVALID_THING;
+    }
+    thing->class_id = TCls_Trap;
+    thing->model = trpkind;
+    thing->mappos.x.val = pos->x.val;
+    thing->mappos.y.val = pos->y.val;
+    thing->mappos.z.val = pos->z.val;
+    thing->next_on_mapblk = 0;
+    thing->parent_idx = thing->index;
+    thing->owner = plyr_idx;
+    char start_frame;
+    if (trapstat->field_13) {
+        start_frame = -1;
+    } else {
+        start_frame = 0;
+    }
+    set_thing_draw(thing, trapstat->field_4, trapstat->field_D, trapstat->field_8, trapstat->field_C, start_frame, 2);
+    if (trapstat->field_11) {
+        thing->field_4F |= 0x02;
+    } else {
+        thing->field_4F &= ~0x02;
+    }
+    if (trapstat->field_C) {
+        thing->field_4F |= 0x40;
+    } else {
+        thing->field_4F &= ~0x40;
+    }
+    thing->sizexy = trapstat->field_14;
+    thing->field_58 = trapstat->field_16;
+    thing->field_5A = trapstat->field_14;
+    thing->field_5C = trapstat->field_16;
+    thing->creation_turn = game.play_gameturn;
+    thing->health = trapstat->field_0;
+    thing->field_4F &= ~0x10;
+    thing->field_4F |= 0x20;
+    thing->byte_13 = 0;
+    thing->long_14 = game.play_gameturn;
+    if (trapstat->field_1C != 0)
+    {
+        ilght.mappos.x.val = thing->mappos.x.val;
+        ilght.mappos.y.val = thing->mappos.y.val;
+        ilght.mappos.z.val = thing->mappos.z.val;
+        ilght.field_0 = trapstat->field_1C;
+        ilght.field_2 = trapstat->field_1E;
+        ilght.is_dynamic = 1;
+        ilght.field_3 = trapstat->field_1F;
+        thing->light_id = light_create_light(&ilght);
+        if (thing->light_id <= 0) {
+            SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
+        }
+    }
+    add_thing_to_its_class_list(thing);
+    place_thing_in_mapwho(thing);
+    return thing;
 }
 
 void init_traps(void)
