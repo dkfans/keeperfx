@@ -419,7 +419,7 @@ void update_creature_graphic_anim(struct Thing *thing)
         {
             update_creature_anim(thing, 256, 8);
         } else
-        if ((cctrl->affected_by_spells & CCSpl_Chicken) != 0)
+        if ((cctrl->affected_by_spells & CCSpl_ChickenRel) != 0)
         {
             update_creature_anim(thing, 256, 0);
         } else

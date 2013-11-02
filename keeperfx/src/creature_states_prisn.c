@@ -24,6 +24,7 @@
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -40,14 +41,14 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_cleanup_prison(struct Thing *thing);
-DLLIMPORT short _DK_creature_arrived_at_prison(struct Thing *thing);
-DLLIMPORT short _DK_creature_drop_body_in_prison(struct Thing *thing);
-DLLIMPORT short _DK_creature_freeze_prisonors(struct Thing *thing);
-DLLIMPORT short _DK_creature_in_prison(struct Thing *thing);
-DLLIMPORT long _DK_process_prison_function(struct Thing *thing);
-DLLIMPORT long _DK_process_prison_food(struct Thing *thing, struct Room *room);
-DLLIMPORT long _DK_setup_prison_move(struct Thing *thing, struct Room *room);
+DLLIMPORT short _DK_cleanup_prison(struct Thing *creatng);
+DLLIMPORT short _DK_creature_arrived_at_prison(struct Thing *creatng);
+DLLIMPORT short _DK_creature_drop_body_in_prison(struct Thing *creatng);
+DLLIMPORT short _DK_creature_freeze_prisonors(struct Thing *creatng);
+DLLIMPORT short _DK_creature_in_prison(struct Thing *creatng);
+DLLIMPORT long _DK_process_prison_function(struct Thing *creatng);
+DLLIMPORT long _DK_process_prison_food(struct Thing *creatng, struct Room *room);
+DLLIMPORT long _DK_setup_prison_move(struct Thing *creatng, struct Room *room);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -132,9 +133,110 @@ short creature_drop_body_in_prison(struct Thing *thing)
   return _DK_creature_drop_body_in_prison(thing);
 }
 
-short creature_freeze_prisonors(struct Thing *thing)
+struct Thing *find_prisoner_for_thing(struct Thing *creatng)
 {
-  return _DK_creature_freeze_prisonors(thing);
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    unsigned long k;
+    long i;
+    TRACE_THING(creatng);
+    struct Room *room;
+    room = INVALID_ROOM;
+    if (!is_neutral_thing(creatng)) {
+        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_PRISON, 0, 1);
+    }
+    if (room_exists(room)) {
+        i = room->creatures_list;
+    } else {
+        i = 0;
+    }
+    struct Thing *out_creatng;
+    long out_delay;
+    out_creatng = INVALID_THING;
+    out_delay = LONG_MAX;
+    k = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_exists(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature %ld detected",i);
+            break;
+        }
+        i = cctrl->next_in_room;
+        // Per creature code
+        long dist, durt;
+        dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
+        if (out_delay < 0)
+        {
+            // If we have a victim which isn't frozen, accept only other unfrozen creatures
+            if ((dist <= LONG_MAX) && !creature_affected_by_spell(thing, SplK_Freeze)) {
+                out_creatng = thing;
+                out_delay = -1;
+            }
+        } else
+        if (creature_affected_by_spell(thing, SplK_Freeze))
+        {
+            // If the victim is frozen, select one which will unfreeze sooner
+            durt = get_spell_duration_left_on_thing(thing, SplK_Freeze);
+            if ((durt > 0) && (out_delay > durt)) {
+                out_creatng = thing;
+                out_delay = durt;
+            }
+        } else
+        {
+            // Found first unfrozen victim - change out_delay to mark thet we no longer want frozen ones
+            out_creatng = thing;
+            out_delay = -1;
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
+    }
+    return out_creatng;
+}
+
+short creature_freeze_prisonors(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    //return _DK_creature_freeze_prisonors(thing);
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->instance_id != CrInst_NULL) {
+        return 1;
+    }
+    if (!creature_instance_has_reset(creatng, CrInst_FREEZE))
+    {
+        if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
+            creatng->continue_state = CrSt_CreatureFreezePrisoners;
+        }
+        return 1;
+    }
+    struct Thing *victng;
+    victng = find_prisoner_for_thing(creatng);
+    if (thing_is_invalid(victng)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    long dist;
+    dist = get_combat_distance(creatng, victng);
+    if (dist < 156) {
+        creature_retreat_from_combat(creatng, victng, CrSt_CreatureFreezePrisoners, 0);
+    } else
+    if ((dist <= 2048) && creature_can_see_combat_path(creatng, victng, dist))
+    {
+        set_creature_instance(creatng, CrInst_FREEZE, 1, victng->index, 0);
+    } else
+    {
+        creature_move_to(creatng, &victng->mappos, cctrl->max_speed, 0, 0);
+    }
+    return 1;
+
 }
 
 TbBool setup_prison_move(struct Thing *thing, struct Room *room)

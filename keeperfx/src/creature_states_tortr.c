@@ -229,7 +229,11 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
     switch (cctrl->field_A8)
     {
     case 0:
-        dturn = game.play_gameturn - cctrl->long_9E;
+        dturn = (long)game.play_gameturn - (long)cctrl->long_9E;
+        if (dturn < 0) {
+            // We often start torturing with this value being incorrect
+            cctrl->long_9E = game.play_gameturn;
+        }
         if (dturn > 100) {
             cctrl->field_A8 = 1;
         }
@@ -270,6 +274,9 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         }
         return 0;
     default:
+        WARNLOG("Invalid creature state in torture room");
+        cctrl->long_9E = game.play_gameturn;
+        cctrl->field_A8 = 1;
         break;
     }
     return 0;
