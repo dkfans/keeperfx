@@ -455,13 +455,13 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2)
     _DK_external_activate_trap_shot_at_angle(thing, a2);
 }
 
-unsigned char tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(7,"Starting");
-    //return _DK_tag_cursor_blocks_place_trap(a1, a2, a3);
+    //return _DK_tag_cursor_blocks_place_trap(plyr_idx, stl_x, stl_y);
     int par1;
-    unsigned char color;
-    color = 0;
+    TbBool can_place;
+    can_place = 0;
     MapSlabCoord slb_x, slb_y;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
@@ -471,37 +471,37 @@ unsigned char tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord 
     slbattr = get_slab_attrs(slb);
     if (!subtile_revealed(stl_x, stl_y, plyr_idx) || ((slbattr->flags & (0x20|0x08|0x01)) != 0))
     {
-      par1 = temp_cluedo_mode < 1u ? 5 : 2;
+        par1 = temp_cluedo_mode < 1u ? 5 : 2;
     } else
-    if ((slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
+    if (slab_kind_is_liquid(slb->kind))
     {
         par1 = 0;
     } else
     {
         if ((slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED))
         {
-            if (!get_trap_for_slab_position(slb_x, slb_y))
+            struct Thing *traptng;
+            struct Thing *doortng;
+            traptng = get_trap_for_slab_position(slb_x, slb_y);
+            doortng = get_door_for_position(stl_x, stl_y);
+            if (thing_is_invalid(traptng) && thing_is_invalid(doortng))
             {
-                struct Thing *thing;
-                thing = get_door_for_position(stl_x, stl_y);
-                if (thing_is_invalid(thing)) {
-                    color = 1;
-                }
+                can_place = 1;
             }
         }
         par1 = 1;
     }
     if (is_my_player_number(plyr_idx))
     {
-        // Move to first subtile on a slab
-        stl_x = slab_subtile(slb_x,0);
-        stl_y = slab_subtile(slb_y,0);
         if (!game_is_busy_doing_gui() && (game.small_map_state != 2)) {
+            // Move to first subtile on a slab
+            stl_x = slab_subtile(slb_x,0);
+            stl_y = slab_subtile(slb_y,0);
             draw_map_volume_box(subtile_coord(stl_x,0), subtile_coord(stl_y,0),
-                subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), par1, color);
+                subtile_coord(stl_x+STL_PER_SLB,0), subtile_coord(stl_y+STL_PER_SLB,0), par1, can_place);
         }
     }
-    return color;
+    return can_place;
 }
 /******************************************************************************/
 #ifdef __cplusplus

@@ -789,7 +789,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
     //return _DK_place_thing_in_power_hand(thing, plyr_idx);
     player = get_player(plyr_idx);
     if (!thing_is_pickable_by_hand(player, thing)) {
-        ERRORLOG("The %s is not pickable thing",thing_model_name(thing));
+        ERRORLOG("The %s owned by player %d is not pickable by player %d",thing_model_name(thing),(int)thing->owner,(int)plyr_idx);
         return false;
     }
     if (thing_is_picked_up(thing)) {

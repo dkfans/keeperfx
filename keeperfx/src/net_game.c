@@ -115,7 +115,7 @@ void setup_exchange_player_number(void)
   for (i=0; i<NET_PLAYERS_COUNT; i++)
   {
       pckt = get_packet_direct(i);
-      if ((net_player_info[i].active) && (pckt->action == 10))
+      if ((net_player_info[i].active) && (pckt->action == PckA_Unknown010))
       {
           player = get_player(k);
           player->id_number = k;
