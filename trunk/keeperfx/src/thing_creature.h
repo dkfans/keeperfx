@@ -135,6 +135,7 @@ void apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long 
 void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind);
 void process_thing_spell_effects(struct Thing *thing);
 void delete_effects_attached_to_creature(struct Thing *creatng);
+long get_spell_duration_left_on_thing(const struct Thing *thing, SpellKind spkind);
 
 void anger_set_creature_anger_all_types(struct Thing *thing, long a2);
 void change_creature_owner(struct Thing *thing, PlayerNumber nowner);
