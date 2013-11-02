@@ -2214,6 +2214,8 @@ TbBool creature_look_for_combat(struct Thing *thing)
 
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
 {
+    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
+    TRACE_THING(thing);
     if ((get_creature_model_flags(thing) & MF_NoEnmHeartAttack) != 0) {
         return false;
     }
@@ -2222,6 +2224,7 @@ TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
     if (thing_is_invalid(heartng)) {
         return false;
     }
+    TRACE_THING(heartng);
     set_creature_object_combat(thing, heartng);
     return true;
 }

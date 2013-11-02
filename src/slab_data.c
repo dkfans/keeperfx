@@ -301,7 +301,28 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    _DK_do_slab_efficiency_alteration(slb_x, slb_y); return;
+    //_DK_do_slab_efficiency_alteration(slb_x, slb_y); return;
+    long n;
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        MapSlabCoord sslb_x, sslb_y;
+        sslb_x = slb_x + small_around[n].delta_x;
+        sslb_y = slb_y + small_around[n].delta_y;
+        struct SlabMap *slb;
+        struct SlabAttr *slbattr;
+        slb = get_slabmap_block(sslb_x, sslb_y);
+        if (slabmap_block_invalid(slb)) {
+            continue;
+        }
+        slbattr = get_slab_attrs(slb);
+        if (slbattr->category == 4)
+        {
+            struct Room *room;
+            room = slab_room_get(sslb_x, sslb_y);
+            set_room_efficiency(room);
+            set_room_capacity(room, 1);
+        }
+    }
 }
 
 SlabKind choose_rock_type(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
