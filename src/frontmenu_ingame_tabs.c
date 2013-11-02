@@ -279,9 +279,65 @@ void gui_choose_trap(struct GuiButton *gbtn)
     choose_workshop_item((int) gbtn->content, gbtn->tooltip_id);
 }
 
+void go_to_next_trap_of_type(unsigned long kind, PlayerNumber plyr_idx)
+{
+    static unsigned short trap[8];
+    struct Thing *thing;
+    int i;
+    unsigned long k;
+    if (kind >= 8) {
+        ERRORLOG("Bad trap kind");
+        return;
+    }
+    k = 0;
+    i = trap[kind];
+    trap[kind] = 0;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if ((thing->owner == plyr_idx) && (thing->model == kind)) {
+            trap[kind] = thing->index;
+            break;
+        }
+        if (i == 0) {
+            i = get_thing_class_list_head(TCls_Trap);
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    i = trap[kind];
+    if (i > 0) {
+        struct Packet *pckt;
+        pckt = get_packet(plyr_idx);
+        set_packet_action(pckt, PckA_ZoomToTrap, i, 0, 0, 0);
+    }
+}
+
 void gui_go_to_next_trap(struct GuiButton *gbtn)
 {
-    _DK_gui_go_to_next_trap(gbtn);
+    struct PlayerInfo * player;
+    struct TrapData *trap_dat;
+    int kind;
+    kind = (int)gbtn->content;
+    player = get_my_player();
+    trap_dat = &trap_data[kind%MANUFCTR_TYPES_COUNT];
+    //_DK_gui_go_to_next_trap(gbtn);
+    go_to_next_trap_of_type(trap_dat->field_4, player->id_number);
+    game.manufactr_element = kind;
+    game.numfield_15181D = trap_dat->field_8;
+    game.manufactr_tooltip = gbtn->tooltip_id;
 }
 
 void gui_over_trap_button(struct GuiButton *gbtn)

@@ -538,7 +538,7 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
-        WARNLOG("The %s tried to wander to player (%d) which has no heart", thing_model_name(creatng), (int)plyr_idx);
+        WARNLOG("The %s tried to wander to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
     set_creature_object_combat(creatng, heartng);

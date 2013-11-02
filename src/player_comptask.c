@@ -1136,7 +1136,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     dungeon = comp->dungeon;
     cdig->calls_count++;
     if (cdig->calls_count >= 356) {
-        WARNLOG("%s: ComputerDig calls count (%d) exceeds limit",func_name,(int)cdig->calls_count);
+        WARNLOG("%s: Player %d ComputerDig calls count (%d) exceeds limit",func_name,(int)dungeon->owner,(int)cdig->calls_count);
         return -2;
     }
     gldstl_x = 3 * subtile_slab(cdig->pos_gold.x.stl.num);
@@ -1144,7 +1144,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_14.x.stl.num,cdig->pos_14.y.stl.num);
     if (get_2d_distance(&cdig->pos_gold, &cdig->pos_14) <= cdig->distance)
     {
-        SYNCDBG(4,"%s: Starting small distance digging",func_name);
+        SYNCDBG(4,"%s: Player %d started small distance digging",func_name,(int)dungeon->owner);
         counter1 = 0;
         k = 0;
         while ( 1 )
@@ -1194,7 +1194,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) {
                 cdig->pos_20.x.stl.num = gldstl_x;
                 cdig->pos_20.y.stl.num = gldstl_y;
-                SYNCDBG(5,"%s: Have bridge, so going through liquid subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
+                SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
                 return -5;
             }
         }
@@ -1281,7 +1281,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             i = dig_to_position(dungeon->owner, cdig->pos_20.x.stl.num, cdig->pos_20.y.stl.num,
                     (around_index + (cdig->subfield_2A < 1 ? 3 : 1)) & 3, cdig->subfield_2A);
             if (i == -1) {
-                SYNCDBG(5,"%s: Preparing digging to subtile (%d,%d) failed",func_name,(int)cdig->pos_20.x.stl.num,(int)cdig->pos_20.y.stl.num);
+                SYNCDBG(5,"%s: Player %d digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)cdig->pos_20.x.stl.num,(int)cdig->pos_20.y.stl.num);
                 return -2;
             }
             digstl_x = stl_num_decode_x(i);
@@ -1293,7 +1293,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             {
                 cdig->pos_20.y.stl.num = digstl_y;
                 cdig->pos_20.x.stl.num = digstl_x;
-                SYNCDBG(5,"%s: Have bridge, so going through liquid subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
+                SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
                 return -5;
             }
             cdig->direction_around = small_around_index_towards_destination(cdig->pos_20.x.stl.num,cdig->pos_20.x.stl.num,digstl_x,digstl_y);
@@ -1302,7 +1302,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             {
                 mapblk = get_map_block_at(digstl_x, digstl_y);
                 if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner) ) {
-                    SYNCDBG(5,"%s: Cannot go through subtile (%d,%d)",func_name,(int)digstl_x,(int)digstl_y);
+                    SYNCDBG(5,"%s: Player %d cannot go through subtile (%d,%d)",func_name,(int)dungeon->owner,(int)digstl_x,(int)digstl_y);
                     return -2;
                 }
             }
@@ -1310,14 +1310,14 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
             {
                 if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= 0) {
-                    SYNCDBG(5,"%s: Game action failed at subtile (%d,%d)",func_name,(int)digstl_x,(int)digstl_y);
+                    SYNCDBG(5,"%s: Player %d game action failed at subtile (%d,%d)",func_name,(int)dungeon->owner,(int)digstl_x,(int)digstl_y);
                     return -2;
                 }
             }
         }
     } else
     {
-        SYNCDBG(4,"%s: Starting long distance digging",func_name);
+        SYNCDBG(4,"%s: Player %d started long distance digging",func_name,(int)dungeon->owner);
         i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->subfield_2A);
         if (i == -1) {
             return -2;

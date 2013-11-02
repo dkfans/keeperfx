@@ -984,7 +984,7 @@ short get_map_action_inputs(void)
     if ( left_button_released )
     {
       left_button_released = 0;
-      set_players_packet_action(player, 81,mappos_x,mappos_y,0,0);
+      set_players_packet_action(player, PckA_Unknown081, mappos_x,mappos_y,0,0);
       return true;
     }
   }

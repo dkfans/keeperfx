@@ -703,7 +703,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
     if (i == 0)
     {
       if (is_my_player(player))
-        play_non_3d_sample(119);
+          play_non_3d_sample(119);
       unset_packet_control(pckt, PCtr_LBtnClick);
       return false;
     }
@@ -711,8 +711,9 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
     thing = create_trap(&pos, player->chosen_trap_kind, plyr_idx);
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     thing->byte_18 = 0;
-    if (remove_workshop_item(plyr_idx, TCls_Trap, player->chosen_trap_kind))
-      dungeon->lvstats.traps_used++;
+    if (remove_workshop_item(plyr_idx, TCls_Trap, player->chosen_trap_kind)) {
+        dungeon->lvstats.traps_used++;
+    }
     dungeon->camera_deviate_jump = 192;
     if (is_my_player(player))
     {
@@ -2017,35 +2018,38 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         turn_off_query(plyr_idx);
       event_move_player_towards_event(player, pckt->field_6);
       return 0;
-  case PckA_Unknown084:
+  case PckA_ZoomToRoom:
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       room = room_get(pckt->field_6);
       player->zoom_to_pos_x = subtile_coord_center(room->central_stl_x);
       player->zoom_to_pos_y = subtile_coord_center(room->central_stl_y);
       set_player_instance(player, PI_ZoomToPos, 0);
-      if (player->work_state == PSt_BuildRoom)
-        set_player_state(player, PSt_BuildRoom, room->kind);
+      if (player->work_state == PSt_BuildRoom) {
+          set_player_state(player, PSt_BuildRoom, room->kind);
+      }
       return 0;
-  case PckA_Unknown085:
+  case PckA_ZoomToTrap:
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
       player->zoom_to_pos_x = thing->mappos.x.val;
       player->zoom_to_pos_y = thing->mappos.y.val;
       set_player_instance(player, PI_ZoomToPos, 0);
-      if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
-        set_player_state(player, PSt_PlaceTrap, thing->model);
+      if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor)) {
+          set_player_state(player, PSt_PlaceTrap, thing->model);
+      }
       return 0;
-  case PckA_Unknown086:
+  case PckA_ZoomToDoor:
       if (player->work_state == PSt_Unknown15)
         turn_off_query(plyr_idx);
       thing = thing_get(pckt->field_6);
       player->zoom_to_pos_x = thing->mappos.x.val;
       player->zoom_to_pos_y = thing->mappos.y.val;
       set_player_instance(player, PI_ZoomToPos, 0);
-      if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor))
-        set_player_state(player, PSt_PlaceDoor, thing->model);
+      if ((player->work_state == PSt_PlaceTrap) || (player->work_state == PSt_PlaceDoor)) {
+          set_player_state(player, PSt_PlaceDoor, thing->model);
+      }
       return 0;
   case PckA_Unknown087:
       if (player->work_state == PSt_Unknown15)
@@ -2254,10 +2258,10 @@ void process_players_creature_passenger_packet_action(long idx)
   SYNCDBG(6,"Starting");
   player = get_player(idx);
   pckt = get_packet_direct(player->packet_num);
-  if (pckt->action == 32)
+  if (pckt->action == PckA_PasngrCtrlExit)
   {
-    player->influenced_thing_idx = pckt->field_6;
-    set_player_instance(player, PI_PsngrCtLeave, 0);
+      player->influenced_thing_idx = pckt->field_6;
+      set_player_instance(player, PI_PsngrCtLeave, 0);
   }
   SYNCDBG(8,"Finished");
 }
@@ -2437,11 +2441,11 @@ void process_players_creature_control_packet_action(long plyr_idx)
   pckt = get_packet_direct(player->packet_num);
   switch (pckt->action)
   {
-  case 33:
+  case PckA_Unknown033:
       player->influenced_thing_idx = pckt->field_6;
       set_player_instance(player, PI_DirctCtLeave, 0);
       break;
-  case 39:
+  case PckA_CtrlCrtrSetInstnc:
       thing = thing_get(player->controlled_thing_idx);
       if (thing_is_invalid(thing))
         break;

@@ -187,6 +187,16 @@ void remove_thing_from_its_class_list(struct Thing *thing)
     }
 }
 
+ThingIndex get_thing_class_list_head(ThingClass class_id)
+{
+    struct StructureList *slist;
+    slist = get_list_for_thing_class(class_id);
+    if (slist != NULL) {
+        return slist->index;
+    }
+    return 0;
+}
+
 /** Adds the given thing to a linked list which contains all things of the same class.
  *
  * @param thing The thing to be linked with list chain.

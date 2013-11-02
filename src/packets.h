@@ -111,9 +111,9 @@ enum TbPacketAction {
         PckA_Unknown081,
         PckA_Unknown082,
         PckA_Unknown083,
-        PckA_Unknown084,
-        PckA_Unknown085,//85
-        PckA_Unknown086,
+        PckA_ZoomToRoom,
+        PckA_ZoomToTrap,//85
+        PckA_ZoomToDoor,
         PckA_Unknown087,
         PckA_Unknown088,
         PckA_PwrCTADis,

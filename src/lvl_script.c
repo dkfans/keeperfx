@@ -2649,16 +2649,16 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
-        WARNLOG("Tried to send %s to player (%d) which has no heart", thing_model_name(creatng), (int)plyr_idx);
+        WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
     struct Coord3d pos;
     if (!get_random_position_in_dungeon_for_creature(plyr_idx, 1, creatng, &pos)) {
-        WARNLOG("Tried to send %s to player (%d) but can't find position", thing_model_name(creatng), (int)plyr_idx);
+        WARNLOG("Tried to send %s to player %d but can't find position", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
     if (!send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &pos)) {
-        WARNLOG("Tried to send %s to player (%d) but can't start the task", thing_model_name(creatng), (int)plyr_idx);
+        WARNLOG("Tried to send %s to player %d but can't start the task", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
     return true;
@@ -2678,11 +2678,11 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
     }
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng)) {
-        WARNLOG("Tried to send %s to player (%d) which has no heart", thing_model_name(creatng), (int)plyr_idx);
+        WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
     if (send_tunneller_to_point_in_dungeon(creatng, plyr_idx, &heartng->mappos)) {
-        WARNLOG("Tried to send %s to player (%d) but can't start the task", thing_model_name(creatng), (int)plyr_idx);
+        WARNLOG("Tried to send %s to player %d but can't start the task", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
     return true;
