@@ -26,6 +26,7 @@
 #include "thing_data.h"
 #include "creature_control.h"
 #include "config_creature.h"
+#include "game_legacy.h"
 
 #ifdef __cplusplus
 extern "C" {

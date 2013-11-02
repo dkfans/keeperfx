@@ -123,6 +123,7 @@ long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
+void create_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z_max, PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

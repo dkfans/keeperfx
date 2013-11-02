@@ -1213,7 +1213,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     unsigned long model_flags;
     long x,y;
     long k;
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
+    SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     TRACE_THING(thing);
     //return _DK_process_creature_state(thing);
     cctrl = creature_control_get_from_thing(thing);

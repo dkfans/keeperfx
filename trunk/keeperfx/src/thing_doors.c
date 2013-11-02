@@ -21,11 +21,16 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "bflib_math.h"
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
+#include "thing_effects.h"
 #include "config_terrain.h"
+#include "creature_senses.h"
 #include "ariadne.h"
+#include "map_blocks.h"
+#include "sounds.h"
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontmenu_ingame_map.h"
@@ -69,25 +74,26 @@ TbBool remove_key_on_door(struct Thing *thing)
 
 TbBool add_key_on_door(struct Thing *thing)
 {
-  struct Thing *keytng;
-  keytng = create_object(&thing->mappos, 44, thing->owner, 0);
-  if (thing_is_invalid(keytng))
-    return false;
-  keytng->mappos.x.stl.pos = 128;
-  keytng->mappos.y.stl.pos = 128;
-  keytng->mappos.z.stl.num = 4;
-  return true;
+    struct Thing *keytng;
+    keytng = create_object(&thing->mappos, 44, thing->owner, 0);
+    if (thing_is_invalid(keytng))
+      return false;
+    keytng->mappos.x.stl.pos = 128;
+    keytng->mappos.y.stl.pos = 128;
+    keytng->mappos.z.stl.num = 4;
+    return true;
 }
 
 void unlock_door(struct Thing *thing)
 {
-  thing->byte_18 = 0;
-  game.field_14EA4B = 1;
-  update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
-    thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
-  pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, 3, 3);
-  if (!remove_key_on_door(thing))
-    WARNMSG("Cannot remove keyhole when unlocking door.");
+    thing->byte_18 = 0;
+    game.field_14EA4B = 1;
+    update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
+      thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
+    pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, 3, 3);
+    if (!remove_key_on_door(thing)) {
+        WARNMSG("Cannot remove keyhole when unlocking door.");
+    }
 }
 
 void lock_door(struct Thing *doortng)
@@ -110,9 +116,70 @@ void lock_door(struct Thing *doortng)
     }
 }
 
-long destroy_door(struct Thing *thing)
+long destroy_door(struct Thing *doortng)
 {
-  return _DK_destroy_door(thing);
+    SYNCDBG(18,"Starting for %s index %d owned by player %d",thing_model_name(doortng),(int)doortng->index,(int)doortng->owner);
+    //return _DK_destroy_door(thing);
+    MapSubtlCoord stl_x, stl_y;
+    PlayerNumber plyr_idx;
+    struct Coord3d pos;
+    pos.x.val = doortng->mappos.x.val;
+    pos.y.val = doortng->mappos.y.val;
+    pos.z.val = doortng->mappos.z.val;
+    stl_x = pos.x.stl.num;
+    stl_y = pos.y.stl.num;
+    plyr_idx = doortng->owner;
+    remove_key_on_door(doortng);
+    ceiling_partially_recompute_heights(stl_x - 1, stl_y - 1, stl_x + 2, stl_y + 2);
+    create_rubble_for_dug_block(stl_x, stl_y, 4, plyr_idx);
+    if (doortng->word_13)
+    {
+        create_rubble_for_dug_block(stl_x, stl_y + 1, 4, plyr_idx);
+        create_rubble_for_dug_block(stl_x, stl_y - 1, 4, plyr_idx);
+    } else
+    {
+        create_rubble_for_dug_block(stl_x + 1, stl_y, 4, plyr_idx);
+        create_rubble_for_dug_block(stl_x - 1, stl_y, 4, plyr_idx);
+    }
+    struct Thing *efftng;
+    efftng = create_effect(&pos, 49, plyr_idx);
+    if (!thing_is_invalid(efftng)) {
+        thing_play_sample(efftng, 72 + UNSYNC_RANDOM(4), 100, 0, 3, 0, 3, 256);
+    }
+    if (plyr_idx != game.neutral_player_num)
+    {
+        struct Dungeon * dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        if (!dungeon_invalid(dungeon)) {
+            dungeon->total_doors--;
+            dungeon->doors_destroyed++;
+        }
+    }
+    delete_thing_structure(doortng, 0);
+    MapSlabCoord slb_x, slb_y;
+    struct SlabMap *slb;
+    slb_x = subtile_slab_fast(stl_x);
+    slb_y = subtile_slab_fast(stl_y);
+    slb = get_slabmap_block(slb_x,slb_y);
+    place_slab_type_on_map(SlbT_CLAIMED, stl_x, stl_y, slabmap_owner(slb), 0);
+    do_slab_efficiency_alteration(slb_x, slb_y);
+    struct PlayerInfo *player;
+    int i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (!player_exists(player))
+            continue;
+        struct Thing *thing;
+        long dist, sight_stl;
+        thing = thing_get(player->controlled_thing_idx);
+        dist = get_2d_box_distance(&pos, &thing->mappos);
+        sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing),0);
+        if (dist <= subtile_coord(sight_stl,0)) {
+            check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+        }
+    }
+    return 1;
 }
 
 TbBool thing_is_deployed_door(const struct Thing *thing)
@@ -262,7 +329,8 @@ TngUpdateRet process_door(struct Thing *thing)
         ERRORLOG("Invalid %s (index %d) orientation %d",thing_model_name(thing),(int)thing->index,(int)thing->door.orientation);
         thing->door.orientation &= 1;
     }
-    switch ( thing->active_state )
+    SYNCDBG(18,"State %d",(int)thing->active_state);
+    switch (thing->active_state)
     {
     case DorSt_Unknown01:
         process_door_open(thing);

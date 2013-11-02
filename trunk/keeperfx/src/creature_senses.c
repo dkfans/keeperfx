@@ -27,6 +27,7 @@
 #include "creature_control.h"
 #include "config_creature.h"
 #include "config_rules.h"
+#include "config_settings.h"
 #include "map_blocks.h"
 #include "game_legacy.h"
 
@@ -689,4 +690,23 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     return true;
 }
 
+long get_explore_sight_distance_in_slabs(struct Thing *thing)
+{
+    struct PlayerInfo *player;
+    if (is_neutral_thing(thing)) {
+        return 7;
+    }
+    player = get_player(thing->owner);
+    struct Thing *ctrltng;
+    ctrltng = thing_get(player->controlled_thing_idx);
+    long dist;
+    if (ctrltng->index != thing->index) {
+        dist = 7;
+    } else {
+        dist = get_creature_can_see_subtiles() / 3;
+        if (dist <= 7)
+            dist = 7;
+    }
+    return dist;
+}
 /******************************************************************************/
