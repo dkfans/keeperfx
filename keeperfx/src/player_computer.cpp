@@ -878,7 +878,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
         { // If it would be a path, we could wait for someone to claim it; but if it's not..
             if (find_from_task_list(dungeon->owner, get_slab_number(slb_x,slb_y)) < 0)
             { // If we have no intention of doing a task there - remove it from list
-                ERRORLOG("Removing outdated trap location (%d,%d)",(int)location->x.stl.num,(int)location->y.stl.num);
+                ERRORLOG("Removing player %d outdated trap location (%d,%d)",(int)dungeon->owner,(int)location->x.stl.num,(int)location->y.stl.num);
                 location->x.val = 0;
                 location->y.val = 0;
             }
