@@ -378,7 +378,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4)
         return;
     }
     i = UNSYNC_RANDOM(crsound->count);
-    //SYNCLOG("Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
+    SYNCDBG(18,"Playing sample %d (index %d) for creature %d",snd_idx,crsound->index+i,thing->model);
     if ( a4 ) {
         thing_play_sample(thing, crsound->index+i, 100, 0, 3, 8, a3, 256);
     } else {
@@ -396,7 +396,7 @@ void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_id
     }
     crsound = get_creature_sound(thing, snd_idx);
     if (crsound->index <= 0) {
-        //SYNCLOG("No sample %d for creature %d",snd_idx,thing->model);
+        SYNCDBG(14,"No sample %d for creature %d",snd_idx,thing->model);
         return;
     }
     i = UNSYNC_RANDOM(crsound->count);
