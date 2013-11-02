@@ -412,20 +412,20 @@ void destroy_object(struct Thing *thing)
 
 TbBool thing_is_object(const struct Thing *thing)
 {
-  if (thing_is_invalid(thing))
-    return false;
-  if (thing->class_id != TCls_Object)
-    return false;
-  return true;
+    if (thing_is_invalid(thing))
+      return false;
+    if (thing->class_id != TCls_Object)
+      return false;
+    return true;
 }
 
 struct Objects *get_objects_data_for_thing(struct Thing *thing)
 {
-  unsigned int tmodel;
-  tmodel = thing->model;
-  if (tmodel >= OBJECT_TYPES_COUNT)
-    return &objects_data[0];
-  return &objects_data[tmodel];
+    unsigned int tmodel;
+    tmodel = thing->model;
+    if (tmodel >= OBJECT_TYPES_COUNT)
+      return &objects_data[0];
+    return &objects_data[tmodel];
 }
 
 struct Objects *get_objects_data(unsigned int tmodel)
