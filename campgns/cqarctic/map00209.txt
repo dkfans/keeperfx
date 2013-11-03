@@ -54,7 +54,8 @@ TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,WORD_OF_POWER,1,0)
 
 IF(PLAYER0,GAME_TURN > 30)
-    QUICK_OBJECTIVE(1,"One of three other keeper possesses the incantation the destruction of walls, the ruler of this land walled up the entry to its own heart. This incantation will be not superfluous to the inroad to his heart. Successes!",PLAYER0)
+    REM QUICK_OBJECTIVE(1,"One of three other keeper possesses the incantation the destruction of walls, the ruler of this land walled up the entry to its own heart. This incantation will be not superfluous to the inroad to his heart. Successes!",PLAYER0)
+    DISPLAY_OBJECTIVE(17,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER0,LAIR >= 1)
@@ -99,6 +100,7 @@ COMPUTER_PLAYER(PLAYER2, 1)
 COMPUTER_PLAYER(PLAYER1, 1)
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
+    REM QUICK_OBJECTIVE(2,"The following subject land, nobody is in a position to overcome  us!",PLAYER0)
+    DISPLAY_OBJECTIVE(18,ALL_PLAYERS)
     WIN_GAME
-    QUICK_OBJECTIVE(2,"The following subject land, nobody is in a position to overcome  us!",PLAYER0)
 ENDIF
