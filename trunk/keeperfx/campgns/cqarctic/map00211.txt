@@ -30,10 +30,12 @@ IF(PLAYER0,LAIR >= 1)
 ENDIF
 
 IF(PLAYER0,GAME_TURN > 30)
-    QUICK_OBJECTIVE(1,"The moonshine showed me this land, the time has come to conquer!",PLAYER0)
+    REM QUICK_OBJECTIVE(1,"The moonshine showed me this land, the time has come to conquer!",PLAYER0)
+    DISPLAY_OBJECTIVE(21,ALL_PLAYERS)
 ENDIF
 
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
-    QUICK_OBJECTIVE(2,"It's time to watch this land in the bright of full moon...",PLAYER0)
+    REM QUICK_OBJECTIVE(2,"It's time to watch this land in the bright of full moon...",PLAYER0)
+    DISPLAY_OBJECTIVE(22,ALL_PLAYERS)
     WIN_GAME
 ENDIF
