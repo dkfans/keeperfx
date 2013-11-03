@@ -303,8 +303,11 @@ pkg/campgns/evilkeep/text_ger.dat \
 pkg/campgns/grkreign/text_eng.dat \
 pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/ncastles/text_eng.dat \
+pkg/campgns/pstunded/text_eng.dat \
 pkg/campgns/questfth/text_eng.dat \
-pkg/campgns/questfth/text_fre.dat
+pkg/campgns/questfth/text_fre.dat \
+pkg/campgns/twinkprs/text_eng.dat \
+pkg/campgns/undedkpr/text_eng.dat
 LANDVIEWRAWS = \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/keeporig_lnd/rgmap$(num).raw pkg/campgns/keeporig_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
