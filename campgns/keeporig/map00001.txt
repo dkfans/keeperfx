@@ -4,13 +4,13 @@ REM ****************************************************************************
 REM  Script for Level Eversmile
 REM  Campaign: DK Original
 REM  Authors:  based on Bullfrog script
-REM            KeeperFX CCP Team
-REM  Date:     17 Aug 1997 - 06 Feb 2011
+REM			KeeperFX CCP Team
+REM  Date:	 17 Aug 1997 - 06 Feb 2011
 REM  Copying and copyrights:
-REM    This program is free software; you can redistribute it and/or modify
-REM    it under the terms of the GNU General Public License as published by
-REM    the Free Software Foundation; either version 2 of the License, or
-REM    (at your option) any later version.
+REM	This program is free software; you can redistribute it and/or modify
+REM	it under the terms of the GNU General Public License as published by
+REM	the Free Software Foundation; either version 2 of the License, or
+REM	(at your option) any later version.
 REM ****************************************************************************
 
 REM New rooms for the player:
@@ -20,6 +20,13 @@ REM   GARDEN - when BUG comes
 REM New creatures for the player:
 REM   FLY - first creature
 REM   BUG - when got at least one fly
+
+REM Flags used:
+REM  PLAYER0,FLAG2 - Gold mining; 0-no gold mined; 1-gold mined > 0.
+REM  PLAYER0,FLAG1 - Rooms building; 1-treasury built AND almost all gold mined
+REM  PLAYER0,FLAG0 - Progress state; 1-treasury built; 3-lair built;
+REM                  4-hatchery built; 5-ready for 1st battle;
+REM                  6-won 1st battle; 7-lord of the land has appeared.
 
 SET_GENERATE_SPEED(400)
 
@@ -54,10 +61,10 @@ SET_CREATURE_STRENGTH(TUNNELLER,20)
 SET_CREATURE_ARMOUR(TUNNELLER,20)
 
 CREATE_PARTY(LANDLORD)
-    ADD_TO_PARTY(LANDLORD,KNIGHT,1,1000,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(LANDLORD,KNIGHT,1,1000,ATTACK_ENEMIES,0)
 
-CREATE_PARTY(THIEF)
-    ADD_TO_PARTY(THIEF,THIEF,1,100,ATTACK_ENEMIES,0)
+CREATE_PARTY(THIEVES)
+	ADD_TO_PARTY(THIEVES,THIEF,1,100,ATTACK_ENEMIES,0)
 
 REM ****************************************************************************
 
@@ -81,12 +88,12 @@ ENDIF
 
 REM Started mining gold
 IF(PLAYER0,TOTAL_GOLD_MINED > 0)
-	SET_FLAG(PLAYER1,FLAG0,1)
+	SET_FLAG(PLAYER0,FLAG2,1)
 ENDIF
 
 REM Show infos during the mining; when mined go to stage FLAG0=3
-IF(PLAYER0,FLAG0 == 1)
-	IF(PLAYER1,FLAG0 == 1)
+IF(PLAYER0,FLAG0 >= 1)
+	IF(PLAYER0,FLAG2 == 1)
 		IF(PLAYER0,TOTAL_GOLD_MINED >= 1000)
 			DISPLAY_INFORMATION(5)
  			IF(PLAYER0,TOTAL_GOLD_MINED >= 5000)
@@ -108,7 +115,7 @@ ENDIF
 
 REM Show other infos when mining without treasure room built
 IF(PLAYER0,FLAG0 == 0)
-	IF(PLAYER1,FLAG0 == 1)
+	IF(PLAYER0,FLAG2 == 1)
 		DISPLAY_OBJECTIVE(9,PLAYER0)
 		IF(PLAYER0,TOTAL_GOLD_MINED >= 1000)
 			DISPLAY_INFORMATION(10)
@@ -131,7 +138,7 @@ IF(PLAYER0,TOTAL_CREATURES >= 1)
 ENDIF
 
 REM Built LAIR
-IF(PLAYER0,FLAG0 == 3)
+IF(PLAYER0,FLAG0 >= 3)
 	IF(PLAYER0,TOTAL_CREATURES >= 1)
 		DISPLAY_OBJECTIVE(13,PLAYER0)
 		CREATURE_AVAILABLE(PLAYER0,FLY,1,0)
@@ -160,13 +167,13 @@ IF(PLAYER0,FLAG0 == 4)
 ENDIF
 
 REM Has eight or more creatures
-IF(PLAYER0,FLAG0 == 5)
+IF(PLAYER0,FLAG0 >= 5)
 	IF(PLAYER0,TIMER1 >= 600)
 		DISPLAY_INFORMATION(16)
 		TUTORIAL_FLASH_BUTTON(5,-1)
 		IF(PLAYER0,TIMER1 >= 800)
-			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEF,1,DUNGEON,0,1,200)
-			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEF,1,DUNGEON,0,1,200)
+			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,1,DUNGEON,0,1,200)
+			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,1,DUNGEON,0,1,200)
 			DISPLAY_OBJECTIVE(17,PLAYER0)
 			TUTORIAL_FLASH_BUTTON(37,-1)
 			IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
@@ -179,7 +186,7 @@ IF(PLAYER0,FLAG0 == 5)
 ENDIF
 
 REM Has won first battle
-IF(PLAYER0,FLAG0 == 6)
+IF(PLAYER0,FLAG0 >= 6)
 	IF(PLAYER0,TIMER2 >= 500)
 		IF(PLAYER0,TOTAL_CREATURES >= 7)
 			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,1,1)

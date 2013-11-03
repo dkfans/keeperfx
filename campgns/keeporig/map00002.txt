@@ -21,6 +21,12 @@ REM   DEMON_SPAWN - from start (but needs TRAINING for attraction)
 REM Flags used:
 REM   PLAYER0,FLAG3 - State of TRAINING building; 0-not built yet; 1-built.
 
+REM Timers used:
+REM   PLAYER0,TIMER0
+REM   PLAYER0,TIMER1
+REM   PLAYER0,TIMER2
+
+
 START_MONEY(PLAYER0,2500)
 SET_GENERATE_SPEED(350)
 MAX_CREATURES(PLAYER0,14)
@@ -104,7 +110,7 @@ IF(PLAYER0,FLAG0 == 1)
 				TUTORIAL_FLASH_BUTTON(10,-1)
 REM				"You will need stronger creatures. Build a 3x3 training room to make your creatures stronger, and to give them new spells and abilities."
 				DISPLAY_OBJECTIVE(25,PLAYER0)
-				SET_TIMER(PLAYER1,TIMER2)
+				SET_TIMER(PLAYER0,TIMER1)
 				SET_FLAG(PLAYER0,FLAG0,2)
 				SET_TIMER(PLAYER0,TIMER2)
 			ENDIF
@@ -149,7 +155,7 @@ REM	"Good. Now get your imps to fortify the walls in your rooms. This will incre
 	CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
 REM	"A training room will attract fighters, especially demon spawn. Fighters are good for training."
 	DISPLAY_INFORMATION(27)
-	SET_TIMER(PLAYER1,TIMER0)
+	SET_TIMER(PLAYER0,TIMER0)
 	IF(PLAYER0,DEMONSPAWN > 0)
 REM		"To train creatures, put them in the training room. The number that you will see coming out is the amount it costs a creature to train."
 		DISPLAY_INFORMATION(28)
@@ -158,8 +164,8 @@ ENDIF
 
 REM Info to tell player to slap creatures
 IF(PLAYER0,DEMONSPAWN > 0)
-	SET_TIMER(PLAYER1,TIMER2)
-	IF(PLAYER1,TIMER2 >= 500)
+	SET_TIMER(PLAYER0,TIMER1)
+	IF(PLAYER0,TIMER1 >= 500)
 REM		"Remember, you can speed up the creatures training by slapping them while they're in the training room."
 		DISPLAY_INFORMATION(29)
 	ENDIF
@@ -171,7 +177,7 @@ IF(PLAYER0,DEMONSPAWN >= 2)
 		CREATURE_AVAILABLE(PLAYER0,FLY,1,1)
 		CREATURE_AVAILABLE(PLAYER0,BUG,1,1)
 		CREATURE_AVAILABLE(PLAYER0,DEMONSPAWN,1,1)
-		IF(PLAYER1,TIMER0 >= 4000)
+		IF(PLAYER0,TIMER0 >= 4000)
 			ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,1,DUNGEON,0,1,500)
 			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,DWARVES,1,1)
 REM			"The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
