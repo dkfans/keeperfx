@@ -1,5 +1,17 @@
-REM PLAY-LEVEL ??
-REM ** 2-PLAYER MULTIPLAYER **
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for 2-player multiplayer level 126
+REM  Campaign: Multiplayer
+REM  Authors:  based on Bullfrog script
+REM         KeeperFX CCP Team
+REM  Date:   17 Aug 1997 - 02 Nov 2013
+REM  Copying and copyrights:
+REM This program is free software; you can redistribute it and/or modify
+REM it under the terms of the GNU General Public License as published by
+REM the Free Software Foundation; either version 2 of the License, or
+REM (at your option) any later version.
+REM ****************************************************************************
 
 SET_GENERATE_SPEED(800)
 
@@ -8,7 +20,8 @@ START_MONEY(PLAYER0,1500)
 
 MAX_CREATURES(PLAYER1,16)
 START_MONEY(PLAYER1,1500)
-QUICK_OBJECTIVE(0,"Quelques moines idiots ont construit leur salle du tr‚sor ici. Rejoignez-les rapidement et expliquez-leur l'erreur qu'ils ont fait! Utilisez alors leur r‚serve pour d‚truire votre adversaire! Bonne partie, MaŒtre!",ALL_PLAYERS)
+
+REM QUICK_OBJECTIVE(0,"Some unaware monks built their treasure room here. Meet them quickly and explain the mistake they madeâ€‹â€‹! Then use their reserves to destroy your opponent! Good luck, instrument of evil!",ALL_PLAYERS)
 
 ADD_CREATURE_TO_POOL(FLY,6)
 ADD_CREATURE_TO_POOL(DEMONSPAWN,20)
@@ -57,7 +70,7 @@ ROOM_AVAILABLE(ALL_PLAYERS,GUARD_POST,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,0)
 ROOM_AVAILABLE(ALL_PLAYERS,GRAVEYARD,1,0)
 
-REM // PARTY INFO
+REM PARTY INFO
 
 CREATE_PARTY(ONE)
 	ADD_TO_PARTY(ONE,THIEF,1,0,STEAL_GOLD,0)
@@ -78,7 +91,7 @@ CREATE_PARTY(DEFENDERS)
 	ADD_TO_PARTY(DEFENDERS,MONK,6,100,ATTACK_ENEMIES,0)
 	ADD_TO_PARTY(DEFENDERS,WIZARD,8,500,ATTACK_ENEMIES,0)
 
-REM // ACTION POINTS
+REM ACTION POINTS
 
 IF_ACTION_POINT(1,ALL_PLAYERS)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,ONE,1,1)
@@ -103,7 +116,7 @@ IF_ACTION_POINT(5,ALL_PLAYERS)
 	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,7,2,2,50)
 ENDIF
 
-REM // WIN GAME CONDITIONS
+REM WIN GAME CONDITIONS
 
 IF(PLAYER0,ALL_DUNGEONS_DESTROYED == 1)
 	WIN_GAME
