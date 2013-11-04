@@ -14,9 +14,17 @@ REM    (at your option) any later version.
 REM ****************************************************************************
 
 REM New rooms for the player:
-REM   BARRACKS - OK
+REM   BARRACKS - Becomes available when Orc comes in
 REM New creatures for the player:
-REM   ORC - OK
+REM   ORC - One given and more available after gaining 5th creature
+
+REM Timers used:
+REM   PLAYER_GOOD,TIMER0 - Controls spawning ICHI party
+REM   PLAYER_GOOD,TIMER1 - Controls spawning NI party
+REM   PLAYER_GOOD,TIMER2 - Controls spawning SAN party
+REM   PLAYER_GOOD,TIMER3 - Controls spawning YON party
+REM   PLAYER_GOOD,TIMER4 - Controls spawning GO party
+REM   PLAYER_GOOD,TIMER6 - Used for delay before Lord of the Land appearence
 
 SET_GENERATE_SPEED(250)
 
@@ -27,6 +35,9 @@ START_MONEY(PLAYER0,3000)
 START_MONEY(PLAYER1,7500)
 
 COMPUTER_PLAYER(PLAYER1,5)
+
+REM Reconfiguring computer processes to make him less aggressive while digging around
+REM Original values were:
 REM       Name            Priority MoneyMinimum TurnScale GoldDugAtOnce MaxDistance
 REM  "DIG TO CLOSE GOLD",       0,       30999,      500,             5,        71
 
@@ -85,47 +96,50 @@ TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
 
 CREATE_PARTY(ICHI)
-    ADD_TO_PARTY(ICHI,DWARFA,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(ICHI,DWARFA,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(ICHI,THIEF,2,200,STEAL_GOLD,0)
-    ADD_TO_PARTY(ICHI,THIEF,2,200,STEAL_GOLD,0)
+	ADD_TO_PARTY(ICHI,DWARFA,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(ICHI,DWARFA,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(ICHI,THIEF,2,200,STEAL_GOLD,0)
+	ADD_TO_PARTY(ICHI,THIEF,2,200,STEAL_GOLD,0)
 
 CREATE_PARTY(NI)
-    ADD_TO_PARTY(NI,ARCHER,2,150,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(NI,ARCHER,2,150,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(NI,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(NI,ARCHER,2,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(NI,ARCHER,2,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(NI,BARBARIAN,2,200,ATTACK_ENEMIES,0)
 
 CREATE_PARTY(SAN)
-    ADD_TO_PARTY(SAN,ARCHER,2,150,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(SAN,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(SAN,WIZARD,2,300,STEAL_SPELLS,0)
+	ADD_TO_PARTY(SAN,ARCHER,2,150,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(SAN,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(SAN,WIZARD,2,300,STEAL_SPELLS,0)
 
 CREATE_PARTY(YON)
-    ADD_TO_PARTY(YON,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(YON,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(YON,WIZARD,2,300,STEAL_SPELLS,0)
+	ADD_TO_PARTY(YON,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(YON,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(YON,WIZARD,2,300,STEAL_SPELLS,0)
 
 CREATE_PARTY(GO)
-    ADD_TO_PARTY(GO,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(GO,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(GO,GIANT,2,400,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(GO,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(GO,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(GO,GIANT,2,400,ATTACK_ENEMIES,0)
 
 CREATE_PARTY(LANDLORD)
-    ADD_TO_PARTY(LANDLORD,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(LANDLORD,BARBARIAN,2,200,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(LANDLORD,KNIGHT,4,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(LANDLORD,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(LANDLORD,BARBARIAN,2,200,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(LANDLORD,KNIGHT,4,200,ATTACK_ENEMIES,0)
 
 REM ****************************************************************************
 
-REM "You have arrived in the middle of a battle already started. Try to avoid the crossfire until you can eliminate both sides."
+REM "It appears you have arrived in the middle of a raging battle. Perhaps it would be wise to stay out of the way until you are strong enough to eliminate both sides."
 DISPLAY_OBJECTIVE(71,PLAYER0)
 
 IF(PLAYER0,TOTAL_CREATURES >= 5)
-    ADD_CREATURE_TO_LEVEL(PLAYER0,ORC,4,1,2,0)
-    CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
-REM "An orc has joined you and brought with him the plans to a barracks room, wherein you will be able to form your creatures into teams."
-    DISPLAY_INFORMATION(72)
-    ROOM_AVAILABLE(PLAYER0,BARRACKS,1,1)
+	ADD_CREATURE_TO_LEVEL(PLAYER0,ORC,4,1,2,0)
+	CREATURE_AVAILABLE(ALL_PLAYERS,ORC,1,1)
+ENDIF
+
+IF(PLAYER0,ORC > 0)
+	REM "An Orc warlord joins you and brings with him the plans for building a Barracks. In this room you can form creatures into teams."
+	DISPLAY_INFORMATION(72)
+	ROOM_AVAILABLE(PLAYER0,BARRACKS,1,1)
 ENDIF
 
 SET_TIMER(PLAYER_GOOD,TIMER0)
@@ -144,8 +158,8 @@ ENDIF
 SET_TIMER(PLAYER_GOOD,TIMER1)
 
 IF(PLAYER_GOOD,FLAG0 == 0)
-	IF(PLAYER_GOOD,TOTAL_CREATURES <= 5)
-		IF(PLAYER_GOOD,TIMER1 > 4000)
+	IF(PLAYER_GOOD,TIMER1 > 4000)
+		IF(PLAYER_GOOD,TOTAL_CREATURES <= 5)
 			NEXT_COMMAND_REUSABLE
 			ADD_PARTY_TO_LEVEL(PLAYER_GOOD,NI,-2,1)
 			NEXT_COMMAND_REUSABLE
@@ -193,32 +207,36 @@ IF(PLAYER_GOOD,FLAG0 == 0)
 	ENDIF
 ENDIF
 
-SET_TIMER(PLAYER_GOOD,TIMER5)
-
-IF(PLAYER1,DUNGEON_DESTROYED == 1)
+REM The continuous hero parties can be stopped either by waiting enough time, or killing PLAYER1 
+IF(PLAYER1,DUNGEON_DESTROYED >= 1)
 	SET_FLAG(PLAYER_GOOD,FLAG0,1)
+	SET_TIMER(PLAYER_GOOD,TIMER6)
 ENDIF
 
-IF(PLAYER_GOOD,TIMER5 >= 20000)
+IF(PLAYER_GOOD,GAME_TURN >= 20000)
 	SET_FLAG(PLAYER_GOOD,FLAG0,1)
+	SET_TIMER(PLAYER_GOOD,TIMER6)
+ENDIF
+
+REM When the parties are stopped and there are no more heroes on level, make the lord enter (with some delay)
+IF(PLAYER_GOOD,TIMER6 >= 1000)
 	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+		REM "I think I hear the clanking of plate armour. Yes, the Lord of the Land has finally roused himself from the fireside to find out where all his loyal servants have gone."
+		DISPLAY_OBJECTIVE(73,PLAYER0)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,-2,1)
 		SET_FLAG(PLAYER_GOOD,FLAG1,1)
-REM		"The heroes have been defeated and their lord arrives for one last desperate stand."
-		DISPLAY_OBJECTIVE(73,PLAYER0)
-		IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-			IF(PLAYER_GOOD,FLAG0 == 0)
-REM				"The heroes are decimated.  Now destroy the enemy dungeon keeper."
-				DISPLAY_OBJECTIVE(74,PLAYER0)
-			ENDIF
-		ENDIF
 	ENDIF
 ENDIF
 
+REM When lord is killed, direct the player to kill PLAYER1, unless it's not destroyed already; and when he is - victory
 IF(PLAYER_GOOD,FLAG1 == 1)
 	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-		IF(PLAYER1,DUNGEON_DESTROYED == 1)
-REM			"You have defeated both sides and now control the entire land."
+		IF(PLAYER1,DUNGEON_DESTROYED == 0)
+			REM "You have turned local heroes into something of an endangered species, now make the enemy Dungeon Keeper extinct."
+			DISPLAY_OBJECTIVE(74,PLAYER0)
+		ENDIF
+		IF(PLAYER1,DUNGEON_DESTROYED >= 1)
+			REM "You have prevailed, Keeper. The bodies of your enemies litter the most forlorn alcoves of your domain, in tribute to their futile efforts to keep you at bay."
 			DISPLAY_OBJECTIVE(75,PLAYER0)
 			WIN_GAME
 		ENDIF
