@@ -897,8 +897,20 @@ msgid "Finally, you stand unchallenged. The world is yours to waste and despoil.
 msgstr "Наконец-то, вы остались одни! Мир ваш для pазpyшения и yничтожения. Я могy поспоpить, что вы никогда не чувствовали себя так плохо."
 
 #: guitext:173
+msgctxt "In-game message"
+msgid "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
+msgstr ""
+
 #: guitext:174
+msgctxt "In-game message"
+msgid "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
+msgstr ""
+
 #: guitext:175
+msgctxt "In-game message"
+msgid "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
+msgstr ""
+
 #: guitext:176
 #: guitext:177
 #: guitext:178
