@@ -806,7 +806,7 @@ msgstr ""
 
 #: guitext:147
 msgctxt "In-game message"
-msgid "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time. The dark gods will send you a Giant to help you conquer the next realm."
+msgid "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time. The dark gods will send you a vicious creature to help you conquer the next realm."
 msgstr ""
 
 #: guitext:148
@@ -831,12 +831,12 @@ msgstr ""
 
 #: guitext:152
 msgctxt "In-game message"
-msgid "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by granting you three superior Imps when you reach the next realm."
+msgid "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by allowing you to use the warrior you found when you reach the next realm."
 msgstr ""
 
 #: guitext:153
 msgctxt "In-game message"
-msgid "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve you well in the future."
+msgid "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where a legendary warrior is imprisoned. That warrior will serve you well in the future."
 msgstr ""
 
 #: guitext:154
@@ -935,8 +935,20 @@ msgid "Finally, you stand unchallenged. The world is yours to waste and despoil.
 msgstr ""
 
 #: guitext:173
+msgctxt "In-game message"
+msgid "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
+msgstr ""
+
 #: guitext:174
+msgctxt "In-game message"
+msgid "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
+msgstr ""
+
 #: guitext:175
+msgctxt "In-game message"
+msgid "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
+msgstr ""
+
 #: guitext:176
 #: guitext:177
 #: guitext:178
@@ -1103,7 +1115,7 @@ msgstr ""
 
 #: guitext:229
 msgctxt "Creature spell"
-msgid "Lightning:  A powerful magical weapon with electric attack. Casts a bolt of lighting from the creature."
+msgid "Lightning: A powerful magical weapon with electric attack. Casts a bolt of lighting from the creature."
 msgstr ""
 
 #: guitext:230
@@ -1128,7 +1140,7 @@ msgstr ""
 
 #: guitext:234
 msgctxt "Creature spell"
-msgid "Grenade:  Throws a powerful explosive at the approaching enemy. It can also bounce off walls and has the traditional delayed fuse."
+msgid "Grenade: Throws a powerful explosive at the approaching enemy. It can also bounce off walls and has the traditional delayed fuse."
 msgstr ""
 
 #: guitext:235
@@ -1229,7 +1241,7 @@ msgstr ""
 
 #: guitext:255
 msgctxt "Creature spell"
-msgid "Disease:  Fired at a foe, gives them a Disease which is then spread to other creatures. The infected are slowly dying and can only be healed in the Temple."
+msgid "Disease: Fired at a foe, gives them a Disease which is then spread to other creatures. The infected are slowly dying and can only be healed in the Temple."
 msgstr ""
 
 #: guitext:256
