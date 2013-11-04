@@ -1668,7 +1668,22 @@ msgstr ""
 "お前に挑むものはついに誰もいなくなった。 世界はお前のもの、 荒廃させるも略奪"
 "するも自由だ。 悪の中の悪を極めた気分であろうな。"
 
-#: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
+#: guitext:173
+msgctxt "In-game message"
+msgid "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
+msgstr ""
+
+#: guitext:174
+msgctxt "In-game message"
+msgid "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
+msgstr ""
+
+#: guitext:175
+msgctxt "In-game message"
+msgid "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
+msgstr ""
+
+#: guitext:176 guitext:177 guitext:178
 #: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
 #: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
 #: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196

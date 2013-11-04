@@ -1,4 +1,17 @@
-REM BONUS LEVEL 6 (FULL MOON)
+REM ****************************************************************************
+REM  Campaigns Consolidation Project for KeeperFX strategy game.
+REM ****************************************************************************
+REM  Script for Bonus Level - Full Moon
+REM  Campaign: DK Original
+REM  Authors:  based on Bullfrog script
+REM		 KeeperFX CCP Team
+REM  Date:   17 Aug 1997 - 02 Nov 2013
+REM  Copying and copyrights:
+REM This program is free software; you can redistribute it and/or modify
+REM it under the terms of the GNU General Public License as published by
+REM the Free Software Foundation; either version 2 of the License, or
+REM (at your option) any later version.
+REM ****************************************************************************
 
 SET_GENERATE_SPEED(400)
 
@@ -28,16 +41,16 @@ ALLY_PLAYERS(PLAYER2,PLAYER3)
 MAGIC_AVAILABLE(ALL_PLAYERS,POWER_IMP,1,1)
 MAGIC_AVAILABLE(ALL_PLAYERS,POWER_LIGHTNING,1,1)
 
-DISPLAY_OBJECTIVE(133,PLAYER0)
-
-IF(PLAYER0,GAME_TURN >= 10)
-	DISPLAY_INFORMATION(132)
-ENDIF
-
 CREATE_PARTY(DWARF)
 	ADD_TO_PARTY(DWARF,DWARFA,1,300,STEAL_GOLD,0)
 
-REM	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER,PARTY_NAME,WHERE,HEAD_FOR,NUMBER,LEVEL,GOLD)
+REM "Three other Dungeon Keepers, each as evil and powerful as you, have expanded their empires into this realm. Ultimately, only the one who rules the underworld can conquer the realms above."
+DISPLAY_OBJECTIVE(133,PLAYER0)
+
+IF(PLAYER0,GAME_TURN >= 50)
+	REM "You are about to face the greatest challenge yet to your evil aspirations. Here it comes, ready or not."
+	DISPLAY_INFORMATION(132)
+ENDIF
 
 IF(ALL_PLAYERS,TOTAL_GOLD_MINED > 20000)
 	ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,DWARF,-1,APPROPIATE_DUNGEON,0,1,100)
@@ -96,9 +109,17 @@ SET_TIMER(PLAYER0,TIMER0)
 
 IF(PLAYER0,TIMER0 >= 20000)
 	IF(PLAYER0,MONEY >= 30000)
-		WIN_GAME
+		REM "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
+		DISPLAY_OBJECTIVE(175,PLAYER0)
+		ADD_CREATURE_TO_LEVEL(PLAYER0,THIEF,2,1,10,0)
+        REM Using a timer to make sure add creature command will be executed
+		SET_TIMER(PLAYER0,TIMER1)
 	ENDIF
 	IF(PLAYER0,MONEY < 30000)
 		LOSE_GAME
 	ENDIF
+ENDIF
+
+IF(PLAYER0,TIMER1 >= 100)
+	WIN_GAME
 ENDIF
