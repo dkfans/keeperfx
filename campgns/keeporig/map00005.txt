@@ -74,43 +74,39 @@ TRAP_AVAILABLE(PLAYER0,POISON_GAS,1,0)
 
 REM ****************************************************************************
 
-REM "There is another keeper already here, whose dungeon lies to the north. You will need to build bigger rooms in your dungeon to entice the creatures of this land to work for you and not your rival."
+REM "Another Keeper controls this underworld realm. His dungeon lies to the north. If you are to entice creatures to work for you instead of him, you will have to build a more magnificent dungeon. Get on with it then."
 DISPLAY_OBJECTIVE(57,PLAYER0)
 
 IF(PLAYER0,BILE_DEMON > 0)
-	IF(PLAYER0,FLAG0 != 1)
-		CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,1)
-REM		"A bile demon has joined you. To tempt in more of these creatures, you will need to build expansive lairs and hatcheries."
-		DISPLAY_INFORMATION(59)
-		SET_FLAG(PLAYER0,FLAG0,1)
-	ENDIF
+	CREATURE_AVAILABLE(PLAYER0,BILE_DEMON,1,1)
+	REM "A bile demon has joined you. To tempt in more of these creatures, you will need to build expansive lairs and hatcheries."
+	DISPLAY_INFORMATION(59)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,POWER_SIGHT == 1)
-REM	"You have researched the sight of evil spell. Cast it on an area hidden to you and you will be able to reveal what lies underneath, but this will last only a short time."
+	REM "You have researched the sight of evil spell. Cast it on an area hidden to you and you will be able to reveal what lies underneath, but this will last only a short time."
 	DISPLAY_INFORMATION(60)
 ENDIF
 
 IF(PLAYER0,PRISON > 0)
-REM	"You have claimed a prison. You can now command your creatures to imprison the enemy, rather than kill them using the tend to imprison toggle."
+	REM "You have claimed a prison. You can now command your creatures to imprison the enemy, rather than kill them using the tend to imprison toggle."
 	DISPLAY_INFORMATION(61)
 	ROOM_AVAILABLE(PLAYER0,PRISON,1,1)
 	TUTORIAL_FLASH_BUTTON(69,-1)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,GUARD_POST == 1)
-REM	"you have researched a guard post. Place them down at areas you wish to defend and place creatures on top. They will then stay and guard that area."
+	REM "you have researched a guard post. Place them down at areas you wish to defend and place creatures on top. They will then stay and guard that area."
 	DISPLAY_INFORMATION(62)
-	SET_FLAG(PLAYER0,FLAG7,1)
 ENDIF
 
 IF(PLAYER0,SPIDER > 0)
-REM	"A spider has joined your dungeon. They are natural enemies of flies so try to keep them apart. There will be other animosites that you need to spot and deal with."
+	REM "A spider has joined your dungeon. They are natural enemies of flies so try to keep them apart. There will be other animosites that you need to spot and deal with."
 	DISPLAY_INFORMATION(63)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED >= 1)
-REM "The enemy keeper crumbles under your power. Congratulations."
-    DISPLAY_OBJECTIVE(58,PLAYER0)
-    WIN_GAME
+	REM "The enemy keeper crumbles under your power. Congratulations."
+	DISPLAY_OBJECTIVE(58,PLAYER0)
+	WIN_GAME
 ENDIF

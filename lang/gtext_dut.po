@@ -912,6 +912,10 @@ msgid "Well done! Your immense wealth has drew the attention of a Thief. He will
 msgstr ""
 
 #: guitext:176
+msgctxt "In-game message"
+msgid "Your researchers have discovered the HEAL CREATURE spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
+msgstr ""
+
 #: guitext:177
 #: guitext:178
 #: guitext:179

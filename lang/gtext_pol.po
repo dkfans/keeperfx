@@ -912,6 +912,10 @@ msgid "Well done! Your immense wealth has drew the attention of a Thief. He will
 msgstr "Gratulacje! Twoje bogactwa zwróciły uwagę Złodzieja. Będzie on ci służył w kolejnej krainie!"
 
 #: guitext:176
+msgctxt "In-game message"
+msgid "Your researchers have discovered the HEAL CREATURE spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
+msgstr "Twoje badania naukowe pozwoliły opanować moc leczenia stworów. Teraz możesz przywrócić wojownikom utracone zdrowie by zwiększyć ich szanse w walce."
+
 #: guitext:177
 #: guitext:178
 #: guitext:179
