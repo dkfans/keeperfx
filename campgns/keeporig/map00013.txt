@@ -14,17 +14,18 @@ REM    (at your option) any later version.
 REM ****************************************************************************
 
 REM New powers for the player:
-REM   POWER_CHICKEN - Now the player can take his time to discover it
+REM   POWER_CHICKEN - now the player can take his time to discover it
 REM New manufacture for the player:
 REM   DOOR_MAGIC - originally was introduced earlier
-REM Removed:
-REM   TRAP_WORD_OF_POWER - Text not supposed to be here
 
 SET_GENERATE_SPEED(400)
 
 COMPUTER_PLAYER(PLAYER1,10)
 COMPUTER_PLAYER(PLAYER2,10)
 
+REM Decrease money limit and range at which computer players will dig for gold
+REM Original values were:
+REM "DIG TO CLOSE GOLD",0,30999,500,5,71
 SET_COMPUTER_PROCESS(PLAYER1,"DIG TO CLOSE GOLD",0,25000,500,3,47)
 SET_COMPUTER_PROCESS(PLAYER2,"DIG TO CLOSE GOLD",0,25000,500,3,47)
 
@@ -101,23 +102,23 @@ TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)
 
 REM ****************************************************************************
 
-REM "You have taken over an existing dungeon. Use it to your best advantage as two rival dungeon keepers have allied in an effort to destroy you. Defend your dungeon well, then remove all traces of the enemy from this land."
+REM "The other two Keepers in this region have put aside their differences for the moment and joined forces, in an effort to destroy you. That's almost a compliment. Kill the creeps."
 DISPLAY_OBJECTIVE(95,PLAYER0)
 
 IF_AVAILABLE(PLAYER0,MAGIC == 1)
-REM	"A magic door is available to you. This door is impregnable to all byt magical attacks."
+	REM "You have created a Magic Door. These are almost impregnable to all but magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
 	DISPLAY_INFORMATION(99)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,POWER_CHICKEN == 1)
-REM	"Your researchers have discovered a devastating spell, the spell of chicken. Cast it on any creature to instantly transform them into a chicken. Marvellous."
+	REM "Your researchers have discovered the devastating Chicken spell. Cast it on any creature to instantly transform the target into poultry. It's a fowl weapon."
 	DISPLAY_INFORMATION(109)
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
-    IF(PLAYER2,DUNGEON_DESTROYED == 1)
-REM     "Magnificent. You have defeated twice your number and now this land is a slave to your will."
-        DISPLAY_OBJECTIVE(96,PLAYER0)
-        WIN_GAME
-    ENDIF
+	IF(PLAYER2,DUNGEON_DESTROYED == 1)
+		REM "You have won a magnificent victory, Master. You have a talent for twisted mercilessness that makes other Keepers look well behaved by comparison."
+		DISPLAY_OBJECTIVE(96,PLAYER0)
+		WIN_GAME
+	ENDIF
 ENDIF

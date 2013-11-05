@@ -14,19 +14,19 @@ REM    (at your option) any later version.
 REM ****************************************************************************
 
 REM New rooms for the player:
-REM   SCAVENGER - OK
+REM   SCAVENGER - researchable from start
 REM New creatures for the player:
-REM   DRAGON - OK
-REM   HELL_HOUND - OK
+REM   DRAGON - able to attract from start
+REM   HELL_HOUND - able to attract from start
 REM New powers for the player:
-REM   POWER_CAVE_IN - OK
+REM   POWER_CAVE_IN - researchable from start
 REM New manufacture for the player:
-REM   TRAP_BOULDER - OK
-REM Removed:
-REM   POWER_CHICKEN - now introduced in level 11, as otherwise you wouldn't have anything new there.
-REM   TRAP_ALARM - now introduced in level 11
-REM   TRAP_LAVA - now introduced in level 12
-REM   DOOR_MAGIC - now introduced in level 13
+REM   TRAP_BOULDER - able to manufacture from start
+REM Not introduced in this level:
+REM   POWER_CHICKEN - introduced in level 11 to distribute new items equally amongst levels
+REM   TRAP_ALARM - introduced in level 11 to distribute new items equally amongst levels
+REM   TRAP_LAVA - introduced in level 12 to distribute new items equally amongst levels
+REM   DOOR_MAGIC - introduced in level 13 to distribute new items equally amongst levels
 
 SET_GENERATE_SPEED(600)
 
@@ -34,6 +34,7 @@ START_MONEY(PLAYER0,6000)
 START_MONEY(PLAYER1,16000)
 
 COMPUTER_PLAYER(PLAYER1,0)
+REM Re-configure computer player
 SET_COMPUTER_CHECKS(PLAYER1,"CHECK FOR QUICK ATTACK",700,70,3000,8,12500)
 SET_COMPUTER_PROCESS(PLAYER1,"ATTACK SAFE ATTACK",0,70,8,70,0)
 SET_COMPUTER_PROCESS(PLAYER1,"ATTACK PLAN 1",0,70,8,70,0)
@@ -91,42 +92,46 @@ DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
 DOOR_AVAILABLE(ALL_PLAYERS,BRACED,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
-DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)	
-TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)	
+DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
+TRAP_AVAILABLE(ALL_PLAYERS,BOULDER,1,0)
 
 REM ****************************************************************************
 
-REM "This is a fiery realm. Tread carefully. Conquer the rival keeper to rule this land."
+REM "Elsewhere in this fiery realm you have a rival Keeper to contend with. I advise extreme antisocial behaviour on your part."
 DISPLAY_OBJECTIVE(100,PLAYER0)
 
-IF(PLAYER1,DUNGEON_DESTROYED == 1)
-REM	"Congratulations. This land and its inhabitants will now bend to your will."
-	DISPLAY_OBJECTIVE(101,PLAYER0)
-	WIN_GAME
+REM Allow building SCAVENGER when claimed on map
+IF(PLAYER0,SCAVENGER > 0)
+	ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,1)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,BOULDER == 1)
-REM	"You have a boulder trap manufactured. Put these down in corridors and watch them crush all creatures in its path."
+	REM "You have a manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
 	DISPLAY_INFORMATION(90)
 ENDIF
 
 IF_AVAILABLE(PLAYER0,POWER_CAVE_IN == 1)
-REM	"You have researched the cave in spell. Use it to block off passages and repair dungeon breaches. Beware, however, as the rockfall will crush to death all creatures beneath it."
+	REM "With typical brilliance, you have researched the Cave-In spell. Use it to block off passages and repair dungeon breaches. Interestingly, the rockfall will crush to death any creatures caught beneath it."
 	DISPLAY_INFORMATION(91)
 ENDIF
 
-IF(PLAYER0,SCAVENGER > 0)
-REM	"You have researched a scavenger room. Place creatures within to convert over creatures of that type from enemy dungeon keepers. If there are no enemy keepers, creatures will join you from the surface."
+IF_AVAILABLE(PLAYER0,SCAVENGER >= 1)
+	REM "Your tireless librarians have researched the Scavenger Room. Creatures placed within a Scavenger Room will lure their kin from other dungeons and the outside world, into your domain."
 	DISPLAY_INFORMATION(92)
-	ROOM_AVAILABLE(PLAYER0,SCAVENGER,1,1)
 ENDIF
 
 IF(PLAYER0,DRAGON > 0)
-REM	"A dragon has joined you, lured to you by your great wealth."
+	REM "Your great wealth has bought the loyalty of a passing Dragon. They are fickle creatures. Keep your eye on this one."
 	DISPLAY_INFORMATION(93)
 ENDIF
 
 IF(PLAYER0,HELL_HOUND > 0)
-REM	"A hell hound has joined you, attracted by your scavenger room."
+	REM	"A Hell Hound has been lured to your domain by your Scavenger Room."
 	DISPLAY_INFORMATION(94)
+ENDIF
+
+IF(PLAYER1,DUNGEON_DESTROYED == 1)
+	REM "Notch up another victory, most malicious one. You have another land to add to your dismal collection."
+	DISPLAY_OBJECTIVE(101,PLAYER0)
+	WIN_GAME
 ENDIF
