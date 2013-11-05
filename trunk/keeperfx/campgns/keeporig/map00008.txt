@@ -14,14 +14,14 @@ REM    (at your option) any later version.
 REM ****************************************************************************
 
 REM New rooms for the player:
-REM     TEMPLE - OK
+REM   TEMPLE - researchable from start
 REM New creatures for the player:
-REM     HORNED_REAPER - Next level, but can be possible to summon here if the player is testing the sacrifices
+REM   HORNY - possible to summon with sacrifices
 REM New powers for the player:
-REM     POWER_PROTECT - OK
-REM     POWER_CONCEAL - OK
+REM   POWER_PROTECT - researchable from start
+REM   POWER_CONCEAL - researchable from start
 REM New manufacture for the player:
-REM     STEEL - OK
+REM   STEEL - able to manufacture as soon as have WORKSHOP
 
 SET_GENERATE_SPEED(550)
 
@@ -42,7 +42,7 @@ ADD_CREATURE_TO_POOL(DARK_MISTRESS,20)
 ADD_CREATURE_TO_POOL(SORCEROR,30)
 ADD_CREATURE_TO_POOL(BILE_DEMON,10)
 ADD_CREATURE_TO_POOL(ORC,10)
-    
+
 REM	Creature availability
 CREATURE_AVAILABLE(ALL_PLAYERS,FLY,1,1)
 CREATURE_AVAILABLE(ALL_PLAYERS,DEMONSPAWN,1,1)
@@ -87,47 +87,52 @@ DOOR_AVAILABLE(ALL_PLAYERS,STEEL,1,0)
 
 REM ****************************************************************************
 
-REM "Tread carefully dungeon keeper. Rivers of fire snake through this realm. Find the enemy keeper and despatch him to hell."
+REM "Seek out the one who would be your rival in this region of the underworld. Explain the concept of early retirement to him. On the other hand, string him up. It's in the only language he understands."
 DISPLAY_OBJECTIVE(76,PLAYER0)
 
-IF_AVAILABLE(PLAYER0,POWER_CONCEAL == 1)
-REM	"You have researched the power of invisibility. Cast it on a creature to hide them from enemy eyes."
+IF_AVAILABLE(PLAYER0,POWER_CONCEAL >= 1)
+	REM "You have researched the power of Invisibility. Cast it on a creature to hide it from enemy eyes."
 	DISPLAY_INFORMATION(77)
 ENDIF
 
-IF_AVAILABLE(PLAYER0,POWER_PROTECT == 1)
-REM	"The power to protect your creatures has been researched. Cast it on a creature to strengthen their resilience."
+IF_AVAILABLE(PLAYER0,POWER_PROTECT >= 1)
+	REM "The Protect Creature spell has been researched at last. Cast it on a creature to increase its toughness."
 	DISPLAY_INFORMATION(78)
 ENDIF
 
-IF_AVAILABLE(PLAYER0,TEMPLE == 1)
-REM	"A temple has been researched. Sacrifice creatures into the pool for gifts from the gods."
+IF_AVAILABLE(PLAYER0,TEMPLE >= 1)
+	REM "Researchers have found instructions for building a Temple to the dark gods. Sacrifice creatures in the Temple's pool to receive gifts from these gods."
 	DISPLAY_INFORMATION(80)
 ENDIF
 
-IF_AVAILABLE(PLAYER0,STEEL == 1)
-REM	"You have manufactured a steel door. This is the most powerful physical door."
+IF_AVAILABLE(PLAYER0,STEEL >= 1)
+	REM "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
 	DISPLAY_INFORMATION(87)
 ENDIF
 
 IF(PLAYER0,HORNY >= 1)
+	REM "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll fail, because everything makes a Horned Reaper angry."
 	DISPLAY_INFORMATION(83)
 ENDIF
 
-IF(PLAYER1,DUNGEON_DESTROYED == 1)
-    IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-        DISPLAY_OBJECTIVE(19,PLAYER0)
-        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,KNIGHT,-1,1,5,3000)
-        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,MONK,-1,2,3,3000)
-        ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,-1,2,3,3000)
-        SET_FLAG(PLAYER0,FLAG0,1)
-    ENDIF
+IF(PLAYER1,DUNGEON_DESTROYED >= 1)
+	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+		SET_TIMER(PLAYER0,TIMER0)
+	ENDIF
 ENDIF
-            
-IF(PLAYER0,FLAG0 == 1)
-    IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
-REM     "The enemy is no more. The inhabitants of this region will bow down before your evil."
-        DISPLAY_OBJECTIVE(79,PLAYER0)
-        WIN_GAME
-    ENDIF
+
+IF(PLAYER0,TIMER0 >= 600)
+	REM "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
+	DISPLAY_OBJECTIVE(19,PLAYER0)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,KNIGHT,-1,1,5,3000)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,MONK,-1,2,3,3000)
+	ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,ARCHER,-1,2,3,3000)
+ENDIF
+
+IF(PLAYER0,TIMER0 >= 800)
+	IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
+		REM "That's another enemy successfully written off. The defenceless inhabitants of the land above bow down before your depraved presence."
+		DISPLAY_OBJECTIVE(79,PLAYER0)
+		WIN_GAME
+	ENDIF
 ENDIF
