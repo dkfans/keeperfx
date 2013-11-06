@@ -898,7 +898,7 @@ msgstr "Por fin, nada se interpone en tu camino. El mundo está a tu disposició
 
 #: guitext:173
 msgctxt "In-game message"
-msgid "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
+msgid "Marvellous, Keeper! The Avatar and all his pathetic army are finally dead! There's only one Keeper to get rid of before becoming the absolute master! So, what are you waiting for?"
 msgstr ""
 
 #: guitext:174
@@ -913,12 +913,24 @@ msgstr ""
 
 #: guitext:176
 msgctxt "In-game message"
-msgid "Your researchers have discovered the HEAL CREATURE spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
+msgid "Your researchers have discovered the Heal Creature spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
 msgstr ""
 
 #: guitext:177
+msgctxt "In-game message"
+msgid "Try the Must Obey spell. When activated, it constantly forces your creatures to obey to all your orders, making all of them working faster without the possibility for them to take a nap. Be sure to have plenty of money so that the spell will stay activated."
+msgstr ""
+
 #: guitext:178
+msgctxt "In-game message"
+msgid "A Tentacle has joined your dungeon. These rare little creatures enjoy to be in water and their spine can even pierce the most solid armors and paralyze your enemies! Marvellous!"
+msgstr ""
+
 #: guitext:179
+msgctxt "In-game message"
+msgid "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
+msgstr ""
+
 #: guitext:180
 #: guitext:181
 #: guitext:182
