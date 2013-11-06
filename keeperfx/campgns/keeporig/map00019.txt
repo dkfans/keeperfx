@@ -75,6 +75,8 @@ MAGIC_AVAILABLE(PLAYER1,POWER_SPEED,1,1)
 MAGIC_AVAILABLE(PLAYER1,POWER_PROTECT,1,1)
 MAGIC_AVAILABLE(PLAYER1,POWER_HEAL_CREATURE,1,1)
 MAGIC_AVAILABLE(PLAYER1,POWER_LIGHTNING,1,1)
+REM Spellbooks for POWER_LIGHTNING, POWER_HEAL_CREATURE, POWER_PROTECT and POWER_DESTROY_WALL
+REM can be found in the hero areas on map, so PLAYER0 doesn't need them 
 
 REM Doors and traps availability
 DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
@@ -87,117 +89,117 @@ TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,LIGHTNING,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,WORD_OF_POWER,1,0)
 
-CREATE_PARTY(LANDLORD)
-    ADD_TO_PARTY(LANDLORD,KNIGHT,9,1500,ATTACK_ENEMIES,0)
-
 CREATE_PARTY(WIZZIES)
-    ADD_TO_PARTY(WIZZIES,WIZARD,2,500,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(WIZZIES,WIZARD,2,500,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(WIZZIES,WIZARD,2,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(WIZZIES,WIZARD,2,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(WIZZIES,WIZARD,2,500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(WIZZIES,WIZARD,2,500,ATTACK_ENEMIES,0)
 
 CREATE_PARTY(THIEVES)
-    ADD_TO_PARTY(THIEVES,THIEF,4,500,STEAL_GOLD,0)
-    ADD_TO_PARTY(THIEVES,THIEF,4,500,STEAL_GOLD,0)
-    ADD_TO_PARTY(THIEVES,THIEF,4,500,STEAL_GOLD,0)
-    ADD_TO_PARTY(THIEVES,THIEF,4,500,STEAL_GOLD,0)
+	ADD_TO_PARTY(THIEVES,THIEF,4,500,STEAL_GOLD,0)
+	ADD_TO_PARTY(THIEVES,THIEF,4,500,STEAL_GOLD,0)
+	ADD_TO_PARTY(THIEVES,THIEF,4,500,STEAL_GOLD,0)
+	ADD_TO_PARTY(THIEVES,THIEF,4,500,STEAL_GOLD,0)
 
 CREATE_PARTY(SAMMIES)
-    ADD_TO_PARTY(SAMMIES,SAMURAI,6,1500,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(SAMMIES,SAMURAI,6,1500,ATTACK_ENEMIES,0)
-    ADD_TO_PARTY(SAMMIES,SAMURAI,6,1500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(SAMMIES,SAMURAI,6,1500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(SAMMIES,SAMURAI,6,1500,ATTACK_ENEMIES,0)
+	ADD_TO_PARTY(SAMMIES,SAMURAI,6,1500,ATTACK_ENEMIES,0)
+
+CREATE_PARTY(LANDLORD)
+	ADD_TO_PARTY(LANDLORD,KNIGHT,9,1500,ATTACK_ENEMIES,0)
 
 REM ****************************************************************************
 
-REM "Legend says this land is still run by the evil keeper lewis and that the heros guard him. All magic has been scattered, and our forces are weak - with haste we must use the remains of lewis' last victory"
+REM "The people of this realm speak of a Dungeon Keeper called Wisel, who is bound to get in your way. When he does, you will have to consign him to history. This will be no mean feat. Resources are scarce because of his activities."
 DISPLAY_OBJECTIVE(154,PLAYER0)
 
-IF(PLAYER1,DUNGEON_DESTROYED == 1)
-REM    "The evil keeper lewis has been destroyed and the land has been marked as yours for eternity"
-    DISPLAY_OBJECTIVE(155,PLAYER0)
-    WIN_GAME
-ENDIF
-
 IF(PLAYER0,PRISON > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,PRISON,1,1)
 ENDIF
 
 IF(PLAYER0,TORTURE > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,TORTURE,1,1)
 ENDIF
 
 IF(PLAYER0,LAIR > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,LAIR,1,1)
 ENDIF
 
 IF(PLAYER0,GARDEN > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
-    ADD_CREATURE_TO_POOL(BILE_DEMON,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,GARDEN,1,1)
+	ADD_CREATURE_TO_POOL(BILE_DEMON,1)
 ENDIF
 
 IF(PLAYER0,TRAINING > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
-    ADD_CREATURE_TO_POOL(DEMONSPAWN,10)
+	ROOM_AVAILABLE(ALL_PLAYERS,TRAINING,1,1)
+	ADD_CREATURE_TO_POOL(DEMONSPAWN,10)
 ENDIF
 
 IF(PLAYER0,GRAVEYARD > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,GRAVEYARD,1,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,GRAVEYARD,1,1)
 ENDIF
 
 IF(PLAYER0,RESEARCH > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
-    ADD_CREATURE_TO_POOL(SORCEROR,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
+	ADD_CREATURE_TO_POOL(SORCEROR,1)
 ENDIF
 
 IF(PLAYER0,TREASURE > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
 ENDIF
 
 IF(PLAYER0,WORKSHOP > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,1)
-    ADD_CREATURE_TO_POOL(TROLL,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,WORKSHOP,1,1)
+	ADD_CREATURE_TO_POOL(TROLL,1)
 ENDIF
 
 IF(PLAYER0,TEMPLE > 0)
-    ROOM_AVAILABLE(ALL_PLAYERS,TEMPLE,1,1)
+	ROOM_AVAILABLE(ALL_PLAYERS,TEMPLE,1,1)
 ENDIF
 
 IF(PLAYER0,SAMURAI > 0)
-REM    "You have converted a samurai to your way, he has promised that if your forces should decrease, his collegues will join you through your entrance"
-    DISPLAY_INFORMATION(156)
+	REM "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
+	DISPLAY_INFORMATION(156)
 ENDIF
 
 IF_ACTION_POINT(1,PLAYER0)
-REM    "Reports say the heros talk of you, and seek victory to please evil keeper lewis. Tread carefully - it is said this land is full of their tunnels, with trained heros waiting for you"
-    DISPLAY_INFORMATION(157)
+	REM "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
+	DISPLAY_INFORMATION(157)
 ENDIF
 
 IF_ACTION_POINT(2,PLAYER0)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WIZZIES,2,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WIZZIES,2,1)
 ENDIF
 
 IF_ACTION_POINT(3,PLAYER0)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SAMMIES,8,1)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SAMMIES,9,1)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,3,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SAMMIES,8,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,SAMMIES,9,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,LANDLORD,3,1)
 ENDIF
 
 IF_ACTION_POINT(4,PLAYER0)
-REM    "Word has it, that two dragons are held captive to the east, surely these creatures could be the answer you look for sire"
-    DISPLAY_INFORMATION(158)
+	REM "It is rumoured that two Dragons are held captive somewhere east of here. Were you to find them and free them, they would make powerful servants."
+	DISPLAY_INFORMATION(158)
 ENDIF
 
 IF_ACTION_POINT(5,PLAYER0)
-    ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,5,1)
+	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,THIEVES,5,1)
 ENDIF
 
 IF_ACTION_POINT(6,PLAYER0)
-REM    "Through our battles, we have learnt the path to the north leads to the lord of this land. He is known to be well guarded - but with cunning we could turn him against the keeper lewis!"
-    DISPLAY_INFORMATION(159)
+	REM "A tunnel to the north leads to the Lord of the Realm's domain. This gate is guarded well. It might be wise to direct the humans' attention towards your subterranean enemy."
+	DISPLAY_INFORMATION(159)
 ENDIF
-    
+	
 IF_ACTION_POINT(10,PLAYER0)
-REM    "You have found some boulder traps, these will aid us defeat the enemy, but there are only three of them available in this land, so care is neeeded"
-    DISPLAY_INFORMATION(160)
-    TRAP_AVAILABLE(PLAYER0,BOULDER,0,3)
-    TUTORIAL_FLASH_BUTTON(53,-1)
+	REM "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
+	DISPLAY_INFORMATION(160)
+	TRAP_AVAILABLE(PLAYER0,BOULDER,0,3)
+	TUTORIAL_FLASH_BUTTON(53,-1)
+ENDIF
+
+IF(PLAYER1,DUNGEON_DESTROYED == 1)
+	REM "Wisel is defeated. The land is yours to plunder and despoil for all eternity. Give 'em hell, master."
+	DISPLAY_OBJECTIVE(155,PLAYER0)
+	WIN_GAME
 ENDIF
