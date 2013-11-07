@@ -15,12 +15,12 @@ REM ****************************************************************************
 
 REM Nothing new for the player
 
+SET_GENERATE_SPEED(500)
+
 COMPUTER_PLAYER(PLAYER1,2)
 
 START_MONEY(PLAYER0,3000)
 START_MONEY(PLAYER1,800000)
-
-SET_GENERATE_SPEED(500)
 
 MAX_CREATURES(PLAYER0,30)
 MAX_CREATURES(PLAYER1,32)
