@@ -2,7 +2,7 @@ REM ****************************************************************************
 REM  Campaigns Consolidation Project for KeeperFX strategy game.
 REM ****************************************************************************
 REM  Script for DD Level Kari-Mar
-REM  Campaign: DK Original
+REM  Campaign: Deeper Dungeons
 REM  Authors:  based on Bullfrog script
 REM            KeeperFX CCP Team
 REM  Date:     17 Dec 1996 - 11 Feb 2011
@@ -95,3 +95,5 @@ ENDIF
 IF(PLAYER3,DUNGEON_DESTROYED == 1)
 	WIN_GAME
 ENDIF
+
+REM End of File
