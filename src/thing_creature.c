@@ -439,21 +439,21 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
 }
 */
 
-long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing)
+long set_creature_object_combat(struct Thing *creatng, struct Thing *obthing)
 {
-    return _DK_set_creature_object_combat(crthing, obthing);
+    return _DK_set_creature_object_combat(creatng, obthing);
 }
 
-void set_creature_door_combat(struct Thing *crthing, struct Thing *obthing)
+void set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
 {
     SYNCDBG(18,"Starting");
-    _DK_set_creature_door_combat(crthing, obthing);
+    _DK_set_creature_door_combat(creatng, obthing);
     SYNCDBG(19,"Finished");
 }
 
-void food_eaten_by_creature(struct Thing *crthing, struct Thing *obthing)
+void food_eaten_by_creature(struct Thing *creatng, struct Thing *obthing)
 {
-    _DK_food_eaten_by_creature(crthing, obthing);
+    _DK_food_eaten_by_creature(creatng, obthing);
 }
 
 void anger_apply_anger_to_creature(struct Thing *thing, long anger, AnnoyMotive reason, long a3)
@@ -779,7 +779,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
           n = 0;
           cctrl->spell_flags |= CSAfF_Disease;
           cctrl->field_B6 = thing->owner;
-          cctrl->field_2EB = game.play_gameturn;
+          cctrl->disease_start_turn = game.play_gameturn;
           for (k=0; k < 3; k++)
           {
               pos.x.val = thing->mappos.x.val;
@@ -1180,7 +1180,7 @@ struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
   return INVALID_THING;
 }
 
-struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
+struct Thing *find_interesting_object_laying_around_thing(struct Thing *creatng)
 {
     struct Thing *thing;
     struct Map *mapblk;
@@ -1188,8 +1188,8 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
     long k;
     for (k=0; k < AROUND_TILES_COUNT; k++)
     {
-        stl_x = crthing->mappos.x.stl.num + around[k].delta_x;
-        stl_y = crthing->mappos.y.stl.num + around[k].delta_y;
+        stl_x = creatng->mappos.x.stl.num + around[k].delta_x;
+        stl_y = creatng->mappos.y.stl.num + around[k].delta_y;
         mapblk = get_map_block_at(stl_x,stl_y);
         if (!map_block_invalid(mapblk))
         {
@@ -1204,15 +1204,56 @@ struct Thing *find_interesting_object_laying_around_thing(struct Thing *crthing)
     return INVALID_THING;
 }
 
+TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
+{
+    struct Thing *tgthing;
+    struct CreatureStats *crstat;
+    tgthing = find_interesting_object_laying_around_thing(creatng);
+    if (thing_is_invalid(tgthing)) {
+        return false;
+    }
+    if (object_is_gold_laying_on_ground(tgthing))
+    {
+        crstat = creature_stats_get_from_thing(creatng);
+        if (tgthing->valuable.gold_stored > 0)
+        {
+            if (creatng->creature.gold_carried < crstat->gold_hold)
+            {
+                if (crstat->gold_hold < tgthing->valuable.gold_stored + creatng->creature.gold_carried)
+                {
+                    long k;
+                    k = crstat->gold_hold - creatng->creature.gold_carried;
+                    creatng->creature.gold_carried += k;
+                    tgthing->valuable.gold_stored -= k;
+                } else
+                {
+                    creatng->creature.gold_carried += tgthing->valuable.gold_stored;
+                    delete_thing_structure(tgthing, 0);
+                }
+            }
+        } else
+        {
+            ERRORLOG("GoldPile with no gold!");
+            delete_thing_structure(tgthing, 0);
+        }
+        anger_apply_anger_to_creature(creatng, crstat->annoy_got_wage, AngR_NotPaid, 1);
+        return true;
+    }
+    if (object_is_mature_food(tgthing))
+    {
+        if (!is_thing_passenger_controlled(tgthing)) {
+          food_eaten_by_creature(tgthing, creatng);
+        }
+        return true;
+    }
+    return false;
+}
+
 TngUpdateRet process_creature_state(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
-    struct StateInfo *stati;
-    struct Thing *tgthing;
     unsigned long model_flags;
     long x,y;
-    long k;
     SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
     TRACE_THING(thing);
     //return _DK_process_creature_state(thing);
@@ -1234,14 +1275,15 @@ TngUpdateRet process_creature_state(struct Thing *thing)
         {
             if ( can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat) )
             {
-              x = stl_num_decode_x(cctrl->field_1D0);
-              y = stl_num_decode_y(cctrl->field_1D0);
-              tgthing = get_door_for_position(x,y);
-              if (!thing_is_invalid(tgthing))
-              {
-                if (thing->owner != tgthing->owner)
-                  set_creature_door_combat(thing, tgthing);
-              }
+                struct Thing *tgthing;
+                x = stl_num_decode_x(cctrl->field_1D0);
+                y = stl_num_decode_y(cctrl->field_1D0);
+                tgthing = get_door_for_position(x,y);
+                if (!thing_is_invalid(tgthing))
+                {
+                  if (thing->owner != tgthing->owner)
+                    set_creature_door_combat(thing, tgthing);
+                }
             }
         }
     }
@@ -1261,48 +1303,16 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     // Creatures that are not special diggers will pick up any nearby gold or food
     if (((thing->movement_flags & TMvF_Flying) == 0) && ((model_flags & MF_IsSpecDigger) == 0))
     {
-        tgthing = find_interesting_object_laying_around_thing(thing);
-        if (!thing_is_invalid(tgthing))
-        {
-            if (tgthing->model == 43)
-            {
-              crstat = creature_stats_get_from_thing(thing);
-              if (tgthing->creature.gold_carried > 0)
-              {
-                  if (thing->creature.gold_carried < crstat->gold_hold)
-                  {
-                      if (crstat->gold_hold < tgthing->creature.gold_carried + thing->creature.gold_carried)
-                      {
-                          k = crstat->gold_hold - thing->creature.gold_carried;
-                          thing->creature.gold_carried += k;
-                          tgthing->creature.gold_carried -= k;
-                      } else
-                      {
-                          thing->creature.gold_carried += tgthing->creature.gold_carried;
-                          delete_thing_structure(tgthing, 0);
-                      }
-                  }
-              } else
-              {
-                  ERRORLOG("GoldPile with no gold!");
-                  delete_thing_structure(tgthing, 0);
-              }
-              anger_apply_anger_to_creature(thing, crstat->annoy_got_wage, AngR_NotPaid, 1);
-            } else
-            if (object_is_mature_food(tgthing))
-            {
-                if (!is_thing_passenger_controlled(tgthing)) {
-                  food_eaten_by_creature(tgthing, thing);
-                }
-            }
-        }
+        creature_pick_up_interesting_object_laying_nearby(thing);
     }
     // Enable this to know which function hangs on update_creature.
     //TODO CREATURE_AI rewrite state subfunctions so they won't hang
     //if (game.play_gameturn > 119800)
     SYNCDBG(18,"Executing state %s for %s index %d.",creature_state_code_name(thing->active_state),thing_model_name(thing),(int)thing->index);
+    struct StateInfo *stati;
     stati = get_thing_active_state_info(thing);
     if (stati->ofsfield_0 != NULL) {
+        short k;
         k = stati->ofsfield_0(thing);
         if (k == CrStRet_Deleted) {
             SYNCDBG(18,"Finished with creature deleted");
@@ -2457,7 +2467,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
     if (!is_neutral_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
-        if (dungeon->must_obey_turn)
+        if (dungeon->must_obey_turn != 0)
         {
             aitime -= aitime / 4;
             itime -= itime / 4;

@@ -1124,7 +1124,7 @@ void remove_spell_from_player(PowerKind spl_idx, PlayerNumber plyr_idx)
     switch (spl_idx)
     {
     case PwrK_OBEY:
-        if (dungeon->must_obey_turn)
+        if (dungeon->must_obey_turn != 0)
             dungeon->must_obey_turn = 0;
         break;
     case PwrK_SIGHT:
