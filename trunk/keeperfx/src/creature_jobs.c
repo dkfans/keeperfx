@@ -106,16 +106,16 @@ TbBool creature_has_job(const struct Thing *thing, CreatureJob job_kind)
     return (crstat->job_primary & job_kind) || (crstat->job_secondary & job_kind);
 }
 
-TbBool creature_free_for_anger_job(struct Thing *thing)
+TbBool creature_free_for_anger_job(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
-    cctrl = creature_control_get_from_thing(thing);
-    dungeon = get_dungeon(thing->owner);
+    cctrl = creature_control_get_from_thing(creatng);
+    dungeon = get_dungeon(creatng->owner);
     return ((cctrl->spell_flags & CSAfF_Unkn0800) == 0)
         && (dungeon->must_obey_turn == 0)
-        && ((cctrl->spell_flags & CSAfF_Speed) == 0)
-        && !thing_is_picked_up(thing) && !is_thing_passenger_controlled(thing);
+        && ((cctrl->spell_flags & CSAfF_Chicken) == 0)
+        && !thing_is_picked_up(creatng) && !is_thing_passenger_controlled(creatng);
 }
 
 long creature_find_and_perform_anger_job(struct Thing *thing)
@@ -479,10 +479,10 @@ TbBool creature_try_doing_secondary_job(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if (game.play_gameturn - cctrl->field_2D3 <= 128) {
+    if (game.play_gameturn - cctrl->job_secondary_check_turn <= 128) {
         return false;
     }
-    cctrl->field_2D3 = game.play_gameturn;
+    cctrl->job_secondary_check_turn = game.play_gameturn;
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     return attempt_job_secondary_preference(creatng, crstat->job_secondary);

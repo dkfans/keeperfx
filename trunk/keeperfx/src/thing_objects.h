@@ -109,6 +109,7 @@ TbBool object_is_mature_food(const struct Thing *thing);
 TbBool object_is_gold(const struct Thing *thing);
 TbBool object_is_gold_pile(const struct Thing *thing);
 TbBool object_is_gold_hoard(const struct Thing *thing);
+TbBool object_is_gold_laying_on_ground(const struct Thing *thing);
 TbBool object_is_guard_flag(const struct Thing *thing);
 TbBool thing_is_gold_hoard(const struct Thing *thing);
 TbBool thing_is_spellbook(const struct Thing *thing);
