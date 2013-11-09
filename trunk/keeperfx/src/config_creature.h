@@ -63,7 +63,7 @@ enum CreatureJobFlags {
     Job_GUARD            = 0x0200,
     Job_GROUP            = 0x0400,
     Job_BARRACK          = 0x0800,
-    Job_TEMPLE_PRAY           = 0x1000,
+    Job_TEMPLE_PRAY      = 0x1000,
     Job_FREEZE_PRISONERS = 0x2000,
     Job_EXPLORE          = 0x4000,
 };

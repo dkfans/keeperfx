@@ -1724,7 +1724,7 @@ short creature_doing_nothing(struct Thing *creatng)
     if (game.play_gameturn - cctrl->long_9A <= 1) {
         return 1;
     }
-    if ((cctrl->spell_flags & CSAfF_Unkn1000) != 0) {
+    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
       internal_set_thing_state(creatng, CrSt_MadKillingPsycho);
       SYNCDBG(8,"The %s index %d goes mad killing",thing_model_name(creatng),creatng->index);
       return 1;
@@ -2032,9 +2032,9 @@ short creature_follow_leader(struct Thing *creatng)
     }
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->spell_flags & CSAfF_Unkn1000) != 0)
+    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
     {
-        SYNCLOG("The %s index %d owned by player %d can no longer be in group - flags disallow",
+        SYNCLOG("The %s index %d owned by player %d can no longer be in group - became mad",
             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
         remove_creature_from_group(creatng);
         set_start_state(creatng);
@@ -3194,7 +3194,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
 
     tmptng = thing_get(cctrl1->battle_enemy_idx);
     TRACE_THING(tmptng);
-    if  ( (cctrl1->spell_flags & CSAfF_Unkn1000) || (cctrl2->spell_flags & CSAfF_Unkn1000)
+    if  ( (cctrl1->spell_flags & CSAfF_MadKilling) || (cctrl2->spell_flags & CSAfF_MadKilling)
         || ((cctrl1->combat_flags) && (tmptng->index == tng2->index)) )
     {
         if (tng2->index != tng1->index)
@@ -3255,7 +3255,7 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, co
 
     tmptng = thing_get(cctrl1->battle_enemy_idx);
     TRACE_THING(tmptng);
-    if  ((cctrl1->fight_til_death) || (cctrl1->spell_flags & CSAfF_Unkn1000) || (cctrl2->spell_flags & CSAfF_Unkn1000)
+    if  ((cctrl1->fight_til_death) || (cctrl1->spell_flags & CSAfF_MadKilling) || (cctrl2->spell_flags & CSAfF_MadKilling)
         || ((cctrl1->combat_flags) && (tmptng->index == tng2->index)) )
     {
         if (tng2->index != tng1->index)
@@ -3864,6 +3864,11 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
         return 0;
     }
     if (!anger_is_creature_angry(thing)) {
+        // If the creature is mad killing, don't allow it not to be angry
+        if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
+            // Mad creature's mind is tortured, so apply torture anger
+            anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, AngR_Other, 1);
+        }
         return 0;
     }
     if (is_my_player_number(thing->owner))

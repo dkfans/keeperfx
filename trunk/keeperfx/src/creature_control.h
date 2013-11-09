@@ -172,7 +172,8 @@ unsigned char field_37[2];
     unsigned char field_48;
     unsigned char field_49;
     long field_4A;
-unsigned char field_4E[8];
+    unsigned long last_roar_turn;
+    unsigned char field_52[4];// most likely [0] element of array below
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
     * When the highest value is above CreatureStats->annoy_level, the creature becomes angry/enraged,
     * depending on how high the highest value is.
