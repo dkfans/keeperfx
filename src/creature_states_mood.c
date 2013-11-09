@@ -51,6 +51,16 @@ DLLIMPORT void _DK_anger_set_creature_anger(struct Thing *creatng, long a1, long
 }
 #endif
 /******************************************************************************/
+TbBool creature_can_get_angry(const struct Thing *creatng)
+{
+    if (is_neutral_thing(creatng)) {
+        return false;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    return (crstat->annoy_level > 0);
+}
+
 short creature_moan(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
@@ -135,10 +145,73 @@ short mad_killing_psycho(struct Thing *thing)
   return _DK_mad_killing_psycho(thing);
 }
 
+void anger_calculate_creature_is_angry(struct Thing *creatng)
+{
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    int i;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    cctrl->mood_flags &= ~CCMoo_Angry;
+    cctrl->mood_flags &= ~CCMoo_Livid;
+    for (i = 0; i < 4; i++)
+    {
+        if (crstat->annoy_level <= cctrl->annoyance_level[i])
+        {
+            cctrl->mood_flags |= CCMoo_Angry;
+            if (2*crstat->annoy_level <= cctrl->annoyance_level[i])
+            {
+                cctrl->mood_flags |= CCMoo_Livid;
+                break;
+            }
+        }
+    }
+}
+
 void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, AnnoyMotive reason)
 {
     SYNCDBG(8,"Setting to %d",(int)annoy_lv);
-    _DK_anger_set_creature_anger(creatng, annoy_lv, reason);
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    crstat = creature_stats_get_from_thing(creatng);
+    //_DK_anger_set_creature_anger(creatng, annoy_lv, reason);
+    if ((game.numfield_14 != 0) || !creature_can_get_angry(creatng)) {
+        return;
+    }
+    if (annoy_lv < 0)
+    {
+        annoy_lv = 0;
+    } else
+    if (annoy_lv > 65534) {
+        annoy_lv = 65534;
+    }
+    TbBool was_angry;
+    was_angry = ((cctrl->mood_flags & CCMoo_Angry) != 0);
+    cctrl->annoyance_level[reason-1] = annoy_lv;
+    anger_calculate_creature_is_angry(creatng);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(creatng->owner);
+    if (dungeon_invalid(dungeon)) {
+        return;
+    }
+    if ((cctrl->mood_flags & CCMoo_Angry) != 0)
+    {
+        if (!was_angry) {
+            dungeon->creatures_annoyed++;
+            event_create_event_or_update_nearby_existing_event(
+              creatng->mappos.x.val, creatng->mappos.y.val, 16, creatng->owner, creatng->index);
+        }
+    } else
+    {
+        if (was_angry) {
+          if (dungeon->creatures_annoyed > 0) {
+              dungeon->creatures_annoyed--;
+          } else {
+              ERRORLOG("Removing annoyed creature - non to Remove");
+          }
+        }
+    }
 }
 
 TbBool anger_is_creature_livid(const struct Thing *creatng)

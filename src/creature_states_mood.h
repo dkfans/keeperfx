@@ -33,6 +33,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
+TbBool creature_can_get_angry(const struct Thing *creatng);
 TbBool anger_is_creature_livid(const struct Thing *thing);
 TbBool anger_is_creature_angry(const struct Thing *thing);
 AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng);

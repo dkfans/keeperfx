@@ -1682,10 +1682,10 @@ TbBool creature_try_going_to_lazy_sleep(struct Thing *creatng)
     if (room_is_invalid(room) || (room->kind != RoK_LAIR)) {
         return false;
     }
-    if (game.play_gameturn - cctrl->gold_for_treasury_check_turn <= 128) {
+    if (game.play_gameturn - cctrl->tasks_check_turn <= 128) {
         return false;
     }
-    cctrl->gold_for_treasury_check_turn = game.play_gameturn;
+    cctrl->tasks_check_turn = game.play_gameturn;
     if (!setup_random_head_for_room(creatng, room, 0)) {
         return false;
     }
@@ -1697,9 +1697,7 @@ short creature_try_going_to_healing_sleep(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->heal_requirement <= 0) || (crstat->lair_size <= 0)) {
+    if (creature_can_do_healing_sleep(creatng)) {
         return false;
     }
     if (game.play_gameturn - cctrl->healing_sleep_check_turn <= 200) {
@@ -1734,33 +1732,37 @@ short creature_doing_nothing(struct Thing *creatng)
     //return _DK_creature_doing_nothing(creatng);
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    if ((cctrl->lair_room_id <= 0) && (crstat->lair_size > 0) && (game.play_gameturn - cctrl->gold_for_treasury_check_turn > 128))
+    if (!creature_has_lair_room(creatng) && creature_can_do_healing_sleep(creatng))
     {
-        cctrl->gold_for_treasury_check_turn = game.play_gameturn;
-        if (find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, 0, crstat->lair_size))
+        if (game.play_gameturn - cctrl->tasks_check_turn > 128)
         {
-            internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
-            SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
-            return 1;
-        }
-        if (is_my_player_number(creatng->owner))
-        {
-            if (player_has_room(creatng->owner, RoK_LAIR)) {
-                struct Room *room;
-                room = find_room_with_spare_capacity(creatng->owner, RoK_LAIR, crstat->lair_size);
-                if (room_is_invalid(room)) {
-                    output_message(23, 500, 1);
-                } else {
-                    output_message(36, 500, 1);
-                }
-            } else
+            cctrl->tasks_check_turn = game.play_gameturn;
+            if (find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_LAIR, 0, crstat->lair_size))
             {
-                output_message(40, 500, 1);
+                internal_set_thing_state(creatng, CrSt_CreatureWantsAHome);
+                SYNCDBG(8,"The %s index %d goes make lair",thing_model_name(creatng),creatng->index);
+                return 1;
             }
-        }
-        if (player_has_room(creatng->owner, RoK_LAIR)) {
-            event_create_event_or_update_nearby_existing_event(
-                creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, creatng->owner, creatng->index);
+            if (is_my_player_number(creatng->owner))
+            {
+                if (player_has_room(creatng->owner, RoK_LAIR))
+                {
+                    struct Room *room;
+                    room = find_room_with_spare_capacity(creatng->owner, RoK_LAIR, crstat->lair_size);
+                    if (room_is_invalid(room)) {
+                        output_message(23, 500, 1);
+                    } else {
+                        output_message(36, 500, 1);
+                    }
+                } else
+                {
+                    output_message(40, 500, 1);
+                }
+            }
+            if (player_has_room(creatng->owner, RoK_LAIR)) {
+                event_create_event_or_update_nearby_existing_event(
+                    creatng->mappos.x.val, creatng->mappos.y.val, EvKind_NoMoreLivingSet, creatng->owner, creatng->index);
+            }
         }
     }
     if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))
@@ -3730,7 +3732,7 @@ long process_creature_needs_to_heal_critical(struct Thing *thing, const struct C
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     //return _DK_process_creature_needs_to_heal_critical(thing, crstat);
-    if ((crstat->heal_requirement == 0) || (crstat->lair_size == 0)
+    if (!creature_can_do_healing_sleep(thing)
       || (get_creature_health_permil(thing) >= gameadd.critical_health_permil)) {
         return 0;
     }
@@ -3923,9 +3925,9 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
                 output_message(SMsg_TempleTooSmall, MESSAGE_DELAY_ROOM_SMALL, 1);
         }
     }
-    if (creature_has_lair_room(thing))
+    if (creature_has_lair_room(thing) && creature_can_do_healing_sleep(thing))
     {
-      if ((crstat->lair_size != 0) && (game.play_gameturn - cctrl->sulking_sleep_check_turn > 128))
+      if (game.play_gameturn - cctrl->sulking_sleep_check_turn > 128)
       {
           cctrl->sulking_sleep_check_turn = game.play_gameturn;
           // If creature has lair, try to go go to it

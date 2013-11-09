@@ -33,6 +33,7 @@ struct Thing;
 
 #pragma pack()
 /******************************************************************************/
+TbBool creature_can_do_healing_sleep(const struct Thing *creatng);
 TbBool creature_is_doing_lair_activity(const struct Thing *thing);
 TbBool creature_is_sleeping(const struct Thing *thing);
 TbBool creature_requires_healing(const struct Thing *thing);

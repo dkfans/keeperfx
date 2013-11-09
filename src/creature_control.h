@@ -389,7 +389,7 @@ unsigned char field_2BF[2];
 unsigned short field_2C1;
 unsigned short field_2C3;
 unsigned short field_2C5;
-    unsigned long gold_for_treasury_check_turn;
+    unsigned long tasks_check_turn;
     unsigned long wander_around_check_turn;
     unsigned long job_primary_check_turn;
     unsigned long job_secondary_check_turn;

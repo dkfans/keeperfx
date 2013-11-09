@@ -693,11 +693,11 @@ short imp_digs_mines(struct Thing *thing)
         // If the creature holds more gold than its able
         if (thing->creature.gold_carried > crstat->gold_hold)
         {
-          if (game.play_gameturn - cctrl->gold_for_treasury_check_turn > 128)
+          if (game.play_gameturn - cctrl->tasks_check_turn > 128)
           {
             if (check_out_imp_has_money_for_treasure_room(thing))
               return 1;
-            cctrl->gold_for_treasury_check_turn = game.play_gameturn;
+            cctrl->tasks_check_turn = game.play_gameturn;
           }
           drop_gold_pile(thing->creature.gold_carried - crstat->gold_hold, &thing->mappos);
           thing->creature.gold_carried = crstat->gold_hold;
