@@ -596,14 +596,19 @@ TbBool object_is_gold_pile(const struct Thing *thing)
     //return _DK_object_is_gold_pile(thing);
     switch (thing->model)
     {
-      case 3:
+      case 3: // Chest of gold
       case 6: // Pot of gold
-      case 43:
+      case 43: // Gold laying on the ground
       case 128:
           return true;
       default:
           return false;
     }
+}
+
+TbBool object_is_gold_laying_on_ground(const struct Thing *thing)
+{
+    return (thing->model == 43);
 }
 
 /**
