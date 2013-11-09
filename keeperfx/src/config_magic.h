@@ -79,7 +79,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_Chicken      = 0x0200,
     CSAfF_Unkn0400     = 0x0400,
     CSAfF_Unkn0800     = 0x0800,
-    CSAfF_Unkn1000     = 0x1000,
+    CSAfF_MadKilling   = 0x1000,
     CSAfF_Unkn2000     = 0x2000,
     CSAfF_ExpLevelUp   = 0x4000,
     CSAfF_Freeze       = 0x8000,

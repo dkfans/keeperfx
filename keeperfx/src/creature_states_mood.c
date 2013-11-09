@@ -140,9 +140,49 @@ short creature_piss(struct Thing *thing)
     return 0;
 }
 
-short mad_killing_psycho(struct Thing *thing)
+short mad_killing_psycho(struct Thing *creatng)
 {
-  return _DK_mad_killing_psycho(thing);
+    struct CreatureControl *cctrl;
+    //return _DK_mad_killing_psycho(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    // Find a position for killing - use random dungeon
+    struct Coord3d pos;
+    int i,n;
+    n = ACTION_RANDOM(PLAYERS_COUNT);
+    for (i = 0; i < PLAYERS_COUNT; i++)
+    {
+        struct PlayerInfo *player;
+        player = get_player(n);
+        if (player_exists(player)) {
+            if (get_random_position_in_dungeon_for_creature(n, 1, creatng, &pos)) {
+                if (creature_can_navigate_to_with_storage(creatng, &pos, 0)) {
+                    break;
+                }
+            }
+        }
+        n = (n+1) % PLAYERS_COUNT;
+    }
+    if (i >= PLAYERS_COUNT)
+      return 1;
+    if (setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+    {
+        if (game.play_gameturn - cctrl->last_roar_turn <= 200)
+        {
+            creatng->continue_state = CrSt_MadKillingPsycho;
+        } else
+        {
+            cctrl->field_282 = 50;
+            creatng->continue_state = CrSt_CreatureRoar;
+        }
+    } else
+    {
+        if (game.play_gameturn - cctrl->last_roar_turn > 200)
+        {
+            cctrl->field_282 = 50;
+            internal_set_thing_state(creatng, CrSt_CreatureRoar);
+        }
+    }
+    return 1;
 }
 
 void anger_calculate_creature_is_angry(struct Thing *creatng)
@@ -171,10 +211,8 @@ void anger_calculate_creature_is_angry(struct Thing *creatng)
 void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, AnnoyMotive reason)
 {
     SYNCDBG(8,"Setting to %d",(int)annoy_lv);
-    struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    crstat = creature_stats_get_from_thing(creatng);
     //_DK_anger_set_creature_anger(creatng, annoy_lv, reason);
     if ((game.numfield_14 != 0) || !creature_can_get_angry(creatng)) {
         return;

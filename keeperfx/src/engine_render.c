@@ -1194,7 +1194,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing, long
     else
     {
       if ( (myplyr->thing_under_hand == thing->index)
-        || ((myplyr->id_number != thing->owner) && (((cctrl->spell_flags & 0x20) == 0) || (cctrl->field_AF > 0)))
+        || ((myplyr->id_number != thing->owner) && (((cctrl->spell_flags & CSAfF_Invisibility) == 0) || (cctrl->field_AF > 0)))
         || (cctrl->combat_flags != 0)
         || (thing->word_17 > 0)
         || (mycam->field_6 == 3) )

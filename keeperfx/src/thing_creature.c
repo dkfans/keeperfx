@@ -943,10 +943,10 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     {
     case SplK_Freeze:
         cctrl->affected_by_spells &= ~CCSpl_Freeze;
-        if ( cctrl->spell_flags & CSAfF_Freeze)
+        if ((cctrl->spell_flags & CSAfF_Freeze) != 0)
         {
-          thing->movement_flags |= TMvF_Flying;
-          cctrl->spell_flags &= ~CSAfF_Freeze;
+            thing->movement_flags |= TMvF_Flying;
+            cctrl->spell_flags &= ~CSAfF_Freeze;
         }
         break;
     case SplK_Armour:
