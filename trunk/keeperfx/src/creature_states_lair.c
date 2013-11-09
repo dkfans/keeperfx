@@ -58,6 +58,23 @@ DLLIMPORT long _DK_creature_add_lair_to_room(struct Thing *creatng, struct Room 
 }
 #endif
 /******************************************************************************/
+/**
+ * Returns if given creature is able to heal by sleeping.
+ * Does not take into consideration if the creature has a lair, checks only if
+ * the creature model is able to heal in its lair in general.
+ * @param creatng
+ * @return
+ */
+TbBool creature_can_do_healing_sleep(const struct Thing *creatng)
+{
+    if (is_neutral_thing(creatng)) {
+        return false;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    return ((crstat->heal_requirement > 0) && (crstat->lair_size > 0));
+}
+
 TbBool creature_is_sleeping(const struct Thing *thing)
 {
     long i;
@@ -213,7 +230,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     set_thing_draw(lairtng, i, objdat->field_7, lairtng->word_15, 0, -1, objdat->field_11);
     thing_play_sample(creatng, 158, 100, 0, 3u, 1u, 2, 256);
     create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
-    anger_set_creature_anger(creatng, 0, 3);
+    anger_set_creature_anger(creatng, 0, AngR_NoLair);
     remove_thing_from_mapwho(creatng);
     place_thing_in_mapwho(creatng);
     return 1;
