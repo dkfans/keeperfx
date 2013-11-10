@@ -1066,6 +1066,45 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
     return false;
 }
 
+TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_Modifier action)
+{
+    struct CreatureControl *cctrl;
+    TbBool result;
+    struct Thing *ntng;
+    struct Thing *ctng;
+    long k;
+    cctrl = creature_control_get_from_thing(thing);
+    if (!creature_is_group_member(thing))
+        return false;
+    // Find the last creature in group
+    ctng = get_group_last_member(thing);
+    result = true;
+    // Do the action for every creature in the group, starting from end
+    // This allows the creatures to be removed from group or deleted during the update
+    k = 0;
+    while (!thing_is_invalid(ctng))
+    {
+        cctrl = creature_control_get_from_thing(ctng);
+        ntng = thing_get(cctrl->prev_in_group);
+        TRACE_THING(ntng);
+        if (!thing_is_invalid(ntng))
+        {
+            result &= action(ctng);
+            ctng = ntng;
+        } else
+        {
+            ctng = INVALID_THING;
+        }
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures group");
+            return false;
+        }
+    }
+    return result;
+}
+
 /**
  * Affects a thing with electric shock.
  *

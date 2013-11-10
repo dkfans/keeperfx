@@ -208,6 +208,52 @@ void anger_calculate_creature_is_angry(struct Thing *creatng)
     }
 }
 
+TbBool anger_free_for_anger_increase(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->combat_flags != 0) {
+        return false;
+    }
+    return (cctrl->spell_flags & CSAfF_Unkn0800) == 0;
+}
+
+TbBool anger_free_for_anger_decrease(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    // If the creature is mad killing, don't allow it not to be angry
+    if ((cctrl->spell_flags & CSAfF_MadKilling) != 0) {
+        return false;
+    }
+    return true;
+}
+
+void anger_increase_creature_anger(struct Thing *creatng, long anger, AnnoyMotive reason)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (anger_free_for_anger_increase(creatng))
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(creatng->owner);
+        if (!dungeon_invalid(dungeon)) {
+            dungeon->lvstats.lies_told++;
+        }
+        anger_set_creature_anger(creatng, anger + cctrl->annoyance_level[reason-1], reason);
+    }
+}
+
+void anger_reduce_creature_anger(struct Thing *creatng, long anger, AnnoyMotive reason)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (anger_free_for_anger_decrease(creatng))
+    {
+        anger_set_creature_anger(creatng, anger + cctrl->annoyance_level[reason-1], reason);
+    }
+}
+
 void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, AnnoyMotive reason)
 {
     SYNCDBG(8,"Setting to %d",(int)annoy_lv);
