@@ -1110,6 +1110,8 @@
  0001:0005B740       delete_thing_structure
  0001:00082CD0       make_safe
  0001:00089B70       create_effect
+ 0001:000898D0       attempt_anger_job_destroy_rooms
+ 0001:000899A0       attempt_anger_job_steal_gold
  0001:00060B10       init_animating_texture_maps
  0001:0007B570       get_thing_navigation_distance
  0001:0007BA90       get_angle_of_wall_hug
