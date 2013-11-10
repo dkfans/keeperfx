@@ -34,6 +34,7 @@
 #include "power_hand.h"
 #include "player_instances.h"
 #include "game_legacy.h"
+#include "gui_soundmsgs.h"
 
 #include "creature_states_prisn.h"
 #include "creature_states_rsrch.h"
@@ -49,6 +50,8 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT long _DK_creature_find_and_perform_anger_job(struct Thing *creatng);
 DLLIMPORT long _DK_attempt_job_preference(struct Thing *creatng, long jobpref);
+DLLIMPORT long _DK_attempt_anger_job_destroy_rooms(struct Thing *creatng);
+DLLIMPORT long _DK_attempt_anger_job_steal_gold(struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -118,9 +121,228 @@ TbBool creature_free_for_anger_job(struct Thing *creatng)
         && !thing_is_picked_up(creatng) && !is_thing_passenger_controlled(creatng);
 }
 
-long creature_find_and_perform_anger_job(struct Thing *thing)
+TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)
 {
-    return _DK_creature_find_and_perform_anger_job(thing);
+    return _DK_attempt_anger_job_destroy_rooms(creatng);
+}
+
+TbBool attempt_anger_job_steal_gold(struct Thing *creatng)
+{
+    return _DK_attempt_anger_job_steal_gold(creatng);
+}
+
+TbBool attempt_anger_job_kill_creatures(struct Thing *creatng)
+{
+    if (!can_change_from_state_to(creatng, creatng->active_state, 59)) {
+        return false;
+    }
+    if (!external_set_thing_state(creatng, 59)) {
+        return false;
+    }
+    return true;
+}
+
+TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
+{
+    if (!can_change_from_state_to(creatng, creatng->active_state, 51)) {
+        return false;
+    }
+    struct Room *room;
+    room = find_nearest_room_for_thing(creatng, creatng->owner, 1, 0);
+    if (room_is_invalid(room)) {
+        return false;
+    }
+    if (!external_set_thing_state(creatng, 51)) {
+        return false;
+    }
+    if (!setup_random_head_for_room(creatng, room, 0)) {
+        return false;
+    }
+    creatng->continue_state = 51;
+    return true;
+}
+
+TbBool attempt_anger_job_damage_walls(struct Thing *creatng)
+{
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureDamageWalls)) {
+        return false;
+    }
+    struct Coord3d pos;
+    if (!get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos)) {
+        return false;
+    }
+    if (!external_set_thing_state(creatng, CrSt_CreatureAttemptToDamageWalls)) {
+        return false;
+    }
+    setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0);
+    creatng->continue_state = CrSt_CreatureAttemptToDamageWalls;
+    return true;
+}
+
+TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
+{
+    TRACE_THING(creatng);
+    if (!external_set_thing_state(creatng, CrSt_MadKillingPsycho)) {
+        return false;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->spell_flags |= CSAfF_MadKilling;
+    cctrl->byte_9A = 0;
+    return true;
+}
+
+TbBool attempt_anger_job_persuade(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->explevel <= 5) {
+        return false;
+    }
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreaturePersuade)) {
+        return false;
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(creatng->owner);
+    int persuade_count;
+    persuade_count = min(dungeon->num_active_creatrs-1, 5);
+    if (persuade_count <= 0) {
+        return false;
+    }
+    persuade_count = ACTION_RANDOM(persuade_count) + 1;
+    if (!external_set_thing_state(creatng, CrSt_CreaturePersuade)) {
+        return false;
+    }
+    cctrl->byte_9A = persuade_count;
+    return true;
+}
+
+TbBool attempt_anger_job_join_enemy(struct Thing *creatng)
+{
+    struct Thing *heartng;
+    int i, n;
+    n = ACTION_RANDOM(PLAYERS_COUNT);
+    for (i=0; i < PLAYERS_COUNT; i++, n=(n+1)%PLAYERS_COUNT)
+    {
+        if ((n == game.neutral_player_num) || (n == creatng->owner))
+            continue;
+        struct Dungeon *dungeon;
+        struct PlayerInfo *player;
+        player = get_player(n);
+        if (!player_exists(player) || (player->field_2C != 1))
+            continue;
+        dungeon = get_players_dungeon(player);
+        if (dungeon_invalid(dungeon))
+            continue;
+        heartng = thing_get(dungeon->dnheart_idx);
+        if (thing_exists(heartng) && (heartng->active_state != 3))
+        {
+            TRACE_THING(heartng);
+            if (creature_can_navigate_to(creatng, &heartng->mappos, 0)) {
+                change_creature_owner(creatng, n);
+                anger_set_creature_anger_all_types(creatng, 0);
+            }
+        }
+    }
+    return false;
+}
+
+long attempt_anger_job(struct Thing *creatng, long ajob_kind)
+{
+    switch (ajob_kind)
+    {
+    case 1:
+        if (!attempt_anger_job_kill_creatures(creatng))
+            break;
+        return true;
+    case 2:
+        if (!attempt_anger_job_destroy_rooms(creatng))
+            break;
+        if (is_my_player_number(creatng->owner))
+            output_message(5, 500, 1);
+        return true;
+    case 4:
+        if (!attempt_anger_job_leave_dungeon(creatng))
+            break;
+        if (is_my_player_number(creatng->owner))
+            output_message(6, 500, 1);
+        return true;
+    case 8:
+        if (!attempt_anger_job_steal_gold(creatng))
+            break;
+        return true;
+    case 16:
+        //W?attempt_anger_job_damage_walls$n(pn$Thing$$)l
+        if (!attempt_anger_job_damage_walls(creatng))
+            break;
+        if (is_my_player_number(creatng->owner))
+            output_message(5, 500, 1);
+        return true;
+    case 32:
+        if (!attempt_anger_job_mad_psycho(creatng))
+            break;
+        return true;
+    case 64:
+        if (!attempt_anger_job_persuade(creatng)) {
+            // If can't init persuade, then leave alone
+            if (!attempt_anger_job_leave_dungeon(creatng))
+                break;
+            if (is_my_player_number(creatng->owner))
+                output_message(6, 500, 1);
+        }
+        return true;
+    case 128:
+        if (!attempt_anger_job_join_enemy(creatng))
+            break;
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
+TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
+{
+    //return _DK_creature_find_and_perform_anger_job(creatng);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    int i, k, n;
+    // Count the amount of jobs set
+    i = 0;
+    k = crstat->jobs_anger;
+    while (k != 0)
+    {
+        if ((k & 1) != 0)
+            i++;
+        k >>= 1;
+    }
+    if (i <= 0) {
+        return false;
+    }
+    // Select a random job as a starting point
+    n = ACTION_RANDOM(i) + 1;
+    i = 0;
+    for (k = 0; k < crtr_conf.angerjobs_count; k++)
+    {
+        if ((crstat->jobs_anger & (1 << k)) != 0) {
+            n--;
+        }
+        if (n <= 0) {
+            i = k;
+            break;
+        }
+    }
+    // Go through all jobs, starting at randomly selected one, attempting to start each one
+    for (k = 0; k < crtr_conf.angerjobs_count; k++)
+    {
+        if ((crstat->jobs_anger & (1 << i)) != 0)
+        {
+          if (attempt_anger_job(creatng, 1 << i))
+              return 1;
+        }
+        i = (i+1) % crtr_conf.angerjobs_count;
+    }
+    return 0;
 }
 
 TbBool creature_can_do_job_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob jobpref)

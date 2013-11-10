@@ -793,6 +793,8 @@
  0001:00089510       creature_kill_creatures
  0001:00089600       move_check_attack_any_door
  0001:00089670       move_check_can_damage_wall
+ 0001:000898D0       attempt_anger_job_destroy_rooms
+ 0001:000899A0       attempt_anger_job_steal_gold
  0001:00089AA0       make_all_players_creatures_angry
  0001:00089B70       create_effect
  0001:00089CB0       update_effect
