@@ -456,9 +456,38 @@ void food_eaten_by_creature(struct Thing *creatng, struct Thing *obthing)
     _DK_food_eaten_by_creature(creatng, obthing);
 }
 
-void anger_apply_anger_to_creature(struct Thing *thing, long anger, AnnoyMotive reason, long a3)
+void anger_apply_anger_to_creature(struct Thing *creatng, long anger, AnnoyMotive reason, long a3)
 {
-    _DK_anger_apply_anger_to_creature(thing, anger, reason, a3);
+    //_DK_anger_apply_anger_to_creature(creatng, anger, reason, a3); return;
+    if (!creature_can_get_angry(creatng)) {
+        return;
+    }
+    if (anger > 0)
+    {
+        anger_increase_creature_anger(creatng, anger, reason);
+        if (reason != AngR_Other)
+        {
+            if (anger_free_for_anger_increase(creatng))
+            {
+                long angrpart;
+                angrpart = 32 * anger / 256;
+                anger_increase_creature_anger(creatng, angrpart, AngR_Other);
+            }
+        }
+    } else
+    if (anger < 0)
+    {
+        anger_reduce_creature_anger(creatng, anger, reason);
+        if (reason == AngR_Other)
+        {
+            AnnoyMotive reaspart;
+            long angrpart;
+            angrpart = 32 * anger / 256;
+            for (reaspart = 1; reaspart < AngR_Other; reaspart++) {
+                anger_reduce_creature_anger(creatng, angrpart, reaspart);
+            }
+        }
+    }
 }
 
 /**
@@ -2616,7 +2645,7 @@ TbBool creature_is_group_leader(const struct Thing *thing)
     return (leader == thing);
 }
 
-long remove_creature_from_group(struct Thing *thing)
+TbBool remove_creature_from_group(struct Thing *thing)
 {
     return _DK_remove_creature_from_group(thing);
 }

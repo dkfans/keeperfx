@@ -2279,9 +2279,98 @@ short creature_leaving_dungeon(struct Thing *creatng)
     return 1;
 }
 
+struct Thing *find_random_creature_for_persuade(PlayerNumber plyr_idx, struct Coord3d *pos)
+{
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    struct CreatureControl *cctrl;
+    unsigned long k;
+    int i, n;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    n = ACTION_RANDOM(dungeon->num_active_creatrs);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Per thing code starts
+        if (n == 0) {
+            return thing;
+        }
+        n--;
+        // Per thing code ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+TbBool make_creature_leave_dungeon(struct Thing *creatng)
+{
+    struct Room *room;
+    room = find_nearest_room_for_thing(creatng, creatng->owner, 1, 0);
+    if (room_is_invalid(room)) {
+        set_start_state(creatng);
+        return false;
+    }
+    if (!internal_set_thing_state(creatng, CrSt_CreatureLeaves)) {
+        set_start_state(creatng);
+        return false;
+    }
+    if (!setup_random_head_for_room(creatng, room, 0)) {
+        set_start_state(creatng);
+        return false;
+    }
+    if (is_my_player_number(creatng->owner))
+        output_message(6, 500, 1);
+    creatng->continue_state = CrSt_CreatureLeaves;
+    return true;
+}
+
+long make_all_creature_in_group_leave_dungeon(struct Thing *leadtng)
+{
+    if (!creature_is_group_member(leadtng)) {
+        set_start_state(leadtng);
+        return 0;
+    }
+    if (perform_action_on_all_creatures_in_group(leadtng, make_creature_leave_dungeon)) {
+        // If there were problems while performing actions, make sure that it's performed for the leader
+        return make_creature_leave_dungeon(leadtng);
+    }
+    return 1;
+}
+
 short creature_persuade(struct Thing *creatng)
 {
-    return _DK_creature_persuade(creatng);
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    SYNCDBG(18,"Starting");
+    //return _DK_creature_persuade(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    dungeon = get_players_num_dungeon(creatng->owner);
+    if ((cctrl->byte_9A > 0) && (dungeon->num_active_creatrs > 1))
+    {
+        struct Thing *perstng;
+        perstng = find_random_creature_for_persuade(creatng->owner, &creatng->mappos);
+        if (setup_person_move_to_coord(creatng, &perstng->mappos, 0)) {
+            creatng->continue_state = CrSt_CreaturePersuade;
+        }
+        return 1;
+    }
+    make_all_creature_in_group_leave_dungeon(creatng);
+    return 0;
 }
 
 /**

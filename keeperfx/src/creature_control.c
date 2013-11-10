@@ -243,22 +243,17 @@ void clear_creature_instance(struct Thing *thing)
     cctrl->field_D4 = 0;
 }
 
-TbBool disband_creatures_group(struct Thing *thing)
+struct Thing *get_group_last_member(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    struct Thing *ntng;
     struct Thing *ctng;
+    struct CreatureControl *cctrl;
     long k;
-    cctrl = creature_control_get_from_thing(thing);
-    if (!creature_is_group_member(thing))
-        return true;
-    // Find the last creature in group
     ctng = thing;
+    cctrl = creature_control_get_from_thing(ctng);
     k = 0;
     while (cctrl->next_in_group > 0)
     {
         ctng = thing_get(cctrl->next_in_group);
-        TRACE_THING(ctng);
         cctrl = creature_control_get_from_thing(ctng);
         k++;
         if (k > CREATURES_COUNT)
@@ -267,29 +262,13 @@ TbBool disband_creatures_group(struct Thing *thing)
           break;
         }
     }
+    return ctng;
+}
+
+TbBool disband_creatures_group(struct Thing *thing)
+{
     // Disband the group, removing creatures from end
-    k = 0;
-    while (!thing_is_invalid(ctng))
-    {
-        cctrl = creature_control_get_from_thing(ctng);
-        ntng = thing_get(cctrl->prev_in_group);
-        TRACE_THING(ntng);
-        if (!thing_is_invalid(ntng))
-        {
-          remove_creature_from_group(ctng);
-          ctng = ntng;
-        } else
-        {
-          ctng = INVALID_THING;
-        }
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping creatures group");
-          return false;
-        }
-    }
-    return true;
+    return perform_action_on_all_creatures_in_group(thing, remove_creature_from_group);
 }
 
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
