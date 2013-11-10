@@ -37,7 +37,7 @@ struct Thing;
 TbBool set_creature_assigned_job(struct Thing *thing, CreatureJob new_job);
 TbBool creature_has_job(const struct Thing *thing, CreatureJob job_kind);
 TbBool creature_free_for_anger_job(struct Thing *thing);
-long creature_find_and_perform_anger_job(struct Thing *thing);
+TbBool creature_find_and_perform_anger_job(struct Thing *thing);
 long attempt_job_preference(struct Thing *creatng, long jobpref);
 TbBool creature_try_doing_secondary_job(struct Thing *creatng);
 /******************************************************************************/

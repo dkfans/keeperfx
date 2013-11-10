@@ -1267,7 +1267,7 @@ msgstr ""
 
 #: guitext:257
 msgctxt "Creature spell"
-msgid "Time Bomb: Not used"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr ""
 
 #: guitext:258

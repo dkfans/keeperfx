@@ -4220,7 +4220,7 @@ msgstr "Brak pamięci"
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr "Nie można zmieniå rozdzelczości ekranu"
+msgstr "Nie można zmienić rozdzelczości ekranu"
 
 #: guitext:857
 msgctxt "Menu interface item"
@@ -4275,42 +4275,42 @@ msgstr "KIEROWNICTWO DŹWIĘKU WERSJI JĘZYKOWYCH"
 #: guitext:868
 msgctxt "Network game message"
 msgid "Attempting To Join"
-msgstr "PRÓbujĘ DOłĄCZYĆ SIĘ DO GRY"
+msgstr "Próbuję Dołączyć się do Gry"
 
 #: guitext:869
 msgctxt "Network game message"
 msgid "Resyncing"
-msgstr "SYNCHRONIZACJA"
+msgstr "Synchronizacja"
 
 #: guitext:870
 msgctxt "Menu interface item"
 msgid "1 Player"
-msgstr "1 GRACZ"
+msgstr "1 Gracz"
 
 #: guitext:871
 msgctxt "Menu interface item"
 msgid "2 Players"
-msgstr "2 GRACZY"
+msgstr "2 Graczy"
 
 #: guitext:872
 msgctxt "Menu interface item"
 msgid "3 Players"
-msgstr "3 GRACZY"
+msgstr "3 Graczy"
 
 #: guitext:873
 msgctxt "Menu interface item"
 msgid "4 Players"
-msgstr "4 GRACZY"
+msgstr "4 Graczy"
 
 #: guitext:874
 msgctxt "Menu interface item"
 msgid "Serial"
-msgstr "POŁĄCZENIE SZEREGOWE"
+msgstr "Połączenie Szeregowe"
 
 #: guitext:875
 msgctxt "Menu interface item"
 msgid "Modem"
-msgstr "MODEM"
+msgstr "Modem"
 
 #: guitext:876
 msgctxt "Menu interface item"
@@ -4340,27 +4340,27 @@ msgstr "Z"
 #: guitext:881
 msgctxt "Menu interface item"
 msgid "Vs"
-msgstr "KONTRA"
+msgstr "Kontra"
 
 #: guitext:882
 msgctxt "Credits"
 msgid "Game design"
-msgstr "PROJEKT GRY"
+msgstr "Projekt gry"
 
 #: guitext:883
 msgctxt "Credits"
 msgid "Associate Producer"
-msgstr "WSPÓŁPRODUCENT"
+msgstr "Współproducent"
 
 #: guitext:884
 msgctxt "Credits"
 msgid "Additional Script"
-msgstr "DODATKI DO SCENARIUSZA"
+msgstr "Dodatki do Scenariusza"
 
 #: guitext:885
 msgctxt "Easter egg"
 msgid "Happy Birthday"
-msgstr "HAPPY BIRTHDAY"
+msgstr "Wszystkiego Naj w Dniu Urodzin"
 
 #: guitext:886
 msgctxt "Menu interface message"
@@ -4456,7 +4456,7 @@ msgstr "W tym królestwie kryją się starożytne moce. Odszukaj je i wykorzysta
 #: guitext:902
 msgctxt "In-game message"
 msgid "A foolish challenger stands between you and total dominance. Annihilate his forces and feed his body to your ravenous minions."
-msgstr "Miedzy Tobą a całkowitą dominacją stanął nierozważny śmiałek. Zetrzyj z powierzchni ziemi wspierające go siły, a jego ciało rzuć na pożarcie swym żarłocznym sługom."
+msgstr "Między Tobą a całkowitą dominacją stanął nierozważny śmiałek. Zetrzyj z powierzchni ziemi wspierające go siły, a jego ciało rzuć na pożarcie swym żarłocznym sługom."
 
 #. DD Level Daka-Gorn information after AP reached
 #: guitext:903
