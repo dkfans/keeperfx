@@ -20,7 +20,7 @@
 #, fuzzy:
 msgid ""
 msgstr ""
-"Project-Id-Version: KeeperFX CCP 0.40\n"
+"Project-Id-Version: Original Campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -42,12 +42,12 @@ msgstr ""
 
 #: landview:20
 msgctxt "Level introduction"
-msgid "Cozyton. A hideous sham of a town, in which the prosperous citizens have no gripes or moans. Sadly, even the children are happy and secure. This is because they aren't punished for non-existant crimes.."
+msgid "Cozyton. A hideous sham of a town, in which the prosperous citizens have no gripes or moans. Sadly, even the children are happy and secure. This is because they aren't punished for non-existent crimes.."
 msgstr ""
 
 #: landview:21
 msgctxt "Level summary"
-msgid "Darkhana. The surviving citizens have more on their plates than a demon-spawn with three dead adventurers to munch. Not that many citizens have survived, as such."
+msgid "Darkhana. The surviving citizens have more on their plates than a Demonspawn with three dead adventurers to munch. Not that many citizens have survived, as such."
 msgstr ""
 
 #: landview:30
@@ -57,17 +57,17 @@ msgstr ""
 
 #: landview:31
 msgctxt "Level summary"
-msgid "Withersdread. This place now has a proper name because of what you did here, there is a healthy disrespect for life, and you'll be amused to hear that cannibalism has gained a strong foothold amongst the ragged inhabitants."
+msgid "Wither's Tread. This place now has a proper name, because of what you did here. There is a healthy disrespect for life, and you will be amused to hear that cannibalism has gained a strong foothold amongst the ragged inhabitants."
 msgstr ""
 
 #: landview:40
 msgctxt "Level introduction"
-msgid "Flowerhat. Polite bartering has lead to extreme compassion and a sense of contentment in this area. Not even a thick skinned troll could survive the understanding and help these scummy people could provide."
+msgid "Flowerhat. Polite bartering has lead to extreme compassion and a servative contentment in this area. Not even a thick skinned troll could survive the understanding and help these scummy people could provide."
 msgstr ""
 
 #: landview:41
 msgctxt "Level summary"
-msgid "Firemore. There's a burning mess where once a pretty village stood. truely you've achieved a significant improvement in the area, even the poisonous smoke smells sweet."
+msgid "Firemore. There's a burning mess where once a pretty village stood. Truly you have achieved a significant improvement in the area. Even the poisonous smoke smells sweet."
 msgstr ""
 
 #: landview:50
@@ -77,7 +77,7 @@ msgstr ""
 
 #: landview:51
 msgctxt "Level summary"
-msgid "Knife. The streets run with the blood of the slain. Screams of pain and the howls of anguish rip the night air like a vengeful siren song. This really is somewhere you can take the kids for a weekend."
+msgid "Knife. The streets run with the blood of the slain. Screams of pain and howls of anguish rip the night air like a vengeful siren song. This really is somewhere you can take the kids for a weekend."
 msgstr ""
 
 #: landview:60
@@ -87,7 +87,7 @@ msgstr ""
 
 #: landview:61
 msgctxt "Level summary"
-msgid "Ruiniena. Not a soul stirs here now, even the rats are afraid to come out of the drains and feast on the dead. You really outdid yourself here master, it's a shame the destruction was so easy."
+msgid "Ruiniena. Not a soul stirs here now, even the rats are afraid to come out of the drains to feast on the dead. You really outdid yourself here master, it's a pity the destruction was so easy."
 msgstr ""
 
 #: landview:70
@@ -97,7 +97,7 @@ msgstr ""
 
 #: landview:71
 msgctxt "Level summary"
-msgid "Steep Scythe. Everyone has been put to the sword, and we've made an enormous magic carpet out of the thousand bunnies that swarmed here. Your minions will feast on their tiny remains for weeks. Truely a majestic victory."
+msgid "Steepscythe. Everyone has been put to the sword, and we've made an enormous magic carpet out of the thousands of bunnies that swarmed here. Your minions will feast on their tiny remains for weeks. Truly a majestic victory."
 msgstr ""
 
 #: landview:80
@@ -107,7 +107,7 @@ msgstr ""
 
 #: landview:81
 msgctxt "Level summary"
-msgid "Panic Intrisica. A weeping, wizened crone presides over this ruined empty land now. Once she was beautiful. Now she'd make you want to vomit. The improvement is impressive."
+msgid "Panicantrizica. A weeping, wizened crone presides over this ruined empty land now. Once she was beautiful, now she's one to make you vomit. The improvement is impressive."
 msgstr ""
 
 #: landview:90
@@ -117,17 +117,17 @@ msgstr ""
 
 #: landview:91
 msgctxt "Level summary"
-msgid "Neverdorf. Once a flourishing homestead, now it's a stinking hole in the ground. It will be years before even the hardiest weed grows here again. War, on the other hand, is in full blossom."
+msgid "Neverdwarf. Once a flourishing homestead, now it's a stinking hole in the ground. It will be years before even the hardiest weed grows here again. War, on the other hand, is in full blossom."
 msgstr ""
 
 #: landview:100
 msgctxt "Level introduction"
-msgid "Nevergrim. Unable to see the bad side of anyone, these folk could benefit from a swinging sword to the back of the neck, or possibly a lightning spell to the throat. Such possibilities never cross their happy minds. "
+msgid "Nevergrim. Unable to see the bad side of anyone, these folk could benefit from a swinging sword to the back of the neck, or possibly a lightning spell to the throat. Such possibilities never cross their happy minds..."
 msgstr ""
 
 #: landview:101
 msgctxt "Level summary"
-msgid "Grimsforth. The legions of Hell have been through here at your bidding. They've altered the appearance of the place as you would wish Master. Now we breath the heavy perfume of toxins wherever we wander."
+msgid "Grimsforth. The legions of hell have been through here at your bidding. They've altered the appearance of the place as you would wish Master. Now we breath the heady perfumes of toxins wherever we wander."
 msgstr ""
 
 #: landview:110
@@ -137,67 +137,67 @@ msgstr ""
 
 #: landview:111
 msgctxt "Level summary"
-msgid "Rivalmark. A Kingdom fit for a Dungeon Keeper of your standards, Sire. The Blackened Hulks of the houses welcome you, and the overgrounders prostrate themselves, Mainly because we've killed them..."
+msgid "Rivalmark. A Kingdom fit for a Dungeon Keeper of your standard, Sire. The blackened hulks of the houses welcome you, and the overgrounders prostrate themselves; mainly because we've killed them..."
 msgstr ""
 
 #: landview:120
 msgctxt "Level introduction"
-msgid "Elf's Dance. A village set inside a giant fairy ring. A weak kind of magic provides the dwellers with all their hearts could desire. Embarrassingly, most simply wish for peace, happiness, and a long untroubled life. "
+msgid "Elf's Dance. A village set inside a giant fairy ring. A weak kind of magic provides the dwellers with all their hearts could desire. Embarrassingly, most simply wish for peace, happiness, and a long untroubled life."
 msgstr ""
 
 #: landview:121
 msgctxt "Level summary"
-msgid "Dragon Thyne. We've set fire to this place. It's still burning with a fierce unnatural intensity, but we're sure you'll love it once it's cooled down a bit.."
+msgid "Dragontine. We've set fire to this place. It's still burning with a fierce unnatural intensity, so we can't get anywhere near it. But we're sure you'll love it... Once it's cooled down a bit."
 msgstr ""
 
 #: landview:130
 msgctxt "Level introduction"
-msgid "Buffy Oak. A small location, where the people just sit around all day and enjoy each other's company. They talk, laugh, and sing without ever arguing, drawing daggers, and dying in a gurgling rush of blood. A truly bizarre place. "
+msgid "Buffy Oak. A small location, where the people just sit around all day and enjoy each other's company. They talk, laugh, and sing without ever arguing, drawing daggers, and dying in a gurgling rush of blood! A truly bizarre place..."
 msgstr ""
 
 #: landview:131
 msgctxt "Level summary"
-msgid "Carn Forge. Carn Forge. The Fairy ring lies smashed, and the folk have fled to the hills. Our vampires are out hunting them down as we speak. Rest assured, we'll be dragging them back soon, my lord."
+msgid "Carn Forge. The Fairy ring lies smashed, and the folk have fled to the hills. Our vampires are out hunting them down as we speak. Rest assured, we will be dragging them back soon, my lord."
 msgstr ""
 
 #: landview:140
 msgctxt "Level introduction"
-msgid "Sleepiborough. A settlement in the fertile farmland near the mountain. Nothing ever happens here, apart from some good deeds and the odd exchange of kind-hearted greetings. A disgusting pit of Hades in other words."
+msgid "Sleepiborough. A settlement in the fertile farmland near the mountains. Nothing ever happens here, apart from some good deeds and the odd exchange of kind-hearted greetings. A disgusting pit of Hades in other words."
 msgstr ""
 
 #: landview:141
 msgctxt "Level summary"
-msgid "Erelyns Down. The people enjoyed each other's company so much. that they'll be together forever now. We've thrown them all into a big pit and piled tons of rock on top of them. A fitting end, We'll trust you'll agree."
+msgid "Arilyns Down. The people enjoyed each other's company so much, that they'll be together forever now. We've thrown them all into a big pit and piled tons of rocks onto them. A fitting end, we trust you'll agree."
 msgstr ""
 
 #: landview:150
 msgctxt "Level introduction"
-msgid "Woodly Rhyme. A place of such obscene contentment, it's criminal that a horde of undead vigilantes haven't massacred every soul in the place. If there's any justice, that will soon happen, my lord."
+msgid "Woodly Rhyme. A place of such obscene contentment, it's criminal that a horde of undead vigilantes haven't massacred every soul in the place. If there is any justice, that will soon happen, my lord."
 msgstr ""
 
 #: landview:151
 msgctxt "Level summary"
-msgid "Mormonflesh. We've developed this area. It is now a breeding ground for our legions of beetles and flies. To think that it was once pointless farmland providing food for the weak population that lived there in so-called peace.."
+msgid "Mormonflak. We have developed this area. It is now a breeding ground for our legions of beetles and flies. To think it was once pointless farmland, providing food for the weak population that lived there in so-called peace..."
 msgstr ""
 
 #: landview:160
 msgctxt "Level introduction"
-msgid "Tulipscent. Flowers are on display in every building in this area. The poisonous stink of these feted blooms will stick in the throats and noses of every right-thinking villains that comes within four leagues of the place."
+msgid "Tulipscent. Flowers are on display in every building in this area. The poisonous stink of these fetid blooms will stick in the throats and noses of every right-thinking villains that comes within four leagues of the place."
 msgstr ""
 
 #: landview:161
 msgctxt "Level summary"
-msgid "Hasimlock. Vampires have sucked the life out of everyone here. They poisoned the well, and smeared dung on all the door handles as a joke. Not a sophisticated sense of humor these undead bloodsuckers..."
+msgid "Hasimlock. Vampires have sucked the life out of everyone here. They’ve poisoned the well, and smeared dung on all the door handles, as a joke. Not a sophisticated sense of humour, these undead blood suckers..."
 msgstr ""
 
 #: landview:170
 msgctxt "Level introduction"
-msgid "Mirthshire. Industrious citizens go about their daily lives with care, enthusiasm, and diligence. There is no crime, and everyone works for the common good. It's a disaster of a place and deserves razing."
+msgid "Mirthshire. Industrious citizens go about their daily business with care, enthusiasm, and diligence. There is no crime, and everybody is working for the common good. It's a disaster of a place and deserves razing."
 msgstr ""
 
 #: landview:171
 msgctxt "Level summary"
-msgid "Demonsdearth. The flowers lie trampled in the dirt, and their disgusting pong has been replaced by the smell of soiled armor, and the internal juices of those sliced to pieces by your servants, master. Quite an improvement, I trust you'll agree."
+msgid "Demonsdirth. The flowers lie trampled in the dirt. Their disgusting pong has been replaced by the smell of soiled armour, and the internal juices of those sliced to pieces by your servants. Quite an improvement, you'll agree."
 msgstr ""
 
 #: landview:180
@@ -207,25 +207,25 @@ msgstr ""
 
 #: landview:181
 msgctxt "Level summary"
-msgid "Valynore. Nothing is left of this settlement apart from a stubborn stain on the ground. Our trolls are hard at work erasing it at this very moment. Then we'll spray acid over the entire locale."
+msgid "Valynore. Nothing is left of this settlement apart from a stubborn stain on the ground. Our trolls are hard at work trying to erase this at the moment. Then we'll spray acid over the entire locale."
 msgstr ""
 
 #: landview:190
 msgctxt "Level introduction"
-msgid "Mistle. Light and Airy. Mistle is a haven for those that love the peaceful countryside. The sort of people that won't like miles of sulfurous stinking wasteland. And the screams of the damned, of course."
+msgid "Mistle. Light and Airy. Mistle is a haven for those that love the peaceful countryside. The sort of people that won't like miles of sulphurous stinking wasteland. And the screams of the damned, of course."
 msgstr ""
 
 #: landview:191
 msgctxt "Level summary"
-msgid "Darksword. A great battle was won here. A bit one-sided, granted. Our Minions fought valiantly, and now the day is ours. The survivors have been dealt with. Properly."
+msgid "Darksword. A great battle has been won here. It was a bit one-sided, granted, but our minions performed valiantly, and now the day is ours. We've dealt with the survivors by the way, properly."
 msgstr ""
 
 #: landview:200
 msgctxt "Level introduction"
-msgid "Skybird Trill. The Ultimate in cute. A frown in Skybird Trill brings all the townspeople to the sufferer's door with gifts of love, fine cheer, and eternal friendship. A place where nothing can ever go wrong. Or so they fondly believe."
+msgid "Skybird Trill. The Ultimate in cute. A frown in Skybird Trill brings all the townspeople to the sufferer's door with gifts of love, fine cheer, and eternal friendship. A place where nothing can ever go wrong, or so they fondly believe."
 msgstr ""
 
 #: landview:201
 msgctxt "Level summary"
-msgid "Donterror. The world of Skybird Trill is nothing more the charred wreck of a ruined nightmare. You've won a furious vital victory, and you are ruler supreme over the whole world! What next Master?"
+msgid "Donterror. The world of Skybird Trill is nothing more than a charred wreck of a nightmare. We have won a furious, vital victory, and you are ruler supreme over the whole world! What next, Master?"
 msgstr ""
