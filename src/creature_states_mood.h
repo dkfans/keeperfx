@@ -42,6 +42,7 @@ void anger_increase_creature_anger(struct Thing *creatng, long anger, AnnoyMotiv
 void anger_reduce_creature_anger(struct Thing *creatng, long anger, AnnoyMotive reason);
 AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng);
 void anger_set_creature_anger(struct Thing *thing, long annoy_lv, AnnoyMotive reason);
+void anger_apply_anger_to_creature_all_types(struct Thing *thing, long anger);
 TbBool anger_make_creature_angry(struct Thing *thing, AnnoyMotive reason);
 
 short creature_moan(struct Thing *thing);
