@@ -245,7 +245,7 @@ long get_best_quick_range_instance_to_use(struct Thing *thing)
 #undef INSTANCE_RET_IF_AVAIL_AND_RESET
 #undef INSTANCE_RET_NEG_IF_AVAIL_ONLY
 
-TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const struct Thing *creatng, long job_kind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long *found_dist, struct Thing **found_thing)
+TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long *found_dist, struct Thing **found_thing)
 {
     struct Thing *thing;
     struct Map *mapblk;
@@ -266,7 +266,8 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ( thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind) )
+        if (thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind)
+            && !creature_is_being_unconscious(thing) && !creature_is_doing_dungeon_improvements(thing))
         {
             dist = get_combat_distance(creatng, thing);
             // If we have combat sight - we want that target, don't search anymore
@@ -306,7 +307,7 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
  * @return True if a target with combat sight was found. False if closest creature was found, or no creature met the conditions.
  * @note If no creature met the conditions, output variables are not initialized. Therefore, they should be initialized before calling this function.
  */
-TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct Thing *creatng, long job_kind, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned long *found_dist, struct Thing **found_thing)
+TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned long *found_dist, struct Thing **found_thing)
 {
     MapSubtlCoord endstl_x,endstl_y;
     MapSubtlCoord stl_x,stl_y;
@@ -335,7 +336,7 @@ TbBool find_combat_target_passing_by_slab_but_having_unrelated_job(const struct 
  * @return True if a target with combat sight was found. False if closest creature was found, or no creature met the conditions.
  * @note If no creature met the conditions, output variables are not initialized. Therefore, they should be initialized before calling this function.
  */
-TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct Thing *creatng, long job_kind, const struct Room *room, unsigned long *found_dist, struct Thing **found_thing)
+TbBool find_combat_target_passing_by_room_but_having_unrelated_job(const struct Thing *creatng, CreatureJob job_kind, const struct Room *room, unsigned long *found_dist, struct Thing **found_thing)
 {
     unsigned long i;
     unsigned long k;
@@ -378,13 +379,14 @@ TbBool process_job_stress(struct Thing *creatng, struct Room *room)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    unsigned short stressful_job;
+    CreatureJob stressful_job;
     cctrl = creature_control_get_from_thing(creatng);
     crstat = creature_stats_get_from_thing(creatng);
     if ( (crstat->job_stress <= 0) || (cctrl->instance_id != CrInst_NULL) ) {
         return false;
     }
-    if (((game.play_gameturn + creatng->index) % crstat->job_stress) == 0) {
+    // Process the stress once per 30 turns
+    if (((game.play_gameturn + creatng->index) % 30) != 0) {
         return false;
     }
     stressful_job = get_creature_job_causing_stress(crstat->job_primary,room->kind);
