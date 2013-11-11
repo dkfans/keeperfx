@@ -1767,7 +1767,7 @@ long check_out_worker_improve_dungeon(struct Thing *thing, struct DiggerStack *i
     SYNCDBG(18,"Starting");
     stl_x = stl_num_decode_x(istack->field_0);
     stl_y = stl_num_decode_y(istack->field_0);
-    if ( !check_place_to_pretty_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)) )
+    if (!check_place_to_pretty_excluding(thing, subtile_slab_fast(stl_x), subtile_slab_fast(stl_y)))
     {
         istack->task_id = DigTsk_None;
         return 0;
