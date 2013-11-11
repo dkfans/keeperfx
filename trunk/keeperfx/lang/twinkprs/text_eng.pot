@@ -72,7 +72,7 @@ msgstr ""
 
 #: guitext:8
 msgctxt "In-game message"
-msgid "The abomination of a heart is destroyed. Finish all the disorientated survivors - we must be sure the land is clear before moving forward. Wait and watch for a while to make sure all are dead."
+msgid "The abomination of a heart is destroyed. Finish all the disoriented survivors - we must be sure the land is clear before moving forward. Wait and watch for a while to make sure all are dead."
 msgstr ""
 
 #: guitext:9

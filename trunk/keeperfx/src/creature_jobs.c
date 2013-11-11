@@ -123,20 +123,79 @@ TbBool creature_free_for_anger_job(struct Thing *creatng)
 
 TbBool attempt_anger_job_destroy_rooms(struct Thing *creatng)
 {
-    return _DK_attempt_anger_job_destroy_rooms(creatng);
+    //return _DK_attempt_anger_job_destroy_rooms(creatng);
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureVandaliseRooms)) {
+        return false;
+    }
+    struct Room *room;
+    struct Coord3d pos;
+    room = find_nearest_room_for_thing_excluding_two_types(creatng, creatng->owner, 7, 1, 1);
+    if (room_is_invalid(room)) {
+        return false;
+    }
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
+        return false;
+    }
+    if (!creature_can_navigate_to_with_storage(creatng, &pos, 1)) {
+        return false;
+    }
+    if (!external_set_thing_state(creatng, CrSt_CreatureVandaliseRooms)) {
+        return false;
+    }
+    if (!setup_random_head_for_room(creatng, room, 1)) {
+        return false;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    creatng->continue_state = CrSt_CreatureVandaliseRooms;
+    cctrl->target_room_id = room->index;
+    return true;
 }
 
 TbBool attempt_anger_job_steal_gold(struct Thing *creatng)
 {
-    return _DK_attempt_anger_job_steal_gold(creatng);
+    //return _DK_attempt_anger_job_steal_gold(creatng);
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureStealGold)) {
+        return false;
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if (crstat->gold_hold <= creatng->long_13) {
+        return false;
+    }
+    struct Room *room;
+    struct Coord3d pos;
+    room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, 2, 1, 1);
+    if (room_is_invalid(room)) {
+        return false;
+    }
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)) {
+        return false;
+    }
+    if (!creature_can_navigate_to_with_storage(creatng, &pos, 1)) {
+        return false;
+    }
+    if (!external_set_thing_state(creatng, CrSt_CreatureStealGold)) {
+        return false;
+    }
+    if (!setup_random_head_for_room(creatng, room, 1))
+    {
+        ERRORLOG("Cannot setup head for treasury.");
+        return false;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    creatng->continue_state = CrSt_CreatureSearchForGoldToStealInRoom1;
+    cctrl->target_room_id = room->index;
+    return true;
 }
 
 TbBool attempt_anger_job_kill_creatures(struct Thing *creatng)
 {
-    if (!can_change_from_state_to(creatng, creatng->active_state, 59)) {
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureKillCreatures)) {
         return false;
     }
-    if (!external_set_thing_state(creatng, 59)) {
+    if (!external_set_thing_state(creatng, CrSt_CreatureKillCreatures)) {
         return false;
     }
     return true;
@@ -144,7 +203,7 @@ TbBool attempt_anger_job_kill_creatures(struct Thing *creatng)
 
 TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
 {
-    if (!can_change_from_state_to(creatng, creatng->active_state, 51)) {
+    if (!can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureLeaves)) {
         return false;
     }
     struct Room *room;
@@ -152,13 +211,13 @@ TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
     if (room_is_invalid(room)) {
         return false;
     }
-    if (!external_set_thing_state(creatng, 51)) {
+    if (!external_set_thing_state(creatng, CrSt_CreatureLeaves)) {
         return false;
     }
     if (!setup_random_head_for_room(creatng, room, 0)) {
         return false;
     }
-    creatng->continue_state = 51;
+    creatng->continue_state = CrSt_CreatureLeaves;
     return true;
 }
 
@@ -259,24 +318,23 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
         if (!attempt_anger_job_destroy_rooms(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(5, 500, 1);
+            output_message(SMsg_CreatrDestroyRooms, 500, 1);
         return true;
     case 4:
         if (!attempt_anger_job_leave_dungeon(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(6, 500, 1);
+            output_message(SMsg_CreatureLeaving, 500, 1);
         return true;
     case 8:
         if (!attempt_anger_job_steal_gold(creatng))
             break;
         return true;
     case 16:
-        //W?attempt_anger_job_damage_walls$n(pn$Thing$$)l
         if (!attempt_anger_job_damage_walls(creatng))
             break;
         if (is_my_player_number(creatng->owner))
-            output_message(5, 500, 1);
+            output_message(SMsg_CreatrDestroyRooms, 500, 1);
         return true;
     case 32:
         if (!attempt_anger_job_mad_psycho(creatng))
@@ -288,7 +346,7 @@ long attempt_anger_job(struct Thing *creatng, long ajob_kind)
             if (!attempt_anger_job_leave_dungeon(creatng))
                 break;
             if (is_my_player_number(creatng->owner))
-                output_message(6, 500, 1);
+                output_message(SMsg_CreatureLeaving, 500, 1);
         }
         return true;
     case 128:
@@ -367,7 +425,7 @@ TbBool creature_can_do_job_for_player(struct Thing *creatng, PlayerNumber plyr_i
     {
         struct Room *room;
         room = find_room_for_thing_with_used_capacity(creatng, creatng->owner, get_room_for_job(Job_FREEZE_PRISONERS), 0, 1);
-        return creature_instance_is_available(creatng, 7) && !room_is_invalid(room);
+        return creature_instance_is_available(creatng, CrInst_FREEZE) && !room_is_invalid(room);
     }
     if (jobpref & Job_GUARD)
     {
@@ -632,7 +690,8 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     }
     if (jobpref & Job_FREEZE_PRISONERS)
     {
-      if ( select_curr < select_val && creature_instance_is_available(creatng, 7) && find_room_for_thing_with_used_capacity(creatng, creatng->owner, 4, 0, 1) )
+      if ((select_curr < select_val) && creature_instance_is_available(creatng, CrInst_FREEZE)
+          && find_room_for_thing_with_used_capacity(creatng, creatng->owner, 4, 0, 1) )
       {
         internal_set_thing_state(creatng, CrSt_CreatureFreezePrisoners);
         return 1;

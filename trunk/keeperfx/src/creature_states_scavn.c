@@ -349,7 +349,7 @@ TbBool process_scavenge_creature_from_level(struct Thing *scavtng, struct Thing 
         // Start the new scavenging
         calldngn->scavenge_targets[calltng->model] = scavtng->index;
         if (is_my_player_number(scavtng->owner)) {
-            output_message(61, 500, 1);
+            output_message(SMsg_CreatureScanvenged, 500, 1);
         }
         event_create_event(scavtng->mappos.x.val, scavtng->mappos.y.val, 10, scavtng->owner, scavtng->index);
     } else
@@ -448,7 +448,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     if (!player_can_afford_to_scavenge_creature(calltng))
     {
         if (is_my_player_number(calltng->owner))
-            output_message(88, 500, 1);
+            output_message(SMsg_NoGoldToScavenge, 500, 1);
         set_start_state(calltng);
         return CrCkRet_Continue;
     }
