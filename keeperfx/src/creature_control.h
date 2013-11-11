@@ -564,8 +564,11 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short field_C4;
     short annoy_queue;
     short annoy_will_not_do_job;
+    /* Job kinds which cause stress for the creature */
     unsigned short job_stress;
+    /* Amount of annoyance given to creature under stress */
     short annoy_job_stress;
+    /* Job kinds which cause creature to be angrier */
     unsigned short jobs_anger;
     short annoy_others_leaving;
     unsigned char slaps_to_kill;
