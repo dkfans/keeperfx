@@ -1735,7 +1735,7 @@ long check_out_imp_last_did(struct Thing *creatng)
   return false;
 }
 
-long imp_stack_update(struct Thing *creatng)
+TbBool imp_stack_update(struct Thing *creatng)
 {
     struct Dungeon *dungeon;
     SYNCDBG(18,"Starting");
@@ -1745,6 +1745,10 @@ long imp_stack_update(struct Thing *creatng)
         return 0;
     SYNCDBG(8,"Updating");
     setup_imp_stack(dungeon);
+    if (dungeon_invalid(dungeon)) {
+        WARNLOG("Played %d has no dungeon",(int)creatng->owner);
+        return false;
+    }
     add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/4 - 1);
     add_unclaimed_dead_bodies_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/4 - 1);
     add_unclaimed_spells_to_imp_stack(dungeon, IMP_TASK_MAX_COUNT/12);
@@ -1754,7 +1758,7 @@ long imp_stack_update(struct Thing *creatng)
     add_unclaimed_gold_to_imp_stack(dungeon);
     add_unclaimed_traps_to_imp_stack(dungeon);
     add_reinforce_to_imp_stack(dungeon);
-    return 1;
+    return true;
 }
 
 long check_out_worker_improve_dungeon(struct Thing *thing, struct DiggerStack *istack)

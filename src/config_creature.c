@@ -50,6 +50,19 @@ const struct NamedCommand creaturetype_common_commands[] = {
   {NULL,                     0},
   };
 
+const struct NamedCommand creaturetype_experience_commands[] = {
+  {"PAYINCREASEONEXP",      1},
+  {"DAMAGEINCREASEONEXP",   2},
+  {"RANGEINCREASEONEXP",    3},
+  {"JOBVALUEINCREASEONEXP", 4},
+  {"HEALTHINCREASEONEXP",   5},
+  {"STRENGTHINCREASEONEXP", 6},
+  {"DEXTERITYINCREASEONEXP",7},
+  {"DEFENSEINCREASEONEXP",  8},
+  {"LOYALTYINCREASEONEXP",  9},
+  {NULL,                    0},
+  };
+
 const struct NamedCommand creaturetype_instance_commands[] = {
   {"NAME",            1},
   {"TIME",            2},
@@ -370,14 +383,17 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
     char block_buf[COMMAND_WORD_LEN];
     char word_buf[COMMAND_WORD_LEN];
     // Initialize block data
-    crtr_conf.model_count = 1;
-    crtr_conf.instances_count = 1;
-    crtr_conf.jobs_count = 1;
-    crtr_conf.angerjobs_count = 1;
-    crtr_conf.attackpref_count = 1;
-    crtr_conf.special_digger_good = 0;
-    crtr_conf.special_digger_evil = 0;
-    crtr_conf.spectator_breed = 0;
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        crtr_conf.model_count = 1;
+        crtr_conf.instances_count = 1;
+        crtr_conf.jobs_count = 1;
+        crtr_conf.angerjobs_count = 1;
+        crtr_conf.attackpref_count = 1;
+        crtr_conf.special_digger_good = 0;
+        crtr_conf.special_digger_evil = 0;
+        crtr_conf.spectator_breed = 0;
+    }
     k = sizeof(crtr_conf.model)/sizeof(crtr_conf.model[0]);
     for (i=0; i < k; i++)
     {
@@ -486,6 +502,184 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
             {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
+                cmd_num,block_buf,config_textname);
+            break;
+        }
+        skip_conf_to_next_line(buf,&pos,len);
+    }
+#undef COMMAND_TEXT
+    if (crtr_conf.model_count < 1)
+    {
+        WARNLOG("No creature species defined in [%s] block of %s file.",
+            block_buf,config_textname);
+    }
+    return true;
+}
+
+TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+{
+    long pos;
+    int k,n;
+    int cmd_num;
+    // Block name and parameter word store variables
+    char block_buf[COMMAND_WORD_LEN];
+    char word_buf[COMMAND_WORD_LEN];
+    // Initialize block data
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        crtr_conf.exp.pay_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        crtr_conf.exp.damage_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        crtr_conf.exp.range_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        crtr_conf.exp.job_value_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        crtr_conf.exp.health_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        crtr_conf.exp.strength_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        crtr_conf.exp.dexterity_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        crtr_conf.exp.defense_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        crtr_conf.exp.loyalty_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+    }
+    // Find the block
+    sprintf(block_buf,"experience");
+    pos = 0;
+    k = find_conf_block(buf,&pos,len,block_buf);
+    if (k < 0)
+    {
+        if ((flags & CnfLd_AcceptPartial) == 0)
+            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        return false;
+    }
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_experience_commands,cmd_num)
+    while (pos<len)
+    {
+        // Finding command number in this line
+        cmd_num = recognize_conf_command(buf,&pos,len,creaturetype_experience_commands);
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        n = 0;
+        switch (cmd_num)
+        {
+        case 1: // PAYINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.pay_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 2: // DAMAGEINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.damage_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 3: // RANGEINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.range_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 4: // JOBVALUEINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.job_value_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 5: // HEALTHINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.health_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 6: // STRENGTHINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.strength_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 7: // DEXTERITYINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.dexterity_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 8: // DEFENSEINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.defense_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 9: // LOYALTYINCREASEONEXP
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                crtr_conf.exp.loyalty_increase_on_exp = k;
+                n++;
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
@@ -1096,6 +1290,12 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
         result = parse_creaturetypes_common_blocks(buf, len, config_textname, flags);
         if (!result)
           WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
+    }
+    if (result)
+    {
+        result = parse_creaturetype_experience_blocks(buf, len, config_textname, flags);
+        if (!result)
+          WARNMSG("Parsing %s file \"%s\" experience block failed.",config_textname,conf_fname);
     }
     if (result)
     {

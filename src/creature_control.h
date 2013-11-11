@@ -35,27 +35,6 @@ extern "C" {
 #define CREATURE_MAX_SPELLS_CASTED_AT 5
 /** Max amount of creatures supported on any map. */
 #define CREATURES_COUNT       256
-/** Percentage of creature pay increase for every experience level. */
-#define CREATURE_PAY_INCREASE_ON_EXP       35
-/** Percentage of creature damage increase for every experience level. */
-#define CREATURE_DAMAGE_INCREASE_ON_EXP    20
-/** Percentage of spell range/area of effect increase for every experience level. */
-#define CREATURE_RANGE_INCREASE_ON_EXP     6
-/** Percentage of creature job value increase for every experience level. */
-#define CREATURE_JOB_VALUE_INCREASE_ON_EXP 35
-/** Percentage of creature health increase for every experience level. */
-#define CREATURE_HEALTH_INCREASE_ON_EXP    35
-/** Percentage of creature strength increase for every experience level. */
-#define CREATURE_STRENGTH_INCREASE_ON_EXP  35
-/** Percentage of creature dexterity increase for every experience level. */
-#define CREATURE_DEXTERITY_INCREASE_ON_EXP 15
-/** Percentage of creature defense increase for every experience level. */
-#define CREATURE_DEFENSE_INCREASE_ON_EXP   20
-/** Percentage of creature loyalty increase for every experience level. */
-#define CREATURE_LOYALTY_INCREASE_ON_EXP   35
-/** Percentage of creature parameter increase for every experience level.
- *  Used for all parameters that have no separate definition. */
-#define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /** Number of possible melee combat opponents. */
 #define COMBAT_MELEE_OPPONENTS_LIMIT       4
 /** Number of possible range combat opponents. */

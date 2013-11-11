@@ -243,7 +243,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
     base_health = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_health = base_health + (CREATURE_HEALTH_INCREASE_ON_EXP*base_health*(long)crlevel)/100;
+  max_health = base_health + (crtr_conf.exp.health_increase_on_exp*base_health*(long)crlevel)/100;
   return saturate_set_signed(max_health, 16);
 }
 
@@ -259,23 +259,7 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_PAY_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
-  return saturate_set_signed(max_param, 16);
-}
-
-/**
- * Computes 16-bit parameter of a creature on given level.
- */
-long compute_creature_max_sparameter(long base_param,unsigned short crlevel)
-{
-  long max_param;
-  if (base_param <= 0)
-    return 0;
-  if (base_param > 100000)
-    base_param = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_PROPERTY_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+  max_param = base_param + (crtr_conf.exp.pay_increase_on_exp*base_param*(long)crlevel)/100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -291,7 +275,7 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
       base_param = 10000;
     if (crlevel >= CREATURE_MAX_LEVEL)
       crlevel = CREATURE_MAX_LEVEL-1;
-    max_param = base_param + (CREATURE_DEFENSE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+    max_param = base_param + (crtr_conf.exp.defense_increase_on_exp*base_param*(long)crlevel)/100;
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -307,7 +291,7 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
     base_param = 10000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_DEXTERITY_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+  max_param = base_param + (crtr_conf.exp.dexterity_increase_on_exp*base_param*(long)crlevel)/100;
   return saturate_set_unsigned(max_param, 8);
 }
 
@@ -321,7 +305,7 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_STRENGTH_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+  max_param = base_param + (crtr_conf.exp.strength_increase_on_exp*base_param*(long)crlevel)/100;
   return saturate_set_unsigned(max_param, 15);
 }
 
@@ -335,7 +319,7 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
     base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_LOYALTY_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+  max_param = base_param + (crtr_conf.exp.loyalty_increase_on_exp*base_param*(long)crlevel)/100;
   return saturate_set_unsigned(max_param, 15);
 }
 
@@ -357,7 +341,7 @@ long project_creature_attack_damage(long base_param,long luck,unsigned short crl
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+    max_param = base_param + (crtr_conf.exp.damage_increase_on_exp*base_param*(long)crlevel)/100;
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
@@ -381,7 +365,7 @@ long compute_creature_attack_damage(long base_param, long luck, unsigned short c
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    max_param = base_param + (CREATURE_DAMAGE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+    max_param = base_param + (crtr_conf.exp.damage_increase_on_exp*base_param*(long)crlevel)/100;
     if (luck > 0)
     {
         if (ACTION_RANDOM(101) < luck)
@@ -402,7 +386,7 @@ long compute_creature_attack_range(long base_param,long luck,unsigned short crle
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  max_param = base_param + (CREATURE_RANGE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+  max_param = base_param + (crtr_conf.exp.range_increase_on_exp*base_param*(long)crlevel)/100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -424,7 +408,7 @@ long compute_creature_work_value(long base_param,long efficiency,unsigned short 
       crlevel = CREATURE_MAX_LEVEL-1;
   if (efficiency > 1024)
       efficiency = 1024;
-  max_param = base_param + (CREATURE_JOB_VALUE_INCREASE_ON_EXP*base_param*(long)crlevel)/100;
+  max_param = base_param + (crtr_conf.exp.job_value_increase_on_exp*base_param*(long)crlevel)/100;
   return (max_param * efficiency)/256;
 }
 
