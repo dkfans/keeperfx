@@ -1259,24 +1259,23 @@ TbBool parse_creaturetype_attackpref_blocks(char *buf, long len, const char *con
     return true;
 }
 
-TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
+TbBool load_creaturetypes_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    static const char config_textname[] = "Creature Types config";
-    char *fname;
     char *buf;
     long len;
     TbBool result;
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",config_textname,conf_fname);
-    fname = prepare_file_path(FGrp_FxData,conf_fname);
+    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
     len = LbFileLengthRnc(fname);
-    if (len < 2)
+    if (len < MIN_CONFIG_FILE_SIZE)
     {
-        WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,conf_fname);
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
-    if (len > 65536)
+    if (len > MAX_CONFIG_FILE_SIZE)
     {
-        WARNMSG("%s file \"%s\" is too large.",config_textname,conf_fname);
+        if ((flags & CnfLd_IgnoreErrors) == 0)
+            WARNMSG("The %s file \"%s\" is too large.",textname,fname);
         return false;
     }
     buf = (char *)LbMemoryAlloc(len+256);
@@ -1285,44 +1284,74 @@ TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags)
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     result = (len > 0);
+    // Parse blocks of the config file
     if (result)
     {
-        result = parse_creaturetypes_common_blocks(buf, len, config_textname, flags);
+        result = parse_creaturetypes_common_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
         if (!result)
-          WARNMSG("Parsing %s file \"%s\" common blocks failed.",config_textname,conf_fname);
+          WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
+    }
+    if ((result) && ((flags & CnfLd_ListOnly) == 0)) // This block doesn't have anything we'd like to parse in list mode
+    {
+        result = parse_creaturetype_experience_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
+        if (!result)
+          WARNMSG("Parsing %s file \"%s\" experience block failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturetype_experience_blocks(buf, len, config_textname, flags);
+        result = parse_creaturetype_instance_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
         if (!result)
-          WARNMSG("Parsing %s file \"%s\" experience block failed.",config_textname,conf_fname);
+          WARNMSG("Parsing %s file \"%s\" instance blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturetype_instance_blocks(buf, len, config_textname, flags);
+        result = parse_creaturetype_job_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
         if (!result)
-          WARNMSG("Parsing %s file \"%s\" instance blocks failed.",config_textname,conf_fname);
+          WARNMSG("Parsing %s file \"%s\" job blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturetype_job_blocks(buf, len, config_textname, flags);
+        result = parse_creaturetype_angerjob_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
         if (!result)
-          WARNMSG("Parsing %s file \"%s\" job blocks failed.",config_textname,conf_fname);
+          WARNMSG("Parsing %s file \"%s\" angerjob blocks failed.",textname,fname);
     }
     if (result)
     {
-        result = parse_creaturetype_angerjob_blocks(buf, len, config_textname, flags);
+        result = parse_creaturetype_attackpref_blocks(buf, len, textname, flags);
+        if ((flags & CnfLd_AcceptPartial) != 0)
+            result = true;
         if (!result)
-          WARNMSG("Parsing %s file \"%s\" angerjob blocks failed.",config_textname,conf_fname);
-    }
-    if (result)
-    {
-        result = parse_creaturetype_attackpref_blocks(buf, len, config_textname, flags);
-        if (!result)
-          WARNMSG("Parsing %s file \"%s\" attackpref blocks failed.",config_textname,conf_fname);
+          WARNMSG("Parsing %s file \"%s\" attackpref blocks failed.",textname,fname);
     }
     //Freeing and exiting
     LbMemoryFree(buf);
+    return result;
+}
+
+TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags)
+{
+    static const char config_global_textname[] = "global creature types config";
+    static const char config_campgn_textname[] = "campaign creature types config";
+    char *fname;
+    TbBool result;
+    fname = prepare_file_path(FGrp_FxData,conf_fname);
+    result = load_creaturetypes_config_file(config_global_textname,fname,flags);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_creaturetypes_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    //Freeing and exiting
     return result;
 }
 
