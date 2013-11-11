@@ -385,8 +385,8 @@ TbBool process_job_stress(struct Thing *creatng, struct Room *room)
     if ( (crstat->job_stress <= 0) || (cctrl->instance_id != CrInst_NULL) ) {
         return false;
     }
-    // Process the stress once per 30 turns
-    if (((game.play_gameturn + creatng->index) % 30) != 0) {
+    // Process the stress once per 20 turns
+    if (((game.play_gameturn + creatng->index) % 20) != 0) {
         return false;
     }
     stressful_job = get_creature_job_causing_stress(crstat->job_primary,room->kind);

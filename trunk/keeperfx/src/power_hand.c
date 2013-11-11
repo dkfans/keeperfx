@@ -21,6 +21,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "magic.h"
 #include "power_specials.h"
@@ -35,6 +36,7 @@
 #include "thing_stats.h"
 #include "creature_graphics.h"
 #include "creature_states.h"
+#include "creature_states_mood.h"
 #include "creature_states_combt.h"
 #include "config_creature.h"
 #include "player_instances.h"
@@ -53,26 +55,26 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT unsigned long _DK_object_is_pickable_by_hand(const struct Thing *thing, long a2);
+DLLIMPORT unsigned long _DK_object_is_pickable_by_hand(const struct Thing *thing, long value);
 DLLIMPORT void _DK_set_power_hand_offset(struct PlayerInfo *player, struct Thing *thing);
-DLLIMPORT struct Thing *_DK_process_object_being_picked_up(struct Thing *thing, long a2);
-DLLIMPORT void _DK_set_power_hand_graphic(long a1, long a2, long a3);
-DLLIMPORT long _DK_dump_thing_in_power_hand(struct Thing *thing, long a2);
+DLLIMPORT struct Thing *_DK_process_object_being_picked_up(struct Thing *thing, long value);
+DLLIMPORT void _DK_set_power_hand_graphic(long a1, long value, long plyr_idx);
+DLLIMPORT long _DK_dump_thing_in_power_hand(struct Thing *thing, long value);
 DLLIMPORT void _DK_draw_power_hand(void);
 DLLIMPORT long _DK_prepare_thing_for_power_hand(unsigned short tng_idx, long plyr_idx);
 DLLIMPORT void _DK_draw_mini_things_in_hand(long x, long y);
 DLLIMPORT void _DK_create_power_hand(unsigned char a1);
-DLLIMPORT struct Thing *_DK_get_nearest_thing_for_hand_or_slap(unsigned char a1, long a2, long a3);
+DLLIMPORT struct Thing *_DK_get_nearest_thing_for_hand_or_slap(unsigned char a1, long value, long a3);
 DLLIMPORT struct Thing *_DK_get_nearest_thing_for_slap(unsigned char plyr_idx, long x, long y);
 DLLIMPORT void _DK_process_things_in_dungeon_hand(void);
 DLLIMPORT long _DK_place_thing_in_power_hand(struct Thing *thing, long var);
-DLLIMPORT short _DK_dump_held_things_on_map(unsigned char a1, long a2, long a3, short a4);
+DLLIMPORT short _DK_dump_held_things_on_map(unsigned char a1, long value, long a3, short a4);
 DLLIMPORT long _DK_can_thing_be_picked_up_by_player(const struct Thing *thing, unsigned char plyr_idx);
 DLLIMPORT long _DK_can_thing_be_picked_up2_by_player(const struct Thing *thing, unsigned char plyr_idx);
-DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long a2);
-DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short a2, unsigned short a3);
-DLLIMPORT void _DK_drop_gold_coins(struct Coord3d *pos, long a2, long a3);
-DLLIMPORT long _DK_gold_being_dropped_on_creature(long a1, struct Thing *tng1, struct Thing *tng2);
+DLLIMPORT struct Thing *_DK_create_gold_for_hand_grab(struct Thing *thing, long value);
+DLLIMPORT void _DK_stop_creatures_around_hand(char a1, unsigned short value, unsigned short a3);
+DLLIMPORT void _DK_drop_gold_coins(struct Coord3d *pos, long value, long a3);
+DLLIMPORT long _DK_gold_being_dropped_on_creature(long a1, struct Thing *goldtng, struct Thing *creatng);
 DLLIMPORT unsigned long _DK_can_drop_thing_here(long x, long y, long a3, unsigned long a4);
 /******************************************************************************/
 #ifdef __cplusplus
@@ -658,14 +660,85 @@ struct Thing *get_nearest_thing_for_hand_or_slap(PlayerNumber plyr_idx, MapCoord
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-void drop_gold_coins(struct Coord3d *pos, long a2, long a3)
+void drop_gold_coins(struct Coord3d *pos, long value, long plyr_idx)
 {
-    _DK_drop_gold_coins(pos, a2, a3);
+    struct Coord3d locpos;
+    int i;
+    //_DK_drop_gold_coins(pos, a2, a3);
+    locpos.z.val = get_ceiling_height_at(pos) - ACTION_RANDOM(128);
+    for (i = 0; i < 8; i++)
+    {
+        if (i > 0)
+        {
+            long angle;
+            angle = ACTION_RANDOM(2*LbFPMath_PI);
+            locpos.x.val = pos->x.val + distance_with_angle_to_coord_x(127, angle);
+            locpos.y.val = pos->y.val + distance_with_angle_to_coord_y(127, angle);
+        } else
+        {
+            locpos.x.val = pos->x.val;
+            locpos.y.val = pos->y.val;
+        }
+        struct Thing *thing;
+        thing = create_object(&locpos, 128, plyr_idx, -1);
+        if (thing_is_invalid(thing))
+            break;
+        if (i > 0)
+        {
+            thing->field_20 += ACTION_RANDOM(thing->field_20) - thing->field_20 / 2;
+            thing->long_13 = 0;
+        } else
+        {
+            thing->long_13 = value;
+        }
+    }
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    if (player_exists(player)) {
+        set_power_hand_graphic(plyr_idx, 782, 256);
+        player->field_10 = game.play_gameturn + 16;
+    }
 }
 
-long gold_being_dropped_on_creature(long a1, struct Thing *tng1, struct Thing *tng2)
+long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct Thing *creatng)
 {
-    return _DK_gold_being_dropped_on_creature(a1, tng1, tng2);
+    struct CreatureControl *cctrl;
+    struct Coord3d pos;
+    //return _DK_gold_being_dropped_on_creature(plyr_idx, tng1, tng2);
+    TbBool taking_salary;
+    taking_salary = false;
+    pos.x.val = creatng->mappos.x.val;
+    pos.y.val = creatng->mappos.y.val;
+    pos.z.val = creatng->mappos.z.val;
+    pos.z.val = get_ceiling_height_at(&pos);
+    if (creature_is_taking_salary_activity(creatng))
+    {
+        cctrl = creature_control_get_from_thing(creatng);
+        if (cctrl->field_48 > 0)
+            cctrl->field_48--;
+        set_start_state(creatng);
+        taking_salary = true;
+    }
+    drop_gold_coins(&pos, 0, plyr_idx);
+    if ( !taking_salary )
+    {
+        cctrl = creature_control_get_from_thing(creatng);
+        if (cctrl->field_49 < 255) {
+            cctrl->field_49++;
+        }
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_got_wage);
+    anger_set_creature_anger_all_types(creatng, 0);
+    if (can_change_from_state_to(creatng, get_creature_state_besides_interruptions(creatng), CrSt_CreatureBeHappy))
+    {
+        if (external_set_thing_state(creatng, CrSt_CreatureBeHappy)) {
+            cctrl = creature_control_get_from_thing(creatng);
+            cctrl->field_282 = 50;
+        }
+    }
+    return 1;
 }
 
 short dump_held_things_on_map(PlayerNumber plyr_idx, long a2, long a3, short a4)
