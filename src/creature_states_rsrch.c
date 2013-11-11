@@ -213,82 +213,37 @@ TbBool force_complete_current_research(PlayerNumber plyr_idx)
     return false;
 }
 
+#define INSTANCE_RET_IF_AVAIL_AND_RESET(thing, inst_id) \
+    if (creature_instance_is_available(thing, inst_id) \
+      && creature_instance_has_reset(thing, inst_id)) { \
+        return inst_id; \
+    }
+#define INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, inst_id) \
+    if (creature_instance_is_available(thing, inst_id)) { \
+        return -inst_id; \
+    }
 long get_best_quick_range_instance_to_use(struct Thing *thing)
 {
-    if (creature_instance_is_available(thing, 5)
-        && creature_instance_has_reset(thing, 5))
-    {
-        return 5;
-    } else
-    if (creature_instance_is_available(thing, 4)
-        && creature_instance_has_reset(thing, 4))
-    {
-        return 4;
-    } else
-    if (creature_instance_is_available(thing, 19)
-        && creature_instance_has_reset(thing, 19))
-    {
-        return 19;
-    } else
-    if (creature_instance_is_available(thing, 16)
-        && creature_instance_has_reset(thing, 16))
-    {
-        return 20;
-    } else
-    if (creature_instance_is_available(thing, 9)
-        && creature_instance_has_reset(thing, 9))
-    {
-        return 9;
-    } else
-    if (creature_instance_is_available(thing, 27)
-        && creature_instance_has_reset(thing, 27))
-    {
-        return 27;
-    } else
-    if (creature_instance_is_available(thing, 26)
-        && creature_instance_has_reset(thing, 26))
-    {
-        return 26;
-    } else
-    if (creature_instance_is_available(thing, 12)
-        && creature_instance_has_reset(thing, 12))
-    {
-        return 12;
-    } else
-    if (creature_instance_is_available(thing, 5))
-    {
-        return -5;
-    } else
-    if (creature_instance_is_available(thing, 4))
-    {
-        return -4;
-    } else
-    if (creature_instance_is_available(thing, 19))
-    {
-        return -19;
-    } else
-    if (creature_instance_is_available(thing, 20))
-    {
-        return -20;
-    } else
-    if (creature_instance_is_available(thing, 9))
-    {
-        return -9;
-    } else
-    if (creature_instance_is_available(thing, 27))
-    {
-        return -27;
-    } else
-    if (creature_instance_is_available(thing, 26)) {
-        return -26;
-    } else
-    if (creature_instance_is_available(thing, 12)) {
-        return -12;
-    } else
-    {
-        return 0;
-    }
+    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_FIREBALL);
+    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_FIRE_ARROW);
+    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_MISSILE);
+    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_NAVIGATING_MISSILE);
+    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_LIGHTNING);
+    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_HAILSTORM);
+    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_GRENADE);
+    INSTANCE_RET_IF_AVAIL_AND_RESET(thing, CrInst_POISON_CLOUD);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIREBALL);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_FIRE_ARROW);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_MISSILE);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_NAVIGATING_MISSILE);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_LIGHTNING);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_HAILSTORM);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_GRENADE);
+    INSTANCE_RET_NEG_IF_AVAIL_ONLY(thing, CrInst_POISON_CLOUD);
+    return CrInst_NULL;
 }
+#undef INSTANCE_RET_IF_AVAIL_AND_RESET
+#undef INSTANCE_RET_NEG_IF_AVAIL_ONLY
 
 TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const struct Thing *creatng, long job_kind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long *found_dist, struct Thing **found_thing)
 {

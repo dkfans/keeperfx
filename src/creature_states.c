@@ -1750,13 +1750,13 @@ short creature_doing_nothing(struct Thing *creatng)
                     struct Room *room;
                     room = find_room_with_spare_capacity(creatng->owner, RoK_LAIR, crstat->lair_size);
                     if (room_is_invalid(room)) {
-                        output_message(23, 500, 1);
+                        output_message(SMsg_LairTooSmall, 500, 1);
                     } else {
-                        output_message(36, 500, 1);
+                        output_message(SMsg_NoRouteToLair, 500, 1);
                     }
                 } else
                 {
-                    output_message(40, 500, 1);
+                    output_message(SMsg_RoomLairNeeded, 500, 1);
                 }
             }
             if (player_has_room(creatng->owner, RoK_LAIR)) {
@@ -2334,7 +2334,7 @@ TbBool make_creature_leave_dungeon(struct Thing *creatng)
         return false;
     }
     if (is_my_player_number(creatng->owner))
-        output_message(6, 500, 1);
+        output_message(SMsg_CreatureLeaving, 500, 1);
     creatng->continue_state = CrSt_CreatureLeaves;
     return true;
 }

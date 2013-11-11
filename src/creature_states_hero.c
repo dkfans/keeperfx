@@ -430,7 +430,7 @@ short good_attack_room(struct Thing *thing)
                 ev_stl_y = subtile_coord_center(room->central_stl_y);
                 event_create_event_or_update_nearby_existing_event(ev_stl_x, ev_stl_y, EvKind_RoomUnderAttack, room->owner, 0);
                 if (is_my_player_number(room->owner))
-                    output_message(15, 400, 1);
+                    output_message(SMsg_EnemyDestroyRooms, 400, 1);
                 thing->continue_state = CrSt_GoodAttackRoom1;
                 return 1;
             }
