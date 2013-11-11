@@ -32,7 +32,11 @@ extern "C" {
 #define CREATURE_TYPES_MAX 64
 #define INSTANCE_TYPES_MAX 64
 #define CREATURE_STATES_MAX 147
+/** Percentage of creature parameter increase for every experience level.
+ *  Used as default value, should be replaced in config file. */
+#define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
+
 struct Thing;
 
 enum CreatureModelFlags {
@@ -138,6 +142,21 @@ struct Creatures { // sizeof = 16
 #pragma pack()
 /******************************************************************************/
 
+/**
+ * Structure which stores levelling up stats.
+ */
+struct CreatureExperience {
+    long pay_increase_on_exp;
+    long damage_increase_on_exp;
+    long range_increase_on_exp;
+    long job_value_increase_on_exp;
+    long health_increase_on_exp;
+    long strength_increase_on_exp;
+    long dexterity_increase_on_exp;
+    long defense_increase_on_exp;
+    long loyalty_increase_on_exp;
+};
+
 struct CreatureConfig {
     long model_count;
     struct CreatureModelConfig model[CREATURE_TYPES_MAX];
@@ -151,6 +170,7 @@ struct CreatureConfig {
     struct CreatureAngerJobConfig angerjobs[INSTANCE_TYPES_MAX];
     long attackpref_count;
     struct CommandWord attackpref_names[INSTANCE_TYPES_MAX];
+    struct CreatureExperience exp;
     ThingModel special_digger_good;
     ThingModel special_digger_evil;
     ThingModel spectator_breed;

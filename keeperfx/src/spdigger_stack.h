@@ -94,7 +94,7 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num);
 TbBool add_unclaimed_traps_to_imp_stack(struct Dungeon *dungeon);
 TbBool imp_will_soon_be_arming_trap(struct Thing *traptng);
 void add_reinforce_to_imp_stack(struct Dungeon *dungeon);
-long imp_stack_update(struct Thing *thing);
+TbBool imp_stack_update(struct Thing *thing);
 long check_out_imp_stack(struct Thing *thing);
 long check_out_imp_last_did(struct Thing *thing);
 long check_place_to_convert_excluding(struct Thing *thing, MapSlabCoord slb_x, MapSlabCoord slb_y);
