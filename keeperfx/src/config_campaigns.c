@@ -962,7 +962,7 @@ TbBool load_campaign(const char *cmpgn_fname,struct GameCampaign *campgn,unsigne
         if (!result)
           WARNMSG("Parsing campaign file \"%s\" common blocks failed.",cmpgn_fname);
     }
-    if ((result) && ((flags & CnfLd_ListOnly) == 0))
+    if ((result) && ((flags & CnfLd_ListOnly) == 0)) // This block doesn't have anything we'd like to parse in list mode
     {
         result = parse_campaign_strings_blocks(campgn, buf, len);
         if (!result)

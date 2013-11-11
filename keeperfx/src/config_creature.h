@@ -204,7 +204,7 @@ void check_and_auto_fix_stats(void);
 const char *creature_code_name(ThingModel crmodel);
 long creature_model_id(const char * name);
 /******************************************************************************/
-TbBool load_creaturetypes_config(const char *conf_fname,unsigned short flags);
+TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/
 unsigned short get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);
