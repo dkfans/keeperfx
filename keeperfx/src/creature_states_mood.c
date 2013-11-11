@@ -344,6 +344,26 @@ AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng)
     return anger_type;
 }
 
+void anger_apply_anger_to_creature_all_types(struct Thing *thing, long anger)
+{
+    if (!creature_can_get_angry(thing)) {
+        return;
+    }
+    if (anger > 0)
+    {
+        anger_increase_creature_anger(thing, anger, 4);
+        anger_increase_creature_anger(thing, anger, 1);
+        anger_increase_creature_anger(thing, anger, 3);
+        anger_increase_creature_anger(thing, anger, 2);
+    } else
+    {
+        anger_reduce_creature_anger(thing, -anger, 4);
+        anger_reduce_creature_anger(thing, -anger, 1);
+        anger_reduce_creature_anger(thing, -anger, 3);
+        anger_reduce_creature_anger(thing, -anger, 2);
+    }
+}
+
 TbBool anger_make_creature_angry(struct Thing *creatng, AnnoyMotive reason)
 {
     struct CreatureStats *crstat;
