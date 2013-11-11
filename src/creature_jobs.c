@@ -106,7 +106,7 @@ TbBool creature_has_job(const struct Thing *thing, CreatureJob job_kind)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(thing);
-    return (crstat->job_primary & job_kind) || (crstat->job_secondary & job_kind);
+    return ((crstat->job_primary & job_kind) != 0) || ((crstat->job_secondary & job_kind) != 0);
 }
 
 TbBool creature_free_for_anger_job(struct Thing *creatng)
