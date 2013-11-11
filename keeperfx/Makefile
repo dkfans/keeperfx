@@ -517,6 +517,18 @@ pkg-menugfx: $(TOTRUREGFX) $(FRONTENDGFX)
 
 pkg-enginegfx: $(ENGINEGFX)
 
+# Special target for original campaign - placing levels to main folder
+pkg/campgns/keeporig.cfg: campgns/keeporig.cfg
+	@$(MKDIR) $(@D)
+#	 Copy folder with campaign name (w/o extension) to main levels folder
+	@$(MKDIR) pkg/levels
+	$(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* pkg/levels/)
+#	 Copy folder with campaign name and _lnd ending, if it exists
+	$(if $(wildcard $(<:%.cfg=%_lnd)),$(MKDIR) $(@:%.cfg=%_lnd))
+	$(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/)
+#	 Copy the actual campaign file
+	$(CP) $< $@
+
 pkg/campgns/%.cfg: campgns/%.cfg
 	@$(MKDIR) $(@D)
 #	 Copy folder with campaign name (w/o extension), if it exists
