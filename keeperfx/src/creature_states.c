@@ -2012,7 +2012,7 @@ short creature_fired(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    play_creature_sound_and_create_sound_thing(creatng, 4, 2);
+    play_creature_sound_and_create_sound_thing(creatng, CrSnd_Sad, 2);
     kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     return CrCkRet_Deleted;
 }

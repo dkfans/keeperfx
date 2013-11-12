@@ -385,7 +385,7 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
         k = get_creature_anim(thing, 15);
         set_thing_draw(thing, k, 128, 300, 0, 0, 2);
         thing->health = 3 * get_lifespan_of_animation(thing->field_44, thing->field_3E);
-        play_creature_sound(thing, 9, 3, 0);
+        play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }
     thing->field_46 = (300 * (long)thing->byte_13) / 20 + 300;

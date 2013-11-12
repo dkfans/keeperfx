@@ -1167,7 +1167,7 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, lon
     {
         if ( add_ranged_attacker(fighter, enemy) )
         {
-            play_creature_sound(fighter, 11, 3, 0);
+            play_creature_sound(fighter, CrSnd_Fight, 3, 0);
             figctrl->combat_state_id = CmbtSt_Ranged;
             return true;
         } else
@@ -1183,20 +1183,20 @@ TbBool set_creature_combat_state(struct Thing *fighter, struct Thing *enemy, lon
     {
         if ( add_ranged_attacker(fighter, enemy) )
         {
-            play_creature_sound(fighter, 11, 3, 0);
+            play_creature_sound(fighter, CrSnd_Fight, 3, 0);
             figctrl->combat_state_id = CmbtSt_Ranged;
             return true;
         }
     }
     if ( add_melee_attacker(fighter, enemy) )
     {
-        play_creature_sound(fighter, 11, 3, 0);
+        play_creature_sound(fighter, CrSnd_Fight, 3, 0);
         figctrl->combat_state_id = CmbtSt_Melee;
         return true;
     }
     if ( creature_has_ranged_weapon(fighter) && add_ranged_attacker(fighter, enemy) )
     {
-        play_creature_sound(fighter, 11, 3, 0);
+        play_creature_sound(fighter, CrSnd_Fight, 3, 0);
         figctrl->combat_state_id = CmbtSt_Ranged;
         return true;
     } else

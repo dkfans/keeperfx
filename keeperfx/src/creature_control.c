@@ -279,35 +279,35 @@ struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
     {
         ERRORLOG("Trying to get sound for undefined creature type");
         // Return dummy element
-        return &creature_sounds[0].snd01;
+        return &creature_sounds[0].foot;
     }
     switch (snd_idx)
     {
-    case CrSnd_SlappedOuch:
-        return &creature_sounds[cmodel].snd05;
-    case 2:
-        return &creature_sounds[cmodel].snd02;
-    case 3:
-        return &creature_sounds[cmodel].snd03;
-    case CrSnd_PrisonMoan:
-        return &creature_sounds[cmodel].snd04;
-    case CrSnd_HandPick:
-        return &creature_sounds[cmodel].snd07;
-    case 6:
-        return &creature_sounds[cmodel].snd08;
-    case 7:
-        return &creature_sounds[cmodel].snd09;
-    case 8:
-        return &creature_sounds[cmodel].snd10;
-    case 9:
-        return &creature_sounds[cmodel].snd06;
-    case CrSnd_Footsteps:
-        return &creature_sounds[cmodel].snd01;
-    case 11:
-        return &creature_sounds[cmodel].snd11;
+    case CrSnd_Hurt:
+        return &creature_sounds[cmodel].hurt;
+    case CrSnd_Hit:
+        return &creature_sounds[cmodel].hit;
+    case CrSnd_Happy:
+        return &creature_sounds[cmodel].happy;
+    case CrSnd_Sad:
+        return &creature_sounds[cmodel].sad;
+    case CrSnd_Hang:
+        return &creature_sounds[cmodel].hang;
+    case CrSnd_Drop:
+        return &creature_sounds[cmodel].drop;
+    case CrSnd_Torture:
+        return &creature_sounds[cmodel].torture;
+    case CrSnd_Slap:
+        return &creature_sounds[cmodel].slap;
+    case CrSnd_Die:
+        return &creature_sounds[cmodel].die;
+    case CrSnd_Foot:
+        return &creature_sounds[cmodel].foot;
+    case CrSnd_Fight:
+        return &creature_sounds[cmodel].fight;
     default:
         // Return dummy element
-        return &creature_sounds[0].snd01;
+        return &creature_sounds[0].foot;
     }
 }
 
