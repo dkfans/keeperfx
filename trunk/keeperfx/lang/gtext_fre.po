@@ -114,7 +114,7 @@ msgstr "Les lutins fortifient vos murs pour empêcher les intrus de creuser des 
 #: guitext:16
 msgctxt "In-game message"
 msgid "Why not have a handful of creatures ready to drop on top of intruders? To pick up creatures quickly, left click on them from within the Creatures Panel. You can only drop creatures within the confines of your own dungeon."
-msgstr "Que diriez-vous d'une poignée de créatures prêtes à être balancées sur les intrus ? Pour les prendre rapidement, cliquez avec le bouton GAUCHE dans le panneau des CREATURES. Vous ne pouvez les laisser tomber que dans les limites de votre Donjon."
+msgstr "Que diriez-vous d'une poignée de créatures prêtes à être balancées sur les intrus? Pour les prendre rapidement, cliquez avec le bouton GAUCHE dans le panneau des CREATURES. Vous ne pouvez les laisser tomber que dans les limites de votre Donjon."
 
 #: guitext:17
 msgctxt "In-game message"
@@ -244,7 +244,7 @@ msgstr "Tout est à nouveau calme. Profitez-en pour vous préparez aux prochaine
 #: guitext:42
 msgctxt "In-game message"
 msgid "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
-msgstr "Ce lutin joue au foot avec la tête de quelqu'un, ou quoi ? Restez vigilant, Gardien."
+msgstr "Ce lutin joue au foot avec la tête de quelqu'un, ou quoi? Restez vigilant, Gardien."
 
 #: guitext:43
 msgctxt "In-game message"
@@ -604,7 +604,7 @@ msgstr "On dirait que vous avez lancé une mode. Deux autres Gardiens de donjon 
 #: guitext:114
 msgctxt "In-game message"
 msgid "Can you see how vulnerable one of your opponents has become? Then kill him."
-msgstr "Vous voyez comme cet ennemi est devenu si vulnérable ? Alors, tuez-le !"
+msgstr "Vous voyez comme cet ennemi est devenu si vulnérable? Alors, tuez-le !"
 
 #: guitext:115
 msgctxt "In-game message"
@@ -649,7 +649,7 @@ msgstr "Les héros de ce territoire savent ou vous êtes. Ils ont réagi rapidem
 #: guitext:123
 msgctxt "In-game message"
 msgid "You've upset the local Lord. He's on his way right now. Shall I alert the media?"
-msgstr "Vous avez irrité le seigneur local. Il est en route. J'avertis la presse et la télé ?"
+msgstr "Vous avez irrité le seigneur local. Il est en route. J'avertis la presse et la télé?"
 
 #: guitext:124
 msgctxt "In-game message"
@@ -684,12 +684,12 @@ msgstr "Vous prenez le pouvoir pour toujours. Ne tardez pas à attaquer et à d�
 #: guitext:130
 msgctxt "In-game message"
 msgid "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
-msgstr "Les renforts ennemis sont présents. Et alors ? Ça en fera un peu plus à saigner."
+msgstr "Les renforts ennemis sont présents. Et alors? Ça en fera un peu plus à saigner."
 
 #: guitext:131
 msgctxt "In-game message"
 msgid "The heroes of this realm have prepared for your coming by building an underground stronghold of their own. Who do they think they are? Sorry, master, that was a rhetorical question."
-msgstr "Les héros de ce royaume se sont préparés à votre arrivée en construisant une place forte souterraine. Pour qui se prennent-ils ? Pardon Maître, c'était une question pour la forme."
+msgstr "Les héros de ce royaume se sont préparés à votre arrivée en construisant une place forte souterraine. Pour qui se prennent-ils? Pardon Maître, c'était une question pour la forme."
 
 #: guitext:132
 msgctxt "In-game message"
@@ -814,7 +814,7 @@ msgstr "RAPHAELS est vaincu. Le territoire vous appartient et vous pouvez désor
 #: guitext:156
 msgctxt "In-game message"
 msgid "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
-msgstr "Votre malfaisance a corrompu un guerrier SAMOURAI qui a sacrifié son honneur pour rallier votre cause. Si vos larbins se font couper en petites rondelles, ce guerrier fera même appel à ses frères d'armes pour vous aider. N'est-ce pas aimable de sa part ? Et idiot, non ?"
+msgstr "Votre malfaisance a corrompu un guerrier SAMOURAI qui a sacrifié son honneur pour rallier votre cause. Si vos larbins se font couper en petites rondelles, ce guerrier fera même appel à ses frères d'armes pour vous aider. N'est-ce pas aimable de sa part? Et idiot, non?"
 
 #: guitext:157
 msgctxt "In-game message"
@@ -839,7 +839,7 @@ msgstr "Ces rochers sont parfaits pour écraser l'ennemi, mais il n'y en a que t
 #: guitext:161
 msgctxt "In-game message"
 msgid "May I suggest that you kill or imprison anything that gets in your way?"
-msgstr "Puis-je vous sugérer de tuer ou d'emprisonner tout ce que vous rencontrerez en chemin ?"
+msgstr "Puis-je vous sugérer de tuer ou d'emprisonner tout ce que vous rencontrerez en chemin?"
 
 #: guitext:162
 msgctxt "In-game message"
@@ -889,12 +889,12 @@ msgstr "Vous êtes victorieux, et donc digne de votre titre de Gardien."
 #: guitext:171
 msgctxt "In-game message"
 msgid "What is this? The Avatar lives!"
-msgstr "Quoi ? L'AVATAR est vivant !"
+msgstr "Quoi? L'AVATAR est vivant !"
 
 #: guitext:172
 msgctxt "In-game message"
 msgid "Finally, you stand unchallenged. The world is yours to waste and despoil. I bet you have never felt so bad."
-msgstr "Finalement, vous n'avez plus le moindre ennemi. Vous pouvez piller et saccager le monde entier. Je parie que vous ne vous êtes jamais senti aussi bien, non... ?"
+msgstr "Finalement, vous n'avez plus le moindre ennemi. Vous pouvez piller et saccager le monde entier. Je parie que vous ne vous êtes jamais senti aussi bien, non...?"
 
 #: guitext:173
 msgctxt "In-game message"
@@ -1451,7 +1451,7 @@ msgstr "Chance: Possibilité pour une créature d'effectuer une double attaque o
 #: guitext:301
 msgctxt "In-game interface description"
 msgid "Blood type: As if you care. Blood is blood, right? [23.16]"
-msgstr "Groupe sanguin: Comme si c'était important ! Du sang, c'est du sang, non ? [23.16]"
+msgstr "Groupe sanguin: Comme si c'était important ! Du sang, c'est du sang, non? [23.16]"
 
 #: guitext:302
 msgctxt "In-game interface description"
@@ -1491,7 +1491,7 @@ msgstr "Esquive: La créature se concentre pour éviter les coups de l'adversair
 #: guitext:309
 msgctxt "In-game interface item"
 msgid "Are you sure?"
-msgstr "Vous confirmez ?"
+msgstr "Vous confirmez?"
 
 #: guitext:310
 msgctxt "In-game interface item"
@@ -3990,7 +3990,7 @@ msgstr "Malveillance, méchanceté, trépas, putréfaction... Une journée ordin
 #: guitext:810
 msgctxt "Easter egg"
 msgid "Evil, malice, death, decay, There really is no better way."
-msgstr "Malveillance, méchanceté, trépas, putréfaction... Comment concevoir le plaisir autrement ?"
+msgstr "Malveillance, méchanceté, trépas, putréfaction... Comment concevoir le plaisir autrement?"
 
 #: guitext:811
 msgctxt "Easter egg"
@@ -4055,7 +4055,7 @@ msgstr "La crainte vous inspirerez pour que vos créatures fassent ce que vous o
 #: guitext:823
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
-msgstr "Un sorcier s'est introduit dans votre donjon ? A l'aide d'un piège liquidez-le prestement."
+msgstr "Un sorcier s'est introduit dans votre donjon? A l'aide d'un piège liquidez-le prestement."
 
 #: guitext:824
 msgctxt "Easter egg"
@@ -4090,7 +4090,7 @@ msgstr "Les lutins sont la force vive de votre donjon, et à ce titre ils doiven
 #: guitext:830
 msgctxt "In-game hint message"
 msgid "Feeling mean? Set your minions to imprison and when your cells are full, spend some time torturing..."
-msgstr "Vous ne vous sentez pas très bien ? Faites remplir vos prisons et pratiquez un peu la torture."
+msgstr "Vous ne vous sentez pas très bien? Faites remplir vos prisons et pratiquez un peu la torture."
 
 #: guitext:831
 msgctxt "In-game hint message"
