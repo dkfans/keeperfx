@@ -671,7 +671,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       if (shotst->old->field_22 > 0)
       {
           thing_play_sample(trgtng, shotst->old->field_22, 100, 0, 3, 0, 2, 256);
-          play_creature_sound(trgtng, 1, 3, 0);
+          play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
       }
       if (!thing_is_invalid(shooter)) {
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shooter->owner);
@@ -802,7 +802,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     }
     if (shotst->old->field_22 != 0)
     {
-        play_creature_sound(trgtng, 1, 1, 0);
+        play_creature_sound(trgtng, CrSnd_Hurt, 1, 0);
         thing_play_sample(trgtng, shotst->old->field_22, 100, 0, 3, 0, 2, 256);
     }
     if (shotng->word_14 != 0)

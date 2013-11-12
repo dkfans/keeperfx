@@ -2599,7 +2599,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
         if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
         {
             struct CreatureSound *crsound;
-            crsound = get_creature_sound(thing, CrSnd_Footsteps);
+            crsound = get_creature_sound(thing, CrSnd_Foot);
             if (crsound->index > 0)
             {
                 struct CreatureControl *cctrl;

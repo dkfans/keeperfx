@@ -140,7 +140,7 @@ void play_thing_walking(struct Thing *thing)
                 smpl_idx = 181 + smpl_variant;
             } else {
                 struct CreatureSound *crsound;
-                crsound = get_creature_sound(thing, CrSnd_Footsteps);
+                crsound = get_creature_sound(thing, CrSnd_Foot);
                 smpl_idx = crsound->index + smpl_variant;
             }
             cctrl->field_67 = (cctrl->field_67 ^ (cctrl->field_67 ^ (cctrl->field_67 + 1))) & 0x1F;

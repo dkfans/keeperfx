@@ -269,7 +269,7 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         dturn = game.play_gameturn - cctrl->long_A2;
         if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
         {
-            play_creature_sound(thing, 7, 2, 0);
+            play_creature_sound(thing, CrSnd_Torture, 2, 0);
             cctrl->long_A2 = game.play_gameturn;
         }
         return 0;
