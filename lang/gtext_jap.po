@@ -21,14 +21,12 @@ msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.40\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-09-07 10:49+0900\n"
-"Last-Translator: keita umetsu <coerulea@nifty.com>\n"
+"PO-Revision-Date: 2013-11-13 00:18+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Japanese\n"
-"X-Poedit-Country: JAPAN\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "Language: ja_JP\n"
 "X-Generator: Poedit 1.5.7\n"
@@ -1670,43 +1668,63 @@ msgstr ""
 
 #: guitext:173
 msgctxt "In-game message"
-msgid "Marvellous, Keeper! The Avatar and all his pathetic army are finally dead! There's only one Keeper to get rid of before becoming the absolute master! So, what are you waiting for?"
+msgid ""
+"Marvellous, Keeper! The Avatar and all his pathetic army are finally dead! "
+"There's only one Keeper to get rid of before becoming the absolute master! "
+"So, what are you waiting for?"
 msgstr ""
 
 #: guitext:174
 msgctxt "In-game message"
-msgid "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
+msgid ""
+"Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
+"to reduces your enemies into ashes!"
 msgstr ""
 
 #: guitext:175
 msgctxt "In-game message"
-msgid "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
+msgid ""
+"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"serve you well in the next realm!"
 msgstr ""
 
 #: guitext:176
 msgctxt "In-game message"
-msgid "Your researchers have discovered the Heal Creature spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
+msgid ""
+"Your researchers have discovered the Heal Creature spell that allows to "
+"replenish the health of your creatures and keep them from dying for a while "
+"longer."
 msgstr ""
 
 #: guitext:177
 msgctxt "In-game message"
-msgid "Try the Must Obey spell. When activated, it constantly forces your creatures to obey to all your orders, making all of them working faster without the possibility for them to take a nap. Be sure to have plenty of money so that the spell will stay activated."
+msgid ""
+"Try the Must Obey spell. When activated, it constantly forces your creatures "
+"to obey to all your orders, making all of them working faster without the "
+"possibility for them to take a nap. Be sure to have plenty of money so that "
+"the spell will stay activated."
 msgstr ""
 
 #: guitext:178
 msgctxt "In-game message"
-msgid "A Tentacle has joined your dungeon. These rare little creatures enjoy to be in water and their spine can even pierce the most solid armors and paralyze your enemies! Marvellous!"
+msgid ""
+"A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
+"in water and their spine can even pierce the most solid armors and paralyze "
+"your enemies! Marvellous!"
 msgstr ""
 
 #: guitext:179
 msgctxt "In-game message"
-msgid "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
+msgid ""
+"You have entered this realm to gain a creature for your further efforts. You "
+"got the creature from start, so you must only keep it safe. And the only way "
+"to make this place safe is to kill every hero in the realm."
 msgstr ""
 
-#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
-#: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
-#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
-#: guitext:197 guitext:198 guitext:199 guitext:200
+#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
+#: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
+#: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
+#: guitext:198 guitext:199 guitext:200
 msgctxt "Unused"
 msgid "Moo"
 msgstr "Moo"
@@ -1812,13 +1830,19 @@ msgid "Skybird Trill"
 msgstr "スカイバード・トリル"
 
 #: guitext:222
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Name and Health: [23.4]"
+msgid ""
+"Name and Health: Each creature has its own name. Behind is the creature "
+"health bar. The higher the red bar, the better health the creature is in."
 msgstr "名前と体力: [23.4]"
 
 #: guitext:223
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Experience: The creature's experience level. [23.3]"
+msgid ""
+"Experience: The creature's experience level. Behind the level number is a "
+"bar indicating the creatures progress towards attaining more experience."
 msgstr "経験: クリーチャーの経験レベル。 [23.5]"
 
 #: guitext:224
@@ -1832,63 +1856,95 @@ msgid "Cancel"
 msgstr "キャンセル"
 
 #: guitext:226
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Arrow: [25.4]"
+msgid "Arrow: The basic ranged weapon, effective at long distance."
 msgstr "弓矢: [25.4]"
 
 #: guitext:227
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Freeze: [26.8]"
+msgid ""
+"Freeze: Changes the target creature to ice. It is then in suspended "
+"animation and can be shattered with a well-aimed blow."
 msgstr "凍結: [26.8]"
 
 #: guitext:228
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Armour: [26.1]"
+msgid ""
+"Armour: This lowers the amount of damage a creature takes each time it is "
+"hit, and provides complete immunity to electric shocks."
 msgstr "鎧: [26.1]"
 
 #: guitext:229
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Lightning: [26.13]"
+msgid ""
+"Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
+"lighting from the creature."
 msgstr "雷撃: [26.13]"
 
 #: guitext:230
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Rebound: [26.18]"
+msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
 msgstr "反射: [26.19]"
 
 #: guitext:231
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Fear: Not used"
+msgid ""
+"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"combat."
 msgstr "恐怖: Not used"
 
 #: guitext:232
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Sight: Not used"
+msgid ""
+"Sight: Allows the creature to temporarely increase its awareness and notice "
+"the invisible."
 msgstr "照準: Not used"
 
 #: guitext:233
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Missile: [26.15]"
+msgid ""
+"Missile: A simple spell that sends a screaming magic reptile at the "
+"invaders. Very disconcerting."
 msgstr "ミサイル: [26.15]"
 
 #: guitext:234
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Grenade: [26.9]"
+msgid ""
+"Grenade: Throws a powerful explosive at the approaching enemy. It can also "
+"bounce off walls and has the traditional delayed fuse."
 msgstr "手りゅう弾: [26.9]"
 
 #: guitext:235
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Navigating Missile: [26.16]"
+msgid ""
+"Navigating Missile: This homes in on the nearest hero or enemy creature and "
+"explodes with devastating force."
 msgstr "誘導ミサイル: [16.16]"
 
 #: guitext:236
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Speed: [26.20]"
+msgid ""
+"Speed: Speeds up the creature so that it can perform fighting and working "
+"tasks really quickly."
 msgstr "加速: [26:21]"
 
 #: guitext:237 guitext:253
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Poison Cloud: [26.17]"
+msgid ""
+"Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
+"enemy and your own creatures. The gas affects all who breathe it."
 msgstr "毒の雲: [26.17]"
 
 #: guitext:238
@@ -1897,93 +1953,143 @@ msgid "Group: Not used"
 msgstr "グループ化: Not used"
 
 #: guitext:239
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Invisibility: [26.12]"
+msgid ""
+"Invisibility: Cast on one of your minions, it makes the host creature "
+"invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr "透明化: [26.12]"
 
 #: guitext:240
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Teleport: [26.21]"
+msgid ""
+"Teleport: With this spell, a creature can teleport anywhere on the map. If "
+"you are Possessing a creature, then it teleports to its Lair or to the "
+"Dungeon Heart."
 msgstr "テレポート: [26.22]"
 
 #: guitext:241
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Flame Breath: [26.6]"
+msgid "Flame Breath: The devasting constant stream of searing fire."
 msgstr "炎の息: [26.6]"
 
 #: guitext:242
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Illumination: Not used"
+msgid ""
+"Illumination: Brings light onto darkness, allowing the creature to see but "
+"also be seen by others."
 msgstr "照明: 使えない"
 
 #: guitext:243
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Flight: [26.7]"
+msgid ""
+"Flight: Causes the creature to take off from the ground and attack creatures "
+"from the air."
 msgstr "飛行: [26.7]"
 
 #: guitext:244
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Hail Storm: [26.10]"
+msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
 msgstr "ひょう: [26.10]"
 
 #: guitext:245
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Slow: [26.19]"
+msgid ""
+"Slow: Slows down the target creature, making it attacks and movement delayed."
 msgstr "減速: [26.20]"
 
 #: guitext:246
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Drain: [26.4]"
+msgid ""
+"Drain: This spell drains the target creature a fair part of its health and "
+"magical abilities."
 msgstr "消耗: [26.4]"
 
 #: guitext:247
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Word of Power: [26.23]"
+msgid ""
+"Word of Power: Causes rings of fire to emanate from the creature's body and "
+"inflicts massive damage on the vicinity."
 msgstr "言霊: [26.24]"
 
 #: guitext:248
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Heal: [26.11]"
+msgid ""
+"Heal: When this is cast, the creature is massively healed. Also, any nearby "
+"creatures are healed by a quarter."
 msgstr "治癒: [26.11]"
 
 #: guitext:249
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Wind: [26.22]"
+msgid ""
+"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
+"away from you."
 msgstr "突風: [26.23]"
 
 #: guitext:250
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Meteor: [26.14]"
+msgid ""
+"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"of fire which does a lot of damage to an enemy."
 msgstr "隕石: [26.14]"
 
 #: guitext:251
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Fireball: [26.5]"
+msgid ""
+"Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
+"inflicts minor damage to a Dungeon's walls and doors."
 msgstr "火の玉: [26.5]"
 
 #: guitext:252
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Hand to Hand: [25.3]"
+msgid ""
+"Hand to Hand: The basic battle ability that allows to attack the enemy with "
+"either bare hands or a sword."
 msgstr "肉弾戦: [25.3]"
 
 #: guitext:254
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Dig: [25.2]"
+msgid ""
+"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"earth."
 msgstr "掘る: [25.2]"
 
 #: guitext:255
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Disease: [26.3]"
+msgid ""
+"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"creatures. The infected are slowly dying and can only be healed in the "
+"Temple."
 msgstr "疫病: [26.3]"
 
 #: guitext:256
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Chicken: [26.2]"
+msgid ""
+"Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
+"attack but has the same strength and thus won't be as easy to kill as a "
+"normal chicken."
 msgstr "呪い: [26.2]"
 
 #: guitext:257
+#, fuzzy
 msgctxt "Creature spell"
-msgid "Time Bomb"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr "時限爆弾"
 
 #: guitext:258
