@@ -263,7 +263,7 @@ CrStateRet process_prison_visuals(struct Thing *thing, struct Room *room)
             set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
             if (game.play_gameturn - cctrl->long_9A > 32)
             {
-                play_creature_sound(thing, CrSnd_PrisonMoan, 2, 0);
+                play_creature_sound(thing, CrSnd_Sad, 2, 0);
                 cctrl->long_9A = game.play_gameturn;
             }
             return CrStRet_Modified;

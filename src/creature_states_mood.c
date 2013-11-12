@@ -79,7 +79,7 @@ short creature_moan(struct Thing *thing)
     }
     if (game.play_gameturn - cctrl->long_9A > 32)
     {
-        play_creature_sound(thing, 4, 2, 0);
+        play_creature_sound(thing, CrSnd_Sad, 2, 0);
         cctrl->long_9A = game.play_gameturn;
     }
     if (cctrl->instance_id == CrInst_NULL) {
@@ -111,7 +111,7 @@ short creature_be_happy(struct Thing *thing)
     }
     if (game.play_gameturn - cctrl->long_9A > 32)
     {
-        play_creature_sound(thing, 3, 2, 0);
+        play_creature_sound(thing, CrSnd_Happy, 2, 0);
         cctrl->long_9A = game.play_gameturn;
     }
     if (cctrl->instance_id == CrInst_NULL) {

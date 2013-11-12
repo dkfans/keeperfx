@@ -387,7 +387,7 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
   if (is_my_player_number(thing->owner))
   {
     if (thing->class_id == TCls_Creature)
-      play_creature_sound(thing, CrSnd_HandPick, 3, 1);
+      play_creature_sound(thing, CrSnd_Hang, 3, 1);
   }
   return true;
 }

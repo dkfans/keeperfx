@@ -50,10 +50,18 @@ struct Thing;
 struct PlayerInfo;
 
 enum CreatureSoundTypes {
-    CrSnd_SlappedOuch  = 1,
-    CrSnd_PrisonMoan   = 4,
-    CrSnd_HandPick     = 5,
-    CrSnd_Footsteps    = 10,
+    CrSnd_None      = 0,
+    CrSnd_Hurt      = 1,
+    CrSnd_Hit       = 2,
+    CrSnd_Happy     = 3,
+    CrSnd_Sad       = 4,
+    CrSnd_Hang      = 5,
+    CrSnd_Drop      = 6,
+    CrSnd_Torture   = 7,
+    CrSnd_Slap      = 8,
+    CrSnd_Die       = 9,
+    CrSnd_Foot      = 10,
+    CrSnd_Fight     = 11,
 };
 
 enum CreatureControlFlags {
@@ -601,17 +609,17 @@ struct CreatureSound {
 };
 
 struct CreatureSounds {
-    struct CreatureSound snd01;
-    struct CreatureSound snd02;
-    struct CreatureSound snd03;
-    struct CreatureSound snd04;
-    struct CreatureSound snd05;
-    struct CreatureSound snd06;
-    struct CreatureSound snd07;
-    struct CreatureSound snd08;
-    struct CreatureSound snd09;
-    struct CreatureSound snd10;
-    struct CreatureSound snd11;
+    struct CreatureSound foot;
+    struct CreatureSound hit;
+    struct CreatureSound happy;
+    struct CreatureSound sad;
+    struct CreatureSound hurt;
+    struct CreatureSound die;
+    struct CreatureSound hang;
+    struct CreatureSound drop;
+    struct CreatureSound torture;
+    struct CreatureSound slap;
+    struct CreatureSound fight;
 };
 
 #pragma pack()
