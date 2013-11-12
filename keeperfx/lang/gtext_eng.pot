@@ -1141,12 +1141,12 @@ msgstr ""
 
 #: guitext:231
 msgctxt "Creature spell"
-msgid "Fear: Not used"
+msgid "Fear: Causes the opponent to be terrified and wanting to skip engageing into combat."
 msgstr ""
 
 #: guitext:232
 msgctxt "Creature spell"
-msgid "Sight: Not used"
+msgid "Sight: Allows the creature to temporarely increase its awareness and notice the invisible."
 msgstr ""
 
 #: guitext:233
@@ -1197,7 +1197,7 @@ msgstr ""
 
 #: guitext:242
 msgctxt "Creature spell"
-msgid "Illumination: Not used"
+msgid "Illumination: Brings light onto darkness, allowing the creature to see but also be seen by others."
 msgstr ""
 
 #: guitext:243
@@ -3287,7 +3287,7 @@ msgstr ""
 
 #: guitext:662
 msgctxt "Keeper spell description"
-msgid "Time Bomb: Does boom."
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr ""
 
 #: guitext:663
