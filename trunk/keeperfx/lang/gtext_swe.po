@@ -18,7 +18,7 @@
 # ******************************************************************************
 msgid ""
 msgstr ""
-"Project-Id-Version: KeeperFX CCP 0.40\n"
+"Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2013-11-13 01:16+0100\n"
