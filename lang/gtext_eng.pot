@@ -17,18 +17,18 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-#, fuzzy:
 msgid ""
 msgstr ""
-"Project-Id-Version: KeeperFX CCP 0.40\n"
+"Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2013-11-13 19:11+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
 
 #. Generic victory message
 #: guitext:0
@@ -45,187 +45,277 @@ msgstr ""
 #. Level Eversmile first objective
 #: guitext:2
 msgctxt "In-game message"
-msgid "The first thing a Keeper needs is somewhere to keep gold, when it's been mined out of the rock by his imps. To create a Treasure Room, select the Treasure Room icon from the Rooms Panel and fill the empty area to the west with Treasure Room tiles."
+msgid ""
+"The first thing a Keeper needs is somewhere to keep gold, when it's been "
+"mined out of the rock by his imps. To create a Treasure Room, select the "
+"Treasure Room icon from the Rooms Panel and fill the empty area to the west "
+"with Treasure Room tiles."
 msgstr ""
 
 #. Level Eversmile information when started building Treasure Room
 #: guitext:3
 msgctxt "In-game message"
-msgid "Use the cursor keys to see other areas of the underworld. Rotate and zoom the view with the right ctrl key and cursor keys."
+msgid ""
+"Use the cursor keys to see other areas of the underworld. Rotate and zoom "
+"the view with the right ctrl key and cursor keys."
 msgstr ""
 
 #. Level Eversmile objective when built Treasure Room
 #: guitext:4
 msgctxt "In-game message"
-msgid "Expertly done. Press the right mouse button to turn the pointer back into the Hand of Evil. Mine out the gold to the east by tagging the area with the left mouse button. Your Imps will dig out the gold and carry it back to your Treasure Room."
+msgid ""
+"Expertly done. Press the right mouse button to turn the pointer back into "
+"the Hand of Evil. Mine out the gold to the east by tagging the area with the "
+"left mouse button. Your Imps will dig out the gold and carry it back to your "
+"Treasure Room."
 msgstr ""
 
 #. Level Eversmile information while digging gold
 #: guitext:5
 msgctxt "In-game message"
-msgid "If you want to make your creatures work harder, slap them by right clicking the Hand of Evil on them. Slapping will harm your creatures."
+msgid ""
+"If you want to make your creatures work harder, slap them by right clicking "
+"the Hand of Evil on them. Slapping will harm your creatures."
 msgstr ""
 
 #. Level Eversmile information while digging gold
 #: guitext:6
 msgctxt "In-game message"
-msgid "Use the left mouse button to pluck your creatures from the dungeon. Use the right mouse button to drop them over a room or tile belonging to your dungeon. Creatures perform the task most relevant to the situation they're dropped into."
+msgid ""
+"Use the left mouse button to pluck your creatures from the dungeon. Use the "
+"right mouse button to drop them over a room or tile belonging to your "
+"dungeon. Creatures perform the task most relevant to the situation they're "
+"dropped into."
 msgstr ""
 
 #. Level Eversmile objective after digging gold
 #: guitext:7
 msgctxt "In-game message"
-msgid "Greedily done, Keeper. Now, you need to turn some of your dungeon into a Lair. Lairs are where creatures rest and recover. The area your imps just mined out would be an ideal spot for some creatures to lurk. Select the Lair icon from the Rooms Panel."
+msgid ""
+"Greedily done, Keeper. Now, you need to turn some of your dungeon into a "
+"Lair. Lairs are where creatures rest and recover. The area your imps just "
+"mined out would be an ideal spot for some creatures to lurk. Select the Lair "
+"icon from the Rooms Panel."
 msgstr ""
 
 #. Level Eversmile objective after Lair built
 #: guitext:8
 msgctxt "In-game message"
-msgid "Dig a tunnel that connects to the Portal to the north. Portals appear on the map as flashing squares, until they are claimed. Creatures only use Portals claimed by a Keeper. Your imps claim a Portal as soon as it connects to your dungeon."
+msgid ""
+"Dig a tunnel that connects to the Portal to the north. Portals appear on the "
+"map as flashing squares, until they are claimed. Creatures only use Portals "
+"claimed by a Keeper. Your imps claim a Portal as soon as it connects to your "
+"dungeon."
 msgstr ""
 
 #. Level Eversmile objective when digging w/o Treasure Room
 #: guitext:9
 msgctxt "In-game message"
-msgid "You should build a Treasure Room first. Select the Treasure Room icon from the Rooms Panel and left click on the tiles in the area to the west of your Dungeon Heart."
+msgid ""
+"You should build a Treasure Room first. Select the Treasure Room icon from "
+"the Rooms Panel and left click on the tiles in the area to the west of your "
+"Dungeon Heart."
 msgstr ""
 
 #. Level Eversmile information after some digging
 #: guitext:10
 msgctxt "In-game message"
-msgid "Pick up creatures by left clicking on them. Drop them by right clicking over a room or tile belonging to your dungeon. Creatures perform tasks relevant to the situation they're dropped into."
+msgid ""
+"Pick up creatures by left clicking on them. Drop them by right clicking over "
+"a room or tile belonging to your dungeon. Creatures perform tasks relevant "
+"to the situation they're dropped into."
 msgstr ""
 
 #. Level Eversmile information after some digging
 #: guitext:11
 msgctxt "In-game message"
-msgid "If you want your creatures to work harder, slap them with a right click of the hand. Your creatures take damage from each slap they receive."
+msgid ""
+"If you want your creatures to work harder, slap them with a right click of "
+"the hand. Your creatures take damage from each slap they receive."
 msgstr ""
 
 #. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
 msgctxt "In-game message"
-msgid "You have not yet built a Treasure Room. Until you build this room, you will be unable to pay any creatures. Only imps give their loyalty freely. No other creatures will serve you unpaid."
+msgid ""
+"You have not yet built a Treasure Room. Until you build this room, you will "
+"be unable to pay any creatures. Only imps give their loyalty freely. No "
+"other creatures will serve you unpaid."
 msgstr ""
 
 #. Level Eversmile objective after getting first creature
 #: guitext:13
 msgctxt "In-game message"
-msgid "Your first minion has arrived. It's a giant Fly. It can spit corrosive vomit at your enemies and its wings grant the hideous insect the speed to intercept the most nimble trespassers."
+msgid ""
+"Your first minion has arrived. It's a giant Fly. It can spit corrosive vomit "
+"at your enemies and its wings grant the hideous insect the speed to "
+"intercept the most nimble trespassers."
 msgstr ""
 
 #. Level Eversmile objective after getting first beetle
 #: guitext:14
 msgctxt "In-game message"
-msgid "A Beetle has scuttled into your realm. It's tough enough to absorb a lot of damage. Like most creatures, Beetles require food. Dig out a new area, select the Hatchery icon and create your Hatchery. Tasty snacks will soon emerge from its enchanted soil."
+msgid ""
+"A Beetle has scuttled into your realm. It's tough enough to absorb a lot of "
+"damage. Like most creatures, Beetles require food. Dig out a new area, "
+"select the Hatchery icon and create your Hatchery. Tasty snacks will soon "
+"emerge from its enchanted soil."
 msgstr ""
 
 #. Level Eversmile objective after Hatchery built
 #: guitext:15
 msgctxt "In-game message"
-msgid "Imps fortify your walls to prevent intruders tunnelling in. If you want to create more imps, go to the Research Panel, select the Imp icon and left click anywhere in your dungeon. Each Imp you create costs more than the previous one."
+msgid ""
+"Imps fortify your walls to prevent intruders tunnelling in. If you want to "
+"create more imps, go to the Research Panel, select the Imp icon and left "
+"click anywhere in your dungeon. Each Imp you create costs more than the "
+"previous one."
 msgstr ""
 
 #. Level Eversmile information after having few creatures
 #: guitext:16
 msgctxt "In-game message"
-msgid "Why not have a handful of creatures ready to drop on top of intruders? To pick up creatures quickly, left click on them from within the Creatures Panel. You can only drop creatures within the confines of your own dungeon."
+msgid ""
+"Why not have a handful of creatures ready to drop on top of intruders? To "
+"pick up creatures quickly, left click on them from within the Creatures "
+"Panel. You can only drop creatures within the confines of your own dungeon."
 msgstr ""
 
 #. Level Eversmile objective some time after all rooms are built
 #: guitext:17
 msgctxt "In-game message"
-msgid "Intruders approach. They seek gaps in your fortifications, in order to gain entry to your dungeon. A white trail on the map indicates their progress. Click the icon at the top of the Control Panel to see a bigger map."
+msgid ""
+"Intruders approach. They seek gaps in your fortifications, in order to gain "
+"entry to your dungeon. A white trail on the map indicates their progress. "
+"Click the icon at the top of the Control Panel to see a bigger map."
 msgstr ""
 
 #. Level Eversmile objective after first wave defeat
 #: guitext:18
 msgctxt "In-game message"
-msgid "Savour your first victory while you can. You have attracted the wrath of the Lord of this realm. His party will soon be here."
+msgid ""
+"Savour your first victory while you can. You have attracted the wrath of the "
+"Lord of this realm. His party will soon be here."
 msgstr ""
 
 #. Level Eversmile objective when LOTL comes
 #: guitext:19
 msgctxt "In-game message"
-msgid "The Lord of the Land has arrived. I can smell his fear. Defeat him and the realm is yours."
+msgid ""
+"The Lord of the Land has arrived. I can smell his fear. Defeat him and the "
+"realm is yours."
 msgstr ""
 
 #. Level Eversmile objective after LOTL defeat
 #: guitext:20
 msgctxt "In-game message"
-msgid "Your work here is done. Now there is no-one to prevent you from obliterating this nauseating realm and expanding your empire into a neighbouring land. Nice."
+msgid ""
+"Your work here is done. Now there is no-one to prevent you from obliterating "
+"this nauseating realm and expanding your empire into a neighbouring land. "
+"Nice."
 msgstr ""
 
 #. Level Eversmile objective when having no Imps
 #: guitext:21
 msgctxt "In-game message"
-msgid "You require more Imps. Use the Create Imp spell to conjure them into your domain. Remember, each Imp you create is more expensive than the last."
+msgid ""
+"You require more Imps. Use the Create Imp spell to conjure them into your "
+"domain. Remember, each Imp you create is more expensive than the last."
 msgstr ""
 
 #. Level Cosyton information soon after start
 #: guitext:22
 msgctxt "In-game message"
-msgid "When Imps have no other orders, they run around reinforcing your dungeon. Fortified walls keep out intruders. Rooms with reinforced walls make your creatures feel more at home and heroes more terrified."
+msgid ""
+"When Imps have no other orders, they run around reinforcing your dungeon. "
+"Fortified walls keep out intruders. Rooms with reinforced walls make your "
+"creatures feel more at home and heroes more terrified."
 msgstr ""
 
 #. Level Cosyton information soon after start
 #: guitext:23
 msgctxt "In-game message"
-msgid "Possess creatures by choosing the Possess spell from the Research Panel and left-clicking on the creature you want to control. Right-click to leave the creature again."
+msgid ""
+"Possess creatures by choosing the Possess spell from the Research Panel and "
+"left-clicking on the creature you want to control. Right-click to leave the "
+"creature again."
 msgstr ""
 
 #. Level Cosyton first objective
 #: guitext:24
 msgctxt "In-game message"
-msgid "Remember the lessons you learned in Brana Hauk. You must build a Treasure Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms in squares of at least nine tiles to increase the efficiency of the room."
+msgid ""
+"Remember the lessons you learned in Brana Hauk. You must build a Treasure "
+"Room, a Lair and a Hatchery and you will need to claim a Portal. Build rooms "
+"in squares of at least nine tiles to increase the efficiency of the room."
 msgstr ""
 
 #. Level Cosyton objective after basic rooms built
 #: guitext:25
 msgctxt "In-game message"
-msgid "You will need to make your creatures stronger. In a Training Room, your creatures can hone their fighting skills, gain new abilities and learn more powerful spells."
+msgid ""
+"You will need to make your creatures stronger. In a Training Room, your "
+"creatures can hone their fighting skills, gain new abilities and learn more "
+"powerful spells."
 msgstr ""
 
 #. Level Cosyton objective after Training Room built
 #: guitext:26
 msgctxt "In-game message"
-msgid "Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the walls of your dungeon. This increases the efficiency of rooms and repels would-be invaders."
+msgid ""
+"Your plan proceeds smoothly, keeper. Allow your Imps time to fortify the "
+"walls of your dungeon. This increases the efficiency of rooms and repels "
+"would-be invaders."
 msgstr ""
 
 #. Level Cosyton information after Training Room built
 #: guitext:27
 msgctxt "In-game message"
-msgid "The Training Room attracts ever more ferocious creatures, such as Demon Spawn. Build it and they will come."
+msgid ""
+"The Training Room attracts ever more ferocious creatures, such as Demon "
+"Spawn. Build it and they will come."
 msgstr ""
 
 #. Level Cosyton information after attracting Demon Spawn
 #: guitext:28
 msgctxt "In-game message"
-msgid "To train creatures, drop them in the Training Room. The number that occasionally appears above a creature's head indicates how much gold it has cost for that creature to train."
+msgid ""
+"To train creatures, drop them in the Training Room. The number that "
+"occasionally appears above a creature's head indicates how much gold it has "
+"cost for that creature to train."
 msgstr ""
 
 #. Level Cosyton information some time after Demon Spawn
 #: guitext:29
 msgctxt "In-game message"
-msgid "You can train creatures more rapidly by slapping them as they work out in the Training Room."
+msgid ""
+"You can train creatures more rapidly by slapping them as they work out in "
+"the Training Room."
 msgstr ""
 
 #. Level Cosyton objective soon after 2nd Demon Spawn
 #: guitext:30
 msgctxt "In-game message"
-msgid "Heroes are already on their way. Make sure your creatures are well trained and ready for the attack. The heroes you will face in this realm are tougher than those you met beneath Brana Hauk."
+msgid ""
+"Heroes are already on their way. Make sure your creatures are well trained "
+"and ready for the attack. The heroes you will face in this realm are tougher "
+"than those you met beneath Brana Hauk."
 msgstr ""
 
 #. Level Cosyton objective after defeating LOTL (option 1)
 #: guitext:31
 msgctxt "In-game message"
-msgid "Harder the heroes may have been but they were obviously no match for your forces."
+msgid ""
+"Harder the heroes may have been but they were obviously no match for your "
+"forces."
 msgstr ""
 
 #. Level Cosyton objective after AP reached
 #: guitext:32
 msgctxt "In-game message"
-msgid "The heroes are on their way. Make sure your creatures are well trained and ready for the attack."
+msgid ""
+"The heroes are on their way. Make sure your creatures are well trained and "
+"ready for the attack."
 msgstr ""
 
 #. Level Cosyton objective after defeating LOTL (option 2)
@@ -237,51 +327,77 @@ msgstr ""
 #. Level Waterdream Warm first objective
 #: guitext:34
 msgctxt "In-game message"
-msgid "Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training Room. Make sure they're all big enough. Cramped conditions do nothing for the morale of your minions."
+msgid ""
+"Build a dungeon with a Treasure Room, a Lair, a Hatchery and a Training "
+"Room. Make sure they're all big enough. Cramped conditions do nothing for "
+"the morale of your minions."
 msgstr ""
 
 #. Level Waterdream Warm objective after basic 5 rooms are built/claimed
 #: guitext:35
 msgctxt "In-game message"
-msgid "The time has come to build a Library. Libraries are where new devices, room designs and magic spells are researched. Make a Library at least as big as the other rooms. Researchers like quiet too, so try to build your Library off the side of a corridor."
+msgid ""
+"The time has come to build a Library. Libraries are where new devices, room "
+"designs and magic spells are researched. Make a Library at least as big as "
+"the other rooms. Researchers like quiet too, so try to build your Library "
+"off the side of a corridor."
 msgstr ""
 
 #. Level Waterdream Warm information after started building library
 #: guitext:36
 msgctxt "In-game message"
-msgid "Your new Library will attract creatures like Warlocks, who are interested in researching magic and dungeon designs. These evil mages are real bookworms, as well as being magically proficient themselves."
+msgid ""
+"Your new Library will attract creatures like Warlocks, who are interested in "
+"researching magic and dungeon designs. These evil mages are real bookworms, "
+"as well as being magically proficient themselves."
 msgstr ""
 
 #. Level Waterdream Warm objective after finished building library
 #: guitext:37
 msgctxt "In-game message"
-msgid "That's a fine collection of parchments and tomes you've assembled. Most creatures can engage in research but Warlocks make the best and keenest researchers. Stupid Trolls have trouble holding books the right way up and sometimes even chew the pages."
+msgid ""
+"That's a fine collection of parchments and tomes you've assembled. Most "
+"creatures can engage in research but Warlocks make the best and keenest "
+"researchers. Stupid Trolls have trouble holding books the right way up and "
+"sometimes even chew the pages."
 msgstr ""
 
 #. Level Waterdream Warm objective after attracting warlock
 #: guitext:38
 msgctxt "In-game message"
-msgid "The scent of arcane knowledge has lured a greedy Warlock into your dungeon. Don't forget to train your Warlocks occasionally. Their spell casting abilities make them fine long range fighters."
+msgid ""
+"The scent of arcane knowledge has lured a greedy Warlock into your dungeon. "
+"Don't forget to train your Warlocks occasionally. Their spell casting "
+"abilities make them fine long range fighters."
 msgstr ""
 
 #: guitext:39
 msgctxt "In-game message"
-msgid "The first wave of attackers lie hacked to pieces on the floor and give your domain that lived in feeling but it surely won't be long before their kin launch another assault."
+msgid ""
+"The first wave of attackers lie hacked to pieces on the floor and give your "
+"domain that lived in feeling but it surely won't be long before their kin "
+"launch another assault."
 msgstr ""
 
 #: guitext:40
 msgctxt "In-game message"
-msgid "You meet with success yet again, Keeper. All those corpses will keep your Hatchery's topsoil fertile. They also serve as warnings to other foolhardy adventurers, of course."
+msgid ""
+"You meet with success yet again, Keeper. All those corpses will keep your "
+"Hatchery's topsoil fertile. They also serve as warnings to other foolhardy "
+"adventurers, of course."
 msgstr ""
 
 #: guitext:41
 msgctxt "In-game message"
-msgid "All is quiet again. Use this time to ready yourself for the next attacks. The enemy is only regrouping. It is not yet defeated."
+msgid ""
+"All is quiet again. Use this time to ready yourself for the next attacks. "
+"The enemy is only regrouping. It is not yet defeated."
 msgstr ""
 
 #: guitext:42
 msgctxt "In-game message"
-msgid "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
+msgid ""
+"Is that Imp playing football with a decapitated head? Stay alert, Keeper."
 msgstr ""
 
 #: guitext:43
@@ -291,252 +407,390 @@ msgstr ""
 
 #: guitext:44
 msgctxt "In-game message"
-msgid "Already your research bears fruit. The Speed Creature spell has been perfected. Cast it on a creature and observe the dramatic increase in its speed. The effect wears off after a while."
+msgid ""
+"Already your research bears fruit. The Speed Creature spell has been "
+"perfected. Cast it on a creature and observe the dramatic increase in its "
+"speed. The effect wears off after a while."
 msgstr ""
 
 #: guitext:45
 msgctxt "In-game message"
-msgid "Build up your dungeon with the rooms available to you and claim the Portal nearby but do not yet venture north. Powerful adversaries lurk there. It would be wiser not to disturb them until you are prepared."
+msgid ""
+"Build up your dungeon with the rooms available to you and claim the Portal "
+"nearby but do not yet venture north. Powerful adversaries lurk there. It "
+"would be wiser not to disturb them until you are prepared."
 msgstr ""
 
 #: guitext:46
 msgctxt "In-game message"
-msgid "Clever research has given your Imps the engineering skill to build Bridges. You will need Bridges to cross some of the more hazardous underworld terrain."
+msgid ""
+"Clever research has given your Imps the engineering skill to build Bridges. "
+"You will need Bridges to cross some of the more hazardous underworld terrain."
 msgstr ""
 
 #: guitext:47
 msgctxt "In-game message"
-msgid "A study of dungeon designs reveals that Workshops manufacture essential furniture, such as Doors and Traps. If your Workshop occupies a square of at least nine tiles, its mere presence will lure the underworld's finest artisans into your dungeon."
+msgid ""
+"A study of dungeon designs reveals that Workshops manufacture essential "
+"furniture, such as Doors and Traps. If your Workshop occupies a square of at "
+"least nine tiles, its mere presence will lure the underworld's finest "
+"artisans into your dungeon."
 msgstr ""
 
 #: guitext:48
 msgctxt "In-game message"
-msgid "To manufacture Traps and Doors in your Workshop you will need to assign creatures to it, by dropping them into the room. Manufactured items can be selected from the Workshop Panel as soon as they're ready."
+msgid ""
+"To manufacture Traps and Doors in your Workshop you will need to assign "
+"creatures to it, by dropping them into the room. Manufactured items can be "
+"selected from the Workshop Panel as soon as they're ready."
 msgstr ""
 
 #: guitext:49
 msgctxt "In-game message"
-msgid "When your troops are sufficient in number and have had some training, lead them north and crush any who oppose you."
+msgid ""
+"When your troops are sufficient in number and have had some training, lead "
+"them north and crush any who oppose you."
 msgstr ""
 
 #: guitext:50
 msgctxt "In-game message"
-msgid "You will have to find a way to cross the river of molten lava that bars your way."
+msgid ""
+"You will have to find a way to cross the river of molten lava that bars your "
+"way."
 msgstr ""
 
 #: guitext:51
 msgctxt "In-game message"
-msgid "The enemy's Dungeon Heart throbs before you. Assemble your minions nearby and administer the coup de grace."
+msgid ""
+"The enemy's Dungeon Heart throbs before you. Assemble your minions nearby "
+"and administer the coup de grace."
 msgstr ""
 
 #: guitext:52
 msgctxt "In-game message"
-msgid "A Troll has joined you. Skilled in the craft of manufacturing, trolls are best employed doing dark deeds in your Workshop. They don't complain about the hours, because their labours keep them away from combat."
+msgid ""
+"A Troll has joined you. Skilled in the craft of manufacturing, trolls are "
+"best employed doing dark deeds in your Workshop. They don't complain about "
+"the hours, because their labours keep them away from combat."
 msgstr ""
 
 #: guitext:53
 msgctxt "In-game message"
-msgid "With the enemy Dungeon Heart in ruins, you have trounced the once proud opposition. Rule your new domain with terror and loathing, for a laugh."
+msgid ""
+"With the enemy Dungeon Heart in ruins, you have trounced the once proud "
+"opposition. Rule your new domain with terror and loathing, for a laugh."
 msgstr ""
 
 #: guitext:54
 msgctxt "In-game message"
-msgid "Your Workshop has created a Wooden Door. Placed in a corridor, it restricts access to the enemy. Your creatures may pass freely. Lock or unlock Doors by clicking over them with the left mouse button."
+msgid ""
+"Your Workshop has created a Wooden Door. Placed in a corridor, it restricts "
+"access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
+"clicking over them with the left mouse button."
 msgstr ""
 
 #: guitext:55
 msgctxt "In-game message"
-msgid "Your Workshop has produced a Poison Gas trap. Position it and, when an intruder sets it off, it will envelop the area in deadly vapours."
+msgid ""
+"Your Workshop has produced a Poison Gas trap. Position it and, when an "
+"intruder sets it off, it will envelop the area in deadly vapours."
 msgstr ""
 
 #: guitext:56
 msgctxt "In-game message"
-msgid "You have researched the Call to Arms spell. The first time you cast it, your creatures gather around a banner created by the spell. Cast it again in a target area. Call to Arms only costs gold when it's targetted beyond your territory."
+msgid ""
+"You have researched the Call to Arms spell. The first time you cast it, your "
+"creatures gather around a banner created by the spell. Cast it again in a "
+"target area. Call to Arms only costs gold when it's targetted beyond your "
+"territory."
 msgstr ""
 
 #: guitext:57
 msgctxt "In-game message"
-msgid "Another Keeper controls this underworld realm. His dungeon lies to the north. If you are to entice creatures to work for you instead of him, you will have to build a more magnificent dungeon. Get on with it then."
+msgid ""
+"Another Keeper controls this underworld realm. His dungeon lies to the "
+"north. If you are to entice creatures to work for you instead of him, you "
+"will have to build a more magnificent dungeon. Get on with it then."
 msgstr ""
 
 #: guitext:58
 msgctxt "In-game message"
-msgid "You have slain your rival. His defeat is a testimony to your clever dungeon design. You have the makings of a Dungeon Keeper worthy of the name."
+msgid ""
+"You have slain your rival. His defeat is a testimony to your clever dungeon "
+"design. You have the makings of a Dungeon Keeper worthy of the name."
 msgstr ""
 
 #: guitext:59
 msgctxt "In-game message"
-msgid "A Bile Demon chooses to side with you. Bile Demons demand large Lairs and ample Hatcheries. These corpulent monstrosities attack somewhat unconventionally."
+msgid ""
+"A Bile Demon chooses to side with you. Bile Demons demand large Lairs and "
+"ample Hatcheries. These corpulent monstrosities attack somewhat "
+"unconventionally."
 msgstr ""
 
 #: guitext:60
 msgctxt "In-game message"
-msgid "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an unexplored area and it will be revealed to you for a moment."
+msgid ""
+"Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
+"unexplored area and it will be revealed to you for a moment."
 msgstr ""
 
 #: guitext:61
 msgctxt "In-game message"
-msgid "You have claimed a Prison. Select imprison from the Information Panel and your creatures subdue their foe, at which point your imps drag the bodies off to a cell. Prisoners who die of starvation may rise again as Skeleton warriors for you to command."
+msgid ""
+"You have claimed a Prison. Select imprison from the Information Panel and "
+"your creatures subdue their foe, at which point your imps drag the bodies "
+"off to a cell. Prisoners who die of starvation may rise again as Skeleton "
+"warriors for you to command."
 msgstr ""
 
 #: guitext:62
 msgctxt "In-game message"
-msgid "Your dedicated librarians have designed a Guard Post. Place a Guard Post in a strategically important area and assign creatures to occupy it by dropping them there."
+msgid ""
+"Your dedicated librarians have designed a Guard Post. Place a Guard Post in "
+"a strategically important area and assign creatures to occupy it by dropping "
+"them there."
 msgstr ""
 
 #: guitext:63
 msgctxt "In-game message"
-msgid "A Spider has joined your dungeon. They are natural enemies of Flies, so endeavour to keep them apart. Overcoming such obstacles will temper your mettle - whatever that means."
+msgid ""
+"A Spider has joined your dungeon. They are natural enemies of Flies, so "
+"endeavour to keep them apart. Overcoming such obstacles will temper your "
+"mettle - whatever that means."
 msgstr ""
 
 #: guitext:64
 msgctxt "In-game message"
-msgid "It's time to mete out the ultimate punishment to a keeper who dares to challenge you for this corner of your subterranean empire. The price of failure shall be oblivion."
+msgid ""
+"It's time to mete out the ultimate punishment to a keeper who dares to "
+"challenge you for this corner of your subterranean empire. The price of "
+"failure shall be oblivion."
 msgstr ""
 
 #: guitext:65
 msgctxt "In-game message"
-msgid "How satisfying it is to see an enemy Keeper's dungeon crumble and his power dissipate. There'll be no controversy over this year's hall of infamy nomination."
+msgid ""
+"How satisfying it is to see an enemy Keeper's dungeon crumble and his power "
+"dissipate. There'll be no controversy over this year's hall of infamy "
+"nomination."
 msgstr ""
 
 #: guitext:66
 msgctxt "In-game message"
-msgid "You have claimed a Torture Room. Place captive heroes and creatures into this chamber of horrors to convert them to your supremely evil way. Alternatively, place your own creatures within the room whenever disciplinary measures become necessary."
+msgid ""
+"You have claimed a Torture Room. Place captive heroes and creatures into "
+"this chamber of horrors to convert them to your supremely evil way. "
+"Alternatively, place your own creatures within the room whenever "
+"disciplinary measures become necessary."
 msgstr ""
 
 #: guitext:67
 msgctxt "In-game message"
-msgid "You have finally constructed a dungeon impressive enough to attract a Dark Mistress. You must discipline these wicked wenches frequently. They respond particularly well to a good slapping."
+msgid ""
+"You have finally constructed a dungeon impressive enough to attract a Dark "
+"Mistress. You must discipline these wicked wenches frequently. They respond "
+"particularly well to a good slapping."
 msgstr ""
 
 #: guitext:68
 msgctxt "In-game message"
-msgid "Your manufacturers have created a Braced Door. If security matters, you can be sure when you buy a Braced Door. You couldn't be certain with only a curtain and a hole in the wall is no help at all."
+msgid ""
+"Your manufacturers have created a Braced Door. If security matters, you can "
+"be sure when you buy a Braced Door. You couldn't be certain with only a "
+"curtain and a hole in the wall is no help at all."
 msgstr ""
 
 #: guitext:69
 msgctxt "In-game message"
-msgid "Your researchers have devised a spell that unleashes the energy of a thunderstorm on the target of your choice. Select the spell, aim at a hostile creature and flash-fry him with a Lightning Strike."
+msgid ""
+"Your researchers have devised a spell that unleashes the energy of a "
+"thunderstorm on the target of your choice. Select the spell, aim at a "
+"hostile creature and flash-fry him with a Lightning Strike."
 msgstr ""
 
 #: guitext:70
 msgctxt "In-game message"
-msgid "You have manufactured a powerful Lightning Trap. Try it out. It's bound to give someone a shock."
+msgid ""
+"You have manufactured a powerful Lightning Trap. Try it out. It's bound to "
+"give someone a shock."
 msgstr ""
 
 #: guitext:71
 msgctxt "In-game message"
-msgid "It appears you have arrived in the middle of a raging battle. Perhaps it would be wise to stay out of the way until you are strong enough to eliminate both sides."
+msgid ""
+"It appears you have arrived in the middle of a raging battle. Perhaps it "
+"would be wise to stay out of the way until you are strong enough to "
+"eliminate both sides."
 msgstr ""
 
 #: guitext:72
 msgctxt "In-game message"
-msgid "An Orc warlord joins you and brings with him the plans for building a Barracks. In this room you can form creatures into teams."
+msgid ""
+"An Orc warlord joins you and brings with him the plans for building a "
+"Barracks. In this room you can form creatures into teams."
 msgstr ""
 
 #: guitext:73
 msgctxt "In-game message"
-msgid "I think I hear the clanking of plate armour. Yes, the Lord of the Land has finally roused himself from the fireside to find out where all his loyal servants have gone."
+msgid ""
+"I think I hear the clanking of plate armour. Yes, the Lord of the Land has "
+"finally roused himself from the fireside to find out where all his loyal "
+"servants have gone."
 msgstr ""
 
 #: guitext:74
 msgctxt "In-game message"
-msgid "You have turned local heroes into something of an endangered species, now make the enemy Dungeon Keeper extinct."
+msgid ""
+"You have turned local heroes into something of an endangered species, now "
+"make the enemy Dungeon Keeper extinct."
 msgstr ""
 
 #: guitext:75
 msgctxt "In-game message"
-msgid "You have prevailed, Keeper. The bodies of your enemies litter the most forlorn alcoves of your domain, in tribute to their futile efforts to keep you at bay."
+msgid ""
+"You have prevailed, Keeper. The bodies of your enemies litter the most "
+"forlorn alcoves of your domain, in tribute to their futile efforts to keep "
+"you at bay."
 msgstr ""
 
 #: guitext:76
 msgctxt "In-game message"
-msgid "Seek out the one who would be your rival in this region of the underworld. Explain the concept of early retirement to him. On the other hand, string him up. It's in the only language he understands."
+msgid ""
+"Seek out the one who would be your rival in this region of the underworld. "
+"Explain the concept of early retirement to him. On the other hand, string "
+"him up. It's in the only language he understands."
 msgstr ""
 
 #: guitext:77
 msgctxt "In-game message"
-msgid "You have researched the power of Invisibility. Cast it on a creature to hide it from enemy eyes."
+msgid ""
+"You have researched the power of Invisibility. Cast it on a creature to hide "
+"it from enemy eyes."
 msgstr ""
 
 #: guitext:78
 msgctxt "In-game message"
-msgid "The Protect Creature spell has been researched at last. Cast it on a creature to increase its toughness."
+msgid ""
+"The Protect Creature spell has been researched at last. Cast it on a "
+"creature to increase its toughness."
 msgstr ""
 
 #: guitext:79
 msgctxt "In-game message"
-msgid "That's another enemy successfully written off. The defenceless inhabitants of the land above bow down before your depraved presence. As if that will save them..."
+msgid ""
+"That's another enemy successfully written off. The defenceless inhabitants "
+"of the land above bow down before your depraved presence. As if that will "
+"save them..."
 msgstr ""
 
 #: guitext:80
 msgctxt "In-game message"
-msgid "Researchers have found instructions for building a Temple to the dark gods. Sacrifice creatures in the Temple's pool to receive gifts from these gods. You might have to experiment with the offerings you make. The dark gods are not easy to please."
+msgid ""
+"Researchers have found instructions for building a Temple to the dark gods. "
+"Sacrifice creatures in the Temple's pool to receive gifts from these gods. "
+"You might have to experiment with the offerings you make. The dark gods are "
+"not easy to please."
 msgstr ""
 
 #: guitext:81
 msgctxt "In-game message"
-msgid "This realm is ruled by four arrogant Wizards who think they've got everything under control, because their feeble magical power impresses the locals. But you're not from these parts..."
+msgid ""
+"This realm is ruled by four arrogant Wizards who think they've got "
+"everything under control, because their feeble magical power impresses the "
+"locals. But you're not from these parts..."
 msgstr ""
 
 #: guitext:82
 msgctxt "In-game message"
-msgid "Well, you're done down here. Time to introduce yourself to the locals and re-organise their nice little lives."
+msgid ""
+"Well, you're done down here. Time to introduce yourself to the locals and re-"
+"organise their nice little lives."
 msgstr ""
 
 #: guitext:83
 msgctxt "In-game message"
-msgid "Behold, you have summoned a Horned Reaper. Try not make it angry. You'll fail, because everything makes a Horned Reaper angry but at least try to make sure that everything near it is an enemy creature when it finally goes ballistic."
+msgid ""
+"Behold, you have summoned a Horned Reaper. Try not make it angry. You'll "
+"fail, because everything makes a Horned Reaper angry but at least try to "
+"make sure that everything near it is an enemy creature when it finally goes "
+"ballistic."
 msgstr ""
 
 #: guitext:84
 msgctxt "In-game message"
-msgid "Your researchers have concocted a Disease spell. Cast it on enemy creatures and watch the affliction spread like the plague."
+msgid ""
+"Your researchers have concocted a Disease spell. Cast it on enemy creatures "
+"and watch the affliction spread like the plague."
 msgstr ""
 
 #: guitext:85
 msgctxt "In-game message"
-msgid "A Vampire has risen from your Graveyard, nourished by the souls of the dead which have been brought here. You have to suck up to Vampires or they go off in a huff, but they're extremely powerful and fearsome underlings to have in your employ."
+msgid ""
+"A Vampire has risen from your Graveyard, nourished by the souls of the dead "
+"which have been brought here. You have to suck up to Vampires or they go off "
+"in a huff, but they're extremely powerful and fearsome underlings to have in "
+"your employ."
 msgstr ""
 
 #: guitext:86
 msgctxt "In-game message"
-msgid "You have researched the Graveyard. Your Imps will drag corpses here to rot... And possibly to rise again as Vampires, ready to do your bidding. That's style."
+msgid ""
+"You have researched the Graveyard. Your Imps will drag corpses here to "
+"rot... And possibly to rise again as Vampires, ready to do your bidding. "
+"That's style."
 msgstr ""
 
 #: guitext:87
 msgctxt "In-game message"
-msgid "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
+msgid ""
+"You have manufactured an Iron Door. It's a formidable barrier. Use it well."
 msgstr ""
 
 #: guitext:88
 msgctxt "In-game message"
-msgid "Powerful creatures inhabit a cave south of here. There's a party of heroes between you and them but, if you reach them and convert them to your side before they join the other keepers, you will be unstoppable, unless you do something stupid."
+msgid ""
+"Powerful creatures inhabit a cave south of here. There's a party of heroes "
+"between you and them but, if you reach them and convert them to your side "
+"before they join the other keepers, you will be unstoppable, unless you do "
+"something stupid."
 msgstr ""
 
 #: guitext:89
 msgctxt "In-game message"
-msgid "You have overcome all resistance to your rule, O despicable one. It's time to flex the old misery muscle on the pathetic inhabitants of the land above."
+msgid ""
+"You have overcome all resistance to your rule, O despicable one. It's time "
+"to flex the old misery muscle on the pathetic inhabitants of the land above."
 msgstr ""
 
 #: guitext:90
 msgctxt "In-game message"
-msgid "You have a manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
+msgid ""
+"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 
 #: guitext:91
 msgctxt "In-game message"
-msgid "With typical brilliance, you have researched the Cave-In spell. Use it to block off passages and repair dungeon breaches. Interestingly, the rockfall will crush to death any creatures caught beneath it."
+msgid ""
+"With typical brilliance, you have researched the Cave-In spell. Use it to "
+"block off passages and repair dungeon breaches. Interestingly, the rockfall "
+"will crush to death any creatures caught beneath it."
 msgstr ""
 
 #: guitext:92
 msgctxt "In-game message"
-msgid "Your tireless librarians have researched the Scavenger Room. Creatures placed within a Scavenger Room will lure their kin from other dungeons and the outside world, into your domain."
+msgid ""
+"Your tireless librarians have researched the Scavenger Room. Creatures "
+"placed within a Scavenger Room will lure their kin from other dungeons and "
+"the outside world, into your domain."
 msgstr ""
 
 #: guitext:93
 msgctxt "In-game message"
-msgid "Your great wealth has bought the loyalty of a passing Dragon. They are fickle creatures. Keep your eye on this one."
+msgid ""
+"Your great wealth has bought the loyalty of a passing Dragon. They are "
+"fickle creatures. Keep your eye on this one."
 msgstr ""
 
 #: guitext:94
@@ -546,87 +800,128 @@ msgstr ""
 
 #: guitext:95
 msgctxt "In-game message"
-msgid "The other two Keepers in this region have put aside their differences for the moment and joined forces, in an effort to destroy you. That's almost a compliment. Kill the creeps."
+msgid ""
+"The other two Keepers in this region have put aside their differences for "
+"the moment and joined forces, in an effort to destroy you. That's almost a "
+"compliment. Kill the creeps."
 msgstr ""
 
 #: guitext:96
 msgctxt "In-game message"
-msgid "You have won a magnificent victory, Master. You have a talent for twisted mercilessness that makes other Keepers look well behaved by comparison."
+msgid ""
+"You have won a magnificent victory, Master. You have a talent for twisted "
+"mercilessness that makes other Keepers look well behaved by comparison."
 msgstr ""
 
 #: guitext:97
 msgctxt "In-game message"
-msgid "You have discovered a devastating magical power. Target it against a creature to transform a fearsome monster into a clucking chicken. Marvellous."
+msgid ""
+"You have discovered a devastating magical power. Target it against a "
+"creature to transform a fearsome monster into a clucking chicken. Marvellous."
 msgstr ""
 
 #: guitext:98
 msgctxt "In-game message"
-msgid "Your manufacturers have built an Alarm Trap. It will warn you of your enemies' approach and summon nearby creatures to deal with the intruders."
+msgid ""
+"Your manufacturers have built an Alarm Trap. It will warn you of your "
+"enemies' approach and summon nearby creatures to deal with the intruders."
 msgstr ""
 
 #: guitext:99
 msgctxt "In-game message"
-msgid "You have created a Magic Door. These are almost impregnable to all but magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
+msgid ""
+"You have created a Magic Door. These are almost impregnable to all but "
+"magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
 msgstr ""
 
 #: guitext:100
 msgctxt "In-game message"
-msgid "Elsewhere in this fiery realm you have a rival Keeper to contend with. I advise extreme antisocial behaviour on your part."
+msgid ""
+"Elsewhere in this fiery realm you have a rival Keeper to contend with. I "
+"advise extreme antisocial behaviour on your part."
 msgstr ""
 
 #: guitext:101
 msgctxt "In-game message"
-msgid "Notch up another victory, most malicious one. You have another land to add to your dismal collection."
+msgid ""
+"Notch up another victory, most malicious one. You have another land to add "
+"to your dismal collection."
 msgstr ""
 
 #: guitext:102
 msgctxt "In-game message"
-msgid "Your annihilation of the first wave has met with the approval of a pack of demons from the fifth plane of hell. Train your creatures and prepare for another battle. You're attracting quite an audience."
+msgid ""
+"Your annihilation of the first wave has met with the approval of a pack of "
+"demons from the fifth plane of hell. Train your creatures and prepare for "
+"another battle. You're attracting quite an audience."
 msgstr ""
 
 #: guitext:103
 msgctxt "In-game message"
-msgid "The enemy are upon us. I'm just telling you in case you were having a doze."
+msgid ""
+"The enemy are upon us. I'm just telling you in case you were having a doze."
 msgstr ""
 
 #: guitext:104
 msgctxt "In-game message"
-msgid "All the heroes are dead, which is as it should be. This land and all its spoils are yours. May I suggest that you waste everything?"
+msgid ""
+"All the heroes are dead, which is as it should be. This land and all its "
+"spoils are yours. May I suggest that you waste everything?"
 msgstr ""
 
 #: guitext:105
 msgctxt "In-game message"
-msgid "If lands had legs this one would be on its knees. Its desperate inhabitants are preparing a full scale attack on your dungeon. It will be an ideal opportunity to practise unspeakable evil on a massive scale. Go for it, master."
+msgid ""
+"If lands had legs this one would be on its knees. Its desperate inhabitants "
+"are preparing a full scale attack on your dungeon. It will be an ideal "
+"opportunity to practise unspeakable evil on a massive scale. Go for it, "
+"master."
 msgstr ""
 
 #: guitext:106
 msgctxt "In-game message"
-msgid "Your latest discovery is the Word of Power Trap. When activated, the trap triggers an expanding ring of fire that incinerates anything caught in its area of effect. What a scream that should be."
+msgid ""
+"Your latest discovery is the Word of Power Trap. When activated, the trap "
+"triggers an expanding ring of fire that incinerates anything caught in its "
+"area of effect. What a scream that should be."
 msgstr ""
 
 #: guitext:107
 msgctxt "In-game message"
-msgid "The Hold Audience spell has been researched. It will immediately teleport all of your creatures back to your Dungeon Heart. Let's hope you never need it."
+msgid ""
+"The Hold Audience spell has been researched. It will immediately teleport "
+"all of your creatures back to your Dungeon Heart. Let's hope you never need "
+"it."
 msgstr ""
 
 #: guitext:108
 msgctxt "In-game message"
-msgid "You can't swing a cat for Dungeon Keepers fighting over the destiny of this region. It should fall to you to settle the disagreement once and for all."
+msgid ""
+"You can't swing a cat for Dungeon Keepers fighting over the destiny of this "
+"region. It should fall to you to settle the disagreement once and for all."
 msgstr ""
 
 #: guitext:109
 msgctxt "In-game message"
-msgid "Your researchers have discovered the devastating Chicken spell. Cast it on any creature to instantly transform the target into poultry. It's a fowl weapon."
+msgid ""
+"Your researchers have discovered the devastating Chicken spell. Cast it on "
+"any creature to instantly transform the target into poultry. It's a fowl "
+"weapon."
 msgstr ""
 
 #: guitext:110
 msgctxt "In-game message"
-msgid "So, now you have a spell that turns fortified walls to dust. It's expensive to cast and it's also possible that your enemies possess the same magic power. This could still turn out to be one of those days."
+msgid ""
+"So, now you have a spell that turns fortified walls to dust. It's expensive "
+"to cast and it's also possible that your enemies possess the same magic "
+"power. This could still turn out to be one of those days."
 msgstr ""
 
 #: guitext:111
 msgctxt "In-game message"
-msgid "Only the Lord of this Land stands between you and hectares of desolation and woe. I bet you can't wait to meet him."
+msgid ""
+"Only the Lord of this Land stands between you and hectares of desolation and "
+"woe. I bet you can't wait to meet him."
 msgstr ""
 
 #: guitext:112
@@ -636,42 +931,59 @@ msgstr ""
 
 #: guitext:113
 msgctxt "In-game message"
-msgid "You seem to have started a trend. Two other Dungeon Keepers also have designs on this dark domain. Expect no quarter from your rivals."
+msgid ""
+"You seem to have started a trend. Two other Dungeon Keepers also have "
+"designs on this dark domain. Expect no quarter from your rivals."
 msgstr ""
 
 #: guitext:114
 msgctxt "In-game message"
-msgid "Can you see how vulnerable one of your opponents has become? Then kill him."
+msgid ""
+"Can you see how vulnerable one of your opponents has become? Then kill him."
 msgstr ""
 
 #: guitext:115
 msgctxt "In-game message"
-msgid "I spy a keeper with hardly any creatures left under his control. I spy a Keeper who's about to die."
+msgid ""
+"I spy a keeper with hardly any creatures left under his control. I spy a "
+"Keeper who's about to die."
 msgstr ""
 
 #: guitext:116
 msgctxt "In-game message"
-msgid "This ancient dungeon possesses great archaeological significance. This simply means there should be some interesting treasure worth stealing. Now that's what I call practical archaeology."
+msgid ""
+"This ancient dungeon possesses great archaeological significance. This "
+"simply means there should be some interesting treasure worth stealing. Now "
+"that's what I call practical archaeology."
 msgstr ""
 
 #: guitext:117
 msgctxt "In-game message"
-msgid "Your librarians have learned a spell that can break through fortified walls. Give them a slap for not learning it earlier."
+msgid ""
+"Your librarians have learned a spell that can break through fortified walls. "
+"Give them a slap for not learning it earlier."
 msgstr ""
 
 #: guitext:118
 msgctxt "In-game message"
-msgid "One of your opponents has developed a spell that can break through fortified walls. Typical. Be on your guard."
+msgid ""
+"One of your opponents has developed a spell that can break through fortified "
+"walls. Typical. Be on your guard."
 msgstr ""
 
 #: guitext:119
 msgctxt "In-game message"
-msgid "You have developed the Armageddon spell. That's quite a name to live up to. Make sure you're the most powerful force in the region before casting it."
+msgid ""
+"You have developed the Armageddon spell. That's quite a name to live up to. "
+"Make sure you're the most powerful force in the region before casting it."
 msgstr ""
 
 #: guitext:120
 msgctxt "In-game message"
-msgid "You will not find any easy path through this region. You will have to fight hard to gain any advantage. But, if you intend to rule the world, you've simply got to get through days like this."
+msgid ""
+"You will not find any easy path through this region. You will have to fight "
+"hard to gain any advantage. But, if you intend to rule the world, you've "
+"simply got to get through days like this."
 msgstr ""
 
 #: guitext:121
@@ -681,22 +993,32 @@ msgstr ""
 
 #: guitext:122
 msgctxt "In-game message"
-msgid "Your location is already known to the heroes of this land. They have moved quickly to mobilise their forces against you. It's pathetic. They deserve to have their heads impaled on lances for such impudence."
+msgid ""
+"Your location is already known to the heroes of this land. They have moved "
+"quickly to mobilise their forces against you. It's pathetic. They deserve to "
+"have their heads impaled on lances for such impudence."
 msgstr ""
 
 #: guitext:123
 msgctxt "In-game message"
-msgid "You've upset the local Lord. He's on his way right now. Shall I alert the media?"
+msgid ""
+"You've upset the local Lord. He's on his way right now. Shall I alert the "
+"media?"
 msgstr ""
 
 #: guitext:124
 msgctxt "In-game message"
-msgid "The heroes of this realm possess treasures of great power. Obviously, these should belong to you. I'm certain you will settle the matter of their ownership in your own way."
+msgid ""
+"The heroes of this realm possess treasures of great power. Obviously, these "
+"should belong to you. I'm certain you will settle the matter of their "
+"ownership in your own way."
 msgstr ""
 
 #: guitext:125
 msgctxt "In-game message"
-msgid "It appears you have a rival. Another Keeper believes he is more ruthless and evil than you. We shall soon see."
+msgid ""
+"It appears you have a rival. Another Keeper believes he is more ruthless and "
+"evil than you. We shall soon see."
 msgstr ""
 
 #: guitext:126
@@ -706,72 +1028,110 @@ msgstr ""
 
 #: guitext:127
 msgctxt "In-game message"
-msgid "The guardians of this realm are asleep at the moment. Attack them as soon as you can or they'll be breakfasted, wide awake and inherently more difficult to slaughter."
+msgid ""
+"The guardians of this realm are asleep at the moment. Attack them as soon as "
+"you can or they'll be breakfasted, wide awake and inherently more difficult "
+"to slaughter."
 msgstr ""
 
 #: guitext:128
 msgctxt "In-game message"
-msgid "If you should encounter hero patrols, ensure that none of their number escape. Otherwise your presence will be revealed and then you will be in trouble."
+msgid ""
+"If you should encounter hero patrols, ensure that none of their number "
+"escape. Otherwise your presence will be revealed and then you will be in "
+"trouble."
 msgstr ""
 
 #: guitext:129
 msgctxt "In-game message"
-msgid "You're taking forever over this. Attack and destroy the heroes' stronghold soon, preferably before hell freezes over."
+msgid ""
+"You're taking forever over this. Attack and destroy the heroes' stronghold "
+"soon, preferably before hell freezes over."
 msgstr ""
 
 #: guitext:130
 msgctxt "In-game message"
-msgid "Enemy reinforcements have arrived. So what? Let's hear it for more killing."
+msgid ""
+"Enemy reinforcements have arrived. So what? Let's hear it for more killing."
 msgstr ""
 
 #: guitext:131
 msgctxt "In-game message"
-msgid "The heroes of this realm have prepared for your coming by building an underground stronghold of their own. Who do they think they are? Sorry, master, that was a rhetorical question."
+msgid ""
+"The heroes of this realm have prepared for your coming by building an "
+"underground stronghold of their own. Who do they think they are? Sorry, "
+"master, that was a rhetorical question."
 msgstr ""
 
 #: guitext:132
 msgctxt "In-game message"
-msgid "You are about to face the greatest challenge yet to your evil aspirations. Here it comes, ready or not."
+msgid ""
+"You are about to face the greatest challenge yet to your evil aspirations. "
+"Here it comes, ready or not."
 msgstr ""
 
 #: guitext:133
 msgctxt "In-game message"
-msgid "Three other Dungeon Keepers, each as evil and powerful as you, have expanded their empires into this realm. Ultimately, only the one who rules the underworld can conquer the realms above."
+msgid ""
+"Three other Dungeon Keepers, each as evil and powerful as you, have expanded "
+"their empires into this realm. Ultimately, only the one who rules the "
+"underworld can conquer the realms above."
 msgstr ""
 
 #: guitext:134
 msgctxt "In-game message"
-msgid "This realm is begging to be plunged into darkness. The Avatar himself has a castle here. Another Keeper also seeks his soul. This could get messy."
+msgid ""
+"This realm is begging to be plunged into darkness. The Avatar himself has a "
+"castle here. Another Keeper also seeks his soul. This could get messy."
 msgstr ""
 
 #: guitext:135
 msgctxt "In-game message"
-msgid "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize."
+msgid ""
+"You have destroyed the Avatar's castle but your rival has already taken the "
+"Avatar prisoner. Be that as it may, only the Keeper with the blackest heart "
+"can destroy this legendary hero, so ransack your rival's dungeon and take "
+"the prize."
 msgstr ""
 
 #: guitext:136
 msgctxt "In-game message"
-msgid "The Avatar has been resurrected by loyal lieutenants in hiding. But their act has revealed them to us, here in this realm. Now the Avatar rallies all those who would stand against you. It's time you gave this self-righteous oaf a proper kicking, master."
+msgid ""
+"The Avatar has been resurrected by loyal lieutenants in hiding. But their "
+"act has revealed them to us, here in this realm. Now the Avatar rallies all "
+"those who would stand against you. It's time you gave this self-righteous "
+"oaf a proper kicking, master."
 msgstr ""
 
 #: guitext:137
 msgctxt "In-game message"
-msgid "Powerful magic permeating through the rock from the realm above prevents a dungeon from being constructed here. You will have to conquer this realm another way."
+msgid ""
+"Powerful magic permeating through the rock from the realm above prevents a "
+"dungeon from being constructed here. You will have to conquer this realm "
+"another way."
 msgstr ""
 
 #: guitext:138
 msgctxt "In-game message"
-msgid "Possess this Dragon to help you negotiate the fiery pits but be prepared to transfer your soul to a more appropriate creature when the situation demands it."
+msgid ""
+"Possess this Dragon to help you negotiate the fiery pits but be prepared to "
+"transfer your soul to a more appropriate creature when the situation demands "
+"it."
 msgstr ""
 
 #: guitext:139
 msgctxt "In-game message"
-msgid "Possess the Vampire below. Should you succeed in killing every hero in this region, the Vampire will accompany you to the realm beyond."
+msgid ""
+"Possess the Vampire below. Should you succeed in killing every hero in this "
+"region, the Vampire will accompany you to the realm beyond."
 msgstr ""
 
 #: guitext:140
 msgctxt "In-game message"
-msgid "These Imps have all turned rogue and therefore must die. The speed with which you accomplish their destruction will determine your fitness for greater tasks ahead."
+msgid ""
+"These Imps have all turned rogue and therefore must die. The speed with "
+"which you accomplish their destruction will determine your fitness for "
+"greater tasks ahead."
 msgstr ""
 
 #: guitext:141
@@ -781,17 +1141,24 @@ msgstr ""
 
 #: guitext:142
 msgctxt "In-game message"
-msgid "You have failed. Perhaps you're not the harbinger of doom the forces of darkness were hoping for."
+msgid ""
+"You have failed. Perhaps you're not the harbinger of doom the forces of "
+"darkness were hoping for."
 msgstr ""
 
 #: guitext:143
 msgctxt "In-game message"
-msgid "You are indeed a twisted soul, master. You made the Imps extinct with such panache that not one but two Dark Mistresses have devoted themselves to helping you achieve your next goal. You may proceed to your next conquest."
+msgid ""
+"You are indeed a twisted soul, master. You made the Imps extinct with such "
+"panache that not one but two Dark Mistresses have devoted themselves to "
+"helping you achieve your next goal. You may proceed to your next conquest."
 msgstr ""
 
 #: guitext:144
 msgctxt "In-game message"
-msgid "You must have lightning reflexes to complete the task ahead of you. Kill these Imps as quickly as you can."
+msgid ""
+"You must have lightning reflexes to complete the task ahead of you. Kill "
+"these Imps as quickly as you can."
 msgstr ""
 
 #: guitext:145
@@ -806,17 +1173,25 @@ msgstr ""
 
 #: guitext:147
 msgctxt "In-game message"
-msgid "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You certainly had your finger on the pulse this time. The dark gods will send you a vicious creature to help you conquer the next realm."
+msgid ""
+"It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
+"certainly had your finger on the pulse this time. The dark gods will send "
+"you a vicious creature to help you conquer the next realm."
 msgstr ""
 
 #: guitext:148
 msgctxt "In-game message"
-msgid "You have no gold left. It pays to keep your head in such a charged environment."
+msgid ""
+"You have no gold left. It pays to keep your head in such a charged "
+"environment."
 msgstr ""
 
 #: guitext:149
 msgctxt "In-game message"
-msgid "You have been called to this realm to punish a horde of revolting Bile Demons by crushing them with Boulder Traps scattered around the perimeter of the dungeon. You have very little time, so rock and roll!"
+msgid ""
+"You have been called to this realm to punish a horde of revolting Bile "
+"Demons by crushing them with Boulder Traps scattered around the perimeter of "
+"the dungeon. You have very little time, so rock and roll!"
 msgstr ""
 
 #: guitext:150
@@ -826,52 +1201,80 @@ msgstr ""
 
 #: guitext:151
 msgctxt "In-game message"
-msgid "Your time is up. You have failed. I'm embarrassed to come from the same inter-dimensional void as you."
+msgid ""
+"Your time is up. You have failed. I'm embarrassed to come from the same "
+"inter-dimensional void as you."
 msgstr ""
 
 #: guitext:152
 msgctxt "In-game message"
-msgid "Well done. You have excelled in your use of large balls of stone for which the dark gods will repay you, by allowing you to use the warrior you found when you reach the next realm."
+msgid ""
+"Well done. You have excelled in your use of large balls of stone for which "
+"the dark gods will repay you, by allowing you to use the warrior you found "
+"when you reach the next realm."
 msgstr ""
 
 #: guitext:153
 msgctxt "In-game message"
-msgid "This region of the underworld will test your ability to traverse the network of caverns. Indeed, time is your enemy here. Defeat it and you will find where a legendary warrior is imprisoned. That warrior will serve you well in the future."
+msgid ""
+"This region of the underworld will test your ability to traverse the network "
+"of caverns. Indeed, time is your enemy here. Defeat it and you will find "
+"where a legendary warrior is imprisoned. That warrior will serve you well in "
+"the future."
 msgstr ""
 
 #: guitext:154
 msgctxt "In-game message"
-msgid "The people of this realm speak of a Dungeon Keeper called Wisel, who is bound to get in your way. When he does, you will have to consign him to history. This will be no mean feat. Resources are scarce because of his activities."
+msgid ""
+"The people of this realm speak of a Dungeon Keeper called Wisel, who is "
+"bound to get in your way. When he does, you will have to consign him to "
+"history. This will be no mean feat. Resources are scarce because of his "
+"activities."
 msgstr ""
 
 #: guitext:155
 msgctxt "In-game message"
-msgid "Wisel is defeated. The land is yours to plunder and despoil for all eternity. Give 'em hell, master."
+msgid ""
+"Wisel is defeated. The land is yours to plunder and despoil for all "
+"eternity. Give 'em hell, master."
 msgstr ""
 
 #: guitext:156
 msgctxt "In-game message"
-msgid "Your evil has corrupted a Samurai Warrior, he has forsaken honour to join your cause. Should your minions suffer heavy casualties, this Warrior will even call upon his brothers in arms to offer assistance. How kind. How stupid!"
+msgid ""
+"Your evil has corrupted a Samurai Warrior, he has forsaken honour to join "
+"your cause. Should your minions suffer heavy casualties, this Warrior will "
+"even call upon his brothers in arms to offer assistance. How kind. How "
+"stupid!"
 msgstr ""
 
 #: guitext:157
 msgctxt "In-game message"
-msgid "This region of the underworld is riddled with tunnels and many heroes explore their labyrinthine ways. No-one said being evil would be easy."
+msgid ""
+"This region of the underworld is riddled with tunnels and many heroes "
+"explore their labyrinthine ways. No-one said being evil would be easy."
 msgstr ""
 
 #: guitext:158
 msgctxt "In-game message"
-msgid "It is rumoured that two Dragons are held captive somewhere east of here. Were you to find them and free them, they would make powerful servants."
+msgid ""
+"It is rumoured that two Dragons are held captive somewhere east of here. "
+"Were you to find them and free them, they would make powerful servants."
 msgstr ""
 
 #: guitext:159
 msgctxt "In-game message"
-msgid "A tunnel to the north leads to the Lord of the Realm's domain. This gate is guarded well. It might be wise to direct the humans' attention towards your subterranean enemy."
+msgid ""
+"A tunnel to the north leads to the Lord of the Realm's domain. This gate is "
+"guarded well. It might be wise to direct the humans' attention towards your "
+"subterranean enemy."
 msgstr ""
 
 #: guitext:160
 msgctxt "In-game message"
-msgid "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
+msgid ""
+"These Boulder Traps are ideal for crushing the foe but there are only three "
+"of them at your disposal, so use them wisely."
 msgstr ""
 
 #: guitext:161
@@ -881,7 +1284,9 @@ msgstr ""
 
 #: guitext:162
 msgctxt "In-game message"
-msgid "Another realm falls under your evil reign. Another cloud of misery and despair gathers. Lovely."
+msgid ""
+"Another realm falls under your evil reign. Another cloud of misery and "
+"despair gathers. Lovely."
 msgstr ""
 
 #: guitext:163
@@ -891,12 +1296,17 @@ msgstr ""
 
 #: guitext:164
 msgctxt "In-game message"
-msgid "Dispense with a particularly obnoxious party of Dwarves which wanders this region and recruit as many Bile Demons as you can. If you free the Wizard held captive in this realm, he will serve you for some time to come."
+msgid ""
+"Dispense with a particularly obnoxious party of Dwarves which wanders this "
+"region and recruit as many Bile Demons as you can. If you free the Wizard "
+"held captive in this realm, he will serve you for some time to come."
 msgstr ""
 
 #: guitext:165
 msgctxt "In-game message"
-msgid "Take more care of your Bile Demons or you will never make it beyond this realm."
+msgid ""
+"Take more care of your Bile Demons or you will never make it beyond this "
+"realm."
 msgstr ""
 
 #: guitext:166
@@ -906,17 +1316,23 @@ msgstr ""
 
 #: guitext:167
 msgctxt "In-game message"
-msgid "You will meet your nemesis, the Avatar, in this subterranean place. This is your ultimate test. Remember, mercy is for losers."
+msgid ""
+"You will meet your nemesis, the Avatar, in this subterranean place. This is "
+"your ultimate test. Remember, mercy is for losers."
 msgstr ""
 
 #: guitext:168
 msgctxt "In-game message"
-msgid "The Avatar and his allys are defeated, yet his power over this land lingers. Prepare thyself..."
+msgid ""
+"The Avatar and his allys are defeated, yet his power over this land lingers. "
+"Prepare thyself..."
 msgstr ""
 
 #: guitext:169
 msgctxt "In-game message"
-msgid "You got rid of that Keeper easily. Now all that stands between you and total world domination is that ponce in shining armour. Let's get him."
+msgid ""
+"You got rid of that Keeper easily. Now all that stands between you and total "
+"world domination is that ponce in shining armour. Let's get him."
 msgstr ""
 
 #: guitext:170
@@ -931,65 +1347,70 @@ msgstr ""
 
 #: guitext:172
 msgctxt "In-game message"
-msgid "Finally, you stand unchallenged. The world is yours to waste and despoil. I bet you have never felt so bad."
+msgid ""
+"Finally, you stand unchallenged. The world is yours to waste and despoil. I "
+"bet you have never felt so bad."
 msgstr ""
 
 #: guitext:173
 msgctxt "In-game message"
-msgid "Marvellous, Keeper! The Avatar and all his pathetic army are finally dead! There's only one Keeper to get rid of before becoming the absolute master! So, what are you waiting for?"
+msgid ""
+"Marvellous, Keeper! The Avatar and all his pathetic army are finally dead! "
+"There's only one Keeper to get rid of before becoming the absolute master! "
+"So, what are you waiting for?"
 msgstr ""
 
 #: guitext:174
 msgctxt "In-game message"
-msgid "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready to reduces your enemies into ashes!"
+msgid ""
+"Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
+"to reduces your enemies into ashes!"
 msgstr ""
 
 #: guitext:175
 msgctxt "In-game message"
-msgid "Well done! Your immense wealth has drew the attention of a Thief. He will serve you well in the next realm!"
+msgid ""
+"Well done! Your immense wealth has drew the attention of a Thief. He will "
+"serve you well in the next realm!"
 msgstr ""
 
 #: guitext:176
 msgctxt "In-game message"
-msgid "Your researchers have discovered the Heal Creature spell that allows to replenish the health of your creatures and keep them from dying for a while longer."
+msgid ""
+"Your researchers have discovered the Heal Creature spell that allows to "
+"replenish the health of your creatures and keep them from dying for a while "
+"longer."
 msgstr ""
 
 #: guitext:177
 msgctxt "In-game message"
-msgid "Try the Must Obey spell. When activated, it constantly forces your creatures to obey to all your orders, making all of them working faster without the possibility for them to take a nap. Be sure to have plenty of money so that the spell will stay activated."
+msgid ""
+"Try the Must Obey spell. When activated, it constantly forces your creatures "
+"to obey to all your orders, making all of them working faster without the "
+"possibility for them to take a nap. Be sure to have plenty of money so that "
+"the spell will stay activated."
 msgstr ""
 
 #: guitext:178
 msgctxt "In-game message"
-msgid "A Tentacle has joined your dungeon. These rare little creatures enjoy to be in water and their spine can even pierce the most solid armors and paralyze your enemies! Marvellous!"
+msgid ""
+"A Tentacle has joined your dungeon. These rare little creatures enjoy to be "
+"in water and their spine can even pierce the most solid armors and paralyze "
+"your enemies! Marvellous!"
 msgstr ""
 
 #: guitext:179
 msgctxt "In-game message"
-msgid "You have entered this realm to gain a creature for your further efforts. You got the creature from start, so you must only keep it safe. And the only way to make this place safe is to kill every hero in the realm."
+msgid ""
+"You have entered this realm to gain a creature for your further efforts. You "
+"got the creature from start, so you must only keep it safe. And the only way "
+"to make this place safe is to kill every hero in the realm."
 msgstr ""
 
-#: guitext:180
-#: guitext:181
-#: guitext:182
-#: guitext:183
-#: guitext:184
-#: guitext:185
-#: guitext:186
-#: guitext:187
-#: guitext:188
-#: guitext:189
-#: guitext:190
-#: guitext:191
-#: guitext:192
-#: guitext:193
-#: guitext:194
-#: guitext:195
-#: guitext:196
-#: guitext:197
-#: guitext:198
-#: guitext:199
-#: guitext:200
+#: guitext:180 guitext:181 guitext:182 guitext:183 guitext:184 guitext:185
+#: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
+#: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
+#: guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
@@ -1096,12 +1517,16 @@ msgstr ""
 
 #: guitext:222
 msgctxt "In-game interface description"
-msgid "Name and Health: Each creature has its own name. Behind is the creature health bar. The higher the red bar, the better health the creature is in."
+msgid ""
+"Name and Health: Each creature has its own name. Behind is the creature "
+"health bar. The higher the red bar, the better health the creature is in."
 msgstr ""
 
 #: guitext:223
 msgctxt "In-game interface description"
-msgid "Experience: The creature's experience level. Behind the level number is a bar indicating the creatures progress towards attaining more experience."
+msgid ""
+"Experience: The creature's experience level. Behind the level number is a "
+"bar indicating the creatures progress towards attaining more experience."
 msgstr ""
 
 #: guitext:224
@@ -1121,17 +1546,23 @@ msgstr ""
 
 #: guitext:227
 msgctxt "Creature spell"
-msgid "Freeze: Changes the target creature to ice. It is then in suspended animation and can be shattered with a well-aimed blow."
+msgid ""
+"Freeze: Changes the target creature to ice. It is then in suspended "
+"animation and can be shattered with a well-aimed blow."
 msgstr ""
 
 #: guitext:228
 msgctxt "Creature spell"
-msgid "Armour: This lowers the amount of damage a creature takes each time it is hit, and provides complete immunity to electric shocks."
+msgid ""
+"Armour: This lowers the amount of damage a creature takes each time it is "
+"hit, and provides complete immunity to electric shocks."
 msgstr ""
 
 #: guitext:229
 msgctxt "Creature spell"
-msgid "Lightning: A powerful magical weapon with electric attack. Casts a bolt of lighting from the creature."
+msgid ""
+"Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
+"lighting from the creature."
 msgstr ""
 
 #: guitext:230
@@ -1141,38 +1572,51 @@ msgstr ""
 
 #: guitext:231
 msgctxt "Creature spell"
-msgid "Fear: Causes the opponent to be terrified and wanting to skip engageing into combat."
+msgid ""
+"Fear: Causes the opponent to be terrified and wanting to skip engageing into "
+"combat."
 msgstr ""
 
 #: guitext:232
 msgctxt "Creature spell"
-msgid "Sight: Allows the creature to temporarely increase its awareness and notice the invisible."
+msgid ""
+"Sight: Allows the creature to temporarely increase its awareness and notice "
+"the invisible."
 msgstr ""
 
 #: guitext:233
 msgctxt "Creature spell"
-msgid "Missile: A simple spell that sends a screaming magic reptile at the invaders. Very disconcerting."
+msgid ""
+"Missile: A simple spell that sends a screaming magic reptile at the "
+"invaders. Very disconcerting."
 msgstr ""
 
 #: guitext:234
 msgctxt "Creature spell"
-msgid "Grenade: Throws a powerful explosive at the approaching enemy. It can also bounce off walls and has the traditional delayed fuse."
+msgid ""
+"Grenade: Throws a powerful explosive at the approaching enemy. It can also "
+"bounce off walls and has the traditional delayed fuse."
 msgstr ""
 
 #: guitext:235
 msgctxt "Creature spell"
-msgid "Navigating Missile: This homes in on the nearest hero or enemy creature and explodes with devastating force."
+msgid ""
+"Navigating Missile: This homes in on the nearest hero or enemy creature and "
+"explodes with devastating force."
 msgstr ""
 
 #: guitext:236
 msgctxt "Creature spell"
-msgid "Speed: Speeds up the creature so that it can perform fighting and working tasks really quickly."
+msgid ""
+"Speed: Speeds up the creature so that it can perform fighting and working "
+"tasks really quickly."
 msgstr ""
 
-#: guitext:237
-#: guitext:253
+#: guitext:237 guitext:253
 msgctxt "Creature spell"
-msgid "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the enemy and your own creatures. The gas affects all who breathe it."
+msgid ""
+"Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
+"enemy and your own creatures. The gas affects all who breathe it."
 msgstr ""
 
 #: guitext:238
@@ -1182,12 +1626,17 @@ msgstr ""
 
 #: guitext:239
 msgctxt "Creature spell"
-msgid "Invisibility: Cast on one of your minions, it makes the host creature invisible to all enemies. Unless they possess a subnatural Sight."
+msgid ""
+"Invisibility: Cast on one of your minions, it makes the host creature "
+"invisible to all enemies. Unless they possess a subnatural Sight."
 msgstr ""
 
 #: guitext:240
 msgctxt "Creature spell"
-msgid "Teleport: With this spell, a creature can teleport anywhere on the map. If you are Possessing a creature, then it teleports to its Lair or to the Dungeon Heart."
+msgid ""
+"Teleport: With this spell, a creature can teleport anywhere on the map. If "
+"you are Possessing a creature, then it teleports to its Lair or to the "
+"Dungeon Heart."
 msgstr ""
 
 #: guitext:241
@@ -1197,12 +1646,16 @@ msgstr ""
 
 #: guitext:242
 msgctxt "Creature spell"
-msgid "Illumination: Brings light onto darkness, allowing the creature to see but also be seen by others."
+msgid ""
+"Illumination: Brings light onto darkness, allowing the creature to see but "
+"also be seen by others."
 msgstr ""
 
 #: guitext:243
 msgctxt "Creature spell"
-msgid "Flight: Causes the creature to take off from the ground and attack creatures from the air."
+msgid ""
+"Flight: Causes the creature to take off from the ground and attack creatures "
+"from the air."
 msgstr ""
 
 #: guitext:244
@@ -1212,57 +1665,80 @@ msgstr ""
 
 #: guitext:245
 msgctxt "Creature spell"
-msgid "Slow: Slows down the target creature, making it attacks and movement delayed."
+msgid ""
+"Slow: Slows down the target creature, making it attacks and movement delayed."
 msgstr ""
 
 #: guitext:246
 msgctxt "Creature spell"
-msgid "Drain: This spell drains the target creature a fair part of its health and magical abilities."
+msgid ""
+"Drain: This spell drains the target creature a fair part of its health and "
+"magical abilities."
 msgstr ""
 
 #: guitext:247
 msgctxt "Creature spell"
-msgid "Word of Power: Causes rings of fire to emanate from the creature's body and inflicts massive damage on the vicinity."
+msgid ""
+"Word of Power: Causes rings of fire to emanate from the creature's body and "
+"inflicts massive damage on the vicinity."
 msgstr ""
 
 #: guitext:248
 msgctxt "Creature spell"
-msgid "Heal: When this is cast, the creature is massively healed. Also, any nearby creatures are healed by a quarter."
+msgid ""
+"Heal: When this is cast, the creature is massively healed. Also, any nearby "
+"creatures are healed by a quarter."
 msgstr ""
 
 #: guitext:249
 msgctxt "Creature spell"
-msgid "Wind: Creates a force twelve gale in your Dungeon blowing every creature away from you."
+msgid ""
+"Wind: Creates a force twelve gale in your Dungeon blowing every creature "
+"away from you."
 msgstr ""
 
 #: guitext:250
 msgctxt "Creature spell"
-msgid "Meteor: More powerful that the fireball, this spell throws out a solid ball of fire which does a lot of damage to an enemy."
+msgid ""
+"Meteor: More powerful that the fireball, this spell throws out a solid ball "
+"of fire which does a lot of damage to an enemy."
 msgstr ""
 
 #: guitext:251
 msgctxt "Creature spell"
-msgid "Fireball: Fires a single fireball which homes in on the nearest enemy. Also inflicts minor damage to a Dungeon's walls and doors."
+msgid ""
+"Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
+"inflicts minor damage to a Dungeon's walls and doors."
 msgstr ""
 
 #: guitext:252
 msgctxt "Creature spell"
-msgid "Hand to Hand: The basic battle ability that allows to attack the enemy with either bare hands or a sword."
+msgid ""
+"Hand to Hand: The basic battle ability that allows to attack the enemy with "
+"either bare hands or a sword."
 msgstr ""
 
 #: guitext:254
 msgctxt "Creature spell"
-msgid "Dig: This is the basic ability of the Imp and allows it to tunnel through earth."
+msgid ""
+"Dig: This is the basic ability of the Imp and allows it to tunnel through "
+"earth."
 msgstr ""
 
 #: guitext:255
 msgctxt "Creature spell"
-msgid "Disease: Fired at a foe, gives them a Disease which is then spread to other creatures. The infected are slowly dying and can only be healed in the Temple."
+msgid ""
+"Disease: Fired at a foe, gives them a Disease which is then spread to other "
+"creatures. The infected are slowly dying and can only be healed in the "
+"Temple."
 msgstr ""
 
 #: guitext:256
 msgctxt "Creature spell"
-msgid "Chicken: Turns enemy into chicken for a while. The enemy isn't able to attack but has the same strength and thus won't be as easy to kill as a normal chicken."
+msgid ""
+"Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
+"attack but has the same strength and thus won't be as easy to kill as a "
+"normal chicken."
 msgstr ""
 
 #: guitext:257
@@ -1417,7 +1893,9 @@ msgstr ""
 
 #: guitext:287
 msgctxt "In-game interface description"
-msgid "Query: Select this and left click on a creature to view information on that creature and track it on screen. LMB select."
+msgid ""
+"Query: Select this and left click on a creature to view information on that "
+"creature and track it on screen. LMB select."
 msgstr ""
 
 #: guitext:288
@@ -1430,15 +1908,16 @@ msgctxt "Menu interface item"
 msgid "Network Menu"
 msgstr ""
 
-#: guitext:290
-#: guitext:343
+#: guitext:290 guitext:343
 msgctxt "Menu interface item"
 msgid "Main Menu"
 msgstr ""
 
 #: guitext:291
 msgctxt "In-game interface description"
-msgid "Anger: How angry the creature is. The higher the bar is, the angrier the creature is."
+msgid ""
+"Anger: How angry the creature is. The higher the bar is, the angrier the "
+"creature is."
 msgstr ""
 
 #: guitext:292
@@ -1448,7 +1927,9 @@ msgstr ""
 
 #: guitext:293
 msgctxt "In-game interface description"
-msgid "Strength: The amount of damage the creature inflicts upon it's enemies with each hit."
+msgid ""
+"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"each hit."
 msgstr ""
 
 #: guitext:294
@@ -1463,12 +1944,16 @@ msgstr ""
 
 #: guitext:296
 msgctxt "In-game interface description"
-msgid "Defence: The chance a creature will avoid a blow. The higher the number, the greater the chance of avoidance."
+msgid ""
+"Defence: The chance a creature will avoid a blow. The higher the number, the "
+"greater the chance of avoidance."
 msgstr ""
 
 #: guitext:297
 msgctxt "In-game interface description"
-msgid "Skill: The creature's ability to perform tasks. The higher the Skill level, the better the creature's performance."
+msgid ""
+"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"the better the creature's performance."
 msgstr ""
 
 #: guitext:298
@@ -1478,12 +1963,16 @@ msgstr ""
 
 #: guitext:299
 msgctxt "In-game interface description"
-msgid "Dexterity: The chance a creature will avoid a trap or an enemy weapon. The higher the number, the greater the chance of avoidance."
+msgid ""
+"Dexterity: The chance a creature will avoid a trap or an enemy weapon. The "
+"higher the number, the greater the chance of avoidance."
 msgstr ""
 
 #: guitext:300
 msgctxt "In-game interface description"
-msgid "Luck: The chance that a creature will do a double attack or a double defence in combat. Taken into account only when the hit is not avoided."
+msgid ""
+"Luck: The chance that a creature will do a double attack or a double defence "
+"in combat. Taken into account only when the hit is not avoided."
 msgstr ""
 
 #: guitext:301
@@ -1493,12 +1982,16 @@ msgstr ""
 
 #: guitext:302
 msgctxt "In-game interface description"
-msgid "Idle: The creature is either sleeping or not working. It's not involved in anything constructive or useful. LMB pick up creature. RMB zoom."
+msgid ""
+"Idle: The creature is either sleeping or not working. It's not involved in "
+"anything constructive or useful. LMB pick up creature. RMB zoom."
 msgstr ""
 
 #: guitext:303
 msgctxt "In-game interface description"
-msgid "Working: The creature is performing tasks and doing work for you. LMB pick up creature. RMB zoom."
+msgid ""
+"Working: The creature is performing tasks and doing work for you. LMB pick "
+"up creature. RMB zoom."
 msgstr ""
 
 #: guitext:304
@@ -1508,22 +2001,28 @@ msgstr ""
 
 #: guitext:305
 msgctxt "In-game interface description"
-msgid "Fight: Your creatures always attack and not avoid any combat. LMB select."
+msgid ""
+"Fight: Your creatures always attack and not avoid any combat. LMB select."
 msgstr ""
 
 #: guitext:306
 msgctxt "In-game interface description"
-msgid "Flee: Your creatures attempt to preserve their lives, running away if they are too badly injured. LMB select."
+msgid ""
+"Flee: Your creatures attempt to preserve their lives, running away if they "
+"are too badly injured. LMB select."
 msgstr ""
 
 #: guitext:307
 msgctxt "In-game interface description"
-msgid "Imprison: Your creatures stun their enemies in battle and imprison those they defeat. LMB select."
+msgid ""
+"Imprison: Your creatures stun their enemies in battle and imprison those "
+"they defeat. LMB select."
 msgstr ""
 
 #: guitext:308
 msgctxt "In-game interface description"
-msgid "Defending: The creature is concentrating on avoiding its adversary's blows."
+msgid ""
+"Defending: The creature is concentrating on avoiding its adversary's blows."
 msgstr ""
 
 #: guitext:309
@@ -1553,17 +2052,24 @@ msgstr ""
 
 #: guitext:314
 msgctxt "In-game interface description"
-msgid "View Type: Swap between the default and forced perspective views. Default view has warped walls and can be rotated, forced perspective shows larger area but can only be rotated 90 degrees. LMB toggle."
+msgid ""
+"View Type: Swap between the default and forced perspective views. Default "
+"view has warped walls and can be rotated, forced perspective shows larger "
+"area but can only be rotated 90 degrees. LMB toggle."
 msgstr ""
 
 #: guitext:315
 msgctxt "In-game interface description"
-msgid "Wall Height: Swap between high or low walls. If you make the walls one block high, they are easier to see over. LMB toggle."
+msgid ""
+"Wall Height: Swap between high or low walls. If you make the walls one block "
+"high, they are easier to see over. LMB toggle."
 msgstr ""
 
 #: guitext:316
 msgctxt "In-game interface description"
-msgid "View Distance: The amount of dungeon drawn. This directly affects the speed of the game. LMB toggle."
+msgid ""
+"View Distance: The amount of dungeon drawn. This directly affects the speed "
+"of the game. LMB toggle."
 msgstr ""
 
 #: guitext:317
@@ -1588,17 +2094,23 @@ msgstr ""
 
 #: guitext:321
 msgctxt "In-game interface description"
-msgid "Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB select."
+msgid ""
+"Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
+"select."
 msgstr ""
 
 #: guitext:322
 msgctxt "In-game interface description"
-msgid "Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB select."
+msgid ""
+"Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
+"select."
 msgstr ""
 
 #: guitext:323
 msgctxt "In-game interface description"
-msgid "Full Screen Map: Takes you to the Map Screen which displays your entire Dungeon and the surrounding area. LMB select."
+msgid ""
+"Full Screen Map: Takes you to the Map Screen which displays your entire "
+"Dungeon and the surrounding area. LMB select."
 msgstr ""
 
 #: guitext:324
@@ -1613,7 +2125,9 @@ msgstr ""
 
 #: guitext:326
 msgctxt "Slab description"
-msgid "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to your Treasure Room. [12.2]"
+msgid ""
+"Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
+"your Treasure Room. [12.2]"
 msgstr ""
 
 #: guitext:327
@@ -2083,12 +2597,15 @@ msgstr ""
 
 #: guitext:421
 msgctxt "Dungeon special decription"
-msgid "Resurrect Creature: You may raise one of your fallen minions from the dead."
+msgid ""
+"Resurrect Creature: You may raise one of your fallen minions from the dead."
 msgstr ""
 
 #: guitext:422
 msgctxt "Dungeon special decription"
-msgid "Transfer Creature: Pick one of your creatures to accompany you to the next realm."
+msgid ""
+"Transfer Creature: Pick one of your creatures to accompany you to the next "
+"realm."
 msgstr ""
 
 #: guitext:423
@@ -2113,7 +2630,9 @@ msgstr ""
 
 #: guitext:427
 msgctxt "Dungeon special decription"
-msgid "Locate Hidden World: You will be transported to a secret realm after you have conquered this one."
+msgid ""
+"Locate Hidden World: You will be transported to a secret realm after you "
+"have conquered this one."
 msgstr ""
 
 #: guitext:428
@@ -2258,7 +2777,8 @@ msgstr ""
 
 #: guitext:456
 msgctxt "In-game interface description"
-msgid "Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+msgid ""
+"Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
 msgstr ""
 
 #: guitext:457
@@ -2288,7 +2808,8 @@ msgstr ""
 
 #: guitext:462
 msgctxt "In-game interface description"
-msgid "Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+msgid ""
+"Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
 msgstr ""
 
 #: guitext:463
@@ -2728,7 +3249,8 @@ msgstr ""
 
 #: guitext:550
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+msgid ""
+"Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
 msgstr ""
 
 #: guitext:551
@@ -2859,8 +3381,7 @@ msgctxt "Credits"
 msgid "Additional Level Design"
 msgstr ""
 
-#: guitext:577
-#: guitext:863
+#: guitext:577 guitext:863
 msgctxt "Credits"
 msgid "Additional Thanks"
 msgstr ""
@@ -2897,7 +3418,9 @@ msgstr ""
 
 #: guitext:584
 msgctxt "Trap description"
-msgid "Boulder Trap: A rolling rock that crushes everything in its path. LMB select. RMB zoom. [20.1]"
+msgid ""
+"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
+"select. RMB zoom. [20.1]"
 msgstr ""
 
 #: guitext:585
@@ -2907,22 +3430,30 @@ msgstr ""
 
 #: guitext:586
 msgctxt "Trap description"
-msgid "Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB select. RMB zoom. [20.3]"
+msgid ""
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
+"select. RMB zoom. [20.3]"
 msgstr ""
 
 #: guitext:587
 msgctxt "Trap description"
-msgid "Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB select. RMB zoom. [20.4]"
+msgid ""
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
+"select. RMB zoom. [20.4]"
 msgstr ""
 
 #: guitext:588
 msgctxt "Trap description"
-msgid "Word of Power Trap: Radiates devastating rings of demonic energy, damaging all creatures within range. LMB select. RMB zoom. [20.5]"
+msgid ""
+"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
+"all creatures within range. LMB select. RMB zoom. [20.5]"
 msgstr ""
 
 #: guitext:589
 msgctxt "Trap description"
-msgid "Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB select. RMB zoom. [20.6]"
+msgid ""
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
+"select. RMB zoom. [20.6]"
 msgstr ""
 
 #: guitext:590
@@ -2947,22 +3478,29 @@ msgstr ""
 
 #: guitext:594
 msgctxt "Door description"
-msgid "Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. [21.1]"
+msgid ""
+"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
+"[21.1]"
 msgstr ""
 
 #: guitext:595
 msgctxt "Door description"
-msgid "Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+msgid ""
+"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
 msgstr ""
 
 #: guitext:596
 msgctxt "Door description"
-msgid "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB select. RMB zoom. [21.3]"
+msgid ""
+"Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
+"select. RMB zoom. [21.3]"
 msgstr ""
 
 #: guitext:597
 msgctxt "Door description"
-msgid "Magic Door: A special door, highly resistant to physical damage but susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+msgid ""
+"Magic Door: A special door, highly resistant to physical damage but "
+"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
 msgstr ""
 
 #: guitext:598
@@ -3057,22 +3595,29 @@ msgstr ""
 
 #: guitext:616
 msgctxt "Room description"
-msgid "Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
+msgid ""
+"Library: The room where spells are researched. LMB select. RMB zoom. [17.4]"
 msgstr ""
 
 #: guitext:617
 msgctxt "Room description"
-msgid "Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. [17.10]"
+msgid ""
+"Prison: Place enemy creatures here for safe keeping. LMB select. RMB zoom. "
+"[17.10]"
 msgstr ""
 
 #: guitext:618
 msgctxt "Room description"
-msgid "Training Room: Place creatures in here to improve their experience. LMB select. RMB zoom. [17.5]"
+msgid ""
+"Training Room: Place creatures in here to improve their experience. LMB "
+"select. RMB zoom. [17.5]"
 msgstr ""
 
 #: guitext:619
 msgctxt "Room description"
-msgid "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB zoom. [17.11]"
+msgid ""
+"Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
+"zoom. [17.11]"
 msgstr ""
 
 #: guitext:620
@@ -3082,47 +3627,65 @@ msgstr ""
 
 #: guitext:621
 msgctxt "Room description"
-msgid "Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. RMB zoom. [17.8]"
+msgid ""
+"Workshop: Place creatures inside to manufacture Traps and Doors. LMB select. "
+"RMB zoom. [17.8]"
 msgstr ""
 
 #: guitext:622
 msgctxt "Room description"
-msgid "Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB zoom. [17.13]"
+msgid ""
+"Graveyard: Dead creatures are taken to this room to rot. LMB select. RMB "
+"zoom. [17.13]"
 msgstr ""
 
 #: guitext:623
 msgctxt "Room description"
-msgid "Barracks: Group creatures by placing them into the room. LMB select. RMB zoom. [17.9]"
+msgid ""
+"Barracks: Group creatures by placing them into the room. LMB select. RMB "
+"zoom. [17.9]"
 msgstr ""
 
 #: guitext:624
 msgctxt "Room description"
-msgid "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. RMB zoom. [17.3]"
+msgid ""
+"Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
+"RMB zoom. [17.3]"
 msgstr ""
 
 #: guitext:625
 msgctxt "Room description"
-msgid "Lair: Where your creatures sleep and replenish their energy. LMB select. RMB zoom. [17.2]"
+msgid ""
+"Lair: Where your creatures sleep and replenish their energy. LMB select. RMB "
+"zoom. [17.2]"
 msgstr ""
 
 #: guitext:626
 msgctxt "Room description"
-msgid "Bridge: Place this on water and lava to allow creatures to cross. LMB select. RMB zoom. [17.6]"
+msgid ""
+"Bridge: Place this on water and lava to allow creatures to cross. LMB "
+"select. RMB zoom. [17.6]"
 msgstr ""
 
 #: guitext:627
 msgctxt "Room description"
-msgid "Guard Post: Your creatures keep watch over your dungeon when placed on this room. LMB select. RMB zoom. [17.7]"
+msgid ""
+"Guard Post: Your creatures keep watch over your dungeon when placed on this "
+"room. LMB select. RMB zoom. [17.7]"
 msgstr ""
 
 #: guitext:628
 msgctxt "Room description"
-msgid "Temple: Worshipping the dark gods makes creatures happier. Sacrifice creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
+msgid ""
+"Temple: Worshipping the dark gods makes creatures happier. Sacrifice "
+"creatures by dropping them into the font. LMB select. RMB zoom. [17.12]"
 msgstr ""
 
 #: guitext:629
 msgctxt "Room description"
-msgid "Scavenger Room: Creatures placed onto the room lure their kin away from other dungeons or through portals. LMB select. RMB zoom. [17.14]"
+msgid ""
+"Scavenger Room: Creatures placed onto the room lure their kin away from "
+"other dungeons or through portals. LMB select. RMB zoom. [17.14]"
 msgstr ""
 
 #: guitext:630
@@ -3217,22 +3780,30 @@ msgstr ""
 
 #: guitext:648
 msgctxt "Keeper spell description"
-msgid "Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. [18.2]"
+msgid ""
+"Create Imp: Create summon a new Imp anywhere in your dungeon. LMB select. "
+"[18.2]"
 msgstr ""
 
 #: guitext:649
 msgctxt "Keeper spell description"
-msgid "Sight of Evil: Reveal a hidden area of the map for a limited time. LMB select. RMB zoom. [18.3]"
+msgid ""
+"Sight of Evil: Reveal a hidden area of the map for a limited time. LMB "
+"select. RMB zoom. [18.3]"
 msgstr ""
 
 #: guitext:650
 msgctxt "Keeper spell description"
-msgid "Call To Arms: Calls all your creatures to an area of your dungeon. LMB select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
+msgid ""
+"Call To Arms: Calls all your creatures to an area of your dungeon. LMB "
+"select, LMB again to reselect, LMB a third time to cancel. RMB zoom. [18.6]"
 msgstr ""
 
 #: guitext:651
 msgctxt "Keeper spell description"
-msgid "Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. RMB zoom. [18.8]"
+msgid ""
+"Hold Audience: Calls all your creatures to the Dungeon Heart. LMB select. "
+"RMB zoom. [18.8]"
 msgstr ""
 
 #: guitext:652
@@ -3242,7 +3813,9 @@ msgstr ""
 
 #: guitext:653
 msgctxt "Keeper spell description"
-msgid "Must Obey: Forces your creatures to obey your every command. LMB select. [18.5]"
+msgid ""
+"Must Obey: Forces your creatures to obey your every command. LMB select. "
+"[18.5]"
 msgstr ""
 
 #: guitext:654
@@ -3252,17 +3825,22 @@ msgstr ""
 
 #: guitext:655
 msgctxt "Keeper spell description"
-msgid "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
+msgid ""
+"Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
 msgstr ""
 
 #: guitext:656
 msgctxt "Keeper spell description"
-msgid "Conceal Monster: Makes your creatures invisible to the enemy. LMB select. [18.7]"
+msgid ""
+"Conceal Monster: Makes your creatures invisible to the enemy. LMB select. "
+"[18.7]"
 msgstr ""
 
 #: guitext:657
 msgctxt "Keeper spell description"
-msgid "Lightning Strike: Strikes an area of the dungeon with a devastating bolt of lightning. LMB select. [18.10]"
+msgid ""
+"Lightning Strike: Strikes an area of the dungeon with a devastating bolt of "
+"lightning. LMB select. [18.10]"
 msgstr ""
 
 #: guitext:658
@@ -3272,17 +3850,21 @@ msgstr ""
 
 #: guitext:659
 msgctxt "Keeper spell description"
-msgid "Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
+msgid ""
+"Disease: Inflicts a deadly plague on an enemy creature. LMB select. [18.14]"
 msgstr ""
 
 #: guitext:660
 msgctxt "Keeper spell description"
-msgid "Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
+msgid ""
+"Destroy Walls: Breaks down reinforcemed enemy's walls. LMB select. [18.16]"
 msgstr ""
 
 #: guitext:661
 msgctxt "Keeper spell description"
-msgid "Heal: Cast on an area of the dungeon to improve the health of your creatures. LMB select. [18.9]"
+msgid ""
+"Heal: Cast on an area of the dungeon to improve the health of your "
+"creatures. LMB select. [18.9]"
 msgstr ""
 
 #: guitext:662
@@ -3292,7 +3874,9 @@ msgstr ""
 
 #: guitext:663
 msgctxt "Keeper spell description"
-msgid "Armageddon: Transports all the creatures in the land to your Dungeon Heart for a final, decisive battle. LMB select. [18.15]"
+msgid ""
+"Armageddon: Transports all the creatures in the land to your Dungeon Heart "
+"for a final, decisive battle. LMB select. [18.15]"
 msgstr ""
 
 #: guitext:664
@@ -3622,27 +4206,36 @@ msgstr ""
 
 #: guitext:729
 msgctxt "In-game interface description"
-msgid "Aggressive Computer Assistant: Constructs your dungeon and always trys to attack the enemy. LMB select. [3.2.4]"
+msgid ""
+"Aggressive Computer Assistant: Constructs your dungeon and always trys to "
+"attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 
 #: guitext:730
 msgctxt "In-game interface description"
-msgid "Defensive Computer Assistant: Constructs your dungeon but does not attack the enemy. LMB select. [3.2.4]"
+msgid ""
+"Defensive Computer Assistant: Constructs your dungeon but does not attack "
+"the enemy. LMB select. [3.2.4]"
 msgstr ""
 
 #: guitext:731
 msgctxt "In-game interface description"
-msgid "Construction Only Computer Assistant: Digs, places rooms and traps but does not move creatures. LMB select. [3.2.4]"
+msgid ""
+"Construction Only Computer Assistant: Digs, places rooms and traps but does "
+"not move creatures. LMB select. [3.2.4]"
 msgstr ""
 
 #: guitext:732
 msgctxt "In-game interface description"
-msgid "Move Only Computer Assistant: Moves and slaps your creatures. LMB select. [3.2.4]"
+msgid ""
+"Move Only Computer Assistant: Moves and slaps your creatures. LMB select. "
+"[3.2.4]"
 msgstr ""
 
 #: guitext:733
 msgctxt "In-game interface description"
-msgid "Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
+msgid ""
+"Pick most experienced creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
 
 #: guitext:734
@@ -3662,12 +4255,16 @@ msgstr ""
 
 #: guitext:737
 msgctxt "In-game interface description"
-msgid "Invert Mouse: Inverts the vertical mouse movements while Possessing a creature. LMB toggle."
+msgid ""
+"Invert Mouse: Inverts the vertical mouse movements while Possessing a "
+"creature. LMB toggle."
 msgstr ""
 
 #: guitext:738
 msgctxt "In-game interface description"
-msgid "Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse movements when in Possess Creature mode. LMB toggle."
+msgid ""
+"Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse "
+"movements when in Possess Creature mode. LMB toggle."
 msgstr ""
 
 #: guitext:739
@@ -3992,7 +4589,9 @@ msgstr ""
 
 #: guitext:803
 msgctxt "Easter egg"
-msgid "When night does not give way to day, And children are too scared to play, Abandon hope, embrace despair, You're destined for my Dragon's lair"
+msgid ""
+"When night does not give way to day, And children are too scared to play, "
+"Abandon hope, embrace despair, You're destined for my Dragon's lair"
 msgstr ""
 
 #: guitext:804
@@ -4062,7 +4661,9 @@ msgstr ""
 
 #: guitext:817
 msgctxt "Easter egg"
-msgid "Your tunnels will be dark and cold, And no place for a Knight of old, Even if he claims he's bold."
+msgid ""
+"Your tunnels will be dark and cold, And no place for a Knight of old, Even "
+"if he claims he's bold."
 msgstr ""
 
 #: guitext:818
@@ -4077,12 +4678,15 @@ msgstr ""
 
 #: guitext:820
 msgctxt "Easter egg"
-msgid "When good guys head right for your treasure, Hunt and kill them at your leisure."
+msgid ""
+"When good guys head right for your treasure, Hunt and kill them at your "
+"leisure."
 msgstr ""
 
 #: guitext:821
 msgctxt "Easter egg"
-msgid "Protect your gold and Dungeon Heart, And slap your minions till they fart."
+msgid ""
+"Protect your gold and Dungeon Heart, And slap your minions till they fart."
 msgstr ""
 
 #: guitext:822
@@ -4122,42 +4726,58 @@ msgstr ""
 
 #: guitext:829
 msgctxt "In-game hint message"
-msgid "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to circulate."
+msgid ""
+"Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
+"circulate."
 msgstr ""
 
 #: guitext:830
 msgctxt "In-game hint message"
-msgid "Feeling mean? Set your minions to imprison and when your cells are full, spend some time torturing..."
+msgid ""
+"Feeling mean? Set your minions to imprison and when your cells are full, "
+"spend some time torturing..."
 msgstr ""
 
 #: guitext:831
 msgctxt "In-game hint message"
-msgid "If your creatures get unhappy, slap some sense into them. They'll soon realise how lucky they are."
+msgid ""
+"If your creatures get unhappy, slap some sense into them. They'll soon "
+"realise how lucky they are."
 msgstr ""
 
 #: guitext:832
 msgctxt "In-game hint message"
-msgid "The underworld is your domain and the adventurers come to steal it. Never show pity, even when the intruders are defenceless and pathetic."
+msgid ""
+"The underworld is your domain and the adventurers come to steal it. Never "
+"show pity, even when the intruders are defenceless and pathetic."
 msgstr ""
 
 #: guitext:833
 msgctxt "In-game hint message"
-msgid "Compassion is the hallmark of the good Keeper. But good Keepers never win. Only evil ones."
+msgid ""
+"Compassion is the hallmark of the good Keeper. But good Keepers never win. "
+"Only evil ones."
 msgstr ""
 
 #: guitext:834
 msgctxt "In-game hint message"
-msgid "There's never a moment to waste. Already the bravest of the brave are queuing up to enter your dungeon. So stop reading this and get going."
+msgid ""
+"There's never a moment to waste. Already the bravest of the brave are "
+"queuing up to enter your dungeon. So stop reading this and get going."
 msgstr ""
 
 #: guitext:835
 msgctxt "In-game hint message"
-msgid "Build fast. You'll want the biggest possible welcoming committee ready for the intruders."
+msgid ""
+"Build fast. You'll want the biggest possible welcoming committee ready for "
+"the intruders."
 msgstr ""
 
 #: guitext:836
 msgctxt "In-game hint message"
-msgid "Keep your Imps digging. There are always surprises to be found deep in the earth."
+msgid ""
+"Keep your Imps digging. There are always surprises to be found deep in the "
+"earth."
 msgstr ""
 
 #: guitext:837
@@ -4172,7 +4792,9 @@ msgstr ""
 
 #: guitext:839
 msgctxt "In-game hint message"
-msgid "Foolish is the Keeper who sells all his rooms and refuses to pay his creatures."
+msgid ""
+"Foolish is the Keeper who sells all his rooms and refuses to pay his "
+"creatures."
 msgstr ""
 
 #: guitext:840
@@ -4433,169 +5055,237 @@ msgstr ""
 #. DD Level Korros Tor first objective
 #: guitext:892
 msgctxt "In-game message"
-msgid "The might of two rival Dungeon Keepers challenge your claim to this realm. Decimate them both to achieve total domination, but beware of bands of heroes hidden in the caverns."
+msgid ""
+"The might of two rival Dungeon Keepers challenge your claim to this realm. "
+"Decimate them both to achieve total domination, but beware of bands of "
+"heroes hidden in the caverns."
 msgstr ""
 
 #. DD Level Kari-Mar first objective
 #: guitext:893
 msgctxt "In-game message"
-msgid "Another Keeper has already claimed this realm. He is unfit to rule so destroy him and take what is rightfully yours. Great riches lie in the caverns around the land; explore to gain more power."
+msgid ""
+"Another Keeper has already claimed this realm. He is unfit to rule so "
+"destroy him and take what is rightfully yours. Great riches lie in the "
+"caverns around the land; explore to gain more power."
 msgstr ""
 
 #. DD Level Belbata first objective
 #: guitext:894
 msgctxt "In-game message"
-msgid "This land is highly coveted amongst the evil and there are three enemy Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for any rogue bands of heroes waiting to ambush a careless Keeper."
+msgid ""
+"This land is highly coveted amongst the evil and there are three enemy "
+"Dungeon Keepers you must battle with to claim supremacy. Keep an eye out for "
+"any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
 
 #. DD Level Pladitz waypoint objective
 #: guitext:895
 msgctxt "In-game message"
-msgid "The Lord of the Land and his pitiful band of followers lie dead. Good riddance to them and their sad, happy lives. Now seize your chance and attack your rival Keeper. Domination awaits."
+msgid ""
+"The Lord of the Land and his pitiful band of followers lie dead. Good "
+"riddance to them and their sad, happy lives. Now seize your chance and "
+"attack your rival Keeper. Domination awaits."
 msgstr ""
 
 #. DD Level Pladitz first objective
 #: guitext:896
 msgctxt "In-game message"
-msgid "You and a rival Dungeon Keeper are vying for control of this realm but the Lord of the Land has constructed his own dungeon between you to halt your conquest. Destroy him and the enemy Keeper to reign supreme."
+msgid ""
+"You and a rival Dungeon Keeper are vying for control of this realm but the "
+"Lord of the Land has constructed his own dungeon between you to halt your "
+"conquest. Destroy him and the enemy Keeper to reign supreme."
 msgstr ""
 
 #. DD Level Pladitz waypoint objective
 #: guitext:897
 msgctxt "In-game message"
-msgid "You have done well to come this far but further hardships await. Search the map carefully and you may find many secrets to aid your conquest."
+msgid ""
+"You have done well to come this far but further hardships await. Search the "
+"map carefully and you may find many secrets to aid your conquest."
 msgstr ""
 
 #. DD Level Abbadon first objective
 #: guitext:898
 msgctxt "In-game message"
-msgid "You have come to this realm with little to assist you so you must explore to gain more power. Keep an eye out for any loathsome heroes who may try to thwart your progress."
+msgid ""
+"You have come to this realm with little to assist you so you must explore to "
+"gain more power. Keep an eye out for any loathsome heroes who may try to "
+"thwart your progress."
 msgstr ""
 
 #. DD Level Daka-Gorn first objective
 #: guitext:899
 msgctxt "In-game message"
-msgid "Beware Keeper. This realm is infested with the sickly goodness of heroes and fairies. Hunt them down and feed them their own entrails."
+msgid ""
+"Beware Keeper. This realm is infested with the sickly goodness of heroes and "
+"fairies. Hunt them down and feed them their own entrails."
 msgstr ""
 
 #. DD Level Morkardar first objective
 #: guitext:900
 msgctxt "In-game message"
-msgid "Your opponent for this realm has foolishly challenged your superior skill. Such disrespect should be punished so make an example of his insolence."
+msgid ""
+"Your opponent for this realm has foolishly challenged your superior skill. "
+"Such disrespect should be punished so make an example of his insolence."
 msgstr ""
 
 #. DD Level Morkardar information soon after start
 #: guitext:901
 msgctxt "In-game message"
-msgid "Ancient powers lie hidden in this realm. Seek them out and use them for your own evil purposes."
+msgid ""
+"Ancient powers lie hidden in this realm. Seek them out and use them for your "
+"own evil purposes."
 msgstr ""
 
 #. DD Level Abbadon objective after rooms built
 #: guitext:902
 msgctxt "In-game message"
-msgid "A foolish challenger stands between you and total dominance. Annihilate his forces and feed his body to your ravenous minions."
+msgid ""
+"A foolish challenger stands between you and total dominance. Annihilate his "
+"forces and feed his body to your ravenous minions."
 msgstr ""
 
 #. DD Level Daka-Gorn information after AP reached
 #: guitext:903
 msgctxt "In-game message"
-msgid "I can hear footsteps beyond the walls of the hero castle which dominates this land. Tread carefully Keeper and rid the land of goodness once and for all."
+msgid ""
+"I can hear footsteps beyond the walls of the hero castle which dominates "
+"this land. Tread carefully Keeper and rid the land of goodness once and for "
+"all."
 msgstr ""
 
 #. DD Level Netzcaro first objective
 #: guitext:904
 msgctxt "In-game message"
-msgid "The once strong hero fortress of this realm has grown rotten and weak. Tear down it's walls and let your creatures feast on the heroes within."
+msgid ""
+"The once strong hero fortress of this realm has grown rotten and weak. Tear "
+"down it's walls and let your creatures feast on the heroes within."
 msgstr ""
 
 #. DD Level Netzcaro information after AP reached
 #: guitext:905
 msgctxt "In-game message"
-msgid "This realm will be a test of your cunning and deviousness. Your dungeon has been fortified with seven steel doors to aid you in your conquest."
+msgid ""
+"This realm will be a test of your cunning and deviousness. Your dungeon has "
+"been fortified with seven steel doors to aid you in your conquest."
 msgstr ""
 
 #. DD Level Netzcaro objective after AP reached
 #: guitext:906
 msgctxt "In-game message"
-msgid "Congratulations Keeper. This vial has given your researchers a much needed boost. You can now construct Bridges that enable you to traverse water and fire."
+msgid ""
+"Congratulations Keeper. This vial has given your researchers a much needed "
+"boost. You can now construct Bridges that enable you to traverse water and "
+"fire."
 msgstr ""
 
 #. DD Level Belial information soon after start
 #: guitext:907
 msgctxt "In-game message"
-msgid "Food is scarce in this land and the only Hatchery available to you is inside a hero dungeon. Find this food before your creatures turn against you."
+msgid ""
+"Food is scarce in this land and the only Hatchery available to you is inside "
+"a hero dungeon. Find this food before your creatures turn against you."
 msgstr ""
 
 #. DD Level Belial information after getting vampire
 #: guitext:908
 msgctxt "In-game message"
-msgid "Entombed in stone by a cruel band of heroes, the Vampire you have rescued demands revenge for his imprisonment. His anger will make him a valuable asset to your army of evil."
+msgid ""
+"Entombed in stone by a cruel band of heroes, the Vampire you have rescued "
+"demands revenge for his imprisonment. His anger will make him a valuable "
+"asset to your army of evil."
 msgstr ""
 
 #. DD Level Batezek first objective
 #: guitext:909
 msgctxt "In-game message"
-msgid "You are surrounded on all sides by valiant heroes so show them the true meaning of evil and terror."
+msgid ""
+"You are surrounded on all sides by valiant heroes so show them the true "
+"meaning of evil and terror."
 msgstr ""
 
 #. DD Level Batezek objective after cleaning all good creatures
 #: guitext:910
 msgctxt "In-game message"
-msgid "The Lord of the Land has sent his fiercest warriors against you. Show them no mercy and flay them alive."
+msgid ""
+"The Lord of the Land has sent his fiercest warriors against you. Show them "
+"no mercy and flay them alive."
 msgstr ""
 
 #. DD Level Benetzaron first objective
 #: guitext:911
 msgctxt "In-game message"
-msgid "Explore this realm to uncover riches and secrets. Tread carefully Keeper, or you could be burned."
+msgid ""
+"Explore this realm to uncover riches and secrets. Tread carefully Keeper, or "
+"you could be burned."
 msgstr ""
 
 #. DD Level Svatona first objective
 #: guitext:912
 msgctxt "In-game message"
-msgid "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a humiliating defeat Keeper, the penalty for such failure is torture and death."
+msgid ""
+"Only one Dungeon Keeper can reign victorious over this land. Do not suffer a "
+"humiliating defeat Keeper, the penalty for such failure is torture and death."
 msgstr ""
 
 #. DD Level Caddis Fell first objective
 #: guitext:913
 msgctxt "In-game message"
-msgid "Choices, choices Keeper. Choose your path wisely. Some routes are more perilous than others ..."
+msgid ""
+"Choices, choices Keeper. Choose your path wisely. Some routes are more "
+"perilous than others ..."
 msgstr ""
 
 #. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
 msgctxt "In-game message"
-msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the north ..."
+msgid ""
+"Congratulations Keeper, you have a powerful army indeed. Do not grow "
+"complacent though, you still have another challenger to the north ..."
 msgstr ""
 
 #. DD Level Caddis Fell objective after player1 destroyed
 #: guitext:915
 msgctxt "In-game message"
-msgid "Congratulations Keeper, you have a powerful army indeed. Do not grow complacent though, you still have another challenger to the south ..."
+msgid ""
+"Congratulations Keeper, you have a powerful army indeed. Do not grow "
+"complacent though, you still have another challenger to the south ..."
 msgstr ""
 
 #. DD Level Caddis Fell objective after entrance claimed
 #: guitext:916
 msgctxt "In-game message"
-msgid "The Lord of the Land is a pathetic individual who breeds fluffy bunnies. Pound him into the ground and then destroy the rival Keeper to achieve total domination."
+msgid ""
+"The Lord of the Land is a pathetic individual who breeds fluffy bunnies. "
+"Pound him into the ground and then destroy the rival Keeper to achieve total "
+"domination."
 msgstr ""
 
 #. DD Level Kanasko first objective
 #: guitext:917
 msgctxt "In-game message"
-msgid "Make haste Keeper. The heroes of this realm are many and strong. Prepare your forces well or face a humiliating defeat ..."
+msgid ""
+"Make haste Keeper. The heroes of this realm are many and strong. Prepare "
+"your forces well or face a humiliating defeat ..."
 msgstr ""
 
 #. DD Level Belial first objective
 #: guitext:918
 msgctxt "In-game message"
-msgid "The Avatar is a wretched being, full of happiness and good cheer. Food is scarce in his land and the only Hatchery available is inside his dungeons. Destroy his mighty fortress and wipe the smile from his face before your creatures turn against you."
+msgid ""
+"The Avatar is a wretched being, full of happiness and good cheer. Food is "
+"scarce in his land and the only Hatchery available is inside his dungeons. "
+"Destroy his mighty fortress and wipe the smile from his face before your "
+"creatures turn against you."
 msgstr ""
 
 #. DD Level Belial objective after AP reached
 #: guitext:919
 msgctxt "In-game message"
-msgid "The Avatar has massed an army of heroic Lords to confront you. Prepare to be attacked!"
+msgid ""
+"The Avatar has massed an army of heroic Lords to confront you. Prepare to be "
+"attacked!"
 msgstr ""
 
 #. DD Level Belial objective after AP reached
@@ -4607,31 +5297,42 @@ msgstr ""
 #. DD Level Belial objective after AP reached
 #: guitext:921
 msgctxt "In-game message"
-msgid "The Avatar's castle is ripe for the taking. Train your forces well, Keeper. The ultimate battle awaits ..."
+msgid ""
+"The Avatar's castle is ripe for the taking. Train your forces well, Keeper. "
+"The ultimate battle awaits ..."
 msgstr ""
 
 #. DD Level Belial objective when adding Avatar
 #: guitext:922
 msgctxt "In-game message"
-msgid "You are now in the heart of the Avatar's castle. The sickly sweet smell of goodness still hangs in the air. Kill the Avatar and send his soul to eternal damnation."
+msgid ""
+"You are now in the heart of the Avatar's castle. The sickly sweet smell of "
+"goodness still hangs in the air. Kill the Avatar and send his soul to "
+"eternal damnation."
 msgstr ""
 
 #. DD Levels generic information after finding a Mistress
 #: guitext:923
 msgctxt "In-game message"
-msgid "Well done, Keeper. The Mistress you have discovered is an excellent prize."
+msgid ""
+"Well done, Keeper. The Mistress you have discovered is an excellent prize."
 msgstr ""
 
 #. DD Levels generic information after finding a Bile Demon
 #: guitext:924
 msgctxt "In-game message"
-msgid "The Bile Demon you have rescued will be a valuable but hungry asset to your dungeon. Make sure your Hatchery can satisfy his voracious appetite."
+msgid ""
+"The Bile Demon you have rescued will be a valuable but hungry asset to your "
+"dungeon. Make sure your Hatchery can satisfy his voracious appetite."
 msgstr ""
 
 #. DD Level Dixaroc first objective
 #: guitext:925
 msgctxt "In-game message"
-msgid "A devious Wizard has cheated you of your magical powers. Use your only Spider and explore the realm. Find the Wizard, kill him and make an example of his foolishness."
+msgid ""
+"A devious Wizard has cheated you of your magical powers. Use your only "
+"Spider and explore the realm. Find the Wizard, kill him and make an example "
+"of his foolishness."
 msgstr ""
 
 #. DD Level Dixaroc information after getting Imps
@@ -4643,13 +5344,17 @@ msgstr ""
 #. DD Levels Dixaroc information after finding Bile Demons
 #: guitext:927
 msgctxt "In-game message"
-msgid "You have discovered a group of Bile Demons who will aid you in your fight."
+msgid ""
+"You have discovered a group of Bile Demons who will aid you in your fight."
 msgstr ""
 
 #. DD Level Dixaroc information just after PLAYER1 destroyed
 #: guitext:928
 msgctxt "In-game message"
-msgid "The destruction of this pathetic Keeper brings with it a useful bonus. You now have the ability to build Bridges. Dig deeper and you may find more secrets to strengthen your powers."
+msgid ""
+"The destruction of this pathetic Keeper brings with it a useful bonus. You "
+"now have the ability to build Bridges. Dig deeper and you may find more "
+"secrets to strengthen your powers."
 msgstr ""
 
 #. DD Level Dixaroc information some time after PLAYER1 destroyed
@@ -4661,39 +5366,45 @@ msgstr ""
 #. DD Level Dixaroc information after AP reached
 #: guitext:930
 msgctxt "In-game message"
-msgid "You have done well to get this far Keeper. Do not become complacent, however. A great struggle lies ahead."
+msgid ""
+"You have done well to get this far Keeper. Do not become complacent, "
+"however. A great struggle lies ahead."
 msgstr ""
 
 #. DD Level Dixaroc information after AP reached
 #: guitext:931
 msgctxt "In-game message"
-msgid "Before you lies the Wizard's domain. Defeat him and you will regain your powers."
+msgid ""
+"Before you lies the Wizard's domain. Defeat him and you will regain your "
+"powers."
 msgstr ""
 
 #. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
 msgctxt "In-game message"
-msgid "Your magical powers are restored Keeper. You can finally show these fools what you are made of."
+msgid ""
+"Your magical powers are restored Keeper. You can finally show these fools "
+"what you are made of."
 msgstr ""
 
 #. DD Level Caddis Fell objective after AP reached
 #: guitext:933
 msgctxt "In-game message"
-msgid "A black shadow is creeping over this land. Now is the time to strike. Take control of your Vampire and use him to find and kill the Lord of the Land. If you succeed, the Vampire will join you in the next realm."
+msgid ""
+"A black shadow is creeping over this land. Now is the time to strike. Take "
+"control of your Vampire and use him to find and kill the Lord of the Land. "
+"If you succeed, the Vampire will join you in the next realm."
 msgstr ""
 
 #. DD Level Belial information after winning
 #: guitext:934
 msgctxt "In-game message"
-msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
+msgid ""
+"Your achievements are legendary Keeper. Tales of your evil and cunning will "
+"become the horror stories of generations."
 msgstr ""
 
-#: guitext:935
-#: guitext:936
-#: guitext:937
-#: guitext:938
-#: guitext:939
-#: guitext:940
+#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr ""
