@@ -21,26 +21,29 @@ msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.40\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-11-13 00:14+0100\n"
+"PO-Revision-Date: 2013-11-13 01:13+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"Language: zh_CN\n"
 "X-Generator: Poedit 1.5.7\n"
 
+#. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
 msgid "Success! The land is yours. Press Space to proceed to the next realm."
 msgstr "成功！这块土地是你的了。按空白键，前往下一个王国。"
 
+#. Level Eversmile information soon after start
 #: guitext:1
 msgctxt "In-game message"
 msgid "This is a message. Right click to delete it."
 msgstr "这是一道讯息。按滑鼠右键予以删除。"
 
+#. Level Eversmile first objective
 #: guitext:2
 msgctxt "In-game message"
 msgid ""
@@ -53,6 +56,7 @@ msgstr ""
 "以后，才有地方存放。要建立宝藏室，请在房间面板上选择宝藏室图示，然后以宝藏室"
 "图块填满左侧的空白区域。"
 
+#. Level Eversmile information when started building Treasure Room
 #: guitext:3
 msgctxt "In-game message"
 msgid ""
@@ -62,6 +66,7 @@ msgstr ""
 "使用方向键来观看地底世界的其它地区。利用右侧的Ctrl键和方向来旋转及缩放视野大"
 "小。"
 
+#. Level Eversmile objective when built Treasure Room
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
@@ -73,6 +78,7 @@ msgstr ""
 "干得好。按滑鼠右键，让游标恢复成邪恶之手。用滑鼠左键在东边的区域中按键，挖掘"
 "该地区的黄金。你的小恶魔会挖出黄金，并将黄金运回宝藏室。"
 
+#. Level Eversmile information while digging gold
 #: guitext:5
 msgctxt "In-game message"
 msgid ""
@@ -82,6 +88,7 @@ msgstr ""
 "如果你想让你的怪物工作得更努力一点，请用邪恶之手指著它们，然后按滑鼠右键拍打"
 "它们。拍打怪物会使它们受伤。"
 
+#. Level Eversmile information while digging gold
 #: guitext:6
 msgctxt "In-game message"
 msgid ""
@@ -93,6 +100,7 @@ msgstr ""
 "使用滑鼠左键将你的怪物自地下城中抓起来。利用滑鼠右键将它们安置在地下城的房间"
 "或图块上。怪物会执行最适合它们所在环境的工作。"
 
+#. Level Eversmile objective after digging gold
 #: guitext:7
 msgctxt "In-game message"
 msgid ""
@@ -105,6 +113,7 @@ msgstr ""
 "原的地方。你的小恶魔刚刚挖开的地区是个让一些怪物潜伏的理想地点。请在房间面板"
 "中选择巢穴图示。"
 
+#. Level Eversmile objective after Lair built
 #: guitext:8
 msgctxt "In-game message"
 msgid ""
@@ -117,6 +126,7 @@ msgstr ""
 "格。怪物ぅ能使用被守护者占领的传送门。当传送门与你的地下城连接时，你的小恶魔"
 "就会占领该传送门。"
 
+#. Level Eversmile objective when digging w/o Treasure Room
 #: guitext:9
 msgctxt "In-game message"
 msgid ""
@@ -127,6 +137,7 @@ msgstr ""
 "你应该先建立一间宝藏室。在房间面板中选择宝藏室图示，并在地城之心右侧的区域中"
 "按滑鼠键。"
 
+#. Level Eversmile information after some digging
 #: guitext:10
 msgctxt "In-game message"
 msgid ""
@@ -137,6 +148,7 @@ msgstr ""
 "在怪物上按滑鼠左键即可将之拾起。在属你的地下城的房间或图块上按滑鼠右键，将它"
 "们投掷在该处。怪物会执行最适合它们所在环境的工作。"
 
+#. Level Eversmile information after some digging
 #: guitext:11
 msgctxt "In-game message"
 msgid ""
@@ -146,6 +158,7 @@ msgstr ""
 "如果你想让你的怪物工作得更努力一点，请用邪恶之手指著它们，然后按滑鼠右键拍打"
 "它们。拍打怪物会使它们受伤。"
 
+#. Level Eversmile objective after digging gold w/o Treasure Room
 #: guitext:12
 msgctxt "In-game message"
 msgid ""
@@ -156,6 +169,7 @@ msgstr ""
 "你还没有建造宝藏室。在你建造这个房间之前，将无法支薪给任何怪物。ぅ有小恶魔才"
 "会免费地提供它们的忠诚。其它的怪物绝对不会免费服侍你。"
 
+#. Level Eversmile objective after getting first creature
 #: guitext:13
 msgctxt "In-game message"
 msgid ""
@@ -166,6 +180,7 @@ msgstr ""
 "你的第一名手下到达了。是一只巨大的苍蝇。它可以朝著你的敌人喷吐腐蚀性的汁液，"
 "它的翅膀也使这种可怕的昆虫获得足可拦截最敏捷之入侵者的速度。"
 
+#. Level Eversmile objective after getting first beetle
 #: guitext:14
 msgctxt "In-game message"
 msgid ""
@@ -178,6 +193,7 @@ msgstr ""
 "虫也需要食物。挖掘一块新区域，选择孵化室图示，并建造你的孵化室。美味的点心很"
 "快就会从它那灌注了魔法的土地中生长出来。"
 
+#. Level Eversmile objective after Hatchery built
 #: guitext:15
 msgctxt "In-game message"
 msgid ""
@@ -190,6 +206,7 @@ msgstr ""
 "请前往研究面板，选择小恶魔图示，并在地下城中的任一处按滑鼠左键。你创造的每一"
 "只小恶魔的费用都比前一只贵。"
 
+#. Level Eversmile information after having few creatures
 #: guitext:16
 msgctxt "In-game message"
 msgid ""
@@ -200,6 +217,7 @@ msgstr ""
 "何不准备一大票的怪物，把它们丢在入侵者的头上？要迅速拾起怪物，请在怪物面板中"
 "的怪物上按滑鼠左键。你ぅ能把怪物丢在你的地下城范围内。"
 
+#. Level Eversmile objective some time after all rooms are built
 #: guitext:17
 msgctxt "In-game message"
 msgid ""
@@ -210,6 +228,7 @@ msgstr ""
 "有入侵者接近。他们寻找你的要塞的缝隙，以便进入你的地下城。地图上的白色标示指"
 "出他们的进展。在控あ面板的顶端图示上按滑鼠键，可以看到较大的地图。"
 
+#. Level Eversmile objective after first wave defeat
 #: guitext:18
 msgctxt "In-game message"
 msgid ""
@@ -219,6 +238,7 @@ msgstr ""
 "趁你可以的时候，享受你的第一场胜利吧。你已经引起这个王国领主的愤怒。他的队伍"
 "很快就会抵达此处。"
 
+#. Level Eversmile objective when LOTL comes
 #: guitext:19
 msgctxt "In-game message"
 msgid ""
@@ -228,6 +248,7 @@ msgstr ""
 "这块土地的领主已经到达这里了。我可以感觉得到他的恐惧。打败他，这块土地就是你"
 "的了。"
 
+#. Level Eversmile objective after LOTL defeat
 #: guitext:20
 msgctxt "In-game message"
 msgid ""
@@ -238,6 +259,7 @@ msgstr ""
 "你在这里的工作已经完成了。现在没有人能够阻止你消灭这个え心的王国，并将你的帝"
 "国扩张到隔邻的土地去。很好。"
 
+#. Level Eversmile objective when having no Imps
 #: guitext:21
 msgctxt "In-game message"
 msgid ""
@@ -247,16 +269,19 @@ msgstr ""
 "你需要更多的小恶魔。利用创造小恶魔法术来召唤它们成为你的手下。记住，你创造的"
 "每一个小恶魔都比前一只昂贵。"
 
+#. Level Cosyton information soon after start
 #: guitext:22
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
-"When Imps have no other orders, they run around reinforcing your dungeon.  "
+"When Imps have no other orders, they run around reinforcing your dungeon. "
 "Fortified walls keep out intruders. Rooms with reinforced walls make your "
 "creatures feel more at home and heroes more terrified."
 msgstr ""
 "当小恶魔没有其它的命令时，它们会四处奔跑，强化你的地下城。强化后的墙可以阻止"
 "入侵者。以强化墙构筑的房间可以让你的怪物感到更自在，让英雄感到更恐惧。"
 
+#. Level Cosyton information soon after start
 #: guitext:23
 msgctxt "In-game message"
 msgid ""
@@ -267,6 +292,7 @@ msgstr ""
 "附体在怪物身上的方法是: 在研究面板上选择怪物附体法术，然后在你要控あ的怪物上"
 "按滑鼠左键。按滑鼠右键即可离开该怪物。"
 
+#. Level Cosyton first objective
 #: guitext:24
 msgctxt "In-game message"
 msgid ""
@@ -277,6 +303,7 @@ msgstr ""
 "记住你在布拉那霍克学得的教训。你必须建造一间宝藏室、一间巢穴以及一间孵化室，"
 "而且你必须占领一个传送门。以至少九个方格的大小来建造房间，以提高房间的效率。"
 
+#. Level Cosyton objective after basic rooms built
 #: guitext:25
 msgctxt "In-game message"
 msgid ""
@@ -287,6 +314,7 @@ msgstr ""
 "你必须让你的怪物变得更加强壮。在训练室中，你的怪物可以磨练它们的战斗技巧，获"
 "得新的能力，并学习更强大的法术。"
 
+#. Level Cosyton objective after Training Room built
 #: guitext:26
 msgctxt "In-game message"
 msgid ""
@@ -297,6 +325,7 @@ msgstr ""
 "守护者，你的计划推展很顺利。给你的小恶魔充份的时间来强化地下城的墙垣。这样可"
 "以提高房间的效率，并抵挡可能的入侵者。"
 
+#. Level Cosyton information after Training Room built
 #: guitext:27
 msgctxt "In-game message"
 msgid ""
@@ -304,6 +333,7 @@ msgid ""
 "Spawn. Build it and they will come."
 msgstr "训练室可以吸引更凶猛的怪物，如邪魔子。建造它，它们就会出现。"
 
+#. Level Cosyton information after attracting Demon Spawn
 #: guitext:28
 msgctxt "In-game message"
 msgid ""
@@ -314,6 +344,7 @@ msgstr ""
 "要训练怪物时，把它们丢在训练室里。偶尔出现在怪物头上的数字表示要训练该怪物所"
 "需的黄金数量。"
 
+#. Level Cosyton information some time after Demon Spawn
 #: guitext:29
 msgctxt "In-game message"
 msgid ""
@@ -321,6 +352,7 @@ msgid ""
 "the Training Room."
 msgstr "你可以趁怪物在训练室中受训时拍打它们，让它们训练的速度加快。"
 
+#. Level Cosyton objective soon after 2nd Demon Spawn
 #: guitext:30
 msgctxt "In-game message"
 msgid ""
@@ -331,6 +363,7 @@ msgstr ""
 "英雄们已经启程出发。确认你的怪物都已接受良好的训练，并准备面对攻击。你在这个"
 "王国中面对的英雄要比你在布拉那霍克中遇到的英雄更难对付。"
 
+#. Level Cosyton objective after defeating LOTL (option 1)
 #: guitext:31
 msgctxt "In-game message"
 msgid ""
@@ -338,6 +371,7 @@ msgid ""
 "forces."
 msgstr "这些英雄或许是比较难对付，但是他们显然不是你的部队的对手。"
 
+#. Level Cosyton objective after AP reached
 #: guitext:32
 msgctxt "In-game message"
 msgid ""
@@ -345,11 +379,13 @@ msgid ""
 "ready for the attack."
 msgstr "英雄们已经启程出发。确认你的怪物都已接受良好的训练，并准备面对攻击"
 
+#. Level Cosyton objective after defeating LOTL (option 2)
 #: guitext:33
 msgctxt "In-game message"
 msgid "Congratulations. You have conquered the enemy hordes."
 msgstr "恭喜。你已经征服了敌人的部落。"
 
+#. Level Waterdream Warm first objective
 #: guitext:34
 msgctxt "In-game message"
 msgid ""
@@ -358,6 +394,7 @@ msgid ""
 "the morale of your minions."
 msgstr "利用一间宝藏室、一间巢穴、一间孵化室以及一间训练室来建造地下城。"
 
+#. Level Waterdream Warm objective after basic 5 rooms are built/claimed
 #: guitext:35
 msgctxt "In-game message"
 msgid ""
@@ -370,6 +407,7 @@ msgstr ""
 "小至少要和其它房间一样大。研究人员也喜欢安静，因此设法将图书馆兴建在远离走廊"
 "的地方。"
 
+#. Level Waterdream Warm information after started building library
 #: guitext:36
 msgctxt "In-game message"
 msgid ""
@@ -380,6 +418,7 @@ msgstr ""
 "你新建的图书馆会吸引像巫师这样的怪物，他们对于研究魔法和地城设计格外有兴趣。"
 "这些邪恶的法师是名符其实的书虫，他们本身也精通魔法。"
 
+#. Level Waterdream Warm objective after finished building library
 #: guitext:37
 msgctxt "In-game message"
 msgid ""
@@ -391,6 +430,7 @@ msgstr ""
 "你收集了大量的卷轴和书册。大部份怪物可以投入研究中，但是巫师是最优秀、最聪明"
 "的研究者。愚笨的洞穴巨人不容易用正确的方法拿书，有时候甚至会咬碎书页。"
 
+#. Level Waterdream Warm objective after attracting warlock
 #: guitext:38
 msgctxt "In-game message"
 msgid ""
@@ -1374,11 +1414,12 @@ msgid "You are out of time. That was a shocking performance."
 msgstr "你的时间用完了。你的表现真是惊人。"
 
 #: guitext:147
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "It is done. Tiny heaps of charred flesh smoulder where Imps once stood. You "
 "certainly had your finger on the pulse this time. The dark gods will send "
-"you a Giant to help you conquer the next realm."
+"you a vicious creature to help you conquer the next realm."
 msgstr ""
 "结束了。那些小恶魔原来所在的地方，散ぇ著一堆堆冒著烟、烧焦了的肌肉。这次你当"
 "然有相当大的页献。黑暗众神会赐给你一名巨人，协助你征服下一个王国。"
@@ -1413,22 +1454,24 @@ msgid ""
 msgstr "你的时间用完了。你失败了。跟你来自同一个次元间虚空，真令我感到羞耻。"
 
 #: guitext:152
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Well done. You have excelled in your use of large balls of stone for which "
-"the dark gods will repay you, by granting you three superior Imps when you "
-"reach the next realm."
+"the dark gods will repay you, by allowing you to use the warrior you found "
+"when you reach the next realm."
 msgstr ""
 "干得好。你在运用大石块方面的技术优秀，黑暗众神会犒赏你，等你到达下一个王国"
 "时，你会获得三只较高级的小恶魔。"
 
 #: guitext:153
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "This region of the underworld will test your ability to traverse the network "
 "of caverns. Indeed, time is your enemy here. Defeat it and you will find "
-"where the legendary warrior, Ug the Barbarian is imprisoned. Ug will serve "
-"you well in the future."
+"where a legendary warrior is imprisoned. That warrior will serve you well in "
+"the future."
 msgstr ""
 "地底世界的这个部份会测验你在洞穴中来来去去的能力。事实上，时间就是你的敌"
 "人。ぅ要打败它，你就会发现传奇英雄－野蛮人尤奇被囚禁的地方。尤奇会在未来给你"
@@ -1648,7 +1691,7 @@ msgstr ""
 #: guitext:186 guitext:187 guitext:188 guitext:189 guitext:190 guitext:191
 #: guitext:192 guitext:193 guitext:194 guitext:195 guitext:196 guitext:197
 #: guitext:198 guitext:199 guitext:200
-msgctxt "Unused"
+msgctxt "In-game message"
 msgid "Moo"
 msgstr "哞"
 
@@ -2161,10 +2204,11 @@ msgid "Monk"
 msgstr "僧侣"
 
 #: guitext:287
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Query: Select this and left click on a creature to view information on that "
-"creature. LMB select. [5.8]"
+"creature and track it on screen. LMB select."
 msgstr ""
 "查询: 选择这个按钮，并在怪物上按滑鼠左键，即可观看该怪物之资料。按滑鼠左键选"
 "择。"
@@ -2185,110 +2229,132 @@ msgid "Main Menu"
 msgstr "主选单"
 
 #: guitext:291
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Anger: How angry the creature is. [23.2]"
+msgid ""
+"Anger: How angry the creature is. The higher the bar is, the angrier the "
+"creature is."
 msgstr "愤怒: 怪物愤怒的程度。[23.2]"
 
 #: guitext:292
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Creature Kills: The number of enemies the creature has slain. [23.7]"
+msgid "Creature Kills: The total number of enemies the creature has slain."
 msgstr "杀死怪物数: 该怪物杀死的敌人数目。[23.7]"
 
 #: guitext:293
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon it's enemies. "
-"[23.12]"
+"Strength: The amount of damage the creature inflicts upon it's enemies with "
+"each hit."
 msgstr "力量: 怪物对敌人造成的伤害度。[23.12]"
 
 #: guitext:294
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Wage: The creature's salary in gold. [23.13]"
+msgid "Wage: The creature's salary in gold which it takes on each payday."
 msgstr "薪资: 怪物的薪资。[23.13]"
 
 #: guitext:295
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Gold Held : The amount of gold the creature is carrying. [23.8]"
+msgid "Gold Held : The amount of gold the creature is carrying."
 msgstr "黄金持有数: 该怪物携带之黄金数量。[23.8]"
 
 #: guitext:296
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Defence: The chance a creature will avoid a blow. [23.9]"
+msgid ""
+"Defence: The chance a creature will avoid a blow. The higher the number, the "
+"greater the chance of avoidance."
 msgstr "防御: 该怪物避开攻击的机会。[23.9]"
 
 #: guitext:297
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Skill: The creature's ability to perform tasks. [23.14]"
+msgid ""
+"Skill: The creature's ability to perform tasks. The higher the Skill level, "
+"the better the creature's performance."
 msgstr "技巧: 该怪物执行工作的能力。[23.14]"
 
 #: guitext:298
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Age/Time In Dungeon: The length of time you have employed the creature. "
-"[23.10]"
+msgid "Age/Time In Dungeon: The length of time you have employed the creature."
 msgstr "年龄／在地城中的时间: 你已雇用该怪物的时间。[23.10]"
 
 #: guitext:299
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Dexterity: The chance a creature will avoid a trap or an enemy weapon. "
-"[23.15]"
+"Dexterity: The chance a creature will avoid a trap or an enemy weapon. The "
+"higher the number, the greater the chance of avoidance."
 msgstr "灵活度: 怪物避开陷阱或敌人武器的机会高低。[23.15]"
 
 #: guitext:300
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Luck: The chance that a creature will do a double attack or a double defence "
-"in combat. [23.11]"
+"in combat. Taken into account only when the hit is not avoided."
 msgstr "运气: 怪物在战斗中进行双倍攻击或双倍防御的机会。[23.11]"
 
 #: guitext:301
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Blood type: As if you care. Blood is blood, right? [23.16]"
+msgid "Blood type: As if you care. Blood is blood, right?"
 msgstr "血型。你在乎吗？血就是血，对不对？[23.16]"
 
 #: guitext:302
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Idle: The creature is either sleeping or not working. LMB pick up creature. "
-"RMB zoom. [9.1 and 22.2.1]"
+"Idle: The creature is either sleeping or not working. It's not involved in "
+"anything constructive or useful. LMB pick up creature. RMB zoom."
 msgstr ""
 "不事生产: 这个怪物若不是在睡觉，就是没在工作。按滑鼠左键抓起怪物。按滑鼠右键"
 "缩放视野。[10.1 and 22.3]"
 
 #: guitext:303
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"Working: The creature is performing tasks. LMB pick up creature. RMB zoom. "
-"[9.2 and 22.2.1]"
+"Working: The creature is performing tasks and doing work for you. LMB pick "
+"up creature. RMB zoom."
 msgstr ""
 "工作中: 怪物正在进行工作。按滑鼠左键抓起怪物。按滑鼠右键缩放视野。[10.2 and "
 "22.3]"
 
 #: guitext:304
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Fighting: The creature is in a battle. LMB pick up creature. RMB zoom. [9.3 "
-"and 22.2.1]"
+msgid "Fighting: The creature is in a battle. LMB pick up creature. RMB zoom."
 msgstr ""
 "战斗中: 怪物正处于战斗中。按滑鼠左键抓起怪物。按滑鼠右键缩放视野。[10.3 and "
 "22.3]"
 
 #: guitext:305
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Fight: Your creatures always attack. LMB select. [6.5.1]"
+msgid ""
+"Fight: Your creatures always attack and not avoid any combat. LMB select."
 msgstr "战斗: 你的怪物必然会攻击。按滑鼠左键选择。[6.5.1]"
 
 #: guitext:306
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Flee: Your creatures attempt to preserve their lives. LMB select. [5.2]"
+msgid ""
+"Flee: Your creatures attempt to preserve their lives, running away if they "
+"are too badly injured. LMB select."
 msgstr "逃亡: 你的怪物会试图保留自己的生命。按滑鼠左键选择。[6.5.3]"
 
 #: guitext:307
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "Imprison: Your creatures stun their enemies in battle and imprison those "
-"they defeat. LMB select. [5.1]"
+"they defeat. LMB select."
 msgstr "囚禁: 你的怪物在战斗中将敌人打晕并将其囚禁。按滑鼠左键选择。[6.5.2]"
 
 #: guitext:308
@@ -2318,35 +2384,41 @@ msgid "For"
 msgstr "为"
 
 #: guitext:313
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Shadows: The number of shadows cast by each creature. LMB toggle. [3.2.2]"
+msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
 msgstr "阴影: 每个怪物投射出来的阴影数量。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:314
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
-"View Type: Swap between the default and forced perspective views. LMB "
-"toggle. [3.2.2]"
+"View Type: Swap between the default and forced perspective views. Default "
+"view has warped walls and can be rotated, forced perspective shows larger "
+"area but can only be rotated 90 degrees. LMB toggle."
 msgstr "视野型态: 切换预设视野及强迫透视观点。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:315
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Wall Height: Swap between high or low walls. LMB toggle. [3.2.2]"
+msgid ""
+"Wall Height: Swap between high or low walls. If you make the walls one block "
+"high, they are easier to see over. LMB toggle."
 msgstr "墙壁高度: 切换使用高墙或矮墙。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:316
+#, fuzzy
 msgctxt "In-game interface description"
 msgid ""
 "View Distance: The amount of dungeon drawn. This directly affects the speed "
-"of the game. LMB toggle. [3.2.2]"
+"of the game. LMB toggle."
 msgstr ""
 "视野距离: 绘出之地城数量。这项设定直接影响游戏的速度。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:317
+#, fuzzy
 msgctxt "In-game interface description"
-msgid ""
-"Gamma Correction: Adjust the brightness of the game. LMB toggle. [3.2.2]"
+msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
 msgstr "明暗度: 调整游戏的明亮程度。按滑鼠左键切换。[3.2.2]"
 
 #: guitext:318
@@ -2365,18 +2437,27 @@ msgid "Paused"
 msgstr "暂停"
 
 #: guitext:321
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Zoom In: Zoom in the Dynamic Map. LMB select. [4.1]"
+msgid ""
+"Zoom In: Zoom in the Dynamic Map. This increases the scale of the map. LMB "
+"select."
 msgstr "放大视野: 放大动态地图。按滑鼠左键选择。[4.1]"
 
 #: guitext:322
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Zoom Out: Zoom out the Dynamic Map. LMB select. [4.1]"
+msgid ""
+"Zoom Out: Zoom out the Dynamic Map. This decreases the scale of the map. LMB "
+"select."
 msgstr "缩小视野: 缩小动态地图。按滑鼠左键选择。[4.1]"
 
 #: guitext:323
+#, fuzzy
 msgctxt "In-game interface description"
-msgid "Full Screen Map: Takes you to the Map Screen. LMB select. [4.1.1]"
+msgid ""
+"Full Screen Map: Takes you to the Map Screen which displays your entire "
+"Dungeon and the surrounding area. LMB select."
 msgstr "全萤幕地图: 让你进入地图画面。按滑鼠左键选择。[4.1.1]"
 
 #: guitext:324
@@ -2444,17 +2525,17 @@ msgstr "本关失败－按ESC键重新开始"
 
 #: guitext:336
 msgctxt "On-screen message"
-msgid "RECORDING FLIC"
+msgid "Recording FLIC"
 msgstr "FLIC记录中"
 
 #: guitext:337
 msgctxt "On-screen message"
-msgid "ERROR RECORDING FLIC"
+msgid "Error recording FLIC"
 msgstr "读取FLIC时发生错误"
 
 #: guitext:338
 msgctxt "On-screen message"
-msgid "FINISHED RECORDING FLIC"
+msgid "Finished recording FLIC"
 msgstr "FLIC记录完成"
 
 #: guitext:339
@@ -4178,7 +4259,7 @@ msgstr "医疗术: 对地下城的一个区域施展，提高怪物的健康。�
 
 #: guitext:662
 msgctxt "Keeper spell description"
-msgid "Time Bomb"
+msgid "Time Bomb: Turns your creature into a suicidal bomber."
 msgstr "定时炸弹"
 
 #: guitext:663
@@ -5379,6 +5460,7 @@ msgctxt "Menu interface message"
 msgid "Please insert The Deeper Dungeons CD-ROM"
 msgstr "请放入地城守护者光碟片"
 
+#. DD Level Korros Tor first objective
 #: guitext:892
 msgctxt "In-game message"
 msgid ""
@@ -5389,6 +5471,7 @@ msgstr ""
 "两个强壮敌对的地城守护者在此王国中向你挑战。击败他们完成此区域的任务，但是当"
 "心有一群英雄正藏著准备试俟机而动。"
 
+#. DD Level Kari-Mar first objective
 #: guitext:893
 msgctxt "In-game message"
 msgid ""
@@ -5399,6 +5482,7 @@ msgstr ""
 "另一名守护者已经占领此王国。他的管理十分的糟糕所以毁了他，而这正是你占领此处"
 "的大好时机。此处有非常多的财富；     四处探索来获得更大的力量。"
 
+#. DD Level Belbata first objective
 #: guitext:894
 msgctxt "In-game message"
 msgid ""
@@ -5409,6 +5493,7 @@ msgstr ""
 "这块土地已经充满邪恶有其他三名地城守护者在此，你必须为自己夺得至高的统治地"
 "位。注意一群埋伏在暗处的英雄他们打算突击粗心大意的地城守护者"
 
+#. DD Level Pladitz waypoint objective
 #: guitext:895
 msgctxt "In-game message"
 msgid ""
@@ -5419,6 +5504,7 @@ msgstr ""
 "领主跟他的夥伴们正躺在地上慢慢死去，真替他们感到悲哀，把握住机会攻击你敌对的"
 "地城守护者。"
 
+#. DD Level Pladitz first objective
 #: guitext:896
 msgctxt "In-game message"
 msgid ""
@@ -5429,6 +5515,7 @@ msgstr ""
 "你和你的敌对地城守护者正在争夺这个王国的控あ权，但此地的领主有他自己的地城，"
 "这个地城刚好在中间阻挡你你的争服计划．消灭他和敌对地城守护者来掌握此王国。 "
 
+#. DD Level Pladitz waypoint objective
 #: guitext:897
 msgctxt "In-game message"
 msgid ""
@@ -5438,6 +5525,7 @@ msgstr ""
 "你已经做的不错了但是你必须做的更好。仔细搜索这个区域会有相当多的密秘物品帮你"
 "来争服这块区域。"
 
+#. DD Level Abbadon first objective
 #: guitext:898
 msgctxt "In-game message"
 msgid ""
@@ -5448,6 +5536,7 @@ msgstr ""
 "你到达此区域时你得到的帮助并不多，你必须探索来获得力量，注意一群忠实的英雄可"
 "能会阻碍你的计划。"
 
+#. DD Level Daka-Gorn first objective
 #: guitext:899
 msgctxt "In-game message"
 msgid ""
@@ -5457,6 +5546,7 @@ msgstr ""
 "当心地城守护者。这个王国充满令人厌恶的善良英雄和精灵。猎杀他们以免这群人阻碍"
 "你的计划。"
 
+#. DD Level Morkardar first objective
 #: guitext:900
 msgctxt "In-game message"
 msgid ""
@@ -5466,6 +5556,7 @@ msgstr ""
 "你的对手市是如此愚笨居然敢挑战你的超级技巧。这种人应该好好教训他，为这种无知"
 "的挑战者做一个榜样。"
 
+#. DD Level Morkardar information soon after start
 #: guitext:901
 msgctxt "In-game message"
 msgid ""
@@ -5473,6 +5564,7 @@ msgid ""
 "own evil purposes."
 msgstr "古老的魔力隐藏在此王国中。找到它们并善用此魔力帮你达成邪恶的目地。"
 
+#. DD Level Abbadon objective after rooms built
 #: guitext:902
 msgctxt "In-game message"
 msgid ""
@@ -5480,6 +5572,7 @@ msgid ""
 "forces and feed his body to your ravenous minions."
 msgstr "一个白疑挑战者挡在你的征服道路的中央。消灭他并将他的尸体喂食你的爪牙。"
 
+#. DD Level Daka-Gorn information after AP reached
 #: guitext:903
 msgctxt "In-game message"
 msgid ""
@@ -5490,6 +5583,7 @@ msgstr ""
 "我能听到透过英雄城堡墙壁的脚步声，小心一点地城守护者，消灭这群善良的家伙并永"
 "远毁灭他们。"
 
+#. DD Level Netzcaro first objective
 #: guitext:904
 msgctxt "In-game message"
 msgid ""
@@ -5497,6 +5591,7 @@ msgid ""
 "down it's walls and let your creatures feast on the heroes within."
 msgstr "一度强大的堡垒变成荒无的废墟。击垮它的墙壁让你的怪物用英雄来填饱肚子。"
 
+#. DD Level Netzcaro information after AP reached
 #: guitext:905
 msgctxt "In-game message"
 msgid ""
@@ -5505,6 +5600,7 @@ msgid ""
 msgstr ""
 "这个王国测试你的狡滑与奸计。你得地下城有七道铁门来强化帮助你征服此区域。"
 
+#. DD Level Netzcaro objective after AP reached
 #: guitext:906
 msgctxt "In-game message"
 msgid ""
@@ -5513,6 +5609,7 @@ msgid ""
 "fire."
 msgstr "恭喜你守护者。你已经完成新的研发。你现在可以透过桥梁通过水面和火。"
 
+#. DD Level Belial information soon after start
 #: guitext:907
 msgctxt "In-game message"
 msgid ""
@@ -5522,6 +5619,7 @@ msgstr ""
 "此区域的食物已经腐败，唯一的孵化室在英雄的地城中。赶紧找到食物免的你的怪物起"
 "来造反。"
 
+#. DD Level Belial information after getting vampire
 #: guitext:908
 msgctxt "In-game message"
 msgid ""
@@ -5532,6 +5630,7 @@ msgstr ""
 "一群残忍英雄创造出的悲惨故事，你救出的吸血鬼发誓要为他被囚禁的羞辱报仇。他的"
 "愤怒会帮你相当大的忙让你的邪恶武力达到颠峰。"
 
+#. DD Level Batezek first objective
 #: guitext:909
 msgctxt "In-game message"
 msgid ""
@@ -5539,6 +5638,7 @@ msgid ""
 "meaning of evil and terror."
 msgstr "你被英雄包围，显示你的力量让他们知道真正的邪恶与恐惧为何。"
 
+#. DD Level Batezek objective after cleaning all good creatures
 #: guitext:910
 msgctxt "In-game message"
 msgid ""
@@ -5546,6 +5646,7 @@ msgid ""
 "no mercy and flay them alive."
 msgstr "领主派出他最厉害的战士对付你，你无须留情将他们全部消灭不留活口。"
 
+#. DD Level Benetzaron first objective
 #: guitext:911
 msgctxt "In-game message"
 msgid ""
@@ -5553,6 +5654,7 @@ msgid ""
 "you could be burned."
 msgstr "探索此王国找到无穷的财富与秘密物品。小心一点当心烈□灼身。"
 
+#. DD Level Svatona first objective
 #: guitext:912
 msgctxt "In-game message"
 msgid ""
@@ -5562,6 +5664,7 @@ msgstr ""
 "这块土地上ぅ有一名地城守护者能获得胜利。不要因为击败一位守护者儿感到惭愧，这"
 "里失败的代价就是死亡。"
 
+#. DD Level Caddis Fell first objective
 #: guitext:913
 msgctxt "In-game message"
 msgid ""
@@ -5569,6 +5672,7 @@ msgid ""
 "perilous than others ..."
 msgstr "选择，选择守护者。聪明选择你的道路。有些路比其它的道路更窒命。"
 
+#. DD Level Caddis Fell objective after good destroyed
 #: guitext:914
 msgctxt "In-game message"
 msgid ""
@@ -5576,6 +5680,7 @@ msgid ""
 "complacent though, you still have another challenger to the north ..."
 msgstr "恭喜你守护者，你有强大的军队。别想的太多，在北边还有挑战著你。"
 
+#. DD Level Caddis Fell objective after player1 destroyed
 #: guitext:915
 msgctxt "In-game message"
 msgid ""
@@ -5583,6 +5688,7 @@ msgid ""
 "complacent though, you still have another challenger to the south ..."
 msgstr "恭喜你守护者，你有强大的军队。别想的太多，在北边还有挑战著你。"
 
+#. DD Level Caddis Fell objective after entrance claimed
 #: guitext:916
 msgctxt "In-game message"
 msgid ""
@@ -5593,6 +5699,7 @@ msgstr ""
 "领主是一个可怜的家伙全身充满了可笑。将他打倒在地上并消灭他，完成本关卡的任"
 "务。"
 
+#. DD Level Kanasko first objective
 #: guitext:917
 msgctxt "In-game message"
 msgid ""
@@ -5602,6 +5709,7 @@ msgstr ""
 "快一点守护者，此王国的英雄数目众多而且骁勇。准备好你的武力否则就是羞耻的灭"
 "亡。"
 
+#. DD Level Belial first objective
 #: guitext:918
 msgctxt "In-game message"
 msgid ""
@@ -5613,6 +5721,7 @@ msgstr ""
 "圣者是可悲的家伙，他充满快乐与和善。食物充满了他的领土唯一的孵化室是在他的地"
 "城中，在你的面前毁灭他让他笑不出来。"
 
+#. DD Level Belial objective after AP reached
 #: guitext:919
 msgctxt "In-game message"
 msgid ""
@@ -5620,11 +5729,13 @@ msgid ""
 "attacked!"
 msgstr "圣者组成一队具英雄身份的领主对抗你。准备敌人的防御敌人攻击。"
 
+#. DD Level Belial objective after AP reached
 #: guitext:920
 msgctxt "In-game message"
 msgid "Decimate this outpost and send fear into the heart of the Avatar."
 msgstr "消灭这个守卫岗哨让圣者的内心感到胆颤心惊。"
 
+#. DD Level Belial objective after AP reached
 #: guitext:921
 msgctxt "In-game message"
 msgid ""
@@ -5632,6 +5743,7 @@ msgid ""
 "The ultimate battle awaits ..."
 msgstr "圣者堡垒已被占领¡: 煤醚盗纺愕奈淞Γ鼗ふ摺Ｗ钪盏恼匠』乖诘却£"
 
+#. DD Level Belial objective when adding Avatar
 #: guitext:922
 msgctxt "In-game message"
 msgid ""
@@ -5642,12 +5754,14 @@ msgstr ""
 "你现在位于圣者堡垒的心脏位置。甜美的善良气味仍在空气之中，杀死圣者让他的灵魂"
 "进入永恒黑暗之中。"
 
+#. DD Levels generic information after finding a Mistress
 #: guitext:923
 msgctxt "In-game message"
 msgid ""
 "Well done, Keeper. The Mistress you have discovered is an excellent prize."
 msgstr "好极了，守护者。你发现的黑暗女巫是一项相当好的奖利。"
 
+#. DD Levels generic information after finding a Bile Demon
 #: guitext:924
 msgctxt "In-game message"
 msgid ""
@@ -5657,6 +5771,7 @@ msgstr ""
 "你刚刚救出的暴躁恶魔非常有价值，但是饥饿会让他失去力量。要确保你的孵化室有足"
 "够食物供它食用。"
 
+#. DD Level Dixaroc first objective
 #: guitext:925
 msgctxt "In-game message"
 msgid ""
@@ -5667,17 +5782,20 @@ msgstr ""
 "一个魔法师欺骗你让你失去法力。指挥唯一拥有的蜘蛛探索此区域，杀死这名魔法师做"
 "为榜样，警告让想反判你的人知道反判的下场。"
 
+#. DD Level Dixaroc information after getting Imps
 #: guitext:926
 msgctxt "In-game message"
 msgid "You have found some Imps who consider it a great honour to serve you."
 msgstr "你发现一群小恶魔，它们非常乐意加入你的阵营。"
 
+#. DD Levels Dixaroc information after finding Bile Demons
 #: guitext:927
 msgctxt "In-game message"
 msgid ""
 "You have discovered a group of Bile Demons who will aid you in your fight."
 msgstr "你发现一群暴躁恶魔，它们非常乐意为你战斗。"
 
+#. DD Level Dixaroc information just after PLAYER1 destroyed
 #: guitext:928
 msgctxt "In-game message"
 msgid ""
@@ -5688,11 +5806,13 @@ msgstr ""
 "毁灭这名可悲的守护者带来额外的利益。你现在有能力建造桥梁。挖深一点你可能会发"
 "现一些能帮你的秘密。"
 
+#. DD Level Dixaroc information some time after PLAYER1 destroyed
 #: guitext:929
 msgctxt "In-game message"
 msgid "A warning, Keeper. There is a stench of hero in the air."
 msgstr "警告，守护者。有一群英雄靠近了。"
 
+#. DD Level Dixaroc information after AP reached
 #: guitext:930
 msgctxt "In-game message"
 msgid ""
@@ -5700,6 +5820,7 @@ msgid ""
 "however. A great struggle lies ahead."
 msgstr "你做的太好了能持续到现在。千万别自满，更大的奋战还在前面等著你。"
 
+#. DD Level Dixaroc information after AP reached
 #: guitext:931
 msgctxt "In-game message"
 msgid ""
@@ -5707,13 +5828,16 @@ msgid ""
 "powers."
 msgstr "在你面前的是魔法师所在区域。击败他和你能重新获得魔法力。"
 
+#. DD Level Dixaroc objective after wizard is dead
 #: guitext:932
+#, fuzzy
 msgctxt "In-game message"
 msgid ""
-"Your magical powers are restored Keeper.  You can finally show these fools "
+"Your magical powers are restored Keeper. You can finally show these fools "
 "what you are made of."
 msgstr "你的魔法能力恢复了。你终于能展现实力让这群笨蛋知道你是谁。"
 
+#. DD Level Caddis Fell objective after AP reached
 #: guitext:933
 msgctxt "In-game message"
 msgid ""
@@ -5724,6 +5848,7 @@ msgstr ""
 "一道黑影溜进这个区域。现在是反击的时候。指挥这名吸血鬼击杀领主，如果成功， 他"
 "会跟你到下一王国。"
 
+#. DD Level Belial information after winning
 #: guitext:934
 msgctxt "In-game message"
 msgid ""
