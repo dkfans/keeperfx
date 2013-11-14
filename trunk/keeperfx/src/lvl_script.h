@@ -148,10 +148,14 @@ enum MapLocationTypes {
     MLoc_ACTIONPOINT                   =  1,
     MLoc_HEROGATE                      =  2,
     MLoc_PLAYERSHEART                  =  3,
-    MLoc_CREATUREBREED                 =  4,
+    MLoc_CREATUREKIND                  =  4,
     MLoc_OBJECTKIND                    =  5,
     MLoc_ROOMKIND                      =  6,
     MLoc_THING                         =  7,
+    MLoc_PLAYERSDUNGEON                =  8,
+    MLoc_APPROPRTDUNGEON               =  9,
+    MLoc_DOORKIND                      = 10,
+    MLoc_TRAPKIND                      = 11,
 };
 
 /******************************************************************************/
@@ -178,8 +182,8 @@ struct TunnellerTrigger { // sizeof = 18
   char condit_idx;
   unsigned char plyr_idx;
   unsigned long location;
-  unsigned char heading;
-  long target;
+  unsigned char heading_OLD;//no longer used
+  unsigned long heading; // originally was 'target'
   long carried_gold;
   unsigned char crtr_level;
   char party_id;
@@ -309,9 +313,9 @@ short preload_script(long lvnum);
 void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
 void script_process_win_game(unsigned short plyr_idx);
 void script_process_lose_game(unsigned short plyr_idx);
-struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold);
-struct Thing *script_process_new_party(struct Party *party, unsigned char a2, long a3, long a4);
-void script_process_new_tunneller_party(unsigned char a1, long a2, long a3, unsigned char a4, long a5, unsigned char a6, unsigned long a7);
+struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
+struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_idx, TbMapLocation location, long copies_num);
+void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
 long script_support_create_thing_at_hero_door(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 long script_support_create_thing_at_action_point(long a1, unsigned char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 long script_support_create_creature_at_dungeon_heart(unsigned char a1, unsigned char a2, unsigned char a3);
@@ -319,7 +323,7 @@ long script_support_send_tunneller_to_action_point(struct Thing *thing, long a2)
 TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx);
 TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx);
 long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
-struct Thing *script_create_new_creature(unsigned char plyr_idx, long kind, long location, long carried_gold, long crtr_level);
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
 TbBool process_activation_status(struct Condition *condt);
 long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char a3);
 TbBool get_condition_status(unsigned char opkind, long val1, long val2);

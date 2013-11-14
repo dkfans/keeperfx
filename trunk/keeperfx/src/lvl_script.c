@@ -242,10 +242,10 @@ const struct NamedCommand comparison_desc[] = {
 };
 
 const struct NamedCommand head_for_desc[] = {
-  {"ACTION_POINT",         1},
-  {"DUNGEON",              2},
-  {"DUNGEON_HEART",        3},
-  {"APPROPIATE_DUNGEON",   4},
+  {"ACTION_POINT",         MLoc_ACTIONPOINT},
+  {"DUNGEON",              MLoc_PLAYERSDUNGEON},
+  {"DUNGEON_HEART",        MLoc_PLAYERSHEART},
+  {"APPROPIATE_DUNGEON",   MLoc_APPROPRTDUNGEON},
   {NULL,                   0},
 };
 
@@ -668,72 +668,133 @@ unsigned short get_map_location_plyridx(TbMapLocation location)
   return (location >> 4) & 0xFF;
 }
 
+/**
+ * Returns location id for 1-param location from script.
+ * @param locname
+ * @param location
+ * @return
+ * @see get_map_heading_id()
+ */
 #define get_map_location_id(locname, location) get_map_location_id_f(locname, location, __func__, text_line_number)
 TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const char *func_name, long ln_num)
 {
-  struct Thing *thing;
-  long i;
-  // If there's no locname, then coordinates are set directly as (x,y)
-  if (locname == NULL)
-  {
-    *location = MLoc_NONE;
-    return true;
-  }
-  // Player name means the location of player's Dungeon Heart
-  i = get_rid(player_desc, locname);
-  if (i != -1)
-  {
-    if (i != ALL_PLAYERS)
-      *location = ((unsigned long)i << 4) | MLoc_PLAYERSHEART;
-    else
-      *location = MLoc_NONE;
-    return true;
-  }
-  // Creature name means location of such creature belonging to player0
-  i = get_rid(creature_desc, locname);
-  if (i != -1)
-  {
-    *location = ((unsigned long)i << 12) | MLoc_CREATUREBREED;
-    return true;
-  }
-  // Room name means location of such room belonging to player0
-  i = get_rid(room_desc, locname);
-  if (i != -1)
-  {
-    *location = ((unsigned long)i << 12) | MLoc_ROOMKIND;
-    return true;
-  }
-  i = atol(locname);
-  // Negative number means Hero Gate
-  if (i < 0)
-  {
-    thing = find_hero_gate_of_number(-i);
-    if (thing_is_invalid(thing))
+    struct Thing *thing;
+    long i;
+    // If there's no locname, then coordinates are set directly as (x,y)
+    if (locname == NULL)
     {
-      ERRORMSG("%s(line %lu): Non-existing Hero Door, no %d",func_name,ln_num, -i);
       *location = MLoc_NONE;
-      return false;
+      return true;
     }
-    *location = (((unsigned long)-i) << 4) | MLoc_HEROGATE;
-  } else
-  // Positive number means Action Point
-  if (i > 0)
-  {
-    if (!action_point_exists_number(i))
+    // Player name means the location of player's Dungeon Heart
+    i = get_rid(player_desc, locname);
+    if (i != -1)
     {
-      ERRORMSG("%s(line %lu): Non-existing Action Point, no %d",func_name,ln_num, i);
-      *location = MLoc_NONE;
-      return false;
+      if (i != ALL_PLAYERS)
+        *location = ((unsigned long)i << 4) | MLoc_PLAYERSHEART;
+      else
+        *location = MLoc_NONE;
+      return true;
     }
-    // Set to action point number
-    *location = (((unsigned long)i) << 4) | MLoc_ACTIONPOINT;
-  } else
-  // Zero is an error; reset to no location
-  {
-    ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'",func_name,ln_num, locname);
-    *location = MLoc_NONE;
-  }
-  return true;
+    // Creature name means location of such creature belonging to player0
+    i = get_rid(creature_desc, locname);
+    if (i != -1)
+    {
+      *location = ((unsigned long)i << 12) | MLoc_CREATUREKIND;
+      return true;
+    }
+    // Room name means location of such room belonging to player0
+    i = get_rid(room_desc, locname);
+    if (i != -1)
+    {
+      *location = ((unsigned long)i << 12) | MLoc_ROOMKIND;
+      return true;
+    }
+    i = atol(locname);
+    // Negative number means Hero Gate
+    if (i < 0)
+    {
+      thing = find_hero_gate_of_number(-i);
+      if (thing_is_invalid(thing))
+      {
+        ERRORMSG("%s(line %lu): Non-existing Hero Door, no %d",func_name,ln_num, -i);
+        *location = MLoc_NONE;
+        return false;
+      }
+      *location = (((unsigned long)-i) << 4) | MLoc_HEROGATE;
+    } else
+    // Positive number means Action Point
+    if (i > 0)
+    {
+      if (!action_point_exists_number(i))
+      {
+        ERRORMSG("%s(line %lu): Non-existing Action Point, no %d",func_name,ln_num, i);
+        *location = MLoc_NONE;
+        return false;
+      }
+      // Set to action point number
+      *location = (((unsigned long)i) << 4) | MLoc_ACTIONPOINT;
+    } else
+    // Zero is an error; reset to no location
+    {
+      ERRORMSG("%s(line %lu): Invalid LOCATION = '%s'",func_name,ln_num, locname);
+      *location = MLoc_NONE;
+    }
+    return true;
+}
+
+/**
+ * Returns location id for 2-param tunneler heading from script.
+ * @param headname
+ * @param target
+ * @param location
+ * @return
+ * @see get_map_location_id()
+ */
+#define get_map_heading_id(headname, target, location) get_map_heading_id_f(headname, target, location, __func__, text_line_number)
+TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *location, const char *func_name, long ln_num)
+{
+    long head_id;
+    // If there's no headname, then there's an error
+    if (headname == NULL)
+    {
+        SCRPTERRLOG("No heading objective");
+        *location = MLoc_NONE;
+        return false;
+    }
+    head_id = get_rid(head_for_desc, headname);
+    if (head_id == -1)
+    {
+        SCRPTERRLOG("Unhandled heading objective, '%s'", headname);
+        *location = MLoc_NONE;
+        return false;
+    }
+    // Check if the target place exists, and set 'location'
+    // Note that we only need to support enum items which are in head_for_desc[].
+    switch (head_id)
+    {
+    case MLoc_ACTIONPOINT:
+        *location = ((unsigned long)target << 4) | head_id;
+        if (!action_point_exists_number(target)) {
+            SCRPTWRNLOG("Target action point %d doesn't exist", (int)target);
+        }
+        return true;
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_PLAYERSHEART:
+        *location = ((unsigned long)target << 4) | head_id;
+        if (!player_has_heart(target)) {
+            SCRPTWRNLOG("Target player %d has no heart", (int)target);
+        }
+        return true;
+    case MLoc_APPROPRTDUNGEON:
+        *location = (0) | head_id; // This option has no 'target' value
+        return true;
+    default:
+        *location = MLoc_NONE;
+        SCRPTWRNLOG("Unsupported Heading objective %d", (int)head_id);
+        break;
+    }
+    return false;
 }
 
 TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model)
@@ -836,100 +897,100 @@ void command_tutorial_flash_button(long btn_id, long duration)
 
 void command_add_party_to_level(char *plrname, char *prtname, char *locname, long ncopies)
 {
-  struct PartyTrigger *pr_trig;
-  struct Party *party;
-  TbMapLocation location;
-  long plr_id,prty_id;
-  if (ncopies < 1)
-  {
-    SCRPTERRLOG("Invalid NUMBER parameter");
-    return;
-  }
-  if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
-  {
-    SCRPTERRLOG("Too many ADD_CREATURE commands in script");
-    return;
-  }
-  // Recognize player
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  // Recognize place where party is created
-  if (!get_map_location_id(locname, &location))
-    return;
-  // Recognize party name
-  prty_id = get_party_index_of_name(prtname);
-  if (prty_id < 0)
-  {
-    SCRPTERRLOG("Party of requested name, '%s', is not defined",prtname);
-    return;
-  }
-  if ((script_current_condition < 0) && (next_command_reusable == 0))
-  {
-    party = &game.script.creature_partys[prty_id];
-    script_process_new_party(party, plr_id, location, ncopies);
-  } else
-  {
-    pr_trig = &game.script.party_triggers[game.script.party_triggers_num%PARTY_TRIGGERS_COUNT];
-    set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
-    pr_trig->plyr_idx = plr_id;
-    pr_trig->creatr_id = -prty_id;
-    pr_trig->location = location;
-    pr_trig->ncopies = ncopies;
-    pr_trig->condit_idx = script_current_condition;
-    game.script.party_triggers_num++;
-  }
+    struct PartyTrigger *pr_trig;
+    struct Party *party;
+    TbMapLocation location;
+    long plr_id,prty_id;
+    if (ncopies < 1)
+    {
+        SCRPTERRLOG("Invalid NUMBER parameter");
+        return;
+    }
+    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        return;
+    }
+    // Recognize player
+    if (!get_player_id(plrname, &plr_id))
+        return;
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+        return;
+    // Recognize party name
+    prty_id = get_party_index_of_name(prtname);
+    if (prty_id < 0)
+    {
+        SCRPTERRLOG("Party of requested name, '%s', is not defined",prtname);
+        return;
+    }
+    if ((script_current_condition < 0) && (next_command_reusable == 0))
+    {
+        party = &game.script.creature_partys[prty_id];
+        script_process_new_party(party, plr_id, location, ncopies);
+    } else
+    {
+        pr_trig = &game.script.party_triggers[game.script.party_triggers_num%PARTY_TRIGGERS_COUNT];
+        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
+        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->plyr_idx = plr_id;
+        pr_trig->creatr_id = -prty_id;
+        pr_trig->location = location;
+        pr_trig->ncopies = ncopies;
+        pr_trig->condit_idx = script_current_condition;
+        game.script.party_triggers_num++;
+    }
 }
 
 void command_add_creature_to_level(char *plrname, char *crtr_name, char *locname, long ncopies, long crtr_level, long carried_gold)
 {
-  struct PartyTrigger *pr_trig;
-  TbMapLocation location;
-  long plr_id,crtr_id;
-  if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
-  {
-    SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
-    return;
-  }
-  if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
-  {
-    SCRPTERRLOG("Invalid number of creatures to add");
-    return;
-  }
-  if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
-  {
-    SCRPTERRLOG("Too many ADD_CREATURE commands in script");
-    return;
-  }
-  crtr_id = get_rid(creature_desc, crtr_name);
-  if (crtr_id == -1)
-  {
-    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-    return;
-  }
-  // Recognize player
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  // Recognize place where party is created
-  if (!get_map_location_id(locname, &location))
-    return;
-  if (script_current_condition < 0)
-  {
-    script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1);
-  } else
-  {
-    pr_trig = &game.script.party_triggers[game.script.party_triggers_num%PARTY_TRIGGERS_COUNT];
-    set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
-    pr_trig->plyr_idx = plr_id;
-    pr_trig->creatr_id = crtr_id;
-    pr_trig->crtr_level = crtr_level-1;
-    pr_trig->carried_gold = carried_gold;
-    pr_trig->location = location;
-    pr_trig->ncopies = ncopies;
-    pr_trig->condit_idx = script_current_condition;
-    game.script.party_triggers_num++;
-  }
+    struct PartyTrigger *pr_trig;
+    TbMapLocation location;
+    long plr_id,crtr_id;
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return;
+    }
+    if ((ncopies <= 0) || (ncopies >= CREATURES_COUNT))
+    {
+        SCRPTERRLOG("Invalid number of creatures to add");
+        return;
+    }
+    if (game.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        return;
+    }
+    crtr_id = get_rid(creature_desc, crtr_name);
+    if (crtr_id == -1)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return;
+    }
+    // Recognize player
+    if (!get_player_id(plrname, &plr_id))
+        return;
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+        return;
+    if (script_current_condition < 0)
+    {
+        script_process_new_creatures(plr_id, crtr_id, location, ncopies, carried_gold, crtr_level-1);
+    } else
+    {
+        pr_trig = &game.script.party_triggers[game.script.party_triggers_num%PARTY_TRIGGERS_COUNT];
+        set_flag_byte(&(pr_trig->flags), TrgF_REUSABLE, next_command_reusable);
+        set_flag_byte(&(pr_trig->flags), TrgF_DISABLED, false);
+        pr_trig->plyr_idx = plr_id;
+        pr_trig->creatr_id = crtr_id;
+        pr_trig->crtr_level = crtr_level-1;
+        pr_trig->carried_gold = carried_gold;
+        pr_trig->location = location;
+        pr_trig->ncopies = ncopies;
+        pr_trig->condit_idx = script_current_condition;
+        game.script.party_triggers_num++;
+    }
 }
 
 void command_add_condition(long plr_id, long opertr_id, long varib_type, long varib_id, long value)
@@ -1375,114 +1436,107 @@ void command_display_objective(long msg_num, char *where, long x, long y)
 
 void command_add_tunneller_to_level(char *plrname, char *locname, char *objectv, long target, unsigned char crtr_level, unsigned long carried_gold)
 {
-  struct TunnellerTrigger *tn_trig;
-  TbMapLocation location;
-  long plr_id;
-  long head_id;
-  if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
-  {
-    SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
-    return;
-  }
-  if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
-  {
-    SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
-    return;
-  }
-  // Recognize player
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  // Recognize place where party is created
-  if (!get_map_location_id(locname, &location))
-    return;
-  head_id = get_rid(head_for_desc, objectv);
-  if (head_id == -1)
-  {
-    SCRPTERRLOG("Unhandled heading objective, '%s'", objectv);
-    return;
-  }
-  if (script_current_condition < 0)
-  {
-    script_process_new_tunneller(plr_id, location, head_id, target, crtr_level-1, carried_gold);
-  } else
-  {
-    tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num%TUNNELLER_TRIGGERS_COUNT];
-    set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
-    tn_trig->plyr_idx = plr_id;
-    tn_trig->location = location;
-    tn_trig->heading = head_id;
-    tn_trig->target = target;
-    tn_trig->carried_gold = carried_gold;
-    tn_trig->crtr_level = crtr_level-1;
-    tn_trig->carried_gold = carried_gold;
-    tn_trig->party_id = 0;
-    tn_trig->condit_idx = script_current_condition;
-    game.script.tunneller_triggers_num++;
-  }
+    struct TunnellerTrigger *tn_trig;
+    TbMapLocation location, heading;
+    long plr_id;
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return;
+    }
+    if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
+        return;
+    }
+    // Recognize player
+    if (!get_player_id(plrname, &plr_id))
+        return;
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+        return;
+    // Recognize place where party is going
+    if (!get_map_heading_id(objectv, target, &heading))
+        return;
+    if (script_current_condition < 0)
+    {
+        script_process_new_tunneler(plr_id, location, heading, crtr_level-1, carried_gold);
+    } else
+    {
+        tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num%TUNNELLER_TRIGGERS_COUNT];
+        set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
+        set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
+        tn_trig->plyr_idx = plr_id;
+        tn_trig->location = location;
+        tn_trig->heading = heading;
+        tn_trig->heading_OLD = 0; //target is now contained in heading and this is unused
+        tn_trig->carried_gold = carried_gold;
+        tn_trig->crtr_level = crtr_level-1;
+        tn_trig->carried_gold = carried_gold;
+        tn_trig->party_id = 0;
+        tn_trig->condit_idx = script_current_condition;
+        game.script.tunneller_triggers_num++;
+    }
 }
 
 void command_add_tunneller_party_to_level(char *plrname, char *prtname, char *locname, char *objectv, long target, char crtr_level, unsigned long carried_gold)
 {
-  struct TunnellerTrigger *tn_trig;
-  struct Party *party;
-  TbMapLocation location;
-  long plr_id,prty_id;
-  long head_id;
-  if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
-  {
-    SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
-    return;
-  }
-  if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
-  {
-    SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
-    return;
-  }
-  // Recognize player
-  if (!get_player_id(plrname, &plr_id))
-    return;
-  // Recognize place where party is created
-  if (!get_map_location_id(locname, &location))
-    return;
-  head_id = get_rid(head_for_desc, objectv);
-  if (head_id == -1)
-  {
-    SCRPTERRLOG("Unhandled heading objective, '%s'", objectv);
-    return;
-  }
-  // Recognize party name
-  prty_id = get_party_index_of_name(prtname);
-  if (prty_id < 0)
-  {
-    SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
-    return;
-  }
-  party = &game.script.creature_partys[prty_id];
-  if (party->members_num >= PARTY_MEMBERS_COUNT-1)
-  {
-    SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", PARTY_MEMBERS_COUNT-1);
-    return;
-  }
-  if (script_current_condition < 0)
-  {
-    script_process_new_tunneller_party(plr_id, prty_id, location, head_id, target, crtr_level-1, carried_gold);
-  } else
-  {
-    tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num%TUNNELLER_TRIGGERS_COUNT];
-    set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
-    tn_trig->plyr_idx = plr_id;
-    tn_trig->location = location;
-    tn_trig->heading = head_id;
-    tn_trig->target = target;
-    tn_trig->carried_gold = carried_gold;
-    tn_trig->crtr_level = crtr_level-1;
-    tn_trig->carried_gold = carried_gold;
-    tn_trig->party_id = prty_id+1;
-    tn_trig->condit_idx = script_current_condition;
-    game.script.tunneller_triggers_num++;
-  }
+    struct TunnellerTrigger *tn_trig;
+    struct Party *party;
+    TbMapLocation location, heading;
+    long plr_id,prty_id;
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return;
+    }
+    if (game.script.tunneller_triggers_num >= TUNNELLER_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_TUNNELLER commands in script");
+        return;
+    }
+    // Recognize player
+    if (!get_player_id(plrname, &plr_id))
+        return;
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+        return;
+    // Recognize place where party is going
+    if (!get_map_heading_id(objectv, target, &heading))
+        return;
+    // Recognize party name
+    prty_id = get_party_index_of_name(prtname);
+    if (prty_id < 0)
+    {
+        SCRPTERRLOG("Party of requested name, '%s', is not defined", prtname);
+        return;
+    }
+    party = &game.script.creature_partys[prty_id];
+    if (party->members_num >= PARTY_MEMBERS_COUNT-1)
+    {
+        SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", PARTY_MEMBERS_COUNT-1);
+        return;
+    }
+    // Either add the party or add item to conditional triggers list
+    if (script_current_condition < 0)
+    {
+        script_process_new_tunneller_party(plr_id, prty_id, location, heading, crtr_level-1, carried_gold);
+    } else
+    {
+        tn_trig = &game.script.tunneller_triggers[game.script.tunneller_triggers_num%TUNNELLER_TRIGGERS_COUNT];
+        set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
+        set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
+        tn_trig->plyr_idx = plr_id;
+        tn_trig->location = location;
+        tn_trig->heading = heading;
+        tn_trig->heading_OLD = 0; //target is now contained in heading and this is unused
+        tn_trig->carried_gold = carried_gold;
+        tn_trig->crtr_level = crtr_level-1;
+        tn_trig->carried_gold = carried_gold;
+        tn_trig->party_id = prty_id+1;
+        tn_trig->condit_idx = script_current_condition;
+        game.script.tunneller_triggers_num++;
+    }
 }
 
 void command_add_creature_to_pool(char *crtr_name, long amount)
@@ -2628,10 +2682,28 @@ long script_support_create_thing_at_dungeon_heart(unsigned char tngclass, unsign
     return thing->index;
 }
 
-long script_support_send_tunneller_to_action_point(struct Thing *thing, long a2)
+long send_tunneller_to_point(struct Thing *thing, struct Coord3d *pos)
 {
-  SYNCDBG(7,"Starting");
-  return _DK_script_support_send_tunneller_to_action_point(thing, a2);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    cctrl->party.target_plyr_idx = -1;
+    setup_person_tunnel_to_position(thing, pos->x.stl.num, pos->y.stl.num, 0);
+    thing->continue_state = CrSt_TunnellerDoingNothing;
+    return 1;
+}
+
+long script_support_send_tunneller_to_action_point(struct Thing *thing, long apt_num)
+{
+    struct ActionPoint *apt;
+    SYNCDBG(7,"Starting");
+    //return _DK_script_support_send_tunneller_to_action_point(thing, a2);
+    apt = action_point_get_by_number(apt_num);
+    struct Coord3d pos;
+    pos.x.val = apt->mappos.x.val;
+    pos.y.val = apt->mappos.y.val;
+    pos.z.val = subtile_coord(1,0);
+    send_tunneller_to_point(thing, &pos);
+    return 1;
 }
 
 TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
@@ -2694,7 +2766,7 @@ long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing)
     return _DK_script_support_send_tunneller_to_appropriate_dungeon(thing);
 }
 
-struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long breed, long location)
+struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
@@ -2705,24 +2777,28 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long br
     {
     case MLoc_ACTIONPOINT:
         i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_action_point(i, TCls_Creature, breed, plyr_idx, 1);
+        tng_idx = script_support_create_thing_at_action_point(i, TCls_Creature, crmodel, plyr_idx, 1);
         effect = 1;
         break;
     case MLoc_HEROGATE:
         i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_hero_door(i, TCls_Creature, breed, plyr_idx, 1);
+        tng_idx = script_support_create_thing_at_hero_door(i, TCls_Creature, crmodel, plyr_idx, 1);
         effect = 0;
         break;
     case MLoc_PLAYERSHEART:
         i = get_map_location_longval(location);
-        tng_idx = script_support_create_thing_at_dungeon_heart(TCls_Creature, breed, plyr_idx, i);
+        tng_idx = script_support_create_thing_at_dungeon_heart(TCls_Creature, crmodel, plyr_idx, i);
         effect = 0;
         break;
-    case MLoc_NONE:
-    case MLoc_CREATUREBREED:
+    case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
     case MLoc_THING:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
+    case MLoc_NONE:
     default:
         tng_idx = 0;
         effect = 0;
@@ -2731,7 +2807,7 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long br
     thing = thing_get(tng_idx);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create creature breed %d at location %ld",(int)breed,location);
+        ERRORLOG("Couldn't create creature breed %d at location %d",(int)crmodel,(int)location);
         return INVALID_THING;
     }
     cctrl = creature_control_get_from_thing(thing);
@@ -2753,37 +2829,38 @@ struct Thing *script_create_creature_at_location(unsigned char plyr_idx, long br
     return thing;
 }
 
-struct Thing *script_process_new_tunneller(unsigned char plyr_idx, TbMapLocation location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold)
+struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
 {
-    struct Thing *thing;
+    struct Thing *creatng;
     //return _DK_script_process_new_tunneller(plyr_idx, location, a3, a4, a5, a6);
-    thing = script_create_creature_at_location(plyr_idx, 8, location);
-    if (thing_is_invalid(thing))
+    ThingModel diggerkind = get_players_special_digger_breed(game.hero_player_num);
+    creatng = script_create_creature_at_location(plyr_idx, diggerkind, location);
+    if (thing_is_invalid(creatng))
         return INVALID_THING;
-    thing->creature.gold_carried = carried_gold;
-    init_creature_level(thing, crtr_level);
-    switch (heading)
+    creatng->creature.gold_carried = carried_gold;
+    init_creature_level(creatng, crtr_level);
+    switch (get_map_location_type(heading))
     {
-    case 1:
-        script_support_send_tunneller_to_action_point(thing, target);
+    case MLoc_ACTIONPOINT:
+        script_support_send_tunneller_to_action_point(creatng, get_map_location_longval(heading));
         break;
-    case 2:
-        script_support_send_tunneller_to_dungeon(thing, target);
+    case MLoc_PLAYERSDUNGEON:
+        script_support_send_tunneller_to_dungeon(creatng, get_map_location_longval(heading));
         break;
-    case 3:
-        script_support_send_tunneller_to_dungeon_heart(thing, target);
+    case MLoc_PLAYERSHEART:
+        script_support_send_tunneller_to_dungeon_heart(creatng, get_map_location_longval(heading));
         break;
-    case 4:
-        script_support_send_tunneller_to_appropriate_dungeon(thing);
+    case MLoc_APPROPRTDUNGEON:
+        script_support_send_tunneller_to_appropriate_dungeon(creatng);
         break;
     default:
-        ERRORLOG("Invalid Heading objective");
+        ERRORLOG("Invalid Heading objective %d",(int)get_map_location_type(heading));
         break;
     }
-    return thing;
+    return creatng;
 }
 
-struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_idx, long location, long copies_num)
+struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_idx, TbMapLocation location, long copies_num)
 {
     struct CreatureControl *cctrl;
     struct PartyMember *member;
@@ -2828,36 +2905,36 @@ struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_i
     return ldthing;
 }
 
-struct Thing *script_create_new_creature(unsigned char plyr_idx, long breed, long location, long carried_gold, long crtr_level)
+struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level)
 {
-  struct Thing *thing;
-  //return _DK_script_create_new_creature(plyr_idx, breed, location, carried_gold, crtr_level);
-  thing = script_create_creature_at_location(plyr_idx, breed, location);
-  if (thing_is_invalid(thing))
-    return INVALID_THING;
-  thing->creature.gold_carried = carried_gold;
-  init_creature_level(thing, crtr_level);
-  return thing;
+    struct Thing *creatng;
+    //return _DK_script_create_new_creature(plyr_idx, breed, location, carried_gold, crtr_level);
+    creatng = script_create_creature_at_location(plyr_idx, crmodel, location);
+    if (thing_is_invalid(creatng))
+        return INVALID_THING;
+    creatng->creature.gold_carried = carried_gold;
+    init_creature_level(creatng, crtr_level);
+    return creatng;
 }
 
-void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, long location, unsigned char heading, long target, unsigned char crtr_level, unsigned long carried_gold)
+void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
 {
-  struct Thing *gpthing;
-  struct Thing *ldthing;
-  //_DK_script_process_new_tunneller_party(a1, a2, a3, a4, a5, a6, a7);
-  ldthing = script_process_new_tunneller(plyr_idx, location, heading, target, crtr_level, carried_gold);
-  if (thing_is_invalid(ldthing))
-  {
-    ERRORLOG("Couldn't create tunneling group leader");
-    return;
-  }
-  gpthing = script_process_new_party(&game.script.creature_partys[prty_id], plyr_idx, location, 1);
-  if (thing_is_invalid(gpthing))
-  {
-    ERRORLOG("Couldn't create creature group");
-    return;
-  }
-  add_creature_to_group_as_leader(ldthing, gpthing);
+    struct Thing *gpthing;
+    struct Thing *ldthing;
+    //_DK_script_process_new_tunneller_party(a1, a2, a3, a4, a5, a6, a7);
+    ldthing = script_process_new_tunneler(plyr_idx, location, heading, crtr_level, carried_gold);
+    if (thing_is_invalid(ldthing))
+    {
+        ERRORLOG("Couldn't create tunneling group leader");
+        return;
+    }
+    gpthing = script_process_new_party(&game.script.creature_partys[prty_id], plyr_idx, location, 1);
+    if (thing_is_invalid(gpthing))
+    {
+        ERRORLOG("Couldn't create creature group");
+        return;
+    }
+    add_creature_to_group_as_leader(ldthing, gpthing);
 }
 
 void script_process_new_creatures(unsigned char plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level)
@@ -3164,9 +3241,9 @@ void process_check_new_tunneller_partys(void)
           if (k > 0)
           {
             n = tn_trig->plyr_idx;
-            SCRIPTDBG(6,"Adding tunneller party %d",k);
-            thing = script_process_new_tunneller(n, tn_trig->location, tn_trig->heading,
-                        tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
+            SCRIPTDBG(6,"Adding tunneler party %d",k);
+            thing = script_process_new_tunneler(n, tn_trig->location, tn_trig->heading,
+                        tn_trig->crtr_level, tn_trig->carried_gold);
              if (!thing_is_invalid(thing))
              {
                 grptng = script_process_new_party(&game.script.creature_partys[k-1], n, tn_trig->location, 1);
@@ -3175,9 +3252,9 @@ void process_check_new_tunneller_partys(void)
              }
           } else
           {
-            SCRIPTDBG(6,"Adding tunneller, heading %d",tn_trig->heading);
-            script_process_new_tunneller(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
-                  tn_trig->target, tn_trig->crtr_level, tn_trig->carried_gold);
+            SCRIPTDBG(6,"Adding tunneler, heading %d",tn_trig->heading);
+            script_process_new_tunneler(tn_trig->plyr_idx, tn_trig->location, tn_trig->heading,
+                  tn_trig->crtr_level, tn_trig->carried_gold);
           }
           if ((tn_trig->flags & TrgF_REUSABLE) == 0)
             tn_trig->flags |= TrgF_DISABLED;

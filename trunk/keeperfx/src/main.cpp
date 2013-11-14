@@ -2112,9 +2112,13 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
         } else
           WARNMSG("%s: Thing %d location not found",func_name,i);
         break;
-    case MLoc_CREATUREBREED:
+    case MLoc_CREATUREKIND:
     case MLoc_OBJECTKIND:
     case MLoc_ROOMKIND:
+    case MLoc_PLAYERSDUNGEON:
+    case MLoc_APPROPRTDUNGEON:
+    case MLoc_DOORKIND:
+    case MLoc_TRAPKIND:
     default:
           WARNMSG("%s: Unsupported location, %lu.",func_name,location);
         break;
