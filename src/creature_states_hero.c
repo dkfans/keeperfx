@@ -950,8 +950,7 @@ short tunneller_doing_nothing(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     // Wait for some time
-    if (cctrl->long_9A + 1 >= game.play_gameturn)
-    {
+    if (game.play_gameturn - cctrl->last_mood_sound_turn <= 1) {
         return 1;
     }
     /* Sometimes we may have no target dungeon. In that case, destination dungeon

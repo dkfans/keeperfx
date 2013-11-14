@@ -275,6 +275,11 @@ unsigned char field_88;
     long long_A2;
     };
   struct {
+    unsigned long last_mood_sound_turn;
+    long long_9E_cp2;
+    long long_A2_cp2;
+    };
+  struct {
     unsigned char byte_9A_cp2;
     long long_9B;
     short word_9F_cp2;
