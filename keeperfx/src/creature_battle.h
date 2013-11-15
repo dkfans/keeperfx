@@ -58,8 +58,11 @@ TbBool creature_battle_invalid(const struct CreatureBattle *battle);
 TbBool creature_battle_exists(BattleIndex battle_idx);
 
 BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx);
+BattleIndex find_last_battle_of_mine(PlayerNumber plyr_idx);
 BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx);
+BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next_idx);
 BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex prev_idx);
+BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex next_idx);
 
 TbBool has_melee_combat_attackers(struct Thing *victim);
 TbBool can_add_melee_combat_attacker(struct Thing *victim);
@@ -70,9 +73,9 @@ void setup_combat_flee_position(struct Thing *thing);
 void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
 long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, long possible_combat);
 
-unsigned char active_battle_exists(unsigned char a1);
+TbBool active_battle_exists(PlayerNumber plyr_idx);
 void maintain_my_battle_list(void);
-unsigned char step_battles_forward(unsigned char a1);
+TbBool step_battles_forward(PlayerNumber plyr_idx);
 long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_id);
 void battle_initialise(void);
 /******************************************************************************/

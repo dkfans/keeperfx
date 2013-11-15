@@ -1777,22 +1777,39 @@ TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enmtng)
 
 void remove_waiting_attacker(struct Thing *figtng)
 {
-    _DK_remove_waiting_attacker(figtng);
+    struct CreatureControl *figctrl;
+    TRACE_THING(figtng);
+    //_DK_remove_waiting_attacker(figtng);
+    figctrl = creature_control_get_from_thing(figtng);
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(figtng->owner);
+        if (!dungeon_invalid(dungeon) && (dungeon->fights_num > 0)) {
+            dungeon->fights_num--;
+        } else {
+            WARNLOG("Fight count incorrect while removing attacker %s index %d",thing_model_name(figtng),(int)figtng->index);
+        }
+    }
+    figctrl->combat_flags &= ~CmbtF_Waiting;
+    figctrl->battle_enemy_idx = 0;
+    figctrl->fight_til_death = 0;
+    figctrl->long_9E = 0;
+    battle_remove(figtng);
 }
 
 void remove_attacker(struct Thing *figtng, struct Thing *enmtng)
 {
     struct CreatureControl *figctrl;
     figctrl = creature_control_get_from_thing(figtng);
-    if ( (figctrl->combat_flags & CmbtF_Melee) != 0 )
+    if ((figctrl->combat_flags & CmbtF_Melee) != 0)
     {
         remove_melee_attacker(figtng, enmtng);
     } else
-    if ( (figctrl->combat_flags & CmbtF_Ranged) != 0 )
+    if ((figctrl->combat_flags & CmbtF_Ranged) != 0)
     {
         remove_ranged_attacker(figtng, enmtng);
     } else
-    if ( (figctrl->combat_flags & CmbtF_Waiting) != 0 )
+    if ((figctrl->combat_flags & CmbtF_Waiting) != 0)
     {
         remove_waiting_attacker(figtng);
     }

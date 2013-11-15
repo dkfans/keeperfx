@@ -106,7 +106,7 @@ void draw_load_button(struct GuiButton *gbtn)
 {
   if (gbtn == NULL) return;
   gbtn->height = 32;
-  if ((gbtn->field_1) || (gbtn->field_2))
+  if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
   {
     draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
     draw_lit_bar64k(gbtn->scr_pos_x - 6, gbtn->scr_pos_y - 6, gbtn->width + 6);
