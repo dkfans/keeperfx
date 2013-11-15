@@ -148,13 +148,13 @@ long get_ceiling_height(const struct Coord3d *pos)
     return ((game.map[i].data & 0xF000000u) >> 24) << 8;
 }
 
-long get_mapwho_thing_index(const struct Map *map)
+long get_mapwho_thing_index(const struct Map *mapblk)
 {
-  return ((map->data >> 11) & 0x7FF);
-  //could also be ((map->data & 0x3FF800) >> 11);
+  return ((mapblk->data >> 11) & 0x7FF);
+  //could also be ((mapblk->data & 0x3FF800) >> 11);
 }
 
-void set_mapwho_thing_index(struct Map *map, long thing_idx)
+void set_mapwho_thing_index(struct Map *mapblk, long thing_idx)
 {
   // Check if new value is correct
   if ((unsigned long)thing_idx > 0x7FF)
@@ -163,15 +163,15 @@ void set_mapwho_thing_index(struct Map *map, long thing_idx)
       return;
   }
   // Clear previous and set new
-  map->data ^= (map->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
+  mapblk->data ^= (mapblk->data ^ ((unsigned long)thing_idx << 11)) & 0x3FF800;
 }
 
-long get_mapblk_column_index(const struct Map *map)
+long get_mapblk_column_index(const struct Map *mapblk)
 {
-  return ((map->data) & 0x7FF);
+  return ((mapblk->data) & 0x7FF);
 }
 
-void set_mapblk_column_index(struct Map *map, long column_idx)
+void set_mapblk_column_index(struct Map *mapblk, long column_idx)
 {
   // Check if new value is correct
   if ((unsigned long)column_idx > 0x7FF)
@@ -180,7 +180,7 @@ void set_mapblk_column_index(struct Map *map, long column_idx)
       return;
   }
   // Clear previous and set new
-  map->data ^= (map->data ^ ((unsigned long)column_idx)) & 0x7FF;
+  mapblk->data ^= (mapblk->data ^ ((unsigned long)column_idx)) & 0x7FF;
 }
 
 /**
@@ -188,9 +188,9 @@ void set_mapblk_column_index(struct Map *map, long column_idx)
  * @param map Map block to be checked.
  * @return Amount of filled subtiles.
  */
-long get_mapblk_filled_subtiles(const struct Map *map)
+long get_mapblk_filled_subtiles(const struct Map *mapblk)
 {
-    return ((map->data & 0xF000000u) >> 24);
+    return ((mapblk->data & 0xF000000u) >> 24);
 }
 
 /**
@@ -198,63 +198,63 @@ long get_mapblk_filled_subtiles(const struct Map *map)
  * @param map Map block to be updated.
  * @param height The new height.
  */
-void set_mapblk_filled_subtiles(struct Map *map, long height)
+void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
 {
     if (height <  0) height = 0;
     if (height > 15) height = 15;
-    map->data &= ~(0xF000000);
-    map->data |= (height << 24) & 0xF000000;
+    mapblk->data &= ~(0xF000000);
+    mapblk->data |= (height << 24) & 0xF000000;
 }
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
   unsigned short nflag;
-  struct Map *map;
+  struct Map *mapblk;
   unsigned long i;
   nflag = (1 << plyr_idx);
-  map = get_map_block_at(stl_x, stl_y);
-  i = (map->data >> 28) | nflag;
-  map->data |= (i & 0x0F) << 28;
+  mapblk = get_map_block_at(stl_x, stl_y);
+  i = (mapblk->data >> 28) | nflag;
+  mapblk->data |= (i & 0x0F) << 28;
 }
 
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
   unsigned short plyr_bit;
-  struct Map *map;
+  struct Map *mapblk;
   plyr_bit = (1 << plyr_idx);
-  map = get_map_block_at(stl_x, stl_y);
-  if (map_block_invalid(map))
+  mapblk = get_map_block_at(stl_x, stl_y);
+  if (map_block_invalid(mapblk))
     return false;
-  if ((map->data >> 28) & plyr_bit)
+  if ((mapblk->data >> 28) & plyr_bit)
     return true;
   return false;
 }
 
-void reveal_map_block(struct Map *map, PlayerNumber plyr_idx)
+void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 {
   unsigned short nflag;
   unsigned long i;
   nflag = (1 << plyr_idx);
-  i = (map->data >> 28) | nflag;
-  map->data |= (i & 0x0F) << 28;
+  i = (mapblk->data >> 28) | nflag;
+  mapblk->data |= (i & 0x0F) << 28;
 }
 
-TbBool map_block_revealed(const struct Map *map, PlayerNumber plyr_idx)
+TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
   unsigned short plyr_bit;
   plyr_bit = (1 << plyr_idx);
-  if (map_block_invalid(map))
+  if (map_block_invalid(mapblk))
     return false;
-  if ((map->data >> 28) & plyr_bit)
+  if ((mapblk->data >> 28) & plyr_bit)
     return true;
   return false;
 }
 
-TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit)
+TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
 {
-  if (map_block_invalid(map))
+  if (map_block_invalid(mapblk))
     return false;
-  if ((map->data >> 28) & plyr_bit)
+  if ((mapblk->data >> 28) & plyr_bit)
     return true;
   return false;
 }
@@ -453,32 +453,32 @@ MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v)
 void clear_mapwho(void)
 {
   //_DK_clear_mapwho();
-  struct Map *map;
+  struct Map *mapblk;
   MapSubtlCoord x,y;
   for (y=0; y < (map_subtiles_y+1); y++)
   {
       for (x=0; x < (map_subtiles_x+1); x++)
       {
-          map = &game.map[get_subtile_number(x,y)];
-          map->data &= 0xFFC007FFu;
+          mapblk = &game.map[get_subtile_number(x,y)];
+          mapblk->data &= 0xFFC007FFu;
       }
   }
 }
 
 void clear_mapmap_soft(void)
 {
-    struct Map *map;
+    struct Map *mapblk;
     MapSubtlCoord x,y;
     for (y=0; y < (map_subtiles_y+1); y++)
     {
         for (x=0; x < (map_subtiles_x+1); x++)
         {
-          map = &game.map[get_subtile_number(x,y)];
-          map->data &= 0xFF3FFFFFu;
-          map->data &= 0xFFFFF800u;
-          map->data &= 0xFFC007FFu;
-          map->data &= 0x0FFFFFFFu;
-          map->flags = 0;
+          mapblk = &game.map[get_subtile_number(x,y)];
+          mapblk->data &= 0xFF3FFFFFu;
+          mapblk->data &= 0xFFFFF800u;
+          mapblk->data &= 0xFFC007FFu;
+          mapblk->data &= 0x0FFFFFFFu;
+          mapblk->flags = 0;
         }
     }
     clear_subtiles_lightness(&game.lish);

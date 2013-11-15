@@ -90,9 +90,32 @@ DLLIMPORT struct Thing *_DK_find_base_thing_on_mapwho(unsigned char oclass, unsi
 DLLIMPORT void _DK_remove_thing_from_mapwho(struct Thing *thing);
 DLLIMPORT void _DK_place_thing_in_mapwho(struct Thing *thing);
 /******************************************************************************/
+/**
+ * Adds thing at beginning of a StructureList.
+ * @param thing
+ * @param list
+ */
 void add_thing_to_list(struct Thing *thing, struct StructureList *list)
 {
-  _DK_add_thing_to_list(thing, list);
+    //_DK_add_thing_to_list(thing, list);
+    if ((thing->alloc_flags & TAlF_IsInStrucList) != 0)
+    {
+        ERRORLOG("Thing is already in list");
+        return;
+    }
+    struct Thing *prevtng;
+    prevtng = INVALID_THING;
+    if (list->index > 0) {
+        prevtng = thing_get(list->index);
+    }
+    list->count++;
+    thing->alloc_flags |= TAlF_IsInStrucList;
+    thing->prev_of_class = 0;
+    thing->next_of_class = list->index;
+    if (!thing_is_invalid(prevtng)) {
+        prevtng->prev_of_class = thing->index;
+    }
+    list->index = thing->index;
 }
 
 void remove_thing_from_list(struct Thing *thing, struct StructureList *slist)

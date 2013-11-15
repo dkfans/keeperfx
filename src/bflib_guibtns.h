@@ -134,8 +134,8 @@ struct GuiButtonInit {
 
 struct GuiButton {
        unsigned char flags;
-       unsigned char field_1;
-       unsigned char field_2;
+       unsigned char gbactn_1;
+       unsigned char gbactn_2;
        char gmenu_idx;
        short id_num;
        unsigned char gbtype;

@@ -195,7 +195,7 @@ void gui_area_event_button(struct GuiButton *gbtn)
   {
     dungeon = get_players_num_dungeon(my_player_number);
     i = (unsigned long)gbtn->content;
-    if ((gbtn->field_1) || (gbtn->field_2))
+    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
       draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
     } else
@@ -608,7 +608,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
             spridx += 14 * i / cr_total;
           }
         }
-        if ((gbtn->field_1) || (gbtn->field_2))
+        if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
         {
           draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y-2, spridx, 3072);
         } else
@@ -714,7 +714,7 @@ void gui_area_ally(struct GuiButton *gbtn)
             spr_idx = 488 + (plyr_idx & 0x0f);
         }
     }
-    if ( gbtn->field_1 || gbtn->field_2 )
+    if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
     {
         LbSpriteDrawRemap( gbtn->scr_pos_x/pixel_size, gbtn->scr_pos_y/pixel_size,
             &gui_panel_sprites[spr_idx], &pixmap.fade_tables[44*256]);
@@ -815,8 +815,8 @@ void maintain_event_button(struct GuiButton *gbtn)
     gbtn->field_1B |= 0x4000;
     gbtn->field_29 = 0;
     gbtn->flags &= ~0x08;
-    gbtn->field_1 = 0;
-    gbtn->field_2 = 0;
+    gbtn->gbactn_1 = 0;
+    gbtn->gbactn_2 = 0;
     gbtn->tooltip_id = 201;
     return;
   }

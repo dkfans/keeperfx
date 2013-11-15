@@ -77,8 +77,8 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
              (gbtn->gbtype != Lb_RADIOBTN) && (gbtn != input_button) )
         {
           gbtn->flags &= ~LbBtnF_Unknown10;
-          gbtn->field_1 = 0;
-          gbtn->field_2 = 0;
+          gbtn->gbactn_1 = 0;
+          gbtn->gbactn_2 = 0;
         }
     }
 }
@@ -91,24 +91,24 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
       return false;
     Gf_Btn_Callback callback;
     gbtn = &active_buttons[gmbtn_idx%ACTIVE_BUTTONS_COUNT];
-    if ((gbtn->field_1) && (left_button_released))
+    if ((gbtn->gbactn_1) && (left_button_released))
     {
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
             (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
         {
             left_button_released = 0;
-            do_button_release_actions(gbtn, &gbtn->field_1, callback);
+            do_button_release_actions(gbtn, &gbtn->gbactn_1, callback);
         }
         return true;
     }
-    if ((gbtn->field_2) && (right_button_released))
+    if ((gbtn->gbactn_2) && (right_button_released))
     {
         callback = gbtn->rclick_event;
         if (callback != NULL)
         {
           right_button_released = 0;
-          do_button_release_actions(gbtn, &gbtn->field_2, callback);
+          do_button_release_actions(gbtn, &gbtn->gbactn_2, callback);
         }
         return true;
     }
@@ -125,7 +125,7 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
       return false;
     gbtn = &active_buttons[gbtn_idx];
     mouse_x = GetMouseX();
-    gbtn->field_1 = 1;
+    gbtn->gbactn_1 = 1;
     slide_start = gbtn->pos_x+32;
     slide_end = gbtn->pos_x+gbtn->width-32;
     if (mouse_x < slide_start)
@@ -173,10 +173,10 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
                 switch (gbtn->gbtype)
                 {
                 case Lb_UNKNBTN1:
-                  if ((gbtn->field_1 > 5) && (callback != NULL)) {
+                  if ((gbtn->gbactn_1 > 5) && (callback != NULL)) {
                       callback(gbtn);
                   } else {
-                      gbtn->field_1++;
+                      gbtn->gbactn_1++;
                   }
                   break;
                 case Lb_UNKNBTN6:
@@ -199,10 +199,10 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
             switch (gbtn->gbtype)
             {
             case Lb_UNKNBTN1:
-              if ((gbtn->field_2 > 5) && (callback != NULL)) {
+              if ((gbtn->gbactn_2 > 5) && (callback != NULL)) {
                   callback(gbtn);
               } else {
-                  gbtn->field_2++;
+                  gbtn->gbactn_2++;
               }
               break;
             case Lb_UNKNBTN6:
@@ -228,7 +228,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         {
           left_button_clicked = 0;
           gui_last_left_button_pressed_id = gbtn->id_num;
-          do_button_click_actions(gbtn, &gbtn->field_1, callback);
+          do_button_click_actions(gbtn, &gbtn->gbactn_1, callback);
         }
     } else
     if ( right_button_clicked )
@@ -245,7 +245,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         {
           right_button_clicked = 0;
           gui_last_right_button_pressed_id = gbtn->id_num;
-          do_button_click_actions(gbtn, &gbtn->field_2, callback);
+          do_button_click_actions(gbtn, &gbtn->gbactn_2, callback);
         }
     }
     return result;
@@ -294,9 +294,9 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
             if (gbtn->gbtype == Lb_RADIOBTN)
             {
                 if ( *(unsigned char *)gbtn->content )
-                  gbtn->field_1 = 1;
+                  gbtn->gbactn_1 = 1;
                 else
-                  gbtn->field_1 = 0;
+                  gbtn->gbactn_1 = 0;
             }
         }
     }
@@ -422,7 +422,7 @@ void gui_area_new_normal_button(struct GuiButton *gbtn)
   if ((gbtn->flags & 0x08) != 0)
   {
       i = 0;
-      if ((gbtn->field_1) || (gbtn->field_2))
+      if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
           i = 1;
       LbSpriteDraw(gbtn->scr_pos_x / pixel_size, gbtn->scr_pos_y / pixel_size, &spr[1-i]);
   } else
@@ -436,7 +436,7 @@ void gui_draw_tab(struct GuiButton *gbtn)
 {
   if (gbtn->gbtype == Lb_CYCLEBTN)
     ERRORLOG("Cycle button cannot use this draw function!");
-  if ((gbtn->field_1) || (gbtn->field_2))
+  if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
   else
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1);
@@ -476,7 +476,7 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
     {
         LbSpriteDrawRemap(gbtn->scr_pos_x / (int)pixel_size, gbtn->scr_pos_y / (int)pixel_size, spr, &pixmap.fade_tables[12*256]);
     } else
-    if ((gbtn->field_1) || (gbtn->field_2))
+    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         LbSpriteDrawRemap(gbtn->scr_pos_x / (int)pixel_size, gbtn->scr_pos_y / (int)pixel_size, spr, &pixmap.fade_tables[44*256]);
     } else
@@ -504,7 +504,7 @@ void gui_area_normal_button(struct GuiButton *gbtn)
     pos_y = gbtn->scr_pos_y / (long)pixel_size;
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
     {
-        if ( (gbtn->field_1 != 0) || (gbtn->field_2 != 0) )
+        if ( (gbtn->gbactn_1 != 0) || (gbtn->gbactn_2 != 0) )
             spr_idx++;
         spr = &button_sprite[spr_idx];
         LbSpriteDraw(pos_x, pos_y, spr);

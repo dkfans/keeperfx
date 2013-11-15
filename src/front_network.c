@@ -191,12 +191,12 @@ void setup_alliances(void)
   for (i=0; i<PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      if ( (!is_my_player_number(i)) && (player_exists(player)) )
+      if (!is_my_player_number(i) && player_exists(player))
       {
           if (frontend_is_player_allied(my_player_number, i))
           {
-            toggle_ally_with_player(my_player_number, i);
-            toggle_ally_with_player(i, my_player_number);
+              set_ally_with_player(my_player_number, i, true);
+              set_ally_with_player(i, my_player_number, true);
           }
       }
   }

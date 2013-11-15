@@ -130,7 +130,33 @@ short creature_arrived_at_prison(struct Thing *thing)
 
 short creature_drop_body_in_prison(struct Thing *thing)
 {
-  return _DK_creature_drop_body_in_prison(thing);
+    struct CreatureControl *cctrl;
+    //return _DK_creature_drop_body_in_prison(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    struct Thing *dragtng;
+    dragtng = thing_get(cctrl->dragtng_idx);
+    if (!thing_exists(dragtng) || !creature_is_being_unconscious(dragtng)) {
+        set_start_state(thing);
+        return 0;
+    }
+    if (!subtile_is_room(thing->mappos.x.stl.num, thing->mappos.y.stl.num)) {
+        set_start_state(thing);
+        return 0;
+    }
+    struct Room *room;
+    room = get_room_thing_is_on(thing);
+    if ((room->owner != thing->owner) || (room->kind != RoK_PRISON)) {
+        set_start_state(thing);
+        return 0;
+    }
+    make_creature_conscious(dragtng);
+    initialise_thing_state(dragtng, CrSt_CreatureArrivedAtPrison);
+    struct CreatureControl *dragctrl;
+    dragctrl = creature_control_get_from_thing(dragtng);
+    dragctrl->flgfield_1 |= CCFlg_NoCompControl;
+    set_start_state(thing);
+    return 1;
+
 }
 
 struct Thing *find_prisoner_for_thing(struct Thing *creatng)

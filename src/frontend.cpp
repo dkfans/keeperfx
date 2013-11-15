@@ -771,7 +771,7 @@ TbBool get_button_area_input(struct GuiButton *gbtn, int modifiers)
     {
         if ( (gbtn->field_2D < 0) || (str[0] != '\0') || (modifiers == -3) )
         {
-            gbtn->field_1 = 0;
+            gbtn->gbactn_1 = 0;
             (gbtn->click_event)(gbtn);
             input_button = 0;
             if ((gbtn->flags & 0x02) != 0)
@@ -1197,7 +1197,7 @@ void gui_area_text(struct GuiButton *gbtn)
     {
     case 1:
         gbtn->height = 32;
-        if ( gbtn->field_1 || gbtn->field_2 )
+        if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
             draw_lit_bar64k(gbtn->scr_pos_x - 6, gbtn->scr_pos_y - 6, gbtn->width + 6);
@@ -1585,7 +1585,7 @@ void clear_radio_buttons(struct GuiMenu *gmnu)
         if (gbtn->gbtype == Lb_RADIOBTN)
         {
             if (gmnu->number == gbtn->gmenu_idx)
-                gbtn->field_1 = 0;
+                gbtn->gbactn_1 = 0;
         }
     }
 }
@@ -1603,7 +1603,7 @@ void update_radio_button_data(struct GuiMenu *gmnu)
         {
           if (gbtn->gbtype == Lb_RADIOBTN)
           {
-              if (gbtn->field_1)
+              if (gbtn->gbactn_1)
                 *rbstate = 1;
               else
                 *rbstate = 0;
@@ -1619,7 +1619,7 @@ void do_button_click_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_Ca
     if (gbtn->gbtype == Lb_RADIOBTN)
     {
         //TODO: pointers comparison should be avoided
-        if (s == &gbtn->field_2)
+        if (s == &gbtn->gbactn_2)
             return;
     }
     if ((gbtn->flags & LbBtnF_Unknown08) != 0)
@@ -1684,7 +1684,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       break;
   case Lb_RADIOBTN:
       //TODO: pointers comparison should be avoided
-      if (s == &gbtn->field_2)
+      if (s == &gbtn->gbactn_2)
         return;
       break;
   case Lb_EDITBTN:
@@ -1695,7 +1695,7 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
       break;
   }
 
-  if (s == &gbtn->field_1)
+  if (s == &gbtn->gbactn_1)
   {
     gmnu = get_active_menu(gbtn->gmenu_idx);
     if (gbtn->field_2F != NULL)
@@ -1840,7 +1840,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Unknown08;
     gbtn->flags &= ~LbBtnF_Unknown10;
-    gbtn->field_1 = 0;
+    gbtn->gbactn_1 = 0;
     gbtn->flags |= LbBtnF_Unknown04;
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown20 * (gbinit->field_5 >> 8)) & LbBtnF_Unknown20;
     if ((gbinit->scr_pos_x == 999) || (gbinit->pos_x == 999))
@@ -1869,17 +1869,17 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
         scrollwnd = (struct TextScrollWindow *)gbtn->content;
         if ((scrollwnd != NULL) && (scrollwnd->text[0] == 1))
         {
-            gbtn->field_1 = 1;
-            gbtn->field_2 = 0;
+            gbtn->gbactn_1 = 1;
+            gbtn->gbactn_2 = 0;
         } else
         {
-            gbtn->field_1 = 0;
-            gbtn->field_2 = 0;
+            gbtn->gbactn_1 = 0;
+            gbtn->gbactn_2 = 0;
         }
     } else
     {
-        gbtn->field_1 = 0;
-        gbtn->field_2 = 0;
+        gbtn->gbactn_1 = 0;
+        gbtn->gbactn_2 = 0;
     }
     SYNCDBG(11,"Created button %d at (%d,%d) size (%d,%d)",gidx,
         gbtn->pos_x,gbtn->pos_y,gbtn->width,gbtn->height);
@@ -2969,7 +2969,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->draw_call;
         if ((callback != NULL) && (gbtn->flags & 0x04) && (gbtn->flags & 0x01) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if ( ((gbtn->field_1 == 0) && (gbtn->field_2 == 0)) || (gbtn->gbtype == Lb_SLIDER) || (callback == gui_area_null) )
+          if ( ((gbtn->gbactn_1 == 0) && (gbtn->gbactn_2 == 0)) || (gbtn->gbtype == Lb_SLIDER) || (callback == gui_area_null) )
             callback(gbtn);
         }
     }
@@ -2980,7 +2980,7 @@ void draw_menu_buttons(struct GuiMenu *gmnu)
         callback = gbtn->draw_call;
         if ((callback != NULL) && (gbtn->flags & 0x04) && (gbtn->flags & 0x01) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (((gbtn->field_1) || (gbtn->field_2)) && (gbtn->gbtype != Lb_SLIDER) && (callback != gui_area_null))
+          if (((gbtn->gbactn_1) || (gbtn->gbactn_2)) && (gbtn->gbtype != Lb_SLIDER) && (callback != gui_area_null))
             callback(gbtn);
         }
     }

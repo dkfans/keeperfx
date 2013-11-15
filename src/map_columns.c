@@ -45,18 +45,18 @@ struct Column *get_column(long idx)
 
 struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  struct Map *map;
-  map = get_map_block_at(stl_x, stl_y);
-  if (map_block_invalid(map))
+  struct Map *mapblk;
+  mapblk = get_map_block_at(stl_x, stl_y);
+  if (map_block_invalid(mapblk))
     return INVALID_COLUMN;
-  return game.columns.lookup[map->data & 0x7FF];
+  return game.columns.lookup[mapblk->data & 0x7FF];
 }
 
-struct Column *get_map_column(const struct Map *map)
+struct Column *get_map_column(const struct Map *mapblk)
 {
-  if (map_block_invalid(map))
+  if (map_block_invalid(mapblk))
     return INVALID_COLUMN;
-  return game.columns.lookup[map->data & 0x7FF];
+  return game.columns.lookup[mapblk->data & 0x7FF];
 }
 
 TbBool column_invalid(const struct Column *colmn)

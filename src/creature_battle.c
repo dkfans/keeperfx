@@ -137,6 +137,22 @@ BattleIndex find_first_battle_of_mine(PlayerNumber plyr_idx)
     return 0;
 }
 
+BattleIndex find_last_battle_of_mine(PlayerNumber plyr_idx)
+{
+    struct CreatureBattle *battle;
+    long i;
+    for (i = BATTLES_COUNT; i > 0; i--)
+    {
+        battle = creature_battle_get(i);
+        if (battle->fighters_num != 0)
+        {
+            if (battle_with_creature_of_player(plyr_idx, i))
+               return i;
+        }
+    }
+    return 0;
+}
+
 TbBool can_add_ranged_combat_attacker(const struct Thing *victim)
 {
     struct CreatureControl *vicctrl;
@@ -292,7 +308,7 @@ void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long com
     setup_combat_flee_position(fighter);
 }
 
-unsigned char active_battle_exists(unsigned char plyr_idx)
+TbBool active_battle_exists(PlayerNumber plyr_idx)
 {
     //return _DK_active_battle_exists(a1);
     struct Dungeon *dungeon;
@@ -300,9 +316,27 @@ unsigned char active_battle_exists(unsigned char plyr_idx)
     return (dungeon->visible_battles[0] != 0);
 }
 
-unsigned char step_battles_forward(unsigned char a1)
+TbBool step_battles_forward(PlayerNumber plyr_idx)
 {
-    return _DK_step_battles_forward(a1);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    //return _DK_step_battles_forward(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    BattleIndex i;
+    i = dungeon->visible_battles[2];
+    if (i > 0) {
+        i = find_next_battle_of_mine_excluding_current_list(plyr_idx, i);
+    }
+    if (i > 0) {
+        dungeon->visible_battles[2] = i;
+        i = find_previous_battle_of_mine_excluding_current_list(plyr_idx, i);
+        dungeon->visible_battles[1] = i;
+        i = find_previous_battle_of_mine_excluding_current_list(plyr_idx, i);
+        dungeon->visible_battles[0] = i;
+    }
+    return active_battle_exists(plyr_idx);
 }
 
 long battle_move_player_towards_battle(struct PlayerInfo *player, BattleIndex battle_id)
@@ -347,6 +381,18 @@ BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx
     return find_first_battle_of_mine(plyr_idx);
 }
 
+BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next_idx)
+{
+    BattleIndex prev_idx;
+    for (prev_idx = next_idx-1; prev_idx > 0; prev_idx--)
+    {
+        if (creature_battle_exists(prev_idx) && battle_with_creature_of_player(plyr_idx, prev_idx)) {
+            return prev_idx;
+        }
+    }
+    return find_last_battle_of_mine(plyr_idx);
+}
+
 TbBool battle_in_list(PlayerNumber plyr_idx, BattleIndex battle_idx)
 {
     struct Dungeon *dungeon;
@@ -373,6 +419,21 @@ BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_id
     {
         battle_idx = find_next_battle_of_mine(plyr_idx, battle_idx);
         if (battle_idx == first_idx)
+            return 0;
+    }
+    return battle_idx;
+}
+
+BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex next_idx)
+{
+    BattleIndex last_idx;
+    BattleIndex battle_idx;
+    battle_idx = find_previous_battle_of_mine(plyr_idx, next_idx);
+    last_idx = battle_idx;
+    while (battle_in_list(plyr_idx, battle_idx))
+    {
+        battle_idx = find_previous_battle_of_mine(plyr_idx, battle_idx);
+        if (battle_idx == last_idx)
             return 0;
     }
     return battle_idx;
