@@ -3116,7 +3116,7 @@ void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7)
 
 void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 {
-    struct Map *map;
+    struct Map *mapblk;
     struct Column *colmn;
     short visible;
     unsigned int mask;
@@ -3124,12 +3124,12 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
     if (i > 0)
     {
-      map = get_map_block_at(x,y);
-      visible = map_block_revealed_bit(map, player_bit);
-      if ((!visible) || ((map->data & 0x7FF) > 0))
+      mapblk = get_map_block_at(x,y);
+      visible = map_block_revealed_bit(mapblk, player_bit);
+      if ((!visible) || ((mapblk->data & 0x7FF) > 0))
       {
         if (visible)
-          k = map->data & 0x7FF;
+          k = mapblk->data & 0x7FF;
         else
           k = game.unrevealed_column_idx;
         colmn = get_column(k);
@@ -3137,13 +3137,13 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
         if ((temp_cluedo_mode) && (mask != 0))
         {
           if (visible)
-            k = map->data & 0x7FF;
+            k = mapblk->data & 0x7FF;
           else
             k = game.unrevealed_column_idx;
           colmn = get_column(k);
           if (colmn->solidmask >= 8)
           {
-            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((map->flags & MapFlg_IsRoom) == 0)) )
+            if ( (!visible) || (((get_navigation_map(x,y) & 0x80) == 0) && ((mapblk->flags & MapFlg_IsRoom) == 0)) )
               mask &= 3;
           }
         }
@@ -3153,7 +3153,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
           pointed_at_frac_y = y_frac;
           block_pointed_at_x = x;
           block_pointed_at_y = y;
-          me_pointed_at = map;
+          me_pointed_at = mapblk;
         }
         if (((!temp_cluedo_mode) && (i == 5)) || ((temp_cluedo_mode) && (i == 2)))
         {
@@ -3165,14 +3165,14 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
       }
     } else
     {
-        map = get_map_block_at(x,y);
+        mapblk = get_map_block_at(x,y);
         floor_pointed_at_x = x;
         floor_pointed_at_y = y;
         block_pointed_at_x = x;
         block_pointed_at_y = y;
         pointed_at_frac_x = x_frac;
         pointed_at_frac_y = y_frac;
-        me_pointed_at = map;
+        me_pointed_at = mapblk;
     }
 }
 

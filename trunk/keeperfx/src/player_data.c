@@ -197,7 +197,7 @@ void clear_players(void)
     game.game_kind = GKind_NetworkGame;
 }
 
-void  toggle_ally_with_player(long plyridx, unsigned int allyidx)
+void toggle_ally_with_player(long plyridx, unsigned int allyidx)
 {
     struct PlayerInfo *player;
     player = get_player(plyridx);

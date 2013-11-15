@@ -2832,6 +2832,40 @@ short creature_take_salary(struct Thing *creatng)
     return 1;
 }
 
+void stop_creature_being_dragged_by(struct Thing *dragtng, struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (!creature_control_invalid(cctrl)) {
+        if (cctrl->dragtng_idx <= 0) {
+            WARNLOG("The %s is not dragging something",thing_model_name(creatng));
+        }
+        cctrl->dragtng_idx = 0;
+    } else {
+        ERRORLOG("The %s has no valid control structure",thing_model_name(creatng));
+    }
+    struct CreatureControl *dragctrl;
+    dragctrl = creature_control_get_from_thing(dragtng);
+    if (dragctrl->dragtng_idx <= 0) {
+        WARNLOG("The %s is not dragged by something",thing_model_name(dragtng));
+    }
+    dragtng->field_1 &= ~TF1_IsDragged1;
+    dragctrl->dragtng_idx = 0;
+}
+
+void make_creature_unconscious(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    TRACE_THING(creatng);
+    SYNCDBG(18,"Starting");
+    clear_creature_instance(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    creatng->active_state = CrSt_CreatureUnconscious;
+    cctrl->flgfield_1 |= CCFlg_Immortal;
+    cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    cctrl->conscious_back_turns = 2000;
+}
+
 void make_creature_conscious(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
@@ -2844,23 +2878,9 @@ void make_creature_conscious(struct Thing *creatng)
     if ((creatng->field_1 & TF1_IsDragged1) != 0)
     {
         struct Thing *sectng;
-        struct CreatureControl *secctrl;
         sectng = thing_get(cctrl->dragtng_idx);
         TRACE_THING(sectng);
-        secctrl = creature_control_get_from_thing(sectng);
-        if (!creature_control_invalid(secctrl)) {
-            if (secctrl->dragtng_idx <= 0) {
-                WARNLOG("The %s is not dragging something",thing_model_name(sectng));
-            }
-            secctrl->dragtng_idx = 0;
-        } else {
-            ERRORLOG("The %s has no valid control structure",thing_model_name(sectng));
-        }
-        if (cctrl->dragtng_idx <= 0) {
-            WARNLOG("The %s is not dragged by something",thing_model_name(creatng));
-        }
-        creatng->field_1 &= ~TF1_IsDragged1;
-        cctrl->dragtng_idx = 0;
+        stop_creature_being_dragged_by(creatng, sectng);
     }
     set_start_state(creatng);
 }

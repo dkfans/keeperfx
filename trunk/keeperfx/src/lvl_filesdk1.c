@@ -628,7 +628,7 @@ TbBool load_column_file(LevelNumber lv_num)
 TbBool load_map_data_file(LevelNumber lv_num)
 {
     //return _DK_load_map_data_file(lv_num);
-    struct Map *map;
+    struct Map *mapblk;
     unsigned long x,y;
     unsigned char *buf;
     unsigned long i;
@@ -645,9 +645,9 @@ TbBool load_map_data_file(LevelNumber lv_num)
     {
         for (x=0; x < (map_subtiles_x+1); x++)
         {
-            map = get_map_block_at(x,y);
+            mapblk = get_map_block_at(x,y);
             n = -lword(&buf[i]);
-            map->data ^= (map->data ^ n) & 0x7FF;
+            mapblk->data ^= (mapblk->data ^ n) & 0x7FF;
             i += 2;
         }
     }
@@ -657,12 +657,12 @@ TbBool load_map_data_file(LevelNumber lv_num)
     {
         for (x=0; x < (map_subtiles_x+1); x++)
         {
-            map = get_map_block_at(x,y);
+            mapblk = get_map_block_at(x,y);
             wptr = &game.lish.subtile_lightness[get_subtile_number(x,y)];
             *wptr = 32;
-            map->data &= 0xFFC007FFu;
-            map->data &= ~0x0F000000;
-            map->data &= ~0xF0000000;
+            mapblk->data &= 0xFFC007FFu;
+            mapblk->data &= ~0x0F000000;
+            mapblk->data &= ~0xF0000000;
         }
     }
     return true;
@@ -1013,7 +1013,7 @@ TbBool load_slab_file(void)
 
 long load_map_wibble_file(unsigned long lv_num)
 {
-    struct Map *map;
+    struct Map *mapblk;
     unsigned long stl_x,stl_y;
     unsigned char *buf;
     unsigned long i,k;
@@ -1026,9 +1026,9 @@ long load_map_wibble_file(unsigned long lv_num)
     for (stl_y=0; stl_y < (map_subtiles_y+1); stl_y++)
       for (stl_x=0; stl_x < (map_subtiles_x+1); stl_x++)
       {
-        map = get_map_block_at(stl_x,stl_y);
+        mapblk = get_map_block_at(stl_x,stl_y);
         k = buf[i];
-        map->data ^= ((map->data ^ (k << 22)) & 0xC00000);
+        mapblk->data ^= ((mapblk->data ^ (k << 22)) & 0xC00000);
         i++;
       }
     LbMemoryFree(buf);

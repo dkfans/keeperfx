@@ -1767,7 +1767,7 @@ short get_gui_inputs(short gameplay_on)
     {
       struct GuiButton *gbtn = &active_buttons[idx];
       if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gbtype == Lb_UNKNBTN6))
-          gbtn->field_1 = 0;
+          gbtn->gbactn_1 = 0;
     }
   }
   update_busy_doing_gui_on_menu();
@@ -1795,7 +1795,7 @@ short get_gui_inputs(short gameplay_on)
       if (((gbtn->field_1B & 0x4000u) != 0) || mouse_is_over_small_map(player->mouse_x,player->mouse_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
-        || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->field_1 != 0)) )
+        || ((gbtn->gbtype == Lb_UNKNBTN6) && (gbtn->gbactn_1 != 0)) )
       {
           if ((fmmenu_idx==-1) || (gbtn->gmenu_idx == fmmenu_idx))
           {
@@ -1851,7 +1851,7 @@ short get_gui_inputs(short gameplay_on)
   {
       left_button_released = 0;
       if (gmbtn_idx!=-1)
-        active_buttons[gmbtn_idx].field_1 = 0;
+        active_buttons[gmbtn_idx].gbactn_1 = 0;
       over_slider_button = -1;
       do_sound_menu_click();
   }
