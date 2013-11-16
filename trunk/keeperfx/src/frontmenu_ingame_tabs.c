@@ -347,7 +347,73 @@ void gui_over_trap_button(struct GuiButton *gbtn)
 
 void gui_area_trap_button(struct GuiButton *gbtn)
 {
-    _DK_gui_area_trap_button(gbtn);
+    unsigned short flg_mem;
+    ThingModel trmodel;
+    //_DK_gui_area_trap_button(gbtn);
+    flg_mem = lbDisplay.DrawFlags;
+    trmodel = (long)gbtn->content;
+    LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[24]);
+    struct TrapData *trap_dat;
+    trap_dat = &trap_data[trmodel];
+    // Check if we should draw anything
+    if (trap_dat->field_0 == 16)
+    {
+        if (!is_trap_buildable(my_player_number, trap_dat->field_4) && !is_trap_placeable(my_player_number, trap_dat->field_4)) {
+            lbDisplay.DrawFlags = flg_mem;
+            return;
+        }
+    } else
+    if (trap_dat->field_0 == 18)
+    {
+        if (!is_door_buildable(my_player_number, trap_dat->field_4) && !is_door_placeable(my_player_number, trap_dat->field_4)) {
+            lbDisplay.DrawFlags = flg_mem;
+            return;
+        }
+    } else
+    {
+        lbDisplay.DrawFlags = flg_mem;
+        return;
+    }
+    // We should draw; maybe just disabled button
+    if ((gbtn->flags & LbBtnF_Unknown08) == 0)
+    {
+        LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[25]);
+        lbDisplay.DrawFlags = flg_mem;
+        return;
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    // Check how many traps/doors do we have to place
+    unsigned int amount;
+    amount = 0;
+    if (trap_dat->field_0 == 16)
+    {
+        // If there are traps of that type placed on map
+        if (find_trap_of_type(trap_dat->field_4, my_player_number)) {
+            LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[27]);
+        }
+        amount = dungeon->trap_amount[trap_dat->field_4];
+    } else
+    if (trap_dat->field_0 == 18)
+    {
+        // If there are doors of that type placed on map
+        if (find_door_of_type(trap_dat->field_4, my_player_number)) {
+            LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[27]);
+        }
+        amount = dungeon->door_amount[trap_dat->field_4];
+    }
+    int i;
+    i = gbtn->field_29 + (amount < 1);
+    if (gbtn->gbactn_1 || gbtn->gbactn_2)
+    {
+        LbSpriteDrawRemap(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size,
+            &gui_panel_sprites[i], &pixmap.fade_tables[22*256]);
+    } else
+    {
+        LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size,
+            &gui_panel_sprites[i]);
+    }
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void gui_go_to_next_door(struct GuiButton *gbtn)

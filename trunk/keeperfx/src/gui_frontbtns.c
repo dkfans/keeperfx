@@ -95,7 +95,7 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
     {
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-            (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+            (gbtn->parent_menu != 0) || (gbtn->gbtype == Lb_RADIOBTN))
         {
             left_button_released = 0;
             do_button_release_actions(gbtn, &gbtn->gbactn_1, callback);
@@ -165,7 +165,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         result = true;
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-           (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+           (gbtn->parent_menu != 0) || (gbtn->gbtype == Lb_RADIOBTN))
         {
             if ((gbtn->flags & LbBtnF_Unknown08) != 0)
             {
@@ -224,7 +224,7 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         }
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-           (gbtn->field_2F != 0) || (gbtn->gbtype == Lb_RADIOBTN))
+           (gbtn->parent_menu != 0) || (gbtn->gbtype == Lb_RADIOBTN))
         {
           left_button_clicked = 0;
           gui_last_left_button_pressed_id = gbtn->id_num;
