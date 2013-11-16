@@ -61,7 +61,8 @@ void unlock_door(struct Thing *thing);
 long destroy_door(struct Thing *thing);
 TngUpdateRet process_door(struct Thing *thing);
 
-unsigned char find_door_of_type(ThingModel model, PlayerNumber owner);
+TbBool find_door_of_type(ThingModel model, PlayerNumber owner);
+TbBool find_trap_of_type(ThingModel model, PlayerNumber owner);
 /******************************************************************************/
 #ifdef __cplusplus
 }

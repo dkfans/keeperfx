@@ -1698,8 +1698,8 @@ void do_button_release_actions(struct GuiButton *gbtn, unsigned char *s, Gf_Btn_
   if (s == &gbtn->gbactn_1)
   {
     gmnu = get_active_menu(gbtn->gmenu_idx);
-    if (gbtn->field_2F != NULL)
-      create_menu(gbtn->field_2F);
+    if (gbtn->parent_menu != NULL)
+      create_menu(gbtn->parent_menu);
     if ((gbtn->flags & LbBtnF_Unknown02) && (gbtn->gbtype != 5))
     {
       if (callback == NULL)
@@ -1827,15 +1827,15 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit)
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Unknown02 * (gbinit->field_5 & 0xff)) & LbBtnF_Unknown02;
     gbtn->click_event = gbinit->click_event;
     gbtn->rclick_event = gbinit->rclick_event;
-    gbtn->unkn_event = gbinit->field_F;
+    gbtn->ptover_event = gbinit->ptover_event;
     gbtn->field_1B = gbinit->field_13;
     gbtn->width = gbinit->width;
     gbtn->height = gbinit->height;
     gbtn->draw_call = gbinit->draw_call;
     gbtn->field_29 = gbinit->field_25;
     gbtn->tooltip_id = gbinit->tooltip_id;
-    gbtn->field_2F = gbinit->field_29;
-    gbtn->content = (unsigned long *)gbinit->field_2D.lptr;
+    gbtn->parent_menu = gbinit->parent_menu;
+    gbtn->content = (unsigned long *)gbinit->content.lptr;
     gbtn->field_2D = *(short *)&gbinit->field_31;
     gbtn->maintain_call = gbinit->maintain_call;
     gbtn->flags |= LbBtnF_Unknown08;
