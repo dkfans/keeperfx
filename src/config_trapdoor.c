@@ -712,6 +712,60 @@ TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx)
     return false;
 }
 
+/**
+ * Returns if the door can be placed by a player.
+ * Checks only if it's available and if the player is 'alive'.
+ * Doesn't check if map position is on correct spot.
+ */
+TbBool is_door_placeable(PlayerNumber plyr_idx, long door_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    // Player must have dungeon heart to place doors
+    if (dungeon->dnheart_idx <= 0) {
+        return false;
+    }
+    if ((door_idx <= 0) || (door_idx >= DOOR_TYPES_COUNT)) {
+        ERRORLOG("Incorrect door %ld (player %ld)",door_idx, plyr_idx);
+        return false;
+    }
+    if (dungeon->door_placeable[door_idx]) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Returns if the door can be manufactured by a player.
+ * Checks only if it's set as buildable in level script.
+ * Doesn't check if player has workshop or workforce for the task.
+ */
+TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    // Player must have dungeon heart to build anything
+    if (dungeon->dnheart_idx <= 0) {
+        return false;
+    }
+    if ((door_idx <= 0) || (door_idx >= DOOR_TYPES_COUNT)) {
+        ERRORLOG("Incorrect door %ld (player %ld)",door_idx, plyr_idx);
+        return false;
+    }
+    if (dungeon->door_buildable[door_idx] > 0) {
+        return true;
+    }
+    return false;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

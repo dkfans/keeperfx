@@ -114,7 +114,7 @@ struct GuiButtonInit {
     short field_5;
     Gf_Btn_Callback click_event;
     Gf_Btn_Callback rclick_event;
-    Gf_Btn_Callback field_F;
+    Gf_Btn_Callback ptover_event;
     short field_13;
     short scr_pos_x;
     short scr_pos_y;
@@ -125,8 +125,8 @@ struct GuiButtonInit {
     Gf_Btn_Callback draw_call;
     short field_25;
     short tooltip_id;
-    struct GuiMenu *field_29;
-    union GuiVariant field_2D;
+    struct GuiMenu *parent_menu;
+    union GuiVariant content;
     char field_31;
     char field_32;
     Gf_Btn_Callback maintain_call;
@@ -141,7 +141,7 @@ struct GuiButton {
        unsigned char gbtype;
        Gf_Btn_Callback click_event;
        Gf_Btn_Callback rclick_event;
-       Gf_Btn_Callback unkn_event;
+       Gf_Btn_Callback ptover_event;
        Gf_Btn_Callback draw_call;
        Gf_Btn_Callback maintain_call;
        unsigned short field_1B; // definitely a word, not two bytes
@@ -154,7 +154,7 @@ struct GuiButton {
        short field_29;
        short tooltip_id;
        unsigned short field_2D;
-       struct GuiMenu *field_2F;
+       struct GuiMenu *parent_menu;
        unsigned long *content; //TODO change it to GuiVariant
        unsigned short slide_val; // slider value, scaled 0..255
 };

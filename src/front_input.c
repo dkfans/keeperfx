@@ -1802,7 +1802,7 @@ short get_gui_inputs(short gameplay_on)
             gmbtn_idx = gidx;
             gbtn->flags |= LbBtnF_Unknown10;
             busy_doing_gui = 1;
-            callback = gbtn->unkn_event;
+            callback = gbtn->ptover_event;
             if (callback != NULL)
               callback(gbtn);
             if (gbtn->gbtype == Lb_UNKNBTN6)
