@@ -2173,7 +2173,7 @@ struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Th
     return _DK_find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, rkind, a4);
 }
 
-long create_workshop_object_in_workshop_room(long plyr_idx, long tng_class, long tng_kind)
+TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind)
 {
     struct Coord3d pos;
     struct Thing *thing;
@@ -2199,21 +2199,21 @@ long create_workshop_object_in_workshop_room(long plyr_idx, long tng_class, long
     if (thing_is_invalid(thing))
     {
         ERRORLOG("Could not create workshop crate thing for %s",thing_class_code_name(tng_class));
-        return 0;
+        return false;
     }
     room = find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, RoK_WORKSHOP, 0);
     if (room_is_invalid(room))
     {
         ERRORLOG("No room for crate thing for %s",thing_class_code_name(tng_class));
         delete_thing_structure(thing, 0);
-        return 0;
+        return false;
     }
     if (!find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, &pos))
     {
         ERRORLOG("Could not find a place in %s index %d for the new %s crate",
             room_code_name(room->kind),(int)room->index,thing_class_code_name(tng_class));
         delete_thing_structure(thing, 0);
-        return 0;
+        return false;
     }
     pos.z.val = get_thing_height_at(thing, &pos);
     move_thing_in_map(thing, &pos);
@@ -2237,7 +2237,7 @@ long create_workshop_object_in_workshop_room(long plyr_idx, long tng_class, long
     }
     create_effect(&pos, TngEff_Unknown56, thing->owner);
     thing_play_sample(thing, 89, 100, 0, 3, 0, 2, 256);
-    return 1;
+    return true;
 }
 
 short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3)
