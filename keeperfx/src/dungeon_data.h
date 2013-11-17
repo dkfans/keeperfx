@@ -176,17 +176,17 @@ unsigned char field_F7D;
     unsigned char creature_allowed[CREATURE_TYPES_COUNT]; // 'Allowed' creature is conditionally enabled
     unsigned char magic_level[KEEPER_SPELLS_COUNT];
     unsigned char magic_resrchable[KEEPER_SPELLS_COUNT];
-    /** Amount of traps of every kind for which we can place blueprints. */
+    /** Amount of traps of every kind for which we can place blueprints. This include both off-map traps and on-map trap boxes.*/
     unsigned char trap_amount[TRAP_TYPES_COUNT];
     /** Stored information if player can manufacture more traps of specific kind. */
     unsigned char trap_buildable[TRAP_TYPES_COUNT];
     /** Stored information whether player can place blueprints of traps of specific kind. */
     unsigned char trap_placeable[TRAP_TYPES_COUNT];
-    /** Amount of doors the player can place (either existing in the workshop or added by script). */
+    /** Amount of doors the player can place. This include both off-map doors and on-map door boxes in workshop.*/
     unsigned char door_amount[DOOR_TYPES_COUNT];
     /** Stored information if player can manufacture more doors of specific kind. */
     unsigned char door_buildable[DOOR_TYPES_COUNT];
-    /** Stored information whether player can place blueprints of doors of specific kind. */
+    /** Stored information whether player can place blueprints of doors of specific kind (actually, doors are placed instantly). */
     unsigned char door_placeable[DOOR_TYPES_COUNT];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     unsigned char script_flags[SCRIPT_FLAGS_COUNT];
