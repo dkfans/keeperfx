@@ -194,8 +194,9 @@ ENDIF
 IF_ACTION_POINT(10,PLAYER0)
 	REM "These Boulder Traps are ideal for crushing the foe but there are only three of them at your disposal, so use them wisely."
 	DISPLAY_INFORMATION(160)
-	TRAP_AVAILABLE(PLAYER0,BOULDER,0,3)
-	TUTORIAL_FLASH_BUTTON(53,-1)
+	IF_AVAILABLE(PLAYER0,BOULDER >= 1)
+		TUTORIAL_FLASH_BUTTON(53,-1)
+	ENDIF
 ENDIF
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)

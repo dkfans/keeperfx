@@ -211,7 +211,7 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short room_grow_food(struct Room *room);
 void update_room_efficiency(struct Room *room);
-long create_workshop_object_in_workshop_room(long a1, long a2, long a3);
+TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind);
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind);
 struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
