@@ -162,7 +162,7 @@ int load_command_line_options(ProgramOptions &opts, int argc, char *argv[])
         int listret;
         listret = load_soundlist(opts, opts.fname_lst);
         if (!listret) {
-            LogErr("Couldn't load a list of input images.");
+            LogErr("Couldn't load a list of input samples.");
             return false;
         }
     }
@@ -195,7 +195,7 @@ short show_usage(const std::string &fname)
     printf("    %s [options] <filename>\n", xname.c_str());
     printf("where <filename> should be the input sounds list file, and [options] are:\n");
     printf("    -v,--verbose             Verbose console output mode\n");
-    printf("    -o<file>,--output<file>  Output image file name\n");
+    printf("    -o<file>,--output<file>  Output sound bank file name\n");
     return ERR_OK;
 }
 
