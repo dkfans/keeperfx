@@ -690,50 +690,54 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     i = get_rid(player_desc, locname);
     if (i != -1)
     {
-      if (i != ALL_PLAYERS)
-        *location = ((unsigned long)i << 4) | MLoc_PLAYERSHEART;
-      else
-        *location = MLoc_NONE;
+      if (i != ALL_PLAYERS) {
+          if (!player_has_heart(i)) {
+              WARNMSG("%s(line %lu): Target player %d has no heart",func_name,ln_num, (int)i);
+          }
+          *location = ((unsigned long)i << 4) | MLoc_PLAYERSHEART;
+      } else {
+          *location = MLoc_NONE;
+      }
       return true;
     }
     // Creature name means location of such creature belonging to player0
     i = get_rid(creature_desc, locname);
     if (i != -1)
     {
-      *location = ((unsigned long)i << 12) | MLoc_CREATUREKIND;
-      return true;
+        *location = ((unsigned long)i << 12) | MLoc_CREATUREKIND;
+        return true;
     }
     // Room name means location of such room belonging to player0
     i = get_rid(room_desc, locname);
     if (i != -1)
     {
-      *location = ((unsigned long)i << 12) | MLoc_ROOMKIND;
-      return true;
+        *location = ((unsigned long)i << 12) | MLoc_ROOMKIND;
+        return true;
     }
     i = atol(locname);
     // Negative number means Hero Gate
     if (i < 0)
     {
-      thing = find_hero_gate_of_number(-i);
-      if (thing_is_invalid(thing))
-      {
-        ERRORMSG("%s(line %lu): Non-existing Hero Door, no %d",func_name,ln_num, -i);
-        *location = MLoc_NONE;
-        return false;
-      }
-      *location = (((unsigned long)-i) << 4) | MLoc_HEROGATE;
+        thing = find_hero_gate_of_number(-i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORMSG("%s(line %lu): Non-existing Hero Door, no %d",func_name,ln_num, -i);
+            *location = MLoc_NONE;
+            return false;
+        }
+        *location = (((unsigned long)-i) << 4) | MLoc_HEROGATE;
     } else
     // Positive number means Action Point
     if (i > 0)
     {
-      if (!action_point_exists_number(i))
-      {
-        ERRORMSG("%s(line %lu): Non-existing Action Point, no %d",func_name,ln_num, i);
-        *location = MLoc_NONE;
-        return false;
-      }
-      // Set to action point number
-      *location = (((unsigned long)i) << 4) | MLoc_ACTIONPOINT;
+        if (!action_point_exists_number(i))
+        {
+            ERRORMSG("%s(line %lu): Non-existing Action Point, no %d",func_name,ln_num, i);
+            *location = MLoc_NONE;
+            return false;
+        }
+        // Set to action point number
+        *location = (((unsigned long)i) << 4) | MLoc_ACTIONPOINT;
     } else
     // Zero is an error; reset to no location
     {
