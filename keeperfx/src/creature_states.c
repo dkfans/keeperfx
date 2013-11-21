@@ -3136,7 +3136,49 @@ short person_sulk_head_for_lair(struct Thing *creatng)
 
 short person_sulking(struct Thing *creatng)
 {
-  return _DK_person_sulking(creatng);
+    struct CreatureControl *cctrl;
+    struct Dungeon *dungeon;
+    struct Thing *lairtng;
+    //return _DK_person_sulking(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    dungeon = get_players_num_dungeon(creatng->owner);
+    lairtng = thing_get(cctrl->lairtng_idx);
+    if ((cctrl->field_21 != 0) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    MapSubtlCoord dx,dy;
+    dx = abs(creatng->mappos.x.stl.num - (int)lairtng->mappos.x.stl.num);
+    dy = abs(creatng->mappos.y.stl.num - (int)lairtng->mappos.y.stl.num);
+    if ((dx >= 1) || (dy >= 1)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    struct Room *room;
+    room = get_room_thing_is_on(creatng);
+    if (!room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng)
+     || (cctrl->lair_room_id != room->index) || !anger_is_creature_angry(creatng)) {
+        set_start_state(creatng);
+        return 0;
+    }
+    process_lair_enemy(creatng, room);
+    cctrl->field_82++;
+    if (cctrl->field_82 - 200 > 0)
+    {
+        if ((cctrl->field_82 % 32) == 0) {
+            play_creature_sound(creatng, 4, 2, 0);
+        }
+        if (cctrl->field_82 - 250 >= 0) {
+          cctrl->field_82 = 0;
+        } else
+        if (cctrl->instance_id == CrInst_NULL) {
+            set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+        }
+    }
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    anger_apply_anger_to_creature_all_types(creatng, crstat->annoy_sulking);
+    return 1;
 }
 
 /**
