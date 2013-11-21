@@ -51,16 +51,16 @@ struct ActionPoint { // sizeof = 0xA
 /******************************************************************************/
 struct ActionPoint *allocate_free_action_point_structure_with_number(long apt_num);
 struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt);
-struct ActionPoint *action_point_get(long apt_idx);
+struct ActionPoint *action_point_get(ActionPointId apt_idx);
 struct ActionPoint *action_point_get_by_number(long apt_num);
 TbBool action_point_exists(const struct ActionPoint *apt);
-TbBool action_point_exists_idx(long apt_idx);
+TbBool action_point_exists_idx(ActionPointId apt_idx);
 TbBool action_point_exists_number(long apt_num);
-long action_point_number_to_index(long apt_num);
+ActionPointId action_point_number_to_index(long apt_num);
 TbBool action_point_is_invalid(const struct ActionPoint *apt);
 
-TbBool action_point_reset_idx(long apt_idx);
-unsigned long get_action_point_activated_by_players_mask(long apt_idx);
+TbBool action_point_reset_idx(ActionPointId apt_idx);
+unsigned long get_action_point_activated_by_players_mask(ActionPointId apt_idx);
 void clear_action_points(void);
 void delete_all_action_point_structures(void);
 TbBool process_action_points(void);

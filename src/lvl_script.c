@@ -718,26 +718,30 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
     // Negative number means Hero Gate
     if (i < 0)
     {
-        thing = find_hero_gate_of_number(-i);
+        long n;
+        n = -i;
+        thing = find_hero_gate_of_number(n);
         if (thing_is_invalid(thing))
         {
-            ERRORMSG("%s(line %lu): Non-existing Hero Door, no %d",func_name,ln_num, -i);
+            ERRORMSG("%s(line %lu): Non-existing Hero Door, no %d",func_name,ln_num,(int)-i);
             *location = MLoc_NONE;
             return false;
         }
-        *location = (((unsigned long)-i) << 4) | MLoc_HEROGATE;
+        *location = (((unsigned long)n) << 4) | MLoc_HEROGATE;
     } else
     // Positive number means Action Point
     if (i > 0)
     {
-        if (!action_point_exists_number(i))
+        long n;
+        n = action_point_number_to_index(i);
+        if (!action_point_exists_idx(n))
         {
-            ERRORMSG("%s(line %lu): Non-existing Action Point, no %d",func_name,ln_num, i);
+            ERRORMSG("%s(line %lu): Non-existing Action Point, no %d",func_name,ln_num,(int)i);
             *location = MLoc_NONE;
             return false;
         }
         // Set to action point number
-        *location = (((unsigned long)i) << 4) | MLoc_ACTIONPOINT;
+        *location = (((unsigned long)n) << 4) | MLoc_ACTIONPOINT;
     } else
     // Zero is an error; reset to no location
     {
@@ -759,6 +763,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
 TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *location, const char *func_name, long ln_num)
 {
     long head_id;
+    long n;
     // If there's no headname, then there's an error
     if (headname == NULL)
     {
@@ -778,9 +783,10 @@ TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *lo
     switch (head_id)
     {
     case MLoc_ACTIONPOINT:
-        *location = ((unsigned long)target << 4) | head_id;
-        if (!action_point_exists_number(target)) {
-            SCRPTWRNLOG("Target action point %d doesn't exist", (int)target);
+        n = action_point_number_to_index(target);
+        *location = ((unsigned long)n << 4) | head_id;
+        if (!action_point_exists_idx(n)) {
+            SCRPTWRNLOG("Target action point no %d doesn't exist", (int)target);
         }
         return true;
     case MLoc_PLAYERSDUNGEON:
@@ -1311,24 +1317,24 @@ void command_research_order(char *plrname, char *trg_type, char *trg_name, unsig
 
 void command_if_action_point(long apt_num, char *plrname)
 {
-    long plr_id;
-    long apt_id;
+    long plyr_idx;
+    long apt_idx;
     if (game.script.conditions_num >= CONDITIONS_COUNT)
     {
         SCRPTERRLOG("Too many (over %d) conditions in script", CONDITIONS_COUNT);
         return;
     }
     // Check the Action Point
-    apt_id = action_point_number_to_index(apt_num);
-    if (!action_point_exists_idx(apt_id))
+    apt_idx = action_point_number_to_index(apt_num);
+    if (!action_point_exists_idx(apt_idx))
     {
         SCRPTERRLOG("Non-existing Action Point, no %d", apt_num);
         return;
     }
     // Recognize player
-    if (!get_player_id(plrname, &plr_id))
+    if (!get_player_id(plrname, &plyr_idx))
         return;
-    command_add_condition(plr_id, 0, 19, apt_id, 0);
+    command_add_condition(plyr_idx, 0, 19, apt_idx, 0);
 }
 
 void command_computer_player(char *plrname, long comp_model)
@@ -2533,13 +2539,13 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
     return thing;
 }
 
-long script_support_create_thing_at_hero_door(long gate_num, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char random_factor)
+long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass, ThingModel tngmodel, unsigned char tngowner, unsigned char random_factor)
 {
     struct Thing *thing;
     struct CreatureControl *cctrl;
     struct Thing *gatetng;
     struct Coord3d pos;
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting creation of %s at HG%d",thing_class_and_model_name(tngclass,tngmodel),(int)gate_num);
     //return _DK_script_support_create_thing_at_hero_door(gate_num, tngclass, tngmodel, tngowner, random_factor);
     if (gate_num <= 0)
     {
@@ -2581,9 +2587,9 @@ long script_support_create_thing_at_hero_door(long gate_num, unsigned char tngcl
     return thing->index;
 }
 
-long script_support_create_thing_at_action_point(long apt_idx, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char random_factor)
+long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngclass, ThingModel tngmodel, PlayerNumber tngowner, unsigned char random_factor)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting creation of %s at action point %d",thing_class_and_model_name(tngclass,tngmodel),(int)apt_idx);
     //return _DK_script_support_create_thing_at_action_point(apt_idx, tngclass, tngmodel, tngowner, random_factor);
     struct Thing *thing;
     struct CreatureControl *cctrl;
@@ -2646,9 +2652,9 @@ long script_support_create_thing_at_action_point(long apt_idx, unsigned char tng
  * @param tngowner
  * @param plyr_idx
  */
-long script_support_create_thing_at_dungeon_heart(unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner, unsigned char plyr_idx)
+long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingModel tngmodel, PlayerNumber tngowner, PlayerNumber plyr_idx)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Starting creation of %s at player %d",thing_class_and_model_name(tngclass,tngmodel),(int)plyr_idx);
     //return _DK_script_support_create_creature_at_dungeon_heart(tngmodel, tngowner, plyr_idx);
     struct Thing *heartng;
     heartng = INVALID_THING;
@@ -2696,18 +2702,24 @@ long send_tunneller_to_point(struct Thing *thing, struct Coord3d *pos)
     return 1;
 }
 
-long script_support_send_tunneller_to_action_point(struct Thing *thing, long apt_num)
+TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long apt_idx)
 {
     struct ActionPoint *apt;
     SYNCDBG(7,"Starting");
-    //return _DK_script_support_send_tunneller_to_action_point(thing, a2);
-    apt = action_point_get_by_number(apt_num);
+    //return _DK_script_support_send_tunneller_to_action_point(thing, apt_idx);
+    apt = action_point_get(apt_idx);
     struct Coord3d pos;
-    pos.x.val = apt->mappos.x.val;
-    pos.y.val = apt->mappos.y.val;
+    if (action_point_exists(apt)) {
+        pos.x.val = apt->mappos.x.val;
+        pos.y.val = apt->mappos.y.val;
+    } else {
+        ERRORLOG("Attempt to send to non-existing action point %d",(int)apt_idx);
+        pos.x.val = subtile_coord_center(map_subtiles_x/2);
+        pos.y.val = subtile_coord_center(map_subtiles_y/2);
+    }
     pos.z.val = subtile_coord(1,0);
     send_tunneller_to_point(thing, &pos);
-    return 1;
+    return true;
 }
 
 TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
@@ -2811,7 +2823,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
     thing = thing_get(tng_idx);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create creature breed %d at location %d",(int)crmodel,(int)location);
+        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(TCls_Creature,crmodel),(int)location);
         return INVALID_THING;
     }
     cctrl = creature_control_get_from_thing(thing);
@@ -3212,7 +3224,7 @@ void process_check_new_creature_partys(void)
           n = pr_trig->creatr_id;
           if (n <= 0)
           {
-            SYNCDBG(6,"Adding party %d",-n);
+            SYNCDBG(6,"Adding player %d party %d in location %d",(int)pr_trig->plyr_idx,(int)-n,(int)pr_trig->location);
             script_process_new_party(&game.script.creature_partys[-n],
                 pr_trig->plyr_idx, pr_trig->location, pr_trig->ncopies);
           } else
