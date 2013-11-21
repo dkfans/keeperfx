@@ -70,7 +70,7 @@ const char *thing_classes[] = {
 DLLIMPORT void _DK_apply_damage_to_thing(struct Thing *thing, long a2, char dealing_plyr_idx);
 
 /******************************************************************************/
-const char *thing_class_code_name(long class_id)
+const char *thing_class_code_name(int class_id)
 {
     if ((class_id < 0) || (class_id >= sizeof(thing_classes)/sizeof(thing_classes[0])))
         return "INVALID";
@@ -84,36 +84,48 @@ const char *thing_class_code_name(long class_id)
  * @param thing The thing which model is to be described.
  * @return The model name string, static buffer.
  */
-const char *thing_model_name(const struct Thing *thing)
+const char *thing_class_and_model_name(int class_id, int model)
 {
     static char name_buffer[2][32];
     static int bid = 0;
     bid = (bid+1)%2;
-    switch (thing->class_id)
+    switch (class_id)
     {
     case TCls_Creature:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"creature %s",creature_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"creature %s",creature_code_name(model));
         break;
     case TCls_DeadCreature:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"dead %s",creature_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"dead %s",creature_code_name(model));
         break;
     case TCls_Trap:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s trap",trap_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s trap",trap_code_name(model));
         break;
     case TCls_Door:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s door",door_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s door",door_code_name(model));
         break;
     case TCls_Shot:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s shot",shot_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s shot",shot_code_name(model));
         break;
     case TCls_Object:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"object %s",object_code_name(thing->model));
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"object %s",object_code_name(model));
         break;
     default:
-        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s model %d",thing_class_code_name(thing->class_id),(int)thing->model);
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s model %d",thing_class_code_name(class_id),(int)model);
         break;
     }
     return name_buffer[bid];
+}
+
+/**
+ * Gives name of a thing model.
+ * @note This function cannot be called more than once in a parameter to something
+ *  - it has only one static buffer.
+ * @param thing The thing which model is to be described.
+ * @return The model name string, static buffer.
+ */
+const char *thing_model_name(const struct Thing *thing)
+{
+    return thing_class_and_model_name(thing->class_id, thing->model);
 }
 
 const char *creatrtng_actstate_name(const struct Thing *thing)

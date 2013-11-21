@@ -207,6 +207,10 @@ typedef unsigned char PlayerFlags;
 typedef short MoveSpeed;
 /** Parameter for storing gold sum or price. */
 typedef long GoldAmount;
+/** Type for storing Action Point index.
+ * Note that it stores index in array, not Action Point number.
+ * Action Point number doesn't need type, it will probably be replaced by a string. */
+typedef long ActionPointId;
 /** Parameter for filtering functions which return an item with max filter parameter. */
 typedef long FilterParam;
 /** Type which stores IAvail_* values. */
