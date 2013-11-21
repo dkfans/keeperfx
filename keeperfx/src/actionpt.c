@@ -79,7 +79,7 @@ struct ActionPoint *actnpoint_create_actnpoint(struct InitActionPoint *iapt)
   return apt;
 }
 
-struct ActionPoint *action_point_get(long apt_idx)
+struct ActionPoint *action_point_get(ActionPointId apt_idx)
 {
     if ((apt_idx < 1) || (apt_idx > ACTN_POINTS_COUNT))
         return INVALID_ACTION_POINT;
@@ -89,7 +89,7 @@ struct ActionPoint *action_point_get(long apt_idx)
 struct ActionPoint *action_point_get_by_number(long apt_num)
 {
     struct ActionPoint *apt;
-    long apt_idx;
+    ActionPointId apt_idx;
     for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {
         apt = &game.action_points[apt_idx];
@@ -99,10 +99,10 @@ struct ActionPoint *action_point_get_by_number(long apt_num)
     return INVALID_ACTION_POINT;
 }
 
-long action_point_number_to_index(long apt_num)
+ActionPointId action_point_number_to_index(long apt_num)
 {
     struct ActionPoint *apt;
-    long apt_idx;
+    ActionPointId apt_idx;
     for (apt_idx=0; apt_idx < ACTN_POINTS_COUNT; apt_idx++)
     {
         apt = &game.action_points[apt_idx];
@@ -124,7 +124,7 @@ TbBool action_point_exists(const struct ActionPoint *apt)
     return ((apt->flags & 0x01) != 0);
 }
 
-TbBool action_point_exists_idx(long apt_idx)
+TbBool action_point_exists_idx(ActionPointId apt_idx)
 {
     struct ActionPoint *apt;
     apt = action_point_get(apt_idx);
@@ -142,7 +142,7 @@ TbBool action_point_exists_number(long apt_num)
     return ((apt->flags & 0x01) != 0);
 }
 
-TbBool action_point_reset_idx(long apt_idx)
+TbBool action_point_reset_idx(ActionPointId apt_idx)
 {
     struct ActionPoint *apt;
     apt = action_point_get(apt_idx);
@@ -156,7 +156,7 @@ TbBool action_point_reset_idx(long apt_idx)
  * Returns an action point activation bitmask.
  * Bits which are set in the bitmask corresponds to players which have triggered action point.
  */
-unsigned long get_action_point_activated_by_players_mask(long apt_idx)
+unsigned long get_action_point_activated_by_players_mask(ActionPointId apt_idx)
 {
     struct ActionPoint *apt;
     apt = action_point_get(apt_idx);

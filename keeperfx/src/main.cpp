@@ -2064,13 +2064,14 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
     {
     case MLoc_ACTIONPOINT:
         i = get_map_location_longval(location);
-        apt = action_point_get_by_number(i);
+        // Location stores action point index
+        apt = action_point_get(i);
         if (!action_point_is_invalid(apt))
         {
           pos_y = apt->mappos.y.stl.num;
           pos_x = apt->mappos.x.stl.num;
         } else
-          WARNMSG("%s: Action Point %d location for not found",func_name,i);
+          WARNMSG("%s: Action Point %d location not found",func_name,i);
         break;
     case MLoc_HEROGATE:
         i = get_map_location_longval(location);
