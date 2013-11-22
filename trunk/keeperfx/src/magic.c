@@ -778,7 +778,7 @@ TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapS
     return Lb_SUCCESS;
 }
 
-long thing_affected_by_spell(struct Thing *thing, long spkind)
+long thing_affected_by_spell(const struct Thing *thing, long spkind)
 {
     struct CreatureControl *cctrl;
     struct CastedSpellData *cspell;

@@ -145,7 +145,7 @@ struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const 
 struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind);
 
 void init_creature_scores(void);
-long get_creature_thing_score(struct Thing *thing);
+long get_creature_thing_score(const struct Thing *thing);
 TbBool add_creature_score_to_owner(struct Thing *thing);
 TbBool remove_creature_score_from_owner(struct Thing *thing);
 long calculate_melee_damage(const struct Thing *thing);

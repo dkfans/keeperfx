@@ -26,9 +26,11 @@
 #include "bflib_math.h"
 
 #include "config.h"
+#include "magic.h"
 #include "player_instances.h"
 #include "config_terrain.h"
 #include "creature_states_combt.h"
+#include "creature_states.h"
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -59,6 +61,15 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event);
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event);
 
+/******************************************************************************/
+struct ComputerSpells {
+    PowerKind pwkind;
+    char field_1;
+    char require_owned_ground;
+    int field_3;
+    int field_7;
+    int field_B;
+};
 /******************************************************************************/
 const struct NamedCommand computer_event_test_func_type[] = {
   {"event_battle_test",       1,},
@@ -96,6 +107,14 @@ Comp_Event_Func computer_event_func_list[] = {
   computer_event_check_payday,
   NULL,
   NULL,
+};
+
+struct ComputerSpells computer_attack_spells[] = {
+  {PwrK_DISEASE,   25, 1,  1, 2, 4},
+  {PwrK_LIGHTNING, 20, 0,  1, 8, 2},
+  {PwrK_CHICKEN,   26, 1,  1, 2, 1},
+  {PwrK_LIGHTNING, 20, 0, -1, 1, 1},
+  {PwrK_None,       0, 0,  0, 0, 0},
 };
 
 /******************************************************************************/
@@ -147,7 +166,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     {
         if (!get_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0))
         {
-            if ( check_call_to_arms(comp) )
+            if (check_call_to_arms(comp))
             {
                 return create_task_magic_call_to_arms(comp, &pos, creatrs_num);
             }
@@ -311,7 +330,6 @@ struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind p
 
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    struct ComputerTask *ctask;
     //return _DK_computer_event_check_fighters(comp, cevent);
     if (comp->dungeon->fights_num <= 0) {
         return 4;
@@ -324,6 +342,7 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     if (thing_is_invalid(fightng)) {
         return 4;
     }
+    struct ComputerTask *ctask;
     ctask = get_free_task(comp, 1);
     if (computer_task_invalid(ctask)) {
         return 4;
@@ -335,9 +354,89 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     return 1;
 }
 
+PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEvent *cevent, struct Thing *creatng)
+{
+    struct SlabMap *slb;
+    slb = get_slabmap_thing_is_on(creatng);
+    int i;
+    i = (cevent->param3 + 1) % (sizeof(computer_attack_spells)/sizeof(computer_attack_spells[0]));
+    // Do the loop if we've reached starting value
+    while (i != cevent->param3)
+    {
+        struct ComputerSpells *caspl;
+        caspl = &computer_attack_spells[i];
+        // If we've reached end of array, loop it
+        if (caspl->pwkind == PwrK_None) {
+            i = 0;
+            continue;
+        }
+        if ((!caspl->require_owned_ground) || (slabmap_owner(slb) == comp->dungeon->owner))
+        {
+            if (!thing_affected_by_spell(creatng, caspl->pwkind))
+            {
+                if (computer_able_to_use_magic(comp, caspl->pwkind, cevent->param1, caspl->field_B) == 1) {
+                    cevent->param3 = i;
+                    return caspl->pwkind;
+                }
+            }
+        }
+        i++;
+    }
+    return PwrK_None;
+}
+
 long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-  return _DK_computer_event_attack_magic_foe(comp, cevent);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    //return _DK_computer_event_attack_magic_foe(comp, cevent);
+    if (dungeon->fights_num <= 0) {
+        return 4;
+    }
+    struct Thing *fightng;
+    // TODO COMPUTER_PLAYER Do we really only want to help creature with the highest score?
+    fightng = computer_get_creature_in_fight(comp, PwrK_None);
+    if (thing_is_invalid(fightng)) {
+        return 4;
+    }
+    struct CreatureControl *figctrl;
+    figctrl = creature_control_get_from_thing(fightng);
+    struct Thing *creatng;
+    creatng = thing_get(figctrl->battle_enemy_idx);
+    if (!thing_is_creature(creatng) || creature_is_dying(creatng)) {
+        return 4;
+    }
+    PowerKind pwkind;
+    pwkind = computer_choose_attack_spell(comp, cevent, creatng);
+    if (pwkind == PwrK_None) {
+        return 4;
+    }
+    struct ComputerSpells *caspl;
+    caspl = &computer_attack_spells[cevent->param3];
+    int valA;
+    int valB;
+    int valC;
+    valA = caspl->field_3;
+    if (valA < 0)
+      valA = cevent->param2;
+    valB = caspl->field_7;
+    if (valB < 0)
+      valA = cevent->param1;
+    valC = caspl->field_1;
+    // Create the new task
+    struct ComputerTask *ctask;
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return 4;
+    }
+    ctask->ttype = CTT_AttackMagic;
+    ctask->word_76 = creatng->index;
+    ctask->field_70 = valB;
+    ctask->field_7C = valA;
+    ctask->field_80 = valC;
+    ctask->field_A = game.play_gameturn;
+    ctask->long_86 = pwkind;
+    return 1;
 }
 
 long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEvent *cevent)
