@@ -655,7 +655,7 @@ TbBool battle_any_of_things_in_specific_battle(const struct CreatureBattle *batt
         }
         i = cctrl->battle_prev_creatr;
         // Per battle creature code
-        if ( cctrl->combat_flags )
+        if (cctrl->combat_flags)
         {
             attcktng = thing_get(cctrl->battle_enemy_idx);
             TRACE_THING(attcktng);
