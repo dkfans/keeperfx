@@ -30,6 +30,7 @@
 #include "player_instances.h"
 #include "room_lair.h"
 
+#include "gui_soundmsgs.h"
 #include "dungeon_data.h"
 #include "game_legacy.h"
 
@@ -357,12 +358,22 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
 
 long computer_setup_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_setup_sight_of_evil(comp, process);
+    //return _DK_computer_setup_sight_of_evil(comp, process);
+    process->field_40++;
+    if (process->field_C >= process->field_40) {
+        return 1;
+    }
+    process->flags |= 0x0001;
+    shut_down_process(comp, process);
+    comp->task_state = 2;
+    return 0;
 }
 
 long computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_setup_attack1(comp, process);
+    //return _DK_computer_setup_attack1(comp, process);
+    output_message(SMsg_EnemyHarassments + ACTION_RANDOM(8), 500, 1);
+    return 1;
 }
 
 long count_no_room_build_tasks(const struct Computer2 *comp)
@@ -755,7 +766,25 @@ long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
 
 long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_check_sight_of_evil(comp, process);
+    struct Dungeon *dungeon;
+    //return _DK_computer_check_sight_of_evil(comp, process);
+    dungeon = comp->dungeon;
+    if (process->field_10 >= game.play_gameturn) {
+        return 4;
+    }
+    long able;
+    able = computer_able_to_use_magic(comp, 5, process->field_8, 5);
+    if (able == 1) {
+        if (dungeon->sight_casted_thing_idx >= 1u) {
+            return 4;
+        }
+        return 1;
+    }
+    if (able != 0) {
+        return 4;
+    }
+    process->flags |= 0x04;
+    return 0;
 }
 
 long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *process)
