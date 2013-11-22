@@ -58,6 +58,7 @@
 #include "gui_topmsg.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "magic.h"
 #include "player_instances.h"
 #include "power_hand.h"
 #include "power_process.h"
@@ -3960,7 +3961,7 @@ void init_creature_scores(void)
     }
 }
 
-long get_creature_thing_score(struct Thing *thing)
+long get_creature_thing_score(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     long breed,exp;
