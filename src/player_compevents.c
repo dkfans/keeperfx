@@ -158,7 +158,25 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
 
 long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
 {
-  return _DK_computer_event_find_link(comp, cevent, event);
+    long cproc_idx;
+    int i;
+    //return _DK_computer_event_find_link(comp, cevent, event);
+    cproc_idx = 0;
+    for (i=0; i < COMPUTER_PROCESSES_COUNT+1; i++)
+    {
+        struct ComputerProcess *cproc;
+        cproc = &comp->processes[i];
+        if ((cproc->flags & 0x02) != 0)
+            break;
+        if (cproc->parent == cevent->process)
+        {
+            cproc->flags &= ~0x0008;
+            cproc->flags &= ~0x0001;
+            cproc->field_3C = 0;
+            cproc_idx = 1;
+        }
+    }
+    return cproc_idx;
 }
 
 /**
@@ -282,9 +300,39 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     return 4;
 }
 
+/**
+ * Returns a creature in fight which gives highest score value.
+ * @return The thing in fight, or invalid thing if not found.
+ */
+struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind pwkind)
+{
+    return find_players_highest_score_creature_in_fight_not_affected_by_spell(comp->dungeon->owner, pwkind);
+}
+
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-  return _DK_computer_event_check_fighters(comp, cevent);
+    struct ComputerTask *ctask;
+    //return _DK_computer_event_check_fighters(comp, cevent);
+    if (comp->dungeon->fights_num <= 0) {
+        return 4;
+    }
+    if (computer_able_to_use_magic(comp, PwrK_SPEEDCRTR, cevent->param1, 1) != 1) {
+        return 4;
+    }
+    struct Thing *fightng;
+    fightng = computer_get_creature_in_fight(comp, PwrK_SPEEDCRTR);
+    if (thing_is_invalid(fightng)) {
+        return 4;
+    }
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return 4;
+    }
+    ctask->ttype = CTT_MagicSpeedUp;
+    ctask->word_76 = fightng->index;
+    ctask->field_70 = cevent->param1;
+    ctask->field_A = game.play_gameturn;
+    return 1;
 }
 
 long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEvent *cevent)

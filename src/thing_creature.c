@@ -2947,6 +2947,35 @@ TbBool creature_increase_level(struct Thing *thing)
 }
 
 /**
+ * Filter function for selecting creature which is fighting and is not affected by a specific spell.
+ * A specific thing can be selected either by class, model and owner.
+ *
+ * @param thing Creature thing to be filtered.
+ * @param param Struct with specific thing which is dragged.
+ * @param maximizer Previous max value.
+ * @return If returned value is greater than maximizer, then the filtering result should be updated.
+ */
+long player_list_creature_filter_in_fight_and_not_affected_by_spell(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    if ((cctrl->combat_flags != 0) && !creature_is_being_unconscious(thing))
+    {
+        if ((param->plyr_idx >= 0) && (thing->owner != param->plyr_idx))
+            return -1;
+        if ((param->model_id > 0) && (thing->model != param->model_id))
+            return -1;
+        if ((param->class_id > 0) && (thing->class_id != param->class_id))
+            return -1;
+        if ((param->num1 != PwrK_None) && thing_affected_by_spell(thing, param->num1))
+            return -1;
+        return get_creature_thing_score(thing);
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
  * Filter function for selecting creature which is dragging a specific thing.
  * A specific thing can be selected either by index, or by class, model and owner.
  *
@@ -3159,6 +3188,29 @@ long player_list_creature_filter_of_gui_job_and_pickable2(const struct Thing *th
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
+}
+
+/**
+ * Returns a creature in fight which gives highest score value.
+ * @return The thing in fight, or invalid thing if not found.
+ */
+struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell(PlayerNumber plyr_idx, PowerKind pwkind)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    struct Dungeon *dungeon;
+    struct Thing *creatng;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    param.plyr_idx = -1;
+    param.class_id = 0;
+    param.model_id = 0;
+    param.num1 = pwkind;
+    filter = player_list_creature_filter_in_fight_and_not_affected_by_spell;
+    creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    if (thing_is_invalid(creatng)) {
+        creatng = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
+    }
+    return creatng;
 }
 
 /**
