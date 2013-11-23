@@ -31,6 +31,7 @@
 #include "config.h"
 #include "config_compp.h"
 #include "config_terrain.h"
+#include "config_creature.h"
 #include "creature_states.h"
 #include "magic.h"
 #include "thing_traps.h"
@@ -202,9 +203,45 @@ char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
 char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
 /******************************************************************************/
-long get_computer_money_less_cost(struct Computer2 *comp)
+GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
 {
-  return _DK_get_computer_money_less_cost(comp);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    long money;
+    money = dungeon->total_money_owned;
+    unsigned long k;
+    int i;
+    SYNCDBG(8,"Starting");
+    //return _DK_get_computer_money_less_cost(comp);
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        struct CreatureControl *cctrl;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(thing);
+        money -= crstat->pay;
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19,"Finished");
+    return money;
 }
 
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4)
@@ -888,7 +925,15 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
     return 4;
 }
 
-long computer_pick_trainig_or_scavenging_creatures_and_place_on_room(struct Computer2 *comp, struct Room *room, long thing_idx, long tasks_limit)
+/**
+ * Picks creatures whihg are currently training or scavenging and places them into lair.
+ * @param comp
+ * @param room
+ * @param thing_idx
+ * @param tasks_limit
+ * @return Gives the amount of creatures moved.
+ */
+long computer_pick_training_or_scavenging_creatures_and_place_on_room(struct Computer2 *comp, struct Room *room, long thing_idx, long tasks_limit)
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
@@ -944,20 +989,25 @@ long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *c
     room = room_get(dungeon->room_kind[RoK_LAIR]);
     new_tasks = 0;
     // If we don't have lair, then don't even bother
-    if (room_is_invalid(room))
-      return new_tasks;
+    if (room_is_invalid(room)) {
+        return new_tasks;
+    }
+    // If we can't pick up creatures, admit the failure now
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != 1) {
+        return new_tasks;
+    }
     // Sweep through creatures list
-    new_tasks += computer_pick_trainig_or_scavenging_creatures_and_place_on_room(comp, room, dungeon->creatr_list_start, tasks_limit);
+    new_tasks += computer_pick_training_or_scavenging_creatures_and_place_on_room(comp, room, dungeon->creatr_list_start, tasks_limit);
     if (new_tasks >= tasks_limit)
         return new_tasks;
     // Sweep through workers list
-    new_tasks += computer_pick_trainig_or_scavenging_creatures_and_place_on_room(comp, room, dungeon->digger_list_start, tasks_limit-new_tasks);
+    new_tasks += computer_pick_training_or_scavenging_creatures_and_place_on_room(comp, room, dungeon->digger_list_start, tasks_limit-new_tasks);
     return new_tasks;
 }
 
 long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    long money;
+    GoldAmount money;
     struct ComputerProcess *cproc;
     struct Dungeon *dungeon;
     long ret;
@@ -986,20 +1036,16 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
 
     // Try selling traps and doors
     dungeon = comp->dungeon;
-    if (dungeon->field_14B8 > dungeon->total_money_owned)
+    if ((dungeon->creatures_total_pay > dungeon->total_money_owned) && dungeon_has_room(dungeon, RoK_WORKSHOP))
     {
-      if (dungeon_has_room(dungeon, RoK_WORKSHOP))
-      {
-        if (get_task_in_progress(comp, CTT_SellTrapsAndDoors) == NULL)
+        if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
         {
-          if (create_task_sell_traps_and_doors(comp, 3*dungeon->field_14B8/2))
-          {
-            ret = 1;
-          }
+            if (create_task_sell_traps_and_doors(comp, 0, 3*dungeon->creatures_total_pay/2)) {
+                ret = 1;
+            }
         }
-      }
     }
-    if (3*dungeon->field_14B8/2 <= dungeon->total_money_owned)
+    if (3*dungeon->creatures_total_pay/2 <= dungeon->total_money_owned)
       return ret;
 
     // Move creatures away from rooms which costs a lot
@@ -1018,9 +1064,25 @@ long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos)
     return _DK_computer_find_non_solid_block(comp, pos);
 }
 
-long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4)
+long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount)
 {
-    return _DK_computer_able_to_use_magic(comp, pwkind, a3, a4);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    //return _DK_computer_able_to_use_magic(comp, pwkind, a3, a4);
+    if (!is_power_available(dungeon->owner, pwkind)) {
+        return 4;
+    }
+    if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
+        pwlevel = MAGIC_OVERCHARGE_LEVELS;
+    if (pwlevel < 0)
+        pwlevel = 0;
+    GoldAmount money, price;
+    money = get_computer_money_less_cost(comp);
+    price = compute_power_price(dungeon->owner, pwkind, pwlevel);
+    if (amount * price >= money) {
+        return 0;
+    }
+    return 1;
 }
 
 long check_call_to_arms(struct Computer2 *comp)

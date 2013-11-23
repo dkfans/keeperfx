@@ -220,13 +220,14 @@ long field_1193;
     unsigned char bodies_rotten_for_vampire;
 unsigned char field_1461[36];
     long field_1485;
-unsigned char field_1489[32];
-unsigned long fights_num;
-unsigned char research_override; // could be easily changed into flags..
+    /** Stores information whether each kind of creature has joined the dungeon during the level. */
+    unsigned char creature_models_joined[CREATURE_TYPES_COUNT];
+    unsigned long fights_num;
+    unsigned char research_override; // could be easily changed into flags..
 int field_14AE;
 unsigned char field_14B2[2];
 int field_14B4;
-int field_14B8;
+    long creatures_total_pay;
 unsigned char field_14BC[6];
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_COUNT];

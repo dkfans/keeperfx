@@ -790,10 +790,10 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
                     dungeon = get_dungeon(creatng->owner);
                     if (dungeon->owned_creatures_of_model[thing->model] <= 1)
                     {
-                        if (dungeon->field_1489[thing->model] <= 0)
+                        if (dungeon->creature_models_joined[thing->model] <= 0)
                         {
-                            event_create_event(thing->mappos.x.val, thing->mappos.y.val, 6, creatng->owner, thing->index);
-                            dungeon->field_1489[thing->model] = 1;
+                            event_create_event(thing->mappos.x.val, thing->mappos.y.val, EvKind_NewCreature, creatng->owner, thing->index);
+                            dungeon->creature_models_joined[thing->model] = 1;
                         }
                     }
                 }

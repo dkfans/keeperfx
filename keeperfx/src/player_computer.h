@@ -339,7 +339,7 @@ struct ComputerTask { // sizeof = 148
     };
     long field_7C;
     union {
-    long field_80;
+    long long_80;
     struct {
         union {
         short gold_lookup_idx;
@@ -460,7 +460,7 @@ void get_opponent(struct Computer2 *comp, struct THate *hate);
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
 TbBool process_checks(struct Computer2 *comp);
-long get_computer_money_less_cost(struct Computer2 *comp);
+GoldAmount get_computer_money_less_cost(const struct Computer2 *comp);
 struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing);
 TbBool person_will_do_job_for_room(const struct Thing *thing, const struct Room *room);
 TbBool person_will_do_job_for_room_kind(const struct Thing *thing, RoomKind rkind);
@@ -468,13 +468,14 @@ TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_i
 /******************************************************************************/
 struct ComputerTask *get_computer_task(long idx);
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long a2);
+TbBool is_task_in_progress(struct Computer2 *comp, long ttype);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
-TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num);
-TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value);
-TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long a2, long a3);
+TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
+TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long value);
+TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long stl_x, long stl_y);
 long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
