@@ -26,6 +26,10 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
+#include "thing_traps.h"
+#include "thing_doors.h"
+#include "thing_objects.h"
+#include "thing_creature.h"
 #include "room_data.h"
 #include "slab_data.h"
 #include "map_data.h"
@@ -107,7 +111,8 @@ char numfield_1A;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
-    struct ObjectConfig objects_config[239];
+    struct ObjectConfig objects_config[OBJECT_TYPES_COUNT];
+struct ObjectConfig objects_config_UNUSED[103];
 char field_117DA[14];
     // Traps and doors config; note that eventually we'll want to merge it with trapdoor_conf
     struct ManfctrConfig traps_config[TRAP_TYPES_COUNT];

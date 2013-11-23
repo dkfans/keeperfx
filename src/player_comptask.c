@@ -39,6 +39,7 @@
 #include "thing_traps.h"
 #include "thing_physics.h"
 #include "player_instances.h"
+#include "room_workshop.h"
 
 #include "dungeon_data.h"
 #include "map_blocks.h"

@@ -31,6 +31,7 @@
 #include "thing_effects.h"
 #include "room_jobs.h"
 #include "room_library.h"
+#include "room_workshop.h"
 #include "map_blocks.h"
 #include "map_utils.h"
 #include "config_terrain.h"
@@ -2429,8 +2430,8 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         {
             oldowner = thing->owner;
             thing->owner = newowner;
-            remove_workshop_item(oldowner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing));
-            add_workshop_item(newowner, workshop_object_class[thing->model], box_thing_to_door_or_trap(thing));
+            remove_workshop_item(oldowner, box_thing_to_workshop_object_class(thing), box_thing_to_door_or_trap(thing));
+            add_workshop_item(newowner, box_thing_to_workshop_object_class(thing), box_thing_to_door_or_trap(thing));
             return;
         }
         break;

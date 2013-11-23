@@ -30,6 +30,7 @@
 #include "power_hand.h"
 #include "game_legacy.h"
 #include "gui_soundmsgs.h"
+#include "player_instances.h"
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -41,10 +42,83 @@ DLLIMPORT long _DK_remove_workshop_object_from_player(long a1, long a2);
 DLLIMPORT long _DK_get_next_manufacture(struct Dungeon *dungeon);
 DLLIMPORT long _DK_process_player_manufacturing(int plr_idx);
 /******************************************************************************/
+/**
+ * Stores manufacturable items.
+ * Was originally named trap_data.
+ */
+struct ManufactureData manufacture_data[] = {
+    {PSt_None,      TCls_Empty,0,   0,   0},
+    {PSt_PlaceTrap, TCls_Trap, 1, 130, 152},
+    {PSt_PlaceTrap, TCls_Trap, 2, 132, 154},
+    {PSt_PlaceTrap, TCls_Trap, 3, 134, 156},
+    {PSt_PlaceTrap, TCls_Trap, 4, 136, 158},
+    {PSt_PlaceTrap, TCls_Trap, 5, 138, 160},
+    {PSt_PlaceTrap, TCls_Trap, 6, 140, 162},
+    {PSt_PlaceDoor, TCls_Door, 1, 144, 166},
+    {PSt_PlaceDoor, TCls_Door, 2, 146, 168},
+    {PSt_PlaceDoor, TCls_Door, 3, 148, 170},
+    {PSt_PlaceDoor, TCls_Door, 4, 150, 172},
+};
+/******************************************************************************/
+
+
 #ifdef __cplusplus
 }
 #endif
 /******************************************************************************/
+/**
+ * Returns manufacture data for a given manufacture index.
+ * @param manufctr_idx Manufacture array index.
+ * @return Dummy entry pinter if not found, manufacture data pointer otherwise.
+ */
+struct ManufactureData *get_manufacture_data(int manufctr_idx)
+{
+    if ((manufctr_idx < 0) || (manufctr_idx >= MANUFCTR_TYPES_COUNT)) {
+        return &manufacture_data[0];
+    }
+    return &manufacture_data[manufctr_idx];
+}
+
+/**
+ * Finds index into manufactures data array for a given trap/door class and model.
+ * @param tngclass Manufacturable thing class.
+ * @param tngmodel Manufacturable thing model.
+ * @return 0 if not found, otherwise index where 1 <= index < MANUFCTR_TYPES_COUNT
+ */
+int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel)
+{
+    int i;
+    for (i=1; i < MANUFCTR_TYPES_COUNT; i++)
+    {
+        struct ManufactureData *manufctr;
+        manufctr = &manufacture_data[i];
+        if ((manufctr->tngclass == tngclass) && (manufctr->tngmodel == tngmodel)) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+/**
+ * Returns manufacture data for a given trap/door class and model.
+ * @param tngclass Manufacturable thing class.
+ * @param tngmodel Manufactureble thing model.
+ * @return Dummy entry pinter if not found, manufacture data pointer otherwise.
+ */
+struct ManufactureData *get_manufacture_data_for_thing(ThingClass tngclass, ThingModel tngmodel)
+{
+    int i;
+    for (i=1; i < MANUFCTR_TYPES_COUNT; i++)
+    {
+        struct ManufactureData *manufctr;
+        manufctr = &manufacture_data[i];
+        if ((manufctr->tngclass == tngclass) && (manufctr->tngmodel == tngmodel)) {
+            return manufctr;
+        }
+    }
+    return &manufacture_data[0];
+}
+
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
 {
     if (room->kind != RoK_WORKSHOP) {
@@ -88,7 +162,7 @@ TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind)
     return true;
 }
 
-TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, long wrkitm_kind)
+TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, ThingModel tngmodel)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -97,9 +171,9 @@ TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, long 
     switch (wrkitm_class)
     {
     case TCls_Trap:
-        return (dungeon->trap_amount[wrkitm_kind] >= MANUFACTURED_ITEMS_LIMIT);
+        return (dungeon->trap_amount[tngmodel] >= MANUFACTURED_ITEMS_LIMIT);
     case TCls_Door:
-        return (dungeon->door_amount[wrkitm_kind] >= MANUFACTURED_ITEMS_LIMIT);
+        return (dungeon->door_amount[tngmodel] >= MANUFACTURED_ITEMS_LIMIT);
     }
     return true;
 }
