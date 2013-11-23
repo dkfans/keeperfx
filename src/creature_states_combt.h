@@ -64,6 +64,7 @@ short creature_attempt_to_damage_walls(struct Thing *thing);
 CrAttackType creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5);
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy);
 TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng);
+TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fightng);
 TbBool set_creature_combat_state(struct Thing *fighter1, struct Thing *fighter2, long a3);
 TbBool battle_with_creature_of_player(PlayerNumber plyr_idx, BattleIndex battle_id);
 

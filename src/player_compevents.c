@@ -211,7 +211,7 @@ struct Thing *find_creature_in_fight_with_enemy(struct Computer2 *comp)
     unsigned long k;
     int i;
     dungeon = comp->dungeon;
-    // Force leave or kill normal creatures
+    // Search through special diggers
     k = 0;
     i = dungeon->digger_list_start;
     while (i != 0)
@@ -239,7 +239,7 @@ struct Thing *find_creature_in_fight_with_enemy(struct Computer2 *comp)
             break;
         }
     }
-    // Kill all special workers
+    // Search through normal creatures
     k = 0;
     i = dungeon->creatr_list_start;
     while (i != 0)
@@ -475,7 +475,82 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
 
 long computer_event_check_imps_in_danger(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-  return _DK_computer_event_check_imps_in_danger(comp, cevent);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    //return _DK_computer_event_check_imps_in_danger(comp, cevent);
+    if (dungeon->fights_num <= 0) {
+        return 4;
+    }
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    struct Thing *creatng;
+    unsigned long k;
+    int i;
+    long result;
+    dungeon = comp->dungeon;
+    result = 4;
+    // Search through special diggers
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        creatng = thing_get(i);
+        cctrl = creature_control_get_from_thing(creatng);
+        if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if ((cctrl->combat_flags & (CmbtF_Melee|CmbtF_Ranged)) != 0)
+        {
+            if (!creature_is_being_unconscious(creatng) && !creature_affected_by_spell(creatng, SplK_Chicken))
+            {
+                if (!creature_is_being_dropped(creatng) && can_thing_be_picked_up_by_player(creatng, dungeon->owner))
+                {
+                    TbBool needs_help;
+                    crmaxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
+                    if (creatng->health < crmaxhealth/2)
+                    {
+                        needs_help = 1;
+                    } else
+                    {
+                        needs_help = creature_is_being_attacked_by_enemy_creature_not_digger(creatng);
+                    }
+                    if (needs_help)
+                    {
+                        // Move creature to heart, unless it already is near the heart
+                        struct Thing *heartng;
+                        heartng = thing_get(dungeon->dnheart_idx);
+                        if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16,0))
+                        {
+                            struct ComputerTask *ctask;
+                            ctask = get_free_task(comp, 0);
+                            if (computer_task_invalid(ctask)) {
+                                break;
+                            }
+                            ctask->ttype = CTT_MoveCreatureToPos;
+                            ctask->pos_86.x.val = heartng->mappos.x.val;
+                            ctask->pos_86.y.val = heartng->mappos.y.val;
+                            ctask->word_76 = creatng->index;
+                            ctask->word_80 = 0;
+                            ctask->field_A = game.play_gameturn;
+                            result = 1;
+                        }
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    return result;
 }
 
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)

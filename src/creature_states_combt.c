@@ -176,6 +176,39 @@ TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng)
     return false;
 }
 
+TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fightng)
+{
+    struct CreatureControl *figctrl;
+    long oppn_idx;
+    TRACE_THING(fightng);
+    figctrl = creature_control_get_from_thing(fightng);
+    // Check any enemy creature is in melee opponents list
+    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        struct Thing *enmtng;
+        enmtng = thing_get(figctrl->opponents_melee[oppn_idx]);
+        if (!thing_is_invalid(enmtng) && !thing_is_creature_special_digger(enmtng))
+        {
+            if (players_are_enemies(fightng->owner,enmtng->owner)) {
+                return true;
+            }
+        }
+    }
+    // Check any enemy creature is in ranged opponents list
+    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        struct Thing *enmtng;
+        enmtng = thing_get(figctrl->opponents_ranged[oppn_idx]);
+        if (!thing_is_invalid(enmtng) && !thing_is_creature_special_digger(enmtng))
+        {
+            if (players_are_enemies(fightng->owner,enmtng->owner)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist)
 {
     struct CreatureStats *crstat;
