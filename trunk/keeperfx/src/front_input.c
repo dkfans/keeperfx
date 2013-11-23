@@ -49,6 +49,7 @@
 #include "gui_topmsg.h"
 #include "power_hand.h"
 #include "thing_traps.h"
+#include "room_workshop.h"
 #include "kjm_input.h"
 #include "config_settings.h"
 #include "game_legacy.h"
