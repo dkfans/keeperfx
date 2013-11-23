@@ -177,7 +177,8 @@ DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
  * Returns creature health scaled 0..1000.
  * @param thing The creature thing.
  * @return Health value, not always in range of 0..1000.
- * @note Dying creatures may return negative health.
+ * @note Dying creatures may return negative health, and in some rare cases creatures
+ *  can have more health than their max.
  */
 int get_creature_health_permil(struct Thing *thing)
 {

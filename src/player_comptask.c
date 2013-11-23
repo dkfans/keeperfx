@@ -408,6 +408,12 @@ TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned
     return result;
 }
 
+/**
+ * Returns first task of given type from given computer player in progress tasks list.
+ * @param comp The computer player to be checked.
+ * @param ttype Task type to search for.
+ * @return The task pointer, or invalid task pointer if not found.
+ */
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long ttype)
 {
     struct ComputerTask *ctask;
@@ -429,6 +435,7 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long ttype)
         {
             long n;
             n = ctask->ttype;
+            // If it's a sub-task, compare the main task behind it
             if (n == CTT_WaitForBridge)
                 n = ctask->ottype;
             if (n == ttype) {
@@ -443,6 +450,19 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long ttype)
         }
     }
     return NULL;
+}
+
+/**
+ * Checks if given computer player has in progress task of given type.
+ * @param comp The computer player to be checked.
+ * @param ttype Task type to search for.
+ * @return True if computer player has at least one such task, false otherwise.
+ */
+TbBool is_task_in_progress(struct Computer2 *comp, long ttype)
+{
+    struct ComputerTask *ctask;
+    ctask = get_task_in_progress(comp, ttype);
+    return !computer_task_invalid(ctask);
 }
 
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
@@ -536,7 +556,7 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKi
             return false;
         return true;
     case RoK_TRAINING:
-        if (2 * dungeon->field_14B8 >= dungeon->total_money_owned)
+        if (2 * dungeon->creatures_total_pay >= dungeon->total_money_owned)
             return false;
         return true;
     case RoK_WORKSHOP:
@@ -753,7 +773,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     //return _DK_task_place_room(comp,ctask);
     dungeon = comp->dungeon;
-    rkind = ctask->field_80;
+    rkind = ctask->long_80;
     rstat = room_stats_get_for_kind(rkind);
     // If we don't have money for the room - don't even try
     if (rstat->cost >= dungeon->total_money_owned) {
@@ -1897,7 +1917,7 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     if (computer_able_to_use_magic(comp, ctask->long_86, ctask->field_70, 1) != 1)
         return CTaskRet_Unk4;
-    i = try_game_action(comp, dungeon->owner, ctask->field_80, ctask->field_70,
+    i = try_game_action(comp, dungeon->owner, ctask->long_80, ctask->field_70,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->word_76, 0);
     if (i <= 0)
         return CTaskRet_Unk4;
@@ -1919,7 +1939,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
         ERRORLOG("Invalid dungeon in computer player.");
         return 0;
     }
-    if ((ctask->field_7C >= ctask->long_76) && (ctask->field_80 >= dungeon->total_money_owned))
+    if ((ctask->field_7C >= ctask->long_76) && (ctask->long_80 >= dungeon->total_money_owned))
     {
         i = 0;
         value = 0;
@@ -2012,7 +2032,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     return true;
 }
 
-TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num)
+TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -2029,11 +2049,11 @@ TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *po
     ctask->field_A = game.play_gameturn;
     ctask->field_60 = 25;
     ctask->field_5C = game.play_gameturn - 25;
-    ctask->field_8E = 2500;
+    ctask->field_8E = par2;
     return true;
 }
 
-TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value)
+TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long value)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -2042,19 +2062,19 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long value)
         return false;
     }
     ctask->ttype = CTT_SellTrapsAndDoors;
-    ctask->field_70 = 0;
+    ctask->field_70 = par2;
     ctask->field_A = game.play_gameturn;
     ctask->field_5C = game.play_gameturn;
     ctask->field_60 = 1;
     ctask->field_70 = 5;
     ctask->long_76 = 0;
     ctask->field_7C = value;
-    ctask->field_80 = value;
+    ctask->long_80 = value;
     ctask->long_86 = 0;
     return true;
 }
 
-TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long a2, long a3)
+TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long stl_x, long stl_y)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -2063,8 +2083,8 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *th
         return false;
     }
     ctask->ttype = CTT_MoveCreatureToPos;
-    ctask->word_86 = a2 << 8;
-    ctask->word_88 = a3 << 8;
+    ctask->word_86 = subtile_coord(stl_x,ACTION_RANDOM(256));
+    ctask->word_88 = subtile_coord(stl_y,ACTION_RANDOM(256));
     ctask->word_76 = thing->index;
     ctask->word_80 = 0;
     ctask->field_A = game.play_gameturn;

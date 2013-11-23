@@ -31,6 +31,7 @@
 #include "config_terrain.h"
 #include "creature_states_combt.h"
 #include "creature_states.h"
+#include "power_hand.h"
 
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -144,7 +145,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
     //return _DK_computer_event_battle(comp, cevent, event);
     struct Coord3d pos;
     if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, event->mappos_x, event->mappos_y)) {
-        return false;
+        return 0;
     }
     long creatrs_def, creatrs_num;
     creatrs_def = count_creatures_for_defend_pickup(comp);
@@ -153,26 +154,35 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         creatrs_num = 1;
     }
     if (creatrs_num <= 0) {
-        return false;
+        return 0;
     }
     if (!computer_find_non_solid_block(comp, &pos)) {
-        return false;
+        return 0;
     }
-    if (!get_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) == 1)
     {
-        return create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2);
-    } else
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
+        {
+            if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
+                return 0;
+            }
+            return 1;
+        }
+    }
     if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 1, 1) == 1)
     {
-        if (!get_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0))
+        if (!is_task_in_progress(comp, CTT_MagicCallToArms) || ((cevent->param2 & 0x02) != 0))
         {
             if (check_call_to_arms(comp))
             {
-                return create_task_magic_call_to_arms(comp, &pos, creatrs_num);
+                if (!create_task_magic_call_to_arms(comp, &pos, 2500, creatrs_num)) {
+                    return 0;
+                }
+                return 1;
             }
         }
     }
-    return false;
+    return 0;
 }
 
 long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
@@ -296,20 +306,23 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
     if (!computer_find_non_solid_block(comp, &pos)) {
         return 4;
     }
-    if (!get_task_in_progress(comp, CTT_MoveCreaturesToDefend))
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) == 1)
     {
-        if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
-            return 4;
+        if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend))
+        {
+            if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
+                return 4;
+            }
+            return 1;
         }
-        return 1;
     }
     if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 8, 1) == 1)
     {
-        if (!get_task_in_progress(comp, CTT_MagicCallToArms))
+        if (!is_task_in_progress(comp, CTT_MagicCallToArms))
         {
             if (check_call_to_arms(comp))
             {
-                if (!create_task_magic_call_to_arms(comp, &pos, creatrs_num)) {
+                if (!create_task_magic_call_to_arms(comp, &pos, 2500, creatrs_num)) {
                     return 4;
                 }
                 return 1;
@@ -433,7 +446,7 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
     ctask->word_76 = creatng->index;
     ctask->field_70 = valB;
     ctask->field_7C = valA;
-    ctask->field_80 = valC;
+    ctask->long_80 = valC;
     ctask->field_A = game.play_gameturn;
     ctask->long_86 = pwkind;
     return 1;
@@ -481,13 +494,15 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
     if (dungeon->fights_num <= 0) {
         return 4;
     }
-    struct Dungeon *dungeon;
+    // If we don't have the power to pick up creatures, fail now
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != 1) {
+        return 4;
+    }
     struct CreatureControl *cctrl;
     struct Thing *creatng;
     unsigned long k;
     int i;
     long result;
-    dungeon = comp->dungeon;
     result = 4;
     // Search through special diggers
     k = 0;
@@ -510,8 +525,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                 if (!creature_is_being_dropped(creatng) && can_thing_be_picked_up_by_player(creatng, dungeon->owner))
                 {
                     TbBool needs_help;
-                    crmaxhealth = compute_creature_max_health(crstat->health,cctrl->explevel);
-                    if (creatng->health < crmaxhealth/2)
+                    if (get_creature_health_permil(creatng) < 500)
                     {
                         needs_help = 1;
                     } else
@@ -525,17 +539,10 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                         heartng = thing_get(dungeon->dnheart_idx);
                         if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16,0))
                         {
-                            struct ComputerTask *ctask;
-                            ctask = get_free_task(comp, 0);
-                            if (computer_task_invalid(ctask)) {
+                            if (!create_task_move_creature_to_pos(comp, creatng,
+                                heartng->mappos.x.stl.num, heartng->mappos.y.stl.num)) {
                                 break;
                             }
-                            ctask->ttype = CTT_MoveCreatureToPos;
-                            ctask->pos_86.x.val = heartng->mappos.x.val;
-                            ctask->pos_86.y.val = heartng->mappos.y.val;
-                            ctask->word_76 = creatng->index;
-                            ctask->word_80 = 0;
-                            ctask->field_A = game.play_gameturn;
                             result = 1;
                         }
                     }
@@ -555,51 +562,47 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
 
 long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *cevent,struct Event *event)
 {
-  return _DK_computer_event_check_payday(comp, cevent, event);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    //return _DK_computer_event_check_payday(comp, cevent, event);
+    if (dungeon->total_money_owned > dungeon->creatures_total_pay) {
+        return 4;
+    }
+    if (is_task_in_progress(comp, CTT_SellTrapsAndDoors)) {
+        return 4;
+    }
+    if (!create_task_sell_traps_and_doors(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {
+        return 4;
+    }
+    return 1;
 }
 
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
 {
     //TODO COMPUTER_EVENT_BREACH is remade from beta; make it work (if it's really needed)
-    struct ComputerTask *ctask;
     struct Coord3d pos;
     long i,count;
 
     //TODO COMPUTER_EVENT_BREACH check why mappos_x and mappos_y isn't used normally
     pos.x.val = ((event->mappos_x & 0xFF) << 8);
     pos.y.val = (((event->mappos_x >> 8) & 0xFF) << 8);
-    if ((pos.x.val <= 0) || (pos.y.val <= 0))
-    {
+    if ((pos.x.val <= 0) || (pos.y.val <= 0)) {
         return 0;
     }
     count = count_creatures_for_pickup(comp, &pos, 0, cevent->param2);
     i = count * cevent->param1 / 100;
-    if ((i <= 0) && (count > 0))
-    {
+    if ((i <= 0) && (count > 0)) {
         i = 1;
     }
-    if (i <= 0)
-    {
+    if (i <= 0) {
         return 4;
     }
-    if (!computer_find_non_solid_block(comp, &pos))
-    {
+    if (!computer_find_non_solid_block(comp, &pos)) {
         return 4;
     }
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask))
-    {
+    if (!create_task_move_creatures_to_defend(comp, &pos, i, cevent->param2)) {
         return 4;
     }
-    ctask->ttype = CTT_MoveCreaturesToDefend;
-    ctask->pos_76.x.val = pos.x.val;
-    ctask->pos_76.y.val = pos.y.val;
-    ctask->pos_76.z.val = pos.z.val;
-    ctask->field_7C = i;
-    ctask->field_70 = cevent->param2;
-    ctask->field_A = game.play_gameturn;
-    ctask->field_5C = game.play_gameturn;
-    ctask->field_60 = comp->field_34;
     return 1;
 }
 

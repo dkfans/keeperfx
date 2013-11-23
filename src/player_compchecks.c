@@ -209,7 +209,6 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
     struct Dungeon *dungeon;
-    struct ComputerTask *ctask;
     dungeon = comp->dungeon;
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_move_creatures_to_best_room(comp, check);
@@ -223,9 +222,10 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
         return 4;
     }
-    if (get_task_in_progress(comp, CTT_MoveCreatureToRoom) != NULL) {
+    if (is_task_in_progress(comp, CTT_MoveCreatureToRoom)) {
         return 4;
     }
+    struct ComputerTask *ctask;
     ctask = get_free_task(comp, 1);
     if (computer_task_invalid(ctask)) {
         return 4;
@@ -256,7 +256,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
         return 4;
     }
-    if (get_task_in_progress(comp, CTT_MoveCreatureToRoom) != NULL) {
+    if (is_task_in_progress(comp, CTT_MoveCreatureToRoom)) {
         return 4;
     }
     struct ComputerTask *ctask;
@@ -407,6 +407,9 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     //return _DK_computer_check_for_pretty(comp, check);
     dungeon = comp->dungeon;
     MapSubtlCoord stl_x, stl_y;
+    if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) != 1) {
+        return 4;
+    }
     {
         long stack_len;
         stack_len = dungeon->digger_stack_length;
@@ -428,17 +431,9 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     if (thing_is_invalid(creatng)) {
         return 4;
     }
-    struct ComputerTask *ctask;
-    ctask = get_free_task(comp, 0);
-    if (computer_task_invalid(ctask)) {
+    if (!create_task_move_creature_to_pos(comp, creatng, stl_x, stl_y)) {
         return 4;
     }
-    ctask->ttype = CTT_MoveCreatureToPos;
-    ctask->word_86 = subtile_coord_center(stl_x);
-    ctask->word_88 = subtile_coord_center(stl_y);
-    ctask->word_76 = creatng->index;
-    ctask->word_80 = 0;
-    ctask->field_A = game.play_gameturn;
     return 1;
 }
 
@@ -527,17 +522,10 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if (computer_task_invalid(ctask)) {
         return 4;
     }
+    if (!create_task_magic_call_to_arms(comp, &pos, check->param2, creatrs_factor)) {
+        return 4;
+    }
     output_message(SMsg_EnemyHarassments+ACTION_RANDOM(8), 500, 1);
-    ctask->ttype = CTT_MagicCallToArms;
-    ctask->field_1 = 0;
-    ctask->pos_76.x.val = pos.x.val;
-    ctask->pos_76.y.val = pos.y.val;
-    ctask->pos_76.z.val = pos.z.val;
-    ctask->field_7C = creatrs_factor;
-    ctask->field_A = game.play_gameturn;
-    ctask->field_60 = 25;
-    ctask->field_5C = game.play_gameturn - 25;
-    ctask->field_8E = check->param2;
     return 1;
 }
 
@@ -667,7 +655,10 @@ long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * che
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_slap_imps(comp, check);
     dungeon = comp->dungeon;
-    if (get_task_in_progress(comp, CTT_SlapImps)) {
+    if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
+        return 4;
+    }
+    if (is_task_in_progress(comp, CTT_SlapImps)) {
         return 4;
     }
     ctask = get_free_task(comp, 0);
@@ -1048,8 +1039,7 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
     //return _DK_computer_check_for_expand_room(comp, check);
     long around_start;
     around_start = ACTION_RANDOM(119);
-    if (get_task_in_progress(comp, CTT_PlaceRoom))
-    {
+    if (is_task_in_progress(comp, CTT_PlaceRoom)) {
         SYNCDBG(8,"No rooms expansion - task already in progress");
         return 0;
     }

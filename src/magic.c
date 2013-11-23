@@ -71,18 +71,18 @@ unsigned char destroy_effect[][9] = {
 };
 
 /******************************************************************************/
-DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_chicken(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_disease(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
 DLLIMPORT void _DK_magic_use_power_destroy_walls(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
 DLLIMPORT short _DK_magic_use_power_imp(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel);
-DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
-DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long splevel);
+DLLIMPORT void _DK_magic_use_power_heal(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_conceal(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_armour(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
+DLLIMPORT void _DK_magic_use_power_speed(unsigned char plyr_idx, struct Thing *thing, long pwmodel, long stl_y, long pwlevel);
 DLLIMPORT void _DK_magic_use_power_lightning(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
 DLLIMPORT long _DK_magic_use_power_sight(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
 DLLIMPORT void _DK_magic_use_power_cave_in(unsigned char plyr_idx, long a2, long pwmodel, long stl_y);
-DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long pwmodel, long stl_y, long splevel);
+DLLIMPORT long _DK_magic_use_power_call_to_arms(unsigned char plyr_idx, long a2, long pwmodel, long stl_y, long pwlevel);
 DLLIMPORT short _DK_magic_use_power_hand(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel, unsigned short stl_y);
 DLLIMPORT short _DK_magic_use_power_slap(unsigned short plyr_idx, unsigned short a2, unsigned short pwmodel);
 DLLIMPORT short _DK_magic_use_power_obey(unsigned short plridx);
@@ -91,7 +91,7 @@ DLLIMPORT void _DK_magic_use_power_hold_audience(unsigned char idx);
 
 DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx);
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
-DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long splevel);
+DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long pwlevel);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwmodel);
 DLLIMPORT void _DK_set_call_to_arms_as_birthing(struct Thing *objtng);
 DLLIMPORT void _DK_set_call_to_arms_as_rebirthing(struct Thing *objtng);
@@ -452,21 +452,15 @@ TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     return false;
 }
 
-TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind spkind, long splevel)
+long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
     struct MagicStats *magstat;
     long price;
     long i;
     unsigned long k;
-    if ((spkind < 0) || (spkind >= POWER_TYPES_COUNT))
-        return false;
-    if (splevel >= MAGIC_OVERCHARGE_LEVELS)
-        splevel = MAGIC_OVERCHARGE_LEVELS;
-    if (splevel < 0)
-        splevel = 0;
-    magstat = &game.magic_stats[spkind];
-    switch (spkind)
+    magstat = &game.magic_stats[pwkind];
+    switch (pwkind)
     {
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
@@ -475,12 +469,25 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind spkind, long splevel)
         i = dungeon->num_active_diggers - dungeon->creature_sacrifice[k] + 1;
         if (i < 1)
           i = 1;
-        price = magstat->cost[splevel]*i/2;
+        price = magstat->cost[pwlevel]*i/2;
         break;
     default:
-        price = magstat->cost[splevel];
+        price = magstat->cost[pwlevel];
         break;
     }
+    return price;
+}
+
+TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
+{
+    long price;
+    if ((pwkind < 0) || (pwkind >= POWER_TYPES_COUNT))
+        return false;
+    if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
+        pwlevel = MAGIC_OVERCHARGE_LEVELS;
+    if (pwlevel < 0)
+        pwlevel = 0;
+    price = compute_power_price(plyr_idx, pwkind, pwlevel);
     // Try to take money
     if (take_money_from_dungeon(plyr_idx, price, 1) >= 0)
     {

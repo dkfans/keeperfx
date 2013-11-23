@@ -49,7 +49,8 @@ TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);
-TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind spkind, long splevel);
+long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
+TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
 long thing_affected_by_spell(const struct Thing *thing, long spkind);
 
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel);
