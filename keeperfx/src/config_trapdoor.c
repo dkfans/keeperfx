@@ -48,6 +48,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"SELLINGVALUE",    4},
   {"HEALTH",          5},
   {"NAMETEXTID",      6},
+  {"TOOLTIPTEXTID",   7},
   {NULL,              0},
   };
 
@@ -383,6 +384,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           doorst = &trapdoor_conf.door_cfgstats[i];
           LbMemorySet(doorst->code_name, 0, COMMAND_WORD_LEN);
           doorst->name_stridx = GUIStr_Empty;
+          doorst->tooltip_stridx = GUIStr_Empty;
           if (i < trapdoor_conf.door_types_count)
           {
               door_desc[i].name = doorst->code_name;
@@ -396,7 +398,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
   }
   // Parse every numbered block within range
   arr_size = trapdoor_conf.door_types_count;
-  for (i=1; i < arr_size; i++)
+  for (i=0; i < arr_size; i++)
   {
     sprintf(block_buf,"door%d",i);
     pos = 0;
@@ -496,6 +498,22 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
             if (k > 0)
             {
                 doorst->name_stridx = k;
+                n++;
+            }
+          }
+          if (n < 1)
+          {
+            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 7: // TOOLTIPTEXTID
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = atoi(word_buf);
+            if (k > 0)
+            {
+                doorst->tooltip_stridx = k;
                 n++;
             }
           }
@@ -676,7 +694,7 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx)
         return false;
     }
     if ((trap_idx <= 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
-        ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
+        ERRORLOG("Incorrect trap %d (player %d)",(int)trap_idx, (int)plyr_idx);
         return false;
     }
     if (dungeon->trap_placeable[trap_idx]) {

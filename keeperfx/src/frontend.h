@@ -321,7 +321,7 @@ void activate_room_build_mode(int rkind, TextStringId tooltip_id);
 void choose_spell(PowerKind pwkind, TextStringId tooltip_id);
 TbBool is_special_spell(PowerKind pwkind);
 void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id);
-void choose_workshop_item(int kind, int tooltip_id);
+void choose_workshop_item(int manufctr_idx, int tooltip_id);
 
 // Campaign selection screen
 void frontend_campaign_select_up(struct GuiButton *gbtn);

@@ -58,6 +58,7 @@
 #include "power_specials.h"
 #include "power_hand.h"
 #include "room_util.h"
+#include "room_workshop.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "magic.h"

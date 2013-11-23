@@ -2088,14 +2088,14 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
         istack->task_id = DigTsk_None;
         return -1;
     }
-    i = workshop_object_class[sectng->model];
-    if ( i == 8 )
+    i = box_thing_to_workshop_object_class(sectng);
+    if (i == TCls_Trap)
     {
       event_create_event_or_update_nearby_existing_event(
           get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
           EvKind_TrapCrateFound, thing->owner, sectng->index);
     } else
-    if (i == 9)
+    if (i == TCls_Door)
     {
       event_create_event_or_update_nearby_existing_event(
           get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),

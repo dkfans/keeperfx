@@ -29,6 +29,7 @@
 #include "player_data.h"
 #include "map_events.h"
 #include "tasks_list.h"
+#include "thing_traps.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +37,6 @@ extern "C" {
 /******************************************************************************/
 #define DUNGEONS_COUNT          5
 #define IMP_TASK_MAX_COUNT     64
-#define TRAP_TYPES_COUNT        7
 #define DUNGEON_RESEARCH_COUNT 34
 #define MAX_THINGS_IN_HAND      8
 #define KEEPER_SPELLS_COUNT    20

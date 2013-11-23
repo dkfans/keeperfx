@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT  135
+#define OBJECT_TYPES_COUNT  136
 
 enum ObjectStates {
     ObSt_Unused = 0,
@@ -68,15 +68,12 @@ extern Thing_State_Func object_state_functions[];
 extern Thing_Class_Func object_update_functions[];
 extern unsigned short specials_text[];
 extern unsigned short player_guardflag_objects[];
+extern struct Objects objects[];
 /******************************************************************************/
 DLLIMPORT extern struct Objects _DK_objects[OBJECT_TYPES_COUNT];
-#define objects_data _DK_objects
 DLLIMPORT extern unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
-#define object_to_special _DK_object_to_special
 DLLIMPORT extern unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
-#define object_to_magic _DK_object_to_magic
 DLLIMPORT extern unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
-#define workshop_object_class _DK_workshop_object_class
 DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
@@ -95,6 +92,7 @@ struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 int box_thing_to_special(const struct Thing *thing);
 PowerKind book_thing_to_magic(const struct Thing *thing);
 int box_thing_to_door_or_trap(const struct Thing *thing);
+ThingClass box_thing_to_workshop_object_class(const struct Thing *thing);
 
 TbBool thing_is_special_box(const struct Thing *thing);
 #define is_dungeon_special thing_is_special_box

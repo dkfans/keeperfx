@@ -253,21 +253,21 @@ void gui_area_big_spell_button(struct GuiButton *gbtn)
 
 /**
  * Choose a trap or a door.
- * @param kind An index into trap_data array, beware as this is different from models.
+ * @param manufctr_idx An index into manufacture data array, beware as this is different from models.
  * @param tooltip_id The tooltip string to display.
  */
-void choose_workshop_item(int kind, int tooltip_id)
+void choose_workshop_item(int manufctr_idx, int tooltip_id)
 {
     struct PlayerInfo * player;
-    struct TrapData *trap_dat;
+    struct ManufactureData *manufctr;
 
     player = get_my_player();
-    trap_dat = &trap_data[kind%MANUFCTR_TYPES_COUNT];
-    set_players_packet_action(player, PckA_SetPlyrState, trap_dat->field_0,
-        trap_dat->field_4, 0, 0);
+    manufctr = get_manufacture_data(manufctr_idx);
+    set_players_packet_action(player, PckA_SetPlyrState, manufctr->work_state,
+        manufctr->tngmodel, 0, 0);
 
-    game.manufactr_element = kind;
-    game.numfield_15181D = trap_dat->field_8;
+    game.manufactr_element = manufctr_idx;
+    game.numfield_15181D = manufctr->field_8;
     game.manufactr_tooltip = tooltip_id;
 }
 
@@ -328,15 +328,15 @@ void go_to_next_trap_of_type(unsigned long kind, PlayerNumber plyr_idx)
 void gui_go_to_next_trap(struct GuiButton *gbtn)
 {
     struct PlayerInfo * player;
-    struct TrapData *trap_dat;
-    int kind;
-    kind = (int)gbtn->content;
+    int manufctr_idx;
+    manufctr_idx = (int)gbtn->content;
     player = get_my_player();
-    trap_dat = &trap_data[kind%MANUFCTR_TYPES_COUNT];
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
     //_DK_gui_go_to_next_trap(gbtn);
-    go_to_next_trap_of_type(trap_dat->field_4, player->id_number);
-    game.manufactr_element = kind;
-    game.numfield_15181D = trap_dat->field_8;
+    go_to_next_trap_of_type(manufctr->tngmodel, player->id_number);
+    game.manufactr_element = manufctr_idx;
+    game.numfield_15181D = manufctr->field_8;
     game.manufactr_tooltip = gbtn->tooltip_id;
 }
 
@@ -348,29 +348,30 @@ void gui_over_trap_button(struct GuiButton *gbtn)
 void gui_area_trap_button(struct GuiButton *gbtn)
 {
     unsigned short flg_mem;
-    ThingModel trmodel;
+    int manufctr_idx;
     //_DK_gui_area_trap_button(gbtn);
     flg_mem = lbDisplay.DrawFlags;
-    trmodel = (long)gbtn->content;
+    manufctr_idx = (long)gbtn->content;
     LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[24]);
-    struct TrapData *trap_dat;
-    trap_dat = &trap_data[trmodel];
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
     // Check if we should draw anything
-    if (trap_dat->field_0 == 16)
+    if (manufctr->tngclass == TCls_Trap)
     {
-        if (!is_trap_buildable(my_player_number, trap_dat->field_4) && !is_trap_placeable(my_player_number, trap_dat->field_4)) {
+        if (!is_trap_buildable(my_player_number, manufctr->tngmodel) && !is_trap_placeable(my_player_number, manufctr->tngmodel)) {
             lbDisplay.DrawFlags = flg_mem;
             return;
         }
     } else
-    if (trap_dat->field_0 == 18)
+    if (manufctr->tngclass == TCls_Door)
     {
-        if (!is_door_buildable(my_player_number, trap_dat->field_4) && !is_door_placeable(my_player_number, trap_dat->field_4)) {
+        if (!is_door_buildable(my_player_number, manufctr->tngmodel) && !is_door_placeable(my_player_number, manufctr->tngmodel)) {
             lbDisplay.DrawFlags = flg_mem;
             return;
         }
     } else
     {
+        SYNCDBG(15,"Invalid manufacture index %d",(int)manufctr_idx);
         lbDisplay.DrawFlags = flg_mem;
         return;
     }
@@ -386,21 +387,21 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     // Check how many traps/doors do we have to place
     unsigned int amount;
     amount = 0;
-    if (trap_dat->field_0 == 16)
+    if (manufctr->tngclass == TCls_Trap)
     {
         // If there are traps of that type placed on map
-        if (find_trap_of_type(trap_dat->field_4, my_player_number)) {
+        if (find_trap_of_type(manufctr->tngmodel, my_player_number)) {
             LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[27]);
         }
-        amount = dungeon->trap_amount[trap_dat->field_4];
+        amount = dungeon->trap_amount[manufctr->tngmodel];
     } else
-    if (trap_dat->field_0 == 18)
+    if (manufctr->tngclass == TCls_Door)
     {
         // If there are doors of that type placed on map
-        if (find_door_of_type(trap_dat->field_4, my_player_number)) {
+        if (find_door_of_type(manufctr->tngmodel, my_player_number)) {
             LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[27]);
         }
-        amount = dungeon->door_amount[trap_dat->field_4];
+        amount = dungeon->door_amount[manufctr->tngmodel];
     }
     int i;
     i = gbtn->field_29 + (amount < 1);
@@ -512,13 +513,11 @@ void maintain_trap(struct GuiButton *gbtn)
 
 void maintain_door(struct GuiButton *gbtn)
 {
-    struct TrapData *trap_dat;
-    struct Dungeon *dungeon;
-    int i;
-    i = (unsigned int)gbtn->content;
-    trap_dat = &trap_data[i%MANUFCTR_TYPES_COUNT];
-    dungeon = get_players_num_dungeon(my_player_number);
-    if (dungeon->door_placeable[trap_dat->field_4%DOOR_TYPES_COUNT])
+    int manufctr_idx;
+    manufctr_idx = (unsigned int)gbtn->content;
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
+    if (is_door_placeable(my_player_number, manufctr->tngmodel))
     {
         gbtn->field_1B = 0;
         set_flag_byte(&gbtn->flags, 0x08, true);
@@ -532,18 +531,17 @@ void maintain_door(struct GuiButton *gbtn)
 void maintain_big_trap(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
-    struct TrapData *trap_dat;
-    int i,n;
+    int manufctr_idx;
     //_DK_maintain_big_trap(gbtn);
-    n = game.manufactr_element%MANUFCTR_TYPES_COUNT;
-    trap_dat = &trap_data[n];
+    manufctr_idx = game.manufactr_element%MANUFCTR_TYPES_COUNT;
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
     dungeon = get_players_num_dungeon(my_player_number);
-    gbtn->content = (unsigned long *)n;
+    gbtn->content = (unsigned long *)manufctr_idx;
     gbtn->field_29 = game.numfield_15181D;
     gbtn->tooltip_id = game.manufactr_tooltip;
-    i = trap_dat->field_0;
-    if ( ((i == 16) && (dungeon->trap_amount[n] > 0))
-      || ((i == 18) && (dungeon->door_amount[n] > 0)) )
+    if ( ((manufctr->tngclass == TCls_Trap) && (dungeon->trap_amount[manufctr->tngmodel] > 0))
+      || ((manufctr->tngclass == TCls_Door) && (dungeon->door_amount[manufctr->tngmodel] > 0)) )
     {
         gbtn->field_1B = 0;
         gbtn->flags |= 0x08;

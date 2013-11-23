@@ -21,12 +21,12 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-#include "room_workshop.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+/******************************************************************************/
+#define TRAP_TYPES_COUNT        7
 /******************************************************************************/
 #pragma pack(1)
 
@@ -45,15 +45,6 @@ enum ThingTrapModels {
 };
 
 struct Thing;
-
-struct TrapData {
-      long field_0;
-      long field_4;
-      short field_8;
-      short parchment_spridx;
-      unsigned short name_stridx_DONTUSE; // use TrapConfigStats instead
-      unsigned short tooltip_stridx_DONTUSE; // use TrapConfigStats instead
-};
 
 struct TrapStats {  // sizeof=54
 unsigned long field_0;
@@ -82,8 +73,6 @@ short field_34;
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
-#define trap_data _DK_trap_data
 DLLIMPORT extern unsigned char _DK_trap_to_object[8];
 #define trap_to_object _DK_trap_to_object
 DLLIMPORT struct TrapStats _DK_trap_stats[7]; //not sure - maybe it's 8?
@@ -98,7 +87,6 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool thing_is_deployed_trap(const struct Thing *thing);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
-int get_trap_data_index(int wrkshop_class, int wrkshop_kind);
 
 long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value);
 

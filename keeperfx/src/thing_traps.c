@@ -471,26 +471,6 @@ void init_traps(void)
 }
 
 /**
- * Finds index into trap data array for a given trap/door class and model.
- * @param wrkshop_class
- * @param wrkshop_index
- * @return -1 if not found, otherwise index where 0 <= index < MANUFCTR_TYPES_COUNT
- */
-int get_trap_data_index(int wrkshop_class, int wrkshop_index)
-{
-    //TODO: verify that this actually works (I don't know about wrkshop_class relation to field_0)
-    //either way this function is needed, so if erroneous simply correct and leave to be
-    int i;
-    for (i=0; i < MANUFCTR_TYPES_COUNT; i++)
-    {
-        if ((trap_data[i].field_0 == wrkshop_class) && (wrkshop_index == trap_data[i].field_4)) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-/**
  * Removes traps on the subtile and all sibling subtiles.
  *
  * @param stl_x Central subtile X coordinate.

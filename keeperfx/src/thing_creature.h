@@ -29,13 +29,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+/******************************************************************************/
 #define CREATURE_TYPES_COUNT  32
 #define DEAD_CREATURES_MAX_COUNT 64
 #define NORMAL_FLYING_ALTITUDE 256
 
 #define TngGroup_LeaderIndex 0x0FFF
-
 /******************************************************************************/
 #pragma pack(1)
 

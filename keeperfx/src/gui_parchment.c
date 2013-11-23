@@ -47,6 +47,7 @@
 #include "power_hand.h"
 #include "game_legacy.h"
 #include "room_list.h"
+#include "room_workshop.h"
 #include "vidfade.h"
 
 #include "keeperfx.hpp"
@@ -541,6 +542,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
     i = thing->next_on_mapblk;
     if (!thing_is_picked_up(thing))
     {
+      struct ManufactureData *manufctr;
       spos_x = ((subtile_size * ((long)thing->mappos.x.stl.pos)) >> 8);
       spos_y = ((subtile_size * ((long)thing->mappos.y.stl.pos)) >> 8);
       switch (thing->class_id)
@@ -559,31 +561,32 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
         break;
       case TCls_Trap:
         if ((!thing->byte_18) && (player->id_number != thing->owner))
-          break;
-        spridx = trap_data[thing->model].parchment_spridx;
+            break;
+        manufctr = get_manufacture_data_for_thing(thing->class_id, thing->model);
+        spridx = manufctr->parchment_spridx;
         draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         break;
       case TCls_Object:
-        if (thing->model == 5)
+        if (thing_is_dungeon_heart(thing))
         {
-          spridx = 512;
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+            spridx = 512;
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         } else
         if (object_is_gold(thing))
         {
-          spridx = 511;
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+            spridx = 511;
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         } else
-        if ( thing_is_special_box(thing) )
+        if (thing_is_special_box(thing))
         {
-          spridx = 164;
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+            spridx = 164;
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         } else
-        if ( thing_is_spellbook(thing) )
+        if (thing_is_spellbook(thing))
         {
-          pwrdata = get_power_data(book_thing_to_magic(thing));
-          spridx = pwrdata->field_B;
-          draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
+            pwrdata = get_power_data(book_thing_to_magic(thing));
+            spridx = pwrdata->field_B;
+            draw_gui_panel_sprite_centered(scr_x+spos_x, scr_y+spos_y, spridx);
         }
         break;
       default:
