@@ -592,8 +592,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     int neutral_entrances;
     dungeon = comp->dungeon;
     neutral_entrances = count_entrances(comp, game.neutral_player_num);
-    if (get_task_in_progress(comp, CTT_DigToEntrance))
-    {
+    if (is_task_in_progress(comp, CTT_DigToEntrance)) {
         return 4;
     }
     if ((there_is_virgin_entrance_for_computer(comp)) &&
@@ -754,8 +753,7 @@ long computer_check_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         return 4;
     }
     // And we're not already digging for gold
-    if ( get_task_in_progress(comp, CTT_DigToGold) )
-    {
+    if (is_task_in_progress(comp, CTT_DigToGold)) {
         SYNCDBG(18,"Computer player model %d is already digging for gold.",(int)comp->model);
         return 4;
     }
