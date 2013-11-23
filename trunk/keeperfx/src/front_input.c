@@ -1544,7 +1544,7 @@ static void get_dungeon_speech_inputs(void)
         if (id < 0) {
             WARNLOG("Bad trap string %s", last_speech_event.u.trapdoor.model_name);
         }
-        else if ((id = get_trap_data_index(TCls_Trap, id)) >= 0) {
+        else if ((id = get_manufacture_data_index_for_thing(TCls_Trap, id)) > 0) {
             choose_workshop_item(id, 2); //TODO: see what happens with tool tip
         }
         else {
@@ -1556,7 +1556,7 @@ static void get_dungeon_speech_inputs(void)
         if (id < 0) {
             WARNLOG("Bad door string %s", last_speech_event.u.trapdoor.model_name);
         }
-        else if ((id = get_trap_data_index(TCls_Door, id)) >= 0) {
+        else if ((id = get_manufacture_data_index_for_thing(TCls_Door, id)) > 0) {
             choose_workshop_item(id, 2); //TODO: see what happens with tool tip
         }
         else {

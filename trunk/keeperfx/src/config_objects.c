@@ -44,6 +44,8 @@ const struct NamedCommand objects_object_commands[] = {
   {"NAME",            1},
   {"GERNE",           2},
   {"RELATEDCREATURE", 3},
+  {"RELATEDDOOR",     4},
+  {"RELATEDTRAP",     5},
   {NULL,              0},
   };
 
@@ -63,7 +65,7 @@ const struct NamedCommand objects_gernes_desc[] = {
 
 /******************************************************************************/
 struct ObjectsConfig object_conf;
-struct NamedCommand object_desc[OBJECT_ITEMS_MAX];
+struct NamedCommand object_desc[OBJECT_TYPES_COUNT];
 /******************************************************************************/
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 {
@@ -116,7 +118,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              if ((k > 0) && (k <= OBJECT_ITEMS_MAX))
+              if ((k > 0) && (k <= OBJECT_TYPES_COUNT))
               {
                   object_conf.object_types_count = k;
                   n++;
@@ -241,6 +243,34 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     break;
                 }
                 objdat->related_creatr_model = n;
+                break;
+            case 4: // RELATEDDOOR
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    n = get_id(door_desc, word_buf);
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Incorrect related door \"%s\" in [%s] block of %s file.",
+                        word_buf,block_buf,config_textname);
+                    break;
+                }
+                //TODO OBJECTS finish config file option and remove object_to_door_or_trap array
+                //objdat->related_door_model = n;
+                break;
+            case 5: // RELATEDTRAP
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    n = get_id(trap_desc, word_buf);
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Incorrect related trap \"%s\" in [%s] block of %s file.",
+                        word_buf,block_buf,config_textname);
+                    break;
+                }
+                //TODO OBJECTS finish config file option and remove object_to_door_or_trap array
+                //objdat->related_trap_model = n;
                 break;
             case 0: // comment
                 break;

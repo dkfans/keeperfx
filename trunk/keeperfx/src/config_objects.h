@@ -24,14 +24,12 @@
 
 #include "config.h"
 #include "light_data.h"
+#include "thing_objects.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-
-#define OBJECT_ITEMS_MAX 256
-
 enum ObjectCategoryIndex {
     OCtg_Unknown = 0,
     OCtg_Decoration, //< Object has no strong function
@@ -68,11 +66,11 @@ struct ObjectConfigStats {
 
 struct ObjectsConfig {
     long object_types_count;
-    struct ObjectConfigStats object_cfgstats[OBJECT_ITEMS_MAX];
+    struct ObjectConfigStats object_cfgstats[OBJECT_TYPES_COUNT];
 };
 /******************************************************************************/
 extern const char keeper_objects_file[];
-extern struct NamedCommand object_desc[OBJECT_ITEMS_MAX];
+extern struct NamedCommand object_desc[OBJECT_TYPES_COUNT];
 /******************************************************************************/
 TbBool load_objects_config(const char *conf_fname,unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);

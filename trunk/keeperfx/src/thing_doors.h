@@ -16,8 +16,8 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_TNGDOORS_H
-#define DK_TNGDOORS_H
+#ifndef DK_THING_DOORS_H
+#define DK_THING_DOORS_H
 
 #include "bflib_basics.h"
 #include "globals.h"

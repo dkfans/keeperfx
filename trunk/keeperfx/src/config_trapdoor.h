@@ -46,13 +46,14 @@ struct ManfctrConfig { // sizeof=0x14
 /******************************************************************************/
 struct DoorConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    long name_stridx;
+    TextStringId name_stridx;
+    TextStringId tooltip_stridx;
 };
 
 struct TrapConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    long name_stridx;
-    long tooltip_stridx;
+    TextStringId name_stridx;
+    TextStringId tooltip_stridx;
 };
 
 struct TrapDoorConfig {

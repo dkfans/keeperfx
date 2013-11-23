@@ -39,11 +39,29 @@ struct Thing;
 struct Dungeon;
 
 #pragma pack()
+
+/**
+ * Manufacture types data.
+ * Originally was named TrapData, but stores both traps and doors; now no longer matches original.
+ */
+struct ManufactureData {
+      long work_state; //< Work state used to place the manufactured item on map
+      ThingClass tngclass; //< Thing class created when manufactured design is placed
+      ThingModel tngmodel; //< Thing model created when manufactured design is placed
+      short field_8;
+      short parchment_spridx;
+};
 /******************************************************************************/
+//DLLIMPORT extern struct TrapData _DK_trap_data[MANUFCTR_TYPES_COUNT];
+/******************************************************************************/
+struct ManufactureData *get_manufacture_data(int manufctr_idx);
+int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel);
+struct ManufactureData *get_manufacture_data_for_thing(ThingClass tngclass, ThingModel tngmodel);
+
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);
 TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *boxtng);
 TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
-TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, long wrkitm_kind);
+TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, ThingModel tngmodel);
 long remove_workshop_item(long owner, long tngclass, long tngmodel);
 long remove_workshop_object_from_player(PlayerNumber owner, long model);
 TbBool get_next_manufacture(struct Dungeon *dungeon);
