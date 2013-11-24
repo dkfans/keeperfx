@@ -681,8 +681,6 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
 {
     struct ComputerTask *ctask;
     struct Room *room;
-    struct Coord3d tmpos1;
-    struct Coord3d tmpos2;
     //return _DK_setup_computer_attack(comp, process, pos, a4);
     if (!computer_finds_nearest_room_to_pos(comp, &room, pos)) {
         return 0;
@@ -692,40 +690,32 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
         return 0;
     }
     ctask->ttype = CTT_DigToAttack;
-    ctask->pos_70.x.val = room->central_stl_x << 8;
-    ctask->pos_70.y.val = room->central_stl_y << 8;
-    ctask->pos_70.z.val = 256;
-    ctask->pos_76.x.val = pos->x.val;
-    ctask->pos_76.y.val = pos->y.val;
-    ctask->pos_76.z.val = pos->z.val;
-    {
-        long i;
-        i = (long)((char *)process - (char *)&comp->processes[0]) / sizeof(struct ComputerProcess);
-        if ((i < 0) || (i > COMPUTER_PROCESSES_COUNT))
-        {
-          ERRORLOG("Process \"%s\" is outside of Computer Player.",process->name);
-          i = COMPUTER_PROCESSES_COUNT;
-        }
-        ctask->field_8C = i;
-    }
+    struct Coord3d startpos, endpos;
+    startpos.x.val = subtile_coord_center(subtile_at_slab_center(room->central_stl_x));
+    startpos.y.val = subtile_coord_center(subtile_at_slab_center(room->central_stl_y));
+    startpos.z.val = subtile_coord(1,0);
+    endpos.x.val = pos->x.val;
+    endpos.y.val = pos->y.val;
+    endpos.z.val = pos->z.val;
+    ctask->pos_70.x.val = startpos.x.val;
+    ctask->pos_70.y.val = startpos.y.val;
+    ctask->pos_70.z.val = startpos.z.val;
+    ctask->pos_76.x.val = endpos.x.val;
+    ctask->pos_76.y.val = endpos.y.val;
+    ctask->pos_76.z.val = endpos.z.val;
+    ctask->field_8C = computer_process_index(comp, process);
     ctask->word_86 = a4;
     ctask->field_5C = 0;
     ctask->flags |= 0x04;
-    tmpos2.x.val = ctask->pos_76.x.val;
-    tmpos2.y.val = ctask->pos_76.y.val;
-    tmpos2.z.val = ctask->pos_76.z.val;
-    tmpos1.x.val = ctask->pos_70.x.val;
-    tmpos1.y.val = ctask->pos_70.y.val;
-    tmpos1.z.val = ctask->pos_70.z.val;
-    ctask->dig.pos_gold.x.val = tmpos1.x.val;
-    ctask->dig.pos_gold.y.val = tmpos1.y.val;
-    ctask->dig.pos_gold.z.val = tmpos1.z.val;
-    ctask->dig.pos_E.x.val = tmpos1.x.val;
-    ctask->dig.pos_E.y.val = tmpos1.y.val;
-    ctask->dig.pos_E.z.val = tmpos1.z.val;
-    ctask->dig.pos_14.x.val = tmpos2.x.val;
-    ctask->dig.pos_14.y.val = tmpos2.y.val;
-    ctask->dig.pos_14.z.val = tmpos2.z.val;
+    ctask->dig.pos_gold.x.val = startpos.x.val;
+    ctask->dig.pos_gold.y.val = startpos.y.val;
+    ctask->dig.pos_gold.z.val = startpos.z.val;
+    ctask->dig.pos_E.x.val = startpos.x.val;
+    ctask->dig.pos_E.y.val = startpos.y.val;
+    ctask->dig.pos_E.z.val = startpos.z.val;
+    ctask->dig.pos_14.x.val = endpos.x.val;
+    ctask->dig.pos_14.y.val = endpos.y.val;
+    ctask->dig.pos_14.z.val = endpos.z.val;
     ctask->dig.pos_20.x.val = 0;
     ctask->dig.pos_20.y.val = 0;
     ctask->dig.pos_20.z.val = 0;

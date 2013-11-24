@@ -39,6 +39,8 @@
  0001:00044AB0       get_spellbook_at_position
  0001:00044C00       get_crate_at_position
  0001:00044ED0       get_nearest_object_at_position
+ 0001:0004B910       computer_finds_nearest_entrance2
+ 0001:0004EF10       move_imp_to_dig_here
  0001:00050C50       S3DAddSampleToEmitterPri
  0001:00050970       S3DCreateSoundEmitterPri
  0001:00050CA0       S3DDeleteSampleFromEmitter

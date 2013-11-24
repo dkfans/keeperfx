@@ -892,24 +892,24 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     if (computer_task_invalid(ctask)) {
         return 4;
     }
+    struct Coord3d endpos;
+    struct Coord3d startpos;
+    endpos.x.val = near_pos->x.val;
+    endpos.y.val = near_pos->y.val;
+    endpos.z.val = near_pos->z.val;
+    startpos.x.val = subtile_coord_center(subtile_at_slab_center(near_room->central_stl_x));
+    startpos.y.val = subtile_coord_center(subtile_at_slab_center(near_room->central_stl_y));
+    startpos.z.val = subtile_coord(1,0);
     ctask->ttype = CTT_DigToNeutral;
     ctask->byte_80 = 0;
     ctask->field_A = game.play_gameturn;
-    ctask->pos_70.x.val = subtile_coord(near_room->central_stl_x,0);
-    ctask->pos_70.y.val = subtile_coord(near_room->central_stl_y,0);
-    ctask->pos_70.z.val = subtile_coord(1,0);
-    ctask->pos_76.x.val = near_pos->x.val;
-    ctask->pos_76.y.val = near_pos->y.val;
-    ctask->pos_76.z.val = near_pos->z.val;
+    ctask->pos_70.x.val = startpos.x.val;
+    ctask->pos_70.y.val = startpos.y.val;
+    ctask->pos_70.z.val = startpos.z.val;
+    ctask->pos_76.x.val = endpos.x.val;
+    ctask->pos_76.y.val = endpos.y.val;
+    ctask->pos_76.z.val = endpos.z.val;
     ctask->flags |= 0x04;
-    struct Coord3d endpos;
-    struct Coord3d startpos;
-    endpos.z.val = ctask->pos_76.x.val;
-    endpos.y.val = ctask->pos_76.y.val;
-    endpos.z.val = ctask->pos_76.z.val;
-    startpos.z.val = ctask->pos_70.x.val;
-    startpos.y.val = ctask->pos_70.y.val;
-    startpos.z.val = ctask->pos_70.z.val;
     setup_dig_to(&ctask->dig, startpos, endpos);
     near_pos->x.val = 0;
     near_pos->y.val = 0;

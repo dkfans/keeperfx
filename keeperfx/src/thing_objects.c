@@ -835,7 +835,7 @@ TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing)
         return false;
     struct ObjectConfigStats *objst;
     objst = get_object_model_stats(thing->model);
-    return (objst->gerne == OCtg_Power);
+    return (objst->genre == OCtg_Power);
 }
 
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount)
