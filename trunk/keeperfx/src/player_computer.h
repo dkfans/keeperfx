@@ -473,6 +473,7 @@ struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
+TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num);
 TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long value);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long stl_x, long stl_y);

@@ -633,17 +633,27 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     struct Room *room;
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
-    if (dungeon_invalid(dungeon))
-    {
+    if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player.");
         return INVALID_THING;
     }
     //return _DK_find_creature_to_be_placed_in_room(comp, roomp);
     param.ptr1 = (void *)comp;
     filter = player_list_creature_filter_needs_to_be_placed_in_room;
-    thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
-    if (thing_is_invalid(thing))
+    thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    if (thing_is_invalid(thing)) {
         return INVALID_THING;
+    }
+    // We won't allow the creature to be picked if we want it to be placed in the same room it is now.
+    // The filter function took care of most such situations, but it is still possible that the creature
+    // won't be able or will not want to work in that room, and will be picked up and dropped over and over.
+    // This will prevent such situation, at least to the moment when the creature leaves the room.
+    room = get_room_thing_is_on(thing);
+    if (!room_is_invalid(room) && (room->kind == param.num2) && (room->owner == thing->owner)) {
+        WARNDBG(4,"The %s owned by player %d already is in %s, but doesn't want to work there",
+            thing_model_name(thing),(int)thing->owner,room_code_name(room->kind));
+        return INVALID_THING;
+    }
     room = get_room_of_given_kind_for_thing(thing,dungeon,param.num2);
     if (room_is_invalid(room))
         return INVALID_THING;
@@ -1639,9 +1649,9 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     if (!thing_is_invalid(thing))
     {
       room = room_get(ctask->word_80);
-      pos.x.val = room->central_stl_x << 8;
-      pos.y.val = room->central_stl_y << 8;
-      pos.z.val = 256;
+      pos.x.val = subtile_coord_center(room->central_stl_x);
+      pos.y.val = subtile_coord_center(room->central_stl_y);
+      pos.z.val = subtile_coord(1,0);
       if (fake_dump_held_creatures_on_map(comp, thing, &pos) > 0)
         return CTaskRet_Unk2;
       remove_task(comp, ctask);
@@ -1662,9 +1672,9 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         //TODO CREATURE_AI don't place creatures at center of a temple/portal if we don't want to get rid of them
         //TODO CREATURE_AI make sure to place creatures at "active" portal tile if we do want them to leave
         ctask->word_80 = room->index;
-        pos.x.val = room->central_stl_x << 8;
-        pos.y.val = room->central_stl_y << 8;
-        pos.z.val = 256;
+        pos.x.val = subtile_coord(room->central_stl_x,ACTION_RANDOM(256));
+        pos.y.val = subtile_coord(room->central_stl_y,ACTION_RANDOM(256));
+        pos.z.val = subtile_coord(1,0);
         if (fake_place_thing_in_power_hand(comp, thing, &pos)) {
             return CTaskRet_Unk2;
         }
@@ -2029,6 +2039,22 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     ctask->field_A = game.play_gameturn;
     ctask->field_5C = game.play_gameturn;
     ctask->field_60 = comp->field_34;
+    return true;
+}
+
+TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MoveCreatureToRoom;
+    ctask->word_70 = room_idx;
+    ctask->word_80 = room_idx;
+    ctask->field_7C = creatrs_num;
+    ctask->field_A = game.play_gameturn;
     return true;
 }
 

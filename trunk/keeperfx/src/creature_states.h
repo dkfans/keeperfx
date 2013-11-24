@@ -342,7 +342,7 @@ TbBool creature_is_being_sacrificed(const struct Thing *thing);
 TbBool creature_is_manually_controlled_by_owner(const struct Thing *thing);
 TbBool creature_is_kept_in_prison(const struct Thing *thing);
 TbBool creature_is_being_summoned(const struct Thing *thing);
-TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing);
+TbBool creature_is_doing_anger_job(const struct Thing *thing);
 TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);
 TbBool creature_is_doing_temple_activity(const struct Thing *thing);
