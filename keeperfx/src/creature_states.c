@@ -747,7 +747,7 @@ TbBool creature_is_training(const struct Thing *thing)
     return false;
 }
 
-TbBool creature_is_doing_dungeon_improvements(const struct Thing *thing)
+TbBool creature_is_doing_anger_job(const struct Thing *thing)
 {
     CrtrStateId i;
     i = get_creature_state_besides_interruptions(thing);
@@ -3147,7 +3147,13 @@ short person_sulk_at_lair(struct Thing *creatng)
 
     struct Room *room;
     room = get_room_thing_is_on(creatng);
-    if (creature_work_in_room_no_longer_possible(room, RoK_LAIR, creatng)) {
+    // Usually we use creature_work_in_room_no_longer_possible() for checking rooms
+    // but sulking in lair is a special case, we can't compare room id as it's not working in room
+    if (!room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng))
+    {
+        WARNLOG("Room %s index %d is not valid %s for %s owned by player %d to work in",
+            room_code_name(room->kind),(int)room->index,room_code_name(RoK_LAIR),
+            thing_model_name(creatng),(int)creatng->owner);
         set_start_state(creatng);
         return 0;
     }
@@ -4109,7 +4115,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
             break;
         }
     }
-    if (creature_is_doing_dungeon_improvements(thing)) {
+    if (creature_is_doing_anger_job(thing)) {
         return 0;
     }
     if (anger_is_creature_livid(thing) && (((game.play_gameturn + thing->index) & 0x3F) == 0))
