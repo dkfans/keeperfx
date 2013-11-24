@@ -225,16 +225,9 @@ long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct C
     if (is_task_in_progress(comp, CTT_MoveCreatureToRoom)) {
         return 4;
     }
-    struct ComputerTask *ctask;
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
+    if (!create_task_move_creatures_to_room(comp, 0, num_to_move)) {
         return 4;
     }
-    ctask->ttype = CTT_MoveCreatureToRoom;
-    ctask->word_70 = 0;
-    ctask->word_80 = 0;
-    ctask->field_7C = num_to_move;
-    ctask->field_A = game.play_gameturn;
     SYNCDBG(8,"Added task to move %d creatures to best room", (int)num_to_move);
     return 1;
 }
@@ -259,7 +252,6 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
     if (is_task_in_progress(comp, CTT_MoveCreatureToRoom)) {
         return 4;
     }
-    struct ComputerTask *ctask;
     unsigned long k;
     long i;
     k = 0;
@@ -276,13 +268,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
         // Per-room code
         if (room->total_capacity > room->used_capacity)
         {
-            ctask = get_free_task(comp, 1);
-            if (ctask != NULL) {
-                ctask->ttype = CTT_MoveCreatureToRoom;
-                ctask->word_70 = room->index;
-                ctask->word_80 = room->index;
-                ctask->field_7C = num_to_move;
-                ctask->field_A = game.play_gameturn;
+            if (create_task_move_creatures_to_room(comp, room->index, num_to_move)) {
                 SYNCDBG(8,"Added task to move %d creatures to room %d", (int)num_to_move,(int)room->index);
                 return 1;
             }

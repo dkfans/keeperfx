@@ -267,7 +267,7 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
         i = thing->next_on_mapblk;
         // Per thing code start
         if (thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind)
-            && !creature_is_being_unconscious(thing) && !creature_is_doing_dungeon_improvements(thing))
+            && !creature_is_being_unconscious(thing) && !creature_is_doing_anger_job(thing))
         {
             dist = get_combat_distance(creatng, thing);
             // If we have combat sight - we want that target, don't search anymore

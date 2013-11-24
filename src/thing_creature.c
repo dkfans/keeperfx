@@ -3497,7 +3497,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     // If the creature is too angry to help it, then let it go
     if (dungeon_has_room(dungeon, RoK_ENTRANCE))
     {
-        if (creature_is_doing_dungeon_improvements(thing) || anger_is_creature_livid(thing))
+        if (creature_is_doing_anger_job(thing) || anger_is_creature_livid(thing))
         {
           param->num2 = RoK_ENTRANCE;
           return LONG_MAX;
@@ -3505,12 +3505,12 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If it's angry but not furious, then should be placed in temple
-    if ( anger_is_creature_angry(thing) )
+    if (anger_is_creature_angry(thing))
     {
         // If already at temple, then don't do anything
         if (creature_is_doing_temple_activity(thing))
            return -1;
-        if (dungeon->room_kind[RoK_TEMPLE] > 0)
+        if (dungeon_has_room(dungeon, RoK_TEMPLE))
         {
             param->num2 = RoK_TEMPLE;
             return LONG_MAX;

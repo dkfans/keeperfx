@@ -2140,18 +2140,24 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         }
         i = room->next_of_owner;
         // Per-room code
+        TbBool allow;
+        allow = true;
         if (room->kind == RoK_TREASURE)
         {
             pay = calculate_correct_creature_pay(thing);
-            if (room->capacity_used_for_storage > pay)
-              continue;
+            if (room->capacity_used_for_storage > pay) {
+                allow = false;
+            }
         }
-        dist =  abs(thing->mappos.y.stl.num - room->central_stl_y);
-        dist += abs(thing->mappos.x.stl.num - room->central_stl_x);
-        if (retdist > dist)
+        if (allow)
         {
-            retdist = dist;
-            retroom = room;
+            dist =  abs(thing->mappos.y.stl.num - room->central_stl_y);
+            dist += abs(thing->mappos.x.stl.num - room->central_stl_x);
+            if (retdist > dist)
+            {
+                retdist = dist;
+                retroom = room;
+            }
         }
         // Per-room code ends
         k++;
