@@ -83,6 +83,7 @@ extern long nav_map_initialised;
 #define coord_slab(coord) ((coord)/(256*STL_PER_SLB))
 #define subtile_coord(stl,spos) ((stl)*256+(spos))
 #define subtile_coord_center(stl) ((stl)*256+128)
+#define subtile_at_slab_center(stl) (STL_PER_SLB*((stl)/STL_PER_SLB)+1)
 #define navmap_tile_number(stl_x,stl_y) ((stl_y)*navigation_map_size_x+(stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);

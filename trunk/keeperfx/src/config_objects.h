@@ -60,7 +60,7 @@ char field_8;
 /******************************************************************************/
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    long gerne;
+    long genre;
     long name_stridx;
 };
 

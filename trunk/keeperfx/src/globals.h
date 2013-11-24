@@ -194,6 +194,8 @@ typedef long GameTurnDelta;
 typedef int TextStringId;
 /** Map coordinate in full resolution. Position within subtile is scaled 0..255. */
 typedef long MapCoord;
+/** Distance between map coordinates in full resolution. */
+typedef long MapCoordDelta;
 /** Map subtile coordinate. Every slab consists of 3x3 subtiles. */
 typedef long MapSubtlCoord;
 /** Map slab coordinate. Slab is a cubic part of map with specific content. */

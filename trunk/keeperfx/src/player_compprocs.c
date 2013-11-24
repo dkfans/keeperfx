@@ -58,6 +58,8 @@ DLLIMPORT long _DK_computer_completed_build_a_room(struct Computer2 *comp, struc
 DLLIMPORT long _DK_computer_paused_task(struct Computer2 *comp, struct ComputerProcess *process);
 DLLIMPORT long _DK_computer_completed_task(struct Computer2 *comp, struct ComputerProcess *process);
 DLLIMPORT long _DK_set_next_process(struct Computer2 *comp);
+DLLIMPORT long _DK_computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *pos, struct Room **retroom, short plyr_idx);
+DLLIMPORT long _DK_move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long a3);
 DLLIMPORT struct ComputerProcess * _DK_find_best_process(struct Computer2 *comp);
 /******************************************************************************/
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process);
@@ -625,9 +627,146 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     return trn_mul / trn_div <= turns;
 }
 
+long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *pos, struct Room **retroom, short plyr_idx)
+{
+    return _DK_computer_finds_nearest_entrance2(comp, pos, retroom, plyr_idx);
+}
+
+long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long a3)
+{
+    return _DK_move_imp_to_dig_here(comp, pos, a3);
+}
+
+TbBool right_time_to_choose_target_entrance(struct ComputerProcess *process, long neutral_entrances, long own_entrances, long targplyr_entrances)
+{
+    GameTurnDelta turns_to_capture, turns_delta;
+    turns_to_capture = process->field_8;
+    turns_delta = game.play_gameturn - process->field_34;
+    if (turns_delta >= turns_to_capture)
+      turns_delta = turns_to_capture;
+    long entrances_div;
+    entrances_div = neutral_entrances - own_entrances + targplyr_entrances;
+    if (entrances_div <= 0)
+        entrances_div = 1;
+    return (turns_to_capture/entrances_div <= turns_delta);
+}
+
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process)
 {
-    return _DK_computer_setup_dig_to_entrance(comp, process);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    //return _DK_computer_setup_dig_to_entrance(comp, process);
+    int i;
+    PlayerNumber targplyr_idx;
+    long targplyr_entrances;
+    // Let's find a player with highest number of entrance rooms
+    targplyr_idx = -1;
+    targplyr_entrances = 0;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+      if (dungeon->owner == i) {
+          continue;
+      }
+      long num_entrances;
+      num_entrances = count_entrances(comp, i);
+      if (num_entrances >= targplyr_entrances) {
+          targplyr_idx = i;
+          targplyr_entrances = num_entrances;
+      }
+    }
+    // Count our own entrance rooms, and neutral ones
+    long own_entrances, neutral_entrances;
+    own_entrances = count_entrances(comp, dungeon->owner);
+    neutral_entrances = count_entrances(comp, game.neutral_player_num);
+    // Prepare for selecting entrance
+    MapCoordDelta entdist;
+    struct Room *entroom;
+    struct Coord3d startpos;
+    entroom = INVALID_ROOM;
+    entdist = LONG_MAX;
+    // Check if it's time to choose the entrance. That depends on how many entrances are claimed.
+    if (right_time_to_choose_target_entrance(process, neutral_entrances, own_entrances, targplyr_entrances))
+    {
+        MapCoordDelta dist;
+        struct Room *room;
+        struct Coord3d pos;
+        if ((targplyr_idx >= 0) && (own_entrances < targplyr_entrances))
+        {
+            room = INVALID_ROOM;
+            dist = computer_finds_nearest_entrance2(comp, &pos, &room, targplyr_idx);
+            if (dist > 0) {
+                entdist = dist;
+                entroom = room;
+                startpos.x.val = subtile_coord_center(subtile_at_slab_center(pos.x.stl.num));
+                startpos.y.val = subtile_coord_center(subtile_at_slab_center(pos.y.stl.num));
+                startpos.z.val = pos.z.val;
+            }
+        }
+        if (neutral_entrances > 0)
+        {
+            room = INVALID_ROOM;
+            dist = computer_finds_nearest_entrance2(comp, &pos, &room, game.neutral_player_num);
+            if (dist > 0)
+            {
+                struct Dungeon *targdngn;
+                targdngn = get_players_num_dungeon(targplyr_idx);
+                if ((dist < entdist) || (targdngn->num_active_creatrs > dungeon->num_active_creatrs)) {
+                    entdist = dist;
+                    entroom = room;
+                    startpos.x.val = subtile_coord_center(subtile_at_slab_center(pos.x.stl.num));
+                    startpos.y.val = subtile_coord_center(subtile_at_slab_center(pos.y.stl.num));
+                    startpos.z.val = pos.z.val;
+                }
+            }
+        }
+    }
+    // If no entrance was selected, that's all
+    if (room_is_invalid(entroom)) {
+        return 0;
+    }
+    // Set the end position
+    struct Coord3d endpos;
+    endpos.x.val = subtile_coord_center(subtile_at_slab_center(entroom->central_stl_x));
+    endpos.y.val = subtile_coord_center(subtile_at_slab_center(entroom->central_stl_y));
+    endpos.z.val = subtile_coord(1,0);
+    // If we are supposed to dig there, then do it
+    if (comp->field_20)
+    {
+        struct ComputerDig cdig;
+        setup_dig_to(&cdig, startpos, endpos);
+        long digres;
+        do {
+            digres = tool_dig_to_pos2(comp, &cdig, true, 0);
+        } while (digres == 0);
+        if ((digres != -1) && (digres != -5))
+        {
+            entroom->field_12[dungeon->owner] |= 0x02;
+            return 0;
+        }
+    }
+    // Now everything is ready - start the task
+    struct ComputerTask *ctask;
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return 0;
+    }
+    ctask->ttype = CTT_DigToEntrance;
+    ctask->flags |= ComTsk_Unkn0004;
+    ctask->pos_70.x.val = startpos.x.val;
+    ctask->pos_70.y.val = startpos.y.val;
+    ctask->pos_70.z.val = startpos.z.val;
+    ctask->pos_76.x.val = endpos.x.val;
+    ctask->pos_76.y.val = endpos.y.val;
+    ctask->pos_76.z.val = endpos.z.val;
+    ctask->field_8C = computer_process_index(comp, process);
+    ctask->word_80 = entroom->index;
+    entroom->field_12[dungeon->owner] |= 0x01;
+    // Setup the digging
+    setup_dig_to(&ctask->dig, startpos, endpos);
+    process->func_complete(comp, process);
+    suspend_process(comp, process);
+    move_imp_to_dig_here(comp, &startpos, 1);
+    return 2;
 }
 
 long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *process)
@@ -639,7 +778,6 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
     struct Coord3d endpos;
     unsigned long dig_distance;
     unsigned long max_distance;
-    struct Coord3d * posptr;
     long digres;
     SYNCDBG(18,"Starting");
     //return _DK_computer_setup_dig_to_gold(comp, process);
@@ -664,16 +802,12 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         SYNCDBG(8,"Gold is out of distance (%lu > %lu)",digres,max_distance);
         return 4;
     }
-    endpos.x.val = 0;
-    endpos.y.val = 0;
-    endpos.z.val = 0;
-    endpos.x.stl.num = 3 * (gldlook->x_stl_num / 3);
-    endpos.y.stl.num = 3 * (gldlook->y_stl_num / 3);
-    startpos.x.stl.pos = 0;
-    startpos.y.stl.pos = 0;
-    endpos.z.val = 0;
-    startpos.x.stl.num = 3 * (startpos.x.stl.num / 3);
-    startpos.y.stl.num = 3 * (startpos.y.stl.num / 3);
+    endpos.x.val = subtile_coord_center(subtile_at_slab_center(gldlook->x_stl_num));
+    endpos.y.val = subtile_coord_center(subtile_at_slab_center(gldlook->y_stl_num));
+    endpos.z.val = subtile_coord(1,0);
+    startpos.x.val = subtile_coord_center(subtile_at_slab_center(startpos.x.stl.num));
+    startpos.y.val = subtile_coord_center(subtile_at_slab_center(startpos.y.stl.num));
+    startpos.z.val = subtile_coord(1,0);
     if ( comp->field_20 )
     {
         struct ComputerDig cdig;
@@ -704,28 +838,19 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         SYNCDBG(8,"No free task; won't dig");
         return 4;
     }
-    posptr = &ctask->pos_70;
-    posptr->x.val = startpos.x.val;
-    posptr->y.val = startpos.y.val;
-    posptr->z.val = startpos.z.val;
     ctask->ttype = CTT_DigToGold;
+    ctask->flags |= ComTsk_Unkn0004;
+    ctask->pos_70.x.val = startpos.x.val;
+    ctask->pos_70.y.val = startpos.y.val;
+    ctask->pos_70.z.val = startpos.z.val;
     ctask->pos_76.x.val = endpos.x.val;
     ctask->pos_76.y.val = endpos.y.val;
     ctask->pos_76.z.val = endpos.z.val;
     ctask->long_86 = process->field_10;
-    ctask->flags |= ComTsk_Unkn0004;
-    posptr->x.stl.num = 3 * (posptr->x.stl.num / 3);
-    posptr->y.stl.num = 3 * (posptr->y.stl.num / 3);
     ctask->field_8C = computer_process_index(comp, process);
     ctask->word_80 = gold_lookup_index(gldlook);
     gldlook->plyrfield_1[dungeon->owner] |= 0x01;
     // Setup the digging
-    endpos.x.val = ctask->pos_76.x.val;
-    endpos.y.val = ctask->pos_76.y.val;
-    endpos.z.val = ctask->pos_76.z.val;
-    startpos.x.val = posptr->x.val;
-    startpos.y.val = posptr->y.val;
-    startpos.z.val = posptr->z.val;
     setup_dig_to(&ctask->dig, startpos, endpos);
     process->func_complete(comp, process);
     suspend_process(comp, process);
@@ -858,8 +983,10 @@ long computer_process_index(const struct Computer2 *comp, const struct ComputerP
 {
     long i;
     i = ((char *)process - (char *)&comp->processes[0]);
-    if ( (i < 0) || (i > COMPUTER_PROCESSES_COUNT*sizeof(struct ComputerProcess)) )
+    if ( (i < 0) || (i > COMPUTER_PROCESSES_COUNT*sizeof(struct ComputerProcess)) ) {
+        ERRORLOG("Process \"%s\" is outside of Computer Player.",process->name);
         return 0;
+    }
     return i / sizeof(struct ComputerProcess);
 }
 

@@ -875,6 +875,8 @@ void change_work_room_of_creatures_working_in_room(struct Room *wrkroom, struct 
 void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
 {
     unsigned long k;
+    long non_creature;
+    non_creature = 0;
     k = 0;
     while (wrkroom->creatures_list != 0)
     {
@@ -886,7 +888,11 @@ void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
             break;
         }
         // Per creature code
-        set_start_state(thing);
+        if (thing_is_creature(thing)) {
+            set_start_state(thing);
+        } else {
+            non_creature++;
+        }
         // Per creature code ends
         k++;
         if (k > THINGS_COUNT)
@@ -894,6 +900,10 @@ void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
             ERRORLOG("Infinite loop detected when sweeping creatures list");
             break;
         }
+    }
+    if (non_creature > 0) {
+        // For some reasons, gravestones are also on this list; we should check whether this makes sense or it's just a mistake
+        WARNLOG("The %s contained %d things which were not creatures",room_code_name(wrkroom->kind),(int)non_creature);
     }
 }
 

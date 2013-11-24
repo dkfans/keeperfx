@@ -42,14 +42,14 @@ const struct NamedCommand objects_common_commands[] = {
 
 const struct NamedCommand objects_object_commands[] = {
   {"NAME",            1},
-  {"GERNE",           2},
+  {"GENRE",           2},
   {"RELATEDCREATURE", 3},
   {"RELATEDDOOR",     4},
   {"RELATEDTRAP",     5},
   {NULL,              0},
   };
 
-const struct NamedCommand objects_gernes_desc[] = {
+const struct NamedCommand objects_genres_desc[] = {
   {"NONE",            OCtg_Unknown},
   {"DECORATION",      OCtg_Decoration},
   {"FURNITURE",       OCtg_Furniture},
@@ -165,7 +165,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             objst = &object_conf.object_cfgstats[i];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
-            objst->gerne = 0;
+            objst->genre = 0;
             if (i < object_conf.object_types_count)
             {
                 object_desc[i].name = objst->code_name;
@@ -218,18 +218,18 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     break;
                 }
                 break;
-            case 2: // GERNE
+            case 2: // GENRE
                 if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
-                    n = get_id(objects_gernes_desc, word_buf);
+                    n = get_id(objects_genres_desc, word_buf);
                 }
                 if (n <= 0)
                 {
-                    CONFWRNLOG("Incorrect object gerne \"%s\" in [%s] block of %s file.",
+                    CONFWRNLOG("Incorrect object genre \"%s\" in [%s] block of %s file.",
                         word_buf,block_buf,config_textname);
                     break;
                 }
-                objst->gerne = n;
+                objst->genre = n;
                 break;
             case 3: // RELATEDCREATURE
                 if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
