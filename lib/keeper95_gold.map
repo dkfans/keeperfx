@@ -416,6 +416,7 @@
  0001:0004AE00       directly_cast_spell_on_thing
  0001:0004B310       computer_setup_build_room
  0001:0004B590       able_to_build_room
+ 0001:0004B910       computer_finds_nearest_entrance2
  0001:0004BC60       computer_finds_nearest_room_to_gold
  0001:0004BF00       find_next_gold
  0001:0004BFB0       check_for_gold
@@ -436,6 +437,7 @@
  0001:0004EB10       count_creatures_availiable_for_fight
  0001:0004EDF0       check_call_to_arms
  0001:0004EEA0       get_task_in_progress
+ 0001:0004EF10       move_imp_to_dig_here
  0001:0004F0E0       add_to_trap_location
  0001:0004F120       is_there_an_attack_task
  0001:0004F4A0       find_creature_to_be_placed_in_room
