@@ -39,6 +39,8 @@ extern "C" {
 
 #define PLAYER_MP_MESSAGE_LEN  64
 
+#define WANDER_POINTS_COUNT    200
+
 enum PlayerViewModes {
     PVM_EmptyView = 0,
     PVM_CreatureView,
@@ -70,15 +72,28 @@ enum PlayerVictoryState {
 /******************************************************************************/
 #pragma pack(1)
 
+struct SlabXY {
+    unsigned char slb_x;
+    unsigned char slb_y;
+};
+
 struct Wander // sizeof = 424
 {
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned char field_18[400];
+  unsigned long points_count;
+  /** Index at which the search function inserts (or replaces) points. */
+  unsigned long point_insert_idx;
+  /** Slab last checked by the search function. */
+  unsigned long last_checked_slb_num;
+  /** Amount of slabs to be checked in one run of the search function. */
+  unsigned long num_check_per_run;
+  /** Max amount of points added in one run of the search function. */
+  unsigned long max_found_per_check;
+  unsigned char wdrfield_14;
+  unsigned char wdrfield_15;
+  unsigned char wdrfield_16;
+  unsigned char wdrfield_17;
+  /** Array of points where the creatures could go wander. */
+  struct SlabXY points[WANDER_POINTS_COUNT];
 };
 
 #define SIZEOF_PlayerInfo 0x4EF

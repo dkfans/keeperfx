@@ -198,6 +198,7 @@ extern struct Path bak_path;
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
+TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
 AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char storage, const char *func_name);
 #define ariadne_initialise_creature_route(thing, pos, speed, storage) ariadne_initialise_creature_route_f(thing, pos, speed, storage, __func__)
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2, long a4, unsigned char a5);

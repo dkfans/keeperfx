@@ -633,6 +633,7 @@
  0001:0006CC50       gate_route_to_coords
  0001:0006DA40       gate_navigator_init8
  0001:0006DB40       route_through_gates
+ 0001:0006DC10       nav_same_component
  0001:0006E050       path_init8_wide
  0001:0006E7B0       nearest_search
  0001:0006EC80       setup_a_computer_player
