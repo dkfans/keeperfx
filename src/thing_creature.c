@@ -365,20 +365,12 @@ long creature_available_for_combat_this_turn(struct Thing *thing)
 
 struct Thing *get_players_dungeon_heart_creature_can_see(struct Thing *creatng, PlayerNumber heart_owner)
 {
-    struct Dungeon * dungeon;
-    dungeon = get_players_num_dungeon(heart_owner);
-    // We need a valid Dungeon structure, but the player don't have to be
-    // existing - it might be a zombie, or hero player in any state
-    if (dungeon_invalid(dungeon)) {
-        WARNLOG("Invalid dungeon %d",(int)heart_owner);
-        return INVALID_THING;
-    }
     struct Thing * heartng;
     int dist;
-    heartng = thing_get(dungeon->dnheart_idx);
+    heartng = get_player_soul_container(heart_owner);
     if (!thing_exists(heartng))
     {
-        SYNCDBG(7,"The dungeon %d has no heart",(int)heart_owner);
+        SYNCDBG(7,"The player %d has no heart",(int)heart_owner);
         return INVALID_THING;
     }
     dist = get_combat_distance(creatng, heartng);
@@ -1653,13 +1645,12 @@ void creature_rebirth_at_lair(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Thing *lairtng;
-    struct Dungeon *dungeon;
     cctrl = creature_control_get_from_thing(thing);
     lairtng = thing_get(cctrl->lairtng_idx);
     if (thing_is_invalid(lairtng))
     {
-        dungeon = get_dungeon(thing->owner);
-        lairtng = thing_get(dungeon->dnheart_idx);
+        // If creature has no lair - treat dungeon heart as lair
+        lairtng = get_player_soul_container(thing->owner);
     }
     if (cctrl->explevel > 0)
         set_creature_level(thing, cctrl->explevel-1);

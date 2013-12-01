@@ -122,8 +122,8 @@ void process_armageddon(void)
                     set_player_as_lost_level(player);
                     if (is_my_player_number(i))
                         LbPaletteSet(engine_palette);
-                    heartng = thing_get(dungeon->dnheart_idx);
-                    if (!thing_is_invalid(heartng)) {
+                    heartng = get_player_soul_container(player->id_number);
+                    if (thing_exists(heartng)) {
                         heartng->health = -1;
                     }
                 }

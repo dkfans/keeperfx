@@ -774,7 +774,7 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx)
         return false;
     }
     // Player must have dungeon heart to build rooms
-    if (dungeon->dnheart_idx <= 0) {
+    if (!player_has_heart(plyr_idx)) {
         return false;
     }
     if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))

@@ -162,7 +162,6 @@ TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber 
 {
     struct PlayerInfo *player;
     struct PlayerInfo *win_player;
-    struct Dungeon *dungeon;
     // Handle neutral player at first, because we can't get PlayerInfo nor Dungeon for it
     if ((origin_plyr_idx == game.neutral_player_num) || (check_plyr_idx == game.neutral_player_num))
         return true;
@@ -172,8 +171,7 @@ TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber 
     {
         if ( (!player_allied_with(win_player, check_plyr_idx)) || (!player_allied_with(player, origin_plyr_idx)) )
         {
-            dungeon = get_dungeon(check_plyr_idx);
-            if (dungeon->dnheart_idx > 0)
+            if (player_has_heart(check_plyr_idx))
               return false;
         }
     }

@@ -536,7 +536,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                     {
                         // Move creature to heart, unless it already is near the heart
                         struct Thing *heartng;
-                        heartng = thing_get(dungeon->dnheart_idx);
+                        heartng = get_player_soul_container(dungeon->owner);
                         if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16,0))
                         {
                             if (!create_task_move_creature_to_pos(comp, creatng,

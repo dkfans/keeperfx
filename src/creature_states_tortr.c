@@ -371,7 +371,6 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
 long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr_idx)
 {
     struct CreatureControl *cctrl;
-    struct Dungeon *dungeon;
     struct Thing *heartng;
     SlabCodedCoords slb_num;
     struct SlabMap *slb;
@@ -383,11 +382,9 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     TbBool reveal_success;
     TRACE_THING(thing);
     //return _DK_reveal_players_map_to_player(thing, a2);
-    dungeon = get_dungeon(thing->owner);
-
-    if (dungeon->dnheart_idx > 0)
+    heartng = get_player_soul_container(thing->owner);
+    if (!thing_is_invalid(heartng))
     {
-        heartng = thing_get(dungeon->dnheart_idx);
         TRACE_THING(heartng);
         revealstl_x = heartng->mappos.x.stl.num;
         revealstl_y = heartng->mappos.y.stl.num;

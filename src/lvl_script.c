@@ -2596,7 +2596,6 @@ long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngcla
     struct ActionPoint *apt;
     long direction,delta_x,delta_y;
     struct Coord3d pos;
-    struct Dungeon *dungeon;
     struct Thing *heartng;
 
     apt = action_point_get(apt_idx);
@@ -2627,10 +2626,7 @@ long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngcla
     }
 
     cctrl = creature_control_get_from_thing(thing);
-    heartng = INVALID_THING;
-    dungeon = get_dungeon(thing->owner);
-    if (!dungeon_invalid(dungeon))
-        heartng = thing_get(dungeon->dnheart_idx);
+    heartng = get_player_soul_container(thing->owner);
     if ( thing_exists(heartng) && creature_can_navigate_to(thing, &heartng->mappos, 1) )
     {
         cctrl->field_AE |= 0x01;
@@ -2657,13 +2653,7 @@ long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingMode
     SYNCDBG(7,"Starting creation of %s at player %d",thing_class_and_model_name(tngclass,tngmodel),(int)plyr_idx);
     //return _DK_script_support_create_creature_at_dungeon_heart(tngmodel, tngowner, plyr_idx);
     struct Thing *heartng;
-    heartng = INVALID_THING;
-    {
-        struct Dungeon *dungeon;
-        dungeon = get_players_num_dungeon(plyr_idx);
-        if (!dungeon_invalid(dungeon))
-            heartng = thing_get(dungeon->dnheart_idx);
-    }
+    heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
@@ -2727,13 +2717,7 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
     SYNCDBG(7,"Starting");
     //return _DK_script_support_send_tunneller_to_dungeon(creatng, a2);
     struct Thing *heartng;
-    heartng = INVALID_THING;
-    {
-        struct Dungeon *dungeon;
-        dungeon = get_players_num_dungeon(plyr_idx);
-        if (!dungeon_invalid(dungeon))
-            heartng = thing_get(dungeon->dnheart_idx);
-    }
+    heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
@@ -2757,13 +2741,7 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
     SYNCDBG(7,"Starting");
     //return _DK_script_support_send_tunneller_to_dungeon_heart(creatng, a2);
     struct Thing *heartng;
-    heartng = INVALID_THING;
-    {
-        struct Dungeon *dungeon;
-        dungeon = get_players_num_dungeon(plyr_idx);
-        if (!dungeon_invalid(dungeon))
-            heartng = thing_get(dungeon->dnheart_idx);
-    }
+    heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng)) {
         WARNLOG("Tried to send %s to player %d which has no heart", thing_model_name(creatng), (int)plyr_idx);
@@ -3067,8 +3045,7 @@ long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char val
       else
         return 0;
   case SVar_DUNGEON_DESTROYED:
-      dungeon = get_dungeon(plyr_idx);
-      return (dungeon->dnheart_idx <= 0);
+      return !player_has_heart(plyr_idx);
   case SVar_TOTAL_GOLD_MINED:
       dungeon = get_dungeon(plyr_idx);
       return dungeon->lvstats.gold_mined;

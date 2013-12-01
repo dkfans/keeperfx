@@ -340,31 +340,27 @@ void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
 
 void start_resurrect_creature(struct PlayerInfo *player, struct Thing *thing)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_dungeon(player->id_number);
-  if (dungeon->dead_creatures_count != 0)
-  {
-    if (is_my_player(player))
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(player->id_number);
+    if (dungeon->dead_creatures_count != 0)
     {
-      dungeon_special_selected = thing->index;
-      resurrect_creature_scroll_offset = 0;
-      turn_off_menu(GMnu_DUNGEON_SPECIAL);
-      turn_on_menu(GMnu_RESURRECT_CREATURE);
+        if (is_my_player(player))
+        {
+          dungeon_special_selected = thing->index;
+          resurrect_creature_scroll_offset = 0;
+          turn_off_menu(GMnu_DUNGEON_SPECIAL);
+          turn_on_menu(GMnu_RESURRECT_CREATURE);
+        }
     }
-  }
 }
 
 TbBool create_transferred_creature_on_level(void)
 {
-    struct PlayerInfo *player;
     struct Thing *thing;
-    struct Dungeon *dungeon;
     struct Coord3d *pos;
     if (game.intralvl_transfered_creature.model > 0)
     {
-        player = get_my_player();
-        dungeon = get_dungeon(player->id_number);
-        thing = thing_get(dungeon->dnheart_idx);
+        thing = get_player_soul_container(my_player_number);
         pos = &(thing->mappos);
         thing = create_creature(pos, game.intralvl_transfered_creature.model, 5);
         if (thing_is_invalid(thing))
