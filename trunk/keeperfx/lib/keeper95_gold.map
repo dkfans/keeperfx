@@ -1910,6 +1910,7 @@
  0001:0006C3B0       path_out_a_bit
  0001:0006C570       route_to_path
  0001:0006DA40       gate_navigator_init8
+ 0001:0006DC10       nav_same_component
  0001:000698B0       triangle_area1
  0001:00069FD0       brute_fill_rectangle
  0001:0006AF70       ma_triangle_route
