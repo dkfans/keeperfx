@@ -299,7 +299,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
     {
         struct Thing *heartng;
         MapSubtlCoord stl_x, stl_y;
-        heartng = thing_get(dungeon->dnheart_idx);
+        heartng = get_player_soul_container(dungeon->owner);
         stl_x = heartng->mappos.x.stl.num;
         stl_y = heartng->mappos.y.stl.num;
         if (xy_walkable(stl_x, stl_y, dungeon->owner))

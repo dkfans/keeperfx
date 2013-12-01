@@ -689,9 +689,8 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Dungeon *dungeon;
     struct Thing *thing;
-    struct Thing *dnheart;
+    struct Thing *heartng;
     struct Coord3d pos;
     //return _DK_magic_use_power_imp(plyr_idx, x, y);
     if (!i_can_allocate_free_control_structure()
@@ -701,11 +700,10 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     if (!pay_for_spell(plyr_idx, PwrK_MKDIGGER, 0)) {
         return Lb_FAIL;
     }
-    dungeon = get_players_num_dungeon(plyr_idx);
-    dnheart = thing_get(dungeon->dnheart_idx);
+    heartng = get_player_soul_container(plyr_idx);
     pos.x.val = get_subtile_center_pos(stl_x);
     pos.y.val = get_subtile_center_pos(stl_y);
-    pos.z.val = get_floor_height_at(&pos) + (dnheart->field_58 >> 1);
+    pos.z.val = get_floor_height_at(&pos) + (heartng->field_58 >> 1);
     thing = create_creature(&pos, get_players_special_digger_breed(plyr_idx), plyr_idx);
     if (thing_is_invalid(thing))
     {

@@ -495,13 +495,7 @@ TbBool good_can_move_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_i
         return false;
     }
     struct Thing *heartng;
-    heartng = INVALID_THING;
-    {
-        struct Dungeon *dungeon;
-        dungeon = get_players_dungeon(player);
-        if (!dungeon_invalid(dungeon))
-            heartng = thing_get(dungeon->dnheart_idx);
-    }
+    heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
@@ -528,13 +522,7 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
         return false;
     }
     struct Thing *heartng;
-    heartng = INVALID_THING;
-    {
-        struct Dungeon *dungeon;
-        dungeon = get_players_dungeon(player);
-        if (!dungeon_invalid(dungeon))
-            heartng = thing_get(dungeon->dnheart_idx);
-    }
+    heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng))
     {
@@ -815,7 +803,6 @@ short good_leave_through_exit_door(struct Thing *thing)
 
 short good_returns_to_start(struct Thing *thing)
 {
-    struct Dungeon *dungeon;
     struct Thing *heartng;
     // Debug code to find incorrect states
     SYNCDBG(7,"Starting");
@@ -827,10 +814,7 @@ short good_returns_to_start(struct Thing *thing)
         return 0;
     }
     //return _DK_good_returns_to_start(thing);
-    dungeon = get_dungeon(thing->owner);
-    heartng = INVALID_THING;
-    if (!dungeon_invalid(dungeon))
-        heartng = thing_get(dungeon->dnheart_idx);
+    heartng = get_player_soul_container(thing->owner);
     TRACE_THING(heartng);
     //TODO CREATURE_AI Heroes don't usually have hearts; maybe they should also go back to hero gates?
     if ( !setup_person_move_to_position(thing, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, 0) )

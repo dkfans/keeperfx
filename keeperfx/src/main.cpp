@@ -411,11 +411,7 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
     if (dungeon->field_14B4 == 0)
     {
         struct Thing *heartng;
-        heartng = INVALID_THING;
-        if (dungeon->dnheart_idx > 0) {
-            heartng = thing_get(dungeon->dnheart_idx);
-            TRACE_THING(heartng);
-        }
+        heartng = get_player_soul_container(plyr_idx);
         if (thing_exists(heartng)) {
             dungeon->field_14B4 = 1;
             dungeon->field_14B2[0] = heartng->mappos.x.stl.num;
@@ -2051,8 +2047,6 @@ void level_lost_go_first_person(PlayerNumber plyr_idx)
 
 void find_map_location_coords(long location, long *x, long *y, const char *func_name)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct ActionPoint *apt;
     struct Thing *thing;
     long pos_x,pos_y;
@@ -2087,11 +2081,9 @@ void find_map_location_coords(long location, long *x, long *y, const char *func_
         i = get_map_location_longval(location);
         if (i < PLAYERS_COUNT)
         {
-          player = get_player(i);
-          dungeon = get_dungeon(player->id_number);
-          thing = thing_get(dungeon->dnheart_idx);
+            thing = get_player_soul_container(i);
         } else
-          thing = NULL;
+          thing = INVALID_THING;
         if (!thing_is_invalid(thing))
         {
           pos_y = thing->mappos.y.stl.num;
@@ -2322,11 +2314,9 @@ void check_players_lost(void)
       player = get_player(i);
       if (player_exists(player) && (player->field_2C == 1))
       {
-          struct Dungeon *dungeon;
           struct Thing *heartng;
-          dungeon = get_players_dungeon(player);
-          heartng = thing_get(dungeon->dnheart_idx);
-          if ((thing_is_invalid(heartng) || (heartng->active_state == ObSt_BeingDestroyed)) && (player->victory_state == VicS_Undecided))
+          heartng = get_player_soul_container(i);
+          if ((!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed)) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);

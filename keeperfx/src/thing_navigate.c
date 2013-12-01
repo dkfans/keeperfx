@@ -331,7 +331,6 @@ TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *dstpos, T
 TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Thing *heartng;
     SYNCDBG(18,"Starting");
     player = get_player(plyr_idx);
@@ -340,10 +339,7 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
         SYNCDBG(18,"The %s index %d cannot get to inactive player %d",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
         return false;
     }
-    dungeon = get_dungeon(player->id_number);
-    heartng = INVALID_THING;
-    if (!dungeon_invalid(dungeon))
-        heartng = thing_get(dungeon->dnheart_idx);
+    heartng = get_player_soul_container(player->id_number);
     if (thing_is_invalid(heartng))
     {
         SYNCDBG(18,"The %s index %d cannot get to player %d without heart",thing_model_name(creatng),(int)creatng->index,(int)plyr_idx);
