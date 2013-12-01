@@ -2430,92 +2430,126 @@ void message_update(void)
   _DK_message_update();
 }
 
-long wp_check_map_pos_valid(struct Wander *wandr, long a1)
+TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
     SYNCDBG(16,"Starting");
-    return _DK_wp_check_map_pos_valid(wandr, a1);
+    //return _DK_wp_check_map_pos_valid(wandr, a1);
+    MapSubtlCoord stl_x,stl_y;
+    long plyr_bit;
+    stl_x = stl_num_decode_x(stl_num);
+    stl_y = stl_num_decode_y(stl_num);
+    plyr_bit = wandr->wdrfield_17;
+    if (wandr->wdrfield_15)
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at_pos(stl_num);
+        if ((((1 << game.hero_player_num) & plyr_bit) != 0) || map_block_revealed_bit(mapblk, plyr_bit))
+        {
+            if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
+            {
+                return true;
+            }
+        }
+    } else
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at_pos(stl_num);
+        if ((((1 << game.hero_player_num) & plyr_bit) == 0) && !map_block_revealed_bit(mapblk, plyr_bit))
+        {
+            if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
+            {
+                struct Thing *heartng;
+                heartng = get_player_soul_container(wandr->wdrfield_16);
+                if (!thing_is_invalid(heartng))
+                {
+                    struct Coord3d dstpos;
+                    dstpos.x.val = subtile_coord_center(stl_x);
+                    dstpos.y.val = subtile_coord_center(stl_y);
+                    dstpos.z.val = subtile_coord(1,0);
+                    if (navigation_points_connected(&heartng->mappos, &dstpos))
+                      return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
+#define LOCAL_LIST_SIZE 20
 long wander_point_update(struct Wander *wandr)
 {
-    long array[20];
-    double realidx,delta;
-    long tile1,tile2;
-    long slb_num,valid_num,idx;
+    SubtlCodedCoords stl_num_list[LOCAL_LIST_SIZE];
+    long stl_num_list_count;
+    SlabCodedCoords slb_num;
     long i;
     SYNCDBG(6,"Starting");
     //return _DK_wander_point_update(wandr);
-    valid_num = 0;
-    slb_num = wandr->field_8;
-    tile1 = 85;
-    tile2 = slb_num_decode_x(slb_num);
-    idx = 0;
-    for (i = 0; i < wandr->field_C; i++)
+    // Find up to 20 numbers (starting where we ended last time) and store them in local array
+    slb_num = wandr->last_checked_slb_num;
+    stl_num_list_count = 0;
+    for (i = 0; i < wandr->num_check_per_run; i++)
     {
-        if (wp_check_map_pos_valid(wandr, tile1))
+        MapSlabCoord slb_x,slb_y;
+        SubtlCodedCoords stl_num;
+        slb_x = slb_num_decode_x(slb_num);
+        slb_y = slb_num_decode_y(slb_num);
+        stl_num = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (wp_check_map_pos_valid(wandr, stl_num))
         {
-          if (valid_num >= 20)
-              break;
-          valid_num++;
-          array[idx] = tile1;
-          idx++;
-          if (((wandr->field_14 & 0xFF) != 0) && (wandr->field_10 == valid_num))
-          {
-              slb_num = (wandr->field_C + wandr->field_8) % (map_tiles_x*map_tiles_y);
-              break;
-          }
+            if (stl_num_list_count >= LOCAL_LIST_SIZE)
+                break;
+            stl_num_list[stl_num_list_count] = stl_num;
+            stl_num_list_count++;
+            if ((wandr->wdrfield_14 != 0) && (wandr->max_found_per_check == stl_num_list_count))
+            {
+                slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (map_tiles_x*map_tiles_y);
+                break;
+            }
         }
         slb_num++;
-        tile2++;
-        if (tile2 < map_tiles_x)
-        {
-          tile1 += 3;
-        } else
-        {
-          tile2 = 0;
-          if (slb_num >= map_tiles_x*map_tiles_y)
+        if (slb_num >= map_tiles_x*map_tiles_y) {
             slb_num = 0;
-          tile1 = get_subtile_number(slab_subtile_center(slb_num_decode_x(slb_num)), slab_subtile_center(slb_num_decode_y(slb_num)));
         }
     }
-    wandr->field_8 = slb_num;
-    if (valid_num <= 0)
+    wandr->last_checked_slb_num = slb_num;
+    // Check if we have found anything
+    if (stl_num_list_count <= 0)
         return 1;
-    if (valid_num > wandr->field_10)
+    // If we have too many points, use only some of them
+    if (stl_num_list_count > wandr->max_found_per_check)
     {
-      if (wandr->field_10 <= 0)
-          return 1;
-      wandr->field_4 %= 200;
-      delta = (double)valid_num / (double)wandr->field_10;
-      realidx = 0.0;
-      for (i = 0; i < wandr->field_10; i++)
-      {
-          tile1 = array[(unsigned int)realidx];
-          tile2 = ((tile1 >> 24) & 0xFF);
-          wandr->field_18[2 * wandr->field_4] = (tile2 ^ ((tile2 ^ tile1) - tile2)) - tile2;
-          wandr->field_18[2 * wandr->field_4 + 1] = (tile1 >> 8) & 0xFF;
-          wandr->field_4 = (wandr->field_4 + 1) % 200;
-          if (wandr->field_0 < 200)
-            wandr->field_0++;
-          realidx += delta;
-      }
+        double realidx,delta;
+        if (wandr->max_found_per_check <= 0)
+            return 1;
+        wandr->point_insert_idx %= WANDER_POINTS_COUNT;
+        delta = ((double)stl_num_list_count) / wandr->max_found_per_check;
+        realidx = 0.0;
+        for (i = 0; i < wandr->max_found_per_check; i++)
+        {
+            slb_num = stl_num_list[(unsigned int)realidx];
+            wandr->points[wandr->point_insert_idx].slb_x = slb_num_decode_x(slb_num);
+            wandr->points[wandr->point_insert_idx].slb_y = slb_num_decode_y(slb_num);
+            wandr->point_insert_idx = (wandr->point_insert_idx + 1) % WANDER_POINTS_COUNT;
+            if (wandr->points_count < WANDER_POINTS_COUNT)
+                wandr->points_count++;
+            realidx += delta;
+        }
     } else
     {
-        idx = 0;
-        while (valid_num > 0)
+        // Otherwise, add all points to the wander array
+        for (i = 0; i < stl_num_list_count; i++)
         {
-            tile1 = array[idx];
-            wandr->field_18[2 * wandr->field_4] = abs(tile1);
-            wandr->field_18[2 * wandr->field_4 + 1] = (tile1 >> 8) & 0xFF;
-            wandr->field_4 = (wandr->field_4 + 1) % 200;
-            if (wandr->field_0 < 200)
-              wandr->field_0++;
-            idx++;
-            valid_num--;
+            slb_num = stl_num_list[i];
+            wandr->points[wandr->point_insert_idx].slb_x = slb_num_decode_x(slb_num);
+            wandr->points[wandr->point_insert_idx].slb_y = slb_num_decode_y(slb_num);
+            wandr->point_insert_idx = (wandr->point_insert_idx + 1) % WANDER_POINTS_COUNT;
+            if (wandr->points_count < WANDER_POINTS_COUNT)
+              wandr->points_count++;
         }
     }
     return 1;
 }
+#undef LOCAL_LIST_SIZE
 
 void update_player_camera(struct PlayerInfo *player)
 {

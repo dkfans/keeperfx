@@ -140,8 +140,8 @@ DLLIMPORT void _DK_create_effect_around_thing(struct Thing *creatng, long eff_ki
 DLLIMPORT void _DK_remove_health_from_thing_and_display_health(struct Thing *creatng, long delta);
 DLLIMPORT long _DK_slab_by_players_land(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_excluding_two_types(struct Thing *creatng, char owner, char a3, char nav_no_owner, unsigned char min_used_cap);
-DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_used_capacity(struct Thing *creatng, char wandr_select, char a3, unsigned char nav_no_owner, long min_used_cap);
-DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *creatng, long wandr_select);
+DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_used_capacity(struct Thing *creatng, char wandr_slot, char a3, unsigned char nav_no_owner, long min_used_cap);
+DLLIMPORT unsigned char _DK_initialise_thing_state(struct Thing *creatng, long wandr_slot);
 DLLIMPORT long _DK_cleanup_current_thing_state(struct Thing *creatng);
 DLLIMPORT unsigned char _DK_find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *creatng, struct Room *room, struct Coord3d *pos);
 DLLIMPORT long _DK_setup_head_for_empty_treasure_space(struct Thing *creatng, struct Room *room);
@@ -150,7 +150,7 @@ DLLIMPORT long _DK_person_get_somewhere_adjacent_in_room(struct Thing *creatng, 
 DLLIMPORT unsigned char _DK_external_set_thing_state(struct Thing *creatng, long state);
 DLLIMPORT void _DK_process_person_moods_and_needs(struct Thing *creatng);
 DLLIMPORT long _DK_get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room);
-DLLIMPORT struct Room * _DK_find_nearest_room_for_thing(struct Thing *creatng, char wandr_select, char a3, unsigned char nav_no_owner);
+DLLIMPORT struct Room * _DK_find_nearest_room_for_thing(struct Thing *creatng, char wandr_slot, char a3, unsigned char nav_no_owner);
 DLLIMPORT long _DK_process_creature_needs_to_heal_critical(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_process_creature_needs_a_wage(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT long _DK_process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat);
@@ -3531,17 +3531,21 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
 TbBool wander_point_get_random_pos(const struct Wander *wandr, struct Coord3d *pos)
 {
   long irnd;
-  if ( wandr->field_0 )
+  if (wandr->points_count > 0)
   {
-    irnd = ACTION_RANDOM(wandr->field_0);
-    pos->x.val = subtile_coord_center(wandr->field_18[2*irnd]);
-    pos->y.val = subtile_coord_center(wandr->field_18[2*irnd + 1]);
-    return true;
+      MapSubtlCoord stl_x,stl_y;
+      irnd = ACTION_RANDOM(wandr->points_count);
+      stl_x = slab_subtile_center(wandr->points[irnd].slb_x);
+      stl_y = slab_subtile_center(wandr->points[irnd].slb_y);
+      pos->x.val = subtile_coord_center(stl_x);
+      pos->y.val = subtile_coord_center(stl_y);
+      pos->z.val = subtile_coord(1,0);
+      return true;
   }
   return false;
 }
 
-TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos)
+TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_slot, struct Thing *thing, struct Coord3d *pos)
 {
     struct PlayerInfo *player;
     if (plyr_idx == game.neutral_player_num)
@@ -3555,12 +3559,12 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
         ERRORLOG("Attempt to get random position in invalid dungeon %d",(int)plyr_idx);
         return false;
     }
-    if ( wandr_select )
+    if (wandr_slot == 1)
     {
         if (!wander_point_get_random_pos(&player->wandr1, pos))
           return false;
     } else
-    {
+    { // means (wandr_slot == 0)
         if (!wander_point_get_random_pos(&player->wandr2, pos))
           return false;
     }

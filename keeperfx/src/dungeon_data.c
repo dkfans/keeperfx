@@ -166,16 +166,19 @@ TbBool player_has_room(long plyr_idx, RoomKind rkind)
     return (dungeon->room_kind[rkind] > 0);
 }
 
-TbBool player_has_heart(PlayerNumber plyr_idx)
+struct Thing *get_player_soul_container(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    struct Thing *heartng;
-    heartng = INVALID_THING;
     if (dungeon->dnheart_idx > 0) {
-        heartng = thing_get(dungeon->dnheart_idx);
+        return thing_get(dungeon->dnheart_idx);
     }
-    return thing_exists(heartng);
+    return INVALID_THING;
+}
+
+TbBool player_has_heart(PlayerNumber plyr_idx)
+{
+    return thing_exists(get_player_soul_container(plyr_idx));
 }
 
 /** Returns if given dungeon contains a room of given kind.

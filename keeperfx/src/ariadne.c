@@ -99,6 +99,7 @@ DLLIMPORT void _DK_brute_fill_rectangle(long start_x, long start_y, long end_x, 
 DLLIMPORT void _DK_edgelen_set(long tri_id);
 DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long a4);
 DLLIMPORT void _DK_triangulation_initxy(long a1, long a2, long a3, long a4);
+DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
 #define tri_initialised _DK_tri_initialised
@@ -634,11 +635,17 @@ void tag_open_closed_init(void)
     tag_open = tag_current - 1;
 }
 
-unsigned long nav_same_component(long a1, long a2, long a3, long a4)
+*/
+
+unsigned long nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy)
 {
+    return _DK_nav_same_component(ptAx, ptAy, ptBx, ptBy);
 }
 
-*/
+TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2)
+{
+  return nav_same_component(pt1->x.val, pt1->y.val, pt2->x.val, pt2->y.val);
+}
 
 TbBool triangulation_border_tag(void)
 {
