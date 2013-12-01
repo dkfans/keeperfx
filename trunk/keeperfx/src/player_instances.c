@@ -644,31 +644,29 @@ long pinstfs_unquery_creature(struct PlayerInfo *player, long *n)
 
 long pinstfs_zoom_to_heart(struct PlayerInfo *player, long *n)
 {
-  struct CreatureControl *cctrl;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  struct Coord3d mappos;
-  ThingModel spectator_breed;
-  SYNCDBG(6,"Starting for player %d",(int)player->id_number);
-  //return _DK_pinstfs_zoom_to_heart(player, n);
-  LbPaletteDataFillWhite(zoom_to_heart_palette);
-  light_turn_light_off(player->field_460);
-  dungeon = get_players_dungeon(player);
-  thing = thing_get(dungeon->dnheart_idx);
-  spectator_breed = get_players_spectator_breed(player->id_number);
-  mappos.x.val = thing->mappos.x.val;
-  mappos.y.val = thing->mappos.y.val + subtile_coord(7,0);
-  mappos.z.val = thing->mappos.z.val + subtile_coord(1,0);
-  thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
-  if (!thing_is_invalid(thing))
-  {
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    player->field_0 |= 0x10;
-    player->field_0 |= 0x80;
-    game.numfield_D |= 0x08;
-  }
-  return 0;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    struct Coord3d mappos;
+    ThingModel spectator_breed;
+    SYNCDBG(6,"Starting for player %d",(int)player->id_number);
+    //return _DK_pinstfs_zoom_to_heart(player, n);
+    LbPaletteDataFillWhite(zoom_to_heart_palette);
+    light_turn_light_off(player->field_460);
+    thing = get_player_soul_container(player->id_number);
+    spectator_breed = get_players_spectator_breed(player->id_number);
+    mappos.x.val = thing->mappos.x.val;
+    mappos.y.val = thing->mappos.y.val + subtile_coord(7,0);
+    mappos.z.val = thing->mappos.z.val + subtile_coord(1,0);
+    thing = create_and_control_creature_as_controller(player, spectator_breed, &mappos);
+    if (!thing_is_invalid(thing))
+    {
+        cctrl = creature_control_get_from_thing(thing);
+        cctrl->flgfield_1 |= CCFlg_NoCompControl;
+        player->field_0 |= 0x10;
+        player->field_0 |= 0x80;
+        game.numfield_D |= 0x08;
+    }
+    return 0;
 }
 
 long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
@@ -700,7 +698,6 @@ long pinstfe_zoom_to_heart(struct PlayerInfo *player, long *n)
 
 long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 {
-  struct Dungeon *dungeon;
   struct Thing *thing;
   struct Camera *cam;
   //return _DK_pinstfs_zoom_out_of_heart(player, n);
@@ -710,15 +707,14 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   set_player_mode(player, 1);
   cam = player->acamera;
   if (cam == NULL) return 0;
-  dungeon = get_players_dungeon(player);
-  thing = thing_get(dungeon->dnheart_idx);
+  thing = get_player_soul_container(player->id_number);
   if (thing_is_invalid(thing))
   {
-    cam->mappos.x.val = (map_subtiles_x << 8)/2;
-    cam->mappos.y.val = (map_subtiles_y << 8)/2;
-    cam->zoom = 24000;
-    cam->orient_a = 0;
-    return 0;
+      cam->mappos.x.val = (map_subtiles_x << 8)/2;
+      cam->mappos.y.val = (map_subtiles_y << 8)/2;
+      cam->zoom = 24000;
+      cam->orient_a = 0;
+      return 0;
   }
   cam->mappos.x.val = thing->mappos.x.val;
   if (player->view_mode == PVM_FrontView)
@@ -736,42 +732,39 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 
 long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
 {
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  struct Camera *dstcam;
-  struct Camera *cam;
-  long deltax,deltay;
-  unsigned long addval;
-  //return _DK_pinstfm_zoom_out_of_heart(player, n);
-  if (player->view_mode != PVM_FrontView)
-  {
-    cam = player->acamera;
-    dungeon = get_players_dungeon(player);
-    thing = thing_get(dungeon->dnheart_idx);
-    if (cam != NULL)
+    struct Thing *thing;
+    struct Camera *dstcam;
+    struct Camera *cam;
+    long deltax,deltay;
+    unsigned long addval;
+    //return _DK_pinstfm_zoom_out_of_heart(player, n);
+    if (player->view_mode != PVM_FrontView)
     {
-      cam->zoom -= 988;
-      cam->orient_a += 16;
-      addval = (thing->field_58 >> 1);
-      deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
-      deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->orient_a);
-    } else
-    {
-      addval = (thing->field_58 >> 1);
-      deltax = addval;
-      deltay = -addval;
+        cam = player->acamera;
+        thing = get_player_soul_container(player->id_number);
+        if (cam != NULL)
+        {
+          cam->zoom -= 988;
+          cam->orient_a += 16;
+          addval = (thing->field_58 >> 1);
+          deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
+          deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->orient_a);
+        } else
+        {
+          addval = (thing->field_58 >> 1);
+          deltax = addval;
+          deltay = -addval;
+        }
+        dstcam = &player->cameras[0];
+        dstcam->mappos.x.val = thing->mappos.x.val + deltax;
+        dstcam->mappos.y.val = thing->mappos.y.val + deltay;
+        dstcam = &player->cameras[3];
+        dstcam->mappos.x.val = thing->mappos.x.val + deltax;
+        dstcam->mappos.y.val = thing->mappos.y.val + deltay;
     }
-    dstcam = &player->cameras[0];
-    dstcam->mappos.x.val = thing->mappos.x.val + deltax;
-    dstcam->mappos.y.val = thing->mappos.y.val + deltay;
-    dstcam = &player->cameras[3];
-    dstcam->mappos.x.val = thing->mappos.x.val + deltax;
-    dstcam->mappos.y.val = thing->mappos.y.val + deltay;
-  }
-  if (player->field_4B1 >= 8)
-    LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
-  return 0;
-
+    if (player->field_4B1 >= 8)
+      LbPaletteFade(engine_palette, 8, Lb_PALETTE_FADE_OPEN);
+    return 0;
 }
 
 long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)

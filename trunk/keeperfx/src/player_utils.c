@@ -83,9 +83,7 @@ TbBool player_cannot_win(PlayerNumber plyr_idx)
     if (player->victory_state == VicS_LostLevel)
         return true;
     struct Thing *heartng;
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(player->id_number);
-    heartng = thing_get(dungeon->dnheart_idx);
+    heartng = get_player_soul_container(player->id_number);
     if (!thing_exists(heartng) || (heartng->active_state == ObSt_BeingDestroyed))
         return true;
     return false;

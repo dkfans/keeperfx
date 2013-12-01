@@ -285,15 +285,11 @@ TbBool attempt_anger_job_join_enemy(struct Thing *creatng)
     {
         if ((n == game.neutral_player_num) || (n == creatng->owner))
             continue;
-        struct Dungeon *dungeon;
         struct PlayerInfo *player;
         player = get_player(n);
         if (!player_exists(player) || (player->field_2C != 1))
             continue;
-        dungeon = get_players_dungeon(player);
-        if (dungeon_invalid(dungeon))
-            continue;
-        heartng = thing_get(dungeon->dnheart_idx);
+        heartng = get_player_soul_container(n);
         if (thing_exists(heartng) && (heartng->active_state != 3))
         {
             TRACE_THING(heartng);

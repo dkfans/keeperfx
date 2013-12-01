@@ -1044,9 +1044,7 @@ void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
     //TODO SPDIGGER This restricts convert tasks to the area connected to heart, instead of connected to diggers.
     //_DK_add_pretty_and_convert_to_imp_stack(dungeon); return;
     struct Thing *heartng;
-    heartng = INVALID_THING;
-    if (!dungeon_invalid(dungeon))
-        heartng = thing_get(dungeon->dnheart_idx);
+    heartng = get_player_soul_container(dungeon->owner);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng)) {
         WARNLOG("Dungeon has no heart, no dungeon position available");
