@@ -3528,18 +3528,33 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
     return enemytng;
 }
 
-TbBool wander_point_get_random_pos(const struct Wander *wandr, struct Coord3d *pos)
+TbBool wander_point_get_random_pos(const struct Wander *wandr, const struct Coord3d *prevpos, struct Coord3d *pos)
 {
   long irnd;
+  MapSubtlCoord selected_dist;
+  selected_dist = 0;
   if (wandr->points_count > 0)
   {
-      MapSubtlCoord stl_x,stl_y;
-      irnd = ACTION_RANDOM(wandr->points_count);
-      stl_x = slab_subtile_center(wandr->points[irnd].slb_x);
-      stl_y = slab_subtile_center(wandr->points[irnd].slb_y);
-      pos->x.val = subtile_coord_center(stl_x);
-      pos->y.val = subtile_coord_center(stl_y);
-      pos->z.val = subtile_coord(1,0);
+      // Select a position based on 3 tries
+      long i;
+      for (i=0; i < 3; i++)
+      {
+          MapSubtlCoord stl_x,stl_y;
+          irnd = ACTION_RANDOM(wandr->points_count);
+          stl_x = slab_subtile_center(wandr->points[irnd].slb_x);
+          stl_y = slab_subtile_center(wandr->points[irnd].slb_y);
+          MapSubtlCoord dist;
+          dist = get_2d_box_distance_xy(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
+          // Move at least 2 slabs, and prefer distance around 7 slabs
+          // If previously selected selected_dist is too low, allow any place
+          if (((dist > 6) && (abs(dist-21) < abs(selected_dist-21))) || (selected_dist < 6))
+          {
+              pos->x.val = subtile_coord_center(stl_x);
+              pos->y.val = subtile_coord_center(stl_y);
+              pos->z.val = subtile_coord(1,0);
+              selected_dist = dist;
+          }
+      }
       return true;
   }
   return false;
@@ -3561,11 +3576,11 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
     }
     if (wandr_slot == 1)
     {
-        if (!wander_point_get_random_pos(&player->wandr1, pos))
+        if (!wander_point_get_random_pos(&player->wandr1, &thing->mappos, pos))
           return false;
     } else
     { // means (wandr_slot == 0)
-        if (!wander_point_get_random_pos(&player->wandr2, pos))
+        if (!wander_point_get_random_pos(&player->wandr2, &thing->mappos, pos))
           return false;
     }
     return true;
