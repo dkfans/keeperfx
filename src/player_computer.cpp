@@ -470,20 +470,20 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
 {
     memset(cdig,0,sizeof(struct ComputerDig));
-    cdig->pos_gold.x.val = startpos.x.val;
-    cdig->pos_gold.y.val = startpos.y.val;
-    cdig->pos_gold.z.val = startpos.z.val;
+    cdig->pos_begin.x.val = startpos.x.val;
+    cdig->pos_begin.y.val = startpos.y.val;
+    cdig->pos_begin.z.val = startpos.z.val;
     cdig->pos_E.x.val = startpos.x.val;
     cdig->pos_E.y.val = startpos.y.val;
     cdig->pos_E.z.val = startpos.z.val;
-    cdig->pos_14.x.val = endpos.x.val;
-    cdig->pos_14.y.val = endpos.y.val;
-    cdig->pos_14.z.val = endpos.z.val;
+    cdig->pos_dest.x.val = endpos.x.val;
+    cdig->pos_dest.y.val = endpos.y.val;
+    cdig->pos_dest.z.val = endpos.z.val;
     cdig->distance = LONG_MAX;
     cdig->subfield_2C = 1;
-    cdig->pos_20.x.val = 0;
-    cdig->pos_20.y.val = 0;
-    cdig->pos_20.z.val = 0;
+    cdig->pos_next.x.val = 0;
+    cdig->pos_next.y.val = 0;
+    cdig->pos_next.z.val = 0;
     cdig->calls_count = 0;
 }
 
@@ -707,18 +707,18 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     ctask->word_86 = a4;
     ctask->field_5C = 0;
     ctask->flags |= 0x04;
-    ctask->dig.pos_gold.x.val = startpos.x.val;
-    ctask->dig.pos_gold.y.val = startpos.y.val;
-    ctask->dig.pos_gold.z.val = startpos.z.val;
+    ctask->dig.pos_begin.x.val = startpos.x.val;
+    ctask->dig.pos_begin.y.val = startpos.y.val;
+    ctask->dig.pos_begin.z.val = startpos.z.val;
     ctask->dig.pos_E.x.val = startpos.x.val;
     ctask->dig.pos_E.y.val = startpos.y.val;
     ctask->dig.pos_E.z.val = startpos.z.val;
-    ctask->dig.pos_14.x.val = endpos.x.val;
-    ctask->dig.pos_14.y.val = endpos.y.val;
-    ctask->dig.pos_14.z.val = endpos.z.val;
-    ctask->dig.pos_20.x.val = 0;
-    ctask->dig.pos_20.y.val = 0;
-    ctask->dig.pos_20.z.val = 0;
+    ctask->dig.pos_dest.x.val = endpos.x.val;
+    ctask->dig.pos_dest.y.val = endpos.y.val;
+    ctask->dig.pos_dest.z.val = endpos.z.val;
+    ctask->dig.pos_next.x.val = 0;
+    ctask->dig.pos_next.y.val = 0;
+    ctask->dig.pos_next.z.val = 0;
     ctask->dig.distance = 2147483647;
     ctask->dig.subfield_2C = 1;
     ctask->dig.calls_count = 0;

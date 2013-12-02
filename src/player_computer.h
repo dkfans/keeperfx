@@ -277,9 +277,9 @@ struct ComputerEventMnemonic {
 
 struct ComputerDig { // sizeof = 78
     struct Coord3d pos_E;
-    struct Coord3d pos_14;
-    struct Coord3d pos_gold;
-    struct Coord3d pos_20;
+    struct Coord3d pos_dest;
+    struct Coord3d pos_begin;
+    struct Coord3d pos_next;
     long distance;
     unsigned char subfield_2A;
     unsigned char direction_around;

@@ -90,8 +90,8 @@ struct Wander // sizeof = 424
   unsigned long max_found_per_check;
   unsigned char wdrfield_14;
   unsigned char wdrfield_15;
-  unsigned char wdrfield_16;
-  unsigned char wdrfield_17;
+  unsigned char plyr_idx;
+  unsigned char plyr_bit;
   /** Array of points where the creatures could go wander. */
   struct SlabXY points[WANDER_POINTS_COUNT];
 };

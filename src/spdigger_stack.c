@@ -1047,7 +1047,7 @@ void add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon)
     heartng = get_player_soul_container(dungeon->owner);
     TRACE_THING(heartng);
     if (thing_is_invalid(heartng)) {
-        WARNLOG("Dungeon has no heart, no dungeon position available");
+        WARNLOG("The player %d has no heart, no dungeon position available",(int)dungeon->owner);
         return;
     }
     add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, &heartng->mappos);
