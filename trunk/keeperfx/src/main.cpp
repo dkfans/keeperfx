@@ -2428,11 +2428,12 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
     long plyr_bit;
     stl_x = stl_num_decode_x(stl_num);
     stl_y = stl_num_decode_y(stl_num);
-    plyr_bit = wandr->wdrfield_17;
+    plyr_bit = wandr->plyr_bit;
     if (wandr->wdrfield_15)
     {
         struct Map *mapblk;
         mapblk = get_map_block_at_pos(stl_num);
+        // Add tiles which are either owned by heroes or revealed to the player
         if ((((1 << game.hero_player_num) & plyr_bit) != 0) || map_block_revealed_bit(mapblk, plyr_bit))
         {
             if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
@@ -2444,12 +2445,13 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
     {
         struct Map *mapblk;
         mapblk = get_map_block_at_pos(stl_num);
+        // Add tiles which do not belong to hero and are not revealed to wandering player
         if ((((1 << game.hero_player_num) & plyr_bit) == 0) && !map_block_revealed_bit(mapblk, plyr_bit))
         {
             if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
             {
                 struct Thing *heartng;
-                heartng = get_player_soul_container(wandr->wdrfield_16);
+                heartng = get_player_soul_container(wandr->plyr_idx);
                 if (!thing_is_invalid(heartng))
                 {
                     struct Coord3d dstpos;

@@ -507,9 +507,9 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
     {
-      WARNLOG("Player %d can't sell item on ground owned by player %d.",(int)plyr_idx,(int)slabmap_owner(slb));
-      unset_packet_control(pckt, PCtr_LBtnClick);
-      return false;
+        WARNLOG("Player %d can't sell item on %s owned by player %d at subtile (%d,%d).",(int)plyr_idx,slab_code_name(slb->kind),(int)slabmap_owner(slb),(int)stl_x,(int)stl_y);
+        unset_packet_control(pckt, PCtr_LBtnClick);
+        return false;
     }
     // Trying to sell room
     if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
