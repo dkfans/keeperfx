@@ -43,7 +43,7 @@ struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name)
     {
         WARNDBG(7,"%s: Player number(%d) differ from index(%d)!",func_name,(int)plyr_num,(int)plyr_idx);
     }
-    return &(game.dungeon[plyr_num]);
+    return &(game.dungeon[(int)plyr_num]);
 }
 
 struct Dungeon *get_players_dungeon_ptr(const struct PlayerInfo *player,const char *func_name)
@@ -55,7 +55,7 @@ struct Dungeon *get_players_dungeon_ptr(const struct PlayerInfo *player,const ch
         ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
         return INVALID_DUNGEON;
     }
-    return &(game.dungeon[plyr_num]);
+    return &(game.dungeon[(int)plyr_num]);
 }
 
 struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name)
@@ -65,7 +65,7 @@ struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name)
         ERRORLOG("%s: Tried to get non-existing dungeon %ld!",func_name,(long)plyr_num);
         return INVALID_DUNGEON;
     }
-    return &(game.dungeon[plyr_num]);
+    return &(game.dungeon[(int)plyr_num]);
 }
 
 TbBool dungeon_invalid(const struct Dungeon *dungeon)
@@ -89,7 +89,7 @@ void clear_dungeons(void)
   game.field_14E49E = 0;
 }
 
-void decrease_dungeon_area(unsigned char plyr_idx, long value)
+void decrease_dungeon_area(PlayerNumber plyr_idx, long value)
 {
     struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
@@ -101,7 +101,7 @@ void decrease_dungeon_area(unsigned char plyr_idx, long value)
       dungeon->total_area -= value;
 }
 
-void increase_room_area(unsigned char plyr_idx, long value)
+void increase_room_area(PlayerNumber plyr_idx, long value)
 {
     struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
@@ -111,7 +111,7 @@ void increase_room_area(unsigned char plyr_idx, long value)
     dungeon->total_area += value;
 }
 
-void decrease_room_area(unsigned char plyr_idx, long value)
+void decrease_room_area(PlayerNumber plyr_idx, long value)
 {
     struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
@@ -129,7 +129,7 @@ void decrease_room_area(unsigned char plyr_idx, long value)
       dungeon->total_area -= value;
 }
 
-void increase_dungeon_area(unsigned char plyr_idx, long value)
+void increase_dungeon_area(PlayerNumber plyr_idx, long value)
 {
     struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
@@ -138,12 +138,12 @@ void increase_dungeon_area(unsigned char plyr_idx, long value)
     dungeon->total_area += value;
 }
 
-void player_add_offmap_gold(long plyr_idx, long value)
+void player_add_offmap_gold(PlayerNumber plyr_idx, long value)
 {
     struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
     {
-        WARNLOG("Cannot give gold to neutral player %ld",plyr_idx);
+        WARNLOG("Cannot give gold to neutral player %d",(int)plyr_idx);
         return;
     }
     dungeon = get_dungeon(plyr_idx);
@@ -157,7 +157,7 @@ void player_add_offmap_gold(long plyr_idx, long value)
  * @param rkind Room kind being checked.
  * @return
  */
-TbBool player_has_room(long plyr_idx, RoomKind rkind)
+TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct Dungeon *dungeon;
     if (plyr_idx == game.neutral_player_num)
@@ -266,7 +266,7 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
   }
 }
 
-TbBool set_trap_buildable_and_add_to_amount(long plyr_idx, long trap_kind, long buildable, long amount)
+TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, long trap_kind, long buildable, long amount)
 {
     struct Dungeon *dungeon;
     if ( (trap_kind <= 0) || (trap_kind >= TRAP_TYPES_COUNT) ) {
@@ -286,7 +286,7 @@ TbBool set_trap_buildable_and_add_to_amount(long plyr_idx, long trap_kind, long 
     return true;
 }
 
-TbBool set_door_buildable_and_add_to_amount(long plyr_idx, long door_kind, long buildable, long amount)
+TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, long door_kind, long buildable, long amount)
 {
     struct Dungeon *dungeon;
     if ( (door_kind <= 0) || (door_kind >= DOOR_TYPES_COUNT) ) {
@@ -305,7 +305,7 @@ TbBool set_door_buildable_and_add_to_amount(long plyr_idx, long door_kind, long 
     return true;
 }
 
-TbBool restart_script_timer(long plyr_idx, long timer_id)
+TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id)
 {
     struct Dungeon *dungeon;
     if ( (timer_id < 0) || (timer_id >= TURN_TIMERS_COUNT) ) {
@@ -322,7 +322,7 @@ TbBool restart_script_timer(long plyr_idx, long timer_id)
     return true;
 }
 
-TbBool set_script_flag(long plyr_idx, long flag_id, long value)
+TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
 {
     struct Dungeon *dungeon;
     if ( (flag_id < 0) || (flag_id >= SCRIPT_FLAGS_COUNT) ) {

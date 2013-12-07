@@ -1112,7 +1112,7 @@ TbBool rectangle_intersects(struct TbRect *rcta, struct TbRect *rctb)
   return (left < right) && (top < bottom);
 }
 
-TbBool test_hand_slap_collides(long plyr_idx)
+TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 {
   struct TbRect rcta;
   struct TbRect rctb;
@@ -1123,7 +1123,7 @@ TbBool test_hand_slap_collides(long plyr_idx)
   if ((nspck->field_4 >> 3) == 0x02)
     return false;
   // Rectangle of given player
-  nspck = &net_screen_packet[plyr_idx];
+  nspck = &net_screen_packet[(int)plyr_idx];
   rcta.left = nspck->field_6 - 7;
   rcta.top = nspck->field_8 - 13;
   rcta.right = rcta.left + 30;

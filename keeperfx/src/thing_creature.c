@@ -842,7 +842,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         }
         break;
     default:
-        WARNLOG("No action for spell %ld at level %ld",spell_idx,spell_lev);
+        WARNLOG("No action for spell %d at level %d",(int)spell_idx,(int)spell_lev);
         break;
     }
 }
@@ -922,7 +922,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cctrl->casted_spells[idx].duration = magstat->power[spell_lev];
         break;
     default:
-        WARNLOG("No action for spell %ld at level %ld",spell_idx,spell_lev);
+        WARNLOG("No action for spell %d at level %d",(int)spell_idx,(int)spell_lev);
         break;
     }
 }
@@ -1111,7 +1111,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long a3, long trg_x
     crstat = creature_stats_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {
-        ERRORLOG("Invalid creature tried to cast spell %ld",spl_idx);
+        ERRORLOG("Invalid creature tried to cast spell %d",(int)spl_idx);
         return;
     }
     if (spl_idx == SplK_Teleport)
@@ -3312,7 +3312,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long breed_idx, l
     struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
     struct Thing *thing;
-    SYNCDBG(5,"Searching for breed %ld, GUI job %ld",breed_idx,job_idx);
+    SYNCDBG(5,"Searching for breed %d, GUI job %d",(int)breed_idx,(int)job_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
@@ -3352,7 +3352,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     long i;
-    SYNCDBG(5,"Searching for breed %ld, GUI job %ld",breed_idx,job_idx);
+    SYNCDBG(5,"Searching for breed %d, GUI job %d",(int)breed_idx,(int)job_idx);
     //return _DK_find_my_next_creature_of_breed_and_job(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
     thing = INVALID_THING;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -3435,7 +3435,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
     /* Some basic debugging */
     if ((breed_idx != -1) && (thing->model != breed_idx))
     {
-        ERRORLOG("Searched for breed %ld, but found %d.",breed_idx,(int)thing->model);
+        ERRORLOG("Searched for breed %d, but found %d.",(int)breed_idx,(int)thing->model);
     }
     /* Remember the creature we've found */
     dungeon->selected_creatures_of_model[thing->model] = thing->index;
@@ -3443,26 +3443,26 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
     return thing;
 }
 
-struct Thing *pick_up_creature_of_breed_and_gui_job(long breed, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
+struct Thing *pick_up_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
 {
     struct Dungeon *dungeon;
     struct Thing *thing;
-    thing = find_players_next_creature_of_breed_and_gui_job(breed, job_idx, plyr_idx, pick_flags);
+    thing = find_players_next_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, pick_flags);
     if (thing_is_invalid(thing))
     {
-        SYNCDBG(2,"Can't find creature of breed %ld and GUI job %ld.",breed,job_idx);
+        SYNCDBG(2,"Can't find creature of model %d and GUI job %d.",(int)crmodel,(int)job_idx);
         return INVALID_THING;
     }
     dungeon = get_dungeon(plyr_idx);
-    if ((breed > 0) && (breed < CREATURE_TYPES_COUNT))
+    if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT))
     {
-        if ((job_idx == -1) || (dungeon->job_breeds_count[breed][job_idx & 0x03]))
+        if ((job_idx == -1) || (dungeon->job_breeds_count[crmodel][job_idx & 0x03]))
         {
             set_players_packet_action(get_player(plyr_idx), PckA_PickUpThing, thing->index, 0, 0, 0);
         }
     } else
     {
-        ERRORLOG("Creature breed %ld out of range.",breed);
+        ERRORLOG("Creature model %d out of range.",(int)crmodel);
     }
     return thing;
 }
@@ -3923,7 +3923,7 @@ void init_creature_scores(void)
         score = compute_creature_kind_score(i,CREATURE_MAX_LEVEL-1);
         if ((score <= 0) && (i != 0) && (i != CREATURE_TYPES_COUNT-1))
         {
-          ERRORLOG("Couldn't get creature %ld score value", i);
+          ERRORLOG("Couldn't get creature %d score value", (int)i);
           continue;
         }
         if (score > max_score)

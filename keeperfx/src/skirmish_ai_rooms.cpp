@@ -349,7 +349,7 @@ static void evaluate_rooms_of_player(int plyr_idx)
     struct Room * room;
     struct PlayerRooms * rooms;
 
-    AIDBG(3, "Starting for player %d", plyr_idx);
+    AIDBG(3, "Starting for player %d", (int)plyr_idx);
     rooms = rooms_of_player(plyr_idx);
     plyr = get_player(plyr_idx);
     dungeon = get_players_dungeon(plyr);

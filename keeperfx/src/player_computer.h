@@ -178,6 +178,8 @@ enum ItemAvailabilityRet {
     IAvail_NeedResearch  = 4,
 };
 
+//TODO COMPUTER This returns NULL, which is unsafe
+#define INVALID_COMPUTER_PLAYER NULL
 /******************************************************************************/
 #pragma pack(1)
 
@@ -281,7 +283,7 @@ struct ComputerDig { // sizeof = 78
     struct Coord3d pos_begin;
     struct Coord3d pos_next;
     long distance;
-    unsigned char subfield_2A;
+    unsigned char hug_side;
     unsigned char direction_around;
     unsigned long subfield_2C;
     long subfield_30;
@@ -291,10 +293,11 @@ struct ComputerDig { // sizeof = 78
     long subfield_40;
     long subfield_44;
     long subfield_48;
-    long subfield_4C;
-    long subfield_50;
+    long sub4C_stl_x;
+    long sub4C_stl_y;
     long calls_count;
-    long subfield_58;
+    /** Amount of valuable slabs tagged for digging during this dig process. */
+    long valuable_slabs_tagged;
 };
 
 struct ComputerTask { // sizeof = 148
@@ -442,6 +445,10 @@ extern Comp_EvntTest_Func computer_event_test_func_list[];
 
 extern const struct NamedCommand computer_check_func_type[];
 extern Comp_Check_Func computer_check_func_list[];
+/******************************************************************************/
+struct Computer2 *get_computer_player_f(long plyr_idx,const char *func_name);
+#define get_computer_player(plyr_idx) get_computer_player_f(plyr_idx,__func__)
+TbBool computer_player_invalid(const struct Computer2 *comp);
 /******************************************************************************/
 void shut_down_process(struct Computer2 *comp, struct ComputerProcess *process);
 void reset_process(struct Computer2 *comp, struct ComputerProcess *process);

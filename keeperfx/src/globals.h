@@ -145,7 +145,7 @@ extern "C" {
 
 #pragma pack(1)
 
-typedef long PlayerNumber;
+typedef signed char PlayerNumber;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
