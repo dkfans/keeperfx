@@ -250,12 +250,12 @@ struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name);
 TbBool dungeon_invalid(const struct Dungeon *dungeon);
 
 void clear_dungeons(void);
-void decrease_dungeon_area(unsigned char plyr_idx, long value);
-void increase_room_area(unsigned char plyr_idx, long value);
-void decrease_room_area(unsigned char plyr_idx, long value);
-void increase_dungeon_area(unsigned char plyr_idx, long value);
-void player_add_offmap_gold(long plyr_idx, long value);
-TbBool player_has_room(long plyr_idx, RoomKind rkind);
+void decrease_dungeon_area(PlayerNumber plyr_idx, long value);
+void increase_room_area(PlayerNumber plyr_idx, long value);
+void decrease_room_area(PlayerNumber plyr_idx, long value);
+void increase_dungeon_area(PlayerNumber plyr_idx, long value);
+void player_add_offmap_gold(PlayerNumber plyr_idx, long value);
+TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool player_has_heart(PlayerNumber plyr_idx);
 struct Thing *get_player_soul_container(PlayerNumber plyr_idx);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
@@ -263,11 +263,11 @@ struct Room *player_has_room_of_type(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type);
-TbBool set_trap_buildable_and_add_to_amount(long plyr_idx, long trap_kind, long buildable, long amount);
-TbBool set_door_buildable_and_add_to_amount(long plyr_idx, long door_kind, long buildable, long amount);
+TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, long trap_kind, long buildable, long amount);
+TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, long door_kind, long buildable, long amount);
 
-TbBool restart_script_timer(long plyr_idx, long timer_id);
-TbBool set_script_flag(long plyr_idx, long flag_id, long value);
+TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id);
+TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -278,7 +278,7 @@ DLLIMPORT unsigned short _DK_condition_stack[48];
 /******************************************************************************/
 extern const struct CommandDesc command_desc[];
 /******************************************************************************/
-TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model);
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
 TbBool script_support_setup_player_as_zombie_keeper(unsigned short plyridx);
 long script_scan_line(char *line,TbBool preloaded);
 const struct CommandDesc *get_next_word(char **line, char *params, unsigned char *nparam);
@@ -311,11 +311,11 @@ short load_script(long lvl_num);
 short preload_script(long lvnum);
 /******************************************************************************/
 void script_process_value(unsigned long var_index, unsigned long val1, long val2, long val3, long val4);
-void script_process_win_game(unsigned short plyr_idx);
-void script_process_lose_game(unsigned short plyr_idx);
+void script_process_win_game(PlayerNumber plyr_idx);
+void script_process_lose_game(PlayerNumber plyr_idx);
 struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
-struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_idx, TbMapLocation location, long copies_num);
-void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
+struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, long copies_num);
+void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold);
 long script_support_create_thing_at_hero_door(long gate_num, ThingClass tngclass, ThingModel tngmodel, unsigned char tngowner, unsigned char random_factor);
 long script_support_create_thing_at_action_point(long apt_idx, ThingClass tngclass, ThingModel tngmodel, PlayerNumber tngowner, unsigned char random_factor);
 long script_support_create_thing_at_dungeon_heart(ThingClass tngclass, ThingModel tngmodel, PlayerNumber tngowner, PlayerNumber plyr_idx);
@@ -325,16 +325,15 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
 long script_support_send_tunneller_to_appropriate_dungeon(struct Thing *thing);
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
 TbBool process_activation_status(struct Condition *condt);
-long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char a3);
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);
 TbBool get_condition_status(unsigned char opkind, long val1, long val2);
 TbBool condition_inactive(long cond_idx);
-TbBool action_point_activated_by_player(long apt_idx,long plyr_idx);
-TbBool process_avialable_status(long plyr_idx, long itype, long ikind, long val);
+TbBool action_point_activated_by_player(long apt_idx,PlayerNumber plyr_idx);
 TbBool is_condition_met(long condit_idx);
 void process_conditions(void);
 void process_values(void);
-void process_win_and_lose_conditions(long plyr_idx);
-void script_process_new_creatures(unsigned char a1, long a2, long a3, long a4, long a5, long a6);
+void process_win_and_lose_conditions(PlayerNumber plyr_idx);
+void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level);
 void process_check_new_creature_partys(void);
 void process_check_new_tunneller_partys(void);
 /******************************************************************************/

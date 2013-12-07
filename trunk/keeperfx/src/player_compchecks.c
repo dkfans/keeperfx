@@ -304,7 +304,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         stl_y = heartng->mappos.y.stl.num;
         if (xy_walkable(stl_x, stl_y, dungeon->owner))
         {
-            if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > 0) {
+            if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
                 able = 1;
             }
         }
@@ -546,7 +546,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
           stati = get_thing_state_info_num(n);
           if (stati->state_type == 1)
           {
-              if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > 0)
+              if (try_game_action(comp, dungeon->owner, GA_UsePwrSpeedUp, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
               {
                   return thing;
               }
@@ -692,7 +692,7 @@ long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck
             i = room->next_of_owner;
             // Per-room code
             struct Comp2_UnkStr1 *unkptr;
-            unkptr = &comp->unkarr_A10[plyr_idx];
+            unkptr = &comp->unkarr_A10[(int)plyr_idx];
             long n;
             for (n = 0; n < 64; n++)
             {
@@ -833,7 +833,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
             pos.z.val = 0;
             if (find_place_to_put_door_around_room(room, &pos))
             {
-                if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, pos.x.stl.num, pos.y.stl.num, doorkind, 0) > 0) {
+                if (try_game_action(comp, dungeon->owner, GA_PlaceDoor, 0, pos.x.stl.num, pos.y.stl.num, doorkind, 0) > Lb_OK) {
                   return 1;
                 }
             }

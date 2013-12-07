@@ -174,7 +174,9 @@ void maintain_turn_on_autopilot(struct GuiButton *gbtn)
   struct PlayerInfo *player;
   unsigned long cplr_model;
   player = get_my_player();
-  cplr_model = game.computer[player->id_number%PLAYERS_COUNT].model;
+  struct Computer2 *comp;
+  comp = get_computer_player(player->id_number);
+  cplr_model = comp->model;
   if ((cplr_model >= 0) && (cplr_model < 10))
     gbtn->tooltip_id = computer_types[cplr_model];
   else
