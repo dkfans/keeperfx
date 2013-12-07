@@ -394,6 +394,20 @@ New and modified level script commands:
   But now this command can be used to show bonus timer in
   any level. Setting game turns to 0 will hide the timer.
   Example: BONUS_LEVEL_TIME(12000)
+ CREATURE_AVAILABLE
+  Tells the game whether a creature of specific kind can
+  come through that player's Portal. Parameters of this
+  command are changed to original, an now look like this:
+  CREATURE_AVAILABLE(​[player],​[creature],​[can be attracted],
+      ​[amount forced])
+  where:
+  [can be attracted] - If set to 1, it is possible to attract
+      the creature, either by rooms or by forced attraction.
+      (so it works like 4th parameter in original command).
+  [amount forced] - Amount of creatures of that kind which
+      can be force-attracted (attracted even if player doesn't
+      have rooms required by that creature). Originally
+      there was no possibility to skip attraction conditions.
  DISPLAY_OBJECTIVE
   The 2nd parameter can now have the following values:
   - 'PLAYERx' - zoom to player's dungeon heart
@@ -404,7 +418,8 @@ New and modified level script commands:
   Lets the game know if the level was designed specially for
   KeeperFX. To use new script commands, you must start the
   script with LEVEL_VERSION(1). Without it, the new commands
-  will not work properly.
+  will not work properly, and the game will try to emulate old
+  behavior of commands which were modified.
  PLAY_MESSAGE
   Allows to play any SOUND or SPEECH from the game.
   Example: PLAY_MESSAGE(PLAYER0,SPEECH,107)
@@ -422,7 +437,7 @@ New and modified level script commands:
   Allows to set tendencies: IMPRISON and FLEE, for a player's
   creatures. Example: SET_CREATURE_TENDENCIES(PLAYER2,FLEE,1)
   Note that a player must have prison when IMPRISON command
-  is trigered; otherwise it won't make any change.
+  is triggered; otherwise it won't make any change.
  SET_CREATURE_FEAR_WOUNDED
   Replacements for SET_CREATURE_FEAR. The value taken by this
   function is a percentage (0..100) and defines health drop

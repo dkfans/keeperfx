@@ -172,8 +172,14 @@ struct Dungeon {
 unsigned char field_F7D;
     unsigned char room_buildable[ROOM_TYPES_COUNT];
     unsigned char room_resrchable[ROOM_TYPES_COUNT];
-    unsigned char creature_enabled[CREATURE_TYPES_COUNT]; // 'Enabled' creature can come from portal
-    unsigned char creature_allowed[CREATURE_TYPES_COUNT]; // 'Allowed' creature is conditionally enabled
+    /** How many creatures are force-enabled for each kind.
+     * Force-enabled creature can come from portal without additional conditions,
+     * but only until dungeon has up to given amount of their kind. */
+    unsigned char creature_force_enabled[CREATURE_TYPES_COUNT];
+    /** Defines whether a creature of each kind is allowed to come from portal.
+     * Allowed creatures can join a dungeon if whether attraction condition is met
+     * or force-enabled amount isn't reached. */
+    unsigned char creature_allowed[CREATURE_TYPES_COUNT];
     unsigned char magic_level[KEEPER_SPELLS_COUNT];
     unsigned char magic_resrchable[KEEPER_SPELLS_COUNT];
     /** Amount of traps of every kind for which we can place blueprints. This include both off-map traps and on-map trap boxes.*/
@@ -220,7 +226,8 @@ long field_1193;
     unsigned char bodies_rotten_for_vampire;
 unsigned char field_1461[36];
     long field_1485;
-    /** Stores information whether each kind of creature has joined the dungeon during the level. */
+    /** Stores how many creatures of each kind of has joined the dungeon during the level.
+     * Values are saturated at 255. */
     unsigned char creature_models_joined[CREATURE_TYPES_COUNT];
     unsigned long fights_num;
     unsigned char research_override; // could be easily changed into flags..

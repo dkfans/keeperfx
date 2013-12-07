@@ -3366,27 +3366,39 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_CREATURE_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        if (!set_creature_available(i,val2,val3,val4))
-          WARNLOG("Setting creature %ld availability for player %d failed.",val2,(int)i);
+          TbBool ret;
+          if (level_file_version > 0) {
+              ret = set_creature_available(i,val2,val3,val4);
+          } else {
+              ret = set_creature_available(i,val2,val4,0);
+          }
+          if (!ret) {
+              WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(val2),(int)i);
+          }
       }
       break;
   case Cmd_MAGIC_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-        if (!set_power_available(i,val2,val3,val4))
-          WARNLOG("Setting magic %ld availability for player %d failed.",val2,(int)i);
+          if (!set_power_available(i,val2,val3,val4)) {
+              WARNLOG("Setting power %s availability for player %d failed.",power_code_name(val2),(int)i);
+          }
       }
       break;
   case Cmd_TRAP_AVAILABLE:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_trap_buildable_and_add_to_amount(i, val2, val3, val4);
+          if (!set_trap_buildable_and_add_to_amount(i, val2, val3, val4)) {
+              WARNLOG("Setting trap %s availability for player %d failed.",trap_code_name(val2),(int)i);
+          }
       }
       break;
   case Cmd_RESEARCH:
       for (i=plr_start; i < plr_end; i++)
       {
-        update_or_add_players_research_amount(i, val2, val3, val4);
+          if (!update_or_add_players_research_amount(i, val2, val3, val4)) {
+              WARNLOG("Updating research points for type %d kind %d of player %d failed.",(int)val2,(int)val3,(int)i);
+          }
       }
       break;
   case Cmd_RESEARCH_ORDER:
@@ -3412,7 +3424,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_MAX_CREATURES:
       for (i=plr_start; i < plr_end; i++)
       {
-          SYNCDBG(4,"Setting player %d max attracted creatures to %ld.",i,val2);
+          SYNCDBG(4,"Setting player %d max attracted creatures to %d.",(int)i,(int)val2);
           dungeon = get_dungeon(i);
           if (dungeon_invalid(dungeon))
               continue;
