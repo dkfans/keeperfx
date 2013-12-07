@@ -1183,8 +1183,10 @@ TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     dungeon = get_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon))
+    if (dungeon_invalid(dungeon)) {
+        ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
+    }
     dungeon->magic_resrchable[spl_idx] = resrch;
     if (avail <= 0)
     {
