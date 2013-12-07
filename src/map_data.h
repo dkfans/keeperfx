@@ -91,12 +91,12 @@ struct Map *get_map_block_at_pos(long stl_num);
 unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
 TbBool map_block_invalid(const struct Map *map);
-void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);
+void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 void reveal_map_block(struct Map *map, PlayerNumber plyr_idx);
 TbBool map_block_revealed(const struct Map *map, PlayerNumber plyr_idx);
 TbBool map_block_revealed_bit(const struct Map *map, long plyr_bit);
-TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y);
+TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y);
 long get_ceiling_height(const struct Coord3d *pos);
 long get_mapwho_thing_index(const struct Map *map);
 void set_mapwho_thing_index(struct Map *map, long thing_idx);
@@ -134,8 +134,8 @@ TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void clear_slab_dig(long a1, long a2, char a3);
 
-void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
-void reveal_map_area(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
+void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
+void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
 void clear_mapwho(void);
 void clear_mapmap(void);
 /******************************************************************************/

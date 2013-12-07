@@ -256,7 +256,8 @@ void fronttorture_input(void)
     struct PlayerInfo *player;
     struct Packet *pckt;
     long x,y;
-    long plyr_idx,door_id;
+    PlayerNumber plyr_idx;
+    long door_id;
     clear_packets();
     player = get_my_player();
     pckt = get_packet(my_player_number);

@@ -203,6 +203,21 @@ char const move_creature_to_best_text[] = "MOVE CREATURE TO BEST ROOM";
 char const computer_check_hates_text[] = "COMPUTER CHECK HATES";
 
 /******************************************************************************/
+struct Computer2 *get_computer_player_f(long plyr_idx,const char *func_name)
+{
+    if ((plyr_idx >= 0) && (plyr_idx < PLAYERS_COUNT))
+        return &game.computer[plyr_idx];
+    ERRORMSG("%s: Tried to get non-existing computer player %d!",func_name,(int)plyr_idx);
+    return INVALID_COMPUTER_PLAYER;
+}
+
+TbBool computer_player_invalid(const struct Computer2 *comp)
+{
+    if (comp == INVALID_COMPUTER_PLAYER)
+        return true;
+    return (comp < &game.computer[0]);
+}
+
 GoldAmount get_computer_money_less_cost(const struct Computer2 *comp)
 {
     struct Dungeon *dungeon;
@@ -886,7 +901,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
         }
         if ((slabmap_owner(slb) == dungeon->owner) && (slb->kind == SlbT_CLAIMED))
         { // If it's our owned claimed ground, give it a try
-            long ret;
+            TbResult ret;
             struct Thing *thing;
             thing = get_trap_for_slab_position(slb_x, slb_y);
             // Only allow to place trap at position where there's no traps already
@@ -894,11 +909,11 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
                 SYNCDBG(8,"Trying to place %s trap at (%d,%d)",trap_code_name(kind_chosen),(int)location->x.stl.num,(int)location->y.stl.num);
                 ret = try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0, location->x.stl.num, location->y.stl.num, kind_chosen, 0);
             } else {
-                ret = -1;
+                ret = Lb_FAIL;
             }
             location->x.val = 0;
             location->y.val = 0;
-            if (ret > 0)
+            if (ret > Lb_OK)
               return 1;
         } else
         if (slb->kind != SlbT_PATH)
@@ -1098,7 +1113,11 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         WARNLOG("Tried to setup player %d which can't be used this way",(int)plyr_idx);
         return false;
     }
-    comp = &game.computer[plyr_idx];
+    comp = get_computer_player(plyr_idx);
+    if (computer_player_invalid(comp)) {
+        ERRORLOG("Tried to setup player %d which has no computer capability",(int)plyr_idx);
+        return false;
+    }
     LbMemorySet(comp, 0, sizeof(struct Computer2));
     cpt = get_computer_process_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
@@ -1318,7 +1337,11 @@ void process_computer_player2(PlayerNumber plyr_idx)
     if (plyr_idx >= PLAYERS_COUNT) {
         return;
     }
-    comp = &game.computer[plyr_idx];
+    comp = get_computer_player(plyr_idx);
+    if (computer_player_invalid(comp)) {
+        ERRORLOG("Player %d has no computer capability",(int)plyr_idx);
+        return;
+    }
     if ((comp->field_14 != 0) && (comp->field_2C <= game.play_gameturn))
       comp->tasks_did = 1;
     else
@@ -1334,11 +1357,15 @@ void process_computer_player2(PlayerNumber plyr_idx)
     }
 }
 
-struct ComputerProcess *computer_player_find_process_by_func_setup(long plyr_idx,Comp_Process_Func func_setup)
+struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber plyr_idx,Comp_Process_Func func_setup)
 {
   struct ComputerProcess *process;
   struct Computer2 *comp;
-  comp = &(game.computer[plyr_idx]);
+  comp = get_computer_player(plyr_idx);
+  if (computer_player_invalid(comp)) {
+      ERRORLOG("Player %d has no computer capability",(int)plyr_idx);
+      return NULL;
+  }
   process = &comp->processes[0];
   while ((process->flags & ComProc_Unkn0002) == 0)
   {
@@ -1464,9 +1491,12 @@ void restore_computer_player_after_load(void)
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         player = get_player(plyr_idx);
-        comp = &game.computer[plyr_idx];
-        if (!player_exists(player))
-        {
+        comp = get_computer_player(plyr_idx);
+        if (computer_player_invalid(comp)) {
+            ERRORLOG("Player %d has no computer capability",(int)plyr_idx);
+            continue;
+        }
+        if (!player_exists(player)) {
             LbMemorySet(comp, 0, sizeof(struct Computer2));
             comp->dungeon = INVALID_DUNGEON;
             continue;

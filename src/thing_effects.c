@@ -786,7 +786,7 @@ TngUpdateRet update_effect_element(struct Thing *thing)
             thing->pos_2C.z.val = bounce_table[health];
         } else
         {
-            ERRORLOG("Illegal effect element bounce life: %ld", health);
+            ERRORLOG("Illegal effect element bounce life: %d", (int)health);
         }
         move_effect_element(thing);
         break;

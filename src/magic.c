@@ -291,7 +291,7 @@ void update_power_sight_explored(struct PlayerInfo *player)
     _DK_update_power_sight_explored(player);
 }
 
-long power_sight_explored(long stl_x, long stl_y, unsigned char plyr_idx)
+long power_sight_explored(long stl_x, long stl_y, PlayerNumber plyr_idx)
 {
   return _DK_power_sight_explored(stl_x, stl_y, plyr_idx);
 }

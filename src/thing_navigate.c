@@ -155,7 +155,7 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord st
     get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, storage);
     if (!creature_can_navigate_to_with_storage(thing, &navpos, storage))
     {
-        SYNCDBG(19,"The %s cannot reach subtile (%ld,%ld)",thing_model_name(thing),(int)stl_x,(int)stl_y);
+        SYNCDBG(19,"The %s cannot reach subtile (%d,%d)",thing_model_name(thing),(int)stl_x,(int)stl_y);
         return false;
     }
     cctrl->field_88 = storage;

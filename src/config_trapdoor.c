@@ -721,7 +721,7 @@ TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx)
         return false;
     }
     if ((trap_idx <= 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
-        ERRORLOG("Incorrect trap %ld (player %ld)",trap_idx, plyr_idx);
+        ERRORLOG("Incorrect trap %d (player %d)",(int)trap_idx, (int)plyr_idx);
         return false;
     }
     if (dungeon->trap_buildable[trap_idx] > 0) {
@@ -748,7 +748,7 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long door_idx)
         return false;
     }
     if ((door_idx <= 0) || (door_idx >= DOOR_TYPES_COUNT)) {
-        ERRORLOG("Incorrect door %ld (player %ld)",door_idx, plyr_idx);
+        ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
         return false;
     }
     if (dungeon->door_placeable[door_idx]) {
@@ -775,7 +775,7 @@ TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
         return false;
     }
     if ((door_idx <= 0) || (door_idx >= DOOR_TYPES_COUNT)) {
-        ERRORLOG("Incorrect door %ld (player %ld)",door_idx, plyr_idx);
+        ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
         return false;
     }
     if (dungeon->door_buildable[door_idx] > 0) {

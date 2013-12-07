@@ -807,7 +807,7 @@ TbBool get_map_heading_id_f(const char *headname, long target, TbMapLocation *lo
     return false;
 }
 
-TbBool script_support_setup_player_as_computer_keeper(unsigned short plyridx, long comp_model)
+TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model)
 {
     struct PlayerInfo *player;
     player = get_player(plyridx);
@@ -1173,7 +1173,7 @@ void player_command_add_start_money(int plridx, long gold_val)
   dungeon->total_money_owned += gold_val;
 }
 
-void player_reveal_map_area(int plyr_idx, long x, long y, long w, long h)
+void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
 {
   SYNCDBG(0,"Revealing around (%d,%d)",x,y);
   reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
@@ -1673,7 +1673,10 @@ void command_set_computer_globals(char *plrname, long val1, long val2, long val3
   }
   for (i=plr_start; i < plr_end; i++)
   {
-    comp = &game.computer[i];
+    comp = get_computer_player(i);
+    if (computer_player_invalid(comp)) {
+        continue;
+    }
     comp->field_1C = val1;
     comp->field_14 = val2;
     comp->field_18 = val3;
@@ -1697,23 +1700,28 @@ void command_set_computer_checks(char *plrname, char *chkname, long val1, long v
   n = 0;
   for (i=plr_start; i < plr_end; i++)
   {
-    for (k=0; k < COMPUTER_CHECKS_COUNT; k++)
-    {
-      check = &game.computer[i].checks[k];
-      if ((check->flags & 0x02) != 0)
-        break;
-      if (check->name == NULL)
-        break;
-      if (strcasecmp(chkname, check->name) == 0)
-      {
-        check->turns_interval = val1;
-        check->param1 = val2;
-        check->param2 = val3;
-        check->param3 = val4;
-        check->param4 = val5;
-        n++;
+      struct Computer2 *comp;
+      comp = get_computer_player(i);
+      if (computer_player_invalid(comp)) {
+          continue;
       }
-    }
+      for (k=0; k < COMPUTER_CHECKS_COUNT; k++)
+      {
+          check = &comp->checks[k];
+          if ((check->flags & 0x02) != 0)
+            break;
+          if (check->name == NULL)
+            break;
+          if (strcasecmp(chkname, check->name) == 0)
+          {
+            check->turns_interval = val1;
+            check->param1 = val2;
+            check->param2 = val3;
+            check->param3 = val4;
+            check->param4 = val5;
+            n++;
+          }
+      }
   }
   if (n == 0)
   {
@@ -1737,18 +1745,23 @@ void command_set_computer_events(char *plrname, char *evntname, long val1, long 
   n = 0;
   for (i=plr_start; i < plr_end; i++)
   {
-    for (k=0; k < COMPUTER_EVENTS_COUNT; k++)
-    {
-      event = &game.computer[i].events[k];
-      if (event->name == NULL)
-        break;
-      if (stricmp(evntname, event->name) == 0)
-      {
-        event->param1 = val1;
-        event->param2 = val2;
-        n++;
+      struct Computer2 *comp;
+      comp = get_computer_player(i);
+      if (computer_player_invalid(comp)) {
+          continue;
       }
-    }
+      for (k=0; k < COMPUTER_EVENTS_COUNT; k++)
+      {
+        event = &comp->events[k];
+        if (event->name == NULL)
+          break;
+        if (stricmp(evntname, event->name) == 0)
+        {
+          event->param1 = val1;
+          event->param2 = val2;
+          n++;
+        }
+      }
   }
   if (n == 0)
   {
@@ -1772,23 +1785,28 @@ void command_set_computer_process(char *plrname, char *procname, long val1, long
   n = 0;
   for (i=plr_start; i < plr_end; i++)
   {
-    for (k=0; k < COMPUTER_PROCESSES_COUNT; k++)
-    {
-      process = &game.computer[i].processes[k];
-      if ((process->flags & 0x02) != 0)
-        break;
-      if (process->name == NULL)
-        break;
-      if (stricmp(procname, process->name) == 0)
-      {
-        process->field_4 = val1;
-        process->field_8 = val2;
-        process->field_C = val3;
-        process->field_10 = val4;
-        process->field_14 = val5;
-        n++;
+      struct Computer2 *comp;
+      comp = get_computer_player(i);
+      if (computer_player_invalid(comp)) {
+          continue;
       }
-    }
+      for (k=0; k < COMPUTER_PROCESSES_COUNT; k++)
+      {
+          process = &comp->processes[k];
+          if ((process->flags & 0x02) != 0)
+            break;
+          if (process->name == NULL)
+            break;
+          if (stricmp(procname, process->name) == 0)
+          {
+            process->field_4 = val1;
+            process->field_8 = val2;
+            process->field_C = val3;
+            process->field_10 = val4;
+            process->field_14 = val5;
+            n++;
+          }
+      }
   }
   if (n == 0)
   {
@@ -2465,14 +2483,14 @@ short load_script(long lvnum)
     return true;
 }
 
-void script_process_win_game(unsigned short plyr_idx)
+void script_process_win_game(PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     set_player_as_won_level(player);
 }
 
-void script_process_lose_game(unsigned short plyr_idx)
+void script_process_lose_game(PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
@@ -2854,7 +2872,7 @@ struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation 
     return creatng;
 }
 
-struct Thing *script_process_new_party(struct Party *party, unsigned char plyr_idx, TbMapLocation location, long copies_num)
+struct Thing *script_process_new_party(struct Party *party, PlayerNumber plyr_idx, TbMapLocation location, long copies_num)
 {
     struct CreatureControl *cctrl;
     struct PartyMember *member;
@@ -2911,7 +2929,7 @@ struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmod
     return creatng;
 }
 
-void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
+void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbMapLocation location, TbMapLocation heading, unsigned char crtr_level, unsigned long carried_gold)
 {
     struct Thing *gpthing;
     struct Thing *ldthing;
@@ -2931,7 +2949,7 @@ void script_process_new_tunneller_party(unsigned char plyr_idx, long prty_id, Tb
     add_creature_to_group_as_leader(ldthing, gpthing);
 }
 
-void script_process_new_creatures(unsigned char plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level)
+void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level)
 {
     long i;
     for (i=0; i < copies_num; i++) {
@@ -2965,7 +2983,7 @@ TbBool process_activation_status(struct Condition *condt)
 /**
  * Returns if the action point of given index was triggered by given player.
  */
-TbBool action_point_activated_by_player(long apt_idx,long plyr_idx)
+TbBool action_point_activated_by_player(long apt_idx,PlayerNumber plyr_idx)
 {
   unsigned long i;
   i = get_action_point_activated_by_players_mask(apt_idx);
@@ -2975,7 +2993,7 @@ TbBool action_point_activated_by_player(long apt_idx,long plyr_idx)
     return ((i & (1 << plyr_idx)) != 0);
 }
 
-long get_condition_value(char plyr_idx, unsigned char valtype, unsigned char validx)
+long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
 {
   struct PlayerInfo *player;
   struct Dungeon *dungeon;
@@ -3256,7 +3274,7 @@ void process_check_new_tunneller_partys(void)
     }
 }
 
-void process_win_and_lose_conditions(long plyr_idx)
+void process_win_and_lose_conditions(PlayerNumber plyr_idx)
 {
     struct PlayerInfo *player;
     long i,k;

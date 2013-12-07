@@ -70,7 +70,7 @@ extern struct StatsData scrolling_stats_data[];
  * @param plyr_idx Player for whom statistic is to be calculated.
  * @return Statistic value.
  */
-long calculate_efficiency(long plyr_idx)
+long calculate_efficiency(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     struct Room *room;
@@ -155,7 +155,7 @@ long calculate_style(long plyr_idx)
  * @param plyr_idx Player for whom statistic is to be calculated.
  * @return Statistic value.
  */
-long calculate_rating(long plyr_idx)
+long calculate_rating(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long btlost,btwon,ratio;

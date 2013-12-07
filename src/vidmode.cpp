@@ -446,7 +446,7 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
 {
   long i,x,y;
   struct TbSprite *spr;
-  SYNCDBG(8,"Setting to group %ld",group_idx);
+  SYNCDBG(8,"Setting to group %d",(int)group_idx);
   if (pointer_sprites == NULL)
   {
     WARNLOG("Pointer sprites not loaded, setting to none");
@@ -477,7 +477,7 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
     LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
   } else
   {
-    WARNLOG("Sprite %ld exceeds buffer, setting pointer to none",i);
+    WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)i);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
   }
   return true;
@@ -487,7 +487,7 @@ TbBool set_pointer_graphic(long ptr_idx)
 {
   long x,y;
   struct TbSprite *spr;
-  SYNCDBG(8,"Setting to %ld",ptr_idx);
+  SYNCDBG(8,"Setting to %d",(int)ptr_idx);
   if (pointer_sprites == NULL)
   {
     WARNLOG("Pointer sprites not loaded, setting to none");
@@ -577,7 +577,7 @@ TbBool set_pointer_graphic(long ptr_idx)
     LbMouseChangeSpriteAndHotspot(spr, x, y);
   } else
   {
-    WARNLOG("Sprite %ld exceeds buffer, setting pointer to none",ptr_idx);
+    WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
   }
   return true;
@@ -684,7 +684,7 @@ TbBool setup_screen_mode(unsigned short nmode)
     } else
     if (mdinfo->Height < 400)
     {
-        SYNCDBG(6,"Entering low-res mode %d, resolution %ldx%ld.",(int)nmode,mdinfo->Width,mdinfo->Height);
+        SYNCDBG(6,"Entering low-res mode %d, resolution %dx%d.",(int)nmode,(int)mdinfo->Width,(int)mdinfo->Height);
         if (!LoadMcgaData())
         {
           ERRORLOG("Loading Mcga files failed");
@@ -705,7 +705,7 @@ TbBool setup_screen_mode(unsigned short nmode)
     } else
     // so (mdinfo->Height >= 400)
     {
-        SYNCDBG(6,"Entering hi-res mode %d, resolution %ldx%ld.",(int)nmode,mdinfo->Width,mdinfo->Height);
+        SYNCDBG(6,"Entering hi-res mode %d, resolution %dx%d.",(int)nmode,(int)mdinfo->Width,(int)mdinfo->Height);
         if (!LoadVRes256Data((long)mdinfo->Width*(long)mdinfo->Height))
         {
           ERRORLOG("Unable to load VRes256 data files");

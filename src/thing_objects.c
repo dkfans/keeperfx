@@ -1154,7 +1154,7 @@ struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber p
     if (plyr_idx >= sizeof(player_guardflag_objects)/sizeof(player_guardflag_objects[0]))
         grdflag_kind = player_guardflag_objects[NEUTRAL_PLAYER];
     else
-        grdflag_kind = player_guardflag_objects[plyr_idx];
+        grdflag_kind = player_guardflag_objects[(int)plyr_idx];
     if (grdflag_kind <= 0)
         return INVALID_THING;
     // Guard posts have slab number set as parent

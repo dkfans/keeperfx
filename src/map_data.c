@@ -206,7 +206,7 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
     mapblk->data |= (height << 24) & 0xF000000;
 }
 
-void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
+void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
   unsigned short nflag;
   struct Map *mapblk;
@@ -259,7 +259,7 @@ TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
   return false;
 }
 
-TbBool valid_dig_position(long plyr_idx, long stl_x, long stl_y)
+TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
 {
     const struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
@@ -537,7 +537,7 @@ void clear_dig_for_map_rect(long plyr_idx,long start_x,long end_x,long start_y,l
  * Reveals map subtiles rectangle for given player.
  * Low level function - use reveal_map_area() instead.
  */
-void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
+void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
 {
     MapSubtlCoord x,y;
   for (y = start_y; y < end_y; y++)
@@ -550,7 +550,7 @@ void reveal_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,Map
 /**
  * Reveals map subtiles rectangle for given player.
  */
-void reveal_map_area(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
+void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y)
 {
   start_x = stl_slab_starting_subtile(start_x);
   start_y = stl_slab_starting_subtile(start_y);

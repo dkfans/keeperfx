@@ -749,7 +749,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind room_idx, long resrch,
         return false;
     if ((room_idx < 0) || (room_idx >= ROOM_TYPES_COUNT))
     {
-        ERRORLOG("Can't add incorrect room %ld to player %ld",room_idx, plyr_idx);
+        ERRORLOG("Can't add incorrect room %d to player %d",(int)room_idx, (int)plyr_idx);
         return false;
     }
     dungeon->room_resrchable[room_idx] = resrch;

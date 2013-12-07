@@ -313,12 +313,12 @@ long force_complete_current_manufacturing(long plyr_idx)
     return 0;
 }
 
-void apply_spell_effect_to_players_creatures(long plyr_idx, long spl_idx, long overchrg)
+void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long spl_idx, long overchrg)
 {
     _DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
 }
 
-void kill_all_players_chickens(long plyr_idx)
+void kill_all_players_chickens(PlayerNumber plyr_idx)
 {
   _DK_kill_all_players_chickens(plyr_idx);
 }
@@ -366,7 +366,7 @@ short cleanup_sacrifice(struct Thing *thing)
     return 1;
 }
 
-long create_sacrifice_unique_award(struct Coord3d *pos, long plyr_idx, long sacfunc, long explevel)
+long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, long sacfunc, long explevel)
 {
   switch (sacfunc)
   {
@@ -459,7 +459,7 @@ TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct Sacrifice
   return true;
 }
 
-long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
+long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_idx)
 {
   struct SacrificeRecipe *sac;
   struct Dungeon *dungeon;
@@ -469,7 +469,7 @@ long process_sacrifice_award(struct Coord3d *pos, long model, long plyr_idx)
   dungeon = get_players_num_dungeon(plyr_idx);
   if (dungeon_invalid(dungeon))
   {
-    ERRORLOG("Player %d cannot sacrifice creatures.",plyr_idx);
+    ERRORLOG("Player %d cannot sacrifice creatures.",(int)plyr_idx);
     return 0;
   }
   ret = SacR_DontCare;
