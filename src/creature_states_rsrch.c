@@ -127,7 +127,7 @@ TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon 
         }
         break;
     case RsCat_Creature:
-        if ( (dungeon->creature_allowed[rsrchval->rkind]) && (dungeon->creature_enabled[rsrchval->rkind] == 0) )
+        if ((dungeon->creature_allowed[rsrchval->rkind]) && (dungeon->creature_force_enabled[rsrchval->rkind] == 0))
         {
             return true;
         }

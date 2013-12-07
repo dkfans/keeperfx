@@ -86,7 +86,7 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
 
-long calculate_attractive_room_quantity(RoomKind room_kind, int plyr_idx, int crtr_kind)
+long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_idx, int crtr_kind)
 {
     struct Dungeon * dungeon;
     long used_fraction;
@@ -124,7 +124,7 @@ long calculate_attractive_room_quantity(RoomKind room_kind, int plyr_idx, int cr
     }
 }
 
-long calculate_excess_attraction_for_creature(int crtr_kind, int plyr_idx)
+long calculate_excess_attraction_for_creature(ThingModel crtr_kind, PlayerNumber plyr_idx)
 {
     struct CreatureStats * stats;
     RoomKind room_kind;
@@ -134,16 +134,13 @@ long calculate_excess_attraction_for_creature(int crtr_kind, int plyr_idx)
     stats = creature_stats_get(crtr_kind);
     room_kind = stats->entrance_rooms[0];
 
-    return calculate_attractive_room_quantity(room_kind,
-        plyr_idx, crtr_kind);
+    return calculate_attractive_room_quantity(room_kind, plyr_idx, crtr_kind);
 }
 
 TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind)
 {
-    RoomKind room_kind;
     struct CreatureStats * stats;
     int i;
-    int slabs_count;
 
     SYNCDBG(11, "Starting for creature kind %s", creature_code_name(crtr_kind));
 
@@ -151,14 +148,24 @@ TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingM
         return false;
     }
 
-    if (!dungeon->creature_enabled[crtr_kind]) {
+    // Not allowed creatures can never be attracted
+    if (!dungeon->creature_allowed[crtr_kind]) {
         return false;
     }
 
+    // Enabled creatures don't need additional conditions to be met
+    if (dungeon->creature_force_enabled[crtr_kind] > dungeon->creature_models_joined[crtr_kind]) {
+        return true;
+    }
+
+    // Typical way is to allow creatures which meet attraction conditions
     stats = creature_stats_get(crtr_kind);
 
     // Check if we've got rooms of enough size for attraction
-    for (i = 0; i < 3; ++i) {
+    for (i = 0; i < 3; ++i)
+    {
+        RoomKind room_kind;
+        int slabs_count;
         room_kind = stats->entrance_rooms[i];
 
         if (room_kind != RoK_NONE) {
