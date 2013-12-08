@@ -591,37 +591,38 @@ TbBool person_will_do_job_for_room_kind(const struct Thing *thing, RoomKind rkin
 
 struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing)
 {
-  const struct Dungeon *dungeon;
-  long chosen_priority;
-  struct Room *chosen_room;
-  struct Room *room;
-  long total_spare_cap;
-  long i,k,rkind;
+    const struct Dungeon *dungeon;
+    long chosen_priority;
+    struct Room *chosen_room;
+    struct Room *room;
+    long total_spare_cap;
+    long i,k,rkind;
 
-    dungeon = comp->dungeon;
+      dungeon = comp->dungeon;
 
-    chosen_room = NULL;
-    chosen_priority = LONG_MIN;
-    for (k=0; move_to_room[k].kind != RoK_NONE; k++)
-    {
-        rkind = move_to_room[k].kind;
-        if (person_will_do_job_for_room_kind(thing,rkind))
-        {
-            if (!worker_needed_in_dungeons_room_kind(dungeon,rkind))
-                continue;
-        }
-        // Find specific room which meets capacity demands
-        i = dungeon->room_kind[rkind];
-        room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
-        if (room_is_invalid(room))
-            continue;
-        if (chosen_priority < total_spare_cap * move_to_room[k].priority)
-        {
-            chosen_priority = total_spare_cap * move_to_room[k].priority;
-            chosen_room = room;
-        }
-    }
-  return chosen_room;
+      chosen_room = NULL;
+      chosen_priority = LONG_MIN;
+      for (k=0; move_to_room[k].kind != RoK_NONE; k++)
+      {
+          rkind = move_to_room[k].kind;
+          if (!person_will_do_job_for_room_kind(thing,rkind)) {
+              continue;
+          }
+          if (!worker_needed_in_dungeons_room_kind(dungeon,rkind)) {
+              continue;
+          }
+          // Find specific room which meets capacity demands
+          i = dungeon->room_kind[rkind];
+          room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
+          if (room_is_invalid(room))
+              continue;
+          if (chosen_priority < total_spare_cap * move_to_room[k].priority)
+          {
+              chosen_priority = total_spare_cap * move_to_room[k].priority;
+              chosen_room = room;
+          }
+      }
+    return chosen_room;
 }
 
 struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp)

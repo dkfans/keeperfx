@@ -3641,7 +3641,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If it's angry but not furious, then should be placed in temple
-    if (anger_is_creature_angry(thing))
+    if (anger_is_creature_angry(thing) && person_will_do_job_for_room_kind(thing, RoK_TEMPLE))
     {
         // If already at temple, then don't do anything
         if (creature_is_doing_temple_activity(thing))

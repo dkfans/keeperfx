@@ -354,13 +354,11 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Starting for %s (owner %d) and room %s",thing_model_name(creatng),(int)creatng->owner,room_code_name(room->kind));
-    CreatureJob jobpref;
-    jobpref = get_job_for_room(room->kind, false);
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     struct Coord3d pos;
     //return _DK_send_creature_to_room(creatng, room);
-    if ((jobpref & crstat->jobs_not_do) != 0)
+    if (!person_will_do_job_for_room(creatng, room))
     {
         anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
         external_set_thing_state(creatng, CrSt_CreatureMoan);
