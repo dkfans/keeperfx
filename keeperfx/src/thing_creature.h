@@ -82,6 +82,10 @@ TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, Play
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 
+TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv);
+TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv);
+TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner);
+
 TbBool creature_increase_level(struct Thing *thing);
 void set_creature_level(struct Thing *thing, long nlvl);
 void init_creature_level(struct Thing *thing, long nlev);
