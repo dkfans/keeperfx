@@ -330,9 +330,6 @@ void reset_creature_max_levels(void);
 void reset_script_timers_and_flags(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);
 void draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
-TbBool create_random_evil_creature(long x, long y, PlayerNumber owner, long max_lv);
-TbBool create_random_hero_creature(long x, long y, PlayerNumber owner, long max_lv);
-TbBool create_hero_special_worker(MapCoord x, MapCoord y, PlayerNumber owner);
 
 void tag_cursor_blocks_dig(unsigned char a1, long a2, long a3, long a4);
 void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4, long a5);

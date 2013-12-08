@@ -2940,6 +2940,151 @@ TbBool creature_increase_level(struct Thing *thing)
 }
 
 /**
+ * Creates creature of random evil kind, and with random experience level.
+ * @param x
+ * @param y
+ * @param owner
+ * @param max_lv
+ * @return
+ */
+TbBool create_random_evil_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv)
+{
+    struct Thing *thing;
+    struct Coord3d pos;
+    ThingModel crmodel;
+    while (1) {
+        crmodel = ACTION_RANDOM(crtr_conf.model_count) + 1;
+        // Accept only evil creatures
+        struct CreatureModelConfig *crconf;
+        crconf = &crtr_conf.model[crmodel];
+        if ((crconf->model_flags & MF_IsSpectator) != 0) {
+            continue;
+        }
+        if ((crconf->model_flags & MF_IsEvil) != 0) {
+            break;
+        }
+    }
+    pos.x.val = x;
+    pos.y.val = y;
+    pos.z.val = 0;
+    thing = create_creature(&pos, crmodel, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Cannot create evil creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
+        return false;
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (thing_in_wall_at(thing, &pos))
+    {
+        delete_thing_structure(thing, 0);
+        ERRORLOG("Evil creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+        return false;
+    }
+    thing->mappos.x.val = pos.x.val;
+    thing->mappos.y.val = pos.y.val;
+    thing->mappos.z.val = pos.z.val;
+    remove_first_creature(thing);
+    set_first_creature(thing);
+    set_start_state(thing);
+    CrtrExpLevel lv;
+    lv = ACTION_RANDOM(max_lv);
+    set_creature_level(thing, lv);
+    return true;
+}
+
+/**
+ * Creates creature of random hero kind, and with random experience level.
+ * @param x
+ * @param y
+ * @param owner
+ * @param max_lv
+ * @return
+ */
+TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv)
+{
+  struct Thing *thing;
+  struct Coord3d pos;
+  ThingModel crmodel;
+  while (1) {
+      crmodel = ACTION_RANDOM(crtr_conf.model_count) + 1;
+      // Accept only evil creatures
+      struct CreatureModelConfig *crconf;
+      crconf = &crtr_conf.model[crmodel];
+      if ((crconf->model_flags & MF_IsSpectator) != 0) {
+          continue;
+      }
+      if ((crconf->model_flags & MF_IsEvil) == 0) {
+          break;
+      }
+  }
+  pos.x.val = x;
+  pos.y.val = y;
+  pos.z.val = 0;
+  thing = create_creature(&pos, crmodel, owner);
+  if (thing_is_invalid(thing))
+  {
+      ERRORLOG("Cannot create player %d hero %s at (%ld,%ld)",(int)owner,creature_code_name(crmodel),x,y);
+      return false;
+  }
+  pos.z.val = get_thing_height_at(thing, &pos);
+  if (thing_in_wall_at(thing, &pos))
+  {
+      delete_thing_structure(thing, 0);
+      ERRORLOG("Hero %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+      return false;
+  }
+  thing->mappos.x.val = pos.x.val;
+  thing->mappos.y.val = pos.y.val;
+  thing->mappos.z.val = pos.z.val;
+  remove_first_creature(thing);
+  set_first_creature(thing);
+//  set_start_state(thing); - simplified to the following two commands
+  game.field_14E498 = game.play_gameturn;
+  game.field_14E49C++;
+  CrtrExpLevel lv;
+  lv = ACTION_RANDOM(max_lv);
+  set_creature_level(thing, lv);
+  return true;
+}
+
+/**
+ * Creates a special digger specific to given player and owned by that player.
+ * @param x
+ * @param y
+ * @param owner
+ * @return
+ */
+TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
+{
+    struct Thing *thing;
+    struct Coord3d pos;
+    ThingModel crmodel;
+    crmodel = get_players_special_digger_breed(owner);
+    pos.x.val = x;
+    pos.y.val = y;
+    pos.z.val = 0;
+    thing = create_creature(&pos, crmodel, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
+        return false;
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (thing_in_wall_at(thing, &pos))
+    {
+        delete_thing_structure(thing, 0);
+        ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+        return false;
+    }
+    thing->mappos.x.val = pos.x.val;
+    thing->mappos.y.val = pos.y.val;
+    thing->mappos.z.val = pos.z.val;
+    remove_first_creature(thing);
+    set_first_creature(thing);
+    return true;
+}
+
+/**
  * Filter function for selecting creature which is fighting and is not affected by a specific spell.
  * A specific thing can be selected either by class, model and owner.
  *

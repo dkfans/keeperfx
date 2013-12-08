@@ -50,6 +50,7 @@
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "thing_navigate.h"
+#include "thing_creature.h"
 #include "creature_states.h"
 #include "creature_instances.h"
 #include "creature_groups.h"
@@ -993,7 +994,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
     case PSt_MkGoodWorker:
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
-            create_hero_special_worker(x, y, game.hero_player_num);
+            create_owned_special_digger(x, y, game.hero_player_num);
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
