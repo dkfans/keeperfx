@@ -1038,11 +1038,12 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_Slap:
         val172 = 1;
-        thing = get_creature_near_and_owned_by(x, y, plyr_idx);
-        if (thing_is_invalid(thing))
+        thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_SLAP, plyr_idx);
+        if (thing_is_invalid(thing)) {
             player->thing_under_hand = 0;
-        else
+        } else {
             player->thing_under_hand = thing->index;
+        }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
@@ -1236,11 +1237,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_SpeedUp:
         val172 = true;
-        thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+        thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_SPEEDCRTR, plyr_idx);
         if (thing_is_invalid(thing))
         {
-          player->thing_under_hand = 0;
-          break;
+            player->thing_under_hand = 0;
+            break;
         }
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
@@ -1252,11 +1253,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_Armour:
         val172 = true;
-        thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+        thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_PROTECT, plyr_idx);
         if (thing_is_invalid(thing))
         {
-          player->thing_under_hand = 0;
-          break;
+            player->thing_under_hand = 0;
+            break;
         }
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
@@ -1268,11 +1269,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_Conceal:
         val172 = true;
-        thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+        thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_CONCEAL, plyr_idx);
         if (thing_is_invalid(thing))
         {
-          player->thing_under_hand = 0;
-          break;
+            player->thing_under_hand = 0;
+            break;
         }
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
@@ -1284,7 +1285,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_Heal:
         val172 = true;
-        thing = get_creature_near_and_owned_by(x, y, plyr_idx);
+        thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_HEALCRTR, plyr_idx);
         if (thing_is_invalid(thing))
         {
             player->thing_under_hand = 0;
@@ -1317,11 +1318,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         break;
     case PSt_CastDisease:
-        thing = get_creature_near_who_is_enemy_of_and_not_specdigger(x, y, plyr_idx);
+        thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_DISEASE, plyr_idx);
         if (thing_is_invalid(thing))
         {
-          player->thing_under_hand = 0;
-          break;
+            player->thing_under_hand = 0;
+            break;
         }
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
@@ -1333,11 +1334,11 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         break;
     case PSt_TurnChicken:
         val172 = true;
-        thing = get_creature_near_but_not_specdigger(x, y, plyr_idx);
+        thing = get_creature_near_to_be_keeper_power_target(x, y, PwrK_CHICKEN, plyr_idx);
         if (thing_is_invalid(thing))
         {
-          player->thing_under_hand = 0;
-          break;
+            player->thing_under_hand = 0;
+            break;
         }
         player->thing_under_hand = thing->index;
         if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
