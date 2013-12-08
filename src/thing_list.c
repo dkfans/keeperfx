@@ -2330,6 +2330,27 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
+/** Finds creature on subtiles around given position, who is not special digger and is enemy to given player.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param distance_stl Max distance, in subtiles. Will work properly only for odd numbers (1,3,5,7...).
+ * @param plyr_idx Player whose revealed subtiles around will be searched.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_creature_in_range_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_specdigger, plyr_idx);
+    filter = near_map_block_thing_filter_is_enemy_of_and_not_specdigger;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, distance_stl*distance_stl, filter, &param);
+}
+
 /** Finds thing on revealed subtiles around given position, on which given player can cast given spell.
  *
  * @param pos_x Position to search around X coord.
@@ -2398,10 +2419,10 @@ struct Thing *get_creature_near_and_owned_by(MapCoord pos_x, MapCoord pos_y, Pla
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
  * @param plyr_idx Player whose creature or allied creature will be returned.
- * @param distance_stl Max. distance, in subtiles. Will work properly only for odd numbers (1,3,5,7...).
+ * @param distance_stl Max distance, in subtiles. Will work properly only for odd numbers (1,3,5,7...).
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_creature_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx)
+struct Thing *get_creature_in_range_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
