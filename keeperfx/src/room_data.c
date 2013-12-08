@@ -2133,7 +2133,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
 {
     struct Room *room;
     struct Room *retroom;
-    long retdist,dist,pay;
+    long retdist,pay;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
     unsigned long k;
@@ -2153,7 +2153,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         i = room->next_of_owner;
         // Per-room code
         long attractiveness; // Says how attractive is a specific room, based on some room-specific code below
-        attractiveness = 1; // Default attractiveness is 1
+        attractiveness = 10; // Default attractiveness is 1
         switch (room->kind)
         {
         case RoK_TREASURE:
@@ -2166,15 +2166,25 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         case RoK_LAIR:
             if (room->index == cctrl->lairtng_idx) {
                 // A room where we already have a lair is a few times more attractive
-                attractiveness += 9;
+                attractiveness += 70;
             }
             break;
         }
         if (attractiveness > 0)
         {
+            struct Thing *enmtng;
+            enmtng = get_creature_in_range_who_is_enemy_of_and_not_specdigger(thing->mappos.x.val, thing->mappos.y.val, 10, thing->owner);
+            if (!thing_is_invalid(enmtng)) {
+                // A room with enemies inside is very unattractive, but still possible to select
+                attractiveness = 1;
+            }
+        }
+        if (attractiveness > 0)
+        {
+            long dist;
             dist =  abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
             dist += abs(thing->mappos.x.stl.num - (int)room->central_stl_x);
-            dist /= attractiveness;
+            dist = (dist*100)/attractiveness;
             if (retdist > dist)
             {
                 retdist = dist;
