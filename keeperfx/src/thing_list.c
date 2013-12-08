@@ -34,6 +34,7 @@
 #include "thing_creature.h"
 #include "creature_senses.h"
 #include "power_hand.h"
+#include "magic.h"
 #include "map_utils.h"
 #include "config_objects.h"
 #include "config_creature.h"
@@ -290,7 +291,7 @@ long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thi
 long near_map_block_thing_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     long dist_x,dist_y;
-    if ((thing->class_id == TCls_Creature) && (thing->owner != param->plyr_idx))
+    if ((thing->class_id == TCls_Creature) && players_are_enemies(param->plyr_idx, thing->owner))
     {
       if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
       {
@@ -300,6 +301,21 @@ long near_map_block_thing_filter_is_enemy_of_and_not_specdigger(const struct Thi
           // This function should return max value when the distance is minimal, so:
           return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
       }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+long near_map_block_thing_filter_can_be_keeper_power_target(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    long dist_x,dist_y;
+    if (can_cast_power_on_thing(param->plyr_idx, thing, param->num3))
+    {
+        // note that abs() is not required because we're computing square of the values
+        dist_x = param->num1-(MapCoord)thing->mappos.x.val;
+        dist_y = param->num2-(MapCoord)thing->mappos.y.val;
+        // This function should return max value when the distance is minimal, so:
+        return LONG_MAX-(dist_x*dist_x + dist_y*dist_y);
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
     return -1;
@@ -2311,6 +2327,27 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
+    return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
+}
+
+/** Finds thing on revealed subtiles around given position, on which given player can cast given spell.
+ *
+ * @param pos_x Position to search around X coord.
+ * @param pos_y Position to search around Y coord.
+ * @param pwmode Keeper power to be casted.
+ * @param plyr_idx Player whose revealed subtiles around will be searched.
+ * @return The creature thing pointer, or invalid thing pointer if not found.
+ */
+struct Thing *get_creature_near_to_be_keeper_power_target(MapCoord pos_x, MapCoord pos_y, PowerKind pwmodel, PlayerNumber plyr_idx)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = near_map_block_thing_filter_can_be_keeper_power_target;
+    param.plyr_idx = plyr_idx;
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    param.num3 = pwmodel;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 

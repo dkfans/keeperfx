@@ -640,6 +640,7 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     }
     //return _DK_find_creature_to_be_placed_in_room(comp, roomp);
     param.ptr1 = (void *)comp;
+    param.num2 = RoK_NONE; // Our filter function will update that
     filter = player_list_creature_filter_needs_to_be_placed_in_room;
     thing = get_player_list_random_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     if (thing_is_invalid(thing)) {

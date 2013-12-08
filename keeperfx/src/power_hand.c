@@ -206,7 +206,7 @@ long can_thing_be_picked_up_by_player(const struct Thing *thing, PlayerNumber pl
     if (thing_is_creature(thing))
     {
         //return creature_is_pickable_by_hand(thing, plyr_idx);
-        return can_cast_spell_on_thing(plyr_idx, thing, PwrK_HAND);
+        return can_cast_power_on_thing(plyr_idx, thing, PwrK_HAND);
     }
     // Some objects can be picked
     if (thing_is_object(thing))
