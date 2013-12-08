@@ -110,7 +110,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
     if (((pwrdata->can_cast_flags & PwCast_AllThings) != 0) && ((flags & CastChk_SkipThing) == 0))
     {
         if (thing_exists(thing)) {
-            cast_on_tng = can_cast_spell_on_thing(plyr_idx, thing, pwmodel);
+            cast_on_tng = can_cast_power_on_thing(plyr_idx, thing, pwmodel);
         } else {
             cast_on_tng = false;
         }
@@ -140,14 +140,14 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
 }
 
 /**
- * Returns if a spell can be casted on specific thing.
+ * Returns if a keeper power can be casted on specific thing.
  * Originally was can_cast_spell_on_creature().
  * @param plyr_idx
  * @param thing
  * @param pwmodel
  * @return
  */
-TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel)
+TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel)
 {
     SYNCDBG(18,"Starting for %s",thing_model_name(thing));
     //return _DK_can_cast_spell_on_creature(plyr_idx, thing, pwmodel);

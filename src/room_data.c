@@ -2134,6 +2134,8 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
     struct Room *room;
     struct Room *retroom;
     long retdist,dist,pay;
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
     unsigned long k;
     long i;
     retdist = LONG_MAX;
@@ -2150,19 +2152,29 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         }
         i = room->next_of_owner;
         // Per-room code
-        TbBool allow;
-        allow = true;
-        if (room->kind == RoK_TREASURE)
+        long attractiveness; // Says how attractive is a specific room, based on some room-specific code below
+        attractiveness = 1; // Default attractiveness is 1
+        switch (room->kind)
         {
+        case RoK_TREASURE:
             pay = calculate_correct_creature_pay(thing);
             if (room->capacity_used_for_storage > pay) {
-                allow = false;
+                // This room isn't attractive at all - creature won't get salary there
+                attractiveness = 0;
             }
+            break;
+        case RoK_LAIR:
+            if (room->index == cctrl->lairtng_idx) {
+                // A room where we already have a lair is a few times more attractive
+                attractiveness += 9;
+            }
+            break;
         }
-        if (allow)
+        if (attractiveness > 0)
         {
-            dist =  abs(thing->mappos.y.stl.num - room->central_stl_y);
-            dist += abs(thing->mappos.x.stl.num - room->central_stl_x);
+            dist =  abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
+            dist += abs(thing->mappos.x.stl.num - (int)room->central_stl_x);
+            dist /= attractiveness;
             if (retdist > dist)
             {
                 retdist = dist;

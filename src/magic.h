@@ -45,7 +45,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
 #define can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing, flags) can_cast_spell_f(plyr_idx, pwmodel, stl_x, stl_y, thing, flags, __func__)
 TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
-TbBool can_cast_spell_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel);
+TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel);
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);
 void update_power_sight_explored(struct PlayerInfo *player);
