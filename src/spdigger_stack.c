@@ -1101,6 +1101,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
             break;
         }
         i = thing->next_of_class;
+        // Per-thing code
         if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
@@ -1118,10 +1119,13 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
             if ( subtile_revealed(thing->mappos.x.stl.num,thing->mappos.y.stl.num,dungeon->owner) )
             {
                 stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-                add_to_imp_stack_using_pos(stl_num, DigTsk_PickUpCorpse, dungeon);
+                if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PickUpCorpse, dungeon)) {
+                    break;
+                }
                 remain_num--;
             }
         }
+        // Per-thing code ends
         k++;
         if (k > THINGS_COUNT)
         {
@@ -1133,9 +1137,70 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
     return 1;
 }
 
-long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long a2)
+long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
 {
-  return _DK_add_unclaimed_spells_to_imp_stack(dungeon, a2);
+    //return _DK_add_unclaimed_spells_to_imp_stack(dungeon, max_tasks);
+    if (!dungeon_has_room(dungeon, RoK_LIBRARY)) {
+        return 1;
+    }
+    struct Room *room;
+    room = find_room_with_spare_room_item_capacity(dungeon->owner, RoK_LIBRARY);
+    int remain_num;
+    remain_num = max_tasks;
+    long i;
+    unsigned long k;
+    k = 0;
+    i = game.thing_lists[TngList_Objects].index;
+    while (i > 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+            break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
+            break;
+        }
+        if (thing_is_spellbook(thing) || thing_is_special_box(thing))
+        {
+            if ((thing->owner != dungeon->owner) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+            {
+                struct SlabMap *slb;
+                slb = get_slabmap_thing_is_on(thing);
+                if (slabmap_owner(slb) == dungeon->owner)
+                {
+                    if (room_is_invalid(room))
+                    {
+                        // We had to wait til here with this check to make sure message should be played
+                        SYNCDBG(8,"Dungeon %d has no free library space",(int)dungeon->owner);
+                        if (is_my_player_number(dungeon->owner)) {
+                            output_message(25, 1000, 1);
+                        }
+                        break;
+                    }
+                    SubtlCodedCoords stl_num;
+                    stl_num = get_subtile_number(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    SYNCDBG(8,"Pickup task for dungeon %d at (%d,%d)",
+                        (int)dungeon->owner,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+                    if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PicksUpSpellBook, dungeon)) {
+                        break;
+                    }
+                    remain_num--;
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return (max_tasks-remain_num);
 }
 
 TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *boxtng)
