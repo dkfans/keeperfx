@@ -2153,7 +2153,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         i = room->next_of_owner;
         // Per-room code
         long attractiveness; // Says how attractive is a specific room, based on some room-specific code below
-        attractiveness = 10; // Default attractiveness is 1
+        attractiveness = 10; // Default attractiveness
         switch (room->kind)
         {
         case RoK_TREASURE:

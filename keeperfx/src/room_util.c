@@ -409,11 +409,12 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         if (room_is_invalid(room) || (room->kind != RoK_LIBRARY))
         {
             // No room - oh well, leave it as free spell
-            // Just make correct owner so that Imps can pick it up
-            if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) == 0) {
-                thing->owner = game.neutral_player_num;
-            } else {
+            if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+                // Preserve classic bug - object is claimed with the room
                 thing->owner = room->owner;
+            } else {
+                // Make correct owner so that Imps can pick it up
+                thing->owner = game.neutral_player_num;
             }
             return true;
         }
@@ -431,11 +432,12 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
         if (room_is_invalid(room) || (room->kind != RoK_WORKSHOP))
         {
             // No room - oh well, leave it as free box
-            // Just make correct owner so that Imps can pick it up
-            if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) == 0) {
-                thing->owner = game.neutral_player_num;
-            } else {
+            if (((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) && !room_is_invalid(room)) {
+                // Preserve classic bug - object is claimed with the room
                 thing->owner = room->owner;
+            } else {
+                // Make correct owner so that Imps can pick it up
+                thing->owner = game.neutral_player_num;
             }
             return true;
         }
