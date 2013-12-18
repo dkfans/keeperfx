@@ -1106,7 +1106,7 @@ TngUpdateRet update_object(struct Thing *thing)
     if (thing->active_state < sizeof(object_state_functions)/sizeof(object_state_functions[0])) {
         stcallback = object_state_functions[thing->active_state];
     } else {
-        ERRORLOG("Object state %d exceeds state_functions dimensions",(int)thing->active_state);
+        ERRORLOG("The %s state %d exceeds state_functions dimensions",thing_model_name(thing),(int)thing->active_state);
     }
     if (stcallback != NULL)
     {

@@ -652,8 +652,8 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     // This will prevent such situation, at least to the moment when the creature leaves the room.
     room = get_room_thing_is_on(thing);
     if (!room_is_invalid(room) && (room->kind == param.num2) && (room->owner == thing->owner)) {
-        WARNDBG(4,"The %s owned by player %d already is in %s, but doesn't want to work there",
-            thing_model_name(thing),(int)thing->owner,room_code_name(room->kind));
+        WARNDBG(4,"The %s owned by player %d already is in %s, but goes for %s instead of work there",
+            thing_model_name(thing),(int)thing->owner,room_code_name(room->kind),creatrtng_realstate_name(thing));
         return INVALID_THING;
     }
     room = get_room_of_given_kind_for_thing(thing,dungeon,param.num2);

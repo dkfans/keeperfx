@@ -626,7 +626,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
  * @param thing The source thing.
  * @return Type of the creature state.
  */
-long get_creature_state_type(const struct Thing *thing)
+long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
   long state_type;
   long state;
@@ -637,7 +637,7 @@ long get_creature_state_type(const struct Thing *thing)
   } else
   {
       state_type = states[0].state_type;
-      WARNLOG("Creature active state %d is out of range.",(int)state);
+      WARNLOG("%s: Creature active state %d is out of range.",func_name,(int)state);
   }
   if (state_type == CrStTyp_Value6)
   {
@@ -648,7 +648,7 @@ long get_creature_state_type(const struct Thing *thing)
       } else
       {
           state_type = states[0].state_type;
-          WARNLOG("Creature continue state %d is out of range.",(int)state);
+          WARNLOG("%s: Creature continue state %d is out of range.",func_name,(int)state);
       }
   }
   return state_type;
