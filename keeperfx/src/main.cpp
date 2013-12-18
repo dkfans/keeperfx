@@ -2394,7 +2394,7 @@ long wander_point_update(struct Wander *wandr)
                 break;
             stl_num_list[stl_num_list_count] = stl_num;
             stl_num_list_count++;
-            if ((wandr->wdrfield_14 != 0) && (wandr->max_found_per_check == stl_num_list_count))
+            if ((wandr->wdrfield_14 != 0) && (stl_num_list_count == wandr->max_found_per_check))
             {
                 slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (map_tiles_x*map_tiles_y);
                 break;

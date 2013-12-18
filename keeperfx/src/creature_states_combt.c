@@ -479,7 +479,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     if (battle->fighters_num > 0) {
         battle->fighters_num--;
     } else {
-        ERRORLOG("Removing creature from battle, but counter is 0");
+        ERRORLOG("Removing %s from battle, but counter is 0",thing_model_name(thing));
     }
     SYNCDBG(19,"Finished");
 }

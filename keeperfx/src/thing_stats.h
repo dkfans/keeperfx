@@ -41,6 +41,7 @@ const char *thing_model_name(const struct Thing *thing);
 const char *thing_class_and_model_name(int class_id, int model);
 const char *thing_class_code_name(int class_id);
 const char *creatrtng_actstate_name(const struct Thing *thing);
+const char *creatrtng_realstate_name(const struct Thing *thing);
 TbBool things_stats_debug_dump(void);
 TbBool is_neutral_thing(const struct Thing *thing);
 TbBool is_hero_thing(const struct Thing *thing);
