@@ -2,7 +2,7 @@
 
 = Where to download KeeperFX =
 
-See <a href="http://keeper.lubie.org/html/dk_keeperfx_dwnld.php">KeeperFX download page</a> on DK Maps & Tools database.
+See <a href="http://keeper.lubiki.pl/html/dk_keeperfx_dwnld.php">KeeperFX download page</a> on DK Maps & Tools database.
 
 What you can find there:
   * Full version of the game
