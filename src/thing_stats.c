@@ -468,7 +468,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     speed = crstat->base_speed;
-    if (cctrl->field_21)
+    if (cctrl->slap_turns)
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
         speed *= 2;

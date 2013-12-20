@@ -298,36 +298,36 @@ long power_sight_explored(long stl_x, long stl_y, PlayerNumber plyr_idx)
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  struct MagicStats *magstat;
-  long i;
-  crstat = creature_stats_get_from_thing(thing);
-  cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    struct MagicStats *magstat;
+    long i;
+    crstat = creature_stats_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(thing);
 
-  anger_apply_anger_to_creature(thing, crstat->annoy_slapped, 4, 1);
-  if (crstat->slaps_to_kill > 0)
-  {
-    i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
-    apply_damage_to_thing_and_display_health(thing, i, player->id_number);
-  }
-  magstat = &game.magic_stats[PwrK_SLAP];
-  i = cctrl->field_21;
-  cctrl->field_21 = magstat->time;
-  if (i == 0)
-    cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-  if (thing->active_state != CrSt_CreatureSlapCowers)
-  {
-      clear_creature_instance(thing);
-      cctrl->active_state_bkp = thing->active_state;
-      cctrl->continue_state_bkp = thing->continue_state;
-      if (creature_is_sleeping(thing))
-          anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, 4, 1);
-      external_set_thing_state(thing, CrSt_CreatureSlapCowers);
-  }
-  cctrl->field_B1 = 6;
-  cctrl->field_27F = 18;
-  play_creature_sound(thing, CrSnd_Hurt, 3, 0);
+    anger_apply_anger_to_creature(thing, crstat->annoy_slapped, 4, 1);
+    if (crstat->slaps_to_kill > 0)
+    {
+      i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
+      apply_damage_to_thing_and_display_health(thing, i, player->id_number);
+    }
+    magstat = &game.magic_stats[PwrK_SLAP];
+    i = cctrl->slap_turns;
+    cctrl->slap_turns = magstat->time;
+    if (i == 0)
+      cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    if (thing->active_state != CrSt_CreatureSlapCowers)
+    {
+        clear_creature_instance(thing);
+        cctrl->active_state_bkp = thing->active_state;
+        cctrl->continue_state_bkp = thing->continue_state;
+        if (creature_is_sleeping(thing))
+            anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, 4, 1);
+        external_set_thing_state(thing, CrSt_CreatureSlapCowers);
+    }
+    cctrl->field_B1 = 6;
+    cctrl->field_27F = 18;
+    play_creature_sound(thing, CrSnd_Hurt, 3, 0);
 }
 
 TbBool can_cast_spell_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,

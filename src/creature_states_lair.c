@@ -306,7 +306,7 @@ short at_lair_to_sleep(struct Thing *thing)
     lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);
     cctrl->target_room_id = 0;
-    if (thing_is_invalid(lairtng) || (cctrl->field_21 != 0))
+    if (thing_is_invalid(lairtng) || (cctrl->slap_turns != 0))
     {
         set_start_state(thing);
         return 0;

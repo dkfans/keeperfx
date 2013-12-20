@@ -1873,6 +1873,9 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
     ctask->field_7C--;
     if (ctask->field_7C >= 0)
     {
+        TbBool allow_slap_to_kill;
+        // Make sure we can accept situation where the creature will die because of the slap
+        allow_slap_to_kill = computer_able_to_use_magic(comp, PwrK_MKDIGGER, 0, 10);
         struct Thing *thing;
         struct CreatureControl *cctrl;
         long i;
@@ -1887,17 +1890,25 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
             cctrl = creature_control_get_from_thing(thing);
             i = cctrl->players_next_creature_idx;
             // Per-thing code
-            if (!thing_is_picked_up(thing) && !thing_affected_by_spell(thing, SplK_Speed))
+            // Don't slap if picked up or affected by speed or already slapped
+            if (!thing_is_picked_up(thing) && !thing_affected_by_spell(thing, SplK_Speed) && (cctrl->slap_turns == 0))
             {
-                if (cctrl->field_21 == 0)
+                // Check if we really can use the spell on that creature, considering its position and state
+                if (can_cast_spell(dungeon->owner, PwrK_SLAP, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
                 {
-                    long state_type;
-                    state_type = get_creature_state_type(thing);
-                    if (state_type == 1)
+                    struct CreatureStats *crstat;
+                    crstat = creature_stats_get_from_thing(thing);
+                    // Check if the slap may cause death
+                    if (allow_slap_to_kill || (crstat->slaps_to_kill < 1) || (get_creature_health_permil(thing) >= 2*1000/crstat->slaps_to_kill))
                     {
-                        if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, thing->index, 0) > Lb_OK)
+                        long state_type;
+                        state_type = get_creature_state_type(thing);
+                        if (state_type == 1)
                         {
-                            return CTaskRet_Unk2;
+                            if (try_game_action(comp, dungeon->owner, GA_UsePwrSlap, 0, 0, 0, thing->index, 0) > Lb_OK)
+                            {
+                                return CTaskRet_Unk2;
+                            }
                         }
                     }
                 }
@@ -2148,7 +2159,7 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long 
     return true;
 }
 
-TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long stl_x, long stl_y)
+TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");

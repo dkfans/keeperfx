@@ -227,9 +227,9 @@ void gui_video_rotate_mode(struct GuiButton *gbtn)
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
     if (settings.field_3) {
-        set_packet_action(pckt, 37, 5, 0, 0, 0);
+        set_packet_action(pckt, PckA_SwitchView, 5, 0, 0, 0);
     } else {
-        set_packet_action(pckt, 37, 2, 0, 0, 0);
+        set_packet_action(pckt, PckA_SwitchView, 2, 0, 0, 0);
     }
     save_settings();
 }
@@ -239,7 +239,7 @@ void gui_video_cluedo_mode(struct GuiButton *gbtn)
     //_DK_gui_video_cluedo_mode(gbtn);
     struct Packet *pckt;
     pckt = get_packet(my_player_number);
-    set_packet_action(pckt, 24, _DK_video_cluedo_mode, 0, 0, 0);
+    set_packet_action(pckt, PckA_SetCluedo, _DK_video_cluedo_mode, 0, 0, 0);
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)

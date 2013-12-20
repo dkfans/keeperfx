@@ -616,7 +616,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
             return 0;
         }
-        cctrl->field_21 = 0;
+        cctrl->slap_turns = 0;
         cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
         if (!creature_free_for_sleep(creatng)) {
             return 0;

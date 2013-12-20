@@ -300,9 +300,9 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
   thing = thing_get(player->influenced_thing_idx);
   if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
   {
-    player->influenced_thing_creation = 0;
-    player->influenced_thing_idx = 0;
-    return 0;
+      player->influenced_thing_creation = 0;
+      player->influenced_thing_idx = 0;
+      return 0;
   }
   switch (thing->class_id)
   {

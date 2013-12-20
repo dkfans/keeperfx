@@ -108,14 +108,14 @@ void setup_exchange_player_number(void)
   clear_packets();
   player = get_my_player();
   pckt = get_packet_direct(my_player_number);
-  set_packet_action(pckt, PckA_Unknown010, player->field_2C, settings.field_3, 0, 0);
+  set_packet_action(pckt, PckA_InitPlayerNum, player->field_2C, settings.field_3, 0, 0);
   if (LbNetwork_Exchange(pckt))
       ERRORLOG("Network Exchange failed");
   k = 0;
   for (i=0; i<NET_PLAYERS_COUNT; i++)
   {
       pckt = get_packet_direct(i);
-      if ((net_player_info[i].active) && (pckt->action == PckA_Unknown010))
+      if ((net_player_info[i].active) && (pckt->action == PckA_InitPlayerNum))
       {
           player = get_player(k);
           player->id_number = k;

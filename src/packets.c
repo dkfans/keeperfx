@@ -2271,33 +2271,33 @@ void process_players_creature_passenger_packet_action(long idx)
 
 TbBool process_players_dungeon_control_packet_action(long plyr_idx)
 {
-  SYNCDBG(6,"Starting");
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  player = get_player(plyr_idx);
-  pckt = get_packet_direct(player->packet_num);
-  switch (pckt->action)
-  {
-  case PckA_HoldAudience:
-      magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, 0);
-      break;
-  case PckA_UseSpecialBox:
-      activate_dungeon_special(thing_get(pckt->field_6), player);
-      break;
-  case PckA_ResurrectCrtr:
-      resurrect_creature(thing_get(pckt->field_6), (pckt->field_8) & 0x0F, (pckt->field_8 >> 4) & 0xFF,
-          (pckt->field_8 >> 12) & 0x0F);
-      break;
-  case PckA_TransferCreatr:
-      transfer_creature(thing_get(pckt->field_6), thing_get(pckt->field_8), plyr_idx);
-      break;
-  case PckA_ToggleComputer:
-      toggle_computer_player(plyr_idx);
-      break;
-  default:
-      return false;
-  }
-  return true;
+    SYNCDBG(6,"Starting");
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    player = get_player(plyr_idx);
+    pckt = get_packet_direct(player->packet_num);
+    switch (pckt->action)
+    {
+    case PckA_HoldAudience:
+        magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, 0);
+        break;
+    case PckA_UseSpecialBox:
+        activate_dungeon_special(thing_get(pckt->field_6), player);
+        break;
+    case PckA_ResurrectCrtr:
+        resurrect_creature(thing_get(pckt->field_6), (pckt->field_8) & 0x0F, (pckt->field_8 >> 4) & 0xFF,
+            (pckt->field_8 >> 12) & 0x0F);
+        break;
+    case PckA_TransferCreatr:
+        transfer_creature(thing_get(pckt->field_6), thing_get(pckt->field_8), plyr_idx);
+        break;
+    case PckA_ToggleComputer:
+        toggle_computer_player(plyr_idx);
+        break;
+    default:
+        return false;
+    }
+    return true;
 }
 
 void process_players_creature_control_packet_control(long idx)

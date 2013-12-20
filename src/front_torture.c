@@ -345,7 +345,7 @@ void fronttorture_input(void)
             torture_end_sprite = 4;
             torture_sprite_direction = -1;
           } else
-          if ((pckt->action & 6) != 0)
+          if ((pckt->action & (0x02|0x04)) != 0)
           {
             torture_state.action = 3;
             torture_left_button = 0;

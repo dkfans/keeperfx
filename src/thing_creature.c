@@ -2482,7 +2482,7 @@ void get_creature_instance_times(const struct Thing *thing, long inst_idx, long 
         aitime /= 2;
         itime /= 2;
     } else
-    if (cctrl->field_21)
+    if (cctrl->slap_turns)
     {
         aitime = 3 * aitime / 4;
         itime = 3 * itime / 4;
