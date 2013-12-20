@@ -481,7 +481,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
 TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num);
 TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long value);
-TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, long stl_x, long stl_y);
+TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
