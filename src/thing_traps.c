@@ -522,7 +522,7 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     slb = get_slabmap_block(slb_x, slb_y);
     struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
-    if (!subtile_revealed(stl_x, stl_y, plyr_idx) || ((slbattr->flags & (0x20|0x08|0x01)) != 0))
+    if (!subtile_revealed(stl_x, stl_y, plyr_idx) || ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
     {
         par1 = temp_cluedo_mode < 1u ? 5 : 2;
     } else

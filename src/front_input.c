@@ -974,8 +974,8 @@ short get_map_action_inputs(void)
   player = get_my_player();
   mouse_x = GetMouseX();
   mouse_y = GetMouseY();
-  mappos_x = 3 * (mouse_x - 150) / 4 + 1;
-  mappos_y = 3 * (mouse_y - 56) / 4 + 1;
+  mappos_x = slab_subtile_center((mouse_x - 150) / 4);
+  mappos_y = slab_subtile_center((mouse_y - 56) / 4);
   if ((mappos_x >= 0) && (mappos_x < map_subtiles_x) && (mappos_y >= 0) && (mappos_y < map_subtiles_y) )
   {
     if ( left_button_clicked )
@@ -1283,7 +1283,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Valuable)) != 0)
+  if ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
   {
     *context = 1;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;

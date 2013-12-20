@@ -30,6 +30,7 @@ extern "C" {
 #pragma pack(1)
 
 struct Thing;
+struct Room;
 
 #pragma pack()
 /******************************************************************************/
@@ -40,6 +41,11 @@ TbBool creature_free_for_anger_job(struct Thing *thing);
 TbBool creature_find_and_perform_anger_job(struct Thing *thing);
 long attempt_job_preference(struct Thing *creatng, long jobpref);
 TbBool creature_try_doing_secondary_job(struct Thing *creatng);
+
+TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob jobpref);
+TbBool creature_can_do_job_for_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind);
+TbBool creature_will_reject_job_for_room(const struct Thing *thing, const struct Room *room);
+TbBool creature_will_reject_job(const struct Thing *thing, CreatureJob jobpref);
 /******************************************************************************/
 #ifdef __cplusplus
 }

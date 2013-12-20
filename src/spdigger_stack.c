@@ -938,7 +938,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
             slb = get_slabmap_direct(slb_num);
             struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            slbopt[slb_num] = ((slbattr->flags & (0x20|0x08|0x01)) != 0);
+            slbopt[slb_num] = ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0);
         }
     }
     slblipos = 0;

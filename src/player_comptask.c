@@ -34,6 +34,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "creature_states.h"
+#include "creature_jobs.h"
 #include "creature_states_lair.h"
 #include "magic.h"
 #include "thing_traps.h"
@@ -575,20 +576,6 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKi
     }
 }
 
-TbBool person_will_do_job_for_room(const struct Thing *thing, const struct Room *room)
-{
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    return (get_job_for_room(room->kind, true) & crstat->jobs_not_do) == 0;
-}
-
-TbBool person_will_do_job_for_room_kind(const struct Thing *thing, RoomKind rkind)
-{
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    return (get_job_for_room(rkind, true) & crstat->jobs_not_do) == 0;
-}
-
 struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing)
 {
     const struct Dungeon *dungeon;
@@ -605,7 +592,7 @@ struct Room *get_room_to_place_creature(const struct Computer2 *comp, const stru
       for (k=0; move_to_room[k].kind != RoK_NONE; k++)
       {
           rkind = move_to_room[k].kind;
-          if (!person_will_do_job_for_room_kind(thing,rkind)) {
+          if (!creature_can_do_job_for_player_in_room(thing, dungeon->owner, rkind)) {
               continue;
           }
           if (!worker_needed_in_dungeons_room_kind(dungeon,rkind)) {
@@ -840,9 +827,31 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
     const struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
+    if ( ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
         return true;
     return false;
+}
+
+TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap *slb;
+    const struct SlabAttr *slbattr;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    slbattr = get_slab_attrs(slb);
+    if ((slbattr->is_unknflg14) && (slb->kind != SlbT_GEMS))
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at(stl_x, stl_y);
+        if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == plyr_idx)) {
+            SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
+            return false;
+        }
+    }
+    if (!slab_good_for_computer_dig_path(slb)) {
+        SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
+        return false;
+    }
+    return true;
 }
 
 long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
@@ -859,28 +868,12 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     for (i=0; i < 4; i++)
     {
         MapSubtlCoord stl_x,stl_y;
-        struct SlabAttr *slbattr;
-        struct SlabMap *slb;
-        struct Map *mapblk;
-        SubtlCodedCoords stl_num;
-        stl_x = basestl_x + 3 * (int)small_around[n].delta_x;
-        stl_y = basestl_y + 3 * (int)small_around[n].delta_y;
-        slb = get_slabmap_for_subtile(stl_x, stl_y);
-        slbattr = get_slab_attrs(slb);
-        if (slbattr->is_unknflg14 != 0)
+        stl_x = basestl_x + STL_PER_SLB * (int)small_around[n].delta_x;
+        stl_y = basestl_y + STL_PER_SLB * (int)small_around[n].delta_y;
+        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx))
         {
-            if (slb->kind != SlbT_GEMS)
-            {
-                stl_num = get_subtile_number(stl_x, stl_y);
-                mapblk = get_map_block_at_pos(stl_num);
-                if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == plyr_idx) ) {
-                    SYNCDBG(7,"Subtile (%d,%d) accepted based on attrs",(int)stl_x,(int)stl_y);
-                    return stl_num;
-                }
-            }
-        }
-        if (!slab_good_for_computer_dig_path(slb)) {
-            SYNCDBG(7,"Subtile (%d,%d) accepted as good for dig",(int)stl_x,(int)stl_y);
+            SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
+            SubtlCodedCoords stl_num;
             stl_num = get_subtile_number(stl_x, stl_y);
             return stl_num;
         }
@@ -888,27 +881,6 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     }
     return -1;
 }
-
-TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
-{
-    struct SlabMap *slb;
-    const struct SlabAttr *slbattr;
-    struct Map *mapblk;
-    slb = get_slabmap_for_subtile(stl_x, stl_y);
-    mapblk = get_map_block_at(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_unknflg14) && (slb->kind != SlbT_GEMS))
-    {
-        if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == plyr_idx)) {
-            return false;
-        }
-    }
-    if (!slab_good_for_computer_dig_path(slb)) {
-      return false;
-    }
-    return true;
-}
-
 
 short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short a6, PlayerNumber plyr_idx)
 {
@@ -1063,12 +1035,14 @@ TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_i
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     slbattr = get_slab_attrs(slb);
-    if ( (slabmap_owner(slb) == plyr_idx) || (plyr_idx == -1) )
+    if ((slabmap_owner(slb) == plyr_idx) || (plyr_idx == -1))
     {
-        if ( ((slbattr->flags & SlbAtFlg_Unk10) == 0) && (slb->kind != SlbT_LAVA) )
+        if (((slbattr->flags & SlbAtFlg_Blocking) == 0) && (slb->kind != SlbT_LAVA)) {
             return true;
-        if ((slbattr->flags & SlbAtFlg_Unk02) != 0)
+        }
+        if ((slbattr->flags & SlbAtFlg_IsRoom) != 0) {
             return true;
+        }
     }
     return false;
 }
@@ -1092,7 +1066,7 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     if (slbattr->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if ((slbattr->flags & SlbAtFlg_Unk02) != 0) {
+    if ((slbattr->flags & SlbAtFlg_IsRoom) != 0) {
         return -1;
     }
     if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
@@ -1105,7 +1079,7 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     if ((slbattr->flags & SlbAtFlg_Valuable) != 0) {
         return -1;
     }
-    if ( (slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER) ) {
+    if (slab_kind_is_liquid(slb->kind)) {
         return 1;
     }
     if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS) ) {
@@ -1261,8 +1235,8 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         }
         // Move position towards the target subtile, shortest way
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
-        (*nextstl_x) += 3 * small_around[around_index].delta_x;
-        (*nextstl_y) += 3 * small_around[around_index].delta_y;
+        (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
+        (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
         if (i > map_tiles_x*map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
@@ -1350,8 +1324,8 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         }
         if (cdig->subfield_2C == comp->field_C)
         {
-            gldstl_x -= 3 * small_around[around_index].delta_x;
-            gldstl_y -= 3 * small_around[around_index].delta_y;
+            gldstl_x -= STL_PER_SLB * small_around[around_index].delta_x;
+            gldstl_y -= STL_PER_SLB * small_around[around_index].delta_y;
             cdig->pos_begin.x.val = subtile_coord(gldstl_x,0);
             cdig->pos_begin.y.val = subtile_coord(gldstl_y,0);
             cdig->pos_begin.z.val = 0;

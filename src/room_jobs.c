@@ -358,7 +358,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
     crstat = creature_stats_get_from_thing(creatng);
     struct Coord3d pos;
     //return _DK_send_creature_to_room(creatng, room);
-    if (!person_will_do_job_for_room(creatng, room))
+    if (creature_will_reject_job_for_room(creatng, room))
     {
         anger_apply_anger_to_creature(creatng, crstat->annoy_will_not_do_job, AngR_Other, 1);
         external_set_thing_state(creatng, CrSt_CreatureMoan);

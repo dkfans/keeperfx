@@ -399,8 +399,43 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
     return 0;
 }
 
-TbBool creature_can_do_job_for_player(struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob jobpref)
+/** Returns if a creature will refuse to do job related to specific room kind.
+ *
+ * @param creatng The creature which is planned for the job.
+ * @param room The room in which the creature may want to do job.
+ * @return
+ */
+TbBool creature_will_reject_job_for_room(const struct Thing *creatng, const struct Room *room)
 {
+    return creature_will_reject_job(creatng, get_job_for_room(room->kind, true));
+}
+
+/** Returns if a creature will refuse to do specific job.
+ *
+ * @param creatng The creature which is planned for the job.
+ * @param jobpref The job to be checked.
+ * @return
+ */
+TbBool creature_will_reject_job(const struct Thing *creatng, CreatureJob jobpref)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    return (jobpref & crstat->jobs_not_do) != 0;
+}
+
+/** Returns if a creature can do specific job for the player.
+ *
+ * @param creatng The creature which is planned for the job.
+ * @param plyr_idx Player for whom the job is to be done.
+ * @param jobpref Job selection with single job flag set.
+ * @return
+ */
+TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob jobpref)
+{
+    if (creature_will_reject_job(creatng, jobpref))
+    {
+        return false;
+    }
     if (jobpref & Job_TRAIN)
     {
         return creature_can_be_trained(creatng) && player_can_afford_to_train_creature(creatng);
@@ -450,6 +485,11 @@ TbBool creature_can_do_job_for_player(struct Thing *creatng, PlayerNumber plyr_i
         return !event_is_invalid(event);
     }
     return false;
+}
+
+TbBool creature_can_do_job_for_player_in_room(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind)
+{
+    return creature_can_do_job_for_player(creatng, plyr_idx, get_job_for_room(rkind, true));
 }
 
 TbBool attempt_job_work_in_room(struct Thing *creatng, CreatureJob jobpref)

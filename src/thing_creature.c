@@ -40,6 +40,7 @@
 #include "creature_graphics.h"
 #include "creature_battle.h"
 #include "creature_groups.h"
+#include "creature_jobs.h"
 #include "config_lenses.h"
 #include "config_crtrstates.h"
 #include "thing_stats.h"
@@ -3641,7 +3642,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If it's angry but not furious, then should be placed in temple
-    if (anger_is_creature_angry(thing) && person_will_do_job_for_room_kind(thing, RoK_TEMPLE))
+    if (anger_is_creature_angry(thing) && creature_can_do_job_for_player_in_room(thing, dungeon->owner, RoK_TEMPLE))
     {
         // If already at temple, then don't do anything
         if (creature_is_doing_temple_activity(thing))
@@ -4008,13 +4009,13 @@ void process_landscape_affecting_creature(struct Thing *thing)
     i = get_top_cube_at_pos(stl_idx);
     if (cube_is_lava(i))
     {
-      crstat = creature_stats_get_from_thing(thing);
-      apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
-      thing->movement_flags |= TMvF_IsOnLava;
+        crstat = creature_stats_get_from_thing(thing);
+        apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
+        thing->movement_flags |= TMvF_IsOnLava;
     } else
     if (cube_is_water(i))
     {
-      thing->movement_flags |= TMvF_IsOnWater;
+        thing->movement_flags |= TMvF_IsOnWater;
     }
     process_creature_leave_footsteps(thing);
     process_creature_standing_on_corpses_at(thing, &thing->mappos);
