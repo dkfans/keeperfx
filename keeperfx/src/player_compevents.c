@@ -369,8 +369,8 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
 
 PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEvent *cevent, struct Thing *creatng)
 {
-    struct SlabMap *slb;
-    slb = get_slabmap_thing_is_on(creatng);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
     int i;
     i = (cevent->param3 + 1) % (sizeof(computer_attack_spells)/sizeof(computer_attack_spells[0]));
     // Do the loop if we've reached starting value
@@ -383,7 +383,7 @@ PowerKind computer_choose_attack_spell(struct Computer2 *comp, struct ComputerEv
             i = 0;
             continue;
         }
-        if ((!caspl->require_owned_ground) || (slabmap_owner(slb) == comp->dungeon->owner))
+        if (can_cast_spell(dungeon->owner, caspl->pwkind, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, creatng, CastChk_Default))
         {
             if (!thing_affected_by_spell(creatng, caspl->pwkind))
             {

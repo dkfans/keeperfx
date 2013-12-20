@@ -37,7 +37,7 @@ enum TbPacketAction {
         PckA_Unknown007,
         PckA_Unknown008,
         PckA_Unknown009,
-        PckA_Unknown010,//10
+        PckA_InitPlayerNum,//10
         PckA_Unknown011,
         PckA_Unknown012,
         PckA_PlyrMsgBegin,

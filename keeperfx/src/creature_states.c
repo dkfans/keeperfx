@@ -3134,7 +3134,7 @@ short person_sulk_at_lair(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_players_num_dungeon(creatng->owner);
     lairtng = thing_get(cctrl->lairtng_idx);
-    if ((cctrl->field_21 != 0) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
+    if ((cctrl->slap_turns != 0) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3190,7 +3190,7 @@ short person_sulk_head_for_lair(struct Thing *creatng)
     struct Dungeon *dungeon;
     crstat = creature_stats_get_from_thing(creatng);
     dungeon = get_players_num_dungeon(creatng->owner);
-    if ((crstat->lair_size <= 0) || (cctrl->field_21 != 0) || (dungeon->must_obey_turn != 0)) {
+    if ((crstat->lair_size <= 0) || (cctrl->slap_turns != 0) || (dungeon->must_obey_turn != 0)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3207,7 +3207,7 @@ short person_sulking(struct Thing *creatng)
     cctrl = creature_control_get_from_thing(creatng);
     dungeon = get_players_num_dungeon(creatng->owner);
     lairtng = thing_get(cctrl->lairtng_idx);
-    if ((cctrl->field_21 != 0) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
+    if ((cctrl->slap_turns != 0) || (dungeon->must_obey_turn != 0) || !thing_exists(lairtng)) {
         set_start_state(creatng);
         return 0;
     }
@@ -3713,7 +3713,7 @@ long process_work_speed_on_work_value(struct Thing *thing, long base_val)
     val = base_val;
     if (creature_affected_by_spell(thing, SplK_Speed))
         val = 2 * val;
-    if (cctrl->field_21)
+    if (cctrl->slap_turns)
         val = 4 * val / 3;
     if (!is_neutral_thing(thing))
     {
@@ -3954,7 +3954,7 @@ TbBool creature_free_for_sleep(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->field_21 != 0) || ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
+    if ((cctrl->slap_turns != 0) || ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
         return false;
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureGoingHomeToSleep);
 }
@@ -4003,7 +4003,7 @@ char creature_free_for_lunchtime(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    return (!cctrl->field_21) && ((cctrl->spell_flags & (CSAfF_Unkn0800|CSAfF_Chicken)) == 0)
+    return (!cctrl->slap_turns) && ((cctrl->spell_flags & (CSAfF_Unkn0800|CSAfF_Chicken)) == 0)
         && can_change_from_state_to(creatng, creatng->active_state, CrSt_CreatureToGarden);
 }
 
