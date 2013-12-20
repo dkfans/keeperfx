@@ -393,7 +393,7 @@ void reset_creature_eye_lens(struct Thing *thing)
     }
 }
 
-TbBool creature_can_gain_experience(struct Thing *thing)
+TbBool creature_can_gain_experience(const struct Thing *thing)
 {
     struct Dungeon *dungeon;
     struct CreatureStats *crstat;

@@ -281,8 +281,8 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     MapSubtlCoord stl_x,stl_y;
     MapSubtlCoord sx,sy,ex,ey;
     SYNCDBG(7,"Starting");
-    stl_x = 3 * slb_x;
-    stl_y = 3 * slb_y;
+    stl_x = STL_PER_SLB * slb_x;
+    stl_y = STL_PER_SLB * slb_y;
 
     ey = stl_y + 5;
     if (ey > map_subtiles_y)
@@ -290,10 +290,10 @@ void update_blocks_around_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     ex = stl_x + 5;
     if (ex > map_subtiles_x)
         ex = map_subtiles_x;
-    sy = stl_y - 3;
+    sy = stl_y - STL_PER_SLB;
     if (sy <= 0)
         sy = 0;
-    sx = stl_x - 3;
+    sx = stl_x - STL_PER_SLB;
     if (sx <= 0)
         sx = 0;
     update_blocks_in_area(sx, sy, ex, ey);
@@ -315,7 +315,7 @@ void do_slab_efficiency_alteration(MapSlabCoord slb_x, MapSlabCoord slb_y)
             continue;
         }
         slbattr = get_slab_attrs(slb);
-        if (slbattr->category == 4)
+        if (slbattr->category == SlbAtCtg_RoomInterior)
         {
             struct Room *room;
             room = slab_room_get(sslb_x, sslb_y);

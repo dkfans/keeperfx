@@ -92,8 +92,8 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     long task_idx;
     long i;
     //return _DK_untag_blocks_for_digging_in_area(slb_x, slb_y, plyr_idx);
-    x = 3 * (stl_x/3);
-    y = 3 * (stl_y/3);
+    x = STL_PER_SLB * (stl_x/STL_PER_SLB);
+    y = STL_PER_SLB * (stl_y/STL_PER_SLB);
     if ( (x < 0) || (x >= map_subtiles_x) || (y < 0) || (y >= map_subtiles_y) ) {
         ERRORLOG("Attempt to tag area outside of map");
         return 0;
@@ -107,9 +107,9 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     if (is_my_player_number(plyr_idx))
     {
         long dx,dy;
-        for (dy=0; dy < 3; dy++)
+        for (dy=0; dy < STL_PER_SLB; dy++)
         {
-            for (dx=0; dx < 3; dx++)
+            for (dx=0; dx < STL_PER_SLB; dx++)
             {
                 mapblk = get_map_block_at(x+dx, y+dy);
                 if (map_block_invalid(mapblk))
@@ -121,7 +121,7 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
             }
         }
     }
-    pannel_map_update(x, y, 3, 3);
+    pannel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
     return num_untagged;
 }
 
@@ -539,15 +539,16 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     MapSubtlCoord stl_x,stl_y;
     long x,y,z;
-    stl_x = 3 * slb_x;
-    stl_y = 3 * slb_y;
+    stl_x = STL_PER_SLB * slb_x;
+    stl_y = STL_PER_SLB * slb_y;
     z = get_column_height_at(stl_x, stl_y);
-    for (y = stl_y; y < stl_y+3; y++)
+    for (y = stl_y; y < stl_y+STL_PER_SLB; y++)
     {
-        for (x = stl_x; x < stl_x+3; x++)
+        for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
-            if (z > 0)
+            if (z > 0) {
                 create_gold_rubble_for_dug_block(x, y, z, game.neutral_player_num);
+            }
         }
     }
 }
@@ -653,7 +654,7 @@ TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, P
             struct SlabAttr *slbattr;
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             slbattr = get_slab_attrs(slb);
-            if ((slbattr->flags & (SlbAtFlg_Unk20|SlbAtFlg_Unk08|SlbAtFlg_Valuable)) == 0) {
+            if ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) == 0) {
                 return true;
             }
         }
@@ -665,15 +666,16 @@ void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     MapSubtlCoord stl_x,stl_y;
     long x,y,z;
-    stl_x = 3 * slb_x;
-    stl_y = 3 * slb_y;
+    stl_x = STL_PER_SLB * slb_x;
+    stl_y = STL_PER_SLB * slb_y;
     z = get_column_height_at(stl_x, stl_y);
-    for (y = stl_y; y < stl_y+3; y++)
+    for (y = stl_y; y < stl_y+STL_PER_SLB; y++)
     {
-        for (x = stl_x; x < stl_x+3; x++)
+        for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
-            if (z > 0)
+            if (z > 0) {
                 create_dirt_rubble_for_dug_block(x, y, z, game.neutral_player_num);
+            }
         }
     }
 }
@@ -716,7 +718,7 @@ void clear_dig_and_set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, P
     {
         struct SlabAttr *slbattr;
         slbattr = get_slab_attrs(slb);
-        if ((slbattr->flags & 0x40) != 0)
+        if ((slbattr->flags & SlbAtFlg_IsDoor) != 0)
         {
             clear_slab_dig(slb_x+1, slb_y, plyr_idx);
             set_slab_explored(plyr_idx, slb_x+1, slb_y);
@@ -727,7 +729,7 @@ void clear_dig_and_set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, P
     {
         struct SlabAttr *slbattr;
         slbattr = get_slab_attrs(slb);
-        if ((slbattr->flags & 0x40) != 0)
+        if ((slbattr->flags & SlbAtFlg_IsDoor) != 0)
         {
             clear_slab_dig(slb_x-1, slb_y, plyr_idx);
             set_slab_explored(plyr_idx, slb_x-1, slb_y);
@@ -738,7 +740,7 @@ void clear_dig_and_set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, P
     {
         struct SlabAttr *slbattr;
         slbattr = get_slab_attrs(slb);
-        if ((slbattr->flags & 0x40) != 0)
+        if ((slbattr->flags & SlbAtFlg_IsDoor) != 0)
         {
             clear_slab_dig(slb_x, slb_y+1, plyr_idx);
             set_slab_explored(plyr_idx, slb_x, slb_y+1);
@@ -749,7 +751,7 @@ void clear_dig_and_set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, P
     {
         struct SlabAttr *slbattr;
         slbattr = get_slab_attrs(slb);
-        if ((slbattr->flags & 0x40) != 0)
+        if ((slbattr->flags & SlbAtFlg_IsDoor) != 0)
         {
             clear_slab_dig(slb_x, slb_y-1, plyr_idx);
             set_slab_explored(plyr_idx, slb_x, slb_y-1);
@@ -855,11 +857,11 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                 {
                     slb = get_slabmap_block(hslb_x, lslb_y-1);
                     slbattr = get_slab_attrs(slb);
-                    if ((slbattr->flags & 0x69) != 0)
+                    if ((slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                     {
                         slb = get_slabmap_block(hslb_x, lslb_y+1);
                         slbattr = get_slab_attrs(slb);
-                        if ((slbattr->flags & 0x69) != 0) {
+                        if ((slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) {
                             allow_next_dir1 = 1;
                             go_dir1 = 0;
                         }
@@ -870,11 +872,11 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                 {
                     slb = get_slabmap_block(hslb_x+1, lslb_y);
                     slbattr = get_slab_attrs(slb);
-                    if ((slbattr->flags & 0x69) != 0)
+                    if ((slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                     {
                         slb = get_slabmap_block(hslb_x, lslb_y+1);
                         slbattr = get_slab_attrs(slb);
-                        if ((slbattr->flags & 0x69) != 0) {
+                        if ((slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) {
                             allow_next_dir1 = 1;
                             go_dir1 = 0;
                         }
@@ -885,10 +887,10 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                   clear_slab_dig(hslb_x, lslb_y, plyr_idx);
                   slb = get_slabmap_block(hslb_x, lslb_y);
                   slbattr = get_slab_attrs(slb);
-                  if (go_dir1 || slbattr->flags & 0x10) {
+                  if (go_dir1 || slbattr->flags & SlbAtFlg_Blocking) {
                       set_slab_explored(plyr_idx, hslb_x, lslb_y);
                   }
-                  if (slbattr->flags & 0x69) {
+                  if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
                       go_dir1 = 0;
                   }
                 }
@@ -901,7 +903,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                     if (slbattr->flags & 0x20)
                     {
                       clear_slab_dig(hslb_x, lslb_y, plyr_idx);
-                      if (go_dir1 || slbattr->flags & 0x10) {
+                      if (go_dir1 || slbattr->flags & SlbAtFlg_Blocking) {
                           set_slab_explored(plyr_idx, hslb_x, lslb_y);
                       }
                     }
@@ -913,11 +915,11 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
               {
                   slb = get_slabmap_block(hslb_x, hslb_y-1);
                   slbattr = get_slab_attrs(slb);
-                  if (slbattr->flags & 0x69)
+                  if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable))
                   {
                       slb = get_slabmap_block(hslb_x-1, hslb_y);
                       slbattr = get_slab_attrs(slb);
-                      if (slbattr->flags & 0x69) {
+                      if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
                         allow_next_dir2 = 1;
                         go_dir2 = 0;
                       }
@@ -928,11 +930,11 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
               {
                   slb = get_slabmap_block(hslb_x, hslb_y-1);
                   slbattr = get_slab_attrs(slb);
-                  if (slbattr->flags & 0x69)
+                  if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable))
                   {
                       slb = get_slabmap_block(hslb_x+1, hslb_y);
                       slbattr = get_slab_attrs(slb);
-                      if (slbattr->flags & 0x69) {
+                      if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
                         allow_next_dir2 = 1;
                         go_dir2 = 0;
                       }
@@ -943,10 +945,10 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                   clear_slab_dig(hslb_x, hslb_y, plyr_idx);
                   slb = get_slabmap_block(hslb_x, hslb_y);
                   slbattr = get_slab_attrs(slb);
-                  if (go_dir2 || slbattr->flags & 0x10) {
+                  if (go_dir2 || slbattr->flags & SlbAtFlg_Blocking) {
                       set_slab_explored(plyr_idx, hslb_x, hslb_y);
                   }
-                  if (slbattr->flags & 0x69) {
+                  if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
                       go_dir2 = 0;
                   }
               }
@@ -961,7 +963,7 @@ void clear_dig_and_set_explored_can_see_x(MapSlabCoord slb_x, MapSlabCoord slb_y
                       clear_slab_dig(hslb_x, hslb_y, plyr_idx);
                       slb = get_slabmap_block(hslb_x, hslb_y);
                       slbattr = get_slab_attrs(slb);
-                      if (go_dir2 || slbattr->flags & 0x10) {
+                      if (go_dir2 || slbattr->flags & SlbAtFlg_Blocking) {
                           set_slab_explored(plyr_idx, hslb_x, hslb_y);
                       }
                   }
@@ -1013,11 +1015,11 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                 {
                     slb = get_slabmap_block(lslb_x, hslb_y-1);
                     slbattr = get_slab_attrs(slb);
-                    if ((slbattr->flags & 0x69) != 0)
+                    if ((slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                     {
                         slb = get_slabmap_block(lslb_x+1, hslb_y);
                         slbattr = get_slab_attrs(slb);
-                        if ((slbattr->flags & 0x69) != 0) {
+                        if ((slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) {
                             allow_next_dir1 = 1;
                             go_dir1 = 0;
                         }
@@ -1028,11 +1030,11 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                 {
                     slb = get_slabmap_block(lslb_x+1, hslb_y);
                     slbattr = get_slab_attrs(slb);
-                    if ((slbattr->flags & 0x69) != 0)
+                    if ((slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0)
                     {
                         slb = get_slabmap_block(lslb_x, hslb_y+1);
                         slbattr = get_slab_attrs(slb);
-                        if ((slbattr->flags & 0x69) != 0) {
+                        if ((slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) {
                             allow_next_dir1 = 1;
                             go_dir1 = 0;
                         }
@@ -1043,10 +1045,10 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                     clear_slab_dig(lslb_x, hslb_y, plyr_idx);
                     slb = get_slabmap_block(lslb_x, hslb_y);
                     slbattr = get_slab_attrs(slb);
-                    if ( go_dir1 || slbattr->flags & 0x10) {
+                    if ( go_dir1 || slbattr->flags & SlbAtFlg_Blocking) {
                         set_slab_explored(plyr_idx, lslb_x, hslb_y);
                     }
-                    if (slbattr->flags & 0x69) {
+                    if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
                         go_dir1 = 0;
                     }
                 } else
@@ -1058,7 +1060,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                     if (slbattr->flags & 0x20)
                     {
                         clear_slab_dig(lslb_x, hslb_y, plyr_idx);
-                        if ( go_dir1 || slbattr->flags & 0x10) {
+                        if ( go_dir1 || slbattr->flags & SlbAtFlg_Blocking) {
                             set_slab_explored(plyr_idx, lslb_x, hslb_y);
                         }
                     }
@@ -1070,11 +1072,11 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
               {
                   slb = get_slabmap_block(hslb_x-1, hslb_y);
                   slbattr = get_slab_attrs(slb);
-                  if (slbattr->flags & 0x69)
+                  if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable))
                   {
                       slb = get_slabmap_block(hslb_x, hslb_y-1);
                       slbattr = get_slab_attrs(slb);
-                      if (slbattr->flags & 0x69) {
+                      if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
                           allow_next_dir2 = 0;
                           go_dir2 = 0;
                       }
@@ -1084,11 +1086,11 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
               {
                   slb = get_slabmap_block(hslb_x-1, hslb_y);
                   slbattr = get_slab_attrs(slb);
-                  if (slbattr->flags & 0x69)
+                  if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable))
                   {
                       slb = get_slabmap_block(hslb_x, hslb_y+1);
                       slbattr = get_slab_attrs(slb);
-                      if (slbattr->flags & 0x69) {
+                      if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) {
                           allow_next_dir2 = 1;
                           go_dir2 = 0;
                       }
@@ -1099,9 +1101,9 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                 clear_slab_dig(hslb_x, hslb_y, plyr_idx);
                 slb = get_slabmap_block(hslb_x, hslb_y);
                 slbattr = get_slab_attrs(slb);
-                if ( go_dir2 || slbattr->flags & 0x10)
+                if ( go_dir2 || slbattr->flags & SlbAtFlg_Blocking)
                   set_slab_explored(plyr_idx, hslb_x, hslb_y);
-                if (slbattr->flags & 0x69)
+                if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable))
                   go_dir2 = 0;
               } else
               if ( allow_next_dir2 )
@@ -1112,7 +1114,7 @@ void clear_dig_and_set_explored_can_see_y(MapSlabCoord slb_x, MapSlabCoord slb_y
                   if (slbattr->flags & 0x20)
                   {
                       clear_slab_dig(hslb_x, hslb_y, plyr_idx);
-                      if ( go_dir2 || slbattr->flags & 0x10 ) {
+                      if ( go_dir2 || slbattr->flags & SlbAtFlg_Blocking ) {
                           set_slab_explored(plyr_idx, hslb_x, hslb_y);
                       }
                   }
@@ -1138,9 +1140,9 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     struct SlabAttr *slbattr;
     slb = get_slabmap_block(slb_x, slb_y);
     slbattr = get_slab_attrs(slb);
-    if (slbattr->flags & (0x40|0x20|0x08|0x01))
+    if (slbattr->flags & (SlbAtFlg_IsDoor|SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable))
     {
-        if (slbattr->flags & 0x40)
+        if (slbattr->flags & SlbAtFlg_IsDoor)
         {
             clear_dig_and_set_explored_around(slb_x, slb_y, creatng->owner);
         }

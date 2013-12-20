@@ -59,7 +59,7 @@ DLLIMPORT void _DK_setup_move_to_new_training_position(struct Thing *creatng, st
  * @param thing The creature thing to be tested.
  * @return
  */
-TbBool creature_can_be_trained(struct Thing *thing)
+TbBool creature_can_be_trained(const struct Thing *thing)
 {
     struct CreatureStats *crstat;
     //return _DK_creature_can_be_trained(thing);
@@ -71,7 +71,7 @@ TbBool creature_can_be_trained(struct Thing *thing)
     return creature_can_gain_experience(thing);
 }
 
-TbBool player_can_afford_to_train_creature(struct Thing *thing)
+TbBool player_can_afford_to_train_creature(const struct Thing *thing)
 {
     struct Dungeon *dungeon;
     struct CreatureStats *crstat;

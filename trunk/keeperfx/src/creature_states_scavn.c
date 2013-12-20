@@ -126,13 +126,13 @@ short creature_scavenged_disappear(struct Thing *thing)
       return 0;
     }
     // We don't really have to convert coordinates into numbers and back to XY.
-    i = get_subtile_number(cctrl->byte_9D, cctrl->byte_9E);
+    i = get_subtile_number(cctrl->scavenge.stl_9D_x, cctrl->scavenge.stl_9D_y);
     stl_x = stl_num_decode_x(i);
     stl_y = stl_num_decode_y(i);
     room = subtile_room_get(stl_x, stl_y);
     if (room_is_invalid(room) || (room->kind != RoK_SCAVENGER))
     {
-        ERRORLOG("Scavenger room disappeared.");
+        ERRORLOG("Room %s at (%d,%d) disappeared.",room_code_name(RoK_SCAVENGER),(int)stl_x,(int)stl_y);
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }
@@ -150,7 +150,7 @@ short creature_scavenged_disappear(struct Thing *thing)
         return 0;
     } else
     {
-        ERRORLOG("No valid position inside scavenger room for %s.",thing_model_name(thing));
+        ERRORLOG("No valid position inside %s room for %s.",room_code_name(room->kind),thing_model_name(thing));
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
         return -1;
     }

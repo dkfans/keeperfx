@@ -84,64 +84,64 @@ struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 
 //TODO CONFIG identify all slab attributes and store them in config file
 struct SlabAttr slab_attrs[] = {
-  {0, 4, 0, 0x20|0x10, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 0, 0, 0}, // [0] HARD
-  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Unclaimed,  0, 1, 0, 0, 1, 0}, // [1] GOLD
-  {0, 4, 0, 0x10|0x08, 0, 0, SlbAtCtg_FriableDirt,  0, 1, 0, 0, 1, 0},
-  {0, 4, 0, 0x10|0x08, 0, 0, SlbAtCtg_FriableDirt,  0, 1, 0, 0, 1, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [5]
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
-  {0, 4, 2, 0x10|0x08, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
-  {0, 0, 2,         0, 0, 0, SlbAtCtg_Unclaimed,  1, 1, 1, 0, 0, 0},     // [10] PATH
-  {0, 0, 3,         0, 0, 0, SlbAtCtg_FortifiedGround,  2, 1, 1, 0, 0, 0},
-  {0, 0, 2,         0, 0, 1, SlbAtCtg_Unclaimed,  3, 1, 0, 0, 0, 1},     // [12] LAVA
-  {0, 0, 2,         0, 0, 2, SlbAtCtg_Unclaimed,  4, 1, 1, 0, 0, 2},     // [13] WATER
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  5, 1, 1, 0, 0, 0},  // [14] ENTRANCE_ZONE
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  5, 1, 0, 0, 1, 0}, // [15]
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  6, 1, 1, 0, 0, 0},  // [16] TREASURY_AREA
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  6, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  7, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  7, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  8, 1, 1, 0, 0, 0}, // [20]
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  8, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior,  9, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall,  9, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 10, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 10, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 11, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 11, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 12, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 12, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 13, 1, 1, 0, 0, 0}, // [30]
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 13, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 14, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 14, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 15, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 15, 1, 0, 0, 1, 0}, // [35]
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 16, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 16, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 17, 1, 1, 0, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 17, 1, 0, 0, 1, 0},
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_RoomInterior, 18, 1, 1, 0, 0, 0}, // [40]
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_FortifiedWall, 18, 1, 0, 0, 1, 0},
-  {0, 4, 5, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
-  {0, 4, 5, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
-  {0, 4, 6, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
-  {0, 4, 6, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0}, // [45]
-  {0, 4, 7, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
-  {0, 4, 7, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
-  {0, 4, 8, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
-  {0, 4, 8, 0x10|0x40, 0, 0, SlbAtCtg_Obstacle,  2, 1, 1, 1, 0, 0},
-  {0, 4, 2,         0, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0}, // [50]
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_Obstacle,  1, 1, 1, 1, 0, 3},
-  {0, 4, 1, 0x10|0x01, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 1, 0}, // [52] GEMS
-  {0, 4, 4, 0x10|0x02, 2, 0, SlbAtCtg_Obstacle,  1, 1, 1, 1, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0}, // [55]
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},
-  {0, 4, 2, 0x20|0x10, 0, 0, SlbAtCtg_Obstacle,  0, 1, 0, 1, 0, 0},
+  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_Unclaimed,      0, 1, 0, 0, 0, 0}, // [0] HARD
+  {0, 4, 1, SlbAtFlg_Blocking|SlbAtFlg_Valuable,0, 0, SlbAtCtg_Unclaimed,      0, 1, 0, 0, 1, 0}, // [1] GOLD
+  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Digable, 0, 0, SlbAtCtg_FriableDirt,    0, 1, 0, 0, 1, 0},
+  {0, 4, 0, SlbAtFlg_Blocking|SlbAtFlg_Digable, 0, 0, SlbAtCtg_FriableDirt,    0, 1, 0, 0, 1, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [4] DRAPE_WALL
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [5]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [8] PAIR_WALL
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Digable, 0, 0, SlbAtCtg_FortifiedWall,  0, 1, 0, 0, 1, 0}, // [9] DAMAGED_WALL
+  {0, 0, 2, SlbAtFlg_None,                      0, 0, SlbAtCtg_Unclaimed,      1, 1, 1, 0, 0, 0},     // [10] PATH
+  {0, 0, 3, SlbAtFlg_None,                      0, 0, SlbAtCtg_FortifiedGround,2, 1, 1, 0, 0, 0},
+  {0, 0, 2, SlbAtFlg_None,                      0, 1, SlbAtCtg_Unclaimed,      3, 1, 0, 0, 0, 1},     // [12] LAVA
+  {0, 0, 2, SlbAtFlg_None,                      0, 2, SlbAtCtg_Unclaimed,      4, 1, 1, 0, 0, 2},     // [13] WATER
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,   5, 1, 1, 0, 0, 0},  // [14] ENTRANCE_ZONE
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  5, 1, 0, 0, 1, 0}, // [15]
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,   6, 1, 1, 0, 0, 0},  // [16] TREASURY_AREA
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  6, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,   7, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  7, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,   8, 1, 1, 0, 0, 0}, // [20]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  8, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,   9, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall,  9, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  10, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 10, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  11, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 11, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  12, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 12, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  13, 1, 1, 0, 0, 0}, // [30]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 13, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  14, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 14, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  15, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 15, 1, 0, 0, 1, 0}, // [35]
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  16, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 16, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  17, 1, 1, 0, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 17, 1, 0, 0, 1, 0},
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_RoomInterior,  18, 1, 1, 0, 0, 0}, // [40]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_FortifiedWall, 18, 1, 0, 0, 1, 0},
+  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [42] DOOR_WOODEN
+  {0, 4, 5, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [45] DOOR_BRACE2
+  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 2, SlbAtFlg_None,                      0, 0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0}, // [50]
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 3}, // [51] BRIDGE_FRAME
+  {0, 4, 1, SlbAtFlg_Blocking|SlbAtFlg_Valuable,0, 0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 1, 0}, // [52] GEMS
+  {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 0}, // [53] GUARD_AREA
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0}, // [55]
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
+  {0, 4, 2, SlbAtFlg_Blocking|SlbAtFlg_Filled,  0, 0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0},
 };
 /******************************************************************************/
 #ifdef __cplusplus
