@@ -256,6 +256,20 @@ unsigned char field_88;
     unsigned char byte_A5;
     };
   struct {
+    unsigned char byte_9A_scv;
+    unsigned char byte_9B_scv;
+    unsigned char byte_9C_scv;
+    unsigned char stl_9D_x;
+    unsigned char stl_9D_y;
+    unsigned char byte_9F_scv;
+    unsigned char byte_A0_scv;
+    unsigned char byte_A1_scv;
+    unsigned char byte_A2_scv;
+    unsigned char byte_A3_scv;
+    unsigned char byte_A4_scv;
+    unsigned char byte_A5_scv;
+    } scavenge;
+  struct {
     short word_9A;
     short word_9C;
     short word_9E;
@@ -651,7 +665,7 @@ void play_creature_sound(struct Thing *thing, long snd_idx, long a3, long a4);
 void play_creature_sound_and_create_sound_thing(struct Thing *thing, long snd_idx, long a2);
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx);
 void reset_creature_eye_lens(struct Thing *thing);
-TbBool creature_can_gain_experience(struct Thing *thing);
+TbBool creature_can_gain_experience(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

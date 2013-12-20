@@ -403,7 +403,6 @@ void process_keeper_spell_effect(struct Thing *thing);
 long process_creature_self_spell_casting(struct Thing *thing);
 unsigned long setup_move_off_lava(struct Thing *thing);
 void set_thing_draw(struct Thing *thing, long anim, long speed, long a4, char a5, char start_frame, unsigned char a7);
-short can_dig_here(long x, long y, long owner);
 
 TbPixel get_player_path_colour(unsigned short owner);
 

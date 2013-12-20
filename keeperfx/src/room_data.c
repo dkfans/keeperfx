@@ -977,8 +977,8 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
     linkroom = INVALID_ROOM;
     for (n = 0; n < 4; n++)
     {
-        stl_x = x + 3 * (long)small_around[n].delta_x;
-        stl_y = y + 3 * (long)small_around[n].delta_y;
+        stl_x = x + STL_PER_SLB * (long)small_around[n].delta_x;
+        stl_y = y + STL_PER_SLB * (long)small_around[n].delta_y;
         room = subtile_room_get(stl_x,stl_y);
         if ( !room_is_invalid(room) )
         {
@@ -1682,7 +1682,7 @@ struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, Room
     return NULL;
 }
 
-struct Room *find_room_for_thing_with_used_capacity(struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_no_owner, long min_used_cap)
+struct Room *find_room_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomKind rkind, unsigned char nav_no_owner, long min_used_cap)
 {
     struct Dungeon *dungeon;
     struct Room *room;
@@ -1833,7 +1833,7 @@ struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long
  * @param pos
  * @return
  */
-TbBool find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
+TbBool find_first_valid_position_for_thing_in_room(const struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
     long block_radius;
     //return _DK_find_first_valid_position_for_thing_in_room(thing, room, pos);

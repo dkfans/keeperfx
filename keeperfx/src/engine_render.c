@@ -3850,11 +3850,11 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
 
     pos.y.val = map_volume_box.field_7;
     pos.x.val = map_volume_box.field_3;
-    pos.z.val = 1280;
+    pos.z.val = 5*256;
     orient = ((unsigned int)(cam->orient_a + 256) >> 9) & 0x03;
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     depth = (5 - map_volume_box.field_13) * ((long)stl_width << 7) / 256;
-    slb_width = 3 * (long)stl_width;
+    slb_width = STL_PER_SLB * (long)stl_width;
     switch ( orient )
     {
     case 1:

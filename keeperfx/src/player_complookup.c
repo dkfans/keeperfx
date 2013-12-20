@@ -172,8 +172,8 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
         gldlook = get_gold_lookup(gold_idx);
         LbMemorySet(gldlook, 0, sizeof(struct GoldLookup));
         gldlook->field_0 |= 0x01;
-        gldlook->x_stl_num = 3 * gld_v1 / gld_v3 + 1;
-        gldlook->y_stl_num = 3 * gld_v2 / gld_v3 + 1;
+        gldlook->x_stl_num = slab_subtile_center(gld_v1 / gld_v3);
+        gldlook->y_stl_num = slab_subtile_center(gld_v2 / gld_v3);
         gldlook->field_A = gold_slabs;
         gldlook->field_C = 0;
         gldlook->field_E = gold_slabs;

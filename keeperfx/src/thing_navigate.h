@@ -53,10 +53,10 @@ TbBool setup_person_move_to_coord(struct Thing *thing, struct Coord3d *pos, unsi
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, struct Coord3d *pos, unsigned char storage);
 TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct Room *room);
 
-TbBool creature_can_travel_over_lava(const struct Thing *thing);
-TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *pos, TbBool no_owner, const char *func_name);
+TbBool creature_can_travel_over_lava(const struct Thing *creatng);
+TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos, TbBool no_owner, const char *func_name);
 #define creature_can_navigate_to(thing,pos,no_owner) creature_can_navigate_to_f(thing,pos,no_owner,__func__)
-TbBool creature_can_navigate_to_with_storage_f(struct Thing *crtng, struct Coord3d *pos, unsigned char storage, const char *func_name);
+TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, struct Coord3d *pos, unsigned char storage, const char *func_name);
 #define creature_can_navigate_to_with_storage(crtng,pos,storage) creature_can_navigate_to_with_storage_f(crtng,pos,storage,__func__)
 TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);

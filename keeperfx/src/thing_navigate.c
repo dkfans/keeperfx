@@ -57,12 +57,12 @@ DLLIMPORT void _DK_move_thing_in_map(struct Thing *creatng, struct Coord3d *pos)
 }
 #endif
 /******************************************************************************/
-TbBool creature_can_navigate_to_with_storage_f(struct Thing *creatng, struct Coord3d *pos, unsigned char storage, const char *func_name)
+TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, struct Coord3d *pos, unsigned char storage, const char *func_name)
 {
     AriadneReturn aret;
     NAVIDBG(8,"%s: Route for %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(creatng),(int)creatng->index,
         (int)creatng->mappos.x.stl.num, (int)creatng->mappos.y.stl.num, (int)pos->x.stl.num, (int)pos->y.stl.num);
-    aret = ariadne_initialise_creature_route_f(creatng, pos, get_creature_speed(creatng), storage, func_name);
+    aret = ariadne_initialise_creature_route_f((struct Thing *)creatng, pos, get_creature_speed(creatng), storage, func_name);
     NAVIDBG(18,"Ariadne returned %d",(int)aret);
     return (aret == AridRet_OK);
 }
@@ -288,14 +288,21 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
     return true;
 }
 
-TbBool creature_can_travel_over_lava(const struct Thing *thing)
+/**
+ * Returns if a creature can currently travel over lava.
+ * @param thing
+ * @return
+ */
+TbBool creature_can_travel_over_lava(const struct Thing *creatng)
 {
     const struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    return (crstat->hurt_by_lava <= 0) || ((thing->movement_flags & TMvF_Flying) != 0);
+    crstat = creature_stats_get_from_thing(creatng);
+    // Check if a creature can fly in this moment - we don't care if it's natural ability
+    // or temporary spell effect
+    return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
 }
 
-TbBool creature_can_navigate_to_f(struct Thing *thing, struct Coord3d *dstpos, TbBool no_owner, const char *func_name)
+TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *dstpos, TbBool no_owner, const char *func_name)
 {
     NAVIDBG(18,"%s: The %s index %d from %3d,%3d to %3d,%3d", func_name, thing_model_name(thing), (int)thing->index,
         (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num, (int)dstpos->x.stl.num, (int)dstpos->y.stl.num);

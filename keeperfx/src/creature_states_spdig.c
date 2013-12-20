@@ -778,9 +778,10 @@ short imp_drops_gold(struct Thing *thing)
         return 1;
     }
     room = get_room_thing_is_on(thing);
-    if ( room_is_invalid(room) || (room->owner != thing->owner) || (room->kind != RoK_TREASURE) )
+    if (room_is_invalid(room) || (room->owner != thing->owner) || (room->kind != RoK_TREASURE))
     {
-        WARNLOG("Tried to drop gold in treasure room, but room no longer valid");
+        WARNLOG("Tried to drop gold in %s of player %d, but room %s owned by played %d is no longer valid to do that",
+            room_code_name(RoK_TREASURE),(int)thing->owner,room_code_name(room->kind),(int)room->owner);
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 1;
     }
@@ -789,7 +790,7 @@ short imp_drops_gold(struct Thing *thing)
     center_stl_y = slab_subtile_center(subtile_slab_fast(thing->mappos.y.stl.num));
     struct Room *curoom;
     curoom = subtile_room_get(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    if (!room_exists(curoom) || (curoom->index != room->index) )
+    if (!room_exists(curoom) || (curoom->index != room->index))
     {
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 1;
@@ -1096,7 +1097,7 @@ short creature_picks_up_spell_object(struct Thing *thing)
     dstroom = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_LIBRARY, 0, 1);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick spell - doesn't have proper library to store it",(int)thing->owner);
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_LIBRARY));
         set_start_state(thing);
         return 0;
     }
@@ -1139,6 +1140,7 @@ short creature_picks_up_trap_for_workshop(struct Thing *thing)
     dstroom = find_nearest_room_for_thing_with_spare_item_capacity(thing, thing->owner, RoK_WORKSHOP, 0);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(thing, dstroom, &pos) )
     {
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)thing->owner,thing_model_name(cratetng),room_code_name(RoK_WORKSHOP));
         set_start_state(thing);
         return 0;
     }

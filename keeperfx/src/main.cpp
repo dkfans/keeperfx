@@ -3005,29 +3005,6 @@ void tag_cursor_blocks_thing_in_hand(unsigned char a1, long a2, long a3, int a4,
   _DK_tag_cursor_blocks_thing_in_hand(a1, a2, a3, a4, a5);
 }
 
-/**
- * Returns if a given player (owner) can dig the specified subtile.
- */
-short can_dig_here(long stl_x, long stl_y, long plyr_idx)
-{
-    struct SlabMap *slb;
-    struct SlabAttr *slbattr;
-    slb = get_slabmap_for_subtile(stl_x,stl_y);
-    if (slabmap_block_invalid(slb))
-      return false;
-    if (!subtile_revealed(stl_x, stl_y, plyr_idx))
-      return true;
-    if (slab_kind_is_nonmagic_door(slb->kind))
-    {
-        if (slabmap_owner(slb) == plyr_idx)
-          return false;
-    }
-    slbattr = get_slab_attrs(slb);
-    if ((slbattr->flags & (0x20|0x08|0x01)) != 0)
-      return true;
-    return false;
-}
-
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y)
 {
     player->cameras[2].mappos.x.val = pos_x;

@@ -760,7 +760,7 @@ TbBool creature_is_doing_garden_activity(const struct Thing *thing)
 {
     CrtrStateId i;
     i = get_creature_state_besides_interruptions(thing);
-    if ((i == CrSt_CreatureEat) || (i == CrSt_CreatureToGarden) || (i == CrSt_CreatureArrivedAtGarden))
+    if ((i == CrSt_CreatureEat) || (i == CrSt_CreatureEatingAtGarden) || (i == CrSt_CreatureToGarden) || (i == CrSt_CreatureArrivedAtGarden))
         return true;
     return false;
 }
@@ -1064,6 +1064,7 @@ TbBool creature_find_safe_position_to_move_within_slab(struct Coord3d *pos, cons
 {
     MapSubtlCoord base_x,base_y;
     MapSubtlCoord stl_x,stl_y;
+    SYNCDBG(7,"Finding at (%d,%d)",(int)slb_x,(int)slb_y);
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
     base_x = slab_subtile(slb_x,0);
@@ -1113,8 +1114,8 @@ TbBool creature_find_any_position_to_move_within_slab(struct Coord3d *pos, const
     MapSubtlCoord stl_x,stl_y;
     stl_x = thing->mappos.x.stl.num;
     stl_y = thing->mappos.y.stl.num;
-    base_x = 3 * slb_x;
-    base_y = 3 * slb_y;
+    base_x = slab_subtile(slb_x,0);
+    base_y = slab_subtile(slb_y,0);
     long i,m;
     m = start_stl;
     for (i=0; i < STL_PER_SLB*STL_PER_SLB; i++)
@@ -1839,15 +1840,15 @@ TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlab
 {
     struct SlabMap *slb;
     struct SlabAttr *slbattr;
-    MapSubtlCoord base_x,base_y;
+    MapSubtlCoord stl_x,stl_y;
     struct Thing *doortng;
     slb = get_slabmap_block(slb_x, slb_y);
     slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->flags & SlbAtFlg_Unk02) != 0) || ((slbattr->flags & SlbAtFlg_Unk10) == 0) )
+    if ( ((slbattr->flags & SlbAtFlg_IsRoom) != 0) || ((slbattr->flags & SlbAtFlg_Blocking) == 0) )
         return true;
-    base_x = 3 * slb_x;
-    base_y = 3 * slb_y;
-    doortng = get_door_for_position(base_x, base_y);
+    stl_x = slab_subtile_center(slb_x);
+    stl_y = slab_subtile_center(slb_y);
+    doortng = get_door_for_position(stl_x, stl_y);
     if (!thing_is_invalid(doortng))
     {
       if ((doortng->owner == thing->owner) && (!doortng->byte_18))
@@ -4152,7 +4153,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
         room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TEMPLE, 0, 1);
         if (!room_is_invalid(room))
         {
-          if (person_will_do_job_for_room(thing, room) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple))
+          if (!creature_will_reject_job_for_room(thing, room) && can_change_from_state_to(thing, thing->active_state, CrSt_AtTemple))
           {
               cleanup_current_thing_state(thing);
               if (send_creature_to_room(thing, room))
