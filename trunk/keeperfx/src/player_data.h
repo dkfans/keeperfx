@@ -89,7 +89,7 @@ struct Wander // sizeof = 424
   /** Max amount of points added in one run of the search function. */
   unsigned long max_found_per_check;
   unsigned char wdrfield_14;
-  unsigned char wdrfield_15;
+  unsigned char store_revealed;
   unsigned char plyr_idx;
   unsigned char plyr_bit;
   /** Array of points where the creatures could go wander. */
