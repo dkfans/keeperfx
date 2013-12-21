@@ -33,6 +33,7 @@ extern "C" {
 
 struct Thing;
 struct Room;
+struct Dungeon;
 
 #pragma pack()
 /******************************************************************************/
@@ -48,6 +49,8 @@ TbBool remove_creature_from_torture_room(struct Thing *creatng);
 short send_creature_to_room(struct Thing *thing, struct Room *room);
 
 struct Thing *find_object_in_room_for_creature_matching_bool_filter(struct Thing *creatng, const struct Room *room, Thing_Bool_Filter matcher_cb);
+
+TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind);
 /******************************************************************************/
 #ifdef __cplusplus
 }

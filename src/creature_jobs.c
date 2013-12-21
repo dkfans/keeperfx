@@ -207,7 +207,7 @@ TbBool attempt_anger_job_leave_dungeon(struct Thing *creatng)
         return false;
     }
     struct Room *room;
-    room = find_nearest_room_for_thing(creatng, creatng->owner, 1, 0);
+    room = find_nearest_room_for_thing(creatng, creatng->owner, RoK_ENTRANCE, 0);
     if (room_is_invalid(room)) {
         return false;
     }
@@ -804,5 +804,4 @@ TbBool creature_try_doing_secondary_job(struct Thing *creatng)
     crstat = creature_stats_get_from_thing(creatng);
     return attempt_job_secondary_preference(creatng, crstat->job_secondary);
 }
-
 /******************************************************************************/

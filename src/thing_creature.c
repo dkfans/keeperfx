@@ -36,6 +36,7 @@
 #include "creature_states_lair.h"
 #include "creature_states_mood.h"
 #include "creature_states_gardn.h"
+#include "creature_states_train.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_battle.h"
@@ -49,6 +50,7 @@
 #include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_shots.h"
+#include "thing_creature.h"
 #include "thing_corpses.h"
 #include "thing_physics.h"
 #include "lens_api.h"
@@ -181,7 +183,7 @@ DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
  * @note Dying creatures may return negative health, and in some rare cases creatures
  *  can have more health than their max.
  */
-int get_creature_health_permil(struct Thing *thing)
+int get_creature_health_permil(const struct Thing *thing)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
@@ -2093,7 +2095,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     }
     cctrlgrp = creature_control_get_from_thing(killertng);
     if (!creature_control_invalid(cctrlgrp)) {
-        cctrlgrp->field_C2++;
+        cctrlgrp->kills_num++;
     }
     if (is_my_player_number(creatng->owner)) {
         output_message(SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
@@ -2888,8 +2890,8 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
     crtng->creation_turn = game.play_gameturn;
-    cctrl->field_286 = 17+ACTION_RANDOM(13);
-    cctrl->field_287 = ACTION_RANDOM(7);
+    cctrl->joining_age = 17+ACTION_RANDOM(13);
+    cctrl->blood_type = ACTION_RANDOM(BLOOD_TYPES_COUNT);
     if (owner == game.hero_player_num)
     {
       cctrl->party.target_plyr_idx = -1;
@@ -3615,12 +3617,10 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long crmodel, long job_idx, 
 
 long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
-    struct Room *room;
     struct Computer2 *comp;
     struct Dungeon *dungeon;
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    long i,k;
     SYNCDBG(19,"Starting");
     comp = (struct Computer2 *)(param->ptr1);
     dungeon = comp->dungeon;
@@ -3631,22 +3631,45 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
 
-    // If the creature is too angry to help it, then let it go
-    if (dungeon_has_room(dungeon, RoK_ENTRANCE))
+    // If the creature is too angry to help it
+    if (creature_is_doing_anger_job(thing) || anger_is_creature_livid(thing))
     {
-        if (creature_is_doing_anger_job(thing) || anger_is_creature_livid(thing))
+        // If the creature is not running free, then leave it where it is
+        if (creature_is_kept_in_prison(thing) ||
+            creature_is_being_tortured(thing) ||
+            creature_is_being_sacrificed(thing))
+            return -1;
+        // Try torturing it
+        if (dungeon_has_room(dungeon, RoK_TORTURE))
         {
-          param->num2 = RoK_ENTRANCE;
-          return LONG_MAX;
+            param->num2 = RoK_TORTURE;
+            return LONG_MAX;
+        }
+        // Or putting in prison
+        if (dungeon_has_room(dungeon, RoK_PRISON))
+        {
+            param->num2 = RoK_PRISON;
+            return LONG_MAX;
+        }
+        // If we can't, then just let it leave the dungeon
+        if (dungeon_has_room(dungeon, RoK_ENTRANCE))
+        {
+            param->num2 = RoK_ENTRANCE;
+            return LONG_MAX;
         }
     }
 
-    // If it's angry but not furious, then should be placed in temple
-    if (anger_is_creature_angry(thing) && creature_can_do_job_for_player_in_room(thing, dungeon->owner, RoK_TEMPLE))
+    int health_permil;
+    health_permil = get_creature_health_permil(thing);
+    // If it's angry but not furious, or has lost half or health due to disease,
+    // then should be placed in temple
+    if ((anger_is_creature_angry(thing) ||
+     (creature_affected_by_spell(thing, SplK_Disease) && (health_permil < 500)))
+     && creature_can_do_job_for_player_in_room(thing, dungeon->owner, RoK_TEMPLE))
     {
         // If already at temple, then don't do anything
-        if (creature_is_doing_temple_activity(thing))
-           return -1;
+        if (creature_is_doing_temple_pray_activity(thing))
+            return -1;
         if (dungeon_has_room(dungeon, RoK_TEMPLE))
         {
             param->num2 = RoK_TEMPLE;
@@ -3655,34 +3678,37 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If the creature require healing, then drop it to lair
-    i = compute_creature_max_health(crstat->health,cctrl->explevel);
-    k = compute_value_8bpercentage(i,crstat->heal_threshold);
     if (cctrl->combat_flags)
     {
-        if (thing->health >= k)
-            return -1;
-        // If already at lair, then don't do anything
-        if (creature_is_doing_lair_activity(thing))
-            return -1;
-        if (dungeon_has_room(dungeon, RoK_LAIR))
+        if (health_permil < 1000*crstat->heal_threshold/256)
         {
-            param->num2 = RoK_LAIR;
-            return LONG_MAX;
+            // If already at lair, then don't do anything
+            if (creature_is_doing_lair_activity(thing))
+                return -1;
+            // otherwise, put it into room we want
+            if (dungeon_has_room(dungeon, RoK_LAIR))
+            {
+                param->num2 = RoK_LAIR;
+                return LONG_MAX;
+            }
         }
         return -1;
     } else
-    if (thing->health < k)
     {
-        // If already at lair, then don't do anything
-        if (creature_is_doing_lair_activity(thing))
-            return -1;
-        // don't force it to lair if it wants to eat or take salary
-        if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
-            return -1;
-        if (dungeon_has_room(dungeon, RoK_LAIR))
+        if (health_permil < 1000*crstat->heal_threshold/256)
         {
-            param->num2 = RoK_LAIR;
-            return LONG_MAX;
+            // If already at lair, then don't do anything
+            if (creature_is_doing_lair_activity(thing))
+                return -1;
+            // don't force it to lair if it wants to eat or take salary
+            if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
+                return -1;
+            // otherwise, put it into room we want
+            if (dungeon_has_room(dungeon, RoK_LAIR))
+            {
+                param->num2 = RoK_LAIR;
+                return LONG_MAX;
+            }
         }
     }
 
@@ -3692,6 +3718,10 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         // If already at garden, then don't do anything
         if (creature_is_doing_garden_activity(thing))
             return -1;
+        // don't force it if it wants to take salary
+        if (creature_is_taking_salary_activity(thing))
+            return -1;
+        // otherwise, put it into room we want
         if (dungeon_has_room(dungeon, RoK_GARDEN))
         {
             param->num2 = RoK_GARDEN;
@@ -3712,13 +3742,25 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
         }
     }
 
-    // Get other rooms the creature may work in
-    if (creature_state_is_unset(thing))
+    TbBool force_state_reset;
+    force_state_reset = false;
+    // Creatures may have primary jobs other than training, or selected when there was no possibility to train
+    // Make sure they are re-assigned sometimes
+    if (creature_could_be_placed_in_better_room(comp, thing))
     {
-        room = get_room_to_place_creature(comp, thing);
-        if (!room_is_invalid(room))
+        force_state_reset = true;
+    }
+
+    // Get other rooms the creature may work in
+    if (creature_state_is_unset(thing) || force_state_reset)
+    {
+        struct Room *nxroom;
+        struct Room *pvroom;
+        nxroom = get_room_to_place_creature(comp, thing);
+        pvroom = get_room_creature_works_in(thing);
+        if (!room_is_invalid(nxroom) && (nxroom->kind != pvroom->kind))
         {
-            param->num2 = room->kind;
+            param->num2 = nxroom->kind;
             return LONG_MAX;
         }
     }

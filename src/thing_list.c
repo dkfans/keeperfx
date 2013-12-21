@@ -1539,54 +1539,54 @@ struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximiz
  */
 struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param)
 {
-  struct CreatureControl *cctrl;
-  struct Thing *thing;
-  struct Thing *retng;
-  long maximizer;
-  long total_count;
-  unsigned long k;
-  long i,n;
-  SYNCDBG(9,"Starting");
-  // Count all creatures in list, so that we can know range for our random index
-  total_count = count_player_list_creatures_of_model(thing_idx, 0);
-  retng = INVALID_THING;
-  maximizer = 0;
-  if (total_count < 1)
-      return retng;
-  k = 0;
-  // Get random index of a thing in list
-  thing = get_player_list_nth_creature_of_model(thing_idx, 0, ACTION_RANDOM(total_count));
-  i = thing->index;
-  while (k < total_count)
-  {
-    if (i == 0)
-        i = thing_idx;
-    thing = thing_get(i);
-    if (thing_is_invalid(thing))
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    struct Thing *retng;
+    long maximizer;
+    long total_count;
+    unsigned long k;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    // Count all creatures in list, so that we can know range for our random index
+    total_count = count_player_list_creatures_of_model(thing_idx, 0);
+    retng = INVALID_THING;
+    maximizer = 0;
+    if (total_count < 1)
+        return retng;
+    k = 0;
+    // Get random index of a thing in list
+    thing = get_player_list_nth_creature_of_model(thing_idx, 0, ACTION_RANDOM(total_count));
+    i = thing->index;
+    while (k < total_count)
     {
-      ERRORLOG("Jump to invalid thing detected");
-      break;
+        if (i == 0)
+            i = thing_idx;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        n = filter(thing, param, maximizer);
+        if (n >= maximizer)
+        {
+            retng = thing;
+            maximizer = n;
+            if (maximizer == LONG_MAX)
+                break;
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
     }
-    cctrl = creature_control_get_from_thing(thing);
-    i = cctrl->players_next_creature_idx;
-    // Per creature code
-    n = filter(thing, param, maximizer);
-    if (n >= maximizer)
-    {
-        retng = thing;
-        maximizer = n;
-        if (maximizer == LONG_MAX)
-            break;
-    }
-    // Per creature code ends
-    k++;
-    if (k > THINGS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping things list");
-      break;
-    }
-  }
-  return retng;
+    return retng;
 }
 
 /**

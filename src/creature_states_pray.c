@@ -64,7 +64,7 @@ DLLIMPORT long _DK_person_get_somewhere_adjacent_in_temple(struct Thing *thing, 
 }
 #endif
 /******************************************************************************/
-TbBool creature_is_doing_temple_activity(const struct Thing *thing)
+TbBool creature_is_doing_temple_pray_activity(const struct Thing *thing)
 {
     long i;
     i = get_creature_state_besides_interruptions(thing);

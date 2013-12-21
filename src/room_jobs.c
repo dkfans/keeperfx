@@ -373,7 +373,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         if (creature_move_to_place_in_room(creatng, room))
         {
-            creatng->continue_state = CrSt_CreatureFired;
+            creatng->continue_state = CrSt_CreatureExempt;
             cctrl->target_room_id = room->index;
             return 1;
         }
@@ -657,6 +657,39 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         break;
     }
     return 0;
+}
+
+TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind)
+{
+    long i;
+    switch (rkind)
+    {
+    case RoK_LIBRARY:
+        if (dungeon->field_F78 < 0)
+            return false;
+        return true;
+    case RoK_TRAINING:
+        if (3 * dungeon->creatures_total_pay / 2 >= dungeon->total_money_owned)
+            return false;
+        return true;
+    case RoK_SCAVENGER:
+        if (2 * dungeon->creatures_total_pay >= dungeon->total_money_owned)
+            return false;
+        return true;
+    case RoK_WORKSHOP:
+        for (i = 1; i < TRAP_TYPES_COUNT; i++)
+        {
+            if ((dungeon->trap_buildable[i]) && (dungeon->trap_amount[i] == 0))
+            {
+              break;
+            }
+        }
+        if (i == TRAP_TYPES_COUNT)
+            return false;
+        return true;
+    default:
+        return true;
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus

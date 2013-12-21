@@ -811,7 +811,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
       switch ((long)gbtn->content)
       {
       case 0: // kills
-          i = cctrl->field_C2;
+          i = cctrl->kills_num;
           text = buf_sprintf("%ld", i);
           break;
       case 1: // strength
@@ -835,7 +835,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
           text = buf_sprintf("%ld", i);
           break;
       case 6: // time in dungeon
-          i = (game.play_gameturn-thing->creation_turn) / 2000 + cctrl->field_286;
+          i = (game.play_gameturn-thing->creation_turn) / 2000 + cctrl->joining_age;
           if (i >= 99)
             i = 99;
           text = buf_sprintf("%ld", i);
@@ -849,7 +849,7 @@ void gui_area_stat_button(struct GuiButton *gbtn)
           text = buf_sprintf("%ld", i);
           break;
       case 9: // blood type
-          i = cctrl->field_287;
+          i = cctrl->blood_type;
           text = buf_sprintf("%s", blood_types[i%BLOOD_TYPES_COUNT]);
           break;
       default:

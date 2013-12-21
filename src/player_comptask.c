@@ -40,6 +40,7 @@
 #include "thing_traps.h"
 #include "thing_physics.h"
 #include "player_instances.h"
+#include "room_jobs.h"
 #include "room_workshop.h"
 
 #include "dungeon_data.h"
@@ -93,6 +94,10 @@ long find_next_gold(struct Computer2 *, struct ComputerTask *);
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx);
 int search_spiral(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long));
 /******************************************************************************/
+/**
+ * Computer tasks definition array.
+ * The task position corresponds to ComputerTaskTypes enumeration index.
+ */
 const struct TaskFunctions task_function[] = {
     {NULL, NULL},
     {"COMPUTER_DIG_ROOM_PASSAGE", task_dig_room_passage},
@@ -134,6 +139,8 @@ const struct MoveToRoom move_to_room[] = {
     {RoK_LIBRARY,   35},
     {RoK_WORKSHOP,  32},
     {RoK_SCAVENGER, 20},
+    {RoK_GUARDPOST,  2},
+    {RoK_BARRACKS,   1},
     {RoK_NONE,       0},
 };
 
@@ -547,35 +554,35 @@ long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing,
     return 1;
 }
 
-TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind)
+TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, const struct Thing *thing)
 {
-    long i;
-    switch (rkind)
-    {
-    case RoK_LIBRARY:
-        if (dungeon->field_F78 < 0)
-            return false;
-        return true;
-    case RoK_TRAINING:
-        if (2 * dungeon->creatures_total_pay >= dungeon->total_money_owned)
-            return false;
-        return true;
-    case RoK_WORKSHOP:
-        for (i = 1; i < TRAP_TYPES_COUNT; i++)
-        {
-            if ((dungeon->trap_buildable[i]) && (dungeon->trap_amount[i] == 0))
-            {
-              break;
-            }
-        }
-        if (i == TRAP_TYPES_COUNT)
-            return false;
-        return true;
-    default:
+    const struct Dungeon *dungeon;
+    struct Room *chosen_room;
+    long k,rkind;
+    TbBool better_job_allowed;
+    SYNCDBG(19,"Starting");
+    dungeon = comp->dungeon;
+    // Choose the room we're currently working in, and check it on the list
+    chosen_room = get_room_creature_works_in(thing);
+    if (!room_exists(chosen_room)) {
         return true;
     }
+    better_job_allowed = false;
+    for (k=0; move_to_room[k].kind != RoK_NONE; k++)
+    {
+        rkind = move_to_room[k].kind;
+        if (rkind == chosen_room->kind)
+        {
+            return better_job_allowed;
+        }
+        if (dungeon_has_room(dungeon, rkind)
+         && creature_can_do_job_for_player_in_room(thing, dungeon->owner, rkind)
+         && worker_needed_in_dungeons_room_kind(dungeon, rkind)) {
+            better_job_allowed = true;
+        }
+    }
+    return false;
 }
-
 struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing)
 {
     const struct Dungeon *dungeon;
@@ -585,30 +592,30 @@ struct Room *get_room_to_place_creature(const struct Computer2 *comp, const stru
     long total_spare_cap;
     long i,k,rkind;
 
-      dungeon = comp->dungeon;
+    dungeon = comp->dungeon;
 
-      chosen_room = NULL;
-      chosen_priority = LONG_MIN;
-      for (k=0; move_to_room[k].kind != RoK_NONE; k++)
-      {
-          rkind = move_to_room[k].kind;
-          if (!creature_can_do_job_for_player_in_room(thing, dungeon->owner, rkind)) {
-              continue;
-          }
-          if (!worker_needed_in_dungeons_room_kind(dungeon,rkind)) {
-              continue;
-          }
-          // Find specific room which meets capacity demands
-          i = dungeon->room_kind[rkind];
-          room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
-          if (room_is_invalid(room))
-              continue;
-          if (chosen_priority < total_spare_cap * move_to_room[k].priority)
-          {
-              chosen_priority = total_spare_cap * move_to_room[k].priority;
-              chosen_room = room;
-          }
-      }
+    chosen_room = INVALID_ROOM;
+    chosen_priority = LONG_MIN;
+    for (k=0; move_to_room[k].kind != RoK_NONE; k++)
+    {
+        rkind = move_to_room[k].kind;
+        if (!creature_can_do_job_for_player_in_room(thing, dungeon->owner, rkind)) {
+            continue;
+        }
+        if (!worker_needed_in_dungeons_room_kind(dungeon, rkind)) {
+            continue;
+        }
+        // Find specific room which meets capacity demands
+        i = dungeon->room_kind[rkind];
+        room = find_room_with_most_spare_capacity_starting_with(i,&total_spare_cap);
+        if (room_is_invalid(room))
+            continue;
+        if (chosen_priority < total_spare_cap * move_to_room[k].priority)
+        {
+            chosen_priority = total_spare_cap * move_to_room[k].priority;
+            chosen_room = room;
+        }
+    }
     return chosen_room;
 }
 
@@ -1684,6 +1691,28 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     return CTaskRet_Unk4;
 }
 
+TbBool get_drop_position_for_creature_job_in_room(struct Coord3d *pos, const struct Room *room, CreatureJob jobpref)
+{
+    if (!room_exists(room)) {
+        return false;
+    }
+    // If the job can only be assigned by dropping creature at border - then drop at border
+    if ((get_flags_for_job(jobpref) & (JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter)) == JoKF_AssignDropOnRoomBorder)
+    {
+        SYNCDBG(9,"Job %s requires dropping at %s border",creature_job_code_name(jobpref),room_code_name(room->kind));
+        if (find_random_position_at_border_of_room(pos, room)) {
+            SYNCDBG(9,"Will drop at border of %s on (%d,%d)",room_code_name(room->kind),(int)pos->x.stl.num,(int)pos->y.stl.num);
+            return true;
+        }
+    }
+    SYNCDBG(9,"Job %s has no %s area preference",creature_job_code_name(jobpref),room_code_name(room->kind));
+    pos->x.val = subtile_coord(room->central_stl_x,ACTION_RANDOM(256));
+    pos->y.val = subtile_coord(room->central_stl_y,ACTION_RANDOM(256));
+    pos->z.val = subtile_coord(1,0);
+    SYNCDBG(9,"Will drop at center of %s on (%d,%d)",room_code_name(room->kind),(int)pos->x.stl.num,(int)pos->y.stl.num);
+    return true;
+}
+
 long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Thing *thing;
@@ -1696,21 +1725,22 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     thing = thing_get(comp->field_14C8);
     if (!thing_is_invalid(thing))
     {
-      room = room_get(ctask->word_80);
-      pos.x.val = subtile_coord_center(room->central_stl_x);
-      pos.y.val = subtile_coord_center(room->central_stl_y);
-      pos.z.val = subtile_coord(1,0);
-      if (fake_dump_held_creatures_on_map(comp, thing, &pos) > 0)
-        return CTaskRet_Unk2;
-      remove_task(comp, ctask);
-      return CTaskRet_Unk0;
+        room = room_get(ctask->word_80);
+        if (get_drop_position_for_creature_job_in_room(&pos,room,get_job_for_room(room->kind, true)))
+        {
+            if (fake_dump_held_creatures_on_map(comp, thing, &pos) > 0) {
+                return CTaskRet_Unk2;
+            }
+        }
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
     }
     i = ctask->field_7C;
     ctask->field_7C--;
     if (i <= 0)
     {
-      remove_task(comp, ctask);
-      return CTaskRet_Unk1;
+        remove_task(comp, ctask);
+        return CTaskRet_Unk1;
     }
     thing = find_creature_to_be_placed_in_room(comp, &room);
     if (!thing_is_invalid(thing))
@@ -1720,11 +1750,11 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         //TODO CREATURE_AI don't place creatures at center of a temple/portal if we don't want to get rid of them
         //TODO CREATURE_AI make sure to place creatures at "active" portal tile if we do want them to leave
         ctask->word_80 = room->index;
-        pos.x.val = subtile_coord(room->central_stl_x,ACTION_RANDOM(256));
-        pos.y.val = subtile_coord(room->central_stl_y,ACTION_RANDOM(256));
-        pos.z.val = subtile_coord(1,0);
-        if (fake_place_thing_in_power_hand(comp, thing, &pos)) {
-            return CTaskRet_Unk2;
+        if (get_drop_position_for_creature_job_in_room(&pos,room,get_job_for_room(room->kind, true)))
+        {
+            if (fake_place_thing_in_power_hand(comp, thing, &pos)) {
+                return CTaskRet_Unk2;
+            }
         }
         remove_task(comp, ctask);
         return CTaskRet_Unk0;

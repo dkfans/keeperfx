@@ -88,9 +88,12 @@ const struct NamedCommand creaturetype_job_commands[] = {
   };
 
 const struct NamedCommand creaturetype_job_assign[] = {
-  {"HUMAN_DROP_IN_ROOM",     0x01},
-  {"COMPUTER_DROP_IN_ROOM",  0x02},
-  {NULL,                        0},
+  {"HUMAN_DROP_IN_ROOM",     JoKF_AssignHumanDropInRoom},
+  {"COMPUTER_DROP_IN_ROOM",  JoKF_AssignComputerDropInRoom},
+  {"BORDER_ONLY",            JoKF_AssignDropOnRoomBorder},
+  {"CENTER_ONLY",            JoKF_AssignDropOnRoomCenter},
+  {"WHOLE_ROOM",             JoKF_AssignDropOnRoomBorder|JoKF_AssignDropOnRoomCenter},
+  {NULL,                     0},
   };
 
 const struct NamedCommand creaturetype_angerjob_commands[] = {
@@ -1455,7 +1458,7 @@ CreatureJob get_job_for_room(RoomKind rkind, TbBool only_computer)
     {
         struct CreatureJobConfig *jobcfg;
         jobcfg = &crtr_conf.jobs[i];
-        if ((!only_computer) || (only_computer && (jobcfg->job_flags & 0x02)))
+        if ((!only_computer) || (only_computer && (jobcfg->job_flags & JoKF_AssignComputerDropInRoom)))
         {
             if (jobcfg->room_kind == rkind) {
                 return 1<<(i-1);
@@ -1484,6 +1487,13 @@ CrtrStateId get_initial_state_for_job(CreatureJob jobpref)
     struct CreatureJobConfig *jobcfg;
     jobcfg = get_config_for_job(jobpref);
     return jobcfg->initial_crstate;
+}
+
+unsigned long get_flags_for_job(CreatureJob jobpref)
+{
+    struct CreatureJobConfig *jobcfg;
+    jobcfg = get_config_for_job(jobpref);
+    return jobcfg->job_flags;
 }
 
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind)
