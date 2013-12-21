@@ -2325,17 +2325,17 @@ void message_update(void)
 TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
     SYNCDBG(16,"Starting");
-    //return _DK_wp_check_map_pos_valid(wandr, a1);
+    //return _DK_wp_check_map_pos_valid(wandr, stl_num);
     MapSubtlCoord stl_x,stl_y;
     long plyr_bit;
     stl_x = stl_num_decode_x(stl_num);
     stl_y = stl_num_decode_y(stl_num);
     plyr_bit = wandr->plyr_bit;
-    if (wandr->wdrfield_15)
+    if (wandr->store_revealed)
     {
         struct Map *mapblk;
         mapblk = get_map_block_at_pos(stl_num);
-        // Add tiles which are either owned by heroes or revealed to the player
+        // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
         if ((((1 << game.hero_player_num) & plyr_bit) != 0) || map_block_revealed_bit(mapblk, plyr_bit))
         {
             if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
@@ -2347,7 +2347,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
     {
         struct Map *mapblk;
         mapblk = get_map_block_at_pos(stl_num);
-        // Add tiles which do not belong to hero and are not revealed to wandering player
+        // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
         if ((((1 << game.hero_player_num) & plyr_bit) == 0) && !map_block_revealed_bit(mapblk, plyr_bit))
         {
             if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))

@@ -1980,18 +1980,24 @@ short creature_evacuate_room(struct Thing *creatng)
 short creature_explore_dungeon(struct Thing *creatng)
 {
     struct Coord3d pos;
-    TbBool got_position;
+    TbBool ret;
     //return _DK_creature_explore_dungeon(creatng);
-    got_position = get_random_position_in_dungeon_for_creature(creatng->owner, 0, creatng, &pos);
-    if (!got_position) {
-        got_position = get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos);
+    pos.x.val = subtile_coord_center(map_subtiles_x/2);
+    pos.y.val = subtile_coord_center(map_subtiles_y/2);
+    pos.z.val = subtile_coord(1,0);
+    {
+        ret = get_random_position_in_dungeon_for_creature(creatng->owner, 0, creatng, &pos);
+        if (ret) {
+            ret = setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0);
+        }
     }
-    if (!got_position) {
-        ERRORLOG("No random position for %s in dungeon %d",thing_model_name(creatng),(int)creatng->owner);
-        set_start_state(creatng);
-        return CrCkRet_Available;
+    if (!ret) {
+        ret = get_random_position_in_dungeon_for_creature(creatng->owner, 1, creatng, &pos);
+        if (ret) {
+            ret = setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0);
+        }
     }
-    if (!setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
+    if (!ret)
     {
         SYNCLOG("The %s owned by player %d can't navigate to subtile (%d,%d) for exploring",
             thing_model_name(creatng),(int)creatng->owner, (int)pos.x.stl.num, (int)pos.y.stl.num);
@@ -3538,6 +3544,7 @@ TbBool wander_point_get_random_pos(const struct Wander *wandr, const struct Coor
 {
   long irnd;
   MapSubtlCoord selected_dist;
+  SYNCDBG(12,"Selecting out of %d points",(int)wandr->points_count);
   selected_dist = 0;
   if (wandr->points_count > 0)
   {
@@ -3553,7 +3560,7 @@ TbBool wander_point_get_random_pos(const struct Wander *wandr, const struct Coor
           dist = get_2d_box_distance_xy(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
           // Move at least 2 slabs, and prefer distance around 7 slabs
           // If previously selected selected_dist is too low, allow any place
-          if (((dist > 6) && (abs(dist-21) < abs(selected_dist-21))) || (selected_dist < 6))
+          if (((dist > 6) && (abs(dist-21) < abs(selected_dist-21))) || (selected_dist <= 6))
           {
               pos->x.val = subtile_coord_center(stl_x);
               pos->y.val = subtile_coord_center(stl_y);
@@ -3582,12 +3589,16 @@ TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsign
     }
     if (wandr_slot == 1)
     {
-        if (!wander_point_get_random_pos(&player->wandr1, &thing->mappos, pos))
-          return false;
+        if (!wander_point_get_random_pos(&player->wandr1, &thing->mappos, pos)) {
+            SYNCDBG(12,"Cannot get position from wander slot %d",(int)wandr_slot);
+            return false;
+        }
     } else
     { // means (wandr_slot == 0)
-        if (!wander_point_get_random_pos(&player->wandr2, &thing->mappos, pos))
-          return false;
+        if (!wander_point_get_random_pos(&player->wandr2, &thing->mappos, pos)) {
+            SYNCDBG(12,"Cannot get position from wander slot %d",(int)wandr_slot);
+            return false;
+        }
     }
     return true;
 }
