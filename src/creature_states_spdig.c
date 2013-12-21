@@ -289,7 +289,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     stl_y = thing->mappos.y.stl.num;
     cctrl = creature_control_get_from_thing(thing);
     n = reinforce_edges[3 * (stl_y % 3) + (stl_x % 3)];
-    for (i=0; i < SMALL_AROUND_COUNT; i++)
+    for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         slb_x = subtile_slab_fast(stl_x) + (long)small_around[n].delta_x;
         slb_y = subtile_slab_fast(stl_y) + (long)small_around[n].delta_y;
@@ -307,7 +307,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
                 }
             }
         }
-        n = (n + 1) % SMALL_AROUND_COUNT;
+        n = (n + 1) % SMALL_AROUND_LENGTH;
     }
     return 0;
 }

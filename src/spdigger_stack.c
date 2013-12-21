@@ -956,7 +956,7 @@ long add_pretty_and_convert_to_imp_stack_starting_from_pos(struct Dungeon *dunge
 
         long i,n;
         n = 0;//ACTION_RANDOM(4);
-        for (i=0; i < SMALL_AROUND_COUNT; i++)
+        for (i=0; i < SMALL_AROUND_LENGTH; i++)
         {
             slb_x = base_slb_x + (long)small_around[n].delta_x;
             slb_y = base_slb_y + (long)small_around[n].delta_y;
@@ -1399,7 +1399,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
               n = 1;
         }
     }
-    for (i=0; i < SMALL_AROUND_COUNT; i++)
+    for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x,stl_y;
         stl_x = basestl_x + 2 * (long)small_around[n].delta_x;
@@ -1423,7 +1423,7 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
                 }
             }
         }
-        n = (n + 1) % SMALL_AROUND_COUNT;
+        n = (n + 1) % SMALL_AROUND_LENGTH;
     }
     return 0;
 }
