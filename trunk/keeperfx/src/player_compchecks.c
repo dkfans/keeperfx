@@ -539,10 +539,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
       // Per creature code
       if (!thing_affected_by_spell(thing, SplK_Speed))
       {
-          if (thing->active_state == CrSt_MoveToPosition)
-              n = thing->continue_state;
-          else
-              n = thing->active_state;
+          n = get_creature_state_besides_move(thing);
           stati = get_thing_state_info_num(n);
           if (stati->state_type == 1)
           {
@@ -918,6 +915,33 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
 }
 
 /**
+ * Counts amount of slabs around given slab which have given kind and owner.
+ * @param slb_x Target slab position, X coordinate.
+ * @param slb_y Target slab position, Y coordinate.
+ * @param slbkind Kind of the slabs to count.
+ * @param owner Owner of the slabs to count.
+ * @return Amount of matched slabs around given coordinates, 0..8.
+ */
+int count_slabs_around_of_kind(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber owner)
+{
+    unsigned long n;
+    int matched_slabs;
+    matched_slabs = 0;
+    for (n = 1; n < MID_AROUND_LENGTH; n++)
+    {
+        MapSlabCoord arslb_x, arslb_y;
+        arslb_x = slb_x + mid_around[n].delta_x;
+        arslb_y = slb_y + mid_around[n].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_block(arslb_x, arslb_y);
+        if ((slb->kind == slbkind) && (slabmap_owner(slb) == owner)) {
+            matched_slabs++;
+        }
+    }
+    return matched_slabs;
+}
+
+/**
  * This function generates "expand room" action on a tile which is claimed ground and could have a room placed on.
  * It is used to fix vandalized or not fully built rooms, so that they will cover the whole area digged for them.
  *
@@ -944,28 +968,33 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
         slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
         // Per-slab code
-        unsigned long m,n;
-        m = around_start % SMALL_AROUND_SLAB_LENGTH;
-        for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+        int room_around, claimed_around;
+        room_around = count_slabs_around_of_kind(slb_x, slb_y, slb->kind, dungeon->owner);
+        claimed_around = 0;
+        if (room_around < 8) {
+            claimed_around = count_slabs_around_of_kind(slb_x, slb_y, SlbT_CLAIMED, dungeon->owner);
+        }
+        if (((room_around >= 3) && (claimed_around >= 2) && (room_around+claimed_around < 8)) // If ther's something besides room and claimed, then grow more aggressively
+         || ((room_around >= 4) && (claimed_around >= 2) && (room_around+claimed_around >= 8)) // If we're in open space, don't expand that much
+         || ((room_around >= 6) && (claimed_around >= 1))) // Allow fixing one-slab holes inside rooms
         {
-            MapSlabCoord arslb_x, arslb_y;
-            int available_slabs;
-            available_slabs = 0;
-            arslb_x = slb_x + small_around[m].delta_x;
-            arslb_y = slb_y + small_around[m].delta_y;
-            slb = get_slabmap_block(arslb_x, arslb_y);
-            if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
+            unsigned long m,n;
+            m = around_start % SMALL_AROUND_SLAB_LENGTH;
+            for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
             {
-                available_slabs++;
-                if (available_slabs >= 2)
+                MapSlabCoord arslb_x, arslb_y;
+                arslb_x = slb_x + small_around[m].delta_x;
+                arslb_y = slb_y + small_around[m].delta_y;
+                slb = get_slabmap_block(arslb_x, arslb_y);
+                if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
                 {
                     if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0,
-                        slab_subtile_center(arslb_x), slab_subtile_center(arslb_y), 1, room->kind) > 0) {
+                        slab_subtile_center(arslb_x), slab_subtile_center(arslb_y), 1, room->kind) > Lb_OK) {
                         return true;
                     }
                 }
+                m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
             }
-            m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
         }
         // Per-slab code ends
         k++;
@@ -982,10 +1011,14 @@ long computer_check_for_expand_room_kind(struct Computer2 *comp, struct Computer
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    if (dungeon_invalid(dungeon))
     {
-        ERRORLOG("Invalid computer players dungeon");
-        return 0;
+        struct RoomStats *rstat;
+        rstat = room_stats_get_for_kind(rkind);
+        // If we don't have money for the room - don't even try
+        // Check price for two slabs - after all, we don't want to end up having nothing
+        if (2*rstat->cost >= dungeon->total_money_owned) {
+            return 0;
+        }
     }
     struct Room *room;
     long i;
@@ -1023,10 +1056,21 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
 {
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_for_expand_room(comp, check);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Invalid computer players dungeon");
+        return 0;
+    }
     long around_start;
     around_start = ACTION_RANDOM(119);
     if (is_task_in_progress(comp, CTT_PlaceRoom)) {
         SYNCDBG(8,"No rooms expansion - task already in progress");
+        return 0;
+    }
+    if (4 * dungeon->creatures_total_pay / 3 >= dungeon->total_money_owned) {
+        SYNCDBG(8,"No rooms expansion - we don't even have money for payday");
         return 0;
     }
     const struct ExpandRooms *expndroom;

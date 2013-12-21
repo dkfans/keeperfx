@@ -3348,7 +3348,7 @@ TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
 {
     //return _DK_slab_by_players_land(plyr_idx, slb_x, slb_y);
     long n;
-    for (n=0; n < SMALL_AROUND_COUNT; n++)
+    for (n=0; n < SMALL_AROUND_LENGTH; n++)
     {
         long aslb_x,aslb_y;
         aslb_x = slb_x + (long)small_around[n].delta_x;

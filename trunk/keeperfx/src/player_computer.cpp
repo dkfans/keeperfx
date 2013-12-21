@@ -300,10 +300,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
                 {
                     struct StateInfo *stati;
                     int n;
-                    if (thing->active_state == CrSt_MoveToPosition)
-                        n = thing->continue_state;
-                    else
-                        n = thing->active_state;
+                    n = get_creature_state_besides_move(thing);
                     stati = get_thing_state_info_num(n);
                     if ((stati->state_type != 1) || a4 )
                     {

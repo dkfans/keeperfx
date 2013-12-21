@@ -1660,7 +1660,7 @@ TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y)
     slbkind = slb->kind;
     plyr_idx = slabmap_owner(slb);
     long n;
-    for (n=0; n < SMALL_AROUND_COUNT; n++)
+    for (n=0; n < SMALL_AROUND_LENGTH; n++)
     {
         long aslb_x,aslb_y;
         aslb_x = slb_x + (long)small_around[n].delta_x;
