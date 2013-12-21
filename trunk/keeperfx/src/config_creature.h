@@ -54,22 +54,32 @@ enum CreatureModelFlags {
 };
 
 enum CreatureJobFlags {
-    Job_NULL             = 0x0000,
-    Job_TUNNEL           = 0x0001,
-    Job_DIG              = 0x0002,
-    Job_RESEARCH         = 0x0004,
-    Job_TRAIN            = 0x0008,
-    Job_MANUFACTURE      = 0x0010,
-    Job_SCAVENGE         = 0x0020,
-    Job_KINKY_TORTURE    = 0x0040,
-    Job_FIGHT            = 0x0080,
-    Job_SEEK_THE_ENEMY   = 0x0100,
-    Job_GUARD            = 0x0200,
-    Job_GROUP            = 0x0400,
-    Job_BARRACK          = 0x0800,
-    Job_TEMPLE_PRAY      = 0x1000,
-    Job_FREEZE_PRISONERS = 0x2000,
-    Job_EXPLORE          = 0x4000,
+    Job_NULL             = 0x00000000,
+    Job_TUNNEL           = 0x00000001,
+    Job_DIG              = 0x00000002,
+    Job_RESEARCH         = 0x00000004,
+    Job_TRAIN            = 0x00000008,
+    Job_MANUFACTURE      = 0x00000010,
+    Job_SCAVENGE         = 0x00000020,
+    Job_KINKY_TORTURE    = 0x00000040,
+    Job_FIGHT            = 0x00000080,
+    Job_SEEK_THE_ENEMY   = 0x00000100,
+    Job_GUARD            = 0x00000200,
+    Job_GROUP            = 0x00000400,
+    Job_BARRACK          = 0x00000800,
+    Job_TEMPLE_PRAY      = 0x00001000,
+    Job_FREEZE_PRISONERS = 0x00002000,
+    Job_EXPLORE          = 0x00004000,
+    // Nonexisting jobs
+    Job_EXEMPT           = 0x00008000,
+    Job_TEMPLE_SACRIFICE = 0x00010000,
+};
+
+enum JobKindFlags {
+    JoKF_AssignHumanDropInRoom = 0x01,
+    JoKF_AssignComputerDropInRoom = 0x02,
+    JoKF_AssignDropOnRoomBorder = 0x04,
+    JoKF_AssignDropOnRoomCenter = 0x08,
 };
 
 enum CreatureDeathKind {
@@ -216,8 +226,9 @@ RoomKind get_room_for_job(CreatureJob job_flags);
 EventKind get_event_for_job(CreatureJob job_flags);
 CrtrStateId get_initial_state_for_job(CreatureJob jobpref);
 CrtrStateId get_arrive_at_state_for_room(RoomKind rkind);
+unsigned long get_flags_for_job(CreatureJob jobpref);
 CreatureJob get_creature_job_causing_stress(CreatureJob job_flags, RoomKind rkind);
-CreatureJob get_job_for_room(RoomKind rkind, TbBool only_dropable);
+CreatureJob get_job_for_room(RoomKind rkind, TbBool only_computer);
 const char *creature_job_code_name(CreatureJob job_flag);
 /******************************************************************************/
 #ifdef __cplusplus

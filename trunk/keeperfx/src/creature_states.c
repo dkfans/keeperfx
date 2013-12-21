@@ -172,7 +172,7 @@ short creature_dormant(struct Thing *creatng);
 short creature_escaping_death(struct Thing *creatng);
 short creature_evacuate_room(struct Thing *creatng);
 short creature_explore_dungeon(struct Thing *creatng);
-short creature_fired(struct Thing *creatng);
+short creature_exempt(struct Thing *creatng);
 short creature_follow_leader(struct Thing *creatng);
 short creature_in_hold_audience(struct Thing *creatng);
 short creature_kill_creatures(struct Thing *creatng);
@@ -403,7 +403,7 @@ struct StateInfo states[] = {
     0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
   {at_lair_to_sleep, NULL, NULL, NULL,
     0, 1, 0,  0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3, 0, 0, 2, 0, 54, 1, 0,   1},
-  {creature_fired, NULL, NULL, NULL, // [90]
+  {creature_exempt, NULL, NULL, NULL, // [90]
     0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 61, 1, 0, 1},
   {creature_being_dropped, state_cleanup_unable_to_fight, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
@@ -2002,7 +2002,12 @@ short creature_explore_dungeon(struct Thing *creatng)
     return CrCkRet_Continue;
 }
 
-short creature_fired(struct Thing *creatng)
+/**
+ * Makes the creature leave the dungeon.
+ * Originally named creature_fired().
+ * @param creatng
+ */
+short creature_exempt(struct Thing *creatng)
 {
     struct Room *room;
     TRACE_THING(creatng);
@@ -4147,7 +4152,7 @@ long anger_process_creature_anger(struct Thing *thing, const struct CreatureStat
       && (game.play_gameturn - cctrl->temple_pray_check_turn > 128))
     {
         struct Room *room;
-        if (creature_is_doing_temple_activity(thing))
+        if (creature_is_doing_temple_pray_activity(thing))
             return 1;
         cctrl->temple_pray_check_turn = game.play_gameturn;
         room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_TEMPLE, 0, 1);

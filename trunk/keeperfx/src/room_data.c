@@ -1643,6 +1643,73 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     return _DK_find_random_valid_position_for_thing_in_room(thing, room, pos);
 }
 
+/**
+ * Returns if given slab lies at outer border of an area.
+ * Only slabs which are surrounded by the same slab kind from 4 sides are not at outer border of an area.
+ * @param slb_x The slab to be checked, X coordinate.
+ * @param slb_y The slab to be checked, y coordinate.
+ * @return True if the slab lies at outer border of an area, false otherwise.
+ */
+TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    PlayerNumber plyr_idx;
+    SlabKind slbkind;
+    struct SlabMap *slb;
+    // Store kind and owner of the slab
+    slb = get_slabmap_block(slb_x,slb_y);
+    slbkind = slb->kind;
+    plyr_idx = slabmap_owner(slb);
+    long n;
+    for (n=0; n < SMALL_AROUND_COUNT; n++)
+    {
+        long aslb_x,aslb_y;
+        aslb_x = slb_x + (long)small_around[n].delta_x;
+        aslb_y = slb_y + (long)small_around[n].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_block(aslb_x,aslb_y);
+        if ((slb->kind != slbkind) || (slabmap_owner(slb) != plyr_idx)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+TbBool find_random_position_at_border_of_room(struct Coord3d *pos, const struct Room *room)
+{
+    long i;
+    unsigned long n;
+    // Find a random slab in the room to be used as our starting point
+    i = ACTION_RANDOM(room->slabs_count);
+    n = room->slabs_list;
+    while (i > 0)
+    {
+        n = get_next_slab_number_in_room(n);
+        i--;
+    }
+    // Now loop starting from that point
+    i = room->slabs_count;
+    while (i > 0)
+    {
+        // Loop the slabs list
+        if (n <= 0) {
+            n = room->slabs_list;
+        }
+        MapSlabCoord slb_x, slb_y;
+        slb_x = subtile_slab_fast(stl_num_decode_x(n));
+        slb_y = subtile_slab_fast(stl_num_decode_y(n));
+        if (slab_is_area_outer_border(slb_x, slb_y))
+        {
+            pos->x.val = subtile_coord(slab_subtile(slb_x,0),ACTION_RANDOM(STL_PER_SLB*256));
+            pos->y.val = subtile_coord(slab_subtile(slb_y,0),ACTION_RANDOM(STL_PER_SLB*256));
+            pos->z.val = subtile_coord(1,0);
+            return true;
+        }
+        n = get_next_slab_number_in_room(n);
+        i--;
+    }
+    return false;
+}
+
 struct Room *find_room_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomKind rkind)
 {
     struct Dungeon *dungeon;

@@ -127,7 +127,7 @@ enum CreatureStates {
     CrSt_CreatureCombatFlee,
     CrSt_CreatureSacrifice,
     CrSt_AtLairToSleep,
-    CrSt_CreatureFired,//[90]
+    CrSt_CreatureExempt,//[90]
     CrSt_CreatureBeingDropped,
     CrSt_CreatureBeingSacrificed,
     CrSt_CreatureScavengedDisappear,
@@ -346,7 +346,7 @@ TbBool creature_is_being_summoned(const struct Thing *thing);
 TbBool creature_is_doing_anger_job(const struct Thing *thing);
 TbBool creature_is_doing_garden_activity(const struct Thing *thing);
 TbBool creature_is_taking_salary_activity(const struct Thing *thing);
-TbBool creature_is_doing_temple_activity(const struct Thing *thing);
+TbBool creature_is_doing_temple_pray_activity(const struct Thing *thing);
 TbBool creature_is_training(const struct Thing *thing);
 TbBool creature_is_being_scavenged(const struct Thing *thing);
 TbBool creature_is_scavengering(const struct Thing *thing);
