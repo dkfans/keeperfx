@@ -154,10 +154,11 @@ DLLIMPORT extern struct RoomData _DK_room_data[];
 extern unsigned short const room_effect_elements[];
 extern const short slab_around[];
 extern const unsigned short small_around_pos[4];
-extern struct Around const mid_around[9];
+#define MID_AROUND_LENGTH 9
+extern struct Around const mid_around[MID_AROUND_LENGTH];
 extern struct AroundLByte const room_spark_offset[];
-#define SMALL_AROUND_COUNT 4
-extern struct Around const small_around[];
+#define SMALL_AROUND_LENGTH 4
+extern struct Around const small_around[SMALL_AROUND_LENGTH];
 extern struct RoomData room_data[];
 extern struct Around const my_around_eight[];
 extern short const around_map[];

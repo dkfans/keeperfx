@@ -175,7 +175,7 @@ SubtlCodedCoords find_unused_adjacent_position_in_workshop(const struct Coord3d 
 {
     static const struct Around corners[] = { {1,2}, {0,1}, {1,0}, {2,1} };
     long i;
-    for (i=0; i < SMALL_AROUND_COUNT; i++)
+    for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSlabCoord slb_x, slb_y;
         slb_x = subtile_slab_fast(pos->x.stl.num) + (long)small_around[i].delta_x;

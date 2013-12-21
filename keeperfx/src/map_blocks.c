@@ -643,7 +643,7 @@ TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, P
 {
     int i;
     //return _DK_dig_has_revealed_area(rev_stl_x, rev_stl_y, plyr_idx);
-    for (i=0; i < SMALL_AROUND_COUNT; i++)
+    for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x, stl_y;
         stl_x = rev_stl_x + 3*small_around[i].delta_x;
