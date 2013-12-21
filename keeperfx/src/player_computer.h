@@ -468,6 +468,7 @@ long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
 TbBool process_checks(struct Computer2 *comp);
 GoldAmount get_computer_money_less_cost(const struct Computer2 *comp);
+TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, const struct Thing *thing);
 struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing);
 TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 /******************************************************************************/
