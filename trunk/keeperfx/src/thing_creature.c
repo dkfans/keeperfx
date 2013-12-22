@@ -1667,15 +1667,25 @@ void creature_rebirth_at_lair(struct Thing *thing)
 
 void throw_out_gold(struct Thing *thing)
 {
-    struct Thing *gldtng;
-    long angle,radius,delta;
-    long x,y;
-    long i;
-    for (i = thing->creature.gold_carried; i > 0; i -= delta)
+    // Compute how many pots we want to drop
+    int num_pots_to_drop;
+    num_pots_to_drop = (thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds;
+    if (num_pots_to_drop > 8)
+        num_pots_to_drop = 8;
+    GoldAmount gold_dropped;
+    gold_dropped = 0;
+    // Now do the dropping
+    int npot;
+    for (npot = 0; npot < num_pots_to_drop; npot++)
     {
+        // Create a new pot object
+        struct Thing *gldtng;
         gldtng = create_object(&thing->mappos, 6, game.neutral_player_num, -1);
         if (thing_is_invalid(gldtng))
             break;
+        // Update its position and acceleration
+        long angle,radius;
+        long x,y;
         angle = ACTION_RANDOM(ANGLE_TRIGL_PERIOD);
         radius = ACTION_RANDOM(128);
         x = (radius * LbSinL(angle)) / 256;
@@ -1684,11 +1694,11 @@ void throw_out_gold(struct Thing *thing)
         gldtng->acceleration.y.val -= y/256;
         gldtng->acceleration.z.val += ACTION_RANDOM(64) + 96;
         gldtng->field_1 |= TF1_PushdByAccel;
-        if (i < 400)
-            delta = i;
-        else
-            delta = 400;
-        gldtng->creature.gold_carried = delta;
+        // Set the amount of gold and mark that we've dropped that gold
+        GoldAmount delta;
+        delta = (thing->creature.gold_carried - gold_dropped) / (num_pots_to_drop - npot);
+        gldtng->valuable.gold_stored = delta;
+        gold_dropped += delta;
     }
 }
 

@@ -1170,7 +1170,7 @@ struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx)
     struct Coord3d pos;
     pos.x.val = pos_x;
     pos.y.val = pos_y;
-    pos.z.val = (3 << 8);
+    pos.z.val = subtile_coord(3,0);
     thing = create_object(&pos, 6, plyr_idx, -1);
     if (thing_is_invalid(thing))
         return INVALID_THING;
