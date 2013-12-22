@@ -405,7 +405,7 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
         struct ComputerTask *roomtask;
         pos.x.val = subtile_coord_center(room->central_stl_x);
         pos.y.val = subtile_coord_center(room->central_stl_y);
-        pos.z.val = 256;
+        pos.z.val = subtile_coord(1,0);
         roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, area, a6);
         if (roomtask != NULL) {
             return roomtask;
@@ -475,7 +475,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
             }
         }
     }
-    SYNCLOG("Unable to find a place for %s sized %dx%d", room_code_name(rkind), (int)width_slabs, (int)height_slabs);
+    SYNCLOG("Player %d dungeon has no place for %s sized %dx%d", (int)dungeon->owner, room_code_name(rkind), (int)width_slabs, (int)height_slabs);
     return NULL;
 }
 
