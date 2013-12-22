@@ -932,14 +932,16 @@ long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *proc
     struct THate hates[PLAYERS_COUNT];
     get_opponent(comp, hates);
     long i;
+    // note that 'i' is not player index, player index is inside THate struct
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         struct THate *hate;
         hate = &hates[i];
-        if (hate->pos_near != NULL) {
+        if (hate->pos_near != NULL)
+        {
+            // If we can attack - do it, don't hesitate
             if (setup_computer_attack(comp, process, hate->pos_near, hate->plyr_idx) == 1) {
                 hate->pos_near->x.val = 0;
-                hate->pos_near->y.val = 0;
                 return 1;
             }
         }
@@ -950,7 +952,46 @@ long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *proc
 
 long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *process)
 {
-    return _DK_computer_check_safe_attack(comp, process);
+    //return _DK_computer_check_safe_attack(comp, process);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    int max_crtrs;
+    max_crtrs = dungeon->max_creatures_attracted;
+    if (max_crtrs <= 0) {
+        suspend_process(comp, process);
+        return 4;
+    }
+    if ((100 * dungeon->num_active_creatrs / max_crtrs < process->field_10) || is_there_an_attack_task(comp)) {
+        suspend_process(comp, process);
+        return 4;
+    }
+    if (process->field_8 * count_creatures_availiable_for_fight(comp, 0) / 100 < process->field_C) {
+        suspend_process(comp, process);
+        return 4;
+    }
+    struct THate hates[PLAYERS_COUNT];
+    get_opponent(comp, hates);
+    long i;
+    // note that 'i' is not player index, player index is inside THate struct
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        struct THate *hate;
+        hate = &hates[i];
+        if (hate->pos_near != NULL)
+        {
+            struct Dungeon *enmdngn;
+            enmdngn = get_players_num_dungeon(hate->plyr_idx);
+            if (enmdngn->num_active_creatrs * process->field_8 / 100 + enmdngn->num_active_creatrs < dungeon->num_active_creatrs)
+            {
+                if (setup_computer_attack(comp, process, hate->pos_near, hate->plyr_idx) == 1) {
+                    hate->pos_near->x.val = 0;
+                    return 1;
+                }
+            }
+        }
+    }
+    suspend_process(comp, process);
+    return 4;
 }
 
 long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process)

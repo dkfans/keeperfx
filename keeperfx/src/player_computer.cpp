@@ -816,7 +816,7 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     ctask->dig.pos_next.x.val = 0;
     ctask->dig.pos_next.y.val = 0;
     ctask->dig.pos_next.z.val = 0;
-    ctask->dig.distance = 2147483647;
+    ctask->dig.distance = LONG_MAX;
     ctask->dig.subfield_2C = 1;
     ctask->dig.calls_count = 0;
     return 1;
