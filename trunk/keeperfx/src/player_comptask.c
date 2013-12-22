@@ -121,17 +121,27 @@ const struct TaskFunctions task_function[] = {
 };
 
 const struct TrapDoorSelling trapdoor_sell[] = {
-    {TDSC_Door, 4},
-    {TDSC_Trap, 1},
-    {TDSC_Trap, 6},
-    {TDSC_Door, 3},
-    {TDSC_Trap, 5},
-    {TDSC_Trap, 4},
-    {TDSC_Door, 2},
-    {TDSC_Trap, 3},
-    {TDSC_Door, 1},
-    {TDSC_Trap, 2},
-    {TDSC_EndList, 0},
+    {TDSC_DoorCrate,  4},
+    {TDSC_TrapCrate,  1},
+    {TDSC_TrapCrate,  6},
+    {TDSC_DoorCrate,  3},
+    {TDSC_TrapCrate,  5},
+    {TDSC_TrapCrate,  4},
+    {TDSC_DoorCrate,  2},
+    {TDSC_TrapCrate,  3},
+    {TDSC_DoorCrate,  1},
+    {TDSC_TrapCrate,  2},
+    {TDSC_DoorPlaced, 4},
+    {TDSC_TrapPlaced, 1},
+    {TDSC_TrapPlaced, 6},
+    {TDSC_DoorPlaced, 3},
+    {TDSC_TrapPlaced, 5},
+    {TDSC_TrapPlaced, 4},
+    {TDSC_DoorPlaced, 2},
+    {TDSC_TrapPlaced, 3},
+    {TDSC_DoorPlaced, 1},
+    {TDSC_TrapPlaced, 2},
+    {TDSC_EndList,    0},
 };
 
 const struct MoveToRoom move_to_room[] = {
@@ -1991,7 +2001,40 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    return _DK_task_wait_for_bridge(comp,ctask);
+    //return _DK_task_wait_for_bridge(comp,ctask);
+    if (game.play_gameturn - ctask->field_A > 7500)
+    {
+        restart_task_process(comp, ctask);
+        return 0;
+    }
+    PlayerNumber plyr_idx;
+    MapSubtlCoord basestl_x,basestl_y;
+    plyr_idx = comp->dungeon->owner;
+    basestl_x = ctask->dig.pos_next.x.stl.num;
+    basestl_y = ctask->dig.pos_next.y.stl.num;
+    long n;
+    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    {
+        MapSlabCoord slb_x,slb_y;
+        slb_x = subtile_slab_fast(basestl_x) + (long)small_around[n].delta_x;
+        slb_y = subtile_slab_fast(basestl_y) + (long)small_around[n].delta_y;
+        struct SlabMap *slb;
+        slb = get_slabmap_block(slb_x, slb_y);
+        if (slabmap_owner(slb) == plyr_idx)
+        {
+            if (try_game_action(comp, plyr_idx, GA_PlaceRoom, 0, basestl_x, basestl_y, 1, RoK_BRIDGE) > 0)
+            {
+                long i;
+                i = ctask->ottype;
+                ctask->ttype = i;
+                if (i == 0) {
+                    ERRORLOG("Bad set Task State");
+                }
+                return 1;
+            }
+        }
+    }
+    return 4;
 }
 
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -2003,19 +2046,22 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     //return _DK_task_attack_magic(comp,ctask);
     dungeon = comp->dungeon;
     thing = thing_get(ctask->word_76);
-    if (thing_is_invalid(thing))
-    {
+    if (thing_is_invalid(thing)) {
         return CTaskRet_Unk1;
     }
     i = ctask->field_7C;
     ctask->field_7C--;
-    if ((i <= 0) || creature_is_dying(thing) || creature_is_being_unconscious(thing))
+    if ((i <= 0) || creature_is_dying(thing) || creature_is_being_unconscious(thing)
+     || creature_is_kept_in_custody(thing))
     {
         remove_task(comp, ctask);
         return CTaskRet_Unk1;
     }
-    if (computer_able_to_use_magic(comp, ctask->long_86, ctask->field_70, 1) != 1)
+    // Note that can_cast_spell() shouldn't be needed here - should
+    // be checked in the function which adds the task
+    if (computer_able_to_use_magic(comp, ctask->long_86, ctask->field_70, 1) != 1) {
         return CTaskRet_Unk4;
+    }
     i = try_game_action(comp, dungeon->owner, ctask->long_80, ctask->field_70,
         thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->word_76, 0);
     if (i <= Lb_OK)
@@ -2030,15 +2076,15 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     TbBool item_sold;
     long value,model;
     long i;
-    SYNCDBG(19,"Starting");
-    //return _DK_task_sell_traps_and_doors(comp,ctask);
     dungeon = comp->dungeon;
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Invalid dungeon in computer player.");
         return 0;
     }
-    if ((ctask->field_7C >= ctask->long_76) && (ctask->long_80 >= dungeon->total_money_owned))
+    SYNCDBG(19,"Starting for player %d",(int)dungeon->owner);
+    //return _DK_task_sell_traps_and_doors(comp,ctask);
+    if ((ctask->long_76 <= ctask->field_7C) && (dungeon->total_money_owned <= ctask->long_80))
     {
         i = 0;
         value = 0;
@@ -2048,29 +2094,27 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
             tdsell = &trapdoor_sell[ctask->long_86];
             switch (tdsell->category)
             {
-            case TDSC_Door:
+            case TDSC_DoorCrate:
                 model = tdsell->model;
-                if ((model < 0) || (model >= DOOR_TYPES_COUNT))
-                {
-                    ERRORLOG("Internal error - invalid model %d in slot %d",(int)model,(int)i);
+                if ((model < 0) || (model >= DOOR_TYPES_COUNT)) {
+                    ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
                 if (dungeon->door_amount[model] > 0)
                 {
-                  item_sold = true;
-                  value = game.doors_config[model].selling_value;
-                  if (remove_workshop_item(dungeon->owner, TCls_Door, model))
-                  {
-                    remove_workshop_object_from_player(dungeon->owner, door_to_object[model]);
-                  }
-                  SYNCDBG(9,"Door model %d sold for %d gold",(int)model,(int)value);
+                    item_sold = true;
+                    value = game.doors_config[model].selling_value;
+                    if (remove_workshop_item(dungeon->owner, TCls_Door, model))
+                    {
+                        remove_workshop_object_from_player(dungeon->owner, door_to_object[model]);
+                    }
+                    SYNCDBG(9,"Door model %d sold for %d gold",(int)model,(int)value);
                 }
                 break;
-            case TDSC_Trap:
+            case TDSC_TrapCrate:
                 model = tdsell->model;
-                if ((model < 0) || (model >= TRAP_TYPES_COUNT))
-                {
-                    ERRORLOG("Internal error - invalid model %d in slot %d",(int)model,(int)i);
+                if ((model < 0) || (model >= TRAP_TYPES_COUNT)) {
+                    ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
                 if (dungeon->trap_amount[model] > 0)
@@ -2083,6 +2127,12 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     }
                     SYNCDBG(9,"Trap model %ld sold for %ld gold",model,value);
                 }
+                break;
+            case TDSC_DoorPlaced:
+                // TODO COMPUTER_SELL make support of selling real door
+                break;
+            case TDSC_TrapPlaced:
+                // TODO COMPUTER_SELL make support of selling real trap
                 break;
             default:
                 ERRORLOG("Unknown SELL_ITEM type");
@@ -2105,8 +2155,11 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 return 1;
             }
         }
+        SYNCDBG(9,"Could not sell anything, aborting.");
+    } else
+    {
+        SYNCDBG(9,"Initial conditions not met, aborting.");
     }
-    SYNCDBG(9,"Couldn't sell anything, aborting.");
     remove_task(comp, ctask);
     return 0;
 }
