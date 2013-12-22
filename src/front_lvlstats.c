@@ -181,7 +181,7 @@ long calculate_rating(PlayerNumber plyr_idx)
     return 75 * rating;
 }
 
-long calculate_doors_unused(long plyr_idx)
+long calculate_doors_unused(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;
@@ -195,7 +195,7 @@ long calculate_doors_unused(long plyr_idx)
     return count;
 }
 
-long calculate_traps_unused(long plyr_idx)
+long calculate_traps_unused(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     long i;

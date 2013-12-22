@@ -261,14 +261,20 @@ long remove_workshop_object_from_player(PlayerNumber owner, long model)
     return 1;
 }
 
-TbBool get_next_manufacture(struct Dungeon *dungeon)
+/**
+ * Finds a doable manufacture which has minimal amoint of items ready to use.
+ * Returns that minimal amount of items, and manufacture kind related to it.
+ * @param dungeon The dungeon which is to be checked.
+ * @param mnfctr_class Class of the manufacture with minimal items available.
+ * @param mnfctr_kind Kind of the manufacture with minimal items available.
+ * @return Gives minimal amount of items available, or LONG_MAX if no doable manufacture was found.
+ */
+long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind)
 {
     int chosen_class,chosen_kind,chosen_amount,chosen_level;
     struct ManfctrConfig *mconf;
     int tng_kind;
     long amount;
-    //return _DK_get_next_manufacture(dungeon);
-    set_manufacture_level(dungeon);
     chosen_class = TCls_Empty;
     chosen_kind = 0;
     chosen_amount = LONG_MAX;
@@ -280,16 +286,13 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
         if ( (dungeon->door_buildable[tng_kind]) && (dungeon->manufacture_level >= mconf->manufct_level) )
         {
             amount = dungeon->door_amount[tng_kind];
-            if (amount < MANUFACTURED_ITEMS_LIMIT)
+            if ( (chosen_amount > amount) ||
+                ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
             {
-                if ( (chosen_amount > amount) ||
-                    ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
-                {
-                    chosen_class = TCls_Door;
-                    chosen_amount = dungeon->door_amount[tng_kind];
-                    chosen_kind = tng_kind;
-                    chosen_level = mconf->manufct_level;
-                }
+                chosen_class = TCls_Door;
+                chosen_amount = dungeon->door_amount[tng_kind];
+                chosen_kind = tng_kind;
+                chosen_level = mconf->manufct_level;
             }
         }
     }
@@ -300,18 +303,38 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
         if ( (dungeon->trap_buildable[tng_kind]) && (dungeon->manufacture_level >= mconf->manufct_level) )
         {
             amount = dungeon->trap_amount[tng_kind];
-            if (amount < MANUFACTURED_ITEMS_LIMIT)
+            if ( (chosen_amount > amount) ||
+                ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
             {
-                if ( (chosen_amount > amount) ||
-                    ((chosen_amount == amount) && (chosen_level > mconf->manufct_level)) )
-                {
-                    chosen_class = TCls_Trap;
-                    chosen_amount = dungeon->trap_amount[tng_kind];
-                    chosen_kind = tng_kind;
-                    chosen_level = mconf->manufct_level;
-                }
+                chosen_class = TCls_Trap;
+                chosen_amount = dungeon->trap_amount[tng_kind];
+                chosen_kind = tng_kind;
+                chosen_level = mconf->manufct_level;
             }
         }
+    }
+    if (chosen_class != TCls_Empty)
+    {
+        if (mnfctr_class != NULL)
+            *mnfctr_class = chosen_class;
+        if (mnfctr_kind != NULL)
+            *mnfctr_kind = chosen_kind;
+    }
+    return chosen_amount;
+}
+
+TbBool get_next_manufacture(struct Dungeon *dungeon)
+{
+    int chosen_class,chosen_kind,chosen_amount;
+    //return _DK_get_next_manufacture(dungeon);
+    set_manufacture_level(dungeon);
+    chosen_class = TCls_Empty;
+    chosen_kind = 0;
+    chosen_amount = get_doable_manufacture_with_minimal_amount_available(dungeon, &chosen_class, &chosen_kind);
+    if (chosen_amount >= MANUFACTURED_ITEMS_LIMIT)
+    {
+        WARNDBG(6,"Player %d reached manufacture limit for all items",(int)dungeon->owner);
+        return false;
     }
     if (chosen_class != TCls_Empty)
     {

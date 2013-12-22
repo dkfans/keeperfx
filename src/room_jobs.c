@@ -33,6 +33,7 @@
 #include "spdigger_stack.h"
 #include "config_terrain.h"
 #include "config_creature.h"
+#include "room_workshop.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
@@ -661,7 +662,6 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
 
 TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind)
 {
-    long i;
     switch (rkind)
     {
     case RoK_LIBRARY:
@@ -677,14 +677,7 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKi
             return false;
         return true;
     case RoK_WORKSHOP:
-        for (i = 1; i < TRAP_TYPES_COUNT; i++)
-        {
-            if ((dungeon->trap_buildable[i]) && (dungeon->trap_amount[i] == 0))
-            {
-              break;
-            }
-        }
-        if (i == TRAP_TYPES_COUNT)
+        if (get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL) > 0)
             return false;
         return true;
     default:

@@ -3615,6 +3615,29 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long crmodel, long job_idx, 
     return thing;
 }
 
+TbBool creature_is_doing_job_in_room_of_kind(const struct Thing *creatng, RoomKind rkind)
+{
+    {
+        // Check if we're just starting a job related to that room
+        CrtrStateId pvstate;
+        CrtrStateId nxstate;
+        pvstate = get_creature_state_besides_interruptions(creatng);
+        nxstate = get_initial_state_for_job(get_job_for_room(rkind, false));
+        if ((pvstate != CrSt_Unused) && (pvstate == nxstate)) {
+            return true;
+        }
+    }
+    {
+        // Check if we're already working in that room kind
+        struct Room *room;
+        room = get_room_creature_works_in(creatng);
+        if (!room_is_invalid(room)) {
+            return (room->kind == rkind);
+        }
+    }
+    return false;
+}
+
 long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     struct Computer2 *comp;
@@ -3754,13 +3777,12 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     // Get other rooms the creature may work in
     if (creature_state_is_unset(thing) || force_state_reset)
     {
-        struct Room *nxroom;
-        struct Room *pvroom;
-        nxroom = get_room_to_place_creature(comp, thing);
-        pvroom = get_room_creature_works_in(thing);
-        if (!room_is_invalid(nxroom) && (nxroom->kind != pvroom->kind))
+        struct Room *room;
+        room = get_room_to_place_creature(comp, thing);
+        // Make sure the place we've selected is not the same as the one creature works in now
+        if (!creature_is_doing_job_in_room_of_kind(thing, room->kind))
         {
-            param->num2 = nxroom->kind;
+            param->num2 = room->kind;
             return LONG_MAX;
         }
     }
