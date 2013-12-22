@@ -1036,7 +1036,7 @@ ItemAvailability computer_check_room_available(struct Computer2 * comp, long rki
     return IAvail_Now;
 }
 
-TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
     struct SlabAttr *slbattr;
     struct SlabMap *slb;
@@ -1476,8 +1476,8 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
     SubtlCodedCoords stl_num;
     SYNCDBG(15,"Starting");
     //return _DK_check_for_gold(l1, l2, l3);
-    basestl_x = subtile_at_slab_center(basestl_x);
-    basestl_y = subtile_at_slab_center(basestl_y);
+    basestl_x = stl_slab_center_subtile(basestl_x);
+    basestl_y = stl_slab_center_subtile(basestl_y);
     stl_num = get_subtile_number(basestl_x,basestl_y);
     slb = get_slabmap_for_subtile(basestl_x,basestl_y);
     slbattr = get_slab_attrs(slb);

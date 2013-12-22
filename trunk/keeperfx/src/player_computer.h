@@ -24,6 +24,7 @@
 #include "globals.h"
 
 #include "config.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -377,7 +378,7 @@ struct ComputerTask { // sizeof = 148
 struct Comp2_UnkStr1 { // sizeof = 394
     unsigned long field_0;
     short field_4;
-    unsigned long field_6;
+    long hate_amount;
     struct Coord3d pos_A[64];
 };
 
@@ -399,7 +400,7 @@ struct Computer2 { // sizeof = 5322
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
   struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-  struct Comp2_UnkStr1 unkarr_A10[5];
+  struct Comp2_UnkStr1 unkarr_A10[PLAYERS_COUNT];
   unsigned char field_11C2[394];
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
   unsigned char field_13C4[60];
@@ -420,7 +421,10 @@ struct ComputerPlayerConfig {
  * Contains value of hate between players.
  */
 struct THate {
-    long value[4];
+    long amount;
+    long plyr_idx;
+    struct Coord3d *pos_near;
+    long distance_near;
 };
 
 struct ExpandRooms {
@@ -470,7 +474,7 @@ TbBool process_checks(struct Computer2 *comp);
 GoldAmount get_computer_money_less_cost(const struct Computer2 *comp);
 TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, const struct Thing *thing);
 struct Room *get_room_to_place_creature(const struct Computer2 *comp, const struct Thing *thing);
-TbBool xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
+long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);
 /******************************************************************************/
 struct ComputerTask *get_computer_task(long idx);
 struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long a2);
@@ -494,6 +498,7 @@ TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name);
 #define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
+int search_spiral(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long));
 /******************************************************************************/
 ItemAvailability computer_check_room_available(struct Computer2 * comp, long rkind);
 long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
@@ -505,6 +510,8 @@ long check_call_to_arms(struct Computer2 *comp);
 long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
+/******************************************************************************/
+long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long a4);
 /******************************************************************************/
 TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model);
 void process_computer_players2(void);
