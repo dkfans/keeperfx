@@ -289,7 +289,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *pro
     struct ComputerTask *ctask;
     long i;
     ctask = computer_setup_build_room(comp, process->field_10, process->field_8, process->field_C, process->field_14);
-    if (ctask != NULL)
+    if (!computer_task_invalid(ctask))
     {
         SYNCDBG(8,"Task for \"%s\" has been created",process->name);
         process->flags |= ComProc_Unkn0020;
@@ -326,7 +326,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
     long i;
     //return _DK_computer_setup_any_room_continue(comp, process);
     ctask = computer_setup_build_room(comp, process->field_10, process->field_8, process->field_C, process->field_14);
-    if (ctask != NULL)
+    if (!computer_task_invalid(ctask))
     {
         SYNCDBG(8,"Task for \"%s\" has been created",process->name);
         process->flags |= ComProc_Unkn0020;
