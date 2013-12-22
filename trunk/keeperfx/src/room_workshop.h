@@ -29,7 +29,7 @@ extern "C" {
 /** Count of possible manufacture types */
 #define MANUFCTR_TYPES_COUNT  11
 /** Maximal count of manufactured boxes of specific kind. */
-#define MANUFACTURED_ITEMS_LIMIT 199
+#define MANUFACTURED_ITEMS_LIMIT 49
 
 /******************************************************************************/
 #pragma pack(1)
@@ -64,6 +64,7 @@ TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
 TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, ThingModel tngmodel);
 long remove_workshop_item(long owner, long tngclass, long tngmodel);
 long remove_workshop_object_from_player(PlayerNumber owner, long model);
+long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind);
 TbBool get_next_manufacture(struct Dungeon *dungeon);
 short process_player_manufacturing(PlayerNumber plyr_idx);
 /******************************************************************************/
