@@ -422,7 +422,7 @@ MapSubtlCoord stl_num_decode_y(SubtlCodedCoords stl_num)
  */
 SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y)
 {
-  return get_subtile_number(slb_x*3+1,slb_y*3+1);
+  return get_subtile_number(slb_x*STL_PER_SLB+1,slb_y*STL_PER_SLB+1);
 }
 
 /**
@@ -430,7 +430,7 @@ SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y)
  */
 MapSubtlCoord stl_slab_center_subtile(MapSubtlCoord stl_v)
 {
-  return subtile_slab_fast(stl_v)*3+1;
+  return subtile_slab_fast(stl_v)*STL_PER_SLB+1;
 }
 
 /**
@@ -438,7 +438,7 @@ MapSubtlCoord stl_slab_center_subtile(MapSubtlCoord stl_v)
  */
 MapSubtlCoord stl_slab_starting_subtile(MapSubtlCoord stl_v)
 {
-  return subtile_slab_fast(stl_v)*3;
+  return subtile_slab_fast(stl_v)*STL_PER_SLB;
 }
 
 /**
@@ -446,7 +446,7 @@ MapSubtlCoord stl_slab_starting_subtile(MapSubtlCoord stl_v)
  */
 MapSubtlCoord stl_slab_ending_subtile(MapSubtlCoord stl_v)
 {
-  return subtile_slab_fast(stl_v)*3+2;
+  return subtile_slab_fast(stl_v)*STL_PER_SLB+STL_PER_SLB-1;
 }
 
 /******************************************************************************/

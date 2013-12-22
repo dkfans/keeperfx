@@ -473,18 +473,18 @@ void kill_oldest_my_event(struct Dungeon *dungeon)
 
 void maintain_all_players_event_lists(void)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  long i;
-  for (i=0; i < PLAYERS_COUNT; i++)
-  {
-    player = get_player(i);
-    if (player_exists(player))
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    long i;
+    for (i=0; i < PLAYERS_COUNT; i++)
     {
-      dungeon = get_players_dungeon(player);
-      maintain_my_event_list(dungeon);
+        player = get_player(i);
+        if (player_exists(player))
+        {
+          dungeon = get_players_dungeon(player);
+          maintain_my_event_list(dungeon);
+        }
     }
-  }
 }
 
 struct Thing *event_is_attached_to_thing(long ev_idx)

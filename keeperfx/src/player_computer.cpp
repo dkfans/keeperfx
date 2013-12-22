@@ -677,11 +677,96 @@ struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp)
     return _DK_is_there_an_attack_task(comp);
 }
 
-void get_opponent(struct Computer2 *comp, struct THate *hate)
+/**
+ * Gathers information about players hatred to other players.
+ *
+ * @param comp Computer player to be considered.
+ * @param hates The output hatred array. The array size should be PLAYERS_COUNT.
+ *   The function will fill the array with hatred information, and sort it so that
+ *   first entry informs of the player toward whom the hatred is highest.
+ */
+void get_opponent(struct Computer2 *comp, struct THate *hates)
 {
-    // Note that originally the hate array had only 4  items
-    LbMemorySet(hate,0,PLAYERS_COUNT*sizeof(struct THate));
-    _DK_get_opponent(comp, hate);
+    //_DK_get_opponent(comp, hate);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    long i;
+    // Initialize hate struct
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        struct THate *hate;
+        hate = &hates[i];
+        struct Comp2_UnkStr1 *unkarrp;
+        unkarrp = &comp->unkarr_A10[i];
+        hate->amount = unkarrp->hate_amount;
+        hate->plyr_idx = i;
+        hate->pos_near = NULL;
+        hate->distance_near = LONG_MAX;
+    }
+    // Sort the hates, using basic sorting algorithm
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        long n;
+        for (n=0; n < PLAYERS_COUNT-1; n++)
+        {
+            struct THate *hat1;
+            hat1 = &hates[i];
+            struct THate *hat2;
+            hat2 = &hates[i+1];
+            if (hat2->amount > hat1->amount)
+            {
+                // Switch hates so larger one is first
+                struct THate tmp;
+                LbMemoryCopy(&tmp,hat2,sizeof(struct THate));
+                LbMemoryCopy(hat2,hat1,sizeof(struct THate));
+                LbMemoryCopy(hat1,&tmp,sizeof(struct THate));
+            }
+        }
+    }
+    // Get position of a possible attack - select one of minimum distance to our heart
+    struct Thing *heartng;
+    heartng = get_player_soul_container(dungeon->owner);
+    MapSubtlCoord dnstl_x, dnstl_y;
+    dnstl_x = heartng->mappos.x.stl.num;
+    dnstl_y = heartng->mappos.y.stl.num;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        struct THate *hate;
+        hate = &hates[i];
+        struct Comp2_UnkStr1 *unkarrp;
+        unkarrp = &comp->unkarr_A10[hate->plyr_idx];
+        int ptidx;
+        ptidx = unkarrp->field_4;
+        if (ptidx > 0)
+          ptidx--;
+        long n;
+        for (n=0; n < 64; n++)
+        {
+            struct Coord3d *pos;
+            pos = &unkarrp->pos_A[ptidx];
+            if ((pos->x.val > 0) && (pos->y.val > 0))
+            {
+                if (search_spiral(pos, hate->plyr_idx, 25, xy_walkable) == 25)
+                {
+                    pos->x.val = 0;
+                } else
+                if (find_from_task_list_by_subtile(dungeon->owner, pos->x.stl.num, pos->y.stl.num) >= 0)
+                {
+                    pos->x.val = 0;
+                } else
+                {
+                    long dist;
+                    dist = abs((MapSubtlCoord)pos->x.stl.num - dnstl_x) + abs((MapSubtlCoord)pos->y.stl.num - dnstl_y);
+                    if (hate->distance_near >= dist)
+                    {
+                        hate->distance_near = dist;
+                        hate->pos_near = pos;
+                    }
+                }
+            }
+            ptidx = (ptidx + 1) % 64;
+        }
+    }
 }
 
 long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos)
@@ -703,8 +788,8 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     }
     ctask->ttype = CTT_DigToAttack;
     struct Coord3d startpos, endpos;
-    startpos.x.val = subtile_coord_center(subtile_at_slab_center(room->central_stl_x));
-    startpos.y.val = subtile_coord_center(subtile_at_slab_center(room->central_stl_y));
+    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(room->central_stl_x));
+    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(room->central_stl_y));
     startpos.z.val = subtile_coord(1,0);
     endpos.x.val = pos->x.val;
     endpos.y.val = pos->y.val;
@@ -915,7 +1000,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
         } else
         if (slb->kind != SlbT_PATH)
         { // If it would be a path, we could wait for someone to claim it; but if it's not..
-            if (find_from_task_list(dungeon->owner, get_slab_number(slb_x,slb_y)) < 0)
+            if (find_from_task_list_by_slab(dungeon->owner, slb_x, slb_y) < 0)
             { // If we have no intention of doing a task there - remove it from list
                 WARNLOG("Removing player %d trap location (%d,%d) because of %s there",(int)dungeon->owner,(int)location->x.stl.num,(int)location->y.stl.num,slab_code_name(slb->kind));
                 location->x.val = 0;
@@ -1139,9 +1224,9 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         unkptr->field_0 = 0;
         unkptr->field_4 = 0;
         if (i == plyr_idx) {
-            unkptr->field_6 = 0x80000000;
+            unkptr->hate_amount = LONG_MIN;
         } else {
-            unkptr->field_6 = 0;
+            unkptr->hate_amount = 0;
         }
     }
     comp->field_1C = cpt->field_4;

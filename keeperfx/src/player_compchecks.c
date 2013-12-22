@@ -174,32 +174,32 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
         if (hdngn_creatrs >= cdngn_creatrs)
         {
             hate_reasons++;
-            rel->field_6++;
+            rel->hate_amount++;
         }
         // Computers hate players who have more special diggers than them
         if (cdngn_spdiggrs / 6 + cdngn_spdiggrs < hdngn_spdiggrs)
         {
             hate_reasons++;
-            rel->field_6++;
+            rel->hate_amount++;
         }
         // Computers hate players who can build more rooms than them
         if (((int)compdngn->buildable_rooms_count + (int)compdngn->buildable_rooms_count / 6) < (int)dungeon->buildable_rooms_count)
         {
             hate_reasons++;
-            rel->field_6++;
+            rel->hate_amount++;
         }
         // Computers highly hate players who claimed more entrances than them
         hdngn_enrancs = count_entrances(comp, i);
         if (hdngn_enrancs > cdngn_enrancs)
         {
             hate_reasons++;
-            rel->field_6 += 5;
+            rel->hate_amount += 5;
         }
         // If no reason to hate the player - hate him randomly for just surviving that long
         if ((hate_reasons <= 0) && (check->param1 < game.play_gameturn))
         {
             if (ACTION_RANDOM(100) < 20) {
-                rel->field_6++;
+                rel->hate_amount++;
             }
         }
     }
@@ -447,17 +447,19 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
 
 struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_hate)
 {
-    struct THate hate[PLAYERS_COUNT];
-    long plyr_idx;
-    get_opponent(comp, hate);
-    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    struct THate hates[PLAYERS_COUNT];
+    long i;
+    get_opponent(comp, hates);
+    for (i=0; i < PLAYERS_COUNT; i++)
     {
-        if (players_are_enemies(comp->dungeon->owner,plyr_idx))
+        struct THate *hate;
+        hate = &hates[i];
+        if (players_are_enemies(comp->dungeon->owner, hate->plyr_idx))
         {
-            if ((hate[plyr_idx].value[2]) && (hate[plyr_idx].value[0] > min_hate))
+            if ((hate->pos_near != NULL) && (hate->amount > min_hate))
             {
                 struct Room *room;
-                room = get_opponent_room(comp, plyr_idx);
+                room = get_opponent_room(comp, hate->plyr_idx);
                 if (!room_is_invalid(room)) {
                     return room;
                 }
@@ -894,8 +896,8 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     endpos.x.val = near_pos->x.val;
     endpos.y.val = near_pos->y.val;
     endpos.z.val = near_pos->z.val;
-    startpos.x.val = subtile_coord_center(subtile_at_slab_center(near_room->central_stl_x));
-    startpos.y.val = subtile_coord_center(subtile_at_slab_center(near_room->central_stl_y));
+    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(near_room->central_stl_x));
+    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(near_room->central_stl_y));
     startpos.z.val = subtile_coord(1,0);
     ctask->ttype = CTT_DigToNeutral;
     ctask->byte_80 = 0;
