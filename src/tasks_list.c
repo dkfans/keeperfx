@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 
 #include "spdigger_stack.h"
+#include "map_data.h"
 #include "dungeon_data.h"
 
 #ifdef __cplusplus
@@ -51,7 +52,7 @@ struct MapTask *get_task_list_entry(long plyr_idx, long task_idx)
     return &dungeon->task_list[task_idx];
 }
 
-long find_from_task_list(PlayerNumber plyr_idx, SlabCodedCoords srch_tsk)
+long find_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 {
   struct Dungeon *dungeon;
   struct MapTask *task;
@@ -69,7 +70,47 @@ long find_from_task_list(PlayerNumber plyr_idx, SlabCodedCoords srch_tsk)
   return -1;
 }
 
-long find_dig_from_task_list(PlayerNumber plyr_idx, SlabCodedCoords srch_tsk)
+long find_from_task_list_by_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+  struct Dungeon *dungeon;
+  struct MapTask *task;
+  long i,imax;
+  SubtlCodedCoords srch_tsk;
+  srch_tsk = get_subtile_number_at_slab_center(slb_x, slb_y);
+  dungeon = get_dungeon(plyr_idx);
+  imax = dungeon->field_AF7;
+  if (imax > MAPTASKS_COUNT)
+      imax = MAPTASKS_COUNT;
+  for (i=0; i < imax; i++)
+  {
+      task = &dungeon->task_list[i];
+      if (task->coords == srch_tsk)
+          return i;
+  }
+  return -1;
+}
+
+long find_from_task_list_by_subtile(PlayerNumber plyr_idx, MapSlabCoord stl_x, MapSlabCoord stl_y)
+{
+  struct Dungeon *dungeon;
+  struct MapTask *task;
+  long i,imax;
+  SubtlCodedCoords srch_tsk;
+  srch_tsk = get_subtile_number(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
+  dungeon = get_dungeon(plyr_idx);
+  imax = dungeon->field_AF7;
+  if (imax > MAPTASKS_COUNT)
+      imax = MAPTASKS_COUNT;
+  for (i=0; i < imax; i++)
+  {
+      task = &dungeon->task_list[i];
+      if (task->coords == srch_tsk)
+          return i;
+  }
+  return -1;
+}
+
+long find_dig_from_task_list(PlayerNumber plyr_idx, SubtlCodedCoords srch_tsk)
 {
     //return _DK_find_dig_from_task_list(a1, a2);
     struct Dungeon *dungeon;

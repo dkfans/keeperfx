@@ -697,8 +697,8 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
             if (dist > 0) {
                 entdist = dist;
                 entroom = room;
-                startpos.x.val = subtile_coord_center(subtile_at_slab_center(pos.x.stl.num));
-                startpos.y.val = subtile_coord_center(subtile_at_slab_center(pos.y.stl.num));
+                startpos.x.val = subtile_coord_center(stl_slab_center_subtile(pos.x.stl.num));
+                startpos.y.val = subtile_coord_center(stl_slab_center_subtile(pos.y.stl.num));
                 startpos.z.val = pos.z.val;
             }
         }
@@ -713,8 +713,8 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
                 if ((dist < entdist) || (targdngn->num_active_creatrs > dungeon->num_active_creatrs)) {
                     entdist = dist;
                     entroom = room;
-                    startpos.x.val = subtile_coord_center(subtile_at_slab_center(pos.x.stl.num));
-                    startpos.y.val = subtile_coord_center(subtile_at_slab_center(pos.y.stl.num));
+                    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(pos.x.stl.num));
+                    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(pos.y.stl.num));
                     startpos.z.val = pos.z.val;
                 }
             }
@@ -726,8 +726,8 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     }
     // Set the end position
     struct Coord3d endpos;
-    endpos.x.val = subtile_coord_center(subtile_at_slab_center(entroom->central_stl_x));
-    endpos.y.val = subtile_coord_center(subtile_at_slab_center(entroom->central_stl_y));
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(entroom->central_stl_x));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(entroom->central_stl_y));
     endpos.z.val = subtile_coord(1,0);
     // If we are supposed to dig there, then do it
     if (comp->field_20)
@@ -802,11 +802,11 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         SYNCDBG(8,"Gold is out of distance (%lu > %lu)",digres,max_distance);
         return 4;
     }
-    endpos.x.val = subtile_coord_center(subtile_at_slab_center(gldlook->x_stl_num));
-    endpos.y.val = subtile_coord_center(subtile_at_slab_center(gldlook->y_stl_num));
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(gldlook->x_stl_num));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(gldlook->y_stl_num));
     endpos.z.val = subtile_coord(1,0);
-    startpos.x.val = subtile_coord_center(subtile_at_slab_center(startpos.x.stl.num));
-    startpos.y.val = subtile_coord_center(subtile_at_slab_center(startpos.y.stl.num));
+    startpos.x.val = subtile_coord_center(stl_slab_center_subtile(startpos.x.stl.num));
+    startpos.y.val = subtile_coord_center(stl_slab_center_subtile(startpos.y.stl.num));
     startpos.z.val = subtile_coord(1,0);
     if ( comp->field_20 )
     {
@@ -912,7 +912,40 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
 
 long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *process)
 {
-    return _DK_computer_check_attack1(comp, process);
+    //return _DK_computer_check_attack1(comp, process);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    int max_crtrs;
+    max_crtrs = dungeon->max_creatures_attracted;
+    if (max_crtrs <= 0) {
+        suspend_process(comp, process);
+        return 4;
+    }
+    if ((100 * dungeon->num_active_creatrs / max_crtrs < process->field_10) || is_there_an_attack_task(comp)) {
+        suspend_process(comp, process);
+        return 4;
+    }
+    if (process->field_8 * count_creatures_availiable_for_fight(comp, 0) / 100 < process->field_C) {
+        suspend_process(comp, process);
+        return 4;
+    }
+    struct THate hates[PLAYERS_COUNT];
+    get_opponent(comp, hates);
+    long i;
+    for (i=0; i < PLAYERS_COUNT; i++)
+    {
+        struct THate *hate;
+        hate = &hates[i];
+        if (hate->pos_near != NULL) {
+            if (setup_computer_attack(comp, process, hate->pos_near, hate->plyr_idx) == 1) {
+                hate->pos_near->x.val = 0;
+                hate->pos_near->y.val = 0;
+                return 1;
+            }
+        }
+    }
+    suspend_process(comp, process);
+    return 4;
 }
 
 long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *process)
