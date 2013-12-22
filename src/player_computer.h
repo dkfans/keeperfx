@@ -73,8 +73,10 @@ enum ComputerTaskTypes {
 
 enum TrapDoorSellingCategory {
     TDSC_EndList = 0,
-    TDSC_Door,
-    TDSC_Trap,
+    TDSC_DoorCrate,
+    TDSC_TrapCrate,
+    TDSC_DoorPlaced,
+    TDSC_TrapPlaced,
 };
 
 enum GameActionTypes {

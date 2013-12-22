@@ -242,16 +242,16 @@ long remove_workshop_item(long owner, long tngclass, long tngmodel)
     return _DK_remove_workshop_item(owner, tngclass, tngmodel);
 }
 
-long remove_workshop_object_from_player(PlayerNumber owner, long model)
+long remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmodel)
 {
     struct Thing *thing;
     struct Room *room;
     //return _DK_remove_workshop_object_from_player(a1, a2);
-    thing = get_workshop_box_thing(owner, model);
+    thing = get_workshop_box_thing(owner, objmodel);
     if (thing_is_invalid(thing))
         return 0;
     room = get_room_thing_is_on(thing);
-    if ( room_exists(room) ) {
+    if (room_exists(room)) {
         remove_workshop_object_from_workshop(room,thing);
     } else {
         WARNLOG("Crate thing index %d isn't placed existing room; removing anyway",(int)thing->index);

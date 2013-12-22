@@ -63,7 +63,7 @@ TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *boxt
 TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
 TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, ThingModel tngmodel);
 long remove_workshop_item(long owner, long tngclass, long tngmodel);
-long remove_workshop_object_from_player(PlayerNumber owner, long model);
+long remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmodel);
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind);
 TbBool get_next_manufacture(struct Dungeon *dungeon);
 short process_player_manufacturing(PlayerNumber plyr_idx);
