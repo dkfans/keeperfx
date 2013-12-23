@@ -415,7 +415,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         {
             struct Dungeon *dungeon;
             dungeon = get_dungeon(room->owner);
-            if (!is_neutral_thing(creatng) && (dungeon->field_F78 < 0))
+            if (!is_neutral_thing(creatng) && (dungeon->current_research_idx < 0))
             {
                 if (is_my_player_number(dungeon->owner)) {
                     output_message(SMsg_NoMoreReseach, 500, true);
@@ -665,7 +665,7 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKi
     switch (rkind)
     {
     case RoK_LIBRARY:
-        if (dungeon->field_F78 < 0)
+        if (dungeon->current_research_idx < 0)
             return false;
         return true;
     case RoK_TRAINING:

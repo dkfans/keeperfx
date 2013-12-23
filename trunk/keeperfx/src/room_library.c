@@ -105,7 +105,7 @@ void init_dungeons_research(void)
     for (i=0; i < DUNGEONS_COUNT; i++)
     {
       dungeon = get_dungeon(i);
-      dungeon->field_F78 = get_next_research_item(dungeon);
+      dungeon->current_research_idx = get_next_research_item(dungeon);
     }
 }
 
