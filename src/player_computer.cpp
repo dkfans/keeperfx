@@ -740,7 +740,7 @@ void get_opponent(struct Computer2 *comp, struct THate *hates)
         if (ptidx > 0)
           ptidx--;
         long n;
-        for (n=0; n < 64; n++)
+        for (n=0; n < COMPUTER_SPARK_POSITIONS_COUNT; n++)
         {
             struct Coord3d *pos;
             pos = &unkarrp->pos_A[ptidx];
@@ -764,7 +764,7 @@ void get_opponent(struct Computer2 *comp, struct THate *hates)
                     }
                 }
             }
-            ptidx = (ptidx + 1) % 64;
+            ptidx = (ptidx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
         }
     }
 }
@@ -774,10 +774,11 @@ long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **re
     return _DK_computer_finds_nearest_room_to_pos(comp, retroom, nearpos);
 }
 
-long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long a4)
+long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long victim_plyr_idx)
 {
     struct ComputerTask *ctask;
     struct Room *room;
+    SYNCDBG(8,"Starting player %d attack on %d",(int)comp->dungeon->owner,(int)victim_plyr_idx);
     //return _DK_setup_computer_attack(comp, process, pos, a4);
     if (!computer_finds_nearest_room_to_pos(comp, &room, pos)) {
         return 0;
@@ -801,7 +802,7 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     ctask->pos_76.y.val = endpos.y.val;
     ctask->pos_76.z.val = endpos.z.val;
     ctask->field_8C = computer_process_index(comp, process);
-    ctask->word_86 = a4;
+    ctask->word_86 = victim_plyr_idx;
     ctask->field_5C = 0;
     ctask->flags |= 0x04;
     ctask->dig.pos_begin.x.val = startpos.x.val;

@@ -103,7 +103,7 @@ struct SlabMap *get_slabmap_for_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y
         return INVALID_SLABMAP_BLOCK;
     if ((stl_y < 0) || (stl_y >= map_subtiles_y))
         return INVALID_SLABMAP_BLOCK;
-    return &game.slabmap[subtile_slab_fast(stl_y)*(map_tiles_x) + subtile_slab_fast(stl_x)];
+    return &game.slabmap[subtile_slab(stl_y)*(map_tiles_x) + subtile_slab(stl_x)];
 }
 
 /**

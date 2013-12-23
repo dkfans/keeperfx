@@ -449,7 +449,9 @@ struct Room *get_hated_room_for_quick_attack(struct Computer2 *comp, long min_ha
 {
     struct THate hates[PLAYERS_COUNT];
     long i;
+    SYNCDBG(8,"Starting for player %d",(int)comp->dungeon->owner);
     get_opponent(comp, hates);
+    // note that 'i' is not player index, player index is inside THate struct
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         struct THate *hate;

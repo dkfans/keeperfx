@@ -92,7 +92,6 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
 long add_to_trap_location(struct Computer2 *, struct Coord3d *);
 long find_next_gold(struct Computer2 *, struct ComputerTask *);
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx);
-int search_spiral(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long));
 /******************************************************************************/
 /**
  * Computer tasks definition array.
@@ -1497,11 +1496,11 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
     return 0;
 }
 
-int search_spiral(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long))
+int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"%s: Starting at (%d,%d)",func_name,pos->x.stl.num,pos->y.stl.num);
     long retval = _DK_search_spiral(pos, owner, i3, cb);
-    SYNCDBG(8,"Finished");
+    SYNCDBG(8,"%s: Finished with %d",func_name,(int)retval);
 
     return retval;
 }
