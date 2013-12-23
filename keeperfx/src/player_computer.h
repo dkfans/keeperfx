@@ -40,6 +40,7 @@ extern "C" {
 #define COMPUTER_PROCESS_TYPES_COUNT 26
 #define COMPUTER_CHECKS_TYPES_COUNT  51
 #define COMPUTER_EVENTS_TYPES_COUNT  31
+#define COMPUTER_SPARK_POSITIONS_COUNT 64
 
 /** How strong should be the preference to dig glod from treasure room and not other rooms. Originally was 22 subtiles. */
 #define TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD 16
@@ -381,7 +382,7 @@ struct Comp2_UnkStr1 { // sizeof = 394
     unsigned long field_0;
     short field_4;
     long hate_amount;
-    struct Coord3d pos_A[64];
+    struct Coord3d pos_A[COMPUTER_SPARK_POSITIONS_COUNT];
 };
 
 struct Computer2 { // sizeof = 5322
@@ -500,7 +501,8 @@ TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name);
 #define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
-int search_spiral(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long));
+#define search_spiral(pos, owner, i3, cb) search_spiral_f(pos, owner, i3, cb, __func__)
+int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int i3, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
 /******************************************************************************/
 ItemAvailability computer_check_room_available(struct Computer2 * comp, long rkind);
 long computer_find_non_solid_block(struct Computer2 *comp, struct Coord3d *pos);
@@ -513,7 +515,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp);
 long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos);
 /******************************************************************************/
-long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long a4);
+long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long victim_plyr_idx);
 /******************************************************************************/
 TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model);
 void process_computer_players2(void);
