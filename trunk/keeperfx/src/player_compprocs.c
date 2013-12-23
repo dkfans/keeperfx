@@ -915,6 +915,7 @@ long computer_check_attack1(struct Computer2 *comp, struct ComputerProcess *proc
     //return _DK_computer_check_attack1(comp, process);
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
+    SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
     int max_crtrs;
     max_crtrs = dungeon->max_creatures_attracted;
     if (max_crtrs <= 0) {
@@ -955,6 +956,7 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
     //return _DK_computer_check_safe_attack(comp, process);
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
+    SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
     int max_crtrs;
     max_crtrs = dungeon->max_creatures_attracted;
     if (max_crtrs <= 0) {
