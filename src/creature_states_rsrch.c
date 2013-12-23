@@ -61,7 +61,7 @@ TbBool creature_can_do_research(const struct Thing *creatng)
     struct Dungeon *dungeon;
     crstat = creature_stats_get_from_thing(creatng);
     dungeon = get_dungeon(creatng->owner);
-    return (crstat->research_value > 0) && (dungeon->field_F78 >= 0);
+    return (crstat->research_value > 0) && (dungeon->current_research_idx >= 0);
 }
 
 short at_research_room(struct Thing *thing)
@@ -75,9 +75,9 @@ short at_research_room(struct Thing *thing)
     dungeon = get_dungeon(thing->owner);
     if (!creature_can_do_research(thing))
     {
-        if (!is_neutral_thing(thing) && (dungeon->field_F78 < 0))
+        if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
         {
-            if ( is_my_player_number(dungeon->owner) )
+            if (is_my_player_number(dungeon->owner))
                 output_message(SMsg_NoMoreReseach, 500, true);
         }
         set_start_state(thing);
@@ -141,7 +141,12 @@ TbBool research_needed(const struct ResearchVal *rsrchval, const struct Dungeon 
     return false;
 }
 
-long get_next_research_item(const struct Dungeon *dungeon)
+/**
+ * Returns new research item index, or -1 if nothing to research.
+ * @param dungeon
+ * @return
+ */
+int get_next_research_item(const struct Dungeon *dungeon)
 {
     const struct ResearchVal *rsrchval;
     long resnum;
@@ -182,16 +187,15 @@ struct ResearchVal *get_players_current_research_val(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
-    if ((dungeon->field_F78 < 0) || (dungeon->field_F78 >= DUNGEON_RESEARCH_COUNT))
+    if ((dungeon->current_research_idx < 0) || (dungeon->current_research_idx >= DUNGEON_RESEARCH_COUNT))
         return NULL;
-    return &dungeon->research[dungeon->field_F78];
+    return &dungeon->research[dungeon->current_research_idx];
 }
 
 TbBool force_complete_current_research(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     struct ResearchVal *rsrchval;
-    long resnum;
     //_DK_force_complete_current_research(plyr_idx);
     dungeon = get_dungeon(plyr_idx);
     rsrchval = get_players_current_research_val(plyr_idx);
@@ -202,8 +206,7 @@ TbBool force_complete_current_research(PlayerNumber plyr_idx)
             return true;
         }
     }
-    resnum = get_next_research_item(dungeon);
-    dungeon->field_F78 = resnum;
+    dungeon->current_research_idx = get_next_research_item(dungeon);
     rsrchval = get_players_current_research_val(plyr_idx);
     if (rsrchval != NULL)
     {
@@ -433,7 +436,6 @@ TbBool process_job_stress(struct Thing *creatng, struct Room *room)
 CrCheckRet process_research_function(struct Thing *thing)
 {
     struct Dungeon *dungeon;
-    struct CreatureStats *crstat;
     struct Room *room;
     //return _DK_process_research_function(thing);
     dungeon = get_dungeon(thing->owner);
@@ -443,8 +445,7 @@ CrCheckRet process_research_function(struct Thing *thing)
         set_start_state(thing);
         return CrCkRet_Continue;
     }
-    crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->research_value <= 0) || (dungeon->field_F78 < 0) ) {
+    if (!creature_can_do_research(thing)) {
         set_start_state(thing);
         return CrCkRet_Continue;
     }
@@ -458,6 +459,8 @@ CrCheckRet process_research_function(struct Thing *thing)
     long work_value;
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
     work_value = compute_creature_work_value(crstat->research_value*256, room->efficiency, cctrl->explevel);
     work_value = process_work_speed_on_work_value(thing, work_value);
     SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(thing),(int)thing->index,(int)work_value);
@@ -481,13 +484,11 @@ short researching(struct Thing *thing)
         set_start_state(thing);
         return CrStRet_Unchanged;
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    if ( (crstat->research_value == 0) || (dungeon->field_F78 < 0) )
+    if (!creature_can_do_research(thing))
     {
-        if ( !is_neutral_thing(thing) && (dungeon->field_F78 < 0) )
+        if (!is_neutral_thing(thing) && (dungeon->current_research_idx < 0))
         {
-            if ( is_my_player_number(dungeon->owner) )
+            if (is_my_player_number(dungeon->owner))
                 output_message(SMsg_NoMoreReseach, 500, true);
         }
         remove_creature_from_work_room(thing);
@@ -506,11 +507,11 @@ short researching(struct Thing *thing)
 
     if (room->used_capacity > room->total_capacity)
     {
-      if ( is_my_player_number(room->owner) )
-          output_message(SMsg_LibraryTooSmall, 0, true);
-      remove_creature_from_work_room(thing);
-      set_start_state(thing);
-      return CrStRet_Unchanged;
+        if (is_my_player_number(room->owner))
+            output_message(SMsg_LibraryTooSmall, 0, true);
+        remove_creature_from_work_room(thing);
+        set_start_state(thing);
+        return CrStRet_Unchanged;
     }
     process_research_function(thing);
     struct CreatureControl *cctrl;
@@ -518,10 +519,10 @@ short researching(struct Thing *thing)
     if ( (game.play_gameturn - dungeon->field_AE5 < 50)
       && ((game.play_gameturn + thing->index) & 0x03) == 0)
     {
-      external_set_thing_state(thing, CrSt_CreatureBeHappy);
-      cctrl->field_282 = 50;
-      cctrl->long_9A = 0;
-      return CrStRet_Modified;
+        external_set_thing_state(thing, CrSt_CreatureBeHappy);
+        cctrl->field_282 = 50;
+        cctrl->long_9A = 0;
+        return CrStRet_Modified;
     }
     if (cctrl->instance_id != CrInst_NULL)
       return 1;
