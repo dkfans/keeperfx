@@ -167,7 +167,7 @@ struct Dungeon {
     int camera_deviate_jump;
     long score;
     struct ResearchVal research[DUNGEON_RESEARCH_COUNT];
-    int field_F78;
+    int current_research_idx;
     unsigned char research_num;
 unsigned char field_F7D;
     unsigned char room_buildable[ROOM_TYPES_COUNT];

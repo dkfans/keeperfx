@@ -39,7 +39,7 @@ short at_research_room(struct Thing *thing);
 CrCheckRet process_research_function(struct Thing *thing);
 short researching(struct Thing *thing);
 TbBool force_complete_current_research(PlayerNumber plyr_idx);
-long get_next_research_item(const struct Dungeon *dungeon);
+int get_next_research_item(const struct Dungeon *dungeon);
 /******************************************************************************/
 #ifdef __cplusplus
 }
