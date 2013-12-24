@@ -469,7 +469,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     long width_slabs, long height_slabs, long a6, long a7);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
-void get_opponent(struct Computer2 *comp, struct THate *hate);
+void get_opponent(struct Computer2 *comp, struct THate hate[]);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
