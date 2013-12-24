@@ -685,7 +685,7 @@ struct ComputerTask *is_there_an_attack_task(struct Computer2 *comp)
  *   The function will fill the array with hatred information, and sort it so that
  *   first entry informs of the player toward whom the hatred is highest.
  */
-void get_opponent(struct Computer2 *comp, struct THate *hates)
+void get_opponent(struct Computer2 *comp, struct THate hates[])
 {
     //_DK_get_opponent(comp, hate);
     struct Dungeon *dungeon;
@@ -710,9 +710,9 @@ void get_opponent(struct Computer2 *comp, struct THate *hates)
         for (n=0; n < PLAYERS_COUNT-1; n++)
         {
             struct THate *hat1;
-            hat1 = &hates[i];
+            hat1 = &hates[n];
             struct THate *hat2;
-            hat2 = &hates[i+1];
+            hat2 = &hates[n+1];
             if (hat2->amount > hat1->amount)
             {
                 // Switch hates so larger one is first
