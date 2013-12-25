@@ -978,7 +978,7 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
         if (room_around < 8) {
             claimed_around = count_slabs_around_of_kind(slb_x, slb_y, SlbT_CLAIMED, dungeon->owner);
         }
-        if (((room_around >= 3) && (claimed_around >= 2) && (room_around+claimed_around < 8)) // If ther's something besides room and claimed, then grow more aggressively
+        if (((room_around >= 3) && (claimed_around >= 2) && (room_around+claimed_around < 8)) // If there's something besides room and claimed, then grow more aggressively
          || ((room_around >= 4) && (claimed_around >= 2) && (room_around+claimed_around >= 8)) // If we're in open space, don't expand that much
          || ((room_around >= 6) && (claimed_around >= 1))) // Allow fixing one-slab holes inside rooms
         {
@@ -990,7 +990,9 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
                 arslb_x = slb_x + small_around[m].delta_x;
                 arslb_y = slb_y + small_around[m].delta_y;
                 slb = get_slabmap_block(arslb_x, arslb_y);
-                if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
+                struct Thing *traptng;
+                traptng = get_trap_for_slab_position(arslb_x, arslb_y);
+                if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner) && thing_is_invalid(traptng))
                 {
                     if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0,
                         slab_subtile_center(arslb_x), slab_subtile_center(arslb_y), 1, room->kind) > Lb_OK) {
