@@ -32,10 +32,10 @@ extern "C" {
 
 enum DoorStates {
     DorSt_Unused = 0,
-    DorSt_Unknown01,
-    DorSt_Unknown02,
-    DorSt_Unknown03,
-    DorSt_Unknown04,
+    DorSt_Open,
+    DorSt_Closed,
+    DorSt_Opening,
+    DorSt_Closing,
     DorSt_Unknown05,
 };
 

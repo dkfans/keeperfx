@@ -104,9 +104,9 @@ void lock_door(struct Thing *doortng)
     dostat = &door_stats[doortng->model][doortng->door.orientation];
     stl_x = doortng->mappos.x.stl.num;
     stl_y = doortng->mappos.y.stl.num;
-    doortng->active_state = DorSt_Unknown02;
-    doortng->word_16 = 0;
-    doortng->byte_18 = 1;
+    doortng->active_state = DorSt_Closed;
+    doortng->door.word_16d = 0;
+    doortng->door.is_locked = 1;
     game.field_14EA4B = 1;
     place_animating_slab_type_on_map(dostat->field_0, 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
@@ -220,7 +220,7 @@ TbBool check_door_should_open(struct Thing *thing)
     struct Thing *openertng;
     //return _DK_check_door_should_open(thing);
     // If doors are locked, never should open
-    if (thing->byte_18 != 0)
+    if (thing->door.is_locked != 0)
     {
         return false;
     }
@@ -235,19 +235,19 @@ TbBool check_door_should_open(struct Thing *thing)
 long process_door_open(struct Thing *thing)
 {
     // If doors are locked, delay to closing = 0
-    if (thing->byte_18)
-        thing->byte_15 = 0;
+    if (thing->door.is_locked)
+        thing->door.byte_15d = 0;
     if ( check_door_should_open(thing) )
     {
-        thing->byte_15 = 10;
+        thing->door.byte_15d = 10;
         return 0;
     }
-    if (thing->byte_15 > 0)
+    if (thing->door.byte_15d > 0)
     {
-        thing->byte_15--;
+        thing->door.byte_15d--;
         return 0;
     }
-    thing->active_state = DorSt_Unknown04;
+    thing->active_state = DorSt_Closing;
     thing_play_sample(thing, 92, 100, 0, 3, 0, 2, 256);
     return 1;
 }
@@ -256,7 +256,7 @@ long process_door_closed(struct Thing *thing)
 {
     if ( !check_door_should_open(thing) )
       return 0;
-    thing->active_state = DorSt_Unknown03;
+    thing->active_state = DorSt_Opening;
     thing_play_sample(thing, 91, 100, 0, 3, 0, 2, 256);
     return 1;
 }
@@ -267,19 +267,19 @@ long process_door_opening(struct Thing *thing)
     int new_h,old_h,delta_h;
     int slbparam;
     dostat = &door_stats[thing->model][thing->door.orientation];
-    old_h = (thing->word_16 / 256);
+    old_h = (thing->door.word_16d / 256);
     delta_h = dostat->field_6;
     slbparam = dostat->field_0;
-    if (thing->word_16+delta_h < 768)
+    if (thing->door.word_16d+delta_h < 768)
     {
-        thing->word_16 += delta_h;
+        thing->door.word_16d += delta_h;
     } else
     {
-        thing->active_state = DorSt_Unknown01;
-        thing->byte_15 = 10;
-        thing->word_16 = 768;
+        thing->active_state = DorSt_Open;
+        thing->door.byte_15d = 10;
+        thing->door.word_16d = 768;
     }
-    new_h = (thing->word_16 / 256);
+    new_h = (thing->door.word_16d / 256);
     if (new_h != old_h)
       place_animating_slab_type_on_map(slbparam, new_h, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
     return 1;
@@ -290,24 +290,24 @@ long process_door_closing(struct Thing *thing)
     struct DoorStats *dostat;
     int new_h,old_h,delta_h;
     int slbparam;
-    old_h = (thing->word_16 / 256);
+    old_h = (thing->door.word_16d / 256);
     dostat = &door_stats[thing->model][thing->door.orientation];
     delta_h = dostat->field_6;
     slbparam = dostat->field_0;
     if ( check_door_should_open(thing) )
     {
-        thing->active_state = DorSt_Unknown03;
+        thing->active_state = DorSt_Opening;
         thing_play_sample(thing, 91, 100, 0, 3, 0, 2, 256);
     }
-    if (thing->word_16 > delta_h)
+    if (thing->door.word_16d > delta_h)
     {
-        thing->word_16 -= delta_h;
+        thing->door.word_16d -= delta_h;
     } else
     {
-        thing->active_state = DorSt_Unknown02;
-        thing->word_16 = 0;
+        thing->active_state = DorSt_Closed;
+        thing->door.word_16d = 0;
     }
-    new_h = (thing->word_16 / 256);
+    new_h = (thing->door.word_16d / 256);
     if (new_h != old_h)
       place_animating_slab_type_on_map(slbparam, new_h, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner);
     return 1;
@@ -332,21 +332,21 @@ TngUpdateRet process_door(struct Thing *thing)
     SYNCDBG(18,"State %d",(int)thing->active_state);
     switch (thing->active_state)
     {
-    case DorSt_Unknown01:
+    case DorSt_Open:
         process_door_open(thing);
         break;
-    case DorSt_Unknown02:
+    case DorSt_Closed:
         process_door_closed(thing);
         break;
-    case DorSt_Unknown03:
+    case DorSt_Opening:
         process_door_opening(thing);
         break;
-    case DorSt_Unknown04:
+    case DorSt_Closing:
         process_door_closing(thing);
         break;
     default:
         ERRORLOG("Invalid %s state %d",thing_model_name(thing),(int)thing->active_state);
-        thing->active_state = DorSt_Unknown04;
+        thing->active_state = DorSt_Closing;
         break;
     }
     return TUFRet_Modified;
