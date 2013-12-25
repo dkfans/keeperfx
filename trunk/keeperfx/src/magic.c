@@ -663,7 +663,6 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 {
     struct Thing *thing;
     struct Coord3d pos;
-    //return _DK_magic_use_power_imp(plyr_idx, x, y);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return Lb_FAIL;
     }

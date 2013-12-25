@@ -142,15 +142,14 @@ void remove_thing_from_its_class_list(struct Thing *thing);
 void add_thing_to_its_class_list(struct Thing *thing);
 ThingIndex get_thing_class_list_head(ThingClass class_id);
 
-long creature_near_filter_not_imp(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
 
-// Filters to select thing belonging to given player
-struct Thing *get_player_list_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
-struct Thing *get_player_list_random_creature_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+// Filters to select thing anywhere on map but belonging to given player
+struct Thing *get_player_list_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
-// Final routines to select thing belonging to given player
+// Final routines to select thing anywhere on map but belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 long do_on_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb);
@@ -178,11 +177,13 @@ struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx);
 
-// Filters to select thing of given class from whole map
-struct Thing *get_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+// Filters to select thing anywhere on map but only of one given class
+struct Thing *get_random_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+struct Thing *get_nth_thing_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param, long tngindex);
 long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilterParam param);
-// Final routines to select thing on/near given map position
+// Final routines to select thing anywhere on map but only of one given class
 struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb);
+struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool armed);
 
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);

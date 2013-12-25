@@ -256,7 +256,7 @@ long check_out_empty_traps(struct Thing *digger, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if ( (thing->byte_13 == 0) && (thing->owner == digger->owner) )
+        if ((thing->trap.num_shots == 0) && (thing->owner == digger->owner))
         {
             if ( (range < 0) || (get_2d_box_distance(&thing->mappos, &digger->mappos) < range) )
             {
@@ -328,7 +328,7 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *digger, long tngmodel)
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if ( (thing->model == tngmodel) && (thing->byte_13 == 0) && (thing->owner == digger->owner) )
+        if ((thing->model == tngmodel) && (thing->trap.num_shots == 0) && (thing->owner == digger->owner))
         {
             if ( !imp_will_soon_be_arming_trap(thing) ) {
                 return thing;

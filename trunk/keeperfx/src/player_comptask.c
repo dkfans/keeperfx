@@ -39,6 +39,7 @@
 #include "magic.h"
 #include "thing_traps.h"
 #include "thing_physics.h"
+#include "thing_effects.h"
 #include "player_instances.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
@@ -2131,7 +2132,34 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 // TODO COMPUTER_SELL make support of selling real door
                 break;
             case TDSC_TrapPlaced:
-                // TODO COMPUTER_SELL make support of selling real trap
+                model = tdsell->model;
+                if ((model < 0) || (model >= TRAP_TYPES_COUNT)) {
+                    ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
+                    break;
+                }
+                {
+                    struct Thing *traptng;
+                    traptng = get_random_trap_of_model_owned_by_and_armed(model, dungeon->owner, true);
+                    if (!thing_is_invalid(traptng)) {
+                        MapSubtlCoord stl_x, stl_y;
+                        item_sold = true;
+                        stl_x = stl_slab_center_subtile(traptng->mappos.x.stl.num);
+                        stl_y = stl_slab_center_subtile(traptng->mappos.y.stl.num);
+                        remove_traps_around_subtile(stl_x, stl_y, &value);
+                        if (is_my_player_number(dungeon->owner))
+                            play_non_3d_sample(115);
+                        dungeon->camera_deviate_jump = 192;
+                        if (value != 0)
+                        {
+                            struct Coord3d pos;
+                            set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
+                            create_price_effect(&pos, dungeon->owner, value);
+                        } else
+                        {
+                            WARNLOG("Sold traps at (%ld,%ld) which didn't cost anything",stl_x,stl_y);
+                        }
+                    }
+                }
                 break;
             default:
                 ERRORLOG("Unknown SELL_ITEM type");
