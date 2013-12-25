@@ -45,6 +45,7 @@
 #include "config_settings.h"
 #include "player_instances.h"
 #include "player_data.h"
+#include "player_utils.h"
 #include "thing_physics.h"
 #include "thing_doors.h"
 #include "thing_effects.h"
@@ -432,38 +433,6 @@ TbBool player_sell_door_at_subtile(long plyr_idx, long stl_x, long stl_y)
         set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
         create_price_effect(&pos, plyr_idx, i);
         player_add_offmap_gold(plyr_idx, i);
-    }
-    return true;
-}
-
-TbBool player_sell_trap_at_subtile(long plyr_idx, long stl_x, long stl_y)
-{
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    MapSlabCoord slb_x,slb_y;
-    struct Coord3d pos;
-    long sell_value;
-    thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-    if (thing_is_invalid(thing))
-    {
-        return false;
-    }
-    dungeon = get_players_num_dungeon(thing->owner);
-    slb_x = subtile_slab_fast(stl_x);
-    slb_y = subtile_slab_fast(stl_y);
-    sell_value = 0;
-    remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
-    if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
-    dungeon->camera_deviate_jump = 192;
-    if (sell_value != 0)
-    {
-        set_coords_to_slab_center(&pos,slb_x,slb_y);
-        create_price_effect(&pos, plyr_idx, sell_value);
-        player_add_offmap_gold(plyr_idx,sell_value);
-    } else
-    {
-        WARNLOG("Sold traps at (%ld,%ld) which didn't cost anything",stl_x,stl_y);
     }
     return true;
 }
