@@ -3,6 +3,11 @@ Number 824 : "SP_APOC.WAV" is unused. Simply, it should be the spell voice of th
 
 Number 830 : "SP_HOLD.WAV" is unused. Simply, it should be the spell voice of the Hold Audience spell when clicking on its icon.
 
+Number 107 : "IGAME106.WAV" (Master, I sense the presence of the Avatar). I guess this one should be played at the beginning of the Level 20 : Skybird Trill or during the level.
+
+Number 108 : "IGAME107.WAV". (What trickery is this? The Avatar's body has vanished.) Surely played when the Avatar's body disappear on Level 20 or when he's turned to our cause.
+
+Number 109 : "IGAME108.WAV". (You are victorious, your darkness pervades througout the kingdom. All hail the new lord of shadows.) This is one should be played when we win on the last level of the campaign.
 
 TODO:
 
@@ -29,9 +34,13 @@ Number 21 : "IGAME020.WAV" (The battle is over). This one should be played when 
 For the next ones, I don't know if those are possible :
 
 Number 47 : "IGAME046.WAV" (You have taken an enemy spellbook)
+* Now used in remove_spell_from_library(), but is never triggered for a keeper 
+
 Number 48 : "IGAME047.WAV" (You have taken an enemy's trap design)
 Number 49 : "IGAME048.WAV" (You have taken an enemy's door design)
 Number 50 : "IGAME049.WAV" (The enemy has stolen a spellbook)
+* Now used in remove_spell_from_library(), called when hero steals spell
+
 Number 51 : "IGAME050.WAV" (A trap design has been taken from you)
 Number 52 : "IGAME051.WAV" (The enemy has taken a door design)
 
@@ -53,14 +62,4 @@ Number 75 : "IGAME074.WAV" (New creatures has joined your dungeon). This one sho
 Number 78 : "IGAME077.WAV" (You may resurrect one creature). When clicking on the "Resurrect creature" bonus box.
 
 Number 79 : "IGAME078.WAV" (Select the creature to take with you to the next realm). When clicking on the "Transfer creature" bonus box.
-
-Number 107 : "IGAME106.WAV" (Master, I sense the presence of the Avatar). I guess this one should be played at the beginning of the Level 20 : Skybird Trill or during the level.
-
-For the two last ones, I don't understand the spoken sentences well so that I won't write them.
-
-Number 108 : "IGAME107.WAV". Surely played when the Avatar's body disappear on Level 20 or when he's turned to our cause.
-
-Number 109 : "IGAME108.WAV". This is one should be played when we win on the last level of the campaign.
-
-That's all!
 
