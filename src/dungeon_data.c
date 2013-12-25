@@ -279,7 +279,7 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, long trap_kin
         return false;
     }
     dungeon->trap_buildable[trap_kind] = buildable;
-    //TODO This is wrong. We need a list of "instantly buildable" (off-map) traps
+    //TODO SCRIPT This is wrong. We need a list of "instantly buildable" (off-map) traps
     dungeon->trap_amount[trap_kind] += amount;
     if (amount > 0)
         dungeon->trap_placeable[trap_kind] = true;

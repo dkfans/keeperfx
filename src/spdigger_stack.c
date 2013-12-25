@@ -220,7 +220,7 @@ struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *digger,
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if ( (thing->model == trpmodel) && (thing->byte_13 == 0) && (thing->owner == digger->owner) )
+        if ( (thing->model == trpmodel) && (thing->trap.num_shots == 0) && (thing->owner == digger->owner) )
         {
             if ( !imp_will_soon_be_arming_trap(thing) )
             {
