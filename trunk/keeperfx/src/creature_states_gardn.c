@@ -159,7 +159,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         return;
     }
     struct CreatureControl *cctrl;
-    if (near_food_tng->class_id == 5)
+    if (near_food_tng->class_id == TCls_Creature)
     {
         cctrl = creature_control_get_from_thing(near_food_tng);
         cctrl->affected_by_spells |= CCSpl_ChickenRel;

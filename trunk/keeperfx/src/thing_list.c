@@ -567,6 +567,33 @@ long anywhere_thing_filter_is_trap_of_model_armed_and_owned_by(const struct Thin
 }
 
 /**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long anywhere_thing_filter_is_door_of_model_locked_and_owned_by(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if (thing->class_id == TCls_Door)
+    {
+      if ((thing->model == param->model_id) || (param->model_id == -1))
+      {
+          if ((thing->owner == param->plyr_idx) || (param->plyr_idx == -1))
+          {
+              if ((param->num1 && (thing->door.is_locked))
+              || (!param->num1 && (!thing->door.is_locked)))
+              {
+                  // Return the largest value to stop sweeping
+                  return LONG_MAX;
+              }
+          }
+      }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
  * Makes per game turn update of all things in given StructureList.
  * @param list List of things to process.
  * @return Returns checksum computed from status of all things in list.
@@ -1205,6 +1232,27 @@ struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, P
     param.model_id = tngmodel;
     param.plyr_idx = plyr_idx;
     param.num1 = armed;
+    param.num2 = -1;
+    param.num3 = -1;
+    long match_count;
+    match_count = count_things_of_class_with_filter(filter, &param);
+    if (match_count < 1) {
+        return INVALID_THING;
+    }
+    return get_nth_thing_of_class_with_filter(filter, &param, ACTION_RANDOM(match_count));
+}
+
+struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool locked)
+{
+    SYNCDBG(19,"Starting");
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = anywhere_thing_filter_is_door_of_model_locked_and_owned_by;
+    param.class_id = TCls_Door;
+    param.model_id = tngmodel;
+    param.plyr_idx = plyr_idx;
+    param.num1 = locked;
     param.num2 = -1;
     param.num3 = -1;
     long match_count;

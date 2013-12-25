@@ -112,8 +112,9 @@ struct Thing {
       } shot;
       struct {
       short orientation;
-      short word_15d;
-      short word_17d;
+      unsigned char byte_15d;
+      short word_16d;
+      unsigned char is_locked;
       } door;
       struct {
       long long_13;
