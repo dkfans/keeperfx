@@ -1,0 +1,277 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file speech_eng.pot
+#msgid "  KeeperFX Speeches translation template
+#  @par Purpose:
+#msgid "  Allows to create .po files used for translating the game.
+#msgid "  Also, acts as english translation script.
+#  @par Comment:
+#msgid "  Use this file to create or update script of speeches.
+#  @author   KeeperFX Team
+#  @datemsgid " 25 Aug 2012 - 02 Oct 2012
+#  @par  Copying and copyrights:
+#msgid "  This program is free software; you can redistribute it and/or modify
+#msgid "  it under the terms of the GNU General Public License as published by
+#msgid "  the Free Software Foundation; either version 2 of the License, or
+#msgid "  (at your option) any later version.
+#
+# *****************************************************************************
+msgid ""
+msgstr ""
+"Project-Id-Version: Speeches for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: 2013-11-13 19:11+0100\n"
+"Last-Translator: Tomasz Lis <listom@gmail.com>\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+
+#: speech:0
+msgctxt "In-game mentor"
+msgid "Your creatures are becoming angry."
+msgstr ""
+
+#: speech:1
+msgctxt "In-game mentor"
+msgid "Your creatures are angry - they have nowhere to live."
+msgstr ""
+
+#: speech:2
+msgctxt "In-game mentor"
+msgid "Your minions are annoyed - you cannot pay them."
+msgstr ""
+
+#: speech:3
+msgctxt "In-game mentor"
+msgid "Your creatures are upset because they are hungry."
+msgstr ""
+
+#: speech:4
+msgctxt "In-game mentor"
+msgid "Your minions are vandalizing your dungeon!"
+msgstr ""
+
+#: speech:5
+msgctxt "In-game mentor"
+msgid "Creatures are deserting!"
+msgstr ""
+
+#: speech:6
+msgctxt "In-game mentor"
+msgid "The enemy has broken through your walls!"
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your minions have lost a battle."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your creatures have won a battle."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your minions are winning a battle."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "You are losing territory."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "The battle is over."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "You have taken an enemy spell book."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "You have taken an enemies trap design."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "You have taken an enemies door design."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "The enemy has stolen a spell book."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "A trap design has been taken from you."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "The enemy has taken a door design."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "You have freed your creatures from prison."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your prisoners are starving to death."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your creatures have discovered a mysterious magic box."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your creatures have found a spell."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "A door design has been discovered."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "A trap design has been discovered."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "New creatures have joined your dungeon."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "One of your creatures has joined the enemy."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Secrets have been tortured from your creatures."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "You may resurrect one creature."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Select a creature to take with you to the next realm."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "What trickery is this? The Avatar's body has vanished."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "You are victorious, your darkness pervades througout the kingdom. All hail the new lord of shadows."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "My god, it's full of pies."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Something surreal is happening."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your creatures are developing a strange accent."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your pants are definitely too tight."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Your minions have a craving for chocolate."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "There's that smell again."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Hello."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Blech."
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Achoo"
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid "Cough"
+msgstr ""
+
+#: speech:117
+msgctxt "Hero Talk Upon Entering"
+msgid "Your dark days are numbered, evil one!"
+msgstr ""
+
+#: speech:118
+msgctxt "Hero Talk Upon Entering"
+msgid "We come to rid the world of your evil!"
+msgstr ""
+
+#: speech:119
+msgctxt "Hero Talk Upon Entering"
+msgid "We shall send you back to the pits, vile one!"
+msgstr ""
+
+#: speech:120
+msgctxt "Hero Talk Upon Entering"
+msgid "Your reign shall end before this day is done!"
+msgstr ""
+
+#: speech:121
+msgctxt "Hero Talk Upon Entering"
+msgid "We shall cast you back into the shadows, keeper!"
+msgstr ""
+
+#: speech:122
+msgctxt "Hero Talk Upon Entering"
+msgid "Leave us to live our lives in peace!"
+msgstr ""
+
+#: speech:123
+msgctxt "Hero Talk Upon Entering"
+msgid "In the name of all that is good, we shall defeat you!"
+msgstr ""
+
+#: speech:124
+msgctxt "Hero Talk Upon Entering"
+msgid "We shall not tolerate your evil presence any longer!"
+msgstr ""
+
