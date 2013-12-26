@@ -29,6 +29,7 @@
 #include "config_terrain.h"
 #include "player_instances.h"
 #include "room_lair.h"
+#include "room_list.h"
 
 #include "gui_soundmsgs.h"
 #include "dungeon_data.h"
@@ -58,8 +59,8 @@ DLLIMPORT long _DK_computer_completed_build_a_room(struct Computer2 *comp, struc
 DLLIMPORT long _DK_computer_paused_task(struct Computer2 *comp, struct ComputerProcess *process);
 DLLIMPORT long _DK_computer_completed_task(struct Computer2 *comp, struct ComputerProcess *process);
 DLLIMPORT long _DK_set_next_process(struct Computer2 *comp);
-DLLIMPORT long _DK_computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *pos, struct Room **retroom, short plyr_idx);
-DLLIMPORT long _DK_move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long a3);
+DLLIMPORT long _DK_computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *startpos, struct Room **retroom, short from_plyr_idx);
+DLLIMPORT long _DK_move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *startpos, long a3);
 DLLIMPORT struct ComputerProcess * _DK_find_best_process(struct Computer2 *comp);
 /******************************************************************************/
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process);
@@ -418,6 +419,50 @@ long count_no_room_build_tasks(const struct Computer2 *comp)
     return count;
 }
 
+struct ComputerTask *get_room_build_task_nearest_to(const struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist)
+{
+    struct ComputerTask *nearest_ctask;
+    long nearest_dist;
+    nearest_dist = LONG_MAX;
+    nearest_ctask = INVALID_COMPUTER_TASK;
+    struct ComputerTask *ctask;
+    long i;
+    unsigned long k;
+    i = comp->task_idx;
+    k = 0;
+    while (i != 0)
+    {
+        ctask = get_computer_task(i);
+        if (computer_task_invalid(ctask))
+        {
+            ERRORLOG("Jump to invalid task detected");
+            break;
+        }
+        i = ctask->next_task;
+        // Per-task code
+        if (((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0))
+        {
+            long dist;
+            dist = abs((MapSubtlCoord)ctask->pos_64.x.stl.num - stl_x) + abs((MapSubtlCoord)ctask->pos_64.y.stl.num - stl_y);
+            if (dist < nearest_dist)
+            {
+                nearest_dist = dist;
+                nearest_ctask = ctask;
+            }
+        }
+        // Per-task code ends
+        k++;
+        if (k > COMPUTER_TASKS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping tasks list");
+            break;
+        }
+    }
+    if (retdist != NULL)
+        *retdist = nearest_dist;
+    return nearest_ctask;
+}
+
 long computer_check_build_all_rooms(struct Computer2 *comp, struct ComputerProcess *process)
 {
     struct Dungeon *dungeon;
@@ -627,9 +672,93 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     return trn_mul / trn_div <= turns;
 }
 
-long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *pos, struct Room **retroom, short plyr_idx)
+long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *startpos, struct Room **retroom, short from_plyr_idx)
 {
-    return _DK_computer_finds_nearest_entrance2(comp, pos, retroom, plyr_idx);
+    //return _DK_computer_finds_nearest_entrance2(comp, pos, retroom, plyr_idx);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (from_plyr_idx < 0)
+        from_plyr_idx = game.neutral_player_num;
+    struct Coord3d locpos;
+    struct Room *near_entroom;
+    long near_dist;
+    struct Coord3d *near_startpos;
+    near_entroom = NULL;
+    near_dist = LONG_MAX;
+    *retroom = NULL;
+    unsigned long k;
+    long i;
+    k = 0;
+    if (from_plyr_idx == game.neutral_player_num) {
+        i = game.entrance_room_id;
+    } else {
+        struct Dungeon *fromdngn;
+        fromdngn = get_dungeon(from_plyr_idx);
+        i = fromdngn->room_kind[RoK_ENTRANCE];
+    }
+    while (i != 0)
+    {
+        struct Room *entroom;
+        entroom = room_get(i);
+        if (room_is_invalid(entroom))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        if (from_plyr_idx == game.neutral_player_num)
+            i = entroom->next_of_kind;
+        else
+            i = entroom->next_of_owner;
+        // Per-room code
+        MapSubtlCoord from_stl_x, from_stl_y;
+        from_stl_x = entroom->central_stl_x;
+        from_stl_y = entroom->central_stl_y;
+        if ((entroom->owner == from_plyr_idx) && ((entroom->field_12[dungeon->owner] & 3) == 0))
+        {
+            long dist;
+            struct Room *nearoom;
+            nearoom = get_player_room_any_kind_nearest_to(dungeon->owner, from_stl_x, from_stl_y,  &dist);
+            if (!room_is_invalid(nearoom) && (dist < near_dist)) {
+                near_dist = dist;
+                near_entroom = entroom;
+                near_startpos = &locpos;
+                locpos.x.val = subtile_coord_center(nearoom->central_stl_x);
+                locpos.y.val = subtile_coord_center(nearoom->central_stl_y);
+                locpos.z.val = subtile_coord(1,0);
+            }
+        }
+        long n;
+        n = comp->task_idx;
+        while (n > 0)
+        {
+            struct ComputerTask *ctask;
+            ctask = get_computer_task(n);
+            n = ctask->next_task;
+        }
+        long dist;
+        struct ComputerTask *ctask;
+        ctask = get_room_build_task_nearest_to(comp, from_stl_x, from_stl_y, &dist);
+        if (!computer_task_invalid(ctask) && (dist < near_dist)) {
+            near_dist = dist;
+            near_entroom = entroom;
+            near_startpos = &ctask->pos_64;
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
+    }
+    if (room_is_invalid(near_entroom)) {
+        return 0;
+    }
+    *retroom = near_entroom;
+    startpos->x.val = near_startpos->x.val;
+    startpos->y.val = near_startpos->y.val;
+    startpos->z.val = near_startpos->z.val;
+    return near_dist;
 }
 
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long a3)

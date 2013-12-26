@@ -184,6 +184,7 @@ enum ItemAvailabilityRet {
 
 //TODO COMPUTER This returns NULL, which is unsafe
 #define INVALID_COMPUTER_PLAYER NULL
+#define INVALID_COMPUTER_TASK &game.computer_task[0]
 /******************************************************************************/
 #pragma pack(1)
 
@@ -485,6 +486,7 @@ TbBool is_task_in_progress(struct Computer2 *comp, long ttype);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
+
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
 TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num);
 TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
