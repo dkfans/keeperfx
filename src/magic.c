@@ -305,7 +305,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     crstat = creature_stats_get_from_thing(thing);
     cctrl = creature_control_get_from_thing(thing);
 
-    anger_apply_anger_to_creature(thing, crstat->annoy_slapped, 4, 1);
+    anger_apply_anger_to_creature(thing, crstat->annoy_slapped, AngR_Other, 1);
     if (crstat->slaps_to_kill > 0)
     {
       i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
@@ -322,7 +322,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
         cctrl->active_state_bkp = thing->active_state;
         cctrl->continue_state_bkp = thing->continue_state;
         if (creature_is_sleeping(thing))
-            anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, 4, 1);
+            anger_apply_anger_to_creature(thing, crstat->annoy_woken_up, AngR_Other, 1);
         external_set_thing_state(thing, CrSt_CreatureSlapCowers);
     }
     cctrl->field_B1 = 6;

@@ -2227,7 +2227,7 @@ short creature_leaves(struct Thing *creatng)
         dungeon->total_creatures_left++;
         struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(creatng);
-        apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, 4, creatng);
+        apply_anger_to_all_players_creatures_excluding(creatng->owner, crstat->annoy_others_leaving, AngR_Other, creatng);
     }
     kill_creature(creatng, INVALID_THING, -1, CrDed_NoEffects||CrDed_NotReallyDying);
     return CrStRet_Deleted;

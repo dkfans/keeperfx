@@ -59,6 +59,7 @@ int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmode
 struct ManufactureData *get_manufacture_data_for_thing(ThingClass tngclass, ThingModel tngmodel);
 
 TbBool add_workshop_item_to_amounts(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
+TbBool readd_workshop_item_to_amount_placeable(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
 TbBool remove_workshop_item_from_amount_stored(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel);
 TbBool remove_workshop_item_from_amount_placeable(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
 TbBool check_workshop_item_limit_reached(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel);

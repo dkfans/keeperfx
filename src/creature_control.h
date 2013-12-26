@@ -160,12 +160,11 @@ unsigned char field_37[2];
     unsigned char field_49;
     long field_4A;
     unsigned long last_roar_turn;
-    unsigned char field_52[4];// most likely [0] element of array below
    /** The game enumerates the elements of annoyance array periodically and looks for the highest value.
-    * When the highest value is above CreatureStats->annoy_level, the creature becomes angry/enraged,
+    * When the highest value is above CreatureStats->annoy_level, the creature becomes angry/livid,
     * depending on how high the highest value is.
     */
-    long annoyance_level[4];
+    long annoyance_level[5];
     unsigned char mood_flags;
 unsigned char field_67;
     /** Lair room index, that is the room which holds creature's lair object. */

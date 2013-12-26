@@ -194,7 +194,7 @@ void anger_calculate_creature_is_angry(struct Thing *creatng)
     crstat = creature_stats_get_from_thing(creatng);
     cctrl->mood_flags &= ~CCMoo_Angry;
     cctrl->mood_flags &= ~CCMoo_Livid;
-    for (i = 0; i < 4; i++)
+    for (i = 1; i < 5; i++)
     {
         if (crstat->annoy_level <= cctrl->annoyance_level[i])
         {
@@ -240,7 +240,7 @@ void anger_increase_creature_anger(struct Thing *creatng, long anger, AnnoyMotiv
         if (!dungeon_invalid(dungeon)) {
             dungeon->lvstats.lies_told++;
         }
-        anger_set_creature_anger(creatng, anger + cctrl->annoyance_level[reason-1], reason);
+        anger_set_creature_anger(creatng, anger + cctrl->annoyance_level[reason], reason);
     }
 }
 
@@ -250,7 +250,7 @@ void anger_reduce_creature_anger(struct Thing *creatng, long anger, AnnoyMotive 
     cctrl = creature_control_get_from_thing(creatng);
     if (anger_free_for_anger_decrease(creatng))
     {
-        anger_set_creature_anger(creatng, anger + cctrl->annoyance_level[reason-1], reason);
+        anger_set_creature_anger(creatng, anger + cctrl->annoyance_level[reason], reason);
     }
 }
 
@@ -272,7 +272,7 @@ void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, AnnoyMotive 
     }
     TbBool was_angry;
     was_angry = ((cctrl->mood_flags & CCMoo_Angry) != 0);
-    cctrl->annoyance_level[reason-1] = annoy_lv;
+    cctrl->annoyance_level[reason] = annoy_lv;
     anger_calculate_creature_is_angry(creatng);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(creatng->owner);
@@ -331,12 +331,12 @@ AnnoyMotive anger_get_creature_anger_type(const struct Thing *creatng)
         return AngR_None;
     anger_type = AngR_None;
     anger_level = 0;
-    for (i=0; i < 4; i++)
+    for (i=1; i < 5; i++)
     {
         if (anger_level < cctrl->annoyance_level[i])
         {
             anger_level = cctrl->annoyance_level[i];
-            anger_type = i+1;
+            anger_type = i;
         }
     }
     if (anger_level < (long)crstat->annoy_level)
@@ -351,16 +351,16 @@ void anger_apply_anger_to_creature_all_types(struct Thing *thing, long anger)
     }
     if (anger > 0)
     {
-        anger_increase_creature_anger(thing, anger, 4);
-        anger_increase_creature_anger(thing, anger, 1);
-        anger_increase_creature_anger(thing, anger, 3);
-        anger_increase_creature_anger(thing, anger, 2);
+        anger_increase_creature_anger(thing, anger, AngR_Other);
+        anger_increase_creature_anger(thing, anger, AngR_NotPaid);
+        anger_increase_creature_anger(thing, anger, AngR_NoLair);
+        anger_increase_creature_anger(thing, anger, AngR_Hungry);
     } else
     {
-        anger_reduce_creature_anger(thing, -anger, 4);
-        anger_reduce_creature_anger(thing, -anger, 1);
-        anger_reduce_creature_anger(thing, -anger, 3);
-        anger_reduce_creature_anger(thing, -anger, 2);
+        anger_reduce_creature_anger(thing, -anger, AngR_Other);
+        anger_reduce_creature_anger(thing, -anger, AngR_NotPaid);
+        anger_reduce_creature_anger(thing, -anger, AngR_NoLair);
+        anger_reduce_creature_anger(thing, -anger, AngR_Hungry);
     }
 }
 
