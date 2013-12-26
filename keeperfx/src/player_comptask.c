@@ -291,7 +291,6 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     long i,k;
     struct SlabMap *slb;
     struct Room *room;
-    struct Coord3d pos;
     SYNCDBG(9,"Starting action %d",(int)gaction);
     //return _DK_game_action(plyr_idx, gaction, alevel, stl_x, stl_y, param1, param2);
     if (subtile_has_slab(stl_x, stl_y)) {
@@ -366,20 +365,8 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         dungeon->creature_tendencies = param1;
         return 1;
     case GA_PlaceTrap:
-        if (dungeon->trap_amount[param1] == 0)
+        if (!player_place_trap_at(stl_x, stl_y, plyr_idx, param1))
             break;
-        pos.x.stl.pos = 128;
-        pos.x.stl.num = slab_subtile_center(slb_x);
-        pos.y.stl.pos = 128;
-        pos.y.stl.num = slab_subtile_center(slb_y);
-        pos.z.val = 0;
-        pos.z.val = get_floor_height_at(&pos);
-        thing = create_trap(&pos, param1, plyr_idx);
-        if (remove_workshop_item(plyr_idx, TCls_Trap, param1))
-          dungeon->lvstats.traps_used++;
-        dungeon->camera_deviate_jump = 192;
-        if (is_my_player_number(plyr_idx))
-            play_non_3d_sample(117);
         return 1;
     case GA_PlaceDoor:
         k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y);
@@ -2100,15 +2087,16 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                if (dungeon->door_amount[model] > 0)
+                if (dungeon->door_amount_placeable[model] > 0)
                 {
-                    item_sold = true;
-                    value = game.doors_config[model].selling_value;
-                    if (remove_workshop_item(dungeon->owner, TCls_Door, model))
+                    if (remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Door, model))
                     {
+                        remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_to_object[model]);
+                        item_sold = true;
+                        value = game.doors_config[model].selling_value;
+                        SYNCDBG(9,"Door model %d sold for %d gold",(int)model,(int)value);
                     }
-                    SYNCDBG(9,"Door model %d sold for %d gold",(int)model,(int)value);
                 }
                 break;
             case TDSC_TrapCrate:
@@ -2117,15 +2105,16 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                if (dungeon->trap_amount[model] > 0)
+                if (dungeon->trap_amount_placeable[model] > 0)
                 {
-                    item_sold = true;
-                    value = game.traps_config[model].selling_value;
-                    if (remove_workshop_item(dungeon->owner, TCls_Trap, model))
+                    if (remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Trap, model))
                     {
+                        remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_to_object[model]);
+                        item_sold = true;
+                        value = game.traps_config[model].selling_value;
+                        SYNCDBG(9,"Trap model %ld sold for %ld gold",model,value);
                     }
-                    SYNCDBG(9,"Trap model %ld sold for %ld gold",model,value);
                 }
                 break;
             case TDSC_DoorPlaced:

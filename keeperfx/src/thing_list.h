@@ -145,20 +145,22 @@ ThingIndex get_thing_class_list_head(ThingClass class_id);
 long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
 
-// Filters to select thing anywhere on map but belonging to given player
+// Filters to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long count_player_list_creatures_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
-// Final routines to select thing anywhere on map but belonging to given player
+// Final routines to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
-long do_on_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb);
+long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb);
 
 // Filters to select thing on/near given map position
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long *maximizer);
 struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
+long do_to_things_on_map_block(long thing_idx, Thing_Bool_Modifier do_cb);
+long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len, Thing_Bool_Modifier do_cb);
 // Final routines to select thing on/near given map position
 struct Thing *get_creature_near_but_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
 struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx);
@@ -175,6 +177,7 @@ struct Thing *get_trap_at_subtile_of_model_and_owned_by(MapSubtlCoord stl_x, Map
 struct Thing *get_trap_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos_y, long model, PlayerNumber plyr_idx);
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y);
 long count_creatures_near_and_owned_by_or_allied_with(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx);
 
 // Filters to select thing anywhere on map but only of one given class

@@ -870,13 +870,18 @@ long count_diggers_in_dungeon(const struct Dungeon *dungeon)
     return count_player_list_creatures_of_model(dungeon->digger_list_start, 0);
 }
 
+/**
+ * Returns amount of traps in workshop of given manufacturable model.
+ * @param dungeon
+ * @param trmodel
+ */
 long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
 {
     if ((trmodel < 1) || (trmodel >= TRAP_TYPES_COUNT))
         return 0;
-    if (dungeon->trap_buildable[trmodel] > 0)
+    if ((dungeon->trap_build_flags[trmodel] & MnfBldF_Manufacturable) != 0)
     {
-        return dungeon->trap_amount[trmodel];
+        return dungeon->trap_amount_stored[trmodel];
     }
     return 0;
 }

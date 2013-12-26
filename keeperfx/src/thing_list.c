@@ -593,6 +593,15 @@ long anywhere_thing_filter_is_door_of_model_locked_and_owned_by(const struct Thi
     return -1;
 }
 
+TbBool delete_if_dead_creature(struct Thing *thing)
+{
+    if (thing->class_id == TCls_DeadCreature) {
+        delete_thing_structure(thing, 0);
+        return true;
+    }
+    return false;
+}
+
 /**
  * Makes per game turn update of all things in given StructureList.
  * @param list List of things to process.
@@ -1538,7 +1547,7 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, ThingModel crmodel
  *
  * @return Count of creatures for which the callback returned true.
  */
-long do_on_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb)
+long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -1886,6 +1895,38 @@ struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer
     return retng;
 }
 
+long do_to_things_on_map_block(long thing_idx, Thing_Bool_Modifier do_cb)
+{
+    struct Thing *thing;
+    unsigned long k;
+    long i,n;
+    SYNCDBG(19,"Starting");
+    n = 0;
+    k = 0;
+    i = thing_idx;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Begin per-loop code
+        if (do_cb(thing))
+            n++;
+        // End of per-loop code
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return n;
+}
+
 /**
  * Returns filtered creature from slabs around given coordinates.
  * Skips slabs which are not revealed to player provided in MaxFilterParam.
@@ -2013,6 +2054,31 @@ long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long
               if (maximizer == LONG_MAX)
                   count++;
           }
+      }
+    }
+    return count;
+}
+
+long do_to_things_spiral_near_map_block(MapCoord x, MapCoord y, long spiral_len, Thing_Bool_Modifier do_cb)
+{
+    struct MapOffset *sstep;
+    long count;
+    struct Map *mapblk;
+    MapSubtlCoord sx,sy;
+    int around;
+    long i;
+    SYNCDBG(19,"Starting");
+    count = 0;
+    for (around=0; around < spiral_len; around++)
+    {
+      sstep = &spiral_step[around];
+      sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
+      sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
+      mapblk = get_map_block_at(sx, sy);
+      if (!map_block_invalid(mapblk))
+      {
+          i = get_mapwho_thing_index(mapblk);
+          count += do_to_things_on_map_block(i, do_cb);
       }
     }
     return count;
@@ -2842,6 +2908,14 @@ struct Thing *get_creature_of_model_training_at_subtile_and_owned_by(MapSubtlCoo
 struct Thing *get_nearest_object_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
   return _DK_get_nearest_object_at_position(stl_x, stl_y);
+}
+
+void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    MapSubtlCoord stl_x, stl_y;
+    stl_x = slab_subtile_center(slb_x);
+    stl_y = slab_subtile_center(slb_y);
+    do_to_things_spiral_near_map_block(subtile_coord_center(stl_x), subtile_coord_center(stl_y), 9, delete_if_dead_creature);
 }
 /******************************************************************************/
 #ifdef __cplusplus

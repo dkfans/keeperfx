@@ -34,10 +34,12 @@
 #include "thing_effects.h"
 #include "thing_navigate.h"
 #include "thing_traps.h"
+#include "thing_physics.h"
 #include "front_simple.h"
 #include "frontend.h"
 #include "power_hand.h"
 #include "player_utils.h"
+#include "room_workshop.h"
 #include "magic.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
@@ -1133,5 +1135,32 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
         play_non_3d_sample(77);
     }
     return room;
+}
+
+TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if ((tngmodel < 1) || (tngmodel >= TRAP_TYPES_COUNT)) {
+        return false;
+    }
+    if (dungeon->trap_amount_placeable[tngmodel] <= 0) {
+        return false;
+    }
+    struct Coord3d pos;
+    set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+    delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
+    struct Thing *traptng;
+    traptng = create_trap(&pos, tngmodel, plyr_idx);
+    if (thing_is_invalid(traptng)) {
+        return false;
+    }
+    traptng->mappos.z.val = get_thing_height_at(traptng, &traptng->mappos);
+    traptng->trap.byte_18t = 0;
+    remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
+    dungeon->camera_deviate_jump = 192;
+    if (is_my_player_number(plyr_idx))
+        play_non_3d_sample(117);
+    return true;
 }
 /******************************************************************************/

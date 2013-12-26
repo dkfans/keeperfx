@@ -2145,7 +2145,7 @@ TbBool change_max_health_of_creature_kind(ThingModel crmodel, long new_max)
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        do_on_players_all_creatures_of_model(plyr_idx,crmodel,update_creature_health_to_max);
+        do_to_players_all_creatures_of_model(plyr_idx,crmodel,update_creature_health_to_max);
     }
     return true;
 }
