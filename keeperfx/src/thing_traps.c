@@ -53,15 +53,18 @@ DLLIMPORT long _DK_update_trap_trigger_line_of_sight_90(struct Thing *traptng);
 DLLIMPORT void _DK_activate_trap(struct Thing *traptng, struct Thing *creatng);
 
 /******************************************************************************/
-TbBool destroy_trap(struct Thing *thing)
+TbBool destroy_trap(struct Thing *traptng)
 {
-    delete_thing_structure(thing, 0);
+    if ((traptng->trap.num_shots == 0) && !is_neutral_thing(traptng) && !is_hero_thing(traptng)) {
+        readd_workshop_item_to_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+    }
+    delete_thing_structure(traptng, 0);
     return true;
 }
 
 TbBool trap_is_active(const struct Thing *thing)
 {
-    return ((thing->byte_13 > 0) && (thing->long_14 <= game.play_gameturn));
+    return ((thing->trap.num_shots > 0) && (thing->trap.long_14t <= game.play_gameturn));
 }
 
 TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
@@ -334,32 +337,35 @@ void update_trap_trigger(struct Thing *traptng)
         if ((n > 0) && (n != 255))
         {
             traptng->trap.num_shots = n - 1;
-            if (traptng->trap.num_shots == 0) {
+            if (traptng->trap.num_shots == 0)
+            {
                 traptng->field_4F &= 0x10;
                 traptng->field_4F |= 0x20;
+                if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) {
+                    remove_workshop_item_from_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+                }
             }
         }
     }
 }
 
-TngUpdateRet update_trap(struct Thing *thing)
+TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(traptng);
     //return _DK_update_trap(thing);
-    if (thing->health < 0)
+    if (traptng->health < 0)
     {
-        delete_thing_structure(thing, 0);
+        destroy_trap(traptng);
         return TUFRet_Deleted;
     }
-    if (trap_is_active(thing))
+    if (trap_is_active(traptng))
     {
-        update_trap_trigger(thing);
+        update_trap_trigger(traptng);
     }
-    if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
-      && ((thing->field_1 & TF1_IsDragged1) == 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) )
+    if (map_pos_is_lava(traptng->mappos.x.stl.num, traptng->mappos.y.stl.num) && !thing_is_dragged_or_pulled(traptng))
     {
-        delete_thing_structure(thing, 0);
+        destroy_trap(traptng);
         return TUFRet_Deleted;
     }
     return TUFRet_Modified;
@@ -472,6 +478,8 @@ void init_traps(void)
 
 /**
  * Removes traps on the subtile and all sibling subtiles.
+ * Either treats the action as selling and removes corresponding crate from workshop,
+ * or treats it as destroying and updates workshop counts to skip re-arming the destroyed trap.
  *
  * @param stl_x Central subtile X coordinate.
  * @param stl_y Central subtile Y coordinate.
@@ -485,18 +493,23 @@ long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
     total = 0;
     for (k=0; k < AROUND_TILES_COUNT; k++)
     {
-        struct Thing *thing;
-        thing = get_trap_for_position(stl_x+around[k].delta_x, stl_y+around[k].delta_y);
-        if (!thing_is_invalid(thing))
+        struct Thing *traptng;
+        traptng = get_trap_for_position(stl_x+around[k].delta_x, stl_y+around[k].delta_y);
+        if (!thing_is_invalid(traptng))
         {
             if (sell_value != NULL) {
-                i = game.traps_config[thing->model].selling_value;
-                if (thing->trap.num_shots == 0) {
-                    remove_workshop_object_from_player(thing->owner, trap_to_object[thing->model%TRAP_TYPES_COUNT]);
+                i = game.traps_config[traptng->model].selling_value;
+                if (traptng->trap.num_shots == 0) {
+                    if (remove_workshop_item_from_amount_stored(traptng->owner, traptng->class_id, traptng->model)) {
+                        remove_workshop_object_from_player(traptng->owner, trap_to_object[traptng->model%TRAP_TYPES_COUNT]);
+                    }
                 }
                 (*sell_value) += i;
+                // We don't want to increase trap_amount_placeable, so we'll not use destroy_trap() there
+                delete_thing_structure(traptng, 0);
+            } else {
+                destroy_trap(traptng);
             }
-            destroy_trap(thing);
             total++;
         }
     }

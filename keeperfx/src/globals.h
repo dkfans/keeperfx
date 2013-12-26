@@ -156,7 +156,7 @@ typedef unsigned short ThingIndex;
 typedef unsigned short CrtrStateId;
 /** Type which stores creature experience level. */
 typedef unsigned char CrtrExpLevel;
-/** Type which stores creature annoyance reason. */
+/** Type which stores creature annoyance reason, from CreatureAngerReasons enumeration. */
 typedef unsigned char AnnoyMotive;
 /** Type which stores room kind index. */
 typedef unsigned char RoomKind;

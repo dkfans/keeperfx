@@ -45,16 +45,16 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT struct Thing *_DK_create_effect_element(const struct Coord3d *pos, unsigned short a2, unsigned short a3);
 DLLIMPORT struct Thing *_DK_create_effect_generator(struct Coord3d *pos, unsigned short a1, unsigned short a2, unsigned short a3, long a4);
-DLLIMPORT void _DK_poison_cloud_affecting_area(struct Thing *thing, struct Coord3d *pos, long a3, long a4, unsigned char a5);
-DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *thing);
-DLLIMPORT long _DK_update_effect_element(struct Thing *thing);
-DLLIMPORT long _DK_update_effect(struct Thing *thing);
-DLLIMPORT long _DK_process_effect_generator(struct Thing *thing);
+DLLIMPORT void _DK_poison_cloud_affecting_area(struct Thing *efftng, struct Coord3d *pos, long a3, long a4, unsigned char a5);
+DLLIMPORT void _DK_process_spells_affected_by_effect_elements(struct Thing *efftng);
+DLLIMPORT long _DK_update_effect_element(struct Thing *efftng);
+DLLIMPORT long _DK_update_effect(struct Thing *efftng);
+DLLIMPORT long _DK_process_effect_generator(struct Thing *efftng);
 DLLIMPORT struct Thing *_DK_create_effect(const struct Coord3d *pos, unsigned short a2, unsigned char a3);
-DLLIMPORT long _DK_move_effect(struct Thing *thing);
-DLLIMPORT long _DK_move_effect_element(struct Thing *thing);
-DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *thing, long nmodel);
-DLLIMPORT void _DK_explosion_affecting_area(struct Thing *thing, const struct Coord3d *pos, long a3, long a4, unsigned char a5);
+DLLIMPORT long _DK_move_effect(struct Thing *efftng);
+DLLIMPORT long _DK_move_effect_element(struct Thing *efftng);
+DLLIMPORT void _DK_change_effect_element_into_another(struct Thing *efftng, long nmodel);
+DLLIMPORT void _DK_explosion_affecting_area(struct Thing *efftng, const struct Coord3d *pos, long a3, long a4, unsigned char a5);
 
 /******************************************************************************/
 extern struct EffectElementStats _DK_effect_element_stats[95];
@@ -685,7 +685,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     return _DK_change_effect_element_into_another(thing,nmodel);
 }
 
-TngUpdateRet update_effect_element(struct Thing *thing)
+TngUpdateRet update_effect_element(struct Thing *elemtng)
 {
     struct EffectElementStats *eestats;
     long health;
@@ -693,124 +693,124 @@ TngUpdateRet update_effect_element(struct Thing *thing)
     long prop_factor,prop_val;
     long i;
     SYNCDBG(18,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(elemtng);
     //return _DK_update_effect_element(thing);
-    if (thing->model < sizeof(effect_element_stats)/sizeof(effect_element_stats[0])) {
-        eestats = &effect_element_stats[thing->model];
+    if (elemtng->model < sizeof(effect_element_stats)/sizeof(effect_element_stats[0])) {
+        eestats = &effect_element_stats[elemtng->model];
     } else {
-        ERRORLOG("Outranged model %d",(int)thing->model);
+        ERRORLOG("Outranged model %d",(int)elemtng->model);
         eestats = &effect_element_stats[0];
     }
     // Check if effect health dropped to zero; delete it, or decrease health for the next check
-    health = thing->health;
+    health = elemtng->health;
     if (health <= 0)
     {
         if (eestats->transform_model != 0)
         {
-            change_effect_element_into_another(thing, eestats->transform_model);
+            change_effect_element_into_another(elemtng, eestats->transform_model);
         } else
         {
-            delete_thing_structure(thing, 0);
+            delete_thing_structure(elemtng, 0);
         }
         return TUFRet_Deleted;
     }
-    thing->health = health-1;
+    elemtng->health = health-1;
     // Set dynamic properties of the effect
     if (!eestats->field_12)
     {
-        if (thing->field_60 >= (int)thing->mappos.z.val)
-          thing->field_3E = 0;
+        if (elemtng->field_60 >= (int)elemtng->mappos.z.val)
+          elemtng->field_3E = 0;
     }
     if (eestats->field_15)
     {
-        thing->movement_flags &= ~TMvF_IsOnWater;
-        thing->movement_flags &= ~TMvF_IsOnLava;
-        if (thing_touching_floor(thing))
+        elemtng->movement_flags &= ~TMvF_IsOnWater;
+        elemtng->movement_flags &= ~TMvF_IsOnLava;
+        if (thing_touching_floor(elemtng))
         {
-            i = get_top_cube_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            i = get_top_cube_at(elemtng->mappos.x.stl.num, elemtng->mappos.y.stl.num);
             if (cube_is_water(i)) {
-                thing->movement_flags |= TMvF_IsOnWater;
+                elemtng->movement_flags |= TMvF_IsOnWater;
             } else
             if (cube_is_lava(i)) {
-                thing->movement_flags |= TMvF_IsOnLava;
+                elemtng->movement_flags |= TMvF_IsOnLava;
             }
         }
     }
     i = eestats->subeffect_delay;
     if (i > 0)
     {
-      if (((thing->creation_turn - game.play_gameturn) % i) == 0) {
-          create_effect_element(&thing->mappos, eestats->subeffect_model, thing->owner);
+      if (((elemtng->creation_turn - game.play_gameturn) % i) == 0) {
+          create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
       }
     }
     switch (eestats->field_1)
     {
     case 1:
-        move_effect_element(thing);
+        move_effect_element(elemtng);
         break;
     case 2:
-        i = thing->pos_2C.x.val;
-        thing->pos_2C.x.val = 2*i/3;
-        i = thing->pos_2C.y.val;
-        thing->pos_2C.y.val = 2*i/3;
-        i = thing->pos_2C.z.val;
+        i = elemtng->pos_2C.x.val;
+        elemtng->pos_2C.x.val = 2*i/3;
+        i = elemtng->pos_2C.y.val;
+        elemtng->pos_2C.y.val = 2*i/3;
+        i = elemtng->pos_2C.z.val;
         if (i > 32)
         {
-          thing->pos_2C.z.val = 2*i/3;
+          elemtng->pos_2C.z.val = 2*i/3;
         } else
         if (i > 16)
         {
           i = i-16;
           if (i < 16) i = 16;
-          thing->pos_2C.z.val = i;
+          elemtng->pos_2C.z.val = i;
         } else
         if (i < -16)
         {
-          thing->pos_2C.z.val = 2*i/3;
+          elemtng->pos_2C.z.val = 2*i/3;
         } else
         {
             i = i+16;
             if (i > 16) i = 16;
-            thing->pos_2C.z.val = i;
+            elemtng->pos_2C.z.val = i;
         }
-        move_effect_element(thing);
+        move_effect_element(elemtng);
         break;
     case 3:
-        thing->pos_2C.z.val = 32;
-        move_effect_element(thing);
+        elemtng->pos_2C.z.val = 32;
+        move_effect_element(elemtng);
         break;
     case 4:
-        health = thing->health;
+        health = elemtng->health;
         if ((health >= 0) && (health < 16))
         {
-            thing->pos_2C.z.val = bounce_table[health];
+            elemtng->pos_2C.z.val = bounce_table[health];
         } else
         {
             ERRORLOG("Illegal effect element bounce life: %d", (int)health);
         }
-        move_effect_element(thing);
+        move_effect_element(elemtng);
         break;
     case 5:
         break;
     default:
         ERRORLOG("Invalid effect element move type %d!",(int)eestats->field_1);
-        move_effect_element(thing);
+        move_effect_element(elemtng);
         break;
     }
 
     if (eestats->field_2 != 1)
       return TUFRet_Modified;
-    abs_x = abs(thing->pos_2C.x.val);
-    abs_y = abs(thing->pos_2C.y.val);
+    abs_x = abs(elemtng->pos_2C.x.val);
+    abs_y = abs(elemtng->pos_2C.y.val);
     prop_factor = LbDiagonalLength(abs_x, abs_y);
-    i = ((LbArcTanAngle(thing->pos_2C.z.val, prop_factor) & 0x7FF) - 512) & 0x7FF;
+    i = ((LbArcTanAngle(elemtng->pos_2C.z.val, prop_factor) & 0x7FF) - 512) & 0x7FF;
     if (i > 1024)
       i -= 1024;
     prop_val = i / 128;
-    thing->field_52 = LbArcTanAngle(thing->pos_2C.x.val, thing->pos_2C.y.val) & 0x7FF;
-    thing->field_48 = prop_val;
-    thing->field_3E = 0;
-    thing->field_40 = (prop_val & 0xff) << 8;
+    elemtng->field_52 = LbArcTanAngle(elemtng->pos_2C.x.val, elemtng->pos_2C.y.val) & 0x7FF;
+    elemtng->field_48 = prop_val;
+    elemtng->field_3E = 0;
+    elemtng->field_40 = (prop_val & 0xff) << 8;
     SYNCDBG(18,"Finished");
     return TUFRet_Modified;
 }
@@ -1102,20 +1102,20 @@ struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_id
     return efftng;
 }
 
-TbBool destroy_effect_thing(struct Thing *thing)
+TbBool destroy_effect_thing(struct Thing *efftng)
 {
-    if (thing->model == 43)
+    if (efftng->model == 43)
     {
-        place_slab_type_on_map(SlbT_LAVA, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->owner, 0);
-        do_slab_efficiency_alteration(subtile_slab_fast(thing->mappos.x.stl.num), subtile_slab_fast(thing->mappos.y.stl.num));
+        place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner, 0);
+        do_slab_efficiency_alteration(subtile_slab_fast(efftng->mappos.x.stl.num), subtile_slab_fast(efftng->mappos.y.stl.num));
     }
-    if (thing->snd_emitter_id != 0)
+    if (efftng->snd_emitter_id != 0)
     {
         // In case of effect, don't stop any sound samples which are still playing
-        S3DDestroySoundEmitter(thing->snd_emitter_id);
-        thing->snd_emitter_id = 0;
+        S3DDestroySoundEmitter(efftng->snd_emitter_id);
+        efftng->snd_emitter_id = 0;
     }
-    delete_thing_structure(thing, 0);
+    delete_thing_structure(efftng, 0);
     return true;
 }
 

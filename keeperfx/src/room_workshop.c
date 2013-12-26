@@ -323,6 +323,48 @@ TbBool add_workshop_item_to_amounts(PlayerNumber plyr_idx, ThingClass tngclass, 
 }
 
 /**
+ * Re-adds item to the amount available to be placed on map, if an empty trap gets destroyed.
+ * @param owner
+ * @param tngclass
+ * @param tngmodel
+ * @return
+ * @note was named add_workshop_item()
+ */
+TbBool readd_workshop_item_to_amount_placeable(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Can't add item; player %d has no dungeon.",(int)plyr_idx);
+        return false;
+    }
+    switch (tngclass)
+    {
+    case TCls_Trap:
+        SYNCDBG(8,"Adding Trap %s",trap_code_name(tngmodel));
+        dungeon->trap_amount_placeable[tngmodel]++;
+        if (dungeon->trap_amount_placeable[tngmodel] > dungeon->trap_amount_stored[tngmodel]) {
+            SYNCLOG("Placeable traps amount for player %d was outranged; fixed",(int)plyr_idx);
+            dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_stored[tngmodel];
+        }
+        break;
+    case TCls_Door:
+        SYNCDBG(8,"Adding Door %s",door_code_name(tngmodel));
+        dungeon->door_amount_placeable[tngmodel]++;
+        // In case the placeable amount lost it, do a fix
+        if (dungeon->door_amount_placeable[tngmodel] > dungeon->door_amount_stored[tngmodel]) {
+            SYNCLOG("Placeable doors amount for player %d was outranged; fixed",(int)plyr_idx);
+            dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_stored[tngmodel];
+        }
+        break;
+    default:
+        ERRORLOG("Can't add item; illegal item class %d",(int)tngclass);
+        return false;
+    }
+    return true;
+}
+
+/**
  * Removes item from the amount of crates stored in workshops.
  * @param owner
  * @param tngclass
