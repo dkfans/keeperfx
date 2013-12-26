@@ -431,4 +431,33 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     return true;
 }
+
+TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    MapSubtlCoord x,y;
+    struct Coord3d pos;
+    long i;
+    x = stl_slab_center_subtile(stl_x);
+    y = stl_slab_center_subtile(stl_y);
+    thing = get_door_for_position(x, y);
+    if (thing_is_invalid(thing))
+    {
+        return false;
+    }
+    dungeon = get_players_num_dungeon(thing->owner);
+    dungeon->camera_deviate_jump = 192;
+    i = game.doors_config[thing->model].selling_value;
+    destroy_door(thing);
+    if (is_my_player_number(plyr_idx))
+        play_non_3d_sample(115);
+    if (i != 0)
+    {
+        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+        create_price_effect(&pos, plyr_idx, i);
+        player_add_offmap_gold(plyr_idx, i);
+    }
+    return true;
+}
 /******************************************************************************/

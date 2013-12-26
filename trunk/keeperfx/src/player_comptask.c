@@ -2118,7 +2118,35 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 }
                 break;
             case TDSC_DoorPlaced:
-                // TODO COMPUTER_SELL make support of selling real door
+                model = tdsell->model;
+                if ((model < 0) || (model >= DOOR_TYPES_COUNT)) {
+                    ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
+                    break;
+                }
+                {
+                    struct Thing *doortng;
+                    doortng = get_random_door_of_model_owned_by_and_locked(model, dungeon->owner, false);
+                    if (!thing_is_invalid(doortng)) {
+                        MapSubtlCoord stl_x, stl_y;
+                        item_sold = true;
+                        stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
+                        stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
+                        value = game.doors_config[model].selling_value;
+                        destroy_door(doortng);
+                        if (is_my_player_number(dungeon->owner))
+                            play_non_3d_sample(115);
+                        dungeon->camera_deviate_jump = 192;
+                        if (value != 0)
+                        {
+                            struct Coord3d pos;
+                            set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
+                            create_price_effect(&pos, dungeon->owner, value);
+                        } else
+                        {
+                            WARNLOG("Sold door at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);
+                        }
+                    }
+                }
                 break;
             case TDSC_TrapPlaced:
                 model = tdsell->model;
@@ -2145,7 +2173,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             create_price_effect(&pos, dungeon->owner, value);
                         } else
                         {
-                            WARNLOG("Sold traps at (%ld,%ld) which didn't cost anything",stl_x,stl_y);
+                            WARNLOG("Sold traps at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);
                         }
                     }
                 }
