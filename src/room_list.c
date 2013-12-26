@@ -135,4 +135,71 @@ long count_player_rooms_entrances(PlayerNumber plyr_idx)
     }
     return count;
 }
+
+struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind rkind,
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist)
+{
+    struct Dungeon *dungeon;
+    struct Room *room;
+    long i;
+    unsigned long k;
+    dungeon = get_dungeon(plyr_idx);
+    struct Room *nearest_room;
+    long nearest_dist;
+    nearest_dist = LONG_MAX;
+    nearest_room = INVALID_ROOM;
+    i = dungeon->room_kind[rkind];
+    k = 0;
+    while (i != 0)
+    {
+      room = room_get(i);
+      if (room_is_invalid(room))
+      {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+      }
+      i = room->next_of_owner;
+      // Per-room code
+      long dist;
+      dist = abs(room->central_stl_y - stl_y) + abs(room->central_stl_x - stl_x);
+      if (dist < nearest_dist)
+      {
+          nearest_dist = dist;
+          nearest_room = room;
+      }
+      // Per-room code ends
+      k++;
+      if (k > ROOMS_COUNT)
+      {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+      }
+    }
+    if (retdist != NULL)
+        *retdist = nearest_dist;
+    return nearest_room;
+}
+
+struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
+    MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *retdist)
+{
+    struct Room *nearest_room;
+    long nearest_dist;
+    nearest_dist = LONG_MAX;
+    nearest_room = INVALID_ROOM;
+    RoomKind rkind;
+    for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
+        struct Room *room;
+        long dist;
+        room = get_player_room_of_kind_nearest_to(plyr_idx, rkind, stl_x, stl_y, &dist);
+        if (!room_is_invalid(room) && (dist < nearest_dist)) {
+            nearest_dist = dist;
+            nearest_room = room;
+        }
+    }
+    if (retdist != NULL)
+        *retdist = nearest_dist;
+    return nearest_room;
+}
 /******************************************************************************/
