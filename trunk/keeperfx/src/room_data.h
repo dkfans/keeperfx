@@ -213,7 +213,6 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 short room_grow_food(struct Room *room);
 void update_room_efficiency(struct Room *room);
-TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind);
 struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeon *dungeon, RoomKind rkind);
 struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
@@ -226,7 +225,7 @@ void kill_room_slab_and_contents(unsigned char a1, unsigned char a2, unsigned ch
 void free_room_structure(struct Room *room);
 void reset_creatures_rooms(struct Room *room);
 TbBool remove_item_from_room_capacity(struct Room *room);
-TbBool add_item_to_room_capacity(struct Room *room);
+TbBool add_item_to_room_capacity(struct Room *room, TbBool force);
 TbBool room_has_enough_free_capacity_for_creature(const struct Room *room, const struct Thing *creatng);
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
 long claim_enemy_room(struct Room *room,struct Thing *claimtng);

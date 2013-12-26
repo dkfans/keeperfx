@@ -58,12 +58,16 @@ struct ManufactureData *get_manufacture_data(int manufctr_idx);
 int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel);
 struct ManufactureData *get_manufacture_data_for_thing(ThingClass tngclass, ThingModel tngmodel);
 
+TbBool add_workshop_item_to_amounts(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
+TbBool remove_workshop_item_from_amount_stored(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel);
+TbBool remove_workshop_item_from_amount_placeable(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
+TbBool check_workshop_item_limit_reached(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel);
+
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);
-TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *boxtng);
-TbBool add_workshop_item(long plyr_idx, long wrkitm_class, long wrkitm_kind);
-TbBool check_workshop_item_limit_reached(long plyr_idx, long wrkitm_class, ThingModel tngmodel);
-long remove_workshop_item(long owner, long tngclass, long tngmodel);
-long remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmodel);
+TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *cratetng);
+TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind);
+
+TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmodel);
 long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind);
 TbBool get_next_manufacture(struct Dungeon *dungeon);
 short process_player_manufacturing(PlayerNumber plyr_idx);

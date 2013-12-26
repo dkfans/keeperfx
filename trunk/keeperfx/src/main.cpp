@@ -242,6 +242,7 @@ DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
 DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
 DLLIMPORT void _DK_startup_network_game(void);
 DLLIMPORT void _DK_load_ceiling_table(void);
+DLLIMPORT char _DK_find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -3500,9 +3501,40 @@ void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4)
     _DK_tag_cursor_blocks_sell_area(a1, a2, a3, a4);
 }
 
-long packet_place_door(long a1, long a2, long a3, long a4, unsigned char a5)
+char find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx)
 {
-    return _DK_packet_place_door(a1, a2, a3, a4, a5);
+    return _DK_find_door_angle(stl_x, stl_y, plyr_idx);
+}
+
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, long dormodel, unsigned char a5)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    //return _DK_packet_place_door(a1, a2, a3, a4, a5);
+    if (dungeon->door_amount_placeable[dormodel] <= 0) {
+        return 0;
+    }
+    if (!a5) {
+        if (is_my_player_number(plyr_idx))
+            play_non_3d_sample(119);
+        return 0;
+    }
+    unsigned char orient;
+    orient = find_door_angle(stl_x, stl_y, plyr_idx);
+    struct Coord3d pos;
+    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
+    create_door(&pos, dormodel, orient, plyr_idx, 0);
+    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+    if (remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, dormodel))
+    {
+        remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, dormodel);
+        remove_workshop_object_from_player(plyr_idx, door_to_object[dormodel]);
+    }
+    dungeon->camera_deviate_jump = 192;
+    if (is_my_player_number(plyr_idx))
+        play_non_3d_sample(117);
+    remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));
+    return 1;
 }
 
 void delete_room_slabbed_objects(long a1)

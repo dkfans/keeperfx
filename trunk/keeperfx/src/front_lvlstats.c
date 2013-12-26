@@ -190,7 +190,7 @@ long calculate_doors_unused(PlayerNumber plyr_idx)
     count = 0;
     for (i=1; i < DOOR_TYPES_COUNT; i++)
     {
-      count += dungeon->door_amount[i];
+      count += dungeon->door_amount_stored[i];
     }
     return count;
 }
@@ -204,7 +204,7 @@ long calculate_traps_unused(PlayerNumber plyr_idx)
     count = 0;
     for (i=1; i < TRAP_TYPES_COUNT; i++)
     {
-      count += dungeon->trap_amount[i];
+      count += dungeon->trap_amount_stored[i];
     }
     return count;
 }

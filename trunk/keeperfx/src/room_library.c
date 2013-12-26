@@ -64,7 +64,7 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel spkind, MapS
     {
         return spelltng;
     }
-    if (!add_item_to_room_capacity(room))
+    if (!add_item_to_room_capacity(room, true))
     {
         destroy_object(spelltng);
         return INVALID_THING;

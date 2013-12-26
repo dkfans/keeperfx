@@ -681,7 +681,7 @@ int trap_model_id(const char * code_name)
  * Checks only if it's available and if the player is 'alive'.
  * Doesn't check if map position is on correct spot.
  */
-TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx)
+TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -693,11 +693,11 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if ((trap_idx <= 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
-        ERRORLOG("Incorrect trap %d (player %d)",(int)trap_idx, (int)plyr_idx);
+    if ((tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT)) {
+        ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if (dungeon->trap_placeable[trap_idx]) {
+    if (dungeon->trap_amount_placeable[tngmodel] > 0) {
         return true;
     }
     return false;
@@ -708,7 +708,7 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx)
  * Checks only if it's set as buildable in level script.
  * Doesn't check if player has workshop or workforce for the task.
  */
-TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx)
+TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
@@ -720,11 +720,32 @@ TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if ((trap_idx <= 0) || (trap_idx >= TRAP_TYPES_COUNT)) {
-        ERRORLOG("Incorrect trap %d (player %d)",(int)trap_idx, (int)plyr_idx);
+    if ((tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT)) {
+        ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if (dungeon->trap_buildable[trap_idx] > 0) {
+    if ((dungeon->trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Returns if the trap was at least one built by a player.
+ */
+TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    if ((tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT)) {
+        ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
+        return false;
+    }
+    if ((dungeon->trap_build_flags[tngmodel] & MnfBldF_Built) != 0) {
         return true;
     }
     return false;
@@ -751,7 +772,7 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long door_idx)
         ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
         return false;
     }
-    if (dungeon->door_placeable[door_idx]) {
+    if (dungeon->door_amount_placeable[door_idx] > 0) {
         return true;
     }
     return false;
@@ -778,7 +799,32 @@ TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
         ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
         return false;
     }
-    if (dungeon->door_buildable[door_idx] > 0) {
+    if ((dungeon->door_build_flags[door_idx] & MnfBldF_Manufacturable) != 0) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Returns if the door was at least one built by a player.
+ */
+TbBool is_door_built(PlayerNumber plyr_idx, long door_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    // Player must have dungeon heart to build anything
+    if (!player_has_heart(plyr_idx)) {
+        return false;
+    }
+    if ((door_idx <= 0) || (door_idx >= DOOR_TYPES_COUNT)) {
+        ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
+        return false;
+    }
+    if ((dungeon->door_build_flags[door_idx] & MnfBldF_Built) != 0) {
         return true;
     }
     return false;

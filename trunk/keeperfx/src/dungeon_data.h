@@ -60,6 +60,12 @@ enum DungeonResearchCategory {
     RsCat_Creature    = 3,
 };
 
+enum DungeonManufactureBuildFlags {
+    MnfBldF_Manufacturable = 0x01,
+    MnfBldF_Built          = 0x02,
+    MnfBldF_Used           = 0x04,
+};
+
 #pragma pack(1)
 
 struct DiggerStack { // sizeof = 4
@@ -182,18 +188,18 @@ unsigned char field_F7D;
     unsigned char creature_allowed[CREATURE_TYPES_COUNT];
     unsigned char magic_level[KEEPER_SPELLS_COUNT];
     unsigned char magic_resrchable[KEEPER_SPELLS_COUNT];
+    /** Amount of traps of every kind which are stored in workshops. Only on-map trap crates which exist in workshop are mentioned here.*/
+    unsigned char trap_amount_stored[TRAP_TYPES_COUNT];
+    /** Stores flag information about players manufacture of traps of specific kind. */
+    unsigned char trap_build_flags[TRAP_TYPES_COUNT];
     /** Amount of traps of every kind for which we can place blueprints. This include both off-map traps and on-map trap boxes.*/
-    unsigned char trap_amount[TRAP_TYPES_COUNT];
-    /** Stored information if player can manufacture more traps of specific kind. */
-    unsigned char trap_buildable[TRAP_TYPES_COUNT];
-    /** Stored information whether player can place blueprints of traps of specific kind. */
-    unsigned char trap_placeable[TRAP_TYPES_COUNT];
-    /** Amount of doors the player can place. This include both off-map doors and on-map door boxes in workshop.*/
-    unsigned char door_amount[DOOR_TYPES_COUNT];
-    /** Stored information if player can manufacture more doors of specific kind. */
-    unsigned char door_buildable[DOOR_TYPES_COUNT];
+    unsigned char trap_amount_placeable[TRAP_TYPES_COUNT];
+    /** Amount of doors of every kind which are stored in workshops. Only on-map door crates which exist in workshop are mentioned here.*/
+    unsigned char door_amount_stored[DOOR_TYPES_COUNT];
+    /** Stored flag information about players manufacture of doors of specific kind. */
+    unsigned char door_build_flags[DOOR_TYPES_COUNT];
     /** Stored information whether player can place blueprints of doors of specific kind (actually, doors are placed instantly). */
-    unsigned char door_placeable[DOOR_TYPES_COUNT];
+    unsigned char door_amount_placeable[DOOR_TYPES_COUNT];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     unsigned char script_flags[SCRIPT_FLAGS_COUNT];
     long max_creatures_attracted;

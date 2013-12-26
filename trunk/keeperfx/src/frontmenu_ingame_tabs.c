@@ -395,7 +395,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         if (find_trap_of_type(manufctr->tngmodel, my_player_number)) {
             LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[27]);
         }
-        amount = dungeon->trap_amount[manufctr->tngmodel];
+        amount = dungeon->trap_amount_placeable[manufctr->tngmodel];
     } else
     if (manufctr->tngclass == TCls_Door)
     {
@@ -403,7 +403,7 @@ void gui_area_trap_button(struct GuiButton *gbtn)
         if (find_door_of_type(manufctr->tngmodel, my_player_number)) {
             LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[27]);
         }
-        amount = dungeon->door_amount[manufctr->tngmodel];
+        amount = dungeon->door_amount_placeable[manufctr->tngmodel];
     }
     int i;
     i = gbtn->field_29 + (amount < 1);
@@ -499,17 +499,19 @@ void maintain_spell(struct GuiButton *gbtn)
 
 void maintain_trap(struct GuiButton *gbtn)
 {
-    int i;
+    int manufctr_idx;
+    manufctr_idx = (unsigned int)gbtn->content;
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
     //_DK_maintain_trap(gbtn);
-    i = (unsigned long)(gbtn->content) & 0xff;
-    if (is_trap_placeable(my_player_number, i))
+    if (is_trap_placeable(my_player_number, manufctr->tngmodel) || is_trap_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= 0x08;
+        gbtn->flags |= LbBtnF_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~0x08;
+        gbtn->flags &= ~LbBtnF_Unknown08;
     }
 }
 
@@ -519,38 +521,36 @@ void maintain_door(struct GuiButton *gbtn)
     manufctr_idx = (unsigned int)gbtn->content;
     struct ManufactureData *manufctr;
     manufctr = get_manufacture_data(manufctr_idx);
-    if (is_door_placeable(my_player_number, manufctr->tngmodel))
+    if (is_door_placeable(my_player_number, manufctr->tngmodel) || is_door_built(my_player_number, manufctr->tngmodel))
     {
         gbtn->field_1B = 0;
-        set_flag_byte(&gbtn->flags, 0x08, true);
+        gbtn->flags |= LbBtnF_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        set_flag_byte(&gbtn->flags, 0x08, false);
+        gbtn->flags &= ~LbBtnF_Unknown08;
     }
 }
 
 void maintain_big_trap(struct GuiButton *gbtn)
 {
-    struct Dungeon *dungeon;
     int manufctr_idx;
     //_DK_maintain_big_trap(gbtn);
     manufctr_idx = game.manufactr_element%MANUFCTR_TYPES_COUNT;
     struct ManufactureData *manufctr;
     manufctr = get_manufacture_data(manufctr_idx);
-    dungeon = get_players_num_dungeon(my_player_number);
     gbtn->content = (unsigned long *)manufctr_idx;
     gbtn->field_29 = game.numfield_15181D;
     gbtn->tooltip_id = game.manufactr_tooltip;
-    if ( ((manufctr->tngclass == TCls_Trap) && (dungeon->trap_amount[manufctr->tngmodel] > 0))
-      || ((manufctr->tngclass == TCls_Door) && (dungeon->door_amount[manufctr->tngmodel] > 0)) )
+    if ( ((manufctr->tngclass == TCls_Trap) && is_trap_placeable(my_player_number, manufctr->tngmodel))
+      || ((manufctr->tngclass == TCls_Door) && is_door_placeable(my_player_number, manufctr->tngmodel)) )
     {
         gbtn->field_1B = 0;
-        gbtn->flags |= 0x08;
+        gbtn->flags |= LbBtnF_Unknown08;
     } else
     {
         gbtn->field_1B |= 0x8000u;
-        gbtn->flags &= ~0x08;
+        gbtn->flags &= ~LbBtnF_Unknown08;
     }
 }
 

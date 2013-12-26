@@ -1185,6 +1185,7 @@
  0001:0008B950       process_effect_generator
  0001:000770F0       process_door
  0001:00077A20       blocked_by_door_at
+ 0001:00077B50       find_door_angle
  0001:000778B0       check_for_door_collision_at
  0001:00089CB0       update_effect
  0001:00010B50       process_thing_spell_effects

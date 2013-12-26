@@ -3085,10 +3085,10 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
       return is_power_available(plyr_idx, validx);
   case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->trap_amount[validx%TRAP_TYPES_COUNT];
+      return dungeon->trap_amount_stored[validx%TRAP_TYPES_COUNT];
   case SVar_AVAILABLE_DOOR: // IF_AVAILABLE(DOOR)
       dungeon = get_dungeon(plyr_idx);
-      return dungeon->door_amount[validx%DOOR_TYPES_COUNT];
+      return dungeon->door_amount_stored[validx%DOOR_TYPES_COUNT];
   case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
       dungeon = get_dungeon(plyr_idx);
       return dungeon->room_buildable[validx%ROOM_TYPES_COUNT];
