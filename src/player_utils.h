@@ -48,6 +48,7 @@ long update_dungeon_generation_speeds(void);
 void calculate_dungeon_area_scores(void);
 
 TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 void init_players(void);
 void init_player(struct PlayerInfo *player, short no_explore);

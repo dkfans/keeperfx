@@ -408,35 +408,6 @@ TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y)
     return true;
 }
 
-TbBool player_sell_door_at_subtile(long plyr_idx, long stl_x, long stl_y)
-{
-    struct Dungeon *dungeon;
-    struct Thing *thing;
-    MapCoord x,y;
-    struct Coord3d pos;
-    long i;
-    x = 3*subtile_slab_fast(stl_x);
-    y = 3*subtile_slab_fast(stl_y);
-    thing = get_door_for_position(x, y);
-    if (thing_is_invalid(thing))
-    {
-        return false;
-    }
-    dungeon = get_players_num_dungeon(thing->owner);
-    dungeon->camera_deviate_jump = 192;
-    i = game.doors_config[thing->model].selling_value;
-    destroy_door(thing);
-    if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(115);
-    if (i != 0)
-    {
-        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
-        create_price_effect(&pos, plyr_idx, i);
-        player_add_offmap_gold(plyr_idx, i);
-    }
-    return true;
-}
-
 TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
 {
     struct PlayerInfo *player;
