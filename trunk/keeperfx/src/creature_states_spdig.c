@@ -1415,7 +1415,7 @@ short creature_arms_trap(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    traptng->byte_13 = game.traps_config[traptng->model].shots;
+    traptng->trap.num_shots = game.traps_config[traptng->model].shots;
     traptng->field_4F ^= (traptng->field_4F ^ (trap_stats[traptng->model].field_12 << 4)) & 0x30;
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);

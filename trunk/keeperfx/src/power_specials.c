@@ -44,9 +44,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT void _DK_activate_dungeon_special(struct Thing *boxtng, struct PlayerInfo *player);
-DLLIMPORT void _DK_resurrect_creature(struct Thing *boxtng, unsigned char a2, unsigned char crmodel, unsigned char crlevel);
-DLLIMPORT void _DK_transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char crmodel);
+DLLIMPORT void _DK_activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player);
+DLLIMPORT void _DK_resurrect_creature(struct Thing *cratetng, unsigned char a2, unsigned char crmodel, unsigned char crlevel);
+DLLIMPORT void _DK_transfer_creature(struct Thing *cratetng, struct Thing *transftng, unsigned char crmodel);
 DLLIMPORT void _DK_make_safe(struct PlayerInfo *player);
 DLLIMPORT unsigned long _DK_steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 /******************************************************************************/
@@ -185,7 +185,7 @@ void make_safe(struct PlayerInfo *player)
   _DK_make_safe(player);
 }
 
-void activate_dungeon_special(struct Thing *boxtng, struct PlayerInfo *player)
+void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
 {
   SYNCDBG(6,"Starting");
   short used;
@@ -193,59 +193,59 @@ void activate_dungeon_special(struct Thing *boxtng, struct PlayerInfo *player)
   int spkindidx;
 
   // Gathering data which we'll need if the special is used and disposed.
-  memcpy(&pos,&boxtng->mappos,sizeof(struct Coord3d));
-  spkindidx = boxtng->model - 86;
+  memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
+  spkindidx = cratetng->model - 86;
   used = 0;
-  if (thing_exists(boxtng) && is_dungeon_special(boxtng))
+  if (thing_exists(cratetng) && is_dungeon_special(cratetng))
   {
-    switch (boxtng->model)
+    switch (cratetng->model)
     {
         case 86:
           reveal_whole_map(player);
-          remove_events_thing_is_attached_to(boxtng);
+          remove_events_thing_is_attached_to(cratetng);
           used = 1;
-          delete_thing_structure(boxtng, 0);
+          delete_thing_structure(cratetng, 0);
           break;
         case 87:
-          start_resurrect_creature(player, boxtng);
+          start_resurrect_creature(player, cratetng);
           break;
         case 88:
-          start_transfer_creature(player, boxtng);
+          start_transfer_creature(player, cratetng);
           break;
         case 89:
-          if (steal_hero(player, &boxtng->mappos))
+          if (steal_hero(player, &cratetng->mappos))
           {
-            remove_events_thing_is_attached_to(boxtng);
+            remove_events_thing_is_attached_to(cratetng);
             used = 1;
-            delete_thing_structure(boxtng, 0);
+            delete_thing_structure(cratetng, 0);
           }
           break;
         case 90:
           multiply_creatures(player);
-          remove_events_thing_is_attached_to(boxtng);
+          remove_events_thing_is_attached_to(cratetng);
           used = 1;
-          delete_thing_structure(boxtng, 0);
+          delete_thing_structure(cratetng, 0);
           break;
         case 91:
           increase_level(player);
-          remove_events_thing_is_attached_to(boxtng);
+          remove_events_thing_is_attached_to(cratetng);
           used = 1;
-          delete_thing_structure(boxtng, 0);
+          delete_thing_structure(cratetng, 0);
           break;
         case 92:
           make_safe(player);
-          remove_events_thing_is_attached_to(boxtng);
+          remove_events_thing_is_attached_to(cratetng);
           used = 1;
-          delete_thing_structure(boxtng, 0);
+          delete_thing_structure(cratetng, 0);
           break;
         case 93:
           activate_bonus_level(player);
-          remove_events_thing_is_attached_to(boxtng);
+          remove_events_thing_is_attached_to(cratetng);
           used = 1;
-          delete_thing_structure(boxtng, 0);
+          delete_thing_structure(cratetng, 0);
           break;
         default:
-          ERRORLOG("Invalid dungeon special (Model %d)", (int)boxtng->model);
+          ERRORLOG("Invalid dungeon special (Model %d)", (int)cratetng->model);
           break;
       }
       if ( used )

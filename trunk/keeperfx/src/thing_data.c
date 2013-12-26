@@ -133,10 +133,8 @@ unsigned char creature_remove_lair_from_room(struct Thing *thing, struct Room *r
 
 void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_name)
 {
-    struct CreatureControl *cctrl;
     //_DK_delete_thing_structure(thing, a2); return;
     TRACE_THING(thing);
-    cctrl = creature_control_get_from_thing(thing);
     if ((thing->alloc_flags & TAlF_Unkn08) != 0) {
         remove_first_creature(thing);
     }
@@ -147,6 +145,8 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
             thing->light_id = 0;
         }
     }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
     if (!creature_control_invalid(cctrl))
     {
       if ( !a2 )
