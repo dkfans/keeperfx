@@ -278,11 +278,13 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, long trap_kin
         ERRORDBG(11,"Can't set trap availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
     }
-    dungeon->trap_buildable[trap_kind] = buildable;
+    if (buildable)
+        dungeon->trap_build_flags[trap_kind] |= MnfBldF_Manufacturable;
     //TODO SCRIPT This is wrong. We need a list of "instantly buildable" (off-map) traps
-    dungeon->trap_amount[trap_kind] += amount;
+    //dungeon->trap_amount_stored[trap_kind] += amount;
+    dungeon->trap_amount_placeable[trap_kind] += amount;
     if (amount > 0)
-        dungeon->trap_placeable[trap_kind] = true;
+        dungeon->trap_build_flags[trap_kind] |= MnfBldF_Built;
     return true;
 }
 
@@ -298,10 +300,11 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, long door_kin
         ERRORDBG(11,"Can't set door availability; player %d has no dungeon.",(int)plyr_idx);
         return false;
     }
-    dungeon->door_buildable[door_kind] = buildable;
-    dungeon->door_amount[door_kind] += amount;
+    if (buildable)
+        dungeon->door_build_flags[door_kind] |= MnfBldF_Manufacturable;
+    dungeon->door_amount_placeable[door_kind] += amount;
     if (amount > 0)
-      dungeon->door_placeable[door_kind] = true;
+      dungeon->door_build_flags[door_kind] |= MnfBldF_Built;
     return true;
 }
 

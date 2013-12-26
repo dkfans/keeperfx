@@ -701,6 +701,7 @@
  0001:000777A0       get_door_for_position
  0001:000778B0       check_for_door_collision_at
  0001:00077A20       blocked_by_door_at
+ 0001:00077B50       find_door_angle
  0001:00077D20       lock_door
  0001:00077FA0       find_door_of_type
  0001:00078000       init_lens

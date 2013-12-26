@@ -2279,73 +2279,6 @@ struct Room * find_random_room_for_thing_with_spare_room_item_capacity(struct Th
     return _DK_find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, rkind, a4);
 }
 
-TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind)
-{
-    struct Coord3d pos;
-    struct Thing *thing;
-    struct Room *room;
-    struct Dungeon *dungeon;
-    //return _DK_create_workshop_object_in_workshop_room(plyr_idx, tng_class, tng_kind);
-    pos.x.val = 0;
-    pos.y.val = 0;
-    pos.z.val = 0;
-    switch (tng_class)
-    {
-    case TCls_Trap:
-        thing = create_object(&pos, trap_to_object[tng_kind], plyr_idx, -1);
-        break;
-    case TCls_Door:
-        thing = create_object(&pos, door_to_object[tng_kind], plyr_idx, -1);
-        break;
-    default:
-        thing = INVALID_THING;
-        ERRORLOG("No known workshop crate can represent %s model %d",thing_class_code_name(tng_class),(int)tng_kind);
-        break;
-    }
-    if (thing_is_invalid(thing))
-    {
-        ERRORLOG("Could not create workshop crate thing for %s",thing_class_code_name(tng_class));
-        return false;
-    }
-    room = find_random_room_for_thing_with_spare_room_item_capacity(thing, plyr_idx, RoK_WORKSHOP, 0);
-    if (room_is_invalid(room))
-    {
-        ERRORLOG("No room for crate thing for %s",thing_class_code_name(tng_class));
-        delete_thing_structure(thing, 0);
-        return false;
-    }
-    if (!find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, &pos))
-    {
-        ERRORLOG("Could not find a place in %s index %d for the new %s crate",
-            room_code_name(room->kind),(int)room->index,thing_class_code_name(tng_class));
-        delete_thing_structure(thing, 0);
-        return false;
-    }
-    pos.z.val = get_thing_height_at(thing, &pos);
-    move_thing_in_map(thing, &pos);
-    room->used_capacity++;
-    room->capacity_used_for_storage++;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    switch (tng_class)
-    {
-    case TCls_Trap:
-        if ( !dungeon->trap_placeable[tng_kind] ) {
-            event_create_event(thing->mappos.x.val, thing->mappos.y.val, EvKind_NewTrap, plyr_idx, tng_kind);
-        }
-        break;
-    case TCls_Door:
-        if ( !dungeon->door_placeable[tng_kind] ) {
-          event_create_event(thing->mappos.x.val, thing->mappos.y.val, EvKind_NewDoor, plyr_idx, tng_kind);
-        }
-        break;
-    default:
-        break;
-    }
-    create_effect(&pos, TngEff_Unknown56, thing->owner);
-    thing_play_sample(thing, 89, 100, 0, 3, 0, 2, 256);
-    return true;
-}
-
 short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3)
 {
     SYNCDBG(8,"Starting");
@@ -2478,12 +2411,18 @@ TbBool remove_item_from_room_capacity(struct Room *room)
     return true;
 }
 
-TbBool add_item_to_room_capacity(struct Room *room)
+TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
 {
-    //TODO ROOMS think if we really want to compare it with used_capacity and not capacity_used_for_storage
-    if (room->used_capacity >= room->total_capacity)
+    if (!force)
     {
-        return false;
+        if (room->used_capacity >= room->total_capacity) {
+            return false;
+        }
+    } else
+    {
+        if (room->capacity_used_for_storage >= room->total_capacity) {
+            return false;
+        }
     }
     room->used_capacity++;
     room->capacity_used_for_storage++;
@@ -2533,10 +2472,15 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
         // Workshop owns trap boxes, machines and anvils
         if (thing_is_door_or_trap_box(thing) && !thing_is_dragged_or_pulled(thing))
         {
+            ThingClass tngclass;
+            ThingModel tngmodel;
             oldowner = thing->owner;
             thing->owner = newowner;
-            remove_workshop_item(oldowner, box_thing_to_workshop_object_class(thing), box_thing_to_door_or_trap(thing));
-            add_workshop_item(newowner, box_thing_to_workshop_object_class(thing), box_thing_to_door_or_trap(thing));
+            tngclass = box_thing_to_workshop_object_class(thing);
+            tngmodel = box_thing_to_door_or_trap(thing);
+            remove_workshop_item_from_amount_stored(oldowner, tngclass, tngmodel);
+            remove_workshop_item_from_amount_placeable(oldowner, tngclass, tngmodel);
+            add_workshop_item_to_amounts(newowner, tngclass, tngmodel);
             return;
         }
         break;

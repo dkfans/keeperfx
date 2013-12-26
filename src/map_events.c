@@ -94,33 +94,33 @@ long event_move_player_towards_event(struct PlayerInfo *player, long var)
 
 struct Event *event_create_event(long map_x, long map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
 {
-  struct Dungeon *dungeon;
-  struct Event *event;
-  long i,k;
+    struct Dungeon *dungeon;
+    struct Event *event;
+    long i,k;
 //  return _DK_event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
-  if (dngn_id >= game.neutral_player_num)
-    return NULL;
-  if (evkind >= 28)
-  {
-    ERRORLOG("Illegal Event kind to be created");
-    return NULL;
-  }
-  dungeon = get_dungeon(dngn_id);
-  i = dungeon->field_13B4[evkind%EVENT_KIND_COUNT];
-  if (i != 0)
-  {
-    k = event_button_info[evkind].field_C;
-    if ((k != 0) && (k+i >= game.play_gameturn))
+    if (dngn_id >= game.neutral_player_num)
+        return NULL;
+    if (evkind > EVENT_KIND_COUNT)
     {
+      ERRORLOG("Illegal Event kind to be created");
       return NULL;
     }
-  }
-  event = event_allocate_free_event_structure();
-  if (event == NULL)
-    return NULL;
-  event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
-  event_add_to_event_list(event, dungeon);
-  return event;
+    dungeon = get_dungeon(dngn_id);
+    i = dungeon->field_13B4[evkind];
+    if (i != 0)
+    {
+        k = event_button_info[evkind].field_C;
+        if ((k != 0) && (k+i >= game.play_gameturn))
+        {
+          return NULL;
+        }
+    }
+    event = event_allocate_free_event_structure();
+    if (event == NULL)
+      return NULL;
+    event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
+    event_add_to_event_list(event, dungeon);
+    return event;
 }
 
 struct Event *event_allocate_free_event_structure(void)

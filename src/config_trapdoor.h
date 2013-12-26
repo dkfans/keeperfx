@@ -76,8 +76,10 @@ int door_model_id(const char * code_name);
 int trap_model_id(const char * code_name);
 TbBool is_trap_placeable(PlayerNumber plyr_idx, long trap_idx);
 TbBool is_trap_buildable(PlayerNumber plyr_idx, long trap_idx);
+TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel);
 TbBool is_door_placeable(PlayerNumber plyr_idx, long door_idx);
 TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx);
+TbBool is_door_built(PlayerNumber plyr_idx, long door_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

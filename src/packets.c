@@ -630,13 +630,11 @@ TbBool process_dungeon_control_packet_dungeon_build_room(long plyr_idx)
 TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
 {
     struct PlayerInfo *player;
-    struct Dungeon *dungeon;
     struct Packet *pckt;
     MapSubtlCoord stl_x,stl_y;
     MapCoord x,y;
     long i;
     player = get_player(plyr_idx);
-    dungeon = get_players_dungeon(player);
     pckt = get_packet_direct(player->packet_num);
     x = ((unsigned short)pckt->pos_x);
     y = ((unsigned short)pckt->pos_y);
@@ -652,9 +650,6 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         }
         return false;
     }
-    struct Coord3d pos;
-    struct Thing *thing;
-    set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
     player->field_4A4 = 1;
     i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
@@ -666,29 +661,17 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
       }
       return false;
     }
-    if (dungeon->trap_amount[player->chosen_trap_kind%TRAP_TYPES_COUNT] <= 0)
-    {
-      unset_packet_control(pckt, PCtr_LBtnClick);
-      return false;
-    }
     if (i == 0)
     {
-      if (is_my_player(player))
-          play_non_3d_sample(119);
-      unset_packet_control(pckt, PCtr_LBtnClick);
-      return false;
+        if (is_my_player(player))
+            play_non_3d_sample(119);
+        unset_packet_control(pckt, PCtr_LBtnClick);
+        return false;
     }
-    delete_room_slabbed_objects(get_slab_number(subtile_slab_fast(stl_x),subtile_slab_fast(stl_y)));
-    thing = create_trap(&pos, player->chosen_trap_kind, plyr_idx);
-    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
-    thing->byte_18 = 0;
-    if (remove_workshop_item(plyr_idx, TCls_Trap, player->chosen_trap_kind)) {
-        dungeon->lvstats.traps_used++;
-    }
-    dungeon->camera_deviate_jump = 192;
-    if (is_my_player(player))
+    if (!player_place_trap_at(stl_x, stl_y, plyr_idx, player->chosen_trap_kind))
     {
-      play_non_3d_sample(117);
+        unset_packet_control(pckt, PCtr_LBtnClick);
+        return false;
     }
     unset_packet_control(pckt, PCtr_LBtnClick);
     return true;

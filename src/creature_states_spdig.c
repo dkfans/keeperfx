@@ -1207,9 +1207,9 @@ short creature_picks_up_trap_object(struct Thing *thing)
     if (room_exists(room))
     {
         remove_workshop_object_from_workshop(room,cratetng);
-        if (cratetng->owner <= HERO_PLAYER)
+        if (!is_hero_thing(cratetng) && !is_neutral_thing(cratetng))
         {
-            remove_workshop_item(cratetng->owner,
+            remove_workshop_item_from_amount_stored(cratetng->owner,
                 get_workshop_object_class_for_thing(cratetng),
                 box_thing_to_door_or_trap(cratetng));
         }
@@ -1311,8 +1311,8 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     }
     creature_drop_dragged_object(thing, cratetng);
     cratetng->owner = thing->owner;
-    if (add_item_to_room_capacity(room)) {
-        add_workshop_item(room->owner, get_workshop_object_class_for_thing(cratetng),
+    if (add_workshop_object_to_workshop(room, cratetng)) {
+        add_workshop_item_to_amounts(room->owner, get_workshop_object_class_for_thing(cratetng),
             box_thing_to_door_or_trap(cratetng));
     }
     // The action of moving object is now finished
@@ -1346,7 +1346,7 @@ short creature_drops_spell_object_in_library(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in library, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index);
+        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
         if (creature_drop_thing_to_another_room(thing, room, RoK_LIBRARY)) {
             thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
@@ -1357,7 +1357,7 @@ short creature_drops_spell_object_in_library(struct Thing *thing)
     if ( (room->kind != RoK_LIBRARY) || (room->owner != thing->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
-        WARNLOG("Tried to drop %s index %d in library, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index);
+        WARNLOG("Tried to drop %s index %d in %s room, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
         if (creature_drop_thing_to_another_room(thing, room, RoK_LIBRARY)) {
             thing->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
@@ -1370,9 +1370,12 @@ short creature_drops_spell_object_in_library(struct Thing *thing)
     spelltng->owner = thing->owner;
     if (thing_is_spellbook(spelltng))
     {
-        if (add_item_to_room_capacity(room)) {
-            add_spell_to_player(book_thing_to_magic(spelltng), thing->owner);
+        if (!add_item_to_room_capacity(room, true)) {
+            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
+            set_start_state(thing);
+            return 1;
         }
+        add_spell_to_player(book_thing_to_magic(spelltng), thing->owner);
     }
     // The action of moving object is now finished
     set_start_state(thing);
