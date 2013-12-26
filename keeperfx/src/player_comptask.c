@@ -1455,7 +1455,7 @@ long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
     for (i=0; i < COMPUTER_TRAP_LOC_COUNT; i++)
     {
         location = &comp->trap_locations[i];
-        if ( (location->x.val == 0) && (location->y.val == 0) ) {
+        if ((location->x.val <= 0) && (location->y.val <= 0)) {
             location->x.val = coord->x.val;
             location->y.val = coord->y.val;
             location->z.val = coord->z.val;
