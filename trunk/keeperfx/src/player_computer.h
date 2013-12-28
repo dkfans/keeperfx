@@ -184,6 +184,7 @@ enum ItemAvailabilityRet {
 
 //TODO COMPUTER This returns NULL, which is unsafe
 #define INVALID_COMPUTER_PLAYER NULL
+#define INVALID_COMPUTER_PROCESS NULL
 #define INVALID_COMPUTER_TASK &game.computer_task[0]
 /******************************************************************************/
 #pragma pack(1)
@@ -218,7 +219,7 @@ struct TaskFunctions {
 
 struct ComputerProcess { // sizeof = 72
   char *name;
-  unsigned long field_4;
+  long field_4;
   unsigned long field_8;
   unsigned long field_C;
   unsigned long field_10;
@@ -489,7 +490,9 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
 
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
 TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num);
-TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
+TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long creatrs_num);
+TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long creatrs_num);
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long value);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4);

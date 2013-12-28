@@ -2244,7 +2244,25 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
     return true;
 }
 
-TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num)
+TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long creatrs_num)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_PickupForAttack;
+    ctask->pos_76.x.val = pos->x.val;
+    ctask->pos_76.y.val = pos->y.val;
+    ctask->pos_76.z.val = pos->z.val;
+    ctask->field_7C = creatrs_num;
+    ctask->field_A = game.play_gameturn;
+    ctask->long_86 = par3; // Originally only a word was set here
+    return true;
+}
+
+TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -2262,6 +2280,28 @@ TbBool create_task_magic_call_to_arms(struct Computer2 *comp, struct Coord3d *po
     ctask->field_60 = 25;
     ctask->field_5C = game.play_gameturn - 25;
     ctask->field_8E = par2;
+    return true;
+}
+
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long creatrs_num)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MagicCallToArms;
+    ctask->field_1 = 0;
+    ctask->pos_76.x.val = pos->x.val;
+    ctask->pos_76.y.val = pos->y.val;
+    ctask->pos_76.z.val = pos->z.val;
+    ctask->field_7C = creatrs_num;
+    ctask->field_A = game.play_gameturn;
+    ctask->field_60 = 25;
+    ctask->field_5C = game.play_gameturn - 25;
+    ctask->field_8E = par2;
+    ctask->long_86 = par3; // Originally only a word was set here
     return true;
 }
 

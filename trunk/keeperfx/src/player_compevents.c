@@ -175,7 +175,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         {
             if (check_call_to_arms(comp))
             {
-                if (!create_task_magic_call_to_arms(comp, &pos, 2500, creatrs_num)) {
+                if (!create_task_magic_battle_call_to_arms(comp, &pos, 2500, creatrs_num)) {
                     return 0;
                 }
                 return 1;
@@ -322,7 +322,7 @@ long computer_event_battle_test(struct Computer2 *comp, struct ComputerEvent *ce
         {
             if (check_call_to_arms(comp))
             {
-                if (!create_task_magic_call_to_arms(comp, &pos, 2500, creatrs_num)) {
+                if (!create_task_magic_battle_call_to_arms(comp, &pos, 2500, creatrs_num)) {
                     return 4;
                 }
                 return 1;
