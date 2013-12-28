@@ -158,6 +158,7 @@ DLLIMPORT long _DK_anger_process_creature_anger(struct Thing *creatng, const str
 DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *creatng, const struct CreatureStats *crstat);
 DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
 DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
+DLLIMPORT unsigned char _DK_get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char wandr_slot, struct Thing *thing, struct Coord3d *pos);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -3554,8 +3555,8 @@ TbBool wander_point_get_random_pos(const struct Wander *wandr, const struct Coor
       {
           MapSubtlCoord stl_x,stl_y;
           irnd = ACTION_RANDOM(wandr->points_count);
-          stl_x = slab_subtile_center(wandr->points[irnd].slb_x);
-          stl_y = slab_subtile_center(wandr->points[irnd].slb_y);
+          stl_x = wandr->points[irnd].stl_x;
+          stl_y = wandr->points[irnd].stl_y;
           MapSubtlCoord dist;
           dist = get_2d_box_distance_xy(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
           // Move at least 2 slabs, and prefer distance around 7 slabs
@@ -3575,6 +3576,7 @@ TbBool wander_point_get_random_pos(const struct Wander *wandr, const struct Coor
 
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_slot, struct Thing *thing, struct Coord3d *pos)
 {
+    //return _DK_get_random_position_in_dungeon_for_creature(plyr_idx, wandr_slot, thing, pos);
     struct PlayerInfo *player;
     if (plyr_idx == game.neutral_player_num)
     {

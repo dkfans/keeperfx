@@ -3256,7 +3256,46 @@ void gui_set_autopilot(struct GuiButton *gbtn)
   set_players_packet_action(player, PckA_SetComputerKind, ntype, 0, 0, 0);
 }
 
-void display_objectives(long plyr_idx,long x,long y)
+void set_level_objective(const char *msg_text)
+{
+    if (msg_text == NULL)
+    {
+        ERRORLOG("Invalid message pointer");
+        return;
+    }
+    strncpy(game.evntbox_text_objective, msg_text, MESSAGE_TEXT_LEN);
+    new_objective = 1;
+}
+
+void update_player_objectives(PlayerNumber plyr_idx)
+{
+    struct PlayerInfo *player;
+    SYNCDBG(6,"Starting for player %d",(int)plyr_idx);
+    player = get_player(plyr_idx);
+    if ((game.system_flags & GSF_NetworkActive) != 0)
+    {
+      if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
+        player->field_4EB = game.play_gameturn+1;
+    }
+    if (player->field_4EB == game.play_gameturn)
+    {
+      switch (player->victory_state)
+      {
+      case VicS_WonLevel:
+          if (plyr_idx == my_player_number)
+            set_level_objective(cmpgn_string(CpgStr_SuccessLandIsYours));
+          display_objectives(player->id_number, 0, 0);
+          break;
+      case VicS_LostLevel:
+          if (plyr_idx == my_player_number)
+            set_level_objective(cmpgn_string(CpgStr_LevelLost));
+          display_objectives(player->id_number, 0, 0);
+          break;
+      }
+    }
+}
+
+void display_objectives(PlayerNumber plyr_idx,long x,long y)
 {
   _DK_display_objectives(plyr_idx,x,y);
 }

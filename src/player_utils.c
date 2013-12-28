@@ -37,6 +37,7 @@
 #include "game_saves.h"
 #include "game_legacy.h"
 #include "frontend.h"
+#include "magic.h"
 #include "engine_redraw.h"
 #include "frontmenu_ingame_tabs.h"
 #include "frontmenu_ingame_map.h"
@@ -51,6 +52,9 @@ DLLIMPORT void _DK_post_init_players(void);
 DLLIMPORT void _DK_init_player(struct PlayerInfo *player, int a2);
 DLLIMPORT void _DK_init_keeper_map_exploration(struct PlayerInfo *player);
 DLLIMPORT long _DK_wander_point_initialise(struct Wander *wandr, long plyr_idx, long a3);
+DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
+DLLIMPORT long _DK_wander_point_update(struct Wander *wandr);
+DLLIMPORT void _DK_process_player_states(void);
 /******************************************************************************/
 TbBool player_has_won(PlayerNumber plyr_idx)
 {
@@ -349,10 +353,190 @@ void init_players(void)
     }
 }
 
-long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, long a3)
+TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
-    return _DK_wander_point_initialise(wandr, plyr_idx, a3);
+    SYNCDBG(16,"Starting");
+    //return _DK_wp_check_map_pos_valid(wandr, stl_num);
+    MapSubtlCoord stl_x,stl_y;
+    long plyr_bit;
+    stl_x = stl_num_decode_x(stl_num);
+    stl_y = stl_num_decode_y(stl_num);
+    plyr_bit = wandr->plyr_bit;
+    if (wandr->store_revealed)
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at_pos(stl_num);
+        // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
+        if ((((1 << game.hero_player_num) & plyr_bit) != 0) || map_block_revealed_bit(mapblk, plyr_bit))
+        {
+            if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
+            {
+                return true;
+            }
+        }
+    } else
+    {
+        struct Map *mapblk;
+        mapblk = get_map_block_at_pos(stl_num);
+        // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
+        if ((((1 << game.hero_player_num) & plyr_bit) == 0) && !map_block_revealed_bit(mapblk, plyr_bit))
+        {
+            if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
+            {
+                struct Thing *heartng;
+                heartng = get_player_soul_container(wandr->plyr_idx);
+                if (!thing_is_invalid(heartng))
+                {
+                    struct Coord3d dstpos;
+                    dstpos.x.val = subtile_coord_center(stl_x);
+                    dstpos.y.val = subtile_coord_center(stl_y);
+                    dstpos.z.val = subtile_coord(1,0);
+                    if (navigation_points_connected(&heartng->mappos, &dstpos))
+                      return true;
+                }
+            }
+        }
+    }
+    return false;
 }
+
+TbBool wander_point_add(struct Wander *wandr, SubtlCodedCoords stl_num)
+{
+    unsigned long i;
+    i = wandr->point_insert_idx;
+    wandr->points[i].stl_x = stl_num_decode_x(stl_num);
+    wandr->points[i].stl_y = stl_num_decode_y(stl_num);
+    wandr->point_insert_idx = (i + 1) % WANDER_POINTS_COUNT;
+    if (wandr->points_count < WANDER_POINTS_COUNT)
+      wandr->points_count++;
+    return true;
+}
+
+/**
+ * Stores up to given amount of wander points into given wander structure.
+ * If required, selects several evenly distributed points from the input array.
+ * @param wandr
+ * @param stl_num_list
+ * @param stl_num_count
+ * @param max_to_store
+ * @return
+ */
+TbBool store_wander_points_up_to(struct Wander *wandr, const SubtlCodedCoords stl_num_list[], long stl_num_count, long max_to_store)
+{
+    long i;
+    if (stl_num_count > max_to_store)
+    {
+        double realidx,delta;
+        if (wandr->max_found_per_check <= 0)
+            return 1;
+        wandr->point_insert_idx %= WANDER_POINTS_COUNT;
+        delta = ((double)stl_num_count) / max_to_store;
+        realidx = 0.1; // A little above zero to avoid float rounding errors
+        for (i = 0; i < max_to_store; i++)
+        {
+            wander_point_add(wandr, stl_num_list[(unsigned int)(realidx)]);
+            realidx += delta;
+        }
+    } else
+    {
+        // Otherwise, add all points to the wander array
+        for (i = 0; i < stl_num_count; i++)
+        {
+            wander_point_add(wandr, stl_num_list[i]);
+        }
+    }
+    return true;
+}
+
+long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, long store_revealed)
+{
+    //return _DK_wander_point_initialise(wandr, plyr_idx, store_revealed);
+    wandr->store_revealed = store_revealed;
+    wandr->plyr_idx = plyr_idx;
+    wandr->point_insert_idx = 0;
+    wandr->last_checked_slb_num = 0;
+    wandr->plyr_bit = (1 << plyr_idx);
+    wandr->num_check_per_run = 20;
+    wandr->max_found_per_check = 4;
+    wandr->wdrfield_14 = 0;
+
+    SubtlCodedCoords *stl_num_list;
+    long stl_num_list_count;
+    SlabCodedCoords slb_num;
+    stl_num_list_count = 0;
+    stl_num_list = (SubtlCodedCoords *)scratch;
+    while (1)
+    {
+        MapSlabCoord slb_x,slb_y;
+        SubtlCodedCoords stl_num;
+        slb_x = slb_num_decode_x(slb_num);
+        slb_y = slb_num_decode_y(slb_num);
+        stl_num = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (wp_check_map_pos_valid(wandr, stl_num))
+        {
+            if (stl_num_list_count >= 0x10000/sizeof(SubtlCodedCoords)-1)
+                break;
+            stl_num_list[stl_num_list_count] = stl_num;
+            stl_num_list_count++;
+        }
+        slb_num++;
+        if (slb_num >= map_tiles_x*map_tiles_y) {
+            break;
+        }
+    }
+    // Check if we have found anything
+    if (stl_num_list_count <= 0)
+        return 1;
+    // If we have too many points, use only some of them
+    store_wander_points_up_to(wandr, stl_num_list, stl_num_list_count, WANDER_POINTS_COUNT);
+    return 1;
+}
+
+#define LOCAL_LIST_SIZE 20
+long wander_point_update(struct Wander *wandr)
+{
+    SubtlCodedCoords stl_num_list[LOCAL_LIST_SIZE];
+    long stl_num_list_count;
+    SlabCodedCoords slb_num;
+    long i;
+    SYNCDBG(6,"Starting");
+    //return _DK_wander_point_update(wandr);
+    // Find up to 20 numbers (starting where we ended last time) and store them in local array
+    slb_num = wandr->last_checked_slb_num;
+    stl_num_list_count = 0;
+    for (i = 0; i < wandr->num_check_per_run; i++)
+    {
+        MapSlabCoord slb_x,slb_y;
+        SubtlCodedCoords stl_num;
+        slb_x = slb_num_decode_x(slb_num);
+        slb_y = slb_num_decode_y(slb_num);
+        stl_num = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        if (wp_check_map_pos_valid(wandr, stl_num))
+        {
+            if (stl_num_list_count >= LOCAL_LIST_SIZE)
+                break;
+            stl_num_list[stl_num_list_count] = stl_num;
+            stl_num_list_count++;
+            if ((wandr->wdrfield_14 != 0) && (stl_num_list_count == wandr->max_found_per_check))
+            {
+                slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (map_tiles_x*map_tiles_y);
+                break;
+            }
+        }
+        slb_num++;
+        if (slb_num >= map_tiles_x*map_tiles_y) {
+            slb_num = 0;
+        }
+    }
+    wandr->last_checked_slb_num = slb_num;
+    // Check if we have found anything
+    if (stl_num_list_count <= 0)
+        return 1;
+    // If we have too many points, use only some of them
+    store_wander_points_up_to(wandr, stl_num_list, stl_num_list_count, wandr->max_found_per_check);
+    return 1;
+}
+#undef LOCAL_LIST_SIZE
 
 void post_init_player(struct PlayerInfo *player)
 {
@@ -398,6 +582,34 @@ void init_players_local_game(void)
     else
       player->field_4B5 = 5;
     init_player(player, 0);
+}
+
+void process_player_states(void)
+{
+    SYNCDBG(6,"Starting");
+    _DK_process_player_states();
+}
+
+void process_players(void)
+{
+    int i;
+    struct PlayerInfo *player;
+    SYNCDBG(5,"Starting");
+    process_player_instances();
+    process_player_states();
+    for (i=0; i<PLAYERS_COUNT; i++)
+    {
+        player = get_player(i);
+        if (player_exists(player) && (player->field_2C == 1))
+        {
+            SYNCDBG(6,"Doing updates for player %d",i);
+            wander_point_update(&player->wandr1);
+            wander_point_update(&player->wandr2);
+            update_power_sight_explored(player);
+            update_player_objectives(i);
+        }
+    }
+    SYNCDBG(17,"Finished");
 }
 
 TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)

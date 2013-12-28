@@ -903,16 +903,14 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
     return _DK_get_best_dungeon_to_tunnel_to(creatng);
 }
 
-short setup_person_tunnel_to_position(struct Thing *creatng, long stl_x, long stl_y, unsigned char a4)
+short setup_person_tunnel_to_position(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned char a4)
 {
     struct CreatureControl *cctrl;
     if ( internal_set_thing_state(creatng, CrSt_Tunnelling) )
     {
         cctrl = creature_control_get_from_thing(creatng);
-        cctrl->moveto_pos.x.stl.num = stl_x;
-        cctrl->moveto_pos.y.stl.num = stl_y;
-        cctrl->moveto_pos.x.stl.pos = 128;
-        cctrl->moveto_pos.y.stl.pos = 128;
+        cctrl->moveto_pos.x.val = subtile_coord_center(stl_x);
+        cctrl->moveto_pos.y.val = subtile_coord_center(stl_y);
         cctrl->moveto_pos.z.val = get_thing_height_at(creatng, &cctrl->moveto_pos);
     }
     return 0;
@@ -920,6 +918,7 @@ short setup_person_tunnel_to_position(struct Thing *creatng, long stl_x, long st
 
 TbBool send_tunneller_to_point_in_dungeon(struct Thing *creatng, PlayerNumber plyr_idx, struct Coord3d *pos)
 {
+    SYNCDBG(17,"Move %s to (%d,%d)",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->party.target_plyr_idx = plyr_idx;
@@ -1583,7 +1582,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     return 1;
 }
 
-long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)
+long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
@@ -1638,7 +1637,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short a3)
       cctrl->moveaccel.y.val = cctrl->navi.pos_1B.y.val - creatng->mappos.y.val;
       cctrl->moveaccel.z.val = 0;
       cctrl->field_2 |= 0x01;
-      creature_set_speed(creatng, min(a3,dist));
+      creature_set_speed(creatng, min(speed,dist));
       return 0;
     }
 }
@@ -1647,20 +1646,20 @@ short tunnelling(struct Thing *creatng)
 {
     struct SlabMap *slb;
     long speed;
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Move %s from (%d,%d)",thing_model_name(creatng),(int)creatng->mappos.x.stl.num,(int)creatng->mappos.y.stl.num);
     //return _DK_tunnelling(creatng);
     speed = get_creature_speed(creatng);
     slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
+    struct Coord3d *pos;
+    pos = &cctrl->moveto_pos;
     if (slabmap_owner(slb) == cctrl->party.target_plyr_idx)
     {
         internal_set_thing_state(creatng, CrSt_GoodDoingNothing);
         return 1;
     }
-    struct Coord3d *pos;
     long move_result;
-    pos = &cctrl->moveto_pos;
     move_result = creature_tunnel_to(creatng, pos, speed);
     if (move_result == 1)
     {
@@ -1680,8 +1679,10 @@ short tunnelling(struct Thing *creatng)
     }
     if (!creature_can_navigate_to(creatng, pos, 0))
     {
+        SYNCDBG(7,"The %s moves towards (%d,%d)",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
         return 0;
     }
+    SYNCDBG(7,"The %s reached (%d,%d)",thing_model_name(creatng),(int)pos->x.stl.num,(int)pos->y.stl.num);
     return 1;
 }
 /******************************************************************************/

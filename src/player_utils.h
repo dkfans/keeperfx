@@ -55,6 +55,7 @@ void init_player(struct PlayerInfo *player, short no_explore);
 void post_init_players(void);
 void init_players_local_game(void);
 void init_keeper_map_exploration(struct PlayerInfo *player);
+void process_players(void);
 /******************************************************************************/
 #ifdef __cplusplus
 }
