@@ -947,10 +947,11 @@ int count_slabs_around_of_kind(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind 
  * @param comp
  * @param check Computer check data.
  * @param room The room to be checked for expand.
+ * @param max_radius The max distance of the slab being put to the center of the room, in subtiles.
  * @param around_start Random value used for setting starting point of the check process.
  * @return
  */
-TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct ComputerCheck * check, struct Room *room, long around_start)
+TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct ComputerCheck * check, struct Room *room, MapSubtlCoord max_radius, long around_start)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
@@ -984,14 +985,21 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
                 MapSlabCoord arslb_x, arslb_y;
                 arslb_x = slb_x + small_around[m].delta_x;
                 arslb_y = slb_y + small_around[m].delta_y;
-                slb = get_slabmap_block(arslb_x, arslb_y);
-                struct Thing *traptng;
-                traptng = get_trap_for_slab_position(arslb_x, arslb_y);
-                if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner) && thing_is_invalid(traptng))
+                MapSubtlCoord arstl_x, arstl_y;
+                arstl_x = slab_subtile_center(arslb_x);
+                arstl_y = slab_subtile_center(arslb_y);
+                long dist;
+                dist = abs(room->central_stl_x - arstl_x) + abs(room->central_stl_y - arstl_y);
+                if (dist <= max_radius)
                 {
-                    if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0,
-                        slab_subtile_center(arslb_x), slab_subtile_center(arslb_y), 1, room->kind) > Lb_OK) {
-                        return true;
+                    slb = get_slabmap_block(arslb_x, arslb_y);
+                    struct Thing *traptng;
+                    traptng = get_trap_for_slab_position(arslb_x, arslb_y);
+                    if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner) && thing_is_invalid(traptng))
+                    {
+                        if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, arstl_x, arstl_y, 1, room->kind) > Lb_OK) {
+                            return true;
+                        }
                     }
                 }
                 m = (m+1) % SMALL_AROUND_SLAB_LENGTH;
@@ -1021,6 +1029,9 @@ long computer_check_for_expand_room_kind(struct Computer2 *comp, struct Computer
             return 0;
         }
     }
+    MapSubtlCoord max_radius;
+    // Don't allow the room to be made into long, narrow shape
+    max_radius = 3 * slab_subtile(LbSqrL(max_slabs),2) / 4;
     struct Room *room;
     long i;
     unsigned long k;
@@ -1037,7 +1048,7 @@ long computer_check_for_expand_room_kind(struct Computer2 *comp, struct Computer
         i = room->next_of_owner;
         // Per-room code
         if ((room->slabs_count > 0) && (room->slabs_count < max_slabs)) {
-            if (computer_check_for_expand_specific_room(comp, check, room, around_start)) {
+            if (computer_check_for_expand_specific_room(comp, check, room, max_radius, around_start)) {
                 SYNCDBG(6,"The %s index %d will be expanded",room_code_name(room->kind),(int)room->index);
                 return 1;
             }
