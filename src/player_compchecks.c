@@ -483,9 +483,9 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_for_quick_attack(comp, check);
     dungeon = comp->dungeon;
-    int creatrs_factor;
-    creatrs_factor = check->param1 * dungeon->num_active_creatrs / 100;
-    if (check->param3 >= creatrs_factor) {
+    int creatrs_num;
+    creatrs_num = check->param1 * dungeon->num_active_creatrs / 100;
+    if (check->param3 >= creatrs_num) {
         return 4;
     }
     if (computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 1, 3) != 1) {
@@ -507,12 +507,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if (check->param3 >= count_creatures_availiable_for_fight(comp, &pos)) {
         return 4;
     }
-    struct ComputerTask *ctask;
-    ctask = get_free_task(comp, 0);
-    if (computer_task_invalid(ctask)) {
-        return 4;
-    }
-    if (!create_task_magic_call_to_arms(comp, &pos, check->param2, creatrs_factor)) {
+    if (!create_task_magic_support_call_to_arms(comp, &pos, check->param2, 0, creatrs_num)) {
         return 4;
     }
     output_message(SMsg_EnemyHarassments+ACTION_RANDOM(8), 500, 1);
