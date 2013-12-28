@@ -30,6 +30,8 @@
 #include "player_instances.h"
 #include "room_lair.h"
 #include "room_list.h"
+#include "creature_states.h"
+#include "power_hand.h"
 
 #include "gui_soundmsgs.h"
 #include "dungeon_data.h"
@@ -60,7 +62,7 @@ DLLIMPORT long _DK_computer_paused_task(struct Computer2 *comp, struct ComputerP
 DLLIMPORT long _DK_computer_completed_task(struct Computer2 *comp, struct ComputerProcess *process);
 DLLIMPORT long _DK_set_next_process(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *startpos, struct Room **retroom, short from_plyr_idx);
-DLLIMPORT long _DK_move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *startpos, long a3);
+DLLIMPORT long _DK_move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *startpos, long max_amount);
 DLLIMPORT struct ComputerProcess * _DK_find_best_process(struct Computer2 *comp);
 /******************************************************************************/
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process);
@@ -761,9 +763,92 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
     return near_dist;
 }
 
-long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long a3)
+TbBool imp_can_be_moved_to_dig(const struct Thing *creatng)
 {
-    return _DK_move_imp_to_dig_here(comp, pos, a3);
+    CrtrStateId curr_state;
+    curr_state = get_creature_state_besides_move(creatng);
+    struct StateInfo *curr_stati;
+    curr_stati = get_thing_state_info_num(curr_state);
+    switch (curr_stati->state_type)
+    {
+      case 1:
+      case 8:
+        switch (curr_state)
+        {
+          case 3u:
+          case 4u:
+          case 5u:
+          case 7u:
+          case 70u:
+          case 97u:
+          case 98u:
+              return true;
+        }
+        break;
+      case 0:
+      case 2:
+      case 3:
+      case 4:
+      case 6:
+          return true;
+    }
+    return false;
+}
+
+long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount)
+{
+    //return _DK_move_imp_to_dig_here(comp, pos, a3);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+
+    long amount_tried, amount_did;
+    amount_tried = 0;
+    amount_did = 0;
+
+    unsigned long k;
+    int i;
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        const struct Thing *creatng;
+        const struct CreatureControl *cctrl;
+        creatng = thing_get(i);
+        TRACE_THING(creatng);
+        cctrl = creature_control_get_from_thing(creatng);
+        if (thing_is_invalid(creatng) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (amount_tried >= max_amount)
+            break;
+        if (can_thing_be_picked_up_by_player(creatng, dungeon->owner) && imp_can_be_moved_to_dig(creatng))
+        {
+            struct ComputerTask *ctask;
+            ctask = get_free_task(comp, 0);
+            if (computer_task_invalid(ctask)) {
+                break;
+            }
+            ctask->ttype = CTT_MoveCreatureToPos;
+            ctask->pos_86.x.val = pos->x.val;
+            ctask->pos_86.y.val = pos->y.val;
+            ctask->pos_86.z.val = pos->z.val;
+            ctask->word_76 = creatng->index;
+            ctask->field_A = game.play_gameturn;
+            amount_did++;
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return amount_did;
 }
 
 TbBool right_time_to_choose_target_entrance(struct ComputerProcess *process, long neutral_entrances, long own_entrances, long targplyr_entrances)
@@ -1132,13 +1217,13 @@ long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProce
 
 long computer_process_task(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return 0;
+    return 0;
 }
 
 long computer_paused_task(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  comp->task_state = CTaskSt_Select;
-  return 0;
+    comp->task_state = CTaskSt_Select;
+    return 0;
 }
 
 long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *process)
@@ -1151,7 +1236,34 @@ long computer_completed_task(struct Computer2 *comp, struct ComputerProcess *pro
 
 long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_completed_attack1(comp, process);
+    //return _DK_computer_completed_attack1(comp, process);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    int creatrs_num;
+    creatrs_num = process->field_8 * dungeon->num_active_creatrs / 100;
+    comp->task_state = 2;
+    struct ComputerTask *ctask;
+    ctask = get_computer_task(process->field_40);
+    struct Coord3d  *pos;
+    pos = &ctask->dig.pos_begin;
+    if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
+    {
+        if (!create_task_pickup_for_attack(comp, pos, ctask->long_86, creatrs_num)) {
+            return 4;
+        }
+        return 1;
+    } else
+    if (process->field_C <= creatrs_num)
+    {
+        if ((computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 5, 2) == 1) && check_call_to_arms(comp))
+        {
+            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, ctask->long_86, creatrs_num)) {
+                return 4;
+            }
+            return 1;
+        }
+    }
+    return 4;
 }
 
 long computer_completed_build_a_room(struct Computer2 *comp, struct ComputerProcess *process)
@@ -1222,19 +1334,19 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *process)
 struct ComputerProcess * find_best_process(struct Computer2 *comp)
 {
     //return _DK_find_best_process(comp);
-    int best_prior;
+    long best_prior;
     struct ComputerProcess *best_cproc;
-    best_cproc = NULL;
+    best_cproc = INVALID_COMPUTER_PROCESS;
     best_prior = LONG_MIN;
 
-    unsigned long g2max_prior;
+    GameTurnDelta g2max_prior;
     struct ComputerProcess *g2max_cproc;
-    g2max_cproc = NULL;
+    g2max_cproc = INVALID_COMPUTER_PROCESS;
     g2max_prior = 150;
 
     GameTurnDelta g1max_prior;
     struct ComputerProcess *g1max_cproc;
-    g1max_cproc = NULL;
+    g1max_cproc = INVALID_COMPUTER_PROCESS;
     g1max_prior = 100;
 
     int i;
@@ -1246,7 +1358,7 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
             break;
         if ((cproc->flags & (0x20|0x10|0x08|0x04|0x01)) != 0)
             continue;
-        if ( cproc->field_3C )
+        if (cproc->field_3C > 0)
         {
             GameTurnDelta prior;
             prior = (GameTurnDelta)game.play_gameturn - (GameTurnDelta)cproc->field_3C;
@@ -1255,7 +1367,7 @@ struct ComputerProcess * find_best_process(struct Computer2 *comp)
                 g1max_cproc = cproc;
             }
         } else
-        if ( cproc->field_38 )
+        if (cproc->field_38 > 0)
         {
             GameTurnDelta prior;
             prior = (GameTurnDelta)game.play_gameturn - (GameTurnDelta)cproc->field_38;
@@ -1304,7 +1416,7 @@ long set_next_process(struct Computer2 *comp)
     //return _DK_set_next_process(comp);
     chkres = 0;
     process = find_best_process(comp);
-    if (process != NULL)
+    if (process != INVALID_COMPUTER_PROCESS)
     {
         SYNCDBG(8,"Checking \"%s\"",process->name);
         chkres = process->func_check(comp, process);
