@@ -1221,7 +1221,80 @@ void reset_process(struct Computer2 *comp, struct ComputerProcess *process)
 
 struct ComputerProcess * find_best_process(struct Computer2 *comp)
 {
-    return _DK_find_best_process(comp);
+    //return _DK_find_best_process(comp);
+    int best_prior;
+    struct ComputerProcess *best_cproc;
+    best_cproc = NULL;
+    best_prior = LONG_MIN;
+
+    unsigned long g2max_prior;
+    struct ComputerProcess *g2max_cproc;
+    g2max_cproc = NULL;
+    g2max_prior = 150;
+
+    GameTurnDelta g1max_prior;
+    struct ComputerProcess *g1max_cproc;
+    g1max_cproc = NULL;
+    g1max_prior = 100;
+
+    int i;
+    for (i=0; i < COMPUTER_PROCESSES_COUNT+1; i++)
+    {
+        struct ComputerProcess *cproc;
+        cproc = &comp->processes[i];
+        if ((cproc->flags & 0x02) != 0)
+            break;
+        if ((cproc->flags & (0x20|0x10|0x08|0x04|0x01)) != 0)
+            continue;
+        if ( cproc->field_3C )
+        {
+            GameTurnDelta prior;
+            prior = (GameTurnDelta)game.play_gameturn - (GameTurnDelta)cproc->field_3C;
+            if (g1max_prior < prior) {
+                g1max_prior = prior;
+                g1max_cproc = cproc;
+            }
+        } else
+        if ( cproc->field_38 )
+        {
+            GameTurnDelta prior;
+            prior = (GameTurnDelta)game.play_gameturn - (GameTurnDelta)cproc->field_38;
+            if (g2max_prior < prior) {
+                g2max_prior = prior;
+                g2max_cproc = cproc;
+            }
+        } else
+        {
+            if (best_prior < cproc->field_4) {
+                best_prior = cproc->field_4;
+                best_cproc = cproc;
+            }
+        }
+    }
+
+    if (g1max_cproc != NULL)
+    {
+        if (best_cproc == NULL)
+        {
+            best_cproc = g1max_cproc;
+        } else
+        if (best_cproc->field_4 < g1max_cproc->field_4)
+        {
+            best_cproc = g1max_cproc;
+        }
+    }
+    if (g2max_cproc != NULL)
+    {
+        if (best_cproc == NULL)
+        {
+            best_cproc = g2max_cproc;
+        } else
+        if (best_cproc->field_4 < g2max_cproc->field_4)
+        {
+            best_cproc = g2max_cproc;
+        }
+    }
+    return best_cproc;
 }
 
 long set_next_process(struct Computer2 *comp)

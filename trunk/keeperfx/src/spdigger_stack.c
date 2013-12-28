@@ -329,11 +329,11 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
     }
     if (min_taskid == 1)
     {
-        thing->continue_state = 9;
+        thing->continue_state = CrSt_ImpArrivesAtImproveDungeon;
         return 1;
     } else
     {
-        thing->continue_state = 73;
+        thing->continue_state = CrSt_ImpArrivesAtConvertDungeon;
         return 1;
     }
     return 0;
