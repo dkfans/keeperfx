@@ -543,7 +543,7 @@ long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing,
     }
     if (thing_is_creature(thing)) {
         clear_creature_instance(thing);
-        external_set_thing_state(thing, 38);
+        external_set_thing_state(thing, CrSt_InPowerHand);
     }
     place_thing_in_limbo(thing);
     comp->field_14C8 = thing->index;
