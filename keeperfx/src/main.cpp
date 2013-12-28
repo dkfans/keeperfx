@@ -226,12 +226,10 @@ DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_process_dungeons(void);
 DLLIMPORT void _DK_process_level_script(void);
 DLLIMPORT void _DK_message_update(void);
-DLLIMPORT long _DK_wander_point_update(struct Wander *wandr);
 DLLIMPORT void _DK_update_player_camera(struct PlayerInfo *player);
 DLLIMPORT void _DK_set_level_objective(char *msg_text);
 DLLIMPORT void _DK_update_flames_nearest_camera(struct Camera *camera);
 DLLIMPORT void _DK_update_footsteps_nearest_camera(struct Camera *camera);
-DLLIMPORT void _DK_process_player_states(void);
 DLLIMPORT void _DK_set_mouse_light(struct PlayerInfo *player);
 DLLIMPORT void _DK_draw_gui(void);
 DLLIMPORT void _DK_turn_off_query(char a);
@@ -239,7 +237,6 @@ DLLIMPORT void _DK_post_init_level(void);
 DLLIMPORT void _DK_init_level(void);
 DLLIMPORT int _DK_frontend_is_player_allied(long plyr1, long plyr2);
 DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
-DLLIMPORT long _DK_wp_check_map_pos_valid(struct Wander *wandr, long a1);
 DLLIMPORT void _DK_startup_network_game(void);
 DLLIMPORT void _DK_load_ceiling_table(void);
 DLLIMPORT char _DK_find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx);
@@ -2323,129 +2320,6 @@ void message_update(void)
   _DK_message_update();
 }
 
-TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
-{
-    SYNCDBG(16,"Starting");
-    //return _DK_wp_check_map_pos_valid(wandr, stl_num);
-    MapSubtlCoord stl_x,stl_y;
-    long plyr_bit;
-    stl_x = stl_num_decode_x(stl_num);
-    stl_y = stl_num_decode_y(stl_num);
-    plyr_bit = wandr->plyr_bit;
-    if (wandr->store_revealed)
-    {
-        struct Map *mapblk;
-        mapblk = get_map_block_at_pos(stl_num);
-        // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
-        if ((((1 << game.hero_player_num) & plyr_bit) != 0) || map_block_revealed_bit(mapblk, plyr_bit))
-        {
-            if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
-            {
-                return true;
-            }
-        }
-    } else
-    {
-        struct Map *mapblk;
-        mapblk = get_map_block_at_pos(stl_num);
-        // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
-        if ((((1 << game.hero_player_num) & plyr_bit) == 0) && !map_block_revealed_bit(mapblk, plyr_bit))
-        {
-            if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
-            {
-                struct Thing *heartng;
-                heartng = get_player_soul_container(wandr->plyr_idx);
-                if (!thing_is_invalid(heartng))
-                {
-                    struct Coord3d dstpos;
-                    dstpos.x.val = subtile_coord_center(stl_x);
-                    dstpos.y.val = subtile_coord_center(stl_y);
-                    dstpos.z.val = subtile_coord(1,0);
-                    if (navigation_points_connected(&heartng->mappos, &dstpos))
-                      return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-#define LOCAL_LIST_SIZE 20
-long wander_point_update(struct Wander *wandr)
-{
-    SubtlCodedCoords stl_num_list[LOCAL_LIST_SIZE];
-    long stl_num_list_count;
-    SlabCodedCoords slb_num;
-    long i;
-    SYNCDBG(6,"Starting");
-    //return _DK_wander_point_update(wandr);
-    // Find up to 20 numbers (starting where we ended last time) and store them in local array
-    slb_num = wandr->last_checked_slb_num;
-    stl_num_list_count = 0;
-    for (i = 0; i < wandr->num_check_per_run; i++)
-    {
-        MapSlabCoord slb_x,slb_y;
-        SubtlCodedCoords stl_num;
-        slb_x = slb_num_decode_x(slb_num);
-        slb_y = slb_num_decode_y(slb_num);
-        stl_num = get_subtile_number(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-        if (wp_check_map_pos_valid(wandr, stl_num))
-        {
-            if (stl_num_list_count >= LOCAL_LIST_SIZE)
-                break;
-            stl_num_list[stl_num_list_count] = stl_num;
-            stl_num_list_count++;
-            if ((wandr->wdrfield_14 != 0) && (stl_num_list_count == wandr->max_found_per_check))
-            {
-                slb_num = (wandr->num_check_per_run + wandr->last_checked_slb_num) % (map_tiles_x*map_tiles_y);
-                break;
-            }
-        }
-        slb_num++;
-        if (slb_num >= map_tiles_x*map_tiles_y) {
-            slb_num = 0;
-        }
-    }
-    wandr->last_checked_slb_num = slb_num;
-    // Check if we have found anything
-    if (stl_num_list_count <= 0)
-        return 1;
-    // If we have too many points, use only some of them
-    if (stl_num_list_count > wandr->max_found_per_check)
-    {
-        double realidx,delta;
-        if (wandr->max_found_per_check <= 0)
-            return 1;
-        wandr->point_insert_idx %= WANDER_POINTS_COUNT;
-        delta = ((double)stl_num_list_count) / wandr->max_found_per_check;
-        realidx = 0.0;
-        for (i = 0; i < wandr->max_found_per_check; i++)
-        {
-            slb_num = stl_num_list[(unsigned int)realidx];
-            wandr->points[wandr->point_insert_idx].slb_x = slb_num_decode_x(slb_num);
-            wandr->points[wandr->point_insert_idx].slb_y = slb_num_decode_y(slb_num);
-            wandr->point_insert_idx = (wandr->point_insert_idx + 1) % WANDER_POINTS_COUNT;
-            if (wandr->points_count < WANDER_POINTS_COUNT)
-                wandr->points_count++;
-            realidx += delta;
-        }
-    } else
-    {
-        // Otherwise, add all points to the wander array
-        for (i = 0; i < stl_num_list_count; i++)
-        {
-            slb_num = stl_num_list[i];
-            wandr->points[wandr->point_insert_idx].slb_x = slb_num_decode_x(slb_num);
-            wandr->points[wandr->point_insert_idx].slb_y = slb_num_decode_y(slb_num);
-            wandr->point_insert_idx = (wandr->point_insert_idx + 1) % WANDER_POINTS_COUNT;
-            if (wandr->points_count < WANDER_POINTS_COUNT)
-              wandr->points_count++;
-        }
-    }
-    return 1;
-}
-#undef LOCAL_LIST_SIZE
-
 void update_player_camera(struct PlayerInfo *player)
 {
   _DK_update_player_camera(player);
@@ -2636,73 +2510,6 @@ void update_footsteps_nearest_camera(struct Camera *camera)
         stop_playing_flight_sample_in_all_flying_creatures();
     }
     timeslice = (timeslice + 1) % 4;
-}
-
-void process_player_states(void)
-{
-  SYNCDBG(6,"Starting");
-  _DK_process_player_states();
-}
-
-void set_level_objective(const char *msg_text)
-{
-    if (msg_text == NULL)
-    {
-        ERRORLOG("Invalid message pointer");
-        return;
-    }
-    strncpy(game.evntbox_text_objective, msg_text, MESSAGE_TEXT_LEN);
-    new_objective = 1;
-}
-
-void update_player_objectives(int plridx)
-{
-  struct PlayerInfo *player;
-  SYNCDBG(6,"Starting for player %d",plridx);
-  player = get_player(plridx);
-  if ((game.system_flags & GSF_NetworkActive) != 0)
-  {
-    if ((!player->field_4EB) && (player->victory_state != VicS_Undecided))
-      player->field_4EB = game.play_gameturn+1;
-  }
-  if (player->field_4EB == game.play_gameturn)
-  {
-    switch (player->victory_state)
-    {
-    case VicS_WonLevel:
-        if (plridx == my_player_number)
-          set_level_objective(cmpgn_string(CpgStr_SuccessLandIsYours));
-        display_objectives(player->id_number, 0, 0);
-        break;
-    case VicS_LostLevel:
-        if (plridx == my_player_number)
-          set_level_objective(cmpgn_string(CpgStr_LevelLost));
-        display_objectives(player->id_number, 0, 0);
-        break;
-    }
-  }
-}
-
-void process_players(void)
-{
-  int i;
-  struct PlayerInfo *player;
-  SYNCDBG(5,"Starting");
-  process_player_instances();
-  process_player_states();
-  for (i=0; i<PLAYERS_COUNT; i++)
-  {
-      player = get_player(i);
-      if (player_exists(player) && (player->field_2C == 1))
-      {
-          SYNCDBG(6,"Doing updates for player %d",i);
-          wander_point_update(&player->wandr1);
-          wander_point_update(&player->wandr2);
-          update_power_sight_explored(player);
-          update_player_objectives(i);
-      }
-  }
-  SYNCDBG(17,"Finished");
 }
 
 short update_animating_texture_maps(void)

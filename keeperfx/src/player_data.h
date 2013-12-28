@@ -72,9 +72,9 @@ enum PlayerVictoryState {
 /******************************************************************************/
 #pragma pack(1)
 
-struct SlabXY {
-    unsigned char slb_x;
-    unsigned char slb_y;
+struct SubtileXY {
+    unsigned char stl_x;
+    unsigned char stl_y;
 };
 
 struct Wander // sizeof = 424
@@ -93,7 +93,7 @@ struct Wander // sizeof = 424
   unsigned char plyr_idx;
   unsigned char plyr_bit;
   /** Array of points where the creatures could go wander. */
-  struct SlabXY points[WANDER_POINTS_COUNT];
+  struct SubtileXY points[WANDER_POINTS_COUNT];
 };
 
 #define SIZEOF_PlayerInfo 0x4EF
