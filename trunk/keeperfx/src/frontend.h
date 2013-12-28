@@ -413,7 +413,11 @@ void fake_button_click(long btn_idx);
 unsigned long toggle_status_menu(short visib);
 TbBool toggle_first_person_menu(TbBool visible);
 void toggle_gui_overlay_map(void);
-void display_objectives(long a1,long a2,long a3);
+
+void update_player_objectives(PlayerNumber plyr_idx);
+void set_level_objective(const char *msg_text);
+void display_objectives(PlayerNumber plyr_idx,long x,long y);
+
 short toggle_main_cheat_menu(void);
 short toggle_instance_cheat_menu(void);
 TbBool open_creature_cheat_menu(void);

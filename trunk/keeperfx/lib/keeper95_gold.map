@@ -1024,6 +1024,7 @@
  0001:000AFD40       process_player_manufacturing
  0001:0001CD90       process_player_research
  0001:00005380       light_render_area
+ 0001:000A6390       get_random_position_in_dungeon_for_creature
  0001:000A6DA0       update_power_sight_explored
  0001:0005B120       process_armageddon
  0001:0005AA30       process_player_states

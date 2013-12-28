@@ -50,6 +50,7 @@
 #include "creature_groups.h"
 #include "room_library.h"
 #include "lvl_filesdk1.h"
+#include "frontend.h"
 #include "game_merge.h"
 #include "dungeon_data.h"
 #include "game_legacy.h"
@@ -2732,7 +2733,7 @@ TbBool script_support_send_tunneller_to_action_point(struct Thing *thing, long a
 
 TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
     //return _DK_script_support_send_tunneller_to_dungeon(creatng, a2);
     struct Thing *heartng;
     heartng = get_player_soul_container(plyr_idx);
@@ -2751,13 +2752,14 @@ TbBool script_support_send_tunneller_to_dungeon(struct Thing *creatng, PlayerNum
         WARNLOG("Tried to send %s to player %d but can't start the task", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
+    SYNCDBG(17,"Moving %s to (%d,%d)",thing_model_name(creatng),(int)pos.x.stl.num,(int)pos.y.stl.num);
     return true;
 }
 
 TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, PlayerNumber plyr_idx)
 {
-    SYNCDBG(7,"Starting");
-    //return _DK_script_support_send_tunneller_to_dungeon_heart(creatng, a2);
+    SYNCDBG(7,"Send %s to player %d",thing_model_name(creatng),(int)plyr_idx);
+    //return _DK_script_support_send_tunneller_to_dungeon_heart(creatng, plyr_idx);
     struct Thing *heartng;
     heartng = get_player_soul_container(plyr_idx);
     TRACE_THING(heartng);
@@ -2769,6 +2771,7 @@ TbBool script_support_send_tunneller_to_dungeon_heart(struct Thing *creatng, Pla
         WARNLOG("Tried to send %s to player %d but can't start the task", thing_model_name(creatng), (int)plyr_idx);
         return false;
     }
+    SYNCDBG(17,"Moving %s to (%d,%d)",thing_model_name(creatng),(int)heartng->mappos.x.stl.num,(int)heartng->mappos.y.stl.num);
     return true;
 }
 
