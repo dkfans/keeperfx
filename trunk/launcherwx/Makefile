@@ -45,11 +45,11 @@ DEPFLAGS = -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MD -MP
 
 # linker flags
 BUILD = release
-WX_RELEASE = 2.9
-WX_RELEASE_NODOT = 29
+WX_RELEASE = 3.0
+WX_RELEASE_NODOT = 30
 top_srcdir = ./wx
 LIBDIRNAME = $(top_srcdir)/lib
-WXWIDGETS_CXXFLAGS = -I${top_srcdir}/lib/wx/include/msw-unicode-static-2.9 -I${top_srcdir}/include \
+WXWIDGETS_CXXFLAGS = -I${top_srcdir}/lib/wx/include/msw-unicode-static-3.0 -I${top_srcdir}/include \
 	-DHAVE_W32API_H -D__WXMSW__ -W -Wall -Wno-ctor-dtor-privacy
 CXXFLAGS = -c $(WXWIDGETS_CXXFLAGS) $(DEPFLAGS)
 CFLAGS = -c $(DEPFLAGS)
@@ -64,21 +64,21 @@ ifeq ($(UNICODE),1)
 WXUNICODEFLAG = u
 endif
 __WXLIB_CORE_p = \
-	-lwxmsw$(WX_RELEASE_NODOT)$(WXUNICODEFLAG)_core
+	-lwx_msw$(WXUNICODEFLAG)_core-$(WX_RELEASE)
 __WXLIB_BASE_p = \
-	-lwxbase$(WX_RELEASE_NODOT)$(WXUNICODEFLAG)
+	-lwx_base$(WXUNICODEFLAG)-$(WX_RELEASE)
 __LIB_TIFF_p = \
-	-lwxtiff$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)
+	-lwxtiff$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)
 __LIB_JPEG_p = \
-	-lwxjpeg$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)
+	-lwxjpeg$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)
 __LIB_PNG_p = \
-	-lwxpng$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)
+	-lpng
 __LIB_ZLIB_p = \
-	-lwxzlib$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)
+	-lz
 ___LIB_REGEX_p = \
-	-lwxregex$(WXUNICODEFLAG)$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)
+	-lwxregex$(WXUNICODEFLAG)$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)
 ___LIB_EXPAT_p = \
-	-lwxexpat$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)
+	-lwxexpat$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)
 
 .PHONY: all all-before all-after debug docs docsdox clean clean-custom
 
