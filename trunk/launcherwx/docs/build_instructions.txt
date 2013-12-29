@@ -1,0 +1,14 @@
+Use either mingw32 or mingw-w64.
+
+As this is just a launcher, I recommend compiling static version of wxWidgets for it.
+Many features may be disabled:
+
+./configure CXXFLAGS="-march=i686 -ffunction-sections -fdata-sections" LDFLAGS="-march=i686 -Wl,--gc-sections" --disable-shared --disable-sockets --disable-http --disable-ftp --disable-protocols --disable-sound --disable-tarstream --disable-zipstream --disable-protocol --disable-mediactrl --disable-webview --enable-no_rtti --disable-debug --disable-gif --disable-pcx --disable-tga --disable-iff --disable-svg --without-libpng --without-libtiff
+make BUILD=release UNICODE=1 SHARED=0
+
+After build is done:
+- copy 'lib' folder with static libraries (.a files) and subfolders to 'wx/lib',
+- copy 'include' folder with headers (.h files) and subfolders to 'wx/include',
+- copy file 'build/msw/config.gcc' to 'wx/config.gcc',
+
+Then, just use 'make all' to make the launcher.

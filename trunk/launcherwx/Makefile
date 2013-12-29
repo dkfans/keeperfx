@@ -42,18 +42,26 @@ $(RES)
 
 # Variables
 DEPFLAGS = -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MD -MP 
+ifeq ($(DEBUG), 1)
+  OPTFLAGS = -march=i686 -O0
+  DBGFLAGS = -g -DDEBUG
+else
+  OPTFLAGS = -march=i686 -O3 -s -ffunction-sections -fdata-sections -Wl,--gc-sections
+  DBGFLAGS = 
+endif
 
 # linker flags
 BUILD = release
 WX_RELEASE = 3.0
 WX_RELEASE_NODOT = 30
+DEBUG_FLAG = 0 # should be set to 0 if "--disable-debug" was used for building wxWidgets
 top_srcdir = ./wx
 LIBDIRNAME = $(top_srcdir)/lib
 WXWIDGETS_CXXFLAGS = -I${top_srcdir}/lib/wx/include/msw-unicode-static-3.0 -I${top_srcdir}/include \
-	-DHAVE_W32API_H -D__WXMSW__ -W -Wall -Wno-ctor-dtor-privacy
-CXXFLAGS = -c $(WXWIDGETS_CXXFLAGS) $(DEPFLAGS)
-CFLAGS = -c $(DEPFLAGS)
-LDFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+	-DHAVE_W32API_H -D__WXMSW__ -DwxDEBUG_LEVEL=$(DEBUG_FLAG) -W -Wall -Wno-ctor-dtor-privacy
+CXXFLAGS = -c $(WXWIDGETS_CXXFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(DEPFLAGS)
+CFLAGS = -c $(OPTFLAGS) $(DBGFLAGS) $(DEPFLAGS)
+LDFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import $(OPTFLAGS)
 
 # include wxWidgets build configuration
 include wx/config.gcc
@@ -67,14 +75,11 @@ __WXLIB_CORE_p = \
 	-lwx_msw$(WXUNICODEFLAG)_core-$(WX_RELEASE)
 __WXLIB_BASE_p = \
 	-lwx_base$(WXUNICODEFLAG)-$(WX_RELEASE)
-__LIB_TIFF_p = \
-	-lwxtiff$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)
+__LIB_TIFF_p = 
 __LIB_JPEG_p = \
 	-lwxjpeg$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)
-__LIB_PNG_p = \
-	-lpng
-__LIB_ZLIB_p = \
-	-lz
+__LIB_PNG_p = 
+__LIB_ZLIB_p = 
 ___LIB_REGEX_p = \
 	-lwxregex$(WXUNICODEFLAG)$(WXDEBUGFLAG)$(WX_LIB_FLAVOUR)-$(WX_RELEASE)
 ___LIB_EXPAT_p = \
