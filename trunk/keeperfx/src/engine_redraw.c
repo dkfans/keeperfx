@@ -61,11 +61,11 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_redraw_display(void);
 DLLIMPORT void _DK_process_pointer_graphic(void);
-DLLIMPORT void _DK_smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
+DLLIMPORT void _DK_smooth_screen_area(unsigned char *fbame, long a2, long a3, long a4, long a5, long a6);
 DLLIMPORT void _DK_redraw_creature_view(void);
 DLLIMPORT void _DK_redraw_isometric_view(void);
 DLLIMPORT void _DK_redraw_frontview(void);
-DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
+DLLIMPORT void _DK_draw_overlay_compass(long fbame, long a2);
 DLLIMPORT long _DK_map_fade_in(long a);
 DLLIMPORT long _DK_map_fade_out(long a);
 DLLIMPORT void _DK_message_draw(void);
@@ -73,8 +73,8 @@ DLLIMPORT void _DK_draw_sound_stuff(void);
 DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
 DLLIMPORT void _DK_set_sprite_view_3d(void);
 DLLIMPORT void _DK_set_sprite_view_isometric(void);
-DLLIMPORT void _DK_map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9);
-DLLIMPORT void _DK_generate_map_fade_ghost_table(const char *a1, unsigned char *a2, unsigned char *a3);
+DLLIMPORT void _DK_map_fade(unsigned char *fbame, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9);
+DLLIMPORT void _DK_generate_map_fade_ghost_table(const char *fbame, unsigned char *a2, unsigned char *a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -153,9 +153,33 @@ void map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned 
     _DK_map_fade(a1, a2, a3, a4, a5, a6, a7, a8, a9); return;
 }
 
-void generate_map_fade_ghost_table(const char *a1, unsigned char *a2, unsigned char *a3)
+void generate_map_fade_ghost_table(const char *fname, unsigned char *palette, unsigned char *ghost_table)
 {
-    _DK_generate_map_fade_ghost_table(a1, a2, a3); return;
+    //_DK_generate_map_fade_ghost_table(fname, pal, ghost_table); return;
+    if (LbFileLoadAt(fname, ghost_table) != PALETTE_COLORS*PALETTE_COLORS)
+    {
+        unsigned char *out;
+        out = ghost_table;
+        int i;
+        for (i=0; i < PALETTE_COLORS; i++)
+        {
+            unsigned char *bpal;
+            bpal = &palette[3*i];
+            int n;
+            for (n=0; n < PALETTE_COLORS; n++)
+            {
+                unsigned char *spal;
+                spal = &palette[3*n];
+                unsigned char r,g,b;
+                r = bpal[0] + spal[0];
+                g = bpal[1] + spal[1];
+                b = bpal[2] + spal[2];
+                *out = LbPaletteFindColour(palette, r, g, b);
+                out++;
+            }
+        }
+        LbFileSaveAt(fname, ghost_table, PALETTE_COLORS*PALETTE_COLORS);
+    }
 }
 
 /**
@@ -211,8 +235,8 @@ long map_fade_in(long a)
     if (a == 0)
     {
         map_fade_ghost_table = poly_pool;
-        map_fade_src = poly_pool+0x10000;
-        map_fade_dest = poly_pool+0x10000+64000;
+        map_fade_src = poly_pool + PALETTE_COLORS*PALETTE_COLORS;
+        map_fade_dest = map_fade_src + 320*200;
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, 320, MyScreenHeight/pixel_size);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
@@ -231,8 +255,8 @@ long map_fade_out(long a)
     if (a == 32)
     {
         map_fade_ghost_table = poly_pool;
-        map_fade_src = poly_pool+0x10000;
-        map_fade_dest = poly_pool+0x10000+64000;
+        map_fade_src = poly_pool + PALETTE_COLORS*PALETTE_COLORS;
+        map_fade_dest = map_fade_src + 320*200;
         prepare_map_fade_buffers(map_fade_src, map_fade_dest, 320, MyScreenHeight/pixel_size);
         generate_map_fade_ghost_table("data/mapfadeg.dat", engine_palette, map_fade_ghost_table);
     }
