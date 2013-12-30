@@ -2095,7 +2095,11 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_object_from_player(dungeon->owner, door_to_object[model]);
                         item_sold = true;
                         value = game.doors_config[model].selling_value;
-                        SYNCDBG(9,"Door model %d sold for %d gold",(int)model,(int)value);
+                        SYNCDBG(9,"Door %s crate sold for %d gold",door_code_name(model),(int)value);
+                    } else
+                    {
+                        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(model),(int)dungeon->owner);
+                        dungeon->door_amount_placeable[model] = 0;
                     }
                 }
                 break;
@@ -2113,7 +2117,11 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         remove_workshop_object_from_player(dungeon->owner, trap_to_object[model]);
                         item_sold = true;
                         value = game.traps_config[model].selling_value;
-                        SYNCDBG(9,"Trap model %ld sold for %ld gold",model,value);
+                        SYNCDBG(9,"Trap %s crate sold for %ld gold",trap_code_name(model),value);
+                    } else
+                    {
+                        WARNLOG("Placeable trap %s amount for player %d was incorrect; fixed",trap_code_name(model),(int)dungeon->owner);
+                        dungeon->trap_amount_placeable[model] = 0;
                     }
                 }
                 break;

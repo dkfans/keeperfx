@@ -1077,8 +1077,9 @@ long computer_check_for_expand_room(struct Computer2 *comp, struct ComputerCheck
     }
     long around_start;
     around_start = ACTION_RANDOM(119);
-    if (is_task_in_progress(comp, CTT_PlaceRoom)) {
-        SYNCDBG(8,"No rooms expansion - task already in progress");
+    // Don't work when placing rooms; we could place in an area for room by mistake
+    if (is_task_in_progress(comp, CTT_PlaceRoom) || is_task_in_progress(comp, CTT_DigRoom)) {
+        SYNCDBG(8,"No rooms expansion - colliding task already in progress");
         return 0;
     }
     if (4 * dungeon->creatures_total_pay / 3 >= dungeon->total_money_owned) {

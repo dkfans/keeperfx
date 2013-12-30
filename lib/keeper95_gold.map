@@ -421,6 +421,7 @@
  0001:0004BF00       find_next_gold
  0001:0004BFB0       check_for_gold
  0001:0004C030       get_computer_money_less_cost
+ 0001:0004C0A0       computer_look_for_opponent
  0001:0004C3C0       get_opponent
  0001:0004C630       search_spiral
  0001:0004C710       computer_finds_nearest_room_to_pos

@@ -58,10 +58,14 @@ struct ManufactureData *get_manufacture_data(int manufctr_idx);
 int get_manufacture_data_index_for_thing(ThingClass tngclass, ThingModel tngmodel);
 struct ManufactureData *get_manufacture_data_for_thing(ThingClass tngclass, ThingModel tngmodel);
 
-TbBool add_workshop_item_to_amounts(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
-TbBool readd_workshop_item_to_amount_placeable(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
-TbBool remove_workshop_item_from_amount_stored(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel);
-TbBool remove_workshop_item_from_amount_placeable(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
+#define add_workshop_item_to_amounts(plyr_idx, tngclass, tngmodel) add_workshop_item_to_amounts_f(plyr_idx, tngclass, tngmodel, __func__)
+TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
+#define readd_workshop_item_to_amount_placeable(plyr_idx, tngclass, tngmodel) readd_workshop_item_to_amount_placeable_f(plyr_idx, tngclass, tngmodel, __func__)
+TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
+#define remove_workshop_item_from_amount_stored(plyr_idx, tngclass, tngmodel) remove_workshop_item_from_amount_stored_f(plyr_idx, tngclass, tngmodel, __func__)
+TbBool remove_workshop_item_from_amount_stored_f(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
+#define remove_workshop_item_from_amount_placeable(plyr_idx, tngclass, tngmodel) remove_workshop_item_from_amount_placeable_f(plyr_idx, tngclass, tngmodel, __func__)
+TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
 TbBool check_workshop_item_limit_reached(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel);
 
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);

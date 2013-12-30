@@ -262,7 +262,9 @@ struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
         // Per-thing code
         if ( ((thing->alloc_flags & TAlF_Exists) != 0) && (thing->model == objmodel) && (thing->owner == owner) )
         {
-            if (!thing_is_picked_up(thing))
+            struct Room *room;
+            room = get_room_thing_is_on(thing);
+            if (!thing_is_picked_up(thing) && (room->kind == RoK_WORKSHOP) && (room->owner == owner))
                 return thing;
         }
         // Per-thing code ends
@@ -284,39 +286,39 @@ struct Thing *get_workshop_box_thing(PlayerNumber owner, ThingModel objmodel)
  * @return
  * @note was named add_workshop_item()
  */
-TbBool add_workshop_item_to_amounts(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
+TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Can't add item; player %d has no dungeon.",(int)plyr_idx);
+        ERRORLOG("%s: Can't add item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
     }
     switch (tngclass)
     {
     case TCls_Trap:
-        SYNCDBG(8,"Adding Trap %s",trap_code_name(tngmodel));
+        SYNCDBG(8,"%s: Adding Trap %s",func_name,trap_code_name(tngmodel));
         dungeon->trap_amount_stored[tngmodel]++;
         dungeon->trap_amount_placeable[tngmodel]++;
         dungeon->trap_build_flags[tngmodel] |= MnfBldF_Built;
         if (dungeon->trap_amount_placeable[tngmodel] > dungeon->trap_amount_stored[tngmodel]) {
-            WARNLOG("Placeable traps amount for player %d was outranged; fixed",(int)plyr_idx);
+            WARNLOG("%s: Placeable traps amount for player %d was outranged; fixed",func_name,(int)plyr_idx);
             dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_stored[tngmodel];
         }
         break;
     case TCls_Door:
-        SYNCDBG(8,"Adding Door %s",door_code_name(tngmodel));
+        SYNCDBG(8,"%s: Adding Door %s",func_name,door_code_name(tngmodel));
         dungeon->door_amount_stored[tngmodel]++;
         dungeon->door_amount_placeable[tngmodel]++;
         dungeon->door_build_flags[tngmodel] |= MnfBldF_Built;
         // In case the placeable amount lost it, do a fix
         if (dungeon->door_amount_placeable[tngmodel] > dungeon->door_amount_stored[tngmodel]) {
-            WARNLOG("Placeable doors amount for player %d was outranged; fixed",(int)plyr_idx);
+            WARNLOG("%s: Placeable doors amount for player %d was outranged; fixed",func_name,(int)plyr_idx);
             dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_stored[tngmodel];
         }
         break;
     default:
-        ERRORLOG("Can't add item; illegal item class %d",(int)tngclass);
+        ERRORLOG("%s: Can't add item; illegal item class %d",func_name,(int)tngclass);
         return false;
     }
     return true;
@@ -330,35 +332,35 @@ TbBool add_workshop_item_to_amounts(PlayerNumber plyr_idx, ThingClass tngclass, 
  * @return
  * @note was named add_workshop_item()
  */
-TbBool readd_workshop_item_to_amount_placeable(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
+TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Can't add item; player %d has no dungeon.",(int)plyr_idx);
+        ERRORLOG("%s: Can't add item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
     }
     switch (tngclass)
     {
     case TCls_Trap:
-        SYNCDBG(8,"Adding Trap %s",trap_code_name(tngmodel));
+        SYNCDBG(8,"%s: Adding Trap %s",func_name,trap_code_name(tngmodel));
         dungeon->trap_amount_placeable[tngmodel]++;
         if (dungeon->trap_amount_placeable[tngmodel] > dungeon->trap_amount_stored[tngmodel]) {
-            SYNCLOG("Placeable traps amount for player %d was outranged; fixed",(int)plyr_idx);
+            SYNCLOG("%s: Placeable traps amount for player %d was outranged; fixed",func_name,(int)plyr_idx);
             dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_stored[tngmodel];
         }
         break;
     case TCls_Door:
-        SYNCDBG(8,"Adding Door %s",door_code_name(tngmodel));
+        SYNCDBG(8,"%s: Adding Door %s",func_name,door_code_name(tngmodel));
         dungeon->door_amount_placeable[tngmodel]++;
         // In case the placeable amount lost it, do a fix
         if (dungeon->door_amount_placeable[tngmodel] > dungeon->door_amount_stored[tngmodel]) {
-            SYNCLOG("Placeable doors amount for player %d was outranged; fixed",(int)plyr_idx);
+            SYNCLOG("%s: Placeable doors amount for player %d was outranged; fixed",func_name,(int)plyr_idx);
             dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_stored[tngmodel];
         }
         break;
     default:
-        ERRORLOG("Can't add item; illegal item class %d",(int)tngclass);
+        ERRORLOG("%s: Can't add item; illegal item class %d",func_name,(int)tngclass);
         return false;
     }
     return true;
@@ -372,14 +374,14 @@ TbBool readd_workshop_item_to_amount_placeable(PlayerNumber plyr_idx, ThingClass
  * @return
  * @note was named remove_workshop_item()
  */
-TbBool remove_workshop_item_from_amount_stored(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
+TbBool remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18,"%s: Starting",func_name);
     //return _DK_remove_workshop_item(plyr_idx, tngclass, tngmodel);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Can't remove item; player %d has no dungeon.",(int)plyr_idx);
+        ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
     }
     long amount;
@@ -388,23 +390,23 @@ TbBool remove_workshop_item_from_amount_stored(PlayerNumber plyr_idx, ThingClass
     case TCls_Trap:
         amount = dungeon->trap_amount_stored[tngmodel];
         if (amount <= 0) {
-            ERRORLOG("Trap %s not available",trap_code_name(tngmodel));
+            ERRORLOG("%s: Trap %s not available",func_name,trap_code_name(tngmodel));
             break;
         }
-        SYNCDBG(8,"Removing Trap %s",trap_code_name(tngmodel));
+        SYNCDBG(8,"%s: Removing Trap %s",func_name,trap_code_name(tngmodel));
         dungeon->trap_amount_stored[tngmodel] = amount - 1;
         return true;
     case TCls_Door:
         amount = dungeon->door_amount_stored[tngmodel];
         if (amount <= 0) {
-            ERRORLOG("Door %s not available",door_code_name(tngmodel));
+            ERRORLOG("%s: Door %s not available",func_name,door_code_name(tngmodel));
             break;
         }
-        SYNCDBG(8,"Removing Door %s",door_code_name(tngmodel));
+        SYNCDBG(8,"%s: Removing Door %s",func_name,door_code_name(tngmodel));
         dungeon->door_amount_stored[tngmodel] = amount - 1;
         return true;
     default:
-        ERRORLOG("Can't remove item; illegal item class %d",(int)tngclass);
+        ERRORLOG("%s: Can't remove item; illegal item class %d",func_name,(int)tngclass);
         break;
     }
     return false;
@@ -417,13 +419,13 @@ TbBool remove_workshop_item_from_amount_stored(PlayerNumber plyr_idx, ThingClass
  * @param tngmodel
  * @return
  */
-TbBool remove_workshop_item_from_amount_placeable(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
+TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18,"%s: Starting",func_name);
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
-        ERRORLOG("Can't remove item; player %d has no dungeon.",(int)plyr_idx);
+        ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
         return false;
     }
     long amount;
@@ -432,10 +434,10 @@ TbBool remove_workshop_item_from_amount_placeable(PlayerNumber plyr_idx, ThingCl
     case TCls_Trap:
         amount = dungeon->trap_amount_placeable[tngmodel];
         if (amount <= 0) {
-            ERRORLOG("Trap %s not available",trap_code_name(tngmodel));
+            ERRORLOG("%s: Trap %s not available",func_name,trap_code_name(tngmodel));
             break;
         }
-        SYNCDBG(8,"Removing Trap %s",trap_code_name(tngmodel));
+        SYNCDBG(8,"%s: Removing Trap %s",func_name,trap_code_name(tngmodel));
         dungeon->trap_amount_placeable[tngmodel] = amount - 1;
         dungeon->trap_build_flags[tngmodel] |= MnfBldF_Used;
         dungeon->lvstats.traps_used++;
@@ -443,16 +445,16 @@ TbBool remove_workshop_item_from_amount_placeable(PlayerNumber plyr_idx, ThingCl
     case TCls_Door:
         amount = dungeon->door_amount_placeable[tngmodel];
         if (amount <= 0) {
-            ERRORLOG("Door %s not available",door_code_name(tngmodel));
+            ERRORLOG("%s: Door %s not available",func_name,door_code_name(tngmodel));
             break;
         }
-        SYNCDBG(8,"Removing Door %s",door_code_name(tngmodel));
+        SYNCDBG(8,"%s: Removing Door %s",func_name,door_code_name(tngmodel));
         dungeon->door_amount_placeable[tngmodel] = amount - 1;
         dungeon->door_build_flags[tngmodel] |= MnfBldF_Used;
         dungeon->lvstats.doors_used++;
         return true;
     default:
-        ERRORLOG("Can't remove item; illegal item class %d",(int)tngclass);
+        ERRORLOG("%s: Can't remove item; illegal item class %d",func_name,(int)tngclass);
         break;
     }
     return false;
