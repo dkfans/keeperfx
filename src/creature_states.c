@@ -2506,7 +2506,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             MapSubtlCoord x,y;
             x = start_stl % 3 + stl_x;
             y = start_stl / 3 + stl_y;
-            if (get_column_height_at(x, y) == 1)
+            if (get_floor_filled_subtiles_at(x, y) == 1)
             {
                 struct Thing *objtng;
                 objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);

@@ -69,10 +69,19 @@ TbBool column_invalid(const struct Column *colmn)
 }
 
 /**
- * Returns height of a column, in subtiles.
+ * Returns amount of filled subtiles at bottom of given column.
+ * @param col The column which filled height should be returned.
+ */
+long get_column_floor_filled_subtiles(struct Column *col)
+{
+    return (col->bitfields & 0xF0) >> 4;
+}
+
+/**
+ * Returns amount of filled subtiles at bottom of column at given map block.
  * @param mapblk The map block for which column height should be returned.
  */
-long get_column_height(const struct Map *mapblk)
+long get_map_floor_filled_subtiles(const struct Map *mapblk)
 {
     const struct Column *col;
     col = get_map_column(mapblk);
@@ -81,18 +90,106 @@ long get_column_height(const struct Map *mapblk)
     return (col->bitfields & 0xF0) >> 4;
 }
 
-/** Returns height of a column, in subtiles.
- *
+/**
+ * Returns amount of filled subtiles at bottom of column at given coords.
  * @param stl_x Subtile for which column height should be returned, X coord.
  * @param stl_y Subtile for which column height should be returned, Y coord.
  */
-long get_column_height_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     const struct Column *col;
     col = get_column_at(stl_x, stl_y);
     if (column_invalid(col))
         return 0;
     return (col->bitfields & 0xF0) >> 4;
+}
+
+/**
+ * Sets amount of filled subtiles at bottom of given column.
+ * @param col The column which filled height should be set.
+ * @param n Amount of subtiles.
+ */
+void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n)
+{
+    col->bitfields &= ~0xF0;
+    col->bitfields |= (n<<4) & 0xF0;
+}
+
+/**
+ * Sets amount of filled subtiles at bottom of a column at given map block.
+ * @param mapblk The map block for which filled height should be set.
+ * @param n Amount of subtiles.
+ */
+void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
+{
+    struct Column *col;
+    col = get_map_column(mapblk);
+    if (column_invalid(col))
+        return;
+    col->bitfields &= ~0xF0;
+    col->bitfields |= (n<<4) & 0xF0;
+}
+
+/**
+ * Returns amount of filled subtiles at top of given column.
+ * @param col The column which filled height should be returned.
+ */
+long get_column_ceiling_filled_subtiles(struct Column *col)
+{
+    return (col->bitfields & 0x0E) >> 1;
+}
+
+/**
+ * Returns amount of filled subtiles at top of column at given map block.
+ * @param mapblk The map block for which column height should be returned.
+ */
+long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
+{
+    const struct Column *col;
+    col = get_map_column(mapblk);
+    if (column_invalid(col))
+        return 0;
+    return (col->bitfields & 0x0E) >> 1;
+}
+
+/**
+ * Returns amount of filled subtiles at top of column at given coords.
+ * @param stl_x Subtile for which column height should be returned, X coord.
+ * @param stl_y Subtile for which column height should be returned, Y coord.
+ */
+long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    const struct Column *col;
+    col = get_column_at(stl_x, stl_y);
+    if (column_invalid(col))
+        return 0;
+    return (col->bitfields & 0x0E) >> 1;
+}
+
+/**
+ * Sets amount of filled subtiles at top of given column.
+ * @param col The column which filled height should be set.
+ * @param n Amount of subtiles.
+ */
+void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n)
+{
+    col->bitfields &= ~0x0E;
+    col->bitfields |= (n<<1) & 0x0E;
+}
+
+/**
+ * Sets amount of filled subtiles at top of a column at given map block.
+ * @param mapblk The map block for which filled height should be set.
+ * @param n Amount of subtiles.
+ */
+void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
+{
+    struct Column *col;
+    col = get_map_column(mapblk);
+    if (column_invalid(col))
+        return;
+    col->bitfields &= ~0x0E;
+    col->bitfields |= (n<<1) & 0x0E;
 }
 
 long get_top_cube_at_pos(long stl_num)
@@ -104,7 +201,7 @@ long get_top_cube_at_pos(long stl_num)
     //return _DK_get_top_cube_at_pos(mpos);
     map = get_map_block_at_pos(stl_num);
     col = get_map_column(map);
-    top_pos = (col->bitfields >> 4) & 0x0F;
+    top_pos = get_column_floor_filled_subtiles(col);
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
@@ -118,7 +215,7 @@ long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     unsigned long top_pos;
     long tcube;
     col = get_column_at(stl_x, stl_y);
-    top_pos = (col->bitfields >> 4) & 0x0F;
+    top_pos = get_column_floor_filled_subtiles(col);
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
@@ -161,10 +258,12 @@ long get_map_floor_height(const struct Map *mapblk)
     const struct Column *colmn;
     long i,cubes_height;
     colmn = get_map_column(mapblk);
-    cubes_height = 0;
-    i = colmn->bitfields;
-    if ((i & 0xF0) > 0)
-        cubes_height = i >> 4;
+    i = get_column_floor_filled_subtiles(colmn);
+    if (i > 0) {
+        cubes_height = i;
+    } else {
+        cubes_height = 0;
+    }
     return cubes_height << 8;
 }
 
@@ -184,12 +283,10 @@ long get_map_ceiling_height(const struct Map *mapblk)
     const struct Column *colmn;
     long i,cubes_height;
     colmn = get_map_column(mapblk);
-    i = colmn->bitfields;
-    if ((i & 0x0E) > 0)
-    {
-        cubes_height = 8 - ((i & 0x0E) >> 1);
-    } else
-    {
+    i = get_column_ceiling_filled_subtiles(colmn);
+    if (i > 0) {
+        cubes_height = 8 - i;
+    } else {
         cubes_height = get_mapblk_filled_subtiles(mapblk);
     }
     return cubes_height << 8;
