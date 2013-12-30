@@ -509,7 +509,8 @@ long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
     {
         for (x=xstart; x < xend; x += 256)
         {
-            update_floor_and_ceiling_heights_at(x>>8, y>>8, &floor_height, &ceiling_height);
+            update_floor_and_ceiling_heights_at(coord_subtile(x), coord_subtile(y), &floor_height, &ceiling_height);
+            SYNCDBG(19,"Ceiling %d after (%d,%d)", (int)ceiling_height,(int)x>>8,(int)y>>8);
         }
     }
     // Assuming xend may not be multiplication of 255, treat it separately
@@ -517,7 +518,7 @@ long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
     {
         x = xend;
         {
-            update_floor_and_ceiling_heights_at(x>>8, y>>8, &floor_height, &ceiling_height);
+            update_floor_and_ceiling_heights_at(coord_subtile(x), coord_subtile(y), &floor_height, &ceiling_height);
         }
     }
     // Assuming yend may not be multiplication of 255, treat it separately
@@ -525,13 +526,15 @@ long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
     {
         for (x=xstart; x < xend; x += 256)
         {
-            update_floor_and_ceiling_heights_at(x>>8, y>>8, &floor_height, &ceiling_height);
+            update_floor_and_ceiling_heights_at(coord_subtile(x), coord_subtile(y), &floor_height, &ceiling_height);
         }
     }
     // For both xend and yend at max
-    update_floor_and_ceiling_heights_at(xend, yend, &floor_height, &ceiling_height);
+    x = xend; y = yend;
+    update_floor_and_ceiling_heights_at(coord_subtile(x), coord_subtile(y), &floor_height, &ceiling_height);
     // Now we can be sure the value is correct
-    return ceiling_height << 8;
+    SYNCDBG(19,"Ceiling %d after (%d,%d)", (int)ceiling_height,(int)xend>>8,(int)yend>>8);
+    return subtile_coord(ceiling_height,0);
 }
 
 short fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
@@ -555,6 +558,7 @@ short fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thin
     max_height = get_ceiling_height_above_thing_at(thing, &locpos);
     height = locpos.z.val + thing->field_58;
     if (max_height <= height) {
+        ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(thing),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
         return 0;
     }
     int i;
