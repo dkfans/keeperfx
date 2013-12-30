@@ -1401,6 +1401,7 @@
  0001:000CCC90       process_checks
  0001:0003B4D0       computer_check_events
  0001:0004C030       get_computer_money_less_cost
+ 0001:0004C0A0       computer_look_for_opponent
  0001:0004C710       computer_finds_nearest_room_to_pos
  0001:00007980       light_initialise_lighting_tables
  0001:00005970       light_delete_light

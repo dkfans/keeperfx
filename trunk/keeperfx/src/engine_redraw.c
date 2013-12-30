@@ -61,11 +61,11 @@ extern "C" {
 /******************************************************************************/
 DLLIMPORT void _DK_redraw_display(void);
 DLLIMPORT void _DK_process_pointer_graphic(void);
-DLLIMPORT void _DK_smooth_screen_area(unsigned char *fbame, long a2, long a3, long a4, long a5, long a6);
+DLLIMPORT void _DK_smooth_screen_area(unsigned char *a1, long a2, long a3, long a4, long a5, long a6);
 DLLIMPORT void _DK_redraw_creature_view(void);
 DLLIMPORT void _DK_redraw_isometric_view(void);
 DLLIMPORT void _DK_redraw_frontview(void);
-DLLIMPORT void _DK_draw_overlay_compass(long fbame, long a2);
+DLLIMPORT void _DK_draw_overlay_compass(long a1, long a2);
 DLLIMPORT long _DK_map_fade_in(long a);
 DLLIMPORT long _DK_map_fade_out(long a);
 DLLIMPORT void _DK_message_draw(void);
@@ -73,8 +73,8 @@ DLLIMPORT void _DK_draw_sound_stuff(void);
 DLLIMPORT void _DK_set_engine_view(struct PlayerInfo *player, long a2);
 DLLIMPORT void _DK_set_sprite_view_3d(void);
 DLLIMPORT void _DK_set_sprite_view_isometric(void);
-DLLIMPORT void _DK_map_fade(unsigned char *fbame, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9);
-DLLIMPORT void _DK_generate_map_fade_ghost_table(const char *fbame, unsigned char *a2, unsigned char *a3);
+DLLIMPORT void _DK_map_fade(unsigned char *a1, unsigned char *a2, unsigned char *a3, unsigned char *a4, unsigned char *a5, long a6, long const a7, long const a8, long a9);
+DLLIMPORT void _DK_generate_map_fade_ghost_table(const char *fname, unsigned char *a2, unsigned char *a3);
 /******************************************************************************/
 #ifdef __cplusplus
 }
