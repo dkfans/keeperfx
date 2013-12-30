@@ -498,7 +498,7 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
 }
 
 /**
- * Finds a doable manufacture which has minimal amoint of items ready to use.
+ * Finds a doable manufacture which has minimal amount of items ready to use.
  * Returns that minimal amount of items, and manufacture kind related to it.
  * @param dungeon The dungeon which is to be checked.
  * @param mnfctr_class Class of the manufacture with minimal items available.
