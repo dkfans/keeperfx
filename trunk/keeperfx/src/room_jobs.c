@@ -662,6 +662,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
 
 TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKind rkind)
 {
+    long amount;
     switch (rkind)
     {
     case RoK_LIBRARY:
@@ -677,7 +678,15 @@ TbBool worker_needed_in_dungeons_room_kind(const struct Dungeon *dungeon, RoomKi
             return false;
         return true;
     case RoK_WORKSHOP:
-        if (get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL) > 0)
+        // When we have low gold, allow working on any manufacture - we'll sell the crates
+        amount = get_doable_manufacture_with_minimal_amount_available(dungeon, NULL, NULL);
+        if (2 * dungeon->creatures_total_pay >= dungeon->total_money_owned)
+        {
+            if (amount < MANUFACTURED_ITEMS_LIMIT)
+                return true;
+        }
+        // If gold amount is fine, do manufacture only if there are items which we don't have in stock
+        if (amount > 0)
             return false;
         return true;
     default:
