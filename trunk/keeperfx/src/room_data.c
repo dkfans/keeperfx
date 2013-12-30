@@ -606,7 +606,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
     mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return -2; // do nothing
-    if (get_column_height(mapblk) != 1) {
+    if (get_map_floor_filled_subtiles(mapblk) != 1) {
         return -1; // re-create all
     }
     long i;

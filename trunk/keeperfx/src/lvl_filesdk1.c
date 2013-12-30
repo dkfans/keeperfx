@@ -617,8 +617,7 @@ TbBool load_column_file(LevelNumber lv_num)
         LbMemoryCopy(colmn, &buf[i], sizeof(struct Column));
         //Update top cube in the column
         n = find_column_height(colmn);
-        colmn->bitfields &= ~0xF0;
-        colmn->bitfields |= (n<<4) & 0xF0;
+        set_column_floor_filled_subtiles(colmn, n);
         i += sizeof(struct Column);
     }
     LbMemoryFree(buf);

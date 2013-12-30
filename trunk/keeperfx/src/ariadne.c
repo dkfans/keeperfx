@@ -3063,7 +3063,7 @@ long get_navigation_colour_for_cube(long stl_x, long stl_y)
 {
     long tcube;
     long i;
-    i = get_column_height_at(stl_x, stl_y);
+    i = get_floor_filled_subtiles_at(stl_x, stl_y);
     if (i > 15)
       i = 15;
     tcube = get_top_cube_at(stl_x, stl_y);

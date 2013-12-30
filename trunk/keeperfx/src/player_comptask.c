@@ -477,7 +477,61 @@ struct ComputerTask *get_free_task(struct Computer2 *comp, long a2)
 
 long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_get_ceiling_height_above_thing_at(thing, pos);
+    //return _DK_get_ceiling_height_above_thing_at(thing, pos);
+    int nav_sizexy;
+    if (thing_is_creature(thing))
+        nav_sizexy = thing_nav_sizexy(thing);
+    else
+        nav_sizexy = thing->sizexy;
+
+    int nav_radius;
+    nav_radius = (nav_sizexy / 2);
+    int xstart, ystart, xend, yend;
+    xstart = (int)pos->x.val - nav_radius;
+    if (xstart < 0)
+        xstart = 0;
+    ystart = (int)pos->y.val - nav_radius;
+    if (ystart < 0)
+        ystart = 0;
+    xend = (int)pos->x.val + nav_radius;
+    if (xend >= 65535)
+        xend = 65535;
+    yend = (int)pos->y.val + nav_radius;
+    if (yend >= 65535)
+        yend = 65535;
+    // Set initial values for computing floor and ceiling heights
+    MapSubtlCoord floor_height, ceiling_height;
+    floor_height = 0;
+    ceiling_height = 15;
+    // Sweep through subtiles and select highest floor and lowest ceiling
+    int x,y;
+    for (y=ystart; y < yend; y += 256)
+    {
+        for (x=xstart; x < xend; x += 256)
+        {
+            update_floor_and_ceiling_heights_at(x>>8, y>>8, &floor_height, &ceiling_height);
+        }
+    }
+    // Assuming xend may not be multiplication of 255, treat it separately
+    for (y=ystart; y < yend; y += 256)
+    {
+        x = xend;
+        {
+            update_floor_and_ceiling_heights_at(x>>8, y>>8, &floor_height, &ceiling_height);
+        }
+    }
+    // Assuming yend may not be multiplication of 255, treat it separately
+    y = yend;
+    {
+        for (x=xstart; x < xend; x += 256)
+        {
+            update_floor_and_ceiling_heights_at(x>>8, y>>8, &floor_height, &ceiling_height);
+        }
+    }
+    // For both xend and yend at max
+    update_floor_and_ceiling_heights_at(xend, yend, &floor_height, &ceiling_height);
+    // Now we can be sure the value is correct
+    return ceiling_height << 8;
 }
 
 short fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
