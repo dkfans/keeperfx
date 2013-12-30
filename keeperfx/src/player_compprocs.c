@@ -64,6 +64,7 @@ DLLIMPORT long _DK_set_next_process(struct Computer2 *comp);
 DLLIMPORT long _DK_computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *startpos, struct Room **retroom, short from_plyr_idx);
 DLLIMPORT long _DK_move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *startpos, long max_amount);
 DLLIMPORT struct ComputerProcess * _DK_find_best_process(struct Computer2 *comp);
+DLLIMPORT long _DK_computer_look_for_opponent(struct Computer2 *comp, long stl_x, long stl_y, long a4);
 /******************************************************************************/
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *process);
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *process);
@@ -1210,9 +1211,66 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
     return 4;
 }
 
+long computer_look_for_opponent(struct Computer2 *comp, long stl_x, long stl_y, long a4)
+{
+   return _DK_computer_look_for_opponent(comp, stl_x, stl_y, a4);
+}
+
 long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *process)
 {
-  return _DK_computer_process_sight_of_evil(comp, process);
+    //return _DK_computer_process_sight_of_evil(comp, process);
+    int range;
+
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (comp->tasks_did <= 0) {
+        return 4;
+    }
+    // Compute range from power level
+    range = 12 * process->field_8;
+
+    MapSubtlCoord stl_x, stl_y;
+    {
+#define GRID COMPUTER_SOE_GRID_SIZE
+        MapSlabCoord slb_x, slb_y;
+        slb_x = map_tiles_x/2;
+        slb_y = map_tiles_y/2;
+        struct SlabMap *slb;
+        int n;
+        n = ACTION_RANDOM(GRID*GRID);
+        unsigned int grid_x, grid_y;
+        int i;
+        for (i=0; i < GRID*GRID; i++)
+        {
+            grid_x = n % GRID;
+            grid_y = n / GRID;
+            if ((comp->soe_targets[grid_y] & (1 << grid_x)) == 0)
+            {
+                slb_x = (unsigned long)map_tiles_x * grid_x / GRID + map_tiles_x/(2*GRID);
+                slb_y = (unsigned long)map_tiles_y * grid_y / GRID + map_tiles_y/(2*GRID);
+                comp->soe_targets[grid_y] |= (1 << grid_x);
+                slb = get_slabmap_block(slb_x, slb_y);
+                if ((slabmap_owner(slb) != dungeon->owner) && (slb->kind != SlbT_ROCK)) {
+                    break;
+                }
+            }
+            n = (n + 1) % (GRID*GRID);
+        }
+        if (i == GRID*GRID) {
+            process->flags |= 0x0004;
+            return 3;
+        }
+        stl_x = slab_subtile_center(slb_x);
+        stl_y = slab_subtile_center(slb_y);
+#undef GRID
+    }
+    if (try_game_action(comp, dungeon->owner, GA_UsePwrSight, process->field_8, stl_x, stl_y, 0, 0) > 0)
+    {
+        computer_look_for_opponent(comp, stl_x, stl_y, range);
+    }
+    process->func_complete(comp, process);
+    suspend_process(comp, process);
+    return 1;
 }
 
 long computer_process_task(struct Computer2 *comp, struct ComputerProcess *process)

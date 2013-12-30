@@ -41,6 +41,7 @@ extern "C" {
 #define COMPUTER_CHECKS_TYPES_COUNT  51
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
+#define COMPUTER_SOE_GRID_SIZE        8
 
 /** How strong should be the preference to dig glod from treasure room and not other rooms. Originally was 22 subtiles. */
 #define TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD 16
@@ -408,8 +409,10 @@ struct Computer2 { // sizeof = 5322
   struct Comp2_UnkStr1 unkarr_A10[PLAYERS_COUNT];
   unsigned char field_11C2[394];
   struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
-  unsigned char field_13C4[60];
-  unsigned char field_1400[196];
+  /** Stores Sight Of Evil target points data. */
+  unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
+  /* seem unused */
+  unsigned char field_13E4[224];
   short ongoing_process;
   short task_idx;
   short field_14C8;
