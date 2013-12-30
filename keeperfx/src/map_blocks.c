@@ -541,7 +541,7 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     long x,y,z;
     stl_x = STL_PER_SLB * slb_x;
     stl_y = STL_PER_SLB * slb_y;
-    z = get_column_height_at(stl_x, stl_y);
+    z = get_floor_filled_subtiles_at(stl_x, stl_y);
     for (y = stl_y; y < stl_y+STL_PER_SLB; y++)
     {
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
@@ -565,46 +565,44 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 void update_floor_and_ceiling_heights_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y,
     MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height)
 {
-    struct Column *col;
     struct Map *mapblk;
-    long i;
     unsigned long height,k;
     mapblk = get_map_block_at(stl_x, stl_y);
-    i = get_mapblk_column_index(mapblk);
-    col = get_column(i);
-    if (col->bitfields & 0xF0)
-    {
-        height = col->bitfields >> 4;
-        if (height > *floor_height)
-            *floor_height = height;
+    k = get_map_floor_filled_subtiles(mapblk);
+    if (k > 0) {
+        height = k;
+    } else {
+        height = 0;
     }
-    k = col->bitfields & 0xE;
-    if (k) {
-        height = 8 - (k >> 1);
+    if (*floor_height < height) {
+        *floor_height = height;
+    }
+    k = get_map_ceiling_filled_subtiles(mapblk);
+    if (k > 0) {
+        height = 8 - k;
     } else {
         height = get_mapblk_filled_subtiles(mapblk);
     }
-    if (height < *ceiling_height)
+    if (*ceiling_height > height) {
         *ceiling_height = height;
+    }
 }
 
 TbBool point_in_map_is_solid(const struct Coord3d *pos)
 {
-    struct Map *mapblk;
-    struct Column *col;
     MapSubtlCoord floor_height, ceiling_height;
     unsigned long check_h;
-    col = get_column_at(pos->x.stl.num, pos->y.stl.num);
     check_h = pos->z.stl.num;
-    if (col->bitfields & 0xE)
+    struct Map *mapblk;
+    mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+    if (get_map_ceiling_filled_subtiles(mapblk) > 0)
     {
         floor_height = 0;
         ceiling_height = 15;
         update_floor_and_ceiling_heights_at(pos->x.stl.num, pos->y.stl.num, &floor_height, &ceiling_height);
     } else
     {
-        mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
-        floor_height = get_column_height_at(pos->x.stl.num, pos->y.stl.num);
+        floor_height = get_map_floor_filled_subtiles(mapblk);
         ceiling_height = get_mapblk_filled_subtiles(mapblk);
     }
     if ((ceiling_height <= check_h) || (floor_height > check_h))
@@ -668,7 +666,7 @@ void create_dirt_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     long x,y,z;
     stl_x = STL_PER_SLB * slb_x;
     stl_y = STL_PER_SLB * slb_y;
-    z = get_column_height_at(stl_x, stl_y);
+    z = get_floor_filled_subtiles_at(stl_x, stl_y);
     for (y = stl_y; y < stl_y+STL_PER_SLB; y++)
     {
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
