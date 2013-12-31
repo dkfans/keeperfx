@@ -326,7 +326,7 @@ struct ComputerTask { // sizeof = 148
     long field_5C;
     long field_60;
     struct Coord3d pos_64;
-    unsigned char field_6A[6];
+    struct Coord3d pos_6A;
     union {
     struct Coord3d pos_70;
     struct {
@@ -474,6 +474,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     long width_slabs, long height_slabs, long a6, long a7);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
+long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
 void get_opponent(struct Computer2 *comp, struct THate hate[]);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);

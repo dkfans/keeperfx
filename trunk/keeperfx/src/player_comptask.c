@@ -206,7 +206,7 @@ struct ComputerTask *get_computer_task(long idx)
 {
     if ((idx < 1) || (idx >= COMPUTER_TASKS_COUNT))
     {
-        return &game.computer_task[0];
+        return INVALID_COMPUTER_TASK;
     } else
     {
         return &game.computer_task[idx];
@@ -220,6 +220,17 @@ TbBool computer_task_invalid(const struct ComputerTask *ctask)
     return false;
 }
 
+int computer_task_index(struct ComputerTask *ctask)
+{
+    long i;
+    i = ((char *)ctask - (char *)&game.computer_task[0]);
+    if ( (i < 0) || (i > COMPUTER_TASKS_COUNT*sizeof(struct ComputerTask)) ) {
+        ERRORLOG("Task is outside of Game.");
+        return 0;
+    }
+    return i / sizeof(struct ComputerTask);
+}
+
 /** Removes task from Computer2 structure and marks it as unused.
  *
  * @param comp Computer from which task is removed.
@@ -231,7 +242,7 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
     struct ComputerTask *nxctask;
     long i;
     i = comp->task_idx;
-    if (get_computer_task(i) == ctask)
+    if (computer_task_index(ctask) == i)
     {
         //Removing first task in list
         comp->task_idx = ctask->next_task;
@@ -243,7 +254,7 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
     while (!computer_task_invalid(nxctask))
     {
         i = nxctask->next_task;
-        if (&game.computer_task[i] == ctask)
+        if (computer_task_index(ctask) == i)
         {
           nxctask->next_task = ctask->next_task;
           ctask->next_task = 0;
@@ -712,18 +723,6 @@ struct Thing *find_creature_to_be_placed_in_room(struct Computer2 *comp, struct 
     return thing;
 }
 
-long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
-{
-    SYNCDBG(9,"Starting");
-    return _DK_task_dig_room_passage(comp,ctask);
-}
-
-long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
-{
-    SYNCDBG(9,"Starting");
-    return _DK_task_dig_room(comp,ctask);
-}
-
 void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos, long a3)
 {
     cdig->pos_begin.x.val = pos->x.val;
@@ -738,19 +737,67 @@ void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos
     cdig->subfield_2C = 1;
 }
 
+long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
+{
+    SYNCDBG(9,"Starting");
+    //return _DK_task_dig_room_passage(comp,ctask);
+    struct Coord3d pos;
+    struct ComputerProcess *cproc;
+    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, 0))
+    {
+    case -5:
+        ctask->ottype = ctask->ttype;
+        ctask->ttype = 16;
+        return 4;
+    case -3:
+    case -2:
+        cproc =  get_computer_process(comp, ctask->field_8C);
+        if ((cproc->flags & 0x20) != 0) {
+            shut_down_process(comp, cproc);
+        }
+        if (!computer_task_invalid(ctask)) {
+            remove_task(comp, ctask);
+        }
+        return 0;
+    case -1:
+        move_imp_to_dig_here(comp, &ctask->pos_6A, 1);
+        pos.x.val = ctask->pos_64.x.val;
+        pos.y.val = ctask->pos_64.y.val;
+        pos.z.val = ctask->pos_64.z.val;
+        setup_computer_dig_room(&ctask->dig, &pos, ctask->long_86);
+        ctask->ttype = 2;
+        return 1;
+    default:
+        if ((ctask->flags & 0x04) != 0)
+        {
+            ctask->flags &= ~0x04;
+            add_to_trap_location(comp, &ctask->dig.pos_next);
+        }
+        return 2;
+    }
+}
+
+long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
+{
+    SYNCDBG(9,"Starting");
+    return _DK_task_dig_room(comp,ctask);
+}
+
 /**
  * Counts the slabs which are supposed to be used for room building, and which cannot be used for the building.
- * Stops counting if given amount is reached.
  */
-long count_slabs_where_room_cannot_be_built_up_to(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long slabs_num, long count_max)
+void count_slabs_where_room_cannot_be_built(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, RoomKind rkind, long slabs_num, long *waiting_slabs, long *wrong_slabs)
 {
+    SlabKind room_slbkind;
+    room_slbkind = room_corresponding_slab(rkind);
     int m, n;
-    long nchecked,nwrong;
+    long nchecked,nwaiting,nwrong;
     int i,imax;
     n = 0;
     imax = 0;
     m = 0;
     nchecked = 0;
+    nwaiting = 0;
     nwrong = 0;
     while (n < slabs_num)
     {
@@ -765,15 +812,21 @@ long count_slabs_where_room_cannot_be_built_up_to(PlayerNumber plyr_idx, MapSubt
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (!slabmap_block_invalid(slb))
             {
-                if ((slb->kind != SlbT_CLAIMED) || (slabmap_owner(slb) != plyr_idx)) {
+                if (slab_kind_is_liquid(slb->kind) || slab_kind_is_indestructible(slb->kind)) {
                     nwrong++;
-                    if (nwrong >= count_max) {
-                        return nwrong;
-                    }
+                } else
+                if ((slb->kind != room_slbkind) && slab_kind_is_room(slb->kind)) {
+                    nwrong++;
+                } else
+                if (((slb->kind != SlbT_CLAIMED) && (slb->kind != room_slbkind)) || (slabmap_owner(slb) != plyr_idx)) {
+                    nwaiting++;
                 }
                 n++;
-                if (slabs_num <= n)
-                    return nwrong;
+                if (n >= slabs_num) {
+                    (*waiting_slabs) += nwaiting;
+                    (*wrong_slabs) += nwrong;
+                    return;
+                }
             }
             stl_x += lkp_x;
             stl_y += lkp_y;
@@ -781,7 +834,9 @@ long count_slabs_where_room_cannot_be_built_up_to(PlayerNumber plyr_idx, MapSubt
         m = (m + 1) & 3;
         nchecked++;
     }
-    return nwrong;
+    (*waiting_slabs) += nwaiting;
+    (*wrong_slabs) += nwrong;
+    return;
 }
 
 long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -793,10 +848,16 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
         return 0;
     }
     //return _DK_task_check_room_dug(comp,ctask);
-    long wrong_slabs;
-    wrong_slabs = count_slabs_where_room_cannot_be_built_up_to(comp->dungeon->owner,
-        ctask->pos_64.x.stl.num, ctask->pos_64.y.stl.num, ctask->long_86, 1);
+    long waiting_slabs,wrong_slabs;
+    waiting_slabs = 0; wrong_slabs = 0;
+    count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->pos_64.x.stl.num, ctask->pos_64.y.stl.num,
+        ctask->long_80, ctask->long_86, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
+        WARNLOG("Task %d couldn't be completed as %d wrong slabs are in destination area, reset.",(int)ctask->ttype,(int)wrong_slabs);
+        restart_task_process(comp, ctask);
+        return 0;
+    }
+    if (waiting_slabs > 0) {
         SYNCDBG(9,"The %d/%d tiles around %d,%d are not ready to place room",(int)wrong_slabs,
             (int)ctask->long_86, (int)ctask->pos_64.x.stl.num, (int)ctask->pos_64.y.stl.num);
         return 4;
