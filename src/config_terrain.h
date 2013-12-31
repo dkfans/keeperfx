@@ -124,6 +124,7 @@ TbBool slab_kind_is_friable_dirt(RoomKind slbkind);
 TbBool slab_kind_is_door(SlabKind slbkind);
 TbBool slab_kind_is_nonmagic_door(SlabKind slbkind);
 TbBool slab_kind_is_liquid(SlabKind slbkind);
+TbBool slab_kind_is_room(SlabKind slbkind);
 /******************************************************************************/
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);
