@@ -96,7 +96,7 @@ enum GameActionTypes {
     GA_StopPwrCall2Arms,
     GA_Unk12,
     GA_Unk13,
-    GA_Unk14,
+    GA_MarkDig,
     GA_Unk15,
     GA_PlaceRoom,
     GA_SetTendencies,
