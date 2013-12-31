@@ -354,7 +354,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         dungeon->field_88C[0] = 0;
         return Lb_SUCCESS;
     case GA_Unk13:
-    case GA_Unk14:
+    case GA_MarkDig:
         slb = get_slabmap_block(slb_x, slb_y);
         if ((slb->kind == SlbT_LAVA) || (slb->kind == SlbT_WATER))
         {
@@ -780,7 +780,78 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    return _DK_task_dig_room(comp,ctask);
+    //return _DK_task_dig_room(comp,ctask);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    {
+        int digger_tasks;
+        digger_tasks = dungeon->digger_stack_length;
+        if ((digger_tasks > 0) && (comp->field_1C * dungeon->total_area / 100 <= digger_tasks)) {
+            return 2;
+        }
+    }
+    MapSubtlCoord stl_x, stl_y;
+    stl_x = stl_slab_center_subtile(ctask->dig.pos_begin.x.stl.num);
+    stl_y = stl_slab_center_subtile(ctask->dig.pos_begin.y.stl.num);
+    int i;
+    for (i=ctask->dig.subfield_2C; i > 0; i--)
+    {
+        if (ctask->dig.subfield_38 > 0)
+        {
+            if ((stl_x < map_subtiles_x) && (stl_y < map_subtiles_y))
+            {
+                struct SlabMap *slb;
+                slb = get_slabmap_for_subtile(stl_x, stl_y);
+                const struct SlabAttr *slbattr;
+                slbattr = get_slab_attrs(slb);
+                struct Map *mapblk;
+                mapblk = get_map_block_at(stl_x, stl_y);
+                if (slbattr->is_unknflg14 && (slb->kind != SlbT_GEMS))
+                {
+                    if (((mapblk->flags & 0x20) == 0) || (slabmap_owner(slb) == dungeon->owner))
+                    {
+                        if (find_from_task_list(dungeon->owner, get_subtile_number(stl_x,stl_y)) < 0)
+                        {
+                            if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1) <= 0)
+                            {
+                                struct ComputerProcess *cproc;
+                                cproc =  get_computer_process(comp, ctask->field_8C);
+                                if ((cproc->flags & 0x20) != 0) {
+                                    shut_down_process(comp, cproc);
+                                }
+                                if (!computer_task_invalid(ctask)) {
+                                    remove_task(comp, ctask);
+                                }
+                                return 0;
+                            }
+                        }
+                    }
+                }
+                ctask->dig.subfield_44++;
+                if (ctask->dig.subfield_44 >= ctask->dig.subfield_40) {
+                    ctask->ttype = 3;
+                    return 1;
+                }
+            }
+            const struct MyLookup *lkp;
+            lkp = &lookup[ctask->dig.subfield_3C];
+            stl_x += lkp->delta_x;
+            stl_y += lkp->delta_y;
+        }
+        ctask->dig.subfield_38--;
+        if (ctask->dig.subfield_38 <= 0)
+        {
+            ctask->dig.subfield_30++;
+            if ((ctask->dig.subfield_30 & 1) != 0) {
+                ctask->dig.subfield_34++;
+            }
+            ctask->dig.subfield_38 = ctask->dig.subfield_34;
+            ctask->dig.subfield_3C = (ctask->dig.subfield_3C + 1) & 3;
+        }
+    }
+    ctask->dig.pos_begin.x.stl.num = stl_x;
+    ctask->dig.pos_begin.y.stl.num = stl_y;
+    return 2;
 }
 
 /**
@@ -1339,7 +1410,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         }
         if ( !simulation )
         {
-            if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, *nextstl_x, *nextstl_y, 1, 1) <= Lb_OK) {
+            if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, *nextstl_x, *nextstl_y, 1, 1) <= Lb_OK) {
                 break;
             }
             if (digflags != 0)
@@ -1504,7 +1575,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         i = get_subtile_number(stl_slab_center_subtile(digstl_x),stl_slab_center_subtile(digstl_y));
         if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
         {
-            if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) {
+            if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) {
                 SYNCDBG(5,"%s: Player %d game action failed at subtile (%d,%d)",func_name,(int)dungeon->owner,(int)digstl_x,(int)digstl_y);
                 return -2;
             }
@@ -1531,7 +1602,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                 i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
                 if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
                 {
-                    if (try_game_action(comp, dungeon->owner, GA_Unk14, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) {
+                    if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) {
                         ERRORLOG("%s: Couldn't do game action - cannot dig",func_name);
                         return -2;
                     }

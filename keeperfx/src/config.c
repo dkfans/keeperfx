@@ -223,6 +223,18 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
   return -1;
 }
 
+/**
+ * Recognizes config command and returns its number, or negative status code.
+ * @param buf
+ * @param pos
+ * @param buflen
+ * @param commands
+ * @return If positive integer is returned, it is the command number recognized in the line.
+ * If 0 is returned, that means the current line did not contained any command and should be skipped.
+ * If -1 is returned, that means we've reached end of file.
+ * If -2 is returned, that means the command wasn't recognized.
+ * If -3 is returned, that means we've reached end of the INI block.
+ */
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
     int i,cmdname_len;
