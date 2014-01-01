@@ -60,47 +60,57 @@ void gui_open_event(struct GuiButton *gbtn)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(my_player_number);
-    unsigned int idx;
+    unsigned int evbtn_idx;
     unsigned int evnt_idx;
     SYNCDBG(5,"Starting");
-    idx = (unsigned long)gbtn->content;
-    if (idx < 121) //size of the field_13A7 array (I can't be completely sure of it)
-      evnt_idx = dungeon->field_13A7[idx];
-    else
-      evnt_idx = 0;
+    evbtn_idx = (unsigned long)gbtn->content;
+    if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
+        evnt_idx = dungeon->event_button_index[evbtn_idx];
+    } else {
+        evnt_idx = 0;
+    }
     if (evnt_idx == dungeon->visible_event_idx)
     {
-      gui_close_objective(gbtn);
+        gui_close_objective(gbtn);
     } else
     if (evnt_idx != 0)
     {
-      activate_event_box(evnt_idx);
+        activate_event_box(evnt_idx);
     }
 }
 
 void gui_kill_event(struct GuiButton *gbtn)
 {
-    _DK_gui_kill_event(gbtn);
+    //_DK_gui_kill_event(gbtn);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    unsigned long i;
+    i = (unsigned long)gbtn->content;
+    set_players_packet_action(player, PckA_Unknown092, dungeon->event_button_index[i], 0, 0, 0);
 }
 
 void turn_on_event_info_panel_if_necessary(unsigned short evnt_idx)
 {
-  if (game.event[evnt_idx%EVENTS_COUNT].kind == 2)
-  {
-    if (!menu_is_active(GMnu_BATTLE))
-      turn_on_menu(GMnu_BATTLE);
-  } else
-  {
-    if (!menu_is_active(GMnu_TEXT_INFO))
-      turn_on_menu(GMnu_TEXT_INFO);
-  }
+    struct Event *event;
+    event = &game.event[evnt_idx];
+    if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
+    {
+        if (!menu_is_active(GMnu_BATTLE))
+          turn_on_menu(GMnu_BATTLE);
+    } else
+    {
+        if (!menu_is_active(GMnu_TEXT_INFO))
+          turn_on_menu(GMnu_TEXT_INFO);
+    }
 }
 
 void activate_event_box(long evnt_idx)
 {
-  struct PlayerInfo *player;
-  player = get_my_player();
-  set_players_packet_action(player, PckA_Unknown115, evnt_idx, 0,0,0);
+    struct PlayerInfo *player;
+    player = get_my_player();
+    set_players_packet_action(player, PckA_EventBoxActivate, evnt_idx, 0,0,0);
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)
@@ -233,7 +243,7 @@ short zoom_to_fight(unsigned char a1)
     if (active_battle_exists(a1))
     {
         dungeon = get_players_num_dungeon(my_player_number);
-        set_players_packet_action(player, 104, dungeon->visible_battles[0], 0, 0, 0);
+        set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
         step_battles_forward(a1);
         return true;
     }

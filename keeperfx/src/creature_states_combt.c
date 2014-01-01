@@ -583,12 +583,12 @@ void update_battle_events(BattleIndex battle_id)
     struct CreatureControl *cctrl;
     struct Thing *thing;
     unsigned short owner_flags;
-    MapSubtlCoord pos_x,pos_y;
+    MapCoord map_x,map_y;
     unsigned long k;
     int i;
     owner_flags = 0;
-    pos_x = -1;
-    pos_y = -1;
+    map_x = -1;
+    map_y = -1;
     k = 0;
     battle = creature_battle_get(battle_id);
     i = battle->first_creatr;
@@ -605,8 +605,8 @@ void update_battle_events(BattleIndex battle_id)
         i = cctrl->battle_prev_creatr;
         // Per thing code starts
         owner_flags |= (1 << thing->owner);
-        pos_x = thing->mappos.x.stl.pos;
-        pos_y = thing->mappos.y.stl.pos;
+        map_x = thing->mappos.x.val;
+        map_y = thing->mappos.y.val;
         // Per thing code ends
         k++;
         if (k > CREATURES_COUNT)
@@ -617,10 +617,14 @@ void update_battle_events(BattleIndex battle_id)
     }
     for (i=0; i < PLAYERS_COUNT; i++)
     {
-        if (i == game.hero_player_num)
+        if ((i == game.hero_player_num) || (i == game.neutral_player_num))
             continue;
-        if ( (1 << i) & owner_flags ) {
-            event_create_event_or_update_old_event(pos_x, pos_y, EvKind_Fight, i, 0);
+        if ((1 << i) & owner_flags) {
+            if ((1 << i) == owner_flags) {
+                event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, 0);
+            } else {
+                event_create_event_or_update_old_event(map_x, map_y, EvKind_EnemyFight, i, 0);
+            }
         }
     }
 }
@@ -824,7 +828,8 @@ TbBool battle_remove(struct Thing *fighter)
     for (i=0; i < EVENTS_COUNT; i++)
     {
         event = &game.event[i];
-        if (event->kind == EvKind_Fight) {
+        if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
+        {
             if ( !find_first_battle_of_mine(event->owner) )
             {
                 event->mappos_x = 0;
