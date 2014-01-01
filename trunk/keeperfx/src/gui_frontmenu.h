@@ -148,7 +148,7 @@ void turn_off_all_panel_menus(void);
 void set_menu_mode(long mnu_idx);
 void set_menu_visible_on(MenuID menu_id);
 void set_menu_visible_off(MenuID menu_id);
-void turn_off_event_box_if_necessary(long plridx, char val);
+void turn_off_event_box_if_necessary(PlayerNumber plyr_idx, unsigned char event_idx);
 
 void kill_menu(struct GuiMenu *gmnu);
 void remove_from_menu_stack(short mnu_id);

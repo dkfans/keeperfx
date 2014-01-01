@@ -27,7 +27,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       27
+#define EVENT_KIND_COUNT       29
 #define EVENTS_COUNT          100
 #define INVALID_EVENT &game.event[0]
 /******************************************************************************/
@@ -36,10 +36,10 @@ extern "C" {
 enum EventKinds {
     EvKind_Nothing = 0,
     EvKind_HeartAttacked,
-    EvKind_Fight,
+    EvKind_EnemyFight,
     EvKind_Objective,
     EvKind_Breach,
-    EvKind_NewRoomResrch,
+    EvKind_NewRoomResrch, //5
     EvKind_NewCreature,
     EvKind_NewSpellResrch,
     EvKind_NewTrap,
@@ -49,7 +49,7 @@ enum EventKinds {
     EvKind_CreaturePayday,
     EvKind_AreaDiscovered,
     EvKind_SpellPickedUp,
-    EvKind_RoomTakenOver,
+    EvKind_RoomTakenOver, //15
     EvKind_CreatrIsAnnoyed,
     EvKind_NoMoreLivingSet,
     EvKind_AlarmTriggered,
@@ -59,9 +59,10 @@ enum EventKinds {
     EvKind_RoomLost,
     EvKind_CreatrHungry,
     EvKind_TrapCrateFound,
-    EvKind_DoorCrateFound,
+    EvKind_DoorCrateFound, //25
     EvKind_DnSpecialFound,
     EvKind_QuickInformation,
+    EvKind_FriendlyFight,
 };
 
 struct Thing;
@@ -69,15 +70,15 @@ struct Dungeon;
 struct PlayerInfo;
 
 struct Event { // sizeof=0x15
-unsigned char field_0;
-unsigned char field_1;
+    unsigned char flags;
+    unsigned char index;
     long mappos_x;
     long mappos_y;
     unsigned char owner;
     unsigned char kind;
     long target;
-    long birth_turn;
-unsigned char field_14;
+    unsigned long last_use_turn;
+    unsigned char field_14;
 };
 
 struct Bookmark { // sizeof = 3
@@ -88,11 +89,10 @@ struct Bookmark { // sizeof = 3
 
 #pragma pack()
 /******************************************************************************/
-extern struct EventTypeInfo event_button_info[28];
-/******************************************************************************/
-DLLIMPORT struct EventTypeInfo _DK_event_button_info[27];
+extern struct EventTypeInfo event_button_info[EVENT_KIND_COUNT];
 /******************************************************************************/
 struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_idx);
+struct Event *get_event_nearby_of_type_for_player(MapCoord map_x, MapCoord map_y, long max_dist, EventKind evkind, PlayerNumber plyr_idx);
 TbBool event_is_invalid(const struct Event *event);
 long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 long event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
@@ -101,9 +101,10 @@ long event_move_player_towards_event(struct PlayerInfo *player, long var);
 struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 struct Event *event_allocate_free_event_structure(void);
 void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
-void event_add_to_event_list(struct Event *event, struct Dungeon *dungeon);
+void event_add_to_event_buttons_list(struct Event *event, struct Dungeon *dungeon);
+void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon);
 void event_delete_event(long plridx, long num);
-void go_on_then_activate_the_event_box(long plridx, long evidx);
+void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, long evidx);
 void clear_events(void);
 void remove_events_thing_is_attached_to(struct Thing *thing);
 struct Thing *event_is_attached_to_thing(long ev_idx);

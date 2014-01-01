@@ -481,7 +481,7 @@ TbBool creature_can_do_job_for_player(const struct Thing *creatng, PlayerNumber 
     if (jobpref & Job_FIGHT)
     {
         struct Event *event;
-        event = get_event_of_type_for_player(EvKind_Fight, creatng->owner);
+        event = get_event_of_type_for_player(EvKind_EnemyFight, creatng->owner);
         return !event_is_invalid(event);
     }
     return false;

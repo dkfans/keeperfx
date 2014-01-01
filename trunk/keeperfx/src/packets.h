@@ -142,7 +142,7 @@ enum TbPacketAction {
         PckA_Unknown112,
         PckA_Unknown113,
         PckA_PwrSOEDis,
-        PckA_Unknown115,//115
+        PckA_EventBoxActivate,//115
         PckA_Unknown116,
         PckA_PwrUseOnThing,
         PckA_PlyrToggleAlly,

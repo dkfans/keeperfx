@@ -1310,9 +1310,9 @@ void computer_check_events(struct Computer2 *comp)
             for (n=0; n < EVENTS_COUNT; n++)
             {
                 event = &game.event[n];
-                if ( ((event->field_0 & 0x01) != 0) &&
+                if ( ((event->flags & 0x01) != 0) &&
                       (event->owner == dungeon->owner) &&
-                      (event->kind == cevent->field_8) )
+                      (event->kind == cevent->mevent_kind) )
                 {
                     if (cevent->func_event(comp, cevent, event) == 1)
                         cevent->last_test_gameturn = game.play_gameturn;

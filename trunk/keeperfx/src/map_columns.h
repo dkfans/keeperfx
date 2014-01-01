@@ -66,12 +66,12 @@ unsigned short find_column_height(struct Column *col);
 void init_whole_blocks(void);
 void init_top_texture_to_cube_table(void);
 
-long get_column_floor_filled_subtiles(struct Column *col);
+long get_column_floor_filled_subtiles(const struct Column *col);
 long get_map_floor_filled_subtiles(const struct Map *mapblk);
 long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n);
 void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n);
-long get_column_ceiling_filled_subtiles(struct Column *col);
+long get_column_ceiling_filled_subtiles(const struct Column *col);
 long get_map_ceiling_filled_subtiles(const struct Map *mapblk);
 long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n);
