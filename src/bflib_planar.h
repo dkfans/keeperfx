@@ -45,6 +45,9 @@ long get_angle_sign(long angle_a, long angle_b);
 
 long distance_with_angle_to_coord_x(long distance, long angle);
 long distance_with_angle_to_coord_y(long distance, long angle);
+
+long get_distance_xy(long x1, long x2, long y1, long y2);
+
 long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b);
 long distance3d_with_angles_to_coord_y(long distance, long angle_a, long angle_b);
 #define distance_with_angle_to_coord_z(distance, angle) distance_with_angle_to_coord_x(distance, angle)

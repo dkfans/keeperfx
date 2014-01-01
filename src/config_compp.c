@@ -717,7 +717,7 @@ short parse_computer_player_event_blocks(char *buf,long len)
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            cevent->field_8 = k;
+            cevent->mevent_kind = k;
             n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -829,7 +829,7 @@ short write_computer_player_event_to_log(struct ComputerEvent *event)
   JUSTMSG("[eventXX]");
   JUSTMSG("Name = %s",event->name);
   JUSTMSG("Mnemonic = %s","XX");
-  JUSTMSG("Values = %d %d %d",event->cetype,event->field_8,event->test_interval);
+  JUSTMSG("Values = %d %d %d",event->cetype,event->mevent_kind,event->test_interval);
   JUSTMSG("Functions = %x %x",event->func_event,event->func_test);
   JUSTMSG("Params = %d %d %d %d",event->param1,event->param2,event->param3,event->last_test_gameturn);
   return true;

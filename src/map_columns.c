@@ -72,7 +72,7 @@ TbBool column_invalid(const struct Column *colmn)
  * Returns amount of filled subtiles at bottom of given column.
  * @param col The column which filled height should be returned.
  */
-long get_column_floor_filled_subtiles(struct Column *col)
+long get_column_floor_filled_subtiles(const struct Column *col)
 {
     return (col->bitfields & 0xF0) >> 4;
 }
@@ -134,7 +134,7 @@ void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
  * Returns amount of filled subtiles at top of given column.
  * @param col The column which filled height should be returned.
  */
-long get_column_ceiling_filled_subtiles(struct Column *col)
+long get_column_ceiling_filled_subtiles(const struct Column *col)
 {
     return (col->bitfields & 0x0E) >> 1;
 }

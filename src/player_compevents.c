@@ -584,8 +584,8 @@ long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent,
     long i,count;
 
     //TODO COMPUTER_EVENT_BREACH check why mappos_x and mappos_y isn't used normally
-    pos.x.val = ((event->mappos_x & 0xFF) << 8);
-    pos.y.val = (((event->mappos_x >> 8) & 0xFF) << 8);
+    pos.x.val = event->mappos_x;
+    pos.y.val = event->mappos_y;
     if ((pos.x.val <= 0) || (pos.y.val <= 0)) {
         return 0;
     }

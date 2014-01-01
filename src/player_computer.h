@@ -253,7 +253,7 @@ struct ComputerCheck { // sizeof = 32
 struct ComputerEvent { // sizeof = 44
   char *name;
   unsigned long cetype;
-  unsigned long field_8;
+  unsigned long mevent_kind;
   Comp_Event_Func func_event;
   Comp_EvntTest_Func func_test;
   long test_interval;

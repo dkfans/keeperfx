@@ -1014,7 +1014,60 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    return _DK_task_dig_to_entrance(comp,ctask);
+    //return _DK_task_dig_to_entrance(comp,ctask);
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    struct Room *room;
+    long dig_ret;
+    dig_ret = 0;
+    int n;
+    for (n=0; n < SMALL_AROUND_LENGTH; n++)
+    {
+        MapSubtlCoord stl_x, stl_y;
+        stl_x = stl_slab_center_subtile(ctask->dig.pos_begin.x.stl.num) + small_around[n].delta_x;
+        stl_y = stl_slab_center_subtile(ctask->dig.pos_begin.y.stl.num) + small_around[n].delta_y;
+        room = subtile_room_get(stl_x, stl_y);
+        if (!room_is_invalid(room))
+        {
+            if (room->index == ctask->word_80) {
+                dig_ret = -1;
+                break;
+            }
+        }
+    }
+    struct ComputerTask *curtask;
+    if (dig_ret == 0)
+    {
+        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, 0);
+        if ((ctask->flags & 0x04) != 0) {
+            ctask->flags &= ~0x04;
+            add_to_trap_location(comp, &ctask->dig.pos_next);
+        }
+    }
+    switch ( dig_ret )
+    {
+    case -5:
+        ctask->ottype = ctask->ttype;
+        ctask->ttype = 16;
+        return 4;
+    case -3:
+    case -2:
+        room = room_get(ctask->word_80);
+        room->field_12[dungeon->owner] |= 0x02;
+        curtask = get_computer_task(comp->task_idx);
+        if (!computer_task_invalid(curtask)) {
+            remove_task(comp, curtask);
+        }
+        return dig_ret;
+    case -1:
+        curtask = get_computer_task(comp->task_idx);
+        if (!computer_task_invalid(curtask)) {
+            remove_task(comp, curtask);
+        }
+        return dig_ret;
+    default:
+        return dig_ret;
+    }
 }
 
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)

@@ -37,7 +37,7 @@ extern "C" {
 DLLIMPORT void _DK_turn_off_roaming_menus(void);
 DLLIMPORT void _DK_turn_off_menu(char mnu_idx);
 DLLIMPORT void _DK_turn_on_menu(int);//char);
-DLLIMPORT void _DK_turn_off_event_box_if_necessary(long plridx, char val);
+DLLIMPORT void _DK_turn_off_event_box_if_necessary(long plyr_idx, char event_idx);
 DLLIMPORT unsigned long _DK_turn_off_all_window_menus(void);
 DLLIMPORT void _DK_turn_off_all_panel_menus(void);
 
@@ -58,7 +58,7 @@ int first_monopoly_menu(void)
   for (idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
   {
     gmnu = &active_menus[idx];
-    if ((gmnu->visible != 0) && (gmnu->flgfield_1E!=0))
+    if ((gmnu->visible != 0) && (gmnu->flgfield_1E != 0))
         return idx;
   }
   return -1;
@@ -85,25 +85,25 @@ MenuNumber menu_id_to_number(MenuID menu_id)
  */
 int point_is_over_gui_menu(long x, long y)
 {
-  int idx;
-  int gidx = MENU_INVALID_ID;
-  for(idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
-  {
-    struct GuiMenu *gmnu;
-    gmnu=&active_menus[idx];
-    if (gmnu->visible != 2)
-        continue;
-    if (gmnu->flgfield_1D == 0)
-        continue;
-    short gx = gmnu->pos_x;
-    if ((x >= gx) && (x < gx+gmnu->width))
+    int idx;
+    int gidx = MENU_INVALID_ID;
+    for(idx=0; idx < ACTIVE_MENUS_COUNT; idx++)
     {
-        short gy = gmnu->pos_y;
-        if ((y >= gy) && (y < gy+gmnu->height))
-            gidx=idx;
+      struct GuiMenu *gmnu;
+      gmnu=&active_menus[idx];
+      if (gmnu->visible != 2)
+          continue;
+      if (gmnu->flgfield_1D == 0)
+          continue;
+      short gx = gmnu->pos_x;
+      if ((x >= gx) && (x < gx+gmnu->width))
+      {
+          short gy = gmnu->pos_y;
+          if ((y >= gy) && (y < gy+gmnu->height))
+              gidx=idx;
+      }
     }
-  }
-  return gidx;
+    return gidx;
 }
 
 void update_busy_doing_gui_on_menu(void)
@@ -129,15 +129,15 @@ void turn_off_menu(MenuID mnu_idx)
     {
         if (game_is_busy_doing_gui_string_input())
         {
-          if (input_button->gmenu_idx == menu_num)
-            kill_button_area_input();
+            if (input_button->gmenu_idx == menu_num)
+                kill_button_area_input();
         }
         gmnu = get_active_menu(menu_num);
         gmnu->visible = 3;
         if (update_menu_fade_level(gmnu) == -1)
         {
-          kill_menu(gmnu);
-          remove_from_menu_stack(gmnu->ident);
+            kill_menu(gmnu);
+            remove_from_menu_stack(gmnu->ident);
         }
     }
 }
@@ -315,24 +315,24 @@ void turn_on_main_panel_menu(void)
 
 short turn_off_all_bottom_menus(void)
 {
-  short result;
-  result = false;
-  if (menu_is_active(GMnu_TEXT_INFO))
-  {
-    result = true;
-    turn_off_menu(GMnu_TEXT_INFO);
-  }
-  if (menu_is_active(GMnu_BATTLE))
-  {
-    result = true;
-    turn_off_menu(GMnu_BATTLE);
-  }
-  if (menu_is_active(GMnu_DUNGEON_SPECIAL))
-  {
-    result = true;
-    turn_off_menu(GMnu_DUNGEON_SPECIAL);
-  }
-  return result;
+    short result;
+    result = false;
+    if (menu_is_active(GMnu_TEXT_INFO))
+    {
+        result = true;
+        turn_off_menu(GMnu_TEXT_INFO);
+    }
+    if (menu_is_active(GMnu_BATTLE))
+    {
+        result = true;
+        turn_off_menu(GMnu_BATTLE);
+    }
+    if (menu_is_active(GMnu_DUNGEON_SPECIAL))
+    {
+        result = true;
+        turn_off_menu(GMnu_DUNGEON_SPECIAL);
+    }
+    return result;
 }
 
 void turn_off_all_menus(void)
@@ -342,36 +342,37 @@ void turn_off_all_menus(void)
   turn_off_all_bottom_menus();
 }
 
-void turn_on_menu(MenuID idx)
+void turn_on_menu(MenuID mnu_idx)
 {
-    struct GuiMenu *gmnu = NULL;
-    gmnu = menu_list[idx];
+    SYNCDBG(8,"Menu ID %d",(int)mnu_idx);
+    struct GuiMenu *gmnu;
+    gmnu = menu_list[mnu_idx];
     if (create_menu(gmnu) >= 0)
     {
       if (gmnu->field_1F)
-        game.field_1517F6 = idx;
+        game.field_1517F6 = mnu_idx;
     }
 }
 
 void set_menu_visible_on(MenuID menu_id)
 {
-  long menu_num;
-  menu_num = menu_id_to_number(menu_id);
-  if (menu_num < 0)
-    return;
-  get_active_menu(menu_num)->flgfield_1D = 1;
-  int idx;
-  for (idx=0; idx<ACTIVE_BUTTONS_COUNT; idx++)
-  {
-    struct GuiButton *gbtn = &active_buttons[idx];
-    if (gbtn->flags & LbBtnF_Unknown01)
+    long menu_num;
+    menu_num = menu_id_to_number(menu_id);
+    if (menu_num < 0)
+      return;
+    get_active_menu(menu_num)->flgfield_1D = 1;
+    int idx;
+    for (idx=0; idx<ACTIVE_BUTTONS_COUNT; idx++)
     {
-      Gf_Btn_Callback callback;
-      callback = gbtn->maintain_call;
-      if ((gbtn->gmenu_idx == menu_num) && (callback != NULL))
-        callback(gbtn);
+      struct GuiButton *gbtn = &active_buttons[idx];
+      if (gbtn->flags & LbBtnF_Unknown01)
+      {
+        Gf_Btn_Callback callback;
+        callback = gbtn->maintain_call;
+        if ((gbtn->gmenu_idx == menu_num) && (callback != NULL))
+          callback(gbtn);
+      }
     }
-  }
 }
 
 void set_menu_visible_off(MenuID menu_id)
@@ -385,83 +386,95 @@ void set_menu_visible_off(MenuID menu_id)
 
 void kill_menu(struct GuiMenu *gmnu)
 {
-  struct GuiButton *gbtn;
-  int i;
-  if (gmnu->visible)
-  {
-    gmnu->visible = 0;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    struct GuiButton *gbtn;
+    int i;
+    if (gmnu->visible)
     {
-        gbtn = &active_buttons[i];
-        if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number)) {
-            kill_button(gbtn);
-        }
+      gmnu->visible = 0;
+      for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+      {
+          gbtn = &active_buttons[i];
+          if ((gbtn->flags & LbBtnF_Unknown01) && (gbtn->gmenu_idx == gmnu->number)) {
+              kill_button(gbtn);
+          }
+      }
     }
-  }
 }
 
 void remove_from_menu_stack(short mnu_id)
 {
-  unsigned short i;
-  for (i=0; i<no_of_active_menus; i++)
-  {
-    if (menu_stack[i] == mnu_id)
+    unsigned short i;
+    for (i=0; i<no_of_active_menus; i++)
     {
-      while (i < no_of_active_menus-1)
-      {
-        menu_stack[i] = menu_stack[i+1];
-        i++;
-      }
-      break;
+        if (menu_stack[i] == mnu_id)
+        {
+            while (i < no_of_active_menus-1)
+            {
+                menu_stack[i] = menu_stack[i+1];
+                i++;
+            }
+            break;
+        }
     }
-  }
-  if (i < no_of_active_menus)
-    no_of_active_menus--;
+    if (i < no_of_active_menus)
+      no_of_active_menus--;
 }
 
 void add_to_menu_stack(unsigned char mnu_idx)
 {
-  short i;
-  if (no_of_active_menus >= ACTIVE_MENUS_COUNT)
-  {
-    ERRORLOG("No more room on menu stack");
-    return;
-  }
-
-  for (i=0; i<no_of_active_menus; i++)
-  {
-    if (menu_stack[i] == mnu_idx)
-    { // If already in stack, move it at end of the stack.
-      while (i < no_of_active_menus-1)
-      {
-        menu_stack[i] = menu_stack[i+1];
-        i++;
-      }
-      menu_stack[(int)no_of_active_menus-1] = mnu_idx;
-      //SYNCMSG("Menu %d moved to end of stack, at position %d.",mnu_idx,no_of_active_menus-1);
+    short i;
+    if (no_of_active_menus >= ACTIVE_MENUS_COUNT)
+    {
+      ERRORLOG("No more room on menu stack");
       return;
     }
-  }
-  // If not in stack, add at end
-  menu_stack[(unsigned char)no_of_active_menus] = mnu_idx;
-  no_of_active_menus++;
-  SYNCDBG(9,"Menu %d put on stack, at position %d.",mnu_idx,no_of_active_menus-1);
+
+    for (i=0; i<no_of_active_menus; i++)
+    {
+      if (menu_stack[i] == mnu_idx)
+      { // If already in stack, move it at end of the stack.
+        while (i < no_of_active_menus-1)
+        {
+          menu_stack[i] = menu_stack[i+1];
+          i++;
+        }
+        menu_stack[(int)no_of_active_menus-1] = mnu_idx;
+        //SYNCMSG("Menu %d moved to end of stack, at position %d.",mnu_idx,no_of_active_menus-1);
+        return;
+      }
+    }
+    // If not in stack, add at end
+    menu_stack[(unsigned char)no_of_active_menus] = mnu_idx;
+    no_of_active_menus++;
+    SYNCDBG(9,"Menu %d put on stack, at position %d.",mnu_idx,no_of_active_menus-1);
 }
 
 long first_available_menu(void)
 {
-  short i;
-  for (i=0; i<ACTIVE_MENUS_COUNT; i++)
-  {
-    if (active_menus[i].visible == 0)
-      return i;
-  }
-  return -1;
+    short i;
+    for (i=0; i<ACTIVE_MENUS_COUNT; i++)
+    {
+        if (active_menus[i].visible == 0)
+            return i;
+    }
+    return -1;
 }
 
-void turn_off_event_box_if_necessary(long plridx, char val)
+void turn_off_event_box_if_necessary(PlayerNumber plyr_idx, unsigned char event_idx)
 {
-  _DK_turn_off_event_box_if_necessary(plridx, val);
+    //_DK_turn_off_event_box_if_necessary(plyr_idx, val);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon->visible_event_idx != event_idx) {
+        return;
+    }
+    dungeon->visible_event_idx = 0;
+    if (is_my_player_number(plyr_idx))
+    {
+        turn_off_menu(GMnu_TEXT_INFO);
+        turn_off_menu(GMnu_BATTLE);
+        turn_off_menu(GMnu_DUNGEON_SPECIAL);
+    }
 }
 
 /******************************************************************************/

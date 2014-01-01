@@ -212,7 +212,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     traptng->byte_18 = 1;
     trapstat = &trap_stats[traptng->model];
     if (traptng->model == 2) {
-        event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, 18, traptng->owner, 0);
+        event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
     }
     thing_play_sample(traptng, 176, 100, 0, 3, 0, 2, 256);
     switch (trapstat->activation_type)

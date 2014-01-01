@@ -623,7 +623,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
     pos.y.stl.pos = 128;
     pos.z.stl.pos = 128;
     long n;
-    for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    for (n=0; n < SMALL_AROUND_LENGTH; n++)
     {
         pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
         pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;

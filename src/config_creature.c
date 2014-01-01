@@ -181,7 +181,7 @@ extern Creature_Job_Assign_Func creature_job_assign_func_list[];
 const struct NamedCommand mevents_desc[] = {
     {"MEVENT_NOTHING",        EvKind_Nothing},
     {"MEVENT_HEARTATTACKED",  EvKind_HeartAttacked},
-    {"MEVENT_FIGHT",          EvKind_Fight},
+    {"MEVENT_ENEMYFIGHT",     EvKind_EnemyFight},
     {"MEVENT_OBJECTIVE",      EvKind_Objective},
     {"MEVENT_BREACH",         EvKind_Breach},
     {"MEVENT_NEWROOMRESRCH",  EvKind_NewRoomResrch},
@@ -207,6 +207,7 @@ const struct NamedCommand mevents_desc[] = {
     {"MEVENT_DOORCRATEFOUND", EvKind_DoorCrateFound},
     {"MEVENT_DNSPECIALFOUND", EvKind_DnSpecialFound},
     {"MEVENT_QUICKINFORMATION",EvKind_QuickInformation},
+    {"MEVENT_FRIENDLYFIGHT",  EvKind_FriendlyFight},
     {NULL,                    0},
 };
 /******************************************************************************/

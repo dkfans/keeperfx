@@ -191,24 +191,24 @@ void gui_choose_room(struct GuiButton *gbtn)
 
 void gui_area_event_button(struct GuiButton *gbtn)
 {
-  struct Dungeon *dungeon;
-  unsigned long i;
-  if ((gbtn->flags & 0x08) != 0)
-  {
-    dungeon = get_players_num_dungeon(my_player_number);
-    i = (unsigned long)gbtn->content;
-    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+    struct Dungeon *dungeon;
+    unsigned long i;
+    if ((gbtn->flags & 0x08) != 0)
     {
-      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
-    } else
-    if (dungeon->field_13A7[i&0xFF] == dungeon->visible_event_idx)
-    {
-      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
-    } else
-    {
-      draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1);
+        dungeon = get_players_num_dungeon(my_player_number);
+        i = (unsigned long)gbtn->content;
+        if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+        } else
+        if ((i <= EVENT_BUTTONS_COUNT) && (dungeon->event_button_index[i] == dungeon->visible_event_idx))
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+        } else
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29+1);
+        }
     }
-  }
 }
 
 void gui_remove_area_for_rooms(struct GuiButton *gbtn)
@@ -862,49 +862,52 @@ void gui_area_stat_button(struct GuiButton *gbtn)
 
 void maintain_event_button(struct GuiButton *gbtn)
 {
-  struct Dungeon *dungeon;
-  struct Event *event;
-  unsigned short evnt_idx;
-  unsigned long i;
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(my_player_number);
+    unsigned short evnt_idx;
+    unsigned long evbtn_idx;
+    evbtn_idx = (unsigned long)gbtn->content;
+    if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
+        evnt_idx = dungeon->event_button_index[evbtn_idx];
+    } else {
+        evnt_idx = 0;
+    }
 
-  dungeon = get_players_num_dungeon(my_player_number);
-  i = (unsigned long)gbtn->content;
-  evnt_idx = dungeon->field_13A7[i&0xFF];
+    if ((dungeon->visible_event_idx != 0) && (evnt_idx == dungeon->visible_event_idx))
+    {
+        turn_on_event_info_panel_if_necessary(dungeon->visible_event_idx);
+    }
 
-  if ((dungeon->visible_event_idx != 0) && (evnt_idx == dungeon->visible_event_idx))
-  {
-      turn_on_event_info_panel_if_necessary(dungeon->visible_event_idx);
-  }
-
-  if (evnt_idx == 0)
-  {
-    gbtn->field_1B |= 0x4000;
-    gbtn->field_29 = 0;
-    gbtn->flags &= ~0x08;
-    gbtn->gbactn_1 = 0;
-    gbtn->gbactn_2 = 0;
-    gbtn->tooltip_id = 201;
-    return;
-  }
-  event = &game.event[evnt_idx];
-  if ((event->kind == EvKind_Objective) && (new_objective))
-  {
-    activate_event_box(evnt_idx);
-  }
-  gbtn->field_29 = event_button_info[event->kind].field_0;
-  if ((event->kind == EvKind_Fight) && ((event->mappos_x != 0) || (event->mappos_y != 0))
-      && ((game.play_gameturn & 0x01) != 0))
-  {
-    gbtn->field_29 += 2;
-  } else
-  if ((event->kind == EvKind_Information) && (event->target < 0)
-     && ((game.play_gameturn & 0x01) != 0))
-  {
-    gbtn->field_29 += 2;
-  }
-  gbtn->tooltip_id = event_button_info[event->kind].tooltip_stridx;
-  gbtn->flags |= LbBtnF_Unknown08;
-  gbtn->field_1B = 0;
+    if (evnt_idx == 0)
+    {
+      gbtn->field_1B |= 0x4000;
+      gbtn->field_29 = 0;
+      gbtn->flags &= ~LbBtnF_Unknown08;
+      gbtn->gbactn_1 = 0;
+      gbtn->gbactn_2 = 0;
+      gbtn->tooltip_id = 201;
+      return;
+    }
+    struct Event *event;
+    event = &game.event[evnt_idx];
+    if ((event->kind == EvKind_Objective) && (new_objective))
+    {
+        activate_event_box(evnt_idx);
+    }
+    gbtn->field_29 = event_button_info[event->kind].field_0;
+    if (((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
+        && ((event->mappos_x != 0) || (event->mappos_y != 0)) && ((game.play_gameturn & 0x01) != 0))
+    {
+        gbtn->field_29 += 2;
+    } else
+    if ((event->kind == EvKind_Information) && (event->target < 0)
+       && ((game.play_gameturn & 0x01) != 0))
+    {
+      gbtn->field_29 += 2;
+    }
+    gbtn->tooltip_id = event_button_info[event->kind].tooltip_stridx;
+    gbtn->flags |= LbBtnF_Unknown08;
+    gbtn->field_1B = 0;
 }
 
 void gui_toggle_ally(struct GuiButton *gbtn)

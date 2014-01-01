@@ -2075,7 +2075,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_PwrSOEDis:
       turn_off_sight_of_evil(plyr_idx);
       return false;
-  case PckA_Unknown115:
+  case PckA_EventBoxActivate:
       go_on_then_activate_the_event_box(plyr_idx, pckt->field_6);
       return false;
   case PckA_Unknown116:
