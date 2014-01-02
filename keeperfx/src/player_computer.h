@@ -200,6 +200,7 @@ struct ComputerTask;
 struct GoldLookup;
 
 typedef unsigned char ComputerType;
+typedef unsigned short ComputerTaskType;
 typedef char ComputerName[LINEMSG_SIZE];
 
 typedef long (*Comp_Process_Func)(struct Computer2 *comp, struct ComputerProcess *process);
@@ -313,7 +314,7 @@ struct ComputerTask { // sizeof = 148
     unsigned char ttype;
     unsigned char ottype;
     unsigned char field_4[6];
-    long field_A;
+    long created_turn;
     union {
         struct ComputerDig dig;
         struct {
@@ -323,58 +324,133 @@ struct ComputerTask { // sizeof = 148
             unsigned char field_49[19];
         };
     };
-    long field_5C;
+    long lastrun_turn;
     long field_60;
     struct Coord3d pos_64;
     struct Coord3d pos_6A;
     union {
-    struct Coord3d pos_70;
     struct {
-      long field_70;
-      unsigned char field_74[2];
-    };
+        long amount;
+        short field_74;
+        long gold_gain;
+        short field_7A;
+        long gold_gain_limit;
+        long total_money_limit;
+        short field_84;
+        /* Index of the item currently being checked in list of sellable things. */
+        long sell_idx;
+        unsigned char field_8A[2];
+    } sell_traps_doors;
     struct {
-      short word_70;
-      short word_72;
-      unsigned char field_74x[2];
-    };
-    };
-    union {
-    struct Coord3d pos_76;
-    long long_76;
+        struct Coord3d pos_70;
+        struct Coord3d target_pos;
+        long repeat_num;
+        long long_80;
+        short field_84;
+        short word_86;
+        long field_88;
+    } magic_cta;
     struct {
-      short word_76;
-      short word_78;
-    };
-    };
-    long field_7C;
-    union {
-    long long_80;
+        long splevel;
+        short field_74;
+        short target_thing_idx;
+        short word_78;
+        short field_7A;
+        long repeat_num;
+        long gaction;
+        short field_84;
+        long pwkind;
+        unsigned char field_8A[2];
+    } attack_magic;
     struct {
-        union {
-        short gold_lookup_idx;
+        short room_idx1;
+        short word_72;
+        short field_74;
+        short word_76;
+        short word_78;
+        short field_7Ac;
+        long repeat_num;
+        short room_idx2;
+        short word_82;
+        unsigned char field_84[2];
+        struct Coord3d pos_86;
+    } move_to_room;
+    struct {
+        long field_70;
+        short field_74;
+        struct Coord3d target_pos;
+        long repeat_num;
         short word_80;
-        };
-      short word_82;
-    };
+        short word_82;
+        unsigned char field_84[2];
+        struct Coord3d pos_86;
+    } move_to_defend;
     struct {
-      unsigned char byte_80;
-      unsigned char byte_81;
-      short word_82x;
-    };
-    };
-    unsigned char field_84[2];
-    union {
-    struct Coord3d pos_86;
+        long field_70;
+        short field_74;
+        short word_76;
+        short word_78;
+        short field_7Ac;
+        long repeat_num;
+        short word_80;
+        short word_82;
+        unsigned char field_84[2];
+        struct Coord3d pos_86;
+    } move_to_pos;
     struct {
-      long long_86;
-      unsigned char field_8A[2];
-    };
+        long field_70;
+        short field_74;
+        struct Coord3d target_pos;
+        long repeat_num;
+        short word_80;
+        short word_82;
+        unsigned char field_84[2];
+        long long_86;
+        short word_8A;
+    } pickup_for_attack;
     struct {
-      short word_86;
-      short word_88;
-      unsigned char field_8Ax[2];
-    };
+        struct Coord3d startpos;
+        struct Coord3d endpos;
+        long field_7C;
+        /** Target room index. */
+        short target_room_idx;
+        short word_82;
+        short word_84;
+        short target_plyr_idx;
+        long field_88;
+    } dig_to_room;
+    struct {
+        struct Coord3d startpos;
+        struct Coord3d endpos;
+        long field_7C;
+        /** Target gold lookup index. */
+        short target_lookup_idx;
+        short word_82;
+        short word_84;
+        long long_86;
+        short word_8A;
+    } dig_to_gold;
+    struct {
+        struct Coord3d startpos;
+        struct Coord3d endpos;
+        long field_7C;
+        unsigned char byte_80;
+        unsigned char byte_81;
+        short word_82;
+        short word_84;
+        short target_plyr_idx;
+        long field_88;
+    } dig_somewhere;
+    struct {
+        struct Coord3d startpos;
+        struct Coord3d endpos;
+        short width;
+        short height;
+        long long_80;
+        short word_84;
+        long long_86;
+        short word_8A;
+    } create_room;
     };
     unsigned short field_8C;
     long field_8E;
@@ -486,8 +562,8 @@ struct Room *get_room_to_place_creature(const struct Computer2 *comp, const stru
 long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx);
 /******************************************************************************/
 struct ComputerTask *get_computer_task(long idx);
-struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long a2);
-TbBool is_task_in_progress(struct Computer2 *comp, long ttype);
+struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
+TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
@@ -498,7 +574,16 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
 TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long creatrs_num);
 TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long creatrs_num);
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long value);
-TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thing *thing, const struct Coord3d pos);
+TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, PlayerNumber victim_plyr_idx, long parent_cproc_idx);
+TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num);
+TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos);
+TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long par1, long gold_lookup_idx);
+TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
+TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
+TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int valA, int valB, int valC);
+
 long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);

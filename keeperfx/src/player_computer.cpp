@@ -350,13 +350,13 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
         // Per-task code
         if (((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0))
         {
-            unsigned short max_f7c;
+            unsigned short max_radius;
             struct ComputerTask *roomtask;
-            max_f7c = ((ctask->field_7C)&0xffff) / 2;
-            if ( max_f7c <= ((ctask->field_7C >> 16)&0xffff) / 2 )
-              max_f7c = ((ctask->field_7C >> 16)&0xffff) / 2;
-            roomtask = able_to_build_room(comp, &ctask->pos_64, rkind, width_slabs, height_slabs, area + max_f7c + 1, a6);
-            if (roomtask != NULL) {
+            max_radius = ctask->create_room.width / 2;
+            if (max_radius <= ctask->create_room.height / 2)
+              max_radius = ctask->create_room.height / 2;
+            roomtask = able_to_build_room(comp, &ctask->pos_64, rkind, width_slabs, height_slabs, area + max_radius + 1, a6);
+            if (!computer_task_invalid(roomtask)) {
                 return roomtask;
             }
         }
@@ -479,26 +479,6 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
     return NULL;
 }
 
-void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
-{
-    memset(cdig,0,sizeof(struct ComputerDig));
-    cdig->pos_begin.x.val = startpos.x.val;
-    cdig->pos_begin.y.val = startpos.y.val;
-    cdig->pos_begin.z.val = startpos.z.val;
-    cdig->pos_E.x.val = startpos.x.val;
-    cdig->pos_E.y.val = startpos.y.val;
-    cdig->pos_E.z.val = startpos.z.val;
-    cdig->pos_dest.x.val = endpos.x.val;
-    cdig->pos_dest.y.val = endpos.y.val;
-    cdig->pos_dest.z.val = endpos.z.val;
-    cdig->distance = LONG_MAX;
-    cdig->subfield_2C = 1;
-    cdig->pos_next.x.val = 0;
-    cdig->pos_next.y.val = 0;
-    cdig->pos_next.z.val = 0;
-    cdig->calls_count = 0;
-}
-
 long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, const struct GoldLookup *gldlook, struct Room **nearroom)
 {
     struct Room *room;
@@ -617,7 +597,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
         gldlook = &game.gold_lookup[i];
         if ((gldlook->field_0 & 0x01) == 0)
             continue;
-        if ((gldlook->plyrfield_1[dungeon->owner] & 0x03) != 0)
+        if ((gldlook->player_interested[dungeon->owner] & 0x03) != 0)
             continue;
         SYNCDBG(8,"Searching for place to reach (%d,%d)",(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
         lookups_checked++;
@@ -776,18 +756,12 @@ long computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **re
 
 long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *process, struct Coord3d *pos, long victim_plyr_idx)
 {
-    struct ComputerTask *ctask;
     struct Room *room;
     SYNCDBG(8,"Starting player %d attack on %d",(int)comp->dungeon->owner,(int)victim_plyr_idx);
     //return _DK_setup_computer_attack(comp, process, pos, a4);
     if (!computer_finds_nearest_room_to_pos(comp, &room, pos)) {
         return 0;
     }
-    ctask = get_free_task(comp, 0);
-    if (computer_task_invalid(ctask)) {
-        return 0;
-    }
-    ctask->ttype = CTT_DigToAttack;
     struct Coord3d startpos, endpos;
     startpos.x.val = subtile_coord_center(stl_slab_center_subtile(room->central_stl_x));
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(room->central_stl_y));
@@ -795,31 +769,11 @@ long setup_computer_attack(struct Computer2 *comp, struct ComputerProcess *proce
     endpos.x.val = pos->x.val;
     endpos.y.val = pos->y.val;
     endpos.z.val = pos->z.val;
-    ctask->pos_70.x.val = startpos.x.val;
-    ctask->pos_70.y.val = startpos.y.val;
-    ctask->pos_70.z.val = startpos.z.val;
-    ctask->pos_76.x.val = endpos.x.val;
-    ctask->pos_76.y.val = endpos.y.val;
-    ctask->pos_76.z.val = endpos.z.val;
-    ctask->field_8C = computer_process_index(comp, process);
-    ctask->word_86 = victim_plyr_idx;
-    ctask->field_5C = 0;
-    ctask->flags |= 0x04;
-    ctask->dig.pos_begin.x.val = startpos.x.val;
-    ctask->dig.pos_begin.y.val = startpos.y.val;
-    ctask->dig.pos_begin.z.val = startpos.z.val;
-    ctask->dig.pos_E.x.val = startpos.x.val;
-    ctask->dig.pos_E.y.val = startpos.y.val;
-    ctask->dig.pos_E.z.val = startpos.z.val;
-    ctask->dig.pos_dest.x.val = endpos.x.val;
-    ctask->dig.pos_dest.y.val = endpos.y.val;
-    ctask->dig.pos_dest.z.val = endpos.z.val;
-    ctask->dig.pos_next.x.val = 0;
-    ctask->dig.pos_next.y.val = 0;
-    ctask->dig.pos_next.z.val = 0;
-    ctask->dig.distance = LONG_MAX;
-    ctask->dig.subfield_2C = 1;
-    ctask->dig.calls_count = 0;
+    long parent_cproc_idx;
+    parent_cproc_idx = computer_process_index(comp, process);
+    if (!create_task_dig_to_attack(comp, startpos, endpos, victim_plyr_idx, parent_cproc_idx)) {
+        return 0;
+    }
     return 1;
 }
 
@@ -844,7 +798,7 @@ long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx)
         }
         i = room->next_of_kind;
         // Per-room code
-        if ((room->field_12[dungeon->owner] & 0x01) == 0)
+        if ((room->player_interested[dungeon->owner] & 0x01) == 0)
         {
             if ((plyr_idx < 0) || (room->owner == plyr_idx))
                 count++;
@@ -1050,7 +1004,7 @@ long computer_pick_training_or_scavenging_creatures_and_place_on_room(struct Com
       // Per creature code
       if (creature_is_training(thing) || creature_is_scavengering(thing)) // originally, only CrSt_Training and CrSt_Scavengering were accepted
       {
-        if (!create_task_move_creature_to_pos(comp, thing, room->central_stl_x, room->central_stl_y))
+        if (!create_task_move_creature_to_subtile(comp, thing, room->central_stl_x, room->central_stl_y))
           break;
         new_tasks++;
         if (new_tasks >= tasks_limit)
@@ -1133,7 +1087,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
     {
         if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
         {
-            if (create_task_sell_traps_and_doors(comp, 0, 3*dungeon->creatures_total_pay/2)) {
+            if (create_task_sell_traps_and_doors(comp, 5, 3*dungeon->creatures_total_pay/2)) {
                 ret = 1;
             }
         }

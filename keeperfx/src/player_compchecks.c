@@ -417,7 +417,7 @@ long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * ch
     if (thing_is_invalid(creatng)) {
         return 4;
     }
-    if (!create_task_move_creature_to_pos(comp, creatng, stl_x, stl_y)) {
+    if (!create_task_move_creature_to_subtile(comp, creatng, stl_x, stl_y)) {
         return 4;
     }
     return 1;
@@ -632,7 +632,6 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
 
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check)
 {
-    struct ComputerTask *ctask;
     struct Dungeon *dungeon;
     SYNCDBG(8,"Starting");
     //return _DK_computer_check_slap_imps(comp, check);
@@ -640,17 +639,15 @@ long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * che
     if (!is_power_available(dungeon->owner, PwrK_SLAP)) {
         return 4;
     }
-    if (is_task_in_progress(comp, CTT_SlapImps)) {
-        return 4;
+    long creatrs_num;
+    creatrs_num = check->param1 * dungeon->num_active_diggers / 100;
+    if (!is_task_in_progress(comp, CTT_SlapImps))
+    {
+        if (create_task_slap_imps(comp, creatrs_num)) {
+            return 1;
+        }
     }
-    ctask = get_free_task(comp, 0);
-    if (computer_task_invalid(ctask)) {
-        return 4;
-    }
-    ctask->ttype = CTT_SlapImps;
-    ctask->field_7C = check->param1 * dungeon->num_active_diggers / 100;
-    ctask->field_A = game.play_gameturn;
-    return 1;
+    return 4;
 }
 
 long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check)
@@ -883,11 +880,6 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     if (room_is_invalid(near_room)) {
         return 4;
     }
-    struct ComputerTask *ctask;
-    ctask = get_free_task(comp, 0);
-    if (computer_task_invalid(ctask)) {
-        return 4;
-    }
     struct Coord3d endpos;
     struct Coord3d startpos;
     endpos.x.val = near_pos->x.val;
@@ -896,17 +888,9 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
     startpos.x.val = subtile_coord_center(stl_slab_center_subtile(near_room->central_stl_x));
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(near_room->central_stl_y));
     startpos.z.val = subtile_coord(1,0);
-    ctask->ttype = CTT_DigToNeutral;
-    ctask->byte_80 = 0;
-    ctask->field_A = game.play_gameturn;
-    ctask->pos_70.x.val = startpos.x.val;
-    ctask->pos_70.y.val = startpos.y.val;
-    ctask->pos_70.z.val = startpos.z.val;
-    ctask->pos_76.x.val = endpos.x.val;
-    ctask->pos_76.y.val = endpos.y.val;
-    ctask->pos_76.z.val = endpos.z.val;
-    ctask->flags |= 0x04;
-    setup_dig_to(&ctask->dig, startpos, endpos);
+    if (!create_task_dig_to_neutral(comp, startpos, endpos)) {
+        return 4;
+    }
     near_pos->x.val = 0;
     near_pos->y.val = 0;
     near_pos->z.val = 0;
