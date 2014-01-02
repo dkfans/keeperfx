@@ -641,7 +641,7 @@ long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing,
     return 1;
 }
 
-TbBool fake_force_dump_held_things_on_map(struct Computer2 *comp, struct Coord3d *pos)
+TbBool fake_force_dump_held_things_on_map(struct Computer2 *comp, const struct Coord3d *pos)
 {
     struct Thing *thing;
     thing = thing_get(comp->held_thing_idx);
