@@ -816,7 +816,7 @@ short good_returns_to_start(struct Thing *thing)
     //return _DK_good_returns_to_start(thing);
     heartng = get_player_soul_container(thing->owner);
     TRACE_THING(heartng);
-    //TODO CREATURE_AI Heroes don't usually have hearts; maybe they should also go back to hero gates?
+    //TODO CREATURE_AI Heroes don't usually have hearts; maybe they should also go back to hero gates, or any room?
     if ( !setup_person_move_to_position(thing, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num, 0) )
     {
         return 0;

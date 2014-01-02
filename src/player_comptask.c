@@ -548,6 +548,37 @@ long get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos)
     return subtile_coord(ceiling_height,0);
 }
 
+/**
+ * Low level function which unconditionally drops creature held in hand by computer player.
+ * @param comp
+ * @param thing
+ * @param pos
+ */
+void computer_drop_held_thing_at(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
+{
+    thing->mappos.x.val = pos->x.val;
+    thing->mappos.y.val = pos->y.val;
+    thing->mappos.z.val = pos->z.val;
+    remove_thing_from_limbo(thing);
+    if (thing_is_creature(thing)) {
+        initialise_thing_state(thing, CrSt_CreatureBeingDropped);
+    }
+}
+
+/**
+ * Low level function which unconditionally picks creature by computer player to hand.
+ * @param comp
+ * @param thing
+ */
+void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
+{
+    if (thing_is_creature(thing)) {
+        clear_creature_instance(thing);
+        external_set_thing_state(thing, CrSt_InPowerHand);
+    }
+    place_thing_in_limbo(thing);
+}
+
 short fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos)
 {
     if (thing_is_creature(thing) &&(thing->active_state == CrSt_CreatureUnconscious)) {
@@ -580,15 +611,9 @@ short fake_dump_held_creatures_on_map(struct Computer2 *comp, struct Thing *thin
     if (i > subtile_coord(3,0)) {
         i = subtile_coord(3,0);
     }
-    thing->mappos.x.val = locpos.x.val;
-    thing->mappos.y.val = locpos.y.val;
-    thing->mappos.z.val = locpos.z.val;
-    thing->mappos.z.val += i;
-    remove_thing_from_limbo(thing);
-    if (thing_is_creature(thing)) {
-        initialise_thing_state(thing, CrSt_CreatureBeingDropped);
-    }
-    comp->field_14C8 = 0;
+    locpos.z.val += i;
+    computer_drop_held_thing_at(comp, thing, &locpos);
+    comp->held_thing_idx = 0;
     comp->tasks_did--;
     return 1;
 }
@@ -610,14 +635,27 @@ long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing,
     if (!can_place_thing_here(thing, pos->x.stl.num, pos->y.stl.num, comp->dungeon->owner)) {
         return 0;
     }
-    if (thing_is_creature(thing)) {
-        clear_creature_instance(thing);
-        external_set_thing_state(thing, CrSt_InPowerHand);
-    }
-    place_thing_in_limbo(thing);
-    comp->field_14C8 = thing->index;
+    computer_pick_thing_by_hand(comp, thing);
+    comp->held_thing_idx = thing->index;
     comp->tasks_did--;
     return 1;
+}
+
+TbBool fake_force_dump_held_things_on_map(struct Computer2 *comp, struct Coord3d *pos)
+{
+    struct Thing *thing;
+    thing = thing_get(comp->held_thing_idx);
+    if (thing_is_invalid(thing)) {
+        return false;
+    }
+    struct Coord3d locpos;
+    locpos.z.val = 0;
+    locpos.x.val = subtile_coord_center(pos->x.stl.num);
+    locpos.y.val = subtile_coord_center(pos->y.stl.num);
+    locpos.z.val = get_thing_height_at(thing, &locpos);
+    computer_drop_held_thing_at(comp, thing, &locpos);
+    comp->held_thing_idx = 0;
+    return true;
 }
 
 TbBool creature_could_be_placed_in_better_room(const struct Computer2 *comp, const struct Thing *thing)
@@ -1906,7 +1944,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         return CTaskRet_Unk4;
     }
     struct Thing *thing;
-    thing = thing_get(comp->field_14C8);
+    thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
         if (fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_76)) {
@@ -1962,7 +2000,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     SYNCDBG(9,"Starting");
     //return _DK_task_move_creature_to_room(comp,ctask);
     room = INVALID_ROOM;
-    thing = thing_get(comp->field_14C8);
+    thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
         room = room_get(ctask->word_80);
@@ -2010,10 +2048,10 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     //return _DK_task_move_creature_to_pos(comp,ctask);
     dungeon = comp->dungeon;
     struct Thing *thing;
-    thing = thing_get(comp->field_14C8);
+    thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (ctask->word_76 == comp->field_14C8)
+        if (ctask->word_76 == comp->held_thing_idx)
         {
             if (fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_86)) {
                 remove_task(comp, ctask);
@@ -2101,7 +2139,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     SYNCDBG(9,"Starting");
     struct Thing *thing;
     //return _DK_task_move_creatures_to_defend(comp,ctask);
-    thing = thing_get(comp->field_14C8);
+    thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
         if (!fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_76))
