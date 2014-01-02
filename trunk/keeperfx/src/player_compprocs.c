@@ -618,7 +618,7 @@ TbBool there_is_virgin_entrance_for_computer(const struct Computer2 *comp)
         }
         i = room->next_of_kind;
         // Per-room code
-        if (((room->field_12[dungeon->owner] & 0x01) != 0) &&
+        if (((room->player_interested[dungeon->owner] & 0x01) != 0) &&
           (room->owner != dungeon->owner))
         {
             return true;
@@ -716,7 +716,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
         MapSubtlCoord from_stl_x, from_stl_y;
         from_stl_x = entroom->central_stl_x;
         from_stl_y = entroom->central_stl_y;
-        if ((entroom->owner == from_plyr_idx) && ((entroom->field_12[dungeon->owner] & 3) == 0))
+        if ((entroom->owner == from_plyr_idx) && ((entroom->player_interested[dungeon->owner] & 3) == 0))
         {
             long dist;
             struct Room *nearoom;
@@ -828,17 +828,9 @@ long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_
             break;
         if (can_thing_be_picked_up_by_player(creatng, dungeon->owner) && imp_can_be_moved_to_dig(creatng))
         {
-            struct ComputerTask *ctask;
-            ctask = get_free_task(comp, 0);
-            if (computer_task_invalid(ctask)) {
+            if (!create_task_move_creature_to_pos(comp, creatng, *pos)) {
                 break;
             }
-            ctask->ttype = CTT_MoveCreatureToPos;
-            ctask->pos_86.x.val = pos->x.val;
-            ctask->pos_86.y.val = pos->y.val;
-            ctask->pos_86.z.val = pos->z.val;
-            ctask->word_76 = creatng->index;
-            ctask->field_A = game.play_gameturn;
             amount_did++;
         }
         // Thing list loop body ends
@@ -955,29 +947,17 @@ long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
         } while (digres == 0);
         if ((digres != -1) && (digres != -5))
         {
-            entroom->field_12[dungeon->owner] |= 0x02;
+            entroom->player_interested[dungeon->owner] |= 0x02;
             return 0;
         }
     }
+    long parent_cproc_idx;
+    parent_cproc_idx = computer_process_index(comp, process);
     // Now everything is ready - start the task
-    struct ComputerTask *ctask;
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
+    if (!create_task_dig_to_entrance(comp, startpos, endpos, parent_cproc_idx, entroom->index)) {
         return 0;
     }
-    ctask->ttype = CTT_DigToEntrance;
-    ctask->flags |= ComTsk_Unkn0004;
-    ctask->pos_70.x.val = startpos.x.val;
-    ctask->pos_70.y.val = startpos.y.val;
-    ctask->pos_70.z.val = startpos.z.val;
-    ctask->pos_76.x.val = endpos.x.val;
-    ctask->pos_76.y.val = endpos.y.val;
-    ctask->pos_76.z.val = endpos.z.val;
-    ctask->field_8C = computer_process_index(comp, process);
-    ctask->word_80 = entroom->index;
-    entroom->field_12[dungeon->owner] |= 0x01;
-    // Setup the digging
-    setup_dig_to(&ctask->dig, startpos, endpos);
+    entroom->player_interested[dungeon->owner] |= 0x01;
     process->func_complete(comp, process);
     suspend_process(comp, process);
     move_imp_to_dig_here(comp, &startpos, 1);
@@ -988,7 +968,6 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
 {
     struct GoldLookup *gldlook;
     struct Dungeon *dungeon;
-    struct ComputerTask *ctask;
     struct Coord3d startpos;
     struct Coord3d endpos;
     unsigned long dig_distance;
@@ -1038,7 +1017,7 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         if ( (digres != -1) && (digres != -5) )
         {
             SYNCDBG(8,"Dig evaluation didn't worked out, code %d",digres);
-            gldlook->plyrfield_1[dungeon->owner] |= 0x02;
+            gldlook->player_interested[dungeon->owner] |= 0x02;
             return 0;
         }
         if (dig_distance > max_distance)
@@ -1048,25 +1027,15 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         }
         SYNCDBG(8,"Dig evaluation distance %d, result %d",dig_distance,digres);
     }
-    ctask = get_free_task(comp, 0);
-    if (computer_task_invalid(ctask)) {
+    long parent_cproc_idx;
+    long gold_lookup_idx;
+    parent_cproc_idx = computer_process_index(comp, process);
+    gold_lookup_idx = gold_lookup_index(gldlook);
+    if (!create_task_dig_to_gold(comp, startpos, endpos, parent_cproc_idx, process->field_10, gold_lookup_idx)) {
         SYNCDBG(8,"No free task; won't dig");
         return 4;
     }
-    ctask->ttype = CTT_DigToGold;
-    ctask->flags |= ComTsk_Unkn0004;
-    ctask->pos_70.x.val = startpos.x.val;
-    ctask->pos_70.y.val = startpos.y.val;
-    ctask->pos_70.z.val = startpos.z.val;
-    ctask->pos_76.x.val = endpos.x.val;
-    ctask->pos_76.y.val = endpos.y.val;
-    ctask->pos_76.z.val = endpos.z.val;
-    ctask->long_86 = process->field_10;
-    ctask->field_8C = computer_process_index(comp, process);
-    ctask->word_80 = gold_lookup_index(gldlook);
-    gldlook->plyrfield_1[dungeon->owner] |= 0x01;
-    // Setup the digging
-    setup_dig_to(&ctask->dig, startpos, endpos);
+    gldlook->player_interested[dungeon->owner] |= 0x01;
     process->func_complete(comp, process);
     suspend_process(comp, process);
     comp->task_state = CTaskSt_Select;
@@ -1111,9 +1080,9 @@ long computer_check_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
         return 4;
     }
     long able;
-    able = computer_able_to_use_magic(comp, 5, process->field_8, 5);
+    able = computer_able_to_use_magic(comp, PwrK_SIGHT, process->field_8, 5);
     if (able == 1) {
-        if (dungeon->sight_casted_thing_idx >= 1u) {
+        if (dungeon->sight_casted_thing_idx > 0) {
             return 4;
         }
         return 1;
@@ -1304,9 +1273,11 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     ctask = get_computer_task(process->field_40);
     struct Coord3d  *pos;
     pos = &ctask->dig.pos_begin;
+    long par1;
+    par1 = ctask->pickup_for_attack.long_86;
     if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
     {
-        if (!create_task_pickup_for_attack(comp, pos, ctask->long_86, creatrs_num)) {
+        if (!create_task_pickup_for_attack(comp, pos, par1, creatrs_num)) {
             return 4;
         }
         return 1;
@@ -1315,7 +1286,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     {
         if ((computer_able_to_use_magic(comp, PwrK_CALL2ARMS, 5, 2) == 1) && check_call_to_arms(comp))
         {
-            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, ctask->long_86, creatrs_num)) {
+            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num)) {
                 return 4;
             }
             return 1;
