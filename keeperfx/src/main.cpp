@@ -592,10 +592,16 @@ void process_dungeon_destroy(struct Thing *heartng)
         }
         break;
     case 3:
-        // Drop all held things
+        // Drop all held things, by keeper
         if (dungeon->num_things_in_hand > 0)
         {
             dump_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num, 0);
+        }
+        // Drop all held things, by computer player
+        {
+            struct Computer2 *comp;
+            comp = get_computer_player(plyr_idx);
+            fake_force_dump_held_things_on_map(comp, central_pos);
         }
         // Got to next phase
         dungeon->field_1060 = 4;
