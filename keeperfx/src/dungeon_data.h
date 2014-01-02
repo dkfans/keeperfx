@@ -205,7 +205,7 @@ unsigned char field_F7D;
     long max_creatures_attracted;
     unsigned char field_1060;
     long field_1061;
-    struct Coord3d pos_1065;
+    struct Coord3d essential_pos;
     struct DiggerStack imp_stack[IMP_TASK_MAX_COUNT];
     unsigned long digger_stack_update_turn;
     unsigned long digger_stack_length;
@@ -253,32 +253,41 @@ unsigned char field_14BC[6];
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
 /******************************************************************************/
-struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name);
-struct Dungeon *get_players_dungeon_ptr(const struct PlayerInfo *player,const char *func_name);
-struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name);
-#define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_ptr(plyr_idx,__func__)
-#define get_players_dungeon(player) get_players_dungeon_ptr(player,__func__)
-#define get_dungeon(plyr_idx) get_dungeon_ptr(plyr_idx,__func__)
-#define get_my_dungeon() get_players_num_dungeon_ptr(my_player_number,__func__)
+struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name);
+struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char *func_name);
+struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name);
+#define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_f(plyr_idx,__func__)
+#define get_players_dungeon(player) get_players_dungeon_f(player,__func__)
+#define get_dungeon(plyr_idx) get_dungeon_f(plyr_idx,__func__)
+#define get_my_dungeon() get_players_num_dungeon_f(my_player_number,__func__)
 
 TbBool dungeon_invalid(const struct Dungeon *dungeon);
 
 void clear_dungeons(void);
+void init_dungeons(void);
+
 void decrease_dungeon_area(PlayerNumber plyr_idx, long value);
 void increase_room_area(PlayerNumber plyr_idx, long value);
 void decrease_room_area(PlayerNumber plyr_idx, long value);
 void increase_dungeon_area(PlayerNumber plyr_idx, long value);
+
 void player_add_offmap_gold(PlayerNumber plyr_idx, long value);
-TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind);
+
+void init_dungeons_essential_position(void);
+const struct Coord3d *dungeon_get_essential_pos(PlayerNumber plyr_idx);
 TbBool player_has_heart(PlayerNumber plyr_idx);
 struct Thing *get_player_soul_container(PlayerNumber plyr_idx);
+
+TbBool player_has_room(PlayerNumber plyr_idx, RoomKind rkind);
 TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind);
 struct Room *player_has_room_of_type(PlayerNumber plyr_idx, RoomKind rkind);
+
 TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type, TbBool val);
 TbBool toggle_creature_tendencies(struct PlayerInfo *player, unsigned short tend_type);
 TbBool player_creature_tends_to(PlayerNumber plyr_idx, unsigned short tend_type);
-TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, long trap_kind, long buildable, long amount);
-TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, long door_kind, long buildable, long amount);
+
+TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel trap_kind, long buildable, long amount);
+TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel door_kind, long buildable, long amount);
 
 TbBool restart_script_timer(PlayerNumber plyr_idx, long timer_id);
 TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value);

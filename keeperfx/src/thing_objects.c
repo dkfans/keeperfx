@@ -41,16 +41,16 @@
 extern "C" {
 #endif
 /******************************************************************************/
-long food_moves(struct Thing *thing);
-long food_grows(struct Thing *thing);
-long object_being_dropped(struct Thing *thing);
-TngUpdateRet object_update_dungeon_heart(struct Thing *thing);
-TngUpdateRet object_update_call_to_arms(struct Thing *thing);
-TngUpdateRet object_update_armour(struct Thing *thing);
-TngUpdateRet object_update_object_scale(struct Thing *thing);
-TngUpdateRet object_update_armour2(struct Thing *thing);
-TngUpdateRet object_update_power_sight(struct Thing *thing);
-TngUpdateRet object_update_power_lightning(struct Thing *thing);
+long food_moves(struct Thing *heartng);
+long food_grows(struct Thing *heartng);
+long object_being_dropped(struct Thing *heartng);
+TngUpdateRet object_update_dungeon_heart(struct Thing *heartng);
+TngUpdateRet object_update_call_to_arms(struct Thing *heartng);
+TngUpdateRet object_update_armour(struct Thing *heartng);
+TngUpdateRet object_update_object_scale(struct Thing *heartng);
+TngUpdateRet object_update_armour2(struct Thing *heartng);
+TngUpdateRet object_update_power_sight(struct Thing *heartng);
+TngUpdateRet object_update_power_lightning(struct Thing *heartng);
 
 Thing_State_Func object_state_functions[] = {
     NULL,
@@ -397,27 +397,27 @@ unsigned short lightning_spangles[] = {83, 90, 91, 92, 0, 0};
 unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
 unsigned short specials_text[] = {GUIStr_Empty, 420, 421, 422, 423, 424, 425, 426, 427, 0};
 /******************************************************************************/
-DLLIMPORT long _DK_move_object(struct Thing *thing);
-DLLIMPORT long _DK_update_object(struct Thing *thing);
-DLLIMPORT long _DK_food_moves(struct Thing *thing);
-DLLIMPORT long _DK_food_grows(struct Thing *thing);
-DLLIMPORT long _DK_object_being_dropped(struct Thing *thing);
-DLLIMPORT long _DK_object_update_dungeon_heart(struct Thing *thing);
-DLLIMPORT long _DK_object_update_call_to_arms(struct Thing *thing);
-DLLIMPORT long _DK_object_update_armour(struct Thing *thing);
-DLLIMPORT long _DK_object_update_object_scale(struct Thing *thing);
-DLLIMPORT long _DK_object_update_armour2(struct Thing *thing);
-DLLIMPORT long _DK_object_update_power_sight(struct Thing *thing);
-DLLIMPORT long _DK_object_update_power_lightning(struct Thing *thing);
-DLLIMPORT long _DK_object_is_gold_pile(struct Thing *thing);
-DLLIMPORT long _DK_object_is_gold(struct Thing *thing);
-DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
+DLLIMPORT long _DK_move_object(struct Thing *heartng);
+DLLIMPORT long _DK_update_object(struct Thing *heartng);
+DLLIMPORT long _DK_food_moves(struct Thing *heartng);
+DLLIMPORT long _DK_food_grows(struct Thing *heartng);
+DLLIMPORT long _DK_object_being_dropped(struct Thing *heartng);
+DLLIMPORT long _DK_object_update_dungeon_heart(struct Thing *heartng);
+DLLIMPORT long _DK_object_update_call_to_arms(struct Thing *heartng);
+DLLIMPORT long _DK_object_update_armour(struct Thing *heartng);
+DLLIMPORT long _DK_object_update_object_scale(struct Thing *heartng);
+DLLIMPORT long _DK_object_update_armour2(struct Thing *heartng);
+DLLIMPORT long _DK_object_update_power_sight(struct Thing *heartng);
+DLLIMPORT long _DK_object_update_power_lightning(struct Thing *heartng);
+DLLIMPORT long _DK_object_is_gold_pile(struct Thing *heartng);
+DLLIMPORT long _DK_object_is_gold(struct Thing *heartng);
+DLLIMPORT long _DK_remove_gold_from_hoarde(struct Thing *heartng, struct Room *room, long amount);
 DLLIMPORT struct Thing *_DK_create_object(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx);
-DLLIMPORT long _DK_thing_is_spellbook(struct Thing *thing);
+DLLIMPORT long _DK_thing_is_spellbook(struct Thing *heartng);
 DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
-DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
+DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *heartng, struct Room *room, long amount);
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
@@ -885,19 +885,19 @@ struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         subtile_coord_center(stl_x), subtile_coord_center(stl_y), -1, thing_is_door_or_trap_box);
 }
 
-long food_moves(struct Thing *thing)
+long food_moves(struct Thing *heartng)
 {
-  return _DK_food_moves(thing);
+  return _DK_food_moves(heartng);
 }
 
-long food_grows(struct Thing *thing)
+long food_grows(struct Thing *heartng)
 {
-  return _DK_food_grows(thing);
+  return _DK_food_grows(heartng);
 }
 
-long object_being_dropped(struct Thing *thing)
+long object_being_dropped(struct Thing *heartng)
 {
-  return _DK_object_being_dropped(thing);
+  return _DK_object_being_dropped(heartng);
 }
 
 void update_dungeon_heart_beat(struct Thing *heartng)
@@ -943,113 +943,113 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     }
 }
 
-TngUpdateRet object_update_dungeon_heart(struct Thing *thing)
+TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 {
     struct Dungeon *dungeon;
     long i;
     long long k;
     SYNCDBG(18,"Starting");
     //return _DK_object_update_dungeon_heart(thing);
-    if ((thing->health > 0) && (game.dungeon_heart_heal_time != 0))
+    if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
         struct ObjectConfig *objconf;
         objconf = get_object_model_stats2(5);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
-            thing->health += game.dungeon_heart_heal_health;
-            if (thing->health < 0)
+            heartng->health += game.dungeon_heart_heal_health;
+            if (heartng->health < 0)
             {
-              thing->health = 0;
+              heartng->health = 0;
             } else
-            if (thing->health > objconf->health)
+            if (heartng->health > objconf->health)
             {
-              thing->health = objconf->health;
+              heartng->health = objconf->health;
             }
         }
-        k = ((thing->health << 8) / objconf->health) << 7;
+        k = ((heartng->health << 8) / objconf->health) << 7;
         i = (saturate_set_signed(k,32) >> 8) + 128;
-        thing->field_46 = i * (long)objects_data[5].field_D >> 8;
-        thing->sizexy = i * (long)objects_data[5].field_9 >> 8;
+        heartng->field_46 = i * (long)objects_data[5].field_D >> 8;
+        heartng->sizexy = i * (long)objects_data[5].field_9 >> 8;
     } else
-    if (thing->owner != game.neutral_player_num)
+    if (heartng->owner != game.neutral_player_num)
     {
-        dungeon = get_players_num_dungeon(thing->owner);
+        dungeon = get_players_num_dungeon(heartng->owner);
         if (dungeon->field_1060 == 0)
         {
             dungeon->field_1061 = 0;
             dungeon->field_1060 = 1;
-            dungeon->pos_1065.x.val = thing->mappos.x.val;
-            dungeon->pos_1065.y.val = thing->mappos.y.val;
-            dungeon->pos_1065.z.val = thing->mappos.z.val;
+            dungeon->essential_pos.x.val = heartng->mappos.x.val;
+            dungeon->essential_pos.y.val = heartng->mappos.y.val;
+            dungeon->essential_pos.z.val = heartng->mappos.z.val;
         }
     }
-    process_dungeon_destroy(thing);
+    process_dungeon_destroy(heartng);
     SYNCDBG(18,"Beat update");
-    if ((thing->alloc_flags & TAlF_Exists) == 0)
+    if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return 0;
-    if ( thing->byte_13 )
-      thing->byte_13--;
-    update_dungeon_heart_beat(thing);
+    if ( heartng->byte_13 )
+      heartng->byte_13--;
+    update_dungeon_heart_beat(heartng);
     return TUFRet_Modified;
 }
 
-TngUpdateRet object_update_call_to_arms(struct Thing *thing)
+TngUpdateRet object_update_call_to_arms(struct Thing *heartng)
 {
-    return _DK_object_update_call_to_arms(thing);
+    return _DK_object_update_call_to_arms(heartng);
 }
 
-TngUpdateRet object_update_armour(struct Thing *thing)
+TngUpdateRet object_update_armour(struct Thing *heartng)
 {
-    return _DK_object_update_armour(thing);
+    return _DK_object_update_armour(heartng);
 }
 
-TngUpdateRet object_update_object_scale(struct Thing *thing)
+TngUpdateRet object_update_object_scale(struct Thing *heartng)
 {
-    return _DK_object_update_object_scale(thing);
+    return _DK_object_update_object_scale(heartng);
 }
 
-TngUpdateRet object_update_armour2(struct Thing *thing)
+TngUpdateRet object_update_armour2(struct Thing *heartng)
 {
-    return _DK_object_update_armour2(thing);
+    return _DK_object_update_armour2(heartng);
 }
 
-TngUpdateRet object_update_power_sight(struct Thing *thing)
+TngUpdateRet object_update_power_sight(struct Thing *heartng)
 {
-    return _DK_object_update_power_sight(thing);
+    return _DK_object_update_power_sight(heartng);
 }
 
 #define NUM_ANGLES 16
-TngUpdateRet object_update_power_lightning(struct Thing *thing)
+TngUpdateRet object_update_power_lightning(struct Thing *heartng)
 {
     long i;
     //return _DK_object_update_power_lightning(thing);
     unsigned long exist_turns;
     long variation;
-    thing->health = 2;
-    exist_turns = game.play_gameturn - thing->creation_turn;
+    heartng->health = 2;
+    exist_turns = game.play_gameturn - heartng->creation_turn;
     variation = NUM_ANGLES * exist_turns;
     for (i=0; i < NUM_ANGLES; i++)
     {
         struct Coord3d pos;
         int angle;
         angle = (variation % NUM_ANGLES) * 2*LbFPMath_PI / NUM_ANGLES;
-        if (set_coords_to_cylindric_shift(&pos, &thing->mappos, 8*variation, angle, 0))
+        if (set_coords_to_cylindric_shift(&pos, &heartng->mappos, 8*variation, angle, 0))
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
             if ((mapblk->flags & MapFlg_IsTall) == 0)
             {
                 pos.z.val = get_floor_height_at(&pos) + 128;
-                create_effect_element(&pos, lightning_spangles[thing->owner], thing->owner);
+                create_effect_element(&pos, lightning_spangles[heartng->owner], heartng->owner);
             }
         }
         variation++;
     }
     struct MagicStats *magstat;
     magstat = &game.magic_stats[PwrK_LIGHTNING];
-    if (exist_turns > abs(magstat->power[thing->byte_13]))
+    if (exist_turns > abs(magstat->power[heartng->byte_13]))
     {
-        delete_thing_structure(thing, 0);
+        delete_thing_structure(heartng, 0);
         return TUFRet_Deleted;
     }
     return TUFRet_Modified;

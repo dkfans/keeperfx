@@ -415,7 +415,7 @@ struct Computer2 { // sizeof = 5322
   unsigned char field_13E4[224];
   short ongoing_process;
   short task_idx;
-  short field_14C8;
+  short held_thing_idx;
 };
 
 struct ComputerPlayerConfig {
@@ -530,6 +530,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model);
 void process_computer_players2(void);
 void setup_computer_players2(void);
 void restore_computer_player_after_load(void);
+TbBool fake_force_dump_held_things_on_map(struct Computer2 *comp, struct Coord3d *pos);
 /******************************************************************************/
 #ifdef __cplusplus
 }
