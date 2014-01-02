@@ -1469,34 +1469,47 @@ void instant_instance_selected(long a1)
 
 short zoom_to_next_annoyed_creature(void)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Thing *thing;
-  player = get_my_player();
-  dungeon = get_players_num_dungeon(my_player_number);
-  dungeon->zoom_annoyed_creature_idx = find_next_annoyed_creature(player->id_number,dungeon->zoom_annoyed_creature_idx);
-  thing = thing_get(dungeon->zoom_annoyed_creature_idx);
-  if (thing_is_invalid(thing))
-  {
-    return false;
-  }
-  set_players_packet_action(player, PckA_Unknown087, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
-  return true;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Thing *thing;
+    player = get_my_player();
+    dungeon = get_players_num_dungeon(my_player_number);
+    dungeon->zoom_annoyed_creature_idx = find_next_annoyed_creature(player->id_number,dungeon->zoom_annoyed_creature_idx);
+    thing = thing_get(dungeon->zoom_annoyed_creature_idx);
+    if (thing_is_invalid(thing))
+    {
+      return false;
+    }
+    set_players_packet_action(player, PckA_Unknown087, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
+    return true;
 }
 
 void go_to_my_next_room_of_type(unsigned long rkind)
 {
-  _DK_go_to_my_next_room_of_type(rkind);
+    _DK_go_to_my_next_room_of_type(rkind); return;
 }
 
-short toggle_computer_player(int idx)
+TbBool toggle_computer_player(PlayerNumber plyr_idx)
 {
-  struct Dungeon *dungeon;
-  dungeon = get_players_num_dungeon(idx);
-  if (dungeon_invalid(dungeon))
-    return false;
-  toggle_flag_byte(&dungeon->computer_enabled,0x01);
-  return true;
+    struct PlayerInfo *player;
+    player = get_player(plyr_idx);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Player %d has no dungeon.",(int)plyr_idx);
+        return false;
+    }
+    if ((dungeon->computer_enabled & 0x01) == 0)
+    {
+        struct Computer2 *comp;
+        dungeon->computer_enabled |= 0x01;
+        comp = get_computer_player(player->id_number);
+        fake_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
+    } else
+    {
+        dungeon->computer_enabled &= ~0x01;
+    }
+    return true;
 }
 
 TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
@@ -3226,35 +3239,6 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     }
 }
 
-void init_dungeons(void)
-{
-  int i,k;
-  struct Dungeon *dungeon;
-  for (i=0; i < DUNGEONS_COUNT; i++)
-  {
-    dungeon = get_dungeon(game.hero_player_num);
-    dungeon->hates_player[i] = game.fight_max_hate;
-    dungeon = get_dungeon(i);
-    dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.fight_max_hate;
-    dungeon->num_active_diggers = 0;
-    dungeon->num_active_creatrs = 0;
-    dungeon->creatr_list_start = 0;
-    dungeon->digger_list_start = 0;
-    dungeon->owner = i;
-    dungeon->max_creatures_attracted = game.default_max_crtrs_gen_entrance;
-    dungeon->dead_creatures_count = 0;
-    dungeon->dead_creature_idx = 0;
-    for (k=0; k < DUNGEONS_COUNT; k++)
-    {
-      if (k == i)
-        dungeon->hates_player[k] = game.fight_max_love;
-      else
-        dungeon->hates_player[k] = game.fight_max_hate;
-    }
-    LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_COUNT);
-  }
-}
-
 int can_thing_be_queried(struct Thing *thing, long a2)
 {
   return _DK_can_thing_be_queried(thing, a2);
@@ -3553,6 +3537,7 @@ void post_init_level(void)
     setup_computer_players2();
     load_script(get_loaded_level_number());
     init_dungeons_research();
+    init_dungeons_essential_position();
     create_transferred_creature_on_level();
     update_dungeons_scores();
     update_dungeon_generation_speeds();

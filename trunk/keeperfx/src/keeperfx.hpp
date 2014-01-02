@@ -320,7 +320,7 @@ void process_things_in_dungeon_hand(void);
 void process_payday(void);
 TbBool bonus_timer_enabled(void);
 
-short toggle_computer_player(int idx);
+TbBool toggle_computer_player(PlayerNumber plyr_idx);
 void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal);
 void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos_y);
 void init_good_player_as(PlayerNumber plr_idx);

@@ -28,7 +28,7 @@ DLLIMPORT struct Room *_DK_player_has_room_of_type(long plr_idx, long roomkind);
 /******************************************************************************/
 struct Dungeon bad_dungeon;
 /******************************************************************************/
-struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name)
+struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name)
 {
     struct PlayerInfo *player;
     PlayerNumber plyr_num;
@@ -46,7 +46,7 @@ struct Dungeon *get_players_num_dungeon_ptr(long plyr_idx,const char *func_name)
     return &(game.dungeon[(int)plyr_num]);
 }
 
-struct Dungeon *get_players_dungeon_ptr(const struct PlayerInfo *player,const char *func_name)
+struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char *func_name)
 {
     PlayerNumber plyr_num;
     plyr_num = player->id_number;
@@ -58,7 +58,7 @@ struct Dungeon *get_players_dungeon_ptr(const struct PlayerInfo *player,const ch
     return &(game.dungeon[(int)plyr_num]);
 }
 
-struct Dungeon *get_dungeon_ptr(PlayerNumber plyr_num,const char *func_name)
+struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name)
 {
     if ((plyr_num < 0) || (plyr_num >= DUNGEONS_COUNT))
     {
@@ -266,7 +266,7 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
   }
 }
 
-TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, long trap_kind, long buildable, long amount)
+TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel trap_kind, long buildable, long amount)
 {
     struct Dungeon *dungeon;
     if ( (trap_kind <= 0) || (trap_kind >= TRAP_TYPES_COUNT) ) {
@@ -288,7 +288,7 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, long trap_kin
     return true;
 }
 
-TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, long door_kind, long buildable, long amount)
+TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel door_kind, long buildable, long amount)
 {
     struct Dungeon *dungeon;
     if ( (door_kind <= 0) || (door_kind >= DOOR_TYPES_COUNT) ) {
@@ -340,4 +340,81 @@ TbBool set_script_flag(PlayerNumber plyr_idx, long flag_id, long value)
     dungeon->script_flags[flag_id] = value;
     return true;
 }
+
+void init_dungeon_essential_position(struct Dungeon *dungeon)
+{
+    struct Room *room;
+    room = room_get(dungeon->room_kind[RoK_DUNGHEART]);
+    RoomKind rkind;
+    for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+    {
+        if (!room_is_invalid(room))
+            break;
+        room = room_get(dungeon->room_kind[rkind]);
+    }
+    if (room_is_invalid(room)) {
+        dungeon->essential_pos.x.val = subtile_coord_center(map_subtiles_x/2);
+        dungeon->essential_pos.y.val = subtile_coord_center(map_subtiles_y/2);
+        dungeon->essential_pos.z.val = subtile_coord(0,1);
+        return;
+    }
+    dungeon->essential_pos.x.val = subtile_coord_center(room->central_stl_x);
+    dungeon->essential_pos.y.val = subtile_coord_center(room->central_stl_y);
+    dungeon->essential_pos.z.val = subtile_coord(0,1);
+}
+
+void init_dungeons_essential_position(void)
+{
+    int i;
+    for (i=0; i < DUNGEONS_COUNT; i++)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_dungeon(i);
+        init_dungeon_essential_position(dungeon);
+    }
+}
+
+const struct Coord3d *dungeon_get_essential_pos(PlayerNumber plyr_idx)
+{
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon->dnheart_idx > 0) {
+        struct Thing *heartng;
+        heartng = thing_get(dungeon->dnheart_idx);
+        if (thing_exists(heartng)) {
+            return &heartng->mappos;
+        }
+    }
+    return &dungeon->essential_pos;
+}
+
+void init_dungeons(void)
+{
+    int i,k;
+    struct Dungeon *dungeon;
+    for (i=0; i < DUNGEONS_COUNT; i++)
+    {
+        dungeon = get_dungeon(game.hero_player_num);
+        dungeon->hates_player[i] = game.fight_max_hate;
+        dungeon = get_dungeon(i);
+        dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.fight_max_hate;
+        dungeon->num_active_diggers = 0;
+        dungeon->num_active_creatrs = 0;
+        dungeon->creatr_list_start = 0;
+        dungeon->digger_list_start = 0;
+        dungeon->owner = i;
+        dungeon->max_creatures_attracted = game.default_max_crtrs_gen_entrance;
+        dungeon->dead_creatures_count = 0;
+        dungeon->dead_creature_idx = 0;
+        for (k=0; k < DUNGEONS_COUNT; k++)
+        {
+          if (k == i)
+            dungeon->hates_player[k] = game.fight_max_love;
+          else
+            dungeon->hates_player[k] = game.fight_max_hate;
+        }
+        LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_COUNT);
+    }
+}
+
 /******************************************************************************/
