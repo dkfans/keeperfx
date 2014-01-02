@@ -355,15 +355,9 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     if (thing_is_invalid(fightng)) {
         return 4;
     }
-    struct ComputerTask *ctask;
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
+    if (!create_task_magic_speed_up(comp, fightng, cevent->param1)) {
         return 4;
     }
-    ctask->ttype = CTT_MagicSpeedUp;
-    ctask->word_76 = fightng->index;
-    ctask->field_70 = cevent->param1;
-    ctask->field_A = game.play_gameturn;
     return 1;
 }
 
@@ -437,18 +431,9 @@ long computer_event_attack_magic_foe(struct Computer2 *comp, struct ComputerEven
       valA = cevent->param1;
     valC = caspl->field_1;
     // Create the new task
-    struct ComputerTask *ctask;
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
+    if (!create_task_attack_magic(comp, creatng, pwkind, valA, valB, valC)) {
         return 4;
     }
-    ctask->ttype = CTT_AttackMagic;
-    ctask->word_76 = creatng->index;
-    ctask->field_70 = valB;
-    ctask->field_7C = valA;
-    ctask->long_80 = valC;
-    ctask->field_A = game.play_gameturn;
-    ctask->long_86 = pwkind;
     return 1;
 }
 
@@ -539,7 +524,7 @@ long computer_event_check_imps_in_danger(struct Computer2 *comp, struct Computer
                         heartng = get_player_soul_container(dungeon->owner);
                         if (get_2d_distance(&creatng->mappos, &heartng->mappos) > subtile_coord(16,0))
                         {
-                            if (!create_task_move_creature_to_pos(comp, creatng,
+                            if (!create_task_move_creature_to_subtile(comp, creatng,
                                 heartng->mappos.x.stl.num, heartng->mappos.y.stl.num)) {
                                 break;
                             }
@@ -568,13 +553,13 @@ long computer_event_check_payday(struct Computer2 *comp, struct ComputerEvent *c
     if (dungeon->total_money_owned > dungeon->creatures_total_pay) {
         return 4;
     }
-    if (is_task_in_progress(comp, CTT_SellTrapsAndDoors)) {
-        return 4;
+    if (!is_task_in_progress(comp, CTT_SellTrapsAndDoors))
+    {
+        if (create_task_sell_traps_and_doors(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {
+            return 1;
+        }
     }
-    if (!create_task_sell_traps_and_doors(comp, cevent->param2, 3*dungeon->creatures_total_pay/2)) {
-        return 4;
-    }
-    return 1;
+    return 4;
 }
 
 long computer_event_breach(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)

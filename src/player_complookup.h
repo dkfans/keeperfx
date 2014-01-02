@@ -34,7 +34,8 @@ extern "C" {
 
 struct GoldLookup { // sizeof = 28
 unsigned char field_0;
-unsigned char plyrfield_1[5]; // player flags?
+    /* Informs whether players are interested in that gold vein. */
+    unsigned char player_interested[5];
 unsigned short x_stl_num;
 unsigned short y_stl_num;
 unsigned short field_A;

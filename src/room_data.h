@@ -85,7 +85,9 @@ struct Room {
     unsigned short field_C;
     short total_capacity;
     unsigned short used_capacity;
-    unsigned char field_12[5];
+    /* Informs whether players are interested in that room.
+     * Usually used for neutral rooms, set if a player is starting to dig to that room. */
+    unsigned char player_interested[5];
     union {
     /** For rooms which can store things, amount of storage space used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */

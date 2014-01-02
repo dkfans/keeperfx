@@ -430,7 +430,7 @@ TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned
  * @param ttype Task type to search for.
  * @return The task pointer, or invalid task pointer if not found.
  */
-struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long ttype)
+struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype)
 {
     struct ComputerTask *ctask;
     long i;
@@ -474,9 +474,9 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, long ttype)
  * @param ttype Task type to search for.
  * @return True if computer player has at least one such task, false otherwise.
  */
-TbBool is_task_in_progress(struct Computer2 *comp, long ttype)
+TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype)
 {
-    struct ComputerTask *ctask;
+    const struct ComputerTask *ctask;
     ctask = get_task_in_progress(comp, ttype);
     return !computer_task_invalid(ctask);
 }
@@ -802,7 +802,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         pos.x.val = ctask->pos_64.x.val;
         pos.y.val = ctask->pos_64.y.val;
         pos.z.val = ctask->pos_64.z.val;
-        setup_computer_dig_room(&ctask->dig, &pos, ctask->long_86);
+        setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.long_86);
         ctask->ttype = 2;
         return 1;
     default:
@@ -951,7 +951,7 @@ void count_slabs_where_room_cannot_be_built(PlayerNumber plyr_idx, MapSubtlCoord
 long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    if (game.play_gameturn - ctask->field_A > COMPUTER_DIG_ROOM_TIMEOUT) {
+    if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT) {
         WARNLOG("Task %d couldn't be completed in reasonable time, reset.",(int)ctask->ttype);
         restart_task_process(comp, ctask);
         return 0;
@@ -960,7 +960,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     long waiting_slabs,wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->pos_64.x.stl.num, ctask->pos_64.y.stl.num,
-        ctask->long_80, ctask->long_86, &waiting_slabs, &wrong_slabs);
+        ctask->create_room.long_80, ctask->create_room.long_86, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
         WARNLOG("Task %d couldn't be completed as %d wrong slabs are in destination area, reset.",(int)ctask->ttype,(int)wrong_slabs);
         restart_task_process(comp, ctask);
@@ -968,11 +968,12 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     if (waiting_slabs > 0) {
         SYNCDBG(9,"The %d/%d tiles around %d,%d are not ready to place room",(int)wrong_slabs,
-            (int)ctask->long_86, (int)ctask->pos_64.x.stl.num, (int)ctask->pos_64.y.stl.num);
+            (int)ctask->create_room.long_86, (int)ctask->pos_64.x.stl.num, (int)ctask->pos_64.y.stl.num);
         return 4;
     }
+    // The room digging task is complete - change it to room placing task
     ctask->ttype = CTT_PlaceRoom;
-    setup_computer_dig_room(&ctask->dig, &ctask->pos_64, ctask->long_86);
+    setup_computer_dig_room(&ctask->dig, &ctask->pos_64, ctask->create_room.long_86);
     return 1;
 }
 
@@ -1004,7 +1005,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     //return _DK_task_place_room(comp,ctask);
     dungeon = comp->dungeon;
-    rkind = ctask->long_80;
+    rkind = ctask->create_room.long_80;
     rstat = room_stats_get_for_kind(rkind);
     // If we don't have money for the room - don't even try
     if (rstat->cost >= dungeon->total_money_owned) {
@@ -1067,7 +1068,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
         room = subtile_room_get(stl_x, stl_y);
         if (!room_is_invalid(room))
         {
-            if (room->index == ctask->word_80) {
+            if (room->index == ctask->dig_to_room.target_room_idx) {
                 dig_ret = -1;
                 break;
             }
@@ -1090,8 +1091,8 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
         return 4;
     case -3:
     case -2:
-        room = room_get(ctask->word_80);
-        room->field_12[dungeon->owner] |= 0x02;
+        room = room_get(ctask->dig_to_room.target_room_idx);
+        room->player_interested[dungeon->owner] |= 0x02;
         curtask = get_computer_task(comp->task_idx);
         if (!computer_task_invalid(curtask)) {
             remove_task(comp, curtask);
@@ -1824,7 +1825,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         return 0;
     }
 
-    if (ctask->dig.valuable_slabs_tagged >= ctask->long_86)
+    if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.long_86)
     {
         struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
 
@@ -1847,7 +1848,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         add_to_trap_location(comp, &ctask->dig.pos_next);
     }
 
-    if (ctask->dig.valuable_slabs_tagged >= ctask->long_86)
+    if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.long_86)
     {
         ctask->field_60 = 700 / comp->field_18;
     }
@@ -1873,7 +1874,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         return 0;
     }
 
-    struct GoldLookup* gold_lookup = get_gold_lookup(ctask->gold_lookup_idx);
+    struct GoldLookup* gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
 
     unsigned short gldstl_x = gold_lookup->x_stl_num;
     unsigned short gldstl_y = gold_lookup->y_stl_num;
@@ -1900,8 +1901,8 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     // move to next task or return to enclosing task or return to try again later
     if ((retval == -3) || (retval == -2))
     {
-        gold_lookup = &game.gold_lookup[ctask->gold_lookup_idx];
-        set_flag_byte(&gold_lookup->plyrfield_1[dungeon->owner], 0x02, true);
+        gold_lookup = &game.gold_lookup[ctask->dig_to_gold.target_lookup_idx];
+        set_flag_byte(&gold_lookup->player_interested[dungeon->owner], 0x02, true);
         remove_task(comp, ctask);
     } else
     if (retval == -1) // unnecessary check as retval < -3 and retval > -1 did return before
@@ -1934,12 +1935,12 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     //return _DK_task_pickup_for_attack(comp,ctask);
-    if (game.play_gameturn - ctask->field_A > 7500)
+    if (game.play_gameturn - ctask->created_turn > 7500)
     {
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    if (!xy_walkable(ctask->pos_76.x.stl.num, ctask->pos_76.y.stl.num, comp->dungeon->owner))
+    if (!xy_walkable(ctask->pickup_for_attack.target_pos.x.stl.num, ctask->pickup_for_attack.target_pos.y.stl.num, comp->dungeon->owner))
     {
         return CTaskRet_Unk4;
     }
@@ -1947,21 +1948,21 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_76)) {
+        if (fake_dump_held_creatures_on_map(comp, thing, &ctask->pickup_for_attack.target_pos)) {
             return CTaskRet_Unk2;
         }
         return CTaskRet_Unk4;
     }
-    if (ctask->field_7C <= 0)
+    if (ctask->pickup_for_attack.repeat_num <= 0)
     {
         remove_task(comp, ctask);
         return CTaskRet_Unk1;
     }
-    ctask->field_7C--;
-    thing = find_creature_for_pickup(comp, &ctask->pos_76, 0, 1);
+    ctask->pickup_for_attack.repeat_num--;
+    thing = find_creature_for_pickup(comp, &ctask->pickup_for_attack.target_pos, 0, 1);
     if (!thing_is_invalid(thing))
     {
-        if (fake_place_thing_in_power_hand(comp, thing, &ctask->pos_76)) {
+        if (fake_place_thing_in_power_hand(comp, thing, &ctask->pickup_for_attack.target_pos)) {
             return CTaskRet_Unk2;
         }
         return CTaskRet_Unk4;
@@ -2003,7 +2004,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        room = room_get(ctask->word_80);
+        room = room_get(ctask->move_to_room.room_idx2);
         if (get_drop_position_for_creature_job_in_room(&pos,room,get_job_for_room(room->kind, true)))
         {
             if (fake_dump_held_creatures_on_map(comp, thing, &pos) > 0) {
@@ -2013,8 +2014,8 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    i = ctask->field_7C;
-    ctask->field_7C--;
+    i = ctask->move_to_room.repeat_num;
+    ctask->move_to_room.repeat_num--;
     if (i <= 0)
     {
         remove_task(comp, ctask);
@@ -2027,7 +2028,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         //     ie. select a room tile which is far from CTA and enemies
         //TODO CREATURE_AI don't place creatures at center of a temple/portal if we don't want to get rid of them
         //TODO CREATURE_AI make sure to place creatures at "active" portal tile if we do want them to leave
-        ctask->word_80 = room->index;
+        ctask->move_to_room.room_idx2 = room->index;
         if (get_drop_position_for_creature_job_in_room(&pos,room,get_job_for_room(room->kind, true)))
         {
             if (fake_place_thing_in_power_hand(comp, thing, &pos)) {
@@ -2051,9 +2052,9 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (ctask->word_76 == comp->held_thing_idx)
+        if (ctask->move_to_pos.word_76 == comp->held_thing_idx)
         {
-            if (fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_86)) {
+            if (fake_dump_held_creatures_on_map(comp, thing, &ctask->move_to_pos.pos_86)) {
                 remove_task(comp, ctask);
                 return CTaskRet_Unk2;
             }
@@ -2061,10 +2062,10 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
             return CTaskRet_Unk0;
         }
     }
-    thing = thing_get(ctask->word_76);
+    thing = thing_get(ctask->move_to_pos.word_76);
     if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
     {
-        if (fake_place_thing_in_power_hand(comp, thing, &ctask->pos_86)) {
+        if (fake_place_thing_in_power_hand(comp, thing, &ctask->move_to_pos.pos_86)) {
           return CTaskRet_Unk2;
         }
     }
@@ -2142,19 +2143,19 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (!fake_dump_held_creatures_on_map(comp, thing, &ctask->pos_76))
+        if (!fake_dump_held_creatures_on_map(comp, thing, &ctask->move_to_defend.target_pos))
         {
             remove_task(comp, ctask);
             return CTaskRet_Unk0;
         }
         return CTaskRet_Unk2;
     }
-    if (game.play_gameturn - ctask->field_5C < ctask->field_60) {
+    if (game.play_gameturn - ctask->lastrun_turn < ctask->field_60) {
         return CTaskRet_Unk4;
     }
-    ctask->field_5C = game.play_gameturn;
-    ctask->field_7C--;
-    if (ctask->field_7C <= 0)
+    ctask->lastrun_turn = game.play_gameturn;
+    ctask->move_to_defend.repeat_num--;
+    if (ctask->move_to_defend.repeat_num <= 0)
     {
         remove_task(comp, ctask);
         return CTaskRet_Unk1;
@@ -2162,7 +2163,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     thing = find_creature_for_defend_pickup(comp);
     if (!thing_is_invalid(thing))
     {
-        if (!fake_place_thing_in_power_hand(comp, thing, &ctask->pos_76) )
+        if (!fake_place_thing_in_power_hand(comp, thing, &ctask->move_to_defend.target_pos) )
         {
             remove_task(comp, ctask);
             return CTaskRet_Unk0;
@@ -2178,8 +2179,8 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     //return _DK_task_slap_imps(comp,ctask);
     dungeon = comp->dungeon;
-    ctask->field_7C--;
-    if (ctask->field_7C >= 0)
+    ctask->attack_magic.repeat_num--;
+    if (ctask->attack_magic.repeat_num >= 0)
     {
         TbBool allow_slap_to_kill;
         // Make sure we can accept situation where the creature will die because of the slap
@@ -2270,7 +2271,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     //return _DK_task_wait_for_bridge(comp,ctask);
-    if (game.play_gameturn - ctask->field_A > 7500)
+    if (game.play_gameturn - ctask->created_turn > 7500)
     {
         restart_task_process(comp, ctask);
         return 0;
@@ -2313,12 +2314,12 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     //return _DK_task_attack_magic(comp,ctask);
     dungeon = comp->dungeon;
-    thing = thing_get(ctask->word_76);
+    thing = thing_get(ctask->attack_magic.target_thing_idx);
     if (thing_is_invalid(thing)) {
         return CTaskRet_Unk1;
     }
-    i = ctask->field_7C;
-    ctask->field_7C--;
+    i = ctask->attack_magic.repeat_num;
+    ctask->attack_magic.repeat_num--;
     if ((i <= 0) || creature_is_dying(thing) || creature_is_being_unconscious(thing)
      || creature_is_kept_in_custody(thing))
     {
@@ -2327,11 +2328,11 @@ long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     // Note that can_cast_spell() shouldn't be needed here - should
     // be checked in the function which adds the task
-    if (computer_able_to_use_magic(comp, ctask->long_86, ctask->field_70, 1) != 1) {
+    if (computer_able_to_use_magic(comp, ctask->attack_magic.pwkind, ctask->attack_magic.splevel, 1) != 1) {
         return CTaskRet_Unk4;
     }
-    i = try_game_action(comp, dungeon->owner, ctask->long_80, ctask->field_70,
-        thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->word_76, 0);
+    i = try_game_action(comp, dungeon->owner, ctask->attack_magic.gaction, ctask->attack_magic.splevel,
+        thing->mappos.x.stl.num, thing->mappos.y.stl.num, ctask->attack_magic.pwkind, 0);
     if (i <= Lb_OK)
         return CTaskRet_Unk4;
     return CTaskRet_Unk2;
@@ -2352,14 +2353,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     }
     SYNCDBG(19,"Starting for player %d",(int)dungeon->owner);
     //return _DK_task_sell_traps_and_doors(comp,ctask);
-    if ((ctask->long_76 <= ctask->field_7C) && (dungeon->total_money_owned <= ctask->long_80))
+    if ((ctask->sell_traps_doors.gold_gain <= ctask->sell_traps_doors.gold_gain_limit) && (dungeon->total_money_owned <= ctask->sell_traps_doors.total_money_limit))
     {
         i = 0;
         value = 0;
         item_sold = false;
         for (i=0; i < sizeof(trapdoor_sell)/sizeof(trapdoor_sell[0]); i++)
         {
-            tdsell = &trapdoor_sell[ctask->long_86];
+            tdsell = &trapdoor_sell[ctask->sell_traps_doors.sell_idx];
             switch (tdsell->category)
             {
             case TDSC_DoorCrate:
@@ -2430,6 +2431,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             struct Coord3d pos;
                             set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
                             create_price_effect(&pos, dungeon->owner, value);
+                            add_to_trap_location(comp, &pos);
                         } else
                         {
                             WARNLOG("Sold door at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);
@@ -2460,6 +2462,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             struct Coord3d pos;
                             set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
                             create_price_effect(&pos, dungeon->owner, value);
+                            add_to_trap_location(comp, &pos);
                         } else
                         {
                             WARNLOG("Sold traps at (%d,%d) which didn't cost anything",(int)stl_x,(int)stl_y);
@@ -2471,20 +2474,20 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 ERRORLOG("Unknown SELL_ITEM type");
                 break;
             }
-            ctask->long_86++;
-            if (trapdoor_sell[ctask->long_86].category == TDSC_EndList)
-                ctask->long_86 = 0;
+            ctask->sell_traps_doors.sell_idx++;
+            if (trapdoor_sell[ctask->sell_traps_doors.sell_idx].category == TDSC_EndList)
+                ctask->sell_traps_doors.sell_idx = 0;
             if (item_sold)
             {
-                ctask->field_70--;
-                if (ctask->field_70 > 0)
-                {
-                  ctask->long_76 += value;
-                  dungeon->offmap_money_owned += value;
-                  dungeon->total_money_owned += value;
-                  return 1;
+                ctask->sell_traps_doors.gold_gain += value;
+                dungeon->offmap_money_owned += value;
+                dungeon->total_money_owned += value;
+                // Mark that we've sold the item; if enough was sold, end the task
+                ctask->sell_traps_doors.amount--;
+                if (ctask->sell_traps_doors.amount <= 0) {
+                    remove_task(comp, ctask);
+                    return 1;
                 }
-                remove_task(comp, ctask);
                 return 1;
             }
         }
@@ -2497,125 +2500,27 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     return 0;
 }
 
-TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags)
+void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
 {
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    ctask->ttype = CTT_MoveCreaturesToDefend;
-    ctask->pos_76.x.val = pos->x.val;
-    ctask->pos_76.y.val = pos->y.val;
-    ctask->pos_76.z.val = pos->z.val;
-    ctask->field_7C = creatrs_num;
-    ctask->field_70 = evflags;
-    ctask->field_A = game.play_gameturn;
-    ctask->field_5C = game.play_gameturn;
-    ctask->field_60 = comp->field_34;
-    return true;
+    memset(cdig,0,sizeof(struct ComputerDig));
+    cdig->pos_begin.x.val = startpos.x.val;
+    cdig->pos_begin.y.val = startpos.y.val;
+    cdig->pos_begin.z.val = startpos.z.val;
+    cdig->pos_E.x.val = startpos.x.val;
+    cdig->pos_E.y.val = startpos.y.val;
+    cdig->pos_E.z.val = startpos.z.val;
+    cdig->pos_dest.x.val = endpos.x.val;
+    cdig->pos_dest.y.val = endpos.y.val;
+    cdig->pos_dest.z.val = endpos.z.val;
+    cdig->pos_next.x.val = 0;
+    cdig->pos_next.y.val = 0;
+    cdig->pos_next.z.val = 0;
+    cdig->distance = LONG_MAX;
+    cdig->subfield_2C = 1;
+    cdig->calls_count = 0;
 }
 
-TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num)
-{
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    ctask->ttype = CTT_MoveCreatureToRoom;
-    ctask->word_70 = room_idx;
-    ctask->word_80 = room_idx;
-    ctask->field_7C = creatrs_num;
-    ctask->field_A = game.play_gameturn;
-    return true;
-}
-
-TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long creatrs_num)
-{
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    ctask->ttype = CTT_PickupForAttack;
-    ctask->pos_76.x.val = pos->x.val;
-    ctask->pos_76.y.val = pos->y.val;
-    ctask->pos_76.z.val = pos->z.val;
-    ctask->field_7C = creatrs_num;
-    ctask->field_A = game.play_gameturn;
-    ctask->long_86 = par3; // Originally only a word was set here
-    return true;
-}
-
-TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num)
-{
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    ctask->ttype = CTT_MagicCallToArms;
-    ctask->field_1 = 0;
-    ctask->pos_76.x.val = pos->x.val;
-    ctask->pos_76.y.val = pos->y.val;
-    ctask->pos_76.z.val = pos->z.val;
-    ctask->field_7C = creatrs_num;
-    ctask->field_A = game.play_gameturn;
-    ctask->field_60 = 25;
-    ctask->field_5C = game.play_gameturn - 25;
-    ctask->field_8E = par2;
-    return true;
-}
-
-TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long creatrs_num)
-{
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 0);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    ctask->ttype = CTT_MagicCallToArms;
-    ctask->field_1 = 0;
-    ctask->pos_76.x.val = pos->x.val;
-    ctask->pos_76.y.val = pos->y.val;
-    ctask->pos_76.z.val = pos->z.val;
-    ctask->field_7C = creatrs_num;
-    ctask->field_A = game.play_gameturn;
-    ctask->field_60 = 25;
-    ctask->field_5C = game.play_gameturn - 25;
-    ctask->field_8E = par2;
-    ctask->long_86 = par3; // Originally only a word was set here
-    return true;
-}
-
-TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long value)
-{
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    ctask->ttype = CTT_SellTrapsAndDoors;
-    ctask->field_70 = par2;
-    ctask->field_A = game.play_gameturn;
-    ctask->field_5C = game.play_gameturn;
-    ctask->field_60 = 1;
-    ctask->field_70 = 5;
-    ctask->long_76 = 0;
-    ctask->field_7C = value;
-    ctask->long_80 = value;
-    ctask->long_86 = 0;
-    return true;
-}
-
-TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -2624,11 +2529,287 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, struct Thing *th
         return false;
     }
     ctask->ttype = CTT_MoveCreatureToPos;
-    ctask->word_86 = subtile_coord(stl_x,ACTION_RANDOM(256));
-    ctask->word_88 = subtile_coord(stl_y,ACTION_RANDOM(256));
-    ctask->word_76 = thing->index;
-    ctask->word_80 = 0;
-    ctask->field_A = game.play_gameturn;
+    ctask->move_to_pos.pos_86.x.val = subtile_coord(stl_x,ACTION_RANDOM(256));
+    ctask->move_to_pos.pos_86.y.val = subtile_coord(stl_y,ACTION_RANDOM(256));
+    ctask->move_to_pos.pos_86.z.val = subtile_coord(1,0);
+    ctask->move_to_pos.word_76 = thing->index;
+    ctask->move_to_pos.word_80 = 0;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thing *thing, const struct Coord3d pos)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MoveCreatureToPos;
+    ctask->move_to_pos.pos_86.x.val = pos.x.val;
+    ctask->move_to_pos.pos_86.y.val = pos.y.val;
+    ctask->move_to_pos.pos_86.z.val = pos.z.val;
+    ctask->move_to_pos.word_76 = thing->index;
+    ctask->move_to_pos.word_80 = 0;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long repeat_num, unsigned long evflags)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MoveCreaturesToDefend;
+    ctask->move_to_defend.target_pos.x.val = pos->x.val;
+    ctask->move_to_defend.target_pos.y.val = pos->y.val;
+    ctask->move_to_defend.target_pos.z.val = pos->z.val;
+    ctask->move_to_defend.repeat_num = repeat_num;
+    ctask->move_to_defend.field_70 = evflags;
+    ctask->created_turn = game.play_gameturn;
+    ctask->lastrun_turn = game.play_gameturn;
+    ctask->field_60 = comp->field_34;
+    return true;
+}
+
+TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long repeat_num)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MoveCreatureToRoom;
+    ctask->move_to_room.room_idx1 = room_idx;
+    ctask->move_to_room.room_idx2 = room_idx;
+    ctask->move_to_room.repeat_num = repeat_num;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long repeat_num)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_PickupForAttack;
+    ctask->pickup_for_attack.target_pos.x.val = pos->x.val;
+    ctask->pickup_for_attack.target_pos.y.val = pos->y.val;
+    ctask->pickup_for_attack.target_pos.z.val = pos->z.val;
+    ctask->pickup_for_attack.repeat_num = repeat_num;
+    ctask->created_turn = game.play_gameturn;
+    ctask->pickup_for_attack.long_86 = par3; // Originally only a word was set here
+    return true;
+}
+
+TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long repeat_num)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MagicCallToArms;
+    ctask->field_1 = 0;
+    ctask->created_turn = game.play_gameturn;
+    ctask->field_60 = 25;
+    ctask->lastrun_turn = game.play_gameturn - 25;
+    ctask->magic_cta.target_pos.x.val = pos->x.val;
+    ctask->magic_cta.target_pos.y.val = pos->y.val;
+    ctask->magic_cta.target_pos.z.val = pos->z.val;
+    ctask->magic_cta.repeat_num = repeat_num;
+    ctask->field_8E = par2;
+    return true;
+}
+
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long repeat_num)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MagicCallToArms;
+    ctask->field_1 = 0;
+    ctask->created_turn = game.play_gameturn;
+    ctask->field_60 = 25;
+    ctask->lastrun_turn = game.play_gameturn - 25;
+    ctask->magic_cta.target_pos.x.val = pos->x.val;
+    ctask->magic_cta.target_pos.y.val = pos->y.val;
+    ctask->magic_cta.target_pos.z.val = pos->z.val;
+    ctask->magic_cta.repeat_num = repeat_num;
+    ctask->field_8E = par2;
+    ctask->magic_cta.word_86 = par3;
+    return true;
+}
+
+TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, long gold_up_to)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_SellTrapsAndDoors;
+    ctask->created_turn = game.play_gameturn;
+    ctask->lastrun_turn = game.play_gameturn;
+    ctask->field_60 = 1;
+    ctask->sell_traps_doors.amount = num_to_sell;
+    ctask->sell_traps_doors.gold_gain = 0;
+    ctask->sell_traps_doors.gold_gain_limit = gold_up_to;
+    ctask->sell_traps_doors.total_money_limit = gold_up_to;
+    ctask->sell_traps_doors.sell_idx = 0;
+    return true;
+}
+
+TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, PlayerNumber victim_plyr_idx, long parent_cproc_idx)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_DigToAttack;
+    ctask->dig_somewhere.startpos.x.val = startpos.x.val;
+    ctask->dig_somewhere.startpos.y.val = startpos.y.val;
+    ctask->dig_somewhere.startpos.z.val = startpos.z.val;
+    ctask->dig_somewhere.endpos.x.val = endpos.x.val;
+    ctask->dig_somewhere.endpos.y.val = endpos.y.val;
+    ctask->dig_somewhere.endpos.z.val = endpos.z.val;
+    ctask->field_8C = parent_cproc_idx;
+    ctask->dig_somewhere.target_plyr_idx = victim_plyr_idx;
+    ctask->lastrun_turn = 0;
+    ctask->flags |= 0x04;
+    // Setup the digging
+    setup_dig_to(&ctask->dig, startpos, endpos);
+    return true;
+}
+
+TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_DigToNeutral;
+    ctask->dig_somewhere.byte_80 = 0;
+    ctask->dig_somewhere.startpos.x.val = startpos.x.val;
+    ctask->dig_somewhere.startpos.y.val = startpos.y.val;
+    ctask->dig_somewhere.startpos.z.val = startpos.z.val;
+    ctask->dig_somewhere.endpos.x.val = endpos.x.val;
+    ctask->dig_somewhere.endpos.y.val = endpos.y.val;
+    ctask->dig_somewhere.endpos.z.val = endpos.z.val;
+    ctask->flags |= ComTsk_Unkn0004;
+    ctask->created_turn = game.play_gameturn;
+    setup_dig_to(&ctask->dig, startpos, endpos);
+    return true;
+}
+
+TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long par1, long gold_lookup_idx)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_DigToGold;
+    ctask->flags |= ComTsk_Unkn0004;
+    ctask->dig_to_gold.startpos.x.val = startpos.x.val;
+    ctask->dig_to_gold.startpos.y.val = startpos.y.val;
+    ctask->dig_to_gold.startpos.z.val = startpos.z.val;
+    ctask->dig_to_gold.endpos.x.val = endpos.x.val;
+    ctask->dig_to_gold.endpos.y.val = endpos.y.val;
+    ctask->dig_to_gold.endpos.z.val = endpos.z.val;
+    ctask->dig_to_gold.long_86 = par1;
+    ctask->field_8C = parent_cproc_idx;
+    ctask->dig_to_gold.target_lookup_idx = gold_lookup_idx;
+    // Setup the digging
+    setup_dig_to(&ctask->dig, startpos, endpos);
+    return true;
+}
+
+TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_DigToEntrance;
+    ctask->flags |= ComTsk_Unkn0004;
+    ctask->dig_to_room.startpos.x.val = startpos.x.val;
+    ctask->dig_to_room.startpos.y.val = startpos.y.val;
+    ctask->dig_to_room.startpos.z.val = startpos.z.val;
+    ctask->dig_to_room.endpos.x.val = endpos.x.val;
+    ctask->dig_to_room.endpos.y.val = endpos.y.val;
+    ctask->dig_to_room.endpos.z.val = endpos.z.val;
+    ctask->field_8C = parent_cproc_idx;
+    ctask->dig_to_room.target_room_idx = entroom_idx;
+    // Setup the digging
+    setup_dig_to(&ctask->dig, startpos, endpos);
+    return true;
+}
+
+TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 0);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_SlapImps;
+    ctask->attack_magic.repeat_num = creatrs_num;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MagicSpeedUp;
+    ctask->attack_magic.target_thing_idx = creatng->index;
+    ctask->attack_magic.splevel = splevel;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_AttackMagic;
+    ctask->attack_magic.target_thing_idx = creatng->index;
+    ctask->attack_magic.splevel = splevel;
+    ctask->attack_magic.repeat_num = repeat_num;
+    ctask->attack_magic.gaction = gaction;
+    ctask->attack_magic.pwkind = pwkind;
+    ctask->created_turn = game.play_gameturn;
     return true;
 }
 
