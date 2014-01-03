@@ -71,6 +71,7 @@ enum ComputerTaskTypes {
     CTT_WaitForBridge,
     CTT_AttackMagic,
     CTT_SellTrapsAndDoors,
+    CTT_MoveGoldToTreasury,
 };
 
 enum TrapDoorSellingCategory {
@@ -331,7 +332,7 @@ struct ComputerTask { // sizeof = 148
     struct Coord3d pos_6A;
     union {
     struct {
-        long amount;
+        long items_amount;
         short field_74;
         long gold_gain;
         short field_7A;
@@ -342,6 +343,18 @@ struct ComputerTask { // sizeof = 148
         long sell_idx;
         unsigned char field_8A[2];
     } sell_traps_doors;
+    struct {
+        /* Amount of gold piles/pots to move */
+        long items_amount;
+        short field_74;
+        long gold_gain;
+        short field_7A;
+        long gold_gain_limit;
+        long total_money_limit;
+        short field_84;
+        long field_86;
+        unsigned char field_8A[2];
+    } move_gold;
     struct {
         struct Coord3d pos_70;
         struct Coord3d target_pos;
@@ -568,13 +581,15 @@ TbBool is_task_in_progress(struct Computer2 *comp, ComputerTaskType ttype);
 struct ComputerTask *get_free_task(struct Computer2 *comp, long a2);
 TbBool computer_task_invalid(const struct ComputerTask *ctask);
 TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask);
+const char *computer_task_code_name(int ctask_type);
 
 TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord3d *pos, long creatrs_num, unsigned long evflags);
 TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, long creatrs_num);
 TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long creatrs_num);
 TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long par2, long par3, long creatrs_num);
 TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos, long par3, long creatrs_num);
-TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long par2, long value);
+TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, long gold_up_to);
+TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_move, long gold_up_to);
 TbBool create_task_move_creature_to_subtile(struct Computer2 *comp, const struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thing *thing, const struct Coord3d pos);
 TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, PlayerNumber victim_plyr_idx, long parent_cproc_idx);

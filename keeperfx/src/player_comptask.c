@@ -90,6 +90,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
+long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask);
 long add_to_trap_location(struct Computer2 *, struct Coord3d *);
 long find_next_gold(struct Computer2 *, struct ComputerTask *);
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx);
@@ -118,6 +119,7 @@ const struct TaskFunctions task_function[] = {
     {"COMPUTER_WAIT_FOR_BRIDGE",  task_wait_for_bridge},
     {"COMPUTER_ATTACK_MAGIC",     task_attack_magic},
     {"COMPUTER_SELL_TRAPS_AND_DOORS", task_sell_traps_and_doors},
+    {"COMPUTER_MOVE_GOLD_TO_TREASURY",task_move_gold_to_treasury},
 };
 
 const struct TrapDoorSelling trapdoor_sell[] = {
@@ -231,6 +233,18 @@ int computer_task_index(struct ComputerTask *ctask)
         return 0;
     }
     return i / sizeof(struct ComputerTask);
+}
+
+const char *computer_task_code_name(int ctask_type)
+{
+    const char * ctask_name;
+    ctask_name = NULL;
+    if ((ctask_type > 0) && (ctask_type < sizeof(task_function)/sizeof(task_function[0]))) {
+        ctask_name = task_function[ctask_type].name;
+    }
+    if (ctask_name == NULL)
+        return "INVALID";
+    return ctask_name;
 }
 
 /** Removes task from Computer2 structure and marks it as unused.
@@ -954,7 +968,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT) {
-        WARNLOG("Task %d couldn't be completed in reasonable time, reset.",(int)ctask->ttype);
+        WARNLOG("Task %s couldn't be completed in reasonable time, reset.",computer_task_code_name(ctask->ttype));
         restart_task_process(comp, ctask);
         return 0;
     }
@@ -964,7 +978,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->pos_64.x.stl.num, ctask->pos_64.y.stl.num,
         ctask->create_room.long_80, ctask->create_room.long_86, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
-        WARNLOG("Task %d couldn't be completed as %d wrong slabs are in destination area, reset.",(int)ctask->ttype,(int)wrong_slabs);
+        WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset.",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
         restart_task_process(comp, ctask);
         return 0;
     }
@@ -2606,8 +2620,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 dungeon->offmap_money_owned += value;
                 dungeon->total_money_owned += value;
                 // Mark that we've sold the item; if enough was sold, end the task
-                ctask->sell_traps_doors.amount--;
-                if (ctask->sell_traps_doors.amount <= 0) {
+                ctask->sell_traps_doors.items_amount--;
+                if (ctask->sell_traps_doors.items_amount <= 0) {
                     remove_task(comp, ctask);
                     return 1;
                 }
@@ -2619,6 +2633,20 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     {
         SYNCDBG(9,"Initial conditions not met, aborting.");
     }
+    remove_task(comp, ctask);
+    return 0;
+}
+
+long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask)
+{
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Invalid dungeon in computer player.");
+        return 0;
+    }
+    SYNCDBG(9,"Starting for player %d",(int)dungeon->owner);
+    // TODO COMPUTER_PLAYER implement moving gold
     remove_task(comp, ctask);
     return 0;
 }
@@ -2776,6 +2804,13 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
     return true;
 }
 
+/**
+ * Creates task of selling traps and doors to get more gold.
+ * @param comp Computer player who will do the task.
+ * @param num_to_sell Amount of traps/doors/crates to sell.
+ * @param gold_up_to Max amount of gold to be gained by the selling.
+ * @return True if the task was created successfully, false otherwise.
+ */
 TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell, long gold_up_to)
 {
     struct ComputerTask *ctask;
@@ -2788,11 +2823,38 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
     ctask->field_60 = 1;
-    ctask->sell_traps_doors.amount = num_to_sell;
+    ctask->sell_traps_doors.items_amount = num_to_sell;
     ctask->sell_traps_doors.gold_gain = 0;
     ctask->sell_traps_doors.gold_gain_limit = gold_up_to;
     ctask->sell_traps_doors.total_money_limit = gold_up_to;
     ctask->sell_traps_doors.sell_idx = 0;
+    return true;
+}
+
+/**
+ * Creates task of moving gold laying in the dungeon to treasure room.
+ * @param comp Computer player who will do the task.
+ * @param num_to_move Amount of gold piles/pots to move.
+ * @param gold_up_to Max amount of gold to be gained by placing the gold in treasure room.
+ * @return True if the task was created successfully, false otherwise.
+ */
+TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_move, long gold_up_to)
+{
+    //TODO COMPUTER_PLAYER Use the gold moving task - it is currently never created
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    ctask->ttype = CTT_MoveGoldToTreasury;
+    ctask->created_turn = game.play_gameturn;
+    ctask->lastrun_turn = game.play_gameturn;
+    ctask->field_60 = 1;
+    ctask->move_gold.items_amount = num_to_move;
+    ctask->move_gold.gold_gain = 0;
+    ctask->move_gold.gold_gain_limit = gold_up_to;
+    ctask->move_gold.total_money_limit = gold_up_to;
     return true;
 }
 
@@ -2962,7 +3024,7 @@ long process_tasks(struct Computer2 *comp)
             n = ctask->ttype;
             if ((n > 0) && (n < sizeof(task_function)/sizeof(task_function[0])))
             {
-                SYNCDBG(12,"Computer Task Type %d",(int)n);
+                SYNCDBG(12,"Task %s",computer_task_code_name(n));
                 task_function[n].func(comp, ctask);
                 ndone++;
             } else
