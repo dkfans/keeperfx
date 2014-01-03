@@ -35,6 +35,7 @@ pkg/fxdata/gtext_eng.dat
 NCTEXTDATS = \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
+pkg/campgns/ancntkpr/text_pol.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/cqarctic/text_eng.dat \
 pkg/campgns/cqarctic/text_pol.dat \
@@ -49,7 +50,8 @@ pkg/campgns/pstunded/text_eng.dat \
 pkg/campgns/questfth/text_eng.dat \
 pkg/campgns/questfth/text_fre.dat \
 pkg/campgns/twinkprs/text_eng.dat \
-pkg/campgns/undedkpr/text_eng.dat
+pkg/campgns/undedkpr/text_eng.dat \
+pkg/campgns/undedkpr/text_chi.dat
 
 pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS) pkg-before
 
