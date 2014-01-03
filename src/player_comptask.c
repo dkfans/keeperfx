@@ -186,17 +186,19 @@ DLLIMPORT short _DK_fake_dump_held_creatures_on_map(struct Computer2 *comp, stru
 DLLIMPORT long _DK_fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT struct Thing *_DK_find_creature_to_be_placed_in_room(struct Computer2 *comp, struct Room **roomp);
 DLLIMPORT short _DK_game_action(char basestl_x, unsigned short basestl_y, unsigned short plyr_idx, unsigned short a4,
- unsigned short a5, unsigned short a6, unsigned short a7);
+ unsigned short a5, unsigned short a6, unsigned short perfect);
 DLLIMPORT short _DK_tool_dig_to_pos2(struct Computer2 *, struct ComputerDig *, long, long);
 DLLIMPORT long _DK_add_to_trap_location(struct Computer2 *, struct Coord3d *);
 //DLLIMPORT long _DK_find_next_gold(struct Computer2 *, struct ComputerTask *);
 DLLIMPORT long _DK_check_for_gold(long simulation, long digflags, long l3);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
 DLLIMPORT long _DK_dig_to_position(signed char basestl_x, unsigned short basestl_y, unsigned short plyr_idx, unsigned char a4, unsigned char a5);
-DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short basestl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short a7);
-DLLIMPORT struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long a7);
+DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short basestl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short perfect);
+DLLIMPORT struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long perfect);
 DLLIMPORT struct Thing *_DK_find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 DLLIMPORT long _DK_get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT long _DK_get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char a3, char a4, unsigned short a5);
+DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -1333,12 +1335,7 @@ long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
     return false;
 }
 
-struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long a6, long a7)
-{
-    return _DK_able_to_build_room(comp, pos, rkind, width_slabs, height_slabs, a6, a7);
-}
-
-long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
+long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
 {
     struct SlabAttr *slbattr;
     struct SlabMap *slb;
@@ -1373,6 +1370,132 @@ long check_for_buildable(long stl_x, long stl_y, long plyr_idx)
     }
     mapblk = get_map_block_at_pos(stl_num);
     return ((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != plyr_idx);
+}
+
+long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
+{
+    struct SlabAttr *slbattr;
+    struct SlabMap *slb;
+    SubtlCodedCoords stl_num;
+    struct Map *mapblk;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    slbattr = get_slab_attrs(slb);
+    if (slbattr->category == SlbAtCtg_RoomInterior) {
+        return -1;
+    }
+    if ((slbattr->flags & SlbAtFlg_IsRoom) != 0) {
+        return -1;
+    }
+    if (slb->kind == SlbT_GEMS) {
+        return 1;
+    }
+    if (slab_kind_is_liquid(slb->kind)) {
+        return 1;
+    }
+    if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
+        return 0;
+    }
+    stl_num = get_subtile_number(stl_slab_center_subtile(stl_x),stl_slab_center_subtile(stl_y));
+    if (find_from_task_list(plyr_idx, stl_num) >= 0) {
+        return 0;
+    }
+    if ( (slbattr->is_unknflg14 == 0) || (slb->kind == SlbT_GEMS) ) {
+        return 1;
+    }
+    mapblk = get_map_block_at_pos(stl_num);
+    return ((mapblk->flags & MapFlg_Unkn20) != 0) && (slabmap_owner(slb) != plyr_idx);
+}
+
+long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char a3, char a4, unsigned short a5)
+{
+    return _DK_get_corridor(pos1, pos2, a3, a4, a5);
+}
+
+long other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5)
+{
+    return _DK_other_build_here(comp, a2, a3, a4, a5);
+}
+
+struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind, long width_slabs, long height_slabs, long a6, long perfect)
+{
+    //return _DK_able_to_build_room(comp, pos, rkind, width_slabs, height_slabs, a6, perfect);
+    MapSubtlCoord stl_x, stl_y;
+    struct Coord3d dstpos;
+    struct Coord3d startpos;
+    struct Coord3d corpos;
+
+    struct Dungeon *dungeon;
+    dungeon = comp->dungeon;
+    long area_total, area_buildable;
+    int i,n;
+    n = ACTION_RANDOM(4);
+    if (perfect) {
+        area_total = (width_slabs + 1) * (height_slabs + 1);
+    } else {
+        area_total = width_slabs * height_slabs;
+    }
+    i = 0;
+    dstpos.z.val = 0;
+    dstpos.y.val = 0;
+    dstpos.z.val = 0;
+    while ( 1 )
+    {
+        startpos.x.val = pos->x.val;
+        startpos.y.val = pos->y.val;
+        startpos.z.val = pos->z.val;
+        if (get_corridor(&startpos, &corpos, n, dungeon->owner, a6))
+        {
+            stl_x = corpos.x.stl.num;
+            stl_y = corpos.y.stl.num;
+            if (other_build_here(comp, stl_x, stl_y, width_slabs, height_slabs))
+            {
+                dstpos.x.stl.num = stl_x;
+                dstpos.y.stl.num = stl_y;
+                if ( perfect )
+                {
+                    area_buildable = search_spiral(&dstpos, comp->dungeon->owner, area_total, check_for_perfect_buildable);
+                    if (area_buildable >= area_total) {
+                        area_buildable = width_slabs * height_slabs;
+                        break;
+                    }
+                } else
+                {
+                    area_buildable = search_spiral(&dstpos, comp->dungeon->owner, area_total, check_for_buildable);
+                    if (area_buildable >= area_total - area_total / 4) {
+                        break;
+                    }
+                }
+            }
+        }
+        i++;
+        n = (n + 1) % 4;
+        if (i >= 4)
+          return 0;
+    }
+    struct ComputerTask *ctask;
+    ctask = get_free_task(comp, 0);
+    if ( ctask )
+    {
+      ctask->ttype = CTT_DigRoomPassage;
+      ctask->rkind = rkind;
+      ctask->pos_64.x.val = subtile_coord_center(stl_slab_center_subtile(stl_x));
+      ctask->pos_64.y.val = subtile_coord_center(stl_slab_center_subtile(stl_y));
+      ctask->pos_64.z.val = subtile_coord(1,0);
+      ctask->pos_6A.x.val = pos->x.val;
+      ctask->pos_6A.y.val = pos->y.val;
+      ctask->pos_6A.z.val = pos->z.val;
+      ctask->create_room.startpos.x.val = startpos.x.val;
+      ctask->create_room.startpos.y.val = startpos.y.val;
+      ctask->create_room.startpos.z.val = startpos.z.val;
+      ctask->create_room.width = width_slabs;
+      ctask->create_room.height = height_slabs;
+      ctask->create_room.long_86 = area_buildable;
+      ctask->create_room.long_80 = rkind;
+      ctask->flags |= 0x02;
+      ctask->flags |= 0x04;
+      setup_dig_to(&ctask->dig, ctask->create_room.startpos, ctask->pos_64);
+    }
+    return ctask;
 }
 
 /** Retrieves index for small_around[] array which leads to the area closer to given destination.

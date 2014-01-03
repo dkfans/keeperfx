@@ -313,7 +313,8 @@ struct ComputerTask { // sizeof = 148
     unsigned char field_1;
     unsigned char ttype;
     unsigned char ottype;
-    unsigned char field_4[6];
+    unsigned char rkind;
+    unsigned char field_5[5];
     long created_turn;
     union {
         struct ComputerDig dig;
