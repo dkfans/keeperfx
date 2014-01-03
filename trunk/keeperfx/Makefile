@@ -293,6 +293,7 @@ pkg/fxdata/gtext_eng.dat
 NCTEXTDATS = \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
+pkg/campgns/ancntkpr/text_pol.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/cqarctic/text_eng.dat \
 pkg/campgns/cqarctic/text_pol.dat \
@@ -307,7 +308,8 @@ pkg/campgns/pstunded/text_eng.dat \
 pkg/campgns/questfth/text_eng.dat \
 pkg/campgns/questfth/text_fre.dat \
 pkg/campgns/twinkprs/text_eng.dat \
-pkg/campgns/undedkpr/text_eng.dat
+pkg/campgns/undedkpr/text_eng.dat \
+pkg/campgns/undedkpr/text_chi.dat
 LANDVIEWRAWS = \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/keeporig_lnd/rgmap$(num).raw pkg/campgns/keeporig_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
@@ -485,6 +487,7 @@ clean-package:
 	-$(RM) -R pkg/fxdata
 	-$(RM) -R pkg/ldata
 	-$(RM) -R pkg/data
+	-$(RM) -R pkg/levels
 	-$(RM) pkg/keeperfx*
 	-$(ECHO) ' '
 
