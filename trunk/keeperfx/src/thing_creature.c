@@ -3711,36 +3711,41 @@ long player_list_creature_filter_needs_to_be_placed_in_room(const struct Thing *
     }
 
     // If the creature require healing, then drop it to lair
-    if (cctrl->combat_flags)
+    if (creature_can_do_healing_sleep(thing))
     {
-        if (health_permil < 1000*crstat->heal_threshold/256)
+        if (cctrl->combat_flags)
         {
-            // If already at lair, then don't do anything
-            if (creature_is_doing_lair_activity(thing))
-                return -1;
-            // otherwise, put it into room we want
-            if (dungeon_has_room(dungeon, RoK_LAIR))
+            // Simplified algorithm when creature is in combat
+            if (health_permil < 1000*crstat->heal_threshold/256)
             {
-                param->num2 = RoK_LAIR;
-                return LONG_MAX;
+                // If already at lair, then don't do anything
+                if (creature_is_doing_lair_activity(thing))
+                    return -1;
+                // otherwise, put it into room we want
+                if (dungeon_has_room(dungeon, RoK_LAIR))
+                {
+                    param->num2 = RoK_LAIR;
+                    return LONG_MAX;
+                }
             }
-        }
-        return -1;
-    } else
-    {
-        if (health_permil < 1000*crstat->heal_threshold/256)
+            return -1;
+        } else
         {
-            // If already at lair, then don't do anything
-            if (creature_is_doing_lair_activity(thing))
-                return -1;
-            // don't force it to lair if it wants to eat or take salary
-            if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
-                return -1;
-            // otherwise, put it into room we want
-            if (dungeon_has_room(dungeon, RoK_LAIR))
+            // Be more careful when not in combat
+            if ((health_permil < 1000*crstat->heal_threshold/256) || !creature_has_lair_room(thing))
             {
-                param->num2 = RoK_LAIR;
-                return LONG_MAX;
+                // If already at lair, then don't do anything
+                if (creature_is_doing_lair_activity(thing))
+                    return -1;
+                // don't force it to lair if it wants to eat or take salary
+                if (creature_is_doing_garden_activity(thing) || creature_is_taking_salary_activity(thing))
+                    return -1;
+                // otherwise, put it into room we want
+                if (dungeon_has_room(dungeon, RoK_LAIR))
+                {
+                    param->num2 = RoK_LAIR;
+                    return LONG_MAX;
+                }
             }
         }
     }
