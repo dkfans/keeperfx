@@ -407,7 +407,7 @@ long count_no_room_build_tasks(const struct Computer2 *comp)
             ttype = ctask->ttype;
             if ((ttype == CTT_DigRoomPassage) || (ttype == CTT_DigRoom)
              || (ttype == CTT_CheckRoomDug) || (ttype == CTT_PlaceRoom)) {
-                SYNCDBG(19,"Task %d is matching type %d",(int)i,(int)ttype);
+                SYNCDBG(9,"Task %d is matching, type %d, building %s",(int)i,(int)ttype,room_code_name(ctask->rkind));
                 count++;
             }
         }
@@ -1447,7 +1447,7 @@ long set_next_process(struct Computer2 *comp)
     process = find_best_process(comp);
     if (process != INVALID_COMPUTER_PROCESS)
     {
-        SYNCDBG(8,"Checking \"%s\"",process->name);
+        SYNCDBG(8,"Checking \"%s\" for player %d",process->name,(int)comp->dungeon->owner);
         chkres = process->func_check(comp, process);
         if (chkres == 1)
         {

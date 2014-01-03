@@ -41,6 +41,7 @@
  0001:00044ED0       get_nearest_object_at_position
  0001:0004B910       computer_finds_nearest_entrance2
  0001:0004EF10       move_imp_to_dig_here
+ 0001:0004E640       get_corridor
  0001:00050C50       S3DAddSampleToEmitterPri
  0001:00050970       S3DCreateSoundEmitterPri
  0001:00050CA0       S3DDeleteSampleFromEmitter
@@ -1402,6 +1403,7 @@
  0001:0003B4D0       computer_check_events
  0001:0004C030       get_computer_money_less_cost
  0001:0004C0A0       computer_look_for_opponent
+ 0001:0004C830       other_build_here
  0001:0004C710       computer_finds_nearest_room_to_pos
  0001:00007980       light_initialise_lighting_tables
  0001:00005970       light_delete_light
