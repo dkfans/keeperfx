@@ -2951,7 +2951,31 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
 
 short creature_wants_a_home(struct Thing *creatng)
 {
-  return _DK_creature_wants_a_home(creatng);
+    //return _DK_creature_wants_a_home(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if (crstat->lair_size <= 0) {
+        set_start_state(creatng);
+        return 0;
+    }
+    if ((cctrl->lair_room_id <= 0) || (cctrl->lairtng_idx <= 0)) {
+        internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
+        return 0;
+    }
+    struct Thing *lairtng;
+    lairtng = thing_get(cctrl->lairtng_idx);
+    if (thing_exists(lairtng))
+    {
+        if (setup_person_move_to_position(creatng, lairtng->mappos.x.stl.num, lairtng->mappos.y.stl.num, 0) == 1)
+        {
+            creatng->continue_state = CrSt_CreatureDoingNothing;
+            return 1;
+        }
+    }
+    internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
+    return 0;
 }
 
 short creature_wants_salary(struct Thing *creatng)

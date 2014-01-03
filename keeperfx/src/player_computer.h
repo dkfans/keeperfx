@@ -583,7 +583,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
 TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long par1, long gold_lookup_idx);
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
-TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int valA, int valB, int valC);
+TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
 
 long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long a3, long a4);
 long computer_get_room_kind_total_capacity(struct Computer2 *comp, RoomKind room_kind);
