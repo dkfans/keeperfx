@@ -49,6 +49,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"HEALTH",          5},
   {"NAMETEXTID",      6},
   {"TOOLTIPTEXTID",   7},
+  {"CRATE",           8},
   {NULL,              0},
   };
 
@@ -61,12 +62,15 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"SELLINGVALUE",    6},
   {"NAMETEXTID",      7},
   {"TOOLTIPTEXTID",   8},
+  {"CRATE",           9},
   {NULL,              0},
   };
 /******************************************************************************/
 struct TrapDoorConfig trapdoor_conf;
-struct NamedCommand trap_desc[TRAPDOOR_ITEMS_MAX];
-struct NamedCommand door_desc[TRAPDOOR_ITEMS_MAX];
+struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
+struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
+/******************************************************************************/
+extern struct ObjectsConfig object_conf;
 /******************************************************************************/
 struct TrapConfigStats *get_trap_model_stats(int tngmodel)
 {
@@ -121,7 +125,7 @@ TbBool parse_trapdoor_common_blocks(char *buf, long len, const char *config_text
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              if ((k > 0) && (k <= TRAPDOOR_ITEMS_MAX))
+              if ((k > 0) && (k <= TRAPDOOR_TYPES_MAX))
               {
                 trapdoor_conf.trap_types_count = k;
                 n++;
@@ -137,7 +141,7 @@ TbBool parse_trapdoor_common_blocks(char *buf, long len, const char *config_text
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              if ((k > 0) && (k <= TRAPDOOR_ITEMS_MAX))
+              if ((k > 0) && (k <= TRAPDOOR_TYPES_MAX))
               {
                 trapdoor_conf.door_types_count = k;
                 n++;
@@ -347,6 +351,21 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+      case 9: // CRATE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              n = get_id(object_desc, word_buf);
+          }
+          if (n < 0)
+          {
+              CONFWRNLOG("Incorrect crate object \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+          }
+          object_conf.object_to_door_or_trap[n] = i;
+          object_conf.workshop_object_class[n] = TCls_Trap;
+          trapdoor_conf.trap_to_object[i] = n;
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -523,6 +542,21 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+      case 8: // CRATE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              n = get_id(object_desc, word_buf);
+          }
+          if (n < 0)
+          {
+              CONFWRNLOG("Incorrect crate object \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+          }
+          object_conf.object_to_door_or_trap[n] = i;
+          object_conf.workshop_object_class[n] = TCls_Door;
+          trapdoor_conf.door_to_object[i] = n;
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -610,6 +644,21 @@ TbBool load_trapdoor_config(const char *conf_fname, unsigned short flags)
     }
     //Freeing and exiting
     return result;
+}
+
+ThingModel door_crate_object_model(ThingModel tngmodel)
+{
+    if ((tngmodel <= 0) || (tngmodel >= TRAPDOOR_TYPES_MAX))
+        return trapdoor_conf.door_to_object[0];
+    return trapdoor_conf.door_to_object[tngmodel];
+
+}
+
+ThingModel trap_crate_object_model(ThingModel tngmodel)
+{
+    if ((tngmodel <= 0) || (tngmodel >= TRAPDOOR_TYPES_MAX))
+        return trapdoor_conf.trap_to_object[0];
+    return trapdoor_conf.trap_to_object[tngmodel];
 }
 
 /**

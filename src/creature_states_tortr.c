@@ -88,7 +88,7 @@ short at_kinky_torture_room(struct Thing *thing)
     cctrl->field_82 = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->tortured.long_9Ex = game.play_gameturn;
-    cctrl->field_A8 = 1;
+    cctrl->field_A8 = CTVS_TortureGoToDevice;
     cctrl->tortured.long_A2x = game.play_gameturn;
     internal_set_thing_state(thing, CrSt_KinkyTorturing);
     return 1;
@@ -113,7 +113,7 @@ short at_torture_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if ( !add_creature_to_work_room(thing, room) )
+    if (!add_creature_to_work_room(thing, room))
     {
         if (is_my_player_number(room->owner))
             output_message(SMsg_TortureTooSmall, 0, true);
@@ -126,7 +126,7 @@ short at_torture_room(struct Thing *thing)
     cctrl->field_82 = game.play_gameturn;
     cctrl->tortured.start_gameturn = game.play_gameturn;
     cctrl->long_9E = game.play_gameturn;
-    cctrl->field_A8 = 1;
+    cctrl->field_A8 = CTVS_TortureGoToDevice;
     cctrl->long_A2 = game.play_gameturn;
     internal_set_thing_state(thing, CrSt_Torturing);
     return 1;
@@ -158,7 +158,7 @@ short cleanup_torturing(struct Thing *creatng)
     return 1;
 }
 
-long setup_torture_centre_move(struct Thing *thing, struct Room *room, CrtrStateId nstat)
+long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, CrtrStateId nstat)
 {
     SlabCodedCoords slbnum;
     long n;
@@ -174,38 +174,40 @@ long setup_torture_centre_move(struct Thing *thing, struct Room *room, CrtrState
             break;
         k--;
     }
+    if (slbnum == 0) {
+        ERRORLOG("Taking random room slab failed - internal inconsistency.");
+        slbnum = room->slabs_list;
+    }
     k = 0;
-    while (slbnum != 0)
+    while (1)
     {
-        if (k >= room->slabs_count) {
-            break;
-        }
-        if (room->slabs_count == n) {
-            n = 0;
-            slbnum = room->slabs_list;
-        }
         MapSlabCoord slb_x,slb_y;
         slb_x = slb_num_decode_x(slbnum);
         slb_y = slb_num_decode_y(slbnum);
-        tortrtng = find_base_thing_on_mapwho(1, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        tortrtng = find_base_thing_on_mapwho(TCls_Object, 125, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         if (!thing_is_invalid(tortrtng) && (tortrtng->word_13 == 0))
         {
-            if (setup_person_move_to_coord(thing, &tortrtng->mappos, 0) <= 0)
+            if (!setup_person_move_to_coord(creatng, &tortrtng->mappos, 0))
             {
                 ERRORLOG("Move failed in torture");
                 break;
             }
             struct CreatureControl *cctrl;
-            cctrl = creature_control_get_from_thing(thing);
-            thing->continue_state = nstat;
-            tortrtng->word_13 = thing->index;
+            cctrl = creature_control_get_from_thing(creatng);
+            creatng->continue_state = nstat;
+            tortrtng->word_13 = creatng->index;
             tortrtng->word_15 = tortrtng->field_46;
             cctrl->word_A6 = tortrtng->index;
             return 1;
         }
-        ++k;
         slbnum = get_next_slab_number_in_room(slbnum);
-        n++;
+        if (slbnum == 0) {
+            slbnum = room->slabs_list;
+        }
+        k++;
+        if (k >= room->slabs_count) {
+            break;
+        }
     }
     return 0;
 }
@@ -228,29 +230,24 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
     GameTurnDelta dturn;
     switch (cctrl->field_A8)
     {
-    case 0:
-        dturn = (long)game.play_gameturn - (long)cctrl->long_9E;
-        if (dturn < 0) {
-            // We often start torturing with this value being incorrect
-            cctrl->long_9E = game.play_gameturn;
-        }
-        if (dturn > 100) {
-            cctrl->field_A8 = 1;
+    case CTVS_TortureRandMove:
+        if (game.play_gameturn - cctrl->long_9E > 100) {
+            cctrl->field_A8 = CTVS_TortureGoToDevice;
         }
         if (!setup_torture_move(thing, room, nstat)) {
             return 0;
         }
         return 1;
-    case 1:
-        if (!setup_torture_centre_move(thing, room, nstat)) {
-            cctrl->field_A8 = 0;
+    case CTVS_TortureGoToDevice:
+        if (!setup_torture_move_to_device(thing, room, nstat)) {
+            cctrl->field_A8 = CTVS_TortureRandMove;
             cctrl->long_9E = game.play_gameturn;
             return 0;
         }
-        cctrl->field_A8 = 2;
+        cctrl->field_A8 = CTVS_TortureInDevice;
         cctrl->long_9E = game.play_gameturn;
         return 1;
-    case 2:
+    case CTVS_TortureInDevice:
         sectng = thing_get(cctrl->word_A6);
         if (creature_turn_to_face_angle(thing, sectng->field_52) >= 85) {
             return 0;
@@ -264,7 +261,7 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
         if (thing_exists(sectng)) {
             sectng->field_4F |= 0x01;
         } else {
-            ERRORLOG("No centre table for torture");
+            ERRORLOG("No device for torture");
         }
         dturn = game.play_gameturn - cctrl->long_A2;
         if ((dturn > 32) || ((cctrl->spell_flags & CSAfF_Speed) && (dturn > 16)))
@@ -276,7 +273,7 @@ long process_torture_visuals(struct Thing *thing, struct Room *room, CrtrStateId
     default:
         WARNLOG("Invalid creature state in torture room");
         cctrl->long_9E = game.play_gameturn;
-        cctrl->field_A8 = 1;
+        cctrl->field_A8 = CTVS_TortureGoToDevice;
         break;
     }
     return 0;
@@ -308,7 +305,7 @@ short kinky_torturing(struct Thing *thing)
     case CrCkRet_Deleted:
         return CrStRet_Deleted;
     case CrCkRet_Available:
-        process_torture_visuals(thing, room, 110);
+        process_torture_visuals(thing, room, CrSt_KinkyTorturing);
         return CrStRet_Modified;
     default:
         return CrStRet_ResetOk;
@@ -607,7 +604,7 @@ CrStateRet torturing(struct Thing *thing)
     case CrCkRet_Deleted:
         return CrStRet_Deleted;
     case CrCkRet_Available:
-        process_torture_visuals(thing, room, 43);
+        process_torture_visuals(thing, room, CrSt_Torturing);
         return CrStRet_Modified;
     default:
         return CrStRet_ResetOk;

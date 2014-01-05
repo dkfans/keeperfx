@@ -2476,8 +2476,8 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
             ThingModel tngmodel;
             oldowner = thing->owner;
             thing->owner = newowner;
-            tngclass = box_thing_to_workshop_object_class(thing);
-            tngmodel = box_thing_to_door_or_trap(thing);
+            tngclass = crate_thing_to_workshop_item_class(thing);
+            tngmodel = crate_thing_to_workshop_item_model(thing);
             remove_workshop_item_from_amount_stored(oldowner, tngclass, tngmodel);
             remove_workshop_item_from_amount_placeable(oldowner, tngclass, tngmodel);
             add_workshop_item_to_amounts(newowner, tngclass, tngmodel);

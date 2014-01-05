@@ -1219,7 +1219,7 @@ TbBool add_object_for_trap_to_imp_stack(struct Dungeon *dungeon, struct Thing *b
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if (thing->model == trap_to_object[boxtng->model])
+        if (thing->model == trap_crate_object_model(boxtng->model))
         {
             struct SlabMap *slb;
             slb = get_slabmap_thing_is_on(thing);
@@ -2087,7 +2087,7 @@ long check_out_worker_pickup_trapbox(struct Thing *creatng, struct DiggerStack *
         // Allow only trap boxes on that subtile which have a corresponding trap to be armed
         if (thing_is_trap_box(cratng))
         {
-            trdtng = check_for_empty_trap_for_imp_not_being_armed(creatng, box_thing_to_door_or_trap(cratng));
+            trdtng = check_for_empty_trap_for_imp_not_being_armed(creatng, crate_thing_to_workshop_item_model(cratng));
             if (!thing_is_invalid(trdtng)) {
                 break;
             }
@@ -2151,7 +2151,7 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
         istack->task_id = DigTsk_None;
         return -1;
     }
-    i = box_thing_to_workshop_object_class(sectng);
+    i = crate_thing_to_workshop_item_class(sectng);
     if (i == TCls_Trap)
     {
       event_create_event_or_update_nearby_existing_event(

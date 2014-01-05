@@ -312,7 +312,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
             if ( shotst->old->field_36 )
               shot_explodes = 1;
-            if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
+            if ( !game.objects_config[door_crate_object_model(doortng->model)].field_7 || shotst->old->field_4C )
             {
                 apply_damage_to_thing(doortng, shotng->word_14, -1);
             } else
@@ -355,7 +355,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
                 if (shotst->old->field_36)
                     shot_explodes = 1;
-                if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
+                if ( !game.objects_config[door_crate_object_model(doortng->model)].field_7 || shotst->old->field_4C )
                 {
                     apply_damage_to_thing(doortng, shotng->word_14, -1);
                 } else
@@ -450,7 +450,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
               shot_explodes = true;
           }
           // Apply damage to the door
-          if ( !game.objects_config[door_to_object[doortng->model]].field_7 || shotst->old->field_4C )
+          if ( !game.objects_config[door_crate_object_model(doortng->model)].field_7 || shotst->old->field_4C )
           {
               apply_damage_to_thing(doortng, shotng->shot.damage, -1);
           } else

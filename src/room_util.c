@@ -441,7 +441,7 @@ short check_and_asimilate_thing_by_room(struct Thing *thing)
             }
             return true;
         }
-        if (!add_workshop_item_to_amounts(room->owner, box_thing_to_workshop_object_class(thing), box_thing_to_door_or_trap(thing)))
+        if (!add_workshop_item_to_amounts(room->owner, crate_thing_to_workshop_item_class(thing), crate_thing_to_workshop_item_model(thing)))
         {
             thing->owner = game.neutral_player_num;
             return true;
