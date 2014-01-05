@@ -22,6 +22,7 @@
 #include "bflib_basics.h"
 #include "bflib_math.h"
 #include "bflib_planar.h"
+#include "bflib_vidraw.h"
 
 #include "magic.h"
 #include "power_specials.h"
@@ -509,45 +510,46 @@ void draw_power_hand(void)
   picktng = get_first_thing_in_power_hand(player);
   if ((!thing_is_invalid(picktng)) && ((picktng->field_4F & 0x01) == 0))
   {
-    switch (picktng->class_id)
-    {
-    case TCls_Creature:
-        if (!creature_affected_by_spell(picktng, SplK_Chicken))
-        {
-            pickoffs = get_creature_picked_up_offset(picktng);
-            stl_x = GetMouseX() + pickoffs->delta_x;
-            stl_y = GetMouseY() + pickoffs->delta_y;
-            if (creatures[picktng->model].field_7 )
-              EngineSpriteDrawUsingAlpha = 1;
-            process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-                picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
-            EngineSpriteDrawUsingAlpha = 0;
-        } else
-        {
+      SYNCDBG(7,"Holding %s",thing_model_name(picktng));
+      switch (picktng->class_id)
+      {
+      case TCls_Creature:
+          if (!creature_affected_by_spell(picktng, SplK_Chicken))
+          {
+              pickoffs = get_creature_picked_up_offset(picktng);
+              stl_x = GetMouseX() + pickoffs->delta_x;
+              stl_y = GetMouseY() + pickoffs->delta_y;
+              if (creatures[picktng->model].field_7 )
+                EngineSpriteDrawUsingAlpha = 1;
+              process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
+                  picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+              EngineSpriteDrawUsingAlpha = 0;
+          } else
+          {
+              stl_x = GetMouseX()+11;
+              stl_y = GetMouseY()+56;
+              process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
+                  picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+          }
+          break;
+      case TCls_Object:
+          if (object_is_mature_food(picktng))
+          {
             stl_x = GetMouseX()+11;
             stl_y = GetMouseY()+56;
             process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
                 picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
-        }
-        break;
-    case TCls_Object:
-        if (object_is_mature_food(picktng))
-        {
-          stl_x = GetMouseX()+11;
-          stl_y = GetMouseY()+56;
+            break;
+          } else
+          if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
+            break;
+      default:
+          stl_x = GetMouseX();
+          stl_y = GetMouseY();
           process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
+                picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
           break;
-        } else
-        if ((picktng->class_id == TCls_Object) && object_is_gold_pile(picktng))
-          break;
-    default:
-        stl_x = GetMouseX();
-        stl_y = GetMouseY();
-        process_keeper_sprite(stl_x / pixel_size, stl_y / pixel_size,
-              picktng->field_44, 0, picktng->field_48, 64 / pixel_size);
-        break;
-    }
+      }
   }
   if (player->field_C == 784)
   {
@@ -762,7 +764,75 @@ void process_things_in_dungeon_hand(void)
 
 void draw_mini_things_in_hand(long x, long y)
 {
-  _DK_draw_mini_things_in_hand(x, y);
+    SYNCDBG(7,"Starting");
+    //_DK_draw_mini_things_in_hand(x, y); return;
+    struct Dungeon *dungeon;
+    dungeon = get_my_dungeon();
+    int i;
+    int expshift_x;
+    unsigned long spr_idx;
+    spr_idx = get_creature_breed_graphics(23, CGI_HandSymbol);
+    if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
+        i = gui_panel_sprites[spr_idx].SWidth - button_sprite[184].SWidth;
+    else
+        i = 0;
+    long scrbase_x, scrbase_y;
+    scrbase_x = x;
+    scrbase_y = y - 58;
+    expshift_x = pixel_size * abs(i) / 2;
+    for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
+    {
+        int icol, irow;
+        icol = i % 4;
+        irow = (i / 4);
+        struct Thing *thing;
+        thing = thing_get(dungeon->things_in_hand[i]);
+        if (!thing_exists(thing)) {
+            continue;
+        }
+        int scrpos_x, scrpos_y;
+        int shift_y;
+        if (thing->class_id == TCls_Creature)
+        {
+            spr_idx = get_creature_breed_graphics(thing->model, CGI_HandSymbol);
+            if (spr_idx > 0)
+            {
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(thing);
+                int expspr_idx;
+                expspr_idx = 184 + cctrl->explevel;
+                if (irow > 0)
+                    shift_y = (unsigned short)(pixel_size - 2) < 1u ? 38 : 42;
+                else
+                    shift_y = (unsigned short)(pixel_size - 2) < 1u ? -8 : 8;
+                scrpos_x = scrbase_x + 16 * icol;
+                scrpos_y = scrbase_y + 18 * irow;
+                LbSpriteDraw((scrpos_x + expshift_x) / pixel_size, (scrpos_y + shift_y) / pixel_size, &button_sprite[expspr_idx]);
+                LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, &gui_panel_sprites[spr_idx]);
+            }
+        } else
+        if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
+        {
+            spr_idx = 57;
+            if (irow > 0)
+                shift_y = 20;
+            else
+                shift_y = 0;
+            scrpos_x = scrbase_x + 16 * icol;
+            scrpos_y = scrbase_y + 14 * irow;
+            LbSpriteDraw((scrpos_x - 2) / pixel_size, (scrpos_y + shift_y) / pixel_size, &gui_panel_sprites[spr_idx]);
+        } else
+        {
+            spr_idx = 59;
+            if (irow > 0)
+                shift_y = 20;
+            else
+                shift_y = 0;
+            scrpos_x = scrbase_x + 16 * icol;
+            scrpos_y = scrbase_y + 14 * irow;
+            LbSpriteDraw((scrpos_x - 2) / pixel_size, (scrpos_y + shift_y) / pixel_size, &gui_panel_sprites[spr_idx]);
+        }
+    }
 }
 
 struct Thing *create_power_hand(PlayerNumber owner)

@@ -514,6 +514,7 @@ void draw_status_sprites(long a1, long a2, struct Thing *thing, long a4);
 void draw_keepsprite_unscaled_in_buffer(unsigned short a1, short a2, unsigned char a3, unsigned char *a4);
 void draw_jonty_mapwho(struct JontySpr *jspr);
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long a5, unsigned char color);
+unsigned short choose_health_sprite(struct Thing *thing);
 
 void update_engine_settings(struct PlayerInfo *player);
 void display_drawlist(void);
