@@ -143,7 +143,7 @@ struct Thing *get_creature_in_training_room_which_could_accept_partner(struct Ro
         cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_exists(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %ld detected",i);
+            ERRORLOG("Jump to invalid creature %d detected",(int)i);
             break;
         }
         i = cctrl->next_in_room;

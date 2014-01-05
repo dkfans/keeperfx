@@ -65,7 +65,7 @@ enum CreatureJobFlags {
     Job_FIGHT            = 0x00000080,
     Job_SEEK_THE_ENEMY   = 0x00000100,
     Job_GUARD            = 0x00000200,
-    Job_GROUP            = 0x00000400,
+    Job_GROUP            = 0x00000400, //This job doesn't do anything, should be removed?
     Job_BARRACK          = 0x00000800,
     Job_TEMPLE_PRAY      = 0x00001000,
     Job_FREEZE_PRISONERS = 0x00002000,

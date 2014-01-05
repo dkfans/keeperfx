@@ -378,7 +378,7 @@ inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x, long y
     short left,right,top,btm;
     short sprWd = spr->SWidth;
     short sprHt = spr->SHeight;
-    //Coordinates range checking
+    //Coordinates range checking - x coords
     int delta;
     delta = lbDisplay.GraphicsWindowX - x;
     if (delta <= 0)
@@ -400,6 +400,7 @@ inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x, long y
             return Lb_OK;
         right = sprWd - delta;
     }
+    //Coordinates range checking - y coords
     delta = lbDisplay.GraphicsWindowY - y;
     if (delta <= 0)
     {
