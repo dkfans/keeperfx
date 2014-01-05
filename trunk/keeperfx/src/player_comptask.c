@@ -801,7 +801,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
     {
     case -5:
         ctask->ottype = ctask->ttype;
-        ctask->ttype = 16;
+        ctask->ttype = CTT_WaitForBridge;
         return 4;
     case -3:
     case -2:
@@ -819,7 +819,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         pos.y.val = ctask->pos_64.y.val;
         pos.z.val = ctask->pos_64.z.val;
         setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.long_86);
-        ctask->ttype = 2;
+        ctask->ttype = CTT_DigRoom;
         return 1;
     default:
         if ((ctask->flags & 0x04) != 0)
@@ -883,7 +883,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                 }
                 ctask->dig.subfield_44++;
                 if (ctask->dig.subfield_44 >= ctask->dig.subfield_40) {
-                    ctask->ttype = 3;
+                    ctask->ttype = CTT_CheckRoomDug;
                     return 1;
                 }
             }
@@ -1103,7 +1103,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     {
     case -5:
         ctask->ottype = ctask->ttype;
-        ctask->ttype = 16;
+        ctask->ttype = CTT_WaitForBridge;
         return 4;
     case -3:
     case -2:
@@ -2511,7 +2511,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     if (remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Door, model))
                     {
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
-                        remove_workshop_object_from_player(dungeon->owner, door_to_object[model]);
+                        remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
                         value = game.doors_config[model].selling_value;
                         SYNCDBG(9,"Door %s crate sold for %d gold",door_code_name(model),(int)value);
@@ -2533,7 +2533,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     if (remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Trap, model))
                     {
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
-                        remove_workshop_object_from_player(dungeon->owner, trap_to_object[model]);
+                        remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
                         value = game.traps_config[model].selling_value;
                         SYNCDBG(9,"Trap %s crate sold for %ld gold",trap_code_name(model),value);
@@ -3029,7 +3029,8 @@ long process_tasks(struct Computer2 *comp)
                 ndone++;
             } else
             {
-                ERRORLOG("Bad Computer Task Type %d",(int)n);
+                ERRORLOG("Bad Computer Task Type %d at index %d, removing",(int)n,(int)i);
+                remove_task(comp, ctask);
             }
         }
         k++;

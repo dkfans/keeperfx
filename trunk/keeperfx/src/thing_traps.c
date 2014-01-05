@@ -51,7 +51,6 @@ DLLIMPORT void _DK_external_activate_trap_shot_at_angle(struct Thing *traptng, l
 DLLIMPORT unsigned char _DK_tag_cursor_blocks_place_trap(unsigned char trpkind, long plyr_idx, long a3);
 DLLIMPORT long _DK_update_trap_trigger_line_of_sight_90(struct Thing *traptng);
 DLLIMPORT void _DK_activate_trap(struct Thing *traptng, struct Thing *creatng);
-
 /******************************************************************************/
 TbBool destroy_trap(struct Thing *traptng)
 {
@@ -501,7 +500,7 @@ long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
                 i = game.traps_config[traptng->model].selling_value;
                 if (traptng->trap.num_shots == 0) {
                     if (remove_workshop_item_from_amount_stored(traptng->owner, traptng->class_id, traptng->model)) {
-                        remove_workshop_object_from_player(traptng->owner, trap_to_object[traptng->model%TRAP_TYPES_COUNT]);
+                        remove_workshop_object_from_player(traptng->owner, trap_crate_object_model(traptng->model));
                     }
                 }
                 (*sell_value) += i;

@@ -201,7 +201,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
     if ( (room->kind != RoK_WORKSHOP) || (room->owner != digger->owner) ) {
         return 0;
     }
-    find_model = trap_to_object[traptng->model];
+    find_model = trap_crate_object_model(traptng->model);
     find_owner = digger->owner;
     k = 0;
     i = game.thing_lists[TngList_Objects].index;
@@ -379,7 +379,7 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *digger)
         {
           if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (get_room_thing_is_on(thing) == room) )
           {
-              traptng = check_for_empty_trap_for_imp(digger, box_thing_to_door_or_trap(thing));
+              traptng = check_for_empty_trap_for_imp(digger, crate_thing_to_workshop_item_model(thing));
               if (!thing_is_invalid(traptng) && !imp_will_soon_be_getting_object(digger->owner, thing))
               {
                   if (setup_person_move_to_position(digger, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0))
@@ -1182,7 +1182,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
         return 0;
     }
     if ( ((cratetng->field_1 & TF1_IsDragged1) != 0)
-      || (traptng->class_id != TCls_Trap) || (box_thing_to_door_or_trap(cratetng) != traptng->model))
+      || (traptng->class_id != TCls_Trap) || (crate_thing_to_workshop_item_model(cratetng) != traptng->model))
     {
         WARNLOG("Cannot use %s index %d to refill %s index %d",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(traptng),(int)traptng->index);
         cctrl->field_70 = 0;
@@ -1210,8 +1210,8 @@ short creature_picks_up_trap_object(struct Thing *thing)
         if (!is_hero_thing(cratetng) && !is_neutral_thing(cratetng))
         {
             remove_workshop_item_from_amount_stored(cratetng->owner,
-                get_workshop_object_class_for_thing(cratetng),
-                box_thing_to_door_or_trap(cratetng));
+                crate_thing_to_workshop_item_class(cratetng),
+                crate_thing_to_workshop_item_model(cratetng));
         }
     }
     creature_drag_object(thing, cratetng);
@@ -1312,8 +1312,8 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     creature_drop_dragged_object(thing, cratetng);
     cratetng->owner = thing->owner;
     if (add_workshop_object_to_workshop(room, cratetng)) {
-        add_workshop_item_to_amounts(room->owner, get_workshop_object_class_for_thing(cratetng),
-            box_thing_to_door_or_trap(cratetng));
+        add_workshop_item_to_amounts(room->owner, crate_thing_to_workshop_item_class(cratetng),
+            crate_thing_to_workshop_item_model(cratetng));
     }
     // The action of moving object is now finished
     set_start_state(thing);

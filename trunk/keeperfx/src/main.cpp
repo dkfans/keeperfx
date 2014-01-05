@@ -3325,7 +3325,7 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     if (remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, dormodel))
     {
         remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, dormodel);
-        remove_workshop_object_from_player(plyr_idx, door_to_object[dormodel]);
+        remove_workshop_object_from_player(plyr_idx, door_crate_object_model(dormodel));
     }
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
