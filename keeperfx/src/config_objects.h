@@ -67,6 +67,8 @@ struct ObjectConfigStats {
 struct ObjectsConfig {
     long object_types_count;
     struct ObjectConfigStats object_cfgstats[OBJECT_TYPES_COUNT];
+    ThingModel object_to_door_or_trap[OBJECT_TYPES_COUNT];
+    ThingClass workshop_object_class[OBJECT_TYPES_COUNT];
 };
 /******************************************************************************/
 extern const char keeper_objects_file[];
@@ -77,6 +79,10 @@ struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);
 struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel);
 const char *object_code_name(ThingModel tngmodel);
 ThingModel object_model_id(const char * code_name);
+ThingClass crate_to_workshop_item_class(ThingModel tngmodel);
+ThingModel crate_to_workshop_item_model(ThingModel tngmodel);
+ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing);
+ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing);
 void init_objects(void);
 /******************************************************************************/
 #ifdef __cplusplus

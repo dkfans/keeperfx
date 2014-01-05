@@ -144,10 +144,10 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
     switch (tngclass)
     {
     case TCls_Trap:
-        cratetng = create_object(&pos, trap_to_object[tngmodel], plyr_idx, -1);
+        cratetng = create_object(&pos, trap_crate_object_model(tngmodel), plyr_idx, -1);
         break;
     case TCls_Door:
-        cratetng = create_object(&pos, door_to_object[tngmodel], plyr_idx, -1);
+        cratetng = create_object(&pos, door_crate_object_model(tngmodel), plyr_idx, -1);
         break;
     default:
         cratetng = INVALID_THING;

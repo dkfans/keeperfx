@@ -29,7 +29,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-#define TRAPDOOR_ITEMS_MAX 256
+#define TRAPDOOR_TYPES_MAX 128
 
 /******************************************************************************/
 #pragma pack(1)
@@ -58,18 +58,22 @@ struct TrapConfigStats {
 
 struct TrapDoorConfig {
     long trap_types_count;
-    struct TrapConfigStats trap_cfgstats[TRAPDOOR_ITEMS_MAX];
+    struct TrapConfigStats trap_cfgstats[TRAPDOOR_TYPES_MAX];
     long door_types_count;
-    struct DoorConfigStats door_cfgstats[TRAPDOOR_ITEMS_MAX];
+    struct DoorConfigStats door_cfgstats[TRAPDOOR_TYPES_MAX];
+    ThingModel trap_to_object[TRAPDOOR_TYPES_MAX];
+    ThingModel door_to_object[TRAPDOOR_TYPES_MAX];
 };
 /******************************************************************************/
 extern const char keeper_trapdoor_file[];
-extern struct NamedCommand trap_desc[TRAPDOOR_ITEMS_MAX];
-extern struct NamedCommand door_desc[TRAPDOOR_ITEMS_MAX];
+extern struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
+extern struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
 /******************************************************************************/
 TbBool load_trapdoor_config(const char *conf_fname,unsigned short flags);
 struct TrapConfigStats *get_trap_model_stats(int tngmodel);
 struct DoorConfigStats *get_door_model_stats(int tngmodel);
+ThingModel door_crate_object_model(ThingModel tngmodel);
+ThingModel trap_crate_object_model(ThingModel tngmodel);
 const char *door_code_name(int tngmodel);
 const char *trap_code_name(int tngmodel);
 int door_model_id(const char * code_name);

@@ -339,18 +339,6 @@ struct Objects objects_data[] = {
   {0, 0, 0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, 0, 0},
 };
 
-ThingModel object_to_door_or_trap[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2,
-    3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-};
-
 ThingModel object_to_special[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -373,18 +361,6 @@ ThingModel object_to_magic[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0,19, 0,
-};
-
-ThingClass workshop_object_class[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8,
-    8, 8, 8, 8, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 /** Guard flag objects model per player index. Originally named guard_post_objects.
@@ -611,22 +587,6 @@ struct Objects *get_objects_data(unsigned int tmodel)
     return &objects_data[tmodel];
 }
 
-unsigned int get_workshop_object_class_for_thing(const struct Thing *thing)
-{
-    unsigned int tmodel;
-    tmodel = thing->model;
-    if (tmodel >= OBJECT_TYPES_COUNT)
-        return workshop_object_class[0];
-    return workshop_object_class[tmodel];
-}
-
-unsigned int get_workshop_object_class(unsigned int tmodel)
-{
-    if (tmodel >= OBJECT_TYPES_COUNT)
-        return workshop_object_class[0];
-    return workshop_object_class[tmodel];
-}
-
 int box_thing_to_special(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
@@ -650,26 +610,6 @@ PowerKind book_thing_to_magic(const struct Thing *thing)
     return object_to_magic[thing->model];
 }
 
-int box_thing_to_door_or_trap(const struct Thing *thing)
-{
-    if (thing_is_invalid(thing))
-        return 0;
-    if ( (thing->class_id != TCls_Object) ||
-         (thing->model >= sizeof(object_to_door_or_trap)/sizeof(object_to_door_or_trap[0])) )
-      return 0;
-    return object_to_door_or_trap[thing->model];
-}
-
-ThingClass box_thing_to_workshop_object_class(const struct Thing *thing)
-{
-    if (thing_is_invalid(thing))
-        return 0;
-    if ( (thing->class_id != TCls_Object) ||
-         (thing->model >= sizeof(workshop_object_class)/sizeof(workshop_object_class[0])) )
-      return 0;
-    return workshop_object_class[thing->model];
-}
-
 TbBool thing_is_special_box(const struct Thing *thing)
 {
     return (box_thing_to_special(thing) > 0);
@@ -677,25 +617,17 @@ TbBool thing_is_special_box(const struct Thing *thing)
 
 TbBool thing_is_door_or_trap_box(const struct Thing *thing)
 {
-    return (box_thing_to_door_or_trap(thing) > 0);
+    return (crate_thing_to_workshop_item_model(thing) > 0);
 }
 
 TbBool thing_is_trap_box(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
-        return false;
-    if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
-        return false;
-    return (workshop_object_class[thing->model] == TCls_Trap);
+    return (crate_thing_to_workshop_item_class(thing) == TCls_Trap);
 }
 
 TbBool thing_is_door_box(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
-        return false;
-    if ((thing->class_id != TCls_Object) || (thing->model >= OBJECT_TYPES_COUNT))
-        return false;
-    return (workshop_object_class[thing->model] == TCls_Door);
+    return (crate_thing_to_workshop_item_class(thing) == TCls_Door);
 }
 
 TbBool thing_is_dungeon_heart(const struct Thing *thing)

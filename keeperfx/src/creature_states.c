@@ -1508,7 +1508,7 @@ short creature_being_dropped(struct Thing *creatng)
             {
                 if (!thing_is_picked_up(leadtng))
                 {
-                    if ( get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > 1536 )
+                    if (get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(6,0))
                         remove_creature_from_group(creatng);
                 }
             }

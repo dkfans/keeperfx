@@ -31,6 +31,12 @@ extern "C" {
 
 struct Thing;
 
+enum CreatureTortureVisualStates {
+    CTVS_TortureRandMove,
+    CTVS_TortureGoToDevice,
+    CTVS_TortureInDevice,
+};
+
 #pragma pack()
 /******************************************************************************/
 short at_kinky_torture_room(struct Thing *thing);

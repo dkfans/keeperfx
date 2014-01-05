@@ -44,8 +44,6 @@ const struct NamedCommand objects_object_commands[] = {
   {"NAME",            1},
   {"GENRE",           2},
   {"RELATEDCREATURE", 3},
-  {"RELATEDDOOR",     4},
-  {"RELATEDTRAP",     5},
   {NULL,              0},
   };
 
@@ -79,6 +77,42 @@ struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel)
     if ((tngmodel < 0) || (tngmodel >= object_conf.object_types_count))
         return &game.objects_config[0];
     return &game.objects_config[tngmodel];
+}
+
+ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
+{
+    if ((tngmodel <= 0) || (tngmodel >= OBJECT_TYPES_COUNT))
+        return object_conf.workshop_object_class[0];
+    return object_conf.workshop_object_class[tngmodel];
+}
+
+ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
+{
+    if ((tngmodel <= 0) || (tngmodel >= OBJECT_TYPES_COUNT))
+        return object_conf.object_to_door_or_trap[0];
+    return object_conf.object_to_door_or_trap[tngmodel];
+}
+
+ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
+        return object_conf.workshop_object_class[0];
+    ThingModel tngmodel;
+    tngmodel = thing->model;
+    if ((tngmodel <= 0) || (tngmodel >= OBJECT_TYPES_COUNT))
+        return object_conf.workshop_object_class[0];
+    return object_conf.workshop_object_class[tngmodel];
+}
+
+ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
+{
+    if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
+        return object_conf.object_to_door_or_trap[0];
+    ThingModel tngmodel;
+    tngmodel = thing->model;
+    if ((tngmodel <= 0) || (tngmodel >= OBJECT_TYPES_COUNT))
+        return object_conf.object_to_door_or_trap[0];
+    return object_conf.object_to_door_or_trap[tngmodel];
 }
 
 TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -243,34 +277,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     break;
                 }
                 objdat->related_creatr_model = n;
-                break;
-            case 4: // RELATEDDOOR
-                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-                {
-                    n = get_id(door_desc, word_buf);
-                }
-                if (n < 0)
-                {
-                    CONFWRNLOG("Incorrect related door \"%s\" in [%s] block of %s file.",
-                        word_buf,block_buf,config_textname);
-                    break;
-                }
-                //TODO OBJECTS finish config file option and remove object_to_door_or_trap array
-                //objdat->related_door_model = n;
-                break;
-            case 5: // RELATEDTRAP
-                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-                {
-                    n = get_id(trap_desc, word_buf);
-                }
-                if (n < 0)
-                {
-                    CONFWRNLOG("Incorrect related trap \"%s\" in [%s] block of %s file.",
-                        word_buf,block_buf,config_textname);
-                    break;
-                }
-                //TODO OBJECTS finish config file option and remove object_to_door_or_trap array
-                //objdat->related_trap_model = n;
                 break;
             case 0: // comment
                 break;

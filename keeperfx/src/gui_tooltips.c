@@ -176,15 +176,15 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
     update_gui_tooltip_target(thing);
-    if (get_workshop_object_class_for_thing(thing) == TCls_Trap)
+    if (crate_thing_to_workshop_item_class(thing) == TCls_Trap)
     {
         struct TrapConfigStats *trapst;
-        trapst = get_trap_model_stats(box_thing_to_door_or_trap(thing));
+        trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
         i = trapst->name_stridx;
     } else
     {
         struct DoorConfigStats *doorst;
-        doorst = get_door_model_stats(box_thing_to_door_or_trap(thing));
+        doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
         i = doorst->name_stridx;
     }
     set_gui_tooltip_box_fmt(5,"%s",cmpgn_string(i));

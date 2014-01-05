@@ -526,7 +526,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, long evidx)
             thing = thing_get(event->target);
             if (thing_is_invalid(thing))
               break;
-            trapst = get_trap_model_stats(box_thing_to_door_or_trap(thing));
+            trapst = get_trap_model_stats(crate_thing_to_workshop_item_model(thing));
             i = trapst->name_stridx;
             text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);
@@ -537,7 +537,7 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, long evidx)
             thing = thing_get(event->target);
             if (thing_is_invalid(thing))
               break;
-            doorst = get_door_model_stats(box_thing_to_door_or_trap(thing));
+            doorst = get_door_model_stats(crate_thing_to_workshop_item_model(thing));
             i = doorst->name_stridx;
             text = buf_sprintf("%s:\n%s", game.evntbox_scroll_window.text, cmpgn_string(i));
             strncpy(game.evntbox_scroll_window.text,text,MESSAGE_TEXT_LEN-1);

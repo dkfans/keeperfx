@@ -468,10 +468,11 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         if (creature_move_to_place_in_room(creatng, room))
         {
-            if ((creatng->owner == room->owner) && creature_has_job(creatng, Job_KINKY_TORTURE))
+            if ((creatng->owner == room->owner) && creature_has_job(creatng, Job_KINKY_TORTURE)) {
                 creatng->continue_state = CrSt_AtKinkyTortureRoom;
-            else
+            } else {
                 creatng->continue_state = CrSt_AtTortureRoom;
+            }
             cctrl->target_room_id = room->index;
             cctrl->flgfield_1 |= 0x02;
             return 1;
