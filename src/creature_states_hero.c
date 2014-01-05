@@ -128,7 +128,8 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
     }
     if (!setup_person_move_to_position(creatng, gatetng->mappos.x.stl.num, gatetng->mappos.y.stl.num, 0))
     {
-        WARNLOG("Hero %s can't move to exit gate at (%d,%d).",thing_model_name(creatng),(int)gatetng->mappos.x.stl.num, (int)gatetng->mappos.y.stl.num);
+        WARNLOG("Hero %s index %d can't move to exit gate at (%d,%d).",thing_model_name(creatng),
+            (int)gatetng->index, (int)gatetng->mappos.x.stl.num, (int)gatetng->mappos.y.stl.num);
         return false;
     }
     creatng->continue_state = CrSt_GoodLeaveThroughExitDoor;
@@ -180,8 +181,8 @@ TbBool good_setup_loot_treasure_room(struct Thing *thing, long dngn_id)
     struct Coord3d pos;
     if (!find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
-        SYNCDBG(6,"No position for %s in %s owned by player %d",
-            thing_model_name(thing),room_code_name(room->kind),(int)room->owner);
+        SYNCDBG(6,"No position for %s index %d in %s owned by player %d",
+            thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->owner);
         return false;
     }
     if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
@@ -208,14 +209,14 @@ TbBool good_setup_loot_research_room(struct Thing *thing, long dngn_id)
     struct Coord3d pos;
     if (!find_random_valid_position_for_thing_in_room(thing, room, &pos))
     {
-        SYNCDBG(6,"No position for %s in %s owned by player %d",
-            thing_model_name(thing),room_code_name(room->kind),(int)room->owner);
+        SYNCDBG(6,"No position for %s index %d in %s owned by player %d",
+            thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->owner);
         return false;
     }
     if (!setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0))
     {
-        SYNCDBG(6,"Cannot setup move %s to %s owned by player %d",
-            thing_model_name(thing),room_code_name(room->kind),(int)room->owner);
+        SYNCDBG(6,"Cannot setup move %s index %d to %s owned by player %d",
+            thing_model_name(thing),(int)thing->index,room_code_name(room->kind),(int)room->owner);
         return false;
     }
     cctrl = creature_control_get_from_thing(thing);
@@ -348,7 +349,8 @@ TbBool setup_wanderer_move_to_random_creature_from_list(long first_thing_idx, st
     {
         return true;
     }
-    WARNLOG("The %s cannot wander to creature, it seem all %d creatures were not navigable",thing_model_name(wanderer),(int)possible_targets);
+    WARNLOG("The %s index %d cannot wander to creature, it seem all %d creatures were not navigable",
+        thing_model_name(wanderer),(int)wanderer->index,(int)possible_targets);
     return false;
 }
 
@@ -362,7 +364,8 @@ TbBool good_setup_wander_to_creature(struct Thing *wanderer, long dngn_id)
         wanderer->continue_state = CrSt_GoodDoingNothing;
         return true;
     }
-    SYNCDBG(4,"The %s cannot wander to player %d creatures",thing_model_name(wanderer), (int)dngn_id);
+    SYNCDBG(4,"The %s index %d cannot wander to player %d creatures",thing_model_name(wanderer),
+        (int)wanderer->index,(int)dngn_id);
     return false;
 }
 

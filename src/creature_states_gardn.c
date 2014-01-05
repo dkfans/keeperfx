@@ -183,8 +183,8 @@ short creature_arrived_at_garden(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, RoK_GARDEN, thing))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",
-            room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d",
+            room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
         return 0;
     }

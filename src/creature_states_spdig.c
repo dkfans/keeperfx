@@ -1019,7 +1019,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     if ( thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || ((picktng->field_1 & TF1_IsDragged1) != 0)
       || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
     {
-        SYNCDBG(8,"The %s to be picked up isn't in correct place or state",thing_model_name(picktng));
+        SYNCDBG(8,"The %s index %d to be picked up isn't in correct place or state",thing_model_name(picktng),(int)picktng->index);
         set_start_state(thing);
         return 0;
     }

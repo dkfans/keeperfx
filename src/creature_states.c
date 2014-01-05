@@ -1699,7 +1699,7 @@ short creature_try_going_to_healing_sleep(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if (creature_can_do_healing_sleep(creatng)) {
+    if (!creature_can_do_healing_sleep(creatng)) {
         return false;
     }
     if (game.play_gameturn - cctrl->healing_sleep_check_turn <= 200) {
@@ -1770,7 +1770,8 @@ short creature_doing_nothing(struct Thing *creatng)
     if ((cctrl->job_assigned != Job_NULL) && (game.play_gameturn - cctrl->job_assigned_check_turn > 128))
     {
         if (attempt_job_preference(creatng, cctrl->job_assigned)) {
-            SYNCDBG(8,"The %s index %d will do assigned job",thing_model_name(creatng),creatng->index);
+            SYNCDBG(8,"The %s index %d will do assigned job with state %s",thing_model_name(creatng),
+                (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
         }
         cctrl->job_assigned_check_turn = game.play_gameturn;
@@ -1778,7 +1779,8 @@ short creature_doing_nothing(struct Thing *creatng)
     if ((crstat->job_primary != Job_NULL) && (game.play_gameturn - cctrl->job_primary_check_turn > 128))
     {
         if (attempt_job_preference(creatng, crstat->job_primary)) {
-            SYNCDBG(8,"The %s index %d will do primary job",thing_model_name(creatng),creatng->index);
+            SYNCDBG(8,"The %s index %d will do primary job with state %s",thing_model_name(creatng),
+                (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
             return 1;
         }
         cctrl->job_primary_check_turn = game.play_gameturn;
@@ -1791,19 +1793,20 @@ short creature_doing_nothing(struct Thing *creatng)
         {
         case 0:
             if (creature_try_going_to_lazy_sleep(creatng)) {
-                SYNCDBG(8,"The %s index %d will do lazy sleep",thing_model_name(creatng),creatng->index);
+                SYNCDBG(8,"The %s index %d will do lazy sleep",thing_model_name(creatng),(int)creatng->index);
                 return 1;
             }
             break;
         case 1:
             if (creature_try_going_to_healing_sleep(creatng)) {
-                SYNCDBG(8,"The %s index %d will do healing sleep",thing_model_name(creatng),creatng->index);
+                SYNCDBG(8,"The %s index %d will do healing sleep",thing_model_name(creatng),(int)creatng->index);
                 return 1;
             }
             break;
         case 2:
             if (creature_try_doing_secondary_job(creatng)) {
-                SYNCDBG(8,"The %s index %d will do secondary job",thing_model_name(creatng),creatng->index);
+                SYNCDBG(8,"The %s index %d will do secondary job with state %s",thing_model_name(creatng),
+                    (int)creatng->index,creature_state_code_name(get_creature_state_besides_interruptions(creatng)));
                 return 1;
             }
             break;

@@ -2133,7 +2133,7 @@ void creature_in_ranged_combat(struct Thing *creatng)
 
 void creature_in_melee_combat(struct Thing *creatng)
 {
-    SYNCDBG(19,"Starting for %s",thing_model_name(creatng));
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     long dist, cmbtyp, weapon;
@@ -2179,7 +2179,7 @@ short creature_in_combat(struct Thing *thing)
     struct Thing *enmtng;
     CombatState combat_func;
     cctrl = creature_control_get_from_thing(thing);
-    SYNCDBG(9,"Starting for %s, combat state %d",thing_model_name(thing),(int)cctrl->combat_state_id);
+    SYNCDBG(9,"Starting for %s index %d, combat state %d",thing_model_name(thing),(int)thing->index,(int)cctrl->combat_state_id);
     TRACE_THING(thing);
     //return _DK_creature_in_combat(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
@@ -2269,7 +2269,7 @@ TbBool creature_look_for_combat(struct Thing *thing)
 
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing)
 {
-    SYNCDBG(19,"Starting for %s",thing_model_name(thing));
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
     if ((get_creature_model_flags(thing) & MF_NoEnmHeartAttack) != 0) {
         return false;
