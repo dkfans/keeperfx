@@ -348,9 +348,9 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
             {
                 if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
                 {
-                    int dist;
+                    MapSubtlDelta dist;
                     long state_type;
-                    dist = abs(stl_x - thing->mappos.x.stl.num) + abs(stl_y - thing->mappos.y.stl.num);
+                    dist = abs(stl_x - (MapSubtlDelta)thing->mappos.x.stl.num) + abs(stl_y - (MapSubtlDelta)thing->mappos.y.stl.num);
                     state_type = get_creature_state_type(thing);
                     if (state_type == CrStTyp_Value1)
                     {
@@ -866,9 +866,9 @@ long computer_check_neutral_places(struct Computer2 *comp, struct ComputerCheck 
         room = INVALID_ROOM;
         if (computer_finds_nearest_room_to_pos(comp, &room, place))
         {
-            int dx,dy;
-            dx = abs((int)room->central_stl_x - (int)place->x.stl.num);
-            dy = abs((int)room->central_stl_y - (int)place->y.stl.num);
+            MapSubtlDelta dx,dy;
+            dx = abs((int)room->central_stl_x - (MapSubtlDelta)place->x.stl.num);
+            dy = abs((int)room->central_stl_y - (MapSubtlDelta)place->y.stl.num);
             if (near_dist > dx+dy)
             {
                 near_room = room;

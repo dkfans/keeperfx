@@ -384,6 +384,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     //return _DK_creature_move_to_using_gates(thing, pos, speed, a4, a5, backward);
     if ( backward )
     {
+        // Rotate the creature 180 degrees to trace route with forward move
         i = (thing->field_52 + LbFPMath_PI);
         thing->field_52 = i & LbFPMath_AngleMask;
     }
@@ -391,6 +392,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     SYNCDBG(18,"Route result: %d, next pos (%d,%d)",(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
     if ( backward )
     {
+        // Rotate the creature back
         i = (thing->field_52 + LbFPMath_PI);
         thing->field_52 = i & LbFPMath_AngleMask;
     }
@@ -409,30 +411,32 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     {
         if ( creature_turn_to_face_backwards(thing, &nextpos) )
         {
+            // Creature is turning - don't let it move
             creature_set_speed(thing, 0);
         } else
         {
             creature_set_speed(thing, -speed);
             cctrl->field_2 |= 0x01;
-            cctrl->moveaccel.x.val = (long)nextpos.x.val - (long)thing->mappos.x.val;
-            cctrl->moveaccel.y.val = (long)nextpos.y.val - (long)thing->mappos.y.val;
+            cctrl->moveaccel.x.val = nextpos.x.val - (MapCoordDelta)thing->mappos.x.val;
+            cctrl->moveaccel.y.val = nextpos.y.val - (MapCoordDelta)thing->mappos.y.val;
             cctrl->moveaccel.z.val = 0;
         }
-        SYNCDBG(18,"Backward target set");
+        SYNCDBG(8,"Backward target set, accel (%d,%d)",(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
     } else
     {
         if ( creature_turn_to_face(thing, &nextpos) )
         {
+            // Creature is turning - don't let it move
             creature_set_speed(thing, 0);
         } else
         {
             creature_set_speed(thing, speed);
             cctrl->field_2 |= 0x01;
-            cctrl->moveaccel.x.val = (long)nextpos.x.val - (long)thing->mappos.x.val;
-            cctrl->moveaccel.y.val = (long)nextpos.y.val - (long)thing->mappos.y.val;
+            cctrl->moveaccel.x.val = nextpos.x.val - (MapCoordDelta)thing->mappos.x.val;
+            cctrl->moveaccel.y.val = nextpos.y.val - (MapCoordDelta)thing->mappos.y.val;
             cctrl->moveaccel.z.val = 0;
         }
-        SYNCDBG(18,"Forward target set");
+        SYNCDBG(18,"Forward target set, accel (%d,%d)",(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
     }
     return 0;
 }

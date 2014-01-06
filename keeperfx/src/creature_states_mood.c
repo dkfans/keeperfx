@@ -256,7 +256,7 @@ void anger_reduce_creature_anger(struct Thing *creatng, long anger, AnnoyMotive 
 
 void anger_set_creature_anger(struct Thing *creatng, long annoy_lv, AnnoyMotive reason)
 {
-    SYNCDBG(8,"Setting to %d",(int)annoy_lv);
+    SYNCDBG(8,"Setting reason %d to %d for %s index %d",(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     //_DK_anger_set_creature_anger(creatng, annoy_lv, reason);

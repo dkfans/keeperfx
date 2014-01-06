@@ -198,6 +198,8 @@ typedef long MapCoord;
 typedef long MapCoordDelta;
 /** Map subtile coordinate. Every slab consists of 3x3 subtiles. */
 typedef long MapSubtlCoord;
+/** Distance between map subtiles. */
+typedef long MapSubtlDelta;
 /** Map slab coordinate. Slab is a cubic part of map with specific content. */
 typedef short MapSlabCoord;
 /** Map subtile 2D coordinates, coded into one number. */
