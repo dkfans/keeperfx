@@ -27,8 +27,10 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "globals.h"
+
 #include "gui_topmsg.h"
 #include "game_legacy.h"
+#include "frontend.h"
 
 #include <string.h>
 /******************************************************************************/
@@ -277,8 +279,12 @@ TbBool perform_any_screen_capturing(void)
     {
       captured |= movie_record_frame();
     }
-    if (captured)
-      LbTextDraw(600/pixel_size, 4/pixel_size, "REC");
+    // Draw a text with bitmap font
+    if (captured) {
+        //Set font; if winfont isn't loaded, it should be NULL, so text will just be invisible
+        LbTextSetFont(winfont);
+        LbTextDraw(600/pixel_size, 4/pixel_size, "REC");
+    }
     return captured;
 }
 
