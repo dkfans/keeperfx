@@ -301,8 +301,9 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
         dungeon->trap_amount_stored[tngmodel]++;
         dungeon->trap_amount_placeable[tngmodel]++;
         dungeon->trap_build_flags[tngmodel] |= MnfBldF_Built;
+        // In case the placeable amount lost it, do a fix
         if (dungeon->trap_amount_placeable[tngmodel] > dungeon->trap_amount_stored[tngmodel]) {
-            WARNLOG("%s: Placeable traps amount for player %d was outranged; fixed",func_name,(int)plyr_idx);
+            WARNLOG("%s: Placeable %s traps amount for player %d was outranged; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
             dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_stored[tngmodel];
         }
         break;
@@ -313,7 +314,7 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
         dungeon->door_build_flags[tngmodel] |= MnfBldF_Built;
         // In case the placeable amount lost it, do a fix
         if (dungeon->door_amount_placeable[tngmodel] > dungeon->door_amount_stored[tngmodel]) {
-            WARNLOG("%s: Placeable doors amount for player %d was outranged; fixed",func_name,(int)plyr_idx);
+            WARNLOG("%s: Placeable %s doors amount for player %d was outranged; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
             dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_stored[tngmodel];
         }
         break;
