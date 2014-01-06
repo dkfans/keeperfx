@@ -580,7 +580,7 @@ short imp_converts_dungeon(struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
-    if ( (stl_x - cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - cctrl->moveto_pos.y.stl.num >= 1) )
+    if ( (stl_x - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num >= 1) )
     {
         clear_creature_instance(thing);
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
@@ -639,7 +639,7 @@ short imp_digs_mines(struct Thing *thing)
     struct SlabMap *slb;
     struct Coord3d pos;
     MapSubtlCoord stl_x,stl_y;
-    long delta_x,delta_y;
+    MapSubtlDelta delta_x,delta_y;
     SYNCDBG(19,"Starting");
     TRACE_THING(thing);
     // return _DK_imp_digs_mines(thing);
@@ -650,8 +650,8 @@ short imp_digs_mines(struct Thing *thing)
     slb = get_slabmap_for_subtile(stl_x, stl_y);
 
     // Check if we've arrived at the destination
-    delta_x = abs(thing->mappos.x.stl.num - cctrl->moveto_pos.x.stl.num);
-    delta_y = abs(thing->mappos.y.stl.num - cctrl->moveto_pos.y.stl.num);
+    delta_x = abs(thing->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
+    delta_y = abs(thing->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
     if ((mtask->coords != cctrl->word_8F) || (delta_x > 0) || (delta_y > 0))
     {
       clear_creature_instance(thing);
@@ -825,15 +825,15 @@ short imp_drops_gold(struct Thing *thing)
 short imp_improves_dungeon(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    long delta_x,delta_y;
+    MapSubtlDelta delta_x,delta_y;
     long slb_x,slb_y;
     SYNCDBG(19,"Starting");
     TRACE_THING(thing);
     // return _DK_imp_digs_mines(thing);
     cctrl = creature_control_get_from_thing(thing);
     // Check if we've arrived at the destination
-    delta_x = abs(thing->mappos.x.stl.num - cctrl->moveto_pos.x.stl.num);
-    delta_y = abs(thing->mappos.y.stl.num - cctrl->moveto_pos.y.stl.num);
+    delta_x = abs(thing->mappos.x.stl.num - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num);
+    delta_y = abs(thing->mappos.y.stl.num - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num);
     //return _DK_imp_improves_dungeon(thing);
     if ( (delta_x > 0) || (delta_y > 0) )
     {

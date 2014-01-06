@@ -1382,9 +1382,9 @@ long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoord
     basestl_y = stl_num_decode_y(stl_num);
     int i,n;
     {
-        long delta_x,delta_y;
-        delta_x = basestl_x - (long)thing->mappos.x.stl.num;
-        delta_y = basestl_y - (long)thing->mappos.y.stl.num;
+        MapSubtlDelta delta_x,delta_y;
+        delta_x = basestl_x - (MapSubtlDelta)thing->mappos.x.stl.num;
+        delta_y = basestl_y - (MapSubtlDelta)thing->mappos.y.stl.num;
         if (abs(delta_y) < abs(delta_x))
         {
           if (delta_y > 0)
@@ -1433,7 +1433,7 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     struct SlabMap *place_slb;
     struct Coord3d pos;
     MapSubtlCoord place_x,place_y;
-    long distance_x,distance_y;
+    MapSubtlDelta distance_x,distance_y;
     long base_x,base_y;
     long stl_x,stl_y;
     long i,k,n,nstart;
@@ -1443,8 +1443,8 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     place_y = stl_num_decode_y(stl_num);
     if (!block_has_diggable_side(thing->owner, subtile_slab_fast(place_x), subtile_slab_fast(place_y)))
         return 0;
-    distance_x = place_x - thing->mappos.x.stl.num;
-    distance_y = place_y - thing->mappos.y.stl.num;
+    distance_x = place_x - (MapSubtlDelta)thing->mappos.x.stl.num;
+    distance_y = place_y - (MapSubtlDelta)thing->mappos.y.stl.num;
     if (abs(distance_y) >= abs(distance_x))
     {
       if (distance_y > 0)

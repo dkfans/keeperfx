@@ -38,27 +38,32 @@ void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBo
     rect->bottom = yBottom;
 }
 
+/**
+ * Returns difference between angles, ranged -LbFPMath_PI to LbFPMath_PI.
+ * @param angle_a
+ * @param angle_b
+ */
 long get_angle_difference(long angle_a, long angle_b)
 {
     long diff;
-    diff = abs((angle_a & 0x7FF) - (angle_b & 0x7FF));
-    if (diff > 1024)
-        diff = (2048 - diff);
+    diff = abs((angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask));
+    if (diff > LbFPMath_PI)
+        diff = (2*LbFPMath_PI - diff);
     return diff;
 }
 
 long get_angle_sign(long angle_a, long angle_b)
 {
     long diff;
-    diff = (angle_b & 0x7FF) - (angle_a & 0x7FF);
+    diff = (angle_b & LbFPMath_AngleMask) - (angle_a & LbFPMath_AngleMask);
     if (diff == 0)
         return 0;
-    if (abs(diff) > 1024)
+    if (abs(diff) > LbFPMath_PI)
     {
       if (diff >= 0)
-          diff -= 2048;
+          diff -= 2*LbFPMath_PI;
       else
-          diff += 2048;
+          diff += 2*LbFPMath_PI;
     }
     if (diff == 0)
         return 0;

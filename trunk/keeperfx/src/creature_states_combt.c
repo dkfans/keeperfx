@@ -98,7 +98,7 @@ DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, lo
 DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
 DLLIMPORT long _DK_slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3);
 /******************************************************************************/
-CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, long enmdist);
+CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
 const CombatState combat_state[] = {
     NULL,
@@ -209,11 +209,11 @@ TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fig
     return false;
 }
 
-CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist)
+CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
-    if (dist > (crstat->visual_range << 8)) {
+    if (dist > subtile_coord(crstat->visual_range,0)) {
         return AttckT_Unset;
     }
     if (!jonty_creature_can_see_thing_including_lava_check(creatng, enmtng)) {
@@ -1553,7 +1553,17 @@ long guard_post_combat_move(struct Thing *thing, long a2)
     return _DK_guard_post_combat_move(thing, a2);
 }
 
-long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long a4)
+TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
+{
+    struct CreatureStats *crstat;
+    long angle, angdiff;
+    crstat = creature_stats_get_from_thing(thing);
+    angle = get_angle_xy_to(&thing->mappos, &checktng->mappos);
+    angdiff = get_angle_difference(thing->field_52, angle);
+    return (abs(angdiff) < crstat->field_of_view);
+}
+
+long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta enmdist, CrtrStateId nstat)
 {
     struct CreatureControl *cctrl;
     //return _DK_ranged_combat_move(thing, enmtng, enmdist, a4);
@@ -1561,12 +1571,12 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist,
     if (cctrl->instance_id != CrInst_NULL)
     {
         creature_turn_to_face(thing, &enmtng->mappos);
-        return 0;
+        return false;
     }
     if (cctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(thing, a4)) {
-            return 0;
+        if (guard_post_combat_move(thing, nstat)) {
+            return false;
         }
     }
     if (combat_has_line_of_sight(thing, enmtng, enmdist) == AttckT_Unset)
@@ -1574,19 +1584,15 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist,
         if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1) {
             set_start_state(thing);
         }
-        return 0;
+        return false;
     }
-    if (enmdist < 768) {
-        creature_retreat_from_combat(thing, enmtng, a4, 1);
+    if (enmdist < subtile_coord(3,0)) {
+        creature_retreat_from_combat(thing, enmtng, nstat, 1);
     } else
-    if (enmdist > 2048) {
+    if (enmdist > compute_creature_attack_range(subtile_coord(8,0), 0, cctrl->explevel)) {
         creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0);
     }
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    long enemy_angle;
-    enemy_angle = get_angle_xy_to(&thing->mappos, &enmtng->mappos);
-    return (get_angle_difference(thing->field_52, enemy_angle) < crstat->field_of_view);
+    return thing_in_field_of_view(thing, enmtng);
 }
 
 #define INSTANCE_RET_IF_AVAIL(thing, inst_id) \
@@ -1686,17 +1692,7 @@ CrInstance get_best_melee_offensive_weapon(const struct Thing *thing, long dist)
     return inst_id;
 }
 
-TbBool thing_in_field_of_view(struct Thing *thing, struct Thing *checktng)
-{
-    struct CreatureStats *crstat;
-    long angle, angdiff;
-    crstat = creature_stats_get_from_thing(thing);
-    angle = get_angle_xy_to(&thing->mappos, &checktng->mappos);
-    angdiff = get_angle_difference(thing->field_52, angle);
-    return (angdiff < crstat->field_of_view);
-}
-
-CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, long enmdist)
+CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
@@ -1714,7 +1710,7 @@ long old_combat_move(struct Thing *thing, struct Thing *enmtng, long a3, long a4
     return _DK_old_combat_move(thing, enmtng, a3, a4);
 }
 
-long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long a4)
+long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, CrtrStateId nstat)
 {
     struct CreatureControl *cctrl;
     //return _DK_melee_combat_move(thing, enmtng, enmdist, a4);
@@ -1722,24 +1718,24 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     if (cctrl->instance_id != CrInst_NULL)
     {
         creature_turn_to_face(thing, &enmtng->mappos);
-        return 0;
+        return false;
     }
     if (cctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(thing, a4)) {
-            return 0;
+        if (guard_post_combat_move(thing, nstat)) {
+            return false;
         }
     }
     if (enmdist < 156)
     {
-        creature_retreat_from_combat(thing, enmtng, a4, 0);
+        creature_retreat_from_combat(thing, enmtng, nstat, 0);
         cctrl->field_AA = 0;
         return thing_in_field_of_view(thing, enmtng);
     }
     if (enmdist <= 284)
     {
-        if (old_combat_move(thing, enmtng, 284, a4)) {
-            return 0;
+        if (old_combat_move(thing, enmtng, 284, nstat)) {
+            return false;
         }
         return thing_in_field_of_view(thing, enmtng);
     }
@@ -1756,7 +1752,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
                 if (inst_id > CrInst_NULL)
                 {
                     set_creature_instance(thing, inst_id, 1, enmtng->index, 0);
-                    return 0;
+                    return false;
                 }
             }
         }
@@ -1764,9 +1760,9 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     if (creature_move_to(thing, &enmtng->mappos, cctrl->max_speed, 0, 0) == -1)
     {
         set_start_state(thing);
-        return 0;
+        return false;
     }
-    return 0;
+    return false;
 }
 
 TbBool creature_scared(struct Thing *thing, struct Thing *enemy)
@@ -2120,9 +2116,9 @@ void creature_in_ranged_combat(struct Thing *creatng)
         SYNCDBG(9,"The %s index %d cannot choose ranged offensive weapon",thing_model_name(creatng),(int)creatng->index);
         return;
     }
-    if (!ranged_combat_move(creatng, enmtng, dist, 49))
+    if (!ranged_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
-        SYNCDBG(9,"The %s index %d cannot move in combat",thing_model_name(creatng),(int)creatng->index);
+        SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
         return;
     }
     if (weapon > 0)
@@ -2164,7 +2160,7 @@ void creature_in_melee_combat(struct Thing *creatng)
     }
     if (!melee_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat))
     {
-        SYNCDBG(9,"The %s index %d cannot move in combat",thing_model_name(creatng),(int)creatng->index);
+        SYNCDBG(9,"The %s index %d is moving and cannot attack in this turn",thing_model_name(creatng),(int)creatng->index);
         return;
     }
     if (weapon > 0)
@@ -2326,14 +2322,15 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
 {
     struct CreatureControl *figctrl;
     struct Coord3d pos;
-    long dist_x,dist_y;
+    MapCoordDelta dist_x,dist_y;
     long i;
     TRACE_THING(figtng);
     TRACE_THING(enmtng);
 
     figctrl = creature_control_get_from_thing(figtng);
-    dist_x = enmtng->mappos.x.val - figtng->mappos.x.val;
-    dist_y = enmtng->mappos.y.val - figtng->mappos.y.val;
+    dist_x = enmtng->mappos.x.val - (MapCoordDelta)figtng->mappos.x.val;
+    dist_y = enmtng->mappos.y.val - (MapCoordDelta)figtng->mappos.y.val;
+
     if (a4 && ((figctrl->combat_flags & (CmbtF_Unknown08|CmbtF_Unknown10)) == 0))
     {
         pos.x.val = figtng->mappos.x.val - dist_x;

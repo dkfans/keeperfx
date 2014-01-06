@@ -2157,7 +2157,7 @@ struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind
     long i;
     unsigned long k;
     long distance,near_distance;
-    long delta_x,delta_y;
+    MapCoordDelta delta_x,delta_y;
     dungeon = get_dungeon(plyr_idx);
     near_distance = LONG_MAX;
     near_room = INVALID_ROOM;
@@ -2173,8 +2173,8 @@ struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind
         }
         i = room->next_of_owner;
         // Per-room code
-        delta_x = (room->central_stl_x << 8) - (long)pos->x.val;
-        delta_y = (room->central_stl_y << 8) - (long)pos->y.val;
+        delta_x = (room->central_stl_x << 8) - (MapCoordDelta)pos->x.val;
+        delta_y = (room->central_stl_y << 8) - (MapCoordDelta)pos->y.val;
         distance = LbDiagonalLength(abs(delta_x), abs(delta_y));
         if (distance < near_distance)
         {

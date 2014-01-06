@@ -130,7 +130,7 @@ DLLIMPORT void _DK_change_creature_owner(struct Thing *creatng , char nowner);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char reason);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *creatng, long spell_idx, long spell_lev);
 DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *castng, struct Thing *target, long targtng_idx, long no_effects);
-DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long reason, long targtng_idx, long no_effects, long a5);
+DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long spl_idx, long a3, long trg_x, long trg_y);
 DLLIMPORT void _DK_set_first_creature(struct Thing *creatng);
 DLLIMPORT void _DK_remove_first_creature(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
@@ -1101,14 +1101,14 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
     creature_fire_shot(caster, target, spinfo->shot_model, a4, hit_type);
 }
 
-void creature_cast_spell(struct Thing *castng, long spl_idx, long a3, long trg_x, long trg_y)
+void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long trg_x, long trg_y)
 {
     const struct SpellInfo *spinfo;
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
     struct Thing *efthing;
     long i,k;
-    //_DK_creature_cast_spell(caster, spl_idx, a3, trg_x, trg_y);
+    //_DK_creature_cast_spell(caster, spl_idx, shot_lvl, trg_x, trg_y);
     spinfo = get_magic_info(spl_idx);
     cctrl = creature_control_get_from_thing(castng);
     crstat = creature_stats_get_from_thing(castng);
@@ -1129,7 +1129,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long a3, long trg_x
           i = 1;
         else
           i = 4;
-        creature_fire_shot(castng, NULL, spinfo->shot_model, a3, i);
+        creature_fire_shot(castng, INVALID_THING, spinfo->shot_model, shot_lvl, i);
     } else
     // Check if the spell can be self-casted
     if (spinfo->caster_affected)
@@ -1485,37 +1485,37 @@ long move_creature(struct Thing *thing)
     //return _DK_move_creature(thing);
     cctrl = creature_control_get_from_thing(thing);
     struct Coord3d *tngpos;
-    struct Coord3d pos1;
+    struct Coord3d pvpos;
     int velo_x,velo_y,velo_z;
     tngpos = &thing->mappos;
-    pos1.x.val = tngpos->x.val;
-    pos1.y.val = tngpos->y.val;
-    pos1.z.val = tngpos->z.val;
+    pvpos.x.val = tngpos->x.val;
+    pvpos.y.val = tngpos->y.val;
+    pvpos.z.val = tngpos->z.val;
+    velo_x = thing->velocity.x.val;
     velo_y = thing->velocity.y.val;
     velo_z = thing->velocity.z.val;
-    velo_x = thing->velocity.x.val;
     cctrl->flgfield_1 &= ~CCFlg_Unknown08;
-    struct Coord3d pos;
+    struct Coord3d nxpos;
     if (thing_in_wall_at(thing, &thing->mappos))
     {
-        pos.x.val = tngpos->x.val;
-        pos.y.val = tngpos->y.val;
-        pos.z.val = tngpos->z.val;
-        if (get_nearest_valid_position_for_creature_at(thing, &pos))
+        nxpos.x.val = tngpos->x.val;
+        nxpos.y.val = tngpos->y.val;
+        nxpos.z.val = tngpos->z.val;
+        if (get_nearest_valid_position_for_creature_at(thing, &nxpos))
         {
-            if ((tngpos->x.stl.num != pos.x.stl.num) || (tngpos->y.stl.num != pos.y.stl.num))
+            if ((tngpos->x.stl.num != nxpos.x.stl.num) || (tngpos->y.stl.num != nxpos.y.stl.num))
             {
                 remove_thing_from_mapwho(thing);
-                tngpos->x.val = pos.x.val;
-                tngpos->y.val = pos.y.val;
-                tngpos->z.val = pos.z.val;
+                tngpos->x.val = nxpos.x.val;
+                tngpos->y.val = nxpos.y.val;
+                tngpos->z.val = nxpos.z.val;
                 place_thing_in_mapwho(thing);
             }
             else
             {
-                tngpos->x.val = pos.x.val;
-                tngpos->y.val = pos.y.val;
-                tngpos->z.val = pos.z.val;
+                tngpos->x.val = nxpos.x.val;
+                tngpos->y.val = nxpos.y.val;
+                tngpos->z.val = nxpos.z.val;
             }
             thing->field_60 = get_thing_height_at(thing, tngpos);
         }
@@ -1549,78 +1549,82 @@ long move_creature(struct Thing *thing)
         } else if (velo_z > 256) {
             velo_z = 256;
         }
-        pos.x.val = velo_x + tngpos->x.val;
-        pos.y.val = velo_y + tngpos->y.val;
-        pos.z.val = velo_z + tngpos->z.val;
+        nxpos.x.val = velo_x + tngpos->x.val;
+        nxpos.y.val = velo_y + tngpos->y.val;
+        nxpos.z.val = velo_z + tngpos->z.val;
         if ((thing->movement_flags & 0x20) != 0)
         {
-            if (thing_in_wall_at(thing, &pos))
+            if (thing_in_wall_at(thing, &nxpos))
             {
                 long blocked_flags;
-                blocked_flags = get_thing_blocked_flags_at(thing, &pos);
+                blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
                 if (!cctrl->field_1D0) {
-                    check_for_door_collision_at(thing, &pos, blocked_flags);
+                    check_for_door_collision_at(thing, &nxpos, blocked_flags);
                 }
-                slide_thing_against_wall_at(thing, &pos, blocked_flags);
+                slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
             }
         }
         else
         {
-            if (thing_in_wall_at(thing, &pos))
+            if (thing_in_wall_at(thing, &nxpos))
             {
-                if (creature_cannot_move_directly_to(thing, &pos))
+                if (creature_cannot_move_directly_to(thing, &nxpos))
                 {
                     long blocked_flags;
-                    blocked_flags = get_creature_blocked_flags_at(thing, &pos);
+                    blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
                     if (!cctrl->field_1D0)
-                        check_for_door_collision_at(thing, &pos, blocked_flags);
-                    slide_thing_against_wall_at(thing, &pos, blocked_flags);
+                        check_for_door_collision_at(thing, &nxpos, blocked_flags);
+                    slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
                 }
                 else
                 {
-                    pos.z.val = get_thing_height_at(thing, &pos);
+                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
                 }
             }
         }
         if ((cctrl->flgfield_1 & CCFlg_Unknown10) != 0)
         {
-            if (get_thing_collided_with_at_satisfying_filter(thing, &pos, collide_filter_thing_is_of_type, 5, -1))
+            if (get_thing_collided_with_at_satisfying_filter(thing, &nxpos, collide_filter_thing_is_of_type, 5, -1))
             {
-                pos.x.val = tngpos->x.val;
-                pos.y.val = tngpos->y.val;
-                pos.z.val = tngpos->z.val;
+                nxpos.x.val = tngpos->x.val;
+                nxpos.y.val = tngpos->y.val;
+                nxpos.z.val = tngpos->z.val;
             }
         }
-        if ((tngpos->x.stl.num != pos.x.stl.num) || (tngpos->y.stl.num != pos.y.stl.num))
+        if ((tngpos->x.stl.num != nxpos.x.stl.num) || (tngpos->y.stl.num != nxpos.y.stl.num))
         {
             if (thing->model == get_players_special_digger_breed(game.hero_player_num)) {
                 update_tunneller_trail(thing);
             }
-            if ((subtile_slab_fast(tngpos->x.stl.num) != subtile_slab_fast(pos.x.stl.num))
-             || (subtile_slab_fast(tngpos->y.stl.num) != subtile_slab_fast(pos.y.stl.num)))
+            if ((subtile_slab_fast(tngpos->x.stl.num) != subtile_slab_fast(nxpos.x.stl.num))
+             || (subtile_slab_fast(tngpos->y.stl.num) != subtile_slab_fast(nxpos.y.stl.num)))
             {
-                check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
+                check_map_explored(thing, nxpos.x.stl.num, nxpos.y.stl.num);
                 CreatureStateFunc2 callback;
-                callback = states[thing->active_state].ofsfield_8;
+                callback = states[thing->active_state].move_from_slab;
                 if (callback != NULL)
                 {
                     callback(thing);
                 }
             }
         }
-        if ((tngpos->x.stl.num != pos.x.stl.num) || (tngpos->y.stl.num != pos.y.stl.num))
+        if ((tngpos->x.stl.num != nxpos.x.stl.num) || (tngpos->y.stl.num != nxpos.y.stl.num))
         {
+            SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d), subtile changed",thing_model_name(thing),
+                (int)thing->index,(int)tngpos->x.val,(int)tngpos->y.val,(int)nxpos.x.val,(int)nxpos.y.val);
             remove_thing_from_mapwho(thing);
-            tngpos->x.val = pos.x.val;
-            tngpos->y.val = pos.y.val;
-            tngpos->z.val = pos.z.val;
+            tngpos->x.val = nxpos.x.val;
+            tngpos->y.val = nxpos.y.val;
+            tngpos->z.val = nxpos.z.val;
             place_thing_in_mapwho(thing);
         }
         else
         {
-            tngpos->x.val = pos.x.val;
-            tngpos->y.val = pos.y.val;
-            tngpos->z.val = pos.z.val;
+            SYNCDBG(19,"Moving %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
+                (int)thing->index,(int)tngpos->x.val,(int)tngpos->y.val,(int)nxpos.x.val,(int)nxpos.y.val);
+            tngpos->x.val = nxpos.x.val;
+            tngpos->y.val = nxpos.y.val;
+            tngpos->z.val = nxpos.z.val;
         }
         thing->field_60 = get_thing_height_at(thing, tngpos);
     }
@@ -1628,10 +1632,10 @@ long move_creature(struct Thing *thing)
         long angle;
         long dist;
         angle = LbArcTanAngle(cctrl->moveaccel.x.val, cctrl->moveaccel.y.val);
-        if (get_angle_difference(angle & 0x7FF, thing->field_52) <= 512) {
-            dist = get_2d_distance(&pos1, tngpos);
+        if (abs(get_angle_difference(angle, thing->field_52)) <= LbFPMath_PI/2) {
+            dist = get_2d_distance(&pvpos, tngpos);
         } else {
-            dist = -get_2d_distance(&pos1, tngpos);
+            dist = -get_2d_distance(&pvpos, tngpos);
         }
         cctrl->field_9 = dist;
     }
@@ -2214,7 +2218,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     return damage;
 }
 
-void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char a2, unsigned char hit_type)
+void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
 {
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
@@ -2228,7 +2232,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     long damage;
     long target_idx,i;
     TbBool flag1;
-    //_DK_creature_fire_shot(firing,target,shot_model,a2,a3); return;
+    //_DK_creature_fire_shot(firing,target,shot_model,shot_lvl,a3); return;
     cctrl = creature_control_get_from_thing(firing);
     crstat = creature_stats_get_from_thing(firing);
     shotst = get_shot_model_stats(shot_model);
