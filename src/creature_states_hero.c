@@ -1636,8 +1636,8 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     }
     else
     {
-      cctrl->moveaccel.x.val = cctrl->navi.pos_1B.x.val - creatng->mappos.x.val;
-      cctrl->moveaccel.y.val = cctrl->navi.pos_1B.y.val - creatng->mappos.y.val;
+      cctrl->moveaccel.x.val = cctrl->navi.pos_1B.x.val - (MapCoordDelta)creatng->mappos.x.val;
+      cctrl->moveaccel.y.val = cctrl->navi.pos_1B.y.val - (MapCoordDelta)creatng->mappos.y.val;
       cctrl->moveaccel.z.val = 0;
       cctrl->field_2 |= 0x01;
       creature_set_speed(creatng, min(speed,dist));

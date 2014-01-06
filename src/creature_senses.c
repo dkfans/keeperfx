@@ -56,9 +56,9 @@ TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     }
     struct Coord3d pos1;
     struct Coord3d pos2;
-    int subdelta_x, subdelta_y;
-    subdelta_x = (nextpos->x.stl.num - prevpos->x.stl.num);
-    subdelta_y = (nextpos->y.stl.num - prevpos->y.stl.num);
+    MapSubtlDelta subdelta_x, subdelta_y;
+    subdelta_x = (nextpos->x.stl.num - (MapSubtlDelta)prevpos->x.stl.num);
+    subdelta_y = (nextpos->y.stl.num - (MapSubtlDelta)prevpos->y.stl.num);
     switch (subdelta_x + 2 * subdelta_y)
     {
     case -3:
@@ -117,10 +117,10 @@ TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
 TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
     const struct Coord3d *topos, const struct Thing *doortng)
 {
-    MapSubtlCoord dx,dy,dz;
-    dx = (MapSubtlCoord)topos->x.val - (MapSubtlCoord)frpos->x.val;
-    dy = (MapSubtlCoord)topos->y.val - (MapSubtlCoord)frpos->y.val;
-    dz = (MapSubtlCoord)topos->z.val - (MapSubtlCoord)frpos->z.val;
+    MapCoordDelta dx,dy,dz;
+    dx = topos->x.val - (MapCoordDelta)frpos->x.val;
+    dy = topos->y.val - (MapCoordDelta)frpos->y.val;
+    dz = topos->z.val - (MapCoordDelta)frpos->z.val;
     if ((topos->x.stl.num == frpos->x.stl.num) &&
         (topos->y.stl.num == frpos->y.stl.num)) {
         return true;
@@ -209,9 +209,9 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct 
     }
     struct Coord3d pos1;
     struct Coord3d pos2;
-    int subdelta_x, subdelta_y;
-    subdelta_x = (nextpos->x.stl.num - prevpos->x.stl.num);
-    subdelta_y = (nextpos->y.stl.num - prevpos->y.stl.num);
+    MapSubtlDelta subdelta_x, subdelta_y;
+    subdelta_x = (nextpos->x.stl.num - (MapSubtlDelta)prevpos->x.stl.num);
+    subdelta_y = (nextpos->y.stl.num - (MapSubtlDelta)prevpos->y.stl.num);
     switch (subdelta_x + 2 * subdelta_y)
     {
     case -3:
@@ -277,10 +277,10 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct 
 TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const struct Coord3d *frpos,
     const struct Coord3d *topos, const struct Thing *doortng)
 {
-    MapSubtlCoord dx,dy,dz;
-    dx = (MapSubtlCoord)topos->x.val - (MapSubtlCoord)frpos->x.val;
-    dy = (MapSubtlCoord)topos->y.val - (MapSubtlCoord)frpos->y.val;
-    dz = (MapSubtlCoord)topos->z.val - (MapSubtlCoord)frpos->z.val;
+    MapCoordDelta dx,dy,dz;
+    dx = topos->x.val - (MapCoordDelta)frpos->x.val;
+    dy = topos->y.val - (MapCoordDelta)frpos->y.val;
+    dz = topos->z.val - (MapCoordDelta)frpos->z.val;
     if ((topos->x.stl.num == frpos->x.stl.num) &&
         (topos->y.stl.num == frpos->y.stl.num)) {
         return true;
@@ -363,21 +363,24 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
     const struct Coord3d *nextpos, PlayerNumber plyr_idx)
 {
     // Check for door at central subtile
-    if (subtile_is_door(slab_subtile_center(subtile_slab(nextpos->x.stl.num)), slab_subtile_center(subtile_slab(nextpos->y.stl.num))))
+    if (subtile_is_door(slab_subtile_center(subtile_slab(nextpos->x.stl.num)), slab_subtile_center(subtile_slab(nextpos->y.stl.num)))) {
         return false;
-    // If both subtiles didn't changed, allow the pass
+    }
+    // If both subtile coordinates didn't changed, allow the pass
     if ((nextpos->x.stl.num == prevpos->x.stl.num)
      || (nextpos->y.stl.num == prevpos->y.stl.num)) {
+        // change is (x,0) or (0,x)
         return true;
     }
+    return true;
     struct Coord3d pos1;
     struct Coord3d pos2;
     int subdelta_x, subdelta_y;
-    subdelta_x = (nextpos->x.stl.num - prevpos->x.stl.num);
-    subdelta_y = (nextpos->y.stl.num - prevpos->y.stl.num);
+    subdelta_x = (nextpos->x.stl.num - (MapSubtlDelta)prevpos->x.stl.num);
+    subdelta_y = (nextpos->y.stl.num - (MapSubtlDelta)prevpos->y.stl.num);
     switch (subdelta_x + 2 * subdelta_y)
     {
-    case -3:
+    case -3: // change is (-1,-1)
         pos2.x.val = prevpos->x.val;
         pos2.z.val = prevpos->z.val;
         pos1.y.val = prevpos->y.val;
@@ -392,7 +395,7 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
         }
         break;
 
-    case -1:
+    case -1: // change is (1,-1) as (-1,0) was eliminated earlier
         pos2.y.val = prevpos->y.val;
         pos2.z.val = prevpos->z.val;
         pos1.x.val = prevpos->x.val;
@@ -407,7 +410,7 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
         }
         break;
 
-    case 1:
+    case 1: // change is (-1,1) as (1,0) was eliminated earlier
         pos2.x.val = prevpos->x.val;
         pos2.z.val = prevpos->z.val;
         pos1.x.val = prevpos->x.val;
@@ -422,19 +425,23 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
         }
         break;
 
-    case 3:
+    case 3: // change is (1,1)
         pos2.y.val = prevpos->y.val;
         pos2.z.val = prevpos->z.val;
         pos1.x.val = prevpos->x.val;
         pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val + 256;
-        pos2.x.val = prevpos->x.val + 256;
+        pos1.y.val = prevpos->y.val + subtile_coord(1,0);
+        pos2.x.val = prevpos->x.val + subtile_coord(1,0);
         if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
             return false;
         }
         if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
             return false;
         }
+        break;
+
+    default:
+        ERRORDBG(8,"Invalid use of sibling function, delta (%d,%d)",(int)subdelta_x,(int)subdelta_y);
         break;
     }
     return true;
@@ -443,16 +450,19 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
 TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *frpos,
     const struct Coord3d *topos, PlayerNumber plyr_idx)
 {
-    MapSubtlCoord dx,dy,dz;
-    dx = (MapSubtlCoord)topos->x.val - (MapSubtlCoord)frpos->x.val;
-    dy = (MapSubtlCoord)topos->y.val - (MapSubtlCoord)frpos->y.val;
-    dz = (MapSubtlCoord)topos->z.val - (MapSubtlCoord)frpos->z.val;
+    MapCoordDelta dx,dy,dz;
+    dx = topos->x.val - (MapCoordDelta)frpos->x.val;
+    dy = topos->y.val - (MapCoordDelta)frpos->y.val;
+    dz = topos->z.val - (MapCoordDelta)frpos->z.val;
     // Allow the travel to the same subtile
     if ((topos->x.stl.num == frpos->x.stl.num) &&
         (topos->y.stl.num == frpos->y.stl.num)) {
+        SYNCDBG(7, "Player %d can see (%d,%d) as its on same subtile",
+            (int)plyr_idx,(int)topos->x.stl.num,(int)topos->y.stl.num);
         return true;
     }
     //return _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(frpos, topos, plyr_idx);
+    // Initialize increases and do abs() of dx,dy and dz
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
     if (dx >= 0) {
@@ -509,13 +519,13 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     while (distance > 0)
     {
         if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
-            SYNCDBG(17, "Player %d cannot see through (%d,%d) due to solid flags",
-                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
+            SYNCDBG(7, "Player %d cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
+                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
             return false;
         }
         if (!sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(&prevpos, &nextpos, plyr_idx)) {
-            SYNCDBG(17, "Player %d cannot see through (%d,%d) due to 3D line of sight",
-                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
+            SYNCDBG(7, "Player %d cannot see through (%d,%d) due to 3D line of sight (downcount %d)",
+                (int)plyr_idx,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
             return false;
         }
         // Go to next sibling subtile
@@ -527,6 +537,8 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
         nextpos.z.val += increase_z;
         distance--;
     }
+    SYNCDBG(7, "Player %d can see (%d,%d)",
+        (int)plyr_idx,(int)topos->x.stl.num,(int)topos->y.stl.num);
     return true;
 }
 
@@ -607,10 +619,10 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos)
 {
-    MapSubtlCoord dx,dy,dz;
-    dx = (MapSubtlCoord)topos->x.val - (MapSubtlCoord)frpos->x.val;
-    dy = (MapSubtlCoord)topos->y.val - (MapSubtlCoord)frpos->y.val;
-    dz = (MapSubtlCoord)topos->z.val - (MapSubtlCoord)frpos->z.val;
+    MapCoordDelta dx,dy,dz;
+    dx = topos->x.val - (MapCoordDelta)frpos->x.val;
+    dy = topos->y.val - (MapCoordDelta)frpos->y.val;
+    dz = topos->z.val - (MapCoordDelta)frpos->z.val;
     if ((topos->x.stl.num == frpos->x.stl.num) &&
         (topos->y.stl.num == frpos->y.stl.num)) {
         return true;

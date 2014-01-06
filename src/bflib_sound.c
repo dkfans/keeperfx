@@ -457,7 +457,7 @@ long get_emitter_pan(const struct SoundReceiver *recv, const struct SoundEmitter
 {
     long diff_x,diff_y;
     long angle_a, angle_b;
-    long adiff,asign;
+    long angdiff,angsign;
     long radius,pan;
     long i;
     if ((recv->flags & Emi_IsAllocated) != 0) {
@@ -470,11 +470,11 @@ long get_emitter_pan(const struct SoundReceiver *recv, const struct SoundEmitter
     if (radius < deadzone_radius) {
       return 64;
     }
-    angle_b = LbArcTanAngle(diff_x, diff_y) & 0x7FF;
+    angle_b = LbArcTanAngle(diff_x, diff_y);
     angle_a = recv->orient_a;
-    adiff = get_angle_difference(angle_a, angle_b);
-    asign = get_angle_sign(angle_a, angle_b);
-    i = (radius - deadzone_radius) * LbSinL(asign*adiff) >> 16;
+    angdiff = get_angle_difference(angle_a, angle_b);
+    angsign = get_angle_sign(angle_a, angle_b);
+    i = (radius - deadzone_radius) * LbSinL(angsign*angdiff) >> 16;
     pan = (i << 6) / (MaxSoundDistance - deadzone_radius) + 64;
     if (pan > 127)
         pan = 127;

@@ -3180,9 +3180,9 @@ short person_sulk_at_lair(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    MapSubtlCoord dx,dy;
-    dx = abs(creatng->mappos.x.stl.num - (int)lairtng->mappos.x.stl.num);
-    dy = abs(creatng->mappos.y.stl.num - (int)lairtng->mappos.y.stl.num);
+    MapSubtlDelta dx,dy;
+    dx = abs(creatng->mappos.x.stl.num - (MapSubtlDelta)lairtng->mappos.x.stl.num);
+    dy = abs(creatng->mappos.y.stl.num - (MapSubtlDelta)lairtng->mappos.y.stl.num);
     if ((dx >= 1) || (dy >= 1)) {
         set_start_state(creatng);
         return 0;
@@ -3253,9 +3253,9 @@ short person_sulking(struct Thing *creatng)
         set_start_state(creatng);
         return 0;
     }
-    MapSubtlCoord dx,dy;
-    dx = abs(creatng->mappos.x.stl.num - (int)lairtng->mappos.x.stl.num);
-    dy = abs(creatng->mappos.y.stl.num - (int)lairtng->mappos.y.stl.num);
+    MapSubtlDelta dx,dy;
+    dx = abs(creatng->mappos.x.stl.num - (MapSubtlDelta)lairtng->mappos.x.stl.num);
+    dy = abs(creatng->mappos.y.stl.num - (MapSubtlDelta)lairtng->mappos.y.stl.num);
     if ((dx >= 1) || (dy >= 1)) {
         set_start_state(creatng);
         return 0;

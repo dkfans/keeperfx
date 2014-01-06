@@ -77,7 +77,7 @@ TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
 
 struct Thing *check_for_door_to_fight(const struct Thing *thing);
 long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, CrtrStateId continue_state, long a4);
-CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, long dist);
+CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta dist);
 long get_combat_distance(const struct Thing *thing, const struct Thing *enemy);
 long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3);
 long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng);

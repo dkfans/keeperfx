@@ -102,9 +102,9 @@ void play_thing_walking(struct Thing *thing)
     struct Camera *cam;
     cam = myplyr->acamera;
     { // Skip the thing if its distance to camera is too big
-        int dist_x, dist_y;
-        dist_x = abs(cam->mappos.x.val - thing->mappos.x.val) / 256;
-        dist_y = abs(cam->mappos.y.val - thing->mappos.y.val) / 256;
+        MapSubtlDelta dist_x, dist_y;
+        dist_x = coord_subtile(abs(cam->mappos.x.val - (MapCoordDelta)thing->mappos.x.val));
+        dist_y = coord_subtile(abs(cam->mappos.y.val - (MapCoordDelta)thing->mappos.y.val));
         if (dist_x <= dist_y)
           dist_x = dist_y;
         if (dist_x >= 10) {

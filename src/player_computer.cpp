@@ -267,7 +267,6 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
-    //return _DK_make_all_players_creatures_angry(plyr_idx);
     int stl_x, stl_y;
     stl_x = 0;
     stl_y = 0;
@@ -521,7 +520,7 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
     unsigned long k;
     struct ComputerTask *ctask;
     long distance,min_distance;
-    long delta_x,delta_y;
+    MapCoordDelta delta_x,delta_y;
     task_pos.x.val = 0;
     task_pos.y.val = 0;
     task_pos.z.val = 0;
@@ -542,8 +541,8 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
         // Per-task code
         if ( ((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0) )
         {
-            delta_x = (long)ctask->pos_64.x.val - (long)task_pos.x.val;
-            delta_y = (long)ctask->pos_64.y.val - (long)task_pos.y.val;
+            delta_x = (long)ctask->pos_64.x.val - (MapCoordDelta)task_pos.x.val;
+            delta_y = (long)ctask->pos_64.y.val - (MapCoordDelta)task_pos.y.val;
             distance = LbDiagonalLength(abs(delta_x), abs(delta_y));
             distance >>= 8; // Convert to subtiles
             distance -= (gldlook->field_E >> 3);
