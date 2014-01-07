@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+struct TbRect;
 /******************************************************************************/
 #pragma pack(1)
 
@@ -38,7 +39,7 @@ DLLIMPORT unsigned char *_DK_hires_parchment;
 #define hires_parchment _DK_hires_parchment
 /******************************************************************************/
 void draw_map_parchment(void);
-void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
+TbBool parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
 
 void load_parchment_file(void);
 void reload_parchment_file(TbBool hires);
@@ -46,6 +47,7 @@ void reload_parchment_file(TbBool hires);
 void redraw_parchment_view(void);
 void redraw_minimal_overhead_view(void);
 
+long get_parchment_map_area_rect(struct TbRect *map_area);
 /******************************************************************************/
 #ifdef __cplusplus
 }

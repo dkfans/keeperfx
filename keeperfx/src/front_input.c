@@ -20,6 +20,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_planar.h"
 
 #include "bflib_video.h"
 #include "bflib_keybrd.h"
@@ -47,6 +48,7 @@
 #include "gui_frontbtns.h"
 #include "gui_tooltips.h"
 #include "gui_topmsg.h"
+#include "gui_parchment.h"
 #include "power_hand.h"
 #include "thing_traps.h"
 #include "room_workshop.h"
@@ -545,28 +547,34 @@ TbBool get_level_lost_inputs(void)
     }
     if (player->view_type == PVT_MapScreen)
     {
-      int screen_x = GetMouseX() - 150;
-      int screen_y = GetMouseY() - 56;
-      if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
-      {
-          lbKeyOn[keycode] = 0;
-          zoom_from_map();
-      } else
-      if ( right_button_released )
-      {
-          right_button_released = 0;
-          zoom_from_map();
-      } else
-      if ( left_button_released )
-      {
-          int actn_x = 3*screen_x/4 + 1;
-          int actn_y = 3*screen_y/4 + 1;
-          if  ((actn_x >= 0) && (actn_x < map_subtiles_x) && (actn_y >= 0) && (actn_y < map_subtiles_y))
-          {
-            set_players_packet_action(player, PckA_Unknown081, actn_x,actn_y,0,0);
-            left_button_released = 0;
-          }
-      }
+        long mouse_y,mouse_x;
+        mouse_x = GetMouseX();
+        mouse_y = GetMouseY();
+        // Size of the parchment map on which we're doing action
+        long block_size;
+        struct TbRect map_area;
+        block_size = get_parchment_map_area_rect(&map_area);
+        if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
+        {
+            lbKeyOn[keycode] = 0;
+            zoom_from_map();
+        } else
+        if ( right_button_released )
+        {
+            right_button_released = 0;
+            zoom_from_map();
+        } else
+        if ( left_button_released )
+        {
+            MapSubtlCoord stl_x, stl_y;
+            stl_x = STL_PER_SLB*(mouse_x - map_area.left)/block_size + 1;
+            stl_y = STL_PER_SLB*(mouse_y - map_area.top)/block_size + 1;
+            if  (!subtile_coords_invalid(stl_x, stl_y))
+            {
+                set_players_packet_action(player, PckA_Unknown081, stl_x,stl_y,0,0);
+                left_button_released = 0;
+            }
+        }
     } else
     if (player->view_type == PVT_DungeonTop)
     {
@@ -970,24 +978,29 @@ short get_map_action_inputs(void)
   struct PlayerInfo *player;
   long keycode;
   long mouse_y,mouse_x;
-  int mappos_y,mappos_x;
   player = get_my_player();
   mouse_x = GetMouseX();
   mouse_y = GetMouseY();
-  mappos_x = slab_subtile_center((mouse_x - 150) / 4);
-  mappos_y = slab_subtile_center((mouse_y - 56) / 4);
-  if ((mappos_x >= 0) && (mappos_x < map_subtiles_x) && (mappos_y >= 0) && (mappos_y < map_subtiles_y) )
+  // Size of the parchment map on which we're doing action
+  long block_size;
+  struct TbRect map_area;
+  block_size = get_parchment_map_area_rect(&map_area);
+  // Get map coordinates from mouse position on parchment screen
+  MapSubtlCoord stl_x, stl_y;
+  stl_x = STL_PER_SLB*(mouse_x - map_area.left)/block_size + 1;
+  stl_y = STL_PER_SLB*(mouse_y - map_area.top)/block_size + 1;
+  if  (!subtile_coords_invalid(stl_x, stl_y))
   {
-    if ( left_button_clicked )
-    {
-      left_button_clicked = 0;
-    }
-    if ( left_button_released )
-    {
-      left_button_released = 0;
-      set_players_packet_action(player, PckA_Unknown081, mappos_x,mappos_y,0,0);
-      return true;
-    }
+      if ( left_button_clicked )
+      {
+          left_button_clicked = 0;
+      }
+      if ( left_button_released )
+      {
+          left_button_released = 0;
+          set_players_packet_action(player, PckA_Unknown081, stl_x,stl_y,0,0);
+          return true;
+      }
   }
 
   if ( right_button_clicked )

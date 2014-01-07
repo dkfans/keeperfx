@@ -224,8 +224,8 @@ TbResult LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour);
 
 TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr);
 TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
-TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height);
-TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite);
+TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height);
+TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprite *sprite);
 void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite);
 void SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6);
