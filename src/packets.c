@@ -30,6 +30,7 @@
 #include "bflib_network.h"
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
+#include "bflib_planar.h"
 
 #include "kjm_input.h"
 #include "front_simple.h"
@@ -69,6 +70,7 @@
 #include "gui_topmsg.h"
 #include "gui_frontmenu.h"
 #include "gui_soundmsgs.h"
+#include "gui_parchment.h"
 #include "net_game.h"
 #include "net_sync.h"
 #include "game_legacy.h"
@@ -2109,19 +2111,24 @@ void process_players_map_packet_control(long plyr_idx)
 {
   struct PlayerInfo *player;
   struct Packet *pckt;
-  MapSubtlCoord x,y;
+  MapSubtlCoord stl_x,stl_y;
   SYNCDBG(6,"Starting");
   player = get_player(plyr_idx);
   pckt = get_packet_direct(player->packet_num);
-  x = (3*((long)pckt->pos_x) - 450)/4 + 1;
-  y = (3*((long)pckt->pos_y) - 168)/4 + 1;
-  if (x < 0) x = 0; else
-  if (x > map_subtiles_x) x = map_subtiles_x;
-  if (y < 0) y = 0; else
-  if (y > map_subtiles_y) y = map_subtiles_y;
+  // Size of the parchment map on which we're doing action
+  long block_size;
+  struct TbRect map_area;
+  block_size = get_parchment_map_area_rect(&map_area);
+  // Get map coordinates based on it
+  stl_x = STL_PER_SLB * (pckt->pos_x-map_area.left) / block_size + 1;
+  stl_y = STL_PER_SLB * (pckt->pos_y-map_area.top)  / block_size + 1;
+  if (stl_x < 0) stl_x = 0; else
+  if (stl_x > map_subtiles_x) stl_x = map_subtiles_x;
+  if (stl_y < 0) stl_y = 0; else
+  if (stl_y > map_subtiles_y) stl_y = map_subtiles_y;
   process_map_packet_clicks(plyr_idx);
-  player->cameras[2].mappos.x.val = get_subtile_center_pos(x);
-  player->cameras[2].mappos.y.val = get_subtile_center_pos(y);
+  player->cameras[2].mappos.x.val = get_subtile_center_pos(stl_x);
+  player->cameras[2].mappos.y.val = get_subtile_center_pos(stl_y);
   set_mouse_light(player);
   SYNCDBG(8,"Finished");
 }

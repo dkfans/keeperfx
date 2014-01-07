@@ -3666,7 +3666,7 @@ TbResult LbSpriteDrawUsingScalingDownData_sub8(uchar *outbuf, int scanline, int 
  * @return Gives 0 on success.
  * @see LbSpriteSetScalingData()
  */
-TbResult LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite)
+TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprite *sprite)
 {
     SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
     //return _DK_LbSpriteDrawUsingScalingData(posx, posy, sprite);
@@ -3908,7 +3908,7 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
     }
 }
 
-TbResult LbSpriteDrawScaled(long xpos, long ypos, struct TbSprite *sprite, long dest_width, long dest_height)
+TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height)
 {
     SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
