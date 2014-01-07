@@ -421,7 +421,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
             cctrl->moveaccel.y.val = nextpos.y.val - (MapCoordDelta)thing->mappos.y.val;
             cctrl->moveaccel.z.val = 0;
         }
-        SYNCDBG(8,"Backward target set, accel (%d,%d)",(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
+        SYNCDBG(18,"Backward target set, accel (%d,%d)",(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
     } else
     {
         if ( creature_turn_to_face(thing, &nextpos) )

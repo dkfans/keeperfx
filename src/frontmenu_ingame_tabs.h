@@ -51,6 +51,14 @@ DLLIMPORT struct GuiButtonInit _DK_query_menu_buttons[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons1[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons2[];
 DLLIMPORT struct GuiButtonInit _DK_creature_query_buttons3[];
+DLLIMPORT char _DK_gui_room_type_highlighted;
+#define gui_room_type_highlighted _DK_gui_room_type_highlighted
+DLLIMPORT char _DK_gui_door_type_highlighted;
+#define gui_door_type_highlighted _DK_gui_door_type_highlighted
+DLLIMPORT char _DK_gui_trap_type_highlighted;
+#define gui_trap_type_highlighted _DK_gui_trap_type_highlighted
+DLLIMPORT char _DK_gui_creature_type_highlighted;
+#define gui_creature_type_highlighted _DK_gui_creature_type_highlighted
 
 #pragma pack()
 /******************************************************************************/

@@ -152,7 +152,7 @@ void lightning_modify_palette(struct Thing *thing)
     }
     if (myplyr->acamera == NULL)
     {
-        WARNLOG("No active camera");
+        ERRORLOG("No active camera");
         return;
     }
     if (((thing->health % 8) != 7) && (thing->health != 1) && (ACTION_RANDOM(4) != 0))

@@ -266,6 +266,7 @@
  0001:00020520       draw_overhead_things
  0001:000209E0       draw_overhead_room_icons
  0001:00020D40       draw_overlay_things
+ 0001:00021630       draw_call_to_arms_circle
  0001:00021C00       process_pointer_graphic
  0001:000223F0       set_sprite_view_isometric
  0001:000224D0       set_sprite_view_3d
@@ -2006,6 +2007,10 @@
  0003:00247F60       frontend_end_font
  0003:00247F70       credits_end
  0003:00247F78       frontend_font_data
+ 0003:00248088       MapShapeStart
+ 0003:00248258       MapShapeEnd
+ 0003:0024C8B8       PannelMapY
+ 0003:0024C8BC       PannelMapX
  0003:0025C8C8       reinforce_stack
  0003:0025C9C8       r_stackpos
  0003:0025C9F4       pixmap

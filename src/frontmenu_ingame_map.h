@@ -31,9 +31,18 @@ DLLIMPORT long _DK_clicked_on_small_map;
 #define clicked_on_small_map _DK_clicked_on_small_map
 DLLIMPORT unsigned char _DK_grabbed_small_map;
 #define grabbed_small_map _DK_grabbed_small_map
+DLLIMPORT long _DK_PannelMapY;
+#define PannelMapY _DK_PannelMapY
+DLLIMPORT long _DK_PannelMapX;
+#define PannelMapX _DK_PannelMapX
+DLLIMPORT long _DK_MapShapeStart[116];
+#define MapShapeStart _DK_MapShapeStart
+DLLIMPORT long _DK_MapShapeEnd[116];
+#define MapShapeEnd _DK_MapShapeEnd
 /******************************************************************************/
 void pannel_map_update(long x, long y, long w, long h);
 void pannel_map_draw(long x, long y, long zoom);
+void draw_overlay_things(long zoom);
 
 void do_map_rotate_stuff(long a1, long a2, long *a3, long *a4, long a5);
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
