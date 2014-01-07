@@ -71,6 +71,10 @@
 
  0003:000AB430       keeper_runtime_directory
  0003:00241510       my_player_number
+ 0003:00248088       MapShapeStart
+ 0003:00248258       MapShapeEnd
+ 0003:0024C8B8       PannelMapY
+ 0003:0024C8BC       PannelMapX
  0003:000ED310       game
  0003:0027377C       hInstance
  0003:00014968       SoundDisabled
@@ -1533,6 +1537,7 @@
  0001:00004F70       heapmgr_complete_defrag
  0001:00051280       start_emitter_playing
  0001:00021C00       process_pointer_graphic
+ 0001:00021630       draw_call_to_arms_circle
  0001:0000C9F0       external_activate_trap_shot_at_angle
  0001:0000C610       activate_trap
  0001:000C1E50       apply_damage_to_thing

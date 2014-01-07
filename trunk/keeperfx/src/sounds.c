@@ -233,8 +233,8 @@ void find_nearest_rooms_for_ambient_sound(void)
         set_room_playing_ambient_sound(NULL, 0);
         return;
     }
-    slb_x = player->acamera->mappos.x.stl.num / 3;
-    slb_y = player->acamera->mappos.y.stl.num / 3;
+    slb_x = subtile_slab(player->acamera->mappos.x.stl.num);
+    slb_y = subtile_slab(player->acamera->mappos.y.stl.num);
     for (i = 0; i < 120; i++)
     {
         sstep = &spiral_step[i];
