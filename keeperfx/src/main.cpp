@@ -206,7 +206,6 @@ DLLIMPORT void _DK_complete_level(struct PlayerInfo *player);
 DLLIMPORT void _DK_free_swipe_graphic(void);
 DLLIMPORT void _DK_draw_bonus_timer(void);
 DLLIMPORT void _DK_engine(struct Camera *cam);
-DLLIMPORT void _DK_draw_overlay_things(long zoom);
 DLLIMPORT void _DK_reinit_level_after_load(void);
 DLLIMPORT void _DK_reinit_tagged_blocks_for_player(unsigned char idx);
 DLLIMPORT void _DK_reset_gui_based_on_player_mode(void);
@@ -2988,12 +2987,6 @@ void engine(struct PlayerInfo *player, struct Camera *cam)
     lbDisplay.DrawFlags = flg_mem;
     thing_being_displayed = 0;
     LbScreenLoadGraphicsWindow(&grwnd);
-}
-
-void draw_overlay_things(long zoom)
-{
-  SYNCDBG(7,"Starting");
-  _DK_draw_overlay_things(zoom);
 }
 
 void find_frame_rate(void)

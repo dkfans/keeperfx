@@ -181,14 +181,6 @@ DLLIMPORT extern struct TbSetupSprite _DK_frontstory_setup_sprites[2];
 #define frontstory_setup_sprites _DK_frontstory_setup_sprites
 DLLIMPORT extern unsigned long _DK_time_last_played_demo;
 #define time_last_played_demo _DK_time_last_played_demo
-DLLIMPORT extern char _DK_gui_room_type_highlighted;
-#define gui_room_type_highlighted _DK_gui_room_type_highlighted
-DLLIMPORT extern char _DK_gui_door_type_highlighted;
-#define gui_door_type_highlighted _DK_gui_door_type_highlighted
-DLLIMPORT extern char _DK_gui_trap_type_highlighted;
-#define gui_trap_type_highlighted _DK_gui_trap_type_highlighted
-DLLIMPORT extern char _DK_gui_creature_type_highlighted;
-#define gui_creature_type_highlighted _DK_gui_creature_type_highlighted
 DLLIMPORT extern short _DK_drag_menu_x;
 #define drag_menu_x _DK_drag_menu_x
 DLLIMPORT extern short _DK_drag_menu_y;
@@ -350,7 +342,6 @@ TbBool swap_creature(long ncrt_id, long crtr_id);
 void place_animating_slab_type_on_map(long a1, char a2, unsigned char a3, unsigned char a4, unsigned char a5);
 void engine(struct PlayerInfo *player, struct Camera *cam);
 void draw_gold_total(unsigned char a1, long scr_x, long scr_y, long long value);
-void draw_overlay_things(long zoom);
 void draw_mini_things_in_hand(long x, long y);
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos);
 void update_breed_activities(void);
