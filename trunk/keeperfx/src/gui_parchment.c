@@ -89,49 +89,96 @@ void reload_parchment_file(TbBool hires)
   parchment_loaded = 1;
 }
 
-void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
+long get_parchment_background_area_rect(struct TbRect *bkgnd_area)
 {
-  int img_width;
-  int img_height;
-  unsigned char *srcbuf;
-  if (lbDisplay.GraphicsScreenWidth < 640)
-  {
-      img_width = 320;
-      img_height = 200;
-      srcbuf = poly_pool;
-  } else
-  {
-      img_width = 640;
-      img_height = 480;
-      srcbuf = hires_parchment;
-  }
-  TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
-  int m;
-  int spx,spy;
-  // Only 8bpp supported for now
-  if (LbGraphicsScreenBPP() != 8)
-    return;
-  if (rect_w == POS_AUTO)
-    rect_w = mdinfo->Width-rect_x;
-  if (rect_h == POS_AUTO)
-    rect_h = mdinfo->Height-rect_y;
-  if (rect_w < 0) rect_w = 0;
-  if (rect_h < 0) rect_h = 0;
-  // Parchment bitmap can't be scaled
-  m = 1;
-  // Starting point coords
-  spx=0;spy=0; // disabled, for now
-/*
-  spx = rect_x + ((rect_w-m*img_width)>>1);
-  spy = rect_y + ((rect_h-m*img_height)>>1);
-  if (spy<0) spy=0;
-*/
-  // Do the drawing
-  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-      spx,spy,srcbuf,img_width,img_height,m);
-  // Burning candle flames
-  LbSpriteDraw(spx+(36/pixel_size),(spy+0/pixel_size), &button_sprite[198+(game.play_gameturn & 3)]);
-  LbSpriteDraw(spx+(574/pixel_size),(spy+0/pixel_size), &button_sprite[202+(game.play_gameturn & 3)]);
+    int img_width, img_height;
+    if (LbScreenWidth() < 640)
+    {
+        img_width = 320;
+        img_height = 200;
+    } else
+    {
+        img_width = 640;
+        img_height = 480;
+    }
+    int rect_w, rect_h;
+    rect_w = LbScreenWidth();
+    rect_h = LbScreenHeight();
+    // Parchment bitmap scaling
+    int m,w,h;
+    w=0;
+    h=0;
+    for (m=0; m < 5; m++)
+    {
+        w+=img_width;
+        h+=img_height;
+        if (w > 7*rect_w/6) break;
+        if (h > 4*rect_h/3) break;
+    }
+    // The image width can't be larger than video resolution
+    if (m < 1) {
+        m = 1;
+    }
+    // Set rectangle coords
+    bkgnd_area->left = (rect_w-m*img_width)/2;
+    bkgnd_area->top = (rect_h-m*img_height)/2;
+    if (bkgnd_area->top < 0) bkgnd_area->top = 0;
+    bkgnd_area->right = bkgnd_area->left + m*img_width;
+    bkgnd_area->bottom = bkgnd_area->top + m*img_height;
+    if (bkgnd_area->bottom > rect_h) bkgnd_area->bottom = rect_h;
+    return m;
+}
+
+long get_parchment_map_area_rect(struct TbRect *map_area)
+{
+    struct TbRect bkgnd_area;
+    get_parchment_background_area_rect(&bkgnd_area);
+    long bkgnd_width, bkgnd_height;
+    bkgnd_width = bkgnd_area.right - bkgnd_area.left;
+    bkgnd_height = bkgnd_area.bottom - bkgnd_area.top;
+    long block_size;
+    block_size = min((bkgnd_width - bkgnd_width/3) / map_tiles_x, (bkgnd_height - bkgnd_height/8) / map_tiles_y);
+    if (block_size < 1) block_size = 1;
+    map_area->left = bkgnd_area.left + (bkgnd_width - block_size*map_tiles_x) / 2;
+    map_area->top = bkgnd_area.top + 3 * (bkgnd_height - block_size*map_tiles_y) / 4;
+    map_area->right = map_area->left + block_size*map_tiles_x;
+    map_area->bottom = map_area->top + block_size*map_tiles_y;
+    return block_size;
+}
+
+TbBool parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
+{
+    int img_width;
+    int img_height;
+    unsigned char *srcbuf;
+    if (LbScreenWidth() < 640)
+    {
+        img_width = 320;
+        img_height = 200;
+        srcbuf = poly_pool;
+    } else
+    {
+        img_width = 640;
+        img_height = 480;
+        srcbuf = hires_parchment;
+    }
+    // Only 8bpp supported for now
+    if (LbGraphicsScreenBPP() != 8)
+        return false;
+    // Get background area rectangle
+    int m;
+    struct TbRect bkgnd_area;
+    m = get_parchment_background_area_rect(&bkgnd_area);
+    // Do the drawing
+    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
+        bkgnd_area.left,bkgnd_area.top,srcbuf,img_width,img_height,m);
+    // Burning candle flames
+    const struct TbSprite *spr;
+    spr = &button_sprite[198+(game.play_gameturn & 3)];
+    LbSpriteDrawScaled(bkgnd_area.left+(36*m/pixel_size),(bkgnd_area.top+0/pixel_size), spr, spr->SWidth*m, spr->SHeight*m);
+    spr = &button_sprite[202+(game.play_gameturn & 3)];
+    LbSpriteDrawScaled(bkgnd_area.left+(574*m/pixel_size),(bkgnd_area.top+0/pixel_size), spr, spr->SWidth*m, spr->SHeight*m);
+    return true;
 }
 
 /**
@@ -139,6 +186,10 @@ void parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
  */
 void draw_map_parchment(void)
 {
+    // Size of the parchment map on which we're drawing
+    struct TbRect map_area;
+    get_parchment_map_area_rect(&map_area);
+    // Draw it
     parchment_copy_background_at(0,0,POS_AUTO,POS_AUTO);
     SYNCDBG(9,"Done");
 }
@@ -471,30 +522,17 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
     }
 }
 
-long get_parchment_map_area_rect(struct TbRect *map_area)
-{
-    long block_size;
-    block_size = 4 / pixel_size;
-    //block_size = min((lbDisplay.PhysicalScreenWidth - lbDisplay.PhysicalScreenWidth/3) / map_tiles_x, (lbDisplay.PhysicalScreenHeight - lbDisplay.PhysicalScreenWidth/8) / map_tiles_y);
-    if (block_size < 1) block_size = 1;
-    map_area->left = 150/pixel_size;
-    map_area->top = 56/pixel_size;
-    //map_area->left = (lbDisplay.PhysicalScreenWidth - block_size*map_tiles_x) / 2;
-    //map_area->top = 14 * (lbDisplay.PhysicalScreenHeight - block_size*map_tiles_y) / 15;
-    map_area->right = map_area->left + block_size*map_tiles_x;
-    map_area->bottom = map_area->top + block_size*map_tiles_y;
-    return block_size;
-}
-
 void draw_2d_map(void)
 {
   struct PlayerInfo *player;
   SYNCDBG(8,"Starting");
   //_DK_draw_2d_map();
   player = get_my_player();
+  // Size of the parchment map on which we're drawing
   long block_size;
   struct TbRect map_area;
   block_size = get_parchment_map_area_rect(&map_area);
+  // Now draw
   draw_overhead_map(&map_area, block_size, player->id_number);
   draw_overhead_things(&map_area, block_size, player->id_number);
   draw_overhead_room_icons(&map_area, block_size, player->id_number);
@@ -502,38 +540,41 @@ void draw_2d_map(void)
 
 void draw_map_level_name(void)
 {
-  struct LevelInformation *lvinfo;
-  LevelNumber lvnum;
-  const char *lv_name;
-  int x,y,w,h;
-  // Retrieving name
-  lv_name = NULL;
-  lvnum = get_loaded_level_number();
-  lvinfo = get_level_info(lvnum);
-  if (lvinfo != NULL)
-  {
-    if (lvinfo->name_id > 0)
-      lv_name = cmpgn_string(lvinfo->name_id);
-    else
-      lv_name = lvinfo->name;
-  } else
-  if (is_multiplayer_level(lvnum))
-  {
-    lv_name = level_name;
-  }
-  // Retrieving position
-  x = 0;
-  y = 0;
-  w = 640;//MyScreenWidth;
-  h = MyScreenHeight;
-  // Drawing
-  if (lv_name != NULL)
-  {
+    struct LevelInformation *lvinfo;
+    LevelNumber lvnum;
+    const char *lv_name;
+    // Retrieving name
+    lv_name = NULL;
+    lvnum = get_loaded_level_number();
+    lvinfo = get_level_info(lvnum);
+    if (lvinfo != NULL)
+    {
+      if (lvinfo->name_id > 0)
+        lv_name = cmpgn_string(lvinfo->name_id);
+      else
+        lv_name = lvinfo->name;
+    } else
+    if (is_multiplayer_level(lvnum))
+    {
+      lv_name = level_name;
+    }
+    // Retrieving position
+    struct TbRect bkgnd_area;
+    get_parchment_background_area_rect(&bkgnd_area);
+    // Set position
     LbTextSetFont(winfont);
     lbDisplay.DrawFlags = 0;
-    LbTextSetWindow(x/pixel_size, y/pixel_size, w/pixel_size, h/pixel_size);
-    LbTextDraw((w-pixel_size*LbTextStringWidth(lv_name))/2 / pixel_size, 32 / pixel_size, lv_name);
-  }
+    int x,y,w,h;
+    x = bkgnd_area.left;
+    y = bkgnd_area.top;
+    w = bkgnd_area.right - bkgnd_area.left;
+    h = (bkgnd_area.bottom - bkgnd_area.top)/4;
+    // Drawing
+    if (lv_name != NULL)
+    {
+        LbTextSetWindow(x/pixel_size, y/pixel_size, w/pixel_size, h/pixel_size);
+        LbTextDraw((w-pixel_size*LbTextStringWidth(lv_name))/2 / pixel_size, (h/10 - 8) / pixel_size, lv_name);
+    }
 }
 
 void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_size,int scr_x,int scr_y)
@@ -657,8 +698,8 @@ void draw_zoom_box(void)
     scrtop_x = mouse_x + 24;
     scrtop_y = mouse_y + 24;
     // Source map coordinates
-    stl_x = STL_PER_SLB * (mouse_x-map_area.left) / block_size - 6;
-    stl_y = STL_PER_SLB * (mouse_y-map_area.top)  / block_size - 6;
+    stl_x = STL_PER_SLB * (mouse_x-map_area.left) / block_size - draw_tiles_x/2;
+    stl_y = STL_PER_SLB * (mouse_y-map_area.top)  / block_size - draw_tiles_y/2;
     // Draw only on map area (do not allow zoom box to be empty)
     if ((stl_x < -draw_tiles_x+4) || (stl_x >= map_subtiles_x+1-draw_tiles_x+6)
      || (stl_y < -draw_tiles_y+4) || (stl_y >= map_subtiles_x+1-draw_tiles_y+6))

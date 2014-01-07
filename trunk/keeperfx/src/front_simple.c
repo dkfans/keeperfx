@@ -110,20 +110,26 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
   // Now drawing
   for (h=0; h<src_height; h++)
   {
-    src = src_buf + h*src_width;
-    for (k=0; k<m; k++)
-    {
-      if (spy+m*h+k<0) continue;
-      if (spy+m*h+k>=nlines) break;
-      dst = dst_buf + (spy+m*h+k)*scanline + spx;
-      for (w=0; w<src_width; w++)
+      src = src_buf + h*src_width;
+      for (k=0; k<m; k++)
       {
-        for (i=0;i<m;i++)
-        {
-            dst[m*w+i] = src[w];
-        }
+          long dst_y;
+          dst_y = spy+m*h+k;
+          if (dst_y < 0) continue;
+          if (dst_y >= nlines) break;
+          dst = dst_buf + dst_y*scanline;
+          for (w=0; w<src_width; w++)
+          {
+              for (i=0;i<m;i++)
+              {
+                  long dst_x;
+                  dst_x = spx+m*w+i;
+                  if (dst_x < 0) continue;
+                  if (dst_x >= scanline) break;
+                  dst[dst_x] = src[w];
+              }
+          }
       }
-    }
   }
   return true;
 }
@@ -135,42 +141,42 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
  */
 TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height)
 {
-  int w,h,m;
-  int spx,spy;
-  // Only 8bpp supported for now
-  if (LbGraphicsScreenBPP() != 8)
-    return false;
-  w=0;
-  h=0;
-  for (m=0; m < 5; m++)
-  {
-    w+=img_width;
-    h+=img_height;
-    if (w > LbScreenWidth()) break;
-    if (h > LbScreenHeight()) break;
-  }
-  // The image width can't be larger than video resolution
-  if (m < 1)
-  {
-    if (w > LbScreenWidth())
-    {
-      SYNCMSG("The %dx%d image does not fit on %dx%d screen, skipped.", img_width, img_height,(int)LbScreenWidth(),(int)LbScreenHeight());
+    int w,h,m;
+    int spx,spy;
+    // Only 8bpp supported for now
+    if (LbGraphicsScreenBPP() != 8)
       return false;
+    w=0;
+    h=0;
+    for (m=0; m < 5; m++)
+    {
+        w+=img_width;
+        h+=img_height;
+        if (w > LbScreenWidth()) break;
+        if (h > LbScreenHeight()) break;
     }
-    m=1;
-  }
-  // Locking screen
-  if (LbScreenLock() != Lb_SUCCESS)
-    return false;
-  // Starting point coords
-  spx = (LbScreenWidth()-m*img_width)>>1;
-  spy = (LbScreenHeight()-m*img_height)>>1;
-  copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-      spx,spy,buf,img_width,img_height,m);
-  perform_any_screen_capturing();
-  LbScreenUnlock();
-  LbScreenSwap();
-  return true;
+    // The image width can't be larger than video resolution
+    if (m < 1)
+    {
+        if (w > LbScreenWidth())
+        {
+          SYNCMSG("The %dx%d image does not fit on %dx%d screen, skipped.", img_width, img_height,(int)LbScreenWidth(),(int)LbScreenHeight());
+          return false;
+        }
+        m=1;
+    }
+    // Locking screen
+    if (LbScreenLock() != Lb_SUCCESS)
+      return false;
+    // Starting point coords
+    spx = (LbScreenWidth()-m*img_width)>>1;
+    spy = (LbScreenHeight()-m*img_height)>>1;
+    copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
+        spx,spy,buf,img_width,img_height,m);
+    perform_any_screen_capturing();
+    LbScreenUnlock();
+    LbScreenSwap();
+    return true;
 }
 
 TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay)
