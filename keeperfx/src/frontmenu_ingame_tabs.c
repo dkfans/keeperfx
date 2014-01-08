@@ -1068,7 +1068,7 @@ void draw_whole_status_panel(void)
     struct PlayerInfo *player;
     long mmzoom;
     player = get_my_player();
-    dungeon = get_my_dungeon();
+    dungeon = get_players_dungeon(player);
     lbDisplay.DrawColour = colours[15][15][15];
     lbDisplay.DrawFlags = 0;
     DrawBigSprite(0, 0, &status_panel, gui_panel_sprites);

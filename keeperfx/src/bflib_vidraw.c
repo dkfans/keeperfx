@@ -46,14 +46,14 @@ struct TbSpriteDrawData {
     TbBool mirror;
 };
 /******************************************************************************/
-DLLIMPORT int _DK_LbSpriteDraw(long x, long y, const struct TbSprite *spr);
-DLLIMPORT int _DK_LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,unsigned char *cmap);
-DLLIMPORT int _DK_LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const TbPixel colour);
+DLLIMPORT int _DK_LbSpriteDraw(long start_x, long start_y, const struct TbSprite *spr);
+DLLIMPORT int _DK_LbSpriteDrawRemap(long start_x, long start_y, const struct TbSprite *spr,unsigned char *cmap);
+DLLIMPORT int _DK_LbSpriteDrawOneColour(long start_x, long start_y, const struct TbSprite *spr, const TbPixel colour);
 DLLIMPORT int _DK_LbSpriteDrawUsingScalingData(long posx, long posy, struct TbSprite *sprite);
 DLLIMPORT int _DK_DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite);
-DLLIMPORT void _DK_LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight);
+DLLIMPORT void _DK_LbSpriteSetScalingData(long start_x, long start_y, long swidth, long sheight, long dwidth, long dheight);
 DLLIMPORT void _DK_SetAlphaScalingData(long a1, long a2, long a3, long a4, long a5, long a6);
-DLLIMPORT void _DK_DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite);
+DLLIMPORT void _DK_DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct TbSprite *sprite);
 /******************************************************************************/
 /*
 bool sprscale_enlarge;
@@ -4045,10 +4045,49 @@ TbResult LbHugeSpriteDraw(const unsigned char *sp, long * sp_y_offset, long sp_l
     return Lb_SUCCESS;
 }
 
-void DrawBigSprite(long x, long y, struct BigSprite *bigspr, struct TbSprite *sprite)
+void DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct TbSprite *sprite)
 {
     // Will be probably replaced by LbHugeSpriteDraw()
-    _DK_DrawBigSprite(x, y, bigspr, sprite);
+    //_DK_DrawBigSprite(x, y, bigspr, sprite);
+    long x, y;
+    int delta_x, delta_y;
+    int spnum_x, spnum_y;
+    delta_y = 0;
+    y = start_y;
+    unsigned short *base_spr_idx;
+    base_spr_idx = &bigspr->field_2[0];
+    for (spnum_y = 0; spnum_y < bigspr->field_1; spnum_y++)
+    {
+        unsigned short *spr_idx;
+        x = start_x;
+        spr_idx = base_spr_idx;
+        for (spnum_x = 0; spnum_x < bigspr->field_0; spnum_x++)
+        {
+            delta_x = pixel_size * sprite[*spr_idx].SWidth;
+            delta_y = pixel_size * sprite[*spr_idx].SHeight;
+            if (*spr_idx)
+            {
+                LbSpriteDraw(x / pixel_size, y / pixel_size, &sprite[*spr_idx]);
+            } else
+            {
+                unsigned short *prev_spr_idx;
+                prev_spr_idx = (spr_idx - 10);
+                signed int spnum_p;
+                for (spnum_p = 1; spnum_y >= spnum_p; spnum_p++)
+                {
+                    if (*prev_spr_idx) {
+                        delta_x = pixel_size * sprite[bigspr->field_2[spnum_x + 10 * (spnum_y - spnum_p)]].SWidth;
+                        break;
+                    }
+                    prev_spr_idx -= 10;
+                }
+            }
+            spr_idx++;
+            x += delta_x;
+        }
+        y += delta_y;
+        base_spr_idx += 10;
+    }
 }
 
 void LbDrawPixel(long x, long y, TbPixel colour)
