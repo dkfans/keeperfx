@@ -223,7 +223,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
     room = subtile_room_get(stl_x, stl_y);
     if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
     {
-      pixval = 31;
+      pixval = player_highlight_colours[owner];
     } else
     if (owner == game.neutral_player_num)
     {
@@ -251,7 +251,7 @@ TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel 
       } else
       if ((game.play_gameturn & 1) && (thing->model == gui_door_type_highlighted))
       {
-        pixval = 31;
+        pixval = player_highlight_colours[owner];
       } else
       if (thing->byte_18)
       {
@@ -326,9 +326,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
     long rkind_select;
     long room_visibility;
     struct RoomData *rdata;
-    struct PlayerInfo *player;
     //_DK_draw_overhead_room_icons(x,y);
-    player = get_player(plyr_idx);
     rkind_select = (game.play_gameturn >> 1) % ROOM_TYPES_COUNT;
     for (room = start_rooms; room < end_rooms; room++)
     {
@@ -341,7 +339,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
               lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
           if (room_visibility < 4)
           {
-            if (subtile_revealed(room->central_stl_x, room->central_stl_y, player->id_number))
+            if (subtile_revealed(room->central_stl_x, room->central_stl_y, plyr_idx))
             {
                 rdata = room_data_get_for_room(room);
                 if (rdata->numfield_1 > 0)
@@ -360,22 +358,41 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
 }
 
-void draw_overhead_things(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
 {
-    struct PlayerInfo *player;
-    struct Dungeon *dungeon;
-    long pos_x,pos_y,radius;
-    struct CreatureControl *cctrl;
-    struct Thing *thing;
-    int i,k;
-    long n;
-    //_DK_draw_overhead_things(x,y);
-    player = get_player(plyr_idx);
+    int i,n;
+    n = 0;
+    for (i=0; i < DUNGEONS_COUNT; i++)
+    {
+        if (player_uses_call_to_arms(i))
+        {
+            struct Dungeon *dungeon;
+            dungeon = get_dungeon(i);
+            lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010;
+            struct MagicStats *magstat;
+            magstat = &game.magic_stats[PwrK_CALL2ARMS];
+            long m;
+            m = (4 * ((i + game.play_gameturn) & 7) * subtile_slab_fast(magstat->power[dungeon->field_883]));
+            long pos_x,pos_y,radius;
+            pos_x = map_area->left + block_size * (int)dungeon->field_881 / STL_PER_SLB;
+            pos_y = map_area->top  + block_size * (int)dungeon->field_882 / STL_PER_SLB;
+            radius = (((m&7) + m) >> 3);
+            LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[i]);
+            n++;
+        }
+    }
+    return n;
+}
 
+int draw_overhead_creatures(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+{
+    int i,k,n;
+    n = 0;
     k = 0;
     i = game.thing_lists[TngList_Creatures].index;
     while (i != 0)
     {
+        struct Thing *thing;
         thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
@@ -387,41 +404,47 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
         if (!thing_is_picked_up(thing))
         {
             TbPixel col1,col2;
-            col1 = 31;
+            col1 = player_highlight_colours[thing->owner];
             col2 = 1;
-            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, player->id_number))
+            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, plyr_idx))
             {
                 if ((game.play_gameturn & 4) == 0)
                 {
                     col2 = player_room_colours[thing->owner];
                     col1 = player_room_colours[thing->owner];
                 }
+                long pos_x,pos_y;
                 pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
                 pos_y = map_area->top  + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
-                if (player->id_number == thing->owner)
+                if (thing->owner == plyr_idx)
                 {
                     LbDrawPixel(pos_x, pos_y, col2);
                 } else
                 {
                     LbDrawPixel(pos_x, pos_y, col1);
                 }
+                n++;
             }
             // Special tunneler code
             if (thing->model == get_players_special_digger_breed(game.hero_player_num))
             {
-                n = get_creature_state_besides_move(thing);
-                if ( (n == CrSt_Tunnelling) || (n == CrSt_TunnellerDoingNothing) )
+                long m;
+                m = get_creature_state_besides_move(thing);
+                if ( (m == CrSt_Tunnelling) || (m == CrSt_TunnellerDoingNothing) )
                 {
+                    struct CreatureControl *cctrl;
                     cctrl = creature_control_get_from_thing(thing);
-                    for (n=0; n < 5; n++)
+                    for (m=0; m < 5; m++)
                     {
                         long memberpos;
-                        memberpos = cctrl->party.member_pos_stl[n];
+                        memberpos = cctrl->party.member_pos_stl[m];
                         if (memberpos == 0)
                             break;
+                        long pos_x,pos_y;
                         pos_x = map_area->left + block_size * stl_num_decode_x(memberpos) / STL_PER_SLB;
                         pos_y = map_area->top  + block_size * stl_num_decode_y(memberpos) / STL_PER_SLB;
                         LbDrawPixel(pos_x, pos_y, col1);
+                        n++;
                     }
                 }
             }
@@ -434,56 +457,14 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
           break;
         }
     }
-    for (i=0; i < DUNGEONS_COUNT; i++)
-    {
-        if (player_uses_call_to_arms(i))
-        {
-            struct MagicStats *magstat;
-            dungeon = get_dungeon(i);
-            lbDisplay.DrawFlags = Lb_SPRITE_UNKNOWN0010;
-            magstat = &game.magic_stats[PwrK_CALL2ARMS];
-            k = (4 * ((i + game.play_gameturn) & 7) * subtile_slab_fast(magstat->power[dungeon->field_883]));
-            pos_x = map_area->left + block_size * (int)dungeon->field_881 / STL_PER_SLB;
-            pos_y = map_area->top  + block_size * (int)dungeon->field_882 / STL_PER_SLB;
-            radius = (((k&7) + k) >> 3);
-            LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[i]);
-        }
-    }
-    if ((game.play_gameturn & 3) == 1)
-    {
-        k = 0;
-        i = game.thing_lists[TngList_Objects].index;
-        while (i != 0)
-        {
-            thing = thing_get(i);
-            if (thing_is_invalid(thing))
-            {
-              ERRORLOG("Jump to invalid thing detected");
-              break;
-            }
-            i = thing->next_of_class;
-            // Per-thing code
-            if (!thing_is_picked_up(thing))
-            {
-                if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, player->id_number))
-                {
-                  if ( thing_is_special_box(thing) || thing_is_spellbook(thing) )
-                  {
-                      pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
-                      pos_y = map_area->top  + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
-                      LbDrawPixel(pos_x, pos_y, colours[15][0][15]);
-                  }
-                }
-            }
-            // Per-thing code ends
-            k++;
-            if (k > THINGS_COUNT)
-            {
-              ERRORLOG("Infinite loop detected when sweeping things list");
-              break;
-            }
-        }
-    }
+    return n;
+}
+
+int draw_overhead_traps(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+{
+    struct Thing *thing;
+    int i,k,n;
+    n = 0;
     k = 0;
     i = game.thing_lists[TngList_Traps].index;
     while (i != 0)
@@ -498,10 +479,11 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
         // Per-thing code
         if (!thing_is_picked_up(thing))
         {
-            if (player->id_number == thing->owner)
+            if (thing->owner == plyr_idx)
             {
-                if ( (thing->byte_18) || (thing->owner == player->id_number) )
+                if ( (thing->byte_18) || (thing->owner == plyr_idx) )
                 {
+                    long pos_x,pos_y;
                     pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
                     pos_y = map_area->top  + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
                     LbDrawPixel(pos_x, pos_y, 60);
@@ -509,6 +491,7 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
                     LbDrawPixel(pos_x - 1, pos_y, 60);
                     LbDrawPixel(pos_x, pos_y + 1, 60);
                     LbDrawPixel(pos_x, pos_y - 1, 60);
+                    n++;
                 }
             }
         }
@@ -520,6 +503,60 @@ void draw_overhead_things(const struct TbRect *map_area, long block_size, Player
           break;
         }
     }
+    return n;
+}
+
+int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+{
+    int i,k,n;
+    n = 0;
+    k = 0;
+    i = game.thing_lists[TngList_Objects].index;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if (!thing_is_picked_up(thing))
+        {
+            if (subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, plyr_idx))
+            {
+              if ( thing_is_special_box(thing) || thing_is_spellbook(thing) )
+              {
+                  long pos_x,pos_y;
+                  pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
+                  pos_y = map_area->top  + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
+                  LbDrawPixel(pos_x, pos_y, colours[15][0][15]);
+                  n++;
+              }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return n;
+}
+
+void draw_overhead_things(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)
+{
+    //_DK_draw_overhead_things(x,y);
+    draw_overhead_creatures(map_area, block_size, plyr_idx);
+    draw_overhead_call_to_arms(map_area, block_size, plyr_idx);
+    if ((game.play_gameturn & 3) == 1) {
+        draw_overhead_spells(map_area, block_size, plyr_idx);
+    }
+    draw_overhead_traps(map_area, block_size, plyr_idx);
 }
 
 void draw_2d_map(void)

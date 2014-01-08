@@ -182,7 +182,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long zoom)
                     {
                         TbPixel col;
                         if ((thing->model == gui_trap_type_highlighted) && (game.play_gameturn & 1)) {
-                            col = 31;
+                            col = player_highlight_colours[thing->owner];
                         } else {
                             col = 60;
                         }
@@ -458,6 +458,9 @@ void draw_overlay_things(long zoom)
 {
     SYNCDBG(7,"Starting");
     //_DK_draw_overlay_things(zoom); return;
+    if (zoom < 1) {
+        return;
+    }
     struct PlayerInfo *player;
     player = get_my_player();
     draw_overlay_call_to_arms(player, zoom);

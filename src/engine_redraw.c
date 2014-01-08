@@ -288,13 +288,19 @@ void set_engine_view(struct PlayerInfo *player, long val)
     //_DK_set_engine_view(player, val);
     switch ( val )
     {
+    case 0:
+        player->acamera = &player->cameras[0];
+        // Allow view mode 0 only for non-local-human players
+        if (!is_my_player(player))
+            break;
+        // If it's local human player, then setting this mode is an error
     default:
         ERRORLOG("Invalid view mode %d",(int)val);
         val = 1;
     case 1:
         player->acamera = &player->cameras[1];
         if (!is_my_player(player))
-          break;
+            break;
         lens_mode = 2;
         set_sprite_view_3d();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -304,7 +310,7 @@ void set_engine_view(struct PlayerInfo *player, long val)
     case 2:
         player->acamera = &player->cameras[0];
         if (!is_my_player(player))
-          break;
+            break;
         lens_mode = 0;
         set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
@@ -313,14 +319,14 @@ void set_engine_view(struct PlayerInfo *player, long val)
     case 3:
         player->acamera = &player->cameras[2];
         if (!is_my_player(player))
-          break;
+            break;
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
         S3DSetDeadzoneRadius(1280);
         break;
     case 5:
         player->acamera = &player->cameras[3];
         if (!is_my_player(player))
-          break;
+            break;
         lens_mode = 0;
         set_sprite_view_isometric();
         S3DSetLineOfSightFunction(dummy_sound_line_of_sight);
