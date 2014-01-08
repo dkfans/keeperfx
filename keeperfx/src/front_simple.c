@@ -108,28 +108,45 @@ TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const in
     }
   }
   // Now drawing
+  int ybase;
+  ybase = spy; //inside the for() loop, ybase = spy+m*h;
   for (h=0; h<src_height; h++)
   {
       src = src_buf + h*src_width;
-      for (k=0; k<m; k++)
+      // make for(k=0;k<m;k++) but restrict k to draw area
+      int mymin, mymax;
+      mymin = -ybase;
+      if (mymin < 0) {
+          mymin = 0;
+      }
+      mymax = nlines - ybase;
+      if (mymax > m) {
+          mymax = m;
+      }
+      for (k=mymin; k<mymax; k++)
       {
-          long dst_y;
-          dst_y = spy+m*h+k;
-          if (dst_y < 0) continue;
-          if (dst_y >= nlines) break;
-          dst = dst_buf + dst_y*scanline;
+          dst = dst_buf + (ybase+k)*scanline;
+          int xbase;
+          xbase = spx; //inside the for() loop, xbase = spx+m*w;
           for (w=0; w<src_width; w++)
           {
-              for (i=0;i<m;i++)
-              {
-                  long dst_x;
-                  dst_x = spx+m*w+i;
-                  if (dst_x < 0) continue;
-                  if (dst_x >= scanline) break;
-                  dst[dst_x] = src[w];
+              // make for(i=0;i<m;i++) but restrict i to draw area
+              int mxmin, mxmax;
+              mxmin = -xbase;
+              if (mxmin < 0) {
+                  mxmin = 0;
               }
+              mxmax = scanline - xbase;
+              if (mxmax > m) {
+                  mxmax = m;
+              }
+              for (i=mxmin;i<mxmax;i++) {
+                  dst[xbase+i] = src[w];
+              }
+              xbase += m;
           }
       }
+      ybase += m;
   }
   return true;
 }
