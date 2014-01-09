@@ -30,6 +30,7 @@ struct TbRect;
 /******************************************************************************/
 #pragma pack(1)
 
+struct Camera;
 
 #pragma pack()
 /******************************************************************************/
@@ -39,7 +40,7 @@ DLLIMPORT unsigned char *_DK_hires_parchment;
 #define hires_parchment _DK_hires_parchment
 /******************************************************************************/
 void draw_map_parchment(void);
-TbBool parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h);
+TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int m);
 
 void load_parchment_file(void);
 void reload_parchment_file(TbBool hires);
@@ -48,6 +49,7 @@ void redraw_parchment_view(void);
 void redraw_minimal_overhead_view(void);
 
 long get_parchment_map_area_rect(struct TbRect *map_area);
+TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, long *map_x, long *map_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

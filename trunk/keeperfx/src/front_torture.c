@@ -235,7 +235,7 @@ TbBool fronttorture_draw(void)
   spx = 0;//(mdinfo->Width-m*img_width)>>1;
   spy = 0;//(mdinfo->Height-m*img_height)>>1;
   copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-      spx,spy,torture_background,img_width,img_height,m);
+      img_width*m,img_height*m,spx,spy,torture_background,img_width,img_height);
 
   for (i=0; i < torture_doors_available; i++)
   {
