@@ -444,7 +444,7 @@ void frontend_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
   spy = rect_y + ((rect_h-m*img_height)>>1);
   // Do the drawing
   copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-      spx,spy,srcbuf,img_width,img_height,m);
+      img_width*m,img_height*m,spx,spy,srcbuf,img_width,img_height);
 }
 
 /******************************************************************************/

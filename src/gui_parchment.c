@@ -146,7 +146,26 @@ long get_parchment_map_area_rect(struct TbRect *map_area)
     return block_size;
 }
 
-TbBool parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
+TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, const long screen_y, long *map_x, long *map_y)
+{
+    // Sizes of the parchment map on which we are
+    long block_size;
+    struct TbRect map_area;
+    block_size = get_parchment_map_area_rect(&map_area);
+    // Check if we're within coordinates with the screen position
+    *map_x = 0;
+    *map_y = 0;
+    if ((screen_x >= map_area.left) && (screen_x < map_area.right)
+      && (screen_y >= map_area.top) && (screen_y < map_area.bottom))
+    {
+        *map_x = 256 * STL_PER_SLB * (screen_x-map_area.left) / block_size + 128;
+        *map_y = 256 * STL_PER_SLB * (screen_y-map_area.top) / block_size + 128;
+        return ((*map_x >= 0) && (*map_x < (map_subtiles_x+1)<<8) && (*map_y >= 0) && (*map_y < (map_subtiles_y+1)<<8));
+    }
+    return false;
+}
+
+TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int m)
 {
     int img_width;
     int img_height;
@@ -165,19 +184,15 @@ TbBool parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
     // Only 8bpp supported for now
     if (LbGraphicsScreenBPP() != 8)
         return false;
-    // Get background area rectangle
-    int m;
-    struct TbRect bkgnd_area;
-    m = get_parchment_background_area_rect(&bkgnd_area);
     // Do the drawing
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        bkgnd_area.left,bkgnd_area.top,srcbuf,img_width,img_height,m);
+        img_width*m,img_height*m,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
     // Burning candle flames
     const struct TbSprite *spr;
     spr = &button_sprite[198+(game.play_gameturn & 3)];
-    LbSpriteDrawScaled(bkgnd_area.left+(36*m/pixel_size),(bkgnd_area.top+0/pixel_size), spr, spr->SWidth*m, spr->SHeight*m);
+    LbSpriteDrawScaled(bkgnd_area->left+(36*m/pixel_size),(bkgnd_area->top+0/pixel_size), spr, spr->SWidth*m, spr->SHeight*m);
     spr = &button_sprite[202+(game.play_gameturn & 3)];
-    LbSpriteDrawScaled(bkgnd_area.left+(574*m/pixel_size),(bkgnd_area.top+0/pixel_size), spr, spr->SWidth*m, spr->SHeight*m);
+    LbSpriteDrawScaled(bkgnd_area->left+(574*m/pixel_size),(bkgnd_area->top+0/pixel_size), spr, spr->SWidth*m, spr->SHeight*m);
     return true;
 }
 
@@ -186,104 +201,105 @@ TbBool parchment_copy_background_at(int rect_x,int rect_y,int rect_w,int rect_h)
  */
 void draw_map_parchment(void)
 {
-    // Size of the parchment map on which we're drawing
-    struct TbRect map_area;
-    get_parchment_map_area_rect(&map_area);
+    // Get background area rectangle
+    struct TbRect bkgnd_area;
+    int m;
+    m = get_parchment_background_area_rect(&bkgnd_area);
     // Draw it
-    parchment_copy_background_at(0,0,POS_AUTO,POS_AUTO);
+    parchment_copy_background_at(&bkgnd_area, m);
     SYNCDBG(9,"Done");
 }
 
-TbPixel get_overhead_mapblock_color(long stl_x,long stl_y,long plyr_idx,TbPixel background)
+TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, TbPixel background)
 {
-  struct Thing *thing;
-  struct SlabMap *slb;
-  struct Room *room;
-  struct Map *mapblk;
-  long owner;
-  TbPixel pixval;
-  mapblk = get_map_block_at(stl_x, stl_y);
-  slb = get_slabmap_for_subtile(stl_x,stl_y);
-  owner = slabmap_owner(slb);
-  if ((((mapblk->flags & MapFlg_Unkn04) != 0) || ((mapblk->flags & MapFlg_Unkn80) != 0))
-      && ((game.play_gameturn & 4) != 0))
-  {
-    pixval = pixmap.ghost[background + 0x1A00];
-  } else
-  if ((mapblk->flags & MapFlg_Unkn01) != 0)
-  {
-    pixval = pixmap.ghost[background + 0x8C00];
-  } else
-  if (!map_block_revealed(mapblk,plyr_idx))
-  {
-    pixval = background;
-  } else
-  if ((mapblk->flags & MapFlg_IsRoom) != 0) // Room slab
-  {
-    room = subtile_room_get(stl_x, stl_y);
-    if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
+    struct Thing *thing;
+    struct SlabMap *slb;
+    struct Room *room;
+    struct Map *mapblk;
+    long owner;
+    TbPixel pixval;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    slb = get_slabmap_for_subtile(stl_x,stl_y);
+    owner = slabmap_owner(slb);
+    if ((((mapblk->flags & MapFlg_Unkn04) != 0) || ((mapblk->flags & MapFlg_Unkn80) != 0))
+        && ((game.play_gameturn & 4) != 0))
     {
-      pixval = player_highlight_colours[owner];
+        pixval = pixmap.ghost[background + 0x1A00];
     } else
-    if (owner == game.neutral_player_num)
+    if ((mapblk->flags & MapFlg_Unkn01) != 0)
     {
-      pixval = player_room_colours[game.play_gameturn & 3];
+        pixval = pixmap.ghost[background + 0x8C00];
     } else
+    if (!map_block_revealed(mapblk,plyr_idx))
     {
-      pixval = player_room_colours[owner];
-    }
-  } else
-  {
-    if (slb->kind == SlbT_ROCK)
-    {
-      pixval = 0;
+        pixval = background;
     } else
-    if ((mapblk->flags & MapFlg_Unkn20) != 0)
+    if ((mapblk->flags & MapFlg_IsRoom) != 0) // Room slab
     {
-      pixval = pixmap.ghost[background + 0x1000];
-    } else
-    if ((mapblk->flags & MapFlg_IsDoor) != 0) // Door slab
-    {
-      thing = get_door_for_position(stl_x, stl_y);
-      if (thing_is_invalid(thing))
+      room = subtile_room_get(stl_x, stl_y);
+      if (((game.play_gameturn & 1) != 0) && (room->kind == gui_room_type_highlighted))
       {
-        pixval = 60;
-      } else
-      if ((game.play_gameturn & 1) && (thing->model == gui_door_type_highlighted))
-      {
-        pixval = player_highlight_colours[owner];
-      } else
-      if (thing->byte_18)
-      {
-        pixval = 79;
-      } else
-      {
-        pixval = 60;
-      }
-    } else
-    if ((mapblk->flags & MapFlg_IsTall) == 0)
-    {
-      if (slb->kind == SlbT_LAVA)
-      {
-        pixval = 146;
-      } else
-      if (slb->kind == SlbT_WATER)
-      {
-        pixval = 85;
+          pixval = player_highlight_colours[owner];
       } else
       if (owner == game.neutral_player_num)
       {
-        pixval = 4;
+          pixval = player_room_colours[game.play_gameturn & 3];
       } else
       {
-        pixval = player_path_colours[owner];
+          pixval = player_room_colours[owner];
       }
     } else
     {
-      pixval = background;
+      if (slb->kind == SlbT_ROCK)
+      {
+          pixval = 0;
+      } else
+      if ((mapblk->flags & MapFlg_Unkn20) != 0)
+      {
+          pixval = pixmap.ghost[background + 0x1000];
+      } else
+      if ((mapblk->flags & MapFlg_IsDoor) != 0) // Door slab
+      {
+          thing = get_door_for_position(stl_x, stl_y);
+          if (thing_is_invalid(thing))
+          {
+            pixval = 60;
+          } else
+          if ((game.play_gameturn & 1) && (thing->model == gui_door_type_highlighted))
+          {
+            pixval = player_highlight_colours[owner];
+          } else
+          if (thing->byte_18)
+          {
+            pixval = 79;
+          } else
+          {
+            pixval = 60;
+          }
+      } else
+      if ((mapblk->flags & MapFlg_IsTall) == 0)
+      {
+          if (slb->kind == SlbT_LAVA)
+          {
+            pixval = 146;
+          } else
+          if (slb->kind == SlbT_WATER)
+          {
+            pixval = 85;
+          } else
+          if (owner == game.neutral_player_num)
+          {
+            pixval = 4;
+          } else
+          {
+            pixval = player_path_colours[owner];
+          }
+        } else
+        {
+          pixval = background;
+        }
     }
-  }
-  return pixval;
+    return pixval;
 }
 
 void draw_overhead_map(const struct TbRect *map_area, long block_size, PlayerNumber plyr_idx)

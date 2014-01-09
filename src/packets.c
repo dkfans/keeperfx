@@ -2109,28 +2109,19 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
 
 void process_players_map_packet_control(long plyr_idx)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  MapSubtlCoord stl_x,stl_y;
-  SYNCDBG(6,"Starting");
-  player = get_player(plyr_idx);
-  pckt = get_packet_direct(player->packet_num);
-  // Size of the parchment map on which we're doing action
-  long block_size;
-  struct TbRect map_area;
-  block_size = get_parchment_map_area_rect(&map_area);
-  // Get map coordinates based on it
-  stl_x = STL_PER_SLB * (pckt->pos_x-map_area.left) / block_size + 1;
-  stl_y = STL_PER_SLB * (pckt->pos_y-map_area.top)  / block_size + 1;
-  if (stl_x < 0) stl_x = 0; else
-  if (stl_x > map_subtiles_x) stl_x = map_subtiles_x;
-  if (stl_y < 0) stl_y = 0; else
-  if (stl_y > map_subtiles_y) stl_y = map_subtiles_y;
-  process_map_packet_clicks(plyr_idx);
-  player->cameras[2].mappos.x.val = get_subtile_center_pos(stl_x);
-  player->cameras[2].mappos.y.val = get_subtile_center_pos(stl_y);
-  set_mouse_light(player);
-  SYNCDBG(8,"Finished");
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    SYNCDBG(6,"Starting");
+    player = get_player(plyr_idx);
+    pckt = get_packet_direct(player->packet_num);
+    // Get map coordinates based on screen coords in packet
+    long map_x, map_y;
+    point_to_overhead_map(player->acamera, pckt->pos_x, pckt->pos_y, &map_x, &map_y);
+    process_map_packet_clicks(plyr_idx);
+    player->cameras[2].mappos.x.val = map_x;
+    player->cameras[2].mappos.y.val = map_y;
+    set_mouse_light(player);
+    SYNCDBG(8,"Finished");
 }
 
 void process_map_packet_clicks(long plyr_idx)

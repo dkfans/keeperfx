@@ -74,79 +74,71 @@ unsigned char palette_buf[PALETTE_SIZE];
  * @param dst_buf Destination screen buffer.
  * @param scanline Amount of bytes making up one line in screen buffer.
  * @param nlines Amount of lines in screen buffer.
- * @param spx Starting position in screen buffer.
- * @param spy Starting position in screen buffer.
+ * @param dst_width Destination image width.
+ * @param dst_height Destination image height.
+ * @param spw Starting position in screen buffer.
+ * @param sph Starting position in screen buffer.
  * @param src_buf Source image buffer.
  * @param src_width Source image width.
  * @param src_height Source image height.
- * @param m Multiplication factor. Set it to 1 for 1:1 draw of the image.
  *     Factor of 2 would mean every pixel is repeated in both dimensions and drawn 2*2 times.
  * @return Gives true on success.
  */
-TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int spx,const int spy,
-    const unsigned char *src_buf,const int src_width,const int src_height,const int m)
+TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int dst_width,const int dst_height,
+    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height)
 {
-  int w,h,i,k;
+  int i,k;
   unsigned char *dst;
   const unsigned char *src;
-  w=0;
-  h=0;
+  // Source pixel coords
+  int sw,sh;
+  sw=0;
+  sh=0;
   // Clearing top of the canvas
-  if (spy>0)
+  for (sh=0; sh<sph; sh++)
   {
-    for (h=0; h<spy; h++)
-    {
-      dst = dst_buf + (h)*scanline;
+    dst = dst_buf + (sh)*scanline;
+    LbMemorySet(dst, 0, scanline);
+  }
+  // Clearing bottom of the canvas
+  // (Note: it must be done before drawing, to make sure we won't overwrite last line)
+  for (sh=sph+dst_height; sh<nlines; sh++)
+  {
+      dst = dst_buf + (sh)*scanline;
       LbMemorySet(dst, 0, scanline);
-    }
-    // Clearing bottom of the canvas
-    // (Note: it must be done before drawing, to make sure we won't overwrite last line)
-    for (h=nlines-spy; h<nlines; h++)
-    {
-        dst = dst_buf + (h)*scanline;
-        LbMemorySet(dst, 0, scanline);
-    }
   }
   // Now drawing
-  int ybase;
-  ybase = spy; //inside the for() loop, ybase = spy+m*h;
-  for (h=0; h<src_height; h++)
+  int dhstart;
+  dhstart = sph;
+  for (sh=0; sh<src_height; sh++)
   {
-      src = src_buf + h*src_width;
-      // make for(k=0;k<m;k++) but restrict k to draw area
-      int mymin, mymax;
-      mymin = -ybase;
-      if (mymin < 0) {
-          mymin = 0;
-      }
-      mymax = nlines - ybase;
-      if (mymax > m) {
-          mymax = m;
-      }
-      for (k=mymin; k<mymax; k++)
+      int dhend;
+      dhend = sph + (dst_height*(sh+1)/src_height);
+      src = src_buf + sh*src_width;
+      // make for(k=0;k<dhend-dhstart;k++) but restrict k to draw area
+      int mhmin, mhmax;
+      mhmin = max(0, -dhstart);
+      mhmax = min(dhend - dhstart, nlines - dhstart);
+      for (k=mhmin; k<mhmax; k++)
       {
-          dst = dst_buf + (ybase+k)*scanline;
-          int xbase;
-          xbase = spx; //inside the for() loop, xbase = spx+m*w;
-          for (w=0; w<src_width; w++)
+          dst = dst_buf + (dhstart+k)*scanline;
+          int dwstart;
+          dwstart = spw;
+          for (sw=0; sw<src_width; sw++)
           {
-              // make for(i=0;i<m;i++) but restrict i to draw area
-              int mxmin, mxmax;
-              mxmin = -xbase;
-              if (mxmin < 0) {
-                  mxmin = 0;
+              int dwend;
+              dwend = spw + (dst_width*(sw+1)/src_width);
+              // make for(i=0;i<dwend-dwstart;i++) but restrict i to draw area
+              int mwmin, mwmax;
+              mwmin = max(0,-dwstart);
+              mwmax = min(dwend - dwstart, scanline - dwstart);
+              for (i=mwmin;i<mwmax;i++) {
+                  dst[dwstart+i] = src[sw];
               }
-              mxmax = scanline - xbase;
-              if (mxmax > m) {
-                  mxmax = m;
-              }
-              for (i=mxmin;i<mxmax;i++) {
-                  dst[xbase+i] = src[w];
-              }
-              xbase += m;
+              dwstart = dwend;
           }
       }
-      ybase += m;
+      dhstart = dhend;
   }
   return true;
 }
@@ -189,7 +181,7 @@ TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_w
     spx = (LbScreenWidth()-m*img_width)>>1;
     spy = (LbScreenHeight()-m*img_height)>>1;
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        spx,spy,buf,img_width,img_height,m);
+        img_width*m,img_height*m,spx,spy,buf,img_width,img_height);
     perform_any_screen_capturing();
     LbScreenUnlock();
     LbScreenSwap();
