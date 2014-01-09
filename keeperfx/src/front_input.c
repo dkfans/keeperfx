@@ -550,10 +550,10 @@ TbBool get_level_lost_inputs(void)
         long mouse_y,mouse_x;
         mouse_x = GetMouseX();
         mouse_y = GetMouseY();
-        // Size of the parchment map on which we're doing action
-        long block_size;
-        struct TbRect map_area;
-        block_size = get_parchment_map_area_rect(&map_area);
+        // Position on the parchment map on which we're doing action
+        TbBool map_valid;
+        long map_x, map_y;
+        map_valid = point_to_overhead_map(player->acamera, mouse_x, mouse_y, &map_x, &map_y);
         if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
         {
             lbKeyOn[keycode] = 0;
@@ -566,11 +566,10 @@ TbBool get_level_lost_inputs(void)
         } else
         if ( left_button_released )
         {
-            MapSubtlCoord stl_x, stl_y;
-            stl_x = STL_PER_SLB*(mouse_x - map_area.left)/block_size + 1;
-            stl_y = STL_PER_SLB*(mouse_y - map_area.top)/block_size + 1;
-            if  (!subtile_coords_invalid(stl_x, stl_y))
-            {
+            if  ( map_valid ) {
+                MapSubtlCoord stl_x, stl_y;
+                stl_x = coord_subtile(map_x);
+                stl_y = coord_subtile(map_y);
                 set_players_packet_action(player, PckA_Unknown081, stl_x,stl_y,0,0);
                 left_button_released = 0;
             }
@@ -981,16 +980,15 @@ short get_map_action_inputs(void)
   player = get_my_player();
   mouse_x = GetMouseX();
   mouse_y = GetMouseY();
-  // Size of the parchment map on which we're doing action
-  long block_size;
-  struct TbRect map_area;
-  block_size = get_parchment_map_area_rect(&map_area);
   // Get map coordinates from mouse position on parchment screen
-  MapSubtlCoord stl_x, stl_y;
-  stl_x = STL_PER_SLB*(mouse_x - map_area.left)/block_size + 1;
-  stl_y = STL_PER_SLB*(mouse_y - map_area.top)/block_size + 1;
-  if  (!subtile_coords_invalid(stl_x, stl_y))
+  TbBool map_valid;
+  long map_x, map_y;
+  map_valid = point_to_overhead_map(player->acamera, mouse_x, mouse_y, &map_x, &map_y);
+  if  (map_valid)
   {
+      MapSubtlCoord stl_x, stl_y;
+      stl_x = coord_subtile(map_x);
+      stl_y = coord_subtile(map_y);
       if ( left_button_clicked )
       {
           left_button_clicked = 0;

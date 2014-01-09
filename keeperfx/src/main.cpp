@@ -1320,20 +1320,6 @@ TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, 
     return false;
 }
 
-short point_to_overhead_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
-{
-  *map_x = 0;
-  *map_y = 0;
-  if ((screen_x >= 150) && (screen_x < 490)
-    && (screen_y >= 56) && (screen_y < 396))
-  {
-    *map_x = 3*256 * (screen_x-150) / 4 + 384;
-    *map_y = 3*256 * (screen_y-56) / 4 + 384;
-    return ((*map_x >= 0) && (*map_x < (map_subtiles_x+1)<<8) && (*map_y >= 0) && (*map_y < (map_subtiles_y+1)<<8));
-  }
-  return false;
-}
-
 TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct Coord3d *mappos)
 {
   TbBool result;
