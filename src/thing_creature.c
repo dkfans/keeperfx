@@ -363,7 +363,29 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
 
 long creature_available_for_combat_this_turn(struct Thing *thing)
 {
-    return _DK_creature_available_for_combat_this_turn(thing);
+    //return _DK_creature_available_for_combat_this_turn(thing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    // Check once per 8 turns
+    if (((game.play_gameturn + thing->index) & 7) != 0)
+    {
+        // On first turn in a state, check anyway
+        if (game.play_gameturn - cctrl->tasks_check_turn > 1) {
+            return false;
+        }
+    }
+    if (creature_is_fleeing_combat(thing)) {
+        return false;
+    }
+    if (creature_affected_by_spell(thing, SplK_Chicken)) {
+        return false;
+    }
+    if ((thing->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & 0x02) != 0)) {
+        return false;
+    }
+    CrtrStateId i;
+    i = get_creature_state_besides_interruptions(thing);
+    return can_change_from_state_to(thing, i, CrSt_CreatureInCombat);
 }
 
 struct Thing *get_players_dungeon_heart_creature_can_see(struct Thing *creatng, PlayerNumber heart_owner)
