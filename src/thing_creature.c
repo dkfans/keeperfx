@@ -361,31 +361,34 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
     game.loaded_swipe_idx = swpe_idx;
 }
 
-long creature_available_for_combat_this_turn(struct Thing *thing)
+long creature_available_for_combat_this_turn(struct Thing *creatng)
 {
     //return _DK_creature_available_for_combat_this_turn(thing);
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     // Check once per 8 turns
-    if (((game.play_gameturn + thing->index) & 7) != 0)
+    if (((game.play_gameturn + creatng->index) & 7) != 0)
     {
         // On first turn in a state, check anyway
         if (game.play_gameturn - cctrl->tasks_check_turn > 1) {
             return false;
         }
     }
-    if (creature_is_fleeing_combat(thing)) {
+    if (creature_is_fleeing_combat(creatng) || creature_affected_by_spell(creatng, SplK_Chicken)) {
         return false;
     }
-    if (creature_affected_by_spell(thing, SplK_Chicken)) {
+    if (creature_is_being_unconscious(creatng) || creature_is_dying(creatng)) {
         return false;
     }
-    if ((thing->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & 0x02) != 0)) {
+    if (creature_is_being_dropped(creatng)) {
+        return false;
+    }
+    if ((creatng->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & 0x02) != 0)) {
         return false;
     }
     CrtrStateId i;
-    i = get_creature_state_besides_interruptions(thing);
-    return can_change_from_state_to(thing, i, CrSt_CreatureInCombat);
+    i = get_creature_state_besides_interruptions(creatng);
+    return can_change_from_state_to(creatng, i, CrSt_CreatureInCombat);
 }
 
 struct Thing *get_players_dungeon_heart_creature_can_see(struct Thing *creatng, PlayerNumber heart_owner)
@@ -771,7 +774,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             magstat = &game.magic_stats[PwrK_CONCEAL];
             fill_spell_slot(thing, i, spell_idx, magstat->power[spell_lev]);
             cctrl->spell_flags |= CSAfF_Invisibility;
-            cctrl->field_AF = 0;
+            cctrl->force_visible = 0;
         }
         break;
     case SplK_Teleport:
@@ -1015,7 +1018,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Invisibility:
         cctrl->spell_flags &= ~CSAfF_Invisibility;
-        cctrl->field_AF = 0;
+        cctrl->force_visible = 0;
         break;
     case SplK_Teleport:
         cctrl->affected_by_spells &= ~CCSpl_Teleport;
@@ -2560,10 +2563,10 @@ void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, lo
     }
     if (inst_inf->force_visibility)
     {
-        i = cctrl->field_AF;
+        i = cctrl->force_visible;
         if (i <= inst_inf->force_visibility)
           i = inst_inf->force_visibility;
-        cctrl->field_AF = i;
+        cctrl->force_visible = i;
     }
     get_creature_instance_times(thing, inst_idx, &itime, &aitime);
     if ((cctrl->instance_id != CrInst_NULL) && (cctrl->instance_id == inst_idx))

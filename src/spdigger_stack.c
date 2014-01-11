@@ -1502,9 +1502,40 @@ long check_place_to_dig_and_get_position(struct Thing *thing, SubtlCodedCoords s
     return 0;
 }
 
-struct Thing *check_place_to_pickup_dead_body(struct Thing *thing, long stl_x, long stl_y)
+struct Thing *check_place_to_pickup_dead_body(struct Thing *creatng, long stl_x, long stl_y)
 {
-    return _DK_check_place_to_pickup_dead_body(thing, stl_x, stl_y);
+    //return _DK_check_place_to_pickup_dead_body(thing, stl_x, stl_y);
+    struct Thing *thing;
+    long i;
+    unsigned long k;
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x,stl_y);
+    k = 0;
+    i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        // Per thing code start
+        if ((thing->class_id == TCls_DeadCreature) && ((thing->field_1 & TF1_IsDragged1) == 0)
+            && (thing->active_state == DCrSt_Unknown02) && (thing->byte_14 == 0) && corpse_is_rottable(thing)) {
+            return thing;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
 }
 
 struct Thing *check_place_to_pickup_gold(struct Thing *thing, long stl_x, long stl_y)
@@ -1966,21 +1997,21 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     return 1;
 }
 
-long check_out_worker_pickup_corpse(struct Thing *thing, struct DiggerStack *istack)
+long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *istack)
 {
     MapSubtlCoord stl_x,stl_y;
     stl_x = stl_num_decode_x(istack->field_0);
     stl_y = stl_num_decode_y(istack->field_0);
-    if (!player_has_room(thing->owner, RoK_GRAVEYARD)) {
+    if (!player_has_room(creatng->owner, RoK_GRAVEYARD)) {
         return 0;
     }
     struct Room * room;
-    room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_GRAVEYARD, 0, 1);
+    room = find_nearest_room_for_thing_with_spare_capacity(creatng, creatng->owner, RoK_GRAVEYARD, 0, 1);
     if (room_is_invalid(room))
     {
-        if (is_my_player_number(thing->owner))
+        if (is_my_player_number(creatng->owner))
         {
-            room = find_room_with_spare_capacity(thing->owner, RoK_GRAVEYARD, 1);
+            room = find_room_with_spare_capacity(creatng->owner, RoK_GRAVEYARD, 1);
             if (room_is_invalid(room)) {
                 output_message(SMsg_GraveyardTooSmall, 1000, true);
             }
@@ -1988,27 +2019,35 @@ long check_out_worker_pickup_corpse(struct Thing *thing, struct DiggerStack *ist
         istack->task_id = DigTsk_None;
         return -1;
     }
-    struct Thing *sectng;
-    sectng = check_place_to_pickup_dead_body(thing, stl_x, stl_y);
-    if (thing_is_invalid(sectng))
+    struct Thing *deadtng;
+    deadtng = check_place_to_pickup_dead_body(creatng, stl_x, stl_y);
+    if (thing_is_invalid(deadtng))
     {
         istack->task_id = DigTsk_None;
         return -1;
     }
-    if (imp_will_soon_be_working_at_excluding(thing, stl_x, stl_y))
+    if (imp_will_soon_be_working_at_excluding(creatng, stl_x, stl_y))
     {
         istack->task_id = DigTsk_None;
         return -1;
     }
-    if (!setup_person_move_to_position(thing, stl_x, stl_y, 0))
+    { // Search for enemies around pickup position
+        struct Thing *enmtng;
+        enmtng = get_creature_in_range_who_is_enemy_of_and_not_specdigger(deadtng->mappos.x.val, deadtng->mappos.y.val, 10, creatng->owner);
+        if (!thing_is_invalid(enmtng)) {
+            // A place with enemies around is not good for picking up, wait
+            return 0;
+        }
+    }
+    if (!setup_person_move_to_position(creatng, stl_x, stl_y, 0))
     {
         istack->task_id = DigTsk_None;
         return -1;
     }
-    thing->continue_state = CrSt_CreaturePicksUpCorpse;
+    creatng->continue_state = CrSt_CreaturePicksUpCorpse;
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    cctrl->pickup_object_id = sectng->index;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->pickup_object_id = deadtng->index;
     return 1;
 }
 

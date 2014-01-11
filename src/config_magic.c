@@ -1049,35 +1049,6 @@ int power_model_id(const char * code_name)
     return -1;
 }
 
-/**
- * Returns a flag which is stored in a creature affected by given spell.
- * @param spkind
- * @return
- */
-unsigned long spell_to_creature_affected_flag(SpellKind spkind)
-{
-    switch (spkind)
-    {
-    case SplK_Armour:
-        return CSAfF_Armour;
-    case SplK_Rebound:
-        return CSAfF_Rebound;
-    case SplK_Invisibility:
-        return CSAfF_Invisibility;
-    case SplK_Speed:
-        return CSAfF_Speed;
-    case SplK_Slow:
-        return CSAfF_Slow;
-    case SplK_Fly:
-        return CSAfF_Flying;
-    case SplK_Sight:
-        return CSAfF_Sight;
-    default:
-        break;
-    }
-    return 0;
-}
-
 TbBool add_spell_to_player(PowerKind spl_idx, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
