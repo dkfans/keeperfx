@@ -945,6 +945,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         if (!external_set_thing_state(thing, CrSt_InPowerHand)) {
             return false;
         }
+        remove_all_traces_of_combat(thing);
         i = get_creature_anim(thing, 9);
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
     }

@@ -130,7 +130,7 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     if (battle_creature_over <= 0) {
         return;
     }
-    //_DK_gui_get_creature_in_battle(gbtn);
+    //_DK_gui_get_creature_in_battle(gbtn); return;
     PowerKind pwmodel;
     pwmodel = 0;
     if (myplyr->work_state < PLAYER_STATES_COUNT)
@@ -138,7 +138,7 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     struct Thing *thing;
     thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
-        WARNLOG("Nonexisting thing in battle");
+        WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
         battle_creature_over = 0;
         return;
     }
