@@ -334,7 +334,7 @@ unsigned char field_88;
     unsigned char affected_by_spells;
     unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
     unsigned char field_AE;
-    short field_AF;
+    short force_visible;
     unsigned char field_B1;
     long field_B2;
     unsigned char field_B6;
