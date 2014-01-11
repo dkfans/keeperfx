@@ -205,6 +205,14 @@ enum CreatureStateTypes {
     CrStTyp_Value4,
     CrStTyp_Value5,
     CrStTyp_Value6,
+    CrStTyp_Value7,
+    CrStTyp_Value8,
+    CrStTyp_Value9,
+    CrStTyp_Value10,
+    CrStTyp_Value11,
+    CrStTyp_Value12,
+    CrStTyp_Value13,
+    CrStTyp_Value14,
 };
 
 /** Defines return values of creature state functions. */
@@ -232,20 +240,20 @@ struct StateInfo { // sizeof = 41
     CreatureStateFunc1 cleanup_state;
     CreatureStateFunc2 move_from_slab;
     CreatureStateCheck move_check;
-  unsigned char field_10;
-  unsigned char field_11;
-  unsigned char field_12;
-  unsigned char field_13;
-  unsigned char field_14;
+  unsigned char allow_fromval4;
+  unsigned char allow_fromval2;
+  unsigned char allow_fromval3;
+  unsigned char allow_fromval5;
+  unsigned char allow_fromval7;
   unsigned char field_15;
   unsigned char field_16;
-  unsigned char field_17;
-  unsigned char field_18;
-  unsigned char field_19;
-  unsigned char field_1A;
-  unsigned char field_1B;
-  unsigned char field_1C;
-  unsigned char field_1D;
+  unsigned char allow_fromval8;
+  unsigned char allow_fromval9;
+  unsigned char allow_fromval10;
+  unsigned char allow_fromval12;
+  unsigned char allow_fromval11;
+  unsigned char allow_fromval13;
+  unsigned char allow_fromval14;
   unsigned char state_type;
   unsigned char field_1F;
   unsigned char field_20;

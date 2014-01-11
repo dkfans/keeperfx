@@ -3465,7 +3465,7 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
                 crstat1 = creature_stats_get_from_thing(tng1);
                 if (!creature_affected_by_spell(tng2, SplK_Invisibility))
                     return true;
-                if (cctrl2->field_AF > 0)
+                if (cctrl2->force_visible > 0)
                     return true;
                 if (crstat1->can_see_invisible || creature_affected_by_spell(tng1, SplK_Sight))
                     return true;
@@ -3526,7 +3526,7 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, co
                 crstat1 = creature_stats_get_from_thing(tng1);
                 if (!creature_affected_by_spell(tng2, SplK_Invisibility))
                     return true;
-                if (cctrl2->field_AF > 0)
+                if (cctrl2->force_visible > 0)
                     return true;
                 if (crstat1->can_see_invisible || creature_affected_by_spell(tng1, SplK_Sight))
                     return true;
@@ -3879,52 +3879,52 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
         return false;
     switch (curr_stati->state_type)
     {
-    case 2:
-        if ( next_stati->field_11 )
+    case CrStTyp_Value2:
+        if ( next_stati->allow_fromval2 )
             return true;
         break;
-    case 3:
-        if ( next_stati->field_12 )
+    case CrStTyp_Value3:
+        if ( next_stati->allow_fromval3 )
             return true;
         break;
-    case 4:
-        if ( next_stati->field_10 )
+    case CrStTyp_Value4:
+        if ( next_stati->allow_fromval4 )
             return true;
         break;
-    case 5:
-        if ( next_stati->field_13 )
+    case CrStTyp_Value5:
+        if ( next_stati->allow_fromval5 )
             return true;
         break;
-    case 7:
-        if ( next_stati->field_14 )
+    case CrStTyp_Value7:
+        if ( next_stati->allow_fromval7 )
             return true;
         break;
-    case 8:
-        if ( next_stati->field_17 )
+    case CrStTyp_Value8:
+        if ( next_stati->allow_fromval8 )
             return true;
         break;
-    case 9:
-        if ( next_stati->field_18 )
+    case CrStTyp_Value9:
+        if ( next_stati->allow_fromval9 )
             return true;
         break;
-    case 10:
-        if ( next_stati->field_19 )
+    case CrStTyp_Value10:
+        if ( next_stati->allow_fromval10 )
             return true;
         break;
-    case 11:
-        if ( next_stati->field_1B )
+    case CrStTyp_Value11:
+        if ( next_stati->allow_fromval11 )
             return true;
         break;
-    case 12:
-        if ( next_stati->field_1A )
+    case CrStTyp_Value12:
+        if ( next_stati->allow_fromval12 )
             return true;
         break;
-    case 13:
-        if ( next_stati->field_1C )
+    case CrStTyp_Value13:
+        if ( next_stati->allow_fromval13 )
             return true;
         break;
-    case 14:
-        if ( next_stati->field_1D )
+    case CrStTyp_Value14:
+        if ( next_stati->allow_fromval14 )
             return true;
         break;
     default:

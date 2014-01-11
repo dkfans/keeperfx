@@ -341,7 +341,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         ownstrength *= support_count;
         if (enmstrength >= (fear * ownstrength) / 100)
         {
-            SYNCDBG(8,"The %s is scared due to enemy %s strength (%ld vs. %ld)",thing_model_name(creatng),thing_model_name(enmtng),(long)ownstrength,(long)enmstrength);
+            SYNCDBG(8,"The %s is scared due to enemy %s strength (%d vs. %d)",thing_model_name(creatng),thing_model_name(enmtng),(int)ownstrength,(int)enmstrength);
             return true;
         }
     }
@@ -2169,26 +2169,26 @@ void creature_in_melee_combat(struct Thing *creatng)
     }
 }
 
-short creature_in_combat(struct Thing *thing)
+short creature_in_combat(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
     CombatState combat_func;
-    cctrl = creature_control_get_from_thing(thing);
-    SYNCDBG(9,"Starting for %s index %d, combat state %d",thing_model_name(thing),(int)thing->index,(int)cctrl->combat_state_id);
+    cctrl = creature_control_get_from_thing(creatng);
+    SYNCDBG(9,"Starting for %s index %d, combat state %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->combat_state_id);
     TRACE_THING(thing);
     //return _DK_creature_in_combat(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
     TRACE_THING(enmtng);
-    if (!combat_enemy_exists(thing, enmtng))
+    if (!combat_enemy_exists(creatng, enmtng))
     {
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
-    if (creature_too_scared_for_combat(thing, enmtng))
+    if (creature_too_scared_for_combat(creatng, enmtng))
     {
-        if (!external_set_thing_state(thing, CrSt_CreatureCombatFlee)) {
-            ERRORLOG("Cannot get %s index %d into flee",thing_model_name(thing),(int)thing->index);
+        if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {
+            ERRORLOG("Cannot get %s index %d into flee",thing_model_name(creatng),(int)creatng->index);
             return 0;
         }
         cctrl->field_28E = game.play_gameturn;
@@ -2200,11 +2200,11 @@ short creature_in_combat(struct Thing *thing)
         combat_func = NULL;
     if (combat_func != NULL)
     {
-        combat_func(thing);
+        combat_func(creatng);
         return 1;
     }
-    ERRORLOG("No valid fight state %d in %s index %d",(int)cctrl->combat_state_id,thing_model_name(thing),(int)thing->index);
-    set_start_state(thing);
+    ERRORLOG("No valid fight state %d in %s index %d",(int)cctrl->combat_state_id,thing_model_name(creatng),(int)creatng->index);
+    set_start_state(creatng);
     return 0;
 }
 
@@ -2213,52 +2213,67 @@ short creature_object_combat(struct Thing *thing)
     return _DK_creature_object_combat(thing);
 }
 
-TbBool creature_look_for_combat(struct Thing *thing)
+TbBool creature_look_for_combat(struct Thing *creatng)
 {
     struct Thing *enmtng;
     struct CreatureControl *cctrl;
     long combat_kind;
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(thing),(int)thing->index);
-    TRACE_THING(thing);
-    //return _DK_creature_look_for_combat(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    combat_kind = check_for_possible_combat(thing, &enmtng);
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
+    TRACE_THING(creatng);
+    //return _DK_creature_look_for_combat(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    combat_kind = check_for_possible_combat(creatng, &enmtng);
     if (combat_kind <= 0)
     {
         if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
             return false;
         }
-        if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
+        if ( !external_set_thing_state(creatng, CrSt_CreatureCombatFlee) ) {
             return false;
         }
-        setup_combat_flee_position(thing);
+        setup_combat_flee_position(creatng);
         cctrl->field_28E = game.play_gameturn;
         return 1;
     }
 
     if (cctrl->combat_flags != 0)
     {
-        if (get_combat_state_for_combat(thing, enmtng, combat_kind) == 1) {
+        if (get_combat_state_for_combat(creatng, enmtng, combat_kind) == 1) {
           return false;
         }
     }
 
-    if ( !creature_too_scared_for_combat(thing, enmtng) )
+    // If high fear creature is invisible and not in combat, then don't let it start one
+    if (creature_affected_by_spell(creatng, SplK_Invisibility) && (cctrl->force_visible <= 0))
     {
-        set_creature_in_combat(thing, enmtng, combat_kind);
+        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(creatng);
+            if (crstat->fear_wounded >= 101)
+                return false;
+        }
+    }
+
+    // If not too scared for combat, then do the combat
+    if (!creature_too_scared_for_combat(creatng, enmtng))
+    {
+        set_creature_in_combat(creatng, enmtng, combat_kind);
         return true;
     }
 
-    if ( creature_affected_by_spell(thing, SplK_Invisibility) && (cctrl->field_AF <= 0) )
+    // If any creature is scared, invisible and not in combat, then don't let it start one
+    if ( creature_affected_by_spell(creatng, SplK_Invisibility) && (cctrl->force_visible <= 0) )
     {
-      if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
-          return false;
-      }
+        if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
+            return false;
+        }
     }
-    if ( !external_set_thing_state(thing, CrSt_CreatureCombatFlee) ) {
+    // Setup fleeing from combat
+    if ( !external_set_thing_state(creatng, CrSt_CreatureCombatFlee) ) {
+        ERRORLOG("The %s index %d is scared but cannot flee",thing_model_name(creatng),(int)creatng->index);
         return false;
     }
-    setup_combat_flee_position(thing);
+    setup_combat_flee_position(creatng);
     cctrl->field_28E = game.play_gameturn;
     return true;
 }
