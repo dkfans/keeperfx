@@ -2033,7 +2033,7 @@ long check_out_worker_pickup_corpse(struct Thing *creatng, struct DiggerStack *i
     }
     { // Search for enemies around pickup position
         struct Thing *enmtng;
-        enmtng = get_creature_in_range_who_is_enemy_of_and_not_specdigger(deadtng->mappos.x.val, deadtng->mappos.y.val, 10, creatng->owner);
+        enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(deadtng->mappos.x.val, deadtng->mappos.y.val, 10, creatng->owner);
         if (!thing_is_invalid(enmtng)) {
             // A place with enemies around is not good for picking up, wait
             return 0;

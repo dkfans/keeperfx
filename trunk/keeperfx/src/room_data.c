@@ -2240,7 +2240,7 @@ struct Room *get_room_of_given_kind_for_thing(struct Thing *thing, struct Dungeo
         if (attractiveness > 0)
         {
             struct Thing *enmtng;
-            enmtng = get_creature_in_range_who_is_enemy_of_and_not_specdigger(thing->mappos.x.val, thing->mappos.y.val, 10, thing->owner);
+            enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(thing->mappos.x.val, thing->mappos.y.val, 10, thing->owner);
             if (!thing_is_invalid(enmtng)) {
                 // A room with enemies inside is very unattractive, but still possible to select
                 attractiveness = 1;
