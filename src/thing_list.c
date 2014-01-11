@@ -296,19 +296,22 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
  * @param param Parameters exchanged between filter calls.
  * @param maximizer Previous value which made a thing pass the filter.
  */
-long near_map_block_thing_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+long near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
 {
     if ((thing->class_id == TCls_Creature) && players_are_enemies(param->plyr_idx, thing->owner))
     {
-        if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
         {
-            // Prepare reference Coord3d struct for distance computation
-            struct Coord3d refpos;
-            refpos.x.val = param->num1;
-            refpos.y.val = param->num2;
-            refpos.z.val = 0;
-            // This function should return max value when the distance is minimal, so:
-            return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+            if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
+            {
+                // Prepare reference Coord3d struct for distance computation
+                struct Coord3d refpos;
+                refpos.x.val = param->num1;
+                refpos.y.val = param->num2;
+                refpos.z.val = 0;
+                // This function should return max value when the distance is minimal, so:
+                return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+            }
         }
     }
     // If conditions are not met, return -1 to be sure thing will not be returned.
@@ -2638,14 +2641,14 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
     struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_specdigger, plyr_idx);
-    filter = near_map_block_thing_filter_is_enemy_of_and_not_specdigger;
+    filter = near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger;
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
     return get_thing_near_revealed_map_block_with_filter(pos_x, pos_y, filter, &param);
 }
 
-/** Finds creature on subtiles around given position, who is not special digger and is enemy to given player.
+/** Finds creature on subtiles around given position, who is not special digger and is enemy to given player, able to attack.
  *
  * @param pos_x Position to search around X coord.
  * @param pos_y Position to search around Y coord.
@@ -2653,13 +2656,13 @@ struct Thing *get_creature_near_who_is_enemy_of_and_not_specdigger(MapCoord pos_
  * @param plyr_idx Player whose revealed subtiles around will be searched.
  * @return The creature thing pointer, or invalid thing pointer if not found.
  */
-struct Thing *get_creature_in_range_who_is_enemy_of_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx)
+struct Thing *get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(MapCoord pos_x, MapCoord pos_y, long distance_stl, PlayerNumber plyr_idx)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     //return get_creature_near_with_filter(x, y, creature_near_filter_is_enemy_of_and_not_specdigger, plyr_idx);
-    filter = near_map_block_thing_filter_is_enemy_of_and_not_specdigger;
+    filter = near_map_block_thing_filter_is_enemy_of_able_to_attack_and_not_specdigger;
     param.plyr_idx = plyr_idx;
     param.num1 = pos_x;
     param.num2 = pos_y;
