@@ -3484,35 +3484,21 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
  */
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    struct PlayerInfo *fighplyr;
-    struct PlayerInfo *enmplyr;
-    fighplyr = get_player(fightng->owner);
-    enmplyr = get_player(enmtng->owner);
-    struct CreatureControl *fighctrl;
-    struct CreatureControl *enmctrl;
-    fighctrl = creature_control_get_from_thing(fightng);
-    enmctrl = creature_control_get_from_thing(enmtng);
-
-    /*
-    if ((enmtng->owner == fightng->owner) || (enmtng->owner == game.neutral_player_num)) {
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+        return false;
+    }
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
         return false;
     }
     if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
      || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
         return false;
     }
-    if (player_allied_with(fighplyr, enmtng->owner) && player_allied_with(enmplyr, fightng->owner)) {
-       return false;
-    }
-    */
-    if (!(fightng->owner != enmtng->owner
-         && enmtng->owner != game.neutral_player_num
-         && (fightng->owner == game.neutral_player_num
-          || enmtng->owner == game.neutral_player_num
-          || !((1 << enmtng->owner) & fighplyr->allied_players)
-          || enmtng->owner == game.neutral_player_num
-          || fightng->owner == game.neutral_player_num
-          || !(enmplyr->allied_players & (1 << fightng->owner)))))
+    struct CreatureControl *fighctrl;
+    struct CreatureControl *enmctrl;
+    fighctrl = creature_control_get_from_thing(fightng);
+    enmctrl = creature_control_get_from_thing(enmtng);
+    if (players_are_mutual_allies(fightng->owner, enmtng->owner))
     {
         if  ((fighctrl->fight_til_death == 0)
          && ((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
