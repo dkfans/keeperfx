@@ -3426,45 +3426,49 @@ TbBool process_creature_hunger(struct Thing *thing)
  * @return
  * @see players_are_enemies()
  */
-TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2)
+TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    struct PlayerInfo *player1;
-    struct PlayerInfo *player2;
-    player1 = get_player(tng1->owner);
-    player2 = get_player(tng2->owner);
-    if ((tng2->owner != tng1->owner) && (tng2->owner != game.neutral_player_num))
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+        return false;
+    }
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+        return false;
+    }
+    struct CreatureControl *fighctrl;
+    struct CreatureControl *enmctrl;
+    fighctrl = creature_control_get_from_thing(fightng);
+    enmctrl = creature_control_get_from_thing(enmtng);
+
+    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
-        if (!creature_is_kept_in_custody_by_player(tng1, tng2->owner)
-         && !creature_is_kept_in_custody_by_player(tng2, tng1->owner)) {
-            if (!player_allied_with(player1, tng2->owner)) {
-               return true;
-            }
-            if (!player_allied_with(player2, tng1->owner)) {
-               return true;
+        if  (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
+         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
+            struct Thing *tmptng;
+            tmptng = thing_get(fighctrl->battle_enemy_idx);
+            TRACE_THING(tmptng);
+            if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index)) {
+                return false;
             }
         }
+        // No self fight
+        if (enmtng->index == fightng->index) {
+            return false;
+        }
     }
-
-    struct CreatureControl *cctrl1;
-    struct CreatureControl *cctrl2;
-    struct Thing *tmptng;
-    cctrl1 = creature_control_get_from_thing(tng1);
-    cctrl2 = creature_control_get_from_thing(tng2);
-
-    tmptng = thing_get(cctrl1->battle_enemy_idx);
-    TRACE_THING(tmptng);
-    if  ( (cctrl1->spell_flags & CSAfF_MadKilling) || (cctrl2->spell_flags & CSAfF_MadKilling)
-        || ((cctrl1->combat_flags) && (tmptng->index == tng2->index)) )
+    // No fight when creature in custody
+    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
+     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+        return false;
+    }
+    // No fight while dropping
+    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng)) {
+        return false;
+    }
+    // Final check - if creature is in control and can see the enemy - fight
+    if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
-        if (tng2->index != tng1->index)
-        {
-            if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
-            && !thing_is_picked_up(tng2))
-            {
-                if (!creature_is_invisible(tng2) || creature_can_see_invisible(tng1)) {
-                    return true;
-                }
-            }
+        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
+            return true;
         }
     }
     return false;
@@ -3476,8 +3480,8 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
  * that it is identical to creature_will_attack_creature().
  * Note that this function does not include full check from players_are_enemies(),
  *  so both should be used when applicable.
- * @param tng1
- * @param tng2
+ * @param fightng
+ * @param enmtng
  * @return
  * @see players_are_enemies()
  * @see creature_will_attack_creature()
@@ -3490,17 +3494,14 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
     if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
         return false;
     }
-    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
-     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
-        return false;
-    }
     struct CreatureControl *fighctrl;
     struct CreatureControl *enmctrl;
     fighctrl = creature_control_get_from_thing(fightng);
     enmctrl = creature_control_get_from_thing(enmtng);
-    if (players_are_mutual_allies(fightng->owner, enmtng->owner))
+
+    if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
-        if  ((fighctrl->fight_til_death == 0)
+        if  ((fighctrl->fight_til_death == 0) // This differs in creature_will_attack_creature()
          && ((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
          && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
             struct Thing *tmptng;
@@ -3515,8 +3516,17 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
             return false;
         }
     }
-    if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0)
-    && !thing_is_picked_up(enmtng))
+    // No fight when creature in custody
+    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
+     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+        return false;
+    }
+    // No fight while dropping
+    if (creature_is_being_dropped(fightng) || creature_is_being_dropped(enmtng)) {
+        return false;
+    }
+    // Final check - if creature is in control and can see the enemy - fight
+    if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
     {
         if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
             return true;

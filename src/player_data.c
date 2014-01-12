@@ -143,6 +143,29 @@ TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
         && ((player2->allied_players & (1<<plyr1_idx)) != 0);
 }
 
+/**
+ * Informs if players plyr1_idx and plyr2_idx creatures are tolerating each other.
+ * This is similar to mutual alliance, but differs in conditions on nonexisting and neutral player.
+ * @param plyr1_idx Index of the first player.
+ * @param plyr2_idx Index of the second player.
+ * @return True if the players creatures are tolerating each other; false otherwise.
+ */
+TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
+{
+    struct PlayerInfo *player1,*player2;
+    // Player is always tolerating fellow creatures
+    if (plyr1_idx == plyr2_idx)
+        return true;
+    // And neutral player creatures are like fellow creatures
+    if ((plyr1_idx == game.neutral_player_num) || (plyr2_idx == game.neutral_player_num))
+        return true;
+    player1 = get_player(plyr1_idx);
+    player2 = get_player(plyr2_idx);
+    // Check if we're allied
+    return ((player1->allied_players & (1<<plyr2_idx)) != 0)
+        && ((player2->allied_players & (1<<plyr1_idx)) != 0);
+}
+
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx)
 {
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
