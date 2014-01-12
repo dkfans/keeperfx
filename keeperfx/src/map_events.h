@@ -103,6 +103,7 @@ struct Event *event_allocate_free_event_structure(void);
 void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id);
 void event_add_to_event_buttons_list(struct Event *event, struct Dungeon *dungeon);
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon);
+void event_update_on_battle_removal(void);
 void event_delete_event(long plridx, long num);
 void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, long evidx);
 void clear_events(void);
