@@ -370,27 +370,29 @@ TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_
  */
 TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_idx)
 {
-  struct Dungeon *dungeon;
-  long i;
-  //return _DK_dump_thing_in_power_hand(thing, plyr_idx);
-  dungeon = get_dungeon(plyr_idx);
-  if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND)
-    return false;
-  // Move all things in list up, to free position 0
-  for (i = MAX_THINGS_IN_HAND-1; i > 0; i--)
-  {
-    dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
-  }
-  dungeon->num_things_in_hand++;
-  dungeon->things_in_hand[0] = thing->index;
-  if (thing->class_id == TCls_Creature)
-    remove_all_traces_of_combat(thing);
-  if (is_my_player_number(thing->owner))
-  {
+    struct Dungeon *dungeon;
+    long i;
+    //return _DK_dump_thing_in_power_hand(thing, plyr_idx);
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND)
+      return false;
+    // Move all things in list up, to free position 0
+    for (i = MAX_THINGS_IN_HAND-1; i > 0; i--)
+    {
+      dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
+    }
+    dungeon->num_things_in_hand++;
+    dungeon->things_in_hand[0] = thing->index;
+    if (thing->class_id == TCls_Creature) {
+        remove_all_traces_of_combat(thing);
+    }
     if (thing->class_id == TCls_Creature)
-      play_creature_sound(thing, CrSnd_Hang, 3, 1);
-  }
-  return true;
+    {
+        if (is_my_player_number(thing->owner)) {
+            play_creature_sound(thing, CrSnd_Hang, 3, 1);
+        }
+    }
+    return true;
 }
 
 /** Checks if given thing is placed in power hand of given player.
@@ -945,7 +947,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
         if (!external_set_thing_state(thing, CrSt_InPowerHand)) {
             return false;
         }
-        remove_all_traces_of_combat(thing);
+        //Removing combat is called in insert_thing_into_power_hand_list(), so we don't have to do it here
         i = get_creature_anim(thing, 9);
         set_thing_draw(thing, i, 256, -1, -1, 0, 2);
     }

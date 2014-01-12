@@ -367,7 +367,7 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
 {
     struct CreatureControl *fcctrl;
     SYNCDBG(9,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
-    //return _DK_creature_can_have_combat_with_creature(fightng, enmtng, a2, a4, a5);
+    //return _DK_creature_can_have_combat_with_creature(fightng, enmtng, dist, move_on_ground, set_combat);
     fcctrl = creature_control_get_from_thing(fightng);
     long can_see;
     can_see = 0;
@@ -422,7 +422,7 @@ void remove_thing_from_battle_list(struct Thing *thing)
     SYNCDBG(9,"Starting for %s",thing_model_name(thing));
     //_DK_remove_thing_from_battle_list(thing); return;
     cctrl = creature_control_get_from_thing(thing);
-    if ( !thing_is_creature(thing) || creature_control_invalid(cctrl) ) {
+    if (!thing_is_creature(thing) || creature_control_invalid(cctrl)) {
       ERRORLOG("Creature should have been already removed due to death");
     }
     battle = creature_battle_get(cctrl->battle_id);
@@ -534,8 +534,9 @@ long count_creatures_really_in_combat(BattleIndex battle_id)
         cctrl = creature_control_get_from_thing(thing);
         i = cctrl->battle_prev_creatr;
         // Per thing code starts
-        if (cctrl->combat_flags)
+        if (cctrl->combat_flags != 0) {
           count++;
+        }
         // Per thing code ends
         k++;
         if (k > CREATURES_COUNT)
@@ -552,7 +553,7 @@ void cleanup_battle(BattleIndex battle_id)
     struct CreatureBattle *battle;
     struct Thing *thing;
     long count;
-    //_DK_cleanup_battle(battle_id);
+    //_DK_cleanup_battle(battle_id); return;
     battle = creature_battle_get(battle_id);
     if (creature_battle_invalid(battle))
         return;
@@ -574,6 +575,10 @@ void cleanup_battle(BattleIndex battle_id)
               break;
             }
         }
+        SYNCDBG(7,"Removed %d wanderers from battle %d",(int)k,(int)battle_id);
+    } else
+    {
+        SYNCDBG(7,"There are still %d participants in battle %d",(int)count,(int)battle_id);
     }
 }
 
@@ -802,41 +807,28 @@ TbBool battle_add(struct Thing *fighter, struct Thing *enmtng)
     return true;
 }
 
-TbBool battle_remove(struct Thing *fighter)
+TbBool battle_remove(struct Thing *fightng)
 {
-    SYNCDBG(9,"Starting for %s index %d",thing_model_name(fighter),(int)fighter->index);
-    TRACE_THING(fighter);
-    //_DK_battle_remove(fighter); return true;
+    SYNCDBG(9,"Starting for %s index %d",thing_model_name(fightng),(int)fightng->index);
+    TRACE_THING(fightng);
+    //_DK_battle_remove(fightng); return true;
     {
         struct CreatureControl *figctrl;
         long battle_id;
-        figctrl = creature_control_get_from_thing(fighter);
+        figctrl = creature_control_get_from_thing(fightng);
         battle_id = figctrl->battle_id;
         if (battle_id > 0) {
-            remove_thing_from_battle_list(fighter);
+            remove_thing_from_battle_list(fightng);
             cleanup_battle(battle_id);
         } else {
-            ERRORLOG("Attempt to remove %s index %d from battle when he isn't in one",thing_model_name(fighter),(int)fighter->index);
+            ERRORLOG("Attempt to remove %s index %d from battle when he isn't in one",thing_model_name(fightng),(int)fightng->index);
         }
         if (figctrl->battle_id > 0) {
-            ERRORLOG("Removing %s index %d from battle doesn't seem to have effect",thing_model_name(fighter),(int)fighter->index);
+            ERRORLOG("Removing %s index %d from battle doesn't seem to have effect",thing_model_name(fightng),(int)fightng->index);
             return false;
         }
     }
-    struct Event *event;
-    long i;
-    for (i=0; i < EVENTS_COUNT; i++)
-    {
-        event = &game.event[i];
-        if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
-        {
-            if ( !find_first_battle_of_mine(event->owner) )
-            {
-                event->mappos_x = 0;
-                event->mappos_y = 0;
-            }
-        }
-    }
+    event_update_on_battle_removal();
     return true;
 }
 
@@ -1294,7 +1286,6 @@ long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *r
     struct Dungeon *dungeon;
     struct CreatureControl *cctrl;
     struct Thing *thing;
-    long dist,combat_factor;
     unsigned long k;
     int i;
     SYNCDBG(8,"Starting");
@@ -1319,12 +1310,14 @@ long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *r
           {
               if ((thing != fighter) && (get_room_thing_is_on(thing) == room))
               {
+                  long dist;
+                  CrAttackType attack_type;
                   dist = get_combat_distance(fighter, thing);
-                  combat_factor = creature_can_have_combat_with_creature(fighter, thing, dist, 0, 0);
-                  if (combat_factor > 0)
+                  attack_type = creature_can_have_combat_with_creature(fighter, thing, dist, 0, 0);
+                  if (attack_type > AttckT_Unset)
                   {
                       *enemytng = thing;
-                      return combat_factor;
+                      return attack_type;
                   }
               }
           }
@@ -1431,9 +1424,7 @@ long check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing 
     {
         struct Thing *thing;
         unsigned long score;
-        long distance;
         long oppn_idx, thing_idx;
-        long result;
         // Check scores of melee opponents
         for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
         {
@@ -1446,16 +1437,18 @@ long check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing 
             if (thing_is_invalid(thing))
                 continue;
             // When counting distance, take size of creatures into account
+            long distance;
+            CrAttackType attack_type;
             distance = get_combat_distance(figtng, thing);
-            result = creature_can_have_combat_with_creature(figtng, thing, distance, 1, 0);
-            if (result > 0)
+            attack_type = creature_can_have_combat_with_creature(figtng, thing, distance, 1, 0);
+            if (attack_type > AttckT_Unset)
             {
-                score = get_combat_score(figtng, thing, result, distance);
+                score = get_combat_score(figtng, thing, attack_type, distance);
                 if (max_score < score)
                 {
                     max_score = score;
                     enmtng = thing;
-                    best = result;
+                    best = attack_type;
                 }
             }
         }
@@ -1470,9 +1463,7 @@ long check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing 
     {
         struct Thing *thing;
         unsigned long score;
-        long distance;
         long oppn_idx, thing_idx;
-        long result;
         // Check scores of ranged opponents
         for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
         {
@@ -1485,16 +1476,18 @@ long check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing 
             if (thing_is_invalid(thing))
                 continue;
             // When counting distance, take size of creatures into account
-            distance = get_2d_box_distance(&figtng->mappos, &thing->mappos) - ((long)thing->sizexy + (long)figtng->sizexy) / 2;
-            result = creature_can_have_combat_with_creature(figtng, thing, distance, 1, 0);
-            if (result > 0)
+            long distance;
+            CrAttackType attack_type;
+            distance = get_combat_distance(figtng, thing);
+            attack_type = creature_can_have_combat_with_creature(figtng, thing, distance, 1, 0);
+            if (attack_type > AttckT_Unset)
             {
-                score = get_combat_score(figtng, thing, result, distance);
+                score = get_combat_score(figtng, thing, attack_type, distance);
                 if (max_score < score)
                 {
                     max_score = score;
                     enmtng = thing;
-                    best = result;
+                    best = attack_type;
                 }
             }
         }
@@ -1539,24 +1532,27 @@ long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enm
     return (enmtng->index == other_enmtng->index) || (other_score <= curr_score + 258);
 }
 
-CrAttackType check_for_valid_combat(struct Thing *thing, struct Thing *enmtng)
+CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(19,"Starting for %s vs %s",thing_model_name(thing),thing_model_name(enmtng));
-    //return _DK_check_for_valid_combat(thing, enmtng);
-    cctrl = creature_control_get_from_thing(thing);
+    SYNCDBG(19,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
+    //return _DK_check_for_valid_combat(fightng, enmtng);
+    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
+        return AttckT_Unset;
+    }
+    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
+        return AttckT_Unset;
+    }
+    cctrl = creature_control_get_from_thing(fightng);
     CrAttackType attack_type;
     attack_type = cctrl->byte_A7;
-    if (creature_is_being_unconscious(thing) || creature_is_being_unconscious(enmtng)) {
+    if (!creature_will_attack_creature_incl_til_death(fightng, enmtng)) {
         return AttckT_Unset;
     }
-    if (!creature_will_attack_creature_incl_til_death(thing, enmtng)) {
-        return AttckT_Unset;
-    }
-    if (((game.play_gameturn + thing->index) & 7) == 0) {
+    if (((game.play_gameturn + fightng->index) & 7) == 0) {
         long dist;
-        dist = get_combat_distance(thing, enmtng);
-        attack_type = creature_can_have_combat_with_creature(thing, enmtng, dist, 1, 1);
+        dist = get_combat_distance(fightng, enmtng);
+        attack_type = creature_can_have_combat_with_creature(fightng, enmtng, dist, 1, 1);
     }
     return attack_type;
 }
@@ -1976,7 +1972,7 @@ long check_for_better_combat(struct Thing *figtng)
     //return _DK_check_for_better_combat(figtng);
     figctrl = creature_control_get_from_thing(figtng);
     // Allow the switch only once per certain amount of turns
-    if ((game.play_gameturn + figtng->index) % BATTLE_CHECK_INTERVAL)
+    if (((game.play_gameturn + figtng->index) % BATTLE_CHECK_INTERVAL) != 0)
         return 0;
     enmtng = INVALID_THING;
     combat_kind = check_for_possible_combat(figtng, &enmtng);
@@ -2072,7 +2068,7 @@ void creature_in_combat_wait(struct Thing *creatng)
     struct CreatureControl *cctrl;
     long dist;
     SYNCDBG(19,"Starting for %s",thing_model_name(creatng));
-    //_DK_creature_in_combat_wait(creatng);
+    //_DK_creature_in_combat_wait(creatng); return;
     if (check_for_better_combat(creatng)) {
         SYNCDBG(19,"Switching to better combat");
         return;
@@ -2104,7 +2100,7 @@ void creature_in_combat_wait(struct Thing *creatng)
         return;
     }
     dist = get_combat_distance(creatng, enmtng);
-    waiting_combat_move(creatng, enmtng, dist, 49);
+    waiting_combat_move(creatng, enmtng, dist, CrSt_CreatureInCombat);
     SYNCDBG(19,"Done, continuing combat");
 }
 
@@ -2268,7 +2264,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
 
     // If high fear creature is invisible and not in combat, then don't let it start one
-    if (creature_affected_by_spell(creatng, SplK_Invisibility) && (cctrl->force_visible <= 0))
+    if (creature_is_invisible(creatng))
     {
         if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
             struct CreatureStats *crstat;
@@ -2286,7 +2282,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
 
     // If any creature is scared, invisible and not in combat, then don't let it start one
-    if ( creature_affected_by_spell(creatng, SplK_Invisibility) && (cctrl->force_visible <= 0) )
+    if (creature_is_invisible(creatng))
     {
         if ( (cctrl->opponents_melee_count == 0) && (cctrl->opponents_ranged_count == 0) ) {
             return false;

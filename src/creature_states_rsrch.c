@@ -272,19 +272,22 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
         if (thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind)
             && !creature_is_being_unconscious(thing) && !creature_is_doing_anger_job(thing))
         {
-            dist = get_combat_distance(creatng, thing);
-            // If we have combat sight - we want that target, don't search anymore
-            if ( creature_can_see_combat_path(creatng, thing, dist) > 0 )
+            if (!creature_is_invisible(thing) || creature_can_see_invisible(creatng))
             {
-                *found_dist = dist;
-                *found_thing = thing;
-                return true;
-            }
-            // No combat sight - but maybe it's at least closer than previous one
-            if ( *found_dist > dist )
-            {
-                *found_dist = dist;
-                *found_thing = thing;
+                dist = get_combat_distance(creatng, thing);
+                // If we have combat sight - we want that target, don't search anymore
+                if ( creature_can_see_combat_path(creatng, thing, dist) > 0 )
+                {
+                    *found_dist = dist;
+                    *found_thing = thing;
+                    return true;
+                }
+                // No combat sight - but maybe it's at least closer than previous one
+                if ( *found_dist > dist )
+                {
+                    *found_dist = dist;
+                    *found_thing = thing;
+                }
             }
         }
         // Per thing code end
