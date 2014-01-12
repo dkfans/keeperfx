@@ -63,6 +63,7 @@ class ImageData
 {
 public:
     ImageData():png_ptr(NULL),info_ptr(NULL),end_info(NULL),width(0),height(0),
+          crop_x(0), crop_y(0), crop_width(-1), crop_height(-1),
           col_bits(0),transparency_threshold(196){}
     int colorBPP(void) const
     { return col_bits; }
@@ -71,6 +72,7 @@ public:
     png_infop end_info;
     png_uint_32 width, height;
     ColorTranparency transMap;
+    int crop_x, crop_y, crop_width, crop_height;
     int color_type;
     int col_bits;
     int transparency_threshold;

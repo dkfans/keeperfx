@@ -171,33 +171,33 @@ int clipIntensity(long x)
 
 void writeByte(FILE* f, int byte)
 {
-  char data[1];
-  data[0]=(byte&255);
-  if (fwrite(data,1,1,f)!=1) {perror("Write error"); exit(1);}
+    char data[1];
+    data[0]=(byte&255);
+    if (fwrite(data,1,1,f)!=1) {perror("Write error"); exit(1);}
 }
 
 int andMaskLineLen(const ImageData& img)
 {
-  int len=(img.width+7)>>3;
-  return (len+3)&~3;
+    int len=(img.width+7)>>3;
+    return (len+3)&~3;
 }
 
 int xorMaskLineLen(const ImageData& img)
 {
-  int pixelsPerByte = (8 / img.colorBPP());
-  return ((img.width+pixelsPerByte-1)/pixelsPerByte+3)&~3;
+    int pixelsPerByte = (8 / img.colorBPP());
+    return ((img.width+pixelsPerByte-1)/pixelsPerByte+3)&~3;
 }
 
 typedef bool (*checkTransparent_t)(png_bytep, ImageData&);
 
 bool checkTransparent1(png_bytep data, ImageData& img)
 {
-  return (data[3] < img.transparency_threshold);
+    return (data[3] < img.transparency_threshold);
 }
 
 bool checkTransparent3(png_bytep, ImageData&)
 {
-  return false;
+    return false;
 }
 
 int nearest_palette_color_index(const ColorPalette& palette, const RGBAQuad quad)
@@ -288,22 +288,22 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
 
     img.transMap.resize2d(img.width,img.height);
     img.transMap.zeroize2d();
-    ws.mapErrorR.resize2d(img.height+2*SHIFT,img.width+2*SHIFT);
+    ws.mapErrorR.resize2d(img.crop_height+2*SHIFT,img.crop_width+2*SHIFT);
     ws.mapErrorR.zeroize2d();
-    ws.mapErrorG.resize2d(img.height+2*SHIFT,img.width+2*SHIFT);
+    ws.mapErrorG.resize2d(img.crop_height+2*SHIFT,img.crop_width+2*SHIFT);
     ws.mapErrorG.zeroize2d();
-    ws.mapErrorB.resize2d(img.height+2*SHIFT,img.width+2*SHIFT);
+    ws.mapErrorB.resize2d(img.crop_height+2*SHIFT,img.crop_width+2*SHIFT);
     ws.mapErrorB.zeroize2d();
 
     //second pass: convert RGB to palette entries
     //for (int y=img.height-1; y>=0; --y)
-    for (int y=0; y<img.height; y++)
+    for (int y=0; y<img.crop_height; y++)
     {
-        png_bytep row=row_pointers[y];
-        png_bytep pixel=row;
+        png_bytep row = row_pointers[y];
+        png_bytep pixel = row_pointers[img.crop_y+y] + img.crop_x*bytesPerPixel;
         ColorTranparency::Column& transPtr = img.transMap[y];
 
-        for (unsigned x=0; x<img.width; ++x)
+        for (unsigned x=0; x<img.crop_width; ++x)
         {
             bool trans=((*checkTrans)(pixel,img));
             unsigned int quad=pixel[0]+(pixel[1]<<8)+(pixel[2]<<16);
@@ -312,12 +312,14 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
             transPtr[x] = trans;
 
             int palentry = dithered_palette_color_index(ws, ws.palette, x, y, quad);
-            row[x]=palentry;
-            pixel+=bytesPerPixel;
+            row[x] = palentry;
+            pixel += bytesPerPixel;
         }
     }
 
     img.col_bits = ws.requestedColorBPP();
+    img.crop_x = 0;
+    img.crop_y = 0;
 
     return ERR_OK;
 }
@@ -328,33 +330,33 @@ short convert_rgb_to_indexed(WorkingSet& ws, ImageData& img, bool hasAlpha)
  */
 int raw_pack(png_bytep row,int width,int nbits)
 {
-  int pixelsPerByte=8/nbits;
-  if (pixelsPerByte<=1) return width;
-  int ander=(1<<nbits)-1;
-  int outByte=0;
-  int count=0;
-  int outIndex=0;
-  for (int i=0; i<width; ++i)
-  {
-    outByte+=(row[i]&ander);
-    if (++count==pixelsPerByte)
+    int pixelsPerByte=8/nbits;
+    if (pixelsPerByte<=1) return width;
+    int ander=(1<<nbits)-1;
+    int outByte=0;
+    int count=0;
+    int outIndex=0;
+    for (int i=0; i<width; ++i)
     {
-      row[outIndex]=outByte;
-      count=0;
-      ++outIndex;
-      outByte=0;
+        outByte+=(row[i]&ander);
+        if (++count==pixelsPerByte)
+        {
+            row[outIndex]=outByte;
+            count=0;
+            ++outIndex;
+            outByte=0;
+        }
+        outByte<<=nbits;
     }
-    outByte<<=nbits;
-  }
 
-  if (count>0)
-  {
-    outByte<<=nbits*(pixelsPerByte-count);
-    row[outIndex]=outByte;
-    ++outIndex;
-  }
+    if (count>0)
+    {
+        outByte<<=nbits*(pixelsPerByte-count);
+        row[outIndex]=outByte;
+        ++outIndex;
+    }
 
-  return outIndex;
+    return outIndex;
 }
 
 /**
@@ -550,10 +552,10 @@ int load_imagelist(ProgramOptions &opts, const std::string &fname, int anum = -1
         int dm[4] = {-1,-1,-1,-1};
         std::getline(infile, str, '\n');
         istringstream iss(str);
-        iss >> str >> fd[0] >> fd[1] >> fd[2] >> fd[3];
+        iss >> str >> dm[0] >> dm[1] >> dm[2] >> dm[3];
         if (!str.empty()) {
             opts.inp.push_back(ImageArea(lstpath+"/"+str,anum,dm[0],dm[1],dm[2],dm[3],fd[0],fd[1],fd[2],fd[3]));
-            LogDbg("%s anim=%d (%d %d %d %d) (%d %d %d %d)\n",str.c_str(),anum,dm[0],dm[1],dm[2],dm[3],fd[0],fd[1],fd[2],fd[3]);
+            LogDbg("%s anim=%d dm(%d %d %d %d) fd(%d %d %d %d)\n",str.c_str(),anum,dm[0],dm[1],dm[2],dm[3],fd[0],fd[1],fd[2],fd[3]);
         }
     }
     return true;
@@ -697,6 +699,26 @@ short load_inp_additional_data(ImageData& img, const ImageArea& inp, ProgramOpti
 {
     struct JontySprite *jtab;
     int ntop,nbottom,nright,nleft;
+    if ((inp.x > 0) && (inp.x < img.width)) {
+        img.crop_x = inp.x;
+    } else {
+        img.crop_x = 0;
+    }
+    if ((inp.y > 0) && (inp.y < img.height)) {
+        img.crop_y = inp.y;
+    } else {
+        img.crop_y = 0;
+    }
+    if ((inp.w > 0) && (img.crop_x+inp.w < img.width)) {
+        img.crop_width = inp.w;
+    } else {
+        img.crop_width = img.width-img.crop_x;
+    }
+    if ((inp.h > 0) && (img.crop_y+inp.h < img.height)) {
+        img.crop_height = inp.h;
+    } else {
+        img.crop_height = img.height-img.crop_y;
+    }
     switch (opts.fmt)
     {
     case OutFmt_JSPR:
@@ -911,7 +933,7 @@ short show_usage(const std::string &fname)
     printf("    -v,--verbose             Verbose console output mode\n");
     printf("    -d<alg>,--diffuse<alg>   Diffusion algorithm used for bpp conversion\n");
     printf("    -l<num>,--dflevel<num>   Diffusion level, 1..100\n");
-    printf("    -f<fmt>,--format<fmt>    Output file format, RAW or HSPR\n");
+    printf("    -f<fmt>,--format<fmt>    Output file format; RAW, HSPR, SSPR, JSPR\n");
     printf("    -p<file>,--palette<file> Input PAL file name\n");
     printf("    -r<num>,--range<num>     Color values range in input PAL file, 1..255\n");
     printf("    -o<file>,--output<file>  Output image file name\n");
@@ -1043,16 +1065,16 @@ short save_smallspr_file(WorkingSet& ws, std::vector<ImageData>& imgs, const std
         {
             ImageData &img = imgs[i];
             spr_shifts[i+1].Data = ftell(rawfile) - base_pos;
-            spr_shifts[i+1].SWidth = img.width;
-            spr_shifts[i+1].SHeight = img.height;
+            spr_shifts[i+1].SWidth = img.crop_width;
+            spr_shifts[i+1].SHeight = img.crop_height;
             std::vector<png_byte> out_row;
-            out_row.resize(img.width*3);
+            out_row.resize(img.crop_width*3);
             png_bytep * row_pointers = png_get_rows(img.png_ptr, img.info_ptr);
-            for (int y=0; y<img.height; y++)
+            for (int y=0; y<img.crop_height; y++)
             {
-                png_bytep inp_row = row_pointers[y];
-                ColorTranparency::Column& inp_trans = img.transMap[y];
-                int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.width,0,ws.palette);
+                png_bytep inp_row = row_pointers[img.crop_y+y];
+                ColorTranparency::Column& inp_trans = img.transMap[img.crop_y+y];
+                int newLength = sspr_pack(&out_row.front(),inp_row,inp_trans,img.crop_width,img.crop_x,ws.palette);
                 if (fwrite(&out_row.front(),newLength,1,rawfile) != 1)
                 { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
             }

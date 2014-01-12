@@ -397,6 +397,36 @@ pkg/data/tmapa004.dat \
 pkg/data/tmapa005.dat \
 pkg/data/tmapa006.dat \
 pkg/data/tmapa007.dat \
+pkg/data/swpe00.dat \
+pkg/data/swpe01.dat \
+pkg/data/swpe02.dat \
+pkg/data/swpe03.dat \
+pkg/data/swpe04.dat \
+pkg/data/swpe05.dat \
+pkg/data/swpe06.dat \
+pkg/data/swpe07.dat \
+pkg/data/swpe08.dat \
+pkg/data/swpe09.dat \
+pkg/data/swpe10.dat \
+pkg/data/swpe11.dat \
+pkg/data/swpe12.dat \
+pkg/data/swpe13.dat \
+pkg/data/swpe14.dat \
+pkg/data/swpe15.dat \
+pkg/data/swpe16.dat \
+pkg/data/swpe17.dat \
+pkg/data/swpe18.dat \
+pkg/data/swpe19.dat \
+pkg/data/swpe20.dat \
+pkg/data/swpe21.dat \
+pkg/data/swpe22.dat \
+pkg/data/swpe23.dat \
+pkg/data/swpe24.dat \
+pkg/data/swpe25.dat \
+pkg/data/swpe26.dat \
+pkg/data/swpe27.dat \
+pkg/data/swpe28.dat \
+pkg/data/swpe29.dat \
 pkg/data/gmapbug.dat
 
 STDOBJS   = $(subst obj/,obj/std/,$(OBJS))
@@ -823,6 +853,42 @@ pkg/data/lofont.dat: gfx/font_simp-32/filelist_lofont.txt pkg/data/palette.dat $
 pkg/data/font2-0.dat: gfx/font2-32/filelist_font2-0.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/font2-1.dat: gfx/font2-64/filelist_font2-1.txt pkg/data/palette.dat $(PNGTORAW) $(RNC)
 pkg/data/creature.jty: gfx/sprites/animlist.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/swpe00.dat: gfx/swipes/filelist_bhandrl_frame1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe01.dat: gfx/swipes/filelist_bhandrl_frame2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe02.dat: gfx/swipes/filelist_bhandrl_frame3.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe03.dat: gfx/swipes/filelist_bhandrl_frame4.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe04.dat: gfx/swipes/filelist_bhandrl_frame5.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/swpe05.dat: gfx/swipes/filelist_swordrl_frame1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe06.dat: gfx/swipes/filelist_swordrl_frame2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe07.dat: gfx/swipes/filelist_swordrl_frame3.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe08.dat: gfx/swipes/filelist_swordrl_frame4.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe09.dat: gfx/swipes/filelist_swordrl_frame5.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/swpe10.dat: gfx/swipes/filelist_scythlr_frame1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe11.dat: gfx/swipes/filelist_scythlr_frame2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe12.dat: gfx/swipes/filelist_scythlr_frame3.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe13.dat: gfx/swipes/filelist_scythlr_frame4.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe14.dat: gfx/swipes/filelist_scythlr_frame5.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/swpe15.dat: gfx/swipes/filelist_sticklr_frame1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe16.dat: gfx/swipes/filelist_sticklr_frame2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe17.dat: gfx/swipes/filelist_sticklr_frame3.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe18.dat: gfx/swipes/filelist_sticklr_frame4.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe19.dat: gfx/swipes/filelist_sticklr_frame5.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/swpe20.dat: gfx/swipes/filelist_stickrl_frame1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe21.dat: gfx/swipes/filelist_stickrl_frame2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe22.dat: gfx/swipes/filelist_stickrl_frame3.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe23.dat: gfx/swipes/filelist_stickrl_frame4.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe24.dat: gfx/swipes/filelist_stickrl_frame5.txt pkg/data/palette.dat $(PNGTORAW)
+
+pkg/data/swpe25.dat: gfx/swipes/filelist_clawsrl_frame1.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe26.dat: gfx/swipes/filelist_clawsrl_frame2.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe27.dat: gfx/swipes/filelist_clawsrl_frame3.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe28.dat: gfx/swipes/filelist_clawsrl_frame4.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/swpe29.dat: gfx/swipes/filelist_clawsrl_frame5.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/frac%.raw:
 	-$(ECHO) 'Building RAW texture: $@'
