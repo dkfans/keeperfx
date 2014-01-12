@@ -2704,7 +2704,9 @@ void draw_swipe(void)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->instance_id == 1) || (cctrl->instance_id == 2) || (cctrl->instance_id == 39))
+        if ((cctrl->instance_id == CrInst_SWING_WEAPON_SWORD)
+         || (cctrl->instance_id == CrInst_SWING_WEAPON_FIST)
+         || (cctrl->instance_id == CrInst_FIRST_PERSON_DIG))
         {
             struct TbSprite *startspr;
             struct TbSprite *endspr;
