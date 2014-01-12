@@ -1537,12 +1537,6 @@ CrAttackType check_for_valid_combat(struct Thing *fightng, struct Thing *enmtng)
     struct CreatureControl *cctrl;
     SYNCDBG(19,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
     //return _DK_check_for_valid_combat(fightng, enmtng);
-    if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
-        return AttckT_Unset;
-    }
-    if (thing_is_picked_up(fightng) || thing_is_picked_up(enmtng)) {
-        return AttckT_Unset;
-    }
     cctrl = creature_control_get_from_thing(fightng);
     CrAttackType attack_type;
     attack_type = cctrl->byte_A7;
