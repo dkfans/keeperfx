@@ -4446,6 +4446,20 @@ TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     return true;
 }
 
+TbBool creature_is_invisible(const struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    return creature_affected_by_spell(thing, SplK_Invisibility) && (cctrl->force_visible <= 0);
+}
+
+TbBool creature_can_see_invisible(const struct Thing *thing)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    return (crstat->can_see_invisible) || creature_affected_by_spell(thing, SplK_Sight);
+}
+
 TbBool creature_stats_debug_dump(void)
 {
     struct Thing *thing;

@@ -3060,12 +3060,11 @@ CrCheckRet move_check_can_damage_wall(struct Thing *creatng)
   return _DK_move_check_can_damage_wall(creatng);
 }
 
-long creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
+CrAttackType creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing ** enemytng)
 {
     struct Map *mapblk;
     MapSubtlCoord endstl_x,endstl_y;
     MapSubtlCoord stl_x,stl_y;
-    long dist;
     endstl_x = slab_subtile(slb_x+1,0);
     endstl_y = slab_subtile(slb_y+1,0);
     for (stl_y = slab_subtile(slb_y,0); stl_y < endstl_y; stl_y++)
@@ -3073,7 +3072,6 @@ long creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSl
         for (stl_x = slab_subtile(slb_x,0); stl_x < endstl_x; stl_x++)
         {
             struct Thing *thing;
-            long can_combat;
             long i;
             unsigned long k;
             mapblk = get_map_block_at(stl_x,stl_y);
@@ -3094,11 +3092,13 @@ long creature_can_have_combat_with_creature_on_slab(struct Thing *creatng, MapSl
                 {
                     if ((get_creature_model_flags(thing) & MF_IsSpecDigger) == 0)
                     {
+                        long dist;
+                        CrAttackType attack_type;
                         dist = get_combat_distance(creatng, thing);
-                        can_combat = creature_can_have_combat_with_creature(creatng, thing, dist, 0, 0);
-                        if (can_combat > 0) {
+                        attack_type = creature_can_have_combat_with_creature(creatng, thing, dist, 0, 0);
+                        if (attack_type > 0) {
                             (*enemytng) = thing;
-                            return can_combat;
+                            return attack_type;
                         }
                     }
                 }
@@ -3120,13 +3120,13 @@ CrCheckRet move_check_kill_creatures(struct Thing *creatng)
 {
     struct Thing * enemytng;
     MapSlabCoord slb_x,slb_y;
-    long can_combat;
+    CrAttackType attack_type;
     //return _DK_move_check_kill_creatures(thing);
     slb_x = creatng->mappos.x.stl.num/3;
     slb_y = creatng->mappos.y.stl.num/3;
-    can_combat = creature_can_have_combat_with_creature_on_slab(creatng, slb_x, slb_y, &enemytng);
-    if (can_combat > 0) {
-        set_creature_in_combat_to_the_death(creatng, enemytng, can_combat);
+    attack_type = creature_can_have_combat_with_creature_on_slab(creatng, slb_x, slb_y, &enemytng);
+    if (attack_type > 0) {
+        set_creature_in_combat_to_the_death(creatng, enemytng, attack_type);
         return CrCkRet_Continue;
     }
     return CrCkRet_Available;
@@ -3447,7 +3447,6 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
 
     struct CreatureControl *cctrl1;
     struct CreatureControl *cctrl2;
-    struct CreatureStats *crstat1;
     struct Thing *tmptng;
     cctrl1 = creature_control_get_from_thing(tng1);
     cctrl2 = creature_control_get_from_thing(tng2);
@@ -3462,13 +3461,9 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
             if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
             && !thing_is_picked_up(tng2))
             {
-                crstat1 = creature_stats_get_from_thing(tng1);
-                if (!creature_affected_by_spell(tng2, SplK_Invisibility))
+                if (!creature_is_invisible(tng2) || creature_can_see_invisible(tng1)) {
                     return true;
-                if (cctrl2->force_visible > 0)
-                    return true;
-                if (crstat1->can_see_invisible || creature_affected_by_spell(tng1, SplK_Sight))
-                    return true;
+                }
             }
         }
     }
@@ -3487,50 +3482,58 @@ TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thin
  * @see players_are_enemies()
  * @see creature_will_attack_creature()
  */
-TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, const struct Thing *tng2)
+TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng, const struct Thing *enmtng)
 {
-    struct PlayerInfo *player1;
-    struct PlayerInfo *player2;
-    player1 = get_player(tng1->owner);
-    player2 = get_player(tng2->owner);
-    if ((tng2->owner != tng1->owner) && (tng2->owner != game.neutral_player_num))
+    struct PlayerInfo *fighplyr;
+    struct PlayerInfo *enmplyr;
+    fighplyr = get_player(fightng->owner);
+    enmplyr = get_player(enmtng->owner);
+    struct CreatureControl *fighctrl;
+    struct CreatureControl *enmctrl;
+    fighctrl = creature_control_get_from_thing(fightng);
+    enmctrl = creature_control_get_from_thing(enmtng);
+
+    /*
+    if ((enmtng->owner == fightng->owner) || (enmtng->owner == game.neutral_player_num)) {
+        return false;
+    }
+    if (creature_is_kept_in_custody_by_player(fightng, enmtng->owner)
+     || creature_is_kept_in_custody_by_player(enmtng, fightng->owner)) {
+        return false;
+    }
+    if (player_allied_with(fighplyr, enmtng->owner) && player_allied_with(enmplyr, fightng->owner)) {
+       return false;
+    }
+    */
+    if (!(fightng->owner != enmtng->owner
+         && enmtng->owner != game.neutral_player_num
+         && (fightng->owner == game.neutral_player_num
+          || enmtng->owner == game.neutral_player_num
+          || !((1 << enmtng->owner) & fighplyr->allied_players)
+          || enmtng->owner == game.neutral_player_num
+          || fightng->owner == game.neutral_player_num
+          || !(enmplyr->allied_players & (1 << fightng->owner)))))
     {
-        if (!creature_is_kept_in_custody_by_player(tng1, tng2->owner)
-         && !creature_is_kept_in_custody_by_player(tng2, tng1->owner)) {
-            if (!player_allied_with(player1, tng2->owner)) {
-               return true;
-            }
-            if (!player_allied_with(player2, tng1->owner)) {
-               return true;
+        if  ((fighctrl->fight_til_death == 0)
+         && ((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
+         && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
+            struct Thing *tmptng;
+            tmptng = thing_get(fighctrl->battle_enemy_idx);
+            TRACE_THING(tmptng);
+            if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index)) {
+                return false;
             }
         }
+        // No self fight
+        if (enmtng->index == fightng->index) {
+            return false;
+        }
     }
-
-    struct CreatureControl *cctrl1;
-    struct CreatureControl *cctrl2;
-    struct CreatureStats *crstat1;
-    struct Thing *tmptng;
-    cctrl1 = creature_control_get_from_thing(tng1);
-    cctrl2 = creature_control_get_from_thing(tng2);
-
-    tmptng = thing_get(cctrl1->battle_enemy_idx);
-    TRACE_THING(tmptng);
-    if  ((cctrl1->fight_til_death) || (cctrl1->spell_flags & CSAfF_MadKilling) || (cctrl2->spell_flags & CSAfF_MadKilling)
-        || ((cctrl1->combat_flags) && (tmptng->index == tng2->index)) )
+    if ((creature_control_exists(enmctrl)) && ((enmctrl->flgfield_1 & CCFlg_NoCompControl) == 0)
+    && !thing_is_picked_up(enmtng))
     {
-        if (tng2->index != tng1->index)
-        {
-            if ((creature_control_exists(cctrl2)) && ((cctrl2->flgfield_1 & CCFlg_NoCompControl) == 0)
-            && !thing_is_picked_up(tng2))
-            {
-                crstat1 = creature_stats_get_from_thing(tng1);
-                if (!creature_affected_by_spell(tng2, SplK_Invisibility))
-                    return true;
-                if (cctrl2->force_visible > 0)
-                    return true;
-                if (crstat1->can_see_invisible || creature_affected_by_spell(tng1, SplK_Sight))
-                    return true;
-            }
+        if (!creature_is_invisible(enmtng) || creature_can_see_invisible(fightng)) {
+            return true;
         }
     }
     return false;

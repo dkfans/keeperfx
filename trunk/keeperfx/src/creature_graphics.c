@@ -355,8 +355,6 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
 
 void update_creature_graphic_field_4F(struct Thing *thing)
 {
-    struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
     // Clear related flags
     thing->field_4F &= ~0x01;
     thing->field_4F &= ~0x10;
@@ -372,7 +370,7 @@ void update_creature_graphic_field_4F(struct Thing *thing)
         thing->field_4F |= 0x10;
         thing->field_4F |= 0x20;
     } else
-    if (creature_affected_by_spell(thing, SplK_Invisibility) && (cctrl->force_visible <= 0))
+    if (creature_is_invisible(thing))
     {
       if (is_my_player_number(thing->owner))
       {
