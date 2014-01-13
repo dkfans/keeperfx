@@ -722,7 +722,7 @@ static int room_path_cost(struct SAI_Point pos, struct RoomPathArgs * args)
 
     cost = PATH_COST_BASE_UNIT;
 
-    //TODO: check ownership, if we own tile, it is reasonable to give only lowest cost
+    //TODO AI: check ownership, if we own tile, it is reasonable to give only lowest cost
 
     if (args->rooms->wall_break_mode != SAI_WB_PREFER) {
         //find distance of closest enemy

@@ -921,7 +921,7 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
     kind_chosen = computer_choose_best_trap_kind_to_place(dungeon, check->param1, check->param2);
     if (kind_chosen <= 0)
         return 4;
-    //TODO COMPUTER_AI Maybe we should prefer corridors when placing traps?
+    //TODO COMPUTER_PLAYER Maybe we should prefer corridors when placing traps?
     for (i=0; i < COMPUTER_TRAP_LOC_COUNT; i++)
     {
         struct Coord3d *location;

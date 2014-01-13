@@ -1749,7 +1749,7 @@ void process_quit_packet(struct PlayerInfo *player, short complete_quit)
 
 TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
 {
-  //TODO: add commands from beta
+  //TODO PACKET add commands from beta
   struct PlayerInfo *player;
   struct PlayerInfo *myplyr;
   struct Packet *pckt;
