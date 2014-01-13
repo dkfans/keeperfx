@@ -46,7 +46,7 @@ struct RawBitmap bitmaps_640[] = {
   {"Loading Image",   640, 480, 8, FGrp_StdData,  "loading64.raw",    "loading64.pal",},
   {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
   {"DK Legal Splash", 640, 480, 8, FGrp_StdData,  "legal64.raw",      "legal64.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,   "startupfx64.raw",  "startupfx64.pal",},
+  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,   "startfx64.raw",    "startfx64.pal",},
 };
 
 struct RawBitmap bitmaps_320[] = {
@@ -54,7 +54,7 @@ struct RawBitmap bitmaps_320[] = {
   {"Loading Image",   320, 200, 8, FGrp_StdData,  "loading32.raw"     "loading32.pal",},
   {"NoCD Image",      320, 200, 8, FGrp_StdData,  "nocd.raw",         "nocd.pal",},
   {"DK Legal Splash", 320, 200, 8, FGrp_StdData,  "legal32.raw",      "legal32.pal",},
-  {"KeeperFX Splash", 640, 480, 8, FGrp_StdData,  "startupfx64.raw",  "startupfx64.pal",},
+  {"KeeperFX Splash", 320, 200, 8, FGrp_StdData,  "startfx32.raw",    "startfx32.pal",},
 };
 
 struct ActiveBitmap astd_bmp;

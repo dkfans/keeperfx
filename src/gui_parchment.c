@@ -79,11 +79,11 @@ void reload_parchment_file(TbBool hires)
   char *fname;
   if (hires)
   {
-      fname = prepare_file_path(FGrp_StdData,"gmaphi.raw");
+      fname = prepare_file_path(FGrp_StdData,"gmap64.raw");
       LbFileLoadAt(fname, hires_parchment);
   } else
   {
-      fname = prepare_file_path(FGrp_StdData,"gmap.raw");
+      fname = prepare_file_path(FGrp_StdData,"gmap32.raw");
       LbFileLoadAt(fname, poly_pool);
   }
   parchment_loaded = 1;
