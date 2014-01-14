@@ -117,14 +117,14 @@ struct TbLoadFiles testfont_load_files[] = {
   {"data/font0-0.tab",   (unsigned char **)&testfont[4],      (unsigned char **)&testfont_end[4],            0, 0, 0},
   {"data/font0-1.dat",   (unsigned char **)&testfont_data[5], NULL,                                          0, 0, 0},
   {"data/font0-1.tab",   (unsigned char **)&testfont[5],      (unsigned char **)&testfont_end[5],            0, 0, 0},
-  {"data/font2-0.dat",   (unsigned char **)&testfont_data[6], NULL,                                          0, 0, 0},
-  {"data/font2-0.tab",   (unsigned char **)&testfont[6],      (unsigned char **)&testfont_end[6],            0, 0, 0},
-  {"data/font2-1.dat",   (unsigned char **)&testfont_data[7], NULL,                                          0, 0, 0},
-  {"data/font2-1.tab",   (unsigned char **)&testfont[7],      (unsigned char **)&testfont_end[7],            0, 0, 0},
-  {"data/hifont.dat",    (unsigned char **)&testfont_data[8], NULL,                                          0, 0, 0},
-  {"data/hifont.tab",    (unsigned char **)&testfont[8],      (unsigned char **)&testfont_end[8],            0, 0, 0},
-  {"data/lofont.dat",    (unsigned char **)&testfont_data[9], NULL,                                          0, 0, 0},
-  {"data/lofont.tab",    (unsigned char **)&testfont[9],      (unsigned char **)&testfont_end[9],            0, 0, 0},
+  {"data/font2-32.dat",   (unsigned char **)&testfont_data[6], NULL,                                          0, 0, 0},
+  {"data/font2-32.tab",   (unsigned char **)&testfont[6],      (unsigned char **)&testfont_end[6],            0, 0, 0},
+  {"data/font2-64.dat",   (unsigned char **)&testfont_data[7], NULL,                                          0, 0, 0},
+  {"data/font2-64.tab",   (unsigned char **)&testfont[7],      (unsigned char **)&testfont_end[7],            0, 0, 0},
+  {"data/font1-64.dat",  (unsigned char **)&testfont_data[8], NULL,                                          0, 0, 0},
+  {"data/font1-64.tab",  (unsigned char **)&testfont[8],      (unsigned char **)&testfont_end[8],            0, 0, 0},
+  {"data/font1-32.dat",  (unsigned char **)&testfont_data[9], NULL,                                          0, 0, 0},
+  {"data/font1-32.tab",  (unsigned char **)&testfont[9],      (unsigned char **)&testfont_end[9],            0, 0, 0},
   {"ldata/netfont.dat",  (unsigned char **)&testfont_data[10],NULL,                                          0, 0, 0},
   {"ldata/netfont.tab",  (unsigned char **)&testfont[10],     (unsigned char **)&testfont_end[10],           0, 0, 0},
   {"data/frontend.pal",  (unsigned char **)&testfont_palette[0],NULL,                                        0, 0, 0},
@@ -134,28 +134,28 @@ struct TbLoadFiles testfont_load_files[] = {
 #endif
 
 struct TbLoadFiles mcga_load_files[] = {
-  {"data/gui.dat",       (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
-  {"data/gui2-0-0.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
-  {"data/gui.tab",       (unsigned char **)&button_sprite,         (unsigned char **)&end_button_sprites,          0, 0, 0},
-  {"data/font2-0.dat",   (unsigned char **)&winfont_data,          (unsigned char **)&end_winfont_data,            0, 0, 0},
-  {"data/font2-0.tab",   (unsigned char **)&winfont,               (unsigned char **)&end_winfonts,                0, 0, 0},
-  {"data/lofont.dat",    (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
-  {"data/lofont.tab",    (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
+  {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
+  {"data/gui1-32.tab",   (unsigned char **)&button_sprite,         (unsigned char **)&end_button_sprites,          0, 0, 0},
+  {"data/font2-32.dat",  (unsigned char **)&winfont_data,          (unsigned char **)&end_winfont_data,            0, 0, 0},
+  {"data/font2-32.tab",  (unsigned char **)&winfont,               (unsigned char **)&end_winfonts,                0, 0, 0},
+  {"data/font1-32.dat",  (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
+  {"data/font1-32.tab",  (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
   {"data/slab0-0.dat",   (unsigned char **)&gui_slab,              NULL,                                           0, 0, 0},
-  {"data/gui2-0-0.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
+  {"data/gui2-32.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
+  {"data/gui2-32.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
   {"",                    NULL,                                     NULL,                                           0, 0, 0},
 };
 
 struct TbLoadFiles vres256_load_files[] = {
-  {"data/guihi.dat",     (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
-  {"data/guihi.tab",     (unsigned char **)&button_sprite,         (unsigned char **)&end_button_sprites,          0, 0, 0},
-  {"data/font2-1.dat",   (unsigned char **)&winfont_data,          (unsigned char **)&end_winfont_data,            0, 0, 0},
-  {"data/font2-1.tab",   (unsigned char **)&winfont,               (unsigned char **)&end_winfonts,                0, 0, 0},
-  {"data/hifont.dat",    (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
-  {"data/hifont.tab",    (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
+  {"data/gui1-64.dat",   (unsigned char **)&button_sprite_data,    (unsigned char **)&end_button_sprite_data,      0, 0, 0},
+  {"data/gui1-64.tab",   (unsigned char **)&button_sprite,         (unsigned char **)&end_button_sprites,          0, 0, 0},
+  {"data/font2-64.dat",  (unsigned char **)&winfont_data,          (unsigned char **)&end_winfont_data,            0, 0, 0},
+  {"data/font2-64.tab",  (unsigned char **)&winfont,               (unsigned char **)&end_winfonts,                0, 0, 0},
+  {"data/font1-64.dat",  (unsigned char **)&font_data,             NULL,                                           0, 0, 0},
+  {"data/font1-64.tab",  (unsigned char **)&font_sprites,          (unsigned char **)&end_font_sprites,            0, 0, 0},
   {"data/slab0-1.dat",   (unsigned char **)&gui_slab,              NULL,                                           0, 0, 0},
-  {"data/gui2-0-1.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
-  {"data/gui2-0-1.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
+  {"data/gui2-64.dat",  (unsigned char **)&gui_panel_sprite_data, (unsigned char **)&end_gui_panel_sprite_data,   0, 0, 0},
+  {"data/gui2-64.tab",  (unsigned char **)&gui_panel_sprites,     (unsigned char **)&end_gui_panel_sprites,       0, 0, 0},
   {"*B_SCREEN",           (unsigned char **)&hires_parchment,       NULL,                                     640*480, 0, 0},
   {"",                    NULL,                                     NULL,                                           0, 0, 0},
 };
@@ -179,26 +179,26 @@ struct TbLoadFiles vres256_load_files_minimal[] = {
 };
 
 struct TbLoadFiles low_res_pointer_load_files[] = {
-  {"data/lpointer.dat",   (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
-  {"data/lpointer.tab",   (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
+  {"data/pointer32.dat",   (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
+  {"data/pointer32.tab",   (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
   {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 
 struct TbLoadFiles low_res_small_pointer_load_files[] = {
-  {"data/lpoints.dat",    (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
-  {"data/lpoints.tab",    (unsigned char **)&pointer_sprites,      (unsigned char **)&end_pointer_sprites,         0, 0, 0},
+  {"data/points32.dat",    (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
+  {"data/points32.tab",    (unsigned char **)&pointer_sprites,      (unsigned char **)&end_pointer_sprites,         0, 0, 0},
   {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 
 struct TbLoadFiles hi_res_pointer_load_files[] = {
-  {"data/hpointer.dat",   (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
-  {"data/hpointer.tab",   (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
+  {"data/pointer64.dat",   (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
+  {"data/pointer64.tab",   (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
   {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 
 struct TbLoadFiles hi_res_small_pointer_load_files[] = {
-  {"data/hpoints.dat",    (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
-  {"data/hpoints.tab",    (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
+  {"data/points64.dat",    (unsigned char **)&pointer_data,          NULL,                                          0, 0, 0},
+  {"data/points64.tab",    (unsigned char **)&pointer_sprites,       (unsigned char **)&end_pointer_sprites,        0, 0, 0},
   {"",                    NULL,                                     NULL,                                          0, 0, 0},
 };
 

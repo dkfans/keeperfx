@@ -215,7 +215,7 @@ TbBool person_move_somewhere_adjacent_in_room(struct Thing *thing, const struct 
 
 /**
  * Returns a hero gate object to which given hero can navigate.
- * @todo HERO_AI It returns first hero door found, not the best one.
+ * @todo CREATURE_AI It returns first hero door found, not the best one.
  *     Maybe it should find the one he will reach faster, or at least a random one?
  * @param herotng The hero to be able to make it to gate.
  * @return The gate thing, or invalid thing.

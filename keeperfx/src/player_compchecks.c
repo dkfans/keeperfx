@@ -500,7 +500,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
         return 4;
     }
     struct Coord3d pos;
-    // TODO COMPUTER_AI We should make sure the place of cast is accessible for creatures
+    // TODO COMPUTER_PLAYER We should make sure the place of cast is accessible for creatures
     pos.x.val = subtile_coord_center(room->central_stl_x);
     pos.y.val = subtile_coord_center(room->central_stl_y);
     pos.z.val = subtile_coord(1,0);

@@ -171,7 +171,6 @@ DLLIMPORT void _DK_initialise_extra_slab_info(unsigned long lv_num);
 DLLIMPORT void _DK_clear_map(void);
 DLLIMPORT long _DK_ceiling_init(unsigned long a1, unsigned long a2);
 DLLIMPORT long _DK_screen_to_map(struct Camera *camera, long scrpos_x, long scrpos_y, struct Coord3d *mappos);
-DLLIMPORT void _DK_draw_swipe(void);
 DLLIMPORT void _DK_draw_texture(long a1, long a2, long a3, long a4, long a5, long a6, long a7);
 DLLIMPORT void _DK_check_players_won(void);
 DLLIMPORT void _DK_check_players_lost(void);
@@ -2691,85 +2690,6 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
 void draw_bonus_timer(void)
 {
   _DK_draw_bonus_timer(); return;
-}
-
-void draw_swipe(void)
-{
-    struct PlayerInfo *myplyr;
-    myplyr = get_my_player();
-    //_DK_draw_swipe();
-    struct Thing *thing;
-    thing = thing_get(myplyr->controlled_thing_idx);
-    if (thing_is_creature(thing))
-    {
-        struct CreatureControl *cctrl;
-        cctrl = creature_control_get_from_thing(thing);
-        if ((cctrl->instance_id == CrInst_SWING_WEAPON_SWORD)
-         || (cctrl->instance_id == CrInst_SWING_WEAPON_FIST)
-         || (cctrl->instance_id == CrInst_FIRST_PERSON_DIG))
-        {
-            struct TbSprite *startspr;
-            struct TbSprite *endspr;
-            struct TbSprite *sprlist;
-            long allwidth;
-            long i,n;
-            lbDisplay.DrawFlags = 0x0004;
-            n = (int)cctrl->field_D4 * 1280 / cctrl->field_D8;
-            allwidth = 0;
-            i = abs(n) >> 8;
-            sprlist = swipe_sprites[i];
-            startspr = &sprlist[1];
-            endspr = &sprlist[1];
-            for (n=0; n < 3; n++)
-            {
-                allwidth += pixel_size * endspr->SWidth;
-                endspr++;
-            }
-            int scrpos_x, scrpos_y;
-            if (lbDisplay.ScreenMode == 1)
-              scrpos_y = 0;
-            else
-              scrpos_y = (MyScreenHeight - (startspr->SHeight + endspr->SHeight)) / 2;
-            struct TbSprite *spr;
-            if ((myplyr->field_1 & 4) != 0)
-            {
-                int deltay;
-                deltay = pixel_size * sprlist[1].SHeight;
-                for (i=0; i < 6; i+=3)
-                {
-                    spr = &startspr[i];
-                    scrpos_x = (MyScreenWidth - allwidth) / 2;
-                    for (n=0; n < 3; n++)
-                    {
-                        LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, spr);
-                        scrpos_x += pixel_size * spr->SWidth;
-                        spr++;
-                    }
-                    scrpos_y += deltay;
-                }
-            } else
-            {
-                int deltay;
-                lbDisplay.DrawFlags = 0x04|0x01;
-                for (i=0; i < 6; i+=3)
-                {
-                    spr = &sprlist[3+i];
-                    deltay = pixel_size * spr->SHeight;
-                    scrpos_x = (MyScreenWidth - allwidth) / 2;
-                    for (n=0; n < 3; n++)
-                    {
-                        LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, spr);
-                        scrpos_x += pixel_size * spr->SWidth;
-                        spr--;
-                    }
-                    scrpos_y += deltay;
-                }
-            }
-            lbDisplay.DrawFlags = 0;
-            return;
-        }
-    }
-    myplyr->field_1 ^= (myplyr->field_1 ^ 4 * UNSYNC_RANDOM(4)) & 4;
 }
 
 long near_map_block_thing_filter_queryable_object(const struct Thing *thing, MaxTngFilterParam param, long maximizer)

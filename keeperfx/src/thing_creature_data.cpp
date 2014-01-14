@@ -26,27 +26,20 @@
 extern "C" {
 #endif
 /******************************************************************************/
+unsigned char * swipe_sprite_data;
+struct TbSprite *swipe_sprites;
+unsigned char * end_swipe_sprite_data;
+struct TbSprite *end_swipe_sprites;
+
 struct TbLoadFiles swipe_load_file[] = {
-  {"data/swpe??.dat", &swipe_sprite_data[0],               &end_swipe_sprite_data[0],               0, 0, 0},
-  {"data/swpe??.tab", (unsigned char **)&swipe_sprites[0], (unsigned char **)&end_swipe_sprites[0], 0, 0, 0},
-  {"data/swpe??.dat", &swipe_sprite_data[1],               &end_swipe_sprite_data[1],               0, 0, 0},
-  {"data/swpe??.tab", (unsigned char **)&swipe_sprites[1], (unsigned char **)&end_swipe_sprites[1], 0, 0, 0},
-  {"data/swpe??.dat", &swipe_sprite_data[2],               &end_swipe_sprite_data[2],               0, 0, 0},
-  {"data/swpe??.tab", (unsigned char **)&swipe_sprites[2], (unsigned char **)&end_swipe_sprites[2], 0, 0, 0},
-  {"data/swpe??.dat", &swipe_sprite_data[3],               &end_swipe_sprite_data[3],               0, 0, 0},
-  {"data/swpe??.tab", (unsigned char **)&swipe_sprites[3], (unsigned char **)&end_swipe_sprites[3], 0, 0, 0},
-  {"data/swpe??.dat", &swipe_sprite_data[4],               &end_swipe_sprite_data[4],               0, 0, 0},
-  {"data/swpe??.tab", (unsigned char **)&swipe_sprites[4], (unsigned char **)&end_swipe_sprites[4], 0, 0, 0},
-  {"",                NULL,                                NULL,                                    0, 0, 0},
+  {"data/swipe??.dat", &swipe_sprite_data,               &end_swipe_sprite_data,               0, 0, 0},
+  {"data/swipe??.tab", (unsigned char **)&swipe_sprites, (unsigned char **)&end_swipe_sprites, 0, 0, 0},
+  {"",                 NULL,                             NULL,                                 0, 0, 0},
 };
 
 struct TbSetupSprite swipe_setup_sprites[] = {
-    {&swipe_sprites[0],  &end_swipe_sprites[0], (unsigned char **)&swipe_sprite_data[0]},
-    {&swipe_sprites[1],  &end_swipe_sprites[1], (unsigned char **)&swipe_sprite_data[1]},
-    {&swipe_sprites[2],  &end_swipe_sprites[2], (unsigned char **)&swipe_sprite_data[2]},
-    {&swipe_sprites[3],  &end_swipe_sprites[3], (unsigned char **)&swipe_sprite_data[3]},
-    {&swipe_sprites[4],  &end_swipe_sprites[4], (unsigned char **)&swipe_sprite_data[4]},
-    {NULL,               NULL,                  NULL},
+    {&swipe_sprites,  &end_swipe_sprites, (unsigned char **)&swipe_sprite_data},
+    {NULL,            NULL,               NULL},
 };
 
 /******************************************************************************/
