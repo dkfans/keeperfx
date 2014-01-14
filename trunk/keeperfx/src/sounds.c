@@ -471,7 +471,7 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
         smpl->hmhandle = NULL;
         smpl++;
     }
-    //TODO Check why we're returning nsamples * 32 and not nsamples * 16
+    //TODO SOUND Check why we're returning nsamples * 32 and not nsamples * 16
     return sizeof(struct SoundBankSample) * (*nsamples);
 }
 

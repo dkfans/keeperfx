@@ -116,11 +116,6 @@ struct Creatures creatures_NEW[] = {
 };
 
 /******************************************************************************/
-DLLIMPORT extern struct TbLoadFiles _DK_swipe_load_file[];
-//#define swipe_load_file _DK_swipe_load_file
-DLLIMPORT extern struct TbSetupSprite _DK_swipe_setup_sprites[];
-//#define swipe_setup_sprites _DK_swipe_setup_sprites
-/******************************************************************************/
 extern struct TbLoadFiles swipe_load_file[];
 extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
@@ -175,6 +170,7 @@ DLLIMPORT long _DK_creature_is_ambulating(struct Thing *creatng);
 DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *creatng, struct Thing *sectng, long a3, long a4);
 DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *creatng, struct Coord3d *pos, long a3);
 DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
+DLLIMPORT void _DK_draw_swipe(void);
 /******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
@@ -330,9 +326,8 @@ void free_swipe_graphic(void)
     LbSpriteClearAll(swipe_setup_sprites);
 }
 
-void load_swipe_graphic_for_creature(struct Thing *thing)
+TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 {
-    struct TbLoadFiles *t_lfile;
     int swpe_idx;
     int i;
     SYNCDBG(6,"Starting for %s",thing_model_name(thing));
@@ -340,25 +335,107 @@ void load_swipe_graphic_for_creature(struct Thing *thing)
 
     i = creatures[thing->model%CREATURE_TYPES_COUNT].swipe_idx;
     if ((i == 0) || (game.loaded_swipe_idx == i))
-        return;
+        return true;
     free_swipe_graphic();
-    swpe_idx = 5 * (i-1);
-    t_lfile = &swipe_load_file[0];
-    for (i=0; i < 5; i++)
+    swpe_idx = i;
     {
-        sprintf(t_lfile->FName, "data/swpe%02d.dat", swpe_idx+i);
+        struct TbLoadFiles *t_lfile;
+        t_lfile = &swipe_load_file[0];
+        sprintf(t_lfile->FName, "data/swipe%02d.dat", swpe_idx);
         t_lfile++;
-        sprintf(t_lfile->FName, "data/swpe%02d.tab", swpe_idx+i);
+        sprintf(t_lfile->FName, "data/swipe%02d.tab", swpe_idx);
         t_lfile++;
     }
     if ( LbDataLoadAll(swipe_load_file) )
     {
         free_swipe_graphic();
         ERRORLOG("Unable to load swipe graphics for %s",thing_model_name(thing));
-        return;
+        return false;
     }
     LbSpriteSetupAll(swipe_setup_sprites);
     game.loaded_swipe_idx = swpe_idx;
+    return true;
+}
+
+void draw_swipe_graphic(void)
+{
+    struct PlayerInfo *myplyr;
+    myplyr = get_my_player();
+    //_DK_draw_swipe();
+    struct Thing *thing;
+    thing = thing_get(myplyr->controlled_thing_idx);
+    if (thing_is_creature(thing))
+    {
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if ((cctrl->instance_id == CrInst_SWING_WEAPON_SWORD)
+         || (cctrl->instance_id == CrInst_SWING_WEAPON_FIST)
+         || (cctrl->instance_id == CrInst_FIRST_PERSON_DIG))
+        {
+            struct TbSprite *startspr;
+            struct TbSprite *endspr;
+            struct TbSprite *sprlist;
+            long allwidth;
+            long i,n;
+            lbDisplay.DrawFlags = 0x0004;
+            n = (int)cctrl->field_D4 * 1280 / cctrl->field_D8;
+            allwidth = 0;
+            i = abs(n) >> 8;
+            if (i >= SWIPE_SPRITE_FRAMES)
+                i = SWIPE_SPRITE_FRAMES-1;
+            sprlist = &swipe_sprites[SWIPE_SPRITES_X*SWIPE_SPRITES_Y*i];
+            startspr = &sprlist[1];
+            endspr = &sprlist[1];
+            for (n=0; n < SWIPE_SPRITES_X; n++)
+            {
+                allwidth += pixel_size * endspr->SWidth;
+                endspr++;
+            }
+            int scrpos_x, scrpos_y;
+            if (lbDisplay.ScreenMode == 1)
+              scrpos_y = 0;
+            else
+              scrpos_y = (MyScreenHeight - (startspr->SHeight + endspr->SHeight)) / 2;
+            struct TbSprite *spr;
+            if ((myplyr->field_1 & 4) != 0)
+            {
+                int deltay;
+                deltay = pixel_size * sprlist[1].SHeight;
+                for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
+                {
+                    spr = &startspr[i];
+                    scrpos_x = (MyScreenWidth - allwidth) / 2;
+                    for (n=0; n < SWIPE_SPRITES_X; n++)
+                    {
+                        LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, spr);
+                        scrpos_x += pixel_size * spr->SWidth;
+                        spr++;
+                    }
+                    scrpos_y += deltay;
+                }
+            } else
+            {
+                int deltay;
+                lbDisplay.DrawFlags = 0x04|0x01;
+                for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
+                {
+                    spr = &sprlist[SWIPE_SPRITES_X+i];
+                    deltay = pixel_size * spr->SHeight;
+                    scrpos_x = (MyScreenWidth - allwidth) / 2;
+                    for (n=0; n < SWIPE_SPRITES_X; n++)
+                    {
+                        LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, spr);
+                        scrpos_x += pixel_size * spr->SWidth;
+                        spr--;
+                    }
+                    scrpos_y += deltay;
+                }
+            }
+            lbDisplay.DrawFlags = 0;
+            return;
+        }
+    }
+    myplyr->field_1 ^= (myplyr->field_1 ^ 4 * UNSYNC_RANDOM(4)) & 4;
 }
 
 long creature_available_for_combat_this_turn(struct Thing *creatng)

@@ -72,7 +72,7 @@ DLLIMPORT signed char _DK_get_starting_angle_and_side_of_hug(struct Thing *creat
 /******************************************************************************/
 /**
  * Return index of a dungeon which the hero may attack.
- * @todo HERO_AI Shouldn't we support allies with heroes?
+ * @todo CREATURE_AI Shouldn't we support allies with heroes?
  *
  * @param thing The hero searching for target.
  * @return Player index, or -1 if no dungeon to attack found.

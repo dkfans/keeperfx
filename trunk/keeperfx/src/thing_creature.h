@@ -34,6 +34,10 @@ extern "C" {
 #define DEAD_CREATURES_MAX_COUNT 64
 #define NORMAL_FLYING_ALTITUDE 256
 
+#define SWIPE_SPRITES_X 3
+#define SWIPE_SPRITES_Y 2
+#define SWIPE_SPRITE_FRAMES 5
+
 #define TngGroup_LeaderIndex 0x0FFF
 /******************************************************************************/
 #pragma pack(1)
@@ -61,15 +65,8 @@ struct CreatureStorage {
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT extern unsigned char * _DK_swipe_sprite_data[];
-#define swipe_sprite_data _DK_swipe_sprite_data
-DLLIMPORT extern struct TbSprite *_DK_swipe_sprites[];
-#define swipe_sprites _DK_swipe_sprites
-DLLIMPORT extern unsigned char * _DK_end_swipe_sprite_data[];
-#define end_swipe_sprite_data _DK_end_swipe_sprite_data
-DLLIMPORT extern struct TbSprite *_DK_end_swipe_sprites[];
-#define end_swipe_sprites _DK_end_swipe_sprites
-/******************************************************************************/
+extern struct TbSprite *swipe_sprites;
+extern struct TbSprite *end_swipe_sprites;
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;
 /******************************************************************************/
@@ -96,8 +93,10 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 long get_human_controlled_creature_target(struct Thing *thing, long a2);
 struct Thing *get_creature_near_for_controlling(unsigned char a1, long a2, long a3);
-void load_swipe_graphic_for_creature(struct Thing *thing);
+
+TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
 void free_swipe_graphic(void);
+void draw_swipe_graphic(void);
 
 long creature_available_for_combat_this_turn(struct Thing *thing);
 long set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);

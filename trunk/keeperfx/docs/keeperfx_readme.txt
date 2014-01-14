@@ -488,7 +488,107 @@ New and modified level script commands:
 
 Changelog:
 
-Version: 0.43
+Version: 0.4.4
+  Added auto-generating possession swipe sprites.
+  Update to foe identification algorithm; creatures being dropped can no longer be treated as enemies.
+  Fixed problem with battles not being dissolved.
+  Modified creatures with high fear to no longer start combat when invisible.
+  Modified imps to be less interested in dead bodies laying near living enemies.
+  Teleporting creatures are now a little more interested in staying in combat.
+  Unified coordinates computation and added scaling to parchment map screen.
+  Rewritten drawing things on round minimap.
+  Fixed the problem with backward move into negative Y direction.
+  Fixed problem with bitmap font while recording a movie which lasts several levels.
+  Changed the way trap-to-crate and door-to-crate association is stored.
+  Fixed mistake in code which caused creatures which are doing nothing to wander the dungeon.
+  Replaced the non-existing GROUP job with BARRACK for skeletons.
+  Rewritten drawing of list of things in hand.
+  Allowed computer player to move creatures to lair if they don't have one yet.
+  Rewritten large part of computer player room building code.
+  Updated ComputerTask structure - created unions which store task-specific parameters for each task.
+  Forced computer player to drop things from his "fake hand" when it's being disabled or defeated.
+  Created a function which fills dungeon position using room coordinates if no soul container is present.
+  Divided the map event 'fight' into two distinct events - friendly fight and enemy fight.
+  Rewritten computer player digging room. Modified checking if the room has been dug.
+  Changed order of land view narrations, and the folder where narrations are stored.
+  Modified workshop job to be stronger used when gold is low.
+  Rewritten computing ceiling height above set of subtiles.
+  Rewritten some of computer player CTA casting code.
+  Rewritten generation of map fade ghost color file.
+  Improved room expansion to never create long, narrow rooms.
+  Rewritten computer player selecting best digging path to entrance.
+  Added support of computer player selling deployed doors.
+  Completely changed the way of tracking amount of traps and doors available to be placed.
+  Fixed computer player expanding rooms to not include slabs with traps on.
+  Implemented selling placed traps by computer player when out of money.
+  Rewritten computer player placing bridge on dig path.
+  Rewritten some of computer player attack code and hatred computation.
+  Modified gold throwing code to never create too many pots, and to distribute the gold equally amongst pots.
+  Computer player now can use temple to heal disease, and puts much higher priority to training his creatures.
+  Fixed spell casting and slapping by computer player. Computer is now aware that imps may die when slapped.
+  Improved checking creature job availability when moving creatures by computer player.
+  Computer player will now less likely put his creatures to work in rooms with enemies.
+  Updated casting keeper powers on things - a specific thing is now selected based on castability settings.
+  Fixed computer player to stop dropping creatures in rooms which are in their not_do_job list.
+  Modified CREATURE_AVAILABLE command to allow force-attracting creatures.
+  Fixed selection of random wandering position while exploring the dungeon.
+  Rewritten computer player digging to entrance. Made unifications to other digging operations.
+  Added checking for spell availability before they're used.
+  Rewritten computer player picking up imps in danger.
+  Several unifications in manufacture system and objects data.
+  Rewritten some functions related to computer player casting SoE.
+  Rewritten computer player casting spells on attackers.
+  Rewritten computer player casting speed spell on fighters.
+  Rewritten some of the sulking code.
+  Fixed distinction between AP number and AP index.
+  Original Campaign - fixed Mistle script to give the player only 3 boulder traps.
+  Rewritten drawing trap buttons; also renamed some variables.
+  Japanese DKMaps8 pack - Added messages to first map.
+  Rewritten a few functions related to battles and unconscious creatures.
+  Modified tunnelers ant tunneler parties to use the same method for storing spawn place and tunnel target.
+  Updated all .po translations of campaigns with their associated .pot template files.
+  Updated spell descriptions in translations and resaved them with POEdit.
+  Fixed unconscious creatures to no longer be attacked due to job stress.
+  Added possibility to load per-campaign creature.cfg file.
+  Added stats increase with experience as config parameters. Added different default values for Ancient Keeper.
+  Rewritten Anger Job selection.
+  Rewritten some of "persuade" anger job.
+  Rewritten some of Mad Killing code; updated mood routine to not allow mad creature to stop being angry.
+  Original Campaign - Updates to scripts of some more Deeper Dungeon levels.
+  Fixed creatures in livid state - they now stop working when very angry, as they should.
+  Original Campaign - reviewed and updated scripts for all levels.
+  Original Campaign - fixed bonus levels to use correct text messages.
+  Updated some more of multiplayer levels script files; only irrelevant changes.
+  Updated some of script files, mostly from multiplayer levels, but also from original campaign.
+  Generated .pot translation templates for 3 campaigns - pstunded, questfth, twinkprs.
+  Prepared translation files for "Conquest of the Arctic" campaign.
+  Documented some tools. Added a script which helps in creating .pot files for translations.
+  Rewritten traps creation routines.
+  Rewritten destroying a door.
+  Rewritten some of freezing prisoners code.
+  Fixed a mistake in trap placing conditions.
+  Rewritten computer player digging routine.
+  Rewritten some of picking up things code.
+  Rewritten searching for interesting neutral places by computer player.
+  Improved high score table input.
+  Rewritten color matching function which finds best color index for given RGB values.
+  Rewritten some of working in barracks and placing traps code.
+  Divided computer player door placement function to make it more clear.
+  Rewritten computer player search for enemy entrances and placing doors around rooms.
+  Some unifications in functions relatedto moving in rooms.
+  Rewritten a torture-related function.
+  Renamed job TEMPLE to TEMPLE_PRAY.
+  Fixed bug with not being able to manufacture resulting in not being able to pray.
+  Fixed problem with sell button being shown incorrectly when mouse button is kept down on it.
+  Minor renaming which affect quite lot of files.
+  Rewritten a missing part of FLI files creation; also updated memory management routines.
+  Activated some of rewritten sound handling code.
+  Rewritten some GUI-related routines.
+  Fixed some potential problems with config files parsing.
+  Fixed problem with invalid value casting causing long wait in creature doing nothing state.
+  PngPal2Raw - Finished support of JTY files, fixed for better error handling.
+
+Version: 0.4.3
   Rewritten some of creature tunneling code and position computation when tunneling.
   Rewritten some of heroes attacking rooms and dropping gold code.
   Rewritten moving creatures in workshop.
@@ -543,7 +643,7 @@ Version: 0.43
   Launchwx - Removed a few unused or auto-generated files from KeeperFX installation
   PngPal2Raw - created loading of TXT animation lists for JSPR(JTY) format support.
 
-Version: 0.42
+Version: 0.4.2
   Launcher updated with additional options
   More graphics data files are created from PNGs
   Made Slap spell do be added to a player by default
@@ -574,7 +674,7 @@ Version: 0.42
   Fixed and re-enabled the new pathfinding code
   Rewritten some imps tasks which make use of pathfinding routines
 
-Version: 0.41
+Version: 0.4.1
   Updates to land view screen
   Integrated Post Undead Keeper campaign
   Integrated Conquest of the Arctic campaign
@@ -638,11 +738,11 @@ Version: 0.41
   Rewritten the keeper sprite drawing function
   Rewritten creation of shot hit effects
   
-Version: 0.40a
+Version: 0.4.0a
   Renamed 'debug version' to 'heavylog version'
   Allowed making 'debug' version which is really with debug info
 
-Version: 0.40
+Version: 0.4.0
   Prepared game launcher with installation function
   Updated some internal mechanisms, ie. columns finding
   Made small revolution in the zooming system
@@ -654,7 +754,7 @@ Version: 0.40
   Fixed the sound emitter cleanup code
   Rewritten revealing map due to torture
   
-Version: 0.39a
+Version: 0.3.9a
   Updated compound eye effect for high resolution
   Fixed the problem with Dungeon Heart background sound
   Updated reading keyboard in front view, also named some constants
@@ -663,8 +763,8 @@ Version: 0.39a
   Fixed distance computing required for certain shots to hit target
   Fixed imps to continue their jobs after they finish a part of it
 
-Version: 0.39
-  Fixed the v0.38c bug with freeze on computer digging for gold
+Version: 0.3.9
+  Fixed the v0.3.8c bug with freeze on computer digging for gold
   Updated frontend menus code, some changes in network related menus
   Updated creature statistics in Ancient Keeper
   Disabled another pathfinding routine
@@ -674,12 +774,12 @@ Version: 0.39
   Rewritten dead bodies rotting code
   Rewritten searching for dead bodies by imps
 
-Version: 0.38c
+Version: 0.3.8c
   Fixed the v0.38b bug with computer keeper not digging for gold
   Rewritten some of imps and workshop related code
   Rewritten some of imp tasks code and gold counter
 
-Version: 0.38b
+Version: 0.3.8b
   Updated scripts for some maps 
   Fixed killing a creature which has an armour spell casted on
   Improved some debugging messages
@@ -689,7 +789,7 @@ Version: 0.38b
   Rewritten shot reaching its target
   Added boulder immunity to creature config files
 
-Version: 0.38a
+Version: 0.3.8a
   Added mouse sensitivity modification option
   Fixed crash on invalid movies video mode
   Fixed problem with creatures standing next to lair
@@ -698,7 +798,7 @@ Version: 0.38a
   Fixed problem with no price when selling traps
   Changed tunneler "relax" sprite to the one with sleeping
 
-Version: 0.38
+Version: 0.3.8
   Switched video support library to SDL
   Fixed duplicates level when using Multiply special
   Created some 64-bit math, similarly to original code
