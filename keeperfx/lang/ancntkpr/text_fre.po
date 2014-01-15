@@ -18,10 +18,10 @@
 # *****************************************************************************
 msgid ""
 msgstr ""
-"Project-Id-Version: KeeperFX CCP 0.40\n"
+"Project-Id-Version: Ancient Keeper campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-11-13 19:56+0100\n"
+"PO-Revision-Date: 2014-01-15 01:07+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: fr_FR\n"
@@ -1974,6 +1974,7 @@ msgid "Transfer Creature"
 msgstr "Transférer créature"
 
 #: guitext:430
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Underworld Amusement"
 msgstr "BONUS"
@@ -2133,6 +2134,7 @@ msgid "Word of Power Trap"
 msgstr "Anneaux de feu"
 
 #: guitext:583
+#, fuzzy
 msgctxt "Trap names"
 msgid "Lava Trap"
 msgstr "Lave"
@@ -2477,7 +2479,7 @@ msgstr ""
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr "POSSESSION"
+msgstr "Possession"
 
 #: guitext:631
 msgctxt "Keeper spell name"
@@ -2700,11 +2702,3 @@ msgstr ""
 "Armageddon: Transporte toutes les créatures du territoire vers le coeur de "
 "votre donjon pour l'ultime bataille. Sélectionnez avec le bouton gauche de "
 "la souris."
-
-#~ msgctxt "Keeper spell description"
-#~ msgid "Time Bomb: Does boom."
-#~ msgstr "Bombe à retardement"
-
-#~ msgctxt "Unused"
-#~ msgid "Moo4"
-#~ msgstr "Meuh4"
