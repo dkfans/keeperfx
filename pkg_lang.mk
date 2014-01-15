@@ -35,6 +35,7 @@ pkg/fxdata/gtext_eng.dat
 NCTEXTDATS = \
 pkg/campgns/ancntkpr/text_eng.dat \
 pkg/campgns/ancntkpr/text_fre.dat \
+pkg/campgns/ancntkpr/text_ger.dat \
 pkg/campgns/ancntkpr/text_pol.dat \
 pkg/campgns/burdnimp/text_eng.dat \
 pkg/campgns/cqarctic/text_eng.dat \
