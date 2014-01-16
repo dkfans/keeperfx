@@ -2819,8 +2819,8 @@ void remove_first_creature(struct Thing *thing)
         }
         if ((cctrl->field_2 & 0x02) == 0)
         {
-          dungeon->num_active_creatrs--;
-          dungeon->owned_creatures_of_model[thing->model]--;
+            dungeon->num_active_creatrs--;
+            dungeon->owned_creatures_of_model[thing->model]--;
         }
     } else
     {

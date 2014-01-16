@@ -183,7 +183,7 @@ struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *playe
     struct Thing *thing;
     struct Camera *cam;
     struct InitLight ilght;
-    SYNCDBG(6,"Request for breed %ld at (%d,%d,%d)",breed,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
+    SYNCDBG(6,"Request for model %ld at (%d,%d,%d)",breed,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     //return _DK_create_and_control_creature_as_controller(player, a2, pos);
     thing = create_creature(pos, breed, player->id_number);
     if (thing_is_invalid(thing))

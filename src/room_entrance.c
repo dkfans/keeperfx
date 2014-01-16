@@ -43,7 +43,7 @@ unsigned char const attract_score[CREATURE_TYPES_COUNT] = {
 };
 /******************************************************************************/
 DLLIMPORT void _DK_process_entrance_generation(void);
-DLLIMPORT int _DK_create_creature_at_entrance(struct Room * room, unsigned short crtr_kind);
+DLLIMPORT int _DK_create_creature_at_entrance(struct Room * room, unsigned short crmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -86,7 +86,7 @@ TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
 
-long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_idx, int crtr_kind)
+long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_idx, int crmodel)
 {
     struct Dungeon * dungeon;
     long used_fraction;
@@ -101,7 +101,7 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     case RoK_DUNGHEART:
     case RoK_LAIR:
     case RoK_BRIDGE:
-        return -(long)dungeon->owned_creatures_of_model[crtr_kind];
+        return -(long)dungeon->owned_creatures_of_model[crmodel];
     case RoK_ENTRANCE:
     case RoK_LIBRARY:
     case RoK_PRISON:
@@ -112,10 +112,10 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     case RoK_GRAVEYARD:
     case RoK_BARRACKS:
     case RoK_GUARDPOST:
-        return slabs_count / 3 - (long)dungeon->owned_creatures_of_model[crtr_kind];
+        return slabs_count / 3 - (long)dungeon->owned_creatures_of_model[crmodel];
     case RoK_WORKSHOP:
     case RoK_GARDEN:
-        return slabs_count / 4 - (long)dungeon->owned_creatures_of_model[crtr_kind];
+        return slabs_count / 4 - (long)dungeon->owned_creatures_of_model[crmodel];
     case RoK_TREASURE:
         used_fraction = get_room_kind_used_capacity_fraction(plyr_idx, room_kind);
         return (slabs_count * used_fraction) / 256 / 3;

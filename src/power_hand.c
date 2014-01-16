@@ -1038,15 +1038,15 @@ unsigned long can_drop_thing_here(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long
   return _DK_can_drop_thing_here(stl_x, stl_y, a3, allow_unclaimed);
 }
 
-short can_place_thing_here(struct Thing *thing, long x, long y, long dngn_idx)
+short can_place_thing_here(struct Thing *thing, long stl_x, long stl_y, long dngn_idx)
 {
     struct Coord3d pos;
     TbBool is_digger;
     is_digger = thing_is_creature_special_digger(thing);
-    if (!can_drop_thing_here(x, y, dngn_idx, is_digger))
+    if (!can_drop_thing_here(stl_x, stl_y, dngn_idx, is_digger))
       return false;
-    pos.x.val = (x << 8) + 128;
-    pos.y.val = (y << 8) + 128;
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_thing_height_at(thing, &pos);
     return !thing_in_wall_at(thing, &pos);
 }

@@ -763,8 +763,8 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
     long i,n;
     unsigned long k;
     MapSlabCoord slb_x, slb_y;
-    slb_x = map_to_slab[pos->x.stl.num];
-    slb_y = map_to_slab[pos->y.stl.num];
+    slb_x = subtile_slab_fast(pos->x.stl.num);
+    slb_y = subtile_slab_fast(pos->y.stl.num);
     n = 0;
     i = game.field_14EA46;
     k = 0;
@@ -777,8 +777,8 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
         i = cctrl->players_next_creature_idx;
         // Per thing code starts
         int dx, dy;
-        dx = slb_x - map_to_slab[thing->mappos.x.stl.num];
-        dy = slb_y - map_to_slab[thing->mappos.y.stl.num];
+        dx = abs(slb_x - subtile_slab_fast(thing->mappos.x.stl.num));
+        dy = abs(slb_y - subtile_slab_fast(thing->mappos.y.stl.num));
         if ((dx <= can_see_slabs) && (dy <= can_see_slabs))
         {
             if (line_of_sight_3d(&thing->mappos, pos))

@@ -36,6 +36,7 @@
 #include "creature_states.h"
 #include "creature_jobs.h"
 #include "creature_states_lair.h"
+#include "creature_states_combt.h"
 #include "magic.h"
 #include "thing_traps.h"
 #include "thing_physics.h"
@@ -591,6 +592,7 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
     if (thing_is_creature(thing)) {
         clear_creature_instance(thing);
         external_set_thing_state(thing, CrSt_InPowerHand);
+        remove_all_traces_of_combat(thing);
     }
     place_thing_in_limbo(thing);
 }
@@ -642,7 +644,7 @@ long fake_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *thing,
         ERRORLOG("Computer tries to pick up %s which is not pickable", thing_model_name(thing));
         return 0;
     }
-    if ((thing->alloc_flags & 0x20) != 0) {
+    if ((thing->alloc_flags & TAlF_IsControlled) != 0) {
         return 0;
     }
     if (!computer_find_non_solid_block(comp, pos)) {

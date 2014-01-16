@@ -60,25 +60,30 @@ long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
     struct Room *room;
     long i;
     unsigned long k;
+    // note that we can't get_players_num_dungeon() because players
+    // may be uninitialized yet when this is called.
     dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+        return 0;
     i = dungeon->room_kind[rkind];
     k = 0;
     while (i != 0)
     {
-      room = room_get(i);
-      if (room_is_invalid(room))
-      {
-          ERRORLOG("Jump to invalid room detected");
-          break;
-      }
-      i = room->next_of_owner;
-      // No Per-room code - we only want count
-      k++;
-      if (k > ROOMS_COUNT)
-      {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
-      }
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // No Per-room code - we only want count
+        SYNCDBG(19,"Player %d has %s at (%d,%d)",(int)plyr_idx, room_code_name(room->kind), (int)room->central_stl_x, (int)room->central_stl_y);
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
+        }
     }
     return k;
 }

@@ -73,7 +73,6 @@ extern struct StatsData scrolling_stats_data[];
 long calculate_efficiency(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    struct Room *room;
     long i,rkind;
     long count,efficiency;
     unsigned long k;
@@ -86,6 +85,7 @@ long calculate_efficiency(PlayerNumber plyr_idx)
         k = 0;
         while (i != 0)
         {
+            struct Room *room;
             room = room_get(i);
             if (room_is_invalid(room))
             {
@@ -120,27 +120,27 @@ long calculate_style(long plyr_idx)
     dungeon = get_dungeon(plyr_idx);
     for (rkind=1; rkind < ROOM_TYPES_COUNT; rkind++)
     {
-        struct Room *room;
         i = dungeon->room_kind[rkind];
         k = 0;
         while (i != 0)
         {
-          room = room_get(i);
-          if (room_is_invalid(room))
-          {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-          }
-          i = room->next_of_owner;
-          // Per-room code
-          area += room->slabs_count;
-          // Per-room code ends
-          k++;
-          if (k > ROOMS_COUNT)
-          {
-            ERRORLOG("Infinite loop detected when sweeping rooms list");
-            break;
-          }
+            struct Room *room;
+            room = room_get(i);
+            if (room_is_invalid(room))
+            {
+              ERRORLOG("Jump to invalid room detected");
+              break;
+            }
+            i = room->next_of_owner;
+            // Per-room code
+            area += room->slabs_count;
+            // Per-room code ends
+            k++;
+            if (k > ROOMS_COUNT)
+            {
+              ERRORLOG("Infinite loop detected when sweeping rooms list");
+              break;
+            }
         }
     }
     half_area = (dungeon->total_area >> 1);
