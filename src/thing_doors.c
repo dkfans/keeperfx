@@ -29,6 +29,7 @@
 #include "config_terrain.h"
 #include "creature_senses.h"
 #include "ariadne.h"
+#include "ariadne_wallhug.h"
 #include "map_blocks.h"
 #include "sounds.h"
 #include "gui_topmsg.h"

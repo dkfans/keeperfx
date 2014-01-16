@@ -110,10 +110,22 @@ void angles_to_vector(short angle_xy, short angle_yz, long dist, struct Componen
     cvect->z = (factor >> 14);
 }
 
+long get_angle_xy_to_vec(const struct CoordDelta3d *vec)
+{
+    return LbArcTanAngle(vec->x.val, vec->y.val) & LbFPMath_AngleMask;
+}
+
+long get_angle_yz_to_vec(const struct CoordDelta3d *vec)
+{
+    long dist;
+    dist = LbDiagonalLength(abs(vec->x.val), abs(vec->y.val));
+    return LbArcTanAngle(vec->z.val, dist) & LbFPMath_AngleMask;
+}
+
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
     //return _DK_get_angle_xy_to(pos1, pos2);
-    return LbArcTanAngle((long)pos2->x.val - (long)pos1->x.val, (long)pos2->y.val - (long)pos1->y.val) % ANGLE_TRIGL_PERIOD;
+    return LbArcTanAngle((long)pos2->x.val - (long)pos1->x.val, (long)pos2->y.val - (long)pos1->y.val) & LbFPMath_AngleMask;
 }
 
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -121,7 +133,7 @@ long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2)
     //return _DK_get_angle_yz_to(pos1, pos2);
     long dist;
     dist = get_2d_distance(pos1, pos2);
-    return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) % ANGLE_TRIGL_PERIOD;
+    return LbArcTanAngle(pos2->z.val - pos1->z.val, dist) & LbFPMath_AngleMask;
 }
 
 MapCoord get_2d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)

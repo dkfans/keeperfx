@@ -223,28 +223,6 @@ void event_delete_event_structure(long ev_idx)
     LbMemorySet(&game.event[ev_idx], 0, sizeof(struct Event));
 }
 
-void event_delete_event(long plyr_idx, long ev_idx)
-{
-    struct Event *event;
-    long i,k;
-//  _DK_event_delete_event(plridx, num);
-    event = &game.event[ev_idx];
-    event_update_last_use(event);
-    struct Dungeon *dungeon;
-    dungeon = get_dungeon(plyr_idx);
-    for (i=0; i <= EVENT_BUTTONS_COUNT; i++)
-    {
-        k = dungeon->event_button_index[i];
-        if (k == ev_idx)
-        {
-            turn_off_event_box_if_necessary(plyr_idx, k);
-            dungeon->event_button_index[i] = 0;
-            break;
-        }
-    }
-    event_delete_event_structure(ev_idx);
-}
-
 void event_update_last_use(struct Event *event)
 {
     struct Dungeon *dungeon;
@@ -270,6 +248,28 @@ void event_update_last_use(struct Event *event)
         dungeon->field_13B4[event->kind] = game.play_gameturn;
         break;
     }
+}
+
+void event_delete_event(long plyr_idx, long ev_idx)
+{
+    struct Event *event;
+    long i,k;
+//  _DK_event_delete_event(plridx, num);
+    event = &game.event[ev_idx];
+    event_update_last_use(event);
+    struct Dungeon *dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    for (i=0; i <= EVENT_BUTTONS_COUNT; i++)
+    {
+        k = dungeon->event_button_index[i];
+        if (k == ev_idx)
+        {
+            turn_off_event_box_if_necessary(plyr_idx, k);
+            dungeon->event_button_index[i] = 0;
+            break;
+        }
+    }
+    event_delete_event_structure(ev_idx);
 }
 
 void event_update_on_battle_removal(void)

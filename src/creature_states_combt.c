@@ -40,6 +40,7 @@
 #include "room_data.h"
 #include "room_jobs.h"
 #include "map_blocks.h"
+#include "ariadne_wallhug.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 #include "engine_redraw.h"
@@ -96,7 +97,6 @@ DLLIMPORT long _DK_get_combat_score(const struct Thing *figtng, const struct Thi
 DLLIMPORT long _DK_check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, unsigned long *outscore);
 DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long move_on_ground);
 DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
-DLLIMPORT long _DK_slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3);
 /******************************************************************************/
 CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
@@ -356,11 +356,6 @@ long creature_can_move_to_combat(struct Thing *fightng, struct Thing *enmtng)
       return -1;
   }
   return result;
-}
-
-long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3)
-{
-    return _DK_slab_wall_hug_route(thing, pos, a3);
 }
 
 CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long move_on_ground, long set_combat)

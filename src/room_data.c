@@ -34,6 +34,7 @@
 #include "room_workshop.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "ariadne_wallhug.h"
 #include "config_terrain.h"
 #include "creature_states.h"
 #include "gui_topmsg.h"
@@ -135,26 +136,6 @@ struct AroundLByte const room_spark_offset[] = {
   {-256,  256},
 };
 
-struct Around const small_around[] = {
-  { 0,-1},
-  { 1, 0},
-  { 0, 1},
-  {-1, 0},
-};
-
-struct Around const my_around_eight[] = {
-  { 0,-1},
-  { 1,-1},
-  { 1, 0},
-  { 1, 1},
-  { 0, 1},
-  {-1, 1},
-  {-1, 0},
-  {-1,-1},
-};
-
-short const around_map[] = {-257, -256, -255, -1, 0, 1, 255, 256, 257};
-
 unsigned char const slabs_to_centre_peices[] = {
   0,  0,  0,  0,  0,  0,  0,  0,  0,
   1,  1,  1,  2,  2,  2,  3,  4,  4,
@@ -162,24 +143,6 @@ unsigned char const slabs_to_centre_peices[] = {
   9, 10, 11, 12, 12, 12, 13, 14, 15,
  16, 16, 16, 17, 18, 19, 20, 20, 20,
  21, 22, 23, 24, 25,
-};
-
-/**
- * Should contain values encoded with get_subtile_number(). */
-const unsigned short small_around_pos[] = {
-  0xFF00, 0x0001, 0x0100, 0xFFFF,
-};
-
-struct Around const mid_around[] = {
-  { 0,  0},
-  { 0, -1},
-  { 1,  0},
-  { 0,  1},
-  {-1,  0},
-  {-1, -1},
-  { 1, -1},
-  {-1,  1},
-  { 1,  1},
 };
 
 unsigned short const room_effect_elements[] = { 55, 56, 57, 58, 0, 0 };

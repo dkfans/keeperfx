@@ -38,6 +38,7 @@
 #include "room_workshop.h"
 #include "room_library.h"
 #include "room_graveyard.h"
+#include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"

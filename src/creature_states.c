@@ -41,6 +41,7 @@
 #include "tasks_list.h"
 #include "map_events.h"
 #include "map_blocks.h"
+#include "ariadne_wallhug.h"
 #include "power_hand.h"
 #include "gui_topmsg.h"
 #include "gui_soundmsgs.h"
@@ -1037,19 +1038,6 @@ short arrive_at_call_to_arms(struct Thing *creatng)
       }
     }
     return 1;
-}
-
-TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(creatng);
-    // If the position is over lava, and we can't continuously fly, then it's toxic
-    if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
-        // Check not only if a creature is now flying, but also whether it's natural ability
-        if (((creatng->movement_flags & TMvF_Flying) == 0) || (!crstat->flying))
-            return true;
-    }
-    return false;
 }
 
 /**
