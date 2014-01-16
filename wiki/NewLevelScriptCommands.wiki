@@ -9,6 +9,13 @@ Level script commands that have a new or different meaning to Keeper FX can be f
 ADD_GOLD_TO_PLAYER
   Allows to add some off-map gold as a reward to a player.
   Example: ADD_GOLD_TO_PLAYER(PLAYER0,5000)
+ALLY_PLAYERS
+  KeeperFX uses an extra parameter, allowing alliances to be
+  turned on and off in the script (1=on, 0=off)
+  Example: ALLY_PLAYERS(PLAYER1,PLAYER2,1)
+  (Note: if you enable KeeperFX commands with LEVEL_VERSION
+  old 'ally_players' commands without the extra parameter
+  will no longer work. Add a '1' or '0' to fix this)
 BONUS_LEVEL_TIME
   Sets time to be displayed on "bonus timer" - on-screen
   time field, used mostly for bonus levels.
