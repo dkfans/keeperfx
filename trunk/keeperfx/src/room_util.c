@@ -30,6 +30,7 @@
 #include "thing_objects.h"
 #include "room_list.h"
 #include "room_workshop.h"
+#include "ariadne_wallhug.h"
 #include "config_terrain.h"
 #include "game_legacy.h"
 #include "keeperfx.hpp"

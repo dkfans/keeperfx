@@ -46,6 +46,7 @@
 
 #include "dungeon_data.h"
 #include "map_blocks.h"
+#include "ariadne_wallhug.h"
 #include "slab_data.h"
 #include "power_hand.h"
 #include "game_legacy.h"
@@ -194,13 +195,12 @@ DLLIMPORT long _DK_add_to_trap_location(struct Computer2 *, struct Coord3d *);
 //DLLIMPORT long _DK_find_next_gold(struct Computer2 *, struct ComputerTask *);
 DLLIMPORT long _DK_check_for_gold(long simulation, long digflags, long l3);
 DLLIMPORT int _DK_search_spiral(struct Coord3d *pos, int owner, int i3, long (*cb)(long, long, long));
-DLLIMPORT long _DK_dig_to_position(signed char basestl_x, unsigned short basestl_y, unsigned short plyr_idx, unsigned char a4, unsigned char a5);
-DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short basestl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short perfect);
 DLLIMPORT struct ComputerTask * _DK_able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, unsigned short width_slabs, unsigned short height_slabs, long a5, long a6, long perfect);
 DLLIMPORT struct Thing *_DK_find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *pos, struct Room *room, long a4);
 DLLIMPORT long _DK_get_ceiling_height_above_thing_at(struct Thing *thing, struct Coord3d *pos);
 DLLIMPORT long _DK_get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char a3, char a4, unsigned short a5);
 DLLIMPORT long _DK_other_build_here(struct Computer2 *comp, long a2, long a3, long a4, long a5);
+DLLIMPORT short _DK_get_hug_side(struct ComputerDig * cdig, unsigned short basestl_y, unsigned short plyr_idx, unsigned short a4, unsigned short a5, unsigned short a6, unsigned short perfect);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -1125,188 +1125,6 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     }
 }
 
-TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
-{
-    const struct SlabAttr *slbattr;
-    slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
-        return true;
-    return false;
-}
-
-TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
-{
-    struct SlabMap *slb;
-    const struct SlabAttr *slbattr;
-    slb = get_slabmap_for_subtile(stl_x, stl_y);
-    slbattr = get_slab_attrs(slb);
-    if ((slbattr->is_unknflg14) && (slb->kind != SlbT_GEMS))
-    {
-        struct Map *mapblk;
-        mapblk = get_map_block_at(stl_x, stl_y);
-        if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == plyr_idx)) {
-            SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
-            return false;
-        }
-    }
-    if (!slab_good_for_computer_dig_path(slb)) {
-        SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
-        return false;
-    }
-    return true;
-}
-
-long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
-{
-    long i,n,nchange;
-    //return _DK_dig_to_position(a1, a2, a3, start_side, revside);
-    SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
-    if (revside) {
-      nchange = 1;
-    } else {
-      nchange = 3;
-    }
-    n = (direction_around + 4 - nchange) & 3;
-    for (i=0; i < 4; i++)
-    {
-        MapSubtlCoord stl_x,stl_y;
-        stl_x = basestl_x + STL_PER_SLB * (int)small_around[n].delta_x;
-        stl_y = basestl_y + STL_PER_SLB * (int)small_around[n].delta_y;
-        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx))
-        {
-            SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
-            SubtlCodedCoords stl_num;
-            stl_num = get_subtile_number(stl_x, stl_y);
-            return stl_num;
-        }
-        n = (n + nchange) & 3;
-    }
-    return -1;
-}
-
-short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short a6, PlayerNumber plyr_idx)
-{
-    SYNCDBG(4,"Starting");
-    //return _DK_get_hug_side(cdig, stl1_x, stl1_y, stl2_x, stl2_y, a6, plyr_idx);
-    MapSubtlCoord stl_b_x, stl_b_y;
-    MapSubtlCoord stl_a_x, stl_a_y;
-    int maxdist_a,maxdist_b;
-    short round_a,round_b;
-    char state_a, state_b;
-    int dist;
-    int i;
-    stl_a_x = stl1_x;
-    stl_a_y = stl1_y;
-    round_a = (a6 + 1) & 3;
-    dist = max(abs(stl1_x - stl2_x), abs(stl1_y - stl2_y));
-    state_a = 0;
-    maxdist_a = dist - 1;
-    state_b = 0;
-    stl_b_x = stl1_x;
-    stl_b_y = stl1_y;
-    round_b = (a6 - 1) & 3;
-    maxdist_b = dist - 1;
-    for (i = 150; i > 0; i--)
-    {
-        int dx,dy;
-        unsigned short round_idx;
-        if ((state_a == 2) && (state_b == 2)) {
-            break;
-        }
-        if (state_a != 2)
-        {
-            round_idx = (((LbArcTanAngle(stl2_x - stl_a_x, stl2_y - stl_a_y) & LbFPMath_AngleMask) + LbFPMath_PI/4) >> 9) & 3;
-            dist = max(abs(stl_a_x - stl2_x), abs(stl_a_y - stl2_y));
-            dx = small_around[round_idx].delta_x;
-            dy = small_around[round_idx].delta_y;
-            if ((dist <= maxdist_a) && !is_valid_hug_subtile(stl_a_x + 3*dx, stl_a_y + 3*dy, plyr_idx))
-            {
-                stl_a_x += 3*dx;
-                stl_a_y += 3*dy;
-                state_a = 1;
-                maxdist_a = max(abs(stl_a_x - stl2_x), abs(stl_a_y - stl2_y));
-            } else
-            if (state_a == 1)
-            {
-                state_a = 2;
-            } else
-            {
-                int n;
-                round_idx = (round_a - 1) & 3;
-                for (n = 0; n < 4; n++)
-                {
-                    dx = small_around[round_idx].delta_x;
-                    dy = small_around[round_idx].delta_y;
-                    if (!is_valid_hug_subtile(stl_a_x + 3*dx, stl_a_y + 3*dy, plyr_idx))
-                    {
-                        round_a = round_idx;
-                        stl_a_x += 3*dx;
-                        stl_a_y += 3*dy;
-                        break;
-                    }
-                    round_idx = (round_idx + 1) & 3;
-                }
-            }
-            if ((stl_a_x == stl2_x) && (stl_a_y == stl2_y)) {
-                return 1;
-            }
-        }
-        if (state_b != 2)
-        {
-            round_idx = (((LbArcTanAngle(stl2_x - stl_b_x, stl2_y - stl_b_y) & LbFPMath_AngleMask) + LbFPMath_PI/4) >> 9) & 3;
-            dist = max(abs(stl_b_x - stl2_x), abs(stl_b_y - stl2_y));
-            dx = small_around[round_idx].delta_x;
-            dy = small_around[round_idx].delta_y;
-            if ((dist <= maxdist_b) && !is_valid_hug_subtile(stl_b_x + 3*dx, stl_b_y + 3*dy, plyr_idx))
-            {
-                stl_b_x += 3*dx;
-                stl_b_y += 3*dy;
-                state_b = 1;
-                maxdist_b = max(abs(stl_b_x - stl2_x), abs(stl_b_y - stl2_y));
-            } else
-            if (state_b == 1)
-            {
-                state_b = 2;
-            } else
-            {
-                int n;
-                round_idx = (round_b + 1) & 3;
-                for (n = 0; n < 4; n++)
-                {
-                    dx = small_around[round_idx].delta_x;
-                    dy = small_around[round_idx].delta_y;
-                    if (!is_valid_hug_subtile(stl_b_x + 3*dx, stl_b_y + 3*dy, plyr_idx))
-                    {
-                        round_b = round_idx;
-                        stl_b_x += 3*dx;
-                        stl_b_y += 3*dy;
-                        break;
-                    }
-                    round_idx = (round_idx - 1) & 3;
-                }
-            }
-            if ((stl_b_x == stl2_x) && (stl_b_y == stl2_y)) {
-                return 0;
-            }
-        }
-    }
-
-    i = cdig->hug_side;
-    if ((i == 0) || (i == 1)) {
-        return i;
-    }
-    int dist_a, dist_b;
-    dist_a = abs(stl_a_y - stl2_y) + abs(stl_a_x - stl1_x);
-    dist_b = abs(stl_b_y - stl2_y) + abs(stl_b_x - stl1_x);
-    if (dist_b > dist_a) {
-        return 1;
-    }
-    if (dist_b < dist_a) {
-        return 0;
-    }
-    return ACTION_RANDOM(2);
-}
-
 /**
  * Checks if given room kind is available for building by computer player.
  * @param comp Computer player.
@@ -1542,6 +1360,32 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
     return n & 3;
 }
 
+short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short a6, PlayerNumber plyr_idx)
+{
+    SYNCDBG(4,"Starting");
+    //return _DK_get_hug_side(cdig, stl1_x, stl1_y, stl2_x, stl2_y, a6, plyr_idx);
+    MapSubtlCoord stl_b_x, stl_b_y;
+    MapSubtlCoord stl_a_x, stl_a_y;
+    int i;
+    i = get_hug_side_options(stl1_x, stl1_y, stl2_x, stl2_y, a6, plyr_idx, &stl_a_x, &stl_a_y, &stl_b_x, &stl_b_y);
+    if ((i == 0) || (i == 1))
+        return i;
+    i = cdig->hug_side;
+    if ((i == 0) || (i == 1)) {
+        return i;
+    }
+    int dist_a, dist_b;
+    dist_a = abs(stl_a_y - stl2_y) + abs(stl_a_x - stl1_x);
+    dist_b = abs(stl_b_y - stl2_y) + abs(stl_b_x - stl1_x);
+    if (dist_b > dist_a) {
+        return 1;
+    }
+    if (dist_b < dist_a) {
+        return 0;
+    }
+    return ACTION_RANDOM(2);
+}
+
 short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(struct Computer2 * comp, struct ComputerDig * cdig, unsigned short digflags,
     MapSubtlCoord *nextstl_x, MapSubtlCoord *nextstl_y, const char *func_name)
 {
@@ -1701,7 +1545,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     //return _DK_tool_dig_to_pos2(comp, cdig, simulation, digflags);
     dungeon = comp->dungeon;
     cdig->calls_count++;
-    if (cdig->calls_count >= 356) {
+    if (cdig->calls_count >= COMPUTER_TOOL_DIG_LIMIT) {
         WARNLOG("%s: Player %d ComputerDig calls count (%d) exceeds limit",func_name,(int)dungeon->owner,(int)cdig->calls_count);
         return -2;
     }

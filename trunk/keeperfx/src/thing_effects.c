@@ -689,8 +689,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
 {
     struct EffectElementStats *eestats;
     long health;
-    long abs_x,abs_y;
-    long prop_factor,prop_val;
+    long prop_val;
     long i;
     SYNCDBG(18,"Starting");
     TRACE_THING(elemtng);
@@ -800,14 +799,11 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
 
     if (eestats->field_2 != 1)
       return TUFRet_Modified;
-    abs_x = abs(elemtng->pos_2C.x.val);
-    abs_y = abs(elemtng->pos_2C.y.val);
-    prop_factor = LbDiagonalLength(abs_x, abs_y);
-    i = ((LbArcTanAngle(elemtng->pos_2C.z.val, prop_factor) & 0x7FF) - 512) & 0x7FF;
-    if (i > 1024)
-      i -= 1024;
-    prop_val = i / 128;
-    elemtng->field_52 = LbArcTanAngle(elemtng->pos_2C.x.val, elemtng->pos_2C.y.val) & 0x7FF;
+    i = get_angle_yz_to_vec(&elemtng->pos_2C);
+    if (i > LbFPMath_PI)
+      i -= LbFPMath_PI;
+    prop_val = i / (LbFPMath_PI/8);
+    elemtng->field_52 = get_angle_xy_to_vec(&elemtng->pos_2C);
     elemtng->field_48 = prop_val;
     elemtng->field_3E = 0;
     elemtng->field_40 = (prop_val & 0xff) << 8;

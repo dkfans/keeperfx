@@ -23,6 +23,7 @@
 
 #include "slab_data.h"
 #include "room_data.h"
+#include "ariadne_wallhug.h"
 #include "thing_effects.h"
 #include "thing_objects.h"
 #include "config_terrain.h"

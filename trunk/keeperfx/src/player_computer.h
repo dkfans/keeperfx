@@ -50,6 +50,7 @@ extern "C" {
 #define GOLD_DEMAND_CHECK_INTERVAL 5000
 /** How long to wait for diggers to prepare a place for room before dropping the task and assuming it failed */
 #define COMPUTER_DIG_ROOM_TIMEOUT 7500
+#define COMPUTER_TOOL_DIG_LIMIT 356
 
 enum ComputerTaskTypes {
     CTT_None = 0,

@@ -1754,6 +1754,7 @@
  0001:000D1EA0       check_out_unprettied_or_unconverted_area
  0001:000AAA00       creature_can_be_trained
  0001:000AAA80       slab_wall_hug_route
+ 0001:000AAD20       hug_round
  0001:000AA9C0       player_can_afford_to_train_creature
  0001:000D27B0       check_out_unreinforced_place
  0001:000D2A30       check_out_unreinforced_area
