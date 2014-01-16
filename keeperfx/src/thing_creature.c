@@ -27,6 +27,7 @@
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
 #include "bflib_planar.h"
+#include "bflib_vidraw.h"
 
 #include "engine_lenses.h"
 #include "engine_arrays.h"
@@ -817,7 +818,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     ntng->acceleration.z.val += cvect.z;
                     ntng->field_1 |= TF1_PushdByAccel;
                 }
-                n += ANGLE_TRIGL_PERIOD/3;
+                n += 2*LbFPMath_PI/3;
             }
         }
         break;
@@ -931,7 +932,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 ntng->acceleration.z.val += cvect.z;
                 ntng->field_1 |= 0x04;
               }
-              n += ANGLE_TRIGL_PERIOD/3;
+              n += 2*LbFPMath_PI/3;
           }
         }
         break;
@@ -1792,7 +1793,7 @@ void throw_out_gold(struct Thing *thing)
         // Update its position and acceleration
         long angle,radius;
         long x,y;
-        angle = ACTION_RANDOM(ANGLE_TRIGL_PERIOD);
+        angle = ACTION_RANDOM(2*LbFPMath_PI);
         radius = ACTION_RANDOM(128);
         x = (radius * LbSinL(angle)) / 256;
         y = (radius * LbCosL(angle)) / 256;

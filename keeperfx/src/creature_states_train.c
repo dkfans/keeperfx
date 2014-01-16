@@ -20,6 +20,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+
 #include "creature_states.h"
 #include "creature_states_combt.h"
 #include "creature_instances.h"
@@ -36,6 +37,7 @@
 #include "thing_navigate.h"
 #include "room_data.h"
 #include "room_jobs.h"
+#include "ariadne_wallhug.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
 

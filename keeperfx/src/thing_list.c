@@ -36,6 +36,7 @@
 #include "power_hand.h"
 #include "magic.h"
 #include "map_utils.h"
+#include "ariadne_wallhug.h"
 #include "config_objects.h"
 #include "config_creature.h"
 #include "creature_states.h"

@@ -33,6 +33,7 @@
 #include "room_data.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "ariadne_wallhug.h"
 #include "spdigger_stack.h"
 #include "config_magic.h"
 #include "config_terrain.h"

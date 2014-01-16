@@ -439,9 +439,9 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
     {
         view_zoom_camera_in(cam, 30000, 6000);
         // Compute new camera angle
-        mv_a = (thing->field_52 - cam->orient_a) % ANGLE_TRIGL_PERIOD;
-        if (mv_a > ANGLE_TRIGL_PERIOD/2)
-          mv_a -= ANGLE_TRIGL_PERIOD;
+        mv_a = (thing->field_52 - cam->orient_a) & LbFPMath_AngleMask;
+        if (mv_a > LbFPMath_PI)
+          mv_a -= 2*LbFPMath_PI;
         if (mv_a < -170)
         {
             mv_a = -170;
@@ -451,7 +451,7 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
             mv_a = 170;
         }
         cam->orient_a += mv_a;
-        cam->orient_a %= ANGLE_TRIGL_PERIOD;
+        cam->orient_a &= LbFPMath_AngleMask;
         thing = thing_get(player->influenced_thing_idx);
         crstat = creature_stats_get_from_thing(thing);
         // Now mv_a becomes a circle radius
@@ -478,11 +478,11 @@ long pinstfm_control_creature(struct PlayerInfo *player, long *n)
         cam->mappos.y.val += mv_y;
         if (cam->orient_a < 0)
         {
-          cam->orient_a += ANGLE_TRIGL_PERIOD;
+          cam->orient_a += 2*LbFPMath_PI;
         }
-        if (cam->orient_a >= ANGLE_TRIGL_PERIOD)
+        if (cam->orient_a >= 2*LbFPMath_PI)
         {
-          cam->orient_a -= ANGLE_TRIGL_PERIOD;
+          cam->orient_a -= 2*LbFPMath_PI;
         }
     }
     return 0;

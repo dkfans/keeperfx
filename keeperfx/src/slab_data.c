@@ -24,6 +24,7 @@
 #include "config_terrain.h"
 #include "map_blocks.h"
 #include "ariadne.h"
+#include "ariadne_wallhug.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
 #include "creature_states.h"
