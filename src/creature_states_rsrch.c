@@ -270,7 +270,8 @@ TbBool find_combat_target_passing_by_subtile_but_having_unrelated_job(const stru
         i = thing->next_on_mapblk;
         // Per thing code start
         if (thing_is_creature(thing) && (thing->index != creatng->index) && !creature_has_job(thing, job_kind)
-            && !creature_is_being_unconscious(thing) && !creature_is_doing_anger_job(thing))
+            && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing)
+            && !creature_is_dying(thing) && !creature_is_doing_anger_job(thing))
         {
             if (!creature_is_invisible(thing) || creature_can_see_invisible(creatng))
             {
@@ -395,6 +396,7 @@ TbBool process_job_stress(struct Thing *creatng, struct Room *room)
     if (((game.play_gameturn + creatng->index) % 20) != 0) {
         return false;
     }
+    // Make sure we really should react on job stress
     stressful_job = get_creature_job_causing_stress(crstat->job_primary,room->kind);
     if (stressful_job == Job_NULL) {
         return false;

@@ -1368,8 +1368,9 @@ short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoor
     MapSubtlCoord stl_a_x, stl_a_y;
     int i;
     i = get_hug_side_options(stl1_x, stl1_y, stl2_x, stl2_y, a6, plyr_idx, &stl_a_x, &stl_a_y, &stl_b_x, &stl_b_y);
-    if ((i == 0) || (i == 1))
+    if ((i == 0) || (i == 1)) {
         return i;
+    }
     i = cdig->hug_side;
     if ((i == 0) || (i == 1)) {
         return i;
@@ -1432,9 +1433,9 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(struct Computer2 * c
         }
         // Move position towards the target subtile, shortest way
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
-        (*nextstl_x) += 3 * small_around[around_index].delta_x;
-        (*nextstl_y) += 3 * small_around[around_index].delta_y;
-        if (i > map_tiles_x*map_tiles_y)
+        (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
+        (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
+        if (i > map_tiles_x+map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
             return -2;
@@ -1484,6 +1485,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         if ( !simulation )
         {
             if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, *nextstl_x, *nextstl_y, 1, 1) <= Lb_OK) {
+                ERRORLOG("%s: Could not do game action at subtile (%d,%d)",func_name,(int)*nextstl_x,(int)*nextstl_y);
                 break;
             }
             if (digflags != 0)
@@ -1533,7 +1535,6 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
 short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name)
 {
     struct Dungeon *dungeon;
-    struct SlabAttr *slbattr;
     struct SlabMap *slb;
     struct Map *mapblk;
     MapSubtlCoord gldstl_x,gldstl_y;
@@ -1544,13 +1545,14 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     SYNCDBG(14,"Starting");
     //return _DK_tool_dig_to_pos2(comp, cdig, simulation, digflags);
     dungeon = comp->dungeon;
+    // Limit amount of calls
     cdig->calls_count++;
     if (cdig->calls_count >= COMPUTER_TOOL_DIG_LIMIT) {
         WARNLOG("%s: Player %d ComputerDig calls count (%d) exceeds limit",func_name,(int)dungeon->owner,(int)cdig->calls_count);
         return -2;
     }
-    gldstl_x = 3 * subtile_slab(cdig->pos_begin.x.stl.num);
-    gldstl_y = 3 * subtile_slab(cdig->pos_begin.y.stl.num);
+    gldstl_x = stl_slab_center_subtile(cdig->pos_begin.x.stl.num);
+    gldstl_y = stl_slab_center_subtile(cdig->pos_begin.y.stl.num);
     SYNCDBG(4,"Dig slabs from (%d,%d) to (%d,%d)",subtile_slab(gldstl_x),subtile_slab(gldstl_y),subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
     if (get_2d_distance(&cdig->pos_begin, &cdig->pos_dest) <= cdig->distance)
     {
@@ -1620,7 +1622,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         i = dig_to_position(dungeon->owner, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
             cdig->direction_around, cdig->hug_side);
         if (i == -1) {
-            SYNCDBG(5,"%s: Player %d digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)cdig->pos_next.x.stl.num,(int)cdig->pos_next.y.stl.num);
+            SYNCDBG(5,"%s: Player %d short digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)cdig->pos_next.x.stl.num,(int)cdig->pos_next.y.stl.num);
             return -2;
         }
         digstl_x = stl_num_decode_x(i);
@@ -1635,55 +1637,38 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
             return -5;
         }
-        cdig->direction_around = small_around_index_towards_destination(cdig->pos_next.x.stl.num,cdig->pos_next.y.stl.num,digstl_x,digstl_y);
-        slbattr = get_slab_attrs(slb);
-        if ((slbattr->is_unknflg14 != 0) && (slb->kind != SlbT_GEMS))
-        {
-            mapblk = get_map_block_at(digstl_x, digstl_y);
-            if ( ((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner) ) {
-                SYNCDBG(5,"%s: Player %d cannot go through subtile (%d,%d)",func_name,(int)dungeon->owner,(int)digstl_x,(int)digstl_y);
-                return -2;
-            }
-        }
-        i = get_subtile_number(stl_slab_center_subtile(digstl_x),stl_slab_center_subtile(digstl_y));
-        if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
-        {
-            if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) {
-                SYNCDBG(5,"%s: Player %d game action failed at subtile (%d,%d)",func_name,(int)dungeon->owner,(int)digstl_x,(int)digstl_y);
-                return -2;
-            }
-        }
     } else
     {
         SYNCDBG(4,"%s: Player %d does long distance digging",func_name,(int)dungeon->owner);
         i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side);
         if (i == -1) {
-            SYNCDBG(5,"%s: Player %d digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
+            SYNCDBG(5,"%s: Player %d long digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
             return -2;
         }
         digstl_x = stl_num_decode_x(i);
         digstl_y = stl_num_decode_y(i);
         digslb_x = subtile_slab(digstl_x);
         digslb_y = subtile_slab(digstl_y);
-        slb = get_slabmap_block(digslb_x, digslb_y);
-        slbattr = get_slab_attrs(slb);
-        if ((slbattr->is_unknflg14 != 0) && (slb->kind != SlbT_GEMS))
+    }
+    slb = get_slabmap_block(digslb_x, digslb_y);
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    if ((slbattr->is_unknflg14) && (slb->kind != SlbT_GEMS))
+    {
+        mapblk = get_map_block_at(digstl_x, digstl_y);
+        if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner))
         {
-            mapblk = get_map_block_at(digstl_x, digstl_y);
-            if (((mapblk->flags & MapFlg_Unkn20) == 0) || (slabmap_owner(slb) == dungeon->owner))
+            i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
+            if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
             {
-                i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
-                if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
-                {
-                    if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) {
-                        ERRORLOG("%s: Couldn't do game action - cannot dig",func_name);
-                        return -2;
-                    }
+                if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) {
+                    ERRORLOG("%s: Couldn't do game action - cannot dig",func_name);
+                    return -2;
                 }
             }
         }
-        cdig->direction_around = small_around_index_towards_destination(cdig->pos_next.x.stl.num,cdig->pos_next.y.stl.num,digstl_x,digstl_y);
     }
+    cdig->direction_around = small_around_index_towards_destination(cdig->pos_next.x.stl.num,cdig->pos_next.y.stl.num,digstl_x,digstl_y);
     cdig->pos_next.x.stl.num = digstl_x;
     cdig->pos_next.y.stl.num = digstl_y;
     if ((subtile_slab(cdig->pos_dest.x.stl.num) == digslb_x) && (subtile_slab(cdig->pos_dest.y.stl.num) == digslb_y))
