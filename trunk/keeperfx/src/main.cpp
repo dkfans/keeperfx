@@ -1489,14 +1489,14 @@ TbBool toggle_computer_player(PlayerNumber plyr_idx)
     }
     if ((dungeon->computer_enabled & 0x01) == 0)
     {
-        struct Computer2 *comp;
         dungeon->computer_enabled |= 0x01;
-        comp = get_computer_player(player->id_number);
-        fake_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
     } else
     {
         dungeon->computer_enabled &= ~0x01;
     }
+    struct Computer2 *comp;
+    comp = get_computer_player(player->id_number);
+    fake_force_dump_held_things_on_map(comp, &dungeon->essential_pos);
     return true;
 }
 

@@ -122,21 +122,22 @@ void process_room_surrounding_flames(struct Room *room)
 
 void recompute_rooms_count_in_dungeons(void)
 {
-  SYNCDBG(17,"Starting");
-  struct Dungeon *dungeon;
-  long i,k;
-  for (i=0; i < DUNGEONS_COUNT; i++)
-  {
-    dungeon = get_dungeon(i);
-    dungeon->buildable_rooms_count = 0;
-    for (k = 1; k < 17; k++)
+    SYNCDBG(17,"Starting");
+    struct Dungeon *dungeon;
+    long i;
+    for (i=0; i < DUNGEONS_COUNT; i++)
     {
-      if ((k != RoK_ENTRANCE) && (k != RoK_DUNGHEART))
-      {
-        dungeon->buildable_rooms_count += get_player_rooms_count(i, k);
-      }
+        dungeon = get_dungeon(i);
+        dungeon->total_rooms = 0;
+        RoomKind rkind;
+        for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
+        {
+            if ((rkind != RoK_ENTRANCE) && (rkind != RoK_DUNGHEART))
+            {
+                dungeon->total_rooms += count_player_rooms_of_type(i, rkind);
+            }
+        }
     }
-  }
 }
 
 void process_rooms(void)
@@ -149,12 +150,14 @@ void process_rooms(void)
   {
     if ((room->field_0 & 0x01) == 0)
       continue;
-    if (room->kind == RoK_GARDEN)
-      room_grow_food(room);
+    if (room->kind == RoK_GARDEN) {
+        room_grow_food(room);
+    }
     pckt = get_packet(my_player_number);
     pckt->chksum += (room->slabs_count & 0xFF) + room->central_stl_x + room->central_stl_y;
-    if (((game.numfield_D & 0x40) == 0) || (room->kind == RoK_DUNGHEART))
-      continue;
+    if (((game.numfield_D & 0x40) == 0) || (room->kind == RoK_DUNGHEART)) {
+        continue;
+    }
     process_room_surrounding_flames(room);
   }
   recompute_rooms_count_in_dungeons();

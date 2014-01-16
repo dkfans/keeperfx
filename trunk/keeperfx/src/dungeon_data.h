@@ -133,8 +133,8 @@ struct Dungeon {
     unsigned char field_916[2];
     unsigned char num_active_diggers;
     unsigned char num_active_creatrs;
-    unsigned char owned_creatures_of_model[32];
-    unsigned char buildable_rooms_count;
+    unsigned char owned_creatures_of_model[CREATURE_TYPES_COUNT];
+    unsigned char total_rooms;
     unsigned short total_doors;
     unsigned short total_area;
     unsigned short total_creatures_left;

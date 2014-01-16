@@ -386,38 +386,6 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
     return (used_capacity * 256) / total_capacity;
 }
 
-long get_player_rooms_count(PlayerNumber plyr_idx, RoomKind rkind)
-{
-  struct Dungeon *dungeon;
-  struct Room *room;
-  unsigned long k;
-  long i;
-  // note that we can't get_players_num_dungeon() because players
-  // may be uninitialized yet when this is called.
-  dungeon = get_dungeon(plyr_idx);
-  if (dungeon_invalid(dungeon))
-      return 0;
-  i = dungeon->room_kind[rkind];
-  k = 0;
-  while (i != 0)
-  {
-    room = room_get(i);
-    if (room_is_invalid(room))
-    {
-      ERRORLOG("Jump to invalid room detected");
-      break;
-    }
-    i = room->next_of_owner;
-    k++;
-    if (k > ROOMS_COUNT)
-    {
-      ERRORLOG("Infinite loop detected when sweeping rooms list");
-      break;
-    }
-  }
-  return k;
-}
-
 void set_room_capacity(struct Room *room, TbBool skip_integration)
 {
     struct RoomData *rdata;
@@ -1768,10 +1736,10 @@ struct Room *find_room_with_spare_capacity(unsigned char owner, signed char rkin
 {
     struct Dungeon *dungeon;
     if ((rkind < 0) || (rkind >= ROOM_TYPES_COUNT))
-        return NULL;
+        return INVALID_ROOM;
     dungeon = get_dungeon(owner);
     if (dungeon_invalid(dungeon))
-        return NULL;
+        return INVALID_ROOM;
     return find_room_with_spare_capacity_starting_with(dungeon->room_kind[rkind], spare);
 }
 
@@ -1805,7 +1773,7 @@ struct Room *find_room_with_spare_capacity_starting_with(long room_idx, long spa
           break;
         }
     }
-    return NULL;
+    return INVALID_ROOM;
 }
 
 struct Room *find_room_with_most_spare_capacity_starting_with(long room_idx,long *total_spare_cap)

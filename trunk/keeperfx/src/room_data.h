@@ -172,7 +172,6 @@ long get_room_look_through(RoomKind rkind);
 void set_room_efficiency(struct Room *room);
 void set_room_capacity(struct Room *room, TbBool skip_integration);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
-long get_player_rooms_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
 void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap);
 TbBool thing_is_on_any_room_tile(const struct Thing *thing);
