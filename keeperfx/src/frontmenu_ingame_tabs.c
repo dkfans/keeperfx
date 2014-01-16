@@ -948,7 +948,22 @@ void maintain_prison_bar(struct GuiButton *gbtn)
 
 void maintain_room_and_creature_button(struct GuiButton *gbtn)
 {
-  _DK_maintain_room_and_creature_button(gbtn);
+    //_DK_maintain_room_and_creature_button(gbtn);
+    PlayerNumber plyr_idx;
+    struct PlayerInfo *player;
+    //_DK_maintain_ally(gbtn);
+    plyr_idx = (int)gbtn->content;
+    player = get_player(plyr_idx);
+    if (player_exists(player))
+    {
+        gbtn->field_1B = 0;
+        gbtn->flags |= LbBtnF_Unknown08;
+    } else
+    {
+        gbtn->field_1B |= 0x4000;
+        gbtn->flags &= ~LbBtnF_Unknown08;
+        gbtn->tooltip_id = 201;
+    }
 }
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)
@@ -998,12 +1013,52 @@ void gui_area_workshop_bar(struct GuiButton *gbtn)
 
 void gui_area_player_creature_info(struct GuiButton *gbtn)
 {
-  _DK_gui_area_player_creature_info(gbtn);
+    //_DK_gui_area_player_creature_info(gbtn);
+    PlayerNumber plyr_idx;
+    struct PlayerInfo *player;
+    plyr_idx = (int)gbtn->content;
+    player = get_player(plyr_idx);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 459);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    if (player_exists(player) && !dungeon_invalid(dungeon))
+    {
+        if (((dungeon->num_active_creatrs < dungeon->max_creatures_attracted) && (!game.pool.is_empty))
+            || ((game.play_gameturn & 1) != 0))
+        {
+            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+        } else
+        {
+            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29, 11264);
+        }
+        char *text;
+        long i;
+        i = dungeon->num_active_creatrs;
+        text = buf_sprintf("%ld", i);
+        draw_button_string(gbtn, text);
+    }
 }
 
 void gui_area_player_room_info(struct GuiButton *gbtn)
 {
-  _DK_gui_area_player_room_info(gbtn);
+    //_DK_gui_area_player_room_info(gbtn);
+    PlayerNumber plyr_idx;
+    struct PlayerInfo *player;
+    //_DK_maintain_ally(gbtn);
+    plyr_idx = (int)gbtn->content;
+    player = get_player(plyr_idx);
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 459);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    if (player_exists(player) && !dungeon_invalid(dungeon))
+    {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->field_29);
+        char *text;
+        long i;
+        i = dungeon->total_rooms;
+        text = buf_sprintf("%ld", i);
+        draw_button_string(gbtn, text);
+    }
 }
 
 void spell_lost_first_person(struct GuiButton *gbtn)

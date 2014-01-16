@@ -1806,8 +1806,11 @@ long check_out_imp_last_did(struct Thing *creatng)
       }
       if (is_my_player_number(creatng->owner))
       {
-        if ( !find_room_with_spare_capacity(creatng->owner, RoK_TRAINING, 1) )
-          output_message(SMsg_TrainingTooSmall, 0, true);
+          struct Room *room;
+          room = find_room_with_spare_capacity(creatng->owner, RoK_TRAINING, 1);
+          if (room_is_invalid(room)) {
+              output_message(SMsg_TrainingTooSmall, 0, true);
+          }
       }
       break;
   case SDLstJob_ReinforceWall9:
@@ -1964,15 +1967,15 @@ long check_out_worker_pickup_unconscious(struct Thing *thing, struct DiggerStack
     room = find_nearest_room_for_thing_with_spare_capacity(thing, thing->owner, RoK_PRISON, 0, 1);
     if (room_is_invalid(room))
     {
-      if (is_my_player_number(thing->owner))
-      {
-          room = find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1);
-          if (room_is_invalid(room)) {
-              output_message(SMsg_PrisonTooSmall, 1000, true);
-          }
-      }
-      istack->task_id = DigTsk_None;
-      return -1;
+        if (is_my_player_number(thing->owner))
+        {
+            room = find_room_with_spare_capacity(thing->owner, RoK_PRISON, 1);
+            if (room_is_invalid(room)) {
+                output_message(SMsg_PrisonTooSmall, 1000, true);
+            }
+        }
+        istack->task_id = DigTsk_None;
+        return -1;
     }
     struct Thing *sectng;
     sectng = check_place_to_pickup_unconscious_body(thing, stl_x, stl_y);

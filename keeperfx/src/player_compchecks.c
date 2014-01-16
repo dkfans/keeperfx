@@ -184,7 +184,7 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
             rel->hate_amount++;
         }
         // Computers hate players who can build more rooms than them
-        if (((int)compdngn->buildable_rooms_count + (int)compdngn->buildable_rooms_count / 6) < (int)dungeon->buildable_rooms_count)
+        if (((int)compdngn->total_rooms + (int)compdngn->total_rooms / 6) < (int)dungeon->total_rooms)
         {
             hate_reasons++;
             rel->hate_amount++;
