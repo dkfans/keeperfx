@@ -132,7 +132,7 @@ void recompute_rooms_count_in_dungeons(void)
         RoomKind rkind;
         for (rkind = 1; rkind < ROOM_TYPES_COUNT; rkind++)
         {
-            if ((rkind != RoK_ENTRANCE) && (rkind != RoK_DUNGHEART))
+            if (!room_never_buildable(rkind))
             {
                 dungeon->total_rooms += count_player_rooms_of_type(i, rkind);
             }
