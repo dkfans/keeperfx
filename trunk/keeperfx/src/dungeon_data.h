@@ -134,6 +134,7 @@ struct Dungeon {
     unsigned char num_active_diggers;
     unsigned char num_active_creatrs;
     unsigned char owned_creatures_of_model[CREATURE_TYPES_COUNT];
+    /** Total amount of rooms in possession of a player. Rooms which can never be built are not counted. */
     unsigned char total_rooms;
     unsigned short total_doors;
     unsigned short total_area;

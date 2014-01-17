@@ -418,66 +418,6 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
     }
 }
 
-/**
- * Destroys all slabs of given room, creating gold rubble effect in the place.
- * @param room The room structure which slabs are to be destroyed.
- * @note The room structure is freed before this function end.
- */
-void destroy_room_leaving_unclaimed_ground(struct Room *room)
-{
-    long slb_x, slb_y;
-    unsigned long k;
-    long i;
-    k = 0;
-    i = room->slabs_list;
-    while (i != 0)
-    {
-        slb_x = slb_num_decode_x(i);
-        slb_y = slb_num_decode_y(i);
-        i = get_next_slab_number_in_room(i);
-        // Per room tile code
-        if (room->owner != game.neutral_player_num)
-        {
-            struct Dungeon *dungeon;
-            dungeon = get_players_num_dungeon(room->owner);
-            dungeon->rooms_destroyed++;
-        }
-        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
-        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
-        // Per room tile code ends
-        k++;
-        if (k > map_tiles_x*map_tiles_y) // we can't use room->slabs_count as room may be deleted
-        {
-            ERRORLOG("Room slabs list length exceeded when sweeping");
-            break;
-        }
-    }
-}
-
-void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng)
-{
-    struct Dungeon *dungeon;
-    long i;
-    dungeon = get_dungeon(plyr_idx);
-    struct Room *room;
-    room = get_room_thing_is_on(heartng);
-    if (room_is_invalid(room) || (room->kind != RoK_DUNGHEART))
-    {
-        WARNLOG("The heart thing is not in heart room");
-        i = dungeon->room_kind[RoK_DUNGHEART];
-        room = room_get(i);
-    }
-    if (room_is_invalid(room))
-    {
-        ERRORLOG("Tried to destroy heart for player who doesn't have one");
-        return;
-    }
-    if (dungeon->room_kind[RoK_DUNGHEART] == room->index) {
-        dungeon->room_kind[RoK_DUNGHEART] = room->next_of_kind;
-    }
-    destroy_room_leaving_unclaimed_ground(room);
-}
-
 void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
