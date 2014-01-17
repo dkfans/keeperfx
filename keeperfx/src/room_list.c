@@ -78,6 +78,10 @@ long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
         i = room->next_of_owner;
         // No Per-room code - we only want count
         SYNCDBG(19,"Player %d has %s at (%d,%d)",(int)plyr_idx, room_code_name(room->kind), (int)room->central_stl_x, (int)room->central_stl_y);
+        if (room->owner != plyr_idx) {
+            ERRORDBG(3,"Player %d has bad room in %s list; it's really %s index %d owned by player %d",(int)plyr_idx, room_code_name(rkind), room_code_name(room->kind), (int)room->index, (int)room->owner);
+            break;
+        }
         k++;
         if (k > ROOMS_COUNT)
         {
@@ -89,7 +93,8 @@ long count_player_rooms_of_type(PlayerNumber plyr_idx, RoomKind rkind)
 }
 
 /**
- * Calculates amount of buildable rooms in possession of a player.
+ * Calculates amount of rooms in possession of a player.
+ * Only rooms which are possible to build are really counted.
  * @param plyr_idx
  */
 long calculate_player_num_rooms_built(PlayerNumber plyr_idx)

@@ -338,7 +338,7 @@ long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
     return nslabs;
 }
 
-void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind room_kind, long *total_cap, long *used_cap)
+void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rkind, long *total_cap, long *used_cap)
 {
     struct Room * room;
     int used_capacity;
@@ -347,7 +347,7 @@ void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind roo
     unsigned long k;
     total_capacity = 0;
     used_capacity = 0;
-    i = dungeon->room_kind[room_kind];
+    i = dungeon->room_kind[rkind];
     k = 0;
     while (i != 0)
     {
@@ -721,8 +721,6 @@ void count_lair_occupants(struct Room *room)
 
 void delete_room_structure(struct Room *room)
 {
-    struct Room *secroom;
-    unsigned short *wptr;
     //_DK_delete_room_structure(room); return;
     if (room_is_invalid(room))
     {
@@ -731,8 +729,12 @@ void delete_room_structure(struct Room *room)
     }
     if ((room->field_0 & 0x01) != 0)
     {
+      // This is almost remove_room_from_players_list(room, room->owner);
+      // but it doesn't change room_slabs_count and is less careful - better not use too much
       if (room->owner != game.neutral_player_num)
       {
+          struct Room *secroom;
+          unsigned short *wptr;
           struct Dungeon *dungeon;
           dungeon = get_players_num_dungeon(room->owner);
           wptr = &dungeon->room_kind[room->kind];
@@ -1068,21 +1070,25 @@ void add_room_to_global_list(struct Room *room)
     }
 }
 
-TbBool add_room_to_players_list(struct Room *room, long plyr_idx)
+TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     struct Room *nxroom;
     long nxroom_id;
-    if (plyr_idx == game.neutral_player_num)
+    if (plyr_idx == game.neutral_player_num) {
         return false;
-    if (room->kind >= ROOM_TYPES_COUNT)
-    {
-        ERRORLOG("Room no %d has invalid kind",(int)room->index);
+    }
+    if (room->kind >= ROOM_TYPES_COUNT) {
+        ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
     }
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Player %d has no dungeon",(int)plyr_idx);
+        return false;
+    }
     nxroom_id = dungeon->room_kind[room->kind];
     nxroom = room_get(nxroom_id);
     if (room_is_invalid(nxroom))
@@ -1098,19 +1104,25 @@ TbBool add_room_to_players_list(struct Room *room, long plyr_idx)
     return true;
 }
 
-TbBool remove_room_from_players_list(struct Room *room, long plyr_idx)
+TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     struct Room *nxroom;
     struct Room *pvroom;
-    if (plyr_idx == game.neutral_player_num)
+    if (plyr_idx == game.neutral_player_num) {
         return false;
-    if (room->kind >= ROOM_TYPES_COUNT)
-    {
-        ERRORLOG("Room no %d has invalid kind",(int)room->index);
+    }
+    if (room->kind >= ROOM_TYPES_COUNT) {
+        ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
         return false;
     }
     dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        ERRORLOG("Player %d has no dungeon",(int)plyr_idx);
+        room->next_of_owner = 0;
+        room->prev_of_owner = 0;
+        return false;
+    }
     pvroom = room_get(room->prev_of_owner);
     nxroom = room_get(room->next_of_owner);
     if (!room_is_invalid(pvroom)) {
@@ -2756,4 +2768,61 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     return 1;
 }
 
+/**
+ * Destroys all slabs of given room, creating gold rubble effect in the place.
+ * @param room The room structure which slabs are to be destroyed.
+ * @note The room structure is freed before this function end.
+ */
+void destroy_room_leaving_unclaimed_ground(struct Room *room)
+{
+    long slb_x, slb_y;
+    unsigned long k;
+    long i;
+    k = 0;
+    i = room->slabs_list;
+    while (i != 0)
+    {
+        slb_x = slb_num_decode_x(i);
+        slb_y = slb_num_decode_y(i);
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        if (room->owner != game.neutral_player_num)
+        {
+            struct Dungeon *dungeon;
+            dungeon = get_players_num_dungeon(room->owner);
+            dungeon->rooms_destroyed++;
+        }
+        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
+        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
+        // Per room tile code ends
+        k++;
+        if (k > map_tiles_x*map_tiles_y) // we can't use room->slabs_count as room may be deleted
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+}
+
+void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng)
+{
+    struct Dungeon *dungeon;
+    long i;
+    dungeon = get_dungeon(plyr_idx);
+    struct Room *room;
+    room = get_room_thing_is_on(heartng);
+    if (room_is_invalid(room) || (room->kind != RoK_DUNGHEART))
+    {
+        WARNLOG("The heart thing is not in heart room");
+        i = dungeon->room_kind[RoK_DUNGHEART];
+        room = room_get(i);
+    }
+    if (room_is_invalid(room))
+    {
+        ERRORLOG("Tried to destroy heart for player who doesn't have one");
+        return;
+    }
+    remove_room_from_players_list(room, plyr_idx);
+    destroy_room_leaving_unclaimed_ground(room);
+}
 /******************************************************************************/
