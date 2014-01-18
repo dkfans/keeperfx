@@ -497,9 +497,11 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
         room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);
         if (!room_is_invalid(room))
         {
-            distance >>= 8; // Convert to subtiles
+            // Convert to subtiles
+            distance = coord_subtile(distance);
             // Decrease the value by gold area radius
-            distance -= (gldlook->field_E >> 3);
+            distance -= LbSqrL(gldlook->num_gold_slabs * STL_PER_SLB);
+            distance -= LbSqrL(gldlook->num_gem_slabs * STL_PER_SLB * 4);
             // We can accept longer distances if digging directly to treasure room
             if (room->kind == RoK_TREASURE)
                 distance -= TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD;
@@ -541,11 +543,14 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
         // Per-task code
         if ( ((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0) )
         {
-            delta_x = (long)ctask->pos_64.x.val - (MapCoordDelta)task_pos.x.val;
-            delta_y = (long)ctask->pos_64.y.val - (MapCoordDelta)task_pos.y.val;
+            delta_x = ctask->pos_64.x.val - (MapCoordDelta)task_pos.x.val;
+            delta_y = ctask->pos_64.y.val - (MapCoordDelta)task_pos.y.val;
             distance = LbDiagonalLength(abs(delta_x), abs(delta_y));
-            distance >>= 8; // Convert to subtiles
-            distance -= (gldlook->field_E >> 3);
+            // Convert to subtiles
+            distance = coord_subtile(distance);
+            // Decrease the value by gold area radius
+            distance -= LbSqrL(gldlook->num_gold_slabs * STL_PER_SLB);
+            distance -= LbSqrL(gldlook->num_gem_slabs * STL_PER_SLB * 4);
             if (min_distance > distance)
             {
                 *near_task = ctask;
@@ -581,6 +586,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
     long dig_distance;
     long lookups_checked;
     long i;
+    SYNCDBG(5,"Starting");
     //return _DK_computer_finds_nearest_room_to_gold(comp, pos, gldlookref);
     dungeon = comp->dungeon;
     gldlooksel = NULL;
@@ -593,9 +599,10 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
     dig_distance = LONG_MAX;
     for (i=0; i < GOLD_LOOKUP_COUNT; i++)
     {
-        gldlook = &game.gold_lookup[i];
-        if ((gldlook->field_0 & 0x01) == 0)
+        gldlook = get_gold_lookup(i);
+        if ((gldlook->flags & 0x01) == 0)
             continue;
+        SYNCDBG(18,"Valid vein at (%d,%d)",(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
         if ((gldlook->player_interested[dungeon->owner] & 0x03) != 0)
             continue;
         SYNCDBG(8,"Searching for place to reach (%d,%d)",(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
@@ -605,9 +612,9 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
         new_dist = computer_finds_nearest_room_to_gold_lookup(dungeon, gldlook, &room);
         if (dig_distance > new_dist)
         {
-            locpos.x.val = (room->central_stl_x << 8);
-            locpos.y.val = (room->central_stl_y << 8);
-            locpos.z.val = (1 << 8);
+            locpos.x.val = subtile_coord_center(room->central_stl_x);
+            locpos.y.val = subtile_coord_center(room->central_stl_y);
+            locpos.z.val = subtile_coord(1,0);
             spos = &locpos;
             dig_distance = new_dist;
             gldlooksel = gldlook;

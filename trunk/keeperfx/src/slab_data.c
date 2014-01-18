@@ -247,11 +247,11 @@ TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
     if (slab_has_trap_on(slb_x, slb_y)) {
         return false;
     }
-    if (slabmap_owner(slb) != plyr_idx) {
-        return false;
-    }
     if (rkind == RoK_BRIDGE) {
         return slab_kind_is_liquid(slb->kind);
+    }
+    if (slabmap_owner(slb) != plyr_idx) {
+        return false;
     }
     return (slb->kind == SlbT_CLAIMED);
 }
