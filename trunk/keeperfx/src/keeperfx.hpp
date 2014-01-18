@@ -287,7 +287,7 @@ struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long ply
 long tag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 void untag_blocks_for_digging_in_rectangle_around(long a1, long a2, char a3);
 void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4);
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, long dormodel, unsigned char a5);
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
 void delete_room_slabbed_objects(long a1);
 unsigned char tag_cursor_blocks_place_door(unsigned char a1, long a2, long a3);
 void set_chosen_spell(long sptype, long sptooltip);

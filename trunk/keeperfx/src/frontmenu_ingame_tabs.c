@@ -389,22 +389,25 @@ void gui_area_trap_button(struct GuiButton *gbtn)
     dungeon = get_players_num_dungeon(my_player_number);
     // Check how many traps/doors do we have to place
     unsigned int amount;
-    amount = 0;
-    if (manufctr->tngclass == TCls_Trap)
+    switch (manufctr->tngclass)
     {
+    case TCls_Trap:
         // If there are traps of that type placed on map
         if (find_trap_of_type(manufctr->tngmodel, my_player_number)) {
             LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[27]);
         }
         amount = dungeon->trap_amount_placeable[manufctr->tngmodel];
-    } else
-    if (manufctr->tngclass == TCls_Door)
-    {
+        break;
+    case TCls_Door:
         // If there are doors of that type placed on map
         if (find_door_of_type(manufctr->tngmodel, my_player_number)) {
             LbSpriteDraw(gbtn->scr_pos_x/(int)pixel_size, gbtn->scr_pos_y/(int)pixel_size, &gui_panel_sprites[27]);
         }
         amount = dungeon->door_amount_placeable[manufctr->tngmodel];
+        break;
+    default:
+        amount = 0;
+        break;
     }
     int i;
     i = gbtn->field_29 + (amount < 1);
@@ -437,7 +440,53 @@ void gui_remove_area_for_traps(struct GuiButton *gbtn)
 
 void gui_area_big_trap_button(struct GuiButton *gbtn)
 {
-    _DK_gui_area_big_trap_button(gbtn);
+    //_DK_gui_area_big_trap_button(gbtn); return;
+    struct PlayerInfo * player;
+    int manufctr_idx;
+    manufctr_idx = (int)gbtn->content;
+    player = get_my_player();
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    struct ManufactureData *manufctr;
+    manufctr = get_manufacture_data(manufctr_idx);
+    unsigned short flg_mem;
+    flg_mem = lbDisplay.DrawFlags;
+
+    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, 26);
+    if (manufctr_idx == 0) {
+        lbDisplay.DrawFlags = flg_mem;
+        return;
+    }
+    lbDisplay.DrawFlags &= ~0x0040;
+    unsigned int amount;
+    switch (manufctr->tngclass)
+    {
+    case TCls_Trap:
+        amount = dungeon->trap_amount_placeable[manufctr->tngmodel];
+        break;
+    case TCls_Door:
+        amount = dungeon->door_amount_placeable[manufctr->tngmodel];
+        break;
+    default:
+        amount = 0;
+        break;
+    }
+    char *text;
+    text = buf_sprintf("@%ld", (long)amount);
+    if (amount <= 0) {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29 + 1);
+    } else
+    if ((((manufctr->tngclass == TCls_Trap) && (player->chosen_trap_kind == manufctr->tngmodel))
+      || ((manufctr->tngclass == TCls_Door) && (player->chosen_door_kind == manufctr->tngmodel)))
+      && ((game.play_gameturn & 1) == 0) )
+    {
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29, 11264);
+    } else {
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4, gbtn->scr_pos_y - 32, gbtn->field_29);
+    }
+    lbDisplay.DrawFlags &= ~0x0040;
+    LbTextDraw((gbtn->scr_pos_x + 44) / (int)pixel_size, (gbtn->scr_pos_y + 8 - 6) / (int)pixel_size, text);
+    lbDisplay.DrawFlags = flg_mem;
 }
 
 void maintain_big_spell(struct GuiButton *gbtn)

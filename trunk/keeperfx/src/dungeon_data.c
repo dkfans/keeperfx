@@ -266,11 +266,11 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
   }
 }
 
-TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel trap_kind, long buildable, long amount)
+TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
 {
     struct Dungeon *dungeon;
-    if ( (trap_kind <= 0) || (trap_kind >= TRAP_TYPES_COUNT) ) {
-        ERRORDBG(1,"Can't set trap availability; invalid trap kind %d.",(int)trap_kind);
+    if ( (tngmodel <= 0) || (tngmodel >= TRAP_TYPES_COUNT) ) {
+        ERRORDBG(1,"Can't set trap availability; invalid trap kind %d.",(int)tngmodel);
         return false;
     }
     dungeon = get_dungeon(plyr_idx);
@@ -279,12 +279,12 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tr
         return false;
     }
     if (buildable)
-        dungeon->trap_build_flags[trap_kind] |= MnfBldF_Manufacturable;
+        dungeon->trap_build_flags[tngmodel] |= MnfBldF_Manufacturable;
     //TODO SCRIPT This is wrong. We need a list of "instantly buildable" (off-map) traps
     //dungeon->trap_amount_stored[trap_kind] += amount;
-    dungeon->trap_amount_placeable[trap_kind] += amount;
+    dungeon->trap_amount_placeable[tngmodel] += amount;
     if (amount > 0)
-        dungeon->trap_build_flags[trap_kind] |= MnfBldF_Built;
+        dungeon->trap_build_flags[tngmodel] |= MnfBldF_Built;
     return true;
 }
 

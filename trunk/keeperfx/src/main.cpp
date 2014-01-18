@@ -3142,12 +3142,13 @@ char find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char ply
     return _DK_find_door_angle(stl_x, stl_y, plyr_idx);
 }
 
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, long dormodel, unsigned char a5)
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     //return _DK_packet_place_door(a1, a2, a3, a4, a5);
-    if (dungeon->door_amount_placeable[dormodel] <= 0) {
+    if (!is_door_placeable(plyr_idx, dormodel)) {
+        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(dormodel));
         return 0;
     }
     if (!a5) {
@@ -3165,6 +3166,10 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     {
         remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, dormodel);
         remove_workshop_object_from_player(plyr_idx, door_crate_object_model(dormodel));
+    } else
+    {
+        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(dormodel),(int)dungeon->owner);
+        dungeon->door_amount_placeable[dormodel] = 0;
     }
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
