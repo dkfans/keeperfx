@@ -29,6 +29,7 @@
 #include "slab_data.h"
 #include "game_legacy.h"
 #include "front_simple.h"
+#include "config_terrain.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -195,22 +196,28 @@ void check_map_for_gold(void)
     for (i=0; i < GOLD_LOOKUP_COUNT; i++) {
         LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
-
+    // Make a map with treasure areas marked
     treasure_map = (unsigned char *)scratch;
     vein_list = (unsigned short *)&scratch[map_tiles_x*map_tiles_y];
-    for (slb_y = 0; slb_y < map_tiles_y; slb_y++) {
-        for (slb_x = 0; slb_x < map_tiles_x; slb_x++) {
+    for (slb_y = 0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x = 0; slb_x < map_tiles_x; slb_x++)
+        {
             slb_num = get_slab_number(slb_x, slb_y);
             slb = get_slabmap_direct(slb_num);
             treasure_map[slb_num] = 0;
-            if ( (slb->kind != SlbT_GOLD) && (slb->kind != SlbT_GEMS) ) {
+            const struct SlabAttr *slbattr;
+            slbattr = get_slab_attrs(slb);
+            if ((slbattr->flags & (SlbAtFlg_Valuable)) != 0) {
                 treasure_map[slb_num] |= 0x01;
             }
         }
     }
     gold_next_idx = 0;
-    for (slb_y = 0; slb_y < map_tiles_y; slb_y++) {
-        for (slb_x = 0; slb_x < map_tiles_x; slb_x++) {
+    for (slb_y = 0; slb_y < map_tiles_y; slb_y++)
+    {
+        for (slb_x = 0; slb_x < map_tiles_x; slb_x++)
+        {
             slb_num = get_slab_number(slb_x, slb_y);
             if ( ((treasure_map[slb_num] & 0x01) == 0) && ((treasure_map[slb_num] & 0x02) == 0) )
             {

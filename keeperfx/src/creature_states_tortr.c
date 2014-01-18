@@ -166,16 +166,14 @@ long setup_torture_move_to_device(struct Thing *creatng, struct Room *room, Crtr
     struct Thing *tortrtng;
     n = ACTION_RANDOM(room->slabs_count);
     slbnum = room->slabs_list;
-    k = n;
-    while (slbnum != 0)
+    for (k = n; k > 0; k--)
     {
-        slbnum = get_next_slab_number_in_room(slbnum);
-        if (k <= 0)
+        if (slbnum == 0)
             break;
-        k--;
+        slbnum = get_next_slab_number_in_room(slbnum);
     }
     if (slbnum == 0) {
-        ERRORLOG("Taking random room slab failed - internal inconsistency.");
+        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
         slbnum = room->slabs_list;
     }
     k = 0;

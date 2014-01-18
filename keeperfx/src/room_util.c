@@ -42,7 +42,7 @@ extern "C" {
 unsigned long gold_per_hoarde = 2000; //TODO CONFIG place into any config struct
 /******************************************************************************/
 DLLIMPORT void _DK_process_rooms(void);
-DLLIMPORT short _DK_delete_room_slab(long x, long y, unsigned char gnd_slab);
+DLLIMPORT short _DK_delete_room_slab(long x, long y, unsigned char is_destroyed);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -194,64 +194,6 @@ void kill_all_room_slabs_and_contents(struct Room *room)
     room->slabs_count = 0;
 }
 
-void remove_slab_from_room_tiles_list(struct Room *room, long rslb_num)
-{
-    struct SlabMap *slb,*rslb;
-    unsigned long k;
-    long i;
-    rslb = get_slabmap_direct(rslb_num);
-    if (slabmap_block_invalid(rslb))
-    {
-        ERRORLOG("Non-existing slab %d.",(int)rslb_num);
-        return;
-    }
-    // If the slab to remove is first in room slabs list - it's simple
-    // In this case we need to re-put a flag on first slab
-    if (room->slabs_list == rslb_num)
-    {
-        delete_room_flag(room);
-        room->slabs_list = rslb->next_in_room;
-        rslb->next_in_room = 0;
-        rslb->room_index = 0;
-        room->slabs_count--;
-        create_room_flag(room);
-        return;
-    }
-    // If the slab to remove is not first, we have to sweep the list
-    k = 0;
-    i = room->slabs_list;
-    while (i > 0)
-    {
-        slb = get_slabmap_direct(i);
-        if (slabmap_block_invalid(slb))
-        {
-          ERRORLOG("Jump to invalid item when sweeping Slabs.");
-          break;
-        }
-        i = get_next_slab_number_in_room(i);
-        // Per room tile code
-        if (slb->next_in_room == rslb_num)
-        {
-            // When the item was found, replace its reference with next item
-            slb->next_in_room = rslb->next_in_room;
-            rslb->next_in_room = 0;
-            rslb->room_index = 0;
-            room->slabs_count--;
-            return;
-        }
-        // Per room tile code ends
-        k++;
-        if (k > room->slabs_count)
-        {
-            ERRORLOG("Room slabs list length exceeded when sweeping");
-            break;
-        }
-    }
-    WARNLOG("Slab %ld couldn't be found in room tiles list.",rslb_num);
-    rslb->next_in_room = 0;
-    rslb->room_index = 0;
-}
-
 void sell_room_slab_when_no_free_room_structures(struct Room *room, long slb_x, long slb_y, unsigned char gnd_slab)
 {
     struct RoomStats *rstat;
@@ -341,10 +283,9 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
     room->slabs_count = 0;
 }
 
-TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gnd_slab)
+TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char is_destroyed)
 {
     struct Room *room;
-    SlabCodedCoords slb_num;
     //return _DK_delete_room_slab(slb_x, slb_y, gnd_slab);
     room = slab_room_get(slb_x,slb_y);
     if (room_is_invalid(room))
@@ -358,18 +299,17 @@ TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char gn
     if (room->slabs_count <= 1)
     {
         delete_room_flag(room);
-        replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
+        replace_room_slab(room, slb_x, slb_y, room->owner, is_destroyed);
         kill_all_room_slabs_and_contents(room);
         free_room_structure(room);
         do_slab_efficiency_alteration(slb_x, slb_y);
     } else
     {
-        slb_num = get_slab_number(slb_x, slb_y);
         // Remove the slab from room tiles list
-        remove_slab_from_room_tiles_list(room, slb_num);
-        replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
+        remove_slab_from_room_tiles_list(room, slb_x, slb_y);
+        replace_room_slab(room, slb_x, slb_y, room->owner, is_destroyed);
         // Create a new room from slabs left in old one
-        recreate_rooms_from_room_slabs(room, gnd_slab);
+        recreate_rooms_from_room_slabs(room, is_destroyed);
         reset_creatures_rooms(room);
         free_room_structure(room);
     }
