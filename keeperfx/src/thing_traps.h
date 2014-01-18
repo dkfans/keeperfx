@@ -77,6 +77,8 @@ DLLIMPORT extern unsigned char _DK_trap_to_object[8];
 DLLIMPORT struct TrapStats _DK_trap_stats[7]; //not sure - maybe it's 8?
 #define trap_stats _DK_trap_stats
 /******************************************************************************/
+TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
+
 TbBool destroy_trap(struct Thing *thing);
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx);
 struct Thing *get_trap_for_position(long pos_x, long pos_y);

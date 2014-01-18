@@ -123,6 +123,9 @@ TbBool slab_is_safe_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 TbBool slab_is_door(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
+TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
+    MapSlabCoord slb_x, MapSlabCoord slb_y);
+
 void clear_slabs(void);
 void reveal_whole_map(struct PlayerInfo *player);
 void update_blocks_in_area(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey);
