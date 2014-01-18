@@ -183,6 +183,13 @@ long destroy_door(struct Thing *doortng)
     return 1;
 }
 
+TbBool subtile_has_door_thing_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Thing *doortng;
+    doortng = get_door_for_position(stl_x, stl_y);
+    return !thing_is_invalid(doortng);
+}
+
 TbBool thing_is_deployed_door(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))

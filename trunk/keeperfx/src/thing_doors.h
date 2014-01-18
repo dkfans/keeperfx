@@ -53,6 +53,8 @@ DLLIMPORT extern struct DoorStats _DK_door_stats[5][2];
 #define door_stats _DK_door_stats
 DLLIMPORT extern unsigned char _DK_door_to_object[DOOR_TYPES_COUNT];
 /******************************************************************************/
+TbBool subtile_has_door_thing_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4);
 TbBool thing_is_deployed_door(const struct Thing *thing);
 void lock_door(struct Thing *thing);
