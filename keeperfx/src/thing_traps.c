@@ -31,6 +31,7 @@
 #include "thing_shots.h"
 #include "map_blocks.h"
 #include "map_utils.h"
+#include "room_util.h"
 #include "game_legacy.h"
 #include "frontend.h"
 #include "engine_render.h"
@@ -200,6 +201,9 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
     MapSubtlCoord stl_x, stl_y;
     stl_x = traptng->mappos.x.stl.num;
     stl_y = traptng->mappos.y.stl.num;
+    if (subtile_is_room(stl_x, stl_y)) {
+        delete_room_slab(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y), true);
+    }
     place_slab_type_on_map(trap_stats[traptng->model].field_1A, stl_x, stl_y, game.neutral_player_num, 0);
     do_slab_efficiency_alteration(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
 }
