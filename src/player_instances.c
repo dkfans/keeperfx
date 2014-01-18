@@ -47,6 +47,7 @@
 #include "engine_redraw.h"
 #include "sounds.h"
 #include "config_settings.h"
+#include "config_terrain.h"
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
@@ -1113,7 +1114,21 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     player = get_player(plyr_idx);
     dungeon = get_players_dungeon(player);
     rstat = room_stats_get_for_kind(rkind);
-    // Check if there's a place for new room.
+    // Check if we are allowed to build the room
+    if (!is_room_available(plyr_idx, rkind)) {
+        // It shouldn't be possible to select unavailable room
+        WARNLOG("Player %d tried to build %s which is unavailable",(int)plyr_idx,room_code_name(rkind));
+        play_non_3d_sample(119);
+        return INVALID_ROOM;
+    }
+    if (!can_build_room_at_slab(plyr_idx, rkind, subtile_slab(stl_x), subtile_slab(stl_y))) {
+        // It shouldn't be possible to select unavailable room
+        WARNLOG("Player %d tried to build %s on a forbidden subtile (%d,%d)",(int)plyr_idx,
+            room_code_name(rkind),(int)stl_x,(int)stl_y);
+        play_non_3d_sample(119);
+        return INVALID_ROOM;
+    }
+    // Check if there's a place for new room
     if (!i_can_allocate_free_room_structure())
     {
       if (is_my_player(player))

@@ -90,6 +90,13 @@ struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
     return get_trap_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
 }
 
+TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing *traptng;
+    traptng = get_trap_for_slab_position(slb_x, slb_y);
+    return !thing_is_invalid(traptng);
+}
+
 TbBool thing_is_deployed_trap(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
@@ -549,11 +556,7 @@ TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     {
         if ((slabmap_owner(slb) == plyr_idx) && (slb->kind == SlbT_CLAIMED))
         {
-            struct Thing *traptng;
-            struct Thing *doortng;
-            traptng = get_trap_for_slab_position(slb_x, slb_y);
-            doortng = get_door_for_position(stl_x, stl_y);
-            if (thing_is_invalid(traptng) && thing_is_invalid(doortng))
+            if (!slab_has_trap_on(slb_x, slb_y) && !subtile_has_door_thing_on(stl_x, stl_y))
             {
                 can_place = 1;
             }

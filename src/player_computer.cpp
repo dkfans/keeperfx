@@ -943,10 +943,8 @@ long computer_check_for_place_trap(struct Computer2 *comp, struct ComputerCheck 
         if ((slabmap_owner(slb) == dungeon->owner) && (slb->kind == SlbT_CLAIMED))
         { // If it's our owned claimed ground, give it a try
             TbResult ret;
-            struct Thing *thing;
-            thing = get_trap_for_slab_position(slb_x, slb_y);
             // Only allow to place trap at position where there's no traps already
-            if (thing_is_invalid(thing)) {
+            if (!slab_has_trap_on(slb_x, slb_y)) {
                 SYNCDBG(8,"Trying to place %s trap at (%d,%d)",trap_code_name(kind_chosen),(int)location->x.stl.num,(int)location->y.stl.num);
                 ret = try_game_action(comp, dungeon->owner, GA_PlaceTrap, 0, location->x.stl.num, location->y.stl.num, kind_chosen, 0);
             } else {

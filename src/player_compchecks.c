@@ -753,9 +753,8 @@ TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3
             if (tag_cursor_blocks_place_door(room->owner, slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
                 break;
             }
-            struct Thing * doortng;
-            doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-            if (thing_is_invalid(doortng)) {
+            if (!subtile_has_door_thing_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y))) {
+                // No door - the position looks ok
                 break;
             }
             slb_x += small_around[m].delta_x;
@@ -771,9 +770,7 @@ TbBool find_place_to_put_door_around_room(const struct Room *room, struct Coord3
             nxslb = get_slabmap_block(nxslb_x, nxslb_y);
             if ((slabmap_owner(nxslb) == room->owner) && (nxslb->kind == SlbT_CLAIMED))
             {
-                struct Thing * doortng;
-                doortng = get_door_for_position(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y));
-                if (thing_is_invalid(doortng)) {
+                if (!subtile_has_door_thing_on(slab_subtile_center(nxslb_x), slab_subtile_center(nxslb_y))) {
                     pos->x.val = subtile_coord_center(slab_subtile_center(slb_x));
                     pos->y.val = subtile_coord_center(slab_subtile_center(slb_y));
                     pos->z.val = subtile_coord(1,0);
@@ -977,10 +974,7 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
                 dist = abs(room->central_stl_x - arstl_x) + abs(room->central_stl_y - arstl_y);
                 if (dist <= max_radius)
                 {
-                    slb = get_slabmap_block(arslb_x, arslb_y);
-                    struct Thing *traptng;
-                    traptng = get_trap_for_slab_position(arslb_x, arslb_y);
-                    if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner) && thing_is_invalid(traptng))
+                    if (can_build_room_at_slab(dungeon->owner, room->kind, arslb_x, arslb_y))
                     {
                         if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, arstl_x, arstl_y, 1, room->kind) > Lb_OK) {
                             return true;

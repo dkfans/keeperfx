@@ -1038,9 +1038,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         if (ctask->dig.subfield_38 > 0)
         {
-            struct SlabMap *slb;
-            slb = get_slabmap_for_subtile(stl_x, stl_y);
-            if ((slb->kind == SlbT_CLAIMED) && (slabmap_owner(slb) == dungeon->owner))
+            if (can_build_room_at_slab(dungeon->owner, rkind, subtile_slab(stl_x), subtile_slab(stl_y)))
             {
                 if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind) > Lb_OK)
                 {
@@ -2252,6 +2250,11 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     plyr_idx = comp->dungeon->owner;
     basestl_x = ctask->dig.pos_next.x.stl.num;
     basestl_y = ctask->dig.pos_next.y.stl.num;
+    if (!can_build_room_at_slab(plyr_idx, RoK_BRIDGE, subtile_slab(basestl_x), subtile_slab(basestl_y)))
+    {
+        restart_task_process(comp, ctask);
+        return 0;
+    }
     long n;
     for (n=0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {

@@ -303,25 +303,25 @@ void update_double_click_detection(long plyr_idx)
 
 struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind)
 {
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  struct Room *room;
-  struct RoomStats *rstat;
-  struct Coord3d pos;
-  MapCoord x,y;
-  player = get_player(plyr_idx);
-  dungeon = get_players_dungeon(player);
-  rstat = room_stats_get_for_kind(rkind);
-  x = ((player->field_4A4+1) / 2) + 3*subtile_slab_fast(stl_x);
-  y = ((player->field_4A4+1) / 2) + 3*subtile_slab_fast(stl_y);
-  room = player_build_room_at(x, y, plyr_idx, rkind);
-  if (!room_is_invalid(room))
-  {
-    dungeon->camera_deviate_jump = 192;
-    set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
-    create_price_effect(&pos, plyr_idx, rstat->cost);
-  }
-  return room;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    struct Room *room;
+    struct RoomStats *rstat;
+    struct Coord3d pos;
+    MapCoord x,y;
+    player = get_player(plyr_idx);
+    dungeon = get_players_dungeon(player);
+    rstat = room_stats_get_for_kind(rkind);
+    x = ((player->field_4A4+1) / 2) + 3*subtile_slab_fast(stl_x);
+    y = ((player->field_4A4+1) / 2) + 3*subtile_slab_fast(stl_y);
+    room = player_build_room_at(x, y, plyr_idx, rkind);
+    if (!room_is_invalid(room))
+    {
+        dungeon->camera_deviate_jump = 192;
+        set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+        create_price_effect(&pos, plyr_idx, rstat->cost);
+    }
+    return room;
 }
 
 TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)

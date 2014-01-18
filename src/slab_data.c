@@ -236,6 +236,26 @@ TbBool slab_kind_is_animated(SlabKind slbkind)
     return false;
 }
 
+TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
+    MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    if (slb->room_index > 0) {
+        return false;
+    }
+    if (slab_has_trap_on(slb_x, slb_y)) {
+        return false;
+    }
+    if (slabmap_owner(slb) != plyr_idx) {
+        return false;
+    }
+    if (rkind == RoK_BRIDGE) {
+        return slab_kind_is_liquid(slb->kind);
+    }
+    return (slb->kind == SlbT_CLAIMED);
+}
+
 /**
  * Clears all SlabMap structures in the map.
  */
