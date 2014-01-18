@@ -2489,6 +2489,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
 {
     int nav_sizexy;
     long selected;
+    unsigned long n;
     unsigned long k;
     long i;
     //return _DK_find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos);
@@ -2498,35 +2499,36 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         return false;
     }
     selected = ACTION_RANDOM(room->slabs_count);
-    k = 0;
+    n = 0;
     i = room->slabs_list;
     // Get the selected index
     while (i != 0)
     {
         // Per room tile code
-        if (k >= selected)
+        if (n >= selected)
         {
             break;
         }
         // Per room tile code ends
         i = get_next_slab_number_in_room(i);
-        k++;
+        n++;
     }
     if (i == 0) {
-        k = 0;
+        n = 0;
         i = room->slabs_list;
         WARNLOG("Amount of slabs in %s is smaller than count",room_code_name(room->kind));
     }
     // Sweep rooms starting on that index
+    k = 0;
     while (i != 0)
     {
         MapSubtlCoord stl_x,stl_y,start_stl;
-        long n;
+        long nround;
         stl_x = slab_subtile(slb_num_decode_x(i),0);
         stl_y = slab_subtile(slb_num_decode_y(i),0);
         // Per room tile code
         start_stl = ACTION_RANDOM(9);
-        for (n=0; n < 9; n++)
+        for (nround=0; nround < 9; nround++)
         {
             MapSubtlCoord x,y;
             x = start_stl % 3 + stl_x;
@@ -2548,13 +2550,18 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             start_stl = (start_stl + 1) % 9;
         }
         // Per room tile code ends
-        if (k+1 >= room->slabs_count)
+        if (n+1 >= room->slabs_count)
         {
-            k = 0;
+            n = 0;
             i = room->slabs_list;
         } else {
-            k++;
+            n++;
             i = get_next_slab_number_in_room(i);
+        }
+        k++;
+        if (k > room->slabs_count) {
+            ERRORLOG("Infinite loop detected when sweeping room slabs list");
+            break;
         }
     }
     ERRORLOG("Could not find valid RANDOM point in %s for %s",room_code_name(room->kind),thing_model_name(thing));

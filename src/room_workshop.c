@@ -137,6 +137,7 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
     struct Thing *cratetng;
     struct Room *room;
     struct Dungeon *dungeon;
+    SYNCDBG(7,"Making player %d new %s",(int)plyr_idx,thing_class_code_name(tngclass));
     //return _DK_create_workshop_object_in_workshop_room(plyr_idx, tng_class, tng_kind);
     pos.x.val = 0;
     pos.y.val = 0;
@@ -584,7 +585,7 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
     return false;
 }
 
-long manufacture_points_required(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
+long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, const char *func_name)
 {
   switch (mfcr_type)
   {
@@ -603,12 +604,11 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     struct Room *room;
     int k;
-    SYNCDBG(17,"Starting");
-//    return _DK_process_player_manufacturing(plr_idx);
+    SYNCDBG(17,"Starting for player %d",(int)plyr_idx);
+    //return _DK_process_player_manufacturing(plr_idx);
 
     dungeon = get_players_num_dungeon(plyr_idx);
-    room = player_has_room_of_type(plyr_idx, RoK_WORKSHOP);
-    if (room_is_invalid(room))
+    if (!player_has_room(plyr_idx, RoK_WORKSHOP))
     {
         return true;
     }
@@ -617,7 +617,7 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
         get_next_manufacture(dungeon);
         return true;
     }
-    k = manufacture_points_required(dungeon->manufacture_class, dungeon->manufacture_kind, __func__);
+    k = manufacture_points_required_f(dungeon->manufacture_class, dungeon->manufacture_kind, __func__);
     // If we don't have enough manufacture points, don't do anything
     if (dungeon->manufacture_progress < (k << 8))
         return true;
