@@ -810,7 +810,7 @@ void draw_mini_things_in_hand(long x, long y)
                 scrpos_x = scrbase_x + 16 * icol;
                 scrpos_y = scrbase_y + 18 * irow;
                 LbSpriteDraw((scrpos_x + expshift_x) / pixel_size, (scrpos_y + shift_y) / pixel_size, &button_sprite[expspr_idx]);
-                LbSpriteDraw(scrpos_x / pixel_size, scrpos_y / pixel_size, &gui_panel_sprites[spr_idx]);
+                draw_gui_panel_sprite_left(scrpos_x, scrpos_y, spr_idx);
             }
         } else
         if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
@@ -822,7 +822,7 @@ void draw_mini_things_in_hand(long x, long y)
                 shift_y = 0;
             scrpos_x = scrbase_x + 16 * icol;
             scrpos_y = scrbase_y + 14 * irow;
-            LbSpriteDraw((scrpos_x - 2) / pixel_size, (scrpos_y + shift_y) / pixel_size, &gui_panel_sprites[spr_idx]);
+            draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + shift_y, spr_idx);
         } else
         {
             spr_idx = 59;
@@ -832,7 +832,7 @@ void draw_mini_things_in_hand(long x, long y)
                 shift_y = 0;
             scrpos_x = scrbase_x + 16 * icol;
             scrpos_y = scrbase_y + 14 * irow;
-            LbSpriteDraw((scrpos_x - 2) / pixel_size, (scrpos_y + shift_y) / pixel_size, &gui_panel_sprites[spr_idx]);
+            draw_gui_panel_sprite_left(scrpos_x - 2, scrpos_y + shift_y, spr_idx);
         }
     }
 }
