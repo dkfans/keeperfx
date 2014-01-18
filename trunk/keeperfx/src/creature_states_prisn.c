@@ -59,8 +59,9 @@ TbBool jailbreak_possible(struct Room *room, long plyr_idx)
     unsigned long i;
     unsigned long k;
     struct SlabMap *slb;
-    if ((room->owner == plyr_idx) || (room->slabs_list <= 0))
+    if (room->owner == plyr_idx) {
         return false;
+    }
     k = 0;
     i = room->slabs_list;
     while (i > 0)

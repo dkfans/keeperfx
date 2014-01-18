@@ -704,6 +704,17 @@ TbBool creature_is_being_unconscious(const struct Thing *thing)
     return false;
 }
 
+TbBool creature_is_celebrating(const struct Thing *thing)
+{
+    CrtrStateId i;
+    i = thing->active_state;
+    if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
+        i = thing->continue_state;
+    if (i == CrSt_CreatureBeHappy)
+        return true;
+    return false;
+}
+
 TbBool creature_is_being_tortured(const struct Thing *thing)
 {
     CrtrStateId i;
@@ -1314,7 +1325,8 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *
                 MapSlabCoord slb_x,slb_y;
                 slb_x = slb_num_decode_x(slab_num);
                 slb_y = slb_num_decode_y(slab_num);
-                if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl)) {
+                if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl))
+                {
                     SYNCDBG(8,"Possible to move %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
                         (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
                         (int)pos->x.stl.num, (int)pos->y.stl.num);
@@ -1329,7 +1341,8 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *
         MapSlabCoord slb_x,slb_y;
         slb_x = slb_num_decode_x(slab_base);
         slb_y = slb_num_decode_y(slab_base);
-        if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl)) {
+        if (set_position_at_slab_for_thing(pos, thing, slb_x, slb_y, start_stl))
+        {
             SYNCDBG(8,"Short move %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
                 (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
                 (int)pos->x.stl.num, (int)pos->y.stl.num);
@@ -1349,7 +1362,7 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders(const struct Thing *
  * @return Coded subtiles of the new position, or 0 on failure.
  * @see person_get_somewhere_adjacent_in_room()
  */
-SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long owner, long rkind)
+SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind)
 {
     SubtlCodedCoords stl_num;
     SubtlCodedCoords accepted_stl_num;
@@ -1398,6 +1411,27 @@ SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, long ow
         }
         m = (m + 1) % AROUND_MAP_LENGTH;
     }
+    // No position found - at least try to move within the same slab
+    do {
+        struct Room *room;
+        struct Map *mapblk;
+        struct SlabMap *slb;
+        MapSubtlCoord stl_x,stl_y;
+        stl_num = get_subtile_number(pos->x.stl.num,pos->y.stl.num);
+        mapblk = get_map_block_at_pos(stl_num);
+        if ( ((mapblk->flags & MapFlg_IsRoom) != 0) && ((mapblk->flags & MapFlg_IsTall) != 0) )
+            break;
+        stl_x = stl_num_decode_x(stl_num);
+        stl_y = stl_num_decode_y(stl_num);
+        slb = get_slabmap_for_subtile(stl_x,stl_y);
+        if (slabmap_owner(slb) != owner)
+            break;
+        room = room_get(slb->room_index);
+        if (room->kind != rkind)
+            break;
+        return stl_num;
+    } while (0);
+    // Failed completely - cannot move
     return 0;
 }
 
