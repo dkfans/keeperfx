@@ -170,14 +170,14 @@ DLLIMPORT struct Room *_DK_find_room_with_spare_room_item_capacity(unsigned char
 DLLIMPORT long _DK_create_workshop_object_in_workshop_room(long a1, long plyr_idx, long a3);
 DLLIMPORT unsigned char _DK_find_first_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
 DLLIMPORT struct Room* _DK_find_nearest_room_for_thing_with_spare_capacity(struct Thing *thing,
-    signed char plyr_idx, signed char a3, unsigned char a4, long a5);
+    signed char plyr_idx, signed char a3, unsigned char a4, long is_destroyed);
 DLLIMPORT struct Room* _DK_find_room_with_spare_capacity(unsigned char a1, signed char plyr_idx, long a3);
 DLLIMPORT short _DK_delete_room_slab_when_no_free_room_structures(long a1, long plyr_idx, unsigned char a3);
 DLLIMPORT long _DK_calculate_room_efficiency(struct Room *room);
 DLLIMPORT void _DK_kill_room_slab_and_contents(unsigned char a1, unsigned char plyr_idx, unsigned char a3);
 DLLIMPORT void _DK_free_room_structure(struct Room *room);
 DLLIMPORT void _DK_reset_creatures_rooms(struct Room *room);
-DLLIMPORT void _DK_replace_room_slab(struct Room *room, long plyr_idx, long a3, unsigned char a4, unsigned char a5);
+DLLIMPORT void _DK_replace_room_slab(struct Room *room, long plyr_idx, long a3, unsigned char a4, unsigned char is_destroyed);
 DLLIMPORT struct Room *_DK_place_room(unsigned char a1, unsigned char plyr_idx, unsigned short a3, unsigned short a4);
 DLLIMPORT struct Room *_DK_find_nearest_room_for_thing_with_spare_item_capacity(struct Thing *thing, char plyr_idx, char a3, unsigned char a4);
 DLLIMPORT struct Room * _DK_pick_random_room(PlayerNumber newowner, int rkind);
@@ -854,8 +854,9 @@ void update_room_total_capacity(struct Room *room)
  * Counts slabs making up the room and stores them in the room.
  * Also, updates room index in all the slabs.
  * @param room
+ * @note was named count_room_slabs()
  */
-void count_room_slabs(struct Room *room)
+void recount_and_reassociate_room_slabs(struct Room *room)
 {
     struct SlabMap *slb;
     unsigned long k;
@@ -897,18 +898,18 @@ void count_room_slabs(struct Room *room)
  */
 struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind)
 {
-    SlabCodedCoords central_slbnum;
-    struct SlabMap *slb;
     struct Room *linkroom;
     struct Room *room;
     MapSubtlCoord stl_x,stl_y;
     long n;
-    // Encoded slab coords - we will need it if we'll find adjacent room
-    central_slbnum = get_slab_number(subtile_slab_fast(x),subtile_slab_fast(y));
+    // Central slab coords - we will need it if we'll find adjacent room
+    MapSlabCoord central_slb_x, central_slb_y;
+    central_slb_x = subtile_slab_fast(x);
+    central_slb_y = subtile_slab_fast(y);
     //return _DK_link_adjacent_rooms_of_type(owner, x, y, rkind);
     // Localize the room to be merged with other rooms
     linkroom = INVALID_ROOM;
-    for (n = 0; n < 4; n++)
+    for (n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         stl_x = x + STL_PER_SLB * (long)small_around[n].delta_x;
         stl_y = y + STL_PER_SLB * (long)small_around[n].delta_y;
@@ -919,11 +920,7 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
           {
               // Add the central slab to room which was found
               room->total_capacity = 0;
-              slb = get_slabmap_direct(room->slabs_list_tail);
-              slb->next_in_room = central_slbnum;
-              slb = get_slabmap_direct(central_slbnum);
-              slb->next_in_room = 0;
-              room->slabs_list_tail = central_slbnum;
+              add_slab_to_room_tiles_list(room, central_slb_x, central_slb_y);
               linkroom = room;
               break;
           }
@@ -934,10 +931,10 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
         return INVALID_ROOM;
     }
     // If slab was added to the room, check if more rooms now have to be linked together
-    for (n++; n < 4; n++)
+    for (n++; n < SMALL_AROUND_LENGTH; n++)
     {
-        stl_x = x + 3 * (long)small_around[n].delta_x;
-        stl_y = y + 3 * (long)small_around[n].delta_y;
+        stl_x = x + STL_PER_SLB * (long)small_around[n].delta_x;
+        stl_y = y + STL_PER_SLB * (long)small_around[n].delta_y;
         room = subtile_room_get(stl_x,stl_y);
         if ( !room_is_invalid(room) )
         {
@@ -945,13 +942,9 @@ struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
           {
               if (room != linkroom)
               {
-                  // We have a room to merge
-                  slb = get_slabmap_direct(linkroom->slabs_list_tail);
-                  // Link together lists of slabs
-                  slb->next_in_room = room->slabs_list;
-                  linkroom->slabs_list_tail = room->slabs_list_tail;
+                  add_slab_list_to_room_tiles_list(linkroom, room->slabs_list);
                   // Update slabs in the new list
-                  count_room_slabs(linkroom);
+                  recount_and_reassociate_room_slabs(linkroom);
                   update_room_total_capacity(linkroom);
                   // Make sure creatures working in the room won't leave
                   change_work_room_of_creatures_working_in_room(room, linkroom);
@@ -1139,22 +1132,134 @@ TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
     return true;
 }
 
+void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    SlabCodedCoords slb_num;
+    slb_num = get_slab_number(slb_x, slb_y);
+    if (room->slabs_list == 0) {
+        room->slabs_list = slb_num;
+    } else {
+        struct SlabMap *pvslb;
+        pvslb = get_slabmap_direct(room->slabs_list_tail);
+        pvslb->next_in_room = slb_num;
+    }
+    {
+        struct SlabMap *nxslb;
+        nxslb = get_slabmap_direct(slb_num);
+        nxslb->room_index = room->index;
+        room->slabs_count++;
+        nxslb->next_in_room = 0;
+    }
+    room->slabs_list_tail = slb_num;
+}
+
+/**
+ * Adds slab list starting with given slab number to given room.
+ *
+ * @param room
+ * @param slb_num
+ */
+void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num)
+{
+    if (room->slabs_list == 0) {
+        room->slabs_list = slb_num;
+    } else {
+        struct SlabMap *pvslb;
+        pvslb = get_slabmap_direct(room->slabs_list_tail);
+        pvslb->next_in_room = slb_num;
+    }
+    SlabCodedCoords tail_slb_num;
+    tail_slb_num = slb_num;
+    while (1)
+    {
+        struct SlabMap *nxslb;
+        nxslb = get_slabmap_direct(tail_slb_num);
+        nxslb->room_index = room->index;
+        room->slabs_count++;
+        if (nxslb->next_in_room == 0) {
+            break;
+        }
+        tail_slb_num = nxslb->next_in_room;
+    }
+    room->slabs_list_tail = tail_slb_num;
+}
+
+void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    SlabCodedCoords slb_num;
+    slb_num = get_slab_number(slb_x, slb_y);
+
+    struct SlabMap *slb;
+    unsigned long k;
+    long i;
+    struct SlabMap *rmslb;
+    rmslb = get_slabmap_direct(slb_num);
+    if (slabmap_block_invalid(rmslb))
+    {
+        ERRORLOG("Non-existing slab (%d,%d).",(int)slb_x,(int)slb_y);
+        return;
+    }
+    // If the slab to remove is first in room slabs list - it's simple
+    // In this case we need to re-put a flag on first slab
+    if (room->slabs_list == slb_num)
+    {
+        delete_room_flag(room);
+        room->slabs_list = rmslb->next_in_room;
+        room->slabs_count--;
+        rmslb->next_in_room = 0;
+        rmslb->room_index = 0;
+        create_room_flag(room);
+        return;
+    }
+    // If the slab to remove is not first, we have to sweep the list
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb))
+        {
+          ERRORLOG("Jump to invalid item when sweeping Slabs.");
+          break;
+        }
+        i = get_next_slab_number_in_room(i);
+        // Per room tile code
+        if (slb->next_in_room == slb_num)
+        {
+            // When the item was found, replace its reference with next item
+            slb->next_in_room = rmslb->next_in_room;
+            room->slabs_count--;
+            rmslb->next_in_room = 0;
+            rmslb->room_index = 0;
+            return;
+        }
+        // Per room tile code ends
+        k++;
+        if (k > room->slabs_count)
+        {
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
+        }
+    }
+    WARNLOG("Slab %ld couldn't be found in room tiles list.",slb_num);
+    rmslb->next_in_room = 0;
+    rmslb->room_index = 0;
+}
+
 struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct SlabMap *slb;
     struct Room *room;
     MapSlabCoord slb_x,slb_y;
-    long i;
     if (!subtile_has_slab(stl_x, stl_y))
     {
         ERRORLOG("Attempt to create room on invalid coordinates.");
-        return NULL;
+        return INVALID_ROOM;
     }
     if ( !i_can_allocate_free_room_structure() )
     {
         ERRORDBG(2,"Cannot allocate any more rooms.");
         erstat_inc(ESE_NoFreeRooms);
-        return NULL;
+        return INVALID_ROOM;
     }
     room = allocate_free_room_structure();
     room->owner = owner;
@@ -1163,11 +1268,7 @@ struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord 
     add_room_to_players_list(room, owner);
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
-    i = get_slab_number(slb_x, slb_y);
-    room->slabs_list = i;
-    room->slabs_list_tail = i;
-    slb = get_slabmap_direct(i);
-    slb->next_in_room = 0;
+    add_slab_to_room_tiles_list(room, slb_x, slb_y);
     return room;
 }
 
@@ -1181,14 +1282,15 @@ struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x
     if (room_is_invalid(room))
     {
         room = prepare_new_room(owner, rkind, stl_x, stl_y);
-        if (room_is_invalid(room))
+        if (room_is_invalid(room)) {
             return INVALID_ROOM;
-        count_room_slabs(room);
+        }
+        recount_and_reassociate_room_slabs(room);
         update_room_central_tile_position(room);
         create_room_flag(room);
     } else
     {
-        count_room_slabs(room);
+        recount_and_reassociate_room_slabs(room);
         update_room_central_tile_position(room);
     }
     SYNCDBG(7,"Done");
@@ -1240,7 +1342,21 @@ void delete_room_flag(struct Room *room)
 
 struct Room *allocate_free_room_structure(void)
 {
-  return _DK_allocate_free_room_structure();
+    struct Room *room;
+    //return _DK_allocate_free_room_structure();
+    int i;
+    for (i = 1; i < ROOMS_COUNT; i++)
+    {
+        room = &game.rooms[i];
+        if ((room->field_0 & 0x01) == 0)
+        {
+            LbMemorySet(room, 0, sizeof(struct Room));
+            room->field_0 |= 0x01;
+            room->index = i;
+            return room;
+        }
+    }
+    return INVALID_ROOM;
 }
 
 unsigned short i_can_allocate_free_room_structure(void)
@@ -2243,7 +2359,7 @@ void reset_creatures_rooms(struct Room *room)
   _DK_reset_creatures_rooms(room);
 }
 
-void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char a5)
+void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char is_destroyed)
 {
     struct SlabMap *slb;
     //_DK_replace_room_slab(room, slb_x, slb_y, owner, a5);
@@ -2265,7 +2381,7 @@ void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y
         }
     } else
     {
-        if ( a5 )
+        if ( is_destroyed )
         {
             place_slab_type_on_map(SlbT_PATH, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
         } else
@@ -2328,7 +2444,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
         dungeon = get_dungeon(owner);
         dungeon->lvstats.rooms_constructed++;
     }
-    pannel_map_update(stl_x, stl_y, 3, 3);
+    pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
     return room;
 }
 
@@ -2522,9 +2638,15 @@ TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing->class_id == TCls_Object)
+        switch (thing->class_id)
         {
+        case TCls_Object:
             change_ownership_or_delete_object_thing_in_room(room, thing, parent_idx, plyr_idx);
+            break;
+        case TCls_Trap:
+            // Destroy any traps place on the room
+            destroy_trap(thing);
+            break;
         }
         // Per thing code end
         k++;
@@ -2539,6 +2661,7 @@ TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl
 
 /**
  * Changes ownership of things in a room while it's being claimed.
+ * Deletes things which shouldn't be in a room which is changing owner.
  * @param room The room to be affected.
  * @param plyr_idx The new owner.
  */
@@ -2587,7 +2710,7 @@ void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
                 change_room_subtile_things_ownership(room, stl_x, stl_y, plyr_idx);
             }
         }
-        pannel_map_update(start_stl_x, start_stl_y, 3, 3);
+        pannel_map_update(start_stl_x, start_stl_y, STL_PER_SLB, STL_PER_SLB);
         // Per-slab code ends
         k++;
         if (k > room->slabs_count)

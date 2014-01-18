@@ -215,10 +215,10 @@ TbBool setup_move_to_new_workshop_position(struct Thing *thing, struct Room *roo
     if ( a3 )
         cctrl->byte_9E = 50;
     cctrl->byte_9A = 1;
-    stl_num = find_position_around_in_room(&thing->mappos, thing->owner, RoK_WORKSHOP);
+    stl_num = find_position_around_in_room(&thing->mappos, thing->owner, room->kind);
     if (stl_num <= 0)
     {
-        WARNLOG("Couldn't find position around in workshop of %d slabs",(int)room->slabs_count);
+        WARNLOG("Could not find position around in %s of %d slabs",room_code_name(room->kind),(int)room->slabs_count);
         return false;
     }
     return setup_workshop_move(thing,stl_num);
