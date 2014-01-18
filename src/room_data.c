@@ -2232,8 +2232,8 @@ struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind
         }
         i = room->next_of_owner;
         // Per-room code
-        delta_x = (room->central_stl_x << 8) - (MapCoordDelta)pos->x.val;
-        delta_y = (room->central_stl_y << 8) - (MapCoordDelta)pos->y.val;
+        delta_x = subtile_coord_center(room->central_stl_x) - (MapCoordDelta)pos->x.val;
+        delta_y = subtile_coord_center(room->central_stl_y) - (MapCoordDelta)pos->y.val;
         distance = LbDiagonalLength(abs(delta_x), abs(delta_y));
         if (distance < near_distance)
         {

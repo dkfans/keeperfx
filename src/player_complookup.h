@@ -33,15 +33,15 @@ extern "C" {
 #pragma pack(1)
 
 struct GoldLookup { // sizeof = 28
-unsigned char field_0;
+    unsigned char flags;
     /* Informs whether players are interested in that gold vein. */
     unsigned char player_interested[5];
 unsigned short x_stl_num;
 unsigned short y_stl_num;
 unsigned short field_A;
 unsigned short field_C;
-unsigned short field_E;
-unsigned long field_10;
+unsigned short num_gold_slabs;
+unsigned long num_gem_slabs;
 unsigned char field_14[6];
 unsigned short field_1A;
 };

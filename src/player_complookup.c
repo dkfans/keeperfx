@@ -73,7 +73,7 @@ long smaller_gold_vein_lookup_idx(long higher_gold_slabs, long higher_gem_slabs)
     for (i=0; i < GOLD_LOOKUP_COUNT; i++)
     {
         gldlook = get_gold_lookup(i);
-        if (gldlook->field_10 == gem_slabs)
+        if (gldlook->num_gem_slabs == gem_slabs)
         {
             if (gldlook->field_A < gold_slabs)
             {
@@ -81,9 +81,9 @@ long smaller_gold_vein_lookup_idx(long higher_gold_slabs, long higher_gem_slabs)
               gold_idx = i;
             }
         } else
-        if (gldlook->field_10 < gem_slabs)
+        if (gldlook->num_gem_slabs < gem_slabs)
         {
-            gem_slabs = gldlook->field_10;
+            gem_slabs = gldlook->num_gem_slabs;
             gold_slabs = gldlook->field_A;
             gold_idx = i;
         }
@@ -172,13 +172,14 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
     {
         gldlook = get_gold_lookup(gold_idx);
         LbMemorySet(gldlook, 0, sizeof(struct GoldLookup));
-        gldlook->field_0 |= 0x01;
+        gldlook->flags |= 0x01;
         gldlook->x_stl_num = slab_subtile_center(gld_v1 / gld_v3);
         gldlook->y_stl_num = slab_subtile_center(gld_v2 / gld_v3);
         gldlook->field_A = gold_slabs;
         gldlook->field_C = 0;
-        gldlook->field_E = gold_slabs;
-        gldlook->field_10 = gem_slabs;
+        gldlook->num_gold_slabs = gold_slabs;
+        gldlook->num_gem_slabs = gem_slabs;
+        SYNCDBG(8,"Added vein %d at (%d,%d)",(int)gold_idx,(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
     }
 }
 
@@ -208,7 +209,8 @@ void check_map_for_gold(void)
             treasure_map[slb_num] = 0;
             const struct SlabAttr *slbattr;
             slbattr = get_slab_attrs(slb);
-            if ((slbattr->flags & (SlbAtFlg_Valuable)) != 0) {
+            // Mark areas which are not valuable
+            if ((slbattr->flags & (SlbAtFlg_Valuable)) == 0) {
                 treasure_map[slb_num] |= 0x01;
             }
         }

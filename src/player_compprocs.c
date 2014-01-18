@@ -1022,10 +1022,10 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         }
         if (dig_distance > max_distance)
         {
-            SYNCDBG(8,"Gold is out of evaluation distance (%lu > %lu)",digres,max_distance);
+            SYNCDBG(8,"Gold is out of evaluation distance (%lu > %lu)",dig_distance,max_distance);
             return 0;
         }
-        SYNCDBG(8,"Dig evaluation distance %d, result %d",dig_distance,digres);
+        SYNCDBG(8,"Dig evaluation distance %lu, result %d",dig_distance,digres);
     }
     long parent_cproc_idx;
     long gold_lookup_idx;

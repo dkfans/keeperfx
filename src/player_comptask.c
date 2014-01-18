@@ -1545,7 +1545,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     MapSlabCoord digslb_x,digslb_y;
     long counter1;
     long i;
-    SYNCDBG(14,"Starting");
+    SYNCDBG(14,"%s: Starting",func_name);
     //return _DK_tool_dig_to_pos2(comp, cdig, simulation, digflags);
     dungeon = comp->dungeon;
     // Limit amount of calls
@@ -1556,7 +1556,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     }
     gldstl_x = stl_slab_center_subtile(cdig->pos_begin.x.stl.num);
     gldstl_y = stl_slab_center_subtile(cdig->pos_begin.y.stl.num);
-    SYNCDBG(4,"Dig slabs from (%d,%d) to (%d,%d)",subtile_slab(gldstl_x),subtile_slab(gldstl_y),subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
+    SYNCDBG(4,"%s: Dig slabs from (%d,%d) to (%d,%d)",func_name,subtile_slab(gldstl_x),subtile_slab(gldstl_y),subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
     if (get_2d_distance(&cdig->pos_begin, &cdig->pos_dest) <= cdig->distance)
     {
         SYNCDBG(4,"%s: Player %d does small distance digging",func_name,(int)dungeon->owner);
@@ -1613,7 +1613,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         }
         cdig->subfield_48++;
         if ((cdig->subfield_48 > 10) && (cdig->sub4C_stl_x == gldstl_x) && (cdig->sub4C_stl_y == gldstl_y)) {
-            SYNCDBG(5,"Positions are equal at subtile (%d,%d)",(int)gldstl_x,(int)gldstl_y);
+            SYNCDBG(5,"%s: Positions are equal at subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
             return -2;
         }
         cdig->sub4C_stl_x = gldstl_x;
@@ -1870,7 +1870,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     // move to next task or return to enclosing task or return to try again later
     if ((retval == -3) || (retval == -2))
     {
-        gold_lookup = &game.gold_lookup[ctask->dig_to_gold.target_lookup_idx];
+        gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
         set_flag_byte(&gold_lookup->player_interested[dungeon->owner], 0x02, true);
         remove_task(comp, ctask);
     } else
