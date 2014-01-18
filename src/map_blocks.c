@@ -471,7 +471,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
       }
     }
 
-    pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), slab_subtile(1,0), slab_subtile(1,0));
+    pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
 
     for (i = 0; i < 8; i++)
     {
