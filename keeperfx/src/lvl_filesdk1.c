@@ -283,18 +283,18 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
     int k,n;
     SYNCDBG(8,"Starting for \"%s\"",fname);
     if (buf == NULL)
-      return false;
+        return false;
     lvnum = get_level_number_from_file_name(fname);
     if (lvnum < 1)
     {
-      WARNLOG("Incorrect .LOF file name \"%s\", skipped.",fname);
-      return false;
+        WARNLOG("Incorrect .LOF file name \"%s\", skipped.",fname);
+        return false;
     }
     lvinfo = get_or_create_level_info(lvnum, LvOp_None);
     if (lvinfo == NULL)
     {
-      WARNMSG("Can't get LevelInformation item to store level %ld data from LOF file.",lvnum);
-      return 0;
+        WARNMSG("Can't get LevelInformation item to store level %ld data from LOF file.",lvnum);
+        return 0;
     }
     lvinfo->location = LvLc_Custom;
     pos = 0;

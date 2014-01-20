@@ -2356,9 +2356,6 @@ void frontend_level_select(struct GuiButton *gbtn)
       lvnum = campaign.freeplay_levels[i];
     if (lvnum <= 0)
         return;
-    // Load the default campaign (free play levels should be played with default campaign settings)
-    if (!change_campaign(""))
-        return;
     game.selected_level_number = lvnum;
     game.flags_font |= FFlg_unk80;
     frontend_set_state(FeSt_START_KPRLEVEL);
@@ -2372,12 +2369,10 @@ void frontend_level_list_unload(void)
 
 void frontend_level_list_load(void)
 {
-    if (!is_campaign_loaded())
-    {
-        if (!change_campaign("")) {
-            number_of_freeplay_levels = 0;
-            return;
-        }
+    // Load the default campaign (free play levels should be played with default campaign settings)
+    if (!change_campaign("")) {
+        number_of_freeplay_levels = 0;
+        return;
     }
     number_of_freeplay_levels = campaign.freeplay_levels_count;
 }
@@ -2647,6 +2642,7 @@ void frontend_shutdown_state(long pstate)
 
 int frontend_setup_state(long nstate)
 {
+    SYNCDBG(9,"Starting for state %d",(int)nstate);
     switch ( nstate )
     {
       case FeSt_INITIAL:
@@ -2740,6 +2736,7 @@ int frontend_setup_state(long nstate)
           break;
       case FeSt_NETLAND_VIEW:
           set_pointer_graphic_none();
+          frontnet_init_level_descriptions();
           frontnetmap_load();
           break;
       case FeSt_FEDEFINE_KEYS:
