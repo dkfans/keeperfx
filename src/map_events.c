@@ -68,7 +68,7 @@ struct Event *get_event_nearby_of_type_for_player(MapCoord map_x, MapCoord map_y
         struct Event *event;
         event = &game.event[i];
         if (((event->flags & 0x01) != 0) && (event->owner == plyr_idx) && (event->kind == evkind)
-         && get_distance_xy(event->mappos_x, map_x, event->mappos_y, map_y) < max_dist) {
+         && get_distance_xy(event->mappos_x, event->mappos_y, map_x, map_y) < max_dist) {
             return event;
         }
     }
@@ -89,24 +89,26 @@ struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_i
     return INVALID_EVENT;
 }
 
-long event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
+EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
 {
     //return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, evkind, dngn_id, msg_id);
     struct Event *event;
     event = get_event_nearby_of_type_for_player(map_x, map_y, 1280, evkind, dngn_id);
     if (!event_is_invalid(event))
     {
+        SYNCDBG(3,"Updating event %d to be kind %d at (%d,%d)",(int)event->index,(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
         event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
-        return -event->index;
+        return -(EventIndex)event->index;
     }
+    SYNCDBG(3,"Creating event kind %d at (%d,%d)",(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
     event = event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
     if (event_is_invalid(event)) {
         return 0;
     }
-    return event->index;
+    return (EventIndex)event->index;
 }
 
-long event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
+EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, EventKind evkind, unsigned char dngn_id, long msg_id)
 {
     //return _DK_event_create_event_or_update_old_event(map_x, map_y, evkind, dngn_id, msg_id);
     struct Event *event;
@@ -116,14 +118,14 @@ long event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y, Even
     if (!event_is_invalid(event))
     {
         event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
-        return -event->index;
+        return -(EventIndex)event->index;
     }
     // If no matching event found, then create new one
     event = event_create_event(map_x, map_y, evkind, dngn_id, msg_id);
     if (event_is_invalid(event)) {
         return 0;
     }
-    return event->index;
+    return (EventIndex)event->index;
 }
 
 void event_initialise_all(void)
