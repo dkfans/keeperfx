@@ -168,6 +168,8 @@ typedef unsigned short SpellKind;
 typedef unsigned short PowerKind;
 /** Type which stores EvKind_* values. */
 typedef unsigned char EventKind;
+/** Type which stores index of the new event, or negative index of updated event, in map events array. */
+typedef short EventIndex;
 typedef short BattleIndex;
 typedef long HitPoints;
 /** Type which stores TUFRet_* values. */
