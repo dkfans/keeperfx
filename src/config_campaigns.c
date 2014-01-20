@@ -17,6 +17,7 @@
  */
 /******************************************************************************/
 #include "config_campaigns.h"
+
 #include "globals.h"
 
 #include "bflib_basics.h"
@@ -289,12 +290,12 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
   // Find empty allocated slot
   for (i=0; i < campgn->lvinfos_count; i++)
   {
-    if (campgn->lvinfos[i].lvnum <= 0)
-    {
-      clear_level_info(&campgn->lvinfos[i]);
-      campgn->lvinfos[i].lvnum = lvnum;
-      return &campgn->lvinfos[i];
-    }
+      if (campgn->lvinfos[i].lvnum <= 0)
+      {
+          clear_level_info(&campgn->lvinfos[i]);
+          campgn->lvinfos[i].lvnum = lvnum;
+          return &campgn->lvinfos[i];
+      }
   }
   // No empty slot - reallocate memory to get more slots
   if (!grow_level_info_entries(campgn,LEVEL_INFO_GROW_DELTA))
@@ -305,20 +306,21 @@ struct LevelInformation *new_level_info_entry(struct GameCampaign *campgn, Level
 
 TbBool init_level_info_entries(struct GameCampaign *campgn, long num_entries)
 {
-  long i;
-  if (campgn->lvinfos != NULL)
-    LbMemoryFree(campgn->lvinfos);
-  campgn->lvinfos = (struct LevelInformation *)LbMemoryAlloc(num_entries*sizeof(struct LevelInformation));
-  if (campgn->lvinfos == NULL)
-  {
-    WARNMSG("Can't allocate memory for LevelInformation list.");
-    campgn->lvinfos_count = 0;
-    return false;
-  }
-  campgn->lvinfos_count = num_entries;
-  for (i=0; i < num_entries; i++)
-    clear_level_info(&campgn->lvinfos[i]);
-  return true;
+    long i;
+    if (campgn->lvinfos != NULL)
+      LbMemoryFree(campgn->lvinfos);
+    campgn->lvinfos = (struct LevelInformation *)LbMemoryAlloc(num_entries*sizeof(struct LevelInformation));
+    if (campgn->lvinfos == NULL)
+    {
+      WARNMSG("Can't allocate memory for LevelInformation list.");
+      campgn->lvinfos_count = 0;
+      return false;
+    }
+    campgn->lvinfos_count = num_entries;
+    for (i=0; i < num_entries; i++) {
+        clear_level_info(&campgn->lvinfos[i]);
+    }
+    return true;
 }
 
 TbBool grow_level_info_entries(struct GameCampaign *campgn, long add_entries)

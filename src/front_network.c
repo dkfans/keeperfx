@@ -460,7 +460,6 @@ void frontnet_service_setup(void)
         LbStringCopy(net_service[net_number_of_services], gui_string(GUIStr_Net1Player), NET_SERVICE_LEN);
         net_number_of_services++;
     }
-    frontnet_init_level_descriptions();
     net_load_config_file();
 }
 

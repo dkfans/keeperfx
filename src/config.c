@@ -23,6 +23,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
+#include "bflib_math.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_video.h"
@@ -1175,6 +1176,10 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     return false;
   strncpy(lvinfo->name,name,LINEMSG_SIZE-1);
   lvinfo->name[LINEMSG_SIZE-1] = '\0';
+  if ((lvoptions & LvOp_IsFree) != 0) {
+      lvinfo->ensign_x += ((MAP_SCREEN_WIDTH>>4) *(LbSinL(lvnum*LbFPMath_PI/16)>>6)) >> 10;
+      lvinfo->ensign_y -= ((MAP_SCREEN_HEIGHT>>4)*(LbCosL(lvnum*LbFPMath_PI/16)>>6)) >> 10;
+  }
   return true;
 }
 
