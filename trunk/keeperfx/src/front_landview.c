@@ -335,7 +335,11 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
         spr = get_map_ensign(i+(anim_frame & 3));
         break;
     default:
-        spr = get_map_ensign(10);
+        if ((lvinfo->options & LvOp_Tutorial) == 0)
+          i = 36; // full red flag
+        else
+          i = 35; // 'T' flag - tutorial
+        spr = get_map_ensign(i);
         break;
     }
   } else
@@ -350,7 +354,7 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
         spr = get_map_ensign(i+(anim_frame & 3));
         break;
     default:
-        spr = get_map_ensign(18);
+        spr = get_map_ensign(36);
         break;
     }
   } else
@@ -371,27 +375,33 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
   } else
   if (lvinfo->options & LvOp_IsMulti) //Note that multiplayer flags have different file
   {
-    switch (lvinfo->players)
-    {
-    case 2:
-        i = 5;
-        break;
-    case 3:
-        i = 7;
-        break;
-    case 4:
-        i = 9;
-        break;
-    default:
-        i = 5;
-        break;
-    }
-    if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
-      i++;
-    spr = get_map_ensign(i);
+      if (frontend_menu_state == FeSt_NETLAND_VIEW)
+      {
+          switch (lvinfo->players)
+          {
+          case 2:
+              i = 5;
+              break;
+          case 3:
+              i = 7;
+              break;
+          case 4:
+              i = 9;
+              break;
+          default:
+              i = 5;
+              break;
+          }
+          if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
+            i++;
+      } else
+      {
+          i = 35;
+      }
+      spr = get_map_ensign(i);
   } else
   {
-    spr = get_map_ensign(34);
+    spr = get_map_ensign(36);
   }
   if (spr == &dummy_sprite)
     ERRORLOG("Can't get Land view Ensign sprite");
@@ -834,7 +844,8 @@ TbBool load_map_and_window(LevelNumber lvnum)
 
 void frontnet_init_level_descriptions(void)
 {
-    if (!is_campaign_loaded())
+    //TODO NETWORK Don't allow campaigns besides original - we don't have per-campaign MP yet
+    //if (!is_campaign_loaded())
     {
         if (!change_campaign("")) {
             return;
