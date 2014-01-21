@@ -526,8 +526,10 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
 {
     int i,k,n;
     n = 0;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
     k = 0;
-    i = game.thing_lists[TngList_Objects].index;
+    i = slist->index;
     while (i != 0)
     {
         struct Thing *thing;
@@ -555,7 +557,7 @@ int draw_overhead_spells(const struct TbRect *map_area, long block_size, PlayerN
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
           ERRORLOG("Infinite loop detected when sweeping things list");
           break;

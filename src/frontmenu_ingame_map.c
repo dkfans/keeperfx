@@ -97,8 +97,10 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long zoom)
     struct Camera *cam;
     cam = player->acamera;
     n = 0;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
     k = 0;
-    i = game.thing_lists[TngList_Objects].index;
+    i = slist->index;
     while (i != 0)
     {
         struct Thing *thing;
@@ -126,7 +128,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long zoom)
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
@@ -223,8 +225,10 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long zoom)
     struct Camera *cam;
     cam = player->acamera;
     n = 0;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
     k = 0;
-    i = game.thing_lists[TngList_Objects].index;
+    i = slist->index;
     while (i != 0)
     {
         struct Thing *thing;
@@ -265,7 +269,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long zoom)
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;

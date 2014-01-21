@@ -1093,7 +1093,7 @@ long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilt
     long match_count;
     match_count = 0;
     SYNCDBG(19,"Starting");
-    struct StructureList *slist;
+    const struct StructureList *slist;
     slist = get_list_for_thing_class(param->class_id);
     if (slist == NULL) {
         return 0;

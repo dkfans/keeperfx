@@ -141,6 +141,7 @@ void remove_thing_from_list(struct Thing *thing, struct StructureList *slist);
 void remove_thing_from_its_class_list(struct Thing *thing);
 void add_thing_to_its_class_list(struct Thing *thing);
 ThingIndex get_thing_class_list_head(ThingClass class_id);
+struct StructureList *get_list_for_thing_class(ThingClass class_id);
 
 long creature_near_filter_is_enemy_of_and_not_specdigger(const struct Thing *thing, FilterParam val);
 long creature_near_filter_is_owned_by(const struct Thing *thing, FilterParam val);
