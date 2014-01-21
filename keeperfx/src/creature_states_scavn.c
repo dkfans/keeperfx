@@ -243,8 +243,10 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
     unsigned long k;
     int i;
     SYNCDBG(18,"Starting");
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
     k = 0;
-    i = game.thing_lists[TngList_Creatures].index;
+    i = slist->index;
     while (i != 0)
     {
         thing = thing_get(i);
@@ -273,7 +275,7 @@ struct Thing *select_scavenger_target(const struct Thing *calltng)
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;

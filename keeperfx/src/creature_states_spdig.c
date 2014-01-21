@@ -32,6 +32,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "thing_corpses.h"
 #include "thing_traps.h"
 #include "room_data.h"
 #include "room_jobs.h"
@@ -53,39 +54,39 @@ const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT short _DK_imp_arrives_at_convert_dungeon(struct Thing *digger);
-DLLIMPORT short _DK_imp_arrives_at_dig_or_mine(struct Thing *digger);
-DLLIMPORT short _DK_imp_arrives_at_improve_dungeon(struct Thing *digger);
-DLLIMPORT short _DK_imp_arrives_at_reinforce(struct Thing *digger);
-DLLIMPORT short _DK_imp_birth(struct Thing *digger);
-DLLIMPORT short _DK_imp_converts_dungeon(struct Thing *digger);
-DLLIMPORT short _DK_imp_digs_mines(struct Thing *digger);
-DLLIMPORT short _DK_imp_doing_nothing(struct Thing *digger);
-DLLIMPORT short _DK_imp_drops_gold(struct Thing *digger);
-DLLIMPORT short _DK_imp_improves_dungeon(struct Thing *digger);
-DLLIMPORT short _DK_imp_last_did_job(struct Thing *digger);
-DLLIMPORT short _DK_imp_picks_up_gold_pile(struct Thing *digger);
-DLLIMPORT short _DK_imp_reinforces(struct Thing *digger);
-DLLIMPORT short _DK_imp_toking(struct Thing *digger);
-DLLIMPORT short _DK_creature_pick_up_unconscious_body(struct Thing *digger);
-DLLIMPORT short _DK_creature_picks_up_corpse(struct Thing *digger);
-DLLIMPORT short _DK_creature_picks_up_spell_object(struct Thing *digger);
-DLLIMPORT short _DK_creature_picks_up_trap_for_workshop(struct Thing *digger);
-DLLIMPORT short _DK_creature_picks_up_trap_object(struct Thing *digger);
-DLLIMPORT short _DK_creature_drops_corpse_in_graveyard(struct Thing *digger);
-DLLIMPORT short _DK_creature_drops_crate_in_workshop(struct Thing *digger);
-DLLIMPORT short _DK_creature_drops_spell_object_in_library(struct Thing *digger);
-DLLIMPORT short _DK_creature_arms_trap(struct Thing *digger);
-DLLIMPORT long _DK_check_out_unclaimed_unconscious_bodies(struct Thing *digger, long a1);
-DLLIMPORT long _DK_check_out_unclaimed_dead_bodies(struct Thing *digger, long a1);
-DLLIMPORT long _DK_check_out_unclaimed_spells(struct Thing *digger, long a1);
-DLLIMPORT long _DK_check_out_unclaimed_traps(struct Thing *digger, long a1);
-DLLIMPORT long _DK_check_out_unconverted_drop_place(struct Thing *digger);
-DLLIMPORT long _DK_check_out_undug_drop_place(struct Thing *digger);
-DLLIMPORT long _DK_check_out_unprettied_drop_place(struct Thing *digger);
-DLLIMPORT long _DK_check_out_unclaimed_gold(struct Thing *digger, long a1);
-DLLIMPORT long _DK_imp_will_soon_be_arming_trap(struct Thing *digger);
-DLLIMPORT long _DK_check_out_object_for_trap(struct Thing *traptng, struct Thing *digger);
+DLLIMPORT short _DK_imp_arrives_at_convert_dungeon(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_arrives_at_dig_or_mine(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_arrives_at_improve_dungeon(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_arrives_at_reinforce(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_birth(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_converts_dungeon(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_digs_mines(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_doing_nothing(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_drops_gold(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_improves_dungeon(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_last_did_job(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_picks_up_gold_pile(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_reinforces(struct Thing *spdigtng);
+DLLIMPORT short _DK_imp_toking(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_pick_up_unconscious_body(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_picks_up_corpse(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_picks_up_spell_object(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_picks_up_trap_for_workshop(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_picks_up_trap_object(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_drops_corpse_in_graveyard(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_drops_crate_in_workshop(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_drops_spell_object_in_library(struct Thing *spdigtng);
+DLLIMPORT short _DK_creature_arms_trap(struct Thing *spdigtng);
+DLLIMPORT long _DK_check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long a1);
+DLLIMPORT long _DK_check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long a1);
+DLLIMPORT long _DK_check_out_unclaimed_spells(struct Thing *spdigtng, long a1);
+DLLIMPORT long _DK_check_out_unclaimed_traps(struct Thing *spdigtng, long a1);
+DLLIMPORT long _DK_check_out_unconverted_drop_place(struct Thing *spdigtng);
+DLLIMPORT long _DK_check_out_undug_drop_place(struct Thing *spdigtng);
+DLLIMPORT long _DK_check_out_unprettied_drop_place(struct Thing *spdigtng);
+DLLIMPORT long _DK_check_out_unclaimed_gold(struct Thing *spdigtng, long a1);
+DLLIMPORT long _DK_imp_will_soon_be_arming_trap(struct Thing *spdigtng);
+DLLIMPORT long _DK_check_out_object_for_trap(struct Thing *traptng, struct Thing *spdigtng);
 DLLIMPORT struct Thing *_DK_check_for_empty_trap_for_imp(struct Thing *traptng, long plyr_idx);
 DLLIMPORT long _DK_imp_will_soon_be_getting_object(long plyr_idx, struct Thing *objtng);
 DLLIMPORT long _DK_take_from_gold_pile(unsigned short stl_x, unsigned short stl_y, long limit);
@@ -94,24 +95,83 @@ DLLIMPORT long _DK_take_from_gold_pile(unsigned short stl_x, unsigned short stl_
 }
 #endif
 /******************************************************************************/
-long check_out_unclaimed_unconscious_bodies(struct Thing *digger, long range)
+long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
 {
-    return _DK_check_out_unclaimed_unconscious_bodies(digger, range);
+    return _DK_check_out_unclaimed_unconscious_bodies(spdigtng, range);
 }
 
-long check_out_unclaimed_dead_bodies(struct Thing *digger, long range)
+long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
 {
-    return _DK_check_out_unclaimed_dead_bodies(digger, range);
+    //return _DK_check_out_unclaimed_dead_bodies(spdigtng, range);
+    if (!player_has_room(spdigtng->owner, RoK_GRAVEYARD)) {
+        return 0;
+    }
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(spdigtng);
+    struct Room *room;
+    room = find_nearest_room_for_thing_with_spare_capacity(spdigtng, spdigtng->owner, RoK_GRAVEYARD, 0, 1);
+    if (room_is_invalid(room))
+    {
+        if (is_room_available(spdigtng->owner, RoK_GRAVEYARD))
+        {
+            if (is_my_player_number(spdigtng->owner))
+            {
+                room = find_room_with_spare_capacity(spdigtng->owner, RoK_GRAVEYARD, 1);
+                if (room_is_invalid(room)) {
+                    output_message(SMsg_GraveyardTooSmall, 1000, 1);
+                }
+            }
+        }
+        return 0;
+    }
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_DeadCreature);
+    long i;
+    unsigned long k;
+    k = 0;
+    i = slist->index;
+    while (i > 0)
+    {
+        struct Thing *thing;
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+          break;
+        i = thing->next_of_class;
+        // Per-thing code
+        if (((thing->field_1 & TF1_IsDragged1) == 0) && (thing->active_state == DCrSt_Unknown02)
+         && (thing->byte_14 == 0) && corpse_is_rottable(thing))
+        {
+            if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+            {
+                if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
+                {
+                    if (setup_person_move_to_position(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0)) {
+                        spdigtng->continue_state = CrSt_CreaturePicksUpCorpse;
+                        cctrl->pickup_object_id = thing->index;
+                        return 1;
+                    }
+                }
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    return 0;
 }
 
-long check_out_unclaimed_spells(struct Thing *digger, long range)
+long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
 {
-    return _DK_check_out_unclaimed_spells(digger, range);
+    return _DK_check_out_unclaimed_spells(spdigtng, range);
 }
 
-long check_out_unclaimed_traps(struct Thing *digger, long range)
+long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
 {
-    return _DK_check_out_unclaimed_traps(digger, range);
+    return _DK_check_out_unclaimed_traps(spdigtng, range);
 }
 
 long check_out_unconverted_drop_place(struct Thing *thing)
@@ -183,7 +243,7 @@ TbBool imp_will_soon_be_getting_object(PlayerNumber plyr_idx, const struct Thing
     return false;
 }
 
-long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
+long check_out_object_for_trap(struct Thing *spdigtng, struct Thing *traptng)
 {
     struct CreatureControl *cctrl;
     struct Thing *thing;
@@ -192,20 +252,22 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
     long find_model,find_owner;
     long i;
     unsigned long k;
-    //return _DK_check_out_object_for_trap(digger, traptng);
-    cctrl = creature_control_get_from_thing(digger);
+    //return _DK_check_out_object_for_trap(spdigtng, traptng);
+    cctrl = creature_control_get_from_thing(spdigtng);
     // We're supposed to be in our own workshop; fail if we're not
-    room = get_room_thing_is_on(digger);
+    room = get_room_thing_is_on(spdigtng);
     if (room_is_invalid(room)) {
         return 0;
     }
-    if ( (room->kind != RoK_WORKSHOP) || (room->owner != digger->owner) ) {
+    if ( (room->kind != RoK_WORKSHOP) || (room->owner != spdigtng->owner) ) {
         return 0;
     }
     find_model = trap_crate_object_model(traptng->model);
-    find_owner = digger->owner;
+    find_owner = spdigtng->owner;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
     k = 0;
-    i = game.thing_lists[TngList_Objects].index;
+    i = slist->index;
     while (i > 0)
     {
         thing = thing_get(i);
@@ -221,9 +283,9 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
             {
                 if ( !imp_will_soon_be_getting_object(find_owner, thing) )
                 {
-                    if ( setup_person_move_to_position(digger, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
+                    if ( setup_person_move_to_position(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0) )
                     {
-                        digger->continue_state = CrSt_CreaturePicksUpTrapObject;
+                        spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
                         cctrl->pickup_object_id = thing->index;
                         cctrl->field_70 = traptng->index;
                         return 1;
@@ -233,7 +295,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
@@ -242,7 +304,7 @@ long check_out_object_for_trap(struct Thing *digger, struct Thing *traptng)
     return 0;
 }
 
-long check_out_empty_traps(struct Thing *digger, long range)
+long check_out_empty_traps(struct Thing *spdigtng, long range)
 {
     struct Thing *thing;
     long i;
@@ -257,12 +319,12 @@ long check_out_empty_traps(struct Thing *digger, long range)
           break;
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->trap.num_shots == 0) && (thing->owner == digger->owner))
+        if ((thing->trap.num_shots == 0) && (thing->owner == spdigtng->owner))
         {
-            if ( (range < 0) || (get_2d_box_distance(&thing->mappos, &digger->mappos) < range) )
+            if ( (range < 0) || (get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range) )
             {
 
-                if ( !imp_will_soon_be_arming_trap(thing) && check_out_object_for_trap(digger, thing) ) {
+                if ( !imp_will_soon_be_arming_trap(thing) && check_out_object_for_trap(spdigtng, thing) ) {
                     return 1;
                 }
             }
@@ -313,12 +375,12 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     return 0;
 }
 
-struct Thing *check_for_empty_trap_for_imp(struct Thing *digger, long tngmodel)
+struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel)
 {
     struct Thing *thing;
     long i;
     unsigned long k;
-    //return _DK_check_for_empty_trap_for_imp(digger, tngmodel);
+    //return _DK_check_for_empty_trap_for_imp(spdigtng, tngmodel);
     k = 0;
     i = game.thing_lists[TngList_Traps].index;
     while (i > 0)
@@ -329,7 +391,7 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *digger, long tngmodel)
             break;
         i = thing->next_of_class;
         // Per-thing code
-        if ((thing->model == tngmodel) && (thing->trap.num_shots == 0) && (thing->owner == digger->owner))
+        if ((thing->model == tngmodel) && (thing->trap.num_shots == 0) && (thing->owner == spdigtng->owner))
         {
             if ( !imp_will_soon_be_arming_trap(thing) ) {
                 return thing;
@@ -349,25 +411,27 @@ struct Thing *check_for_empty_trap_for_imp(struct Thing *digger, long tngmodel)
 /**
  * Checks if there are crates in room the creature is on, which could be used to re-arm one of players traps.
  * If there are, setups given digger to do the task of re-arming trap.
- * @param digger
+ * @param spdigtng
  */
-TbBool check_out_crates_to_arm_trap_in_room(struct Thing *digger)
+TbBool check_out_crates_to_arm_trap_in_room(struct Thing *spdigtng)
 {
     struct Thing *thing;
     struct Thing *traptng;
     struct Room *room;
     long i;
     unsigned long k;
-    room = get_room_thing_is_on(digger);
+    room = get_room_thing_is_on(spdigtng);
     if (room_is_invalid(room)) {
         return false;
     }
-    if ( (room->kind != RoK_WORKSHOP) || (room->owner != digger->owner) ) {
+    if ( (room->kind != RoK_WORKSHOP) || (room->owner != spdigtng->owner) ) {
         return false;
     }
 
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
     k = 0;
-    i = game.thing_lists[TngList_Objects].index;
+    i = slist->index;
     while (i > 0)
     {
         thing = thing_get(i);
@@ -380,14 +444,14 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *digger)
         {
           if ( ((thing->field_1 & TF1_IsDragged1) == 0) && (get_room_thing_is_on(thing) == room) )
           {
-              traptng = check_for_empty_trap_for_imp(digger, crate_thing_to_workshop_item_model(thing));
-              if (!thing_is_invalid(traptng) && !imp_will_soon_be_getting_object(digger->owner, thing))
+              traptng = check_for_empty_trap_for_imp(spdigtng, crate_thing_to_workshop_item_model(thing));
+              if (!thing_is_invalid(traptng) && !imp_will_soon_be_getting_object(spdigtng->owner, thing))
               {
-                  if (setup_person_move_to_position(digger, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0))
+                  if (setup_person_move_to_position(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num, 0))
                   {
                       struct CreatureControl *cctrl;
-                      cctrl = creature_control_get_from_thing(digger);
-                      digger->continue_state = CrSt_CreaturePicksUpTrapObject;
+                      cctrl = creature_control_get_from_thing(spdigtng);
+                      spdigtng->continue_state = CrSt_CreaturePicksUpTrapObject;
                       cctrl->pickup_object_id = thing->index;
                       cctrl->field_70 = traptng->index;
                       return true;
@@ -397,7 +461,7 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *digger)
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
           ERRORLOG("Infinite loop detected when sweeping things list");
           break;
@@ -408,59 +472,59 @@ TbBool check_out_crates_to_arm_trap_in_room(struct Thing *digger)
 
 /**
  * Checks for a special digger task for a creature in its vicinity.
- * @param digger
+ * @param spdigtng
  * @note originally was check_out_available_imp_drop_tasks()
  */
-long check_out_available_spdigger_drop_tasks(struct Thing *digger)
+long check_out_available_spdigger_drop_tasks(struct Thing *spdigtng)
 {
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(digger);
+    cctrl = creature_control_get_from_thing(spdigtng);
 
-    if ( check_out_unclaimed_unconscious_bodies(digger, 768) )
+    if ( check_out_unclaimed_unconscious_bodies(spdigtng, 768) )
     {
         return 1;
     }
-    if ( check_out_unclaimed_dead_bodies(digger, 768) )
+    if ( check_out_unclaimed_dead_bodies(spdigtng, 768) )
     {
         return 1;
     }
-    if ( check_out_unclaimed_spells(digger, 768) )
+    if ( check_out_unclaimed_spells(spdigtng, 768) )
     {
         return 1;
     }
-    if ( check_out_unclaimed_traps(digger, 768) )
+    if ( check_out_unclaimed_traps(spdigtng, 768) )
     {
         return 1;
     }
-    if ( check_out_empty_traps(digger, 768) )
+    if ( check_out_empty_traps(spdigtng, 768) )
     {
         return 1;
     }
-    if ( check_out_undug_drop_place(digger) )
+    if ( check_out_undug_drop_place(spdigtng) )
     {
         cctrl->digger.last_did_job = SDLstJob_DigOrMine;
         return 1;
     }
-    if ( check_out_unconverted_drop_place(digger) )
+    if ( check_out_unconverted_drop_place(spdigtng) )
     {
         cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
         return 1;
     }
-    if ( check_out_unprettied_drop_place(digger) )
+    if ( check_out_unprettied_drop_place(spdigtng) )
     {
         cctrl->digger.last_did_job = SDLstJob_ConvImprDungeon;
         return 1;
     }
-    if ( check_out_unclaimed_gold(digger, 768) )
+    if ( check_out_unclaimed_gold(spdigtng, 768) )
     {
         return 1;
     }
-    if ( check_out_unreinforced_drop_place(digger) )
+    if ( check_out_unreinforced_drop_place(spdigtng) )
     {
         cctrl->digger.last_did_job = SDLstJob_ReinforceWall9;
         return 1;
     }
-    if ( check_out_crates_to_arm_trap_in_room(digger) )
+    if ( check_out_crates_to_arm_trap_in_room(spdigtng) )
     {
         return 1;
     }

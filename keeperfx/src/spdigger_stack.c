@@ -212,8 +212,10 @@ struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *digger,
     long i;
     unsigned long k;
     //return _DK_check_for_empty_trap_for_imp_not_being_armed(thing, a2);
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Trap);
     k = 0;
-    i = game.thing_lists[TngList_Traps].index;
+    i = slist->index;
     while (i > 0)
     {
         thing = thing_get(i);
@@ -230,7 +232,7 @@ struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *digger,
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
           ERRORLOG("Infinite loop detected when sweeping things list");
           break;
@@ -1071,9 +1073,71 @@ void setup_imp_stack(struct Dungeon *dungeon)
     r_stackpos = 0;
 }
 
-long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long a2)
+long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
 {
-  return _DK_add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, a2);
+    struct Thing *thing;
+    struct Room *room;
+    int remain_num;
+    unsigned long k;
+    int i;
+    //return _DK_add_unclaimed_unconscious_bodies_to_imp_stack(dungeon, max_tasks);
+    if (!dungeon_has_room(dungeon, RoK_PRISON)) {
+        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_PRISON));
+        return 1;
+    }
+    if (!player_creature_tends_to(dungeon->owner, CrTend_Imprison)) {
+        SYNCDBG(8,"Player %d creatures do not tend to imprison",(int)dungeon->owner);
+        return 1;
+    }
+    room = find_room_with_spare_capacity(dungeon->owner, RoK_PRISON, 1);
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Creature);
+    k = 0;
+    i = slist->index;
+    remain_num = max_tasks;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
+            break;
+        }
+        if ((thing->owner != dungeon->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
+        {
+            if (room_is_invalid(room))
+            {
+                SYNCDBG(8,"Dungeon %d has no free %s space",(int)dungeon->owner,room_code_name(RoK_PRISON));
+                if (is_my_player_number(dungeon->owner)) {
+                    output_message(SMsg_PrisonTooSmall, 1000, true);
+                }
+                return 0;
+            }
+            if ( subtile_revealed(thing->mappos.x.stl.num,thing->mappos.y.stl.num,dungeon->owner) )
+            {
+                SubtlCodedCoords stl_num;
+                stl_num = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+                if (!add_to_imp_stack_using_pos(stl_num, DigTsk_PickUpUnconscious, dungeon)) {
+                    break;
+                }
+                remain_num--;
+            }
+        }
+        // Per-thing code ends
+        k++;
+        if (k > slist->count)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
+    return 1;
 }
 
 TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
@@ -1086,12 +1150,14 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
     int i;
     //return _DK_add_unclaimed_dead_bodies_to_imp_stack(dungeon, max_tasks);
     if (!dungeon_has_room(dungeon, RoK_GRAVEYARD)) {
-        SYNCDBG(8,"Dungeon %d has no graveyard",(int)dungeon->owner);
+        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_GRAVEYARD));
         return 1;
     }
     room = find_room_with_spare_capacity(dungeon->owner, RoK_GRAVEYARD, 1);
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_DeadCreature);
     k = 0;
-    i = game.thing_lists[TCls_DeadCreature].index;
+    i = slist->index;
     remain_num = max_tasks;
     while (i != 0)
     {
@@ -1111,7 +1177,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         {
             if (room_is_invalid(room))
             {
-                SYNCDBG(8,"Dungeon %d has no free graveyard space",(int)dungeon->owner);
+                SYNCDBG(8,"Dungeon %d has no free %s space",(int)dungeon->owner,room_code_name(RoK_GRAVEYARD));
                 if (is_my_player_number(dungeon->owner)) {
                     output_message(SMsg_GraveyardTooSmall, 1000, true);
                 }
@@ -1128,7 +1194,7 @@ TbBool add_unclaimed_dead_bodies_to_imp_stack(struct Dungeon *dungeon, long max_
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
@@ -1150,8 +1216,10 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
     remain_num = max_tasks;
     long i;
     unsigned long k;
+    const struct StructureList *slist;
+    slist = get_list_for_thing_class(TCls_Object);
     k = 0;
-    i = game.thing_lists[TngList_Objects].index;
+    i = slist->index;
     while (i > 0)
     {
         struct Thing *thing;
@@ -1194,7 +1262,7 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
         }
         // Per-thing code ends
         k++;
-        if (k > THINGS_COUNT)
+        if (k > slist->count)
         {
             ERRORLOG("Infinite loop detected when sweeping things list");
             break;
@@ -1378,7 +1446,7 @@ long imp_already_reinforcing_at_excluding(struct Thing *creatng, MapSubtlCoord s
 long check_out_uncrowded_reinforce_position(struct Thing *thing, SubtlCodedCoords stl_num, long *retstl_x, long *retstl_y)
 {
     MapSubtlCoord basestl_x,basestl_y;
-    //return _DK_check_out_uncrowded_reinforce_position(thing, a2, a3, a4);
+    //return _DK_check_out_uncrowded_reinforce_position(thing, stl_num, a3, a4);
     basestl_x = stl_num_decode_x(stl_num);
     basestl_y = stl_num_decode_y(stl_num);
     int i,n;
