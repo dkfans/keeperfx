@@ -1108,7 +1108,7 @@ long add_unclaimed_unconscious_bodies_to_imp_stack(struct Dungeon *dungeon, long
         if ( (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT) || (remain_num <= 0) ) {
             break;
         }
-        if ((thing->owner != dungeon->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
+        if (players_are_enemies(dungeon->owner,thing->owner) && creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing))
         {
             if (room_is_invalid(room))
             {
@@ -1208,6 +1208,7 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
 {
     //return _DK_add_unclaimed_spells_to_imp_stack(dungeon, max_tasks);
     if (!dungeon_has_room(dungeon, RoK_LIBRARY)) {
+        SYNCDBG(8,"Dungeon %d has no %s",(int)dungeon->owner,room_code_name(RoK_LIBRARY));
         return 1;
     }
     struct Room *room;
@@ -1243,9 +1244,9 @@ long add_unclaimed_spells_to_imp_stack(struct Dungeon *dungeon, long max_tasks)
                     if (room_is_invalid(room))
                     {
                         // We had to wait til here with this check to make sure message should be played
-                        SYNCDBG(8,"Dungeon %d has no free library space",(int)dungeon->owner);
+                        SYNCDBG(8,"Dungeon %d has no free %s space",(int)dungeon->owner,room_code_name(RoK_LIBRARY));
                         if (is_my_player_number(dungeon->owner)) {
-                            output_message(25, 1000, 1);
+                            output_message(SMsg_LibraryTooSmall, 1000, 1);
                         }
                         break;
                     }
@@ -1334,7 +1335,7 @@ TbBool add_empty_traps_to_imp_stack(struct Dungeon *dungeon, long num)
         // Thing list loop body
         if ((num <= 0) || (dungeon->digger_stack_length >= IMP_TASK_MAX_COUNT))
           break;
-        if ((thing->byte_13 == 0) && (thing->owner == dungeon->owner))
+        if ((thing->trap.num_shots == 0) && (thing->owner == dungeon->owner))
         {
             if ( add_object_for_trap_to_imp_stack(dungeon, thing) ) {
                 num--;
