@@ -448,7 +448,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         if (creature_move_to_place_in_room(creatng, room))
         {
-            cctrl->flgfield_1 |= 0x02;
+            cctrl->flgfield_1 |= CCFlg_NoCompControl;
             creatng->continue_state = CrSt_CreatureArrivedAtPrison;
             cctrl->target_room_id = room->index;
             return 1;
@@ -474,7 +474,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
                 creatng->continue_state = CrSt_AtTortureRoom;
             }
             cctrl->target_room_id = room->index;
-            cctrl->flgfield_1 |= 0x02;
+            cctrl->flgfield_1 |= CCFlg_NoCompControl;
             return 1;
         }
         return 0;

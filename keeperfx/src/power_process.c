@@ -235,7 +235,7 @@ TbBool player_uses_call_to_arms(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    return (dungeon->field_884 != 0);
+    return (dungeon->cta_start_turn != 0);
 }
 
 void turn_off_call_to_arms(PlayerNumber plyr_idx)

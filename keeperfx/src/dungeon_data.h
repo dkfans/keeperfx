@@ -118,10 +118,10 @@ struct Dungeon {
     unsigned char sight_casted_stl_x;
     unsigned char sight_casted_stl_y;
     unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];
-    unsigned char field_881;
-    unsigned char field_882;
-    unsigned char field_883;
-    int field_884;
+    unsigned char cta_stl_x;
+    unsigned char cta_stl_y;
+    unsigned char cta_splevel;
+    int cta_start_turn;
     unsigned long must_obey_turn;
     int field_88C[2];
     unsigned char field_894[CREATURE_TYPES_COUNT];
