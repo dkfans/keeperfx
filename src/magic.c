@@ -990,26 +990,26 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     pos.z.val = get_floor_height_at(&pos);
     struct Thing *objtng;
     objtng = thing_get(player->field_43C);
-    if ((dungeon->field_884 == 0) || !thing_is_object(objtng))
+    if ((dungeon->cta_start_turn == 0) || !thing_is_object(objtng))
     {
           objtng = create_object(&pos, 24, plyr_idx, -1);
           if (thing_is_invalid(objtng)) {
               ERRORLOG("Cannot create call to arms");
               return 0;
           }
-          dungeon->field_884 = game.play_gameturn;
-          dungeon->field_883 = splevel;
-          dungeon->field_881 = stl_x;
-          dungeon->field_882 = stl_y;
+          dungeon->cta_start_turn = game.play_gameturn;
+          dungeon->cta_splevel = splevel;
+          dungeon->cta_stl_x = stl_x;
+          dungeon->cta_stl_y = stl_y;
           player->field_43C = objtng->index;
           objtng->mappos.z.val = get_thing_height_at(objtng, &objtng->mappos);
           set_call_to_arms_as_birthing(objtng);
           SYNCDBG(9,"Created birthing CTA");
           return 1;
     }
-    dungeon->field_884 = game.play_gameturn;
-    dungeon->field_881 = stl_x;
-    dungeon->field_882 = stl_y;
+    dungeon->cta_start_turn = game.play_gameturn;
+    dungeon->cta_stl_x = stl_x;
+    dungeon->cta_stl_y = stl_y;
     set_call_to_arms_as_rebirthing(objtng);
     unsigned long k;
     int i;
@@ -1045,6 +1045,8 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
                           thing->continue_state = CrSt_ArriveAtCallToArms;
                       } else
                       {
+                          // Previous state may require us to re-enable control of the creature
+                          cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
                           if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
                           {
                               setup_person_move_to_position(thing, stl_x, stl_y, 0);

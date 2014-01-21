@@ -461,7 +461,7 @@ long creature_available_for_combat_this_turn(struct Thing *creatng)
     if (creature_is_being_dropped(creatng)) {
         return false;
     }
-    if ((creatng->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & 0x02) != 0)) {
+    if ((creatng->owner == game.neutral_player_num) || ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)) {
         return false;
     }
     CrtrStateId i;
