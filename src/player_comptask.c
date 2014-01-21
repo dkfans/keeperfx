@@ -1902,7 +1902,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
 
 long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(19,"Starting");
     //return _DK_task_pickup_for_attack(comp,ctask);
     if (game.play_gameturn - ctask->created_turn > 7500)
     {
@@ -1932,6 +1932,8 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     if (!thing_is_invalid(thing))
     {
         if (fake_place_thing_in_power_hand(comp, thing, &ctask->pickup_for_attack.target_pos)) {
+            SYNCDBG(9,"Player %d picked %s index %d to attack position (%d,%d)",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
+                (int)ctask->pickup_for_attack.target_pos.x.stl.num, (int)ctask->pickup_for_attack.target_pos.y.stl.num);
             return CTaskRet_Unk2;
         }
         return CTaskRet_Unk4;
@@ -1967,7 +1969,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
     struct Room *room;
     struct Coord3d pos;
     long i;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(19,"Starting");
     //return _DK_task_move_creature_to_room(comp,ctask);
     room = INVALID_ROOM;
     thing = thing_get(comp->held_thing_idx);
@@ -2001,6 +2003,8 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
         if (get_drop_position_for_creature_job_in_room(&pos,room,get_job_for_room(room->kind, true)))
         {
             if (fake_place_thing_in_power_hand(comp, thing, &pos)) {
+                SYNCDBG(9,"Player %d picked %s index %d to place in %s index %d",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
+                    room_code_name(room->kind),(int)room->index);
                 return CTaskRet_Unk2;
             }
         }
@@ -2014,7 +2018,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
 long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct Dungeon *dungeon;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(19,"Starting");
     //return _DK_task_move_creature_to_pos(comp,ctask);
     dungeon = comp->dungeon;
     struct Thing *thing;
@@ -2035,7 +2039,9 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
     if (can_thing_be_picked_up_by_player(thing, dungeon->owner))
     {
         if (fake_place_thing_in_power_hand(comp, thing, &ctask->move_to_pos.pos_86)) {
-          return CTaskRet_Unk2;
+            SYNCDBG(9,"Player %d picked %s index %d to move to (%d,%d)",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
+                (int)ctask->move_to_pos.pos_86.x.stl.num, (int)ctask->move_to_pos.pos_86.y.stl.num);
+            return CTaskRet_Unk2;
         }
     }
     remove_task(comp, ctask);
@@ -2106,7 +2112,7 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
 
 long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(19,"Starting");
     struct Thing *thing;
     //return _DK_task_move_creatures_to_defend(comp,ctask);
     thing = thing_get(comp->held_thing_idx);
@@ -2137,6 +2143,8 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
             remove_task(comp, ctask);
             return CTaskRet_Unk0;
         }
+        SYNCDBG(9,"Player %d picked %s index %d to defend position (%d,%d)",(int)comp->dungeon->owner,thing_model_name(thing),(int)thing->index,
+            (int)ctask->move_to_defend.target_pos.x.stl.num, (int)ctask->move_to_defend.target_pos.y.stl.num);
         return CTaskRet_Unk2;
     }
     return CTaskRet_Unk2;
