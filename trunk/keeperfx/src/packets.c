@@ -338,7 +338,7 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       {
       case PSt_CallToArms:
           if (player_uses_call_to_arms(plyr_idx))
-            player->field_4D2 = (dungeon->field_883 << 2);
+            player->field_4D2 = (dungeon->cta_splevel << 2);
           else
             update_power_overcharge(player, PwrK_CALL2ARMS);
           break;
@@ -2043,8 +2043,8 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       case 6:
           if (player_uses_call_to_arms(plyr_idx))
           {
-            player->zoom_to_pos_x = ((unsigned long)dungeon->field_881) << 8;
-            player->zoom_to_pos_y = ((unsigned long)dungeon->field_882) << 8;
+            player->zoom_to_pos_x = ((unsigned long)dungeon->cta_stl_x) << 8;
+            player->zoom_to_pos_y = ((unsigned long)dungeon->cta_stl_y) << 8;
             set_player_instance(player, PI_ZoomToPos, 0);
           }
           break;
