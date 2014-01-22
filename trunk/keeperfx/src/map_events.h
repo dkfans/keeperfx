@@ -63,6 +63,12 @@ enum EventKinds {
     EvKind_DnSpecialFound,
     EvKind_QuickInformation,
     EvKind_FriendlyFight,
+    EvKind_RoomUnreachable, //TODO Make support of such event
+};
+
+enum EventFlags {
+    EvF_Exists       = 0x0001,
+    EvF_BtnFirstFall = 0x0002, /*< Informs whether the button is falling for a first time. */
 };
 
 struct Thing;
@@ -77,8 +83,9 @@ struct Event { // sizeof=0x15
     unsigned char owner;
     unsigned char kind;
     long target;
-    unsigned long last_use_turn;
-    unsigned char field_14;
+    /** Button lifespan, decreased over time. When reaches 0, the button disappears. */
+    unsigned long lifespan_turns;
+    unsigned char falling_button; // Old way - make it unused when only EvF_BtnFirstFall is used
 };
 
 struct Bookmark { // sizeof = 3

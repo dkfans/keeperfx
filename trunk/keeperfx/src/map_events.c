@@ -67,7 +67,7 @@ struct Event *get_event_nearby_of_type_for_player(MapCoord map_x, MapCoord map_y
     {
         struct Event *event;
         event = &game.event[i];
-        if (((event->flags & 0x01) != 0) && (event->owner == plyr_idx) && (event->kind == evkind)
+        if (((event->flags & EvF_Exists) != 0) && (event->owner == plyr_idx) && (event->kind == evkind)
          && get_distance_xy(event->mappos_x, event->mappos_y, map_x, map_y) < max_dist) {
             return event;
         }
@@ -82,7 +82,7 @@ struct Event *get_event_of_type_for_player(EventKind evkind, PlayerNumber plyr_i
     {
         struct Event *event;
         event = &game.event[i];
-        if (((event->flags & 0x01) != 0) && (event->owner == plyr_idx) && (event->kind == evkind)) {
+        if (((event->flags & EvF_Exists) != 0) && (event->owner == plyr_idx) && (event->kind == evkind)) {
             return event;
         }
     }
@@ -200,9 +200,9 @@ struct Event *event_allocate_free_event_structure(void)
     for (i=1; i < EVENTS_COUNT; i++)
     {
         event = &game.event[i];
-        if ((event->flags & 0x01) == 0)
+        if ((event->flags & EvF_Exists) == 0)
         {
-            event->flags |= 0x01;
+            event->flags |= EvF_Exists;
             event->index = i;
             return event;
         }
@@ -216,9 +216,9 @@ void event_initialise_event(struct Event *event, MapCoord map_x, MapCoord map_y,
     event->mappos_y = map_y;
     event->kind = evkind;
     event->owner = dngn_id;
-    event->last_use_turn = event_button_info[evkind].field_8;
+    event->lifespan_turns = event_button_info[evkind].lifespan_turns;
     event->target = msg_id;
-    event->field_14 = 1;
+    event->flags |= EvF_BtnFirstFall;
 }
 
 void event_delete_event_structure(long ev_idx)
@@ -634,7 +634,7 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                 dungeon->event_button_index[i] = 0;
                 struct Event *event;
                 event = &game.event[curr_ev_idx];
-                if (event->field_14)
+                if (((event->flags & EvF_BtnFirstFall) != 0) || event->falling_button)
                 {
                     if ((i == 1) || ((i >= 2) && dungeon->event_button_index[i-2] != 0))
                     {
@@ -644,7 +644,8 @@ void maintain_my_event_list(struct Dungeon *dungeon)
                         unsigned char prev_ev_idx;
                         prev_ev_idx = dungeon->event_button_index[i-1];
                         event = &game.event[prev_ev_idx];
-                        event->field_14 = 0;
+                        event->flags &= ~EvF_BtnFirstFall;
+                        event->falling_button = 0;
                     }
                 }
             }
@@ -664,10 +665,10 @@ void kill_oldest_my_event(struct Dungeon *dungeon)
     {
         k = dungeon->event_button_index[i];
         event = &game.event[k];
-        if ((event->last_use_turn >= 0) && (event->last_use_turn < old_birth))
+        if ((event->lifespan_turns >= 0) && (event->lifespan_turns < old_birth))
         {
           old_idx = k;
-          old_birth = event->last_use_turn;
+          old_birth = event->lifespan_turns;
         }
     }
     if (old_idx >= 0)
@@ -724,13 +725,13 @@ void event_process_events(void)
     for (i=0; i < EVENTS_COUNT; i++)
     {
         event = &game.event[i];
-        if ((event->flags & 0x01) == 0) {
+        if ((event->flags & EvF_Exists) == 0) {
             continue;
         }
-        if (event->last_use_turn > 0) {
-            event->last_use_turn--;
+        if (event->lifespan_turns > 0) {
+            event->lifespan_turns--;
         }
-        if (event->last_use_turn <= 0)
+        if (event->lifespan_turns <= 0)
         {
             int ev_owner;
             ev_owner = event->owner;
