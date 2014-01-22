@@ -118,6 +118,7 @@ EventIndex event_create_event_or_update_old_event(MapCoord map_x, MapCoord map_y
     if (!event_is_invalid(event))
     {
         event_initialise_event(event, map_x, map_y, evkind, dngn_id, msg_id);
+        event_add_to_event_buttons_list_or_replace_button(event, get_dungeon(dngn_id));
         return -(EventIndex)event->index;
     }
     // If no matching event found, then create new one
@@ -266,7 +267,7 @@ void event_delete_event(long plyr_idx, long ev_idx)
         k = dungeon->event_button_index[i];
         if (k == ev_idx)
         {
-            turn_off_event_box_if_necessary(plyr_idx, k);
+            turn_off_event_box_if_necessary(plyr_idx, ev_idx);
             dungeon->event_button_index[i] = 0;
             break;
         }
@@ -290,6 +291,24 @@ void event_update_on_battle_removal(void)
     }
 }
 
+/**
+ * Returns event button index associated to given event.
+ * @param event The event which associated button is to be found.
+ * @param dungeon
+ * @return Event button index, or -1 if the event doesn't have any button associated.
+ */
+int event_get_button_index(const struct Dungeon *dungeon, EventIndex evidx)
+{
+    int i;
+    for (i=0; i <= EVENT_BUTTONS_COUNT; i++)
+    {
+        if (dungeon->event_button_index[i] == evidx) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void event_add_to_event_buttons_list_or_replace_button(struct Event *event, struct Dungeon *dungeon)
 {
     if (dungeon->owner != event->owner) {
@@ -300,23 +319,23 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
     long i,ev_idx;
     if (replace_evkind != EvKind_Nothing)
     {
-        for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
+        for (i=EVENT_BUTTONS_COUNT; i >= 0; i--)
         {
             ev_idx = dungeon->event_button_index[i];
             struct Event *event_prev;
             event_prev = &game.event[ev_idx];
-            if (event_prev->kind == replace_evkind) {
+            if ((event_prev->kind == event->kind) || (event_prev->kind == replace_evkind)) {
                 SYNCDBG(1,"Replacing button at position %d",(int)i);
                 dungeon->event_button_index[i] = event->index;
                 break;
             }
         }
     } else {
-        i = 0;
+        i = -1;
     }
-    if (i == 0)
+    if (i < 0)
     {
-        for (i=EVENT_BUTTONS_COUNT; i > 0; i--)
+        for (i=EVENT_BUTTONS_COUNT; i >= 0; i--)
         {
             ev_idx = dungeon->event_button_index[i];
             if (ev_idx == 0) {
@@ -326,7 +345,7 @@ void event_add_to_event_buttons_list_or_replace_button(struct Event *event, stru
             }
         }
     }
-    if (i == 0)
+    if (i < 0)
     {
         kill_oldest_my_event(dungeon);
         dungeon->event_button_index[EVENT_BUTTONS_COUNT] = event->index;
@@ -363,7 +382,7 @@ void event_reset_scroll_window(void)
   game.evntbox_scroll_window.window_height = 0;
 }
 
-void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, long evidx)
+void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
 {
     struct Dungeon *dungeon;
     struct CreatureData *crdata;
@@ -672,7 +691,7 @@ void maintain_all_players_event_lists(void)
     }
 }
 
-struct Thing *event_is_attached_to_thing(long ev_idx)
+struct Thing *event_is_attached_to_thing(EventIndex ev_idx)
 {
     struct Event *event;
     long i;
