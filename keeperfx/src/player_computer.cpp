@@ -1268,7 +1268,7 @@ void computer_check_events(struct Computer2 *comp)
             for (n=0; n < EVENTS_COUNT; n++)
             {
                 event = &game.event[n];
-                if ( ((event->flags & 0x01) != 0) &&
+                if ( ((event->flags & EvF_Exists) != 0) &&
                       (event->owner == dungeon->owner) &&
                       (event->kind == cevent->mevent_kind) )
                 {

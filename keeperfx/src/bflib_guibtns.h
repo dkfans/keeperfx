@@ -196,7 +196,7 @@ struct EventTypeInfo { //sizeof=0x10
     int field_0;
     unsigned short tooltip_stridx;
     unsigned short msgstr_id;
-    int field_8;
+    int lifespan_turns;
     /** Indicates how many turns must pass before another event of the kind is created. */
     int turns_between_events;
     /** Indicates the event kind which is to be replaced by new event. */
