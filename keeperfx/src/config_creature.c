@@ -1390,27 +1390,27 @@ TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long
     return true;
 }
 
-ThingModel get_players_special_digger_breed(PlayerNumber plyr_idx)
+ThingModel get_players_special_digger_model(PlayerNumber plyr_idx)
 {
-    ThingModel breed;
+    ThingModel crmodel;
     if (plyr_idx == hero_player_number)
     {
-        breed = crtr_conf.special_digger_good;
-        if (breed == 0)
+        crmodel = crtr_conf.special_digger_good;
+        if (crmodel == 0)
         {
             WARNLOG("Heroes (player %d) have no digger breed!",(int)plyr_idx);
-            breed = crtr_conf.special_digger_evil;
+            crmodel = crtr_conf.special_digger_evil;
         }
     } else
     {
-        breed = crtr_conf.special_digger_evil;
-        if (breed == 0)
+        crmodel = crtr_conf.special_digger_evil;
+        if (crmodel == 0)
         {
             WARNLOG("Keepers have no digger breed!");
-            breed = crtr_conf.special_digger_good;
+            crmodel = crtr_conf.special_digger_good;
         }
     }
-    return breed;
+    return crmodel;
 }
 
 ThingModel get_players_spectator_breed(PlayerNumber plyr_idx)

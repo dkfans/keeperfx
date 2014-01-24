@@ -1474,7 +1474,7 @@ short creature_arms_trap(struct Thing *thing)
     postng = get_trap_at_subtile_of_model_and_owned_by(thing->mappos.x.stl.num, thing->mappos.y.stl.num, traptng->model, thing->owner);
     // Note that this means there can be only one trap of given kind at a subtile.
     // Otherwise it won't be possible to re-arm it, as the condition below will fail.
-    if ( (postng != traptng) || (traptng->byte_13 > 0) )
+    if ( (postng->index != traptng->index) || (traptng->trap.num_shots > 0) )
     {
         ERRORLOG("The %s has moved or been already rearmed",thing_model_name(traptng));
         set_start_state(thing);

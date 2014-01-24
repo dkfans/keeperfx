@@ -334,7 +334,7 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
       if ( (gbtn->field_1B > 0) && (top_of_breed_list+gbtn->field_1B < CREATURE_TYPES_COUNT) )
         k = breed_activities[top_of_breed_list+gbtn->field_1B];
       else
-        k = get_players_special_digger_breed(my_player_number);
+        k = get_players_special_digger_model(my_player_number);
       crdata = creature_data_get(k);
       set_gui_tooltip_box_fmt(0, "%-6s: %s", cmpgn_string(crdata->namestr_idx), text);
   } else

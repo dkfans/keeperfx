@@ -465,7 +465,7 @@ long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
         // Reduce price by count of sacrificed diggers
-        k = get_players_special_digger_breed(plyr_idx);
+        k = get_players_special_digger_model(plyr_idx);
         i = dungeon->num_active_diggers - dungeon->creature_sacrifice[k] + 1;
         if (i < 1)
           i = 1;
@@ -703,7 +703,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     pos.x.val = get_subtile_center_pos(stl_x);
     pos.y.val = get_subtile_center_pos(stl_y);
     pos.z.val = get_floor_height_at(&pos) + (heartng->field_58 >> 1);
-    thing = create_creature(&pos, get_players_special_digger_breed(plyr_idx), plyr_idx);
+    thing = create_creature(&pos, get_players_special_digger_model(plyr_idx), plyr_idx);
     if (thing_is_invalid(thing))
     {
         ERRORLOG("There was place to create new creature, but creation failed");
