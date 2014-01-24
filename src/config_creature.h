@@ -218,7 +218,7 @@ TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/
 unsigned short get_creature_model_flags(const struct Thing *thing);
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);
-ThingModel get_players_special_digger_breed(PlayerNumber plyr_idx);
+ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_breed(PlayerNumber plyr_idx);
 /******************************************************************************/
 struct CreatureJobConfig *get_config_for_job(CreatureJob job_flags);

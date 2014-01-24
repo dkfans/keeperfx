@@ -231,7 +231,7 @@ TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *t
       if (!control_creature_as_passenger(player, thing))
         return false;
       cam = player->acamera;
-      crstat = creature_stats_get(get_players_special_digger_breed(player->id_number));
+      crstat = creature_stats_get(get_players_special_digger_model(player->id_number));
       cam->mappos.z.val += crstat->eye_height;
       return true;
     }
@@ -1696,7 +1696,7 @@ long move_creature(struct Thing *thing)
         }
         if ((tngpos->x.stl.num != nxpos.x.stl.num) || (tngpos->y.stl.num != nxpos.y.stl.num))
         {
-            if (thing->model == get_players_special_digger_breed(game.hero_player_num)) {
+            if (thing->model == get_players_special_digger_model(game.hero_player_num)) {
                 update_tunneller_trail(thing);
             }
             if ((subtile_slab_fast(tngpos->x.stl.num) != subtile_slab_fast(nxpos.x.stl.num))
@@ -2801,7 +2801,7 @@ void remove_first_creature(struct Thing *thing)
           secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
       }
     } else
-    if ((thing->model != get_players_special_digger_breed(thing->owner))
+    if ((thing->model != get_players_special_digger_model(thing->owner))
         || is_hero_thing(thing))
     {
         dungeon = get_dungeon(thing->owner);
@@ -3179,7 +3179,7 @@ TbBool create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner)
     struct Thing *thing;
     struct Coord3d pos;
     ThingModel crmodel;
-    crmodel = get_players_special_digger_breed(owner);
+    crmodel = get_players_special_digger_model(owner);
     pos.x.val = x;
     pos.y.val = y;
     pos.z.val = 0;
@@ -3520,7 +3520,7 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long bree
     {
         filter = player_list_creature_filter_most_experienced_and_pickable2;
     }
-    if ((breed_idx == get_players_special_digger_breed(plyr_idx)) || (breed_idx == -1))
+    if ((breed_idx == get_players_special_digger_model(plyr_idx)) || (breed_idx == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     } else
@@ -3554,7 +3554,7 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long breed
     {
         filter = player_list_creature_filter_least_experienced_and_pickable2;
     }
-    if ((breed_idx == get_players_special_digger_breed(plyr_idx)) || (breed_idx == -1))
+    if ((breed_idx == get_players_special_digger_model(plyr_idx)) || (breed_idx == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     } else
@@ -3590,7 +3590,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long breed_idx, l
     {
         filter = player_list_creature_filter_of_gui_job_and_pickable2;
     }
-    if ((breed_idx == get_players_special_digger_breed(plyr_idx)) || (breed_idx == -1))
+    if ((breed_idx == get_players_special_digger_model(plyr_idx)) || (breed_idx == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     } else

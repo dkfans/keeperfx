@@ -2261,9 +2261,8 @@ short creature_leaves(struct Thing *creatng)
 
 short setup_creature_leaves_or_dies(struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
-    struct Room *room;
     // Try heading for nearest entrance
+    struct Room *room;
     room = find_nearest_room_for_thing(creatng, creatng->owner, 1, 0);
     if (room_is_invalid(room))
     {
@@ -2276,6 +2275,7 @@ short setup_creature_leaves_or_dies(struct Thing *creatng)
         return -1;
     }
     creatng->continue_state = CrSt_LeavesBecauseOwnerLost;
+    struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->flgfield_1 |= 0x02;
     return 1;
@@ -4314,7 +4314,7 @@ long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
 void process_person_moods_and_needs(struct Thing *thing)
 {
     //_DK_process_person_moods_and_needs(thing); return;
-    if (get_players_special_digger_breed(thing->owner) == thing->model) {
+    if (get_players_special_digger_model(thing->owner) == thing->model) {
         // Special diggers have no special needs
         return;
     }

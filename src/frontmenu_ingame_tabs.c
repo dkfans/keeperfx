@@ -628,7 +628,7 @@ void pick_up_creature_doing_activity(struct GuiButton *gbtn)
     if (i > 0)
         kind = breed_activities[(top_of_breed_list+i)%CREATURE_TYPES_COUNT];
     else
-        kind = get_players_special_digger_breed(my_player_number);
+        kind = get_players_special_digger_model(my_player_number);
     pick_flags = TPF_PickableCheck;
     if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
         pick_flags |= TPF_OrderedPick;
@@ -670,7 +670,7 @@ void pick_up_next_creature(struct GuiButton *gbtn)
         kind = breed_activities[(i + top_of_breed_list) % CREATURE_TYPES_COUNT];
     }
     else {
-        kind = get_players_special_digger_breed(my_player_number);
+        kind = get_players_special_digger_model(my_player_number);
     }
 
     pick_flags = TPF_PickableCheck;
@@ -696,7 +696,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
     if ( (i > 0) && (top_of_breed_list+i < CREATURE_TYPES_COUNT) )
         kind = breed_activities[top_of_breed_list+i];
     else
-        kind = get_players_special_digger_breed(my_player_number);
+        kind = get_players_special_digger_model(my_player_number);
     // Now draw the button
     struct Dungeon *dungeon;
     int spridx;

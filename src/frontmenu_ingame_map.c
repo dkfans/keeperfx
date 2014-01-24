@@ -351,7 +351,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long zoom)
                 }
             }
             // Hero tunnelers may be visible even on unrevealed terrain
-            if (thing->model == get_players_special_digger_breed(game.hero_player_num))
+            if (thing->model == get_players_special_digger_model(game.hero_player_num))
             {
                 CrtrStateId crstat;
                 crstat = get_creature_state_besides_move(thing);
