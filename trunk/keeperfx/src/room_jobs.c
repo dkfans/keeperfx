@@ -369,7 +369,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
     switch (room->kind)
     {
     case RoK_ENTRANCE:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (creature_move_to_place_in_room(creatng, room))
@@ -383,7 +383,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         if (creatng->owner != room->owner) {
             return 0;
         }
-        if (creatng->model == get_players_special_digger_breed(room->owner))
+        if (creatng->model == get_players_special_digger_model(room->owner))
         {
             if (creatng->creature.gold_carried > 0)
             {
@@ -443,7 +443,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_PRISON:
-        if ((creatng->owner == room->owner) && (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner == room->owner) && (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (creature_move_to_place_in_room(creatng, room))
@@ -455,7 +455,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_TORTURE:
-        if ((creatng->owner == room->owner) && (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner == room->owner) && (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))
@@ -493,7 +493,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
             }
             return 0;
         }
-        if (creatng->model == get_players_special_digger_breed(room->owner))
+        if (creatng->model == get_players_special_digger_model(room->owner))
         {
             if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
               && setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 0))
@@ -516,7 +516,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_WORKSHOP:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (!creature_can_do_manufacturing(creatng)) {
@@ -539,7 +539,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_SCAVENGER:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (!creature_can_do_scavenging(creatng)) {
@@ -562,7 +562,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_TEMPLE:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))
@@ -583,7 +583,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_BARRACKS:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))
@@ -603,7 +603,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_GARDEN:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (find_first_valid_position_for_thing_in_room(creatng, room, &pos)
@@ -615,7 +615,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_LAIR:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         cctrl->slap_turns = 0;
@@ -640,7 +640,7 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         }
         return 0;
     case RoK_GUARDPOST:
-        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_breed(room->owner))) {
+        if ((creatng->owner != room->owner) || (creatng->model == get_players_special_digger_model(room->owner))) {
             return 0;
         }
         if (!room_has_enough_free_capacity_for_creature(room, creatng))

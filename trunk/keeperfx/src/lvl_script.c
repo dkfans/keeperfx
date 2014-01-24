@@ -2848,7 +2848,7 @@ struct Thing *script_process_new_tunneler(unsigned char plyr_idx, TbMapLocation 
 {
     struct Thing *creatng;
     //return _DK_script_process_new_tunneller(plyr_idx, location, a3, a4, a5, a6);
-    ThingModel diggerkind = get_players_special_digger_breed(game.hero_player_num);
+    ThingModel diggerkind = get_players_special_digger_model(game.hero_player_num);
     creatng = script_create_creature_at_location(plyr_idx, diggerkind, location);
     if (thing_is_invalid(creatng))
         return INVALID_THING;
@@ -3012,7 +3012,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
       dungeon = get_dungeon(plyr_idx);
       return dungeon->field_AF5;
   case SVar_CREATURE_NUM:
-      if (validx == get_players_special_digger_breed(plyr_idx))
+      if (validx == get_players_special_digger_model(plyr_idx))
       {
           dungeon = get_dungeon(plyr_idx);
           return dungeon->num_active_diggers;

@@ -1509,9 +1509,13 @@ long get_free_hero_gate_number(void)
 }
 
 /** Does a function on all creatures in players list of given model.
+ *
+ * @param thing_idx Initial thing index  of players linked list.
+ * @param crmodel Creature model to affect, or -1 for all.
+ * @param do_cb The callback function to be executed.
  * @return Count of creatures for which the callback returned true.
  */
-long do_on_player_list_all_creatures_of_model(long thing_idx, ThingModel crmodel,
+long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
     Thing_Bool_Modifier do_cb)
 {
     struct CreatureControl *cctrl;
@@ -1532,8 +1536,11 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, ThingModel crmodel
         cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if (do_cb(thing))
-            n++;
+        if ((thing->model == crmodel) || (crmodel < 0))
+        {
+            if (do_cb(thing))
+                n++;
+        }
         // Per creature code ends
         k++;
         if (k > THINGS_COUNT)
@@ -1547,17 +1554,26 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, ThingModel crmodel
 
 /** Does a function on all player creatures of given model.
  * @param plyr_idx Target player.
- * @param crmodel Creature model, or -1 for all (except special diggers).
- *
+ * @param crmodel Creature model, or -1 for all, or -2 for all except special diggers, -3 for special diggers only.
+ * @param do_cb The callback function to be executed.
  * @return Count of creatures for which the callback returned true.
  */
-long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel, Thing_Bool_Modifier do_cb)
+long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Thing_Bool_Modifier do_cb)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    return do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, crmodel, do_cb);
+    ThingModel spdig_model;
+    spdig_model = get_players_special_digger_model(plyr_idx);
+    long count;
+    count = 0;
+    if ((crmodel == spdig_model) || (crmodel == -1) || (crmodel == -3)) {
+        count  += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?-1:crmodel, do_cb);
+    }
+    if ((crmodel != spdig_model) || (crmodel == -1) || (crmodel == -2)) {
+        count  += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?-1:crmodel, do_cb);
+    }
+    return count;
 }
-
 
 /** Counts creatures of given model belonging to given player.
  * @param plyr_idx Target player.
@@ -2920,6 +2936,41 @@ void remove_dead_creatures_from_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     stl_x = slab_subtile_center(slb_x);
     stl_y = slab_subtile_center(slb_y);
     do_to_things_spiral_near_map_block(subtile_coord_center(stl_x), subtile_coord_center(stl_y), 9, delete_if_dead_creature);
+}
+
+TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
+{
+    if (!creature_is_manually_controlled_by_owner(thing) && !creature_is_dying(thing))
+    {
+        if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing))
+        {
+            setup_creature_leaves_or_dies(thing);
+            return true;
+        }
+    }
+    return false;
+}
+
+TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
+{
+    if (!creature_is_kept_in_custody_by_enemy(thing))
+    {
+        kill_creature(thing, INVALID_THING, -1, CrDed_Default);
+        return true;
+    }
+    return false;
+}
+
+void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
+{
+    if ((plyr_idx == game.hero_player_num) || (plyr_idx == game.neutral_player_num)) {
+        // Don't affect heroes and neutral creatures
+        return;
+    }
+    // Force leave or kill normal creatures
+    do_to_players_all_creatures_of_model(plyr_idx, -2, setup_creature_leave_or_die_if_possible);
+    // Kill all special diggers
+    do_to_players_all_creatures_of_model(plyr_idx, -3, setup_creature_die_if_not_in_custody);
 }
 /******************************************************************************/
 #ifdef __cplusplus

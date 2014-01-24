@@ -236,7 +236,7 @@ void state_time_simulation(struct NodeState * node, int time)
 
 static int count_workers(struct NodePlayerState * state, int plyr_idx)
 {
-    return state->creatures[get_players_special_digger_breed(plyr_idx)];
+    return state->creatures[get_players_special_digger_model(plyr_idx)];
 }
 
 /**
@@ -257,7 +257,7 @@ static int count_non_workers(struct NodePlayerState * state, int plyr_idx)
     int count, i;
     int worker_breed;
 
-    worker_breed = get_players_special_digger_breed(plyr_idx);
+    worker_breed = get_players_special_digger_model(plyr_idx);
     count = 0;
 
     for (i = 0; i < CREATURE_TYPES_COUNT; ++i) {
@@ -342,7 +342,7 @@ static void prepare_player_state(struct NodePlayerState * state, int plyr_idx)
 
         state->creatures[thing->model] += 1;
 
-        if (get_players_special_digger_breed(plyr_idx) != thing->model) {
+        if (get_players_special_digger_model(plyr_idx) != thing->model) {
             state->creature_level_sum += cctrl->explevel;
         }
     }

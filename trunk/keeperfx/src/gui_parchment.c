@@ -442,7 +442,7 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 n++;
             }
             // Special tunneler code
-            if (thing->model == get_players_special_digger_breed(game.hero_player_num))
+            if (thing->model == get_players_special_digger_model(game.hero_player_num))
             {
                 long m;
                 m = get_creature_state_besides_move(thing);
