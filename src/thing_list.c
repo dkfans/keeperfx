@@ -40,6 +40,7 @@
 #include "config_objects.h"
 #include "config_creature.h"
 #include "creature_states.h"
+#include "creature_states_combt.h"
 #include "player_instances.h"
 #include "engine_camera.h"
 #include "gui_topmsg.h"
@@ -283,6 +284,76 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
                     refpos.z.val = 0;
                     // This function should return max value when the distance is minimal, so:
                     return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if ((param->model_id == -1) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Thing *creatng;
+                creatng = thing_get(param->num1);
+                if (players_are_enemies(creatng->owner, thing->owner))
+                {
+                    if (creature_will_attack_creature(creatng, thing))
+                    {
+                        // This function should return max value when the distance is minimal, so:
+                        return LONG_MAX-get_2d_distance(&thing->mappos, &creatng->mappos);
+                    }
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature(const struct Thing *thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if ((param->model_id == -1) || (thing->model == param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Thing *creatng;
+                creatng = thing_get(param->num1);
+                if (creature_will_attack_creature(creatng, thing) && !creature_has_creature_in_combat(creatng, thing))
+                {
+                    long distance;
+                    CrAttackType attack_type;
+                    distance = get_combat_distance(creatng, thing);
+                    if (distance >= param->num2) {
+                        return -1;
+                    }
+                    attack_type = creature_can_have_combat_with_creature(creatng, (struct Thing *)thing, distance, 1, 0);
+                    if (attack_type > AttckT_Unset)
+                    {
+                        unsigned long score;
+                        score = get_combat_score(creatng, thing, attack_type, distance);
+                        return score;
+                    }
                 }
             }
         }
@@ -1234,6 +1305,36 @@ struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
+struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *creatng)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = near_thing_pos_thing_filter_is_enemy_which_can_be_attacked_by_creature;
+    param.class_id = TCls_Creature;
+    param.model_id = -1;
+    param.plyr_idx = -1;
+    param.num1 = creatng->index;
+    param.num2 = -1;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
+struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature;
+    param.class_id = TCls_Creature;
+    param.model_id = -1;
+    param.plyr_idx = -1;
+    param.num1 = creatng->index;
+    param.num2 = dist;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
 struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool armed)
 {
     SYNCDBG(19,"Starting");
@@ -1274,50 +1375,6 @@ struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, 
         return INVALID_THING;
     }
     return get_nth_thing_of_class_with_filter(filter, &param, ACTION_RANDOM(match_count));
-}
-
-struct Thing *find_nearest_enemy_creature(struct Thing *creatng)
-{
-    struct Thing *thing;
-    unsigned long k;
-    long i;
-    struct Thing *neartng;
-    long neardist,dist;
-    neardist = LONG_MAX;
-    neartng = INVALID_THING;
-    i = game.thing_lists[TngList_Creatures].index;
-    k = 0;
-    while (i != 0)
-    {
-        thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = thing->next_of_class;
-        // Per-thing code
-        if (players_are_enemies(creatng->owner, thing->owner))
-        {
-            if (creature_will_attack_creature(creatng, thing))
-            {
-                dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
-                if (dist < neardist)
-                {
-                    neartng = thing;
-                    neardist = dist;
-                }
-            }
-        }
-        // Per-thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping things list");
-          break;
-        }
-    }
-    return neartng;
 }
 
 long creature_of_model_in_prison_or_tortured(ThingModel crmodel)

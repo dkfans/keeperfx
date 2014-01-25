@@ -1288,14 +1288,14 @@ short creature_drops_corpse_in_graveyard(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
-    struct Thing *corpse;
+    struct Thing *deadtng;
     TRACE_THING(thing);
     //return _DK_creature_drops_corpse_in_graveyard(thing);
     cctrl = creature_control_get_from_thing(thing);
-    corpse = thing_get(cctrl->dragtng_idx);
-    TRACE_THING(corpse);
+    deadtng = thing_get(cctrl->dragtng_idx);
+    TRACE_THING(deadtng);
     // Check if corpse is ok
-    if ( !thing_exists(corpse) )
+    if ( !thing_exists(deadtng) )
     {
         ERRORLOG("The %s index %d tried to drop a corpse, but it's gone",thing_model_name(thing),(int)thing->index);
         set_start_state(thing);
@@ -1305,7 +1305,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *thing)
     room = get_room_thing_is_on(thing);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(corpse),(int)corpse->index,room_code_name(RoK_GRAVEYARD));
+        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
         if (creature_drop_thing_to_another_room(thing, room, RoK_GRAVEYARD)) {
             thing->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
@@ -1317,7 +1317,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *thing)
     if ( (room->kind != RoK_GRAVEYARD) || (room->owner != thing->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(corpse),(int)corpse->index,room_code_name(RoK_GRAVEYARD));
+        WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
         if (creature_drop_thing_to_another_room(thing, room, RoK_GRAVEYARD)) {
             thing->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
@@ -1326,9 +1326,9 @@ short creature_drops_corpse_in_graveyard(struct Thing *thing)
         return 0;
     }
     // Do the dropping
-    creature_drop_dragged_object(thing, corpse);
-    corpse->owner = thing->owner;
-    add_body_to_graveyard(corpse, room);
+    creature_drop_dragged_object(thing, deadtng);
+    deadtng->owner = thing->owner;
+    add_body_to_graveyard(deadtng, room);
     // The action of moving object is now finished
     set_start_state(thing);
     return 1;

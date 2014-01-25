@@ -219,7 +219,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
     //_DK_activate_trap(traptng, creatng); return;
     const struct TrapStats *trapstat;
-    traptng->byte_18 = 1;
+    traptng->trap.byte_18t = 1;
     trapstat = &trap_stats[traptng->model];
     if (traptng->model == 2) {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
@@ -388,7 +388,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     struct TrapStats *trapstat;
     trapstat = &trap_stats[trpkind];
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
-        ERRORDBG(3,"Cannot create trap model %d for player %d. There are too many things allocated.",(int)trpkind,(int)plyr_idx);
+        ERRORDBG(3,"Cannot create trap %s for player %d. There are too many things allocated.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
@@ -397,7 +397,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     struct Thing *thing;
     thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate trap %d for player %d, but failed.",(int)trpkind,(int)plyr_idx);
+        ERRORDBG(3,"Should be able to allocate trap %s for player %d, but failed.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }

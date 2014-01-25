@@ -190,6 +190,9 @@ long count_things_of_class_with_filter(Thing_Maximizer_Filter filter, MaxTngFilt
 struct Thing *get_nearest_object_owned_by_and_matching_bool_filter(MapCoord pos_x, MapCoord pos_y, PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb);
 struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool armed);
 struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool locked);
+struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *creatng);
+#define find_nearest_enemy_creature(creatng) get_nearest_enemy_creature_possible_to_attack_by(creatng);
+struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist);
 
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
@@ -208,7 +211,7 @@ long count_player_creatures_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
 long count_player_creatures_not_counting_to_total(PlayerNumber plyr_idx);
 TbBool lord_of_the_land_in_prison_or_tortured(void);
-struct Thing *find_nearest_enemy_creature(struct Thing *crtng);
+struct Thing *find_nearest_enemy_creature(struct Thing *creatng);
 long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage);
 
 void update_things(void);
