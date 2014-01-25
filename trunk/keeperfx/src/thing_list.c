@@ -33,6 +33,7 @@
 #include "thing_stats.h"
 #include "thing_creature.h"
 #include "creature_senses.h"
+#include "spdigger_stack.h"
 #include "power_hand.h"
 #include "magic.h"
 #include "map_utils.h"
@@ -1623,11 +1624,11 @@ long do_to_players_all_creatures_of_model(PlayerNumber plyr_idx, int crmodel, Th
     spdig_model = get_players_special_digger_model(plyr_idx);
     long count;
     count = 0;
-    if ((crmodel == spdig_model) || (crmodel == -1) || (crmodel == -3)) {
-        count  += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?-1:crmodel, do_cb);
-    }
     if ((crmodel != spdig_model) || (crmodel == -1) || (crmodel == -2)) {
         count  += do_on_player_list_all_creatures_of_model(dungeon->creatr_list_start, (crmodel<0)?-1:crmodel, do_cb);
+    }
+    if ((crmodel == spdig_model) || (crmodel == -1) || (crmodel == -3)) {
+        count  += do_on_player_list_all_creatures_of_model(dungeon->digger_list_start, (crmodel<0)?-1:crmodel, do_cb);
     }
     return count;
 }
@@ -3001,6 +3002,9 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
     {
         if (!creature_is_kept_in_custody_by_enemy(thing) && !creature_is_being_unconscious(thing))
         {
+            // Drop creature if it's being dragged
+            force_any_creature_dragging_owned_thing_to_drop_it(thing);
+            // Setup leave state or kill the creature
             setup_creature_leaves_or_dies(thing);
             return true;
         }
@@ -3012,6 +3016,9 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
 {
     if (!creature_is_kept_in_custody_by_enemy(thing))
     {
+        // Drop creature if it's being dragged
+        force_any_creature_dragging_owned_thing_to_drop_it(thing);
+        // And kill it
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return true;
     }
