@@ -2913,6 +2913,7 @@ void make_creature_unconscious(struct Thing *creatng)
     creatng->active_state = CrSt_CreatureUnconscious;
     cctrl->flgfield_1 |= CCFlg_Immortal;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
+    //TODO CONFIG Add amount of turn creature is unconscious to config file
     cctrl->conscious_back_turns = 2000;
 }
 

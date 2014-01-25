@@ -2159,7 +2159,6 @@ TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, Play
 TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
-    struct CreatureControl *cctrl;
     struct CreatureControl *cctrlgrp;
     struct CreatureStats *crstat;
     struct Dungeon *dungeon;
@@ -2179,6 +2178,10 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     if (!thing_exists(creatng)) {
         ERRORLOG("Tried to kill non-existing thing!");
         return false;
+    }
+    // Dying creatures must be visible
+    if (creature_affected_by_spell(creatng, SplK_Invisibility)) {
+        terminate_thing_spell_effect(creatng, SplK_Invisibility);
     }
     if (!is_neutral_thing(creatng)) {
         dungeon = get_players_num_dungeon(creatng->owner);
@@ -2250,12 +2253,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         cause_creature_death(creatng, flags);
         return true;
     }
-    clear_creature_instance(creatng);
-    creatng->active_state = CrSt_CreatureUnconscious;
-    cctrl = creature_control_get_from_thing(creatng);
-    cctrl->flgfield_1 |= CCFlg_Immortal;
-    cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    cctrl->conscious_back_turns = 2000;//TODO [config] Add amount of turn creature is unconscious to config file
+    make_creature_unconscious(creatng);
     creatng->health = 1;
     return false;
 }
