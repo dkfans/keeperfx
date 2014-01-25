@@ -36,6 +36,7 @@
 #include "thing_effects.h"
 #include "thing_shots.h"
 #include "thing_navigate.h"
+#include "creature_states_lair.h"
 #include "power_hand.h"
 #include "room_data.h"
 #include "room_jobs.h"
@@ -93,8 +94,8 @@ DLLIMPORT long _DK_creature_has_spare_slot_for_combat(struct Thing *fightng, str
 DLLIMPORT long _DK_change_creature_with_existing_attacker(struct Thing *fightng, struct Thing *enmtng, long combat_kind);
 DLLIMPORT void _DK_cleanup_battle_leftovers(struct Thing *thing);
 DLLIMPORT long _DK_remove_all_traces_of_combat(struct Thing *thing);
-DLLIMPORT long _DK_get_combat_score(const struct Thing *figtng, const struct Thing *outenmtng, long outscore, long move_on_ground);
-DLLIMPORT long _DK_check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, unsigned long *outscore);
+DLLIMPORT long _DK_get_combat_score(const struct Thing *fightng, const struct Thing *outenmtng, long outscore, long move_on_ground);
+DLLIMPORT long _DK_check_for_possible_combat_with_attacker(struct Thing *fightng, struct Thing **outenmtng, unsigned long *outscore);
 DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long move_on_ground);
 DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
 /******************************************************************************/
@@ -360,10 +361,8 @@ long creature_can_move_to_combat(struct Thing *fightng, struct Thing *enmtng)
 
 CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long move_on_ground, long set_combat)
 {
-    struct CreatureControl *fcctrl;
     SYNCDBG(9,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
     //return _DK_creature_can_have_combat_with_creature(fightng, enmtng, dist, move_on_ground, set_combat);
-    fcctrl = creature_control_get_from_thing(fightng);
     long can_see;
     can_see = 0;
     if (creature_can_hear_within_distance(fightng, dist))
@@ -376,7 +375,7 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
         } else
         {
             if (slab_wall_hug_route(fightng, &enmtng->mappos, 8) > 0) {
-                  return AttckT_Melee;
+                return AttckT_Melee;
             }
         }
         if (!creature_has_ranged_weapon(fightng)) {
@@ -402,6 +401,8 @@ CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struc
     }
     if (set_combat)
     {
+        struct CreatureControl *fcctrl;
+        fcctrl = creature_control_get_from_thing(fightng);
         fcctrl->field_A8 = can_see;
         fcctrl->word_A4 = enmtng->index;
         fcctrl->long_9A = game.play_gameturn;
@@ -1359,9 +1360,92 @@ short cleanup_object_combat(struct Thing *thing)
     return 1;
 }
 
-short creature_combat_flee(struct Thing *thing)
+long check_for_possible_combat_within_distance(struct Thing *creatng, struct Thing **fightng, long dist)
 {
-  return _DK_creature_combat_flee(thing);
+    long attack_type;
+    unsigned long outscore;
+    struct Thing *enmtng;
+    outscore = 0;
+    attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, dist, &outscore);
+    if (attack_type <= AttckT_Unset)
+    {
+        attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, dist);
+    }
+    if (attack_type <= AttckT_Unset) {
+        return AttckT_Unset;
+    }
+    *fightng = enmtng;
+    return attack_type;
+}
+
+short creature_combat_flee(struct Thing *creatng)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    //return _DK_creature_combat_flee(creatng);
+    GameTurnDelta turns_in_flee;
+    turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->field_28E;
+    if (get_2d_box_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
+    {
+        if (has_melee_combat_attackers(creatng) || has_ranged_combat_attackers(creatng)
+          || creature_requires_healing(creatng))
+        {
+            if (creature_move_to(creatng, &cctrl->flee_pos, cctrl->max_speed, 0, 0) == -1)
+            {
+                cctrl->flee_pos.x.val = creatng->mappos.x.val;
+                cctrl->flee_pos.y.val = creatng->mappos.y.val;
+                cctrl->flee_pos.z.val = creatng->mappos.z.val;
+            }
+            cctrl->field_28E = game.play_gameturn;
+        } else
+        if (turns_in_flee <= game.game_turns_in_flee)
+        {
+            GameTurnDelta escape_turns;
+            escape_turns = (game.game_turns_in_flee >> 2);
+            if (escape_turns <= 50)
+                escape_turns = 50;
+            if (turns_in_flee <= escape_turns)
+            {
+                if (creature_move_to(creatng, &cctrl->flee_pos, cctrl->max_speed, 0, 0) == -1) {
+                    cctrl->flee_pos.x.val = creatng->mappos.x.val;
+                    cctrl->flee_pos.y.val = creatng->mappos.y.val;
+                    cctrl->flee_pos.z.val = creatng->mappos.z.val;
+                }
+            } else
+            {
+                if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
+                    creatng->continue_state = CrSt_CreatureCombatFlee;
+                }
+            }
+        } else
+        {
+            set_start_state(creatng);
+        }
+    } else
+    {
+        if (turns_in_flee > 8)
+        {
+            long combat_kind;
+            struct Thing *fightng;
+            combat_kind = check_for_possible_combat_within_distance(creatng, &fightng, 2304);
+            if (combat_kind > 0)
+            {
+                set_creature_in_combat_to_the_death(creatng, fightng, combat_kind);
+                return 1;
+            }
+        }
+        if (turns_in_flee <= game.game_turns_in_flee)
+        {
+            if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
+                creatng->continue_state = CrSt_CreatureCombatFlee;
+            }
+        }
+        else
+        {
+            set_start_state(creatng);
+        }
+    }
+    return 1;
 }
 
 short creature_door_combat(struct Thing *thing)
@@ -1404,49 +1488,118 @@ long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, lon
     return _DK_get_combat_score(thing, enmtng, a3, a4);
 }
 
-long check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, unsigned long *outscore)
+CrAttackType check_for_possible_melee_combat_with_attacker_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
 {
+    struct Thing *thing;
+    long oppn_idx, thing_idx;
     struct CreatureControl *figctrl;
+    figctrl = creature_control_get_from_thing(fightng);
+    CrAttackType best;
+    best = AttckT_Unset;
+    // Check scores of melee opponents
+    for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        thing_idx = figctrl->opponents_melee[oppn_idx];
+        if (thing_idx > 0)
+            thing = thing_get(thing_idx);
+        else
+            thing = INVALID_THING;
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+            continue;
+        // When counting distance, take size of creatures into account
+        long distance;
+        CrAttackType attack_type;
+        distance = get_combat_distance(fightng, thing);
+        if (distance >= maxdist) {
+            continue;
+        }
+        attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, 0);
+        if (attack_type > AttckT_Unset)
+        {
+            unsigned long score;
+            score = get_combat_score(fightng, thing, attack_type, distance);
+            if (*outscore < score)
+            {
+                *outscore = score;
+                *outenmtng = thing;
+                best = attack_type;
+            }
+        }
+    }
+    return best;
+}
+
+CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
+{
+    struct Thing *thing;
+    long oppn_idx, thing_idx;
+    struct CreatureControl *figctrl;
+    figctrl = creature_control_get_from_thing(fightng);
+    CrAttackType best;
+    best = AttckT_Unset;
+    // Check scores of ranged opponents
+    for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
+    {
+        thing_idx = figctrl->opponents_ranged[oppn_idx];
+        if (thing_idx > 0)
+            thing = thing_get(thing_idx);
+        else
+            thing = INVALID_THING;
+        TRACE_THING(thing);
+        if (thing_is_invalid(thing))
+            continue;
+        // When counting distance, take size of creatures into account
+        long distance;
+        CrAttackType attack_type;
+        distance = get_combat_distance(fightng, thing);
+        if (distance >= maxdist) {
+            continue;
+        }
+        attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, 0);
+        if (attack_type > AttckT_Unset)
+        {
+            unsigned long score;
+            score = get_combat_score(fightng, thing, attack_type, distance);
+            if (*outscore < score)
+            {
+                *outscore = score;
+                *outenmtng = thing;
+                best = attack_type;
+            }
+        }
+    }
+    return best;
+}
+
+long check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist)
+{
+    struct Thing *thing;
+    thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist);
+    if (!thing_is_invalid(thing))
+    {
+        // When counting distance, take size of creatures into account
+        long distance;
+        CrAttackType attack_type;
+        distance = get_combat_distance(fightng, thing);
+        attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, 0);
+        *outenmtng = thing;
+        return attack_type;
+    }
+    return AttckT_Unset;
+}
+
+long check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
+{
     unsigned long max_score;
     long best;
     struct Thing *enmtng;
-    //return _DK_check_for_possible_combat_with_attacker(thing, enmtng, a3);
-    max_score = 0;
-    best = 0;
-    figctrl = creature_control_get_from_thing(figtng);
+    best = AttckT_Unset;
     // Do the same code two times - for melee and ranged opponents
-    if (figctrl->opponents_melee_count > 0)
+    if (has_melee_combat_attackers(figtng))
     {
-        struct Thing *thing;
-        unsigned long score;
-        long oppn_idx, thing_idx;
-        // Check scores of melee opponents
-        for (oppn_idx = 0; oppn_idx < COMBAT_MELEE_OPPONENTS_LIMIT; oppn_idx++)
-        {
-            thing_idx = figctrl->opponents_melee[oppn_idx];
-            if (thing_idx > 0)
-                thing = thing_get(thing_idx);
-            else
-                thing = INVALID_THING;
-            TRACE_THING(thing);
-            if (thing_is_invalid(thing))
-                continue;
-            // When counting distance, take size of creatures into account
-            long distance;
-            CrAttackType attack_type;
-            distance = get_combat_distance(figtng, thing);
-            attack_type = creature_can_have_combat_with_creature(figtng, thing, distance, 1, 0);
-            if (attack_type > AttckT_Unset)
-            {
-                score = get_combat_score(figtng, thing, attack_type, distance);
-                if (max_score < score)
-                {
-                    max_score = score;
-                    enmtng = thing;
-                    best = attack_type;
-                }
-            }
-        }
+        max_score = 0;
+        best = check_for_possible_melee_combat_with_attacker_within_distance(figtng, &enmtng, maxdist, &max_score);
         if (max_score > 0)
         {
             *outenmtng = enmtng;
@@ -1454,38 +1607,10 @@ long check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing 
             return best;
         }
     }
-    if (figctrl->opponents_ranged_count > 0)
+    if (has_ranged_combat_attackers(figtng))
     {
-        struct Thing *thing;
-        unsigned long score;
-        long oppn_idx, thing_idx;
-        // Check scores of ranged opponents
-        for (oppn_idx = 0; oppn_idx < COMBAT_RANGED_OPPONENTS_LIMIT; oppn_idx++)
-        {
-            thing_idx = figctrl->opponents_ranged[oppn_idx];
-            if (thing_idx > 0)
-                thing = thing_get(thing_idx);
-            else
-                thing = INVALID_THING;
-            TRACE_THING(thing);
-            if (thing_is_invalid(thing))
-                continue;
-            // When counting distance, take size of creatures into account
-            long distance;
-            CrAttackType attack_type;
-            distance = get_combat_distance(figtng, thing);
-            attack_type = creature_can_have_combat_with_creature(figtng, thing, distance, 1, 0);
-            if (attack_type > AttckT_Unset)
-            {
-                score = get_combat_score(figtng, thing, attack_type, distance);
-                if (max_score < score)
-                {
-                    max_score = score;
-                    enmtng = thing;
-                    best = attack_type;
-                }
-            }
-        }
+        max_score = 0;
+        best = check_for_possible_ranged_combat_with_attacker_within_distance(figtng, &enmtng, maxdist, &max_score);
         if (max_score > 0)
         {
             *outenmtng = enmtng;
@@ -1493,7 +1618,13 @@ long check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing 
             return best;
         }
     }
-    return 0;
+    return AttckT_Unset;
+}
+
+long check_for_possible_combat_with_attacker(struct Thing *figtng, struct Thing **outenmtng, unsigned long *outscore)
+{
+    //return _DK_check_for_possible_combat_with_attacker(thing, enmtng, a3);
+    return check_for_possible_combat_with_attacker_within_distance(figtng, outenmtng, LONG_MAX, outscore);
 }
 
 long creature_is_most_suitable_for_combat(struct Thing *thing, struct Thing *enmtng)
@@ -1700,7 +1831,7 @@ CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct 
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->long_9A != game.play_gameturn || cctrl->word_A4 != enmtng->index )
+    if ((cctrl->long_9A != game.play_gameturn) || (cctrl->word_A4 != enmtng->index))
     {
       cctrl->long_9A = game.play_gameturn;
       cctrl->word_A4 = enmtng->index;

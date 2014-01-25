@@ -279,33 +279,33 @@ long get_combat_state_for_combat(struct Thing *fighter, struct Thing *enemy, lon
     return 1;
 }
 
-void set_creature_in_combat(struct Thing *fighter, struct Thing *enemy, long combat_kind)
+void set_creature_in_combat(struct Thing *fightng, struct Thing *enmtng, long combat_kind)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
-    cctrl = creature_control_get_from_thing(fighter);
+    SYNCDBG(8,"Starting for %s and %s",thing_model_name(fightng),thing_model_name(enmtng));
+    cctrl = creature_control_get_from_thing(fightng);
     if (creature_control_invalid(cctrl)) {
         ERRORLOG("Invalid creature control");
         return;
     }
     if ( (cctrl->combat_flags != 0) && ((cctrl->combat_flags & (CmbtF_Unknown08|CmbtF_Unknown10)) == 0) )
     {
-        CrtrStateId crstate = get_creature_state_besides_move(fighter);
+        CrtrStateId crstate = get_creature_state_besides_move(fightng);
         ERRORLOG("Creature in combat already - state %s", creature_state_code_name(crstate));
         return;
     }
-    if ( !external_set_thing_state(fighter, CrSt_CreatureInCombat) ) {
-        ERRORLOG("Failed to change state");
+    if ( !external_set_thing_state(fightng, CrSt_CreatureInCombat) ) {
+        ERRORLOG("Failed to enter combat state for %s index %d",thing_model_name(fightng),(int)fightng->index);
         return;
     }
     cctrl->field_AA = 0;
     cctrl->fight_til_death = 0;
-    if ( !set_creature_combat_state(fighter, enemy, combat_kind) ) {
-        WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fighter),thing_model_name(enemy));
-        set_start_state(fighter);
+    if ( !set_creature_combat_state(fightng, enmtng, combat_kind) ) {
+        WARNLOG("Couldn't setup combat state for %s and %s",thing_model_name(fightng),thing_model_name(enmtng));
+        set_start_state(fightng);
         return;
     }
-    setup_combat_flee_position(fighter);
+    setup_combat_flee_position(fightng);
 }
 
 TbBool active_battle_exists(PlayerNumber plyr_idx)
