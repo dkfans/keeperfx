@@ -3830,7 +3830,7 @@ TbBool internal_set_thing_state(struct Thing *thing, CrtrStateId nState)
 {
     struct CreatureControl *cctrl;
     thing->active_state = nState;
-    set_flag_byte(&thing->field_1, 0x10, false);
+    thing->field_1 &= ~TF1_Unkn10;
     thing->continue_state = CrSt_Unused;
     cctrl = creature_control_get_from_thing(thing);
     cctrl->field_302 = 0;
