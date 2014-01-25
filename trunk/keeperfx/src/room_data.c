@@ -807,19 +807,25 @@ void change_work_room_of_creatures_working_in_room(struct Room *wrkroom, struct 
  */
 void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
 {
-    unsigned long k;
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
     long non_creature;
     non_creature = 0;
+    unsigned long k;
+    long i;
+    i = wrkroom->creatures_list;
     k = 0;
-    while (wrkroom->creatures_list != 0)
+    while (i != 0)
     {
-        struct Thing *thing;
-        thing = thing_get(wrkroom->creatures_list);
-        if (thing_is_invalid(thing))
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_exists(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %d detected",(int)wrkroom->creatures_list);
+            ERRORLOG("Jump to invalid creature %d detected",(int)i);
             break;
         }
+        i = cctrl->next_in_room;
         // Per creature code
         if (thing_is_creature(thing)) {
             set_start_state(thing);
@@ -830,8 +836,8 @@ void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
         k++;
         if (k > THINGS_COUNT)
         {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
         }
     }
     if (non_creature > 0) {
