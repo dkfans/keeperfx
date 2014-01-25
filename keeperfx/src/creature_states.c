@@ -1952,7 +1952,9 @@ short creature_dormant(struct Thing *creatng)
 
 short creature_escaping_death(struct Thing *creatng)
 {
-  return _DK_creature_escaping_death(creatng);
+    //return _DK_creature_escaping_death(creatng);
+    set_start_state(creatng);
+    return 0;
 }
 
 long get_best_position_outside_room(struct Thing *creatng, struct Coord3d *pos, struct Room *room)
