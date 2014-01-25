@@ -283,43 +283,43 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
 
 void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned char plyr_idx)
 {
-  SYNCDBG(7,"Starting");
-  struct Dungeon *dungeon;
-  struct CreatureControl *cctrl;
-  long i;
-  if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr) ) {
-      ERRORMSG("Invalid transfer box object!");
-      return;
-  }
-  dungeon = get_players_num_dungeon(plyr_idx);
-  // Check if 'things' are correct
-  if (!thing_exists(transftng) || !thing_is_creature(transftng) || (transftng->owner != plyr_idx)) {
-      ERRORMSG("Invalid transfer creature thing!");
-      return;
-  }
-
-  cctrl = creature_control_get_from_thing(transftng);
-  set_transfered_creature(plyr_idx, transftng->model, cctrl->explevel);
-  // Remove the creature from power hand
-  for (i = 0; i < dungeon->num_things_in_hand; i++)
-  {
-    if (dungeon->things_in_hand[i] == transftng->index)
-    {
-      for ( ; i < dungeon->num_things_in_hand-1; i++)
-      {
-        dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
-      }
-      dungeon->num_things_in_hand--;
-      dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
+    SYNCDBG(7,"Starting");
+    struct Dungeon *dungeon;
+    struct CreatureControl *cctrl;
+    long i;
+    if (!thing_exists(boxtng) || (box_thing_to_special(boxtng) != SpcKind_TrnsfrCrtr) ) {
+        ERRORMSG("Invalid transfer box object!");
+        return;
     }
-  }
-  kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
-  create_special_used_effect(&boxtng->mappos, plyr_idx);
-  remove_events_thing_is_attached_to(boxtng);
-  force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
-  delete_thing_structure(boxtng, 0);
-  if (is_my_player_number(plyr_idx))
-    output_message(SMsg_CommonAcknowledge, 0, true);
+    dungeon = get_players_num_dungeon(plyr_idx);
+    // Check if 'things' are correct
+    if (!thing_exists(transftng) || !thing_is_creature(transftng) || (transftng->owner != plyr_idx)) {
+        ERRORMSG("Invalid transfer creature thing!");
+        return;
+    }
+
+    cctrl = creature_control_get_from_thing(transftng);
+    set_transfered_creature(plyr_idx, transftng->model, cctrl->explevel);
+    // Remove the creature from power hand
+    for (i = 0; i < dungeon->num_things_in_hand; i++)
+    {
+      if (dungeon->things_in_hand[i] == transftng->index)
+      {
+        for ( ; i < dungeon->num_things_in_hand-1; i++)
+        {
+          dungeon->things_in_hand[i] = dungeon->things_in_hand[i+1];
+        }
+        dungeon->num_things_in_hand--;
+        dungeon->things_in_hand[dungeon->num_things_in_hand] = 0;
+      }
+    }
+    kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
+    create_special_used_effect(&boxtng->mappos, plyr_idx);
+    remove_events_thing_is_attached_to(boxtng);
+    force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
+    delete_thing_structure(boxtng, 0);
+    if (is_my_player_number(plyr_idx))
+      output_message(SMsg_CommonAcknowledge, 0, true);
 }
 
 void start_transfer_creature(struct PlayerInfo *player, struct Thing *thing)
