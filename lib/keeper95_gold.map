@@ -379,6 +379,10 @@
  0001:00045D20       view_set_camera_y_inertia
  0001:00045D60       view_set_camera_x_inertia
  0001:00045DA0       view_set_camera_rotation_inertia
+ 0001:00045E90       view_move_camera_up
+ 0001:00045F50       view_move_camera_down
+ 0001:00046010       view_move_camera_left
+ 0001:000460E0       view_move_camera_right
  0001:000461B0       view_zoom_camera_in
  0001:00046290       view_zoom_camera_out
  0001:00046380       get_camera_zoom
@@ -509,6 +513,7 @@
  0001:00059A70       update_dead_creature
  0001:00059CC0       update_trap
  0001:00059D30       update_player_camera
+ 0001:00059E10       update_player_camera_fp
  0001:0005A1A0       update_footsteps_nearest_camera
  0001:0005A3F0       get_human_controlled_creature_target
  0001:0005A730       process_creature_standing_on_corpses_at

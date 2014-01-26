@@ -615,12 +615,12 @@ long check_place_to_pretty_excluding(struct Thing *creatng, long slb_x, long slb
 
 long check_out_unreinforced_place(struct Thing *thing)
 {
-  return _DK_check_out_unreinforced_place(thing);
+    return _DK_check_out_unreinforced_place(thing);
 }
 
 long check_out_unreinforced_area(struct Thing *thing)
 {
-  return _DK_check_out_unreinforced_area(thing);
+    return _DK_check_out_unreinforced_area(thing);
 }
 
 TbBool check_out_unconverted_place(struct Thing *thing)
