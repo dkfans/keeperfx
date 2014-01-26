@@ -3004,7 +3004,7 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
         {
             SYNCDBG(19,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
             // Drop creature if it's being dragged
-            force_any_creature_dragging_owned_thing_to_drop_it(thing);
+            force_any_creature_dragging_thing_to_drop_it(thing);
             // Setup leave state or kill the creature
             setup_creature_leaves_or_dies(thing);
             return true;
@@ -3020,7 +3020,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
     {
         SYNCDBG(19,"Forcing on %s index %d",thing_model_name(thing),(int)thing->index);
         // Drop creature if it's being dragged
-        force_any_creature_dragging_owned_thing_to_drop_it(thing);
+        force_any_creature_dragging_thing_to_drop_it(thing);
         // And kill it
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return true;
