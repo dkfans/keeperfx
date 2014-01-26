@@ -206,6 +206,19 @@ void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng)
     }
 }
 
+void force_any_creature_dragging_thing_to_drop_it(struct Thing *dragtng)
+{
+    if (thing_is_dragged_or_pulled(dragtng))
+    {
+        struct Thing *creatng;
+        creatng = find_creature_dragging_thing(dragtng);
+        // If found a creature dragging the thing, reset it so it will drop the thing
+        if (!thing_is_invalid(creatng)) {
+            set_start_state(creatng);
+        }
+    }
+}
+
 struct Thing *check_for_empty_trap_for_imp_not_being_armed(struct Thing *digger, long trpmodel)
 {
     struct Thing *thing;
