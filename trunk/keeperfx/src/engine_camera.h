@@ -59,8 +59,11 @@ struct Camera {
     int field_13;
     int zoom;
     int field_1B;
-    unsigned char field_1F[9];
-    short field_28;
+    unsigned char field_1F;
+    long field_20;
+    unsigned char field_24;
+    long field_25;
+    unsigned char field_29;
 };
 
 #pragma pack()

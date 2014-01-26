@@ -238,6 +238,11 @@ DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
 DLLIMPORT void _DK_startup_network_game(void);
 DLLIMPORT void _DK_load_ceiling_table(void);
 DLLIMPORT char _DK_find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx);
+DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
+DLLIMPORT void _DK_view_move_camera_left(struct Camera *cam, long a2);
+DLLIMPORT void _DK_view_move_camera_right(struct Camera *cam, long a2);
+DLLIMPORT void _DK_view_move_camera_up(struct Camera *cam, long a2);
+DLLIMPORT void _DK_view_move_camera_down(struct Camera *cam, long a2);
 // Now variables
 DLLIMPORT extern HINSTANCE _DK_hInstance;
 
@@ -2192,9 +2197,103 @@ void message_update(void)
   _DK_message_update();
 }
 
+void update_player_camera_fp(struct Camera *cam, struct Thing *thing)
+{
+    _DK_update_player_camera_fp(cam, thing);
+}
+
+void view_move_camera_left(struct Camera *cam, long a2)
+{
+    _DK_view_move_camera_left(cam, a2); return;
+}
+
+void view_move_camera_right(struct Camera *cam, long a2)
+{
+    _DK_view_move_camera_right(cam, a2); return;
+}
+
+void view_move_camera_up(struct Camera *cam, long a2)
+{
+    _DK_view_move_camera_up(cam, a2); return;
+}
+
+void view_move_camera_down(struct Camera *cam, long a2)
+{
+    _DK_view_move_camera_down(cam, a2); return;
+}
+
+void view_process_camera_inertia(struct Camera *cam)
+{
+    int i;
+    i = cam->field_20;
+    if (i > 0) {
+        view_move_camera_right(cam, abs(i));
+    } else
+    if (i < 0) {
+        view_move_camera_left(cam, abs(i));
+    }
+    if ( cam->field_24 ) {
+        cam->field_24 = 0;
+    } else {
+        cam->field_20 /= 2;
+    }
+    i = cam->field_25;
+    if (i > 0) {
+        view_move_camera_down(cam, abs(i));
+    } else
+    if (i < 0) {
+        view_move_camera_up(cam, abs(i));
+    }
+    if (cam->field_29) {
+        cam->field_29 = 0;
+    } else {
+        cam->field_25 /= 2;
+    }
+    if (cam->field_1B) {
+        cam->orient_a = (cam->field_1B + cam->orient_a) & 0x7FF;
+    }
+    if (cam->field_1F) {
+        cam->field_1F = 0;
+    } else {
+        cam->field_1B /= 2;
+    }
+}
+
 void update_player_camera(struct PlayerInfo *player)
 {
-  _DK_update_player_camera(player);
+    //_DK_update_player_camera(player);
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    struct Camera *cam;
+    cam = player->acamera;
+    view_process_camera_inertia(cam);
+    switch (cam->field_6)
+    {
+    case 1:
+        if (player->controlled_thing_idx > 0) {
+            struct Thing *ctrltng;
+            ctrltng = thing_get(player->controlled_thing_idx);
+            update_player_camera_fp(cam, ctrltng);
+        } else
+        if (player->instance_num != 11) {
+            ERRORLOG("Cannot go first person without controlling creature");
+        }
+        break;
+    case 2:
+        player->cameras[3].mappos.x.val = cam->mappos.x.val;
+        player->cameras[3].mappos.y.val = cam->mappos.y.val;
+        break;
+    case 5:
+        player->cameras[0].mappos.x.val = cam->mappos.x.val;
+        player->cameras[0].mappos.y.val = cam->mappos.y.val;
+        break;
+    }
+    if (dungeon->camera_deviate_quake) {
+        dungeon->camera_deviate_quake--;
+    }
+    if (dungeon->camera_deviate_jump > 0) {
+        dungeon->camera_deviate_jump -= 32;
+    }
 }
 
 void update_research(void)

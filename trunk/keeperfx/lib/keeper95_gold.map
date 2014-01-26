@@ -1039,6 +1039,11 @@
  0001:0009F270       display_objectives
  0001:0009F840       set_level_objective
  0001:00059D30       update_player_camera
+ 0001:00059E10       update_player_camera_fp
+ 0001:00045E90       view_move_camera_up
+ 0001:00045F50       view_move_camera_down
+ 0001:00046010       view_move_camera_left
+ 0001:000460E0       view_move_camera_right
  0001:0005A1A0       update_footsteps_nearest_camera
  0001:000245A0       message_update
  0001:0001E340       PaletteFadePlayer
