@@ -1439,6 +1439,10 @@
  0001:0008E660       remove_melee_attacker
  0001:000C5230       get_enemy_dungeon_heart_creature_can_see
  0001:00076350       set_creature_object_combat
+ 0001:000764A0       combat_object_state_melee_combat
+ 0001:00076550       combat_object_state_ranged_combat
+ 0001:00076750       combat_door_state_melee_combat
+ 0001:00076800       combat_door_state_ranged_combat
  0001:000777A0       get_door_for_position
  0001:000765F0       set_creature_door_combat
  0001:00083340       process_obey_leader
