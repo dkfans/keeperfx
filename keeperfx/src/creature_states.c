@@ -3472,18 +3472,20 @@ TbBool creature_will_attack_creature(const struct Thing *fightng, const struct T
         return false;
     }
     struct CreatureControl *fighctrl;
-    struct CreatureControl *enmctrl;
     fighctrl = creature_control_get_from_thing(fightng);
+    struct CreatureControl *enmctrl;
     enmctrl = creature_control_get_from_thing(enmtng);
-
     if (players_creatures_tolerate_each_other(fightng->owner, enmtng->owner))
     {
         if  (((fighctrl->spell_flags & CSAfF_MadKilling) == 0)
          && ((enmctrl->spell_flags  & CSAfF_MadKilling) == 0)) {
+            if (fighctrl->combat_flags == 0) {
+                return false;
+            }
             struct Thing *tmptng;
             tmptng = thing_get(fighctrl->battle_enemy_idx);
             TRACE_THING(tmptng);
-            if ((fighctrl->combat_flags == 0) || (tmptng->index != enmtng->index)) {
+            if (tmptng->index != enmtng->index) {
                 return false;
             }
         }
@@ -3576,6 +3578,7 @@ struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     struct Thing *enemytng;
+    SYNCDBG(9,"Starting");
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->word_9A != 0)
