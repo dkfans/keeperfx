@@ -1381,6 +1381,7 @@ long check_for_possible_combat_within_distance(struct Thing *creatng, struct Thi
     long attack_type;
     unsigned long outscore;
     struct Thing *enmtng;
+    SYNCDBG(9,"Starting");
     outscore = 0;
     attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, dist, &outscore);
     if (attack_type <= AttckT_Unset)
@@ -1403,6 +1404,7 @@ short creature_combat_flee(struct Thing *creatng)
     turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->field_28E;
     if (get_2d_box_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
     {
+        SYNCDBG(8,"Starting distant flee for %s",thing_model_name(creatng),(int)creatng->index);
         if (has_melee_combat_attackers(creatng) || has_ranged_combat_attackers(creatng)
           || creature_requires_healing(creatng))
         {
@@ -1439,6 +1441,7 @@ short creature_combat_flee(struct Thing *creatng)
         }
     } else
     {
+        SYNCDBG(8,"Starting near flee for %s",thing_model_name(creatng),(int)creatng->index);
         if (turns_in_flee > 8)
         {
             long combat_kind;
@@ -1464,11 +1467,6 @@ short creature_combat_flee(struct Thing *creatng)
     return 1;
 }
 
-short creature_door_combat(struct Thing *thing)
-{
-  return _DK_creature_door_combat(thing);
-}
-
 TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
 {
     struct CreatureControl *cctrl;
@@ -1487,6 +1485,40 @@ TbBool combat_enemy_exists(struct Thing *thing, struct Thing *enmtng)
         return false;
     }
     return true;
+}
+
+short creature_door_combat(struct Thing *creatng)
+{
+    //return _DK_creature_door_combat(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *doortng;
+    doortng = thing_get(cctrl->battle_enemy_idx);
+    if ((cctrl->combat_flags & 0x10) == 0)
+    {
+        ERRORLOG("Not in door combat but should be");
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!combat_enemy_exists(creatng, doortng) || (doortng->active_state == 1))
+    {
+        check_map_explored(creatng, creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
+        set_start_state(creatng);
+        return 0;
+    }
+    CombatState combat_func;
+    if (cctrl->combat_state_id < sizeof(combat_door_state)/sizeof(combat_door_state[0]))
+        combat_func = combat_door_state[cctrl->combat_state_id];
+    else
+        combat_func = NULL;
+    if (combat_func != NULL)
+    {
+        combat_func(creatng);
+        return 1;
+    }
+    ERRORLOG("Invalid fight door state");
+    set_start_state(creatng);
+    return 0;
 }
 
 TbBool creature_has_creature_in_combat(const struct Thing *thing, const struct Thing *enmtng)
@@ -1588,7 +1620,7 @@ CrAttackType check_for_possible_ranged_combat_with_attacker_within_distance(stru
     return best;
 }
 
-long check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist)
+CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist)
 {
     struct Thing *thing;
     thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist);
@@ -1605,7 +1637,7 @@ long check_for_possible_combat_with_enemy_creature_within_distance(struct Thing 
     return AttckT_Unset;
 }
 
-long check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
+CrAttackType check_for_possible_combat_with_attacker_within_distance(struct Thing *figtng, struct Thing **outenmtng, long maxdist, unsigned long *outscore)
 {
     unsigned long max_score;
     long best;
@@ -2066,10 +2098,24 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
     return _DK_change_creature_with_existing_attacker(fighter, enemy, combat_kind);
 }
 
-long check_for_possible_combat(struct Thing *creatng, struct Thing **battltng)
+long check_for_possible_combat(struct Thing *creatng, struct Thing **fightng)
 {
-    //TODO CREATURE_AI This function makes it possible to attack creature slapped or dropped in prison; rewrite
-    return _DK_check_for_possible_combat(creatng, battltng);
+    //return _DK_check_for_possible_combat(creatng, fightng);
+    CrAttackType attack_type;
+    unsigned long outscore;
+    struct Thing *enmtng;
+    SYNCDBG(19,"Starting");
+    outscore = 0;
+    attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, LONG_MAX, &outscore);
+    if (attack_type <= AttckT_Unset)
+    {
+        attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, LONG_MAX);
+    }
+    if (attack_type <= AttckT_Unset) {
+        return AttckT_Unset;
+    }
+    *fightng = enmtng;
+    return attack_type;
 }
 
 /**
@@ -2104,7 +2150,7 @@ long check_for_better_combat(struct Thing *figtng)
     struct CreatureControl *figctrl;
     struct Thing *enmtng;
     long combat_kind;
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(figtng),(int)figtng->index);
+    SYNCDBG(9,"Starting for %s index %d",thing_model_name(figtng),(int)figtng->index);
     //return _DK_check_for_better_combat(figtng);
     figctrl = creature_control_get_from_thing(figtng);
     // Allow the switch only once per certain amount of turns
@@ -2422,7 +2468,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     struct Thing *enmtng;
     struct CreatureControl *cctrl;
     long combat_kind;
-    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
+    SYNCDBG(9,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     TRACE_THING(creatng);
     //return _DK_creature_look_for_combat(creatng);
     cctrl = creature_control_get_from_thing(creatng);

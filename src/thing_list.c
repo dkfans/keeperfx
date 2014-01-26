@@ -1514,7 +1514,6 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
 
 long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_plyr_idx, long range, long max_damage)
 {
-    struct Thing *thing;
     unsigned long k;
     long i;
     long naffected;
@@ -1523,6 +1522,7 @@ long electricity_affecting_area(const struct Coord3d *pos, PlayerNumber immune_p
     k = 0;
     while (i != 0)
     {
+        struct Thing *thing;
         thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
