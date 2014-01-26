@@ -2917,7 +2917,7 @@ void make_creature_unconscious(struct Thing *creatng)
     cctrl->conscious_back_turns = 2000;
 }
 
-void make_creature_conscious(struct Thing *creatng)
+void make_creature_conscious_without_changing_state(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     TRACE_THING(creatng);
@@ -2933,6 +2933,11 @@ void make_creature_conscious(struct Thing *creatng)
         TRACE_THING(sectng);
         stop_creature_being_dragged_by(creatng, sectng);
     }
+}
+
+void make_creature_conscious(struct Thing *creatng)
+{
+    make_creature_conscious_without_changing_state(creatng);
     set_start_state(creatng);
 }
 
@@ -3754,12 +3759,31 @@ short seek_the_enemy(struct Thing *creatng)
 
 short state_cleanup_dragging_body(struct Thing *creatng)
 {
-  return _DK_state_cleanup_dragging_body(creatng);
+    //return _DK_state_cleanup_dragging_body(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->dragtng_idx > 0)
+    {
+        struct Thing *dragtng;
+        dragtng = thing_get(cctrl->dragtng_idx);
+        stop_creature_being_dragged_by(dragtng, creatng);
+    }
+    return 1;
 }
 
 short state_cleanup_dragging_object(struct Thing *creatng)
 {
-  return _DK_state_cleanup_dragging_object(creatng);
+    //return _DK_state_cleanup_dragging_object(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->dragtng_idx > 0)
+    {
+        struct Thing *objctng;
+        objctng = thing_get(cctrl->dragtng_idx);
+        creature_drop_dragged_object(creatng, objctng);
+        objctng->owner = game.neutral_player_num;
+    }
+    return 1;
 }
 
 short state_cleanup_in_room(struct Thing *creatng)
@@ -3780,7 +3804,9 @@ short state_cleanup_unable_to_fight(struct Thing *creatng)
 
 short state_cleanup_unconscious(struct Thing *creatng)
 {
-  return _DK_state_cleanup_unconscious(creatng);
+    //return _DK_state_cleanup_unconscious(creatng);
+    make_creature_conscious_without_changing_state(creatng);
+    return 1;
 }
 
 long process_work_speed_on_work_value(struct Thing *thing, long base_val)

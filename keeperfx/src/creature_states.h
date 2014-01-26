@@ -315,6 +315,7 @@ TbBool creature_is_dragging_spellbook(const struct Thing *creatng);
 
 void make_creature_conscious(struct Thing *creatng);
 void make_creature_unconscious(struct Thing *creatng);
+void make_creature_conscious_without_changing_state(struct Thing *creatng);
 
 TbBool check_experience_upgrade(struct Thing *thing);
 long process_work_speed_on_work_value(struct Thing *thing, long base_val);
