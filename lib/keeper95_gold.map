@@ -697,9 +697,13 @@
  0001:00076330       computer_completed_build_a_room
  0001:00076350       set_creature_object_combat
  0001:000763F0       creature_object_combat
+ 0001:000764A0       combat_object_state_melee_combat
+ 0001:00076550       combat_object_state_ranged_combat
  0001:000765C0       cleanup_object_combat
  0001:000765F0       set_creature_door_combat
  0001:00076680       creature_door_combat
+ 0001:00076750       combat_door_state_melee_combat
+ 0001:00076800       combat_door_state_ranged_combat
  0001:00076870       cleanup_door_combat
  0001:000768A0       check_hit_when_attacking_door
  0001:00076910       draw_texture

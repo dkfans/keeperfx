@@ -58,6 +58,11 @@ short creature_object_combat(struct Thing *thing);
 void creature_in_combat_wait(struct Thing *thing);
 void creature_in_ranged_combat(struct Thing *thing);
 void creature_in_melee_combat(struct Thing *thing);
+void combat_object_state_melee_combat(struct Thing *thing);
+void combat_object_state_ranged_combat(struct Thing *thing);
+void combat_door_state_melee_combat(struct Thing *thing);
+void combat_door_state_ranged_combat(struct Thing *thing);
+
 short creature_attack_rooms(struct Thing *thing);
 short creature_damage_walls(struct Thing *thing);
 short creature_attempt_to_damage_walls(struct Thing *thing);
@@ -84,7 +89,6 @@ CrAttackType creature_can_see_combat_path(const struct Thing *creatng, const str
 long get_combat_distance(const struct Thing *thing, const struct Thing *enemy);
 long set_creature_in_combat_to_the_death(struct Thing *fighter1, struct Thing *fighter2, long a3);
 long find_fellow_creature_to_fight_in_room(struct Thing *fighter, struct Room *room,long crmodel, struct Thing **enemytng);
-void creature_in_combat_wait(struct Thing *thing);
 long remove_all_traces_of_combat(struct Thing *thing);
 long get_combat_score(const struct Thing *thing, const struct Thing *enmtng, long a3, long a4);
 /******************************************************************************/

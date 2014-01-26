@@ -98,6 +98,10 @@ DLLIMPORT long _DK_get_combat_score(const struct Thing *fightng, const struct Th
 DLLIMPORT long _DK_check_for_possible_combat_with_attacker(struct Thing *fightng, struct Thing **outenmtng, unsigned long *outscore);
 DLLIMPORT long _DK_old_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, long move_on_ground);
 DLLIMPORT long _DK_guard_post_combat_move(struct Thing *thing, long a2);
+DLLIMPORT void _DK_combat_object_state_melee_combat(struct Thing *thing);
+DLLIMPORT void _DK_combat_object_state_ranged_combat(struct Thing *thing);
+DLLIMPORT void _DK_combat_door_state_melee_combat(struct Thing *thing);
+DLLIMPORT void _DK_combat_door_state_ranged_combat(struct Thing *thing);
 /******************************************************************************/
 CrAttackType combat_has_line_of_sight(const struct Thing *creatng, const struct Thing *enmtng, MapCoordDelta enmdist);
 /******************************************************************************/
@@ -106,6 +110,18 @@ const CombatState combat_state[] = {
     creature_in_combat_wait,
     creature_in_ranged_combat,
     creature_in_melee_combat,
+};
+
+const CombatState combat_object_state[] = {
+    NULL,
+    combat_object_state_melee_combat,
+    combat_object_state_ranged_combat,
+};
+
+const CombatState combat_door_state[] = {
+    NULL,
+    combat_door_state_melee_combat,
+    combat_door_state_ranged_combat,
 };
 
 const struct CombatWeapon ranged_offensive_weapon[] = {
@@ -2313,7 +2329,6 @@ short creature_in_combat(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Thing *enmtng;
-    CombatState combat_func;
     cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(9,"Starting for %s index %d, combat state %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->combat_state_id);
     TRACE_THING(thing);
@@ -2334,6 +2349,7 @@ short creature_in_combat(struct Thing *creatng)
         cctrl->field_28E = game.play_gameturn;
         return 0;
     }
+    CombatState combat_func;
     if (cctrl->combat_state_id < sizeof(combat_state)/sizeof(combat_state[0]))
         combat_func = combat_state[cctrl->combat_state_id];
     else
@@ -2348,9 +2364,57 @@ short creature_in_combat(struct Thing *creatng)
     return 0;
 }
 
-short creature_object_combat(struct Thing *thing)
+void combat_object_state_melee_combat(struct Thing *thing)
 {
-    return _DK_creature_object_combat(thing);
+    _DK_combat_object_state_melee_combat(thing); return;
+}
+
+void combat_object_state_ranged_combat(struct Thing *thing)
+{
+    _DK_combat_object_state_ranged_combat(thing); return;
+}
+
+void combat_door_state_melee_combat(struct Thing *thing)
+{
+    _DK_combat_door_state_melee_combat(thing); return;
+}
+
+void combat_door_state_ranged_combat(struct Thing *thing)
+{
+    _DK_combat_door_state_ranged_combat(thing); return;
+}
+
+short creature_object_combat(struct Thing *creatng)
+{
+    //return _DK_creature_object_combat(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *objctng;
+    objctng = thing_get(cctrl->battle_enemy_idx);
+    if ((cctrl->combat_flags & 0x08) == 0)
+    {
+        ERRORLOG("Not in object combat but should be");
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!combat_enemy_exists(creatng, objctng) || (objctng->active_state == 3))
+    {
+        set_start_state(creatng);
+        return 0;
+    }
+    CombatState combat_func;
+    if (cctrl->combat_state_id < sizeof(combat_object_state)/sizeof(combat_object_state[0]))
+        combat_func = combat_object_state[cctrl->combat_state_id];
+    else
+        combat_func = NULL;
+    if (combat_func != NULL)
+    {
+        combat_func(creatng);
+        return 1;
+    }
+    ERRORLOG("Invalid fight object state");
+    set_start_state(creatng);
+    return 0;
 }
 
 TbBool creature_look_for_combat(struct Thing *creatng)
