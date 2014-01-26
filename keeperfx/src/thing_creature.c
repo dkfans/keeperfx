@@ -3470,10 +3470,11 @@ struct Thing *find_players_highest_score_creature_in_fight_not_affected_by_spell
 }
 
 /**
- * Returns a creature who is dragging given thing.
+ * Returns a creature who is dragging given thing, if it belongs to given player.
  * @param plyr_idx Player index whose creatures are to be checked.
- * @param dragtng The thing to be dragged.
+ * @param dragtng The thing being dragged.
  * @return The thing which is dragging, or invalid thing if not found.
+ * @see find_creature_dragging_thing()
  */
 struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const struct Thing *dragtng)
 {
@@ -3482,16 +3483,36 @@ struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const 
     struct Dungeon *dungeon;
     struct Thing *creatng;
     dungeon = get_players_num_dungeon(plyr_idx);
+    filter = player_list_creature_filter_dragging_specific_thing;
     param.plyr_idx = -1;
     param.class_id = 0;
     param.model_id = 0;
     param.num1 = dragtng->index;
-    filter = player_list_creature_filter_dragging_specific_thing;
     creatng = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
         creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }
     return creatng;
+}
+
+/**
+ * Returns a creature who is dragging given thing.
+ * @param dragtng The thing being dragged.
+ * @return The thing which is dragging, or invalid thing if not found.
+ */
+struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
+{
+    Thing_Maximizer_Filter filter;
+    struct CompoundTngFilterParam param;
+    SYNCDBG(19,"Starting");
+    filter = player_list_creature_filter_dragging_specific_thing;
+    param.class_id = TCls_Creature;
+    param.model_id = -1;
+    param.plyr_idx = -1;
+    param.num1 = dragtng->index;
+    param.num2 = -1;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
 /**
