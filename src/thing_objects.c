@@ -532,7 +532,7 @@ void destroy_food(struct Thing *thing)
     pos.z.val = thing->mappos.z.val + 256;
     create_effect(&thing->mappos, TngEff_Unknown51, plyr_idx);
     create_effect(&pos, TngEff_Unknown07, plyr_idx);
-    if (thing->owner != game.neutral_player_num)
+    if (!is_neutral_thing(thing))
     {
         if (thing->word_13 == -1)
         {

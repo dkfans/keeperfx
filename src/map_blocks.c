@@ -1153,7 +1153,7 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
     int can_see_slabs;
     if (player->controlled_thing_idx == creatng->index)
     {
-        can_see_slabs = get_creature_can_see_subtiles() / 3;
+        can_see_slabs = get_creature_can_see_subtiles() / STL_PER_SLB;
         if (can_see_slabs <= 7)
             can_see_slabs = 7;
     } else
