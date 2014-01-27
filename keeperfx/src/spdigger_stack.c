@@ -214,7 +214,10 @@ void force_any_creature_dragging_thing_to_drop_it(struct Thing *dragtng)
         creatng = find_creature_dragging_thing(dragtng);
         // If found a creature dragging the thing, reset it so it will drop the thing
         if (!thing_is_invalid(creatng)) {
+            SYNCDBG(8,"Reset %s index %d",thing_model_name(creatng),(int)creatng->index);
             set_start_state(creatng);
+        } else {
+            WARNDBG(4,"Can't find creature dragging %s index %d",thing_model_name(dragtng),(int)dragtng->index);
         }
     }
 }
@@ -514,7 +517,7 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
     if (prev_owner == creatng->owner)
         return 0;
     if (players_are_mutual_allies(creatng->owner, prev_owner)) {
-        SYNCDBG(8,"The slab %d,%d is owned by ally, so cennot be converted",(int)slb_x, (int)slb_y);
+        SYNCDBG(8,"The slab %d,%d is owned by ally, so cannot be converted",(int)slb_x, (int)slb_y);
         return 0;
     }
     //return _DK_check_place_to_convert_excluding(creatng, slb_x, slb_y);
