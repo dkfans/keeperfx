@@ -49,9 +49,15 @@ DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const s
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
-    // If both dimensions changed, allow the pass
-    if ((nextpos->x.stl.num != prevpos->x.stl.num) &&
-        (nextpos->y.stl.num != prevpos->y.stl.num)) {
+    // Check for door at central subtile
+    if (subtile_is_door(stl_slab_center_subtile(nextpos->x.stl.num),stl_slab_center_subtile(nextpos->y.stl.num))) {
+        return false;
+    }
+    // If only one dimensions changed, allow the pass
+    // (in that case the outcome has been decided before this call)
+    if ((nextpos->x.stl.num == prevpos->x.stl.num) ||
+        (nextpos->y.stl.num == prevpos->y.stl.num)) {
+        // change is (x,0) or (0,x)
         return true;
     }
     struct Coord3d pos1;
@@ -202,9 +208,15 @@ TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
 TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
-    // If both dimensions changed, allow the pass
-    if ((nextpos->x.stl.num != prevpos->x.stl.num) &&
-        (nextpos->y.stl.num != prevpos->y.stl.num)) {
+    // Check for door at central subtile
+    if (subtile_is_door(stl_slab_center_subtile(nextpos->x.stl.num),stl_slab_center_subtile(nextpos->y.stl.num))) {
+        return false;
+    }
+    // If only one dimensions changed, allow the pass
+    // (in that case the outcome has been decided before this call)
+    if ((nextpos->x.stl.num == prevpos->x.stl.num) ||
+        (nextpos->y.stl.num == prevpos->y.stl.num)) {
+        // change is (x,0) or (0,x)
         return true;
     }
     struct Coord3d pos1;
@@ -366,7 +378,8 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
     if (subtile_is_door(slab_subtile_center(subtile_slab(nextpos->x.stl.num)), slab_subtile_center(subtile_slab(nextpos->y.stl.num)))) {
         return false;
     }
-    // If both subtile coordinates didn't changed, allow the pass
+    // If only one dimensions changed, allow the pass
+    // (in that case the outcome has been decided before this call)
     if ((nextpos->x.stl.num == prevpos->x.stl.num)
      || (nextpos->y.stl.num == prevpos->y.stl.num)) {
         // change is (x,0) or (0,x)

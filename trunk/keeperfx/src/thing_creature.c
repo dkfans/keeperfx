@@ -3506,7 +3506,7 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
     struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     filter = player_list_creature_filter_dragging_specific_thing;
-    param.class_id = TCls_Creature;
+    param.class_id = -1;
     param.model_id = -1;
     param.plyr_idx = -1;
     param.num1 = dragtng->index;
