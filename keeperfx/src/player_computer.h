@@ -113,6 +113,8 @@ enum GameActionTypes {
     GA_UsePwrChicken,
     GA_Unk27,
     GA_UsePwrSlap,
+    GA_SellTrap,
+    GA_SellDoor,
 };
 
 enum ToolDigFlags {
@@ -567,6 +569,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
 void get_opponent(struct Computer2 *comp, struct THate hate[]);
+long add_to_trap_location(struct Computer2 *, struct Coord3d *);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);
