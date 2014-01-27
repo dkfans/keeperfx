@@ -42,6 +42,7 @@
 #include "thing_physics.h"
 #include "thing_effects.h"
 #include "player_instances.h"
+#include "player_utils.h"
 #include "room_jobs.h"
 #include "room_workshop.h"
 
@@ -93,7 +94,6 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask);
-long add_to_trap_location(struct Computer2 *, struct Coord3d *);
 long find_next_gold(struct Computer2 *, struct ComputerTask *);
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx);
 /******************************************************************************/
@@ -350,9 +350,6 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         return Lb_SUCCESS;
     case GA_UseMkDigger:
         return magic_use_available_power_on_subtile(plyr_idx, PwrK_MKDIGGER, alevel, stl_x, stl_y, PwCast_Unrevealed);
-    case GA_UseSlap:
-        thing = thing_get(param1);
-        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, thing);
     case GA_UsePwrSight:
         return magic_use_available_power_on_subtile(plyr_idx, PwrK_SIGHT, alevel, stl_x, stl_y, PwCast_Unrevealed);
     case GA_UsePwrObey:
@@ -400,6 +397,10 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
         k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y);
         i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
         return i;
+    case GA_SellTrap:
+        return player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y);
+    case GA_SellDoor:
+        return player_sell_door_at_subtile(plyr_idx, stl_x, stl_y);
     case GA_UsePwrLightning:
         return magic_use_available_power_on_subtile(plyr_idx, PwrK_LIGHTNING, alevel, stl_x, stl_y, PwCast_None);
     case GA_UsePwrSpeedUp:
@@ -419,6 +420,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrChicken:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, alevel, stl_x, stl_y, thing);
+    case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, alevel, stl_x, stl_y, thing);
@@ -1038,6 +1040,9 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         if (ctask->dig.subfield_38 > 0)
         {
+            if (slab_has_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))) {
+                try_game_action(comp, dungeon->owner, GA_SellTrap, 0, stl_x, stl_y, 1, 0);
+            }
             if (can_build_room_at_slab(dungeon->owner, rkind, subtile_slab(stl_x), subtile_slab(stl_y)))
             {
                 if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind) > Lb_OK)
