@@ -49,15 +49,8 @@ struct TbAlphaTables {
     unsigned char red[8*256];
     unsigned char blue[8*256];
     unsigned char green[8*256];
-};
-
-struct TbGradientTables {
-    unsigned char black[256];
-    unsigned char grey[8*256];
-    unsigned char orange[8*256];
-    unsigned char red[8*256];
-    unsigned char blue[8*256];
-    unsigned char green[8*256];
+    // This is to force the array to have 256x256 size
+    //unsigned char unused[215*256];
 };
 /******************************************************************************/
 DLLIMPORT unsigned short _DK_pixels_per_block;
@@ -73,11 +66,11 @@ DLLIMPORT int _DK_MinimalResolutionSetup;
 //#define fade_tables _DK_fade_tables
 DLLIMPORT struct TbColorTables _DK_pixmap;
 #define pixmap _DK_pixmap
-DLLIMPORT extern struct TbAlphaTables _DK_alpha_sprite_table;
+DLLIMPORT struct TbAlphaTables _DK_alpha_sprite_table;
 #define alpha_sprite_table _DK_alpha_sprite_table
-DLLIMPORT extern struct TbLoadFiles _DK_map_flag_load_files[];
+DLLIMPORT struct TbLoadFiles _DK_map_flag_load_files[];
 //#define map_flag_load_files _DK_map_flag_load_files
-DLLIMPORT extern struct TbLoadFiles _DK_game_load_files[];
+DLLIMPORT struct TbLoadFiles _DK_game_load_files[];
 //#define game_load_files _DK_game_load_files
 /******************************************************************************/
 extern struct TbSprite *pointer_sprites;
