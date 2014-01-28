@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "globals.h"
 
 #include "bflib_video.h"
@@ -2394,7 +2395,7 @@ TbResult LbSpriteDrawUsingScalingUpData_sub3(uchar *outbuf, int scanline, int ou
  * @param xstep Scaling steps array, x dimension.
  * @param ystep Scaling steps array, y dimension.
  * @param sprite The source sprite.
- * @param transmap The transparency mapping table to be used.
+ * @param transmap The transparency mapping table to be used. Should have a size of 256x256 to avoid invalid memory reads.
  * @return Gives 0 on success.
  */
 TbResult LbSpriteDrawUsingScalingUpData_sub4(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
@@ -3822,6 +3823,7 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprit
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
     SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
+    assert(render_alpha != NULL);
     //return _DK_DrawAlphaSpriteUsingScalingData(posx, posy, sprite);
     long *xstep;
     long *ystep;
