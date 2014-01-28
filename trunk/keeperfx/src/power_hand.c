@@ -449,6 +449,11 @@ void draw_power_hand(void)
   lbDisplay.DrawFlags = 0x00;
   if (player->view_type != PVT_DungeonTop)
     return;
+  // Color rendering array pointers used by draw_keepersprite()
+  render_fade_tables = pixmap.fade_tables;
+  render_ghost = pixmap.ghost;
+  render_alpha = (unsigned char *)&alpha_sprite_table;
+  // Now draw
   if (((game.numfield_C & 0x20) != 0) && (game.small_map_state != 2)
     && mouse_is_over_small_map(player->mouse_x, player->mouse_y) )
   {
