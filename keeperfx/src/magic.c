@@ -502,7 +502,69 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
 {
     SYNCDBG(6,"Starting");
-    _DK_magic_use_power_armageddon(plyr_idx);
+    //_DK_magic_use_power_armageddon(plyr_idx);
+    unsigned long your_time_gap,enemy_time_gap;
+    your_time_gap = game.armageddon.count_down + game.play_gameturn;
+    enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
+    if (game.field_150356) {
+        return Lb_OK;
+    }
+    struct MagicStats *magstat;
+    magstat = &game.magic_stats[PwrK_ARMAGEDDON];
+    if (take_money_from_dungeon(plyr_idx, magstat->cost[0], 1) < 0)
+    {
+        if (is_my_player_number(plyr_idx))
+            output_message(87, 0, 1);
+        return Lb_OK;
+    }
+    game.field_150356 = game.play_gameturn;
+    game.field_15035E = plyr_idx;
+    struct Thing *heartng;
+    heartng = get_player_soul_container(plyr_idx);
+    game.armageddon.mappos.x.val = heartng->mappos.x.val;
+    game.armageddon.mappos.y.val = heartng->mappos.y.val;
+    game.armageddon.mappos.z.val = heartng->mappos.z.val;
+
+    struct Thing *thing;
+    int i,k;
+    k = 0;
+    i = game.thing_lists[TngList_Creatures].index;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+          ERRORLOG("Jump to invalid thing detected");
+          break;
+        }
+        i = thing->next_of_class;
+        // Per-thing code
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(thing);
+        if (!creature_affected_by_spell(thing, SplK_Chicken))
+        {
+            cctrl->field_2EF = your_time_gap;
+            if (thing->owner == plyr_idx) {
+                your_time_gap += game.armagedon_teleport_your_time_gap;
+            } else {
+                enemy_time_gap += game.armagedon_teleport_enemy_time_gap;
+            }
+        } else
+        {
+            kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
+        }
+        // Per-thing code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping things list");
+          break;
+        }
+    }
+    if (enemy_time_gap <= your_time_gap)
+        enemy_time_gap = your_time_gap;
+    game.field_15035A = game.armageddon.duration + enemy_time_gap;
+    play_non_3d_sample(180);
     return Lb_SUCCESS;
 }
 
