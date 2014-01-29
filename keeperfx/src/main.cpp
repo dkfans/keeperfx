@@ -388,15 +388,6 @@ void powerful_magic_breaking_sparks(struct Thing *breaktng)
     }
 }
 
-void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
-{
-    struct SlabMap *slb;
-    slb = get_slabmap_block(slb_x, slb_y);
-    if (slabmap_block_invalid(slb))
-        return;
-    //TODO rewrite used by process_dungeon_devastation_effects()
-}
-
 void process_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
 {
     //TODO rewrite used to remove dungeon slabs when heart is destroyed
@@ -2113,10 +2104,70 @@ void process_dungeon_power_magic(void)
     _DK_process_dungeon_power_magic();
 }
 
+void blast_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap *slb;
+    slb = get_slabmap_block(slb_x, slb_y);
+    if (slabmap_block_invalid(slb)) {
+        return;
+    }
+    if (slabmap_owner(slb) != plyr_idx) {
+        return;
+    }
+    struct Thing *doortng;
+    doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    if (!thing_is_invalid(doortng)) {
+        destroy_door(doortng);
+    }
+    struct SlabAttr *slbattr;
+    slbattr = get_slab_attrs(slb);
+    if (slbattr->category == 2)
+    {
+      place_slab_type_on_map(10, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 1);
+      decrease_dungeon_area(plyr_idx, 1);
+      do_unprettying(game.neutral_player_num, slb_x, slb_y);
+      do_slab_efficiency_alteration(slb_x, slb_y);
+      remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
+      struct Coord3d pos;
+      pos.x.val = subtile_coord_center(slab_subtile_center(slb_x));
+      pos.y.val = subtile_coord_center(slab_subtile_center(slb_y));
+      pos.z.val = get_floor_height_at(&pos);
+      create_effect_element(&pos, 10, plyr_idx);
+    }
+}
+
 void process_dungeon_devastation_effects(void)
 {
     SYNCDBG(8,"Starting");
-    _DK_process_dungeon_devastation_effects();
+    //_DK_process_dungeon_devastation_effects(); return;
+    int plyr_idx;
+    for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    {
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(plyr_idx);
+        if (dungeon->field_14B4 == 0)
+            continue;
+        if ((game.play_gameturn & 1) != 0)
+            continue;
+        dungeon->field_14B4++;
+        if (dungeon->field_14B4 >= max(map_tiles_x,map_tiles_y))
+            continue;
+        MapSlabCoord slb_x, slb_y;
+        int i,range;
+        slb_x = subtile_slab(dungeon->field_14B2[0]) - dungeon->field_14B4;
+        slb_y = subtile_slab(dungeon->field_14B2[1]) - dungeon->field_14B4;
+        range = 2*dungeon->field_14B4;
+        for (i = 0; i <= range; i++)
+        {
+            blast_slab(slb_x + i, slb_y,         dungeon->owner);
+            blast_slab(slb_x + i, slb_y + range, dungeon->owner);
+        }
+        for (i = 0; i <= range; i++)
+        {
+            blast_slab(slb_x,         slb_y + i, dungeon->owner);
+            blast_slab(slb_x + range, slb_y + i, dungeon->owner);
+        }
+    }
 }
 
 void process_payday(void)

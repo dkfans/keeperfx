@@ -514,7 +514,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
     if (take_money_from_dungeon(plyr_idx, magstat->cost[0], 1) < 0)
     {
         if (is_my_player_number(plyr_idx))
-            output_message(87, 0, 1);
+            output_message(SMsg_GoldNotEnough, 0, true);
         return Lb_OK;
     }
     game.field_150356 = game.play_gameturn;
