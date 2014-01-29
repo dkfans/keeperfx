@@ -578,18 +578,7 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     do_slab_efficiency_alteration(slb_x, slb_y);
     increase_dungeon_area(creatng->owner, 1);
     dungeon->lvstats.area_claimed++;
-    struct Thing *thing;
-    long k;
-    for (k=0; k < AROUND_TILES_COUNT; k++)
-    {
-        MapSubtlCoord stl_x,stl_y;
-        stl_x = slab_subtile_center(slb_x) + around[k].delta_x;
-        stl_y = slab_subtile_center(slb_y) + around[k].delta_y;
-        thing = get_trap_for_position(stl_x, stl_y);
-        if (!thing_is_invalid(thing)) {
-            destroy_trap(thing);
-        }
-    }
+    remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     return 1;
 }
 
