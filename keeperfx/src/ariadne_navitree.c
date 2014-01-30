@@ -45,6 +45,8 @@ DLLIMPORT long _DK_delaunay_stack[DELAUNAY_COUNT];
 #define delaunay_stack _DK_delaunay_stack
 /******************************************************************************/
 DLLIMPORT long _DK_delaunay_seeded(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y);
+DLLIMPORT void _DK_delaunay_stack_point(long pt_x, long pt_y);
+DLLIMPORT long _DK_optimise_heuristic(long tri_id1, long tri_id2);
 /******************************************************************************/
 void nodes_classify(void)
 {
@@ -229,10 +231,14 @@ void delaunay_stack_point(long pt_x, long pt_y)
     long tri_idx,cor_idx;
     long dst_tri_idx,dst_cor_idx;
     long tri_id2, i;
+    NAVIDBG(19,"Starting");
+    //_DK_delaunay_stack_point(pt_x, pt_y); return;
 
     tri_idx = triangle_find8(pt_x << 8, pt_y << 8);
-    if (tri_idx == -1)
+    if (tri_idx == -1) {
+        NAVIDBG(19,"Tri not found");
         return;
+    }
     delaunay_add_triangle(tri_idx);
     for (cor_idx=0; cor_idx < 3; cor_idx++)
     {
@@ -248,23 +254,28 @@ void delaunay_stack_point(long pt_x, long pt_y)
       cor_idx = dst_cor_idx;
       do
       {
-        tri_id2 = Triangles[tri_idx].tags[cor_idx];
-        if (tri_id2 == -1)
-          break;
-        i = link_find(tri_id2, tri_idx);
-        cor_idx = MOD3[i+1];
-        tri_idx = tri_id2;
-        if (tri_idx != -1)
-        {
-            delaunay_add_triangle(tri_idx);
-        }
+          tri_id2 = Triangles[tri_idx].tags[cor_idx];
+          if (tri_id2 == -1) {
+              NAVIDBG(19,"Tag not found");
+              break;
+          }
+          i = link_find(tri_id2, tri_idx);
+          if (i == -1) {
+              NAVIDBG(19,"Link not found");
+              break;
+          }
+          cor_idx = MOD3[i+1];
+          tri_idx = tri_id2;
+          delaunay_add_triangle(tri_idx);
       }
       while (tri_idx != dst_tri_idx);
     }
+    NAVIDBG(19,"Done");
 }
 
 long optimise_heuristic(long tri_id1, long tri_id2)
 {
+    //return _DK_optimise_heuristic(tri_id1, tri_id2);
     struct Triangle *tri1;
     struct Triangle *tri3;
     struct Point *pt;
@@ -299,7 +310,9 @@ long optimise_heuristic(long tri_id1, long tri_id2)
     Dx = pt->x;
     Dy = pt->y;
 
-    if (LbCompareMultiplications(Ay-By, Dx-Bx, Ay-By, Cx-Bx) >= 0)
+    if (LbCompareMultiplications(Ay-By, Dx-Bx, Ax-Bx, Dy-By) >= 0)
+        return 0;
+    if (LbCompareMultiplications(Ay-By, Cx-Bx, Ax-Bx, Cy-By) >= 0)
         return 0;
 
     return ((Bx-Ax) * (Bx-Ax)) + ((By-Ay) * (By-Ay)) <
@@ -307,24 +320,24 @@ long optimise_heuristic(long tri_id1, long tri_id2)
            ((Dx-Ax) - (Cx-Ax)) * ((Dx-Ax) - (Cx-Ax));
 }
 
-long delaunay_seeded(long a1, long a2, long a3, long a4)
+long delaunay_seeded(long start_x, long start_y, long end_x, long end_y)
 {
     long tri_idx,cor_idx;
     long tri_id2,cor_id2;
     long count;
-    //TODO PATHFINDING triangulate_area sub-function
-    return _DK_delaunay_seeded(a1, a2, a3, a4);
+    NAVIDBG(19,"Starting");
+    //return _DK_delaunay_seeded(start_x, start_y, end_x, end_y);
     tags_init();
     delaunay_init();
-    delaunay_stack_point(a1, a2);
-    delaunay_stack_point(a1, a4);
-    delaunay_stack_point(a3, a2);
-    delaunay_stack_point(a3, a4);
+    delaunay_stack_point(start_x, start_y);
+    delaunay_stack_point(start_x, end_y);
+    delaunay_stack_point(end_x, start_y);
+    delaunay_stack_point(end_x, end_y);
     count = 0;
     while (ix_delaunay > 0)
     {
-        tri_idx = delaunay_stack[ix_delaunay-1];
         ix_delaunay--;
+        tri_idx = delaunay_stack[ix_delaunay];
         for (cor_idx=0; cor_idx < 3; cor_idx++)
         {
             if (!optimise_heuristic(tri_idx, cor_idx))

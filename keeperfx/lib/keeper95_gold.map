@@ -1982,6 +1982,8 @@
  0001:0006B250       border_internal_points_delete
  0001:0006B610       edge_lock
  0001:00069DF0       delaunay_seeded
+ 0001:00069BC0       delaunay_stack_point
+ 0001:00069930       optimise_heuristic
  0001:0006A440       tri_set_rectangle
  0001:0006B9B0       fringe_get_rectangle
  0001:0006B7E0       border_unlock
