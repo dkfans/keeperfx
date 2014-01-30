@@ -705,19 +705,19 @@
  0003:000971AC       tree_altB
  0003:0009A090       tree_routelen
  0003:000A5C28       tree_routecost
- 0003:00061DA4       fringe_y
  0003:000621A8       Border
- 0003:00096574       fringe_x2
- 0003:00096578       fringe_y1
+ 0003:00056540       fringe_map
+ 0003:00061DA0       fringe_y
+ 0003:00096574       fringe_y1
+ 0003:00096578       fringe_y2
  0003:0009657C       fringe_x1
- 0003:00096580       fringe_y2
+ 0003:00096580       fringe_x2
  0003:000133BC       ix_Border
  0003:00013384       tri_initialised
  0003:0001338C       count_Triangles
  0003:00013388       ix_Triangles
  0003:00013390       free_Triangles
  0003:00056500       find_cache
- 0003:00056540       fringe_map
  0003:000133E4       LastTriangulatedMap
  0003:000574F0       Points
  0003:000892E0       Regions
