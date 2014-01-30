@@ -166,14 +166,14 @@ DLLIMPORT unsigned char *_DK_LastTriangulatedMap;
 #define LastTriangulatedMap _DK_LastTriangulatedMap
 DLLIMPORT unsigned char *_DK_fringe_map;
 #define fringe_map _DK_fringe_map
-DLLIMPORT long _DK_fringe_x2;
-#define fringe_x2 _DK_fringe_x2
 DLLIMPORT long _DK_fringe_y1;
 #define fringe_y1 _DK_fringe_y1
-DLLIMPORT long _DK_fringe_x1;
-#define fringe_x1 _DK_fringe_x1
 DLLIMPORT long _DK_fringe_y2;
 #define fringe_y2 _DK_fringe_y2
+DLLIMPORT long _DK_fringe_x1;
+#define fringe_x1 _DK_fringe_x1
+DLLIMPORT long _DK_fringe_x2;
+#define fringe_x2 _DK_fringe_x2
 DLLIMPORT long _DK_fringe_y[256];
 #define fringe_y _DK_fringe_y
 DLLIMPORT long _DK_ix_Border;

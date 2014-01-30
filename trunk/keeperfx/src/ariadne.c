@@ -97,8 +97,8 @@ DLLIMPORT void _DK_fill_rectangle(long start_x, long start_y, long end_x, long e
 DLLIMPORT long _DK_triangle_area1(long tri_id1);
 DLLIMPORT void _DK_brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char pt_id1);
 DLLIMPORT void _DK_edgelen_set(long tri_id);
-DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long a4);
-DLLIMPORT void _DK_triangulation_initxy(long a1, long a2, long a3, long a4);
+DLLIMPORT long _DK_ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, long outfri_y2);
+DLLIMPORT void _DK_triangulation_initxy(long outfri_x1, long outfri_y1, long outfri_x2, long outfri_y2);
 DLLIMPORT unsigned long _DK_nav_same_component(long ptAx, long ptAy, long ptBx, long ptBy);
 /******************************************************************************/
 DLLIMPORT long _DK_tri_initialised;
@@ -2935,15 +2935,84 @@ TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, uns
         make_edge(ex, sy, sx, sy);
         fill_rectangle(sx, sy, ex, ey, a5);
     } else  {
-        ERRORLOG("Couldn't insert points to make rectangle");
+        ERRORLOG("Couldn't insert points to make rectangle; start (%ld,%ld), end (%ld,%ld)",start_x, start_y, end_x, end_y);
     }
     return r;
 }
 
-long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5)
+long fringe_scan(long *outfri_x, long *outfri_y, long *outlen_x, long *outlen_y)
+{
+    long loc_x;
+    long sub_y;
+    long sub_x;
+    int dist_x;
+    sub_y = fringe_y2;
+    sub_x = 0;
+    dist_x = 0;
+    for (loc_x = fringe_x1; loc_x < fringe_x2; )
+    {
+        if (fringe_y[loc_x] < sub_y)
+        {
+          sub_y = fringe_y[loc_x];
+          sub_x = loc_x;
+          for (loc_x++; loc_x < fringe_x2; loc_x++)
+          {
+              if (sub_y != fringe_y[loc_x])
+                break;
+          }
+          dist_x = loc_x - sub_x;
+        } else
+        {
+          loc_x++;
+        }
+    }
+    if (sub_y == fringe_y2) {
+        return 0;
+    }
+    *outfri_x = sub_x;
+    *outfri_y = sub_y;
+    *outlen_x = dist_x;
+    *outlen_y = fringe_y2 - sub_y;
+    return 1;
+}
+
+long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, unsigned char *oval)
 {
     NAVIDBG(19,"Starting");
-    return _DK_fringe_get_rectangle(a1, a2, a3, a4, a5);
+    //return _DK_fringe_get_rectangle(outfri_x1, outfri_y1, outfri_x2, outfri_y2, oval);
+    long fri_x,fri_y,len_x,len_y;
+    len_x = 0;
+    len_y = 0;
+    if (!fringe_scan(&fri_x,&fri_y,&len_x,&len_y)) {
+        return 0;
+    }
+    unsigned char *fri_map;
+    fri_map = &fringe_map[256 * fri_y + fri_x];
+    // Find dx and dy
+    long dx, dy;
+    for (dx = 1; dx < len_x; dx++)
+    {
+        if (fri_map[dx] != fri_map[0]) {
+            break;
+        }
+    }
+    for (dy = 1; dy < len_y; dy++)
+    {
+        // Our data is 0-terminated, so we can use string functions to compare
+        if (memcmp(&fri_map[256*dy], &fri_map[0], dx) != 0) {
+            break;
+        }
+    }
+    long i;
+    for (i = 0; i < dx; i++) {
+        fringe_y[fri_x+i] = fri_y+dy;
+    }
+    *oval = fri_map[0];
+    *outfri_x1 = fri_x;
+    *outfri_y1 = fri_y;
+    *outfri_x2 = fri_x + dx;
+    *outfri_y2 = fri_y + dy;
+    return 1;
 }
 
 void border_unlock(long a1, long a2, long a3, long a4)
@@ -3242,12 +3311,12 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     {
         fringe_map = imap;
         fringe_x1 = start_x;
-        fringe_x2 = start_y;
-        fringe_y2 = end_x;
-        fringe_y1 = end_y;
+        fringe_y1 = start_y;
+        fringe_x2 = end_x;
+        fringe_y2 = end_y;
         for (i = start_x; i < end_x; i++)
         {
-            fringe_y[i-1] = start_y;
+            fringe_y[i] = start_y;
         }
         while ( fringe_get_rectangle(&rect_sx, &rect_sy, &rect_ex, &rect_ey, &ccolour) )
         {
@@ -3265,6 +3334,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     if ( not_whole_map )
         border_unlock(start_x, start_y, end_x, end_y);
     triangulation_border_init();
+    NAVIDBG(9,"Done");
     return r;
 }
 /******************************************************************************/
