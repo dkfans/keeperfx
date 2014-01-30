@@ -1797,7 +1797,7 @@
  0003:0005F238       bak_path
  0003:0005FA50       wayPoints
  0003:00060E00       delaunay_stack
- 0003:00061DA4       fringe_y
+ 0003:00061DA0       fringe_y
  0003:000621A8       Border
  0003:00062338       tree_triA
  0003:0006233C       tree_triB
@@ -1807,10 +1807,10 @@
  0003:00089668       tree_dad
  0003:00092310       Tags
  0003:00094638       ap_GPathway
- 0003:00096574       fringe_x2
- 0003:00096578       fringe_y1
+ 0003:00096574       fringe_y1
+ 0003:00096578       fringe_y2
  0003:0009657C       fringe_x1
- 0003:00096580       fringe_y2
+ 0003:00096580       fringe_x2
  0003:00096DA0       Heap
  0003:000971A8       tree_altA
  0003:000971AC       tree_altB
