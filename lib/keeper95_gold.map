@@ -621,6 +621,8 @@
  0001:00069320       fill_concave
  0001:00069460       make_edge
  0001:000698B0       triangle_area1
+ 0001:00069930       optimise_heuristic
+ 0001:00069BC0       delaunay_stack_point
  0001:00069DF0       delaunay_seeded
  0001:00069FD0       brute_fill_rectangle
  0001:0006A120       fill_rectangle
