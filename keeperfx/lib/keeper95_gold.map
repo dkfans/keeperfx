@@ -1431,6 +1431,7 @@
  0001:00070820       process_creature_needs_to_eat
  0001:00070AC0       process_creature_needs_a_wage
  0001:0008F460       creature_available_for_combat_this_turn
+ 0001:0008F530       creature_will_attack_creature
  0001:0008DF40       creature_look_for_combat
  0001:0008F2E0       creature_has_ranged_weapon
  0001:0008DE70       add_ranged_attacker

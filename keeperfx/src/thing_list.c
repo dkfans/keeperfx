@@ -348,10 +348,10 @@ long highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_b
                     if (distance >= param->num2) {
                         return -1;
                     }
-                    attack_type = creature_can_have_combat_with_creature(creatng, (struct Thing *)thing, distance, 1, 0);
+                    attack_type = creature_can_have_combat_with_creature(creatng, (struct Thing *)thing, distance, param->num3, 0);
                     if (attack_type > AttckT_Unset)
                     {
-                        unsigned long score;
+                        long score;
                         score = get_combat_score(creatng, thing, attack_type, distance);
                         return score;
                     }
@@ -1332,7 +1332,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;
-    param.num3 = -1;
+    param.num3 = 0;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 

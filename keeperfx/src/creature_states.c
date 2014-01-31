@@ -160,6 +160,7 @@ DLLIMPORT long _DK_process_creature_needs_to_heal(struct Thing *creatng, const s
 DLLIMPORT struct Room *_DK_get_best_new_lair_for_creature(struct Thing *creatng);
 DLLIMPORT long _DK_get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
 DLLIMPORT unsigned char _DK_get_random_position_in_dungeon_for_creature(long plyr_idx, unsigned char wandr_slot, struct Thing *thing, struct Coord3d *pos);
+DLLIMPORT long _DK_creature_will_attack_creature(struct Thing *thing, struct Thing *enmtng);
 /******************************************************************************/
 short already_at_call_to_arms(struct Thing *creatng);
 short arrive_at_alarm(struct Thing *creatng);
@@ -3465,6 +3466,7 @@ TbBool process_creature_hunger(struct Thing *thing)
  */
 TbBool creature_will_attack_creature(const struct Thing *fightng, const struct Thing *enmtng)
 {
+    //return _DK_creature_will_attack_creature((struct Thing *)fightng, (struct Thing *)enmtng);
     if (creature_is_being_unconscious(fightng) || creature_is_being_unconscious(enmtng)) {
         return false;
     }

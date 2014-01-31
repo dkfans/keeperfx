@@ -49,9 +49,13 @@ DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const s
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
-    // Check for door at central subtile
-    if (subtile_is_door(stl_slab_center_subtile(nextpos->x.stl.num),stl_slab_center_subtile(nextpos->y.stl.num))) {
-        return false;
+    // If we don't want to ignore any doors
+    if (thing_is_invalid(doortng))
+    {
+        // Check for door at central subtile
+        if (subtile_is_door(stl_slab_center_subtile(nextpos->x.stl.num),stl_slab_center_subtile(nextpos->y.stl.num))) {
+            return false;
+        }
     }
     // If only one dimensions changed, allow the pass
     // (in that case the outcome has been decided before this call)
@@ -208,9 +212,13 @@ TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
 TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct Coord3d *prevpos,
     const struct Coord3d *nextpos, const struct Thing *doortng)
 {
-    // Check for door at central subtile
-    if (subtile_is_door(stl_slab_center_subtile(nextpos->x.stl.num),stl_slab_center_subtile(nextpos->y.stl.num))) {
-        return false;
+    // If we don't want to ignore any doors
+    if (thing_is_invalid(doortng))
+    {
+        // Check for door at central subtile
+        if (subtile_is_door(stl_slab_center_subtile(nextpos->x.stl.num),stl_slab_center_subtile(nextpos->y.stl.num))) {
+            return false;
+        }
     }
     // If only one dimensions changed, allow the pass
     // (in that case the outcome has been decided before this call)
