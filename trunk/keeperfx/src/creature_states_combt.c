@@ -1631,8 +1631,12 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
         CrAttackType attack_type;
         distance = get_combat_distance(fightng, thing);
         attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, 0);
-        *outenmtng = thing;
-        return attack_type;
+        if (attack_type > AttckT_Unset) {
+            *outenmtng = thing;
+            return attack_type;
+        } else {
+            ERRORLOG("The %s cannot fight with creature returned as fight partner",thing_model_name(fightng));
+        }
     }
     return AttckT_Unset;
 }
@@ -2106,9 +2110,11 @@ long check_for_possible_combat(struct Thing *creatng, struct Thing **fightng)
     struct Thing *enmtng;
     SYNCDBG(19,"Starting");
     outscore = 0;
+    // Check for combat with attacker - someone who already participates in a fight
     attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, LONG_MAX, &outscore);
     if (attack_type <= AttckT_Unset)
     {
+        // Look for a new fight - with creature we're not fighting yet
         attack_type = check_for_possible_combat_with_enemy_creature_within_distance(creatng, &enmtng, LONG_MAX);
     }
     if (attack_type <= AttckT_Unset) {

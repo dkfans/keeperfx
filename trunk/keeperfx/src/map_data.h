@@ -55,6 +55,7 @@ struct Map {
 #define INVALID_MAP_BLOCK (&bad_map_block)
 #define MOVE_VELOCITY_LIMIT 256
 #define STL_PER_SLB 3
+#define COORD_PER_STL 256
 
 #pragma pack()
 /******************************************************************************/
@@ -79,10 +80,10 @@ extern long nav_map_initialised;
 /** Converts slab to its central subtile. */
 #define slab_subtile_center(slb) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)1)
 /******************************************************************************/
-#define coord_subtile(coord) ((coord)/256)
-#define coord_slab(coord) ((coord)/(256*STL_PER_SLB))
-#define subtile_coord(stl,spos) ((stl)*256+(spos))
-#define subtile_coord_center(stl) ((stl)*256+128)
+#define coord_subtile(coord) ((coord)/COORD_PER_STL)
+#define coord_slab(coord) ((coord)/(COORD_PER_STL*STL_PER_SLB))
+#define subtile_coord(stl,spos) ((stl)*COORD_PER_STL+(spos))
+#define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
 #define navmap_tile_number(stl_x,stl_y) ((stl_y)*navigation_map_size_x+(stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
