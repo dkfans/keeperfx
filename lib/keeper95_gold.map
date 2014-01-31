@@ -857,6 +857,7 @@
  0001:0008EFB0       change_creature_with_existing_attacker
  0001:0008F2E0       creature_has_ranged_weapon
  0001:0008F460       creature_available_for_combat_this_turn
+ 0001:0008F530       creature_will_attack_creature
  0001:0008F850       creature_can_have_combat_with_creature
  0001:0008FAF0       check_for_valid_combat
  0001:0008FB60       combat_type_is_choice_of_creature

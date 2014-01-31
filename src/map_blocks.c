@@ -1227,7 +1227,7 @@ unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord
         thing = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
         if (!thing_is_invalid(thing))
         {
-            if ((thing->owner != plyr_idx) || (thing->byte_18 != 0)) {
+            if ((thing->owner != plyr_idx) || (thing->door.is_locked)) {
                 flags |= 0x01;
             }
         } else

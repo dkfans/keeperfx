@@ -243,8 +243,7 @@ void delaunay_stack_point(long pt_x, long pt_y)
     for (cor_idx=0; cor_idx < 3; cor_idx++)
     {
         tri_id2 = Triangles[tri_idx].tags[cor_idx];
-        if (tri_id2 != -1)
-        {
+        if (tri_id2 != -1) {
             delaunay_add_triangle(tri_id2);
         }
     }
