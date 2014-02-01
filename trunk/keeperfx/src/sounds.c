@@ -691,6 +691,17 @@ void sound_reinit_after_load(void)
     randomize_sound_font();
 }
 
+void stop_thing_playing_sample(struct Thing *heartng, short a2)
+{
+    unsigned char eidx;
+    eidx = heartng->snd_emitter_id;
+    if (eidx > 0)
+    {
+        if (S3DEmitterIsPlayingSample(eidx, a2, 0)) {
+            S3DDeleteSampleFromEmitter(eidx, a2, 0);
+        }
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
