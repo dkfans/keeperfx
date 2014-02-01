@@ -470,11 +470,12 @@ short send_creature_to_room(struct Thing *creatng, struct Room *room)
         {
             if ((creatng->owner == room->owner) && creature_has_job(creatng, Job_KINKY_TORTURE)) {
                 creatng->continue_state = CrSt_AtKinkyTortureRoom;
+                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
             } else {
                 creatng->continue_state = CrSt_AtTortureRoom;
+                cctrl->flgfield_1 |= CCFlg_NoCompControl;
             }
             cctrl->target_room_id = room->index;
-            cctrl->flgfield_1 |= CCFlg_NoCompControl;
             return 1;
         }
         return 0;
