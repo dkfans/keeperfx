@@ -62,6 +62,12 @@ struct Objects {
     unsigned char field_15;
 };
 
+struct CallToArmsGraphics {
+    int field_0;
+    int field_4;
+    int field_8;
+};
+
 #pragma pack()
 /******************************************************************************/
 extern Thing_State_Func object_state_functions[];
@@ -70,11 +76,11 @@ extern unsigned short specials_text[];
 extern unsigned short player_guardflag_objects[];
 extern struct Objects objects[];
 /******************************************************************************/
-DLLIMPORT extern struct Objects _DK_objects[OBJECT_TYPES_COUNT];
-DLLIMPORT extern unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
-DLLIMPORT extern unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
-DLLIMPORT extern unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
-DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
+DLLIMPORT struct Objects _DK_objects[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long a4);
 void destroy_object(struct Thing *thing);
