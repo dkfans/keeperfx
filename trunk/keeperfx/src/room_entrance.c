@@ -97,7 +97,6 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
 
     switch (room_kind)
     {
-    case RoK_NONE:
     case RoK_DUNGHEART:
     case RoK_LAIR:
     case RoK_BRIDGE:
@@ -119,6 +118,7 @@ long calculate_attractive_room_quantity(RoomKind room_kind, PlayerNumber plyr_id
     case RoK_TREASURE:
         used_fraction = get_room_kind_used_capacity_fraction(plyr_idx, room_kind);
         return (slabs_count * used_fraction) / 256 / 3;
+    case RoK_NONE:
     default:
         return 0;
     }
