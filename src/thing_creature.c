@@ -3246,8 +3246,9 @@ long player_list_creature_filter_dragging_specific_thing(const struct Thing *thi
     cctrl = creature_control_get_from_thing(thing);
     if (param->num1 > 0)
     {
-        if (cctrl->dragtng_idx == param->num1)
+        if (cctrl->dragtng_idx == param->num1) {
             return LONG_MAX;
+        }
         return -1;
     }
     if ((param->class_id > 0) || (param->model_id > 0) || (param->plyr_idx >= 0))
@@ -3484,10 +3485,12 @@ struct Thing *find_players_creature_dragging_thing(PlayerNumber plyr_idx, const 
     struct Thing *creatng;
     dungeon = get_players_num_dungeon(plyr_idx);
     filter = player_list_creature_filter_dragging_specific_thing;
+    param.class_id = TCls_Creature;
+    param.model_id = -1;
     param.plyr_idx = -1;
-    param.class_id = 0;
-    param.model_id = 0;
     param.num1 = dragtng->index;
+    param.num2 = -1;
+    param.num3 = -1;
     creatng = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     if (thing_is_invalid(creatng)) {
         creatng = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
@@ -3506,7 +3509,7 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
     struct CompoundTngFilterParam param;
     SYNCDBG(19,"Starting");
     filter = player_list_creature_filter_dragging_specific_thing;
-    param.class_id = -1;
+    param.class_id = TCls_Creature;
     param.model_id = -1;
     param.plyr_idx = -1;
     param.num1 = dragtng->index;

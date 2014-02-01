@@ -481,11 +481,11 @@ long reveal_players_map_to_player(struct Thing *thing, PlayerNumber benefit_plyr
     if (reveal_success)
     {
         if (is_my_player_number(benefit_plyr_idx)) {
-          output_message(SMsg_TortureInformation, 0, 1);
+          output_message(SMsg_TortureInformation, 0, true);
           return 1;
         }
         if (is_my_player_number(thing->owner)) {
-          output_message(SMsg_CreatureRevealInfo, 0, 1);
+          output_message(SMsg_CreatureRevealInfo, 0, true);
           return 1;
         }
     }
