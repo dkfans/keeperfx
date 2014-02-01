@@ -93,9 +93,6 @@ DLLIMPORT long _DK_power_sight_explored(long stl_x, long stl_y, unsigned char pl
 DLLIMPORT void _DK_update_power_sight_explored(struct PlayerInfo *player);
 DLLIMPORT unsigned char _DK_can_cast_spell_at_xy(unsigned char plyr_idx, unsigned char a2, unsigned char pwmodel, unsigned char stl_y, long pwlevel);
 DLLIMPORT long _DK_can_cast_spell_on_creature(long plyr_idx, struct Thing *thing, long pwmodel);
-DLLIMPORT void _DK_set_call_to_arms_as_birthing(struct Thing *objtng);
-DLLIMPORT void _DK_set_call_to_arms_as_rebirthing(struct Thing *objtng);
-DLLIMPORT void _DK_set_call_to_arms_as_dying(struct Thing *objtng);
 /******************************************************************************/
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
@@ -1016,22 +1013,100 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
     return Lb_SUCCESS;
 }
 
-void set_call_to_arms_as_birthing(struct Thing *objtng)
+long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
 {
-    _DK_set_call_to_arms_as_birthing(objtng); return;
+    struct Dungeon *dungeon;
+    SYNCDBG(8,"Starting");
+    dungeon = get_players_num_dungeon(plyr_idx);
+    struct Coord3d pos;
+    pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+    pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+    pos.z.val = get_floor_height_at(&pos);
+    long count;
+    count = 0;
+    unsigned long k;
+    int i;
+    k = 0;
+    i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing *thing;
+        struct CreatureControl *cctrl;
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (!thing_is_picked_up(thing))
+        {
+            if (!creature_is_being_unconscious(thing) && ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
+            {
+                struct StateInfo *stati;
+                stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
+                if ( stati->field_28 || creature_is_called_to_arms(thing) )
+                {
+                    if (creature_can_navigate_to_with_storage(thing, &pos, 0))
+                    {
+                        if (creature_is_called_to_arms(thing))
+                        {
+                            setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0);
+                            thing->continue_state = CrSt_ArriveAtCallToArms;
+                            if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
+                                WARNLOG("The %s index %d is re-called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);
+                                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+                            }
+                            count++;
+                        } else
+                        if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
+                        {
+                            setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, 0);
+                            thing->continue_state = CrSt_ArriveAtCallToArms;
+                            if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
+                                WARNLOG("The %s index %d is first called to arms with no comp control, fixing",thing_model_name(thing),(int)thing->index);
+                                cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
+                            }
+                            count++;
+                        } else
+                        {
+                            set_start_state(thing);
+                        }
+                    } else
+                    {
+                        set_start_state(thing);
+                        cctrl->spell_flags &= ~CSAfF_Unkn0800;
+                    }
+                }
+            }
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    return count;
 }
 
-void set_call_to_arms_as_dying(struct Thing *objtng)
-{
-    _DK_set_call_to_arms_as_dying(objtng); return;
-}
-
-void set_call_to_arms_as_rebirthing(struct Thing *objtng)
-{
-    _DK_set_call_to_arms_as_rebirthing(objtng); return;
-}
-
-TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long allow_flags)
+/**
+ * Casts CTA on given map coordinates.
+ * Does no castability checking.
+ * To use the casting, higher level function should be used.
+ * @param plyr_idx The casting player.
+ * @param stl_x The target subtile, X coord.
+ * @param stl_y The target subtile, Y coord.
+ * @param splevel Power overcharge level.
+ * @return
+ * @see magic_use_available_power_on_thing()
+ * @see magic_use_available_power_on_subtile()
+ */
+TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel)
 {
     struct Dungeon *dungeon;
     struct PlayerInfo *player;
@@ -1039,13 +1114,6 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     //return _DK_magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
     player = get_player(plyr_idx);
     dungeon = get_players_dungeon(player);
-    if (!can_cast_spell_at_xy(plyr_idx, 6, stl_x, stl_y, allow_flags))
-    {
-        if (is_my_player_number(plyr_idx)) {
-            play_non_3d_sample(119);
-        }
-        return 0;
-    }
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
@@ -1073,67 +1141,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     dungeon->cta_stl_x = stl_x;
     dungeon->cta_stl_y = stl_y;
     set_call_to_arms_as_rebirthing(objtng);
-    unsigned long k;
-    int i;
-    k = 0;
-    i = dungeon->creatr_list_start;
-    while (i != 0)
-    {
-        struct Thing *thing;
-        struct CreatureControl *cctrl;
-        thing = thing_get(i);
-        TRACE_THING(thing);
-        cctrl = creature_control_get_from_thing(thing);
-        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
-        {
-            ERRORLOG("Jump to invalid creature detected");
-            break;
-        }
-        i = cctrl->players_next_creature_idx;
-        // Thing list loop body
-        if (((thing->alloc_flags & 0x10) == 0) && ((thing->field_1 & 0x02) == 0))
-        {
-            if ((thing->active_state != CrSt_CreatureUnconscious) && ((cctrl->spell_flags & CSAfF_Unkn0800) != 0))
-            {
-                struct StateInfo *stati;
-                stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
-                if ( stati->field_28 || creature_is_called_to_arms(thing) )
-                {
-                  if (creature_can_navigate_to_with_storage(thing, &pos, 0))
-                  {
-                      if (creature_is_called_to_arms(thing))
-                      {
-                          setup_person_move_to_position(thing, stl_x, stl_y, 0);
-                          thing->continue_state = CrSt_ArriveAtCallToArms;
-                      } else
-                      {
-                          // Previous state may require us to re-enable control of the creature
-                          cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-                          if (external_set_thing_state(thing, CrSt_ArriveAtCallToArms))
-                          {
-                              setup_person_move_to_position(thing, stl_x, stl_y, 0);
-                              thing->continue_state = CrSt_ArriveAtCallToArms;
-                          } else
-                          {
-                              set_start_state(thing);
-                          }
-                      }
-                  } else
-                  {
-                      set_start_state(thing);
-                      cctrl->spell_flags &= ~CSAfF_Unkn0800;
-                  }
-                }
-            }
-        }
-        // Thing list loop body ends
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
-        }
-    }
+    update_creatures_influenced_by_call_to_arms(plyr_idx);
     SYNCDBG(19,"Finished");
     return 1;
 }
@@ -1268,7 +1276,7 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
             ret = magic_use_power_possess_thing(plyr_idx, thing);
             break;
         case PwrK_CALL2ARMS:
-            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, PwCast_None);
+            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel);
             break;
         case PwrK_LIGHTNING:
             ret = magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
@@ -1291,10 +1299,11 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwm
  * Unified function for using powers which are castable on map subtile.
  *
  * @param plyr_idx The casting player.
- * @param spl_idx Power kind to be casted.
+ * @param pwmodel Power kind to be casted.
  * @param splevel Power overcharge level.
  * @param stl_x The target subtile, X coord.
  * @param stl_y The target subtile, Y coord.
+ * @param allow_flags Additional castability flags, to loosen constaints in the spell config.
  * @return
  */
 TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwmodel,
@@ -1310,7 +1319,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
     if (ret == Lb_OK)
     {
         TbBool cast_at_xy;
-        cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, 0);
+        cast_at_xy = can_cast_spell_at_xy(plyr_idx, pwmodel, stl_x, stl_y, allow_flags);
         // Fail if the function has failed
         if (!cast_at_xy) {
             WARNLOG("Player %d tried to cast %s on %s which can't be targeted",
@@ -1336,7 +1345,7 @@ TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind p
             ret = magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
             break;
         case PwrK_CALL2ARMS:
-            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel, allow_flags);
+            ret = magic_use_power_call_to_arms(plyr_idx, stl_x, stl_y, splevel);
             break;
         case PwrK_CAVEIN:
             ret = magic_use_power_cave_in(plyr_idx, stl_x, stl_y, splevel);

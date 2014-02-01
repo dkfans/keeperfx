@@ -408,6 +408,9 @@ DLLIMPORT struct Thing *_DK_get_crate_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_spellbook_at_position(long x, long y);
 DLLIMPORT struct Thing *_DK_get_special_at_position(long x, long y);
 DLLIMPORT long _DK_add_gold_to_hoarde(struct Thing *heartng, struct Room *room, long amount);
+DLLIMPORT void _DK_set_call_to_arms_as_birthing(struct Thing *objtng);
+DLLIMPORT void _DK_set_call_to_arms_as_rebirthing(struct Thing *objtng);
+DLLIMPORT void _DK_set_call_to_arms_as_dying(struct Thing *objtng);
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
@@ -939,6 +942,46 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     return TUFRet_Modified;
 }
 
+void set_call_to_arms_as_birthing(struct Thing *objtng)
+{
+    //_DK_set_call_to_arms_as_birthing(objtng); return;
+    int frame;
+    switch (objtng->byte_13)
+    {
+    case 1:
+        frame = objtng->field_48;
+        break;
+    case 2:
+        frame = 0;
+        break;
+    case 3:
+    case 4:
+        frame = objtng->field_49 - (int)objtng->field_48;
+        break;
+    default:
+        frame = 0;
+        break;
+    }
+    struct CallToArmsGraphics *ctagfx;
+    ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct Objects *objdat;
+    objdat = get_objects_data_for_thing(objtng);
+    set_thing_draw(objtng, ctagfx->field_0, 256, objdat->field_D, 0, frame, 2);
+    objtng->byte_13 = 1;
+    stop_thing_playing_sample(objtng, 83);
+    thing_play_sample(objtng, 83, 100, 0, 3, 0, 6, 256);
+}
+
+void set_call_to_arms_as_dying(struct Thing *objtng)
+{
+    _DK_set_call_to_arms_as_dying(objtng); return;
+}
+
+void set_call_to_arms_as_rebirthing(struct Thing *objtng)
+{
+    _DK_set_call_to_arms_as_rebirthing(objtng); return;
+}
+
 TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 {
     //return _DK_object_update_call_to_arms(thing);
@@ -970,7 +1013,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     case 2:
         break;
     case 3:
-        if (thing->field_49 - thing->field_48 == 1)
+        if (thing->field_49 - 1 == thing->field_48)
         {
             player->field_43C = 0;
             delete_thing_structure(thing, 0);
@@ -978,7 +1021,7 @@ TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         }
         break;
     case 4:
-        if ( thing->field_49 - thing->field_48 == 1 )
+        if (thing->field_49 - 1 == thing->field_48)
         {
             pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
             pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
