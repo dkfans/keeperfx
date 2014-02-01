@@ -1138,7 +1138,49 @@ long computer_able_to_use_magic(struct Computer2 *comp, PowerKind pwkind, long p
 
 long check_call_to_arms(struct Computer2 *comp)
 {
-    return _DK_check_call_to_arms(comp);
+    //return _DK_check_call_to_arms(comp);
+    long ret;
+    ret = 1;
+    if (comp->dungeon->cta_start_turn != 0)
+    {
+        const struct ComputerTask *ctask;
+        long i;
+        unsigned long k;
+        i = comp->task_idx;
+        k = 0;
+        while (i != 0)
+        {
+            ctask = get_computer_task(i);
+            if (computer_task_invalid(ctask))
+            {
+                ERRORLOG("Jump to invalid task detected");
+                break;
+            }
+            i = ctask->next_task;
+            // Per-task code
+            if ((ctask->flags & ComTsk_Unkn0001) != 0)
+            {
+                if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->field_1 == 2))
+                {
+                    if (ret == 1) {
+                        ret = 0;
+                    }
+                    if (ctask->field_60 + ctask->lastrun_turn - game.play_gameturn < ctask->field_60 - ctask->field_60/10) {
+                        ret = -1;
+                        break;
+                    }
+                }
+            }
+            // Per-task code ends
+            k++;
+            if (k > COMPUTER_TASKS_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping tasks list");
+                break;
+            }
+        }
+    }
+    return ret;
 }
 
 TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)

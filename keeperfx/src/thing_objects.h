@@ -123,6 +123,10 @@ struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, long amount);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, long amount);
 
+void set_call_to_arms_as_birthing(struct Thing *objtng);
+void set_call_to_arms_as_dying(struct Thing *objtng);
+void set_call_to_arms_as_rebirthing(struct Thing *objtng);
+
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 void create_rubble_for_dug_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlCoord stl_z_max, PlayerNumber plyr_idx);
 /******************************************************************************/
