@@ -62,12 +62,18 @@ struct Objects {
     unsigned char field_15;
 };
 
+struct CallToArmsGraphics {
+    int field_0;
+    int field_4;
+    int field_8;
+};
+
 /******************************************************************************/
-DLLIMPORT extern struct Objects _DK_objects[OBJECT_TYPES_COUNT];
-DLLIMPORT extern unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
-DLLIMPORT extern unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
-DLLIMPORT extern unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
-DLLIMPORT extern unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
+DLLIMPORT struct Objects _DK_objects[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_object_to_special[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_object_to_magic[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_workshop_object_class[OBJECT_TYPES_COUNT];
+DLLIMPORT unsigned char _DK_object_to_door_or_trap[OBJECT_TYPES_COUNT];
 
 #pragma pack()
 /******************************************************************************/

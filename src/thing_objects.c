@@ -199,6 +199,11 @@ Thing_Class_Func object_update_functions[] = {
     NULL,
 };
 
+/**
+ * Objects config array.
+ *
+ * Originally was named objects[].
+ */
 struct Objects objects_data[] = {
   {0, 0, 0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, 0, 0}, //0
   {0, 0, 0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, 3, 1}, //1
@@ -372,6 +377,15 @@ unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
 unsigned short lightning_spangles[] = {83, 90, 91, 92, 0, 0};
 unsigned short gold_hoard_objects[] = {52, 53, 54, 55, 56};
 unsigned short specials_text[] = {GUIStr_Empty, 420, 421, 422, 423, 424, 425, 426, 427, 0};
+
+struct CallToArmsGraphics call_to_arms_graphics[] = {
+    {867, 868, 869},
+    {873, 874, 875},
+    {879, 880, 881},
+    {885, 886, 887},
+    {  0,   0,   0}
+};
+
 /******************************************************************************/
 DLLIMPORT long _DK_move_object(struct Thing *heartng);
 DLLIMPORT long _DK_update_object(struct Thing *heartng);
@@ -925,9 +939,61 @@ TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     return TUFRet_Modified;
 }
 
-TngUpdateRet object_update_call_to_arms(struct Thing *heartng)
+TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 {
-    return _DK_object_update_call_to_arms(heartng);
+    //return _DK_object_update_call_to_arms(thing);
+    struct PlayerInfo *player;
+    player = get_player(thing->owner);
+    if (thing->index != player->field_43C)
+    {
+        delete_thing_structure(thing, 0);
+        return -1;
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_players_dungeon(player);
+    struct CallToArmsGraphics *ctagfx;
+    ctagfx = &call_to_arms_graphics[player->id_number];
+    struct Objects *objdat;
+    objdat = get_objects_data_for_thing(thing);
+    struct Coord3d pos;
+
+    switch (thing->byte_13)
+    {
+    case 1:
+        if (thing->field_49 - 1 <= thing->field_48)
+        {
+            thing->byte_13 = 2;
+            set_thing_draw(thing, ctagfx->field_4, 256, objdat->field_D, 0, 0, 2u);
+            return 1;
+        }
+        break;
+    case 2:
+        break;
+    case 3:
+        if (thing->field_49 - thing->field_48 == 1)
+        {
+            player->field_43C = 0;
+            delete_thing_structure(thing, 0);
+            return -1;
+        }
+        break;
+    case 4:
+        if ( thing->field_49 - thing->field_48 == 1 )
+        {
+            pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
+            pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
+            pos.z.val = get_thing_height_at(thing, &pos);
+            move_thing_in_map(thing, &pos);
+            set_thing_draw(thing, ctagfx->field_0, 256, objdat->field_D, 0, 0, 2);
+            thing->byte_13 = 1;
+            stop_thing_playing_sample(thing, 83);
+            thing_play_sample(thing, 83, 100, 0, 3, 0, 6, 256);
+        }
+        break;
+    default:
+        break;
+    }
+    return 1;
 }
 
 TngUpdateRet object_update_armour(struct Thing *heartng)
