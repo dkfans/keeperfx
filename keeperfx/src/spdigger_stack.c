@@ -208,6 +208,7 @@ void force_any_creature_dragging_owned_thing_to_drop_it(struct Thing *dragtng)
 
 void force_any_creature_dragging_thing_to_drop_it(struct Thing *dragtng)
 {
+    TRACE_THING(dragtng);
     if (thing_is_dragged_or_pulled(dragtng))
     {
         struct Thing *creatng;
