@@ -787,10 +787,10 @@ pkg/ldata/torture.raw: gfx/torturescr/tortr_background.png pkg/ldata/torture.pal
 
 pkg/ldata/front.raw: gfx/frontend/front_background.png pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 pkg/ldata/frontbit.dat: gfx/frontend/filelist_frontbit.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft1.dat: gfx/frontft1/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft2.dat: gfx/frontft2/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft3.dat: gfx/frontft3/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
-pkg/ldata/frontft4.dat: gfx/frontft4/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft1.dat: gfx/font_front_hdr_red-64/filelist_frontft1.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft2.dat: gfx/font_front_std_red-64/filelist_frontft2.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft3.dat: gfx/font_front_std_ylw-64/filelist_frontft3.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
+pkg/ldata/frontft4.dat: gfx/font_front_std_dkr-64/filelist_frontft4.txt pkg/ldata/front.pal $(PNGTORAW) $(RNC)
 
 pkg/data/frac00.raw: gfx/textures/frac00.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
 pkg/data/frac01.raw: gfx/textures/frac01.png gfx/textures/fract_bw.pal $(PNGTORAW) $(RNC)
