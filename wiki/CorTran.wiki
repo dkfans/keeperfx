@@ -1,0 +1,17 @@
+= Correcting A Translation =
+
+You may have played a campaign, and noticed an error, or a poor translation, and want to fix it. You will need [POEdit] software to do this. 
+
+Go [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang%253Fstate%253Dclosed here] and you will see a list of the language files for the original campaign. Expand the menu on the left (click the triangle next to ‘lang’) and the various KeeperFX campaigns will be visible. Select the campaign, and find and click to show the .po file for the language you wish to correct.  
+
+Then right-click on ‘save target as’, and download the file ‘text_xxx.po’ (where xxx is the language you wish to translate into). Also download the English template file, which is usually text_eng.pot
+
+Start the poedit software and choose ‘edit a translation’, and when prompted open the text_xxx.po file for the language you wish to amend.
+
+You are now able to make changes, but before correcting any translations, go to:
+
+Catalogue>update from pot file
+
+And when prompted choose the text_eng.pot file. When complete, this will highlight all pre-existing changes needed for the translation file, (as it may have been amended since the first translation).
+
+When the file is completed save it, and e-mail it to Mefistotelis (mefistotelis@gmail.com) for inclusion in the campaign.
