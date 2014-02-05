@@ -1,3 +1,5 @@
+#summary correct a translation
+
 = Correcting A Translation =
 
 You may have played a campaign, and noticed an error, or a poor translation, and want to fix it. You will need [POEdit] software to do this. 
