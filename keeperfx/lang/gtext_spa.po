@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-11-13 01:16+0100\n"
+"PO-Revision-Date: 2014-02-06 18:00+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: es_ES\n"
@@ -2239,7 +2239,7 @@ msgstr "Pollo: "
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "Bomba de tiempo"
+msgstr "Bomba de tiempo: Turns your creature into a suicidal bomber."
 
 #: guitext:258
 msgctxt "Creature name"
@@ -4527,7 +4527,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "Bomba de tiempo"
+msgstr "Bomba de tiempo: Turns your creature into a suicidal bomber."
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -6230,11 +6230,13 @@ msgid "Moo2"
 msgstr "Moo2"
 
 #: guitext:941
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Free Play levels"
 msgstr "Deeper Dungeons"
 
 #: guitext:942
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Land selection"
 msgstr "Deeper Dungeons"
