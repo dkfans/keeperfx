@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-11-13 01:16+0100\n"
+"PO-Revision-Date: 2014-02-06 18:07+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: sv_SE\n"
@@ -6161,21 +6161,25 @@ msgid "Moo2"
 msgstr "Moo2"
 
 #: guitext:941
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Free Play levels"
 msgstr "Deeper Dungeons"
 
 #: guitext:942
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Land selection"
 msgstr "Deeper Dungeons"
 
 #: guitext:943
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Campaigns"
 msgstr "Campaigns"
 
 #: guitext:944
+#, fuzzy
 msgctxt "Menu interface item"
 msgid "Add computer"
 msgstr "Add computer"
