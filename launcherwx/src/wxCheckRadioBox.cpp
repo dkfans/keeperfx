@@ -35,9 +35,54 @@ wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
 {
     select_limit = 1;
     select_num = 0;
+    rbPanel = new wxPanel(this, wxID_ANY);
+    CreateOptionCheckboxes(values_arr, val_labels_arr, values_num, custom_num);
+}
+
+wxCheckRadioBox::~wxCheckRadioBox()
+{
+    ClearOptionCheckboxes();
+}
+
+
+void wxCheckRadioBox::SetToolTip( const wxString &normal_tip, const wxString &custom_tip )
+{
+    size_t i;
+    wxStaticBox::SetToolTip(normal_tip);
+    rbPanel->SetToolTip(normal_tip);
+    size_t norm_num = rbCheckboxes.size() - rbTextCtrls.size();
+    for (i=0; i < norm_num; i++)
+    {
+        rbCheckboxes[i]->SetToolTip(normal_tip);
+    }
+    for (; i < rbCheckboxes.size(); i++)
+    {
+        rbCheckboxes[i]->SetToolTip(custom_tip);
+    }
+    for (i=0; i < rbTextCtrls.size(); i++)
+    {
+        rbTextCtrls[i]->SetToolTip(custom_tip);
+    }
+}
+
+void wxCheckRadioBox::ClearOptionCheckboxes(void)
+{
+    select_limit = 0;
+    select_num = 0;
+    rbValues.clear();
+    rbValLabels.clear();
+    rbCheckboxes.clear();
+    rbTextCtrls.clear();
+    rbValLabels.clear();
+    rbValues.clear();
+    rbPanel->SetSizer(NULL);
+}
+
+void wxCheckRadioBox::CreateOptionCheckboxes(const wxString *values_arr, const wxString *val_labels_arr, size_t values_num, size_t custom_num)
+{
+    select_num = 0;
     rbValues.resize(values_num);
     rbValLabels.resize(values_num);
-    rbPanel = new wxPanel(this, wxID_ANY);
     {
         wxGridSizer *rbPanelSizer = new wxGridSizer(0, 3, 2, 2);
         size_t i;
@@ -72,26 +117,6 @@ wxCheckRadioBox::wxCheckRadioBox(wxWindow *parent, wxWindowID id,
         }
         rbPanel->SetSizer(rbPanelSizer);
         rbPanelSizer->SetMinSize(386, 64);
-    }
-}
-
-void wxCheckRadioBox::SetToolTip( const wxString &normal_tip, const wxString &custom_tip )
-{
-    size_t i;
-    wxStaticBox::SetToolTip(normal_tip);
-    rbPanel->SetToolTip(normal_tip);
-    size_t norm_num = rbCheckboxes.size() - rbTextCtrls.size();
-    for (i=0; i < norm_num; i++)
-    {
-        rbCheckboxes[i]->SetToolTip(normal_tip);
-    }
-    for (; i < rbCheckboxes.size(); i++)
-    {
-        rbCheckboxes[i]->SetToolTip(custom_tip);
-    }
-    for (i=0; i < rbTextCtrls.size(); i++)
-    {
-        rbTextCtrls[i]->SetToolTip(custom_tip);
     }
 }
 

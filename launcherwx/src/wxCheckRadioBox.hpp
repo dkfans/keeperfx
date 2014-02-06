@@ -43,8 +43,11 @@ public:
         const wxSize& size = wxDefaultSize,
         long style = 0,
         const wxString& name = wxStaticBoxNameStr);
+    virtual ~wxCheckRadioBox();
 
     void SetToolTip( const wxString &normal_tip, const wxString &custom_tip );
+    void CreateOptionCheckboxes(const wxString *values_arr, const wxString *val_labels_arr, size_t values_num, size_t custom_num);
+    void ClearOptionCheckboxes(void);
 
     void SetSelected(size_t max_selected, const wxString *sel_options, size_t sel_options_num);
     void GetSelected(wxString *sel_options, size_t &sel_options_num);
