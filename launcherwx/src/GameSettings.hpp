@@ -29,19 +29,29 @@ class wxCheckRadioBox;
 class GameSettings : public wxDialog
 {
     enum {
-        eventID_Save = wxID_HIGHEST+20,
+        eventID_ScrnCtrlChange = wxID_HIGHEST+20,
+        eventID_Save,
         eventID_Cancel,
     };
 
     wxBoxSizer * topsizer;
     wxRadioBox * langRadio;
     wxRadioBox * scrshotRadio;
-    wxTextCtrl *mouseSensitvTxtCtrl;
-    wxCheckBox *censorChkBx;
+    wxRadioBox * scrnControlRadio;
+    wxTextCtrl * mouseSensitvTxtCtrl;
+    wxCheckBox * censorChkBx;
+    // Resolution boxes
     wxComboBox * resFailCombo;
     wxComboBox * resMovieCombo;
     wxComboBox * resMenuCombo;
     wxCheckRadioBox *resIngameBox;
+    // Parent components for resolution boxes, used to re-create these boxes
+    wxPanel *resOtherPanel;
+    wxStaticBoxSizer* resMenuBoxSizer;
+    wxStaticBoxSizer* resMovieBoxSizer;
+    wxStaticBoxSizer* resFailBoxSizer;
+    wxStaticBoxSizer* resIngameBoxSizer;
+    // String parameters
     wxString installPath;
     wxString installType;
     wxString keybLayout;
@@ -54,8 +64,11 @@ public:
     // event handlers
     void OnClose(wxCloseEvent& event);
     void OnShow(wxShowEvent& event);
+    void OnScreenCtrlChange(wxCommandEvent& event);
     void OnSave(wxCommandEvent& event);
     void OnCancel(wxCommandEvent& event);
+
+    void ChangeResolutionOptions(int scr_ctrl);
 
     void readConfiguration();
     void writeConfiguration();

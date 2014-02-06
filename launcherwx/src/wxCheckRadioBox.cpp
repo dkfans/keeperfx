@@ -69,12 +69,16 @@ void wxCheckRadioBox::ClearOptionCheckboxes(void)
 {
     select_limit = 0;
     select_num = 0;
-    rbValues.clear();
     rbValLabels.clear();
+    rbValues.clear();
+    for (std::vector<wxCheckBox *>::iterator iter=rbCheckboxes.begin(); iter < rbCheckboxes.end(); iter++) {
+        delete *iter;
+    }
     rbCheckboxes.clear();
+    for (std::vector<wxTextCtrl *>::iterator iter=rbTextCtrls.begin(); iter < rbTextCtrls.end(); iter++) {
+        delete *iter;
+    }
     rbTextCtrls.clear();
-    rbValLabels.clear();
-    rbValues.clear();
     rbPanel->SetSizer(NULL);
 }
 
