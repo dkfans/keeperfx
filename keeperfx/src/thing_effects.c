@@ -1134,7 +1134,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     MapCoord distance;
     TbBool affected;
     affected = false;
-    if ( line_of_sight_3d(pos, &tngdst->mappos) )
+    if (line_of_sight_3d(pos, &tngdst->mappos))
     {
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
             max_dist /= 3;
