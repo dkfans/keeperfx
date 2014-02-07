@@ -80,6 +80,38 @@ std::string file_name_change_extension(const std::string &fname_inp, const std::
     return fname;
 }
 
+/**
+ * Returns length of opened file.
+ * Value -1 means error.
+ */
+inline long file_length_opened (FILE *fp)
+{
+    long length;
+    long lastpos;
+
+    if (fp==NULL)
+      return -1;
+    lastpos = ftell (fp);
+    if (fseek(fp, 0, SEEK_END) != 0)
+      return -1;
+    length = ftell(fp);
+    fseek(fp, lastpos, SEEK_SET);
+    return length;
+}
+
+/**
+ * Reads 4-byte little-endian number from given buffer.
+ */
+inline long read_int32_le_buf (const unsigned char *buff)
+{
+    long l;
+    l = buff[0];
+    l += buff[1]<<8;
+    l += buff[2]<<16;
+    l += buff[3]<<24;
+    return l;
+}
+
 int load_soundlist(ProgramOptions &opts, const std::string &fname)
 {
     std::ifstream infile;
@@ -199,6 +231,55 @@ short show_usage(const std::string &fname)
     return ERR_OK;
 }
 
+short load_inp_sample_file(SoundData& snd, const std::string& fname_inp, ProgramOptions& opts)
+{
+    snd.fname = fname_inp;
+    snd.data.resize(0);
+    snd.unkn1 = 0;
+    snd.unkn3 = 0;
+    FILE* smpfile = fopen(fname_inp.c_str(),"rb");
+    if (smpfile == NULL) {
+        perror(fname_inp.c_str());
+        return ERR_CANT_OPEN;
+    }
+    unsigned char header[8];
+    if (fread(header,8,1,smpfile) != 1) {
+        perror(fname_inp.c_str());
+        fclose(smpfile);
+        return ERR_FILE_READ;
+    }
+    if (std::memcmp(header,"RIFF",4) != 0) {
+        LogErr("%s: Not a RIFF/WAV file",fname_inp.c_str());
+        fclose(smpfile);
+        return ERR_BAD_FILE;
+    }
+    unsigned long riff_len = read_int32_le_buf(header+4);
+    // Get file size
+    size_t len = file_length_opened(smpfile);
+    // Compare it with size from header
+    if ((riff_len > 128*1024*1024) || (riff_len > len)) {
+        LogErr("%s: The RIFF/WAV file header informs of too large file size",fname_inp.c_str());
+        fclose(smpfile);
+        return ERR_BAD_FILE;
+    }
+    if (len > riff_len) {
+        len = riff_len;
+        LogMsg("Sample has %d excessive bytes and will be truncated.",(int)(len-riff_len));
+    }
+    // Allocate memory, with zero-padding to 16 bytes boundary
+    snd.data.resize((len + 0x0f) & ~0x0f);
+    if (fread(snd.data.data(), len, 1, smpfile) != 1)
+    {
+        LogErr("%s: Cannot read the sample file",fname_inp.c_str());
+        fclose(smpfile);
+        return ERR_BAD_FILE;
+    }
+
+    fclose(smpfile);
+
+    return ERR_OK;
+}
+
 short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::string& fname_out, ProgramOptions& opts)
 {
     std::vector<SampleEntry> samples;
@@ -248,6 +329,9 @@ int main(int argc, char* argv[])
         {
             if (verbose)
                 LogMsg("Loading sound sample \"%s\".",opts.inp[i].fname.c_str());
+            if (load_inp_sample_file(snds[i], opts.inp[i].fname, opts) != ERR_OK) {
+                return 2;
+            }
         }
     }
 
