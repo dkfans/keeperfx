@@ -262,12 +262,17 @@ short load_inp_sample_file(SoundData& snd, const std::string& fname_inp, Program
         fclose(smpfile);
         return ERR_BAD_FILE;
     }
-    if (len > riff_len) {
-        len = riff_len;
-        LogMsg("Sample has %d excessive bytes and will be truncated.",(int)(len-riff_len));
+    if (len > riff_len+8) {
+        // Padding of up to 24 bytes is normal (for files extracted from DK) an may go without a warning message
+        if (len > riff_len+8+24) {
+            LogMsg("%s: Sample has %d excessive bytes and will be truncated.",fname_inp.c_str(),(int)(len-riff_len));
+        }
+        len = riff_len+8;
     }
     // Allocate memory, with zero-padding to 16 bytes boundary
     snd.data.resize((len + 0x0f) & ~0x0f);
+    // Read the file
+    fseek(smpfile, 0, SEEK_SET);
     if (fread(snd.data.data(), len, 1, smpfile) != 1)
     {
         LogErr("%s: Cannot read the sample file",fname_inp.c_str());
@@ -300,8 +305,11 @@ short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::str
         {
             SoundData &snd = snds[i];
             samples[i+1].data = ftell(sbfile) - base_pos;
-            //TODO
+            if (fwrite(snd.data.data(),1,snd.data.size(),sbfile) != snd.data.size())
+            { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
         }
+        if (fwrite(samples.data(),sizeof(SampleEntry),samples.size(),sbfile) != samples.size())
+        { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
         fclose(sbfile);
     }
     return ERR_OK;
