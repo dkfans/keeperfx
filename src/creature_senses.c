@@ -41,6 +41,7 @@ DLLIMPORT long _DK_line_of_sight_3d_ignoring_specific_door(const struct Coord3d 
 DLLIMPORT long _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const struct Coord3d *frpos, const struct Coord3d *topos, const struct Thing *doortng);
 DLLIMPORT long _DK_jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struct Coord3d *frpos, const struct Coord3d *topos, long plyr_idx);
 DLLIMPORT unsigned char _DK_line_of_sight_3d(const struct Coord3d *pos1, const struct Coord3d *pos2);
+DLLIMPORT long _DK_jonty_creature_can_see_thing_including_lava_check(const struct Thing * creatng, const struct Thing * thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -64,60 +65,75 @@ TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
         // change is (x,0) or (0,x)
         return true;
     }
-    struct Coord3d pos1;
-    struct Coord3d pos2;
+    struct Coord3d posmvx;
+    struct Coord3d posmvy;
     MapSubtlDelta subdelta_x, subdelta_y;
     subdelta_x = (nextpos->x.stl.num - (MapSubtlDelta)prevpos->x.stl.num);
     subdelta_y = (nextpos->y.stl.num - (MapSubtlDelta)prevpos->y.stl.num);
     switch (subdelta_x + 2 * subdelta_y)
     {
     case -3:
-        pos2.x.val = prevpos->x.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - 256;
-        pos2.y.val = prevpos->y.val - 256;
-        if (!point_in_map_is_solid_ignoring_door(&pos1, doortng) &&
-            !point_in_map_is_solid_ignoring_door(&pos2, doortng)) {
+        posmvx.x.val = prevpos->x.val - 256;
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val - 256;
+        posmvy.z.val = prevpos->z.val;
+        if (!point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+            return false;
+        }
+        if (!point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
             return false;
         }
         break;
+
     case -1:
-        pos2.y.val = prevpos->y.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val - 256;
-        pos2.x.val = prevpos->x.val + 256;
-        if (!point_in_map_is_solid_ignoring_door(&pos1, doortng) &&
-            !point_in_map_is_solid_ignoring_door(&pos2, doortng)) {
+        posmvx.x.val = prevpos->x.val + 256;
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val - 256;
+        posmvy.z.val = prevpos->z.val;
+        if (!point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+            return false;
+        }
+        if (!point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
             return false;
         }
         break;
+
     case 1:
-        pos2.x.val = prevpos->x.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - 256;
-        pos2.y.val = prevpos->y.val + 256;
-        if (!point_in_map_is_solid_ignoring_door(&pos1, doortng) &&
-            !point_in_map_is_solid_ignoring_door(&pos2, doortng)) {
+        posmvx.x.val = prevpos->x.val - 256;
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val + 256;
+        posmvy.z.val = prevpos->z.val;
+        if (!point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+            return false;
+        }
+        if (!point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
             return false;
         }
         break;
+
     case 3:
-        pos2.y.val = prevpos->y.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val + 256;
-        pos2.x.val = prevpos->x.val + 256;
-        if (!point_in_map_is_solid_ignoring_door(&pos1, doortng) &&
-            !point_in_map_is_solid_ignoring_door(&pos2, doortng)) {
+        posmvx.x.val = prevpos->x.val + 256;
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val + 256;
+        posmvy.z.val = prevpos->z.val;
+        if (!point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
             return false;
         }
+        if (!point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+            return false;
+        }
+        break;
+
+    default:
+        ERRORDBG(8,"Invalid use of sibling function, delta (%d,%d)",(int)subdelta_x,(int)subdelta_y);
         break;
     }
     return true;
@@ -227,68 +243,75 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct 
         // change is (x,0) or (0,x)
         return true;
     }
-    struct Coord3d pos1;
-    struct Coord3d pos2;
+    struct Coord3d posmvx;
+    struct Coord3d posmvy;
     MapSubtlDelta subdelta_x, subdelta_y;
     subdelta_x = (nextpos->x.stl.num - (MapSubtlDelta)prevpos->x.stl.num);
     subdelta_y = (nextpos->y.stl.num - (MapSubtlDelta)prevpos->y.stl.num);
     switch (subdelta_x + 2 * subdelta_y)
     {
     case -3:
-        pos2.x.val = prevpos->x.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - 256;
-        pos2.y.val = prevpos->y.val - 256;
-        if (get_point_in_map_solid_flags_ignoring_door(&pos1, doortng) & 0x01) {
+        posmvx.x.val = prevpos->x.val - 256;
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val - 256;
+        posmvy.z.val = prevpos->z.val;
+        if (get_point_in_map_solid_flags_ignoring_door(&posmvx, doortng) & 0x01) {
             return false;
         }
-        if (get_point_in_map_solid_flags_ignoring_door(&pos2, doortng) & 0x01) {
+        if (get_point_in_map_solid_flags_ignoring_door(&posmvy, doortng) & 0x01) {
             return false;
         }
         break;
+
     case -1:
-        pos2.y.val = prevpos->y.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val - 256;
-        pos2.x.val = prevpos->x.val + 256;
-        if (get_point_in_map_solid_flags_ignoring_door(&pos1, doortng) & 0x01) {
+        posmvx.x.val = prevpos->x.val + 256;
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val - 256;
+        posmvy.z.val = prevpos->z.val;
+        if (get_point_in_map_solid_flags_ignoring_door(&posmvx, doortng) & 0x01) {
             return false;
         }
-        if (get_point_in_map_solid_flags_ignoring_door(&pos2, doortng) & 0x01) {
+        if (get_point_in_map_solid_flags_ignoring_door(&posmvy, doortng) & 0x01) {
             return false;
         }
         break;
+
     case 1:
-        pos2.x.val = prevpos->x.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - 256;
-        pos2.y.val = prevpos->y.val + 256;
-        if (get_point_in_map_solid_flags_ignoring_door(&pos1, doortng) & 0x01) {
+        posmvx.x.val = prevpos->x.val - 256;
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val + 256;
+        posmvy.z.val = prevpos->z.val;
+        if (get_point_in_map_solid_flags_ignoring_door(&posmvx, doortng) & 0x01) {
             return false;
         }
-        if (get_point_in_map_solid_flags_ignoring_door(&pos2, doortng) & 0x01) {
+        if (get_point_in_map_solid_flags_ignoring_door(&posmvy, doortng) & 0x01) {
             return false;
         }
         break;
+
     case 3:
-        pos2.y.val = prevpos->y.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val + 256;
-        pos2.x.val = prevpos->x.val + 256;
-        if (get_point_in_map_solid_flags_ignoring_door(&pos1, doortng) & 0x01) {
+        posmvx.x.val = prevpos->x.val + 256;
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val + 256;
+        posmvy.z.val = prevpos->z.val;
+        if (get_point_in_map_solid_flags_ignoring_door(&posmvx, doortng) & 0x01) {
             return false;
         }
-        if (get_point_in_map_solid_flags_ignoring_door(&pos2, doortng) & 0x01) {
+        if (get_point_in_map_solid_flags_ignoring_door(&posmvy, doortng) & 0x01) {
             return false;
         }
+        break;
+
+    default:
+        ERRORDBG(8,"Invalid use of sibling function, delta (%d,%d)",(int)subdelta_x,(int)subdelta_y);
         break;
     }
     return true;
@@ -383,7 +406,7 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
     const struct Coord3d *nextpos, PlayerNumber plyr_idx)
 {
     // Check for door at central subtile
-    if (subtile_is_door(slab_subtile_center(subtile_slab(nextpos->x.stl.num)), slab_subtile_center(subtile_slab(nextpos->y.stl.num)))) {
+    if (subtile_is_door(stl_slab_center_subtile(nextpos->x.stl.num), stl_slab_center_subtile(nextpos->y.stl.num))) {
         return false;
     }
     // If only one dimensions changed, allow the pass
@@ -393,70 +416,69 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_own_door(const str
         // change is (x,0) or (0,x)
         return true;
     }
-    return true;
-    struct Coord3d pos1;
-    struct Coord3d pos2;
+    struct Coord3d posmvy;
+    struct Coord3d posmvx;
     int subdelta_x, subdelta_y;
     subdelta_x = (nextpos->x.stl.num - (MapSubtlDelta)prevpos->x.stl.num);
     subdelta_y = (nextpos->y.stl.num - (MapSubtlDelta)prevpos->y.stl.num);
     switch (subdelta_x + 2 * subdelta_y)
     {
     case -3: // change is (-1,-1)
-        pos2.x.val = prevpos->x.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - subtile_coord(1,0);
-        pos2.y.val = prevpos->y.val - subtile_coord(1,0);
-        if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
+        posmvx.x.val = prevpos->x.val - subtile_coord(1,0);
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val - subtile_coord(1,0);
+        posmvy.z.val = prevpos->z.val;
+        if (get_point_in_map_solid_flags_ignoring_own_door(&posmvy, plyr_idx) & 0x01) {
             return false;
         }
-        if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
+        if (get_point_in_map_solid_flags_ignoring_own_door(&posmvx, plyr_idx) & 0x01) {
             return false;
         }
         break;
 
     case -1: // change is (1,-1) as (-1,0) was eliminated earlier
-        pos2.y.val = prevpos->y.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val - subtile_coord(1,0);
-        pos2.x.val = prevpos->x.val + subtile_coord(1,0);
-        if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
+        posmvx.x.val = prevpos->x.val + subtile_coord(1,0);
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val - subtile_coord(1,0);
+        posmvy.z.val = prevpos->z.val;
+        if (get_point_in_map_solid_flags_ignoring_own_door(&posmvy, plyr_idx) & 0x01) {
             return false;
         }
-        if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
+        if (get_point_in_map_solid_flags_ignoring_own_door(&posmvx, plyr_idx) & 0x01) {
             return false;
         }
         break;
 
     case 1: // change is (-1,1) as (1,0) was eliminated earlier
-        pos2.x.val = prevpos->x.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val - subtile_coord(1,0);
-        pos2.y.val = prevpos->y.val + subtile_coord(1,0);
-        if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
+        posmvx.x.val = prevpos->x.val - subtile_coord(1,0);
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val + subtile_coord(1,0);
+        posmvy.z.val = prevpos->z.val;
+        if (get_point_in_map_solid_flags_ignoring_own_door(&posmvy, plyr_idx) & 0x01) {
             return false;
         }
-        if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
+        if (get_point_in_map_solid_flags_ignoring_own_door(&posmvx, plyr_idx) & 0x01) {
             return false;
         }
         break;
 
     case 3: // change is (1,1)
-        pos2.y.val = prevpos->y.val;
-        pos2.z.val = prevpos->z.val;
-        pos1.x.val = prevpos->x.val;
-        pos1.z.val = prevpos->z.val;
-        pos1.y.val = prevpos->y.val + subtile_coord(1,0);
-        pos2.x.val = prevpos->x.val + subtile_coord(1,0);
-        if (get_point_in_map_solid_flags_ignoring_own_door(&pos1, plyr_idx) & 0x01) {
+        posmvx.x.val = prevpos->x.val + subtile_coord(1,0);
+        posmvx.y.val = prevpos->y.val;
+        posmvx.z.val = prevpos->z.val;
+        posmvy.x.val = prevpos->x.val;
+        posmvy.y.val = prevpos->y.val + subtile_coord(1,0);
+        posmvy.z.val = prevpos->z.val;
+        if (get_point_in_map_solid_flags_ignoring_own_door(&posmvy, plyr_idx) & 0x01) {
             return false;
         }
-        if (get_point_in_map_solid_flags_ignoring_own_door(&pos2, plyr_idx) & 0x01) {
+        if (get_point_in_map_solid_flags_ignoring_own_door(&posmvx, plyr_idx) & 0x01) {
             return false;
         }
         break;
@@ -537,6 +559,7 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     nextpos.x.val = prevpos.x.val + increase_x;
     nextpos.y.val = prevpos.y.val + increase_y;
     nextpos.z.val = prevpos.z.val + increase_z;
+
     while (distance > 0)
     {
         if (get_point_in_map_solid_flags_ignoring_own_door(&nextpos, plyr_idx) & 0x01) {
