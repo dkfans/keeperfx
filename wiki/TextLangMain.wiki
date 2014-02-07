@@ -1,0 +1,39 @@
+#summary Main page for .dat files
+
+= In-game Texts & Language Support =
+
+In KeeperFX each campaign has a .dat file for each supported language. This contains the in-game messages, which are in 2 variants:
+
+  * Objective. Appears at the bottom of the screen in-game. There is one at the start of the game, and the final one is usually something like "Success! This Land is Yours. Press Space to proceed to the next realm.". There are often more posted during the game.
+
+  * Information. Very similar, but are sent via the flashing 'i'
+
+Both these message types are sent via the level script file (map00xxx.txt), specific to each map. The script calls a message from that language's .dat file (e.g. text_eng.dat)
+
+In KeeperFX .dat files are generated via 
+
+  # .pot files which are template English language files
+  # .po files which are translations of that campaign's .pot file
+
+KeeperFX uses the .pot & .po files to generate the language specific text_xxx.dat files for each campaign.
+
+As well as in-game messages, the dat file also contains all the other information needed by the game for a specific language. The game produces tooltip messages whenever you point at an object, room, thing, creature etc in the game, and these also come from the dat file. Hence it is wise to use a pre-existing file, usually from the original campaign, and modify that to generate new content.
+
+==Options==
+
+  * [CorTran I want to correct errors in a non-English translated file]
+ You have played KeeperFX and noticed badly translated messages, or missing and/or nonsensical messages, and wish to correct this.
+ * [NewTrans I want to generate a new language file for a campaign], where support for that langauge doesn't currently exist.
+ You have noticed that a particular language (that is supported by KeeperFX currently, i.e. other campaigns have this support) is not supported for a campaign. You wish to add this language.
+ * [NewLang I want to add a new language to KeeperFX]
+ You want a new langauge added to KeeperFX.
+ * [EngMod I want to make changes to the English language template for a campaign]
+ You have noticed errors, or want to add more messages to a campaign
+ * [NewPot I want to generate in-game messages for an in-progress new campaign]
+ You are making a new campaign for KeeperFX and want the format to support multiple languages (either on publication, or in the future)
+
+==Notification==
+
+For all these types of changes, it is advisable (but not compulsory) to give notice that you intend to make a change / changes. Go to the [http://code.google.com/p/keeperfx/issues/list KeeperFX Issues] page and click ‘New Issue’ (top left of screen). Choose ‘Enhancement Proposal from User’ from the dropdown menu, and enter the relevant details in the form where you can. Make it clear that you intend to do this work, and are notifying the community of your intent. Press submit when done (you may need to enter a ‘captcha’ code at this stage as a simple security measure)
+
+It is a good idea to do this to prevent duplication of effort (i.e. someone else might do the same work!). Another advantage is that if you embark on a translation, but you can’t complete it, you can upload your latest progress into this site, and someone else can download your latest work and complete it.
