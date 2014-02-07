@@ -240,16 +240,19 @@ GameSettings::GameSettings(wxFrame *parent)
         wxStaticBox *resMenuBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Menu resolution") );
         resMenuBox->SetToolTip(tooltips_eng[4]);
         resMenuBoxSizer = new wxStaticBoxSizer(resMenuBox, wxVERTICAL);
+        resMenuCombo = NULL;
         resOtherPanelSizer->Add(resMenuBoxSizer, 1, wxALIGN_CENTER);
 
         wxStaticBox *resMovieBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Movies resolution") );
         resMovieBox->SetToolTip(tooltips_eng[3]);
         resMovieBoxSizer = new wxStaticBoxSizer(resMovieBox, wxHORIZONTAL);
+        resMovieCombo = NULL;
         resOtherPanelSizer->Add(resMovieBoxSizer, 1, wxALIGN_CENTER);
 
         wxStaticBox *resFailBox = new wxStaticBox(resOtherPanel, wxID_ANY, wxT("Failure resolution") );
         resFailBox->SetToolTip(tooltips_eng[5]);
         resFailBoxSizer = new wxStaticBoxSizer(resFailBox, wxVERTICAL);
+        resFailCombo = NULL;
         resOtherPanelSizer->Add(resFailBoxSizer, 1, wxALIGN_CENTER);
 
         ChangeResolutionOptions(2);
@@ -357,6 +360,7 @@ void GameSettings::ChangeResolutionOptions(int scr_ctrl)
             arr_size = WXSIZEOF(resolutions_menu_wind_init);
         }
         resMenuBoxSizer->Clear();
+        delete resMenuCombo;
         resMenuCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
         resMenuCombo->SetToolTip(tooltips_eng[4]);
         resMenuBoxSizer->Add(resMenuCombo, 1, wxEXPAND);
@@ -373,6 +377,7 @@ void GameSettings::ChangeResolutionOptions(int scr_ctrl)
             arr_size = WXSIZEOF(resolutions_movies_wind_init);
         }
         resMovieBoxSizer->Clear();
+        delete resMovieCombo;
         resMovieCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
         resMovieCombo->SetToolTip(tooltips_eng[3]);
         resMovieBoxSizer->Add(resMovieCombo, 1, wxEXPAND);
@@ -389,6 +394,7 @@ void GameSettings::ChangeResolutionOptions(int scr_ctrl)
             arr_size = WXSIZEOF(resolutions_failsafe_wind_init);
         }
         resFailBoxSizer->Clear();
+        delete resFailCombo;
         resFailCombo = new wxComboBox(resOtherPanel, wxID_ANY, arr_ptr[0], wxDefaultPosition, wxDefaultSize, arr_size, arr_ptr, wxCB_DROPDOWN);
         resFailCombo->SetToolTip(tooltips_eng[5]);
         resFailBoxSizer->Add(resFailCombo, 1, wxEXPAND);
