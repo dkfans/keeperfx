@@ -21,7 +21,14 @@ enum {
 };
 
 class SoundData {
-
+public:
+    /** Name of the sound file the sample comes from. */
+    std::string fname;
+    std::vector<unsigned char> data;
+    /** Unknown1. */
+    long unkn1;
+    /** Unknown3. */
+    long unkn3;
 };
 
 #pragma pack(1)
