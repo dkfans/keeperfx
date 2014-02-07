@@ -74,7 +74,6 @@ DLLIMPORT void _DK_set_creature_combat_state(struct Thing *fightng, struct Thing
 DLLIMPORT long _DK_creature_has_other_attackers(struct Thing *thing, long enmtng);
 DLLIMPORT long _DK_get_best_ranged_offensive_weapon(const struct Thing *thing, long enmtng);
 DLLIMPORT long _DK_get_best_melee_offensive_weapon(const struct Thing *thing, long enmtng);
-DLLIMPORT long _DK_jonty_creature_can_see_thing_including_lava_check(const struct Thing * creatng, const struct Thing * thing);
 DLLIMPORT long _DK_add_ranged_attacker(struct Thing *fightng, struct Thing *enmtng);
 DLLIMPORT long _DK_add_melee_attacker(struct Thing *fightng, struct Thing *enmtng);
 DLLIMPORT long _DK_creature_has_ranged_weapon(struct Thing *thing);
