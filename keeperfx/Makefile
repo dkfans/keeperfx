@@ -312,6 +312,20 @@ pkg/campgns/questfth/text_fre.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat
+NGSOUNDDATS = \
+pkg/sound/speech_chi.dat \
+pkg/sound/speech_cht.dat \
+pkg/sound/speech_dut.dat \
+pkg/sound/speech_eng.dat \
+pkg/sound/speech_fre.dat \
+pkg/sound/speech_ger.dat \
+pkg/sound/speech_ita.dat \
+pkg/sound/speech_jap.dat \
+pkg/sound/speech_pol.dat \
+pkg/sound/speech_rus.dat \
+pkg/sound/speech_spa.dat \
+pkg/sound/speech_swe.dat \
+pkg/sound/sound.dat
 LANDVIEWRAWS = \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/keeporig_lnd/rgmap$(num).raw pkg/campgns/keeporig_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
@@ -496,6 +510,7 @@ clean-package:
 	-$(RM) -R pkg/fxdata
 	-$(RM) -R pkg/ldata
 	-$(RM) -R pkg/data
+	-$(RM) -R pkg/sound
 	-$(RM) -R pkg/levels
 	-$(RM) pkg/keeperfx*
 	-$(ECHO) ' '
@@ -522,6 +537,8 @@ pkg-campaigns: $(CAMPAIGN_CFGS)
 pkg-languages: $(NGTEXTDATS) $(NCTEXTDATS)
 
 pkg-gfx: pkg-landviews pkg-menugfx pkg-enginegfx
+
+pkg-sfx: $(NGSOUNDDATS)
 
 pkg-landviews: $(LANDVIEWRAWS) $(LANDVIEWDATTABS)
 
@@ -842,6 +859,20 @@ pkg/data/swipe04.dat: gfx/swipes/filelist_sticklr.txt pkg/data/palette.dat $(PNG
 pkg/data/swipe05.dat: gfx/swipes/filelist_stickrl.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/swipe06.dat: gfx/swipes/filelist_clawsrl.txt pkg/data/palette.dat $(PNGTORAW)
 
+pkg/sound/sound.dat: sfx/sound/filelist.txt $(WAVTODAT)
+pkg/sound/speech_chi.dat: sfx/speech_chi/filelist.txt $(WAVTODAT)
+pkg/sound/speech_cht.dat: sfx/speech_cht/filelist.txt $(WAVTODAT)
+pkg/sound/speech_dut.dat: sfx/speech_dut/filelist.txt $(WAVTODAT)
+pkg/sound/speech_eng.dat: sfx/speech_eng/filelist.txt $(WAVTODAT)
+pkg/sound/speech_fre.dat: sfx/speech_fre/filelist.txt $(WAVTODAT)
+pkg/sound/speech_ger.dat: sfx/speech_ger/filelist.txt $(WAVTODAT)
+pkg/sound/speech_ita.dat: sfx/speech_ita/filelist.txt $(WAVTODAT)
+pkg/sound/speech_jap.dat: sfx/speech_jap/filelist.txt $(WAVTODAT)
+pkg/sound/speech_pol.dat: sfx/speech_pol/filelist.txt $(WAVTODAT)
+pkg/sound/speech_rus.dat: sfx/speech_rus/filelist.txt $(WAVTODAT)
+pkg/sound/speech_spa.dat: sfx/speech_spa/filelist.txt $(WAVTODAT)
+pkg/sound/speech_swe.dat: sfx/speech_swe/filelist.txt $(WAVTODAT)
+
 pkg/data/frac%.raw:
 	-$(ECHO) 'Building RAW texture: $@'
 	$(PNGTORAW) -o "$@" -p "$(word 2,$^)" -r 255 -f raw -l 100 "$<"
@@ -875,6 +906,13 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Building jonty sprites: $@'
 	@$(MKDIR) $(@D)
 	$(PNGTORAW) -m -o "$@" -p "$(word 2,$^)" -f jspr -l 0 "$<"
+	-$(ECHO) 'Finished building: $@'
+	-$(ECHO) ' '
+
+pkg/sound/%.dat:
+	-$(ECHO) 'Building sound bank: $@'
+	@$(MKDIR) $(@D)
+	$(WAVTODAT) -o "$@" "$<"
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
