@@ -452,5 +452,6 @@ include tool_rnctools.mk
 include package.mk
 include pkg_lang.mk
 include pkg_gfx.mk
+include pkg_sfx.mk
 
 #******************************************************************************
