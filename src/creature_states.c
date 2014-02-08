@@ -1172,9 +1172,7 @@ TbBool fill_mobveable_small_around_slabs_array_in_room(TbBool *avail, const stru
         // Per slab code
         struct Room *aroom;
         aroom = get_room_xy(stl_x, stl_y);
-        long cube_id;
-        cube_id = get_top_cube_at(stl_x, stl_y);
-        avail[n] = !room_is_invalid(aroom) && (aroom->index == room->index) && !cube_is_sacrificial(cube_id);
+        avail[n] = !room_is_invalid(aroom) && (aroom->index == room->index) && !subtile_has_sacrificial_on_top(stl_x, stl_y);
         // Per slab code ends
     }
     return true;

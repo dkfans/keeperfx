@@ -565,9 +565,9 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
 
 TbBool map_pos_is_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  unsigned long navmap;
-  navmap = get_navigation_map(stl_x, stl_y);
-  return ((navmap & 0x10) != 0);
+    unsigned long navmap;
+    navmap = get_navigation_map(stl_x, stl_y);
+    return ((navmap & 0x10) != 0);
 }
 
 TbBool lava_at_position(const struct Coord3d *pos)

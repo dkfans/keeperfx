@@ -1029,11 +1029,11 @@ TbBool slap_object(struct Thing *thing)
 
 TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    long cube_id;
-    cube_id = get_top_cube_at(stl_x, stl_y);
-    if (cube_is_sacrificial(cube_id)) {
+    if (subtile_has_sacrificial_on_top(stl_x, stl_y)) {
         return true;
     }
+    //long cube_id;
+    //cube_id = get_top_cube_at(stl_x, stl_y);
     //TODO do the same with entrance cube
     return false;
 }

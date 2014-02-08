@@ -102,6 +102,15 @@ int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x,
     return (i >> 9) & 3;
 }
 
+TbBool terrain_toxic_for_creature_at_position_MOD(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    struct SlabMap *slb;
+    slb = get_slabmap_for_subtile(stl_x, stl_y);
+    return (slb->kind != SlbT_LAVA || crstat->hurt_by_lava);
+}
+
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct CreatureStats *crstat;
@@ -123,7 +132,7 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
         return false;
     struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->flags & 0x40) != 0)
+    if ((slbattr->flags & SlbAtFlg_IsDoor) != 0)
     {
         struct Thing *doortng;
         doortng = get_door_for_position(stl_x, stl_y);
@@ -131,10 +140,13 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
         {
             return true;
         }
-    } else
-    if (slbattr->is_safe_land || !terrain_toxic_for_creature_at_position(creatng, stl_x, stl_y))
+    }
+    else
     {
-        return true;
+        if (slbattr->is_safe_land || !terrain_toxic_for_creature_at_position_MOD(creatng, stl_x, stl_y))
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -149,12 +161,12 @@ short hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d *pos
     return _DK_hug_round(creatng, pos1, pos2, a4, a5);
 }
 
-long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3)
+long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
 {
     struct Coord3d curr_pos;
     struct Coord3d next_pos;
     struct Coord3d pos3;
-    //return _DK_slab_wall_hug_route(thing, pos, a3);
+    //return _DK_slab_wall_hug_route(thing, pos, max_val);
     curr_pos.x.val = thing->mappos.x.val;
     curr_pos.y.val = thing->mappos.y.val;
     curr_pos.z.val = thing->mappos.z.val;
@@ -172,37 +184,37 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3)
     next_pos.y.val = curr_pos.y.val;
     next_pos.z.val = curr_pos.z.val;
     int i;
-    for (i = 0; i < a3; i++)
+    for (i = 0; i < max_val; i++)
     {
-      if ((curr_pos.x.stl.num == stl_x) && (curr_pos.y.stl.num == stl_y)) {
-          return i + 1;
-      }
-      int round_idx;
-      round_idx = small_around_index_in_direction(curr_pos.x.stl.num, curr_pos.y.stl.num, stl_x, stl_y);
-      if (hug_can_move_on(thing, curr_pos.x.stl.num, curr_pos.y.stl.num))
-      {
-          next_pos.x.val = curr_pos.x.val;
-          next_pos.y.val = curr_pos.y.val;
-          next_pos.z.val = curr_pos.z.val;
-          curr_pos.x.stl.num += 3 * (int)small_around[round_idx].delta_x;
-          curr_pos.y.stl.num += 3 * (int)small_around[round_idx].delta_y;
-      } else
-      {
-          long hug_val;
-          hug_val = a3 - i;
-          int hug_ret;
-          hug_ret = hug_round(thing, &next_pos, &pos3, round_idx, &hug_val);
-          if (hug_ret == -1) {
-              return -1;
-          }
-          i += hug_val;
-          if (hug_ret == 1) {
-              return i + 1;
-          }
-          curr_pos.x.val = next_pos.x.val;
-          curr_pos.y.val = next_pos.y.val;
-          curr_pos.z.val = next_pos.z.val;
-      }
+        if ((curr_pos.x.stl.num == stl_x) && (curr_pos.y.stl.num == stl_y)) {
+            return i + 1;
+        }
+        int round_idx;
+        round_idx = small_around_index_in_direction(curr_pos.x.stl.num, curr_pos.y.stl.num, stl_x, stl_y);
+        if (hug_can_move_on(thing, curr_pos.x.stl.num, curr_pos.y.stl.num))
+        {
+            next_pos.x.val = curr_pos.x.val;
+            next_pos.y.val = curr_pos.y.val;
+            next_pos.z.val = curr_pos.z.val;
+            curr_pos.x.stl.num += STL_PER_SLB * (int)small_around[round_idx].delta_x;
+            curr_pos.y.stl.num += STL_PER_SLB * (int)small_around[round_idx].delta_y;
+        } else
+        {
+            long hug_val;
+            hug_val = max_val - i;
+            int hug_ret;
+            hug_ret = hug_round(thing, &next_pos, &pos3, round_idx, &hug_val);
+            if (hug_ret == -1) {
+                return -1;
+            }
+            i += hug_val;
+            if (hug_ret == 1) {
+                return i + 1;
+            }
+            curr_pos.x.val = next_pos.x.val;
+            curr_pos.y.val = next_pos.y.val;
+            curr_pos.z.val = next_pos.z.val;
+        }
     }
     return 0;
 }
