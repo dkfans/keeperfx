@@ -304,9 +304,17 @@ short save_dat_file(WorkingSet& ws, std::vector<SoundData>& snds, const std::str
         for (int i = 0; i < snds.size(); i++)
         {
             SoundData &snd = snds[i];
-            samples[i+1].data = ftell(sbfile) - base_pos;
+            SampleEntry &smp = samples[i+1];
+            smp.data = ftell(sbfile) - base_pos;
+            strncpy(smp.fname,snd.fname.c_str()+snd.fname.rfind("/")+1,17);
+            smp.fname[17] = 0;
+            smp.length = snd.data.size();
             if (fwrite(snd.data.data(),1,snd.data.size(),sbfile) != snd.data.size())
             { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
+        }
+        {
+            SampleEntry &smp = samples[0];
+            smp.length = ftell(sbfile) - base_pos + sizeof(SampleEntry) * samples.size();
         }
         if (fwrite(samples.data(),sizeof(SampleEntry),samples.size(),sbfile) != samples.size())
         { perror(fname_out.c_str()); return ERR_FILE_WRITE; }
