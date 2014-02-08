@@ -3107,25 +3107,25 @@ long get_navigation_colour_for_door(long stl_x, long stl_y)
     if (thing_is_invalid(doortng))
     {
         ERRORLOG("Cannot find door for flagged position (%d,%d)",(int)stl_x,(int)stl_y);
-        return 0x01;
+        return NAVMAP_FLOORHEIGHT_BASE + 1;
     }
-    if (doortng->byte_18 == 0)
+    if (doortng->door.is_locked == 0)
     {
-        return 0x01;
+        return NAVMAP_FLOORHEIGHT_BASE + 1;
     }
     if (is_hero_thing(doortng))
-        owner = 5;
+        owner = NAVMAP_OWNER_HERO;
     else
     if (doortng->owner == game.neutral_player_num)
-        owner = 6;
+        owner = NAVMAP_OWNER_NEUTRAL;
     else
         owner = doortng->owner;
-    if (owner > 6)
+    if (owner > NAVMAP_OWNERSELECT_MAX)
     {
         ERRORLOG("Doors at (%d,%d) have outranged player %ld",(int)stl_x,(int)stl_y,owner);
-        return 0x01;
+        return NAVMAP_FLOORHEIGHT_BASE + 1;
     }
-    return (0x20 * (owner+1)) | 0x01;
+    return (NAVMAP_OWNERSELECT_BASE * (owner+1)) | (NAVMAP_FLOORHEIGHT_BASE + 1);
 }
 
 long get_navigation_colour_for_cube(long stl_x, long stl_y)
@@ -3133,11 +3133,11 @@ long get_navigation_colour_for_cube(long stl_x, long stl_y)
     long tcube;
     long i;
     i = get_floor_filled_subtiles_at(stl_x, stl_y);
-    if (i > 15)
-      i = 15;
+    if (i > NAVMAP_FLOORHEIGHT_MAX)
+      i = NAVMAP_FLOORHEIGHT_MAX;
     tcube = get_top_cube_at(stl_x, stl_y);
-    if (cube_is_lava(tcube) || cube_is_sacrificial(tcube))
-      i |= 0x10;
+    if (cube_is_lava(tcube) || (i<5 && cube_is_sacrificial(tcube)))
+      i |= NAVMAP_UNSAFE_SURFACE;
     return i;
 }
 
@@ -3152,7 +3152,7 @@ long get_navigation_colour(long stl_x, long stl_y)
     }
     if ((mapblk->flags & MapFlg_IsTall) != 0)
     {
-        return 0x0F;
+        return NAVMAP_FLOORHEIGHT_BASE + NAVMAP_FLOORHEIGHT_MAX;
     }
     return get_navigation_colour_for_cube(stl_x, stl_y);
 }
