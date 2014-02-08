@@ -377,6 +377,11 @@ TbBool cube_is_lava(long cube_id)
     return (cube_id == 40) || (cube_id == 41);
 }
 
+/**
+ * Returns if given cube is a sacrificial ground or magic door surface.
+ * @param cube_id
+ * @return
+ */
 TbBool cube_is_sacrificial(long cube_id)
 {
     return (cube_id >= 294) && (cube_id <= 302);
@@ -418,7 +423,7 @@ TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long i;
     i = get_top_cube_at(stl_x, stl_y);
-    return cube_is_sacrificial(i);
+    return i<5 && cube_is_sacrificial(i);
 }
 
 /******************************************************************************/
