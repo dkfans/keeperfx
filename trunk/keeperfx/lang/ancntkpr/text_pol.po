@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: Ancient Keeper campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-01-15 01:30+0100\n"
+"PO-Revision-Date: 2014-02-09 23:55+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -211,11 +211,13 @@ msgid ""
 "Defeat is inevitable now, Keeper. Maybe the moonlight wasn't bright enough? "
 "Did you use ALL your spells?"
 msgstr ""
+"W tym momencie porażka jest już nieunikniona, Strażniku. Czyżby blask "
+"Księżyca był zbyt blady? A może nie wykorzystałeś WSZYSTKICH swoich zaklęć?"
 
 #: guitext:24
 msgctxt "In-game message"
 msgid "The Avatars are free, Keeper. Be on your guard."
-msgstr ""
+msgstr "Avatary są teraz wolne, Strażniku. Potraktuj poważnie to ostrzeżenie."
 
 #: guitext:25
 msgctxt "In-game message"
@@ -234,7 +236,7 @@ msgstr "Hmmm, czyżby to była woń bohaterów?"
 #: guitext:27
 msgctxt "In-game message"
 msgid "Perhaps you are more suited to Eversmile?"
-msgstr ""
+msgstr "Być może powinieneś pozostać przy podbijaniu Śmiechowic?"
 
 #: guitext:28
 msgctxt "In-game message"
@@ -276,6 +278,8 @@ msgid ""
 "prove yourself in his land. You have no creatures, but he has gifted you a "
 "powerful spell."
 msgstr ""
+"Kwan Tek, Pradawny z wielką mocą, zaszczycił Cię szansą wykazania się w jego "
+"krainie. Nie masz żadnych stworzeń, ale obdarzył Cię potężnym zaklęciem."
 
 #: guitext:34
 msgctxt "In-game message"
@@ -710,6 +714,9 @@ msgid ""
 "this land to further prove yourself. Success will bring his assistance; do "
 "not disappoint him!"
 msgstr ""
+"Kolejny raz przyciągnęłeś zainteresowanie Salaar'a. Przyzwał cię do tej "
+"krainy by skrupulatniej sprawdzić twe umiejętności. Jeśli sobie poradzisz, "
+"bedziesz mógł liczyć na jego pomoc; nie rozczaruj go!"
 
 #: guitext:101
 msgctxt "In-game message"
@@ -743,6 +750,9 @@ msgid ""
 "his doom. You must be patient and persistent, Keeper, if you are not to "
 "share his fate!"
 msgstr ""
+"Witaj wśród tych pełnych niebezpieczeństw ziem! Pośród nich Antak poznał "
+"niegdyś swoją zgubę. Musisz być cierpliwy i wytrwały, Strażniku, jeśli nie "
+"podzielić jego losu!"
 
 #: guitext:106
 msgctxt "In-game message"
