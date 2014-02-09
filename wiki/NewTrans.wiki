@@ -3,8 +3,8 @@
 =I want to add a translation for a campaign=
 
 These instructions assume that:
-* an English version of the campaign file is available
-* the target language is already a KeeperFX language
+  * an English version of the campaign file is available
+  * the target language is already a KeeperFX language
 
 You will need [POEdit] (open-source translation tool) to do this.
 
