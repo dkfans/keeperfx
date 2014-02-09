@@ -4,7 +4,7 @@
 
 These instructions assume that:
   * an English version of the campaign file is available
-  * the target language is already a KeeperFX language
+  * the target language is already a supported KeeperFX language (there are official campaign translations)
 
 You will need [POEdit] (open-source translation tool) to do this.
 
