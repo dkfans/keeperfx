@@ -209,7 +209,7 @@ long get_top_cube_at_pos(long stl_num)
     return tcube;
 }
 
-long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos)
 {
     struct Column *col;
     unsigned long top_pos;
@@ -220,6 +220,8 @@ long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         tcube = col->cubes[top_pos-1];
     else
         tcube = game.field_14BB65[col->baseblock];
+    if (cube_pos != NULL)
+        *cube_pos = top_pos;
     return tcube;
 }
 
@@ -396,7 +398,7 @@ TbBool cube_is_sacrificial(long cube_id)
 TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long i;
-    i = get_top_cube_at(stl_x, stl_y);
+    i = get_top_cube_at(stl_x, stl_y, NULL);
     return cube_is_water(i);
 }
 
@@ -409,7 +411,7 @@ TbBool subtile_has_water_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long i;
-    i = get_top_cube_at(stl_x, stl_y);
+    i = get_top_cube_at(stl_x, stl_y, NULL);
     return cube_is_lava(i);
 }
 
@@ -422,8 +424,10 @@ TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     long i;
-    i = get_top_cube_at(stl_x, stl_y);
-    return i<5 && cube_is_sacrificial(i);
+    long cube_pos;
+    i = get_top_cube_at(stl_x, stl_y, &cube_pos);
+    // Only low ground cubes are really sacrificial - high ground is most likely magic door
+    return cube_pos<4 && cube_is_sacrificial(i);
 }
 
 /******************************************************************************/

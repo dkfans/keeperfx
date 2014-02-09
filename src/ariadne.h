@@ -46,13 +46,15 @@ enum AriadneReturnValues {
     AridRet_PartOK,
 };
 
-#define NAVMAP_FLOORHEIGHT_BASE 0x00
-#define NAVMAP_FLOORHEIGHT_MAX 0x0f
-#define NAVMAP_UNSAFE_SURFACE 0x10
-#define NAVMAP_OWNERSELECT_BASE 0x20
-#define NAVMAP_OWNER_HERO 5
+#define NAVMAP_FLOORHEIGHT_BIT  0
+#define NAVMAP_FLOORHEIGHT_MAX  0x0f
+#define NAVMAP_FLOORHEIGHT_MASK 0x0f
+#define NAVMAP_UNSAFE_SURFACE   0x10
+#define NAVMAP_OWNERSELECT_BIT  5
+#define NAVMAP_OWNERSELECT_MAX  0x06
+#define NAVMAP_OWNERSELECT_MASK 0x07
+#define NAVMAP_OWNER_HERO    5
 #define NAVMAP_OWNER_NEUTRAL 6
-#define NAVMAP_OWNERSELECT_MAX 0x06
 
 struct Ariadne { // sizeof = 102
     /** Position where the journey stated. */

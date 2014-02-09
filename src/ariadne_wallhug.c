@@ -108,7 +108,10 @@ TbBool terrain_toxic_for_creature_at_position_MOD(const struct Thing *creatng, M
     crstat = creature_stats_get_from_thing(creatng);
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    return (slb->kind != SlbT_LAVA || crstat->hurt_by_lava);
+    if ((crstat->hurt_by_lava > 0) || slb->kind != SlbT_LAVA) {
+        return true;
+    }
+    return false;
 }
 
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)

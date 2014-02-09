@@ -1033,7 +1033,7 @@ TbBool is_dangerous_drop_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         return true;
     }
     //long cube_id;
-    //cube_id = get_top_cube_at(stl_x, stl_y);
+    //cube_id = get_top_cube_at(stl_x, stl_y, NULL);
     //TODO do the same with entrance cube
     return false;
 }

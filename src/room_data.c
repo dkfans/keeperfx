@@ -1999,7 +1999,7 @@ TbBool find_first_valid_position_for_thing_in_room(const struct Thing *thing, st
                 stl_x = 3*slb_x+dx;
                 stl_y = 3*slb_y+dy;
                 mapblk = get_map_block_at(stl_x,stl_y);
-                if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x,stl_y) & 0x0F) < 4))
+                if (((mapblk->flags & MapFlg_IsTall) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
                 {
                     pos->x.val = subtile_coord_center(stl_x);
                     pos->y.val = subtile_coord_center(stl_y);

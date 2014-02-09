@@ -4193,43 +4193,43 @@ void apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg
 
 void process_landscape_affecting_creature(struct Thing *thing)
 {
-  struct CreatureStats *crstat;
-  struct CreatureControl *cctrl;
-  unsigned long navmap;
-  int stl_idx;
-  int i;
-  SYNCDBG(18,"Starting");
-  set_flag_byte(&thing->movement_flags,TMvF_IsOnWater,false);
-  set_flag_byte(&thing->movement_flags,TMvF_IsOnLava,false);
-  set_flag_byte(&thing->movement_flags,TMvF_Unknown80,false);
-  cctrl = creature_control_get_from_thing(thing);
-  if (creature_control_invalid(cctrl))
-  {
-      ERRORLOG("Invalid creature control; no action");
-      return;
-  }
-  cctrl->field_B9 = 0;
-
-  stl_idx = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-  navmap = get_navigation_map(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
-  if (((navmap & 0xF) << 8) == thing->mappos.z.val)
-  {
-    i = get_top_cube_at_pos(stl_idx);
-    if (cube_is_lava(i))
+    struct CreatureStats *crstat;
+    struct CreatureControl *cctrl;
+    unsigned long navheight;
+    int stl_idx;
+    int i;
+    SYNCDBG(18,"Starting");
+    set_flag_byte(&thing->movement_flags,TMvF_IsOnWater,false);
+    set_flag_byte(&thing->movement_flags,TMvF_IsOnLava,false);
+    set_flag_byte(&thing->movement_flags,TMvF_Unknown80,false);
+    cctrl = creature_control_get_from_thing(thing);
+    if (creature_control_invalid(cctrl))
     {
-        crstat = creature_stats_get_from_thing(thing);
-        apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
-        thing->movement_flags |= TMvF_IsOnLava;
-    } else
-    if (cube_is_water(i))
-    {
-        thing->movement_flags |= TMvF_IsOnWater;
+        ERRORLOG("Invalid creature control; no action");
+        return;
     }
-    process_creature_leave_footsteps(thing);
-    process_creature_standing_on_corpses_at(thing, &thing->mappos);
-  }
-  check_for_creature_escape_from_lava(thing);
-  SYNCDBG(19,"Finished");
+    cctrl->field_B9 = 0;
+
+    stl_idx = get_subtile_number(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+    navheight = get_navigation_map_floor_height(thing->mappos.x.stl.num,thing->mappos.y.stl.num);
+    if (subtile_coord(navheight,0) == thing->mappos.z.val)
+    {
+        i = get_top_cube_at_pos(stl_idx);
+        if (cube_is_lava(i))
+        {
+            crstat = creature_stats_get_from_thing(thing);
+            apply_damage_to_thing_and_display_health(thing, crstat->hurt_by_lava, -1);
+            thing->movement_flags |= TMvF_IsOnLava;
+        } else
+        if (cube_is_water(i))
+        {
+            thing->movement_flags |= TMvF_IsOnWater;
+        }
+        process_creature_leave_footsteps(thing);
+        process_creature_standing_on_corpses_at(thing, &thing->mappos);
+    }
+    check_for_creature_escape_from_lava(thing);
+    SYNCDBG(19,"Finished");
 }
 
 TbBool add_creature_score_to_owner(struct Thing *thing)
