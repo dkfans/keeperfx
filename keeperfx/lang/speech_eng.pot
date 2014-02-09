@@ -65,30 +65,559 @@ msgctxt "In-game mentor"
 msgid "The enemy has broken through your walls!"
 msgstr ""
 
-#: speech:99
+#: speech:7
+msgctxt "In-game mentor"
+msgid "Your Dungeon Heart is being attacked!"
+msgstr ""
+
+#: speech:8
 msgctxt "In-game mentor"
 msgid "Your minions have lost a battle."
 msgstr ""
 
-#: speech:99
+#: speech:9
 msgctxt "In-game mentor"
-msgid "Your creatures have won a battle."
+msgid "Your creatures have won a battle!"
 msgstr ""
 
-#: speech:99
+#: speech:10
 msgctxt "In-game mentor"
-msgid "Your minions are winning a battle."
+msgid "Your creatures are falling in battle!"
 msgstr ""
 
-#: speech:99
+#: speech:11
 msgctxt "In-game mentor"
-msgid "You are losing territory."
+msgid "Your minions are winning the battle."
 msgstr ""
 
-#: speech:99
+#: speech:12
+msgctxt "In-game mentor"
+msgid "Your creatures are under attack."
+msgstr ""
+
+#: speech:13
+msgctxt "In-game mentor"
+msgid "Your creatures are attacking the enemy!"
+msgstr ""
+
+#: speech:14
+msgctxt "In-game mentor"
+msgid "The enemy is destroying your rooms!"
+msgstr ""
+
+#: speech:15
+msgctxt "In-game mentor"
+msgid "You are losing teritory."
+msgstr ""
+
+#: speech:16
+msgctxt "In-game mentor"
+msgid "You have claimed an enemy room."
+msgstr ""
+
+#: speech:17
+msgctxt "In-game mentor"
+msgid "You have taken control of a new room."
+msgstr ""
+
+#: speech:18
+msgctxt "In-game mentor"
+msgid "Beware, the lord of the land approaches!"
+msgstr ""
+
+#: speech:19
+msgctxt "In-game mentor"
+msgid "Your creatures are fighting amongst themselves."
+msgstr ""
+
+#: speech:20
 msgctxt "In-game mentor"
 msgid "The battle is over."
 msgstr ""
+
+#: speech:21
+msgctxt "In-game mentor"
+msgid "Food is scarse, enlarge your Hatchery."
+msgstr ""
+
+#: speech:22
+msgctxt "In-game mentor"
+msgid "Your creatures need a bigger Lair."
+msgstr ""
+
+#: speech:23
+msgctxt "In-game mentor"
+msgid "You need a bigger Treasure Room."
+msgstr ""
+
+#: speech:24
+msgctxt "In-game mentor"
+msgid "Your Library is too small."
+msgstr ""
+
+#: speech:25
+msgctxt "In-game mentor"
+msgid "Your Prison is too small."
+msgstr ""
+
+#: speech:26
+msgctxt "In-game mentor"
+msgid "Your Torture Chamber is not big enough."
+msgstr ""
+
+#: speech:27
+msgctxt "In-game mentor"
+msgid "You need a bigger Training Room."
+msgstr ""
+
+#: speech:28
+msgctxt "In-game mentor"
+msgid "Your Workshop is not big enough."
+msgstr ""
+
+#: speech:29
+msgctxt "In-game mentor"
+msgid "Your Scavenge Room is too small."
+msgstr ""
+
+#: speech:30
+msgctxt "In-game mentor"
+msgid "You need a bigger Temple."
+msgstr ""
+
+#: speech:31
+msgctxt "In-game mentor"
+msgid "Your Graveyard is not big enough."
+msgstr ""
+
+#: speech:32
+msgctxt "In-game mentor"
+msgid "Your Barracks require expansion."
+msgstr ""
+
+#: speech:33
+msgctxt "In-game mentor"
+msgid "Hungry creatures cannot get to a Hatchery."
+msgstr ""
+
+#: speech:34
+msgctxt "In-game mentor"
+msgid "Some of your minions are unable to reach the Treasure Room."
+msgstr ""
+
+#: speech:35
+msgctxt "In-game mentor"
+msgid "Some of your minions are unable to reach their lairs."
+msgstr ""
+
+#: speech:36
+msgctxt "In-game mentor"
+msgid "An Entrance have been claimed."
+msgstr ""
+
+#: speech:37
+msgctxt "In-game mentor"
+msgid "You have lost an entrance."
+msgstr ""
+
+#: speech:38
+msgctxt "In-game mentor"
+msgid "You must build a Treasure Room, to store gold."
+msgstr ""
+
+#: speech:39
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:40
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:41
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:42
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:43
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:44
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:45
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:46
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:47
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:48
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:49
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:50
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:51
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:52
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:53
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:54
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:55
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:56
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:57
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:58
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:59
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:60
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:61
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:62
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:63
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:64
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:65
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:66
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:67
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:68
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:69
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:70
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:71
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:72
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:73
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:74
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:75
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:76
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:77
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:78
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:79
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:80
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:81
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:82
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:83
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:84
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:85
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:86
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:87
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:88
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:89
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:90
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:91
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:92
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:93
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:94
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:95
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:96
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:97
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:98
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:99
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:100
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:101
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:102
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:103
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:104
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:105
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:106
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:107
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:108
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:109
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:110
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:111
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:112
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:113
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:114
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:115
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+#: speech:116
+msgctxt "In-game mentor"
+msgid ""
+msgstr ""
+
+
+
+
 
 #: speech:99
 msgctxt "In-game mentor"
