@@ -2,19 +2,19 @@
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
 #   @file speech_eng.pot
-#msgid "  KeeperFX Speeches translation template
+#      KeeperFX Speeches translation template
 #  @par Purpose:
-#msgid "  Allows to create .po files used for translating the game.
-#msgid "  Also, acts as english translation script.
+#      Allows to create .po files used for translating the game.
+#      Also, acts as english translation script.
 #  @par Comment:
-#msgid "  Use this file to create or update script of speeches.
+#      Use this file to create or update script of speeches.
 #  @author   KeeperFX Team
-#  @datemsgid " 25 Aug 2012 - 02 Oct 2012
+#  @date     25 Aug 2012 - 02 Oct 2012
 #  @par  Copying and copyrights:
-#msgid "  This program is free software; you can redistribute it and/or modify
-#msgid "  it under the terms of the GNU General Public License as published by
-#msgid "  the Free Software Foundation; either version 2 of the License, or
-#msgid "  (at your option) any later version.
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
 #
 # *****************************************************************************
 msgid ""
@@ -227,534 +227,300 @@ msgstr ""
 
 #: speech:39
 msgctxt "In-game mentor"
-msgid ""
+msgid "You need to build a Lair for your creatures."
 msgstr ""
 
 #: speech:40
 msgctxt "In-game mentor"
-msgid ""
+msgid "You should build a Hatchery, to feed your minions."
 msgstr ""
 
 #: speech:41
 msgctxt "In-game mentor"
-msgid ""
+msgid "A new room has been researched."
 msgstr ""
 
 #: speech:42
 msgctxt "In-game mentor"
-msgid ""
+msgid "A new spell has been researched."
 msgstr ""
 
 #: speech:43
 msgctxt "In-game mentor"
 msgid ""
-msgstr ""
+msgstr "A door has been manufactured."
 
 #: speech:44
 msgctxt "In-game mentor"
-msgid ""
+msgid "A trap has been manufactured."
 msgstr ""
 
 #: speech:45
 msgctxt "In-game mentor"
-msgid ""
+msgid "There is nothing new to research."
 msgstr ""
 
 #: speech:46
 msgctxt "In-game mentor"
-msgid ""
+msgid "You have taken an enemy's spellbook."
 msgstr ""
 
 #: speech:47
 msgctxt "In-game mentor"
-msgid ""
+msgid "You have taken an enemy's trap design."
 msgstr ""
 
 #: speech:48
 msgctxt "In-game mentor"
-msgid ""
+msgid "You have taken an enemy's door design."
 msgstr ""
 
 #: speech:49
 msgctxt "In-game mentor"
-msgid ""
+msgid "The enemy has stolen a spellbook!"
 msgstr ""
 
 #: speech:50
 msgctxt "In-game mentor"
-msgid ""
+msgid "A trap design has been taken from you."
 msgstr ""
 
 #: speech:51
 msgctxt "In-game mentor"
-msgid ""
+msgid "The enemy has taken a door design."
 msgstr ""
 
 #: speech:52
 msgctxt "In-game mentor"
-msgid ""
+msgid "Information has been tortured from the enemy."
 msgstr ""
 
 #: speech:53
 msgctxt "In-game mentor"
-msgid ""
+msgid "An enemy has been converted to your cause."
 msgstr ""
 
 #: speech:54
 msgctxt "In-game mentor"
-msgid ""
+msgid "A prisonner have died and returned as a Skeleton."
 msgstr ""
 
 #: speech:55
 msgctxt "In-game mentor"
-msgid ""
+msgid "A torture victim has died and returned as a Ghost."
 msgstr ""
 
 #: speech:56
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your prisonners are escaping!"
 msgstr ""
 
 #: speech:57
 msgctxt "In-game mentor"
-msgid ""
+msgid "A Vampire has risen on your Graveyard."
 msgstr ""
 
 #: speech:58
 msgctxt "In-game mentor"
-msgid ""
+msgid "You have freed your creatures from prison!"
 msgstr ""
 
 #: speech:59
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your prisonners are starving to death."
 msgstr ""
 
 #: speech:60
 msgctxt "In-game mentor"
-msgid ""
+msgid "One of your creatures is being scavenged!"
 msgstr ""
 
 #: speech:61
 msgctxt "In-game mentor"
-msgid ""
+msgid "One of your minions is being scavenged!"
 msgstr ""
 
 #: speech:62
 msgctxt "In-game mentor"
-msgid ""
+msgid "One of your creatures has joined the enemy."
 msgstr ""
 
 #: speech:63
 msgctxt "In-game mentor"
-msgid ""
+msgid "Secrets have been tortured from your creatures!"
 msgstr ""
 
 #: speech:64
 msgctxt "In-game mentor"
-msgid ""
+msgid "The Gods are pleased with your sacrifice."
 msgstr ""
 
 #: speech:65
 msgctxt "In-game mentor"
-msgid ""
+msgid "The Gods have rewarded your offering."
 msgstr ""
 
 #: speech:66
 msgctxt "In-game mentor"
-msgid ""
+msgid "The Gods do not care for your sacrifice."
 msgstr ""
 
 #: speech:67
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your offering has made the Gods angry!"
 msgstr ""
 
 #: speech:68
 msgctxt "In-game mentor"
-msgid ""
+msgid "The Gods have punished your unwothy offering."
 msgstr ""
 
 #: speech:69
 msgctxt "In-game mentor"
-msgid ""
+msgid "This is no wishing well, keeper."
 msgstr ""
 
 #: speech:70
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your creatures have discovered a misterious magic box."
 msgstr ""
 
 #: speech:71
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your creatures have found a spell."
 msgstr ""
 
 #: speech:72
 msgctxt "In-game mentor"
-msgid ""
+msgid "A door design has been discovered."
 msgstr ""
 
 #: speech:73
 msgctxt "In-game mentor"
-msgid ""
+msgid "A trap design has been discovered."
 msgstr ""
 
 #: speech:74
 msgctxt "In-game mentor"
-msgid ""
+msgid "New creatures have joined your dungeon."
 msgstr ""
 
 #: speech:75
 msgctxt "In-game mentor"
-msgid ""
+msgid "You have thalowed into a new area."
 msgstr ""
 
 #: speech:76
 msgctxt "In-game mentor"
-msgid ""
+msgid "The entire realm has been revealed to you."
 msgstr ""
 
 #: speech:77
 msgctxt "In-game mentor"
-msgid ""
+msgid "You may resurrect one creature."
 msgstr ""
 
 #: speech:78
 msgctxt "In-game mentor"
-msgid ""
+msgid "Select a creature to take with you to the next realm."
 msgstr ""
 
 #: speech:79
 msgctxt "In-game mentor"
-msgid ""
+msgid "So be it."
 msgstr ""
 
 #: speech:80
 msgctxt "In-game mentor"
-msgid ""
+msgid "You have bewitched a hero."
 msgstr ""
 
 #: speech:81
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your creatures have been doubled in number."
 msgstr ""
 
 #: speech:82
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your creatures have been blessed with experience."
 msgstr ""
 
 #: speech:83
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your dungeon has been fortified."
 msgstr ""
 
 #: speech:84
 msgctxt "In-game mentor"
-msgid ""
+msgid "You have found a hidden realm. Go there when you've conquered this land."
 msgstr ""
 
 #: speech:85
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your gold reserves are running low."
 msgstr ""
 
 #: speech:86
 msgctxt "In-game mentor"
-msgid ""
+msgid "You do not have enough gold."
 msgstr ""
 
 #: speech:87
 msgctxt "In-game mentor"
-msgid ""
+msgid "You are too poor to scavenge creatures."
 msgstr ""
 
 #: speech:88
 msgctxt "In-game mentor"
-msgid ""
+msgid "You cannot afford to train creatures."
 msgstr ""
 
 #: speech:89
 msgctxt "In-game mentor"
-msgid ""
+msgid "It is payday."
 msgstr ""
 
 #: speech:90
 msgctxt "In-game mentor"
-msgid ""
+msgid "My god, it's full of pies."
 msgstr ""
 
 #: speech:91
 msgctxt "In-game mentor"
-msgid ""
+msgid "Something surreal is happening."
 msgstr ""
 
 #: speech:92
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your creatures are developing a strange accent."
 msgstr ""
 
 #: speech:93
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your pants are definitely too tight."
 msgstr ""
 
 #: speech:94
 msgctxt "In-game mentor"
-msgid ""
+msgid "Your minions have a craving for chocolate."
 msgstr ""
 
 #: speech:95
 msgctxt "In-game mentor"
-msgid ""
+msgid "There's that smell again."
 msgstr ""
 
 #: speech:96
 msgctxt "In-game mentor"
-msgid ""
+msgid "Hello."
 msgstr ""
 
 #: speech:97
 msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:98
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:100
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:101
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:102
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:103
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:104
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:105
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:106
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:107
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:108
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:109
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:110
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:111
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:112
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:113
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:114
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:115
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-#: speech:116
-msgctxt "In-game mentor"
-msgid ""
-msgstr ""
-
-
-
-
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "You have taken an enemy spell book."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "You have taken an enemies trap design."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "You have taken an enemies door design."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "The enemy has stolen a spell book."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "A trap design has been taken from you."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "The enemy has taken a door design."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "You have freed your creatures from prison."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Your prisoners are starving to death."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Your creatures have discovered a mysterious magic box."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Your creatures have found a spell."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "A door design has been discovered."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "A trap design has been discovered."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "New creatures have joined your dungeon."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "One of your creatures has joined the enemy."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Secrets have been tortured from your creatures."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "You may resurrect one creature."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Select a creature to take with you to the next realm."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "What trickery is this? The Avatar's body has vanished."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "You are victorious, your darkness pervades througout the kingdom. All hail the new lord of shadows."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "My god, it's full of pies."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Something surreal is happening."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Your creatures are developing a strange accent."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Your pants are definitely too tight."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Your minions have a craving for chocolate."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "There's that smell again."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
-msgid "Hello."
-msgstr ""
-
-#: speech:99
-msgctxt "In-game mentor"
 msgid "Blech."
 msgstr ""
 
-#: speech:99
+#: speech:98
 msgctxt "In-game mentor"
 msgid "Achoo"
 msgstr ""
@@ -762,6 +528,91 @@ msgstr ""
 #: speech:99
 msgctxt "In-game mentor"
 msgid "Cough"
+msgstr ""
+
+#: speech:100
+msgctxt "In-game mentor"
+msgid "You cannot give your Imps any more jobs."
+msgstr ""
+
+#: speech:101
+msgctxt "In-game mentor"
+msgid "Game loaded."
+msgstr ""
+
+#: speech:102
+msgctxt "In-game mentor"
+msgid "Game saved."
+msgstr ""
+
+#: speech:103
+msgctxt "In-game mentor"
+msgid "You have defeated an enemy Keeper."
+msgstr ""
+
+#: speech:104
+msgctxt "In-game mentor"
+msgid "You have been defeated."
+msgstr ""
+
+#: speech:105
+msgctxt "In-game mentor"
+msgid "You have conquered this realm!"
+msgstr ""
+
+#: speech:106
+msgctxt "In-game mentor"
+msgid "Master, I sence the presence of the Avatar!"
+msgstr ""
+
+#: speech:107
+msgctxt "In-game mentor"
+msgid "What trickery is this? The Avatar's body has vanished."
+msgstr ""
+
+#: speech:108
+msgctxt "In-game mentor"
+msgid "You are victorious, your darkness pervades througout the kingdom. All hail the new lord of shadows."
+msgstr ""
+
+#: speech:109
+msgctxt "Enemy Keeper Harassment"
+msgid "Your efforts are futile!"
+msgstr ""
+
+#: speech:110
+msgctxt "Enemy Keeper Harassment"
+msgid "My dungeon is the finest You shall ever see!"
+msgstr ""
+
+#: speech:111
+msgctxt "Enemy Keeper Harassment"
+msgid "My minions will leave your dungeon a crumbling ruin!"
+msgstr ""
+
+#: speech:112
+msgctxt "Enemy Keeper Harassment"
+msgid "You entrails will decorate the darkest alchow of my domain!"
+msgstr ""
+
+#: speech:113
+msgctxt "Enemy Keeper Harassment"
+msgid "Your corpse shall se my minions yet, keeper!"
+msgstr ""
+
+#: speech:114
+msgctxt "Enemy Keeper Harassment"
+msgid "Prepare for oblivion, Keeper!"
+msgstr ""
+
+#: speech:115
+msgctxt "Enemy Keeper Harassment"
+msgid "Pathetic creature, I shall crush you in an instant!"
+msgstr ""
+
+#: speech:116
+msgctxt "Enemy Keeper Harassment"
+msgid "Ho ho ho ho!"
 msgstr ""
 
 #: speech:117
