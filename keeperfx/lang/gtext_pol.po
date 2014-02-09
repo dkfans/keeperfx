@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-06 18:12+0100\n"
+"PO-Revision-Date: 2014-02-10 00:05+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -1006,10 +1006,10 @@ msgid ""
 "before they join the other keepers, you will be unstoppable, unless you do "
 "something stupid."
 msgstr ""
-"JASKINIĘ NA POŁUDNIU ZAMIESZKUJĄ POTĘŻNE STWORY. ODDZIELA CIĘ OD NICH "
-"DRUŻYNA BOHATERÓW, ALE JEŚLI ZDOŁASZ DO NICH DOTRZEĆ I PRZEKABACIĆ JE NA "
-"SWOJĄ STRONĘ, ZANIM ZROBIĄ TO RYWALE, BĘDZIESZ NIEZWYCIĘŻONY. O ILE NIE "
-"POPEŁNISZ JAKIEGOŚ GŁUPSTWA."
+"Jaskinię na południu zamieszkują potężne stwory. Oddziela cię od nich "
+"drużyna bohaterów, ale jeśli zdołasz do nich dotrzeć i przekabacić je na "
+"swoją stronę, zanim zrobią to rywale, będziesz niezwyciężony. O ile nie "
+"popełnisz jakiegoś głupstwa."
 
 #: guitext:89
 msgctxt "In-game message"
@@ -2726,12 +2726,12 @@ msgstr "Ścieżka: Bezpański kawałek klepiska. [12.1]"
 #: guitext:332
 msgctxt "Slab description"
 msgid "Claimed area: Your dungeon territory. [12.1]"
-msgstr "Ścieżka: Bezpański kawałek klepiska. [12.1]"
+msgstr "Namazany teren: Twoje terytorium lochu. [12.1]"
 
 #: guitext:333
 msgctxt "In-game interface item"
 msgid "More..."
-msgstr "WIĘCEJ..."
+msgstr "Więcej..."
 
 #: guitext:334
 msgctxt "In-game message"
@@ -3400,12 +3400,12 @@ msgstr "Następna bitwa: Kliknij LPM, aby przejść do następnego starcia."
 #: guitext:465
 msgctxt "In-game interface item"
 msgid "Close Window"
-msgstr "Zamknięcie okna "
+msgstr "Zamknięcie okna"
 
 #: guitext:466
 msgctxt "In-game interface item"
 msgid "Zoom to area"
-msgstr "Zbliżenie obszaru "
+msgstr "Zbliżenie obszaru"
 
 #: guitext:467
 msgctxt "Menu interface item"
@@ -4544,132 +4544,132 @@ msgstr ""
 #: guitext:664
 msgctxt "Game event name"
 msgid "Treasure Room full"
-msgstr "SKARBIEC JEST PEŁNY "
+msgstr "Skarbiec jest pełny"
 
 #: guitext:665
 msgctxt "Game event name"
 msgid "Scavenging detected"
-msgstr "WYKRYTO POZYSKIWANIE"
+msgstr "Wykryto pozyskiwanie"
 
 #: guitext:666
 msgctxt "Game event name"
 msgid "Creature Payday"
-msgstr "WYPŁATA DLA STWORÓW"
+msgstr "Wypłata dla stworów"
 
 #: guitext:667
 msgctxt "Game event name"
 msgid "New spell picked up"
-msgstr "ZNALEZIONO NOWE ZAKLĘCIE"
+msgstr "Znaleziono nowe zaklęcie"
 
 #: guitext:668
 msgctxt "Game event name"
 msgid "New room taken over"
-msgstr "PRZEJĘTO NOWE POMIESZCZENIE"
+msgstr "Przejęto nowe pomieszczenie"
 
 #: guitext:669
 msgctxt "Game event name"
 msgid "New area discovered"
-msgstr "ODKRYTO NOWY OBSZAR"
+msgstr "Odkryto nowy obszar"
 
 #: guitext:670
 msgctxt "Game event name"
 msgid "Information"
-msgstr "INFORMACJA"
+msgstr "Informacja"
 
 #: guitext:671
 msgctxt "Game event name"
 msgid "Room lost"
-msgstr "POMIESZCZENIE UTRACONE"
+msgstr "Pomieszczenie utracone"
 
 #: guitext:672
 msgctxt "Game event name"
 msgid "Heart attacked"
-msgstr "SERCE ZAATAKOWANE"
+msgstr "Serce zaatakowane"
 
 #: guitext:673
 msgctxt "Game event name"
 msgid "Fight"
-msgstr "WALKA"
+msgstr "Walka"
 
 #: guitext:674
 msgctxt "Game event name"
 msgid "Objective"
-msgstr "CEL"
+msgstr "Cel"
 
 #: guitext:675
 msgctxt "Game event name"
 msgid "Breach"
-msgstr "WŁAMANIE"
+msgstr "Włamanie"
 
 #: guitext:676
 msgctxt "Game event name"
 msgid "New spell researched"
-msgstr "WYNALEZIONO NOWE ZAKLĘCIE"
+msgstr "Wynaleziono nowe zaklęcie"
 
 #: guitext:677
 msgctxt "Game event name"
 msgid "New room researched"
-msgstr "OPRACOWANO NOWE POMIESZCZENIE"
+msgstr "Opracowano nowe pomieszczenie"
 
 #: guitext:678
 msgctxt "Game event name"
 msgid "New Trap"
-msgstr "NOWA PUŁAPKA"
+msgstr "Nowa pułapka"
 
 #: guitext:679
 msgctxt "Game event name"
 msgid "New Door"
-msgstr "NOWE DRZWI"
+msgstr "Nowe drzwi"
 
 #: guitext:680
 msgctxt "Game event name"
 msgid "New creature in dungeon"
-msgstr "NOWY STWÓR W PODZIEMIU"
+msgstr "Nowy stwór w podziemiu"
 
 #: guitext:681
 msgctxt "Game event name"
 msgid "Creature annoyed"
-msgstr "STWÓR ZDENERWOWANY"
+msgstr "Stwór zdenerwowany"
 
 #: guitext:682
 msgctxt "Game event name"
 msgid "No more living space"
-msgstr "BRAK PRZESTRZENI ŻYCIOWEJ"
+msgstr "Brak przestrzeni życiowej"
 
 #: guitext:683
 msgctxt "Game event name"
 msgid "Alarm triggered"
-msgstr "OGŁOSZONO ALARM"
+msgstr "Ogłoszono alarm"
 
 #: guitext:684
 msgctxt "Game event name"
 msgid "Room under attack"
-msgstr "KOMANATA ATAKOWANA"
+msgstr "Komanata atakowana"
 
 #: guitext:685
 msgctxt "Game event name"
 msgid "Treasure Room needed"
-msgstr "POTRZEBNY SKARBIEC"
+msgstr "Potrzebny skarbiec"
 
 #: guitext:686
 msgctxt "Game event name"
 msgid "Creatures becoming hungry"
-msgstr "STWORZY STAJĄ SIĘ GŁODNE"
+msgstr "Stworzy stają się głodne"
 
 #: guitext:687
 msgctxt "Game event name"
 msgid "Trap crate found"
-msgstr "ZNALEZIONO SKRZYNIĘ Z PUŁAPKĄ"
+msgstr "Znaleziono skrzynię z pułapką"
 
 #: guitext:688
 msgctxt "Game event name"
 msgid "Door crate found"
-msgstr "ZNALEZIONO SKRZYNIĘ Z DRZWIAMI"
+msgstr "Znaleziono skrzynię z drzwiami"
 
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr "ZNALEZIONO COŚ SPECJALNEGO"
+msgstr "Znaleziono coś specjalnego"
 
 #: guitext:690
 msgctxt "Game event description"
@@ -5419,8 +5419,8 @@ msgid ""
 "Imps are the lifeblood of your dungeon. Like blood, they must be allowed to "
 "circulate."
 msgstr ""
-"CHOCHLIKI STANOWIĄ KRWINKI TWEGO LOCHU. PODOBNIE JAK KREW, POWINNY STALE "
-"KRĄŻYĆ."
+"Chochliki stanowią krwinki twego lochu. podobnie jak krew, powinny stale "
+"krążyć."
 
 #: guitext:830
 msgctxt "In-game hint message"
@@ -5428,8 +5428,8 @@ msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
 msgstr ""
-"PODŁE SAMOPOCZUCIE? WYŚLIJ KILKA STWORÓW DO WIĘZIENIA, A JEŚLI CELE SĄ "
-"PEŁNE, ZABAW SIĘ TORTURAMI"
+"Podłe samopoczucie? Wyślij kilka stworów do więzienia, a jeśli cele są "
+"pełne, zabaw się torturami"
 
 #: guitext:831
 msgctxt "In-game hint message"
@@ -5437,8 +5437,8 @@ msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
 msgstr ""
-"JEŚLI TWOJE STWORY STAJĄ SIĘ NIEZADOWOLONE, WYBIJ IM TO KLAPSAMI Z GŁOWY. "
-"SZYBKO SPOSTRZEGĄ, ŻE TAK NAPRAWDĘ SĄ SZCZĘŚLIWE."
+"Jeśli twoje stwory stają się niezadowolone, wybij im to klapsami z głowY. "
+"Szybko spostrzegą, że tak naprawdę są szczęśliwe."
 
 #: guitext:832
 msgctxt "In-game hint message"
@@ -5446,8 +5446,8 @@ msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
 msgstr ""
-" PODZIEMIE STANOWI TWĄ DZIEDZINĘ, A POSZUKIWACZE PRZYGÓD PRZYCHODZĄ JĄ "
-"OKRAŚĆ. DLATEGO NIGDY ICH NIE ŻAŁUJ, NAWET GDY SĄ BEZBRONNI I BEZNADZIEJNI."
+" Podziemie stanowi twą dziedzinę, a poszukiwacze przygód przychodzą ją "
+"okraść. Dlatego nigdy ich nie żałuj, nawet gdy są bezbronni i beznadziejni."
 
 #: guitext:833
 msgctxt "In-game hint message"
@@ -5455,8 +5455,8 @@ msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
 msgstr ""
-"WSPÓŁCZUCIE JEST CHARAKTERYSTYCZNE DLA DOBREGO GOSPODARZA. ALE DOBRZY "
-"GOSPODARZE NIE WYGRYWAJĄ, TYLKO ŹLI."
+"Współczucie jest charakterystyczne dla dobrego gospodarza. Ale dobrzy "
+"gospodarze nie wygrywają, tylko źli."
 
 #: guitext:834
 msgctxt "In-game hint message"
@@ -5464,8 +5464,8 @@ msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
 msgstr ""
-"NIGDY NIE MA CHWILI DO STRACENIA. NAJDZIELNIEJSI Z DZIELNYCH USTAWIAJĄ SIĘ "
-"JUŻ W KOLEJCE DO TWOJEGO LOCHU. SKOŃCZ ZATEM CZYTAĆ TEN TEKST I DO ROBOTY. "
+"Nigdy nie ma chwili do stracenia. Najdzielniejsi z dzielnych ustawiają się "
+"już w kolejce do twojego lochu. Skończ zatem czytać ten tekst i do roboty. "
 
 #: guitext:835
 msgctxt "In-game hint message"
@@ -5473,8 +5473,8 @@ msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
 msgstr ""
-"BUDUJ SIĘ SZYBKO. INTRUZI POWINNI SPOTKAĆ SIĘ Z MOŻLIWIE JAK NAJWIĘKSZYM "
-"KOMITETEM POWITALNYM."
+"Buduj się szybko. Intruzi powinni spotkać się z możliwie jak największym "
+"komitetem powitalnym."
 
 #: guitext:836
 msgctxt "In-game hint message"
@@ -5482,18 +5482,18 @@ msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
 msgstr ""
-"NIECH TWE CHOCHLIKI NIE USTAJĄ W KOPANIU. W ZIEMI ZAWSZE ZNAJDZIE SIĘ COŚ "
-"ZASKAKUJĄCEGO."
+"Niech twe chochliki nie ustają w kopaniu. W ziemi zawsze znajdzie się coś "
+"zaskakującego."
 
 #: guitext:837
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr "KTO POSIADA NAJWIĘCEJ ZŁOTA, POSIADA CAŁE PODZIEMIE "
+msgstr "Kto posiada najwięcej złota, posiada całe podziemie "
 
 #: guitext:838
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
-msgstr "STRACH I BRAK LITOŚCI SĄ TWOJĄ NAJLEPSZĄ BRONIĄ. UŻYWAJ JEJ MĄDRZE."
+msgstr "Strach i brak litości są twoją najlepszą bronią. Używaj jej mądrze."
 
 #: guitext:839
 msgctxt "In-game hint message"
@@ -5501,8 +5501,8 @@ msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
 msgstr ""
-"ZAPRAWDĘ GŁUPI JEST GOSPODARZ, KTÓRY SPRZEDAJE WSZYSTKIE POMIESZCZENIA I "
-"ODMAWIA ZAPŁATY SWOIM SŁUGOM."
+"Zaprawdę głupi jest gospodarz, który sprzedaje wszystkie pomieszczenia i "
+"odmawia zapłaty swoim sługom."
 
 #: guitext:840
 msgctxt "Menu interface item"
@@ -5597,47 +5597,47 @@ msgstr "Pomoc"
 #: guitext:858
 msgctxt "Credits"
 msgid "Support Art"
-msgstr "WSPARCIE ARTYSTYCZNE"
+msgstr "Wsparcie artystyczne"
 
 #: guitext:859
 msgctxt "Credits"
 msgid "Navigation System"
-msgstr "SYSTEM NAWIGACJI"
+msgstr "System nawigacji"
 
 #: guitext:860
 msgctxt "Credits"
 msgid "Script"
-msgstr "SCENARIUSZ"
+msgstr "Scenariusz"
 
 #: guitext:861
 msgctxt "Credits"
 msgid "Voice Over"
-msgstr "GŁOSY"
+msgstr "Głosy"
 
 #: guitext:862
 msgctxt "Credits"
 msgid "Finance"
-msgstr "FINANSE"
+msgstr "Finanse"
 
 #: guitext:864
 msgctxt "Credits"
 msgid "Localisation Management"
-msgstr "KIEROWNICTWO WERSJI JĘZYKOWYCH"
+msgstr "Kierownictwo wersji językowych"
 
 #: guitext:865
 msgctxt "Credits"
 msgid "Language Test Supervisor"
-msgstr "KIEROWNIK TESTÓW JĘZYKOWYCH"
+msgstr "Kierownik testów językowych"
 
 #: guitext:866
 msgctxt "Credits"
 msgid "Language Testers"
-msgstr "TESTERZY WERSJI JĘZYKOWYCH"
+msgstr "Testerzy wersji językowych"
 
 #: guitext:867
 msgctxt "Credits"
 msgid "Localisation Audio Management"
-msgstr "KIEROWNICTWO DŹWIĘKU WERSJI JĘZYKOWYCH"
+msgstr "Kierownictwo dźwięku wersji językowych"
 
 #: guitext:868
 msgctxt "Network game message"
@@ -6212,7 +6212,7 @@ msgstr ""
 #: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
-msgstr "Moo2"
+msgstr "Muu2"
 
 #: guitext:941
 msgctxt "Menu interface item"

@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: KeeperFX CCP 0.43\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-11-13 19:57+0100\n"
+"PO-Revision-Date: 2014-02-10 00:18+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -335,99 +335,108 @@ msgstr "Poziom wskazany księżycem"
 #: guitext:225
 msgctxt "Level name"
 msgid "Unused"
-msgstr "Nieużyty"
+msgstr "Niewykorzystany"
 
 #: guitext:226
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Arrow: The basic ranged weapon, effective at long distance."
-msgstr "Strzała: [25.4]"
+msgstr "Strzała: Najprostsza broń dystansowa, efektywna z duzej odległości."
 
 #: guitext:227
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended "
 "animation and can be shattered with a well-aimed blow."
-msgstr "Zamrażacz: [26.8]"
+msgstr ""
+"Zamrażacz: Robi ze stwora bryłę lodu. Cel nie może się poruszać, jest też "
+"narażony na roztrzaskanie przy dobrze wymierzonym uderzeniu."
 
 #: guitext:228
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Armour: This lowers the amount of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
-msgstr "Pancerz: [26.1]"
+msgstr ""
+"Pancerz: Obniża wartość obrażeń otrzymywanych przez stwora przy tafieniach, "
+"powoduje też całkowitą odporność na ataki elektryczne."
 
 #: guitext:229
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Lightning: A powerful magical weapon with electric attack. Casts a bolt of "
 "lighting from the creature."
-msgstr "Błyskawica: [26.13]"
+msgstr ""
+"Błyskawica: Potężna broń magiczna z atakiem elektrycznym. Rzuca paczkę "
+"błyskawic w nieszczęsny cel."
 
 #: guitext:230
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Rebound: Causes any spell fired at you to bounce back at the attacker."
-msgstr "Odbicie: [26.18]"
+msgstr ""
+"Odbicie: Powoduje że wystrzelone wrogie zaklęcia odbijają się na atakującego"
 
 #: guitext:231
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fear: Causes the opponent to be terrified and wanting to skip engageing into "
 "combat."
-msgstr "Strach: nie używane"
+msgstr ""
+"Strach: Sprawia że przeciwnik truchleje i szuka okazji na unikniecie "
+"konfrontacji."
 
 #: guitext:232
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Sight: Allows the creature to temporarely increase its awareness and notice "
 "the invisible."
-msgstr "Jasnowidzenie: nie używane"
+msgstr ""
+"Jasnowidzenie: Pozwala stworowi czasowo poszerzyć postrzeganie i dostrzec to "
+"co niewidzialne."
 
 #: guitext:233
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Missile: A simple spell that sends a screaming magic reptile at the "
 "invaders. Very disconcerting."
-msgstr "Pocisk: [26.15]"
+msgstr ""
+"Pocisk: Podstawowe zaklęcie wysyłające wrzeszczącą magiczną gadzinę w stronę "
+"wroga. Bardzo niepokojące."
 
 #: guitext:234
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Grenade: Throws a powerful explosive at the approaching enemy. It can also "
 "bounce off walls and has the traditional delayed fuse."
-msgstr "Granat: [26.9]"
+msgstr ""
+"Granat: Rzuca silny ładunek wybuchowy  na wroga. Pocisk odbija się od ścian "
+"i ma tradycyjny zapalnik czasowy."
 
 #: guitext:235
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Navigating Missile: This homes in on the nearest hero or enemy creature and "
 "explodes with devastating force."
-msgstr "Pocisk samonawodzący: [26.16]"
+msgstr ""
+"Pocisk samonawodzący: Odczuwa nieodpartą potrzebę przytulenia się do "
+"najbliższych wrogów i eksploduje z dewastującym efektem."
 
 #: guitext:236
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
-msgstr "Przyspieszacz: [26.20]"
+msgstr ""
+"Przyspieszacz: Pozwala zwiększyć metabolizm każdego stwora dwukrotnie, "
+"przyspieszając tak pracę jak i walkę."
 
 #: guitext:237 guitext:253
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Poison Cloud: Forms a cloud of noxious gas capable of damaging both the "
 "enemy and your own creatures. The gas affects all who breathe it."
-msgstr "Trujący obłok: [26.17]"
+msgstr ""
+"Trujący obłok: Formuje chmurę gazu szkodliwego zarówno wroga i własnych "
+"stworów. Wpływa na wszystkich, wezmą wdech."
 
 #: guitext:238
 msgctxt "Creature spell"
@@ -435,143 +444,158 @@ msgid "Group: Not used"
 msgstr "Grupowanie: nie używane"
 
 #: guitext:239
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Invisibility: Cast on one of your minions, it makes the host creature "
 "invisible to all enemies. Unless they possess a subnatural Sight."
-msgstr "Niewidzialność: [26.12]"
+msgstr ""
+"Niewidzialność: Rzucona na twojego podopiecznego sprawia, że ​​jest "
+"niewidzialny dla wszystkich wrogów. Chyba, że ​​posiadają zaklęcie "
+"jasnowidzenia."
 
 #: guitext:240
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Teleport: With this spell, a creature can teleport anywhere on the map. If "
 "you are Possessing a creature, then it teleports to its Lair or to the "
 "Dungeon Heart."
-msgstr "Teleportacja: [26.21]"
+msgstr ""
+"Teleportacja: Pozwala teleportować się w dowolne miejsce na mapie. Opętany "
+"stwór teleportuje się do Legowiska lub Serca Lochu."
 
 #: guitext:241
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Flame Breath: The devasting constant stream of searing fire."
-msgstr "Ognisty dech: [26.6]"
+msgstr "Ognisty dech: Ciągły strumień piekącego ognia."
 
 #: guitext:242
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr "Oświecenie: nie używane"
+msgstr ""
+"Oświecenie: Przywołuje światło wrród ciemności, poprawiając widoczność dla "
+"twojego stwora, jak i dla innych."
 
 #: guitext:243
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
 "from the air."
-msgstr "Lot: [26.7]"
+msgstr ""
+"Lot: Pozwala stworom unosić się nad ziemią, pokonując przeszkody i atakując "
+"z powietrza."
 
 #: guitext:244
-#, fuzzy
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a shower of hailstones wherever the spell lands."
-msgstr "Burza gradowa: [26.10]"
+msgstr "Burza gradowa: Tworzy opad wielkiego gradu w miejscu rzucenia czaru."
 
 #: guitext:245
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Slow: Slows down the target creature, making it attacks and movement delayed."
-msgstr "Spowolnienie: [26.19]"
+msgstr "Spowolnienie: Spowalnia stwora, opóźniając jego ruch i ataki."
 
 #: guitext:246
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Drain: This spell drains the target creature a fair part of its health and "
 "magical abilities."
-msgstr "Wyssanie: [26.4]"
+msgstr ""
+"Wyssanie: Zaklęcie wykrada nieszczęśnikowi znaczącą część zdrowia i "
+"zdolności magicznych."
 
 #: guitext:247
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Word of Power: Causes rings of fire to emanate from the creature's body and "
 "inflicts massive damage on the vicinity."
-msgstr "Mocne słowo: [26.23]"
+msgstr ""
+"Mocne słowo: Pierścienie ognia rozchodzą się od ciała potwora i wyrządzają "
+"ogromne obrażenia w pobliżu."
 
 #: guitext:248
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Heal: When this is cast, the creature is massively healed. Also, any nearby "
 "creatures are healed by a quarter."
-msgstr "Uzdrowienie: [26.11]"
+msgstr ""
+"Uzdrowienie: Przywraca dużą cześć zdrowia stwora. Również stwory w pobliżu "
+"są lekko odczuwają takie skutki."
 
 #: guitext:249
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Wind: Creates a force twelve gale in your Dungeon blowing every creature "
 "away from you."
-msgstr "Huragan: [26.22]"
+msgstr ""
+"Huragan: Wiatr o sile 12 w skali Beauforta w korytarzu lochu. Zdmuchuje "
+"wszelkie stwory w pobliżu."
 
 #: guitext:250
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Meteor: More powerful that the fireball, this spell throws out a solid ball "
 "of fire which does a lot of damage to an enemy."
-msgstr "Meteor: [26.14]"
+msgstr ""
+"Meteor: Mocniejszy niż Piorun, to zaklęcie rzuca solidną kulę ognia, który "
+"robi dużo obrażeń wrogowi."
 
 #: guitext:251
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Fireball: Fires a single fireball which homes in on the nearest enemy. Also "
 "inflicts minor damage to a Dungeon's walls and doors."
-msgstr "Piorun: [26.5]"
+msgstr ""
+"Piorun: Wystrzeliwuje kulę ognia, która zmierza za najbliższym "
+"przeciwnikiek. Zadaje drobne uszkodzenia również ścianom lochu i drzwiom."
 
 #: guitext:252
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Hand to Hand: The basic battle ability that allows to attack the enemy with "
 "either bare hands or a sword."
-msgstr "Ręka w rękę: [25.3]"
+msgstr ""
+"Ręka w rękę: Podstawowa umiejętność bitewna, pozwala na atak wroga mieczem "
+"lub gołymi rękami."
 
 #: guitext:254
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Dig: This is the basic ability of the Imp and allows it to tunnel through "
 "earth."
-msgstr "Drążenie: [25.2]"
+msgstr ""
+"Drążenie: Podstawowa umiejętnośc Choclików, pozwala im przekopywać tunele w "
+"ziemi."
 
 #: guitext:255
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Disease: Fired at a foe, gives them a Disease which is then spread to other "
 "creatures. The infected are slowly dying and can only be healed in the "
 "Temple."
-msgstr "Choroba: [26.3]"
+msgstr ""
+"Choroba: Rzucona na przeciwnika, sprawia że będzie roznosił ją i zarażał "
+"innych. Zainfekowany powoli umiera, może być uzdrowiony w świątyni."
 
 #: guitext:256
-#, fuzzy
 msgctxt "Creature spell"
 msgid ""
 "Chicken: Turns enemy into chicken for a while. The enemy isn't able to "
 "attack but has the same strength and thus won't be as easy to kill as a "
 "normal chicken."
-msgstr "Kurczak: [26.2]"
+msgstr ""
+"Kurczak: Na chwilę pokazuje przeciwnikowi świat z perspektywy kurczaka. Wróg "
+"nie jest w stanie atakować, ale ma niezmienioną siłę, więc nie da się zabić "
+"tak łatwo jak kurczak."
 
 #: guitext:257
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "Bomba zegarowa: Robi bum po kilku chwilach od namazania stwora."
+msgstr ""
+"Bomba zegarowa: Uzbraja stwora w ładunek wybuchowy i wysyła do wrogiego "
+"lochu. Stwór rozerwie się na wycieczce, więc już z niej nie wróci."
 
 #: guitext:258
 msgctxt "Creature name"
