@@ -8,14 +8,20 @@ These instructions assume that:
 
 You will need [POEdit] (open-source translation tool) to do this.
 
+==Getting the files and tools you need==
+
 Go [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang%253Fstate%253Dclosed here]  and you will see a list of the language files for the original campaign. Click on the file of the language you wish to use. Then right-click on ‘save target as’, and download the file ‘gtext_xxx.po’ (where xxx is the language you wish to translate into).
 
 Similarly, download the .pot file for the campaign you wish to translate. If it is an official campaign within KeeperFX go [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang here] (and expand the folder view on the left hand pane) and download the file. If it is an unofficial file, then you’ll need to have the English template (.pot) file from the author(s).
 
-Open the file in POEdit. From within the program choose
+Download [POEdit] from its official site [http://www.poedit.net/download.php here].
 
-Catalogue>update from pot file
+==Preparing initial translation==
 
+Open the PO file in POEdit. From within the program choose
+{{{
+Catalogue > update from pot file
+}}}
 POEdit will now have highlighted all the campaign specific messages that need the new language scripts. Translate into the new language, and save the file as a new .po file 
 
 (for example ‘akpr_rus.po’)
