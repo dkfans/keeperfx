@@ -167,7 +167,7 @@ TbBool map_is_solid_at_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapCoord
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
-    if ((mapblk->flags & 0x10) != 0)
+    if ((mapblk->flags & MapFlg_IsTall) != 0)
     {
         return true;
     }

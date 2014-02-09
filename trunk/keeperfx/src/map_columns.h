@@ -79,7 +79,7 @@ void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n);
 
 
 long get_top_cube_at_pos(long mpos);
-long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos);
 long get_map_floor_height(const struct Map *mapblk);
 long get_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long get_floor_height_at(const struct Coord3d *pos);

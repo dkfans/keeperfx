@@ -132,7 +132,7 @@ struct SlabAttr slab_attrs[] = {
   {0, 4, 6, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [45] DOOR_BRACE2
   {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
   {0, 4, 7, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
-  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
+  {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0}, // [48] DOOR_MAGIC
   {0, 4, 8, SlbAtFlg_Blocking|SlbAtFlg_IsDoor,  0, 0, SlbAtCtg_Obstacle,       2, 1, 1, 1, 0, 0},
   {0, 4, 2, SlbAtFlg_None,                      0, 0, SlbAtCtg_Obstacle,       0, 1, 0, 1, 0, 0}, // [50]
   {0, 4, 4, SlbAtFlg_Blocking|SlbAtFlg_IsRoom,  2, 0, SlbAtCtg_Obstacle,       1, 1, 1, 1, 0, 3}, // [51] BRIDGE_FRAME

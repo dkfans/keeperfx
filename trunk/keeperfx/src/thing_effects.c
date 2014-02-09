@@ -604,7 +604,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
     {
         struct Thing *efftng;
         efftng = thing;
-        cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num);
+        cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num, NULL);
         if (cube_is_water(cube_id))
         {
           effmodel = effstat->field_2A;
@@ -726,7 +726,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
         elemtng->movement_flags &= ~TMvF_IsOnLava;
         if (thing_touching_floor(elemtng))
         {
-            i = get_top_cube_at(elemtng->mappos.x.stl.num, elemtng->mappos.y.stl.num);
+            i = get_top_cube_at(elemtng->mappos.x.stl.num, elemtng->mappos.y.stl.num, NULL);
             if (cube_is_water(i)) {
                 elemtng->movement_flags |= TMvF_IsOnWater;
             } else
