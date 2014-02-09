@@ -2,22 +2,22 @@
 
 = In-game Texts & Language Support =
 
-In KeeperFX each campaign has a .dat file for each supported language. This contains the in-game messages, which are in 2 variants:
+In KeeperFX, each campaign has a .dat file for each supported language. This contains the in-game messages, which are in 2 variants:
 
-  * Objective. Appears at the bottom of the screen in-game. There is one at the start of the game, and the final one is usually something like "Success! This Land is Yours. Press Space to proceed to the next realm.". There are often more posted during the game.
+  * Objective. Appears at the bottom of the screen in-game. There is one at the start of the game, and the final one is usually something like _"Success! This Land is Yours. Press Space to proceed to the next realm."_. There are often more posted during the game, each replacing the previous one.
 
-  * Information. Very similar, but are sent via the flashing 'i'
+  * Information. Is a text message in a box, very similar to Objective. When triggered, Information is visible via flashing 'i'. You may have several Information messages visible at once - they will not replace each other, but will stack. Each Information has a limited lifespan after it's been read, and will disappear after some time.
 
-Both these message types are sent via the level script file (map00xxx.txt), specific to each map. The script calls a message from that language's .dat file (e.g. text_eng.dat)
+Both these message types are sent via the level script file (`map00xxx.txt`), specific to each map. The script calls a message from that language's `.dat` file (e.g. `text_eng.dat`).
 
 In KeeperFX .dat files are generated via 
 
-  # .pot files which are template English language files
-  # .po files which are translations of that campaign's .pot file
+  # `.pot` files which are template English language files
+  # `.po` files which are translations of that campaign's `.pot` file
 
-KeeperFX uses the .pot & .po files to generate the language specific text_xxx.dat files for each campaign.
+KeeperFX uses the `.pot` and `.po` files to generate the language specific `text_xxx.dat` files for each campaign.
 
-As well as in-game messages, the dat file also contains all the other information needed by the game for a specific language. The game produces tooltip messages whenever you point at an object, room, thing, creature etc in the game, and these also come from the dat file. Hence it is wise to use a pre-existing file, usually from the original campaign, and modify that to generate new content.
+As well as in-game messages, the `.dat` file also contains all the other information needed by the game for a specific language. The game produces tooltip messages whenever you point at an object, room, thing, creature etc in the game, and these also come from the `.dat` file. Hence it is wise to use a pre-existing file, usually from the original campaign, and modify that to generate new content.
 
 ==Options==
 
