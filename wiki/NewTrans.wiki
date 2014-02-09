@@ -14,6 +14,6 @@ Catalogue>update from pot file
 
 POEdit will now have highlighted all the campaign specific messages that need the new language scripts. Translate into the new language, and save the file as a new .po file 
 
-(for example (‘akpr_rus.po’)
+(for example ‘akpr_rus.po’)
 
-When the file is completed, e-mail it to Mefistotelis (mefistotelis@gmail.com) for inclusion in the campaign.
+When the file is completed, e-mail it to Mefistotelis (see contact information [http://keeper.lubiki.pl/html/contact.php here]) for inclusion in the campaign.
