@@ -370,7 +370,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
         if ((((1 << game.hero_player_num) & plyr_bit) != 0) || map_block_revealed_bit(mapblk, plyr_bit))
         {
-            if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
+            if (((mapblk->flags & MapFlg_IsTall) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
                 return true;
             }
@@ -382,7 +382,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
         if ((((1 << game.hero_player_num) & plyr_bit) == 0) && !map_block_revealed_bit(mapblk, plyr_bit))
         {
-            if (((mapblk->flags & 0x10) == 0) && ((get_navigation_map(stl_x, stl_y) & 0x10) == 0))
+            if (((mapblk->flags & MapFlg_IsTall) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
                 struct Thing *heartng;
                 heartng = get_player_soul_container(wandr->plyr_idx);

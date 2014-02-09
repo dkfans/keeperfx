@@ -305,7 +305,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     if ((blocked_flags & SlbBloF_WalledZ) != 0)
     {
         long cube_id;
-        cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num);
+        cube_id = get_top_cube_at(pos->x.stl.num, pos->y.stl.num, NULL);
         doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
         if (!thing_is_invalid(doortng))
         {

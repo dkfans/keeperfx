@@ -88,8 +88,6 @@ extern long nav_map_initialised;
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
-unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
 TbBool map_block_invalid(const struct Map *map);
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
@@ -104,6 +102,10 @@ long get_mapblk_column_index(const struct Map *map);
 void set_mapblk_column_index(struct Map *map, long column_idx);
 long get_mapblk_filled_subtiles(const struct Map *map);
 void set_mapblk_filled_subtiles(struct Map *map, long height);
+
+unsigned long get_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void set_navigation_map(MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long navcolour);
+unsigned long get_navigation_map_floor_height(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool set_coords_with_clip(struct Coord3d *pos, MapCoord cor_x, MapCoord cor_y, MapCoord cor_z);
 TbBool subtile_has_slab(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
