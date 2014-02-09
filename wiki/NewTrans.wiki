@@ -20,10 +20,12 @@ Download [POEdit] from its official site [http://www.poedit.net/download.php her
 
 Open the PO file in POEdit. From within the program choose
 {{{
-Catalogue > update from pot file
+Catalogue -> update from pot file
 }}}
-POEdit will now have highlighted all the campaign specific messages that need the new language scripts. Translate into the new language, and save the file as a new .po file 
+POEdit will now have highlighted all the campaign specific messages that need the new language scripts. You are now ready to start translating. Save the new .po file giving it different name, for example ‘ancntkpr_rus.po’.
 
-(for example ‘akpr_rus.po’)
+==Translating==
+
+Translate the highlighted messages into the new language, either all at once, or some at a time.
 
 When the file is completed, e-mail it to Mefistotelis (see contact information [http://keeper.lubiki.pl/html/contact.php here]) for inclusion in the campaign.
