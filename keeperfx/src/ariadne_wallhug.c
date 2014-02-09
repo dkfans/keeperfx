@@ -102,14 +102,15 @@ int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x,
     return (i >> 9) & 3;
 }
 
-TbBool terrain_toxic_for_creature_at_position_MOD(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if ((crstat->hurt_by_lava > 0) || slb->kind != SlbT_LAVA) {
-        return true;
+    // We can step on lava if it doesn't hurt us or we can fly
+    if (slb->kind == SlbT_LAVA) {
+        return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
     }
     return false;
 }
@@ -146,7 +147,7 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     }
     else
     {
-        if (slbattr->is_safe_land || !terrain_toxic_for_creature_at_position_MOD(creatng, stl_x, stl_y))
+        if (slbattr->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
         {
             return true;
         }
