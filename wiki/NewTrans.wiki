@@ -35,7 +35,9 @@ When the file is completed, e-mail it to Mefistotelis (see contact information [
 ==Problems==
 
 *I can't find the .po file for my language.*
-Your language may be not yet supported by KeeperFX. Create an issue in "Issue tracker" describing the situation.
+
+_Your language may be not yet supported by KeeperFX. Create an issue in "Issue tracker" describing the situation._
 
 *I can't find the .pot file for the campaign I want to translate.*
-Some campaigns do not have translations, because they don't have any in-game messages. If you're not sure, you can always raise an issue asking for help.
+
+_Some campaigns do not have translations, because they don't have any in-game messages. If you're not sure, you can always raise an issue asking for help._
