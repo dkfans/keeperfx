@@ -149,7 +149,22 @@ enum SpeechPhraseIndex {
     SpchIdx_SenceAvatar,
     SpchIdx_AvatarBodyVanished,
     SpchIdx_GameFinalVictory,
-    // .. There's a bit more of these in speech files
+    SpchIdx_Unkn110,
+    SpchIdx_Unkn111,
+    SpchIdx_Unkn112,
+    SpchIdx_Unkn113,
+    SpchIdx_Unkn114,
+    SpchIdx_Unkn115,
+    SpchIdx_Unkn116,
+    SpchIdx_Unkn117,
+    SpchIdx_Unkn118,
+    SpchIdx_Unkn119,
+    SpchIdx_Unkn120,
+    SpchIdx_Unkn121,
+    SpchIdx_Unkn122,
+    SpchIdx_Unkn123,
+    SpchIdx_Unkn124,
+    SpchIdx_Unkn125,
 };
 
 /** Array used for converting phrase index into sample data. */
@@ -165,27 +180,27 @@ Phrase phrases[] = {
 };
 
 struct SMessage messages[] = {
-  {SpchIdx_Invalid, 0, 0},
+  {SpchIdx_Invalid, 0, 0}, // [0] SMsg_None
   {SpchIdx_CreatureAngryAnyReson, 1, 0},
   {SpchIdx_CreatureAngryNoLair, 1, 0},
   {SpchIdx_CreatureAngryNotPayed, 1, 0},
   {SpchIdx_CreatureAngryNoFood, 1, 0},
-  {SpchIdx_CreatureDestroyingRooms, 1, 0},
+  {SpchIdx_CreatureDestroyingRooms, 1, 0}, // [5]
   {SpchIdx_CreatureLeaving, 1, 0},
   {SpchIdx_WallsBreach, 1, 0},
   {SpchIdx_HeartUnderAttack, 1, 0},
   {SpchIdx_BattleDefeat, 1, 0},
-  {SpchIdx_BattleVictory, 1, 0},
+  {SpchIdx_BattleVictory, 1, 0}, // [10] SMsg_BattleVictory
   {SpchIdx_BattleDeath, 1, 0},
   {SpchIdx_BattleWon, 1, 0},
   {SpchIdx_CreatureDefending, 1, 0},
   {SpchIdx_CreatureAttacking, 1, 0},
-  {SpchIdx_EnemyDestroyingRooms, 1, 0},
+  {SpchIdx_EnemyDestroyingRooms, 1, 0}, // [15]
   {SpchIdx_EnemyClaimingGround, 1, 0},
   {SpchIdx_EnemyRoomTakenOver, 1, 0},
   {SpchIdx_NewRoomTakenOver, 1, 0},
   {SpchIdx_LordOfTheLandComming, 1, 0},
-  {SpchIdx_FingthingFriends, 1, 0},
+  {SpchIdx_FingthingFriends, 1, 0}, // [20] SMsg_FingthingFriends
   {SpchIdx_BattleOver, 1, 0},
   {SpchIdx_GardenTooSmall, 1, 0},
   {SpchIdx_LairTooSmall, 1, 0},
@@ -195,7 +210,7 @@ struct SMessage messages[] = {
   {SpchIdx_TortureTooSmall, 1, 0},
   {SpchIdx_TrainingTooSmall, 1, 0},
   {SpchIdx_WorkshopTooSmall, 1, 0},
-  {SpchIdx_ScavengeTooSmall, 1, 0},
+  {SpchIdx_ScavengeTooSmall, 1, 0}, // [30] SMsg_ScavengeTooSmall
   {SpchIdx_TempleTooSmall, 1, 0},
   {SpchIdx_GraveyardTooSmall, 1, 0},
   {SpchIdx_BarracksTooSmall, 1, 0},
@@ -205,7 +220,7 @@ struct SMessage messages[] = {
   {SpchIdx_EntranceClaimed, 1, 0},
   {SpchIdx_EntranceLost, 1, 0},
   {SpchIdx_RoomTreasureNeeded, 1, 0},
-  {SpchIdx_RoomLairNeeded, 1, 0},
+  {SpchIdx_RoomLairNeeded, 1, 0}, // [40] SMsg_RoomLairNeeded
   {SpchIdx_RoomGardenNeeded, 1, 0},
   {SpchIdx_ResearchedRoom, 1, 0},
   {SpchIdx_ResearchedSpell, 1, 0},
@@ -215,7 +230,7 @@ struct SMessage messages[] = {
   {SpchIdx_SpellbookTaken, 1, 0},
   {SpchIdx_TrapTaken, 1, 0},
   {SpchIdx_DoorTaken, 1, 0},
-  {SpchIdx_SpellbookStolen, 1, 0},
+  {SpchIdx_SpellbookStolen, 1, 0}, // [50] SMsg_SpellbookStolen
   {SpchIdx_TrapStolen, 1, 0},
   {SpchIdx_DoorStolen, 1, 0},
   {SpchIdx_TortureInformation, 1, 0},
@@ -275,22 +290,22 @@ struct SMessage messages[] = {
   {SpchIdx_SenceAvatar, 1, 0},
   {SpchIdx_AvatarBodyVanished, 1, 0},
   {SpchIdx_GameFinalVictory, 1, 0},
-  {110, 1, 0},
-  {111, 1, 0},
-  {112, 1, 0},
-  {113, 1, 0},
-  {114, 1, 0},
-  {115, 1, 0},
-  {116, 1, 0},
-  {117, 1, 0},
-  {118, 1, 0},
-  {119, 1, 0},
-  {120, 1, 0},
-  {121, 1, 0},
-  {122, 1, 0},
-  {123, 1, 0},
-  {124, 1, 0},
-  {125, 1, 0},
+  {SpchIdx_Unkn110, 1, 0},
+  {SpchIdx_Unkn111, 1, 0},
+  {SpchIdx_Unkn112, 1, 0},
+  {SpchIdx_Unkn113, 1, 0},
+  {SpchIdx_Unkn114, 1, 0},
+  {SpchIdx_Unkn115, 1, 0},
+  {SpchIdx_Unkn116, 1, 0},
+  {SpchIdx_Unkn117, 1, 0},
+  {SpchIdx_Unkn118, 1, 0},
+  {SpchIdx_Unkn119, 1, 0},
+  {SpchIdx_Unkn120, 1, 0},
+  {SpchIdx_Unkn121, 1, 0},
+  {SpchIdx_Unkn122, 1, 0},
+  {SpchIdx_Unkn123, 1, 0},
+  {SpchIdx_Unkn124, 1, 0},
+  {SpchIdx_Unkn125, 1, 0},
 };
 
 /******************************************************************************/
