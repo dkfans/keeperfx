@@ -518,37 +518,65 @@ struct Thing *get_enemy_dungeon_heart_creature_can_see(struct Thing *creatng)
     return INVALID_THING;
 }
 
-/*TODO COMBAT Finish rewriting
 void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthing)
 {
-    struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
-    crstat = creature_stats_get_from_thing(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->battle_enemy_idx = obthing->index;
     cctrl->long_9E = obthing->creation_turn;
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_Unknown08;
-    if ((crstat->attack_preference == 2) && creature_has_ranged_object_weapon(creatng))
-    {
-      cctrl->combat_state_id = 2;
-    } else
-    {
-      cctrl->combat_state_id = 1;
+    const struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if ((crstat->attack_preference == AttckT_Ranged)
+      && creature_has_ranged_object_weapon(creatng)) {
+        cctrl->combat_state_id = CmbtSt_Ranged;
+    } else {
+        cctrl->combat_state_id = CmbtSt_Melee;
     }
 }
-*/
 
-long set_creature_object_combat(struct Thing *creatng, struct Thing *obthing)
+TbBool set_creature_object_combat(struct Thing *creatng, struct Thing *obthing)
 {
-    return _DK_set_creature_object_combat(creatng, obthing);
+    SYNCDBG(8,"Starting");
+    //return _DK_set_creature_object_combat(creatng, obthing);
+    if (!external_set_thing_state(creatng, CrSt_CreatureObjectCombat)) {
+        return false;
+    }
+    set_creature_combat_object_state(creatng, obthing);
+    SYNCDBG(19,"Finished");
+    return true;
 }
 
-void set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
+void set_creature_combat_door_state(struct Thing *creatng, struct Thing *obthing)
 {
-    SYNCDBG(18,"Starting");
-    _DK_set_creature_door_combat(creatng, obthing);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    cctrl->battle_enemy_idx = obthing->index;
+    cctrl->long_9E = obthing->creation_turn;
+    cctrl->field_AA = 0;
+    cctrl->combat_flags |= CmbtF_Unknown10;
+    const struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(creatng);
+    if ((crstat->attack_preference == AttckT_Ranged)
+      && creature_has_ranged_object_weapon(creatng)) {
+        cctrl->combat_state_id = CmbtSt_Ranged;
+    } else {
+        cctrl->combat_state_id = CmbtSt_Melee;
+    }
+}
+
+TbBool set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
+{
+    SYNCDBG(8,"Starting");
+    //_DK_set_creature_door_combat(creatng, obthing);
+    if (!external_set_thing_state(creatng, CrSt_CreatureDoorCombat)) {
+        SYNCDBG(8,"Cannot enter door combat");
+        return false;
+    }
+    set_creature_combat_object_state(creatng, obthing);
     SYNCDBG(19,"Finished");
+    return true;
 }
 
 void food_eaten_by_creature(struct Thing *creatng, struct Thing *obthing)
@@ -1400,18 +1428,19 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     }
     if ((cctrl->combat_flags & CmbtF_Unknown10) == 0)
     {
-        if ((cctrl->field_1D0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
+        if ((cctrl->field_1D0 > 0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
         {
             if ( can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat) )
             {
-                struct Thing *tgthing;
+                struct Thing *doortng;
                 x = stl_num_decode_x(cctrl->field_1D0);
                 y = stl_num_decode_y(cctrl->field_1D0);
-                tgthing = get_door_for_position(x,y);
-                if (!thing_is_invalid(tgthing))
+                doortng = get_door_for_position(x,y);
+                if (!thing_is_invalid(doortng))
                 {
-                  if (thing->owner != tgthing->owner)
-                    set_creature_door_combat(thing, tgthing);
+                    if (thing->owner != doortng->owner) {
+                        set_creature_door_combat(thing, doortng);
+                    }
                 }
             }
         }
@@ -1661,7 +1690,7 @@ long move_creature(struct Thing *thing)
             {
                 long blocked_flags;
                 blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
-                if (!cctrl->field_1D0) {
+                if (cctrl->field_1D0 == 0) {
                     check_for_door_collision_at(thing, &nxpos, blocked_flags);
                 }
                 slide_thing_against_wall_at(thing, &nxpos, blocked_flags);

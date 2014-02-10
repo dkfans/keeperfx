@@ -259,23 +259,56 @@ TbBool instance_is_ranged_weapon(CrInstance inum)
       case 20:
       case 27:
         return true;
-        break;
+    }
+    return false;
+}
+
+TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
+{
+    switch (inum)
+    {
+      case 4:
+      case 5:
+      case 6:
+      case 9:
+      case 17:
+      case 19:
+      case 20:
+      case 27:
+        return true;
     }
     return false;
 }
 
 TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 {
-    struct CreatureControl *cctrl;
-    long inum;
     TRACE_THING(creatng);
     //return _DK_creature_has_ranged_weapon(creatng);
+    const struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
+    long inum;
     for (inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
             if (instance_is_ranged_weapon(inum))
+                return true;
+        }
+    }
+    return false;
+}
+
+TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
+{
+    TRACE_THING(creatng);
+    const struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    long inum;
+    for (inum = 1; inum < CREATURE_INSTANCES_COUNT; inum++)
+    {
+        if (cctrl->instance_available[inum])
+        {
+            if (instance_is_ranged_weapon_vs_objects(inum))
                 return true;
         }
     }

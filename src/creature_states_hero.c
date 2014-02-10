@@ -131,33 +131,36 @@ TbBool good_setup_wander_to_exit(struct Thing *creatng)
     return true;
 }
 
-TbBool good_setup_attack_rooms(struct Thing *thing, long dngn_id)
+TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
 {
     struct Room *room;
     struct CreatureControl *cctrl;
     struct Coord3d pos;
-    room = find_nearest_room_for_thing_excluding_two_types(thing, dngn_id, 7, 1, 1);
+    room = find_nearest_room_for_thing_excluding_two_types(creatng, dngn_id, 7, 1, 1);
     if (room_is_invalid(room))
     {
         return false;
     }
-    if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)
-      || !creature_can_navigate_to_with_storage(thing, &pos, 1) )
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos)
+      || !creature_can_navigate_to_with_storage(creatng, &pos, 1) )
     {
+        ERRORLOG("The %s cannot destroy %s because it can't reach position within it",thing_model_name(creatng),room_code_name(room->kind));
         return false;
     }
-    if (!setup_random_head_for_room(thing, room, 1))
+    if (!setup_random_head_for_room(creatng, room, 1))
     {
-        ERRORLOG("setup random head for room failed");
+        ERRORLOG("The %s cannot destroy %s because it can't head for it",thing_model_name(creatng),room_code_name(room->kind));
         return false;
     }
+    // We've just started heading for a room, so it's too early for attack event
+    // We should move it to later, when we've reached the room
     event_create_event_or_update_nearby_existing_event(
         get_subtile_center_pos(room->central_stl_x), get_subtile_center_pos(room->central_stl_y),
         EvKind_RoomUnderAttack, room->owner, 0);
     if (is_my_player_number(room->owner))
       output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
-    cctrl = creature_control_get_from_thing(thing);
-    thing->continue_state = CrSt_GoodAttackRoom1;
+    cctrl = creature_control_get_from_thing(creatng);
+    creatng->continue_state = CrSt_GoodAttackRoom1;
     cctrl->target_room_id = room->index;
     return true;
 }
@@ -390,7 +393,7 @@ short good_attack_room(struct Thing *thing)
     // Debug code to find incorrect states
     if (!is_hero_thing(thing))
     {
-        ERRORLOG("Non hero thing %ld, %s, owner %ld - reset",(long)thing->index,thing_model_name(thing),(long)thing->owner);
+        ERRORLOG("Non hero %s index %d owner %d - reset",thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
         return false;
     }
@@ -428,7 +431,7 @@ short good_attack_room(struct Thing *thing)
                 ev_stl_y = subtile_coord_center(room->central_stl_y);
                 event_create_event_or_update_nearby_existing_event(ev_stl_x, ev_stl_y, EvKind_RoomUnderAttack, room->owner, 0);
                 if (is_my_player_number(room->owner))
-                    output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, 1);
+                    output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
                 thing->continue_state = CrSt_GoodAttackRoom1;
                 return 1;
             }
@@ -635,7 +638,7 @@ short good_doing_nothing(struct Thing *creatng)
     struct PlayerInfo *player;
     long nturns;
     PlayerNumber target_plyr_idx;
-    //return _DK_good_doing_nothing(thing);
+    //return _DK_good_doing_nothing(creatng);
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
     // Debug code to find incorrect states

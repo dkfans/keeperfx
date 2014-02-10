@@ -974,12 +974,12 @@ short arrive_at_alarm(struct Thing *creatng)
     return 1;
 }
 
-long setup_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
+long setup_head_for_room(struct Thing *thing, struct Room *room, unsigned char storage)
 {
     struct Coord3d pos;
     if ( !find_first_valid_position_for_thing_in_room(thing, room, &pos) )
         return false;
-    return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, a3);
+    return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, storage);
 }
 
 TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, unsigned char stl_y)
@@ -1001,7 +1001,7 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, u
 
     if ( !setup_head_for_room(thing, room, 1) )
     {
-        ERRORLOG("Cannot do this 'destroy room' stuff");
+        ERRORLOG("The %s cannot destroy %s because it can't reach it",thing_model_name(thing),room_code_name(room->kind));
         return false;
     }
     event_create_event_or_update_nearby_existing_event(subtile_coord_center(room->central_stl_x),
@@ -3027,9 +3027,22 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     return _DK_setup_head_for_empty_treasure_space(thing, room);
 }
 
-long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3)
+TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char storage)
 {
-  return _DK_setup_random_head_for_room(thing, room, a3);
+    //return _DK_setup_random_head_for_room(thing, room, a3);
+    struct Coord3d pos;
+    if (room->kind == RoK_ENTRANCE)
+    {
+        pos.x.val = subtile_coord_center(room->central_stl_x);
+        pos.y.val = subtile_coord_center(room->central_stl_y);
+        pos.z.val = subtile_coord(1,0);
+    } else
+    {
+        if (!find_random_valid_position_for_thing_in_room(thing, room, &pos)) {
+            return false;
+        }
+    }
+    return setup_person_move_to_position(thing, pos.x.stl.num, pos.y.stl.num, storage);
 }
 
 struct Room * find_nearest_room_for_thing(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4)
@@ -3088,7 +3101,22 @@ short move_backwards_to_position(struct Thing *creatng)
 
 CrCheckRet move_check_attack_any_door(struct Thing *creatng)
 {
-  return _DK_move_check_attack_any_door(creatng);
+    //return _DK_move_check_attack_any_door(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    MapSubtlCoord stl_x, stl_y;
+    if (cctrl->field_1D0 == 0) {
+        return 0;
+    }
+    stl_x = stl_num_decode_x(cctrl->field_1D0);
+    stl_y = stl_num_decode_y(cctrl->field_1D0);
+    struct Thing *doortng;
+    doortng = get_door_for_position(stl_x, stl_y);
+    if (thing_is_invalid(doortng)) {
+        return 0;
+    }
+    set_creature_door_combat(creatng, doortng);
+    return 1;
 }
 
 CrCheckRet move_check_can_damage_wall(struct Thing *creatng)

@@ -117,6 +117,7 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum
 TbBool creature_choose_first_available_instance(struct Thing *thing);
 void creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
+TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 /******************************************************************************/
 #ifdef __cplusplus
 }
