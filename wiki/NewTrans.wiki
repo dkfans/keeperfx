@@ -10,27 +10,27 @@ You will need [POEdit] (open-source translation tool) to do this.
 
 ==Getting the files and tools you need==
 
-Go [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang%253Fstate%253Dclosed here]  and you will see a list of the language files for the original campaign. Click on the file of the language you wish to use. Then right-click on ‘save target as’, and download the file ‘gtext_xxx.po’ (where xxx is the language you wish to translate into).
+Go to [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang%253Fstate%253Dclosed Language folder in KeeperFX source code tree]  and you will see a list of the language files for the original campaign. Click on the file of the language you wish to use. Then right-click on ‘save target as’, and download the file `‘gtext_xxx.po’` (where `xxx` is the language you wish to translate into).
 
-Similarly, download the .pot file for the campaign you wish to translate. If it is an official campaign within KeeperFX go [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang here] (and expand the folder view on the left hand pane) and download the file. If it is an unofficial file, then you’ll need to have the English template (.pot) file from the author(s).
+Similarly, download the `.pot` file for the campaign you wish to translate. If it is an official campaign within KeeperFX, go to [http://code.google.com/p/keeperfx/source/browse/#svn%2Ftrunk%2Fkeeperfx%2Flang Language folder in KeeperFX sources] again, expand the folder view on the left hand pane and download the right file. If it is a campaign which isn't shipped with KeeperFX, then you’ll need to have the English template (`.pot` file) from the author(s).
 
-Download [POEdit] from its official site [http://www.poedit.net/download.php here].
+Download [POEdit] from its [http://www.poedit.net/download.php official site].
 
 ==Preparing initial translation==
 
-Open the ‘gtext_xxx.po’ file in POEdit. From within the program choose
-{{{
-Catalogue -> update from pot file
-}}}
+Open the `‘gtext_xxx.po’` file in POEdit. From within the program choose:
+
+`Catalogue -> update from pot file`
+
 and select the .pot file you've downloaded. Accept the changes listed by POEdit.
 
-POEdit will now have highlighted all the campaign specific messages that need the new language scripts. You are now ready to start translating. Save the new .po file giving it different name, for example ‘ancntkpr_rus.po’.
+POEdit will now have highlighted all the campaign specific messages that need the new language scripts. You are now ready to start translating. Save the new `.po` file giving it different name, for example `‘ancntkpr_rus.po’`.
 
 ==Translating==
 
 Translate the highlighted messages into the new language, either all at once, or some at a time.
 
-When the file is completed, e-mail it to Mefistotelis (see contact information [http://keeper.lubiki.pl/html/contact.php here]) for inclusion in the campaign.
+When the file is completed, e-mail it to Mefistotelis (see contact information on [http://keeper.lubiki.pl/html/contact.php his site]) for inclusion in the campaign.
 
 ==Problems==
 
