@@ -3101,18 +3101,22 @@ short move_backwards_to_position(struct Thing *creatng)
 
 CrCheckRet move_check_attack_any_door(struct Thing *creatng)
 {
+    SYNCDBG(18,"Starting for %s",thing_model_name(creatng));
     //return _DK_move_check_attack_any_door(creatng);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x, stl_y;
     if (cctrl->field_1D0 == 0) {
+        SYNCDBG(18,"No door collision with %s",thing_model_name(creatng));
         return 0;
     }
     stl_x = stl_num_decode_x(cctrl->field_1D0);
     stl_y = stl_num_decode_y(cctrl->field_1D0);
+    SYNCDBG(8,"Door at (%d,%d) collided with %s",(int)stl_x,(int)stl_y,thing_model_name(creatng));
     struct Thing *doortng;
     doortng = get_door_for_position(stl_x, stl_y);
     if (thing_is_invalid(doortng)) {
+        SYNCDBG(8,"Door collided with %s not found",thing_model_name(creatng));
         return 0;
     }
     set_creature_door_combat(creatng, doortng);
