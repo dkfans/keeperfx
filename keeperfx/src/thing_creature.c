@@ -126,7 +126,7 @@ DLLIMPORT void _DK_change_creature_owner(struct Thing *creatng , char nowner);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char reason);
 DLLIMPORT void _DK_apply_spell_effect_to_thing(struct Thing *creatng, long spell_idx, long spell_lev);
 DLLIMPORT void _DK_creature_cast_spell_at_thing(struct Thing *castng, struct Thing *target, long targtng_idx, long no_effects);
-DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long spl_idx, long a3, long trg_x, long trg_y);
+DLLIMPORT void _DK_creature_cast_spell(struct Thing *castng, long spl_idx, long blocked_flags, long trg_x, long trg_y);
 DLLIMPORT void _DK_set_first_creature(struct Thing *creatng);
 DLLIMPORT void _DK_remove_first_creature(struct Thing *creatng);
 DLLIMPORT struct Thing *_DK_get_creature_near(unsigned short pos_x, unsigned short pos_y);
@@ -168,8 +168,8 @@ DLLIMPORT long _DK_update_creature(struct Thing *creatng);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *creatng, long a1, char reason);
 DLLIMPORT long _DK_creature_is_ambulating(struct Thing *creatng);
-DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *creatng, struct Thing *sectng, long a3, long a4);
-DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *creatng, struct Coord3d *pos, long a3);
+DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *creatng, struct Thing *sectng, long blocked_flags, long a4);
+DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *creatng, struct Coord3d *pos, long blocked_flags);
 DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
 DLLIMPORT void _DK_draw_swipe(void);
 /******************************************************************************/
@@ -574,7 +574,7 @@ TbBool set_creature_door_combat(struct Thing *creatng, struct Thing *obthing)
         SYNCDBG(8,"Cannot enter door combat");
         return false;
     }
-    set_creature_combat_object_state(creatng, obthing);
+    set_creature_combat_door_state(creatng, obthing);
     SYNCDBG(19,"Finished");
     return true;
 }
@@ -1442,10 +1442,10 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                         set_creature_door_combat(thing, doortng);
                     }
                 }
+                cctrl->field_1D0 = 0;
             }
         }
     }
-    cctrl->field_1D0 = 0;
     if (creature_is_group_member(thing))
     {
         if (!creature_is_group_leader(thing)) {
@@ -1538,10 +1538,56 @@ long collide_filter_thing_is_of_type(struct Thing *thing, struct Thing *sectng, 
     return _DK_collide_filter_thing_is_of_type(thing, sectng, a3, a4);
 }
 
-void check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, long a3)
+TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, unsigned long blocked_flags)
 {
-    _DK_check_for_door_collision_at(thing, pos, a3);
-    return;
+    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    //_DK_check_for_door_collision_at(thing, pos, a3); return;
+    int nav_sizexy;
+    nav_sizexy = thing_nav_sizexy(thing)/2;
+    MapSubtlCoord start_x, end_x, start_y, end_y;
+    start_x = coord_subtile(pos->x.val - nav_sizexy);
+    end_x = coord_subtile(pos->x.val + nav_sizexy);
+    start_y = coord_subtile(pos->y.val - nav_sizexy);
+    end_y = coord_subtile(pos->y.val + nav_sizexy);
+    MapSubtlCoord stl_x, stl_y;
+    if ((blocked_flags & 0x01) != 0)
+    {
+        stl_x = end_x;
+        if (thing->mappos.x.val >= pos->x.val)
+            stl_x = start_x;
+        for (stl_y = start_y; stl_y <= end_y; stl_y++)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if ((mapblk->flags & MapFlg_IsDoor) != 0) {
+                SYNCDBG(18,"Door collision at X with %s",thing_model_name(thing));
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(thing);
+                cctrl->field_1D0 = get_subtile_number(stl_x, stl_y);
+                return true;
+            }
+        }
+    }
+    if ((blocked_flags & 0x02) != 0)
+    {
+        stl_y = end_y;
+        if (thing->mappos.y.val >= pos->y.val)
+            stl_y = start_y;
+        for (stl_x = start_x; stl_x <= end_x; stl_x++)
+        {
+            struct Map *mapblk;
+            mapblk = get_map_block_at(stl_x, stl_y);
+            if ((mapblk->flags & MapFlg_IsDoor) != 0) {
+                SYNCDBG(18,"Door collision at Y with %s",thing_model_name(thing));
+                struct CreatureControl *cctrl;
+                cctrl = creature_control_get_from_thing(thing);
+                cctrl->field_1D0 = get_subtile_number(stl_x, stl_y);
+                return true;
+            }
+        }
+    }
+    SYNCDBG(18,"No door collision with %s",thing_model_name(thing));
+    return false;
 }
 
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos)
@@ -1684,7 +1730,7 @@ long move_creature(struct Thing *thing)
         nxpos.x.val = velo_x + tngpos->x.val;
         nxpos.y.val = velo_y + tngpos->y.val;
         nxpos.z.val = velo_z + tngpos->z.val;
-        if ((thing->movement_flags & 0x20) != 0)
+        if ((thing->movement_flags & TMvF_Flying) != 0)
         {
             if (thing_in_wall_at(thing, &nxpos))
             {
@@ -1704,8 +1750,9 @@ long move_creature(struct Thing *thing)
                 {
                     long blocked_flags;
                     blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
-                    if (!cctrl->field_1D0)
+                    if (cctrl->field_1D0 == 0) {
                         check_for_door_collision_at(thing, &nxpos, blocked_flags);
+                    }
                     slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
                 }
                 else
