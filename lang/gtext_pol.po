@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-10 00:05+0100\n"
+"PO-Revision-Date: 2014-02-10 00:24+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -3211,17 +3211,17 @@ msgstr ""
 #: guitext:428
 msgctxt "Dungeon special name"
 msgid "Resurrect Creature"
-msgstr "Wskrzeszenie stwora "
+msgstr "Wskrzeszenie stwora"
 
 #: guitext:429
 msgctxt "Dungeon special name"
 msgid "Transfer Creature"
-msgstr "Przeniesienie stwora "
+msgstr "Przeniesienie stwora"
 
 #: guitext:430
 msgctxt "Menu interface item"
 msgid "Bonus"
-msgstr "PREMIA "
+msgstr "Premiowa kraina"
 
 #: guitext:431
 msgctxt "Menu interface item"
