@@ -304,7 +304,7 @@ TbBool creature_can_hear_within_distance(const struct Thing *thing, long dist);
 long get_thing_navigation_distance(struct Thing *creatng, struct Coord3d *pos , unsigned char a3);
 void create_effect_around_thing(struct Thing *thing, long eff_kind);
 long get_creature_gui_job(const struct Thing *thing);
-long setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char a3);
+TbBool setup_random_head_for_room(struct Thing *thing, struct Room *room, unsigned char storage);
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room);
 short setup_creature_leaves_or_dies(struct Thing *creatng);
 

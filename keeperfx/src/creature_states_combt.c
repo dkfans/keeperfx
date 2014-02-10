@@ -376,7 +376,7 @@ long creature_can_move_to_combat(struct Thing *fightng, struct Thing *enmtng)
 
 CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long move_on_ground, long set_combat)
 {
-    SYNCDBG(9,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
+    SYNCDBG(19,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
     //return _DK_creature_can_have_combat_with_creature(fightng, enmtng, dist, move_on_ground, set_combat);
     long can_see;
     can_see = 0;
