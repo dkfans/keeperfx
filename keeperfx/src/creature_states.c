@@ -487,7 +487,7 @@ struct StateInfo states[] = {
   {good_wait_in_exit_door, NULL, NULL, NULL,
     0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,  0, 1},
   {good_attack_room, NULL, NULL, NULL, // [130]
-    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1},
+    0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, 1, 1, 0, 0,  0, 0, 0, 1},
   {creature_search_for_gold_to_steal_in_room, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1,   1, 0, 0, 0, 0, 0, 1},
   {good_attack_room, NULL, NULL, NULL,
@@ -3106,12 +3106,12 @@ CrCheckRet move_check_attack_any_door(struct Thing *creatng)
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x, stl_y;
-    if (cctrl->field_1D0 == 0) {
+    if (cctrl->collided_door_subtile == 0) {
         SYNCDBG(18,"No door collision with %s",thing_model_name(creatng));
         return 0;
     }
-    stl_x = stl_num_decode_x(cctrl->field_1D0);
-    stl_y = stl_num_decode_y(cctrl->field_1D0);
+    stl_x = stl_num_decode_x(cctrl->collided_door_subtile);
+    stl_y = stl_num_decode_y(cctrl->collided_door_subtile);
     SYNCDBG(8,"Door at (%d,%d) collided with %s",(int)stl_x,(int)stl_y,thing_model_name(creatng));
     struct Thing *doortng;
     doortng = get_door_for_position(stl_x, stl_y);
