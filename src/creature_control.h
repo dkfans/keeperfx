@@ -119,6 +119,12 @@ enum CreatureCombatStates {
     CmbtSt_Melee,
 };
 
+enum ObjectCombatStates {
+    ObjCmbtSt_Unset = 0,
+    ObjCmbtSt_Melee,
+    ObjCmbtSt_Ranged,
+};
+
 struct CastedSpellData {
     unsigned char spkind;
     short duration;
@@ -361,7 +367,7 @@ unsigned char field_88;
     unsigned long instance_use_turn[CREATURE_INSTANCES_COUNT];
     char instance_available[CREATURE_INSTANCES_COUNT];
     unsigned short field_1CE;
-    unsigned short field_1D0;
+    unsigned short collided_door_subtile;
     char fighting_player_idx;
     unsigned char shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];

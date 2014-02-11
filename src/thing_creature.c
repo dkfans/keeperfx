@@ -530,9 +530,9 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
     crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->attack_preference == AttckT_Ranged)
       && creature_has_ranged_object_weapon(creatng)) {
-        cctrl->combat_state_id = CmbtSt_Ranged;
+        cctrl->combat_state_id = ObjCmbtSt_Ranged;
     } else {
-        cctrl->combat_state_id = CmbtSt_Melee;
+        cctrl->combat_state_id = ObjCmbtSt_Melee;
     }
 }
 
@@ -560,9 +560,9 @@ void set_creature_combat_door_state(struct Thing *creatng, struct Thing *obthing
     crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->attack_preference == AttckT_Ranged)
       && creature_has_ranged_object_weapon(creatng)) {
-        cctrl->combat_state_id = CmbtSt_Ranged;
+        cctrl->combat_state_id = ObjCmbtSt_Ranged;
     } else {
-        cctrl->combat_state_id = CmbtSt_Melee;
+        cctrl->combat_state_id = ObjCmbtSt_Melee;
     }
 }
 
@@ -1428,13 +1428,13 @@ TngUpdateRet process_creature_state(struct Thing *thing)
     }
     if ((cctrl->combat_flags & CmbtF_Unknown10) == 0)
     {
-        if ((cctrl->field_1D0 > 0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
+        if ((cctrl->collided_door_subtile > 0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
         {
             if ( can_change_from_state_to(thing, thing->active_state, CrSt_CreatureDoorCombat) )
             {
                 struct Thing *doortng;
-                x = stl_num_decode_x(cctrl->field_1D0);
-                y = stl_num_decode_y(cctrl->field_1D0);
+                x = stl_num_decode_x(cctrl->collided_door_subtile);
+                y = stl_num_decode_y(cctrl->collided_door_subtile);
                 doortng = get_door_for_position(x,y);
                 if (!thing_is_invalid(doortng))
                 {
@@ -1442,7 +1442,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
                         set_creature_door_combat(thing, doortng);
                     }
                 }
-                cctrl->field_1D0 = 0;
+                cctrl->collided_door_subtile = 0;
             }
         }
     }
@@ -1563,7 +1563,7 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
                 SYNCDBG(18,"Door collision at X with %s",thing_model_name(thing));
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
-                cctrl->field_1D0 = get_subtile_number(stl_x, stl_y);
+                cctrl->collided_door_subtile = get_subtile_number(stl_x, stl_y);
                 return true;
             }
         }
@@ -1581,7 +1581,7 @@ TbBool check_for_door_collision_at(struct Thing *thing, struct Coord3d *pos, uns
                 SYNCDBG(18,"Door collision at Y with %s",thing_model_name(thing));
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
-                cctrl->field_1D0 = get_subtile_number(stl_x, stl_y);
+                cctrl->collided_door_subtile = get_subtile_number(stl_x, stl_y);
                 return true;
             }
         }
@@ -1736,7 +1736,7 @@ long move_creature(struct Thing *thing)
             {
                 long blocked_flags;
                 blocked_flags = get_thing_blocked_flags_at(thing, &nxpos);
-                if (cctrl->field_1D0 == 0) {
+                if (cctrl->collided_door_subtile == 0) {
                     check_for_door_collision_at(thing, &nxpos, blocked_flags);
                 }
                 slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
@@ -1750,7 +1750,7 @@ long move_creature(struct Thing *thing)
                 {
                     long blocked_flags;
                     blocked_flags = get_creature_blocked_flags_at(thing, &nxpos);
-                    if (cctrl->field_1D0 == 0) {
+                    if (cctrl->collided_door_subtile == 0) {
                         check_for_door_collision_at(thing, &nxpos, blocked_flags);
                     }
                     slide_thing_against_wall_at(thing, &nxpos, blocked_flags);
