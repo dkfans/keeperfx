@@ -117,7 +117,6 @@ TbBool set_coords_to_slab_center(struct Coord3d *pos, long slb_x, long slb_y);
 TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z);
 TbBool set_coords_add_velocity(struct Coord3d *pos, const struct Coord3d *source, const struct CoordDelta3d *velocity, unsigned short flags);
 
-MapCoord get_subtile_center_pos(MapSubtlCoord stl_v);
 SubtlCodedCoords get_subtile_number(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 SubtlCodedCoords get_subtile_number_at_slab_center(long slb_x, long slb_y);
 MapSubtlCoord stl_num_decode_x(SubtlCodedCoords stl_num);

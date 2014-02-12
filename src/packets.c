@@ -860,7 +860,7 @@ TbBool process_dungeon_control_packet_dungeon_control(long plyr_idx)
         } else
         {
           if (player->field_454 == 3) {
-              thing = get_nearest_thing_for_slap(plyr_idx, get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y));
+              thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
               magic_use_available_power_on_thing(plyr_idx, PwrK_SLAP, 0, stl_x, stl_y, thing);
           }
           player->field_4AF = 0;

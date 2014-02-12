@@ -152,15 +152,8 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
         ERRORLOG("The %s cannot destroy %s because it can't head for it",thing_model_name(creatng),room_code_name(room->kind));
         return false;
     }
-    // We've just started heading for a room, so it's too early for attack event
-    // We should move it to later, when we've reached the room
-    event_create_event_or_update_nearby_existing_event(
-        get_subtile_center_pos(room->central_stl_x), get_subtile_center_pos(room->central_stl_y),
-        EvKind_RoomUnderAttack, room->owner, 0);
-    if (is_my_player_number(room->owner))
-      output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
     cctrl = creature_control_get_from_thing(creatng);
-    creatng->continue_state = CrSt_GoodAttackRoom1;
+    creatng->continue_state = CrSt_GoodArrivedAtAttackRoom;
     cctrl->target_room_id = room->index;
     return true;
 }
@@ -388,6 +381,26 @@ TbBool good_setup_wander_to_spdigger(struct Thing *wanderer, long dngn_id)
     return false;
 }
 
+short good_arrived_at_attack_room(struct Thing *thing)
+{
+    struct Room *room;
+    room = get_room_thing_is_on(thing);
+    // If the current tile can be destroyed
+    if (room_exists(room) && (room->owner != thing->owner) && !room_cannot_vandalize(room->kind))
+    {
+        internal_set_thing_state(thing, CrSt_GoodAttackRoom1);
+        MapSubtlCoord ev_stl_x,ev_stl_y;
+        ev_stl_x = subtile_coord_center(room->central_stl_x);
+        ev_stl_y = subtile_coord_center(room->central_stl_y);
+        event_create_event_or_update_nearby_existing_event(ev_stl_x, ev_stl_y, EvKind_RoomUnderAttack, room->owner, 0);
+        if (is_my_player_number(room->owner))
+          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+        return 1;
+    }
+    set_start_state(thing);
+    return 0;
+}
+
 short good_attack_room(struct Thing *thing)
 {
     // Debug code to find incorrect states
@@ -395,7 +408,7 @@ short good_attack_room(struct Thing *thing)
     {
         ERRORLOG("Non hero %s index %d owner %d - reset",thing_model_name(thing),(int)thing->index,(int)thing->owner);
         set_start_state(thing);
-        return false;
+        return 0;
     }
     //return _DK_good_attack_room(thing);
     MapSlabCoord base_slb_x,base_slb_y;
@@ -404,12 +417,19 @@ short good_attack_room(struct Thing *thing)
     struct Room *room;
     room = slab_room_get(base_slb_x, base_slb_y);
     // If the current tile can be destroyed
-    if (room_exists(room) && (room->owner != thing->owner))
+    if (room_exists(room) && (room->owner != thing->owner) && !room_cannot_vandalize(room->kind))
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        if (cctrl->instance_id == CrInst_NULL) {
+        if (cctrl->instance_id == CrInst_NULL)
+        {
             set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+            MapSubtlCoord ev_stl_x,ev_stl_y;
+            ev_stl_x = subtile_coord_center(room->central_stl_x);
+            ev_stl_y = subtile_coord_center(room->central_stl_y);
+            event_create_event_or_update_nearby_existing_event(ev_stl_x, ev_stl_y, EvKind_RoomUnderAttack, room->owner, 0);
+            if (is_my_player_number(room->owner))
+                output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
         }
         return 1;
     }
@@ -426,12 +446,6 @@ short good_attack_room(struct Thing *thing)
         {
             if (setup_person_move_to_position(thing, slb_x, slb_y, 0))
             {
-                MapSubtlCoord ev_stl_x,ev_stl_y;
-                ev_stl_x = subtile_coord_center(room->central_stl_x);
-                ev_stl_y = subtile_coord_center(room->central_stl_y);
-                event_create_event_or_update_nearby_existing_event(ev_stl_x, ev_stl_y, EvKind_RoomUnderAttack, room->owner, 0);
-                if (is_my_player_number(room->owner))
-                    output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
                 thing->continue_state = CrSt_GoodAttackRoom1;
                 return 1;
             }
