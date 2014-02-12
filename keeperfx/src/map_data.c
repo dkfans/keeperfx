@@ -338,11 +338,6 @@ TbBool set_coords_to_slab_center(struct Coord3d *pos, MapSubtlCoord slb_x, MapSu
     return set_coords_to_subtile_center(pos, slab_subtile_center(slb_x),slab_subtile_center(slb_y), 1);
 }
 
-MapCoord get_subtile_center_pos(MapSubtlCoord stl_v)
-{
-    return (stl_v<<8) + 128;
-}
-
 /**
  * Sets coordinates to cylindric XY shift of given source position.
  *

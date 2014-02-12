@@ -184,6 +184,7 @@ enum CreatureStates {
     CrSt_CreaturePresentToDungeonHeart,
     CrSt_CreatureSearchForSpellToStealInRoom,
     CrSt_CreatureStealSpell,
+    CrSt_GoodArrivedAtAttackRoom,
     CrSt_ListEnd,
 };
 

@@ -1509,8 +1509,8 @@ void clear_things_and_persons_data(void)
         thing = &game.things_data[i];
         memset(thing, 0, sizeof(struct Thing));
         thing->owner = PLAYERS_COUNT;
-        thing->mappos.x.val = get_subtile_center_pos(map_subtiles_x/2);
-        thing->mappos.y.val = get_subtile_center_pos(map_subtiles_y/2);
+        thing->mappos.x.val = subtile_coord_center(map_subtiles_x/2);
+        thing->mappos.y.val = subtile_coord_center(map_subtiles_y/2);
     }
     for (i=0; i < CREATURES_COUNT; i++)
     {
