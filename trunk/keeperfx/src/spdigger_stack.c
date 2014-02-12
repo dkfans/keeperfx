@@ -2179,13 +2179,13 @@ long check_out_worker_pickup_spellbook(struct Thing *thing, struct DiggerStack *
     if (thing_is_spellbook(sectng))
     {
         event_create_event_or_update_nearby_existing_event(
-            get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y),
             EvKind_SpellPickedUp, thing->owner, sectng->index);
     } else
     if (thing_is_special_box(sectng))
     {
         event_create_event_or_update_nearby_existing_event(
-            get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
+            subtile_coord_center(stl_x), subtile_coord_center(stl_y),
             EvKind_DnSpecialFound, thing->owner, sectng->index);
     } else
     {
@@ -2284,13 +2284,13 @@ long check_out_worker_pickup_trap_for_workshop(struct Thing *thing, struct Digge
     if (i == TCls_Trap)
     {
       event_create_event_or_update_nearby_existing_event(
-          get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
+          subtile_coord_center(stl_x), subtile_coord_center(stl_y),
           EvKind_TrapCrateFound, thing->owner, sectng->index);
     } else
     if (i == TCls_Door)
     {
       event_create_event_or_update_nearby_existing_event(
-          get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y),
+          subtile_coord_center(stl_x), subtile_coord_center(stl_y),
           EvKind_DoorCrateFound, thing->owner, sectng->index);
     } else
     {

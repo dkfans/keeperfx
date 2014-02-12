@@ -44,6 +44,7 @@ struct Thing;
 #pragma pack()
 /******************************************************************************/
 short good_attack_room(struct Thing *thing);
+short good_arrived_at_attack_room(struct Thing *thing);
 short good_back_at_start(struct Thing *thing);
 short good_doing_nothing(struct Thing *thing);
 short good_drops_gold(struct Thing *thing);

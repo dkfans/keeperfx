@@ -728,8 +728,8 @@ TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (!pay_for_spell(plyr_idx, PwrK_TIMEBOMB, 0)) {
         return Lb_FAIL;
     }
-    pos.x.val = get_subtile_center_pos(stl_x);
-    pos.y.val = get_subtile_center_pos(stl_y);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height_at(&pos) + 512;
     //TODO SPELL TIMEBOMB write the spell support
     thing = INVALID_THING;//create_object(&pos, , plyr_idx);
@@ -759,8 +759,8 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
         return Lb_FAIL;
     }
     heartng = get_player_soul_container(plyr_idx);
-    pos.x.val = get_subtile_center_pos(stl_x);
-    pos.y.val = get_subtile_center_pos(stl_y);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height_at(&pos) + (heartng->field_58 >> 1);
     thing = create_creature(&pos, get_players_special_digger_model(plyr_idx), plyr_idx);
     if (thing_is_invalid(thing))
@@ -896,8 +896,8 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     //_DK_magic_use_power_lightning(plyr_idx, stl_x, stl_y, splevel);
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    pos.x.val = get_subtile_center_pos(stl_x);
-    pos.y.val = get_subtile_center_pos(stl_y);
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = 0;
     // make sure the spell level is correct
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
@@ -1177,7 +1177,7 @@ TbResult magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 {
     struct Thing *thing;
     //return _DK_magic_use_power_slap(plyr_idx, stl_x, stl_y);
-    thing = get_nearest_thing_for_slap(plyr_idx, get_subtile_center_pos(stl_x), get_subtile_center_pos(stl_y));
+    thing = get_nearest_thing_for_slap(plyr_idx, subtile_coord_center(stl_x), subtile_coord_center(stl_y));
     return magic_use_power_slap_thing(plyr_idx, thing);
 }
 
