@@ -581,7 +581,7 @@ TbBool update_creature_health_to_max(struct Thing *thing)
   return true;
 }
 
-void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
+TbBool apply_health_to_thing(struct Thing *thing, long amount)
 {
     struct CreatureStats *crstat;
     struct CreatureControl *cctrl;
@@ -595,8 +595,16 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
         new_health += amount;
         if (new_health >= max_health)
             new_health = max_health;
-        thing->creature.health_bar_turns = 8;
         thing->health = new_health;
+        return true;
+    }
+    return false;
+}
+
+void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
+{
+    if (apply_health_to_thing(thing, amount)) {
+        thing->creature.health_bar_turns = 8;
     }
 }
 

@@ -32,10 +32,12 @@
 #include "front_simple.h"
 #include "thing_stats.h"
 #include "map_blocks.h"
+#include "room_garden.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "power_process.h"
 #include "gui_topmsg.h"
+#include "gui_soundmsgs.h"
 #include "creature_states.h"
 #include "creature_groups.h"
 #include "game_legacy.h"
@@ -512,9 +514,109 @@ TbBool apply_shot_experience_from_hitting_creature(struct Thing *shooter, struct
     return apply_shot_experience(shooter, tgcrstat->exp_for_hitting, tgcctrl->explevel, shot_model);
 }
 
+long shot_kill_object(struct Thing *shotng, struct Thing *target)
+{
+    if (thing_is_dungeon_heart(target))
+    {
+        target->active_state = 3;
+        target->health = -1;
+        if (is_my_player_number(shotng->owner))
+        {
+            struct PlayerInfo *player;
+            player = get_player(target->owner);
+            if (player_exists(player) && (player->field_2C == 1))
+            {
+                output_message(SMsg_DefeatedKeeper, 0, 1);
+            }
+        }
+        struct Dungeon *dungeon;
+        dungeon = get_players_num_dungeon(shotng->owner);
+        if (!dungeon_invalid(dungeon)) {
+            dungeon->lvstats.keepers_destroyed++;
+        }
+        return 1;
+    }
+    else
+    if (object_is_growing_food(target))
+    {
+        delete_thing_structure(target, 0);
+    } else
+    if (object_is_mature_food(target))
+    {
+        thing_play_sample(shotng, 112+UNSYNC_RANDOM(3), 100, 0, 3, 0, 2, 0x100);
+        remove_food_from_food_room_if_possible(target);
+        delete_thing_structure(target, 0);
+    } else
+    {
+        ERRORLOG("Attempt to kill non handled object");
+    }
+    return 0;
+}
+
 long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord3d *pos)
 {
-    return _DK_shot_hit_object_at(shotng, target, pos);
+    //return _DK_shot_hit_object_at(shotng, target, pos);
+    struct ShotConfigStats *shotst;
+    shotst = get_shot_model_stats(shotng->model);
+    if (!thing_is_object(target)) {
+        return 0;
+    }
+    if (shotst->old->field_28) {
+        return 0;
+    }
+    if (target->health < 0) {
+        return 0;
+    }
+    struct ObjectConfig *objconf;
+    objconf = get_object_model_stats2(target->model);
+    if (objconf->field_7 && !shotst->old->field_4C) {
+        return 0;
+    }
+    struct Thing *creatng;
+    creatng = INVALID_THING;
+    if (shotng->parent_idx != shotng->index) {
+        creatng = thing_get(shotng->parent_idx);
+    }
+    if (thing_is_dungeon_heart(target))
+    {
+        if (shotng->model == 21) //TODO CONFIG Make config option instead of model dependency
+        {
+            thing_play_sample(target, 134+UNSYNC_RANDOM(3), 100, 0, 3, 0, 3, 0x100);
+        } else
+        if (shotng->model == 22) //TODO CONFIG Make config option instead of model dependency
+        {
+            thing_play_sample(target, 144+UNSYNC_RANDOM(3), 100, 0, 3, 0, 3, 0x100);
+        }
+        event_create_event_or_update_nearby_existing_event(
+          target->mappos.x.val, target->mappos.y.val,
+          EvKind_HeartAttacked, target->owner, 0);
+        if (is_my_player_number(target->owner)) {
+            output_message(SMsg_HeartUnderAttack, 400, 1);
+        }
+    } else
+    {
+        int i;
+        i = shotst->old->field_22;
+        if (i > 0) {
+            thing_play_sample(target, i, 100, 0, 3, 0, 3, 0x100);
+        }
+    }
+    if (shotng->word_14)
+    {
+        if (shotst->old->health_drain && thing_is_creature(creatng)) {
+            apply_health_to_thing(creatng, shotng->word_14/2);
+        }
+        apply_damage_to_thing(target, shotng->word_14, -1);
+        target->byte_13 = 20;
+    }
+    create_relevant_effect_for_shot_hitting_thing(shotng, target);
+    if (target->health < 0) {
+        shot_kill_object(shotng, target);
+    }
+    if (shotst->old->destroy_on_first_hit) {
+        delete_thing_structure(shotng, 0);
+    }
+    return 1;
 }
 
 long get_damage_of_melee_shot(const struct Thing *shotng, const struct Thing *target)
