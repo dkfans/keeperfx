@@ -143,10 +143,13 @@ TbBool get_computer_drop_position_near_subtile(struct Coord3d *pos, struct Dunge
 long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent, struct Event *event)
 {
     //return _DK_computer_event_battle(comp, cevent, event);
+    SYNCDBG(18,"Starting for %s",cevent->name);
     struct Coord3d pos;
-    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, event->mappos_x, event->mappos_y)) {
+    if (!get_computer_drop_position_near_subtile(&pos, comp->dungeon, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y))) {
+        SYNCDBG(8,"No drop position near (%d,%d) for %s",(int)coord_subtile(event->mappos_x),(int)coord_subtile(event->mappos_y),cevent->name);
         return 0;
     }
+    //TODO COMPUTER_PLAYER check if there are any enemies in the vicinity - no enemies, don't drop creatures
     long creatrs_def, creatrs_num;
     creatrs_def = count_creatures_for_defend_pickup(comp);
     creatrs_num = creatrs_def * (long)cevent->param1 / 100;
@@ -154,9 +157,11 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         creatrs_num = 1;
     }
     if (creatrs_num <= 0) {
+        SYNCDBG(8,"No creatures to drop for %s",cevent->name);
         return 0;
     }
     if (!computer_find_non_solid_block(comp, &pos)) {
+        SYNCDBG(8,"Drop position is solid for %s",cevent->name);
         return 0;
     }
     if (computer_able_to_use_magic(comp, PwrK_HAND, 1, 1) == 1)
@@ -164,6 +169,7 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         if (!is_task_in_progress(comp, CTT_MoveCreaturesToDefend) || ((cevent->param2 & 0x02) != 0))
         {
             if (!create_task_move_creatures_to_defend(comp, &pos, creatrs_num, cevent->param2)) {
+                SYNCDBG(18,"Cannot move to defend for %s",cevent->name);
                 return 0;
             }
             return 1;
@@ -176,12 +182,14 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
             if (check_call_to_arms(comp))
             {
                 if (!create_task_magic_battle_call_to_arms(comp, &pos, 2500, creatrs_num)) {
+                    SYNCDBG(18,"Cannot call to arms for %s",cevent->name);
                     return 0;
                 }
                 return 1;
             }
         }
     }
+    SYNCDBG(18,"No hand nor CTA, giving up with %s",cevent->name);
     return 0;
 }
 

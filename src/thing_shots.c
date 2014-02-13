@@ -603,6 +603,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     }
     if (shotng->word_14)
     {
+        // Drain allows caster to regain half of damage
         if (shotst->old->health_drain && thing_is_creature(creatng)) {
             apply_health_to_thing(creatng, shotng->word_14/2);
         }

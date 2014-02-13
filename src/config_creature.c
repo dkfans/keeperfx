@@ -208,6 +208,7 @@ const struct NamedCommand mevents_desc[] = {
     {"MEVENT_DNSPECIALFOUND", EvKind_DnSpecialFound},
     {"MEVENT_QUICKINFORMATION",EvKind_QuickInformation},
     {"MEVENT_FRIENDLYFIGHT",  EvKind_FriendlyFight},
+    {"MEVENT_ROOMUNREACHABLE",EvKind_RoomUnreachable},
     {NULL,                    0},
 };
 /******************************************************************************/

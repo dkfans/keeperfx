@@ -1006,8 +1006,9 @@ TbBool attempt_to_destroy_enemy_room(struct Thing *thing, unsigned char stl_x, u
         ERRORLOG("The %s cannot destroy %s because it can't reach it",thing_model_name(thing),room_code_name(room->kind));
         return false;
     }
-    event_create_event_or_update_nearby_existing_event(subtile_coord_center(room->central_stl_x),
-        subtile_coord_center(room->central_stl_y), EvKind_RoomUnderAttack, room->owner, 0);
+    event_create_event_or_update_nearby_existing_event(
+        subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
+        EvKind_RoomUnderAttack, room->owner, 0);
     if (is_my_player_number(room->owner))
         output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
     thing->continue_state = CrSt_CreatureAttackRooms;

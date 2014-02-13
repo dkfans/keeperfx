@@ -93,7 +93,7 @@ EventIndex event_create_event_or_update_nearby_existing_event(MapCoord map_x, Ma
 {
     //return _DK_event_create_event_or_update_nearby_existing_event(map_x, map_y, evkind, dngn_id, msg_id);
     struct Event *event;
-    event = get_event_nearby_of_type_for_player(map_x, map_y, 1280, evkind, dngn_id);
+    event = get_event_nearby_of_type_for_player(map_x, map_y, subtile_coord(5,0), evkind, dngn_id);
     if (!event_is_invalid(event))
     {
         SYNCDBG(3,"Updating event %d to be kind %d at (%d,%d)",(int)event->index,(int)evkind,(int)coord_subtile(map_x),(int)coord_subtile(map_y));
@@ -172,6 +172,9 @@ struct Event *event_create_event(MapCoord map_x, MapCoord map_y, EventKind evkin
     case EvKind_FriendlyFight:
         i = dungeon->field_13B4[EvKind_EnemyFight];
         break;
+    case EvKind_RoomUnreachable:
+        i = dungeon->field_13B4[EvKind_NoMoreLivingSet];
+        break;
     default:
         i = dungeon->field_13B4[evkind];
         break;
@@ -246,6 +249,9 @@ void event_update_last_use(struct Event *event)
         break;
     case EvKind_FriendlyFight:
         dungeon->field_13B4[EvKind_EnemyFight] = game.play_gameturn;
+        break;
+    case EvKind_RoomUnreachable:
+        dungeon->field_13B4[EvKind_NoMoreLivingSet] = game.play_gameturn;
         break;
     default:
         dungeon->field_13B4[event->kind] = game.play_gameturn;

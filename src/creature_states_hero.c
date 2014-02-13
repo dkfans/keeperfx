@@ -389,10 +389,10 @@ short good_arrived_at_attack_room(struct Thing *thing)
     if (room_exists(room) && (room->owner != thing->owner) && !room_cannot_vandalize(room->kind))
     {
         internal_set_thing_state(thing, CrSt_GoodAttackRoom1);
-        MapSubtlCoord ev_stl_x,ev_stl_y;
-        ev_stl_x = subtile_coord_center(room->central_stl_x);
-        ev_stl_y = subtile_coord_center(room->central_stl_y);
-        event_create_event_or_update_nearby_existing_event(ev_stl_x, ev_stl_y, EvKind_RoomUnderAttack, room->owner, 0);
+        MapCoord ev_coord_x,ev_coord_y;
+        ev_coord_x = subtile_coord_center(room->central_stl_x);
+        ev_coord_y = subtile_coord_center(room->central_stl_y);
+        event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
         if (is_my_player_number(room->owner))
           output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
         return 1;
@@ -424,10 +424,10 @@ short good_attack_room(struct Thing *thing)
         if (cctrl->instance_id == CrInst_NULL)
         {
             set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
-            MapSubtlCoord ev_stl_x,ev_stl_y;
-            ev_stl_x = subtile_coord_center(room->central_stl_x);
-            ev_stl_y = subtile_coord_center(room->central_stl_y);
-            event_create_event_or_update_nearby_existing_event(ev_stl_x, ev_stl_y, EvKind_RoomUnderAttack, room->owner, 0);
+            MapCoord ev_coord_x,ev_coord_y;
+            ev_coord_x = subtile_coord_center(room->central_stl_x);
+            ev_coord_y = subtile_coord_center(room->central_stl_y);
+            event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
             if (is_my_player_number(room->owner))
                 output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
         }
