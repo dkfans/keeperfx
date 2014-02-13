@@ -149,7 +149,13 @@ long computer_event_battle(struct Computer2 *comp, struct ComputerEvent *cevent,
         SYNCDBG(8,"No drop position near (%d,%d) for %s",(int)coord_subtile(event->mappos_x),(int)coord_subtile(event->mappos_y),cevent->name);
         return 0;
     }
-    //TODO COMPUTER_PLAYER check if there are any enemies in the vicinity - no enemies, don't drop creatures
+    // Check if there are any enemies in the vicinity - no enemies, don't drop creatures
+    struct Thing *enmtng;
+    enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(pos.x.val, pos.y.val, 21, comp->dungeon->owner);
+    if (thing_is_invalid(enmtng)) {
+        SYNCDBG(8,"No enemies near %s",cevent->name);
+        return 0;
+    }
     long creatrs_def, creatrs_num;
     creatrs_def = count_creatures_for_defend_pickup(comp);
     creatrs_num = creatrs_def * (long)cevent->param1 / 100;

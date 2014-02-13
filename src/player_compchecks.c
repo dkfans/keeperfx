@@ -118,19 +118,19 @@ Comp_Check_Func computer_check_func_list[] = {
 };
 
 struct ExpandRooms expand_rooms[] = {
-  {RoK_TREASURE, 45},
-  {RoK_LAIR, 45},
-  {RoK_GARDEN, 45},
-  {RoK_LIBRARY, 45},
-  {RoK_TRAINING, 35},
-  {RoK_WORKSHOP, 45},
+  {RoK_TREASURE,  45},
+  {RoK_LAIR,      45},
+  {RoK_GARDEN,    45},
+  {RoK_LIBRARY,   45},
+  {RoK_TRAINING,  35},
+  {RoK_WORKSHOP,  45},
   {RoK_SCAVENGER, 30},
-  {RoK_PRISON, 30},
-  {RoK_TEMPLE, 25},
-  {RoK_TORTURE, 35},
+  {RoK_PRISON,    30},
+  {RoK_TEMPLE,    25},
+  {RoK_TORTURE,   35},
   {RoK_GRAVEYARD, 30},
-  {RoK_BARRACKS, 35},
-  {RoK_NONE,0},
+  {RoK_BARRACKS,  35},
+  {RoK_NONE,       0},
 };
 
 /******************************************************************************/
