@@ -229,7 +229,7 @@ long field_1193;
     long dead_creature_idx;
     /** Contains map event index or each even button visible on screen. */
     unsigned char event_button_index[EVENT_BUTTONS_COUNT+1];
-    long field_13B4[EVENT_KIND_COUNT-2]; // TODO FIGHT missing 8 bytes, we're using a WA for that
+    long field_13B4[EVENT_KIND_COUNT-3]; // TODO FIGHT missing 12 bytes, we're using a WA for that
     unsigned short tortured_creatures[CREATURE_TYPES_COUNT];
     unsigned char bodies_rotten_for_vampire;
 unsigned char field_1461[36];
