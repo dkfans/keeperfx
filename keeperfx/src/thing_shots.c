@@ -548,7 +548,7 @@ long shot_kill_object(struct Thing *shotng, struct Thing *target)
         delete_thing_structure(target, 0);
     } else
     {
-        ERRORLOG("Attempt to kill non handled object");
+        WARNLOG("Killing %s by %s is not supported",thing_model_name(target),thing_model_name(shotng));
     }
     return 0;
 }
