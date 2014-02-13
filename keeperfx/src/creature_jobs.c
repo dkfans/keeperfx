@@ -542,7 +542,7 @@ TbBool attempt_job_move_to_event(struct Thing *creatng, CreatureJob jobpref)
     if (event_is_invalid(event)) {
         return false;
     }
-    if (!setup_person_move_to_position(creatng, event->mappos_x, event->mappos_y, 0)) {
+    if (!setup_person_move_to_position(creatng, coord_subtile(event->mappos_x), coord_subtile(event->mappos_y), 0)) {
         return false;
     }
     creatng->continue_state = get_initial_state_for_job(jobpref);

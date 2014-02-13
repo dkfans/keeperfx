@@ -1307,6 +1307,9 @@ void computer_check_events(struct Computer2 *comp)
         switch (cevent->cetype)
         {
         case 0:
+            if ((long)game.play_gameturn < (cevent->last_test_gameturn + cevent->test_interval)) {
+                break;
+            }
             for (n=0; n < EVENTS_COUNT; n++)
             {
                 event = &game.event[n];
@@ -1314,8 +1317,10 @@ void computer_check_events(struct Computer2 *comp)
                       (event->owner == dungeon->owner) &&
                       (event->kind == cevent->mevent_kind) )
                 {
-                    if (cevent->func_event(comp, cevent, event) == 1)
+                    if (cevent->func_event(comp, cevent, event) == 1) {
+                        SYNCDBG(5,"Player %d reacted on %s",(int)dungeon->owner,cevent->name);
                         cevent->last_test_gameturn = game.play_gameturn;
+                    }
                 }
             }
             break;
@@ -1323,10 +1328,14 @@ void computer_check_events(struct Computer2 *comp)
         case 2:
         case 3:
         case 4:
-            if ((cevent->last_test_gameturn + cevent->test_interval) <= (long)game.play_gameturn)
+            if ((long)game.play_gameturn < (cevent->last_test_gameturn + cevent->test_interval)) {
+                break;
+            }
             {
-                if (cevent->func_test(comp,cevent) == 1)
-                    ; // nothing done with this "if" - hmm... could be intentional, or not.
+                if (cevent->func_test(comp,cevent) == 1) {
+                    SYNCDBG(5,"Player %d reacted on %s",(int)dungeon->owner,cevent->name);
+                }
+                // Update test turn no matter if event triggered something
                 cevent->last_test_gameturn = game.play_gameturn;
             }
             break;

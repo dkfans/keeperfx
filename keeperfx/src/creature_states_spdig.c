@@ -665,10 +665,10 @@ short imp_converts_dungeon(struct Thing *thing)
             room = room_get(slb->room_index);
             if (!room_is_invalid(room))
             {
-                MapCoord rstl_x,rstl_y;
-                rstl_x = subtile_coord_center(room->central_stl_x);
-                rstl_y = subtile_coord_center(room->central_stl_y);
-                event_create_event_or_update_nearby_existing_event(rstl_x, rstl_y,
+                MapCoord coord_x,coord_y;
+                coord_x = subtile_coord_center(room->central_stl_x);
+                coord_y = subtile_coord_center(room->central_stl_y);
+                event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
                     EvKind_RoomUnderAttack, room->owner, 0);
                 if (is_my_player_number(room->owner) ) {
                   output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);

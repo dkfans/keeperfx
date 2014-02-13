@@ -451,6 +451,7 @@ struct EventTypeInfo event_button_info[] = {
   {266, GUIStr_EventDnSpecialFoundDesc, GUIStr_EventDnSpecialFound,     300,   0, EvKind_Nothing},
   {268, GUIStr_EventInformationDesc,    GUIStr_Empty,                  1200,   0, EvKind_Nothing},
   {262, GUIStr_EventFightDesc,          GUIStr_EventFight,               -1,   0, EvKind_EnemyFight},
+  {260, GUIStr_EventRoomUnreachableDesc,GUIStr_EventRoomUnreachable,   1200, 500, EvKind_Nothing}, // EvKind_RoomUnreachable
 };
 /*
 struct DoorDesc doors[] = {
