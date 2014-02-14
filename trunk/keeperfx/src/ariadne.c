@@ -2455,7 +2455,7 @@ void make_edge_sub(long start_tri_id1, long start_cor_id1, long start_tri_id4, l
     } while ((cx != sx) || (cy != sy));
 }
 
-void make_edge(long start_x, long start_y, long end_x, long end_y)
+TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
 {
     struct Triangle *tri;
     struct Point *pt;
@@ -2476,6 +2476,7 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
     ey = end_y;
     while ((ex != sx) || (ey != sy))
     {
+        // Find triangles to which start point and end point belongs
         if (!point_find(ex, ey, &tri_id1, &cor_id1))
             break;
         if (!point_find(sx, sy, &tri_id2, &cor_id2))
@@ -2484,7 +2485,7 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
         if (pt_cor == -1)
         {
             ERRORLOG("border point");
-            break;
+            return false;
         }
         pt = get_triangle_point(tri_id1, pt_cor);
         if ((pt->x == sx) && (pt->y == sy))
@@ -2499,9 +2500,12 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
         pt = get_triangle_point(tri_id3, cor_id3);
         tmpX = pt->x;
         tmpY = pt->y;
+        SYNCDBG(18,"Triangle %d point %d is (%d,%d)",(int)tri_id3,(int)tri_id1,(int)tmpX,(int)tmpY);
         if (LbCompareMultiplications(tmpY-ey, sx-ex, tmpX-ex, sy-ey) == 0)
         {
-            make_edge(ex, ey, tmpX, tmpY);
+            if (!make_edge(ex, ey, tmpX, tmpY)) {
+                return false;
+            }
             ex = tmpX;
             ey = tmpY;
             continue;
@@ -2516,10 +2520,11 @@ void make_edge(long start_x, long start_y, long end_x, long end_y)
         k++;
         if (k >= TRIANLGLES_COUNT)
         {
-            ERRORLOG("Infinite loop detected");
-            break;
+            ERRORLOG("Infinite loop detected at area (%d,%d) to (%d,%d)",(int)sx,(int)sy,(int)ex,(int)ey);
+            return false;
         }
     }
+    return true;
 }
 
 TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
@@ -2555,11 +2560,14 @@ TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_
         }
     }
     r &= insert_point(end_x, start_y);
-    if (r) {
-        make_edge(start_x, start_y, end_x, start_y);
-    } else  {
+    if (!r) {
         ERRORLOG("Couldn't insert points to make border");
         //TODO PATHFINDING on a failure, we could release all allocated points...
+        return r;
+    }
+    r &= make_edge(start_x, start_y, end_x, start_y);
+    if (!r) {
+        ERRORLOG("Couldn't make edge for border");
     }
     return r;
 }
@@ -2596,11 +2604,14 @@ TbBool border_clip_vertical(const unsigned char *imap, long start_x, long end_x,
         }
     }
     r &= insert_point(start_x, end_y);
-    if (r) {
-        make_edge(start_x, start_y, start_x, end_y);
-    } else  {
+    if (!r) {
         ERRORLOG("Couldn't insert points to make border");
         //TODO PATHFINDING on a failure, we could release all allocated points...
+        return r;
+    }
+    r &= make_edge(start_x, start_y, start_x, end_y);
+    if (!r) {
+        ERRORLOG("Couldn't make edge for border");
     }
     return r;
 }
@@ -2909,7 +2920,7 @@ TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, uns
 {
     long sx,sy,ex,ey;
     NAVIDBG(19,"Starting");
-    //_DK_tri_set_rectangle(a1, a2, a3, a4, a5); return true;
+    //_DK_tri_set_rectangle(start_x, start_y, end_x, end_y, a5); return true;
     sx = start_x;
     ex = end_x;
     if (sx > ex) {
@@ -2928,15 +2939,19 @@ TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, uns
     r &= insert_point(sx, ey);
     r &= insert_point(ex, ey);
     r &= insert_point(ex, sy);
-    if (r) {
-        make_edge(sx, sy, sx, ey);
-        make_edge(sx, ey, ex, ey);
-        make_edge(ex, ey, ex, sy);
-        make_edge(ex, sy, sx, sy);
-        fill_rectangle(sx, sy, ex, ey, a5);
-    } else  {
-        ERRORLOG("Couldn't insert points to make rectangle; start (%ld,%ld), end (%ld,%ld)",start_x, start_y, end_x, end_y);
+    if (!r) {
+        ERRORLOG("Couldn't insert points to make rectangle; start (%d,%d), end (%d,%d)",(int)start_x,(int)start_y,(int)end_x,(int)end_y);
+        return r;
     }
+    r &= make_edge(sx, sy, sx, ey);
+    r &= make_edge(sx, ey, ex, ey);
+    r &= make_edge(ex, ey, ex, sy);
+    r &= make_edge(ex, sy, sx, sy);
+    if (!r) {
+        ERRORLOG("Couldn't make edge for rectangle; start (%d,%d), end (%d,%d)",(int)start_x,(int)start_y,(int)end_x,(int)end_y);
+        return r;
+    }
+    fill_rectangle(sx, sy, ex, ey, a5);
     return r;
 }
 
@@ -3214,7 +3229,7 @@ void triangulation_border_init(void)
 void triangulation_initxy(long startx, long starty, long endx, long endy)
 {
     long i;
-    //_DK_triangulation_initxy(a1, a2, a3, a4);
+    //_DK_triangulation_initxy(startx, starty, endx, endy);return;
     for (i=0; i < TRIANLGLES_COUNT; i++)
     {
         struct Triangle *tri;
@@ -3249,7 +3264,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     long i;
     r = true;
     LastTriangulatedMap = imap;
-    NAVIDBG(9,"F=%ld Area %03ld,%03ld %03ld,%03ld T=%04ld",game.play_gameturn,start_x,start_y,end_x,end_y,count_Triangles);
+    NAVIDBG(9,"Area from (%03ld,%03ld) to (%03ld,%03ld) with %04ld triangles",start_x,start_y,end_x,end_y,count_Triangles);
     //_DK_triangulate_area(imap, start_x, start_y, end_x, end_y); return true;
     // Switch coords to make end_x larger than start_x
     if (end_x < start_x)

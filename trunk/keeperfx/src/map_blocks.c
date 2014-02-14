@@ -405,10 +405,8 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
     MapSlabCoord spos_x,spos_y;
     int skind;
     long i;
-    SYNCDBG(7,"Starting in %s",func_name);
-    if ((stl_x < 0) || (stl_x > map_subtiles_x))
-        return;
-    if ((stl_y < 0) || (stl_y > map_subtiles_y))
+    SYNCDBG(7,"%s: Starting for (%d,%d)",func_name,(int)stl_x,(int)stl_y);
+    if (subtile_coords_invalid(stl_x, stl_y))
         return;
     slb_x = subtile_slab_fast(stl_x);
     slb_y = subtile_slab_fast(stl_y);
@@ -485,8 +483,9 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
           || (game.game_kind == GKind_Unknown1))
         {
             slbattr = get_slab_kind_attrs(slb->kind);
-            if (slbattr->category != SlbAtCtg_Obstacle)
+            if (slbattr->category != SlbAtCtg_Obstacle) {
                 place_single_slab_type_on_map(slb->kind, spos_x, spos_y, slabmap_owner(slb));
+            }
         }
     }
 
@@ -1266,7 +1265,7 @@ void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)
         mapblk->flags &= ~MapFlg_Unkn80;
         mapblk->flags &= ~MapFlg_Unkn04;
     }
-    pannel_map_update(stl_x, stl_y, 3, 3);
+    pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
 }
 
 void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)

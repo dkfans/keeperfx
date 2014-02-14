@@ -308,10 +308,9 @@ long optimise_heuristic(long tri_id1, long tri_id2)
     pt = get_triangle_point(tri_id1, MOD3[tri_id2]);
     Dx = pt->x;
     Dy = pt->y;
-
     if (LbCompareMultiplications(Ay-By, Dx-Bx, Ax-Bx, Dy-By) >= 0)
         return 0;
-    if (LbCompareMultiplications(Ay-By, Cx-Bx, Ax-Bx, Cy-By) >= 0)
+    if (LbCompareMultiplications(Ay-By, Cx-Bx, Ax-Bx, Cy-By) <= 0)
         return 0;
 
     return ((Bx-Ax) * (Bx-Ax)) + ((By-Ay) * (By-Ay)) <

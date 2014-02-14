@@ -148,6 +148,14 @@ long triangle_find8(long pt_x, long pt_y)
     return -1;
 }
 
+/**
+ * Finds given point in list of triangles. Gives triangle index and cor number in triangle.
+ * @param pt_x
+ * @param pt_y
+ * @param out_tri_idx
+ * @param out_cor_idx
+ * @return
+ */
 TbBool point_find(long pt_x, long pt_y, long *out_tri_idx, long *out_cor_idx)
 {
     struct Point *pt;
