@@ -91,7 +91,7 @@ void unlock_door(struct Thing *thing)
     game.field_14EA4B = 1;
     update_navigation_triangulation(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1,
       thing->mappos.x.stl.num+1, thing->mappos.y.stl.num+1);
-    pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, 3, 3);
+    pannel_map_update(thing->mappos.x.stl.num-1, thing->mappos.y.stl.num-1, STL_PER_SLB, STL_PER_SLB);
     if (!remove_key_on_door(thing)) {
         WARNMSG("Cannot remove keyhole when unlocking door.");
     }
@@ -111,7 +111,7 @@ void lock_door(struct Thing *doortng)
     game.field_14EA4B = 1;
     place_animating_slab_type_on_map(dostat->field_0, 0, stl_x, stl_y, doortng->owner);
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
-    pannel_map_update(stl_x-1, stl_y-1, 3, 3);
+    pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
     if (!add_key_on_door(doortng)) {
         WARNMSG("Cannot create a keyhole when locking a door.");
     }
