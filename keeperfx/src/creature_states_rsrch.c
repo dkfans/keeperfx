@@ -438,40 +438,40 @@ TbBool process_job_stress(struct Thing *creatng, struct Room *room)
  * Informs if the research cycle should end.
  * @param thing
  */
-CrCheckRet process_research_function(struct Thing *thing)
+CrCheckRet process_research_function(struct Thing *creatng)
 {
     struct Dungeon *dungeon;
     struct Room *room;
     //return _DK_process_research_function(thing);
-    dungeon = get_dungeon(thing->owner);
+    dungeon = get_dungeon(creatng->owner);
     if (dungeon_invalid(dungeon)) {
         SYNCDBG(9,"The %s index %d cannot work as player %d has no dungeon",
-            thing_model_name(thing), (int)thing->index, (int)thing->owner);
-        set_start_state(thing);
+            thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
+        set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    if (!creature_can_do_research(thing)) {
-        set_start_state(thing);
+    if (!creature_can_do_research(creatng)) {
+        set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    room = get_room_creature_works_in(thing);
-    if ( !room_still_valid_as_type_for_thing(room, RoK_LIBRARY, thing) ) {
+    room = get_room_creature_works_in(creatng);
+    if ( !room_still_valid_as_type_for_thing(room, RoK_LIBRARY, creatng) ) {
         WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",
-            room_code_name(room->kind), (int)room->owner, thing_model_name(thing), (int)thing->owner);
-        set_start_state(thing);
+            room_code_name(room->kind), (int)room->owner, thing_model_name(creatng), (int)creatng->owner);
+        set_start_state(creatng);
         return CrCkRet_Continue;
     }
     long work_value;
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
+    crstat = creature_stats_get_from_thing(creatng);
     work_value = compute_creature_work_value(crstat->research_value*256, room->efficiency, cctrl->explevel);
-    work_value = process_work_speed_on_work_value(thing, work_value);
-    SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(thing),(int)thing->index,(int)work_value);
+    work_value = process_work_speed_on_work_value(creatng, work_value);
+    SYNCDBG(19,"The %s index %d produced %d research points",thing_model_name(creatng),(int)creatng->index,(int)work_value);
     dungeon->total_research_points += work_value;
     dungeon->field_1193 += work_value;
-    process_job_stress(thing, room);
+    process_job_stress(creatng, room);
     return CrCkRet_Available;
 }
 

@@ -242,12 +242,16 @@ TbBool creature_will_do_combat(const struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
+    // Creature turned to chicken is defenseless
     if (creature_affected_by_spell(thing, SplK_Chicken))
         return false;
     // Neutral creatures won't fight
     if (is_neutral_thing(thing))
         return false;
     if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
+        return false;
+    // Frozen creature cannot attack
+    if (creature_affected_by_spell(thing, SplK_Freeze))
         return false;
     return can_change_from_state_to(thing, thing->active_state, CrSt_CreatureInCombat);
 }
@@ -377,6 +381,8 @@ long creature_can_move_to_combat(struct Thing *fightng, struct Thing *enmtng)
 CrAttackType creature_can_have_combat_with_creature(struct Thing *fightng, struct Thing *enmtng, long dist, long move_on_ground, long set_combat)
 {
     SYNCDBG(19,"Starting for %s vs %s",thing_model_name(fightng),thing_model_name(enmtng));
+    TRACE_THING(fightng);
+    TRACE_THING(enmtng);
     //return _DK_creature_can_have_combat_with_creature(fightng, enmtng, dist, move_on_ground, set_combat);
     long can_see;
     can_see = 0;
@@ -1625,6 +1631,7 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
     thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist);
     if (!thing_is_invalid(thing))
     {
+        SYNCDBG(9,"Best enemy for %s index %d is %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(thing),(int)thing->index);
         // When counting distance, take size of creatures into account
         long distance;
         CrAttackType attack_type;
@@ -1634,7 +1641,7 @@ CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struc
             *outenmtng = thing;
             return attack_type;
         } else {
-            ERRORLOG("The %s cannot fight with creature returned as fight partner",thing_model_name(fightng));
+            ERRORLOG("The %s index %d cannot fight with %s index %d returned as fight partner",thing_model_name(fightng),(int)fightng->index,thing_model_name(thing),(int)thing->index);
         }
     }
     return AttckT_Unset;
@@ -2048,7 +2055,7 @@ void cleanup_battle_leftovers(struct Thing *creatng)
 long remove_all_traces_of_combat(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     SYNCDBG(8,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
     //return _DK_remove_all_traces_of_combat(creatng);
     // Remove creature as attacker
@@ -2107,7 +2114,8 @@ long check_for_possible_combat(struct Thing *creatng, struct Thing **fightng)
     CrAttackType attack_type;
     unsigned long outscore;
     struct Thing *enmtng;
-    SYNCDBG(19,"Starting");
+    SYNCDBG(19,"Starting for %s index %d",thing_model_name(creatng),(int)creatng->index);
+    TRACE_THING(creatng);
     outscore = 0;
     // Check for combat with attacker - someone who already participates in a fight
     attack_type = check_for_possible_combat_with_attacker_within_distance(creatng, &enmtng, LONG_MAX, &outscore);
@@ -2120,6 +2128,7 @@ long check_for_possible_combat(struct Thing *creatng, struct Thing **fightng)
         return AttckT_Unset;
     }
     *fightng = enmtng;
+    SYNCDBG(19,"The %s index %d can fight %s index %d",thing_model_name(creatng),(int)creatng->index,thing_model_name(enmtng),(int)enmtng->index);
     return attack_type;
 }
 
@@ -2382,7 +2391,7 @@ short creature_in_combat(struct Thing *creatng)
     struct Thing *enmtng;
     cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(9,"Starting for %s index %d, combat state %d",thing_model_name(creatng),(int)creatng->index,(int)cctrl->combat_state_id);
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     //return _DK_creature_in_combat(thing);
     enmtng = thing_get(cctrl->battle_enemy_idx);
     TRACE_THING(enmtng);
@@ -2654,19 +2663,22 @@ long creature_retreat_from_combat(struct Thing *figtng, struct Thing *enmtng, Cr
     return 1;
 }
 
-short creature_attack_rooms(struct Thing *thing)
+short creature_attack_rooms(struct Thing *creatng)
 {
-    return _DK_creature_attack_rooms(thing);
+    TRACE_THING(creatng);
+    return _DK_creature_attack_rooms(creatng);
 }
 
-short creature_attempt_to_damage_walls(struct Thing *thing)
+short creature_attempt_to_damage_walls(struct Thing *creatng)
 {
-    return _DK_creature_attempt_to_damage_walls(thing);
+    TRACE_THING(creatng);
+    return _DK_creature_attempt_to_damage_walls(creatng);
 }
 
-short creature_damage_walls(struct Thing *thing)
+short creature_damage_walls(struct Thing *creatng)
 {
-    return _DK_creature_damage_walls(thing);
+    TRACE_THING(creatng);
+    return _DK_creature_damage_walls(creatng);
 }
 
 /**

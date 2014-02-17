@@ -82,7 +82,8 @@ enum CreatureSpellAffectedFlags {
     CSAfF_MadKilling   = 0x1000,
     CSAfF_Unkn2000     = 0x2000,
     CSAfF_ExpLevelUp   = 0x4000,
-    CSAfF_Freeze       = 0x8000,
+    /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
+    CSAfF_Grounded     = 0x8000,
 };
 
 enum PowerKinds {

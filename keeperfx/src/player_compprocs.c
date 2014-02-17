@@ -776,13 +776,13 @@ TbBool imp_can_be_moved_to_dig(const struct Thing *creatng)
       case 8:
         switch (curr_state)
         {
-          case 3u:
-          case 4u:
-          case 5u:
-          case 7u:
-          case 70u:
-          case 97u:
-          case 98u:
+          case CrSt_ImpArrivesAtMineGold:
+          case CrSt_ImpDigsDirt:
+          case CrSt_ImpMinesGold:
+          case CrSt_ImpDropsGold:
+          case CrSt_ImpPicksUpGoldPile:
+          case CrSt_ImpArrivesAtReinforce:
+          case CrSt_ImpReinforces:
               return true;
         }
         break;
