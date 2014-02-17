@@ -1458,6 +1458,7 @@ short cleanup_seek_the_enemy(struct Thing *thing)
 
 short creature_being_dropped_at_sacrificial_ground(struct Thing *creatng)
 {
+    TRACE_THING(creatng);
     struct CreatureControl *cctrl;
     struct SlabMap *slb;
     slb = get_slabmap_for_subtile(creatng->mappos.x.stl.num,creatng->mappos.y.stl.num);
@@ -1491,6 +1492,7 @@ short creature_being_dropped(struct Thing *creatng)
     struct Room *room;
     struct Thing *leadtng;
     //return _DK_creature_being_dropped(thing);
+    TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
@@ -1609,7 +1611,8 @@ short creature_being_dropped(struct Thing *creatng)
 
 short creature_cannot_find_anything_to_do(struct Thing *creatng)
 {
-  return _DK_creature_cannot_find_anything_to_do(creatng);
+    TRACE_THING(creatng);
+    return _DK_creature_cannot_find_anything_to_do(creatng);
 }
 
 void set_creature_size_stuff(struct Thing *creatng)
@@ -1651,7 +1654,7 @@ short creature_change_from_chicken(struct Thing *creatng)
     } else
     {
       creatng->field_4F &= ~0x01;
-      cctrl->affected_by_spells &= ~CCSpl_ChickenRel;
+      cctrl->stateblock_flags &= ~CCSpl_ChickenRel;
       cctrl->spell_flags &= ~CSAfF_Chicken;
       set_creature_size_stuff(creatng);
       set_start_state(creatng);
@@ -2589,7 +2592,7 @@ short creature_pretend_chicken_move(struct Thing *creatng)
     //return _DK_creature_pretend_chicken_move(creatng);
     long move_ret;
     cctrl = creature_control_get_from_thing(creatng);
-    if ((cctrl->affected_by_spells & CCSpl_ChickenRel) != 0)
+    if ((cctrl->stateblock_flags & CCSpl_ChickenRel) != 0)
     {
         return 1;
     }
@@ -3421,7 +3424,8 @@ TbBool creature_work_in_room_no_longer_possible_f(const struct Room *room, RoomK
     }
     if (!creature_is_working_in_room(thing, room))
     {
-        WARNLOG("%s: Room %s index %d is not the %s which %s owned by player %d selected to work in",
+        // This is not an error, because room index is often changed, ie. when room is expanded or its slab sold
+        SYNCDBG(2,"%s: Room %s index %d is not the %s which %s owned by player %d selected to work in",
             func_name,room_code_name(room->kind),(int)room->index,room_code_name(rkind),
             thing_model_name(thing),(int)thing->owner);
         return true;
@@ -3607,6 +3611,11 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
         }
     }
     return false;
+}
+
+TbBool creature_state_cannot_be_blocked(const struct Thing *thing)
+{
+    return (creature_is_being_dropped(thing));
 }
 
 struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)

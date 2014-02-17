@@ -92,7 +92,7 @@ TbBool creature_is_working_in_room(const struct Thing *creatng, const struct Roo
  */
 TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *room)
 {
-    struct Dungeon *dungeon;
+    TRACE_THING(creatng);
     if (creatng->light_id != 0) {
         light_delete_light(creatng->light_id);
         creatng->light_id = 0;
@@ -101,6 +101,7 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
         terminate_thing_spell_effect(creatng, SplK_Speed);
     if (creature_affected_by_spell(creatng, SplK_Invisibility))
         terminate_thing_spell_effect(creatng, SplK_Invisibility);
+    struct Dungeon *dungeon;
     dungeon = get_dungeon(room->owner);
     dungeon->lvstats.creatures_tortured++;
     if (dungeon->tortured_creatures[creatng->model] == 0)

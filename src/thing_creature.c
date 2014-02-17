@@ -442,6 +442,7 @@ void draw_swipe_graphic(void)
 long creature_available_for_combat_this_turn(struct Thing *creatng)
 {
     //return _DK_creature_available_for_combat_this_turn(thing);
+    TRACE_THING(creatng);
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(creatng);
     // Check once per 8 turns
@@ -631,7 +632,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     switch (spkind)
     {
     case SplK_Freeze:
-        return ((cctrl->affected_by_spells & CCSpl_Freeze) != 0);
+        return ((cctrl->stateblock_flags & CCSpl_Freeze) != 0);
     case SplK_Armour:
         return ((cctrl->spell_flags & CSAfF_Armour) != 0);
     case SplK_Rebound:
@@ -639,7 +640,7 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
     case SplK_Invisibility:
         return ((cctrl->spell_flags & CSAfF_Invisibility) != 0);
     case SplK_Teleport:
-        return ((cctrl->affected_by_spells & CCSpl_Teleport) != 0);
+        return ((cctrl->stateblock_flags & CCSpl_Teleport) != 0);
     case SplK_Speed:
         return ((cctrl->spell_flags & CSAfF_Speed) != 0);
     case SplK_Slow:
@@ -700,13 +701,14 @@ long get_spell_duration_left_on_thing(const struct Thing *thing, SpellKind spkin
     return 0;
 }
 
-long get_free_spell_slot(struct Thing *thing)
+long get_free_spell_slot(struct Thing *creatng)
 {
+    TRACE_THING(creatng);
     struct CreatureControl *cctrl;
     struct CastedSpellData *cspell;
     long ci,cval;
     long i,k;
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     cval = LONG_MAX;
     ci = -1;
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
@@ -727,7 +729,7 @@ long get_free_spell_slot(struct Thing *thing)
     }
     // Terminate the min damage effect and return its slot index
     cspell = &cctrl->casted_spells[ci];
-    terminate_thing_spell_effect(thing, cspell->spkind);
+    terminate_thing_spell_effect(creatng, cspell->spkind);
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
@@ -811,10 +813,10 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (i != -1)
         {
             fill_spell_slot(thing, i, spell_idx, splconf->duration);
-            cctrl->affected_by_spells |= CCSpl_Freeze;
+            cctrl->stateblock_flags |= CCSpl_Freeze;
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
-                cctrl->spell_flags |= CSAfF_Freeze;
+                cctrl->spell_flags |= CSAfF_Grounded;
                 thing->movement_flags &= ~TMvF_Flying;
             }
             creature_set_speed(thing, 0);
@@ -888,7 +890,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         if (i != -1)
         {
             fill_spell_slot(thing, i, spell_idx, splconf->duration);
-            cctrl->affected_by_spells |= CCSpl_Teleport;
+            cctrl->stateblock_flags |= CCSpl_Teleport;
         }
         break;
     case SplK_Speed:
@@ -1094,16 +1096,17 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     ThingIndex eff_idx;
     long i;
     //_DK_terminate_thing_spell_effect(thing, spkind);
+    TRACE_THING(thing);
     slot_idx = get_spell_slot(thing, spkind);
     cctrl = creature_control_get_from_thing(thing);
     switch ( spkind )
     {
     case SplK_Freeze:
-        cctrl->affected_by_spells &= ~CCSpl_Freeze;
-        if ((cctrl->spell_flags & CSAfF_Freeze) != 0)
+        cctrl->stateblock_flags &= ~CCSpl_Freeze;
+        if ((cctrl->spell_flags & CSAfF_Grounded) != 0)
         {
             thing->movement_flags |= TMvF_Flying;
-            cctrl->spell_flags &= ~CSAfF_Freeze;
+            cctrl->spell_flags &= ~CSAfF_Grounded;
         }
         break;
     case SplK_Armour:
@@ -1127,7 +1130,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->force_visible = 0;
         break;
     case SplK_Teleport:
-        cctrl->affected_by_spells &= ~CCSpl_Teleport;
+        cctrl->stateblock_flags &= ~CCSpl_Teleport;
         break;
     case SplK_Speed:
         cctrl->spell_flags &= ~CSAfF_Speed;
@@ -2239,6 +2242,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     struct CreatureStats *crstat;
     struct Dungeon *dungeon;
     SYNCDBG(18,"Starting");
+    TRACE_THING(creatng);
     //return _DK_kill_creature(creatng, killertng, killer_plyr_idx, (flags&CrDed_NoEffects)!=0, (flags&CrDed_DiedInBattle)!=0, (flags&CrDed_NoUnconscious)!=0);
     dungeon = INVALID_DUNGEON;
     cleanup_creature_state_and_interactions(creatng);
@@ -4141,7 +4145,7 @@ short update_creature_movements(struct Thing *thing)
         return false;
     }
     upd_done = 0;
-    if (cctrl->affected_by_spells != 0)
+    if (cctrl->stateblock_flags != 0)
     {
         upd_done = 1;
         cctrl->moveaccel.x.val = 0;
@@ -4498,9 +4502,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     update_creature_count(thing);
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        if (cctrl->affected_by_spells == 0)
+        if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
-            if (cctrl->field_302 != 0)
+            if (cctrl->field_302 > 0)
             {
                 cctrl->field_302--;
             } else
@@ -4523,7 +4527,7 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
     } else
     {
-        if (cctrl->affected_by_spells == 0)
+        if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
             if (cctrl->field_302 > 0)
             {
