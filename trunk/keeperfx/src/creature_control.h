@@ -337,7 +337,7 @@ unsigned char field_88;
     unsigned char field_A8;
     unsigned char fight_til_death;
     unsigned char field_AA;
-    unsigned char affected_by_spells;
+    unsigned char stateblock_flags;
     unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
     unsigned char field_AE;
     short force_visible;

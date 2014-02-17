@@ -528,57 +528,57 @@ long compute_torture_broke_chance(const struct Thing *thing)
     return (i/64 + 1);
 }
 
-CrCheckRet process_torture_function(struct Thing *thing)
+CrCheckRet process_torture_function(struct Thing *creatng)
 {
     struct Room *room;
     long i;
     //return _DK_process_torture_function(thing);
-    room = get_room_creature_works_in(thing);
-    if ( !room_still_valid_as_type_for_thing(room,RoK_TORTURE,thing) )
+    room = get_room_creature_works_in(creatng);
+    if ( !room_still_valid_as_type_for_thing(room,RoK_TORTURE,creatng) )
     {
-        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
-        set_start_state(thing);
+        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
+        set_start_state(creatng);
         return CrCkRet_Continue;
     }
     struct CreatureControl *cctrl;
     struct CreatureStats *crstat;
-    crstat = creature_stats_get_from_thing(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    anger_apply_anger_to_creature(thing, crstat->annoy_in_torture, AngR_Other, 1);
+    crstat = creature_stats_get_from_thing(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    anger_apply_anger_to_creature(creatng, crstat->annoy_in_torture, AngR_Other, 1);
     if ((long)game.play_gameturn >= cctrl->field_82 + game.turns_per_torture_health_loss)
     {
         i = compute_creature_max_health(game.torture_health_loss,cctrl->explevel);
-        remove_health_from_thing_and_display_health(thing, i);
+        remove_health_from_thing_and_display_health(creatng, i);
         cctrl->field_82 = (long)game.play_gameturn;
     }
     // Check if we should convert the creature into ghost
-    if ((thing->health < 0) && (game.ghost_convert_chance > 0))
+    if ((creatng->health < 0) && (game.ghost_convert_chance > 0))
     {
         if (ACTION_RANDOM(100) < game.ghost_convert_chance)
         {
-            convert_creature_to_ghost(room, thing);
+            convert_creature_to_ghost(room, creatng);
             return CrCkRet_Deleted;
         }
     }
     // Other torture functions are available only when torturing enemies
-    if (room->owner == thing->owner)
+    if (room->owner == creatng->owner)
         return CrCkRet_Available;
     // Torture must take some time before it has any affect
-    i = compute_torture_convert_time(thing,room);
+    i = compute_torture_convert_time(creatng,room);
     if ( (i < crstat->torture_break_time) || (cctrl->word_A6 == 0) )
         return CrCkRet_Available;
     // After that, every time broke chance is hit, do something
-    if (ACTION_RANDOM(100) < compute_torture_broke_chance(thing))
+    if (ACTION_RANDOM(100) < compute_torture_broke_chance(creatng))
     {
-        SYNCDBG(4,"The %s has been broken",thing_model_name(thing));
+        SYNCDBG(4,"The %s has been broken",thing_model_name(creatng));
         if (ACTION_RANDOM(100) < (int)gameadd.torture_convert_chance)
         { // converting creature and ending the torture
-            convert_tortured_creature_owner(thing, room->owner);
+            convert_tortured_creature_owner(creatng, room->owner);
             return CrCkRet_Continue;
         } else
         { // revealing information about enemy and continuing the torture
             cctrl->tortured.start_gameturn = (long)game.play_gameturn - (long)crstat->torture_break_time / 2;
-            reveal_players_map_to_player(thing, room->owner);
+            reveal_players_map_to_player(creatng, room->owner);
             return CrCkRet_Available;
         }
     }

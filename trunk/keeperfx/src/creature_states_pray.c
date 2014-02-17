@@ -167,14 +167,15 @@ CrStateRet praying_in_temple(struct Thing *thing)
     }
 }
 
-long process_temple_cure(struct Thing *thing)
+long process_temple_cure(struct Thing *creatng)
 {
+    TRACE_THING(creatng);
     struct CreatureControl *cctrl;
-    cctrl = creature_control_get_from_thing(thing);
-    if (creature_affected_by_spell(thing, SplK_Disease))
-        terminate_thing_spell_effect(thing, SplK_Disease);
-    if (creature_affected_by_spell(thing, SplK_Chicken))
-        terminate_thing_spell_effect(thing, SplK_Chicken);
+    cctrl = creature_control_get_from_thing(creatng);
+    if (creature_affected_by_spell(creatng, SplK_Disease))
+        terminate_thing_spell_effect(creatng, SplK_Disease);
+    if (creature_affected_by_spell(creatng, SplK_Chicken))
+        terminate_thing_spell_effect(creatng, SplK_Chicken);
     cctrl->field_3D = game.play_gameturn;
     return 1;
 }

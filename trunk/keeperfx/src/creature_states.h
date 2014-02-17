@@ -371,6 +371,8 @@ TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNu
 TbBool creature_state_is_unset(const struct Thing *thing);
 TbBool creature_will_attack_creature(const struct Thing *tng1, const struct Thing *tng2);
 TbBool creature_will_attack_creature_incl_til_death(const struct Thing *tng1, const struct Thing *tng2);
+
+TbBool creature_state_cannot_be_blocked(const struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }

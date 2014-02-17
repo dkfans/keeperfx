@@ -90,40 +90,41 @@ short cleanup_prison(struct Thing *thing)
   return _DK_cleanup_prison(thing);
 }
 
-short creature_arrived_at_prison(struct Thing *thing)
+short creature_arrived_at_prison(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
     struct Room *room;
+    TRACE_THING(creatng);
     //return _DK_creature_arrived_at_prison(thing);
-    cctrl = creature_control_get_from_thing(thing);
+    cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
-    room = get_room_thing_is_on(thing);
-    if (!room_initially_valid_as_type_for_thing(room, RoK_PRISON, thing))
+    room = get_room_thing_is_on(creatng);
+    if (!room_initially_valid_as_type_for_thing(room, RoK_PRISON, creatng))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(thing));
-        set_start_state(thing);
+        WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
+        set_start_state(creatng);
         return 0;
     }
-    if ( !add_creature_to_work_room(thing, room) )
+    if ( !add_creature_to_work_room(creatng, room) )
     {
         if (is_my_player_number(room->owner))
             output_message(SMsg_PrisonTooSmall, 0, true);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-        set_start_state(thing);
+        set_start_state(creatng);
         return 0;
     }
     cctrl->field_82 = game.play_gameturn;
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
-    internal_set_thing_state(thing, CrSt_CreatureInPrison);
-    if (creature_affected_by_spell(thing, SplK_Speed)) {
-      terminate_thing_spell_effect(thing, SplK_Speed);
+    internal_set_thing_state(creatng, CrSt_CreatureInPrison);
+    if (creature_affected_by_spell(creatng, SplK_Speed)) {
+        terminate_thing_spell_effect(creatng, SplK_Speed);
     }
-    if (creature_affected_by_spell(thing, SplK_Invisibility)) {
-        terminate_thing_spell_effect(thing, SplK_Invisibility);
+    if (creature_affected_by_spell(creatng, SplK_Invisibility)) {
+        terminate_thing_spell_effect(creatng, SplK_Invisibility);
     }
-    if (thing->light_id != 0) {
-        light_delete_light(thing->light_id);
-        thing->light_id = 0;
+    if (creatng->light_id != 0) {
+        light_delete_light(creatng->light_id);
+        creatng->light_id = 0;
     }
     return 1;
 
@@ -385,34 +386,34 @@ long process_prison_food(struct Thing *thing, struct Room *room)
  * Informs if the imprisoning cycle should end.
  * @param thing
  */
-CrCheckRet process_prison_function(struct Thing *thing)
+CrCheckRet process_prison_function(struct Thing *creatng)
 {
   struct Room *room;
   //return _DK_process_prison_function(thing);
-  room = get_room_creature_works_in(thing);
-  if (!room_still_valid_as_type_for_thing(room, RoK_PRISON, thing))
+  room = get_room_creature_works_in(creatng);
+  if (!room_still_valid_as_type_for_thing(room, RoK_PRISON, creatng))
   {
-      WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
-      set_start_state(thing);
+      WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
+      set_start_state(creatng);
       return CrCkRet_Continue;
   }
-  process_creature_hunger(thing);
-  if ( process_prisoner_skelification(thing,room) )
+  process_creature_hunger(creatng);
+  if ( process_prisoner_skelification(creatng,room) )
     return CrCkRet_Deleted;
   struct CreatureControl *cctrl;
-  cctrl = creature_control_get_from_thing(thing);
-  if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(thing, room) )
+  cctrl = creature_control_get_from_thing(creatng);
+  if ((cctrl->instance_id == CrInst_NULL) && process_prison_food(creatng, room) )
     return CrCkRet_Continue;
   // Breaking from jail is only possible once per some amount of turns
   if ((game.play_gameturn % gameadd.time_between_prison_break) == 0)
   {
-      if (jailbreak_possible(room, thing->owner))
+      if (jailbreak_possible(room, creatng->owner))
       {
           if (is_my_player_number(room->owner))
               output_message(SMsg_PrisonersEscaping, 40, true);
           else if (is_my_player_number(room->owner))
               output_message(SMsg_CreatrFreedPrison, 40, true);
-          set_start_state(thing);
+          set_start_state(creatng);
           return CrCkRet_Continue;
       }
   }

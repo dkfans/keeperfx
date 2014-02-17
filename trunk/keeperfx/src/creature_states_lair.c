@@ -262,24 +262,24 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
     return CrStRet_ResetOk;
 }
 
-CrStateRet creature_at_new_lair(struct Thing *thing)
+CrStateRet creature_at_new_lair(struct Thing *creatng)
 {
     struct Room *room;
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     //return _DK_creature_at_new_lair(thing);
-    room = get_room_thing_is_on(thing);
-    if ( !room_still_valid_as_type_for_thing(room, RoK_LAIR, thing) )
+    room = get_room_thing_is_on(creatng);
+    if ( !room_still_valid_as_type_for_thing(room, RoK_LAIR, creatng) )
     {
-        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->owner);
-        set_start_state(thing);
+        WARNLOG("Room %s owned by player %d is bad work place for %s owned by played %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->owner);
+        set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (!creature_add_lair_to_room(thing, room))
+    if (!creature_add_lair_to_room(creatng, room))
     {
-        internal_set_thing_state(thing, CrSt_CreatureChooseRoomForLairSite);
+        internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
         return CrStRet_Modified;
     }
-    set_start_state(thing);
+    set_start_state(creatng);
     return CrStRet_ResetOk;
 }
 
