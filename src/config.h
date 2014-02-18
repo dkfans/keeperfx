@@ -111,15 +111,19 @@ enum TbLanguage {
     Lang_Polish,
     Lang_Dutch,
     Lang_Hungarian,
-    Lang_Austr,
+    Lang_Korean,
     Lang_Danish,
     Lang_Norwegian,
-    Lang_Ces,
-    Lang_Mag,
+    Lang_Czech,
+    Lang_Arabic,
     Lang_Russian,
     Lang_Japanese,
     Lang_ChineseInt,
     Lang_ChineseTra,
+    Lang_Portuguese,
+    Lang_Hindi,
+    Lang_Bengali,
+    Lang_Javanese,
 };
 
 enum TbConfigLoadFlags {

@@ -26,7 +26,7 @@ pkg/sound/speech_eng.dat \
 pkg/sound/speech_fre.dat \
 pkg/sound/speech_ger.dat \
 pkg/sound/speech_ita.dat \
-pkg/sound/speech_jap.dat \
+pkg/sound/speech_jpn.dat \
 pkg/sound/speech_pol.dat \
 pkg/sound/speech_rus.dat \
 pkg/sound/speech_spa.dat \
@@ -43,7 +43,7 @@ pkg/sound/speech_eng.dat: sfx/speech_eng/filelist.txt $(WAVTODAT)
 pkg/sound/speech_fre.dat: sfx/speech_fre/filelist.txt $(WAVTODAT)
 pkg/sound/speech_ger.dat: sfx/speech_ger/filelist.txt $(WAVTODAT)
 pkg/sound/speech_ita.dat: sfx/speech_ita/filelist.txt $(WAVTODAT)
-pkg/sound/speech_jap.dat: sfx/speech_jpn/filelist.txt $(WAVTODAT)
+pkg/sound/speech_jpn.dat: sfx/speech_jpn/filelist.txt $(WAVTODAT)
 pkg/sound/speech_pol.dat: sfx/speech_pol/filelist.txt $(WAVTODAT)
 pkg/sound/speech_rus.dat: sfx/speech_rus/filelist.txt $(WAVTODAT)
 pkg/sound/speech_spa.dat: sfx/speech_spa/filelist.txt $(WAVTODAT)
