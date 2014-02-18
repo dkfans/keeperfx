@@ -3613,9 +3613,22 @@ TbBool creature_will_attack_creature_incl_til_death(const struct Thing *fightng,
     return false;
 }
 
+/**
+ * Returns if state of given thing can can never be blocked by stateblock_flags.
+ * This only happens for some utility states which should have state callback executed
+ *  even if the creature is unresponsive due to spells.
+ * @param thing
+ * @return
+ */
 TbBool creature_state_cannot_be_blocked(const struct Thing *thing)
 {
-    return (creature_is_being_dropped(thing));
+    CrtrStateId i;
+    i = thing->active_state;
+    if ((i == CrSt_MoveToPosition) || (i == CrSt_MoveBackwardsToPosition))
+        i = thing->continue_state;
+    if ((i == CrSt_CreatureBeingDropped) || (i == CrSt_CreatureHeroEntering) || (i == CrSt_ImpBirth))
+        return true;
+    return false;
 }
 
 struct Thing *thing_update_enemy_to_fight_with(struct Thing *thing)

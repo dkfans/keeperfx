@@ -216,7 +216,7 @@ void init_room_sparks(struct Room *room);
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char a5);
 short delete_room_slab_when_no_free_room_structures(long a1, long a2, unsigned char a3);
 long calculate_room_efficiency(const struct Room *room);
-void kill_room_slab_and_contents(unsigned char a1, unsigned char a2, unsigned char a3);
+void kill_room_slab_and_contents(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void free_room_structure(struct Room *room);
 void reset_creatures_rooms(struct Room *room);
 TbBool remove_item_from_room_capacity(struct Room *room);
