@@ -1011,6 +1011,7 @@
  0001:000A2320       person_sulking
  0001:000A2840       creature_remove_lair_from_room
  0001:000A2AB0       get_best_new_lair_for_creature
+ 0001:000A2FF0       find_lair_at
  0001:000A3220       creature_at_changed_lair
  0001:000A32F0       frontmap_load
  0001:000A4670       frontnetmap_update
@@ -1155,7 +1156,9 @@
  0001:000B8AF0       link_adjacent_rooms_of_type
  0001:000B8DF0       find_random_valid_position_for_thing_in_room
  0001:000B90A0       find_first_valid_position_for_thing_in_room
+ 0001:000B91E0       find_random_valid_position_for_item_in_different_room_avoiding_object
  0001:000B9380       find_random_valid_position_for_thing_in_room_avoiding_object
+ 0001:000B9650       find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab
  0001:000B9A40       remove_creature_from_work_room
  0001:000B9C80       person_get_somewhere_adjacent_in_room
  0001:000BA0A0       setup_prison_move

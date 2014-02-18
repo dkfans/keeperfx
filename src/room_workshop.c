@@ -131,6 +131,42 @@ TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng)
     return add_item_to_room_capacity(room, true);
 }
 
+struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Coord3d pos;
+    struct Thing *cratetng;
+    if (room->kind != RoK_WORKSHOP) {
+        SYNCDBG(4,"Cannot add crate to %s owned by player %d",room_code_name(room->kind),(int)room->owner);
+        return INVALID_THING;
+    }
+    pos.x.val = subtile_coord_center(stl_x);
+    pos.y.val = subtile_coord_center(stl_y);
+    pos.z.val = 0;
+    cratetng = create_object(&pos, cratngmodel, room->owner, -1);
+    if (thing_is_invalid(cratetng))
+    {
+        return INVALID_THING;
+    }
+    // Neutral thing do not need any more processing
+    if (is_neutral_thing(cratetng))
+    {
+        return cratetng;
+    }
+    if (!add_workshop_object_to_workshop(room, cratetng)) {
+        ERRORLOG("Could not fit %s in %s index %d",
+            thing_model_name(cratetng),room_code_name(room->kind),(int)room->index);
+        remove_item_from_room_capacity(room);
+        destroy_object(cratetng);
+        return INVALID_THING;
+    }
+    ThingClass tngclass;
+    ThingModel tngmodel;
+    tngclass = crate_thing_to_workshop_item_class(cratetng);
+    tngmodel = crate_thing_to_workshop_item_model(cratetng);
+    add_workshop_item_to_amounts(cratetng->owner, tngclass, tngmodel);
+    return cratetng;
+}
+
 TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
 {
     struct Coord3d pos;

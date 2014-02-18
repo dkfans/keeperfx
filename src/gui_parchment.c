@@ -341,7 +341,6 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
     struct Room *room;
     long rkind_select;
     long room_visibility;
-    struct RoomData *rdata;
     //_DK_draw_overhead_room_icons(x,y);
     rkind_select = (game.play_gameturn >> 1) % ROOM_TYPES_COUNT;
     for (room = start_rooms; room < end_rooms; room++)
@@ -357,6 +356,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
           {
             if (subtile_revealed(room->central_stl_x, room->central_stl_y, plyr_idx))
             {
+                struct RoomData *rdata;
                 rdata = room_data_get_for_room(room);
                 if (rdata->numfield_1 > 0)
                 {
