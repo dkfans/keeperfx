@@ -1157,6 +1157,7 @@
  0001:000A82E0       init_messages
  0001:000A2840       creature_remove_lair_from_room
  0001:000A2AB0       get_best_new_lair_for_creature
+ 0001:000A2FF0       find_lair_at
  0001:00054680       draw_single_keepersprite_xflip
  0001:00057D20       update_creatures_not_in_list
  0001:0005ABC0       update_cave_in
@@ -1831,6 +1832,10 @@
  0001:0008C070       update_god_lightning_ball
  0001:000C4AA0       prepare_thing_for_power_hand
  0001:000B8DF0       find_random_valid_position_for_thing_in_room
+ 0001:000B90A0       find_first_valid_position_for_thing_in_room
+ 0001:000B91E0       find_random_valid_position_for_item_in_different_room_avoiding_object
+ 0001:000B9380       find_random_valid_position_for_thing_in_room_avoiding_object
+ 0001:000B9650       find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab
  0001:000BD890       change_creature_owner
  0001:0001A2B0       anger_set_creature_anger_all_types
  0001:000C4460       find_my_next_creature_of_breed_and_job
@@ -1889,9 +1894,7 @@
  0001:000B9A40       remove_creature_from_work_room
  0001:000119E0       terminate_thing_spell_effect
  0001:000D3660       check_out_imp_stack
- 0001:000B90A0       find_first_valid_position_for_thing_in_room
  0001:000B89C0       setup_head_for_empty_treasure_space
- 0001:000B9380       find_random_valid_position_for_thing_in_room_avoiding_object
  0001:0005F310       remove_gold_from_hoarde
  0001:0006E7B0       nearest_search
  0001:000CBFC0       get_nearest_valid_position_for_creature_at

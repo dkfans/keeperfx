@@ -1,15 +1,14 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file speech_eng.pot
-#      KeeperFX Speeches translation template
+#   @file speech_pol.po
+#      KeeperFX Speeches translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as english translation script.
+#      Contains translation of the national speeches in the game.
 #  @par Comment:
-#      Use this file to create or update script of speeches.
+#      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Oct 2012
+#  @date     25 Dec 2013 - 02 Feb 2014
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -22,23 +21,25 @@ msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2013-11-13 19:11+0100\n"
+"PO-Revision-Date: 2014-02-17 23:44+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
+"Language: pl_PL\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-SourceCharset: utf-8\n"
 "X-Generator: Poedit 1.5.7\n"
 
 #: speech:0
 msgctxt "In-game mentor"
 msgid "Your creatures are becoming angry."
-msgstr ""
+msgstr "Twoje stwory złoszczą się."
 
 #: speech:1
 msgctxt "In-game mentor"
 msgid "Your creatures are angry - they have nowhere to live."
-msgstr ""
+msgstr "Twoje stwory są wściakłe - brak im przestrzeni życiowej."
 
 #: speech:2
 msgctxt "In-game mentor"
@@ -452,7 +453,8 @@ msgstr ""
 
 #: speech:84
 msgctxt "In-game mentor"
-msgid "You have found a hidden realm. Go there when you've conquered this land."
+msgid ""
+"You have found a hidden realm. Go there when you've conquered this land."
 msgstr ""
 
 #: speech:85
@@ -572,7 +574,9 @@ msgstr ""
 
 #: speech:108
 msgctxt "In-game mentor"
-msgid "You are victorious, your darkness pervades througout the kingdom. All hail the new lord of shadows."
+msgid ""
+"You are victorious, your darkness pervades througout the kingdom. All hail "
+"the new lord of shadows."
 msgstr ""
 
 #: speech:109
@@ -654,4 +658,3 @@ msgstr ""
 msgctxt "Hero Talk Upon Entering"
 msgid "We shall not tolerate your evil presence any longer!"
 msgstr ""
-

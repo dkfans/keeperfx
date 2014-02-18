@@ -104,6 +104,7 @@ TbBool thing_is_door_box(const struct Thing *thing);
 TbBool thing_is_dungeon_heart(const struct Thing *thing);
 TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_hero_gate(const struct Thing *thing);
+TbBool object_is_infant_food(const struct Thing *thing);
 TbBool object_is_growing_food(const struct Thing *thing);
 TbBool object_is_mature_food(const struct Thing *thing);
 TbBool object_is_gold(const struct Thing *thing);
