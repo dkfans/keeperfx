@@ -56,7 +56,7 @@ selecting installation folder on disk, won't be enough.
 Available languages:
 
 The following languages are currently functional:
- ENG ITA FRE SPA DUT GER POL SWE JAP RUS
+ ENG ITA FRE SPA DUT GER POL SWE JPN RUS
 The following languages are partially functional:
  CHI CHT
 Note that some campaigns may not support your language.

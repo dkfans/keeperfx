@@ -42,6 +42,10 @@ extern "C" {
 /******************************************************************************/
 const char keeper_config_file[]="keeperfx.cfg";
 
+/**
+ * Language 3-char abbreviations.
+ * These are selected from ISO 639-2/B naming standard.
+ */
 const struct NamedCommand lang_type[] = {
   {"ENG", Lang_English},
   {"FRE", Lang_French},
@@ -52,15 +56,19 @@ const struct NamedCommand lang_type[] = {
   {"POL", Lang_Polish},
   {"DUT", Lang_Dutch},
   {"HUN", Lang_Hungarian},
-  {"AUS", Lang_Austr},
+  {"KOR", Lang_Korean},
   {"DAN", Lang_Danish},
   {"NOR", Lang_Norwegian},
-  {"CES", Lang_Ces},
-  {"MAG", Lang_Mag},
+  {"CZE", Lang_Czech},
+  {"ARA", Lang_Arabic},
   {"RUS", Lang_Russian},
-  {"JAP", Lang_Japanese},
+  {"JPN", Lang_Japanese},
   {"CHI", Lang_ChineseInt}, // Simplified Chinese
-  {"CHT", Lang_ChineseTra}, // Traditional Chinese
+  {"CHT", Lang_ChineseTra}, // Traditional Chinese (not from ISO 639-2/B)
+  {"POR", Lang_Portuguese},
+  {"HIN", Lang_Hindi},
+  {"BEN", Lang_Bengali},
+  {"JAV", Lang_Javanese},
   {NULL,  Lang_Unset},
   };
 
