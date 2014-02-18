@@ -63,15 +63,19 @@ wxString supported_languages_code[] = {
     _T("POL"),
     _T("DUT"),
     //_T("HUN"),
-    //_T("AUS"),
+    //_T("KOR"),
     //_T("DAN"),
     //_T("NOR"),
-    //_T("CES"),
-    //_T("MAG"),
+    //_T("CZE"),
+    //_T("ARA"),
     _T("RUS"),
-    _T("JAP"),
+    _T("JPN"),
     _T("CHI"),
     _T("CHT"),
+    //_T("POR"),
+    //_T("HIN"),
+    //_T("BEN"),
+    //_T("JAV"),
 };
 
 wxString supported_languages_text[] = {
@@ -83,16 +87,20 @@ wxString supported_languages_text[] = {
     _T("Svenska"),
     _T("Polski"),
     _T("Nederlands"),
-    //_T("Magyar"),
-    //_T("Aus"),
+    //_T("Hungarian"),
+    //_T("Korean"),
     //_T("Dansk"),
     //_T("Norsk"),
     //_T("Česky"),
-    //_T("Mag"),
+    //_T("Arabic"),
     _T("Русский"),
     _T("にほんご"),
     _T("简化中国"),
-    _T("傳統的中國")
+    _T("傳統的中國"),
+    //_T("Portuguese"),
+    //_T("Hindi"),
+    //_T("Bengali"),
+    //_T("Javanese"),
 };
 
 wxString tooltips_eng[] = {
