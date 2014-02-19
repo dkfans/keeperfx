@@ -182,9 +182,124 @@ long compute_player_final_score(struct PlayerInfo *player, long gameplay_score)
     return i;
 }
 
-long take_money_from_dungeon(PlayerNumber plyr_idx, long a2, unsigned char a3)
+long take_money_from_room(struct Room *room, GoldAmount amount_take)
 {
-  return _DK_take_money_from_dungeon(plyr_idx, a2, a3);
+    GoldAmount amount;
+    amount = amount_take;
+    unsigned long i;
+    unsigned long k;
+    k = 0;
+    i = room->slabs_list;
+    while (i > 0)
+    {
+        struct SlabMap *slb;
+        slb = get_slabmap_direct(i);
+        if (slabmap_block_invalid(slb)) {
+            ERRORLOG("Jump to invalid room slab detected");
+            break;
+        }
+        // Per-slab code starts
+        MapSubtlCoord stl_x,stl_y;
+        stl_x = slab_subtile_center(slb_num_decode_x(i));
+        stl_y = slab_subtile_center(slb_num_decode_y(i));
+        struct Thing *hrdtng;
+        hrdtng = find_gold_hoard_at(stl_x, stl_y);
+        if (!thing_is_invalid(hrdtng)) {
+            amount -= remove_gold_from_hoarde(hrdtng, room, amount);
+        }
+        if (amount <= 0)
+          break;
+        // Per-slab code ends
+        i = get_next_slab_number_in_room(i);
+        k++;
+        if (k > map_tiles_x * map_tiles_y)
+        {
+            ERRORLOG("Infinite loop detected when sweeping room slabs");
+            break;
+        }
+    }
+    return amount_take-amount;
+}
+
+long take_money_from_dungeon(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum)
+{
+    //return _DK_take_money_from_dungeon(plyr_idx, amount_take, only_whole_sum);
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        WARNLOG("Cannot take gold from player %d with no dungeon",(int)plyr_idx);
+        return -1;
+    }
+    GoldAmount take_remain;
+    take_remain = amount_take;
+    GoldAmount total_money;
+    total_money = dungeon->total_money_owned;
+    if (take_remain <= 0) {
+        WARNLOG("No gold needed to be taken from player %d",(int)plyr_idx);
+        return 0;
+    }
+    if (take_remain > total_money)
+    {
+        SYNCDBG(7,"Player %d has only %d gold, cannot get %d from him",(int)plyr_idx,(int)take_remain,(int)total_money);
+        if (only_whole_sum) {
+            return -1;
+        }
+        take_remain = dungeon->total_money_owned;
+        amount_take = dungeon->total_money_owned;
+    }
+    GoldAmount offmap_money;
+    offmap_money = dungeon->offmap_money_owned;
+    if (offmap_money > 0)
+    {
+        if (take_remain <= offmap_money)
+        {
+            dungeon->offmap_money_owned -= take_remain;
+            dungeon->total_money_owned -= take_remain;
+            return amount_take;
+        }
+        take_remain -= offmap_money;
+        dungeon->total_money_owned -= offmap_money;
+        dungeon->offmap_money_owned = 0;
+    }
+    struct Room *room;
+    long i;
+    unsigned long k;
+    i = dungeon->room_kind[RoK_TREASURE];
+    k = 0;
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        if (room->capacity_used_for_storage)
+        {
+            take_remain -= take_money_from_room(room, take_remain);
+            if (take_remain <= 0)
+            {
+                if (is_my_player_number(plyr_idx))
+                {
+                  if ((total_money >= 1000) && (total_money - amount_take < 1000)) {
+                      output_message(86, 500, 1);
+                  }
+                }
+                return amount_take;
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    WARNLOG("Player %d could not give %d gold, %d was missing; his total gold was %d",(int)plyr_idx,(int)amount_take,(int)take_remain,(int)total_money);
+    return -1;
 }
 
 long update_dungeon_generation_speeds(void)

@@ -3025,7 +3025,45 @@ short creature_wants_a_home(struct Thing *creatng)
 
 short creature_wants_salary(struct Thing *creatng)
 {
-  return _DK_creature_wants_salary(creatng);
+    //return _DK_creature_wants_salary(creatng);
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(creatng);
+    struct Room *room;
+    room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, 0, 1);
+    if (!room_is_invalid(room))
+    {
+        if (setup_random_head_for_room(creatng, room, 0))
+        {
+            creatng->continue_state = CrSt_CreatureTakeSalary;
+            cctrl->target_room_id = room->index;
+            return 1;
+        }
+    } else {
+        room = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_TREASURE, 1, 1);
+    }
+    if (room_is_invalid(room))
+    {
+        SYNCDBG(5,"No player %d %s with used capacity found to pay %s",(int)creatng->owner,room_code_name(RoK_TREASURE),thing_model_name(creatng));
+        if (cctrl->field_48 > 0)
+        {
+            cctrl->field_48--;
+            struct CreatureStats *crstat;
+            crstat = creature_stats_get_from_thing(creatng);
+            anger_apply_anger_to_creature(creatng, crstat->annoy_no_salary, AngR_NotPaid, 1);
+        }
+        set_start_state(creatng);
+        return 1;
+    }
+    struct Coord3d pos;
+    if (find_random_valid_position_for_thing_in_room(creatng, room, &pos))
+    {
+        if (setup_person_move_to_position(creatng, pos.x.stl.num, pos.y.stl.num, 1))
+        {
+            creatng->continue_state = CrSt_CreatureTakeSalary;
+            cctrl->target_room_id = room->index;
+        }
+    }
+    return 1;
 }
 
 long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
@@ -3061,9 +3099,57 @@ struct Room *find_nearest_room_for_thing_excluding_two_types(struct Thing *thing
     return _DK_find_nearest_room_for_thing_excluding_two_types(thing, owner, a3, a4, a5);
 }
 
-struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomKind rkind, unsigned char a4, long a5)
+struct Room * find_nearest_room_for_thing_with_used_capacity(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_no_owner, long used)
 {
-    return _DK_find_nearest_room_for_thing_with_used_capacity(thing, plyr_idx, rkind, a4, a5);
+    //return _DK_find_nearest_room_for_thing_with_used_capacity(thing, owner, rkind, nav_no_owner, used);
+    struct Dungeon *dungeon;
+    struct Room *nearoom;
+    long neardistance,distance;
+    struct Coord3d pos;
+
+    struct Room *room;
+    unsigned long k;
+    int i;
+    SYNCDBG(18,"Searching for %s with used items to be taken by %s index %d",room_code_name(rkind),thing_model_name(thing),(int)thing->index);
+    dungeon = get_dungeon(owner);
+    nearoom = INVALID_ROOM;
+    neardistance = LONG_MAX;
+    k = 0;
+    i = dungeon->room_kind[rkind];
+    while (i != 0)
+    {
+        room = room_get(i);
+        if (room_is_invalid(room))
+        {
+            ERRORLOG("Jump to invalid room detected");
+            break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        // Compute simplified distance - without use of mul or div
+        distance = abs(thing->mappos.x.stl.num - (int)room->central_stl_x)
+                 + abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
+        if ((neardistance > distance) && (room->used_capacity >= used))
+        {
+            if (find_first_valid_position_for_thing_in_room(thing, room, &pos))
+            {
+                if ((thing->class_id != TCls_Creature)
+                  || creature_can_navigate_to(thing, &pos, nav_no_owner))
+                {
+                    neardistance = distance;
+                    nearoom = room;
+                }
+            }
+        }
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    return nearoom;
 }
 
 void place_thing_in_creature_controlled_limbo(struct Thing *thing)
@@ -4197,12 +4283,12 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     {
         if (is_my_player_number(creatng->owner))
             output_message(SMsg_RoomGardenNeeded, MESSAGE_DELAY_ROOM_NEED, 1);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     struct Room * nroom;
     if (game.play_gameturn - cctrl->garden_eat_check_turn <= 128) {
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     nroom = find_nearest_room_for_thing_with_used_capacity(creatng, creatng->owner, RoK_GARDEN, 0, 1);
@@ -4225,12 +4311,12 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
     }
     if (room_is_invalid(nroom)) {
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     if (!external_set_thing_state(creatng, CrSt_CreatureToGarden)) {
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
-        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, 2, 1);
+        anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
     short hunger_fill,hunger_loss,hunger;
