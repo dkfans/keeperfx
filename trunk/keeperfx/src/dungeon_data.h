@@ -272,7 +272,7 @@ void increase_room_area(PlayerNumber plyr_idx, long value);
 void decrease_room_area(PlayerNumber plyr_idx, long value);
 void increase_dungeon_area(PlayerNumber plyr_idx, long value);
 
-void player_add_offmap_gold(PlayerNumber plyr_idx, long value);
+void player_add_offmap_gold(PlayerNumber plyr_idx, GoldAmount value);
 
 void init_dungeons_essential_position(void);
 const struct Coord3d *dungeon_get_essential_pos(PlayerNumber plyr_idx);

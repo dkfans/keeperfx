@@ -2467,8 +2467,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
             if (item_sold)
             {
                 ctask->sell_traps_doors.gold_gain += value;
-                dungeon->offmap_money_owned += value;
-                dungeon->total_money_owned += value;
+                player_add_offmap_gold(dungeon->owner, value);
                 // Mark that we've sold the item; if enough was sold, end the task
                 ctask->sell_traps_doors.items_amount--;
                 if (ctask->sell_traps_doors.items_amount <= 0) {
