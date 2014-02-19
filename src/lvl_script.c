@@ -1162,18 +1162,6 @@ void command_bonus_level_time(long game_turns)
     command_add_value(Cmd_BONUS_LEVEL_TIME, 0, game_turns, 0, 0);
 }
 
-void player_command_add_start_money(int plridx, long gold_val)
-{
-  struct Dungeon *dungeon;
-  // note that we can't get_players_num_dungeon() because players
-  // may be uninitialized yet when this is called.
-  dungeon = get_dungeon(plridx);
-  if (dungeon_invalid(dungeon))
-      return;
-  dungeon->offmap_money_owned += gold_val;
-  dungeon->total_money_owned += gold_val;
-}
-
 void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
 {
   SYNCDBG(0,"Revealing around (%d,%d)",x,y);
@@ -1205,8 +1193,9 @@ void command_set_start_money(char *plrname, long gold_val)
   {
     SCRPTWRNLOG("Start money set inside conditional block");
   }
-  for (i=plr_start; i < plr_end; i++)
-    player_command_add_start_money(i, gold_val);
+  for (i=plr_start; i < plr_end; i++) {
+      player_add_offmap_gold(i, gold_val);
+  }
 }
 
 void command_room_available(char *plrname, char *roomname, unsigned long can_resrch, unsigned long can_build)
@@ -3537,7 +3526,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_id, long va
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
       {
-          player_command_add_start_money(i, val2);
+          player_add_offmap_gold(i, val2);
       }
       break;
   case Cmd_SET_CREATURE_TENDENCIES:
