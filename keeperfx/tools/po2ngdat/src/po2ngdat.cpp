@@ -48,6 +48,7 @@ struct ProgramOptions {
     std::string fname_inp;
     std::string fname_out;
     std::string fname_enc;
+    std::string ref_filter;
 };
 
 void clear_prog_options(struct ProgramOptions *opts)
@@ -55,6 +56,8 @@ void clear_prog_options(struct ProgramOptions *opts)
     opts->fname_inp.clear();
     opts->fname_out.clear();
     opts->fname_enc.clear();
+    opts->ref_filter.clear();
+    verbose = 0;
 }
 
 std::string file_name_get_path(const std::string &fname_inp)
@@ -105,12 +108,13 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
             {"verbose", no_argument,       0, 'v'},
             {"output",  required_argument, 0, 'o'},
             {"encfile", required_argument, 0, 'e'},
+            {"ref",     required_argument, 0, 'r'},
             {NULL,      0,                 0,'\0'}
         };
         /* getopt_long stores the option index here. */
         int c;
         int option_index = 0;
-        c = getopt_long(argc, argv, "vo:e:", long_options, &option_index);
+        c = getopt_long(argc, argv, "vo:e:r:", long_options, &option_index);
         /* Detect the end of the options. */
         if (c == -1)
             break;
@@ -126,13 +130,16 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
                printf ("\n");
                break;
         case 'v':
-            verbose = 1;
+            verbose++;
             break;
         case 'o':
             opts->fname_out = optarg;
             break;
         case 'e':
             opts->fname_enc = optarg;
+            break;
+        case 'r':
+            opts->ref_filter = optarg;
             break;
         case '?':
                // unrecognized option
@@ -160,6 +167,10 @@ int load_command_line_options(struct ProgramOptions *opts, int argc, char *argv[
     {
         opts->fname_enc = "char_encoding_tbl_eu.txt";
     }
+    if (opts->ref_filter.empty())
+    {
+        opts->ref_filter = "guitext";
+    }
     return true;
 }
 
@@ -181,6 +192,7 @@ short show_usage(const std::string &fname)
     printf("    -v,--verbose             Verbose console output mode\n");
     printf("    -o<file>,--output<file>  Output DAT file name\n");
     printf("    -e<file>,--encfile<file> Encoding table input file name\n");
+    printf("    -r<string>,--ref<string> Reference filter, default is \"guitext\"\n");
     return ERR_OK;
 }
 
@@ -224,9 +236,11 @@ int main(int argc, char* argv[])
         std::unique_ptr<Catalog> catalog(new Catalog());
         catalog->Load(opts.fname_inp, 0);
         // Find translation lines
-        printf("Retrieve sorted list of translations\n");
-        translations = catalog->ToTranslationsVectorByRef(L"guitext",10000);
+        printf("Retrieving sorted list of translations referenced as \"%s\"\n",opts.ref_filter.c_str());
+        std::wstring wref_filter(opts.ref_filter.begin(), opts.ref_filter.end());
+        translations = catalog->ToTranslationsVectorByRef(wref_filter,10000);
     }
+    printf("Found %ld translations with matching reference\n",(long)translations->size());
     // Show warnings for missing translations
     size_t i = 0;
     for (auto it = translations->begin(); it != translations->end(); ++it)
