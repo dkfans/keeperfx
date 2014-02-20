@@ -46,9 +46,9 @@ struct TbSetupSprite {
 };
 
 struct BigSprite {
-    unsigned char field_0;
-    unsigned char field_1;
-    unsigned short field_2[100];
+    unsigned char x_num;
+    unsigned char y_num;
+    unsigned short spr_idx[10][10];
 };
 
 #pragma pack()

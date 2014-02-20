@@ -4056,14 +4056,12 @@ void DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct 
     int spnum_x, spnum_y;
     delta_y = 0;
     y = start_y;
-    unsigned short *base_spr_idx;
-    base_spr_idx = &bigspr->field_2[0];
-    for (spnum_y = 0; spnum_y < bigspr->field_1; spnum_y++)
+    for (spnum_y = 0; spnum_y < bigspr->y_num; spnum_y++)
     {
         unsigned short *spr_idx;
         x = start_x;
-        spr_idx = base_spr_idx;
-        for (spnum_x = 0; spnum_x < bigspr->field_0; spnum_x++)
+        spr_idx = &bigspr->spr_idx[spnum_y][0];
+        for (spnum_x = 0; spnum_x < bigspr->x_num; spnum_x++)
         {
             delta_x = pixel_size * sprite[*spr_idx].SWidth;
             delta_y = pixel_size * sprite[*spr_idx].SHeight;
@@ -4075,10 +4073,10 @@ void DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct 
                 unsigned short *prev_spr_idx;
                 prev_spr_idx = (spr_idx - 10);
                 signed int spnum_p;
-                for (spnum_p = 1; spnum_y >= spnum_p; spnum_p++)
+                for (spnum_p = 1; spnum_p <= spnum_y; spnum_p++)
                 {
                     if (*prev_spr_idx) {
-                        delta_x = pixel_size * sprite[bigspr->field_2[spnum_x + 10 * (spnum_y - spnum_p)]].SWidth;
+                        delta_x = pixel_size * sprite[bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x]].SWidth;
                         break;
                     }
                     prev_spr_idx -= 10;
@@ -4088,7 +4086,6 @@ void DrawBigSprite(long start_x, long start_y, struct BigSprite *bigspr, struct 
             x += delta_x;
         }
         y += delta_y;
-        base_spr_idx += 10;
     }
 }
 
