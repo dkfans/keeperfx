@@ -2542,7 +2542,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);
       }
 #endif
-      shotng->byte_16 = hit_type;
+      shotng->shot.hit_type = hit_type;
       if (shotst->old->firing_sound > 0)
       {
         thing_play_sample(firing, shotst->old->firing_sound + UNSYNC_RANDOM(shotst->old->firing_sound_variants),
