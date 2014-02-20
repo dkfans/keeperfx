@@ -188,6 +188,7 @@ struct ShotConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
     long area_blow;
+    DamageType damage_type;
     struct ShotStats *old;
 };
 
