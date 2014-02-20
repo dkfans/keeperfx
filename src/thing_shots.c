@@ -314,16 +314,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
             efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
             if ( shotst->old->field_36 )
               shot_explodes = 1;
-            if ( !game.objects_config[door_crate_object_model(doortng->model)].field_7 || shotst->old->field_4C )
-            {
-                apply_damage_to_thing(doortng, shotng->word_14, -1);
-            } else
-            {
-                i = 32 * shotng->word_14 / 256;
-                if (i <= 1)
-                    i = 1;
-                apply_damage_to_thing(doortng, i, -1);
-            }
+            i = calculate_shot_real_damage_to_door(doortng, shotng);
+            apply_damage_to_thing(doortng, i, -1);
         } else
         if (cube_is_water(cube_id))
         {
@@ -357,16 +349,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_31, shotst->old->field_33, shotst->old->field_35);
                 if (shotst->old->field_36)
                     shot_explodes = 1;
-                if ( !game.objects_config[door_crate_object_model(doortng->model)].field_7 || shotst->old->field_4C )
-                {
-                    apply_damage_to_thing(doortng, shotng->word_14, -1);
-                } else
-                {
-                    i = 32 * shotng->word_14 / 256;
-                    if (i <= 1)
-                      i = 1;
-                    apply_damage_to_thing(doortng, i, -1);
-                }
+                i = calculate_shot_real_damage_to_door(doortng, shotng);
+                apply_damage_to_thing(doortng, i, -1);
             } else
             {
                 efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, shotst->old->field_2B, shotst->old->field_2D, shotst->old->field_2F);
@@ -452,16 +436,8 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
               shot_explodes = true;
           }
           // Apply damage to the door
-          if ( !game.objects_config[door_crate_object_model(doortng->model)].field_7 || shotst->old->field_4C )
-          {
-              apply_damage_to_thing(doortng, shotng->shot.damage, -1);
-          } else
-          {
-              i = 32 * shotng->shot.damage / 256;
-              if (i < 1)
-                  i = 1;
-              apply_damage_to_thing(doortng, i, -1);
-          }
+          i = calculate_shot_real_damage_to_door(doortng, shotng);
+          apply_damage_to_thing(doortng, i, -1);
       }
     }
     if (!thing_is_invalid(efftng)) {
@@ -569,7 +545,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     }
     struct ObjectConfig *objconf;
     objconf = get_object_model_stats2(target->model);
-    if (objconf->field_7 && !shotst->old->field_4C) {
+    if (objconf->resistant_to_magic && !shotst->old->deals_physical_damage) {
         return 0;
     }
     struct Thing *creatng;

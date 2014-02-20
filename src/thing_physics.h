@@ -36,6 +36,8 @@ enum DamageTypes {
     DmgT_Electric,
     DmgT_Combustion,
     DmgT_Frostbite,
+    DmgT_Heatburn,
+    DmgT_Biological,
     DmgT_Magical,
     DmgT_Respiratory,
     DmgT_Restoration,
