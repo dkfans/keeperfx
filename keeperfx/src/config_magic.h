@@ -266,7 +266,7 @@ struct ShotStats // sizeof = 101
   unsigned char field_49;
   unsigned char area_hit_type;
   unsigned char field_4B;
-  unsigned char field_4C;
+  unsigned char deals_physical_damage;
   unsigned char cannot_make_target_unconscious;
   short experience_given_to_shooter;
   short field_50;

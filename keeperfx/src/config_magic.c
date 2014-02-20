@@ -126,6 +126,8 @@ const struct NamedCommand shotmodel_damagetype_commands[] = {
   {"ELECTRIC",    DmgT_Electric},
   {"COMBUSTION",  DmgT_Combustion},
   {"FROSTBITE",   DmgT_Frostbite},
+  {"HEATBURN",    DmgT_Heatburn},
+  {"BIOLOGICAL",  DmgT_Biological},
   {"MAGICAL",     DmgT_Magical},
   {"RESPIRATORY", DmgT_Respiratory},
   {"RESTORATION", DmgT_Restoration},
