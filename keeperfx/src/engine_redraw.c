@@ -383,11 +383,13 @@ void redraw_creature_view(void)
     }
     remove_explored_flags_for_power_sight(player);
     draw_swipe_graphic();
-    if ((game.numfield_C & 0x20) != 0)
-      draw_whole_status_panel();
+    if ((game.numfield_C & 0x20) != 0) {
+        draw_whole_status_panel();
+    }
     draw_gui();
-    if ((game.numfield_C & 0x20) != 0)
-      draw_overlay_compass(player->mouse_x, player->mouse_y);
+    if ((game.numfield_C & 0x20) != 0) {
+        draw_overlay_compass(player->mouse_x, player->mouse_y);
+    }
     message_draw();
     gui_draw_all_boxes();
     draw_tooltip();
@@ -492,11 +494,13 @@ void redraw_isometric_view(void)
             ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     }
     remove_explored_flags_for_power_sight(player);
-    if ((game.numfield_C & 0x20) != 0)
+    if ((game.numfield_C & 0x20) != 0) {
         draw_whole_status_panel();
+    }
     draw_gui();
-    if ((game.numfield_C & 0x20) != 0)
+    if ((game.numfield_C & 0x20) != 0) {
         draw_overlay_compass(player->mouse_x, player->mouse_y);
+    }
     message_draw();
     gui_draw_all_boxes();
     draw_power_hand();
@@ -527,11 +531,13 @@ void redraw_frontview(void)
     if ((game.flags_font & FFlg_unk08) != 0)
       setup_engine_window(player->engine_window_x, player->engine_window_y, w, h);
     remove_explored_flags_for_power_sight(player);
-    if ((game.numfield_C & 0x20) != 0)
-      draw_whole_status_panel();
+    if ((game.numfield_C & 0x20) != 0) {
+        draw_whole_status_panel();
+    }
     draw_gui();
-    if ((game.numfield_C & 0x20) != 0)
-      draw_overlay_compass(player->mouse_x, player->mouse_y);
+    if ((game.numfield_C & 0x20) != 0) {
+        draw_overlay_compass(player->mouse_x, player->mouse_y);
+    }
     message_draw();
     draw_power_hand();
     draw_tooltip();
