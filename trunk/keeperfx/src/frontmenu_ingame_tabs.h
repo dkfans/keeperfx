@@ -60,6 +60,7 @@ DLLIMPORT char _DK_gui_trap_type_highlighted;
 #define gui_trap_type_highlighted _DK_gui_trap_type_highlighted
 DLLIMPORT char _DK_gui_creature_type_highlighted;
 #define gui_creature_type_highlighted _DK_gui_creature_type_highlighted
+DLLIMPORT struct BigSprite _DK_status_panel;
 /******************************************************************************/
 extern struct GuiMenu main_menu;
 extern struct GuiMenu room_menu;
@@ -72,6 +73,7 @@ extern struct GuiMenu query_menu;
 extern struct GuiMenu creature_query_menu1;
 extern struct GuiMenu creature_query_menu2;
 extern struct GuiMenu creature_query_menu3;
+extern struct BigSprite status_panel;
 /******************************************************************************/
 void draw_whole_status_panel(void);
 void gui_set_button_flashing(long btn_idx, long gameturns);

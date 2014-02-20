@@ -223,8 +223,6 @@ DLLIMPORT char _DK_level_name[88];
 #define level_name _DK_level_name
 DLLIMPORT unsigned char *_DK_block_mem;
 #define block_mem _DK_block_mem
-DLLIMPORT struct BigSprite _DK_status_panel;
-#define status_panel _DK_status_panel
 DLLIMPORT char _DK_top_of_breed_list;
 #define top_of_breed_list _DK_top_of_breed_list
 DLLIMPORT char _DK_no_of_breeds_owned;

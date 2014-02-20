@@ -359,6 +359,14 @@ struct GuiMenu creature_query_menu2 =
 struct GuiMenu creature_query_menu3 =
  { 32, 0, 1, creature_query_buttons3,             0,          0, 140, 400, gui_creature_query_background2,0,NULL,   NULL,                    0, 0, 1,};
 
+struct BigSprite status_panel = {
+    2, 4, {
+        { 1, 2,},
+        { 3, 4,},
+        { 5, 6,},
+        {21,22,},
+    },
+};
 /******************************************************************************/
 #ifdef __cplusplus
 }
