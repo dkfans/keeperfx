@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "thing_doors.h"
+#include "thing_physics.h"
 #include "power_process.h"
 #include "game_legacy.h"
 
@@ -60,10 +61,11 @@ const struct NamedCommand magic_shot_commands[] = {
   {"NAME",            1},
   {"HEALTH",          2},
   {"DAMAGE",          3},
-  {"HITTYPE",         4},
-  {"AREADAMAGE",      5},
-  {"SPEED",           6},
-  {"PROPERTIES",      7},
+  {"DAMAGETYPE",      4},
+  {"HITTYPE",         5},
+  {"AREADAMAGE",      6},
+  {"SPEED",           7},
+  {"PROPERTIES",      8},
   {NULL,              0},
   };
 
@@ -117,6 +119,19 @@ const struct NamedCommand powermodel_castability_commands[] = {
   {"ALL_TALL",         PwCast_AllTall},
   {NULL,                0},
   };
+
+const struct NamedCommand shotmodel_damagetype_commands[] = {
+  {"NONE",        DmgT_None},
+  {"PHYSICAL",    DmgT_Physical},
+  {"ELECTRIC",    DmgT_Electric},
+  {"COMBUSTION",  DmgT_Combustion},
+  {"FROSTBITE",   DmgT_Frostbite},
+  {"MAGICAL",     DmgT_Magical},
+  {"RESPIRATORY", DmgT_Respiratory},
+  {"RESTORATION", DmgT_Restoration},
+  {NULL,          DmgT_None},
+  };
+
 /******************************************************************************/
 struct MagicConfig magic_conf;
 struct NamedCommand spell_desc[MAGIC_ITEMS_MAX];
@@ -638,7 +653,23 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 4: // HITTYPE
+      case 4: // DAMAGETYPE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = get_id(shotmodel_damagetype_commands, word_buf);
+              if (k >= 0) {
+                  shotst->damage_type = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect shot model \"%s\" in [%s] block of %s file.",
+                  word_buf,block_buf,config_textname);
+              break;
+          }
+          break;
+      case 5: // HITTYPE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -651,7 +682,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 5: // AREADAMAGE
+      case 6: // AREADAMAGE
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -676,7 +707,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 6: // SPEED
+      case 7: // SPEED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -689,7 +720,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 7: // PROPERTIES
+      case 8: // PROPERTIES
           shotst->model_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {

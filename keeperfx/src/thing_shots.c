@@ -104,7 +104,7 @@ TbBool detonate_shot(struct Thing *shotng)
     myplyr = get_my_player();
     if (shotng->index != shotng->parent_idx)
         shootrtng = thing_get(shotng->parent_idx);
-    switch ( shotng->model )
+    switch (shotng->model)
     {
     case 4:
     case 16:

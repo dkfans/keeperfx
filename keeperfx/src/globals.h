@@ -221,7 +221,8 @@ typedef long ActionPointId;
 typedef long FilterParam;
 /** Type which stores IAvail_* values. */
 typedef char ItemAvailability;
-
+/** Type which stores types of damage as DmgT_* values. */
+typedef unsigned char DamageType;
 
 struct Coord2d {
     union {
