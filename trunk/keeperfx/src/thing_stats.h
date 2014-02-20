@@ -70,6 +70,7 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
 
 long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng, const struct SlabMap *slb);
 long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb);
+HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng);
 
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
 

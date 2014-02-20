@@ -673,10 +673,31 @@ static void apply_damage_to_door(struct Thing *thing, HitPoints dmg)
     thing->health -= cdamage;
 }
 
+HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng)
+{
+    HitPoints dmg;
+    const struct ShotConfigStats *shotst;
+    shotst = get_shot_model_stats(shotng->model);
+    const struct ObjectConfig *objconf;
+    objconf = get_object_model_stats2(door_crate_object_model(doortng->model));
+    //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (physical in this sense is DmgT_Physical, DmgT_Combustion and DmgT_Heatburn)
+    if ( !objconf->resistant_to_magic || shotst->old->deals_physical_damage )
+    {
+        dmg = shotng->shot.damage;
+    } else
+    {
+        dmg = 32 * shotng->shot.damage / 256;
+        if (dmg < 1)
+            dmg = 1;
+    }
+    return dmg;
+}
+
 void apply_damage_to_thing(struct Thing *thing, HitPoints dmg, PlayerNumber dealing_plyr_idx)
 {
     //_DK_apply_damage_to_thing(thing, dmg, a3);
     // We're here to damage, not to heal
+    SYNCDBG(19,"Dealing %d damage to %s by player %d",(int)dmg,thing_model_name(thing),(int)dealing_plyr_idx);
     if (dmg <= 0)
         return;
     // If it's already dead, then don't interfere
