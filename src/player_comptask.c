@@ -2121,6 +2121,17 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
     struct Thing *thing;
     //return _DK_task_move_creatures_to_defend(comp,ctask);
     thing = thing_get(comp->held_thing_idx);
+    // If the heart is just being destroyed - dump held thing and finish task
+    if (player_cannot_win(comp->dungeon->owner))
+    {
+        if (!thing_is_invalid(thing)) {
+            fake_force_dump_held_things_on_map(comp, &ctask->move_to_defend.target_pos);
+        }
+        SYNCDBG(8,"No reason to bother, player %d can no longer win",(int)comp->dungeon->owner);
+        remove_task(comp, ctask);
+        return CTaskRet_Unk0;
+    }
+    // If everything is fine wand we're keeping the thing to move in "fake hand"
     if (!thing_is_invalid(thing))
     {
         if (!fake_dump_held_creatures_on_map(comp, thing, &ctask->move_to_defend.target_pos))

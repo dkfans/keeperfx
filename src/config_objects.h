@@ -51,7 +51,7 @@ struct ObjectConfig { // sizeof=0x1D
 char field_4;
 char field_5;
 char is_heart;
-char resistant_to_magic;
+char resistant_to_nonmagic;
 char field_8;
     struct InitLight ilght;
 };
