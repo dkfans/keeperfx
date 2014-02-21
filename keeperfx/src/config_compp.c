@@ -824,7 +824,7 @@ short write_computer_player_check_to_log(struct ComputerCheck *check)
   return true;
 }
 
-short write_computer_player_event_to_log(struct ComputerEvent *event)
+short write_computer_player_event_to_log(const struct ComputerEvent *event)
 {
   JUSTMSG("[eventXX]");
   JUSTMSG("Name = %s",event->name);

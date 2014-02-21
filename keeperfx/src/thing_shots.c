@@ -545,7 +545,7 @@ long shot_hit_object_at(struct Thing *shotng, struct Thing *target, struct Coord
     }
     struct ObjectConfig *objconf;
     objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_magic && !shotst->old->deals_physical_damage) {
+    if (objconf->resistant_to_nonmagic && !shotst->old->deals_magic_damage) {
         return 0;
     }
     struct Thing *creatng;

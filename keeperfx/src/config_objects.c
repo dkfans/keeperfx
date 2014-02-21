@@ -622,7 +622,7 @@ void init_objects(void)
     game.objects_config[86].field_4 = 10;
     game.objects_config[86].field_5 = 0;
     game.objects_config[86].ilght.is_dynamic = 0;
-    game.objects_config[109].resistant_to_magic = 1;
+    game.objects_config[109].resistant_to_nonmagic = 1;
     game.objects_config[109].field_8 = 1;
     game.objects_config[94].field_8 = 1;
     game.objects_config[95].field_8 = 1;

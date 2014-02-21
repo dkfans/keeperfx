@@ -406,7 +406,7 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
         pos.y.val = subtile_coord_center(room->central_stl_y);
         pos.z.val = subtile_coord(1,0);
         roomtask = able_to_build_room(comp, &pos, rkind, width_slabs, height_slabs, area, a6);
-        if (roomtask != NULL) {
+        if (!computer_task_invalid(roomtask)) {
             return roomtask;
         }
         // Per-room code ends
@@ -417,7 +417,7 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
             break;
         }
     }
-    return NULL;
+    return INVALID_COMPUTER_TASK;
 }
 
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long look_randstart)
@@ -467,7 +467,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
                 {
                     roomtask = able_to_build_room_from_room(comp, rkind, look_kind, width_slabs, height_slabs, area, aparam);
                 }
-                if (roomtask != NULL) {
+                if (!computer_task_invalid(roomtask)) {
                     return roomtask;
                 }
                 lookidx = (lookidx + 1) % arr_length;
@@ -475,7 +475,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
         }
     }
     SYNCLOG("Player %d dungeon has no place for %s sized %dx%d", (int)dungeon->owner, room_code_name(rkind), (int)width_slabs, (int)height_slabs);
-    return NULL;
+    return INVALID_COMPUTER_TASK;
 }
 
 long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, const struct GoldLookup *gldlook, struct Room **nearroom)
