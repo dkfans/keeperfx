@@ -233,6 +233,14 @@ struct PowerConfigStats *get_power_model_stats(PowerKind pwmodel)
     return &magic_conf.power_cfgstats[pwmodel];
 }
 
+short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
+{
+  JUSTMSG("[shot%d]",(int)num);
+  JUSTMSG("Name = %s",shotst->code_name);
+  JUSTMSG("Values = %d %d",(int)shotst->old->deals_magic_damage,(int)shotst->old->experience_given_to_shooter);
+  return true;
+}
+
 TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
     long pos;
@@ -759,6 +767,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       }
       skip_conf_to_next_line(buf,&pos,len);
     }
+    //write_magic_shot_to_log(shotst, i);
 #undef COMMAND_TEXT
   }
   return true;
