@@ -2115,34 +2115,34 @@ msgstr ""
 
 #: guitext:324
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this. [12.4]"
+msgid "Impenetrable Rock: Your Imps cannot dig through this, the only solution is to go round. It is visible even if far from your territiry."
 msgstr ""
 
 #: guitext:325
 msgctxt "Slab description"
-msgid "Earth: You can excavate this. [12.1]"
+msgid "Earth: You can excavate this. To dig out some new caverns, choose a location and tag for digging with LMB. Press LMB again to untag."
 msgstr ""
 
 #: guitext:326
 msgctxt "Slab description"
 msgid ""
 "Gold Seam: Your source of wealth. Dig this out and your Imps will take it to "
-"your Treasure Room. [12.2]"
+"your Treasure Room. You can also pick up the lumps of treasure left on the ground."
 msgstr ""
 
 #: guitext:327
 msgctxt "Slab description"
-msgid "Lava: Burns any creature that step on it. [14.2]"
+msgid "Lava: Burns any creature that step on it. Get over lava by casting Cave-In or building a Bridge."
 msgstr ""
 
 #: guitext:328
 msgctxt "Slab description"
-msgid "Water: Creatures move more slowly through water. [14.1]"
+msgid "Water: Creatures move more slowly through water. Build the Bridge to make new land on the water."
 msgstr ""
 
 #: guitext:329
 msgctxt "Slab description"
-msgid "Wall: A reinforced stone wall that enemies cannot break through. [12.1]"
+msgid "Wall: A reinforced stone wall that enemies cannot break through. At least without the Destroy Walls spell."
 msgstr ""
 
 #: guitext:330
@@ -2152,12 +2152,12 @@ msgstr ""
 
 #: guitext:331
 msgctxt "Slab description"
-msgid "Path: Unclaimed earth floor. [12.1]"
+msgid "Path: Unclaimed earth floor. You can claim it if it is connected to already claimed territory."
 msgstr ""
 
 #: guitext:332
 msgctxt "Slab description"
-msgid "Claimed area: Your dungeon territory. [12.1]"
+msgid "Claimed area: Your dungeon territory. You can build rooms and drop your creatures on it."
 msgstr ""
 
 #: guitext:333
@@ -2732,27 +2732,27 @@ msgstr ""
 
 #: guitext:447
 msgctxt "In-game interface description"
-msgid "Information Panel: Miscellaneous information. [5.0]"
+msgid "Information Panel: Miscellaneous information. Shows your and enemy progress and allows changing creature tendencies."
 msgstr ""
 
 #: guitext:448
 msgctxt "In-game interface description"
-msgid "Room Panel: The rooms available for you to build. [6.0]"
+msgid "Room Panel: The rooms available for you to build. Here you can center map on rooms or build new ones."
 msgstr ""
 
 #: guitext:449
 msgctxt "In-game interface description"
-msgid "Research Panel: The spells available to you. [7.0]"
+msgid "Research Panel: The spells available to you. Here you can cast or cancel them."
 msgstr ""
 
 #: guitext:450
 msgctxt "In-game interface description"
-msgid "Workshop Panel: The traps and doors available to you. [8.0]"
+msgid "Workshop Panel: The traps and doors available to you. You can center the map on them, place new ones or sell existing."
 msgstr ""
 
 #: guitext:451
 msgctxt "In-game interface description"
-msgid "Creature Panel: Information on your creatures. [9.0]"
+msgid "Creature Panel: Information on your creatures. Shows activity of your creatures and allows picking them up."
 msgstr ""
 
 #: guitext:452
