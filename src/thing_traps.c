@@ -317,10 +317,10 @@ TbBool update_trap_trigger_pressure(struct Thing *traptng)
     return false;
 }
 
-void update_trap_trigger(struct Thing *traptng)
+TngUpdateRet update_trap_trigger(struct Thing *traptng)
 {
     if (traptng->trap.num_shots <= 0) {
-        return;
+        return TUFRet_Unchanged;
     }
     //_DK_update_trap_trigger(thing); return;
     TbBool do_trig;
@@ -349,6 +349,12 @@ void update_trap_trigger(struct Thing *traptng)
             traptng->trap.num_shots = n - 1;
             if (traptng->trap.num_shots == 0)
             {
+                // If the trap is in strange location, destroy it after it's depleted
+                struct SlabMap *slb;
+                slb = get_slabmap_thing_is_on(traptng);
+                if ((slb->kind != SlbT_CLAIMED) && (slb->kind != SlbT_PATH)) {
+                    traptng->health = -1;
+                }
                 traptng->field_4F &= 0x10;
                 traptng->field_4F |= 0x20;
                 if (!is_neutral_thing(traptng) && !is_hero_thing(traptng)) {
@@ -356,7 +362,9 @@ void update_trap_trigger(struct Thing *traptng)
                 }
             }
         }
+        return TUFRet_Modified;
     }
+    return TUFRet_Unchanged;
 }
 
 TbBool rearm_trap(struct Thing *traptng)
@@ -386,8 +394,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
     }
     if (map_pos_is_lava(traptng->mappos.x.stl.num, traptng->mappos.y.stl.num) && !thing_is_dragged_or_pulled(traptng))
     {
-        destroy_trap(traptng);
-        return TUFRet_Deleted;
+        traptng->health = -1;
     }
     return TUFRet_Modified;
 }
