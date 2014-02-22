@@ -73,7 +73,7 @@ const struct NamedCommand creaturetype_instance_commands[] = {
   {"FPRESETTIME",     7},
   {"FORCEVISIBILITY", 8},
   {"GRAPHICS",        9},
-  {"FUNCTIONS",      10},
+  {"FUNCTION",       10},
   {NULL,              0},
   };
 
@@ -883,14 +883,49 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 10: // FUNCTIONS
+        case 10: // FUNCTION
             k = recognize_conf_parameter(buf,&pos,len,creature_instances_func_type);
             if (k > 0)
             {
                 inst_inf->func_cb = creature_instances_func_list[k];
                 n++;
+                //JUSTLOG("Function = %s %s %d",creature_instances_func_type[k-1].name,spell_code_name(inst_inf->func_params[0]),inst_inf->func_params[1]);
             }
-            if (n < 1)
+            // Second parameter may be a different thing based on first parameter
+            switch (k)
+            {
+            case 2: // Special code for casting spell instances
+                k = recognize_conf_parameter(buf,&pos,len,spell_desc);
+                if (k > 0)
+                {
+                    inst_inf->func_params[0] = k;
+                    n++;
+                }
+                break;
+            case 3: // Special code for firing shot instances
+                k = recognize_conf_parameter(buf,&pos,len,shot_desc);
+                if (k > 0)
+                {
+                    inst_inf->func_params[0] = k;
+                    n++;
+                }
+                break;
+            default:
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    inst_inf->func_params[0] = k;
+                    n++;
+                }
+            }
+            // Third parameter is always integer
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                inst_inf->func_params[1] = k;
+                n++;
+            }
+            if (n < 3)
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);

@@ -87,19 +87,18 @@ typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 
 struct InstanceInfo { // sizeof = 42
 unsigned char field_0;
-  long time;
-  long fp_time;
-  long action_time;
-  long fp_action_time;
-  long reset_time;
-  long fp_reset_time;
-  unsigned char graphics_idx;
+    long time;
+    long fp_time;
+    long action_time;
+    long fp_action_time;
+    long reset_time;
+    long fp_reset_time;
+    unsigned char graphics_idx;
 unsigned char field_1A;
-  short force_visibility;
+    short force_visibility;
 unsigned char field_1D;
     Creature_Instf_Func func_cb;
-  long field_22;
-unsigned char field_26[4];
+    long func_params[2];
 };
 
 #pragma pack()
