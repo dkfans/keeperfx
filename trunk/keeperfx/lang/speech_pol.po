@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: Speeches for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-17 23:44+0100\n"
+"PO-Revision-Date: 2014-02-22 14:26+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: pl_PL\n"
@@ -44,112 +44,112 @@ msgstr "Twoje stwory są wściakłe - brak im przestrzeni życiowej."
 #: speech:2
 msgctxt "In-game mentor"
 msgid "Your minions are annoyed - you cannot pay them."
-msgstr ""
+msgstr "Sługi irytują się - nie masz czym płacić."
 
 #: speech:3
 msgctxt "In-game mentor"
 msgid "Your creatures are upset because they are hungry."
-msgstr ""
+msgstr "Twoje stwory niepokoi głód."
 
 #: speech:4
 msgctxt "In-game mentor"
 msgid "Your minions are vandalizing your dungeon!"
-msgstr ""
+msgstr "Twe sługi demolują loch!"
 
 #: speech:5
 msgctxt "In-game mentor"
 msgid "Creatures are deserting!"
-msgstr ""
+msgstr "Stwory dezerterują!"
 
 #: speech:6
 msgctxt "In-game mentor"
 msgid "The enemy has broken through your walls!"
-msgstr ""
+msgstr "Wróg przedarł się przez mury."
 
 #: speech:7
 msgctxt "In-game mentor"
 msgid "Your Dungeon Heart is being attacked!"
-msgstr ""
+msgstr "Atak na Serce Lochu!"
 
 #: speech:8
 msgctxt "In-game mentor"
 msgid "Your minions have lost a battle."
-msgstr ""
+msgstr "Twe sługi przegrały walkę."
 
 #: speech:9
 msgctxt "In-game mentor"
 msgid "Your creatures have won a battle!"
-msgstr ""
+msgstr "Twe sługi wygrały walkę."
 
 #: speech:10
 msgctxt "In-game mentor"
 msgid "Your creatures are falling in battle!"
-msgstr ""
+msgstr "Twe sługi przegywają."
 
 #: speech:11
 msgctxt "In-game mentor"
 msgid "Your minions are winning the battle."
-msgstr ""
+msgstr "Twe sługi wygywają."
 
 #: speech:12
 msgctxt "In-game mentor"
 msgid "Your creatures are under attack."
-msgstr ""
+msgstr "Zaatakowano twoje stwory."
 
 #: speech:13
 msgctxt "In-game mentor"
 msgid "Your creatures are attacking the enemy!"
-msgstr ""
+msgstr "Twoje stwory atakują wroga."
 
 #: speech:14
 msgctxt "In-game mentor"
 msgid "The enemy is destroying your rooms!"
-msgstr ""
+msgstr "wróg niszczy komnaty!"
 
 #: speech:15
 msgctxt "In-game mentor"
 msgid "You are losing teritory."
-msgstr ""
+msgstr "Tracisz terytorium."
 
 #: speech:16
 msgctxt "In-game mentor"
 msgid "You have claimed an enemy room."
-msgstr ""
+msgstr "Zająłeś komnatę wroga."
 
 #: speech:17
 msgctxt "In-game mentor"
 msgid "You have taken control of a new room."
-msgstr ""
+msgstr "Opanowałes nową komnatę."
 
 #: speech:18
 msgctxt "In-game mentor"
 msgid "Beware, the lord of the land approaches!"
-msgstr ""
+msgstr "Uwaga, nadciąga władca tej krainy!"
 
 #: speech:19
 msgctxt "In-game mentor"
 msgid "Your creatures are fighting amongst themselves."
-msgstr ""
+msgstr "Twoje stwory walczą miedzy sobą."
 
 #: speech:20
 msgctxt "In-game mentor"
 msgid "The battle is over."
-msgstr ""
+msgstr "Bitwa zakończona."
 
 #: speech:21
 msgctxt "In-game mentor"
 msgid "Food is scarse, enlarge your Hatchery."
-msgstr ""
+msgstr "Brak żywności, powiększ Kurnik."
 
 #: speech:22
 msgctxt "In-game mentor"
 msgid "Your creatures need a bigger Lair."
-msgstr ""
+msgstr "Stwory potrzebują wiekszego Legowiska."
 
 #: speech:23
 msgctxt "In-game mentor"
 msgid "You need a bigger Treasure Room."
-msgstr ""
+msgstr "Potrzebny większy Skarbiec."
 
 #: speech:24
 msgctxt "In-game mentor"
