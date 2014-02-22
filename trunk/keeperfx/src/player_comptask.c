@@ -2369,17 +2369,27 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 }
                 if (dungeon->door_amount_placeable[model] > 0)
                 {
-                    if (remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Door, model))
+                    int crate_source;
+                    crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Door, model, WrkCrtF_Default);
+                    switch (crate_source)
                     {
+                    case WrkCrtS_Offmap:
+                        remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
+                        item_sold = true;
+                        value = game.doors_config[model].selling_value;
+                        SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
+                        break;
+                    case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
                         value = game.doors_config[model].selling_value;
-                        SYNCDBG(9,"Door %s crate sold for %d gold",door_code_name(model),(int)value);
-                    } else
-                    {
+                        SYNCDBG(9,"Stored door %s crate sold for %d gold",door_code_name(model),(int)value);
+                        break;
+                    default:
                         WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(model),(int)dungeon->owner);
                         dungeon->door_amount_placeable[model] = 0;
+                        break;
                     }
                 }
                 break;
@@ -2391,17 +2401,27 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 }
                 if (dungeon->trap_amount_placeable[model] > 0)
                 {
-                    if (remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Trap, model))
+                    int crate_source;
+                    crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Trap, model, WrkCrtF_Default);
+                    switch (crate_source)
                     {
+                    case WrkCrtS_Offmap:
+                        remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
+                        item_sold = true;
+                        value = game.traps_config[model].selling_value;
+                        SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
+                        break;
+                    case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
                         value = game.traps_config[model].selling_value;
-                        SYNCDBG(9,"Trap %s crate sold for %ld gold",trap_code_name(model),value);
-                    } else
-                    {
+                        SYNCDBG(9,"Stored trap %s crate sold for %ld gold",trap_code_name(model),value);
+                        break;
+                    default:
                         WARNLOG("Placeable trap %s amount for player %d was incorrect; fixed",trap_code_name(model),(int)dungeon->owner);
                         dungeon->trap_amount_placeable[model] = 0;
+                        break;
                     }
                 }
                 break;

@@ -803,7 +803,7 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
             if (!store_reposition_entry(rrepos, objkind)) {
                 WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
             }
-            if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel)) {
+            if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
                 remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
             }
             delete_thing_structure(thing, 0);
@@ -2743,7 +2743,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     ThingModel tngmodel;
                     tngclass = crate_thing_to_workshop_item_class(thing);
                     tngmodel = crate_thing_to_workshop_item_model(thing);
-                    if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel)) {
+                    if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
                         remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
                     }
                     delete_thing_structure(thing, 0);
@@ -3020,7 +3020,7 @@ void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct T
             thing->owner = newowner;
             tngclass = crate_thing_to_workshop_item_class(thing);
             tngmodel = crate_thing_to_workshop_item_model(thing);
-            remove_workshop_item_from_amount_stored(oldowner, tngclass, tngmodel);
+            remove_workshop_item_from_amount_stored(oldowner, tngclass, tngmodel, WrkCrtF_NoOffmap);
             remove_workshop_item_from_amount_placeable(oldowner, tngclass, tngmodel);
             add_workshop_item_to_amounts(newowner, tngclass, tngmodel);
             return;

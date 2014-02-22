@@ -62,6 +62,8 @@ void unlock_door(struct Thing *thing);
 long destroy_door(struct Thing *thing);
 TngUpdateRet process_door(struct Thing *thing);
 
+char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
+
 TbBool find_door_of_type(ThingModel model, PlayerNumber owner);
 TbBool find_trap_of_type(ThingModel model, PlayerNumber owner);
 /******************************************************************************/

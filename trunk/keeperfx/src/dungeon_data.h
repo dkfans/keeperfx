@@ -107,10 +107,12 @@ struct Dungeon {
     int field_5D;
     short field_61;
     unsigned char num_things_in_hand;
-    short field_64[480];
-    unsigned short job_breeds_count[CREATURE_TYPES_COUNT][3];
-    unsigned short field_4E4[CREATURE_TYPES_COUNT][3];
-    short field_5A4[15];
+    unsigned short field_64[CREATURE_TYPES_COUNT][15];
+    unsigned short guijob_all_creatrs_count[CREATURE_TYPES_COUNT][3];
+    unsigned short guijob_angry_creatrs_count[CREATURE_TYPES_COUNT][3];
+    short field_5A4[9];//originally was [15], but seem unused
+    unsigned char trap_amount_offmap[TRAP_TYPES_COUNT];
+    unsigned char door_amount_offmap[DOOR_TYPES_COUNT];
     unsigned char room_slabs_count[ROOM_TYPES_COUNT+1];
     int sight_casted_gameturn;
     short sight_casted_thing_idx;

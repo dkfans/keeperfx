@@ -711,7 +711,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
           cr_total = *(long *)gbtn->content;
           if (cr_total > 0)
           {
-            i = dungeon->field_4E4[kind][(job_idx & 0x03)];
+            i = dungeon->guijob_angry_creatrs_count[kind][(job_idx & 0x03)];
             if (i > cr_total)
             {
               WARNDBG(7,"Creature %d stats inconsistency; total=%d, doing activity%d=%d",kind,cr_total,(job_idx & 0x03),i);
@@ -736,7 +736,7 @@ void gui_area_anger_button(struct GuiButton *gbtn)
           sprintf(gui_textbuf, "%ld", cr_total);
           // We will use a special coding for our "string" - we want chars to represent
           // sprite index directly, without code pages and multibyte chars interpretation
-          if ((cr_total > 0) && (dungeon->job_breeds_count[kind][(job_idx & 0x03)] ))
+          if ((cr_total > 0) && (dungeon->guijob_all_creatrs_count[kind][(job_idx & 0x03)] ))
           {
               for (i=0; gui_textbuf[i] != '\0'; i++)
                   gui_textbuf[i] -= 120;
