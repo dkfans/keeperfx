@@ -507,14 +507,22 @@ long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
         traptng = get_trap_for_position(stl_x+around[k].delta_x, stl_y+around[k].delta_y);
         if (!thing_is_invalid(traptng))
         {
-            if (sell_value != NULL) {
+            if (sell_value != NULL)
+            {
+                // Do the refund only if we were able to sell armed trap
                 i = game.traps_config[traptng->model].selling_value;
-                if (traptng->trap.num_shots == 0) {
+                if (traptng->trap.num_shots == 0)
+                {
+                    // Trap not armed - try selling crate from workshop
                     if (remove_workshop_item_from_amount_stored(traptng->owner, traptng->class_id, traptng->model)) {
                         remove_workshop_object_from_player(traptng->owner, trap_crate_object_model(traptng->model));
+                        (*sell_value) += i;
                     }
+                } else
+                {
+                    // Trap armed - we can get refund
+                    (*sell_value) += i;
                 }
-                (*sell_value) += i;
                 // We don't want to increase trap_amount_placeable, so we'll not use destroy_trap() there
                 delete_thing_structure(traptng, 0);
             } else {
