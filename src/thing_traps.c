@@ -359,6 +359,17 @@ void update_trap_trigger(struct Thing *traptng)
     }
 }
 
+TbBool rearm_trap(struct Thing *traptng)
+{
+    struct ManfctrConfig *mconf;
+    mconf = &game.traps_config[traptng->model];
+    struct TrapStats *trapstat;
+    trapstat = &trap_stats[traptng->model];
+    traptng->trap.num_shots = mconf->shots;
+    traptng->field_4F ^= (traptng->field_4F ^ (trapstat->field_12 << 4)) & 0x30;
+    return true;
+}
+
 TngUpdateRet update_trap(struct Thing *traptng)
 {
     SYNCDBG(18,"Starting");
@@ -471,10 +482,9 @@ void init_traps(void)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (thing->byte_13 == 0)
+        if (thing->trap.num_shots == 0)
         {
-            thing->byte_13 = game.traps_config[thing->model].shots;
-            thing->field_4F ^= (thing->field_4F ^ (trap_stats[thing->model].field_12 << 4)) & 0x30;
+            rearm_trap(thing);
         }
         // Per thing code ends
         k++;
@@ -514,7 +524,7 @@ long remove_traps_around_subtile(long stl_x, long stl_y, long *sell_value)
                 if (traptng->trap.num_shots == 0)
                 {
                     // Trap not armed - try selling crate from workshop
-                    if (remove_workshop_item_from_amount_stored(traptng->owner, traptng->class_id, traptng->model)) {
+                    if (remove_workshop_item_from_amount_stored(traptng->owner, traptng->class_id, traptng->model, WrkCrtF_NoOffmap) > WrkCrtS_None) {
                         remove_workshop_object_from_player(traptng->owner, trap_crate_object_model(traptng->model));
                         (*sell_value) += i;
                     }

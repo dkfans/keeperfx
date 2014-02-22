@@ -285,19 +285,18 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
     }
     if (buildable)
         dungeon->trap_build_flags[tngmodel] |= MnfBldF_Manufacturable;
-    //TODO SCRIPT This is wrong. We need a list of "instantly buildable" (off-map) traps
-    //dungeon->trap_amount_stored[trap_kind] += amount;
+    dungeon->trap_amount_offmap[tngmodel] += amount;
     dungeon->trap_amount_placeable[tngmodel] += amount;
     if (amount > 0)
         dungeon->trap_build_flags[tngmodel] |= MnfBldF_Built;
     return true;
 }
 
-TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel door_kind, long buildable, long amount)
+TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
 {
     struct Dungeon *dungeon;
-    if ( (door_kind <= 0) || (door_kind >= DOOR_TYPES_COUNT) ) {
-        ERRORDBG(1,"Can't set door availability; invalid door kind %d.",(int)door_kind);
+    if ( (tngmodel <= 0) || (tngmodel >= DOOR_TYPES_COUNT) ) {
+        ERRORDBG(1,"Can't set door availability; invalid door kind %d.",(int)tngmodel);
         return false;
     }
     dungeon = get_dungeon(plyr_idx);
@@ -306,10 +305,11 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel do
         return false;
     }
     if (buildable)
-        dungeon->door_build_flags[door_kind] |= MnfBldF_Manufacturable;
-    dungeon->door_amount_placeable[door_kind] += amount;
+        dungeon->door_build_flags[tngmodel] |= MnfBldF_Manufacturable;
+    dungeon->door_amount_offmap[tngmodel] += amount;
+    dungeon->door_amount_placeable[tngmodel] += amount;
     if (amount > 0)
-      dungeon->door_build_flags[door_kind] |= MnfBldF_Built;
+      dungeon->door_build_flags[tngmodel] |= MnfBldF_Built;
     return true;
 }
 

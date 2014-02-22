@@ -339,9 +339,13 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
         dungeon->trap_amount_placeable[tngmodel]++;
         dungeon->trap_build_flags[tngmodel] |= MnfBldF_Built;
         // In case the placeable amount lost it, do a fix
-        if (dungeon->trap_amount_placeable[tngmodel] > dungeon->trap_amount_stored[tngmodel]) {
-            WARNLOG("%s: Placeable %s traps amount for player %d was outranged; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
-            dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_stored[tngmodel];
+        if (dungeon->trap_amount_placeable[tngmodel] > dungeon->trap_amount_stored[tngmodel]+dungeon->trap_amount_offmap[tngmodel]) {
+            WARNLOG("%s: Placeable %s traps amount for player %d was too large; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
+            dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_stored[tngmodel]+dungeon->trap_amount_offmap[tngmodel];
+        }
+        if (dungeon->trap_amount_placeable[tngmodel] < dungeon->trap_amount_offmap[tngmodel]) {
+            WARNLOG("%s: Placeable %s traps amount for player %d was too small; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
+            dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_offmap[tngmodel];
         }
         break;
     case TCls_Door:
@@ -350,9 +354,13 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
         dungeon->door_amount_placeable[tngmodel]++;
         dungeon->door_build_flags[tngmodel] |= MnfBldF_Built;
         // In case the placeable amount lost it, do a fix
-        if (dungeon->door_amount_placeable[tngmodel] > dungeon->door_amount_stored[tngmodel]) {
-            WARNLOG("%s: Placeable %s doors amount for player %d was outranged; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
-            dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_stored[tngmodel];
+        if (dungeon->door_amount_placeable[tngmodel] > dungeon->door_amount_stored[tngmodel]+dungeon->door_amount_offmap[tngmodel]) {
+            WARNLOG("%s: Placeable %s doors amount for player %d was too large; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
+            dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_stored[tngmodel]+dungeon->door_amount_offmap[tngmodel];
+        }
+        if (dungeon->door_amount_placeable[tngmodel] < dungeon->door_amount_offmap[tngmodel]) {
+            WARNLOG("%s: Placeable %s doors amount for player %d was too small; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
+            dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_offmap[tngmodel];
         }
         break;
     default:
@@ -383,18 +391,26 @@ TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingCla
     case TCls_Trap:
         SYNCDBG(8,"%s: Adding Trap %s",func_name,trap_code_name(tngmodel));
         dungeon->trap_amount_placeable[tngmodel]++;
-        if (dungeon->trap_amount_placeable[tngmodel] > dungeon->trap_amount_stored[tngmodel]) {
-            SYNCLOG("%s: Placeable traps amount for player %d was outranged; fixed",func_name,(int)plyr_idx);
-            dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_stored[tngmodel];
+        if (dungeon->trap_amount_placeable[tngmodel] > dungeon->trap_amount_stored[tngmodel]+dungeon->trap_amount_offmap[tngmodel]) {
+            SYNCLOG("%s: Placeable %s traps amount for player %d was too large; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
+            dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_stored[tngmodel]+dungeon->trap_amount_offmap[tngmodel];
+        }
+        if (dungeon->trap_amount_placeable[tngmodel] < dungeon->trap_amount_offmap[tngmodel]) {
+            WARNLOG("%s: Placeable %s traps amount for player %d was too small; fixed",func_name,trap_code_name(tngmodel),(int)plyr_idx);
+            dungeon->trap_amount_placeable[tngmodel] = dungeon->trap_amount_offmap[tngmodel];
         }
         break;
     case TCls_Door:
         SYNCDBG(8,"%s: Adding Door %s",func_name,door_code_name(tngmodel));
         dungeon->door_amount_placeable[tngmodel]++;
         // In case the placeable amount lost it, do a fix
-        if (dungeon->door_amount_placeable[tngmodel] > dungeon->door_amount_stored[tngmodel]) {
-            SYNCLOG("%s: Placeable doors amount for player %d was outranged; fixed",func_name,(int)plyr_idx);
-            dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_stored[tngmodel];
+        if (dungeon->door_amount_placeable[tngmodel] > dungeon->door_amount_stored[tngmodel]+dungeon->door_amount_offmap[tngmodel]) {
+            SYNCLOG("%s: Placeable %s doors amount for player %d was too large; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
+            dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_stored[tngmodel]+dungeon->door_amount_offmap[tngmodel];
+        }
+        if (dungeon->door_amount_placeable[tngmodel] < dungeon->door_amount_offmap[tngmodel]) {
+            WARNLOG("%s: Placeable %s doors amount for player %d was too small; fixed",func_name,door_code_name(tngmodel),(int)plyr_idx);
+            dungeon->door_amount_placeable[tngmodel] = dungeon->door_amount_offmap[tngmodel];
         }
         break;
     default:
@@ -409,10 +425,10 @@ TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingCla
  * @param owner
  * @param tngclass
  * @param tngmodel
- * @return
+ * @return Gives 0 if no crate was found, 1 if offmap crate was used, 2 if crate from workshop was used.
  * @note was named remove_workshop_item()
  */
-TbBool remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name)
+int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, unsigned short flags, const char *func_name)
 {
     SYNCDBG(18,"%s: Starting",func_name);
     //return _DK_remove_workshop_item(plyr_idx, tngclass, tngmodel);
@@ -420,34 +436,55 @@ TbBool remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingCla
     dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("%s: Can't remove item; player %d has no dungeon.",func_name,(int)plyr_idx);
-        return false;
+        return WrkCrtS_None;
     }
     long amount;
+    amount = 0;
     switch (tngclass)
     {
     case TCls_Trap:
-        amount = dungeon->trap_amount_stored[tngmodel];
-        if (amount <= 0) {
-            ERRORLOG("%s: Trap %s not available",func_name,trap_code_name(tngmodel));
-            break;
+        if ((flags & WrkCrtF_NoStored) == 0) {
+            amount = dungeon->trap_amount_stored[tngmodel];
         }
-        SYNCDBG(8,"%s: Removing Trap %s",func_name,trap_code_name(tngmodel));
-        dungeon->trap_amount_stored[tngmodel] = amount - 1;
-        return true;
+        if (amount > 0) {
+            SYNCDBG(8,"%s: Removing stored trap %s",func_name,trap_code_name(tngmodel));
+            dungeon->trap_amount_stored[tngmodel] = amount - 1;
+            return WrkCrtS_Stored;
+        }
+        if ((flags & WrkCrtF_NoOffmap) == 0) {
+            amount = dungeon->trap_amount_offmap[tngmodel];
+        }
+        if (amount > 0) {
+            SYNCDBG(8,"%s: Removing offmap trap %s",func_name,trap_code_name(tngmodel));
+            dungeon->trap_amount_offmap[tngmodel] = amount - 1;
+            return WrkCrtS_Offmap;
+        }
+        ERRORLOG("%s: Trap %s not available",func_name,trap_code_name(tngmodel));
+        break;
     case TCls_Door:
-        amount = dungeon->door_amount_stored[tngmodel];
-        if (amount <= 0) {
-            ERRORLOG("%s: Door %s not available",func_name,door_code_name(tngmodel));
-            break;
+        if ((flags & WrkCrtF_NoStored) == 0) {
+            amount = dungeon->door_amount_stored[tngmodel];
         }
-        SYNCDBG(8,"%s: Removing Door %s",func_name,door_code_name(tngmodel));
-        dungeon->door_amount_stored[tngmodel] = amount - 1;
-        return true;
+        if (amount > 0) {
+            SYNCDBG(8,"%s: Removing stored door %s",func_name,door_code_name(tngmodel));
+            dungeon->door_amount_stored[tngmodel] = amount - 1;
+            return WrkCrtS_Stored;
+        }
+        if ((flags & WrkCrtF_NoOffmap) == 0) {
+            amount = dungeon->door_amount_offmap[tngmodel];
+        }
+        if (amount > 0) {
+            SYNCDBG(8,"%s: Removing offmap door %s",func_name,door_code_name(tngmodel));
+            dungeon->door_amount_offmap[tngmodel] = amount - 1;
+            return WrkCrtS_Offmap;
+        }
+        ERRORLOG("%s: Door %s not available",func_name,door_code_name(tngmodel));
+        break;
     default:
         ERRORLOG("%s: Can't remove item; illegal item class %d",func_name,(int)tngclass);
         break;
     }
-    return false;
+    return WrkCrtS_None;
 }
 
 /**
@@ -493,6 +530,38 @@ TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, Thing
         return true;
     default:
         ERRORLOG("%s: Can't remove item; illegal item class %d",func_name,(int)tngclass);
+        break;
+    }
+    return false;
+}
+
+TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel)
+{
+    SYNCDBG(18,"Starting");
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
+        // Player with no dungeon has only off-map items
+        // But this shouldn't really happen
+        return true;
+    }
+    switch (tngclass)
+    {
+    case TCls_Trap:
+        if (dungeon->trap_amount_stored[tngmodel] > 0) {
+            return false;
+        }
+        if (dungeon->trap_amount_offmap[tngmodel] > 0) {
+            return true;
+        }
+        break;
+    case TCls_Door:
+        if (dungeon->door_amount_stored[tngmodel] > 0) {
+            return false;
+        }
+        if (dungeon->door_amount_offmap[tngmodel] > 0) {
+            return true;
+        }
         break;
     }
     return false;
