@@ -285,7 +285,7 @@ pkg/fxdata/gtext_dut.dat \
 pkg/fxdata/gtext_fre.dat \
 pkg/fxdata/gtext_ger.dat \
 pkg/fxdata/gtext_ita.dat \
-pkg/fxdata/gtext_jap.dat \
+pkg/fxdata/gtext_jpn.dat \
 pkg/fxdata/gtext_pol.dat \
 pkg/fxdata/gtext_rus.dat \
 pkg/fxdata/gtext_spa.dat \
@@ -320,7 +320,7 @@ pkg/sound/speech_eng.dat \
 pkg/sound/speech_fre.dat \
 pkg/sound/speech_ger.dat \
 pkg/sound/speech_ita.dat \
-pkg/sound/speech_jap.dat \
+pkg/sound/speech_jpn.dat \
 pkg/sound/speech_pol.dat \
 pkg/sound/speech_rus.dat \
 pkg/sound/speech_spa.dat \
@@ -670,7 +670,7 @@ res/%.ico: res/%016-08bpp.png res/%032-08bpp.png res/%048-08bpp.png res/%064-08b
 	-$(ECHO) ' '
 
 # Creation of engine language files from PO/POT files
-pkg/fxdata/gtext_jap.dat: lang/gtext_jap.po tools/po2ngdat/res/char_encoding_tbl_jp.txt $(POTONGDAT)
+pkg/fxdata/gtext_jpn.dat: lang/gtext_jpn.po tools/po2ngdat/res/char_encoding_tbl_jp.txt $(POTONGDAT)
 	-$(ECHO) 'Building language file: $@'
 	$(POTONGDAT) -o "$@" -e "$(word 2,$^)" "$<"
 	-$(ECHO) 'Finished building: $@'
@@ -867,7 +867,7 @@ pkg/sound/speech_eng.dat: sfx/speech_eng/filelist.txt $(WAVTODAT)
 pkg/sound/speech_fre.dat: sfx/speech_fre/filelist.txt $(WAVTODAT)
 pkg/sound/speech_ger.dat: sfx/speech_ger/filelist.txt $(WAVTODAT)
 pkg/sound/speech_ita.dat: sfx/speech_ita/filelist.txt $(WAVTODAT)
-pkg/sound/speech_jap.dat: sfx/speech_jap/filelist.txt $(WAVTODAT)
+pkg/sound/speech_jpn.dat: sfx/speech_jpn/filelist.txt $(WAVTODAT)
 pkg/sound/speech_pol.dat: sfx/speech_pol/filelist.txt $(WAVTODAT)
 pkg/sound/speech_rus.dat: sfx/speech_rus/filelist.txt $(WAVTODAT)
 pkg/sound/speech_spa.dat: sfx/speech_spa/filelist.txt $(WAVTODAT)
