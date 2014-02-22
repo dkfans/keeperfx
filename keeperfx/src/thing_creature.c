@@ -38,6 +38,7 @@
 #include "creature_states_mood.h"
 #include "creature_states_gardn.h"
 #include "creature_states_train.h"
+#include "creature_states_spdig.h"
 #include "creature_instances.h"
 #include "creature_graphics.h"
 #include "creature_battle.h"
@@ -1294,10 +1295,39 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     }
 }
 
-void update_creature_count(struct Thing *thing)
+void update_creature_count(struct Thing *creatng)
 {
-    TRACE_THING(thing);
-    _DK_update_creature_count(thing);
+    TRACE_THING(creatng);
+    //_DK_update_creature_count(thing);
+    if (!thing_exists(creatng)) {
+        return;
+    }
+    if (is_hero_thing(creatng) || is_neutral_thing(creatng)) {
+        return;
+    }
+    if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
+        return;
+    }
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(creatng->owner);
+    if (dungeon_invalid(dungeon)) {
+        return;
+    }
+    int statyp;
+    statyp = get_creature_state_type(creatng);
+    dungeon->field_64[creatng->model][statyp]++;
+    int job_idx;
+    job_idx = get_creature_gui_job(creatng);
+    if (can_thing_be_picked_up_by_player(creatng, creatng->owner))
+    {
+        if (!creature_is_dragging_or_being_dragged(creatng)) {
+            dungeon->guijob_all_creatrs_count[creatng->model][job_idx]++;
+        }
+    }
+    if (anger_is_creature_angry(creatng))
+    {
+        dungeon->guijob_angry_creatrs_count[creatng->model][job_idx]++;
+    }
 }
 
 struct Thing *find_gold_pile_or_chicken_laying_on_mapblk(struct Map *mapblk)
@@ -3823,7 +3853,7 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long crmodel, long job_idx, 
     dungeon = get_dungeon(plyr_idx);
     if ((crmodel > 0) && (crmodel < CREATURE_TYPES_COUNT))
     {
-        if ((job_idx == -1) || (dungeon->job_breeds_count[crmodel][job_idx & 0x03]))
+        if ((job_idx == -1) || (dungeon->guijob_all_creatrs_count[crmodel][job_idx & 0x03]))
         {
             set_players_packet_action(get_player(plyr_idx), PckA_PickUpThing, thing->index, 0, 0, 0);
         }

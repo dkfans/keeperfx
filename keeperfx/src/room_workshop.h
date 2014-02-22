@@ -34,6 +34,18 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
+enum WorkshopCrateSource {
+    WrkCrtS_None = 0,
+    WrkCrtS_Offmap,
+    WrkCrtS_Stored,
+};
+
+enum WorkshopCratesManageFlags {
+    WrkCrtF_Default = 0,
+    WrkCrtF_NoOffmap = 0x01,
+    WrkCrtF_NoStored = 0x02,
+};
+
 struct Room;
 struct Thing;
 struct Dungeon;
@@ -62,10 +74,11 @@ struct ManufactureData *get_manufacture_data_for_thing(ThingClass tngclass, Thin
 TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
 #define readd_workshop_item_to_amount_placeable(plyr_idx, tngclass, tngmodel) readd_workshop_item_to_amount_placeable_f(plyr_idx, tngclass, tngmodel, __func__)
 TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
-#define remove_workshop_item_from_amount_stored(plyr_idx, tngclass, tngmodel) remove_workshop_item_from_amount_stored_f(plyr_idx, tngclass, tngmodel, __func__)
-TbBool remove_workshop_item_from_amount_stored_f(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
+#define remove_workshop_item_from_amount_stored(plyr_idx, tngclass, tngmodel, flags) remove_workshop_item_from_amount_stored_f(plyr_idx, tngclass, tngmodel, flags, __func__)
+int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, unsigned short flags, const char *func_name);
 #define remove_workshop_item_from_amount_placeable(plyr_idx, tngclass, tngmodel) remove_workshop_item_from_amount_placeable_f(plyr_idx, tngclass, tngmodel, __func__)
 TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel, const char *func_name);
+TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
 TbBool check_workshop_item_limit_reached(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel);
 
 TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);

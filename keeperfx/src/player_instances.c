@@ -1154,12 +1154,8 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
 
 TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
 {
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
-    if ((tngmodel < 1) || (tngmodel >= TRAP_TYPES_COUNT)) {
-        return false;
-    }
-    if (dungeon->trap_amount_placeable[tngmodel] <= 0) {
+    if (!is_trap_placeable(plyr_idx, tngmodel)) {
+        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,trap_code_name(tngmodel));
         return false;
     }
     struct Coord3d pos;
@@ -1172,10 +1168,53 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     traptng->mappos.z.val = get_thing_height_at(traptng, &traptng->mappos);
     traptng->trap.byte_18t = 0;
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
     remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Trap, tngmodel);
+    if (placing_offmap_workshop_item(plyr_idx, TCls_Trap, tngmodel)) {
+        remove_workshop_item_from_amount_stored(plyr_idx, TCls_Trap, tngmodel, WrkCrtF_NoStored);
+        rearm_trap(traptng);
+        dungeon->lvstats.traps_armed++;
+    }
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(117);
     return true;
+}
+
+TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel)
+{
+    if (!is_door_placeable(plyr_idx, tngmodel)) {
+        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(tngmodel));
+        return 0;
+    }
+    unsigned char orient;
+    orient = find_door_angle(stl_x, stl_y, plyr_idx);
+    struct Coord3d pos;
+    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
+    create_door(&pos, tngmodel, orient, plyr_idx, 0);
+    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
+    struct Dungeon *dungeon;
+    dungeon = get_players_num_dungeon(plyr_idx);
+    int crate_source;
+    crate_source = remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, tngmodel, WrkCrtF_Default);
+    switch (crate_source)
+    {
+    case WrkCrtS_Offmap:
+        remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, tngmodel);
+        break;
+    case WrkCrtS_Stored:
+        remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, tngmodel);
+        remove_workshop_object_from_player(plyr_idx, door_crate_object_model(tngmodel));
+        break;
+    default:
+        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(tngmodel),(int)dungeon->owner);
+        dungeon->door_amount_placeable[tngmodel] = 0;
+        break;
+    }
+    dungeon->camera_deviate_jump = 192;
+    if (is_my_player_number(plyr_idx))
+        play_non_3d_sample(117);
+    return 1;
 }
 /******************************************************************************/

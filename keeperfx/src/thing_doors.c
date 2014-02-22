@@ -54,10 +54,16 @@ DLLIMPORT long _DK_destroy_door(struct Thing *doortng);
 DLLIMPORT long _DK_process_door(struct Thing *doortng);
 DLLIMPORT long _DK_check_door_should_open(struct Thing *doortng);
 DLLIMPORT unsigned char _DK_find_door_of_type(unsigned long a1, unsigned char a2);
+DLLIMPORT char _DK_find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx);
 /******************************************************************************/
 
 
 /******************************************************************************/
+char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+{
+    return _DK_find_door_angle(stl_x, stl_y, plyr_idx);
+}
+
 struct Thing *create_door(struct Coord3d *pos, unsigned short a1, unsigned char a2, unsigned short a3, unsigned char a4)
 {
   return _DK_create_door(pos, a1, a2, a3, a4);

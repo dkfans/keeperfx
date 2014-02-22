@@ -1276,7 +1276,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
         {
             remove_workshop_item_from_amount_stored(cratetng->owner,
                 crate_thing_to_workshop_item_class(cratetng),
-                crate_thing_to_workshop_item_model(cratetng));
+                crate_thing_to_workshop_item_model(cratetng), WrkCrtF_NoOffmap);
         }
     }
     creature_drag_object(thing, cratetng);
@@ -1480,8 +1480,7 @@ short creature_arms_trap(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    traptng->trap.num_shots = game.traps_config[traptng->model].shots;
-    traptng->field_4F ^= (traptng->field_4F ^ (trap_stats[traptng->model].field_12 << 4)) & 0x30;
+    rearm_trap(traptng);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);
     delete_thing_structure(cratetng, 0);

@@ -237,7 +237,6 @@ DLLIMPORT int _DK_frontend_is_player_allied(long plyr1, long plyr2);
 DLLIMPORT void _DK_process_dungeon_destroy(struct Thing *thing);
 DLLIMPORT void _DK_startup_network_game(void);
 DLLIMPORT void _DK_load_ceiling_table(void);
-DLLIMPORT char _DK_find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx);
 DLLIMPORT void _DK_update_player_camera_fp(struct Camera *cam, struct Thing *thing);
 DLLIMPORT void _DK_view_move_camera_left(struct Camera *cam, long a2);
 DLLIMPORT void _DK_view_move_camera_right(struct Camera *cam, long a2);
@@ -2589,9 +2588,9 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->field_64, 0, 480 * sizeof(short));
-      memset((char *)dungeon->job_breeds_count, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
-      memset((char *)dungeon->field_4E4, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
+      memset((char *)dungeon->field_64, 0, CREATURE_TYPES_COUNT * 15 * sizeof(unsigned short));
+      memset((char *)dungeon->guijob_all_creatrs_count, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
+      memset((char *)dungeon->guijob_angry_creatrs_count, 0, CREATURE_TYPES_COUNT*3*sizeof(unsigned short));
   }
   return i;
 }
@@ -3218,43 +3217,17 @@ void tag_cursor_blocks_sell_area(unsigned char a1, long a2, long a3, long a4)
     _DK_tag_cursor_blocks_sell_area(a1, a2, a3, a4);
 }
 
-char find_door_angle(unsigned char stl_x, unsigned char stl_y, unsigned char plyr_idx)
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, unsigned char a5)
 {
-    return _DK_find_door_angle(stl_x, stl_y, plyr_idx);
-}
-
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5)
-{
-    struct Dungeon *dungeon;
-    dungeon = get_players_num_dungeon(plyr_idx);
     //return _DK_packet_place_door(a1, a2, a3, a4, a5);
-    if (!is_door_placeable(plyr_idx, dormodel)) {
-        WARNLOG("Player %d tried to build %s but has none to place",(int)plyr_idx,door_code_name(dormodel));
-        return 0;
-    }
     if (!a5) {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
         return 0;
     }
-    unsigned char orient;
-    orient = find_door_angle(stl_x, stl_y, plyr_idx);
-    struct Coord3d pos;
-    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
-    create_door(&pos, dormodel, orient, plyr_idx, 0);
-    do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
-    if (remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, dormodel))
-    {
-        remove_workshop_item_from_amount_placeable(plyr_idx, TCls_Door, dormodel);
-        remove_workshop_object_from_player(plyr_idx, door_crate_object_model(dormodel));
-    } else
-    {
-        WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(dormodel),(int)dungeon->owner);
-        dungeon->door_amount_placeable[dormodel] = 0;
+    if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
+        return 0;
     }
-    dungeon->camera_deviate_jump = 192;
-    if (is_my_player_number(plyr_idx))
-        play_non_3d_sample(117);
     remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));
     return 1;
 }
