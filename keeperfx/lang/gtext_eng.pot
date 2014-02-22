@@ -2115,7 +2115,7 @@ msgstr ""
 
 #: guitext:324
 msgctxt "Slab description"
-msgid "Impenetrable Rock: Your Imps cannot dig through this, the only solution is to go round. It is visible even if far from your territiry."
+msgid "Impenetrable Rock: Your Imps cannot dig through this, the only solution is to go round. It is visible even if far from your territory."
 msgstr ""
 
 #: guitext:325
