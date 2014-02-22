@@ -331,7 +331,7 @@ void process_creature_instance(struct Thing *thing)
             if (inst_inf->func_cb != NULL)
             {
                 SYNCDBG(18,"Executing instance %d for %s index %d.",(int)cctrl->instance_id,thing_model_name(thing),(int)thing->index);
-                inst_inf->func_cb(thing, &inst_inf->field_22);
+                inst_inf->func_cb(thing, inst_inf->func_params);
             }
         }
         if (cctrl->field_D8 == cctrl->field_D4)
@@ -400,21 +400,21 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     struct CreatureControl *cctrl;
     struct Thing *trthing;
     struct SpellInfo *spinfo;
-    long mgc_idx;
+    long spl_idx;
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
-    mgc_idx = *param;
-    spinfo = get_magic_info(mgc_idx);
+    spl_idx = *param;
+    spinfo = get_magic_info(spl_idx);
     if (spinfo->cast_at_thing)
     {
         trthing = thing_get(cctrl->targtng_idx);
         if (!thing_is_invalid(trthing))
         {
-            creature_cast_spell_at_thing(creatng, trthing, mgc_idx, 1);
+            creature_cast_spell_at_thing(creatng, trthing, spl_idx, 1);
             return 0;
         }
     }
-    creature_cast_spell(creatng, mgc_idx, 1, cctrl->targtstl_x, cctrl->targtstl_y);
+    creature_cast_spell(creatng, spl_idx, 1, cctrl->targtstl_x, cctrl->targtstl_y);
     return 0;
 }
 

@@ -2715,7 +2715,9 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     {
         struct InstanceInfo *inst_inf;
         inst_inf = creature_instance_info_get(inst_id);
-        shot_model = inst_inf->field_22;
+        //TODO CREATURES Instance doesn't necessarily contain shot model, that depends on callback
+        // Do a check to make sure the instance fires a shot
+        shot_model = inst_inf->func_params[0];
     }
     long dexterity, damage;
     damage = project_creature_shot_damage(firing, shot_model);

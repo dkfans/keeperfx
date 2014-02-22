@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2014-02-06 18:11+0100\n"
+"PO-Revision-Date: 2014-02-22 16:15+0100\n"
 "Last-Translator: Tomasz Lis <listom@gmail.com>\n"
 "Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: ja_JP\n"
@@ -2611,17 +2611,17 @@ msgstr "お前は、ぶざまにも敗北した。 再度挑むのなら スペ�
 #: guitext:336
 msgctxt "On-screen message"
 msgid "Recording FLIC"
-msgstr "RECORDING FLIC"
+msgstr "Recording FLIC"
 
 #: guitext:337
 msgctxt "On-screen message"
 msgid "Error recording FLIC"
-msgstr "ERROR RECORDING FLIC"
+msgstr "Error recording FLIC"
 
 #: guitext:338
 msgctxt "On-screen message"
 msgid "Finished recording FLIC"
-msgstr "FINISHED RECORDING FLIC"
+msgstr "Finished recording FLIC"
 
 #: guitext:339
 msgctxt "Unused"
