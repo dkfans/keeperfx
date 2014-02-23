@@ -908,21 +908,26 @@ inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord dst_st
     } else
     {
         int n;
-        round_idx = (*round + dirctn) % SMALL_AROUND_LENGTH;
+        round_idx = (*round + SMALL_AROUND_LENGTH + dirctn) % SMALL_AROUND_LENGTH;
         for (n = 0; n < SMALL_AROUND_LENGTH; n++)
         {
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
             if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
             {
-                *round = round_idx;
-                curr_stl_x += STL_PER_SLB*dx;
-                curr_stl_y += STL_PER_SLB*dy;
                 break;
             }
-            round_idx = (round_idx - dirctn) % SMALL_AROUND_LENGTH;
+            round_idx = (round_idx + SMALL_AROUND_LENGTH - dirctn) % SMALL_AROUND_LENGTH;
+        }
+        if ((n < SMALL_AROUND_LENGTH) || (dirctn > 0)) {
+            dx = small_around[round_idx].delta_x;
+            dy = small_around[round_idx].delta_y;
+            *round = round_idx;
+            curr_stl_x += STL_PER_SLB*dx;
+            curr_stl_y += STL_PER_SLB*dy;
         }
     }
+
     *ostl_x = curr_stl_x;
     *ostl_y = curr_stl_y;
 }
@@ -942,14 +947,15 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
     state_a = 0;
     stl_a_x = src_stl_x;
     stl_a_y = src_stl_y;
-    round_a = (direction + 1) % SMALL_AROUND_LENGTH;
+    round_a = (direction + SMALL_AROUND_LENGTH + 1) % SMALL_AROUND_LENGTH;
     maxdist_a = dist - 1;
 
     state_b = 0;
     stl_b_x = src_stl_x;
     stl_b_y = src_stl_y;
-    round_b = (direction - 1) % SMALL_AROUND_LENGTH;
+    round_b = (direction + SMALL_AROUND_LENGTH - 1) % SMALL_AROUND_LENGTH;
     maxdist_b = dist - 1;
+
 
     int i;
     for (i = 150; i > 0; i--)
