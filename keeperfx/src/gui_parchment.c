@@ -105,28 +105,23 @@ long get_parchment_background_area_rect(struct TbRect *bkgnd_area)
     rect_w = LbScreenWidth();
     rect_h = LbScreenHeight();
     // Parchment bitmap scaling
-    int m,w,h;
-    w=0;
-    h=0;
-    for (m=0; m < 5; m++)
-    {
-        w+=img_width;
-        h+=img_height;
-        if (w > 7*rect_w/6) break;
-        if (h > 4*rect_h/3) break;
-    }
+    int units_per_px, units_per_px_max;
+    units_per_px = max(16*rect_w/img_width, 16*rect_h/img_height);
+    units_per_px_max = min(16*7*rect_w/(6*img_width), 16*4*rect_h/(3*img_height));
+    if (units_per_px > units_per_px_max)
+        units_per_px = units_per_px_max;
     // The image width can't be larger than video resolution
-    if (m < 1) {
-        m = 1;
+    if (units_per_px < 1) {
+        units_per_px = 1;
     }
     // Set rectangle coords
-    bkgnd_area->left = (rect_w-m*img_width)/2;
-    bkgnd_area->top = (rect_h-m*img_height)/2;
+    bkgnd_area->left = (rect_w-units_per_px*img_width/16)/2;
+    bkgnd_area->top = (rect_h-units_per_px*img_height/16)/2;
     if (bkgnd_area->top < 0) bkgnd_area->top = 0;
-    bkgnd_area->right = bkgnd_area->left + m*img_width;
-    bkgnd_area->bottom = bkgnd_area->top + m*img_height;
+    bkgnd_area->right = bkgnd_area->left + units_per_px*img_width/16;
+    bkgnd_area->bottom = bkgnd_area->top + units_per_px*img_height/16;
     if (bkgnd_area->bottom > rect_h) bkgnd_area->bottom = rect_h;
-    return m;
+    return units_per_px;
 }
 
 long get_parchment_map_area_rect(struct TbRect *map_area)
@@ -158,14 +153,14 @@ TbBool point_to_overhead_map(const struct Camera *camera, const long screen_x, c
     if ((screen_x >= map_area.left) && (screen_x < map_area.right)
       && (screen_y >= map_area.top) && (screen_y < map_area.bottom))
     {
-        *map_x = 256 * STL_PER_SLB * (screen_x-map_area.left) / block_size + 128;
-        *map_y = 256 * STL_PER_SLB * (screen_y-map_area.top) / block_size + 128;
+        *map_x = COORD_PER_STL * STL_PER_SLB * (screen_x-map_area.left) / block_size + COORD_PER_STL/2;
+        *map_y = COORD_PER_STL * STL_PER_SLB * (screen_y-map_area.top)  / block_size + COORD_PER_STL/2;
         return ((*map_x >= 0) && (*map_x < (map_subtiles_x+1)<<8) && (*map_y >= 0) && (*map_y < (map_subtiles_y+1)<<8));
     }
     return false;
 }
 
-TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int m)
+TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int units_per_px)
 {
     int img_width;
     int img_height;
@@ -186,13 +181,13 @@ TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int m)
         return false;
     // Do the drawing
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        img_width*m,img_height*m,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
+        img_width*units_per_px/16,img_height*units_per_px/16,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
     // Burning candle flames
     const struct TbSprite *spr;
     spr = &button_sprite[198+(game.play_gameturn & 3)];
-    LbSpriteDrawScaled(bkgnd_area->left+(36*m/pixel_size),(bkgnd_area->top+0/pixel_size), spr, spr->SWidth*m, spr->SHeight*m);
+    LbSpriteDrawScaled(bkgnd_area->left+(36*units_per_px/(16*pixel_size)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
     spr = &button_sprite[202+(game.play_gameturn & 3)];
-    LbSpriteDrawScaled(bkgnd_area->left+(574*m/pixel_size),(bkgnd_area->top+0/pixel_size), spr, spr->SWidth*m, spr->SHeight*m);
+    LbSpriteDrawScaled(bkgnd_area->left+(574*units_per_px/(16*pixel_size)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
     return true;
 }
 
@@ -203,10 +198,10 @@ void draw_map_parchment(void)
 {
     // Get background area rectangle
     struct TbRect bkgnd_area;
-    int m;
-    m = get_parchment_background_area_rect(&bkgnd_area);
+    int units_per_px;
+    units_per_px = get_parchment_background_area_rect(&bkgnd_area);
     // Draw it
-    parchment_copy_background_at(&bkgnd_area, m);
+    parchment_copy_background_at(&bkgnd_area, units_per_px);
     SYNCDBG(9,"Done");
 }
 
@@ -627,8 +622,8 @@ void draw_map_level_name(void)
     // Drawing
     if (lv_name != NULL)
     {
-        LbTextSetWindow(x/pixel_size, y/pixel_size, w/pixel_size, h/pixel_size);
-        LbTextDraw((w-pixel_size*LbTextStringWidth(lv_name))/2 / pixel_size, (h/10 - 8) / pixel_size, lv_name);
+        LbTextSetWindow(x, y, w, h);
+        LbTextDraw((w-LbTextStringWidth(lv_name))/2, (h/10 - 8), lv_name);
     }
 }
 
@@ -753,8 +748,8 @@ void draw_zoom_box(void)
     scrtop_x = mouse_x + 24;
     scrtop_y = mouse_y + 24;
     // Source map coordinates
-    stl_x = STL_PER_SLB * (mouse_x-map_area.left) / block_size - draw_tiles_x/2;
-    stl_y = STL_PER_SLB * (mouse_y-map_area.top)  / block_size - draw_tiles_y/2;
+    stl_x = STL_PER_SLB * (mouse_x/pixel_size-map_area.left) / block_size - draw_tiles_x/2;
+    stl_y = STL_PER_SLB * (mouse_y/pixel_size-map_area.top)  / block_size - draw_tiles_y/2;
     // Draw only on map area (do not allow zoom box to be empty)
     if ((stl_x < -draw_tiles_x+4) || (stl_x >= map_subtiles_x+1-draw_tiles_x+6)
      || (stl_y < -draw_tiles_y+4) || (stl_y >= map_subtiles_x+1-draw_tiles_y+6))

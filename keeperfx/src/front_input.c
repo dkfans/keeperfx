@@ -553,7 +553,7 @@ TbBool get_level_lost_inputs(void)
         // Position on the parchment map on which we're doing action
         TbBool map_valid;
         long map_x, map_y;
-        map_valid = point_to_overhead_map(player->acamera, mouse_x, mouse_y, &map_x, &map_y);
+        map_valid = point_to_overhead_map(player->acamera, mouse_x/pixel_size, mouse_y/pixel_size, &map_x, &map_y);
         if ( is_game_key_pressed(Gkey_SwitchToMap, &keycode, 0) )
         {
             lbKeyOn[keycode] = 0;
@@ -983,7 +983,7 @@ short get_map_action_inputs(void)
   // Get map coordinates from mouse position on parchment screen
   TbBool map_valid;
   long map_x, map_y;
-  map_valid = point_to_overhead_map(player->acamera, mouse_x, mouse_y, &map_x, &map_y);
+  map_valid = point_to_overhead_map(player->acamera, mouse_x/pixel_size, mouse_y/pixel_size, &map_x, &map_y);
   if  (map_valid)
   {
       MapSubtlCoord stl_x, stl_y;
@@ -1130,37 +1130,37 @@ void get_isometric_view_nonaction_inputs(void)
 
 void get_overhead_view_nonaction_inputs(void)
 {
-  struct PlayerInfo *player;
-  struct Packet *pckt;
-  int rotate_pressed,speed_pressed;
-  long mx,my;
-  SYNCDBG(19,"Starting");
-  player=get_my_player();
-  pckt = get_packet(my_player_number);
-  my = my_mouse_y;
-  mx = my_mouse_x;
-  rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
-  speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-  if ((player->field_0 & 0x10) == 0)
-  {
-    if (speed_pressed)
-      pckt->field_10 |= 0x01;
-    if (rotate_pressed)
+    struct PlayerInfo *player;
+    struct Packet *pckt;
+    int rotate_pressed,speed_pressed;
+    long mx,my;
+    SYNCDBG(19,"Starting");
+    player=get_my_player();
+    pckt = get_packet(my_player_number);
+    my = my_mouse_y;
+    mx = my_mouse_x;
+    rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
+    speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
+    if ((player->field_0 & 0x10) == 0)
     {
-      if ( is_game_key_pressed(Gkey_MoveUp, NULL, speed_pressed!=0) )
-        set_packet_control(pckt, PCtr_ViewZoomIn);
-      if ( is_game_key_pressed(Gkey_MoveDown, NULL, speed_pressed!=0) )
-        set_packet_control(pckt, PCtr_ViewZoomOut);
+        if (speed_pressed)
+          pckt->field_10 |= 0x01;
+        if (rotate_pressed)
+        {
+          if ( is_game_key_pressed(Gkey_MoveUp, NULL, speed_pressed!=0) )
+            set_packet_control(pckt, PCtr_ViewZoomIn);
+          if ( is_game_key_pressed(Gkey_MoveDown, NULL, speed_pressed!=0) )
+            set_packet_control(pckt, PCtr_ViewZoomOut);
+        }
+        if (my <= 4)
+          set_packet_control(pckt, PCtr_MoveUp);
+        if (my >= MyScreenHeight-4)
+          set_packet_control(pckt, PCtr_MoveDown);
+        if (mx <= 4)
+          set_packet_control(pckt, PCtr_MoveLeft);
+        if (mx >= MyScreenWidth-4)
+          set_packet_control(pckt, PCtr_MoveRight);
     }
-    if (my <= 4)
-      set_packet_control(pckt, PCtr_MoveUp);
-    if (my >= MyScreenHeight-4)
-      set_packet_control(pckt, PCtr_MoveDown);
-    if (mx <= 4)
-      set_packet_control(pckt, PCtr_MoveLeft);
-    if (mx >= MyScreenWidth-4)
-      set_packet_control(pckt, PCtr_MoveRight);
-  }
 }
 
 void get_front_view_nonaction_inputs(void)
@@ -1374,6 +1374,7 @@ void get_map_nonaction_inputs(void)
   set_players_packet_position(player,GetMouseX(),GetMouseY());
   pckt = get_packet(my_player_number);
   unset_packet_control(pckt, PCtr_MapCoordsValid);
+  //TODO PACKET Never use screen coordinates from packet! Set map coordinates instead.
   if (screen_to_map(player->acamera, pckt->pos_x, pckt->pos_y, &pos))
   {
     set_packet_control(pckt, PCtr_MapCoordsValid);

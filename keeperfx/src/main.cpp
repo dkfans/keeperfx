@@ -1202,7 +1202,7 @@ TbBool screen_to_map(struct Camera *camera, long screen_x, long screen_y, struct
         result = engine_point_to_map(camera,screen_x,screen_y,&x,&y);
         break;
       case 3: //map mode
-        result = point_to_overhead_map(camera,screen_x,screen_y,&x,&y);
+        result = point_to_overhead_map(camera,screen_x/pixel_size,screen_y/pixel_size,&x,&y);
         break;
       default:
         result = false;
