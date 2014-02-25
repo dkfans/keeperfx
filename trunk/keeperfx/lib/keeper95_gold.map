@@ -1290,6 +1290,10 @@
  0001:0005F490       add_gold_to_hoarde
  0001:000A7530       init_sound_heap_two_banks
  0001:000A7800       close_sound_heap
+ 0001:00013A10       place_slab_columns
+ 0001:00014040       place_slab_object
+ 0001:00014490       delete_attached_things_on_slab
+ 0001:00014590       get_against
  0001:00014810       initialise_map_collides
  0001:00014990       initialise_map_health
  0001:000149D0       choose_pretty_type
