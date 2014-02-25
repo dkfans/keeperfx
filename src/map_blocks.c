@@ -30,6 +30,7 @@
 #include "config_settings.h"
 #include "creature_senses.h"
 #include "player_utils.h"
+#include "ariadne_wallhug.h"
 #include "frontmenu_ingame_map.h"
 #include "game_legacy.h"
 
@@ -52,7 +53,18 @@ DLLIMPORT unsigned char _DK_alter_rock_style(unsigned char a1, signed char a2, s
 DLLIMPORT void _DK_place_and_process_pretty_wall_slab(struct Thing *creatng, long slb_x, long slb_y);
 DLLIMPORT void _DK_fill_in_reinforced_corners(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
 DLLIMPORT unsigned char _DK_choose_pretty_type(unsigned char plyr_idx, unsigned char slb_x, unsigned char slb_y);
+DLLIMPORT void _DK_delete_attached_things_on_slab(long slb_x, long slb_y);
+DLLIMPORT unsigned char _DK_get_against(unsigned char a1, long a2, long a3, long a4);
+DLLIMPORT void _DK_place_slab_columns(long a1, unsigned char a2, unsigned char a3, short *a4);
+DLLIMPORT void _DK_place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short a5, unsigned char a6);
 
+const signed short slab_element_around_eight[] = {
+    -3, -2, 1, 4, 3, 2, -1, -4
+};
+
+const signed short slab_primitive[] = {
+    -1, 1, 0, 4, 3, -1, 7, -1, 2, 5, -1, -1, 6, -1, -1, 8
+};
 /******************************************************************************/
 TbBool block_has_diggable_side(long plyr_idx, long slb_x, long slb_y)
 {
@@ -327,14 +339,34 @@ long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSlabCoord sl
     return removed_num;
 }
 
-void place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4)
+void delete_attached_things_on_slab(long slb_x, long slb_y)
 {
-    _DK_place_single_slab_type_on_map(a1, a2, a3, a4);
+    _DK_delete_attached_things_on_slab(slb_x, slb_y); return;
+}
+
+unsigned char get_against(unsigned char a1, long a2, long a3, long a4)
+{
+    return _DK_get_against(a1, a2, a3, a4);
+}
+
+void place_slab_columns(long a1, unsigned char a2, unsigned char a3, short *a4)
+{
+    _DK_place_slab_columns(a1, a2, a3, a4); return;
+}
+
+void place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short a5, unsigned char a6)
+{
+    _DK_place_slab_object(a1, a2, a3, a4, a5, a6); return;
+}
+
+void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    _DK_place_single_slab_type_on_map(slbkind, slb_x, slb_y, plyr_idx);
 }
 
 void shuffle_unattached_things_on_slab(long a1, long a2)
 {
-    _DK_shuffle_unattached_things_on_slab(a1, a2);
+    _DK_shuffle_unattached_things_on_slab(a1, a2); return;
 }
 
 /**
@@ -414,7 +446,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
     {
         ERRORLOG("%s: Placing animating slab %d as standard slab",func_name,(int)nslab);
     }
-    for (i = 0; i < 8; i++)
+    for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
     {
         spos_x = slb_x + (MapSlabCoord)my_around_eight[i].delta_x;
         spos_y = slb_y + (MapSlabCoord)my_around_eight[i].delta_y;
@@ -1301,12 +1333,6 @@ void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_
 }
 
 /*
-void place_slab_object(unsigned short a1, long a2, long a3, unsigned short a4, unsigned short a5, unsigned char a6)
-{
-
-}
-
-
 char point_in_map_is_solid_including_lava_check_ignoring_door(struct Coord3d *pos, struct Thing *thing)
 {
 

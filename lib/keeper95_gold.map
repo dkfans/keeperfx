@@ -203,7 +203,11 @@
  0001:000125E0       old_combat_move
  0001:000128A0       place_slab_type_on_map
  0001:00013030       place_single_slab_type_on_map
+ 0001:00013A10       place_slab_columns
  0001:00013BB0       place_animating_slab_type_on_map
+ 0001:00014040       place_slab_object
+ 0001:00014490       delete_attached_things_on_slab
+ 0001:00014590       get_against
  0001:00014650       alter_rock_style
  0001:00014810       initialise_map_collides
  0001:00014990       initialise_map_health
