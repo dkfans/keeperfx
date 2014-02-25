@@ -115,6 +115,8 @@
 #include "game_legacy.h"
 #include "room_list.h"
 
+#include "music_player.h"
+
 int test_variable;
 
 // Max length of the command line
@@ -1087,7 +1089,7 @@ short setup_game(void)
           break;
       }
       set_gamma(settings.gamma_correction, 0);
-      SetRedbookVolume(settings.redbook_volume);
+      SetMusicPlayerVolume(settings.redbook_volume);
       SetSoundMasterVolume(settings.sound_volume);
       SetMusicMasterVolume(settings.sound_volume);
       setup_3d();
@@ -3747,6 +3749,7 @@ void game_loop(void)
     playtime = 0;
     total_play_turns = 0;
     SYNCDBG(0,"Entering gameplay loop.");
+
     while ( !exit_keeper )
     {
       update_mouse();
@@ -3780,8 +3783,8 @@ void game_loop(void)
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
-      StopRedbookTrack();
       StopMusic();
+      StopMusicPlayer();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3797,6 +3800,8 @@ void game_loop(void)
       game.packet_load_enable = false;
       game.packet_save_enable = false;
     } // end while
+
+    ShutdownMusicPlayer();
     // Stop the movie recording if it's on
     if ((game.system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
@@ -3864,7 +3869,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "nocd") == 0)
       {
-          set_flag_byte(&start_params.flags_cd,MFlg_NoMusic,true);
+          set_flag_byte(&start_params.flags_cd,MFlg_NoCdMusic,true);
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {

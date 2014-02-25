@@ -36,6 +36,8 @@
 #include "config_creature.h"
 #include "game_legacy.h"
 
+#include "music_player.h"
+
 #include "keeperfx.hpp"
 
 #ifdef __cplusplus
@@ -282,10 +284,9 @@ void update_player_sounds(void)
         process_messages();
         if (!SoundDisabled)
         {
-            if ((game.flags_cd & MFlg_NoMusic) == 0)
+            if (game.audiotrack > 0)
             {
-                if (game.audiotrack > 0)
-                  PlayRedbookTrack(game.audiotrack);
+                PlayMusicPlayer(game.audiotrack);
             }
             update_3d_sound_receiver(player);
         }
@@ -502,10 +503,11 @@ TbBool init_sound(void)
     if ((game.flags_font & FFlg_UsrSndFont) == 0)
       snd_settng->field_16 = 0;
     snd_settng->field_18 = 1;
-    snd_settng->redbook_enable = 1;
+    snd_settng->redbook_enable = ((game.flags_cd & MFlg_NoCdMusic) == 0);
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
     LoadMusic(0);
+    InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
       SoundDisabled = 1;
