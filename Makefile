@@ -207,6 +207,7 @@ obj/map_columns.o \
 obj/map_data.o \
 obj/map_events.o \
 obj/map_utils.o \
+obj/music_player.o \
 obj/net_game.o \
 obj/net_sync.o \
 obj/packets.o \

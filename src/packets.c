@@ -80,6 +80,8 @@
 
 #include "keeperfx.hpp"
 
+#include "music_player.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1500,12 +1502,12 @@ void process_pause_packet(long a1, long a2)
         if ((game.numfield_C & 0x01) != 0)
         {
           SetSoundMasterVolume(settings.sound_volume >> 1);
-          SetRedbookVolume(settings.redbook_volume >> 1);
+          SetMusicPlayerVolume(settings.redbook_volume >> 1);
           SetMusicMasterVolume(settings.sound_volume >> 1);
         } else
         {
           SetSoundMasterVolume(settings.sound_volume);
-          SetRedbookVolume(settings.redbook_volume);
+          SetMusicPlayerVolume(settings.redbook_volume);
           SetMusicMasterVolume(settings.sound_volume);
         }
       }

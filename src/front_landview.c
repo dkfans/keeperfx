@@ -53,6 +53,8 @@
 
 #include "keeperfx.hpp"
 
+#include "music_player.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -298,8 +300,7 @@ void update_frontmap_ambient_sound(void)
       SetSampleVolume(0, campaign.ambient_good, 127*map_sound_fade/256, 0);
     }
     SetStreamedSampleVolume(127*map_sound_fade/256);
-    if ((game.flags_cd & 0x10) == 0)
-      SetRedbookVolume(map_sound_fade*(long)settings.redbook_volume/256);
+    SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
     if ((features_enabled & Ft_AdvAmbSonud) != 0)
@@ -307,8 +308,7 @@ void update_frontmap_ambient_sound(void)
       SetSampleVolume(0, campaign.ambient_good, 0, 0);
       SetSampleVolume(0, campaign.ambient_bad, 0, 0);
     }
-    if ((game.flags_cd & 0x10) == 0)
-      SetRedbookVolume(0);
+    SetMusicPlayerVolume(0);
     SetStreamedSampleVolume(0);
   }
 }
@@ -866,11 +866,8 @@ void frontnetmap_unload(void)
     LbDataFreeAll(netmap_flag_load_files);
     memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     fe_network_active = 0;
-    if ((game.flags_cd & 0x10) == 0)
-    {
-        StopRedbookTrack();
-        SetRedbookVolume(settings.redbook_volume);
-    }
+    StopMusicPlayer();
+    SetMusicPlayerVolume(settings.redbook_volume);
 }
 
 TbBool frontnetmap_load(void)
@@ -909,8 +906,7 @@ TbBool frontnetmap_load(void)
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     map_sound_fade = 256;
     lbDisplay.DrawFlags = 0;
-    if ((game.flags_cd & 0x10) == 0)
-      SetRedbookVolume(settings.redbook_volume);
+    SetMusicPlayerVolume(settings.redbook_volume);
     if (fe_network_active)
     {
       struct ScreenPacket *nspck;
@@ -1020,8 +1016,7 @@ TbBool frontmap_load(void)
     }
     LbSpriteSetupAll(map_flag_setup_sprites);
     frontend_load_data_reset();
-    if ((game.flags_cd & 0x10) == 0)
-        PlayRedbookTrack(2);
+    PlayMusicPlayer(2);
     player = get_my_player();
     lvnum = get_continue_level_number();
     if ((player->field_6 & 0x02) != 0)
@@ -1097,8 +1092,7 @@ TbBool frontmap_load(void)
         play_sample_using_heap(0, campaign.ambient_good, 0, 0x40, 100, -1, 2, 0);
         play_sample_using_heap(0, campaign.ambient_bad, 0, 0x40, 100, -1, 2, 0);
     }
-    if ((game.flags_cd & 0x10) == 0)
-        SetRedbookVolume(settings.redbook_volume);
+    SetMusicPlayerVolume(settings.redbook_volume);
     fe_computer_players = 0;
     update_ensigns_visibility();
     SYNCDBG(7,"Finished");
@@ -1508,11 +1502,8 @@ void frontmap_unload(void)
   LbDataFreeAll(map_flag_load_files);
   StopAllSamples();
   stop_description_speech();
-  if ((game.flags_cd & 0x10) == 0)
-  {
-    StopRedbookTrack();
-    SetRedbookVolume(settings.redbook_volume);
-  }
+  StopMusicPlayer();
+  SetMusicPlayerVolume(settings.redbook_volume);
 }
 
 long frontmap_update(void)
@@ -1546,8 +1537,7 @@ long frontmap_update(void)
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
     }
   }
-  if ((game.flags_cd & 0x10) == 0)
-    PlayRedbookTrack(2);
+  PlayMusicPlayer(2);
   SYNCDBG(8,"Finished");
   return 0;
 }
@@ -1688,10 +1678,7 @@ TbBool frontnetmap_update(void)
     {
         i = 0;
     }
-    if ((game.flags_cd & 0x10) == 0)
-    {
-        SetRedbookVolume(i);
-    }
+    SetMusicPlayerVolume(i);
 
     nmps.tmp1 = 0;
     nmps.lvnum = SINGLEPLAYER_NOTSTARTED;
@@ -1733,8 +1720,7 @@ TbBool frontnetmap_update(void)
             fe_computer_players = 1;
     }
 
-    if ((game.flags_cd & 0x10) == 0)
-        PlayRedbookTrack(2);
+    PlayMusicPlayer(2);
     SYNCDBG(8,"Normal end");
     return false;
 }
