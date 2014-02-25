@@ -82,6 +82,8 @@
 
 #include "keeperfx.hpp"
 
+#include "music_player.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -2579,8 +2581,7 @@ void frontend_shutdown_state(long pstate)
         frontstory_unload();
         break;
     case FeSt_CREDITS:
-        if ((game.flags_cd & MFlg_NoMusic) == 0)
-          StopRedbookTrack();
+        StopMusicPlayer();
         break;
     case FeSt_NET_MODEM:
         turn_off_menu(GMnu_FENET_MODEM);
@@ -2611,8 +2612,7 @@ void frontend_shutdown_state(long pstate)
         break;
     case FeSt_FEOPTIONS:
         turn_off_menu(GMnu_FEOPTION);
-        if ((game.flags_cd & MFlg_NoMusic) == 0)
-          StopRedbookTrack();
+        StopMusicPlayer();
         break;
     case FeSt_LEVEL_SELECT:
         turn_off_menu(GMnu_FELEVEL_SELECT);
@@ -3336,8 +3336,7 @@ void frontend_update(short *finish_menu)
         exit_keeper = 1;
         break;
       case FeSt_CREDITS:
-        if ((game.flags_cd & MFlg_NoMusic) == 0)
-          PlayRedbookTrack(7);
+        PlayMusicPlayer(7);
         break;
       case FeSt_NET_MODEM:
         frontnet_modem_update();
@@ -3355,8 +3354,7 @@ void frontend_update(short *finish_menu)
         *finish_menu = frontnetmap_update();
         break;
       case FeSt_FEOPTIONS:
-        if ((game.flags_cd & MFlg_NoMusic) == 0)
-          PlayRedbookTrack(3);
+        PlayMusicPlayer(3);
         break;
       case FeSt_LEVEL_SELECT:
         frontend_level_select_update();

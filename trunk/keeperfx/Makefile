@@ -255,6 +255,7 @@ obj/sounds.o \
 obj/vidmode.o \
 obj/vidfade.o \
 obj/KeeperSpeechImp.o \
+obj/music_player.o \
 $(RES)
 CAMPAIGNS  = \
 ancntkpr \
