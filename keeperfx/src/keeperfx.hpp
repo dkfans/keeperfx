@@ -353,7 +353,7 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
 
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void init_lookups(void);
-void place_single_slab_type_on_map(long a1, unsigned char a2, unsigned char a3, unsigned char a4);
+void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 void shuffle_unattached_things_on_slab(long a1, long a2);
 short play_smacker_file(char *filename, int nstate);
 void turn_off_query(short a);
