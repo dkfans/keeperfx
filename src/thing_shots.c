@@ -99,24 +99,28 @@ TbBool detonate_shot(struct Thing *shotng)
 {
     struct PlayerInfo *myplyr;
     struct Thing *shootrtng;
+    struct ShotConfigStats *shotst;
+    shotst = get_shot_model_stats(shotng->model);
     SYNCDBG(18,"Starting for model %d",(int)shotng->model);
     shootrtng = INVALID_THING;
     myplyr = get_my_player();
     if (shotng->index != shotng->parent_idx)
         shootrtng = thing_get(shotng->parent_idx);
+    if (shotst->old->area_range != 0) {
+        explosion_affecting_area(shootrtng, &shotng->mappos, shotst->old->area_range, shotst->old->area_damage, shotst->area_blow, shotng->shot.hit_type);
+    }
     switch (shotng->model)
     {
-    case 4:
-    case 16:
-    case 24:
+    case 4://SHOT_LIGHTNING
+    case 16://SHOT_GOD_LIGHTNING
+    case 24://SHOT_LIGHTNING_BALL
         PaletteSetPlayerPalette(myplyr, engine_palette);
         break;
-    case 11:
+    case 11://SHOT_GRENADE
         create_effect(&shotng->mappos, TngEff_Unknown50, shotng->owner);
         create_effect(&shotng->mappos,  TngEff_Unknown09, shotng->owner);
-        explosion_affecting_area(shootrtng, &shotng->mappos, 8, 256, 256, shotng->shot.hit_type);
         break;
-    case 15:
+    case 15://SHOT_BOULDER
         create_effect_around_thing(shotng, TngEff_Unknown26);
         break;
     default:

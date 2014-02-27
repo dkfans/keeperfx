@@ -1243,7 +1243,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     long blow_strength;
     //TODO CONFIG Damage and blow of WOP shouldn't be hardcoded
     max_damage = 150;
-    blow_strength = 0;
+    blow_strength = 128;
     if (efftng->creation_turn != game.play_gameturn)
         return;
     {
