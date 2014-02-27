@@ -882,7 +882,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Your latest discovery is the Word of Power Trap. When activated, the trap "
-"triggers an expanding ring of fire that incinerates anything caught in its "
+"triggers an expanding ring of demonic energy that incinerates anything caught in its "
 "area of effect. What a scream that should be."
 msgstr ""
 
@@ -1679,8 +1679,9 @@ msgstr ""
 #: guitext:247
 msgctxt "Creature spell"
 msgid ""
-"Word of Power: Causes rings of fire to emanate from the creature's body and "
-"inflicts massive damage on the vicinity."
+"Word of Power: Causes rings of demonic energy to emanate from the creature's body and "
+"inflicts massive damage on the vicinity. Very effective against crowded hordes of enemies, "
+"also pushes them back."
 msgstr ""
 
 #: guitext:248
@@ -2757,28 +2758,29 @@ msgstr ""
 
 #: guitext:452
 msgctxt "In-game interface description"
-msgid "Research Time: The time until a new spell is researched. [5.4]"
+msgid "Research Time: The time until a new spell is researched. Scholars in your Library are making progress on this bar."
 msgstr ""
 
 #: guitext:453
 msgctxt "In-game interface description"
-msgid "Workshop Time: The time until a new trap is manufactured. [5.5]"
+msgid "Workshop Time: The time until a new trap is manufactured. Workers in your Workshop are making progress on this bar."
 msgstr ""
 
 #: guitext:454
 msgctxt "In-game interface description"
-msgid "Time: The time until the next Creature Payday. [5.3]"
+msgid "Time: The time until the next Creature Payday. This bar increases over time and, when it reaches its peak, "
+"all of your creatures receive their wages."
 msgstr ""
 
 #: guitext:455
 msgctxt "In-game interface description"
-msgid "Number of Rooms: The number of rooms held by this Keeper. [5.6]"
+msgid "Number of Rooms: The number of rooms held by this Keeper. Allows you to compare your dungeon with the competitors."
 msgstr ""
 
 #: guitext:456
 msgctxt "In-game interface description"
 msgid ""
-"Number of Creatures: The number of creatures owned by this Keeper. [5.7]"
+"Number of Creatures: The number of creatures owned by this Keeper. Allows you to compare your army with other Keepers."
 msgstr ""
 
 #: guitext:457
@@ -2809,12 +2811,12 @@ msgstr ""
 #: guitext:462
 msgctxt "In-game interface description"
 msgid ""
-"Sell Room: Sell a room tile for half the building price. LMB select. [6.4]"
+"Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr ""
 
 #: guitext:463
 msgctxt "In-game interface description"
-msgid "Sell Item: Sell a Trap or Door. LMB select. [8.1.2]"
+msgid "Sell Item: Sell a Trap or Door. Allows you to earn gold on manufacturing. LMB select."
 msgstr ""
 
 #: guitext:464
@@ -3219,12 +3221,12 @@ msgstr ""
 
 #: guitext:544
 msgctxt "Slab description"
-msgid "Gems: Infinite wealth for your Imps to extract. [12.3]"
+msgid "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but takes longer to mine than Gold."
 msgstr ""
 
 #: guitext:545
 msgctxt "Object description"
-msgid "Hero Gate: Heroes use this portal to invade your dungeon. [15.4]"
+msgid "Hero Gate: Heroes use this portal to invade your dungeon. It cannot be closed on your side."
 msgstr ""
 
 #: guitext:546
@@ -3239,23 +3241,23 @@ msgstr ""
 
 #: guitext:548
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr ""
 
 #: guitext:549
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr ""
 
 #: guitext:550
 msgctxt "In-game interface description"
 msgid ""
-"Toggle Computer Assistant: Currently - Construction Only. LMB toggle. [3.2.4]"
+"Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr ""
 
 #: guitext:551
 msgctxt "In-game interface description"
-msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle. [3.2.4]"
+msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr ""
 
 #: guitext:552
@@ -3419,41 +3421,41 @@ msgstr ""
 #: guitext:584
 msgctxt "Trap description"
 msgid ""
-"Boulder Trap: A rolling rock that crushes everything in its path. LMB "
-"select. RMB zoom. [20.1]"
+"Boulder Trap: A rolling rock that crushes everything in its path. Triggered when enemy creature "
+"is close and within line of sight, or when slapped by a Keeper. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:585
 msgctxt "Trap description"
-msgid "Alarm Trap: Triggers a Call To Arms spell. LMB select. RMB zoom. [20.2]"
+msgid "Alarm Trap: Triggers a Call To Arms spell, so that creatures in the area are summoned to it. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:586
 msgctxt "Trap description"
 msgid ""
-"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. LMB "
-"select. RMB zoom. [20.3]"
+"Poison Gas Trap: A cloud of noxious vapours triggered by your enemies. Can hurt owner creatures if they inhale it. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:587
 msgctxt "Trap description"
 msgid ""
-"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning. LMB "
-"select. RMB zoom. [20.4]"
+"Lightning Trap: Strikes nearby enemy creatures with bolts of lightning when tripped. Does no harm to owner creatures. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:588
 msgctxt "Trap description"
 msgid ""
-"Word of Power Trap: Radiates devastating rings of demonic energy, damaging "
-"all creatures within range. LMB select. RMB zoom. [20.5]"
+"Word of Power Trap: Radiates devastating rings of demonic energy, pushing and "
+"damaging all enemy creatures within range. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:589
 msgctxt "Trap description"
 msgid ""
-"Lava Trap: The tile disintegrates revealing a pool of molten lava. LMB "
-"select. RMB zoom. [20.6]"
+"Lava Trap: The tile disintegrates revealing a pool of molten lava. Effects are irreversible, so Bridge is needed to be able to step on affected area again. LMB "
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:590
@@ -3479,28 +3481,27 @@ msgstr ""
 #: guitext:594
 msgctxt "Door description"
 msgid ""
-"Wooden Door: The simplest means of restricting access. LMB select. RMB zoom. "
-"[21.1]"
+"Wooden Door: The simplest means of restricting access. Can be broken down easily. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:595
 msgctxt "Door description"
 msgid ""
-"Braced Door: A wooden door reinforced with iron. LMB select. RMB zoom. [21.2]"
+"Braced Door: A wooden door reinforced with iron to last longer. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:596
 msgctxt "Door description"
 msgid ""
 "Iron Door: Strong, heavy door capable of sustaining massive damage. LMB "
-"select. RMB zoom. [21.3]"
+"select. RMB zoom."
 msgstr ""
 
 #: guitext:597
 msgctxt "Door description"
 msgid ""
 "Magic Door: A special door, highly resistant to physical damage but "
-"susceptible to magical damage. LMB select. RMB zoom. [21.4]"
+"susceptible to magical damage. LMB select. RMB zoom."
 msgstr ""
 
 #: guitext:598
