@@ -1134,6 +1134,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     MapCoord distance;
     TbBool affected;
     affected = false;
+    SYNCDBG(17,"Starting for %s, max damage %d, max blow %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength);
     if (line_of_sight_3d(pos, &tngdst->mappos))
     {
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
@@ -1148,6 +1149,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             {
                 HitPoints damage;
                 damage = get_radially_decaying_value(max_damage,max_dist/4,3*max_dist/4,distance)+1;
+                SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
                 apply_damage_to_thing_and_display_health(tngdst, damage, owner);
                 affected = true;
             }
@@ -1208,7 +1210,7 @@ long word_of_power_affecting_map_block(struct Thing *efftng, struct Thing *tngsr
         i = thing->next_on_mapblk;
         // Per thing processing block
         if (effect_can_affect_thing(efftng, thing)
-          || ((thing->class_id == TCls_Door) && (thing->owner != tngsrc->owner)))
+          || ((thing->class_id == TCls_Door) && (thing->owner != owner)))
         {
             if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, owner))
                 num_affected++;
@@ -1247,7 +1249,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     {
         long stl_range;
         // Make sure the subtile is rounded up, unless the range is really close to lower value
-        stl_range = coord_subtile(max_dist+240);
+        stl_range = coord_subtile(max_dist+COORD_PER_STL*9/10);
         // Position on subtile is not at its start, so add 1 to max values while ignoring the position
         stl_xmin = pos->x.stl.num - stl_range;
         stl_xmax = pos->x.stl.num + stl_range + 1;
@@ -1479,10 +1481,10 @@ TngUpdateRet update_effect(struct Thing *efftng)
     {
     case 1:
     case 3:
-        poison_cloud_affecting_area(subtng, &efftng->mappos, 1280, 60, effnfo->area_affect_type);
+        poison_cloud_affecting_area(subtng, &efftng->mappos, 5*COORD_PER_STL, 60, effnfo->area_affect_type);
         break;
     case 4:
-        word_of_power_affecting_area(efftng, subtng, &efftng->mappos, 1280);
+        word_of_power_affecting_area(efftng, subtng, &efftng->mappos, 5*COORD_PER_STL);
         break;
     }
     efftng->health--;
