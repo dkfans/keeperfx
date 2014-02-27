@@ -686,7 +686,7 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
         dmg = shotng->shot.damage;
     } else
     {
-        dmg = 32 * shotng->shot.damage / 256;
+        dmg = shotng->shot.damage / 10;
         if (dmg < 1)
             dmg = 1;
     }
