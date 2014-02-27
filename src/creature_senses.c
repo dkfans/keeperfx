@@ -73,61 +73,69 @@ TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
     switch (subdelta_x + 2 * subdelta_y)
     {
     case -3:
-        posmvx.x.val = prevpos->x.val - 256;
+        posmvx.x.val = prevpos->x.val - COORD_PER_STL;
         posmvx.y.val = prevpos->y.val;
         posmvx.z.val = prevpos->z.val;
         posmvy.x.val = prevpos->x.val;
-        posmvy.y.val = prevpos->y.val - 256;
+        posmvy.y.val = prevpos->y.val - COORD_PER_STL;
         posmvy.z.val = prevpos->z.val;
-        if (!point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+        if (point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+            SYNCDBG(17, "Cannot see through (%d,%d) with delta (%d,%d) X",(int)posmvx.x.stl.num,(int)posmvx.y.stl.num,(int)subdelta_x,(int)subdelta_y);
             return false;
         }
-        if (!point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+        if (point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+            SYNCDBG(17, "Cannot see through (%d,%d) with delta (%d,%d) Y",(int)posmvy.x.stl.num,(int)posmvy.y.stl.num,(int)subdelta_x,(int)subdelta_y);
             return false;
         }
         break;
 
     case -1:
-        posmvx.x.val = prevpos->x.val + 256;
+        posmvx.x.val = prevpos->x.val + COORD_PER_STL;
         posmvx.y.val = prevpos->y.val;
         posmvx.z.val = prevpos->z.val;
         posmvy.x.val = prevpos->x.val;
-        posmvy.y.val = prevpos->y.val - 256;
+        posmvy.y.val = prevpos->y.val - COORD_PER_STL;
         posmvy.z.val = prevpos->z.val;
-        if (!point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+        if (point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+            SYNCDBG(17, "Cannot see through (%d,%d) with delta (%d,%d) X",(int)posmvx.x.stl.num,(int)posmvx.y.stl.num,(int)subdelta_x,(int)subdelta_y);
             return false;
         }
-        if (!point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+        if (point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+            SYNCDBG(17, "Cannot see through (%d,%d) with delta (%d,%d) Y",(int)posmvy.x.stl.num,(int)posmvy.y.stl.num,(int)subdelta_x,(int)subdelta_y);
             return false;
         }
         break;
 
     case 1:
-        posmvx.x.val = prevpos->x.val - 256;
+        posmvx.x.val = prevpos->x.val - COORD_PER_STL;
         posmvx.y.val = prevpos->y.val;
         posmvx.z.val = prevpos->z.val;
         posmvy.x.val = prevpos->x.val;
-        posmvy.y.val = prevpos->y.val + 256;
+        posmvy.y.val = prevpos->y.val + COORD_PER_STL;
         posmvy.z.val = prevpos->z.val;
-        if (!point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+        if (point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+            SYNCDBG(17, "Cannot see through (%d,%d) with delta (%d,%d) X",(int)posmvx.x.stl.num,(int)posmvx.y.stl.num,(int)subdelta_x,(int)subdelta_y);
             return false;
         }
-        if (!point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+        if (point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+            SYNCDBG(17, "Cannot see through (%d,%d) with delta (%d,%d) Y",(int)posmvy.x.stl.num,(int)posmvy.y.stl.num,(int)subdelta_x,(int)subdelta_y);
             return false;
         }
         break;
 
     case 3:
-        posmvx.x.val = prevpos->x.val + 256;
+        posmvx.x.val = prevpos->x.val + COORD_PER_STL;
         posmvx.y.val = prevpos->y.val;
         posmvx.z.val = prevpos->z.val;
         posmvy.x.val = prevpos->x.val;
-        posmvy.y.val = prevpos->y.val + 256;
+        posmvy.y.val = prevpos->y.val + COORD_PER_STL;
         posmvy.z.val = prevpos->z.val;
-        if (!point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+        if (point_in_map_is_solid_ignoring_door(&posmvx, doortng)) {
+            SYNCDBG(17, "Cannot see through (%d,%d) with delta (%d,%d) X",(int)posmvx.x.stl.num,(int)posmvx.y.stl.num,(int)subdelta_x,(int)subdelta_y);
             return false;
         }
-        if (!point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+        if (point_in_map_is_solid_ignoring_door(&posmvy, doortng)) {
+            SYNCDBG(17, "Cannot see through (%d,%d) with delta (%d,%d) Y",(int)posmvy.x.stl.num,(int)posmvy.y.stl.num,(int)subdelta_x,(int)subdelta_y);
             return false;
         }
         break;
@@ -155,22 +163,22 @@ TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos,
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
     if (dx >= 0) {
-        increase_x = 256;
+        increase_x = COORD_PER_STL;
     } else {
         dx = -dx;
-        increase_x = -256;
+        increase_x = -COORD_PER_STL;
     }
     if (dy >= 0) {
-        increase_y = 256;
+        increase_y = COORD_PER_STL;
     } else {
         dy = -dy;
-        increase_y = -256;
+        increase_y = -COORD_PER_STL;
     }
     if (dz >= 0) {
-        increase_z = 256;
+        increase_z = COORD_PER_STL;
     } else {
         dz = -dz;
-        increase_z = -256;
+        increase_z = -COORD_PER_STL;
     }
     { // Compute amount of steps for the loop
         int maxdim1, maxdim2;
@@ -251,11 +259,11 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct 
     switch (subdelta_x + 2 * subdelta_y)
     {
     case -3:
-        posmvx.x.val = prevpos->x.val - 256;
+        posmvx.x.val = prevpos->x.val - COORD_PER_STL;
         posmvx.y.val = prevpos->y.val;
         posmvx.z.val = prevpos->z.val;
         posmvy.x.val = prevpos->x.val;
-        posmvy.y.val = prevpos->y.val - 256;
+        posmvy.y.val = prevpos->y.val - COORD_PER_STL;
         posmvy.z.val = prevpos->z.val;
         if (get_point_in_map_solid_flags_ignoring_door(&posmvx, doortng) & 0x01) {
             return false;
@@ -266,11 +274,11 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct 
         break;
 
     case -1:
-        posmvx.x.val = prevpos->x.val + 256;
+        posmvx.x.val = prevpos->x.val + COORD_PER_STL;
         posmvx.y.val = prevpos->y.val;
         posmvx.z.val = prevpos->z.val;
         posmvy.x.val = prevpos->x.val;
-        posmvy.y.val = prevpos->y.val - 256;
+        posmvy.y.val = prevpos->y.val - COORD_PER_STL;
         posmvy.z.val = prevpos->z.val;
         if (get_point_in_map_solid_flags_ignoring_door(&posmvx, doortng) & 0x01) {
             return false;
@@ -281,11 +289,11 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct 
         break;
 
     case 1:
-        posmvx.x.val = prevpos->x.val - 256;
+        posmvx.x.val = prevpos->x.val - COORD_PER_STL;
         posmvx.y.val = prevpos->y.val;
         posmvx.z.val = prevpos->z.val;
         posmvy.x.val = prevpos->x.val;
-        posmvy.y.val = prevpos->y.val + 256;
+        posmvy.y.val = prevpos->y.val + COORD_PER_STL;
         posmvy.z.val = prevpos->z.val;
         if (get_point_in_map_solid_flags_ignoring_door(&posmvx, doortng) & 0x01) {
             return false;
@@ -296,11 +304,11 @@ TbBool sibling_line_of_sight_3d_including_lava_check_ignoring_door(const struct 
         break;
 
     case 3:
-        posmvx.x.val = prevpos->x.val + 256;
+        posmvx.x.val = prevpos->x.val + COORD_PER_STL;
         posmvx.y.val = prevpos->y.val;
         posmvx.z.val = prevpos->z.val;
         posmvy.x.val = prevpos->x.val;
-        posmvy.y.val = prevpos->y.val + 256;
+        posmvy.y.val = prevpos->y.val + COORD_PER_STL;
         posmvy.z.val = prevpos->z.val;
         if (get_point_in_map_solid_flags_ignoring_door(&posmvx, doortng) & 0x01) {
             return false;
@@ -332,22 +340,22 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(const 
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
     if (dx >= 0) {
-        increase_x = 256;
+        increase_x = COORD_PER_STL;
     } else {
         dx = -dx;
-        increase_x = -256;
+        increase_x = -COORD_PER_STL;
     }
     if (dy >= 0) {
-        increase_y = 256;
+        increase_y = COORD_PER_STL;
     } else {
         dy = -dy;
-        increase_y = -256;
+        increase_y = -COORD_PER_STL;
     }
     if (dz >= 0) {
-        increase_z = 256;
+        increase_z = COORD_PER_STL;
     } else {
         dz = -dz;
-        increase_z = -256;
+        increase_z = -COORD_PER_STL;
     }
     { // Compute amount of steps for the loop
         int maxdim1, maxdim2;
@@ -509,22 +517,22 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
     if (dx >= 0) {
-        increase_x = 256;
+        increase_x = COORD_PER_STL;
     } else {
         dx = -dx;
-        increase_x = -256;
+        increase_x = -COORD_PER_STL;
     }
     if (dy >= 0) {
-        increase_y = 256;
+        increase_y = COORD_PER_STL;
     } else {
         dy = -dy;
-        increase_y = -256;
+        increase_y = -COORD_PER_STL;
     }
     if (dz >= 0) {
-        increase_z = 256;
+        increase_z = COORD_PER_STL;
     } else {
         dz = -dz;
-        increase_z = -256;
+        increase_z = -COORD_PER_STL;
     }
     { // Compute amount of steps for the loop
         int maxdim1, maxdim2;
@@ -676,22 +684,22 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     MapCoord increase_x, increase_y, increase_z;
     MapSubtlCoord distance;
     if (dx >= 0) {
-        increase_x = 256;
+        increase_x = COORD_PER_STL;
     } else {
         dx = -dx;
-        increase_x = -256;
+        increase_x = -COORD_PER_STL;
     }
     if (dy >= 0) {
-        increase_y = 256;
+        increase_y = COORD_PER_STL;
     } else {
         dy = -dy;
-        increase_y = -256;
+        increase_y = -COORD_PER_STL;
     }
     if (dz >= 0) {
-        increase_z = 256;
+        increase_z = COORD_PER_STL;
     } else {
         dz = -dz;
-        increase_z = -256;
+        increase_z = -COORD_PER_STL;
     }
     { // Compute amount of steps for the loop
         int maxdim1, maxdim2;
@@ -729,9 +737,13 @@ TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos
     while (distance > 0)
     {
         if (point_in_map_is_solid(&nextpos)) {
+            SYNCDBG(7, "Player cannot see through (%d,%d) due to linear path solid flags (downcount %d)",
+                (int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
             return false;
         }
         if (!sibling_line_of_sight(&prevpos, &nextpos)) {
+            SYNCDBG(7, "Player cannot see through (%d,%d) due to 3D line of sight (downcount %d)",
+                (int)nextpos.x.stl.num,(int)nextpos.y.stl.num,(int)distance);
             return false;
         }
         // Go to next sibling subtile
