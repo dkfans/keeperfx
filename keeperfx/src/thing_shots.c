@@ -98,16 +98,30 @@ TbBool shot_is_boulder(const struct Thing *thing)
 TbBool detonate_shot(struct Thing *shotng)
 {
     struct PlayerInfo *myplyr;
-    struct Thing *shootrtng;
+    struct Thing *castng;
     struct ShotConfigStats *shotst;
     shotst = get_shot_model_stats(shotng->model);
     SYNCDBG(18,"Starting for model %d",(int)shotng->model);
-    shootrtng = INVALID_THING;
+    castng = INVALID_THING;
     myplyr = get_my_player();
-    if (shotng->index != shotng->parent_idx)
-        shootrtng = thing_get(shotng->parent_idx);
-    if (shotst->old->area_range != 0) {
-        explosion_affecting_area(shootrtng, &shotng->mappos, shotst->old->area_range, shotst->old->area_damage, shotst->area_blow, shotng->shot.hit_type);
+    // Identify the creator if the shot
+    if (shotng->index != shotng->parent_idx) {
+        castng = thing_get(shotng->parent_idx);
+        TRACE_THING(castng);
+    }
+    // If the shot has area_range, then make area damage
+    if (shotst->area_range != 0) {
+        struct CreatureStats *crstat;
+        crstat = creature_stats_get_from_thing(castng);
+        //TODO SPELLS Spell level should be taken from within the shot, not from caster creature
+        // Caster may have leveled up, or even may be already dead
+        // But currently shot do not store its level, so we don't really have a choice
+        struct CreatureControl *cctrl;
+        cctrl = creature_control_get_from_thing(castng);
+        long range, damage;
+        range = compute_creature_attack_range(shotst->area_range, crstat->luck, cctrl->explevel);
+        damage = compute_creature_attack_damage(shotst->area_damage, crstat->luck, cctrl->explevel);
+        explosion_affecting_area(castng, &castng->mappos, range, damage, shotst->area_blow, shotst->area_hit_type, shotst->damage_type);
     }
     switch (shotng->model)
     {
@@ -286,7 +300,6 @@ struct Thing *create_shot_hit_effect(struct Coord3d *effpos, long effowner, long
 TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
 {
     struct ShotConfigStats *shotst;
-    struct Thing *shooter;
     struct Thing *efftng;
     struct Thing *doortng;
     unsigned long blocked_flags;
@@ -296,12 +309,8 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     //return _DK_shot_hit_wall_at(thing, pos);
 
     efftng = INVALID_THING;
-    shooter = INVALID_THING;
     shot_explodes = 0;
     shotst = get_shot_model_stats(shotng->model);
-    if (shotng->index != shotng->parent_idx) {
-        shooter = thing_get(shotng->parent_idx);
-    }
     blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if ( shotst->old->field_49 ) {
         process_dig_shot_hit_wall(shotng, blocked_flags);
@@ -364,15 +373,11 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
         }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->byte_16 = shotst->old->area_hit_type;
+        efftng->byte_16 = shotst->area_hit_type;
     }
     if ( shot_explodes )
     {
-        if (shotst->old->area_range != 0) {
-            explosion_affecting_area(shooter, pos, shotst->old->area_range, shotst->old->area_damage, shotst->area_blow, shotst->old->area_hit_type);
-        }
-        delete_thing_structure(shotng, 0);
-        return true;
+        return detonate_shot(shotng);
     }
     if (shotst->old->field_D <= 0)
     {
@@ -396,7 +401,6 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
 long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
 {
     struct Thing *efftng;
-    struct Thing *shooter;
     struct ShotConfigStats *shotst;
     struct Thing *doortng;
     long blocked_flags;
@@ -404,15 +408,8 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     TbBool shot_explodes;
     SYNCDBG(18,"Starting for %s index %d",thing_model_name(shotng),(int)shotng->index);
     //return _DK_shot_hit_door_at(thing, pos);
-    shooter = INVALID_THING;
     shot_explodes = false;
     shotst = get_shot_model_stats(shotng->model);
-    // Identify the creator if the shot
-    if (shotng->index != shotng->parent_idx)
-    {
-        shooter = thing_get(shotng->parent_idx);
-        TRACE_THING(shooter);
-    }
     efftng = INVALID_THING;
     blocked_flags = get_thing_blocked_flags_at(shotng, pos);
     if (blocked_flags != 0)
@@ -445,15 +442,11 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
       }
     }
     if (!thing_is_invalid(efftng)) {
-        efftng->byte_16 = shotst->old->area_hit_type;
+        efftng->byte_16 = shotst->area_hit_type;
     }
     if ( shot_explodes )
     {
-        if (shotst->old->area_range != 0) {
-            explosion_affecting_area(shooter, pos, shotst->old->area_range, shotst->old->area_damage, shotst->area_blow, shotst->old->area_hit_type);
-        }
-        delete_thing_structure(shotng, 0);
-        return true;
+        return detonate_shot(shotng);
     }
     if (shotst->old->field_D <= 0)
     {
@@ -833,7 +826,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             apply_shot_experience_from_hitting_creature(shooter, trgtng, shotng->model);
         }
     }
-    if (shotst->old->field_48 != 0)
+    if (shotst->old->is_melee != 0)
     {
         return melee_shot_hit_creature_at(shotng, trgtng, pos);
     }
@@ -1116,7 +1109,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     }
     if ((shotng->movement_flags & TMvF_Unknown10) != 0)
     {
-      if ( (shotst->old->field_48) && thing_in_wall_at(shotng, &pos) ) {
+      if ( (shotst->old->is_melee) && thing_in_wall_at(shotng, &pos) ) {
           if ( shot_hit_door_at(shotng, &pos) ) {
               return TUFRet_Deleted;
           }
@@ -1321,7 +1314,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->field_5A = shotst->old->field_9;
     thing->field_5C = shotst->old->field_B;
     thing->word_13 = shotst->old->damage;
-    thing->health = shotst->old->health;
+    thing->health = shotst->health;
     if (shotst->old->field_50)
     {
         LbMemorySet(&ilght, 0, sizeof(struct InitLight));

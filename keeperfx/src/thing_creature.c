@@ -169,7 +169,7 @@ DLLIMPORT long _DK_update_creature(struct Thing *creatng);
 DLLIMPORT void _DK_process_thing_spell_effects(struct Thing *creatng);
 DLLIMPORT void _DK_apply_damage_to_thing_and_display_health(struct Thing *creatng, long a1, char reason);
 DLLIMPORT long _DK_creature_is_ambulating(struct Thing *creatng);
-DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *creatng, struct Thing *sectng, long blocked_flags, long a4);
+DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *creatng, struct Thing *sectng, long blocked_flags, long shot_lvl);
 DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *creatng, struct Coord3d *pos, long blocked_flags);
 DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
 DLLIMPORT void _DK_draw_swipe(void);
@@ -1207,7 +1207,7 @@ short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *gold
     return true;
 }
 
-void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long spl_idx, long a4)
+void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long spl_idx, long shot_lvl)
 {
     const struct SpellInfo *spinfo;
     unsigned char hit_type;
@@ -1233,20 +1233,18 @@ void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, lo
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(caster),(int)caster->owner,(int)spl_idx);
         return;
     }
-    creature_fire_shot(caster, target, spinfo->shot_model, a4, hit_type);
+    creature_fire_shot(caster, target, spinfo->shot_model, shot_lvl, hit_type);
 }
 
 void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long trg_x, long trg_y)
 {
     const struct SpellInfo *spinfo;
     struct CreatureControl *cctrl;
-    struct CreatureStats *crstat;
     struct Thing *efthing;
-    long i,k;
+    long i;
     //_DK_creature_cast_spell(caster, spl_idx, shot_lvl, trg_x, trg_y);
     spinfo = get_magic_info(spl_idx);
     cctrl = creature_control_get_from_thing(castng);
-    crstat = creature_stats_get_from_thing(castng);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature tried to cast spell %d",(int)spl_idx);
@@ -1258,7 +1256,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         cctrl->teleport_y = trg_y;
     }
     // Check if the spell can be fired as a shot
-    if (spinfo->shot_model)
+    if (spinfo->shot_model > 0)
     {
         if ((castng->alloc_flags & TAlF_IsControlled) != 0)
           i = 1;
@@ -1283,15 +1281,6 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
           if (spinfo->cast_effect_model == 14)
             efthing->byte_16 = 3;
         }
-    }
-    // If the spell has area_range, then make area damage
-    if (spinfo->area_range > 0)
-    {
-        // This damage is computed directly, not selected from array, so it
-        // don't have to be limited as others... but let's limit it anyway
-        k = compute_creature_attack_range(spinfo->area_range, crstat->luck, cctrl->explevel);
-        i = compute_creature_attack_damage(spinfo->area_damage, crstat->luck, cctrl->explevel);
-        explosion_affecting_area(castng, &castng->mappos, k, i, spinfo->area_blow, spinfo->area_hit_type);
     }
 }
 
@@ -2417,7 +2406,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     cctrl = creature_control_get_from_thing(thing);
     crstat = creature_stats_get_from_thing(thing);
     long damage;
-    if ( shotst->old->field_48 )
+    if ( shotst->old->is_melee )
     {
         // Project melee damage
         damage = project_creature_attack_damage(crstat->strength, crstat->luck, cctrl->explevel);
@@ -2468,7 +2457,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       pos2.y.val = target->mappos.y.val;
       pos2.z.val = target->mappos.z.val;
       pos2.z.val += (target->field_58 >> 1);
-      if (( shotst->old->field_48 ) && (target->class_id != TCls_Door))
+      if (( shotst->old->is_melee ) && (target->class_id != TCls_Door))
       {
         flag1 = true;
         pos1.z.val = pos2.z.val;
@@ -2477,7 +2466,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       angle_yz = get_angle_yz_to(&pos1, &pos2);
     }
     // Compute shot damage
-    if ( shotst->old->field_48 )
+    if ( shotst->old->is_melee )
     {
       damage = calculate_melee_damage(firing);
     } else
@@ -2507,7 +2496,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
           draw_lightning(&pos1, &pos2, 96, 93);
         else
           draw_lightning(&pos1, &pos2, 96, 60);
-        shotng->health = shotst->old->health;
+        shotng->health = shotst->health;
         shotng->shot.damage = shotst->old->damage;
         shotng->parent_idx = firing->index;
         break;
@@ -2518,7 +2507,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         if (thing_is_invalid(shotng))
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
-        shotng->health = shotst->old->health;
+        shotng->health = shotst->health;
         shotng->shot.damage = shotst->old->damage;
         shotng->parent_idx = firing->index;
         break;
@@ -2538,7 +2527,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             shotng->acceleration.z.val += cvect.z;
             shotng->field_1 |= 0x04;
             shotng->shot.damage = damage;
-            shotng->health = shotst->old->health;
+            shotng->health = shotst->health;
             shotng->parent_idx = firing->index;
         }
         break;
@@ -2554,7 +2543,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->acceleration.z.val += cvect.z;
         shotng->field_1 |= 0x04;
         shotng->shot.damage = damage;
-        shotng->health = shotst->old->health;
+        shotng->health = shotst->health;
         shotng->parent_idx = firing->index;
         shotng->shot.target_idx = target_idx;
         shotng->shot.dexterity = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);

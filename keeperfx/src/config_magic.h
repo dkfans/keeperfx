@@ -187,7 +187,17 @@ struct SpellConfigStats {
 struct ShotConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned long model_flags;
-    long area_blow;
+    /** Health of a shot decreases by 1 on every turn, so it works also as lifespan. */
+    HitPoints health;
+    /** Range of area damage, if the spell causes area damage. */
+    MapCoordDelta area_range;
+    /** Amount of area damage points inflicted, if the spell causes area damage. */
+    HitPoints area_damage;
+    /** Hit type used for area damage, controls which things are affected. */
+    ThingHitType area_hit_type;
+    /** Strength of the blow which pushes creatures on explosion. */
+    MapCoordDelta area_blow;
+    /** Type of the damage inflicted by this shot. */
     DamageType damage_type;
     struct ShotStats *old;
 };
@@ -229,7 +239,7 @@ struct ShotStats // sizeof = 101
   unsigned char field_11;
   unsigned char field_12;
   unsigned char field_13;
-  short health;
+  short health_UNUSED;
   short damage;
   unsigned char destroy_on_first_hit;
   short speed;
@@ -258,13 +268,13 @@ struct ShotStats // sizeof = 101
   short field_3C;
   short field_3E;
   unsigned char field_40;
-  short area_range;
-  short area_damage;
+  short area_range_UNUSED;
+  short area_damage_UNUSED;
   short field_45;
   unsigned char field_47;
-  unsigned char field_48;
+  unsigned char is_melee;
   unsigned char field_49;
-  unsigned char area_hit_type;
+  unsigned char area_hit_type_UNUSED;
   unsigned char field_4B;
   unsigned char deals_magic_damage;
   unsigned char cannot_make_target_unconscious;
@@ -301,14 +311,6 @@ struct SpellInfo {
   unsigned short field_4;
   /** If caster is affected by the spell, indicates sound sample to be played. */
   unsigned short caster_affect_sound;
-  /** Range of area damage, if the spell causes area damage. */
-  unsigned long area_range;
-  /** Amount of area damage points inflicted, if the spell causes area damage. */
-  long area_damage;
-  /** Hit type used for area damage, controls which things are affected. */
-  unsigned char area_hit_type;
-  /** Strength of the blow which pushes creatures on explosion. */
-  long area_blow;
 };
 
 struct SpellData {

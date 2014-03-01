@@ -52,8 +52,6 @@ const struct NamedCommand magic_spell_commands[] = {
   {"CASTATTHING",     4},
   {"SHOTMODEL",       5},
   {"EFFECTMODEL",     6},
-  {"HITTYPE",         7},
-  {"AREADAMAGE",      8},
   {NULL,              0},
   };
 
@@ -375,9 +373,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           splconf = &game.spells_config[i];
           splconf->duration = 0;
           magicinf = get_magic_info(i);
-          magicinf->area_hit_type = 0;
-          magicinf->area_range = 0;
-          magicinf->area_damage = 0;
           magicinf->caster_affected = 0;
           magicinf->caster_affect_sound = 0;
       }
@@ -503,45 +498,6 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               break;
           }
           break;
-      case 7: // HITTYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              magicinf->area_hit_type = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect hit type \"%s\" in [%s] block of %s file.",
-                  word_buf,block_buf,config_textname);
-              break;
-          }
-          break;
-      case 8: // AREADAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              magicinf->area_range = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              magicinf->area_damage = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              magicinf->area_blow = k;
-              n++;
-          }
-          if (n < 3)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -590,9 +546,9 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shot_desc[i].name = NULL;
             shot_desc[i].num = 0;
           }
-          shotst->old->area_hit_type = 2;
-          shotst->old->area_range = 0;
-          shotst->old->area_damage = 0;
+          shotst->area_hit_type = 2;
+          shotst->area_range = 0;
+          shotst->area_damage = 0;
           shotst->area_blow = 0;
       }
   }
@@ -641,7 +597,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            shotst->old->health = k;
+            shotst->health = k;
             n++;
           }
           if (n < 1)
@@ -683,7 +639,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->old->area_hit_type = k;
+              shotst->area_hit_type = k;
               n++;
           }
           if (n < 1)
@@ -696,13 +652,13 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->old->area_range = k;
+              shotst->area_range = k;
               n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->old->area_damage = k;
+              shotst->area_damage = k;
               n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)

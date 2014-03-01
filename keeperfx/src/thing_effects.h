@@ -121,8 +121,6 @@ enum ThingEffectKind {
 struct InitEffect;
 struct Thing;
 
-typedef unsigned char ThingHitType;
-
 struct EffectGeneratorStats { // sizeof = 57
     long genation_delay_min;
     long genation_delay_max;
@@ -225,8 +223,8 @@ struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_id
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 
 TbBool explosion_can_affect_thing(const struct Thing *thing, long hit_type, PlayerNumber shot_owner);
-long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos,
-    MapSubtlCoord range, HitPoints max_damage, long blow_strength, ThingHitType hit_type);
+long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapSubtlCoord range,
+    HitPoints max_damage, long blow_strength, ThingHitType hit_type, DamageType damage_type);
 
 /******************************************************************************/
 #ifdef __cplusplus
