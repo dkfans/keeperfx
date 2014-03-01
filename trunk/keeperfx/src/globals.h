@@ -223,6 +223,8 @@ typedef long FilterParam;
 typedef char ItemAvailability;
 /** Type which stores types of damage as DmgT_* values. */
 typedef unsigned char DamageType;
+/** Type which stores hit filters for things as THit_* values. */
+typedef unsigned char ThingHitType;
 
 struct Coord2d {
     union {
