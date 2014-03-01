@@ -608,6 +608,12 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
     }
 }
 
+/**
+ * Applies given amount of damage to a creature.
+ * @param thing The thing which is going to be modified.
+ * @param dmg Amount of damage.
+ * @see apply_damage_to_thing() should be called instead of this function.
+ */
 static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
     struct PlayerInfo *player;
@@ -635,7 +641,6 @@ static void apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
           cdamage = 1;
         // Apply damage to the thing
         thing->health -= cdamage;
-        thing->creature.health_bar_turns = 8;
         thing->field_4F |= 0x80;
         // Red palette if the possessed creature is hit very strong
         if (thing->owner != game.neutral_player_num)

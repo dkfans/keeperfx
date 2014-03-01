@@ -121,7 +121,7 @@ struct Creatures creatures_NEW[] = {
 extern struct TbLoadFiles swipe_load_file[];
 extern struct TbSetupSprite swipe_setup_sprites[];
 /******************************************************************************/
-DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long breed_idx, long job_idx, long targtng_idx);
+DLLIMPORT struct Thing *_DK_find_my_next_creature_of_breed_and_job(long crmodel, long job_idx, long targtng_idx);
 DLLIMPORT void _DK_anger_set_creature_anger_all_types(struct Thing *creatng, long reason);
 DLLIMPORT void _DK_change_creature_owner(struct Thing *creatng , char nowner);
 DLLIMPORT void _DK_cause_creature_death(struct Thing *creatng, unsigned char reason);
@@ -173,6 +173,7 @@ DLLIMPORT long _DK_collide_filter_thing_is_of_type(struct Thing *creatng, struct
 DLLIMPORT void _DK_check_for_door_collision_at(struct Thing *creatng, struct Coord3d *pos, long blocked_flags);
 DLLIMPORT void _DK_update_tunneller_trail(struct Thing *creatng);
 DLLIMPORT void _DK_draw_swipe(void);
+DLLIMPORT void _DK_go_to_next_creature_of_breed_and_job(long crmodel, long job_idx);
 /******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
@@ -3623,16 +3624,15 @@ struct Thing *find_creature_dragging_thing(const struct Thing *dragtng)
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
+struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
-    struct Thing *thing;
     dungeon = get_players_num_dungeon(plyr_idx);
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
-    param.model_id = breed_idx;
+    param.model_id = crmodel;
     param.num1 = job_idx;
     if (pick_check)
     {
@@ -3641,32 +3641,43 @@ struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long bree
     {
         filter = player_list_creature_filter_most_experienced_and_pickable2;
     }
-    if ((breed_idx == get_players_special_digger_model(plyr_idx)) || (breed_idx == -1))
+    TbBool is_spec_digger;
+    is_spec_digger = false;
+    if (crmodel > 0) {
+        //TODO DIGGERS For now, only player-specific special diggers are on the diggers list
+        is_spec_digger = (crmodel == get_players_special_digger_model(plyr_idx));
+        //struct CreatureModelConfig *crconf;
+        //crconf = &crtr_conf.model[crmodel];
+        //is_spec_digger = ((crconf->model_flags & MF_IsSpectator) != 0);
+    }
+    struct Thing *thing;
+    thing = INVALID_THING;
+    if ((is_spec_digger) || (crmodel == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
-    } else
+    }
+    if (((!is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
     }
-    return thing;
+return thing;
 }
 
 /**
  * Returns lowest level creature of given kind which is owned by given player.
- * @param breed_idx The creature kind index, or -1 if all special diggers are to be accepted.
+ * @param breed_idx The creature kind index, or -1 if all are to be accepted.
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
+struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
-    struct Thing *thing;
     dungeon = get_players_num_dungeon(plyr_idx);
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
-    param.model_id = breed_idx;
+    param.model_id = crmodel;
     param.num1 = job_idx;
     if (pick_check)
     {
@@ -3675,12 +3686,24 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long breed
     {
         filter = player_list_creature_filter_least_experienced_and_pickable2;
     }
-    if ((breed_idx == get_players_special_digger_model(plyr_idx)) || (breed_idx == -1))
-    {
-        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
-    } else
+    TbBool is_spec_digger;
+    is_spec_digger = false;
+    if (crmodel > 0) {
+        //TODO DIGGERS For now, only player-specific special diggers are on the diggers list
+        is_spec_digger = (crmodel == get_players_special_digger_model(plyr_idx));
+        //struct CreatureModelConfig *crconf;
+        //crconf = &crtr_conf.model[crmodel];
+        //is_spec_digger = ((crconf->model_flags & MF_IsSpectator) != 0);
+    }
+    struct Thing *thing;
+    thing = INVALID_THING;
+    if ((!is_spec_digger) || (crmodel == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    }
+    if (((is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    {
+        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return thing;
 }
@@ -3692,17 +3715,16 @@ struct Thing *find_players_lowest_level_creature_of_breed_and_gui_job(long breed
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_first_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
+struct Thing *find_players_first_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, TbBool pick_check)
 {
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     struct Dungeon *dungeon;
-    struct Thing *thing;
-    SYNCDBG(5,"Searching for breed %d, GUI job %d",(int)breed_idx,(int)job_idx);
+    SYNCDBG(5,"Searching for model %d, GUI job %d",(int)crmodel,(int)job_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
     param.plyr_idx = plyr_idx;
     param.class_id = TCls_Creature;
-    param.model_id = breed_idx;
+    param.model_id = crmodel;
     param.num1 = job_idx;
     if (pick_check)
     {
@@ -3711,12 +3733,24 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long breed_idx, l
     {
         filter = player_list_creature_filter_of_gui_job_and_pickable2;
     }
-    if ((breed_idx == get_players_special_digger_model(plyr_idx)) || (breed_idx == -1))
-    {
-        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
-    } else
+    TbBool is_spec_digger;
+    is_spec_digger = false;
+    if (crmodel > 0) {
+        //TODO DIGGERS For now, only player-specific special diggers are on the diggers list
+        is_spec_digger = (crmodel == get_players_special_digger_model(plyr_idx));
+        //struct CreatureModelConfig *crconf;
+        //crconf = &crtr_conf.model[crmodel];
+        //is_spec_digger = ((crconf->model_flags & MF_IsSpectator) != 0);
+    }
+    struct Thing *thing;
+    thing = INVALID_THING;
+    if ((!is_spec_digger) || (crmodel == -1))
     {
         thing = get_player_list_creature_with_filter(dungeon->creatr_list_start, filter, &param);
+    }
+    if (((is_spec_digger) || (crmodel == -1)) && thing_is_invalid(thing))
+    {
+        thing = get_player_list_creature_with_filter(dungeon->digger_list_start, filter, &param);
     }
     return thing;
 }
@@ -3730,7 +3764,7 @@ struct Thing *find_players_first_creature_of_breed_and_gui_job(long breed_idx, l
  * @param pick_check Changes the check function which determines whether the creature is pickable.
  * @return
  */
-struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
+struct Thing *find_players_next_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_flags)
 {
     struct CreatureControl *cctrl;
     struct Dungeon *dungeon;
@@ -3738,21 +3772,21 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
     Thing_Maximizer_Filter filter;
     struct CompoundTngFilterParam param;
     long i;
-    SYNCDBG(5,"Searching for breed %d, GUI job %d",(int)breed_idx,(int)job_idx);
-    //return _DK_find_my_next_creature_of_breed_and_job(breed_idx, job_idx, (pick_flags & TPF_PickableCheck) != 0);
+    SYNCDBG(5,"Searching for model %d, GUI job %d",(int)crmodel,(int)job_idx);
+    //return _DK_find_my_next_creature_of_breed_and_job(crmodel, job_idx, (pick_flags & TPF_PickableCheck) != 0);
     thing = INVALID_THING;
     dungeon = get_players_num_dungeon(plyr_idx);
     /* Check if we should start the search with a creature after last one, not from start of the list */
     if ((pick_flags & TPF_OrderedPick) == 0)
     {
-        if (breed_idx != -1)
+        if (crmodel != -1)
         {
-            i = dungeon->selected_creatures_of_model[breed_idx];
+            i = dungeon->selected_creatures_of_model[crmodel];
             thing = thing_get(i);
             // If the index is invalid, don't try to use it
-            if (!thing_exists(thing) || !thing_is_creature(thing) || (thing->model != breed_idx) || (thing->owner != plyr_idx))
+            if (!thing_exists(thing) || !thing_is_creature(thing) || (thing->model != crmodel) || (thing->owner != plyr_idx))
             {
-                dungeon->selected_creatures_of_model[breed_idx] = 0;
+                dungeon->selected_creatures_of_model[crmodel] = 0;
                 thing = INVALID_THING;
             }
         } else
@@ -3786,10 +3820,10 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
     {
         if ((pick_flags & TPF_ReverseOrder) != 0)
         {
-            thing = find_players_lowest_level_creature_of_breed_and_gui_job(breed_idx, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
+            thing = find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
         } else
         {
-            thing = find_players_highest_level_creature_of_breed_and_gui_job(breed_idx, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
+            thing = find_players_highest_level_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
         }
     } else
     /* If filtering is unordered, use the index of previous creature */
@@ -3797,7 +3831,7 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
     {
         param.plyr_idx = plyr_idx;
         param.class_id = TCls_Creature;
-        param.model_id = breed_idx;
+        param.model_id = crmodel;
         param.num1 = job_idx;
         if ((pick_flags & TPF_PickableCheck) != 0)
         {
@@ -3808,24 +3842,31 @@ struct Thing *find_players_next_creature_of_breed_and_gui_job(long breed_idx, lo
         }
         thing = get_player_list_creature_with_filter(thing->index, filter, &param);
     }
-    /* If nothing found yet, use an algorithm which returns a first match */
+    // If nothing found yet, use an algorithm which returns a first match
     if (thing_is_invalid(thing))
     {
-        thing = find_players_first_creature_of_breed_and_gui_job(breed_idx, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
+        thing = find_players_first_creature_of_breed_and_gui_job(crmodel, job_idx, plyr_idx, (pick_flags & TPF_PickableCheck) != 0);
     }
-    /* If no matches were found, then there are simply no matching creatures */
+    // If no matches were found, then there are simply no matching creatures
     if (thing_is_invalid(thing))
     {
         return INVALID_THING;
     }
-    /* Some basic debugging */
-    if ((breed_idx != -1) && (thing->model != breed_idx))
+    // Remember the creature we've found
+    if (crmodel != -1)
     {
-        ERRORLOG("Searched for breed %d, but found %d.",(int)breed_idx,(int)thing->model);
+        if (thing->model != crmodel) {
+            ERRORLOG("Searched for model %d, but found %d.",(int)crmodel,(int)thing->model);
+        }
+        dungeon->selected_creatures_of_model[thing->model] = thing->index;
     }
-    /* Remember the creature we've found */
-    dungeon->selected_creatures_of_model[thing->model] = thing->index;
-    dungeon->selected_creatures_of_gui_job[get_creature_gui_job(thing)] = thing->index;
+    if (job_idx != -1)
+    {
+        if (get_creature_gui_job(thing) != job_idx) {
+            ERRORLOG("Searched for GUI job %d, but found %d.",(int)job_idx,(int)get_creature_gui_job(thing));
+        }
+        dungeon->selected_creatures_of_gui_job[get_creature_gui_job(thing)] = thing->index;
+    }
     return thing;
 }
 
@@ -3847,10 +3888,19 @@ struct Thing *pick_up_creature_of_breed_and_gui_job(long crmodel, long job_idx, 
             set_players_packet_action(get_player(plyr_idx), PckA_PickUpThing, thing->index, 0, 0, 0);
         }
     } else
+    if ((crmodel == -1))
+    {
+        set_players_packet_action(get_player(plyr_idx), PckA_PickUpThing, thing->index, 0, 0, 0);
+    } else
     {
         ERRORLOG("Creature model %d out of range.",(int)crmodel);
     }
     return thing;
+}
+
+void go_to_next_creature_of_breed_and_gui_job(long crmodel, long job_idx)
+{
+    _DK_go_to_next_creature_of_breed_and_job(crmodel, job_idx); return;
 }
 
 TbBool creature_is_doing_job_in_room_of_kind(const struct Thing *creatng, RoomKind rkind)

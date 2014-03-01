@@ -1497,7 +1497,7 @@ void get_creature_control_nonaction_inputs(void)
 static void speech_pickup_of_gui_job(int job_idx)
 {
     int kind;
-    unsigned char pick_flags;
+    unsigned short pick_flags;
 
     SYNCDBG(7, "Picking up creature of breed %s for job of type %d",
         last_speech_event.u.creature.model_name, job_idx);

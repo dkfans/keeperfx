@@ -661,7 +661,7 @@ void pick_up_next_creature(struct GuiButton *gbtn)
 {
     int kind;
     int i;
-    unsigned pick_flags;
+    unsigned short pick_flags;
 
     //_DK_pick_up_next_creature(gbtn);
 
@@ -1017,32 +1017,56 @@ void maintain_room_and_creature_button(struct GuiButton *gbtn)
 
 void pick_up_next_wanderer(struct GuiButton *gbtn)
 {
-  _DK_pick_up_next_wanderer(gbtn);
+    unsigned short pick_flags;
+    //_DK_pick_up_next_wanderer(gbtn);
+    pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
+        pick_flags |= TPF_OrderedPick;
+    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
+        pick_flags |= TPF_ReverseOrder;
+    pick_up_creature_of_breed_and_gui_job(-1, 0, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_wanderer(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_wanderer(gbtn);
+    //_DK_gui_go_to_next_wanderer(gbtn);
+    go_to_next_creature_of_breed_and_gui_job(-1, 0);
 }
 
 void pick_up_next_worker(struct GuiButton *gbtn)
 {
-  _DK_pick_up_next_worker(gbtn);
+    unsigned short pick_flags;
+    //_DK_pick_up_next_worker(gbtn);
+    pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
+        pick_flags |= TPF_OrderedPick;
+    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
+        pick_flags |= TPF_ReverseOrder;
+    pick_up_creature_of_breed_and_gui_job(-1, 1, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_worker(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_worker(gbtn);
+    //_DK_gui_go_to_next_worker(gbtn);
+    go_to_next_creature_of_breed_and_gui_job(-1, 1);
 }
 
 void pick_up_next_fighter(struct GuiButton *gbtn)
 {
-  _DK_pick_up_next_fighter(gbtn);
+    unsigned short pick_flags;
+    //_DK_pick_up_next_fighter(gbtn);
+    pick_flags = TPF_PickableCheck;
+    if (lbKeyOn[KC_LCONTROL] || lbKeyOn[KC_RCONTROL])
+        pick_flags |= TPF_OrderedPick;
+    if (lbKeyOn[KC_LSHIFT] || lbKeyOn[KC_RSHIFT])
+        pick_flags |= TPF_ReverseOrder;
+    pick_up_creature_of_breed_and_gui_job(-1, 2, my_player_number, pick_flags);
 }
 
 void gui_go_to_next_fighter(struct GuiButton *gbtn)
 {
-  _DK_gui_go_to_next_fighter(gbtn);
+    //_DK_gui_go_to_next_fighter(gbtn);
+    go_to_next_creature_of_breed_and_gui_job(-1, 2);
 }
 
 void gui_area_payday_button(struct GuiButton *gbtn)
