@@ -254,9 +254,9 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
     return NULL;
 }
 
-void move_thing_in_map(struct Thing *thing, const struct Coord3d *pos)
+void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const char *func_name)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18,"%s: Starting for %s index %d",func_name,thing_model_name(thing),(int)thing->index);
     TRACE_THING(thing);
     if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))
     {
@@ -380,7 +380,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     struct Coord3d nextpos;
     AriadneReturn follow_result;
     long i;
-    SYNCDBG(18,"Starting to move thing %d into (%d,%d)",(int)thing->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
+    SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(thing),(int)thing->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
+    TRACE_THING(thing);
     //return _DK_creature_move_to_using_gates(thing, pos, speed, a4, a5, backward);
     if ( backward )
     {
@@ -441,9 +442,10 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     return 0;
 }
 
-long creature_move_to(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, unsigned char a4, TbBool backward)
+long creature_move_to(struct Thing *creatng, struct Coord3d *pos, MoveSpeed speed, unsigned char a4, TbBool backward)
 {
-    return creature_move_to_using_gates(thing, pos, speed, -2, a4, backward);
+    SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
+    return creature_move_to_using_gates(creatng, pos, speed, -2, a4, backward);
 }
 
 TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos, long walk_speed)
@@ -463,7 +465,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
         if (destination_valid)
          {
              // Use teleport only over large enough distances
-             if (get_2d_box_distance(&thing->mappos, pos) > (game.min_distance_for_teleport << 8))
+             if (get_2d_box_distance(&thing->mappos, pos) > COORD_PER_STL*game.min_distance_for_teleport)
              {
                  set_creature_instance(thing, CrInst_TELEPORT, 1, 0, pos);
                  return true;
@@ -473,7 +475,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
     return false;
 }
 
-short move_to_position(struct Thing *thing)
+short move_to_position(struct Thing *creatng)
 {
     CreatureStateCheck callback;
     struct CreatureControl *cctrl;
@@ -481,24 +483,26 @@ short move_to_position(struct Thing *thing)
     long move_result;
     CrCheckRet state_check;
     long speed;
-    SYNCDBG(18,"Starting for thing %d",(int)thing->index);
     //return _DK_move_to_position(thing);
-    cctrl = creature_control_get_from_thing(thing);
-    speed = get_creature_speed(thing);
+    TRACE_THING(creatng);
+    cctrl = creature_control_get_from_thing(creatng);
+    speed = get_creature_speed(creatng);
+    SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
     // Try teleporting the creature
-    if (creature_move_to_using_teleport(thing, &cctrl->moveto_pos, speed)) {
+    if (creature_move_to_using_teleport(creatng, &cctrl->moveto_pos, speed)) {
+        SYNCDBG(8,"Teleporting %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
         return 1;
     }
-    move_result = creature_move_to_using_gates(thing, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 0);
+    move_result = creature_move_to_using_gates(creatng, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 0);
     state_check = CrCkRet_Available;
-    stati = get_thing_continue_state_info(thing);
+    stati = get_thing_continue_state_info(creatng);
     if (!state_info_invalid(stati))
     {
         callback = stati->move_check;
         if (callback != NULL)
         {
-            SYNCDBG(18,"Doing move check callback for continue state %s",creature_state_code_name(thing->continue_state));
-            state_check = callback(thing);
+            SYNCDBG(18,"Doing move check callback for continue state %s",creature_state_code_name(creatng->continue_state));
+            state_check = callback(creatng);
         }
     }
     if (state_check == CrCkRet_Available)
@@ -506,16 +510,16 @@ short move_to_position(struct Thing *thing)
         // If moving was successful
         if (move_result == 1) {
             // Back to "main state"
-            internal_set_thing_state(thing, thing->continue_state);
+            internal_set_thing_state(creatng, creatng->continue_state);
             return CrStRet_Modified;
         }
         // If moving failed, do a reset
         if (move_result == -1) {
             CrtrStateId cntstat;
-            cntstat = thing->continue_state;
-            internal_set_thing_state(thing, cntstat);
-            set_start_state(thing);
-            SYNCDBG(8,"Couldn't move %s to place required for state %s; reset to state %s",thing_model_name(thing),creature_state_code_name(cntstat),creatrtng_actstate_name(thing));
+            cntstat = creatng->continue_state;
+            internal_set_thing_state(creatng, cntstat);
+            set_start_state(creatng);
+            SYNCDBG(8,"Couldn't move %s to place required for state %s; reset to state %s",thing_model_name(creatng),creature_state_code_name(cntstat),creatrtng_actstate_name(creatng));
             return CrStRet_ResetOk;
         }
     }

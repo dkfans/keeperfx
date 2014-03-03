@@ -649,7 +649,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         PowerKind pwkind;
         pwkind = 0;
         if (player->work_state < PLAYER_STATES_COUNT)
-            pwkind = player_state_to_spell[player->work_state];
+            pwkind = player_state_to_power_kind[player->work_state];
         thing = thing_get(battle_creature_over);
         TRACE_THING(thing);
         if (can_cast_power_on_thing(player->id_number, thing, pwkind))

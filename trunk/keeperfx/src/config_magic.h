@@ -291,7 +291,7 @@ struct ShotStats // sizeof = 101
 struct MagicStats {  // sizeof=0x4C
   long cost[MAGIC_OVERCHARGE_LEVELS];
   long time;
-  long power[MAGIC_OVERCHARGE_LEVELS];
+  long strength[MAGIC_OVERCHARGE_LEVELS];
 };
 
 /**
