@@ -2671,14 +2671,14 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     struct MagicStats *magstat;
     Expand_Check_Func chkfunc;
     TbBool allow_cast;
-    long pwmodel;
+    long pwkind;
     long i;
     //_DK_draw_spell_cursor(wrkstate, tng_idx, stl_x, stl_y); return;
-    pwmodel = -1;
+    pwkind = -1;
     if (wrkstate < PLAYER_STATES_COUNT)
-      pwmodel = player_state_to_spell[wrkstate];
-    SYNCDBG(5,"Starting for spell %d",(int)pwmodel);
-    if (pwmodel <= 0)
+      pwkind = player_state_to_power_kind[wrkstate];
+    SYNCDBG(5,"Starting for spell %d",(int)pwkind);
+    if (pwkind <= 0)
     {
         set_pointer_graphic(0);
         return;
@@ -2686,8 +2686,8 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
     player = get_my_player();
     thing = thing_get(tng_idx);
     allow_cast = false;
-    pwrdata = get_power_data(pwmodel);
-    allow_cast = can_cast_spell(player->id_number, pwmodel, stl_x, stl_y, thing, CastChk_SkipThing);
+    pwrdata = get_power_data(pwkind);
+    allow_cast = can_cast_spell(player->id_number, pwkind, stl_x, stl_y, thing, CastChk_SkipThing);
     if (!allow_cast)
     {
         set_pointer_graphic(15);
@@ -2700,7 +2700,7 @@ void draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, unsigned 
         {
             i = get_power_overcharge_level(player);
             set_pointer_graphic(16+i);
-            magstat = &game.magic_stats[pwmodel];
+            magstat = &game.keeper_power_stats[pwkind];
             draw_spell_cost = magstat->cost[i];
             return;
         }

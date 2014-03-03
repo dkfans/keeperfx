@@ -775,7 +775,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
         }
         continue;
     }
-    magstat = &game.magic_stats[i];
+    magstat = &game.keeper_power_stats[i];
     powerst = get_power_model_stats(i);
     pwrdata = get_power_data(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_power_commands,cmd_num)
@@ -812,7 +812,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 break;
               }
-              magstat->power[n] = k;
+              magstat->strength[n] = k;
               n++;
           }
           if (n <= SPELL_MAX_LEVEL)
@@ -1120,7 +1120,7 @@ TbBool make_all_powers_cost_free(void)
   long i,n;
   for (i=0; i < magic_conf.power_types_count; i++)
   {
-    magstat = &game.magic_stats[i];
+    magstat = &game.keeper_power_stats[i];
     for (n=0; n <= SPELL_MAX_LEVEL; n++)
       magstat->cost[n] = 0;
   }

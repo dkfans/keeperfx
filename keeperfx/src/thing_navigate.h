@@ -64,7 +64,8 @@ unsigned char get_nearest_valid_position_for_creature_at(struct Thing *thing, st
 
 long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, long a4, long a5, TbBool backward);
 long creature_move_to(struct Thing *thing, struct Coord3d *pos, MoveSpeed speed, unsigned char a4, TbBool backward);
-void move_thing_in_map(struct Thing *thing, const struct Coord3d *pos);
+void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const char *func_name);
+#define move_thing_in_map(thing, pos) move_thing_in_map_f(thing, pos, __func__)
 short move_to_position(struct Thing *thing);
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos);
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos);
