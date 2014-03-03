@@ -737,14 +737,14 @@ short game_is_busy_doing_gui(void)
       return true;
     struct PlayerInfo *player;
     player = get_my_player();
-    PowerKind spl_id;
-    spl_id = 0;
+    PowerKind pwkind;
+    pwkind = 0;
     if (player->work_state < PLAYER_STATES_COUNT)
-      spl_id = player_state_to_spell[player->work_state];
+      pwkind = player_state_to_power_kind[player->work_state];
     {
         struct Thing *thing;
         thing = thing_get(battle_creature_over);
-        if (can_cast_power_on_thing(player->id_number, thing, spl_id))
+        if (can_cast_power_on_thing(player->id_number, thing, pwkind))
             return true;
     }
     return false;
@@ -1037,7 +1037,7 @@ void choose_special_spell(PowerKind pwkind, TextStringId tooltip_id)
 
     dungeon = get_players_num_dungeon(my_player_number);
     set_chosen_spell(pwkind, tooltip_id);
-    magstat = &game.magic_stats[pwkind];
+    magstat = &game.keeper_power_stats[pwkind];
 
     if (dungeon->total_money_owned >= magstat->cost[0]) {
         pwrdata = get_power_data(pwkind);

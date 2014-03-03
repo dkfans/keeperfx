@@ -131,10 +131,10 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
         return;
     }
     //_DK_gui_get_creature_in_battle(gbtn); return;
-    PowerKind pwmodel;
-    pwmodel = 0;
+    PowerKind pwkind;
+    pwkind = 0;
     if (myplyr->work_state < PLAYER_STATES_COUNT)
-        pwmodel = player_state_to_spell[myplyr->work_state];
+        pwkind = player_state_to_power_kind[myplyr->work_state];
     struct Thing *thing;
     thing = thing_get(battle_creature_over);
     if (!thing_exists(thing)) {
@@ -144,12 +144,12 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     }
     TRACE_THING(thing);
     // If a spell is selected, try to cast it
-    if (pwmodel > 0)
+    if (pwkind > 0)
     {
-        if (can_cast_spell(my_player_number, pwmodel, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
+        if (can_cast_spell(my_player_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
             struct Packet *pckt;
             pckt = get_packet(my_player_number);
-            set_packet_action(pckt, PckA_PwrUseOnThing, pwmodel, battle_creature_over, 0, 0);
+            set_packet_action(pckt, PckA_PwrUseOnThing, pwkind, battle_creature_over, 0, 0);
         }
     } else
     {

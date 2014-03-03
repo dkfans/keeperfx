@@ -592,7 +592,7 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
             }
             else
             {
-              ERRORLOG("Illegal special case!!!");
+              ERRORLOG("Illegal special case!");
             }
         } else
         {

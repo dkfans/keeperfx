@@ -3169,18 +3169,19 @@ void remove_thing_from_creature_controlled_limbo(struct Thing *thing)
 short move_backwards_to_position(struct Thing *creatng)
 {
     struct CreatureControl *cctrl;
-    long i,speed;
+    long move_result,speed;
     //return _DK_move_backwards_to_position(thing);
     cctrl = creature_control_get_from_thing(creatng);
     speed = get_creature_speed(creatng);
-    i = creature_move_to_using_gates(creatng, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 1);
-    if (i == 1)
+    SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)cctrl->moveto_pos.x.stl.num,(int)cctrl->moveto_pos.y.stl.num);
+    move_result = creature_move_to_using_gates(creatng, &cctrl->moveto_pos, speed, -2, cctrl->field_88, 1);
+    if (move_result == 1)
     {
         internal_set_thing_state(creatng, creatng->continue_state);
         creatng->continue_state = CrSt_Unused;
         return 1;
     }
-    if (i == -1)
+    if (move_result == -1)
     {
         ERRORLOG("Bad place (%d,%d) to move %s backwards to.",
             (int)cctrl->moveto_pos.x.val,(int)cctrl->moveto_pos.y.val,thing_model_name(creatng));

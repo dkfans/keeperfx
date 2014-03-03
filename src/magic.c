@@ -146,7 +146,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord 
  */
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwmodel)
 {
-    SYNCDBG(18,"Starting for %s",thing_model_name(thing));
+    SYNCDBG(18,"Starting for %s on %s",power_code_name(pwmodel),thing_model_name(thing));
     //return _DK_can_cast_spell_on_creature(plyr_idx, thing, pwmodel);
     // Picked up things are immune to spells
     if (thing_is_picked_up(thing))
@@ -229,26 +229,26 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         if ((pwrdata->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
             if (creature_is_being_unconscious(thing) || creature_is_dying(thing)) {
-                SYNCDBG(8,"Cannot cast on unconscious %s",thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s on unconscious %s",power_code_name(pwmodel),thing_model_name(thing));
                 return false;
             }
         }
         if ((pwrdata->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
             if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
-                SYNCDBG(8,"Cannot cast while armageddon blocks %s",thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s while armageddon blocks %s",power_code_name(pwmodel),thing_model_name(thing));
                 return false;
             }
             if (creature_is_dragging_something(thing)) {
-                SYNCDBG(8,"Cannot cast while %s is dragging something",thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s while %s is dragging something",power_code_name(pwmodel),thing_model_name(thing));
                 return false;
             }
             if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
-                SYNCDBG(8,"Cannot cast on %s while entering/leaving",thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s on %s while entering/leaving",power_code_name(pwmodel),thing_model_name(thing));
                 return false;
             }
             if (creature_affected_by_spell(thing, SplK_Teleport)) {
-                SYNCDBG(8,"Cannot cast on %s while teleporting",thing_model_name(thing));
+                SYNCDBG(8,"Cannot cast %s on %s while teleporting",power_code_name(pwmodel),thing_model_name(thing));
                 return false;
             }
         }
@@ -278,7 +278,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
             }
         }
     }
-    SYNCDBG(8,"Cannot cast, no condition met");
+    SYNCDBG(8,"Cannot cast %s on %s, no condition met",power_code_name(pwmodel),thing_model_name(thing));
     return false;
 }
 
@@ -308,7 +308,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
       i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
       apply_damage_to_thing_and_display_health(thing, i, player->id_number);
     }
-    magstat = &game.magic_stats[PwrK_SLAP];
+    magstat = &game.keeper_power_stats[PwrK_SLAP];
     i = cctrl->slap_turns;
     cctrl->slap_turns = magstat->time;
     if (i == 0)
@@ -456,7 +456,7 @@ long compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
     long price;
     long i;
     unsigned long k;
-    magstat = &game.magic_stats[pwkind];
+    magstat = &game.keeper_power_stats[pwkind];
     switch (pwkind)
     {
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
@@ -507,7 +507,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx)
         return Lb_OK;
     }
     struct MagicStats *magstat;
-    magstat = &game.magic_stats[PwrK_ARMAGEDDON];
+    magstat = &game.keeper_power_stats[PwrK_ARMAGEDDON];
     if (take_money_from_dungeon(plyr_idx, magstat->cost[0], 1) < 0)
     {
         if (is_my_player_number(plyr_idx))
@@ -588,17 +588,17 @@ void turn_off_sight_of_evil(PlayerNumber plyr_idx)
     long i,imax,k,n;
     //_DK_turn_off_sight_of_evil(plyr_idx);
     dungeon = get_players_num_dungeon(plyr_idx);
-    mgstat = &(game.magic_stats[PwrK_SIGHT]);
+    mgstat = &(game.keeper_power_stats[PwrK_SIGHT]);
     spl_lev = dungeon->sight_casted_splevel;
     if (spl_lev > SPELL_MAX_LEVEL)
         spl_lev = SPELL_MAX_LEVEL;
     i = game.play_gameturn - dungeon->sight_casted_gameturn;
-    imax = abs(mgstat->power[spl_lev]/4) >> 2;
+    imax = abs(mgstat->strength[spl_lev]/4) >> 2;
     if (i > imax)
         i = imax;
     if (i < 0)
         i = 0;
-    n = game.play_gameturn - mgstat->power[spl_lev];
+    n = game.play_gameturn - mgstat->strength[spl_lev];
     cit = power_sight_close_instance_time[spl_lev];
     k = imax / cit;
     if (k < 1) k = 1;
@@ -917,10 +917,10 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         shtng->shot.hit_type = 2;
         shtng->field_19 = splevel;
     }
-    magstat = &game.magic_stats[PwrK_LIGHTNING];
+    magstat = &game.keeper_power_stats[PwrK_LIGHTNING];
     shotst = get_shot_model_stats(16);
     dungeon->camera_deviate_jump = 256;
-    i = magstat->power[splevel];
+    i = magstat->strength[splevel];
     max_damage = i * shotst->old->damage;
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
@@ -955,11 +955,11 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     long i;
     //return _DK_magic_use_power_sight(plyr_idx, stl_x, stl_y, splevel);
     dungeon = get_dungeon(plyr_idx);
-    magstat = &game.magic_stats[PwrK_SIGHT];
+    magstat = &game.keeper_power_stats[PwrK_SIGHT];
     if (player_uses_power_sight(plyr_idx))
     {
         cdt = game.play_gameturn - dungeon->sight_casted_gameturn;
-        cdlimit = magstat->power[dungeon->sight_casted_splevel] >> 4;
+        cdlimit = magstat->strength[dungeon->sight_casted_splevel] >> 4;
         if (cdt < 0) {
             cdt = 0;
         } else
@@ -967,7 +967,7 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             cdt = cdlimit;
         }
         cit = power_sight_close_instance_time[dungeon->sight_casted_splevel];
-        cgt = game.play_gameturn - magstat->power[dungeon->sight_casted_splevel];
+        cgt = game.play_gameturn - magstat->strength[dungeon->sight_casted_splevel];
         i = cdlimit / cit;
         if (i > 0) {
             dungeon->sight_casted_gameturn = cgt + cdt/i - cit;
@@ -1425,15 +1425,15 @@ int get_power_overcharge_level(struct PlayerInfo *player)
     return i;
 }
 
-TbBool update_power_overcharge(struct PlayerInfo *player, int spl_idx)
+TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
   struct Dungeon *dungeon;
   struct MagicStats *mgstat;
   int i;
-  if ((spl_idx < 0) || (spl_idx >= POWER_TYPES_COUNT))
+  if ((pwkind < 0) || (pwkind >= POWER_TYPES_COUNT))
       return false;
   dungeon = get_dungeon(player->id_number);
-  mgstat = &(game.magic_stats[spl_idx]);
+  mgstat = &(game.keeper_power_stats[pwkind]);
   i = (player->field_4D2+1) >> 2;
   if (i > SPELL_MAX_LEVEL)
     i = SPELL_MAX_LEVEL;

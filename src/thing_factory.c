@@ -73,7 +73,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
-    magstat = &game.magic_stats[PwrK_CAVEIN];
+    magstat = &game.keeper_power_stats[PwrK_CAVEIN];
     thing->word_15 = magstat->time;
     thing->byte_13 = pos->x.stl.num;
     thing->byte_14 = pos->y.stl.num;

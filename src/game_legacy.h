@@ -197,7 +197,7 @@ short field_14BB65[592];
     struct Packet packets[PACKETS_COUNT];
     struct CreatureStatsOLD creature_stats_OLD[CREATURE_TYPES_COUNT]; // New stats are in GameAdd
     struct RoomStats room_stats[ROOM_TYPES_COUNT];
-    struct MagicStats magic_stats[POWER_TYPES_COUNT];
+    struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
 char field_14E495;
     unsigned char hero_player_num;
