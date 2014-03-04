@@ -2524,7 +2524,7 @@ void update_footsteps_nearest_camera(struct Camera *camera)
             break;
         thing = thing_get(near_creatures[i]);
         if (thing_is_creature(thing)) {
-            thing->field_1 |= 0x20;
+            thing->field_1 |= TF1_Unkn20;
             play_thing_walking(thing);
         }
     }

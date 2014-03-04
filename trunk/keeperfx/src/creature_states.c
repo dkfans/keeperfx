@@ -1689,7 +1689,7 @@ short creature_change_to_chicken(struct Thing *creatng)
     cctrl->spell_flags |= CSAfF_Chicken;
     creatng->field_4F &= ~0x01;
     set_creature_size_stuff(creatng);
-    creatng->field_1 &= ~0x10;
+    creatng->field_1 &= ~TF1_Unkn10;
     creatng->active_state = CrSt_CreaturePretendChickenSetupMove;
     creatng->continue_state = CrSt_Unused;
     cctrl->field_302 = 0;

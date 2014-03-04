@@ -46,6 +46,7 @@ enum ThingFlags1 {
     TF1_PushdByAccel   = 0x04,
     TF1_Unkn08         = 0x08,
     TF1_Unkn10         = 0x10,
+    TF1_Unkn20         = 0x20,
 };
 
 enum FreeThingAllocFlags {
