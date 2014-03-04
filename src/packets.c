@@ -2350,8 +2350,8 @@ void process_players_creature_control_packet_control(long idx)
     else
     if (angle > angle_limit)
         angle = angle_limit;
-    cctng->field_52 = (cctng->field_52 + angle) & 0x7FF;
-    cctng->field_54 = (227 * k / 127) & 0x7FF;
+    cctng->field_52 = (cctng->field_52 + angle) & LbFPMath_AngleMask;
+    cctng->field_54 = (227 * k / 127) & LbFPMath_AngleMask;
     ccctrl->field_CC = 170 * angle / crstat->max_angle_change;
     ccctrl->field_6C = 4 * angle / 8;
 }
