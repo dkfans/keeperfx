@@ -2252,7 +2252,7 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
         if (ACTION_RANDOM(6) == 0)
         {
             figtng->acceleration.z.val += ACTION_RANDOM(80) + 40;
-            figtng->field_1 |= 0x04;
+            figtng->field_1 |= TF1_PushdByAccel;
         }
     }
     return 1;
