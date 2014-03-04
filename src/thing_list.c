@@ -2190,7 +2190,7 @@ TbBool update_thing(struct Thing *thing)
         return false;
     if ((thing->movement_flags & TMvF_Unknown40) == 0)
     {
-        if ((thing->field_1 & 0x04) != 0)
+        if ((thing->field_1 & TF1_PushdByAccel) != 0)
         {
             thing->pos_2C.x.val += thing->acceleration.x.val;
             thing->pos_2C.y.val += thing->acceleration.y.val;
@@ -2198,12 +2198,12 @@ TbBool update_thing(struct Thing *thing)
             thing->acceleration.x.val = 0;
             thing->acceleration.y.val = 0;
             thing->acceleration.z.val = 0;
-            set_flag_byte(&thing->field_1, 0x04, false);
+            thing->field_1 &= ~TF1_PushdByAccel;
         }
         thing->velocity.x.val = thing->pos_2C.x.val;
         thing->velocity.y.val = thing->pos_2C.y.val;
         thing->velocity.z.val = thing->pos_2C.z.val;
-        if ((thing->field_1 & 0x08) != 0)
+        if ((thing->field_1 & TF1_Unkn08) != 0)
         {
           thing->velocity.x.val += thing->pos_26.x.val;
           thing->velocity.y.val += thing->pos_26.y.val;
@@ -2211,7 +2211,7 @@ TbBool update_thing(struct Thing *thing)
           thing->pos_26.x.val = 0;
           thing->pos_26.y.val = 0;
           thing->pos_26.z.val = 0;
-          set_flag_byte(&thing->field_1, 0x08, false);
+          thing->field_1 &= ~TF1_Unkn08;
         }
     }
     if (thing->class_id < sizeof(class_functions)/sizeof(class_functions[0]))
@@ -2235,7 +2235,7 @@ TbBool update_thing(struct Thing *thing)
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
                 thing->acceleration.z.val -= thing->field_20;
-                thing->field_1 |= 0x04;
+                thing->field_1 |= TF1_PushdByAccel;
             }
         } else
         {

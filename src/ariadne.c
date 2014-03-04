@@ -2003,7 +2003,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
  * @param a5
  * @return
  */
-AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long a4, unsigned char a5)
+AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long speed, unsigned char a5)
 {
     SYNCDBG(18,"Starting");
     //return _DK_creature_follow_route_to_using_gates(thing, finalpos, nextpos, a4, a5);
@@ -2013,7 +2013,7 @@ AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct C
         cctrl = creature_control_get_from_thing(thing);
         cctrl->arid.field_23 = 1;
     }
-    return ariadne_get_next_position_for_route(thing, finalpos, a4, nextpos, a5);
+    return ariadne_get_next_position_for_route(thing, finalpos, speed, nextpos, a5);
 }
 
 /**

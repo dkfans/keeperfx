@@ -154,7 +154,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         shotng->acceleration.x.val += cvect.x;
         shotng->acceleration.y.val += cvect.y;
         shotng->acceleration.z.val += cvect.z;
-        shotng->field_1 |= 0x04;
+        shotng->field_1 |= TF1_PushdByAccel;
         shotng->byte_16 = trapstat->field_1B;
         if (shotst->old->firing_sound > 0) {
             thing_play_sample(traptng, shotst->old->firing_sound+UNSYNC_RANDOM(shotst->old->firing_sound_variants), 100, 0, 3, 0, 6, 256);
@@ -199,7 +199,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
         shotng->acceleration.x.val += trapstat->field_30;
         shotng->acceleration.y.val += trapstat->field_32;
         shotng->acceleration.z.val += trapstat->field_34;
-        shotng->field_1 |= 0x04;
+        shotng->field_1 |= TF1_PushdByAccel;
     }
 }
 
@@ -267,7 +267,7 @@ TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *
         // Per thing code start
         if (thing_is_creature(thing) && (thing->owner != traptng->owner))
         {
-            if ((thing->field_1 & 0x01) == 0)
+            if ((thing->field_1 & TF1_IsDragged1) == 0)
             {
                 if (!creature_is_dying(thing) && !creature_is_being_unconscious(thing)
                     && ((get_creature_model_flags(thing) & MF_IsSpectator) == 0))

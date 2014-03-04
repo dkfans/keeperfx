@@ -421,22 +421,22 @@ void SAI_tiles_in_rect(struct SAI_Rect rect, SAI_TileFunc func, void * data)
 
 struct SAI_Point SAI_get_dungeon_heart_position(int plyr)
 {
-    struct Thing * heart;
+    struct Thing * heartng;
     struct Dungeon * dungeon;
     struct SAI_Point pos;
 
     assert(player_exists(get_player(plyr)));
 
     dungeon = get_players_dungeon(get_player(plyr));
-    heart = thing_get(dungeon->dnheart_idx);
-    if (thing_is_invalid(heart)) {
+    heartng = thing_get(dungeon->dnheart_idx);
+    if (thing_is_invalid(heartng)) {
         pos.x = 0;
         pos.y = 0;
         return pos;
     }
 
-    pos.x = heart->mappos.x.stl.num / 3;
-    pos.y = heart->mappos.y.stl.num / 3;
+    pos.x = heartng->mappos.x.stl.num / 3;
+    pos.y = heartng->mappos.y.stl.num / 3;
 
     return pos;
 }

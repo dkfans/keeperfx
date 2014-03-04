@@ -717,7 +717,7 @@ long get_free_spell_slot(struct Thing *creatng)
     {
         cspell = &cctrl->casted_spells[i];
         // If there's unused slot, return it immediately
-        if (cspell->spkind == 0)
+        if (cspell->spkind == SplK_None)
         {
             return i;
         }
@@ -735,7 +735,7 @@ long get_free_spell_slot(struct Thing *creatng)
     for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
     {
         cspell = &cctrl->casted_spells[i];
-        if (cspell->spkind == 0)
+        if (cspell->spkind == SplK_None)
         {
             return i;
         }
@@ -788,7 +788,7 @@ TbBool free_spell_slot(struct Thing *thing, long slot_idx)
     if (creature_control_invalid(cctrl))
         return false;
     cspell = &cctrl->casted_spells[slot_idx];
-    cspell->spkind = 0;
+    cspell->spkind = SplK_None;
     cspell->duration = 0;
     return true;
 }
@@ -962,7 +962,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 ntng->acceleration.x.val += cvect.x;
                 ntng->acceleration.y.val += cvect.y;
                 ntng->acceleration.z.val += cvect.z;
-                ntng->field_1 |= 0x04;
+                ntng->field_1 |= TF1_PushdByAccel;
               }
               n += 2*LbFPMath_PI/3;
           }
@@ -1175,9 +1175,83 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     }
 }
 
+void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpellData *cspell)
+{
+    struct CreatureControl *cctrl;
+    cctrl = creature_control_get_from_thing(thing);
+    struct SpellConfig *splconf;
+    splconf = &game.spells_config[SplK_Teleport];
+    if (cspell->duration == splconf->duration / 2)
+    {
+        struct Coord3d pos;
+        pos.x.val = subtile_coord_center(cctrl->teleport_x);
+        pos.y.val = subtile_coord_center(cctrl->teleport_y);
+        pos.z.val = get_floor_height_at(&pos);
+        if (thing_in_wall_at(thing, &pos))
+        {
+            const struct Coord3d *newpos;
+            newpos = NULL;
+            {
+                const struct Thing *lairtng;
+                lairtng = thing_get(cctrl->lairtng_idx);
+                if (thing_is_object(lairtng)) {
+                    newpos = &lairtng->mappos;
+                }
+            }
+            if (newpos == NULL)
+            {
+                newpos = dungeon_get_essential_pos(thing->owner);
+            }
+            pos.x.val = newpos->x.val;
+            pos.y.val = newpos->y.val;
+            pos.z.val = newpos->z.val;
+        }
+        pos.z.val += 512;
+        move_thing_in_map(thing, &pos);
+        check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
+        if ((thing->movement_flags & 0x20) == 0)
+        {
+            thing->acceleration.x.val += ACTION_RANDOM(193) - 96;
+            thing->acceleration.y.val += ACTION_RANDOM(193) - 96;
+            thing->acceleration.z.val += ACTION_RANDOM(96) + 40;
+            thing->field_1 |= TF1_PushdByAccel;
+        }
+    }
+}
+
 void process_thing_spell_effects(struct Thing *thing)
 {
-    _DK_process_thing_spell_effects(thing);
+    struct CreatureControl *cctrl;
+    //_DK_process_thing_spell_effects(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    int i;
+    for (i=0; i < CREATURE_MAX_SPELLS_CASTED_AT; i++)
+    {
+        struct CastedSpellData * cspell;
+        cspell = &cctrl->casted_spells[i];
+        if (cspell->spkind == SplK_None)
+            continue;
+        switch (cspell->spkind)
+        {
+        case SplK_Teleport:
+            process_thing_spell_teleport_effects(thing, cspell);
+            break;
+        default:
+            break;
+        }
+        cspell->duration--;
+        if (cspell->duration <= 0) {
+            terminate_thing_spell_effect(thing, cspell->spkind);
+        }
+    }
+    // Slap is not in spell array, it is so common that has its own dedicated duration
+    if (cctrl->slap_turns > 0)
+    {
+        cctrl->slap_turns--;
+        if (cctrl->slap_turns <= 0) {
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+        }
+    }
 }
 
 short creature_take_wage_from_gold_pile(struct Thing *creatng,struct Thing *goldtng)
@@ -2526,7 +2600,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             shotng->acceleration.x.val += cvect.x;
             shotng->acceleration.y.val += cvect.y;
             shotng->acceleration.z.val += cvect.z;
-            shotng->field_1 |= 0x04;
+            shotng->field_1 |= TF1_PushdByAccel;
             shotng->shot.damage = damage;
             shotng->health = shotst->health;
             shotng->parent_idx = firing->index;
@@ -2542,7 +2616,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->acceleration.x.val += cvect.x;
         shotng->acceleration.y.val += cvect.y;
         shotng->acceleration.z.val += cvect.z;
-        shotng->field_1 |= 0x04;
+        shotng->field_1 |= TF1_PushdByAccel;
         shotng->shot.damage = damage;
         shotng->health = shotst->health;
         shotng->parent_idx = firing->index;
@@ -4221,7 +4295,7 @@ short update_creature_movements(struct Thing *thing)
         cctrl->moveaccel.y.val = 0;
         cctrl->moveaccel.z.val = 0;
         cctrl->move_speed = 0;
-        set_flag_byte(&cctrl->field_2,0x01,false);
+        cctrl->field_2 &= ~0x01;
     } else
     {
       if ((thing->alloc_flags & TAlF_IsControlled) != 0)

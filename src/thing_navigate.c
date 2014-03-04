@@ -21,6 +21,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_memory.h"
 #include "creature_control.h"
 #include "creature_states.h"
@@ -362,7 +363,29 @@ TbBool creature_can_get_to_dungeon(struct Thing *creatng, PlayerNumber plyr_idx)
 
 long creature_turn_to_face(struct Thing *thing, struct Coord3d *pos)
 {
-    return _DK_creature_turn_to_face(thing, pos);
+    //return _DK_creature_turn_to_face(thing, pos);
+    struct CreatureStats *crstat;
+    crstat = creature_stats_get_from_thing(thing);
+    long angle;
+    angle = LbArcTanAngle(pos->x.val - (MapCoordDelta)thing->mappos.x.val,
+                          pos->y.val - (MapCoordDelta)thing->mappos.y.val) & LbFPMath_AngleMask;
+    long angle_diff, angle_sign, angle_delta;
+    angle_diff = get_angle_difference(thing->field_52, angle);
+    angle_sign = get_angle_sign(thing->field_52, angle);
+    angle_delta = crstat->max_angle_change;
+    if (angle_delta < 0) {
+        angle_delta = 0;
+    } else
+    if (angle_delta > angle_diff) {
+        angle_delta = angle_diff;
+    }
+    if (angle_sign < 0) {
+        angle_delta = -angle_delta;
+    }
+    long i;
+    i = (thing->field_52 + angle_delta);
+    thing->field_52 = i & LbFPMath_AngleMask;
+    return get_angle_difference(thing->field_52, angle);
 }
 
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
@@ -380,7 +403,8 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     struct Coord3d nextpos;
     AriadneReturn follow_result;
     long i;
-    SYNCDBG(18,"Starting to move %s index %d into (%d,%d)",thing_model_name(thing),(int)thing->index,(int)pos->x.stl.num,(int)pos->y.stl.num);
+    SYNCDBG(18,"Starting to move %s index %d from (%d,%d) to (%d,%d)",thing_model_name(thing),
+        (int)thing->index,(int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num);
     TRACE_THING(thing);
     //return _DK_creature_move_to_using_gates(thing, pos, speed, a4, a5, backward);
     if ( backward )
@@ -390,7 +414,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         thing->field_52 = i & LbFPMath_AngleMask;
     }
     follow_result = creature_follow_route_to_using_gates(thing, pos, &nextpos, speed, a5);
-    SYNCDBG(18,"Route result: %d, next pos (%d,%d)",(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
+    SYNCDBG(18,"The %s index %d route result: %d, next pos (%d,%d)",thing_model_name(thing),(int)thing->index,(int)follow_result,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num);
     if ( backward )
     {
         // Rotate the creature back
@@ -410,7 +434,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
     cctrl = creature_control_get_from_thing(thing);
     if ( backward )
     {
-        if ( creature_turn_to_face_backwards(thing, &nextpos) )
+        if (creature_turn_to_face_backwards(thing, &nextpos))
         {
             // Creature is turning - don't let it move
             creature_set_speed(thing, 0);
@@ -418,14 +442,25 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         {
             creature_set_speed(thing, -speed);
             cctrl->field_2 |= 0x01;
-            cctrl->moveaccel.x.val = nextpos.x.val - (MapCoordDelta)thing->mappos.x.val;
-            cctrl->moveaccel.y.val = nextpos.y.val - (MapCoordDelta)thing->mappos.y.val;
-            cctrl->moveaccel.z.val = 0;
+            if (get_2d_box_distance(&thing->mappos, &nextpos) > cctrl->move_speed)
+            {
+                ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
+                    thing_model_name(thing),(int)thing->index,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,
+                    (int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+                cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
+                cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+                cctrl->moveaccel.z.val = 0;
+            } else
+            {
+                cctrl->moveaccel.x.val = nextpos.x.val - (MapCoordDelta)thing->mappos.x.val;
+                cctrl->moveaccel.y.val = nextpos.y.val - (MapCoordDelta)thing->mappos.y.val;
+                cctrl->moveaccel.z.val = 0;
+            }
         }
         SYNCDBG(18,"Backward target set, accel (%d,%d)",(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
     } else
     {
-        if ( creature_turn_to_face(thing, &nextpos) )
+        if (creature_turn_to_face(thing, &nextpos))
         {
             // Creature is turning - don't let it move
             creature_set_speed(thing, 0);
@@ -433,9 +468,20 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         {
             creature_set_speed(thing, speed);
             cctrl->field_2 |= 0x01;
-            cctrl->moveaccel.x.val = nextpos.x.val - (MapCoordDelta)thing->mappos.x.val;
-            cctrl->moveaccel.y.val = nextpos.y.val - (MapCoordDelta)thing->mappos.y.val;
-            cctrl->moveaccel.z.val = 0;
+            if (get_2d_box_distance(&thing->mappos, &nextpos) > cctrl->move_speed)
+            {
+                ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",
+                    thing_model_name(thing),(int)thing->index,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,
+                    (int)thing->mappos.x.stl.num,(int)thing->mappos.y.stl.num);
+                cctrl->moveaccel.x.val = distance_with_angle_to_coord_x(cctrl->move_speed, thing->field_52);
+                cctrl->moveaccel.y.val = distance_with_angle_to_coord_y(cctrl->move_speed, thing->field_52);
+                cctrl->moveaccel.z.val = 0;
+            } else
+            {
+                cctrl->moveaccel.x.val = nextpos.x.val - (MapCoordDelta)thing->mappos.x.val;
+                cctrl->moveaccel.y.val = nextpos.y.val - (MapCoordDelta)thing->mappos.y.val;
+                cctrl->moveaccel.z.val = 0;
+            }
         }
         SYNCDBG(18,"Forward target set, accel (%d,%d)",(int)cctrl->moveaccel.x.val,(int)cctrl->moveaccel.y.val);
     }
@@ -483,7 +529,7 @@ short move_to_position(struct Thing *creatng)
     long move_result;
     CrCheckRet state_check;
     long speed;
-    //return _DK_move_to_position(thing);
+    //return _DK_move_to_position(creatng);
     TRACE_THING(creatng);
     cctrl = creature_control_get_from_thing(creatng);
     speed = get_creature_speed(creatng);
