@@ -1545,6 +1545,17 @@ AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thi
     return AridRet_OK;
 }
 
+AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing)
+{
+    struct CreatureControl *cctrl;
+    struct Ariadne *arid;
+    TRACE_THING(thing);
+    cctrl = creature_control_get_from_thing(thing);
+    arid = &cctrl->arid;
+    LbMemorySet(arid, 0, sizeof(struct Ariadne));
+    return AridRet_OK;
+}
+
 AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, unsigned char storage, const char *func_name)
 {
     struct CreatureControl *cctrl;
@@ -1555,7 +1566,7 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
     TRACE_THING(thing);
     //return _DK_ariadne_initialise_creature_route(thing, pos, speed, storage);
     cctrl = creature_control_get_from_thing(thing);
-    arid = &(cctrl->arid);
+    arid = &cctrl->arid;
     LbMemorySet(arid, 0, sizeof(struct Ariadne));
     if (ariadne_creature_reached_position(thing, pos))
     {
@@ -1601,7 +1612,7 @@ AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ari
     // We've reached the last waypoint
     if (arid->stored_waypoints >= arid->total_waypoints)
     {
-        return AridRet_Val1;
+        return AridRet_FinalOK;
     }
     pos.x.val = arid->endpos.x.val;
     pos.y.val = arid->endpos.y.val;
@@ -1944,7 +1955,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
     if (ariadne_creature_reached_waypoint(thing,arid))
     {
         aret = ariadne_creature_get_next_waypoint(thing,arid);
-        if (aret == AridRet_Val1)
+        if (aret == AridRet_FinalOK)
         {
             arid->endpos.x.val = 0;
             arid->endpos.y.val = 0;
@@ -1952,7 +1963,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
             nextpos->x.val = thing->mappos.x.val;
             nextpos->y.val = thing->mappos.y.val;
             nextpos->z.val = thing->mappos.z.val;
-            return AridRet_Val1;
+            return AridRet_FinalOK;
         } else
         if (aret == AridRet_OK)
         {
