@@ -2941,25 +2941,67 @@ void script_process_new_tunneller_party(PlayerNumber plyr_idx, long prty_id, TbM
     add_creature_to_group_as_leader(ldthing, gpthing);
 }
 
-void script_process_new_creatures(PlayerNumber plyr_idx, long crtr_breed, long location, long copies_num, long carried_gold, long crtr_level)
+void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level)
 {
     long i;
     for (i=0; i < copies_num; i++) {
-        script_create_new_creature(plyr_idx, crtr_breed, location, carried_gold, crtr_level);
+        script_create_new_creature(plyr_idx, crmodel, location, carried_gold, crtr_level);
     }
 }
 
-TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crtr_breed, long criteria)
+/**
+ * Kills a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @return True if a creature was found and killed.
+ */
+TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
 {
-    //TODO SCRIPT finish killing code!
-    return false;
+    struct Thing *thing;
+    switch (criteria)
+    {
+    case CSelCrit_Any:
+        thing = get_random_players_creature_of_model(plyr_idx, crmodel);
+        break;
+    case CSelCrit_MostExperienced:
+        //TODO SCRIPT finish killing code by adding creature choosing function.
+        thing = INVALID_THING;
+        break;
+    case CSelCrit_LeastExperienced:
+        //TODO SCRIPT finish killing code by adding creature choosing function.
+        thing = INVALID_THING;
+        break;
+    case CSelCrit_NearOwnHeart:
+        //TODO SCRIPT finish killing code by adding creature choosing function.
+        thing = INVALID_THING;
+        break;
+    case CSelCrit_NearEnemyHeart:
+        //TODO SCRIPT finish killing code by adding creature choosing function.
+        thing = INVALID_THING;
+        break;
+    case CSelCrit_OnEnemyGround:
+        //TODO SCRIPT finish killing code by adding creature choosing function.
+        thing = INVALID_THING;
+        break;
+    default:
+        ERRORLOG("Invalid kill criteria %d",(int)criteria);
+        thing = INVALID_THING;
+        break;
+    }
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)plyr_idx,(int)crmodel);
+        return false;
+    }
+    kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
+    return true;
 }
 
-void script_kill_creatures(PlayerNumber plyr_idx, long crtr_breed, long criteria, long copies_num)
+void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, long copies_num)
 {
     long i;
     for (i=0; i < copies_num; i++) {
-        script_kill_creature_with_criteria(plyr_idx, crtr_breed, criteria);
+        script_kill_creature_with_criteria(plyr_idx, crmodel, criteria);
     }
 }
 
